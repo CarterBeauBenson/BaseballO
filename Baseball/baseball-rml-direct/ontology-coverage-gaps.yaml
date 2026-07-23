@@ -1,0 +1,64 @@
+ontology_coverage_gaps:
+- id: baseball-information-content-entity-undeclared
+  status: ontology issue
+  source_need: BaseballTimestampICE and BaseballFieldCoordinateICE are asserted as
+    subclasses of BaseballInformationContentEntity.
+  gap: BaseballInformationContentEntity is referenced but not declared in the supplied
+    BaseballO file.
+  mapping_action: Use the declared subclasses directly; do not invent the missing
+    superclass declaration in instance data.
+- id: field-relative-coordinate-values
+  status: missing ontology coverage
+  source_paths:
+  - playEvents[*].hitData.coordinates.coordX
+  - playEvents[*].hitData.coordinates.coordY
+  gap: No approved datatype properties represent the source field-relative X and Y
+    values.
+  mapping_action: Defer coordX/coordY. Do not misuse has latitude value or has longitude
+    value.
+- id: pitch-and-batted-ball-measurements
+  status: missing ontology coverage
+  source_paths:
+  - playEvents[*].pitchData
+  - playEvents[*].hitData
+  gap: The ontology does not yet provide the approved measurement ICE classes and
+    value properties needed for velocity, spin, launch angle, distance, and related
+    values.
+  mapping_action: Create source-supported pitch and batted-ball processes, but defer
+    metric triples.
+- id: action-event-identity-and-coverage
+  status: source and ontology gap
+  source_path: playEvents[?(@.isPitch == false)]
+  gap: Non-pitch actions often lack playId and include advisory/status records without
+    an approved baseball process class.
+  mapping_action: Do not mint action individuals until identity and class coverage
+    are approved.
+- id: runner-record-stable-identifier
+  status: source identity limitation
+  source_path: allPlays[*].runners[*]
+  gap: A runner record has no source ID, no array index value, and no repeated atBatIndex
+    in its own object.
+  mapping_action: The direct mapping uses a documented composite of source fields.
+    Validate collisions on every feed; replace only if MLB exposes a stable ID or
+    the chosen RML processor exposes ancestor/index access without source mutation.
+- id: fielding-credit-act-identity
+  status: source identity limitation
+  source_path: allPlays[*].runners[*].credits[*]
+  gap: A fielding credit has no stable ID and does not repeat the enclosing plate-appearance
+    or runner identity.
+  mapping_action: Map the career FielderRole trigger only. Defer individual fielding
+    acts.
+- id: career-role-tbox-alignment
+  status: modeling alignment issue
+  gap: The project policy treats BatterRole, PitcherRole, BaserunnerRole, and FielderRole
+    as career-duration roles, while some supplied BaseballO definitions/comments describe
+    plate-appearance or transient contextual roles.
+  mapping_action: The RML follows the canonical project policy and reuses one role
+    IRI per player and role type. Reconcile the TBox wording separately.
+- id: completed-game-terminal-time
+  status: edge case
+  source_path: liveData.plays.allPlays[-1:].about.endTime
+  gap: The final play end time is a valid terminal feed time, but a walk-off game
+    may end without a final out.
+  mapping_action: Use the final play end time for the game temporal interval and avoid
+    asserting that it necessarily marks a final out.

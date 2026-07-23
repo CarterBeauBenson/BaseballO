@@ -1,0 +1,1848 @@
+json_path,observed_types,occurrences,null_occurrences,sample_values
+$,object,1,0,[]
+$.copyright,string,1,0,"[""Copyright 2026 MLB Advanced Media, L.P.  Use of any content on this page acknowledges agreement to the terms posted here http://gdx.mlb.com/components/copyright.txt""]"
+$.gameData,object,1,0,[]
+$.gameData.alerts,array,1,0,[]
+$.gameData.datetime,object,1,0,[]
+$.gameData.datetime.ampm,string,1,0,"[""PM""]"
+$.gameData.datetime.dateTime,string,1,0,"[""2019-04-02T02:10:00Z""]"
+$.gameData.datetime.dayNight,string,1,0,"[""night""]"
+$.gameData.datetime.officialDate,string,1,0,"[""2019-04-01""]"
+$.gameData.datetime.originalDate,string,1,0,"[""2019-04-01""]"
+$.gameData.datetime.time,string,1,0,"[""7:10""]"
+$.gameData.flags,object,1,0,[]
+$.gameData.flags.awayTeamNoHitter,boolean,1,0,[false]
+$.gameData.flags.awayTeamPerfectGame,boolean,1,0,[false]
+$.gameData.flags.homeTeamNoHitter,boolean,1,0,[false]
+$.gameData.flags.homeTeamPerfectGame,boolean,1,0,[false]
+$.gameData.flags.noHitter,boolean,1,0,[false]
+$.gameData.flags.perfectGame,boolean,1,0,[false]
+$.gameData.game,object,1,0,[]
+$.gameData.game.calendarEventID,string,1,0,"[""14-566279-2019-04-01""]"
+$.gameData.game.doubleHeader,string,1,0,"[""N""]"
+$.gameData.game.gameNumber,integer,1,0,[1]
+$.gameData.game.gamedayType,string,1,0,"[""P""]"
+$.gameData.game.id,string,1,0,"[""2019/04/01/arimlb-sdnmlb-1""]"
+$.gameData.game.pk,integer,1,0,[566279]
+$.gameData.game.season,string,1,0,"[""2019""]"
+$.gameData.game.seasonDisplay,string,1,0,"[""2019""]"
+$.gameData.game.tiebreaker,string,1,0,"[""N""]"
+$.gameData.game.type,string,1,0,"[""R""]"
+$.gameData.gameInfo,object,1,0,[]
+$.gameData.gameInfo.attendance,integer,1,0,[18683]
+$.gameData.gameInfo.firstPitch,string,1,0,"[""2019-04-02T02:11:00.000Z""]"
+$.gameData.gameInfo.gameDurationMinutes,integer,1,0,[184]
+$.gameData.moundVisits,object,1,0,[]
+$.gameData.moundVisits.away,object,1,0,[]
+$.gameData.moundVisits.away.remaining,integer,1,0,[5]
+$.gameData.moundVisits.away.used,integer,1,0,[0]
+$.gameData.moundVisits.home,object,1,0,[]
+$.gameData.moundVisits.home.remaining,integer,1,0,[5]
+$.gameData.moundVisits.home.used,integer,1,0,[0]
+$.gameData.officialScorer,object,1,0,[]
+$.gameData.officialScorer.fullName,string,1,0,"[""Jack Murray""]"
+$.gameData.officialScorer.id,integer,1,0,[542750]
+$.gameData.officialScorer.link,string,1,0,"[""/api/v1/people/542750""]"
+$.gameData.officialVenue,object,1,0,[]
+$.gameData.officialVenue.id,integer,1,0,[2680]
+$.gameData.officialVenue.link,string,1,0,"[""/api/v1/venues/2680""]"
+$.gameData.players,object,1,0,[]
+$.gameData.players.*,object,50,0,[]
+$.gameData.players.*.active,boolean,50,0,"[false, true]"
+$.gameData.players.*.batSide,object,50,0,[]
+$.gameData.players.*.batSide.code,string,50,0,"[""R"", ""S"", ""L""]"
+$.gameData.players.*.batSide.description,string,50,0,"[""Right"", ""Switch"", ""Left""]"
+$.gameData.players.*.birthCity,string,50,0,"[""Marion"", ""Bani"", ""Muskogee"", ""San Juan Capistrano"", ""Nueva Gerona""]"
+$.gameData.players.*.birthCountry,string,50,0,"[""USA"", ""Dominican Republic"", ""Cuba"", ""Japan"", ""Venezuela""]"
+$.gameData.players.*.birthDate,string,50,0,"[""1985-11-20"", ""1995-10-27"", ""1992-08-10"", ""1992-08-18"", ""1993-01-02""]"
+$.gameData.players.*.birthStateProvince,string,39,0,"[""NC"", ""OK"", ""CA"", ""MS"", ""MA""]"
+$.gameData.players.*.boxscoreName,string,50,0,"[""Holland, G"", ""Mejía, F"", ""Bradley, A"", ""Hedges"", ""Lopez, Y""]"
+$.gameData.players.*.currentAge,integer,50,0,"[40, 30, 33, 34, 36]"
+$.gameData.players.*.draftYear,integer,39,0,"[2007, 2011, 2013, 2005, 2012]"
+$.gameData.players.*.firstLastName,string,50,0,"[""Greg Holland"", ""Francisco Mejía"", ""Archie Bradley"", ""Austin Hedges"", ""Yoan López""]"
+$.gameData.players.*.firstName,string,50,0,"[""Gregory"", ""Francisco"", ""Archie"", ""Austin"", ""Yoan""]"
+$.gameData.players.*.fullFMLName,string,50,0,"[""Gregory Scott Holland"", ""Francisco Jose Mejía"", ""Archie N. Bradley"", ""Austin Charles Hedges"", ""Yoan López""]"
+$.gameData.players.*.fullLFMName,string,50,0,"[""Holland, Gregory Scott"", ""Mejía, Francisco Jose"", ""Bradley, Archie N."", ""Hedges, Austin Charles"", ""López, Yoan""]"
+$.gameData.players.*.fullName,string,50,0,"[""Greg Holland"", ""Francisco Mejía"", ""Archie Bradley"", ""Austin Hedges"", ""Yoan López""]"
+$.gameData.players.*.gender,string,50,0,"[""M""]"
+$.gameData.players.*.height,string,50,0,"[""5' 10\"""", ""5' 8\"""", ""6' 4\"""", ""6' 0\"""", ""6' 3\""""]"
+$.gameData.players.*.id,integer,50,0,"[518813, 642336, 605151, 595978, 661255]"
+$.gameData.players.*.initLastName,string,50,0,"[""G Holland"", ""F Mejía"", ""A Bradley"", ""A Hedges"", ""Y Lopez""]"
+$.gameData.players.*.isPlayer,boolean,50,0,[true]
+$.gameData.players.*.isVerified,boolean,50,0,"[true, false]"
+$.gameData.players.*.lastFirstName,string,50,0,"[""Holland, Greg"", ""Mejía, Francisco"", ""Bradley, Archie"", ""Hedges, Austin"", ""López, Yoan""]"
+$.gameData.players.*.lastInitName,string,50,0,"[""Holland, G"", ""Mejía, F"", ""Bradley, A"", ""Hedges, A"", ""López, Y""]"
+$.gameData.players.*.lastName,string,50,0,"[""Holland"", ""Mejía"", ""Bradley"", ""Hedges"", ""López""]"
+$.gameData.players.*.lastPlayedDate,string,27,0,"[""2022-04-16"", ""2023-06-30"", ""2025-05-20"", ""2025-05-01"", ""2022-10-05""]"
+$.gameData.players.*.link,string,50,0,"[""/api/v1/people/518813"", ""/api/v1/people/642336"", ""/api/v1/people/605151"", ""/api/v1/people/595978"", ""/api/v1/people/661255""]"
+$.gameData.players.*.middleName,string,46,0,"[""Scott"", ""Jose"", ""N."", ""Charles"", ""Hunter""]"
+$.gameData.players.*.mlbDebutDate,string,50,0,"[""2010-08-02"", ""2017-09-01"", ""2015-04-11"", ""2015-05-04"", ""2018-09-09""]"
+$.gameData.players.*.nameFirstLast,string,50,0,"[""Greg Holland"", ""Francisco Mejía"", ""Archie Bradley"", ""Austin Hedges"", ""Yoan López""]"
+$.gameData.players.*.nameMatrilineal,string,7,0,"[""Leyva"", ""Gomez"", ""Valdez"", ""Guerrero"", ""Garcia""]"
+$.gameData.players.*.nameSlug,string,50,0,"[""greg-holland-518813"", ""francisco-mejia-642336"", ""archie-bradley-605151"", ""austin-hedges-595978"", ""yoan-lopez-661255""]"
+$.gameData.players.*.nameSuffix,string,2,0,"[""III"", ""Jr.""]"
+$.gameData.players.*.nameTitle,string,2,0,"[""III"", ""Jr.""]"
+$.gameData.players.*.nickName,string,45,0,"[""Holly"", ""Franky"", ""Crash Landing"", ""Hedgey"", ""El Asere""]"
+$.gameData.players.*.pitchHand,object,50,0,[]
+$.gameData.players.*.pitchHand.code,string,50,0,"[""R"", ""L""]"
+$.gameData.players.*.pitchHand.description,string,50,0,"[""Right"", ""Left""]"
+$.gameData.players.*.primaryNumber,string,39,0,"[""27"", ""25"", ""44"", ""11"", ""34""]"
+$.gameData.players.*.primaryPosition,object,50,0,[]
+$.gameData.players.*.primaryPosition.abbreviation,string,50,0,"[""P"", ""C"", ""RF"", ""SS"", ""2B""]"
+$.gameData.players.*.primaryPosition.code,string,50,0,"[""1"", ""2"", ""9"", ""6"", ""4""]"
+$.gameData.players.*.primaryPosition.name,string,50,0,"[""Pitcher"", ""Catcher"", ""Outfielder"", ""Shortstop"", ""Second Base""]"
+$.gameData.players.*.primaryPosition.type,string,50,0,"[""Pitcher"", ""Catcher"", ""Outfielder"", ""Infielder""]"
+$.gameData.players.*.pronunciation,string,27,0,"[""meh-HE-uh"", ""BRAD-lee"", ""yo-AHN"", ""REN-fro"", ""AH-med""]"
+$.gameData.players.*.strikeZoneBottom,number,50,0,"[1.575, 1.52, 1.71, 1.618, 1.688]"
+$.gameData.players.*.strikeZoneTop,number,50,0,"[3.121, 3.27, 3.388, 3.207, 3.344]"
+$.gameData.players.*.useLastName,string,50,0,"[""Holland"", ""Mejía"", ""Bradley"", ""Hedges"", ""López""]"
+$.gameData.players.*.useName,string,50,0,"[""Greg"", ""Francisco"", ""Archie"", ""Austin"", ""Yoan""]"
+$.gameData.players.*.weight,integer,50,0,"[210, 188, 215, 220, 208]"
+$.gameData.primaryDatacaster,object,1,0,[]
+$.gameData.primaryDatacaster.fullName,string,1,0,"[""Jim Marshall""]"
+$.gameData.primaryDatacaster.id,integer,1,0,[431181]
+$.gameData.primaryDatacaster.link,string,1,0,"[""/api/v1/people/431181""]"
+$.gameData.probablePitchers,object,1,0,[]
+$.gameData.probablePitchers.away,object,1,0,[]
+$.gameData.probablePitchers.away.fullName,string,1,0,"[""Merrill Kelly""]"
+$.gameData.probablePitchers.away.id,integer,1,0,[518876]
+$.gameData.probablePitchers.away.link,string,1,0,"[""/api/v1/people/518876""]"
+$.gameData.probablePitchers.home,object,1,0,[]
+$.gameData.probablePitchers.home.fullName,string,1,0,"[""Matt Strahm""]"
+$.gameData.probablePitchers.home.id,integer,1,0,[621381]
+$.gameData.probablePitchers.home.link,string,1,0,"[""/api/v1/people/621381""]"
+$.gameData.review,object,1,0,[]
+$.gameData.review.away,object,1,0,[]
+$.gameData.review.away.remaining,integer,1,0,[1]
+$.gameData.review.away.used,integer,1,0,[0]
+$.gameData.review.hasChallenges,boolean,1,0,[false]
+$.gameData.review.home,object,1,0,[]
+$.gameData.review.home.remaining,integer,1,0,[1]
+$.gameData.review.home.used,integer,1,0,[0]
+$.gameData.status,object,1,0,[]
+$.gameData.status.abstractGameCode,string,1,0,"[""F""]"
+$.gameData.status.abstractGameState,string,1,0,"[""Final""]"
+$.gameData.status.codedGameState,string,1,0,"[""F""]"
+$.gameData.status.detailedState,string,1,0,"[""Final""]"
+$.gameData.status.startTimeTBD,boolean,1,0,[false]
+$.gameData.status.statusCode,string,1,0,"[""F""]"
+$.gameData.teams,object,1,0,[]
+$.gameData.teams.away,object,1,0,[]
+$.gameData.teams.away.abbreviation,string,1,0,"[""AZ""]"
+$.gameData.teams.away.active,boolean,1,0,[true]
+$.gameData.teams.away.allStarStatus,string,1,0,"[""N""]"
+$.gameData.teams.away.clubName,string,1,0,"[""Diamondbacks""]"
+$.gameData.teams.away.division,object,1,0,[]
+$.gameData.teams.away.division.id,integer,1,0,[203]
+$.gameData.teams.away.division.link,string,1,0,"[""/api/v1/divisions/203""]"
+$.gameData.teams.away.division.name,string,1,0,"[""National League West""]"
+$.gameData.teams.away.fileCode,string,1,0,"[""ari""]"
+$.gameData.teams.away.firstYearOfPlay,string,1,0,"[""1996""]"
+$.gameData.teams.away.franchiseName,string,1,0,"[""Arizona""]"
+$.gameData.teams.away.id,integer,1,0,[109]
+$.gameData.teams.away.league,object,1,0,[]
+$.gameData.teams.away.league.id,integer,1,0,[104]
+$.gameData.teams.away.league.link,string,1,0,"[""/api/v1/league/104""]"
+$.gameData.teams.away.league.name,string,1,0,"[""National League""]"
+$.gameData.teams.away.link,string,1,0,"[""/api/v1/teams/109""]"
+$.gameData.teams.away.locationName,string,1,0,"[""Phoenix""]"
+$.gameData.teams.away.name,string,1,0,"[""Arizona Diamondbacks""]"
+$.gameData.teams.away.record,object,1,0,[]
+$.gameData.teams.away.record.conferenceGamesBack,string,1,0,"[""-""]"
+$.gameData.teams.away.record.divisionGamesBack,string,1,0,"[""-""]"
+$.gameData.teams.away.record.divisionLeader,boolean,1,0,[false]
+$.gameData.teams.away.record.gamesPlayed,integer,1,0,[5]
+$.gameData.teams.away.record.leagueGamesBack,string,1,0,"[""-""]"
+$.gameData.teams.away.record.leagueRecord,object,1,0,[]
+$.gameData.teams.away.record.leagueRecord.losses,integer,1,0,[3]
+$.gameData.teams.away.record.leagueRecord.pct,string,1,0,"["".400""]"
+$.gameData.teams.away.record.leagueRecord.ties,integer,1,0,[0]
+$.gameData.teams.away.record.leagueRecord.wins,integer,1,0,[2]
+$.gameData.teams.away.record.losses,integer,1,0,[3]
+$.gameData.teams.away.record.records,object,1,0,[]
+$.gameData.teams.away.record.sportGamesBack,string,1,0,"[""-""]"
+$.gameData.teams.away.record.springLeagueGamesBack,string,1,0,"[""-""]"
+$.gameData.teams.away.record.wildCardGamesBack,string,1,0,"[""-""]"
+$.gameData.teams.away.record.winningPercentage,string,1,0,"["".400""]"
+$.gameData.teams.away.record.wins,integer,1,0,[2]
+$.gameData.teams.away.season,integer,1,0,[2019]
+$.gameData.teams.away.shortName,string,1,0,"[""Arizona""]"
+$.gameData.teams.away.sport,object,1,0,[]
+$.gameData.teams.away.sport.id,integer,1,0,[1]
+$.gameData.teams.away.sport.link,string,1,0,"[""/api/v1/sports/1""]"
+$.gameData.teams.away.sport.name,string,1,0,"[""Major League Baseball""]"
+$.gameData.teams.away.springLeague,object,1,0,[]
+$.gameData.teams.away.springLeague.abbreviation,string,1,0,"[""CL""]"
+$.gameData.teams.away.springLeague.id,integer,1,0,[114]
+$.gameData.teams.away.springLeague.link,string,1,0,"[""/api/v1/league/114""]"
+$.gameData.teams.away.springLeague.name,string,1,0,"[""Cactus League""]"
+$.gameData.teams.away.springVenue,object,1,0,[]
+$.gameData.teams.away.springVenue.id,integer,1,0,[4249]
+$.gameData.teams.away.springVenue.link,string,1,0,"[""/api/v1/venues/4249""]"
+$.gameData.teams.away.teamCode,string,1,0,"[""ari""]"
+$.gameData.teams.away.teamName,string,1,0,"[""D-backs""]"
+$.gameData.teams.away.venue,object,1,0,[]
+$.gameData.teams.away.venue.id,integer,1,0,[15]
+$.gameData.teams.away.venue.link,string,1,0,"[""/api/v1/venues/15""]"
+$.gameData.teams.away.venue.name,string,1,0,"[""Chase Field""]"
+$.gameData.teams.home,object,1,0,[]
+$.gameData.teams.home.abbreviation,string,1,0,"[""SD""]"
+$.gameData.teams.home.active,boolean,1,0,[true]
+$.gameData.teams.home.allStarStatus,string,1,0,"[""N""]"
+$.gameData.teams.home.clubName,string,1,0,"[""Padres""]"
+$.gameData.teams.home.division,object,1,0,[]
+$.gameData.teams.home.division.id,integer,1,0,[203]
+$.gameData.teams.home.division.link,string,1,0,"[""/api/v1/divisions/203""]"
+$.gameData.teams.home.division.name,string,1,0,"[""National League West""]"
+$.gameData.teams.home.fileCode,string,1,0,"[""sd""]"
+$.gameData.teams.home.firstYearOfPlay,string,1,0,"[""1968""]"
+$.gameData.teams.home.franchiseName,string,1,0,"[""San Diego""]"
+$.gameData.teams.home.id,integer,1,0,[135]
+$.gameData.teams.home.league,object,1,0,[]
+$.gameData.teams.home.league.id,integer,1,0,[104]
+$.gameData.teams.home.league.link,string,1,0,"[""/api/v1/league/104""]"
+$.gameData.teams.home.league.name,string,1,0,"[""National League""]"
+$.gameData.teams.home.link,string,1,0,"[""/api/v1/teams/135""]"
+$.gameData.teams.home.locationName,string,1,0,"[""San Diego""]"
+$.gameData.teams.home.name,string,1,0,"[""San Diego Padres""]"
+$.gameData.teams.home.record,object,1,0,[]
+$.gameData.teams.home.record.conferenceGamesBack,string,1,0,"[""-""]"
+$.gameData.teams.home.record.divisionGamesBack,string,1,0,"[""-""]"
+$.gameData.teams.home.record.divisionLeader,boolean,1,0,[false]
+$.gameData.teams.home.record.gamesPlayed,integer,1,0,[5]
+$.gameData.teams.home.record.leagueGamesBack,string,1,0,"[""-""]"
+$.gameData.teams.home.record.leagueRecord,object,1,0,[]
+$.gameData.teams.home.record.leagueRecord.losses,integer,1,0,[2]
+$.gameData.teams.home.record.leagueRecord.pct,string,1,0,"["".600""]"
+$.gameData.teams.home.record.leagueRecord.ties,integer,1,0,[0]
+$.gameData.teams.home.record.leagueRecord.wins,integer,1,0,[3]
+$.gameData.teams.home.record.losses,integer,1,0,[2]
+$.gameData.teams.home.record.records,object,1,0,[]
+$.gameData.teams.home.record.sportGamesBack,string,1,0,"[""-""]"
+$.gameData.teams.home.record.springLeagueGamesBack,string,1,0,"[""-""]"
+$.gameData.teams.home.record.wildCardGamesBack,string,1,0,"[""-""]"
+$.gameData.teams.home.record.winningPercentage,string,1,0,"["".600""]"
+$.gameData.teams.home.record.wins,integer,1,0,[3]
+$.gameData.teams.home.season,integer,1,0,[2019]
+$.gameData.teams.home.shortName,string,1,0,"[""San Diego""]"
+$.gameData.teams.home.sport,object,1,0,[]
+$.gameData.teams.home.sport.id,integer,1,0,[1]
+$.gameData.teams.home.sport.link,string,1,0,"[""/api/v1/sports/1""]"
+$.gameData.teams.home.sport.name,string,1,0,"[""Major League Baseball""]"
+$.gameData.teams.home.springLeague,object,1,0,[]
+$.gameData.teams.home.springLeague.abbreviation,string,1,0,"[""CL""]"
+$.gameData.teams.home.springLeague.id,integer,1,0,[114]
+$.gameData.teams.home.springLeague.link,string,1,0,"[""/api/v1/league/114""]"
+$.gameData.teams.home.springLeague.name,string,1,0,"[""Cactus League""]"
+$.gameData.teams.home.springVenue,object,1,0,[]
+$.gameData.teams.home.springVenue.id,integer,1,0,[2530]
+$.gameData.teams.home.springVenue.link,string,1,0,"[""/api/v1/venues/2530""]"
+$.gameData.teams.home.teamCode,string,1,0,"[""sdn""]"
+$.gameData.teams.home.teamName,string,1,0,"[""Padres""]"
+$.gameData.teams.home.venue,object,1,0,[]
+$.gameData.teams.home.venue.id,integer,1,0,[2680]
+$.gameData.teams.home.venue.link,string,1,0,"[""/api/v1/venues/2680""]"
+$.gameData.teams.home.venue.name,string,1,0,"[""Petco Park""]"
+$.gameData.venue,object,1,0,[]
+$.gameData.venue.active,boolean,1,0,[true]
+$.gameData.venue.fieldInfo,object,1,0,[]
+$.gameData.venue.fieldInfo.capacity,integer,1,0,[40222]
+$.gameData.venue.fieldInfo.center,integer,1,0,[396]
+$.gameData.venue.fieldInfo.leftCenter,integer,1,0,[386]
+$.gameData.venue.fieldInfo.leftLine,integer,1,0,[336]
+$.gameData.venue.fieldInfo.rightCenter,integer,1,0,[391]
+$.gameData.venue.fieldInfo.rightLine,integer,1,0,[322]
+$.gameData.venue.fieldInfo.roofType,string,1,0,"[""Open""]"
+$.gameData.venue.fieldInfo.turfType,string,1,0,"[""Grass""]"
+$.gameData.venue.id,integer,1,0,[2680]
+$.gameData.venue.link,string,1,0,"[""/api/v1/venues/2680""]"
+$.gameData.venue.location,object,1,0,[]
+$.gameData.venue.location.address1,string,1,0,"[""100 Park Boulevard""]"
+$.gameData.venue.location.azimuthAngle,number,1,0,[0.0]
+$.gameData.venue.location.city,string,1,0,"[""San Diego""]"
+$.gameData.venue.location.country,string,1,0,"[""USA""]"
+$.gameData.venue.location.defaultCoordinates,object,1,0,[]
+$.gameData.venue.location.defaultCoordinates.latitude,number,1,0,[32.707861]
+$.gameData.venue.location.defaultCoordinates.longitude,number,1,0,[-117.157278]
+$.gameData.venue.location.elevation,integer,1,0,[23]
+$.gameData.venue.location.phone,string,1,0,"[""(619) 795-5000""]"
+$.gameData.venue.location.postalCode,string,1,0,"[""92101""]"
+$.gameData.venue.location.state,string,1,0,"[""California""]"
+$.gameData.venue.location.stateAbbrev,string,1,0,"[""CA""]"
+$.gameData.venue.name,string,1,0,"[""Petco Park""]"
+$.gameData.venue.season,string,1,0,"[""2019""]"
+$.gameData.venue.timeZone,object,1,0,[]
+$.gameData.venue.timeZone.id,string,1,0,"[""America/Los_Angeles""]"
+$.gameData.venue.timeZone.offset,integer,1,0,[-7]
+$.gameData.venue.timeZone.offsetAtGameTime,integer,1,0,[-7]
+$.gameData.venue.timeZone.tz,string,1,0,"[""PDT""]"
+$.gameData.weather,object,1,0,[]
+$.gameData.weather.condition,string,1,0,"[""Cloudy""]"
+$.gameData.weather.temp,string,1,0,"[""65""]"
+$.gameData.weather.wind,string,1,0,"[""8 mph, L To R""]"
+$.gamePk,integer,1,0,[566279]
+$.link,string,1,0,"[""/api/v1.1/game/566279/feed/live""]"
+$.liveData,object,1,0,[]
+$.liveData.boxscore,object,1,0,[]
+$.liveData.boxscore.info,array,1,0,[]
+$.liveData.boxscore.info[*],object,13,0,[]
+$.liveData.boxscore.info[*].label,string,13,0,"[""Balk"", ""Pitches-strikes"", ""Groundouts-flyouts"", ""Batters faced"", ""Inherited runners-scored""]"
+$.liveData.boxscore.info[*].value,string,12,0,"[""Strahm."", ""Kelly, Me 88-58; Duplantier 33-22; Strahm 65-41; Erlin 41-28; Maton, P 43-29; Stock 12-9."", ""Kelly, Me 7-4; Duplantier 4-1; Strahm 1-2; Erlin 4-1; Maton, P 4-2; Stock 0-0."", ""Kelly, Me 25; Duplantier 9; Strahm 17; Erlin 12; Maton, P 13; Stock 3."", ""Erlin 1-0.""]"
+$.liveData.boxscore.officials,array,1,0,[]
+$.liveData.boxscore.officials[*],object,4,0,[]
+$.liveData.boxscore.officials[*].official,object,4,0,[]
+$.liveData.boxscore.officials[*].official.fullName,string,4,0,"[""Mike Everitt"", ""Bill Welke"", ""Chris Guccione"", ""Lance Barrett""]"
+$.liveData.boxscore.officials[*].official.id,integer,4,0,"[427156, 427534, 427197, 483561]"
+$.liveData.boxscore.officials[*].official.link,string,4,0,"[""/api/v1/people/427156"", ""/api/v1/people/427534"", ""/api/v1/people/427197"", ""/api/v1/people/483561""]"
+$.liveData.boxscore.officials[*].officialType,string,4,0,"[""Home Plate"", ""First Base"", ""Second Base"", ""Third Base""]"
+$.liveData.boxscore.pitchingNotes,array,1,0,[]
+$.liveData.boxscore.teams,object,1,0,[]
+$.liveData.boxscore.teams.away,object,1,0,[]
+$.liveData.boxscore.teams.away.batters,array,1,0,[]
+$.liveData.boxscore.teams.away.batters[*],integer,11,0,"[430945, 500871, 527038, 444482, 572233]"
+$.liveData.boxscore.teams.away.battingOrder,array,1,0,[]
+$.liveData.boxscore.teams.away.battingOrder[*],integer,9,0,"[430945, 500871, 527038, 444482, 572233]"
+$.liveData.boxscore.teams.away.bench,array,1,0,[]
+$.liveData.boxscore.teams.away.bench[*],integer,3,0,"[502481, 608348, 571974]"
+$.liveData.boxscore.teams.away.bullpen,array,1,0,[]
+$.liveData.boxscore.teams.away.bullpen[*],integer,11,0,"[542882, 605151, 605177, 643327, 425844]"
+$.liveData.boxscore.teams.away.info,array,1,0,[]
+$.liveData.boxscore.teams.away.info[*],object,3,0,[]
+$.liveData.boxscore.teams.away.info[*].fieldList,array,3,0,[]
+$.liveData.boxscore.teams.away.info[*].fieldList[*],object,12,0,[]
+$.liveData.boxscore.teams.away.info[*].fieldList[*].label,string,12,0,"[""2B"", ""HR"", ""TB"", ""RBI"", ""2-out RBI""]"
+$.liveData.boxscore.teams.away.info[*].fieldList[*].value,string,12,0,"[""Flores (2, Strahm); Peralta, D 2 (3, Strahm, Strahm); Walker, C (2, Erlin); Ahmed (3, Erlin)."", ""Jones, A (3, 1st inning off Strahm, 0 on, 0 out)."", ""Ahmed 2; Avila; Escobar, Edu; Flores 2; Jones, A 5; Lamb; Marte, K 3; Peralta, D 5; Walker, C 3."", ""Ahmed 2 (5); Avila 2 (3); Escobar, Edu (1); Jones, A (3); Lamb (1); Marte, K (5); Peralta, D (4)."", ""Avila.""]"
+$.liveData.boxscore.teams.away.info[*].title,string,3,0,"[""BATTING"", ""BASERUNNING"", ""FIELDING""]"
+$.liveData.boxscore.teams.away.note,array,1,0,[]
+$.liveData.boxscore.teams.away.note[*],object,1,0,[]
+$.liveData.boxscore.teams.away.note[*].label,string,1,0,"[""a""]"
+$.liveData.boxscore.teams.away.note[*].value,string,1,0,"[""Singled for Kelly, Me in the 7th.""]"
+$.liveData.boxscore.teams.away.pitchers,array,1,0,[]
+$.liveData.boxscore.teams.away.pitchers[*],integer,2,0,"[518876, 641541]"
+$.liveData.boxscore.teams.away.players,object,1,0,[]
+$.liveData.boxscore.teams.away.players.*,object,25,0,[]
+$.liveData.boxscore.teams.away.players.*.allPositions,array,11,0,[]
+$.liveData.boxscore.teams.away.players.*.allPositions[*],object,11,0,[]
+$.liveData.boxscore.teams.away.players.*.allPositions[*].abbreviation,string,11,0,"[""P"", ""3B"", ""SS"", ""CF"", ""RF""]"
+$.liveData.boxscore.teams.away.players.*.allPositions[*].code,string,11,0,"[""1"", ""5"", ""6"", ""8"", ""9""]"
+$.liveData.boxscore.teams.away.players.*.allPositions[*].name,string,11,0,"[""Pitcher"", ""Third Base"", ""Shortstop"", ""Outfielder"", ""Second Base""]"
+$.liveData.boxscore.teams.away.players.*.allPositions[*].type,string,11,0,"[""Pitcher"", ""Infielder"", ""Outfielder"", ""Hitter"", ""Catcher""]"
+$.liveData.boxscore.teams.away.players.*.battingOrder,string,11,0,"[""902"", ""900"", ""200"", ""700"", ""600""]"
+$.liveData.boxscore.teams.away.players.*.gameStatus,object,25,0,[]
+$.liveData.boxscore.teams.away.players.*.gameStatus.isCurrentBatter,boolean,25,0,[false]
+$.liveData.boxscore.teams.away.players.*.gameStatus.isCurrentPitcher,boolean,25,0,"[false, true]"
+$.liveData.boxscore.teams.away.players.*.gameStatus.isOnBench,boolean,25,0,"[true, false]"
+$.liveData.boxscore.teams.away.players.*.gameStatus.isSubstitute,boolean,25,0,"[false, true]"
+$.liveData.boxscore.teams.away.players.*.jerseyNumber,string,25,0,"[""56"", ""52"", ""25"", ""57"", ""29""]"
+$.liveData.boxscore.teams.away.players.*.parentTeamId,integer,25,0,[109]
+$.liveData.boxscore.teams.away.players.*.person,object,25,0,[]
+$.liveData.boxscore.teams.away.players.*.person.fullName,string,25,0,"[""Greg Holland"", ""Zack Godley"", ""Archie Bradley"", ""Jon Duplantier"", ""Merrill Kelly""]"
+$.liveData.boxscore.teams.away.players.*.person.id,integer,25,0,"[518813, 643327, 605151, 641541, 518876]"
+$.liveData.boxscore.teams.away.players.*.person.link,string,25,0,"[""/api/v1/people/518813"", ""/api/v1/people/643327"", ""/api/v1/people/605151"", ""/api/v1/people/641541"", ""/api/v1/people/518876""]"
+$.liveData.boxscore.teams.away.players.*.position,object,25,0,[]
+$.liveData.boxscore.teams.away.players.*.position.abbreviation,string,25,0,"[""P"", ""3B"", ""SS"", ""CF"", ""C""]"
+$.liveData.boxscore.teams.away.players.*.position.code,string,25,0,"[""1"", ""5"", ""6"", ""8"", ""2""]"
+$.liveData.boxscore.teams.away.players.*.position.name,string,25,0,"[""Pitcher"", ""Third Base"", ""Shortstop"", ""Outfielder"", ""Catcher""]"
+$.liveData.boxscore.teams.away.players.*.position.type,string,25,0,"[""Pitcher"", ""Infielder"", ""Outfielder"", ""Catcher"", ""Hitter""]"
+$.liveData.boxscore.teams.away.players.*.seasonStats,object,25,0,[]
+$.liveData.boxscore.teams.away.players.*.seasonStats.batting,object,25,0,[]
+$.liveData.boxscore.teams.away.players.*.seasonStats.batting.airOuts,integer,25,0,"[0, 1, 4, 8, 6]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.batting.atBats,integer,25,0,"[0, 2, 1, 20, 19]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.batting.atBatsPerHomeRun,string,25,0,"[""-.--"", ""2.00"", ""8.00"", ""24.00"", ""5.50""]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.batting.avg,string,25,0,"["".000"", "".500"", "".150"", "".263"", "".273""]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.batting.babip,string,25,0,"["".---"", "".000"", "".200"", "".278"", "".316""]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.batting.baseOnBalls,integer,25,0,"[0, 1, 2, 3, 5]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.batting.catchersInterference,integer,25,0,[0]
+$.liveData.boxscore.teams.away.players.*.seasonStats.batting.caughtStealing,integer,25,0,[0]
+$.liveData.boxscore.teams.away.players.*.seasonStats.batting.caughtStealingPercentage,string,25,0,"["".---"", "".000""]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.batting.doubles,integer,25,0,"[0, 1, 3, 2]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.batting.flyOuts,integer,25,0,"[0, 1, 3, 4, 2]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.batting.gamesPlayed,integer,25,0,"[1, 2, 5, 3, 4]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.batting.groundIntoDoublePlay,integer,25,0,"[0, 1]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.batting.groundIntoTriplePlay,integer,25,0,[0]
+$.liveData.boxscore.teams.away.players.*.seasonStats.batting.groundOuts,integer,25,0,"[0, 1, 8, 5, 7]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.batting.groundOutsToAirouts,string,25,0,"[""-.--"", ""0.00"", ""1.00"", ""2.00"", ""0.63""]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.batting.hitByPitch,integer,25,0,[0]
+$.liveData.boxscore.teams.away.players.*.seasonStats.batting.hits,integer,25,0,"[0, 1, 3, 5, 6]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.batting.homeRuns,integer,25,0,"[0, 1, 3, 2]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.batting.intentionalWalks,integer,25,0,"[0, 1]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.batting.leftOnBase,integer,25,0,"[0, 2, 1, 11, 7]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.batting.lineOuts,integer,25,0,"[0, 3, 1, 2]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.batting.obp,string,25,0,"["".000"", "".333"", "".500"", "".150"", "".304""]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.batting.ops,string,25,0,"["".000"", "".333"", ""2.500"", "".350"", "".725""]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.batting.pickoffs,integer,25,0,[0]
+$.liveData.boxscore.teams.away.players.*.seasonStats.batting.plateAppearances,integer,25,0,"[0, 2, 1, 3, 20]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.batting.popOuts,integer,25,0,"[0, 1, 3, 2]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.batting.rbi,integer,25,0,"[0, 2, 1, 5, 3]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.batting.runs,integer,25,0,"[0, 1, 4, 6, 2]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.batting.sacBunts,integer,25,0,[0]
+$.liveData.boxscore.teams.away.players.*.seasonStats.batting.sacFlies,integer,25,0,"[0, 2, 1]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.batting.slg,string,25,0,"["".000"", ""2.000"", "".200"", "".421"", "".364""]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.batting.stolenBasePercentage,string,25,0,"["".---"", ""1.000""]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.batting.stolenBases,integer,25,0,"[0, 1, 2]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.batting.strikeOuts,integer,25,0,"[0, 1, 2, 5, 3]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.batting.totalBases,integer,25,0,"[0, 4, 8, 3, 19]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.batting.triples,integer,25,0,"[0, 1]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.fielding,object,25,0,[]
+$.liveData.boxscore.teams.away.players.*.seasonStats.fielding.assists,integer,25,0,"[0, 1, 2, 4, 16]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.fielding.caughtStealing,integer,25,0,"[0, 1]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.fielding.caughtStealingPercentage,string,25,0,"["".---"", "".500""]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.fielding.chances,integer,25,0,"[0, 2, 3, 1, 7]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.fielding.errors,integer,25,0,"[0, 1]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.fielding.fielding,string,25,0,"["".000"", "".500"", ""1.000"", "".952"", "".923""]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.fielding.gamesStarted,integer,9,0,[1]
+$.liveData.boxscore.teams.away.players.*.seasonStats.fielding.passedBall,integer,25,0,"[0, 1]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.fielding.pickoffs,integer,25,0,[0]
+$.liveData.boxscore.teams.away.players.*.seasonStats.fielding.putOuts,integer,25,0,"[0, 3, 1, 4, 15]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.fielding.stolenBasePercentage,string,25,0,"["".---"", "".500""]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.fielding.stolenBases,integer,25,0,"[0, 1]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching,object,25,0,[]
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.airOuts,integer,25,0,"[1, 6, 2, 8, 11]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.atBats,integer,25,0,"[3, 23, 8, 9, 22]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.balks,integer,25,0,[0]
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.balls,integer,25,0,"[2, 38, 17, 11, 30]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.baseOnBalls,integer,25,0,"[0, 2, 3, 1, 5]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.battersFaced,integer,25,0,"[3, 27, 10, 9, 25]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.blownSaves,integer,25,0,"[0, 1]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.catchersInterference,integer,25,0,[0]
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.caughtStealing,integer,25,0,"[0, 1]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.caughtStealingPercentage,string,25,0,"["".---"", "".000"", ""1.000""]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.completeGames,integer,25,0,[0]
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.doubles,integer,25,0,"[0, 1, 2]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.earnedRuns,integer,25,0,"[0, 7, 3, 8, 4]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.era,string,25,0,"[""0.00"", ""11.81"", ""4.50"", ""14.40"", ""17.18""]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.flyOuts,integer,25,0,"[1, 5, 4, 2, 0]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.gamesFinished,integer,25,0,"[1, 0]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.gamesPitched,integer,25,0,"[1, 2, 0]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.gamesPlayed,integer,25,0,"[1, 2, 0]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.gamesStarted,integer,25,0,"[0, 1]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.groundOuts,integer,25,0,"[0, 7, 2, 4, 6]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.groundOutsToAirouts,string,25,0,"[""0.00"", ""1.17"", ""1.00"", ""2.00"", ""0.88""]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.hitBatsmen,integer,25,0,"[0, 1, 2]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.hitByPitch,integer,25,0,"[0, 1, 2]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.hits,integer,25,0,"[0, 8, 2, 1, 5]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.hitsPer9Inn,string,25,0,"[""0.00"", ""13.50"", ""9.00"", ""3.00"", ""7.50""]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.holds,integer,25,0,"[0, 1]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.homeRuns,integer,25,0,"[0, 2, 1, 4]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.homeRunsPer9,string,25,0,"[""0.00"", ""3.38"", ""1.50"", ""7.20"", ""9.82""]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.inheritedRunners,integer,25,0,"[0, 2, 1]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.inheritedRunnersScored,integer,25,0,"[0, 2]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.inningsPitched,string,25,0,"[""1.0"", ""5.1"", ""2.0"", ""3.0"", ""6.0""]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.intentionalWalks,integer,25,0,"[0, 1]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.lineOuts,integer,25,0,"[0, 1, 2, 3]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.losses,integer,25,0,"[0, 1]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.numberOfPitches,integer,25,0,"[11, 101, 42, 33, 88]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.obp,string,25,0,"["".000"", "".423"", "".400"", "".111"", "".280""]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.outs,integer,25,0,"[3, 16, 6, 9, 18]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.passedBall,integer,25,0,[0]
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.pickoffs,integer,25,0,[0]
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.pitchesPerInning,string,25,0,"[""11.00"", ""18.94"", ""21.00"", ""14.67"", ""17.80""]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.pitchesThrown,integer,14,0,"[11, 101, 42, 33, 88]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.popOuts,integer,25,0,"[0, 1, 2, 4]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.rbi,integer,25,0,"[0, 3]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.runs,integer,25,0,"[0, 8, 3, 7, 5]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.runsScoredPer9,string,25,0,"[""0.00"", ""13.50"", ""4.50"", ""14.40"", ""17.18""]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.sacBunts,integer,25,0,"[0, 1, 2]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.sacFlies,integer,25,0,"[0, 1]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.saveOpportunities,integer,25,0,"[1, 0]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.saves,integer,25,0,"[1, 0]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.shutouts,integer,25,0,[0]
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.stolenBasePercentage,string,25,0,"["".---"", ""1.000"", "".000""]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.stolenBases,integer,25,0,"[0, 1]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.strikeOuts,integer,25,0,"[2, 3, 1, 0, 9]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.strikePercentage,string,25,0,"["".820"", "".620"", "".600"", "".670"", "".660""]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.strikeoutWalkRatio,string,25,0,"[""-.--"", ""1.50"", ""1.00"", ""0.50"", ""0.33""]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.strikeoutsPer9Inn,string,25,0,"[""18.00"", ""5.06"", ""9.00"", ""6.00"", ""4.50""]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.strikes,integer,25,0,"[9, 63, 25, 22, 58]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.triples,integer,25,0,[0]
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.walksPer9Inn,string,25,0,"[""0.00"", ""3.38"", ""9.00"", ""3.00"", ""3.60""]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.whip,string,25,0,"[""0.00"", ""1.88"", ""2.00"", ""0.33"", ""1.17""]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.wildPitches,integer,25,0,"[0, 2]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.winPercentage,string,25,0,"["".---"", "".000"", ""1.000""]"
+$.liveData.boxscore.teams.away.players.*.seasonStats.pitching.wins,integer,25,0,"[0, 1]"
+$.liveData.boxscore.teams.away.players.*.stats,object,25,0,[]
+$.liveData.boxscore.teams.away.players.*.stats.batting,object,25,0,[]
+$.liveData.boxscore.teams.away.players.*.stats.batting.airOuts,integer,11,0,"[0, 1, 2, 3]"
+$.liveData.boxscore.teams.away.players.*.stats.batting.atBats,integer,11,0,"[1, 2, 5, 4, 3]"
+$.liveData.boxscore.teams.away.players.*.stats.batting.atBatsPerHomeRun,string,11,0,"[""-.--"", ""5.00""]"
+$.liveData.boxscore.teams.away.players.*.stats.batting.baseOnBalls,integer,11,0,"[0, 1, 2]"
+$.liveData.boxscore.teams.away.players.*.stats.batting.catchersInterference,integer,11,0,[0]
+$.liveData.boxscore.teams.away.players.*.stats.batting.caughtStealing,integer,11,0,[0]
+$.liveData.boxscore.teams.away.players.*.stats.batting.doubles,integer,11,0,"[0, 1, 2]"
+$.liveData.boxscore.teams.away.players.*.stats.batting.flyOuts,integer,11,0,"[0, 1]"
+$.liveData.boxscore.teams.away.players.*.stats.batting.gamesPlayed,integer,11,0,[1]
+$.liveData.boxscore.teams.away.players.*.stats.batting.groundIntoDoublePlay,integer,11,0,"[0, 1]"
+$.liveData.boxscore.teams.away.players.*.stats.batting.groundIntoTriplePlay,integer,11,0,[0]
+$.liveData.boxscore.teams.away.players.*.stats.batting.groundOuts,integer,11,0,"[0, 1, 2]"
+$.liveData.boxscore.teams.away.players.*.stats.batting.hitByPitch,integer,11,0,[0]
+$.liveData.boxscore.teams.away.players.*.stats.batting.hits,integer,11,0,"[0, 1, 3, 2]"
+$.liveData.boxscore.teams.away.players.*.stats.batting.homeRuns,integer,11,0,"[0, 1]"
+$.liveData.boxscore.teams.away.players.*.stats.batting.intentionalWalks,integer,11,0,[0]
+$.liveData.boxscore.teams.away.players.*.stats.batting.leftOnBase,integer,11,0,"[0, 2, 3, 1]"
+$.liveData.boxscore.teams.away.players.*.stats.batting.lineOuts,integer,11,0,"[0, 1]"
+$.liveData.boxscore.teams.away.players.*.stats.batting.note,string,1,0,"[""a-""]"
+$.liveData.boxscore.teams.away.players.*.stats.batting.pickoffs,integer,11,0,[0]
+$.liveData.boxscore.teams.away.players.*.stats.batting.plateAppearances,integer,11,0,"[1, 3, 5]"
+$.liveData.boxscore.teams.away.players.*.stats.batting.popOuts,integer,11,0,"[0, 1]"
+$.liveData.boxscore.teams.away.players.*.stats.batting.rbi,integer,11,0,"[0, 1, 2]"
+$.liveData.boxscore.teams.away.players.*.stats.batting.runs,integer,11,0,"[0, 1, 3, 2]"
+$.liveData.boxscore.teams.away.players.*.stats.batting.sacBunts,integer,11,0,[0]
+$.liveData.boxscore.teams.away.players.*.stats.batting.sacFlies,integer,11,0,"[0, 1]"
+$.liveData.boxscore.teams.away.players.*.stats.batting.stolenBasePercentage,string,11,0,"["".---"", ""1.000""]"
+$.liveData.boxscore.teams.away.players.*.stats.batting.stolenBases,integer,11,0,"[0, 1]"
+$.liveData.boxscore.teams.away.players.*.stats.batting.strikeOuts,integer,11,0,"[1, 2, 0]"
+$.liveData.boxscore.teams.away.players.*.stats.batting.summary,string,11,0,"[""0-1 | K"", ""0-2 | BB, K"", ""1-5 | K, RBI"", ""1-4 | 2B, 2 K, 2 RBI"", ""3-5 | K, RBI, 3 R""]"
+$.liveData.boxscore.teams.away.players.*.stats.batting.totalBases,integer,11,0,"[0, 1, 2, 3, 5]"
+$.liveData.boxscore.teams.away.players.*.stats.batting.triples,integer,11,0,[0]
+$.liveData.boxscore.teams.away.players.*.stats.fielding,object,25,0,[]
+$.liveData.boxscore.teams.away.players.*.stats.fielding.assists,integer,11,0,"[0, 2, 1, 4]"
+$.liveData.boxscore.teams.away.players.*.stats.fielding.caughtStealing,integer,11,0,[0]
+$.liveData.boxscore.teams.away.players.*.stats.fielding.caughtStealingPercentage,string,11,0,"["".---""]"
+$.liveData.boxscore.teams.away.players.*.stats.fielding.chances,integer,11,0,"[0, 2, 1, 5, 3]"
+$.liveData.boxscore.teams.away.players.*.stats.fielding.errors,integer,11,0,[0]
+$.liveData.boxscore.teams.away.players.*.stats.fielding.fielding,string,11,0,"["".000""]"
+$.liveData.boxscore.teams.away.players.*.stats.fielding.gamesStarted,integer,9,0,[1]
+$.liveData.boxscore.teams.away.players.*.stats.fielding.passedBall,integer,11,0,[0]
+$.liveData.boxscore.teams.away.players.*.stats.fielding.pickoffs,integer,11,0,[0]
+$.liveData.boxscore.teams.away.players.*.stats.fielding.putOuts,integer,11,0,"[0, 1, 3, 2, 11]"
+$.liveData.boxscore.teams.away.players.*.stats.fielding.stolenBasePercentage,string,11,0,"["".---""]"
+$.liveData.boxscore.teams.away.players.*.stats.fielding.stolenBases,integer,11,0,[0]
+$.liveData.boxscore.teams.away.players.*.stats.pitching,object,25,0,[]
+$.liveData.boxscore.teams.away.players.*.stats.pitching.airOuts,integer,2,0,"[2, 8]"
+$.liveData.boxscore.teams.away.players.*.stats.pitching.atBats,integer,2,0,"[9, 22]"
+$.liveData.boxscore.teams.away.players.*.stats.pitching.balks,integer,2,0,[0]
+$.liveData.boxscore.teams.away.players.*.stats.pitching.balls,integer,2,0,"[11, 30]"
+$.liveData.boxscore.teams.away.players.*.stats.pitching.baseOnBalls,integer,2,0,"[0, 2]"
+$.liveData.boxscore.teams.away.players.*.stats.pitching.battersFaced,integer,2,0,"[9, 25]"
+$.liveData.boxscore.teams.away.players.*.stats.pitching.blownSaves,integer,2,0,[0]
+$.liveData.boxscore.teams.away.players.*.stats.pitching.catchersInterference,integer,2,0,[0]
+$.liveData.boxscore.teams.away.players.*.stats.pitching.caughtStealing,integer,2,0,[0]
+$.liveData.boxscore.teams.away.players.*.stats.pitching.completeGames,integer,2,0,[0]
+$.liveData.boxscore.teams.away.players.*.stats.pitching.doubles,integer,2,0,"[0, 1]"
+$.liveData.boxscore.teams.away.players.*.stats.pitching.earnedRuns,integer,2,0,"[0, 3]"
+$.liveData.boxscore.teams.away.players.*.stats.pitching.flyOuts,integer,2,0,"[1, 4]"
+$.liveData.boxscore.teams.away.players.*.stats.pitching.gamesFinished,integer,2,0,"[1, 0]"
+$.liveData.boxscore.teams.away.players.*.stats.pitching.gamesPitched,integer,2,0,[1]
+$.liveData.boxscore.teams.away.players.*.stats.pitching.gamesPlayed,integer,2,0,[1]
+$.liveData.boxscore.teams.away.players.*.stats.pitching.gamesStarted,integer,2,0,"[0, 1]"
+$.liveData.boxscore.teams.away.players.*.stats.pitching.groundOuts,integer,2,0,"[4, 7]"
+$.liveData.boxscore.teams.away.players.*.stats.pitching.hitBatsmen,integer,2,0,[0]
+$.liveData.boxscore.teams.away.players.*.stats.pitching.hitByPitch,integer,2,0,[0]
+$.liveData.boxscore.teams.away.players.*.stats.pitching.hits,integer,2,0,"[1, 5]"
+$.liveData.boxscore.teams.away.players.*.stats.pitching.holds,integer,2,0,[0]
+$.liveData.boxscore.teams.away.players.*.stats.pitching.homeRuns,integer,2,0,"[0, 1]"
+$.liveData.boxscore.teams.away.players.*.stats.pitching.homeRunsPer9,string,2,0,"[""0.00"", ""1.50""]"
+$.liveData.boxscore.teams.away.players.*.stats.pitching.inheritedRunners,integer,2,0,[0]
+$.liveData.boxscore.teams.away.players.*.stats.pitching.inheritedRunnersScored,integer,2,0,[0]
+$.liveData.boxscore.teams.away.players.*.stats.pitching.inningsPitched,string,2,0,"[""3.0"", ""6.0""]"
+$.liveData.boxscore.teams.away.players.*.stats.pitching.intentionalWalks,integer,2,0,[0]
+$.liveData.boxscore.teams.away.players.*.stats.pitching.lineOuts,integer,2,0,"[0, 2]"
+$.liveData.boxscore.teams.away.players.*.stats.pitching.losses,integer,2,0,[0]
+$.liveData.boxscore.teams.away.players.*.stats.pitching.note,string,2,0,"[""(S, 1)"", ""(W, 1-0)""]"
+$.liveData.boxscore.teams.away.players.*.stats.pitching.numberOfPitches,integer,2,0,"[33, 88]"
+$.liveData.boxscore.teams.away.players.*.stats.pitching.outs,integer,2,0,"[9, 18]"
+$.liveData.boxscore.teams.away.players.*.stats.pitching.passedBall,integer,2,0,[0]
+$.liveData.boxscore.teams.away.players.*.stats.pitching.pickoffs,integer,2,0,[0]
+$.liveData.boxscore.teams.away.players.*.stats.pitching.pitchesThrown,integer,2,0,"[33, 88]"
+$.liveData.boxscore.teams.away.players.*.stats.pitching.popOuts,integer,2,0,"[1, 2]"
+$.liveData.boxscore.teams.away.players.*.stats.pitching.rbi,integer,2,0,"[0, 3]"
+$.liveData.boxscore.teams.away.players.*.stats.pitching.runs,integer,2,0,"[0, 3]"
+$.liveData.boxscore.teams.away.players.*.stats.pitching.runsScoredPer9,string,2,0,"[""0.00"", ""4.50""]"
+$.liveData.boxscore.teams.away.players.*.stats.pitching.sacBunts,integer,2,0,[0]
+$.liveData.boxscore.teams.away.players.*.stats.pitching.sacFlies,integer,2,0,"[0, 1]"
+$.liveData.boxscore.teams.away.players.*.stats.pitching.saveOpportunities,integer,2,0,"[1, 0]"
+$.liveData.boxscore.teams.away.players.*.stats.pitching.saves,integer,2,0,"[1, 0]"
+$.liveData.boxscore.teams.away.players.*.stats.pitching.shutouts,integer,2,0,[0]
+$.liveData.boxscore.teams.away.players.*.stats.pitching.stolenBasePercentage,string,2,0,"["".---""]"
+$.liveData.boxscore.teams.away.players.*.stats.pitching.stolenBases,integer,2,0,[0]
+$.liveData.boxscore.teams.away.players.*.stats.pitching.strikeOuts,integer,2,0,"[2, 3]"
+$.liveData.boxscore.teams.away.players.*.stats.pitching.strikePercentage,string,2,0,"["".670"", "".660""]"
+$.liveData.boxscore.teams.away.players.*.stats.pitching.strikes,integer,2,0,"[22, 58]"
+$.liveData.boxscore.teams.away.players.*.stats.pitching.summary,string,2,0,"[""3.0 IP, 0 ER, 2 K, 0 BB"", ""6.0 IP, 3 ER, 3 K, 2 BB""]"
+$.liveData.boxscore.teams.away.players.*.stats.pitching.triples,integer,2,0,[0]
+$.liveData.boxscore.teams.away.players.*.stats.pitching.wildPitches,integer,2,0,[0]
+$.liveData.boxscore.teams.away.players.*.stats.pitching.wins,integer,2,0,"[0, 1]"
+$.liveData.boxscore.teams.away.players.*.status,object,25,0,[]
+$.liveData.boxscore.teams.away.players.*.status.code,string,25,0,"[""A""]"
+$.liveData.boxscore.teams.away.players.*.status.description,string,25,0,"[""Active""]"
+$.liveData.boxscore.teams.away.team,object,1,0,[]
+$.liveData.boxscore.teams.away.team.allStarStatus,string,1,0,"[""N""]"
+$.liveData.boxscore.teams.away.team.id,integer,1,0,[109]
+$.liveData.boxscore.teams.away.team.link,string,1,0,"[""/api/v1/teams/109""]"
+$.liveData.boxscore.teams.away.team.name,string,1,0,"[""Arizona Diamondbacks""]"
+$.liveData.boxscore.teams.away.team.springLeague,object,1,0,[]
+$.liveData.boxscore.teams.away.team.springLeague.abbreviation,string,1,0,"[""CL""]"
+$.liveData.boxscore.teams.away.team.springLeague.id,integer,1,0,[114]
+$.liveData.boxscore.teams.away.team.springLeague.link,string,1,0,"[""/api/v1/league/114""]"
+$.liveData.boxscore.teams.away.team.springLeague.name,string,1,0,"[""Cactus League""]"
+$.liveData.boxscore.teams.away.teamStats,object,1,0,[]
+$.liveData.boxscore.teams.away.teamStats.batting,object,1,0,[]
+$.liveData.boxscore.teams.away.teamStats.batting.airOuts,integer,1,0,[9]
+$.liveData.boxscore.teams.away.teamStats.batting.atBats,integer,1,0,[40]
+$.liveData.boxscore.teams.away.teamStats.batting.atBatsPerHomeRun,string,1,0,"[""40.00""]"
+$.liveData.boxscore.teams.away.teamStats.batting.avg,string,1,0,"["".278""]"
+$.liveData.boxscore.teams.away.teamStats.batting.baseOnBalls,integer,1,0,[4]
+$.liveData.boxscore.teams.away.teamStats.batting.catchersInterference,integer,1,0,[0]
+$.liveData.boxscore.teams.away.teamStats.batting.caughtStealing,integer,1,0,[0]
+$.liveData.boxscore.teams.away.teamStats.batting.doubles,integer,1,0,[5]
+$.liveData.boxscore.teams.away.teamStats.batting.flyOuts,integer,1,0,[5]
+$.liveData.boxscore.teams.away.teamStats.batting.groundIntoDoublePlay,integer,1,0,[1]
+$.liveData.boxscore.teams.away.teamStats.batting.groundIntoTriplePlay,integer,1,0,[0]
+$.liveData.boxscore.teams.away.teamStats.batting.groundOuts,integer,1,0,[9]
+$.liveData.boxscore.teams.away.teamStats.batting.hitByPitch,integer,1,0,[0]
+$.liveData.boxscore.teams.away.teamStats.batting.hits,integer,1,0,[15]
+$.liveData.boxscore.teams.away.teamStats.batting.homeRuns,integer,1,0,[1]
+$.liveData.boxscore.teams.away.teamStats.batting.intentionalWalks,integer,1,0,[0]
+$.liveData.boxscore.teams.away.teamStats.batting.leftOnBase,integer,1,0,[16]
+$.liveData.boxscore.teams.away.teamStats.batting.lineOuts,integer,1,0,[3]
+$.liveData.boxscore.teams.away.teamStats.batting.obp,string,1,0,"["".322""]"
+$.liveData.boxscore.teams.away.teamStats.batting.ops,string,1,0,"["".822""]"
+$.liveData.boxscore.teams.away.teamStats.batting.pickoffs,integer,1,0,[0]
+$.liveData.boxscore.teams.away.teamStats.batting.plateAppearances,integer,1,0,[45]
+$.liveData.boxscore.teams.away.teamStats.batting.popOuts,integer,1,0,[1]
+$.liveData.boxscore.teams.away.teamStats.batting.rbi,integer,1,0,[9]
+$.liveData.boxscore.teams.away.teamStats.batting.runs,integer,1,0,[10]
+$.liveData.boxscore.teams.away.teamStats.batting.sacBunts,integer,1,0,[0]
+$.liveData.boxscore.teams.away.teamStats.batting.sacFlies,integer,1,0,[1]
+$.liveData.boxscore.teams.away.teamStats.batting.slg,string,1,0,"["".500""]"
+$.liveData.boxscore.teams.away.teamStats.batting.stolenBasePercentage,string,1,0,"[""1.000""]"
+$.liveData.boxscore.teams.away.teamStats.batting.stolenBases,integer,1,0,[1]
+$.liveData.boxscore.teams.away.teamStats.batting.strikeOuts,integer,1,0,[8]
+$.liveData.boxscore.teams.away.teamStats.batting.totalBases,integer,1,0,[23]
+$.liveData.boxscore.teams.away.teamStats.batting.triples,integer,1,0,[0]
+$.liveData.boxscore.teams.away.teamStats.fielding,object,1,0,[]
+$.liveData.boxscore.teams.away.teamStats.fielding.assists,integer,1,0,[9]
+$.liveData.boxscore.teams.away.teamStats.fielding.caughtStealing,integer,1,0,[0]
+$.liveData.boxscore.teams.away.teamStats.fielding.caughtStealingPercentage,string,1,0,"["".---""]"
+$.liveData.boxscore.teams.away.teamStats.fielding.chances,integer,1,0,[36]
+$.liveData.boxscore.teams.away.teamStats.fielding.errors,integer,1,0,[0]
+$.liveData.boxscore.teams.away.teamStats.fielding.passedBall,integer,1,0,[0]
+$.liveData.boxscore.teams.away.teamStats.fielding.pickoffs,integer,1,0,[0]
+$.liveData.boxscore.teams.away.teamStats.fielding.putOuts,integer,1,0,[27]
+$.liveData.boxscore.teams.away.teamStats.fielding.stolenBasePercentage,string,1,0,"["".---""]"
+$.liveData.boxscore.teams.away.teamStats.fielding.stolenBases,integer,1,0,[0]
+$.liveData.boxscore.teams.away.teamStats.pitching,object,1,0,[]
+$.liveData.boxscore.teams.away.teamStats.pitching.airOuts,integer,1,0,[10]
+$.liveData.boxscore.teams.away.teamStats.pitching.atBats,integer,1,0,[31]
+$.liveData.boxscore.teams.away.teamStats.pitching.balks,integer,1,0,[0]
+$.liveData.boxscore.teams.away.teamStats.pitching.balls,integer,1,0,[41]
+$.liveData.boxscore.teams.away.teamStats.pitching.baseOnBalls,integer,1,0,[2]
+$.liveData.boxscore.teams.away.teamStats.pitching.battersFaced,integer,1,0,[34]
+$.liveData.boxscore.teams.away.teamStats.pitching.catchersInterference,integer,1,0,[0]
+$.liveData.boxscore.teams.away.teamStats.pitching.caughtStealing,integer,1,0,[0]
+$.liveData.boxscore.teams.away.teamStats.pitching.caughtStealingPercentage,string,1,0,"["".---""]"
+$.liveData.boxscore.teams.away.teamStats.pitching.completeGames,integer,1,0,[0]
+$.liveData.boxscore.teams.away.teamStats.pitching.doubles,integer,1,0,[1]
+$.liveData.boxscore.teams.away.teamStats.pitching.earnedRuns,integer,1,0,[3]
+$.liveData.boxscore.teams.away.teamStats.pitching.era,string,1,0,"[""8.02""]"
+$.liveData.boxscore.teams.away.teamStats.pitching.flyOuts,integer,1,0,[5]
+$.liveData.boxscore.teams.away.teamStats.pitching.groundOuts,integer,1,0,[11]
+$.liveData.boxscore.teams.away.teamStats.pitching.groundOutsToAirouts,string,1,0,"[""1.10""]"
+$.liveData.boxscore.teams.away.teamStats.pitching.hitBatsmen,integer,1,0,[0]
+$.liveData.boxscore.teams.away.teamStats.pitching.hitByPitch,integer,1,0,[0]
+$.liveData.boxscore.teams.away.teamStats.pitching.hits,integer,1,0,[6]
+$.liveData.boxscore.teams.away.teamStats.pitching.homeRuns,integer,1,0,[1]
+$.liveData.boxscore.teams.away.teamStats.pitching.homeRunsPer9,string,1,0,"[""1.00""]"
+$.liveData.boxscore.teams.away.teamStats.pitching.inheritedRunners,integer,1,0,[0]
+$.liveData.boxscore.teams.away.teamStats.pitching.inheritedRunnersScored,integer,1,0,[0]
+$.liveData.boxscore.teams.away.teamStats.pitching.inningsPitched,string,1,0,"[""9.0""]"
+$.liveData.boxscore.teams.away.teamStats.pitching.intentionalWalks,integer,1,0,[0]
+$.liveData.boxscore.teams.away.teamStats.pitching.lineOuts,integer,1,0,[2]
+$.liveData.boxscore.teams.away.teamStats.pitching.numberOfPitches,integer,1,0,[121]
+$.liveData.boxscore.teams.away.teamStats.pitching.obp,string,1,0,"["".235""]"
+$.liveData.boxscore.teams.away.teamStats.pitching.outs,integer,1,0,[27]
+$.liveData.boxscore.teams.away.teamStats.pitching.passedBall,integer,1,0,[0]
+$.liveData.boxscore.teams.away.teamStats.pitching.pickoffs,integer,1,0,[0]
+$.liveData.boxscore.teams.away.teamStats.pitching.pitchesPerInning,string,1,0,"[""13.44""]"
+$.liveData.boxscore.teams.away.teamStats.pitching.pitchesThrown,integer,1,0,[121]
+$.liveData.boxscore.teams.away.teamStats.pitching.popOuts,integer,1,0,[3]
+$.liveData.boxscore.teams.away.teamStats.pitching.rbi,integer,1,0,[3]
+$.liveData.boxscore.teams.away.teamStats.pitching.runs,integer,1,0,[3]
+$.liveData.boxscore.teams.away.teamStats.pitching.runsScoredPer9,string,1,0,"[""3.00""]"
+$.liveData.boxscore.teams.away.teamStats.pitching.sacBunts,integer,1,0,[0]
+$.liveData.boxscore.teams.away.teamStats.pitching.sacFlies,integer,1,0,[1]
+$.liveData.boxscore.teams.away.teamStats.pitching.saveOpportunities,integer,1,0,[0]
+$.liveData.boxscore.teams.away.teamStats.pitching.shutouts,integer,1,0,[0]
+$.liveData.boxscore.teams.away.teamStats.pitching.stolenBasePercentage,string,1,0,"["".---""]"
+$.liveData.boxscore.teams.away.teamStats.pitching.stolenBases,integer,1,0,[0]
+$.liveData.boxscore.teams.away.teamStats.pitching.strikeOuts,integer,1,0,[5]
+$.liveData.boxscore.teams.away.teamStats.pitching.strikePercentage,string,1,0,"["".660""]"
+$.liveData.boxscore.teams.away.teamStats.pitching.strikes,integer,1,0,[80]
+$.liveData.boxscore.teams.away.teamStats.pitching.triples,integer,1,0,[0]
+$.liveData.boxscore.teams.away.teamStats.pitching.whip,string,1,0,"[""1.85""]"
+$.liveData.boxscore.teams.away.teamStats.pitching.wildPitches,integer,1,0,[0]
+$.liveData.boxscore.teams.home,object,1,0,[]
+$.liveData.boxscore.teams.home.batters,array,1,0,[]
+$.liveData.boxscore.teams.home.batters[*],integer,14,0,"[435079, 664208, 476594, 543333, 592518]"
+$.liveData.boxscore.teams.home.battingOrder,array,1,0,[]
+$.liveData.boxscore.teams.home.battingOrder[*],integer,9,0,"[476594, 543333, 592518, 614177, 571976]"
+$.liveData.boxscore.teams.home.bench,array,1,0,[]
+$.liveData.boxscore.teams.home.bench[*],integer,2,0,"[642336, 592669]"
+$.liveData.boxscore.teams.home.bullpen,array,1,0,[]
+$.liveData.boxscore.teams.home.bullpen[*],integer,9,0,"[641778, 571901, 664192, 676606, 663978]"
+$.liveData.boxscore.teams.home.info,array,1,0,[]
+$.liveData.boxscore.teams.home.info[*],object,2,0,[]
+$.liveData.boxscore.teams.home.info[*].fieldList,array,2,0,[]
+$.liveData.boxscore.teams.home.info[*].fieldList[*],object,13,0,[]
+$.liveData.boxscore.teams.home.info[*].fieldList[*].label,string,13,0,"[""2B"", ""HR"", ""TB"", ""RBI"", ""2-out RBI""]"
+$.liveData.boxscore.teams.home.info[*].fieldList[*].value,string,13,0,"[""Hosmer (2, Kelly, Me)."", ""Tatis Jr. (1, 6th inning off Kelly, Me, 1 on, 2 out)."", ""Cordero, F 2; Hosmer 3; Machado, M; Tatis Jr. 4."", ""Reyes, F (2); Tatis Jr. 2 (2)."", ""Tatis Jr. 2.""]"
+$.liveData.boxscore.teams.home.info[*].title,string,2,0,"[""BATTING"", ""FIELDING""]"
+$.liveData.boxscore.teams.home.note,array,1,0,[]
+$.liveData.boxscore.teams.home.note[*],object,1,0,[]
+$.liveData.boxscore.teams.home.note[*].label,string,1,0,"[""a""]"
+$.liveData.boxscore.teams.home.note[*].value,string,1,0,"[""Struck out for Erlin in the 5th.""]"
+$.liveData.boxscore.teams.home.pitchers,array,1,0,[]
+$.liveData.boxscore.teams.home.pitchers[*],integer,4,0,"[621381, 572362, 664208, 476594]"
+$.liveData.boxscore.teams.home.players,object,1,0,[]
+$.liveData.boxscore.teams.home.players.*,object,25,0,[]
+$.liveData.boxscore.teams.home.players.*.allPositions,array,14,0,[]
+$.liveData.boxscore.teams.home.players.*.allPositions[*],object,15,0,[]
+$.liveData.boxscore.teams.home.players.*.allPositions[*].abbreviation,string,15,0,"[""P"", ""C"", ""PH"", ""2B"", ""3B""]"
+$.liveData.boxscore.teams.home.players.*.allPositions[*].code,string,15,0,"[""1"", ""2"", ""11"", ""4"", ""5""]"
+$.liveData.boxscore.teams.home.players.*.allPositions[*].name,string,15,0,"[""Pitcher"", ""Catcher"", ""Pinch Hitter"", ""Second Base"", ""Third Base""]"
+$.liveData.boxscore.teams.home.players.*.allPositions[*].type,string,15,0,"[""Pitcher"", ""Catcher"", ""Hitter"", ""Infielder"", ""Outfielder""]"
+$.liveData.boxscore.teams.home.players.*.battingOrder,string,14,0,"[""102"", ""800"", ""702"", ""701"", ""100""]"
+$.liveData.boxscore.teams.home.players.*.gameStatus,object,25,0,[]
+$.liveData.boxscore.teams.home.players.*.gameStatus.isCurrentBatter,boolean,25,0,"[false, true]"
+$.liveData.boxscore.teams.home.players.*.gameStatus.isCurrentPitcher,boolean,25,0,[false]
+$.liveData.boxscore.teams.home.players.*.gameStatus.isOnBench,boolean,25,0,"[true, false]"
+$.liveData.boxscore.teams.home.players.*.gameStatus.isSubstitute,boolean,25,0,"[false, true]"
+$.liveData.boxscore.teams.home.players.*.jerseyNumber,string,25,0,"[""25"", ""66"", ""38"", ""27"", ""18""]"
+$.liveData.boxscore.teams.home.players.*.parentTeamId,integer,25,0,[135]
+$.liveData.boxscore.teams.home.players.*.person,object,25,0,[]
+$.liveData.boxscore.teams.home.players.*.person.fullName,string,25,0,"[""Nick Margevicius"", ""Robert Stock"", ""Aaron Loup"", ""Francisco Mejía"", ""Austin Hedges""]"
+$.liveData.boxscore.teams.home.players.*.person.id,integer,25,0,"[676606, 476594, 571901, 642336, 595978]"
+$.liveData.boxscore.teams.home.players.*.person.link,string,25,0,"[""/api/v1/people/676606"", ""/api/v1/people/476594"", ""/api/v1/people/571901"", ""/api/v1/people/642336"", ""/api/v1/people/595978""]"
+$.liveData.boxscore.teams.home.players.*.position,object,25,0,[]
+$.liveData.boxscore.teams.home.players.*.position.abbreviation,string,25,0,"[""P"", ""C"", ""2B"", ""LF"", ""3B""]"
+$.liveData.boxscore.teams.home.players.*.position.code,string,25,0,"[""1"", ""2"", ""4"", ""7"", ""5""]"
+$.liveData.boxscore.teams.home.players.*.position.name,string,25,0,"[""Pitcher"", ""Catcher"", ""Second Base"", ""Outfielder"", ""Third Base""]"
+$.liveData.boxscore.teams.home.players.*.position.type,string,25,0,"[""Pitcher"", ""Catcher"", ""Infielder"", ""Outfielder""]"
+$.liveData.boxscore.teams.home.players.*.seasonStats,object,25,0,[]
+$.liveData.boxscore.teams.home.players.*.seasonStats.batting,object,25,0,[]
+$.liveData.boxscore.teams.home.players.*.seasonStats.batting.airOuts,integer,25,0,"[0, 1, 4, 2, 6]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.batting.atBats,integer,25,0,"[1, 0, 4, 11, 8]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.batting.atBatsPerHomeRun,string,25,0,"[""-.--"", ""13.00"", ""17.00"", ""18.00""]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.batting.avg,string,25,0,"["".000"", "".364"", "".250"", "".143"", "".231""]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.batting.babip,string,25,0,"["".000"", "".---"", "".400"", "".333"", "".200""]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.batting.baseOnBalls,integer,25,0,"[0, 1, 2]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.batting.catchersInterference,integer,25,0,[0]
+$.liveData.boxscore.teams.home.players.*.seasonStats.batting.caughtStealing,integer,25,0,"[0, 1]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.batting.caughtStealingPercentage,string,25,0,"["".---"", "".000"", "".500""]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.batting.doubles,integer,25,0,"[0, 2, 1]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.batting.flyOuts,integer,25,0,"[0, 3, 1, 2, 4]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.batting.gamesPlayed,integer,25,0,"[1, 3, 2, 4, 5]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.batting.groundIntoDoublePlay,integer,25,0,"[0, 1, 2]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.batting.groundIntoTriplePlay,integer,25,0,[0]
+$.liveData.boxscore.teams.home.players.*.seasonStats.batting.groundOuts,integer,25,0,"[1, 0, 2, 3, 4]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.batting.groundOutsToAirouts,string,25,0,"[""1.00"", ""-.--"", ""2.00"", ""0.50"", ""3.00""]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.batting.hitByPitch,integer,25,0,"[0, 1]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.batting.hits,integer,25,0,"[0, 4, 2, 1, 3]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.batting.homeRuns,integer,25,0,"[0, 1]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.batting.intentionalWalks,integer,25,0,"[0, 1]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.batting.leftOnBase,integer,25,0,"[0, 2, 3, 8, 4]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.batting.lineOuts,integer,25,0,"[0, 1, 2, 3]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.batting.obp,string,25,0,"["".000"", "".462"", "".333"", "".143"", "".263""]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.batting.ops,string,25,0,"["".000"", "".826"", "".833"", "".286"", "".871""]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.batting.pickoffs,integer,25,0,[0]
+$.liveData.boxscore.teams.home.players.*.seasonStats.batting.plateAppearances,integer,25,0,"[1, 0, 4, 13, 9]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.batting.popOuts,integer,25,0,"[0, 1, 2]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.batting.rbi,integer,25,0,"[0, 1, 2, 3]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.batting.runs,integer,25,0,"[0, 1, 3, 2]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.batting.sacBunts,integer,25,0,[0]
+$.liveData.boxscore.teams.home.players.*.seasonStats.batting.sacFlies,integer,25,0,"[0, 2]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.batting.slg,string,25,0,"["".000"", "".364"", "".500"", "".143"", "".538""]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.batting.stolenBasePercentage,string,25,0,"["".---"", ""1.000"", "".500""]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.batting.stolenBases,integer,25,0,"[0, 2, 1]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.batting.strikeOuts,integer,25,0,"[0, 1, 2, 5, 3]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.batting.totalBases,integer,25,0,"[0, 4, 1, 7, 5]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.batting.triples,integer,25,0,[0]
+$.liveData.boxscore.teams.home.players.*.seasonStats.fielding,object,25,0,[]
+$.liveData.boxscore.teams.home.players.*.seasonStats.fielding.assists,integer,25,0,"[0, 1, 2, 4, 8]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.fielding.caughtStealing,integer,25,0,"[0, 1]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.fielding.caughtStealingPercentage,string,25,0,"["".---"", "".000"", "".500""]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.fielding.chances,integer,25,0,"[1, 2, 10, 39, 3]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.fielding.errors,integer,25,0,"[0, 1]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.fielding.fielding,string,25,0,"[""1.000"", "".974"", "".000""]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.fielding.gamesStarted,integer,9,0,[1]
+$.liveData.boxscore.teams.home.players.*.seasonStats.fielding.passedBall,integer,25,0,[0]
+$.liveData.boxscore.teams.home.players.*.seasonStats.fielding.pickoffs,integer,25,0,[0]
+$.liveData.boxscore.teams.home.players.*.seasonStats.fielding.putOuts,integer,25,0,"[1, 0, 9, 34, 2]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.fielding.stolenBasePercentage,string,25,0,"["".---"", ""1.000"", "".500""]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.fielding.stolenBases,integer,25,0,"[0, 1]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching,object,25,0,[]
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.airOuts,integer,25,0,"[4, 1, 0, 3, 10]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.atBats,integer,25,0,"[17, 10, 6, 0, 7]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.balks,integer,25,0,"[0, 1]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.balls,integer,25,0,"[24, 15, 8, 0, 10]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.baseOnBalls,integer,25,0,"[0, 1, 2, 3]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.battersFaced,integer,25,0,"[19, 11, 7, 0, 21]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.blownSaves,integer,25,0,[0]
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.catchersInterference,integer,25,0,[0]
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.caughtStealing,integer,25,0,"[0, 1]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.caughtStealingPercentage,string,25,0,"["".000"", "".---"", ""1.000""]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.completeGames,integer,25,0,[0]
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.doubles,integer,25,0,"[1, 0, 2, 3]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.earnedRuns,integer,25,0,"[1, 2, 0, 3, 5]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.era,string,25,0,"[""1.80"", ""6.75"", ""0.00"", ""-.--"", ""6.23""]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.flyOuts,integer,25,0,"[2, 1, 0, 6, 3]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.gamesFinished,integer,25,0,"[0, 1, 3]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.gamesPitched,integer,25,0,"[1, 3, 2, 0]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.gamesPlayed,integer,25,0,"[1, 3, 2, 0]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.gamesStarted,integer,25,0,"[1, 0]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.groundOuts,integer,25,0,"[5, 2, 3, 0, 4]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.groundOutsToAirouts,string,25,0,"[""1.25"", ""2.00"", ""3.00"", ""-.--"", ""1.33""]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.hitBatsmen,integer,25,0,"[2, 0, 1]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.hitByPitch,integer,25,0,"[2, 0, 1]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.hits,integer,25,0,"[3, 2, 0, 5, 4]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.hitsPer9Inn,string,25,0,"[""5.40"", ""6.75"", ""13.50"", ""-.--"", ""0.00""]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.holds,integer,25,0,"[0, 1, 2]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.homeRuns,integer,25,0,"[0, 1]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.homeRunsPer9,string,25,0,"[""0.00"", ""-.--"", ""3.38"", ""2.25""]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.inheritedRunners,integer,25,0,"[0, 2, 1, 3]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.inheritedRunnersScored,integer,25,0,"[0, 1]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.inningsPitched,string,25,0,"[""5.0"", ""2.2"", ""1.1"", ""0.0"", ""2.1""]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.intentionalWalks,integer,25,0,[0]
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.lineOuts,integer,25,0,"[1, 0, 2]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.losses,integer,25,0,"[1, 0]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.numberOfPitches,integer,25,0,"[72, 37, 26, 0, 25]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.obp,string,25,0,"["".263"", "".273"", "".429"", "".000"", "".316""]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.outs,integer,25,0,"[15, 8, 4, 0, 7]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.passedBall,integer,25,0,[0]
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.pickoffs,integer,25,0,"[0, 1]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.pitchesPerInning,string,25,0,"[""14.40"", ""13.88"", ""19.50"", ""-.--"", ""10.71""]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.pitchesThrown,integer,13,0,"[72, 37, 26, 25, 70]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.popOuts,integer,25,0,"[1, 0, 2]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.rbi,integer,25,0,"[0, 3, 5, 1]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.runs,integer,25,0,"[1, 2, 0, 4, 5]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.runsScoredPer9,string,25,0,"[""1.80"", ""6.75"", ""0.00"", ""-.--"", ""8.31""]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.sacBunts,integer,25,0,[0]
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.sacFlies,integer,25,0,"[0, 1]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.saveOpportunities,integer,25,0,"[0, 3]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.saves,integer,25,0,"[0, 3]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.shutouts,integer,25,0,[0]
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.stolenBasePercentage,string,25,0,"[""1.000"", "".---"", "".000""]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.stolenBases,integer,25,0,"[1, 0]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.strikeOuts,integer,25,0,"[5, 1, 0, 4, 3]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.strikePercentage,string,25,0,"["".670"", "".590"", "".690"", ""-.--"", "".600""]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.strikeoutWalkRatio,string,25,0,"[""-.--"", ""5.00"", ""4.00"", ""3.00"", ""3.50""]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.strikeoutsPer9Inn,string,25,0,"[""9.00"", ""16.88"", ""6.75"", ""-.--"", ""0.00""]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.strikes,integer,25,0,"[48, 22, 18, 0, 15]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.triples,integer,25,0,[0]
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.walksPer9Inn,string,25,0,"[""0.00"", ""3.38"", ""-.--"", ""2.08"", ""1.50""]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.whip,string,25,0,"[""0.60"", ""1.13"", ""1.50"", ""-"", ""0.00""]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.wildPitches,integer,25,0,"[0, 1]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.winPercentage,string,25,0,"["".000"", "".---"", ""1.000""]"
+$.liveData.boxscore.teams.home.players.*.seasonStats.pitching.wins,integer,25,0,"[0, 1]"
+$.liveData.boxscore.teams.home.players.*.stats,object,25,0,[]
+$.liveData.boxscore.teams.home.players.*.stats.batting,object,25,0,[]
+$.liveData.boxscore.teams.home.players.*.stats.batting.airOuts,integer,14,0,"[0, 1, 2]"
+$.liveData.boxscore.teams.home.players.*.stats.batting.atBats,integer,14,0,"[0, 3, 2, 1, 4]"
+$.liveData.boxscore.teams.home.players.*.stats.batting.atBatsPerHomeRun,string,14,0,"[""-.--"", ""4.00""]"
+$.liveData.boxscore.teams.home.players.*.stats.batting.baseOnBalls,integer,14,0,"[0, 1]"
+$.liveData.boxscore.teams.home.players.*.stats.batting.catchersInterference,integer,14,0,[0]
+$.liveData.boxscore.teams.home.players.*.stats.batting.caughtStealing,integer,14,0,[0]
+$.liveData.boxscore.teams.home.players.*.stats.batting.doubles,integer,14,0,"[0, 1]"
+$.liveData.boxscore.teams.home.players.*.stats.batting.flyOuts,integer,14,0,"[0, 1, 2]"
+$.liveData.boxscore.teams.home.players.*.stats.batting.gamesPlayed,integer,14,0,[1]
+$.liveData.boxscore.teams.home.players.*.stats.batting.groundIntoDoublePlay,integer,14,0,"[0, 1]"
+$.liveData.boxscore.teams.home.players.*.stats.batting.groundIntoTriplePlay,integer,14,0,[0]
+$.liveData.boxscore.teams.home.players.*.stats.batting.groundOuts,integer,14,0,"[0, 2, 1, 3]"
+$.liveData.boxscore.teams.home.players.*.stats.batting.hitByPitch,integer,14,0,[0]
+$.liveData.boxscore.teams.home.players.*.stats.batting.hits,integer,14,0,"[0, 1, 2]"
+$.liveData.boxscore.teams.home.players.*.stats.batting.homeRuns,integer,14,0,"[0, 1]"
+$.liveData.boxscore.teams.home.players.*.stats.batting.intentionalWalks,integer,14,0,[0]
+$.liveData.boxscore.teams.home.players.*.stats.batting.leftOnBase,integer,14,0,"[0, 1, 3, 2]"
+$.liveData.boxscore.teams.home.players.*.stats.batting.lineOuts,integer,14,0,"[0, 1]"
+$.liveData.boxscore.teams.home.players.*.stats.batting.note,string,1,0,"[""a-""]"
+$.liveData.boxscore.teams.home.players.*.stats.batting.pickoffs,integer,14,0,[0]
+$.liveData.boxscore.teams.home.players.*.stats.batting.plateAppearances,integer,14,0,"[0, 3, 4, 1]"
+$.liveData.boxscore.teams.home.players.*.stats.batting.popOuts,integer,14,0,"[0, 1]"
+$.liveData.boxscore.teams.home.players.*.stats.batting.rbi,integer,14,0,"[0, 2, 1]"
+$.liveData.boxscore.teams.home.players.*.stats.batting.runs,integer,14,0,"[0, 1]"
+$.liveData.boxscore.teams.home.players.*.stats.batting.sacBunts,integer,14,0,[0]
+$.liveData.boxscore.teams.home.players.*.stats.batting.sacFlies,integer,14,0,"[0, 1]"
+$.liveData.boxscore.teams.home.players.*.stats.batting.stolenBasePercentage,string,14,0,"["".---""]"
+$.liveData.boxscore.teams.home.players.*.stats.batting.stolenBases,integer,14,0,[0]
+$.liveData.boxscore.teams.home.players.*.stats.batting.strikeOuts,integer,14,0,"[0, 2, 1]"
+$.liveData.boxscore.teams.home.players.*.stats.batting.summary,string,14,0,"[""0-0"", ""0-3"", ""0-3 | 2 K"", ""0-2 | BB"", ""1-3 | BB, R""]"
+$.liveData.boxscore.teams.home.players.*.stats.batting.totalBases,integer,14,0,"[0, 1, 2, 4, 3]"
+$.liveData.boxscore.teams.home.players.*.stats.batting.triples,integer,14,0,[0]
+$.liveData.boxscore.teams.home.players.*.stats.fielding,object,25,0,[]
+$.liveData.boxscore.teams.home.players.*.stats.fielding.assists,integer,14,0,"[0, 1, 2]"
+$.liveData.boxscore.teams.home.players.*.stats.fielding.caughtStealing,integer,14,0,[0]
+$.liveData.boxscore.teams.home.players.*.stats.fielding.caughtStealingPercentage,string,14,0,"["".---""]"
+$.liveData.boxscore.teams.home.players.*.stats.fielding.chances,integer,14,0,"[0, 9, 1, 2, 3]"
+$.liveData.boxscore.teams.home.players.*.stats.fielding.errors,integer,14,0,"[0, 1]"
+$.liveData.boxscore.teams.home.players.*.stats.fielding.fielding,string,14,0,"["".000""]"
+$.liveData.boxscore.teams.home.players.*.stats.fielding.gamesStarted,integer,9,0,[1]
+$.liveData.boxscore.teams.home.players.*.stats.fielding.passedBall,integer,14,0,[0]
+$.liveData.boxscore.teams.home.players.*.stats.fielding.pickoffs,integer,14,0,[0]
+$.liveData.boxscore.teams.home.players.*.stats.fielding.putOuts,integer,14,0,"[0, 8, 1, 3, 6]"
+$.liveData.boxscore.teams.home.players.*.stats.fielding.stolenBasePercentage,string,14,0,"["".---"", ""1.000""]"
+$.liveData.boxscore.teams.home.players.*.stats.fielding.stolenBases,integer,14,0,"[0, 1]"
+$.liveData.boxscore.teams.home.players.*.stats.pitching,object,25,0,[]
+$.liveData.boxscore.teams.home.players.*.stats.pitching.airOuts,integer,4,0,"[0, 2, 3, 4]"
+$.liveData.boxscore.teams.home.players.*.stats.pitching.atBats,integer,4,0,"[3, 12, 13]"
+$.liveData.boxscore.teams.home.players.*.stats.pitching.balks,integer,4,0,"[0, 1]"
+$.liveData.boxscore.teams.home.players.*.stats.pitching.balls,integer,4,0,"[3, 13, 24, 14]"
+$.liveData.boxscore.teams.home.players.*.stats.pitching.baseOnBalls,integer,4,0,"[0, 3, 1]"
+$.liveData.boxscore.teams.home.players.*.stats.pitching.battersFaced,integer,4,0,"[3, 12, 17, 13]"
+$.liveData.boxscore.teams.home.players.*.stats.pitching.blownSaves,integer,4,0,[0]
+$.liveData.boxscore.teams.home.players.*.stats.pitching.catchersInterference,integer,4,0,[0]
+$.liveData.boxscore.teams.home.players.*.stats.pitching.caughtStealing,integer,4,0,[0]
+$.liveData.boxscore.teams.home.players.*.stats.pitching.completeGames,integer,4,0,[0]
+$.liveData.boxscore.teams.home.players.*.stats.pitching.doubles,integer,4,0,"[0, 2, 3]"
+$.liveData.boxscore.teams.home.players.*.stats.pitching.earnedRuns,integer,4,0,"[0, 3, 5, 1]"
+$.liveData.boxscore.teams.home.players.*.stats.pitching.flyOuts,integer,4,0,"[0, 1, 2]"
+$.liveData.boxscore.teams.home.players.*.stats.pitching.gamesFinished,integer,4,0,"[1, 0]"
+$.liveData.boxscore.teams.home.players.*.stats.pitching.gamesPitched,integer,4,0,[1]
+$.liveData.boxscore.teams.home.players.*.stats.pitching.gamesPlayed,integer,4,0,[1]
+$.liveData.boxscore.teams.home.players.*.stats.pitching.gamesStarted,integer,4,0,"[0, 1]"
+$.liveData.boxscore.teams.home.players.*.stats.pitching.groundOuts,integer,4,0,"[0, 4, 1]"
+$.liveData.boxscore.teams.home.players.*.stats.pitching.hitBatsmen,integer,4,0,[0]
+$.liveData.boxscore.teams.home.players.*.stats.pitching.hitByPitch,integer,4,0,[0]
+$.liveData.boxscore.teams.home.players.*.stats.pitching.hits,integer,4,0,"[0, 4, 8, 3]"
+$.liveData.boxscore.teams.home.players.*.stats.pitching.holds,integer,4,0,[0]
+$.liveData.boxscore.teams.home.players.*.stats.pitching.homeRuns,integer,4,0,"[0, 1]"
+$.liveData.boxscore.teams.home.players.*.stats.pitching.homeRunsPer9,string,4,0,"[""0.00"", ""3.38""]"
+$.liveData.boxscore.teams.home.players.*.stats.pitching.inheritedRunners,integer,4,0,"[0, 1]"
+$.liveData.boxscore.teams.home.players.*.stats.pitching.inheritedRunnersScored,integer,4,0,[0]
+$.liveData.boxscore.teams.home.players.*.stats.pitching.inningsPitched,string,4,0,"[""1.0"", ""2.1"", ""2.2"", ""3.0""]"
+$.liveData.boxscore.teams.home.players.*.stats.pitching.intentionalWalks,integer,4,0,[0]
+$.liveData.boxscore.teams.home.players.*.stats.pitching.lineOuts,integer,4,0,"[0, 1]"
+$.liveData.boxscore.teams.home.players.*.stats.pitching.losses,integer,4,0,"[0, 1]"
+$.liveData.boxscore.teams.home.players.*.stats.pitching.note,string,1,0,"[""(L, 0-1)""]"
+$.liveData.boxscore.teams.home.players.*.stats.pitching.numberOfPitches,integer,4,0,"[12, 41, 65, 43]"
+$.liveData.boxscore.teams.home.players.*.stats.pitching.outs,integer,4,0,"[3, 7, 8, 9]"
+$.liveData.boxscore.teams.home.players.*.stats.pitching.passedBall,integer,4,0,[0]
+$.liveData.boxscore.teams.home.players.*.stats.pitching.pickoffs,integer,4,0,[0]
+$.liveData.boxscore.teams.home.players.*.stats.pitching.pitchesThrown,integer,4,0,"[12, 41, 65, 43]"
+$.liveData.boxscore.teams.home.players.*.stats.pitching.popOuts,integer,4,0,"[0, 1]"
+$.liveData.boxscore.teams.home.players.*.stats.pitching.rbi,integer,4,0,"[0, 3, 5, 1]"
+$.liveData.boxscore.teams.home.players.*.stats.pitching.runs,integer,4,0,"[0, 4, 5, 1]"
+$.liveData.boxscore.teams.home.players.*.stats.pitching.runsScoredPer9,string,4,0,"[""0.00"", ""15.43"", ""16.88"", ""3.00""]"
+$.liveData.boxscore.teams.home.players.*.stats.pitching.sacBunts,integer,4,0,[0]
+$.liveData.boxscore.teams.home.players.*.stats.pitching.sacFlies,integer,4,0,"[0, 1]"
+$.liveData.boxscore.teams.home.players.*.stats.pitching.saveOpportunities,integer,4,0,[0]
+$.liveData.boxscore.teams.home.players.*.stats.pitching.saves,integer,4,0,[0]
+$.liveData.boxscore.teams.home.players.*.stats.pitching.shutouts,integer,4,0,[0]
+$.liveData.boxscore.teams.home.players.*.stats.pitching.stolenBasePercentage,string,4,0,"["".---"", ""1.000""]"
+$.liveData.boxscore.teams.home.players.*.stats.pitching.stolenBases,integer,4,0,"[0, 1]"
+$.liveData.boxscore.teams.home.players.*.stats.pitching.strikeOuts,integer,4,0,"[3, 2, 1]"
+$.liveData.boxscore.teams.home.players.*.stats.pitching.strikePercentage,string,4,0,"["".750"", "".680"", "".630"", "".670""]"
+$.liveData.boxscore.teams.home.players.*.stats.pitching.strikes,integer,4,0,"[9, 28, 41, 29]"
+$.liveData.boxscore.teams.home.players.*.stats.pitching.summary,string,4,0,"[""1.0 IP, 0 ER, 3 K, 0 BB"", ""2.1 IP, 3 ER, 2 K, 0 BB"", ""2.2 IP, 5 ER, 2 K, 3 BB"", ""3.0 IP, ER, K, BB""]"
+$.liveData.boxscore.teams.home.players.*.stats.pitching.triples,integer,4,0,[0]
+$.liveData.boxscore.teams.home.players.*.stats.pitching.wildPitches,integer,4,0,[0]
+$.liveData.boxscore.teams.home.players.*.stats.pitching.wins,integer,4,0,[0]
+$.liveData.boxscore.teams.home.players.*.status,object,25,0,[]
+$.liveData.boxscore.teams.home.players.*.status.code,string,25,0,"[""A""]"
+$.liveData.boxscore.teams.home.players.*.status.description,string,25,0,"[""Active""]"
+$.liveData.boxscore.teams.home.team,object,1,0,[]
+$.liveData.boxscore.teams.home.team.allStarStatus,string,1,0,"[""N""]"
+$.liveData.boxscore.teams.home.team.id,integer,1,0,[135]
+$.liveData.boxscore.teams.home.team.link,string,1,0,"[""/api/v1/teams/135""]"
+$.liveData.boxscore.teams.home.team.name,string,1,0,"[""San Diego Padres""]"
+$.liveData.boxscore.teams.home.team.springLeague,object,1,0,[]
+$.liveData.boxscore.teams.home.team.springLeague.abbreviation,string,1,0,"[""CL""]"
+$.liveData.boxscore.teams.home.team.springLeague.id,integer,1,0,[114]
+$.liveData.boxscore.teams.home.team.springLeague.link,string,1,0,"[""/api/v1/league/114""]"
+$.liveData.boxscore.teams.home.team.springLeague.name,string,1,0,"[""Cactus League""]"
+$.liveData.boxscore.teams.home.teamStats,object,1,0,[]
+$.liveData.boxscore.teams.home.teamStats.batting,object,1,0,[]
+$.liveData.boxscore.teams.home.teamStats.batting.airOuts,integer,1,0,[10]
+$.liveData.boxscore.teams.home.teamStats.batting.atBats,integer,1,0,[31]
+$.liveData.boxscore.teams.home.teamStats.batting.atBatsPerHomeRun,string,1,0,"[""31.00""]"
+$.liveData.boxscore.teams.home.teamStats.batting.avg,string,1,0,"["".235""]"
+$.liveData.boxscore.teams.home.teamStats.batting.baseOnBalls,integer,1,0,[2]
+$.liveData.boxscore.teams.home.teamStats.batting.catchersInterference,integer,1,0,[0]
+$.liveData.boxscore.teams.home.teamStats.batting.caughtStealing,integer,1,0,[0]
+$.liveData.boxscore.teams.home.teamStats.batting.doubles,integer,1,0,[1]
+$.liveData.boxscore.teams.home.teamStats.batting.flyOuts,integer,1,0,[5]
+$.liveData.boxscore.teams.home.teamStats.batting.groundIntoDoublePlay,integer,1,0,[1]
+$.liveData.boxscore.teams.home.teamStats.batting.groundIntoTriplePlay,integer,1,0,[0]
+$.liveData.boxscore.teams.home.teamStats.batting.groundOuts,integer,1,0,[11]
+$.liveData.boxscore.teams.home.teamStats.batting.hitByPitch,integer,1,0,[0]
+$.liveData.boxscore.teams.home.teamStats.batting.hits,integer,1,0,[6]
+$.liveData.boxscore.teams.home.teamStats.batting.homeRuns,integer,1,0,[1]
+$.liveData.boxscore.teams.home.teamStats.batting.intentionalWalks,integer,1,0,[0]
+$.liveData.boxscore.teams.home.teamStats.batting.leftOnBase,integer,1,0,[8]
+$.liveData.boxscore.teams.home.teamStats.batting.lineOuts,integer,1,0,[2]
+$.liveData.boxscore.teams.home.teamStats.batting.obp,string,1,0,"["".292""]"
+$.liveData.boxscore.teams.home.teamStats.batting.ops,string,1,0,"["".651""]"
+$.liveData.boxscore.teams.home.teamStats.batting.pickoffs,integer,1,0,[0]
+$.liveData.boxscore.teams.home.teamStats.batting.plateAppearances,integer,1,0,[34]
+$.liveData.boxscore.teams.home.teamStats.batting.popOuts,integer,1,0,[3]
+$.liveData.boxscore.teams.home.teamStats.batting.rbi,integer,1,0,[3]
+$.liveData.boxscore.teams.home.teamStats.batting.runs,integer,1,0,[3]
+$.liveData.boxscore.teams.home.teamStats.batting.sacBunts,integer,1,0,[0]
+$.liveData.boxscore.teams.home.teamStats.batting.sacFlies,integer,1,0,[1]
+$.liveData.boxscore.teams.home.teamStats.batting.slg,string,1,0,"["".359""]"
+$.liveData.boxscore.teams.home.teamStats.batting.stolenBasePercentage,string,1,0,"["".---""]"
+$.liveData.boxscore.teams.home.teamStats.batting.stolenBases,integer,1,0,[0]
+$.liveData.boxscore.teams.home.teamStats.batting.strikeOuts,integer,1,0,[5]
+$.liveData.boxscore.teams.home.teamStats.batting.totalBases,integer,1,0,[10]
+$.liveData.boxscore.teams.home.teamStats.batting.triples,integer,1,0,[0]
+$.liveData.boxscore.teams.home.teamStats.fielding,object,1,0,[]
+$.liveData.boxscore.teams.home.teamStats.fielding.assists,integer,1,0,[7]
+$.liveData.boxscore.teams.home.teamStats.fielding.caughtStealing,integer,1,0,[0]
+$.liveData.boxscore.teams.home.teamStats.fielding.caughtStealingPercentage,string,1,0,"["".---""]"
+$.liveData.boxscore.teams.home.teamStats.fielding.chances,integer,1,0,[35]
+$.liveData.boxscore.teams.home.teamStats.fielding.errors,integer,1,0,[1]
+$.liveData.boxscore.teams.home.teamStats.fielding.passedBall,integer,1,0,[0]
+$.liveData.boxscore.teams.home.teamStats.fielding.pickoffs,integer,1,0,[0]
+$.liveData.boxscore.teams.home.teamStats.fielding.putOuts,integer,1,0,[27]
+$.liveData.boxscore.teams.home.teamStats.fielding.stolenBasePercentage,string,1,0,"[""1.000""]"
+$.liveData.boxscore.teams.home.teamStats.fielding.stolenBases,integer,1,0,[1]
+$.liveData.boxscore.teams.home.teamStats.pitching,object,1,0,[]
+$.liveData.boxscore.teams.home.teamStats.pitching.airOuts,integer,1,0,[9]
+$.liveData.boxscore.teams.home.teamStats.pitching.atBats,integer,1,0,[40]
+$.liveData.boxscore.teams.home.teamStats.pitching.balks,integer,1,0,[1]
+$.liveData.boxscore.teams.home.teamStats.pitching.balls,integer,1,0,[54]
+$.liveData.boxscore.teams.home.teamStats.pitching.baseOnBalls,integer,1,0,[4]
+$.liveData.boxscore.teams.home.teamStats.pitching.battersFaced,integer,1,0,[45]
+$.liveData.boxscore.teams.home.teamStats.pitching.catchersInterference,integer,1,0,[0]
+$.liveData.boxscore.teams.home.teamStats.pitching.caughtStealing,integer,1,0,[0]
+$.liveData.boxscore.teams.home.teamStats.pitching.caughtStealingPercentage,string,1,0,"["".000""]"
+$.liveData.boxscore.teams.home.teamStats.pitching.completeGames,integer,1,0,[0]
+$.liveData.boxscore.teams.home.teamStats.pitching.doubles,integer,1,0,[5]
+$.liveData.boxscore.teams.home.teamStats.pitching.earnedRuns,integer,1,0,[9]
+$.liveData.boxscore.teams.home.teamStats.pitching.era,string,1,0,"[""2.80""]"
+$.liveData.boxscore.teams.home.teamStats.pitching.flyOuts,integer,1,0,[5]
+$.liveData.boxscore.teams.home.teamStats.pitching.groundOuts,integer,1,0,[9]
+$.liveData.boxscore.teams.home.teamStats.pitching.groundOutsToAirouts,string,1,0,"[""1.00""]"
+$.liveData.boxscore.teams.home.teamStats.pitching.hitBatsmen,integer,1,0,[0]
+$.liveData.boxscore.teams.home.teamStats.pitching.hitByPitch,integer,1,0,[0]
+$.liveData.boxscore.teams.home.teamStats.pitching.hits,integer,1,0,[15]
+$.liveData.boxscore.teams.home.teamStats.pitching.homeRuns,integer,1,0,[1]
+$.liveData.boxscore.teams.home.teamStats.pitching.homeRunsPer9,string,1,0,"[""1.00""]"
+$.liveData.boxscore.teams.home.teamStats.pitching.inheritedRunners,integer,1,0,[0]
+$.liveData.boxscore.teams.home.teamStats.pitching.inheritedRunnersScored,integer,1,0,[0]
+$.liveData.boxscore.teams.home.teamStats.pitching.inningsPitched,string,1,0,"[""9.0""]"
+$.liveData.boxscore.teams.home.teamStats.pitching.intentionalWalks,integer,1,0,[0]
+$.liveData.boxscore.teams.home.teamStats.pitching.lineOuts,integer,1,0,[3]
+$.liveData.boxscore.teams.home.teamStats.pitching.numberOfPitches,integer,1,0,[161]
+$.liveData.boxscore.teams.home.teamStats.pitching.obp,string,1,0,"["".422""]"
+$.liveData.boxscore.teams.home.teamStats.pitching.outs,integer,1,0,[27]
+$.liveData.boxscore.teams.home.teamStats.pitching.passedBall,integer,1,0,[0]
+$.liveData.boxscore.teams.home.teamStats.pitching.pickoffs,integer,1,0,[0]
+$.liveData.boxscore.teams.home.teamStats.pitching.pitchesPerInning,string,1,0,"[""17.89""]"
+$.liveData.boxscore.teams.home.teamStats.pitching.pitchesThrown,integer,1,0,[161]
+$.liveData.boxscore.teams.home.teamStats.pitching.popOuts,integer,1,0,[1]
+$.liveData.boxscore.teams.home.teamStats.pitching.rbi,integer,1,0,[9]
+$.liveData.boxscore.teams.home.teamStats.pitching.runs,integer,1,0,[10]
+$.liveData.boxscore.teams.home.teamStats.pitching.runsScoredPer9,string,1,0,"[""10.00""]"
+$.liveData.boxscore.teams.home.teamStats.pitching.sacBunts,integer,1,0,[0]
+$.liveData.boxscore.teams.home.teamStats.pitching.sacFlies,integer,1,0,[1]
+$.liveData.boxscore.teams.home.teamStats.pitching.saveOpportunities,integer,1,0,[0]
+$.liveData.boxscore.teams.home.teamStats.pitching.shutouts,integer,1,0,[0]
+$.liveData.boxscore.teams.home.teamStats.pitching.stolenBasePercentage,string,1,0,"[""1.000""]"
+$.liveData.boxscore.teams.home.teamStats.pitching.stolenBases,integer,1,0,[1]
+$.liveData.boxscore.teams.home.teamStats.pitching.strikeOuts,integer,1,0,[8]
+$.liveData.boxscore.teams.home.teamStats.pitching.strikePercentage,string,1,0,"["".660""]"
+$.liveData.boxscore.teams.home.teamStats.pitching.strikes,integer,1,0,[107]
+$.liveData.boxscore.teams.home.teamStats.pitching.triples,integer,1,0,[0]
+$.liveData.boxscore.teams.home.teamStats.pitching.whip,string,1,0,"[""1.09""]"
+$.liveData.boxscore.teams.home.teamStats.pitching.wildPitches,integer,1,0,[0]
+$.liveData.boxscore.topPerformers,array,1,0,[]
+$.liveData.boxscore.topPerformers[*],object,3,0,[]
+$.liveData.boxscore.topPerformers[*].gameScore,integer,3,0,"[60, 58]"
+$.liveData.boxscore.topPerformers[*].hittingGameScore,integer,2,0,[60]
+$.liveData.boxscore.topPerformers[*].pitchingGameScore,integer,1,0,[58]
+$.liveData.boxscore.topPerformers[*].player,object,3,0,[]
+$.liveData.boxscore.topPerformers[*].player.allPositions,array,3,0,[]
+$.liveData.boxscore.topPerformers[*].player.allPositions[*],object,3,0,[]
+$.liveData.boxscore.topPerformers[*].player.allPositions[*].abbreviation,string,3,0,"[""LF"", ""CF"", ""P""]"
+$.liveData.boxscore.topPerformers[*].player.allPositions[*].code,string,3,0,"[""7"", ""8"", ""1""]"
+$.liveData.boxscore.topPerformers[*].player.allPositions[*].name,string,3,0,"[""Outfielder"", ""Pitcher""]"
+$.liveData.boxscore.topPerformers[*].player.allPositions[*].type,string,3,0,"[""Outfielder"", ""Pitcher""]"
+$.liveData.boxscore.topPerformers[*].player.battingOrder,string,3,0,"[""400"", ""600"", ""902""]"
+$.liveData.boxscore.topPerformers[*].player.gameStatus,object,3,0,[]
+$.liveData.boxscore.topPerformers[*].player.gameStatus.isCurrentBatter,boolean,3,0,[false]
+$.liveData.boxscore.topPerformers[*].player.gameStatus.isCurrentPitcher,boolean,3,0,"[false, true]"
+$.liveData.boxscore.topPerformers[*].player.gameStatus.isOnBench,boolean,3,0,[false]
+$.liveData.boxscore.topPerformers[*].player.gameStatus.isSubstitute,boolean,3,0,"[false, true]"
+$.liveData.boxscore.topPerformers[*].player.jerseyNumber,string,3,0,"[""6"", ""4"", ""57""]"
+$.liveData.boxscore.topPerformers[*].player.parentTeamId,integer,3,0,[109]
+$.liveData.boxscore.topPerformers[*].player.person,object,3,0,[]
+$.liveData.boxscore.topPerformers[*].player.person.boxscoreName,string,3,0,"[""Peralta, D"", ""Marte, K"", ""Duplantier""]"
+$.liveData.boxscore.topPerformers[*].player.person.fullName,string,3,0,"[""David Peralta"", ""Ketel Marte"", ""Jon Duplantier""]"
+$.liveData.boxscore.topPerformers[*].player.person.id,integer,3,0,"[444482, 606466, 641541]"
+$.liveData.boxscore.topPerformers[*].player.person.link,string,3,0,"[""/api/v1/people/444482"", ""/api/v1/people/606466"", ""/api/v1/people/641541""]"
+$.liveData.boxscore.topPerformers[*].player.position,object,3,0,[]
+$.liveData.boxscore.topPerformers[*].player.position.abbreviation,string,3,0,"[""LF"", ""CF"", ""P""]"
+$.liveData.boxscore.topPerformers[*].player.position.code,string,3,0,"[""7"", ""8"", ""1""]"
+$.liveData.boxscore.topPerformers[*].player.position.name,string,3,0,"[""Outfielder"", ""Pitcher""]"
+$.liveData.boxscore.topPerformers[*].player.position.type,string,3,0,"[""Outfielder"", ""Pitcher""]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats,object,3,0,[]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.batting,object,3,0,[]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.batting.airOuts,integer,3,0,"[5, 6, 0]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.batting.atBats,integer,3,0,"[24, 22, 1]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.batting.atBatsPerHomeRun,string,3,0,"[""24.00"", ""-.--""]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.batting.avg,string,3,0,"["".417"", "".273"", "".000""]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.batting.babip,string,3,0,"["".474"", "".316"", "".---""]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.batting.baseOnBalls,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.batting.catchersInterference,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.batting.caughtStealing,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.batting.caughtStealingPercentage,string,3,0,"["".---"", "".000""]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.batting.doubles,integer,3,0,"[3, 0]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.batting.flyOuts,integer,3,0,"[2, 3, 0]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.batting.gamesPlayed,integer,3,0,"[5, 1]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.batting.groundIntoDoublePlay,integer,3,0,"[0, 1]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.batting.groundIntoTriplePlay,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.batting.groundOuts,integer,3,0,"[5, 7, 0]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.batting.groundOutsToAirouts,string,3,0,"[""1.00"", ""1.17"", ""-.--""]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.batting.hitByPitch,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.batting.hits,integer,3,0,"[10, 6, 0]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.batting.homeRuns,integer,3,0,"[1, 0]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.batting.intentionalWalks,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.batting.leftOnBase,integer,3,0,"[3, 8, 0]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.batting.lineOuts,integer,3,0,"[1, 3, 0]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.batting.obp,string,3,0,"["".417"", "".261"", "".000""]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.batting.ops,string,3,0,"[""1.084"", "".625"", "".000""]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.batting.pickoffs,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.batting.plateAppearances,integer,3,0,"[24, 23, 1]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.batting.popOuts,integer,3,0,"[2, 0]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.batting.rbi,integer,3,0,"[4, 5, 0]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.batting.runs,integer,3,0,"[6, 4, 0]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.batting.sacBunts,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.batting.sacFlies,integer,3,0,"[0, 1]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.batting.slg,string,3,0,"["".667"", "".364"", "".000""]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.batting.stolenBasePercentage,string,3,0,"["".---"", ""1.000""]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.batting.stolenBases,integer,3,0,"[0, 2]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.batting.strikeOuts,integer,3,0,"[4, 1]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.batting.totalBases,integer,3,0,"[16, 8, 0]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.batting.triples,integer,3,0,"[0, 1]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.fielding,object,3,0,[]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.fielding.assists,integer,3,0,"[0, 7]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.fielding.caughtStealing,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.fielding.caughtStealingPercentage,string,3,0,"["".---""]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.fielding.chances,integer,3,0,"[11, 22, 0]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.fielding.errors,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.fielding.fielding,string,3,0,"[""1.000"", "".000""]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.fielding.gamesStarted,integer,2,0,[1]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.fielding.passedBall,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.fielding.pickoffs,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.fielding.putOuts,integer,3,0,"[11, 15, 0]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.fielding.stolenBasePercentage,string,3,0,"["".---""]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.fielding.stolenBases,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching,object,3,0,[]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.airOuts,integer,3,0,"[0, 2]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.atBats,integer,3,0,"[0, 9]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.balks,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.balls,integer,3,0,"[0, 11]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.baseOnBalls,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.battersFaced,integer,3,0,"[0, 9]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.blownSaves,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.catchersInterference,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.caughtStealing,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.caughtStealingPercentage,string,3,0,"["".---""]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.completeGames,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.doubles,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.earnedRuns,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.era,string,3,0,"[""-.--"", ""0.00""]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.flyOuts,integer,3,0,"[0, 1]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.gamesFinished,integer,3,0,"[0, 1]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.gamesPitched,integer,3,0,"[0, 1]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.gamesPlayed,integer,3,0,"[0, 1]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.gamesStarted,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.groundOuts,integer,3,0,"[0, 4]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.groundOutsToAirouts,string,3,0,"[""-.--"", ""2.00""]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.hitBatsmen,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.hitByPitch,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.hits,integer,3,0,"[0, 1]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.hitsPer9Inn,string,3,0,"[""-.--"", ""3.00""]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.holds,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.homeRuns,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.homeRunsPer9,string,3,0,"[""-.--"", ""0.00""]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.inheritedRunners,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.inheritedRunnersScored,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.inningsPitched,string,3,0,"[""0.0"", ""3.0""]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.intentionalWalks,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.lineOuts,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.losses,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.numberOfPitches,integer,3,0,"[0, 33]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.obp,string,3,0,"["".000"", "".111""]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.outs,integer,3,0,"[0, 9]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.passedBall,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.pickoffs,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.pitchesPerInning,string,3,0,"[""-.--"", ""11.00""]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.pitchesThrown,integer,1,0,[33]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.popOuts,integer,3,0,"[0, 1]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.rbi,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.runs,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.runsScoredPer9,string,3,0,"[""-.--"", ""0.00""]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.sacBunts,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.sacFlies,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.saveOpportunities,integer,3,0,"[0, 1]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.saves,integer,3,0,"[0, 1]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.shutouts,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.stolenBasePercentage,string,3,0,"["".---""]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.stolenBases,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.strikeOuts,integer,3,0,"[0, 2]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.strikePercentage,string,3,0,"[""-.--"", "".670""]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.strikeoutWalkRatio,string,3,0,"[""-.--""]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.strikeoutsPer9Inn,string,3,0,"[""-.--"", ""6.00""]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.strikes,integer,3,0,"[0, 22]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.triples,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.walksPer9Inn,string,3,0,"[""-.--"", ""0.00""]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.whip,string,3,0,"[""-"", ""0.33""]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.wildPitches,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.winPercentage,string,3,0,"["".---""]"
+$.liveData.boxscore.topPerformers[*].player.seasonStats.pitching.wins,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats,object,3,0,[]
+$.liveData.boxscore.topPerformers[*].player.stats.batting,object,3,0,[]
+$.liveData.boxscore.topPerformers[*].player.stats.batting.airOuts,integer,3,0,"[0, 1]"
+$.liveData.boxscore.topPerformers[*].player.stats.batting.atBats,integer,3,0,"[5, 1]"
+$.liveData.boxscore.topPerformers[*].player.stats.batting.atBatsPerHomeRun,string,3,0,"[""-.--""]"
+$.liveData.boxscore.topPerformers[*].player.stats.batting.baseOnBalls,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.batting.catchersInterference,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.batting.caughtStealing,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.batting.doubles,integer,3,0,"[2, 0]"
+$.liveData.boxscore.topPerformers[*].player.stats.batting.flyOuts,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.batting.gamesPlayed,integer,3,0,[1]
+$.liveData.boxscore.topPerformers[*].player.stats.batting.groundIntoDoublePlay,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.batting.groundIntoTriplePlay,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.batting.groundOuts,integer,3,0,"[2, 0]"
+$.liveData.boxscore.topPerformers[*].player.stats.batting.hitByPitch,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.batting.hits,integer,3,0,"[3, 0]"
+$.liveData.boxscore.topPerformers[*].player.stats.batting.homeRuns,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.batting.intentionalWalks,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.batting.leftOnBase,integer,3,0,"[0, 3]"
+$.liveData.boxscore.topPerformers[*].player.stats.batting.lineOuts,integer,3,0,"[0, 1]"
+$.liveData.boxscore.topPerformers[*].player.stats.batting.pickoffs,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.batting.plateAppearances,integer,3,0,"[5, 1]"
+$.liveData.boxscore.topPerformers[*].player.stats.batting.popOuts,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.batting.rbi,integer,3,0,"[1, 0]"
+$.liveData.boxscore.topPerformers[*].player.stats.batting.runs,integer,3,0,"[2, 3, 0]"
+$.liveData.boxscore.topPerformers[*].player.stats.batting.sacBunts,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.batting.sacFlies,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.batting.stolenBasePercentage,string,3,0,"["".---"", ""1.000""]"
+$.liveData.boxscore.topPerformers[*].player.stats.batting.stolenBases,integer,3,0,"[0, 1]"
+$.liveData.boxscore.topPerformers[*].player.stats.batting.strikeOuts,integer,3,0,"[0, 1]"
+$.liveData.boxscore.topPerformers[*].player.stats.batting.summary,string,3,0,"[""3-5 | 2 2B, RBI, 2 R"", ""3-5 | K, RBI, 3 R"", ""0-1 | K""]"
+$.liveData.boxscore.topPerformers[*].player.stats.batting.totalBases,integer,3,0,"[5, 3, 0]"
+$.liveData.boxscore.topPerformers[*].player.stats.batting.triples,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.fielding,object,3,0,[]
+$.liveData.boxscore.topPerformers[*].player.stats.fielding.assists,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.fielding.caughtStealing,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.fielding.caughtStealingPercentage,string,3,0,"["".---""]"
+$.liveData.boxscore.topPerformers[*].player.stats.fielding.chances,integer,3,0,"[2, 3, 0]"
+$.liveData.boxscore.topPerformers[*].player.stats.fielding.errors,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.fielding.fielding,string,3,0,"["".000""]"
+$.liveData.boxscore.topPerformers[*].player.stats.fielding.gamesStarted,integer,2,0,[1]
+$.liveData.boxscore.topPerformers[*].player.stats.fielding.passedBall,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.fielding.pickoffs,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.fielding.putOuts,integer,3,0,"[2, 3, 0]"
+$.liveData.boxscore.topPerformers[*].player.stats.fielding.stolenBasePercentage,string,3,0,"["".---""]"
+$.liveData.boxscore.topPerformers[*].player.stats.fielding.stolenBases,integer,3,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching,object,3,0,[]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.airOuts,integer,1,0,[2]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.atBats,integer,1,0,[9]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.balks,integer,1,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.balls,integer,1,0,[11]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.baseOnBalls,integer,1,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.battersFaced,integer,1,0,[9]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.blownSaves,integer,1,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.catchersInterference,integer,1,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.caughtStealing,integer,1,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.completeGames,integer,1,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.doubles,integer,1,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.earnedRuns,integer,1,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.flyOuts,integer,1,0,[1]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.gamesFinished,integer,1,0,[1]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.gamesPitched,integer,1,0,[1]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.gamesPlayed,integer,1,0,[1]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.gamesStarted,integer,1,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.groundOuts,integer,1,0,[4]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.hitBatsmen,integer,1,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.hitByPitch,integer,1,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.hits,integer,1,0,[1]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.holds,integer,1,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.homeRuns,integer,1,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.homeRunsPer9,string,1,0,"[""0.00""]"
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.inheritedRunners,integer,1,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.inheritedRunnersScored,integer,1,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.inningsPitched,string,1,0,"[""3.0""]"
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.intentionalWalks,integer,1,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.lineOuts,integer,1,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.losses,integer,1,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.note,string,1,0,"[""(S, 1)""]"
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.numberOfPitches,integer,1,0,[33]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.outs,integer,1,0,[9]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.passedBall,integer,1,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.pickoffs,integer,1,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.pitchesThrown,integer,1,0,[33]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.popOuts,integer,1,0,[1]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.rbi,integer,1,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.runs,integer,1,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.runsScoredPer9,string,1,0,"[""0.00""]"
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.sacBunts,integer,1,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.sacFlies,integer,1,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.saveOpportunities,integer,1,0,[1]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.saves,integer,1,0,[1]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.shutouts,integer,1,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.stolenBasePercentage,string,1,0,"["".---""]"
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.stolenBases,integer,1,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.strikeOuts,integer,1,0,[2]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.strikePercentage,string,1,0,"["".670""]"
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.strikes,integer,1,0,[22]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.summary,string,1,0,"[""3.0 IP, 0 ER, 2 K, 0 BB""]"
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.triples,integer,1,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.wildPitches,integer,1,0,[0]
+$.liveData.boxscore.topPerformers[*].player.stats.pitching.wins,integer,1,0,[0]
+$.liveData.boxscore.topPerformers[*].player.status,object,3,0,[]
+$.liveData.boxscore.topPerformers[*].player.status.code,string,3,0,"[""A""]"
+$.liveData.boxscore.topPerformers[*].player.status.description,string,3,0,"[""Active""]"
+$.liveData.boxscore.topPerformers[*].type,string,3,0,"[""hitter"", ""reliever""]"
+$.liveData.decisions,object,1,0,[]
+$.liveData.decisions.loser,object,1,0,[]
+$.liveData.decisions.loser.fullName,string,1,0,"[""Matt Strahm""]"
+$.liveData.decisions.loser.id,integer,1,0,[621381]
+$.liveData.decisions.loser.link,string,1,0,"[""/api/v1/people/621381""]"
+$.liveData.decisions.save,object,1,0,[]
+$.liveData.decisions.save.fullName,string,1,0,"[""Jon Duplantier""]"
+$.liveData.decisions.save.id,integer,1,0,[641541]
+$.liveData.decisions.save.link,string,1,0,"[""/api/v1/people/641541""]"
+$.liveData.decisions.winner,object,1,0,[]
+$.liveData.decisions.winner.fullName,string,1,0,"[""Merrill Kelly""]"
+$.liveData.decisions.winner.id,integer,1,0,[518876]
+$.liveData.decisions.winner.link,string,1,0,"[""/api/v1/people/518876""]"
+$.liveData.leaders,object,1,0,[]
+$.liveData.leaders.hitDistance,object,1,0,[]
+$.liveData.leaders.hitSpeed,object,1,0,[]
+$.liveData.leaders.pitchSpeed,object,1,0,[]
+$.liveData.linescore,object,1,0,[]
+$.liveData.linescore.balls,integer,1,0,[1]
+$.liveData.linescore.currentInning,integer,1,0,[9]
+$.liveData.linescore.currentInningOrdinal,string,1,0,"[""9th""]"
+$.liveData.linescore.defense,object,1,0,[]
+$.liveData.linescore.defense.batter,object,1,0,[]
+$.liveData.linescore.defense.batter.fullName,string,1,0,"[""Adam Jones""]"
+$.liveData.linescore.defense.batter.id,integer,1,0,[430945]
+$.liveData.linescore.defense.batter.link,string,1,0,"[""/api/v1/people/430945""]"
+$.liveData.linescore.defense.battingOrder,integer,1,0,[10]
+$.liveData.linescore.defense.catcher,object,1,0,[]
+$.liveData.linescore.defense.catcher.fullName,string,1,0,"[""Alex Avila""]"
+$.liveData.linescore.defense.catcher.id,integer,1,0,[488671]
+$.liveData.linescore.defense.catcher.link,string,1,0,"[""/api/v1/people/488671""]"
+$.liveData.linescore.defense.center,object,1,0,[]
+$.liveData.linescore.defense.center.fullName,string,1,0,"[""Ketel Marte""]"
+$.liveData.linescore.defense.center.id,integer,1,0,[606466]
+$.liveData.linescore.defense.center.link,string,1,0,"[""/api/v1/people/606466""]"
+$.liveData.linescore.defense.first,object,1,0,[]
+$.liveData.linescore.defense.first.fullName,string,1,0,"[""Christian Walker""]"
+$.liveData.linescore.defense.first.id,integer,1,0,[572233]
+$.liveData.linescore.defense.first.link,string,1,0,"[""/api/v1/people/572233""]"
+$.liveData.linescore.defense.inHole,object,1,0,[]
+$.liveData.linescore.defense.inHole.fullName,string,1,0,"[""Wilmer Flores""]"
+$.liveData.linescore.defense.inHole.id,integer,1,0,[527038]
+$.liveData.linescore.defense.inHole.link,string,1,0,"[""/api/v1/people/527038""]"
+$.liveData.linescore.defense.left,object,1,0,[]
+$.liveData.linescore.defense.left.fullName,string,1,0,"[""David Peralta""]"
+$.liveData.linescore.defense.left.id,integer,1,0,[444482]
+$.liveData.linescore.defense.left.link,string,1,0,"[""/api/v1/people/444482""]"
+$.liveData.linescore.defense.onDeck,object,1,0,[]
+$.liveData.linescore.defense.onDeck.fullName,string,1,0,"[""Eduardo Escobar""]"
+$.liveData.linescore.defense.onDeck.id,integer,1,0,[500871]
+$.liveData.linescore.defense.onDeck.link,string,1,0,"[""/api/v1/people/500871""]"
+$.liveData.linescore.defense.pitcher,object,1,0,[]
+$.liveData.linescore.defense.pitcher.fullName,string,1,0,"[""Jon Duplantier""]"
+$.liveData.linescore.defense.pitcher.id,integer,1,0,[641541]
+$.liveData.linescore.defense.pitcher.link,string,1,0,"[""/api/v1/people/641541""]"
+$.liveData.linescore.defense.right,object,1,0,[]
+$.liveData.linescore.defense.right.fullName,string,1,0,"[""Adam Jones""]"
+$.liveData.linescore.defense.right.id,integer,1,0,[430945]
+$.liveData.linescore.defense.right.link,string,1,0,"[""/api/v1/people/430945""]"
+$.liveData.linescore.defense.second,object,1,0,[]
+$.liveData.linescore.defense.second.fullName,string,1,0,"[""Wilmer Flores""]"
+$.liveData.linescore.defense.second.id,integer,1,0,[527038]
+$.liveData.linescore.defense.second.link,string,1,0,"[""/api/v1/people/527038""]"
+$.liveData.linescore.defense.shortstop,object,1,0,[]
+$.liveData.linescore.defense.shortstop.fullName,string,1,0,"[""Nick Ahmed""]"
+$.liveData.linescore.defense.shortstop.id,integer,1,0,[605113]
+$.liveData.linescore.defense.shortstop.link,string,1,0,"[""/api/v1/people/605113""]"
+$.liveData.linescore.defense.team,object,1,0,[]
+$.liveData.linescore.defense.team.id,integer,1,0,[109]
+$.liveData.linescore.defense.team.link,string,1,0,"[""/api/v1/teams/109""]"
+$.liveData.linescore.defense.team.name,string,1,0,"[""Arizona Diamondbacks""]"
+$.liveData.linescore.defense.third,object,1,0,[]
+$.liveData.linescore.defense.third.fullName,string,1,0,"[""Eduardo Escobar""]"
+$.liveData.linescore.defense.third.id,integer,1,0,[500871]
+$.liveData.linescore.defense.third.link,string,1,0,"[""/api/v1/people/500871""]"
+$.liveData.linescore.inningHalf,string,1,0,"[""Bottom""]"
+$.liveData.linescore.inningState,string,1,0,"[""Bottom""]"
+$.liveData.linescore.innings,array,1,0,[]
+$.liveData.linescore.innings[*],object,9,0,[]
+$.liveData.linescore.innings[*].away,object,9,0,[]
+$.liveData.linescore.innings[*].away.errors,integer,9,0,[0]
+$.liveData.linescore.innings[*].away.hits,integer,9,0,"[3, 2, 0, 4, 1]"
+$.liveData.linescore.innings[*].away.leftOnBase,integer,9,0,"[1, 2, 0]"
+$.liveData.linescore.innings[*].away.runs,integer,9,0,"[2, 1, 0, 4]"
+$.liveData.linescore.innings[*].home,object,9,0,[]
+$.liveData.linescore.innings[*].home.errors,integer,9,0,"[0, 1]"
+$.liveData.linescore.innings[*].home.hits,integer,9,0,"[0, 1, 3]"
+$.liveData.linescore.innings[*].home.leftOnBase,integer,9,0,"[1, 0, 2]"
+$.liveData.linescore.innings[*].home.runs,integer,9,0,"[0, 3]"
+$.liveData.linescore.innings[*].num,integer,9,0,"[1, 2, 3, 4, 5]"
+$.liveData.linescore.innings[*].ordinalNum,string,9,0,"[""1st"", ""2nd"", ""3rd"", ""4th"", ""5th""]"
+$.liveData.linescore.isTopInning,boolean,1,0,[false]
+$.liveData.linescore.offense,object,1,0,[]
+$.liveData.linescore.offense.batter,object,1,0,[]
+$.liveData.linescore.offense.batter.fullName,string,1,0,"[""Greg Garcia""]"
+$.liveData.linescore.offense.batter.id,integer,1,0,[594824]
+$.liveData.linescore.offense.batter.link,string,1,0,"[""/api/v1/people/594824""]"
+$.liveData.linescore.offense.battingOrder,integer,1,0,[7]
+$.liveData.linescore.offense.inHole,object,1,0,[]
+$.liveData.linescore.offense.inHole.fullName,string,1,0,"[""Franchy Cordero""]"
+$.liveData.linescore.offense.inHole.id,integer,1,0,[614173]
+$.liveData.linescore.offense.inHole.link,string,1,0,"[""/api/v1/people/614173""]"
+$.liveData.linescore.offense.onDeck,object,1,0,[]
+$.liveData.linescore.offense.onDeck.fullName,string,1,0,"[""Austin Hedges""]"
+$.liveData.linescore.offense.onDeck.id,integer,1,0,[595978]
+$.liveData.linescore.offense.onDeck.link,string,1,0,"[""/api/v1/people/595978""]"
+$.liveData.linescore.offense.pitcher,object,1,0,[]
+$.liveData.linescore.offense.pitcher.fullName,string,1,0,"[""Robert Stock""]"
+$.liveData.linescore.offense.pitcher.id,integer,1,0,[476594]
+$.liveData.linescore.offense.pitcher.link,string,1,0,"[""/api/v1/people/476594""]"
+$.liveData.linescore.offense.team,object,1,0,[]
+$.liveData.linescore.offense.team.id,integer,1,0,[135]
+$.liveData.linescore.offense.team.link,string,1,0,"[""/api/v1/teams/135""]"
+$.liveData.linescore.offense.team.name,string,1,0,"[""San Diego Padres""]"
+$.liveData.linescore.outs,integer,1,0,[3]
+$.liveData.linescore.scheduledInnings,integer,1,0,[9]
+$.liveData.linescore.strikes,integer,1,0,[3]
+$.liveData.linescore.teams,object,1,0,[]
+$.liveData.linescore.teams.away,object,1,0,[]
+$.liveData.linescore.teams.away.errors,integer,1,0,[0]
+$.liveData.linescore.teams.away.hits,integer,1,0,[15]
+$.liveData.linescore.teams.away.leftOnBase,integer,1,0,[8]
+$.liveData.linescore.teams.away.runs,integer,1,0,[10]
+$.liveData.linescore.teams.home,object,1,0,[]
+$.liveData.linescore.teams.home.errors,integer,1,0,[1]
+$.liveData.linescore.teams.home.hits,integer,1,0,[6]
+$.liveData.linescore.teams.home.leftOnBase,integer,1,0,[4]
+$.liveData.linescore.teams.home.runs,integer,1,0,[3]
+$.liveData.plays,object,1,0,[]
+$.liveData.plays.allPlays,array,1,0,[]
+$.liveData.plays.allPlays[*],object,79,0,[]
+$.liveData.plays.allPlays[*].about,object,79,0,[]
+$.liveData.plays.allPlays[*].about.atBatIndex,integer,79,0,"[0, 1, 2, 3, 4]"
+$.liveData.plays.allPlays[*].about.captivatingIndex,integer,79,0,"[38, 0, 34, 25, 14]"
+$.liveData.plays.allPlays[*].about.endTime,string,79,0,"[""2019-04-02T02:12:59.484Z"", ""2019-04-02T02:13:38.122Z"", ""2019-04-02T02:14:51.095Z"", ""2019-04-02T02:15:39.477Z"", ""2019-04-02T02:17:46.604Z""]"
+$.liveData.plays.allPlays[*].about.halfInning,string,79,0,"[""top"", ""bottom""]"
+$.liveData.plays.allPlays[*].about.hasOut,boolean,79,0,"[false, true]"
+$.liveData.plays.allPlays[*].about.hasReview,boolean,79,0,[false]
+$.liveData.plays.allPlays[*].about.inning,integer,79,0,"[1, 2, 3, 4, 5]"
+$.liveData.plays.allPlays[*].about.isComplete,boolean,79,0,[true]
+$.liveData.plays.allPlays[*].about.isScoringPlay,boolean,79,0,"[true, false]"
+$.liveData.plays.allPlays[*].about.isTopInning,boolean,79,0,"[true, false]"
+$.liveData.plays.allPlays[*].about.startTime,string,79,0,"[""2019-04-02T02:11:47.504Z"", ""2019-04-02T02:13:11.825Z"", ""2019-04-02T02:14:01.937Z"", ""2019-04-02T02:15:15.912Z"", ""2019-04-02T02:15:57.568Z""]"
+$.liveData.plays.allPlays[*].actionIndex,array,79,0,[]
+$.liveData.plays.allPlays[*].actionIndex[*],integer,16,0,"[0, 1, 2, 5]"
+$.liveData.plays.allPlays[*].atBatIndex,integer,79,0,"[0, 1, 2, 3, 4]"
+$.liveData.plays.allPlays[*].count,object,79,0,[]
+$.liveData.plays.allPlays[*].count.balls,integer,79,0,"[0, 1, 4, 2, 3]"
+$.liveData.plays.allPlays[*].count.outs,integer,79,0,"[0, 1, 3, 2]"
+$.liveData.plays.allPlays[*].count.strikes,integer,79,0,"[2, 0, 1, 3]"
+$.liveData.plays.allPlays[*].matchup,object,79,0,[]
+$.liveData.plays.allPlays[*].matchup.batSide,object,79,0,[]
+$.liveData.plays.allPlays[*].matchup.batSide.code,string,79,0,"[""R"", ""L""]"
+$.liveData.plays.allPlays[*].matchup.batSide.description,string,79,0,"[""Right"", ""Left""]"
+$.liveData.plays.allPlays[*].matchup.batter,object,79,0,[]
+$.liveData.plays.allPlays[*].matchup.batter.fullName,string,79,0,"[""Adam Jones"", ""Eduardo Escobar"", ""Wilmer Flores"", ""David Peralta"", ""Christian Walker""]"
+$.liveData.plays.allPlays[*].matchup.batter.id,integer,79,0,"[430945, 500871, 527038, 444482, 572233]"
+$.liveData.plays.allPlays[*].matchup.batter.link,string,79,0,"[""/api/v1/people/430945"", ""/api/v1/people/500871"", ""/api/v1/people/527038"", ""/api/v1/people/444482"", ""/api/v1/people/572233""]"
+$.liveData.plays.allPlays[*].matchup.batterHotColdZones,array,79,0,[]
+$.liveData.plays.allPlays[*].matchup.pitchHand,object,79,0,[]
+$.liveData.plays.allPlays[*].matchup.pitchHand.code,string,79,0,"[""L"", ""R""]"
+$.liveData.plays.allPlays[*].matchup.pitchHand.description,string,79,0,"[""Left"", ""Right""]"
+$.liveData.plays.allPlays[*].matchup.pitcher,object,79,0,[]
+$.liveData.plays.allPlays[*].matchup.pitcher.fullName,string,79,0,"[""Matt Strahm"", ""Merrill Kelly"", ""Robbie Erlin"", ""Phil Maton"", ""Jon Duplantier""]"
+$.liveData.plays.allPlays[*].matchup.pitcher.id,integer,79,0,"[621381, 518876, 572362, 664208, 641541]"
+$.liveData.plays.allPlays[*].matchup.pitcher.link,string,79,0,"[""/api/v1/people/621381"", ""/api/v1/people/518876"", ""/api/v1/people/572362"", ""/api/v1/people/664208"", ""/api/v1/people/641541""]"
+$.liveData.plays.allPlays[*].matchup.pitcherHotColdZones,array,79,0,[]
+$.liveData.plays.allPlays[*].matchup.postOnFirst,object,28,0,[]
+$.liveData.plays.allPlays[*].matchup.postOnFirst.fullName,string,28,0,"[""Christian Walker"", ""Manny Machado"", ""Alex Avila"", ""Merrill Kelly"", ""Adam Jones""]"
+$.liveData.plays.allPlays[*].matchup.postOnFirst.id,integer,28,0,"[572233, 592518, 488671, 518876, 430945]"
+$.liveData.plays.allPlays[*].matchup.postOnFirst.link,string,28,0,"[""/api/v1/people/572233"", ""/api/v1/people/592518"", ""/api/v1/people/488671"", ""/api/v1/people/518876"", ""/api/v1/people/430945""]"
+$.liveData.plays.allPlays[*].matchup.postOnSecond,object,15,0,[]
+$.liveData.plays.allPlays[*].matchup.postOnSecond.fullName,string,15,0,"[""Wilmer Flores"", ""David Peralta"", ""Alex Avila"", ""Merrill Kelly"", ""Adam Jones""]"
+$.liveData.plays.allPlays[*].matchup.postOnSecond.id,integer,15,0,"[527038, 444482, 488671, 518876, 430945]"
+$.liveData.plays.allPlays[*].matchup.postOnSecond.link,string,15,0,"[""/api/v1/people/527038"", ""/api/v1/people/444482"", ""/api/v1/people/488671"", ""/api/v1/people/518876"", ""/api/v1/people/430945""]"
+$.liveData.plays.allPlays[*].matchup.postOnThird,object,8,0,[]
+$.liveData.plays.allPlays[*].matchup.postOnThird.fullName,string,8,0,"[""Alex Avila"", ""Merrill Kelly"", ""David Peralta"", ""Christian Walker"", ""Ketel Marte""]"
+$.liveData.plays.allPlays[*].matchup.postOnThird.id,integer,8,0,"[488671, 518876, 444482, 572233, 606466]"
+$.liveData.plays.allPlays[*].matchup.postOnThird.link,string,8,0,"[""/api/v1/people/488671"", ""/api/v1/people/518876"", ""/api/v1/people/444482"", ""/api/v1/people/572233"", ""/api/v1/people/606466""]"
+$.liveData.plays.allPlays[*].matchup.splits,object,79,0,[]
+$.liveData.plays.allPlays[*].matchup.splits.batter,string,79,0,"[""vs_LHP"", ""vs_RHP""]"
+$.liveData.plays.allPlays[*].matchup.splits.menOnBase,string,79,0,"[""Empty"", ""RISP"", ""Men_On"", ""Loaded""]"
+$.liveData.plays.allPlays[*].matchup.splits.pitcher,string,79,0,"[""vs_RHB"", ""vs_LHB""]"
+$.liveData.plays.allPlays[*].pitchIndex,array,79,0,[]
+$.liveData.plays.allPlays[*].pitchIndex[*],integer,285,0,"[3, 4, 5, 0, 1]"
+$.liveData.plays.allPlays[*].playEndTime,string,79,0,"[""2019-04-02T02:12:59.484Z"", ""2019-04-02T02:13:38.122Z"", ""2019-04-02T02:14:51.095Z"", ""2019-04-02T02:15:39.477Z"", ""2019-04-02T02:17:46.604Z""]"
+$.liveData.plays.allPlays[*].playEvents,array,79,0,[]
+$.liveData.plays.allPlays[*].playEvents[*],object,301,0,[]
+$.liveData.plays.allPlays[*].playEvents[*].actionPlayId,string,2,0,"[""a05f90a9-c21a-4e07-a4e0-7660dd0beb46"", ""c734f185-f7df-414d-918e-9454dc9d6db0""]"
+$.liveData.plays.allPlays[*].playEvents[*].battingOrder,string,8,0,"[""901"", ""701"", ""702"", ""101"", ""902""]"
+$.liveData.plays.allPlays[*].playEvents[*].count,object,301,0,[]
+$.liveData.plays.allPlays[*].playEvents[*].count.balls,integer,301,0,"[0, 1, 2, 3, 4]"
+$.liveData.plays.allPlays[*].playEvents[*].count.outs,integer,301,0,"[0, 1, 2]"
+$.liveData.plays.allPlays[*].playEvents[*].count.strikes,integer,301,0,"[0, 1, 2, 3]"
+$.liveData.plays.allPlays[*].playEvents[*].details,object,301,0,[]
+$.liveData.plays.allPlays[*].playEvents[*].details.awayScore,integer,16,0,"[0, 2, 4, 5, 9]"
+$.liveData.plays.allPlays[*].playEvents[*].details.ballColor,string,282,0,"[""rgba(170, 21, 11, 1.0)"", ""rgba(26, 86, 190, 1.0)"", ""rgba(39, 161, 39, 1.0)""]"
+$.liveData.plays.allPlays[*].playEvents[*].details.call,object,282,0,[]
+$.liveData.plays.allPlays[*].playEvents[*].details.call.code,string,282,0,"[""F"", ""S"", ""E"", ""X"", ""C""]"
+$.liveData.plays.allPlays[*].playEvents[*].details.call.description,string,282,0,"[""Foul"", ""Swinging Strike"", ""In play, run(s)"", ""In play, out(s)"", ""Called Strike""]"
+$.liveData.plays.allPlays[*].playEvents[*].details.code,string,285,0,"[""F"", ""S"", ""E"", ""X"", ""C""]"
+$.liveData.plays.allPlays[*].playEvents[*].details.description,string,301,0,"[""Status Change - Pre-Game"", ""Status Change - Warmup"", ""Status Change - In Progress"", ""Foul"", ""Swinging Strike""]"
+$.liveData.plays.allPlays[*].playEvents[*].details.disengagementNum,integer,8,0,"[1, 2]"
+$.liveData.plays.allPlays[*].playEvents[*].details.event,string,16,0,"[""Game Advisory"", ""Balk"", ""Stolen Base 2B"", ""Defensive Sub"", ""Pitching Substitution""]"
+$.liveData.plays.allPlays[*].playEvents[*].details.eventType,string,16,0,"[""game_advisory"", ""balk"", ""stolen_base_2b"", ""defensive_substitution"", ""pitching_substitution""]"
+$.liveData.plays.allPlays[*].playEvents[*].details.fromCatcher,boolean,3,0,[false]
+$.liveData.plays.allPlays[*].playEvents[*].details.hasReview,boolean,301,0,[false]
+$.liveData.plays.allPlays[*].playEvents[*].details.homeScore,integer,16,0,"[0, 3]"
+$.liveData.plays.allPlays[*].playEvents[*].details.isBall,boolean,282,0,"[false, true]"
+$.liveData.plays.allPlays[*].playEvents[*].details.isInPlay,boolean,282,0,"[false, true]"
+$.liveData.plays.allPlays[*].playEvents[*].details.isOut,boolean,301,0,"[false, true]"
+$.liveData.plays.allPlays[*].playEvents[*].details.isScoringPlay,boolean,16,0,[false]
+$.liveData.plays.allPlays[*].playEvents[*].details.isStrike,boolean,282,0,"[true, false]"
+$.liveData.plays.allPlays[*].playEvents[*].details.runnerGoing,boolean,2,0,[true]
+$.liveData.plays.allPlays[*].playEvents[*].details.trailColor,string,282,0,"[""rgba(188, 0, 33, 1.0)"", ""rgba(0, 85, 254, 1.0)"", ""rgba(0, 34, 255, 1.0)"", ""rgba(152, 0, 101, 1.0)"", ""rgba(50, 0, 221, 1.0)""]"
+$.liveData.plays.allPlays[*].playEvents[*].details.type,object,282,0,[]
+$.liveData.plays.allPlays[*].playEvents[*].details.type.code,string,282,0,"[""FF"", ""CH"", ""CU"", ""FC"", ""SI""]"
+$.liveData.plays.allPlays[*].playEvents[*].details.type.description,string,282,0,"[""Four-Seam Fastball"", ""Changeup"", ""Curveball"", ""Cutter"", ""Sinker""]"
+$.liveData.plays.allPlays[*].playEvents[*].endTime,string,301,0,"[""2019-04-02T01:56:49.542Z"", ""2019-04-02T02:10:43.067Z"", ""2019-04-02T02:11:50.415Z"", ""2019-04-02T02:11:57.956Z"", ""2019-04-02T02:12:20.111Z""]"
+$.liveData.plays.allPlays[*].playEvents[*].hitData,object,60,0,[]
+$.liveData.plays.allPlays[*].playEvents[*].hitData.coordinates,object,60,0,[]
+$.liveData.plays.allPlays[*].playEvents[*].hitData.coordinates.coordX,number,60,0,"[36.2, 211.45, 34.59, 79.14, 176.95]"
+$.liveData.plays.allPlays[*].playEvents[*].hitData.coordinates.coordY,number,60,0,"[65.44, 134.02, 103.74, 66.17, 94.92]"
+$.liveData.plays.allPlays[*].playEvents[*].hitData.hardness,string,60,0,"[""medium"", ""hard"", ""soft""]"
+$.liveData.plays.allPlays[*].playEvents[*].hitData.launchAngle,number,56,0,"[33.0, 41.0, 5.0, 16.0, 10.0]"
+$.liveData.plays.allPlays[*].playEvents[*].hitData.launchSpeed,number,56,0,"[99.8, 85.8, 101.8, 104.9, 104.3]"
+$.liveData.plays.allPlays[*].playEvents[*].hitData.location,string,59,0,"[""7"", ""9"", ""8"", ""4"", ""5""]"
+$.liveData.plays.allPlays[*].playEvents[*].hitData.totalDistance,number,56,0,"[378.0, 275.0, 109.0, 334.0, 276.0]"
+$.liveData.plays.allPlays[*].playEvents[*].hitData.trajectory,string,60,0,"[""fly_ball"", ""ground_ball"", ""line_drive"", ""popup""]"
+$.liveData.plays.allPlays[*].playEvents[*].index,integer,301,0,"[0, 1, 2, 3, 4]"
+$.liveData.plays.allPlays[*].playEvents[*].isBaseRunningPlay,boolean,2,0,[true]
+$.liveData.plays.allPlays[*].playEvents[*].isPitch,boolean,301,0,"[false, true]"
+$.liveData.plays.allPlays[*].playEvents[*].isSubstitution,boolean,8,0,[true]
+$.liveData.plays.allPlays[*].playEvents[*].pitchData,object,282,0,[]
+$.liveData.plays.allPlays[*].playEvents[*].pitchData.breaks,object,282,0,[]
+$.liveData.plays.allPlays[*].playEvents[*].pitchData.breaks.breakAngle,number,282,0,"[42.0, 44.4, 43.2, 38.4, 37.2]"
+$.liveData.plays.allPlays[*].playEvents[*].pitchData.breaks.breakHorizontal,number,282,0,"[-16.0, -14.0, -15.1, -14.3, -13.4]"
+$.liveData.plays.allPlays[*].playEvents[*].pitchData.breaks.breakLength,number,282,0,"[4.8, 8.4, 6.0, 10.8, 7.2]"
+$.liveData.plays.allPlays[*].playEvents[*].pitchData.breaks.breakVertical,number,282,0,"[-18.1, -14.4, -16.0, -18.5, -17.9]"
+$.liveData.plays.allPlays[*].playEvents[*].pitchData.breaks.breakVerticalInduced,number,282,0,"[14.9, 18.4, 16.6, 13.7, 14.8]"
+$.liveData.plays.allPlays[*].playEvents[*].pitchData.breaks.breakY,number,282,0,[24.0]
+$.liveData.plays.allPlays[*].playEvents[*].pitchData.breaks.spinDirection,integer,282,0,"[133, 142, 137, 105, 100]"
+$.liveData.plays.allPlays[*].playEvents[*].pitchData.breaks.spinRate,integer,277,0,"[2515, 2522, 2479, 2403, 2300]"
+$.liveData.plays.allPlays[*].playEvents[*].pitchData.coordinates,object,282,0,[]
+$.liveData.plays.allPlays[*].playEvents[*].pitchData.coordinates.aX,number,282,0,"[17.2573967336407, 16.1278252189269, 16.8729321646426, 16.1790694560634, 15.2613552659789]"
+$.liveData.plays.allPlays[*].playEvents[*].pitchData.coordinates.aY,number,282,0,"[28.5188184963109, 29.424924334318, 30.01702919578, 28.7286642008439, 27.6882953572935]"
+$.liveData.plays.allPlays[*].playEvents[*].pitchData.coordinates.aZ,number,282,0,"[-17.4449885020838, -13.7519268394477, -15.4637510201581, -17.0555298991446, -17.097335276073]"
+$.liveData.plays.allPlays[*].playEvents[*].pitchData.coordinates.pX,number,282,0,"[0.633997023493155, -0.771529439256004, 0.0865595527044133, 0.0887956477504893, -0.529534226340027]"
+$.liveData.plays.allPlays[*].playEvents[*].pitchData.coordinates.pZ,number,282,0,"[3.43017732739748, 3.43794832546268, 3.40554204013146, 1.06383710941425, 2.78256679275966]"
+$.liveData.plays.allPlays[*].playEvents[*].pitchData.coordinates.pfxX,number,282,0,"[9.492877905713724, 8.908538459036256, 9.204025790650512, 8.838723845973036, 8.485528613908308]"
+$.liveData.plays.allPlays[*].playEvents[*].pitchData.coordinates.pfxZ,number,282,0,"[8.10210085100946, 10.17584067194574, 9.115310130600047, 8.25933850737384, 8.382865067649552]"
+$.liveData.plays.allPlays[*].playEvents[*].pitchData.coordinates.vX0,number,282,0,"[-7.44150474423482, -10.4163440337399, -8.54756989658297, -8.37686435986061, -9.60929884872867]"
+$.liveData.plays.allPlays[*].playEvents[*].pitchData.coordinates.vY0,number,282,0,"[-133.892508529409, -133.8436118912, -134.734198741307, -134.356590071323, -133.0573168201]"
+$.liveData.plays.allPlays[*].playEvents[*].pitchData.coordinates.vZ0,number,282,0,"[-1.58355839136862, -2.07606686033875, -2.00668842012201, -7.26311154087748, -3.06298708278733]"
+$.liveData.plays.allPlays[*].playEvents[*].pitchData.coordinates.x,number,282,0,"[92.83, 146.41, 113.71, 113.61, 137.19]"
+$.liveData.plays.allPlays[*].playEvents[*].pitchData.coordinates.x0,number,282,0,"[2.21405298638432, 2.01690075007684, 2.10853620500761, 2.09660840572971, 2.02077128215123]"
+$.liveData.plays.allPlays[*].playEvents[*].pitchData.coordinates.y,number,282,0,"[146.15, 145.96, 146.86, 210.05, 163.66]"
+$.liveData.plays.allPlays[*].playEvents[*].pitchData.coordinates.y0,number,282,0,"[50.0, 49.9999999999999, 50.0000000000001]"
+$.liveData.plays.allPlays[*].playEvents[*].pitchData.coordinates.z0,number,282,0,"[5.27569215555952, 5.21066143372226, 5.25601816091642, 5.01102350951465, 5.18254066630361]"
+$.liveData.plays.allPlays[*].playEvents[*].pitchData.endSpeed,number,282,0,"[84.1, 83.9, 84.3, 84.8, 83.8]"
+$.liveData.plays.allPlays[*].playEvents[*].pitchData.extension,number,282,0,"[5.71834983174737, 6.02099153458927, 5.80197810662806, 6.23290538723155, 6.32763880664849]"
+$.liveData.plays.allPlays[*].playEvents[*].pitchData.plateTime,number,282,0,"[0.413654156743103, 0.412097056504309, 0.411099873149794, 0.408429587171026, 0.411424433904355]"
+$.liveData.plays.allPlays[*].playEvents[*].pitchData.startSpeed,number,282,0,"[92.1, 92.2, 92.8, 92.5, 91.6]"
+$.liveData.plays.allPlays[*].playEvents[*].pitchData.strikeZoneBottom,number,282,0,"[1.5890000000004747, 1.589, 1.5994323819552108, 1.7163807272419618, 1.601]"
+$.liveData.plays.allPlays[*].playEvents[*].pitchData.strikeZoneTop,number,282,0,"[3.7394507955561984, 3.467, 3.3367029111297377, 3.3407290875227496, 3.49]"
+$.liveData.plays.allPlays[*].playEvents[*].pitchData.typeConfidence,number,282,0,[2.0]
+$.liveData.plays.allPlays[*].playEvents[*].pitchData.zone,integer,282,0,"[3, 1, 2, 14, 4]"
+$.liveData.plays.allPlays[*].playEvents[*].pitchNumber,integer,282,0,"[1, 2, 3, 4, 5]"
+$.liveData.plays.allPlays[*].playEvents[*].playId,string,285,0,"[""b662e907-9786-495e-867a-0d4756a3de76"", ""85753f11-d524-4e4e-bdc0-52166a87f03b"", ""d884423e-0eaf-4b77-b7c1-76f2788e0b21"", ""dd48a02f-1230-4b4f-8c31-83c01cfcee5f"", ""08ad9b26-aff3-4849-ad61-7aa3428b72e7""]"
+$.liveData.plays.allPlays[*].playEvents[*].player,object,16,0,[]
+$.liveData.plays.allPlays[*].playEvents[*].player.id,integer,16,0,"[430945, 606466, 621381, 518876, 614173]"
+$.liveData.plays.allPlays[*].playEvents[*].player.link,string,16,0,"[""/api/v1/people/430945"", ""/api/v1/people/606466"", ""/api/v1/people/621381"", ""/api/v1/people/518876"", ""/api/v1/people/614173""]"
+$.liveData.plays.allPlays[*].playEvents[*].position,object,8,0,[]
+$.liveData.plays.allPlays[*].playEvents[*].position.abbreviation,string,8,0,"[""CF"", ""P"", ""PH"", ""2B""]"
+$.liveData.plays.allPlays[*].playEvents[*].position.code,string,8,0,"[""8"", ""1"", ""11"", ""4""]"
+$.liveData.plays.allPlays[*].playEvents[*].position.name,string,8,0,"[""Outfielder"", ""Pitcher"", ""Pinch Hitter"", ""Second Base""]"
+$.liveData.plays.allPlays[*].playEvents[*].position.type,string,8,0,"[""Outfielder"", ""Pitcher"", ""Hitter"", ""Infielder""]"
+$.liveData.plays.allPlays[*].playEvents[*].replacedPlayer,object,8,0,[]
+$.liveData.plays.allPlays[*].playEvents[*].replacedPlayer.id,integer,8,0,"[621381, 622534, 572362, 435079, 518876]"
+$.liveData.plays.allPlays[*].playEvents[*].replacedPlayer.link,string,8,0,"[""/api/v1/people/621381"", ""/api/v1/people/622534"", ""/api/v1/people/572362"", ""/api/v1/people/435079"", ""/api/v1/people/518876""]"
+$.liveData.plays.allPlays[*].playEvents[*].startTime,string,301,0,"[""2019-04-01T22:34:51.472Z"", ""2019-04-02T01:56:49.542Z"", ""2019-04-02T02:10:43.067Z"", ""2019-04-02T02:11:50.415Z"", ""2019-04-02T02:12:15.073Z""]"
+$.liveData.plays.allPlays[*].playEvents[*].type,string,301,0,"[""action"", ""pitch"", ""pickoff""]"
+$.liveData.plays.allPlays[*].result,object,79,0,[]
+$.liveData.plays.allPlays[*].result.awayScore,integer,79,0,"[1, 2, 3, 4, 5]"
+$.liveData.plays.allPlays[*].result.description,string,79,0,"[""Adam Jones homers (3) on a fly ball to left field."", ""Eduardo Escobar flies out to right fielder Franmil Reyes in foul territory."", ""Wilmer Flores doubles (2) on a sharp ground ball to left fielder Wil Myers."", ""David Peralta doubles (2) on a sharp line drive to center fielder Manuel Margot. Wilmer Flores scores."", ""Christian Walker walks.""]"
+$.liveData.plays.allPlays[*].result.event,string,79,0,"[""Home Run"", ""Flyout"", ""Double"", ""Walk"", ""Double Play""]"
+$.liveData.plays.allPlays[*].result.eventType,string,79,0,"[""home_run"", ""field_out"", ""double"", ""walk"", ""double_play""]"
+$.liveData.plays.allPlays[*].result.homeScore,integer,79,0,"[0, 1, 3]"
+$.liveData.plays.allPlays[*].result.isOut,boolean,79,0,"[false, true]"
+$.liveData.plays.allPlays[*].result.rbi,integer,79,0,"[1, 0, 2]"
+$.liveData.plays.allPlays[*].result.type,string,79,0,"[""atBat""]"
+$.liveData.plays.allPlays[*].runnerIndex,array,79,0,[]
+$.liveData.plays.allPlays[*].runnerIndex[*],integer,113,0,"[0, 1, 2, 3]"
+$.liveData.plays.allPlays[*].runners,array,79,0,[]
+$.liveData.plays.allPlays[*].runners[*],object,113,0,[]
+$.liveData.plays.allPlays[*].runners[*].credits,array,113,0,[]
+$.liveData.plays.allPlays[*].runners[*].credits[*],object,91,0,[]
+$.liveData.plays.allPlays[*].runners[*].credits[*].credit,string,91,0,"[""f_putout"", ""f_fielded_ball"", ""f_assist"", ""f_assist_of"", ""f_fielding_error""]"
+$.liveData.plays.allPlays[*].runners[*].credits[*].player,object,91,0,[]
+$.liveData.plays.allPlays[*].runners[*].credits[*].player.id,integer,91,0,"[614177, 571976, 622534, 665487, 444482]"
+$.liveData.plays.allPlays[*].runners[*].credits[*].player.link,string,91,0,"[""/api/v1/people/614177"", ""/api/v1/people/571976"", ""/api/v1/people/622534"", ""/api/v1/people/665487"", ""/api/v1/people/444482""]"
+$.liveData.plays.allPlays[*].runners[*].credits[*].position,object,91,0,[]
+$.liveData.plays.allPlays[*].runners[*].credits[*].position.abbreviation,string,91,0,"[""RF"", ""LF"", ""CF"", ""SS"", ""2B""]"
+$.liveData.plays.allPlays[*].runners[*].credits[*].position.code,string,91,0,"[""9"", ""7"", ""8"", ""6"", ""4""]"
+$.liveData.plays.allPlays[*].runners[*].credits[*].position.name,string,91,0,"[""Outfielder"", ""Shortstop"", ""Second Base"", ""Catcher"", ""First Base""]"
+$.liveData.plays.allPlays[*].runners[*].credits[*].position.type,string,91,0,"[""Outfielder"", ""Infielder"", ""Catcher"", ""Pitcher""]"
+$.liveData.plays.allPlays[*].runners[*].details,object,113,0,[]
+$.liveData.plays.allPlays[*].runners[*].details.earned,boolean,113,0,"[true, false]"
+$.liveData.plays.allPlays[*].runners[*].details.event,string,113,0,"[""Home Run"", ""Flyout"", ""Double"", ""Walk"", ""Double Play""]"
+$.liveData.plays.allPlays[*].runners[*].details.eventType,string,113,0,"[""home_run"", ""field_out"", ""double"", ""walk"", ""double_play""]"
+$.liveData.plays.allPlays[*].runners[*].details.isScoringEvent,boolean,113,0,"[true, false]"
+$.liveData.plays.allPlays[*].runners[*].details.movementReason,null|string,113,79,"[null, ""r_adv_force"", ""r_adv_play"", ""r_thrown_out"", ""r_force_out""]"
+$.liveData.plays.allPlays[*].runners[*].details.playIndex,integer,113,0,"[5, 0, 2, 3, 1]"
+$.liveData.plays.allPlays[*].runners[*].details.rbi,boolean,113,0,"[true, false]"
+$.liveData.plays.allPlays[*].runners[*].details.responsiblePitcher,object|null,113,100,[null]
+$.liveData.plays.allPlays[*].runners[*].details.responsiblePitcher.id,integer,13,0,"[621381, 572362, 518876, 664208]"
+$.liveData.plays.allPlays[*].runners[*].details.responsiblePitcher.link,string,13,0,"[""/api/v1/people/621381"", ""/api/v1/people/572362"", ""/api/v1/people/518876"", ""/api/v1/people/664208""]"
+$.liveData.plays.allPlays[*].runners[*].details.runner,object,113,0,[]
+$.liveData.plays.allPlays[*].runners[*].details.runner.fullName,string,113,0,"[""Adam Jones"", ""Eduardo Escobar"", ""Wilmer Flores"", ""David Peralta"", ""Christian Walker""]"
+$.liveData.plays.allPlays[*].runners[*].details.runner.id,integer,113,0,"[430945, 500871, 527038, 444482, 572233]"
+$.liveData.plays.allPlays[*].runners[*].details.runner.link,string,113,0,"[""/api/v1/people/430945"", ""/api/v1/people/500871"", ""/api/v1/people/527038"", ""/api/v1/people/444482"", ""/api/v1/people/572233""]"
+$.liveData.plays.allPlays[*].runners[*].details.teamUnearned,boolean,113,0,"[false, true]"
+$.liveData.plays.allPlays[*].runners[*].movement,object,113,0,[]
+$.liveData.plays.allPlays[*].runners[*].movement.end,string|null,113,54,"[""score"", null, ""2B"", ""3B"", ""1B""]"
+$.liveData.plays.allPlays[*].runners[*].movement.isOut,boolean,113,0,"[false, true]"
+$.liveData.plays.allPlays[*].runners[*].movement.originBase,null|string,113,79,"[null, ""2B"", ""1B"", ""3B""]"
+$.liveData.plays.allPlays[*].runners[*].movement.outBase,null|string,113,59,"[null, ""1B"", ""2B""]"
+$.liveData.plays.allPlays[*].runners[*].movement.outNumber,null|integer,113,59,"[null, 1, 2, 3]"
+$.liveData.plays.allPlays[*].runners[*].movement.start,null|string,113,79,"[null, ""2B"", ""3B"", ""1B""]"
+$.liveData.plays.currentPlay,object,1,0,[]
+$.liveData.plays.currentPlay.about,object,1,0,[]
+$.liveData.plays.currentPlay.about.atBatIndex,integer,1,0,[78]
+$.liveData.plays.currentPlay.about.captivatingIndex,integer,1,0,[14]
+$.liveData.plays.currentPlay.about.endTime,string,1,0,"[""2019-04-02T05:15:18.845Z""]"
+$.liveData.plays.currentPlay.about.halfInning,string,1,0,"[""bottom""]"
+$.liveData.plays.currentPlay.about.hasOut,boolean,1,0,[true]
+$.liveData.plays.currentPlay.about.hasReview,boolean,1,0,[false]
+$.liveData.plays.currentPlay.about.inning,integer,1,0,[9]
+$.liveData.plays.currentPlay.about.isComplete,boolean,1,0,[true]
+$.liveData.plays.currentPlay.about.isScoringPlay,boolean,1,0,[false]
+$.liveData.plays.currentPlay.about.isTopInning,boolean,1,0,[false]
+$.liveData.plays.currentPlay.about.startTime,string,1,0,"[""2019-04-02T05:14:10.514Z""]"
+$.liveData.plays.currentPlay.actionIndex,array,1,0,[]
+$.liveData.plays.currentPlay.atBatIndex,integer,1,0,[78]
+$.liveData.plays.currentPlay.count,object,1,0,[]
+$.liveData.plays.currentPlay.count.balls,integer,1,0,[1]
+$.liveData.plays.currentPlay.count.outs,integer,1,0,[3]
+$.liveData.plays.currentPlay.count.strikes,integer,1,0,[3]
+$.liveData.plays.currentPlay.matchup,object,1,0,[]
+$.liveData.plays.currentPlay.matchup.batSide,object,1,0,[]
+$.liveData.plays.currentPlay.matchup.batSide.code,string,1,0,"[""L""]"
+$.liveData.plays.currentPlay.matchup.batSide.description,string,1,0,"[""Left""]"
+$.liveData.plays.currentPlay.matchup.batter,object,1,0,[]
+$.liveData.plays.currentPlay.matchup.batter.fullName,string,1,0,"[""Greg Garcia""]"
+$.liveData.plays.currentPlay.matchup.batter.id,integer,1,0,[594824]
+$.liveData.plays.currentPlay.matchup.batter.link,string,1,0,"[""/api/v1/people/594824""]"
+$.liveData.plays.currentPlay.matchup.batterHotColdZones,array,1,0,[]
+$.liveData.plays.currentPlay.matchup.pitchHand,object,1,0,[]
+$.liveData.plays.currentPlay.matchup.pitchHand.code,string,1,0,"[""R""]"
+$.liveData.plays.currentPlay.matchup.pitchHand.description,string,1,0,"[""Right""]"
+$.liveData.plays.currentPlay.matchup.pitcher,object,1,0,[]
+$.liveData.plays.currentPlay.matchup.pitcher.fullName,string,1,0,"[""Jon Duplantier""]"
+$.liveData.plays.currentPlay.matchup.pitcher.id,integer,1,0,[641541]
+$.liveData.plays.currentPlay.matchup.pitcher.link,string,1,0,"[""/api/v1/people/641541""]"
+$.liveData.plays.currentPlay.matchup.pitcherHotColdZones,array,1,0,[]
+$.liveData.plays.currentPlay.matchup.splits,object,1,0,[]
+$.liveData.plays.currentPlay.matchup.splits.batter,string,1,0,"[""vs_RHP""]"
+$.liveData.plays.currentPlay.matchup.splits.menOnBase,string,1,0,"[""Empty""]"
+$.liveData.plays.currentPlay.matchup.splits.pitcher,string,1,0,"[""vs_LHB""]"
+$.liveData.plays.currentPlay.pitchIndex,array,1,0,[]
+$.liveData.plays.currentPlay.pitchIndex[*],integer,4,0,"[0, 1, 2, 3]"
+$.liveData.plays.currentPlay.playEndTime,string,1,0,"[""2019-04-02T05:15:18.845Z""]"
+$.liveData.plays.currentPlay.playEvents,array,1,0,[]
+$.liveData.plays.currentPlay.playEvents[*],object,4,0,[]
+$.liveData.plays.currentPlay.playEvents[*].count,object,4,0,[]
+$.liveData.plays.currentPlay.playEvents[*].count.balls,integer,4,0,[1]
+$.liveData.plays.currentPlay.playEvents[*].count.outs,integer,4,0,[2]
+$.liveData.plays.currentPlay.playEvents[*].count.strikes,integer,4,0,"[0, 1, 2, 3]"
+$.liveData.plays.currentPlay.playEvents[*].details,object,4,0,[]
+$.liveData.plays.currentPlay.playEvents[*].details.ballColor,string,4,0,"[""rgba(39, 161, 39, 1.0)"", ""rgba(170, 21, 11, 1.0)""]"
+$.liveData.plays.currentPlay.playEvents[*].details.call,object,4,0,[]
+$.liveData.plays.currentPlay.playEvents[*].details.call.code,string,4,0,"[""B"", ""C"", ""F""]"
+$.liveData.plays.currentPlay.playEvents[*].details.call.description,string,4,0,"[""Ball"", ""Called Strike"", ""Foul""]"
+$.liveData.plays.currentPlay.playEvents[*].details.code,string,4,0,"[""B"", ""C"", ""F""]"
+$.liveData.plays.currentPlay.playEvents[*].details.description,string,4,0,"[""Ball"", ""Called Strike"", ""Foul""]"
+$.liveData.plays.currentPlay.playEvents[*].details.hasReview,boolean,4,0,[false]
+$.liveData.plays.currentPlay.playEvents[*].details.isBall,boolean,4,0,"[true, false]"
+$.liveData.plays.currentPlay.playEvents[*].details.isInPlay,boolean,4,0,[false]
+$.liveData.plays.currentPlay.playEvents[*].details.isOut,boolean,4,0,"[false, true]"
+$.liveData.plays.currentPlay.playEvents[*].details.isStrike,boolean,4,0,"[false, true]"
+$.liveData.plays.currentPlay.playEvents[*].details.trailColor,string,4,0,"[""rgba(50, 0, 221, 1.0)"", ""rgba(153, 171, 0, 1.0)"", ""rgba(188, 0, 33, 1.0)""]"
+$.liveData.plays.currentPlay.playEvents[*].details.type,object,4,0,[]
+$.liveData.plays.currentPlay.playEvents[*].details.type.code,string,4,0,"[""SI"", ""KC"", ""FF""]"
+$.liveData.plays.currentPlay.playEvents[*].details.type.description,string,4,0,"[""Sinker"", ""Knuckle Curve"", ""Four-Seam Fastball""]"
+$.liveData.plays.currentPlay.playEvents[*].endTime,string,4,0,"[""2019-04-02T05:14:25.692Z"", ""2019-04-02T05:14:39.840Z"", ""2019-04-02T05:14:56.957Z"", ""2019-04-02T05:15:18.845Z""]"
+$.liveData.plays.currentPlay.playEvents[*].index,integer,4,0,"[0, 1, 2, 3]"
+$.liveData.plays.currentPlay.playEvents[*].isPitch,boolean,4,0,[true]
+$.liveData.plays.currentPlay.playEvents[*].pitchData,object,4,0,[]
+$.liveData.plays.currentPlay.playEvents[*].pitchData.breaks,object,4,0,[]
+$.liveData.plays.currentPlay.playEvents[*].pitchData.breaks.breakAngle,number,4,0,"[39.6, 37.2, 8.4, 28.8]"
+$.liveData.plays.currentPlay.playEvents[*].pitchData.breaks.breakHorizontal,number,4,0,"[17.4, 17.2, -8.9, 7.9]"
+$.liveData.plays.currentPlay.playEvents[*].pitchData.breaks.breakLength,number,4,0,"[6.0, 13.2, 3.6]"
+$.liveData.plays.currentPlay.playEvents[*].pitchData.breaks.breakVertical,number,4,0,"[-21.1, -22.6, -58.4, -14.8]"
+$.liveData.plays.currentPlay.playEvents[*].pitchData.breaks.breakVerticalInduced,number,4,0,"[9.6, 8.8, -13.4, 15.5]"
+$.liveData.plays.currentPlay.playEvents[*].pitchData.breaks.breakY,number,4,0,[24.0]
+$.liveData.plays.currentPlay.playEvents[*].pitchData.breaks.spinDirection,integer,4,0,"[240, 243, 33, 207]"
+$.liveData.plays.currentPlay.playEvents[*].pitchData.breaks.spinRate,integer,4,0,"[2071, 2109, 2420, 2241]"
+$.liveData.plays.currentPlay.playEvents[*].pitchData.coordinates,object,4,0,[]
+$.liveData.plays.currentPlay.playEvents[*].pitchData.coordinates.aX,number,4,0,"[-19.3463082267433, -19.5793990620361, 5.96346384210572, -10.2005904672998]"
+$.liveData.plays.currentPlay.playEvents[*].pitchData.coordinates.aY,number,4,0,"[30.8129313955276, 31.4764339119438, 23.1689702499563, 28.6822333458514]"
+$.liveData.plays.currentPlay.playEvents[*].pitchData.coordinates.aZ,number,4,0,"[-20.8340112126847, -22.9042501243817, -42.0810609300582, -14.597468139544]"
+$.liveData.plays.currentPlay.playEvents[*].pitchData.coordinates.pX,number,4,0,"[-0.998531787941481, 0.194314023786759, 0.237537499863821, 1.0014882329359]"
+$.liveData.plays.currentPlay.playEvents[*].pitchData.coordinates.pZ,number,4,0,"[1.53436571620437, 3.09811328773811, 1.5834118816699, 2.36912081100233]"
+$.liveData.plays.currentPlay.playEvents[*].pitchData.coordinates.pfxX,number,4,0,"[-10.429942807908576, -10.673672352905939, 4.625356590528912, -5.423816347536528]"
+$.liveData.plays.currentPlay.playEvents[*].pitchData.coordinates.pfxZ,number,4,0,"[6.11361814091832, 5.05341307604364, -7.684035015232032, 9.34574763142458]"
+$.liveData.plays.currentPlay.playEvents[*].pitchData.coordinates.vX0,number,4,0,"[4.72835136452331, 7.56361609891057, 2.00247830230747, 8.13456126175585]"
+$.liveData.plays.currentPlay.playEvents[*].pitchData.coordinates.vY0,number,4,0,"[-135.625700876303, -135.096683194549, -113.537344362298, -136.003856993475]"
+$.liveData.plays.currentPlay.playEvents[*].pitchData.coordinates.vZ0,number,4,0,"[-6.13143277134321, -1.81081549488626, 0.0632198816811846, -5.40394750057819]"
+$.liveData.plays.currentPlay.playEvents[*].pitchData.coordinates.x,number,4,0,"[155.07, 109.59, 107.95, 78.83]"
+$.liveData.plays.currentPlay.playEvents[*].pitchData.coordinates.x0,number,4,0,"[-1.41360374115603, -1.26559659659212, -1.25999698034891, -1.31788541603573]"
+$.liveData.plays.currentPlay.playEvents[*].pitchData.coordinates.y,number,4,0,"[197.38, 155.11, 195.93, 174.81]"
+$.liveData.plays.currentPlay.playEvents[*].pitchData.coordinates.y0,number,4,0,"[50.0, 50.0000000000001, 49.9999999999999]"
+$.liveData.plays.currentPlay.playEvents[*].pitchData.coordinates.z0,number,4,0,"[5.28621696738836, 5.39904923769247, 5.78596355542549, 5.38721160221271]"
+$.liveData.plays.currentPlay.playEvents[*].pitchData.endSpeed,number,4,0,"[85.2, 84.3, 71.6, 85.8]"
+$.liveData.plays.currentPlay.playEvents[*].pitchData.extension,number,4,0,"[7.04162146622011, 6.92928711925189, 6.60038862382468, 7.20345099828555]"
+$.liveData.plays.currentPlay.playEvents[*].pitchData.plateTime,number,4,0,"[0.399541305263892, 0.402447107683448, 0.482650132800109, 0.395973343601477]"
+$.liveData.plays.currentPlay.playEvents[*].pitchData.startSpeed,number,4,0,"[93.2, 92.8, 78.0, 93.4]"
+$.liveData.plays.currentPlay.playEvents[*].pitchData.strikeZoneBottom,number,4,0,"[1.672703632395116, 1.6048547805201139, 1.535, 1.5037759307877572]"
+$.liveData.plays.currentPlay.playEvents[*].pitchData.strikeZoneTop,number,4,0,"[3.536482453403309, 3.5856578636919174, 3.371, 3.3612997470586023]"
+$.liveData.plays.currentPlay.playEvents[*].pitchData.typeConfidence,number,4,0,[2.0]
+$.liveData.plays.currentPlay.playEvents[*].pitchData.zone,integer,4,0,"[13, 2, 8, 14]"
+$.liveData.plays.currentPlay.playEvents[*].pitchNumber,integer,4,0,"[1, 2, 3, 4]"
+$.liveData.plays.currentPlay.playEvents[*].playId,string,4,0,"[""d4748e0f-4d4d-41ef-b8a9-8162828b6386"", ""d9ca3fbf-3c04-4d04-89cb-2d8e6f7d6579"", ""2211326c-96c5-4089-beff-238afe57f9cd"", ""403e4d6a-4684-4ecf-b01d-22eee527cd95""]"
+$.liveData.plays.currentPlay.playEvents[*].startTime,string,4,0,"[""2019-04-02T05:14:20.654Z"", ""2019-04-02T05:14:34.735Z"", ""2019-04-02T05:14:50.717Z"", ""2019-04-02T05:15:12.105Z""]"
+$.liveData.plays.currentPlay.playEvents[*].type,string,4,0,"[""pitch""]"
+$.liveData.plays.currentPlay.result,object,1,0,[]
+$.liveData.plays.currentPlay.result.awayScore,integer,1,0,[10]
+$.liveData.plays.currentPlay.result.description,string,1,0,"[""Greg Garcia called out on strikes.""]"
+$.liveData.plays.currentPlay.result.event,string,1,0,"[""Strikeout""]"
+$.liveData.plays.currentPlay.result.eventType,string,1,0,"[""strikeout""]"
+$.liveData.plays.currentPlay.result.homeScore,integer,1,0,[3]
+$.liveData.plays.currentPlay.result.isOut,boolean,1,0,[true]
+$.liveData.plays.currentPlay.result.rbi,integer,1,0,[0]
+$.liveData.plays.currentPlay.result.type,string,1,0,"[""atBat""]"
+$.liveData.plays.currentPlay.runnerIndex,array,1,0,[]
+$.liveData.plays.currentPlay.runnerIndex[*],integer,1,0,[0]
+$.liveData.plays.currentPlay.runners,array,1,0,[]
+$.liveData.plays.currentPlay.runners[*],object,1,0,[]
+$.liveData.plays.currentPlay.runners[*].credits,array,1,0,[]
+$.liveData.plays.currentPlay.runners[*].credits[*],object,1,0,[]
+$.liveData.plays.currentPlay.runners[*].credits[*].credit,string,1,0,"[""f_putout""]"
+$.liveData.plays.currentPlay.runners[*].credits[*].player,object,1,0,[]
+$.liveData.plays.currentPlay.runners[*].credits[*].player.id,integer,1,0,[488671]
+$.liveData.plays.currentPlay.runners[*].credits[*].player.link,string,1,0,"[""/api/v1/people/488671""]"
+$.liveData.plays.currentPlay.runners[*].credits[*].position,object,1,0,[]
+$.liveData.plays.currentPlay.runners[*].credits[*].position.abbreviation,string,1,0,"[""C""]"
+$.liveData.plays.currentPlay.runners[*].credits[*].position.code,string,1,0,"[""2""]"
+$.liveData.plays.currentPlay.runners[*].credits[*].position.name,string,1,0,"[""Catcher""]"
+$.liveData.plays.currentPlay.runners[*].credits[*].position.type,string,1,0,"[""Catcher""]"
+$.liveData.plays.currentPlay.runners[*].details,object,1,0,[]
+$.liveData.plays.currentPlay.runners[*].details.earned,boolean,1,0,[false]
+$.liveData.plays.currentPlay.runners[*].details.event,string,1,0,"[""Strikeout""]"
+$.liveData.plays.currentPlay.runners[*].details.eventType,string,1,0,"[""strikeout""]"
+$.liveData.plays.currentPlay.runners[*].details.isScoringEvent,boolean,1,0,[false]
+$.liveData.plays.currentPlay.runners[*].details.movementReason,null,1,1,[null]
+$.liveData.plays.currentPlay.runners[*].details.playIndex,integer,1,0,[3]
+$.liveData.plays.currentPlay.runners[*].details.rbi,boolean,1,0,[false]
+$.liveData.plays.currentPlay.runners[*].details.responsiblePitcher,null,1,1,[null]
+$.liveData.plays.currentPlay.runners[*].details.runner,object,1,0,[]
+$.liveData.plays.currentPlay.runners[*].details.runner.fullName,string,1,0,"[""Greg Garcia""]"
+$.liveData.plays.currentPlay.runners[*].details.runner.id,integer,1,0,[594824]
+$.liveData.plays.currentPlay.runners[*].details.runner.link,string,1,0,"[""/api/v1/people/594824""]"
+$.liveData.plays.currentPlay.runners[*].details.teamUnearned,boolean,1,0,[false]
+$.liveData.plays.currentPlay.runners[*].movement,object,1,0,[]
+$.liveData.plays.currentPlay.runners[*].movement.end,null,1,1,[null]
+$.liveData.plays.currentPlay.runners[*].movement.isOut,boolean,1,0,[true]
+$.liveData.plays.currentPlay.runners[*].movement.originBase,null,1,1,[null]
+$.liveData.plays.currentPlay.runners[*].movement.outBase,string,1,0,"[""1B""]"
+$.liveData.plays.currentPlay.runners[*].movement.outNumber,integer,1,0,[3]
+$.liveData.plays.currentPlay.runners[*].movement.start,null,1,1,[null]
+$.liveData.plays.playsByInning,array,1,0,[]
+$.liveData.plays.playsByInning[*],object,9,0,[]
+$.liveData.plays.playsByInning[*].bottom,array,9,0,[]
+$.liveData.plays.playsByInning[*].bottom[*],integer,34,0,"[6, 7, 8, 9, 16]"
+$.liveData.plays.playsByInning[*].endIndex,integer,9,0,"[9, 18, 29, 35, 47]"
+$.liveData.plays.playsByInning[*].hits,object,9,0,[]
+$.liveData.plays.playsByInning[*].hits.away,array,9,0,[]
+$.liveData.plays.playsByInning[*].hits.away[*],object,33,0,[]
+$.liveData.plays.playsByInning[*].hits.away[*].batter,object,33,0,[]
+$.liveData.plays.playsByInning[*].hits.away[*].batter.fullName,string,33,0,"[""Adam Jones"", ""Eduardo Escobar"", ""Wilmer Flores"", ""David Peralta"", ""Ketel Marte""]"
+$.liveData.plays.playsByInning[*].hits.away[*].batter.id,integer,33,0,"[430945, 500871, 527038, 444482, 606466]"
+$.liveData.plays.playsByInning[*].hits.away[*].batter.link,string,33,0,"[""/api/v1/people/430945"", ""/api/v1/people/500871"", ""/api/v1/people/527038"", ""/api/v1/people/444482"", ""/api/v1/people/606466""]"
+$.liveData.plays.playsByInning[*].hits.away[*].coordinates,object,33,0,[]
+$.liveData.plays.playsByInning[*].hits.away[*].coordinates.x,number,33,0,"[36.2, 211.45, 34.59, 79.14, 176.95]"
+$.liveData.plays.playsByInning[*].hits.away[*].coordinates.y,number,33,0,"[65.44, 134.02, 103.74, 66.17, 94.92]"
+$.liveData.plays.playsByInning[*].hits.away[*].description,string,33,0,"[""Home Run"", ""Flyout"", ""Double"", ""Double Play"", ""Single""]"
+$.liveData.plays.playsByInning[*].hits.away[*].inning,integer,33,0,"[1, 2, 3, 4, 5]"
+$.liveData.plays.playsByInning[*].hits.away[*].pitcher,object,33,0,[]
+$.liveData.plays.playsByInning[*].hits.away[*].pitcher.fullName,string,33,0,"[""Matt Strahm"", ""Robbie Erlin"", ""Phil Maton""]"
+$.liveData.plays.playsByInning[*].hits.away[*].pitcher.id,integer,33,0,"[621381, 572362, 664208]"
+$.liveData.plays.playsByInning[*].hits.away[*].pitcher.link,string,33,0,"[""/api/v1/people/621381"", ""/api/v1/people/572362"", ""/api/v1/people/664208""]"
+$.liveData.plays.playsByInning[*].hits.away[*].team,object,33,0,[]
+$.liveData.plays.playsByInning[*].hits.away[*].team.allStarStatus,string,33,0,"[""N""]"
+$.liveData.plays.playsByInning[*].hits.away[*].team.id,integer,33,0,[109]
+$.liveData.plays.playsByInning[*].hits.away[*].team.link,string,33,0,"[""/api/v1/teams/109""]"
+$.liveData.plays.playsByInning[*].hits.away[*].team.name,string,33,0,"[""Arizona Diamondbacks""]"
+$.liveData.plays.playsByInning[*].hits.away[*].team.springLeague,object,33,0,[]
+$.liveData.plays.playsByInning[*].hits.away[*].team.springLeague.abbreviation,string,33,0,"[""CL""]"
+$.liveData.plays.playsByInning[*].hits.away[*].team.springLeague.id,integer,33,0,[114]
+$.liveData.plays.playsByInning[*].hits.away[*].team.springLeague.link,string,33,0,"[""/api/v1/league/114""]"
+$.liveData.plays.playsByInning[*].hits.away[*].team.springLeague.name,string,33,0,"[""Cactus League""]"
+$.liveData.plays.playsByInning[*].hits.away[*].type,string,33,0,"[""H"", ""O""]"
+$.liveData.plays.playsByInning[*].hits.home,array,9,0,[]
+$.liveData.plays.playsByInning[*].hits.home[*],object,27,0,[]
+$.liveData.plays.playsByInning[*].hits.home[*].batter,object,27,0,[]
+$.liveData.plays.playsByInning[*].hits.home[*].batter.fullName,string,27,0,"[""Ian Kinsler"", ""Eric Hosmer"", ""Franmil Reyes"", ""Fernando Tatis Jr."", ""Manuel Margot""]"
+$.liveData.plays.playsByInning[*].hits.home[*].batter.id,integer,27,0,"[435079, 543333, 614177, 665487, 622534]"
+$.liveData.plays.playsByInning[*].hits.home[*].batter.link,string,27,0,"[""/api/v1/people/435079"", ""/api/v1/people/543333"", ""/api/v1/people/614177"", ""/api/v1/people/665487"", ""/api/v1/people/622534""]"
+$.liveData.plays.playsByInning[*].hits.home[*].coordinates,object,27,0,[]
+$.liveData.plays.playsByInning[*].hits.home[*].coordinates.x,number,27,0,"[41.96, 126.1, 136.35, 106.06, 138.67]"
+$.liveData.plays.playsByInning[*].hits.home[*].coordinates.y,number,27,0,"[103.89, 68.86, 144.92, 170.97, 86.57]"
+$.liveData.plays.playsByInning[*].hits.home[*].description,string,27,0,"[""Lineout"", ""Forceout"", ""Groundout"", ""Flyout"", ""Pop Out""]"
+$.liveData.plays.playsByInning[*].hits.home[*].inning,integer,27,0,"[1, 2, 3, 4, 5]"
+$.liveData.plays.playsByInning[*].hits.home[*].pitcher,object,27,0,[]
+$.liveData.plays.playsByInning[*].hits.home[*].pitcher.fullName,string,27,0,"[""Merrill Kelly"", ""Jon Duplantier""]"
+$.liveData.plays.playsByInning[*].hits.home[*].pitcher.id,integer,27,0,"[518876, 641541]"
+$.liveData.plays.playsByInning[*].hits.home[*].pitcher.link,string,27,0,"[""/api/v1/people/518876"", ""/api/v1/people/641541""]"
+$.liveData.plays.playsByInning[*].hits.home[*].team,object,27,0,[]
+$.liveData.plays.playsByInning[*].hits.home[*].team.allStarStatus,string,27,0,"[""N""]"
+$.liveData.plays.playsByInning[*].hits.home[*].team.id,integer,27,0,[135]
+$.liveData.plays.playsByInning[*].hits.home[*].team.link,string,27,0,"[""/api/v1/teams/135""]"
+$.liveData.plays.playsByInning[*].hits.home[*].team.name,string,27,0,"[""San Diego Padres""]"
+$.liveData.plays.playsByInning[*].hits.home[*].team.springLeague,object,27,0,[]
+$.liveData.plays.playsByInning[*].hits.home[*].team.springLeague.abbreviation,string,27,0,"[""CL""]"
+$.liveData.plays.playsByInning[*].hits.home[*].team.springLeague.id,integer,27,0,[114]
+$.liveData.plays.playsByInning[*].hits.home[*].team.springLeague.link,string,27,0,"[""/api/v1/league/114""]"
+$.liveData.plays.playsByInning[*].hits.home[*].team.springLeague.name,string,27,0,"[""Cactus League""]"
+$.liveData.plays.playsByInning[*].hits.home[*].type,string,27,0,"[""O"", ""H""]"
+$.liveData.plays.playsByInning[*].startIndex,integer,9,0,"[0, 10, 19, 30, 36]"
+$.liveData.plays.playsByInning[*].top,array,9,0,[]
+$.liveData.plays.playsByInning[*].top[*],integer,45,0,"[0, 1, 2, 3, 4]"
+$.liveData.plays.scoringPlays,array,1,0,[]
+$.liveData.plays.scoringPlays[*],integer,11,0,"[0, 3, 14, 22, 23]"
+$.metaData,object,1,0,[]
+$.metaData.gameEvents,array,1,0,[]
+$.metaData.gameEvents[*],string,2,0,"[""strikeout"", ""game_finished""]"
+$.metaData.logicalEvents,array,1,0,[]
+$.metaData.logicalEvents[*],string,4,0,"[""midInning"", ""countChange"", ""count13"", ""gameStateChangeToGameOver""]"
+$.metaData.timeStamp,string,1,0,"[""20190402_051518""]"
+$.metaData.wait,integer,1,0,[10]

@@ -1,0 +1,18 @@
+generic_result:
+  class: https://baseballontology.org/BaseballInstitutionalProcess
+  subject_pattern: /game/{gamePk}/plate-appearance/{atBatIndex}/result
+observed_specific_types:
+  home_run: https://baseballontology.org/HomeRunProcess
+  field_out: https://baseballontology.org/BattedBallOutProcess
+  double: https://baseballontology.org/DoubleProcess
+  walk: https://baseballontology.org/WalkProcess
+  force_out: https://baseballontology.org/ForceOutProcess
+  strikeout: https://baseballontology.org/StrikeoutProcess
+  single: https://baseballontology.org/SingleProcess
+  grounded_into_double_play: https://baseballontology.org/GroundedIntoDoublePlayProcess
+  sac_fly: https://baseballontology.org/SacrificeFlyProcess
+  double_play: https://baseballontology.org/DoublePlayProcess
+  fielders_choice: https://baseballontology.org/FieldersChoiceProcess
+unseen_event_policy: Every play result still receives the generic BaseballInstitutionalProcess
+  type. Add a specific type mapping only after the source value and ontology coverage
+  are reviewed.
