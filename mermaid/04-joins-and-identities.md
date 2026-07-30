@@ -11,6 +11,7 @@ flowchart LR
 
     PITCH -->|"playId equality join"| PLAY
     PLAY --> PA["PlateAppearanceMap"]
+    PLAY --> BATTER_ACT["One BatterAct per plate appearance"]
     PLAY --> PITCHER["Pitcher person and career role"]
     PLAY --> BATTER["Batter person and career role"]
     PLAY --> PA_TIME["Plate-appearance interval"]
@@ -22,7 +23,7 @@ flowchart LR
 
     classDef stable fill:#d7f5df,stroke:#24733b,color:#102a18;
     classDef test fill:#fff2cc,stroke:#997a00,color:#3d3100;
-    class PITCH_IRI stable;
+    class PITCH_IRI,BATTER_ACT stable;
     class PITCH,PLAY,GAMEPK test;
 ```
 

@@ -1,13 +1,13 @@
 # BaseballO Knowledge Graph
 
-BaseballO transforms untouched MLB `feed/live` game JSON into ontology-aligned RDF. The active implementation maps the raw JSON directly with RML; it does not flatten, normalize, enrich, or store derived statistics.
+BaseballO transforms untouched completed-game JSON into ontology-aligned RDF. The active implementation accepts a file supplied through a local manual inbox and maps the raw JSON directly with RML; it does not flatten, normalize, enrich, or store derived statistics.
 
 ## Active pipeline
 
 ```mermaid
 flowchart LR
-    SCHEDULE[MLB daily schedule] --> API[MLB Stats API<br/>feed/live]
-    API --> RAW[Immutable raw game JSON]
+    SOURCE[Manually supplied game JSON] --> INBOX[Local NiFi inbox]
+    INBOX --> RAW[Immutable raw game JSON]
     RAW --> RML[Direct RML mapping]
     RML --> RDF[Validated Turtle RDF]
     RDF --> FUSEKI[Apache Jena Fuseki / TDB2]
@@ -28,10 +28,10 @@ The first proof-of-concept query is **Empty Games**: games in which a player par
 | [`mermaid/`](mermaid/) | Visual review of the RML source, map, join, and identity shapes | Active review |
 | [`data/`](data/) | Raw development inputs | Development only |
 | [`archive/`](archive/) | Superseded preprocessing prototype and prior ontology snapshot | Historical |
-| [`sparql/`](sparql/) | Future canned queries | Planned |
+| [`sparql/`](sparql/) | Reviewed query prototypes and future canned queries | Prototype |
 | [`web/`](web/) | Future GitHub Pages application | Planned |
 | [`scripts/`](scripts/) | Acquisition, RML execution, validation, and infrastructure automation | Active |
-| [`tests/`](tests/) | Future integration and regression tests | Planned |
+| [`tests/`](tests/) | Offline integration and future regression tests | Active |
 | [`infra/`](infra/) | Pinned local NiFi and Fuseki development stack | Active |
 
 ## Validate the active mapping
@@ -70,4 +70,6 @@ Start with the [Mermaid review index](mermaid/README.md). It separates the inten
 
 ## Execute the local vertical slice
 
-After bootstrapping and starting the free local stack, follow the [daily game acquisition runbook](scripts/pipeline/README.md). It archives untouched MLB responses, executes the pinned RMLMapper for final games, validates source-to-RDF record counts, and loads complete named graphs into Fuseki with idempotent `PUT` requests.
+After bootstrapping and starting the free local stack, follow the [manual game import runbook](scripts/pipeline/README.md). It archives untouched completed-game JSON, executes the pinned RMLMapper, validates source-to-RDF record counts, and loads complete named graphs into Fuseki with idempotent `PUT` requests.
+
+Automated external acquisition is parked pending an approved data-access source. The active NiFi flow makes no MLB or other external HTTP request.

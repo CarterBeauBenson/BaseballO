@@ -41,8 +41,18 @@ try {
 
         $existing = Get-NiFiChildGroups -ParentId $ParentId | Where-Object { $_.component.name -eq $Name } | Select-Object -First 1
         if ($null -ne $existing) {
-            Write-Host "Present: $Name"
-            return [string]$existing.component.id
+            $entity = @{
+                revision = @{ version = $existing.revision.version }
+                component = @{
+                    id = [string]$existing.component.id
+                    name = $Name
+                    comments = $Comments
+                    position = @{ x = $X; y = $Y }
+                }
+            }
+            $updated = Invoke-RestMethod -Uri "$baseUri/process-groups/$($existing.component.id)" -Headers $headers -Method Put -ContentType 'application/json' -Body ($entity | ConvertTo-Json -Depth 8)
+            Write-Host "Aligned: $Name"
+            return [string]$updated.component.id
         }
 
         $entity = @{
@@ -60,14 +70,15 @@ try {
 
     $root = Invoke-RestMethod -Uri "$baseUri/flow/process-groups/root" -Headers $headers -Method Get
     $rootId = [string]$root.processGroupFlow.id
-    $baseballGroupId = Ensure-NiFiProcessGroup -ParentId $rootId -Name 'BaseballO - MLB Ingestion' -Comments 'Operational ingestion only. Raw MLB JSON remains unchanged; semantic output comes only from approved RML mappings.' -X 0 -Y 0
+    $baseballGroupId = Ensure-NiFiProcessGroup -ParentId $rootId -Name 'BaseballO - MLB Ingestion' -Comments 'Local data movement and semantic processing. Raw source JSON remains unchanged; semantic output comes only from approved RML mappings.' -X 0 -Y 0
 
     $groups = @(
-        @{ Name = '01 Games - Daily'; Comments = 'Acquire completed-game feed/live JSON and retain it unchanged.'; X = 0; Y = 0 },
-        @{ Name = '02 Transactions - Daily'; Comments = 'Acquire the daily MLB transaction report and retain it unchanged.'; X = 450; Y = 0 },
-        @{ Name = '03 Reference Data - Annual'; Comments = 'Acquire slow-changing player and reference snapshots.'; X = 900; Y = 0 },
-        @{ Name = '90 Shared RDF Mapping and Load'; Comments = 'Invoke the pinned RML processor, validate RDF, and PUT complete named graphs to Fuseki.'; X = 225; Y = 350 },
-        @{ Name = '99 Quarantine'; Comments = 'Hold failed acquisition, mapping, validation, and graph-load artifacts with error metadata.'; X = 675; Y = 350 }
+        @{ Name = '01 Games - Manual Inbox'; Comments = 'Process locally supplied completed-game JSON without making an external data request.'; X = 0; Y = 0 },
+        @{ Name = '01 Games - Daily'; Comments = 'Parked network-acquisition design. Keep stopped pending an approved data-access source.'; X = 450; Y = 0 },
+        @{ Name = '02 Transactions - Daily'; Comments = 'Reserved for a future approved transaction source; no executable acquisition is enabled.'; X = 900; Y = 0 },
+        @{ Name = '03 Reference Data - Annual'; Comments = 'Reserved for a future approved reference source; no executable acquisition is enabled.'; X = 1350; Y = 0 },
+        @{ Name = '90 Shared RDF Mapping and Load'; Comments = 'Invoke the pinned RML processor, validate RDF, and PUT complete named graphs to Fuseki.'; X = 450; Y = 350 },
+        @{ Name = '99 Quarantine'; Comments = 'Hold failed import, mapping, validation, and graph-load artifacts with error metadata.'; X = 900; Y = 350 }
     )
     foreach ($group in $groups) {
         [void](Ensure-NiFiProcessGroup -ParentId $baseballGroupId -Name $group.Name -Comments $group.Comments -X $group.X -Y $group.Y)

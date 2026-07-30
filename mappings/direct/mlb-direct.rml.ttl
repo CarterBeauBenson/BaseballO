@@ -568,6 +568,26 @@
     rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{about.atBatIndex}/temporal-interval" ; rr:termType rr:IRI ]
   ] .
 
+<#BatterActMap> a rr:TriplesMap ;
+  rml:logicalSource <#PlaySource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{about.atBatIndex}/batter-act" ; rr:termType rr:IRI ; rr:class base:BatterAct ] ;
+  rr:predicateObjectMap [
+    rr:predicate obo:BFO_0000132 ;
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{about.atBatIndex}" ; rr:termType rr:IRI ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001833 ;
+    rr:objectMap [ rr:template "https://baseballontology.org/data/player/{matchup.batter.id}" ; rr:termType rr:IRI ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate obo:BFO_0000055 ;
+    rr:objectMap [ rr:template "https://baseballontology.org/data/player/{matchup.batter.id}/role/batter" ; rr:termType rr:IRI ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001918 ;
+    rr:objectMap [ rr:template "https://baseballontology.org/data/venue/{$.gameData.venue.id}/baseball-field" ; rr:termType rr:IRI ]
+  ] .
+
 <#PlateAppearanceIntervalMap> a rr:TriplesMap ;
   rml:logicalSource <#PlaySource> ;
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{about.atBatIndex}/temporal-interval" ; rr:termType rr:IRI ; rr:class obo:BFO_0000038 ] ;

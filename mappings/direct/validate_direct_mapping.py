@@ -150,6 +150,17 @@ else:
     if duplicate_at_bats:
         errors.append(f"Duplicate about.atBatIndex values: {duplicate_at_bats[:10]}")
 
+    batter_ids = [p.get("matchup", {}).get("batter", {}).get("id") for p in plays]
+    unsafe_batter_ids = sorted(
+        {value for value in batter_ids if not str(value or "").isdigit()},
+        key=str,
+    )
+    if unsafe_batter_ids:
+        errors.append(
+            "At least one play lacks a safe numeric matchup.batter.id: "
+            + ", ".join(map(repr, unsafe_batter_ids[:10]))
+        )
+
     pitches = [
         event
         for play in plays

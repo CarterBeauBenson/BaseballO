@@ -3,7 +3,8 @@ param(
     [ValidatePattern('^\d{4}-\d{2}-\d{2}$')][string] $TestDate,
     [ValidatePattern('^\d+$')][string] $TestGamePk,
     [switch] $RunOnce,
-    [switch] $EnableDaily
+    [switch] $EnableDaily,
+    [switch] $ExternalDataAccessApproved
 )
 
 . (Join-Path $PSScriptRoot 'common.ps1')
@@ -13,6 +14,9 @@ if ($RunOnce -and ([string]::IsNullOrWhiteSpace($TestDate) -or [string]::IsNullO
 }
 if ($EnableDaily -and (-not [string]::IsNullOrWhiteSpace($TestDate) -or -not [string]::IsNullOrWhiteSpace($TestGamePk))) {
     throw '-EnableDaily cannot be combined with test filters.'
+}
+if (($RunOnce -or $EnableDaily) -and -not $ExternalDataAccessApproved) {
+    throw 'External game acquisition is parked pending an approved data-access source. The manual inbox remains available.'
 }
 if (-not (Test-TcpPort -HostName '127.0.0.1' -Port 8443)) {
     throw 'NiFi is not running on port 8443.'
@@ -191,6 +195,9 @@ try {
     }
     if (-not [string]::IsNullOrWhiteSpace($TestGamePk)) {
         $arguments += @('-GamePk', $TestGamePk)
+    }
+    if ($ExternalDataAccessApproved) {
+        $arguments += '-ExternalDataAccessApproved'
     }
     $commandArguments = $arguments -join ';'
     $nifiQuarantine = Join-Path $script:StateRoot 'pipeline\quarantine\nifi\games-daily'

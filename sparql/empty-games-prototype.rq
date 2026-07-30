@@ -1,0 +1,71 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Prototype only. See README.md for its explicit completeness boundary and
+# the contribution-policy decisions still requiring approval.
+SELECT ?player
+       (SAMPLE(?label) AS ?playerLabel)
+       (COUNT(DISTINCT ?game) AS ?emptyGames)
+WHERE {
+  GRAPH ?graph {
+    ?game a base:BaseballGame .
+    ?batterAct a base:BatterAct ;
+               cco:ont00001833 ?player ;
+               obo:BFO_0000132 ?plateAppearance .
+    ?plateAppearance a base:PlateAppearance .
+    OPTIONAL { ?player rdfs:label ?label }
+
+    # Do not classify a game whose PA result vocabulary is outside the current
+    # direct-mapping completeness profile.
+    FILTER NOT EXISTS {
+      ?unknownRecord a base:BaseballEventRecord ;
+                     cco:ont00001808 ?unknownResult ;
+                     dcterms:identifier ?unknownEventType .
+      ?unknownResult a base:BaseballInstitutionalProcess ;
+                     obo:BFO_0000132 ?unknownPlateAppearance .
+      ?unknownPlateAppearance a base:PlateAppearance .
+      FILTER(
+        LCASE(STR(?unknownEventType)) NOT IN (
+          "home_run", "field_out", "double", "walk", "force_out",
+          "strikeout", "single", "grounded_into_double_play", "sac_fly",
+          "double_play", "fielders_choice"
+        )
+      )
+    }
+
+    # No mapped qualifying PA result for any of this player's batter acts in
+    # the game.
+    FILTER NOT EXISTS {
+      ?qualifyingBatterAct a base:BatterAct ;
+                           cco:ont00001833 ?player ;
+                           obo:BFO_0000132 ?qualifyingPlateAppearance .
+      ?qualifyingResult obo:BFO_0000132 ?qualifyingPlateAppearance ;
+                        a ?qualifyingType .
+      VALUES ?qualifyingType {
+        base:SingleProcess
+        base:DoubleProcess
+        base:HomeRunProcess
+        base:WalkProcess
+        base:SacrificeFlyProcess
+        base:FieldersChoiceProcess
+      }
+    }
+
+    # No source-identified stolen-base act by this player in the game.
+    FILTER NOT EXISTS {
+      ?runnerAct a base:BaserunningAct ;
+                 cco:ont00001833 ?player ;
+                 obo:BFO_0000132 ?game .
+      ?runnerResolution obo:BFO_0000062 ?runnerAct .
+      ?runnerRecord cco:ont00001808 ?runnerResolution ;
+                    dcterms:identifier ?runnerEventType .
+      FILTER(STRSTARTS(LCASE(STR(?runnerEventType)), "stolen_base"))
+    }
+  }
+}
+GROUP BY ?player
+ORDER BY DESC(?emptyGames) LCASE(STR(?playerLabel))

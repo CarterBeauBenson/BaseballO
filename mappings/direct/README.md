@@ -28,7 +28,7 @@ Before invoking RMLMapper, [`../../scripts/pipeline/run-rml.ps1`](../../scripts/
 - teams and game-specific home/away team roles
 - players, proper-name ICEs, and MLB identifier ICEs
 - career-duration batter, pitcher, baserunner, and fielder roles
-- innings, half innings, and plate appearances
+- innings, half innings, plate appearances, and one source-backed batter act per plate appearance
 - game, plate-appearance, and pitch temporal intervals, instants, and timestamp ICEs
 - pitch acts and pitch event records
 - ball, strike, foul, foul-tip, fair-ball, swing, contact, and batted-ball-motion structures

@@ -6,10 +6,14 @@ param(
     [ValidatePattern('^\d+$')][string] $GamePk,
     [ValidateRange(1, 5)][int] $RetryCount = 3,
     [switch] $SkipRdfLoad,
-    [switch] $ForceRdfLoad
+    [switch] $ForceRdfLoad,
+    [switch] $ExternalDataAccessApproved
 )
 
 . (Join-Path $PSScriptRoot '..\infra\common.ps1')
+if (-not $ExternalDataAccessApproved) {
+    throw 'External game acquisition is parked pending an approved data-access source. Use the manual inbox or pass -ExternalDataAccessApproved only after that issue is resolved.'
+}
 Initialize-LocalLayout
 
 $pipelineRoot = Join-Path $script:StateRoot 'pipeline'

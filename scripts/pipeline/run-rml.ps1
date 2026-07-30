@@ -140,7 +140,7 @@ try {
         throw "RMLMapper produced no RDF for game $gamePk."
     }
 
-    & python $validatorPath $stageOutput $gamePk '--expected-plate-appearances' $expectedPlateAppearanceCount '--expected-pitches' $expectedPitchCount
+    & python $validatorPath $stageOutput $gamePk '--expected-plate-appearances' $expectedPlateAppearanceCount '--expected-batter-acts' $expectedPlateAppearanceCount '--expected-pitches' $expectedPitchCount
     if ($LASTEXITCODE -ne 0) {
         throw "Generated RDF validation failed for game $gamePk."
     }
@@ -172,6 +172,7 @@ try {
         serialization = 'turtle'
         sourceCounts = [ordered]@{
             plateAppearances = $expectedPlateAppearanceCount
+            batterActs = $expectedPlateAppearanceCount
             pitches = $expectedPitchCount
         }
         outputPath = $outputPath

@@ -50,6 +50,7 @@ record_types:
     - InningMap
     - HalfInningMap
     - PlateAppearanceMap
+    - BatterActMap
   play_result:
     status: mapped
     note: every result gets a generic institutional process; observed eventTypes also

@@ -11,6 +11,7 @@ from pathlib import Path
 from urllib.parse import unquote
 
 from rdflib import Graph
+from rdflib.plugins.sparql import prepareQuery
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -30,12 +31,23 @@ REQUIRED_PATHS = (
     ROOT / "infra" / "versions.psd1",
     ROOT / "scripts" / "infra" / "configure-nifi-foundation.ps1",
     ROOT / "scripts" / "infra" / "configure-nifi-rdf-skeleton.ps1",
+    ROOT / "scripts" / "infra" / "configure-nifi-games-manual.ps1",
     ROOT / "scripts" / "infra" / "configure-nifi-games-daily.ps1",
+    ROOT / "scripts" / "pipeline" / "import-game-json.ps1",
+    ROOT / "scripts" / "pipeline" / "process-staged-game-json.ps1",
+    ROOT / "scripts" / "pipeline" / "test-manual-vertical-slice.ps1",
     ROOT / "scripts" / "pipeline" / "run-rml.ps1",
     ROOT / "scripts" / "pipeline" / "acquire-daily-games.ps1",
     ROOT / "scripts" / "pipeline" / "load-game-graph.ps1",
     ROOT / "scripts" / "pipeline" / "validate-generated-rdf.py",
+    ROOT / "sparql" / "empty-games-prototype.rq",
     SAMPLE,
+)
+
+OFFLINE_PIPELINE_PATHS = (
+    ROOT / "scripts" / "infra" / "configure-nifi-games-manual.ps1",
+    ROOT / "scripts" / "pipeline" / "import-game-json.ps1",
+    ROOT / "scripts" / "pipeline" / "process-staged-game-json.ps1",
 )
 
 MARKDOWN_LINK = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
@@ -74,6 +86,18 @@ def validate_turtle() -> int:
     files = list(ROOT.rglob("*.ttl"))
     for path in files:
         Graph().parse(path, format="turtle")
+    return len(files)
+
+
+def validate_sparql() -> int:
+    files = list(ROOT.rglob("*.rq"))
+    for path in files:
+        try:
+            prepareQuery(path.read_text(encoding="utf-8"))
+        except Exception as error:
+            raise ValueError(
+                f"SPARQL parse failed in {path.relative_to(ROOT)}: {error}"
+            ) from error
     return len(files)
 
 
@@ -127,16 +151,32 @@ def validate_active_mapping() -> None:
     )
 
 
+def validate_offline_pipeline_boundary() -> None:
+    prohibited = ("statsapi.mlb.com", "acquire-daily-games.ps1")
+    for path in OFFLINE_PIPELINE_PATHS:
+        text = path.read_text(encoding="utf-8").lower()
+        matches = [value for value in prohibited if value.lower() in text]
+        if matches:
+            raise ValueError(
+                "Active offline pipeline references external acquisition in "
+                f"{path.relative_to(ROOT)}: {', '.join(matches)}"
+            )
+
+
 def main() -> None:
     require_layout()
     json_count = validate_json()
     turtle_count = validate_turtle()
+    sparql_count = validate_sparql()
     markdown_count, mermaid_count = validate_markdown()
     validate_active_mapping()
+    validate_offline_pipeline_boundary()
     print(f"JSON files parsed: {json_count}")
     print(f"Turtle files parsed: {turtle_count}")
+    print(f"SPARQL queries parsed: {sparql_count}")
     print(f"Markdown files checked: {markdown_count}")
     print(f"Mermaid blocks checked: {mermaid_count}")
+    print("Active manual pipeline contains no MLB acquisition endpoint or command.")
     print("Repository validation passed.")
 
 

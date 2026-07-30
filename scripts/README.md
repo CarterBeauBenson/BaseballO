@@ -8,4 +8,4 @@ python scripts/validate_repository.py
 
 Mapping-specific validation also remains beside the active mapping in [`../mappings/direct/`](../mappings/direct/).
 
-The [`pipeline/`](pipeline/) scripts archive daily MLB schedule and game responses, execute the pinned RMLMapper, validate generated RDF, and load complete per-game named graphs into Fuseki. Infrastructure scripts create both the stopped semantic-boundary skeleton and the connected, tested 06:15 daily NiFi game flow.
+The [`pipeline/`](pipeline/) scripts import locally supplied game JSON, preserve its bytes in a content-addressed archive, execute the pinned RMLMapper, validate generated RDF, and load complete per-game named graphs into Fuseki. Infrastructure scripts create the connected manual-inbox NiFi flow. The earlier external-acquisition flow remains stopped pending an approved data source.
