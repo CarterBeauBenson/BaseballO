@@ -39,16 +39,36 @@ After the canned queries are updated, revise both compilers under [`web/query-bu
 - User selections should compose reviewed query fragments; never accept arbitrary SPARQL text.
 - Add useful combinations beyond the current examples, including season totals, player totals, venue totals, player-by-venue, result types, pitch outcomes, runner outcomes, umpires, and official scorers.
 
+## Second priority: graph condensation and query acceleration
+
+Determine the best indexing and shortcut-property strategy for dehydrating and rehydrating the graph as needed. The complete ontological event pattern must remain available, but a derived condensed layer should make common queries substantially faster and simpler.
+
+Use hits as an initial example: when the complete hit pattern is satisfied, investigate how a condensed assertion could directly express that the relevant player is the agent in that hit. Apply the same analysis to other recurring baseball patterns.
+
+This is an open design task for the next session, not a decision recorded today. Evaluate:
+
+- which full patterns warrant condensed assertions;
+- which shortcut properties are ontologically valid and what their directions should be;
+- what constitutes sufficient evidence for generating each shortcut;
+- whether shortcuts belong in a separate named graph or another indexing layer;
+- how condensed assertions are generated, invalidated, and regenerated without drifting from the full graph;
+- what must be retained so the graph can be reliably dehydrated and rehydrated;
+- how canned and UI-compiled queries can use the shortcut layer while remaining traceable to the complete pattern; and
+- how to verify that condensed queries and full-pattern queries return equivalent answers.
+
+Do not modify the ontology, RML, or query semantics for this optimization until the design has been reviewed with the project owner.
+
 ## Suggested work order
 
 1. Create an inventory table for all 48 queries with columns for query family, counted entity, required joins, filters, and update status.
-2. Update shared graph patterns first so the query families use the same interpretation of games, plate appearances, roles, venues, and results.
-3. Update the canned `.rq` files family by family.
-4. Update the option queries and JavaScript component catalogs.
-5. Search for legacy paths, predicates, and identity assumptions.
-6. Update the SPARQL and query-builder READMEs so their examples match the final queries.
-7. Parse all queries and run the repository validator.
-8. Materialize the local fixture and verify query results after the full rewrite; do not enable external acquisition to do this.
+2. Document the graph-condensation requirements and candidate recurring patterns without implementing them yet.
+3. Update shared graph patterns first so the query families use the same interpretation of games, plate appearances, roles, venues, and results.
+4. Update the canned `.rq` files family by family.
+5. Update the option queries and JavaScript component catalogs.
+6. Search for legacy paths, predicates, and identity assumptions.
+7. Update the SPARQL and query-builder READMEs so their examples match the final queries.
+8. Parse all queries and run the repository validator.
+9. Materialize the local fixture and verify query results after the full rewrite; do not enable external acquisition to do this.
 
 ## RML items still needing review
 
