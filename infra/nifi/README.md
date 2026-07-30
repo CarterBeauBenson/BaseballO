@@ -30,3 +30,11 @@ The initial process group will use these parameters rather than machine-specific
 | `baseballo.mlb.api.base` | `https://statsapi.mlb.com/api` |
 
 Secrets do not belong in the flow definition or these tracked files.
+
+Create or repair the initial process-group hierarchy through NiFi's authenticated local API:
+
+```powershell
+.\scripts\infra\configure-nifi-foundation.ps1
+```
+
+The command is idempotent. It creates missing groups but does not replace, delete, start, or stop existing flow components.

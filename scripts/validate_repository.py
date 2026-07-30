@@ -28,6 +28,7 @@ REQUIRED_PATHS = (
     ROOT / "infra" / "README.md",
     ROOT / "infra" / "fuseki" / "configuration" / "baseball-dev.ttl",
     ROOT / "infra" / "versions.psd1",
+    ROOT / "scripts" / "infra" / "configure-nifi-foundation.ps1",
     SAMPLE,
 )
 
