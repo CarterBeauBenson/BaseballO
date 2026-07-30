@@ -18,9 +18,13 @@ __pycache__/
 # Node / web tooling
 node_modules/
 
+# Local service runtimes and mutable state (normally stored in %LOCALAPPDATA%)
+/.runtime/
+/var/
+*.pid
+
 # Editors and operating systems
 .DS_Store
 Thumbs.db
 .idea/
 .vscode/
-

@@ -9,8 +9,8 @@ flowchart LR
     API[MLB Stats API<br/>feed/live] --> RAW[Raw game JSON]
     RAW --> RML[Direct RML mapping]
     RML --> RDF[TriG RDF]
-    RDF --> GRAPHDB[GraphDB]
-    GRAPHDB --> SPARQL[Canned SPARQL queries]
+    RDF --> FUSEKI[Apache Jena Fuseki / TDB2]
+    FUSEKI --> SPARQL[Canned SPARQL queries]
     SPARQL --> WEB[GitHub Pages application]
 ```
 
@@ -31,6 +31,7 @@ The first proof-of-concept query is **Empty Games**: games in which a player par
 | [`web/`](web/) | Future GitHub Pages application | Planned |
 | [`scripts/`](scripts/) | Future operational scripts | Planned |
 | [`tests/`](tests/) | Future integration and regression tests | Planned |
+| [`infra/`](infra/) | Pinned local NiFi and Fuseki development stack | Active |
 
 ## Validate the active mapping
 

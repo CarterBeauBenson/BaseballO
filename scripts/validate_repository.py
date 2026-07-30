@@ -25,6 +25,9 @@ REQUIRED_PATHS = (
     ROOT / "mappings" / "policies" / "modeling-choices.yaml",
     ROOT / "mappings" / "policies" / "iri-policy.yaml",
     ROOT / "mermaid" / "README.md",
+    ROOT / "infra" / "README.md",
+    ROOT / "infra" / "fuseki" / "configuration" / "baseball-dev.ttl",
+    ROOT / "infra" / "versions.psd1",
     SAMPLE,
 )
 
@@ -132,4 +135,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
