@@ -13,6 +13,7 @@ These diagrams make the active [`mlb-direct.rml.ttl`](../mappings/direct/mlb-dir
 
 7. [Parked daily game acquisition](07-daily-game-acquisition.md) — preserves the reviewed but disabled external-acquisition design.
 8. [Manual game import](08-manual-game-import.md) — shows the active local-only NiFi boundary, immutable archives, validation gates, and quarantine paths.
+9. [Person, act, location, and outcome patterns](patterns/README.md) — decomposes every materially different mapped human-act pattern and separates outcome-neutral designs from correction candidates.
 
 ## Snapshot
 
