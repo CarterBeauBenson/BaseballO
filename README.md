@@ -21,7 +21,7 @@ The first proof-of-concept query is **Empty Games**: games in which a player par
 
 | Path | Purpose | Status |
 | --- | --- | --- |
-| [`ontology/`](ontology/) | Active BaseballO ontology | Active |
+| [`ontology/`](ontology/) | BaseballO taxonomic backbone, optional axiom overlay, and dependency snapshots | Active |
 | [`mappings/direct/`](mappings/direct/) | Direct raw-JSON-to-RDF RML and validator | Active |
 | [`mappings/policies/`](mappings/policies/) | Approved modeling and IRI policies | Active |
 | [`source-schema/`](source-schema/) | Observed schema and JSONPath inventory for the sample feed | Active reference |

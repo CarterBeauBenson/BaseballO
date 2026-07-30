@@ -17,11 +17,13 @@ from rdflib.plugins.sparql import prepareQuery
 ROOT = Path(__file__).resolve().parents[1]
 ACTIVE_MAPPING = ROOT / "mappings" / "direct" / "mlb-direct.rml.ttl"
 MAPPING_VALIDATOR = ROOT / "mappings" / "direct" / "validate_direct_mapping.py"
+ONTOLOGY_OVERLAY_VALIDATOR = ROOT / "scripts" / "validate_ontology_overlay.py"
 SAMPLE = ROOT / "data" / "raw" / "game-566279.json"
 
 REQUIRED_PATHS = (
     ROOT / "README.md",
     ROOT / "ontology" / "BaseballO.ttl",
+    ROOT / "ontology" / "BaseballO-axioms-overlay.ttl",
     ACTIVE_MAPPING,
     ROOT / "mappings" / "policies" / "modeling-choices.yaml",
     ROOT / "mappings" / "policies" / "iri-policy.yaml",
@@ -151,6 +153,14 @@ def validate_active_mapping() -> None:
     )
 
 
+def validate_ontology_overlay() -> None:
+    subprocess.run(
+        [sys.executable, str(ONTOLOGY_OVERLAY_VALIDATOR)],
+        cwd=ROOT,
+        check=True,
+    )
+
+
 def validate_offline_pipeline_boundary() -> None:
     prohibited = ("statsapi.mlb.com", "acquire-daily-games.ps1")
     for path in OFFLINE_PIPELINE_PATHS:
@@ -169,6 +179,7 @@ def main() -> None:
     turtle_count = validate_turtle()
     sparql_count = validate_sparql()
     markdown_count, mermaid_count = validate_markdown()
+    validate_ontology_overlay()
     validate_active_mapping()
     validate_offline_pipeline_boundary()
     print(f"JSON files parsed: {json_count}")

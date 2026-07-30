@@ -60,8 +60,7 @@ base:PlateAppearance a owl:Class ;
     skos:example "A batter walks after four counted balls."@en .
 
 base:BattedBallPlayProcess a owl:Class ;
-    rdfs:subClassOf obo:BFO_0000015 ,
-        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:BatBallContactProcess ] ;
+    rdfs:subClassOf obo:BFO_0000015 ;
     rdfs:label "Batted-Ball Play Process"@en ;
     skos:definition "A Batted-Ball Play Process is a Process that begins with a Bat-Ball Contact Process and includes the ensuing ball motion, player acts, and any institutional resolutions associated with that contact."@en ;
     rdfs:comment "This neutral container does not predetermine whether the play is counted as a hit, foul, out, error, or another result."@en ;
@@ -349,9 +348,7 @@ base:ChallengeAct a owl:Class ;
     skos:example "A manager challenges a safe call at first base."@en .
 
 base:BaseballAdjudicationAct a owl:Class ;
-    rdfs:subClassOf base:BaseballJudgmentAct ,
-        [ a owl:Restriction ; owl:onProperty obo:BFO_0000055 ; owl:someValuesFrom base:BaseballAdjudicatorRole ] ,
-        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:BaseballDecisionICE ] ;
+    rdfs:subClassOf base:BaseballJudgmentAct ;
     rdfs:label "Baseball Adjudication Act"@en ;
     skos:definition "A Baseball Adjudication Act is a Baseball Judgment Act that realizes a Baseball Adjudicator Role and has institutional force within a Baseball Game."@en ;
     rdfs:comment "This is the constitutive judgment pattern used by counted balls, strikes, hits, fouls, outs, safes, errors, runs, and related processes."@en ;
@@ -371,16 +368,14 @@ base:BaseballPhysicalProcess a owl:Class ;
 
 base:PitchBallMotionProcess a owl:Class ;
     rdfs:subClassOf base:BaseballPhysicalProcess ,
-        cco:ont00001133 ,
-        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:PitchAct ] ;
+        cco:ont00001133 ;
     rdfs:label "Pitch Ball Motion Process"@en ;
     skos:definition "A Pitch Ball Motion Process is a Baseball Physical Process that is the motion of a Baseball after release in a Pitch Act."@en ;
     rdfs:comment "The physical trajectory does not by itself instantiate a Ball Process or Strike Process."@en ;
     skos:example "A fastball travels from the pitcher's hand toward home plate."@en .
 
 base:BatBallContactProcess a owl:Class ;
-    rdfs:subClassOf base:BaseballPhysicalProcess ,
-        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:BatUseAct ] ;
+    rdfs:subClassOf base:BaseballPhysicalProcess ;
     rdfs:label "Bat-Ball Contact Process"@en ;
     skos:definition "A Bat-Ball Contact Process is a Baseball Physical Process that consists of physical contact between a Baseball Bat and a Baseball."@en ;
     rdfs:comment "This process is distinct from the preceding Swing Act or Bunt Act and from any later counted Hit, Foul Ball, or Out Process."@en ;
@@ -388,8 +383,7 @@ base:BatBallContactProcess a owl:Class ;
 
 base:BattedBallMotionProcess a owl:Class ;
     rdfs:subClassOf base:BaseballPhysicalProcess ,
-        cco:ont00001133 ,
-        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:BatBallContactProcess ] ;
+        cco:ont00001133 ;
     rdfs:label "Batted-Ball Motion Process"@en ;
     skos:definition "A Batted-Ball Motion Process is a Baseball Physical Process that is the motion of a Baseball caused by a Bat-Ball Contact Process."@en ;
     rdfs:comment "Its trajectory may furnish evidence for fair-foul and scoring judgments."@en ;
@@ -397,8 +391,7 @@ base:BattedBallMotionProcess a owl:Class ;
 
 base:ThrownBallMotionProcess a owl:Class ;
     rdfs:subClassOf base:BaseballPhysicalProcess ,
-        cco:ont00001133 ,
-        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:ThrowAct ] ;
+        cco:ont00001133 ;
     rdfs:label "Thrown-Ball Motion Process"@en ;
     skos:definition "A Thrown-Ball Motion Process is a Baseball Physical Process that is the motion of a Baseball caused by a Throw Act."@en ;
     rdfs:comment "It is distinct from the intentional Throw Act that causes it."@en ;
@@ -562,16 +555,14 @@ base:BaseballJudgmentAct a owl:Class ;
     skos:example "A spectator judges that a runner was out."@en .
 
 base:UmpireJudgmentAct a owl:Class ;
-    rdfs:subClassOf base:BaseballAdjudicationAct ,
-        [ a owl:Restriction ; owl:onProperty obo:BFO_0000055 ; owl:someValuesFrom base:UmpireRole ] ;
+    rdfs:subClassOf base:BaseballAdjudicationAct ;
     rdfs:label "Umpire Judgment Act"@en ;
     skos:definition "An Umpire Judgment Act is a Baseball Adjudication Act that realizes an Umpire Role."@en ;
     rdfs:comment "Its authority depends on contextual acceptance, not on whether the judgment accurately matches reality."@en ;
     skos:example "An umpire judges a pitch to be a strike."@en .
 
 base:ScorerJudgmentAct a owl:Class ;
-    rdfs:subClassOf base:BaseballAdjudicationAct ,
-        [ a owl:Restriction ; owl:onProperty obo:BFO_0000055 ; owl:someValuesFrom base:OfficialScorerRole ] ;
+    rdfs:subClassOf base:BaseballAdjudicationAct ;
     rdfs:label "Scorer Judgment Act"@en ;
     skos:definition "A Scorer Judgment Act is a Baseball Adjudication Act that realizes an Official Scorer Role."@en ;
     rdfs:comment "It is used for institutionally binding scoring classifications such as hit, error, fielder's choice, and sacrifice."@en ;
@@ -585,16 +576,14 @@ base:PitchJudgmentAct a owl:Class ;
     skos:example "An umpire evaluates a taken pitch."@en .
 
 base:BallJudgmentAct a owl:Class ;
-    rdfs:subClassOf base:PitchJudgmentAct ,
-        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:BallDecisionICE ] ;
+    rdfs:subClassOf base:PitchJudgmentAct ;
     rdfs:label "Ball Judgment Act"@en ;
     skos:definition "A Ball Judgment Act is a Pitch Judgment Act that has output a Ball Decision ICE."@en ;
     rdfs:comment "It constitutes the authorized judgment component of a Ball Process."@en ;
     skos:example "The umpire judges a low pitch to be a ball."@en .
 
 base:StrikeJudgmentAct a owl:Class ;
-    rdfs:subClassOf base:PitchJudgmentAct ,
-        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:StrikeDecisionICE ] ;
+    rdfs:subClassOf base:PitchJudgmentAct ;
     rdfs:label "Strike Judgment Act"@en ;
     skos:definition "A Strike Judgment Act is a Pitch Judgment Act that has output a Strike Decision ICE."@en ;
     rdfs:comment "It constitutes the authorized judgment component of a Strike Process."@en ;
@@ -608,16 +597,14 @@ base:FairFoulJudgmentAct a owl:Class ;
     skos:example "An umpire evaluates a ball near the foul line."@en .
 
 base:FairBallJudgmentAct a owl:Class ;
-    rdfs:subClassOf base:FairFoulJudgmentAct ,
-        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:FairDecisionICE ] ;
+    rdfs:subClassOf base:FairFoulJudgmentAct ;
     rdfs:label "Fair Ball Judgment Act"@en ;
     skos:definition "A Fair Ball Judgment Act is a Fair-Foul Judgment Act that has output a Fair Decision ICE."@en ;
     rdfs:comment "It constitutes the authorized judgment component of a Fair Ball Process."@en ;
     skos:example "The umpire signals that a line drive is fair."@en .
 
 base:FoulBallJudgmentAct a owl:Class ;
-    rdfs:subClassOf base:FairFoulJudgmentAct ,
-        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:FoulDecisionICE ] ;
+    rdfs:subClassOf base:FairFoulJudgmentAct ;
     rdfs:label "Foul Ball Judgment Act"@en ;
     skos:definition "A Foul Ball Judgment Act is a Fair-Foul Judgment Act that has output a Foul Decision ICE."@en ;
     rdfs:comment "It constitutes the authorized judgment component of a Foul Ball Process."@en ;
@@ -631,16 +618,14 @@ base:OutSafeJudgmentAct a owl:Class ;
     skos:example "An umpire evaluates a close play at first."@en .
 
 base:OutJudgmentAct a owl:Class ;
-    rdfs:subClassOf base:OutSafeJudgmentAct ,
-        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:OutDecisionICE ] ;
+    rdfs:subClassOf base:OutSafeJudgmentAct ;
     rdfs:label "Out Judgment Act"@en ;
     skos:definition "An Out Judgment Act is an Out-Safe Judgment Act that has output an Out Decision ICE."@en ;
     rdfs:comment "It constitutes the authorized judgment component of an Out Process."@en ;
     skos:example "The first-base umpire judges the batter-runner out."@en .
 
 base:SafeJudgmentAct a owl:Class ;
-    rdfs:subClassOf base:OutSafeJudgmentAct ,
-        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:SafeDecisionICE ] ;
+    rdfs:subClassOf base:OutSafeJudgmentAct ;
     rdfs:label "Safe Judgment Act"@en ;
     skos:definition "A Safe Judgment Act is an Out-Safe Judgment Act that has output a Safe Decision ICE."@en ;
     rdfs:comment "It constitutes the authorized judgment component of a Safe Process."@en ;
@@ -654,40 +639,35 @@ base:ScoringJudgmentAct a owl:Class ;
     skos:example "A scorer evaluates a difficult ground ball."@en .
 
 base:HitJudgmentAct a owl:Class ;
-    rdfs:subClassOf base:ScoringJudgmentAct ,
-        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:HitDecisionICE ] ;
+    rdfs:subClassOf base:ScoringJudgmentAct ;
     rdfs:label "Hit Judgment Act"@en ;
     skos:definition "A Hit Judgment Act is a Scoring Judgment Act that has output a Hit Decision ICE."@en ;
     rdfs:comment "It constitutes the authorized scoring component of a counted Hit Process."@en ;
     skos:example "The scorer credits the batter with a single."@en .
 
 base:ErrorJudgmentAct a owl:Class ;
-    rdfs:subClassOf base:ScoringJudgmentAct ,
-        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:ErrorDecisionICE ] ;
+    rdfs:subClassOf base:ScoringJudgmentAct ;
     rdfs:label "Error Judgment Act"@en ;
     skos:definition "An Error Judgment Act is a Scoring Judgment Act that has output an Error Decision ICE."@en ;
     rdfs:comment "It constitutes the authorized scoring component of a counted Error Process."@en ;
     skos:example "The scorer charges an error on a dropped throw."@en .
 
 base:FieldersChoiceJudgmentAct a owl:Class ;
-    rdfs:subClassOf base:ScoringJudgmentAct ,
-        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:FieldersChoiceDecisionICE ] ;
+    rdfs:subClassOf base:ScoringJudgmentAct ;
     rdfs:label "Fielder's Choice Judgment Act"@en ;
     skos:definition "A Fielder's Choice Judgment Act is a Scoring Judgment Act that has output a Fielder's Choice Decision ICE."@en ;
     rdfs:comment "It distinguishes the counted result from a hit even when the batter reaches base."@en ;
     skos:example "The scorer records a fielder's choice after a throw to second."@en .
 
 base:SacrificeJudgmentAct a owl:Class ;
-    rdfs:subClassOf base:ScoringJudgmentAct ,
-        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:SacrificeDecisionICE ] ;
+    rdfs:subClassOf base:ScoringJudgmentAct ;
     rdfs:label "Sacrifice Judgment Act"@en ;
     skos:definition "A Sacrifice Judgment Act is a Scoring Judgment Act that has output a Sacrifice Decision ICE."@en ;
     rdfs:comment "It constitutes the authorized scoring component of a Sacrifice Process."@en ;
     skos:example "The scorer credits a sacrifice fly."@en .
 
 base:RunJudgmentAct a owl:Class ;
-    rdfs:subClassOf base:UmpireJudgmentAct ,
-        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:RunDecisionICE ] ;
+    rdfs:subClassOf base:UmpireJudgmentAct ;
     rdfs:label "Run Judgment Act"@en ;
     skos:definition "A Run Judgment Act is an Umpire Judgment Act that has output a Run Decision ICE under a Run Rule."@en ;
     rdfs:comment "Scoring records may reproduce this judgment, but the on-field authority to count the run is modeled here as umpire authority."@en ;
@@ -713,18 +693,14 @@ base:PitchCallAct a owl:Class ;
     skos:example "The plate umpire makes a pitch call."@en .
 
 base:BallCallAct a owl:Class ;
-    rdfs:subClassOf base:PitchCallAct ,
-        [ a owl:Restriction ; owl:onProperty cco:ont00001921 ; owl:someValuesFrom base:BallDecisionICE ] ,
-        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:BallJudgmentAct ] ;
+    rdfs:subClassOf base:PitchCallAct ;
     rdfs:label "Ball Call Act"@en ;
     skos:definition "A Ball Call Act is a Pitch Call Act that communicates a Ball Decision ICE."@en ;
     rdfs:comment "It is the communicative act, not the Ball Process itself."@en ;
     skos:example "The umpire says 'ball'."@en .
 
 base:StrikeCallAct a owl:Class ;
-    rdfs:subClassOf base:PitchCallAct ,
-        [ a owl:Restriction ; owl:onProperty cco:ont00001921 ; owl:someValuesFrom base:StrikeDecisionICE ] ,
-        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:StrikeJudgmentAct ] ;
+    rdfs:subClassOf base:PitchCallAct ;
     rdfs:label "Strike Call Act"@en ;
     skos:definition "A Strike Call Act is a Pitch Call Act that communicates a Strike Decision ICE."@en ;
     rdfs:comment "It is the communicative act, not the Strike Process itself."@en ;
@@ -738,18 +714,14 @@ base:FairFoulCallAct a owl:Class ;
     skos:example "An umpire makes a fair-foul call."@en .
 
 base:FairCallAct a owl:Class ;
-    rdfs:subClassOf base:FairFoulCallAct ,
-        [ a owl:Restriction ; owl:onProperty cco:ont00001921 ; owl:someValuesFrom base:FairDecisionICE ] ,
-        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:FairBallJudgmentAct ] ;
+    rdfs:subClassOf base:FairFoulCallAct ;
     rdfs:label "Fair Call Act"@en ;
     skos:definition "A Fair Call Act is a Fair-Foul Call Act that communicates a Fair Decision ICE."@en ;
     rdfs:comment "It communicates the counted fair status."@en ;
     skos:example "An umpire points into fair territory."@en .
 
 base:FoulCallAct a owl:Class ;
-    rdfs:subClassOf base:FairFoulCallAct ,
-        [ a owl:Restriction ; owl:onProperty cco:ont00001921 ; owl:someValuesFrom base:FoulDecisionICE ] ,
-        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:FoulBallJudgmentAct ] ;
+    rdfs:subClassOf base:FairFoulCallAct ;
     rdfs:label "Foul Call Act"@en ;
     skos:definition "A Foul Call Act is a Fair-Foul Call Act that communicates a Foul Decision ICE."@en ;
     rdfs:comment "It communicates the counted foul status."@en ;
@@ -763,18 +735,14 @@ base:OutSafeCallAct a owl:Class ;
     skos:example "An umpire makes a call at first base."@en .
 
 base:OutCallAct a owl:Class ;
-    rdfs:subClassOf base:OutSafeCallAct ,
-        [ a owl:Restriction ; owl:onProperty cco:ont00001921 ; owl:someValuesFrom base:OutDecisionICE ] ,
-        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:OutJudgmentAct ] ;
+    rdfs:subClassOf base:OutSafeCallAct ;
     rdfs:label "Out Call Act"@en ;
     skos:definition "An Out Call Act is an Out-Safe Call Act that communicates an Out Decision ICE."@en ;
     rdfs:comment "It communicates an institutionally counted out."@en ;
     skos:example "The umpire gives a clenched-fist out signal."@en .
 
 base:SafeCallAct a owl:Class ;
-    rdfs:subClassOf base:OutSafeCallAct ,
-        [ a owl:Restriction ; owl:onProperty cco:ont00001921 ; owl:someValuesFrom base:SafeDecisionICE ] ,
-        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:SafeJudgmentAct ] ;
+    rdfs:subClassOf base:OutSafeCallAct ;
     rdfs:label "Safe Call Act"@en ;
     skos:definition "A Safe Call Act is an Out-Safe Call Act that communicates a Safe Decision ICE."@en ;
     rdfs:comment "It communicates an institutionally counted safe status."@en ;
@@ -786,8 +754,7 @@ base:SafeCallAct a owl:Class ;
 #################################################################
 
 base:BaseballInstitutionalProcess a owl:Class ;
-    rdfs:subClassOf obo:BFO_0000015 ,
-        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:BaseballAdjudicationAct ] ;
+    rdfs:subClassOf obo:BFO_0000015 ;
     rdfs:label "Baseball Institutional Process"@en ;
     skos:definition "A Baseball Institutional Process is a Process that has an authorized Baseball Adjudication Act as an occurrent part and whose baseball status depends on that adjudication."@en ;
     rdfs:comment "Instances are the counted processes ordinarily available in event and scoring data; correctness relative to actual rule satisfaction is not entailed."@en ;
@@ -801,40 +768,35 @@ base:PitchClassificationProcess a owl:Class ;
     skos:example "The institutional resolution of a taken pitch."@en .
 
 base:BallProcess a owl:Class ;
-    rdfs:subClassOf base:PitchClassificationProcess ,
-        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:BallJudgmentAct ] ;
+    rdfs:subClassOf base:PitchClassificationProcess ;
     rdfs:label "Ball Process"@en ;
     skos:definition "A Ball Process is a Pitch Classification Process that has a Ball Judgment Act as an occurrent part and is counted as a ball."@en ;
     rdfs:comment "The simple label denotes the counted status, not an independently modeled actual rule-satisfying ball."@en ;
     skos:example "A low pitch is called and counted as ball three."@en .
 
 base:StrikeProcess a owl:Class ;
-    rdfs:subClassOf base:PitchClassificationProcess ,
-        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:StrikeJudgmentAct ] ;
+    rdfs:subClassOf base:PitchClassificationProcess ;
     rdfs:label "Strike Process"@en ;
     skos:definition "A Strike Process is a Pitch Classification Process that has a Strike Judgment Act as an occurrent part and is counted as a strike."@en ;
     rdfs:comment "It may follow a called pitch, a swing and miss, or a foul under the applicable rule."@en ;
     skos:example "A missed swing is counted as strike two."@en .
 
 base:BattedBallClassificationProcess a owl:Class ;
-    rdfs:subClassOf base:BaseballInstitutionalProcess ,
-        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:BatBallContactProcess ] ;
+    rdfs:subClassOf base:BaseballInstitutionalProcess ;
     rdfs:label "Batted-Ball Classification Process"@en ;
     skos:definition "A Batted-Ball Classification Process is a Baseball Institutional Process that assigns a counted classification to play following Bat-Ball Contact."@en ;
     rdfs:comment "Fair Ball and Foul Ball Process are immediate subclasses."@en ;
     skos:example "The official fair-foul resolution of a contacted ball."@en .
 
 base:FairBallProcess a owl:Class ;
-    rdfs:subClassOf base:BattedBallClassificationProcess ,
-        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:FairBallJudgmentAct ] ;
+    rdfs:subClassOf base:BattedBallClassificationProcess ;
     rdfs:label "Fair Ball Process"@en ;
     skos:definition "A Fair Ball Process is a Batted-Ball Classification Process that has a Fair Ball Judgment Act as an occurrent part and is counted as fair."@en ;
     rdfs:comment "A physical trajectory in fair territory is evidence but does not alone instantiate this counted class."@en ;
     skos:example "A line drive near the line is ruled fair."@en .
 
 base:FoulBallProcess a owl:Class ;
-    rdfs:subClassOf base:BattedBallClassificationProcess ,
-        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:FoulBallJudgmentAct ] ;
+    rdfs:subClassOf base:BattedBallClassificationProcess ;
     rdfs:label "Foul Ball Process"@en ;
     skos:definition "A Foul Ball Process is a Batted-Ball Classification Process that has a Foul Ball Judgment Act as an occurrent part and is counted as foul."@en ;
     rdfs:comment "This process is downstream of contact and is not identical to the Bat-Ball Contact Process."@en ;
@@ -848,33 +810,28 @@ base:ScoringClassificationProcess a owl:Class ;
     skos:example "The scorer's official classification of a ground-ball play."@en .
 
 base:HitProcess a owl:Class ;
-    rdfs:subClassOf base:ScoringClassificationProcess ,
-        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:BatBallContactProcess ] ,
-        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:HitJudgmentAct ] ;
+    rdfs:subClassOf base:ScoringClassificationProcess ;
     rdfs:label "Hit Process"@en ;
     skos:definition "A Hit Process is a Scoring Classification Process that is preceded by a Bat-Ball Contact Process, has a Hit Judgment Act as an occurrent part, and is counted as a hit."@en ;
     rdfs:comment "This simple name denotes the counted hit available in data. It is distinct from the Swing Act, the contact, and any future class for actual rule satisfaction."@en ;
     skos:example "A ground ball is officially credited as a single."@en .
 
 base:ErrorProcess a owl:Class ;
-    rdfs:subClassOf base:ScoringClassificationProcess ,
-        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:ErrorJudgmentAct ] ;
+    rdfs:subClassOf base:ScoringClassificationProcess ;
     rdfs:label "Error Process"@en ;
     skos:definition "An Error Process is a Scoring Classification Process that has an Error Judgment Act as an occurrent part and is counted as an error."@en ;
     rdfs:comment "A Ball Control Failure Process may supply evidence, but physical failure neither entails nor is entailed by this counted class."@en ;
     skos:example "A shortstop is officially charged with an error."@en .
 
 base:FieldersChoiceProcess a owl:Class ;
-    rdfs:subClassOf base:ScoringClassificationProcess ,
-        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:FieldersChoiceJudgmentAct ] ;
+    rdfs:subClassOf base:ScoringClassificationProcess ;
     rdfs:label "Fielder's Choice Process"@en ;
     skos:definition "A Fielder's Choice Process is a Scoring Classification Process that has a Fielder's Choice Judgment Act as an occurrent part and is counted as a fielder's choice."@en ;
     rdfs:comment "The batter may reach base, but the play is not counted as a hit."@en ;
     skos:example "The shortstop throws to second while the batter reaches first."@en .
 
 base:SacrificeProcess a owl:Class ;
-    rdfs:subClassOf base:ScoringClassificationProcess ,
-        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:SacrificeJudgmentAct ] ;
+    rdfs:subClassOf base:ScoringClassificationProcess ;
     rdfs:label "Sacrifice Process"@en ;
     skos:definition "A Sacrifice Process is a Scoring Classification Process that has a Sacrifice Judgment Act as an occurrent part and is counted as a sacrifice."@en ;
     rdfs:comment "Sacrifice classifications are official scoring outcomes rather than merely the batter's intention."@en ;
@@ -930,32 +887,28 @@ base:RunnerResolutionProcess a owl:Class ;
     skos:example "The resolution of a close play at home."@en .
 
 base:OutProcess a owl:Class ;
-    rdfs:subClassOf base:RunnerResolutionProcess ,
-        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:OutJudgmentAct ] ;
+    rdfs:subClassOf base:RunnerResolutionProcess ;
     rdfs:label "Out Process"@en ;
     skos:definition "An Out Process is a Runner Resolution Process that has an Out Judgment Act as an occurrent part and adds a counted out."@en ;
     rdfs:comment "An Out Process may arise after contact or without contact; therefore contact is not a necessary predecessor of the general class."@en ;
     skos:example "A runner is called out on a tag."@en .
 
 base:SafeProcess a owl:Class ;
-    rdfs:subClassOf base:RunnerResolutionProcess ,
-        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:SafeJudgmentAct ] ;
+    rdfs:subClassOf base:RunnerResolutionProcess ;
     rdfs:label "Safe Process"@en ;
     skos:definition "A Safe Process is a Runner Resolution Process that has a Safe Judgment Act as an occurrent part and counts a runner as safe in the adjudicated situation."@en ;
     rdfs:comment "Safe status may coexist in the same play with a hit, error, fielder's choice, or another runner's out."@en ;
     skos:example "A batter-runner is called safe at first."@en .
 
 base:RunProcess a owl:Class ;
-    rdfs:subClassOf base:RunnerResolutionProcess ,
-        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:RunJudgmentAct ] ;
+    rdfs:subClassOf base:RunnerResolutionProcess ;
     rdfs:label "Run Process"@en ;
     skos:definition "A Run Process is a Runner Resolution Process that has a Run Judgment Act as an occurrent part and adds a counted run."@en ;
     rdfs:comment "A home run play may contain several distinct Run Process instances."@en ;
     skos:example "A runner crosses home before the third out and the run is counted."@en .
 
 base:BattedBallOutProcess a owl:Class ;
-    rdfs:subClassOf base:OutProcess ,
-        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:BatBallContactProcess ] ;
+    rdfs:subClassOf base:OutProcess ;
     rdfs:label "Batted-Ball Out Process"@en ;
     skos:definition "A Batted-Ball Out Process is an Out Process that is preceded by a Bat-Ball Contact Process."@en ;
     rdfs:comment "This subclass captures contact-dependent outs without incorrectly requiring every Out Process to follow contact."@en ;
@@ -983,16 +936,14 @@ base:TagOutProcess a owl:Class ;
     skos:example "A runner is tagged out while attempting to steal."@en .
 
 base:StrikeoutProcess a owl:Class ;
-    rdfs:subClassOf base:BaseballInstitutionalProcess ,
-        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:StrikeProcess ] ;
+    rdfs:subClassOf base:BaseballInstitutionalProcess ;
     rdfs:label "Strikeout Process"@en ;
     skos:definition "A Strikeout Process is a Baseball Institutional Process that counts a strikeout under a Strike Rule."@en ;
     rdfs:comment "A strikeout is not asserted as a subclass of Out Process because an uncaught third strike can yield a strikeout without a counted out."@en ;
     skos:example "A batter strikes out but reaches first on an uncaught third strike."@en .
 
 base:WalkProcess a owl:Class ;
-    rdfs:subClassOf base:BaseballInstitutionalProcess ,
-        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:BallProcess ] ;
+    rdfs:subClassOf base:BaseballInstitutionalProcess ;
     rdfs:label "Walk Process"@en ;
     skos:definition "A Walk Process is a Baseball Institutional Process that counts an award of first base after the rule-specified ball condition is adjudicated."@en ;
     rdfs:comment "The process is distinct from each constituent Ball Process."@en ;
@@ -1339,9 +1290,7 @@ base:FoulTipCallICE
         "A Foul Tip Call ICE is an Umpire Call ICE that records or expresses the result of some Foul Tip Judgment Act."@en .
 
 base:BaseballStatisticCalculation a owl:Class ;
-    rdfs:subClassOf cco:ont00001158 ,
-        [ a owl:Restriction ; owl:onProperty cco:ont00001921 ; owl:someValuesFrom base:BaseballEventRecord ] ,
-        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:BaseballStatisticICE ] ;
+    rdfs:subClassOf cco:ont00001158 ;
     rdfs:label "Baseball Statistic Calculation"@en ;
     skos:definition "A Baseball Statistic Calculation is an Act of Data Transformation that executes a Baseball Statistic Algorithm on Baseball Event Records to produce a Baseball Statistic ICE."@en ;
     rdfs:comment "The calculation operates on records of counted processes rather than directly on unobserved actual-rule-satisfaction classes."@en ;
@@ -1360,13 +1309,7 @@ base:StolenBaseDecisionICE
 
 base:StolenBaseJudgmentAct
     a owl:Class ;
-    rdfs:subClassOf
-        base:ScoringJudgmentAct ,
-        [
-            a owl:Restriction ;
-            owl:onProperty cco:ont00001986 ;
-            owl:someValuesFrom base:StolenBaseDecisionICE
-        ] ;
+    rdfs:subClassOf base:ScoringJudgmentAct ;
     rdfs:label "Stolen Base Judgment Act"@en ;
     skos:definition
         "A Stolen Base Judgment Act is a Scoring Judgment Act that has output a Stolen Base Decision ICE."@en ;
@@ -1377,18 +1320,7 @@ base:StolenBaseJudgmentAct
 
 base:StolenBaseProcess
     a owl:Class ;
-    rdfs:subClassOf
-        base:ScoringClassificationProcess ,
-        [
-            a owl:Restriction ;
-            owl:onProperty obo:BFO_0000062 ;
-            owl:someValuesFrom base:StealAttemptAct
-        ] ,
-        [
-            a owl:Restriction ;
-            owl:onProperty obo:BFO_0000117 ;
-            owl:someValuesFrom base:StolenBaseJudgmentAct
-        ] ;
+    rdfs:subClassOf base:ScoringClassificationProcess ;
     rdfs:label "Stolen Base Process"@en ;
     skos:definition
         "A Stolen Base Process is a Scoring Classification Process that is preceded by a Steal Attempt Act, has a Stolen Base Judgment Act as an occurrent part, and credits a runner with a stolen base."@en ;
