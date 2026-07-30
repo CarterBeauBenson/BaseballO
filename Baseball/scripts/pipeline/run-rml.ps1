@@ -32,6 +32,15 @@ $homeTeamId = [string]$gameDocument.gameData.teams.home.id
 if ($awayTeamId -notmatch '^\d+$' -or $homeTeamId -notmatch '^\d+$') {
     throw "Game $gamePk has no safe numeric away/home team identifier values."
 }
+$officialScorerId = [string]$gameDocument.gameData.officialScorer.id
+if (-not [string]::IsNullOrWhiteSpace($officialScorerId) -and $officialScorerId -notmatch '^\d+$') {
+    throw "Game $gamePk has an unsafe official scorer identifier: $officialScorerId"
+}
+$homePlateUmpire = @($gameDocument.liveData.boxscore.officials | Where-Object { $_.officialType -eq 'Home Plate' }) | Select-Object -First 1
+$homePlateUmpireId = [string]$homePlateUmpire.official.id
+if (-not [string]::IsNullOrWhiteSpace($homePlateUmpireId) -and $homePlateUmpireId -notmatch '^\d+$') {
+    throw "Game $gamePk has an unsafe home-plate umpire identifier: $homePlateUmpireId"
+}
 if ([string]$gameDocument.gameData.status.abstractGameState -ne 'Final') {
     throw "Game $gamePk is not final; RML execution is restricted to completed games."
 }
@@ -81,6 +90,8 @@ $gamePkTemplateReference = '{$.gamePk}'
 $venueTemplateReference = '{$.gameData.venue.id}'
 $awayTeamTemplateReference = '{$.gameData.teams.away.id}'
 $homeTeamTemplateReference = '{$.gameData.teams.home.id}'
+$officialScorerTemplateReference = '{$.gameData.officialScorer.id}'
+$homePlateUmpireTemplateReference = '{$.homePlateUmpire.id}'
 
 try {
     & python $mappingValidatorPath $inputPath
@@ -103,11 +114,13 @@ try {
     $venueReferenceCount = ([regex]::Matches($mappingText, [regex]::Escape($venueTemplateReference))).Count
     $awayTeamReferenceCount = ([regex]::Matches($mappingText, [regex]::Escape($awayTeamTemplateReference))).Count
     $homeTeamReferenceCount = ([regex]::Matches($mappingText, [regex]::Escape($homeTeamTemplateReference))).Count
+    $officialScorerReferenceCount = ([regex]::Matches($mappingText, [regex]::Escape($officialScorerTemplateReference))).Count
+    $homePlateUmpireReferenceCount = ([regex]::Matches($mappingText, [regex]::Escape($homePlateUmpireTemplateReference))).Count
     $absoluteReferenceCount = ([regex]::Matches($mappingText, '\{\$\.')).Count
     if ($gamePkReferenceCount -eq 0 -or $venueReferenceCount -eq 0 -or $awayTeamReferenceCount -eq 0 -or $homeTeamReferenceCount -eq 0) {
         throw 'The mapping does not contain the expected root identifier template references.'
     }
-    $recognizedReferenceCount = $gamePkReferenceCount + $venueReferenceCount + $awayTeamReferenceCount + $homeTeamReferenceCount
+    $recognizedReferenceCount = $gamePkReferenceCount + $venueReferenceCount + $awayTeamReferenceCount + $homeTeamReferenceCount + $officialScorerReferenceCount + $homePlateUmpireReferenceCount
     if ($absoluteReferenceCount -ne $recognizedReferenceCount) {
         throw 'The mapping contains an unrecognized absolute JSONPath template reference.'
     }
@@ -115,6 +128,26 @@ try {
     $materializedMapping = $materializedMapping.Replace($venueTemplateReference, $venueId)
     $materializedMapping = $materializedMapping.Replace($awayTeamTemplateReference, $awayTeamId)
     $materializedMapping = $materializedMapping.Replace($homeTeamTemplateReference, $homeTeamId)
+    if ([string]::IsNullOrWhiteSpace($officialScorerId)) {
+        $materializedMapping = [regex]::Replace(
+            $materializedMapping,
+            "(?m)^.*$([regex]::Escape($officialScorerTemplateReference)).*(?:\r?\n)?",
+            ''
+        )
+    }
+    else {
+        $materializedMapping = $materializedMapping.Replace($officialScorerTemplateReference, $officialScorerId)
+    }
+    if ([string]::IsNullOrWhiteSpace($homePlateUmpireId)) {
+        $materializedMapping = [regex]::Replace(
+            $materializedMapping,
+            "(?m)^.*$([regex]::Escape($homePlateUmpireTemplateReference)).*(?:\r?\n)?",
+            ''
+        )
+    }
+    else {
+        $materializedMapping = $materializedMapping.Replace($homePlateUmpireTemplateReference, $homePlateUmpireId)
+    }
     if ($materializedMapping.Contains('{$.')) {
         throw 'The staged mapping still contains an absolute JSONPath template reference.'
     }
@@ -166,6 +199,8 @@ try {
             venueId = $venueReferenceCount
             awayTeamId = $awayTeamReferenceCount
             homeTeamId = $homeTeamReferenceCount
+            officialScorerId = $officialScorerReferenceCount
+            homePlateUmpireId = $homePlateUmpireReferenceCount
         }
         mappingBaseIri = $mappingBaseIri
         mapperVersion = $script:Versions.RMLMapper.Version

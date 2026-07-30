@@ -1,100 +1,71 @@
-# Direct MLB JSON → BaseballO RML
+# Direct MLB JSON to BaseballO RML
 
-This package maps an **untouched** MLB `/game/{gamePk}/feed/live` JSON response directly to RDF.
+This package maps an untouched completed MLB feed/live JSON document directly to RDF.
 
-## Input contract
+## Active mapping
 
-Save the downloaded feed as:
+The active file is [mlb-direct.rml.ttl](mlb-direct.rml.ttl). It creates distinct individuals for source records, agents, contextual roles, intentional acts, physical processes, institutional processes, judgment acts, call acts, decision and rule ICEs, temporal regions, sites, teams, and artifacts.
 
-```text
-game.json
-```
+The central implemented batted-play chain is:
 
-No normalization, flattening, helper fields, `_mapping` objects, or runner indexes are added. The same tracked mapping file is reused for every completed game log.
+\`\`\`text
+SwingAct or BuntAct
+  -> BatBallContactProcess
+  -> BattedBallMotionProcess
+  -> FairBallProcess
+  -> most-specific plate-appearance result
 
-## Main file
+counted result
+  -> has occurrent part -> Judgment Act
+Judgment Act
+  -> has output -> Decision ICE
+Decision ICE
+  -> is about -> counted result
+\`\`\`
 
-```text
-mlb-direct.rml.ttl
-```
+Separate implemented paths cover called balls, called strikes, swinging strikes, fouls, foul tips, hits, errors, fielder's choices, sacrifices, batted outs, runner safe/out/run resolutions, and stolen bases. See the [discrete Mermaid catalog](../../mermaid/patterns/README.md).
 
-The mapping uses the classic RML 1.1/RMLMapper-compatible vocabulary and JSONPath logical sources. JSONPath references inside a logical source are evaluated relative to its current record. Templates explicitly mark the root identifiers for the game, venue, away team, and home team when those values are needed in generated IRIs.
+## Input and execution boundary
 
-Before invoking RMLMapper, [`../../scripts/pipeline/run-rml.ps1`](../../scripts/pipeline/run-rml.ps1) copies the mapping and the byte-identical JSON into an isolated work directory. It resolves only those four numeric markers in the temporary mapping copy from the root document, records both source and effective mapping hashes, then discards the working copy. The checked-in mapping and MLB response are never rewritten.
+The source file is named game.json during RML execution. The raw MLB JSON is never normalized or rewritten.
 
-## What is mapped
+JSONPath references inside nested logical sources are relative to their current records. The guarded [execution harness](../../scripts/pipeline/run-rml.ps1) therefore copies the mapping and source to an isolated work directory and materializes safe root identifiers in the temporary mapping:
 
-- game, venue, and baseball field site
-- teams and game-specific home/away team roles
-- players, proper-name ICEs, and MLB identifier ICEs
-- career-duration batter, pitcher, baserunner, and fielder roles
-- innings, half innings, plate appearances, and one source-backed batter act per plate appearance
-- game, plate-appearance, and pitch temporal intervals, instants, and timestamp ICEs
-- pitch acts and pitch event records
-- ball, strike, foul, foul-tip, fair-ball, swing, contact, and batted-ball-motion structures
-- generic plate-appearance result processes plus specific types observed in the sample
-- runner acts, runner-resolution processes, safe/out/run results, and runner event records
-- umpires and the official scorer
+- gamePk
+- venue ID
+- away and home team IDs
+- official scorer ID, when present
+- home-plate umpire ID, when present
 
-## Direct nested-record strategy
+When an optional adjudicator is absent, the harness removes only the marker-bearing participant and role assertions from the temporary mapping. Judgment, decision, and counted-process individuals remain. The checked-in mapping and authoritative source are unchanged, and both source and effective mapping hashes are recorded.
 
-### Plate appearances
+## Identity
 
-Plate appearances use source `about.atBatIndex` and the materialized root `gamePk` marker:
+- Games, players, teams, venues, officials, and pitch events use stable source identifiers.
+- Player and adjudicator roles are game-scoped.
+- Pitch-related acts and processes use gamePk plus playId.
+- Plate-appearance results use gamePk plus atBatIndex and receive their most specific source-supported class on one individual.
+- Runner acts use a neutral runner-act/movement path and a collision-validated composite because runner records expose neither atBatIndex nor an array index.
+- Event-scoped baseball and bat IRIs keep artifacts stable through one mapped pitch without claiming cross-pitch identity.
 
-```text
-/game/{gamePk}/plate-appearance/{atBatIndex}
-```
+## Conservative source boundaries
 
-### Pitches
+The mapping does not infer physical detail from a counted outcome alone.
 
-Every observed pitch has a source `playId`, which is used as the pitch identifier. A referencing-object-map join connects the pitch to the enclosing plate appearance by matching:
-
-```text
-child playId = parent playEvents[*].playId
-```
-
-### Runner records
-
-MLB provides no runner-record ID and no runner array index value. The mapping therefore uses pattern-specific composite keys made entirely from fields present in each runner record. No source field is invented. `validate_direct_mapping.py` checks the sample for collisions, and the same collision check should be run for every new feed.
-
-RMLMapper's streaming JSONPath grammar has no `null` or not-equal literal operators. Runner sources therefore express non-null starting bases as the closed MLB base set `1B`, `2B`, and `3B`, and negate that set for a null start. The validator rejects any unexpected non-null start value before execution so it cannot be silently classified as an origin record.
-
-## Deliberately deferred
-
-The mapping does not invent ontology coverage for:
-
-- field-relative `coordX` and `coordY`
-- venue geographic latitude and longitude until an appropriate ICE class is approved
-- pitch velocity, spin, break, launch, and distance measurement models
-- individual fielding-credit acts
-- non-pitch game-advisory action events
-- aggregate boxscore statistics
-
-See `ontology-coverage-gaps.yaml` and `mapping-coverage.yaml`.
+- Fielding-credit acts are deferred because credits lack stable ancestor-aware identity.
+- Pickoff acts are deferred because a runner record does not identify the pitcher who performed the act.
+- Ordinary fouls always produce FoulBallProcess. A distinct StrikeProcess is produced only for the unambiguous count.strikes equals 1 subset; the event-local feed cannot distinguish every second counted foul from an unchanged two-strike count.
+- Coordinate ICEs and designated batted-ball sites are created when hitData.coordinates exists, but coordX and coordY literals remain deferred pending approved datatype properties.
+- Non-pitch advisory events and measurement values remain deferred.
 
 ## Validation
 
-Run from this directory after placing a completed feed at `game.json`:
+From the repository root:
 
-```bash
-python validate_direct_mapping.py
-```
+\`\`\`powershell
+python Baseball/mappings/direct/validate_direct_mapping.py Baseball/data/raw/game-566279.json
+powershell -NoProfile -ExecutionPolicy Bypass -File Baseball/scripts/pipeline/run-rml.ps1 -InputJson Baseball/data/raw/game-566279.json
+python Baseball/scripts/validate_repository.py
+\`\`\`
 
-Or validate an untouched feed at another path without copying or renaming it:
-
-```bash
-python validate_direct_mapping.py ../../data/raw/game-566279.json
-```
-
-The validator checks Turtle syntax and triples-map structure, locally declared BaseballO class references, the completed-game precondition, required play identifiers, observed result coverage, pitch `playId` uniqueness, and runner composite-key collisions. BFO and CCO terms come from imported ontologies and are not resolved by this offline check. The validator does not replace execution by an RML processor.
-
-## RML execution
-
-From the repository root, run the pinned processor through the guarded harness:
-
-```powershell
-.\scripts\pipeline\run-rml.ps1 -InputJson .\data\raw\game-566279.json
-```
-
-The harness accepts only completed games, verifies that staging did not change the input bytes, materializes the guarded root markers, runs RMLMapper in strict mode, validates the generated Turtle, and writes an operational manifest. Failures and their logs move to the local quarantine directory rather than producing loadable output.
+Static validation checks Turtle, TriplesMap structure, logical sources, joins, declared BaseballO classes, completed-game preconditions, identifiers, and runner collisions. The execution harness runs the pinned RMLMapper and the generated-RDF validator, which enforces physical chains, adjudication structure, shared foul-tip/strike identity, and event-record separation.

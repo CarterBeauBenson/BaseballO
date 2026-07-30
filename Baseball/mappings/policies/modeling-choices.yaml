@@ -1,78 +1,52 @@
 baseball_modeling_patterns:
-  version: "1.0"
+  version: "1.1"
   status: "canonical"
 
-  career_roles:
+  contextual_roles:
     rule: >
-      Player roles persist for the duration of the player's baseball career
-      rather than being recreated for each game, plate appearance, or act.
-
-    examples:
-      Batter Role:
-        bearer: Player
-        duration: Player's baseball career
-        realized_in:
-          - Batter Act
-          - Swing Act
-
-      Pitcher Role:
-        bearer: Player
-        duration: Player's baseball career
-        realized_in:
-          - Pitch Act
-
-      Baserunner Role:
-        bearer: Player
-        duration: Player's baseball career
-        realized_in:
-          - Baserunning Act
-
-      Fielder Role:
-        bearer: Player
-        duration: Player's baseball career
-        realized_in:
-          - Fielding Act
+      Batter, pitcher, baserunner, fielder, umpire, official scorer, home-team,
+      and away-team roles are contextual. The active mapping creates one role
+      individual per game, bearer, and role type rather than treating a Person
+      or Team as a role or reusing one role across every game.
 
     identity_pattern:
-      template: "{data}player/{playerId}/role/{roleType}"
+      player_template: "{data}game/{gamePk}/player/{playerId}/role/{roleType}"
+      official_template: "{data}game/{gamePk}/person/{personId}/role/{roleType}"
 
     examples:
-      - "https://baseballontology.org/data/player/621381/role/pitcher"
-      - "https://baseballontology.org/data/player/430945/role/batter"
+      - "https://baseballontology.org/data/game/566279/player/621381/role/pitcher"
+      - "https://baseballontology.org/data/game/566279/player/430945/role/batter"
 
     prohibited:
-      - creating a new Pitcher Role for every pitch
-      - creating a new Batter Role for every plate appearance
-      - creating a new Fielder Role for every game
+      - typing a Person as BatterRole, PitcherRole, or another role
+      - reusing a contextual role IRI across unrelated games
+      - creating a new PitcherRole for every pitch
       - treating a role as realized continuously throughout its existence
 
     realization_rule: >
-      The career-duration role is realized episodically in the relevant acts.
-      It may exist while not being realized.
+      A game-scoped role is realized episodically in each relevant act.
 
   player_process_relations:
-    agent_rule: >
-      A player is agent in acts for which the player is directly responsible.
-
     participation_rule: >
-      A player participates in broader processes in which the player is
-      involved but is not the direct agent of the entire process.
+      Use BFO has participant from an Act or Process to each participating
+      Person or Artifact. Use realizes separately from an Act to the
+      contextual Role it realizes.
 
     examples:
       Pitch Act:
-        agent: pitcher
+        participant: pitcher
         realizes: Pitcher Role
 
       Swing Act:
-        agent: batter
+        participant: batter
         realizes: Batter Role
 
       Baserunning Act:
-        agent: runner
+        participant: runner
         realizes: Baserunner Role
 
       Fielding Act:
-        agent: fielder
+        participant: fielder
         realizes: Fielder Role
 
       Baseball Game:
@@ -107,8 +81,18 @@ baseball_modeling_patterns:
 
     record_pattern:
       rule: >
-        A Baseball Event Record may be created as an ICE about the recognized
-        process represented by the source record.
+        A Baseball Event Record is an ICE about every supported distinct act,
+        physical process, judgment act, decision ICE, call act, counted
+        process, temporal entity, site, role, or artifact described by the
+        source record.
+
+    adjudication_pattern:
+      rule: >
+        Every mapped counted institutional process has an authorized Baseball
+        Adjudication Act as an occurrent part. The judgment has output a
+        distinct Baseball Decision ICE, and the decision ICE is about the
+        counted process. A Call Act is separate and is generated only for the
+        source-supported communication patterns.
 
     actual_processes:
       rule: >

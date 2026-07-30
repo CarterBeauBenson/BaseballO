@@ -1,7 +1,7 @@
 ```yaml
 baseball_iri_policy:
   title: "Baseball Knowledge Graph IRI Policy"
-  version: "1.0"
+  version: "1.1"
   status: "canonical"
   effective_until: "Explicitly revised by the project owner"
 
@@ -9,6 +9,48 @@ baseball_iri_policy:
     Define deterministic rules for creating RDF IRIs from MLB Stats API
     records and for minting IRIs for ontology individuals that are not
     independently identified by the source API.
+
+  active_direct_mapping_profile:
+    note: >
+      The selected RML processor exposes playId reliably inside nested pitch
+      records but does not expose ancestor atBatIndex or runner array indexes.
+      These templates are the canonical active direct-mapping fallbacks.
+
+    contextual_role:
+      player_template: "{data}game/{gamePk}/player/{playerId}/role/{roleType}"
+      official_template: "{data}game/{gamePk}/person/{personId}/role/{roleType}"
+
+    pitch_act:
+      template: "{data}game/{gamePk}/pitch/{playId}"
+
+    pitch_related_entities:
+      swing_act: "{data}game/{gamePk}/act/swing/{playId}"
+      bunt_act: "{data}game/{gamePk}/act/bunt/{playId}"
+      pitch_motion: "{data}game/{gamePk}/process/pitch-ball-motion/{playId}"
+      contact: "{data}game/{gamePk}/process/contact/{playId}"
+      batted_motion: "{data}game/{gamePk}/process/batted-ball-motion/{playId}"
+      batted_play: "{data}game/{gamePk}/process/batted-ball-play/{playId}"
+      judgment: "{data}game/{gamePk}/judgment/{judgmentType}/{playId}"
+      decision: "{data}game/{gamePk}/decision/{decisionType}/{playId}"
+      call: "{data}game/{gamePk}/call/{callType}/{playId}"
+
+    plate_appearance_result:
+      template: "{data}game/{gamePk}/plate-appearance/{atBatIndex}/result"
+      rule: >
+        Add the most specific source-supported result class to this one
+        individual; do not mint a duplicate superclass process individual.
+
+    runner_act:
+      prefix: "{data}game/{gamePk}/runner-act/movement/"
+      rule: >
+        Complete the IRI with the collision-validated local source composite.
+        Do not use out, score, reach, or advance as the act-type path segment.
+
+    distinct_identity_rule: >
+      Acts, physical processes, judgment acts, call acts, decision ICEs,
+      counted processes, records, roles, sites, temporal regions, persons,
+      teams, and artifacts must not reuse an IRI merely because one JSON
+      object supports all of them.
 
   namespaces:
     ontology: "https://baseballontology.org/ontology/"
@@ -337,26 +379,27 @@ baseball_iri_policy:
         A plate appearance may produce multiple runner processes, including
         multiple processes involving the same player.
 
-    pitch_related_process:
+    pitch_related_event_entity:
       scope:
         - game
         - plate appearance
         - play event
-      iri_template: >
-        {data}game/{gamePk}/process/{normalizedProcessType}/{atBatIndex}/{eventIndex}
+      rule: >
+        Use an act path for intentional acts and a process path for physical
+        processes. The active direct-mapping profile uses playId as the local
+        event key because that is the stable ancestor value exposed by the
+        selected RML processor.
       examples:
-        - normalizedProcessType: "swing"
+        - entityType: "swing act"
           gamePk: 566279
-          atBatIndex: 0
-          eventIndex: 4
+          playId: "example-play-id"
           iri: >
-            https://baseballontology.org/data/game/566279/process/swing/0/4
-        - normalizedProcessType: "contact"
+            https://baseballontology.org/data/game/566279/act/swing/example-play-id
+        - entityType: "contact process"
           gamePk: 566279
-          atBatIndex: 0
-          eventIndex: 5
+          playId: "example-play-id"
           iri: >
-            https://baseballontology.org/data/game/566279/process/contact/0/5
+            https://baseballontology.org/data/game/566279/process/contact/example-play-id
 
     actual_processes:
       rule: >

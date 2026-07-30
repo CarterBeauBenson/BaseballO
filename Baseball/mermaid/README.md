@@ -1,31 +1,31 @@
-# Mermaid RML Review
+# Mermaid views of the implemented direct RML
 
-These diagrams make the active [`mlb-direct.rml.ttl`](../mappings/direct/mlb-direct.rml.ttl) inspectable at several levels. They describe the mapping as implemented; red or amber nodes identify review findings rather than silently changing the ontology or mapping.
+These diagrams describe the active [mlb-direct.rml.ttl](../mappings/direct/mlb-direct.rml.ttl). The detailed [event-pattern catalog](patterns/README.md) is the canonical design view: the RML was revised first, and every pattern diagram reflects generated RDF.
 
-## Review sequence
+## Reading sequence
 
-1. [Pipeline and repository](01-pipeline-and-repository.md) — separates the active direct workflow from archived work.
-2. [Logical sources](02-logical-sources.md) — shows how 37 JSONPath logical sources partition the raw feed.
-3. [Triples-map families](03-triples-map-families.md) — groups all 122 triples maps into readable functional families.
-4. [Joins and identities](04-joins-and-identities.md) — exposes the `playId` join strategy and runner composite keys.
-5. [Event process chain](05-event-process-chain.md) — compares the intended responsibility chain with explicit RML edges.
-6. [Evaluation findings](06-evaluation-findings.md) — summarizes strengths, processor risks, and modeling decisions.
+1. [Pipeline and repository](01-pipeline-and-repository.md)
+2. [Logical sources](02-logical-sources.md)
+3. [Triples-map families](03-triples-map-families.md)
+4. [Joins and identities](04-joins-and-identities.md)
+5. [Event process chain](05-event-process-chain.md)
+6. [Implemented shape and retained gaps](06-evaluation-findings.md)
+7. [Parked daily acquisition](07-daily-game-acquisition.md)
+8. [Manual game import](08-manual-game-import.md)
+9. [Discrete event patterns](patterns/README.md)
 
-7. [Parked daily game acquisition](07-daily-game-acquisition.md) — preserves the reviewed but disabled external-acquisition design.
-8. [Manual game import](08-manual-game-import.md) — shows the active local-only NiFi boundary, immutable archives, validation gates, and quarantine paths.
-9. [Person, act, location, and outcome patterns](patterns/README.md) — decomposes every materially different mapped human-act pattern and separates outcome-neutral designs from correction candidates.
+## Current snapshot
 
-## Snapshot
-
-| Measure | Current mapping |
+| Measure | Revised mapping |
 | --- | ---: |
-| Logical sources | 37 |
-| Triples maps | 122 |
-| Referencing-object-map joins | 44 |
-| Specifically typed plate-appearance result values | 11 |
-| Canonical play collection | `$.liveData.plays.allPlays[*]` |
-| Raw sample plays | 79 |
-| Raw sample pitches | 282 |
-| Raw sample runner records | 113 |
+| Logical sources | 56 |
+| Triples maps | 249 |
+| Referencing-object-map joins | 57 |
+| BaseballO classes used | 113 |
+| Undeclared BaseballO classes | 0 |
+| Sample generated triples | 27,163 |
+| Sample plate appearances | 79 |
+| Sample pitches and pitch motions | 282 each |
+| Sample bat-ball contacts and batted-ball motions | 112 each |
 
-The diagrams are maintained as Markdown Mermaid blocks so GitHub renders them without generated image files.
+The end-to-end pinned RML processor and generated-RDF validator both pass on game 566279.

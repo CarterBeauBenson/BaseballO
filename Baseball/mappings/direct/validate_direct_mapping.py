@@ -110,6 +110,53 @@ else:
             f"undeclared: {len(undeclared)}"
         )
 
+    mapping_text = mapping.read_text(encoding="utf-8")
+    required_event_maps = (
+        "PitchBallMotionMap",
+        "BattedBallPlayMap",
+        "BuntActMap",
+        "BallJudgmentMap",
+        "StrikeJudgmentMap",
+        "FairBallAdjudicationMap",
+        "FoulBallAdjudicationMap",
+        "FoulTipAdjudicationMap",
+        "PlateAppearanceResultJudgmentMap",
+        "RunnerOutJudgmentMap",
+        "RunnerReachJudgmentMap",
+        "RunnerAdvanceJudgmentMap",
+        "StolenBaseJudgmentMap",
+        "BattedBallCoordinateICEMap",
+    )
+    missing_event_maps = [
+        name for name in required_event_maps if f"<#{name}>" not in mapping_text
+    ]
+    if missing_event_maps:
+        errors.append(
+            "Required event-pattern Triples Maps are missing: "
+            + ", ".join(missing_event_maps)
+        )
+
+    prohibited_fragments = (
+        "cco:ont00001833",
+        "/runner-act/out/",
+        "/runner-act/score/",
+        "/runner-act/reach/",
+        "/runner-act/advance/",
+        "SuccessfulSwingAct",
+        "FailedSwingAct",
+        "SuccessfulStealAttemptAct",
+        "ActualHitProcess",
+        "ActualErrorProcess",
+    )
+    present_prohibited = [
+        fragment for fragment in prohibited_fragments if fragment in mapping_text
+    ]
+    if present_prohibited:
+        errors.append(
+            "Mapping contains prohibited legacy or outcome-defined patterns: "
+            + ", ".join(present_prohibited)
+        )
+
 if not source.exists():
     notes.append(f"Source is not present; source-specific checks skipped: {source}")
 else:
@@ -179,7 +226,6 @@ else:
         errors.append(f"Duplicate pitch playId values: {duplicate_pitch_ids[:10]}")
     notes.append(f"pitches: {len(pitches)}; unique pitch playIds: {len(set(ids))}")
 
-    mapping_text = mapping.read_text(encoding="utf-8")
     specifically_mapped = set(
         re.findall(r"result\.eventType == '([^']+)'", mapping_text)
     )

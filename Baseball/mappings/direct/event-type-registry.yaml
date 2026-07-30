@@ -1,7 +1,7 @@
 generic_result:
   class: https://baseballontology.org/BaseballInstitutionalProcess
   subject_pattern: /game/{gamePk}/plate-appearance/{atBatIndex}/result
-observed_specific_types:
+supported_specific_types:
   home_run: https://baseballontology.org/HomeRunProcess
   field_out: https://baseballontology.org/BattedBallOutProcess
   double: https://baseballontology.org/DoubleProcess
@@ -13,6 +13,15 @@ observed_specific_types:
   sac_fly: https://baseballontology.org/SacrificeFlyProcess
   double_play: https://baseballontology.org/DoublePlayProcess
   fielders_choice: https://baseballontology.org/FieldersChoiceProcess
+  triple: https://baseballontology.org/TripleProcess
+  sac_bunt: https://baseballontology.org/SacrificeBuntProcess
+  field_error: https://baseballontology.org/ErrorProcess
+  hit_by_pitch: https://baseballontology.org/HitByPitchProcess
+  balk: https://baseballontology.org/BalkProcess
+  catcher_interf: https://baseballontology.org/InterferenceProcess
+adjudication_policy: Every plate-appearance result receives a distinct BaseballAdjudicationAct
+  and BaseballDecisionICE. Reviewed event types add the appropriate scorer- or umpire-centered
+  judgment, decision, and rule types to those same stable judgment and decision individuals.
 unseen_event_policy: Every play result still receives the generic BaseballInstitutionalProcess
   type. Add a specific type mapping only after the source value and ontology coverage
   are reviewed.

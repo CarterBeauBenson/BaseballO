@@ -1,61 +1,22 @@
-# Joins and Identity Shape
+# Joins and identity strategy
 
-## Pitch-to-play joins
-
-All 44 referencing-object-map joins use the same equality condition. Thirty-nine connect pitch-derived structures to their enclosing play context; five additionally connect contact processes to the plate-appearance result.
-
-```mermaid
+\`\`\`mermaid
 flowchart LR
-    PITCH["Nested pitch or filtered pitch record<br/>child: playId"]
-    PLAY["Canonical allPlays record<br/>parent: playEvents[*].playId"]
+    ROOT["guarded root markers"] --> GAME["gamePk-scoped IRIs"]
+    PLAY["allPlays record"] --> PA["plate appearance by atBatIndex"]
+    EVENT["pitch event by playId"] -->|"join playId to playEvents[*].playId"| PA
+    EVENT --> PITCH["PitchAct"]
+    EVENT --> PM["PitchBallMotionProcess"]
+    EVENT --> ACT["SwingAct or BuntAct"]
+    EVENT --> CONTACT["BatBallContactProcess"]
+    EVENT --> MOTION["BattedBallMotionProcess"]
+    EVENT --> PLAYPROC["BattedBallPlayProcess"]
+    EVENT --> RECORD["Pitch Event Record"]
+    RUNNER["runner record composite"] --> RUNACT["runner-act/movement/..."]
+    RUNNER --> RESOLUTION["runner-resolution/out, reach, advance, or score"]
+    ROLE["gamePk + personId + role type"] --> ACT
+\`\`\`
 
-    PITCH -->|"playId equality join"| PLAY
-    PLAY --> PA["PlateAppearanceMap"]
-    PLAY --> BATTER_ACT["One BatterAct per plate appearance"]
-    PLAY --> PITCHER["Pitcher person and career role"]
-    PLAY --> BATTER["Batter person and career role"]
-    PLAY --> PA_TIME["Plate-appearance interval"]
-    PLAY --> RESULT["Plate-appearance result"]
+The execution harness materializes safe numeric root markers for game, venue, teams, official scorer, and home-plate umpire into an isolated mapping copy. If an optional adjudicator is absent, marker-bearing participant and role assertions are removed from that temporary copy; the raw JSON and checked-in RML remain unchanged.
 
-    PITCH -.->|"materialized root marker"| GAMEPK["$.gamePk"]
-    PITCH --> PITCH_IRI["/game/{gamePk}/pitch/{playId}"]
-    PITCH -->|"contact filters: precedes"| RESULT
-
-    classDef stable fill:#d7f5df,stroke:#24733b,color:#102a18;
-    classDef test fill:#fff2cc,stroke:#997a00,color:#3d3100;
-    class PITCH_IRI,BATTER_ACT stable;
-    class PITCH,PLAY,GAMEPK test;
-```
-
-The execution harness resolves the root marker in its temporary mapping copy because mapper references are relative to the current iterator record. The remaining processor-sensitive feature is the join whose parent reference yields the `playEvents[*].playId` collection.
-
-## Runner identity
-
-Runner records expose neither a stable record ID nor their array index as a JSON value. The direct mapping therefore partitions records into five patterns and builds composite IRIs from fields present in each record.
-
-```mermaid
-flowchart TB
-    RUNNER["allPlays[*].runners[*]"] --> OUT{"movement.isOut?"}
-    OUT -->|"true"| OUTKEY["out key<br/>runner + playIndex + eventType<br/>+ outBase + outNumber"]
-    OUT -->|"false"| SCORE{"end = score?"}
-    SCORE -->|"yes, start null"| ORIGIN["score-origin key<br/>runner + playIndex + eventType"]
-    SCORE -->|"yes, start set"| BASE["score-base key<br/>runner + playIndex + eventType + start"]
-    SCORE -->|"no, start null"| REACH["reach key<br/>runner + playIndex + eventType + end"]
-    SCORE -->|"no, start set"| ADVANCE["advance key<br/>runner + playIndex + eventType + start + end"]
-
-    OUTKEY --> THREE["Baserunning Act<br/>Resolution Process<br/>Event Record"]
-    ORIGIN --> THREE
-    BASE --> THREE
-    REACH --> THREE
-    ADVANCE --> THREE
-
-    THREE --> GAME["asserted as occurrent part of Game"]
-    THREE -.->|"parent context unavailable"| PA["not explicitly linked to Plate Appearance"]
-
-    classDef current fill:#d7f5df,stroke:#24733b,color:#102a18;
-    classDef risk fill:#fde2e2,stroke:#a33,color:#4a1111;
-    class OUTKEY,ORIGIN,BASE,REACH,ADVANCE,THREE current;
-    class PA risk;
-```
-
-The sample validator found 113 unique composite keys for 113 runner records. That proves collision freedom only for the development feed, not for every MLB game.
+Runner objects still lack ancestor atBatIndex and an array index. Their documented source-field composite remains game-scoped and collision-validated, but runner acts cannot yet be linked safely to one plate appearance.
