@@ -2,7 +2,8 @@
 param(
     [switch] $SkipJava,
     [switch] $SkipNiFi,
-    [switch] $SkipFuseki
+    [switch] $SkipFuseki,
+    [switch] $SkipRMLMapper
 )
 
 . (Join-Path $PSScriptRoot 'common.ps1')
@@ -73,6 +74,52 @@ function Install-VerifiedArchive {
     finally {
         if (Test-Path -LiteralPath $staging) {
             Remove-Item -LiteralPath $staging -Recurse -Force
+        }
+    }
+}
+
+function Install-VerifiedFile {
+    param([Parameter(Mandatory = $true)][hashtable] $Package)
+
+    $destinationDirectory = Join-Path $script:RuntimesRoot $Package.InstallDirectory
+    $destination = Join-Path $destinationDirectory $Package.FileName
+    $expectedHash = $Package.Hash.ToLowerInvariant()
+    if (Test-Path -LiteralPath $destination -PathType Leaf) {
+        $installedHash = (Get-FileHash -LiteralPath $destination -Algorithm $Package.HashAlgorithm).Hash.ToLowerInvariant()
+        if ($installedHash -eq $expectedHash) {
+            Write-Host "$($Package.FileName) is already installed."
+            return
+        }
+        throw "Installed file failed checksum verification: $destination"
+    }
+
+    [void](New-Item -ItemType Directory -Force -Path $destinationDirectory)
+    $partial = "$destination.partial"
+    if (Test-Path -LiteralPath $partial) {
+        Remove-Item -LiteralPath $partial -Force
+    }
+    try {
+        Write-Host "Downloading $($Package.FileName)..."
+        $curl = Get-Command curl.exe -ErrorAction SilentlyContinue
+        if ($null -ne $curl) {
+            & $curl.Source --fail --location --silent --show-error --retry 3 --retry-all-errors --connect-timeout 30 --output $partial $Package.Url
+            if ($LASTEXITCODE -ne 0) {
+                throw "curl.exe failed to download $($Package.Url)."
+            }
+        }
+        else {
+            Invoke-WebRequest -Uri $Package.Url -OutFile $partial -UseBasicParsing
+        }
+        Write-Host "Verifying $($Package.HashAlgorithm) checksum..."
+        $actualHash = (Get-FileHash -LiteralPath $partial -Algorithm $Package.HashAlgorithm).Hash.ToLowerInvariant()
+        if ($actualHash -ne $expectedHash) {
+            throw "Checksum mismatch for $partial. Expected $expectedHash; got $actualHash."
+        }
+        Move-Item -LiteralPath $partial -Destination $destination
+    }
+    finally {
+        if (Test-Path -LiteralPath $partial) {
+            Remove-Item -LiteralPath $partial -Force
         }
     }
 }
@@ -172,6 +219,9 @@ if (-not $SkipNiFi) {
 if (-not $SkipFuseki) {
     Install-VerifiedArchive -Package $script:Versions.Fuseki
     Configure-Fuseki
+}
+if (-not $SkipRMLMapper) {
+    Install-VerifiedFile -Package $script:Versions.RMLMapper
 }
 Configure-PipelineStorage
 

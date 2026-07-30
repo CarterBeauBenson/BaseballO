@@ -5,6 +5,7 @@ This directory defines BaseballO's no-license-fee local development services:
 - Eclipse Temurin OpenJDK 21
 - Apache NiFi 2.10.0
 - Apache Jena Fuseki 6.1.0 with persistent TDB2 storage
+- RMLMapper 8.1.0
 
 Versions and release checksums are pinned in [`versions.psd1`](versions.psd1). The bootstrap script verifies every archive before extraction.
 
@@ -18,7 +19,8 @@ By default, binaries and mutable state live under `%LOCALAPPDATA%\BaseballO`, ou
 |-- runtimes\
 |   |-- jdk-21.0.12+8\
 |   |-- nifi-2.10.0\
-|   `-- apache-jena-fuseki-6.1.0\
+|   |-- apache-jena-fuseki-6.1.0\
+|   `-- rmlmapper-8.1.0\
 `-- state\
     |-- fuseki\
     |   |-- databases\baseball-dev\

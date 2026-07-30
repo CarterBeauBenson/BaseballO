@@ -39,7 +39,7 @@ flowchart TB
 
 | Severity | Finding | Why it matters |
 | --- | --- | --- |
-| High | RML processor execution is still unverified. | Turtle parsing does not establish that the selected processor supports the nested absolute references, filters, terminal slice, or multi-value parent joins. |
+| High | End-to-end RML processor execution must remain in validation. | Turtle parsing alone does not establish that the selected processor supports filters, the terminal slice, or multi-value parent joins. Root identifiers are materialized in an audited temporary mapping copy. |
 | High | Runner acts and resolutions are linked to the game, not explicitly to their plate appearance. | The requested temporal/process hierarchy cannot be fully traversed at the runner level. The raw runner object lacks parent scope and array identity. |
 | High | Pitch IRIs require `playId`, although project policy describes it as optional. | The mapping cannot yet claim universal completed-game coverage unless every mapped pitch has a unique `playId` or another direct identity strategy is approved. |
 | Resolved safely | Venue latitude/longitude mapping is deferred. | The previous field-relative `BaseballFieldCoordinateICE` typing was removed; the source values remain untouched pending approval of an appropriate geographic-coordinate ICE class. |

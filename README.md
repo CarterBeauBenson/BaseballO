@@ -66,3 +66,7 @@ The validator checks the mapping's Turtle structure, locally declared BaseballO 
 ## RML visual review
 
 Start with the [Mermaid review index](mermaid/README.md). It separates the intended pipeline from the implemented RML shape and highlights places requiring processor tests or modeling decisions.
+
+## Execute the local vertical slice
+
+After bootstrapping and starting the free local stack, follow the [game RDF vertical-slice runbook](scripts/pipeline/README.md). It executes the pinned RMLMapper against the untouched sample, validates source-to-RDF record counts, and loads one complete named graph into Fuseki with an idempotent `PUT`.

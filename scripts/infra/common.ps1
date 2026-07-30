@@ -17,6 +17,8 @@ $script:StateRoot = Join-Path $script:LocalRoot 'state'
 $script:JavaHome = Join-Path $script:RuntimesRoot $script:Versions.Java.InstallDirectory
 $script:NiFiHome = Join-Path $script:RuntimesRoot $script:Versions.NiFi.InstallDirectory
 $script:FusekiHome = Join-Path $script:RuntimesRoot $script:Versions.Fuseki.InstallDirectory
+$script:RMLMapperHome = Join-Path $script:RuntimesRoot $script:Versions.RMLMapper.InstallDirectory
+$script:RMLMapperJar = Join-Path $script:RMLMapperHome $script:Versions.RMLMapper.FileName
 $script:NiFiState = Join-Path $script:StateRoot 'nifi'
 $script:FusekiState = Join-Path $script:StateRoot 'fuseki'
 
@@ -39,6 +41,13 @@ function Get-JavaExecutable {
         throw "Java 21 is not installed at $java. Run scripts\infra\bootstrap.ps1 first."
     }
     return $java
+}
+
+function Get-RMLMapperJar {
+    if (-not (Test-Path -LiteralPath $script:RMLMapperJar -PathType Leaf)) {
+        throw "RMLMapper is not installed at $script:RMLMapperJar. Run scripts\infra\bootstrap.ps1 first."
+    }
+    return $script:RMLMapperJar
 }
 
 function ConvertTo-JavaPropertyPath([string] $Path) {

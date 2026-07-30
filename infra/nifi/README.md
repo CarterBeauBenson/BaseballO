@@ -38,3 +38,11 @@ Create or repair the initial process-group hierarchy through NiFi's authenticate
 ```
 
 The command is idempotent. It creates missing groups but does not replace, delete, start, or stop existing flow components.
+
+Create the visual processor skeleton inside `90 Shared RDF Mapping and Load` with:
+
+```powershell
+.\scripts\infra\configure-nifi-rdf-skeleton.ps1
+```
+
+This command adds five deliberately stopped, unconnected processors representing acceptance, guarded RML execution, RDF validation, Graph Store Protocol `PUT`, and quarantine. They remain unconfigured and cannot run accidentally. Connections and machine-local properties will be added only after the same boundary has passed the script-driven vertical-slice tests.

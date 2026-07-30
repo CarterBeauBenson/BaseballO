@@ -16,7 +16,7 @@ flowchart LR
     PLAY --> PA_TIME["Plate-appearance interval"]
     PLAY --> RESULT["Plate-appearance result"]
 
-    PITCH -.->|"absolute root reference"| GAMEPK["$.gamePk"]
+    PITCH -.->|"materialized root marker"| GAMEPK["$.gamePk"]
     PITCH --> PITCH_IRI["/game/{gamePk}/pitch/{playId}"]
     PITCH -->|"contact filters: precedes"| RESULT
 
@@ -26,7 +26,7 @@ flowchart LR
     class PITCH,PLAY,GAMEPK test;
 ```
 
-This shape depends on processor support for absolute references from nested iterators and for a join whose parent reference yields the `playEvents[*].playId` collection.
+The execution harness resolves the root marker in its temporary mapping copy because mapper references are relative to the current iterator record. The remaining processor-sensitive feature is the join whose parent reference yields the `playEvents[*].playId` collection.
 
 ## Runner identity
 

@@ -29,6 +29,10 @@ REQUIRED_PATHS = (
     ROOT / "infra" / "fuseki" / "configuration" / "baseball-dev.ttl",
     ROOT / "infra" / "versions.psd1",
     ROOT / "scripts" / "infra" / "configure-nifi-foundation.ps1",
+    ROOT / "scripts" / "infra" / "configure-nifi-rdf-skeleton.ps1",
+    ROOT / "scripts" / "pipeline" / "run-rml.ps1",
+    ROOT / "scripts" / "pipeline" / "load-game-graph.ps1",
+    ROOT / "scripts" / "pipeline" / "validate-generated-rdf.py",
     SAMPLE,
 )
 

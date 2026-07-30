@@ -183,10 +183,15 @@ else:
         )
 
     runner_keys = []
+    supported_start_bases = {"1B", "2B", "3B"}
+    unexpected_start_bases = set()
     for p in plays:
         for r in p.get("runners", []):
             m = r.get("movement", {})
             d = r.get("details", {})
+            start_base = m.get("start")
+            if start_base is not None and start_base not in supported_start_bases:
+                unexpected_start_bases.add(start_base)
             rid = d.get("runner", {}).get("id")
             pi = d.get("playIndex")
             et = d.get("eventType")
@@ -205,6 +210,11 @@ else:
             else:
                 key = ("advance", rid, pi, et, m.get("start"), m.get("end"))
             runner_keys.append(key)
+    if unexpected_start_bases:
+        errors.append(
+            "Runner movement.start contains values outside the supported base set: "
+            + ", ".join(sorted(map(str, unexpected_start_bases)))
+        )
     duplicates = [(key, count) for key, count in Counter(runner_keys).items() if count > 1]
     if duplicates:
         errors.append(f"Runner composite-key collisions: {duplicates[:20]}")

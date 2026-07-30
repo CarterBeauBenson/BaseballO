@@ -26,4 +26,12 @@
         ArchiveRoot      = 'apache-jena-fuseki-6.1.0'
         InstallDirectory = 'apache-jena-fuseki-6.1.0'
     }
+    RMLMapper = @{
+        Version          = '8.1.0'
+        FileName         = 'rmlmapper-8.1.0-r380-all.jar'
+        Url              = 'https://github.com/RMLio/rmlmapper-java/releases/download/v8.1.0/rmlmapper-8.1.0-r380-all.jar'
+        HashAlgorithm    = 'SHA256'
+        Hash             = '819371d49ca47d8ffddae0f34e95f38e8eaaf588ee023e3c2c7527a14d302f58'
+        InstallDirectory = 'rmlmapper-8.1.0'
+    }
 }

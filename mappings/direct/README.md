@@ -10,7 +10,7 @@ Save the downloaded feed as:
 game.json
 ```
 
-No normalization, flattening, helper fields, `_mapping` objects, or runner indexes are added. The same mapping file is reused for every completed game log.
+No normalization, flattening, helper fields, `_mapping` objects, or runner indexes are added. The same tracked mapping file is reused for every completed game log.
 
 ## Main file
 
@@ -18,7 +18,9 @@ No normalization, flattening, helper fields, `_mapping` objects, or runner index
 mlb-direct.rml.ttl
 ```
 
-The mapping uses the classic RML 1.1/RMLMapper-compatible vocabulary and JSONPath logical sources. It uses absolute JSONPath references such as `$.gamePk` inside nested iterators. RML 1.1.2 explicitly permits references to be absolute or relative to the iterator.
+The mapping uses the classic RML 1.1/RMLMapper-compatible vocabulary and JSONPath logical sources. JSONPath references inside a logical source are evaluated relative to its current record. Templates explicitly mark the root identifiers for the game, venue, away team, and home team when those values are needed in generated IRIs.
+
+Before invoking RMLMapper, [`../../scripts/pipeline/run-rml.ps1`](../../scripts/pipeline/run-rml.ps1) copies the mapping and the byte-identical JSON into an isolated work directory. It resolves only those four numeric markers in the temporary mapping copy from the root document, records both source and effective mapping hashes, then discards the working copy. The checked-in mapping and MLB response are never rewritten.
 
 ## What is mapped
 
@@ -38,7 +40,7 @@ The mapping uses the classic RML 1.1/RMLMapper-compatible vocabulary and JSONPat
 
 ### Plate appearances
 
-Plate appearances use source `about.atBatIndex` and absolute root `$.gamePk`:
+Plate appearances use source `about.atBatIndex` and the materialized root `gamePk` marker:
 
 ```text
 /game/{gamePk}/plate-appearance/{atBatIndex}
@@ -55,6 +57,8 @@ child playId = parent playEvents[*].playId
 ### Runner records
 
 MLB provides no runner-record ID and no runner array index value. The mapping therefore uses pattern-specific composite keys made entirely from fields present in each runner record. No source field is invented. `validate_direct_mapping.py` checks the sample for collisions, and the same collision check should be run for every new feed.
+
+RMLMapper's streaming JSONPath grammar has no `null` or not-equal literal operators. Runner sources therefore express non-null starting bases as the closed MLB base set `1B`, `2B`, and `3B`, and negate that set for a null start. The validator rejects any unexpected non-null start value before execution so it cannot be silently classified as an origin record.
 
 ## Deliberately deferred
 
@@ -87,14 +91,10 @@ The validator checks Turtle syntax and triples-map structure, locally declared B
 
 ## RML execution
 
-With RMLMapper Java:
+From the repository root, run the pinned processor through the guarded harness:
 
-```bash
-java -jar rmlmapper.jar \
-  -m mlb-direct.rml.ttl \
-  -o game-output.trig \
-  -s trig \
-  --strict
+```powershell
+.\scripts\pipeline\run-rml.ps1 -InputJson .\data\raw\game-566279.json
 ```
 
-TriG is an output serialization supported by RMLMapper. The package was syntax-validated locally. Processor execution remains the final compatibility test, particularly for JSONPath filters, absolute references, the `[-1:]` terminal-play slice, and joins against `playEvents[*].playId`.
+The harness accepts only completed games, verifies that staging did not change the input bytes, materializes the guarded root markers, runs RMLMapper in strict mode, validates the generated Turtle, and writes an operational manifest. Failures and their logs move to the local quarantine directory rather than producing loadable output.
