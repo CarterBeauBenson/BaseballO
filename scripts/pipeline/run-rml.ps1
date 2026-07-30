@@ -64,6 +64,7 @@ $outputPath = [System.IO.Path]::GetFullPath($OutputFile)
 [void](New-Item -ItemType Directory -Force -Path (Split-Path -Parent $outputPath))
 
 $mappingPath = Join-Path $script:RepositoryRoot 'mappings\direct\mlb-direct.rml.ttl'
+$mappingValidatorPath = Join-Path $script:RepositoryRoot 'mappings\direct\validate_direct_mapping.py'
 $validatorPath = Join-Path $script:RepositoryRoot 'scripts\pipeline\validate-generated-rdf.py'
 $java = Get-JavaExecutable
 $mapper = Get-RMLMapperJar
@@ -82,6 +83,11 @@ $awayTeamTemplateReference = '{$.gameData.teams.away.id}'
 $homeTeamTemplateReference = '{$.gameData.teams.home.id}'
 
 try {
+    & python $mappingValidatorPath $inputPath
+    if ($LASTEXITCODE -ne 0) {
+        throw "Direct mapping preflight validation failed for game $gamePk."
+    }
+
     Copy-Item -LiteralPath $inputPath -Destination $stageInput
     $stagedInputHash = (Get-FileHash -LiteralPath $stageInput -Algorithm SHA256).Hash.ToLowerInvariant()
     if ($stagedInputHash -ne $inputHashBefore) {

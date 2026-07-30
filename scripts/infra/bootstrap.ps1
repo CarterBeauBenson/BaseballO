@@ -197,12 +197,15 @@ function Configure-PipelineStorage {
     $pipelineRoot = Join-Path $script:StateRoot 'pipeline'
     $directories = @(
         (Join-Path $pipelineRoot 'raw\games'),
+        (Join-Path $pipelineRoot 'raw\schedules'),
         (Join-Path $pipelineRoot 'raw\transactions'),
         (Join-Path $pipelineRoot 'raw\reference'),
-        (Join-Path $pipelineRoot 'manifests'),
-        (Join-Path $pipelineRoot 'work'),
+        (Join-Path $pipelineRoot 'manifests\acquisition\games'),
+        (Join-Path $pipelineRoot 'manifests\acquisition\schedules'),
+        (Join-Path $pipelineRoot 'manifests\runs\games'),
+        (Join-Path $pipelineRoot 'work\acquisition'),
         (Join-Path $pipelineRoot 'rdf'),
-        (Join-Path $pipelineRoot 'quarantine')
+        (Join-Path $pipelineRoot 'quarantine\acquisition')
     )
     foreach ($directory in $directories) {
         [void](New-Item -ItemType Directory -Force -Path $directory)

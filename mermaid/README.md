@@ -11,6 +11,8 @@ These diagrams make the active [`mlb-direct.rml.ttl`](../mappings/direct/mlb-dir
 5. [Event process chain](05-event-process-chain.md) — compares the intended responsibility chain with explicit RML edges.
 6. [Evaluation findings](06-evaluation-findings.md) — summarizes strengths, processor risks, and modeling decisions.
 
+7. [Daily game acquisition](07-daily-game-acquisition.md) — shows the scheduled NiFi boundary, immutable archives, validation gates, and quarantine paths.
+
 ## Snapshot
 
 | Measure | Current mapping |

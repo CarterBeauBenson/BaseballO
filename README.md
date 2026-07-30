@@ -6,9 +6,10 @@ BaseballO transforms untouched MLB `feed/live` game JSON into ontology-aligned R
 
 ```mermaid
 flowchart LR
-    API[MLB Stats API<br/>feed/live] --> RAW[Raw game JSON]
+    SCHEDULE[MLB daily schedule] --> API[MLB Stats API<br/>feed/live]
+    API --> RAW[Immutable raw game JSON]
     RAW --> RML[Direct RML mapping]
-    RML --> RDF[TriG RDF]
+    RML --> RDF[Validated Turtle RDF]
     RDF --> FUSEKI[Apache Jena Fuseki / TDB2]
     FUSEKI --> SPARQL[Canned SPARQL queries]
     SPARQL --> WEB[GitHub Pages application]
@@ -29,7 +30,7 @@ The first proof-of-concept query is **Empty Games**: games in which a player par
 | [`archive/`](archive/) | Superseded preprocessing prototype and prior ontology snapshot | Historical |
 | [`sparql/`](sparql/) | Future canned queries | Planned |
 | [`web/`](web/) | Future GitHub Pages application | Planned |
-| [`scripts/`](scripts/) | Future operational scripts | Planned |
+| [`scripts/`](scripts/) | Acquisition, RML execution, validation, and infrastructure automation | Active |
 | [`tests/`](tests/) | Future integration and regression tests | Planned |
 | [`infra/`](infra/) | Pinned local NiFi and Fuseki development stack | Active |
 
@@ -69,4 +70,4 @@ Start with the [Mermaid review index](mermaid/README.md). It separates the inten
 
 ## Execute the local vertical slice
 
-After bootstrapping and starting the free local stack, follow the [game RDF vertical-slice runbook](scripts/pipeline/README.md). It executes the pinned RMLMapper against the untouched sample, validates source-to-RDF record counts, and loads one complete named graph into Fuseki with an idempotent `PUT`.
+After bootstrapping and starting the free local stack, follow the [daily game acquisition runbook](scripts/pipeline/README.md). It archives untouched MLB responses, executes the pinned RMLMapper for final games, validates source-to-RDF record counts, and loads complete named graphs into Fuseki with idempotent `PUT` requests.

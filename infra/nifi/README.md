@@ -1,18 +1,17 @@
 # NiFi flow boundary
 
-The local installation starts with an empty NiFi canvas. The first versioned flow will implement this contract:
+The daily game flow implements this contract:
 
 ```mermaid
 flowchart LR
-    S[Schedule] --> H[InvokeHTTP: MLB API]
-    H --> A[Archive untouched response]
-    A --> M[Metadata in FlowFile attributes]
-    M --> R[Route completed games]
-    R --> X[Execute pinned RMLMapper]
-    X --> V[Validate RDF]
+    S[06:15 NiFi trigger] --> H[Guarded acquisition command]
+    H --> A[Immutable MLB archives]
+    A --> M[Separate manifests]
+    M --> R[Final-game preflight]
+    R --> X[Pinned RMLMapper]
+    X --> V[Validate RDF and source counts]
     V --> G[PUT named graph to Fuseki]
-    X --> Q[Quarantine]
-    V --> Q
+    H --> Q[Acquisition and NiFi quarantine]
 ```
 
 The response body remains the exact MLB payload. Routing metadata such as `gamePk`, request time, source URL, HTTP status, and checksum belongs in FlowFile attributes and acquisition manifests—not in rewritten JSON.
@@ -45,4 +44,12 @@ Create the visual processor skeleton inside `90 Shared RDF Mapping and Load` wit
 .\scripts\infra\configure-nifi-rdf-skeleton.ps1
 ```
 
-This command adds five deliberately stopped, unconnected processors representing acceptance, guarded RML execution, RDF validation, Graph Store Protocol `PUT`, and quarantine. They remain unconfigured and cannot run accidentally. Connections and machine-local properties will be added only after the same boundary has passed the script-driven vertical-slice tests.
+This command adds five deliberately stopped, unconnected processors representing the shared semantic boundary. They remain a visual decomposition of the internal guarded command.
+
+The `01 Games - Daily` group contains the executable scheduled flow. Configure it without starting it:
+
+```powershell
+.\scripts\infra\configure-nifi-games-daily.ps1
+```
+
+The idempotent command creates four valid processors and three connections: a 06:15 local trigger, `ExecuteStreamCommand`, successful-run logging, and failed-output persistence. Use the controlled run and enable commands in the [pipeline runbook](../../scripts/pipeline/README.md).

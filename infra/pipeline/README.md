@@ -7,6 +7,7 @@ NiFi owns movement through the local pipeline area; it does not alter MLB respon
 | Path under `%LOCALAPPDATA%\BaseballO\state\pipeline` | Contract |
 | --- | --- |
 | `raw/games/` | Immutable MLB `feed/live` responses, partitioned by season and game identifier |
+| `raw/schedules/` | Immutable MLB schedule responses, partitioned by requested date |
 | `raw/transactions/` | Immutable daily transaction API responses |
 | `raw/reference/` | Immutable player and other slow-changing reference snapshots |
 | `manifests/` | Acquisition metadata kept separately from response content |
@@ -14,7 +15,9 @@ NiFi owns movement through the local pipeline area; it does not alter MLB respon
 | `rdf/` | RML output awaiting or completing validation |
 | `quarantine/` | Failed acquisition, mapping, validation, or load artifacts with error metadata |
 
-The acquisition manifest records source URL, HTTP status, retrieval time, content SHA-256, byte count, media type, pipeline run identifier, and local raw path. It never replaces or wraps the original JSON.
+The daily game job looks back three completed dates. Schedule responses discover candidate `gamePk` values; only games reported final by both the schedule and acquired `feed/live` document reach mapping. One game's failure does not prevent the remaining candidates from being attempted, but the daily run returns non-zero and records a run summary whenever any candidate fails.
+
+Raw response bodies are stored by SHA-256, so repeating a request reuses identical content without overwriting it while changed responses receive a new immutable path. The acquisition manifest records source URL, HTTP status, retrieval time, content SHA-256, byte count, media type, pipeline run identifier, local raw path, and whether that content was newly archived. It never replaces or wraps the original JSON.
 
 ## Fuseki graph names
 
