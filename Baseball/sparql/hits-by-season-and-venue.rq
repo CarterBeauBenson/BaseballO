@@ -1,0 +1,35 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Add a VALUES clause for ?venue when the caller needs one specific venue.
+SELECT ?season ?venue ?venueLabel
+       (COUNT(DISTINCT ?hit) AS ?hits)
+       (COUNT(DISTINCT ?game) AS ?gamesWithHits)
+WHERE {
+  GRAPH ?graph {
+    ?game a base:BaseballGame ;
+          obo:BFO_0000199/obo:BFO_0000222 ?gameStartInstant .
+    ?gameStartTimestamp a base:BaseballTimestampICE ;
+                        cco:ont00001916 ?gameStartInstant ;
+                        cco:ont00001767 ?gameStart .
+
+    ?hitRecord a base:BaseballEventRecord ;
+               cco:ont00001808 ?hit ;
+               dcterms:identifier ?eventType .
+    ?hit obo:BFO_0000132 ?plateAppearance ;
+         cco:ont00001918 ?field .
+    ?plateAppearance a base:PlateAppearance .
+    ?field a base:BaseballFieldSite ;
+           obo:BFO_0000171 ?venue .
+    ?venue a base:BaseballVenue ;
+           rdfs:label ?venueLabel .
+
+    VALUES ?eventType { "single" "double" "triple" "home_run" }
+    BIND(YEAR(?gameStart) AS ?season)
+  }
+}
+GROUP BY ?season ?venue ?venueLabel
+ORDER BY ?season DESC(?hits) LCASE(STR(?venueLabel))

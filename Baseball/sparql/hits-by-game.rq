@@ -1,0 +1,32 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?game ?gameStart ?venue ?venueLabel
+       (COUNT(DISTINCT ?hit) AS ?hits)
+WHERE {
+  GRAPH ?graph {
+    ?game a base:BaseballGame ;
+          obo:BFO_0000199/obo:BFO_0000222 ?gameStartInstant ;
+          cco:ont00001918 ?field .
+    ?gameStartTimestamp a base:BaseballTimestampICE ;
+                        cco:ont00001916 ?gameStartInstant ;
+                        cco:ont00001767 ?gameStart .
+    ?field a base:BaseballFieldSite ;
+           obo:BFO_0000171 ?venue .
+    ?venue a base:BaseballVenue ;
+           rdfs:label ?venueLabel .
+
+    ?hitRecord a base:BaseballEventRecord ;
+               cco:ont00001808 ?hit ;
+               dcterms:identifier ?eventType .
+    ?hit obo:BFO_0000132 ?plateAppearance .
+    ?plateAppearance a base:PlateAppearance .
+
+    VALUES ?eventType { "single" "double" "triple" "home_run" }
+  }
+}
+GROUP BY ?game ?gameStart ?venue ?venueLabel
+ORDER BY ?gameStart ?game

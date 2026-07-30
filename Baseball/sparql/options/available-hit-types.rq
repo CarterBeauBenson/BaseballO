@@ -1,0 +1,16 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+
+# Returns only reviewed hit types that occur in the loaded game graphs.
+SELECT DISTINCT ?hitType ?hitTypeLabel
+WHERE {
+  GRAPH ?graph {
+    ?hitRecord a base:BaseballEventRecord ;
+               cco:ont00001808 ?hit ;
+               dcterms:identifier ?hitType .
+    VALUES ?hitType { "single" "double" "triple" "home_run" }
+    BIND(REPLACE(STR(?hitType), "_", " ") AS ?hitTypeLabel)
+  }
+}
+ORDER BY ?hitTypeLabel

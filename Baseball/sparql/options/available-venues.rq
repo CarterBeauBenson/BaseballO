@@ -1,0 +1,15 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Supplies venue IRIs and display labels from loaded game graphs.
+SELECT DISTINCT ?venue ?venueLabel
+WHERE {
+  GRAPH ?graph {
+    ?field a base:BaseballFieldSite ;
+           obo:BFO_0000171 ?venue .
+    ?venue a base:BaseballVenue ;
+           rdfs:label ?venueLabel .
+  }
+}
+ORDER BY LCASE(STR(?venueLabel))

@@ -1,0 +1,30 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+
+# A hit is a plate-appearance result whose preserved MLB eventType is one of
+# the four official hit outcomes. Season is derived from the first-pitch year.
+SELECT ?season
+       (COUNT(DISTINCT ?hit) AS ?hits)
+       (COUNT(DISTINCT ?game) AS ?gamesWithHits)
+WHERE {
+  GRAPH ?graph {
+    ?game a base:BaseballGame ;
+          obo:BFO_0000199/obo:BFO_0000222 ?gameStartInstant .
+    ?gameStartTimestamp a base:BaseballTimestampICE ;
+                        cco:ont00001916 ?gameStartInstant ;
+                        cco:ont00001767 ?gameStart .
+
+    ?hitRecord a base:BaseballEventRecord ;
+               cco:ont00001808 ?hit ;
+               dcterms:identifier ?eventType .
+    ?hit obo:BFO_0000132 ?plateAppearance .
+    ?plateAppearance a base:PlateAppearance .
+
+    VALUES ?eventType { "single" "double" "triple" "home_run" }
+    BIND(YEAR(?gameStart) AS ?season)
+  }
+}
+GROUP BY ?season
+ORDER BY ?season

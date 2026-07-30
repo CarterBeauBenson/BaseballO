@@ -1,0 +1,32 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?season ?player ?playerLabel
+       (COUNT(DISTINCT ?hit) AS ?hits)
+       (COUNT(DISTINCT ?game) AS ?gamesWithHits)
+WHERE {
+  GRAPH ?graph {
+    ?game a base:BaseballGame ;
+          obo:BFO_0000199/obo:BFO_0000222 ?gameStartInstant .
+    ?gameStartTimestamp a base:BaseballTimestampICE ;
+                        cco:ont00001916 ?gameStartInstant ;
+                        cco:ont00001767 ?gameStart .
+
+    ?hitRecord a base:BaseballEventRecord ;
+               cco:ont00001808 ?hit ;
+               dcterms:identifier ?eventType .
+    ?hit obo:BFO_0000132 ?plateAppearance .
+    ?batterAct a base:BatterAct ;
+               obo:BFO_0000132 ?plateAppearance ;
+               cco:ont00001833 ?player .
+    ?player rdfs:label ?playerLabel .
+
+    VALUES ?eventType { "single" "double" "triple" "home_run" }
+    BIND(YEAR(?gameStart) AS ?season)
+  }
+}
+GROUP BY ?season ?player ?playerLabel
+ORDER BY ?season DESC(?hits) LCASE(STR(?playerLabel))
