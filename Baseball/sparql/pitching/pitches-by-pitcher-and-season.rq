@@ -1,0 +1,23 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?season ?pitcher ?pitcherLabel
+       (COUNT(DISTINCT ?pitch) AS ?pitches)
+       (COUNT(DISTINCT ?game) AS ?games)
+WHERE {
+  GRAPH ?graph {
+    ?game a base:BaseballGame ;
+          obo:BFO_0000199/obo:BFO_0000222 ?startInstant .
+    ?timestamp a base:BaseballTimestampICE ;
+               cco:ont00001916 ?startInstant ;
+               cco:ont00001767 ?gameStart .
+    ?pitch a base:PitchAct ;
+           cco:ont00001833 ?pitcher .
+    ?pitcher rdfs:label ?pitcherLabel .
+    BIND(YEAR(?gameStart) AS ?season)
+  }
+}
+GROUP BY ?season ?pitcher ?pitcherLabel
+ORDER BY ?season DESC(?pitches) LCASE(STR(?pitcherLabel))

@@ -1,0 +1,24 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+
+SELECT ?season ?eventType (COUNT(DISTINCT ?result) AS ?plateAppearances)
+WHERE {
+  GRAPH ?graph {
+    ?game a base:BaseballGame ;
+          obo:BFO_0000199/obo:BFO_0000222 ?startInstant .
+    ?timestamp a base:BaseballTimestampICE ;
+               cco:ont00001916 ?startInstant ;
+               cco:ont00001767 ?gameStart .
+    ?record a base:BaseballEventRecord ;
+            cco:ont00001808 ?result ;
+            dcterms:identifier ?eventType .
+    ?result a base:BaseballInstitutionalProcess ;
+            obo:BFO_0000132 ?plateAppearance .
+    ?plateAppearance a base:PlateAppearance .
+    BIND(YEAR(?gameStart) AS ?season)
+  }
+}
+GROUP BY ?season ?eventType
+ORDER BY ?season DESC(?plateAppearances) ?eventType

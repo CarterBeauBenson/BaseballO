@@ -1,0 +1,22 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?player ?playerLabel (COUNT(DISTINCT ?result) AS ?extraBaseHits)
+WHERE {
+  GRAPH ?graph {
+    ?record a base:BaseballEventRecord ;
+            cco:ont00001808 ?result ;
+            dcterms:identifier ?eventType .
+    ?result obo:BFO_0000132 ?plateAppearance .
+    ?batterAct a base:BatterAct ;
+               obo:BFO_0000132 ?plateAppearance ;
+               cco:ont00001833 ?player .
+    ?player rdfs:label ?playerLabel .
+    VALUES ?eventType { "double" "triple" "home_run" }
+  }
+}
+GROUP BY ?player ?playerLabel
+ORDER BY DESC(?extraBaseHits) LCASE(STR(?playerLabel))

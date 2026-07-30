@@ -1,0 +1,11 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT DISTINCT ?team ?teamLabel
+WHERE {
+  GRAPH ?graph {
+    ?team a base:BaseballTeam ;
+          rdfs:label ?teamLabel .
+  }
+}
+ORDER BY LCASE(STR(?teamLabel))

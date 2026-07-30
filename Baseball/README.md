@@ -28,8 +28,8 @@ The first proof-of-concept query is **Empty Games**: games in which a player par
 | [`mermaid/`](mermaid/) | Visual review of the RML source, map, join, and identity shapes | Active review |
 | [`data/`](data/) | Raw development inputs | Development only |
 | [`archive/`](archive/) | Superseded preprocessing prototype and prior ontology snapshot | Historical |
-| [`sparql/`](sparql/) | Reviewed query prototypes and future canned queries | Prototype |
-| [`web/`](web/) | Future GitHub Pages application | Planned |
+| [`sparql/`](sparql/) | Canned batting, pitching, baserunning, game, and UI-option queries | Active query library |
+| [`web/`](web/) | Framework-independent analytics query components for a future GitHub Pages application | Component layer active |
 | [`scripts/`](scripts/) | Acquisition, RML execution, validation, and infrastructure automation | Active |
 | [`tests/`](tests/) | Offline integration and future regression tests | Active |
 | [`infra/`](infra/) | Pinned local NiFi and Fuseki development stack | Active |

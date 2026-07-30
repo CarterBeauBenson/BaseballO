@@ -1,0 +1,21 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?player ?playerLabel
+       (COUNT(DISTINCT ?resolution) AS ?stolenBases)
+WHERE {
+  GRAPH ?graph {
+    ?record a base:BaseballEventRecord ;
+            cco:ont00001808 ?resolution ;
+            dcterms:identifier ?eventType .
+    ?resolution a base:RunnerResolutionProcess ;
+                obo:BFO_0000057 ?player .
+    ?player rdfs:label ?playerLabel .
+    FILTER(STRSTARTS(LCASE(STR(?eventType)), "stolen_base"))
+  }
+}
+GROUP BY ?player ?playerLabel
+ORDER BY DESC(?stolenBases) LCASE(STR(?playerLabel))

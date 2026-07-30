@@ -1,0 +1,13 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT DISTINCT ?pitcher ?pitcherLabel
+WHERE {
+  GRAPH ?graph {
+    ?pitch a base:PitchAct ;
+           cco:ont00001833 ?pitcher .
+    ?pitcher rdfs:label ?pitcherLabel .
+  }
+}
+ORDER BY LCASE(STR(?pitcherLabel))

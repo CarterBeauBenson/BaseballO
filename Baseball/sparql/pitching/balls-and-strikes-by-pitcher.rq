@@ -1,0 +1,22 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?pitcher ?pitcherLabel ?callType
+       (COUNT(DISTINCT ?callProcess) AS ?calls)
+WHERE {
+  GRAPH ?graph {
+    ?pitch a base:PitchAct ;
+           cco:ont00001833 ?pitcher .
+    ?pitcher rdfs:label ?pitcherLabel .
+    ?callProcess a ?callClass ;
+                 obo:BFO_0000062 ?pitch .
+    VALUES (?callClass ?callType) {
+      (base:BallProcess "ball")
+      (base:StrikeProcess "strike")
+    }
+  }
+}
+GROUP BY ?pitcher ?pitcherLabel ?callType
+ORDER BY LCASE(STR(?pitcherLabel)) ?callType

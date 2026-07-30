@@ -2,6 +2,23 @@
 
 Statistical totals and absence-based classifications belong here, not in RML-generated instance data.
 
+## Query families
+
+The library is organized by the mapped domain rather than by one statistic:
+
+| Family | Examples |
+| --- | --- |
+| [`batting/`](batting/) | Outcome distributions, plate appearances, home runs, extra-base hits, total bases, multi-hit games, three true outcomes, and hitless games |
+| [`pitching/`](pitching/) | Pitch totals, ball/strike processes, plate appearances faced, pitches per plate appearance, swings, and batted balls |
+| [`baserunning/`](baserunning/) | Runs, runner event types, stolen bases, outs, and safe/out/run resolution totals |
+| [`games/`](games/) | Games by season/venue/team, home-away splits, matchups, umpires, official scorers, and timelines |
+| [`options/`](options/) | Discovery queries that populate UI select boxes from loaded values |
+
+These are additive to the cross-cutting hit queries below. The UI-facing
+[`analytics-query-builder`](../web/query-builder/analytics-query-builder.js)
+can compile the same four domains from selected dimensions, metrics, and
+filters.
+
 ## Hit query catalog
 
 The active mapping preserves each plate-appearance `eventType`, connects its
@@ -59,8 +76,11 @@ development check, not a season dataset.
 The complete `.rq` files are reviewable canned queries. The future web
 interface can also compile equivalent queries from fixed select-box components
 using the allowlisted [`web/query-builder`](../web/query-builder/README.md)
-module. Its dimensions, metrics, and filters are code-owned components; user
-input is limited to validated selections and values rather than raw SPARQL.
+module. The general compiler covers batting, pitching, baserunning, and game
+queries; the original hit-only compiler remains available as a focused
+compatibility layer. Its dimensions, metrics, and filters are code-owned
+components, while user input is limited to validated selections and values
+rather than raw SPARQL.
 
 ## Empty Games prototype
 

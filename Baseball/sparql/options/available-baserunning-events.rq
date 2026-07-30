@@ -1,0 +1,15 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+
+SELECT DISTINCT ?eventType ?eventTypeLabel
+WHERE {
+  GRAPH ?graph {
+    ?record a base:BaseballEventRecord ;
+            cco:ont00001808 ?resolution ;
+            dcterms:identifier ?eventType .
+    ?resolution a base:RunnerResolutionProcess .
+    BIND(REPLACE(STR(?eventType), "_", " ") AS ?eventTypeLabel)
+  }
+}
+ORDER BY ?eventTypeLabel

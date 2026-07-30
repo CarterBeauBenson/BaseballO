@@ -1,0 +1,13 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT DISTINCT ?umpire ?umpireLabel
+WHERE {
+  GRAPH ?graph {
+    ?role a base:UmpireRole ;
+          obo:BFO_0000197 ?umpire .
+    ?umpire rdfs:label ?umpireLabel .
+  }
+}
+ORDER BY LCASE(STR(?umpireLabel))

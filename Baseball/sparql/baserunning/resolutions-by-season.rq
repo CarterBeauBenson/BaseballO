@@ -1,0 +1,25 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+
+SELECT ?season ?resolutionType
+       (COUNT(DISTINCT ?resolution) AS ?resolutions)
+WHERE {
+  GRAPH ?graph {
+    ?game a base:BaseballGame ;
+          obo:BFO_0000199/obo:BFO_0000222 ?startInstant .
+    ?timestamp a base:BaseballTimestampICE ;
+               cco:ont00001916 ?startInstant ;
+               cco:ont00001767 ?gameStart .
+    ?resolution a base:RunnerResolutionProcess, ?resolutionClass ;
+                obo:BFO_0000132 ?game .
+    VALUES (?resolutionClass ?resolutionType) {
+      (base:RunProcess "run")
+      (base:OutProcess "out")
+      (base:SafeProcess "safe")
+    }
+    BIND(YEAR(?gameStart) AS ?season)
+  }
+}
+GROUP BY ?season ?resolutionType
+ORDER BY ?season ?resolutionType

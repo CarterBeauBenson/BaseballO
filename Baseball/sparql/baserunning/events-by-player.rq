@@ -1,0 +1,20 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?player ?playerLabel ?eventType
+       (COUNT(DISTINCT ?resolution) AS ?events)
+WHERE {
+  GRAPH ?graph {
+    ?record a base:BaseballEventRecord ;
+            cco:ont00001808 ?resolution ;
+            dcterms:identifier ?eventType .
+    ?resolution a base:RunnerResolutionProcess ;
+                obo:BFO_0000057 ?player .
+    ?player rdfs:label ?playerLabel .
+  }
+}
+GROUP BY ?player ?playerLabel ?eventType
+ORDER BY LCASE(STR(?playerLabel)) DESC(?events) ?eventType

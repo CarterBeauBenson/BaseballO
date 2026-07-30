@@ -1,0 +1,24 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?venue ?venueLabel ?player ?playerLabel
+       (COUNT(DISTINCT ?battedBall) AS ?battedBalls)
+WHERE {
+  GRAPH ?graph {
+    ?battedBall a base:BattedBallMotionProcess ;
+                obo:BFO_0000132 ?plateAppearance ;
+                cco:ont00001918 ?field .
+    ?batterAct a base:BatterAct ;
+               obo:BFO_0000132 ?plateAppearance ;
+               cco:ont00001833 ?player .
+    ?player rdfs:label ?playerLabel .
+    ?field a base:BaseballFieldSite ;
+           obo:BFO_0000171 ?venue .
+    ?venue a base:BaseballVenue ;
+           rdfs:label ?venueLabel .
+  }
+}
+GROUP BY ?venue ?venueLabel ?player ?playerLabel
+ORDER BY LCASE(STR(?venueLabel)) DESC(?battedBalls) LCASE(STR(?playerLabel))

@@ -1,0 +1,14 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?player ?playerLabel (COUNT(DISTINCT ?swing) AS ?swings)
+WHERE {
+  GRAPH ?graph {
+    ?swing a base:SwingAct ;
+           cco:ont00001833 ?player .
+    ?player rdfs:label ?playerLabel .
+  }
+}
+GROUP BY ?player ?playerLabel
+ORDER BY DESC(?swings) LCASE(STR(?playerLabel))

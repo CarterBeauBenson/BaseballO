@@ -1,8 +1,21 @@
-# UI query builder
+# UI query builders
 
-[`hit-query-builder.js`](hit-query-builder.js) exposes an allowlisted component
-catalog and a compiler for the future UI. Select boxes should use the catalog's
-labels and IDs; they should never accept arbitrary SPARQL fragments from a user.
+[`analytics-query-builder.js`](analytics-query-builder.js) is the primary
+allowlisted component catalog and compiler for the future UI. It supports four
+query families:
+
+- batting outcomes: plate appearances, every hit type, walks, strikeouts,
+  total bases, and games;
+- pitching: pitches, mapped ball and strike processes, plate appearances faced,
+  and games;
+- baserunning: runner events, runs, outs, safe resolutions, stolen bases, and
+  games;
+- games: teams, home/away sides, venues, umpires, and official scorers.
+
+[`hit-query-builder.js`](hit-query-builder.js) remains as the narrower first
+prototype for callers that want only the four hit outcomes. New UI work should
+prefer the analytics builder. Select boxes should use catalog labels and IDs;
+they should never accept arbitrary SPARQL fragments from a user.
 
 The initial hit-query family provides these components:
 
@@ -37,6 +50,26 @@ const query = compileHitQuery({
     { id: "hits", direction: "desc" },
   ],
   limit: 100,
+});
+```
+
+The broader compiler uses the same shape:
+
+```javascript
+import {
+  ANALYTICS_QUERY_FAMILIES,
+  compileAnalyticsQuery,
+} from "./analytics-query-builder.js";
+
+const query = compileAnalyticsQuery({
+  family: "batting",
+  dimensions: ["season", "venue", "player"],
+  metrics: ["hits", "home_runs", "total_bases"],
+  filters: {
+    season: 2019,
+    venue: "https://baseballontology.org/data/venue/2680",
+  },
+  limit: 250,
 });
 ```
 

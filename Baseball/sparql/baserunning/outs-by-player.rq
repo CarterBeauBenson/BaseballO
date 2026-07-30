@@ -1,0 +1,14 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?player ?playerLabel (COUNT(DISTINCT ?out) AS ?baserunningOuts)
+WHERE {
+  GRAPH ?graph {
+    ?out a base:RunnerResolutionProcess, base:OutProcess ;
+         obo:BFO_0000057 ?player .
+    ?player rdfs:label ?playerLabel .
+  }
+}
+GROUP BY ?player ?playerLabel
+ORDER BY DESC(?baserunningOuts) LCASE(STR(?playerLabel))

@@ -1,0 +1,13 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT DISTINCT ?officialScorer ?officialScorerLabel
+WHERE {
+  GRAPH ?graph {
+    ?role a base:OfficialScorerRole ;
+          obo:BFO_0000197 ?officialScorer .
+    ?officialScorer rdfs:label ?officialScorerLabel .
+  }
+}
+ORDER BY LCASE(STR(?officialScorerLabel))
