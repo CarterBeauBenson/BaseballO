@@ -1,0 +1,26 @@
+# Local RML inputs and generated RDF
+/mappings/direct/game.json
+*.nq
+*.nt
+*.trig
+*.trix
+*.hdt
+
+# Future raw feeds; retain the checked-in development sample
+/data/raw/*.json
+!/data/raw/game-566279.json
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# Node / web tooling
+node_modules/
+
+# Editors and operating systems
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
