@@ -1,0 +1,119 @@
+title: Direct MLB feed to BaseballO RML coverage
+source_file_name_expected: game.json
+source_mutation: none
+intermediary_normalization: none
+mapping_version: 0.1.0
+completed_game_precondition: true
+record_types:
+  game_feed:
+    status: mapped
+    maps:
+    - GameMap
+    - GameIdentifierMap
+  game:
+    status: mapped
+    maps:
+    - GameMap
+    - GameTemporalIntervalMap
+  game_datetime:
+    status: partial
+    note: firstPitch is mapped; scheduled/original time fields are retained only in
+      source
+  game_status:
+    status: validation-only
+    note: the mapping assumes a completed game feed
+  team:
+    status: mapped
+    maps:
+    - AwayTeamMap
+    - HomeTeamMap
+    - AwayTeamRoleMap
+    - HomeTeamRoleMap
+  player:
+    status: mapped
+    maps:
+    - PlayerMap
+    - PlayerIdentifierMap
+    - PlayerNameMap
+  venue:
+    status: mapped
+    maps:
+    - VenueMap
+    - BaseballFieldSiteMap
+  venue_default_coordinates:
+    status: deferred
+    reason: Geographic latitude and longitude must not be typed as the field-relative
+      BaseballFieldCoordinateICE; an appropriate existing ICE class has not yet been approved
+  play:
+    status: mapped
+    maps:
+    - InningMap
+    - HalfInningMap
+    - PlateAppearanceMap
+    - BatterActMap
+  play_result:
+    status: mapped
+    note: every result gets a generic institutional process; observed eventTypes also
+      receive specific BaseballO types
+  play_about:
+    status: mapped
+    note: atBatIndex, inning, halfInning, startTime, and endTime are used
+  matchup:
+    status: mapped
+    note: batter and pitcher IDs trigger person/role/participation mappings
+  play_event:
+    status: partial
+    note: pitch events are mapped; non-pitch action events are deferred
+  pitch_event:
+    status: mapped
+  action_event:
+    status: deferred
+    reason: no stable action identifier and no approved ontology coverage for game-advisory
+      status events
+  pitch_data:
+    status: deferred
+    reason: measurement classes/properties for velocity, extension, and plate time
+      are not yet approved
+  pitch_coordinates:
+    status: deferred
+    reason: pitch-coordinate measurement model not yet covered
+  pitch_breaks:
+    status: deferred
+    reason: spin and break measurement model not yet covered
+  hit_data:
+    status: partial
+    note: presence licenses BattedBallMotionProcess; launch metrics are deferred
+  hit_coordinates:
+    status: deferred
+    reason: BaseballO lacks approved datatype properties for field-relative coordX
+      and coordY
+  runner_record:
+    status: mapped-with-identity-caveat
+    note: uses only source fields in a composite key; no runnerIndex is invented
+  runner_movement:
+    status: mapped-with-identity-caveat
+  runner_details:
+    status: mapped-with-identity-caveat
+  fielding_credit:
+    status: partial
+    note: fielder roles are mapped; individual fielding acts are deferred because
+      credits lack stable identity and ancestor context
+  boxscore_team:
+    status: not-mapped
+    reason: aggregate view; canonical teams come from gameData.teams
+  boxscore_player:
+    status: not-mapped
+    reason: aggregate/statistical totals are SPARQL-derived, not ingested
+  official:
+    status: mapped
+    note: official persons and UmpireRole are mapped
+  linescore_inning:
+    status: not-mapped
+    reason: duplicate/aggregate view; innings are constructed from canonical allPlays
+      records
+  plays_by_inning:
+    status: not-mapped
+    reason: duplicate index view
+  current_play:
+    status: not-mapped
+    reason: duplicates the terminal allPlays record in a completed feed
