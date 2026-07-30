@@ -1347,3 +1347,52 @@ base:BaseballStatisticCalculation a owl:Class ;
     rdfs:comment "The calculation operates on records of counted processes rather than directly on unobserved actual-rule-satisfaction classes."@en ;
     skos:example "A computation that produces a player's seasonal batting average."@en .
 
+base:StolenBaseDecisionICE
+    a owl:Class ;
+    rdfs:subClassOf base:BaseballDecisionICE ;
+    rdfs:label "Stolen Base Decision ICE"@en ;
+    skos:definition
+        "A Stolen Base Decision ICE is a Baseball Decision ICE that expresses an authorized scoring judgment that a runner is to be credited with a stolen base."@en ;
+    rdfs:comment
+        "This information entity records the counted scoring classification and does not assert that the underlying Steal Attempt Act was intrinsically successful."@en ;
+    skos:example
+        "The scoring content that credits a runner with a stolen base at second base."@en .
+
+base:StolenBaseJudgmentAct
+    a owl:Class ;
+    rdfs:subClassOf
+        base:ScoringJudgmentAct ,
+        [
+            a owl:Restriction ;
+            owl:onProperty cco:ont00001986 ;
+            owl:someValuesFrom base:StolenBaseDecisionICE
+        ] ;
+    rdfs:label "Stolen Base Judgment Act"@en ;
+    skos:definition
+        "A Stolen Base Judgment Act is a Scoring Judgment Act that has output a Stolen Base Decision ICE."@en ;
+    rdfs:comment
+        "A safe judgment and a stolen-base judgment are distinct adjudications: an umpire determines safe or out, while a scorer determines whether the advancement is credited as a stolen base."@en ;
+    skos:example
+        "An official scorer credits a runner with a stolen base after the runner is called safe at second."@en .
+
+base:StolenBaseProcess
+    a owl:Class ;
+    rdfs:subClassOf
+        base:ScoringClassificationProcess ,
+        [
+            a owl:Restriction ;
+            owl:onProperty obo:BFO_0000062 ;
+            owl:someValuesFrom base:StealAttemptAct
+        ] ,
+        [
+            a owl:Restriction ;
+            owl:onProperty obo:BFO_0000117 ;
+            owl:someValuesFrom base:StolenBaseJudgmentAct
+        ] ;
+    rdfs:label "Stolen Base Process"@en ;
+    skos:definition
+        "A Stolen Base Process is a Scoring Classification Process that is preceded by a Steal Attempt Act, has a Stolen Base Judgment Act as an occurrent part, and credits a runner with a stolen base."@en ;
+    rdfs:comment
+        "A Stolen Base Process is not a subclass of Safe Process. A corresponding Safe Process may occur in the same play, but safe status alone does not entail stolen-base credit."@en ;
+    skos:example
+        "A runner attempts to steal second, is called safe, and is officially credited with a stolen base."@en .
