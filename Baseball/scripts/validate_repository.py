@@ -18,6 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ACTIVE_MAPPING = ROOT / "mappings" / "direct" / "mlb-direct.rml.ttl"
 MAPPING_VALIDATOR = ROOT / "mappings" / "direct" / "validate_direct_mapping.py"
 ONTOLOGY_OVERLAY_VALIDATOR = ROOT / "scripts" / "validate_ontology_overlay.py"
+RML_MERMAID_GENERATOR = ROOT / "scripts" / "generate_rml_mermaid.py"
 SAMPLE = ROOT / "data" / "raw" / "game-566279.json"
 
 REQUIRED_PATHS = (
@@ -28,6 +29,8 @@ REQUIRED_PATHS = (
     ROOT / "mappings" / "policies" / "modeling-choices.yaml",
     ROOT / "mappings" / "policies" / "iri-policy.yaml",
     ROOT / "mermaid" / "README.md",
+    ROOT / "mermaid" / "rml-mermaid-manifest.yaml",
+    ROOT / "mermaid" / "patterns" / "README.md",
     ROOT / "infra" / "README.md",
     ROOT / "infra" / "fuseki" / "configuration" / "baseball-dev.ttl",
     ROOT / "infra" / "versions.psd1",
@@ -42,6 +45,7 @@ REQUIRED_PATHS = (
     ROOT / "scripts" / "pipeline" / "acquire-daily-games.ps1",
     ROOT / "scripts" / "pipeline" / "load-game-graph.ps1",
     ROOT / "scripts" / "pipeline" / "validate-generated-rdf.py",
+    RML_MERMAID_GENERATOR,
     ROOT / "sparql" / "empty-games-prototype.rq",
     SAMPLE,
 )
@@ -109,6 +113,10 @@ def validate_markdown() -> tuple[int, int]:
 
     for path in markdown_files:
         text = path.read_text(encoding="utf-8")
+        if r"\`\`\`mermaid" in text:
+            raise ValueError(
+                f"Escaped Mermaid fence cannot render in a browser: {path.relative_to(ROOT)}"
+            )
         for match in MARKDOWN_LINK.finditer(text):
             target = match.group(1).strip("<>")
             if target.startswith(REMOTE_PREFIXES):
@@ -161,6 +169,14 @@ def validate_ontology_overlay() -> None:
     )
 
 
+def validate_rml_mermaid() -> None:
+    subprocess.run(
+        [sys.executable, str(RML_MERMAID_GENERATOR), "--check"],
+        cwd=ROOT,
+        check=True,
+    )
+
+
 def validate_offline_pipeline_boundary() -> None:
     prohibited = ("statsapi.mlb.com", "acquire-daily-games.ps1")
     for path in OFFLINE_PIPELINE_PATHS:
@@ -181,6 +197,7 @@ def main() -> None:
     markdown_count, mermaid_count = validate_markdown()
     validate_ontology_overlay()
     validate_active_mapping()
+    validate_rml_mermaid()
     validate_offline_pipeline_boundary()
     print(f"JSON files parsed: {json_count}")
     print(f"Turtle files parsed: {turtle_count}")

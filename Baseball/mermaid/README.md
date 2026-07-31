@@ -1,6 +1,13 @@
 # Mermaid views of the implemented direct RML
 
-These diagrams describe the active [mlb-direct.rml.ttl](../mappings/direct/mlb-direct.rml.ttl). The detailed [event-pattern catalog](patterns/README.md) is the canonical design view: the RML was revised first, and every pattern diagram reflects generated RDF.
+These diagrams describe the active [mlb-direct.rml.ttl](../mappings/direct/mlb-direct.rml.ttl). The detailed [generated pattern catalog](patterns/README.md) is the canonical design review. Its boundaries are maintained in the [RML Mermaid manifest](rml-mermaid-manifest.yaml), while its nodes and relations are regenerated from the actual RML.
+
+The catalog has two synchronized views:
+
+- [source-independent ontology patterns](patterns/ontology/README.md), which omit MLB JSON and RML mechanics; and
+- [MLB direct-mapping patterns](patterns/mlb-direct/README.md), which expose logical sources, triples maps, explicit joins, and matching IRI templates.
+
+Run `python Baseball/scripts/generate_rml_mermaid.py` from the repository root after changing the RML or manifest. Repository validation fails when any triples map is unassigned or generated review page is stale.
 
 ## Reading sequence
 
@@ -12,7 +19,7 @@ These diagrams describe the active [mlb-direct.rml.ttl](../mappings/direct/mlb-d
 6. [Implemented shape and retained gaps](06-evaluation-findings.md)
 7. [Parked daily acquisition](07-daily-game-acquisition.md)
 8. [Manual game import](08-manual-game-import.md)
-9. [Discrete event patterns](patterns/README.md)
+9. [Generated discrete event patterns](patterns/README.md)
 
 ## Current snapshot
 

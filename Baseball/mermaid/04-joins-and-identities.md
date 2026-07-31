@@ -1,6 +1,6 @@
 # Joins and identity strategy
 
-\`\`\`mermaid
+```mermaid
 flowchart LR
     ROOT["guarded root markers"] --> GAME["gamePk-scoped IRIs"]
     PLAY["allPlays record"] --> PA["plate appearance by atBatIndex"]
@@ -15,7 +15,7 @@ flowchart LR
     RUNNER["runner record composite"] --> RUNACT["runner-act/movement/..."]
     RUNNER --> RESOLUTION["runner-resolution/out, reach, advance, or score"]
     ROLE["gamePk + personId + role type"] --> ACT
-\`\`\`
+```
 
 The execution harness materializes safe numeric root markers for game, venue, teams, official scorer, and home-plate umpire into an isolated mapping copy. If an optional adjudicator is absent, marker-bearing participant and role assertions are removed from that temporary copy; the raw JSON and checked-in RML remain unchanged.
 

@@ -1,6 +1,6 @@
 # Implemented shape and retained gaps
 
-\`\`\`mermaid
+```mermaid
 flowchart TB
     CURRENT["processor-proven revised RML"] --> DONE["implemented"]
     CURRENT --> GAP["retained boundary"]
@@ -15,6 +15,6 @@ flowchart TB
     GAP --> G3["ambiguous two-strike foul count"]
     GAP --> G4["coordinate values lack approved datatype properties"]
     GAP --> G5["non-pitch advisory action identity and class coverage"]
-\`\`\`
+```
 
 The direct mapping is processor-proven for the tracked completed-game sample. Static validation reports 249 Triples Maps, 56 logical sources, 57 joins, and no undeclared BaseballO classes. Generated-RDF validation enforces pitch-motion, swing-or-bunt/contact/motion, institutional judgment, shared foul-tip/strike identity, fair-result sequencing, and source-record separation invariants.

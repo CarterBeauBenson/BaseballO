@@ -1,6 +1,6 @@
 # Logical-source partitions
 
-\`\`\`mermaid
+```mermaid
 flowchart TD
     RAW["untouched MLB feed/live JSON"] --> ROOT["root, teams, players, venue, officials"]
     RAW --> PLAY["allPlays records and result filters"]
@@ -15,6 +15,6 @@ flowchart TD
     RUNNER --> RUN["score from origin or base"]
     RUNNER --> STEAL["stolen base and caught stealing"]
     RAW --> FIELDING["fielding credits: role trigger only"]
-\`\`\`
+```
 
 The active RML contains 56 logical sources. Repeated filters are deliberate: one source record may support distinct acts, physical processes, judgments, decisions, calls, counted processes, records, sites, roles, and artifacts. Source partitions never collapse those individuals.

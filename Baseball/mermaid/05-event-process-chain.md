@@ -1,6 +1,6 @@
 # Implemented event process chain
 
-\`\`\`mermaid
+```mermaid
 flowchart LR
     PITCHER["Pitcher person"] -->|"participates in"| PITCH["PitchAct"]
     PITCH -->|"precedes"| PM["PitchBallMotionProcess"]
@@ -20,6 +20,6 @@ flowchart LR
     RECORD -->|"is about"| J
     RECORD -->|"is about"| D
     RECORD -->|"is about"| RESULT
-\`\`\`
+```
 
 This is the implemented counted-hit backbone. Swing-and-miss, foul, foul tip, error, out, sacrifice, runner safe/out/run, and stolen-base paths differ where their source evidence and institutional judgments differ; each has a discrete diagram in patterns/.
