@@ -157,6 +157,39 @@ else:
             + ", ".join(present_prohibited)
         )
 
+    prohibited_execution_fragments = (
+        'rr:parent "playEvents[*].playId"',
+        "playEvents[-1:].playId",
+        'rml:iterator "$.liveData.plays.allPlays[-1:]"',
+    )
+    present_execution_fragments = [
+        fragment
+        for fragment in prohibited_execution_fragments
+        if fragment in mapping_text
+    ]
+    if present_execution_fragments:
+        errors.append(
+            "Mapping contains processor-incompatible nested or slice references: "
+            + ", ".join(present_execution_fragments)
+        )
+
+    required_context_fragments = (
+        'rml:source "game-context.json"',
+        "{_baseballO.atBatIndex}",
+        "{_baseballO.batterId}",
+        "{_baseballO.pitcherId}",
+        "{_baseballO.terminalPitchPlayId}",
+        'rml:reference "_baseballO.gameEndTime"',
+    )
+    missing_context_fragments = [
+        fragment for fragment in required_context_fragments if fragment not in mapping_text
+    ]
+    if missing_context_fragments:
+        errors.append(
+            "Mapping is missing required execution-context references: "
+            + ", ".join(missing_context_fragments)
+        )
+
 if not source.exists():
     notes.append(f"Source is not present; source-specific checks skipped: {source}")
 else:

@@ -18,4 +18,8 @@ flowchart LR
     ARTIFACT --> RDF
 ```
 
-The 249 Triples Maps are separated because each identity-bearing ontological category receives its own individual. Multiple maps may add types or relations to the same stable individual, such as a plate result receiving its most specific outcome type or one foul-tip process receiving both FoulTipProcess and StrikeProcess types.
+The 247 Triples Maps are separated because each identity-bearing ontological
+category receives its own individual. Multiple maps may add types or relations
+to the same stable individual, such as a plate result receiving its most
+specific outcome type or one foul-tip process receiving both FoulTipProcess and
+StrikeProcess types.

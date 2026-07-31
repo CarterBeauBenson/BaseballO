@@ -54,10 +54,13 @@ function Test-GameGraphCurrent {
     try {
         $rmlManifest = Get-Content -LiteralPath $rmlManifestPath -Raw | ConvertFrom-Json
         $mappingPath = Join-Path $script:RepositoryRoot 'mappings\direct\mlb-direct.rml.ttl'
+        $contextBuilderPath = Join-Path $script:RepositoryRoot 'scripts\pipeline\prepare-rml-context.py'
         $mappingHash = (Get-FileHash -LiteralPath $mappingPath -Algorithm SHA256).Hash.ToLowerInvariant()
+        $contextBuilderHash = (Get-FileHash -LiteralPath $contextBuilderPath -Algorithm SHA256).Hash.ToLowerInvariant()
         if (
             [string]$rmlManifest.inputSha256 -ne $InputSha256 -or
             [string]$rmlManifest.mappingSha256 -ne $mappingHash -or
+            [string]$rmlManifest.contextBuilderSha256 -ne $contextBuilderHash -or
             [string]$rmlManifest.mapperVersion -ne [string]$script:Versions.RMLMapper.Version
         ) {
             return $false

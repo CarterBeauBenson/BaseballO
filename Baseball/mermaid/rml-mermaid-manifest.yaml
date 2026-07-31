@@ -50,7 +50,7 @@
       "id": "07-plate-appearance-core",
       "title": "Plate appearance and player acts",
       "summary": "A plate appearance contains a batter act and pitch acts, with batter and pitcher persons participating through contextual roles.",
-      "maps": ["PlateAppearanceMap", "PlateAppearanceCoreContainmentMap", "BatterActMap", "BatterRoleMap", "BatterPersonFromPlayMap", "PitcherRoleMap", "PitcherPersonFromPlayMap"]
+      "maps": ["PlateAppearanceMap", "PlateAppearanceCoreContainmentMap", "BatterActMap", "BatterRoleMap", "PitcherRoleMap"]
     },
     {
       "id": "08-plate-appearance-time",

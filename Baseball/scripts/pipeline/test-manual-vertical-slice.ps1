@@ -25,6 +25,14 @@ if ($gamePk -notmatch '^\d+$' -or $season -notmatch '^\d{4}$') {
     throw 'Offline test input has an unsafe gamePk or season.'
 }
 $inputHashBefore = (Get-FileHash -LiteralPath $inputPath -Algorithm SHA256).Hash.ToLowerInvariant()
+$expectedPitchCount = 0
+foreach ($play in @($document.liveData.plays.allPlays)) {
+    foreach ($event in @($play.playEvents)) {
+        if ($event.isPitch -eq $true) {
+            $expectedPitchCount++
+        }
+    }
+}
 
 $arguments = @{ InputJson = $inputPath }
 if ($ForceRdfLoad) {
@@ -52,6 +60,10 @@ $rmlManifest = Get-Content -LiteralPath $rmlManifestPath -Raw | ConvertFrom-Json
 if ([string]$rmlManifest.inputSha256 -ne $inputHashBefore) {
     throw 'RML manifest input hash does not match the source fixture.'
 }
+if ([string]::IsNullOrWhiteSpace([string]$rmlManifest.contextBuilderSha256) -or
+    [string]::IsNullOrWhiteSpace([string]$rmlManifest.executionContextSha256)) {
+    throw 'RML manifest does not record the execution-context provenance hashes.'
+}
 
 $graphIri = "https://w3id.org/baseball/graph/game/$gamePk"
 $query = @"
@@ -62,12 +74,28 @@ $countResult = Invoke-RestMethod -Uri 'http://127.0.0.1:3030/baseball-dev/query'
 $triples = [int64]$countResult.results.bindings[0].triples.value
 
 $typeQuery = @"
-SELECT (COUNT(DISTINCT ?plateAppearance) AS ?plateAppearances)
-       (COUNT(DISTINCT ?pitch) AS ?pitches)
+SELECT ?plateAppearances ?pitches ?contextualizedPitches
 WHERE {
-  GRAPH <$graphIri> {
-    OPTIONAL { ?plateAppearance a <https://baseballontology.org/PlateAppearance> }
-    OPTIONAL { ?pitch a <https://baseballontology.org/PitchAct> }
+  {
+    SELECT (COUNT(DISTINCT ?plateAppearance) AS ?plateAppearances)
+    WHERE { GRAPH <$graphIri> { ?plateAppearance a <https://baseballontology.org/PlateAppearance> } }
+  }
+  {
+    SELECT (COUNT(DISTINCT ?pitch) AS ?pitches)
+    WHERE { GRAPH <$graphIri> { ?pitch a <https://baseballontology.org/PitchAct> } }
+  }
+  {
+    SELECT (COUNT(DISTINCT ?contextualizedPitch) AS ?contextualizedPitches)
+    WHERE { GRAPH <$graphIri> {
+      ?contextualizedPitch a <https://baseballontology.org/PitchAct> ;
+          <http://purl.obolibrary.org/obo/BFO_0000132> ?pitchPlateAppearance ;
+          <http://purl.obolibrary.org/obo/BFO_0000057> ?pitcher ;
+          <http://purl.obolibrary.org/obo/BFO_0000055> ?pitcherRole .
+      ?pitchPlateAppearance a <https://baseballontology.org/PlateAppearance> .
+      ?pitcher a <https://www.commoncoreontologies.org/ont00001262> .
+      ?pitcherRole a <https://baseballontology.org/PitcherRole> ;
+          <http://purl.obolibrary.org/obo/BFO_0000197> ?pitcher .
+    } }
   }
 }
 "@
@@ -75,8 +103,12 @@ $result = Invoke-RestMethod -Uri 'http://127.0.0.1:3030/baseball-dev/query' -Met
 $binding = $result.results.bindings[0]
 $plateAppearances = [int64]$binding.plateAppearances.value
 $pitches = [int64]$binding.pitches.value
-if ($triples -le 0 -or $plateAppearances -ne @($document.liveData.plays.allPlays).Count) {
-    throw "Fuseki verification failed: triples=$triples; plateAppearances=$plateAppearances"
+$contextualizedPitches = [int64]$binding.contextualizedPitches.value
+if ($triples -le 0 -or
+    $plateAppearances -ne @($document.liveData.plays.allPlays).Count -or
+    $pitches -ne $expectedPitchCount -or
+    $contextualizedPitches -ne $expectedPitchCount) {
+    throw "Fuseki verification failed: triples=$triples; plateAppearances=$plateAppearances; pitches=$pitches; contextualizedPitches=$contextualizedPitches"
 }
 
 $emptyGamesQueryPath = Join-Path $script:RepositoryRoot 'sparql\empty-games-prototype.rq'
@@ -91,5 +123,5 @@ Write-Host 'Offline manual vertical slice passed.'
 Write-Host "Game: $gamePk"
 Write-Host "Source/archive SHA-256: $inputHashBefore"
 Write-Host "Graph: $graphIri"
-Write-Host "Triples: $triples; plate appearances: $plateAppearances; pitches: $pitches"
+Write-Host "Triples: $triples; plate appearances: $plateAppearances; pitches: $pitches; contextualized pitches: $contextualizedPitches"
 Write-Host "Empty Games prototype candidates: $($emptyGameCandidates.Count)"

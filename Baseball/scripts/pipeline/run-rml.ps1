@@ -45,16 +45,29 @@ if ([string]$gameDocument.gameData.status.abstractGameState -ne 'Final') {
     throw "Game $gamePk is not final; RML execution is restricted to completed games."
 }
 $expectedPlateAppearanceCount = @($gameDocument.liveData.plays.allPlays).Count
+$expectedGameEndTime = [string]@($gameDocument.liveData.plays.allPlays)[-1].about.endTime
 $expectedPitchCount = 0
+$expectedBattingActCount = 0
+$expectedContactCount = 0
 foreach ($play in @($gameDocument.liveData.plays.allPlays)) {
     foreach ($event in @($play.playEvents)) {
         if ($event.isPitch -eq $true) {
             $expectedPitchCount++
+            $callCode = [string]$event.details.call.code
+            if ($callCode -in @('S', 'F', 'T', 'X', 'D', 'E')) {
+                $expectedBattingActCount++
+            }
+            if ($callCode -in @('F', 'T', 'X', 'D', 'E')) {
+                $expectedContactCount++
+            }
         }
     }
 }
 if ($expectedPlateAppearanceCount -eq 0 -or $expectedPitchCount -eq 0) {
     throw "Game $gamePk has no canonical plate appearances or pitches."
+}
+if ([string]::IsNullOrWhiteSpace($expectedGameEndTime)) {
+    throw "Game $gamePk has no final play end timestamp."
 }
 
 $pipelineRoot = Join-Path $script:StateRoot 'pipeline'
@@ -74,6 +87,7 @@ $outputPath = [System.IO.Path]::GetFullPath($OutputFile)
 
 $mappingPath = Join-Path $script:RepositoryRoot 'mappings\direct\mlb-direct.rml.ttl'
 $mappingValidatorPath = Join-Path $script:RepositoryRoot 'mappings\direct\validate_direct_mapping.py'
+$contextBuilderPath = Join-Path $script:RepositoryRoot 'scripts\pipeline\prepare-rml-context.py'
 $validatorPath = Join-Path $script:RepositoryRoot 'scripts\pipeline\validate-generated-rdf.py'
 $java = Get-JavaExecutable
 $mapper = Get-RMLMapperJar
@@ -83,6 +97,7 @@ $mappingHash = (Get-FileHash -LiteralPath $mappingPath -Algorithm SHA256).Hash.T
 $stage = Join-Path $workDirectory ("rml-$gamePk-" + [Guid]::NewGuid().ToString('N'))
 [void](New-Item -ItemType Directory -Path $stage)
 $stageInput = Join-Path $stage 'game.json'
+$stageContext = Join-Path $stage 'game-context.json'
 $stageMapping = Join-Path $stage 'mlb-direct.rml.ttl'
 $stageOutput = Join-Path $stage "game-$gamePk.ttl"
 $stageLog = Join-Path $stage 'rmlmapper.log'
@@ -105,8 +120,21 @@ try {
         throw 'The staged game JSON is not byte-identical to the acquired input.'
     }
 
+    # RMLMapper evaluates a nested JSONPath record without access to its play
+    # ancestors and does not expand parent array references as a multi-value
+    # join. Generate an isolated execution-only copy that adds ancestor IDs to
+    # pitch records. The staged and authoritative raw JSON remain byte-identical.
+    & python $contextBuilderPath $stageInput $stageContext
+    if ($LASTEXITCODE -ne 0) {
+        throw "RML execution-context generation failed for game $gamePk."
+    }
+    if (-not (Test-Path -LiteralPath $stageContext -PathType Leaf)) {
+        throw "RML execution-context generation produced no file for game $gamePk."
+    }
+    $contextHash = (Get-FileHash -LiteralPath $stageContext -Algorithm SHA256).Hash.ToLowerInvariant()
+
     # RML references are evaluated relative to the current JSONPath iterator. The
-    # reusable mapping marks four root identifiers explicitly; materialize only
+    # The reusable mapping marks guarded root identifiers explicitly; materialize only
     # the isolated mapping copy so nested records retain deterministic game-scoped
     # IRIs without adding helper fields to the authoritative MLB JSON.
     $mappingText = Get-Content -LiteralPath $mappingPath -Raw
@@ -173,7 +201,7 @@ try {
         throw "RMLMapper produced no RDF for game $gamePk."
     }
 
-    & python $validatorPath $stageOutput $gamePk '--expected-plate-appearances' $expectedPlateAppearanceCount '--expected-batter-acts' $expectedPlateAppearanceCount '--expected-pitches' $expectedPitchCount
+    & python $validatorPath $stageOutput $gamePk '--expected-plate-appearances' $expectedPlateAppearanceCount '--expected-batter-acts' $expectedPlateAppearanceCount '--expected-pitches' $expectedPitchCount '--expected-batting-acts' $expectedBattingActCount '--expected-contacts' $expectedContactCount '--expected-game-end' $expectedGameEndTime
     if ($LASTEXITCODE -ne 0) {
         throw "Generated RDF validation failed for game $gamePk."
     }
@@ -194,6 +222,9 @@ try {
         mappingPath = $mappingPath
         mappingSha256 = $mappingHash
         effectiveMappingSha256 = $effectiveMappingHash
+        contextBuilderPath = $contextBuilderPath
+        contextBuilderSha256 = (Get-FileHash -LiteralPath $contextBuilderPath -Algorithm SHA256).Hash.ToLowerInvariant()
+        executionContextSha256 = $contextHash
         materializedRootReferences = [ordered]@{
             gamePk = $gamePkReferenceCount
             venueId = $venueReferenceCount
@@ -209,6 +240,8 @@ try {
             plateAppearances = $expectedPlateAppearanceCount
             batterActs = $expectedPlateAppearanceCount
             pitches = $expectedPitchCount
+            battingActs = $expectedBattingActCount
+            contacts = $expectedContactCount
         }
         outputPath = $outputPath
         outputSha256 = $outputHash

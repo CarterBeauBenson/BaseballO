@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+from datetime import datetime, timezone
 from pathlib import Path
 
 from rdflib import Graph, Namespace, RDF, URIRef
@@ -45,6 +46,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--expected-plate-appearances", type=int)
     parser.add_argument("--expected-batter-acts", type=int)
     parser.add_argument("--expected-pitches", type=int)
+    parser.add_argument("--expected-batting-acts", type=int)
+    parser.add_argument("--expected-contacts", type=int)
+    parser.add_argument("--expected-game-end")
     return parser.parse_args()
 
 
@@ -89,8 +93,99 @@ def main() -> None:
         (BASE.PitchBallMotionProcess,),
         "PitchAct to PitchBallMotionProcess chain",
     )
+    require_typed_link(
+        graph,
+        pitch_subjects,
+        BFO.BFO_0000132,
+        (BASE.PlateAppearance,),
+        "PitchAct to PlateAppearance context",
+    )
+    require_typed_link(
+        graph,
+        pitch_subjects,
+        BFO.BFO_0000057,
+        (CCO.ont00001262,),
+        "PitchAct to pitcher Person participation",
+    )
+    require_typed_link(
+        graph,
+        pitch_subjects,
+        BFO.BFO_0000055,
+        (BASE.PitcherRole,),
+        "PitchAct to PitcherRole realization",
+    )
+
+    for pitch in pitch_subjects:
+        people = {
+            participant
+            for participant in graph.objects(pitch, BFO.BFO_0000057)
+            if (participant, RDF.type, CCO.ont00001262) in graph
+        }
+        roles = {
+            role
+            for role in graph.objects(pitch, BFO.BFO_0000055)
+            if (role, RDF.type, BASE.PitcherRole) in graph
+        }
+        if not any((role, BFO.BFO_0000197, person) in graph for role in roles for person in people):
+            raise ValueError(
+                f"PitchAct pitcher Person and PitcherRole bearer do not agree: {pitch}"
+            )
+
+    batting_acts = {
+        subject
+        for class_ in (BASE.SwingAct, BASE.BuntAct)
+        for subject in graph.subjects(RDF.type, class_)
+    }
+    if (
+        args.expected_batting_acts is not None
+        and len(batting_acts) != args.expected_batting_acts
+    ):
+        raise ValueError(
+            "SwingAct/BuntAct count does not match the source: "
+            f"expected {args.expected_batting_acts}, got {len(batting_acts)}"
+        )
+    require_typed_link(
+        graph,
+        batting_acts,
+        BFO.BFO_0000132,
+        (BASE.PlateAppearance,),
+        "SwingAct/BuntAct to PlateAppearance context",
+    )
+    require_typed_link(
+        graph,
+        batting_acts,
+        BFO.BFO_0000132,
+        (BASE.BatterAct,),
+        "SwingAct/BuntAct to enclosing BatterAct",
+    )
+    require_typed_link(
+        graph,
+        batting_acts,
+        BFO.BFO_0000057,
+        (CCO.ont00001262,),
+        "SwingAct/BuntAct to batter Person participation",
+    )
+    require_typed_link(
+        graph,
+        batting_acts,
+        BFO.BFO_0000055,
+        (BASE.BatterRole,),
+        "SwingAct/BuntAct to BatterRole realization",
+    )
 
     contact_subjects = set(graph.subjects(RDF.type, BASE.BatBallContactProcess))
+    if args.expected_contacts is not None and len(contact_subjects) != args.expected_contacts:
+        raise ValueError(
+            "BatBallContactProcess count does not match the source: "
+            f"expected {args.expected_contacts}, got {len(contact_subjects)}"
+        )
+    require_typed_link(
+        graph,
+        contact_subjects,
+        BFO.BFO_0000132,
+        (BASE.PlateAppearance,),
+        "BatBallContactProcess to PlateAppearance context",
+    )
     require_typed_link(
         graph,
         contact_subjects,
@@ -162,6 +257,33 @@ def main() -> None:
                 f"FoulTipProcess is not the same counted individual as StrikeProcess: {foul_tip}"
             )
 
+    if args.expected_game_end is not None:
+        intervals = set(graph.objects(game, BFO.BFO_0000199))
+        end_instants = {
+            instant for interval in intervals for instant in graph.objects(interval, BFO.BFO_0000224)
+        }
+        game_end_values = {
+            value.toPython()
+            for timestamp in graph.subjects(RDF.type, BASE.BaseballTimestampICE)
+            if (timestamp, CCO.ont00001808, game) in graph
+            and any((timestamp, CCO.ont00001916, instant) in graph for instant in end_instants)
+            for value in graph.objects(timestamp, CCO.ont00001767)
+        }
+        expected_game_end = datetime.fromisoformat(
+            args.expected_game_end.replace("Z", "+00:00")
+        ).astimezone(timezone.utc)
+        normalized_game_end_values = {
+            value.astimezone(timezone.utc)
+            for value in game_end_values
+            if isinstance(value, datetime) and value.tzinfo is not None
+        }
+        if normalized_game_end_values != {expected_game_end} or len(game_end_values) != 1:
+            raise ValueError(
+                "Game terminal timestamp does not match the final source play: "
+                f"expected {args.expected_game_end!r}, "
+                f"got {[str(value) for value in game_end_values]!r}"
+            )
+
     record_subjects = set(graph.subjects(RDF.type, BASE.BaseballEventRecord))
     process_or_act_subjects = {
         subject
@@ -191,10 +313,14 @@ def main() -> None:
     print(f"Plate appearances: {plate_appearances}")
     print(f"Batter acts: {batter_acts}")
     print(f"Pitches: {pitches}")
+    print(f"Pitches with complete ancestor context: {len(pitch_subjects)}")
+    print(f"Swing/bunt acts with complete ancestor context: {len(batting_acts)}")
     print(f"Pitch motions: {len(set(graph.subjects(RDF.type, BASE.PitchBallMotionProcess)))}")
     print(f"Bat-ball contacts: {len(contact_subjects)}")
     print(f"Plate-appearance results with adjudication: {len(plate_result_subjects)}")
     print(f"Expected game present: {game}")
+    if args.expected_game_end is not None:
+        print(f"Game terminal timestamp: {args.expected_game_end}")
 
 
 if __name__ == "__main__":

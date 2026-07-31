@@ -2,9 +2,7 @@ PREFIX base: <https://baseballontology.org/>
 PREFIX cco: <https://www.commoncoreontologies.org/>
 PREFIX obo: <http://purl.obolibrary.org/obo/>
 
-SELECT ?game
-       (MIN(?gameStartValue) AS ?gameStart)
-       (MAX(?gameEndValue) AS ?gameEnd)
+SELECT ?game ?gameStart ?gameEnd
 WHERE {
   GRAPH ?graph {
     ?game a base:BaseballGame ;
@@ -14,12 +12,11 @@ WHERE {
     ?startTimestamp a base:BaseballTimestampICE ;
                     cco:ont00001916 ?startInstant ;
                     cco:ont00001808 ?game ;
-                    cco:ont00001767 ?gameStartValue .
+                    cco:ont00001767 ?gameStart .
     ?endTimestamp a base:BaseballTimestampICE ;
                   cco:ont00001916 ?endInstant ;
                   cco:ont00001808 ?game ;
-                  cco:ont00001767 ?gameEndValue .
+                  cco:ont00001767 ?gameEnd .
   }
 }
-GROUP BY ?game
 ORDER BY ?gameStart

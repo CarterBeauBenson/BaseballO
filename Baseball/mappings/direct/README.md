@@ -1,6 +1,8 @@
 # Direct MLB JSON to BaseballO RML
 
-This package maps an untouched completed MLB feed/live JSON document directly to RDF.
+This package maps an untouched completed MLB feed/live JSON document to RDF.
+An isolated execution-context copy supplies ancestor identifiers that the
+selected RML processor cannot resolve from nested JSONPath records.
 
 ## Active mapping
 
@@ -27,9 +29,23 @@ Separate implemented paths cover called balls, called strikes, swinging strikes,
 
 ## Input and execution boundary
 
-The source file is named game.json during RML execution. The raw MLB JSON is never normalized or rewritten.
+The authoritative source is named `game.json` during RML execution. It is
+copied byte-for-byte and is never normalized or rewritten.
 
-JSONPath references inside nested logical sources are relative to their current records. The guarded [execution harness](../../scripts/pipeline/run-rml.ps1) therefore copies the mapping and source to an isolated work directory and materializes safe root identifiers in the temporary mapping:
+JSONPath references inside nested logical sources are relative to their current
+records. RMLMapper 8.1.0 also treats a parent-side `playEvents[*].playId`
+reference as a terminal value rather than expanding it for every pitch. The
+guarded [execution harness](../../scripts/pipeline/run-rml.ps1) therefore runs
+[`prepare-rml-context.py`](../../scripts/pipeline/prepare-rml-context.py) to
+create a temporary `game-context.json`. It retains the source structure and
+adds only reserved `_baseballO` execution fields:
+
+- each pitch's enclosing atBatIndex;
+- batter and pitcher IDs;
+- each play's terminal pitch playId; and
+- the completed game's final play timestamp.
+
+The temporary mapping also materializes safe root identifiers:
 
 - gamePk
 - venue ID
@@ -37,7 +53,11 @@ JSONPath references inside nested logical sources are relative to their current 
 - official scorer ID, when present
 - home-plate umpire ID, when present
 
-When an optional adjudicator is absent, the harness removes only the marker-bearing participant and role assertions from the temporary mapping. Judgment, decision, and counted-process individuals remain. The checked-in mapping and authoritative source are unchanged, and both source and effective mapping hashes are recorded.
+When an optional adjudicator is absent, the harness removes only the
+marker-bearing participant and role assertions from the temporary mapping.
+Judgment, decision, and counted-process individuals remain. The checked-in
+mapping and authoritative source are unchanged. Source, context-builder,
+execution-context, mapping, and output hashes are recorded.
 
 ## Identity
 
@@ -68,4 +88,10 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Baseball/scripts/pipeline/ru
 python Baseball/scripts/validate_repository.py
 \`\`\`
 
-Static validation checks Turtle, TriplesMap structure, logical sources, joins, declared BaseballO classes, completed-game preconditions, identifiers, and runner collisions. The execution harness runs the pinned RMLMapper and the generated-RDF validator, which enforces physical chains, adjudication structure, shared foul-tip/strike identity, and event-record separation.
+Static validation checks Turtle, TriplesMap structure, logical sources,
+processor-incompatible JSONPath expressions, declared BaseballO classes,
+completed-game preconditions, identifiers, and runner collisions. The
+execution harness runs the pinned RMLMapper and the generated-RDF validator,
+which requires complete ancestor context on every pitch, swing/bunt act, and
+contact; one final game timestamp; physical chains; adjudication structure;
+shared foul-tip/strike identity; and event-record separation.

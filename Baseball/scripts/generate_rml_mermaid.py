@@ -40,6 +40,7 @@ class Relation:
 class MapInfo:
     name: str
     source: str
+    source_file: str
     iterator: str
     subject_key: tuple[str, str]
     classes: tuple[URIRef, ...]
@@ -134,6 +135,7 @@ def parse_mapping(path: Path) -> tuple[Graph, dict[str, MapInfo]]:
         logical_source = logical_sources[0]
         subject_map = subject_maps[0]
         source_name = local_name(logical_source)
+        source_file = str(graph.value(logical_source, RML.source) or "")
         iterator = str(graph.value(logical_source, RML.iterator) or "")
         classes = tuple(
             sorted(
@@ -198,6 +200,7 @@ def parse_mapping(path: Path) -> tuple[Graph, dict[str, MapInfo]]:
         infos[name] = MapInfo(
             name=name,
             source=source_name,
+            source_file=source_file,
             iterator=iterator,
             subject_key=term_key(graph, subject_map),
             classes=classes,
@@ -476,10 +479,11 @@ def source_page(
 
     source_rows = []
     for source in sources:
-        iterator = next(info.iterator for info in selected if info.source == source)
+        source_info = next(info for info in selected if info.source == source)
         count = sum(1 for info in selected if info.source == source)
         source_rows.append(
-            f"| `{source}` | `{markdown_escape(iterator)}` | {count} |"
+            f"| `{source}` | `{markdown_escape(source_info.source_file)}` | "
+            f"`{markdown_escape(source_info.iterator)}` | {count} |"
         )
     map_rows = []
     for info in selected:
@@ -509,8 +513,8 @@ def source_page(
             "",
             "## Logical sources",
             "",
-            "| Source | JSONPath iterator | Maps in this review |",
-            "| --- | --- | ---: |",
+            "| Source | Execution file | JSONPath iterator | Maps in this review |",
+            "| --- | --- | --- | ---: |",
             *source_rows,
             "",
             "## Triples maps",

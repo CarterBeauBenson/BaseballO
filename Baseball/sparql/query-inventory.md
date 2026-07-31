@@ -23,13 +23,13 @@ have yet been accepted as a baseball statistic.
 | Batting | `multi-hit-games.rq` | Distinct hit result per player/game | Hit pattern; batter; PA containment | Game, player; HAVING >= 2 | Aligned |
 | Batting | `three-true-outcomes-by-player.rq` | Distinct result | Home run/walk/strikeout class + adjudication; batter | Player | Aligned |
 | Batting | `hitless-games-by-player.rq` | Distinct participating game | Batter participation with no hit-pattern result for that player/game | Player | Aligned |
-| Pitching | `pitches-by-pitcher-and-season.rq` | Distinct `PitchAct` | Pitcher participant; pitch precedes `PitchBallMotionProcess`; PA to game | Season, pitcher | Pattern aligned; RML join coverage limited |
-| Pitching | `pitches-by-pitcher-and-venue.rq` | Distinct `PitchAct` | Pitch pattern; enclosing game and venue | Pitcher, venue | Pattern aligned; RML join coverage limited |
-| Pitching | `pitch-summary-by-pitcher.rq` | Distinct pitch/call processes | Pitch pattern; shared event record joins pitch to ball/strike process and judgment | Pitcher | Pattern aligned; RML join coverage limited |
-| Pitching | `balls-and-strikes-by-pitcher.rq` | Distinct call process | Shared event record; ball, strike, or foul-tip judgment pattern | Pitcher, call type | Pattern aligned; RML join coverage limited |
-| Pitching | `pitches-per-plate-appearance.rq` | Distinct pitch and PA | Pitch pattern; pitch specifically depends on plate appearance | Pitcher | Pattern aligned; RML join coverage limited |
-| Pitching | `swings-by-batter.rq` | Distinct `SwingAct` | Batter participant | Player | Pattern aligned; RML join coverage limited |
-| Pitching | `batted-balls-by-batter-and-venue.rq` | Distinct batted-ball motion | Swing/bunt precedes contact; contact precedes motion; batter; game venue | Player, venue | Pattern aligned; RML join coverage limited |
+| Pitching | `pitches-by-pitcher-and-season.rq` | Distinct `PitchAct` | Pitcher participant; pitch precedes `PitchBallMotionProcess`; PA to game | Season, pitcher | Aligned |
+| Pitching | `pitches-by-pitcher-and-venue.rq` | Distinct `PitchAct` | Pitch pattern; enclosing game and venue | Pitcher, venue | Aligned |
+| Pitching | `pitch-summary-by-pitcher.rq` | Distinct pitch/call processes | Pitch pattern; shared event record joins pitch to ball/strike process and judgment | Pitcher | Aligned |
+| Pitching | `balls-and-strikes-by-pitcher.rq` | Distinct call process | Shared event record; ball, strike, or foul-tip judgment pattern | Pitcher, call type | Aligned |
+| Pitching | `pitches-per-plate-appearance.rq` | Distinct pitch and PA | Pitch pattern; pitch specifically depends on plate appearance | Pitcher | Aligned |
+| Pitching | `swings-by-batter.rq` | Distinct `SwingAct` | Batter participant | Player | Aligned |
+| Pitching | `batted-balls-by-batter-and-venue.rq` | Distinct batted-ball motion | Swing/bunt precedes contact; contact precedes motion; batter; game venue | Player, venue | Aligned |
 | Baserunning | `events-by-player.rq` | Distinct runner resolution | Runner participant + out/safe/run judgment; shared source record supplies event label | Player, event type | Aligned |
 | Baserunning | `outs-by-player.rq` | Distinct out resolution | `RunnerResolutionProcess` + `OutProcess` + `OutJudgmentAct`; participant | Player | Aligned |
 | Baserunning | `resolutions-by-season.rq` | Distinct runner resolution | Run/out/safe class paired with corresponding judgment; game time | Season, resolution | Aligned |
@@ -42,13 +42,13 @@ have yet been accepted as a baseball statistic.
 | Games | `matchups-by-season.rq` | Distinct game | Home and away team roles both realized in game | Season, matchup | Aligned |
 | Games | `umpire-assignments.rq` | Distinct game | Person bears umpire role realized in game | Umpire | Aligned |
 | Games | `official-scorer-assignments.rq` | Distinct game | Person bears scorer role realized in game | Official scorer | Aligned |
-| Games | `game-timeline.rq` | Game timestamps | Timestamp describes game and designates its boundary instant; maximum mapped end value is the current terminal-time convention | Game | Aligned; source-specific end selection limited |
+| Games | `game-timeline.rq` | Game timestamps | Timestamp describes game and designates its boundary instant; execution context selects the final source play | Game | Aligned |
 | Options | `available-seasons.rq` | Distinct year | Loaded game start | Season | Aligned |
 | Options | `available-venues.rq` | Distinct venue | Game to field/site/venue | Venue | Aligned |
 | Options | `available-players.rq` | Distinct batter | `BatterAct` participant | Player | Aligned |
 | Options | `available-hit-types.rq` | Distinct hit label | Hit class + `HitJudgmentAct` | Hit type | Aligned |
 | Options | `available-games.rq` | Distinct game | Game start and venue | Game | Aligned |
-| Options | `available-pitchers.rq` | Distinct pitcher | Pitcher participant; pitch precedes ball motion | Pitcher | Pattern aligned; RML join coverage limited |
+| Options | `available-pitchers.rq` | Distinct pitcher | Pitcher participant; pitch precedes ball motion | Pitcher | Aligned |
 | Options | `available-baserunners.rq` | Distinct runner | Runner resolution participant + run/out/safe judgment | Player | Aligned |
 | Options | `available-teams.rq` | Distinct team | Home/away role realized in a game | Team | Aligned |
 | Options | `available-umpires.rq` | Distinct umpire | Umpire role realized in a game | Umpire | Aligned |
@@ -67,6 +67,5 @@ have yet been accepted as a baseball statistic.
   source season field is mapped.
 - Treat runner-record-to-plate-appearance attribution as unavailable; do not
   invent that join in a query.
-- Do not accept pitching totals until the selected RML processor's nested
-  pitch-to-play joins cover all pitch events. The fixture currently exposes
-  only terminal matching events through those joins.
+- Fixture validation requires ancestor context on every pitch, swing/bunt act,
+  and contact before pitching or contact RDF is accepted.

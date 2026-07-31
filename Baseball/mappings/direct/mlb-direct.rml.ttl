@@ -1,4 +1,4 @@
-@base <https://baseballontology.org/mapping/mlb-direct> .
+﻿@base <https://baseballontology.org/mapping/mlb-direct> .
 @prefix rr: <http://www.w3.org/ns/r2rml#> .
 @prefix rml: <http://semweb.mmlab.be/ns/rml#> .
 @prefix ql: <http://semweb.mmlab.be/ns/ql#> .
@@ -11,8 +11,10 @@
 @prefix base: <https://baseballontology.org/> .
 @prefix data: <https://baseballontology.org/data/> .
 
-# Direct mapping over an untouched MLB /feed/live JSON document.
-# The source file name is intentionally stable; replace game.json with any downloaded completed game feed.
+# Direct mapping over an untouched MLB /feed/live JSON document plus an isolated
+# execution-context copy generated from that same document. The raw game.json
+# remains byte-identical; game-context.json only exposes ancestor identifiers to
+# nested pitch records because RMLMapper cannot expand parent array references.
 # Templates can contain explicit root-identifier markers for the game, venue, and
 # participating teams. The execution harness resolves only those markers in a temporary
 # mapping copy because nested JSONPath references are relative to their logical-source record.
@@ -48,22 +50,22 @@
   rml:iterator "$.liveData.plays.allPlays[*]" .
 
 <#LastPlaySource> a rml:LogicalSource ;
-  rml:source "game.json" ;
+  rml:source "game-context.json" ;
   rml:referenceFormulation ql:JSONPath ;
-  rml:iterator "$.liveData.plays.allPlays[-1:]" .
+  rml:iterator "$" .
 
 <#PitchSource> a rml:LogicalSource ;
-  rml:source "game.json" ;
+  rml:source "game-context.json" ;
   rml:referenceFormulation ql:JSONPath ;
   rml:iterator "$.liveData.plays.allPlays[*].playEvents[?(@.isPitch == true)]" .
 
 <#BattedPitchSource> a rml:LogicalSource ;
-  rml:source "game.json" ;
+  rml:source "game-context.json" ;
   rml:referenceFormulation ql:JSONPath ;
   rml:iterator "$.liveData.plays.allPlays[*].playEvents[?(@.isPitch == true && @.details.call.code == 'F' || @.isPitch == true && @.details.call.code == 'T' || @.isPitch == true && @.details.call.code == 'X' || @.isPitch == true && @.details.call.code == 'D' || @.isPitch == true && @.details.call.code == 'E')]" .
 
 <#BattedCoordinateSource> a rml:LogicalSource ;
-  rml:source "game.json" ;
+  rml:source "game-context.json" ;
   rml:referenceFormulation ql:JSONPath ;
   rml:iterator "$.liveData.plays.allPlays[*].playEvents[?(@.isPitch == true && @.hitData.coordinates)]" .
 
@@ -118,37 +120,37 @@
   rml:iterator "$.liveData.boxscore.officials[*]" .
 
 <#BallBSource> a rml:LogicalSource ;
-  rml:source "game.json" ;
+  rml:source "game-context.json" ;
   rml:referenceFormulation ql:JSONPath ;
   rml:iterator "$.liveData.plays.allPlays[*].playEvents[?(@.isPitch == true && @.details.call.code == 'B')]" .
 
 <#BallDirtSource> a rml:LogicalSource ;
-  rml:source "game.json" ;
+  rml:source "game-context.json" ;
   rml:referenceFormulation ql:JSONPath ;
   rml:iterator "$.liveData.plays.allPlays[*].playEvents[?(@.isPitch == true && @.details.call.code == '*B')]" .
 
 <#AllBallSource> a rml:LogicalSource ;
-  rml:source "game.json" ;
+  rml:source "game-context.json" ;
   rml:referenceFormulation ql:JSONPath ;
   rml:iterator "$.liveData.plays.allPlays[*].playEvents[?(@.isPitch == true && @.details.call.code == 'B' || @.isPitch == true && @.details.call.code == '*B')]" .
 
 <#CalledStrikeSource> a rml:LogicalSource ;
-  rml:source "game.json" ;
+  rml:source "game-context.json" ;
   rml:referenceFormulation ql:JSONPath ;
   rml:iterator "$.liveData.plays.allPlays[*].playEvents[?(@.isPitch == true && @.details.call.code == 'C')]" .
 
 <#SwingingStrikeSource> a rml:LogicalSource ;
-  rml:source "game.json" ;
+  rml:source "game-context.json" ;
   rml:referenceFormulation ql:JSONPath ;
   rml:iterator "$.liveData.plays.allPlays[*].playEvents[?(@.isPitch == true && @.details.call.code == 'S')]" .
 
 <#CalledOrSwingingStrikeSource> a rml:LogicalSource ;
-  rml:source "game.json" ;
+  rml:source "game-context.json" ;
   rml:referenceFormulation ql:JSONPath ;
   rml:iterator "$.liveData.plays.allPlays[*].playEvents[?(@.isPitch == true && @.details.call.code == 'C' || @.isPitch == true && @.details.call.code == 'S')]" .
 
 <#FoulSource> a rml:LogicalSource ;
-  rml:source "game.json" ;
+  rml:source "game-context.json" ;
   rml:referenceFormulation ql:JSONPath ;
   rml:iterator "$.liveData.plays.allPlays[*].playEvents[?(@.isPitch == true && @.details.call.code == 'F')]" .
 
@@ -156,42 +158,42 @@
 # two-strike foul. This conservative source emits only unambiguous first
 # counted fouls; the remaining ambiguity is documented as a source gap.
 <#CountedFoulSource> a rml:LogicalSource ;
-  rml:source "game.json" ;
+  rml:source "game-context.json" ;
   rml:referenceFormulation ql:JSONPath ;
   rml:iterator "$.liveData.plays.allPlays[*].playEvents[?(@.isPitch == true && @.details.call.code == 'F' && @.count.strikes == 1)]" .
 
 <#FoulTipSource> a rml:LogicalSource ;
-  rml:source "game.json" ;
+  rml:source "game-context.json" ;
   rml:referenceFormulation ql:JSONPath ;
   rml:iterator "$.liveData.plays.allPlays[*].playEvents[?(@.isPitch == true && @.details.call.code == 'T')]" .
 
 <#InPlayOutSource> a rml:LogicalSource ;
-  rml:source "game.json" ;
+  rml:source "game-context.json" ;
   rml:referenceFormulation ql:JSONPath ;
   rml:iterator "$.liveData.plays.allPlays[?(!(@.result.eventType == 'sac_bunt'))].playEvents[?(@.isPitch == true && @.details.call.code == 'X')]" .
 
 <#InPlayNoOutSource> a rml:LogicalSource ;
-  rml:source "game.json" ;
+  rml:source "game-context.json" ;
   rml:referenceFormulation ql:JSONPath ;
   rml:iterator "$.liveData.plays.allPlays[?(!(@.result.eventType == 'sac_bunt'))].playEvents[?(@.isPitch == true && @.details.call.code == 'D')]" .
 
 <#InPlayRunsSource> a rml:LogicalSource ;
-  rml:source "game.json" ;
+  rml:source "game-context.json" ;
   rml:referenceFormulation ql:JSONPath ;
   rml:iterator "$.liveData.plays.allPlays[?(!(@.result.eventType == 'sac_bunt'))].playEvents[?(@.isPitch == true && @.details.call.code == 'E')]" .
 
 <#BuntSource> a rml:LogicalSource ;
-  rml:source "game.json" ;
+  rml:source "game-context.json" ;
   rml:referenceFormulation ql:JSONPath ;
   rml:iterator "$.liveData.plays.allPlays[?(@.result.eventType == 'sac_bunt')].playEvents[?(@.isPitch == true && @.details.call.code == 'X' || @.isPitch == true && @.details.call.code == 'D' || @.isPitch == true && @.details.call.code == 'E')]" .
 
 <#AllInPlaySource> a rml:LogicalSource ;
-  rml:source "game.json" ;
+  rml:source "game-context.json" ;
   rml:referenceFormulation ql:JSONPath ;
   rml:iterator "$.liveData.plays.allPlays[*].playEvents[?(@.isPitch == true && @.details.call.code == 'X' || @.isPitch == true && @.details.call.code == 'D' || @.isPitch == true && @.details.call.code == 'E')]" .
 
 <#SwingBatSource> a rml:LogicalSource ;
-  rml:source "game.json" ;
+  rml:source "game-context.json" ;
   rml:referenceFormulation ql:JSONPath ;
   rml:iterator "$.liveData.plays.allPlays[*].playEvents[?(@.isPitch == true && @.details.call.code == 'S' || @.isPitch == true && @.details.call.code == 'F' || @.isPitch == true && @.details.call.code == 'T' || @.isPitch == true && @.details.call.code == 'X' || @.isPitch == true && @.details.call.code == 'D' || @.isPitch == true && @.details.call.code == 'E')]" .
 
@@ -296,7 +298,7 @@
   rml:iterator "$.liveData.plays.allPlays[?(@.result.eventType == 'field_out' || @.result.eventType == 'force_out' || @.result.eventType == 'strikeout' || @.result.eventType == 'double_play' || @.result.eventType == 'grounded_into_double_play')]" .
 
 <#BattedResultPlaySource> a rml:LogicalSource ;
-  rml:source "game.json" ;
+  rml:source "game-context.json" ;
   rml:referenceFormulation ql:JSONPath ;
   rml:iterator "$.liveData.plays.allPlays[?(@.result.eventType == 'single' || @.result.eventType == 'double' || @.result.eventType == 'triple' || @.result.eventType == 'home_run' || @.result.eventType == 'field_out' || @.result.eventType == 'force_out' || @.result.eventType == 'fielders_choice' || @.result.eventType == 'field_error' || @.result.eventType == 'sac_fly' || @.result.eventType == 'sac_bunt' || @.result.eventType == 'double_play' || @.result.eventType == 'grounded_into_double_play')]" .
 
@@ -525,14 +527,6 @@
     rr:objectMap [ rr:template "https://baseballontology.org/data/player/{player.id}" ; rr:termType rr:IRI ]
   ] .
 
-<#BatterPersonFromPlayMap> a rr:TriplesMap ;
-  rml:logicalSource <#PlaySource> ;
-  rr:subjectMap [ rr:template "https://baseballontology.org/data/player/{matchup.batter.id}" ; rr:termType rr:IRI ] .
-
-<#PitcherPersonFromPlayMap> a rr:TriplesMap ;
-  rml:logicalSource <#PlaySource> ;
-  rr:subjectMap [ rr:template "https://baseballontology.org/data/player/{matchup.pitcher.id}" ; rr:termType rr:IRI ] .
-
 <#UmpirePersonMap> a rr:TriplesMap ;
   rml:logicalSource <#OfficialSource> ;
   rr:subjectMap [ rr:template "https://baseballontology.org/data/person/{official.id}" ; rr:termType rr:IRI ; rr:class cco:ont00001262 ] ;
@@ -609,7 +603,8 @@
   rml:logicalSource <#LastPlaySource> ;
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/temporal-instant/end" ; rr:termType rr:IRI ; rr:class base:BaseballEventTemporalInstant ] .
 
-# For a completed feed, the final allPlays member supplies the terminal game time; walk-off semantics remain a documented edge case.
+# The context builder selects the final allPlays member because RMLMapper expands
+# the JSONPath [-1:] slice to every play. Walk-off semantics remain a documented edge case.
 <#GameEndTimestampMap> a rr:TriplesMap ;
   rml:logicalSource <#LastPlaySource> ;
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/timestamp/end" ; rr:termType rr:IRI ; rr:class base:BaseballTimestampICE ] ;
@@ -623,7 +618,7 @@
   ] ;
   rr:predicateObjectMap [
     rr:predicate cco:ont00001767 ;
-    rr:objectMap [ rml:reference "about.endTime" ; rr:datatype xsd:dateTime ]
+    rr:objectMap [ rml:reference "_baseballO.gameEndTime" ; rr:datatype xsd:dateTime ]
   ] .
 
 <#InningMap> a rr:TriplesMap ;
@@ -979,15 +974,15 @@
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/pitch/{playId}" ; rr:termType rr:IRI ; rr:class base:PitchAct ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000132 ;
-    rr:objectMap [ rr:parentTriplesMap <#PlateAppearanceMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000057 ;
-    rr:objectMap [ rr:parentTriplesMap <#PitcherPersonFromPlayMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/player/{_baseballO.pitcherId}" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000055 ;
-    rr:objectMap [ rr:parentTriplesMap <#PitcherRoleMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/player/{_baseballO.pitcherId}/role/pitcher" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate cco:ont00001918 ;
@@ -1023,7 +1018,7 @@
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/pitch/{playId}/temporal-interval" ; rr:termType rr:IRI ; rr:class obo:BFO_0000038 ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000139 ;
-    rr:objectMap [ rr:parentTriplesMap <#PlateAppearanceIntervalMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}/temporal-interval" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000222 ;
@@ -1079,7 +1074,7 @@
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/ball/{playId}" ; rr:termType rr:IRI ; rr:class base:BallProcess ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000132 ;
-    rr:objectMap [ rr:parentTriplesMap <#PlateAppearanceMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate cco:ont00001918 ;
@@ -1103,7 +1098,7 @@
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/ball/{playId}" ; rr:termType rr:IRI ; rr:class base:BallProcess ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000132 ;
-    rr:objectMap [ rr:parentTriplesMap <#PlateAppearanceMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate cco:ont00001918 ;
@@ -1127,7 +1122,7 @@
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/strike/{playId}" ; rr:termType rr:IRI ; rr:class base:StrikeProcess ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000132 ;
-    rr:objectMap [ rr:parentTriplesMap <#PlateAppearanceMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate cco:ont00001918 ;
@@ -1151,7 +1146,7 @@
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/strike/{playId}" ; rr:termType rr:IRI ; rr:class base:StrikeProcess ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000132 ;
-    rr:objectMap [ rr:parentTriplesMap <#PlateAppearanceMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate cco:ont00001918 ;
@@ -1175,7 +1170,7 @@
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/strike/{playId}" ; rr:termType rr:IRI ; rr:class base:StrikeProcess ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000132 ;
-    rr:objectMap [ rr:parentTriplesMap <#PlateAppearanceMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate cco:ont00001918 ;
@@ -1199,7 +1194,7 @@
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/foul-tip/{playId}" ; rr:termType rr:IRI ; rr:class base:StrikeProcess ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000132 ;
-    rr:objectMap [ rr:parentTriplesMap <#PlateAppearanceMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate cco:ont00001918 ;
@@ -1223,11 +1218,11 @@
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/act/swing/{playId}" ; rr:termType rr:IRI ; rr:class base:SwingAct ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000132 ;
-    rr:objectMap [ rr:parentTriplesMap <#PlateAppearanceMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000132 ;
-    rr:objectMap [ rr:parentTriplesMap <#BatterActMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}/batter-act" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate cco:ont00001918 ;
@@ -1235,11 +1230,11 @@
   ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000057 ;
-    rr:objectMap [ rr:parentTriplesMap <#BatterPersonFromPlayMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/player/{_baseballO.batterId}" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000055 ;
-    rr:objectMap [ rr:parentTriplesMap <#BatterRoleMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/player/{_baseballO.batterId}/role/batter" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000062 ;
@@ -1263,11 +1258,11 @@
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/act/swing/{playId}" ; rr:termType rr:IRI ; rr:class base:SwingAct ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000132 ;
-    rr:objectMap [ rr:parentTriplesMap <#PlateAppearanceMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000132 ;
-    rr:objectMap [ rr:parentTriplesMap <#BatterActMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}/batter-act" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate cco:ont00001918 ;
@@ -1275,11 +1270,11 @@
   ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000057 ;
-    rr:objectMap [ rr:parentTriplesMap <#BatterPersonFromPlayMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/player/{_baseballO.batterId}" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000055 ;
-    rr:objectMap [ rr:parentTriplesMap <#BatterRoleMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/player/{_baseballO.batterId}/role/batter" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000062 ;
@@ -1307,11 +1302,11 @@
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/act/swing/{playId}" ; rr:termType rr:IRI ; rr:class base:SwingAct ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000132 ;
-    rr:objectMap [ rr:parentTriplesMap <#PlateAppearanceMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000132 ;
-    rr:objectMap [ rr:parentTriplesMap <#BatterActMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}/batter-act" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate cco:ont00001918 ;
@@ -1319,11 +1314,11 @@
   ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000057 ;
-    rr:objectMap [ rr:parentTriplesMap <#BatterPersonFromPlayMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/player/{_baseballO.batterId}" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000055 ;
-    rr:objectMap [ rr:parentTriplesMap <#BatterRoleMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/player/{_baseballO.batterId}/role/batter" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000062 ;
@@ -1351,11 +1346,11 @@
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/act/swing/{playId}" ; rr:termType rr:IRI ; rr:class base:SwingAct ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000132 ;
-    rr:objectMap [ rr:parentTriplesMap <#PlateAppearanceMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000132 ;
-    rr:objectMap [ rr:parentTriplesMap <#BatterActMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}/batter-act" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate cco:ont00001918 ;
@@ -1363,11 +1358,11 @@
   ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000057 ;
-    rr:objectMap [ rr:parentTriplesMap <#BatterPersonFromPlayMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/player/{_baseballO.batterId}" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000055 ;
-    rr:objectMap [ rr:parentTriplesMap <#BatterRoleMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/player/{_baseballO.batterId}/role/batter" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000062 ;
@@ -1395,11 +1390,11 @@
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/act/swing/{playId}" ; rr:termType rr:IRI ; rr:class base:SwingAct ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000132 ;
-    rr:objectMap [ rr:parentTriplesMap <#PlateAppearanceMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000132 ;
-    rr:objectMap [ rr:parentTriplesMap <#BatterActMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}/batter-act" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate cco:ont00001918 ;
@@ -1407,11 +1402,11 @@
   ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000057 ;
-    rr:objectMap [ rr:parentTriplesMap <#BatterPersonFromPlayMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/player/{_baseballO.batterId}" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000055 ;
-    rr:objectMap [ rr:parentTriplesMap <#BatterRoleMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/player/{_baseballO.batterId}/role/batter" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000062 ;
@@ -1439,11 +1434,11 @@
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/act/swing/{playId}" ; rr:termType rr:IRI ; rr:class base:SwingAct ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000132 ;
-    rr:objectMap [ rr:parentTriplesMap <#PlateAppearanceMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000132 ;
-    rr:objectMap [ rr:parentTriplesMap <#BatterActMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}/batter-act" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate cco:ont00001918 ;
@@ -1451,11 +1446,11 @@
   ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000057 ;
-    rr:objectMap [ rr:parentTriplesMap <#BatterPersonFromPlayMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/player/{_baseballO.batterId}" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000055 ;
-    rr:objectMap [ rr:parentTriplesMap <#BatterRoleMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/player/{_baseballO.batterId}/role/batter" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000062 ;
@@ -1483,7 +1478,7 @@
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/contact/{playId}" ; rr:termType rr:IRI ; rr:class base:BatBallContactProcess ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000132 ;
-    rr:objectMap [ rr:parentTriplesMap <#PlateAppearanceMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate cco:ont00001918 ;
@@ -1511,7 +1506,7 @@
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/contact/{playId}" ; rr:termType rr:IRI ; rr:class base:BatBallContactProcess ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000132 ;
-    rr:objectMap [ rr:parentTriplesMap <#PlateAppearanceMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate cco:ont00001918 ;
@@ -1539,7 +1534,7 @@
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/contact/{playId}" ; rr:termType rr:IRI ; rr:class base:BatBallContactProcess ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000132 ;
-    rr:objectMap [ rr:parentTriplesMap <#PlateAppearanceMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate cco:ont00001918 ;
@@ -1567,7 +1562,7 @@
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/contact/{playId}" ; rr:termType rr:IRI ; rr:class base:BatBallContactProcess ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000132 ;
-    rr:objectMap [ rr:parentTriplesMap <#PlateAppearanceMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate cco:ont00001918 ;
@@ -1595,7 +1590,7 @@
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/contact/{playId}" ; rr:termType rr:IRI ; rr:class base:BatBallContactProcess ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000132 ;
-    rr:objectMap [ rr:parentTriplesMap <#PlateAppearanceMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate cco:ont00001918 ;
@@ -1623,7 +1618,7 @@
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/foul-ball/{playId}" ; rr:termType rr:IRI ; rr:class base:FoulBallProcess ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000132 ;
-    rr:objectMap [ rr:parentTriplesMap <#PlateAppearanceMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate cco:ont00001918 ;
@@ -1647,7 +1642,7 @@
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/foul-tip/{playId}" ; rr:termType rr:IRI ; rr:class base:FoulTipProcess ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000132 ;
-    rr:objectMap [ rr:parentTriplesMap <#PlateAppearanceMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate cco:ont00001918 ;
@@ -1671,7 +1666,7 @@
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/fair-ball/{playId}" ; rr:termType rr:IRI ; rr:class base:FairBallProcess ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000132 ;
-    rr:objectMap [ rr:parentTriplesMap <#PlateAppearanceMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate cco:ont00001918 ;
@@ -1695,7 +1690,7 @@
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/fair-ball/{playId}" ; rr:termType rr:IRI ; rr:class base:FairBallProcess ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000132 ;
-    rr:objectMap [ rr:parentTriplesMap <#PlateAppearanceMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate cco:ont00001918 ;
@@ -1719,7 +1714,7 @@
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/fair-ball/{playId}" ; rr:termType rr:IRI ; rr:class base:FairBallProcess ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000132 ;
-    rr:objectMap [ rr:parentTriplesMap <#PlateAppearanceMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate cco:ont00001918 ;
@@ -1743,7 +1738,7 @@
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/batted-ball-motion/{playId}" ; rr:termType rr:IRI ; rr:class base:BattedBallMotionProcess ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000132 ;
-    rr:objectMap [ rr:parentTriplesMap <#PlateAppearanceMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate cco:ont00001918 ;
@@ -2071,7 +2066,7 @@
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/pitch-ball-motion/{playId}" ; rr:termType rr:IRI ; rr:class base:PitchBallMotionProcess ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000132 ;
-    rr:objectMap [ rr:parentTriplesMap <#PlateAppearanceMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000057 ;
@@ -2095,10 +2090,10 @@
 <#BuntActMap> a rr:TriplesMap ;
   rml:logicalSource <#BuntSource> ;
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/act/bunt/{playId}" ; rr:termType rr:IRI ; rr:class base:BuntAct ] ;
-  rr:predicateObjectMap [ rr:predicate obo:BFO_0000132 ; rr:objectMap [ rr:parentTriplesMap <#PlateAppearanceMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ] ] ;
-  rr:predicateObjectMap [ rr:predicate obo:BFO_0000132 ; rr:objectMap [ rr:parentTriplesMap <#BatterActMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ] ] ;
-  rr:predicateObjectMap [ rr:predicate obo:BFO_0000057 ; rr:objectMap [ rr:parentTriplesMap <#BatterPersonFromPlayMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ] ] ;
-  rr:predicateObjectMap [ rr:predicate obo:BFO_0000055 ; rr:objectMap [ rr:parentTriplesMap <#BatterRoleMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ] ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000132 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000132 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}/batter-act" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000057 ; rr:objectMap [ rr:template "https://baseballontology.org/data/player/{_baseballO.batterId}" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000055 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/player/{_baseballO.batterId}/role/batter" ; rr:termType rr:IRI ] ] ;
   rr:predicateObjectMap [ rr:predicate obo:BFO_0000057 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/artifact/baseball-bat/{playId}" ; rr:termType rr:IRI ] ] ;
   rr:predicateObjectMap [ rr:predicate cco:ont00001918 ; rr:objectMap [ rr:template "https://baseballontology.org/data/venue/{$.gameData.venue.id}/baseball-field" ; rr:termType rr:IRI ] ] ;
   rr:predicateObjectMap [ rr:predicate obo:BFO_0000062 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/pitch/{playId}" ; rr:termType rr:IRI ] ] ;
@@ -2107,7 +2102,7 @@
 <#BuntContactMap> a rr:TriplesMap ;
   rml:logicalSource <#BuntSource> ;
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/contact/{playId}" ; rr:termType rr:IRI ; rr:class base:BatBallContactProcess ] ;
-  rr:predicateObjectMap [ rr:predicate obo:BFO_0000132 ; rr:objectMap [ rr:parentTriplesMap <#PlateAppearanceMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ] ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000132 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}" ; rr:termType rr:IRI ] ] ;
   rr:predicateObjectMap [ rr:predicate obo:BFO_0000062 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/act/bunt/{playId}" ; rr:termType rr:IRI ] ] ;
   rr:predicateObjectMap [ rr:predicate obo:BFO_0000063 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/batted-ball-motion/{playId}" ; rr:termType rr:IRI ] ] ;
   rr:predicateObjectMap [ rr:predicate cco:ont00001918 ; rr:objectMap [ rr:template "https://baseballontology.org/data/venue/{$.gameData.venue.id}/baseball-field" ; rr:termType rr:IRI ] ] .
@@ -2115,7 +2110,7 @@
 <#BuntFairBallMap> a rr:TriplesMap ;
   rml:logicalSource <#BuntSource> ;
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/fair-ball/{playId}" ; rr:termType rr:IRI ; rr:class base:FairBallProcess ] ;
-  rr:predicateObjectMap [ rr:predicate obo:BFO_0000132 ; rr:objectMap [ rr:parentTriplesMap <#PlateAppearanceMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ] ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000132 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}" ; rr:termType rr:IRI ] ] ;
   rr:predicateObjectMap [ rr:predicate obo:BFO_0000062 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/batted-ball-motion/{playId}" ; rr:termType rr:IRI ] ] ;
   rr:predicateObjectMap [ rr:predicate cco:ont00001918 ; rr:objectMap [ rr:template "https://baseballontology.org/data/venue/{$.gameData.venue.id}/baseball-field" ; rr:termType rr:IRI ] ] .
 
@@ -2129,7 +2124,7 @@
 <#BattedBallPlayMap> a rr:TriplesMap ;
   rml:logicalSource <#BattedPitchSource> ;
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/batted-ball-play/{playId}" ; rr:termType rr:IRI ; rr:class base:BattedBallPlayProcess ] ;
-  rr:predicateObjectMap [ rr:predicate obo:BFO_0000132 ; rr:objectMap [ rr:parentTriplesMap <#PlateAppearanceMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ] ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000132 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}" ; rr:termType rr:IRI ] ] ;
   rr:predicateObjectMap [ rr:predicate obo:BFO_0000117 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/contact/{playId}" ; rr:termType rr:IRI ] ] ;
   rr:predicateObjectMap [ rr:predicate obo:BFO_0000117 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/batted-ball-motion/{playId}" ; rr:termType rr:IRI ] ] ;
   rr:predicateObjectMap [ rr:predicate cco:ont00001918 ; rr:objectMap [ rr:template "https://baseballontology.org/data/venue/{$.gameData.venue.id}/baseball-field" ; rr:termType rr:IRI ] ] .
@@ -2152,18 +2147,18 @@
 # plate-appearance result.
 <#TerminalBattedBallMotionResultSequenceMap> a rr:TriplesMap ;
   rml:logicalSource <#BattedResultPlaySource> ;
-  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/batted-ball-motion/{playEvents[-1:].playId}" ; rr:termType rr:IRI ] ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/batted-ball-motion/{_baseballO.terminalPitchPlayId}" ; rr:termType rr:IRI ] ;
   rr:predicateObjectMap [ rr:predicate obo:BFO_0000063 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{about.atBatIndex}/result" ; rr:termType rr:IRI ] ] .
 
 <#TerminalFairBallResultSequenceMap> a rr:TriplesMap ;
   rml:logicalSource <#BattedResultPlaySource> ;
-  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/fair-ball/{playEvents[-1:].playId}" ; rr:termType rr:IRI ] ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/fair-ball/{_baseballO.terminalPitchPlayId}" ; rr:termType rr:IRI ] ;
   rr:predicateObjectMap [ rr:predicate obo:BFO_0000063 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{about.atBatIndex}/result" ; rr:termType rr:IRI ] ] .
 
 <#TerminalBattedBallPlayResultContainmentMap> a rr:TriplesMap ;
   rml:logicalSource <#BattedResultPlaySource> ;
-  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/batted-ball-play/{playEvents[-1:].playId}" ; rr:termType rr:IRI ] ;
-  rr:predicateObjectMap [ rr:predicate obo:BFO_0000117 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/fair-ball/{playEvents[-1:].playId}" ; rr:termType rr:IRI ] ] ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/batted-ball-play/{_baseballO.terminalPitchPlayId}" ; rr:termType rr:IRI ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000117 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/fair-ball/{_baseballO.terminalPitchPlayId}" ; rr:termType rr:IRI ] ] ;
   rr:predicateObjectMap [ rr:predicate obo:BFO_0000117 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{about.atBatIndex}/result" ; rr:termType rr:IRI ] ] .
 
 <#BattedBallPlayFoulContainmentMap> a rr:TriplesMap ;
@@ -2267,7 +2262,7 @@
 <#BallCallMap> a rr:TriplesMap ;
   rml:logicalSource <#AllBallSource> ;
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/call/ball/{playId}" ; rr:termType rr:IRI ; rr:class base:BallCallAct ] ;
-  rr:predicateObjectMap [ rr:predicate obo:BFO_0000132 ; rr:objectMap [ rr:parentTriplesMap <#PlateAppearanceMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ] ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000132 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}" ; rr:termType rr:IRI ] ] ;
   rr:predicateObjectMap [ rr:predicate obo:BFO_0000057 ; rr:objectMap [ rr:template "https://baseballontology.org/data/person/{$.homePlateUmpire.id}" ; rr:termType rr:IRI ] ] ;
   rr:predicateObjectMap [ rr:predicate obo:BFO_0000055 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/person/{$.homePlateUmpire.id}/role/umpire" ; rr:termType rr:IRI ] ] ;
   rr:predicateObjectMap [ rr:predicate cco:ont00001921 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/decision/ball/{playId}" ; rr:termType rr:IRI ] ] .
@@ -2306,7 +2301,7 @@
 <#CalledStrikeCallMap> a rr:TriplesMap ;
   rml:logicalSource <#CalledStrikeSource> ;
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/call/strike/{playId}" ; rr:termType rr:IRI ; rr:class base:StrikeCallAct ] ;
-  rr:predicateObjectMap [ rr:predicate obo:BFO_0000132 ; rr:objectMap [ rr:parentTriplesMap <#PlateAppearanceMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ] ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000132 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}" ; rr:termType rr:IRI ] ] ;
   rr:predicateObjectMap [ rr:predicate obo:BFO_0000057 ; rr:objectMap [ rr:template "https://baseballontology.org/data/person/{$.homePlateUmpire.id}" ; rr:termType rr:IRI ] ] ;
   rr:predicateObjectMap [ rr:predicate obo:BFO_0000055 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/person/{$.homePlateUmpire.id}/role/umpire" ; rr:termType rr:IRI ] ] ;
   rr:predicateObjectMap [ rr:predicate cco:ont00001921 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/decision/strike/{playId}" ; rr:termType rr:IRI ] ] .
@@ -2355,7 +2350,7 @@
 <#FairBallCallMap> a rr:TriplesMap ;
   rml:logicalSource <#AllInPlaySource> ;
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/call/fair/{playId}" ; rr:termType rr:IRI ; rr:class base:FairCallAct ] ;
-  rr:predicateObjectMap [ rr:predicate obo:BFO_0000132 ; rr:objectMap [ rr:parentTriplesMap <#PlateAppearanceMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ] ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000132 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}" ; rr:termType rr:IRI ] ] ;
   rr:predicateObjectMap [ rr:predicate cco:ont00001921 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/decision/fair/{playId}" ; rr:termType rr:IRI ] ] .
 
 <#FairBallProcessAdjudicationPartMap> a rr:TriplesMap ;
@@ -2386,7 +2381,7 @@
 <#FoulBallCallMap> a rr:TriplesMap ;
   rml:logicalSource <#FoulSource> ;
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/call/foul/{playId}" ; rr:termType rr:IRI ; rr:class base:FoulCallAct ] ;
-  rr:predicateObjectMap [ rr:predicate obo:BFO_0000132 ; rr:objectMap [ rr:parentTriplesMap <#PlateAppearanceMap> ; rr:joinCondition [ rr:child "playId" ; rr:parent "playEvents[*].playId" ] ] ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000132 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}" ; rr:termType rr:IRI ] ] ;
   rr:predicateObjectMap [ rr:predicate cco:ont00001921 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/decision/foul/{playId}" ; rr:termType rr:IRI ] ] .
 
 <#FoulBallProcessAdjudicationPartMap> a rr:TriplesMap ;

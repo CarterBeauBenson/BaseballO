@@ -8,13 +8,11 @@ swing or bunt act to contact and then batted-ball motion. Pitch speed, spin,
 break, and launch measurements remain excluded because those measurement
 properties are not yet approved in the ontology mapping.
 
-## Current execution boundary
+## Execution coverage
 
-The query shapes are aligned to the intended full pattern, but the selected
-RML processor does not currently expand the parent-side
-`playEvents[*].playId` join across every nested pitch. On the checked-in
-fixture, pitcher, batter, role, and plate-appearance links therefore cover
-terminal matching pitch events rather than all 282 pitches. Pitching and
-contact totals must not be published until that mapping/execution issue is
-corrected and coverage assertions are added. The queries do not infer missing
-people from IRI text or source strings.
+The execution harness supplies ancestor context to nested pitch records in an
+isolated derived JSON copy because the selected RML processor cannot expand
+the parent-side `playEvents[*].playId` reference. The authoritative JSON is
+unchanged. Fixture validation requires complete plate-appearance, person, and
+role context on all 282 pitches, all 134 swing/bunt acts, and all 112 contacts.
+The queries do not infer people from IRI text or source strings.

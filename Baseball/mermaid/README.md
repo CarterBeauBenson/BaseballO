@@ -26,13 +26,15 @@ Run `python Baseball/scripts/generate_rml_mermaid.py` from the repository root a
 | Measure | Revised mapping |
 | --- | ---: |
 | Logical sources | 56 |
-| Triples maps | 249 |
-| Referencing-object-map joins | 57 |
+| Triples maps | 247 |
+| Referencing-object-map joins | 0 |
 | BaseballO classes used | 113 |
 | Undeclared BaseballO classes | 0 |
-| Sample generated triples | 27,163 |
+| Sample generated triples | 29,736 |
 | Sample plate appearances | 79 |
 | Sample pitches and pitch motions | 282 each |
+| Sample pitches with complete ancestor context | 282 |
+| Sample swing/bunt acts with complete ancestor context | 134 |
 | Sample bat-ball contacts and batted-ball motions | 112 each |
 
 The end-to-end pinned RML processor and generated-RDF validator both pass on game 566279.

@@ -5,7 +5,7 @@ matchups; umpire and official-scorer assignments; and mapped game start/end
 timestamps. It describes loaded game graphs only and does not infer standings,
 wins, losses, or schedule completeness that the current mapping does not emit.
 
-The selected processor expands the current `[-1:]` last-play iterator to every
-play in the fixture. `game-timeline.rq` consequently uses the maximum mapped
-end timestamp as the explicit query-layer terminal-time convention. The RML
-iterator behavior remains a source-specific mapping issue to correct.
+The execution-context builder selects the final play timestamp before RML
+execution because the selected processor expands `[-1:]` to every play.
+Fixture validation requires exactly that one terminal value in the RDF graph;
+`game-timeline.rq` therefore reads the mapped boundary directly.

@@ -4,7 +4,8 @@
 flowchart TD
     RAW["untouched MLB feed/live JSON"] --> ROOT["root, teams, players, venue, officials"]
     RAW --> PLAY["allPlays records and result filters"]
-    RAW --> PITCH["pitch records"]
+    RAW --> CTX["disposable ancestor context"]
+    CTX --> PITCH["pitch records + play/batter/pitcher identity"]
     PITCH --> CALL["ball, strike, foul, foul tip, in-play filters"]
     PITCH --> PHYSICAL["contact and coordinate filters"]
     PLAY --> BUNT["sac_bunt terminal pitch filter"]
@@ -17,4 +18,8 @@ flowchart TD
     RAW --> FIELDING["fielding credits: role trigger only"]
 ```
 
-The active RML contains 56 logical sources. Repeated filters are deliberate: one source record may support distinct acts, physical processes, judgments, decisions, calls, counted processes, records, sites, roles, and artifacts. Source partitions never collapse those individuals.
+The active RML contains 56 logical sources. Repeated filters are deliberate:
+one source record may support distinct acts, physical processes, judgments,
+decisions, calls, counted processes, records, sites, roles, and artifacts. The
+temporary context adds ancestor identity but never changes or replaces the raw
+source. Source partitions never collapse those individuals.

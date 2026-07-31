@@ -13,19 +13,19 @@ fixture until data acquisition is explicitly reopened.
 - [`sparql/graph-condensation-requirements.md`](sparql/graph-condensation-requirements.md)
   records acceleration requirements and candidates without choosing or
   implementing shortcut properties.
-- The offline fixture materialized to 27,163 triples, and all 48 canned queries
+- The corrected offline fixture materialized to 29,736 triples, and all 48 canned queries
   executed without a SPARQL error. The Empty Games prototype still returned six
   candidates.
-- Execution uncovered two RML-processor coverage problems. Nested
-  `playEvents[*].playId` parent joins link only terminal matching pitch events,
-  and the `[-1:]` last-play iterator emits every play. Pitcher/swing/contact
-  totals are therefore not publishable, and the timeline query uses `MAX` as a
-  documented terminal-time convention until the RML execution is corrected.
+- The two RML-processor coverage problems are corrected by a disposable,
+  hashed execution-context copy. All 282 pitches now have plate-appearance,
+  pitcher-person, and pitcher-role links; all 134 swing/bunt acts and all 112
+  contacts have complete ancestor context; and the graph has one terminal game
+  timestamp.
 
-The next implementation priority is to correct those two source-specific RML
-execution patterns, regenerate the Mermaid catalogs with the custom processor,
-and add fixture assertions proving 282-of-282 pitch-to-PA/pitcher links and one
-game terminal timestamp. Do not hide the missing joins in SPARQL.
+The next implementation priority is the reviewed dehydrated query-index layer.
+It must be derived only from complete authoritative patterns, remain
+replaceable and traceable, and pass full-pattern-versus-condensed query
+equivalence tests.
 
 ## Completed first priority: update all SPARQL
 
@@ -117,4 +117,8 @@ git branch --show-current
 python Baseball/scripts/validate_repository.py
 ```
 
-The expected starting branch is `dev`, and the repository should be clean. The current mapping inventory is 249 triples maps, 56 logical sources, and 57 joins. The local fixture most recently generated 27,163 triples with 282 pitch motions, 112 bat-ball contacts, and adjudication on all 79 plate-appearance results.
+The expected starting branch is `dev`, and the repository should be clean. The
+current mapping inventory is 247 triples maps, 56 logical sources, and no
+referencing-object joins. The local fixture most recently generated 29,736
+triples with complete context on 282 pitches, 134 swing/bunt acts, and 112
+bat-ball contacts, plus adjudication on all 79 plate-appearance results.

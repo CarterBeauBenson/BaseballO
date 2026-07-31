@@ -25,7 +25,14 @@ From the repository root, import the checked-in historical fixture without makin
 
 The importer parses the supplied document without rewriting it, verifies `gamePk`, season, and game state, stores a byte-identical SHA-256-addressed archive, and writes import metadata separately. Non-final documents are safely archived but do not reach RML. Repeating an identical final document skips mapping only when the raw hash, tracked mapping hash, mapper version, RML manifest, and expected Fuseki assertion all match; `-ForceRdfLoad` overrides that optimization. `-ArchiveOnly` preserves and records the input without invoking RML or Fuseki.
 
-`run-rml.ps1` runs the mapping-specific collision and source preflight, stages a byte-identical JSON copy, materializes the guarded root-identifier markers only in its temporary mapping copy, invokes the pinned mapper in strict mode, and validates the resulting game, plate-appearance, and pitch counts. It records input, source-mapping, effective-mapping, and output hashes in a separate manifest.
+`run-rml.ps1` runs the mapping-specific collision and source preflight and
+stages a byte-identical JSON copy. It then creates an isolated execution-context
+copy containing the ancestor IDs needed by nested pitch records, materializes
+guarded root-identifier markers only in its temporary mapping, invokes the
+pinned mapper in strict mode, and validates complete source-to-RDF coverage.
+The context is disposable and never replaces the raw archive. The manifest
+records source, context-builder, execution-context, source-mapping,
+effective-mapping, and output hashes.
 
 `load-game-graph.ps1` parses the Turtle again before using Graph Store Protocol `PUT`. Repeating the load replaces the same graph rather than appending duplicate statements.
 

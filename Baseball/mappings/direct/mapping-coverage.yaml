@@ -1,9 +1,21 @@
 title: Direct MLB feed to BaseballO RML coverage
 source_file_name_expected: game.json
 source_mutation: none
-intermediary_normalization: none
-mapping_version: 0.2.0
+intermediary_normalization: ancestor-context-only
+mapping_version: 0.3.0
 completed_game_precondition: true
+
+execution_context:
+  status: generated-and-disposable
+  source: byte-identical game.json
+  output: game-context.json in the isolated RML work directory
+  reserved_key: _baseballO
+  includes:
+  - pitch atBatIndex
+  - pitch batterId and pitcherId
+  - play terminalPitchPlayId
+  - game final-play end timestamp
+  provenance: source, builder, context, mapping, and RDF hashes are recorded
 
 implemented:
   context:
@@ -16,7 +28,7 @@ implemented:
     - game, plate-appearance, and pitch temporal regions and timestamp ICEs
 
   pitch_physical_chain:
-    status: mapped-with-processor-join-limitation
+    status: mapped-and-fixture-coverage-validated
     source: playEvents where isPitch is true
     chain:
     - PitchAct
@@ -25,14 +37,10 @@ implemented:
     - pitcher Person
     - game-scoped PitcherRole
     - pitch-scoped Baseball
-    processor_limitation: >-
-      RMLMapper 8.1.0 does not expand the parent-side playEvents[*].playId
-      reference across every nested pitch in this mapping. The checked-in
-      fixture therefore links pitcher, role, and plate appearance only for
-      terminal matching pitch events, not all 282 PitchAct individuals.
+    coverage: all 282 fixture pitches link to their plate appearance, pitcher Person, and PitcherRole
 
   bat_use_and_contact:
-    status: mapped-with-processor-join-limitation
+    status: mapped-and-fixture-coverage-validated
     source:
     - pitch call codes S, F, T, X, D, and E
     - enclosing result.eventType sac_bunt
@@ -42,10 +50,7 @@ implemented:
     - BattedBallMotionProcess when contact is supported
     - BattedBallPlayProcess
     note: sac_bunt terminal events use BuntAct and are excluded from the generic in-play SwingAct sources
-    processor_limitation: >-
-      Batter, BatterAct, role, and plate-appearance joins use the same nested
-      playEvents[*].playId parent reference and do not currently cover every
-      swing, bunt, contact, or batted-ball motion in processor output.
+    coverage: all 134 fixture swing/bunt acts and all 112 contacts have complete ancestor context
 
   pitch_classifications:
     status: mapped
@@ -108,18 +113,6 @@ implemented:
     - coordX and coordY literals
 
 deferred:
-  last_play_iterator_execution:
-    reason: >-
-      RMLMapper 8.1.0 expands the LastPlaySource [-1:] slice to all plays for
-      the checked-in fixture, placing every plate-appearance end value on the
-      game end timestamp. Queries currently use MAX as the terminal-time
-      convention; the mapping execution must be corrected.
-  nested_pitch_parent_joins:
-    reason: >-
-      Parent references through playEvents[*].playId cover only terminal
-      matching events in the checked-in fixture. Do not publish pitcher,
-      swing, or contact totals until all nested events receive their intended
-      play, person, and role links.
   fielding_acts:
     reason: fielding credits lack stable ancestor-aware identity
   pickoff_acts:

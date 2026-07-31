@@ -47,6 +47,7 @@ REQUIRED_PATHS = (
     ROOT / "scripts" / "pipeline" / "process-staged-game-json.ps1",
     ROOT / "scripts" / "pipeline" / "test-manual-vertical-slice.ps1",
     ROOT / "scripts" / "pipeline" / "run-rml.ps1",
+    ROOT / "scripts" / "pipeline" / "prepare-rml-context.py",
     ROOT / "scripts" / "pipeline" / "acquire-daily-games.ps1",
     ROOT / "scripts" / "pipeline" / "load-game-graph.ps1",
     ROOT / "scripts" / "pipeline" / "validate-generated-rdf.py",
