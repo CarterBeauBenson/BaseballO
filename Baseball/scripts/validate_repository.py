@@ -28,6 +28,7 @@ QUERY_BUILDERS = (
 
 REQUIRED_PATHS = (
     ROOT / "README.md",
+    ROOT / "NEXT-PHASE.md",
     ROOT / "ontology" / "BaseballO.ttl",
     ROOT / "ontology" / "BaseballO-axioms-overlay.ttl",
     ACTIVE_MAPPING,

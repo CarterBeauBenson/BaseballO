@@ -79,3 +79,9 @@ Start with the [Mermaid review index](mermaid/README.md). It separates the inten
 After bootstrapping and starting the free local stack, follow the [manual game import runbook](scripts/pipeline/README.md). It archives untouched completed-game JSON, executes the pinned RMLMapper, validates source-to-RDF record counts, and loads complete named graphs into Fuseki with idempotent `PUT` requests.
 
 Automated external acquisition is parked pending an approved data-access source. The active NiFi flow makes no MLB or other external HTTP request.
+
+## Next phase
+
+Work is paused with a clean, validated `dev` branch. Resume with the ordered
+[`NEXT-PHASE.md`](NEXT-PHASE.md) plan, which covers query-index benchmarking,
+safe migration of canned/UI queries, dehydration packaging, and failure tests.

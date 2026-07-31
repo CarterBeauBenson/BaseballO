@@ -1,5 +1,10 @@
 # BaseballO session handoff
 
+> Session paused until 2026-08-05. The canonical continuation plan is
+> [`NEXT-PHASE.md`](NEXT-PHASE.md). It contains the ordered benchmark,
+> query-migration, dehydration-package, failure-testing, and ontology-review
+> work. The detailed history below remains as supporting context.
+
 The live MLB API remains disabled; continue using the checked-in completed-game
 fixture until data acquisition is explicitly reopened.
 
