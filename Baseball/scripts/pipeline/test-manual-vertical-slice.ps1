@@ -119,6 +119,8 @@ if ($gamePk -eq '566279' -and $emptyGameCandidates.Count -ne 6) {
     throw "Empty Games prototype regression failed: expected 6 fixture candidates, got $($emptyGameCandidates.Count)."
 }
 
+& (Join-Path $PSScriptRoot 'test-query-index.ps1') -GamePk $gamePk -SkipBuild
+
 Write-Host 'Offline manual vertical slice passed.'
 Write-Host "Game: $gamePk"
 Write-Host "Source/archive SHA-256: $inputHashBefore"

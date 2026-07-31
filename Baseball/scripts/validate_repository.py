@@ -51,10 +51,15 @@ REQUIRED_PATHS = (
     ROOT / "scripts" / "pipeline" / "acquire-daily-games.ps1",
     ROOT / "scripts" / "pipeline" / "load-game-graph.ps1",
     ROOT / "scripts" / "pipeline" / "validate-generated-rdf.py",
+    ROOT / "scripts" / "pipeline" / "build-query-index.ps1",
+    ROOT / "scripts" / "pipeline" / "compile-query-index.py",
+    ROOT / "scripts" / "pipeline" / "query-index-common.ps1",
+    ROOT / "scripts" / "pipeline" / "test-query-index.ps1",
     RML_MERMAID_GENERATOR,
     ROOT / "sparql" / "empty-games-prototype.rq",
     ROOT / "sparql" / "query-inventory.md",
     ROOT / "sparql" / "graph-condensation-requirements.md",
+    ROOT / "sparql" / "query-index" / "README.md",
     SAMPLE,
 )
 
@@ -105,8 +110,13 @@ def validate_turtle() -> int:
 
 def validate_sparql() -> int:
     files = list(SPARQL_ROOT.rglob("*.rq"))
-    if len(files) != 48:
-        raise ValueError(f"Expected 48 SPARQL queries, found {len(files)}")
+    component_files = list((SPARQL_ROOT / "query-index" / "components").glob("*.rq"))
+    canned_files = [path for path in files if path not in component_files]
+    if len(canned_files) != 48 or len(component_files) != 12:
+        raise ValueError(
+            "Expected 48 canned SPARQL queries and 12 query-index components, "
+            f"found {len(canned_files)} and {len(component_files)}"
+        )
     for path in files:
         try:
             prepareQuery(path.read_text(encoding="utf-8"))

@@ -1,0 +1,105 @@
+# Dehydrated query index
+
+This directory defines a disposable, per-game materialized view of the complete
+event graph. The authoritative graph remains unchanged and queryable. The view
+exists to shorten common traversals without pretending that the shortcut
+triples are the full ontological account.
+
+For game `566279`, the graph contract is:
+
+| Artifact | IRI |
+| --- | --- |
+| Authoritative graph | `https://w3id.org/baseball/graph/game/566279` |
+| Query-index graph | `https://w3id.org/baseball/graph/query-index/game/566279` |
+| Build metadata resource | `https://w3id.org/baseball/query-index-build/game/566279` |
+| Operational vocabulary | `https://w3id.org/baseball/query-index/` |
+
+The operational vocabulary is deliberately not declared in
+[`ontology/`](../../ontology/). Its terms describe an implementation contract,
+not new approved BaseballO axioms. In particular, `idx:agent` means that the
+complete source pattern proved the named person is the relevant actor for the
+indexed fact. It does not replace BFO participation or the contextual role
+pattern in the authoritative graph.
+
+## Component catalog
+
+The builder executes the small `CONSTRUCT` queries in [`components/`](components/)
+in filename order and merges their results.
+
+| Component | Indexed fact | Evidence required before the shortcut is emitted |
+| --- | --- | --- |
+| `00-index-metadata.rq` | `idx:QueryIndex` | Game, source-graph, and contract identifiers supplied by the guarded builder |
+| `10-game-dimensions.rq` | `idx:GameFact` | Game, mapped start timestamp, field, and venue chain |
+| `20-plate-appearance-results.rq` | `idx:PlateAppearanceFact`, `idx:PlateAppearanceResultFact` | Batter act, CCO Person participant, enclosing game, one reviewed result class, and generic adjudication |
+| `30-hits.rq` | `idx:HitFact` | Specific hit class, hit judgment, batter act/person, plate appearance/game, field, and venue |
+| `40-pitches.rq` | `idx:PitchFact` | Pitch act, CCO Person pitcher, following pitch motion, plate appearance/game, field, and venue |
+| `50-pitch-calls.rq` | `idx:PitchCallFact` | Complete pitch pattern, shared record, ball/strike process, and matching judgment |
+| `60-batting-acts.rq` | `idx:BattingActFact` | Swing/bunt, CCO Person participant, matching batter role, and plate appearance/game |
+| `61-contacts.rq` | `idx:ContactFact` | Swing/bunt, CCO Person participant, contact, batted-ball motion, plate appearance/game, field, and venue |
+| `70-runner-resolutions.rq` | `idx:RunnerResolutionFact` | Source record, runner-resolution process, CCO Person participant, game, and matching safe/out/run judgment |
+| `71-stolen-bases.rq` | `idx:StolenBaseFact` | Stolen-base process, CCO Person participant, game, and stolen-base judgment |
+| `80-game-assignments.rq` | `idx:AssignmentFact` | Game-scoped home-team, away-team, umpire, or official-scorer role and its bearer |
+| `90-labels.rq` | Labels | Labels already asserted in the authoritative per-game graph |
+
+Every fact type requires `idx:derivedFrom` pointers to decisive source-graph
+evidence. The index copies identities and labels but does not copy the evidence
+individuals' complete descriptions.
+
+## Building and testing
+
+With loopback Fuseki running and an authoritative game graph loaded:
+
+```powershell
+.\scripts\pipeline\build-query-index.ps1 -GamePk 566279
+.\scripts\pipeline\test-query-index.ps1 -GamePk 566279 -SkipBuild
+```
+
+The builder performs all `CONSTRUCT` requests into a temporary directory,
+merges and validates them locally, and replaces the target named graph with one
+Graph Store Protocol `PUT`. If generation or loading fails, it removes the
+derived target graph so an old index cannot masquerade as current. The manual
+importer rebuilds the index after replacing an authoritative game graph and
+uses a hash of the complete generation contract for freshness checks.
+
+The test suite compares exact distinct row sets for all ten semantic families
+in both directions. The checked-in fixture currently yields 6,981 index
+triples from 29,736 authoritative triples, with equivalent identities for 21
+hits, 282 pitches, 185 pitch calls, 134 batting acts, 112 contacts, 165 runner
+resolutions, one stolen base, and seven assignments.
+
+## Query shape
+
+The full hit pattern remains available for auditing. A query approved to use
+the materialized view can use this smaller shape:
+
+```sparql
+PREFIX idx: <https://w3id.org/baseball/query-index/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?season ?venue ?player ?playerLabel (COUNT(DISTINCT ?hit) AS ?hits)
+WHERE {
+  GRAPH ?indexGraph {
+    ?hit a idx:HitFact ;
+         idx:agent ?player ;
+         idx:game ?game ;
+         idx:venue ?venue .
+    ?game a idx:GameFact ;
+          idx:season ?season .
+    ?player rdfs:label ?playerLabel .
+  }
+}
+GROUP BY ?season ?venue ?player ?playerLabel
+```
+
+Switching the 48 canned queries or the UI compiler to this shape is a separate
+review step. Until that happens, they continue to query the authoritative
+graphs.
+
+## Dehydration and rehydration boundary
+
+The query index alone cannot reconstruct acts, physical processes, judgments,
+decisions, records, roles, or temporal structure. Rehydration therefore means
+reloading or rematerializing the authoritative graph from the preserved raw
+JSON plus the recorded RML, context-builder, mapper, and hash provenance, then
+regenerating this index. The content-addressed raw archive and full graph are
+never deleted by the index builder.

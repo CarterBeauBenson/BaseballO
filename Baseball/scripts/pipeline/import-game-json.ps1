@@ -6,6 +6,7 @@ param(
 )
 
 . (Join-Path $PSScriptRoot '..\infra\common.ps1')
+. (Join-Path $PSScriptRoot 'query-index-common.ps1')
 Initialize-LocalLayout
 
 $inputPath = [System.IO.Path]::GetFullPath($InputJson)
@@ -65,14 +66,29 @@ function Test-GameGraphCurrent {
         ) {
             return $false
         }
+        $queryIndexManifestPath = Join-Path $pipelineRoot "manifests\game-$GamePkValue-query-index.json"
+        if (-not (Test-Path -LiteralPath $queryIndexManifestPath -PathType Leaf)) {
+            return $false
+        }
+        $queryIndexManifest = Get-Content -LiteralPath $queryIndexManifestPath -Raw | ConvertFrom-Json
+        $sourceGraph = "https://w3id.org/baseball/graph/game/$GamePkValue"
+        $indexGraph = "https://w3id.org/baseball/graph/query-index/game/$GamePkValue"
+        if (
+            [string]$queryIndexManifest.contractSha256 -ne (Get-QueryIndexContractHash) -or
+            [string]$queryIndexManifest.sourceGraph -ne $sourceGraph -or
+            [string]$queryIndexManifest.indexGraph -ne $indexGraph
+        ) {
+            return $false
+        }
     }
     catch {
         return $false
     }
 
     $graphIri = "https://w3id.org/baseball/graph/game/$GamePkValue"
+    $indexGraphIri = "https://w3id.org/baseball/graph/query-index/game/$GamePkValue"
     $gameIri = "https://baseballontology.org/data/game/$GamePkValue"
-    $query = "ASK { GRAPH <$graphIri> { <$gameIri> a <https://baseballontology.org/BaseballGame> } }"
+    $query = "ASK { GRAPH <$graphIri> { <$gameIri> a <https://baseballontology.org/BaseballGame> } GRAPH <$indexGraphIri> { <https://w3id.org/baseball/query-index-build/game/$GamePkValue> a <https://w3id.org/baseball/query-index/QueryIndex> ; <https://w3id.org/baseball/query-index/sourceGraph> <$graphIri> } }"
     try {
         $result = Invoke-RestMethod -Uri 'http://127.0.0.1:3030/baseball-dev/query' -Method Post -Body @{ query = $query } -Headers @{ Accept = 'application/sparql-results+json' }
         return $result.boolean -eq $true
@@ -149,6 +165,7 @@ try {
         & (Join-Path $PSScriptRoot 'run-rml.ps1') -InputJson $rawPath
         $rdfPath = Join-Path $pipelineRoot "rdf\game-$gamePk.ttl"
         & (Join-Path $PSScriptRoot 'load-game-graph.ps1') -RdfFile $rdfPath -GamePk $gamePk
+        & (Join-Path $PSScriptRoot 'build-query-index.ps1') -GamePk $gamePk
         $status = 'loaded'
         $graphIri = "https://w3id.org/baseball/graph/game/$gamePk"
     }

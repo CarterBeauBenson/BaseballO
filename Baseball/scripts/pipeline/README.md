@@ -12,6 +12,8 @@ flowchart LR
     V --> T[Validated Turtle]
     T --> L[load-game-graph.ps1]
     L --> F[Fuseki Graph Store PUT]
+    F --> C[Reviewable CONSTRUCT components]
+    C --> D[Disposable query-index graph]
     R --> Q[Local quarantine]
 ```
 
@@ -34,13 +36,23 @@ The context is disposable and never replaces the raw archive. The manifest
 records source, context-builder, execution-context, source-mapping,
 effective-mapping, and output hashes.
 
-`load-game-graph.ps1` parses the Turtle again before using Graph Store Protocol `PUT`. Repeating the load replaces the same graph rather than appending duplicate statements.
+`load-game-graph.ps1` parses the Turtle again before using Graph Store Protocol
+`PUT`. Repeating the load replaces the same graph rather than appending
+duplicate statements. A successful authoritative load is followed by
+`build-query-index.ps1`, which builds and atomically replaces the smaller
+per-game query-index graph from the reviewed components under
+[`sparql/query-index/`](../../sparql/query-index/). A failed index build removes
+the derived graph but never deletes or changes the authoritative graph.
 
 Run the complete offline acceptance check with:
 
 ```powershell
 .\scripts\pipeline\test-manual-vertical-slice.ps1 -ForceRdfLoad
 ```
+
+The acceptance check also compares exact authoritative/index result rows for
+game dimensions, plate-appearance results, hits, pitches, pitch calls,
+batting acts, contacts, runner resolutions, stolen bases, and assignments.
 
 ## NiFi manual inbox
 

@@ -5,6 +5,12 @@ after the granular RML event-pattern revision. `Aligned` means the query uses
 the full mapped pattern described here; it does not mean that result totals
 have yet been accepted as a baseball statistic.
 
+The 48 canned queries remain authoritative-pattern queries. The separate
+[`query-index/`](query-index/) contract materializes equivalent shortcut facts
+but has not yet replaced any canned or UI-compiled query. Its executable suite
+compares exact rows for ten recurring semantic families before that migration
+is considered.
+
 | Family | Query | Counted or returned entity | Required evidence and principal joins | Filters or dimensions | Status |
 | --- | --- | --- | --- | --- | --- |
 | Root | `hits-by-season.rq` | Distinct hit result and game | Specific hit class + `HitJudgmentAct`; result to plate appearance to game | Season | Aligned |

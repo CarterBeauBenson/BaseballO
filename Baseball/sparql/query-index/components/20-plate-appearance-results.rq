@@ -1,0 +1,55 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX idx: <https://w3id.org/baseball/query-index/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+
+CONSTRUCT {
+  ?plateAppearance a idx:PlateAppearanceFact ;
+      idx:game ?game ;
+      idx:agent ?player ;
+      idx:result ?result ;
+      idx:derivedFrom ?batterAct .
+  ?result a idx:PlateAppearanceResultFact ;
+      idx:plateAppearance ?plateAppearance ;
+      idx:game ?game ;
+      idx:agent ?player ;
+      idx:outcomeClass ?outcomeClass ;
+      idx:sourceEventType ?eventType ;
+      idx:derivedFrom ?adjudication .
+}
+WHERE {
+  VALUES (?sourceGraph ?game) {
+    (<urn:baseball:query-index:source-graph> <urn:baseball:query-index:game>)
+  }
+  GRAPH ?sourceGraph {
+    ?result a base:BaseballInstitutionalProcess, ?outcomeClass ;
+        obo:BFO_0000132 ?plateAppearance ;
+        obo:BFO_0000117 ?adjudication .
+    ?adjudication a base:BaseballAdjudicationAct .
+    ?batterAct a base:BatterAct ;
+        obo:BFO_0000132 ?plateAppearance ;
+        obo:BFO_0000057 ?player .
+    ?player a cco:ont00001262 .
+    ?plateAppearance a base:PlateAppearance ;
+        obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
+    VALUES (?outcomeClass ?eventType) {
+      (base:SingleProcess "single")
+      (base:DoubleProcess "double")
+      (base:TripleProcess "triple")
+      (base:HomeRunProcess "home_run")
+      (base:WalkProcess "walk")
+      (base:StrikeoutProcess "strikeout")
+      (base:HitByPitchProcess "hit_by_pitch")
+      (base:FieldersChoiceProcess "fielders_choice")
+      (base:ErrorProcess "field_error")
+      (base:SacrificeFlyProcess "sac_fly")
+      (base:SacrificeBuntProcess "sac_bunt")
+      (base:BattedBallOutProcess "field_out")
+      (base:ForceOutProcess "force_out")
+      (base:DoublePlayProcess "double_play")
+      (base:GroundedIntoDoublePlayProcess "grounded_into_double_play")
+      (base:BalkProcess "balk")
+      (base:InterferenceProcess "catcher_interf")
+    }
+  }
+}

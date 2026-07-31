@@ -11,8 +11,12 @@ flowchart LR
     RAW --> RML[Direct RML mapping]
     RML --> RDF[Validated Turtle RDF]
     RDF --> FUSEKI[Apache Jena Fuseki / TDB2]
-    FUSEKI --> SPARQL[Canned SPARQL queries]
+    FUSEKI --> SPARQL[Canned full-pattern SPARQL]
+    FUSEKI --> CONSTRUCT[Reviewed CONSTRUCT components]
+    CONSTRUCT --> INDEX[Disposable per-game query index]
+    INDEX --> FAST[Future accelerated queries]
     SPARQL --> WEB[GitHub Pages application]
+    FAST --> WEB
 ```
 
 The first proof-of-concept query is **Empty Games**: games in which a player participated offensively without a qualifying offensive contribution. That result must be derived with SPARQL, never stored during ingestion.
@@ -28,7 +32,7 @@ The first proof-of-concept query is **Empty Games**: games in which a player par
 | [`mermaid/`](mermaid/) | Visual review of the RML source, map, join, and identity shapes | Active review |
 | [`data/`](data/) | Raw development inputs | Development only |
 | [`archive/`](archive/) | Superseded preprocessing prototype and prior ontology snapshot | Historical |
-| [`sparql/`](sparql/) | Canned batting, pitching, baserunning, game, and UI-option queries | Active query library |
+| [`sparql/`](sparql/) | Canned queries plus reviewable components for the disposable query-index graph | Active query library and acceleration contract |
 | [`web/`](web/) | Framework-independent analytics query components for a future GitHub Pages application | Component layer active |
 | [`scripts/`](scripts/) | Acquisition, RML execution, validation, and infrastructure automation | Active |
 | [`tests/`](tests/) | Offline integration and future regression tests | Active |
@@ -62,7 +66,9 @@ The validator checks the mapping's Turtle structure, locally declared BaseballO 
 - Reuse canonical `allPlays`; do not remap duplicate API views as new events.
 - Build deterministic IRIs from source identifiers.
 - Use temporal precedence unless genuine causation is supported.
-- Record ontology gaps explicitly. Do not invent classes, properties, or shortcuts.
+- Record ontology gaps explicitly. Do not add classes, properties, or shortcuts
+  to the ontology without approval; operational query-index terms must remain
+  isolated from the authoritative graph.
 
 ## RML visual review
 

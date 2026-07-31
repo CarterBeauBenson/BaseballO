@@ -13,6 +13,7 @@ The library is organized by the mapped domain rather than by one statistic:
 | [`baserunning/`](baserunning/) | Runs, runner event types, stolen bases, outs, and safe/out/run resolution totals |
 | [`games/`](games/) | Games by season/venue/team, home-away splits, matchups, umpires, official scorers, and timelines |
 | [`options/`](options/) | Discovery queries that populate UI select boxes from loaded values |
+| [`query-index/`](query-index/) | Reviewable `CONSTRUCT` components for the disposable per-game shortcut graph |
 
 These are additive to the cross-cutting hit queries below. The UI-facing
 [`analytics-query-builder`](../web/query-builder/analytics-query-builder.js)
@@ -20,8 +21,10 @@ can compile the same four domains from selected dimensions, metrics, and
 filters.
 
 The complete 48-query audit is recorded in
-[`query-inventory.md`](query-inventory.md). The proposed acceleration work is
-still requirements-only; see
+[`query-inventory.md`](query-inventory.md). Those canned queries still use the
+authoritative patterns. The implemented acceleration layer and its operational
+shortcut contract are documented in [`query-index/`](query-index/); remaining
+production decisions are tracked in
 [`graph-condensation-requirements.md`](graph-condensation-requirements.md).
 
 ## Hit query catalog

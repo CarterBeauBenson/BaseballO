@@ -10,9 +10,8 @@ fixture until data acquisition is explicitly reopened.
   maximal queries executed successfully in loopback Fuseki.
 - [`sparql/query-inventory.md`](sparql/query-inventory.md) records the counted
   entity, evidence joins, dimensions, and status of every query.
-- [`sparql/graph-condensation-requirements.md`](sparql/graph-condensation-requirements.md)
-  records acceleration requirements and candidates without choosing or
-  implementing shortcut properties.
+- [`sparql/query-index/`](sparql/query-index/) now contains 12 reviewable
+  `CONSTRUCT` components for a separate, disposable per-game shortcut graph.
 - The corrected offline fixture materialized to 29,736 triples, and all 48 canned queries
   executed without a SPARQL error. The Empty Games prototype still returned six
   candidates.
@@ -22,10 +21,11 @@ fixture until data acquisition is explicitly reopened.
   contacts have complete ancestor context; and the graph has one terminal game
   timestamp.
 
-The next implementation priority is the reviewed dehydrated query-index layer.
-It must be derived only from complete authoritative patterns, remain
-replaceable and traceable, and pass full-pattern-versus-condensed query
-equivalence tests.
+The first dehydrated query-index contract is implemented. For fixture game
+566279 it contains 6,981 triples versus 29,736 authoritative triples and passes
+exact full-pattern/index row equivalence for ten semantic families. The next
+priority is multi-game benchmarking followed by a reviewed decision about
+which canned and UI-compiled queries should use the index.
 
 ## Completed first priority: update all SPARQL
 
@@ -64,24 +64,25 @@ Both compilers under [`web/query-builder/`](web/query-builder/) now use the revi
 - User selections should compose reviewed query fragments; never accept arbitrary SPARQL text.
 - Add useful combinations beyond the current examples, including season totals, player totals, venue totals, player-by-venue, result types, pitch outcomes, runner outcomes, umpires, and official scorers.
 
-## Requirements recorded: graph condensation and query acceleration
+## Implemented: graph condensation and query acceleration
 
-The next design review must determine the best indexing and shortcut-property strategy for dehydrating and rehydrating the graph as needed. The complete ontological event pattern must remain available, but a derived condensed layer should make common queries substantially faster and simpler.
+The complete ontological event pattern remains available. A separate named
+graph now materializes operational shortcut facts for common traversals. The
+shortcut namespace is not part of the ontology, and every fact retains
+`derivedFrom` links to decisive authoritative evidence.
 
 Use hits as an initial example: when the complete hit pattern is satisfied, investigate how a condensed assertion could directly express that the relevant player is the agent in that hit. Apply the same analysis to other recurring baseball patterns.
 
-This is an open design task for the next session, not a decision recorded today. Evaluate:
+The remaining review and benchmark tasks are:
 
-- which full patterns warrant condensed assertions;
-- which shortcut properties are ontologically valid and what their directions should be;
-- what constitutes sufficient evidence for generating each shortcut;
-- whether shortcuts belong in a separate named graph or another indexing layer;
-- how condensed assertions are generated, invalidated, and regenerated without drifting from the full graph;
-- what must be retained so the graph can be reliably dehydrated and rehydrated;
-- how canned and UI-compiled queries can use the shortcut layer while remaining traceable to the complete pattern; and
-- how to verify that condensed queries and full-pattern queries return equivalent answers.
+- benchmark full and indexed shapes over multiple games and inspect TDB2 plans;
+- decide which canned and UI-compiled queries should switch to the index;
+- define a portable dehydration-package manifest for archive/rehydration;
+- add failure-injection and stale-index tests; and
+- decide whether any operational shortcut ever merits ontology promotion.
 
-Do not modify the ontology, RML, or query semantics for this optimization until the design has been reviewed with the project owner.
+Do not promote the operational shortcut vocabulary into the ontology without
+the project owner's explicit ontological review.
 
 ## Completed work order
 

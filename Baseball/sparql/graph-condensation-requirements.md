@@ -1,8 +1,31 @@
 # Graph condensation and query-acceleration requirements
 
-This document defines the review problem only. It does not select shortcut
-properties, change the ontology or RML, materialize a condensed graph, or
-change query semantics.
+This document records the original review requirements and the first approved
+implementation contract. The implementation does not change the ontology,
+RML, raw source, or existing canned-query semantics.
+
+## Implemented first contract
+
+- The condensed layer is a per-game named graph in the same TDB2 dataset:
+  `https://w3id.org/baseball/graph/query-index/game/{gamePk}`.
+- Shortcut terms use the operational
+  `https://w3id.org/baseball/query-index/` namespace and are not declared as
+  BaseballO ontology properties.
+- Direction is fact/event to relevant person: `?fact idx:agent ?person`.
+  The person must be explicitly typed as a CCO Person in every agent-producing
+  source pattern.
+- Twelve small `CONSTRUCT` components cover provenance, game dimensions,
+  completed plate appearances, hits, pitches, pitch calls, batting acts,
+  contacts, runner resolutions, stolen bases, game assignments, and labels.
+- Every materialized fact points to decisive authoritative evidence with
+  `idx:derivedFrom`.
+- A complete Graph Store `PUT` replaces the derived graph. A failed build
+  removes it rather than leaving a stale projection.
+- The build manifest records the component-contract hash, source and index
+  graph IRIs, optional local authoritative RDF hash, graph sizes, index hash,
+  fact counts, and timestamps.
+- Exact full-pattern/index row-set equivalence is executable for ten semantic
+  families. See [`query-index/`](query-index/).
 
 ## Invariants
 
@@ -35,40 +58,28 @@ change query semantics.
 | Event-to-game and event-to-venue traversal | PA/half-inning/inning/game containment and game/field/site/venue chain | Most season and venue groupings |
 | Contextual team or official assignment | Person/team, game-scoped role, realization in game | Team, umpire, scorer filters |
 
-The example “player is agent in hit” is deliberately a candidate semantic
-shape, not an approved property assertion. Review must determine whether
-`agent`, `participant`, or a baseball-specific shortcut is valid, which
-individual is its subject, and which direction supports both ontology hygiene
-and query use.
+The example "player is agent in hit" is implemented only as the operational
+shape `?hit idx:agent ?person`. It is approved for the disposable query index,
+not as an ontology assertion. The authoritative graph continues to distinguish
+the batter act, person participation, result, judgment, and containment chain.
 
-## Decisions required before implementation
+## Decisions still required before production promotion
 
-1. Which candidates justify a shortcut, and which should rely on datastore
-   indexes or materialized views instead?
-2. What is the exact domain, range, direction, and intended entailment of each
-   shortcut property?
-3. Which complete triples constitute sufficient evidence, including required
-   judgments and decisions?
-4. Does the condensed layer live in a separate named graph, an external index,
-   generated RDF-star annotations, or another replaceable structure?
-5. How are assertion provenance, generator version, source graph, and evidence
-   identity recorded?
-6. What change detection invalidates a shortcut, and how are partial failures
-   prevented from leaving stale assertions?
-7. Which TDB2 indexes and Fuseki query shapes should be benchmarked before
+1. Which TDB2 indexes and Fuseki query shapes should be benchmarked before
    adding ontology-level shortcuts?
-8. What is the dehydration package format, and what exact inputs are required
+2. What is the dehydration package format, and what exact inputs are required
    to rehydrate both the authoritative and condensed layers?
-9. What paired full/condensed query suite and fixture results establish
-   semantic equivalence?
+3. Which of the 48 canned queries and UI components should switch to the
+   operational index after multi-game benchmarks?
+4. Should any operational term eventually be promoted to an ontology property,
+   and if so, what domain/range axioms and name should the project ontologist
+   approve?
+5. How should old per-game index graphs and manifests be garbage-collected at
+   production scale?
 
 ## Review deliverables
 
-- an approved shortcut-property table or a decision to use datastore-only
-  acceleration for each candidate;
-- a named-graph/index lifecycle and provenance design;
-- a deterministic generation and invalidation specification;
-- representative full-pattern and condensed SPARQL pairs;
-- equivalence, regeneration, and stale-data tests; and
+- an approved list of canned/UI queries to migrate;
+- a portable dehydration package manifest;
+- failure-injection tests for regeneration and stale-data removal; and
 - measured query plans and timings on representative graph sizes.
-
