@@ -14,9 +14,10 @@ WHERE {
   GRAPH ?graph {
     ?game a base:BaseballGame .
     ?batterAct a base:BatterAct ;
-               cco:ont00001833 ?player ;
+               obo:BFO_0000057 ?player ;
                obo:BFO_0000132 ?plateAppearance .
-    ?plateAppearance a base:PlateAppearance .
+    ?plateAppearance a base:PlateAppearance ;
+                     obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
     OPTIONAL { ?player rdfs:label ?label }
 
     # Do not classify a game whose PA result vocabulary is outside the current
@@ -32,7 +33,8 @@ WHERE {
         LCASE(STR(?unknownEventType)) NOT IN (
           "home_run", "field_out", "double", "walk", "force_out",
           "strikeout", "single", "grounded_into_double_play", "sac_fly",
-          "double_play", "fielders_choice"
+          "double_play", "fielders_choice", "triple", "sac_bunt",
+          "field_error", "hit_by_pitch", "balk", "catcher_interf"
         )
       )
     }
@@ -41,13 +43,16 @@ WHERE {
     # the game.
     FILTER NOT EXISTS {
       ?qualifyingBatterAct a base:BatterAct ;
-                           cco:ont00001833 ?player ;
+                           obo:BFO_0000057 ?player ;
                            obo:BFO_0000132 ?qualifyingPlateAppearance .
+      ?qualifyingPlateAppearance
+        obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
       ?qualifyingResult obo:BFO_0000132 ?qualifyingPlateAppearance ;
                         a ?qualifyingType .
       VALUES ?qualifyingType {
         base:SingleProcess
         base:DoubleProcess
+        base:TripleProcess
         base:HomeRunProcess
         base:WalkProcess
         base:SacrificeFlyProcess
@@ -55,15 +60,13 @@ WHERE {
       }
     }
 
-    # No source-identified stolen-base act by this player in the game.
+    # No explicitly adjudicated stolen-base process by this player in the game.
     FILTER NOT EXISTS {
-      ?runnerAct a base:BaserunningAct ;
-                 cco:ont00001833 ?player ;
-                 obo:BFO_0000132 ?game .
-      ?runnerResolution obo:BFO_0000062 ?runnerAct .
-      ?runnerRecord cco:ont00001808 ?runnerResolution ;
-                    dcterms:identifier ?runnerEventType .
-      FILTER(STRSTARTS(LCASE(STR(?runnerEventType)), "stolen_base"))
+      ?stolenBase a base:StolenBaseProcess ;
+                  obo:BFO_0000057 ?player ;
+                  obo:BFO_0000132 ?game ;
+                  obo:BFO_0000117 ?stolenBaseJudgment .
+      ?stolenBaseJudgment a base:StolenBaseJudgmentAct .
     }
   }
 }

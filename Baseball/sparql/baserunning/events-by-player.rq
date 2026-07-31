@@ -12,7 +12,12 @@ WHERE {
             cco:ont00001808 ?resolution ;
             dcterms:identifier ?eventType .
     ?resolution a base:RunnerResolutionProcess ;
-                obo:BFO_0000057 ?player .
+                obo:BFO_0000057 ?player ;
+                obo:BFO_0000117 ?judgment .
+    ?judgment a ?judgmentClass .
+    VALUES ?judgmentClass {
+      base:OutJudgmentAct base:SafeJudgmentAct base:RunJudgmentAct
+    }
     ?player rdfs:label ?playerLabel .
   }
 }

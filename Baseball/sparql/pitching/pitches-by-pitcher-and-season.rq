@@ -14,7 +14,12 @@ WHERE {
                cco:ont00001916 ?startInstant ;
                cco:ont00001767 ?gameStart .
     ?pitch a base:PitchAct ;
-           cco:ont00001833 ?pitcher .
+           obo:BFO_0000132 ?plateAppearance ;
+           obo:BFO_0000057 ?pitcher ;
+           obo:BFO_0000063 ?pitchMotion .
+    ?pitchMotion a base:PitchBallMotionProcess .
+    ?plateAppearance a base:PlateAppearance ;
+                     obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
     ?pitcher rdfs:label ?pitcherLabel .
     BIND(YEAR(?gameStart) AS ?season)
   }

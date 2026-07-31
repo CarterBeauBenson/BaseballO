@@ -1,9 +1,15 @@
 PREFIX base: <https://baseballontology.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
 SELECT DISTINCT ?team ?teamLabel
 WHERE {
   GRAPH ?graph {
+    ?teamRole a ?teamRoleClass ;
+              obo:BFO_0000197 ?team ;
+              obo:BFO_0000054 ?game .
+    VALUES ?teamRoleClass { base:HomeTeamRole base:AwayTeamRole }
+    ?game a base:BaseballGame .
     ?team a base:BaseballTeam ;
           rdfs:label ?teamLabel .
   }

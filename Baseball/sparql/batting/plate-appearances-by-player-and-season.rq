@@ -15,8 +15,9 @@ WHERE {
                cco:ont00001767 ?gameStart .
     ?batterAct a base:BatterAct ;
                obo:BFO_0000132 ?plateAppearance ;
-               cco:ont00001833 ?player .
-    ?plateAppearance a base:PlateAppearance .
+               obo:BFO_0000057 ?player .
+    ?plateAppearance a base:PlateAppearance ;
+                     obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
     ?player rdfs:label ?playerLabel .
     BIND(YEAR(?gameStart) AS ?season)
   }

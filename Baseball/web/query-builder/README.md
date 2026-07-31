@@ -4,12 +4,12 @@
 allowlisted component catalog and compiler for the future UI. It supports four
 query families:
 
-- batting outcomes: plate appearances, every hit type, walks, strikeouts,
-  total bases, and games;
-- pitching: pitches, mapped ball and strike processes, plate appearances faced,
-  and games;
-- baserunning: runner events, runs, outs, safe resolutions, stolen bases, and
-  games;
+- batting outcomes: explicitly typed and adjudicated plate-appearance results,
+  every hit type, walks, strikeouts, total bases, and games;
+- pitching: pitch acts followed by pitch-ball motion, adjudicated ball/strike/
+  foul-tip processes, plate appearances faced, and games;
+- baserunning: adjudicated runner resolutions, runs, outs, safe resolutions,
+  explicit stolen-base processes, and games;
 - games: teams, home/away sides, venues, umpires, and official scorers.
 
 [`hit-query-builder.js`](hit-query-builder.js) remains as the narrower first
@@ -78,3 +78,10 @@ allowlisted hit types, and canonical BaseballO data IRIs. This preserves the
 future public-query boundary: the browser composes reviewed reads, while a
 server-side query API should still enforce its own allowlist and limits before
 submitting anything to Fuseki.
+
+Both compilers emit the same full-pattern evidence used by the canned queries.
+They deliberately count one domain individual per statistic and do not flatten
+records, acts, processes, judgments, and decisions into a single event. The
+component catalog must remain synchronized with
+[`sparql/query-inventory.md`](../../sparql/query-inventory.md) as patterns
+change.

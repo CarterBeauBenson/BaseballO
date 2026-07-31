@@ -1,7 +1,8 @@
 # Baserunning queries
 
-This family reports runs, source event types, stolen-base records, outs, and
+This family reports runs, reviewed source event labels, stolen bases, outs, and
 resolution categories from mapped runner acts and runner-resolution processes.
-Stolen bases are identified from preserved source event types because the
-current direct mapping does not yet assert `StolenBaseProcess` for runner
-records.
+Every counted outcome requires its corresponding judgment act. Stolen bases
+are identified by `StolenBaseProcess` plus `StolenBaseJudgmentAct`, not by
+parsing a source string. Source event labels remain only where the UI needs the
+source-backed event grouping.

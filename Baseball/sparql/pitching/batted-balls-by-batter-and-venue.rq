@@ -10,9 +10,12 @@ WHERE {
     ?battedBall a base:BattedBallMotionProcess ;
                 obo:BFO_0000132 ?plateAppearance ;
                 cco:ont00001918 ?field .
-    ?batterAct a base:BatterAct ;
-               obo:BFO_0000132 ?plateAppearance ;
-               cco:ont00001833 ?player .
+    ?contact a base:BatBallContactProcess ;
+             obo:BFO_0000063 ?battedBall .
+    ?batAct a ?batActClass ;
+            obo:BFO_0000057 ?player ;
+            obo:BFO_0000063 ?contact .
+    VALUES ?batActClass { base:SwingAct base:BuntAct }
     ?player rdfs:label ?playerLabel .
     ?field a base:BaseballFieldSite ;
            obo:BFO_0000171 ?venue .

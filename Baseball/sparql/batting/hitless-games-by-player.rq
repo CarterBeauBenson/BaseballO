@@ -1,6 +1,5 @@
 PREFIX base: <https://baseballontology.org/>
 PREFIX cco: <https://www.commoncoreontologies.org/>
-PREFIX dcterms: <http://purl.org/dc/terms/>
 PREFIX obo: <http://purl.obolibrary.org/obo/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
@@ -10,18 +9,24 @@ WHERE {
     ?game a base:BaseballGame .
     ?batterAct a base:BatterAct ;
                obo:BFO_0000132 ?plateAppearance ;
-               cco:ont00001833 ?player .
+               obo:BFO_0000057 ?player .
+    ?plateAppearance
+      obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
     ?player rdfs:label ?playerLabel .
 
     FILTER NOT EXISTS {
-      ?hitRecord a base:BaseballEventRecord ;
-                 cco:ont00001808 ?hit ;
-                 dcterms:identifier ?hitType .
-      ?hit obo:BFO_0000132 ?hitPlateAppearance .
+      ?hit a base:BaseballInstitutionalProcess, ?hitClass ;
+           obo:BFO_0000132 ?hitPlateAppearance ;
+           obo:BFO_0000117 ?hitJudgment .
+      ?hitJudgment a base:HitJudgmentAct .
       ?hitBatterAct a base:BatterAct ;
                     obo:BFO_0000132 ?hitPlateAppearance ;
-                    cco:ont00001833 ?player .
-      VALUES ?hitType { "single" "double" "triple" "home_run" }
+                    obo:BFO_0000057 ?player .
+      ?hitPlateAppearance
+        obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
+      VALUES ?hitClass {
+        base:SingleProcess base:DoubleProcess base:TripleProcess base:HomeRunProcess
+      }
     }
   }
 }

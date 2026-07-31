@@ -57,17 +57,37 @@ const FAMILY_DEFINITIONS = {
     corePatterns: [
       `?game a base:BaseballGame .`,
       ...TIME_PATTERNS,
-      `?resultRecord a base:BaseballEventRecord ;
-                    cco:ont00001808 ?result ;
-                    dcterms:identifier ?eventType .`,
-      `?result a base:BaseballInstitutionalProcess ;
+      `?result a base:BaseballInstitutionalProcess, ?outcomeClass ;
               obo:BFO_0000132 ?plateAppearance ;
+              obo:BFO_0000117 ?adjudication ;
               cco:ont00001918 ?field .`,
+      `?adjudication a base:BaseballAdjudicationAct .`,
       `?batterAct a base:BatterAct ;
                  obo:BFO_0000132 ?plateAppearance ;
-                 cco:ont00001833 ?player .`,
+                 obo:BFO_0000057 ?player .`,
+      `?plateAppearance a base:PlateAppearance ;
+                        obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .`,
       `?player rdfs:label ?playerLabel .`,
       ...VENUE_PATTERNS,
+      `VALUES (?outcomeClass ?eventType) {
+        (base:SingleProcess "single")
+        (base:DoubleProcess "double")
+        (base:TripleProcess "triple")
+        (base:HomeRunProcess "home_run")
+        (base:WalkProcess "walk")
+        (base:StrikeoutProcess "strikeout")
+        (base:HitByPitchProcess "hit_by_pitch")
+        (base:FieldersChoiceProcess "fielders_choice")
+        (base:ErrorProcess "field_error")
+        (base:SacrificeFlyProcess "sac_fly")
+        (base:SacrificeBuntProcess "sac_bunt")
+        (base:BattedBallOutProcess "field_out")
+        (base:ForceOutProcess "force_out")
+        (base:DoublePlayProcess "double_play")
+        (base:GroundedIntoDoublePlayProcess "grounded_into_double_play")
+        (base:BalkProcess "balk")
+        (base:InterferenceProcess "catcher_interf")
+      }`,
     ],
     dimensions: {
       season: dimensions.season(),
@@ -155,17 +175,30 @@ const FAMILY_DEFINITIONS = {
       ...TIME_PATTERNS,
       `?pitch a base:PitchAct ;
              obo:BFO_0000132 ?plateAppearance ;
-             cco:ont00001833 ?pitcher ;
+             obo:BFO_0000057 ?pitcher ;
+             obo:BFO_0000063 ?pitchMotion ;
              cco:ont00001918 ?field .`,
+      `?pitchMotion a base:PitchBallMotionProcess .`,
+      `?plateAppearance a base:PlateAppearance ;
+                        obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .`,
       `?pitcher rdfs:label ?pitcherLabel .`,
       ...VENUE_PATTERNS,
       `OPTIONAL {
+        ?ballRecord a base:BaseballEventRecord ;
+                    cco:ont00001808 ?pitch, ?ball .
         ?ball a base:BallProcess ;
-              obo:BFO_0000062 ?pitch .
+              obo:BFO_0000117 ?ballJudgment .
+        ?ballJudgment a base:BallJudgmentAct .
       }`,
       `OPTIONAL {
+        ?strikeRecord a base:BaseballEventRecord ;
+                      cco:ont00001808 ?pitch, ?strike .
         ?strike a base:StrikeProcess ;
-                obo:BFO_0000062 ?pitch .
+                obo:BFO_0000117 ?strikeJudgment .
+        ?strikeJudgment a ?strikeJudgmentClass .
+        VALUES ?strikeJudgmentClass {
+          base:StrikeJudgmentAct base:FoulTipJudgmentAct
+        }
       }`,
     ],
     dimensions: {
@@ -221,7 +254,12 @@ const FAMILY_DEFINITIONS = {
       `?resolution a base:RunnerResolutionProcess ;
                   obo:BFO_0000132 ?game ;
                   obo:BFO_0000057 ?player ;
+                  obo:BFO_0000117 ?resolutionJudgment ;
                   cco:ont00001918 ?field .`,
+      `?resolutionJudgment a ?resolutionJudgmentClass .`,
+      `VALUES ?resolutionJudgmentClass {
+        base:OutJudgmentAct base:SafeJudgmentAct base:RunJudgmentAct
+      }`,
       `?player rdfs:label ?playerLabel .`,
       ...VENUE_PATTERNS,
       `OPTIONAL {
@@ -235,6 +273,13 @@ const FAMILY_DEFINITIONS = {
       `OPTIONAL {
         ?resolution a base:SafeProcess .
         BIND(?resolution AS ?safe)
+      }`,
+      `OPTIONAL {
+        ?runnerRecord cco:ont00001808 ?stolenBase .
+        ?stolenBase a base:StolenBaseProcess ;
+                    obo:BFO_0000057 ?player ;
+                    obo:BFO_0000117 ?stolenBaseJudgment .
+        ?stolenBaseJudgment a base:StolenBaseJudgmentAct .
       }`,
     ],
     dimensions: {
@@ -283,7 +328,7 @@ const FAMILY_DEFINITIONS = {
       },
       stolen_bases: {
         label: "Stolen bases",
-        select: `(SUM(IF(STRSTARTS(LCASE(STR(?eventType)), "stolen_base"), 1, 0)) AS ?stolenBases)`,
+        select: "(COUNT(DISTINCT ?stolenBase) AS ?stolenBases)",
         sortExpression: "?stolenBases",
       },
       games: {

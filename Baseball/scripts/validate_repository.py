@@ -20,6 +20,11 @@ MAPPING_VALIDATOR = ROOT / "mappings" / "direct" / "validate_direct_mapping.py"
 ONTOLOGY_OVERLAY_VALIDATOR = ROOT / "scripts" / "validate_ontology_overlay.py"
 RML_MERMAID_GENERATOR = ROOT / "scripts" / "generate_rml_mermaid.py"
 SAMPLE = ROOT / "data" / "raw" / "game-566279.json"
+SPARQL_ROOT = ROOT / "sparql"
+QUERY_BUILDERS = (
+    ROOT / "web" / "query-builder" / "analytics-query-builder.js",
+    ROOT / "web" / "query-builder" / "hit-query-builder.js",
+)
 
 REQUIRED_PATHS = (
     ROOT / "README.md",
@@ -47,6 +52,8 @@ REQUIRED_PATHS = (
     ROOT / "scripts" / "pipeline" / "validate-generated-rdf.py",
     RML_MERMAID_GENERATOR,
     ROOT / "sparql" / "empty-games-prototype.rq",
+    ROOT / "sparql" / "query-inventory.md",
+    ROOT / "sparql" / "graph-condensation-requirements.md",
     SAMPLE,
 )
 
@@ -96,7 +103,9 @@ def validate_turtle() -> int:
 
 
 def validate_sparql() -> int:
-    files = list(ROOT.rglob("*.rq"))
+    files = list(SPARQL_ROOT.rglob("*.rq"))
+    if len(files) != 48:
+        raise ValueError(f"Expected 48 SPARQL queries, found {len(files)}")
     for path in files:
         try:
             prepareQuery(path.read_text(encoding="utf-8"))
@@ -105,6 +114,24 @@ def validate_sparql() -> int:
                 f"SPARQL parse failed in {path.relative_to(ROOT)}: {error}"
             ) from error
     return len(files)
+
+
+def validate_query_contract() -> None:
+    query_files = list(SPARQL_ROOT.rglob("*.rq")) + list(QUERY_BUILDERS)
+    prohibited = (
+        ("removed participant predicate", "cco:ont00001833"),
+        ("outcome-specific runner identity path", "runner-act/advance"),
+        ("outcome-specific runner identity path", "runner-act/score"),
+        ("outcome-specific runner identity path", "runner-act/out"),
+    )
+    for path in query_files:
+        text = path.read_text(encoding="utf-8")
+        for description, fragment in prohibited:
+            if fragment in text:
+                raise ValueError(
+                    f"Query contract contains {description} in "
+                    f"{path.relative_to(ROOT)}: {fragment}"
+                )
 
 
 def validate_markdown() -> tuple[int, int]:
@@ -194,6 +221,7 @@ def main() -> None:
     json_count = validate_json()
     turtle_count = validate_turtle()
     sparql_count = validate_sparql()
+    validate_query_contract()
     markdown_count, mermaid_count = validate_markdown()
     validate_ontology_overlay()
     validate_active_mapping()

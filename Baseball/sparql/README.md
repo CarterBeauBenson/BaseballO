@@ -19,11 +19,16 @@ These are additive to the cross-cutting hit queries below. The UI-facing
 can compile the same four domains from selected dimensions, metrics, and
 filters.
 
+The complete 48-query audit is recorded in
+[`query-inventory.md`](query-inventory.md). The proposed acceleration work is
+still requirements-only; see
+[`graph-condensation-requirements.md`](graph-condensation-requirements.md).
+
 ## Hit query catalog
 
-The active mapping preserves each plate-appearance `eventType`, connects its
-result to the plate appearance, identifies the batter through `BatterAct`, and
-locates the result at a venue's baseball-field site. These links support the
+The active mapping connects each specific institutional result to its plate
+appearance, its adjudication, the batter's `BatterAct`, and the enclosing game.
+The game is located through its baseball-field site and venue. These links support the
 following executable queries across the per-game named graphs in Fuseki:
 
 | Query | Result |
@@ -39,12 +44,12 @@ The [`options/`](options/) directory contains the smaller discovery queries
 used to populate season, venue, player, hit-type, and game select boxes. The UI
 component catalog links each dimension to its corresponding options query.
 
-For these queries, a hit is a distinct plate-appearance result whose preserved
-MLB `eventType` is `single`, `double`, `triple`, or `home_run`. The queries use
-the source identifier rather than OWL subclass inference, so they remain
-correct when Fuseki is running without a reasoner and include triples even
-before a sample containing a triple has been reviewed for a specific RML type
-map.
+For these queries, a hit is a distinct plate-appearance institutional result
+explicitly typed as `SingleProcess`, `DoubleProcess`, `TripleProcess`, or
+`HomeRunProcess` and linked to a `HitJudgmentAct`. The queries name all four
+classes directly, so they do not depend on OWL subclass inference. They count
+the result once rather than also counting its source record, judgment, or
+decision.
 
 The source season field is not currently emitted as RDF. `?season` is therefore
 derived with `YEAR` from the mapped first-pitch timestamp. This is an explicit
@@ -67,9 +72,9 @@ Place a season filter after the query's `BIND` expression:
 FILTER(?season = 2019)
 ```
 
-Against the checked-in game 566279 fixture, the hit queries report 21 hits at
-Petco Park in 2019: 13 singles, 6 doubles, and 2 home runs. This is a one-game
-development check, not a season dataset.
+The checked-in completed-game fixture remains the offline development source.
+Query parsing and structural validation do not constitute acceptance of its
+totals as season statistics.
 
 ## UI composition
 
@@ -84,13 +89,15 @@ rather than raw SPARQL.
 
 ## Empty Games prototype
 
-[`empty-games-prototype.rq`](empty-games-prototype.rq) is an executable review query, not yet the final product definition. It uses the source-backed `BatterAct` for offensive participation and treats the following mapped evidence as a contribution:
+[`empty-games-prototype.rq`](empty-games-prototype.rq) is an executable review query, not yet the final product definition. It uses `BatterAct` for offensive participation and recognizes reviewed contribution process patterns, including:
 
-- single, double, home run, or walk;
+- single, double, triple, home run, or walk;
 - sacrifice fly or fielder's choice;
-- a baserunning event whose source identifier begins with `stolen_base`.
+- an explicitly adjudicated stolen-base process.
 
-The query excludes entire games containing a plate-appearance result type outside the mapping's current eleven-value completeness profile. That prevents an unknown result from silently becoming an empty game.
+The query excludes entire games containing a plate-appearance result outside
+the mapping's current 17-class completeness profile. That prevents an unknown
+result from silently becoming an empty game.
 
 One important limitation remains: runner records are not explicitly linked to their enclosing plate appearance. The prototype therefore cannot attribute an ordinary batter out that moves another runner to that batter. Its output must be treated as candidates for review, not a published statistic.
 

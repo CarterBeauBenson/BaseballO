@@ -1,9 +1,14 @@
 const DATA_IRI_PREFIX = "https://baseballontology.org/data/";
 const HIT_TYPES = Object.freeze(["single", "double", "triple", "home_run"]);
+const HIT_TYPE_CLASSES = Object.freeze({
+  single: "base:SingleProcess",
+  double: "base:DoubleProcess",
+  triple: "base:TripleProcess",
+  home_run: "base:HomeRunProcess",
+});
 
 const PREFIXES = `PREFIX base: <https://baseballontology.org/>
 PREFIX cco: <https://www.commoncoreontologies.org/>
-PREFIX dcterms: <http://purl.org/dc/terms/>
 PREFIX obo: <http://purl.obolibrary.org/obo/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>`;
 
@@ -13,11 +18,12 @@ const CORE_PATTERNS = Object.freeze([
   `?gameStartTimestamp a base:BaseballTimestampICE ;
                       cco:ont00001916 ?gameStartInstant ;
                       cco:ont00001767 ?gameStart .`,
-  `?hitRecord a base:BaseballEventRecord ;
-             cco:ont00001808 ?hit ;
-             dcterms:identifier ?eventType .`,
-  `?hit obo:BFO_0000132 ?plateAppearance .`,
-  `?plateAppearance a base:PlateAppearance .`,
+  `?hit a base:BaseballInstitutionalProcess, ?hitClass ;
+        obo:BFO_0000132 ?plateAppearance ;
+        obo:BFO_0000117 ?hitJudgment .`,
+  `?hitJudgment a base:HitJudgmentAct .`,
+  `?plateAppearance a base:PlateAppearance ;
+                    obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .`,
   `BIND(YEAR(?gameStart) AS ?season)`,
 ]);
 
@@ -32,7 +38,7 @@ const PATTERN_COMPONENTS = Object.freeze({
   player: Object.freeze([
     `?batterAct a base:BatterAct ;
                obo:BFO_0000132 ?plateAppearance ;
-               cco:ont00001833 ?player .`,
+               obo:BFO_0000057 ?player .`,
     `?player rdfs:label ?playerLabel .`,
   ]),
 });
@@ -141,7 +147,10 @@ function renderHitTypeValues(requestedTypes) {
       throw new RangeError(`Unsupported hit_type value: ${value}`);
     }
   }
-  return `VALUES ?eventType { ${selected.map((value) => `"${value}"`).join(" ")} }`;
+  const rows = selected.map(
+    (value) => `(${HIT_TYPE_CLASSES[value]} "${value}")`,
+  );
+  return `VALUES (?hitClass ?eventType) { ${rows.join(" ")} }`;
 }
 
 function renderFilters(filters) {

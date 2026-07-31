@@ -6,7 +6,9 @@ SELECT DISTINCT ?umpire ?umpireLabel
 WHERE {
   GRAPH ?graph {
     ?role a base:UmpireRole ;
-          obo:BFO_0000197 ?umpire .
+          obo:BFO_0000197 ?umpire ;
+          obo:BFO_0000054 ?game .
+    ?game a base:BaseballGame .
     ?umpire rdfs:label ?umpireLabel .
   }
 }

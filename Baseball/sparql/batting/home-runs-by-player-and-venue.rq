@@ -7,12 +7,14 @@ SELECT ?venue ?venueLabel ?player ?playerLabel
        (COUNT(DISTINCT ?homeRun) AS ?homeRuns)
 WHERE {
   GRAPH ?graph {
-    ?homeRun a base:HomeRunProcess ;
+    ?homeRun a base:BaseballInstitutionalProcess, base:HomeRunProcess ;
              obo:BFO_0000132 ?plateAppearance ;
+             obo:BFO_0000117 ?hitJudgment ;
              cco:ont00001918 ?field .
+    ?hitJudgment a base:HitJudgmentAct .
     ?batterAct a base:BatterAct ;
                obo:BFO_0000132 ?plateAppearance ;
-               cco:ont00001833 ?player .
+               obo:BFO_0000057 ?player .
     ?player rdfs:label ?playerLabel .
     ?field a base:BaseballFieldSite ;
            obo:BFO_0000171 ?venue .

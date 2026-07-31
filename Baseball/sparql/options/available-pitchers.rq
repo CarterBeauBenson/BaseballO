@@ -1,12 +1,14 @@
 PREFIX base: <https://baseballontology.org/>
-PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
 SELECT DISTINCT ?pitcher ?pitcherLabel
 WHERE {
   GRAPH ?graph {
     ?pitch a base:PitchAct ;
-           cco:ont00001833 ?pitcher .
+           obo:BFO_0000057 ?pitcher ;
+           obo:BFO_0000063 ?pitchMotion .
+    ?pitchMotion a base:PitchBallMotionProcess .
     ?pitcher rdfs:label ?pitcherLabel .
   }
 }

@@ -1,6 +1,5 @@
 PREFIX base: <https://baseballontology.org/>
 PREFIX cco: <https://www.commoncoreontologies.org/>
-PREFIX dcterms: <http://purl.org/dc/terms/>
 PREFIX obo: <http://purl.obolibrary.org/obo/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
@@ -19,13 +18,16 @@ WHERE {
     ?venue a base:BaseballVenue ;
            rdfs:label ?venueLabel .
 
-    ?hitRecord a base:BaseballEventRecord ;
-               cco:ont00001808 ?hit ;
-               dcterms:identifier ?eventType .
-    ?hit obo:BFO_0000132 ?plateAppearance .
-    ?plateAppearance a base:PlateAppearance .
+    ?hit a base:BaseballInstitutionalProcess, ?hitClass ;
+         obo:BFO_0000132 ?plateAppearance ;
+         obo:BFO_0000117 ?hitJudgment .
+    ?hitJudgment a base:HitJudgmentAct .
+    ?plateAppearance a base:PlateAppearance ;
+                     obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
 
-    VALUES ?eventType { "single" "double" "triple" "home_run" }
+    VALUES ?hitClass {
+      base:SingleProcess base:DoubleProcess base:TripleProcess base:HomeRunProcess
+    }
   }
 }
 GROUP BY ?game ?gameStart ?venue ?venueLabel

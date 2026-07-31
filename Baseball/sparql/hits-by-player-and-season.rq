@@ -1,6 +1,5 @@
 PREFIX base: <https://baseballontology.org/>
 PREFIX cco: <https://www.commoncoreontologies.org/>
-PREFIX dcterms: <http://purl.org/dc/terms/>
 PREFIX obo: <http://purl.obolibrary.org/obo/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
@@ -15,16 +14,20 @@ WHERE {
                         cco:ont00001916 ?gameStartInstant ;
                         cco:ont00001767 ?gameStart .
 
-    ?hitRecord a base:BaseballEventRecord ;
-               cco:ont00001808 ?hit ;
-               dcterms:identifier ?eventType .
-    ?hit obo:BFO_0000132 ?plateAppearance .
+    ?hit a base:BaseballInstitutionalProcess, ?hitClass ;
+         obo:BFO_0000132 ?plateAppearance ;
+         obo:BFO_0000117 ?hitJudgment .
+    ?hitJudgment a base:HitJudgmentAct .
+    ?plateAppearance a base:PlateAppearance ;
+                     obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
     ?batterAct a base:BatterAct ;
                obo:BFO_0000132 ?plateAppearance ;
-               cco:ont00001833 ?player .
+               obo:BFO_0000057 ?player .
     ?player rdfs:label ?playerLabel .
 
-    VALUES ?eventType { "single" "double" "triple" "home_run" }
+    VALUES ?hitClass {
+      base:SingleProcess base:DoubleProcess base:TripleProcess base:HomeRunProcess
+    }
     BIND(YEAR(?gameStart) AS ?season)
   }
 }

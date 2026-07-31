@@ -1,6 +1,7 @@
 PREFIX base: <https://baseballontology.org/>
 PREFIX cco: <https://www.commoncoreontologies.org/>
 PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
 
 SELECT DISTINCT ?eventType ?eventTypeLabel
 WHERE {
@@ -8,7 +9,12 @@ WHERE {
     ?record a base:BaseballEventRecord ;
             cco:ont00001808 ?resolution ;
             dcterms:identifier ?eventType .
-    ?resolution a base:RunnerResolutionProcess .
+    ?resolution a base:RunnerResolutionProcess ;
+                obo:BFO_0000117 ?judgment .
+    ?judgment a ?judgmentClass .
+    VALUES ?judgmentClass {
+      base:OutJudgmentAct base:SafeJudgmentAct base:RunJudgmentAct
+    }
     BIND(REPLACE(STR(?eventType), "_", " ") AS ?eventTypeLabel)
   }
 }

@@ -1,5 +1,5 @@
 PREFIX base: <https://baseballontology.org/>
-PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
 # Restricts the player select box to people observed as batters.
@@ -7,7 +7,7 @@ SELECT DISTINCT ?player ?playerLabel
 WHERE {
   GRAPH ?graph {
     ?batterAct a base:BatterAct ;
-               cco:ont00001833 ?player .
+               obo:BFO_0000057 ?player .
     ?player rdfs:label ?playerLabel .
   }
 }

@@ -1,14 +1,31 @@
 PREFIX base: <https://baseballontology.org/>
-PREFIX cco: <https://www.commoncoreontologies.org/>
-PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
 
 SELECT DISTINCT ?eventType ?eventTypeLabel
 WHERE {
   GRAPH ?graph {
-    ?record a base:BaseballEventRecord ;
-            cco:ont00001808 ?result ;
-            dcterms:identifier ?eventType .
-    ?result a base:BaseballInstitutionalProcess .
+    ?result a base:BaseballInstitutionalProcess, ?outcomeClass ;
+            obo:BFO_0000117 ?adjudication .
+    ?adjudication a base:BaseballAdjudicationAct .
+    VALUES (?outcomeClass ?eventType) {
+      (base:SingleProcess "single")
+      (base:DoubleProcess "double")
+      (base:TripleProcess "triple")
+      (base:HomeRunProcess "home_run")
+      (base:WalkProcess "walk")
+      (base:StrikeoutProcess "strikeout")
+      (base:HitByPitchProcess "hit_by_pitch")
+      (base:FieldersChoiceProcess "fielders_choice")
+      (base:ErrorProcess "field_error")
+      (base:SacrificeFlyProcess "sac_fly")
+      (base:SacrificeBuntProcess "sac_bunt")
+      (base:BattedBallOutProcess "field_out")
+      (base:ForceOutProcess "force_out")
+      (base:DoublePlayProcess "double_play")
+      (base:GroundedIntoDoublePlayProcess "grounded_into_double_play")
+      (base:BalkProcess "balk")
+      (base:InterferenceProcess "catcher_interf")
+    }
     BIND(REPLACE(STR(?eventType), "_", " ") AS ?eventTypeLabel)
   }
 }

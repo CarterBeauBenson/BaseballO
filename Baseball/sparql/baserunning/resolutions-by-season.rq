@@ -12,11 +12,13 @@ WHERE {
                cco:ont00001916 ?startInstant ;
                cco:ont00001767 ?gameStart .
     ?resolution a base:RunnerResolutionProcess, ?resolutionClass ;
-                obo:BFO_0000132 ?game .
-    VALUES (?resolutionClass ?resolutionType) {
-      (base:RunProcess "run")
-      (base:OutProcess "out")
-      (base:SafeProcess "safe")
+                obo:BFO_0000132 ?game ;
+                obo:BFO_0000117 ?judgment .
+    ?judgment a ?judgmentClass .
+    VALUES (?resolutionClass ?judgmentClass ?resolutionType) {
+      (base:RunProcess base:RunJudgmentAct "run")
+      (base:OutProcess base:OutJudgmentAct "out")
+      (base:SafeProcess base:SafeJudgmentAct "safe")
     }
     BIND(YEAR(?gameStart) AS ?season)
   }

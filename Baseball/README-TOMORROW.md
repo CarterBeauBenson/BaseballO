@@ -1,8 +1,33 @@
-# Tomorrow's BaseballO Handoff
+# BaseballO session handoff
 
-Resume from commit `4ae4ffc` on the `dev` branch. The direct RML now models the granular event chains discussed today, and the Mermaid pattern catalog reflects those implemented patterns. The live MLB API remains disabled; continue using the checked-in completed-game fixture until data acquisition is explicitly reopened.
+The live MLB API remains disabled; continue using the checked-in completed-game
+fixture until data acquisition is explicitly reopened.
 
-## First priority: update all SPARQL
+## Status after the 2026-07-31 query audit
+
+- All 48 canned SPARQL files were reviewed against the granular RML patterns.
+- Both allowlisted UI query builders were synchronized and representative
+  maximal queries executed successfully in loopback Fuseki.
+- [`sparql/query-inventory.md`](sparql/query-inventory.md) records the counted
+  entity, evidence joins, dimensions, and status of every query.
+- [`sparql/graph-condensation-requirements.md`](sparql/graph-condensation-requirements.md)
+  records acceleration requirements and candidates without choosing or
+  implementing shortcut properties.
+- The offline fixture materialized to 27,163 triples, and all 48 canned queries
+  executed without a SPARQL error. The Empty Games prototype still returned six
+  candidates.
+- Execution uncovered two RML-processor coverage problems. Nested
+  `playEvents[*].playId` parent joins link only terminal matching pitch events,
+  and the `[-1:]` last-play iterator emits every play. Pitcher/swing/contact
+  totals are therefore not publishable, and the timeline query uses `MAX` as a
+  documented terminal-time convention until the RML execution is corrected.
+
+The next implementation priority is to correct those two source-specific RML
+execution patterns, regenerate the Mermaid catalogs with the custom processor,
+and add fixture assertions proving 282-of-282 pitch-to-PA/pitcher links and one
+game terminal timestamp. Do not hide the missing joins in SPARQL.
+
+## Completed first priority: update all SPARQL
 
 Review and update all 48 `.rq` files under [`sparql/`](sparql/) against the revised RML—not just the hit queries. Work through every family:
 
@@ -29,9 +54,9 @@ The query audit needs to account for these current mapping decisions:
 
 For each query, decide whether it should count source records, acts, physical processes, institutional results, or distinct games. Do not let one JSON event generate accidental double-counting through its multiple RDF individuals.
 
-## Keep the UI query components synchronized
+## Completed: synchronize UI query components
 
-After the canned queries are updated, revise both compilers under [`web/query-builder/`](web/query-builder/):
+Both compilers under [`web/query-builder/`](web/query-builder/) now use the revised full patterns:
 
 - `analytics-query-builder.js` is the primary component catalog.
 - `hit-query-builder.js` is the narrower compatibility layer.
@@ -39,9 +64,9 @@ After the canned queries are updated, revise both compilers under [`web/query-bu
 - User selections should compose reviewed query fragments; never accept arbitrary SPARQL text.
 - Add useful combinations beyond the current examples, including season totals, player totals, venue totals, player-by-venue, result types, pitch outcomes, runner outcomes, umpires, and official scorers.
 
-## Second priority: graph condensation and query acceleration
+## Requirements recorded: graph condensation and query acceleration
 
-Determine the best indexing and shortcut-property strategy for dehydrating and rehydrating the graph as needed. The complete ontological event pattern must remain available, but a derived condensed layer should make common queries substantially faster and simpler.
+The next design review must determine the best indexing and shortcut-property strategy for dehydrating and rehydrating the graph as needed. The complete ontological event pattern must remain available, but a derived condensed layer should make common queries substantially faster and simpler.
 
 Use hits as an initial example: when the complete hit pattern is satisfied, investigate how a condensed assertion could directly express that the relevant player is the agent in that hit. Apply the same analysis to other recurring baseball patterns.
 
@@ -58,7 +83,7 @@ This is an open design task for the next session, not a decision recorded today.
 
 Do not modify the ontology, RML, or query semantics for this optimization until the design has been reviewed with the project owner.
 
-## Suggested work order
+## Completed work order
 
 1. Create an inventory table for all 48 queries with columns for query family, counted entity, required joins, filters, and update status.
 2. Document the graph-condensation requirements and candidate recurring patterns without implementing them yet.

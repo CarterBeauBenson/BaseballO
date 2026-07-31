@@ -14,7 +14,8 @@ WHERE {
                cco:ont00001767 ?gameStart .
     ?field a base:BaseballFieldSite ;
            obo:BFO_0000171 ?venue .
-    ?venue rdfs:label ?venueLabel .
+    ?venue a base:BaseballVenue ;
+           rdfs:label ?venueLabel .
     BIND(YEAR(?gameStart) AS ?season)
   }
 }

@@ -6,7 +6,9 @@ SELECT DISTINCT ?officialScorer ?officialScorerLabel
 WHERE {
   GRAPH ?graph {
     ?role a base:OfficialScorerRole ;
-          obo:BFO_0000197 ?officialScorer .
+          obo:BFO_0000197 ?officialScorer ;
+          obo:BFO_0000054 ?game .
+    ?game a base:BaseballGame .
     ?officialScorer rdfs:label ?officialScorerLabel .
   }
 }

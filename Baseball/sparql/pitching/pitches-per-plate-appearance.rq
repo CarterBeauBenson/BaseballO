@@ -13,7 +13,9 @@ WHERE {
   GRAPH ?graph {
     ?pitch a base:PitchAct ;
            obo:BFO_0000132 ?plateAppearance ;
-           cco:ont00001833 ?pitcher .
+           obo:BFO_0000057 ?pitcher ;
+           obo:BFO_0000063 ?pitchMotion .
+    ?pitchMotion a base:PitchBallMotionProcess .
     ?pitcher rdfs:label ?pitcherLabel .
   }
 }

@@ -12,15 +12,26 @@ WHERE {
   GRAPH ?graph {
     ?pitch a base:PitchAct ;
            obo:BFO_0000132 ?plateAppearance ;
-           cco:ont00001833 ?pitcher .
+           obo:BFO_0000057 ?pitcher ;
+           obo:BFO_0000063 ?pitchMotion .
+    ?pitchMotion a base:PitchBallMotionProcess .
     ?pitcher rdfs:label ?pitcherLabel .
     OPTIONAL {
+      ?ballRecord a base:BaseballEventRecord ;
+                  cco:ont00001808 ?pitch, ?ball .
       ?ball a base:BallProcess ;
-            obo:BFO_0000062 ?pitch .
+            obo:BFO_0000117 ?ballJudgment .
+      ?ballJudgment a base:BallJudgmentAct .
     }
     OPTIONAL {
+      ?strikeRecord a base:BaseballEventRecord ;
+                    cco:ont00001808 ?pitch, ?strike .
       ?strike a base:StrikeProcess ;
-              obo:BFO_0000062 ?pitch .
+              obo:BFO_0000117 ?strikeJudgment .
+      ?strikeJudgment a ?strikeJudgmentClass .
+      VALUES ?strikeJudgmentClass {
+        base:StrikeJudgmentAct base:FoulTipJudgmentAct
+      }
     }
   }
 }

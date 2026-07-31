@@ -1,15 +1,19 @@
 PREFIX base: <https://baseballontology.org/>
-PREFIX cco: <https://www.commoncoreontologies.org/>
-PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
 
 # Returns only reviewed hit types that occur in the loaded game graphs.
 SELECT DISTINCT ?hitType ?hitTypeLabel
 WHERE {
   GRAPH ?graph {
-    ?hitRecord a base:BaseballEventRecord ;
-               cco:ont00001808 ?hit ;
-               dcterms:identifier ?hitType .
-    VALUES ?hitType { "single" "double" "triple" "home_run" }
+    ?hit a base:BaseballInstitutionalProcess, ?hitClass ;
+         obo:BFO_0000117 ?hitJudgment .
+    ?hitJudgment a base:HitJudgmentAct .
+    VALUES (?hitClass ?hitType) {
+      (base:SingleProcess "single")
+      (base:DoubleProcess "double")
+      (base:TripleProcess "triple")
+      (base:HomeRunProcess "home_run")
+    }
     BIND(REPLACE(STR(?hitType), "_", " ") AS ?hitTypeLabel)
   }
 }
