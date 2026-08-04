@@ -82,6 +82,7 @@ Automated external acquisition is parked pending an approved data-access source.
 
 ## Next phase
 
-Work is paused with a clean, validated `dev` branch. Resume with the ordered
-[`NEXT-PHASE.md`](NEXT-PHASE.md) plan, which covers query-index benchmarking,
-safe migration of canned/UI queries, dehydration packaging, and failure tests.
+Use [`NEXT-PHASE.md`](NEXT-PHASE.md) as the single current continuation plan.
+It begins with read-only inventory and guarded multi-game processing of the
+locally supplied `games_from_8-3` corpus; completed historical work is listed
+there only to prevent accidental repetition.

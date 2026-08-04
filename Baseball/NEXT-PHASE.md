@@ -1,172 +1,146 @@
-# BaseballO next phase plan
+# BaseballO current continuation plan
 
-Resume this plan on or after **2026-08-05**. The repository is deliberately
-paused with the live MLB acquisition flow disabled.
+This is the repository's single current handoff document. It replaces the old
+dated session notes and completed work orders. Do not restart completed tasks
+unless a regression demonstrates that they are broken.
 
-## Progress on 2026-08-04
+## Current verified state
 
-- The accepted corpus inventory confirmed that game `566279` is still the only
-  active raw completed-game fixture. The archived preprocessing artifact is not
-  a second accepted fixture.
-- All 48 canned queries are classified in
-  [`sparql/query-index/query-decision-matrix.md`](sparql/query-index/query-decision-matrix.md):
-  46 are structurally index-ready and two remain authoritative.
-- Ten reviewed indexed companions now cover hits, batting, pitching,
-  baserunning, games, assignments, and UI options.
-- The index builder now runs exact semantic row equivalence before writing a
-  current manifest; shape-valid but incomplete indexes are removed.
-- A reproducible 20-iteration single-fixture benchmark is recorded under
-  [`benchmarks/query-index/`](benchmarks/query-index/). All ten result sets were
-  exactly equivalent. Indexed medians ranged from 1.011x to 3.720x faster on
-  this fixture.
-- Canonical query and UI migration remains intentionally deferred pending
-  additional deliberately supplied fixtures and query-plan review. The timing
-  result is method-validation evidence, not a scale claim.
-- Portable package version 1 is implemented and exercised. It preserves raw
-  bytes, both exact RDF graphs, both build manifests, repository generator
-  contracts, graph identities, counts, and hashes in a closed inventory.
-- Exact package rehydration restored both fixture graphs and passed semantic
-  equivalence. Tampered bytes were rejected, and malformed `CONSTRUCT` failure
-  left the authoritative graph intact while removing and rebuilding the stale
-  derived graph.
-- Optimized ARQ algebra is captured for all ten benchmark pairs with pinned
-  Jena 6.1.0. Hits shrink from 24 to 8 triple patterns and pitch summary from
-  18 to 10; the nearly neutral umpire/options benchmarks show no triple-pattern
-  reduction. Storage-specific TDB2 execution logging remains distinct and
-  pending.
+- `dev` and `origin/dev` were synchronized when this handoff was written. Use
+  Git at restart time for the current commit instead of trusting a pinned hash.
+- Live MLB acquisition remains disabled. New data must come from deliberately
+  supplied local files.
+- Raw game JSON is preserved byte-for-byte. The complete event graph remains
+  authoritative; the query index is disposable and reproducible.
+- The active RML contains 247 triples maps, 56 logical sources, and no
+  referencing-object joins.
+- Fixture game `566279` produces 29,736 authoritative triples and 6,981
+  query-index triples. All supported semantic row sets are equivalent.
+- All 48 canned queries have already been reviewed. Forty-six are structurally
+  index-ready; `empty-games-prototype.rq` and `game-timeline.rq` remain
+  authoritative.
+- Ten representative authoritative/indexed query pairs have exact-result
+  tests, timing measurements, and optimized ARQ algebra captures.
+- Portable dehydration packages can export, validate, detect modified bytes,
+  and restore both named graphs. Failed index construction removes the stale
+  derived graph without changing the authoritative graph.
+- No canonical canned query or UI query builder has been redirected to the
+  index yet. The single-game measurements are not sufficient for that decision.
+- No query-index shortcut term has been added to the ontology.
 
-## Entry state
+## Work that is complete - do not redo
 
-- Branch `dev` is published through commit `aba8cd3`.
-- Commit `795b11f` corrected the nested RML event context without changing raw
-  source data.
-- Commit `aba8cd3` added the separate per-game query-index graph.
-- The authoritative fixture graph contains 29,736 triples.
-- Its disposable query index contains 6,981 triples, about 23.5 percent of the
-  authoritative graph.
-- Twelve `CONSTRUCT` components live under
-  [`sparql/query-index/components/`](sparql/query-index/components/).
-- Exact full/index row equivalence passes for game dimensions,
-  plate-appearance results, hits, pitches, pitch calls, batting acts, contacts,
-  runner resolutions, stolen bases, and game assignments.
-- The existing 48 canned queries and both UI query builders still query the
-  authoritative patterns. They have not silently been redirected to the
-  shortcut graph.
-- No files under [`ontology/`](ontology/) were changed for the operational
-  shortcut vocabulary.
+- granular act/process/judgment/result RML redesign;
+- nested RML context correction and terminal-time correction;
+- RML-to-Mermaid generator and current pattern diagrams;
+- the 48-query authoritative audit and UI component synchronization;
+- query-index contract version 1 and its 12 `CONSTRUCT` components;
+- single-fixture equivalence, benchmarks, and optimized algebra capture;
+- portable dehydration-package export, validation, tamper testing, and exact
+  graph restoration; and
+- malformed-component/stale-index recovery testing.
 
-## Non-negotiable constraints
+## Immediate input
 
-1. Keep the raw JSON byte-identical and keep the complete event graph as the
-   source of truth.
-2. Keep external MLB acquisition off until the project owner explicitly
-   reopens it. Use only checked-in or deliberately supplied local fixtures.
-3. Do not modify the ontology without an explicit ontological decision from
-   the project owner.
-4. Treat the query index as disposable. A failure may make it unavailable but
-   must never leave stale shortcut assertions presented as current.
-5. Preserve exact answer equivalence before moving any consumer from a full
-   pattern to an indexed pattern.
-6. Do not treat faster execution as permission to weaken the success pattern
-   that creates a shortcut fact.
+The project owner is populating a directory named `games_from_8-3`. Treat that
+directory as an incoming local corpus, not as permission to call an external
+API. Do not touch it until the copy is complete. Then locate it explicitly
+rather than assuming whether it sits at the repository root or under
+`Baseball/`.
 
-## Phase objective
+## Next work, in order
 
-Decide, with measurements and equivalence evidence, which canned and
-UI-compiled queries should use the dehydrated graph. Then make those migrations
-without changing their baseball meaning or obscuring the authoritative
-evidence.
+### 1. Inventory the supplied corpus without modifying it
 
-## Ordered work plan
+For every file under `games_from_8-3`:
 
-### 1. Establish the benchmark corpus
+- parse JSON and record its relative path, SHA-256, byte count, `gamePk`,
+  season, and game state;
+- require a safe numeric `gamePk` and completed (`Final`) state before RDF
+  processing;
+- identify byte-identical files and duplicate `gamePk` values;
+- distinguish malformed, incomplete, non-game, and unsupported files without
+  rewriting or deleting any source; and
+- write the inventory separately from the supplied files.
 
-- Inventory any additional completed-game JSON files deliberately supplied to
-  the repository or manual inbox.
-- Do not fetch games from the live API to enlarge the corpus.
-- If only game `566279` is available, complete correctness and single-game
-  measurements first and record multi-game scale testing as externally
-  blocked, rather than manufacturing acceptance evidence.
-- Record source hashes and expected graph counts for every accepted fixture.
+Stop before ingestion if two different byte streams claim the same completed
+game and the correct version cannot be determined from existing policy.
 
-### 2. Build a full-versus-index query decision matrix
+### 2. Run a guarded multi-game import
 
-Classify all 48 canned queries and the UI component families as:
+- Use the existing manual importer, content-addressed raw archive, RML
+  validator, per-game authoritative graph, and per-game query-index builder.
+- Process games independently so one rejected game does not obscure the status
+  of the others.
+- Preserve per-game input, mapping, context-builder, RDF, index, and contract
+  hashes in manifests.
+- Confirm failed mappings leave no stale query-index graph.
+- Do not weaken a success pattern merely to make a new source file pass.
 
-- `index`: every required fact and dimension exists in the shortcut contract;
-- `hybrid`: an indexed fact still needs an authoritative-only traversal; or
-- `authoritative`: the index does not represent the required distinction.
+### 3. Extend correctness checks to the corpus
 
-For each query record the counted entity, full pattern, indexed pattern,
-required shortcut component, and equivalence test. Start with hits, pitches,
-plate-appearance outcomes, runner resolutions, assignments, and their option
-queries. Do not force every query onto the index merely for uniformity.
+- Require complete pitch, swing/bunt, contact, result, runner-resolution, and
+  assignment context for every accepted game.
+- Run exact authoritative/index equivalence per game.
+- Run the 48 authoritative canned queries across the accepted multi-game
+  corpus and inspect unexpected zeroes, duplication, or cross-game joins.
+- Add regression fixtures only by reference/hash; do not edit supplied raw
+  JSON to manufacture expected results.
 
-### 3. Benchmark before migration
+### 4. Repeat performance evaluation at multi-game scale
 
-- Capture full and indexed result sets, elapsed times, and Fuseki/TDB2 query
-  plans for representative queries.
-- Measure cold and warm executions separately and repeat them enough to avoid
-  treating one timing as evidence.
-- Record graph counts and corpus size with every result.
-- Compare datastore indexing/query-plan improvements with materialized-view
-  improvements before proposing custom TDB2 index changes.
-- Store the benchmark method and results in the repository so decisions are
-  reproducible.
+- Rerun the ten authoritative/indexed benchmark pairs with corpus size and
+  graph counts recorded.
+- Measure first and repeated executions separately and alternate execution
+  order.
+- Capture TDB2 storage-specific execution logging in addition to the existing
+  high-level optimized ARQ algebra.
+- Compare datastore query planning with the materialized shortcut graph before
+  proposing nonstandard TDB2 indexes.
 
-### 4. Add indexed companions, then migrate consumers
+### 5. Decide query and UI migration
 
-- Create reviewable indexed companions for approved canned queries.
-- Extend exact bidirectional row-set tests before switching the canonical
-  query or UI component.
-- Update the allowlisted UI compiler with fixed index patterns; never accept
-  user-provided SPARQL fragments or graph IRIs.
-- Keep authoritative versions available for audit and regression comparison.
-- Update [`sparql/query-inventory.md`](sparql/query-inventory.md) with the
-  selected execution layer and evidence for every migrated query.
+- Use [`sparql/query-index/query-decision-matrix.md`](sparql/query-index/query-decision-matrix.md)
+  as the starting classification.
+- Migrate only queries with exact multi-game equivalence and a meaningful
+  measured benefit.
+- Keep authoritative companions available for auditing and regression tests.
+- Keep `empty-games-prototype.rq` authoritative unless its negative
+  completeness semantics are explicitly redesigned.
+- Keep `game-timeline.rq` authoritative unless terminal-time evidence is added
+  to a reviewed index contract.
+- Update the allowlisted UI compiler only after the corresponding canned-query
+  decision is recorded.
 
-### 5. Define the dehydration package
+### 6. Hold ontology decisions separately
 
-Specify a portable manifest containing at least:
+Do not promote `https://w3id.org/baseball/query-index/` terms into BaseballO
+without the project owner's explicit approval of their names, directions,
+domains, ranges, and relationship to BFO participation and contextual roles.
+Continue reporting source or ontology gaps rather than silently solving them in
+SPARQL, RML, or the operational index.
 
-- raw content hash and archive identity;
-- RML, execution-context builder, and mapper versions/hashes;
-- authoritative RDF hash and graph IRI;
-- query-index contract hash, index hash, graph IRI, and fact counts; and
-- the commands and ordering required to rematerialize the authoritative graph
-  before regenerating the query index.
+## Persistent guardrails
 
-The 6,981-triple query index is not sufficient to reconstruct the full graph.
-Rehydration depends on the preserved raw source and mapping provenance.
+1. Never modify supplied or archived raw JSON.
+2. Never enable live acquisition without explicit instruction.
+3. Never modify [`ontology/`](ontology/) without an explicit ontology request.
+4. Never accept a stale or partial query index as current.
+5. Never infer semantic absence from a graph that has not passed completeness
+   and equivalence checks.
+6. Never migrate a query solely because it is structurally index-ready.
+7. Keep changes on `dev`; validate, commit, and publish completed work there.
 
-### 6. Exercise failure and invalidation behavior
+## Current reference documents
 
-Add tests for a malformed `CONSTRUCT` component, invalid constructed RDF,
-contract-hash change, authoritative graph replacement, failed Graph Store
-`PUT`, and missing index graph. Each test must confirm that the authoritative
-graph remains intact and that an old derived graph is not accepted as current.
+- Query classification: [`sparql/query-index/query-decision-matrix.md`](sparql/query-index/query-decision-matrix.md)
+- Query inventory: [`sparql/query-inventory.md`](sparql/query-inventory.md)
+- Index construction: [`sparql/query-index/README.md`](sparql/query-index/README.md)
+- Benchmark method/results: [`benchmarks/query-index/`](benchmarks/query-index/)
+- Dehydration and restoration: [`sparql/query-index/dehydration-package.md`](sparql/query-index/dehydration-package.md)
+- RML visual review: [`mermaid/README.md`](mermaid/README.md)
 
-### 7. Hold a separate ontology review
-
-After operational evidence exists, review whether any shortcut deserves
-promotion into BaseballO. Until the project owner approves its name,
-direction, domain, range, and relationship to BFO participation and roles,
-keep every `https://w3id.org/baseball/query-index/` term operational only.
-
-## Phase exit criteria
-
-- Every migrated query has exact full/index equivalence across the accepted
-  fixture corpus.
-- The 48-query inventory identifies `index`, `hybrid`, or `authoritative` for
-  every query.
-- A reproducible benchmark report supports each migration decision.
-- Forced rebuild, unchanged-current, invalidation, and failure paths are
-  tested.
-- The dehydration/rehydration manifest contract is documented and exercised.
-- Repository validation passes, the raw fixtures remain unchanged, and the
-  live acquisition flow remains disabled.
-
-## Restart checklist
+## Restart checks
 
 From the repository root:
 
@@ -177,14 +151,5 @@ git fetch origin dev
 python Baseball/scripts/validate_repository.py
 ```
 
-Expected state: branch `dev`, clean worktree, and no divergence from
-`origin/dev`. If local Fuseki testing is needed:
-
-```powershell
-.\Baseball\scripts\infra\start-fuseki.ps1
-.\Baseball\scripts\pipeline\test-manual-vertical-slice.ps1
-```
-
-The second command uses the checked-in fixture, makes no external acquisition
-request, verifies the authoritative graph, and runs the full query-index
-equivalence suite.
+Before reading or importing `games_from_8-3`, confirm that the project owner
+has finished copying it and inventory its contents read-only.
