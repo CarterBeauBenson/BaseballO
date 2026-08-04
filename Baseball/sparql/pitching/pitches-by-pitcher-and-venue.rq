@@ -1,0 +1,23 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?venue ?venueLabel ?pitcher ?pitcherLabel
+       (COUNT(DISTINCT ?pitch) AS ?pitches)
+WHERE {
+  GRAPH ?graph {
+    ?pitch a base:PitchAct ;
+           obo:BFO_0000057 ?pitcher ;
+           obo:BFO_0000063 ?pitchMotion ;
+           cco:ont00001918 ?field .
+    ?pitchMotion a base:PitchBallMotionProcess .
+    ?pitcher rdfs:label ?pitcherLabel .
+    ?field a base:BaseballFieldSite ;
+           obo:BFO_0000171 ?venue .
+    ?venue a base:BaseballVenue ;
+           rdfs:label ?venueLabel .
+  }
+}
+GROUP BY ?venue ?venueLabel ?pitcher ?pitcherLabel
+ORDER BY LCASE(STR(?venueLabel)) DESC(?pitches) LCASE(STR(?pitcherLabel))

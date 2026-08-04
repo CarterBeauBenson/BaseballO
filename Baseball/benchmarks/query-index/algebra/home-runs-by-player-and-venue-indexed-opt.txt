@@ -1,0 +1,16 @@
+(prefix ((idx: <https://w3id.org/baseball/query-index/>)
+         (rdfs: <http://www.w3.org/2000/01/rdf-schema#>)
+         (base: <https://baseballontology.org/>))
+  (project (?venue ?venueLabel ?player ?playerLabel ?homeRuns)
+    (order ((lcase (str ?venueLabel)) (desc ?homeRuns) (lcase (str ?playerLabel)))
+      (extend ((?homeRuns ?.0))
+        (group (?venue ?venueLabel ?player ?playerLabel) ((?.0 (count distinct ?homeRun)))
+          (graph ?graph
+            (bgp
+              (triple ?homeRun <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> idx:HitFact)
+              (triple ?homeRun idx:agent ?player)
+              (triple ?homeRun idx:hitType base:HomeRunProcess)
+              (triple ?homeRun idx:venue ?venue)
+              (triple ?player rdfs:label ?playerLabel)
+              (triple ?venue rdfs:label ?venueLabel)
+            )))))))

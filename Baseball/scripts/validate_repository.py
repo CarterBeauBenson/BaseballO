@@ -1,0 +1,882 @@
+#!/usr/bin/env python3
+"""Validate repository structure and the active direct RML mapping."""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import re
+import subprocess
+import sys
+from pathlib import Path
+from urllib.parse import unquote
+
+from pyshacl import validate as validate_shacl
+from rdflib import Graph, Namespace, RDF, URIRef
+from rdflib.plugins.sparql import prepareQuery
+
+
+ROOT = Path(__file__).resolve().parents[1]
+ACTIVE_MAPPING = ROOT / "mappings" / "direct" / "mlb-direct.rml.ttl"
+MAPPING_VALIDATOR = ROOT / "mappings" / "direct" / "validate_direct_mapping.py"
+ONTOLOGY_OVERLAY_VALIDATOR = ROOT / "scripts" / "validate_ontology_overlay.py"
+RML_MERMAID_GENERATOR = ROOT / "scripts" / "generate_rml_mermaid.py"
+SELECTIVE_REASONING_TEST = ROOT / "scripts" / "reasoning" / "test-selective-reasoning.py"
+SELECTIVE_REASONER = ROOT / "scripts" / "reasoning" / "selective_reasoner.py"
+SELECTIVE_PROVER = ROOT / "scripts" / "reasoning" / "prove-selective-reasoning.py"
+REASONING_EVIDENCE = ROOT / "reasoning" / "evidence" / "fixture-566279-pa-0.json"
+SAMPLE = ROOT / "data" / "raw" / "game-566279.json"
+MAPPING_SAMPLES = (
+    SAMPLE,
+    *sorted((ROOT / "data" / "raw" / "samples" / "2026-08-03").glob("[0-9]*.json")),
+)
+SPARQL_ROOT = ROOT / "sparql"
+QUERY_BUILDERS = (
+    ROOT / "web" / "query-builder" / "analytics-query-builder.js",
+    ROOT / "web" / "query-builder" / "hit-query-builder.js",
+)
+WEB_ROOT = ROOT / "web"
+CANNED_AUDIT_ROOT = ROOT / "benchmarks" / "canned-query-audit"
+CANNED_AUDIT_BASELINE = CANNED_AUDIT_ROOT / "corpus-2026-08-03-baseline.json"
+ADVANCED_QUERY_ROOT = SPARQL_ROOT / "advanced"
+ADVANCED_QUERY_CATALOG = ADVANCED_QUERY_ROOT / "advanced-query-catalog.json"
+ADVANCED_AUDIT_ROOT = ROOT / "benchmarks" / "advanced-query-audit"
+ADVANCED_AUDIT_BASELINE = ADVANCED_AUDIT_ROOT / "corpus-2026-08-03-baseline.json"
+QUERY_INDEX_BENCHMARK_ROOT = ROOT / "benchmarks" / "query-index"
+QUERY_INDEX_CORPUS_BASELINE = QUERY_INDEX_BENCHMARK_ROOT / "corpus-2026-08-03-baseline.json"
+TDB2_EXECUTION_ROOT = QUERY_INDEX_BENCHMARK_ROOT / "tdb2-execution"
+TDB2_EXECUTION_SUMMARY = TDB2_EXECUTION_ROOT / "tdb2-execution-summary.json"
+REVIEWED_QUERY_ROUTING = SPARQL_ROOT / "query-index" / "operational-query-routing.json"
+SHACL_ROOT = ROOT / "shacl"
+SH = Namespace("http://www.w3.org/ns/shacl#")
+BASE = Namespace("https://baseballontology.org/")
+IDX = Namespace("https://w3id.org/baseball/query-index/")
+
+REQUIRED_PATHS = (
+    ROOT / "README.md",
+    ROOT / "NEXT-PHASE.md",
+    ROOT / "ontology" / "BaseballO.ttl",
+    ROOT / "ontology" / "BaseballO-axioms-overlay.ttl",
+    ACTIVE_MAPPING,
+    ROOT / "mappings" / "policies" / "modeling-choices.yaml",
+    ROOT / "mappings" / "policies" / "iri-policy.yaml",
+    ROOT / "mermaid" / "README.md",
+    ROOT / "mermaid" / "rml-mermaid-manifest.yaml",
+    ROOT / "mermaid" / "patterns" / "README.md",
+    SHACL_ROOT / "README.md",
+    SHACL_ROOT / "authoritative.ttl",
+    SHACL_ROOT / "query-index.ttl",
+    ROOT / "reasoning" / "README.md",
+    ROOT / "reasoning" / "bfo-clif-manifest.json",
+    ROOT / "reasoning" / "profiles" / "event-order.json",
+    ROOT / "reasoning" / "profiles" / "event-structure.json",
+    ROOT / "reasoning" / "profiles" / "participation.json",
+    REASONING_EVIDENCE,
+    WEB_ROOT / "package.json",
+    WEB_ROOT / "index.html",
+    WEB_ROOT / "styles.css",
+    WEB_ROOT / "app.js",
+    WEB_ROOT / "server.mjs",
+    WEB_ROOT / "tests" / "analytics-query-builder.test.mjs",
+    ROOT / "infra" / "README.md",
+    ROOT / "infra" / "fuseki" / "configuration" / "baseball-dev.ttl",
+    ROOT / "infra" / "versions.psd1",
+    ROOT / "scripts" / "infra" / "configure-nifi-foundation.ps1",
+    ROOT / "scripts" / "infra" / "configure-nifi-rdf-skeleton.ps1",
+    ROOT / "scripts" / "infra" / "configure-nifi-games-manual.ps1",
+    ROOT / "scripts" / "infra" / "configure-nifi-games-daily.ps1",
+    ROOT / "scripts" / "pipeline" / "import-game-json.ps1",
+    ROOT / "scripts" / "pipeline" / "process-staged-game-json.ps1",
+    ROOT / "scripts" / "pipeline" / "test-manual-vertical-slice.ps1",
+    ROOT / "scripts" / "pipeline" / "run-rml.ps1",
+    ROOT / "scripts" / "pipeline" / "prepare-rml-context.py",
+    ROOT / "scripts" / "pipeline" / "acquire-daily-games.ps1",
+    ROOT / "scripts" / "pipeline" / "load-game-graph.ps1",
+    ROOT / "scripts" / "pipeline" / "validate-generated-rdf.py",
+    ROOT / "scripts" / "pipeline" / "validate-shacl.py",
+    ROOT / "scripts" / "pipeline" / "build-query-index.ps1",
+    ROOT / "scripts" / "pipeline" / "compile-query-index.py",
+    ROOT / "scripts" / "pipeline" / "query-index-common.ps1",
+    ROOT / "scripts" / "pipeline" / "test-query-index.ps1",
+    ROOT / "scripts" / "pipeline" / "benchmark-query-index.ps1",
+    ROOT / "scripts" / "pipeline" / "benchmark-query-index-corpus.ps1",
+    ROOT / "scripts" / "pipeline" / "capture-tdb2-query-execution.ps1",
+    ROOT / "scripts" / "pipeline" / "run-reviewed-query.ps1",
+    ROOT / "scripts" / "pipeline" / "test-reviewed-query-routing.ps1",
+    ROOT / "scripts" / "pipeline" / "capture-query-algebra.ps1",
+    ROOT / "scripts" / "pipeline" / "export-dehydration-package.ps1",
+    ROOT / "scripts" / "pipeline" / "restore-dehydration-package.ps1",
+    ROOT / "scripts" / "pipeline" / "validate-dehydration-package.py",
+    ROOT / "scripts" / "pipeline" / "test-dehydration-package.ps1",
+    ROOT / "scripts" / "pipeline" / "test-query-index-failure.ps1",
+    ROOT / "scripts" / "pipeline" / "audit-canned-queries.ps1",
+    ROOT / "scripts" / "pipeline" / "audit-advanced-queries.ps1",
+    ROOT / "scripts" / "reasoning" / "sync-bfo-clif.py",
+    ROOT / "scripts" / "reasoning" / "selective_reasoner.py",
+    ROOT / "scripts" / "reasoning" / "prove-selective-reasoning.py",
+    ROOT / "scripts" / "reasoning" / "run-selective-reasoning.ps1",
+    SELECTIVE_REASONING_TEST,
+    RML_MERMAID_GENERATOR,
+    ROOT / "sparql" / "empty-games-prototype.rq",
+    ADVANCED_QUERY_ROOT / "README.md",
+    ADVANCED_QUERY_CATALOG,
+    ROOT / "sparql" / "query-inventory.md",
+    ROOT / "sparql" / "graph-condensation-requirements.md",
+    ROOT / "sparql" / "query-index" / "README.md",
+    ROOT / "sparql" / "query-index" / "query-decision-matrix.md",
+    REVIEWED_QUERY_ROUTING,
+    ROOT / "sparql" / "query-index" / "dehydration-package.md",
+    ROOT / "sparql" / "query-index" / "benchmarks" / "benchmark-pairs.json",
+    ROOT / "benchmarks" / "query-index" / "README.md",
+    ROOT / "benchmarks" / "query-index" / "fixture-566279-baseline.md",
+    ROOT / "benchmarks" / "query-index" / "fixture-566279-baseline.json",
+    ROOT / "benchmarks" / "query-index" / "corpus-2026-08-03-baseline.md",
+    QUERY_INDEX_CORPUS_BASELINE,
+    ROOT / "benchmarks" / "query-index" / "algebra" / "optimized-algebra-summary.md",
+    ROOT / "benchmarks" / "query-index" / "algebra" / "optimized-algebra-summary.json",
+    TDB2_EXECUTION_ROOT / "README.md",
+    TDB2_EXECUTION_SUMMARY,
+    CANNED_AUDIT_ROOT / "README.md",
+    CANNED_AUDIT_ROOT / "corpus-2026-08-03-baseline.md",
+    CANNED_AUDIT_BASELINE,
+    ADVANCED_AUDIT_ROOT / "README.md",
+    ADVANCED_AUDIT_ROOT / "corpus-2026-08-03-baseline.md",
+    ADVANCED_AUDIT_BASELINE,
+    SAMPLE,
+)
+
+OFFLINE_PIPELINE_PATHS = (
+    ROOT / "scripts" / "infra" / "configure-nifi-games-manual.ps1",
+    ROOT / "scripts" / "pipeline" / "import-game-json.ps1",
+    ROOT / "scripts" / "pipeline" / "process-staged-game-json.ps1",
+)
+
+MARKDOWN_LINK = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
+REMOTE_PREFIXES = ("http://", "https://", "mailto:", "#")
+MERMAID_DIAGRAM_TYPES = (
+    "flowchart",
+    "graph",
+    "sequenceDiagram",
+    "classDiagram",
+    "stateDiagram",
+    "erDiagram",
+    "journey",
+    "gantt",
+    "pie",
+    "mindmap",
+    "timeline",
+    "gitGraph",
+)
+
+
+def require_layout() -> None:
+    missing = [path.relative_to(ROOT) for path in REQUIRED_PATHS if not path.exists()]
+    if missing:
+        raise ValueError("Missing required paths: " + ", ".join(map(str, missing)))
+
+
+def validate_json() -> int:
+    files = list(ROOT.rglob("*.json"))
+    for path in files:
+        with path.open(encoding="utf-8") as stream:
+            json.load(stream)
+    return len(files)
+
+
+def validate_turtle() -> int:
+    files = list(ROOT.rglob("*.ttl"))
+    for path in files:
+        Graph().parse(path, format="turtle")
+    return len(files)
+
+
+def validate_shacl_profiles() -> int:
+    profiles = {
+        "authoritative": SHACL_ROOT / "authoritative.ttl",
+        "query-index": SHACL_ROOT / "query-index.ttl",
+    }
+    shape_count = 0
+    for name, path in profiles.items():
+        shapes = Graph().parse(path, format="turtle")
+        shape_count += len(set(shapes.subjects(RDF.type, SH.NodeShape)))
+        conforms, _, report_text = validate_shacl(
+            data_graph=Graph(),
+            shacl_graph=shapes,
+            inference="none",
+            advanced=True,
+            meta_shacl=True,
+            allow_infos=True,
+            allow_warnings=True,
+        )
+        if not conforms:
+            raise ValueError(f"SHACL profile {name} is not meta-valid:\n{report_text}")
+
+    invalid_authoritative = Graph()
+    invalid_authoritative.add(
+        (URIRef("urn:baseball:shacl-smoke:pitch"), RDF.type, BASE.PitchAct)
+    )
+    conforms, _, _ = validate_shacl(
+        data_graph=invalid_authoritative,
+        shacl_graph=Graph().parse(profiles["authoritative"], format="turtle"),
+        inference="none",
+        advanced=True,
+    )
+    if conforms:
+        raise ValueError("Authoritative SHACL profile accepted an incomplete PitchAct")
+
+    invalid_index = Graph()
+    invalid_index.add(
+        (URIRef("urn:baseball:shacl-smoke:hit"), RDF.type, IDX.HitFact)
+    )
+    conforms, _, _ = validate_shacl(
+        data_graph=invalid_index,
+        shacl_graph=Graph().parse(profiles["query-index"], format="turtle"),
+        inference="none",
+        advanced=True,
+    )
+    if conforms:
+        raise ValueError("Query-index SHACL profile accepted an incomplete HitFact")
+    return shape_count
+
+
+def validate_sparql() -> int:
+    files = list(SPARQL_ROOT.rglob("*.rq"))
+    component_files = list((SPARQL_ROOT / "query-index" / "components").glob("*.rq"))
+    benchmark_files = list((SPARQL_ROOT / "query-index" / "benchmarks" / "indexed").glob("*.rq"))
+    advanced_files = list(ADVANCED_QUERY_ROOT.glob("*.rq"))
+    canned_files = [
+        path for path in files
+        if path not in component_files
+        and path not in benchmark_files
+        and path not in advanced_files
+    ]
+    if (
+        len(canned_files) != 48
+        or len(component_files) != 13
+        or len(benchmark_files) != 18
+        or len(advanced_files) != 16
+    ):
+        raise ValueError(
+            "Expected 48 canned SPARQL queries, 13 query-index components, "
+            "18 indexed benchmark companions, and 16 advanced semantic queries; "
+            f"found {len(canned_files)}, {len(component_files)}, "
+            f"{len(benchmark_files)}, and {len(advanced_files)}"
+        )
+    for path in files:
+        try:
+            prepareQuery(path.read_text(encoding="utf-8"))
+        except Exception as error:
+            raise ValueError(
+                f"SPARQL parse failed in {path.relative_to(ROOT)}: {error}"
+            ) from error
+    return len(files)
+
+
+def validate_query_contract() -> None:
+    query_files = list(SPARQL_ROOT.rglob("*.rq")) + list(QUERY_BUILDERS)
+    prohibited = (
+        ("removed participant predicate", "cco:ont00001833"),
+        ("outcome-specific runner identity path", "runner-act/advance"),
+        ("outcome-specific runner identity path", "runner-act/score"),
+        ("outcome-specific runner identity path", "runner-act/out"),
+    )
+    for path in query_files:
+        text = path.read_text(encoding="utf-8")
+        for description, fragment in prohibited:
+            if fragment in text:
+                raise ValueError(
+                    f"Query contract contains {description} in "
+                    f"{path.relative_to(ROOT)}: {fragment}"
+                )
+
+
+def validate_markdown() -> tuple[int, int]:
+    markdown_files = list(ROOT.rglob("*.md"))
+    mermaid_blocks = 0
+
+    for path in markdown_files:
+        text = path.read_text(encoding="utf-8")
+        if r"\`\`\`mermaid" in text:
+            raise ValueError(
+                f"Escaped Mermaid fence cannot render in a browser: {path.relative_to(ROOT)}"
+            )
+        for match in MARKDOWN_LINK.finditer(text):
+            target = match.group(1).strip("<>")
+            if target.startswith(REMOTE_PREFIXES):
+                continue
+            relative_target = unquote(target.split("#", 1)[0])
+            if relative_target and not (path.parent / relative_target).resolve().exists():
+                raise ValueError(
+                    f"Broken Markdown link in {path.relative_to(ROOT)}: {target}"
+                )
+
+        fence_language: str | None = None
+        fence_body: list[str] = []
+        for line in text.splitlines():
+            if line.startswith("```"):
+                if fence_language is None:
+                    fence_language = line[3:].strip()
+                    fence_body = []
+                else:
+                    if fence_language == "mermaid":
+                        mermaid_blocks += 1
+                        first = next((item.strip() for item in fence_body if item.strip()), "")
+                        if not first.startswith(MERMAID_DIAGRAM_TYPES):
+                            raise ValueError(
+                                f"Unknown Mermaid diagram start in {path.relative_to(ROOT)}: "
+                                f"{first!r}"
+                            )
+                    fence_language = None
+                    fence_body = []
+            elif fence_language is not None:
+                fence_body.append(line)
+        if fence_language is not None:
+            raise ValueError(f"Unclosed code fence in {path.relative_to(ROOT)}")
+
+    return len(markdown_files), mermaid_blocks
+
+
+def validate_active_mapping() -> None:
+    for sample in MAPPING_SAMPLES:
+        subprocess.run(
+            [sys.executable, str(MAPPING_VALIDATOR), str(sample)],
+            cwd=MAPPING_VALIDATOR.parent,
+            check=True,
+        )
+
+
+def validate_ontology_overlay() -> None:
+    subprocess.run(
+        [sys.executable, str(ONTOLOGY_OVERLAY_VALIDATOR)],
+        cwd=ROOT,
+        check=True,
+    )
+
+
+def validate_rml_mermaid() -> None:
+    subprocess.run(
+        [sys.executable, str(RML_MERMAID_GENERATOR), "--check"],
+        cwd=ROOT,
+        check=True,
+    )
+
+
+def validate_selective_reasoning() -> None:
+    subprocess.run(
+        [sys.executable, str(SELECTIVE_REASONING_TEST)],
+        cwd=ROOT,
+        check=True,
+    )
+
+
+def validate_reasoning_evidence() -> int:
+    evidence = json.loads(REASONING_EVIDENCE.read_text(encoding="utf-8"))
+    if evidence.get("artifactType") != "baseball-selective-reasoning-proof-baseline":
+        raise ValueError("Unknown selective reasoning proof baseline")
+    if evidence.get("backend") != "z3-solver" or evidence.get("backendVersion") != "5.0.0":
+        raise ValueError("Selective reasoning proof backend is stale")
+    if evidence.get("backendScriptSha256") != sha256_file(SELECTIVE_PROVER):
+        raise ValueError("Selective reasoning proof baseline has a stale backend hash")
+    ontology_hashes = {
+        "ontology/BaseballO.ttl": sha256_file(ROOT / "ontology" / "BaseballO.ttl"),
+        "ontology/CommonCoreOntologiesMerged (1).ttl": sha256_file(
+            ROOT / "ontology" / "CommonCoreOntologiesMerged (1).ttl"
+        ),
+    }
+    bfo_hash = sha256_file(ROOT / "reasoning" / "bfo-clif-manifest.json")
+    reasoner_hash = sha256_file(SELECTIVE_REASONER)
+    profiles = evidence.get("profiles", [])
+    if len(profiles) != 3:
+        raise ValueError("Selective reasoning baseline must cover three profiles")
+    total_obligations = total_proved = 0
+    for result in profiles:
+        profile_id = str(result["profile"])
+        profile_path = ROOT / "reasoning" / "profiles" / f"{profile_id}.json"
+        profile_hash = sha256_file(profile_path)
+        if result.get("profileSha256") != profile_hash:
+            raise ValueError(f"Selective reasoning profile baseline is stale: {profile_id}")
+        ruleset = {
+            "profileSha256": profile_hash,
+            "bfoClifManifestSha256": bfo_hash,
+            "ontologySha256": ontology_hashes,
+            "reasonerSha256": reasoner_hash,
+        }
+        ruleset_hash = hashlib.sha256(
+            json.dumps(ruleset, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        ).hexdigest()
+        if result.get("rulesetSha256") != ruleset_hash:
+            raise ValueError(f"Selective reasoning ruleset baseline is stale: {profile_id}")
+        if not str(result.get("reasoningGraph", "")).endswith(f"/rules/{ruleset_hash[:16]}"):
+            raise ValueError(f"Selective reasoning graph fingerprint is invalid: {profile_id}")
+        obligations = int(result.get("obligationCount", -1))
+        proved = int(result.get("provedCount", -1))
+        if obligations <= 0 or proved != obligations or result.get("consistency") != "sat":
+            raise ValueError(f"Selective reasoning proof is incomplete: {profile_id}")
+        if not re.fullmatch(r"[0-9a-f]{64}", str(result.get("proofReportSha256", ""))):
+            raise ValueError(f"Selective reasoning proof hash is invalid: {profile_id}")
+        total_obligations += obligations
+        total_proved += proved
+    if int(evidence.get("totalObligations", -1)) != total_obligations:
+        raise ValueError("Selective reasoning obligation total is inconsistent")
+    if int(evidence.get("totalProved", -1)) != total_proved:
+        raise ValueError("Selective reasoning proof total is inconsistent")
+    if not evidence.get("allProfilesConsistent"):
+        raise ValueError("Selective reasoning baseline reports an inconsistent profile")
+    return total_proved
+
+
+def validate_offline_pipeline_boundary() -> None:
+    prohibited = ("statsapi.mlb.com", "acquire-daily-games.ps1")
+    for path in OFFLINE_PIPELINE_PATHS:
+        text = path.read_text(encoding="utf-8").lower()
+        matches = [value for value in prohibited if value.lower() in text]
+        if matches:
+            raise ValueError(
+                "Active offline pipeline references external acquisition in "
+                f"{path.relative_to(ROOT)}: {', '.join(matches)}"
+            )
+
+
+def validate_query_index_algebra_artifacts() -> int:
+    pair_path = SPARQL_ROOT / "query-index" / "benchmarks" / "benchmark-pairs.json"
+    summary_path = ROOT / "benchmarks" / "query-index" / "algebra" / "optimized-algebra-summary.json"
+    algebra_root = summary_path.parent
+    pairs = json.loads(pair_path.read_text(encoding="utf-8"))["pairs"]
+    expected_names = {str(pair["name"]) for pair in pairs}
+    expected_plans = {
+        f"{name}-{layer}-opt.txt"
+        for name in expected_names
+        for layer in ("authoritative", "indexed")
+    }
+    actual_plans = {path.name for path in algebra_root.glob("*-opt.txt")}
+    if actual_plans != expected_plans:
+        raise ValueError(
+            "Optimized algebra plan set differs from the benchmark pairs: "
+            f"expected {len(expected_plans)}, found {len(actual_plans)}"
+        )
+    summary = json.loads(summary_path.read_text(encoding="utf-8"))
+    summary_names = {str(result["name"]) for result in summary.get("results", [])}
+    if summary_names != expected_names:
+        raise ValueError("Optimized algebra summary does not cover every benchmark pair")
+    return len(actual_plans)
+
+
+def validate_web_app() -> None:
+    subprocess.run(
+        ["node", "--check", "server.mjs"],
+        cwd=WEB_ROOT,
+        check=True,
+    )
+    subprocess.run(
+        ["node", "--check", "app.js"],
+        cwd=WEB_ROOT,
+        check=True,
+    )
+    subprocess.run(
+        ["node", "--test", "tests/analytics-query-builder.test.mjs"],
+        cwd=WEB_ROOT,
+        check=True,
+    )
+
+
+def sha256_file(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def query_index_contract_sha256() -> str:
+    contract_files = list(
+        (SPARQL_ROOT / "query-index" / "components").glob("*.rq")
+    ) + [
+        ROOT / "scripts" / "pipeline" / "compile-query-index.py",
+        ROOT / "scripts" / "pipeline" / "build-query-index.ps1",
+        ROOT / "scripts" / "pipeline" / "query-index-common.ps1",
+        ROOT / "scripts" / "pipeline" / "test-query-index.ps1",
+    ]
+    lines = [
+        f"{path.relative_to(ROOT).as_posix()}={sha256_file(path)}"
+        for path in sorted(contract_files, key=lambda item: str(item.resolve()).lower())
+    ]
+    return hashlib.sha256("\n".join(lines).encode("utf-8")).hexdigest()
+
+
+def query_index_pairs() -> list[dict[str, object]]:
+    path = SPARQL_ROOT / "query-index" / "benchmarks" / "benchmark-pairs.json"
+    return json.loads(path.read_text(encoding="utf-8"))["pairs"]
+
+
+def validate_query_index_benchmarks() -> int:
+    current_contract = query_index_contract_sha256()
+    fixture = json.loads(
+        (QUERY_INDEX_BENCHMARK_ROOT / "fixture-566279-baseline.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    if fixture.get("queryIndexContractSha256") != current_contract:
+        raise ValueError("Single-fixture query-index benchmark contract is stale")
+
+    report = json.loads(QUERY_INDEX_CORPUS_BASELINE.read_text(encoding="utf-8"))
+    if report.get("artifactType") != "baseball-query-index-corpus-benchmark":
+        raise ValueError("Corpus query-index benchmark has an unknown artifact type")
+    if report.get("queryIndexContractSha256") != current_contract:
+        raise ValueError("Corpus query-index benchmark contract is stale")
+
+    audit = json.loads(CANNED_AUDIT_BASELINE.read_text(encoding="utf-8"))
+    if report.get("corpusSha256") != audit.get("corpusSha256"):
+        raise ValueError("Corpus benchmark and canned-query audit use different corpora")
+    if int(report.get("authoritativeTripleCount", -1)) != int(
+        audit.get("authoritativeTripleCount", -2)
+    ):
+        raise ValueError("Corpus benchmark authoritative triple count is inconsistent")
+    if int(report.get("queryIndexTripleCount", -1)) != 52944:
+        raise ValueError("Corpus benchmark query-index triple count is unexpected")
+
+    pairs = query_index_pairs()
+    expected_names = {str(pair["name"]) for pair in pairs}
+    results = report.get("results", [])
+    if len(results) != len(pairs) or {str(item.get("name")) for item in results} != expected_names:
+        raise ValueError("Corpus benchmark does not cover the exact query-pair manifest")
+    pair_by_name = {str(pair["name"]): pair for pair in pairs}
+    iterations = int(report.get("iterationsPerQueryAndLayer", -1))
+    if iterations != 20:
+        raise ValueError("Corpus benchmark must retain 20 samples per query and layer")
+    for result in results:
+        pair = pair_by_name[str(result["name"])]
+        for layer, pair_key, report_key in (
+            ("authoritative", "authoritative", "authoritativeQuery"),
+            ("indexed", "indexed", "indexedQuery"),
+        ):
+            relative_path = str(pair[pair_key])
+            if result.get(report_key) != relative_path:
+                raise ValueError(f"Corpus benchmark query path differs for {result['name']}")
+            if result.get(f"{layer}QuerySha256") != sha256_file(ROOT / relative_path):
+                raise ValueError(f"Corpus benchmark query hash is stale for {result['name']}")
+            samples = result.get(layer, {}).get("samplesMilliseconds", [])
+            if len(samples) != iterations or any(float(value) < 0 for value in samples):
+                raise ValueError(f"Invalid corpus timing samples for {result['name']} {layer}")
+        if int(result.get("resultRows", -1)) < 0:
+            raise ValueError(f"Invalid corpus result count for {result['name']}")
+        if not re.fullmatch(r"[0-9a-f]{64}", str(result.get("rowSetSha256", ""))):
+            raise ValueError(f"Invalid corpus row-set hash for {result['name']}")
+    return len(results)
+
+
+def validate_reviewed_query_routing() -> int:
+    routing = json.loads(REVIEWED_QUERY_ROUTING.read_text(encoding="utf-8"))
+    if routing.get("artifactType") != "baseball-reviewed-query-routing":
+        raise ValueError("Reviewed query routing has an unknown artifact type")
+    evidence_path = ROOT / str(routing.get("evidence", ""))
+    if evidence_path.resolve() != QUERY_INDEX_CORPUS_BASELINE.resolve():
+        raise ValueError("Reviewed query routing must cite the corpus benchmark")
+
+    pairs = query_index_pairs()
+    pair_by_name = {str(pair["name"]): pair for pair in pairs}
+    benchmark = json.loads(QUERY_INDEX_CORPUS_BASELINE.read_text(encoding="utf-8"))
+    benchmark_by_name = {
+        str(result["name"]): result for result in benchmark.get("results", [])
+    }
+    routes = routing.get("routes", [])
+    route_names = {str(route.get("name")) for route in routes}
+    if len(routes) != len(pairs) or route_names != set(pair_by_name):
+        raise ValueError("Reviewed query routing must cover the exact benchmark pair set")
+
+    expected_indexed = {
+        "hits-by-player-and-venue",
+        "outcomes-by-player",
+        "outcomes-by-season",
+        "plate-appearances-by-player-and-season",
+        "three-true-outcomes-by-player",
+        "extra-base-hits-by-player",
+        "home-runs-by-player-and-venue",
+        "multi-hit-games",
+        "total-bases-by-player-and-season",
+        "hitless-games-by-player",
+        "pitches-by-pitcher-and-venue",
+        "pitch-summary-by-pitcher",
+        "batted-balls-by-batter-and-venue",
+        "events-by-player",
+        "runs-by-season-and-venue",
+    }
+    actual_indexed = {
+        str(route["name"])
+        for route in routes
+        if str(route.get("autoLayer")) == "indexed"
+    }
+    if actual_indexed != expected_indexed:
+        raise ValueError("Reviewed indexed routes differ from the measured candidates")
+
+    for route in routes:
+        name = str(route["name"])
+        pair = pair_by_name[name]
+        result = benchmark_by_name[name]
+        if route.get("authoritative") != pair.get("authoritative"):
+            raise ValueError(f"Reviewed authoritative route differs for {name}")
+        if route.get("indexed") != pair.get("indexed"):
+            raise ValueError(f"Reviewed indexed route differs for {name}")
+        if route.get("autoLayer") not in ("authoritative", "indexed"):
+            raise ValueError(f"Reviewed route has an invalid automatic layer: {name}")
+        if float(route.get("medianSpeedup", -1)) != float(result.get("medianSpeedup", -2)):
+            raise ValueError(f"Reviewed route benchmark evidence is stale for {name}")
+    return len(routes)
+
+
+def validate_tdb2_execution_capture() -> int:
+    report = json.loads(TDB2_EXECUTION_SUMMARY.read_text(encoding="utf-8"))
+    if report.get("artifactType") != "baseball-query-index-tdb2-execution-capture":
+        raise ValueError("TDB2 execution capture has an unknown artifact type")
+    current_contract = query_index_contract_sha256()
+    if report.get("queryIndexContractSha256") != current_contract:
+        raise ValueError("TDB2 execution capture query-index contract is stale")
+    audit = json.loads(CANNED_AUDIT_BASELINE.read_text(encoding="utf-8"))
+    if report.get("corpusSha256") != audit.get("corpusSha256"):
+        raise ValueError("TDB2 execution capture and canned-query audit use different corpora")
+
+    pairs = query_index_pairs()
+    expected = {
+        (str(pair["name"]), layer): str(pair[layer])
+        for pair in pairs
+        for layer in ("authoritative", "indexed")
+    }
+    results = report.get("results", [])
+    actual = {(str(item.get("name")), str(item.get("layer"))) for item in results}
+    if len(results) != len(expected) or actual != set(expected):
+        raise ValueError("TDB2 execution capture does not cover the exact query layers")
+
+    expected_logs: set[str] = set()
+    for result in results:
+        key = (str(result["name"]), str(result["layer"]))
+        relative_query = expected[key]
+        if result.get("query") != relative_query:
+            raise ValueError(f"TDB2 capture query path differs for {key[0]} {key[1]}")
+        if result.get("querySha256") != sha256_file(ROOT / relative_query):
+            raise ValueError(f"TDB2 capture query hash is stale for {key[0]} {key[1]}")
+        log_name = str(result["log"])
+        expected_logs.add(log_name)
+        log_path = TDB2_EXECUTION_ROOT / log_name
+        if not log_path.is_file():
+            raise ValueError(f"TDB2 execution log is missing or changed: {log_name}")
+        log_text = log_path.read_text(encoding="utf-8")
+        normalized_log_hash = hashlib.sha256(log_text.encode("utf-8")).hexdigest()
+        if result.get("logSha256") != normalized_log_hash:
+            raise ValueError(f"TDB2 execution log is missing or changed: {log_name}")
+        if ":: TDB2" not in log_text or ":: Execute" not in log_text:
+            raise ValueError(f"TDB2 execution log lacks required sections: {log_name}")
+        if int(result.get("tdb2QuadPatterns", 0)) <= 0:
+            raise ValueError(f"TDB2 execution log has no quad patterns: {log_name}")
+        if int(result.get("executionTraceLineCount", 0)) <= 0:
+            raise ValueError(f"TDB2 execution log has no execution trace: {log_name}")
+    actual_logs = {path.name for path in TDB2_EXECUTION_ROOT.glob("*.log")}
+    if actual_logs != expected_logs:
+        raise ValueError("TDB2 execution log directory differs from its summary")
+    return len(results)
+
+
+def validate_canned_query_audit() -> int:
+    report = json.loads(CANNED_AUDIT_BASELINE.read_text(encoding="utf-8"))
+    if report.get("artifactType") != "baseball-authoritative-canned-query-corpus-audit":
+        raise ValueError("Canned-query audit has an unknown artifact type")
+
+    component_files = set((SPARQL_ROOT / "query-index" / "components").glob("*.rq"))
+    indexed_files = set((SPARQL_ROOT / "query-index" / "benchmarks" / "indexed").glob("*.rq"))
+    advanced_files = set(ADVANCED_QUERY_ROOT.glob("*.rq"))
+    canned_files = sorted(
+        path for path in SPARQL_ROOT.rglob("*.rq")
+        if path not in component_files
+        and path not in indexed_files
+        and path not in advanced_files
+    )
+    expected_paths = {path.relative_to(ROOT).as_posix() for path in canned_files}
+    results = report.get("results", [])
+    actual_paths = {str(result.get("query")) for result in results}
+    if len(canned_files) != 48 or len(results) != 48 or actual_paths != expected_paths:
+        raise ValueError("Canned-query audit does not cover the exact 48-query library")
+
+    for result in results:
+        query_path = ROOT / str(result["query"])
+        if str(result.get("querySha256")) != sha256_file(query_path):
+            raise ValueError(
+                f"Canned-query baseline is stale for {result['query']}; rerun the live audit"
+            )
+        if int(result.get("rowCount", 0)) <= 0:
+            raise ValueError(f"Canned-query baseline contains an empty result: {result['query']}")
+        if int(result.get("duplicateRowCount", -1)) != 0:
+            raise ValueError(f"Canned-query baseline contains duplicate rows: {result['query']}")
+        if not re.fullmatch(r"[0-9a-f]{64}", str(result.get("rowSetSha256", ""))):
+            raise ValueError(f"Invalid row-set hash for {result['query']}")
+
+    mapping_hash = sha256_file(ACTIVE_MAPPING)
+    if str(report.get("mappingSha256")) != mapping_hash:
+        raise ValueError("Canned-query audit mapping hash is stale")
+
+    snapshots = report.get("graphSnapshots", [])
+    if len(snapshots) != 8:
+        raise ValueError("Canned-query audit must cover exactly eight authoritative graphs")
+    signature_lines = [f"mapping={mapping_hash}"]
+    total_triples = 0
+    for snapshot in snapshots:
+        game_pk = str(snapshot["gamePk"])
+        source_path = ROOT / str(snapshot["sourcePath"])
+        expected_source = ROOT / "data" / "raw" / "samples" / "2026-08-03" / f"{game_pk}.json"
+        if source_path.resolve() != expected_source.resolve():
+            raise ValueError(f"Unexpected canned-query audit source path for game {game_pk}")
+        source_hash = sha256_file(source_path)
+        if str(snapshot.get("sourceSha256")) != source_hash:
+            raise ValueError(f"Canned-query audit source hash is stale for game {game_pk}")
+        graph_iri = f"https://w3id.org/baseball/graph/game/{game_pk}"
+        if str(snapshot.get("graphIri")) != graph_iri:
+            raise ValueError(f"Unexpected canned-query audit graph IRI for game {game_pk}")
+        triple_count = int(snapshot["authoritativeTripleCount"])
+        total_triples += triple_count
+        signature_lines.append(f"{graph_iri}|{source_hash}|{triple_count}")
+
+    corpus_hash = hashlib.sha256("\n".join(signature_lines).encode("utf-8")).hexdigest()
+    if str(report.get("corpusSha256")) != corpus_hash:
+        raise ValueError("Canned-query audit corpus signature is invalid")
+    if int(report.get("authoritativeTripleCount", -1)) != total_triples:
+        raise ValueError("Canned-query audit authoritative triple total is inconsistent")
+    if int(report.get("nonEmptyQueryCount", -1)) != 48:
+        raise ValueError("Canned-query audit non-empty count is inconsistent")
+    if int(report.get("zeroRowQueryCount", -1)) != 0:
+        raise ValueError("Canned-query audit reports zero-row queries")
+    if int(report.get("queriesWithDuplicateRows", -1)) != 0:
+        raise ValueError("Canned-query audit reports duplicate rows")
+    return len(results)
+
+
+def validate_advanced_query_audit() -> int:
+    catalog = json.loads(ADVANCED_QUERY_CATALOG.read_text(encoding="utf-8"))
+    if catalog.get("artifactType") != "baseball-advanced-semantic-query-catalog":
+        raise ValueError("Advanced-query catalog has an unknown artifact type")
+    entries = catalog.get("queries", [])
+    advanced_files = sorted(ADVANCED_QUERY_ROOT.glob("*.rq"))
+    catalog_paths = {str(entry.get("path")) for entry in entries}
+    expected_paths = {
+        path.relative_to(ROOT).as_posix() for path in advanced_files
+    }
+    if len(entries) != 16 or len(advanced_files) != 16 or catalog_paths != expected_paths:
+        raise ValueError("Advanced-query catalog does not cover the exact 16-query suite")
+    allowed_modes = {"positive-evidence", "completeness-gated", "integrity-audit"}
+    ids = [str(entry.get("id")) for entry in entries]
+    if len(set(ids)) != 16:
+        raise ValueError("Advanced-query catalog IDs must be unique")
+    for entry in entries:
+        if entry.get("semanticMode") not in allowed_modes:
+            raise ValueError(f"Unknown advanced-query semantic mode: {entry.get('id')}")
+        if not isinstance(entry.get("allowZeroRows"), bool):
+            raise ValueError(f"Advanced-query zero-row policy is missing: {entry.get('id')}")
+        if not str(entry.get("claim", "")).strip():
+            raise ValueError(f"Advanced-query claim is missing: {entry.get('id')}")
+    if len(catalog.get("blockedAnalytics", [])) != 4:
+        raise ValueError("Advanced-query catalog must preserve the four blocked claims")
+
+    report = json.loads(ADVANCED_AUDIT_BASELINE.read_text(encoding="utf-8"))
+    if report.get("artifactType") != "baseball-advanced-semantic-query-corpus-audit":
+        raise ValueError("Advanced-query audit has an unknown artifact type")
+    results = report.get("results", [])
+    by_id = {str(result.get("id")): result for result in results}
+    entries_by_id = {str(entry["id"]): entry for entry in entries}
+    if len(results) != 16 or set(by_id) != set(entries_by_id):
+        raise ValueError("Advanced-query audit does not cover the exact catalog")
+    if str(report.get("catalogSha256")) != sha256_file(ADVANCED_QUERY_CATALOG):
+        raise ValueError("Advanced-query audit catalog hash is stale")
+    if str(report.get("mappingSha256")) != sha256_file(ACTIVE_MAPPING):
+        raise ValueError("Advanced-query audit mapping hash is stale")
+
+    for query_id, result in by_id.items():
+        entry = entries_by_id[query_id]
+        query_path = ROOT / str(entry["path"])
+        if str(result.get("query")) != str(entry["path"]):
+            raise ValueError(f"Advanced-query audit path is invalid: {query_id}")
+        if str(result.get("semanticMode")) != str(entry["semanticMode"]):
+            raise ValueError(f"Advanced-query audit semantic mode is stale: {query_id}")
+        if bool(result.get("allowZeroRows")) != bool(entry["allowZeroRows"]):
+            raise ValueError(f"Advanced-query audit zero-row policy is stale: {query_id}")
+        if str(result.get("querySha256")) != sha256_file(query_path):
+            raise ValueError(f"Advanced-query baseline is stale for {query_id}")
+        row_count = int(result.get("rowCount", -1))
+        if row_count < 0 or (row_count == 0 and not bool(entry["allowZeroRows"])):
+            raise ValueError(f"Advanced-query baseline has an invalid row count: {query_id}")
+        if int(result.get("duplicateRowCount", -1)) != 0:
+            raise ValueError(f"Advanced-query baseline contains duplicate rows: {query_id}")
+        if not re.fullmatch(r"[0-9a-f]{64}", str(result.get("rowSetSha256", ""))):
+            raise ValueError(f"Advanced-query baseline row-set hash is invalid: {query_id}")
+
+    snapshots = report.get("graphSnapshots", [])
+    if len(snapshots) != 8 or int(report.get("authoritativeGraphCount", -1)) != 8:
+        raise ValueError("Advanced-query audit must cover exactly eight authoritative graphs")
+    mapping_hash = sha256_file(ACTIVE_MAPPING)
+    signature_lines = [f"mapping={mapping_hash}"]
+    total_triples = 0
+    for snapshot in snapshots:
+        game_pk = str(snapshot["gamePk"])
+        source_path = ROOT / str(snapshot["sourcePath"])
+        expected_source = ROOT / "data" / "raw" / "samples" / "2026-08-03" / f"{game_pk}.json"
+        if source_path.resolve() != expected_source.resolve():
+            raise ValueError(f"Unexpected advanced-query source path for game {game_pk}")
+        source_hash = sha256_file(source_path)
+        if str(snapshot.get("sourceSha256")) != source_hash:
+            raise ValueError(f"Advanced-query source hash is stale for game {game_pk}")
+        graph_iri = f"https://w3id.org/baseball/graph/game/{game_pk}"
+        triple_count = int(snapshot["authoritativeTripleCount"])
+        total_triples += triple_count
+        signature_lines.append(f"{graph_iri}|{source_hash}|{triple_count}")
+    corpus_hash = hashlib.sha256("\n".join(signature_lines).encode("utf-8")).hexdigest()
+    if str(report.get("corpusSha256")) != corpus_hash:
+        raise ValueError("Advanced-query audit corpus signature is invalid")
+    if int(report.get("authoritativeTripleCount", -1)) != total_triples:
+        raise ValueError("Advanced-query audit triple total is inconsistent")
+    if int(report.get("queryCount", -1)) != 16:
+        raise ValueError("Advanced-query audit query count is inconsistent")
+    if int(report.get("queriesWithDuplicateRows", -1)) != 0:
+        raise ValueError("Advanced-query audit reports duplicate rows")
+    integrity_rows = sum(
+        int(result["rowCount"])
+        for result in results
+        if result.get("semanticMode") == "integrity-audit"
+    )
+    if int(report.get("integrityFindingCount", -1)) != integrity_rows:
+        raise ValueError("Advanced-query integrity finding count is inconsistent")
+    return len(results)
+
+
+def main() -> None:
+    require_layout()
+    json_count = validate_json()
+    turtle_count = validate_turtle()
+    shacl_shape_count = validate_shacl_profiles()
+    sparql_count = validate_sparql()
+    validate_query_contract()
+    markdown_count, mermaid_count = validate_markdown()
+    validate_ontology_overlay()
+    validate_active_mapping()
+    validate_rml_mermaid()
+    validate_selective_reasoning()
+    reasoning_proof_count = validate_reasoning_evidence()
+    validate_offline_pipeline_boundary()
+    validate_web_app()
+    canned_audit_count = validate_canned_query_audit()
+    advanced_audit_count = validate_advanced_query_audit()
+    query_index_benchmark_count = validate_query_index_benchmarks()
+    reviewed_route_count = validate_reviewed_query_routing()
+    tdb2_capture_count = validate_tdb2_execution_capture()
+    algebra_plan_count = validate_query_index_algebra_artifacts()
+    print(f"JSON files parsed: {json_count}")
+    print(f"Turtle files parsed: {turtle_count}")
+    print(f"SHACL node shapes validated: {shacl_shape_count}")
+    print(f"SPARQL queries parsed: {sparql_count}")
+    print(f"Markdown files checked: {markdown_count}")
+    print(f"Mermaid blocks checked: {mermaid_count}")
+    print(f"Optimized ARQ algebra plans checked: {algebra_plan_count}")
+    print("Local web explorer checks passed.")
+    print("Selective reasoning contracts and offline smoke tests passed.")
+    print(f"Selective first-order proof obligations checked: {reasoning_proof_count}")
+    print(f"Canned-query corpus baselines checked: {canned_audit_count}")
+    print(f"Advanced semantic query baselines checked: {advanced_audit_count}")
+    print(f"Corpus query-index benchmark pairs checked: {query_index_benchmark_count}")
+    print(f"Reviewed operational query routes checked: {reviewed_route_count}")
+    print(f"TDB2 query execution captures checked: {tdb2_capture_count}")
+    print("Active manual pipeline contains no MLB acquisition endpoint or command.")
+    print("Repository validation passed.")
+
+
+if __name__ == "__main__":
+    main()

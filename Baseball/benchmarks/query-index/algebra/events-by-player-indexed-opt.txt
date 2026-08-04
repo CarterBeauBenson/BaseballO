@@ -1,0 +1,13 @@
+(prefix ((idx: <https://w3id.org/baseball/query-index/>)
+         (rdfs: <http://www.w3.org/2000/01/rdf-schema#>))
+  (project (?player ?playerLabel ?eventType ?events)
+    (order ((lcase (str ?playerLabel)) (desc ?events) ?eventType)
+      (extend ((?events ?.0))
+        (group (?player ?playerLabel ?eventType) ((?.0 (count distinct ?resolution)))
+          (graph ?graph
+            (bgp
+              (triple ?resolution <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> idx:RunnerResolutionFact)
+              (triple ?resolution idx:agent ?player)
+              (triple ?resolution idx:sourceEventType ?eventType)
+              (triple ?player rdfs:label ?playerLabel)
+            )))))))

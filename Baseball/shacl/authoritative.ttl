@@ -1,0 +1,392 @@
+@prefix base: <https://baseballontology.org/> .
+@prefix bfo: <http://purl.obolibrary.org/obo/> .
+@prefix cco: <https://www.commoncoreontologies.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix shape: <https://w3id.org/baseball/shacl/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+shape:AuthoritativeProfile
+    a sh:NodeShape ;
+    sh:name "BaseballO authoritative graph profile"@en ;
+    sh:description "Explicit structural promises made by the direct MLB RML mapping."@en .
+
+shape:GameShape
+    a sh:NodeShape ;
+    sh:targetClass base:BaseballGame ;
+    sh:nodeKind sh:IRI ;
+    sh:property [
+        sh:path bfo:BFO_0000199 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "A BaseballGame must occupy exactly one temporal interval."@en
+    ] .
+
+shape:PlateAppearanceShape
+    a sh:NodeShape ;
+    sh:targetClass base:PlateAppearance ;
+    sh:nodeKind sh:IRI ;
+    sh:property [
+        sh:path bfo:BFO_0000199 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "A PlateAppearance must occupy exactly one temporal interval."@en
+    ] ;
+    sh:property [
+        sh:path bfo:BFO_0000132 ;
+        sh:qualifiedValueShape [ sh:class base:HalfInning ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "A PlateAppearance must be part of exactly one HalfInning."@en
+    ] ;
+    sh:property [
+        sh:path bfo:BFO_0000117 ;
+        sh:qualifiedValueShape [ sh:class base:BatterAct ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "A PlateAppearance must contain exactly one BatterAct."@en
+    ] ;
+    sh:property [
+        sh:path bfo:BFO_0000117 ;
+        sh:qualifiedValueShape [ sh:class base:BaseballInstitutionalProcess ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "A PlateAppearance must contain exactly one terminal institutional result."@en
+    ] .
+
+shape:BatterActShape
+    a sh:NodeShape ;
+    sh:targetClass base:BatterAct ;
+    sh:nodeKind sh:IRI ;
+    sh:property shape:PlateAppearanceContextProperty,
+        shape:BatterPersonProperty,
+        shape:BatterRoleProperty ;
+    sh:sparql [
+        sh:message "The BatterRole realized by a BatterAct must inhere in its batter participant."@en ;
+        sh:select """
+            PREFIX base: <https://baseballontology.org/>
+            PREFIX bfo: <http://purl.obolibrary.org/obo/>
+            PREFIX cco: <https://www.commoncoreontologies.org/>
+            SELECT $this WHERE {
+              $this bfo:BFO_0000057 ?person ; bfo:BFO_0000055 ?role .
+              ?person a cco:ont00001262 .
+              ?role a base:BatterRole .
+              FILTER NOT EXISTS { ?role bfo:BFO_0000197 ?person }
+            }
+        """
+    ] .
+
+shape:PitchActShape
+    a sh:NodeShape ;
+    sh:targetClass base:PitchAct ;
+    sh:nodeKind sh:IRI ;
+    sh:property shape:PlateAppearanceContextProperty,
+        shape:PitcherPersonProperty,
+        shape:PitcherRoleProperty ;
+    sh:property [
+        sh:path bfo:BFO_0000063 ;
+        sh:qualifiedValueShape [ sh:class base:PitchBallMotionProcess ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "A PitchAct must precede exactly one PitchBallMotionProcess."@en
+    ] ;
+    sh:sparql [
+        sh:message "The PitcherRole realized by a PitchAct must inhere in its pitcher participant."@en ;
+        sh:select """
+            PREFIX base: <https://baseballontology.org/>
+            PREFIX bfo: <http://purl.obolibrary.org/obo/>
+            PREFIX cco: <https://www.commoncoreontologies.org/>
+            SELECT $this WHERE {
+              $this bfo:BFO_0000057 ?person ; bfo:BFO_0000055 ?role .
+              ?person a cco:ont00001262 .
+              ?role a base:PitcherRole .
+              FILTER NOT EXISTS { ?role bfo:BFO_0000197 ?person }
+            }
+        """
+    ] .
+
+shape:BattingActionShape
+    a sh:NodeShape ;
+    sh:targetClass base:SwingAct, base:BuntAct ;
+    sh:nodeKind sh:IRI ;
+    sh:property shape:PlateAppearanceContextProperty,
+        shape:BatterActContextProperty,
+        shape:BatterPersonProperty,
+        shape:BatterRoleProperty ;
+    sh:property [
+        sh:path bfo:BFO_0000062 ;
+        sh:qualifiedValueShape [ sh:class base:PitchAct ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "A SwingAct or BuntAct must be preceded by exactly one PitchAct."@en
+    ] ;
+    sh:sparql [
+        sh:message "The BatterRole realized by a swing or bunt must inhere in its batter participant."@en ;
+        sh:select """
+            PREFIX base: <https://baseballontology.org/>
+            PREFIX bfo: <http://purl.obolibrary.org/obo/>
+            PREFIX cco: <https://www.commoncoreontologies.org/>
+            SELECT $this WHERE {
+              $this bfo:BFO_0000057 ?person ; bfo:BFO_0000055 ?role .
+              ?person a cco:ont00001262 .
+              ?role a base:BatterRole .
+              FILTER NOT EXISTS { ?role bfo:BFO_0000197 ?person }
+            }
+        """
+    ] .
+
+shape:ContactShape
+    a sh:NodeShape ;
+    sh:targetClass base:BatBallContactProcess ;
+    sh:nodeKind sh:IRI ;
+    sh:property shape:PlateAppearanceContextProperty ;
+    sh:property [
+        sh:path [ sh:inversePath bfo:BFO_0000063 ] ;
+        sh:qualifiedValueShape [
+            sh:or ( [ sh:class base:SwingAct ] [ sh:class base:BuntAct ] )
+        ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "A contact must be preceded by exactly one SwingAct or BuntAct."@en
+    ] ;
+    sh:property [
+        sh:path bfo:BFO_0000063 ;
+        sh:qualifiedValueShape [ sh:class base:BattedBallMotionProcess ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "A contact must precede exactly one BattedBallMotionProcess."@en
+    ] .
+
+shape:PitchBallMotionShape
+    a sh:NodeShape ;
+    sh:targetClass base:PitchBallMotionProcess ;
+    sh:nodeKind sh:IRI ;
+    sh:property shape:PlateAppearanceContextProperty ;
+    sh:property [
+        sh:path bfo:BFO_0000062 ;
+        sh:qualifiedValueShape [ sh:class base:PitchAct ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "Pitch-ball motion must be preceded by exactly one PitchAct."@en
+    ] .
+
+shape:BattedBallMotionShape
+    a sh:NodeShape ;
+    sh:targetClass base:BattedBallMotionProcess ;
+    sh:nodeKind sh:IRI ;
+    sh:property shape:PlateAppearanceContextProperty ;
+    sh:property [
+        sh:path bfo:BFO_0000062 ;
+        sh:qualifiedValueShape [ sh:class base:BatBallContactProcess ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "Batted-ball motion must be preceded by exactly one contact."@en
+    ] .
+
+shape:BaserunningActShape
+    a sh:NodeShape ;
+    sh:targetClass base:BaserunningAct ;
+    sh:nodeKind sh:IRI ;
+    sh:property shape:PlateAppearanceContextProperty ;
+    sh:property [
+        sh:path bfo:BFO_0000057 ;
+        sh:qualifiedValueShape [ sh:class cco:ont00001262 ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "A BaserunningAct must have exactly one runner Person participant."@en
+    ] ;
+    sh:property [
+        sh:path bfo:BFO_0000055 ;
+        sh:qualifiedValueShape [ sh:class base:BaserunnerRole ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "A BaserunningAct must realize exactly one BaserunnerRole."@en
+    ] ;
+    sh:sparql [
+        sh:message "The BaserunnerRole realized by a BaserunningAct must inhere in its runner participant."@en ;
+        sh:select """
+            PREFIX base: <https://baseballontology.org/>
+            PREFIX bfo: <http://purl.obolibrary.org/obo/>
+            PREFIX cco: <https://www.commoncoreontologies.org/>
+            SELECT $this WHERE {
+              $this bfo:BFO_0000057 ?person ; bfo:BFO_0000055 ?role .
+              ?person a cco:ont00001262 .
+              ?role a base:BaserunnerRole .
+              FILTER NOT EXISTS { ?role bfo:BFO_0000197 ?person }
+            }
+        """
+    ] .
+
+shape:RunnerResolutionShape
+    a sh:NodeShape ;
+    sh:targetClass base:RunnerResolutionProcess ;
+    sh:nodeKind sh:IRI ;
+    sh:property shape:PlateAppearanceContextProperty ;
+    sh:property [
+        sh:path bfo:BFO_0000062 ;
+        sh:qualifiedValueShape [ sh:class base:BaserunningAct ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "A RunnerResolutionProcess must be preceded by exactly one BaserunningAct."@en
+    ] ;
+    sh:property [
+        sh:path bfo:BFO_0000117 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "A RunnerResolutionProcess must contain exactly one judgment act."@en
+    ] .
+
+shape:JudgmentShape
+    a sh:NodeShape ;
+    sh:targetSubjectsOf cco:ont00001986 ;
+    sh:nodeKind sh:IRI ;
+    sh:property [
+        sh:path bfo:BFO_0000132 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "A judgment must be part of exactly one adjudicated process."@en
+    ] ;
+    sh:property [
+        sh:path cco:ont00001986 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "A judgment must have exactly one decision output."@en
+    ] ;
+    sh:property [
+        sh:path ( cco:ont00001986 cco:ont00001808 ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:equals bfo:BFO_0000132 ;
+        sh:message "A judgment's decision output must be about the process containing that judgment."@en
+    ] .
+
+shape:DecisionShape
+    a sh:NodeShape ;
+    sh:targetObjectsOf cco:ont00001986 ;
+    sh:nodeKind sh:IRI ;
+    sh:property [
+        sh:path cco:ont00001808 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "A baseball decision must be about exactly one adjudicated process."@en
+    ] .
+
+shape:AdjudicatedProcessShape
+    a sh:NodeShape ;
+    sh:targetClass base:BallProcess,
+        base:StrikeProcess,
+        base:FairBallProcess,
+        base:FoulBallProcess,
+        base:FoulTipProcess,
+        base:OutProcess,
+        base:SafeProcess,
+        base:RunProcess,
+        base:StolenBaseProcess,
+        base:BaseballInstitutionalProcess ;
+    sh:nodeKind sh:IRI ;
+    sh:property [
+        sh:path bfo:BFO_0000117 ;
+        sh:minCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "A counted institutional process must contain a judgment act."@en
+    ] .
+
+shape:TimestampShape
+    a sh:NodeShape ;
+    sh:targetClass base:BaseballTimestampICE ;
+    sh:nodeKind sh:IRI ;
+    sh:property [
+        sh:path cco:ont00001808 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "A timestamp must be about exactly one game."@en
+    ] ;
+    sh:property [
+        sh:path cco:ont00001916 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "A timestamp must designate exactly one temporal instant."@en
+    ] ;
+    sh:property [
+        sh:path cco:ont00001767 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "A timestamp must carry exactly one xsd:dateTime value."@en
+    ] .
+
+shape:EventRecordIdentityShape
+    a sh:NodeShape ;
+    sh:targetClass base:BaseballEventRecord ;
+    sh:nodeKind sh:IRI ;
+    sh:sparql [
+        sh:message "A BaseballEventRecord must not reuse the identity of an act or process."@en ;
+        sh:select """
+            PREFIX base: <https://baseballontology.org/>
+            PREFIX bfo: <http://purl.obolibrary.org/obo/>
+            PREFIX cco: <https://www.commoncoreontologies.org/>
+            SELECT $this WHERE {
+              $this a ?forbidden .
+              FILTER (?forbidden IN (
+                base:PitchAct, base:SwingAct, base:BuntAct,
+                base:BaseballPhysicalProcess, base:BaseballInstitutionalProcess
+              ))
+            }
+        """
+    ] .
+
+shape:PlateAppearanceContextProperty
+    a sh:PropertyShape ;
+    sh:path bfo:BFO_0000132 ;
+    sh:qualifiedValueShape [ sh:class base:PlateAppearance ] ;
+    sh:qualifiedMinCount 1 ;
+    sh:qualifiedMaxCount 1 ;
+    sh:message "The event must have exactly one PlateAppearance context."@en .
+
+shape:BatterActContextProperty
+    a sh:PropertyShape ;
+    sh:path bfo:BFO_0000132 ;
+    sh:qualifiedValueShape [ sh:class base:BatterAct ] ;
+    sh:qualifiedMinCount 1 ;
+    sh:qualifiedMaxCount 1 ;
+    sh:message "The batting event must have exactly one enclosing BatterAct."@en .
+
+shape:BatterPersonProperty
+    a sh:PropertyShape ;
+    sh:path bfo:BFO_0000057 ;
+    sh:qualifiedValueShape [ sh:class cco:ont00001262 ] ;
+    sh:qualifiedMinCount 1 ;
+    sh:qualifiedMaxCount 1 ;
+    sh:message "The batting event must have exactly one batter Person participant."@en .
+
+shape:BatterRoleProperty
+    a sh:PropertyShape ;
+    sh:path bfo:BFO_0000055 ;
+    sh:qualifiedValueShape [ sh:class base:BatterRole ] ;
+    sh:qualifiedMinCount 1 ;
+    sh:qualifiedMaxCount 1 ;
+    sh:message "The batting event must realize exactly one BatterRole."@en .
+
+shape:PitcherPersonProperty
+    a sh:PropertyShape ;
+    sh:path bfo:BFO_0000057 ;
+    sh:qualifiedValueShape [ sh:class cco:ont00001262 ] ;
+    sh:qualifiedMinCount 1 ;
+    sh:qualifiedMaxCount 1 ;
+    sh:message "A PitchAct must have exactly one pitcher Person participant."@en .
+
+shape:PitcherRoleProperty
+    a sh:PropertyShape ;
+    sh:path bfo:BFO_0000055 ;
+    sh:qualifiedValueShape [ sh:class base:PitcherRole ] ;
+    sh:qualifiedMinCount 1 ;
+    sh:qualifiedMaxCount 1 ;
+    sh:message "A PitchAct must realize exactly one PitcherRole."@en .

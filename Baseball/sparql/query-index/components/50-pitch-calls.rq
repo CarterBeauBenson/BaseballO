@@ -1,0 +1,38 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX idx: <https://w3id.org/baseball/query-index/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+
+CONSTRUCT {
+  ?call a idx:PitchCallFact ;
+      idx:pitch ?pitch ;
+      idx:agent ?pitcher ;
+      idx:game ?game ;
+      idx:callType ?callType ;
+      idx:derivedFrom ?record, ?judgment .
+}
+WHERE {
+  VALUES (?sourceGraph ?game) {
+    (<urn:baseball:query-index:source-graph> <urn:baseball:query-index:game>)
+  }
+  GRAPH ?sourceGraph {
+    ?pitch a base:PitchAct ;
+        obo:BFO_0000132 ?plateAppearance ;
+        obo:BFO_0000057 ?pitcher ;
+        obo:BFO_0000063 ?pitchMotion .
+    ?pitchMotion a base:PitchBallMotionProcess .
+    ?pitcher a cco:ont00001262 .
+    ?plateAppearance a base:PlateAppearance ;
+        obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
+    ?record a base:BaseballEventRecord ;
+        cco:ont00001808 ?pitch, ?call .
+    ?call a ?callClass ;
+        obo:BFO_0000117 ?judgment .
+    ?judgment a ?judgmentClass .
+    VALUES (?callClass ?judgmentClass ?callType) {
+      (base:BallProcess base:BallJudgmentAct idx:Ball)
+      (base:StrikeProcess base:StrikeJudgmentAct idx:Strike)
+      (base:StrikeProcess base:FoulTipJudgmentAct idx:Strike)
+    }
+  }
+}

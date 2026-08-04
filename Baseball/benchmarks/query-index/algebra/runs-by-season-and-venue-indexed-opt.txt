@@ -1,0 +1,17 @@
+(prefix ((idx: <https://w3id.org/baseball/query-index/>)
+         (rdfs: <http://www.w3.org/2000/01/rdf-schema#>)
+         (base: <https://baseballontology.org/>))
+  (project (?season ?venue ?venueLabel ?runs ?gamesWithRuns)
+    (order (?season (desc ?runs) (lcase (str ?venueLabel)))
+      (extend ((?runs ?.0) (?gamesWithRuns ?.1))
+        (group (?season ?venue ?venueLabel) ((?.0 (count distinct ?run)) (?.1 (count distinct ?game)))
+          (graph ?graph
+            (bgp
+              (triple ?run <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> idx:RunnerResolutionFact)
+              (triple ?run idx:resolutionClass base:RunProcess)
+              (triple ?run idx:game ?game)
+              (triple ?game <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> idx:GameFact)
+              (triple ?game idx:season ?season)
+              (triple ?game idx:venue ?venue)
+              (triple ?venue rdfs:label ?venueLabel)
+            )))))))

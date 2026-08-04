@@ -1,0 +1,15 @@
+(prefix ((obo: <http://purl.obolibrary.org/obo/>)
+         (rdfs: <http://www.w3.org/2000/01/rdf-schema#>)
+         (base: <https://baseballontology.org/>))
+  (project (?umpire ?umpireLabel ?games)
+    (order ((desc ?games) (lcase (str ?umpireLabel)))
+      (extend ((?games ?.0))
+        (group (?umpire ?umpireLabel) ((?.0 (count distinct ?game)))
+          (graph ?graph
+            (bgp
+              (triple ?game <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> base:BaseballGame)
+              (triple ?umpireRole <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> base:UmpireRole)
+              (triple ?umpireRole obo:BFO_0000197 ?umpire)
+              (triple ?umpireRole obo:BFO_0000054 ?game)
+              (triple ?umpire rdfs:label ?umpireLabel)
+            )))))))

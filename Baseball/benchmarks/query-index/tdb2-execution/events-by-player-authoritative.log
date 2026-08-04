@@ -1,0 +1,97 @@
+INFO  exec            :: QUERY
+  PREFIX  dcterms: <http://purl.org/dc/terms/>
+  PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+  PREFIX  obo:  <http://purl.obolibrary.org/obo/>
+  PREFIX  cco:  <https://www.commoncoreontologies.org/>
+  PREFIX  base: <https://baseballontology.org/>
+
+  SELECT  ?player ?playerLabel ?eventType (COUNT(DISTINCT ?resolution) AS ?events)
+  WHERE
+    { VALUES ?graph { <https://w3id.org/baseball/graph/game/822867> <https://w3id.org/baseball/graph/game/823431> <https://w3id.org/baseball/graph/game/823520> <https://w3id.org/baseball/graph/game/823757> <https://w3id.org/baseball/graph/game/824160> <https://w3id.org/baseball/graph/game/824324> <https://w3id.org/baseball/graph/game/824647> <https://w3id.org/baseball/graph/game/825095> }
+      GRAPH ?graph
+        { ?record   a                   base:BaseballEventRecord ;
+                    cco:ont00001808     ?resolution ;
+                    dcterms:identifier  ?eventType .
+          ?resolution  a                base:RunnerResolutionProcess ;
+                    obo:BFO_0000057     ?player ;
+                    obo:BFO_0000117     ?judgment .
+          ?judgment  a                  ?judgmentClass
+          VALUES ?judgmentClass { base:OutJudgmentAct base:SafeJudgmentAct base:RunJudgmentAct }
+          ?player  rdfs:label  ?playerLabel
+        }
+    }
+  GROUP BY ?player ?playerLabel ?eventType
+  ORDER BY lcase(str(?playerLabel)) DESC(?events) ?eventType
+INFO  exec            :: ALGEBRA
+  (project (?player ?playerLabel ?eventType ?events)
+    (order ((lcase (str ?playerLabel)) (desc ?events) ?eventType)
+      (extend ((?events ?.0))
+        (group (?player ?playerLabel ?eventType) ((?.0 (count distinct ?resolution)))
+          (sequence
+            (table (vars ?graph)
+              (row [?graph <https://w3id.org/baseball/graph/game/822867>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823431>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823520>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823757>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824160>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824324>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824647>])
+              (row [?graph <https://w3id.org/baseball/graph/game/825095>])
+            )
+            (sequence
+              (table (vars ?judgmentClass)
+                (row [?judgmentClass <https://baseballontology.org/OutJudgmentAct>])
+                (row [?judgmentClass <https://baseballontology.org/SafeJudgmentAct>])
+                (row [?judgmentClass <https://baseballontology.org/RunJudgmentAct>])
+              )
+              (quadpattern
+                (quad ?graph ?record <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballEventRecord>)
+                (quad ?graph ?record <https://www.commoncoreontologies.org/ont00001808> ?resolution)
+                (quad ?graph ?record <http://purl.org/dc/terms/identifier> ?eventType)
+                (quad ?graph ?resolution <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/RunnerResolutionProcess>)
+                (quad ?graph ?resolution <http://purl.obolibrary.org/obo/BFO_0000057> ?player)
+                (quad ?graph ?resolution <http://purl.obolibrary.org/obo/BFO_0000117> ?judgment)
+                (quad ?graph ?judgment <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?judgmentClass)
+                (quad ?graph ?player <http://www.w3.org/2000/01/rdf-schema#label> ?playerLabel)
+              )))))))
+INFO  exec            :: TDB2
+  (project (?player ?playerLabel ?eventType ?events)
+    (order ((lcase (str ?playerLabel)) (desc ?events) ?eventType)
+      (extend ((?events ?.0))
+        (group (?player ?playerLabel ?eventType) ((?.0 (count distinct ?resolution)))
+          (sequence
+            (table (vars ?graph)
+              (row [?graph <https://w3id.org/baseball/graph/game/822867>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823431>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823520>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823757>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824160>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824324>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824647>])
+              (row [?graph <https://w3id.org/baseball/graph/game/825095>])
+            )
+            (sequence
+              (table (vars ?judgmentClass)
+                (row [?judgmentClass <https://baseballontology.org/OutJudgmentAct>])
+                (row [?judgmentClass <https://baseballontology.org/SafeJudgmentAct>])
+                (row [?judgmentClass <https://baseballontology.org/RunJudgmentAct>])
+              )
+              (quadpattern
+                (quad ?graph ?record <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballEventRecord>)
+                (quad ?graph ?record <https://www.commoncoreontologies.org/ont00001808> ?resolution)
+                (quad ?graph ?record <http://purl.org/dc/terms/identifier> ?eventType)
+                (quad ?graph ?resolution <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/RunnerResolutionProcess>)
+                (quad ?graph ?resolution <http://purl.obolibrary.org/obo/BFO_0000057> ?player)
+                (quad ?graph ?resolution <http://purl.obolibrary.org/obo/BFO_0000117> ?judgment)
+                (quad ?graph ?judgment <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?judgmentClass)
+                (quad ?graph ?player <http://www.w3.org/2000/01/rdf-schema#label> ?playerLabel)
+              )))))))
+INFO  exec            :: Execute
+  ?record rdf:type <https://baseballontology.org/BaseballEventRecord>
+  ?record <https://www.commoncoreontologies.org/ont00001808> ?resolution
+  ?resolution rdf:type <https://baseballontology.org/RunnerResolutionProcess>
+  ?record <http://purl.org/dc/terms/identifier> ?eventType
+  ?resolution <http://purl.obolibrary.org/obo/BFO_0000057> ?player
+  ?resolution <http://purl.obolibrary.org/obo/BFO_0000117> ?judgment
+  ?judgment rdf:type ?judgmentClass
+  ?player rdfs:label ?playerLabel

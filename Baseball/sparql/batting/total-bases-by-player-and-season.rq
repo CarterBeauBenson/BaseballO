@@ -1,0 +1,34 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?season ?player ?playerLabel (SUM(?bases) AS ?totalBases)
+WHERE {
+  GRAPH ?graph {
+    ?game a base:BaseballGame ;
+          obo:BFO_0000199/obo:BFO_0000222 ?startInstant .
+    ?timestamp a base:BaseballTimestampICE ;
+               cco:ont00001916 ?startInstant ;
+               cco:ont00001767 ?gameStart .
+    ?result a base:BaseballInstitutionalProcess, ?hitClass ;
+            obo:BFO_0000132 ?plateAppearance ;
+            obo:BFO_0000117 ?hitJudgment .
+    ?hitJudgment a base:HitJudgmentAct .
+    ?plateAppearance a base:PlateAppearance ;
+                     obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
+    ?batterAct a base:BatterAct ;
+               obo:BFO_0000132 ?plateAppearance ;
+               obo:BFO_0000057 ?player .
+    ?player rdfs:label ?playerLabel .
+    VALUES (?hitClass ?bases) {
+      (base:SingleProcess 1)
+      (base:DoubleProcess 2)
+      (base:TripleProcess 3)
+      (base:HomeRunProcess 4)
+    }
+    BIND(YEAR(?gameStart) AS ?season)
+  }
+}
+GROUP BY ?season ?player ?playerLabel
+ORDER BY ?season DESC(?totalBases) LCASE(STR(?playerLabel))

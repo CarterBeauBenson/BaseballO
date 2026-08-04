@@ -1,0 +1,58 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Positive-evidence funnel. Each stage is counted only when the graph contains
+# the explicit act/process relation; missing later stages are not inferred.
+SELECT ?batter ?batterLabel
+       (COUNT(DISTINCT ?pitch) AS ?pitches)
+       (COUNT(DISTINCT ?swing) AS ?swings)
+       (COUNT(DISTINCT ?contact) AS ?contacts)
+       (COUNT(DISTINCT ?fairBall) AS ?fairBalls)
+       (COUNT(DISTINCT ?foulBall) AS ?foulBalls)
+       (COUNT(DISTINCT ?foulTip) AS ?foulTips)
+       (COUNT(DISTINCT ?terminalResult) AS ?terminalResults)
+       (COUNT(DISTINCT ?hitResult) AS ?hits)
+       (COUNT(DISTINCT ?outResult) AS ?battedOutcomes)
+WHERE {
+  GRAPH ?graph {
+    ?batterAct a base:BatterAct ;
+        obo:BFO_0000132 ?plateAppearance ;
+        obo:BFO_0000057 ?batter .
+    ?batter rdfs:label ?batterLabel .
+    ?pitch a base:PitchAct ; obo:BFO_0000132 ?plateAppearance .
+    OPTIONAL {
+      ?swing a base:SwingAct ;
+          obo:BFO_0000132 ?plateAppearance ;
+          obo:BFO_0000062 ?pitch .
+      OPTIONAL {
+        ?swing obo:BFO_0000063 ?contact .
+        ?contact a base:BatBallContactProcess ; obo:BFO_0000063 ?motion .
+        ?motion a base:BattedBallMotionProcess .
+        OPTIONAL { ?fairBall a base:FairBallProcess ; obo:BFO_0000062 ?motion . }
+        OPTIONAL { ?foulBall a base:FoulBallProcess ; obo:BFO_0000062 ?motion . }
+        OPTIONAL { ?foulTip a base:FoulTipProcess ; obo:BFO_0000062 ?motion . }
+        OPTIONAL {
+          ?motion obo:BFO_0000063 ?terminalResult .
+          ?terminalResult a base:BaseballInstitutionalProcess .
+          OPTIONAL {
+            ?hitResult a ?hitType .
+            FILTER(?hitResult = ?terminalResult)
+            VALUES ?hitType { base:SingleProcess base:DoubleProcess base:TripleProcess base:HomeRunProcess }
+          }
+          OPTIONAL {
+            ?outResult a ?outType .
+            FILTER(?outResult = ?terminalResult)
+            VALUES ?outType {
+              base:BattedBallOutProcess base:ForceOutProcess base:DoublePlayProcess
+              base:GroundedIntoDoublePlayProcess base:SacrificeFlyProcess base:SacrificeBuntProcess
+            }
+          }
+        }
+      }
+    }
+  }
+  FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+}
+GROUP BY ?batter ?batterLabel
+ORDER BY DESC(?contacts) ?batterLabel

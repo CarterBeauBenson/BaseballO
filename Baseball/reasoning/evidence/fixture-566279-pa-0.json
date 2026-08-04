@@ -1,0 +1,53 @@
+{
+  "artifactType": "baseball-selective-reasoning-proof-baseline",
+  "contractVersion": 1,
+  "gamePk": "566279",
+  "anchor": "https://baseballontology.org/data/game/566279/plate-appearance/0",
+  "sourceRdfSha256": "b6205b858bc3a8284359477224833229fc4c7c289de899c07220a16d011c3f84",
+  "bfoCommit": "dd89f4a193038b66ef0e891d546c05a5b477f40f",
+  "backend": "z3-solver",
+  "backendVersion": "5.0.0",
+  "backendScriptSha256": "c777a99842b18ddeef7047735e62db5e7769e79a419671b9a509b2de97f00af4",
+  "scope": "Selected CLIF axiom projections only; not arbitrary CLIF or the complete BFO theory.",
+  "totalObligations": 107,
+  "totalProved": 107,
+  "allProfilesConsistent": true,
+  "profiles": [
+    {
+      "profile": "event-order",
+      "reasoningGraph": "https://w3id.org/baseball/graph/reasoning/event-order/game/566279/anchor/ab702b79a8308d81/rules/a6e840be1383af7e",
+      "rulesetSha256": "a6e840be1383af7e002a0350e709c0c1352f037180f57a256fad7cf8cf8cf594",
+      "profileSha256": "c00b1ff05f8ae1fefb129998030ff315e1737316237d0161f8182352024c1cf1",
+      "proofReportSha256": "3b3b6758e8587575e8d7d38d6180762591573278bb48ba0316752e894a441ee6",
+      "assertedRelevantFactCount": 26,
+      "obligationCount": 52,
+      "provedCount": 52,
+      "consistency": "sat",
+      "durationMs": 9004.276
+    },
+    {
+      "profile": "event-structure",
+      "reasoningGraph": "https://w3id.org/baseball/graph/reasoning/event-structure/game/566279/anchor/ab702b79a8308d81/rules/48213c73afdfc011",
+      "rulesetSha256": "48213c73afdfc0113d12d8088dba7191a941070561bb8bb50522c8da16f0aacc",
+      "profileSha256": "0769a71727733adc7553b18d51d2a21d91d15b0c86103ed19c494b78865653c0",
+      "proofReportSha256": "2d98caf389243c3c6916d90e62b95e3c1c90bd6c87c7fa299fd0b40a119cf1b2",
+      "assertedRelevantFactCount": 53,
+      "obligationCount": 47,
+      "provedCount": 47,
+      "consistency": "sat",
+      "durationMs": 2339.954
+    },
+    {
+      "profile": "participation",
+      "reasoningGraph": "https://w3id.org/baseball/graph/reasoning/participation/game/566279/anchor/ab702b79a8308d81/rules/5fdac8a163ef7745",
+      "rulesetSha256": "5fdac8a163ef774551540390417ea86b674c1beb4550c75cc9a8f18feaaf3ee9",
+      "profileSha256": "da2d44f7fee92659ce982603d912d2ae7822730ca7b9ef4dd05ce4cfebb03a6c",
+      "proofReportSha256": "a33dc7cf5c9d32e5b7d7e9f9160381adda1967159d3c32dc072f666861dd0a9f",
+      "assertedRelevantFactCount": 8,
+      "obligationCount": 8,
+      "provedCount": 8,
+      "consistency": "sat",
+      "durationMs": 180.178
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX idx: <https://w3id.org/baseball/query-index/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+
+CONSTRUCT {
+  ?hit a idx:HitFact ;
+      idx:agent ?player ;
+      idx:game ?game ;
+      idx:venue ?venue ;
+      idx:hitType ?hitClass ;
+      idx:plateAppearance ?plateAppearance ;
+      idx:derivedFrom ?batterAct, ?hitJudgment .
+}
+WHERE {
+  VALUES (?sourceGraph ?game) {
+    (<urn:baseball:query-index:source-graph> <urn:baseball:query-index:game>)
+  }
+  GRAPH ?sourceGraph {
+    ?hit a base:BaseballInstitutionalProcess, ?hitClass ;
+        obo:BFO_0000132 ?plateAppearance ;
+        obo:BFO_0000117 ?hitJudgment ;
+        cco:ont00001918 ?field .
+    ?hitJudgment a base:HitJudgmentAct .
+    ?batterAct a base:BatterAct ;
+        obo:BFO_0000132 ?plateAppearance ;
+        obo:BFO_0000057 ?player .
+    ?player a cco:ont00001262 .
+    ?plateAppearance a base:PlateAppearance ;
+        obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
+    ?field a base:BaseballFieldSite ;
+        obo:BFO_0000171 ?venue .
+    VALUES ?hitClass {
+      base:SingleProcess base:DoubleProcess base:TripleProcess base:HomeRunProcess
+    }
+  }
+}

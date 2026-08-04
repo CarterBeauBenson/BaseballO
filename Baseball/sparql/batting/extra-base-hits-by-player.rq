@@ -1,0 +1,20 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?player ?playerLabel (COUNT(DISTINCT ?result) AS ?extraBaseHits)
+WHERE {
+  GRAPH ?graph {
+    ?result a base:BaseballInstitutionalProcess, ?hitClass ;
+            obo:BFO_0000132 ?plateAppearance ;
+            obo:BFO_0000117 ?hitJudgment .
+    ?hitJudgment a base:HitJudgmentAct .
+    ?batterAct a base:BatterAct ;
+               obo:BFO_0000132 ?plateAppearance ;
+               obo:BFO_0000057 ?player .
+    ?player rdfs:label ?playerLabel .
+    VALUES ?hitClass { base:DoubleProcess base:TripleProcess base:HomeRunProcess }
+  }
+}
+GROUP BY ?player ?playerLabel
+ORDER BY DESC(?extraBaseHits) LCASE(STR(?playerLabel))

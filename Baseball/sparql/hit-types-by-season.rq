@@ -1,0 +1,33 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+
+SELECT ?season ?hitType
+       (COUNT(DISTINCT ?hit) AS ?hits)
+       (COUNT(DISTINCT ?game) AS ?gamesWithHitType)
+WHERE {
+  GRAPH ?graph {
+    ?game a base:BaseballGame ;
+          obo:BFO_0000199/obo:BFO_0000222 ?gameStartInstant .
+    ?gameStartTimestamp a base:BaseballTimestampICE ;
+                        cco:ont00001916 ?gameStartInstant ;
+                        cco:ont00001767 ?gameStart .
+
+    ?hit a base:BaseballInstitutionalProcess, ?hitClass ;
+         obo:BFO_0000132 ?plateAppearance ;
+         obo:BFO_0000117 ?hitJudgment .
+    ?hitJudgment a base:HitJudgmentAct .
+    ?plateAppearance a base:PlateAppearance ;
+                     obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
+
+    VALUES (?hitClass ?hitType) {
+      (base:SingleProcess "single")
+      (base:DoubleProcess "double")
+      (base:TripleProcess "triple")
+      (base:HomeRunProcess "home_run")
+    }
+    BIND(YEAR(?gameStart) AS ?season)
+  }
+}
+GROUP BY ?season ?hitType
+ORDER BY ?season DESC(?hits) ?hitType

@@ -1,0 +1,78 @@
+INFO  exec            :: QUERY
+  PREFIX  idx:  <https://w3id.org/baseball/query-index/>
+  PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+  PREFIX  base: <https://baseballontology.org/>
+
+  SELECT  ?season ?venue ?venueLabel (COUNT(DISTINCT ?run) AS ?runs) (COUNT(DISTINCT ?game) AS ?gamesWithRuns)
+  WHERE
+    { VALUES ?graph { <https://w3id.org/baseball/graph/query-index/game/822867> <https://w3id.org/baseball/graph/query-index/game/823431> <https://w3id.org/baseball/graph/query-index/game/823520> <https://w3id.org/baseball/graph/query-index/game/823757> <https://w3id.org/baseball/graph/query-index/game/824160> <https://w3id.org/baseball/graph/query-index/game/824324> <https://w3id.org/baseball/graph/query-index/game/824647> <https://w3id.org/baseball/graph/query-index/game/825095> }
+      GRAPH ?graph
+        { ?run    a                    idx:RunnerResolutionFact ;
+                  idx:resolutionClass  base:RunProcess ;
+                  idx:game             ?game .
+          ?game   a                    idx:GameFact ;
+                  idx:season           ?season ;
+                  idx:venue            ?venue .
+          ?venue  rdfs:label           ?venueLabel
+        }
+    }
+  GROUP BY ?season ?venue ?venueLabel
+  ORDER BY ?season DESC(?runs) lcase(str(?venueLabel))
+INFO  exec            :: ALGEBRA
+  (project (?season ?venue ?venueLabel ?runs ?gamesWithRuns)
+    (order (?season (desc ?runs) (lcase (str ?venueLabel)))
+      (extend ((?runs ?.0) (?gamesWithRuns ?.1))
+        (group (?season ?venue ?venueLabel) ((?.0 (count distinct ?run)) (?.1 (count distinct ?game)))
+          (sequence
+            (table (vars ?graph)
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/822867>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/823431>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/823520>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/823757>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/824160>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/824324>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/824647>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/825095>])
+            )
+            (quadpattern
+              (quad ?graph ?run <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://w3id.org/baseball/query-index/RunnerResolutionFact>)
+              (quad ?graph ?run <https://w3id.org/baseball/query-index/resolutionClass> <https://baseballontology.org/RunProcess>)
+              (quad ?graph ?run <https://w3id.org/baseball/query-index/game> ?game)
+              (quad ?graph ?game <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://w3id.org/baseball/query-index/GameFact>)
+              (quad ?graph ?game <https://w3id.org/baseball/query-index/season> ?season)
+              (quad ?graph ?game <https://w3id.org/baseball/query-index/venue> ?venue)
+              (quad ?graph ?venue <http://www.w3.org/2000/01/rdf-schema#label> ?venueLabel)
+            ))))))
+INFO  exec            :: TDB2
+  (project (?season ?venue ?venueLabel ?runs ?gamesWithRuns)
+    (order (?season (desc ?runs) (lcase (str ?venueLabel)))
+      (extend ((?runs ?.0) (?gamesWithRuns ?.1))
+        (group (?season ?venue ?venueLabel) ((?.0 (count distinct ?run)) (?.1 (count distinct ?game)))
+          (sequence
+            (table (vars ?graph)
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/822867>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/823431>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/823520>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/823757>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/824160>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/824324>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/824647>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/825095>])
+            )
+            (quadpattern
+              (quad ?graph ?run <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://w3id.org/baseball/query-index/RunnerResolutionFact>)
+              (quad ?graph ?run <https://w3id.org/baseball/query-index/resolutionClass> <https://baseballontology.org/RunProcess>)
+              (quad ?graph ?run <https://w3id.org/baseball/query-index/game> ?game)
+              (quad ?graph ?game <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://w3id.org/baseball/query-index/GameFact>)
+              (quad ?graph ?game <https://w3id.org/baseball/query-index/season> ?season)
+              (quad ?graph ?game <https://w3id.org/baseball/query-index/venue> ?venue)
+              (quad ?graph ?venue <http://www.w3.org/2000/01/rdf-schema#label> ?venueLabel)
+            ))))))
+INFO  exec            :: Execute
+  ?run <https://w3id.org/baseball/query-index/resolutionClass> <https://baseballontology.org/RunProcess>
+  ?run rdf:type <https://w3id.org/baseball/query-index/RunnerResolutionFact>
+  ?run <https://w3id.org/baseball/query-index/game> ?game
+  ?game rdf:type <https://w3id.org/baseball/query-index/GameFact>
+  ?game <https://w3id.org/baseball/query-index/season> ?season
+  ?game <https://w3id.org/baseball/query-index/venue> ?venue
+  ?venue rdfs:label ?venueLabel

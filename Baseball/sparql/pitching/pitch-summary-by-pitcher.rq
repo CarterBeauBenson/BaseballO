@@ -1,0 +1,39 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?pitcher ?pitcherLabel
+       (COUNT(DISTINCT ?pitch) AS ?pitches)
+       (COUNT(DISTINCT ?ball) AS ?balls)
+       (COUNT(DISTINCT ?strike) AS ?strikes)
+       (COUNT(DISTINCT ?plateAppearance) AS ?plateAppearances)
+WHERE {
+  GRAPH ?graph {
+    ?pitch a base:PitchAct ;
+           obo:BFO_0000132 ?plateAppearance ;
+           obo:BFO_0000057 ?pitcher ;
+           obo:BFO_0000063 ?pitchMotion .
+    ?pitchMotion a base:PitchBallMotionProcess .
+    ?pitcher rdfs:label ?pitcherLabel .
+    OPTIONAL {
+      ?ballRecord a base:BaseballEventRecord ;
+                  cco:ont00001808 ?pitch, ?ball .
+      ?ball a base:BallProcess ;
+            obo:BFO_0000117 ?ballJudgment .
+      ?ballJudgment a base:BallJudgmentAct .
+    }
+    OPTIONAL {
+      ?strikeRecord a base:BaseballEventRecord ;
+                    cco:ont00001808 ?pitch, ?strike .
+      ?strike a base:StrikeProcess ;
+              obo:BFO_0000117 ?strikeJudgment .
+      ?strikeJudgment a ?strikeJudgmentClass .
+      VALUES ?strikeJudgmentClass {
+        base:StrikeJudgmentAct base:FoulTipJudgmentAct
+      }
+    }
+  }
+}
+GROUP BY ?pitcher ?pitcherLabel
+ORDER BY DESC(?pitches) LCASE(STR(?pitcherLabel))

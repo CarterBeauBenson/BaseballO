@@ -1,0 +1,70 @@
+INFO  exec            :: QUERY
+  PREFIX  obo:  <http://purl.obolibrary.org/obo/>
+  PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+  PREFIX  base: <https://baseballontology.org/>
+
+  SELECT  ?umpire ?umpireLabel (COUNT(DISTINCT ?game) AS ?games)
+  WHERE
+    { VALUES ?graph { <https://w3id.org/baseball/graph/game/822867> <https://w3id.org/baseball/graph/game/823431> <https://w3id.org/baseball/graph/game/823520> <https://w3id.org/baseball/graph/game/823757> <https://w3id.org/baseball/graph/game/824160> <https://w3id.org/baseball/graph/game/824324> <https://w3id.org/baseball/graph/game/824647> <https://w3id.org/baseball/graph/game/825095> }
+      GRAPH ?graph
+        { ?game     a                base:BaseballGame .
+          ?umpireRole  a             base:UmpireRole ;
+                    obo:BFO_0000197  ?umpire ;
+                    obo:BFO_0000054  ?game .
+          ?umpire   rdfs:label       ?umpireLabel
+        }
+    }
+  GROUP BY ?umpire ?umpireLabel
+  ORDER BY DESC(?games) lcase(str(?umpireLabel))
+INFO  exec            :: ALGEBRA
+  (project (?umpire ?umpireLabel ?games)
+    (order ((desc ?games) (lcase (str ?umpireLabel)))
+      (extend ((?games ?.0))
+        (group (?umpire ?umpireLabel) ((?.0 (count distinct ?game)))
+          (sequence
+            (table (vars ?graph)
+              (row [?graph <https://w3id.org/baseball/graph/game/822867>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823431>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823520>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823757>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824160>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824324>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824647>])
+              (row [?graph <https://w3id.org/baseball/graph/game/825095>])
+            )
+            (quadpattern
+              (quad ?graph ?game <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballGame>)
+              (quad ?graph ?umpireRole <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/UmpireRole>)
+              (quad ?graph ?umpireRole <http://purl.obolibrary.org/obo/BFO_0000197> ?umpire)
+              (quad ?graph ?umpireRole <http://purl.obolibrary.org/obo/BFO_0000054> ?game)
+              (quad ?graph ?umpire <http://www.w3.org/2000/01/rdf-schema#label> ?umpireLabel)
+            ))))))
+INFO  exec            :: TDB2
+  (project (?umpire ?umpireLabel ?games)
+    (order ((desc ?games) (lcase (str ?umpireLabel)))
+      (extend ((?games ?.0))
+        (group (?umpire ?umpireLabel) ((?.0 (count distinct ?game)))
+          (sequence
+            (table (vars ?graph)
+              (row [?graph <https://w3id.org/baseball/graph/game/822867>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823431>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823520>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823757>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824160>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824324>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824647>])
+              (row [?graph <https://w3id.org/baseball/graph/game/825095>])
+            )
+            (quadpattern
+              (quad ?graph ?game <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballGame>)
+              (quad ?graph ?umpireRole <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/UmpireRole>)
+              (quad ?graph ?umpireRole <http://purl.obolibrary.org/obo/BFO_0000197> ?umpire)
+              (quad ?graph ?umpireRole <http://purl.obolibrary.org/obo/BFO_0000054> ?game)
+              (quad ?graph ?umpire <http://www.w3.org/2000/01/rdf-schema#label> ?umpireLabel)
+            ))))))
+INFO  exec            :: Execute
+  ?game rdf:type <https://baseballontology.org/BaseballGame>
+  ?umpireRole <http://purl.obolibrary.org/obo/BFO_0000054> ?game
+  ?umpireRole rdf:type <https://baseballontology.org/UmpireRole>
+  ?umpireRole <http://purl.obolibrary.org/obo/BFO_0000197> ?umpire
+  ?umpire rdfs:label ?umpireLabel

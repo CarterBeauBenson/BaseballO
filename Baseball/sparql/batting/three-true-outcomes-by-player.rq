@@ -1,0 +1,27 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?player ?playerLabel
+       (SUM(IF(?outcomeClass = base:HomeRunProcess, 1, 0)) AS ?homeRuns)
+       (SUM(IF(?outcomeClass = base:WalkProcess, 1, 0)) AS ?walks)
+       (SUM(IF(?outcomeClass = base:StrikeoutProcess, 1, 0)) AS ?strikeouts)
+       (COUNT(DISTINCT ?result) AS ?threeTrueOutcomes)
+WHERE {
+  GRAPH ?graph {
+    ?result a base:BaseballInstitutionalProcess, ?outcomeClass ;
+            obo:BFO_0000132 ?plateAppearance ;
+            obo:BFO_0000117 ?adjudication .
+    ?adjudication a base:BaseballAdjudicationAct .
+    ?batterAct a base:BatterAct ;
+               obo:BFO_0000132 ?plateAppearance ;
+               obo:BFO_0000057 ?player .
+    ?player rdfs:label ?playerLabel .
+    VALUES ?outcomeClass {
+      base:HomeRunProcess base:WalkProcess base:StrikeoutProcess
+    }
+  }
+}
+GROUP BY ?player ?playerLabel
+ORDER BY DESC(?threeTrueOutcomes) LCASE(STR(?playerLabel))

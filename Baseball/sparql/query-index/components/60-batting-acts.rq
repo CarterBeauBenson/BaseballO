@@ -1,0 +1,30 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX idx: <https://w3id.org/baseball/query-index/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+
+CONSTRUCT {
+  ?battingAct a idx:BattingActFact ;
+      idx:agent ?player ;
+      idx:game ?game ;
+      idx:plateAppearance ?plateAppearance ;
+      idx:battingActType ?battingActClass ;
+      idx:derivedFrom ?batterRole .
+}
+WHERE {
+  VALUES (?sourceGraph ?game) {
+    (<urn:baseball:query-index:source-graph> <urn:baseball:query-index:game>)
+  }
+  GRAPH ?sourceGraph {
+    ?battingAct a ?battingActClass ;
+        obo:BFO_0000132 ?plateAppearance ;
+        obo:BFO_0000057 ?player ;
+        obo:BFO_0000055 ?batterRole .
+    ?batterRole a base:BatterRole ;
+        obo:BFO_0000197 ?player .
+    ?player a cco:ont00001262 .
+    ?plateAppearance a base:PlateAppearance ;
+        obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
+    VALUES ?battingActClass { base:SwingAct base:BuntAct }
+  }
+}

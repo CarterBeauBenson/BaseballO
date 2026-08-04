@@ -1,0 +1,65 @@
+INFO  exec            :: QUERY
+  PREFIX  idx:  <https://w3id.org/baseball/query-index/>
+  PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+  SELECT  ?player ?playerLabel ?eventType (COUNT(DISTINCT ?resolution) AS ?events)
+  WHERE
+    { VALUES ?graph { <https://w3id.org/baseball/graph/query-index/game/822867> <https://w3id.org/baseball/graph/query-index/game/823431> <https://w3id.org/baseball/graph/query-index/game/823520> <https://w3id.org/baseball/graph/query-index/game/823757> <https://w3id.org/baseball/graph/query-index/game/824160> <https://w3id.org/baseball/graph/query-index/game/824324> <https://w3id.org/baseball/graph/query-index/game/824647> <https://w3id.org/baseball/graph/query-index/game/825095> }
+      GRAPH ?graph
+        { ?resolution  a                 idx:RunnerResolutionFact ;
+                    idx:agent            ?player ;
+                    idx:sourceEventType  ?eventType .
+          ?player   rdfs:label           ?playerLabel
+        }
+    }
+  GROUP BY ?player ?playerLabel ?eventType
+  ORDER BY lcase(str(?playerLabel)) DESC(?events) ?eventType
+INFO  exec            :: ALGEBRA
+  (project (?player ?playerLabel ?eventType ?events)
+    (order ((lcase (str ?playerLabel)) (desc ?events) ?eventType)
+      (extend ((?events ?.0))
+        (group (?player ?playerLabel ?eventType) ((?.0 (count distinct ?resolution)))
+          (sequence
+            (table (vars ?graph)
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/822867>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/823431>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/823520>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/823757>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/824160>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/824324>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/824647>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/825095>])
+            )
+            (quadpattern
+              (quad ?graph ?resolution <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://w3id.org/baseball/query-index/RunnerResolutionFact>)
+              (quad ?graph ?resolution <https://w3id.org/baseball/query-index/agent> ?player)
+              (quad ?graph ?resolution <https://w3id.org/baseball/query-index/sourceEventType> ?eventType)
+              (quad ?graph ?player <http://www.w3.org/2000/01/rdf-schema#label> ?playerLabel)
+            ))))))
+INFO  exec            :: TDB2
+  (project (?player ?playerLabel ?eventType ?events)
+    (order ((lcase (str ?playerLabel)) (desc ?events) ?eventType)
+      (extend ((?events ?.0))
+        (group (?player ?playerLabel ?eventType) ((?.0 (count distinct ?resolution)))
+          (sequence
+            (table (vars ?graph)
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/822867>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/823431>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/823520>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/823757>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/824160>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/824324>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/824647>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/825095>])
+            )
+            (quadpattern
+              (quad ?graph ?resolution <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://w3id.org/baseball/query-index/RunnerResolutionFact>)
+              (quad ?graph ?resolution <https://w3id.org/baseball/query-index/agent> ?player)
+              (quad ?graph ?resolution <https://w3id.org/baseball/query-index/sourceEventType> ?eventType)
+              (quad ?graph ?player <http://www.w3.org/2000/01/rdf-schema#label> ?playerLabel)
+            ))))))
+INFO  exec            :: Execute
+  ?resolution rdf:type <https://w3id.org/baseball/query-index/RunnerResolutionFact>
+  ?resolution <https://w3id.org/baseball/query-index/agent> ?player
+  ?resolution <https://w3id.org/baseball/query-index/sourceEventType> ?eventType
+  ?player rdfs:label ?playerLabel

@@ -1,0 +1,754 @@
+@prefix base: <https://baseballontology.org/> .
+@prefix cco: <https://www.commoncoreontologies.org/> .
+@prefix cpo: <http://www.ontologyrepository.com/CommonCoreOntologies/> .
+@prefix mro: <https://www.commoncoreontologies.org/mro/> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://baseballontology.org/baseball-event-ontology-axioms-overlay>
+    a owl:Ontology ;
+    owl:versionIRI <https://baseballontology.org/2026-07-30/baseball-event-ontology-axioms-overlay> ;
+    owl:versionInfo "0.1.0"@en ;
+    owl:imports
+        <https://baseballontology.org/baseball-event-ontology> ,
+        <http://www.ontologyrepository.com/CommonCoreOntologies/Domain/CognitiveProcessOntology> ,
+        <https://www.commoncoreontologies.org/ModalRelationOntology> ;
+    dcterms:title "Baseball Event and Adjudication Ontology Axiom Overlay"@en ;
+    dcterms:created "2026-07-30"^^xsd:date ;
+    rdfs:comment "Optional logical axioms for the Baseball Event and Adjudication Ontology. Load this ontology with BaseballO to enable the restrictions below; omit it to use only BaseballO's annotated taxonomic backbone."@en ;
+    rdfs:comment "All class and object-property IRIs used by this overlay are declared in, or referenced by, the ontology files stored in this repository. The overlay intentionally states only necessary conditions when the complete natural-language differentia cannot be represented without new vocabulary."@en .
+
+
+#################################################################
+# Core game processes
+#################################################################
+
+base:BaseballGame
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001920 ; owl:someValuesFrom base:BaseballRule ] ,
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:BaseballAct ] ,
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:BaseballPhysicalProcess ] ,
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:BaseballInstitutionalProcess ] .
+
+base:Inning
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000132 ; owl:someValuesFrom base:BaseballGame ] ,
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:HalfInning ] .
+
+base:HalfInning
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000132 ; owl:someValuesFrom base:Inning ] ,
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000057 ; owl:someValuesFrom base:BaseballTeam ] .
+
+base:PlateAppearance
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000132 ; owl:someValuesFrom base:HalfInning ] .
+
+base:BattedBallPlayProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:BatBallContactProcess ] ,
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:BattedBallMotionProcess ] .
+
+
+#################################################################
+# Artifacts and sites
+#################################################################
+
+base:Baseball
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty mro:BFO_0000056 ; owl:someValuesFrom base:BaseballGame ] .
+
+base:BaseballBat
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty mro:BFO_0000056 ; owl:someValuesFrom base:BatUseAct ] .
+
+base:Base
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty mro:BFO_0000056 ; owl:someValuesFrom base:BaserunningAct ] .
+
+base:BaseballFieldSite
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty mro:BFO_0000183 ; owl:someValuesFrom base:BaseballGame ] .
+
+#################################################################
+# Roles
+#################################################################
+
+base:BaseballParticipantRole
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000197 ; owl:someValuesFrom cco:ont00001017 ] ,
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000054 ; owl:someValuesFrom base:BaseballAct ] .
+
+base:PlayerRole
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000054 ; owl:someValuesFrom base:PlayerAct ] .
+
+base:BatterRole
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000054 ; owl:someValuesFrom base:BatterAct ] .
+
+base:PitcherRole
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000054 ; owl:someValuesFrom base:PitcherAct ] .
+
+base:FielderRole
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000054 ; owl:someValuesFrom base:FielderAct ] .
+
+base:BaserunnerRole
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000054 ; owl:someValuesFrom base:BaserunnerAct ] .
+
+base:ManagerRole
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000054 ; owl:someValuesFrom base:ManagerAct ] .
+
+base:BaseballAdjudicatorRole
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000197 ; owl:someValuesFrom cco:ont00001017 ] ,
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000054 ; owl:someValuesFrom base:BaseballAdjudicationAct ] .
+
+base:UmpireRole
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000054 ; owl:someValuesFrom base:UmpireJudgmentAct ] .
+
+base:OfficialScorerRole
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000054 ; owl:someValuesFrom base:ScorerJudgmentAct ] .
+
+
+#################################################################
+# Intentional baseball acts
+#################################################################
+
+base:BaseballAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000132 ; owl:someValuesFrom base:BaseballGame ] .
+
+base:PlayerAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000055 ; owl:someValuesFrom base:PlayerRole ] .
+
+base:BatterAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000055 ; owl:someValuesFrom base:BatterRole ] .
+
+base:BatUseAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000057 ; owl:someValuesFrom base:BaseballBat ] ,
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000057 ; owl:someValuesFrom base:Baseball ] .
+
+base:SwingAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000057 ; owl:someValuesFrom base:BaseballBat ] .
+
+base:BuntAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000057 ; owl:someValuesFrom base:BaseballBat ] .
+
+base:PitcherAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000055 ; owl:someValuesFrom base:PitcherRole ] .
+
+base:PitchAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000057 ; owl:someValuesFrom base:Baseball ] ,
+        [ a owl:Restriction ; owl:onProperty cco:ont00001920 ; owl:someValuesFrom base:PitchRule ] .
+
+base:FielderAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000055 ; owl:someValuesFrom base:FielderRole ] .
+
+base:FieldingAttemptAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000057 ; owl:someValuesFrom base:Baseball ] .
+
+base:CatchAttemptAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000057 ; owl:someValuesFrom base:Baseball ] .
+
+base:ThrowAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000057 ; owl:someValuesFrom base:Baseball ] .
+
+base:TagAttemptAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000057 ; owl:someValuesFrom base:Baseball ] .
+
+base:BaserunnerAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000055 ; owl:someValuesFrom base:BaserunnerRole ] .
+
+base:BaserunningAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000057 ; owl:someValuesFrom base:Base ] .
+
+base:ManagerAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000055 ; owl:someValuesFrom base:ManagerRole ] .
+
+base:SubstitutionAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001778 ; owl:someValuesFrom base:PlayerRole ] .
+
+base:ChallengeAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:BaseballJudgmentAct ] .
+
+base:BaseballAdjudicationAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000055 ; owl:someValuesFrom base:BaseballAdjudicatorRole ] ,
+        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:BaseballDecisionICE ] .
+
+
+#################################################################
+# Physical baseball processes
+#################################################################
+
+base:BaseballPhysicalProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000132 ; owl:someValuesFrom base:BaseballGame ] .
+
+base:PitchBallMotionProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:PitchAct ] ,
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000057 ; owl:someValuesFrom base:Baseball ] .
+
+base:BatBallContactProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:BatUseAct ] ,
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000057 ; owl:someValuesFrom base:BaseballBat ] ,
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000057 ; owl:someValuesFrom base:Baseball ] .
+
+base:BattedBallMotionProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:BatBallContactProcess ] ,
+        [ a owl:Restriction ; owl:onProperty cco:ont00001819 ; owl:someValuesFrom base:BatBallContactProcess ] ,
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000057 ; owl:someValuesFrom base:Baseball ] .
+
+base:ThrownBallMotionProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:ThrowAct ] ,
+        [ a owl:Restriction ; owl:onProperty cco:ont00001819 ; owl:someValuesFrom base:ThrowAct ] ,
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000057 ; owl:someValuesFrom base:Baseball ] .
+
+base:BallDeflectionProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000057 ; owl:someValuesFrom base:Baseball ] .
+
+base:BallCatchingProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000057 ; owl:someValuesFrom base:Baseball ] .
+
+base:BallControlProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000057 ; owl:someValuesFrom base:Baseball ] .
+
+base:BallControlFailureProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000057 ; owl:someValuesFrom base:Baseball ] .
+
+base:TaggingProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000057 ; owl:someValuesFrom base:Baseball ] .
+
+base:BaseTouchingProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000057 ; owl:someValuesFrom base:Base ] .
+
+base:BallBoundaryCrossingProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000057 ; owl:someValuesFrom base:Baseball ] .
+
+
+#################################################################
+# Decision information content entities
+#################################################################
+
+base:BaseballDecisionICE
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001816 ; owl:someValuesFrom base:BaseballAdjudicationAct ] ,
+        [ a owl:Restriction ; owl:onProperty cco:ont00001808 ; owl:someValuesFrom base:BaseballRule ] .
+
+base:BallDecisionICE
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001816 ; owl:someValuesFrom base:BallJudgmentAct ] .
+
+base:StrikeDecisionICE
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001816 ; owl:someValuesFrom base:StrikeJudgmentAct ] .
+
+base:FairDecisionICE
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001816 ; owl:someValuesFrom base:FairBallJudgmentAct ] .
+
+base:FoulDecisionICE
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001816 ; owl:someValuesFrom base:FoulBallJudgmentAct ] .
+
+base:OutDecisionICE
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001816 ; owl:someValuesFrom base:OutJudgmentAct ] .
+
+base:SafeDecisionICE
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001816 ; owl:someValuesFrom base:SafeJudgmentAct ] .
+
+base:HitDecisionICE
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001816 ; owl:someValuesFrom base:HitJudgmentAct ] .
+
+base:ErrorDecisionICE
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001816 ; owl:someValuesFrom base:ErrorJudgmentAct ] .
+
+base:FieldersChoiceDecisionICE
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001816 ; owl:someValuesFrom base:FieldersChoiceJudgmentAct ] .
+
+base:SacrificeDecisionICE
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001816 ; owl:someValuesFrom base:SacrificeJudgmentAct ] .
+
+base:RunDecisionICE
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001816 ; owl:someValuesFrom base:RunJudgmentAct ] .
+
+base:StolenBaseDecisionICE
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001816 ; owl:someValuesFrom base:StolenBaseJudgmentAct ] .
+
+base:BaseballEventRecord
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001982 ; owl:someValuesFrom base:BaseballInstitutionalProcess ] .
+
+
+#################################################################
+# Judgment acts
+#################################################################
+
+base:BaseballJudgmentAct
+    rdfs:subClassOf cpo:ActOfJudging .
+
+base:UmpireJudgmentAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000055 ; owl:someValuesFrom base:UmpireRole ] .
+
+base:ScorerJudgmentAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000055 ; owl:someValuesFrom base:OfficialScorerRole ] .
+
+base:PitchJudgmentAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001920 ; owl:someValuesFrom base:PitchRule ] .
+
+base:BallJudgmentAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:BallDecisionICE ] .
+
+base:StrikeJudgmentAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:StrikeDecisionICE ] .
+
+base:FairFoulJudgmentAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001920 ; owl:someValuesFrom base:FairFoulRule ] .
+
+base:FairBallJudgmentAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:FairDecisionICE ] .
+
+base:FoulBallJudgmentAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:FoulDecisionICE ] .
+
+base:OutSafeJudgmentAct
+    rdfs:subClassOf
+        [ a owl:Restriction ;
+          owl:onProperty cco:ont00001920 ;
+          owl:someValuesFrom [ a owl:Class ; owl:unionOf ( base:OutRule base:SafeRule ) ]
+        ] .
+
+base:OutJudgmentAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:OutDecisionICE ] .
+
+base:SafeJudgmentAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:SafeDecisionICE ] .
+
+base:ScoringJudgmentAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001920 ; owl:someValuesFrom base:BaseballRule ] .
+
+base:HitJudgmentAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:HitDecisionICE ] .
+
+base:ErrorJudgmentAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:ErrorDecisionICE ] .
+
+base:FieldersChoiceJudgmentAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:FieldersChoiceDecisionICE ] .
+
+base:SacrificeJudgmentAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:SacrificeDecisionICE ] .
+
+base:RunJudgmentAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:RunDecisionICE ] ,
+        [ a owl:Restriction ; owl:onProperty cco:ont00001920 ; owl:someValuesFrom base:RunRule ] .
+
+base:StolenBaseJudgmentAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:StolenBaseDecisionICE ] .
+
+
+#################################################################
+# Public call acts
+#################################################################
+
+base:BaseballCallAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001921 ; owl:someValuesFrom base:BaseballDecisionICE ] ,
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:BaseballAdjudicationAct ] .
+
+base:PitchCallAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:PitchJudgmentAct ] .
+
+base:BallCallAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001921 ; owl:someValuesFrom base:BallDecisionICE ] ,
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:BallJudgmentAct ] .
+
+base:StrikeCallAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001921 ; owl:someValuesFrom base:StrikeDecisionICE ] ,
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:StrikeJudgmentAct ] .
+
+base:FairFoulCallAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:FairFoulJudgmentAct ] .
+
+base:FairCallAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001921 ; owl:someValuesFrom base:FairDecisionICE ] ,
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:FairBallJudgmentAct ] .
+
+base:FoulCallAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001921 ; owl:someValuesFrom base:FoulDecisionICE ] ,
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:FoulBallJudgmentAct ] .
+
+base:OutSafeCallAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:OutSafeJudgmentAct ] .
+
+base:OutCallAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001921 ; owl:someValuesFrom base:OutDecisionICE ] ,
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:OutJudgmentAct ] .
+
+base:SafeCallAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001921 ; owl:someValuesFrom base:SafeDecisionICE ] ,
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:SafeJudgmentAct ] .
+
+
+#################################################################
+# Institutionally counted processes
+#################################################################
+
+base:BaseballInstitutionalProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:BaseballAdjudicationAct ] .
+
+base:PitchClassificationProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001920 ; owl:someValuesFrom base:PitchRule ] ,
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:PitchJudgmentAct ] .
+
+base:BallProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:BallJudgmentAct ] .
+
+base:StrikeProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:StrikeJudgmentAct ] .
+
+base:BattedBallClassificationProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:BatBallContactProcess ] .
+
+base:FairBallProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:FairBallJudgmentAct ] .
+
+base:FoulBallProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:FoulBallJudgmentAct ] .
+
+base:ScoringClassificationProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:ScoringJudgmentAct ] .
+
+base:HitProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:BatBallContactProcess ] ,
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:HitJudgmentAct ] .
+
+base:ErrorProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:ErrorJudgmentAct ] .
+
+base:FieldersChoiceProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:FieldersChoiceJudgmentAct ] .
+
+base:SacrificeProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:SacrificeJudgmentAct ] .
+
+base:OutProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:OutJudgmentAct ] .
+
+base:SafeProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:SafeJudgmentAct ] .
+
+base:RunProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:RunJudgmentAct ] .
+
+base:BattedBallOutProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:BatBallContactProcess ] .
+
+base:CatchOutProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:BallCatchingProcess ] .
+
+base:ForceOutProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:BaseTouchingProcess ] .
+
+base:TagOutProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:TaggingProcess ] .
+
+base:StrikeoutProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:StrikeProcess ] ,
+        [ a owl:Restriction ; owl:onProperty cco:ont00001920 ; owl:someValuesFrom base:StrikeRule ] .
+
+base:WalkProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:BallProcess ] ,
+        [ a owl:Restriction ; owl:onProperty cco:ont00001920 ; owl:someValuesFrom base:BallRule ] .
+
+base:HitByPitchProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:PitchBallMotionProcess ] ,
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000057 ; owl:someValuesFrom base:Baseball ] .
+
+base:BalkProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001920 ; owl:someValuesFrom base:BalkRule ] .
+
+base:InterferenceProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001920 ; owl:someValuesFrom base:InterferenceRule ] .
+
+base:ObstructionProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001920 ; owl:someValuesFrom base:ObstructionRule ] .
+
+base:StolenBaseProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:StealAttemptAct ] ,
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:StolenBaseJudgmentAct ] .
+
+
+#################################################################
+# Rules
+#################################################################
+
+base:BaseballRule
+    rdfs:subClassOf
+        [ a owl:Restriction ;
+          owl:onProperty cco:ont00001942 ;
+          owl:someValuesFrom [ a owl:Class ; owl:unionOf ( base:BaseballAct base:BaseballInstitutionalProcess ) ]
+        ] .
+
+base:PitchRule
+    rdfs:subClassOf
+        [ a owl:Restriction ;
+          owl:onProperty cco:ont00001942 ;
+          owl:someValuesFrom [ a owl:Class ; owl:unionOf ( base:PitchAct base:PitchClassificationProcess ) ]
+        ] .
+
+base:BallRule
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001942 ; owl:someValuesFrom base:BallProcess ] .
+
+base:StrikeRule
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001942 ; owl:someValuesFrom base:StrikeProcess ] .
+
+base:FairFoulRule
+    rdfs:subClassOf
+        [ a owl:Restriction ;
+          owl:onProperty cco:ont00001942 ;
+          owl:someValuesFrom [ a owl:Class ; owl:unionOf ( base:FairBallProcess base:FoulBallProcess ) ]
+        ] .
+
+base:HitRule
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001942 ; owl:someValuesFrom base:HitProcess ] .
+
+base:ErrorRule
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001942 ; owl:someValuesFrom base:ErrorProcess ] .
+
+base:FieldersChoiceRule
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001942 ; owl:someValuesFrom base:FieldersChoiceProcess ] .
+
+base:SacrificeRule
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001942 ; owl:someValuesFrom base:SacrificeProcess ] .
+
+base:OutRule
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001942 ; owl:someValuesFrom base:OutProcess ] .
+
+base:SafeRule
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001942 ; owl:someValuesFrom base:SafeProcess ] .
+
+base:RunRule
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001942 ; owl:someValuesFrom base:RunProcess ] .
+
+base:BalkRule
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001942 ; owl:someValuesFrom base:BalkProcess ] .
+
+base:InterferenceRule
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001942 ; owl:someValuesFrom base:InterferenceProcess ] .
+
+base:ObstructionRule
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001942 ; owl:someValuesFrom base:ObstructionProcess ] .
+
+
+#################################################################
+# Statistics
+#################################################################
+
+base:BaseballStatisticICE
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001816 ; owl:someValuesFrom base:BaseballStatisticCalculation ] .
+
+base:BaseballStatisticAlgorithm
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001942 ; owl:someValuesFrom base:BaseballStatisticCalculation ] .
+
+base:BaseballStatisticCalculation
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001921 ; owl:someValuesFrom base:BaseballStatisticAlgorithm ] ,
+        [ a owl:Restriction ; owl:onProperty cco:ont00001921 ; owl:someValuesFrom base:BaseballEventRecord ] ,
+        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:BaseballStatisticICE ] .
+
+
+#################################################################
+# Teams, venues, temporal entities, and coordinates
+#################################################################
+
+base:BaseballTeam
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty mro:BFO_0000056 ; owl:someValuesFrom base:BaseballGame ] .
+
+base:BaseballGameTeamRole
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000197 ; owl:someValuesFrom base:BaseballTeam ] ,
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000054 ; owl:someValuesFrom base:BaseballGame ] .
+
+base:HomeTeamRole
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000197 ; owl:someValuesFrom base:BaseballTeam ] .
+
+base:AwayTeamRole
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000197 ; owl:someValuesFrom base:BaseballTeam ] .
+
+base:HomeBaseballTeam
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000196 ; owl:someValuesFrom base:HomeTeamRole ] .
+
+base:AwayBaseballTeam
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000196 ; owl:someValuesFrom base:AwayTeamRole ] .
+
+base:BaseballVenue
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty mro:BFO_0000183 ; owl:someValuesFrom base:BaseballGame ] .
+
+base:BaseballGameTemporalInterval
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001874 ; owl:someValuesFrom base:BaseballGame ] .
+
+base:BaseballTimestampICE
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001916 ; owl:someValuesFrom obo:BFO_0000148 ] .
+
+base:BaseballFieldCoordinateReferenceSystemICE
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001942 ; owl:someValuesFrom base:BaseballFieldCoordinateICE ] .
+
+base:BaseballFieldCoordinateICE
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001938 ; owl:someValuesFrom obo:BFO_0000029 ] .
+
+base:BattedBallLocationSite
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001879 ; owl:someValuesFrom base:BaseballFieldCoordinateICE ] .
+
+
+#################################################################
+# Compound and specialized play patterns
+#################################################################
+
+base:DoublePlayProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ;
+          owl:onProperty cco:ont00001777 ;
+          owl:qualifiedCardinality "2"^^xsd:nonNegativeInteger ;
+          owl:onClass base:OutProcess
+        ] .
+
+base:FoulTipJudgmentAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:BatBallContactProcess ] ,
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:BallCatchingProcess ] ,
+        [ a owl:Restriction ; owl:onProperty cco:ont00001920 ; owl:someValuesFrom base:StrikeRule ] .
+
+base:FoulTipProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:FoulTipJudgmentAct ] ,
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:BatBallContactProcess ] ,
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:BallCatchingProcess ] .
+
+base:FoulTipCallICE
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001816 ; owl:someValuesFrom base:FoulTipJudgmentAct ] .

@@ -1,0 +1,39 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Destinations are inferred only from explicit BaseTouchingProcess participants.
+# A touch followed by a safe/run resolution is counted once, even when the
+# underlying event has several records or judgments.
+SELECT ?player ?playerLabel ?destination ?resolution
+       (COUNT(DISTINCT ?baseTouch) AS ?touches)
+       (COUNT(DISTINCT ?game) AS ?games)
+WHERE {
+  GRAPH ?graph {
+    ?baseTouch a base:BaseTouchingProcess ;
+        obo:BFO_0000057 ?player, ?baseArtifact ;
+        obo:BFO_0000063 ?runnerResolution .
+    ?player rdfs:label ?playerLabel .
+    ?runnerResolution a base:RunnerResolutionProcess, ?resolutionClass ;
+        obo:BFO_0000132 ?plateAppearance .
+    ?plateAppearance a base:PlateAppearance ;
+        obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
+    ?game a base:BaseballGame .
+    VALUES (?resolutionClass ?resolution) {
+      (base:SafeProcess "safe")
+      (base:RunProcess "run")
+    }
+    {
+      ?baseArtifact a base:HomePlate .
+      BIND("home" AS ?destination)
+    }
+    UNION
+    {
+      ?baseArtifact a base:Base .
+      BIND(REPLACE(STR(?baseArtifact), "^.*/artifact/base/", "") AS ?destination)
+    }
+  }
+  FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+}
+GROUP BY ?player ?playerLabel ?destination ?resolution
+ORDER BY ?playerLabel ?destination ?resolution

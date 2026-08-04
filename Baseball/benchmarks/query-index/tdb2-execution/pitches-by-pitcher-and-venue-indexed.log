@@ -1,0 +1,69 @@
+INFO  exec            :: QUERY
+  PREFIX  idx:  <https://w3id.org/baseball/query-index/>
+  PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+  SELECT  ?venue ?venueLabel ?pitcher ?pitcherLabel (COUNT(DISTINCT ?pitch) AS ?pitches)
+  WHERE
+    { VALUES ?graph { <https://w3id.org/baseball/graph/query-index/game/822867> <https://w3id.org/baseball/graph/query-index/game/823431> <https://w3id.org/baseball/graph/query-index/game/823520> <https://w3id.org/baseball/graph/query-index/game/823757> <https://w3id.org/baseball/graph/query-index/game/824160> <https://w3id.org/baseball/graph/query-index/game/824324> <https://w3id.org/baseball/graph/query-index/game/824647> <https://w3id.org/baseball/graph/query-index/game/825095> }
+      GRAPH ?graph
+        { ?pitch    a           idx:PitchFact ;
+                    idx:agent   ?pitcher ;
+                    idx:venue   ?venue .
+          ?pitcher  rdfs:label  ?pitcherLabel .
+          ?venue    rdfs:label  ?venueLabel
+        }
+    }
+  GROUP BY ?venue ?venueLabel ?pitcher ?pitcherLabel
+  ORDER BY lcase(str(?venueLabel)) DESC(?pitches) lcase(str(?pitcherLabel))
+INFO  exec            :: ALGEBRA
+  (project (?venue ?venueLabel ?pitcher ?pitcherLabel ?pitches)
+    (order ((lcase (str ?venueLabel)) (desc ?pitches) (lcase (str ?pitcherLabel)))
+      (extend ((?pitches ?.0))
+        (group (?venue ?venueLabel ?pitcher ?pitcherLabel) ((?.0 (count distinct ?pitch)))
+          (sequence
+            (table (vars ?graph)
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/822867>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/823431>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/823520>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/823757>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/824160>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/824324>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/824647>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/825095>])
+            )
+            (quadpattern
+              (quad ?graph ?pitch <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://w3id.org/baseball/query-index/PitchFact>)
+              (quad ?graph ?pitch <https://w3id.org/baseball/query-index/agent> ?pitcher)
+              (quad ?graph ?pitch <https://w3id.org/baseball/query-index/venue> ?venue)
+              (quad ?graph ?pitcher <http://www.w3.org/2000/01/rdf-schema#label> ?pitcherLabel)
+              (quad ?graph ?venue <http://www.w3.org/2000/01/rdf-schema#label> ?venueLabel)
+            ))))))
+INFO  exec            :: TDB2
+  (project (?venue ?venueLabel ?pitcher ?pitcherLabel ?pitches)
+    (order ((lcase (str ?venueLabel)) (desc ?pitches) (lcase (str ?pitcherLabel)))
+      (extend ((?pitches ?.0))
+        (group (?venue ?venueLabel ?pitcher ?pitcherLabel) ((?.0 (count distinct ?pitch)))
+          (sequence
+            (table (vars ?graph)
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/822867>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/823431>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/823520>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/823757>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/824160>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/824324>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/824647>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/825095>])
+            )
+            (quadpattern
+              (quad ?graph ?pitch <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://w3id.org/baseball/query-index/PitchFact>)
+              (quad ?graph ?pitch <https://w3id.org/baseball/query-index/agent> ?pitcher)
+              (quad ?graph ?pitch <https://w3id.org/baseball/query-index/venue> ?venue)
+              (quad ?graph ?pitcher <http://www.w3.org/2000/01/rdf-schema#label> ?pitcherLabel)
+              (quad ?graph ?venue <http://www.w3.org/2000/01/rdf-schema#label> ?venueLabel)
+            ))))))
+INFO  exec            :: Execute
+  ?pitch rdf:type <https://w3id.org/baseball/query-index/PitchFact>
+  ?pitch <https://w3id.org/baseball/query-index/agent> ?pitcher
+  ?pitch <https://w3id.org/baseball/query-index/venue> ?venue
+  ?pitcher rdfs:label ?pitcherLabel
+  ?venue rdfs:label ?venueLabel

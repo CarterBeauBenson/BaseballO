@@ -1,0 +1,60 @@
+ontology_coverage_gaps:
+- id: field-relative-coordinate-values
+  status: missing ontology coverage
+  source_paths:
+  - playEvents[*].hitData.coordinates.coordX
+  - playEvents[*].hitData.coordinates.coordY
+  gap: No approved datatype properties represent the MLB field-relative X and Y values.
+  mapping_action: Create BaseballFieldCoordinateICE and its designated BattedBallLocationSite, but defer the coordinate literals.
+
+- id: venue-geographic-coordinate-ice
+  status: ontology alignment issue
+  source_paths:
+  - gameData.venue.location.defaultCoordinates.latitude
+  - gameData.venue.location.defaultCoordinates.longitude
+  gap: BaseballFieldCoordinateICE is field-relative and must not be used for geographic latitude and longitude.
+  mapping_action: Preserve the raw values and defer their RDF representation until an appropriate geographic-coordinate ICE pattern is approved.
+
+- id: pitch-and-batted-ball-measurements
+  status: missing ontology coverage
+  source_paths:
+  - playEvents[*].pitchData
+  - playEvents[*].hitData
+  gap: Approved measurement ICE classes and value properties for velocity, spin, launch angle, distance, and related values are incomplete.
+  mapping_action: Map source-supported acts and physical processes without metric triples.
+
+- id: action-event-identity-and-coverage
+  status: source and ontology gap
+  source_path: playEvents where isPitch is false
+  gap: Non-pitch actions often lack playId and include advisory or status records without an approved baseball act or process class.
+  mapping_action: Do not mint action individuals until identity and class coverage are approved.
+
+- id: runner-record-stable-identifier
+  status: resolved in execution context
+  source_path: allPlays[*].runners[*]
+  gap: A runner record exposes no source ID, array index, or ancestor atBatIndex in its local RML record.
+  mapping_action: Add the enclosing atBatIndex and zero-based runnerIndex only to the disposable execution context; use that structural pair for runner identities and plate-appearance containment while preserving the raw source unchanged.
+
+- id: fielding-credit-act-identity
+  status: source identity limitation
+  source_path: allPlays[*].runners[*].credits[*]
+  gap: A fielding credit lacks a stable ID and the ancestor context needed to create distinct FieldingAttemptAct, CatchAttemptAct, ThrowAct, or TagAttemptAct individuals.
+  mapping_action: Map the game-scoped FielderRole trigger only; do not reconstruct physical or intentional events from a counted result.
+
+- id: foul-count-transition
+  status: source and processor limitation
+  source_path: allPlays[*].playEvents[*].count.strikes
+  gap: An event-local foul record with count.strikes equal to 2 does not reveal whether the foul incremented the count from one or left an existing two-strike count unchanged.
+  mapping_action: Map a separate foul-related StrikeProcess only for the unambiguous count.strikes equal to 1 subset. Do not overstate ambiguous fouls.
+
+- id: pickoff-agent-context
+  status: source identity limitation
+  source_path: allPlays[*].runners[*].details.eventType
+  gap: A runner event may identify a pickoff outcome without identifying the pitcher who performed the PickoffAttemptAct in the local runner record.
+  mapping_action: Do not create a PickoffAttemptAct or infer throw and tag processes from the counted outcome alone.
+
+- id: completed-game-terminal-time
+  status: edge case
+  source_path: liveData.plays.allPlays[-1:].about.endTime
+  gap: The final play end time is the terminal feed time, but a walk-off game may end without a final out.
+  mapping_action: Use the final play end time for the game interval without asserting that it necessarily marks a final out.

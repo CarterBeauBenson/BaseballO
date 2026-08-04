@@ -1,0 +1,27 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?season ?awayTeam ?awayTeamLabel ?homeTeam ?homeTeamLabel
+       (COUNT(DISTINCT ?game) AS ?games)
+WHERE {
+  GRAPH ?graph {
+    ?game a base:BaseballGame ;
+          obo:BFO_0000199/obo:BFO_0000222 ?startInstant .
+    ?timestamp a base:BaseballTimestampICE ;
+               cco:ont00001916 ?startInstant ;
+               cco:ont00001767 ?gameStart .
+    ?awayRole a base:AwayTeamRole ;
+              obo:BFO_0000197 ?awayTeam ;
+              obo:BFO_0000054 ?game .
+    ?homeRole a base:HomeTeamRole ;
+              obo:BFO_0000197 ?homeTeam ;
+              obo:BFO_0000054 ?game .
+    ?awayTeam rdfs:label ?awayTeamLabel .
+    ?homeTeam rdfs:label ?homeTeamLabel .
+    BIND(YEAR(?gameStart) AS ?season)
+  }
+}
+GROUP BY ?season ?awayTeam ?awayTeamLabel ?homeTeam ?homeTeamLabel
+ORDER BY ?season DESC(?games) LCASE(STR(?awayTeamLabel)) LCASE(STR(?homeTeamLabel))

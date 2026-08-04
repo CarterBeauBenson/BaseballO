@@ -1,0 +1,13 @@
+(prefix ((idx: <https://w3id.org/baseball/query-index/>))
+  (project (?season ?eventType ?plateAppearances)
+    (order (?season (desc ?plateAppearances) ?eventType)
+      (extend ((?plateAppearances ?.0))
+        (group (?season ?eventType) ((?.0 (count distinct ?result)))
+          (graph ?graph
+            (bgp
+              (triple ?result <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> idx:PlateAppearanceResultFact)
+              (triple ?result idx:game ?game)
+              (triple ?result idx:sourceEventType ?eventType)
+              (triple ?game <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> idx:GameFact)
+              (triple ?game idx:season ?season)
+            )))))))

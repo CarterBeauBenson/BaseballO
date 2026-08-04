@@ -1,0 +1,41 @@
+{
+  "artifactType": "baseball-bfo-clif-source-manifest",
+  "contractVersion": 1,
+  "sourceRepository": "https://github.com/BFO-ontology/BFO-2020",
+  "commit": "dd89f4a193038b66ef0e891d546c05a5b477f40f",
+  "license": "CC-BY-4.0",
+  "baseUrl": "https://raw.githubusercontent.com/BFO-ontology/BFO-2020/dd89f4a193038b66ef0e891d546c05a5b477f40f/21838-2/common-logic",
+  "documentationUrl": "https://github.com/BFO-ontology/BFO-2020/tree/dd89f4a193038b66ef0e891d546c05a5b477f40f/documentation/axiomatization-pds",
+  "modules": [
+    {
+      "name": "universal-declaration.cl",
+      "bytes": 55815,
+      "sha256": "805e8022f15502d6065aec2f3de477b12c7558737dc954c46f428a830a28333d"
+    },
+    {
+      "name": "order.cl",
+      "bytes": 5233,
+      "sha256": "53333e7a9b0ccbcd92cf84e36f66cdd0fd27737b876f8a05faa3fd962b28012c"
+    },
+    {
+      "name": "occurrent-mereology.cl",
+      "bytes": 8225,
+      "sha256": "e17257985da8f4983afd0ad98e9d834fbcbbc0b2151d4324f198cf13a6a9760a"
+    },
+    {
+      "name": "participation.cl",
+      "bytes": 3323,
+      "sha256": "18f7db57637a1caadb19fe2e617d6adb509f2d6288ef6e393a9d2c293f718298"
+    },
+    {
+      "name": "existence-instantiation.cl",
+      "bytes": 2497,
+      "sha256": "78a5feb68bc8eeaea6672b8ee0babf702587c08462ceed5e398dac85a67af88f"
+    },
+    {
+      "name": "temporal-region.cl",
+      "bytes": 14849,
+      "sha256": "8185919745e0b7f2e01308e9d240f1e1c63b505ad02da0ca94f1cd58eaed8e14"
+    }
+  ]
+}

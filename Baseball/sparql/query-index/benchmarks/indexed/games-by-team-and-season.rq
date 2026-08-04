@@ -1,0 +1,18 @@
+PREFIX idx: <https://w3id.org/baseball/query-index/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?season ?team ?teamLabel (COUNT(DISTINCT ?game) AS ?games)
+WHERE {
+  GRAPH ?graph {
+    ?game a idx:GameFact ;
+          idx:season ?season .
+    ?assignment a idx:AssignmentFact ;
+                idx:assignee ?team ;
+                idx:assignmentType ?assignmentType ;
+                idx:game ?game .
+    VALUES ?assignmentType { idx:HomeTeam idx:AwayTeam }
+    ?team rdfs:label ?teamLabel .
+  }
+}
+GROUP BY ?season ?team ?teamLabel
+ORDER BY ?season DESC(?games) LCASE(STR(?teamLabel))

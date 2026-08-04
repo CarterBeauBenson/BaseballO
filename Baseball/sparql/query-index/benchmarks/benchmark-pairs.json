@@ -1,0 +1,114 @@
+{
+  "artifactType": "baseball-query-index-benchmark-pairs",
+  "contractVersion": 1,
+  "pairs": [
+    {
+      "name": "hits-by-player-and-venue",
+      "family": "hits",
+      "authoritative": "sparql/hits-by-player-and-venue.rq",
+      "indexed": "sparql/query-index/benchmarks/indexed/hits-by-player-and-venue.rq"
+    },
+    {
+      "name": "outcomes-by-player",
+      "family": "batting",
+      "authoritative": "sparql/batting/outcomes-by-player.rq",
+      "indexed": "sparql/query-index/benchmarks/indexed/outcomes-by-player.rq"
+    },
+    {
+      "name": "outcomes-by-season",
+      "family": "batting",
+      "authoritative": "sparql/batting/outcomes-by-season.rq",
+      "indexed": "sparql/query-index/benchmarks/indexed/outcomes-by-season.rq"
+    },
+    {
+      "name": "plate-appearances-by-player-and-season",
+      "family": "batting",
+      "authoritative": "sparql/batting/plate-appearances-by-player-and-season.rq",
+      "indexed": "sparql/query-index/benchmarks/indexed/plate-appearances-by-player-and-season.rq"
+    },
+    {
+      "name": "three-true-outcomes-by-player",
+      "family": "batting",
+      "authoritative": "sparql/batting/three-true-outcomes-by-player.rq",
+      "indexed": "sparql/query-index/benchmarks/indexed/three-true-outcomes-by-player.rq"
+    },
+    {
+      "name": "extra-base-hits-by-player",
+      "family": "batting",
+      "authoritative": "sparql/batting/extra-base-hits-by-player.rq",
+      "indexed": "sparql/query-index/benchmarks/indexed/extra-base-hits-by-player.rq"
+    },
+    {
+      "name": "home-runs-by-player-and-venue",
+      "family": "batting",
+      "authoritative": "sparql/batting/home-runs-by-player-and-venue.rq",
+      "indexed": "sparql/query-index/benchmarks/indexed/home-runs-by-player-and-venue.rq"
+    },
+    {
+      "name": "multi-hit-games",
+      "family": "batting",
+      "authoritative": "sparql/batting/multi-hit-games.rq",
+      "indexed": "sparql/query-index/benchmarks/indexed/multi-hit-games.rq"
+    },
+    {
+      "name": "total-bases-by-player-and-season",
+      "family": "batting",
+      "authoritative": "sparql/batting/total-bases-by-player-and-season.rq",
+      "indexed": "sparql/query-index/benchmarks/indexed/total-bases-by-player-and-season.rq"
+    },
+    {
+      "name": "hitless-games-by-player",
+      "family": "batting",
+      "authoritative": "sparql/batting/hitless-games-by-player.rq",
+      "indexed": "sparql/query-index/benchmarks/indexed/hitless-games-by-player.rq"
+    },
+    {
+      "name": "pitches-by-pitcher-and-venue",
+      "family": "pitching",
+      "authoritative": "sparql/pitching/pitches-by-pitcher-and-venue.rq",
+      "indexed": "sparql/query-index/benchmarks/indexed/pitches-by-pitcher-and-venue.rq"
+    },
+    {
+      "name": "pitch-summary-by-pitcher",
+      "family": "pitching",
+      "authoritative": "sparql/pitching/pitch-summary-by-pitcher.rq",
+      "indexed": "sparql/query-index/benchmarks/indexed/pitch-summary-by-pitcher.rq"
+    },
+    {
+      "name": "batted-balls-by-batter-and-venue",
+      "family": "pitching",
+      "authoritative": "sparql/pitching/batted-balls-by-batter-and-venue.rq",
+      "indexed": "sparql/query-index/benchmarks/indexed/batted-balls-by-batter-and-venue.rq"
+    },
+    {
+      "name": "events-by-player",
+      "family": "baserunning",
+      "authoritative": "sparql/baserunning/events-by-player.rq",
+      "indexed": "sparql/query-index/benchmarks/indexed/events-by-player.rq"
+    },
+    {
+      "name": "runs-by-season-and-venue",
+      "family": "baserunning",
+      "authoritative": "sparql/baserunning/runs-by-season-and-venue.rq",
+      "indexed": "sparql/query-index/benchmarks/indexed/runs-by-season-and-venue.rq"
+    },
+    {
+      "name": "games-by-team-and-season",
+      "family": "games",
+      "authoritative": "sparql/games/games-by-team-and-season.rq",
+      "indexed": "sparql/query-index/benchmarks/indexed/games-by-team-and-season.rq"
+    },
+    {
+      "name": "umpire-assignments",
+      "family": "games",
+      "authoritative": "sparql/games/umpire-assignments.rq",
+      "indexed": "sparql/query-index/benchmarks/indexed/umpire-assignments.rq"
+    },
+    {
+      "name": "available-players",
+      "family": "options",
+      "authoritative": "sparql/options/available-players.rq",
+      "indexed": "sparql/query-index/benchmarks/indexed/available-players.rq"
+    }
+  ]
+}

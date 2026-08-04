@@ -1,0 +1,11 @@
+PREFIX idx: <https://w3id.org/baseball/query-index/>
+
+CONSTRUCT {
+  <urn:baseball:query-index:index-resource> a idx:QueryIndex ;
+      idx:sourceGraph <urn:baseball:query-index:source-graph> ;
+      idx:indexedGame <urn:baseball:query-index:game> ;
+      idx:contractVersion "1" .
+}
+WHERE {
+  VALUES ?game { <urn:baseball:query-index:game> }
+}

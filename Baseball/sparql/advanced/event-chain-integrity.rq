@@ -1,0 +1,87 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+
+# Every row is either an explicit structural defect in a mapped act -> result ->
+# judgment/decision chain or a source outcome still using only the generic
+# terminal-result pattern. Generic coverage findings are kept visible rather
+# than being mislabeled as missing-rule defects.
+SELECT DISTINCT ?graph ?entity ?issue
+WHERE {
+  GRAPH ?graph {
+    {
+      ?entity a base:BaseballInstitutionalProcess ;
+          obo:BFO_0000132 ?plateAppearance .
+      ?plateAppearance a base:PlateAppearance .
+      FILTER NOT EXISTS {
+        ?entity obo:BFO_0000117 ?judgment .
+        ?judgment a base:BaseballAdjudicationAct .
+      }
+      BIND("plate-appearance result lacks adjudication" AS ?issue)
+    }
+    UNION
+    {
+      ?entity a base:BaseballAdjudicationAct ; obo:BFO_0000132 ?supportedResult .
+      ?supportedResult a ?supportedResultClass .
+      VALUES ?supportedResultClass {
+        base:HomeRunProcess base:BattedBallOutProcess base:DoubleProcess
+        base:WalkProcess base:ForceOutProcess base:StrikeoutProcess
+        base:SingleProcess base:GroundedIntoDoublePlayProcess
+        base:SacrificeFlyProcess base:DoublePlayProcess
+        base:FieldersChoiceProcess base:TripleProcess base:SacrificeBuntProcess
+        base:ErrorProcess base:HitByPitchProcess base:BalkProcess
+        base:InterferenceProcess
+      }
+      FILTER NOT EXISTS { ?entity cco:ont00001921 ?rule }
+      BIND("supported result adjudication lacks rule" AS ?issue)
+    }
+    UNION
+    {
+      ?entity a base:BaseballAdjudicationAct .
+      FILTER NOT EXISTS { ?entity cco:ont00001986 ?decision }
+      BIND("adjudication lacks decision" AS ?issue)
+    }
+    UNION
+    {
+      ?entity a base:BatBallContactProcess .
+      FILTER NOT EXISTS {
+        ?entity obo:BFO_0000063 ?motion .
+        ?motion a base:BattedBallMotionProcess .
+      }
+      BIND("contact lacks batted-ball motion successor" AS ?issue)
+    }
+    UNION
+    {
+      ?entity a base:RunnerResolutionProcess, ?resolutionClass .
+      VALUES (?resolutionClass ?judgmentClass) {
+        (base:RunProcess base:RunJudgmentAct)
+        (base:OutProcess base:OutJudgmentAct)
+        (base:SafeProcess base:SafeJudgmentAct)
+      }
+      FILTER NOT EXISTS {
+        ?entity obo:BFO_0000117 ?judgment .
+        ?judgment a ?judgmentClass .
+      }
+      BIND("runner resolution lacks matching judgment" AS ?issue)
+    }
+    UNION
+    {
+      ?record a base:BaseballEventRecord ;
+          cco:ont00001808 ?entity ;
+          <http://purl.org/dc/terms/identifier> ?eventType .
+      ?entity a base:BaseballInstitutionalProcess ; obo:BFO_0000132 ?plateAppearance .
+      FILTER(
+        LCASE(STR(?eventType)) NOT IN (
+          "home_run", "field_out", "double", "walk", "intent_walk",
+          "force_out", "strikeout", "single", "grounded_into_double_play",
+          "sac_fly", "double_play", "fielders_choice", "triple", "sac_bunt",
+          "fielders_choice_out", "field_error", "hit_by_pitch", "balk",
+          "catcher_interf"
+        )
+      )
+      BIND(CONCAT("generic-only terminal outcome requires pattern review: ", STR(?eventType)) AS ?issue)
+    }
+  }
+  FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+}
+ORDER BY ?graph ?issue ?entity

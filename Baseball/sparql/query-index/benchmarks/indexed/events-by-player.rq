@@ -1,0 +1,15 @@
+PREFIX idx: <https://w3id.org/baseball/query-index/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?player ?playerLabel ?eventType
+       (COUNT(DISTINCT ?resolution) AS ?events)
+WHERE {
+  GRAPH ?graph {
+    ?resolution a idx:RunnerResolutionFact ;
+                idx:agent ?player ;
+                idx:sourceEventType ?eventType .
+    ?player rdfs:label ?playerLabel .
+  }
+}
+GROUP BY ?player ?playerLabel ?eventType
+ORDER BY LCASE(STR(?playerLabel)) DESC(?events) ?eventType

@@ -1,0 +1,108 @@
+INFO  exec            :: QUERY
+  PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+  PREFIX  obo:  <http://purl.obolibrary.org/obo/>
+  PREFIX  cco:  <https://www.commoncoreontologies.org/>
+  PREFIX  base: <https://baseballontology.org/>
+
+  SELECT  ?season ?player ?playerLabel (COUNT(DISTINCT ?plateAppearance) AS ?plateAppearances) (COUNT(DISTINCT ?game) AS ?games)
+  WHERE
+    { VALUES ?graph { <https://w3id.org/baseball/graph/game/822867> <https://w3id.org/baseball/graph/game/823431> <https://w3id.org/baseball/graph/game/823520> <https://w3id.org/baseball/graph/game/823757> <https://w3id.org/baseball/graph/game/824160> <https://w3id.org/baseball/graph/game/824324> <https://w3id.org/baseball/graph/game/824647> <https://w3id.org/baseball/graph/game/825095> }
+      GRAPH ?graph
+        { ?game  a  base:BaseballGame .
+          ?game obo:BFO_0000199/obo:BFO_0000222 ?startInstant .
+          ?timestamp  a              base:BaseballTimestampICE ;
+                    cco:ont00001916  ?startInstant ;
+                    cco:ont00001767  ?gameStart .
+          ?batterAct  a              base:BatterAct ;
+                    obo:BFO_0000132  ?plateAppearance ;
+                    obo:BFO_0000057  ?player .
+          ?plateAppearance
+                    a                base:PlateAppearance .
+          ?plateAppearance (obo:BFO_0000132/obo:BFO_0000132)/obo:BFO_0000132 ?game .
+          ?player  rdfs:label  ?playerLabel
+          BIND(year(?gameStart) AS ?season)
+        }
+    }
+  GROUP BY ?season ?player ?playerLabel
+  ORDER BY ?season DESC(?plateAppearances) lcase(str(?playerLabel))
+INFO  exec            :: ALGEBRA
+  (project (?season ?player ?playerLabel ?plateAppearances ?games)
+    (order (?season (desc ?plateAppearances) (lcase (str ?playerLabel)))
+      (extend ((?plateAppearances ?.0) (?games ?.1))
+        (group (?season ?player ?playerLabel) ((?.0 (count distinct ?plateAppearance)) (?.1 (count distinct ?game)))
+          (join
+            (table (vars ?graph)
+              (row [?graph <https://w3id.org/baseball/graph/game/822867>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823431>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823520>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823757>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824160>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824324>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824647>])
+              (row [?graph <https://w3id.org/baseball/graph/game/825095>])
+            )
+            (extend ((?season (year ?gameStart)))
+              (quadpattern
+                (quad ?graph ?game <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballGame>)
+                (quad ?graph ?game <http://purl.obolibrary.org/obo/BFO_0000199> ??P0)
+                (quad ?graph ??P0 <http://purl.obolibrary.org/obo/BFO_0000222> ?startInstant)
+                (quad ?graph ?timestamp <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballTimestampICE>)
+                (quad ?graph ?timestamp <https://www.commoncoreontologies.org/ont00001916> ?startInstant)
+                (quad ?graph ?timestamp <https://www.commoncoreontologies.org/ont00001767> ?gameStart)
+                (quad ?graph ?batterAct <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BatterAct>)
+                (quad ?graph ?batterAct <http://purl.obolibrary.org/obo/BFO_0000132> ?plateAppearance)
+                (quad ?graph ?batterAct <http://purl.obolibrary.org/obo/BFO_0000057> ?player)
+                (quad ?graph ?plateAppearance <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/PlateAppearance>)
+                (quad ?graph ?plateAppearance <http://purl.obolibrary.org/obo/BFO_0000132> ??P2)
+                (quad ?graph ??P2 <http://purl.obolibrary.org/obo/BFO_0000132> ??P1)
+                (quad ?graph ??P1 <http://purl.obolibrary.org/obo/BFO_0000132> ?game)
+                (quad ?graph ?player <http://www.w3.org/2000/01/rdf-schema#label> ?playerLabel)
+              )))))))
+INFO  exec            :: TDB2
+  (project (?season ?player ?playerLabel ?plateAppearances ?games)
+    (order (?season (desc ?plateAppearances) (lcase (str ?playerLabel)))
+      (extend ((?plateAppearances ?.0) (?games ?.1))
+        (group (?season ?player ?playerLabel) ((?.0 (count distinct ?plateAppearance)) (?.1 (count distinct ?game)))
+          (join
+            (table (vars ?graph)
+              (row [?graph <https://w3id.org/baseball/graph/game/822867>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823431>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823520>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823757>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824160>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824324>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824647>])
+              (row [?graph <https://w3id.org/baseball/graph/game/825095>])
+            )
+            (extend ((?season (year ?gameStart)))
+              (quadpattern
+                (quad ?graph ?game <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballGame>)
+                (quad ?graph ?game <http://purl.obolibrary.org/obo/BFO_0000199> ??P0)
+                (quad ?graph ??P0 <http://purl.obolibrary.org/obo/BFO_0000222> ?startInstant)
+                (quad ?graph ?timestamp <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballTimestampICE>)
+                (quad ?graph ?timestamp <https://www.commoncoreontologies.org/ont00001916> ?startInstant)
+                (quad ?graph ?timestamp <https://www.commoncoreontologies.org/ont00001767> ?gameStart)
+                (quad ?graph ?batterAct <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BatterAct>)
+                (quad ?graph ?batterAct <http://purl.obolibrary.org/obo/BFO_0000132> ?plateAppearance)
+                (quad ?graph ?batterAct <http://purl.obolibrary.org/obo/BFO_0000057> ?player)
+                (quad ?graph ?plateAppearance <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/PlateAppearance>)
+                (quad ?graph ?plateAppearance <http://purl.obolibrary.org/obo/BFO_0000132> ??P2)
+                (quad ?graph ??P2 <http://purl.obolibrary.org/obo/BFO_0000132> ??P1)
+                (quad ?graph ??P1 <http://purl.obolibrary.org/obo/BFO_0000132> ?game)
+                (quad ?graph ?player <http://www.w3.org/2000/01/rdf-schema#label> ?playerLabel)
+              )))))))
+INFO  exec            :: Execute
+  ?game rdf:type <https://baseballontology.org/BaseballGame>
+  ?game <http://purl.obolibrary.org/obo/BFO_0000199> ??P0
+  ??P0 <http://purl.obolibrary.org/obo/BFO_0000222> ?startInstant
+  ?timestamp <https://www.commoncoreontologies.org/ont00001916> ?startInstant
+  ?timestamp rdf:type <https://baseballontology.org/BaseballTimestampICE>
+  ?timestamp <https://www.commoncoreontologies.org/ont00001767> ?gameStart
+  ??P1 <http://purl.obolibrary.org/obo/BFO_0000132> ?game
+  ??P2 <http://purl.obolibrary.org/obo/BFO_0000132> ??P1
+  ?plateAppearance <http://purl.obolibrary.org/obo/BFO_0000132> ??P2
+  ?plateAppearance rdf:type <https://baseballontology.org/PlateAppearance>
+  ?batterAct <http://purl.obolibrary.org/obo/BFO_0000132> ?plateAppearance
+  ?batterAct rdf:type <https://baseballontology.org/BatterAct>
+  ?batterAct <http://purl.obolibrary.org/obo/BFO_0000057> ?player
+  ?player rdfs:label ?playerLabel

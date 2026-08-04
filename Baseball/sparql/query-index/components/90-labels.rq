@@ -1,0 +1,11 @@
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+CONSTRUCT {
+  ?resource rdfs:label ?label .
+}
+WHERE {
+  VALUES ?sourceGraph { <urn:baseball:query-index:source-graph> }
+  GRAPH ?sourceGraph {
+    ?resource rdfs:label ?label .
+  }
+}

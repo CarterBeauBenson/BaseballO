@@ -1,0 +1,106 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Prototype only. See README.md for its explicit completeness boundary and
+# the contribution-policy decisions still requiring approval.
+SELECT ?player
+       (SAMPLE(?label) AS ?playerLabel)
+       (COUNT(DISTINCT ?game) AS ?emptyGames)
+WHERE {
+  # Begin with one row per observed batter/game pair. Keeping graph identity in
+  # the projected set lets each later exclusion run once as a set operation
+  # instead of repeating correlated absence checks for every batter act.
+  {
+    SELECT DISTINCT ?graph ?game ?player
+    WHERE {
+      GRAPH ?graph {
+        ?game a base:BaseballGame .
+        ?batterAct a base:BatterAct ;
+                   obo:BFO_0000057 ?player ;
+                   obo:BFO_0000132 ?plateAppearance .
+        ?plateAppearance a base:PlateAppearance ;
+                         obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
+      }
+      FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+    }
+  }
+
+  # Do not classify a graph whose PA result vocabulary is outside the current
+  # direct-mapping completeness profile (19 source tokens representing the
+  # reviewed result patterns; walk and intent_walk share one WalkProcess).
+  MINUS {
+    SELECT DISTINCT ?graph ?game
+    WHERE {
+      GRAPH ?graph {
+        ?game a base:BaseballGame .
+        ?unknownRecord a base:BaseballEventRecord ;
+                       cco:ont00001808 ?unknownResult ;
+                       dcterms:identifier ?unknownEventType .
+        ?unknownResult a base:BaseballInstitutionalProcess ;
+                       obo:BFO_0000132 ?unknownPlateAppearance .
+        ?unknownPlateAppearance a base:PlateAppearance .
+        FILTER(
+          LCASE(STR(?unknownEventType)) NOT IN (
+            "home_run", "field_out", "double", "walk", "intent_walk", "force_out",
+            "strikeout", "single", "grounded_into_double_play", "sac_fly",
+            "double_play", "fielders_choice", "triple", "sac_bunt",
+            "fielders_choice_out", "field_error", "hit_by_pitch", "balk",
+            "catcher_interf"
+          )
+        )
+      }
+      FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+    }
+  }
+
+  # Remove player/game pairs having any mapped qualifying PA result.
+  MINUS {
+    SELECT DISTINCT ?graph ?game ?player
+    WHERE {
+      GRAPH ?graph {
+        ?qualifyingBatterAct a base:BatterAct ;
+                             obo:BFO_0000057 ?player ;
+                             obo:BFO_0000132 ?qualifyingPlateAppearance .
+        ?qualifyingPlateAppearance a base:PlateAppearance ;
+          obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
+        ?qualifyingResult obo:BFO_0000132 ?qualifyingPlateAppearance ;
+                          a ?qualifyingType .
+        VALUES ?qualifyingType {
+          base:SingleProcess
+          base:DoubleProcess
+          base:TripleProcess
+          base:HomeRunProcess
+          base:WalkProcess
+          base:SacrificeFlyProcess
+          base:FieldersChoiceProcess
+        }
+      }
+      FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+    }
+  }
+
+  # Remove player/game pairs having an explicitly adjudicated stolen base.
+  MINUS {
+    SELECT DISTINCT ?graph ?game ?player
+    WHERE {
+      GRAPH ?graph {
+        ?stolenBase a base:StolenBaseProcess ;
+                    obo:BFO_0000057 ?player ;
+                    obo:BFO_0000132 ?stolenBasePlateAppearance ;
+                    obo:BFO_0000117 ?stolenBaseJudgment .
+        ?stolenBasePlateAppearance a base:PlateAppearance ;
+          obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
+        ?stolenBaseJudgment a base:StolenBaseJudgmentAct .
+      }
+      FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+    }
+  }
+
+  OPTIONAL { GRAPH ?graph { ?player rdfs:label ?label } }
+}
+GROUP BY ?player
+ORDER BY DESC(?emptyGames) LCASE(STR(?playerLabel))

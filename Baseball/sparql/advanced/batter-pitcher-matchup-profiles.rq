@@ -1,0 +1,41 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Positive observed matchup profile. It does not infer pitcher-of-record or
+# responsibility for runner events after a pitching change.
+SELECT ?batter ?batterLabel ?pitcher ?pitcherLabel
+       (COUNT(DISTINCT ?plateAppearance) AS ?plateAppearances)
+       (COUNT(DISTINCT ?pitch) AS ?pitches)
+       (COUNT(DISTINCT ?swing) AS ?swings)
+       (COUNT(DISTINCT ?contact) AS ?contacts)
+       (COUNT(DISTINCT ?hit) AS ?hits)
+       (COUNT(DISTINCT ?homeRun) AS ?homeRuns)
+       (COUNT(DISTINCT ?walk) AS ?walks)
+       (COUNT(DISTINCT ?strikeout) AS ?strikeouts)
+WHERE {
+  GRAPH ?graph {
+    ?batterAct a base:BatterAct ;
+        obo:BFO_0000132 ?plateAppearance ;
+        obo:BFO_0000057 ?batter .
+    ?batter rdfs:label ?batterLabel .
+    ?pitch a base:PitchAct ;
+        obo:BFO_0000132 ?plateAppearance ;
+        obo:BFO_0000057 ?pitcher .
+    ?pitcher rdfs:label ?pitcherLabel .
+    OPTIONAL { ?swing a base:SwingAct ; obo:BFO_0000132 ?plateAppearance . }
+    OPTIONAL { ?contact a base:BatBallContactProcess ; obo:BFO_0000132 ?plateAppearance . }
+    OPTIONAL {
+      ?hit a ?hitType ; obo:BFO_0000132 ?plateAppearance ; obo:BFO_0000117 ?hitJudgment .
+      ?hitJudgment a base:HitJudgmentAct .
+      VALUES ?hitType { base:SingleProcess base:DoubleProcess base:TripleProcess base:HomeRunProcess }
+    }
+    OPTIONAL { ?homeRun a base:HomeRunProcess ; obo:BFO_0000132 ?plateAppearance . }
+    OPTIONAL { ?walk a base:WalkProcess ; obo:BFO_0000132 ?plateAppearance . }
+    OPTIONAL { ?strikeout a base:StrikeoutProcess ; obo:BFO_0000132 ?plateAppearance . }
+  }
+  FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+}
+GROUP BY ?batter ?batterLabel ?pitcher ?pitcherLabel
+ORDER BY DESC(?plateAppearances) DESC(?pitches) ?batterLabel ?pitcherLabel

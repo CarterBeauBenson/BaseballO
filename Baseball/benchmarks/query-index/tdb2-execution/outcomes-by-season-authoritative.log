@@ -1,0 +1,171 @@
+INFO  exec            :: QUERY
+  PREFIX  obo:  <http://purl.obolibrary.org/obo/>
+  PREFIX  cco:  <https://www.commoncoreontologies.org/>
+  PREFIX  base: <https://baseballontology.org/>
+
+  SELECT  ?season ?eventType (COUNT(DISTINCT ?result) AS ?plateAppearances)
+  WHERE
+    { VALUES ?graph { <https://w3id.org/baseball/graph/game/822867> <https://w3id.org/baseball/graph/game/823431> <https://w3id.org/baseball/graph/game/823520> <https://w3id.org/baseball/graph/game/823757> <https://w3id.org/baseball/graph/game/824160> <https://w3id.org/baseball/graph/game/824324> <https://w3id.org/baseball/graph/game/824647> <https://w3id.org/baseball/graph/game/825095> }
+      GRAPH ?graph
+        { ?game  a  base:BaseballGame .
+          ?game obo:BFO_0000199/obo:BFO_0000222 ?startInstant .
+          ?timestamp  a              base:BaseballTimestampICE ;
+                    cco:ont00001916  ?startInstant ;
+                    cco:ont00001767  ?gameStart .
+          ?result   a                base:BaseballInstitutionalProcess ;
+                    a                ?outcomeClass ;
+                    obo:BFO_0000132  ?plateAppearance ;
+                    obo:BFO_0000117  ?adjudication .
+          ?adjudication
+                    a                base:BaseballAdjudicationAct .
+          ?plateAppearance
+                    a                base:PlateAppearance .
+          ?plateAppearance (obo:BFO_0000132/obo:BFO_0000132)/obo:BFO_0000132 ?game
+          VALUES ( ?outcomeClass ?eventType ) {
+            ( base:SingleProcess "single" )
+            ( base:DoubleProcess "double" )
+            ( base:TripleProcess "triple" )
+            ( base:HomeRunProcess "home_run" )
+            ( base:WalkProcess "walk" )
+            ( base:StrikeoutProcess "strikeout" )
+            ( base:HitByPitchProcess "hit_by_pitch" )
+            ( base:FieldersChoiceProcess "fielders_choice" )
+            ( base:ErrorProcess "field_error" )
+            ( base:SacrificeFlyProcess "sac_fly" )
+            ( base:SacrificeBuntProcess "sac_bunt" )
+            ( base:BattedBallOutProcess "field_out" )
+            ( base:ForceOutProcess "force_out" )
+            ( base:DoublePlayProcess "double_play" )
+            ( base:GroundedIntoDoublePlayProcess "grounded_into_double_play" )
+            ( base:BalkProcess "balk" )
+            ( base:InterferenceProcess "catcher_interf" )
+          }
+          BIND(year(?gameStart) AS ?season)
+        }
+    }
+  GROUP BY ?season ?eventType
+  ORDER BY ?season DESC(?plateAppearances) ?eventType
+INFO  exec            :: ALGEBRA
+  (project (?season ?eventType ?plateAppearances)
+    (order (?season (desc ?plateAppearances) ?eventType)
+      (extend ((?plateAppearances ?.0))
+        (group (?season ?eventType) ((?.0 (count distinct ?result)))
+          (join
+            (table (vars ?graph)
+              (row [?graph <https://w3id.org/baseball/graph/game/822867>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823431>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823520>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823757>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824160>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824324>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824647>])
+              (row [?graph <https://w3id.org/baseball/graph/game/825095>])
+            )
+            (extend ((?season (year ?gameStart)))
+              (sequence
+                (table (vars ?outcomeClass ?eventType)
+                  (row [?outcomeClass <https://baseballontology.org/SingleProcess>] [?eventType "single"])
+                  (row [?outcomeClass <https://baseballontology.org/DoubleProcess>] [?eventType "double"])
+                  (row [?outcomeClass <https://baseballontology.org/TripleProcess>] [?eventType "triple"])
+                  (row [?outcomeClass <https://baseballontology.org/HomeRunProcess>] [?eventType "home_run"])
+                  (row [?outcomeClass <https://baseballontology.org/WalkProcess>] [?eventType "walk"])
+                  (row [?outcomeClass <https://baseballontology.org/StrikeoutProcess>] [?eventType "strikeout"])
+                  (row [?outcomeClass <https://baseballontology.org/HitByPitchProcess>] [?eventType "hit_by_pitch"])
+                  (row [?outcomeClass <https://baseballontology.org/FieldersChoiceProcess>] [?eventType "fielders_choice"])
+                  (row [?outcomeClass <https://baseballontology.org/ErrorProcess>] [?eventType "field_error"])
+                  (row [?outcomeClass <https://baseballontology.org/SacrificeFlyProcess>] [?eventType "sac_fly"])
+                  (row [?outcomeClass <https://baseballontology.org/SacrificeBuntProcess>] [?eventType "sac_bunt"])
+                  (row [?outcomeClass <https://baseballontology.org/BattedBallOutProcess>] [?eventType "field_out"])
+                  (row [?outcomeClass <https://baseballontology.org/ForceOutProcess>] [?eventType "force_out"])
+                  (row [?outcomeClass <https://baseballontology.org/DoublePlayProcess>] [?eventType "double_play"])
+                  (row [?outcomeClass <https://baseballontology.org/GroundedIntoDoublePlayProcess>] [?eventType "grounded_into_double_play"])
+                  (row [?outcomeClass <https://baseballontology.org/BalkProcess>] [?eventType "balk"])
+                  (row [?outcomeClass <https://baseballontology.org/InterferenceProcess>] [?eventType "catcher_interf"])
+                )
+                (quadpattern
+                  (quad ?graph ?game <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballGame>)
+                  (quad ?graph ?game <http://purl.obolibrary.org/obo/BFO_0000199> ??P0)
+                  (quad ?graph ??P0 <http://purl.obolibrary.org/obo/BFO_0000222> ?startInstant)
+                  (quad ?graph ?timestamp <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballTimestampICE>)
+                  (quad ?graph ?timestamp <https://www.commoncoreontologies.org/ont00001916> ?startInstant)
+                  (quad ?graph ?timestamp <https://www.commoncoreontologies.org/ont00001767> ?gameStart)
+                  (quad ?graph ?result <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballInstitutionalProcess>)
+                  (quad ?graph ?result <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?outcomeClass)
+                  (quad ?graph ?result <http://purl.obolibrary.org/obo/BFO_0000132> ?plateAppearance)
+                  (quad ?graph ?result <http://purl.obolibrary.org/obo/BFO_0000117> ?adjudication)
+                  (quad ?graph ?adjudication <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballAdjudicationAct>)
+                  (quad ?graph ?plateAppearance <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/PlateAppearance>)
+                  (quad ?graph ?plateAppearance <http://purl.obolibrary.org/obo/BFO_0000132> ??P2)
+                  (quad ?graph ??P2 <http://purl.obolibrary.org/obo/BFO_0000132> ??P1)
+                  (quad ?graph ??P1 <http://purl.obolibrary.org/obo/BFO_0000132> ?game)
+                ))))))))
+INFO  exec            :: TDB2
+  (project (?season ?eventType ?plateAppearances)
+    (order (?season (desc ?plateAppearances) ?eventType)
+      (extend ((?plateAppearances ?.0))
+        (group (?season ?eventType) ((?.0 (count distinct ?result)))
+          (join
+            (table (vars ?graph)
+              (row [?graph <https://w3id.org/baseball/graph/game/822867>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823431>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823520>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823757>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824160>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824324>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824647>])
+              (row [?graph <https://w3id.org/baseball/graph/game/825095>])
+            )
+            (extend ((?season (year ?gameStart)))
+              (sequence
+                (table (vars ?outcomeClass ?eventType)
+                  (row [?outcomeClass <https://baseballontology.org/SingleProcess>] [?eventType "single"])
+                  (row [?outcomeClass <https://baseballontology.org/DoubleProcess>] [?eventType "double"])
+                  (row [?outcomeClass <https://baseballontology.org/TripleProcess>] [?eventType "triple"])
+                  (row [?outcomeClass <https://baseballontology.org/HomeRunProcess>] [?eventType "home_run"])
+                  (row [?outcomeClass <https://baseballontology.org/WalkProcess>] [?eventType "walk"])
+                  (row [?outcomeClass <https://baseballontology.org/StrikeoutProcess>] [?eventType "strikeout"])
+                  (row [?outcomeClass <https://baseballontology.org/HitByPitchProcess>] [?eventType "hit_by_pitch"])
+                  (row [?outcomeClass <https://baseballontology.org/FieldersChoiceProcess>] [?eventType "fielders_choice"])
+                  (row [?outcomeClass <https://baseballontology.org/ErrorProcess>] [?eventType "field_error"])
+                  (row [?outcomeClass <https://baseballontology.org/SacrificeFlyProcess>] [?eventType "sac_fly"])
+                  (row [?outcomeClass <https://baseballontology.org/SacrificeBuntProcess>] [?eventType "sac_bunt"])
+                  (row [?outcomeClass <https://baseballontology.org/BattedBallOutProcess>] [?eventType "field_out"])
+                  (row [?outcomeClass <https://baseballontology.org/ForceOutProcess>] [?eventType "force_out"])
+                  (row [?outcomeClass <https://baseballontology.org/DoublePlayProcess>] [?eventType "double_play"])
+                  (row [?outcomeClass <https://baseballontology.org/GroundedIntoDoublePlayProcess>] [?eventType "grounded_into_double_play"])
+                  (row [?outcomeClass <https://baseballontology.org/BalkProcess>] [?eventType "balk"])
+                  (row [?outcomeClass <https://baseballontology.org/InterferenceProcess>] [?eventType "catcher_interf"])
+                )
+                (quadpattern
+                  (quad ?graph ?game <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballGame>)
+                  (quad ?graph ?game <http://purl.obolibrary.org/obo/BFO_0000199> ??P0)
+                  (quad ?graph ??P0 <http://purl.obolibrary.org/obo/BFO_0000222> ?startInstant)
+                  (quad ?graph ?timestamp <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballTimestampICE>)
+                  (quad ?graph ?timestamp <https://www.commoncoreontologies.org/ont00001916> ?startInstant)
+                  (quad ?graph ?timestamp <https://www.commoncoreontologies.org/ont00001767> ?gameStart)
+                  (quad ?graph ?result <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballInstitutionalProcess>)
+                  (quad ?graph ?result <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?outcomeClass)
+                  (quad ?graph ?result <http://purl.obolibrary.org/obo/BFO_0000132> ?plateAppearance)
+                  (quad ?graph ?result <http://purl.obolibrary.org/obo/BFO_0000117> ?adjudication)
+                  (quad ?graph ?adjudication <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballAdjudicationAct>)
+                  (quad ?graph ?plateAppearance <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/PlateAppearance>)
+                  (quad ?graph ?plateAppearance <http://purl.obolibrary.org/obo/BFO_0000132> ??P2)
+                  (quad ?graph ??P2 <http://purl.obolibrary.org/obo/BFO_0000132> ??P1)
+                  (quad ?graph ??P1 <http://purl.obolibrary.org/obo/BFO_0000132> ?game)
+                ))))))))
+INFO  exec            :: Execute
+  ?game rdf:type <https://baseballontology.org/BaseballGame>
+  ?game <http://purl.obolibrary.org/obo/BFO_0000199> ??P0
+  ??P0 <http://purl.obolibrary.org/obo/BFO_0000222> ?startInstant
+  ?timestamp <https://www.commoncoreontologies.org/ont00001916> ?startInstant
+  ?timestamp rdf:type <https://baseballontology.org/BaseballTimestampICE>
+  ?timestamp <https://www.commoncoreontologies.org/ont00001767> ?gameStart
+  ??P1 <http://purl.obolibrary.org/obo/BFO_0000132> ?game
+  ??P2 <http://purl.obolibrary.org/obo/BFO_0000132> ??P1
+  ?plateAppearance <http://purl.obolibrary.org/obo/BFO_0000132> ??P2
+  ?plateAppearance rdf:type <https://baseballontology.org/PlateAppearance>
+  ?result <http://purl.obolibrary.org/obo/BFO_0000132> ?plateAppearance
+  ?result rdf:type <https://baseballontology.org/BaseballInstitutionalProcess>
+  ?result rdf:type ?outcomeClass
+  ?result <http://purl.obolibrary.org/obo/BFO_0000117> ?adjudication
+  ?adjudication rdf:type <https://baseballontology.org/BaseballAdjudicationAct>

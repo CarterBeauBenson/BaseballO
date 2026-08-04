@@ -1,0 +1,137 @@
+{
+  "artifactType": "baseball-advanced-semantic-query-catalog",
+  "catalogVersion": 1,
+  "authoritativeGraphPrefix": "https://w3id.org/baseball/graph/game/",
+  "queries": [
+    {
+      "id": "plate-appearance-fingerprint",
+      "path": "sparql/advanced/plate-appearance-fingerprint.rq",
+      "semanticMode": "positive-evidence",
+      "allowZeroRows": false,
+      "claim": "One row per mapped plate appearance with explicit event and duration components."
+    },
+    {
+      "id": "grinder-index",
+      "path": "sparql/advanced/grinder-index.rq",
+      "semanticMode": "positive-evidence",
+      "allowZeroRows": false,
+      "claim": "A transparent exploratory PA score computed from mapped pitch, swing, contact, and foul counts."
+    },
+    {
+      "id": "swing-to-result-funnel",
+      "path": "sparql/advanced/swing-to-result-funnel.rq",
+      "semanticMode": "positive-evidence",
+      "allowZeroRows": false,
+      "claim": "Observed pitch, swing, contact, terminal-contact, hit, and out conversion by batter."
+    },
+    {
+      "id": "whiff-and-take-profiles",
+      "path": "sparql/advanced/whiff-and-take-profiles.rq",
+      "semanticMode": "completeness-gated",
+      "allowZeroRows": false,
+      "claim": "Mapped swings without contact and pitches without swings, bounded by direct-mapping coverage."
+    },
+    {
+      "id": "batter-pitcher-matchup-profiles",
+      "path": "sparql/advanced/batter-pitcher-matchup-profiles.rq",
+      "semanticMode": "positive-evidence",
+      "allowZeroRows": false,
+      "claim": "Explicit event and PA-result evidence for each observed batter-pitcher pairing."
+    },
+    {
+      "id": "productive-plate-appearances",
+      "path": "sparql/advanced/productive-plate-appearances.rq",
+      "semanticMode": "positive-evidence",
+      "allowZeroRows": true,
+      "claim": "Non-hit PAs associated with an explicit safe advance or run by another runner; not official RBI attribution."
+    },
+    {
+      "id": "contact-conversion",
+      "path": "sparql/advanced/contact-conversion.rq",
+      "semanticMode": "positive-evidence",
+      "allowZeroRows": false,
+      "claim": "Mapped terminal contact chains grouped by their explicit institutional result."
+    },
+    {
+      "id": "half-inning-rally-anatomy",
+      "path": "sparql/advanced/half-inning-rally-anatomy.rq",
+      "semanticMode": "positive-evidence",
+      "allowZeroRows": false,
+      "claim": "Explicit batting and runner-event composition within each mapped half inning."
+    },
+    {
+      "id": "game-action-density",
+      "path": "sparql/advanced/game-action-density.rq",
+      "semanticMode": "positive-evidence",
+      "allowZeroRows": false,
+      "claim": "Mapped domain-event counts normalized by the recorded game temporal interval."
+    },
+    {
+      "id": "scorer-classification-profile",
+      "path": "sparql/advanced/scorer-classification-profile.rq",
+      "semanticMode": "positive-evidence",
+      "allowZeroRows": true,
+      "claim": "Explicit official-scorer judgment types and judged processes."
+    },
+    {
+      "id": "umpire-call-profile",
+      "path": "sparql/advanced/umpire-call-profile.rq",
+      "semanticMode": "positive-evidence",
+      "allowZeroRows": true,
+      "claim": "Explicit umpire call judgments with mapped swing and contact context."
+    },
+    {
+      "id": "hit-diversity",
+      "path": "sparql/advanced/hit-diversity.rq",
+      "semanticMode": "positive-evidence",
+      "allowZeroRows": true,
+      "claim": "Players observed with all four explicit hit-result classes in the selected corpus."
+    },
+    {
+      "id": "base-destination-profile",
+      "path": "sparql/advanced/base-destination-profile.rq",
+      "semanticMode": "positive-evidence",
+      "allowZeroRows": true,
+      "claim": "Safe and run destinations evidenced by BaseTouchingProcess participants and successors."
+    },
+    {
+      "id": "steal-attempt-efficiency",
+      "path": "sparql/advanced/steal-attempt-efficiency.rq",
+      "semanticMode": "completeness-gated",
+      "allowZeroRows": true,
+      "claim": "Mapped StealAttemptAct outcomes with unresolved attempts exposed rather than treated as failures."
+    },
+    {
+      "id": "unproductive-contact-games",
+      "path": "sparql/advanced/unproductive-contact-games.rq",
+      "semanticMode": "completeness-gated",
+      "allowZeroRows": true,
+      "claim": "Contact games lacking reviewed positive contact contribution evidence, within the mapped result vocabulary."
+    },
+    {
+      "id": "event-chain-integrity",
+      "path": "sparql/advanced/event-chain-integrity.rq",
+      "semanticMode": "integrity-audit",
+      "allowZeroRows": true,
+      "claim": "Structural defects and generic-only terminal outcome gaps in mapped event-to-result-to-adjudication chains; every returned row is a finding."
+    }
+  ],
+  "blockedAnalytics": [
+    {
+      "id": "leverage-and-win-probability",
+      "reason": "No reviewed score-state and expectancy model is represented in the RDF."
+    },
+    {
+      "id": "numeric-pitch-location-and-spray",
+      "reason": "Coordinate sites exist, but numeric coordinate values are not mapped."
+    },
+    {
+      "id": "official-run-accounting",
+      "reason": "RBI, earned-run, and left-on-base continuity are not fully represented."
+    },
+    {
+      "id": "exact-count-state",
+      "reason": "The current counted-foul mapping is not a complete pitch-by-pitch count-state model."
+    }
+  ]
+}

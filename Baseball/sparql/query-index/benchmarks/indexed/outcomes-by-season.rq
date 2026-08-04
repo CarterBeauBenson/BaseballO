@@ -1,0 +1,14 @@
+PREFIX idx: <https://w3id.org/baseball/query-index/>
+
+SELECT ?season ?eventType (COUNT(DISTINCT ?result) AS ?plateAppearances)
+WHERE {
+  GRAPH ?graph {
+    ?result a idx:PlateAppearanceResultFact ;
+            idx:game ?game ;
+            idx:sourceEventType ?eventType .
+    ?game a idx:GameFact ;
+          idx:season ?season .
+  }
+}
+GROUP BY ?season ?eventType
+ORDER BY ?season DESC(?plateAppearances) ?eventType

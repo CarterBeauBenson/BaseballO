@@ -1,0 +1,32 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+
+# Count the institutional result individual, not its record, judgment, or
+# decision. The specific hit class and HitJudgmentAct establish the hit pattern.
+SELECT ?season
+       (COUNT(DISTINCT ?hit) AS ?hits)
+       (COUNT(DISTINCT ?game) AS ?gamesWithHits)
+WHERE {
+  GRAPH ?graph {
+    ?game a base:BaseballGame ;
+          obo:BFO_0000199/obo:BFO_0000222 ?gameStartInstant .
+    ?gameStartTimestamp a base:BaseballTimestampICE ;
+                        cco:ont00001916 ?gameStartInstant ;
+                        cco:ont00001767 ?gameStart .
+
+    ?hit a base:BaseballInstitutionalProcess, ?hitClass ;
+         obo:BFO_0000132 ?plateAppearance ;
+         obo:BFO_0000117 ?hitJudgment .
+    ?hitJudgment a base:HitJudgmentAct .
+    ?plateAppearance a base:PlateAppearance ;
+                     obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
+
+    VALUES ?hitClass {
+      base:SingleProcess base:DoubleProcess base:TripleProcess base:HomeRunProcess
+    }
+    BIND(YEAR(?gameStart) AS ?season)
+  }
+}
+GROUP BY ?season
+ORDER BY ?season

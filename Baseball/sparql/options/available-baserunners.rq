@@ -1,0 +1,19 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT DISTINCT ?player ?playerLabel
+WHERE {
+  GRAPH ?graph {
+    ?resolution a base:RunnerResolutionProcess ;
+                obo:BFO_0000057 ?player ;
+                obo:BFO_0000117 ?judgment .
+    ?judgment a ?judgmentClass .
+    VALUES ?judgmentClass {
+      base:OutJudgmentAct base:SafeJudgmentAct base:RunJudgmentAct
+    }
+    ?player rdfs:label ?playerLabel .
+  }
+  FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+}
+ORDER BY LCASE(STR(?playerLabel))

@@ -1,0 +1,636 @@
+```yaml
+baseball_iri_policy:
+  title: "Baseball Knowledge Graph IRI Policy"
+  version: "1.1"
+  status: "canonical"
+  effective_until: "Explicitly revised by the project owner"
+
+  purpose: >
+    Define deterministic rules for creating RDF IRIs from MLB Stats API
+    records and for minting IRIs for ontology individuals that are not
+    independently identified by the source API.
+
+  active_direct_mapping_profile:
+    note: >
+      The selected RML processor exposes playId reliably inside nested pitch
+      records but does not expose ancestor atBatIndex or runner array indexes.
+      These templates are the canonical active direct-mapping fallbacks.
+
+    contextual_role:
+      player_template: "{data}game/{gamePk}/player/{playerId}/role/{roleType}"
+      official_template: "{data}game/{gamePk}/person/{personId}/role/{roleType}"
+
+    pitch_act:
+      template: "{data}game/{gamePk}/pitch/{playId}"
+
+    pitch_related_entities:
+      swing_act: "{data}game/{gamePk}/act/swing/{playId}"
+      bunt_act: "{data}game/{gamePk}/act/bunt/{playId}"
+      pitch_motion: "{data}game/{gamePk}/process/pitch-ball-motion/{playId}"
+      contact: "{data}game/{gamePk}/process/contact/{playId}"
+      batted_motion: "{data}game/{gamePk}/process/batted-ball-motion/{playId}"
+      batted_play: "{data}game/{gamePk}/process/batted-ball-play/{playId}"
+      judgment: "{data}game/{gamePk}/judgment/{judgmentType}/{playId}"
+      decision: "{data}game/{gamePk}/decision/{decisionType}/{playId}"
+      call: "{data}game/{gamePk}/call/{callType}/{playId}"
+
+    plate_appearance_result:
+      template: "{data}game/{gamePk}/plate-appearance/{atBatIndex}/result"
+      rule: >
+        Add the most specific source-supported result class to this one
+        individual; do not mint a duplicate superclass process individual.
+
+    runner_act:
+      prefix: "{data}game/{gamePk}/runner-act/movement/"
+      rule: >
+        Complete the IRI with the collision-validated local source composite.
+        Do not use out, score, reach, or advance as the act-type path segment.
+
+    distinct_identity_rule: >
+      Acts, physical processes, judgment acts, call acts, decision ICEs,
+      counted processes, records, roles, sites, temporal regions, persons,
+      teams, and artifacts must not reuse an IRI merely because one JSON
+      object supports all of them.
+
+  namespaces:
+    ontology: "https://baseballontology.org/ontology/"
+    data: "https://baseballontology.org/data/"
+
+  canonical_principles:
+
+    source_identifiers:
+      rule: >
+        Reuse a stable MLB source identifier whenever the API provides one
+        that identifies the entity independently of a particular JSON
+        serialization.
+      examples:
+        - gamePk
+        - player id
+        - team id
+        - venue id
+        - person id
+        - playId
+
+    scoped_identifiers:
+      rule: >
+        Mint a deterministic scoped IRI when an entity is identified only
+        within a game, plate appearance, play event, or array position.
+
+    no_blank_nodes:
+      rule: >
+        Do not use blank nodes for games, persons, teams, plate appearances,
+        baseball processes, event records, pitches, play events, runner
+        movements, or other entities expected to be queried or referenced.
+
+    deterministic_generation:
+      rule: >
+        The same source record must always produce the same IRI when the
+        mapping is run again.
+
+    source_structure:
+      rule: >
+        Minted IRIs must be based on stable source identifiers and structural
+        indexes rather than mutable labels or natural-language descriptions.
+
+    semantic_authority:
+      rule: >
+        An entity's rdf:type assertion is the authoritative statement of its
+        ontological type. A human-readable type segment in an IRI is a naming
+        convenience and does not replace rdf:type.
+
+    preserve_source_ids:
+      rule: >
+        Preserve source identifiers such as gamePk, player id, team id,
+        atBatIndex, event index, and playId in the RDF using the appropriate
+        CCO identifier pattern or another explicitly approved identifier
+        representation.
+
+  global_entities:
+
+    game:
+      source_identifier: "gamePk"
+      iri_template: "{data}game/{gamePk}"
+      example:
+        source_value: 566279
+        iri: "https://baseballontology.org/data/game/566279"
+
+    player:
+      source_identifier: "person.id"
+      iri_template: "{data}player/{playerId}"
+      example:
+        source_value: 430945
+        label: "Adam Jones"
+        iri: "https://baseballontology.org/data/player/430945"
+
+    team:
+      source_identifier: "team.id"
+      iri_template: "{data}team/{teamId}"
+      examples:
+        - source_value: 109
+          label: "Arizona Diamondbacks"
+          iri: "https://baseballontology.org/data/team/109"
+        - source_value: 135
+          label: "San Diego Padres"
+          iri: "https://baseballontology.org/data/team/135"
+
+    venue:
+      source_identifier: "venue.id"
+      iri_template: "{data}venue/{venueId}"
+      example:
+        source_value: 2680
+        label: "Petco Park"
+        iri: "https://baseballontology.org/data/venue/2680"
+
+    non_player_person:
+      source_identifier: "person.id"
+      iri_template: "{data}person/{personId}"
+      applies_to:
+        - official scorer
+        - datacaster
+        - umpire
+        - other identified persons who are not represented as players
+      examples:
+        - source_value: 542750
+          role_in_source: "official scorer"
+          iri: "https://baseballontology.org/data/person/542750"
+        - source_value: 431181
+          role_in_source: "primary datacaster"
+          iri: "https://baseballontology.org/data/person/431181"
+
+  game_scoped_entities:
+
+    plate_appearance:
+      source_identifier: "about.atBatIndex"
+      scope: "game"
+      iri_template: "{data}game/{gamePk}/plate-appearance/{atBatIndex}"
+      example:
+        gamePk: 566279
+        atBatIndex: 0
+        iri: >
+          https://baseballontology.org/data/game/566279/plate-appearance/0
+
+    inning:
+      source_identifiers:
+        - "about.inning"
+        - "about.halfInning"
+      scope: "game"
+      iri_template: "{data}game/{gamePk}/inning/{inningNumber}/{halfInning}"
+      allowed_half_inning_values:
+        top: "top"
+        bottom: "bottom"
+      examples:
+        - gamePk: 566279
+          inningNumber: 1
+          halfInning: "top"
+          iri: "https://baseballontology.org/data/game/566279/inning/1/top"
+        - gamePk: 566279
+          inningNumber: 1
+          halfInning: "bottom"
+          iri: "https://baseballontology.org/data/game/566279/inning/1/bottom"
+
+  plate_appearance_scoped_entities:
+
+    play_event:
+      source_identifier: "playEvents[*].index"
+      scope:
+        - game
+        - plate appearance
+      iri_template: >
+        {data}game/{gamePk}/plate-appearance/{atBatIndex}/play-event/{eventIndex}
+      example:
+        gamePk: 566279
+        atBatIndex: 0
+        eventIndex: 5
+        iri: >
+          https://baseballontology.org/data/game/566279/plate-appearance/0/play-event/5
+
+    pitch:
+      source_identifiers:
+        required:
+          - "playEvents[*].index"
+        optional:
+          - "playEvents[*].playId"
+          - "playEvents[*].pitchNumber"
+      condition: "playEvents[*].isPitch is true"
+      scope:
+        - game
+        - plate appearance
+      canonical_iri_template: >
+        {data}game/{gamePk}/plate-appearance/{atBatIndex}/pitch/{eventIndex}
+      example:
+        gamePk: 566279
+        atBatIndex: 0
+        eventIndex: 5
+        playId: "d884423e-0eaf-4b77-b7c1-76f2788e0b21"
+        iri: >
+          https://baseballontology.org/data/game/566279/plate-appearance/0/pitch/5
+      play_id_rule: >
+        Preserve playId as a source identifier when present. Do not use
+        playId as the only canonical IRI strategy because some play events
+        may lack a playId.
+      typing_rule: >
+        A pitch may be represented by the same individual as the corresponding
+        play event when the ontology permits multiple rdf:type assertions.
+        Do not create duplicate individuals for the same source record unless
+        the ontology requires distinct entities.
+
+    action_event:
+      source_identifier: "playEvents[*].index"
+      condition: "playEvents[*].isPitch is false"
+      scope:
+        - game
+        - plate appearance
+      iri_template: >
+        {data}game/{gamePk}/plate-appearance/{atBatIndex}/action/{eventIndex}
+
+    runner_movement:
+      source_identifier: "zero-based position in the runners array"
+      scope:
+        - game
+        - plate appearance
+      iri_template: >
+        {data}game/{gamePk}/plate-appearance/{atBatIndex}/runner-movement/{runnerIndex}
+      examples:
+        - gamePk: 566279
+          atBatIndex: 3
+          runnerIndex: 0
+          iri: >
+            https://baseballontology.org/data/game/566279/plate-appearance/3/runner-movement/0
+        - gamePk: 566279
+          atBatIndex: 3
+          runnerIndex: 2
+          iri: >
+            https://baseballontology.org/data/game/566279/plate-appearance/3/runner-movement/2
+      index_rule: >
+        runnerIndex is the zero-based structural position of the runner record
+        inside the plate appearance's runners array.
+      repeated_runner_rule: >
+        A single player may have multiple runner movement records in the same
+        plate appearance. Each array record receives a separate IRI.
+      enrichment_fallback: >
+        If the selected RML processor cannot access the runner array index or
+        parent atBatIndex reliably, a lightweight enrichment step may add
+        gamePk, atBatIndex, and runnerIndex to the source record. This does not
+        authorize broader semantic normalization.
+
+  baseball_event_records:
+
+    plate_appearance_event_record:
+      scope: "game and plate appearance"
+      iri_template: "{data}game/{gamePk}/event-record/{atBatIndex}"
+      example:
+        gamePk: 566279
+        atBatIndex: 0
+        iri: "https://baseballontology.org/data/game/566279/event-record/0"
+      class: "Baseball Event Record"
+      about_rule: >
+        The event record is an information content entity about one or more
+        institutionally counted baseball processes represented by the source
+        plate appearance record.
+      source_text_rule: >
+        Preserve result.description and other approved source fields as
+        descriptive or provenance information. Do not use the description
+        text to generate the IRI.
+
+    play_event_record:
+      scope:
+        - game
+        - plate appearance
+        - play event
+      iri_template: >
+        {data}game/{gamePk}/plate-appearance/{atBatIndex}/event-record/{eventIndex}
+      use_when: >
+        Use a play-event-level event record when an individual pitch, call,
+        action, or other nested source record is represented as its own
+        information content entity.
+
+    runner_movement_record:
+      scope:
+        - game
+        - plate appearance
+        - runner record
+      iri_template: >
+        {data}game/{gamePk}/plate-appearance/{atBatIndex}/runner-record/{runnerIndex}
+      use_when: >
+        Use when the runner movement source record is represented separately
+        from the baseball process it is about.
+
+  counted_processes:
+
+    general_rule: >
+      The MLB JSON record is not itself the baseball process. Mint a distinct
+      individual for each institutionally counted process represented by the
+      source record.
+
+    plate_appearance_result_process:
+      source_fields:
+        - "result.event"
+        - "result.eventType"
+        - "result.isOut"
+      scope:
+        - game
+        - plate appearance
+      iri_template: >
+        {data}game/{gamePk}/process/{normalizedEventType}/{atBatIndex}
+      examples:
+        - source_event_type: "home_run"
+          normalizedEventType: "home-run"
+          gamePk: 566279
+          atBatIndex: 0
+          iri: "https://baseballontology.org/data/game/566279/process/home-run/0"
+        - source_event_type: "field_out"
+          normalizedEventType: "field-out"
+          gamePk: 566279
+          atBatIndex: 1
+          iri: "https://baseballontology.org/data/game/566279/process/field-out/1"
+        - source_event_type: "double"
+          normalizedEventType: "double"
+          gamePk: 566279
+          atBatIndex: 3
+          iri: "https://baseballontology.org/data/game/566279/process/double/3"
+        - source_event_type: "walk"
+          normalizedEventType: "walk"
+          gamePk: 566279
+          atBatIndex: 4
+          iri: "https://baseballontology.org/data/game/566279/process/walk/4"
+
+    runner_process:
+      source_fields:
+        - "runners[*].movement"
+        - "runners[*].details"
+      scope:
+        - game
+        - plate appearance
+        - runner record
+      iri_template: >
+        {data}game/{gamePk}/process/{normalizedRunnerProcessType}/{atBatIndex}/{runnerIndex}
+      examples:
+        - normalizedRunnerProcessType: "run"
+          gamePk: 566279
+          atBatIndex: 3
+          runnerIndex: 2
+          iri: "https://baseballontology.org/data/game/566279/process/run/3/2"
+        - normalizedRunnerProcessType: "out"
+          gamePk: 566279
+          atBatIndex: 5
+          runnerIndex: 1
+          iri: "https://baseballontology.org/data/game/566279/process/out/5/1"
+      multiplicity_rule: >
+        A plate appearance may produce multiple runner processes, including
+        multiple processes involving the same player.
+
+    pitch_related_event_entity:
+      scope:
+        - game
+        - plate appearance
+        - play event
+      rule: >
+        Use an act path for intentional acts and a process path for physical
+        processes. The active direct-mapping profile uses playId as the local
+        event key because that is the stable ancestor value exposed by the
+        selected RML processor.
+      examples:
+        - entityType: "swing act"
+          gamePk: 566279
+          playId: "example-play-id"
+          iri: >
+            https://baseballontology.org/data/game/566279/act/swing/example-play-id
+        - entityType: "contact process"
+          gamePk: 566279
+          playId: "example-play-id"
+          iri: >
+            https://baseballontology.org/data/game/566279/process/contact/example-play-id
+
+    actual_processes:
+      rule: >
+        Do not infer or mint actual rule-satisfying processes merely because
+        the MLB source records an institutionally counted process. Actual
+        processes may be added later from evidence and modeling not supplied
+        by the current API record.
+      distinction: >
+        Institutionally counted processes remain distinct from later
+        representations of processes that actually satisfy the relevant
+        baseball rule independent of the official judgment.
+
+  event_type_normalization:
+
+    purpose: >
+      Convert MLB eventType strings into stable lowercase hyphenated IRI
+      segments without changing the underlying source value.
+
+    rules:
+      - "Convert underscores to hyphens."
+      - "Convert spaces to hyphens."
+      - "Convert characters to lowercase."
+      - "Remove characters not approved for an IRI path segment."
+      - "Preserve the original MLB eventType separately as source data."
+      - "Use an explicit mapping table when an MLB value does not map cleanly."
+
+    examples:
+      home_run: "home-run"
+      field_out: "field-out"
+      double_play: "double-play"
+      hit_by_pitch: "hit-by-pitch"
+      sac_fly: "sacrifice-fly"
+      sac_bunt: "sacrifice-bunt"
+
+  identifier_priority:
+
+    player:
+      priority:
+        - "person.id"
+      never_use_as_identity:
+        - "fullName"
+        - "boxscoreName"
+        - "nameSlug"
+
+    game:
+      priority:
+        - "gamePk"
+      supporting_identifiers:
+        - "gameData.game.id"
+        - "calendarEventID"
+
+    plate_appearance:
+      priority:
+        - "gamePk plus atBatIndex"
+
+    play_event:
+      priority:
+        - "gamePk plus atBatIndex plus event index"
+      supporting_identifiers:
+        - "playId"
+        - "pitchNumber"
+
+    runner_movement:
+      priority:
+        - "gamePk plus atBatIndex plus runner array index"
+      supporting_fields:
+        - "runner.id"
+        - "details.playIndex"
+        - "movement.start"
+        - "movement.end"
+        - "movement.outBase"
+
+  collision_prevention:
+
+    rule: >
+      An IRI template must contain every scope identifier required to make the
+      source record unique.
+
+    requirements:
+      plate_appearance:
+        - gamePk
+        - atBatIndex
+      play_event:
+        - gamePk
+        - atBatIndex
+        - eventIndex
+      runner_movement:
+        - gamePk
+        - atBatIndex
+        - runnerIndex
+      runner_process:
+        - gamePk
+        - atBatIndex
+        - runnerIndex
+        - normalizedRunnerProcessType
+      pitch_related_process:
+        - gamePk
+        - atBatIndex
+        - eventIndex
+        - normalizedProcessType
+
+  prohibited_iri_patterns:
+
+    natural_language_description:
+      prohibited_example: >
+        https://baseballontology.org/data/adam-jones-homers-to-left
+      reason: >
+        Descriptions are mutable, inconsistent, language-dependent, and not
+        reliable identifiers.
+
+    player_name_as_identity:
+      prohibited_example: "https://baseballontology.org/data/player/adam-jones"
+      reason: >
+        Names are not guaranteed to be unique or stable.
+
+    unscoped_at_bat_index:
+      prohibited_example: "https://baseballontology.org/data/plate-appearance/0"
+      reason: >
+        atBatIndex is only unique within a game.
+
+    unscoped_event_index:
+      prohibited_example: "https://baseballontology.org/data/play-event/5"
+      reason: >
+        A play-event index is only unique within its plate appearance.
+
+    unscoped_runner_index:
+      prohibited_example: "https://baseballontology.org/data/runner-movement/0"
+      reason: >
+        A runner array index is only unique within its plate appearance.
+
+    random_uuid_when_deterministic_id_exists:
+      prohibited_example: >
+        https://baseballontology.org/data/game/2fc3f561-5b3d-4b3e-a118-ff3ea93ea136
+      reason: >
+        Random UUIDs prevent deterministic regeneration and obscure stable
+        MLB identifiers.
+
+  rml_requirements:
+
+    source:
+      default: "Raw MLB feed/live JSON"
+      normalization_required: false
+
+    direct_mapping_rule: >
+      RML or YARRRML should map directly from the raw MLB JSON whenever the
+      required source identifiers and parent scope values are accessible.
+
+    enrichment_rule: >
+      Add a lightweight structural enrichment step only when the RML processor
+      cannot reliably access a required parent value or array position.
+
+    enrichment_allowed_fields:
+      - gamePk
+      - atBatIndex
+      - eventIndex
+      - runnerIndex
+      - source-derived ancestor facts required to express processor-safe RML filters
+
+    enrichment_prohibited_behavior:
+      - >
+        Do not use the enrichment step to decide ontological class membership
+        that belongs in the declarative mapping.
+      - >
+        Do not discard or replace the original MLB JSON.
+      - >
+        Do not calculate empty games during enrichment.
+      - >
+        Do not collapse distinct event records and baseball processes into one
+        entity.
+
+  provenance:
+
+    raw_source:
+      rule: >
+        Retain the original MLB JSON file unchanged as the authoritative source
+        artifact for each game.
+
+    source_link:
+      template: "/api/v1.1/game/{gamePk}/feed/live"
+
+    identifier_traceability:
+      rule: >
+        Every minted game-scoped or plate-appearance-scoped IRI must be
+        traceable to the source gamePk and relevant structural index.
+
+  derived_results:
+
+    empty_game:
+      iri_policy: >
+        Do not mint an Empty Game individual during the RML transformation.
+      computation: "SPARQL"
+      reason: >
+        Empty-game status depends on the absence of qualifying offensive
+        contributions and is therefore a derived query result rather than a
+        directly recorded positive event.
+
+  canonical_examples:
+
+    adam_jones_home_run:
+      game:
+        iri: "https://baseballontology.org/data/game/566279"
+      player:
+        iri: "https://baseballontology.org/data/player/430945"
+      plate_appearance:
+        iri: >
+          https://baseballontology.org/data/game/566279/plate-appearance/0
+      result_record:
+        iri: "https://baseballontology.org/data/game/566279/event-record/0"
+      counted_home_run_process:
+        iri: "https://baseballontology.org/data/game/566279/process/home-run/0"
+      final_pitch:
+        iri: >
+          https://baseballontology.org/data/game/566279/plate-appearance/0/pitch/5
+      final_pitch_play_id:
+        value: "d884423e-0eaf-4b77-b7c1-76f2788e0b21"
+
+    david_peralta_double:
+      plate_appearance:
+        iri: >
+          https://baseballontology.org/data/game/566279/plate-appearance/3
+      counted_double_process:
+        iri: "https://baseballontology.org/data/game/566279/process/double/3"
+      batter_runner_movement:
+        iri: >
+          https://baseballontology.org/data/game/566279/plate-appearance/3/runner-movement/0
+      wilmer_flores_first_movement:
+        iri: >
+          https://baseballontology.org/data/game/566279/plate-appearance/3/runner-movement/1
+      wilmer_flores_scoring_movement:
+        iri: >
+          https://baseballontology.org/data/game/566279/plate-appearance/3/runner-movement/2
+      run_process:
+        iri: "https://baseballontology.org/data/game/566279/process/run/3/2"
+```

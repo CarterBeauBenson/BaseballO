@@ -1,0 +1,31 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+
+# Structural half-inning summary. It describes event density and runner
+# resolutions; it is not a leverage or win-probability calculation.
+SELECT ?game ?halfInning ?inningHalf
+       (COUNT(DISTINCT ?plateAppearance) AS ?plateAppearances)
+       (COUNT(DISTINCT ?pitch) AS ?pitches)
+       (COUNT(DISTINCT ?swing) AS ?swings)
+       (COUNT(DISTINCT ?contact) AS ?contacts)
+       (COUNT(DISTINCT ?run) AS ?runs)
+       (COUNT(DISTINCT ?out) AS ?runnerOuts)
+       (COUNT(DISTINCT ?safe) AS ?safeResolutions)
+WHERE {
+  GRAPH ?graph {
+    ?game a base:BaseballGame ; obo:BFO_0000117 ?inning .
+    ?inning a base:Inning ; obo:BFO_0000117 ?halfInning .
+    ?halfInning a base:HalfInning ; obo:BFO_0000117 ?plateAppearance .
+    ?plateAppearance a base:PlateAppearance .
+    BIND(STRAFTER(STR(?halfInning), "/inning/") AS ?inningHalf)
+    OPTIONAL { ?pitch a base:PitchAct ; obo:BFO_0000132 ?plateAppearance . }
+    OPTIONAL { ?swing a base:SwingAct ; obo:BFO_0000132 ?plateAppearance . }
+    OPTIONAL { ?contact a base:BatBallContactProcess ; obo:BFO_0000132 ?plateAppearance . }
+    OPTIONAL { ?run a base:RunnerResolutionProcess, base:RunProcess ; obo:BFO_0000132 ?plateAppearance . }
+    OPTIONAL { ?out a base:RunnerResolutionProcess, base:OutProcess ; obo:BFO_0000132 ?plateAppearance . }
+    OPTIONAL { ?safe a base:RunnerResolutionProcess, base:SafeProcess ; obo:BFO_0000132 ?plateAppearance . }
+  }
+  FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+}
+GROUP BY ?game ?halfInning ?inningHalf
+ORDER BY ?game ?inningHalf

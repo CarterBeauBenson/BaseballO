@@ -1,0 +1,21 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+
+# Returns only reviewed hit types that occur in the loaded game graphs.
+SELECT DISTINCT ?hitType ?hitTypeLabel
+WHERE {
+  GRAPH ?graph {
+    ?hit a base:BaseballInstitutionalProcess, ?hitClass ;
+         obo:BFO_0000117 ?hitJudgment .
+    ?hitJudgment a base:HitJudgmentAct .
+    VALUES (?hitClass ?hitType) {
+      (base:SingleProcess "single")
+      (base:DoubleProcess "double")
+      (base:TripleProcess "triple")
+      (base:HomeRunProcess "home_run")
+    }
+    BIND(REPLACE(STR(?hitType), "_", " ") AS ?hitTypeLabel)
+  }
+  FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+}
+ORDER BY ?hitTypeLabel
