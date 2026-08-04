@@ -102,7 +102,7 @@ cannot access the datastore concurrently.
 
 ## Reviewed query execution
 
-Run one of the ten measured query pairs through its reviewed automatic route:
+Run one of the thirteen measured query pairs through its reviewed automatic route:
 
 ```powershell
 .\scripts\pipeline\run-reviewed-query.ps1 `
@@ -110,7 +110,7 @@ Run one of the ten measured query pairs through its reviewed automatic route:
   -Layer Auto
 ```
 
-`Auto` uses the seven evidence-backed indexed routes and keeps the three
+`Auto` uses the ten evidence-backed indexed routes and keeps the three
 neutral routes authoritative. Indexed execution is allowed only when every
 loaded game has current authoritative/index artifacts, hashes and counts, a
 current local build manifest, and matching graph metadata. Otherwise Auto

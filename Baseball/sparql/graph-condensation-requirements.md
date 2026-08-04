@@ -14,7 +14,7 @@ RML, raw source, or existing canned-query semantics.
 - Direction is fact/event to relevant person: `?fact idx:agent ?person`.
   The person must be explicitly typed as a CCO Person in every agent-producing
   source pattern.
-- Twelve small `CONSTRUCT` components cover provenance, game dimensions,
+- Thirteen small `CONSTRUCT` components cover provenance, game dimensions,
   completed plate appearances, hits, pitches, pitch calls, batting acts,
   contacts, runner resolutions, stolen bases, game assignments, and labels.
 - Every materialized fact points to decisive authoritative evidence with
@@ -24,7 +24,7 @@ RML, raw source, or existing canned-query semantics.
 - The build manifest records the component-contract hash, source and index
   graph IRIs, optional local authoritative RDF hash, graph sizes, index hash,
   fact counts, and timestamps.
-- Exact full-pattern/index row-set equivalence is executable for eleven
+- Exact full-pattern/index row-set equivalence is executable for twelve
   semantic families, including UTF-8 label fidelity. See
   [`query-index/`](query-index/).
 
@@ -77,6 +77,6 @@ the batter act, person participation, result, judgment, and containment chain.
 ## Review deliverables
 
 - an approved list of canned/UI queries to migrate;
-- a reviewed migration decision for the seven traversal-heavy benchmark
+- a reviewed migration decision for the ten proven benchmark
   families; and
 - a garbage-collection policy for production-scale per-game derived graphs.

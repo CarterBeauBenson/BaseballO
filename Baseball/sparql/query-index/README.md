@@ -30,7 +30,8 @@ in filename order and merges their results.
 | --- | --- | --- |
 | `00-index-metadata.rq` | `idx:QueryIndex` | Game, source-graph, and contract identifiers supplied by the guarded builder |
 | `10-game-dimensions.rq` | `idx:GameFact` | Game, mapped start timestamp, field, and venue chain |
-| `20-plate-appearance-results.rq` | `idx:PlateAppearanceFact`, `idx:PlateAppearanceResultFact` | Batter act, CCO Person participant, enclosing game, one reviewed result class, and generic adjudication |
+| `15-plate-appearances.rq` | `idx:PlateAppearanceFact` | Batter act, CCO Person participant, plate appearance, and enclosing game, independent of whether the terminal result has a specific mapped class |
+| `20-plate-appearance-results.rq` | `idx:PlateAppearanceResultFact` | Batter act, CCO Person participant, enclosing game, one reviewed result class, and generic adjudication |
 | `30-hits.rq` | `idx:HitFact` | Specific hit class, hit judgment, batter act/person, plate appearance/game, field, and venue |
 | `40-pitches.rq` | `idx:PitchFact` | Pitch act, CCO Person pitcher, following pitch motion, plate appearance/game, field, and venue |
 | `50-pitch-calls.rq` | `idx:PitchCallFact` | Complete pitch pattern, shared record, ball/strike process, and matching judgment |
@@ -63,11 +64,11 @@ row-equivalence suite; a shape-valid but incomplete graph is rejected. The manua
 importer rebuilds the index after replacing an authoritative game graph and
 uses a hash of the complete generation contract for freshness checks.
 
-The test suite compares exact distinct row sets for all eleven semantic
+The test suite compares exact distinct row sets for all twelve semantic
 families in both directions, including a label-fidelity check that detects
 encoding changes. The builder writes Fuseki's returned Turtle bytes directly
 so UTF-8 labels are never round-tripped through Windows PowerShell's legacy
-text decoding. The checked-in fixture currently yields 6,617 index
+text decoding. The checked-in fixture currently yields 6,538 index
 triples from 28,419 authoritative triples, with equivalent identities for 21
 hits, 282 pitches, 185 pitch calls, 134 batting acts, 112 contacts, 113 runner
 resolutions, one stolen base, and seven assignments.
@@ -106,8 +107,8 @@ without changing either source:
   -Layer Auto
 ```
 
-[`operational-query-routing.json`](operational-query-routing.json) records ten
-measured routes. Auto mode selects the index for seven traversal-heavy pairs
+[`operational-query-routing.json`](operational-query-routing.json) records
+thirteen measured routes. Auto mode selects the index for ten proven pairs
 and the authoritative layer for three neutral pairs. Before indexed execution,
 the runner scopes the exact loaded graph set and checks every corresponding
 contract hash, authoritative/index artifact hash, manifest count, loaded graph
@@ -120,15 +121,15 @@ The contract-level classification of every canned query is recorded in
 express 46 queries; `empty-games-prototype.rq` and `game-timeline.rq` remain
 authoritative for completeness and temporal-evidence reasons.
 
-Ten indexed companions under [`benchmarks/indexed/`](benchmarks/indexed/) span
+Thirteen indexed companions under [`benchmarks/indexed/`](benchmarks/indexed/) span
 all major query families. They are paired with the existing authoritative
 queries by [`benchmark-pairs.json`](benchmarks/benchmark-pairs.json) and can be
 run through the reproducible workflow documented in
 [`benchmarks/query-index/`](../../benchmarks/query-index/).
-The eight-game corpus results show meaningful median improvements for seven
-traversal-heavy pairs (2.16x to 9.34x) and effectively neutral results for the
-three simple lookup pairs. Direct TDB2 execution traces are stored beside the
-timing baselines.
+The eight-game corpus results show meaningful median improvements for ten
+reviewed pairs (1.77x to 53.36x) and effectively neutral results for the three
+simple lookup pairs. Direct TDB2 execution traces are stored beside the timing
+baselines.
 
 ## Dehydration and rehydration boundary
 

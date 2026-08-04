@@ -95,6 +95,16 @@ Assert-EquivalentRows -Name 'Label fidelity' -Variables @('resource', 'label') -
   ?resource <${rdfs}label> ?label .
 "@
 
+Assert-EquivalentRows -Name 'Plate appearances' -Variables @('plateAppearance', 'player', 'game') -FullPattern @"
+  VALUES ?game { <$gameIri> }
+  ?batterAct a <${base}BatterAct> ; <${obo}BFO_0000132> ?plateAppearance ; <${obo}BFO_0000057> ?player .
+  ?player a <${cco}ont00001262> .
+  ?plateAppearance a <${base}PlateAppearance> ; <${obo}BFO_0000132>/<${obo}BFO_0000132>/<${obo}BFO_0000132> ?game .
+"@ -IndexPattern @"
+  ?plateAppearance a <${idx}PlateAppearanceFact> ; <${idx}agent> ?player ; <${idx}game> ?game .
+  VALUES ?game { <$gameIri> }
+"@
+
 Assert-EquivalentRows -Name 'Plate-appearance results' -Variables @('result', 'plateAppearance', 'player', 'outcomeClass', 'eventType', 'game') -FullPattern @"
   VALUES ?game { <$gameIri> }
   ?result a <${base}BaseballInstitutionalProcess>, ?outcomeClass ; <${obo}BFO_0000132> ?plateAppearance ; <${obo}BFO_0000117> ?adjudication .

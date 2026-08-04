@@ -1,7 +1,7 @@
 {
     "artifactType":  "baseball-query-index-optimized-algebra-comparison",
     "reportVersion":  1,
-    "generatedAtUtc":  "2026-08-04T12:57:25.7243072Z",
+    "generatedAtUtc":  "2026-08-04T16:49:58.0839679Z",
     "jenaFusekiVersion":  "6.1.0",
     "captureCommand":  "arq.qparse --print=opt --query \u003cfile\u003e",
     "scope":  "high-level optimized ARQ algebra; not TDB2 storage-specific runtime execution logging",
@@ -54,6 +54,81 @@
                                         "tables":  0,
                                         "groups":  1,
                                         "characters":  714
+                                    },
+                        "triplePatternReduction":  5
+                    },
+                    {
+                        "name":  "outcomes-by-season",
+                        "family":  "batting",
+                        "authoritativePlan":  "outcomes-by-season-authoritative-opt.txt",
+                        "indexedPlan":  "outcomes-by-season-indexed-opt.txt",
+                        "authoritative":  {
+                                              "triplePatterns":  15,
+                                              "basicGraphPatterns":  1,
+                                              "sequences":  1,
+                                              "leftJoins":  0,
+                                              "tables":  1,
+                                              "groups":  1,
+                                              "characters":  3310
+                                          },
+                        "indexed":  {
+                                        "triplePatterns":  5,
+                                        "basicGraphPatterns":  1,
+                                        "sequences":  0,
+                                        "leftJoins":  0,
+                                        "tables":  0,
+                                        "groups":  1,
+                                        "characters":  694
+                                    },
+                        "triplePatternReduction":  10
+                    },
+                    {
+                        "name":  "plate-appearances-by-player-and-season",
+                        "family":  "batting",
+                        "authoritativePlan":  "plate-appearances-by-player-and-season-authoritative-opt.txt",
+                        "indexedPlan":  "plate-appearances-by-player-and-season-indexed-opt.txt",
+                        "authoritative":  {
+                                              "triplePatterns":  14,
+                                              "basicGraphPatterns":  1,
+                                              "sequences":  0,
+                                              "leftJoins":  0,
+                                              "tables":  0,
+                                              "groups":  1,
+                                              "characters":  1657
+                                          },
+                        "indexed":  {
+                                        "triplePatterns":  6,
+                                        "basicGraphPatterns":  1,
+                                        "sequences":  0,
+                                        "leftJoins":  0,
+                                        "tables":  0,
+                                        "groups":  1,
+                                        "characters":  908
+                                    },
+                        "triplePatternReduction":  8
+                    },
+                    {
+                        "name":  "three-true-outcomes-by-player",
+                        "family":  "batting",
+                        "authoritativePlan":  "three-true-outcomes-by-player-authoritative-opt.txt",
+                        "indexedPlan":  "three-true-outcomes-by-player-indexed-opt.txt",
+                        "authoritative":  {
+                                              "triplePatterns":  9,
+                                              "basicGraphPatterns":  1,
+                                              "sequences":  1,
+                                              "leftJoins":  0,
+                                              "tables":  1,
+                                              "groups":  1,
+                                              "characters":  1841
+                                          },
+                        "indexed":  {
+                                        "triplePatterns":  4,
+                                        "basicGraphPatterns":  1,
+                                        "sequences":  1,
+                                        "leftJoins":  0,
+                                        "tables":  1,
+                                        "groups":  1,
+                                        "characters":  1329
                                     },
                         "triplePatternReduction":  5
                     },
@@ -244,7 +319,7 @@
                                               "leftJoins":  0,
                                               "tables":  0,
                                               "groups":  0,
-                                              "characters":  507
+                                              "characters":  601
                                           },
                         "indexed":  {
                                         "triplePatterns":  3,

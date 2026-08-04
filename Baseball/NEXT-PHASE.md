@@ -22,11 +22,11 @@ unless a regression demonstrates that they are broken.
   authoritative; the query index is disposable and reproducible.
 - The active RML contains 247 triples maps, 56 logical sources, and no
   referencing-object joins.
-- Fixture game `566279` produces 28,419 authoritative triples and 6,617
-  query-index triples. All eleven supported semantic row sets, including exact
+- Fixture game `566279` produces 28,419 authoritative triples and 6,538
+  query-index triples. All twelve supported semantic row sets, including exact
   UTF-8 label fidelity, are equivalent.
 - All eight completed 2026-08-03 games are loaded independently. Together
-  they contain 228,576 authoritative triples, 53,542 query-index triples, 823
+  they contain 228,576 authoritative triples, 52,944 query-index triples, 823
   runner resolutions, and 11 stolen-base processes. Every per-game
   authoritative/index equivalence suite passes.
 - All 48 canned queries have been reviewed and executed against the eight-game
@@ -42,12 +42,12 @@ unless a regression demonstrates that they are broken.
   records exact row sets and currently exposes three baserunning-only terminal
   outcomes (`pickoff_1b` twice and `caught_stealing_2b` once) that still use the
   generic result pattern. `intent_walk` now reuses the full walk pattern.
-- Ten representative authoritative/indexed query pairs have exact corpus
+- Thirteen representative authoritative/indexed query pairs have exact corpus
   results, 20-sample alternating timings, optimized ARQ algebra, and direct
-  TDB2 execution captures. Seven traversal-heavy pairs improve by 2.10x to
-  9.73x at the median; the three simple lookup pairs are effectively neutral.
+  TDB2 execution captures. Ten reviewed pairs improve by 1.77x to 53.36x at
+  the median; the three simple lookup pairs are effectively neutral.
 - Query-index generation now preserves Fuseki's UTF-8 Turtle bytes directly.
-  The corpus benchmark exposed and the eleven-family equivalence gate now
+  The corpus benchmark exposed and the twelve-family equivalence gate now
   prevents correctly accented player labels from becoming mojibake.
 - Portable dehydration packages can export, validate, detect modified bytes,
   and restore both named graphs. Failed index construction removes the stale
@@ -67,7 +67,7 @@ unless a regression demonstrates that they are broken.
   reviewed completeness profile, while avoiding repeated correlated
   absence checks.
 - Canonical canned queries and the UI query builder remain authoritative. A
-  separate reviewed runner now routes the seven proven traversal-heavy query
+  separate reviewed runner now routes ten proven query
   pairs to the index and leaves the three neutral pairs authoritative. It
   scopes execution to the loaded graph set, verifies current local manifests
   and graph metadata, falls back safely in Auto mode, and fails closed when
@@ -81,16 +81,18 @@ unless a regression demonstrates that they are broken.
 - RML-to-Mermaid generator and current pattern diagrams;
 - the 48-query structural review and UI component synchronization;
 - the 16-query advanced semantic catalog and reproducible corpus audit;
-- query-index contract version 1 and its 12 `CONSTRUCT` components;
+- query-index contract version 1 and its 13 `CONSTRUCT` components;
 - single-fixture equivalence, benchmarks, and optimized algebra capture;
 - eight-game canned-query audit, corpus query-index benchmark, UTF-8 label
   fidelity gate, and direct TDB2 execution capture;
-- evidence-driven operational routing for seven indexed and three
+- evidence-driven operational routing for ten indexed and three
   authoritative query pairs, including live equivalence, fallback, and
   fail-closed tests;
 - portable dehydration-package export, validation, tamper testing, and exact
   graph restoration;
 - malformed-component/stale-index recovery testing;
+- result-independent `PlateAppearanceFact` coverage, including terminal
+  pickoff/caught-stealing sequences without invented result classifications;
 - structural `(atBatIndex, runnerIndex)` identities for runner acts, records,
   resolutions, judgments, decisions, and base-touching processes;
 - processor-safe runner-category and sacrifice-bunt source partitioning;

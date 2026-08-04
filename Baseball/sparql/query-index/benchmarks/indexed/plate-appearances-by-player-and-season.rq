@@ -1,0 +1,18 @@
+PREFIX idx: <https://w3id.org/baseball/query-index/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?season ?player ?playerLabel
+       (COUNT(DISTINCT ?plateAppearance) AS ?plateAppearances)
+       (COUNT(DISTINCT ?game) AS ?games)
+WHERE {
+  GRAPH ?graph {
+    ?plateAppearance a idx:PlateAppearanceFact ;
+                     idx:agent ?player ;
+                     idx:game ?game .
+    ?game a idx:GameFact ;
+          idx:season ?season .
+    ?player rdfs:label ?playerLabel .
+  }
+}
+GROUP BY ?season ?player ?playerLabel
+ORDER BY ?season DESC(?plateAppearances) LCASE(STR(?playerLabel))

@@ -8,9 +8,9 @@ have yet been accepted as a baseball statistic.
 The 48 canned queries remain authoritative-pattern queries. The separate
 [`query-index/`](query-index/) contract materializes equivalent shortcut facts
 without replacing any canned or UI-compiled query. Its reviewed operational
-runner routes seven proven companions to the index while preserving the
+runner routes ten proven companions to the index while preserving the
 authoritative files and fallback path. Its executable suite
-compares exact rows for eleven recurring semantic families, including label
+compares exact rows for twelve recurring semantic families, including label
 fidelity, before that migration is considered.
 
 Higher-order event-chain analytics are cataloged separately under

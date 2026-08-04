@@ -9,7 +9,7 @@
       "authoritative": "sparql/hits-by-player-and-venue.rq",
       "indexed": "sparql/query-index/benchmarks/indexed/hits-by-player-and-venue.rq",
       "autoLayer": "indexed",
-      "medianSpeedup": 9.728
+      "medianSpeedup": 11.178
     },
     {
       "name": "outcomes-by-player",
@@ -17,7 +17,31 @@
       "authoritative": "sparql/batting/outcomes-by-player.rq",
       "indexed": "sparql/query-index/benchmarks/indexed/outcomes-by-player.rq",
       "autoLayer": "indexed",
-      "medianSpeedup": 2.104
+      "medianSpeedup": 2.082
+    },
+    {
+      "name": "outcomes-by-season",
+      "family": "batting",
+      "authoritative": "sparql/batting/outcomes-by-season.rq",
+      "indexed": "sparql/query-index/benchmarks/indexed/outcomes-by-season.rq",
+      "autoLayer": "indexed",
+      "medianSpeedup": 53.359
+    },
+    {
+      "name": "plate-appearances-by-player-and-season",
+      "family": "batting",
+      "authoritative": "sparql/batting/plate-appearances-by-player-and-season.rq",
+      "indexed": "sparql/query-index/benchmarks/indexed/plate-appearances-by-player-and-season.rq",
+      "autoLayer": "indexed",
+      "medianSpeedup": 2.395
+    },
+    {
+      "name": "three-true-outcomes-by-player",
+      "family": "batting",
+      "authoritative": "sparql/batting/three-true-outcomes-by-player.rq",
+      "indexed": "sparql/query-index/benchmarks/indexed/three-true-outcomes-by-player.rq",
+      "autoLayer": "indexed",
+      "medianSpeedup": 1.768
     },
     {
       "name": "pitches-by-pitcher-and-venue",
@@ -25,7 +49,7 @@
       "authoritative": "sparql/pitching/pitches-by-pitcher-and-venue.rq",
       "indexed": "sparql/query-index/benchmarks/indexed/pitches-by-pitcher-and-venue.rq",
       "autoLayer": "indexed",
-      "medianSpeedup": 2.187
+      "medianSpeedup": 2.141
     },
     {
       "name": "pitch-summary-by-pitcher",
@@ -33,7 +57,7 @@
       "authoritative": "sparql/pitching/pitch-summary-by-pitcher.rq",
       "indexed": "sparql/query-index/benchmarks/indexed/pitch-summary-by-pitcher.rq",
       "autoLayer": "indexed",
-      "medianSpeedup": 4.282
+      "medianSpeedup": 4.741
     },
     {
       "name": "batted-balls-by-batter-and-venue",
@@ -41,7 +65,7 @@
       "authoritative": "sparql/pitching/batted-balls-by-batter-and-venue.rq",
       "indexed": "sparql/query-index/benchmarks/indexed/batted-balls-by-batter-and-venue.rq",
       "autoLayer": "indexed",
-      "medianSpeedup": 3.511
+      "medianSpeedup": 3.344
     },
     {
       "name": "events-by-player",
@@ -49,7 +73,7 @@
       "authoritative": "sparql/baserunning/events-by-player.rq",
       "indexed": "sparql/query-index/benchmarks/indexed/events-by-player.rq",
       "autoLayer": "indexed",
-      "medianSpeedup": 4.331
+      "medianSpeedup": 4.285
     },
     {
       "name": "runs-by-season-and-venue",
@@ -57,7 +81,7 @@
       "authoritative": "sparql/baserunning/runs-by-season-and-venue.rq",
       "indexed": "sparql/query-index/benchmarks/indexed/runs-by-season-and-venue.rq",
       "autoLayer": "indexed",
-      "medianSpeedup": 6.736
+      "medianSpeedup": 6.903
     },
     {
       "name": "games-by-team-and-season",
@@ -65,7 +89,7 @@
       "authoritative": "sparql/games/games-by-team-and-season.rq",
       "indexed": "sparql/query-index/benchmarks/indexed/games-by-team-and-season.rq",
       "autoLayer": "authoritative",
-      "medianSpeedup": 1.098
+      "medianSpeedup": 1.114
     },
     {
       "name": "umpire-assignments",
@@ -73,7 +97,7 @@
       "authoritative": "sparql/games/umpire-assignments.rq",
       "indexed": "sparql/query-index/benchmarks/indexed/umpire-assignments.rq",
       "autoLayer": "authoritative",
-      "medianSpeedup": 0.983
+      "medianSpeedup": 1.018
     },
     {
       "name": "available-players",
@@ -81,7 +105,7 @@
       "authoritative": "sparql/options/available-players.rq",
       "indexed": "sparql/query-index/benchmarks/indexed/available-players.rq",
       "autoLayer": "authoritative",
-      "medianSpeedup": 1.029
+      "medianSpeedup": 1.045
     }
   ]
 }

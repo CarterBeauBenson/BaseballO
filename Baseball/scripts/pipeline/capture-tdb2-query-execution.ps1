@@ -156,7 +156,7 @@ try {
     $markdown.Add('')
     $markdown.Add("Generated with Apache Jena Fuseki $($script:Versions.Fuseki.Version) and ``tdb2.tdbquery --set arq:logExec=ALL --results=none``.")
     $markdown.Add('')
-    $markdown.Add('The 20 normalized logs capture Jena query text, optimized algebra, TDB2 algebra, and the initial reordered execution pattern for each authoritative/indexed benchmark pair. Repeated aggregate subexecution traces are omitted. Fuseki was stopped so the command could open the same persistent TDB2 datastore read-only. Result tables were suppressed.')
+    $markdown.Add("The $($results.Count) normalized logs capture Jena query text, optimized algebra, TDB2 algebra, and the initial reordered execution pattern for each authoritative/indexed benchmark pair. Repeated aggregate subexecution traces are omitted. Fuseki was stopped so the command could open the same persistent TDB2 datastore read-only. Result tables were suppressed.")
     $markdown.Add('')
     $markdown.Add("- Corpus SHA-256: ``$($auditBaseline.corpusSha256)``")
     $markdown.Add("- Query-index contract SHA-256: ``$($report.queryIndexContractSha256)``")

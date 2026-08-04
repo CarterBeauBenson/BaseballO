@@ -16,7 +16,7 @@ IDX = Namespace("https://w3id.org/baseball/query-index/")
 
 REQUIRED_PROPERTIES = {
     IDX.GameFact: (IDX.season, IDX.venue, IDX.gameStart, IDX.derivedFrom),
-    IDX.PlateAppearanceFact: (IDX.game, IDX.agent, IDX.result, IDX.derivedFrom),
+    IDX.PlateAppearanceFact: (IDX.game, IDX.agent, IDX.derivedFrom),
     IDX.PlateAppearanceResultFact: (
         IDX.plateAppearance,
         IDX.game,

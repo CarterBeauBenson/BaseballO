@@ -179,13 +179,13 @@ def validate_sparql() -> int:
     ]
     if (
         len(canned_files) != 48
-        or len(component_files) != 12
-        or len(benchmark_files) != 10
+        or len(component_files) != 13
+        or len(benchmark_files) != 13
         or len(advanced_files) != 16
     ):
         raise ValueError(
-            "Expected 48 canned SPARQL queries, 12 query-index components, "
-            "10 indexed benchmark companions, and 16 advanced semantic queries; "
+            "Expected 48 canned SPARQL queries, 13 query-index components, "
+            "13 indexed benchmark companions, and 16 advanced semantic queries; "
             f"found {len(canned_files)}, {len(component_files)}, "
             f"{len(benchmark_files)}, and {len(advanced_files)}"
         )
@@ -390,7 +390,7 @@ def validate_query_index_benchmarks() -> int:
         audit.get("authoritativeTripleCount", -2)
     ):
         raise ValueError("Corpus benchmark authoritative triple count is inconsistent")
-    if int(report.get("queryIndexTripleCount", -1)) != 53542:
+    if int(report.get("queryIndexTripleCount", -1)) != 52944:
         raise ValueError("Corpus benchmark query-index triple count is unexpected")
 
     pairs = query_index_pairs()
@@ -439,12 +439,15 @@ def validate_reviewed_query_routing() -> int:
     }
     routes = routing.get("routes", [])
     route_names = {str(route.get("name")) for route in routes}
-    if len(routes) != 10 or route_names != set(pair_by_name):
+    if len(routes) != len(pairs) or route_names != set(pair_by_name):
         raise ValueError("Reviewed query routing must cover the exact benchmark pair set")
 
     expected_indexed = {
         "hits-by-player-and-venue",
         "outcomes-by-player",
+        "outcomes-by-season",
+        "plate-appearances-by-player-and-season",
+        "three-true-outcomes-by-player",
         "pitches-by-pitcher-and-venue",
         "pitch-summary-by-pitcher",
         "batted-balls-by-batter-and-venue",
@@ -457,7 +460,7 @@ def validate_reviewed_query_routing() -> int:
         if str(route.get("autoLayer")) == "indexed"
     }
     if actual_indexed != expected_indexed:
-        raise ValueError("Reviewed indexed routes differ from the seven measured candidates")
+        raise ValueError("Reviewed indexed routes differ from the measured candidates")
 
     for route in routes:
         name = str(route["name"])
@@ -493,8 +496,8 @@ def validate_tdb2_execution_capture() -> int:
     }
     results = report.get("results", [])
     actual = {(str(item.get("name")), str(item.get("layer"))) for item in results}
-    if len(results) != 20 or actual != set(expected):
-        raise ValueError("TDB2 execution capture does not cover the exact 20 query layers")
+    if len(results) != len(expected) or actual != set(expected):
+        raise ValueError("TDB2 execution capture does not cover the exact query layers")
 
     expected_logs: set[str] = set()
     for result in results:

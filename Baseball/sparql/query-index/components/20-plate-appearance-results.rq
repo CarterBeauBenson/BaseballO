@@ -4,11 +4,6 @@ PREFIX idx: <https://w3id.org/baseball/query-index/>
 PREFIX obo: <http://purl.obolibrary.org/obo/>
 
 CONSTRUCT {
-  ?plateAppearance a idx:PlateAppearanceFact ;
-      idx:game ?game ;
-      idx:agent ?player ;
-      idx:result ?result ;
-      idx:derivedFrom ?batterAct .
   ?result a idx:PlateAppearanceResultFact ;
       idx:plateAppearance ?plateAppearance ;
       idx:game ?game ;

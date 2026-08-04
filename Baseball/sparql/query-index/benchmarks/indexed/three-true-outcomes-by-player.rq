@@ -1,0 +1,22 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX idx: <https://w3id.org/baseball/query-index/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?player ?playerLabel
+       (SUM(IF(?outcomeClass = base:HomeRunProcess, 1, 0)) AS ?homeRuns)
+       (SUM(IF(?outcomeClass = base:WalkProcess, 1, 0)) AS ?walks)
+       (SUM(IF(?outcomeClass = base:StrikeoutProcess, 1, 0)) AS ?strikeouts)
+       (COUNT(DISTINCT ?result) AS ?threeTrueOutcomes)
+WHERE {
+  GRAPH ?graph {
+    ?result a idx:PlateAppearanceResultFact ;
+            idx:agent ?player ;
+            idx:outcomeClass ?outcomeClass .
+    ?player rdfs:label ?playerLabel .
+    VALUES ?outcomeClass {
+      base:HomeRunProcess base:WalkProcess base:StrikeoutProcess
+    }
+  }
+}
+GROUP BY ?player ?playerLabel
+ORDER BY DESC(?threeTrueOutcomes) LCASE(STR(?playerLabel))
