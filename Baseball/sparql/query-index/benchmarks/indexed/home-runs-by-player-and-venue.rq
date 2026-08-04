@@ -1,0 +1,18 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX idx: <https://w3id.org/baseball/query-index/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?venue ?venueLabel ?player ?playerLabel
+       (COUNT(DISTINCT ?homeRun) AS ?homeRuns)
+WHERE {
+  GRAPH ?graph {
+    ?homeRun a idx:HitFact ;
+             idx:agent ?player ;
+             idx:hitType base:HomeRunProcess ;
+             idx:venue ?venue .
+    ?player rdfs:label ?playerLabel .
+    ?venue rdfs:label ?venueLabel .
+  }
+}
+GROUP BY ?venue ?venueLabel ?player ?playerLabel
+ORDER BY LCASE(STR(?venueLabel)) DESC(?homeRuns) LCASE(STR(?playerLabel))

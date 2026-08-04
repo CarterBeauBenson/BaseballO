@@ -1,0 +1,107 @@
+INFO  exec            :: QUERY
+  PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+  PREFIX  obo:  <http://purl.obolibrary.org/obo/>
+  PREFIX  cco:  <https://www.commoncoreontologies.org/>
+  PREFIX  base: <https://baseballontology.org/>
+
+  SELECT  ?venue ?venueLabel ?player ?playerLabel (COUNT(DISTINCT ?homeRun) AS ?homeRuns)
+  WHERE
+    { VALUES ?graph { <https://w3id.org/baseball/graph/game/822867> <https://w3id.org/baseball/graph/game/823431> <https://w3id.org/baseball/graph/game/823520> <https://w3id.org/baseball/graph/game/823757> <https://w3id.org/baseball/graph/game/824160> <https://w3id.org/baseball/graph/game/824324> <https://w3id.org/baseball/graph/game/824647> <https://w3id.org/baseball/graph/game/825095> }
+      GRAPH ?graph
+        { ?homeRun  a                base:BaseballInstitutionalProcess ;
+                    a                base:HomeRunProcess ;
+                    obo:BFO_0000132  ?plateAppearance ;
+                    obo:BFO_0000117  ?hitJudgment ;
+                    cco:ont00001918  ?field .
+          ?hitJudgment  a            base:HitJudgmentAct .
+          ?batterAct  a              base:BatterAct ;
+                    obo:BFO_0000132  ?plateAppearance ;
+                    obo:BFO_0000057  ?player .
+          ?player   rdfs:label       ?playerLabel .
+          ?field    a                base:BaseballFieldSite ;
+                    obo:BFO_0000171  ?venue .
+          ?venue    a                base:BaseballVenue ;
+                    rdfs:label       ?venueLabel
+        }
+    }
+  GROUP BY ?venue ?venueLabel ?player ?playerLabel
+  ORDER BY lcase(str(?venueLabel)) DESC(?homeRuns) lcase(str(?playerLabel))
+INFO  exec            :: ALGEBRA
+  (project (?venue ?venueLabel ?player ?playerLabel ?homeRuns)
+    (order ((lcase (str ?venueLabel)) (desc ?homeRuns) (lcase (str ?playerLabel)))
+      (extend ((?homeRuns ?.0))
+        (group (?venue ?venueLabel ?player ?playerLabel) ((?.0 (count distinct ?homeRun)))
+          (sequence
+            (table (vars ?graph)
+              (row [?graph <https://w3id.org/baseball/graph/game/822867>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823431>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823520>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823757>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824160>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824324>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824647>])
+              (row [?graph <https://w3id.org/baseball/graph/game/825095>])
+            )
+            (quadpattern
+              (quad ?graph ?homeRun <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballInstitutionalProcess>)
+              (quad ?graph ?homeRun <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/HomeRunProcess>)
+              (quad ?graph ?homeRun <http://purl.obolibrary.org/obo/BFO_0000132> ?plateAppearance)
+              (quad ?graph ?homeRun <http://purl.obolibrary.org/obo/BFO_0000117> ?hitJudgment)
+              (quad ?graph ?homeRun <https://www.commoncoreontologies.org/ont00001918> ?field)
+              (quad ?graph ?hitJudgment <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/HitJudgmentAct>)
+              (quad ?graph ?batterAct <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BatterAct>)
+              (quad ?graph ?batterAct <http://purl.obolibrary.org/obo/BFO_0000132> ?plateAppearance)
+              (quad ?graph ?batterAct <http://purl.obolibrary.org/obo/BFO_0000057> ?player)
+              (quad ?graph ?player <http://www.w3.org/2000/01/rdf-schema#label> ?playerLabel)
+              (quad ?graph ?field <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballFieldSite>)
+              (quad ?graph ?field <http://purl.obolibrary.org/obo/BFO_0000171> ?venue)
+              (quad ?graph ?venue <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballVenue>)
+              (quad ?graph ?venue <http://www.w3.org/2000/01/rdf-schema#label> ?venueLabel)
+            ))))))
+INFO  exec            :: TDB2
+  (project (?venue ?venueLabel ?player ?playerLabel ?homeRuns)
+    (order ((lcase (str ?venueLabel)) (desc ?homeRuns) (lcase (str ?playerLabel)))
+      (extend ((?homeRuns ?.0))
+        (group (?venue ?venueLabel ?player ?playerLabel) ((?.0 (count distinct ?homeRun)))
+          (sequence
+            (table (vars ?graph)
+              (row [?graph <https://w3id.org/baseball/graph/game/822867>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823431>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823520>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823757>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824160>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824324>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824647>])
+              (row [?graph <https://w3id.org/baseball/graph/game/825095>])
+            )
+            (quadpattern
+              (quad ?graph ?homeRun <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballInstitutionalProcess>)
+              (quad ?graph ?homeRun <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/HomeRunProcess>)
+              (quad ?graph ?homeRun <http://purl.obolibrary.org/obo/BFO_0000132> ?plateAppearance)
+              (quad ?graph ?homeRun <http://purl.obolibrary.org/obo/BFO_0000117> ?hitJudgment)
+              (quad ?graph ?homeRun <https://www.commoncoreontologies.org/ont00001918> ?field)
+              (quad ?graph ?hitJudgment <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/HitJudgmentAct>)
+              (quad ?graph ?batterAct <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BatterAct>)
+              (quad ?graph ?batterAct <http://purl.obolibrary.org/obo/BFO_0000132> ?plateAppearance)
+              (quad ?graph ?batterAct <http://purl.obolibrary.org/obo/BFO_0000057> ?player)
+              (quad ?graph ?player <http://www.w3.org/2000/01/rdf-schema#label> ?playerLabel)
+              (quad ?graph ?field <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballFieldSite>)
+              (quad ?graph ?field <http://purl.obolibrary.org/obo/BFO_0000171> ?venue)
+              (quad ?graph ?venue <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballVenue>)
+              (quad ?graph ?venue <http://www.w3.org/2000/01/rdf-schema#label> ?venueLabel)
+            ))))))
+INFO  exec            :: Execute
+  ?homeRun rdf:type <https://baseballontology.org/BaseballInstitutionalProcess>
+  ?homeRun rdf:type <https://baseballontology.org/HomeRunProcess>
+  ?homeRun <http://purl.obolibrary.org/obo/BFO_0000132> ?plateAppearance
+  ?homeRun <http://purl.obolibrary.org/obo/BFO_0000117> ?hitJudgment
+  ?hitJudgment rdf:type <https://baseballontology.org/HitJudgmentAct>
+  ?homeRun <https://www.commoncoreontologies.org/ont00001918> ?field
+  ?field rdf:type <https://baseballontology.org/BaseballFieldSite>
+  ?field <http://purl.obolibrary.org/obo/BFO_0000171> ?venue
+  ?venue rdf:type <https://baseballontology.org/BaseballVenue>
+  ?venue rdfs:label ?venueLabel
+  ?batterAct <http://purl.obolibrary.org/obo/BFO_0000132> ?plateAppearance
+  ?batterAct rdf:type <https://baseballontology.org/BatterAct>
+  ?batterAct <http://purl.obolibrary.org/obo/BFO_0000057> ?player
+  ?player rdfs:label ?playerLabel

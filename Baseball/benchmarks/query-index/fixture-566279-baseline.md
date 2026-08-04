@@ -1,6 +1,6 @@
 # Query-index exploratory benchmark: game 566279
 
-Generated: 2026-08-04T16:51:11.0112095Z
+Generated: 2026-08-04T17:02:46.7661140Z
 
 This is a single checked-in fixture measurement, not a multi-game scale claim. Initial executions validate exact result equivalence and prime each query path; repeated timings alternate authoritative/indexed execution order.
 
@@ -11,18 +11,22 @@ This is a single checked-in fixture measurement, not a multi-game scale claim. I
 
 | Query | Rows | Authoritative median (ms) | Indexed median (ms) | Median ratio |
 | --- | ---: | ---: | ---: | ---: |
-| hits-by-player-and-venue | 13 | 232.328 | 7.671 | 30.287x |
-| outcomes-by-player | 58 | 18.544 | 10.189 | 1.82x |
-| outcomes-by-season | 11 | 605.973 | 5.553 | 109.125x |
-| plate-appearances-by-player-and-season | 22 | 44.274 | 6.952 | 6.369x |
-| three-true-outcomes-by-player | 14 | 7.795 | 6.336 | 1.23x |
-| pitches-by-pitcher-and-venue | 6 | 12.902 | 7.517 | 1.716x |
-| pitch-summary-by-pitcher | 6 | 38.365 | 11.753 | 3.264x |
-| batted-balls-by-batter-and-venue | 22 | 16.132 | 7.37 | 2.189x |
-| events-by-player | 75 | 28.969 | 9.931 | 2.917x |
-| runs-by-season-and-venue | 1 | 40.353 | 3.966 | 10.175x |
-| games-by-team-and-season | 2 | 4.911 | 3.958 | 1.241x |
-| umpire-assignments | 4 | 4.332 | 4.204 | 1.03x |
-| available-players | 22 | 6.055 | 5.946 | 1.018x |
+| hits-by-player-and-venue | 13 | 234.996 | 7.853 | 29.924x |
+| outcomes-by-player | 58 | 18.618 | 11.207 | 1.661x |
+| outcomes-by-season | 11 | 619.441 | 5.528 | 112.055x |
+| plate-appearances-by-player-and-season | 22 | 44.112 | 7.202 | 6.125x |
+| three-true-outcomes-by-player | 14 | 7.477 | 6.014 | 1.243x |
+| extra-base-hits-by-player | 7 | 5.445 | 4.491 | 1.212x |
+| home-runs-by-player-and-venue | 2 | 4.771 | 3.979 | 1.199x |
+| multi-hit-games | 6 | 20.072 | 4.696 | 4.274x |
+| total-bases-by-player-and-season | 13 | 188.023 | 5.601 | 33.57x |
+| pitches-by-pitcher-and-venue | 6 | 16.171 | 9.314 | 1.736x |
+| pitch-summary-by-pitcher | 6 | 49.782 | 15.509 | 3.21x |
+| batted-balls-by-batter-and-venue | 22 | 20.43 | 8.915 | 2.292x |
+| events-by-player | 75 | 36.111 | 12.092 | 2.986x |
+| runs-by-season-and-venue | 1 | 51.184 | 4.874 | 10.501x |
+| games-by-team-and-season | 2 | 5.08 | 4.296 | 1.182x |
+| umpire-assignments | 4 | 3.907 | 4.051 | 0.964x |
+| available-players | 22 | 5.712 | 5.389 | 1.06x |
 
 A ratio above 1 means the indexed median was faster. These numbers are useful for method validation only; migration decisions require additional deliberately supplied game fixtures and query-plan review.

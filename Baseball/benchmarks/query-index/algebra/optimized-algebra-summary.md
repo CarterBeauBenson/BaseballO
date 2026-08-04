@@ -11,6 +11,10 @@ This captures high-level optimized ARQ algebra. It does not capture TDB2 storage
 | outcomes-by-season | 15 | 5 | 10 |
 | plate-appearances-by-player-and-season | 14 | 6 | 8 |
 | three-true-outcomes-by-player | 9 | 4 | 5 |
+| extra-base-hits-by-player | 9 | 4 | 5 |
+| home-runs-by-player-and-venue | 14 | 6 | 8 |
+| multi-hit-games | 14 | 4 | 10 |
+| total-bases-by-player-and-season | 19 | 7 | 12 |
 | pitches-by-pitcher-and-venue | 10 | 5 | 5 |
 | pitch-summary-by-pitcher | 18 | 10 | 8 |
 | batted-balls-by-batter-and-venue | 13 | 6 | 7 |

@@ -77,6 +77,6 @@ the batter act, person participation, result, judgment, and containment chain.
 ## Review deliverables
 
 - an approved list of canned/UI queries to migrate;
-- a reviewed migration decision for the ten proven benchmark
+- a reviewed migration decision for the fourteen proven benchmark
   families; and
 - a garbage-collection policy for production-scale per-game derived graphs.

@@ -1,7 +1,7 @@
 {
     "artifactType":  "baseball-query-index-optimized-algebra-comparison",
     "reportVersion":  1,
-    "generatedAtUtc":  "2026-08-04T16:49:58.0839679Z",
+    "generatedAtUtc":  "2026-08-04T17:03:39.8617211Z",
     "jenaFusekiVersion":  "6.1.0",
     "captureCommand":  "arq.qparse --print=opt --query \u003cfile\u003e",
     "scope":  "high-level optimized ARQ algebra; not TDB2 storage-specific runtime execution logging",
@@ -131,6 +131,106 @@
                                         "characters":  1329
                                     },
                         "triplePatternReduction":  5
+                    },
+                    {
+                        "name":  "extra-base-hits-by-player",
+                        "family":  "batting",
+                        "authoritativePlan":  "extra-base-hits-by-player-authoritative-opt.txt",
+                        "indexedPlan":  "extra-base-hits-by-player-indexed-opt.txt",
+                        "authoritative":  {
+                                              "triplePatterns":  9,
+                                              "basicGraphPatterns":  1,
+                                              "sequences":  1,
+                                              "leftJoins":  0,
+                                              "tables":  1,
+                                              "groups":  1,
+                                              "characters":  1411
+                                          },
+                        "indexed":  {
+                                        "triplePatterns":  4,
+                                        "basicGraphPatterns":  1,
+                                        "sequences":  1,
+                                        "leftJoins":  0,
+                                        "tables":  1,
+                                        "groups":  1,
+                                        "characters":  943
+                                    },
+                        "triplePatternReduction":  5
+                    },
+                    {
+                        "name":  "home-runs-by-player-and-venue",
+                        "family":  "batting",
+                        "authoritativePlan":  "home-runs-by-player-and-venue-authoritative-opt.txt",
+                        "indexedPlan":  "home-runs-by-player-and-venue-indexed-opt.txt",
+                        "authoritative":  {
+                                              "triplePatterns":  14,
+                                              "basicGraphPatterns":  1,
+                                              "sequences":  0,
+                                              "leftJoins":  0,
+                                              "tables":  0,
+                                              "groups":  1,
+                                              "characters":  1635
+                                          },
+                        "indexed":  {
+                                        "triplePatterns":  6,
+                                        "basicGraphPatterns":  1,
+                                        "sequences":  0,
+                                        "leftJoins":  0,
+                                        "tables":  0,
+                                        "groups":  1,
+                                        "characters":  859
+                                    },
+                        "triplePatternReduction":  8
+                    },
+                    {
+                        "name":  "multi-hit-games",
+                        "family":  "batting",
+                        "authoritativePlan":  "multi-hit-games-authoritative-opt.txt",
+                        "indexedPlan":  "multi-hit-games-indexed-opt.txt",
+                        "authoritative":  {
+                                              "triplePatterns":  14,
+                                              "basicGraphPatterns":  1,
+                                              "sequences":  1,
+                                              "leftJoins":  0,
+                                              "tables":  1,
+                                              "groups":  1,
+                                              "characters":  1967
+                                          },
+                        "indexed":  {
+                                        "triplePatterns":  4,
+                                        "basicGraphPatterns":  1,
+                                        "sequences":  0,
+                                        "leftJoins":  0,
+                                        "tables":  0,
+                                        "groups":  1,
+                                        "characters":  673
+                                    },
+                        "triplePatternReduction":  10
+                    },
+                    {
+                        "name":  "total-bases-by-player-and-season",
+                        "family":  "batting",
+                        "authoritativePlan":  "total-bases-by-player-and-season-authoritative-opt.txt",
+                        "indexedPlan":  "total-bases-by-player-and-season-indexed-opt.txt",
+                        "authoritative":  {
+                                              "triplePatterns":  19,
+                                              "basicGraphPatterns":  1,
+                                              "sequences":  1,
+                                              "leftJoins":  0,
+                                              "tables":  1,
+                                              "groups":  1,
+                                              "characters":  2412
+                                          },
+                        "indexed":  {
+                                        "triplePatterns":  7,
+                                        "basicGraphPatterns":  1,
+                                        "sequences":  1,
+                                        "leftJoins":  0,
+                                        "tables":  1,
+                                        "groups":  1,
+                                        "characters":  1242
+                                    },
+                        "triplePatternReduction":  12
                     },
                     {
                         "name":  "pitches-by-pitcher-and-venue",

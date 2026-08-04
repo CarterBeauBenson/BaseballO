@@ -180,12 +180,12 @@ def validate_sparql() -> int:
     if (
         len(canned_files) != 48
         or len(component_files) != 13
-        or len(benchmark_files) != 13
+        or len(benchmark_files) != 17
         or len(advanced_files) != 16
     ):
         raise ValueError(
             "Expected 48 canned SPARQL queries, 13 query-index components, "
-            "13 indexed benchmark companions, and 16 advanced semantic queries; "
+            "17 indexed benchmark companions, and 16 advanced semantic queries; "
             f"found {len(canned_files)}, {len(component_files)}, "
             f"{len(benchmark_files)}, and {len(advanced_files)}"
         )
@@ -448,6 +448,10 @@ def validate_reviewed_query_routing() -> int:
         "outcomes-by-season",
         "plate-appearances-by-player-and-season",
         "three-true-outcomes-by-player",
+        "extra-base-hits-by-player",
+        "home-runs-by-player-and-venue",
+        "multi-hit-games",
+        "total-bases-by-player-and-season",
         "pitches-by-pitcher-and-venue",
         "pitch-summary-by-pitcher",
         "batted-balls-by-batter-and-venue",

@@ -108,7 +108,7 @@ without changing either source:
 ```
 
 [`operational-query-routing.json`](operational-query-routing.json) records
-thirteen measured routes. Auto mode selects the index for ten proven pairs
+seventeen measured routes. Auto mode selects the index for fourteen proven pairs
 and the authoritative layer for three neutral pairs. Before indexed execution,
 the runner scopes the exact loaded graph set and checks every corresponding
 contract hash, authoritative/index artifact hash, manifest count, loaded graph
@@ -121,13 +121,13 @@ The contract-level classification of every canned query is recorded in
 express 46 queries; `empty-games-prototype.rq` and `game-timeline.rq` remain
 authoritative for completeness and temporal-evidence reasons.
 
-Thirteen indexed companions under [`benchmarks/indexed/`](benchmarks/indexed/) span
+Seventeen indexed companions under [`benchmarks/indexed/`](benchmarks/indexed/) span
 all major query families. They are paired with the existing authoritative
 queries by [`benchmark-pairs.json`](benchmarks/benchmark-pairs.json) and can be
 run through the reproducible workflow documented in
 [`benchmarks/query-index/`](../../benchmarks/query-index/).
-The eight-game corpus results show meaningful median improvements for ten
-reviewed pairs (1.77x to 53.36x) and effectively neutral results for the three
+The eight-game corpus results show meaningful median improvements for fourteen
+reviewed pairs (1.39x to 50.01x) and effectively neutral results for the three
 simple lookup pairs. Direct TDB2 execution traces are stored beside the timing
 baselines.
 
