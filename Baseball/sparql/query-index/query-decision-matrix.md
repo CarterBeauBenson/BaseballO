@@ -7,9 +7,9 @@ the canonical query has been migrated or that performance has been proven at
 scale.
 
 The accepted performance corpus contains the eight completed 2026-08-03 games
-and excludes development fixture `566279`. All seventeen representative indexed
-companions return exact corpus row sets. Fourteen reviewed pairs improve by
-1.39x to 50.01x at the median; three simple lookup pairs remain effectively neutral and
+and excludes development fixture `566279`. All eighteen representative indexed
+companions return exact corpus row sets. Fifteen reviewed pairs improve by
+1.38x to 48.02x at the median; three simple lookup pairs remain effectively neutral and
 do not justify migration on performance grounds.
 
 ## Summary
@@ -22,30 +22,31 @@ do not justify migration on performance grounds.
 
 ## Measured migration evidence
 
-These seventeen pairs have exact results across all eight accepted corpus graphs.
+These eighteen pairs have exact results across all eight accepted corpus graphs.
 `Auto indexed` means the reviewed command-line runner selects that companion
 after freshness checks. It is not a silent switch of the canonical query or UI
 compiler.
 
 | Representative pair | Median speedup | Decision |
 | --- | ---: | --- |
-| `hits-by-player-and-venue` | 9.67x | Auto indexed |
+| `hits-by-player-and-venue` | 9.17x | Auto indexed |
 | `outcomes-by-player` | 2.08x | Auto indexed |
-| `outcomes-by-season` | 50.01x | Auto indexed |
-| `plate-appearances-by-player-and-season` | 2.39x | Auto indexed |
-| `three-true-outcomes-by-player` | 1.67x | Auto indexed |
-| `extra-base-hits-by-player` | 1.67x | Auto indexed |
-| `home-runs-by-player-and-venue` | 1.39x | Auto indexed |
-| `multi-hit-games` | 17.83x | Auto indexed |
-| `total-bases-by-player-and-season` | 14.66x | Auto indexed |
-| `pitches-by-pitcher-and-venue` | 2.19x | Auto indexed |
-| `pitch-summary-by-pitcher` | 4.72x | Auto indexed |
-| `batted-balls-by-batter-and-venue` | 3.32x | Auto indexed |
-| `events-by-player` | 5.88x | Auto indexed |
-| `runs-by-season-and-venue` | 7.44x | Auto indexed |
-| `games-by-team-and-season` | 1.19x | Auto authoritative |
-| `umpire-assignments` | 0.99x | Auto authoritative |
-| `available-players` | 1.02x | Auto authoritative |
+| `outcomes-by-season` | 48.02x | Auto indexed |
+| `plate-appearances-by-player-and-season` | 2.43x | Auto indexed |
+| `three-true-outcomes-by-player` | 1.81x | Auto indexed |
+| `extra-base-hits-by-player` | 1.74x | Auto indexed |
+| `home-runs-by-player-and-venue` | 1.38x | Auto indexed |
+| `multi-hit-games` | 17.63x | Auto indexed |
+| `total-bases-by-player-and-season` | 13.77x | Auto indexed |
+| `hitless-games-by-player` | 7.66x | Auto indexed; completeness-guarded negative semantics |
+| `pitches-by-pitcher-and-venue` | 2.18x | Auto indexed |
+| `pitch-summary-by-pitcher` | 4.96x | Auto indexed |
+| `batted-balls-by-batter-and-venue` | 3.31x | Auto indexed |
+| `events-by-player` | 4.97x | Auto indexed |
+| `runs-by-season-and-venue` | 6.99x | Auto indexed |
+| `games-by-team-and-season` | 1.12x | Auto authoritative |
+| `umpire-assignments` | 1.00x | Auto authoritative |
+| `available-players` | 0.99x | Auto authoritative |
 
 Direct TDB2 execution captures corroborate the shape reduction: for example,
 the hit pair drops from 24 to 8 TDB2 quad patterns and the runs pair drops from

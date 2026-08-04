@@ -1,7 +1,7 @@
 {
     "artifactType":  "baseball-query-index-optimized-algebra-comparison",
     "reportVersion":  1,
-    "generatedAtUtc":  "2026-08-04T17:03:39.8617211Z",
+    "generatedAtUtc":  "2026-08-04T17:12:10.6614989Z",
     "jenaFusekiVersion":  "6.1.0",
     "captureCommand":  "arq.qparse --print=opt --query \u003cfile\u003e",
     "scope":  "high-level optimized ARQ algebra; not TDB2 storage-specific runtime execution logging",
@@ -231,6 +231,31 @@
                                         "characters":  1242
                                     },
                         "triplePatternReduction":  12
+                    },
+                    {
+                        "name":  "hitless-games-by-player",
+                        "family":  "batting",
+                        "authoritativePlan":  "hitless-games-by-player-authoritative-opt.txt",
+                        "indexedPlan":  "hitless-games-by-player-indexed-opt.txt",
+                        "authoritative":  {
+                                              "triplePatterns":  19,
+                                              "basicGraphPatterns":  2,
+                                              "sequences":  1,
+                                              "leftJoins":  0,
+                                              "tables":  1,
+                                              "groups":  1,
+                                              "characters":  2470
+                                          },
+                        "indexed":  {
+                                        "triplePatterns":  8,
+                                        "basicGraphPatterns":  2,
+                                        "sequences":  0,
+                                        "leftJoins":  0,
+                                        "tables":  0,
+                                        "groups":  1,
+                                        "characters":  1076
+                                    },
+                        "triplePatternReduction":  11
                     },
                     {
                         "name":  "pitches-by-pitcher-and-venue",

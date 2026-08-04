@@ -108,7 +108,7 @@ without changing either source:
 ```
 
 [`operational-query-routing.json`](operational-query-routing.json) records
-seventeen measured routes. Auto mode selects the index for fourteen proven pairs
+eighteen measured routes. Auto mode selects the index for fifteen proven pairs
 and the authoritative layer for three neutral pairs. Before indexed execution,
 the runner scopes the exact loaded graph set and checks every corresponding
 contract hash, authoritative/index artifact hash, manifest count, loaded graph
@@ -121,15 +121,21 @@ The contract-level classification of every canned query is recorded in
 express 46 queries; `empty-games-prototype.rq` and `game-timeline.rq` remain
 authoritative for completeness and temporal-evidence reasons.
 
-Seventeen indexed companions under [`benchmarks/indexed/`](benchmarks/indexed/) span
+Eighteen indexed companions under [`benchmarks/indexed/`](benchmarks/indexed/) span
 all major query families. They are paired with the existing authoritative
 queries by [`benchmark-pairs.json`](benchmarks/benchmark-pairs.json) and can be
 run through the reproducible workflow documented in
 [`benchmarks/query-index/`](../../benchmarks/query-index/).
-The eight-game corpus results show meaningful median improvements for fourteen
-reviewed pairs (1.39x to 50.01x) and effectively neutral results for the three
+The eight-game corpus results show meaningful median improvements for fifteen
+reviewed pairs (1.38x to 48.02x) and effectively neutral results for the three
 simple lookup pairs. Direct TDB2 execution traces are stored beside the timing
 baselines.
+
+`hitless-games-by-player` is the sole negative-semantics indexed route in this
+set. It is valid only through the reviewed runner: every selected game must have
+a current index whose complete plate-appearance and hit row sets passed the
+build-time equivalence gate. Auto falls back rather than inferring absence from
+a stale or partial graph.
 
 ## Dehydration and rehydration boundary
 

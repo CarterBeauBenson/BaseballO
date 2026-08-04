@@ -57,6 +57,12 @@
       "indexed": "sparql/query-index/benchmarks/indexed/total-bases-by-player-and-season.rq"
     },
     {
+      "name": "hitless-games-by-player",
+      "family": "batting",
+      "authoritative": "sparql/batting/hitless-games-by-player.rq",
+      "indexed": "sparql/query-index/benchmarks/indexed/hitless-games-by-player.rq"
+    },
+    {
       "name": "pitches-by-pitcher-and-venue",
       "family": "pitching",
       "authoritative": "sparql/pitching/pitches-by-pitcher-and-venue.rq",

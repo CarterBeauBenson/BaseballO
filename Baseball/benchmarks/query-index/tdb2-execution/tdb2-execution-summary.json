@@ -1,13 +1,13 @@
 {
     "artifactType":  "baseball-query-index-tdb2-execution-capture",
     "reportVersion":  1,
-    "generatedAtUtc":  "2026-08-04T17:05:09.4494946Z",
+    "generatedAtUtc":  "2026-08-04T17:13:49.4717765Z",
     "jenaFusekiVersion":  "6.1.0",
     "captureCommand":  "tdb2.tdbquery --set arq:logExec=ALL --results=none",
     "scope":  "eight completed 2026-08-03 games; fixture 566279 excluded; direct read-only TDB2 execution with Fuseki stopped",
     "corpusSha256":  "53c64863b8f154fd867958b43bca0e2535798111aadd7fcc7f95fa6f44db4daa",
     "queryIndexContractSha256":  "0c78cc555471897c1df3a1d5cea3fa08f5316c6dc8a751583c9ab91701104529",
-    "resultCount":  34,
+    "resultCount":  36,
     "results":  [
                     {
                         "name":  "hits-by-player-and-venue",
@@ -260,6 +260,34 @@
                         "tdb2Sequences":  2,
                         "tdb2LeftJoins":  0,
                         "executionTraceLineCount":  7
+                    },
+                    {
+                        "name":  "hitless-games-by-player",
+                        "family":  "batting",
+                        "layer":  "authoritative",
+                        "query":  "sparql/batting/hitless-games-by-player.rq",
+                        "querySha256":  "65544d8682d2e5835ebed79272f4bb5c691d65594dd8052f0ce0f7d606dbdf11",
+                        "log":  "hitless-games-by-player-authoritative.log",
+                        "logSha256":  "a85f2b062143aef9b5b19b0218352a72e5e9dc14c7d360b66d31c9f9d566dcba",
+                        "tdb2QuadPatterns":  19,
+                        "tdb2BasicGraphPatterns":  0,
+                        "tdb2Sequences":  2,
+                        "tdb2LeftJoins":  0,
+                        "executionTraceLineCount":  8
+                    },
+                    {
+                        "name":  "hitless-games-by-player",
+                        "family":  "batting",
+                        "layer":  "indexed",
+                        "query":  "sparql/query-index/benchmarks/indexed/hitless-games-by-player.rq",
+                        "querySha256":  "dbbad612de5659088c8a86d603206b47eae4f03072ba81725456758fbd553b8d",
+                        "log":  "hitless-games-by-player-indexed.log",
+                        "logSha256":  "9db5a5d793facdcb95bba9c725d74a44173737d129a3ea00a83e1edeed93e027",
+                        "tdb2QuadPatterns":  8,
+                        "tdb2BasicGraphPatterns":  0,
+                        "tdb2Sequences":  1,
+                        "tdb2LeftJoins":  0,
+                        "executionTraceLineCount":  5
                     },
                     {
                         "name":  "pitches-by-pitcher-and-venue",

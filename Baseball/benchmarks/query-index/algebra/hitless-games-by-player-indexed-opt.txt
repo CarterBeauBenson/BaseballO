@@ -1,0 +1,20 @@
+(prefix ((idx: <https://w3id.org/baseball/query-index/>)
+         (rdfs: <http://www.w3.org/2000/01/rdf-schema#>))
+  (project (?player ?playerLabel ?hitlessGames)
+    (order ((desc ?hitlessGames) (lcase (str ?playerLabel)))
+      (extend ((?hitlessGames ?.0))
+        (group (?player ?playerLabel) ((?.0 (count distinct ?game)))
+          (graph ?graph
+            (filter (notexists
+                       (bgp
+                         (triple ?hit <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> idx:HitFact)
+                         (triple ?hit idx:agent ?player)
+                         (triple ?hit idx:game ?game)
+                       ))
+              (bgp
+                (triple ?game <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> idx:GameFact)
+                (triple ?plateAppearance <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> idx:PlateAppearanceFact)
+                (triple ?plateAppearance idx:agent ?player)
+                (triple ?plateAppearance idx:game ?game)
+                (triple ?player rdfs:label ?playerLabel)
+              ))))))))

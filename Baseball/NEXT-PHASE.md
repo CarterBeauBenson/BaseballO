@@ -42,9 +42,9 @@ unless a regression demonstrates that they are broken.
   records exact row sets and currently exposes three baserunning-only terminal
   outcomes (`pickoff_1b` twice and `caught_stealing_2b` once) that still use the
   generic result pattern. `intent_walk` now reuses the full walk pattern.
-- Seventeen representative authoritative/indexed query pairs have exact corpus
+- Eighteen representative authoritative/indexed query pairs have exact corpus
   results, 20-sample alternating timings, optimized ARQ algebra, and direct
-  TDB2 execution captures. Fourteen reviewed pairs improve by 1.39x to 50.01x at
+  TDB2 execution captures. Fifteen reviewed pairs improve by 1.38x to 48.02x at
   the median; the three simple lookup pairs are effectively neutral.
 - Query-index generation now preserves Fuseki's UTF-8 Turtle bytes directly.
   The corpus benchmark exposed and the twelve-family equivalence gate now
@@ -67,7 +67,7 @@ unless a regression demonstrates that they are broken.
   reviewed completeness profile, while avoiding repeated correlated
   absence checks.
 - Canonical canned queries and the UI query builder remain authoritative. A
-  separate reviewed runner now routes fourteen proven query
+  separate reviewed runner now routes fifteen proven query
   pairs to the index and leaves the three neutral pairs authoritative. It
   scopes execution to the loaded graph set, verifies current local manifests
   and graph metadata, falls back safely in Auto mode, and fails closed when
@@ -85,7 +85,7 @@ unless a regression demonstrates that they are broken.
 - single-fixture equivalence, benchmarks, and optimized algebra capture;
 - eight-game canned-query audit, corpus query-index benchmark, UTF-8 label
   fidelity gate, and direct TDB2 execution capture;
-- evidence-driven operational routing for fourteen indexed and three
+- evidence-driven operational routing for fifteen indexed and three
   authoritative query pairs, including live equivalence, fallback, and
   fail-closed tests;
 - portable dehydration-package export, validation, tamper testing, and exact
@@ -96,6 +96,9 @@ unless a regression demonstrates that they are broken.
 - positive-evidence batting routes for season outcomes, plate appearances,
   three true outcomes, extra-base hits, venue home runs, multi-hit games, and
   total bases;
+- completeness-guarded hitless-game routing, where negative classification is
+  allowed only after current per-game `PlateAppearanceFact` and `HitFact`
+  equivalence has been proven;
 - structural `(atBatIndex, runnerIndex)` identities for runner acts, records,
   resolutions, judgments, decisions, and base-touching processes;
 - processor-safe runner-category and sacrifice-bunt source partitioning;
