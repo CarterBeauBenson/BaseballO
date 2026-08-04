@@ -13,5 +13,6 @@ WHERE {
                         cco:ont00001767 ?gameStart .
     BIND(YEAR(?gameStart) AS ?season)
   }
+  FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
 }
 ORDER BY DESC(?season)

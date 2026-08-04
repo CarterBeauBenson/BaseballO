@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Build and run ontology-backed baseball questions against the local BaseballO knowledge graph.">
+    <title>BaseballO Explorer</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#workspace">Skip to query builder</a>
+
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="BaseballO Explorer home">
+        <span class="brand-mark" aria-hidden="true">BO</span>
+        <span>
+          <strong>BaseballO</strong>
+          <small>Knowledge Graph Explorer</small>
+        </span>
+      </a>
+      <div class="connection-pill" id="connection-pill" role="status">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span id="connection-text">Connecting to the graph…</span>
+      </div>
+    </header>
+
+    <section class="hero" aria-labelledby="page-title">
+      <div class="hero-copy">
+        <p class="eyebrow">Ontology-backed baseball analytics</p>
+        <h1 id="page-title">Ask the game.<br><em>Inspect the evidence.</em></h1>
+        <p class="hero-description">
+          Choose the baseball events, people, and places you care about. BaseballO assembles a reviewed graph query and returns the answer without flattening the acts and judgments underneath it.
+        </p>
+      </div>
+      <div class="scorecard" aria-label="Current data source">
+        <span class="scorecard-kicker">Data layer</span>
+        <strong>Authoritative</strong>
+        <span>Complete event patterns</span>
+        <span class="scorecard-rule" aria-hidden="true"></span>
+        <small id="game-count">Checking loaded games…</small>
+      </div>
+    </section>
+
+    <main class="workspace" id="workspace">
+      <aside class="builder-panel" aria-labelledby="builder-title">
+        <div class="panel-heading">
+          <span class="step-number" aria-hidden="true">01</span>
+          <div>
+            <p class="panel-kicker">Question builder</p>
+            <h2 id="builder-title">Shape your question</h2>
+          </div>
+        </div>
+
+        <nav class="family-tabs" id="family-tabs" aria-label="Analytics family"></nav>
+
+        <form id="query-form">
+          <fieldset class="control-group">
+            <legend><span>Group results by</span><small>Choose one or more</small></legend>
+            <div class="choice-grid" id="dimension-choices"></div>
+          </fieldset>
+
+          <fieldset class="control-group">
+            <legend><span>Measure</span><small>At least one</small></legend>
+            <div class="choice-grid metric-grid" id="metric-choices"></div>
+          </fieldset>
+
+          <fieldset class="control-group filters-group">
+            <legend><span>Narrow the question</span><small>Optional</small></legend>
+            <div class="filter-grid" id="filter-controls"></div>
+          </fieldset>
+
+          <div class="form-actions">
+            <button class="run-button" id="run-button" type="submit">
+              <span>Run question</span>
+              <span aria-hidden="true">→</span>
+            </button>
+            <button class="reset-button" id="reset-button" type="button">Reset</button>
+          </div>
+        </form>
+      </aside>
+
+      <section class="results-panel" aria-labelledby="results-title">
+        <div class="results-heading">
+          <div>
+            <p class="panel-kicker">Graph response</p>
+            <h2 id="results-title">Results</h2>
+          </div>
+          <button class="export-button" id="export-button" type="button" disabled>Export CSV</button>
+        </div>
+
+        <div class="result-meta" id="result-meta" hidden></div>
+
+        <div class="result-stage" id="result-stage">
+          <div class="empty-state" id="empty-state">
+            <div class="ball-mark" aria-hidden="true"></div>
+            <p class="empty-kicker">A good first question</p>
+            <h3>Who recorded the most hits?</h3>
+            <p>Use the defaults and run the question, or try one of these other starting points.</p>
+            <div class="suggestion-list" id="suggestion-list">
+              <button type="button" data-preset="pitching">Pitches by pitcher</button>
+              <button type="button" data-preset="baserunning">Runs by runner</button>
+              <button type="button" data-preset="games">Games by venue</button>
+            </div>
+          </div>
+
+          <div class="loading-state" id="loading-state" hidden aria-live="polite">
+            <span class="loading-ball" aria-hidden="true"></span>
+            <strong>Following the graph…</strong>
+            <span>Acts, processes, judgments, and results are being matched.</span>
+          </div>
+
+          <div class="error-state" id="error-state" hidden role="alert">
+            <strong>The question could not be completed.</strong>
+            <span id="error-message"></span>
+          </div>
+
+          <div class="table-wrap" id="table-wrap" hidden tabindex="0">
+            <table id="results-table"></table>
+          </div>
+        </div>
+
+        <details class="query-inspector" id="query-inspector" hidden>
+          <summary>
+            <span>Inspect generated SPARQL</span>
+            <small>Reviewed, read-only query</small>
+          </summary>
+          <div class="query-toolbar">
+            <span>The query is restricted to authoritative game graphs.</span>
+            <button type="button" id="copy-query-button">Copy query</button>
+          </div>
+          <pre><code id="query-code"></code></pre>
+        </details>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <span>BaseballO local research interface</span>
+      <span>Read-only · Loopback only · No live MLB acquisition</span>
+    </footer>
+
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

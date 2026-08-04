@@ -11,5 +11,6 @@ WHERE {
     ?venue a base:BaseballVenue ;
            rdfs:label ?venueLabel .
   }
+  FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
 }
 ORDER BY LCASE(STR(?venueLabel))

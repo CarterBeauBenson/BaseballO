@@ -29,6 +29,11 @@ unless a regression demonstrates that they are broken.
 - Portable dehydration packages can export, validate, detect modified bytes,
   and restore both named graphs. Failed index construction removes the stale
   derived graph without changing the authoritative graph.
+- A playable loopback-only BaseballO Explorer now exposes the four allowlisted
+  analytics families. It builds filter lists from loaded graph values, returns
+  result tables, exports CSV, and shows the generated SPARQL. The server accepts
+  component selections rather than arbitrary SPARQL and queries only
+  authoritative game graphs.
 - No canonical canned query or UI query builder has been redirected to the
   index yet. Multi-game performance and full canned-query review remain
   necessary before that decision.
@@ -52,7 +57,10 @@ unless a regression demonstrates that they are broken.
 - per-game guarded import and exact index equivalence for all eight completed
   2026-08-03 games; and
 - multi-game-safe fixture acceptance and refreshed single-fixture benchmark
-  evidence.
+  evidence; and
+- the first local BaseballO Explorer with live graph status, batting, pitching,
+  baserunning, and game views, graph-backed select boxes, CSV export, generated
+  query inspection, and a tested read-only server boundary.
 
 ## Current corpus
 
@@ -64,7 +72,16 @@ preserved and content-addressed archive hashes match their checked-in sources.
 
 ## Next work, in order
 
-### 1. Extend canned-query correctness checks to the corpus
+### 1. Owner review of the local explorer
+
+- Run the interface documented in [`web/README.md`](web/README.md) and review
+  its labels, defaults, grouping behavior, result columns, and visual hierarchy.
+- Record the first real questions that feel awkward or impossible to express;
+  use those as requirements for the next query-component additions.
+- Keep the interface local until a reviewed public query service exists. Never
+  expose Fuseki's update or Graph Store endpoints to a browser.
+
+### 2. Extend canned-query correctness checks to the corpus
 
 - Run the 48 authoritative canned queries across the accepted multi-game
   corpus and inspect unexpected zeroes, duplication, or cross-game joins.
@@ -74,7 +91,7 @@ preserved and content-addressed archive hashes match their checked-in sources.
 - Add regression expectations by reference/hash; never edit raw JSON to
   manufacture expected results.
 
-### 2. Repeat performance evaluation at multi-game scale
+### 3. Repeat performance evaluation at multi-game scale
 
 - Rerun the ten authoritative/indexed benchmark pairs with corpus size and
   graph counts recorded.
@@ -85,7 +102,7 @@ preserved and content-addressed archive hashes match their checked-in sources.
 - Compare datastore query planning with the materialized shortcut graph before
   proposing nonstandard TDB2 indexes.
 
-### 3. Decide query and UI migration
+### 4. Decide query and UI migration
 
 - Use [`sparql/query-index/query-decision-matrix.md`](sparql/query-index/query-decision-matrix.md)
   as the starting classification.
@@ -99,7 +116,7 @@ preserved and content-addressed archive hashes match their checked-in sources.
 - Update the allowlisted UI compiler only after the corresponding canned-query
   decision is recorded.
 
-### 4. Hold ontology decisions separately
+### 5. Hold ontology decisions separately
 
 Do not promote `https://w3id.org/baseball/query-index/` terms into BaseballO
 without the project owner's explicit approval of their names, directions,
@@ -126,6 +143,7 @@ SPARQL, RML, or the operational index.
 - Benchmark method/results: [`benchmarks/query-index/`](benchmarks/query-index/)
 - Dehydration and restoration: [`sparql/query-index/dehydration-package.md`](sparql/query-index/dehydration-package.md)
 - RML visual review: [`mermaid/README.md`](mermaid/README.md)
+- Local analytics explorer: [`web/README.md`](web/README.md)
 
 ## Restart checks
 

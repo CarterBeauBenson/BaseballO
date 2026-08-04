@@ -1,4 +1,5 @@
 const DATA_IRI_PREFIX = "https://baseballontology.org/data/";
+const AUTHORITATIVE_GRAPH_PREFIX = "https://w3id.org/baseball/graph/game/";
 
 const PREFIXES = `PREFIX base: <https://baseballontology.org/>
 PREFIX cco: <https://www.commoncoreontologies.org/>
@@ -566,6 +567,7 @@ export function compileAnalyticsQuery({
     "  GRAPH ?graph {",
     patterns.join("\n\n"),
     "  }",
+    `  FILTER(STRSTARTS(STR(?graph), "${AUTHORITATIVE_GRAPH_PREFIX}"))`,
     "}",
     groupByItems.length ? `GROUP BY ${groupByItems.join(" ")}` : "",
     sortItems.length ? `ORDER BY ${sortItems.join(" ")}` : "",

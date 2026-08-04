@@ -29,6 +29,7 @@ QUERY_BUILDERS = (
     ROOT / "web" / "query-builder" / "analytics-query-builder.js",
     ROOT / "web" / "query-builder" / "hit-query-builder.js",
 )
+WEB_ROOT = ROOT / "web"
 
 REQUIRED_PATHS = (
     ROOT / "README.md",
@@ -41,6 +42,12 @@ REQUIRED_PATHS = (
     ROOT / "mermaid" / "README.md",
     ROOT / "mermaid" / "rml-mermaid-manifest.yaml",
     ROOT / "mermaid" / "patterns" / "README.md",
+    WEB_ROOT / "package.json",
+    WEB_ROOT / "index.html",
+    WEB_ROOT / "styles.css",
+    WEB_ROOT / "app.js",
+    WEB_ROOT / "server.mjs",
+    WEB_ROOT / "tests" / "analytics-query-builder.test.mjs",
     ROOT / "infra" / "README.md",
     ROOT / "infra" / "fuseki" / "configuration" / "baseball-dev.ttl",
     ROOT / "infra" / "versions.psd1",
@@ -274,6 +281,24 @@ def validate_query_index_algebra_artifacts() -> int:
     return len(actual_plans)
 
 
+def validate_web_app() -> None:
+    subprocess.run(
+        ["node", "--check", "server.mjs"],
+        cwd=WEB_ROOT,
+        check=True,
+    )
+    subprocess.run(
+        ["node", "--check", "app.js"],
+        cwd=WEB_ROOT,
+        check=True,
+    )
+    subprocess.run(
+        ["node", "--test", "tests/analytics-query-builder.test.mjs"],
+        cwd=WEB_ROOT,
+        check=True,
+    )
+
+
 def main() -> None:
     require_layout()
     json_count = validate_json()
@@ -285,6 +310,7 @@ def main() -> None:
     validate_active_mapping()
     validate_rml_mermaid()
     validate_offline_pipeline_boundary()
+    validate_web_app()
     algebra_plan_count = validate_query_index_algebra_artifacts()
     print(f"JSON files parsed: {json_count}")
     print(f"Turtle files parsed: {turtle_count}")
@@ -292,6 +318,7 @@ def main() -> None:
     print(f"Markdown files checked: {markdown_count}")
     print(f"Mermaid blocks checked: {mermaid_count}")
     print(f"Optimized ARQ algebra plans checked: {algebra_plan_count}")
+    print("Local web explorer checks passed.")
     print("Active manual pipeline contains no MLB acquisition endpoint or command.")
     print("Repository validation passed.")
 

@@ -10,5 +10,6 @@ WHERE {
                obo:BFO_0000057 ?player .
     ?player rdfs:label ?playerLabel .
   }
+  FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
 }
 ORDER BY LCASE(STR(?playerLabel))

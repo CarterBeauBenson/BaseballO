@@ -11,5 +11,6 @@ WHERE {
     ?pitchMotion a base:PitchBallMotionProcess .
     ?pitcher rdfs:label ?pitcherLabel .
   }
+  FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
 }
 ORDER BY LCASE(STR(?pitcherLabel))

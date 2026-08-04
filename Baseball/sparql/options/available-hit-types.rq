@@ -16,5 +16,6 @@ WHERE {
     }
     BIND(REPLACE(STR(?hitType), "_", " ") AS ?hitTypeLabel)
   }
+  FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
 }
 ORDER BY ?hitTypeLabel

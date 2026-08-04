@@ -15,7 +15,7 @@ flowchart LR
     FUSEKI --> CONSTRUCT[Reviewed CONSTRUCT components]
     CONSTRUCT --> INDEX[Disposable per-game query index]
     INDEX --> FAST[Future accelerated queries]
-    SPARQL --> WEB[GitHub Pages application]
+    SPARQL --> WEB[Local BaseballO Explorer]
     FAST --> WEB
 ```
 
@@ -33,7 +33,7 @@ The first proof-of-concept query is **Empty Games**: games in which a player par
 | [`data/`](data/) | Raw development inputs | Development only |
 | [`archive/`](archive/) | Superseded preprocessing prototype and prior ontology snapshot | Historical |
 | [`sparql/`](sparql/) | Canned queries plus reviewable components for the disposable query-index graph | Active query library and acceleration contract |
-| [`web/`](web/) | Framework-independent analytics query components for a future GitHub Pages application | Component layer active |
+| [`web/`](web/) | Playable local analytics explorer and allowlisted query compiler | Local MVP active |
 | [`scripts/`](scripts/) | Acquisition, RML execution, validation, and infrastructure automation | Active |
 | [`tests/`](tests/) | Offline integration and future regression tests | Active |
 | [`infra/`](infra/) | Pinned local NiFi and Fuseki development stack | Active |
@@ -83,6 +83,6 @@ Automated external acquisition is parked pending an approved data-access source.
 ## Next phase
 
 Use [`NEXT-PHASE.md`](NEXT-PHASE.md) as the single current continuation plan.
-It begins with read-only inventory and guarded multi-game processing of the
-locally supplied `games_from_8-3` corpus; completed historical work is listed
+It begins with owner review of the local explorer followed by full-corpus query
+correctness and performance evaluation; completed historical work is listed
 there only to prevent accidental repetition.

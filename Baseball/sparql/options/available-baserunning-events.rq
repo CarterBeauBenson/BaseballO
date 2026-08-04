@@ -17,5 +17,6 @@ WHERE {
     }
     BIND(REPLACE(STR(?eventType), "_", " ") AS ?eventTypeLabel)
   }
+  FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
 }
 ORDER BY ?eventTypeLabel

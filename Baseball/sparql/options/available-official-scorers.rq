@@ -11,5 +11,6 @@ WHERE {
     ?game a base:BaseballGame .
     ?officialScorer rdfs:label ?officialScorerLabel .
   }
+  FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
 }
 ORDER BY LCASE(STR(?officialScorerLabel))
