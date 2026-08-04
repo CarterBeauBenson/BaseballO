@@ -59,6 +59,7 @@ $outputPath = [System.IO.Path]::GetFullPath($OutputDirectory)
 
 $profilePath = Join-Path $script:RepositoryRoot "reasoning\profiles\$Profile.json"
 $reasonerPath = Join-Path $script:RepositoryRoot 'scripts\reasoning\selective_reasoner.py'
+$proverPath = Join-Path $script:RepositoryRoot 'scripts\reasoning\prove-selective-reasoning.py'
 & python $reasonerPath `
     --input $rdfPath `
     --game-pk $GamePk `
@@ -68,6 +69,11 @@ $reasonerPath = Join-Path $script:RepositoryRoot 'scripts\reasoning\selective_re
     --output $outputPath
 if ($LASTEXITCODE -ne 0) {
     throw "Selective reasoning failed for $Anchor with profile $Profile."
+}
+
+& python $proverPath --build $outputPath
+if ($LASTEXITCODE -ne 0) {
+    throw "Selective first-order proof failed for $Anchor with profile $Profile."
 }
 
 $manifestPath = Join-Path $outputPath 'manifest.json'
@@ -113,3 +119,4 @@ if ($Load) {
 Write-Host "Selective reasoning manifest: $manifestPath"
 Write-Host "Inferred triples: $($manifest.counts.inferredTriples)"
 Write-Host "Complete first-order proof executed: $($manifest.fullFirstOrderProofExecuted)"
+Write-Host "Selective first-order proof executed: $($manifest.selectiveFirstOrderProofExecuted)"

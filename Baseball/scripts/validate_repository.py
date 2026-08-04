@@ -22,6 +22,9 @@ MAPPING_VALIDATOR = ROOT / "mappings" / "direct" / "validate_direct_mapping.py"
 ONTOLOGY_OVERLAY_VALIDATOR = ROOT / "scripts" / "validate_ontology_overlay.py"
 RML_MERMAID_GENERATOR = ROOT / "scripts" / "generate_rml_mermaid.py"
 SELECTIVE_REASONING_TEST = ROOT / "scripts" / "reasoning" / "test-selective-reasoning.py"
+SELECTIVE_REASONER = ROOT / "scripts" / "reasoning" / "selective_reasoner.py"
+SELECTIVE_PROVER = ROOT / "scripts" / "reasoning" / "prove-selective-reasoning.py"
+REASONING_EVIDENCE = ROOT / "reasoning" / "evidence" / "fixture-566279-pa-0.json"
 SAMPLE = ROOT / "data" / "raw" / "game-566279.json"
 MAPPING_SAMPLES = (
     SAMPLE,
@@ -68,6 +71,7 @@ REQUIRED_PATHS = (
     ROOT / "reasoning" / "profiles" / "event-order.json",
     ROOT / "reasoning" / "profiles" / "event-structure.json",
     ROOT / "reasoning" / "profiles" / "participation.json",
+    REASONING_EVIDENCE,
     WEB_ROOT / "package.json",
     WEB_ROOT / "index.html",
     WEB_ROOT / "styles.css",
@@ -109,6 +113,7 @@ REQUIRED_PATHS = (
     ROOT / "scripts" / "pipeline" / "audit-advanced-queries.ps1",
     ROOT / "scripts" / "reasoning" / "sync-bfo-clif.py",
     ROOT / "scripts" / "reasoning" / "selective_reasoner.py",
+    ROOT / "scripts" / "reasoning" / "prove-selective-reasoning.py",
     ROOT / "scripts" / "reasoning" / "run-selective-reasoning.ps1",
     SELECTIVE_REASONING_TEST,
     RML_MERMAID_GENERATOR,
@@ -362,6 +367,62 @@ def validate_selective_reasoning() -> None:
         cwd=ROOT,
         check=True,
     )
+
+
+def validate_reasoning_evidence() -> int:
+    evidence = json.loads(REASONING_EVIDENCE.read_text(encoding="utf-8"))
+    if evidence.get("artifactType") != "baseball-selective-reasoning-proof-baseline":
+        raise ValueError("Unknown selective reasoning proof baseline")
+    if evidence.get("backend") != "z3-solver" or evidence.get("backendVersion") != "5.0.0":
+        raise ValueError("Selective reasoning proof backend is stale")
+    if evidence.get("backendScriptSha256") != sha256_file(SELECTIVE_PROVER):
+        raise ValueError("Selective reasoning proof baseline has a stale backend hash")
+    ontology_hashes = {
+        "ontology/BaseballO.ttl": sha256_file(ROOT / "ontology" / "BaseballO.ttl"),
+        "ontology/CommonCoreOntologiesMerged (1).ttl": sha256_file(
+            ROOT / "ontology" / "CommonCoreOntologiesMerged (1).ttl"
+        ),
+    }
+    bfo_hash = sha256_file(ROOT / "reasoning" / "bfo-clif-manifest.json")
+    reasoner_hash = sha256_file(SELECTIVE_REASONER)
+    profiles = evidence.get("profiles", [])
+    if len(profiles) != 3:
+        raise ValueError("Selective reasoning baseline must cover three profiles")
+    total_obligations = total_proved = 0
+    for result in profiles:
+        profile_id = str(result["profile"])
+        profile_path = ROOT / "reasoning" / "profiles" / f"{profile_id}.json"
+        profile_hash = sha256_file(profile_path)
+        if result.get("profileSha256") != profile_hash:
+            raise ValueError(f"Selective reasoning profile baseline is stale: {profile_id}")
+        ruleset = {
+            "profileSha256": profile_hash,
+            "bfoClifManifestSha256": bfo_hash,
+            "ontologySha256": ontology_hashes,
+            "reasonerSha256": reasoner_hash,
+        }
+        ruleset_hash = hashlib.sha256(
+            json.dumps(ruleset, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        ).hexdigest()
+        if result.get("rulesetSha256") != ruleset_hash:
+            raise ValueError(f"Selective reasoning ruleset baseline is stale: {profile_id}")
+        if not str(result.get("reasoningGraph", "")).endswith(f"/rules/{ruleset_hash[:16]}"):
+            raise ValueError(f"Selective reasoning graph fingerprint is invalid: {profile_id}")
+        obligations = int(result.get("obligationCount", -1))
+        proved = int(result.get("provedCount", -1))
+        if obligations <= 0 or proved != obligations or result.get("consistency") != "sat":
+            raise ValueError(f"Selective reasoning proof is incomplete: {profile_id}")
+        if not re.fullmatch(r"[0-9a-f]{64}", str(result.get("proofReportSha256", ""))):
+            raise ValueError(f"Selective reasoning proof hash is invalid: {profile_id}")
+        total_obligations += obligations
+        total_proved += proved
+    if int(evidence.get("totalObligations", -1)) != total_obligations:
+        raise ValueError("Selective reasoning obligation total is inconsistent")
+    if int(evidence.get("totalProved", -1)) != total_proved:
+        raise ValueError("Selective reasoning proof total is inconsistent")
+    if not evidence.get("allProfilesConsistent"):
+        raise ValueError("Selective reasoning baseline reports an inconsistent profile")
+    return total_proved
 
 
 def validate_offline_pipeline_boundary() -> None:
@@ -789,6 +850,7 @@ def main() -> None:
     validate_active_mapping()
     validate_rml_mermaid()
     validate_selective_reasoning()
+    reasoning_proof_count = validate_reasoning_evidence()
     validate_offline_pipeline_boundary()
     validate_web_app()
     canned_audit_count = validate_canned_query_audit()
@@ -806,6 +868,7 @@ def main() -> None:
     print(f"Optimized ARQ algebra plans checked: {algebra_plan_count}")
     print("Local web explorer checks passed.")
     print("Selective reasoning contracts and offline smoke tests passed.")
+    print(f"Selective first-order proof obligations checked: {reasoning_proof_count}")
     print(f"Canned-query corpus baselines checked: {canned_audit_count}")
     print(f"Advanced semantic query baselines checked: {advanced_audit_count}")
     print(f"Corpus query-index benchmark pairs checked: {query_index_benchmark_count}")

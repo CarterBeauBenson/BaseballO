@@ -38,7 +38,7 @@
   },
   "clif": {
     "modules": ["universal-declaration.cl", "occurrent-mereology.cl"],
-    "axioms": ["yvi-1", "kad-1", "zmr-1"]
+    "axioms": ["yvi-1", "kad-1", "xlu-1", "zmr-1"]
   },
   "budgets": {
     "maxNodes": 180,

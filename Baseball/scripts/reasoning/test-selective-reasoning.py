@@ -18,6 +18,12 @@ if SPEC is None or SPEC.loader is None:
     raise RuntimeError("Could not load selective_reasoner.py")
 REASONER = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(REASONER)
+PROVER_PATH = Path(__file__).with_name("prove-selective-reasoning.py")
+PROVER_SPEC = importlib.util.spec_from_file_location("prove_selective_reasoning", PROVER_PATH)
+if PROVER_SPEC is None or PROVER_SPEC.loader is None:
+    raise RuntimeError("Could not load prove-selective-reasoning.py")
+PROVER = importlib.util.module_from_spec(PROVER_SPEC)
+PROVER_SPEC.loader.exec_module(PROVER)
 
 BASE = Namespace("https://baseballontology.org/")
 DATA = Namespace("https://baseballontology.org/data/test/")
@@ -133,8 +139,11 @@ def test_clif_translation() -> None:
     for triple in inferred:
         closure.add(triple)
     with tempfile.TemporaryDirectory() as directory:
-        asserted_path = Path(directory) / "asserted.cl"
-        expected_path = Path(directory) / "expected.cl"
+        build = Path(directory)
+        clif = build / "clif"
+        clif.mkdir()
+        asserted_path = clif / "asserted-facts.cl"
+        expected_path = clif / "expected-entailments.cl"
         asserted_stats = REASONER.emit_clif_facts(asserted, profile, asserted_path)
         expected_stats = REASONER.emit_clif_facts(
             inferred, profile, expected_path, context=closure
@@ -143,6 +152,20 @@ def test_clif_translation() -> None:
         assert expected_stats["factCount"] > 0
         assert "(has-participant " in asserted_path.read_text(encoding="utf-8")
         assert "(participates-in " in expected_path.read_text(encoding="utf-8")
+        (build / "manifest.json").write_text(
+            json.dumps(
+                {
+                    "profile": "participation",
+                    "bfoCommit": "dd89f4a193038b66ef0e891d546c05a5b477f40f",
+                    "rulesetSha256": "0" * 64,
+                    "fullFirstOrderProofExecuted": False,
+                }
+            ),
+            encoding="utf-8",
+        )
+        report = PROVER.prove(build)
+        assert report["allObligationsProved"]
+        assert report["provedCount"] == expected_stats["factCount"]
 
 
 def validate_contracts() -> None:
@@ -165,7 +188,7 @@ def main() -> None:
     test_positive_and_negative()
     test_budget_and_determinism()
     test_clif_translation()
-    print("Selective reasoning tests passed: 3 profiles, isolation, inference, contradiction, budgets, deterministic output, and CLIF translation.")
+    print("Selective reasoning tests passed: 3 profiles, isolation, inference, contradiction, budgets, deterministic output, CLIF translation, and first-order proof.")
 
 
 if __name__ == "__main__":

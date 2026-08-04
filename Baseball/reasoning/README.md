@@ -35,10 +35,15 @@ python Baseball/scripts/reasoning/sync-bfo-clif.py --output "$env:LOCALAPPDATA\B
 The materializer implements only the named, forward-safe projections declared
 by a profile. It also emits a CLIF proof package containing the exact official
 modules, translated asserted facts, and separately translated expected
-entailments. This is intentionally described as a selective
-CLIF-aligned materializer, not as a complete first-order theorem prover. The
-proof package is the integration boundary for Prover9 or another Common Logic
-capable backend.
+entailments. A pinned Z3 backend checks consistency and proves each translated
+expected entailment by refutation. This executes the selected CLIF axiom
+projections; it is not an interpreter for arbitrary CLIF or a proof over the
+complete BFO theory. Each obligation has a proof hash, and the complete report
+is hashed into the build manifest.
+
+Proof execution has separate hard ceilings: 200 obligations, 30 seconds for a
+complete set, and five seconds for an individual solver check. A timeout,
+unknown result, inconsistency, or unproved obligation fails before graph load.
 
 RDF participation is binary while BFO CLIF participation is time-indexed. A
 binary `has participant` assertion is translated into a three-place CLIF fact
@@ -60,4 +65,6 @@ The graph IRI includes the profile, game, anchor hash, and ruleset fingerprint,
 so different profiles cannot overwrite one another. Loading is never implicit.
 
 Run `python Baseball/scripts/reasoning/test-selective-reasoning.py` for positive,
-negative, budget, deterministic-output, and CLIF-export tests.
+negative, budget, deterministic-output, CLIF-export, and proof tests. The
+checked-in [fixture proof baseline](evidence/fixture-566279-pa-0.json) records
+107 of 107 proved obligations across the three profiles with Z3 5.0.0.

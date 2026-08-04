@@ -35,7 +35,8 @@ conform with zero results before reasoning is applied. Selective reasoning is
 available for one explicitly anchored plate appearance through separate event
 order, event structure, and participation profiles. Each profile has hard
 computational budgets and emits a pinned BFO CLIF proof package alongside a
-disposable inferred graph.
+disposable inferred graph. The current fixture baseline proves all 107
+translated obligations with a pinned Z3 backend.
 
 ## Repository map
 

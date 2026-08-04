@@ -38,4 +38,5 @@ external-acquisition flow remains stopped pending an approved data source.
 The [`reasoning/`](reasoning/) scripts fetch checksum-pinned BFO CLIF modules,
 extract exactly one plate-appearance slice, apply one allowlisted reasoning
 profile, emit deterministic inferred RDF and CLIF proof inputs, and optionally
-load the resulting disposable named graph. They expose no full-game mode.
+prove the translated obligations before optionally loading the disposable named
+graph. They expose no full-game mode.

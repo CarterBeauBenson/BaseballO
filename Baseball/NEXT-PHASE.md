@@ -33,17 +33,16 @@ the subsystem READMEs and Git history; do not recreate them here.
   52 order, 47 structure, and 30 participation inferences for plate appearance
   0; its three named graphs add four deterministic provenance triples each.
 - The BFO CLIF source contract is pinned to commit
-  `dd89f4a193038b66ef0e891d546c05a5b477f40f`. No complete first-order proof is
-  claimed until a configured prover executes the emitted proof request.
+  `dd89f4a193038b66ef0e891d546c05a5b477f40f`. Z3 5.0.0 proved all 107
+  translated fixture obligations and found all three asserted slices
+  consistent. This covers the selected CLIF projections, not arbitrary CLIF or
+  the complete BFO theory.
 - No query-index shortcut terms have been added to the ontology.
 
 ## Next work
 
 ### 1. Advance the selective reasoning experiment
 
-- Configure and pin a free first-order backend, then execute the emitted CLIF
-  proof requests. Keep `fullFirstOrderProofExecuted` false until actual proof
-  evidence is captured and hashed.
 - Exercise each profile against a reviewed sample of simple and complicated
   plate appearances. Compare inferred graph contents and relevant query results
   before exposing reasoning to the Explorer.

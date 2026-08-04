@@ -21,6 +21,9 @@ python .\scripts\reasoning\test-selective-reasoning.py
 It proves plate-appearance isolation, expected order/part/participant
 consequences, rejection of precedence cycles, hard budget failure,
 deterministic serialization, and temporally qualified CLIF translation.
+The same test executes a bounded Z3 proof, while repository validation checks
+the committed 107-obligation fixture proof baseline against current profile,
+reasoner, and prover fingerprints.
 
 With the local stack running, execute the offline end-to-end acceptance test from the repository root:
 

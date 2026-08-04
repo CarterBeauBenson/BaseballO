@@ -41,7 +41,7 @@
   },
   "clif": {
     "modules": ["universal-declaration.cl", "order.cl"],
-    "axioms": ["tib-1", "ctz-1", "sen-1"]
+    "axioms": ["tib-1", "ctz-1", "hew-1", "sen-1"]
   },
   "budgets": {
     "maxNodes": 180,
