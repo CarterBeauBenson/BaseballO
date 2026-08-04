@@ -55,11 +55,36 @@ the subsystem READMEs and Git history; do not recreate them here.
 
 ### 2. Review the Explorer
 
-- Evaluate the Advanced view against real research questions.
+- Make **Team** a reusable grouping and filter dimension for batting, pitching,
+  baserunning, and any advanced question whose graph pattern has an unambiguous
+  game-scoped team relationship. Do not infer a player's team from present-day
+  roster membership; resolve it in the context of the game being queried.
+- Unify the normal, Advanced, and Empty Games interaction model. All three
+  paths should use the same `Group results by`, `Measure`, and `Narrow the
+  question` conventions rather than treating Advanced and Empty Games as
+  separate one-click tools.
+- Extend the allowlisted query catalog so every Advanced question declares its
+  supported groupings and filters. Reuse shared components for season, game,
+  venue, team, and player where semantically valid; disable or omit dimensions
+  that a particular query cannot support honestly.
+- Convert Empty Games into the same compiled-filter path. At minimum, support
+  the relevant season, game, venue, team, and player filters while preserving
+  its completeness gate and authoritative-only execution contract.
+- Keep filter behavior consistent across all views: identical labels, option
+  loading, `All values` behavior, selected-state display, reset behavior,
+  generated-SPARQL inspection, result metadata, and CSV export.
+- Add contract tests proving that normal, Advanced, and Empty Games filters are
+  allowlisted, reach the generated SPARQL, remain restricted to authoritative
+  game graphs, and cannot weaken completeness-sensitive query semantics.
+- Evaluate the Advanced view against real research questions after filter
+  parity is implemented.
 - Decide how the three generic terminal baserunning outcomes should relate to a
   plate appearance. Keep them explicit until the owner approves the model.
-- Record confusing labels, defaults, groupings, and result columns, but defer a
-  broad visual redesign until the query path is settled.
+- Continue replacing ontology-facing UI terminology with standard baseball
+  language. Where a metric is partial or evidence-bounded, show that limitation
+  beside the selector and in result metadata rather than relying on its name
+  alone.
+- Defer a broad visual redesign until this common query interaction is settled.
 
 ### 3. Expand index coverage carefully
 
