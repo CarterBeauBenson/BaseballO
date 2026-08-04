@@ -1,6 +1,7 @@
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory = $true)][string] $GamePk
+    [Parameter(Mandatory = $true)][string] $GamePk,
+    [string] $ComponentRoot
 )
 
 . (Join-Path $PSScriptRoot '..\infra\common.ps1')
@@ -30,7 +31,14 @@ $compiledPath = Join-Path $workRoot "game-$GamePk.nt"
 $statsPath = Join-Path $workRoot "game-$GamePk-stats.json"
 $finalPath = Join-Path $indexRoot "game-$GamePk.nt"
 $manifestPath = Join-Path $manifestRoot "game-$GamePk-query-index.json"
-$componentRoot = Join-Path $script:RepositoryRoot 'sparql\query-index\components'
+$canonicalComponentRoot = [System.IO.Path]::GetFullPath((Join-Path $script:RepositoryRoot 'sparql\query-index\components'))
+if ([string]::IsNullOrWhiteSpace($ComponentRoot)) {
+    $componentRoot = $canonicalComponentRoot
+}
+else {
+    $componentRoot = [System.IO.Path]::GetFullPath($ComponentRoot)
+}
+$usesCanonicalComponents = $componentRoot.Equals($canonicalComponentRoot, [System.StringComparison]::OrdinalIgnoreCase)
 $compilerPath = Join-Path $script:RepositoryRoot 'scripts\pipeline\compile-query-index.py'
 $contractHash = Get-QueryIndexContractHash
 
@@ -95,6 +103,10 @@ try {
     # A shape-valid but incomplete index is unsafe for negative queries. Compare
     # all supported semantic row sets before recording this build as current.
     & (Join-Path $PSScriptRoot 'test-query-index.ps1') -GamePk $GamePk -SkipBuild -SkipManifestCheck
+
+    if (-not $usesCanonicalComponents) {
+        throw 'A noncanonical component root is test-only and cannot produce a current query-index graph.'
+    }
 
     Copy-Item -LiteralPath $compiledPath -Destination $finalPath -Force
     $indexSha256 = (Get-FileHash -LiteralPath $finalPath -Algorithm SHA256).Hash.ToLowerInvariant()

@@ -54,6 +54,23 @@ The acceptance check also compares exact authoritative/index result rows for
 game dimensions, plate-appearance results, hits, pitches, pitch calls,
 batting acts, contacts, runner resolutions, stolen bases, and assignments.
 
+## Portable dehydration packages
+
+[`export-dehydration-package.ps1`](export-dehydration-package.ps1) creates a
+closed, hash-inventoried package containing the byte-identical raw game, exact
+authoritative RDF, exact query-index RDF, build manifests, and repository
+generation contracts. It refuses stale hashes and dirty repository trees by
+default. [`restore-dehydration-package.ps1`](restore-dehydration-package.ps1)
+validates only unless explicit `-Load` is supplied; loading removes the old
+derived graph, restores the authoritative graph, restores its matching index,
+and verifies graph counts and metadata.
+
+The full format and commands are in
+[`sparql/query-index/dehydration-package.md`](../../sparql/query-index/dehydration-package.md).
+Offline negative regressions prove that changed package bytes are rejected and
+that malformed `CONSTRUCT` input removes the stale index without damaging the
+authoritative graph.
+
 ## NiFi manual inbox
 
 Configure and start the local-only flow:

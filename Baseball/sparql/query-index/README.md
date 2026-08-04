@@ -116,3 +116,8 @@ reloading or rematerializing the authoritative graph from the preserved raw
 JSON plus the recorded RML, context-builder, mapper, and hash provenance, then
 regenerating this index. The content-addressed raw archive and full graph are
 never deleted by the index builder.
+
+The executable portable archive and exact-restore contract is documented in
+[`dehydration-package.md`](dehydration-package.md). It packages the raw bytes,
+both RDF serializations, both build manifests, and all relevant generator and
+validation files in a closed SHA-256 inventory.

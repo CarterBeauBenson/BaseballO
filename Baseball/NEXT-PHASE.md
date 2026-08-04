@@ -22,6 +22,13 @@ paused with the live MLB acquisition flow disabled.
 - Canonical query and UI migration remains intentionally deferred pending
   additional deliberately supplied fixtures and query-plan review. The timing
   result is method-validation evidence, not a scale claim.
+- Portable package version 1 is implemented and exercised. It preserves raw
+  bytes, both exact RDF graphs, both build manifests, repository generator
+  contracts, graph identities, counts, and hashes in a closed inventory.
+- Exact package rehydration restored both fixture graphs and passed semantic
+  equivalence. Tampered bytes were rejected, and malformed `CONSTRUCT` failure
+  left the authoritative graph intact while removing and rebuilding the stale
+  derived graph.
 
 ## Entry state
 
