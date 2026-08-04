@@ -358,6 +358,10 @@ a:focus-visible {
   color: var(--red-dark);
 }
 
+.family-tabs button[data-family="advanced"] {
+  color: var(--navy);
+}
+
 .family-tabs button[data-family="empty_games"][aria-selected="true"] {
   background: var(--red);
   color: white;
@@ -475,6 +479,15 @@ a:focus-visible {
 .empty-games-builder {
   border-top: 1px solid var(--line);
   padding-top: 1.25rem;
+}
+
+.advanced-builder {
+  border-top: 1px solid var(--line);
+  padding-top: 1.25rem;
+}
+
+.advanced-query-field {
+  margin: 1rem 0;
 }
 
 .definition-card {

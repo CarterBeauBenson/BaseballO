@@ -1,0 +1,57 @@
+# Advanced semantic analytics
+
+This directory contains 16 exploratory analytics built from the full event
+patterns in the authoritative game graphs. They are not shortcut/index queries,
+and they do not flatten the graph. Each query starts from the act, process,
+participant, temporal, containment, or adjudication evidence that supports its
+claim.
+
+The machine-readable catalog is
+[`advanced-query-catalog.json`](advanced-query-catalog.json). The catalog's
+`semanticMode` field is part of the query contract:
+
+- `positive-evidence` counts only explicitly mapped evidence. A missing event is
+  not interpreted as a baseball fact.
+- `completeness-gated` uses absence or a mapped denominator and therefore states
+  its coverage boundary in the query comments and catalog.
+- `integrity-audit` returns structural defects. Zero rows is the ideal outcome,
+  but nonzero rows are useful findings rather than query failures.
+
+## Query suite
+
+| Query | What it exposes | Semantic mode |
+|---|---|---|
+| `plate-appearance-fingerprint.rq` | One PA row with outcome, duration, pitch, swing, contact, call, and runner-resolution counts | Positive evidence |
+| `grinder-index.rq` | Transparent PA effort score plus its component counts and duration | Positive evidence |
+| `swing-to-result-funnel.rq` | Pitch-to-swing-to-contact-to-terminal-result conversion by batter | Positive evidence |
+| `whiff-and-take-profiles.rq` | Swings without contact and pitches without swings | Completeness-gated |
+| `batter-pitcher-matchup-profiles.rq` | PA, pitch, swing, contact, hit, walk, and strikeout totals for each matchup | Positive evidence |
+| `productive-plate-appearances.rq` | Non-hit PAs with explicit safe/run movement by another runner | Positive evidence |
+| `contact-conversion.rq` | Terminal-contact conversion to hits, outs, errors, choices, and sacrifices | Positive evidence |
+| `half-inning-rally-anatomy.rq` | PA, hit, walk, runner-resolution, and run counts within each half inning | Positive evidence |
+| `game-action-density.rq` | Event counts per game and per mapped minute | Positive evidence |
+| `scorer-classification-profile.rq` | Official-scorer judgment classifications | Positive evidence |
+| `umpire-call-profile.rq` | Umpire call types and their swing/contact context | Positive evidence |
+| `hit-diversity.rq` | Players with explicit single, double, triple, and home-run evidence | Positive evidence |
+| `base-destination-profile.rq` | Safe/run destinations from explicit base-touching processes | Positive evidence |
+| `steal-attempt-efficiency.rq` | Mapped attempts, successes, caught-stealing, and unresolved attempts | Completeness-gated |
+| `unproductive-contact-games.rq` | Contact games without a reviewed positive contact contribution | Completeness-gated |
+| `event-chain-integrity.rq` | Missing successors, judgments, decisions, and rules in event chains | Integrity audit |
+
+## Deliberate non-claims
+
+The current mapping does not support reliable leverage or win-probability
+analytics, numeric pitch location or spray coordinates, official RBI/earned-run
+or left-on-base continuity, or exact pitch-count state for every pitch. Those
+ideas are recorded as blocked in the catalog rather than approximated from
+unrelated fields. Adding them requires new source-to-RDF evidence and review;
+it is not a query-writing problem alone.
+
+Run the reproducible eight-game audit with:
+
+```powershell
+Baseball\scripts\pipeline\audit-advanced-queries.ps1
+```
+
+The audit permits zero rows only where the catalog explicitly says that an
+empty result is meaningful for the sampled corpus.

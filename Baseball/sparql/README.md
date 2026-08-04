@@ -13,6 +13,7 @@ The library is organized by the mapped domain rather than by one statistic:
 | [`baserunning/`](baserunning/) | Runs, runner event types, stolen bases, outs, and safe/out/run resolution totals |
 | [`games/`](games/) | Games by season/venue/team, home-away splits, matchups, umpires, official scorers, and timelines |
 | [`options/`](options/) | Discovery queries that populate UI select boxes from loaded values |
+| [`advanced/`](advanced/) | Sixteen event-chain analytics with explicit positive, completeness-gated, and integrity-audit semantics |
 | [`query-index/`](query-index/) | Reviewable `CONSTRUCT` components for the disposable per-game shortcut graph |
 
 These are additive to the cross-cutting hit queries below. The UI-facing
@@ -26,6 +27,12 @@ authoritative patterns. The implemented acceleration layer and its operational
 shortcut contract are documented in [`query-index/`](query-index/); remaining
 production decisions are tracked in
 [`graph-condensation-requirements.md`](graph-condensation-requirements.md).
+
+The separate [`advanced/`](advanced/) suite adds 16 higher-order questions
+without changing the original 48-query contract. Its catalog distinguishes
+positive evidence from absence-based completeness claims and records four
+analytics that the current mapping cannot yet support. These queries remain
+authoritative and are not exposed through the UI compiler or query index yet.
 
 ## Hit query catalog
 

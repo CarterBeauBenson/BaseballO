@@ -1,0 +1,58 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX fn: <http://www.w3.org/2005/xpath-functions#>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# "Action events" is the transparent sum of pitches, swings, contacts, and
+# runner resolutions. It is an exploratory density measure, not game leverage.
+SELECT ?game ?venue ?venueLabel ?gameStart ?gameEnd ?durationMinutes
+       ?plateAppearances ?pitches ?swings ?contacts ?runnerResolutions
+       (?pitches + ?swings + ?contacts + ?runnerResolutions AS ?actionEvents)
+       ((?pitches + ?swings + ?contacts + ?runnerResolutions) / ?durationMinutes AS ?actionEventsPerMinute)
+       (?pitches / ?durationMinutes AS ?pitchesPerMinute)
+WHERE {
+  {
+    SELECT ?graph ?game ?venue ?venueLabel
+           (SAMPLE(?startValue) AS ?gameStart)
+           (SAMPLE(?endValue) AS ?gameEnd)
+           (SAMPLE(?durationMinutesValue) AS ?durationMinutes)
+           (COUNT(DISTINCT ?plateAppearance) AS ?plateAppearances)
+           (COUNT(DISTINCT ?pitch) AS ?pitches)
+           (COUNT(DISTINCT ?swing) AS ?swings)
+           (COUNT(DISTINCT ?contact) AS ?contacts)
+           (COUNT(DISTINCT ?runnerResolution) AS ?runnerResolutions)
+    WHERE {
+      GRAPH ?graph {
+        ?game a base:BaseballGame ;
+            obo:BFO_0000199 ?gameInterval ;
+            cco:ont00001918 ?field .
+        ?field a base:BaseballFieldSite ; obo:BFO_0000171 ?venue .
+        ?venue rdfs:label ?venueLabel .
+        ?gameInterval obo:BFO_0000222 ?startInstant ; obo:BFO_0000224 ?endInstant .
+        ?startTimestamp a base:BaseballTimestampICE ;
+            cco:ont00001916 ?startInstant ; cco:ont00001767 ?startValue .
+        ?endTimestamp a base:BaseballTimestampICE ;
+            cco:ont00001916 ?endInstant ; cco:ont00001767 ?endValue .
+        BIND(?endValue - ?startValue AS ?durationValue)
+        BIND(
+          fn:days-from-duration(?durationValue) * 1440 +
+          fn:hours-from-duration(?durationValue) * 60 +
+          fn:minutes-from-duration(?durationValue) +
+          fn:seconds-from-duration(?durationValue) / 60
+          AS ?durationMinutesValue
+        )
+        ?plateAppearance a base:PlateAppearance ;
+            obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
+        OPTIONAL { ?pitch a base:PitchAct ; obo:BFO_0000132 ?plateAppearance . }
+        OPTIONAL { ?swing a base:SwingAct ; obo:BFO_0000132 ?plateAppearance . }
+        OPTIONAL { ?contact a base:BatBallContactProcess ; obo:BFO_0000132 ?plateAppearance . }
+        OPTIONAL { ?runnerResolution a base:RunnerResolutionProcess ; obo:BFO_0000132 ?plateAppearance . }
+      }
+      FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+    }
+    GROUP BY ?graph ?game ?venue ?venueLabel
+  }
+  FILTER(?durationMinutes > 0)
+}
+ORDER BY DESC(?actionEventsPerMinute) ?gameStart

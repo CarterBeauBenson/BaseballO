@@ -33,6 +33,10 @@ QUERY_BUILDERS = (
 WEB_ROOT = ROOT / "web"
 CANNED_AUDIT_ROOT = ROOT / "benchmarks" / "canned-query-audit"
 CANNED_AUDIT_BASELINE = CANNED_AUDIT_ROOT / "corpus-2026-08-03-baseline.json"
+ADVANCED_QUERY_ROOT = SPARQL_ROOT / "advanced"
+ADVANCED_QUERY_CATALOG = ADVANCED_QUERY_ROOT / "advanced-query-catalog.json"
+ADVANCED_AUDIT_ROOT = ROOT / "benchmarks" / "advanced-query-audit"
+ADVANCED_AUDIT_BASELINE = ADVANCED_AUDIT_ROOT / "corpus-2026-08-03-baseline.json"
 QUERY_INDEX_BENCHMARK_ROOT = ROOT / "benchmarks" / "query-index"
 QUERY_INDEX_CORPUS_BASELINE = QUERY_INDEX_BENCHMARK_ROOT / "corpus-2026-08-03-baseline.json"
 TDB2_EXECUTION_ROOT = QUERY_INDEX_BENCHMARK_ROOT / "tdb2-execution"
@@ -87,8 +91,11 @@ REQUIRED_PATHS = (
     ROOT / "scripts" / "pipeline" / "test-dehydration-package.ps1",
     ROOT / "scripts" / "pipeline" / "test-query-index-failure.ps1",
     ROOT / "scripts" / "pipeline" / "audit-canned-queries.ps1",
+    ROOT / "scripts" / "pipeline" / "audit-advanced-queries.ps1",
     RML_MERMAID_GENERATOR,
     ROOT / "sparql" / "empty-games-prototype.rq",
+    ADVANCED_QUERY_ROOT / "README.md",
+    ADVANCED_QUERY_CATALOG,
     ROOT / "sparql" / "query-inventory.md",
     ROOT / "sparql" / "graph-condensation-requirements.md",
     ROOT / "sparql" / "query-index" / "README.md",
@@ -108,6 +115,9 @@ REQUIRED_PATHS = (
     CANNED_AUDIT_ROOT / "README.md",
     CANNED_AUDIT_ROOT / "corpus-2026-08-03-baseline.md",
     CANNED_AUDIT_BASELINE,
+    ADVANCED_AUDIT_ROOT / "README.md",
+    ADVANCED_AUDIT_ROOT / "corpus-2026-08-03-baseline.md",
+    ADVANCED_AUDIT_BASELINE,
     SAMPLE,
 )
 
@@ -160,12 +170,24 @@ def validate_sparql() -> int:
     files = list(SPARQL_ROOT.rglob("*.rq"))
     component_files = list((SPARQL_ROOT / "query-index" / "components").glob("*.rq"))
     benchmark_files = list((SPARQL_ROOT / "query-index" / "benchmarks" / "indexed").glob("*.rq"))
-    canned_files = [path for path in files if path not in component_files and path not in benchmark_files]
-    if len(canned_files) != 48 or len(component_files) != 12 or len(benchmark_files) != 10:
+    advanced_files = list(ADVANCED_QUERY_ROOT.glob("*.rq"))
+    canned_files = [
+        path for path in files
+        if path not in component_files
+        and path not in benchmark_files
+        and path not in advanced_files
+    ]
+    if (
+        len(canned_files) != 48
+        or len(component_files) != 12
+        or len(benchmark_files) != 10
+        or len(advanced_files) != 16
+    ):
         raise ValueError(
             "Expected 48 canned SPARQL queries, 12 query-index components, "
-            f"and 10 indexed benchmark companions; found {len(canned_files)}, "
-            f"{len(component_files)}, and {len(benchmark_files)}"
+            "10 indexed benchmark companions, and 16 advanced semantic queries; "
+            f"found {len(canned_files)}, {len(component_files)}, "
+            f"{len(benchmark_files)}, and {len(advanced_files)}"
         )
     for path in files:
         try:
@@ -510,9 +532,12 @@ def validate_canned_query_audit() -> int:
 
     component_files = set((SPARQL_ROOT / "query-index" / "components").glob("*.rq"))
     indexed_files = set((SPARQL_ROOT / "query-index" / "benchmarks" / "indexed").glob("*.rq"))
+    advanced_files = set(ADVANCED_QUERY_ROOT.glob("*.rq"))
     canned_files = sorted(
         path for path in SPARQL_ROOT.rglob("*.rq")
-        if path not in component_files and path not in indexed_files
+        if path not in component_files
+        and path not in indexed_files
+        and path not in advanced_files
     )
     expected_paths = {path.relative_to(ROOT).as_posix() for path in canned_files}
     results = report.get("results", [])
@@ -572,6 +597,102 @@ def validate_canned_query_audit() -> int:
     return len(results)
 
 
+def validate_advanced_query_audit() -> int:
+    catalog = json.loads(ADVANCED_QUERY_CATALOG.read_text(encoding="utf-8"))
+    if catalog.get("artifactType") != "baseball-advanced-semantic-query-catalog":
+        raise ValueError("Advanced-query catalog has an unknown artifact type")
+    entries = catalog.get("queries", [])
+    advanced_files = sorted(ADVANCED_QUERY_ROOT.glob("*.rq"))
+    catalog_paths = {str(entry.get("path")) for entry in entries}
+    expected_paths = {
+        path.relative_to(ROOT).as_posix() for path in advanced_files
+    }
+    if len(entries) != 16 or len(advanced_files) != 16 or catalog_paths != expected_paths:
+        raise ValueError("Advanced-query catalog does not cover the exact 16-query suite")
+    allowed_modes = {"positive-evidence", "completeness-gated", "integrity-audit"}
+    ids = [str(entry.get("id")) for entry in entries]
+    if len(set(ids)) != 16:
+        raise ValueError("Advanced-query catalog IDs must be unique")
+    for entry in entries:
+        if entry.get("semanticMode") not in allowed_modes:
+            raise ValueError(f"Unknown advanced-query semantic mode: {entry.get('id')}")
+        if not isinstance(entry.get("allowZeroRows"), bool):
+            raise ValueError(f"Advanced-query zero-row policy is missing: {entry.get('id')}")
+        if not str(entry.get("claim", "")).strip():
+            raise ValueError(f"Advanced-query claim is missing: {entry.get('id')}")
+    if len(catalog.get("blockedAnalytics", [])) != 4:
+        raise ValueError("Advanced-query catalog must preserve the four blocked claims")
+
+    report = json.loads(ADVANCED_AUDIT_BASELINE.read_text(encoding="utf-8"))
+    if report.get("artifactType") != "baseball-advanced-semantic-query-corpus-audit":
+        raise ValueError("Advanced-query audit has an unknown artifact type")
+    results = report.get("results", [])
+    by_id = {str(result.get("id")): result for result in results}
+    entries_by_id = {str(entry["id"]): entry for entry in entries}
+    if len(results) != 16 or set(by_id) != set(entries_by_id):
+        raise ValueError("Advanced-query audit does not cover the exact catalog")
+    if str(report.get("catalogSha256")) != sha256_file(ADVANCED_QUERY_CATALOG):
+        raise ValueError("Advanced-query audit catalog hash is stale")
+    if str(report.get("mappingSha256")) != sha256_file(ACTIVE_MAPPING):
+        raise ValueError("Advanced-query audit mapping hash is stale")
+
+    for query_id, result in by_id.items():
+        entry = entries_by_id[query_id]
+        query_path = ROOT / str(entry["path"])
+        if str(result.get("query")) != str(entry["path"]):
+            raise ValueError(f"Advanced-query audit path is invalid: {query_id}")
+        if str(result.get("semanticMode")) != str(entry["semanticMode"]):
+            raise ValueError(f"Advanced-query audit semantic mode is stale: {query_id}")
+        if bool(result.get("allowZeroRows")) != bool(entry["allowZeroRows"]):
+            raise ValueError(f"Advanced-query audit zero-row policy is stale: {query_id}")
+        if str(result.get("querySha256")) != sha256_file(query_path):
+            raise ValueError(f"Advanced-query baseline is stale for {query_id}")
+        row_count = int(result.get("rowCount", -1))
+        if row_count < 0 or (row_count == 0 and not bool(entry["allowZeroRows"])):
+            raise ValueError(f"Advanced-query baseline has an invalid row count: {query_id}")
+        if int(result.get("duplicateRowCount", -1)) != 0:
+            raise ValueError(f"Advanced-query baseline contains duplicate rows: {query_id}")
+        if not re.fullmatch(r"[0-9a-f]{64}", str(result.get("rowSetSha256", ""))):
+            raise ValueError(f"Advanced-query baseline row-set hash is invalid: {query_id}")
+
+    snapshots = report.get("graphSnapshots", [])
+    if len(snapshots) != 8 or int(report.get("authoritativeGraphCount", -1)) != 8:
+        raise ValueError("Advanced-query audit must cover exactly eight authoritative graphs")
+    mapping_hash = sha256_file(ACTIVE_MAPPING)
+    signature_lines = [f"mapping={mapping_hash}"]
+    total_triples = 0
+    for snapshot in snapshots:
+        game_pk = str(snapshot["gamePk"])
+        source_path = ROOT / str(snapshot["sourcePath"])
+        expected_source = ROOT / "data" / "raw" / "samples" / "2026-08-03" / f"{game_pk}.json"
+        if source_path.resolve() != expected_source.resolve():
+            raise ValueError(f"Unexpected advanced-query source path for game {game_pk}")
+        source_hash = sha256_file(source_path)
+        if str(snapshot.get("sourceSha256")) != source_hash:
+            raise ValueError(f"Advanced-query source hash is stale for game {game_pk}")
+        graph_iri = f"https://w3id.org/baseball/graph/game/{game_pk}"
+        triple_count = int(snapshot["authoritativeTripleCount"])
+        total_triples += triple_count
+        signature_lines.append(f"{graph_iri}|{source_hash}|{triple_count}")
+    corpus_hash = hashlib.sha256("\n".join(signature_lines).encode("utf-8")).hexdigest()
+    if str(report.get("corpusSha256")) != corpus_hash:
+        raise ValueError("Advanced-query audit corpus signature is invalid")
+    if int(report.get("authoritativeTripleCount", -1)) != total_triples:
+        raise ValueError("Advanced-query audit triple total is inconsistent")
+    if int(report.get("queryCount", -1)) != 16:
+        raise ValueError("Advanced-query audit query count is inconsistent")
+    if int(report.get("queriesWithDuplicateRows", -1)) != 0:
+        raise ValueError("Advanced-query audit reports duplicate rows")
+    integrity_rows = sum(
+        int(result["rowCount"])
+        for result in results
+        if result.get("semanticMode") == "integrity-audit"
+    )
+    if int(report.get("integrityFindingCount", -1)) != integrity_rows:
+        raise ValueError("Advanced-query integrity finding count is inconsistent")
+    return len(results)
+
+
 def main() -> None:
     require_layout()
     json_count = validate_json()
@@ -585,6 +706,7 @@ def main() -> None:
     validate_offline_pipeline_boundary()
     validate_web_app()
     canned_audit_count = validate_canned_query_audit()
+    advanced_audit_count = validate_advanced_query_audit()
     query_index_benchmark_count = validate_query_index_benchmarks()
     reviewed_route_count = validate_reviewed_query_routing()
     tdb2_capture_count = validate_tdb2_execution_capture()
@@ -597,6 +719,7 @@ def main() -> None:
     print(f"Optimized ARQ algebra plans checked: {algebra_plan_count}")
     print("Local web explorer checks passed.")
     print(f"Canned-query corpus baselines checked: {canned_audit_count}")
+    print(f"Advanced semantic query baselines checked: {advanced_audit_count}")
     print(f"Corpus query-index benchmark pairs checked: {query_index_benchmark_count}")
     print(f"Reviewed operational query routes checked: {reviewed_route_count}")
     print(f"TDB2 query execution captures checked: {tdb2_capture_count}")

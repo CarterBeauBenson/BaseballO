@@ -26,6 +26,12 @@ const elements = {
   form: document.querySelector("#query-form"),
   emptyGamesBuilder: document.querySelector("#empty-games-builder"),
   runEmptyGamesButton: document.querySelector("#run-empty-games-button"),
+  advancedBuilder: document.querySelector("#advanced-builder"),
+  advancedSelect: document.querySelector("#advanced-query-select"),
+  advancedMode: document.querySelector("#advanced-mode"),
+  advancedClaim: document.querySelector("#advanced-claim"),
+  advancedEvidenceNote: document.querySelector("#advanced-evidence-note span"),
+  runAdvancedButton: document.querySelector("#run-advanced-button"),
   dimensionChoices: document.querySelector("#dimension-choices"),
   metricChoices: document.querySelector("#metric-choices"),
   filterControls: document.querySelector("#filter-controls"),
@@ -47,6 +53,7 @@ const elements = {
 };
 
 let catalog = {};
+let advancedCatalog = [];
 let currentFamily = "batting";
 let lastResponse = null;
 let toastTimer;
@@ -89,6 +96,7 @@ function setConnection({ connected, games }) {
 function renderFamilyTabs() {
   const families = [
     ...Object.entries(catalog),
+    ["advanced", { label: "Advanced" }],
     ["empty_games", { label: "Empty Games" }],
   ];
   const buttons = families.map(([familyId, family]) => {
@@ -104,6 +112,38 @@ function renderFamilyTabs() {
     return button;
   });
   elements.familyTabs.replaceChildren(...buttons);
+}
+
+function advancedModeLabel(mode) {
+  return {
+    "positive-evidence": "Positive evidence / Authoritative only",
+    "completeness-gated": "Completeness-gated / Authoritative only",
+    "integrity-audit": "Integrity audit / Authoritative only",
+  }[mode] ?? "Authoritative semantic query";
+}
+
+function renderAdvancedDefinition() {
+  const selected = advancedCatalog.find((entry) => entry.id === elements.advancedSelect.value)
+    ?? advancedCatalog[0];
+  if (!selected) return;
+  elements.advancedSelect.value = selected.id;
+  elements.advancedMode.textContent = advancedModeLabel(selected.semanticMode);
+  elements.advancedClaim.textContent = selected.claim;
+  elements.advancedEvidenceNote.textContent = selected.semanticMode === "positive-evidence"
+    ? "This query counts explicit mapped evidence and does not turn missing events into facts."
+    : selected.semanticMode === "completeness-gated"
+      ? "This query uses absence or a mapped denominator only within its documented source-coverage boundary."
+      : "Every returned row is a structural finding. Zero rows is the ideal result, not missing data.";
+}
+
+function renderAdvancedBuilder() {
+  const options = advancedCatalog.map((entry) => {
+    const option = createElement("option", "", entry.label);
+    option.value = entry.id;
+    return option;
+  });
+  elements.advancedSelect.replaceChildren(...options);
+  renderAdvancedDefinition();
 }
 
 function createChoice(kind, id, label, selected) {
@@ -188,10 +228,15 @@ function configureFamily(familyId) {
   currentFamily = familyId;
   renderFamilyTabs();
   const isEmptyGames = familyId === "empty_games";
-  elements.form.hidden = isEmptyGames;
+  const isAdvanced = familyId === "advanced";
+  elements.form.hidden = isEmptyGames || isAdvanced;
   elements.emptyGamesBuilder.hidden = !isEmptyGames;
-  elements.builderTitle.textContent = isEmptyGames ? "Review empty games" : "Shape your question";
-  if (!isEmptyGames) renderBuilder();
+  elements.advancedBuilder.hidden = !isAdvanced;
+  elements.builderTitle.textContent = isEmptyGames
+    ? "Review empty games"
+    : isAdvanced ? "Explore advanced analytics" : "Shape your question";
+  if (isAdvanced) renderAdvancedBuilder();
+  else if (!isEmptyGames) renderBuilder();
 }
 
 function selectedValues(name) {
@@ -264,6 +309,9 @@ function renderMeta(meta) {
     "Read only",
   ];
   if (meta.definition === "reviewed-prototype") values.splice(3, 0, "Reviewed prototype");
+  if (["positive-evidence", "completeness-gated", "integrity-audit"].includes(meta.definition)) {
+    values.splice(3, 0, humanizeVariable(meta.definition));
+  }
   elements.resultMeta.replaceChildren(...values.map((value) => createElement("span", "meta-chip", value)));
   elements.resultMeta.hidden = false;
 }
@@ -351,6 +399,33 @@ async function runEmptyGames() {
   }
 }
 
+async function runAdvanced() {
+  const id = elements.advancedSelect.value;
+  if (!advancedCatalog.some((entry) => entry.id === id)) {
+    showError("Choose a reviewed advanced question.");
+    return;
+  }
+  elements.runAdvancedButton.disabled = true;
+  elements.exportButton.disabled = true;
+  elements.resultMeta.hidden = true;
+  elements.queryInspector.hidden = true;
+  setStage("loading");
+  try {
+    const payload = await fetchJson("/api/advanced", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+    lastResponse = payload;
+    renderResults(payload);
+  } catch (error) {
+    lastResponse = null;
+    showError(error.message);
+  } finally {
+    elements.runAdvancedButton.disabled = false;
+  }
+}
+
 function csvField(value) {
   const text = String(value ?? "");
   return /[",\r\n]/u.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
@@ -390,6 +465,8 @@ elements.resetButton.addEventListener("click", () => {
 
 elements.exportButton.addEventListener("click", exportCsv);
 elements.runEmptyGamesButton.addEventListener("click", () => void runEmptyGames());
+elements.runAdvancedButton.addEventListener("click", () => void runAdvanced());
+elements.advancedSelect.addEventListener("change", renderAdvancedDefinition);
 elements.copyQueryButton.addEventListener("click", () => void copyQuery());
 elements.suggestionList.addEventListener("click", (event) => {
   const button = event.target.closest("button[data-preset]");
@@ -397,6 +474,8 @@ elements.suggestionList.addEventListener("click", (event) => {
   configureFamily(button.dataset.preset);
   if (button.dataset.preset === "empty_games") {
     void runEmptyGames();
+  } else if (button.dataset.preset === "advanced") {
+    void runAdvanced();
   } else {
     void runQuery();
   }
@@ -404,11 +483,13 @@ elements.suggestionList.addEventListener("click", (event) => {
 
 async function initialize() {
   try {
-    const [{ families }, status] = await Promise.all([
+    const [{ families }, { queries }, status] = await Promise.all([
       fetchJson("/api/catalog"),
+      fetchJson("/api/advanced/catalog"),
       fetchJson("/api/status"),
     ]);
     catalog = families;
+    advancedCatalog = queries;
     setConnection(status);
     renderFamilyTabs();
     renderBuilder();

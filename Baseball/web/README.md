@@ -36,6 +36,9 @@ npm run check
 - batting, pitching, baserunning, and game/assignment question families;
 - a dedicated authoritative-only Empty Games review view that displays its
   current contribution policy and completeness gate;
+- a dedicated Advanced view for all 16 cataloged event-chain analytics, with
+  positive-evidence, completeness-gated, or integrity-audit semantics shown
+  before execution;
 - dimensions and metrics generated from the existing component catalog;
 - graph-backed filter options for seasons, games, players, venues, event types,
   teams, umpires, and official scorers;

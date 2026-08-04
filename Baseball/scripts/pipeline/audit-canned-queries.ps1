@@ -132,7 +132,8 @@ $queryFiles = @(
     Get-ChildItem -LiteralPath (Join-Path $script:RepositoryRoot 'sparql') -Filter '*.rq' -File -Recurse |
         Where-Object {
             $_.FullName -notlike '*\query-index\components\*' -and
-            $_.FullName -notlike '*\query-index\benchmarks\indexed\*'
+            $_.FullName -notlike '*\query-index\benchmarks\indexed\*' -and
+            $_.FullName -notlike '*\advanced\*'
         } |
         Sort-Object FullName
 )

@@ -1,0 +1,96 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX fn: <http://www.w3.org/2005/xpath-functions#>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# One evidence-rich row per plate appearance. The event population is reduced
+# by type before it joins the PA spine, preventing a pitch x swing x contact x
+# resolution Cartesian product.
+SELECT ?game ?plateAppearance ?batter ?batterLabel ?pitcher ?pitcherLabel
+       (SAMPLE(?eventType) AS ?outcome)
+       (SAMPLE(?startValue) AS ?startTime)
+       (SAMPLE(?endValue) AS ?endTime)
+       (SAMPLE(?durationValue) AS ?duration)
+       (SAMPLE(?durationMinutesValue) AS ?durationMinutes)
+       (COALESCE(MAX(IF(?eventKind = "pitch", ?eventCount, 0)), 0) AS ?pitches)
+       (COALESCE(MAX(IF(?eventKind = "swing", ?eventCount, 0)), 0) AS ?swings)
+       (COALESCE(MAX(IF(?eventKind = "bunt", ?eventCount, 0)), 0) AS ?bunts)
+       (COALESCE(MAX(IF(?eventKind = "contact", ?eventCount, 0)), 0) AS ?contacts)
+       (COALESCE(MAX(IF(?eventKind = "ball", ?eventCount, 0)), 0) AS ?balls)
+       (COALESCE(MAX(IF(?eventKind = "strike", ?eventCount, 0)), 0) AS ?strikes)
+       (COALESCE(MAX(IF(?eventKind = "foul", ?eventCount, 0)), 0) AS ?fouls)
+       (COALESCE(MAX(IF(?eventKind = "foul_tip", ?eventCount, 0)), 0) AS ?foulTips)
+       (COALESCE(MAX(IF(?eventKind = "run", ?eventCount, 0)), 0) AS ?runnerRuns)
+       (COALESCE(MAX(IF(?eventKind = "out", ?eventCount, 0)), 0) AS ?runnerOuts)
+       (COALESCE(MAX(IF(?eventKind = "safe", ?eventCount, 0)), 0) AS ?safeResolutions)
+WHERE {
+  GRAPH ?graph {
+    ?game a base:BaseballGame .
+    ?plateAppearance a base:PlateAppearance ;
+        obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game ;
+        obo:BFO_0000199 ?plateAppearanceInterval .
+    ?batterAct a base:BatterAct ;
+        obo:BFO_0000132 ?plateAppearance ;
+        obo:BFO_0000057 ?batter .
+    ?batter rdfs:label ?batterLabel .
+    ?result a base:BaseballInstitutionalProcess ;
+        obo:BFO_0000132 ?plateAppearance .
+    OPTIONAL {
+      ?resultRecord a base:BaseballEventRecord ;
+          cco:ont00001808 ?result ;
+          dcterms:identifier ?eventType .
+    }
+    OPTIONAL {
+      ?plateAppearanceInterval obo:BFO_0000222 ?startInstant ;
+          obo:BFO_0000224 ?endInstant .
+      ?startTimestamp a base:BaseballTimestampICE ;
+          cco:ont00001916 ?startInstant ;
+          cco:ont00001767 ?startValue .
+      ?endTimestamp a base:BaseballTimestampICE ;
+          cco:ont00001916 ?endInstant ;
+          cco:ont00001767 ?endValue .
+      BIND(?endValue - ?startValue AS ?durationValue)
+      BIND(
+        fn:days-from-duration(?durationValue) * 1440 +
+        fn:hours-from-duration(?durationValue) * 60 +
+        fn:minutes-from-duration(?durationValue) +
+        fn:seconds-from-duration(?durationValue) / 60
+        AS ?durationMinutesValue
+      )
+    }
+    OPTIONAL {
+      ?pitch a base:PitchAct ;
+          obo:BFO_0000132 ?plateAppearance ;
+          obo:BFO_0000057 ?pitcher .
+      ?pitcher rdfs:label ?pitcherLabel .
+    }
+  }
+  FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+  OPTIONAL {
+    SELECT ?graph ?plateAppearance ?eventKind (COUNT(DISTINCT ?event) AS ?eventCount)
+    WHERE {
+      GRAPH ?graph {
+        ?event obo:BFO_0000132 ?plateAppearance ; a ?eventClass .
+        VALUES (?eventClass ?eventKind) {
+          (base:PitchAct "pitch")
+          (base:SwingAct "swing")
+          (base:BuntAct "bunt")
+          (base:BatBallContactProcess "contact")
+          (base:BallProcess "ball")
+          (base:StrikeProcess "strike")
+          (base:FoulBallProcess "foul")
+          (base:FoulTipProcess "foul_tip")
+          (base:RunProcess "run")
+          (base:OutProcess "out")
+          (base:SafeProcess "safe")
+        }
+      }
+      FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+    }
+    GROUP BY ?graph ?plateAppearance ?eventKind
+  }
+}
+GROUP BY ?game ?plateAppearance ?batter ?batterLabel ?pitcher ?pitcherLabel
+ORDER BY ?game ?startTime

@@ -1,0 +1,27 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Distribution of explicit scorer-backed judgments. It describes observed
+# classifications and must not be interpreted as scorer accuracy or bias.
+SELECT ?scorer ?scorerLabel ?classification
+       (COUNT(DISTINCT ?judgment) AS ?judgments)
+       (COUNT(DISTINCT ?game) AS ?games)
+WHERE {
+  GRAPH ?graph {
+    ?judgment a ?judgmentClass ;
+        obo:BFO_0000055 ?scorerRole ;
+        obo:BFO_0000057 ?scorer .
+    ?scorerRole a base:OfficialScorerRole ; obo:BFO_0000054 ?game .
+    ?scorer rdfs:label ?scorerLabel .
+    VALUES (?judgmentClass ?classification) {
+      (base:HitJudgmentAct "hit")
+      (base:ErrorJudgmentAct "error")
+      (base:FieldersChoiceJudgmentAct "fielders_choice")
+      (base:SacrificeJudgmentAct "sacrifice")
+    }
+  }
+  FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+}
+GROUP BY ?scorer ?scorerLabel ?classification
+ORDER BY ?scorerLabel DESC(?judgments) ?classification

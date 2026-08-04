@@ -32,7 +32,7 @@ The first proof-of-concept query is **Empty Games**: games in which a player par
 | [`mermaid/`](mermaid/) | Visual review of the RML source, map, join, and identity shapes | Active review |
 | [`data/`](data/) | Raw development inputs | Development only |
 | [`archive/`](archive/) | Superseded preprocessing prototype and prior ontology snapshot | Historical |
-| [`sparql/`](sparql/) | Canned queries plus reviewable components for the disposable query-index graph | Active query library and acceleration contract |
+| [`sparql/`](sparql/) | Canned and advanced semantic queries plus reviewable components for the disposable query-index graph | Active query library and acceleration contract |
 | [`web/`](web/) | Playable local analytics explorer and allowlisted query compiler | Local MVP active |
 | [`scripts/`](scripts/) | Acquisition, RML execution, validation, and infrastructure automation | Active |
 | [`tests/`](tests/) | Offline integration and future regression tests | Active |
@@ -83,6 +83,6 @@ Automated external acquisition is parked pending an approved data-access source.
 ## Next phase
 
 Use [`NEXT-PHASE.md`](NEXT-PHASE.md) as the single current continuation plan.
-It begins with owner review of the local explorer followed by full-corpus query
-correctness and performance evaluation; completed historical work is listed
+It begins with owner review of the now-exposed advanced semantic analytics,
+followed by evidence-driven index coverage; completed historical work is listed
 there only to prevent accidental repetition.

@@ -1,0 +1,100 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Completeness-gated complement of explicit positive contact contributions.
+# "Unproductive" here means: at least one terminal contact chain, but no mapped
+# hit/error/fielder's-choice/sacrifice result and no other-runner safe/run in the
+# same game. It is not an official value judgment or RBI claim.
+SELECT ?player (SAMPLE(?label) AS ?playerLabel)
+       (COUNT(DISTINCT ?game) AS ?unproductiveContactGames)
+WHERE {
+  {
+    SELECT DISTINCT ?graph ?game ?player
+    WHERE {
+      GRAPH ?graph {
+        ?game a base:BaseballGame .
+        ?batterAct a base:BatterAct ;
+            obo:BFO_0000057 ?player ;
+            obo:BFO_0000132 ?plateAppearance .
+        ?plateAppearance a base:PlateAppearance ;
+            obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
+        ?swing a base:SwingAct ; obo:BFO_0000062 ?pitch ; obo:BFO_0000063 ?contact .
+        ?contact a base:BatBallContactProcess ; obo:BFO_0000063 ?motion .
+        ?motion a base:BattedBallMotionProcess ; obo:BFO_0000063 ?result .
+        ?result a base:BaseballInstitutionalProcess ; obo:BFO_0000132 ?plateAppearance .
+      }
+      FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+    }
+  }
+
+  # Do not classify games whose PA result vocabulary lies outside the reviewed
+  # direct-mapping completeness profile.
+  MINUS {
+    SELECT DISTINCT ?graph ?game
+    WHERE {
+      GRAPH ?graph {
+        ?game a base:BaseballGame .
+        ?record a base:BaseballEventRecord ;
+            cco:ont00001808 ?result ;
+            dcterms:identifier ?eventType .
+        ?result a base:BaseballInstitutionalProcess ; obo:BFO_0000132 ?plateAppearance .
+        FILTER(
+          LCASE(STR(?eventType)) NOT IN (
+            "home_run", "field_out", "double", "walk", "force_out",
+            "strikeout", "single", "grounded_into_double_play", "sac_fly",
+            "double_play", "fielders_choice", "triple", "sac_bunt",
+            "fielders_choice_out", "field_error", "hit_by_pitch", "balk",
+            "catcher_interf"
+          )
+        )
+      }
+      FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+    }
+  }
+
+  MINUS {
+    SELECT DISTINCT ?graph ?game ?player
+    WHERE {
+      GRAPH ?graph {
+        ?positiveBatterAct a base:BatterAct ;
+            obo:BFO_0000057 ?player ;
+            obo:BFO_0000132 ?positivePa .
+        ?positivePa a base:PlateAppearance ;
+            obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
+        ?positiveResult a ?positiveType ; obo:BFO_0000132 ?positivePa .
+        VALUES ?positiveType {
+          base:SingleProcess base:DoubleProcess base:TripleProcess base:HomeRunProcess
+          base:ErrorProcess base:FieldersChoiceProcess
+          base:SacrificeFlyProcess base:SacrificeBuntProcess
+        }
+      }
+      FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+    }
+  }
+
+  MINUS {
+    SELECT DISTINCT ?graph ?game ?player
+    WHERE {
+      GRAPH ?graph {
+        ?batterAct a base:BatterAct ;
+            obo:BFO_0000057 ?player ;
+            obo:BFO_0000132 ?plateAppearance .
+        ?plateAppearance a base:PlateAppearance ;
+            obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
+        ?productiveResolution a base:RunnerResolutionProcess, ?productiveClass ;
+            obo:BFO_0000132 ?plateAppearance ;
+            obo:BFO_0000057 ?otherRunner .
+        VALUES ?productiveClass { base:SafeProcess base:RunProcess }
+        FILTER(?otherRunner != ?player)
+      }
+      FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+    }
+  }
+
+  OPTIONAL { GRAPH ?graph { ?player rdfs:label ?label } }
+}
+GROUP BY ?player
+ORDER BY DESC(?unproductiveContactGames) LCASE(STR(?playerLabel))

@@ -105,6 +105,26 @@
             <span aria-hidden="true">→</span>
           </button>
         </section>
+
+        <section class="advanced-builder" id="advanced-builder" hidden aria-labelledby="advanced-builder-title">
+          <div class="definition-card">
+            <p class="definition-status" id="advanced-mode">Authoritative semantic query</p>
+            <h3 id="advanced-builder-title">Explore an event-chain analytic</h3>
+            <p id="advanced-claim">Choose one of the reviewed advanced questions.</p>
+          </div>
+          <div class="filter-field advanced-query-field">
+            <label for="advanced-query-select">Advanced question</label>
+            <select id="advanced-query-select"></select>
+          </div>
+          <div class="completeness-note" id="advanced-evidence-note">
+            <strong>Evidence contract</strong>
+            <span>The selected query states whether it counts positive evidence, uses a completeness gate, or reports integrity findings.</span>
+          </div>
+          <button class="run-button empty-games-run" id="run-advanced-button" type="button">
+            <span>Run advanced question</span>
+            <span aria-hidden="true">â†’</span>
+          </button>
+        </section>
       </aside>
 
       <section class="results-panel" aria-labelledby="results-title">
@@ -129,6 +149,7 @@
               <button type="button" data-preset="baserunning">Runs by runner</button>
               <button type="button" data-preset="games">Games by venue</button>
               <button type="button" data-preset="empty_games">Find empty games</button>
+              <button type="button" data-preset="advanced">Advanced event analytics</button>
             </div>
           </div>
 

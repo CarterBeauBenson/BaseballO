@@ -71,6 +71,18 @@ the eight corpus graphs, detects empty and duplicate result sets, and records
 order-independent RDF-term-aware hashes under
 [`benchmarks/canned-query-audit/`](../../benchmarks/canned-query-audit/).
 
+Audit the 16 advanced semantic queries independently with:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File `
+  .\scripts\pipeline\audit-advanced-queries.ps1 `
+  -VerifyBaseline
+```
+
+That audit reads each query's evidence mode and zero-row policy from the
+advanced catalog. Integrity rows are retained as findings rather than being
+misreported as failed execution.
+
 ## Query-index performance evidence
 
 With the eight corpus graphs and their current indexes loaded, reproduce the

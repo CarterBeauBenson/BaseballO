@@ -145,3 +145,34 @@ test("local server exposes Empty Games only through its reviewed canned query", 
   assert.match(payload.query, /18-event|completeness profile/u);
   assert.match(payload.query, /FILTER\(STRSTARTS\(STR\(\?graph\)/u);
 });
+
+test("local server exposes the complete advanced catalog without file paths", async () => {
+  const response = await fetch(`${baseUrl}/api/advanced/catalog`);
+  assert.equal(response.status, 200);
+  const payload = await response.json();
+  assert.equal(payload.queries.length, 16);
+  assert.equal(payload.blockedAnalytics.length, 4);
+  assert.equal(payload.queries[0].id, "plate-appearance-fingerprint");
+  assert.equal("path" in payload.queries[0], false);
+});
+
+test("local server runs only cataloged advanced queries", async () => {
+  const response = await fetch(`${baseUrl}/api/advanced`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id: "event-chain-integrity", sparql: "DROP ALL" }),
+  });
+  assert.equal(response.status, 200);
+  const payload = await response.json();
+  assert.equal(payload.meta.definition, "integrity-audit");
+  assert.match(payload.query, /BatBallContactProcess/u);
+  assert.match(payload.query, /LIMIT 1000/u);
+  assert.doesNotMatch(issuedQueries.at(-1), /DROP ALL/u);
+
+  const rejected = await fetch(`${baseUrl}/api/advanced`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id: "../../ontology/BaseballO.ttl" }),
+  });
+  assert.equal(rejected.status, 400);
+});

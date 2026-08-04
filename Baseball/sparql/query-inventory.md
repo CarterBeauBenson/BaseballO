@@ -13,6 +13,10 @@ authoritative files and fallback path. Its executable suite
 compares exact rows for eleven recurring semantic families, including label
 fidelity, before that migration is considered.
 
+Higher-order event-chain analytics are cataloged separately under
+[`advanced/`](advanced/). That 16-query suite does not change this inventory's
+48-query count, and none of its queries is silently treated as index-backed.
+
 Contract version 1 classification is complete in
 [`query-index/query-decision-matrix.md`](query-index/query-decision-matrix.md):
 46 queries are structurally index-ready, while `empty-games-prototype.rq` and

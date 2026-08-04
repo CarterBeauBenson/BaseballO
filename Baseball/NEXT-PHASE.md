@@ -27,6 +27,13 @@ unless a regression demonstrates that they are broken.
   the RDF-term-aware row sets are content-hashed for regression checks.
   Forty-six are structurally index-ready; `empty-games-prototype.rq` and
   `game-timeline.rq` remain authoritative.
+- A separate 16-query advanced semantic suite now covers PA fingerprints,
+  grinder scoring, swing/contact funnels, take/whiff profiles, matchups,
+  productive movement, contact conversion, rally anatomy, action density,
+  scorer and umpire profiles, hit diversity, base destinations, steal attempts,
+  unproductive contact games, and event-chain integrity. Its eight-game audit
+  records exact row sets and currently exposes four adjudications with no
+  mapped rule as integrity findings.
 - Ten representative authoritative/indexed query pairs have exact corpus
   results, 20-sample alternating timings, optimized ARQ algebra, and direct
   TDB2 execution captures. Seven traversal-heavy pairs improve by 2.16x to
@@ -42,6 +49,9 @@ unless a regression demonstrates that they are broken.
   result tables, exports CSV, and shows the generated SPARQL. The server accepts
   component selections rather than arbitrary SPARQL and queries only
   authoritative game graphs.
+- The Explorer's dedicated Advanced view exposes all 16 cataloged semantic
+  queries through allowlisted IDs. It shows each query's claim and evidence mode
+  before execution and never accepts browser-supplied SPARQL or file paths.
 - Empty Games is exposed separately as a reviewed prototype because its
   negative completeness semantics do not belong in the general component
   compiler. Its set-based authoritative query returns the same 27-player result
@@ -61,6 +71,7 @@ unless a regression demonstrates that they are broken.
 - nested RML context correction and terminal-time correction;
 - RML-to-Mermaid generator and current pattern diagrams;
 - the 48-query structural review and UI component synchronization;
+- the 16-query advanced semantic catalog and reproducible corpus audit;
 - query-index contract version 1 and its 12 `CONSTRUCT` components;
 - single-fixture equivalence, benchmarks, and optimized algebra capture;
 - eight-game canned-query audit, corpus query-index benchmark, UTF-8 label
@@ -94,17 +105,30 @@ preserved and content-addressed archive hashes match their checked-in sources.
 
 ## Next work, in order
 
-### 1. Extend indexed companion coverage
+### 1. Review advanced analytics in the Explorer
+
+- Review the dedicated catalog-driven Advanced view against real research
+  questions; its unlike result shapes intentionally remain outside the general
+  select-box compiler.
+- Preserve semantic-mode and completeness warnings in the interface, especially
+  for takes/whiffs, steal-attempt efficiency, and unproductive contact games.
+- Treat the four current missing-rule rows as an RML review finding; do not patch
+  the ontology or weaken the integrity query without the owner's decision.
+
+### 2. Evaluate advanced query-index coverage
 
 - Build indexed companions for the remaining structurally index-ready canned
   queries in small semantic families rather than switching all 46 at once.
+- Classify each advanced query separately. The event-chain audit and
+  completeness-gated negative queries should remain authoritative unless an
+  index contract can preserve their evidence boundary exactly.
 - Require exact eight-game row equivalence and repeatable timing evidence for
   every added route. Keep neutral or slower queries authoritative.
 - Add a route only through
   [`operational-query-routing.json`](sparql/query-index/operational-query-routing.json)
   so the evidence, selected layer, and fallback policy remain reviewable.
 
-### 2. Preserve the operational safety boundary
+### 3. Preserve the operational safety boundary
 
 - Keep authoritative companions available for audit, fallback, and regression
   tests; never overwrite them with shortcut query shapes.
@@ -117,7 +141,7 @@ preserved and content-addressed archive hashes match their checked-in sources.
 - Do not wire the UI compiler to the operational router until its interaction
   model is reviewed separately.
 
-### 3. Return to Explorer usability after query coverage
+### 4. Return to broader Explorer usability after query coverage
 
 - Review labels, defaults, grouping, result columns, and visual hierarchy after
   the current query-acceleration path is complete.
@@ -128,8 +152,10 @@ preserved and content-addressed archive hashes match their checked-in sources.
 - Re-run the 48-query audit whenever a canonical query changes, and re-run the
   corpus benchmark whenever an indexed benchmark query or index contract
   changes.
+- Re-run the independent 16-query advanced audit whenever its queries or
+  catalog claims change.
 
-### 4. Hold ontology decisions separately
+### 5. Hold ontology decisions separately
 
 Do not promote `https://w3id.org/baseball/query-index/` terms into BaseballO
 without the project owner's explicit approval of their names, directions,
@@ -152,6 +178,8 @@ SPARQL, RML, or the operational index.
 
 - Query classification: [`sparql/query-index/query-decision-matrix.md`](sparql/query-index/query-decision-matrix.md)
 - Query inventory: [`sparql/query-inventory.md`](sparql/query-inventory.md)
+- Advanced analytics: [`sparql/advanced/`](sparql/advanced/)
+- Advanced query audit: [`benchmarks/advanced-query-audit/`](benchmarks/advanced-query-audit/)
 - Index construction: [`sparql/query-index/README.md`](sparql/query-index/README.md)
 - Benchmark method/results: [`benchmarks/query-index/`](benchmarks/query-index/)
 - Dehydration and restoration: [`sparql/query-index/dehydration-package.md`](sparql/query-index/dehydration-package.md)

@@ -1,0 +1,58 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+
+# Zero rows is success. Every row is an explicit structural defect in a mapped
+# act -> result -> judgment/decision chain; no absence is converted to a stat.
+SELECT DISTINCT ?graph ?entity ?issue
+WHERE {
+  GRAPH ?graph {
+    {
+      ?entity a base:BaseballInstitutionalProcess ;
+          obo:BFO_0000132 ?plateAppearance .
+      ?plateAppearance a base:PlateAppearance .
+      FILTER NOT EXISTS {
+        ?entity obo:BFO_0000117 ?judgment .
+        ?judgment a base:BaseballAdjudicationAct .
+      }
+      BIND("plate-appearance result lacks adjudication" AS ?issue)
+    }
+    UNION
+    {
+      ?entity a base:BaseballAdjudicationAct .
+      FILTER NOT EXISTS { ?entity cco:ont00001921 ?rule }
+      BIND("adjudication lacks rule" AS ?issue)
+    }
+    UNION
+    {
+      ?entity a base:BaseballAdjudicationAct .
+      FILTER NOT EXISTS { ?entity cco:ont00001986 ?decision }
+      BIND("adjudication lacks decision" AS ?issue)
+    }
+    UNION
+    {
+      ?entity a base:BatBallContactProcess .
+      FILTER NOT EXISTS {
+        ?entity obo:BFO_0000063 ?motion .
+        ?motion a base:BattedBallMotionProcess .
+      }
+      BIND("contact lacks batted-ball motion successor" AS ?issue)
+    }
+    UNION
+    {
+      ?entity a base:RunnerResolutionProcess, ?resolutionClass .
+      VALUES (?resolutionClass ?judgmentClass) {
+        (base:RunProcess base:RunJudgmentAct)
+        (base:OutProcess base:OutJudgmentAct)
+        (base:SafeProcess base:SafeJudgmentAct)
+      }
+      FILTER NOT EXISTS {
+        ?entity obo:BFO_0000117 ?judgment .
+        ?judgment a ?judgmentClass .
+      }
+      BIND("runner resolution lacks matching judgment" AS ?issue)
+    }
+  }
+  FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+}
+ORDER BY ?graph ?issue ?entity

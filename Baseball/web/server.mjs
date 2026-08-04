@@ -12,6 +12,8 @@ const WEB_ROOT = dirname(fileURLToPath(import.meta.url));
 const QUERY_BUILDER_ROOT = resolve(WEB_ROOT, "query-builder");
 const OPTIONS_ROOT = resolve(WEB_ROOT, "..", "sparql", "options");
 const EMPTY_GAMES_QUERY = resolve(WEB_ROOT, "..", "sparql", "empty-games-prototype.rq");
+const ADVANCED_QUERY_ROOT = resolve(WEB_ROOT, "..", "sparql", "advanced");
+const ADVANCED_QUERY_CATALOG = resolve(ADVANCED_QUERY_ROOT, "advanced-query-catalog.json");
 const DEFAULT_QUERY_ENDPOINT = "http://127.0.0.1:3030/baseball-dev/query";
 const AUTHORITATIVE_GRAPH_PREFIX = "https://w3id.org/baseball/graph/game/";
 const MAX_BODY_BYTES = 64 * 1024;
@@ -72,6 +74,42 @@ function requireDimension(familyId, dimensionId) {
     throw new RangeError(`Unknown ${familyId} dimension: ${dimensionId}`);
   }
   return dimension;
+}
+
+function advancedLabel(queryId) {
+  return queryId
+    .split("-")
+    .map((word) => word === "pa" ? "PA" : word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
+async function readAdvancedCatalog() {
+  const catalog = JSON.parse(await readFile(ADVANCED_QUERY_CATALOG, "utf8"));
+  if (catalog.artifactType !== "baseball-advanced-semantic-query-catalog"
+      || !Array.isArray(catalog.queries)
+      || catalog.queries.length !== 16) {
+    throw new Error("The advanced-query catalog is invalid.");
+  }
+  return catalog;
+}
+
+function publicAdvancedEntry(entry) {
+  return {
+    id: entry.id,
+    label: advancedLabel(entry.id),
+    claim: entry.claim,
+    semanticMode: entry.semanticMode,
+    allowZeroRows: entry.allowZeroRows,
+  };
+}
+
+function resolveAdvancedQueryPath(entry) {
+  const candidate = resolve(WEB_ROOT, "..", entry.path);
+  const allowedPrefix = `${ADVANCED_QUERY_ROOT}${sep}`;
+  if (!candidate.startsWith(allowedPrefix) || extname(candidate) !== ".rq") {
+    throw new RangeError("The advanced query is outside the allowlist.");
+  }
+  return candidate;
 }
 
 export function buildPublicCatalog() {
@@ -219,6 +257,15 @@ export function createBaseballServer({
         return;
       }
 
+      if (request.method === "GET" && requestUrl.pathname === "/api/advanced/catalog") {
+        const advancedCatalog = await readAdvancedCatalog();
+        sendJson(response, 200, {
+          queries: advancedCatalog.queries.map(publicAdvancedEntry),
+          blockedAnalytics: advancedCatalog.blockedAnalytics,
+        });
+        return;
+      }
+
       if (request.method === "GET" && requestUrl.pathname === "/api/options") {
         const familyId = requestUrl.searchParams.get("family") ?? "";
         const dimensionId = requestUrl.searchParams.get("dimension") ?? "";
@@ -257,6 +304,35 @@ export function createBaseballServer({
             rowCount: payload.results?.bindings?.length ?? 0,
             layer: "authoritative",
             definition: "reviewed-prototype",
+          },
+        });
+        return;
+      }
+
+
+      if (request.method === "POST" && requestUrl.pathname === "/api/advanced") {
+        const input = await readJsonBody(request);
+        if (typeof input.id !== "string") {
+          throw new TypeError("An advanced query ID is required.");
+        }
+        const advancedCatalog = await readAdvancedCatalog();
+        const entry = advancedCatalog.queries.find((candidate) => candidate.id === input.id);
+        if (!entry) {
+          throw new RangeError(`Unknown advanced query: ${input.id}`);
+        }
+        const query = await readFile(resolveAdvancedQueryPath(entry), "utf8");
+        const executedQuery = `${query.trimEnd()}\nLIMIT ${MAX_RESULTS}\n`;
+        const { payload, durationMs } = await executeSparql(executedQuery, { fetchImpl, queryEndpoint });
+        sendJson(response, 200, {
+          ...payload,
+          query: executedQuery,
+          meta: {
+            durationMs,
+            rowCount: payload.results?.bindings?.length ?? 0,
+            layer: "authoritative",
+            definition: entry.semanticMode,
+            claim: entry.claim,
+            truncatedAt: MAX_RESULTS,
           },
         });
         return;
