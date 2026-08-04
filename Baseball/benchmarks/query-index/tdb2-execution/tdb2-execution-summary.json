@@ -1,11 +1,11 @@
 {
     "artifactType":  "baseball-query-index-tdb2-execution-capture",
     "reportVersion":  1,
-    "generatedAtUtc":  "2026-08-04T15:07:52.6995209Z",
+    "generatedAtUtc":  "2026-08-04T16:24:11.6742967Z",
     "jenaFusekiVersion":  "6.1.0",
     "captureCommand":  "tdb2.tdbquery --set arq:logExec=ALL --results=none",
     "scope":  "eight completed 2026-08-03 games; fixture 566279 excluded; direct read-only TDB2 execution with Fuseki stopped",
-    "corpusSha256":  "030e601dceb5d4d525d7dee6f756d284daeff5615621e1703c46fd3ec66dcb46",
+    "corpusSha256":  "53c64863b8f154fd867958b43bca0e2535798111aadd7fcc7f95fa6f44db4daa",
     "queryIndexContractSha256":  "bfbfcdb4aa60b3819353d538a0a0076e50a2d14e110b6f6b4db50bb9e2f85b37",
     "resultCount":  20,
     "results":  [

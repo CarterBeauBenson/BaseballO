@@ -113,7 +113,7 @@
       "path": "sparql/advanced/event-chain-integrity.rq",
       "semanticMode": "integrity-audit",
       "allowZeroRows": true,
-      "claim": "Structural defects in mapped event-to-result-to-adjudication chains; every returned row is a finding."
+      "claim": "Structural defects and generic-only terminal outcome gaps in mapped event-to-result-to-adjudication chains; every returned row is a finding."
     }
   ],
   "blockedAnalytics": [

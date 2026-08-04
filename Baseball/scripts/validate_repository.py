@@ -390,7 +390,7 @@ def validate_query_index_benchmarks() -> int:
         audit.get("authoritativeTripleCount", -2)
     ):
         raise ValueError("Corpus benchmark authoritative triple count is inconsistent")
-    if int(report.get("queryIndexTripleCount", -1)) != 53530:
+    if int(report.get("queryIndexTripleCount", -1)) != 53542:
         raise ValueError("Corpus benchmark query-index triple count is unexpected")
 
     pairs = query_index_pairs()

@@ -43,7 +43,7 @@ WHERE {
         ?result a base:BaseballInstitutionalProcess ; obo:BFO_0000132 ?plateAppearance .
         FILTER(
           LCASE(STR(?eventType)) NOT IN (
-            "home_run", "field_out", "double", "walk", "force_out",
+            "home_run", "field_out", "double", "walk", "intent_walk", "force_out",
             "strikeout", "single", "grounded_into_double_play", "sac_fly",
             "double_play", "fielders_choice", "triple", "sac_bunt",
             "fielders_choice_out", "field_error", "hit_by_pitch", "balk",

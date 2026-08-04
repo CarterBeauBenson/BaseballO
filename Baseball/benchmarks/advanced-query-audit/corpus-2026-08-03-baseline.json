@@ -1,13 +1,13 @@
 {
     "artifactType":  "baseball-advanced-semantic-query-corpus-audit",
     "auditVersion":  1,
-    "generatedAtUtc":  "2026-08-04T16:02:58.0978617Z",
+    "generatedAtUtc":  "2026-08-04T16:20:03.5031373Z",
     "scope":  "eight completed 2026-08-03 games; checked-in fixture 566279 excluded",
-    "mappingSha256":  "9a3db3cb5b1910df091581beef2527d2be68ec9d03699dce645c1b3a20bbe611",
-    "catalogSha256":  "3c7f4fe1d96089e5881501164aa07cb5cf436899f4a423b6300e3614daaf48df",
-    "corpusSha256":  "030e601dceb5d4d525d7dee6f756d284daeff5615621e1703c46fd3ec66dcb46",
+    "mappingSha256":  "ab85db49a66adbcba8c5e82535e3a1824626785795b7c5e3eb7169676c38b3d0",
+    "catalogSha256":  "f1f2333d97f883c08d7023b73772644db2b5846b3c448691b536f8fcb097f40c",
+    "corpusSha256":  "53c64863b8f154fd867958b43bca0e2535798111aadd7fcc7f95fa6f44db4daa",
     "authoritativeGraphCount":  8,
-    "authoritativeTripleCount":  228571,
+    "authoritativeTripleCount":  228576,
     "graphSnapshots":  [
                            {
                                "gamePk":  "822867",
@@ -42,7 +42,7 @@
                                "graphIri":  "https://w3id.org/baseball/graph/game/824160",
                                "sourcePath":  "data/raw/samples/2026-08-03/824160.json",
                                "sourceSha256":  "f2c75d9cd0ccd6733d048540c4bb82120afbbe07a5e651e78233c8300e856dc3",
-                               "authoritativeTripleCount":  25837
+                               "authoritativeTripleCount":  25842
                            },
                            {
                                "gamePk":  "824324",
@@ -69,7 +69,7 @@
     "queryCount":  16,
     "nonEmptyQueryCount":  16,
     "zeroRowQueryCount":  0,
-    "integrityFindingCount":  4,
+    "integrityFindingCount":  3,
     "queriesWithDuplicateRows":  0,
     "results":  [
                     {
@@ -106,7 +106,7 @@
                         "distinctRowCount":  613,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "5c60e4595456d9805829cafceea2a4b905c11115e1f92d1b3c0a101b2313cd74",
-                        "elapsedMilliseconds":  614.978
+                        "elapsedMilliseconds":  885.448
                     },
                     {
                         "id":  "grinder-index",
@@ -133,7 +133,7 @@
                         "distinctRowCount":  612,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "c8e620313cd2c12b4ca0599eae532315f69357eec9cda758a3ded3c9d8bca638",
-                        "elapsedMilliseconds":  1454.833
+                        "elapsedMilliseconds":  1605.092
                     },
                     {
                         "id":  "swing-to-result-funnel",
@@ -158,7 +158,7 @@
                         "distinctRowCount":  158,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "51e8a88c6895bc103fe90282e5dcae57ec5b3a640733714827cfc9e2bf595d33",
-                        "elapsedMilliseconds":  242.614
+                        "elapsedMilliseconds":  280.409
                     },
                     {
                         "id":  "whiff-and-take-profiles",
@@ -183,7 +183,7 @@
                         "distinctRowCount":  366,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "f9777de46b80654a8820526326f9256c98d04835a454947d90c44f0bba264ee4",
-                        "elapsedMilliseconds":  788.374
+                        "elapsedMilliseconds":  910.037
                     },
                     {
                         "id":  "batter-pitcher-matchup-profiles",
@@ -209,7 +209,7 @@
                         "distinctRowCount":  366,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "add622b218dbcc3d3aad2beef4cfecf2ed7037090dad6b6741cee1d8ebe0da9d",
-                        "elapsedMilliseconds":  5154.887
+                        "elapsedMilliseconds":  5844.542
                     },
                     {
                         "id":  "productive-plate-appearances",
@@ -230,7 +230,7 @@
                         "distinctRowCount":  44,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "bf5285a2d70204a7d0c0dd200279bbb679421072cbd159e130b4cdf951b2ff03",
-                        "elapsedMilliseconds":  149.454
+                        "elapsedMilliseconds":  163.787
                     },
                     {
                         "id":  "contact-conversion",
@@ -254,7 +254,7 @@
                         "distinctRowCount":  277,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "b2ba9098479d96f297d0fea8e48e88566443786e5f3a2dafa25ad021d2b8a0b6",
-                        "elapsedMilliseconds":  199.895
+                        "elapsedMilliseconds":  200.18
                     },
                     {
                         "id":  "half-inning-rally-anatomy",
@@ -278,7 +278,7 @@
                         "distinctRowCount":  141,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "0e9b825314b226d5ff94328f193a7ab0575ee6b91408c1872d2f7c97bf35eacc",
-                        "elapsedMilliseconds":  2477.829
+                        "elapsedMilliseconds":  2775
                     },
                     {
                         "id":  "game-action-density",
@@ -306,7 +306,7 @@
                         "distinctRowCount":  8,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "88e866fbb8aef442a623e2a978e80383d3113e8a3ccb5f044b55c86ef12b9db4",
-                        "elapsedMilliseconds":  1076.981
+                        "elapsedMilliseconds":  1222.887
                     },
                     {
                         "id":  "scorer-classification-profile",
@@ -325,7 +325,7 @@
                         "distinctRowCount":  18,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "e38f98c263c037f9391005c5bb970dc910c088af290812b7b371ca811f499693",
-                        "elapsedMilliseconds":  9.21
+                        "elapsedMilliseconds":  10.517
                     },
                     {
                         "id":  "umpire-call-profile",
@@ -344,7 +344,7 @@
                         "distinctRowCount":  24,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "875482e52b9b60311bd445590e8b91b9f59a84980effcd4e0dd0c6bb4051d80f",
-                        "elapsedMilliseconds":  418.455
+                        "elapsedMilliseconds":  467.935
                     },
                     {
                         "id":  "hit-diversity",
@@ -364,7 +364,7 @@
                         "distinctRowCount":  1,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "babca502c70291e10614e0f86bb8194076f9a9c643b6f7a2743c96ddabea1fae",
-                        "elapsedMilliseconds":  14.21
+                        "elapsedMilliseconds":  16.019
                     },
                     {
                         "id":  "base-destination-profile",
@@ -384,7 +384,7 @@
                         "distinctRowCount":  292,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "c74f5757a21fb60b71ecbb3086c9fcf83e363c814cd48a9155e4eb0e469d9964",
-                        "elapsedMilliseconds":  51.631
+                        "elapsedMilliseconds":  56.11
                     },
                     {
                         "id":  "steal-attempt-efficiency",
@@ -405,41 +405,41 @@
                         "distinctRowCount":  14,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "8b2f6028b1fc160ec0995a8a667143b47b855314449edf9e4e077f0e1685febb",
-                        "elapsedMilliseconds":  7.92
+                        "elapsedMilliseconds":  7.304
                     },
                     {
                         "id":  "unproductive-contact-games",
                         "query":  "sparql/advanced/unproductive-contact-games.rq",
                         "semanticMode":  "completeness-gated",
                         "allowZeroRows":  true,
-                        "querySha256":  "06764ec62b2fe6c60b8aabe9e7e39055c521df9dc549da50028faec9d0eb9122",
+                        "querySha256":  "9c06c7eec229e5d91b4c48835a7b221551bfdbf11f86a62b99bf7f3a7cc15d54",
                         "variables":  [
                                           "player",
                                           "playerLabel",
                                           "unproductiveContactGames"
                                       ],
-                        "rowCount":  22,
-                        "distinctRowCount":  22,
+                        "rowCount":  26,
+                        "distinctRowCount":  26,
                         "duplicateRowCount":  0,
-                        "rowSetSha256":  "1fc041fbbdeda0a290164420bd429a17c76d132947e4d0e69b21c2919c167595",
-                        "elapsedMilliseconds":  388.035
+                        "rowSetSha256":  "4e4f0198041b086f30a198caed97ef103a8c49292a94dba591892ec8795fc931",
+                        "elapsedMilliseconds":  438.448
                     },
                     {
                         "id":  "event-chain-integrity",
                         "query":  "sparql/advanced/event-chain-integrity.rq",
                         "semanticMode":  "integrity-audit",
                         "allowZeroRows":  true,
-                        "querySha256":  "8105c844a7641093c4c11e7c1b9f9f651d915b00059ea27f4cfc84e71a44523e",
+                        "querySha256":  "f8278cc889502468d1a173be96112bb46fd5a0d2f63ae30cce8a80fdfff24265",
                         "variables":  [
                                           "graph",
                                           "entity",
                                           "issue"
                                       ],
-                        "rowCount":  4,
-                        "distinctRowCount":  4,
+                        "rowCount":  3,
+                        "distinctRowCount":  3,
                         "duplicateRowCount":  0,
-                        "rowSetSha256":  "55f5b41ef4325340910e0a1271b789b285b48adcf26b9c572c4c08578b08e74d",
-                        "elapsedMilliseconds":  28.711
+                        "rowSetSha256":  "771e90ad74503e3112d16186eb2ae3c567348cb13a4b5f3afe54683706d94f3e",
+                        "elapsedMilliseconds":  269.407
                     }
                 ]
 }

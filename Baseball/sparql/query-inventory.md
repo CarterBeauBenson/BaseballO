@@ -31,7 +31,7 @@ operational routing manifest record the first selective execution decisions.
 | Root | `hits-by-player-and-venue.rq` | Distinct hit result | Hit pattern; batter; plate appearance to game and venue | Season, player, venue | Aligned |
 | Root | `hit-types-by-season.rq` | Distinct hit result | Specific hit class mapped to label + `HitJudgmentAct` | Season, hit type | Aligned |
 | Root | `hits-by-game.rq` | Distinct hit result | Hit pattern; plate appearance containment; game venue | Game | Aligned |
-| Root | `empty-games-prototype.rq` | Candidate player/game pair | Batter participation plus reviewed contribution patterns; 18-event completeness gate | Player, game | Aligned prototype |
+| Root | `empty-games-prototype.rq` | Candidate player/game pair | Batter participation plus reviewed contribution patterns; 19-source-token completeness gate | Player, game | Aligned prototype |
 | Batting | `outcomes-by-season.rq` | Distinct PA result | Generic result + one of 17 specific classes + adjudication; PA to game | Season, outcome | Aligned |
 | Batting | `outcomes-by-player.rq` | Distinct PA result | Outcome pattern + `BatterAct` participant | Player, outcome | Aligned |
 | Batting | `plate-appearances-by-player-and-season.rq` | Distinct plate appearance | `BatterAct` participant; PA containment to game | Season, player | Aligned |

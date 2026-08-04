@@ -11,6 +11,13 @@ unless a regression demonstrates that they are broken.
 - Live MLB acquisition remains disabled. A single explicitly authorized
   acquisition captured the completed 2026-08-03 schedule and game feeds; it
   did not enable the parked acquisition pipeline.
+- Do not bulk-download the post-All-Star-break corpus from MLB Digital
+  Properties under the current setup. The [MLB Terms of
+  Use](https://www.mlb.com/official-information/terms-of-use) prohibit automated
+  scripts that collect from or interact with those properties. Seek written
+  authorization through the official [StatsAPI registration
+  page](https://inside.mlb.com/UserRegistrationForm/?GROUP=StatsAPI), or choose
+  a licensed/open source before expanding the corpus.
 - Raw game JSON is preserved byte-for-byte. The complete event graph remains
   authoritative; the query index is disposable and reproducible.
 - The active RML contains 247 triples maps, 56 logical sources, and no
@@ -19,7 +26,7 @@ unless a regression demonstrates that they are broken.
   query-index triples. All eleven supported semantic row sets, including exact
   UTF-8 label fidelity, are equivalent.
 - All eight completed 2026-08-03 games are loaded independently. Together
-  they contain 228,571 authoritative triples, 53,530 query-index triples, 823
+  they contain 228,576 authoritative triples, 53,542 query-index triples, 823
   runner resolutions, and 11 stolen-base processes. Every per-game
   authoritative/index equivalence suite passes.
 - All 48 canned queries have been reviewed and executed against the eight-game
@@ -32,12 +39,13 @@ unless a regression demonstrates that they are broken.
   productive movement, contact conversion, rally anatomy, action density,
   scorer and umpire profiles, hit diversity, base destinations, steal attempts,
   unproductive contact games, and event-chain integrity. Its eight-game audit
-  records exact row sets and currently exposes four adjudications with no
-  mapped rule as integrity findings.
+  records exact row sets and currently exposes three baserunning-only terminal
+  outcomes (`pickoff_1b` twice and `caught_stealing_2b` once) that still use the
+  generic result pattern. `intent_walk` now reuses the full walk pattern.
 - Ten representative authoritative/indexed query pairs have exact corpus
   results, 20-sample alternating timings, optimized ARQ algebra, and direct
-  TDB2 execution captures. Seven traversal-heavy pairs improve by 2.16x to
-  9.34x at the median; the three simple lookup pairs are effectively neutral.
+  TDB2 execution captures. Seven traversal-heavy pairs improve by 2.10x to
+  9.73x at the median; the three simple lookup pairs are effectively neutral.
 - Query-index generation now preserves Fuseki's UTF-8 Turtle bytes directly.
   The corpus benchmark exposed and the eleven-family equivalence gate now
   prevents correctly accented player labels from becoming mojibake.
@@ -54,8 +62,9 @@ unless a regression demonstrates that they are broken.
   before execution and never accepts browser-supplied SPARQL or file paths.
 - Empty Games is exposed separately as a reviewed prototype because its
   negative completeness semantics do not belong in the general component
-  compiler. Its set-based authoritative query returns the same 27-player result
-  set across the current nine loaded graphs while avoiding repeated correlated
+  compiler. Its set-based authoritative query returns a 26-player result set
+  across the eight-game audit corpus after intentional walks were added to the
+  reviewed completeness profile, while avoiding repeated correlated
   absence checks.
 - Canonical canned queries and the UI query builder remain authoritative. A
   separate reviewed runner now routes the seven proven traversal-heavy query
@@ -112,8 +121,10 @@ preserved and content-addressed archive hashes match their checked-in sources.
   select-box compiler.
 - Preserve semantic-mode and completeness warnings in the interface, especially
   for takes/whiffs, steal-attempt efficiency, and unproductive contact games.
-- Treat the four current missing-rule rows as an RML review finding; do not patch
-  the ontology or weaken the integrity query without the owner's decision.
+- Decide how baserunning-only `allPlays` terminal sequences relate to
+  `PlateAppearance`. The current three findings must remain explicit until the
+  owner chooses an existing class or approves an ontology change; do not assign
+  them an unrelated result rule merely to make the audit empty.
 
 ### 2. Evaluate advanced query-index coverage
 
@@ -167,6 +178,8 @@ SPARQL, RML, or the operational index.
 
 1. Never modify supplied or archived raw JSON.
 2. Never enable live acquisition without explicit instruction.
+   Explicit instruction is not a substitute for source authorization where the
+   provider's published terms prohibit automated collection.
 3. Never modify [`ontology/`](ontology/) without an explicit ontology request.
 4. Never accept a stale or partial query index as current.
 5. Never infer semantic absence from a graph that has not passed completeness

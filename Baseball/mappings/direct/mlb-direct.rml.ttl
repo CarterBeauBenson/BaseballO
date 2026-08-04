@@ -215,7 +215,7 @@
 <#Result_walk_Source> a rml:LogicalSource ;
   rml:source "game.json" ;
   rml:referenceFormulation ql:JSONPath ;
-  rml:iterator "$.liveData.plays.allPlays[?(@.result.eventType == 'walk')]" .
+  rml:iterator "$.liveData.plays.allPlays[?(@.result.eventType == 'walk' || @.result.eventType == 'intent_walk')]" .
 
 <#Result_force_out_Source> a rml:LogicalSource ;
   rml:source "game.json" ;

@@ -106,7 +106,8 @@ rather than raw SPARQL.
 - an explicitly adjudicated stolen-base process.
 
 The query excludes entire games containing a plate-appearance result outside
-the mapping's current 18-event completeness profile. That prevents an unknown
+the mapping's current 19-source-token completeness profile (`walk` and
+`intent_walk` share the same `WalkProcess` pattern). That prevents an unknown
 result from silently becoming an empty game. Set-based exclusions preserve the
 same negative definition without repeating each absence test for every batter
 act.

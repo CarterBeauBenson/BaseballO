@@ -55,7 +55,7 @@ evidence about planning behavior, not a substitute for the timing samples.
 | Root | `hits-by-player-and-venue.rq` | Index-ready | `HitFact`, `GameFact`, labels |
 | Root | `hit-types-by-season.rq` | Index-ready | `HitFact.hitType`, `GameFact` |
 | Root | `hits-by-game.rq` | Index-ready | `HitFact`, `GameFact` |
-| Root | `empty-games-prototype.rq` | Authoritative | Negative classification and the 18-event completeness gate must inspect the full participation/result graph; omitted shortcut facts cannot prove absence |
+| Root | `empty-games-prototype.rq` | Authoritative | Negative classification and the 19-source-token completeness gate must inspect the full participation/result graph; omitted shortcut facts cannot prove absence |
 | Batting | `outcomes-by-season.rq` | Index-ready | `PlateAppearanceResultFact`, `GameFact` |
 | Batting | `outcomes-by-player.rq` | Index-ready | `PlateAppearanceResultFact` |
 | Batting | `plate-appearances-by-player-and-season.rq` | Index-ready | `PlateAppearanceFact`, `GameFact` |

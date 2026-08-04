@@ -142,7 +142,7 @@ test("local server exposes Empty Games only through its reviewed canned query", 
   const payload = await response.json();
   assert.deepEqual(payload.head.vars, ["player", "playerLabel", "emptyGames"]);
   assert.equal(payload.meta.definition, "reviewed-prototype");
-  assert.match(payload.query, /18-event|completeness profile/u);
+  assert.match(payload.query, /19 source tokens|completeness profile/u);
   assert.match(payload.query, /FILTER\(STRSTARTS\(STR\(\?graph\)/u);
 });
 

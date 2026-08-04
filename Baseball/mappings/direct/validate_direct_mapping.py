@@ -136,6 +136,9 @@ else:
             + ", ".join(missing_event_maps)
         )
 
+    if "@.result.eventType == 'walk' || @.result.eventType == 'intent_walk'" not in mapping_text:
+        errors.append("Walk result mapping must cover both walk and intent_walk source tokens.")
+
     prohibited_fragments = (
         "cco:ont00001833",
         "/runner-act/out/",

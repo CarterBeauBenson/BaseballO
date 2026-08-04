@@ -14,8 +14,9 @@ The machine-readable catalog is
   not interpreted as a baseball fact.
 - `completeness-gated` uses absence or a mapped denominator and therefore states
   its coverage boundary in the query comments and catalog.
-- `integrity-audit` returns structural defects. Zero rows is the ideal outcome,
-  but nonzero rows are useful findings rather than query failures.
+- `integrity-audit` returns structural defects and generic-only terminal outcome
+  coverage gaps. Zero rows is the ideal outcome, but nonzero rows are useful
+  findings rather than query failures.
 
 ## Query suite
 
@@ -36,7 +37,7 @@ The machine-readable catalog is
 | `base-destination-profile.rq` | Safe/run destinations from explicit base-touching processes | Positive evidence |
 | `steal-attempt-efficiency.rq` | Mapped attempts, successes, caught-stealing, and unresolved attempts | Completeness-gated |
 | `unproductive-contact-games.rq` | Contact games without a reviewed positive contact contribution | Completeness-gated |
-| `event-chain-integrity.rq` | Missing successors, judgments, decisions, and rules in event chains | Integrity audit |
+| `event-chain-integrity.rq` | Missing successors, judgments, decisions, and expected rules, plus generic-only terminal outcomes | Integrity audit |
 
 ## Deliberate non-claims
 

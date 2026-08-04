@@ -30,7 +30,8 @@ WHERE {
   }
 
   # Do not classify a graph whose PA result vocabulary is outside the current
-  # direct-mapping completeness profile.
+  # direct-mapping completeness profile (19 source tokens representing the
+  # reviewed result patterns; walk and intent_walk share one WalkProcess).
   MINUS {
     SELECT DISTINCT ?graph ?game
     WHERE {
@@ -44,7 +45,7 @@ WHERE {
         ?unknownPlateAppearance a base:PlateAppearance .
         FILTER(
           LCASE(STR(?unknownEventType)) NOT IN (
-            "home_run", "field_out", "double", "walk", "force_out",
+            "home_run", "field_out", "double", "walk", "intent_walk", "force_out",
             "strikeout", "single", "grounded_into_double_play", "sac_fly",
             "double_play", "fielders_choice", "triple", "sac_bunt",
             "fielders_choice_out", "field_error", "hit_by_pitch", "balk",
