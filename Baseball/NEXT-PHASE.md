@@ -8,14 +8,19 @@ unless a regression demonstrates that they are broken.
 
 - `dev` and `origin/dev` were synchronized when this handoff was written. Use
   Git at restart time for the current commit instead of trusting a pinned hash.
-- Live MLB acquisition remains disabled. New data must come from deliberately
-  supplied local files.
+- Live MLB acquisition remains disabled. A single explicitly authorized
+  acquisition captured the completed 2026-08-03 schedule and game feeds; it
+  did not enable the parked acquisition pipeline.
 - Raw game JSON is preserved byte-for-byte. The complete event graph remains
   authoritative; the query index is disposable and reproducible.
 - The active RML contains 247 triples maps, 56 logical sources, and no
   referencing-object joins.
-- Fixture game `566279` produces 29,736 authoritative triples and 6,981
-  query-index triples. All supported semantic row sets are equivalent.
+- Fixture game `566279` produces 28,419 authoritative triples and 6,617
+  query-index triples. All ten supported semantic row sets are equivalent.
+- All eight completed 2026-08-03 games are loaded independently. Together
+  they contain 228,571 authoritative triples, 53,530 query-index triples, 823
+  runner resolutions, and 11 stolen-base processes. Every per-game
+  authoritative/index equivalence suite passes.
 - All 48 canned queries have already been reviewed. Forty-six are structurally
   index-ready; `empty-games-prototype.rq` and `game-timeline.rq` remain
   authoritative.
@@ -25,7 +30,8 @@ unless a regression demonstrates that they are broken.
   and restore both named graphs. Failed index construction removes the stale
   derived graph without changing the authoritative graph.
 - No canonical canned query or UI query builder has been redirected to the
-  index yet. The single-game measurements are not sufficient for that decision.
+  index yet. Multi-game performance and full canned-query review remain
+  necessary before that decision.
 - No query-index shortcut term has been added to the ontology.
 
 ## Work that is complete - do not redo
@@ -37,57 +43,38 @@ unless a regression demonstrates that they are broken.
 - query-index contract version 1 and its 12 `CONSTRUCT` components;
 - single-fixture equivalence, benchmarks, and optimized algebra capture;
 - portable dehydration-package export, validation, tamper testing, and exact
-  graph restoration; and
-- malformed-component/stale-index recovery testing.
+  graph restoration;
+- malformed-component/stale-index recovery testing;
+- structural `(atBatIndex, runnerIndex)` identities for runner acts, records,
+  resolutions, judgments, decisions, and base-touching processes;
+- processor-safe runner-category and sacrifice-bunt source partitioning;
+- complete fielders-choice-out batted-result sequencing;
+- per-game guarded import and exact index equivalence for all eight completed
+  2026-08-03 games; and
+- multi-game-safe fixture acceptance and refreshed single-fixture benchmark
+  evidence.
 
-## Immediate input
+## Current corpus
 
-The project owner is populating a directory named `games_from_8-3`. Treat that
-directory as an incoming local corpus, not as permission to call an external
-API. Do not touch it until the copy is complete. Then locate it explicitly
-rather than assuming whether it sits at the repository root or under
-`Baseball/`.
+The checked-in corpus is under [`data/raw/samples/2026-08-03/`](data/raw/samples/2026-08-03/).
+It contains the original `schedule.json` plus completed game feeds `822867`,
+`823431`, `823520`, `823757`, `824160`, `824324`, `824647`, and `825095`.
+The schedule is acquisition metadata and is not an RML input. All raw bytes are
+preserved and content-addressed archive hashes match their checked-in sources.
 
 ## Next work, in order
 
-### 1. Inventory the supplied corpus without modifying it
+### 1. Extend canned-query correctness checks to the corpus
 
-For every file under `games_from_8-3`:
-
-- parse JSON and record its relative path, SHA-256, byte count, `gamePk`,
-  season, and game state;
-- require a safe numeric `gamePk` and completed (`Final`) state before RDF
-  processing;
-- identify byte-identical files and duplicate `gamePk` values;
-- distinguish malformed, incomplete, non-game, and unsupported files without
-  rewriting or deleting any source; and
-- write the inventory separately from the supplied files.
-
-Stop before ingestion if two different byte streams claim the same completed
-game and the correct version cannot be determined from existing policy.
-
-### 2. Run a guarded multi-game import
-
-- Use the existing manual importer, content-addressed raw archive, RML
-  validator, per-game authoritative graph, and per-game query-index builder.
-- Process games independently so one rejected game does not obscure the status
-  of the others.
-- Preserve per-game input, mapping, context-builder, RDF, index, and contract
-  hashes in manifests.
-- Confirm failed mappings leave no stale query-index graph.
-- Do not weaken a success pattern merely to make a new source file pass.
-
-### 3. Extend correctness checks to the corpus
-
-- Require complete pitch, swing/bunt, contact, result, runner-resolution, and
-  assignment context for every accepted game.
-- Run exact authoritative/index equivalence per game.
 - Run the 48 authoritative canned queries across the accepted multi-game
   corpus and inspect unexpected zeroes, duplication, or cross-game joins.
-- Add regression fixtures only by reference/hash; do not edit supplied raw
-  JSON to manufacture expected results.
+- Pay particular attention to source result types still intentionally outside
+  specific mappings, including `pickoff_1b`, `caught_stealing_2b`, and
+  `intent_walk`; do not infer unsupported acts merely to remove zeroes.
+- Add regression expectations by reference/hash; never edit raw JSON to
+  manufacture expected results.
 
-### 4. Repeat performance evaluation at multi-game scale
+### 2. Repeat performance evaluation at multi-game scale
 
 - Rerun the ten authoritative/indexed benchmark pairs with corpus size and
   graph counts recorded.
@@ -98,7 +85,7 @@ game and the correct version cannot be determined from existing policy.
 - Compare datastore query planning with the materialized shortcut graph before
   proposing nonstandard TDB2 indexes.
 
-### 5. Decide query and UI migration
+### 3. Decide query and UI migration
 
 - Use [`sparql/query-index/query-decision-matrix.md`](sparql/query-index/query-decision-matrix.md)
   as the starting classification.
@@ -112,7 +99,7 @@ game and the correct version cannot be determined from existing policy.
 - Update the allowlisted UI compiler only after the corresponding canned-query
   decision is recorded.
 
-### 6. Hold ontology decisions separately
+### 4. Hold ontology decisions separately
 
 Do not promote `https://w3id.org/baseball/query-index/` terms into BaseballO
 without the project owner's explicit approval of their names, directions,
@@ -151,5 +138,5 @@ git fetch origin dev
 python Baseball/scripts/validate_repository.py
 ```
 
-Before reading or importing `games_from_8-3`, confirm that the project owner
-has finished copying it and inventory its contents read-only.
+The 2026-08-03 corpus is already imported. Do not reacquire or reimport it
+unless a changed mapping or contract requires an explicit idempotent rebuild.

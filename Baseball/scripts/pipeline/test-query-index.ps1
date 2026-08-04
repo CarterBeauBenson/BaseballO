@@ -177,7 +177,8 @@ Assert-EquivalentRows -Name 'Contacts' -Variables @('contact', 'player', 'batted
 Assert-EquivalentRows -Name 'Runner resolutions' -Variables @('resolution', 'player', 'resolutionClass', 'eventType', 'game') -FullPattern @"
   VALUES ?game { <$gameIri> }
   ?record a <${base}BaseballEventRecord> ; <${cco}ont00001808> ?resolution ; <${dcterms}identifier> ?eventType .
-  ?resolution a <${base}RunnerResolutionProcess>, ?resolutionClass ; <${obo}BFO_0000132> ?game ; <${obo}BFO_0000057> ?player ; <${obo}BFO_0000117> ?judgment .
+  ?resolution a <${base}RunnerResolutionProcess>, ?resolutionClass ; <${obo}BFO_0000132> ?plateAppearance ; <${obo}BFO_0000057> ?player ; <${obo}BFO_0000117> ?judgment .
+  ?plateAppearance a <${base}PlateAppearance> ; <${obo}BFO_0000132>/<${obo}BFO_0000132>/<${obo}BFO_0000132> ?game .
   ?player a <${cco}ont00001262> .
   ?judgment a ?judgmentClass .
   VALUES (?resolutionClass ?judgmentClass) { (<${base}RunProcess> <${base}RunJudgmentAct>) (<${base}OutProcess> <${base}OutJudgmentAct>) (<${base}SafeProcess> <${base}SafeJudgmentAct>) }
@@ -188,7 +189,8 @@ Assert-EquivalentRows -Name 'Runner resolutions' -Variables @('resolution', 'pla
 
 Assert-EquivalentRows -Name 'Stolen bases' -Variables @('stolenBase', 'player', 'game') -FullPattern @"
   VALUES ?game { <$gameIri> }
-  ?stolenBase a <${base}StolenBaseProcess> ; <${obo}BFO_0000132> ?game ; <${obo}BFO_0000057> ?player ; <${obo}BFO_0000117> ?judgment .
+  ?stolenBase a <${base}StolenBaseProcess> ; <${obo}BFO_0000132> ?plateAppearance ; <${obo}BFO_0000057> ?player ; <${obo}BFO_0000117> ?judgment .
+  ?plateAppearance a <${base}PlateAppearance> ; <${obo}BFO_0000132>/<${obo}BFO_0000132>/<${obo}BFO_0000132> ?game .
   ?player a <${cco}ont00001262> .
   ?judgment a <${base}StolenBaseJudgmentAct> .
 "@ -IndexPattern @"

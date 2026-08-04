@@ -20,6 +20,10 @@ MAPPING_VALIDATOR = ROOT / "mappings" / "direct" / "validate_direct_mapping.py"
 ONTOLOGY_OVERLAY_VALIDATOR = ROOT / "scripts" / "validate_ontology_overlay.py"
 RML_MERMAID_GENERATOR = ROOT / "scripts" / "generate_rml_mermaid.py"
 SAMPLE = ROOT / "data" / "raw" / "game-566279.json"
+MAPPING_SAMPLES = (
+    SAMPLE,
+    *sorted((ROOT / "data" / "raw" / "samples" / "2026-08-03").glob("[0-9]*.json")),
+)
 SPARQL_ROOT = ROOT / "sparql"
 QUERY_BUILDERS = (
     ROOT / "web" / "query-builder" / "analytics-query-builder.js",
@@ -210,11 +214,12 @@ def validate_markdown() -> tuple[int, int]:
 
 
 def validate_active_mapping() -> None:
-    subprocess.run(
-        [sys.executable, str(MAPPING_VALIDATOR), str(SAMPLE)],
-        cwd=MAPPING_VALIDATOR.parent,
-        check=True,
-    )
+    for sample in MAPPING_SAMPLES:
+        subprocess.run(
+            [sys.executable, str(MAPPING_VALIDATOR), str(sample)],
+            cwd=MAPPING_VALIDATOR.parent,
+            check=True,
+        )
 
 
 def validate_ontology_overlay() -> None:

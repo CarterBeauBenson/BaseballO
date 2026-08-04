@@ -42,6 +42,9 @@ adds only reserved `_baseballO` execution fields:
 
 - each pitch's enclosing atBatIndex;
 - batter and pitcher IDs;
+- each runner record's enclosing atBatIndex and zero-based runnerIndex;
+- source-fact booleans needed to partition runner movements and distinguish
+  sacrifice-bunt pitches without processor-unsafe negation;
 - each play's terminal pitch playId; and
 - the completed game's final play timestamp.
 
@@ -65,7 +68,9 @@ execution-context, mapping, and output hashes are recorded.
 - Player and adjudicator roles are game-scoped.
 - Pitch-related acts and processes use gamePk plus playId.
 - Plate-appearance results use gamePk plus atBatIndex and receive their most specific source-supported class on one individual.
-- Runner acts use a neutral runner-act/movement path and a collision-validated composite because runner records expose neither atBatIndex nor an array index.
+- Runner acts, records, resolutions, judgments, and decisions use the
+  execution-only `(atBatIndex, runnerIndex)` structural identity required by
+  the IRI policy. Runner acts and resolutions link to their plate appearance.
 - Event-scoped baseball and bat IRIs keep artifacts stable through one mapped pitch without claiming cross-pitch identity.
 
 ## Conservative source boundaries
@@ -90,7 +95,8 @@ python Baseball/scripts/validate_repository.py
 
 Static validation checks Turtle, TriplesMap structure, logical sources,
 processor-incompatible JSONPath expressions, declared BaseballO classes,
-completed-game preconditions, identifiers, and runner collisions. The
+completed-game preconditions, identifiers, structural runner identities, and
+legacy composite collisions. The
 execution harness runs the pinned RMLMapper and the generated-RDF validator,
 which requires complete ancestor context on every pitch, swing/bunt act, and
 contact; one final game timestamp; physical chains; adjudication structure;

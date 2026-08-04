@@ -113,6 +113,12 @@ if ($triples -le 0 -or
 
 $emptyGamesQueryPath = Join-Path $script:RepositoryRoot 'sparql\empty-games-prototype.rq'
 $emptyGamesQuery = Get-Content -LiteralPath $emptyGamesQueryPath -Raw
+$emptyGamesQuery = [regex]::Replace(
+    $emptyGamesQuery,
+    'WHERE\s*\{',
+    "WHERE {`n  VALUES ?graph { <$graphIri> }",
+    1
+)
 $emptyGamesResult = Invoke-RestMethod -Uri 'http://127.0.0.1:3030/baseball-dev/query' -Method Post -Body @{ query = $emptyGamesQuery } -Headers @{ Accept = 'application/sparql-results+json' }
 $emptyGameCandidates = @($emptyGamesResult.results.bindings)
 if ($gamePk -eq '566279' -and $emptyGameCandidates.Count -ne 6) {

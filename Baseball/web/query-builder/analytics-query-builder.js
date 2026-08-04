@@ -252,10 +252,12 @@ const FAMILY_DEFINITIONS = {
                     cco:ont00001808 ?resolution ;
                     dcterms:identifier ?eventType .`,
       `?resolution a base:RunnerResolutionProcess ;
-                  obo:BFO_0000132 ?game ;
+                  obo:BFO_0000132 ?plateAppearance ;
                   obo:BFO_0000057 ?player ;
                   obo:BFO_0000117 ?resolutionJudgment ;
                   cco:ont00001918 ?field .`,
+      `?plateAppearance a base:PlateAppearance ;
+                        obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .`,
       `?resolutionJudgment a ?resolutionJudgmentClass .`,
       `VALUES ?resolutionJudgmentClass {
         base:OutJudgmentAct base:SafeJudgmentAct base:RunJudgmentAct

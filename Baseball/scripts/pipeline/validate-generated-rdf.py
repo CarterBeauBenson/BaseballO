@@ -48,6 +48,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--expected-pitches", type=int)
     parser.add_argument("--expected-batting-acts", type=int)
     parser.add_argument("--expected-contacts", type=int)
+    parser.add_argument("--expected-runner-records", type=int)
     parser.add_argument("--expected-game-end")
     return parser.parse_args()
 
@@ -193,6 +194,46 @@ def main() -> None:
         (BASE.BattedBallMotionProcess,),
         "BatBallContactProcess to BattedBallMotionProcess chain",
     )
+
+    baserunning_acts = set(graph.subjects(RDF.type, BASE.BaserunningAct))
+    runner_resolutions = set(graph.subjects(RDF.type, BASE.RunnerResolutionProcess))
+    runner_records = {
+        subject
+        for subject in graph.subjects(RDF.type, BASE.BaseballEventRecord)
+        if f"{DATA}game/{args.game_pk}/runner-record/" in str(subject)
+    }
+    if args.expected_runner_records is not None:
+        for label, subjects in (
+            ("BaserunningAct", baserunning_acts),
+            ("RunnerResolutionProcess", runner_resolutions),
+            ("runner BaseballEventRecord", runner_records),
+        ):
+            if len(subjects) != args.expected_runner_records:
+                raise ValueError(
+                    f"{label} count does not match the source: expected "
+                    f"{args.expected_runner_records}, got {len(subjects)}"
+                )
+    require_typed_link(
+        graph,
+        baserunning_acts,
+        BFO.BFO_0000132,
+        (BASE.PlateAppearance,),
+        "BaserunningAct to PlateAppearance context",
+    )
+    require_typed_link(
+        graph,
+        runner_resolutions,
+        BFO.BFO_0000132,
+        (BASE.PlateAppearance,),
+        "RunnerResolutionProcess to PlateAppearance context",
+    )
+    require_typed_link(
+        graph,
+        runner_resolutions,
+        BFO.BFO_0000062,
+        (BASE.BaserunningAct,),
+        "RunnerResolutionProcess from BaserunningAct chain",
+    )
     missing_contact_acts = []
     for contact in contact_subjects:
         preceding = set(graph.subjects(BFO.BFO_0000063, contact))
@@ -317,6 +358,9 @@ def main() -> None:
     print(f"Swing/bunt acts with complete ancestor context: {len(batting_acts)}")
     print(f"Pitch motions: {len(set(graph.subjects(RDF.type, BASE.PitchBallMotionProcess)))}")
     print(f"Bat-ball contacts: {len(contact_subjects)}")
+    print(f"Baserunning acts: {len(baserunning_acts)}")
+    print(f"Runner resolutions: {len(runner_resolutions)}")
+    print(f"Runner records: {len(runner_records)}")
     print(f"Plate-appearance results with adjudication: {len(plate_result_subjects)}")
     print(f"Expected game present: {game}")
     if args.expected_game_end is not None:

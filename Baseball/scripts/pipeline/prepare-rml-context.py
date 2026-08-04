@@ -50,6 +50,7 @@ def main() -> None:
     document[CONTEXT_KEY] = {"gameEndTime": final_end_time}
 
     pitch_count = 0
+    runner_count = 0
     terminal_pitch_count = 0
     seen_pitch_ids: set[str] = set()
     for play_position, play in enumerate(plays):
@@ -59,6 +60,9 @@ def main() -> None:
             )
         about = play.get("about", {})
         matchup = play.get("matchup", {})
+        plate_appearance_is_sac_bunt = (
+            play.get("result", {}).get("eventType") == "sac_bunt"
+        )
         at_bat_index = require_numeric(
             about.get("atBatIndex"), f"Play {play_position} about.atBatIndex"
         )
@@ -70,6 +74,25 @@ def main() -> None:
             matchup.get("pitcher", {}).get("id"),
             f"Play {at_bat_index} matchup.pitcher.id",
         )
+
+        for runner_position, runner in enumerate(play.get("runners", [])):
+            if CONTEXT_KEY in runner:
+                raise ValueError(
+                    f"Runner {runner_position} in play {at_bat_index} already contains "
+                    f"reserved key {CONTEXT_KEY!r}"
+                )
+            require_numeric(
+                runner.get("details", {}).get("runner", {}).get("id"),
+                f"Runner {runner_position} in play {at_bat_index} details.runner.id",
+            )
+            movement = runner.get("movement", {})
+            runner[CONTEXT_KEY] = {
+                "atBatIndex": at_bat_index,
+                "runnerIndex": str(runner_position),
+                "hasSupportedStartBase": movement.get("start") in {"1B", "2B", "3B"},
+                "endsAtScore": movement.get("end") == "score",
+            }
+            runner_count += 1
 
         pitch_events = [
             event for event in play.get("playEvents", []) if event.get("isPitch") is True
@@ -99,6 +122,7 @@ def main() -> None:
                 "atBatIndex": at_bat_index,
                 "batterId": batter_id,
                 "pitcherId": pitcher_id,
+                "plateAppearanceIsSacBunt": plate_appearance_is_sac_bunt,
             }
             pitch_count += 1
 
@@ -108,6 +132,7 @@ def main() -> None:
         encoding="utf-8",
     )
     print(f"Context pitches: {pitch_count}")
+    print(f"Context runners: {runner_count}")
     print(f"Context terminal pitches: {terminal_pitch_count}")
     print(f"Context game end: {final_end_time}")
 

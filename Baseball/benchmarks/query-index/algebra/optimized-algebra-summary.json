@@ -1,7 +1,7 @@
 {
     "artifactType":  "baseball-query-index-optimized-algebra-comparison",
     "reportVersion":  1,
-    "generatedAtUtc":  "2026-08-04T11:58:49.4709922Z",
+    "generatedAtUtc":  "2026-08-04T12:57:25.7243072Z",
     "jenaFusekiVersion":  "6.1.0",
     "captureCommand":  "arq.qparse --print=opt --query \u003cfile\u003e",
     "scope":  "high-level optimized ARQ algebra; not TDB2 storage-specific runtime execution logging",
@@ -163,13 +163,13 @@
                         "authoritativePlan":  "runs-by-season-and-venue-authoritative-opt.txt",
                         "indexedPlan":  "runs-by-season-and-venue-indexed-opt.txt",
                         "authoritative":  {
-                                              "triplePatterns":  16,
+                                              "triplePatterns":  20,
                                               "basicGraphPatterns":  1,
                                               "sequences":  0,
                                               "leftJoins":  0,
                                               "tables":  0,
                                               "groups":  1,
-                                              "characters":  1847
+                                              "characters":  2137
                                           },
                         "indexed":  {
                                         "triplePatterns":  7,
@@ -180,7 +180,7 @@
                                         "groups":  1,
                                         "characters":  947
                                     },
-                        "triplePatternReduction":  9
+                        "triplePatternReduction":  13
                     },
                     {
                         "name":  "games-by-team-and-season",

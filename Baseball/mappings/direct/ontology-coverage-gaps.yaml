@@ -30,10 +30,10 @@ ontology_coverage_gaps:
   mapping_action: Do not mint action individuals until identity and class coverage are approved.
 
 - id: runner-record-stable-identifier
-  status: source identity limitation
+  status: resolved in execution context
   source_path: allPlays[*].runners[*]
-  gap: A runner record exposes no source ID, no array index value, and no ancestor atBatIndex in its local RML record.
-  mapping_action: Use a documented game-scoped composite, validate collisions on every feed, and retain game-level rather than unsafe plate-appearance containment.
+  gap: A runner record exposes no source ID, array index, or ancestor atBatIndex in its local RML record.
+  mapping_action: Add the enclosing atBatIndex and zero-based runnerIndex only to the disposable execution context; use that structural pair for runner identities and plate-appearance containment while preserving the raw source unchanged.
 
 - id: fielding-credit-act-identity
   status: source identity limitation

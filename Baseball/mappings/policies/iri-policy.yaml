@@ -556,6 +556,7 @@ baseball_iri_policy:
       - atBatIndex
       - eventIndex
       - runnerIndex
+      - source-derived ancestor facts required to express processor-safe RML filters
 
     enrichment_prohibited_behavior:
       - >

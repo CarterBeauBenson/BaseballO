@@ -49,7 +49,9 @@ $expectedGameEndTime = [string]@($gameDocument.liveData.plays.allPlays)[-1].abou
 $expectedPitchCount = 0
 $expectedBattingActCount = 0
 $expectedContactCount = 0
+$expectedRunnerRecordCount = 0
 foreach ($play in @($gameDocument.liveData.plays.allPlays)) {
+    $expectedRunnerRecordCount += @($play.runners).Count
     foreach ($event in @($play.playEvents)) {
         if ($event.isPitch -eq $true) {
             $expectedPitchCount++
@@ -201,7 +203,7 @@ try {
         throw "RMLMapper produced no RDF for game $gamePk."
     }
 
-    & python $validatorPath $stageOutput $gamePk '--expected-plate-appearances' $expectedPlateAppearanceCount '--expected-batter-acts' $expectedPlateAppearanceCount '--expected-pitches' $expectedPitchCount '--expected-batting-acts' $expectedBattingActCount '--expected-contacts' $expectedContactCount '--expected-game-end' $expectedGameEndTime
+    & python $validatorPath $stageOutput $gamePk '--expected-plate-appearances' $expectedPlateAppearanceCount '--expected-batter-acts' $expectedPlateAppearanceCount '--expected-pitches' $expectedPitchCount '--expected-batting-acts' $expectedBattingActCount '--expected-contacts' $expectedContactCount '--expected-runner-records' $expectedRunnerRecordCount '--expected-game-end' $expectedGameEndTime
     if ($LASTEXITCODE -ne 0) {
         throw "Generated RDF validation failed for game $gamePk."
     }
@@ -242,6 +244,7 @@ try {
             pitches = $expectedPitchCount
             battingActs = $expectedBattingActCount
             contacts = $expectedContactCount
+            runnerRecords = $expectedRunnerRecordCount
         }
         outputPath = $outputPath
         outputSha256 = $outputHash

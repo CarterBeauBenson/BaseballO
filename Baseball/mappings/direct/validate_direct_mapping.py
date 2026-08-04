@@ -161,6 +161,7 @@ else:
         'rr:parent "playEvents[*].playId"',
         "playEvents[-1:].playId",
         'rml:iterator "$.liveData.plays.allPlays[-1:]"',
+        "{details.runner.id}/{details.playIndex}/{details.eventType}",
     )
     present_execution_fragments = [
         fragment
@@ -178,6 +179,10 @@ else:
         "{_baseballO.atBatIndex}",
         "{_baseballO.batterId}",
         "{_baseballO.pitcherId}",
+        "{_baseballO.runnerIndex}",
+        "@._baseballO.plateAppearanceIsSacBunt",
+        "@._baseballO.endsAtScore",
+        "@._baseballO.hasSupportedStartBase",
         "{_baseballO.terminalPitchPlayId}",
         'rml:reference "_baseballO.gameEndTime"',
     )
@@ -273,44 +278,61 @@ else:
         )
 
     runner_keys = []
+    legacy_runner_keys = []
+    unsafe_runner_ids = set()
     supported_start_bases = {"1B", "2B", "3B"}
     unexpected_start_bases = set()
     for p in plays:
-        for r in p.get("runners", []):
+        at_bat_index = p.get("about", {}).get("atBatIndex")
+        for runner_index, r in enumerate(p.get("runners", [])):
             m = r.get("movement", {})
             d = r.get("details", {})
             start_base = m.get("start")
             if start_base is not None and start_base not in supported_start_bases:
                 unexpected_start_bases.add(start_base)
             rid = d.get("runner", {}).get("id")
+            if not str(rid or "").isdigit():
+                unsafe_runner_ids.add(rid)
             pi = d.get("playIndex")
             et = d.get("eventType")
             if m.get("isOut") is True:
-                key = ("out", rid, pi, et, m.get("outBase"), m.get("outNumber"))
+                legacy_key = ("out", rid, pi, et, m.get("outBase"), m.get("outNumber"))
             elif (
                 m.get("isOut") is False
                 and m.get("end") == "score"
                 and m.get("start") is None
             ):
-                key = ("score-origin", rid, pi, et)
+                legacy_key = ("score-origin", rid, pi, et)
             elif m.get("isOut") is False and m.get("end") == "score":
-                key = ("score-base", rid, pi, et, m.get("start"))
+                legacy_key = ("score-base", rid, pi, et, m.get("start"))
             elif m.get("isOut") is False and m.get("start") is None:
-                key = ("reach", rid, pi, et, m.get("end"))
+                legacy_key = ("reach", rid, pi, et, m.get("end"))
             else:
-                key = ("advance", rid, pi, et, m.get("start"), m.get("end"))
-            runner_keys.append(key)
+                legacy_key = ("advance", rid, pi, et, m.get("start"), m.get("end"))
+            runner_keys.append((at_bat_index, runner_index))
+            legacy_runner_keys.append(legacy_key)
     if unexpected_start_bases:
         errors.append(
             "Runner movement.start contains values outside the supported base set: "
             + ", ".join(sorted(map(str, unexpected_start_bases)))
         )
+    if unsafe_runner_ids:
+        errors.append(
+            "At least one runner record lacks a safe numeric details.runner.id: "
+            + ", ".join(map(repr, sorted(unsafe_runner_ids, key=str)[:10]))
+        )
     duplicates = [(key, count) for key, count in Counter(runner_keys).items() if count > 1]
     if duplicates:
-        errors.append(f"Runner composite-key collisions: {duplicates[:20]}")
+        errors.append(f"Runner structural-key collisions: {duplicates[:20]}")
+    legacy_duplicates = [
+        (key, count)
+        for key, count in Counter(legacy_runner_keys).items()
+        if count > 1
+    ]
     notes.append(
         f"runner records: {len(runner_keys)}; "
-        f"unique composite keys: {len(set(runner_keys))}"
+        f"unique structural keys: {len(set(runner_keys))}; "
+        f"legacy composite collisions handled: {len(legacy_duplicates)}"
     )
 
 print("\n".join(notes))

@@ -14,9 +14,11 @@ WHERE {
                cco:ont00001916 ?startInstant ;
                cco:ont00001767 ?gameStart .
     ?run a base:RunnerResolutionProcess, base:RunProcess ;
-         obo:BFO_0000132 ?game ;
+         obo:BFO_0000132 ?plateAppearance ;
          obo:BFO_0000057 ?player ;
          obo:BFO_0000117 ?runJudgment .
+    ?plateAppearance a base:PlateAppearance ;
+        obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
     ?runJudgment a base:RunJudgmentAct .
     ?player rdfs:label ?playerLabel .
     BIND(YEAR(?gameStart) AS ?season)

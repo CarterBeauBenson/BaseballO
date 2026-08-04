@@ -36,8 +36,8 @@ in filename order and merges their results.
 | `50-pitch-calls.rq` | `idx:PitchCallFact` | Complete pitch pattern, shared record, ball/strike process, and matching judgment |
 | `60-batting-acts.rq` | `idx:BattingActFact` | Swing/bunt, CCO Person participant, matching batter role, and plate appearance/game |
 | `61-contacts.rq` | `idx:ContactFact` | Swing/bunt, CCO Person participant, contact, batted-ball motion, plate appearance/game, field, and venue |
-| `70-runner-resolutions.rq` | `idx:RunnerResolutionFact` | Source record, runner-resolution process, CCO Person participant, game, and matching safe/out/run judgment |
-| `71-stolen-bases.rq` | `idx:StolenBaseFact` | Stolen-base process, CCO Person participant, game, and stolen-base judgment |
+| `70-runner-resolutions.rq` | `idx:RunnerResolutionFact` | Source record, runner-resolution process, CCO Person participant, enclosing plate appearance and game, and matching safe/out/run judgment |
+| `71-stolen-bases.rq` | `idx:StolenBaseFact` | Stolen-base process, CCO Person participant, enclosing plate appearance and game, and stolen-base judgment |
 | `80-game-assignments.rq` | `idx:AssignmentFact` | Game-scoped home-team, away-team, umpire, or official-scorer role and its bearer |
 | `90-labels.rq` | Labels | Labels already asserted in the authoritative per-game graph |
 
@@ -64,9 +64,9 @@ importer rebuilds the index after replacing an authoritative game graph and
 uses a hash of the complete generation contract for freshness checks.
 
 The test suite compares exact distinct row sets for all ten semantic families
-in both directions. The checked-in fixture currently yields 6,981 index
-triples from 29,736 authoritative triples, with equivalent identities for 21
-hits, 282 pitches, 185 pitch calls, 134 batting acts, 112 contacts, 165 runner
+in both directions. The checked-in fixture currently yields 6,617 index
+triples from 28,419 authoritative triples, with equivalent identities for 21
+hits, 282 pitches, 185 pitch calls, 134 batting acts, 112 contacts, 113 runner
 resolutions, one stolen base, and seven assignments.
 
 ## Query shape

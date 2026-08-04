@@ -12,7 +12,7 @@ This captures high-level optimized ARQ algebra. It does not capture TDB2 storage
 | pitch-summary-by-pitcher | 18 | 10 | 8 |
 | batted-balls-by-batter-and-venue | 13 | 6 | 7 |
 | events-by-player | 8 | 4 | 4 |
-| runs-by-season-and-venue | 16 | 7 | 9 |
+| runs-by-season-and-venue | 20 | 7 | 13 |
 | games-by-team-and-season | 10 | 7 | 3 |
 | umpire-assignments | 5 | 5 | 0 |
 | available-players | 3 | 3 | 0 |

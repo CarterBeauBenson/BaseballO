@@ -99,9 +99,12 @@ rather than raw SPARQL.
 - an explicitly adjudicated stolen-base process.
 
 The query excludes entire games containing a plate-appearance result outside
-the mapping's current 17-class completeness profile. That prevents an unknown
+the mapping's current 18-event completeness profile. That prevents an unknown
 result from silently becoming an empty game.
 
-One important limitation remains: runner records are not explicitly linked to their enclosing plate appearance. The prototype therefore cannot attribute an ordinary batter out that moves another runner to that batter. Its output must be treated as candidates for review, not a published statistic.
+Runner acts and resolutions are now explicitly linked to their enclosing plate
+appearance through execution-only structural context. The contribution policy
+still remains incomplete, so output must be treated as candidates for review,
+not a published statistic.
 
 The project owner is needed before promotion to a canned UI query to approve the contribution policy: productive outs, reach-on-error, hit-by-pitch, fielder's choice, sacrifice types, steals/caught stealing, pinch runners, and any minimum offensive-participation threshold.

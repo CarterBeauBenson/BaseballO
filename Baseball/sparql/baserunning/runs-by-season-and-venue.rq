@@ -14,9 +14,11 @@ WHERE {
                cco:ont00001916 ?startInstant ;
                cco:ont00001767 ?gameStart .
     ?run a base:RunnerResolutionProcess, base:RunProcess ;
-         obo:BFO_0000132 ?game ;
+         obo:BFO_0000132 ?plateAppearance ;
          obo:BFO_0000117 ?runJudgment ;
          cco:ont00001918 ?field .
+    ?plateAppearance a base:PlateAppearance ;
+        obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
     ?runJudgment a base:RunJudgmentAct .
     ?field a base:BaseballFieldSite ;
            obo:BFO_0000171 ?venue .

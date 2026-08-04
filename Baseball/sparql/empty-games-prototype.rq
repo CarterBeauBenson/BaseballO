@@ -34,7 +34,8 @@ WHERE {
           "home_run", "field_out", "double", "walk", "force_out",
           "strikeout", "single", "grounded_into_double_play", "sac_fly",
           "double_play", "fielders_choice", "triple", "sac_bunt",
-          "field_error", "hit_by_pitch", "balk", "catcher_interf"
+          "fielders_choice_out", "field_error", "hit_by_pitch", "balk",
+          "catcher_interf"
         )
       )
     }
@@ -64,8 +65,10 @@ WHERE {
     FILTER NOT EXISTS {
       ?stolenBase a base:StolenBaseProcess ;
                   obo:BFO_0000057 ?player ;
-                  obo:BFO_0000132 ?game ;
+                  obo:BFO_0000132 ?stolenBasePlateAppearance ;
                   obo:BFO_0000117 ?stolenBaseJudgment .
+      ?stolenBasePlateAppearance a base:PlateAppearance ;
+          obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
       ?stolenBaseJudgment a base:StolenBaseJudgmentAct .
     }
   }

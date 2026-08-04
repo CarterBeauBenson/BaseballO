@@ -2,7 +2,7 @@ title: Direct MLB feed to BaseballO RML coverage
 source_file_name_expected: game.json
 source_mutation: none
 intermediary_normalization: ancestor-context-only
-mapping_version: 0.3.0
+mapping_version: 0.3.1
 completed_game_precondition: true
 
 execution_context:
@@ -13,6 +13,9 @@ execution_context:
   includes:
   - pitch atBatIndex
   - pitch batterId and pitcherId
+  - runner atBatIndex and zero-based runnerIndex
+  - runner start-base and score-destination source facts
+  - pitch enclosing plate-appearance sacrifice-bunt source fact
   - play terminalPitchPlayId
   - game final-play end timestamp
   provenance: source, builder, context, mapping, and RDF hashes are recorded
@@ -49,7 +52,7 @@ implemented:
     - BatBallContactProcess when contact is supported
     - BattedBallMotionProcess when contact is supported
     - BattedBallPlayProcess
-    note: sac_bunt terminal events use BuntAct and are excluded from the generic in-play SwingAct sources
+    note: sac_bunt terminal events use BuntAct and are excluded from the generic in-play SwingAct sources by a processor-safe execution-context source fact
     coverage: all 134 fixture swing/bunt acts and all 112 contacts have complete ancestor context
 
   pitch_classifications:
@@ -90,13 +93,13 @@ implemented:
     - SacrificeJudgmentAct and SacrificeDecisionICE
 
   runner_patterns:
-    status: mapped-with-source-identity-limitation
+    status: mapped-and-structurally-identified
     includes:
     - outcome-neutral BaserunningAct paths
     - BaseTouchingProcess for safe reach, advance, and run scoring
     - OutProcess, SafeProcess, and RunProcess adjudication and decision ICEs
     - explicit StealAttemptAct and separate StolenBaseProcess for stolen_base event types
-    note: runner acts remain game parts because the nested runner object lacks safe plate-appearance identity
+    note: execution-only atBatIndex and runnerIndex context gives every source runner record a deterministic identity and links its act and resolution to the enclosing plate appearance
 
   records:
     status: mapped
@@ -123,5 +126,3 @@ deferred:
     reason: non-pitch advisory records mix unsupported classes and unstable identifiers
   measurements:
     reason: approved measurement ICE classes and datatype properties are incomplete
-  runner_plate_appearance_link:
-    reason: runner records expose neither atBatIndex nor a runner array index to the selected processor
