@@ -25,3 +25,9 @@ deliberately supplied without enabling live acquisition.
 The current 20-iteration result is recorded in
 [`fixture-566279-baseline.md`](fixture-566279-baseline.md), with raw samples and
 provenance in [`fixture-566279-baseline.json`](fixture-566279-baseline.json).
+
+High-level optimized ARQ algebra is captured separately under
+[`algebra/`](algebra/). It uses the pinned Fuseki JAR's
+`arq.qparse --print=opt` command and records every raw plan plus a triple-pattern
+comparison. This is query-shape evidence, not TDB2 storage-specific runtime
+join-order evidence.

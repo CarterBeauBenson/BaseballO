@@ -1,0 +1,11 @@
+(prefix ((idx: <https://w3id.org/baseball/query-index/>)
+         (rdfs: <http://www.w3.org/2000/01/rdf-schema#>))
+  (order ((lcase (str ?playerLabel)))
+    (distinct
+      (project (?player ?playerLabel)
+        (graph ?graph
+          (bgp
+            (triple ?plateAppearance <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> idx:PlateAppearanceFact)
+            (triple ?plateAppearance idx:agent ?player)
+            (triple ?player rdfs:label ?playerLabel)
+          ))))))

@@ -1,0 +1,15 @@
+(prefix ((idx: <https://w3id.org/baseball/query-index/>)
+         (rdfs: <http://www.w3.org/2000/01/rdf-schema#>))
+  (project (?venue ?venueLabel ?player ?playerLabel ?battedBalls)
+    (order ((lcase (str ?venueLabel)) (desc ?battedBalls) (lcase (str ?playerLabel)))
+      (extend ((?battedBalls ?.0))
+        (group (?venue ?venueLabel ?player ?playerLabel) ((?.0 (count distinct ?battedBall)))
+          (graph ?graph
+            (bgp
+              (triple ?contact <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> idx:ContactFact)
+              (triple ?contact idx:battedBall ?battedBall)
+              (triple ?contact idx:agent ?player)
+              (triple ?contact idx:venue ?venue)
+              (triple ?player rdfs:label ?playerLabel)
+              (triple ?venue rdfs:label ?venueLabel)
+            )))))))

@@ -29,6 +29,11 @@ paused with the live MLB acquisition flow disabled.
   equivalence. Tampered bytes were rejected, and malformed `CONSTRUCT` failure
   left the authoritative graph intact while removing and rebuilding the stale
   derived graph.
+- Optimized ARQ algebra is captured for all ten benchmark pairs with pinned
+  Jena 6.1.0. Hits shrink from 24 to 8 triple patterns and pitch summary from
+  18 to 10; the nearly neutral umpire/options benchmarks show no triple-pattern
+  reduction. Storage-specific TDB2 execution logging remains distinct and
+  pending.
 
 ## Entry state
 

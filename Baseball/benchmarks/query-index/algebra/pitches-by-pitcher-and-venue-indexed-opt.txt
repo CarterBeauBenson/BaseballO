@@ -1,0 +1,14 @@
+(prefix ((idx: <https://w3id.org/baseball/query-index/>)
+         (rdfs: <http://www.w3.org/2000/01/rdf-schema#>))
+  (project (?venue ?venueLabel ?pitcher ?pitcherLabel ?pitches)
+    (order ((lcase (str ?venueLabel)) (desc ?pitches) (lcase (str ?pitcherLabel)))
+      (extend ((?pitches ?.0))
+        (group (?venue ?venueLabel ?pitcher ?pitcherLabel) ((?.0 (count distinct ?pitch)))
+          (graph ?graph
+            (bgp
+              (triple ?pitch <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> idx:PitchFact)
+              (triple ?pitch idx:agent ?pitcher)
+              (triple ?pitch idx:venue ?venue)
+              (triple ?pitcher rdfs:label ?pitcherLabel)
+              (triple ?venue rdfs:label ?venueLabel)
+            )))))))

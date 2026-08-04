@@ -1,0 +1,12 @@
+(prefix ((obo: <http://purl.obolibrary.org/obo/>)
+         (rdfs: <http://www.w3.org/2000/01/rdf-schema#>)
+         (base: <https://baseballontology.org/>))
+  (order ((lcase (str ?playerLabel)))
+    (distinct
+      (project (?player ?playerLabel)
+        (graph ?graph
+          (bgp
+            (triple ?batterAct <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> base:BatterAct)
+            (triple ?batterAct obo:BFO_0000057 ?player)
+            (triple ?player rdfs:label ?playerLabel)
+          ))))))

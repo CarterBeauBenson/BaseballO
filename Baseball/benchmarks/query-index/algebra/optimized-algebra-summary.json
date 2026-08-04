@@ -1,0 +1,261 @@
+{
+    "artifactType":  "baseball-query-index-optimized-algebra-comparison",
+    "reportVersion":  1,
+    "generatedAtUtc":  "2026-08-04T11:58:49.4709922Z",
+    "jenaFusekiVersion":  "6.1.0",
+    "captureCommand":  "arq.qparse --print=opt --query \u003cfile\u003e",
+    "scope":  "high-level optimized ARQ algebra; not TDB2 storage-specific runtime execution logging",
+    "queryPairManifest":  "sparql/query-index/benchmarks/benchmark-pairs.json",
+    "results":  [
+                    {
+                        "name":  "hits-by-player-and-venue",
+                        "family":  "hits",
+                        "authoritativePlan":  "hits-by-player-and-venue-authoritative-opt.txt",
+                        "indexedPlan":  "hits-by-player-and-venue-indexed-opt.txt",
+                        "authoritative":  {
+                                              "triplePatterns":  24,
+                                              "basicGraphPatterns":  1,
+                                              "sequences":  1,
+                                              "leftJoins":  0,
+                                              "tables":  1,
+                                              "groups":  1,
+                                              "characters":  2883
+                                          },
+                        "indexed":  {
+                                        "triplePatterns":  8,
+                                        "basicGraphPatterns":  1,
+                                        "sequences":  0,
+                                        "leftJoins":  0,
+                                        "tables":  0,
+                                        "groups":  1,
+                                        "characters":  990
+                                    },
+                        "triplePatternReduction":  16
+                    },
+                    {
+                        "name":  "outcomes-by-player",
+                        "family":  "batting",
+                        "authoritativePlan":  "outcomes-by-player-authoritative-opt.txt",
+                        "indexedPlan":  "outcomes-by-player-indexed-opt.txt",
+                        "authoritative":  {
+                                              "triplePatterns":  9,
+                                              "basicGraphPatterns":  1,
+                                              "sequences":  1,
+                                              "leftJoins":  0,
+                                              "tables":  1,
+                                              "groups":  1,
+                                              "characters":  2843
+                                          },
+                        "indexed":  {
+                                        "triplePatterns":  4,
+                                        "basicGraphPatterns":  1,
+                                        "sequences":  0,
+                                        "leftJoins":  0,
+                                        "tables":  0,
+                                        "groups":  1,
+                                        "characters":  714
+                                    },
+                        "triplePatternReduction":  5
+                    },
+                    {
+                        "name":  "pitches-by-pitcher-and-venue",
+                        "family":  "pitching",
+                        "authoritativePlan":  "pitches-by-pitcher-and-venue-authoritative-opt.txt",
+                        "indexedPlan":  "pitches-by-pitcher-and-venue-indexed-opt.txt",
+                        "authoritative":  {
+                                              "triplePatterns":  10,
+                                              "basicGraphPatterns":  1,
+                                              "sequences":  0,
+                                              "leftJoins":  0,
+                                              "tables":  0,
+                                              "groups":  1,
+                                              "characters":  1283
+                                          },
+                        "indexed":  {
+                                        "triplePatterns":  5,
+                                        "basicGraphPatterns":  1,
+                                        "sequences":  0,
+                                        "leftJoins":  0,
+                                        "tables":  0,
+                                        "groups":  1,
+                                        "characters":  745
+                                    },
+                        "triplePatternReduction":  5
+                    },
+                    {
+                        "name":  "pitch-summary-by-pitcher",
+                        "family":  "pitching",
+                        "authoritativePlan":  "pitch-summary-by-pitcher-authoritative-opt.txt",
+                        "indexedPlan":  "pitch-summary-by-pitcher-indexed-opt.txt",
+                        "authoritative":  {
+                                              "triplePatterns":  18,
+                                              "basicGraphPatterns":  3,
+                                              "sequences":  1,
+                                              "leftJoins":  0,
+                                              "tables":  1,
+                                              "groups":  1,
+                                              "characters":  2548
+                                          },
+                        "indexed":  {
+                                        "triplePatterns":  10,
+                                        "basicGraphPatterns":  3,
+                                        "sequences":  0,
+                                        "leftJoins":  0,
+                                        "tables":  0,
+                                        "groups":  1,
+                                        "characters":  1400
+                                    },
+                        "triplePatternReduction":  8
+                    },
+                    {
+                        "name":  "batted-balls-by-batter-and-venue",
+                        "family":  "pitching",
+                        "authoritativePlan":  "batted-balls-by-batter-and-venue-authoritative-opt.txt",
+                        "indexedPlan":  "batted-balls-by-batter-and-venue-indexed-opt.txt",
+                        "authoritative":  {
+                                              "triplePatterns":  13,
+                                              "basicGraphPatterns":  1,
+                                              "sequences":  1,
+                                              "leftJoins":  0,
+                                              "tables":  1,
+                                              "groups":  1,
+                                              "characters":  1743
+                                          },
+                        "indexed":  {
+                                        "triplePatterns":  6,
+                                        "basicGraphPatterns":  1,
+                                        "sequences":  0,
+                                        "leftJoins":  0,
+                                        "tables":  0,
+                                        "groups":  1,
+                                        "characters":  821
+                                    },
+                        "triplePatternReduction":  7
+                    },
+                    {
+                        "name":  "events-by-player",
+                        "family":  "baserunning",
+                        "authoritativePlan":  "events-by-player-authoritative-opt.txt",
+                        "indexedPlan":  "events-by-player-indexed-opt.txt",
+                        "authoritative":  {
+                                              "triplePatterns":  8,
+                                              "basicGraphPatterns":  1,
+                                              "sequences":  1,
+                                              "leftJoins":  0,
+                                              "tables":  1,
+                                              "groups":  1,
+                                              "characters":  1450
+                                          },
+                        "indexed":  {
+                                        "triplePatterns":  4,
+                                        "basicGraphPatterns":  1,
+                                        "sequences":  0,
+                                        "leftJoins":  0,
+                                        "tables":  0,
+                                        "groups":  1,
+                                        "characters":  695
+                                    },
+                        "triplePatternReduction":  4
+                    },
+                    {
+                        "name":  "runs-by-season-and-venue",
+                        "family":  "baserunning",
+                        "authoritativePlan":  "runs-by-season-and-venue-authoritative-opt.txt",
+                        "indexedPlan":  "runs-by-season-and-venue-indexed-opt.txt",
+                        "authoritative":  {
+                                              "triplePatterns":  16,
+                                              "basicGraphPatterns":  1,
+                                              "sequences":  0,
+                                              "leftJoins":  0,
+                                              "tables":  0,
+                                              "groups":  1,
+                                              "characters":  1847
+                                          },
+                        "indexed":  {
+                                        "triplePatterns":  7,
+                                        "basicGraphPatterns":  1,
+                                        "sequences":  0,
+                                        "leftJoins":  0,
+                                        "tables":  0,
+                                        "groups":  1,
+                                        "characters":  947
+                                    },
+                        "triplePatternReduction":  9
+                    },
+                    {
+                        "name":  "games-by-team-and-season",
+                        "family":  "games",
+                        "authoritativePlan":  "games-by-team-and-season-authoritative-opt.txt",
+                        "indexedPlan":  "games-by-team-and-season-indexed-opt.txt",
+                        "authoritative":  {
+                                              "triplePatterns":  10,
+                                              "basicGraphPatterns":  1,
+                                              "sequences":  1,
+                                              "leftJoins":  0,
+                                              "tables":  1,
+                                              "groups":  1,
+                                              "characters":  1481
+                                          },
+                        "indexed":  {
+                                        "triplePatterns":  7,
+                                        "basicGraphPatterns":  1,
+                                        "sequences":  1,
+                                        "leftJoins":  0,
+                                        "tables":  1,
+                                        "groups":  1,
+                                        "characters":  1059
+                                    },
+                        "triplePatternReduction":  3
+                    },
+                    {
+                        "name":  "umpire-assignments",
+                        "family":  "games",
+                        "authoritativePlan":  "umpire-assignments-authoritative-opt.txt",
+                        "indexedPlan":  "umpire-assignments-indexed-opt.txt",
+                        "authoritative":  {
+                                              "triplePatterns":  5,
+                                              "basicGraphPatterns":  1,
+                                              "sequences":  0,
+                                              "leftJoins":  0,
+                                              "tables":  0,
+                                              "groups":  1,
+                                              "characters":  780
+                                          },
+                        "indexed":  {
+                                        "triplePatterns":  5,
+                                        "basicGraphPatterns":  1,
+                                        "sequences":  0,
+                                        "leftJoins":  0,
+                                        "tables":  0,
+                                        "groups":  1,
+                                        "characters":  699
+                                    },
+                        "triplePatternReduction":  0
+                    },
+                    {
+                        "name":  "available-players",
+                        "family":  "options",
+                        "authoritativePlan":  "available-players-authoritative-opt.txt",
+                        "indexedPlan":  "available-players-indexed-opt.txt",
+                        "authoritative":  {
+                                              "triplePatterns":  3,
+                                              "basicGraphPatterns":  1,
+                                              "sequences":  0,
+                                              "leftJoins":  0,
+                                              "tables":  0,
+                                              "groups":  0,
+                                              "characters":  507
+                                          },
+                        "indexed":  {
+                                        "triplePatterns":  3,
+                                        "basicGraphPatterns":  1,
+                                        "sequences":  0,
+                                        "leftJoins":  0,
+                                        "tables":  0,
+                                        "groups":  0,
+                                        "characters":  480
+                                    },
+                        "triplePatternReduction":  0
+                    }
+                ]
+}

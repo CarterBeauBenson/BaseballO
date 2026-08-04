@@ -57,6 +57,7 @@ REQUIRED_PATHS = (
     ROOT / "scripts" / "pipeline" / "query-index-common.ps1",
     ROOT / "scripts" / "pipeline" / "test-query-index.ps1",
     ROOT / "scripts" / "pipeline" / "benchmark-query-index.ps1",
+    ROOT / "scripts" / "pipeline" / "capture-query-algebra.ps1",
     ROOT / "scripts" / "pipeline" / "export-dehydration-package.ps1",
     ROOT / "scripts" / "pipeline" / "restore-dehydration-package.ps1",
     ROOT / "scripts" / "pipeline" / "validate-dehydration-package.py",
@@ -73,6 +74,8 @@ REQUIRED_PATHS = (
     ROOT / "benchmarks" / "query-index" / "README.md",
     ROOT / "benchmarks" / "query-index" / "fixture-566279-baseline.md",
     ROOT / "benchmarks" / "query-index" / "fixture-566279-baseline.json",
+    ROOT / "benchmarks" / "query-index" / "algebra" / "optimized-algebra-summary.md",
+    ROOT / "benchmarks" / "query-index" / "algebra" / "optimized-algebra-summary.json",
     SAMPLE,
 )
 
@@ -242,6 +245,30 @@ def validate_offline_pipeline_boundary() -> None:
             )
 
 
+def validate_query_index_algebra_artifacts() -> int:
+    pair_path = SPARQL_ROOT / "query-index" / "benchmarks" / "benchmark-pairs.json"
+    summary_path = ROOT / "benchmarks" / "query-index" / "algebra" / "optimized-algebra-summary.json"
+    algebra_root = summary_path.parent
+    pairs = json.loads(pair_path.read_text(encoding="utf-8"))["pairs"]
+    expected_names = {str(pair["name"]) for pair in pairs}
+    expected_plans = {
+        f"{name}-{layer}-opt.txt"
+        for name in expected_names
+        for layer in ("authoritative", "indexed")
+    }
+    actual_plans = {path.name for path in algebra_root.glob("*-opt.txt")}
+    if actual_plans != expected_plans:
+        raise ValueError(
+            "Optimized algebra plan set differs from the benchmark pairs: "
+            f"expected {len(expected_plans)}, found {len(actual_plans)}"
+        )
+    summary = json.loads(summary_path.read_text(encoding="utf-8"))
+    summary_names = {str(result["name"]) for result in summary.get("results", [])}
+    if summary_names != expected_names:
+        raise ValueError("Optimized algebra summary does not cover every benchmark pair")
+    return len(actual_plans)
+
+
 def main() -> None:
     require_layout()
     json_count = validate_json()
@@ -253,11 +280,13 @@ def main() -> None:
     validate_active_mapping()
     validate_rml_mermaid()
     validate_offline_pipeline_boundary()
+    algebra_plan_count = validate_query_index_algebra_artifacts()
     print(f"JSON files parsed: {json_count}")
     print(f"Turtle files parsed: {turtle_count}")
     print(f"SPARQL queries parsed: {sparql_count}")
     print(f"Markdown files checked: {markdown_count}")
     print(f"Mermaid blocks checked: {mermaid_count}")
+    print(f"Optimized ARQ algebra plans checked: {algebra_plan_count}")
     print("Active manual pipeline contains no MLB acquisition endpoint or command.")
     print("Repository validation passed.")
 

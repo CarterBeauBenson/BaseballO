@@ -1,0 +1,25 @@
+(prefix ((idx: <https://w3id.org/baseball/query-index/>)
+         (rdfs: <http://www.w3.org/2000/01/rdf-schema#>))
+  (project (?pitcher ?pitcherLabel ?pitches ?balls ?strikes ?plateAppearances)
+    (order ((desc ?pitches) (lcase (str ?pitcherLabel)))
+      (extend ((?pitches ?.0) (?balls ?.1) (?strikes ?.2) (?plateAppearances ?.3))
+        (group (?pitcher ?pitcherLabel) ((?.0 (count distinct ?pitch)) (?.1 (count distinct ?ball)) (?.2 (count distinct ?strike)) (?.3 (count distinct ?plateAppearance)))
+          (graph ?graph
+            (conditional
+              (conditional
+                (bgp
+                  (triple ?pitch <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> idx:PitchFact)
+                  (triple ?pitch idx:agent ?pitcher)
+                  (triple ?pitch idx:plateAppearance ?plateAppearance)
+                  (triple ?pitcher rdfs:label ?pitcherLabel)
+                )
+                (bgp
+                  (triple ?ball <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> idx:PitchCallFact)
+                  (triple ?ball idx:pitch ?pitch)
+                  (triple ?ball idx:callType idx:Ball)
+                ))
+              (bgp
+                (triple ?strike <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> idx:PitchCallFact)
+                (triple ?strike idx:pitch ?pitch)
+                (triple ?strike idx:callType idx:Strike)
+              ))))))))
