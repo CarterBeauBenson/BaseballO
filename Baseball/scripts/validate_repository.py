@@ -56,11 +56,17 @@ REQUIRED_PATHS = (
     ROOT / "scripts" / "pipeline" / "compile-query-index.py",
     ROOT / "scripts" / "pipeline" / "query-index-common.ps1",
     ROOT / "scripts" / "pipeline" / "test-query-index.ps1",
+    ROOT / "scripts" / "pipeline" / "benchmark-query-index.ps1",
     RML_MERMAID_GENERATOR,
     ROOT / "sparql" / "empty-games-prototype.rq",
     ROOT / "sparql" / "query-inventory.md",
     ROOT / "sparql" / "graph-condensation-requirements.md",
     ROOT / "sparql" / "query-index" / "README.md",
+    ROOT / "sparql" / "query-index" / "query-decision-matrix.md",
+    ROOT / "sparql" / "query-index" / "benchmarks" / "benchmark-pairs.json",
+    ROOT / "benchmarks" / "query-index" / "README.md",
+    ROOT / "benchmarks" / "query-index" / "fixture-566279-baseline.md",
+    ROOT / "benchmarks" / "query-index" / "fixture-566279-baseline.json",
     SAMPLE,
 )
 
@@ -112,11 +118,13 @@ def validate_turtle() -> int:
 def validate_sparql() -> int:
     files = list(SPARQL_ROOT.rglob("*.rq"))
     component_files = list((SPARQL_ROOT / "query-index" / "components").glob("*.rq"))
-    canned_files = [path for path in files if path not in component_files]
-    if len(canned_files) != 48 or len(component_files) != 12:
+    benchmark_files = list((SPARQL_ROOT / "query-index" / "benchmarks" / "indexed").glob("*.rq"))
+    canned_files = [path for path in files if path not in component_files and path not in benchmark_files]
+    if len(canned_files) != 48 or len(component_files) != 12 or len(benchmark_files) != 10:
         raise ValueError(
-            "Expected 48 canned SPARQL queries and 12 query-index components, "
-            f"found {len(canned_files)} and {len(component_files)}"
+            "Expected 48 canned SPARQL queries, 12 query-index components, "
+            f"and 10 indexed benchmark companions; found {len(canned_files)}, "
+            f"{len(component_files)}, and {len(benchmark_files)}"
         )
     for path in files:
         try:

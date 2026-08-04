@@ -1,0 +1,15 @@
+PREFIX idx: <https://w3id.org/baseball/query-index/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?player ?playerLabel ?eventType
+       (COUNT(DISTINCT ?result) AS ?plateAppearances)
+WHERE {
+  GRAPH ?graph {
+    ?result a idx:PlateAppearanceResultFact ;
+            idx:agent ?player ;
+            idx:sourceEventType ?eventType .
+    ?player rdfs:label ?playerLabel .
+  }
+}
+GROUP BY ?player ?playerLabel ?eventType
+ORDER BY LCASE(STR(?playerLabel)) DESC(?plateAppearances) ?eventType

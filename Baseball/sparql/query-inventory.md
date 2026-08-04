@@ -11,6 +11,12 @@ but has not yet replaced any canned or UI-compiled query. Its executable suite
 compares exact rows for ten recurring semantic families before that migration
 is considered.
 
+Contract version 1 classification is complete in
+[`query-index/query-decision-matrix.md`](query-index/query-decision-matrix.md):
+46 queries are structurally index-ready, while `empty-games-prototype.rq` and
+`game-timeline.rq` remain authoritative. No canonical query has been migrated
+on the strength of the single-game fixture.
+
 | Family | Query | Counted or returned entity | Required evidence and principal joins | Filters or dimensions | Status |
 | --- | --- | --- | --- | --- | --- |
 | Root | `hits-by-season.rq` | Distinct hit result and game | Specific hit class + `HitJudgmentAct`; result to plate appearance to game | Season | Aligned |

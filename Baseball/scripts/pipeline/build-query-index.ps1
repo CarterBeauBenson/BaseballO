@@ -92,6 +92,10 @@ try {
         throw 'Loaded query index has no valid provenance metadata resource.'
     }
 
+    # A shape-valid but incomplete index is unsafe for negative queries. Compare
+    # all supported semantic row sets before recording this build as current.
+    & (Join-Path $PSScriptRoot 'test-query-index.ps1') -GamePk $GamePk -SkipBuild -SkipManifestCheck
+
     Copy-Item -LiteralPath $compiledPath -Destination $finalPath -Force
     $indexSha256 = (Get-FileHash -LiteralPath $finalPath -Algorithm SHA256).Hash.ToLowerInvariant()
     $sourceRdfPath = Join-Path $pipelineRoot "rdf\game-$GamePk.ttl"

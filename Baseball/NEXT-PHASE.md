@@ -3,6 +3,26 @@
 Resume this plan on or after **2026-08-05**. The repository is deliberately
 paused with the live MLB acquisition flow disabled.
 
+## Progress on 2026-08-04
+
+- The accepted corpus inventory confirmed that game `566279` is still the only
+  active raw completed-game fixture. The archived preprocessing artifact is not
+  a second accepted fixture.
+- All 48 canned queries are classified in
+  [`sparql/query-index/query-decision-matrix.md`](sparql/query-index/query-decision-matrix.md):
+  46 are structurally index-ready and two remain authoritative.
+- Ten reviewed indexed companions now cover hits, batting, pitching,
+  baserunning, games, assignments, and UI options.
+- The index builder now runs exact semantic row equivalence before writing a
+  current manifest; shape-valid but incomplete indexes are removed.
+- A reproducible 20-iteration single-fixture benchmark is recorded under
+  [`benchmarks/query-index/`](benchmarks/query-index/). All ten result sets were
+  exactly equivalent. Indexed medians ranged from 1.011x to 3.720x faster on
+  this fixture.
+- Canonical query and UI migration remains intentionally deferred pending
+  additional deliberately supplied fixtures and query-plan review. The timing
+  result is method-validation evidence, not a scale claim.
+
 ## Entry state
 
 - Branch `dev` is published through commit `aba8cd3`.

@@ -1,7 +1,8 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)][string] $GamePk,
-    [switch] $SkipBuild
+    [switch] $SkipBuild,
+    [switch] $SkipManifestCheck
 )
 
 . (Join-Path $PSScriptRoot '..\infra\common.ps1')
@@ -204,14 +205,16 @@ Assert-EquivalentRows -Name 'Game assignments' -Variables @('role', 'assignee', 
   VALUES ?game { <$gameIri> }
 "@
 
-$manifestPath = Join-Path $script:StateRoot "pipeline\manifests\game-$GamePk-query-index.json"
-$manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
-if ([string]$manifest.contractSha256 -ne (Get-QueryIndexContractHash)) {
-    throw 'Query-index manifest has a stale generation contract hash.'
-}
-if ([int64]$manifest.indexTripleCount -le 0 -or [int64]$manifest.indexTripleCount -ge [int64]$manifest.sourceTripleCount) {
-    throw 'Query-index manifest does not describe a smaller non-empty graph.'
+if (-not $SkipManifestCheck) {
+    $manifestPath = Join-Path $script:StateRoot "pipeline\manifests\game-$GamePk-query-index.json"
+    $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
+    if ([string]$manifest.contractSha256 -ne (Get-QueryIndexContractHash)) {
+        throw 'Query-index manifest has a stale generation contract hash.'
+    }
+    if ([int64]$manifest.indexTripleCount -le 0 -or [int64]$manifest.indexTripleCount -ge [int64]$manifest.sourceTripleCount) {
+        throw 'Query-index manifest does not describe a smaller non-empty graph.'
+    }
+    Write-Host "Source triples: $($manifest.sourceTripleCount); index triples: $($manifest.indexTripleCount)"
 }
 
 Write-Host 'Query-index equivalence suite passed.'
-Write-Host "Source triples: $($manifest.sourceTripleCount); index triples: $($manifest.indexTripleCount)"

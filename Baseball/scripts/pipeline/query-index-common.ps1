@@ -7,6 +7,7 @@ function Get-QueryIndexContractFiles {
         Get-Item -LiteralPath (Join-Path $script:RepositoryRoot 'scripts\pipeline\compile-query-index.py')
         Get-Item -LiteralPath (Join-Path $script:RepositoryRoot 'scripts\pipeline\build-query-index.ps1')
         Get-Item -LiteralPath (Join-Path $script:RepositoryRoot 'scripts\pipeline\query-index-common.ps1')
+        Get-Item -LiteralPath (Join-Path $script:RepositoryRoot 'scripts\pipeline\test-query-index.ps1')
     )
     return @($files | Sort-Object FullName)
 }

@@ -1,0 +1,16 @@
+PREFIX idx: <https://w3id.org/baseball/query-index/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?venue ?venueLabel ?pitcher ?pitcherLabel
+       (COUNT(DISTINCT ?pitch) AS ?pitches)
+WHERE {
+  GRAPH ?graph {
+    ?pitch a idx:PitchFact ;
+           idx:agent ?pitcher ;
+           idx:venue ?venue .
+    ?pitcher rdfs:label ?pitcherLabel .
+    ?venue rdfs:label ?venueLabel .
+  }
+}
+GROUP BY ?venue ?venueLabel ?pitcher ?pitcherLabel
+ORDER BY LCASE(STR(?venueLabel)) DESC(?pitches) LCASE(STR(?pitcherLabel))

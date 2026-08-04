@@ -57,7 +57,9 @@ With loopback Fuseki running and an authoritative game graph loaded:
 The builder performs all `CONSTRUCT` requests into a temporary directory,
 merges and validates them locally, and replaces the target named graph with one
 Graph Store Protocol `PUT`. If generation or loading fails, it removes the
-derived target graph so an old index cannot masquerade as current. The manual
+derived target graph so an old index cannot masquerade as current. Before a
+build is recorded as current, the builder also runs the complete semantic
+row-equivalence suite; a shape-valid but incomplete graph is rejected. The manual
 importer rebuilds the index after replacing an authoritative game graph and
 uses a hash of the complete generation contract for freshness checks.
 
@@ -94,6 +96,17 @@ GROUP BY ?season ?venue ?player ?playerLabel
 Switching the 48 canned queries or the UI compiler to this shape is a separate
 review step. Until that happens, they continue to query the authoritative
 graphs.
+
+The contract-level classification of every canned query is recorded in
+[`query-decision-matrix.md`](query-decision-matrix.md). Contract version 1 can
+express 46 queries; `empty-games-prototype.rq` and `game-timeline.rq` remain
+authoritative for completeness and temporal-evidence reasons.
+
+Ten indexed companions under [`benchmarks/indexed/`](benchmarks/indexed/) span
+all major query families. They are paired with the existing authoritative
+queries by [`benchmark-pairs.json`](benchmarks/benchmark-pairs.json) and can be
+run through the reproducible workflow documented in
+[`benchmarks/query-index/`](../../benchmarks/query-index/).
 
 ## Dehydration and rehydration boundary
 
