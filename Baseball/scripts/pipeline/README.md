@@ -54,6 +54,40 @@ The acceptance check also compares exact authoritative/index result rows for
 game dimensions, plate-appearance results, hits, pitches, pitch calls,
 batting acts, contacts, runner resolutions, stolen bases, and assignments.
 
+## Corpus query audit
+
+With the eight 2026-08-03 authoritative graphs loaded, verify all 48 canned
+queries against the checked-in row-set baseline:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File `
+  .\scripts\pipeline\audit-canned-queries.ps1 `
+  -VerifyBaseline
+```
+
+Run the same command without `-VerifyBaseline` only when intentionally
+regenerating the reviewed baseline. The audit explicitly scopes every query to
+the eight corpus graphs, detects empty and duplicate result sets, and records
+order-independent RDF-term-aware hashes under
+[`benchmarks/canned-query-audit/`](../../benchmarks/canned-query-audit/).
+
+## Query-index performance evidence
+
+With the eight corpus graphs and their current indexes loaded, reproduce the
+exact-result corpus benchmark and alternating 20-sample timings with:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File `
+  .\scripts\pipeline\benchmark-query-index-corpus.ps1
+```
+
+The checked-in report is under
+[`benchmarks/query-index/`](../../benchmarks/query-index/). To capture direct
+TDB2 query execution, stop Fuseki first, run
+`capture-tdb2-query-execution.ps1`, and restart Fuseki immediately afterward.
+The capture script refuses to run while port 3030 is open so two processes
+cannot access the datastore concurrently.
+
 ## Portable dehydration packages
 
 [`export-dehydration-package.ps1`](export-dehydration-package.ps1) creates a

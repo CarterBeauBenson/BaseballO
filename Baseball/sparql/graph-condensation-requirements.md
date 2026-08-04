@@ -24,8 +24,9 @@ RML, raw source, or existing canned-query semantics.
 - The build manifest records the component-contract hash, source and index
   graph IRIs, optional local authoritative RDF hash, graph sizes, index hash,
   fact counts, and timestamps.
-- Exact full-pattern/index row-set equivalence is executable for ten semantic
-  families. See [`query-index/`](query-index/).
+- Exact full-pattern/index row-set equivalence is executable for eleven
+  semantic families, including UTF-8 label fidelity. See
+  [`query-index/`](query-index/).
 
 ## Invariants
 
@@ -65,21 +66,17 @@ the batter act, person participation, result, judgment, and containment chain.
 
 ## Decisions still required before production promotion
 
-1. Which TDB2 indexes and Fuseki query shapes should be benchmarked before
-   adding ontology-level shortcuts?
-2. What is the dehydration package format, and what exact inputs are required
-   to rehydrate both the authoritative and condensed layers?
-3. Which of the 48 canned queries and UI components should switch to the
-   operational index after multi-game benchmarks?
-4. Should any operational term eventually be promoted to an ontology property,
+1. Which of the 48 canned queries and UI components should switch to the
+   operational index based on the completed multi-game benchmarks?
+2. Should any operational term eventually be promoted to an ontology property,
    and if so, what domain/range axioms and name should the project ontologist
    approve?
-5. How should old per-game index graphs and manifests be garbage-collected at
+3. How should old per-game index graphs and manifests be garbage-collected at
    production scale?
 
 ## Review deliverables
 
 - an approved list of canned/UI queries to migrate;
-- a portable dehydration package manifest;
-- failure-injection tests for regeneration and stale-data removal; and
-- measured query plans and timings on representative graph sizes.
+- a reviewed migration decision for the seven traversal-heavy benchmark
+  families; and
+- a garbage-collection policy for production-scale per-game derived graphs.

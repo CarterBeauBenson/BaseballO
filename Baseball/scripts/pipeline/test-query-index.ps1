@@ -76,6 +76,7 @@ $cco = 'https://www.commoncoreontologies.org/'
 $idx = 'https://w3id.org/baseball/query-index/'
 $obo = 'http://purl.obolibrary.org/obo/'
 $dcterms = 'http://purl.org/dc/terms/'
+$rdfs = 'http://www.w3.org/2000/01/rdf-schema#'
 
 Assert-EquivalentRows -Name 'Game dimensions' -Variables @('game', 'season', 'venue') -FullPattern @"
   VALUES ?game { <$gameIri> }
@@ -86,6 +87,12 @@ Assert-EquivalentRows -Name 'Game dimensions' -Variables @('game', 'season', 've
 "@ -IndexPattern @"
   VALUES ?game { <$gameIri> }
   ?game a <${idx}GameFact> ; <${idx}season> ?season ; <${idx}venue> ?venue .
+"@
+
+Assert-EquivalentRows -Name 'Label fidelity' -Variables @('resource', 'label') -FullPattern @"
+  ?resource <${rdfs}label> ?label .
+"@ -IndexPattern @"
+  ?resource <${rdfs}label> ?label .
 "@
 
 Assert-EquivalentRows -Name 'Plate-appearance results' -Variables @('result', 'plateAppearance', 'player', 'outcomeClass', 'eventType', 'game') -FullPattern @"

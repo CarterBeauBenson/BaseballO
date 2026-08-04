@@ -38,11 +38,11 @@ function Get-ScopedQuery {
         throw "Benchmark query was not found: $queryPath"
     }
     $query = Get-Content -LiteralPath $queryPath -Raw
-    $graphPattern = [regex]::new('GRAPH\s+\?graph\s*\{', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
-    if ($graphPattern.Matches($query).Count -ne 1) {
-        throw "Benchmark query must contain exactly one GRAPH ?graph block: $RelativePath"
+    $wherePattern = [regex]::new('\bWHERE\s*\{', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    if ($wherePattern.Matches($query).Count -lt 1) {
+        throw "Benchmark query must contain an outer WHERE block: $RelativePath"
     }
-    return $graphPattern.Replace($query, "GRAPH <$GraphIri> {")
+    return $wherePattern.Replace($query, "WHERE {`n  VALUES ?graph { <$GraphIri> }", 1)
 }
 
 function Invoke-TimedQuery {

@@ -63,8 +63,11 @@ row-equivalence suite; a shape-valid but incomplete graph is rejected. The manua
 importer rebuilds the index after replacing an authoritative game graph and
 uses a hash of the complete generation contract for freshness checks.
 
-The test suite compares exact distinct row sets for all ten semantic families
-in both directions. The checked-in fixture currently yields 6,617 index
+The test suite compares exact distinct row sets for all eleven semantic
+families in both directions, including a label-fidelity check that detects
+encoding changes. The builder writes Fuseki's returned Turtle bytes directly
+so UTF-8 labels are never round-tripped through Windows PowerShell's legacy
+text decoding. The checked-in fixture currently yields 6,617 index
 triples from 28,419 authoritative triples, with equivalent identities for 21
 hits, 282 pitches, 185 pitch calls, 134 batting acts, 112 contacts, 113 runner
 resolutions, one stolen base, and seven assignments.
@@ -107,6 +110,10 @@ all major query families. They are paired with the existing authoritative
 queries by [`benchmark-pairs.json`](benchmarks/benchmark-pairs.json) and can be
 run through the reproducible workflow documented in
 [`benchmarks/query-index/`](../../benchmarks/query-index/).
+The eight-game corpus results show meaningful median improvements for seven
+traversal-heavy pairs (2.16x to 9.34x) and effectively neutral results for the
+three simple lookup pairs. Direct TDB2 execution traces are stored beside the
+timing baselines.
 
 ## Dehydration and rehydration boundary
 

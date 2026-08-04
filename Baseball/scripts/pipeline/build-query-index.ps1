@@ -68,7 +68,29 @@ try {
         }
         $response = Invoke-WebRequest -Uri $queryEndpoint -Method Post -Body @{ query = $query } -Headers @{ Accept = 'text/turtle' } -UseBasicParsing
         $componentOutput = Join-Path $componentOutputRoot "$($componentFile.BaseName).ttl"
-        [System.IO.File]::WriteAllText($componentOutput, [string]$response.Content, [System.Text.UTF8Encoding]::new($false))
+        # Fuseki currently returns text/turtle without a charset parameter.
+        # Windows PowerShell 5.1 decodes response.Content as ISO-8859-1 in that
+        # case, corrupting UTF-8 labels before compilation. Preserve the exact
+        # response bytes and let rdflib parse Turtle as UTF-8.
+        $rawStream = $response.RawContentStream
+        if ($null -eq $rawStream) {
+            throw "Fuseki returned no raw response stream for $($componentFile.Name)"
+        }
+        if ($rawStream.CanSeek) {
+            $rawStream.Position = 0
+        }
+        $outputStream = [System.IO.File]::Open(
+            $componentOutput,
+            [System.IO.FileMode]::Create,
+            [System.IO.FileAccess]::Write,
+            [System.IO.FileShare]::None
+        )
+        try {
+            $rawStream.CopyTo($outputStream)
+        }
+        finally {
+            $outputStream.Dispose()
+        }
     }
 
     & python $compilerPath --inputs $componentOutputRoot --output $compiledPath --stats $statsPath --game-pk $GamePk --source-graph $sourceGraph --index-resource $indexResource
@@ -100,8 +122,9 @@ try {
         throw 'Loaded query index has no valid provenance metadata resource.'
     }
 
-    # A shape-valid but incomplete index is unsafe for negative queries. Compare
-    # all supported semantic row sets before recording this build as current.
+    # A shape-valid but incomplete or lexically corrupted index is unsafe.
+    # Compare all supported semantic row sets, including exact labels, before
+    # recording this build as current.
     & (Join-Path $PSScriptRoot 'test-query-index.ps1') -GamePk $GamePk -SkipBuild -SkipManifestCheck
 
     if (-not $usesCanonicalComponents) {

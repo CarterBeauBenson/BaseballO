@@ -6,11 +6,11 @@ facts and dimensions needed to express the same result shape. It does not mean
 the canonical query has been migrated or that performance has been proven at
 scale.
 
-The accepted corpus currently contains only completed game `566279`. The JSON
-under `archive/stage1-preprocessing-prototype/` is a superseded transformed
-artifact without the active raw-game contract and is not a second fixture.
-Multi-game performance acceptance therefore remains deferred until additional
-completed games are deliberately supplied without enabling live acquisition.
+The accepted performance corpus contains the eight completed 2026-08-03 games
+and excludes development fixture `566279`. All ten representative indexed
+companions return exact corpus row sets. Seven traversal-heavy pairs improve by
+2.16x to 9.34x at the median; three simple lookup pairs are within 7% and do not
+justify migration on performance grounds.
 
 ## Summary
 
@@ -19,6 +19,30 @@ completed games are deliberately supplied without enabling live acquisition.
 | Index-ready | 46 | Contract version 1 can express the complete result shape; equivalence and benchmarks are still required before migration |
 | Hybrid | 0 | No current query has a reviewed split execution plan |
 | Authoritative | 2 | Required completeness or temporal evidence is intentionally absent from the dehydrated graph |
+
+## Measured migration evidence
+
+These ten pairs have exact results across all eight accepted corpus graphs.
+`Candidate` means the measured benefit is large enough to stage a migration;
+it is not a silent switch of the canonical query or UI compiler.
+
+| Representative pair | Median speedup | Decision |
+| --- | ---: | --- |
+| `hits-by-player-and-venue` | 9.34x | Candidate |
+| `outcomes-by-player` | 2.16x | Candidate |
+| `pitches-by-pitcher-and-venue` | 2.20x | Candidate |
+| `pitch-summary-by-pitcher` | 4.45x | Candidate |
+| `batted-balls-by-batter-and-venue` | 3.43x | Candidate |
+| `events-by-player` | 4.18x | Candidate |
+| `runs-by-season-and-venue` | 6.88x | Candidate |
+| `games-by-team-and-season` | 1.07x | Stay authoritative |
+| `umpire-assignments` | 1.01x | Stay authoritative |
+| `available-players` | 1.07x | Stay authoritative |
+
+Direct TDB2 execution captures corroborate the shape reduction: for example,
+the hit pair drops from 24 to 8 TDB2 quad patterns and the runs pair drops from
+20 to 7. The normalized logs retain the first execution section and are
+evidence about planning behavior, not a substitute for the timing samples.
 
 ## All canned queries
 

@@ -1,0 +1,114 @@
+INFO  exec            :: QUERY
+  PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+  PREFIX  obo:  <http://purl.obolibrary.org/obo/>
+  PREFIX  cco:  <https://www.commoncoreontologies.org/>
+  PREFIX  base: <https://baseballontology.org/>
+
+  SELECT  ?venue ?venueLabel ?player ?playerLabel (COUNT(DISTINCT ?battedBall) AS ?battedBalls)
+  WHERE
+    { VALUES ?graph { <https://w3id.org/baseball/graph/game/822867> <https://w3id.org/baseball/graph/game/823431> <https://w3id.org/baseball/graph/game/823520> <https://w3id.org/baseball/graph/game/823757> <https://w3id.org/baseball/graph/game/824160> <https://w3id.org/baseball/graph/game/824324> <https://w3id.org/baseball/graph/game/824647> <https://w3id.org/baseball/graph/game/825095> }
+      GRAPH ?graph
+        { ?battedBall  a             base:BattedBallMotionProcess ;
+                    obo:BFO_0000132  ?plateAppearance ;
+                    cco:ont00001918  ?field .
+          ?contact  a                base:BatBallContactProcess ;
+                    obo:BFO_0000063  ?battedBall .
+          ?batAct   a                ?batActClass ;
+                    obo:BFO_0000057  ?player ;
+                    obo:BFO_0000063  ?contact
+          VALUES ?batActClass { base:SwingAct base:BuntAct }
+          ?player  rdfs:label       ?playerLabel .
+          ?field   a                base:BaseballFieldSite ;
+                   obo:BFO_0000171  ?venue .
+          ?venue   a                base:BaseballVenue ;
+                   rdfs:label       ?venueLabel
+        }
+    }
+  GROUP BY ?venue ?venueLabel ?player ?playerLabel
+  ORDER BY lcase(str(?venueLabel)) DESC(?battedBalls) lcase(str(?playerLabel))
+INFO  exec            :: ALGEBRA
+  (project (?venue ?venueLabel ?player ?playerLabel ?battedBalls)
+    (order ((lcase (str ?venueLabel)) (desc ?battedBalls) (lcase (str ?playerLabel)))
+      (extend ((?battedBalls ?.0))
+        (group (?venue ?venueLabel ?player ?playerLabel) ((?.0 (count distinct ?battedBall)))
+          (sequence
+            (table (vars ?graph)
+              (row [?graph <https://w3id.org/baseball/graph/game/822867>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823431>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823520>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823757>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824160>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824324>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824647>])
+              (row [?graph <https://w3id.org/baseball/graph/game/825095>])
+            )
+            (sequence
+              (table (vars ?batActClass)
+                (row [?batActClass <https://baseballontology.org/SwingAct>])
+                (row [?batActClass <https://baseballontology.org/BuntAct>])
+              )
+              (quadpattern
+                (quad ?graph ?battedBall <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BattedBallMotionProcess>)
+                (quad ?graph ?battedBall <http://purl.obolibrary.org/obo/BFO_0000132> ?plateAppearance)
+                (quad ?graph ?battedBall <https://www.commoncoreontologies.org/ont00001918> ?field)
+                (quad ?graph ?contact <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BatBallContactProcess>)
+                (quad ?graph ?contact <http://purl.obolibrary.org/obo/BFO_0000063> ?battedBall)
+                (quad ?graph ?batAct <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?batActClass)
+                (quad ?graph ?batAct <http://purl.obolibrary.org/obo/BFO_0000057> ?player)
+                (quad ?graph ?batAct <http://purl.obolibrary.org/obo/BFO_0000063> ?contact)
+                (quad ?graph ?player <http://www.w3.org/2000/01/rdf-schema#label> ?playerLabel)
+                (quad ?graph ?field <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballFieldSite>)
+                (quad ?graph ?field <http://purl.obolibrary.org/obo/BFO_0000171> ?venue)
+                (quad ?graph ?venue <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballVenue>)
+                (quad ?graph ?venue <http://www.w3.org/2000/01/rdf-schema#label> ?venueLabel)
+              )))))))
+INFO  exec            :: TDB2
+  (project (?venue ?venueLabel ?player ?playerLabel ?battedBalls)
+    (order ((lcase (str ?venueLabel)) (desc ?battedBalls) (lcase (str ?playerLabel)))
+      (extend ((?battedBalls ?.0))
+        (group (?venue ?venueLabel ?player ?playerLabel) ((?.0 (count distinct ?battedBall)))
+          (sequence
+            (table (vars ?graph)
+              (row [?graph <https://w3id.org/baseball/graph/game/822867>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823431>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823520>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823757>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824160>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824324>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824647>])
+              (row [?graph <https://w3id.org/baseball/graph/game/825095>])
+            )
+            (sequence
+              (table (vars ?batActClass)
+                (row [?batActClass <https://baseballontology.org/SwingAct>])
+                (row [?batActClass <https://baseballontology.org/BuntAct>])
+              )
+              (quadpattern
+                (quad ?graph ?battedBall <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BattedBallMotionProcess>)
+                (quad ?graph ?battedBall <http://purl.obolibrary.org/obo/BFO_0000132> ?plateAppearance)
+                (quad ?graph ?battedBall <https://www.commoncoreontologies.org/ont00001918> ?field)
+                (quad ?graph ?contact <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BatBallContactProcess>)
+                (quad ?graph ?contact <http://purl.obolibrary.org/obo/BFO_0000063> ?battedBall)
+                (quad ?graph ?batAct <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?batActClass)
+                (quad ?graph ?batAct <http://purl.obolibrary.org/obo/BFO_0000057> ?player)
+                (quad ?graph ?batAct <http://purl.obolibrary.org/obo/BFO_0000063> ?contact)
+                (quad ?graph ?player <http://www.w3.org/2000/01/rdf-schema#label> ?playerLabel)
+                (quad ?graph ?field <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballFieldSite>)
+                (quad ?graph ?field <http://purl.obolibrary.org/obo/BFO_0000171> ?venue)
+                (quad ?graph ?venue <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballVenue>)
+                (quad ?graph ?venue <http://www.w3.org/2000/01/rdf-schema#label> ?venueLabel)
+              )))))))
+INFO  exec            :: Execute
+  ?battedBall rdf:type <https://baseballontology.org/BattedBallMotionProcess>
+  ?battedBall <http://purl.obolibrary.org/obo/BFO_0000132> ?plateAppearance
+  ?battedBall <https://www.commoncoreontologies.org/ont00001918> ?field
+  ?field rdf:type <https://baseballontology.org/BaseballFieldSite>
+  ?field <http://purl.obolibrary.org/obo/BFO_0000171> ?venue
+  ?venue rdf:type <https://baseballontology.org/BaseballVenue>
+  ?venue rdfs:label ?venueLabel
+  ?contact <http://purl.obolibrary.org/obo/BFO_0000063> ?battedBall
+  ?contact rdf:type <https://baseballontology.org/BatBallContactProcess>
+  ?batAct <http://purl.obolibrary.org/obo/BFO_0000063> ?contact
+  ?batAct rdf:type ?batActClass
+  ?batAct <http://purl.obolibrary.org/obo/BFO_0000057> ?player
+  ?player rdfs:label ?playerLabel

@@ -1,0 +1,104 @@
+INFO  exec            :: QUERY
+  PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+  PREFIX  obo:  <http://purl.obolibrary.org/obo/>
+  PREFIX  cco:  <https://www.commoncoreontologies.org/>
+  PREFIX  base: <https://baseballontology.org/>
+
+  SELECT  ?season ?team ?teamLabel (COUNT(DISTINCT ?game) AS ?games)
+  WHERE
+    { VALUES ?graph { <https://w3id.org/baseball/graph/game/822867> <https://w3id.org/baseball/graph/game/823431> <https://w3id.org/baseball/graph/game/823520> <https://w3id.org/baseball/graph/game/823757> <https://w3id.org/baseball/graph/game/824160> <https://w3id.org/baseball/graph/game/824324> <https://w3id.org/baseball/graph/game/824647> <https://w3id.org/baseball/graph/game/825095> }
+      GRAPH ?graph
+        { ?game  a  base:BaseballGame .
+          ?game obo:BFO_0000199/obo:BFO_0000222 ?startInstant .
+          ?timestamp  a              base:BaseballTimestampICE ;
+                    cco:ont00001916  ?startInstant ;
+                    cco:ont00001767  ?gameStart .
+          ?teamRole  obo:BFO_0000197  ?team ;
+                    obo:BFO_0000054  ?game .
+          ?team     rdfs:label       ?teamLabel
+          VALUES ?teamRoleType { base:HomeTeamRole base:AwayTeamRole }
+          ?teamRole  a  ?teamRoleType
+          BIND(year(?gameStart) AS ?season)
+        }
+    }
+  GROUP BY ?season ?team ?teamLabel
+  ORDER BY ?season DESC(?games) lcase(str(?teamLabel))
+INFO  exec            :: ALGEBRA
+  (project (?season ?team ?teamLabel ?games)
+    (order (?season (desc ?games) (lcase (str ?teamLabel)))
+      (extend ((?games ?.0))
+        (group (?season ?team ?teamLabel) ((?.0 (count distinct ?game)))
+          (join
+            (table (vars ?graph)
+              (row [?graph <https://w3id.org/baseball/graph/game/822867>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823431>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823520>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823757>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824160>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824324>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824647>])
+              (row [?graph <https://w3id.org/baseball/graph/game/825095>])
+            )
+            (extend ((?season (year ?gameStart)))
+              (sequence
+                (table (vars ?teamRoleType)
+                  (row [?teamRoleType <https://baseballontology.org/HomeTeamRole>])
+                  (row [?teamRoleType <https://baseballontology.org/AwayTeamRole>])
+                )
+                (quadpattern
+                  (quad ?graph ?game <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballGame>)
+                  (quad ?graph ?game <http://purl.obolibrary.org/obo/BFO_0000199> ??P0)
+                  (quad ?graph ??P0 <http://purl.obolibrary.org/obo/BFO_0000222> ?startInstant)
+                  (quad ?graph ?timestamp <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballTimestampICE>)
+                  (quad ?graph ?timestamp <https://www.commoncoreontologies.org/ont00001916> ?startInstant)
+                  (quad ?graph ?timestamp <https://www.commoncoreontologies.org/ont00001767> ?gameStart)
+                  (quad ?graph ?teamRole <http://purl.obolibrary.org/obo/BFO_0000197> ?team)
+                  (quad ?graph ?teamRole <http://purl.obolibrary.org/obo/BFO_0000054> ?game)
+                  (quad ?graph ?team <http://www.w3.org/2000/01/rdf-schema#label> ?teamLabel)
+                  (quad ?graph ?teamRole <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?teamRoleType)
+                ))))))))
+INFO  exec            :: TDB2
+  (project (?season ?team ?teamLabel ?games)
+    (order (?season (desc ?games) (lcase (str ?teamLabel)))
+      (extend ((?games ?.0))
+        (group (?season ?team ?teamLabel) ((?.0 (count distinct ?game)))
+          (join
+            (table (vars ?graph)
+              (row [?graph <https://w3id.org/baseball/graph/game/822867>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823431>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823520>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823757>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824160>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824324>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824647>])
+              (row [?graph <https://w3id.org/baseball/graph/game/825095>])
+            )
+            (extend ((?season (year ?gameStart)))
+              (sequence
+                (table (vars ?teamRoleType)
+                  (row [?teamRoleType <https://baseballontology.org/HomeTeamRole>])
+                  (row [?teamRoleType <https://baseballontology.org/AwayTeamRole>])
+                )
+                (quadpattern
+                  (quad ?graph ?game <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballGame>)
+                  (quad ?graph ?game <http://purl.obolibrary.org/obo/BFO_0000199> ??P0)
+                  (quad ?graph ??P0 <http://purl.obolibrary.org/obo/BFO_0000222> ?startInstant)
+                  (quad ?graph ?timestamp <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballTimestampICE>)
+                  (quad ?graph ?timestamp <https://www.commoncoreontologies.org/ont00001916> ?startInstant)
+                  (quad ?graph ?timestamp <https://www.commoncoreontologies.org/ont00001767> ?gameStart)
+                  (quad ?graph ?teamRole <http://purl.obolibrary.org/obo/BFO_0000197> ?team)
+                  (quad ?graph ?teamRole <http://purl.obolibrary.org/obo/BFO_0000054> ?game)
+                  (quad ?graph ?team <http://www.w3.org/2000/01/rdf-schema#label> ?teamLabel)
+                  (quad ?graph ?teamRole <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?teamRoleType)
+                ))))))))
+INFO  exec            :: Execute
+  ?game rdf:type <https://baseballontology.org/BaseballGame>
+  ?game <http://purl.obolibrary.org/obo/BFO_0000199> ??P0
+  ??P0 <http://purl.obolibrary.org/obo/BFO_0000222> ?startInstant
+  ?timestamp <https://www.commoncoreontologies.org/ont00001916> ?startInstant
+  ?timestamp rdf:type <https://baseballontology.org/BaseballTimestampICE>
+  ?timestamp <https://www.commoncoreontologies.org/ont00001767> ?gameStart
+  ?teamRole <http://purl.obolibrary.org/obo/BFO_0000054> ?game
+  ?teamRole rdf:type ?teamRoleType
+  ?teamRole <http://purl.obolibrary.org/obo/BFO_0000197> ?team
+  ?team rdfs:label ?teamLabel

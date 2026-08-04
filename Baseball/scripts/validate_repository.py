@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 import subprocess
@@ -30,6 +31,12 @@ QUERY_BUILDERS = (
     ROOT / "web" / "query-builder" / "hit-query-builder.js",
 )
 WEB_ROOT = ROOT / "web"
+CANNED_AUDIT_ROOT = ROOT / "benchmarks" / "canned-query-audit"
+CANNED_AUDIT_BASELINE = CANNED_AUDIT_ROOT / "corpus-2026-08-03-baseline.json"
+QUERY_INDEX_BENCHMARK_ROOT = ROOT / "benchmarks" / "query-index"
+QUERY_INDEX_CORPUS_BASELINE = QUERY_INDEX_BENCHMARK_ROOT / "corpus-2026-08-03-baseline.json"
+TDB2_EXECUTION_ROOT = QUERY_INDEX_BENCHMARK_ROOT / "tdb2-execution"
+TDB2_EXECUTION_SUMMARY = TDB2_EXECUTION_ROOT / "tdb2-execution-summary.json"
 
 REQUIRED_PATHS = (
     ROOT / "README.md",
@@ -68,12 +75,15 @@ REQUIRED_PATHS = (
     ROOT / "scripts" / "pipeline" / "query-index-common.ps1",
     ROOT / "scripts" / "pipeline" / "test-query-index.ps1",
     ROOT / "scripts" / "pipeline" / "benchmark-query-index.ps1",
+    ROOT / "scripts" / "pipeline" / "benchmark-query-index-corpus.ps1",
+    ROOT / "scripts" / "pipeline" / "capture-tdb2-query-execution.ps1",
     ROOT / "scripts" / "pipeline" / "capture-query-algebra.ps1",
     ROOT / "scripts" / "pipeline" / "export-dehydration-package.ps1",
     ROOT / "scripts" / "pipeline" / "restore-dehydration-package.ps1",
     ROOT / "scripts" / "pipeline" / "validate-dehydration-package.py",
     ROOT / "scripts" / "pipeline" / "test-dehydration-package.ps1",
     ROOT / "scripts" / "pipeline" / "test-query-index-failure.ps1",
+    ROOT / "scripts" / "pipeline" / "audit-canned-queries.ps1",
     RML_MERMAID_GENERATOR,
     ROOT / "sparql" / "empty-games-prototype.rq",
     ROOT / "sparql" / "query-inventory.md",
@@ -85,8 +95,15 @@ REQUIRED_PATHS = (
     ROOT / "benchmarks" / "query-index" / "README.md",
     ROOT / "benchmarks" / "query-index" / "fixture-566279-baseline.md",
     ROOT / "benchmarks" / "query-index" / "fixture-566279-baseline.json",
+    ROOT / "benchmarks" / "query-index" / "corpus-2026-08-03-baseline.md",
+    QUERY_INDEX_CORPUS_BASELINE,
     ROOT / "benchmarks" / "query-index" / "algebra" / "optimized-algebra-summary.md",
     ROOT / "benchmarks" / "query-index" / "algebra" / "optimized-algebra-summary.json",
+    TDB2_EXECUTION_ROOT / "README.md",
+    TDB2_EXECUTION_SUMMARY,
+    CANNED_AUDIT_ROOT / "README.md",
+    CANNED_AUDIT_ROOT / "corpus-2026-08-03-baseline.md",
+    CANNED_AUDIT_BASELINE,
     SAMPLE,
 )
 
@@ -299,6 +316,207 @@ def validate_web_app() -> None:
     )
 
 
+def sha256_file(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def query_index_contract_sha256() -> str:
+    contract_files = list(
+        (SPARQL_ROOT / "query-index" / "components").glob("*.rq")
+    ) + [
+        ROOT / "scripts" / "pipeline" / "compile-query-index.py",
+        ROOT / "scripts" / "pipeline" / "build-query-index.ps1",
+        ROOT / "scripts" / "pipeline" / "query-index-common.ps1",
+        ROOT / "scripts" / "pipeline" / "test-query-index.ps1",
+    ]
+    lines = [
+        f"{path.relative_to(ROOT).as_posix()}={sha256_file(path)}"
+        for path in sorted(contract_files, key=lambda item: str(item.resolve()).lower())
+    ]
+    return hashlib.sha256("\n".join(lines).encode("utf-8")).hexdigest()
+
+
+def query_index_pairs() -> list[dict[str, object]]:
+    path = SPARQL_ROOT / "query-index" / "benchmarks" / "benchmark-pairs.json"
+    return json.loads(path.read_text(encoding="utf-8"))["pairs"]
+
+
+def validate_query_index_benchmarks() -> int:
+    current_contract = query_index_contract_sha256()
+    fixture = json.loads(
+        (QUERY_INDEX_BENCHMARK_ROOT / "fixture-566279-baseline.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    if fixture.get("queryIndexContractSha256") != current_contract:
+        raise ValueError("Single-fixture query-index benchmark contract is stale")
+
+    report = json.loads(QUERY_INDEX_CORPUS_BASELINE.read_text(encoding="utf-8"))
+    if report.get("artifactType") != "baseball-query-index-corpus-benchmark":
+        raise ValueError("Corpus query-index benchmark has an unknown artifact type")
+    if report.get("queryIndexContractSha256") != current_contract:
+        raise ValueError("Corpus query-index benchmark contract is stale")
+
+    audit = json.loads(CANNED_AUDIT_BASELINE.read_text(encoding="utf-8"))
+    if report.get("corpusSha256") != audit.get("corpusSha256"):
+        raise ValueError("Corpus benchmark and canned-query audit use different corpora")
+    if int(report.get("authoritativeTripleCount", -1)) != int(
+        audit.get("authoritativeTripleCount", -2)
+    ):
+        raise ValueError("Corpus benchmark authoritative triple count is inconsistent")
+    if int(report.get("queryIndexTripleCount", -1)) != 53530:
+        raise ValueError("Corpus benchmark query-index triple count is unexpected")
+
+    pairs = query_index_pairs()
+    expected_names = {str(pair["name"]) for pair in pairs}
+    results = report.get("results", [])
+    if len(results) != len(pairs) or {str(item.get("name")) for item in results} != expected_names:
+        raise ValueError("Corpus benchmark does not cover the exact query-pair manifest")
+    pair_by_name = {str(pair["name"]): pair for pair in pairs}
+    iterations = int(report.get("iterationsPerQueryAndLayer", -1))
+    if iterations != 20:
+        raise ValueError("Corpus benchmark must retain 20 samples per query and layer")
+    for result in results:
+        pair = pair_by_name[str(result["name"])]
+        for layer, pair_key, report_key in (
+            ("authoritative", "authoritative", "authoritativeQuery"),
+            ("indexed", "indexed", "indexedQuery"),
+        ):
+            relative_path = str(pair[pair_key])
+            if result.get(report_key) != relative_path:
+                raise ValueError(f"Corpus benchmark query path differs for {result['name']}")
+            if result.get(f"{layer}QuerySha256") != sha256_file(ROOT / relative_path):
+                raise ValueError(f"Corpus benchmark query hash is stale for {result['name']}")
+            samples = result.get(layer, {}).get("samplesMilliseconds", [])
+            if len(samples) != iterations or any(float(value) < 0 for value in samples):
+                raise ValueError(f"Invalid corpus timing samples for {result['name']} {layer}")
+        if int(result.get("resultRows", -1)) < 0:
+            raise ValueError(f"Invalid corpus result count for {result['name']}")
+        if not re.fullmatch(r"[0-9a-f]{64}", str(result.get("rowSetSha256", ""))):
+            raise ValueError(f"Invalid corpus row-set hash for {result['name']}")
+    return len(results)
+
+
+def validate_tdb2_execution_capture() -> int:
+    report = json.loads(TDB2_EXECUTION_SUMMARY.read_text(encoding="utf-8"))
+    if report.get("artifactType") != "baseball-query-index-tdb2-execution-capture":
+        raise ValueError("TDB2 execution capture has an unknown artifact type")
+    current_contract = query_index_contract_sha256()
+    if report.get("queryIndexContractSha256") != current_contract:
+        raise ValueError("TDB2 execution capture query-index contract is stale")
+    audit = json.loads(CANNED_AUDIT_BASELINE.read_text(encoding="utf-8"))
+    if report.get("corpusSha256") != audit.get("corpusSha256"):
+        raise ValueError("TDB2 execution capture and canned-query audit use different corpora")
+
+    pairs = query_index_pairs()
+    expected = {
+        (str(pair["name"]), layer): str(pair[layer])
+        for pair in pairs
+        for layer in ("authoritative", "indexed")
+    }
+    results = report.get("results", [])
+    actual = {(str(item.get("name")), str(item.get("layer"))) for item in results}
+    if len(results) != 20 or actual != set(expected):
+        raise ValueError("TDB2 execution capture does not cover the exact 20 query layers")
+
+    expected_logs: set[str] = set()
+    for result in results:
+        key = (str(result["name"]), str(result["layer"]))
+        relative_query = expected[key]
+        if result.get("query") != relative_query:
+            raise ValueError(f"TDB2 capture query path differs for {key[0]} {key[1]}")
+        if result.get("querySha256") != sha256_file(ROOT / relative_query):
+            raise ValueError(f"TDB2 capture query hash is stale for {key[0]} {key[1]}")
+        log_name = str(result["log"])
+        expected_logs.add(log_name)
+        log_path = TDB2_EXECUTION_ROOT / log_name
+        if not log_path.is_file():
+            raise ValueError(f"TDB2 execution log is missing or changed: {log_name}")
+        log_text = log_path.read_text(encoding="utf-8")
+        normalized_log_hash = hashlib.sha256(log_text.encode("utf-8")).hexdigest()
+        if result.get("logSha256") != normalized_log_hash:
+            raise ValueError(f"TDB2 execution log is missing or changed: {log_name}")
+        if ":: TDB2" not in log_text or ":: Execute" not in log_text:
+            raise ValueError(f"TDB2 execution log lacks required sections: {log_name}")
+        if int(result.get("tdb2QuadPatterns", 0)) <= 0:
+            raise ValueError(f"TDB2 execution log has no quad patterns: {log_name}")
+        if int(result.get("executionTraceLineCount", 0)) <= 0:
+            raise ValueError(f"TDB2 execution log has no execution trace: {log_name}")
+    actual_logs = {path.name for path in TDB2_EXECUTION_ROOT.glob("*.log")}
+    if actual_logs != expected_logs:
+        raise ValueError("TDB2 execution log directory differs from its summary")
+    return len(results)
+
+
+def validate_canned_query_audit() -> int:
+    report = json.loads(CANNED_AUDIT_BASELINE.read_text(encoding="utf-8"))
+    if report.get("artifactType") != "baseball-authoritative-canned-query-corpus-audit":
+        raise ValueError("Canned-query audit has an unknown artifact type")
+
+    component_files = set((SPARQL_ROOT / "query-index" / "components").glob("*.rq"))
+    indexed_files = set((SPARQL_ROOT / "query-index" / "benchmarks" / "indexed").glob("*.rq"))
+    canned_files = sorted(
+        path for path in SPARQL_ROOT.rglob("*.rq")
+        if path not in component_files and path not in indexed_files
+    )
+    expected_paths = {path.relative_to(ROOT).as_posix() for path in canned_files}
+    results = report.get("results", [])
+    actual_paths = {str(result.get("query")) for result in results}
+    if len(canned_files) != 48 or len(results) != 48 or actual_paths != expected_paths:
+        raise ValueError("Canned-query audit does not cover the exact 48-query library")
+
+    for result in results:
+        query_path = ROOT / str(result["query"])
+        if str(result.get("querySha256")) != sha256_file(query_path):
+            raise ValueError(
+                f"Canned-query baseline is stale for {result['query']}; rerun the live audit"
+            )
+        if int(result.get("rowCount", 0)) <= 0:
+            raise ValueError(f"Canned-query baseline contains an empty result: {result['query']}")
+        if int(result.get("duplicateRowCount", -1)) != 0:
+            raise ValueError(f"Canned-query baseline contains duplicate rows: {result['query']}")
+        if not re.fullmatch(r"[0-9a-f]{64}", str(result.get("rowSetSha256", ""))):
+            raise ValueError(f"Invalid row-set hash for {result['query']}")
+
+    mapping_hash = sha256_file(ACTIVE_MAPPING)
+    if str(report.get("mappingSha256")) != mapping_hash:
+        raise ValueError("Canned-query audit mapping hash is stale")
+
+    snapshots = report.get("graphSnapshots", [])
+    if len(snapshots) != 8:
+        raise ValueError("Canned-query audit must cover exactly eight authoritative graphs")
+    signature_lines = [f"mapping={mapping_hash}"]
+    total_triples = 0
+    for snapshot in snapshots:
+        game_pk = str(snapshot["gamePk"])
+        source_path = ROOT / str(snapshot["sourcePath"])
+        expected_source = ROOT / "data" / "raw" / "samples" / "2026-08-03" / f"{game_pk}.json"
+        if source_path.resolve() != expected_source.resolve():
+            raise ValueError(f"Unexpected canned-query audit source path for game {game_pk}")
+        source_hash = sha256_file(source_path)
+        if str(snapshot.get("sourceSha256")) != source_hash:
+            raise ValueError(f"Canned-query audit source hash is stale for game {game_pk}")
+        graph_iri = f"https://w3id.org/baseball/graph/game/{game_pk}"
+        if str(snapshot.get("graphIri")) != graph_iri:
+            raise ValueError(f"Unexpected canned-query audit graph IRI for game {game_pk}")
+        triple_count = int(snapshot["authoritativeTripleCount"])
+        total_triples += triple_count
+        signature_lines.append(f"{graph_iri}|{source_hash}|{triple_count}")
+
+    corpus_hash = hashlib.sha256("\n".join(signature_lines).encode("utf-8")).hexdigest()
+    if str(report.get("corpusSha256")) != corpus_hash:
+        raise ValueError("Canned-query audit corpus signature is invalid")
+    if int(report.get("authoritativeTripleCount", -1)) != total_triples:
+        raise ValueError("Canned-query audit authoritative triple total is inconsistent")
+    if int(report.get("nonEmptyQueryCount", -1)) != 48:
+        raise ValueError("Canned-query audit non-empty count is inconsistent")
+    if int(report.get("zeroRowQueryCount", -1)) != 0:
+        raise ValueError("Canned-query audit reports zero-row queries")
+    if int(report.get("queriesWithDuplicateRows", -1)) != 0:
+        raise ValueError("Canned-query audit reports duplicate rows")
+    return len(results)
+
+
 def main() -> None:
     require_layout()
     json_count = validate_json()
@@ -311,6 +529,9 @@ def main() -> None:
     validate_rml_mermaid()
     validate_offline_pipeline_boundary()
     validate_web_app()
+    canned_audit_count = validate_canned_query_audit()
+    query_index_benchmark_count = validate_query_index_benchmarks()
+    tdb2_capture_count = validate_tdb2_execution_capture()
     algebra_plan_count = validate_query_index_algebra_artifacts()
     print(f"JSON files parsed: {json_count}")
     print(f"Turtle files parsed: {turtle_count}")
@@ -319,6 +540,9 @@ def main() -> None:
     print(f"Mermaid blocks checked: {mermaid_count}")
     print(f"Optimized ARQ algebra plans checked: {algebra_plan_count}")
     print("Local web explorer checks passed.")
+    print(f"Canned-query corpus baselines checked: {canned_audit_count}")
+    print(f"Corpus query-index benchmark pairs checked: {query_index_benchmark_count}")
+    print(f"TDB2 query execution captures checked: {tdb2_capture_count}")
     print("Active manual pipeline contains no MLB acquisition endpoint or command.")
     print("Repository validation passed.")
 

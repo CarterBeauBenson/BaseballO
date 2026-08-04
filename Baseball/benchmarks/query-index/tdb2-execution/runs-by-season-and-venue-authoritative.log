@@ -1,0 +1,132 @@
+INFO  exec            :: QUERY
+  PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+  PREFIX  obo:  <http://purl.obolibrary.org/obo/>
+  PREFIX  cco:  <https://www.commoncoreontologies.org/>
+  PREFIX  base: <https://baseballontology.org/>
+
+  SELECT  ?season ?venue ?venueLabel (COUNT(DISTINCT ?run) AS ?runs) (COUNT(DISTINCT ?game) AS ?gamesWithRuns)
+  WHERE
+    { VALUES ?graph { <https://w3id.org/baseball/graph/game/822867> <https://w3id.org/baseball/graph/game/823431> <https://w3id.org/baseball/graph/game/823520> <https://w3id.org/baseball/graph/game/823757> <https://w3id.org/baseball/graph/game/824160> <https://w3id.org/baseball/graph/game/824324> <https://w3id.org/baseball/graph/game/824647> <https://w3id.org/baseball/graph/game/825095> }
+      GRAPH ?graph
+        { ?game  a  base:BaseballGame .
+          ?game obo:BFO_0000199/obo:BFO_0000222 ?startInstant .
+          ?timestamp  a              base:BaseballTimestampICE ;
+                    cco:ont00001916  ?startInstant ;
+                    cco:ont00001767  ?gameStart .
+          ?run      a                base:RunnerResolutionProcess ;
+                    a                base:RunProcess ;
+                    obo:BFO_0000132  ?plateAppearance ;
+                    obo:BFO_0000117  ?runJudgment ;
+                    cco:ont00001918  ?field .
+          ?plateAppearance
+                    a                base:PlateAppearance .
+          ?plateAppearance (obo:BFO_0000132/obo:BFO_0000132)/obo:BFO_0000132 ?game .
+          ?runJudgment  a            base:RunJudgmentAct .
+          ?field    a                base:BaseballFieldSite ;
+                    obo:BFO_0000171  ?venue .
+          ?venue    a                base:BaseballVenue ;
+                    rdfs:label       ?venueLabel
+          BIND(year(?gameStart) AS ?season)
+        }
+    }
+  GROUP BY ?season ?venue ?venueLabel
+  ORDER BY ?season DESC(?runs) lcase(str(?venueLabel))
+INFO  exec            :: ALGEBRA
+  (project (?season ?venue ?venueLabel ?runs ?gamesWithRuns)
+    (order (?season (desc ?runs) (lcase (str ?venueLabel)))
+      (extend ((?runs ?.0) (?gamesWithRuns ?.1))
+        (group (?season ?venue ?venueLabel) ((?.0 (count distinct ?run)) (?.1 (count distinct ?game)))
+          (join
+            (table (vars ?graph)
+              (row [?graph <https://w3id.org/baseball/graph/game/822867>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823431>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823520>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823757>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824160>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824324>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824647>])
+              (row [?graph <https://w3id.org/baseball/graph/game/825095>])
+            )
+            (extend ((?season (year ?gameStart)))
+              (quadpattern
+                (quad ?graph ?game <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballGame>)
+                (quad ?graph ?game <http://purl.obolibrary.org/obo/BFO_0000199> ??P0)
+                (quad ?graph ??P0 <http://purl.obolibrary.org/obo/BFO_0000222> ?startInstant)
+                (quad ?graph ?timestamp <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballTimestampICE>)
+                (quad ?graph ?timestamp <https://www.commoncoreontologies.org/ont00001916> ?startInstant)
+                (quad ?graph ?timestamp <https://www.commoncoreontologies.org/ont00001767> ?gameStart)
+                (quad ?graph ?run <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/RunnerResolutionProcess>)
+                (quad ?graph ?run <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/RunProcess>)
+                (quad ?graph ?run <http://purl.obolibrary.org/obo/BFO_0000132> ?plateAppearance)
+                (quad ?graph ?run <http://purl.obolibrary.org/obo/BFO_0000117> ?runJudgment)
+                (quad ?graph ?run <https://www.commoncoreontologies.org/ont00001918> ?field)
+                (quad ?graph ?plateAppearance <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/PlateAppearance>)
+                (quad ?graph ?plateAppearance <http://purl.obolibrary.org/obo/BFO_0000132> ??P2)
+                (quad ?graph ??P2 <http://purl.obolibrary.org/obo/BFO_0000132> ??P1)
+                (quad ?graph ??P1 <http://purl.obolibrary.org/obo/BFO_0000132> ?game)
+                (quad ?graph ?runJudgment <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/RunJudgmentAct>)
+                (quad ?graph ?field <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballFieldSite>)
+                (quad ?graph ?field <http://purl.obolibrary.org/obo/BFO_0000171> ?venue)
+                (quad ?graph ?venue <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballVenue>)
+                (quad ?graph ?venue <http://www.w3.org/2000/01/rdf-schema#label> ?venueLabel)
+              )))))))
+INFO  exec            :: TDB2
+  (project (?season ?venue ?venueLabel ?runs ?gamesWithRuns)
+    (order (?season (desc ?runs) (lcase (str ?venueLabel)))
+      (extend ((?runs ?.0) (?gamesWithRuns ?.1))
+        (group (?season ?venue ?venueLabel) ((?.0 (count distinct ?run)) (?.1 (count distinct ?game)))
+          (join
+            (table (vars ?graph)
+              (row [?graph <https://w3id.org/baseball/graph/game/822867>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823431>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823520>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823757>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824160>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824324>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824647>])
+              (row [?graph <https://w3id.org/baseball/graph/game/825095>])
+            )
+            (extend ((?season (year ?gameStart)))
+              (quadpattern
+                (quad ?graph ?game <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballGame>)
+                (quad ?graph ?game <http://purl.obolibrary.org/obo/BFO_0000199> ??P0)
+                (quad ?graph ??P0 <http://purl.obolibrary.org/obo/BFO_0000222> ?startInstant)
+                (quad ?graph ?timestamp <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballTimestampICE>)
+                (quad ?graph ?timestamp <https://www.commoncoreontologies.org/ont00001916> ?startInstant)
+                (quad ?graph ?timestamp <https://www.commoncoreontologies.org/ont00001767> ?gameStart)
+                (quad ?graph ?run <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/RunnerResolutionProcess>)
+                (quad ?graph ?run <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/RunProcess>)
+                (quad ?graph ?run <http://purl.obolibrary.org/obo/BFO_0000132> ?plateAppearance)
+                (quad ?graph ?run <http://purl.obolibrary.org/obo/BFO_0000117> ?runJudgment)
+                (quad ?graph ?run <https://www.commoncoreontologies.org/ont00001918> ?field)
+                (quad ?graph ?plateAppearance <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/PlateAppearance>)
+                (quad ?graph ?plateAppearance <http://purl.obolibrary.org/obo/BFO_0000132> ??P2)
+                (quad ?graph ??P2 <http://purl.obolibrary.org/obo/BFO_0000132> ??P1)
+                (quad ?graph ??P1 <http://purl.obolibrary.org/obo/BFO_0000132> ?game)
+                (quad ?graph ?runJudgment <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/RunJudgmentAct>)
+                (quad ?graph ?field <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballFieldSite>)
+                (quad ?graph ?field <http://purl.obolibrary.org/obo/BFO_0000171> ?venue)
+                (quad ?graph ?venue <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballVenue>)
+                (quad ?graph ?venue <http://www.w3.org/2000/01/rdf-schema#label> ?venueLabel)
+              )))))))
+INFO  exec            :: Execute
+  ?game rdf:type <https://baseballontology.org/BaseballGame>
+  ?game <http://purl.obolibrary.org/obo/BFO_0000199> ??P0
+  ??P0 <http://purl.obolibrary.org/obo/BFO_0000222> ?startInstant
+  ?timestamp <https://www.commoncoreontologies.org/ont00001916> ?startInstant
+  ?timestamp rdf:type <https://baseballontology.org/BaseballTimestampICE>
+  ?timestamp <https://www.commoncoreontologies.org/ont00001767> ?gameStart
+  ??P1 <http://purl.obolibrary.org/obo/BFO_0000132> ?game
+  ??P2 <http://purl.obolibrary.org/obo/BFO_0000132> ??P1
+  ?plateAppearance <http://purl.obolibrary.org/obo/BFO_0000132> ??P2
+  ?plateAppearance rdf:type <https://baseballontology.org/PlateAppearance>
+  ?run <http://purl.obolibrary.org/obo/BFO_0000132> ?plateAppearance
+  ?run rdf:type <https://baseballontology.org/RunnerResolutionProcess>
+  ?run rdf:type <https://baseballontology.org/RunProcess>
+  ?run <http://purl.obolibrary.org/obo/BFO_0000117> ?runJudgment
+  ?runJudgment rdf:type <https://baseballontology.org/RunJudgmentAct>
+  ?run <https://www.commoncoreontologies.org/ont00001918> ?field
+  ?field rdf:type <https://baseballontology.org/BaseballFieldSite>
+  ?field <http://purl.obolibrary.org/obo/BFO_0000171> ?venue
+  ?venue rdf:type <https://baseballontology.org/BaseballVenue>
+  ?venue rdfs:label ?venueLabel

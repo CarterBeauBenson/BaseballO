@@ -16,16 +16,24 @@ unless a regression demonstrates that they are broken.
 - The active RML contains 247 triples maps, 56 logical sources, and no
   referencing-object joins.
 - Fixture game `566279` produces 28,419 authoritative triples and 6,617
-  query-index triples. All ten supported semantic row sets are equivalent.
+  query-index triples. All eleven supported semantic row sets, including exact
+  UTF-8 label fidelity, are equivalent.
 - All eight completed 2026-08-03 games are loaded independently. Together
   they contain 228,571 authoritative triples, 53,530 query-index triples, 823
   runner resolutions, and 11 stolen-base processes. Every per-game
   authoritative/index equivalence suite passes.
-- All 48 canned queries have already been reviewed. Forty-six are structurally
-  index-ready; `empty-games-prototype.rq` and `game-timeline.rq` remain
-  authoritative.
-- Ten representative authoritative/indexed query pairs have exact-result
-  tests, timing measurements, and optimized ARQ algebra captures.
+- All 48 canned queries have been reviewed and executed against the eight-game
+  corpus. Every query returns rows, no query returns duplicate result rows, and
+  the RDF-term-aware row sets are content-hashed for regression checks.
+  Forty-six are structurally index-ready; `empty-games-prototype.rq` and
+  `game-timeline.rq` remain authoritative.
+- Ten representative authoritative/indexed query pairs have exact corpus
+  results, 20-sample alternating timings, optimized ARQ algebra, and direct
+  TDB2 execution captures. Seven traversal-heavy pairs improve by 2.16x to
+  9.34x at the median; the three simple lookup pairs are effectively neutral.
+- Query-index generation now preserves Fuseki's UTF-8 Turtle bytes directly.
+  The corpus benchmark exposed and the eleven-family equivalence gate now
+  prevents correctly accented player labels from becoming mojibake.
 - Portable dehydration packages can export, validate, detect modified bytes,
   and restore both named graphs. Failed index construction removes the stale
   derived graph without changing the authoritative graph.
@@ -40,8 +48,8 @@ unless a regression demonstrates that they are broken.
   set across the current nine loaded graphs while avoiding repeated correlated
   absence checks.
 - No canonical canned query or UI query builder has been redirected to the
-  index yet. Multi-game performance and full canned-query review remain
-  necessary before that decision.
+  index yet. Corpus evidence now supports a reviewed migration of the seven
+  traversal-heavy families; the three neutral paths should stay authoritative.
 - No query-index shortcut term has been added to the ontology.
 
 ## Work that is complete - do not redo
@@ -49,9 +57,11 @@ unless a regression demonstrates that they are broken.
 - granular act/process/judgment/result RML redesign;
 - nested RML context correction and terminal-time correction;
 - RML-to-Mermaid generator and current pattern diagrams;
-- the 48-query authoritative audit and UI component synchronization;
+- the 48-query structural review and UI component synchronization;
 - query-index contract version 1 and its 12 `CONSTRUCT` components;
 - single-fixture equivalence, benchmarks, and optimized algebra capture;
+- eight-game canned-query audit, corpus query-index benchmark, UTF-8 label
+  fidelity gate, and direct TDB2 execution capture;
 - portable dehydration-package export, validation, tamper testing, and exact
   graph restoration;
 - malformed-component/stale-index recovery testing;
@@ -60,9 +70,9 @@ unless a regression demonstrates that they are broken.
 - processor-safe runner-category and sacrifice-bunt source partitioning;
 - complete fielders-choice-out batted-result sequencing;
 - per-game guarded import and exact index equivalence for all eight completed
-  2026-08-03 games; and
+  2026-08-03 games;
 - multi-game-safe fixture acceptance and refreshed single-fixture benchmark
-  evidence; and
+  evidence;
 - the first local BaseballO Explorer with live graph status, batting, pitching,
   baserunning, and game views, graph-backed select boxes, CSV export, generated
   query inspection, a dedicated Empty Games review view, and a tested read-only
@@ -88,33 +98,15 @@ preserved and content-addressed archive hashes match their checked-in sources.
 - Keep the interface local until a reviewed public query service exists. Never
   expose Fuseki's update or Graph Store endpoints to a browser.
 
-### 2. Extend canned-query correctness checks to the corpus
-
-- Run the 48 authoritative canned queries across the accepted multi-game
-  corpus and inspect unexpected zeroes, duplication, or cross-game joins.
-- Pay particular attention to source result types still intentionally outside
-  specific mappings, including `pickoff_1b`, `caught_stealing_2b`, and
-  `intent_walk`; do not infer unsupported acts merely to remove zeroes.
-- Add regression expectations by reference/hash; never edit raw JSON to
-  manufacture expected results.
-
-### 3. Repeat performance evaluation at multi-game scale
-
-- Rerun the ten authoritative/indexed benchmark pairs with corpus size and
-  graph counts recorded.
-- Measure first and repeated executions separately and alternate execution
-  order.
-- Capture TDB2 storage-specific execution logging in addition to the existing
-  high-level optimized ARQ algebra.
-- Compare datastore query planning with the materialized shortcut graph before
-  proposing nonstandard TDB2 indexes.
-
-### 4. Decide query and UI migration
+### 2. Review and stage query/UI migration
 
 - Use [`sparql/query-index/query-decision-matrix.md`](sparql/query-index/query-decision-matrix.md)
-  as the starting classification.
-- Migrate only queries with exact multi-game equivalence and a meaningful
-  measured benefit.
+  and the corpus benchmark as the starting evidence.
+- First stage indexed companions for the seven measured traversal-heavy
+  families: hits, outcomes, pitch traversal and summary, batted balls,
+  baserunning events, and runs by season/venue.
+- Keep games by team, umpire assignments, and available players on the
+  authoritative path because their measured medians are within 7%.
 - Keep authoritative companions available for auditing and regression tests.
 - Keep `empty-games-prototype.rq` authoritative unless its negative
   completeness semantics are explicitly redesigned.
@@ -123,7 +115,17 @@ preserved and content-addressed archive hashes match their checked-in sources.
 - Update the allowlisted UI compiler only after the corresponding canned-query
   decision is recorded.
 
-### 5. Hold ontology decisions separately
+### 3. Expand the component compiler from real review questions
+
+- Add select-box components only for questions the owner identifies while
+  using the Explorer; do not expose arbitrary browser-supplied SPARQL.
+- Give each compiled shape an authoritative regression companion and an
+  indexed companion only where the materialized contract covers it.
+- Re-run the 48-query audit whenever a canonical query changes, and re-run the
+  corpus benchmark whenever an indexed benchmark query or index contract
+  changes.
+
+### 4. Hold ontology decisions separately
 
 Do not promote `https://w3id.org/baseball/query-index/` terms into BaseballO
 without the project owner's explicit approval of their names, directions,
