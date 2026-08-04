@@ -59,11 +59,23 @@ before(async () => {
     issuedQueries.push(query);
     const statusQuery = query.includes("COUNT(DISTINCT ?game) AS ?games")
       && !query.includes("GROUP BY");
+    const emptyGamesQuery = query.includes("AS ?emptyGames");
     const payload = statusQuery
       ? {
           head: { vars: ["games"] },
           results: { bindings: [{ games: { type: "literal", value: "9" } }] },
         }
+      : emptyGamesQuery
+        ? {
+            head: { vars: ["player", "playerLabel", "emptyGames"] },
+            results: {
+              bindings: [{
+                player: { type: "uri", value: "https://baseballontology.org/data/player/1" },
+                playerLabel: { type: "literal", value: "Example Player" },
+                emptyGames: { type: "literal", value: "2", datatype: "http://www.w3.org/2001/XMLSchema#integer" },
+              }],
+            },
+          }
       : {
           head: { vars: ["season", "hits"] },
           results: {
@@ -122,4 +134,14 @@ test("local server rejects invalid query components", async () => {
     body: JSON.stringify({ family: "batting", metrics: ["DROP ALL"] }),
   });
   assert.equal(response.status, 400);
+});
+
+test("local server exposes Empty Games only through its reviewed canned query", async () => {
+  const response = await fetch(`${baseUrl}/api/canned/empty-games`);
+  assert.equal(response.status, 200);
+  const payload = await response.json();
+  assert.deepEqual(payload.head.vars, ["player", "playerLabel", "emptyGames"]);
+  assert.equal(payload.meta.definition, "reviewed-prototype");
+  assert.match(payload.query, /18-event|completeness profile/u);
+  assert.match(payload.query, /FILTER\(STRSTARTS\(STR\(\?graph\)/u);
 });

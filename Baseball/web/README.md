@@ -34,6 +34,8 @@ npm run check
 ## Current capabilities
 
 - batting, pitching, baserunning, and game/assignment question families;
+- a dedicated authoritative-only Empty Games review view that displays its
+  current contribution policy and completeness gate;
 - dimensions and metrics generated from the existing component catalog;
 - graph-backed filter options for seasons, games, players, venues, event types,
   teams, umpires, and official scorers;

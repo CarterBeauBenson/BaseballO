@@ -354,6 +354,15 @@ a:focus-visible {
   color: var(--ink);
 }
 
+.family-tabs button[data-family="empty_games"] {
+  color: var(--red-dark);
+}
+
+.family-tabs button[data-family="empty_games"][aria-selected="true"] {
+  background: var(--red);
+  color: white;
+}
+
 .control-group {
   margin: 0;
   padding: 1.25rem 0;
@@ -461,6 +470,96 @@ a:focus-visible {
   display: flex;
   gap: 0.8rem;
   margin-top: 0.5rem;
+}
+
+.empty-games-builder {
+  border-top: 1px solid var(--line);
+  padding-top: 1.25rem;
+}
+
+.definition-card {
+  padding: 1.1rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--white);
+}
+
+.definition-status {
+  margin: 0 0 0.5rem;
+  color: var(--red);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.definition-card h3 {
+  margin: 0;
+  font-family: Georgia, serif;
+  font-size: 1.4rem;
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 1.15;
+}
+
+.definition-card p:last-child {
+  margin: 0.65rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+}
+
+.definition-section {
+  padding: 1.2rem 0;
+}
+
+.definition-section h4 {
+  margin: 0 0 0.6rem;
+  font-size: 0.78rem;
+}
+
+.definition-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.35rem 0.7rem;
+  margin: 0;
+  padding: 0;
+  color: var(--ink-soft);
+  font-size: 0.76rem;
+  list-style: none;
+}
+
+.definition-list li {
+  position: relative;
+  padding-left: 0.9rem;
+}
+
+.definition-list li::before {
+  position: absolute;
+  left: 0;
+  color: var(--red);
+  content: "◆";
+  font-size: 0.48rem;
+  top: 0.25rem;
+}
+
+.completeness-note {
+  display: flex;
+  gap: 0.3rem;
+  flex-direction: column;
+  padding: 0.85rem;
+  border-left: 3px solid var(--gold);
+  background: #f3ead8;
+  color: var(--ink-soft);
+  font-size: 0.74rem;
+}
+
+.completeness-note strong {
+  color: var(--ink);
+}
+
+.empty-games-run {
+  width: 100%;
+  margin-top: 1rem;
 }
 
 .run-button,

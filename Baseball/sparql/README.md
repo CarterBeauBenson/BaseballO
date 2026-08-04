@@ -81,8 +81,8 @@ totals as season statistics.
 
 ## UI composition
 
-The complete `.rq` files are reviewable canned queries. The future web
-interface can also compile equivalent queries from fixed select-box components
+The complete `.rq` files are reviewable canned queries. The local web
+interface also compiles equivalent queries from fixed select-box components
 using the allowlisted [`web/query-builder`](../web/query-builder/README.md)
 module. The general compiler covers batting, pitching, baserunning, and game
 queries; the original hit-only compiler remains available as a focused
@@ -100,11 +100,17 @@ rather than raw SPARQL.
 
 The query excludes entire games containing a plate-appearance result outside
 the mapping's current 18-event completeness profile. That prevents an unknown
-result from silently becoming an empty game.
+result from silently becoming an empty game. Set-based exclusions preserve the
+same negative definition without repeating each absence test for every batter
+act.
 
 Runner acts and resolutions are now explicitly linked to their enclosing plate
 appearance through execution-only structural context. The contribution policy
 still remains incomplete, so output must be treated as candidates for review,
-not a published statistic.
+not a published statistic. The local Explorer exposes it in a dedicated
+authoritative-only review view and labels the definition as a prototype.
 
-The project owner is needed before promotion to a canned UI query to approve the contribution policy: productive outs, reach-on-error, hit-by-pitch, fielder's choice, sacrifice types, steals/caught stealing, pinch runners, and any minimum offensive-participation threshold.
+The project owner is needed before promotion from reviewed prototype to a final
+product definition to approve the contribution policy: productive outs,
+reach-on-error, hit-by-pitch, fielder's choice, sacrifice types, steals/caught
+stealing, pinch runners, and any minimum offensive-participation threshold.

@@ -34,6 +34,11 @@ unless a regression demonstrates that they are broken.
   result tables, exports CSV, and shows the generated SPARQL. The server accepts
   component selections rather than arbitrary SPARQL and queries only
   authoritative game graphs.
+- Empty Games is exposed separately as a reviewed prototype because its
+  negative completeness semantics do not belong in the general component
+  compiler. Its set-based authoritative query returns the same 27-player result
+  set across the current nine loaded graphs while avoiding repeated correlated
+  absence checks.
 - No canonical canned query or UI query builder has been redirected to the
   index yet. Multi-game performance and full canned-query review remain
   necessary before that decision.
@@ -60,7 +65,8 @@ unless a regression demonstrates that they are broken.
   evidence; and
 - the first local BaseballO Explorer with live graph status, batting, pitching,
   baserunning, and game views, graph-backed select boxes, CSV export, generated
-  query inspection, and a tested read-only server boundary.
+  query inspection, a dedicated Empty Games review view, and a tested read-only
+  server boundary.
 
 ## Current corpus
 
@@ -75,7 +81,8 @@ preserved and content-addressed archive hashes match their checked-in sources.
 ### 1. Owner review of the local explorer
 
 - Run the interface documented in [`web/README.md`](web/README.md) and review
-  its labels, defaults, grouping behavior, result columns, and visual hierarchy.
+  its labels, defaults, grouping behavior, result columns, Empty Games policy,
+  and visual hierarchy.
 - Record the first real questions that feel awkward or impossible to express;
   use those as requirements for the next query-component additions.
 - Keep the interface local until a reviewed public query service exists. Never

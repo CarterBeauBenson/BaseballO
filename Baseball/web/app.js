@@ -21,8 +21,11 @@ const elements = {
   connectionPill: document.querySelector("#connection-pill"),
   connectionText: document.querySelector("#connection-text"),
   gameCount: document.querySelector("#game-count"),
+  builderTitle: document.querySelector("#builder-title"),
   familyTabs: document.querySelector("#family-tabs"),
   form: document.querySelector("#query-form"),
+  emptyGamesBuilder: document.querySelector("#empty-games-builder"),
+  runEmptyGamesButton: document.querySelector("#run-empty-games-button"),
   dimensionChoices: document.querySelector("#dimension-choices"),
   metricChoices: document.querySelector("#metric-choices"),
   filterControls: document.querySelector("#filter-controls"),
@@ -84,13 +87,20 @@ function setConnection({ connected, games }) {
 }
 
 function renderFamilyTabs() {
-  const buttons = Object.entries(catalog).map(([familyId, family]) => {
+  const families = [
+    ...Object.entries(catalog),
+    ["empty_games", { label: "Empty Games" }],
+  ];
+  const buttons = families.map(([familyId, family]) => {
     const button = createElement("button", "", family.label);
     button.type = "button";
     button.dataset.family = familyId;
     button.setAttribute("role", "tab");
     button.setAttribute("aria-selected", String(familyId === currentFamily));
-    button.addEventListener("click", () => configureFamily(familyId));
+    button.addEventListener("click", () => {
+      configureFamily(familyId);
+      if (familyId === "empty_games") void runEmptyGames();
+    });
     return button;
   });
   elements.familyTabs.replaceChildren(...buttons);
@@ -177,7 +187,11 @@ function renderBuilder() {
 function configureFamily(familyId) {
   currentFamily = familyId;
   renderFamilyTabs();
-  renderBuilder();
+  const isEmptyGames = familyId === "empty_games";
+  elements.form.hidden = isEmptyGames;
+  elements.emptyGamesBuilder.hidden = !isEmptyGames;
+  elements.builderTitle.textContent = isEmptyGames ? "Review empty games" : "Shape your question";
+  if (!isEmptyGames) renderBuilder();
 }
 
 function selectedValues(name) {
@@ -249,6 +263,7 @@ function renderMeta(meta) {
     "Authoritative graph",
     "Read only",
   ];
+  if (meta.definition === "reviewed-prototype") values.splice(3, 0, "Reviewed prototype");
   elements.resultMeta.replaceChildren(...values.map((value) => createElement("span", "meta-chip", value)));
   elements.resultMeta.hidden = false;
 }
@@ -318,6 +333,24 @@ async function runQuery() {
   }
 }
 
+async function runEmptyGames() {
+  elements.runEmptyGamesButton.disabled = true;
+  elements.exportButton.disabled = true;
+  elements.resultMeta.hidden = true;
+  elements.queryInspector.hidden = true;
+  setStage("loading");
+  try {
+    const payload = await fetchJson("/api/canned/empty-games");
+    lastResponse = payload;
+    renderResults(payload);
+  } catch (error) {
+    lastResponse = null;
+    showError(error.message);
+  } finally {
+    elements.runEmptyGamesButton.disabled = false;
+  }
+}
+
 function csvField(value) {
   const text = String(value ?? "");
   return /[",\r\n]/u.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
@@ -356,12 +389,17 @@ elements.resetButton.addEventListener("click", () => {
 });
 
 elements.exportButton.addEventListener("click", exportCsv);
+elements.runEmptyGamesButton.addEventListener("click", () => void runEmptyGames());
 elements.copyQueryButton.addEventListener("click", () => void copyQuery());
 elements.suggestionList.addEventListener("click", (event) => {
   const button = event.target.closest("button[data-preset]");
   if (!button) return;
   configureFamily(button.dataset.preset);
-  void runQuery();
+  if (button.dataset.preset === "empty_games") {
+    void runEmptyGames();
+  } else {
+    void runQuery();
+  }
 });
 
 async function initialize() {

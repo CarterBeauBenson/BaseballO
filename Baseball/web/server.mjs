@@ -11,6 +11,7 @@ import {
 const WEB_ROOT = dirname(fileURLToPath(import.meta.url));
 const QUERY_BUILDER_ROOT = resolve(WEB_ROOT, "query-builder");
 const OPTIONS_ROOT = resolve(WEB_ROOT, "..", "sparql", "options");
+const EMPTY_GAMES_QUERY = resolve(WEB_ROOT, "..", "sparql", "empty-games-prototype.rq");
 const DEFAULT_QUERY_ENDPOINT = "http://127.0.0.1:3030/baseball-dev/query";
 const AUTHORITATIVE_GRAPH_PREFIX = "https://w3id.org/baseball/graph/game/";
 const MAX_BODY_BYTES = 64 * 1024;
@@ -242,6 +243,22 @@ export function createBaseballServer({
         }
         optionCache.set(cacheKey, options);
         sendJson(response, 200, { options });
+        return;
+      }
+
+      if (request.method === "GET" && requestUrl.pathname === "/api/canned/empty-games") {
+        const query = await readFile(EMPTY_GAMES_QUERY, "utf8");
+        const { payload, durationMs } = await executeSparql(query, { fetchImpl, queryEndpoint });
+        sendJson(response, 200, {
+          ...payload,
+          query,
+          meta: {
+            durationMs,
+            rowCount: payload.results?.bindings?.length ?? 0,
+            layer: "authoritative",
+            definition: "reviewed-prototype",
+          },
+        });
         return;
       }
 
