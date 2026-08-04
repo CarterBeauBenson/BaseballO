@@ -170,7 +170,8 @@ const FAMILY_DEFINITIONS = {
     },
   },
   pitching: {
-    label: "Pitching and pitch calls",
+    label: "Pitching",
+    description: "Pitch totals and specific pitch results credited to each pitcher.",
     corePatterns: [
       `?game a base:BaseballGame .`,
       ...TIME_PATTERNS,
@@ -202,6 +203,24 @@ const FAMILY_DEFINITIONS = {
         }
       }`,
     ],
+    patternComponents: {
+      called_strike: [
+        `OPTIONAL {
+          ?calledStrikeRecord a base:BaseballEventRecord ;
+                              cco:ont00001808 ?pitch, ?calledStrikeCall .
+          ?calledStrikeCall a base:StrikeCallAct .
+        }`,
+      ],
+      swinging_strike: [
+        `OPTIONAL {
+          ?swingingStrikeRecord a base:BaseballEventRecord ;
+                                 cco:ont00001808 ?pitch, ?swingingStrike .
+          ?swingingStrike a base:StrikeProcess ;
+                          obo:BFO_0000062 ?swingingStrikeSwing .
+          ?swingingStrikeSwing a base:SwingAct .
+        }`,
+      ],
+    },
     dimensions: {
       season: dimensions.season(),
       pitcher: {
@@ -219,16 +238,33 @@ const FAMILY_DEFINITIONS = {
     metrics: {
       pitches: {
         label: "Pitches",
+        description: "Every mapped pitch credited to the pitcher.",
         select: "(COUNT(DISTINCT ?pitch) AS ?pitches)",
         sortExpression: "?pitches",
       },
       balls: {
-        label: "Ball processes",
+        label: "Called balls",
+        description: "Pitches recorded by MLB as Ball or Ball in Dirt.",
         select: "(COUNT(DISTINCT ?ball) AS ?balls)",
         sortExpression: "?balls",
       },
+      called_strikes: {
+        label: "Called strikes",
+        description: "Pitches recorded by MLB specifically as Called Strike.",
+        select: "(COUNT(DISTINCT ?calledStrikeCall) AS ?calledStrikes)",
+        sortExpression: "?calledStrikes",
+        requires: ["called_strike"],
+      },
+      swinging_strikes: {
+        label: "Swinging strikes",
+        description: "Pitches recorded by MLB specifically as Swinging Strike; blocked swinging strikes are not yet mapped.",
+        select: "(COUNT(DISTINCT ?swingingStrike) AS ?swingingStrikes)",
+        sortExpression: "?swingingStrikes",
+        requires: ["swinging_strike"],
+      },
       strikes: {
-        label: "Strike processes",
+        label: "Confirmed strikes added to count (partial)",
+        description: "Called strikes, swinging strikes, foul tips, and only fouls proven to add a strike. This is not the box-score strike total.",
         select: "(COUNT(DISTINCT ?strike) AS ?strikes)",
         sortExpression: "?strikes",
       },
@@ -528,6 +564,7 @@ export function compileAnalyticsQuery({
 
   const requiredPatternIds = unique([
     ...selectedDimensions.flatMap((component) => component.requires ?? []),
+    ...selectedMetrics.flatMap((component) => component.requires ?? []),
     ...filterDimensions.flatMap((component) => component.requires ?? []),
   ]);
   const componentPatterns = requiredPatternIds.flatMap((id) =>

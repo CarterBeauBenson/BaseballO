@@ -118,6 +118,7 @@ export function buildPublicCatalog() {
       familyId,
       {
         label: family.label,
+        description: family.description,
         dimensions: Object.fromEntries(
           Object.entries(family.dimensions).map(([dimensionId, dimension]) => [
             dimensionId,
@@ -131,7 +132,7 @@ export function buildPublicCatalog() {
         metrics: Object.fromEntries(
           Object.entries(family.metrics).map(([metricId, metric]) => [
             metricId,
-            { label: metric.label },
+            { label: metric.label, description: metric.description },
           ]),
         ),
       },

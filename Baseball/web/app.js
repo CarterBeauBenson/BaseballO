@@ -5,7 +5,7 @@ const DEFAULT_SELECTIONS = Object.freeze({
   },
   pitching: {
     dimensions: ["pitcher"],
-    metrics: ["pitches", "strikes"],
+    metrics: ["pitches", "called_strikes", "swinging_strikes"],
   },
   baserunning: {
     dimensions: ["player"],
@@ -34,6 +34,7 @@ const elements = {
   runAdvancedButton: document.querySelector("#run-advanced-button"),
   dimensionChoices: document.querySelector("#dimension-choices"),
   metricChoices: document.querySelector("#metric-choices"),
+  metricHelp: document.querySelector("#metric-help"),
   filterControls: document.querySelector("#filter-controls"),
   runButton: document.querySelector("#run-button"),
   resetButton: document.querySelector("#reset-button"),
@@ -146,7 +147,7 @@ function renderAdvancedBuilder() {
   renderAdvancedDefinition();
 }
 
-function createChoice(kind, id, label, selected) {
+function createChoice(kind, id, label, selected, description) {
   const wrapper = createElement("div", "choice");
   const input = document.createElement("input");
   input.type = "checkbox";
@@ -156,8 +157,26 @@ function createChoice(kind, id, label, selected) {
   input.checked = selected;
   const labelElement = createElement("label", "", label);
   labelElement.htmlFor = input.id;
+  if (description) labelElement.title = description;
   wrapper.append(input, labelElement);
   return wrapper;
+}
+
+function renderMetricHelp() {
+  const family = catalog[currentFamily];
+  if (!family || !elements.metricHelp) return;
+  const selected = selectedValues("metric")
+    .map((id) => family.metrics[id])
+    .filter((metric) => metric?.description);
+  elements.metricHelp.hidden = selected.length === 0;
+  elements.metricHelp.replaceChildren(...selected.map((metric) => {
+    const row = createElement("p");
+    row.append(
+      createElement("strong", "", `${metric.label}: `),
+      document.createTextNode(metric.description),
+    );
+    return row;
+  }));
 }
 
 function optionLabel() {
@@ -200,9 +219,11 @@ function renderBuilder() {
   const dimensionChoices = Object.entries(family.dimensions).map(([id, dimension]) =>
     createChoice("dimension", id, dimension.label, defaults.dimensions.includes(id)));
   const metricChoices = Object.entries(family.metrics).map(([id, metric]) =>
-    createChoice("metric", id, metric.label, defaults.metrics.includes(id)));
+    createChoice("metric", id, metric.label, defaults.metrics.includes(id), metric.description));
   elements.dimensionChoices.replaceChildren(...dimensionChoices);
   elements.metricChoices.replaceChildren(...metricChoices);
+  elements.metricChoices.onchange = renderMetricHelp;
+  renderMetricHelp();
 
   const filters = Object.entries(family.dimensions).flatMap(([dimensionId, dimension]) => {
     if (!dimension.hasOptions) return [];

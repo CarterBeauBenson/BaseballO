@@ -11,8 +11,22 @@ test("public catalog exposes labels without SPARQL implementation details", () =
   const catalog = buildPublicCatalog();
   assert.deepEqual(Object.keys(catalog), ["batting", "pitching", "baserunning", "games"]);
   assert.equal(catalog.batting.metrics.hits.label, "Hits");
+  assert.equal(catalog.pitching.metrics.called_strikes.label, "Called strikes");
+  assert.match(catalog.pitching.metrics.strikes.description, /not the box-score strike total/u);
   assert.equal(catalog.batting.dimensions.player.hasOptions, true);
   assert.equal("corePatterns" in catalog.batting, false);
+});
+
+test("pitching metrics distinguish called and swinging strikes", () => {
+  const query = compileAnalyticsQuery({
+    family: "pitching",
+    dimensions: ["pitcher"],
+    metrics: ["pitches", "called_strikes", "swinging_strikes"],
+  });
+  assert.match(query, /StrikeCallAct/u);
+  assert.match(query, /\?swingingStrike a base:StrikeProcess/u);
+  assert.match(query, /AS \?calledStrikes/u);
+  assert.match(query, /AS \?swingingStrikes/u);
 });
 
 test("compiler restricts UI queries to authoritative game graphs", () => {

@@ -6,8 +6,9 @@ Explorer. It supports four query families:
 
 - batting outcomes: explicitly typed and adjudicated plate-appearance results,
   every hit type, walks, strikeouts, total bases, and games;
-- pitching: pitch acts followed by pitch-ball motion, adjudicated ball/strike/
-  foul-tip processes, plate appearances faced, and games;
+- pitching: pitch acts followed by pitch-ball motion, called balls, separately
+  labeled called and swinging strikes, plate appearances faced, games, and a
+  conservative confirmed-strike metric explicitly marked as partial;
 - baserunning: adjudicated runner resolutions, runs, outs, safe resolutions,
   explicit stolen-base processes, and games;
 - games: teams, home/away sides, venues, umpires, and official scorers.
