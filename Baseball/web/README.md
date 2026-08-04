@@ -9,6 +9,9 @@ allowlisted component IDs, compiles them through
 [`query-builder/`](query-builder/README.md), and sends read-only queries to the
 local Fuseki query endpoint. Queries and option lists are explicitly restricted
 to authoritative game graphs; the disposable query index is not used yet.
+The separately tested operational runner currently manages 18 measured query
+pairs (15 indexed and three authoritative), but it is intentionally not wired
+into the Explorer until that UI interaction and fallback behavior are reviewed.
 
 ## Run locally
 

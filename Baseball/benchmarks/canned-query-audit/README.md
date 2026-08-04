@@ -31,3 +31,8 @@ datatype, language, unbound values, and duplicate multiplicity.
 summary. [`corpus-2026-08-03-baseline.json`](corpus-2026-08-03-baseline.json)
 is the machine-verifiable artifact. Timings in both files are diagnostic
 observations rather than benchmark claims.
+
+The current baseline covers 228,576 authoritative triples. All 48 queries
+return at least one row, none returns duplicate result rows, and Empty Games
+returns 26 reviewed candidate rows after intentional-walk coverage was added to
+the completeness profile.

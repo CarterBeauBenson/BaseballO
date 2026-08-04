@@ -14,12 +14,19 @@ flowchart LR
     FUSEKI --> SPARQL[Canned full-pattern SPARQL]
     FUSEKI --> CONSTRUCT[Reviewed CONSTRUCT components]
     CONSTRUCT --> INDEX[Disposable per-game query index]
-    INDEX --> FAST[Future accelerated queries]
+    INDEX --> FAST[Reviewed accelerated query runner]
     SPARQL --> WEB[Local BaseballO Explorer]
-    FAST --> WEB
 ```
 
 The first proof-of-concept query is **Empty Games**: games in which a player participated offensively without a qualifying offensive contribution. That result must be derived with SPARQL, never stored during ingestion.
+
+Current checked-in evidence covers eight completed games from 2026-08-03:
+228,576 authoritative triples and 52,944 disposable query-index triples. All
+48 canned queries and 16 advanced queries have reproducible result baselines.
+Eighteen authoritative/indexed query pairs have exact corpus results; the
+reviewed runner selects 15 indexed routes and keeps three neutral routes on the
+authoritative graph. The Explorer remains authoritative-only until its
+interaction with the operational router is reviewed separately.
 
 ## Repository map
 
@@ -30,11 +37,11 @@ The first proof-of-concept query is **Empty Games**: games in which a player par
 | [`mappings/policies/`](mappings/policies/) | Approved modeling and IRI policies | Active |
 | [`source-schema/`](source-schema/) | Observed schema and JSONPath inventory for the sample feed | Active reference |
 | [`mermaid/`](mermaid/) | Visual review of the RML source, map, join, and identity shapes | Active review |
-| [`data/`](data/) | Raw development inputs | Development only |
+| [`data/`](data/) | Untouched development fixture and eight-game audit corpus | Active immutable inputs |
 | [`archive/`](archive/) | Superseded preprocessing prototype and prior ontology snapshot | Historical |
 | [`sparql/`](sparql/) | Canned and advanced semantic queries plus reviewable components for the disposable query-index graph | Active query library and acceleration contract |
 | [`web/`](web/) | Playable local analytics explorer and allowlisted query compiler | Local MVP active |
-| [`scripts/`](scripts/) | Acquisition, RML execution, validation, and infrastructure automation | Active |
+| [`scripts/`](scripts/) | Manual import, RML execution, validation, indexing, and infrastructure automation | Active |
 | [`tests/`](tests/) | Offline integration and future regression tests | Active |
 | [`infra/`](infra/) | Pinned local NiFi and Fuseki development stack | Active |
 
@@ -43,18 +50,17 @@ The first proof-of-concept query is **Empty Games**: games in which a player par
 Install the validation dependency and check the entire repository:
 
 ```powershell
-python -m pip install -r requirements-dev.txt
-python scripts/validate_repository.py
+python -m pip install -r Baseball/requirements-dev.txt
+python Baseball/scripts/validate_repository.py
 ```
 
 The same command runs automatically through [GitHub Actions](.github/workflows/validate.yml) on pushes and pull requests.
 
-To run only the mapping-specific validation, use the following command.
-
-From `mappings/direct`:
+To run only the mapping-specific validation, use the following command:
 
 ```powershell
-python validate_direct_mapping.py ../../data/raw/game-566279.json
+python Baseball/mappings/direct/validate_direct_mapping.py `
+  Baseball/data/raw/game-566279.json
 ```
 
 The validator checks the mapping's Turtle structure, locally declared BaseballO classes, the completed-game precondition, source identifiers, observed result coverage, and sample-specific IRI collision risks. It is a static check; successful execution by an RML processor is still required.
@@ -78,11 +84,14 @@ Start with the [Mermaid review index](mermaid/README.md). It separates the inten
 
 After bootstrapping and starting the free local stack, follow the [manual game import runbook](scripts/pipeline/README.md). It archives untouched completed-game JSON, executes the pinned RMLMapper, validates source-to-RDF record counts, and loads complete named graphs into Fuseki with idempotent `PUT` requests.
 
-Automated external acquisition is parked pending an approved data-access source. The active NiFi flow makes no MLB or other external HTTP request.
+Automated external acquisition is parked pending an approved data-access
+source. The active NiFi flow makes no MLB or other external HTTP request. The
+current corpus is already checked in and must not be reacquired merely to rerun
+the local workflow.
 
 ## Next phase
 
 Use [`NEXT-PHASE.md`](NEXT-PHASE.md) as the single current continuation plan.
-It begins with owner review of the now-exposed advanced semantic analytics,
-followed by evidence-driven index coverage; completed historical work is listed
-there only to prevent accidental repetition.
+It continues evidence-driven query-index coverage, preserves the separate
+ontology-review queue, and records completed work only to prevent accidental
+repetition.

@@ -21,3 +21,7 @@ in Fuseki. They do not calculate or store statistics.
 The browser may use the returned IRIs as option values and the labels as option
 text. The query API must still treat the submitted selection as untrusted input
 and validate it against the same allowlist used by the compiler.
+
+`available-players` has a measured indexed companion, but the reviewed router
+keeps the authoritative version because its simple lookup performance is
+neutral. UI option queries remain authoritative-only.

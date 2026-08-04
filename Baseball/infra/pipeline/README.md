@@ -28,8 +28,14 @@ Graph IRIs are operational containers, not new ontology terms:
 | Source | Named graph pattern |
 | --- | --- |
 | Completed game | `https://w3id.org/baseball/graph/game/{gamePk}` |
+| Disposable query index | `https://w3id.org/baseball/graph/query-index/game/{gamePk}` |
 | Daily transactions | `https://w3id.org/baseball/graph/transactions/{yyyy-mm-dd}` |
 | Reference snapshot | `https://w3id.org/baseball/graph/reference/{snapshot-date}` |
 | Acquisition provenance | `https://w3id.org/baseball/graph/acquisition/{run-id}` |
 
-NiFi loads a complete graph with Graph Store Protocol `PUT`. Reprocessing the same source therefore replaces that graph atomically instead of appending duplicate statements. The public query layer will use only the query endpoint; the write endpoint remains private.
+NiFi loads a complete authoritative graph with Graph Store Protocol `PUT`.
+Reprocessing the same source therefore replaces that graph atomically instead
+of appending duplicate statements. A successful authoritative load triggers a
+guarded, independently replaceable query-index build. The index is disposable;
+the full graph and immutable raw bytes remain authoritative. The public query
+layer will use only the query endpoint; the write endpoint remains private.

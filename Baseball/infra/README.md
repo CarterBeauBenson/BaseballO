@@ -78,7 +78,12 @@ Stop the services cleanly before restarting Windows:
 
 ## Security boundary
 
-Both services bind to loopback for development. The Fuseki update and Graph Store write endpoints must never be exposed directly to the public UI. A future query API will expose only allowlisted, parameterized reads. Production secrets, TLS, operating-system services, backups, and firewall policy will be configured separately before deployment.
+Both services bind to loopback for development. The Fuseki update and Graph
+Store write endpoints must never be exposed directly to a public UI. The
+current local Explorer server exposes only allowlisted, parameterized reads;
+its browser never submits raw SPARQL. Production secrets, TLS, operating-system
+services, backups, and firewall policy will be configured separately before
+deployment.
 
 The local Fuseki process exposes `/$/ping`, `/$/stats`, and `/$/metrics` only on loopback for health and operations. Stop the stack before Windows shutdown when practical; TDB2 remains the transactional persistence layer.
 

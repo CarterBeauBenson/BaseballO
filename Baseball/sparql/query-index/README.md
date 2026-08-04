@@ -73,6 +73,9 @@ triples from 28,419 authoritative triples, with equivalent identities for 21
 hits, 282 pitches, 185 pitch calls, 134 batting acts, 112 contacts, 113 runner
 resolutions, one stolen base, and seven assignments.
 
+Across the checked-in eight-game 2026-08-03 corpus, the authoritative graph
+contains 228,576 triples and the replaceable query-index graph contains 52,944.
+
 ## Query shape
 
 The full hit pattern remains available for auditing. A query approved to use

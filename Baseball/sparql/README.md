@@ -28,11 +28,19 @@ shortcut contract are documented in [`query-index/`](query-index/); remaining
 production decisions are tracked in
 [`graph-condensation-requirements.md`](graph-condensation-requirements.md).
 
+The separate reviewed runner currently has 18 exact authoritative/indexed
+corpus pairs. Fifteen use the disposable index automatically and three neutral
+lookups remain authoritative. All nine queries in [`batting/`](batting/) now
+have measured indexed companions. `hitless-games-by-player` is the only
+negative-semantics indexed route and is permitted only after complete, current
+per-game plate-appearance and hit equivalence checks.
+
 The separate [`advanced/`](advanced/) suite adds 16 higher-order questions
 without changing the original 48-query contract. Its catalog distinguishes
 positive evidence from absence-based completeness claims and records four
 analytics that the current mapping cannot yet support. These queries remain
-authoritative and are not exposed through the UI compiler or query index yet.
+authoritative and are not exposed through the UI compiler or operational query
+index routes yet.
 
 ## Hit query catalog
 

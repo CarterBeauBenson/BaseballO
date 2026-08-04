@@ -1,8 +1,8 @@
 # UI query builders
 
 [`analytics-query-builder.js`](analytics-query-builder.js) is the primary
-allowlisted component catalog and compiler for the future UI. It supports four
-query families:
+allowlisted component catalog and compiler used by the local BaseballO
+Explorer. It supports four query families:
 
 - batting outcomes: explicitly typed and adjudicated plate-appearance results,
   every hit type, walks, strikeouts, total bases, and games;
@@ -75,9 +75,8 @@ const query = compileAnalyticsQuery({
 
 The compiler accepts only known component IDs, a bounded integer season,
 allowlisted hit types, and canonical BaseballO data IRIs. This preserves the
-future public-query boundary: the browser composes reviewed reads, while a
-server-side query API should still enforce its own allowlist and limits before
-submitting anything to Fuseki.
+query boundary: the browser composes reviewed reads, while the loopback server
+enforces its own allowlist and limits before submitting anything to Fuseki.
 
 Both compilers emit the same full-pattern evidence used by the canned queries.
 They deliberately count one domain individual per statistic and do not flatten
@@ -85,3 +84,7 @@ records, acts, processes, judgments, and decisions into a single event. The
 component catalog must remain synchronized with
 [`sparql/query-inventory.md`](../../sparql/query-inventory.md) as patterns
 change.
+
+Both UI compilers remain authoritative-only. The operational query-index runner
+has its own reviewed routing manifest and freshness checks and must not be
+silently substituted beneath the browser compiler.

@@ -16,3 +16,8 @@ the parent-side `playEvents[*].playId` reference. The authoritative JSON is
 unchanged. Fixture validation requires complete plate-appearance, person, and
 role context on all 282 pitches, all 134 swing/bunt acts, and all 112 contacts.
 The queries do not infer people from IRI text or source strings.
+
+Three representative queries have reviewed indexed companions with exact
+eight-game results: pitches by pitcher/venue, pitcher summaries, and batted
+balls by batter/venue. The remaining canonical pitching queries continue to
+read the authoritative graphs until separately benchmarked.

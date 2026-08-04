@@ -40,3 +40,8 @@ Boxscore, linescore, leaders, and other aggregate structures remain available fo
 ## Limit
 
 This is an observed schema extracted from one game. It records what the sample supports; it does not claim that MLB never emits additional fields, missing fields, or alternative shapes.
+
+The active mapping is additionally exercised against the checked-in eight-game
+2026-08-03 corpus. That broader corpus is validation evidence, not a replacement
+for this fixture-derived observed-schema contract, and raw files remain
+unchanged.

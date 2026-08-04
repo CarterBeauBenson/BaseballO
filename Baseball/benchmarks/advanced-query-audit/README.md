@@ -20,3 +20,8 @@ Baseball\scripts\pipeline\audit-advanced-queries.ps1 -VerifyBaseline
 Unlike the original canned-query audit, zero rows are permitted for cataloged
 discovery queries where the sample may contain no match. Integrity-audit rows
 are counted as findings, not execution failures.
+
+The current baseline executes all 16 cataloged queries. The integrity audit
+returns three explicit generic-only terminal outcomes—two `pickoff_1b` and one
+`caught_stealing_2b`—for ontological review; these are findings rather than
+missing-rule assertions or failed execution.

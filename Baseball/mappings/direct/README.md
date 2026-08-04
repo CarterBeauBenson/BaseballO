@@ -10,7 +10,7 @@ The active file is [mlb-direct.rml.ttl](mlb-direct.rml.ttl). It creates distinct
 
 The central implemented batted-play chain is:
 
-\`\`\`text
+```text
 SwingAct or BuntAct
   -> BatBallContactProcess
   -> BattedBallMotionProcess
@@ -23,9 +23,9 @@ Judgment Act
   -> has output -> Decision ICE
 Decision ICE
   -> is about -> counted result
-\`\`\`
+```
 
-Separate implemented paths cover called balls, called strikes, swinging strikes, fouls, foul tips, hits, errors, fielder's choices, sacrifices, batted outs, runner safe/out/run resolutions, and stolen bases. See the [discrete Mermaid catalog](../../mermaid/patterns/README.md).
+Separate implemented paths cover called balls, called strikes, swinging strikes, fouls, foul tips, hits, errors, fielder's choices, sacrifices, batted outs, runner safe/out/run resolutions, stolen bases, and the full intentional-walk process. See the [discrete Mermaid catalog](../../mermaid/patterns/README.md).
 
 ## Input and execution boundary
 
@@ -79,6 +79,7 @@ The mapping does not infer physical detail from a counted outcome alone.
 
 - Fielding-credit acts are deferred because credits lack stable ancestor-aware identity.
 - Pickoff acts are deferred because a runner record does not identify the pitcher who performed the act.
+- Terminal pickoff and caught-stealing runner outcomes found in the current corpus remain explicit generic terminal-result structures. They are not silently promoted into performer-specific acts when the feed lacks the required agent evidence.
 - Ordinary fouls always produce FoulBallProcess. A distinct StrikeProcess is produced only for the unambiguous count.strikes equals 1 subset; the event-local feed cannot distinguish every second counted foul from an unchanged two-strike count.
 - Coordinate ICEs and designated batted-ball sites are created when hitData.coordinates exists, but coordX and coordY literals remain deferred pending approved datatype properties.
 - Non-pitch advisory events and measurement values remain deferred.
@@ -87,11 +88,11 @@ The mapping does not infer physical detail from a counted outcome alone.
 
 From the repository root:
 
-\`\`\`powershell
+```powershell
 python Baseball/mappings/direct/validate_direct_mapping.py Baseball/data/raw/game-566279.json
 powershell -NoProfile -ExecutionPolicy Bypass -File Baseball/scripts/pipeline/run-rml.ps1 -InputJson Baseball/data/raw/game-566279.json
 python Baseball/scripts/validate_repository.py
-\`\`\`
+```
 
 Static validation checks Turtle, TriplesMap structure, logical sources,
 processor-incompatible JSONPath expressions, declared BaseballO classes,
@@ -101,3 +102,5 @@ execution harness runs the pinned RMLMapper and the generated-RDF validator,
 which requires complete ancestor context on every pitch, swing/bunt act, and
 contact; one final game timestamp; physical chains; adjudication structure;
 shared foul-tip/strike identity; and event-record separation.
+Repository validation also exercises the checked-in eight-game 2026-08-03
+corpus in addition to the original fixture, without modifying any raw source.

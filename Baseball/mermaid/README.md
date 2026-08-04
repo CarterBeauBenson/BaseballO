@@ -39,3 +39,8 @@ Run `python Baseball/scripts/generate_rml_mermaid.py` from the repository root a
 | Sample baserunning acts, runner resolutions, and runner records | 113 each |
 
 The end-to-end pinned RML processor and generated-RDF validator both pass on game 566279.
+The checked-in eight-game 2026-08-03 corpus also passes repository validation.
+Intentional walks follow the complete walk-process pattern. Terminal pickoff
+and caught-stealing outcomes that lack sufficient performer evidence stay in
+the explicit generic terminal-result pattern; the diagrams do not imply a more
+specific act than the RML creates.

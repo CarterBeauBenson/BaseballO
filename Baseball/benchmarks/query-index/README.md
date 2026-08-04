@@ -31,12 +31,19 @@ Generate the eight-game 2026-08-03 corpus baseline with:
 ```
 
 The corpus baseline verifies exact authoritative/indexed bindings before it
-times either path. Seven traversal-heavy pairs improve by 2.16x to 9.34x at
-the median. `games-by-team-and-season`, `umpire-assignments`, and
-`available-players` are within 7%, so the evidence does not support migrating
-those simple paths. See
+times either path. It currently covers 18 pairs with 20 alternating samples per
+layer. Fifteen reviewed pairs improve by 1.38x to 48.02x at the median.
+`games-by-team-and-season`, `umpire-assignments`, and `available-players`
+remain operationally authoritative because their simple lookup shapes are
+effectively neutral. See
 [`corpus-2026-08-03-baseline.md`](corpus-2026-08-03-baseline.md) and its
 machine-checkable [JSON baseline](corpus-2026-08-03-baseline.json).
+
+`hitless-games-by-player` is benchmarked separately from ordinary positive
+counts because it uses negative semantics. Its indexed companion returns the
+same 65 corpus rows and is eligible only through the reviewed runner after all
+selected per-game indexes pass current-manifest and complete
+`PlateAppearanceFact`/`HitFact` equivalence checks.
 
 High-level optimized ARQ algebra is captured separately under
 [`algebra/`](algebra/). It uses the pinned Fuseki JAR's
@@ -57,4 +64,5 @@ because the direct read-only command opens the same persistent TDB2 datastore:
 Its normalized, hashed logs retain Jena's query, optimized algebra, TDB2
 algebra, and the first reordered execution trace for each layer. Repetitive
 aggregate subexecutions are omitted. These are query-planning evidence, not
-timing measurements.
+timing measurements. The current capture contains 36 logs: authoritative and
+indexed layers for all 18 pairs.

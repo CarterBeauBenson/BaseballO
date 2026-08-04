@@ -51,8 +51,9 @@ Run the complete offline acceptance check with:
 ```
 
 The acceptance check also compares exact authoritative/index result rows for
-game dimensions, plate-appearance results, hits, pitches, pitch calls,
-batting acts, contacts, runner resolutions, stolen bases, and assignments.
+game dimensions, UTF-8 label fidelity, plate appearances, plate-appearance
+results, hits, pitches, pitch calls, batting acts, contacts, runner resolutions,
+stolen bases, and assignments.
 
 ## Corpus query audit
 
@@ -116,6 +117,11 @@ loaded game has current authoritative/index artifacts, hashes and counts, a
 current local build manifest, and matching graph metadata. Otherwise Auto
 falls back to the authoritative query. `-Layer Indexed` fails closed instead.
 Use `-VerifyEquivalent` for an immediate exact row comparison.
+
+The indexed `hitless-games-by-player` route additionally relies on those
+freshness checks plus the build-time proof that every selected graph has
+complete `PlateAppearanceFact` and `HitFact` row sets. It must not be executed
+directly against an unverified index graph.
 
 Exercise all normal and failure routes with:
 
