@@ -32,7 +32,8 @@ Generate the eight-game 2026-08-03 corpus baseline with:
 
 The corpus baseline verifies exact authoritative/indexed bindings before it
 times either path. It currently covers 18 pairs with 20 alternating samples per
-layer. Fifteen reviewed pairs improve by 1.38x to 48.02x at the median.
+layer. Fifteen reviewed pairs improve by 1.52x to 56.66x at the median in the
+current SHACL-gated rebuild.
 `games-by-team-and-season`, `umpire-assignments`, and `available-players`
 remain operationally authoritative because their simple lookup shapes are
 effectively neutral. See

@@ -8,6 +8,7 @@ import hashlib
 import json
 from pathlib import Path, PurePosixPath
 
+from pyshacl import validate as validate_shacl
 from rdflib import Graph, Namespace, RDF, URIRef
 
 
@@ -113,6 +114,25 @@ def main() -> None:
     authoritative = Graph().parse(authoritative_path, format="turtle")
     index_path = safe_package_path(root, index_record["path"])
     index = Graph().parse(index_path, format="nt")
+
+    shape_profiles = (
+        ("authoritative", authoritative, "contracts/repository/shacl/authoritative.ttl"),
+        ("query-index", index, "contracts/repository/shacl/query-index.ttl"),
+    )
+    for profile, data_graph, relative_shape_path in shape_profiles:
+        shape_path = safe_package_path(root, relative_shape_path)
+        if not shape_path.is_file():
+            raise ValueError(f"Packaged SHACL profile is missing: {relative_shape_path}")
+        conforms, _, report_text = validate_shacl(
+            data_graph=data_graph,
+            shacl_graph=Graph().parse(shape_path, format="turtle"),
+            inference="none",
+            advanced=True,
+            allow_infos=True,
+            allow_warnings=True,
+        )
+        if not conforms:
+            raise ValueError(f"Packaged {profile} graph fails SHACL validation:\n{report_text}")
 
     authoritative_contract = manifest.get("authoritativeGraph", {})
     index_contract = manifest.get("queryIndexGraph", {})

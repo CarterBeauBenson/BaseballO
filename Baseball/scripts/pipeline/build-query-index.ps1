@@ -40,6 +40,8 @@ else {
 }
 $usesCanonicalComponents = $componentRoot.Equals($canonicalComponentRoot, [System.StringComparison]::OrdinalIgnoreCase)
 $compilerPath = Join-Path $script:RepositoryRoot 'scripts\pipeline\compile-query-index.py'
+$shaclValidatorPath = Join-Path $script:RepositoryRoot 'scripts\pipeline\validate-shacl.py'
+$queryIndexShapePath = Join-Path $script:RepositoryRoot 'shacl\query-index.ttl'
 $contractHash = Get-QueryIndexContractHash
 
 $sourceAsk = "ASK { GRAPH <$sourceGraph> { <$gameIri> a <https://baseballontology.org/BaseballGame> } }"
@@ -98,6 +100,11 @@ try {
         throw "Query-index compilation failed for game $GamePk."
     }
 
+    & python $shaclValidatorPath '--profile' 'query-index' '--data' $compiledPath
+    if ($LASTEXITCODE -ne 0) {
+        throw "Query-index SHACL validation failed for game $GamePk."
+    }
+
     $sourceCountQuery = "SELECT (COUNT(*) AS ?count) WHERE { GRAPH <$sourceGraph> { ?s ?p ?o } }"
     $sourceCountResult = Invoke-RestMethod -Uri $queryEndpoint -Method Post -Body @{ query = $sourceCountQuery } -Headers @{ Accept = 'application/sparql-results+json' }
     $sourceTripleCount = [int64]$sourceCountResult.results.bindings[0].count.value
@@ -153,6 +160,10 @@ try {
         indexPath = $finalPath
         indexSha256 = $indexSha256
         indexTripleCount = $indexTripleCount
+        shaclProfile = 'query-index'
+        shaclShapePath = $queryIndexShapePath
+        shaclShapeSha256 = (Get-FileHash -LiteralPath $queryIndexShapePath -Algorithm SHA256).Hash.ToLowerInvariant()
+        shaclValidatorSha256 = (Get-FileHash -LiteralPath $shaclValidatorPath -Algorithm SHA256).Hash.ToLowerInvariant()
         componentFiles = @($stats.componentFiles)
         factCounts = $stats.factCounts
     }

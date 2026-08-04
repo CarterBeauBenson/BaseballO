@@ -76,6 +76,12 @@ resolutions, one stolen base, and seven assignments.
 Across the checked-in eight-game 2026-08-03 corpus, the authoritative graph
 contains 228,576 triples and the replaceable query-index graph contains 52,944.
 
+Before publication, the compiled graph must conform to
+[`shacl/query-index.ttl`](../../shacl/query-index.ttl). SHACL checks required
+fact structure and same-game containment; the existing twelve-family
+authoritative/index equivalence suite separately proves completeness and exact
+labels.
+
 ## Query shape
 
 The full hit pattern remains available for auditing. A query approved to use
@@ -130,7 +136,7 @@ queries by [`benchmark-pairs.json`](benchmarks/benchmark-pairs.json) and can be
 run through the reproducible workflow documented in
 [`benchmarks/query-index/`](../../benchmarks/query-index/).
 The eight-game corpus results show meaningful median improvements for fifteen
-reviewed pairs (1.38x to 48.02x) and effectively neutral results for the three
+reviewed pairs (1.52x to 56.66x) and effectively neutral results for the three
 simple lookup pairs. Direct TDB2 execution traces are stored beside the timing
 baselines.
 

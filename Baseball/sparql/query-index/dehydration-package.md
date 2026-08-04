@@ -13,7 +13,7 @@ reconstruct the authoritative event graph.
 | `rdf/authoritative-*.ttl` | Exact validated full event graph |
 | `rdf/query-index-*.nt` | Exact disposable shortcut graph |
 | `provenance/` | Original RML and query-index build manifests |
-| `contracts/repository/` | RML, execution-context, validation, version-lock, and query-index generation files |
+| `contracts/repository/` | RML, execution-context, SHACL, validation, version-lock, and query-index generation files |
 | `manifest.json` | Portable relative paths, SHA-256 hashes, byte counts, graph IRIs, triple counts, generator hashes, repository commit, and load order |
 
 The embedded historical build manifests may contain original absolute paths.
@@ -34,7 +34,8 @@ The exporter refuses stale build contracts or hash mismatches, copies every
 artifact, writes a closed file inventory, and runs
 `validate-dehydration-package.py`. The validator rejects missing, additional,
 modified, path-traversing, unparsable, wrong-game, wrong-graph, or inconsistent
-files.
+files. It also executes the packaged authoritative and query-index SHACL
+profiles against the packaged RDF.
 
 Validation can be repeated without changing Fuseki:
 

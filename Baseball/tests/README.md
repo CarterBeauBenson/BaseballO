@@ -8,6 +8,10 @@ executes the web tests, verifies 48 canned and 16 advanced baselines, and checks
 direct TDB2 captures. The active mapping provides its source and collision
 validator under [`../mappings/direct/`](../mappings/direct/).
 
+The repository check also meta-validates 30 SHACL node shapes across the
+authoritative and query-index profiles. Negative smoke graphs prove that an
+incomplete `PitchAct` and `HitFact` fail rather than passing vacuously.
+
 With the local stack running, execute the offline end-to-end acceptance test from the repository root:
 
 ```powershell

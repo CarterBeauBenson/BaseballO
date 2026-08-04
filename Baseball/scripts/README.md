@@ -5,6 +5,8 @@ parses JSON, Turtle, and all 95 SPARQL files, verifies local Markdown links and
 Mermaid fences, runs the mapping-specific validators against all checked-in
 games, executes web tests, and verifies the current query audit, index,
 operational-routing, algebra, and TDB2 evidence artifacts.
+It also meta-validates both SHACL profiles and proves with negative smoke graphs
+that incomplete authoritative and index structures are rejected.
 
 ```powershell
 python scripts/validate_repository.py
@@ -23,8 +25,9 @@ The check fails for unassigned triples maps, nonexistent manifest references, ov
 
 The [`pipeline/`](pipeline/) scripts import locally supplied game JSON,
 preserve its bytes in a content-addressed archive, execute the pinned RMLMapper,
-validate generated RDF, load complete per-game named graphs, build disposable
-query indexes, audit 48 canned and 16 advanced queries, benchmark 18 reviewed
+validate generated RDF procedurally and with SHACL, load complete per-game
+named graphs, build and SHACL-check disposable query indexes, audit 48 canned
+and 16 advanced queries, benchmark 18 reviewed
 pairs, and enforce 15 indexed plus three authoritative routes. Infrastructure
 scripts create the connected manual-inbox NiFi flow. The earlier
 external-acquisition flow remains stopped pending an approved data source.

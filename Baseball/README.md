@@ -9,7 +9,8 @@ flowchart LR
     SOURCE[Manually supplied game JSON] --> INBOX[Local NiFi inbox]
     INBOX --> RAW[Immutable raw game JSON]
     RAW --> RML[Direct RML mapping]
-    RML --> RDF[Validated Turtle RDF]
+    RML --> SHACL[Source checks and SHACL]
+    SHACL --> RDF[Validated Turtle RDF]
     RDF --> FUSEKI[Apache Jena Fuseki / TDB2]
     FUSEKI --> SPARQL[Canned full-pattern SPARQL]
     FUSEKI --> CONSTRUCT[Reviewed CONSTRUCT components]
@@ -27,6 +28,8 @@ Eighteen authoritative/indexed query pairs have exact corpus results; the
 reviewed runner selects 15 indexed routes and keeps three neutral routes on the
 authoritative graph. The Explorer remains authoritative-only until its
 interaction with the operational router is reviewed separately.
+Both graph layers now have executable SHACL profiles. All fixture and corpus
+graphs conform with zero results before any future reasoning is applied.
 
 ## Repository map
 
@@ -37,6 +40,7 @@ interaction with the operational router is reviewed separately.
 | [`mappings/policies/`](mappings/policies/) | Approved modeling and IRI policies | Active |
 | [`source-schema/`](source-schema/) | Observed schema and JSONPath inventory for the sample feed | Active reference |
 | [`mermaid/`](mermaid/) | Visual review of the RML source, map, join, and identity shapes | Active review |
+| [`shacl/`](shacl/) | Executable authoritative and query-index graph constraints | Active validation contract |
 | [`data/`](data/) | Untouched development fixture and eight-game audit corpus | Active immutable inputs |
 | [`archive/`](archive/) | Superseded preprocessing prototype and prior ontology snapshot | Historical |
 | [`sparql/`](sparql/) | Canned and advanced semantic queries plus reviewable components for the disposable query-index graph | Active query library and acceleration contract |
@@ -63,7 +67,7 @@ python Baseball/mappings/direct/validate_direct_mapping.py `
   Baseball/data/raw/game-566279.json
 ```
 
-The validator checks the mapping's Turtle structure, locally declared BaseballO classes, the completed-game precondition, source identifiers, observed result coverage, and sample-specific IRI collision risks. It is a static check; successful execution by an RML processor is still required.
+The validator checks the mapping's Turtle structure, locally declared BaseballO classes, the completed-game precondition, source identifiers, observed result coverage, sample-specific IRI collision risks, and both SHACL profiles. Successful RML output is also checked against the authoritative profile before loading.
 
 ## Modeling guardrails
 
@@ -92,6 +96,6 @@ the local workflow.
 ## Next phase
 
 Use [`NEXT-PHASE.md`](NEXT-PHASE.md) as the single current continuation plan.
-It continues evidence-driven query-index coverage, preserves the separate
-ontology-review queue, and records completed work only to prevent accidental
-repetition.
+It starts the reasoning experiment from SHACL-valid explicit graphs, preserves
+the separate ontology-review queue, and records only the current continuation
+boundary.

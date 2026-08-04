@@ -11,7 +11,8 @@ import sys
 from pathlib import Path
 from urllib.parse import unquote
 
-from rdflib import Graph
+from pyshacl import validate as validate_shacl
+from rdflib import Graph, Namespace, RDF, URIRef
 from rdflib.plugins.sparql import prepareQuery
 
 
@@ -42,6 +43,10 @@ QUERY_INDEX_CORPUS_BASELINE = QUERY_INDEX_BENCHMARK_ROOT / "corpus-2026-08-03-ba
 TDB2_EXECUTION_ROOT = QUERY_INDEX_BENCHMARK_ROOT / "tdb2-execution"
 TDB2_EXECUTION_SUMMARY = TDB2_EXECUTION_ROOT / "tdb2-execution-summary.json"
 REVIEWED_QUERY_ROUTING = SPARQL_ROOT / "query-index" / "operational-query-routing.json"
+SHACL_ROOT = ROOT / "shacl"
+SH = Namespace("http://www.w3.org/ns/shacl#")
+BASE = Namespace("https://baseballontology.org/")
+IDX = Namespace("https://w3id.org/baseball/query-index/")
 
 REQUIRED_PATHS = (
     ROOT / "README.md",
@@ -54,6 +59,9 @@ REQUIRED_PATHS = (
     ROOT / "mermaid" / "README.md",
     ROOT / "mermaid" / "rml-mermaid-manifest.yaml",
     ROOT / "mermaid" / "patterns" / "README.md",
+    SHACL_ROOT / "README.md",
+    SHACL_ROOT / "authoritative.ttl",
+    SHACL_ROOT / "query-index.ttl",
     WEB_ROOT / "package.json",
     WEB_ROOT / "index.html",
     WEB_ROOT / "styles.css",
@@ -75,6 +83,7 @@ REQUIRED_PATHS = (
     ROOT / "scripts" / "pipeline" / "acquire-daily-games.ps1",
     ROOT / "scripts" / "pipeline" / "load-game-graph.ps1",
     ROOT / "scripts" / "pipeline" / "validate-generated-rdf.py",
+    ROOT / "scripts" / "pipeline" / "validate-shacl.py",
     ROOT / "scripts" / "pipeline" / "build-query-index.ps1",
     ROOT / "scripts" / "pipeline" / "compile-query-index.py",
     ROOT / "scripts" / "pipeline" / "query-index-common.ps1",
@@ -164,6 +173,55 @@ def validate_turtle() -> int:
     for path in files:
         Graph().parse(path, format="turtle")
     return len(files)
+
+
+def validate_shacl_profiles() -> int:
+    profiles = {
+        "authoritative": SHACL_ROOT / "authoritative.ttl",
+        "query-index": SHACL_ROOT / "query-index.ttl",
+    }
+    shape_count = 0
+    for name, path in profiles.items():
+        shapes = Graph().parse(path, format="turtle")
+        shape_count += len(set(shapes.subjects(RDF.type, SH.NodeShape)))
+        conforms, _, report_text = validate_shacl(
+            data_graph=Graph(),
+            shacl_graph=shapes,
+            inference="none",
+            advanced=True,
+            meta_shacl=True,
+            allow_infos=True,
+            allow_warnings=True,
+        )
+        if not conforms:
+            raise ValueError(f"SHACL profile {name} is not meta-valid:\n{report_text}")
+
+    invalid_authoritative = Graph()
+    invalid_authoritative.add(
+        (URIRef("urn:baseball:shacl-smoke:pitch"), RDF.type, BASE.PitchAct)
+    )
+    conforms, _, _ = validate_shacl(
+        data_graph=invalid_authoritative,
+        shacl_graph=Graph().parse(profiles["authoritative"], format="turtle"),
+        inference="none",
+        advanced=True,
+    )
+    if conforms:
+        raise ValueError("Authoritative SHACL profile accepted an incomplete PitchAct")
+
+    invalid_index = Graph()
+    invalid_index.add(
+        (URIRef("urn:baseball:shacl-smoke:hit"), RDF.type, IDX.HitFact)
+    )
+    conforms, _, _ = validate_shacl(
+        data_graph=invalid_index,
+        shacl_graph=Graph().parse(profiles["query-index"], format="turtle"),
+        inference="none",
+        advanced=True,
+    )
+    if conforms:
+        raise ValueError("Query-index SHACL profile accepted an incomplete HitFact")
+    return shape_count
 
 
 def validate_sparql() -> int:
@@ -705,6 +763,7 @@ def main() -> None:
     require_layout()
     json_count = validate_json()
     turtle_count = validate_turtle()
+    shacl_shape_count = validate_shacl_profiles()
     sparql_count = validate_sparql()
     validate_query_contract()
     markdown_count, mermaid_count = validate_markdown()
@@ -721,6 +780,7 @@ def main() -> None:
     algebra_plan_count = validate_query_index_algebra_artifacts()
     print(f"JSON files parsed: {json_count}")
     print(f"Turtle files parsed: {turtle_count}")
+    print(f"SHACL node shapes validated: {shacl_shape_count}")
     print(f"SPARQL queries parsed: {sparql_count}")
     print(f"Markdown files checked: {markdown_count}")
     print(f"Mermaid blocks checked: {mermaid_count}")

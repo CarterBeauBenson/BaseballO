@@ -9,7 +9,8 @@ flowchart LR
     A --> R[run-rml.ps1]
     R --> M[Pinned RMLMapper]
     M --> V[Parse and count validation]
-    V --> T[Validated Turtle]
+    V --> S[Authoritative SHACL]
+    S --> T[Validated Turtle]
     T --> L[load-game-graph.ps1]
     L --> F[Fuseki Graph Store PUT]
     F --> C[Reviewable CONSTRUCT components]
@@ -32,6 +33,8 @@ stages a byte-identical JSON copy. It then creates an isolated execution-context
 copy containing the ancestor IDs needed by nested pitch records, materializes
 guarded root-identifier markers only in its temporary mapping, invokes the
 pinned mapper in strict mode, and validates complete source-to-RDF coverage.
+The generated graph must also conform to the explicit authoritative SHACL
+profile before it can leave the staging directory.
 The context is disposable and never replaces the raw archive. The manifest
 records source, context-builder, execution-context, source-mapping,
 effective-mapping, and output hashes.
@@ -41,8 +44,9 @@ effective-mapping, and output hashes.
 duplicate statements. A successful authoritative load is followed by
 `build-query-index.ps1`, which builds and atomically replaces the smaller
 per-game query-index graph from the reviewed components under
-[`sparql/query-index/`](../../sparql/query-index/). A failed index build removes
-the derived graph but never deletes or changes the authoritative graph.
+[`sparql/query-index/`](../../sparql/query-index/). Compiled N-Triples must pass
+the query-index SHACL profile before the graph is replaced. A failed index build
+removes the derived graph but never deletes or changes the authoritative graph.
 
 Run the complete offline acceptance check with:
 

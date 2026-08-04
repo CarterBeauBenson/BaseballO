@@ -1,6 +1,6 @@
 # Query-index corpus benchmark: 2026-08-03
 
-Generated: 2026-08-04T17:10:10.1605257Z
+Generated: 2026-08-04T18:03:45.3396865Z
 
 This benchmark covers the eight completed 2026-08-03 games and excludes the older development fixture. Initial executions validate exact authoritative/indexed row equivalence and prime each path. Repeated timings alternate execution order.
 
@@ -8,27 +8,27 @@ This benchmark covers the eight completed 2026-08-03 games and excludes the olde
 - Query-index graphs: 8, 52944 triples
 - Repeated samples per query and layer: 20
 - Corpus SHA-256: `53c64863b8f154fd867958b43bca0e2535798111aadd7fcc7f95fa6f44db4daa`
-- Query-index contract SHA-256: `0c78cc555471897c1df3a1d5cea3fa08f5316c6dc8a751583c9ab91701104529`
+- Query-index contract SHA-256: `a573269199d575f513a6481609dd101fd26da113ea8c3daef0b7daae35543629`
 
 | Query | Rows | Initial authoritative (ms) | Initial indexed (ms) | Authoritative median (ms) | Indexed median (ms) | Median ratio |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| hits-by-player-and-venue | 93 | 232.534 | 62.614 | 257.622 | 28.089 | 9.172x |
-| outcomes-by-player | 422 | 145.627 | 48.408 | 100.258 | 48.082 | 2.085x |
-| outcomes-by-season | 15 | 609.091 | 14.345 | 607.247 | 12.645 | 48.023x |
-| plate-appearances-by-player-and-season | 158 | 69.04 | 25.437 | 66.109 | 27.209 | 2.43x |
-| three-true-outcomes-by-player | 121 | 37.663 | 33.117 | 37.468 | 20.661 | 1.813x |
-| extra-base-hits-by-player | 39 | 16.34 | 7.777 | 12.793 | 7.345 | 1.742x |
-| home-runs-by-player-and-venue | 26 | 10.866 | 7.26 | 11.135 | 8.074 | 1.379x |
-| multi-hit-games | 39 | 216.668 | 9.495 | 167.282 | 9.489 | 17.629x |
-| total-bases-by-player-and-season | 93 | 194.695 | 13.008 | 232.097 | 16.858 | 13.768x |
-| hitless-games-by-player | 65 | 531.544 | 73.51 | 407.411 | 53.201 | 7.658x |
-| pitches-by-pitcher-and-venue | 62 | 80.246 | 33.532 | 75.735 | 34.745 | 2.18x |
-| pitch-summary-by-pitcher | 62 | 398.502 | 62.58 | 322.266 | 64.951 | 4.962x |
-| batted-balls-by-batter-and-venue | 157 | 103.178 | 26.54 | 97.616 | 29.505 | 3.308x |
-| events-by-player | 549 | 237.027 | 77.882 | 241.559 | 48.637 | 4.967x |
-| runs-by-season-and-venue | 8 | 65.072 | 10.338 | 54.341 | 7.78 | 6.985x |
-| games-by-team-and-season | 16 | 7.922 | 7.105 | 7.066 | 6.318 | 1.118x |
-| umpire-assignments | 32 | 7.023 | 7.571 | 6.745 | 6.782 | 0.995x |
-| available-players | 158 | 23.089 | 16.24 | 13.918 | 14.119 | 0.986x |
+| hits-by-player-and-venue | 93 | 255.879 | 58.117 | 227.04 | 23.311 | 9.74x |
+| outcomes-by-player | 422 | 151.634 | 52.019 | 91.434 | 38.338 | 2.385x |
+| outcomes-by-season | 15 | 586.084 | 10.877 | 586.001 | 10.342 | 56.662x |
+| plate-appearances-by-player-and-season | 158 | 109.469 | 23.929 | 61.104 | 25.322 | 2.413x |
+| three-true-outcomes-by-player | 121 | 32.324 | 16.961 | 33.803 | 19.339 | 1.748x |
+| extra-base-hits-by-player | 39 | 10.844 | 7.688 | 11.331 | 6.624 | 1.711x |
+| home-runs-by-player-and-venue | 26 | 9.924 | 7.431 | 9.878 | 6.486 | 1.523x |
+| multi-hit-games | 39 | 167.927 | 9.266 | 156.772 | 8.281 | 18.932x |
+| total-bases-by-player-and-season | 93 | 228.613 | 19.387 | 231.786 | 15.823 | 14.649x |
+| hitless-games-by-player | 65 | 509.701 | 71.979 | 496.394 | 58.356 | 8.506x |
+| pitches-by-pitcher-and-venue | 62 | 80.938 | 32.468 | 71.838 | 33.619 | 2.137x |
+| pitch-summary-by-pitcher | 62 | 339.168 | 71.452 | 310.183 | 64.146 | 4.836x |
+| batted-balls-by-batter-and-venue | 157 | 93.871 | 26.338 | 94.481 | 27.676 | 3.414x |
+| events-by-player | 549 | 231.492 | 73.645 | 226.267 | 61.36 | 3.688x |
+| runs-by-season-and-venue | 8 | 39.967 | 5.364 | 39.678 | 5.562 | 7.134x |
+| games-by-team-and-season | 16 | 6.893 | 4.862 | 5.916 | 5.144 | 1.15x |
+| umpire-assignments | 32 | 8.138 | 7.824 | 6.42 | 6.377 | 1.007x |
+| available-players | 158 | 22.28 | 14.986 | 13.953 | 13.653 | 1.022x |
 
 A ratio above 1 means the indexed median was faster. These loopback measurements include request handling and JSON serialization. Separate direct TDB2 execution captures are stored under `tdb2-execution/`.

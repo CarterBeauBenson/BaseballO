@@ -91,6 +91,8 @@ $mappingPath = Join-Path $script:RepositoryRoot 'mappings\direct\mlb-direct.rml.
 $mappingValidatorPath = Join-Path $script:RepositoryRoot 'mappings\direct\validate_direct_mapping.py'
 $contextBuilderPath = Join-Path $script:RepositoryRoot 'scripts\pipeline\prepare-rml-context.py'
 $validatorPath = Join-Path $script:RepositoryRoot 'scripts\pipeline\validate-generated-rdf.py'
+$shaclValidatorPath = Join-Path $script:RepositoryRoot 'scripts\pipeline\validate-shacl.py'
+$authoritativeShapePath = Join-Path $script:RepositoryRoot 'shacl\authoritative.ttl'
 $java = Get-JavaExecutable
 $mapper = Get-RMLMapperJar
 $mappingBaseIri = 'https://baseballontology.org/mapping/mlb-direct'
@@ -208,6 +210,11 @@ try {
         throw "Generated RDF validation failed for game $gamePk."
     }
 
+    & python $shaclValidatorPath '--profile' 'authoritative' '--data' $stageOutput
+    if ($LASTEXITCODE -ne 0) {
+        throw "Authoritative SHACL validation failed for game $gamePk."
+    }
+
     Copy-Item -LiteralPath $stageOutput -Destination $outputPath -Force
     $outputHash = (Get-FileHash -LiteralPath $outputPath -Algorithm SHA256).Hash.ToLowerInvariant()
     $inputHashAfter = (Get-FileHash -LiteralPath $inputPath -Algorithm SHA256).Hash.ToLowerInvariant()
@@ -248,6 +255,10 @@ try {
         }
         outputPath = $outputPath
         outputSha256 = $outputHash
+        shaclProfile = 'authoritative'
+        shaclShapePath = $authoritativeShapePath
+        shaclShapeSha256 = (Get-FileHash -LiteralPath $authoritativeShapePath -Algorithm SHA256).Hash.ToLowerInvariant()
+        shaclValidatorSha256 = (Get-FileHash -LiteralPath $shaclValidatorPath -Algorithm SHA256).Hash.ToLowerInvariant()
         completedAtUtc = [DateTime]::UtcNow.ToString('o')
     } | ConvertTo-Json | Set-Content -LiteralPath $manifestPath -Encoding UTF8
 

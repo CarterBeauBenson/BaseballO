@@ -102,5 +102,8 @@ execution harness runs the pinned RMLMapper and the generated-RDF validator,
 which requires complete ancestor context on every pitch, swing/bunt act, and
 contact; one final game timestamp; physical chains; adjudication structure;
 shared foul-tip/strike identity; and event-record separation.
+The resulting Turtle must then conform to the separate
+[`authoritative SHACL profile`](../../shacl/authoritative.ttl) before it is
+published.
 Repository validation also exercises the checked-in eight-game 2026-08-03
 corpus in addition to the original fixture, without modifying any raw source.

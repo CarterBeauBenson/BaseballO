@@ -13,6 +13,9 @@ the subsystem READMEs and Git history; do not recreate them here.
   referencing-object-map joins.
 - Eight completed games produce 228,576 authoritative triples and 52,944 index
   triples. All per-game semantic equivalence checks pass.
+- Two explicit, non-entailing SHACL profiles contain 30 node shapes. The
+  fixture and all eight corpus graph pairs conform with zero results; RML,
+  index, and dehydration workflows now fail closed on violations.
 - The query library contains 48 canned and 16 advanced queries with reproducible
   corpus baselines.
 - Eighteen authoritative/index pairs have exact results and benchmark evidence.
@@ -27,7 +30,20 @@ the subsystem READMEs and Git history; do not recreate them here.
 
 ## Next work
 
-### 1. Review the Explorer
+### 1. Begin the reasoning experiment
+
+- Inventory intended entailments before choosing a rule profile. Start with
+  safe class and property consequences already supported by the ontology; do
+  not encode unresolved baseball interpretations as rules.
+- Keep asserted authoritative graphs immutable. Materialize inferred statements
+  into a separate, replaceable per-game reasoning graph with provenance and a
+  reproducible ruleset fingerprint.
+- Establish positive and negative entailment fixtures, contradiction checks,
+  and query-result comparisons before allowing inferred graphs into analytics.
+- Run SHACL on explicit graphs before reasoning. Add post-reasoning shapes only
+  for constraints whose semantics remain valid over the inferred closure.
+
+### 2. Review the Explorer
 
 - Evaluate the Advanced view against real research questions.
 - Decide how the three generic terminal baserunning outcomes should relate to a
@@ -35,7 +51,7 @@ the subsystem READMEs and Git history; do not recreate them here.
 - Record confusing labels, defaults, groupings, and result columns, but defer a
   broad visual redesign until the query path is settled.
 
-### 2. Expand index coverage carefully
+### 3. Expand index coverage carefully
 
 - Add indexed companions in small semantic families.
 - Require exact eight-game row equivalence and repeatable timing evidence for
@@ -45,7 +61,7 @@ the subsystem READMEs and Git history; do not recreate them here.
 - Treat negative and integrity queries as completeness-sensitive. Do not run
   them against an index unless their required evidence sets are proven complete.
 
-### 3. Preserve the execution boundary
+### 4. Preserve the execution boundary
 
 - Retain authoritative queries for audit, fallback, and regression testing.
 - Keep Auto fallback and explicit Indexed fail-closed behavior tested.
@@ -70,6 +86,7 @@ the subsystem READMEs and Git history; do not recreate them here.
 - [Query-index contract](sparql/query-index/README.md)
 - [Benchmark evidence](benchmarks/query-index/README.md)
 - [RML and Mermaid review](mermaid/README.md)
+- [SHACL validation](shacl/README.md)
 - [Explorer](web/README.md)
 - [Manual pipeline](scripts/pipeline/README.md)
 

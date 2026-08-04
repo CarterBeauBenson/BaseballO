@@ -1,2 +1,2 @@
-rdflib==7.1.4
-
+rdflib==7.6.0
+pyshacl==0.40.0
