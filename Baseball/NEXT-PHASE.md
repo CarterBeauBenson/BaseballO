@@ -47,9 +47,12 @@ unless a regression demonstrates that they are broken.
   compiler. Its set-based authoritative query returns the same 27-player result
   set across the current nine loaded graphs while avoiding repeated correlated
   absence checks.
-- No canonical canned query or UI query builder has been redirected to the
-  index yet. Corpus evidence now supports a reviewed migration of the seven
-  traversal-heavy families; the three neutral paths should stay authoritative.
+- Canonical canned queries and the UI query builder remain authoritative. A
+  separate reviewed runner now routes the seven proven traversal-heavy query
+  pairs to the index and leaves the three neutral pairs authoritative. It
+  scopes execution to the loaded graph set, verifies current local manifests
+  and graph metadata, falls back safely in Auto mode, and fails closed when
+  Indexed mode is explicitly requested without a current index.
 - No query-index shortcut term has been added to the ontology.
 
 ## Work that is complete - do not redo
@@ -62,6 +65,9 @@ unless a regression demonstrates that they are broken.
 - single-fixture equivalence, benchmarks, and optimized algebra capture;
 - eight-game canned-query audit, corpus query-index benchmark, UTF-8 label
   fidelity gate, and direct TDB2 execution capture;
+- evidence-driven operational routing for seven indexed and three
+  authoritative query pairs, including live equivalence, fallback, and
+  fail-closed tests;
 - portable dehydration-package export, validation, tamper testing, and exact
   graph restoration;
 - malformed-component/stale-index recovery testing;
@@ -88,37 +94,35 @@ preserved and content-addressed archive hashes match their checked-in sources.
 
 ## Next work, in order
 
-### 1. Owner review of the local explorer
+### 1. Extend indexed companion coverage
 
-- Run the interface documented in [`web/README.md`](web/README.md) and review
-  its labels, defaults, grouping behavior, result columns, Empty Games policy,
-  and visual hierarchy.
-- Record the first real questions that feel awkward or impossible to express;
-  use those as requirements for the next query-component additions.
-- Keep the interface local until a reviewed public query service exists. Never
-  expose Fuseki's update or Graph Store endpoints to a browser.
+- Build indexed companions for the remaining structurally index-ready canned
+  queries in small semantic families rather than switching all 46 at once.
+- Require exact eight-game row equivalence and repeatable timing evidence for
+  every added route. Keep neutral or slower queries authoritative.
+- Add a route only through
+  [`operational-query-routing.json`](sparql/query-index/operational-query-routing.json)
+  so the evidence, selected layer, and fallback policy remain reviewable.
 
-### 2. Review and stage query/UI migration
+### 2. Preserve the operational safety boundary
 
-- Use [`sparql/query-index/query-decision-matrix.md`](sparql/query-index/query-decision-matrix.md)
-  and the corpus benchmark as the starting evidence.
-- First stage indexed companions for the seven measured traversal-heavy
-  families: hits, outcomes, pitch traversal and summary, batted balls,
-  baserunning events, and runs by season/venue.
-- Keep games by team, umpire assignments, and available players on the
-  authoritative path because their measured medians are within 7%.
-- Keep authoritative companions available for auditing and regression tests.
+- Keep authoritative companions available for audit, fallback, and regression
+  tests; never overwrite them with shortcut query shapes.
+- Keep Auto fallback and explicit Indexed fail-closed behavior under executable
+  acceptance tests as the route set grows.
 - Keep `empty-games-prototype.rq` authoritative unless its negative
   completeness semantics are explicitly redesigned.
 - Keep `game-timeline.rq` authoritative unless terminal-time evidence is added
   to a reviewed index contract.
-- Update the allowlisted UI compiler only after the corresponding canned-query
-  decision is recorded.
+- Do not wire the UI compiler to the operational router until its interaction
+  model is reviewed separately.
 
-### 3. Expand the component compiler from real review questions
+### 3. Return to Explorer usability after query coverage
 
-- Add select-box components only for questions the owner identifies while
-  using the Explorer; do not expose arbitrary browser-supplied SPARQL.
+- Review labels, defaults, grouping, result columns, and visual hierarchy after
+  the current query-acceleration path is complete.
+- Add select-box components only for questions the owner identifies; do not
+  expose arbitrary browser-supplied SPARQL.
 - Give each compiled shape an authoritative regression companion and an
   indexed companion only where the materialized contract covers it.
 - Re-run the 48-query audit whenever a canonical query changes, and re-run the

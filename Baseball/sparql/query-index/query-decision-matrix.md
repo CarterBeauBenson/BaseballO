@@ -23,21 +23,22 @@ justify migration on performance grounds.
 ## Measured migration evidence
 
 These ten pairs have exact results across all eight accepted corpus graphs.
-`Candidate` means the measured benefit is large enough to stage a migration;
-it is not a silent switch of the canonical query or UI compiler.
+`Auto indexed` means the reviewed command-line runner selects that companion
+after freshness checks. It is not a silent switch of the canonical query or UI
+compiler.
 
 | Representative pair | Median speedup | Decision |
 | --- | ---: | --- |
-| `hits-by-player-and-venue` | 9.34x | Candidate |
-| `outcomes-by-player` | 2.16x | Candidate |
-| `pitches-by-pitcher-and-venue` | 2.20x | Candidate |
-| `pitch-summary-by-pitcher` | 4.45x | Candidate |
-| `batted-balls-by-batter-and-venue` | 3.43x | Candidate |
-| `events-by-player` | 4.18x | Candidate |
-| `runs-by-season-and-venue` | 6.88x | Candidate |
-| `games-by-team-and-season` | 1.07x | Stay authoritative |
-| `umpire-assignments` | 1.01x | Stay authoritative |
-| `available-players` | 1.07x | Stay authoritative |
+| `hits-by-player-and-venue` | 9.34x | Auto indexed |
+| `outcomes-by-player` | 2.16x | Auto indexed |
+| `pitches-by-pitcher-and-venue` | 2.20x | Auto indexed |
+| `pitch-summary-by-pitcher` | 4.45x | Auto indexed |
+| `batted-balls-by-batter-and-venue` | 3.43x | Auto indexed |
+| `events-by-player` | 4.18x | Auto indexed |
+| `runs-by-season-and-venue` | 6.88x | Auto indexed |
+| `games-by-team-and-season` | 1.07x | Auto authoritative |
+| `umpire-assignments` | 1.01x | Auto authoritative |
+| `available-players` | 1.07x | Auto authoritative |
 
 Direct TDB2 execution captures corroborate the shape reduction: for example,
 the hit pair drops from 24 to 8 TDB2 quad patterns and the runs pair drops from

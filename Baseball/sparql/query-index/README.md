@@ -96,9 +96,24 @@ WHERE {
 GROUP BY ?season ?venue ?player ?playerLabel
 ```
 
-Switching the 48 canned queries or the UI compiler to this shape is a separate
-review step. Until that happens, they continue to query the authoritative
-graphs.
+Canonical canned queries and the UI compiler continue to query authoritative
+graphs. The separate reviewed operational runner can select indexed companions
+without changing either source:
+
+```powershell
+.\scripts\pipeline\run-reviewed-query.ps1 `
+  -Name hits-by-player-and-venue `
+  -Layer Auto
+```
+
+[`operational-query-routing.json`](operational-query-routing.json) records ten
+measured routes. Auto mode selects the index for seven traversal-heavy pairs
+and the authoritative layer for three neutral pairs. Before indexed execution,
+the runner scopes the exact loaded graph set and checks every corresponding
+contract hash, authoritative/index artifact hash, manifest count, loaded graph
+count, and in-graph provenance record. A failed check falls back to
+authoritative execution in Auto mode; explicit Indexed mode fails closed.
+`-VerifyEquivalent` compares exact runtime rows before returning.
 
 The contract-level classification of every canned query is recorded in
 [`query-decision-matrix.md`](query-decision-matrix.md). Contract version 1 can

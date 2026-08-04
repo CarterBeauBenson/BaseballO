@@ -37,6 +37,7 @@ QUERY_INDEX_BENCHMARK_ROOT = ROOT / "benchmarks" / "query-index"
 QUERY_INDEX_CORPUS_BASELINE = QUERY_INDEX_BENCHMARK_ROOT / "corpus-2026-08-03-baseline.json"
 TDB2_EXECUTION_ROOT = QUERY_INDEX_BENCHMARK_ROOT / "tdb2-execution"
 TDB2_EXECUTION_SUMMARY = TDB2_EXECUTION_ROOT / "tdb2-execution-summary.json"
+REVIEWED_QUERY_ROUTING = SPARQL_ROOT / "query-index" / "operational-query-routing.json"
 
 REQUIRED_PATHS = (
     ROOT / "README.md",
@@ -77,6 +78,8 @@ REQUIRED_PATHS = (
     ROOT / "scripts" / "pipeline" / "benchmark-query-index.ps1",
     ROOT / "scripts" / "pipeline" / "benchmark-query-index-corpus.ps1",
     ROOT / "scripts" / "pipeline" / "capture-tdb2-query-execution.ps1",
+    ROOT / "scripts" / "pipeline" / "run-reviewed-query.ps1",
+    ROOT / "scripts" / "pipeline" / "test-reviewed-query-routing.ps1",
     ROOT / "scripts" / "pipeline" / "capture-query-algebra.ps1",
     ROOT / "scripts" / "pipeline" / "export-dehydration-package.ps1",
     ROOT / "scripts" / "pipeline" / "restore-dehydration-package.ps1",
@@ -90,6 +93,7 @@ REQUIRED_PATHS = (
     ROOT / "sparql" / "graph-condensation-requirements.md",
     ROOT / "sparql" / "query-index" / "README.md",
     ROOT / "sparql" / "query-index" / "query-decision-matrix.md",
+    REVIEWED_QUERY_ROUTING,
     ROOT / "sparql" / "query-index" / "dehydration-package.md",
     ROOT / "sparql" / "query-index" / "benchmarks" / "benchmark-pairs.json",
     ROOT / "benchmarks" / "query-index" / "README.md",
@@ -397,6 +401,57 @@ def validate_query_index_benchmarks() -> int:
     return len(results)
 
 
+def validate_reviewed_query_routing() -> int:
+    routing = json.loads(REVIEWED_QUERY_ROUTING.read_text(encoding="utf-8"))
+    if routing.get("artifactType") != "baseball-reviewed-query-routing":
+        raise ValueError("Reviewed query routing has an unknown artifact type")
+    evidence_path = ROOT / str(routing.get("evidence", ""))
+    if evidence_path.resolve() != QUERY_INDEX_CORPUS_BASELINE.resolve():
+        raise ValueError("Reviewed query routing must cite the corpus benchmark")
+
+    pairs = query_index_pairs()
+    pair_by_name = {str(pair["name"]): pair for pair in pairs}
+    benchmark = json.loads(QUERY_INDEX_CORPUS_BASELINE.read_text(encoding="utf-8"))
+    benchmark_by_name = {
+        str(result["name"]): result for result in benchmark.get("results", [])
+    }
+    routes = routing.get("routes", [])
+    route_names = {str(route.get("name")) for route in routes}
+    if len(routes) != 10 or route_names != set(pair_by_name):
+        raise ValueError("Reviewed query routing must cover the exact benchmark pair set")
+
+    expected_indexed = {
+        "hits-by-player-and-venue",
+        "outcomes-by-player",
+        "pitches-by-pitcher-and-venue",
+        "pitch-summary-by-pitcher",
+        "batted-balls-by-batter-and-venue",
+        "events-by-player",
+        "runs-by-season-and-venue",
+    }
+    actual_indexed = {
+        str(route["name"])
+        for route in routes
+        if str(route.get("autoLayer")) == "indexed"
+    }
+    if actual_indexed != expected_indexed:
+        raise ValueError("Reviewed indexed routes differ from the seven measured candidates")
+
+    for route in routes:
+        name = str(route["name"])
+        pair = pair_by_name[name]
+        result = benchmark_by_name[name]
+        if route.get("authoritative") != pair.get("authoritative"):
+            raise ValueError(f"Reviewed authoritative route differs for {name}")
+        if route.get("indexed") != pair.get("indexed"):
+            raise ValueError(f"Reviewed indexed route differs for {name}")
+        if route.get("autoLayer") not in ("authoritative", "indexed"):
+            raise ValueError(f"Reviewed route has an invalid automatic layer: {name}")
+        if float(route.get("medianSpeedup", -1)) != float(result.get("medianSpeedup", -2)):
+            raise ValueError(f"Reviewed route benchmark evidence is stale for {name}")
+    return len(routes)
+
+
 def validate_tdb2_execution_capture() -> int:
     report = json.loads(TDB2_EXECUTION_SUMMARY.read_text(encoding="utf-8"))
     if report.get("artifactType") != "baseball-query-index-tdb2-execution-capture":
@@ -531,6 +586,7 @@ def main() -> None:
     validate_web_app()
     canned_audit_count = validate_canned_query_audit()
     query_index_benchmark_count = validate_query_index_benchmarks()
+    reviewed_route_count = validate_reviewed_query_routing()
     tdb2_capture_count = validate_tdb2_execution_capture()
     algebra_plan_count = validate_query_index_algebra_artifacts()
     print(f"JSON files parsed: {json_count}")
@@ -542,6 +598,7 @@ def main() -> None:
     print("Local web explorer checks passed.")
     print(f"Canned-query corpus baselines checked: {canned_audit_count}")
     print(f"Corpus query-index benchmark pairs checked: {query_index_benchmark_count}")
+    print(f"Reviewed operational query routes checked: {reviewed_route_count}")
     print(f"TDB2 query execution captures checked: {tdb2_capture_count}")
     print("Active manual pipeline contains no MLB acquisition endpoint or command.")
     print("Repository validation passed.")

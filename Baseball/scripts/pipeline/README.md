@@ -88,6 +88,29 @@ TDB2 query execution, stop Fuseki first, run
 The capture script refuses to run while port 3030 is open so two processes
 cannot access the datastore concurrently.
 
+## Reviewed query execution
+
+Run one of the ten measured query pairs through its reviewed automatic route:
+
+```powershell
+.\scripts\pipeline\run-reviewed-query.ps1 `
+  -Name hits-by-player-and-venue `
+  -Layer Auto
+```
+
+`Auto` uses the seven evidence-backed indexed routes and keeps the three
+neutral routes authoritative. Indexed execution is allowed only when every
+loaded game has current authoritative/index artifacts, hashes and counts, a
+current local build manifest, and matching graph metadata. Otherwise Auto
+falls back to the authoritative query. `-Layer Indexed` fails closed instead.
+Use `-VerifyEquivalent` for an immediate exact row comparison.
+
+Exercise all normal and failure routes with:
+
+```powershell
+.\scripts\pipeline\test-reviewed-query-routing.ps1
+```
+
 ## Portable dehydration packages
 
 [`export-dehydration-package.ps1`](export-dehydration-package.ps1) creates a

@@ -7,16 +7,17 @@ have yet been accepted as a baseball statistic.
 
 The 48 canned queries remain authoritative-pattern queries. The separate
 [`query-index/`](query-index/) contract materializes equivalent shortcut facts
-but has not yet replaced any canned or UI-compiled query. Its executable suite
+without replacing any canned or UI-compiled query. Its reviewed operational
+runner routes seven proven companions to the index while preserving the
+authoritative files and fallback path. Its executable suite
 compares exact rows for eleven recurring semantic families, including label
 fidelity, before that migration is considered.
 
 Contract version 1 classification is complete in
 [`query-index/query-decision-matrix.md`](query-index/query-decision-matrix.md):
 46 queries are structurally index-ready, while `empty-games-prototype.rq` and
-`game-timeline.rq` remain authoritative. No canonical query has been migrated
-yet; the eight-game corpus benchmark now supplies the evidence for a selective
-migration review.
+`game-timeline.rq` remain authoritative. The eight-game corpus benchmark and
+operational routing manifest record the first selective execution decisions.
 
 | Family | Query | Counted or returned entity | Required evidence and principal joins | Filters or dimensions | Status |
 | --- | --- | --- | --- | --- | --- |
