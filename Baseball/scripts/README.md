@@ -7,6 +7,9 @@ games, executes web tests, and verifies the current query audit, index,
 operational-routing, algebra, and TDB2 evidence artifacts.
 It also meta-validates both SHACL profiles and proves with negative smoke graphs
 that incomplete authoritative and index structures are rejected.
+It also runs the selective-reasoning tests for slice isolation, positive and
+negative entailments, computational budgets, deterministic output, and CLIF
+translation.
 
 ```powershell
 python scripts/validate_repository.py
@@ -31,3 +34,8 @@ and 16 advanced queries, benchmark 18 reviewed
 pairs, and enforce 15 indexed plus three authoritative routes. Infrastructure
 scripts create the connected manual-inbox NiFi flow. The earlier
 external-acquisition flow remains stopped pending an approved data source.
+
+The [`reasoning/`](reasoning/) scripts fetch checksum-pinned BFO CLIF modules,
+extract exactly one plate-appearance slice, apply one allowlisted reasoning
+profile, emit deterministic inferred RDF and CLIF proof inputs, and optionally
+load the resulting disposable named graph. They expose no full-game mode.

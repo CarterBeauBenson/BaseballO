@@ -21,6 +21,7 @@ ACTIVE_MAPPING = ROOT / "mappings" / "direct" / "mlb-direct.rml.ttl"
 MAPPING_VALIDATOR = ROOT / "mappings" / "direct" / "validate_direct_mapping.py"
 ONTOLOGY_OVERLAY_VALIDATOR = ROOT / "scripts" / "validate_ontology_overlay.py"
 RML_MERMAID_GENERATOR = ROOT / "scripts" / "generate_rml_mermaid.py"
+SELECTIVE_REASONING_TEST = ROOT / "scripts" / "reasoning" / "test-selective-reasoning.py"
 SAMPLE = ROOT / "data" / "raw" / "game-566279.json"
 MAPPING_SAMPLES = (
     SAMPLE,
@@ -62,6 +63,11 @@ REQUIRED_PATHS = (
     SHACL_ROOT / "README.md",
     SHACL_ROOT / "authoritative.ttl",
     SHACL_ROOT / "query-index.ttl",
+    ROOT / "reasoning" / "README.md",
+    ROOT / "reasoning" / "bfo-clif-manifest.json",
+    ROOT / "reasoning" / "profiles" / "event-order.json",
+    ROOT / "reasoning" / "profiles" / "event-structure.json",
+    ROOT / "reasoning" / "profiles" / "participation.json",
     WEB_ROOT / "package.json",
     WEB_ROOT / "index.html",
     WEB_ROOT / "styles.css",
@@ -101,6 +107,10 @@ REQUIRED_PATHS = (
     ROOT / "scripts" / "pipeline" / "test-query-index-failure.ps1",
     ROOT / "scripts" / "pipeline" / "audit-canned-queries.ps1",
     ROOT / "scripts" / "pipeline" / "audit-advanced-queries.ps1",
+    ROOT / "scripts" / "reasoning" / "sync-bfo-clif.py",
+    ROOT / "scripts" / "reasoning" / "selective_reasoner.py",
+    ROOT / "scripts" / "reasoning" / "run-selective-reasoning.ps1",
+    SELECTIVE_REASONING_TEST,
     RML_MERMAID_GENERATOR,
     ROOT / "sparql" / "empty-games-prototype.rq",
     ADVANCED_QUERY_ROOT / "README.md",
@@ -341,6 +351,14 @@ def validate_ontology_overlay() -> None:
 def validate_rml_mermaid() -> None:
     subprocess.run(
         [sys.executable, str(RML_MERMAID_GENERATOR), "--check"],
+        cwd=ROOT,
+        check=True,
+    )
+
+
+def validate_selective_reasoning() -> None:
+    subprocess.run(
+        [sys.executable, str(SELECTIVE_REASONING_TEST)],
         cwd=ROOT,
         check=True,
     )
@@ -770,6 +788,7 @@ def main() -> None:
     validate_ontology_overlay()
     validate_active_mapping()
     validate_rml_mermaid()
+    validate_selective_reasoning()
     validate_offline_pipeline_boundary()
     validate_web_app()
     canned_audit_count = validate_canned_query_audit()
@@ -786,6 +805,7 @@ def main() -> None:
     print(f"Mermaid blocks checked: {mermaid_count}")
     print(f"Optimized ARQ algebra plans checked: {algebra_plan_count}")
     print("Local web explorer checks passed.")
+    print("Selective reasoning contracts and offline smoke tests passed.")
     print(f"Canned-query corpus baselines checked: {canned_audit_count}")
     print(f"Advanced semantic query baselines checked: {advanced_audit_count}")
     print(f"Corpus query-index benchmark pairs checked: {query_index_benchmark_count}")

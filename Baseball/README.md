@@ -12,6 +12,8 @@ flowchart LR
     RML --> SHACL[Source checks and SHACL]
     SHACL --> RDF[Validated Turtle RDF]
     RDF --> FUSEKI[Apache Jena Fuseki / TDB2]
+    FUSEKI --> REASON[Budgeted plate-appearance reasoning]
+    REASON --> INFERRED[Disposable inferred named graph]
     FUSEKI --> SPARQL[Canned full-pattern SPARQL]
     FUSEKI --> CONSTRUCT[Reviewed CONSTRUCT components]
     CONSTRUCT --> INDEX[Disposable per-game query index]
@@ -28,8 +30,12 @@ Eighteen authoritative/indexed query pairs have exact corpus results; the
 reviewed runner selects 15 indexed routes and keeps three neutral routes on the
 authoritative graph. The Explorer remains authoritative-only until its
 interaction with the operational router is reviewed separately.
-Both graph layers now have executable SHACL profiles. All fixture and corpus
-graphs conform with zero results before any future reasoning is applied.
+Both graph layers have executable SHACL profiles. All fixture and corpus graphs
+conform with zero results before reasoning is applied. Selective reasoning is
+available for one explicitly anchored plate appearance through separate event
+order, event structure, and participation profiles. Each profile has hard
+computational budgets and emits a pinned BFO CLIF proof package alongside a
+disposable inferred graph.
 
 ## Repository map
 
@@ -41,6 +47,7 @@ graphs conform with zero results before any future reasoning is applied.
 | [`source-schema/`](source-schema/) | Observed schema and JSONPath inventory for the sample feed | Active reference |
 | [`mermaid/`](mermaid/) | Visual review of the RML source, map, join, and identity shapes | Active review |
 | [`shacl/`](shacl/) | Executable authoritative and query-index graph constraints | Active validation contract |
+| [`reasoning/`](reasoning/) | Budgeted profiles, pinned BFO CLIF source contract, and reasoning runbook | Active selective experiment |
 | [`data/`](data/) | Untouched development fixture and eight-game audit corpus | Active immutable inputs |
 | [`archive/`](archive/) | Superseded preprocessing prototype and prior ontology snapshot | Historical |
 | [`sparql/`](sparql/) | Canned and advanced semantic queries plus reviewable components for the disposable query-index graph | Active query library and acceleration contract |
@@ -93,9 +100,16 @@ source. The active NiFi flow makes no MLB or other external HTTP request. The
 current corpus is already checked in and must not be reacquired merely to rerun
 the local workflow.
 
+## Run selective reasoning
+
+Follow the [selective reasoning runbook](reasoning/README.md) to cache the
+checksum-pinned BFO CLIF modules and reason over one plate appearance. There is
+deliberately no full-game or corpus mode. Loading an inferred graph is explicit
+and never changes the authoritative or query-index graphs.
+
 ## Next phase
 
 Use [`NEXT-PHASE.md`](NEXT-PHASE.md) as the single current continuation plan.
-It starts the reasoning experiment from SHACL-valid explicit graphs, preserves
+It advances the reasoning experiment from its first bounded profiles, preserves
 the separate ontology-review queue, and records only the current continuation
 boundary.

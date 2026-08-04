@@ -12,6 +12,16 @@ The repository check also meta-validates 30 SHACL node shapes across the
 authoritative and query-index profiles. Negative smoke graphs prove that an
 incomplete `PitchAct` and `HitFact` fail rather than passing vacuously.
 
+Selective reasoning has a separate offline suite:
+
+```powershell
+python .\scripts\reasoning\test-selective-reasoning.py
+```
+
+It proves plate-appearance isolation, expected order/part/participant
+consequences, rejection of precedence cycles, hard budget failure,
+deterministic serialization, and temporally qualified CLIF translation.
+
 With the local stack running, execute the offline end-to-end acceptance test from the repository root:
 
 ```powershell

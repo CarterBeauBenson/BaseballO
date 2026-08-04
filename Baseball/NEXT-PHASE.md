@@ -26,22 +26,33 @@ the subsystem READMEs and Git history; do not recreate them here.
   authoritative-only.
 - Intentional walks use the complete walk pattern. Three source-limited terminal
   baserunning outcomes remain explicit generic results for ontological review.
+- Three selective reasoning profiles operate only on an explicitly anchored
+  plate appearance. They enforce fixed computational budgets, preserve the
+  authoritative graph, materialize into disposable fingerprinted graph IRIs,
+  and emit pinned BFO CLIF proof packages. The published fixture slice produces
+  52 order, 47 structure, and 30 participation inferences for plate appearance
+  0; its three named graphs add four deterministic provenance triples each.
+- The BFO CLIF source contract is pinned to commit
+  `dd89f4a193038b66ef0e891d546c05a5b477f40f`. No complete first-order proof is
+  claimed until a configured prover executes the emitted proof request.
 - No query-index shortcut terms have been added to the ontology.
 
 ## Next work
 
-### 1. Begin the reasoning experiment
+### 1. Advance the selective reasoning experiment
 
-- Inventory intended entailments before choosing a rule profile. Start with
-  safe class and property consequences already supported by the ontology; do
-  not encode unresolved baseball interpretations as rules.
-- Keep asserted authoritative graphs immutable. Materialize inferred statements
-  into a separate, replaceable per-game reasoning graph with provenance and a
-  reproducible ruleset fingerprint.
-- Establish positive and negative entailment fixtures, contradiction checks,
-  and query-result comparisons before allowing inferred graphs into analytics.
-- Run SHACL on explicit graphs before reasoning. Add post-reasoning shapes only
-  for constraints whose semantics remain valid over the inferred closure.
+- Configure and pin a free first-order backend, then execute the emitted CLIF
+  proof requests. Keep `fullFirstOrderProofExecuted` false until actual proof
+  evidence is captured and hashed.
+- Exercise each profile against a reviewed sample of simple and complicated
+  plate appearances. Compare inferred graph contents and relevant query results
+  before exposing reasoning to the Explorer.
+- Add profiles only as small semantic families with their own fixed budgets,
+  positive entailments, forbidden entailments, and contradiction checks. Do not
+  introduce a full-game or corpus closure mode.
+- Continue running SHACL on explicit graphs before reasoning. Add post-reasoning
+  shapes only for constraints whose semantics remain valid over inferred
+  closure.
 
 ### 2. Review the Explorer
 
