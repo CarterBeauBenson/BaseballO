@@ -50,6 +50,16 @@ const dimensions = {
     input: "iri",
     optionsQuery: "../../sparql/options/available-venues.rq",
   }),
+  team: (requires, label = "Team") => ({
+    label,
+    select: ["?team", "?teamLabel"],
+    groupBy: ["?team", "?teamLabel"],
+    sortExpression: "LCASE(STR(?teamLabel))",
+    variable: "?team",
+    input: "iri",
+    requires: [requires],
+    optionsQuery: "../../sparql/options/available-teams.rq",
+  }),
 };
 
 const FAMILY_DEFINITIONS = {
@@ -90,6 +100,17 @@ const FAMILY_DEFINITIONS = {
         (base:InterferenceProcess "catcher_interf")
       }`,
     ],
+    patternComponents: {
+      offensive_team: [
+        `?halfInning a base:HalfInning ;
+                     obo:BFO_0000117 ?plateAppearance .`,
+        `BIND(IF(STRENDS(STR(?halfInning), "/top"), base:AwayTeamRole, base:HomeTeamRole) AS ?teamRoleClass)`,
+        `?teamRole a ?teamRoleClass ;
+                  obo:BFO_0000197 ?team ;
+                  obo:BFO_0000054 ?game .`,
+        `?team rdfs:label ?teamLabel .`,
+      ],
+    },
     dimensions: {
       season: dimensions.season(),
       player: {
@@ -102,6 +123,7 @@ const FAMILY_DEFINITIONS = {
         optionsQuery: "../../sparql/options/available-players.rq",
       },
       venue: dimensions.venue(),
+      team: dimensions.team("offensive_team", "Batting team"),
       event_type: {
         label: "Plate-appearance result",
         select: ["?eventType"],
@@ -204,6 +226,15 @@ const FAMILY_DEFINITIONS = {
       }`,
     ],
     patternComponents: {
+      fielding_team: [
+        `?halfInning a base:HalfInning ;
+                     obo:BFO_0000117 ?plateAppearance .`,
+        `BIND(IF(STRENDS(STR(?halfInning), "/top"), base:HomeTeamRole, base:AwayTeamRole) AS ?teamRoleClass)`,
+        `?teamRole a ?teamRoleClass ;
+                  obo:BFO_0000197 ?team ;
+                  obo:BFO_0000054 ?game .`,
+        `?team rdfs:label ?teamLabel .`,
+      ],
       called_strike: [
         `OPTIONAL {
           ?calledStrikeRecord a base:BaseballEventRecord ;
@@ -233,6 +264,7 @@ const FAMILY_DEFINITIONS = {
         optionsQuery: "../../sparql/options/available-pitchers.rq",
       },
       venue: dimensions.venue(),
+      team: dimensions.team("fielding_team", "Pitching team"),
       game: dimensions.game(),
     },
     metrics: {
@@ -321,6 +353,17 @@ const FAMILY_DEFINITIONS = {
         ?stolenBaseJudgment a base:StolenBaseJudgmentAct .
       }`,
     ],
+    patternComponents: {
+      offensive_team: [
+        `?halfInning a base:HalfInning ;
+                     obo:BFO_0000117 ?plateAppearance .`,
+        `BIND(IF(STRENDS(STR(?halfInning), "/top"), base:AwayTeamRole, base:HomeTeamRole) AS ?teamRoleClass)`,
+        `?teamRole a ?teamRoleClass ;
+                  obo:BFO_0000197 ?team ;
+                  obo:BFO_0000054 ?game .`,
+        `?team rdfs:label ?teamLabel .`,
+      ],
+    },
     dimensions: {
       season: dimensions.season(),
       player: {
@@ -333,6 +376,7 @@ const FAMILY_DEFINITIONS = {
         optionsQuery: "../../sparql/options/available-baserunners.rq",
       },
       venue: dimensions.venue(),
+      team: dimensions.team("offensive_team", "Baserunning team"),
       event_type: {
         label: "Runner event",
         select: ["?eventType"],

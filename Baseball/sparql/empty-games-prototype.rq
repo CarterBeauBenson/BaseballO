@@ -15,7 +15,7 @@ WHERE {
   # the projected set lets each later exclusion run once as a set operation
   # instead of repeating correlated absence checks for every batter act.
   {
-    SELECT DISTINCT ?graph ?game ?player
+    SELECT DISTINCT ?graph ?game ?player ?team
     WHERE {
       GRAPH ?graph {
         ?game a base:BaseballGame .
@@ -24,6 +24,12 @@ WHERE {
                    obo:BFO_0000132 ?plateAppearance .
         ?plateAppearance a base:PlateAppearance ;
                          obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
+        ?halfInning a base:HalfInning ;
+                     obo:BFO_0000117 ?plateAppearance .
+        BIND(IF(STRENDS(STR(?halfInning), "/top"), base:AwayTeamRole, base:HomeTeamRole) AS ?teamRoleClass)
+        ?teamRole a ?teamRoleClass ;
+                  obo:BFO_0000197 ?team ;
+                  obo:BFO_0000054 ?game .
       }
       FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
     }

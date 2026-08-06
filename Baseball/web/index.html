@@ -97,14 +97,21 @@
               <li>Explicitly adjudicated stolen base</li>
             </ul>
           </div>
+          <fieldset class="control-group filters-group special-filter-group">
+            <legend><span>Narrow the question</span><small>Optional</small></legend>
+            <div class="filter-grid" id="empty-games-filter-controls"></div>
+          </fieldset>
           <div class="completeness-note">
             <strong>Completeness gate</strong>
             <span>Games containing an unrecognized plate-appearance result are excluded instead of being classified from incomplete evidence.</span>
           </div>
-          <button class="run-button empty-games-run" id="run-empty-games-button" type="button">
-            <span>Find empty games</span>
-            <span aria-hidden="true">→</span>
-          </button>
+          <div class="form-actions special-form-actions">
+            <button class="run-button" id="run-empty-games-button" type="button">
+              <span>Find empty games</span>
+              <span aria-hidden="true">→</span>
+            </button>
+            <button class="reset-button" id="reset-empty-games-button" type="button">Reset</button>
+          </div>
         </section>
 
         <section class="advanced-builder" id="advanced-builder" hidden aria-labelledby="advanced-builder-title">
@@ -117,14 +124,21 @@
             <label for="advanced-query-select">Advanced question</label>
             <select id="advanced-query-select"></select>
           </div>
+          <fieldset class="control-group filters-group special-filter-group">
+            <legend><span>Narrow the question</span><small>Optional</small></legend>
+            <div class="filter-grid" id="advanced-filter-controls"></div>
+          </fieldset>
           <div class="completeness-note" id="advanced-evidence-note">
             <strong>Evidence contract</strong>
             <span>The selected query states whether it counts positive evidence, uses a completeness gate, or reports integrity findings.</span>
           </div>
-          <button class="run-button empty-games-run" id="run-advanced-button" type="button">
-            <span>Run advanced question</span>
-            <span aria-hidden="true">â†’</span>
-          </button>
+          <div class="form-actions special-form-actions">
+            <button class="run-button" id="run-advanced-button" type="button">
+              <span>Run advanced question</span>
+              <span aria-hidden="true">→</span>
+            </button>
+            <button class="reset-button" id="reset-advanced-button" type="button">Reset</button>
+          </div>
         </section>
       </aside>
 

@@ -14,7 +14,27 @@ test("public catalog exposes labels without SPARQL implementation details", () =
   assert.equal(catalog.pitching.metrics.called_strikes.label, "Called strikes");
   assert.match(catalog.pitching.metrics.strikes.description, /not the box-score strike total/u);
   assert.equal(catalog.batting.dimensions.player.hasOptions, true);
+  assert.equal(catalog.batting.dimensions.team.label, "Batting team");
+  assert.equal(catalog.pitching.dimensions.team.label, "Pitching team");
+  assert.equal(catalog.baserunning.dimensions.team.label, "Baserunning team");
   assert.equal("corePatterns" in catalog.batting, false);
+});
+
+test("team dimensions use game-scoped offensive and fielding roles", () => {
+  const batting = compileAnalyticsQuery({
+    family: "batting",
+    dimensions: ["team"],
+    metrics: ["hits"],
+  });
+  assert.match(batting, /STRENDS\(STR\(\?halfInning\), "\/top"\), base:AwayTeamRole, base:HomeTeamRole/u);
+  assert.match(batting, /GROUP BY \?team \?teamLabel/u);
+
+  const pitching = compileAnalyticsQuery({
+    family: "pitching",
+    dimensions: ["team"],
+    metrics: ["pitches"],
+  });
+  assert.match(pitching, /STRENDS\(STR\(\?halfInning\), "\/top"\), base:HomeTeamRole, base:AwayTeamRole/u);
 });
 
 test("pitching metrics distinguish called and swinging strikes", () => {
@@ -74,11 +94,17 @@ before(async () => {
     const statusQuery = query.includes("COUNT(DISTINCT ?game) AS ?games")
       && !query.includes("GROUP BY");
     const emptyGamesQuery = query.includes("AS ?emptyGames");
+    const graphScopeQuery = query.includes("SELECT DISTINCT ?graph WHERE");
     const payload = statusQuery
       ? {
           head: { vars: ["games"] },
           results: { bindings: [{ games: { type: "literal", value: "9" } }] },
         }
+      : graphScopeQuery
+        ? {
+            head: { vars: ["graph"] },
+            results: { bindings: [{ graph: { type: "uri", value: "https://w3id.org/baseball/graph/game/1" } }] },
+          }
       : emptyGamesQuery
         ? {
             head: { vars: ["player", "playerLabel", "emptyGames"] },
@@ -151,13 +177,52 @@ test("local server rejects invalid query components", async () => {
 });
 
 test("local server exposes Empty Games only through its reviewed canned query", async () => {
-  const response = await fetch(`${baseUrl}/api/canned/empty-games`);
+  const response = await fetch(`${baseUrl}/api/canned/empty-games`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      filters: {
+        player: "https://baseballontology.org/data/player/1",
+        team: "https://baseballontology.org/data/team/2",
+      },
+    }),
+  });
   assert.equal(response.status, 200);
   const payload = await response.json();
   assert.deepEqual(payload.head.vars, ["player", "playerLabel", "emptyGames"]);
   assert.equal(payload.meta.definition, "reviewed-prototype");
   assert.match(payload.query, /19 source tokens|completeness profile/u);
   assert.match(payload.query, /FILTER\(STRSTARTS\(STR\(\?graph\)/u);
+  assert.match(payload.query, /FILTER\(\?player = <https:\/\/baseballontology\.org\/data\/player\/1>\)/u);
+  assert.match(payload.query, /FILTER\(\?team = <https:\/\/baseballontology\.org\/data\/team\/2>\)/u);
+});
+
+test("advanced filters compile to an allowlisted authoritative graph scope", async () => {
+  const response = await fetch(`${baseUrl}/api/advanced`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      id: "game-action-density",
+      filters: {
+        season: 2026,
+        team: "https://baseballontology.org/data/team/2",
+      },
+    }),
+  });
+  assert.equal(response.status, 200);
+  const payload = await response.json();
+  assert.match(issuedQueries.at(-2), /FILTER\(\?season = 2026\)/u);
+  assert.match(issuedQueries.at(-2), /base:HomeTeamRole base:AwayTeamRole/u);
+  assert.match(payload.query, /FILTER\(\?graph IN \(<https:\/\/w3id\.org\/baseball\/graph\/game\/1>\)\)/u);
+});
+
+test("special analytics reject arbitrary filter keys", async () => {
+  const response = await fetch(`${baseUrl}/api/advanced`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id: "hit-diversity", filters: { sparql: "DROP ALL" } }),
+  });
+  assert.equal(response.status, 400);
 });
 
 test("local server exposes the complete advanced catalog without file paths", async () => {

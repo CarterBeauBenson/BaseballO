@@ -55,27 +55,18 @@ the subsystem READMEs and Git history; do not recreate them here.
 
 ### 2. Review the Explorer
 
-- Make **Team** a reusable grouping and filter dimension for batting, pitching,
-  baserunning, and any advanced question whose graph pattern has an unambiguous
-  game-scoped team relationship. Do not infer a player's team from present-day
-  roster membership; resolve it in the context of the game being queried.
-- Unify the normal, Advanced, and Empty Games interaction model. All three
-  paths should use the same `Group results by`, `Measure`, and `Narrow the
-  question` conventions rather than treating Advanced and Empty Games as
-  separate one-click tools.
-- Extend the allowlisted query catalog so every Advanced question declares its
-  supported groupings and filters. Reuse shared components for season, game,
-  venue, team, and player where semantically valid; disable or omit dimensions
-  that a particular query cannot support honestly.
-- Convert Empty Games into the same compiled-filter path. At minimum, support
-  the relevant season, game, venue, team, and player filters while preserving
-  its completeness gate and authoritative-only execution contract.
-- Keep filter behavior consistent across all views: identical labels, option
-  loading, `All values` behavior, selected-state display, reset behavior,
-  generated-SPARQL inspection, result metadata, and CSV export.
-- Add contract tests proving that normal, Advanced, and Empty Games filters are
-  allowlisted, reach the generated SPARQL, remain restricted to authoritative
-  game graphs, and cannot weaken completeness-sensitive query semantics.
+- Review whether individual Advanced questions need result-level player or role
+  filters in addition to the implemented season, game, team-in-game, and venue
+  graph scope. Add them only through per-query catalog declarations where the
+  intended variable is unambiguous.
+- Decide which fixed Advanced result groupings should become selectable without
+  changing the claim made by each reviewed query. Empty Games may similarly add
+  optional grouping by batting team or game after its current filtered result
+  contract is reviewed.
+- Keep the implemented shared filter behavior consistent as the interface
+  evolves: identical option loading, `All values` behavior, selected-state
+  display, reset behavior, generated-SPARQL inspection, result metadata, and
+  CSV export.
 - Evaluate the Advanced view against real research questions after filter
   parity is implemented.
 - Decide how the three generic terminal baserunning outcomes should relate to a

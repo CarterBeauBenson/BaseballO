@@ -37,17 +37,27 @@ npm run check
 ## Current capabilities
 
 - batting, pitching, baserunning, and game/assignment question families;
+- game-scoped team grouping and filtering for batting, pitching, and
+  baserunning; offensive teams are derived from the half-inning while pitching
+  uses the opposing fielding team;
 - a dedicated authoritative-only Empty Games review view that displays its
-  current contribution policy and completeness gate;
+  current contribution policy and completeness gate, with season, game,
+  batting-team, venue, and batter filters;
 - a dedicated Advanced view for all 16 cataloged event-chain analytics, with
   positive-evidence, completeness-gated, or integrity-audit semantics shown
-  before execution;
+  before execution and shared season, game, team-in-game, and venue filters;
 - dimensions and metrics generated from the existing component catalog;
 - graph-backed filter options for seasons, games, players, venues, event types,
   teams, umpires, and official scorers;
 - tabular results, execution metadata, and CSV export;
 - generated-SPARQL inspection and copy; and
 - responsive keyboard-accessible local interface.
+
+Advanced filters restrict the authoritative game graphs supplied to the
+reviewed query. Accordingly, its Team filter means that the selected team
+participated in the game; it does not silently reinterpret a query-specific
+player as belonging to that team. Empty Games uses the narrower offensive-team
+relationship for the selected batter and game.
 
 This is a local research interface, not a public deployment. Fuseki remains
 bound to loopback, update endpoints are not exposed through the explorer, and

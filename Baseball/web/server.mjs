@@ -16,6 +16,8 @@ const ADVANCED_QUERY_ROOT = resolve(WEB_ROOT, "..", "sparql", "advanced");
 const ADVANCED_QUERY_CATALOG = resolve(ADVANCED_QUERY_ROOT, "advanced-query-catalog.json");
 const DEFAULT_QUERY_ENDPOINT = "http://127.0.0.1:3030/baseball-dev/query";
 const AUTHORITATIVE_GRAPH_PREFIX = "https://w3id.org/baseball/graph/game/";
+const AUTHORITATIVE_GRAPH_GUARD = `FILTER(STRSTARTS(STR(?graph), "${AUTHORITATIVE_GRAPH_PREFIX}"))`;
+const DATA_IRI_PREFIX = "https://baseballontology.org/data/";
 const MAX_BODY_BYTES = 64 * 1024;
 const MAX_RESULTS = 1000;
 const STATIC_FILES = new Map([
@@ -236,6 +238,106 @@ function normalizeQueryRequest(value) {
   return { ...value, limit };
 }
 
+function normalizeSpecialFilters(value, allowed) {
+  if (value === undefined) return {};
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new TypeError("filters must be an object");
+  }
+  const filters = {};
+  for (const [id, rawValue] of Object.entries(value)) {
+    if (!allowed.includes(id)) throw new RangeError(`Unsupported filter: ${id}`);
+    if (id === "season") {
+      if (!Number.isInteger(rawValue) || rawValue < 1800 || rawValue > 3000) {
+        throw new TypeError("season must be an integer between 1800 and 3000");
+      }
+      filters[id] = rawValue;
+      continue;
+    }
+    if (typeof rawValue !== "string"
+        || !rawValue.startsWith(DATA_IRI_PREFIX)
+        || /[<>\s]/u.test(rawValue)) {
+      throw new TypeError(`${id} must be a canonical BaseballO data IRI`);
+    }
+    filters[id] = rawValue;
+  }
+  return filters;
+}
+
+function iri(value) {
+  return `<${value}>`;
+}
+
+export function compileGraphScopeQuery(filters) {
+  const patterns = ["?game a base:BaseballGame ."];
+  const filterExpressions = [];
+  if (filters.season !== undefined) {
+    patterns.push(
+      "?game obo:BFO_0000199/obo:BFO_0000222 ?gameStartInstant .",
+      "?gameStartTimestamp a base:BaseballTimestampICE ; cco:ont00001916 ?gameStartInstant ; cco:ont00001767 ?gameStart .",
+      "BIND(YEAR(?gameStart) AS ?season)",
+    );
+    filterExpressions.push(`FILTER(?season = ${filters.season})`);
+  }
+  if (filters.game) filterExpressions.push(`FILTER(?game = ${iri(filters.game)})`);
+  if (filters.venue) {
+    patterns.push(
+      "?game cco:ont00001918 ?field .",
+      "?field a base:BaseballFieldSite ; obo:BFO_0000171 ?venue .",
+    );
+    filterExpressions.push(`FILTER(?venue = ${iri(filters.venue)})`);
+  }
+  if (filters.team) {
+    patterns.push(
+      "?teamRole a ?teamRoleClass ; obo:BFO_0000197 ?team ; obo:BFO_0000054 ?game .",
+      "VALUES ?teamRoleClass { base:HomeTeamRole base:AwayTeamRole }",
+    );
+    filterExpressions.push(`FILTER(?team = ${iri(filters.team)})`);
+  }
+  return `PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+
+SELECT DISTINCT ?graph WHERE {
+  GRAPH ?graph {
+    ${patterns.join("\n    ")}
+  }
+  ${AUTHORITATIVE_GRAPH_GUARD}
+  ${filterExpressions.join("\n  ")}
+}`;
+}
+
+function applyGraphScope(query, graphIris) {
+  if (!query.includes(AUTHORITATIVE_GRAPH_GUARD)) {
+    throw new Error("The reviewed query has no authoritative graph guard.");
+  }
+  const scope = graphIris.length === 0
+    ? "FILTER(false)"
+    : `FILTER(?graph IN (${graphIris.map(iri).join(", ")}))`;
+  return query.split(AUTHORITATIVE_GRAPH_GUARD)
+    .join(`${AUTHORITATIVE_GRAPH_GUARD}\n  ${scope}`);
+}
+
+function applyEmptyEntityFilters(query, filters) {
+  const marker = "  # Do not classify a graph whose PA result vocabulary";
+  const clauses = [];
+  if (filters.player) clauses.push(`FILTER(?player = ${iri(filters.player)})`);
+  if (filters.team) clauses.push(`FILTER(?team = ${iri(filters.team)})`);
+  if (clauses.length === 0) return query;
+  if (!query.includes(marker)) throw new Error("The Empty Games filter boundary is missing.");
+  return query.replace(marker, `  ${clauses.join("\n  ")}\n\n${marker}`);
+}
+
+async function graphScope(filters, execution) {
+  if (Object.keys(filters).length === 0) return null;
+  const { payload } = await executeSparql(compileGraphScopeQuery(filters), execution);
+  return (payload.results?.bindings ?? []).flatMap((binding) => {
+    const value = binding.graph?.value;
+    return typeof value === "string" && value.startsWith(AUTHORITATIVE_GRAPH_PREFIX)
+      ? [value]
+      : [];
+  });
+}
+
 export function createBaseballServer({
   fetchImpl = globalThis.fetch,
   queryEndpoint = process.env.BASEBALLO_FUSEKI_QUERY ?? DEFAULT_QUERY_ENDPOINT,
@@ -294,8 +396,17 @@ export function createBaseballServer({
         return;
       }
 
-      if (request.method === "GET" && requestUrl.pathname === "/api/canned/empty-games") {
-        const query = await readFile(EMPTY_GAMES_QUERY, "utf8");
+      if ((request.method === "GET" || request.method === "POST")
+          && requestUrl.pathname === "/api/canned/empty-games") {
+        const input = request.method === "POST" ? await readJsonBody(request) : {};
+        const filters = normalizeSpecialFilters(input.filters, ["season", "game", "venue", "team", "player"]);
+        const graphFilters = Object.fromEntries(
+          Object.entries(filters).filter(([id]) => !["team", "player"].includes(id)),
+        );
+        const graphs = await graphScope(graphFilters, { fetchImpl, queryEndpoint });
+        let query = await readFile(EMPTY_GAMES_QUERY, "utf8");
+        if (graphs) query = applyGraphScope(query, graphs);
+        query = applyEmptyEntityFilters(query, filters);
         const { payload, durationMs } = await executeSparql(query, { fetchImpl, queryEndpoint });
         sendJson(response, 200, {
           ...payload,
@@ -305,6 +416,7 @@ export function createBaseballServer({
             rowCount: payload.results?.bindings?.length ?? 0,
             layer: "authoritative",
             definition: "reviewed-prototype",
+            filters,
           },
         });
         return;
@@ -321,7 +433,10 @@ export function createBaseballServer({
         if (!entry) {
           throw new RangeError(`Unknown advanced query: ${input.id}`);
         }
-        const query = await readFile(resolveAdvancedQueryPath(entry), "utf8");
+        const filters = normalizeSpecialFilters(input.filters, ["season", "game", "venue", "team"]);
+        const graphs = await graphScope(filters, { fetchImpl, queryEndpoint });
+        let query = await readFile(resolveAdvancedQueryPath(entry), "utf8");
+        if (graphs) query = applyGraphScope(query, graphs);
         const executedQuery = `${query.trimEnd()}\nLIMIT ${MAX_RESULTS}\n`;
         const { payload, durationMs } = await executeSparql(executedQuery, { fetchImpl, queryEndpoint });
         sendJson(response, 200, {
@@ -334,6 +449,7 @@ export function createBaseballServer({
             definition: entry.semanticMode,
             claim: entry.claim,
             truncatedAt: MAX_RESULTS,
+            filters,
           },
         });
         return;
@@ -350,6 +466,7 @@ export function createBaseballServer({
             durationMs,
             rowCount: payload.results?.bindings?.length ?? 0,
             layer: "authoritative",
+            filters: input.filters ?? {},
           },
         });
         return;

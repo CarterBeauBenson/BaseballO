@@ -17,6 +17,22 @@ const DEFAULT_SELECTIONS = Object.freeze({
   },
 });
 
+const SPECIAL_FILTERS = Object.freeze({
+  advanced: [
+    { id: "season", label: "Season", input: "integer", optionFamily: "games" },
+    { id: "game", label: "Game", input: "iri", optionFamily: "games" },
+    { id: "team", label: "Team in game", input: "iri", optionFamily: "games" },
+    { id: "venue", label: "Venue", input: "iri", optionFamily: "games" },
+  ],
+  empty_games: [
+    { id: "season", label: "Season", input: "integer", optionFamily: "games" },
+    { id: "game", label: "Game", input: "iri", optionFamily: "games" },
+    { id: "team", label: "Batting team", input: "iri", optionFamily: "games" },
+    { id: "venue", label: "Venue", input: "iri", optionFamily: "games" },
+    { id: "player", label: "Batter", input: "iri", optionFamily: "batting" },
+  ],
+});
+
 const elements = {
   connectionPill: document.querySelector("#connection-pill"),
   connectionText: document.querySelector("#connection-text"),
@@ -25,13 +41,17 @@ const elements = {
   familyTabs: document.querySelector("#family-tabs"),
   form: document.querySelector("#query-form"),
   emptyGamesBuilder: document.querySelector("#empty-games-builder"),
+  emptyGamesFilterControls: document.querySelector("#empty-games-filter-controls"),
   runEmptyGamesButton: document.querySelector("#run-empty-games-button"),
+  resetEmptyGamesButton: document.querySelector("#reset-empty-games-button"),
   advancedBuilder: document.querySelector("#advanced-builder"),
+  advancedFilterControls: document.querySelector("#advanced-filter-controls"),
   advancedSelect: document.querySelector("#advanced-query-select"),
   advancedMode: document.querySelector("#advanced-mode"),
   advancedClaim: document.querySelector("#advanced-claim"),
   advancedEvidenceNote: document.querySelector("#advanced-evidence-note span"),
   runAdvancedButton: document.querySelector("#run-advanced-button"),
+  resetAdvancedButton: document.querySelector("#reset-advanced-button"),
   dimensionChoices: document.querySelector("#dimension-choices"),
   metricChoices: document.querySelector("#metric-choices"),
   metricHelp: document.querySelector("#metric-help"),
@@ -106,10 +126,7 @@ function renderFamilyTabs() {
     button.dataset.family = familyId;
     button.setAttribute("role", "tab");
     button.setAttribute("aria-selected", String(familyId === currentFamily));
-    button.addEventListener("click", () => {
-      configureFamily(familyId);
-      if (familyId === "empty_games") void runEmptyGames();
-    });
+    button.addEventListener("click", () => configureFamily(familyId));
     return button;
   });
   elements.familyTabs.replaceChildren(...buttons);
@@ -191,10 +208,10 @@ async function getOptions(familyId, dimensionId) {
   return optionCache.get(key);
 }
 
-async function populateFilter(select, familyId, dimensionId) {
+async function populateFilter(select, familyId, dimensionId, activeFamilyId = familyId) {
   try {
     const { options } = await getOptions(familyId, dimensionId);
-    if (!select.isConnected || currentFamily !== familyId) return;
+    if (!select.isConnected || currentFamily !== activeFamilyId) return;
     const allOption = createElement("option", "", optionLabel());
     allOption.value = "";
     const optionElements = options.map(({ value, label }) => {
@@ -205,12 +222,44 @@ async function populateFilter(select, familyId, dimensionId) {
     select.replaceChildren(allOption, ...optionElements);
     select.disabled = false;
   } catch (error) {
-    if (!select.isConnected || currentFamily !== familyId) return;
+    if (!select.isConnected || currentFamily !== activeFamilyId) return;
     const failedOption = createElement("option", "", "Options unavailable");
     failedOption.value = "";
     select.replaceChildren(failedOption);
     select.disabled = true;
   }
+}
+
+function renderSpecialFilters(familyId) {
+  const container = familyId === "advanced"
+    ? elements.advancedFilterControls
+    : elements.emptyGamesFilterControls;
+  const controls = SPECIAL_FILTERS[familyId].map((spec) => {
+    const wrapper = createElement("div", "filter-field");
+    const label = createElement("label", "", spec.label);
+    const select = document.createElement("select");
+    label.htmlFor = `filter-${familyId}-${spec.id}`;
+    select.id = label.htmlFor;
+    select.dataset.filter = spec.id;
+    select.dataset.input = spec.input;
+    select.disabled = true;
+    const loadingOption = createElement("option", "", "Loading values…");
+    loadingOption.value = "";
+    select.append(loadingOption);
+    wrapper.append(label, select);
+    void populateFilter(select, spec.optionFamily, spec.id, familyId);
+    return wrapper;
+  });
+  container.replaceChildren(...controls);
+}
+
+function filtersFrom(container) {
+  return Object.fromEntries([...container.querySelectorAll("select[data-filter]")]
+    .filter((select) => select.value)
+    .map((select) => [
+      select.dataset.filter,
+      select.dataset.input === "integer" ? Number.parseInt(select.value, 10) : select.value,
+    ]));
 }
 
 function renderBuilder() {
@@ -256,8 +305,14 @@ function configureFamily(familyId) {
   elements.builderTitle.textContent = isEmptyGames
     ? "Review empty games"
     : isAdvanced ? "Explore advanced analytics" : "Shape your question";
-  if (isAdvanced) renderAdvancedBuilder();
-  else if (!isEmptyGames) renderBuilder();
+  if (isAdvanced) {
+    renderAdvancedBuilder();
+    renderSpecialFilters("advanced");
+  } else if (isEmptyGames) {
+    renderSpecialFilters("empty_games");
+  } else {
+    renderBuilder();
+  }
 }
 
 function selectedValues(name) {
@@ -333,6 +388,8 @@ function renderMeta(meta) {
   if (["positive-evidence", "completeness-gated", "integrity-audit"].includes(meta.definition)) {
     values.splice(3, 0, humanizeVariable(meta.definition));
   }
+  const filterCount = Object.keys(meta.filters ?? {}).length;
+  if (filterCount > 0) values.splice(3, 0, `${filterCount} active filter${filterCount === 1 ? "" : "s"}`);
   elements.resultMeta.replaceChildren(...values.map((value) => createElement("span", "meta-chip", value)));
   elements.resultMeta.hidden = false;
 }
@@ -409,7 +466,11 @@ async function runEmptyGames() {
   elements.queryInspector.hidden = true;
   setStage("loading");
   try {
-    const payload = await fetchJson("/api/canned/empty-games");
+    const payload = await fetchJson("/api/canned/empty-games", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ filters: filtersFrom(elements.emptyGamesFilterControls) }),
+    });
     lastResponse = payload;
     renderResults(payload);
   } catch (error) {
@@ -435,7 +496,7 @@ async function runAdvanced() {
     const payload = await fetchJson("/api/advanced", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id }),
+      body: JSON.stringify({ id, filters: filtersFrom(elements.advancedFilterControls) }),
     });
     lastResponse = payload;
     renderResults(payload);
@@ -487,17 +548,23 @@ elements.resetButton.addEventListener("click", () => {
 elements.exportButton.addEventListener("click", exportCsv);
 elements.runEmptyGamesButton.addEventListener("click", () => void runEmptyGames());
 elements.runAdvancedButton.addEventListener("click", () => void runAdvanced());
+elements.resetEmptyGamesButton.addEventListener("click", () => {
+  renderSpecialFilters("empty_games");
+  showToast("Filters reset");
+});
+elements.resetAdvancedButton.addEventListener("click", () => {
+  elements.advancedSelect.selectedIndex = 0;
+  renderAdvancedDefinition();
+  renderSpecialFilters("advanced");
+  showToast("Filters reset");
+});
 elements.advancedSelect.addEventListener("change", renderAdvancedDefinition);
 elements.copyQueryButton.addEventListener("click", () => void copyQuery());
 elements.suggestionList.addEventListener("click", (event) => {
   const button = event.target.closest("button[data-preset]");
   if (!button) return;
   configureFamily(button.dataset.preset);
-  if (button.dataset.preset === "empty_games") {
-    void runEmptyGames();
-  } else if (button.dataset.preset === "advanced") {
-    void runAdvanced();
-  } else {
+  if (!["empty_games", "advanced"].includes(button.dataset.preset)) {
     void runQuery();
   }
 });

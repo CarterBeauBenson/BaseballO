@@ -42,6 +42,9 @@ The current implementation is a working local vertical slice. It can:
   reproducible corpus baselines;
 - answer batting, pitching, baserunning, game, venue, team, and official-related
   questions through a local read-only Explorer;
+- group batting, pitching, and baserunning results by game-scoped team, and use
+  shared season, game, team, and venue filters across normal, Advanced, and
+  Empty Games views;
 - calculate the evidence-bounded **Empty Games** analytic without storing it
   during ingestion;
 - expose generated SPARQL, execution metadata, tabular results, and CSV export;

@@ -599,6 +599,14 @@ a:focus-visible {
   margin-top: 1rem;
 }
 
+.special-filter-group {
+  margin-top: 1rem;
+}
+
+.special-form-actions {
+  margin-top: 1rem;
+}
+
 .run-button,
 .reset-button,
 .export-button,
