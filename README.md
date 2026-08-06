@@ -106,15 +106,15 @@ BaseballO is aimed at:
 
 ```mermaid
 flowchart LR
-    JSON[Immutable game JSON] --> RML[Direct RML mapping]
-    RML --> SHACL[SHACL validation]
-    SHACL --> FULL[Authoritative game graph]
-    FULL --> SPARQL[Semantic queries]
-    FULL --> REASON[Selective reasoning]
-    FULL --> BUILD[Reviewed CONSTRUCT rules]
-    BUILD --> INDEX[Disposable query index]
-    SPARQL --> UI[BaseballO Explorer]
-    INDEX --> FAST[Accelerated query routes]
+    source["Immutable game JSON"] --> mapping["Direct RML mapping"]
+    mapping --> validation["SHACL validation"]
+    validation --> authoritative["Authoritative game graph"]
+    authoritative --> queries["Semantic queries"]
+    authoritative --> reasoning["Selective reasoning"]
+    authoritative --> construction["Reviewed CONSTRUCT rules"]
+    construction --> queryIndex["Disposable query index"]
+    queries --> explorer["BaseballO Explorer"]
+    queryIndex --> routes["Accelerated query routes"]
 ```
 
 The active stack uses free and open-source infrastructure, including Apache
