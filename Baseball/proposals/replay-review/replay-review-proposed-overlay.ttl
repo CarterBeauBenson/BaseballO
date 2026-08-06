@@ -1,0 +1,294 @@
+@prefix base: <https://baseballontology.org/> .
+@prefix cco: <https://www.commoncoreontologies.org/> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+<https://baseballontology.org/proposal/replay-review-overlay> a owl:Ontology ;
+    rdfs:label "BaseballO replay-review proposal"@en ;
+    rdfs:comment "Unaccepted and non-authoritative candidate axioms. This ontology is not imported by BaseballO."@en .
+
+#################################################################
+# Core replay pattern
+#################################################################
+
+base:BaseballReplayReviewAct a owl:Class ;
+    rdfs:label "Baseball Replay Review Act"@en ;
+    skos:definition "A Baseball Replay Review Act is a Baseball Adjudication Act that has input exactly one Baseball Decision ICE and has output exactly one Baseball Decision ICE."@en ;
+    owl:equivalentClass [ a owl:Class ;
+        owl:intersectionOf (
+            base:BaseballAdjudicationAct
+            [ a owl:Restriction ;
+                owl:onProperty cco:ont00001921 ;
+                owl:onClass base:BaseballDecisionICE ;
+                owl:qualifiedCardinality "1"^^<http://www.w3.org/2001/XMLSchema#nonNegativeInteger> ]
+            [ a owl:Restriction ;
+                owl:onProperty cco:ont00001986 ;
+                owl:onClass base:BaseballDecisionICE ;
+                owl:qualifiedCardinality "1"^^<http://www.w3.org/2001/XMLSchema#nonNegativeInteger> ]
+        )
+    ] .
+
+base:ReviewedOnFieldBaseballDecisionICE a owl:Class ;
+    rdfs:label "Reviewed On-Field Baseball Decision ICE"@en ;
+    skos:definition "A Reviewed On-Field Baseball Decision ICE is a Baseball Decision ICE that is input of a Baseball Replay Review Act."@en ;
+    owl:equivalentClass [ a owl:Class ;
+        owl:intersectionOf (
+            base:BaseballDecisionICE
+            [ a owl:Restriction ;
+                owl:onProperty cco:ont00001841 ;
+                owl:someValuesFrom base:BaseballReplayReviewAct ]
+        )
+    ] .
+
+base:BaseballReplayDecisionICE a owl:Class ;
+    rdfs:label "Baseball Replay Decision ICE"@en ;
+    skos:definition "A Baseball Replay Decision ICE is a Baseball Decision ICE that is output of a Baseball Replay Review Act."@en ;
+    owl:equivalentClass [ a owl:Class ;
+        owl:intersectionOf (
+            base:BaseballDecisionICE
+            [ a owl:Restriction ;
+                owl:onProperty cco:ont00001816 ;
+                owl:someValuesFrom base:BaseballReplayReviewAct ]
+        )
+    ] .
+
+base:ReviewedOnFieldUmpireJudgmentAct a owl:Class ;
+    rdfs:label "Reviewed On-Field Umpire Judgment Act"@en ;
+    skos:definition "A Reviewed On-Field Umpire Judgment Act is an Umpire Judgment Act that has output a Reviewed On-Field Baseball Decision ICE."@en ;
+    owl:equivalentClass [ a owl:Class ;
+        owl:intersectionOf (
+            base:UmpireJudgmentAct
+            [ a owl:Restriction ;
+                owl:onProperty cco:ont00001986 ;
+                owl:someValuesFrom base:ReviewedOnFieldBaseballDecisionICE ]
+        )
+    ] .
+
+base:BaseballReplayOfficialRole a owl:Class ;
+    rdfs:label "Baseball Replay Official Role"@en ;
+    skos:definition "A Baseball Replay Official Role is a Baseball Adjudicator Role that is realized in a Baseball Replay Review Act."@en ;
+    owl:equivalentClass [ a owl:Class ;
+        owl:intersectionOf (
+            base:BaseballAdjudicatorRole
+            [ a owl:Restriction ;
+                owl:onProperty obo:BFO_0000054 ;
+                owl:someValuesFrom base:BaseballReplayReviewAct ]
+        )
+    ] .
+
+base:ChallengedBaseballReplayReviewAct a owl:Class ;
+    rdfs:label "Challenged Baseball Replay Review Act"@en ;
+    skos:definition "A Challenged Baseball Replay Review Act is a Baseball Replay Review Act that is preceded by a Challenge Act."@en ;
+    owl:equivalentClass [ a owl:Class ;
+        owl:intersectionOf (
+            base:BaseballReplayReviewAct
+            [ a owl:Restriction ;
+                owl:onProperty obo:BFO_0000062 ;
+                owl:someValuesFrom base:ChallengeAct ]
+        )
+    ] .
+
+#################################################################
+# Challenge correction
+#################################################################
+
+# Acceptance requires removing ChallengeAct rdfs:subClassOf ManagerAct from
+# BaseballO.ttl. An additive overlay cannot retract that asserted parent.
+base:ChallengeAct
+    skos:definition "A Challenge Act is a Baseball Act that is preceded by a Baseball Judgment Act and precedes a Baseball Replay Review Act."@en ;
+    owl:equivalentClass [ a owl:Class ;
+        owl:intersectionOf (
+            base:BaseballAct
+            [ a owl:Restriction ;
+                owl:onProperty obo:BFO_0000062 ;
+                owl:someValuesFrom base:BaseballJudgmentAct ]
+            [ a owl:Restriction ;
+                owl:onProperty obo:BFO_0000063 ;
+                owl:someValuesFrom base:BaseballReplayReviewAct ]
+        )
+    ] .
+
+base:ManagerChallengeAct a owl:Class ;
+    rdfs:label "Manager Challenge Act"@en ;
+    skos:definition "A Manager Challenge Act is a Challenge Act that is also a Manager Act."@en ;
+    owl:equivalentClass [ a owl:Class ;
+        owl:intersectionOf ( base:ChallengeAct base:ManagerAct )
+    ] .
+
+base:PlayerChallengeAct a owl:Class ;
+    rdfs:label "Player Challenge Act"@en ;
+    skos:definition "A Player Challenge Act is a Challenge Act that is also a Player Act."@en ;
+    owl:equivalentClass [ a owl:Class ;
+        owl:intersectionOf ( base:ChallengeAct base:PlayerAct )
+    ] .
+
+#################################################################
+# Affirming review patterns
+#################################################################
+
+base:BallAffirmingBaseballReplayReviewAct a owl:Class ;
+    rdfs:label "Ball-Affirming Baseball Replay Review Act"@en ;
+    skos:definition "A Ball-Affirming Baseball Replay Review Act is a Ball Judgment Act that is a Baseball Replay Review Act, has input a Ball Decision ICE, and has output a Ball Decision ICE."@en ;
+    owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+        base:BallJudgmentAct
+        base:BaseballReplayReviewAct
+        [ a owl:Restriction ; owl:onProperty cco:ont00001921 ; owl:someValuesFrom base:BallDecisionICE ]
+        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:BallDecisionICE ]
+    ) ] .
+
+base:StrikeAffirmingBaseballReplayReviewAct a owl:Class ;
+    rdfs:label "Strike-Affirming Baseball Replay Review Act"@en ;
+    skos:definition "A Strike-Affirming Baseball Replay Review Act is a Strike Judgment Act that is a Baseball Replay Review Act, has input a Strike Decision ICE, and has output a Strike Decision ICE."@en ;
+    owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+        base:StrikeJudgmentAct
+        base:BaseballReplayReviewAct
+        [ a owl:Restriction ; owl:onProperty cco:ont00001921 ; owl:someValuesFrom base:StrikeDecisionICE ]
+        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:StrikeDecisionICE ]
+    ) ] .
+
+base:OutAffirmingBaseballReplayReviewAct a owl:Class ;
+    rdfs:label "Out-Affirming Baseball Replay Review Act"@en ;
+    skos:definition "An Out-Affirming Baseball Replay Review Act is an Out Judgment Act that is a Baseball Replay Review Act, has input an Out Decision ICE, and has output an Out Decision ICE."@en ;
+    owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+        base:OutJudgmentAct
+        base:BaseballReplayReviewAct
+        [ a owl:Restriction ; owl:onProperty cco:ont00001921 ; owl:someValuesFrom base:OutDecisionICE ]
+        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:OutDecisionICE ]
+    ) ] .
+
+base:SafeAffirmingBaseballReplayReviewAct a owl:Class ;
+    rdfs:label "Safe-Affirming Baseball Replay Review Act"@en ;
+    skos:definition "A Safe-Affirming Baseball Replay Review Act is a Safe Judgment Act that is a Baseball Replay Review Act, has input a Safe Decision ICE, and has output a Safe Decision ICE."@en ;
+    owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+        base:SafeJudgmentAct
+        base:BaseballReplayReviewAct
+        [ a owl:Restriction ; owl:onProperty cco:ont00001921 ; owl:someValuesFrom base:SafeDecisionICE ]
+        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:SafeDecisionICE ]
+    ) ] .
+
+base:AffirmingBaseballReplayReviewAct a owl:Class ;
+    rdfs:label "Affirming Baseball Replay Review Act"@en ;
+    skos:definition "An Affirming Baseball Replay Review Act is a Baseball Replay Review Act that has one of the ball-to-ball, strike-to-strike, out-to-out, or safe-to-safe decision patterns."@en ;
+    owl:equivalentClass [ a owl:Class ; owl:unionOf (
+        base:BallAffirmingBaseballReplayReviewAct
+        base:StrikeAffirmingBaseballReplayReviewAct
+        base:OutAffirmingBaseballReplayReviewAct
+        base:SafeAffirmingBaseballReplayReviewAct
+    ) ] .
+
+#################################################################
+# Overturning review patterns
+#################################################################
+
+base:BallToStrikeBaseballReplayReviewAct a owl:Class ;
+    rdfs:label "Ball-to-Strike Baseball Replay Review Act"@en ;
+    skos:definition "A Ball-to-Strike Baseball Replay Review Act is a Strike Judgment Act that is a Baseball Replay Review Act, has input a Ball Decision ICE, and has output a Strike Decision ICE."@en ;
+    owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+        base:StrikeJudgmentAct
+        base:BaseballReplayReviewAct
+        [ a owl:Restriction ; owl:onProperty cco:ont00001921 ; owl:someValuesFrom base:BallDecisionICE ]
+        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:StrikeDecisionICE ]
+    ) ] .
+
+base:StrikeToBallBaseballReplayReviewAct a owl:Class ;
+    rdfs:label "Strike-to-Ball Baseball Replay Review Act"@en ;
+    skos:definition "A Strike-to-Ball Baseball Replay Review Act is a Ball Judgment Act that is a Baseball Replay Review Act, has input a Strike Decision ICE, and has output a Ball Decision ICE."@en ;
+    owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+        base:BallJudgmentAct
+        base:BaseballReplayReviewAct
+        [ a owl:Restriction ; owl:onProperty cco:ont00001921 ; owl:someValuesFrom base:StrikeDecisionICE ]
+        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:BallDecisionICE ]
+    ) ] .
+
+base:OutToSafeBaseballReplayReviewAct a owl:Class ;
+    rdfs:label "Out-to-Safe Baseball Replay Review Act"@en ;
+    skos:definition "An Out-to-Safe Baseball Replay Review Act is a Safe Judgment Act that is a Baseball Replay Review Act, has input an Out Decision ICE, and has output a Safe Decision ICE."@en ;
+    owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+        base:SafeJudgmentAct
+        base:BaseballReplayReviewAct
+        [ a owl:Restriction ; owl:onProperty cco:ont00001921 ; owl:someValuesFrom base:OutDecisionICE ]
+        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:SafeDecisionICE ]
+    ) ] .
+
+base:SafeToOutBaseballReplayReviewAct a owl:Class ;
+    rdfs:label "Safe-to-Out Baseball Replay Review Act"@en ;
+    skos:definition "A Safe-to-Out Baseball Replay Review Act is an Out Judgment Act that is a Baseball Replay Review Act, has input a Safe Decision ICE, and has output an Out Decision ICE."@en ;
+    owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+        base:OutJudgmentAct
+        base:BaseballReplayReviewAct
+        [ a owl:Restriction ; owl:onProperty cco:ont00001921 ; owl:someValuesFrom base:SafeDecisionICE ]
+        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:OutDecisionICE ]
+    ) ] .
+
+base:OverturningBaseballReplayReviewAct a owl:Class ;
+    rdfs:label "Overturning Baseball Replay Review Act"@en ;
+    skos:definition "An Overturning Baseball Replay Review Act is a Baseball Replay Review Act that has one of the ball-to-strike, strike-to-ball, out-to-safe, or safe-to-out decision patterns."@en ;
+    owl:equivalentClass [ a owl:Class ; owl:unionOf (
+        base:BallToStrikeBaseballReplayReviewAct
+        base:StrikeToBallBaseballReplayReviewAct
+        base:OutToSafeBaseballReplayReviewAct
+        base:SafeToOutBaseballReplayReviewAct
+    ) ] .
+
+#################################################################
+# Dispositions and records
+#################################################################
+
+base:BaseballReplayReviewDispositionICE a owl:Class ;
+    rdfs:label "Baseball Replay Review Disposition ICE"@en ;
+    skos:definition "A Baseball Replay Review Disposition ICE is a Descriptive Information Content Entity that is output of a Baseball Replay Review Act, is about a Reviewed On-Field Baseball Decision ICE, and is about a Baseball Replay Decision ICE."@en ;
+    owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+        cco:ont00000853
+        [ a owl:Restriction ; owl:onProperty cco:ont00001816 ; owl:someValuesFrom base:BaseballReplayReviewAct ]
+        [ a owl:Restriction ; owl:onProperty cco:ont00001808 ; owl:someValuesFrom base:ReviewedOnFieldBaseballDecisionICE ]
+        [ a owl:Restriction ; owl:onProperty cco:ont00001808 ; owl:someValuesFrom base:BaseballReplayDecisionICE ]
+    ) ] .
+
+base:AffirmingBaseballReplayReviewDispositionICE a owl:Class ;
+    rdfs:label "Affirming Baseball Replay Review Disposition ICE"@en ;
+    skos:definition "An Affirming Baseball Replay Review Disposition ICE is a Baseball Replay Review Disposition ICE that is output of an Affirming Baseball Replay Review Act."@en ;
+    owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+        base:BaseballReplayReviewDispositionICE
+        [ a owl:Restriction ; owl:onProperty cco:ont00001816 ; owl:someValuesFrom base:AffirmingBaseballReplayReviewAct ]
+    ) ] .
+
+base:OverturningBaseballReplayReviewDispositionICE a owl:Class ;
+    rdfs:label "Overturning Baseball Replay Review Disposition ICE"@en ;
+    skos:definition "An Overturning Baseball Replay Review Disposition ICE is a Baseball Replay Review Disposition ICE that is output of an Overturning Baseball Replay Review Act."@en ;
+    owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+        base:BaseballReplayReviewDispositionICE
+        [ a owl:Restriction ; owl:onProperty cco:ont00001816 ; owl:someValuesFrom base:OverturningBaseballReplayReviewAct ]
+    ) ] .
+
+base:BaseballReplayReviewEventRecord a owl:Class ;
+    rdfs:label "Baseball Replay Review Event Record"@en ;
+    skos:definition "A Baseball Replay Review Event Record is a Baseball Event Record that is about a Baseball Replay Review Act, a Reviewed On-Field Baseball Decision ICE, a Baseball Replay Decision ICE, and a Baseball Replay Review Disposition ICE."@en ;
+    owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+        base:BaseballEventRecord
+        [ a owl:Restriction ; owl:onProperty cco:ont00001808 ; owl:someValuesFrom base:BaseballReplayReviewAct ]
+        [ a owl:Restriction ; owl:onProperty cco:ont00001808 ; owl:someValuesFrom base:ReviewedOnFieldBaseballDecisionICE ]
+        [ a owl:Restriction ; owl:onProperty cco:ont00001808 ; owl:someValuesFrom base:BaseballReplayDecisionICE ]
+        [ a owl:Restriction ; owl:onProperty cco:ont00001808 ; owl:someValuesFrom base:BaseballReplayReviewDispositionICE ]
+    ) ] .
+
+#################################################################
+# Disjointness required by the transition definitions
+#################################################################
+
+[] a owl:AllDisjointClasses ;
+    owl:members (
+        base:BallDecisionICE
+        base:StrikeDecisionICE
+        base:OutDecisionICE
+        base:SafeDecisionICE
+    ) .
+
+base:AffirmingBaseballReplayReviewAct
+    owl:disjointWith base:OverturningBaseballReplayReviewAct .
+
+base:AffirmingBaseballReplayReviewDispositionICE
+    owl:disjointWith base:OverturningBaseballReplayReviewDispositionICE .
+
