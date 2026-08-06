@@ -12,10 +12,21 @@ from pathlib import Path
 SAFE_IRI_SEGMENT = re.compile(r"^[A-Za-z0-9._~-]+$")
 CONTEXT_KEY = "_baseballO"
 REVIEW_DESCRIPTION = re.compile(
-    r"challenged \((?P<review_type>[^)]+)\), call on the field was "
+    r"^(?P<challenger>.+?) challenged \((?P<review_type>[^)]+)\), call on the field was "
     r"(?P<status>confirmed|overturned|upheld):",
     re.IGNORECASE,
 )
+PITCH_DECISION_BY_CALL_CODE = {
+    "B": "ball",
+    "*B": "ball",
+    "C": "strike",
+}
+OPPOSITE_REVIEW_DECISION = {
+    "ball": "strike",
+    "strike": "ball",
+    "out": "safe",
+    "safe": "out",
+}
 
 
 def require_numeric(value: object, label: str) -> str:
@@ -39,6 +50,44 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def unique_player_ids_by_name(document: dict[str, object]) -> dict[str, str]:
+    candidates: dict[str, set[str]] = {}
+    players = document.get("gameData", {}).get("players", {})
+    for player in players.values():
+        player_id = player.get("id")
+        full_name = player.get("fullName")
+        if player_id is None or not isinstance(full_name, str) or not full_name.strip():
+            continue
+        candidates.setdefault(full_name.strip().casefold(), set()).add(str(player_id))
+    return {
+        name: next(iter(player_ids))
+        for name, player_ids in candidates.items()
+        if len(player_ids) == 1
+    }
+
+
+def final_review_decision(
+    review_type: str,
+    play: dict[str, object],
+    pitch_events: list[dict[str, object]],
+) -> str | None:
+    if review_type == "pitch_result":
+        if not pitch_events:
+            return None
+        call_code = pitch_events[-1].get("details", {}).get("call", {}).get("code")
+        return PITCH_DECISION_BY_CALL_CODE.get(str(call_code))
+
+    runners = play.get("runners", [])
+    if len(runners) != 1:
+        return None
+    is_out = runners[0].get("movement", {}).get("isOut")
+    if is_out is True:
+        return "out"
+    if is_out is False:
+        return "safe"
+    return None
+
+
 def main() -> None:
     args = parse_args()
     document = json.loads(args.source.read_text(encoding="utf-8"))
@@ -53,6 +102,7 @@ def main() -> None:
     if not isinstance(final_end_time, str) or not final_end_time.strip():
         raise ValueError("Final play has no about.endTime")
     document[CONTEXT_KEY] = {"gameEndTime": final_end_time}
+    player_ids_by_name = unique_player_ids_by_name(document)
 
     pitch_count = 0
     runner_count = 0
@@ -84,6 +134,7 @@ def main() -> None:
         play_context: dict[str, object] = {}
         review_status: str | None = None
         review_type: str | None = None
+        review_context: dict[str, object] = {}
         if about.get("hasReview") is True:
             description = play.get("result", {}).get("description")
             if not isinstance(description, str):
@@ -101,9 +152,22 @@ def main() -> None:
                 re.sub(r"[^a-z0-9]+", "_", review_match.group("review_type").lower()).strip("_"),
                 f"Play {at_bat_index} review type",
             )
-            play_context.update(
-                {"reviewStatus": review_status, "reviewType": review_type}
+            review_context.update(
+                {
+                    "reviewStatus": review_status,
+                    "reviewType": review_type,
+                    "reviewOutcome": (
+                        "overturning" if review_status == "overturned" else "affirming"
+                    ),
+                }
             )
+            challenger_name = review_match.group("challenger").strip()
+            challenger_id = player_ids_by_name.get(challenger_name.casefold())
+            if challenger_id is not None:
+                review_context["reviewChallengerId"] = require_numeric(
+                    challenger_id,
+                    f"Play {at_bat_index} review challenger id",
+                )
             review_count += 1
 
         for runner_position, runner in enumerate(play.get("runners", [])):
@@ -136,6 +200,23 @@ def main() -> None:
             play_context["terminalPitchPlayId"] = terminal_pitch_id
             terminal_pitch_count += 1
 
+        if review_type is not None and review_status is not None:
+            final_decision = final_review_decision(review_type, play, pitch_events)
+            if final_decision is not None:
+                original_decision = (
+                    OPPOSITE_REVIEW_DECISION[final_decision]
+                    if review_status == "overturned"
+                    else final_decision
+                )
+                review_context.update(
+                    {
+                        "reviewFinalDecision": final_decision,
+                        "reviewOriginalDecision": original_decision,
+                        "reviewPattern": f"{original_decision}_to_{final_decision}",
+                    }
+                )
+            play_context.update(review_context)
+
         play[CONTEXT_KEY] = play_context
 
         for event_position, event in enumerate(pitch_events):
@@ -161,9 +242,7 @@ def main() -> None:
                 event_position == len(pitch_events) - 1
                 and review_type == "pitch_result"
             ):
-                event[CONTEXT_KEY].update(
-                    {"reviewStatus": review_status, "reviewType": review_type}
-                )
+                event[CONTEXT_KEY].update(review_context)
             pitch_count += 1
 
     args.output.parent.mkdir(parents=True, exist_ok=True)

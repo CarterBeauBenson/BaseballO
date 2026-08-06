@@ -69,6 +69,101 @@
   rml:referenceFormulation ql:JSONPath ;
   rml:iterator "$.liveData.plays.allPlays[?(@._baseballO.reviewType == 'pitch_result')]" .
 
+<#ReviewedPlayerChallengeSource> a rml:LogicalSource ;
+  rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.liveData.plays.allPlays[?(@._baseballO.reviewChallengerId)]" .
+
+<#AffirmingReviewSource> a rml:LogicalSource ;
+  rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.liveData.plays.allPlays[?(@._baseballO.reviewOutcome == 'affirming')]" .
+
+<#OverturningReviewSource> a rml:LogicalSource ;
+  rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.liveData.plays.allPlays[?(@._baseballO.reviewOutcome == 'overturning')]" .
+
+<#ReviewOriginalBallSource> a rml:LogicalSource ;
+  rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.liveData.plays.allPlays[?(@._baseballO.reviewOriginalDecision == 'ball')]" .
+
+<#ReviewOriginalStrikeSource> a rml:LogicalSource ;
+  rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.liveData.plays.allPlays[?(@._baseballO.reviewOriginalDecision == 'strike')]" .
+
+<#ReviewOriginalOutSource> a rml:LogicalSource ;
+  rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.liveData.plays.allPlays[?(@._baseballO.reviewOriginalDecision == 'out')]" .
+
+<#ReviewOriginalSafeSource> a rml:LogicalSource ;
+  rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.liveData.plays.allPlays[?(@._baseballO.reviewOriginalDecision == 'safe')]" .
+
+<#ReviewFinalBallSource> a rml:LogicalSource ;
+  rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.liveData.plays.allPlays[?(@._baseballO.reviewFinalDecision == 'ball')]" .
+
+<#ReviewFinalStrikeSource> a rml:LogicalSource ;
+  rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.liveData.plays.allPlays[?(@._baseballO.reviewFinalDecision == 'strike')]" .
+
+<#ReviewFinalOutSource> a rml:LogicalSource ;
+  rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.liveData.plays.allPlays[?(@._baseballO.reviewFinalDecision == 'out')]" .
+
+<#ReviewFinalSafeSource> a rml:LogicalSource ;
+  rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.liveData.plays.allPlays[?(@._baseballO.reviewFinalDecision == 'safe')]" .
+
+<#ReviewBallToBallSource> a rml:LogicalSource ;
+  rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.liveData.plays.allPlays[?(@._baseballO.reviewPattern == 'ball_to_ball')]" .
+
+<#ReviewStrikeToStrikeSource> a rml:LogicalSource ;
+  rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.liveData.plays.allPlays[?(@._baseballO.reviewPattern == 'strike_to_strike')]" .
+
+<#ReviewOutToOutSource> a rml:LogicalSource ;
+  rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.liveData.plays.allPlays[?(@._baseballO.reviewPattern == 'out_to_out')]" .
+
+<#ReviewSafeToSafeSource> a rml:LogicalSource ;
+  rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.liveData.plays.allPlays[?(@._baseballO.reviewPattern == 'safe_to_safe')]" .
+
+<#ReviewBallToStrikeSource> a rml:LogicalSource ;
+  rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.liveData.plays.allPlays[?(@._baseballO.reviewPattern == 'ball_to_strike')]" .
+
+<#ReviewStrikeToBallSource> a rml:LogicalSource ;
+  rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.liveData.plays.allPlays[?(@._baseballO.reviewPattern == 'strike_to_ball')]" .
+
+<#ReviewOutToSafeSource> a rml:LogicalSource ;
+  rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.liveData.plays.allPlays[?(@._baseballO.reviewPattern == 'out_to_safe')]" .
+
+<#ReviewSafeToOutSource> a rml:LogicalSource ;
+  rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.liveData.plays.allPlays[?(@._baseballO.reviewPattern == 'safe_to_out')]" .
+
 <#BattedPitchSource> a rml:LogicalSource ;
   rml:source "game-context.json" ;
   rml:referenceFormulation ql:JSONPath ;
@@ -1027,24 +1122,162 @@
     rr:objectMap [ rml:reference "details.call.code" ]
   ] .
 
+<#ReviewOnFieldJudgmentMap> a rr:TriplesMap ;
+  rml:logicalSource <#ReviewedPlaySource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/judgment/on-field" ; rr:termType rr:IRI ; rr:class base:ReviewedOnFieldUmpireJudgmentAct ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000132 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/process/on-field" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001986 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/decision/on-field" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000063 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/challenge" ; rr:termType rr:IRI ] ] .
+
+<#ReviewOnFieldDecisionMap> a rr:TriplesMap ;
+  rml:logicalSource <#ReviewedPlaySource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/decision/on-field" ; rr:termType rr:IRI ; rr:class base:ReviewedOnFieldBaseballDecisionICE ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/process/on-field" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001841 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/act" ; rr:termType rr:IRI ] ] .
+
+<#ReviewOnFieldAdjudicatedProcessMap> a rr:TriplesMap ;
+  rml:logicalSource <#ReviewedPlaySource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/process/on-field" ; rr:termType rr:IRI ; rr:class base:BaseballInstitutionalProcess ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000117 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/judgment/on-field" ; rr:termType rr:IRI ] ] .
+
+<#ReviewChallengeMap> a rr:TriplesMap ;
+  rml:logicalSource <#ReviewedPlaySource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/challenge" ; rr:termType rr:IRI ; rr:class base:ChallengeAct ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000062 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/judgment/on-field" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000063 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/act" ; rr:termType rr:IRI ] ] .
+
+<#ReviewPlayerChallengeMap> a rr:TriplesMap ;
+  rml:logicalSource <#ReviewedPlayerChallengeSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/challenge" ; rr:termType rr:IRI ; rr:class base:PlayerChallengeAct ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000057 ; rr:objectMap [ rr:template "https://baseballontology.org/data/player/{_baseballO.reviewChallengerId}" ; rr:termType rr:IRI ] ] .
+
+<#PitchReviewOnFieldUmpireMap> a rr:TriplesMap ;
+  rml:logicalSource <#ReviewedPitchPlaySource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/judgment/on-field" ; rr:termType rr:IRI ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000057 ; rr:objectMap [ rr:template "https://baseballontology.org/data/person/{$.homePlateUmpire.id}" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000055 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/person/{$.homePlateUmpire.id}/role/umpire" ; rr:termType rr:IRI ] ] .
+
+<#ReplayReviewActMap> a rr:TriplesMap ;
+  rml:logicalSource <#ReviewedPlaySource> ;
+  rr:subjectMap [
+    rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/act" ;
+    rr:termType rr:IRI ;
+    rr:class base:BaseballReplayReviewAct, base:ChallengedBaseballReplayReviewAct
+  ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000132 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/process/replay" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000062 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/challenge" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001921 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/decision/on-field" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001986 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/decision/replay" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000063 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{about.atBatIndex}/judgment/result" ; rr:termType rr:IRI ] ] .
+
+<#ReplayDecisionMap> a rr:TriplesMap ;
+  rml:logicalSource <#ReviewedPlaySource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/decision/replay" ; rr:termType rr:IRI ; rr:class base:BaseballReplayDecisionICE ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/process/replay" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001816 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/act" ; rr:termType rr:IRI ] ] .
+
+<#ReplayAdjudicatedProcessMap> a rr:TriplesMap ;
+  rml:logicalSource <#ReviewedPlaySource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/process/replay" ; rr:termType rr:IRI ; rr:class base:BaseballInstitutionalProcess ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000117 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/act" ; rr:termType rr:IRI ] ] .
+
+<#ReplayReviewResultMap> a rr:TriplesMap ;
+  rml:logicalSource <#ReviewedPlaySource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/result" ; rr:termType rr:IRI ; rr:class base:BaseballReplayReviewDispositionICE ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001816 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/act" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/decision/on-field" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/decision/replay" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate dcterms:identifier ; rr:objectMap [ rml:reference "_baseballO.reviewStatus" ] ] ;
+  rr:predicateObjectMap [ rr:predicate dcterms:type ; rr:objectMap [ rml:reference "_baseballO.reviewType" ] ] .
+
 <#ReviewEventRecordMap> a rr:TriplesMap ;
   rml:logicalSource <#ReviewedPlaySource> ;
-  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/event-record/review/{about.atBatIndex}" ; rr:termType rr:IRI ; rr:class base:BaseballEventRecord ] ;
-  rr:predicateObjectMap [
-    rr:predicate cco:ont00001808 ;
-    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{about.atBatIndex}/judgment/result" ; rr:termType rr:IRI ]
-  ] ;
-  rr:predicateObjectMap [ rr:predicate dcterms:identifier ; rr:objectMap [ rml:reference "_baseballO.reviewStatus" ] ] ;
-  rr:predicateObjectMap [ rr:predicate dcterms:type ; rr:objectMap [ rml:reference "_baseballO.reviewType" ] ] ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/event-record/review/{about.atBatIndex}" ; rr:termType rr:IRI ; rr:class base:BaseballReplayReviewEventRecord ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/judgment/on-field" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/decision/on-field" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/challenge" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/act" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/decision/replay" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/result" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{about.atBatIndex}/judgment/result" ; rr:termType rr:IRI ] ] ;
   rr:predicateObjectMap [ rr:predicate cco:ont00001765 ; rr:objectMap [ rml:reference "result.description" ] ] .
 
 <#PitchReviewEventRecordAboutMap> a rr:TriplesMap ;
   rml:logicalSource <#ReviewedPitchPlaySource> ;
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/event-record/review/{about.atBatIndex}" ; rr:termType rr:IRI ] ;
-  rr:predicateObjectMap [
-    rr:predicate cco:ont00001808 ;
-    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/pitch/{_baseballO.terminalPitchPlayId}" ; rr:termType rr:IRI ]
-  ] .
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/pitch/{_baseballO.terminalPitchPlayId}" ; rr:termType rr:IRI ] ] .
+
+<#ReviewAffirmingResultMap> a rr:TriplesMap ;
+  rml:logicalSource <#AffirmingReviewSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/result" ; rr:termType rr:IRI ; rr:class base:AffirmingBaseballReplayReviewDispositionICE ] .
+
+<#ReviewOverturningResultMap> a rr:TriplesMap ;
+  rml:logicalSource <#OverturningReviewSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/result" ; rr:termType rr:IRI ; rr:class base:OverturningBaseballReplayReviewDispositionICE ] .
+
+<#ReviewOriginalBallDecisionMap> a rr:TriplesMap ;
+  rml:logicalSource <#ReviewOriginalBallSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/decision/on-field" ; rr:termType rr:IRI ; rr:class base:BallDecisionICE ] .
+
+<#ReviewOriginalStrikeDecisionMap> a rr:TriplesMap ;
+  rml:logicalSource <#ReviewOriginalStrikeSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/decision/on-field" ; rr:termType rr:IRI ; rr:class base:StrikeDecisionICE ] .
+
+<#ReviewOriginalOutDecisionMap> a rr:TriplesMap ;
+  rml:logicalSource <#ReviewOriginalOutSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/decision/on-field" ; rr:termType rr:IRI ; rr:class base:OutDecisionICE ] .
+
+<#ReviewOriginalSafeDecisionMap> a rr:TriplesMap ;
+  rml:logicalSource <#ReviewOriginalSafeSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/decision/on-field" ; rr:termType rr:IRI ; rr:class base:SafeDecisionICE ] .
+
+<#ReviewFinalBallDecisionMap> a rr:TriplesMap ;
+  rml:logicalSource <#ReviewFinalBallSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/decision/replay" ; rr:termType rr:IRI ; rr:class base:BallDecisionICE ] .
+
+<#ReviewFinalStrikeDecisionMap> a rr:TriplesMap ;
+  rml:logicalSource <#ReviewFinalStrikeSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/decision/replay" ; rr:termType rr:IRI ; rr:class base:StrikeDecisionICE ] .
+
+<#ReviewFinalOutDecisionMap> a rr:TriplesMap ;
+  rml:logicalSource <#ReviewFinalOutSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/decision/replay" ; rr:termType rr:IRI ; rr:class base:OutDecisionICE ] .
+
+<#ReviewFinalSafeDecisionMap> a rr:TriplesMap ;
+  rml:logicalSource <#ReviewFinalSafeSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/decision/replay" ; rr:termType rr:IRI ; rr:class base:SafeDecisionICE ] .
+
+<#ReviewBallToBallActMap> a rr:TriplesMap ;
+  rml:logicalSource <#ReviewBallToBallSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/act" ; rr:termType rr:IRI ; rr:class base:BallAffirmingBaseballReplayReviewAct ] .
+
+<#ReviewStrikeToStrikeActMap> a rr:TriplesMap ;
+  rml:logicalSource <#ReviewStrikeToStrikeSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/act" ; rr:termType rr:IRI ; rr:class base:StrikeAffirmingBaseballReplayReviewAct ] .
+
+<#ReviewOutToOutActMap> a rr:TriplesMap ;
+  rml:logicalSource <#ReviewOutToOutSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/act" ; rr:termType rr:IRI ; rr:class base:OutAffirmingBaseballReplayReviewAct ] .
+
+<#ReviewSafeToSafeActMap> a rr:TriplesMap ;
+  rml:logicalSource <#ReviewSafeToSafeSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/act" ; rr:termType rr:IRI ; rr:class base:SafeAffirmingBaseballReplayReviewAct ] .
+
+<#ReviewBallToStrikeActMap> a rr:TriplesMap ;
+  rml:logicalSource <#ReviewBallToStrikeSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/act" ; rr:termType rr:IRI ; rr:class base:BallToStrikeBaseballReplayReviewAct ] .
+
+<#ReviewStrikeToBallActMap> a rr:TriplesMap ;
+  rml:logicalSource <#ReviewStrikeToBallSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/act" ; rr:termType rr:IRI ; rr:class base:StrikeToBallBaseballReplayReviewAct ] .
+
+<#ReviewOutToSafeActMap> a rr:TriplesMap ;
+  rml:logicalSource <#ReviewOutToSafeSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/act" ; rr:termType rr:IRI ; rr:class base:OutToSafeBaseballReplayReviewAct ] .
+
+<#ReviewSafeToOutActMap> a rr:TriplesMap ;
+  rml:logicalSource <#ReviewSafeToOutSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/act" ; rr:termType rr:IRI ; rr:class base:SafeToOutBaseballReplayReviewAct ] .
 
 <#PitchIntervalMap> a rr:TriplesMap ;
   rml:logicalSource <#PitchSource> ;

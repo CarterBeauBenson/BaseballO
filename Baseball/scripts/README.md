@@ -30,7 +30,7 @@ The [`pipeline/`](pipeline/) scripts import locally supplied game JSON,
 preserve its bytes in a content-addressed archive, execute the pinned RMLMapper,
 validate generated RDF procedurally and with SHACL, load complete per-game
 named graphs, build and SHACL-check disposable query indexes, audit 48 canned
-and 16 advanced queries, benchmark 18 reviewed
+and 17 advanced queries, benchmark 18 reviewed
 pairs, and enforce 15 indexed plus three authoritative routes. Infrastructure
 scripts create the connected manual-inbox NiFi flow. The earlier
 external-acquisition flow remains stopped pending an approved data source.

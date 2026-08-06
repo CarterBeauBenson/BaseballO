@@ -3,7 +3,7 @@
 Repository-level validation remains in
 [`../scripts/validate_repository.py`](../scripts/validate_repository.py). It
 currently parses 95 SPARQL files, checks the RML and 93 generated pattern pages,
-executes the web tests, verifies 48 canned and 16 advanced baselines, and checks
+executes the web tests, verifies 48 canned and 17 advanced baselines, and checks
 18 benchmark pairs, 18 reviewed routes, 36 optimized algebra plans, and 36
 direct TDB2 captures. The active mapping provides its source and collision
 validator under [`../mappings/direct/`](../mappings/direct/).

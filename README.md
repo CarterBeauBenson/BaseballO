@@ -38,7 +38,7 @@ The current implementation is a working local vertical slice. It can:
 - preserve full authoritative game graphs while generating smaller disposable
   query-index graphs for reviewed high-value query patterns;
 - validate authoritative and indexed graphs with 30 SHACL node shapes;
-- run 48 canned SPARQL queries and 16 advanced event-chain analytics with
+- run 48 canned SPARQL queries and 17 advanced event-chain analytics with
   reproducible corpus baselines;
 - answer batting, pitching, baserunning, game, venue, team, and official-related
   questions through a local read-only Explorer;
@@ -48,7 +48,7 @@ The current implementation is a working local vertical slice. It can:
 - calculate the evidence-bounded **Empty Games** analytic without storing it
   during ingestion;
 - expose generated SPARQL, execution metadata, tabular results, and CSV export;
-- visually audit all 247 RML triples maps through generated, pattern-sized
+- visually audit all 277 RML triples maps through generated, pattern-sized
   Mermaid diagrams;
 - prove equivalence between authoritative and indexed results for 18 reviewed
   query routes; and

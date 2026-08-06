@@ -78,9 +78,45 @@
     },
     {
       "id": "46-replay-review",
-      "title": "Replay review provenance",
-      "summary": "A review event record preserves MLB's review type and disposition, describes the final play judgment, and links pitch-result reviews to the final pitch.",
-      "maps": ["ReviewEventRecordMap", "PitchReviewEventRecordAboutMap"]
+      "title": "Replay review core",
+      "summary": "A reviewed on-field judgment produces the prior decision, precedes a challenge, and leads to a distinct replay-review act that produces a replay decision.",
+      "maps": ["ReviewOnFieldJudgmentMap", "ReviewOnFieldDecisionMap", "ReviewChallengeMap", "ReviewPlayerChallengeMap", "PitchReviewOnFieldUmpireMap", "ReplayReviewActMap", "ReplayDecisionMap"]
+    },
+    {
+      "id": "47-replay-process-contexts",
+      "title": "Replay adjudicated-process contexts",
+      "summary": "The reviewed on-field judgment and replay-review act each belong to a distinct institutional process that is the subject of the corresponding decision.",
+      "maps": ["ReviewOnFieldAdjudicatedProcessMap", "ReplayAdjudicatedProcessMap"]
+    },
+    {
+      "id": "48-replay-review-record",
+      "title": "Replay review result and record",
+      "summary": "Review-result information describes the relationship between the two decisions, while a source event record is about the full review pattern and the final structured outcome.",
+      "maps": ["ReplayReviewResultMap", "ReviewEventRecordMap", "PitchReviewEventRecordAboutMap"]
+    },
+    {
+      "id": "49-replay-review-result-classification",
+      "title": "Replay review result classification",
+      "summary": "Review-result information is classified as affirming or overturning from the source review outcome.",
+      "maps": ["ReviewAffirmingResultMap", "ReviewOverturningResultMap"]
+    },
+    {
+      "id": "50-reviewed-decision-classification",
+      "title": "Reviewed on-field decision classification",
+      "summary": "The reviewed on-field decision is classified as ball, strike, out, or safe when the source supports one of those alternatives.",
+      "maps": ["ReviewOriginalBallDecisionMap", "ReviewOriginalStrikeDecisionMap", "ReviewOriginalOutDecisionMap", "ReviewOriginalSafeDecisionMap"]
+    },
+    {
+      "id": "51-replay-decision-classification",
+      "title": "Replay decision classification",
+      "summary": "The replay decision is classified as ball, strike, out, or safe from the final structured source state.",
+      "maps": ["ReviewFinalBallDecisionMap", "ReviewFinalStrikeDecisionMap", "ReviewFinalOutDecisionMap", "ReviewFinalSafeDecisionMap"]
+    },
+    {
+      "id": "52-replay-review-transitions",
+      "title": "Replay review transition patterns",
+      "summary": "Each replay-review act receives one explicit ball-to-ball, strike-to-strike, out-to-out, safe-to-safe, ball-to-strike, strike-to-ball, out-to-safe, or safe-to-out classification when the source supports it.",
+      "maps": ["ReviewBallToBallActMap", "ReviewStrikeToStrikeActMap", "ReviewOutToOutActMap", "ReviewSafeToSafeActMap", "ReviewBallToStrikeActMap", "ReviewStrikeToBallActMap", "ReviewOutToSafeActMap", "ReviewSafeToOutActMap"]
     },
     {
       "id": "12-ball-adjudication",

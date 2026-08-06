@@ -74,7 +74,7 @@ hits, 282 pitches, 185 pitch calls, 134 batting acts, 112 contacts, 113 runner
 resolutions, one stolen base, and seven assignments.
 
 Across the checked-in eight-game 2026-08-03 corpus, the authoritative graph
-contains 231,018 triples and the replaceable query-index graph contains 52,944.
+contains 231,670 triples and the replaceable query-index graph contains 52,944.
 
 Before publication, the compiled graph must conform to
 [`shacl/query-index.ttl`](../../shacl/query-index.ttl). SHACL checks required

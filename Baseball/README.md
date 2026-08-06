@@ -24,7 +24,7 @@ flowchart LR
 The first proof-of-concept query is **Empty Games**: games in which a player participated offensively without a qualifying offensive contribution. That result must be derived with SPARQL, never stored during ingestion.
 
 Current checked-in evidence covers eight completed games from 2026-08-03:
-231,018 authoritative triples and 52,944 disposable query-index triples. All
+231,670 authoritative triples and 52,944 disposable query-index triples. All
 48 canned queries and 17 advanced queries have reproducible result baselines.
 Eighteen authoritative/indexed query pairs have exact corpus results; the
 reviewed runner selects 15 indexed routes and keeps three neutral routes on the
@@ -41,8 +41,10 @@ translated obligations with a pinned Z3 backend.
 Pitching analytics expose a complete final-call partition—balls, called
 strikes, swinging/missed strikes, fouls/foul tips, balls put in play, and hit
 batters—so the displayed components reconcile to total pitches. Replay review
-records preserve MLB's confirmed, upheld, or overturned disposition beside the
-final structured outcome without reconstructing an unsupported original call.
+graphs preserve the on-field judgment, challenge, replay act, original and
+operative decision ICEs, affirming or overturning result, and final structured
+outcome as distinct entities. The binary original decision is derived only for
+the accepted ball/strike and out/safe transition families.
 
 ## Repository map
 

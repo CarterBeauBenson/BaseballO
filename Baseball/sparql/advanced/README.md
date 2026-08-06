@@ -32,8 +32,8 @@ The machine-readable catalog is
 | `half-inning-rally-anatomy.rq` | PA, hit, walk, runner-resolution, and run counts within each half inning | Positive evidence |
 | `game-action-density.rq` | Event counts per game and per mapped minute | Positive evidence |
 | `scorer-classification-profile.rq` | Official-scorer judgment classifications | Positive evidence |
-| `umpire-call-profile.rq` | Final umpire call types, swing/contact context, and replay disposition | Positive evidence |
-| `review-outcome-profile.rq` | Replay disposition with MLB's final play and pitch outcome | Positive evidence |
+| `umpire-call-profile.rq` | On-field umpire pitch call versus operative replay call | Positive evidence |
+| `review-outcome-profile.rq` | Full review transition, challenger evidence, and final outcome | Positive evidence |
 | `hit-diversity.rq` | Players with explicit single, double, triple, and home-run evidence | Positive evidence |
 | `base-destination-profile.rq` | Safe/run destinations from explicit base-touching processes | Positive evidence |
 | `steal-attempt-efficiency.rq` | Mapped attempts, successes, caught-stealing, and unresolved attempts | Completeness-gated |
@@ -51,9 +51,13 @@ it is not a query-writing problem alone.
 
 MLB review descriptions identify whether a call was confirmed, upheld, or
 overturned, but do not provide the original ruling as a separate structured
-object. Non-pitch reviews also do not identify the individual base umpire whose
-call was reviewed. The queries preserve those boundaries instead of inferring
-an original call or assigning it to an unsupported official.
+field. The mapping now creates a distinct reviewed-decision ICE only when the
+final structured state is one of the accepted ball/strike or out/safe
+alternatives: affirming reviews retain that decision type and overturned
+reviews use its modeled binary opposite. Non-pitch reviews still do not identify
+the individual base umpire whose call was reviewed, so no unsupported official
+is assigned. Pitch reviews use the game’s identified home-plate umpire for the
+on-field judgment and keep the replay decision separate.
 
 Run the reproducible eight-game audit with:
 

@@ -76,7 +76,7 @@ the eight corpus graphs, detects empty and duplicate result sets, and records
 order-independent RDF-term-aware hashes under
 [`benchmarks/canned-query-audit/`](../../benchmarks/canned-query-audit/).
 
-Audit the 16 advanced semantic queries independently with:
+Audit the 17 advanced semantic queries independently with:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File `

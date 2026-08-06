@@ -9,9 +9,9 @@ the subsystem READMEs and Git history; do not recreate them here.
   2026-08-03 corpus must not be reacquired merely to rerun the local workflow.
 - Raw JSON is immutable. The full event graphs are authoritative; query-index
   graphs are disposable and reproducible.
-- The active RML has 249 triples maps, 58 logical sources, and no
+- The active RML has 277 triples maps, 77 logical sources, and no
   referencing-object-map joins.
-- Eight completed games produce 231,018 authoritative triples and 52,944 index
+- Eight completed games produce 231,670 authoritative triples and 52,944 index
   triples. All per-game semantic equivalence checks pass.
 - Two explicit, non-entailing SHACL profiles contain 30 node shapes. The
   fixture and all eight corpus graph pairs conform with zero results; RML,
@@ -25,9 +25,11 @@ the subsystem READMEs and Git history; do not recreate them here.
   and the 17-query Advanced catalog. Browser queries remain allowlisted and
   authoritative-only.
 - Pitching defaults now partition every mapped pitch into SME-labeled final
-  call categories. Replay records preserve review type and disposition while
-  keeping MLB's final structured outcome authoritative; the source does not
-  identify the individual base umpire for non-pitch reviews.
+  call categories. Replay graphs distinguish the on-field judgment, challenge,
+  replay-review act, both decisions, review-result ICE, and source record, with
+  explicit ball/strike and out/safe transition classes. Pitch reviews attach
+  the on-field call to the home-plate umpire; the source still does not identify
+  the individual base umpire for non-pitch reviews.
 - Intentional walks use the complete walk pattern. Three source-limited terminal
   baserunning outcomes remain explicit generic results for ontological review.
 - Three selective reasoning profiles operate only on an explicitly anchored

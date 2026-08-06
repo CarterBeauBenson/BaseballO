@@ -78,14 +78,14 @@
       "path": "sparql/advanced/umpire-call-profile.rq",
       "semanticMode": "positive-evidence",
       "allowZeroRows": true,
-      "claim": "Final post-review umpire call judgments with mapped swing/contact context and explicit replay disposition when supplied by MLB."
+      "claim": "On-field umpire pitch calls separated from operative replay calls, with affirming or overturning review outcomes."
     },
     {
       "id": "review-outcome-profile",
       "path": "sparql/advanced/review-outcome-profile.rq",
       "semanticMode": "positive-evidence",
       "allowZeroRows": true,
-      "claim": "Explicit replay type and disposition alongside MLB's final structured play and pitch outcomes; original calls are not reconstructed."
+      "claim": "Explicit on-field decision, challenge, replay-review transition, replay decision, review result, and final structured play or pitch outcome."
     },
     {
       "id": "hit-diversity",
