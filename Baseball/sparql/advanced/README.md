@@ -1,6 +1,6 @@
 # Advanced semantic analytics
 
-This directory contains 16 exploratory analytics built from the full event
+This directory contains 17 exploratory analytics built from the full event
 patterns in the authoritative game graphs. They are not shortcut/index queries,
 and they do not flatten the graph. Each query starts from the act, process,
 participant, temporal, containment, or adjudication evidence that supports its
@@ -32,7 +32,8 @@ The machine-readable catalog is
 | `half-inning-rally-anatomy.rq` | PA, hit, walk, runner-resolution, and run counts within each half inning | Positive evidence |
 | `game-action-density.rq` | Event counts per game and per mapped minute | Positive evidence |
 | `scorer-classification-profile.rq` | Official-scorer judgment classifications | Positive evidence |
-| `umpire-call-profile.rq` | Umpire call types and their swing/contact context | Positive evidence |
+| `umpire-call-profile.rq` | Final umpire call types, swing/contact context, and replay disposition | Positive evidence |
+| `review-outcome-profile.rq` | Replay disposition with MLB's final play and pitch outcome | Positive evidence |
 | `hit-diversity.rq` | Players with explicit single, double, triple, and home-run evidence | Positive evidence |
 | `base-destination-profile.rq` | Safe/run destinations from explicit base-touching processes | Positive evidence |
 | `steal-attempt-efficiency.rq` | Mapped attempts, successes, caught-stealing, and unresolved attempts | Completeness-gated |
@@ -47,6 +48,12 @@ or left-on-base continuity, or exact pitch-count state for every pitch. Those
 ideas are recorded as blocked in the catalog rather than approximated from
 unrelated fields. Adding them requires new source-to-RDF evidence and review;
 it is not a query-writing problem alone.
+
+MLB review descriptions identify whether a call was confirmed, upheld, or
+overturned, but do not provide the original ruling as a separate structured
+object. Non-pitch reviews also do not identify the individual base umpire whose
+call was reviewed. The queries preserve those boundaries instead of inferring
+an original call or assigning it to an unsupported official.
 
 Run the reproducible eight-game audit with:
 

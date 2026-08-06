@@ -78,7 +78,14 @@
       "path": "sparql/advanced/umpire-call-profile.rq",
       "semanticMode": "positive-evidence",
       "allowZeroRows": true,
-      "claim": "Explicit umpire call judgments with mapped swing and contact context."
+      "claim": "Final post-review umpire call judgments with mapped swing/contact context and explicit replay disposition when supplied by MLB."
+    },
+    {
+      "id": "review-outcome-profile",
+      "path": "sparql/advanced/review-outcome-profile.rq",
+      "semanticMode": "positive-evidence",
+      "allowZeroRows": true,
+      "claim": "Explicit replay type and disposition alongside MLB's final structured play and pitch outcomes; original calls are not reconstructed."
     },
     {
       "id": "hit-diversity",

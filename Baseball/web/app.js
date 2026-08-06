@@ -5,7 +5,7 @@ const DEFAULT_SELECTIONS = Object.freeze({
   },
   pitching: {
     dimensions: ["pitcher"],
-    metrics: ["pitches", "called_strikes", "swinging_strikes"],
+    metrics: ["pitches", "balls", "called_strikes", "swinging_strikes", "fouls", "in_play", "hit_batters"],
   },
   baserunning: {
     dimensions: ["player"],

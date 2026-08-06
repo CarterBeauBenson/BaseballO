@@ -81,8 +81,8 @@ function Get-CanonicalRows {
 
 $catalog = Get-Content -LiteralPath $catalogPath -Raw | ConvertFrom-Json
 $catalogQueries = @($catalog.queries)
-if ($catalogQueries.Count -ne 16) {
-    throw "Expected 16 cataloged advanced queries; found $($catalogQueries.Count)."
+if ($catalogQueries.Count -ne 17) {
+    throw "Expected 17 cataloged advanced queries; found $($catalogQueries.Count)."
 }
 
 $sourceFiles = @(

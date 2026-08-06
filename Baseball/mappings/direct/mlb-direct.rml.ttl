@@ -59,6 +59,16 @@
   rml:referenceFormulation ql:JSONPath ;
   rml:iterator "$.liveData.plays.allPlays[*].playEvents[?(@.isPitch == true)]" .
 
+<#ReviewedPlaySource> a rml:LogicalSource ;
+  rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.liveData.plays.allPlays[?(@._baseballO.reviewStatus)]" .
+
+<#ReviewedPitchPlaySource> a rml:LogicalSource ;
+  rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.liveData.plays.allPlays[?(@._baseballO.reviewType == 'pitch_result')]" .
+
 <#BattedPitchSource> a rml:LogicalSource ;
   rml:source "game-context.json" ;
   rml:referenceFormulation ql:JSONPath ;
@@ -1011,6 +1021,29 @@
   rr:predicateObjectMap [
     rr:predicate dcterms:identifier ;
     rr:objectMap [ rml:reference "playId" ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate dcterms:type ;
+    rr:objectMap [ rml:reference "details.call.code" ]
+  ] .
+
+<#ReviewEventRecordMap> a rr:TriplesMap ;
+  rml:logicalSource <#ReviewedPlaySource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/event-record/review/{about.atBatIndex}" ; rr:termType rr:IRI ; rr:class base:BaseballEventRecord ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001808 ;
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{about.atBatIndex}/judgment/result" ; rr:termType rr:IRI ]
+  ] ;
+  rr:predicateObjectMap [ rr:predicate dcterms:identifier ; rr:objectMap [ rml:reference "_baseballO.reviewStatus" ] ] ;
+  rr:predicateObjectMap [ rr:predicate dcterms:type ; rr:objectMap [ rml:reference "_baseballO.reviewType" ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001765 ; rr:objectMap [ rml:reference "result.description" ] ] .
+
+<#PitchReviewEventRecordAboutMap> a rr:TriplesMap ;
+  rml:logicalSource <#ReviewedPitchPlaySource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/event-record/review/{about.atBatIndex}" ; rr:termType rr:IRI ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001808 ;
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/pitch/{_baseballO.terminalPitchPlayId}" ; rr:termType rr:IRI ]
   ] .
 
 <#PitchIntervalMap> a rr:TriplesMap ;

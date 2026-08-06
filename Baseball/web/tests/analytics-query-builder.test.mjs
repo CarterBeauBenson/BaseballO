@@ -12,7 +12,8 @@ test("public catalog exposes labels without SPARQL implementation details", () =
   assert.deepEqual(Object.keys(catalog), ["batting", "pitching", "baserunning", "games"]);
   assert.equal(catalog.batting.metrics.hits.label, "Hits");
   assert.equal(catalog.pitching.metrics.called_strikes.label, "Called strikes");
-  assert.match(catalog.pitching.metrics.strikes.description, /not the box-score strike total/u);
+  assert.equal(catalog.pitching.metrics.fouls.label, "Fouls/foul tips");
+  assert.equal(catalog.pitching.metrics.in_play.label, "Balls put in play");
   assert.equal(catalog.batting.dimensions.player.hasOptions, true);
   assert.equal(catalog.batting.dimensions.team.label, "Batting team");
   assert.equal(catalog.pitching.dimensions.team.label, "Pitching team");
@@ -37,16 +38,20 @@ test("team dimensions use game-scoped offensive and fielding roles", () => {
   assert.match(pitching, /STRENDS\(STR\(\?halfInning\), "\/top"\), base:HomeTeamRole, base:AwayTeamRole/u);
 });
 
-test("pitching metrics distinguish called and swinging strikes", () => {
+test("pitching metrics form an SME-labeled pitch outcome partition", () => {
   const query = compileAnalyticsQuery({
     family: "pitching",
     dimensions: ["pitcher"],
-    metrics: ["pitches", "called_strikes", "swinging_strikes"],
+    metrics: ["pitches", "balls", "called_strikes", "swinging_strikes", "fouls", "in_play", "hit_batters"],
   });
-  assert.match(query, /StrikeCallAct/u);
-  assert.match(query, /\?swingingStrike a base:StrikeProcess/u);
+  assert.match(query, /dcterms:type \?pitchCallCode/u);
+  assert.match(query, /"F", "T", "L"/u);
+  assert.match(query, /"X", "D", "E"/u);
   assert.match(query, /AS \?calledStrikes/u);
   assert.match(query, /AS \?swingingStrikes/u);
+  assert.match(query, /AS \?fouls/u);
+  assert.match(query, /AS \?inPlay/u);
+  assert.match(query, /AS \?hitBatters/u);
 });
 
 test("compiler restricts UI queries to authoritative game graphs", () => {
@@ -229,7 +234,7 @@ test("local server exposes the complete advanced catalog without file paths", as
   const response = await fetch(`${baseUrl}/api/advanced/catalog`);
   assert.equal(response.status, 200);
   const payload = await response.json();
-  assert.equal(payload.queries.length, 16);
+  assert.equal(payload.queries.length, 17);
   assert.equal(payload.blockedAnalytics.length, 4);
   assert.equal(payload.queries[0].id, "plate-appearance-fingerprint");
   assert.equal("path" in payload.queries[0], false);

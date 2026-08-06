@@ -11,6 +11,11 @@ from pathlib import Path
 
 SAFE_IRI_SEGMENT = re.compile(r"^[A-Za-z0-9._~-]+$")
 CONTEXT_KEY = "_baseballO"
+REVIEW_DESCRIPTION = re.compile(
+    r"challenged \((?P<review_type>[^)]+)\), call on the field was "
+    r"(?P<status>confirmed|overturned|upheld):",
+    re.IGNORECASE,
+)
 
 
 def require_numeric(value: object, label: str) -> str:
@@ -52,6 +57,7 @@ def main() -> None:
     pitch_count = 0
     runner_count = 0
     terminal_pitch_count = 0
+    review_count = 0
     seen_pitch_ids: set[str] = set()
     for play_position, play in enumerate(plays):
         if CONTEXT_KEY in play:
@@ -74,6 +80,31 @@ def main() -> None:
             matchup.get("pitcher", {}).get("id"),
             f"Play {at_bat_index} matchup.pitcher.id",
         )
+
+        play_context: dict[str, object] = {}
+        review_status: str | None = None
+        review_type: str | None = None
+        if about.get("hasReview") is True:
+            description = play.get("result", {}).get("description")
+            if not isinstance(description, str):
+                raise ValueError(f"Reviewed play {at_bat_index} has no description")
+            review_match = REVIEW_DESCRIPTION.search(description)
+            if review_match is None:
+                raise ValueError(
+                    f"Reviewed play {at_bat_index} has an unrecognized review description"
+                )
+            review_status = require_segment(
+                review_match.group("status").lower(),
+                f"Play {at_bat_index} review status",
+            )
+            review_type = require_segment(
+                re.sub(r"[^a-z0-9]+", "_", review_match.group("review_type").lower()).strip("_"),
+                f"Play {at_bat_index} review type",
+            )
+            play_context.update(
+                {"reviewStatus": review_status, "reviewType": review_type}
+            )
+            review_count += 1
 
         for runner_position, runner in enumerate(play.get("runners", [])):
             if CONTEXT_KEY in runner:
@@ -102,8 +133,10 @@ def main() -> None:
                 pitch_events[-1].get("playId"),
                 f"Play {at_bat_index} terminal pitch playId",
             )
-            play[CONTEXT_KEY] = {"terminalPitchPlayId": terminal_pitch_id}
+            play_context["terminalPitchPlayId"] = terminal_pitch_id
             terminal_pitch_count += 1
+
+        play[CONTEXT_KEY] = play_context
 
         for event_position, event in enumerate(pitch_events):
             if CONTEXT_KEY in event:
@@ -124,6 +157,13 @@ def main() -> None:
                 "pitcherId": pitcher_id,
                 "plateAppearanceIsSacBunt": plate_appearance_is_sac_bunt,
             }
+            if (
+                event_position == len(pitch_events) - 1
+                and review_type == "pitch_result"
+            ):
+                event[CONTEXT_KEY].update(
+                    {"reviewStatus": review_status, "reviewType": review_type}
+                )
             pitch_count += 1
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
@@ -134,6 +174,7 @@ def main() -> None:
     print(f"Context pitches: {pitch_count}")
     print(f"Context runners: {runner_count}")
     print(f"Context terminal pitches: {terminal_pitch_count}")
+    print(f"Context reviewed plays: {review_count}")
     print(f"Context game end: {final_end_time}")
 
 

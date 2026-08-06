@@ -254,11 +254,11 @@ def validate_sparql() -> int:
         len(canned_files) != 48
         or len(component_files) != 13
         or len(benchmark_files) != 18
-        or len(advanced_files) != 16
+        or len(advanced_files) != 17
     ):
         raise ValueError(
             "Expected 48 canned SPARQL queries, 13 query-index components, "
-            "18 indexed benchmark companions, and 16 advanced semantic queries; "
+            "18 indexed benchmark companions, and 17 advanced semantic queries; "
             f"found {len(canned_files)}, {len(component_files)}, "
             f"{len(benchmark_files)}, and {len(advanced_files)}"
         )
@@ -752,11 +752,11 @@ def validate_advanced_query_audit() -> int:
     expected_paths = {
         path.relative_to(ROOT).as_posix() for path in advanced_files
     }
-    if len(entries) != 16 or len(advanced_files) != 16 or catalog_paths != expected_paths:
-        raise ValueError("Advanced-query catalog does not cover the exact 16-query suite")
+    if len(entries) != 17 or len(advanced_files) != 17 or catalog_paths != expected_paths:
+        raise ValueError("Advanced-query catalog does not cover the exact 17-query suite")
     allowed_modes = {"positive-evidence", "completeness-gated", "integrity-audit"}
     ids = [str(entry.get("id")) for entry in entries]
-    if len(set(ids)) != 16:
+    if len(set(ids)) != 17:
         raise ValueError("Advanced-query catalog IDs must be unique")
     for entry in entries:
         if entry.get("semanticMode") not in allowed_modes:
@@ -774,7 +774,7 @@ def validate_advanced_query_audit() -> int:
     results = report.get("results", [])
     by_id = {str(result.get("id")): result for result in results}
     entries_by_id = {str(entry["id"]): entry for entry in entries}
-    if len(results) != 16 or set(by_id) != set(entries_by_id):
+    if len(results) != 17 or set(by_id) != set(entries_by_id):
         raise ValueError("Advanced-query audit does not cover the exact catalog")
     if str(report.get("catalogSha256")) != sha256_file(ADVANCED_QUERY_CATALOG):
         raise ValueError("Advanced-query audit catalog hash is stale")
@@ -824,7 +824,7 @@ def validate_advanced_query_audit() -> int:
         raise ValueError("Advanced-query audit corpus signature is invalid")
     if int(report.get("authoritativeTripleCount", -1)) != total_triples:
         raise ValueError("Advanced-query audit triple total is inconsistent")
-    if int(report.get("queryCount", -1)) != 16:
+    if int(report.get("queryCount", -1)) != 17:
         raise ValueError("Advanced-query audit query count is inconsistent")
     if int(report.get("queriesWithDuplicateRows", -1)) != 0:
         raise ValueError("Advanced-query audit reports duplicate rows")

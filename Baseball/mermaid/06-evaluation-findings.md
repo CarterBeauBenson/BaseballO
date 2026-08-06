@@ -11,15 +11,17 @@ flowchart TB
     DONE --> D5["foul-tip and strike share one counted individual"]
     DONE --> D6["sac_bunt maps BuntAct instead of SwingAct"]
     DONE --> D7["disposable ancestor context replaces incomplete nested joins"]
+    DONE --> D8["replay records preserve review disposition and final-result evidence"]
     GAP --> G1["runner records lack safe plate-appearance identity"]
     GAP --> G2["fielding credits lack ancestor-aware act identity"]
     GAP --> G3["ambiguous two-strike foul count"]
     GAP --> G4["coordinate values lack approved datatype properties"]
     GAP --> G5["non-pitch advisory action identity and class coverage"]
+    GAP --> G6["non-pitch reviews do not identify the individual base umpire"]
 ```
 
 The direct mapping is processor-proven for the tracked completed-game sample.
-Static validation reports 247 Triples Maps, 56 logical sources, no
+Static validation reports 249 Triples Maps, 58 logical sources, no
 referencing-object joins, and no undeclared BaseballO classes. Generated-RDF
 validation enforces complete ancestor context on all 282 pitches, all 134
 swing/bunt acts, and all 112 contacts; a single terminal game timestamp;

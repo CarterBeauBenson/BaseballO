@@ -126,6 +126,8 @@ else:
         "RunnerAdvanceJudgmentMap",
         "StolenBaseJudgmentMap",
         "BattedBallCoordinateICEMap",
+        "ReviewEventRecordMap",
+        "PitchReviewEventRecordAboutMap",
     )
     missing_event_maps = [
         name for name in required_event_maps if f"<#{name}>" not in mapping_text
@@ -187,6 +189,9 @@ else:
         "@._baseballO.endsAtScore",
         "@._baseballO.hasSupportedStartBase",
         "{_baseballO.terminalPitchPlayId}",
+        '@._baseballO.reviewStatus',
+        'rml:reference "_baseballO.reviewStatus"',
+        'rml:reference "_baseballO.reviewType"',
         'rml:reference "_baseballO.gameEndTime"',
     )
     missing_context_fragments = [

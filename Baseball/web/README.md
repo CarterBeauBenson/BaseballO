@@ -40,10 +40,13 @@ npm run check
 - game-scoped team grouping and filtering for batting, pitching, and
   baserunning; offensive teams are derived from the half-inning while pitching
   uses the opposing fielding team;
+- reconciled pitching totals split into balls, called strikes,
+  swinging/missed strikes, fouls/foul tips, balls put in play, and hit batters;
 - a dedicated authoritative-only Empty Games review view that displays its
   current contribution policy and completeness gate, with season, game,
   batting-team, venue, and batter filters;
-- a dedicated Advanced view for all 16 cataloged event-chain analytics, with
+- a dedicated Advanced view for all 17 cataloged event-chain analytics, including
+  final post-review umpire calls and replay-outcome provenance, with
   positive-evidence, completeness-gated, or integrity-audit semantics shown
   before execution and shared season, game, team-in-game, and venue filters;
 - dimensions and metrics generated from the existing component catalog;

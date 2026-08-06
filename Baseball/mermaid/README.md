@@ -25,12 +25,12 @@ Run `python Baseball/scripts/generate_rml_mermaid.py` from the repository root a
 
 | Measure | Revised mapping |
 | --- | ---: |
-| Logical sources | 56 |
-| Triples maps | 247 |
+| Logical sources | 58 |
+| Triples maps | 249 |
 | Referencing-object-map joins | 0 |
 | BaseballO classes used | 113 |
 | Undeclared BaseballO classes | 0 |
-| Sample generated triples | 28,419 |
+| Sample generated triples | 28,701 |
 | Sample plate appearances | 79 |
 | Sample pitches and pitch motions | 282 each |
 | Sample pitches with complete ancestor context | 282 |

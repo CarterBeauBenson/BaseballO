@@ -207,23 +207,9 @@ const FAMILY_DEFINITIONS = {
                         obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .`,
       `?pitcher rdfs:label ?pitcherLabel .`,
       ...VENUE_PATTERNS,
-      `OPTIONAL {
-        ?ballRecord a base:BaseballEventRecord ;
-                    cco:ont00001808 ?pitch, ?ball .
-        ?ball a base:BallProcess ;
-              obo:BFO_0000117 ?ballJudgment .
-        ?ballJudgment a base:BallJudgmentAct .
-      }`,
-      `OPTIONAL {
-        ?strikeRecord a base:BaseballEventRecord ;
-                      cco:ont00001808 ?pitch, ?strike .
-        ?strike a base:StrikeProcess ;
-                obo:BFO_0000117 ?strikeJudgment .
-        ?strikeJudgment a ?strikeJudgmentClass .
-        VALUES ?strikeJudgmentClass {
-          base:StrikeJudgmentAct base:FoulTipJudgmentAct
-        }
-      }`,
+      `?pitchResultRecord a base:BaseballEventRecord ;
+                         cco:ont00001808 ?pitch ;
+                         dcterms:type ?pitchCallCode .`,
     ],
     patternComponents: {
       fielding_team: [
@@ -234,22 +220,6 @@ const FAMILY_DEFINITIONS = {
                   obo:BFO_0000197 ?team ;
                   obo:BFO_0000054 ?game .`,
         `?team rdfs:label ?teamLabel .`,
-      ],
-      called_strike: [
-        `OPTIONAL {
-          ?calledStrikeRecord a base:BaseballEventRecord ;
-                              cco:ont00001808 ?pitch, ?calledStrikeCall .
-          ?calledStrikeCall a base:StrikeCallAct .
-        }`,
-      ],
-      swinging_strike: [
-        `OPTIONAL {
-          ?swingingStrikeRecord a base:BaseballEventRecord ;
-                                 cco:ont00001808 ?pitch, ?swingingStrike .
-          ?swingingStrike a base:StrikeProcess ;
-                          obo:BFO_0000062 ?swingingStrikeSwing .
-          ?swingingStrikeSwing a base:SwingAct .
-        }`,
       ],
     },
     dimensions: {
@@ -275,30 +245,40 @@ const FAMILY_DEFINITIONS = {
         sortExpression: "?pitches",
       },
       balls: {
-        label: "Called balls",
+        label: "Balls",
         description: "Pitches recorded by MLB as Ball or Ball in Dirt.",
-        select: "(COUNT(DISTINCT ?ball) AS ?balls)",
+        select: '(SUM(IF(?pitchCallCode IN ("B", "*B"), 1, 0)) AS ?balls)',
         sortExpression: "?balls",
       },
       called_strikes: {
         label: "Called strikes",
-        description: "Pitches recorded by MLB specifically as Called Strike.",
-        select: "(COUNT(DISTINCT ?calledStrikeCall) AS ?calledStrikes)",
+        description: "Pitches whose final MLB call is Called Strike, including post-review outcomes.",
+        select: '(SUM(IF(?pitchCallCode = "C", 1, 0)) AS ?calledStrikes)',
         sortExpression: "?calledStrikes",
-        requires: ["called_strike"],
       },
       swinging_strikes: {
-        label: "Swinging strikes",
-        description: "Pitches recorded by MLB specifically as Swinging Strike; blocked swinging strikes are not yet mapped.",
-        select: "(COUNT(DISTINCT ?swingingStrike) AS ?swingingStrikes)",
+        label: "Swinging/missed strikes",
+        description: "Swinging strikes, blocked swinging strikes, and missed bunts in MLB's final pitch call.",
+        select: '(SUM(IF(?pitchCallCode IN ("S", "W", "M"), 1, 0)) AS ?swingingStrikes)',
         sortExpression: "?swingingStrikes",
-        requires: ["swinging_strike"],
       },
-      strikes: {
-        label: "Confirmed strikes added to count (partial)",
-        description: "Called strikes, swinging strikes, foul tips, and only fouls proven to add a strike. This is not the box-score strike total.",
-        select: "(COUNT(DISTINCT ?strike) AS ?strikes)",
-        sortExpression: "?strikes",
+      fouls: {
+        label: "Fouls/foul tips",
+        description: "Fouls, foul tips, and foul bunts, including two-strike fouls that do not change the count.",
+        select: '(SUM(IF(?pitchCallCode IN ("F", "T", "L"), 1, 0)) AS ?fouls)',
+        sortExpression: "?fouls",
+      },
+      in_play: {
+        label: "Balls put in play",
+        description: "Pitches MLB records as put in play, whether the play produces outs, no outs, or runs.",
+        select: '(SUM(IF(?pitchCallCode IN ("X", "D", "E"), 1, 0)) AS ?inPlay)',
+        sortExpression: "?inPlay",
+      },
+      hit_batters: {
+        label: "Hit batters",
+        description: "Pitches whose final MLB call is Hit By Pitch.",
+        select: '(SUM(IF(?pitchCallCode = "H", 1, 0)) AS ?hitBatters)',
+        sortExpression: "?hitBatters",
       },
       plate_appearances: {
         label: "Plate appearances faced",

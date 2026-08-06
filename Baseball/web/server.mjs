@@ -89,7 +89,7 @@ async function readAdvancedCatalog() {
   const catalog = JSON.parse(await readFile(ADVANCED_QUERY_CATALOG, "utf8"));
   if (catalog.artifactType !== "baseball-advanced-semantic-query-catalog"
       || !Array.isArray(catalog.queries)
-      || catalog.queries.length !== 16) {
+      || catalog.queries.length !== 17) {
     throw new Error("The advanced-query catalog is invalid.");
   }
   return catalog;

@@ -8,6 +8,7 @@ flowchart TD
     CTX --> PITCH["pitch records + play/batter/pitcher identity"]
     PITCH --> CALL["ball, strike, foul, foul tip, in-play filters"]
     PITCH --> PHYSICAL["contact and coordinate filters"]
+    PLAY --> REVIEW["review type, disposition, and final pitch links"]
     PLAY --> BUNT["sac_bunt terminal pitch filter"]
     PLAY --> RESULT["hit, out, walk, sacrifice, error, interference, balk filters"]
     PLAY --> RUNNER["runner movement filters"]
@@ -18,7 +19,7 @@ flowchart TD
     RAW --> FIELDING["fielding credits: role trigger only"]
 ```
 
-The active RML contains 56 logical sources. Repeated filters are deliberate:
+The active RML contains 58 logical sources. Repeated filters are deliberate:
 one source record may support distinct acts, physical processes, judgments,
 decisions, calls, counted processes, records, sites, roles, and artifacts. The
 temporary context adds ancestor identity but never changes or replaces the raw

@@ -1,0 +1,38 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+
+# Replay provenance and final outcomes. The MLB feed supplies the final
+# structured state and a narrative review disposition, not a separately
+# structured original call. Accordingly, finalEvent and finalPitchCall are
+# post-review outcomes; reviewStatus says whether replay changed the field call.
+SELECT ?reviewType ?reviewStatus ?finalEvent ?finalPitchCall
+       (COUNT(DISTINCT ?reviewRecord) AS ?reviews)
+       (COUNT(DISTINCT ?game) AS ?games)
+WHERE {
+  GRAPH ?graph {
+    ?reviewRecord a base:BaseballEventRecord ;
+        dcterms:type ?reviewType ;
+        dcterms:identifier ?reviewStatus ;
+        cco:ont00001808 ?resultJudgment .
+    ?resultJudgment obo:BFO_0000132 ?result .
+    ?result a base:BaseballInstitutionalProcess ;
+        obo:BFO_0000132 ?plateAppearance .
+    ?resultRecord a base:BaseballEventRecord ;
+        cco:ont00001808 ?result ;
+        dcterms:identifier ?finalEvent .
+    ?plateAppearance a base:PlateAppearance ;
+        obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
+    OPTIONAL {
+      ?reviewRecord cco:ont00001808 ?pitch .
+      ?pitch a base:PitchAct .
+      ?pitchRecord a base:BaseballEventRecord ;
+          cco:ont00001808 ?pitch ;
+          dcterms:type ?finalPitchCall .
+    }
+  }
+  FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+}
+GROUP BY ?reviewType ?reviewStatus ?finalEvent ?finalPitchCall
+ORDER BY ?reviewType ?reviewStatus ?finalEvent ?finalPitchCall

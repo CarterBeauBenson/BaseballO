@@ -77,6 +77,12 @@
       "maps": ["PitchEventRecordMap", "PitchIntervalMap", "PitchStartInstantMap", "PitchStartTimestampMap", "PitchEndInstantMap", "PitchEndTimestampMap", "PitchPhysicalRecordAboutMap"]
     },
     {
+      "id": "46-replay-review",
+      "title": "Replay review provenance",
+      "summary": "A review event record preserves MLB's review type and disposition, describes the final play judgment, and links pitch-result reviews to the final pitch.",
+      "maps": ["ReviewEventRecordMap", "PitchReviewEventRecordAboutMap"]
+    },
+    {
       "id": "12-ball-adjudication",
       "title": "Called ball adjudication",
       "summary": "A ball process follows pitch motion and contains a judgment that produces a decision used by a call act; ball-in-dirt is a source-supported variant.",
