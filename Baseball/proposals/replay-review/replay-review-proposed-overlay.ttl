@@ -7,8 +7,8 @@
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 
 <https://baseballontology.org/proposal/replay-review-overlay> a owl:Ontology ;
-    rdfs:label "BaseballO replay-review proposal"@en ;
-    rdfs:comment "Unaccepted and non-authoritative candidate axioms. This ontology is not imported by BaseballO."@en .
+    rdfs:label "BaseballO accepted replay-review design snapshot"@en ;
+    rdfs:comment "Historical design snapshot accepted on 2026-08-05. The authoritative class vocabulary is in BaseballO.ttl and the executable axioms are in BaseballO-axioms-overlay.ttl."@en .
 
 #################################################################
 # Core replay pattern
@@ -234,12 +234,15 @@ base:OverturningBaseballReplayReviewAct a owl:Class ;
     ) ] .
 
 #################################################################
-# Dispositions and records
+# Review results and records
 #################################################################
 
 base:BaseballReplayReviewDispositionICE a owl:Class ;
-    rdfs:label "Baseball Replay Review Disposition ICE"@en ;
-    skos:definition "A Baseball Replay Review Disposition ICE is a Descriptive Information Content Entity that is output of a Baseball Replay Review Act, is about a Reviewed On-Field Baseball Decision ICE, and is about a Baseball Replay Decision ICE."@en ;
+    rdfs:subClassOf cco:ont00000853 ;
+    rdfs:label "Baseball Replay Review Result ICE"@en ;
+    skos:definition "A Baseball Replay Review Result ICE is a Descriptive Information Content Entity that is output of a Baseball Replay Review Act, is about a Reviewed On-Field Baseball Decision ICE, and is about a Baseball Replay Decision ICE."@en ;
+    rdfs:comment "The IRI retains the earlier word 'Disposition' for identifier stability, but the label uses 'Result' to avoid confusion with BFO's technical category of disposition."@en ;
+    skos:example "The information content that replay review overturned an on-field safe decision and produced an out decision."@en ;
     owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
         cco:ont00000853
         [ a owl:Restriction ; owl:onProperty cco:ont00001816 ; owl:someValuesFrom base:BaseballReplayReviewAct ]
@@ -248,16 +251,22 @@ base:BaseballReplayReviewDispositionICE a owl:Class ;
     ) ] .
 
 base:AffirmingBaseballReplayReviewDispositionICE a owl:Class ;
-    rdfs:label "Affirming Baseball Replay Review Disposition ICE"@en ;
-    skos:definition "An Affirming Baseball Replay Review Disposition ICE is a Baseball Replay Review Disposition ICE that is output of an Affirming Baseball Replay Review Act."@en ;
+    rdfs:subClassOf base:BaseballReplayReviewDispositionICE ;
+    rdfs:label "Affirming Baseball Replay Review Result ICE"@en ;
+    skos:definition "An Affirming Baseball Replay Review Result ICE is a Baseball Replay Review Result ICE that is output of an Affirming Baseball Replay Review Act."@en ;
+    rdfs:comment "MLB source values 'confirmed' and 'upheld' may both instantiate this class unless evidence sufficient to distinguish their epistemic thresholds is modeled."@en ;
+    skos:example "The information content that replay review affirmed an on-field out decision by producing another out decision."@en ;
     owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
         base:BaseballReplayReviewDispositionICE
         [ a owl:Restriction ; owl:onProperty cco:ont00001816 ; owl:someValuesFrom base:AffirmingBaseballReplayReviewAct ]
     ) ] .
 
 base:OverturningBaseballReplayReviewDispositionICE a owl:Class ;
-    rdfs:label "Overturning Baseball Replay Review Disposition ICE"@en ;
-    skos:definition "An Overturning Baseball Replay Review Disposition ICE is a Baseball Replay Review Disposition ICE that is output of an Overturning Baseball Replay Review Act."@en ;
+    rdfs:subClassOf base:BaseballReplayReviewDispositionICE ;
+    rdfs:label "Overturning Baseball Replay Review Result ICE"@en ;
+    skos:definition "An Overturning Baseball Replay Review Result ICE is a Baseball Replay Review Result ICE that is output of an Overturning Baseball Replay Review Act."@en ;
+    rdfs:comment "This class represents a change between supported decision alternatives rather than merely the occurrence of a review."@en ;
+    skos:example "The information content that replay review overturned an on-field safe decision and produced an out decision on a pickoff play."@en ;
     owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
         base:BaseballReplayReviewDispositionICE
         [ a owl:Restriction ; owl:onProperty cco:ont00001816 ; owl:someValuesFrom base:OverturningBaseballReplayReviewAct ]
@@ -265,7 +274,7 @@ base:OverturningBaseballReplayReviewDispositionICE a owl:Class ;
 
 base:BaseballReplayReviewEventRecord a owl:Class ;
     rdfs:label "Baseball Replay Review Event Record"@en ;
-    skos:definition "A Baseball Replay Review Event Record is a Baseball Event Record that is about a Baseball Replay Review Act, a Reviewed On-Field Baseball Decision ICE, a Baseball Replay Decision ICE, and a Baseball Replay Review Disposition ICE."@en ;
+    skos:definition "A Baseball Replay Review Event Record is a Baseball Event Record that is about a Baseball Replay Review Act, a Reviewed On-Field Baseball Decision ICE, a Baseball Replay Decision ICE, and a Baseball Replay Review Result ICE."@en ;
     owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
         base:BaseballEventRecord
         [ a owl:Restriction ; owl:onProperty cco:ont00001808 ; owl:someValuesFrom base:BaseballReplayReviewAct ]
@@ -291,4 +300,3 @@ base:AffirmingBaseballReplayReviewAct
 
 base:AffirmingBaseballReplayReviewDispositionICE
     owl:disjointWith base:OverturningBaseballReplayReviewDispositionICE .
-

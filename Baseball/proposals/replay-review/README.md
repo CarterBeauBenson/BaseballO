@@ -1,14 +1,18 @@
-# Replay-review ontology proposal
+# Replay-review ontology design record
 
-Status: **unaccepted and non-authoritative**. Nothing in this directory is
-imported by BaseballO, the RML mapping, SHACL, reasoning profiles, or the
-Explorer. Acceptance requires an explicit decision by the ontology owner.
+Status: **accepted on 2026-08-05**. This directory preserves the design review
+that led to the authoritative implementation. The named classes, definitions,
+taxonomy, comments, and examples are in
+[`../../ontology/BaseballO.ttl`](../../ontology/BaseballO.ttl); the executable
+logical axioms are in
+[`../../ontology/BaseballO-axioms-overlay.ttl`](../../ontology/BaseballO-axioms-overlay.ttl).
 
-The candidate OWL is in
+The original candidate OWL snapshot is in
 [`replay-review-proposed-overlay.ttl`](replay-review-proposed-overlay.ttl).
-Every proposed textual definition below uses a genus-differentia form and has
-a matching equivalence axiom in that file. The proposal introduces classes but
-no object properties. Every object property is reused from BFO or CCO.
+Every textual definition below uses a genus-differentia form and has a matching
+equivalence axiom in the authoritative overlay. The accepted model introduces
+classes but no object properties. Every object property is reused from BFO or
+CCO.
 
 ## Modeling commitments
 
@@ -213,33 +217,59 @@ and `SafeDecisionICE` mutually disjoint. Together with the exact-one input and
 output restrictions, this prevents one review from satisfying incompatible
 transition patterns.
 
-## Disposition and record definitions
+## Review-result and record definitions
 
-### Baseball Replay Review Disposition ICE
+### Baseball Replay Review Result ICE
 
-**Definition:** A Baseball Replay Review Disposition ICE is a Descriptive
+**Definition:** A Baseball Replay Review Result ICE is a Descriptive
 Information Content Entity that is output of a Baseball Replay Review Act, is
 about a Reviewed On-Field Baseball Decision ICE, and is about a Baseball Replay
 Decision ICE.
 
-### Affirming Baseball Replay Review Disposition ICE
+The underlying IRI retains `BaseballReplayReviewDispositionICE` for identifier
+stability. The label uses “Result ICE” so it cannot be mistaken for a BFO
+disposition, which is a realizable dependent continuant.
 
-**Definition:** An Affirming Baseball Replay Review Disposition ICE is a
-Baseball Replay Review Disposition ICE that is output of an Affirming Baseball
-Replay Review Act.
+**Comment:** This ICE describes how the replay decision relates to the reviewed
+on-field decision.
 
-### Overturning Baseball Replay Review Disposition ICE
+**Example:** The information content that replay review overturned an on-field
+safe decision and produced an out decision.
 
-**Definition:** An Overturning Baseball Replay Review Disposition ICE is a
-Baseball Replay Review Disposition ICE that is output of an Overturning
-Baseball Replay Review Act.
+### Affirming Baseball Replay Review Result ICE
+
+**Definition:** An Affirming Baseball Replay Review Result ICE is a Baseball
+Replay Review Result ICE that is output of an Affirming Baseball Replay Review
+Act.
+
+**Subclass:** Baseball Replay Review Result ICE.
+
+**Comment:** MLB source values `confirmed` and `upheld` both map here until an
+evidence-based distinction between their epistemic thresholds is modeled.
+
+**Example:** The information content that replay review affirmed an on-field
+out decision by producing another out decision.
+
+### Overturning Baseball Replay Review Result ICE
+
+**Definition:** An Overturning Baseball Replay Review Result ICE is a Baseball
+Replay Review Result ICE that is output of an Overturning Baseball Replay
+Review Act.
+
+**Subclass:** Baseball Replay Review Result ICE.
+
+**Comment:** This class represents a change between supported decision
+alternatives, not merely the occurrence of a review.
+
+**Example:** The information content that replay review overturned the on-field
+safe decision on Shohei Ohtani's pickoff play and produced an out decision.
 
 ### Baseball Replay Review Event Record
 
 **Definition:** A Baseball Replay Review Event Record is a Baseball Event
 Record that is about a Baseball Replay Review Act, a Reviewed On-Field Baseball
 Decision ICE, a Baseball Replay Decision ICE, and a Baseball Replay Review
-Disposition ICE.
+Result ICE.
 
 ## Proposed event pattern
 
@@ -250,7 +280,7 @@ flowchart LR
     C -->|precedes| R[Baseball Replay Review Act]
     OD -->|is input of| R
     R -->|has output| RD[Baseball Replay Decision ICE]
-    R -->|has output| DISP[Replay Review Disposition ICE]
+    R -->|has output| DISP[Replay Review Result ICE]
     REC[Replay Review Event Record] -->|is about| R
     REC -->|is about| OD
     REC -->|is about| RD
@@ -260,25 +290,20 @@ flowchart LR
 For the Ohtani example, the rich pattern would be a
 `SafeToOutBaseballReplayReviewAct`. The Cubs' challenge follows a reviewed
 on-field safe judgment; the review consumes a `SafeDecisionICE`, produces an
-`OutDecisionICE`, and produces an overturning disposition. The final pickoff
+`OutDecisionICE`, and produces an overturning review result. The final pickoff
 out remains the operative structured outcome.
 
-## Acceptance decisions
+## Remaining extension decisions
 
-Before promotion into `ontology/BaseballO.ttl` and
-`ontology/BaseballO-axioms-overlay.ttl`, the ontology owner must decide:
+The core pattern has been promoted. These questions remain available for later
+extension without blocking the accepted model:
 
 1. Whether a replay official should necessarily bear `UmpireRole` as well as
-   the proposed `BaseballReplayOfficialRole`.
-2. Whether the four supported decision classes should be mutually disjoint in
-   the authoritative ontology.
-3. Whether the binary-opposite original decision may be derived for an
+   `BaseballReplayOfficialRole`.
+2. Whether the binary-opposite original decision may be derived for an
    overturned pitch-result or out-safe review when the feed supplies only the
-   final structured outcome and narrative disposition.
-4. Whether `confirmed` and `upheld` should remain source labels normalized to
-   affirming, or receive separate classes after evidence-threshold content is
-   modeled.
-5. Whether replay reviews outside ball/strike and out/safe require additional
-   transition families before the general affirming and overturning classes
-   are accepted.
-
+   final structured outcome and narrative review result.
+3. Whether future evidence modeling supports distinct `confirmed` and
+   `upheld` subclasses; both are currently normalized to affirming.
+4. Which additional transition families are needed for replay reviews outside
+   ball/strike and out/safe.

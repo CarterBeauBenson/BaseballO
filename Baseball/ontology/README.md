@@ -2,6 +2,12 @@
 
 [`BaseballO.ttl`](BaseballO.ttl) is the active project ontology. It contains the annotated class vocabulary and named-class taxonomy. Its natural-language definitions, labels, comments, examples, and taxonomic `rdfs:subClassOf` assertions can be shared without the optional logical restrictions.
 
+Version `0.3.0` adds the accepted replay-review model: the on-field judgment,
+challenge, replay review, input and output decisions, review-result information,
+and source event record remain distinct entities. Human-facing labels use
+“Replay Review Result ICE”; legacy `...DispositionICE` IRIs are retained only
+for identifier stability and do not denote BFO dispositions.
+
 [`BaseballO-axioms-overlay.ttl`](BaseballO-axioms-overlay.ttl) is the optional axiom module. It imports BaseballO, the Cognitive Process Ontology, and the Modal Relation Ontology, then adds relational and cardinality restrictions derived conservatively from BaseballO's definitions. It declares no new named classes or object properties.
 
 ## Loading choices
