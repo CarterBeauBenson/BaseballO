@@ -60,7 +60,8 @@ npm run check
 - dimensions and metrics generated from the existing component catalog;
 - graph-backed filter options for seasons, games, players, venues, event types,
   teams, umpires, and official scorers;
-- tabular results, execution metadata, and CSV export;
+- click-sortable tabular results, execution metadata, and CSV export that
+  preserves the selected table order;
 - generated-SPARQL inspection and copy; and
 - responsive keyboard-accessible local interface.
 

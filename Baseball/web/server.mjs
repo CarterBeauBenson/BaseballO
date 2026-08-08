@@ -32,6 +32,7 @@ const STATIC_FILES = new Map([
   ["/", "index.html"],
   ["/index.html", "index.html"],
   ["/app.js", "app.js"],
+  ["/result-sort.js", "result-sort.js"],
   ["/styles.css", "styles.css"],
 ]);
 const CONTENT_TYPES = {

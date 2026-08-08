@@ -1,3 +1,5 @@
+import { sortBindings } from "./result-sort.js";
+
 const DEFAULT_SELECTIONS = Object.freeze({
   batting: {
     dimensions: ["player"],
@@ -97,6 +99,7 @@ let advancedCatalog = [];
 let derivedCatalog = { measures: {} };
 let currentFamily = "batting";
 let lastResponse = null;
+let currentSort = null;
 let toastTimer;
 const optionCache = new Map();
 
@@ -510,14 +513,43 @@ function renderMeta(meta) {
   elements.resultMeta.hidden = false;
 }
 
-function renderResults(payload) {
+function renderResults(payload, { resetSort = false } = {}) {
+  if (resetSort) currentSort = null;
   const variables = payload.head?.vars ?? [];
-  const bindings = payload.results?.bindings ?? [];
+  const sourceBindings = payload.results?.bindings ?? [];
+  const bindings = currentSort
+    ? sortBindings(sourceBindings, currentSort.column, currentSort.direction)
+    : sourceBindings;
   const thead = document.createElement("thead");
   const headerRow = document.createElement("tr");
   for (const variable of variables) {
     const label = payload.meta?.columnLabels?.[variable] ?? humanizeVariable(variable);
-    headerRow.append(createElement("th", "", label));
+    const heading = document.createElement("th");
+    heading.scope = "col";
+    const isCurrent = currentSort?.column === variable;
+    heading.setAttribute("aria-sort", isCurrent
+      ? currentSort.direction === "desc" ? "descending" : "ascending"
+      : "none");
+    const button = createElement("button", "table-sort-button");
+    button.type = "button";
+    button.title = isCurrent && currentSort.direction === "desc"
+      ? `Sort ${label} low to high`
+      : `Sort ${label} high to low`;
+    button.append(
+      createElement("span", "", label),
+      createElement("span", "sort-indicator", isCurrent
+        ? currentSort.direction === "desc" ? "↓" : "↑"
+        : "↕"),
+    );
+    button.addEventListener("click", () => {
+      currentSort = {
+        column: variable,
+        direction: isCurrent && currentSort.direction === "desc" ? "asc" : "desc",
+      };
+      renderResults(payload);
+    });
+    heading.append(button);
+    headerRow.append(heading);
   }
   thead.append(headerRow);
 
@@ -567,7 +599,7 @@ async function runQuery() {
       body: JSON.stringify(request),
     });
     lastResponse = payload;
-    renderResults(payload);
+    renderResults(payload, { resetSort: true });
   } catch (error) {
     lastResponse = null;
     showError(error.message);
@@ -592,7 +624,7 @@ async function runEmptyGames() {
       }),
     });
     lastResponse = payload;
-    renderResults(payload);
+    renderResults(payload, { resetSort: true });
   } catch (error) {
     lastResponse = null;
     showError(error.message);
@@ -623,7 +655,7 @@ async function runDerivedMetric() {
       }),
     });
     lastResponse = payload;
-    renderResults(payload);
+    renderResults(payload, { resetSort: true });
   } catch (error) {
     lastResponse = null;
     showError(error.message);
@@ -654,7 +686,7 @@ async function runAdvanced() {
       }),
     });
     lastResponse = payload;
-    renderResults(payload);
+    renderResults(payload, { resetSort: true });
   } catch (error) {
     lastResponse = null;
     showError(error.message);
@@ -671,7 +703,10 @@ function csvField(value) {
 function exportCsv() {
   if (!lastResponse) return;
   const variables = lastResponse.head?.vars ?? [];
-  const rows = lastResponse.results?.bindings ?? [];
+  const sourceRows = lastResponse.results?.bindings ?? [];
+  const rows = currentSort
+    ? sortBindings(sourceRows, currentSort.column, currentSort.direction)
+    : sourceRows;
   const lines = [
     variables.map(csvField).join(","),
     ...rows.map((row) => variables.map((variable) => csvField(row[variable]?.value)).join(",")),

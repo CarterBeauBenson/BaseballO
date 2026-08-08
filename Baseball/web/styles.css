@@ -927,11 +927,46 @@ th {
   position: sticky;
   z-index: 1;
   top: 0;
+  padding: 0;
   background: var(--navy);
   color: white;
   font-size: 0.68rem;
   letter-spacing: 0.09em;
   text-transform: uppercase;
+}
+
+.table-sort-button {
+  display: flex;
+  width: 100%;
+  min-height: 42px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  padding: 0.8rem 0.9rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  letter-spacing: inherit;
+  text-align: left;
+  text-transform: inherit;
+}
+
+.table-sort-button:hover {
+  background: rgb(255 255 255 / 10%);
+}
+
+.table-sort-button:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: -3px;
+}
+
+.sort-indicator {
+  min-width: 1em;
+  color: var(--gold);
+  font-size: 0.9rem;
+  text-align: center;
 }
 
 tbody tr:nth-child(even) {

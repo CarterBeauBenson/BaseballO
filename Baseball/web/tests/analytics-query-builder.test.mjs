@@ -9,6 +9,7 @@ import {
   buildPublicDerivedMetricCatalog,
   compileDerivedMetricQuery,
 } from "../query-builder/derived-metric-query-builder.js";
+import { sortBindings } from "../result-sort.js";
 import { buildPublicCatalog, compileGameDateIndexQuery, createBaseballServer } from "../server.mjs";
 
 test("public catalog exposes labels without SPARQL implementation details", () => {
@@ -168,6 +169,24 @@ before(async () => {
 
 after(async () => {
   await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+});
+
+test("result columns sort high-to-low first and keep missing values last", () => {
+  const rows = [
+    { value: { type: "literal", value: "2", datatype: "http://www.w3.org/2001/XMLSchema#integer" } },
+    {},
+    { value: { type: "literal", value: "10", datatype: "http://www.w3.org/2001/XMLSchema#integer" } },
+    { value: { type: "literal", value: "4", datatype: "http://www.w3.org/2001/XMLSchema#integer" } },
+  ];
+  assert.deepEqual(
+    sortBindings(rows, "value", "desc").map((row) => row.value?.value),
+    ["10", "4", "2", undefined],
+  );
+  assert.deepEqual(
+    sortBindings(rows, "value", "asc").map((row) => row.value?.value),
+    ["2", "4", "10", undefined],
+  );
+  assert.throws(() => sortBindings(rows, "value", "sideways"), /Unsupported sort direction/u);
 });
 
 function request(path, options = {}) {
