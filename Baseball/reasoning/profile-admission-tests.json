@@ -1,0 +1,54 @@
+{
+  "artifactType": "baseball-selective-reasoning-profile-admission-tests",
+  "contractVersion": 1,
+  "description": "Executable admission cases required for every selective reasoning profile.",
+  "terms": {
+    "pa": "https://baseballontology.org/data/test/pa",
+    "batter_act": "https://baseballontology.org/data/test/batter_act",
+    "pitch": "https://baseballontology.org/data/test/pitch",
+    "swing": "https://baseballontology.org/data/test/swing",
+    "contact": "https://baseballontology.org/data/test/contact",
+    "player": "https://baseballontology.org/data/test/player"
+  },
+  "profiles": {
+    "event-order": {
+      "semanticFamily": "bounded precedence",
+      "positiveEntailments": [
+        ["pitch", "http://purl.obolibrary.org/obo/BFO_0000063", "contact"],
+        ["swing", "http://purl.obolibrary.org/obo/BFO_0000062", "pitch"]
+      ],
+      "forbiddenEntailments": [
+        ["contact", "http://purl.obolibrary.org/obo/BFO_0000063", "pitch"]
+      ],
+      "contradictionAdditions": [
+        ["contact", "http://purl.obolibrary.org/obo/BFO_0000063", "pitch"]
+      ],
+      "contradictionPolicy": "The asymmetric and irreflexive precedence constraints must reject a cycle."
+    },
+    "event-structure": {
+      "semanticFamily": "bounded occurrent mereology",
+      "positiveEntailments": [
+        ["swing", "http://purl.obolibrary.org/obo/BFO_0000132", "pa"],
+        ["pa", "http://purl.obolibrary.org/obo/BFO_0000117", "swing"]
+      ],
+      "forbiddenEntailments": [
+        ["pa", "http://purl.obolibrary.org/obo/BFO_0000132", "swing"]
+      ],
+      "contradictionAdditions": [
+        ["pa", "http://purl.obolibrary.org/obo/BFO_0000132", "swing"]
+      ],
+      "contradictionPolicy": "The antisymmetric occurrent-part constraint must reject reciprocal proper containment."
+    },
+    "participation": {
+      "semanticFamily": "bounded participation inverse",
+      "positiveEntailments": [
+        ["player", "http://purl.obolibrary.org/obo/BFO_0000056", "pitch"]
+      ],
+      "forbiddenEntailments": [
+        ["pitch", "http://purl.obolibrary.org/obo/BFO_0000056", "player"]
+      ],
+      "contradictionAdditions": [],
+      "contradictionPolicy": "not-applicable: this profile declares no asymmetry, irreflexivity, or disjointness axiom; direction is guarded by the forbidden-entailment case instead."
+    }
+  }
+}

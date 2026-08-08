@@ -24,6 +24,7 @@ if PROVER_SPEC is None or PROVER_SPEC.loader is None:
     raise RuntimeError("Could not load prove-selective-reasoning.py")
 PROVER = importlib.util.module_from_spec(PROVER_SPEC)
 PROVER_SPEC.loader.exec_module(PROVER)
+ADMISSION_PATH = ROOT / "reasoning" / "profile-admission-tests.json"
 
 BASE = Namespace("https://baseballontology.org/")
 DATA = Namespace("https://baseballontology.org/data/test/")
@@ -70,31 +71,52 @@ def run_profile(name: str, graph: Graph, anchor: URIRef) -> tuple[Graph, Graph, 
     return asserted, inferred, profile
 
 
-def test_positive_and_negative() -> None:
-    graph, anchor = fixture()
-    asserted, inferred, _ = run_profile("event-order", graph, anchor)
-    assert (DATA.pitch, BFO.BFO_0000063, DATA.contact) in inferred
-    assert (DATA.swing, BFO.BFO_0000062, DATA.pitch) in inferred
-    assert (DATA.contact, BFO.BFO_0000062, DATA.pitch) in inferred
+def test_profile_admission_contract() -> None:
+    contract = json.loads(ADMISSION_PATH.read_text(encoding="utf-8"))
+    assert contract["artifactType"] == "baseball-selective-reasoning-profile-admission-tests"
+    assert contract["contractVersion"] == 1
+    profile_ids = {path.stem for path in (ROOT / "reasoning" / "profiles").glob("*.json")}
+    assert set(contract["profiles"]) == profile_ids
+    terms = {name: URIRef(value) for name, value in contract["terms"].items()}
 
-    _, structure, _ = run_profile("event-structure", graph, anchor)
-    assert (DATA.swing, BFO.BFO_0000132, DATA.pa) in structure
-    assert (DATA.pa, BFO.BFO_0000117, DATA.swing) in structure
+    def resolve(value: str) -> URIRef:
+        return terms[value] if value in terms else URIRef(value)
 
-    _, participation, _ = run_profile("participation", graph, anchor)
-    assert (DATA.player, BFO.BFO_0000056, DATA.pitch) in participation
+    def triple(values: list[str]) -> tuple[URIRef, URIRef, URIRef]:
+        subject, predicate, object_ = values
+        return resolve(subject), URIRef(predicate), resolve(object_)
 
-    contradictory, anchor = fixture()
-    contradictory.add((DATA.contact, BFO.BFO_0000063, DATA.pitch))
-    path = ROOT / "reasoning" / "profiles" / "event-order.json"
-    profile = REASONER.load_profile(path)
-    asserted, _ = REASONER.extract_slice(contradictory, anchor, profile)
-    try:
-        REASONER.apply_rules(asserted, profile, {})
-    except ValueError as error:
-        assert "contradiction" in str(error).lower()
-    else:
-        raise AssertionError("A precedence cycle was not rejected")
+    for profile_id, admission in contract["profiles"].items():
+        assert admission["semanticFamily"]
+        assert admission["positiveEntailments"]
+        assert admission["forbiddenEntailments"]
+        graph, anchor = fixture()
+        asserted, inferred, profile = run_profile(profile_id, graph, anchor)
+        closure = Graph()
+        for value in asserted:
+            closure.add(value)
+        for value in inferred:
+            closure.add(value)
+        for expected in admission["positiveEntailments"]:
+            assert triple(expected) in inferred, f"Missing positive admission entailment: {profile_id} / {expected}"
+        for forbidden in admission["forbiddenEntailments"]:
+            assert triple(forbidden) not in closure, f"Forbidden admission entailment: {profile_id} / {forbidden}"
+
+        additions = admission["contradictionAdditions"]
+        if additions:
+            contradictory, contradiction_anchor = fixture()
+            for addition in additions:
+                contradictory.add(triple(addition))
+            contradiction_slice, _ = REASONER.extract_slice(contradictory, contradiction_anchor, profile)
+            try:
+                REASONER.apply_rules(contradiction_slice, profile, {})
+            except ValueError as error:
+                assert "contradiction" in str(error).lower()
+            else:
+                raise AssertionError(f"Declared contradiction was not rejected: {profile_id}")
+        else:
+            assert not profile.get("constraints")
+            assert str(admission["contradictionPolicy"]).startswith("not-applicable:")
 
 
 def test_budget_and_determinism() -> None:
@@ -185,10 +207,10 @@ def validate_contracts() -> None:
 
 def main() -> None:
     validate_contracts()
-    test_positive_and_negative()
+    test_profile_admission_contract()
     test_budget_and_determinism()
     test_clif_translation()
-    print("Selective reasoning tests passed: 3 profiles, isolation, inference, contradiction, budgets, deterministic output, CLIF translation, and first-order proof.")
+    print("Selective reasoning tests passed: 3 profile admission contracts, isolation, positive and forbidden entailments, applicable contradictions, budgets, deterministic output, CLIF translation, and first-order proof.")
 
 
 if __name__ == "__main__":

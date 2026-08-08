@@ -13,6 +13,13 @@ Three small profiles are available:
 | `event-structure` | occurrent-part inverses and transitive paths | `occurrent-mereology.cl` |
 | `participation` | RDF participant inverses; temporally qualified CLIF facts when supported | `participation.cl` |
 
+Every profile must have a matching executable entry in
+[`profile-admission-tests.json`](profile-admission-tests.json). Admission
+requires fixed budgets, positive entailments, forbidden entailments, and a
+contradiction case for every profile-local asymmetry, irreflexivity, or
+antisymmetry constraint. A profile with no such constraint must say why a
+contradiction case is not semantically supported; the gate does not invent one.
+
 Each profile has fixed limits for containment depth, nodes, source triples,
 inferred triples, iterations, and wall-clock time. A limit violation fails the
 run without publishing a graph. These limits are part of the hashed reasoning

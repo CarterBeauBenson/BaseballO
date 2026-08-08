@@ -37,6 +37,7 @@ REASONING_REVIEW_EVIDENCE = (
     ROOT / "reasoning" / "evidence" / "fixture-566279-reviewed-samples.json"
 )
 REASONING_REVIEW_EVALUATOR = ROOT / "scripts" / "reasoning" / "evaluate-reviewed-samples.py"
+REASONING_PROFILE_ADMISSION = ROOT / "reasoning" / "profile-admission-tests.json"
 SAMPLE = ROOT / "data" / "raw" / "game-566279.json"
 RAW_SAMPLE_ROOT = ROOT / "data" / "raw" / "samples"
 REVIEW_SAMPLE = RAW_SAMPLE_ROOT / "2026-07-16" / "823440.json"
@@ -103,6 +104,7 @@ REQUIRED_PATHS = (
     REASONING_REVIEW_SAMPLES,
     REASONING_REVIEW_EVIDENCE,
     REASONING_REVIEW_EVALUATOR,
+    REASONING_PROFILE_ADMISSION,
     WEB_ROOT / "package.json",
     WEB_ROOT / "index.html",
     WEB_ROOT / "styles.css",

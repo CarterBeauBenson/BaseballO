@@ -53,6 +53,10 @@ the subsystem READMEs and Git history; do not recreate them here.
   field out and an eight-event, multi-runner scoring single. The six bounded
   runs produced 24/23/15 and 46/65/48 inferences respectively, proved all 176
   translated obligations, and recorded explicit-versus-closure query hashes.
+- New reasoning profiles are now fail-closed behind a data-driven admission
+  contract. All three current semantic families declare fixed budgets,
+  positive and forbidden entailments, and every applicable contradiction case;
+  participation explicitly documents that no asymmetry constraint is present.
 - The BFO CLIF source contract is pinned to commit
   `dd89f4a193038b66ef0e891d546c05a5b477f40f`. Z3 5.0.0 proved all 107
   translated fixture obligations and found all three asserted slices
@@ -71,9 +75,6 @@ the subsystem READMEs and Git history; do not recreate them here.
 
 ### 1. Advance the selective reasoning experiment
 
-- Add profiles only as small semantic families with their own fixed budgets,
-  positive entailments, forbidden entailments, and contradiction checks. Do not
-  introduce a full-game or corpus closure mode.
 - Continue running SHACL on explicit graphs before reasoning. Add post-reasoning
   shapes only for constraints whose semantics remain valid over inferred
   closure.
