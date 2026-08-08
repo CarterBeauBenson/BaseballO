@@ -56,7 +56,19 @@
         ]
       },
       "rulesetSha256": "6c584e54c4072c67529b922609b97d464cc0da6b3f7043d9bc929b79b31f53cc",
-      "sample": "simple-one-pitch-field-out"
+      "sample": "simple-one-pitch-field-out",
+      "shaclValidation": {
+        "explicitGraphBeforeReasoning": {
+          "conforms": true,
+          "profile": "authoritative",
+          "shapeSha256": "85723b0f7b6ab9586da158538e43f7a4780fdf67740e825bd7cc017fa36b0109"
+        },
+        "inferredGraphBeforeLoad": {
+          "conforms": true,
+          "profile": "reasoning-output",
+          "shapeSha256": "5e4a8a46f3fefca91567351646b13effd3cf56878611e58b4a5601112ed783a3"
+        }
+      }
     },
     {
       "anchor": "https://baseballontology.org/data/game/566279/plate-appearance/1",
@@ -109,7 +121,19 @@
         ]
       },
       "rulesetSha256": "4bcf63402bc8038b999c0e7a4a30111d5f9c2071c2c43b6a2fc763d9b7351d79",
-      "sample": "simple-one-pitch-field-out"
+      "sample": "simple-one-pitch-field-out",
+      "shaclValidation": {
+        "explicitGraphBeforeReasoning": {
+          "conforms": true,
+          "profile": "authoritative",
+          "shapeSha256": "85723b0f7b6ab9586da158538e43f7a4780fdf67740e825bd7cc017fa36b0109"
+        },
+        "inferredGraphBeforeLoad": {
+          "conforms": true,
+          "profile": "reasoning-output",
+          "shapeSha256": "5e4a8a46f3fefca91567351646b13effd3cf56878611e58b4a5601112ed783a3"
+        }
+      }
     },
     {
       "anchor": "https://baseballontology.org/data/game/566279/plate-appearance/1",
@@ -160,7 +184,19 @@
         ]
       },
       "rulesetSha256": "bb136facbddc510a9bc50b4a567390907f15bed8a7f2c9770d9b462f21568478",
-      "sample": "simple-one-pitch-field-out"
+      "sample": "simple-one-pitch-field-out",
+      "shaclValidation": {
+        "explicitGraphBeforeReasoning": {
+          "conforms": true,
+          "profile": "authoritative",
+          "shapeSha256": "85723b0f7b6ab9586da158538e43f7a4780fdf67740e825bd7cc017fa36b0109"
+        },
+        "inferredGraphBeforeLoad": {
+          "conforms": true,
+          "profile": "reasoning-output",
+          "shapeSha256": "5e4a8a46f3fefca91567351646b13effd3cf56878611e58b4a5601112ed783a3"
+        }
+      }
     },
     {
       "anchor": "https://baseballontology.org/data/game/566279/plate-appearance/23",
@@ -213,7 +249,19 @@
         ]
       },
       "rulesetSha256": "6c584e54c4072c67529b922609b97d464cc0da6b3f7043d9bc929b79b31f53cc",
-      "sample": "complicated-eight-event-run-scoring-single"
+      "sample": "complicated-eight-event-run-scoring-single",
+      "shaclValidation": {
+        "explicitGraphBeforeReasoning": {
+          "conforms": true,
+          "profile": "authoritative",
+          "shapeSha256": "85723b0f7b6ab9586da158538e43f7a4780fdf67740e825bd7cc017fa36b0109"
+        },
+        "inferredGraphBeforeLoad": {
+          "conforms": true,
+          "profile": "reasoning-output",
+          "shapeSha256": "5e4a8a46f3fefca91567351646b13effd3cf56878611e58b4a5601112ed783a3"
+        }
+      }
     },
     {
       "anchor": "https://baseballontology.org/data/game/566279/plate-appearance/23",
@@ -266,7 +314,19 @@
         ]
       },
       "rulesetSha256": "4bcf63402bc8038b999c0e7a4a30111d5f9c2071c2c43b6a2fc763d9b7351d79",
-      "sample": "complicated-eight-event-run-scoring-single"
+      "sample": "complicated-eight-event-run-scoring-single",
+      "shaclValidation": {
+        "explicitGraphBeforeReasoning": {
+          "conforms": true,
+          "profile": "authoritative",
+          "shapeSha256": "85723b0f7b6ab9586da158538e43f7a4780fdf67740e825bd7cc017fa36b0109"
+        },
+        "inferredGraphBeforeLoad": {
+          "conforms": true,
+          "profile": "reasoning-output",
+          "shapeSha256": "5e4a8a46f3fefca91567351646b13effd3cf56878611e58b4a5601112ed783a3"
+        }
+      }
     },
     {
       "anchor": "https://baseballontology.org/data/game/566279/plate-appearance/23",
@@ -317,7 +377,19 @@
         ]
       },
       "rulesetSha256": "bb136facbddc510a9bc50b4a567390907f15bed8a7f2c9770d9b462f21568478",
-      "sample": "complicated-eight-event-run-scoring-single"
+      "sample": "complicated-eight-event-run-scoring-single",
+      "shaclValidation": {
+        "explicitGraphBeforeReasoning": {
+          "conforms": true,
+          "profile": "authoritative",
+          "shapeSha256": "85723b0f7b6ab9586da158538e43f7a4780fdf67740e825bd7cc017fa36b0109"
+        },
+        "inferredGraphBeforeLoad": {
+          "conforms": true,
+          "profile": "reasoning-output",
+          "shapeSha256": "5e4a8a46f3fefca91567351646b13effd3cf56878611e58b4a5601112ed783a3"
+        }
+      }
     }
   ],
   "runCount": 6,

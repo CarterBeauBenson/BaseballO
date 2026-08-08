@@ -1,0 +1,49 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix shape: <https://w3id.org/baseball/shacl/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+shape:ReasoningOutputProfile
+    a sh:NodeShape ;
+    sh:name "BaseballO selective reasoning output profile"@en ;
+    sh:description "Closure-safe provenance constraints applied to a disposable inferred graph before loading."@en .
+
+shape:ReasoningGraphShape
+    a sh:NodeShape ;
+    sh:targetSubjectsOf prov:wasDerivedFrom ;
+    sh:nodeKind sh:IRI ;
+    sh:property [
+        sh:path rdf:type ;
+        sh:hasValue prov:Entity ;
+        sh:message "A reasoning graph resource must be a prov:Entity."@en
+    ] ;
+    sh:property [
+        sh:path prov:wasDerivedFrom ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:pattern "^https://w3id.org/baseball/graph/game/[0-9]+$" ;
+        sh:message "A reasoning graph must identify exactly one authoritative per-game source graph."@en
+    ] ;
+    sh:property [
+        sh:path dcterms:conformsTo ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:in (
+            <https://w3id.org/baseball/reasoning/profile/event-order>
+            <https://w3id.org/baseball/reasoning/profile/event-structure>
+            <https://w3id.org/baseball/reasoning/profile/participation>
+        ) ;
+        sh:message "A reasoning graph must name exactly one admitted selective profile."@en
+    ] ;
+    sh:property [
+        sh:path dcterms:identifier ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9a-f]{64}$" ;
+        sh:message "A reasoning graph must carry its complete lowercase SHA-256 ruleset identifier."@en
+    ] .

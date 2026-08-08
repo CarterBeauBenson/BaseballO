@@ -101,3 +101,9 @@ python Baseball/scripts/reasoning/evaluate-reviewed-samples.py `
 ```
 
 The evaluator never loads its disposable graphs into Fuseki.
+
+Every operator run validates the complete authoritative graph with the
+`authoritative` SHACL profile before slice extraction. After materialization
+and proof, the `reasoning-output` profile validates the disposable graph's
+source, admitted profile, and ruleset fingerprint before optional Fuseki load.
+Both reports and shape hashes are retained in the build manifest.

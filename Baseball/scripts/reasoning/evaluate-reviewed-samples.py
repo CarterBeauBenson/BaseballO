@@ -111,8 +111,19 @@ def evaluate(args: argparse.Namespace) -> dict[str, Any]:
 
     reasoner = ROOT / "scripts" / "reasoning" / "selective_reasoner.py"
     prover = ROOT / "scripts" / "reasoning" / "prove-selective-reasoning.py"
+    shacl_validator = ROOT / "scripts" / "pipeline" / "validate-shacl.py"
+    authoritative_shape = ROOT / "shacl" / "authoritative.ttl"
+    reasoning_shape = ROOT / "shacl" / "reasoning-output.ttl"
     results: list[dict[str, Any]] = []
     args.work_root.mkdir(parents=True, exist_ok=True)
+    pre_report_path = args.work_root.resolve() / "pre-reasoning-shacl.json"
+    subprocess.run(
+        [sys.executable, str(shacl_validator), "--profile", "authoritative", "--data", str(source_rdf), "--report-json", str(pre_report_path)],
+        cwd=ROOT, check=True, timeout=90,
+    )
+    pre_report = load_json(pre_report_path)
+    if pre_report.get("conforms") is not True:
+        raise ValueError("Reviewed source RDF did not pass authoritative SHACL before reasoning")
     for sample in samples:
         for profile in PROFILES:
             build = args.work_root.resolve() / str(sample["id"]) / profile
@@ -124,6 +135,14 @@ def evaluate(args: argparse.Namespace) -> dict[str, Any]:
             ]
             subprocess.run(command, cwd=ROOT, check=True, timeout=90)
             subprocess.run([sys.executable, str(prover), "--build", str(build)], cwd=ROOT, check=True, timeout=90)
+            post_report_path = build / "post-reasoning-shacl.json"
+            subprocess.run(
+                [sys.executable, str(shacl_validator), "--profile", "reasoning-output", "--data", str(build / "published.nt"), "--report-json", str(post_report_path)],
+                cwd=ROOT, check=True, timeout=90,
+            )
+            post_report = load_json(post_report_path)
+            if post_report.get("conforms") is not True:
+                raise ValueError(f"Reasoning-output SHACL failed for {sample['id']} / {profile}")
             manifest = load_json(build / "manifest.json")
             proof = load_json(build / "clif" / "proof-report.json")
             if proof.get("allObligationsProved") is not True or proof.get("consistency") != "sat":
@@ -154,6 +173,18 @@ def evaluate(args: argparse.Namespace) -> dict[str, Any]:
                     "obligationCount": proof["obligationCount"],
                     "provedCount": proof["provedCount"],
                     "allObligationsProved": proof["allObligationsProved"],
+                },
+                "shaclValidation": {
+                    "explicitGraphBeforeReasoning": {
+                        "profile": "authoritative",
+                        "conforms": True,
+                        "shapeSha256": sha256_file(authoritative_shape),
+                    },
+                    "inferredGraphBeforeLoad": {
+                        "profile": "reasoning-output",
+                        "conforms": True,
+                        "shapeSha256": sha256_file(reasoning_shape),
+                    },
                 },
             })
     return {

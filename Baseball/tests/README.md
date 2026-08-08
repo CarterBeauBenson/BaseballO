@@ -13,9 +13,10 @@ distinct final-game identities, official-date placement, six repeated schedule
 entries, and the challenge/umpire-review regression discovered by the expanded
 corpus.
 
-The repository check also meta-validates 35 SHACL node shapes across the
-authoritative and query-index profiles. Negative smoke graphs prove that an
-incomplete `PitchAct` and `HitFact` fail rather than passing vacuously.
+The repository check also meta-validates 37 SHACL node shapes across the
+authoritative, query-index, and reasoning-output profiles. Negative smoke
+graphs prove that an incomplete `PitchAct`, `HitFact`, and reasoning provenance
+envelope fail rather than passing vacuously.
 
 Selective reasoning has a separate offline suite:
 

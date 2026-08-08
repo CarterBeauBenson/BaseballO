@@ -16,7 +16,7 @@ the subsystem READMEs and Git history; do not recreate them here.
   produces 231,670 authoritative triples and 52,944 index triples. The expanded
   checked-in corpus contains 288 distinct completed games and is being promoted
   through the same per-game validation and equivalence gates.
-- Two explicit, non-entailing SHACL profiles contain 35 node shapes. The
+- Three explicit, non-entailing SHACL profiles contain 37 node shapes. The
   fixture and all eight corpus graph pairs conform with zero results; RML,
   index, and dehydration workflows now fail closed on violations.
 - The query library contains 48 canned and 17 advanced queries with reproducible
@@ -57,6 +57,9 @@ the subsystem READMEs and Git history; do not recreate them here.
   contract. All three current semantic families declare fixed budgets,
   positive and forbidden entailments, and every applicable contradiction case;
   participation explicitly documents that no asymmetry constraint is present.
+- Selective reasoning now fails closed at both SHACL boundaries: the complete
+  explicit graph must conform before slice extraction, and closure-safe
+  provenance shapes must conform after proof but before optional graph load.
 - The BFO CLIF source contract is pinned to commit
   `dd89f4a193038b66ef0e891d546c05a5b477f40f`. Z3 5.0.0 proved all 107
   translated fixture obligations and found all three asserted slices
@@ -73,13 +76,7 @@ the subsystem READMEs and Git history; do not recreate them here.
 
 ## Next work
 
-### 1. Advance the selective reasoning experiment
-
-- Continue running SHACL on explicit graphs before reasoning. Add post-reasoning
-  shapes only for constraints whose semantics remain valid over inferred
-  closure.
-
-### 2. Review the Explorer
+### 1. Review the Explorer
 
 - Add an official-game-date range control that scopes game graph IRIs before an
   analytical query executes. Provide one-day, seven-day, 30-day, and
@@ -115,7 +112,7 @@ the subsystem READMEs and Git history; do not recreate them here.
   metadata.
 - Defer a broad visual redesign until this common query interaction is settled.
 
-### 3. Expand index coverage carefully
+### 2. Expand index coverage carefully
 
 - Add indexed companions in small semantic families.
 - Require exact eight-game row equivalence and repeatable timing evidence for
@@ -125,7 +122,7 @@ the subsystem READMEs and Git history; do not recreate them here.
 - Treat negative and integrity queries as completeness-sensitive. Do not run
   them against an index unless their required evidence sets are proven complete.
 
-### 4. Preserve the execution boundary
+### 3. Preserve the execution boundary
 
 - Retain authoritative queries for audit, fallback, and regression testing.
 - Keep Auto fallback and explicit Indexed fail-closed behavior tested.
@@ -134,7 +131,7 @@ the subsystem READMEs and Git history; do not recreate them here.
 - Re-run the canned or advanced corpus audit whenever its queries change, and
   re-run equivalence and benchmarks whenever an indexed shape changes.
 
-### 5. Finish repeatable orchestration in NiFi
+### 4. Finish repeatable orchestration in NiFi
 
 - Add a parameterized request boundary for explicitly selected reasoning
   anchors and profiles; retain all fixed budgets and the prohibition on

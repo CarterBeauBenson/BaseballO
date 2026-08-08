@@ -38,8 +38,9 @@ Eighteen authoritative/indexed query pairs have exact corpus results; the
 reviewed runner selects 15 indexed routes and keeps three neutral routes on the
 authoritative graph. The Explorer remains authoritative-only until its
 interaction with the operational router is reviewed separately.
-Both graph layers have executable SHACL profiles. All fixture and corpus graphs
-conform with zero results before reasoning is applied. Selective reasoning is
+Both stored graph layers have executable SHACL profiles, and disposable
+reasoning output has a separate closure-safe provenance profile. All fixture
+and corpus graphs conform with zero results before reasoning is applied. Selective reasoning is
 available for one explicitly anchored plate appearance through separate event
 order, event structure, and participation profiles. Each profile has hard
 computational budgets and emits a pinned BFO CLIF proof package alongside a

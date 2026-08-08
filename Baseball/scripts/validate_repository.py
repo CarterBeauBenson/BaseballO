@@ -95,6 +95,7 @@ REQUIRED_PATHS = (
     SHACL_ROOT / "README.md",
     SHACL_ROOT / "authoritative.ttl",
     SHACL_ROOT / "query-index.ttl",
+    SHACL_ROOT / "reasoning-output.ttl",
     ROOT / "reasoning" / "README.md",
     ROOT / "reasoning" / "bfo-clif-manifest.json",
     ROOT / "reasoning" / "profiles" / "event-order.json",
@@ -452,6 +453,7 @@ def validate_shacl_profiles() -> int:
     profiles = {
         "authoritative": SHACL_ROOT / "authoritative.ttl",
         "query-index": SHACL_ROOT / "query-index.ttl",
+        "reasoning-output": SHACL_ROOT / "reasoning-output.ttl",
     }
     shape_count = 0
     for name, path in profiles.items():
@@ -494,6 +496,23 @@ def validate_shacl_profiles() -> int:
     )
     if conforms:
         raise ValueError("Query-index SHACL profile accepted an incomplete HitFact")
+
+    invalid_reasoning = Graph()
+    invalid_reasoning.add(
+        (
+            URIRef("urn:baseball:shacl-smoke:reasoning"),
+            URIRef("http://www.w3.org/ns/prov#wasDerivedFrom"),
+            URIRef("https://w3id.org/baseball/graph/game/566279"),
+        )
+    )
+    conforms, _, _ = validate_shacl(
+        data_graph=invalid_reasoning,
+        shacl_graph=Graph().parse(profiles["reasoning-output"], format="turtle"),
+        inference="none",
+        advanced=True,
+    )
+    if conforms:
+        raise ValueError("Reasoning-output SHACL profile accepted incomplete provenance")
     return shape_count
 
 
@@ -749,6 +768,19 @@ def validate_reasoning_review_evidence() -> tuple[int, int]:
         proved = int(proof.get("provedCount", -1))
         if obligations < 0 or proved != obligations or proof.get("consistency") != "sat" or proof.get("allObligationsProved") is not True:
             raise ValueError(f"Reviewed reasoning proof is incomplete: {profile_id}")
+        shacl = result.get("shaclValidation", {})
+        expected_shapes = {
+            "explicitGraphBeforeReasoning": ("authoritative", SHACL_ROOT / "authoritative.ttl"),
+            "inferredGraphBeforeLoad": ("reasoning-output", SHACL_ROOT / "reasoning-output.ttl"),
+        }
+        for boundary, (expected_profile, shape_path) in expected_shapes.items():
+            validation = shacl.get(boundary, {})
+            if (
+                validation.get("profile") != expected_profile
+                or validation.get("conforms") is not True
+                or validation.get("shapeSha256") != sha256_file(shape_path)
+            ):
+                raise ValueError(f"Reviewed reasoning SHACL boundary is stale: {profile_id}/{boundary}")
         total_proved += proved
     if evidence.get("runCount") != 6 or evidence.get("allProfilesConsistent") is not True or evidence.get("allObligationsProved") is not True:
         raise ValueError("Reviewed reasoning comparison summary is inconsistent")
