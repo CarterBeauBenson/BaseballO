@@ -49,6 +49,10 @@ the subsystem READMEs and Git history; do not recreate them here.
   and emit pinned BFO CLIF proof packages. The published fixture slice produces
   52 order, 47 structure, and 30 participation inferences for plate appearance
   0; its three named graphs add four deterministic provenance triples each.
+- A reviewed real-game comparison now exercises every profile over a one-pitch
+  field out and an eight-event, multi-runner scoring single. The six bounded
+  runs produced 24/23/15 and 46/65/48 inferences respectively, proved all 176
+  translated obligations, and recorded explicit-versus-closure query hashes.
 - The BFO CLIF source contract is pinned to commit
   `dd89f4a193038b66ef0e891d546c05a5b477f40f`. Z3 5.0.0 proved all 107
   translated fixture obligations and found all three asserted slices
@@ -65,22 +69,8 @@ the subsystem READMEs and Git history; do not recreate them here.
 
 ## Next work
 
-### 1. Finish repeatable orchestration in NiFi
+### 1. Advance the selective reasoning experiment
 
-- Add a parameterized request boundary for explicitly selected reasoning
-  anchors and profiles; retain all fixed budgets and the prohibition on
-  full-game or corpus closure.
-- Exercise the connected per-game flow over the checked-in corpus and retain
-  the bundled importer only until broader parity evidence is accepted.
-- Reduce PowerShell to Windows bootstrap, local operator entry points, and
-  maintenance tasks after equivalent NiFi paths are proven. Do not remove the
-  existing scripts until the automated flow has demonstrated parity.
-
-### 2. Advance the selective reasoning experiment
-
-- Exercise each profile against a reviewed sample of simple and complicated
-  plate appearances. Compare inferred graph contents and relevant query results
-  before exposing reasoning to the Explorer.
 - Add profiles only as small semantic families with their own fixed budgets,
   positive entailments, forbidden entailments, and contradiction checks. Do not
   introduce a full-game or corpus closure mode.
@@ -88,7 +78,7 @@ the subsystem READMEs and Git history; do not recreate them here.
   shapes only for constraints whose semantics remain valid over inferred
   closure.
 
-### 3. Review the Explorer
+### 2. Review the Explorer
 
 - Add an official-game-date range control that scopes game graph IRIs before an
   analytical query executes. Provide one-day, seven-day, 30-day, and
@@ -124,7 +114,7 @@ the subsystem READMEs and Git history; do not recreate them here.
   metadata.
 - Defer a broad visual redesign until this common query interaction is settled.
 
-### 4. Expand index coverage carefully
+### 3. Expand index coverage carefully
 
 - Add indexed companions in small semantic families.
 - Require exact eight-game row equivalence and repeatable timing evidence for
@@ -134,7 +124,7 @@ the subsystem READMEs and Git history; do not recreate them here.
 - Treat negative and integrity queries as completeness-sensitive. Do not run
   them against an index unless their required evidence sets are proven complete.
 
-### 5. Preserve the execution boundary
+### 4. Preserve the execution boundary
 
 - Retain authoritative queries for audit, fallback, and regression testing.
 - Keep Auto fallback and explicit Indexed fail-closed behavior tested.
@@ -142,6 +132,17 @@ the subsystem READMEs and Git history; do not recreate them here.
   router is designed and tested.
 - Re-run the canned or advanced corpus audit whenever its queries change, and
   re-run equivalence and benchmarks whenever an indexed shape changes.
+
+### 5. Finish repeatable orchestration in NiFi
+
+- Add a parameterized request boundary for explicitly selected reasoning
+  anchors and profiles; retain all fixed budgets and the prohibition on
+  full-game or corpus closure.
+- Exercise the connected per-game flow over the checked-in corpus and retain
+  the bundled importer only until broader parity evidence is accepted.
+- Reduce PowerShell to Windows bootstrap, local operator entry points, and
+  maintenance tasks after equivalent NiFi paths are proven. Do not remove the
+  existing scripts until the automated flow has demonstrated parity.
 
 ## Guardrails
 

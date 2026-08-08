@@ -66,3 +66,6 @@ extract exactly one plate-appearance slice, apply one allowlisted reasoning
 profile, emit deterministic inferred RDF and CLIF proof inputs, and optionally
 prove the translated obligations before optionally loading the disposable named
 graph. They expose no full-game mode.
+`reasoning/evaluate-reviewed-samples.py` runs all three profiles over the
+reviewed simple/complicated real-game pair and records explicit-versus-closure
+query hashes without loading any inferred graph.

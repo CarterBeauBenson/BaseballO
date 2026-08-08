@@ -29,6 +29,9 @@ deterministic serialization, and temporally qualified CLIF translation.
 The same test executes a bounded Z3 proof, while repository validation checks
 the committed 107-obligation fixture proof baseline against current profile,
 reasoner, and prover fingerprints.
+It also validates the six-run reviewed simple/complicated comparison, including
+profile and ruleset hashes, fixed budgets, predicate-query row hashes, and all
+176 proved obligations.
 
 The NiFi evidence runner also has an offline regression suite:
 

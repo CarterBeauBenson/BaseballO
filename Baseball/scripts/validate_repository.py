@@ -32,6 +32,11 @@ NIFI_EVIDENCE_CONTRACT = ROOT / "infra" / "nifi" / "repeatable-stages.json"
 SELECTIVE_REASONER = ROOT / "scripts" / "reasoning" / "selective_reasoner.py"
 SELECTIVE_PROVER = ROOT / "scripts" / "reasoning" / "prove-selective-reasoning.py"
 REASONING_EVIDENCE = ROOT / "reasoning" / "evidence" / "fixture-566279-pa-0.json"
+REASONING_REVIEW_SAMPLES = ROOT / "reasoning" / "reviewed-samples.json"
+REASONING_REVIEW_EVIDENCE = (
+    ROOT / "reasoning" / "evidence" / "fixture-566279-reviewed-samples.json"
+)
+REASONING_REVIEW_EVALUATOR = ROOT / "scripts" / "reasoning" / "evaluate-reviewed-samples.py"
 SAMPLE = ROOT / "data" / "raw" / "game-566279.json"
 RAW_SAMPLE_ROOT = ROOT / "data" / "raw" / "samples"
 REVIEW_SAMPLE = RAW_SAMPLE_ROOT / "2026-07-16" / "823440.json"
@@ -95,6 +100,9 @@ REQUIRED_PATHS = (
     ROOT / "reasoning" / "profiles" / "event-structure.json",
     ROOT / "reasoning" / "profiles" / "participation.json",
     REASONING_EVIDENCE,
+    REASONING_REVIEW_SAMPLES,
+    REASONING_REVIEW_EVIDENCE,
+    REASONING_REVIEW_EVALUATOR,
     WEB_ROOT / "package.json",
     WEB_ROOT / "index.html",
     WEB_ROOT / "styles.css",
@@ -673,6 +681,78 @@ def validate_reasoning_evidence() -> int:
     return total_proved
 
 
+def validate_reasoning_review_evidence() -> tuple[int, int]:
+    contract = json.loads(REASONING_REVIEW_SAMPLES.read_text(encoding="utf-8"))
+    evidence = json.loads(REASONING_REVIEW_EVIDENCE.read_text(encoding="utf-8"))
+    if contract.get("artifactType") != "baseball-selective-reasoning-reviewed-samples":
+        raise ValueError("Unknown reviewed reasoning sample contract")
+    samples = contract.get("samples", [])
+    if len(samples) != 2 or {sample.get("complexity") for sample in samples} != {"simple", "complicated"}:
+        raise ValueError("Reviewed reasoning evidence must compare simple and complicated samples")
+    raw = json.loads(SAMPLE.read_text(encoding="utf-8"))
+    plays = {int(play["about"]["atBatIndex"]): play for play in raw["liveData"]["plays"]["allPlays"]}
+    for sample in samples:
+        play = plays[int(sample["plateAppearanceIndex"])]
+        observed = {
+            "eventType": str(play["result"]["eventType"]),
+            "playEventCount": len(play.get("playEvents", [])),
+            "pitchCount": sum(1 for event in play.get("playEvents", []) if event.get("isPitch") is True),
+            "runnerRecordCount": len(play.get("runners", [])),
+            "description": str(play["result"]["description"]),
+        }
+        if any(sample.get(key) != value for key, value in observed.items()):
+            raise ValueError(f"Reviewed reasoning sample is stale: {sample.get('id')}")
+    if evidence.get("artifactType") != "baseball-selective-reasoning-reviewed-sample-evidence":
+        raise ValueError("Unknown reviewed reasoning comparison evidence")
+    if evidence.get("sourceJsonSha256") != sha256_file(SAMPLE):
+        raise ValueError("Reviewed reasoning comparison has a stale source JSON hash")
+    if evidence.get("samplesContractSha256") != sha256_file(REASONING_REVIEW_SAMPLES):
+        raise ValueError("Reviewed reasoning comparison has a stale sample-contract hash")
+    fixture_baseline = json.loads(REASONING_EVIDENCE.read_text(encoding="utf-8"))
+    if evidence.get("sourceRdfSha256") != fixture_baseline.get("sourceRdfSha256"):
+        raise ValueError("Reviewed reasoning comparison does not use the accepted fixture RDF")
+    results = evidence.get("results", [])
+    expected = {(sample["id"], profile) for sample in samples for profile in ("event-order", "event-structure", "participation")}
+    observed_keys = {(result.get("sample"), result.get("profile")) for result in results}
+    if len(results) != 6 or observed_keys != expected:
+        raise ValueError("Reviewed reasoning comparison must cover both samples with all three profiles")
+    baseline_profiles = {item["profile"]: item for item in fixture_baseline["profiles"]}
+    total_proved = 0
+    for result in results:
+        profile_id = str(result["profile"])
+        profile_path = ROOT / "reasoning" / "profiles" / f"{profile_id}.json"
+        profile = json.loads(profile_path.read_text(encoding="utf-8"))
+        if result.get("profileSha256") != sha256_file(profile_path):
+            raise ValueError(f"Reviewed reasoning profile hash is stale: {profile_id}")
+        if result.get("rulesetSha256") != baseline_profiles[profile_id]["rulesetSha256"]:
+            raise ValueError(f"Reviewed reasoning ruleset hash is stale: {profile_id}")
+        counts = result.get("counts", {})
+        budgets = profile["budgets"]
+        if int(counts.get("selectedNodes", -1)) > int(budgets["maxNodes"]):
+            raise ValueError(f"Reviewed reasoning node budget exceeded: {profile_id}")
+        if int(counts.get("assertedSliceTriples", -1)) > int(budgets["maxSourceTriples"]):
+            raise ValueError(f"Reviewed reasoning source budget exceeded: {profile_id}")
+        if int(counts.get("inferredTriples", -1)) > int(budgets["maxInferredTriples"]):
+            raise ValueError(f"Reviewed reasoning inference budget exceeded: {profile_id}")
+        comparison = result.get("queryComparison", {})
+        asserted_rows = int(comparison.get("asserted", {}).get("rowCount", -1))
+        closure_rows = int(comparison.get("closure", {}).get("rowCount", -1))
+        if int(comparison.get("newRows", -1)) != closure_rows - asserted_rows:
+            raise ValueError(f"Reviewed reasoning query comparison is inconsistent: {profile_id}")
+        for layer in ("asserted", "closure"):
+            if not re.fullmatch(r"[0-9a-f]{64}", str(comparison.get(layer, {}).get("rowSetSha256", ""))):
+                raise ValueError(f"Reviewed reasoning query hash is invalid: {profile_id}/{layer}")
+        proof = result.get("proof", {})
+        obligations = int(proof.get("obligationCount", -1))
+        proved = int(proof.get("provedCount", -1))
+        if obligations < 0 or proved != obligations or proof.get("consistency") != "sat" or proof.get("allObligationsProved") is not True:
+            raise ValueError(f"Reviewed reasoning proof is incomplete: {profile_id}")
+        total_proved += proved
+    if evidence.get("runCount") != 6 or evidence.get("allProfilesConsistent") is not True or evidence.get("allObligationsProved") is not True:
+        raise ValueError("Reviewed reasoning comparison summary is inconsistent")
+    return len(results), total_proved
+
+
 def validate_offline_pipeline_boundary() -> None:
     prohibited = ("statsapi.mlb.com", "acquire-daily-games.ps1")
     for path in OFFLINE_PIPELINE_PATHS:
@@ -1186,6 +1266,7 @@ def main() -> None:
     subprocess.run([sys.executable, str(NIFI_GAME_FLOW_TEST)], cwd=ROOT, check=True)
     subprocess.run([sys.executable, str(NIFI_CORPUS_FLOW_TEST)], cwd=ROOT, check=True)
     reasoning_proof_count = validate_reasoning_evidence()
+    reasoning_review_runs, reasoning_review_proofs = validate_reasoning_review_evidence()
     validate_offline_pipeline_boundary()
     validate_web_app()
     canned_audit_count = validate_canned_query_audit()
@@ -1214,6 +1295,10 @@ def main() -> None:
     print(f"NiFi repeatable evidence stages checked: {nifi_evidence_stage_count}")
     print(f"NiFi per-game semantic stages checked: {nifi_game_stage_count}")
     print(f"Selective first-order proof obligations checked: {reasoning_proof_count}")
+    print(
+        f"Reviewed reasoning comparison checked: {reasoning_review_runs} runs, "
+        f"{reasoning_review_proofs} proved obligations"
+    )
     print(f"Canned-query corpus baselines checked: {canned_audit_count}")
     print(f"Advanced semantic query baselines checked: {advanced_audit_count}")
     print(f"Corpus query-index benchmark pairs checked: {query_index_benchmark_count}")
