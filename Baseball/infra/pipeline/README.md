@@ -9,6 +9,8 @@ NiFi owns movement through the local pipeline area; it does not alter supplied r
 | `inbox/games/` | User-controlled drop location for locally supplied completed-game JSON |
 | `staging/manual-inbox/` | Short-lived byte-identical handoff between NiFi and the immutable archiver |
 | `inbox/rdf/` | Compact per-game semantic work requests; never raw source bodies |
+| `inbox/corpus-completion/` | Promotion events consumed by the corpus readiness coordinator |
+| `inbox/corpus-audits/` | Durable audit requests created only after a requested corpus is fully promoted |
 | `staging/rdf-requests/` | Active request state passed through the shared NiFi semantic stages |
 | `raw/games/` | Immutable MLB `feed/live` responses, partitioned by season and game identifier |
 | `raw/schedules/` | Immutable MLB schedule responses, partitioned by requested date |
@@ -17,6 +19,7 @@ NiFi owns movement through the local pipeline area; it does not alter supplied r
 | `manifests/` | Acquisition metadata kept separately from response content |
 | `evidence/nifi/game-processing/` | Compact per-stage results and log fingerprints |
 | `evidence/nifi/game-promotion/` | Final proof that authoritative and index graphs are current together |
+| `evidence/nifi/corpus-completion/` | Final proof that every event-driven corpus audit stage succeeded |
 | `work/` | Retry-safe temporary processor inputs |
 | `rdf/` | RML output awaiting or completing validation |
 | `quarantine/` | Failed acquisition, mapping, validation, or load artifacts with error metadata |

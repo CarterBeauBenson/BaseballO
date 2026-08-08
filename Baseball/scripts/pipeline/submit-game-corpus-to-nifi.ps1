@@ -73,6 +73,17 @@ if ($entries.Count -eq 0) {
     throw 'No final game JSON files matched the requested corpus range.'
 }
 
+$auditSampleRoot = Join-Path $script:RepositoryRoot 'data\raw\samples\2026-08-03'
+$auditSamples = @(Get-ChildItem -LiteralPath $auditSampleRoot -File -Filter '*.json' | Where-Object BaseName -Match '^\d+$')
+$auditRequested = $auditSamples.Count -eq 8
+foreach ($sample in $auditSamples) {
+    $entry = $entriesByGame[[string]$sample.BaseName]
+    if ($null -eq $entry -or $entry.Sha256 -ne (Get-FileHash -LiteralPath $sample.FullName -Algorithm SHA256).Hash.ToLowerInvariant()) {
+        $auditRequested = $false
+        break
+    }
+}
+
 $startedAt = [DateTime]::UtcNow
 $runId = $startedAt.ToString('yyyyMMddTHHmmssfffZ') + '-' + [Guid]::NewGuid().ToString('N')
 $pipelineRoot = Join-Path $script:StateRoot 'pipeline'
@@ -92,6 +103,9 @@ $submission = [ordered]@{
     duplicateInputCount = $duplicateInputs
     concurrentImports = $ConcurrentImports
     status = 'submitting'
+    auditRequested = $auditRequested
+    auditScope = if ($auditRequested) { 'accepted-2026-08-03-eight-game' } else { 'not-applicable' }
+    auditStatus = if ($auditRequested) { 'waiting-for-promotions' } else { 'not-requested' }
     games = @($entries | ForEach-Object { [ordered]@{ gamePk = $_.GamePk; officialDate = $_.OfficialDate; sha256 = $_.Sha256; sourcePath = $_.SourcePath } })
 }
 $submission | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $submissionPath -Encoding UTF8
@@ -112,6 +126,7 @@ $submission.status = if ($NoWait) { 'submitted' } else { 'processing' }
 $submission | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $submissionPath -Encoding UTF8
 Write-Host "Submitted $($entries.Count) unique final games to the NiFi inbox ($duplicateInputs duplicate inputs suppressed)."
 Write-Host "Submission manifest: $submissionPath"
+if ($auditRequested) { Write-Host 'NiFi will run the accepted corpus audit automatically after all submitted graph pairs are promoted.' }
 if ($NoWait) {
     return
 }

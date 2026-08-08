@@ -204,6 +204,9 @@ manifests match the active RML, context builder, and index contract. Duplicate
 game inputs with identical bytes are submitted once; differing bytes for the
 same game fail closed. NiFi quarantine causes the corpus run to fail
 immediately. Use `-NoWait` only when another process will monitor the run.
+When the submitted set contains the exact accepted eight-game audit scope, its
+manifest requests corpus auditing automatically. Promotion events make NiFi
+queue the four audit gates only after every submitted graph pair is current.
 Resume monitoring an existing submission without enqueueing anything with:
 
 ```powershell

@@ -290,6 +290,9 @@ try {
     $rdfFlowArguments = @{ ConcurrentGames = $ConcurrentImports }
     if ($Enable) { $rdfFlowArguments.Enable = $true }
     & (Join-Path $PSScriptRoot 'configure-nifi-rdf-flow.ps1') @rdfFlowArguments
+    $corpusFlowArguments = @{}
+    if ($Enable) { $corpusFlowArguments.Enable = $true }
+    & (Join-Path $PSScriptRoot 'configure-nifi-corpus-audits.ps1') @corpusFlowArguments
 
     if ($Enable) {
         foreach ($key in @('Success', 'Failure', 'Import', 'Stage', 'Prepare', 'Inbox')) {

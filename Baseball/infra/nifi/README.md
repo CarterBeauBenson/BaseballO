@@ -117,6 +117,13 @@ disable fingerprint skipping because the dataset is mutable external state.
 Offline stages skip an unchanged dependency fingerprint unless explicitly run
 through the shared runner with `--force`.
 
+Corpus submissions containing the exact accepted eight-game audit scope request
+event-driven auditing in their submission manifest. Each successful game
+promotion emits a local NiFi event. After every game in that submission has
+matching promotion evidence, NiFi runs canned queries, advanced queries,
+authoritative/index equivalence, and benchmark evidence in sequence and writes
+one `corpus-completion` manifest. Timers remain available for maintenance runs.
+
 Every invocation writes a compact manifest under
 `state\pipeline\evidence\nifi\<stage>\runs`. Successful evidence is also copied
 to `latest-success.json`. A failed command returns a nonzero status to NiFi and

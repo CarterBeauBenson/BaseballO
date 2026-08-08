@@ -59,13 +59,14 @@ the subsystem READMEs and Git history; do not recreate them here.
   authoritative-validation, graph-load, index/equivalence, and promotion
   processors. A forced fixture rebuild and an unchanged manual-inbox handoff
   both passed with stage evidence and no raw or ontology mutation.
+- Audit-enabled corpus submissions now complete from promotion events rather
+  than independent timers. NiFi waits for every submitted graph pair, runs the
+  four corpus gates, and emits one fingerprinted completion manifest.
 
 ## Next work
 
 ### 1. Finish repeatable orchestration in NiFi
 
-- Trigger corpus SPARQL audits, cross-game equivalence checks, and benchmark
-  evidence from successful corpus promotion rather than independent timers.
 - Add a parameterized request boundary for explicitly selected reasoning
   anchors and profiles; retain all fixed budgets and the prohibition on
   full-game or corpus closure.

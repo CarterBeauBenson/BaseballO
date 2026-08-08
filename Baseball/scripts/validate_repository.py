@@ -27,6 +27,7 @@ RML_MERMAID_GENERATOR = ROOT / "scripts" / "generate_rml_mermaid.py"
 SELECTIVE_REASONING_TEST = ROOT / "scripts" / "reasoning" / "test-selective-reasoning.py"
 NIFI_EVIDENCE_TEST = ROOT / "tests" / "test_nifi_evidence_stage.py"
 NIFI_GAME_FLOW_TEST = ROOT / "tests" / "test_nifi_game_flow.py"
+NIFI_CORPUS_FLOW_TEST = ROOT / "tests" / "test_nifi_corpus_flow.py"
 NIFI_EVIDENCE_CONTRACT = ROOT / "infra" / "nifi" / "repeatable-stages.json"
 SELECTIVE_REASONER = ROOT / "scripts" / "reasoning" / "selective_reasoner.py"
 SELECTIVE_PROVER = ROOT / "scripts" / "reasoning" / "prove-selective-reasoning.py"
@@ -109,11 +110,14 @@ REQUIRED_PATHS = (
     ROOT / "scripts" / "infra" / "configure-nifi-games-daily.ps1",
     ROOT / "scripts" / "infra" / "configure-nifi-evidence.ps1",
     ROOT / "scripts" / "infra" / "configure-nifi-rdf-flow.ps1",
+    ROOT / "scripts" / "infra" / "configure-nifi-corpus-audits.ps1",
     ROOT / "infra" / "nifi" / "repeatable-stages.json",
     ROOT / "scripts" / "pipeline" / "import-game-json.ps1",
     ROOT / "scripts" / "pipeline" / "process-staged-game-json.ps1",
     ROOT / "scripts" / "pipeline" / "archive-and-queue-game-json.py",
     ROOT / "scripts" / "pipeline" / "process-nifi-rdf-stage.ps1",
+    ROOT / "scripts" / "pipeline" / "queue-ready-corpus-audits.py",
+    ROOT / "scripts" / "pipeline" / "process-nifi-corpus-stage.py",
     ROOT / "scripts" / "pipeline" / "test-manual-vertical-slice.ps1",
     ROOT / "scripts" / "pipeline" / "test-nifi-rdf-flow.ps1",
     ROOT / "scripts" / "pipeline" / "run-rml.ps1",
@@ -148,6 +152,7 @@ REQUIRED_PATHS = (
     SELECTIVE_REASONING_TEST,
     NIFI_EVIDENCE_TEST,
     NIFI_GAME_FLOW_TEST,
+    NIFI_CORPUS_FLOW_TEST,
     RML_MERMAID_GENERATOR,
     ROOT / "sparql" / "empty-games-prototype.rq",
     ADVANCED_QUERY_ROOT / "README.md",
@@ -180,9 +185,12 @@ REQUIRED_PATHS = (
 OFFLINE_PIPELINE_PATHS = (
     ROOT / "scripts" / "infra" / "configure-nifi-games-manual.ps1",
     ROOT / "scripts" / "infra" / "configure-nifi-rdf-flow.ps1",
+    ROOT / "scripts" / "infra" / "configure-nifi-corpus-audits.ps1",
     ROOT / "scripts" / "pipeline" / "import-game-json.ps1",
     ROOT / "scripts" / "pipeline" / "archive-and-queue-game-json.py",
     ROOT / "scripts" / "pipeline" / "process-nifi-rdf-stage.ps1",
+    ROOT / "scripts" / "pipeline" / "queue-ready-corpus-audits.py",
+    ROOT / "scripts" / "pipeline" / "process-nifi-corpus-stage.py",
     ROOT / "scripts" / "pipeline" / "process-staged-game-json.ps1",
 )
 
@@ -1146,6 +1154,15 @@ def validate_nifi_game_flow_contract() -> int:
         raise ValueError(f"Shared NiFi RDF flow is missing stages: {', '.join(missing)}")
     if "configure-nifi-rdf-flow.ps1" not in manual:
         raise ValueError("Manual NiFi configuration does not configure the shared RDF flow")
+    corpus = (ROOT / "scripts" / "infra" / "configure-nifi-corpus-audits.ps1").read_text(
+        encoding="utf-8"
+    )
+    corpus_stages = ("canned", "advanced", "equivalence", "benchmark", "complete")
+    missing_corpus = [stage for stage in corpus_stages if f"'{stage}'" not in corpus]
+    if missing_corpus:
+        raise ValueError(f"NiFi corpus flow is missing stages: {', '.join(missing_corpus)}")
+    if "configure-nifi-corpus-audits.ps1" not in manual or "Queue corpus completion check" not in shared:
+        raise ValueError("Per-game promotion is not connected to the NiFi corpus audit flow")
     return len(stages)
 
 
@@ -1167,6 +1184,7 @@ def main() -> None:
     nifi_game_stage_count = validate_nifi_game_flow_contract()
     subprocess.run([sys.executable, str(NIFI_EVIDENCE_TEST)], cwd=ROOT, check=True)
     subprocess.run([sys.executable, str(NIFI_GAME_FLOW_TEST)], cwd=ROOT, check=True)
+    subprocess.run([sys.executable, str(NIFI_CORPUS_FLOW_TEST)], cwd=ROOT, check=True)
     reasoning_proof_count = validate_reasoning_evidence()
     validate_offline_pipeline_boundary()
     validate_web_app()
@@ -1192,6 +1210,7 @@ def main() -> None:
     print("Selective reasoning contracts and offline smoke tests passed.")
     print("NiFi evidence fingerprint and quarantine tests passed.")
     print("NiFi staged per-game archive, assessment, and quarantine tests passed.")
+    print("NiFi promotion-driven corpus readiness and completion tests passed.")
     print(f"NiFi repeatable evidence stages checked: {nifi_evidence_stage_count}")
     print(f"NiFi per-game semantic stages checked: {nifi_game_stage_count}")
     print(f"Selective first-order proof obligations checked: {reasoning_proof_count}")

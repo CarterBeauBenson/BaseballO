@@ -95,8 +95,9 @@ try {
 
     $inbox = Join-Path $script:StateRoot 'pipeline\inbox\rdf'
     $staging = Join-Path $script:StateRoot 'pipeline\staging\rdf-requests'
+    $corpusTriggerInbox = Join-Path $script:StateRoot 'pipeline\inbox\corpus-completion'
     $processorQuarantine = Join-Path $script:StateRoot 'pipeline\quarantine\nifi-rdf\processor-output'
-    foreach ($directory in @($inbox, $staging, $processorQuarantine)) { [void](New-Item -ItemType Directory -Force -Path $directory) }
+    foreach ($directory in @($inbox, $staging, $corpusTriggerInbox, $processorQuarantine)) { [void](New-Item -ItemType Directory -Force -Path $directory) }
     $powerShell = Join-Path ([Environment]::SystemDirectory) 'WindowsPowerShell\v1.0\powershell.exe'
     $stageScript = Join-Path $script:RepositoryRoot 'scripts\pipeline\process-nifi-rdf-stage.ps1'
     $requestArgument = Join-Path $staging '${filename}'
@@ -121,6 +122,7 @@ try {
         $x += 300
     }
     $definitions += @(
+        @{ Key='Corpus'; Name='75 Queue corpus completion check'; Type='org.apache.nifi.processors.standard.PutFile'; Artifact='nifi-standard-nar'; X=$x; Y=180; Period='0 sec'; Concurrent=1; AutoTerminate=@('success'); Comments='After the fail-closed promotion marker exists, emits a local event that can complete a requested corpus and start its audits.'; Properties=@{ 'Directory'=$corpusTriggerInbox; 'Conflict Resolution Strategy'='fail'; 'Create Missing Directories'='true' } },
         @{ Key='Success'; Name='80 Record promoted game'; Type='org.apache.nifi.processors.standard.LogAttribute'; Artifact='nifi-standard-nar'; X=$x; Y=0; Period='0 sec'; Concurrent=1; AutoTerminate=@('success'); Comments='Records the promotion manifest in NiFi provenance.'; Properties=@{} },
         @{ Key='Failure'; Name='90 Persist failed stage output'; Type='org.apache.nifi.processors.standard.PutFile'; Artifact='nifi-standard-nar'; X=1200; Y=350; Period='0 sec'; Concurrent=1; AutoTerminate=@('success','failure'); Comments='Persists processor output; the stage runner separately quarantines its request, evidence, and complete log.'; Properties=@{ 'Directory'=$processorQuarantine; 'Conflict Resolution Strategy'='fail'; 'Create Missing Directories'='true' } }
     )
@@ -132,6 +134,8 @@ try {
         $relationship = if ($chain[$i] -in @('assess','rml','validate','load','index','promote')) { 'output stream' } else { 'success' }
         [void](Ensure-Connection $groupId "$($chain[$i]) to $($chain[$i+1])" $processors[$chain[$i]].component.id $processors[$chain[$i+1]].component.id $relationship)
     }
+    [void](Ensure-Connection $groupId 'promotion to corpus completion check' $processors.promote.component.id $processors.Corpus.component.id 'output stream')
+    [void](Ensure-Connection $groupId 'failed corpus trigger persistence' $processors.Corpus.component.id $processors.Failure.component.id 'failure')
     [void](Ensure-Connection $groupId 'failed request staging' $processors.Stage.component.id $processors.Failure.component.id 'failure')
     foreach ($stageName in @('assess','rml','validate','load','index','promote')) {
         [void](Ensure-Connection $groupId "$stageName failure to quarantine" $processors[$stageName].component.id $processors.Failure.component.id 'nonzero status')
@@ -150,7 +154,7 @@ try {
     }
 
     if ($Enable) {
-        foreach ($key in @('Success','Failure','promote','index','load','validate','rml','assess','Stage','Name','Read')) { [void](Set-State ([string]$processors[$key].component.id) 'RUNNING') }
+        foreach ($key in @('Success','Failure','Corpus','promote','index','load','validate','rml','assess','Stage','Name','Read')) { [void](Set-State ([string]$processors[$key].component.id) 'RUNNING') }
         Write-Host "NiFi shared RDF flow is running with at most $ConcurrentGames concurrent games."
     } else { Write-Host 'NiFi shared RDF flow is configured, connected, valid, and stopped.' }
 }

@@ -42,6 +42,10 @@ The manual group now ends at immutable archival and work-request creation.
 freshness assessment, RML, authoritative validation, graph PUT, index
 build/equivalence, and promotion. The bundled direct importer remains a
 fallback, not the active NiFi execution path.
+Successful promotions also feed the corpus coordinator. For an audit-enabled
+submission, NiFi waits for every promoted game and then owns the canned,
+advanced, equivalence, benchmark, and completion stages without an operator
+polling or launching those commands.
 
 [`pipeline/run-nifi-evidence-stage.py`](pipeline/run-nifi-evidence-stage.py)
 executes one allowlisted stage from the versioned NiFi contract, fingerprints

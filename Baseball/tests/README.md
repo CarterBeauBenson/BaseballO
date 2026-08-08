@@ -50,6 +50,16 @@ assessment evidence, strict local path boundaries, and raw-hash failure
 quarantine. With the local stack running, `test-nifi-rdf-flow.ps1` additionally
 forces all six semantic processors through a complete fixture rebuild.
 
+The promotion-driven corpus coordinator has its own offline contract suite:
+
+```powershell
+python .\tests\test_nifi_corpus_flow.py
+```
+
+It verifies incomplete-submission waiting, exactly-once audit queueing from
+matching promotion markers, and fingerprinted completion across all four
+corpus audit gates.
+
 With the local stack running, execute the offline end-to-end acceptance test from the repository root:
 
 ```powershell
