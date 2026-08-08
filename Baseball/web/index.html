@@ -53,6 +53,33 @@
 
         <nav class="family-tabs" id="family-tabs" aria-label="Analytics family"></nav>
 
+        <fieldset class="date-scope-control">
+          <legend><span>Official game dates</span><small>Scopes loaded game graphs</small></legend>
+          <div class="date-scope-grid">
+            <div class="filter-field">
+              <label for="date-preset">Range</label>
+              <select id="date-preset">
+                <option value="one_day">Latest day</option>
+                <option value="seven_days" selected>Latest 7 days</option>
+                <option value="thirty_days">Latest 30 days</option>
+                <option value="season_to_date">Season to date</option>
+                <option value="custom">Custom range</option>
+              </select>
+            </div>
+            <div class="custom-date-fields" id="custom-date-fields" hidden>
+              <div class="filter-field">
+                <label for="date-start">Start</label>
+                <input id="date-start" type="date">
+              </div>
+              <div class="filter-field">
+                <label for="date-end">End</label>
+                <input id="date-end" type="date">
+              </div>
+            </div>
+          </div>
+          <p class="date-scope-status" id="date-scope-status" aria-live="polite">Resolving loaded game datesâ€¦</p>
+        </fieldset>
+
         <form id="query-form">
           <fieldset class="control-group">
             <legend><span>Group results by</span><small>Choose one or more</small></legend>

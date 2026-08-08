@@ -26,7 +26,10 @@ the subsystem READMEs and Git history; do not recreate them here.
   authoritative.
 - The loopback Explorer provides four compiled analytics families, Empty Games,
   and the 17-query Advanced catalog. Browser queries remain allowlisted and
-  authoritative-only.
+  authoritative-only. A shared official-game-date control now resolves the
+  latest-day, seven-day, 30-day, season-to-date, or custom range through a
+  compact cached graph/date lookup and scopes all substantive query paths
+  before execution.
 - Pitching defaults now partition every mapped pitch into SME-labeled final
   call categories. Replay graphs distinguish the on-field judgment, optional
   challenge, replay-review act, both decisions, review-result ICE, and source
@@ -78,13 +81,13 @@ the subsystem READMEs and Git history; do not recreate them here.
 
 ### 1. Review the Explorer
 
-- Add an official-game-date range control that scopes game graph IRIs before an
-  analytical query executes. Provide one-day, seven-day, 30-day, and
-  season-to-date presets alongside custom start and end dates; use seven days
-  as the initial default and show the resolved date range and game count.
-- Treat date scoping as both an interaction and performance feature. Resolve
-  the relevant game graphs through a compact game/date index before running the
-  substantive query rather than scanning every authoritative game graph.
+- Add a reviewed derived-metric composer that lets a user divide any two
+  compatible base measures, beginning with Empty Games / Offensive Games
+  Played at player-game grain. Every measure must declare its unit, grain,
+  dimensions, evidence universe, and zero-denominator behavior; label a result
+  as a percentage only when the numerator is a proven subset of the
+  denominator, otherwise label it as a ratio. Keep the compiler allowlisted and
+  do not accept raw formulas, ratio-of-ratios, or browser-authored SPARQL.
 - Review whether individual Advanced questions need result-level player or role
   filters in addition to the implemented season, game, team-in-game, and venue
   graph scope. Add them only through per-query catalog declarations where the

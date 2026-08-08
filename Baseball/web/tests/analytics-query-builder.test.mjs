@@ -5,7 +5,7 @@ import {
   ANALYTICS_QUERY_FAMILIES,
   compileAnalyticsQuery,
 } from "../query-builder/analytics-query-builder.js";
-import { buildPublicCatalog, createBaseballServer } from "../server.mjs";
+import { buildPublicCatalog, compileGameDateIndexQuery, createBaseballServer } from "../server.mjs";
 
 test("public catalog exposes labels without SPARQL implementation details", () => {
   const catalog = buildPublicCatalog();
@@ -100,15 +100,24 @@ before(async () => {
       && !query.includes("GROUP BY");
     const emptyGamesQuery = query.includes("AS ?emptyGames");
     const graphScopeQuery = query.includes("SELECT DISTINCT ?graph WHERE");
+    const dateIndexQuery = query.includes("SELECT DISTINCT ?graph ?game WHERE");
     const payload = statusQuery
       ? {
           head: { vars: ["games"] },
           results: { bindings: [{ games: { type: "literal", value: "9" } }] },
         }
+      : dateIndexQuery
+        ? {
+            head: { vars: ["graph", "game"] },
+            results: { bindings: [{
+              graph: { type: "uri", value: "https://w3id.org/baseball/graph/game/823105" },
+              game: { type: "uri", value: "https://baseballontology.org/data/game/823105" },
+            }] },
+          }
       : graphScopeQuery
         ? {
             head: { vars: ["graph"] },
-            results: { bindings: [{ graph: { type: "uri", value: "https://w3id.org/baseball/graph/game/1" } }] },
+            results: { bindings: [{ graph: { type: "uri", value: "https://w3id.org/baseball/graph/game/823105" } }] },
           }
       : emptyGamesQuery
         ? {
@@ -154,6 +163,15 @@ test("local server reports graph status through its read-only API", async () => 
   assert.equal(payload.layer, "authoritative");
 });
 
+test("date presets resolve against the latest loaded official game date", async () => {
+  const response = await fetch(`${baseUrl}/api/date-scope?preset=seven_days`);
+  assert.equal(response.status, 200);
+  const payload = await response.json();
+  assert.equal(payload.scope.startDate, "2026-07-31");
+  assert.equal(payload.scope.endDate, "2026-08-06");
+  assert.equal(payload.scope.gameCount, 1);
+});
+
 test("local server compiles selections instead of accepting raw SPARQL", async () => {
   const response = await fetch(`${baseUrl}/api/query`, {
     method: "POST",
@@ -168,6 +186,9 @@ test("local server compiles selections instead of accepting raw SPARQL", async (
   assert.equal(response.status, 200);
   const payload = await response.json();
   assert.equal(payload.meta.rowCount, 1);
+  assert.equal(payload.meta.dateScope.preset, "seven_days");
+  assert.equal(payload.meta.dateScope.gameCount, 1);
+  assert.match(payload.query, /FILTER\(\?graph IN \(<https:\/\/w3id\.org\/baseball\/graph\/game\/823105>\)\)/u);
   assert.match(payload.query, /^PREFIX base:/u);
   assert.doesNotMatch(issuedQueries.at(-1), /DROP ALL/u);
 });
@@ -202,6 +223,13 @@ test("local server exposes Empty Games only through its reviewed canned query", 
   assert.match(payload.query, /FILTER\(\?team = <https:\/\/baseballontology\.org\/data\/team\/2>\)/u);
 });
 
+test("game-date index is authoritative and compact", () => {
+  const query = compileGameDateIndexQuery();
+  assert.match(query, /SELECT DISTINCT \?graph \?game/u);
+  assert.doesNotMatch(query, /BaseballTimestampICE/u);
+  assert.match(query, /graph\/game\//u);
+});
+
 test("advanced filters compile to an allowlisted authoritative graph scope", async () => {
   const response = await fetch(`${baseUrl}/api/advanced`, {
     method: "POST",
@@ -218,7 +246,7 @@ test("advanced filters compile to an allowlisted authoritative graph scope", asy
   const payload = await response.json();
   assert.match(issuedQueries.at(-2), /FILTER\(\?season = 2026\)/u);
   assert.match(issuedQueries.at(-2), /base:HomeTeamRole base:AwayTeamRole/u);
-  assert.match(payload.query, /FILTER\(\?graph IN \(<https:\/\/w3id\.org\/baseball\/graph\/game\/1>\)\)/u);
+  assert.match(payload.query, /FILTER\(\?graph IN \(<https:\/\/w3id\.org\/baseball\/graph\/game\/823105>\)\)/u);
 });
 
 test("special analytics reject arbitrary filter keys", async () => {
@@ -226,6 +254,19 @@ test("special analytics reject arbitrary filter keys", async () => {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ id: "hit-diversity", filters: { sparql: "DROP ALL" } }),
+  });
+  assert.equal(response.status, 400);
+});
+
+test("local server rejects malformed custom date scopes", async () => {
+  const response = await fetch(`${baseUrl}/api/query`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      family: "games",
+      metrics: ["games"],
+      dateScope: { preset: "custom", startDate: "2026-08-07", endDate: "2026-08-01" },
+    }),
   });
   assert.equal(response.status, 400);
 });

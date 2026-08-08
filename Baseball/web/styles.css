@@ -367,6 +367,50 @@ a:focus-visible {
   color: white;
 }
 
+.date-scope-control {
+  margin: -0.6rem 0 0;
+  padding: 0 0 1.25rem;
+  border: 0;
+}
+
+.date-scope-control legend {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  margin-bottom: 0.7rem;
+  padding: 0;
+  font-weight: 800;
+}
+
+.date-scope-control legend small,
+.date-scope-status {
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+}
+
+.date-scope-grid,
+.custom-date-fields {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.date-scope-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.custom-date-fields {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.custom-date-fields[hidden] {
+  display: none;
+}
+
+.date-scope-status {
+  margin: 0.65rem 0 0;
+  font-weight: 700;
+}
+
 .control-group {
   margin: 0;
   padding: 1.25rem 0;
@@ -478,7 +522,8 @@ a:focus-visible {
   font-weight: 800;
 }
 
-.filter-field select {
+.filter-field select,
+.filter-field input[type="date"] {
   width: 100%;
   min-height: 42px;
   padding: 0.5rem 2rem 0.5rem 0.65rem;
@@ -487,6 +532,10 @@ a:focus-visible {
   background: var(--white);
   color: var(--ink);
   font-size: 0.78rem;
+}
+
+.filter-field input[type="date"] {
+  padding-right: 0.65rem;
 }
 
 .filter-field select:disabled {

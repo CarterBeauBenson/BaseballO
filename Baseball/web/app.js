@@ -39,6 +39,11 @@ const elements = {
   gameCount: document.querySelector("#game-count"),
   builderTitle: document.querySelector("#builder-title"),
   familyTabs: document.querySelector("#family-tabs"),
+  datePreset: document.querySelector("#date-preset"),
+  customDateFields: document.querySelector("#custom-date-fields"),
+  dateStart: document.querySelector("#date-start"),
+  dateEnd: document.querySelector("#date-end"),
+  dateScopeStatus: document.querySelector("#date-scope-status"),
   form: document.querySelector("#query-form"),
   emptyGamesBuilder: document.querySelector("#empty-games-builder"),
   emptyGamesFilterControls: document.querySelector("#empty-games-filter-controls"),
@@ -79,6 +84,47 @@ let currentFamily = "batting";
 let lastResponse = null;
 let toastTimer;
 const optionCache = new Map();
+
+function dateScopeRequest() {
+  const preset = elements.datePreset.value;
+  if (preset !== "custom") return { preset };
+  if (!elements.dateStart.value || !elements.dateEnd.value) {
+    throw new Error("Choose both dates for a custom range.");
+  }
+  if (elements.dateStart.value > elements.dateEnd.value) {
+    throw new Error("The custom start date must not be after the end date.");
+  }
+  return { preset, startDate: elements.dateStart.value, endDate: elements.dateEnd.value };
+}
+
+function dateLabel(value) {
+  if (!value) return "No dated games";
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(`${value}T00:00:00Z`));
+}
+
+async function refreshDateScope() {
+  const request = dateScopeRequest();
+  const search = new URLSearchParams(request);
+  elements.dateScopeStatus.textContent = "Resolving loaded game datesâ€¦";
+  const { scope } = await fetchJson(`/api/date-scope?${search}`);
+  if (scope.availableStartDate) {
+    elements.dateStart.min = scope.availableStartDate;
+    elements.dateEnd.min = scope.availableStartDate;
+  }
+  if (scope.availableEndDate) {
+    elements.dateStart.max = scope.availableEndDate;
+    elements.dateEnd.max = scope.availableEndDate;
+  }
+  elements.dateScopeStatus.textContent = scope.startDate
+    ? `${dateLabel(scope.startDate)} â€“ ${dateLabel(scope.endDate)} Â· ${scope.gameCount} loaded game${scope.gameCount === 1 ? "" : "s"}`
+    : "No dated authoritative games are loaded.";
+  return scope;
+}
 
 function createElement(tagName, className, text) {
   const element = document.createElement(tagName);
@@ -337,6 +383,7 @@ function buildRequest() {
     dimensions: selectedValues("dimension"),
     metrics,
     filters,
+    dateScope: dateScopeRequest(),
     limit: 250,
   };
 }
@@ -390,6 +437,10 @@ function renderMeta(meta) {
   }
   const filterCount = Object.keys(meta.filters ?? {}).length;
   if (filterCount > 0) values.splice(3, 0, `${filterCount} active filter${filterCount === 1 ? "" : "s"}`);
+  if (meta.dateScope?.startDate) {
+    values.splice(3, 0, `${dateLabel(meta.dateScope.startDate)} â€“ ${dateLabel(meta.dateScope.endDate)}`);
+    values.splice(4, 0, `${meta.dateScope.gameCount} scoped game${meta.dateScope.gameCount === 1 ? "" : "s"}`);
+  }
   elements.resultMeta.replaceChildren(...values.map((value) => createElement("span", "meta-chip", value)));
   elements.resultMeta.hidden = false;
 }
@@ -469,7 +520,10 @@ async function runEmptyGames() {
     const payload = await fetchJson("/api/canned/empty-games", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ filters: filtersFrom(elements.emptyGamesFilterControls) }),
+      body: JSON.stringify({
+        filters: filtersFrom(elements.emptyGamesFilterControls),
+        dateScope: dateScopeRequest(),
+      }),
     });
     lastResponse = payload;
     renderResults(payload);
@@ -496,7 +550,11 @@ async function runAdvanced() {
     const payload = await fetchJson("/api/advanced", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, filters: filtersFrom(elements.advancedFilterControls) }),
+      body: JSON.stringify({
+        id,
+        filters: filtersFrom(elements.advancedFilterControls),
+        dateScope: dateScopeRequest(),
+      }),
     });
     lastResponse = payload;
     renderResults(payload);
@@ -560,6 +618,18 @@ elements.resetAdvancedButton.addEventListener("click", () => {
 });
 elements.advancedSelect.addEventListener("change", renderAdvancedDefinition);
 elements.copyQueryButton.addEventListener("click", () => void copyQuery());
+elements.datePreset.addEventListener("change", () => {
+  const custom = elements.datePreset.value === "custom";
+  elements.customDateFields.hidden = !custom;
+  if (!custom) void refreshDateScope().catch((error) => showError(error.message));
+});
+for (const input of [elements.dateStart, elements.dateEnd]) {
+  input.addEventListener("change", () => {
+    if (elements.dateStart.value && elements.dateEnd.value) {
+      void refreshDateScope().catch((error) => showError(error.message));
+    }
+  });
+}
 elements.suggestionList.addEventListener("click", (event) => {
   const button = event.target.closest("button[data-preset]");
   if (!button) return;
@@ -581,6 +651,7 @@ async function initialize() {
     setConnection(status);
     renderFamilyTabs();
     renderBuilder();
+    await refreshDateScope();
     await runQuery();
   } catch (error) {
     setConnection({ connected: false, games: 0 });

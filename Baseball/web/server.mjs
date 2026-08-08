@@ -1,5 +1,5 @@
 import { createServer } from "node:http";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import { dirname, extname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -14,12 +14,16 @@ const OPTIONS_ROOT = resolve(WEB_ROOT, "..", "sparql", "options");
 const EMPTY_GAMES_QUERY = resolve(WEB_ROOT, "..", "sparql", "empty-games-prototype.rq");
 const ADVANCED_QUERY_ROOT = resolve(WEB_ROOT, "..", "sparql", "advanced");
 const ADVANCED_QUERY_CATALOG = resolve(ADVANCED_QUERY_ROOT, "advanced-query-catalog.json");
+const RAW_SAMPLES_ROOT = resolve(WEB_ROOT, "..", "data", "raw", "samples");
+const RAW_FIXTURE = resolve(WEB_ROOT, "..", "data", "raw", "game-566279.json");
 const DEFAULT_QUERY_ENDPOINT = "http://127.0.0.1:3030/baseball-dev/query";
 const AUTHORITATIVE_GRAPH_PREFIX = "https://w3id.org/baseball/graph/game/";
 const AUTHORITATIVE_GRAPH_GUARD = `FILTER(STRSTARTS(STR(?graph), "${AUTHORITATIVE_GRAPH_PREFIX}"))`;
 const DATA_IRI_PREFIX = "https://baseballontology.org/data/";
 const MAX_BODY_BYTES = 64 * 1024;
 const MAX_RESULTS = 1000;
+const GAME_DATE_INDEX_TTL_MS = 30_000;
+const DATE_SCOPE_PRESETS = new Set(["one_day", "seven_days", "thirty_days", "season_to_date", "custom"]);
 const STATIC_FILES = new Map([
   ["/", "index.html"],
   ["/index.html", "index.html"],
@@ -238,6 +242,115 @@ function normalizeQueryRequest(value) {
   return { ...value, limit };
 }
 
+function isoDate(value, fieldName) {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/u.test(value)) {
+    throw new TypeError(`${fieldName} must use YYYY-MM-DD`);
+  }
+  const date = new Date(`${value}T00:00:00Z`);
+  if (Number.isNaN(date.valueOf()) || date.toISOString().slice(0, 10) !== value) {
+    throw new TypeError(`${fieldName} must be a real calendar date`);
+  }
+  return value;
+}
+
+function normalizeDateScope(value) {
+  if (value === undefined) return { preset: "seven_days" };
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new TypeError("dateScope must be an object");
+  }
+  const preset = value.preset ?? "seven_days";
+  if (!DATE_SCOPE_PRESETS.has(preset)) throw new RangeError(`Unsupported date preset: ${preset}`);
+  if (preset !== "custom") return { preset };
+  const startDate = isoDate(value.startDate, "startDate");
+  const endDate = isoDate(value.endDate, "endDate");
+  if (startDate > endDate) throw new RangeError("startDate must not be after endDate");
+  return { preset, startDate, endDate };
+}
+
+function shiftIsoDate(value, days) {
+  const date = new Date(`${value}T00:00:00Z`);
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString().slice(0, 10);
+}
+
+export function compileGameDateIndexQuery() {
+  return `PREFIX base: <https://baseballontology.org/>
+
+SELECT DISTINCT ?graph ?game WHERE {
+  GRAPH ?graph {
+    ?game a base:BaseballGame .
+  }
+  ${AUTHORITATIVE_GRAPH_GUARD}
+}
+ORDER BY ?graph`;
+}
+
+async function readOfficialGameDates() {
+  const dates = new Map();
+  const directories = await readdir(RAW_SAMPLES_ROOT, { withFileTypes: true });
+  await Promise.all(directories.filter((entry) => entry.isDirectory()).map(async (entry) => {
+    const schedule = JSON.parse(await readFile(resolve(RAW_SAMPLES_ROOT, entry.name, "schedule.json"), "utf8"));
+    for (const dateBlock of schedule.dates ?? []) {
+      for (const game of dateBlock.games ?? []) {
+        if (Number.isInteger(game.gamePk) && /^\d{4}-\d{2}-\d{2}$/u.test(game.officialDate ?? "")) {
+          dates.set(String(game.gamePk), game.officialDate);
+        }
+      }
+    }
+  }));
+  const fixture = JSON.parse(await readFile(RAW_FIXTURE, "utf8"));
+  const fixtureId = fixture.gamePk ?? fixture.gameData?.game?.pk;
+  const fixtureDate = fixture.gameData?.datetime?.officialDate;
+  if (Number.isInteger(fixtureId) && /^\d{4}-\d{2}-\d{2}$/u.test(fixtureDate ?? "")) {
+    dates.set(String(fixtureId), fixtureDate);
+  }
+  return dates;
+}
+
+function mapGameDateIndex(payload, officialDates) {
+  const byGraph = new Map();
+  for (const binding of payload.results?.bindings ?? []) {
+    const graph = binding.graph?.value;
+    const game = binding.game?.value;
+    const gameId = typeof game === "string" ? game.split("/").at(-1) : "";
+    const officialDate = officialDates.get(gameId);
+    if (typeof graph === "string" && graph.startsWith(AUTHORITATIVE_GRAPH_PREFIX)
+        && /^\d{4}-\d{2}-\d{2}$/u.test(officialDate ?? "")) {
+      byGraph.set(graph, { date: officialDate });
+    }
+  }
+  return [...byGraph].map(([graph, value]) => ({ graph, ...value }))
+    .sort((left, right) => left.date.localeCompare(right.date) || left.graph.localeCompare(right.graph));
+}
+
+function resolveDateScope(value, index) {
+  const request = normalizeDateScope(value);
+  const availableStartDate = index[0]?.date ?? null;
+  const availableEndDate = index.at(-1)?.date ?? null;
+  let startDate = request.startDate ?? availableEndDate;
+  let endDate = request.endDate ?? availableEndDate;
+  if (availableEndDate) {
+    if (request.preset === "seven_days") startDate = shiftIsoDate(availableEndDate, -6);
+    if (request.preset === "thirty_days") startDate = shiftIsoDate(availableEndDate, -29);
+    if (request.preset === "season_to_date") startDate = `${availableEndDate.slice(0, 4)}-01-01`;
+  }
+  const graphs = startDate && endDate
+    ? index.filter((entry) => entry.date >= startDate && entry.date <= endDate).map((entry) => entry.graph)
+    : [];
+  return {
+    graphs,
+    meta: {
+      preset: request.preset,
+      startDate,
+      endDate,
+      gameCount: graphs.length,
+      availableStartDate,
+      availableEndDate,
+      dateBasis: "official-source",
+    },
+  };
+}
+
 function normalizeSpecialFilters(value, allowed) {
   if (value === undefined) return {};
   if (!value || typeof value !== "object" || Array.isArray(value)) {
@@ -338,11 +451,33 @@ async function graphScope(filters, execution) {
   });
 }
 
+function intersectGraphScopes(left, right) {
+  if (left === null) return right;
+  const allowed = new Set(right);
+  return left.filter((graph) => allowed.has(graph));
+}
+
 export function createBaseballServer({
   fetchImpl = globalThis.fetch,
   queryEndpoint = process.env.BASEBALLO_FUSEKI_QUERY ?? DEFAULT_QUERY_ENDPOINT,
 } = {}) {
   const optionCache = new Map();
+  let gameDateIndexCache;
+
+  async function gameDateIndex() {
+    if (gameDateIndexCache?.expiresAt > Date.now()) return gameDateIndexCache.entries;
+    const { payload } = await executeSparql(compileGameDateIndexQuery(), { fetchImpl, queryEndpoint });
+    const officialGameDates = await readOfficialGameDates();
+    const entries = mapGameDateIndex(payload, officialGameDates);
+    gameDateIndexCache = { entries, expiresAt: Date.now() + GAME_DATE_INDEX_TTL_MS };
+    return entries;
+  }
+
+  async function scopedGraphs(dateScope, filters = {}) {
+    const resolved = resolveDateScope(dateScope, await gameDateIndex());
+    const filtered = await graphScope(filters, { fetchImpl, queryEndpoint });
+    return { graphs: intersectGraphScopes(filtered, resolved.graphs), dateScope: resolved.meta };
+  }
 
   return createServer(async (request, response) => {
     const requestUrl = new URL(request.url ?? "/", "http://127.0.0.1");
@@ -357,6 +492,16 @@ export function createBaseballServer({
         const { payload, durationMs } = await executeSparql(query, { fetchImpl, queryEndpoint });
         const games = Number(payload.results?.bindings?.[0]?.games?.value ?? 0);
         sendJson(response, 200, { connected: true, games, durationMs, layer: "authoritative" });
+        return;
+      }
+
+      if (request.method === "GET" && requestUrl.pathname === "/api/date-scope") {
+        const preset = requestUrl.searchParams.get("preset") ?? "seven_days";
+        const input = { preset };
+        if (requestUrl.searchParams.has("startDate")) input.startDate = requestUrl.searchParams.get("startDate");
+        if (requestUrl.searchParams.has("endDate")) input.endDate = requestUrl.searchParams.get("endDate");
+        const { meta } = resolveDateScope(input, await gameDateIndex());
+        sendJson(response, 200, { scope: meta });
         return;
       }
 
@@ -403,9 +548,9 @@ export function createBaseballServer({
         const graphFilters = Object.fromEntries(
           Object.entries(filters).filter(([id]) => !["team", "player"].includes(id)),
         );
-        const graphs = await graphScope(graphFilters, { fetchImpl, queryEndpoint });
+        const { graphs, dateScope } = await scopedGraphs(input.dateScope, graphFilters);
         let query = await readFile(EMPTY_GAMES_QUERY, "utf8");
-        if (graphs) query = applyGraphScope(query, graphs);
+        query = applyGraphScope(query, graphs);
         query = applyEmptyEntityFilters(query, filters);
         const { payload, durationMs } = await executeSparql(query, { fetchImpl, queryEndpoint });
         sendJson(response, 200, {
@@ -417,6 +562,7 @@ export function createBaseballServer({
             layer: "authoritative",
             definition: "reviewed-prototype",
             filters,
+            dateScope,
           },
         });
         return;
@@ -434,9 +580,9 @@ export function createBaseballServer({
           throw new RangeError(`Unknown advanced query: ${input.id}`);
         }
         const filters = normalizeSpecialFilters(input.filters, ["season", "game", "venue", "team"]);
-        const graphs = await graphScope(filters, { fetchImpl, queryEndpoint });
+        const { graphs, dateScope } = await scopedGraphs(input.dateScope, filters);
         let query = await readFile(resolveAdvancedQueryPath(entry), "utf8");
-        if (graphs) query = applyGraphScope(query, graphs);
+        query = applyGraphScope(query, graphs);
         const executedQuery = `${query.trimEnd()}\nLIMIT ${MAX_RESULTS}\n`;
         const { payload, durationMs } = await executeSparql(executedQuery, { fetchImpl, queryEndpoint });
         sendJson(response, 200, {
@@ -450,6 +596,7 @@ export function createBaseballServer({
             claim: entry.claim,
             truncatedAt: MAX_RESULTS,
             filters,
+            dateScope,
           },
         });
         return;
@@ -457,7 +604,8 @@ export function createBaseballServer({
 
       if (request.method === "POST" && requestUrl.pathname === "/api/query") {
         const input = normalizeQueryRequest(await readJsonBody(request));
-        const query = compileAnalyticsQuery(input);
+        const { graphs, dateScope } = await scopedGraphs(input.dateScope);
+        const query = applyGraphScope(compileAnalyticsQuery(input), graphs);
         const { payload, durationMs } = await executeSparql(query, { fetchImpl, queryEndpoint });
         sendJson(response, 200, {
           ...payload,
@@ -467,6 +615,7 @@ export function createBaseballServer({
             rowCount: payload.results?.bindings?.length ?? 0,
             layer: "authoritative",
             filters: input.filters ?? {},
+            dateScope,
           },
         });
         return;

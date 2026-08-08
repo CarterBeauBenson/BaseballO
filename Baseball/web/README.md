@@ -37,6 +37,9 @@ npm run check
 ## Current capabilities
 
 - batting, pitching, baserunning, and game/assignment question families;
+- a shared official-game-date scope resolved from a compact, short-lived
+  graph/date index before each substantive query, with latest-day, seven-day,
+  30-day, season-to-date, and custom ranges;
 - game-scoped team grouping and filtering for batting, pitching, and
   baserunning; offensive teams are derived from the half-inning while pitching
   uses the opposing fielding team;
