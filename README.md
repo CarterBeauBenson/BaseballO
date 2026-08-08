@@ -16,11 +16,10 @@ BaseballO is for questions that cross the boundaries between those rows:
   became final?
 - Which pitch, swing, contact, fielding play, and runner movement belong to the
   same play?
-- What team role did a person have in this particular game?
-- Did an event not happen, or is the source record incomplete or not yet
-  recognized?
-- Can two measurements be combined into a percentage without mixing different
-  kinds of counts?
+- Which team was a player representing in a particular game?
+- Which games truly had no qualifying event, and which games have incomplete
+  data?
+- What percentage of a player's games were Empty Games?
 
 BaseballO keeps the pitch, batter, pitcher, swing, contact, ball movement,
 umpire call, replay review, runner movement, and scoring result connected. That
