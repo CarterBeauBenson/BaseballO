@@ -123,14 +123,14 @@ model. Completed-game files can move through one repeatable workflow and become
 connected, checked, queryable game data.
 
 ```mermaid
-flowchart LR
-    A["Completed-game JSON"] --> B["Repeatable NiFi processing"]
-    B --> C["Connected game events and roles"]
-    C --> D["Structure and coverage checks"]
-    D --> E["Complete game store"]
-    E --> F["Local BaseballO Explorer"]
-    E --> G["Rebuildable query summaries"]
-    G --> H["Exact-result comparison"]
+flowchart TD
+    A["Completed-game<br/>JSON"] --> B["Repeatable NiFi<br/>processing"]
+    B --> C["Connected game<br/>events and roles"]
+    C --> D["Structure and<br/>coverage checks"]
+    D --> E["Complete<br/>game store"]
+    E --> F["Local BaseballO<br/>Explorer"]
+    E --> G["Rebuildable query<br/>summaries"]
+    G --> H["Exact-result<br/>comparison"]
     H --> F
 ```
 
@@ -157,17 +157,17 @@ question, a baseball organization could build, save, compare, and share new
 measurements from the same connected game data.
 
 ```mermaid
-flowchart LR
-    A["Authorized live and historical feeds"] --> B["Continuous game processing"]
-    B --> C["Connected multi-season baseball data"]
-    C --> D["Baseball question builder"]
-    D --> E["Custom statistics and ratios"]
-    D --> F["Replay and play-chain research"]
-    D --> G["Coverage and data-quality reports"]
-    E --> H["Saved and shareable research"]
+flowchart TD
+    A["Authorized live and<br/>historical feeds"] --> B["Continuous game<br/>processing"]
+    B --> C["Connected multi-season<br/>baseball data"]
+    C --> D["Baseball question<br/>builder"]
+    D --> E["Custom statistics<br/>and ratios"]
+    D --> F["Replay and play-chain<br/>research"]
+    D --> G["Coverage and<br/>data-quality reports"]
+    E --> H["Saved and shareable<br/>research"]
     F --> H
     G --> H
-    H --> I["Web product, API, notebooks, and partner tools"]
+    H --> I["Web product, API, notebooks,<br/>and partner tools"]
 ```
 
 A mature version could add full-season and historical coverage, continuous
