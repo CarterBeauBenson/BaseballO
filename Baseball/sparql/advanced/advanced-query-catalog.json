@@ -85,7 +85,7 @@
       "path": "sparql/advanced/review-outcome-profile.rq",
       "semanticMode": "positive-evidence",
       "allowZeroRows": true,
-      "claim": "Explicit on-field decision, challenge, replay-review transition, replay decision, review result, and final structured play or pitch outcome."
+      "claim": "Explicit on-field decision, optional challenge, replay-review act, replay decision, review result, and final structured play or pitch outcome; unsupported decision families remain visibly unclassified."
     },
     {
       "id": "hit-diversity",

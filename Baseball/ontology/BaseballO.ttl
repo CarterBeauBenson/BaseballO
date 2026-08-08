@@ -461,6 +461,13 @@ base:BallControlFailureProcess a owl:Class ;
     rdfs:comment "This class represents physical history and does not entail an Error Process, because official scoring may classify the play otherwise."@en ;
     skos:example "A ground ball passes under an infielder's glove."@en .
 
+base:PitchBallControlFailureProcess a owl:Class ;
+    rdfs:subClassOf base:BallControlFailureProcess ;
+    rdfs:label "Pitch Ball Control Failure Process"@en ;
+    skos:definition "A Pitch Ball Control Failure Process is a Ball Control Failure Process that is preceded by a Pitch Ball Motion Process."@en ;
+    rdfs:comment "This class represents the physical failure to secure a pitched Baseball and does not by itself entail a passed ball, wild pitch, strikeout, error, out, or runner advancement."@en ;
+    skos:example "A catcher does not secure a pitched Baseball after the batter swings at strike three."@en .
+
 base:TaggingProcess a owl:Class ;
     rdfs:subClassOf base:BaseballPhysicalProcess ;
     rdfs:label "Tagging Process"@en ;
@@ -577,6 +584,20 @@ base:SacrificeDecisionICE a owl:Class ;
     skos:definition "A Sacrifice Decision ICE is a Baseball Decision ICE that expresses an authorized scoring judgment that a play is to be counted as a sacrifice."@en ;
     rdfs:comment "This information entity is the output of an authorized judgment and may later be recorded in a data system."@en ;
     skos:example "The scoring content crediting a sacrifice fly."@en .
+
+base:PassedBallDecisionICE a owl:Class ;
+    rdfs:subClassOf base:BaseballDecisionICE ;
+    rdfs:label "Passed Ball Decision ICE"@en ;
+    skos:definition "A Passed Ball Decision ICE is a Baseball Decision ICE that is output of a Passed Ball Judgment Act."@en ;
+    rdfs:comment "The decision records the official scoring classification and is distinct from the preceding physical failure to control the pitched Baseball."@en ;
+    skos:example "The official scoring content that charges a passed ball when a catcher does not secure a reasonably catchable pitch."@en .
+
+base:WildPitchDecisionICE a owl:Class ;
+    rdfs:subClassOf base:BaseballDecisionICE ;
+    rdfs:label "Wild Pitch Decision ICE"@en ;
+    skos:definition "A Wild Pitch Decision ICE is a Baseball Decision ICE that is output of a Wild Pitch Judgment Act."@en ;
+    rdfs:comment "The decision records the official scoring classification and is distinct from the preceding physical failure to control the pitched Baseball."@en ;
+    skos:example "The official scoring content that charges a wild pitch when a pitch cannot be handled with ordinary effort."@en .
 
 base:RunDecisionICE a owl:Class ;
     rdfs:subClassOf base:BaseballDecisionICE ;
@@ -821,6 +842,20 @@ base:SacrificeJudgmentAct a owl:Class ;
     rdfs:comment "It constitutes the authorized scoring component of a Sacrifice Process."@en ;
     skos:example "The scorer credits a sacrifice fly."@en .
 
+base:PassedBallJudgmentAct a owl:Class ;
+    rdfs:subClassOf base:ScoringJudgmentAct ;
+    rdfs:label "Passed Ball Judgment Act"@en ;
+    skos:definition "A Passed Ball Judgment Act is a Scoring Judgment Act that has output a Passed Ball Decision ICE and is prescribed by a Passed Ball Rule."@en ;
+    rdfs:comment "This act classifies the play for official scoring; it is not identical to the physical failure to control the pitched Baseball."@en ;
+    skos:example "An official scorer judges that a catcher's failure to secure a reasonably catchable pitch is a passed ball."@en .
+
+base:WildPitchJudgmentAct a owl:Class ;
+    rdfs:subClassOf base:ScoringJudgmentAct ;
+    rdfs:label "Wild Pitch Judgment Act"@en ;
+    skos:definition "A Wild Pitch Judgment Act is a Scoring Judgment Act that has output a Wild Pitch Decision ICE and is prescribed by a Wild Pitch Rule."@en ;
+    rdfs:comment "This act classifies the play for official scoring; it is not identical to the physical failure to control the pitched Baseball."@en ;
+    skos:example "An official scorer judges that a pitch beyond ordinary catching effort is a wild pitch."@en .
+
 base:RunJudgmentAct a owl:Class ;
     rdfs:subClassOf base:UmpireJudgmentAct ;
     rdfs:label "Run Judgment Act"@en ;
@@ -964,6 +999,20 @@ base:ScoringClassificationProcess a owl:Class ;
     rdfs:comment "Hit, Error, Fielder's Choice, and Sacrifice Process are subclasses and are constituted by scorer judgments."@en ;
     skos:example "The scorer's official classification of a ground-ball play."@en .
 
+base:PassedBallProcess a owl:Class ;
+    rdfs:subClassOf base:ScoringClassificationProcess ;
+    rdfs:label "Passed Ball Process"@en ;
+    skos:definition "A Passed Ball Process is a Scoring Classification Process that is preceded by a Pitch Ball Control Failure Process, has a Passed Ball Judgment Act as an occurrent part, and is prescribed by a Passed Ball Rule."@en ;
+    rdfs:comment "This counted scoring classification is distinct from the physical control failure and does not by itself entail a runner's safe arrival or an uncaught third strike."@en ;
+    skos:example "A catcher does not secure a reasonably catchable pitch and the play is officially scored as a passed ball."@en .
+
+base:WildPitchProcess a owl:Class ;
+    rdfs:subClassOf base:ScoringClassificationProcess ;
+    rdfs:label "Wild Pitch Process"@en ;
+    skos:definition "A Wild Pitch Process is a Scoring Classification Process that is preceded by a Pitch Ball Control Failure Process, has a Wild Pitch Judgment Act as an occurrent part, and is prescribed by a Wild Pitch Rule."@en ;
+    rdfs:comment "This counted scoring classification is distinct from the physical control failure and does not by itself entail a runner's safe arrival or an uncaught third strike."@en ;
+    skos:example "A pitch beyond ordinary catching effort is not secured and the play is officially scored as a wild pitch."@en .
+
 base:HitProcess a owl:Class ;
     rdfs:subClassOf base:ScoringClassificationProcess ;
     rdfs:label "Hit Process"@en ;
@@ -1097,6 +1146,14 @@ base:StrikeoutProcess a owl:Class ;
     rdfs:comment "A strikeout is not asserted as a subclass of Out Process because an uncaught third strike can yield a strikeout without a counted out."@en ;
     skos:example "A batter strikes out but reaches first on an uncaught third strike."@en .
 
+base:UncaughtThirdStrikeProcess a owl:Class ;
+    rdfs:subClassOf base:BaseballInstitutionalProcess ;
+    rdfs:label "Uncaught Third Strike Process"@en ;
+    skos:altLabel "Dropped Third Strike Process"@en ;
+    skos:definition "An Uncaught Third Strike Process is a Baseball Institutional Process that has a Strikeout Process and a Pitch Ball Control Failure Process as occurrent parts and is prescribed by a Strike Rule."@en ;
+    rdfs:comment "This composite pattern does not by itself entail that the batter reached safely or was put out; those outcomes require their own adjudicated processes."@en ;
+    skos:example "A batter swings at strike three, the catcher does not secure the pitch, and the batter reaches first base on the uncaught third strike."@en .
+
 base:WalkProcess a owl:Class ;
     rdfs:subClassOf base:BaseballInstitutionalProcess ;
     rdfs:label "Walk Process"@en ;
@@ -1164,6 +1221,20 @@ base:StrikeRule a owl:Class ;
     skos:definition "A Strike Rule is a Baseball Rule that prescribes conditions under which a pitch, swing result, or foul is to be counted as a strike."@en ;
     rdfs:comment "The rule is a prescriptive information entity; a judgment about whether observed play satisfies it is a distinct act."@en ;
     skos:example "The rule governing a swing and miss."@en .
+
+base:PassedBallRule a owl:Class ;
+    rdfs:subClassOf base:BaseballRule ;
+    rdfs:label "Passed Ball Rule"@en ;
+    skos:definition "A Passed Ball Rule is a Baseball Rule that prescribes a Passed Ball Process."@en ;
+    rdfs:comment "The rule supplies the official scoring criteria for distinguishing a passed ball from other pitch-control outcomes."@en ;
+    skos:example "The official scoring rule applied when a catcher fails to secure a pitch that could have been handled with ordinary effort."@en .
+
+base:WildPitchRule a owl:Class ;
+    rdfs:subClassOf base:BaseballRule ;
+    rdfs:label "Wild Pitch Rule"@en ;
+    skos:definition "A Wild Pitch Rule is a Baseball Rule that prescribes a Wild Pitch Process."@en ;
+    rdfs:comment "The rule supplies the official scoring criteria for distinguishing a wild pitch from other pitch-control outcomes."@en ;
+    skos:example "The official scoring rule applied when a pitch cannot be handled with ordinary effort and permits advancement."@en .
 
 base:FairFoulRule a owl:Class ;
     rdfs:subClassOf base:BaseballRule ;

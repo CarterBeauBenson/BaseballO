@@ -5,15 +5,18 @@ the subsystem READMEs and Git history; do not recreate them here.
 
 ## Verified state
 
-- Live MLB acquisition is disabled pending an authorized source. The checked-in
-  2026-08-03 corpus must not be reacquired merely to rerun the local workflow.
+- External MLB acquisition requires an explicit approval switch; no unattended
+  schedule is enabled. The checked-in 2026-07-14 through 2026-08-06 corpus must
+  not be reacquired merely to rerun the local workflow.
 - Raw JSON is immutable. The full event graphs are authoritative; query-index
   graphs are disposable and reproducible.
-- The active RML has 277 triples maps, 77 logical sources, and no
+- The active RML has 297 triples maps, 83 logical sources, and no
   referencing-object-map joins.
-- Eight completed games produce 231,670 authoritative triples and 52,944 index
-  triples. All per-game semantic equivalence checks pass.
-- Two explicit, non-entailing SHACL profiles contain 30 node shapes. The
+- The accepted query baseline remains the eight-game 2026-08-03 subset, which
+  produces 231,670 authoritative triples and 52,944 index triples. The expanded
+  checked-in corpus contains 288 distinct completed games and is being promoted
+  through the same per-game validation and equivalence gates.
+- Two explicit, non-entailing SHACL profiles contain 35 node shapes. The
   fixture and all eight corpus graph pairs conform with zero results; RML,
   index, and dehydration workflows now fail closed on violations.
 - The query library contains 48 canned and 17 advanced queries with reproducible
@@ -25,13 +28,21 @@ the subsystem READMEs and Git history; do not recreate them here.
   and the 17-query Advanced catalog. Browser queries remain allowlisted and
   authoritative-only.
 - Pitching defaults now partition every mapped pitch into SME-labeled final
-  call categories. Replay graphs distinguish the on-field judgment, challenge,
-  replay-review act, both decisions, review-result ICE, and source record, with
-  explicit ball/strike and out/safe transition classes. Pitch reviews attach
+  call categories. Replay graphs distinguish the on-field judgment, optional
+  challenge, replay-review act, both decisions, review-result ICE, and source
+  record, with explicit ball/strike and out/safe transition classes. Reviews
+  initiated by an umpire do not create a Challenge Act, and unsupported review
+  decision families remain explicitly unclassified. Pitch reviews attach
   the on-field call to the home-plate umpire; the source still does not identify
   the individual base umpire for non-pitch reviews.
 - Intentional walks use the complete walk pattern. Three source-limited terminal
   baserunning outcomes remain explicit generic results for ontological review.
+- Passed balls and wild pitches now preserve a shared physical
+  PitchBallControlFailureProcess while retaining separate scorer judgments,
+  decisions, rules, and counted classifications. An uncaught third strike is a
+  composite containing the strikeout and physical failure. MLB null runner
+  placeholders remain event records and never fabricate baserunning acts or
+  runner resolutions.
 - Three selective reasoning profiles operate only on an explicitly anchored
   plate appearance. They enforce fixed computational budgets, preserve the
   authoritative graph, materialize into disposable fingerprinted graph IRIs,
@@ -47,7 +58,28 @@ the subsystem READMEs and Git history; do not recreate them here.
 
 ## Next work
 
-### 1. Advance the selective reasoning experiment
+### 1. Move repeatable orchestration into NiFi
+
+- Make NiFi the primary orchestration layer for as much of the repeatable
+  workflow as practical: RML execution, SHACL validation, SPARQL audits,
+  authoritative/index equivalence checks, selective reasoning profiles, and
+  benchmark evidence generation.
+- Keep RML, SHACL, SPARQL, reasoning rules, expected contracts, and validation
+  configuration versioned as repository files. NiFi should load and execute
+  those artifacts rather than hiding the authoritative definitions inside a
+  flow definition.
+- Have each NiFi process group emit a compact, reproducible evidence manifest
+  and route failed games or validation stages to quarantine with enough context
+  for diagnosis. Routine successful checks should not require interactive
+  supervision.
+- Use fingerprints and dependency-aware routing so a change reruns only the
+  affected validation stages. Preserve fail-closed behavior at every promotion
+  boundary.
+- Reduce PowerShell to Windows bootstrap, local operator entry points, and
+  maintenance tasks after equivalent NiFi paths are proven. Do not remove the
+  existing scripts until the automated flow has demonstrated parity.
+
+### 2. Advance the selective reasoning experiment
 
 - Exercise each profile against a reviewed sample of simple and complicated
   plate appearances. Compare inferred graph contents and relevant query results
@@ -59,8 +91,15 @@ the subsystem READMEs and Git history; do not recreate them here.
   shapes only for constraints whose semantics remain valid over inferred
   closure.
 
-### 2. Review the Explorer
+### 3. Review the Explorer
 
+- Add an official-game-date range control that scopes game graph IRIs before an
+  analytical query executes. Provide one-day, seven-day, 30-day, and
+  season-to-date presets alongside custom start and end dates; use seven days
+  as the initial default and show the resolved date range and game count.
+- Treat date scoping as both an interaction and performance feature. Resolve
+  the relevant game graphs through a compact game/date index before running the
+  substantive query rather than scanning every authoritative game graph.
 - Review whether individual Advanced questions need result-level player or role
   filters in addition to the implemented season, game, team-in-game, and venue
   graph scope. Add them only through per-query catalog declarations where the
@@ -81,9 +120,14 @@ the subsystem READMEs and Git history; do not recreate them here.
   language. Where a metric is partial or evidence-bounded, show that limitation
   beside the selector and in result metadata rather than relying on its name
   alone.
+- Connect proven query families to the reviewed authoritative/index router,
+  while retaining authoritative fallback for unsupported queries. Cache filter
+  options and safe repeated results against the corpus fingerprint, and show
+  execution time plus the selected `Indexed` or `Authoritative` route in result
+  metadata.
 - Defer a broad visual redesign until this common query interaction is settled.
 
-### 3. Expand index coverage carefully
+### 4. Expand index coverage carefully
 
 - Add indexed companions in small semantic families.
 - Require exact eight-game row equivalence and repeatable timing evidence for
@@ -93,7 +137,7 @@ the subsystem READMEs and Git history; do not recreate them here.
 - Treat negative and integrity queries as completeness-sensitive. Do not run
   them against an index unless their required evidence sets are proven complete.
 
-### 4. Preserve the execution boundary
+### 5. Preserve the execution boundary
 
 - Retain authoritative queries for audit, fallback, and regression testing.
 - Keep Auto fallback and explicit Indexed fail-closed behavior tested.

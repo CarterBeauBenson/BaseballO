@@ -16,10 +16,12 @@ flowchart TD
     RUNNER --> SAFE["reach and advance"]
     RUNNER --> RUN["score from origin or base"]
     RUNNER --> STEAL["stolen base and caught stealing"]
+    RUNNER --> CONTROL["passed ball, wild pitch, and pitch-control failure"]
+    PLAY --> UTS["uncaught third strike"]
     RAW --> FIELDING["fielding credits: role trigger only"]
 ```
 
-The active RML contains 77 logical sources. Repeated filters are deliberate:
+The active RML contains 83 logical sources. Repeated filters are deliberate:
 one source record may support distinct acts, physical processes, judgments,
 decisions, calls, counted processes, records, sites, roles, and artifacts. The
 temporary context adds ancestor identity but never changes or replaces the raw

@@ -53,7 +53,12 @@ The `01 Games - Manual Inbox` group contains the executable local-only flow. Con
 
 The idempotent command creates a local inbox reader, collision-safe staging handoff, guarded importer, successful-run logging, and failed-output persistence. It does not contain an external HTTP processor. Use the [pipeline runbook](../../scripts/pipeline/README.md) to submit data.
 
+For repeatable bulk processing, `submit-game-corpus-to-nifi.ps1` is the corpus
+producer and monitor. NiFi remains the orchestrator for every game. The manual
+flow defaults to three concurrent guarded imports; pass `-ConcurrentImports`
+to the configuration or submission command to tune that bounded concurrency.
+
 The earlier `01 Games - Daily` network-acquisition group is deliberately stopped. Its design is retained for later review, but it is not part of the active pipeline.
-The checked-in 2026-08-03 corpus is processed locally and does not require this
-group. Do not enable external acquisition while source authorization remains
-unresolved.
+The checked-in 2026-07-14 through 2026-08-06 corpus is processed locally and
+does not require this group. Explicitly approved command-line acquisition does
+not authorize enabling an unattended NiFi network flow.

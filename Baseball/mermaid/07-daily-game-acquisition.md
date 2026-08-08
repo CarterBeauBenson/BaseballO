@@ -1,11 +1,14 @@
-# Parked daily game acquisition
+# Guarded external game acquisition
 
-This diagram preserves the earlier external-acquisition design for later review. Its NiFi processors are stopped, and it is not the active operational path pending an approved data-access source.
+The command-line acquisition path runs only when the caller supplies explicit
+external-data approval. The unattended NiFi schedule remains disabled and is
+not implied by a manually approved acquisition run.
 
 ```mermaid
 flowchart TB
-    PARKED["DISABLED pending approved source"] --> NIFI["NiFi 06:15 local trigger"]
-    NIFI --> CMD["acquire-daily-games.ps1<br/>three-date lookback"]
+    APPROVAL["Explicit caller approval"] --> CMD["acquire-daily-games.ps1<br/>date or guarded lookback"]
+    PARKED["Unattended NiFi schedule disabled"] -.-> NIFI["NiFi 06:15 local trigger"]
+    NIFI -.-> CMD
     CMD --> SCHED["MLB v1 schedule"]
     SCHED --> SRAW["raw/schedules/{date}/{sha256}.json"]
     SCHED --> SMAN["schedule acquisition manifest"]
@@ -32,7 +35,8 @@ flowchart TB
     class FINAL,PREFLIGHT,VALIDATE guard;
     class SRAW,SMAN,GRAW,GMAN,RUN,GRAPH storage;
     class Q,NQ failure;
-    class PARKED,NIFI,CMD parked;
+    class PARKED,NIFI parked;
+    class APPROVAL,CMD guard;
 ```
 
 The source JSON never receives helper fields. Root identifiers required by nested RML subjects are inserted only into an isolated mapping copy, and every run records the source and effective mapping hashes.

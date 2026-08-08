@@ -23,9 +23,11 @@ flowchart LR
 
 The first proof-of-concept query is **Empty Games**: games in which a player participated offensively without a qualifying offensive contribution. That result must be derived with SPARQL, never stored during ingestion.
 
-Current checked-in evidence covers eight completed games from 2026-08-03:
-231,670 authoritative triples and 52,944 disposable query-index triples. All
-48 canned queries and 17 advanced queries have reproducible result baselines.
+The checked-in raw corpus contains 288 distinct completed games with official
+dates from 2026-07-14 through 2026-08-06. The accepted query baseline remains
+the original eight-game 2026-08-03 subset: 231,670 authoritative triples and
+52,944 disposable query-index triples. All 48 canned queries and 17 advanced
+queries have reproducible results over that bounded baseline.
 Eighteen authoritative/indexed query pairs have exact corpus results; the
 reviewed runner selects 15 indexed routes and keeps three neutral routes on the
 authoritative graph. The Explorer remains authoritative-only until its
@@ -41,7 +43,7 @@ translated obligations with a pinned Z3 backend.
 Pitching analytics expose a complete final-call partition—balls, called
 strikes, swinging/missed strikes, fouls/foul tips, balls put in play, and hit
 batters—so the displayed components reconcile to total pitches. Replay review
-graphs preserve the on-field judgment, challenge, replay act, original and
+graphs preserve the on-field judgment, optional challenge, replay act, original and
 operative decision ICEs, affirming or overturning result, and final structured
 outcome as distinct entities. The binary original decision is derived only for
 the accepted ball/strike and out/safe transition families.
@@ -57,7 +59,7 @@ the accepted ball/strike and out/safe transition families.
 | [`mermaid/`](mermaid/) | Visual review of the RML source, map, join, and identity shapes | Active review |
 | [`shacl/`](shacl/) | Executable authoritative and query-index graph constraints | Active validation contract |
 | [`reasoning/`](reasoning/) | Budgeted profiles, pinned BFO CLIF source contract, and reasoning runbook | Active selective experiment |
-| [`data/`](data/) | Untouched development fixture and eight-game audit corpus | Active immutable inputs |
+| [`data/`](data/) | Untouched development fixture, 288-game raw corpus, and bounded eight-game audit subset | Active immutable inputs |
 | [`archive/`](archive/) | Superseded preprocessing prototype and prior ontology snapshot | Historical |
 | [`sparql/`](sparql/) | Canned and advanced semantic queries plus reviewable components for the disposable query-index graph | Active query library and acceleration contract |
 | [`web/`](web/) | Playable local analytics explorer and allowlisted query compiler | Local MVP active |
@@ -104,10 +106,10 @@ Start with the [Mermaid review index](mermaid/README.md). It separates the inten
 
 After bootstrapping and starting the free local stack, follow the [manual game import runbook](scripts/pipeline/README.md). It archives untouched completed-game JSON, executes the pinned RMLMapper, validates source-to-RDF record counts, and loads complete named graphs into Fuseki with idempotent `PUT` requests.
 
-Automated external acquisition is parked pending an approved data-access
-source. The active NiFi flow makes no MLB or other external HTTP request. The
-current corpus is already checked in and must not be reacquired merely to rerun
-the local workflow.
+External acquisition requires the explicit `-ExternalDataAccessApproved`
+switch. The active NiFi flow still makes no MLB or other external HTTP request,
+and no unattended acquisition schedule is enabled. The current corpus is
+checked in and must not be reacquired merely to rerun the local workflow.
 
 ## Run selective reasoning
 

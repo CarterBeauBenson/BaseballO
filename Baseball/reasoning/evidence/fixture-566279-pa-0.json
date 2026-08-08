@@ -3,7 +3,7 @@
   "contractVersion": 1,
   "gamePk": "566279",
   "anchor": "https://baseballontology.org/data/game/566279/plate-appearance/0",
-  "sourceRdfSha256": "b6205b858bc3a8284359477224833229fc4c7c289de899c07220a16d011c3f84",
+  "sourceRdfSha256": "098d0cdcc72f18ef41b3a65cc468a8bf3a64ccdb1c15d41064c5944e692848b9",
   "bfoCommit": "dd89f4a193038b66ef0e891d546c05a5b477f40f",
   "backend": "z3-solver",
   "backendVersion": "5.0.0",
@@ -15,39 +15,39 @@
   "profiles": [
     {
       "profile": "event-order",
-      "reasoningGraph": "https://w3id.org/baseball/graph/reasoning/event-order/game/566279/anchor/ab702b79a8308d81/rules/0d31bfe53771b233",
-      "rulesetSha256": "0d31bfe53771b2337ff56bda2362458cc18a7858f74112a89d4d15454cfeb10d",
+      "reasoningGraph": "https://w3id.org/baseball/graph/reasoning/event-order/game/566279/anchor/ab702b79a8308d81/rules/6c584e54c4072c67",
+      "rulesetSha256": "6c584e54c4072c67529b922609b97d464cc0da6b3f7043d9bc929b79b31f53cc",
       "profileSha256": "c00b1ff05f8ae1fefb129998030ff315e1737316237d0161f8182352024c1cf1",
-      "proofReportSha256": "37f8a9e239df3f0d2e4b919ab2b8713bb7eae1669f5d6dcf48b522542366830b",
+      "proofReportSha256": "ba3448e85da59c96fff73c8fc2e5f6538bd8290f40eee401e235a13ef179da76",
       "assertedRelevantFactCount": 26,
       "obligationCount": 52,
       "provedCount": 52,
       "consistency": "sat",
-      "durationMs": 8470.21
+      "durationMs": 5512.617
     },
     {
       "profile": "event-structure",
-      "reasoningGraph": "https://w3id.org/baseball/graph/reasoning/event-structure/game/566279/anchor/ab702b79a8308d81/rules/c148bd041c9aabff",
-      "rulesetSha256": "c148bd041c9aabffd8216cd41a8ea856084f84c0d25e12c7e1c4800ef60f3c46",
+      "reasoningGraph": "https://w3id.org/baseball/graph/reasoning/event-structure/game/566279/anchor/ab702b79a8308d81/rules/4bcf63402bc8038b",
+      "rulesetSha256": "4bcf63402bc8038b999c0e7a4a30111d5f9c2071c2c43b6a2fc763d9b7351d79",
       "profileSha256": "0769a71727733adc7553b18d51d2a21d91d15b0c86103ed19c494b78865653c0",
-      "proofReportSha256": "2d8d9d6fc268c9e1d4052bc18b304b7415ce2ee1d002953234bdde529d2d7faa",
+      "proofReportSha256": "7da23e09e924dc75b510d532be2309fb8558a238fd0bd2e2478bbc1942c25111",
       "assertedRelevantFactCount": 53,
       "obligationCount": 47,
       "provedCount": 47,
       "consistency": "sat",
-      "durationMs": 2413.834
+      "durationMs": 1782.887
     },
     {
       "profile": "participation",
-      "reasoningGraph": "https://w3id.org/baseball/graph/reasoning/participation/game/566279/anchor/ab702b79a8308d81/rules/895fde06434ea468",
-      "rulesetSha256": "895fde06434ea468bccfcdb81144524c5b758e4e8faf1b0ccf621022bfaf8e91",
+      "reasoningGraph": "https://w3id.org/baseball/graph/reasoning/participation/game/566279/anchor/ab702b79a8308d81/rules/bb136facbddc510a",
+      "rulesetSha256": "bb136facbddc510a9bc50b4a567390907f15bed8a7f2c9770d9b462f21568478",
       "profileSha256": "da2d44f7fee92659ce982603d912d2ae7822730ca7b9ef4dd05ce4cfebb03a6c",
-      "proofReportSha256": "f9cacec21b903c6c4f89faa5806ac63ed8e2ff3b0066b83c454f8f755187d0cd",
+      "proofReportSha256": "16a0ab5c3d925f3bea4aa0c4d673cc49e9a58e4d51523d3344bc88f17082da38",
       "assertedRelevantFactCount": 8,
       "obligationCount": 8,
       "provedCount": 8,
       "consistency": "sat",
-      "durationMs": 213.983
+      "durationMs": 131.879
     }
   ]
 }

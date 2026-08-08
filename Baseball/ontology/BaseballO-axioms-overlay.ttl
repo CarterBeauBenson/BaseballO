@@ -268,6 +268,10 @@ base:BallControlFailureProcess
     rdfs:subClassOf
         [ a owl:Restriction ; owl:onProperty obo:BFO_0000057 ; owl:someValuesFrom base:Baseball ] .
 
+base:PitchBallControlFailureProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:PitchBallMotionProcess ] .
+
 base:TaggingProcess
     rdfs:subClassOf
         [ a owl:Restriction ; owl:onProperty obo:BFO_0000057 ; owl:someValuesFrom base:Baseball ] .
@@ -329,6 +333,14 @@ base:FieldersChoiceDecisionICE
 base:SacrificeDecisionICE
     rdfs:subClassOf
         [ a owl:Restriction ; owl:onProperty cco:ont00001816 ; owl:someValuesFrom base:SacrificeJudgmentAct ] .
+
+base:PassedBallDecisionICE
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001816 ; owl:someValuesFrom base:PassedBallJudgmentAct ] .
+
+base:WildPitchDecisionICE
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001816 ; owl:someValuesFrom base:WildPitchJudgmentAct ] .
 
 base:RunDecisionICE
     rdfs:subClassOf
@@ -416,6 +428,16 @@ base:FieldersChoiceJudgmentAct
 base:SacrificeJudgmentAct
     rdfs:subClassOf
         [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:SacrificeDecisionICE ] .
+
+base:PassedBallJudgmentAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:PassedBallDecisionICE ] ,
+        [ a owl:Restriction ; owl:onProperty cco:ont00001920 ; owl:someValuesFrom base:PassedBallRule ] .
+
+base:WildPitchJudgmentAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:WildPitchDecisionICE ] ,
+        [ a owl:Restriction ; owl:onProperty cco:ont00001920 ; owl:someValuesFrom base:WildPitchRule ] .
 
 base:RunJudgmentAct
     rdfs:subClassOf
@@ -516,6 +538,18 @@ base:ScoringClassificationProcess
     rdfs:subClassOf
         [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:ScoringJudgmentAct ] .
 
+base:PassedBallProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:PitchBallControlFailureProcess ] ,
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:PassedBallJudgmentAct ] ,
+        [ a owl:Restriction ; owl:onProperty cco:ont00001920 ; owl:someValuesFrom base:PassedBallRule ] .
+
+base:WildPitchProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:PitchBallControlFailureProcess ] ,
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:WildPitchJudgmentAct ] ,
+        [ a owl:Restriction ; owl:onProperty cco:ont00001920 ; owl:someValuesFrom base:WildPitchRule ] .
+
 base:HitProcess
     rdfs:subClassOf
         [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:BatBallContactProcess ] ,
@@ -564,6 +598,12 @@ base:TagOutProcess
 base:StrikeoutProcess
     rdfs:subClassOf
         [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:StrikeProcess ] ,
+        [ a owl:Restriction ; owl:onProperty cco:ont00001920 ; owl:someValuesFrom base:StrikeRule ] .
+
+base:UncaughtThirdStrikeProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:StrikeoutProcess ] ,
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:PitchBallControlFailureProcess ] ,
         [ a owl:Restriction ; owl:onProperty cco:ont00001920 ; owl:someValuesFrom base:StrikeRule ] .
 
 base:WalkProcess
@@ -619,6 +659,14 @@ base:BallRule
 base:StrikeRule
     rdfs:subClassOf
         [ a owl:Restriction ; owl:onProperty cco:ont00001942 ; owl:someValuesFrom base:StrikeProcess ] .
+
+base:PassedBallRule
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001942 ; owl:someValuesFrom base:PassedBallProcess ] .
+
+base:WildPitchRule
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001942 ; owl:someValuesFrom base:WildPitchProcess ] .
 
 base:FairFoulRule
     rdfs:subClassOf

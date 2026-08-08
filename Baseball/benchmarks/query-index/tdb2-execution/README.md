@@ -4,7 +4,7 @@ Generated with Apache Jena Fuseki 6.1.0 and `tdb2.tdbquery --set arq:logExec=ALL
 
 The 36 normalized logs capture Jena query text, optimized algebra, TDB2 algebra, and the initial reordered execution pattern for each authoritative/indexed benchmark pair. Repeated aggregate subexecution traces are omitted. Fuseki was stopped so the command could open the same persistent TDB2 datastore read-only. Result tables were suppressed.
 
-- Corpus SHA-256: `4547508cde87ff1d529146941cd126d6f3a33679b16fbba430c336e456308469`
+- Corpus SHA-256: `f8fdda9a115e4bdd971ce2ab203a444ad674835531d7a84d89401f0b13346ab9`
 - Query-index contract SHA-256: `a573269199d575f513a6481609dd101fd26da113ea8c3daef0b7daae35543629`
 
 | Query | Layer | TDB2 quad patterns | BGPs | Sequences | Left joins | Execution trace lines | Log |

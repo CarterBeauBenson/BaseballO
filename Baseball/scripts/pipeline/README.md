@@ -167,6 +167,33 @@ The command prints the absolute inbox path, normally:
 
 Copy a completed-game JSON document into that directory. NiFi assigns a collision-safe staging filename, invokes the guarded importer, and routes command failures to quarantine. The source bytes remain available in the content-addressed raw archive or failure quarantine.
 
-## Parked external acquisition
+Submit a checked-in date range as one monitored NiFi corpus run with:
 
-The earlier `acquire-daily-games.ps1` implementation and its Mermaid review are retained for a future approved source. Its NiFi processors are stopped. Do not enable that flow until the project's data-access basis is resolved.
+```powershell
+.\scripts\pipeline\submit-game-corpus-to-nifi.ps1 `
+  -FromDate 2026-07-14 `
+  -ThroughDate 2026-08-06
+```
+
+The command starts the local stack when necessary, configures and enables the
+manual-inbox flow, copies each unique final game into the inbox with a
+collision-safe name, and waits until the authoritative and query-index
+manifests match the active RML, context builder, and index contract. Duplicate
+game inputs with identical bytes are submitted once; differing bytes for the
+same game fail closed. NiFi quarantine causes the corpus run to fail
+immediately. Use `-NoWait` only when another process will monitor the run.
+Resume monitoring an existing submission without enqueueing anything with:
+
+```powershell
+.\scripts\pipeline\monitor-nifi-corpus-submission.ps1 -RunId <submission-run-id>
+```
+
+The run ID and complete submitted-game inventory are stored in the submission
+manifest printed by the producer command.
+
+## Explicitly approved external acquisition
+
+`acquire-daily-games.ps1` retains a fail-closed approval guard and runs only
+when the caller supplies `-ExternalDataAccessApproved`. It archives schedules
+and game feeds by content hash with separate manifests. Its NiFi processors
+remain stopped; there is no unattended network-acquisition schedule.

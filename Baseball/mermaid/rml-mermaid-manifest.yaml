@@ -79,8 +79,8 @@
     {
       "id": "46-replay-review",
       "title": "Replay review core",
-      "summary": "A reviewed on-field judgment produces the prior decision, precedes a challenge, and leads to a distinct replay-review act that produces a replay decision.",
-      "maps": ["ReviewOnFieldJudgmentMap", "ReviewOnFieldDecisionMap", "ReviewChallengeMap", "ReviewPlayerChallengeMap", "PitchReviewOnFieldUmpireMap", "ReplayReviewActMap", "ReplayDecisionMap"]
+      "summary": "A reviewed on-field judgment produces the prior decision and leads to a distinct replay-review act that produces a replay decision; only source-described challenges create a Challenge Act or challenged-review classification.",
+      "maps": ["ReviewOnFieldJudgmentMap", "ReviewOnFieldDecisionMap", "ReviewChallengeMap", "ReviewPlayerChallengeMap", "PitchReviewOnFieldUmpireMap", "ReplayReviewActMap", "ChallengedReplayReviewActMap", "ReplayDecisionMap"]
     },
     {
       "id": "47-replay-process-contexts",
@@ -91,8 +91,8 @@
     {
       "id": "48-replay-review-record",
       "title": "Replay review result and record",
-      "summary": "Review-result information describes the relationship between the two decisions, while a source event record is about the full review pattern and the final structured outcome.",
-      "maps": ["ReplayReviewResultMap", "ReviewEventRecordMap", "PitchReviewEventRecordAboutMap"]
+      "summary": "Review-result information describes the relationship between the two decisions, while a source event record is about the full review pattern, an optional challenge, and the final structured outcome.",
+      "maps": ["ReplayReviewResultMap", "ReviewEventRecordMap", "ChallengedReviewEventRecordAboutMap", "PitchReviewEventRecordAboutMap"]
     },
     {
       "id": "49-replay-review-result-classification",
@@ -321,6 +321,30 @@
       "title": "Stolen base and caught stealing",
       "summary": "A neutral steal-attempt act may support a distinct stolen-base process and adjudication; caught stealing retains the attempt without asserting success.",
       "maps": ["StolenBaseAttemptOverlayMap", "StolenBaseProcessMap", "StolenBaseJudgmentMap", "StolenBaseDecisionMap", "StolenBaseRecordMap", "CaughtStealingAttemptOverlayMap"]
+    },
+    {
+      "id": "53-pitch-ball-control-failure",
+      "title": "Pitch-ball control failure",
+      "summary": "A pitch-ball motion precedes a distinct physical control failure that involves the same Baseball and may cause source-reported baserunning acts without entailing a scoring classification.",
+      "maps": ["PitchBallControlFailureMap", "PitchMotionPrecedesControlFailureMap", "PitchControlFailureRecordMap"]
+    },
+    {
+      "id": "54-passed-ball-classification",
+      "title": "Passed-ball scoring classification",
+      "summary": "A passed ball is a scorer judgment, decision, rule, and counted process downstream of a distinct physical pitch-ball control failure.",
+      "maps": ["PassedBallProcessMap", "PassedBallJudgmentMap", "PassedBallDecisionMap", "PassedBallRecordMap", "PassedBallRuleMap"]
+    },
+    {
+      "id": "55-wild-pitch-classification",
+      "title": "Wild-pitch scoring classification",
+      "summary": "A wild pitch is a scorer judgment, decision, rule, and counted process downstream of a distinct physical pitch-ball control failure.",
+      "maps": ["WildPitchProcessMap", "WildPitchJudgmentMap", "WildPitchDecisionMap", "WildPitchRecordMap", "WildPitchRuleMap"]
+    },
+    {
+      "id": "56-uncaught-third-strike",
+      "title": "Uncaught third strike and unresolved source placeholder",
+      "summary": "An uncaught third strike contains the strikeout, physical control failure, and its own adjudication while MLB's null runner row remains an event record rather than becoming a fabricated movement or resolution.",
+      "maps": ["UncaughtThirdStrikeProcessMap", "UncaughtThirdStrikeJudgmentMap", "UncaughtThirdStrikeDecisionMap", "UncaughtThirdStrikeResultRecordMap", "UncaughtThirdStrikePlaceholderRecordMap"]
     }
   ]
 }

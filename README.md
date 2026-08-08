@@ -37,7 +37,7 @@ The current implementation is a working local vertical slice. It can:
   batted-ball motion, locations, judgments, and outcomes;
 - preserve full authoritative game graphs while generating smaller disposable
   query-index graphs for reviewed high-value query patterns;
-- validate authoritative and indexed graphs with 30 SHACL node shapes;
+- validate authoritative and indexed graphs with 35 SHACL node shapes;
 - run 48 canned SPARQL queries and 17 advanced event-chain analytics with
   reproducible corpus baselines;
 - answer batting, pitching, baserunning, game, venue, team, and official-related
@@ -48,7 +48,7 @@ The current implementation is a working local vertical slice. It can:
 - calculate the evidence-bounded **Empty Games** analytic without storing it
   during ingestion;
 - expose generated SPARQL, execution metadata, tabular results, and CSV export;
-- visually audit all 277 RML triples maps through generated, pattern-sized
+- visually audit all 297 RML triples maps through generated, pattern-sized
   Mermaid diagrams;
 - prove equivalence between authoritative and indexed results for 18 reviewed
   query routes; and
@@ -56,9 +56,11 @@ The current implementation is a working local vertical slice. It can:
   plate appearance, with pinned BFO CLIF inputs and 107 checked first-order
   proof obligations.
 
-The checked-in audit corpus currently contains eight completed games from
-2026-08-03 plus a separate development fixture. This is enough to test the
-architecture, not enough to claim season-scale statistical coverage.
+The checked-in raw corpus currently contains 288 completed games with official
+dates from 2026-07-14 through 2026-08-06, plus a separate development fixture.
+The reproducible query baselines intentionally remain scoped to the original
+eight-game 2026-08-03 subset until the larger corpus is independently reviewed
+and new baselines are accepted.
 
 ## What a mature version would do
 
@@ -125,8 +127,10 @@ the authoritative event graph.
 ## Current boundaries
 
 - BaseballO is local and experimental; it is not publicly hosted.
-- Automated live acquisition is disabled pending an approved data source.
-- The current corpus is intentionally small.
+- External acquisition requires an explicit approval switch; no unattended
+  acquisition schedule is enabled.
+- The expanded corpus is substantial enough for coverage discovery but does
+  not yet establish full-season statistical coverage.
 - Some source events remain explicitly generic where the available evidence
   does not justify a more specific assertion.
 - Advanced absence-based analytics run only within documented completeness

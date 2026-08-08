@@ -8,6 +8,8 @@ import json
 import re
 import subprocess
 import sys
+import tempfile
+from datetime import date, timedelta
 from pathlib import Path
 from urllib.parse import unquote
 
@@ -19,6 +21,7 @@ from rdflib.plugins.sparql import prepareQuery
 ROOT = Path(__file__).resolve().parents[1]
 ACTIVE_MAPPING = ROOT / "mappings" / "direct" / "mlb-direct.rml.ttl"
 MAPPING_VALIDATOR = ROOT / "mappings" / "direct" / "validate_direct_mapping.py"
+CONTEXT_BUILDER = ROOT / "scripts" / "pipeline" / "prepare-rml-context.py"
 ONTOLOGY_OVERLAY_VALIDATOR = ROOT / "scripts" / "validate_ontology_overlay.py"
 RML_MERMAID_GENERATOR = ROOT / "scripts" / "generate_rml_mermaid.py"
 SELECTIVE_REASONING_TEST = ROOT / "scripts" / "reasoning" / "test-selective-reasoning.py"
@@ -26,8 +29,24 @@ SELECTIVE_REASONER = ROOT / "scripts" / "reasoning" / "selective_reasoner.py"
 SELECTIVE_PROVER = ROOT / "scripts" / "reasoning" / "prove-selective-reasoning.py"
 REASONING_EVIDENCE = ROOT / "reasoning" / "evidence" / "fixture-566279-pa-0.json"
 SAMPLE = ROOT / "data" / "raw" / "game-566279.json"
+RAW_SAMPLE_ROOT = ROOT / "data" / "raw" / "samples"
+REVIEW_SAMPLE = RAW_SAMPLE_ROOT / "2026-07-16" / "823440.json"
+IN_PLAY_INTERFERENCE_SAMPLE = RAW_SAMPLE_ROOT / "2026-07-20" / "824898.json"
+TRIPLE_PLAY_SAMPLE = RAW_SAMPLE_ROOT / "2026-07-21" / "824165.json"
+WILD_PITCH_UNCAUGHT_THIRD_STRIKE_SAMPLE = (
+    RAW_SAMPLE_ROOT / "2026-07-26" / "824810.json"
+)
+PASSED_BALL_UNCAUGHT_THIRD_STRIKE_SAMPLE = (
+    RAW_SAMPLE_ROOT / "2026-07-24" / "822952.json"
+)
+MULTI_CONTROL_FAILURE_SAMPLE = RAW_SAMPLE_ROOT / "2026-08-03" / "823757.json"
 MAPPING_SAMPLES = (
     SAMPLE,
+    REVIEW_SAMPLE,
+    IN_PLAY_INTERFERENCE_SAMPLE,
+    TRIPLE_PLAY_SAMPLE,
+    WILD_PITCH_UNCAUGHT_THIRD_STRIKE_SAMPLE,
+    PASSED_BALL_UNCAUGHT_THIRD_STRIKE_SAMPLE,
     *sorted((ROOT / "data" / "raw" / "samples" / "2026-08-03").glob("[0-9]*.json")),
 )
 SPARQL_ROOT = ROOT / "sparql"
@@ -181,6 +200,211 @@ def validate_json() -> int:
         with path.open(encoding="utf-8") as stream:
             json.load(stream)
     return len(files)
+
+
+def validate_raw_corpus() -> tuple[int, int, int]:
+    start = date.fromisoformat("2026-07-14")
+    end = date.fromisoformat("2026-08-06")
+    expected_dates: list[str] = []
+    current = start
+    while current <= end:
+        expected_dates.append(current.isoformat())
+        current += timedelta(days=1)
+
+    schedule_files = sorted(RAW_SAMPLE_ROOT.glob("????-??-??/schedule.json"))
+    game_files = sorted(
+        path
+        for path in RAW_SAMPLE_ROOT.glob("????-??-??/*.json")
+        if path.stem.isdigit()
+    )
+    if len(schedule_files) != 24 or len(game_files) != 288:
+        raise ValueError(
+            "Expected 24 dated schedules and 288 canonical raw game files; "
+            f"found {len(schedule_files)} and {len(game_files)}"
+        )
+    actual_dates = [path.parent.name for path in schedule_files]
+    if actual_dates != expected_dates:
+        raise ValueError("Raw schedule dates do not cover 2026-07-14 through 2026-08-06")
+
+    game_pks: set[str] = set()
+    for path in game_files:
+        document = json.loads(path.read_text(encoding="utf-8"))
+        game_pk = str(document.get("gamePk", ""))
+        official_date = str(
+            document.get("gameData", {}).get("datetime", {}).get("officialDate", "")
+        )
+        state = str(
+            document.get("gameData", {}).get("status", {}).get("abstractGameState", "")
+        )
+        if game_pk != path.stem:
+            raise ValueError(f"Raw game filename disagrees with gamePk: {path}")
+        if game_pk in game_pks:
+            raise ValueError(f"Duplicate raw gamePk in dated corpus: {game_pk}")
+        if official_date != path.parent.name:
+            raise ValueError(f"Raw game is not stored under its official date: {path}")
+        if state != "Final":
+            raise ValueError(f"Raw corpus contains a non-final game: {path}")
+        game_pks.add(game_pk)
+
+    scheduled_final_pks: set[str] = set()
+    final_schedule_entries = 0
+    for path in schedule_files:
+        schedule = json.loads(path.read_text(encoding="utf-8"))
+        for schedule_date in schedule.get("dates", []):
+            for game in schedule_date.get("games", []):
+                if game.get("status", {}).get("abstractGameState") == "Final":
+                    game_pk = str(game.get("gamePk", ""))
+                    if not game_pk.isdigit():
+                        raise ValueError(f"Schedule contains an unsafe final gamePk: {path}")
+                    final_schedule_entries += 1
+                    scheduled_final_pks.add(game_pk)
+    if final_schedule_entries != 294:
+        raise ValueError(
+            f"Expected 294 final schedule entries; found {final_schedule_entries}"
+        )
+    if scheduled_final_pks != game_pks:
+        missing = sorted(scheduled_final_pks - game_pks)
+        extra = sorted(game_pks - scheduled_final_pks)
+        raise ValueError(
+            f"Raw game and final schedule identities differ; missing={missing}, extra={extra}"
+        )
+    return len(schedule_files), len(game_files), final_schedule_entries
+
+
+def validate_review_context() -> None:
+    source = REVIEW_SAMPLE
+    with tempfile.TemporaryDirectory(prefix="baseballo-review-context-") as directory:
+        output = Path(directory) / "context.json"
+        subprocess.run(
+            [sys.executable, str(CONTEXT_BUILDER), str(source), str(output)],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        document = json.loads(output.read_text(encoding="utf-8"))
+
+    plays = {
+        int(play["about"]["atBatIndex"]): play
+        for play in document["liveData"]["plays"]["allPlays"]
+    }
+    challenge = plays[37]["_baseballO"]
+    umpire_review = plays[44]["_baseballO"]
+    if (
+        challenge.get("reviewInitiation") != "challenge"
+        or challenge.get("reviewType") != "pitch_result"
+        or challenge.get("reviewOriginalDecision") != "strike"
+        or challenge.get("reviewFinalDecision") != "strike"
+        or challenge.get("reviewChallengerId") != "687282"
+    ):
+        raise ValueError("Player challenge review context regression in game 823440")
+    if (
+        umpire_review.get("reviewInitiation") != "umpire_review"
+        or umpire_review.get("reviewType") != "home_run"
+        or "reviewChallengerId" in umpire_review
+        or "reviewOriginalDecision" in umpire_review
+        or "reviewFinalDecision" in umpire_review
+        or "reviewPattern" in umpire_review
+    ):
+        raise ValueError("Umpire-initiated review context regression in game 823440")
+    source_document = json.loads(source.read_text(encoding="utf-8"))
+    if "_baseballO" in source_document:
+        raise ValueError("Raw game 823440 was modified with execution-only context")
+
+    with tempfile.TemporaryDirectory(prefix="baseballo-in-play-context-") as directory:
+        output = Path(directory) / "context.json"
+        subprocess.run(
+            [sys.executable, str(CONTEXT_BUILDER), str(IN_PLAY_INTERFERENCE_SAMPLE), str(output)],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        document = json.loads(output.read_text(encoding="utf-8"))
+    interference_play = next(
+        play
+        for play in document["liveData"]["plays"]["allPlays"]
+        if int(play["about"]["atBatIndex"]) == 32
+    )
+    if interference_play["_baseballO"].get("terminalPitchIsInPlay") is not True:
+        raise ValueError("Terminal in-play catcher-interference regression in game 824898")
+    source_document = json.loads(IN_PLAY_INTERFERENCE_SAMPLE.read_text(encoding="utf-8"))
+    if "_baseballO" in source_document:
+        raise ValueError("Raw game 824898 was modified with execution-only context")
+
+    uncaught_cases = (
+        (WILD_PITCH_UNCAUGHT_THIRD_STRIKE_SAMPLE, 32, "wild_pitch"),
+        (PASSED_BALL_UNCAUGHT_THIRD_STRIKE_SAMPLE, 53, "passed_ball"),
+    )
+    for source, at_bat_index, expected_classification in uncaught_cases:
+        with tempfile.TemporaryDirectory(
+            prefix="baseballo-uncaught-third-strike-context-"
+        ) as directory:
+            output = Path(directory) / "context.json"
+            subprocess.run(
+                [sys.executable, str(CONTEXT_BUILDER), str(source), str(output)],
+                cwd=ROOT,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            document = json.loads(output.read_text(encoding="utf-8"))
+        play = next(
+            candidate
+            for candidate in document["liveData"]["plays"]["allPlays"]
+            if int(candidate["about"]["atBatIndex"]) == at_bat_index
+        )
+        context = play["_baseballO"]
+        placeholders = [
+            runner
+            for runner in play["runners"]
+            if runner["_baseballO"].get("isUncaughtThirdStrikePlaceholder") is True
+        ]
+        if (
+            context.get("isUncaughtThirdStrike") is not True
+            or context.get("uncaughtThirdStrikeEventType") != expected_classification
+            or len(placeholders) != 1
+            or placeholders[0]["_baseballO"].get("hasRunnerResolution") is not False
+            or not placeholders[0]["_baseballO"].get("eventPlayId")
+        ):
+            raise ValueError(
+                f"Uncaught-third-strike context regression in game {source.stem}"
+            )
+        source_document = json.loads(source.read_text(encoding="utf-8"))
+        if "_baseballO" in source_document:
+            raise ValueError(
+                f"Raw game {source.stem} was modified with execution-only context"
+            )
+
+    with tempfile.TemporaryDirectory(
+        prefix="baseballo-multi-control-failure-context-"
+    ) as directory:
+        output = Path(directory) / "context.json"
+        subprocess.run(
+            [
+                sys.executable,
+                str(CONTEXT_BUILDER),
+                str(MULTI_CONTROL_FAILURE_SAMPLE),
+                str(output),
+            ],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        document = json.loads(output.read_text(encoding="utf-8"))
+    classification_event_ids = {
+        runner["_baseballO"].get("eventPlayId")
+        for play in document["liveData"]["plays"]["allPlays"]
+        for runner in play.get("runners", [])
+        if runner.get("details", {}).get("eventType")
+        in {"passed_ball", "wild_pitch"}
+    }
+    if None in classification_event_ids or len(classification_event_ids) != 3:
+        raise ValueError(
+            "Multiple pitch-control failures within one plate appearance were collapsed "
+            "in game 823757"
+        )
 
 
 def validate_turtle() -> int:
@@ -841,6 +1065,8 @@ def validate_advanced_query_audit() -> int:
 def main() -> None:
     require_layout()
     json_count = validate_json()
+    raw_schedule_count, raw_game_count, final_schedule_entries = validate_raw_corpus()
+    validate_review_context()
     turtle_count = validate_turtle()
     shacl_shape_count = validate_shacl_profiles()
     sparql_count = validate_sparql()
@@ -860,6 +1086,11 @@ def main() -> None:
     tdb2_capture_count = validate_tdb2_execution_capture()
     algebra_plan_count = validate_query_index_algebra_artifacts()
     print(f"JSON files parsed: {json_count}")
+    print(
+        f"Raw corpus checked: {raw_schedule_count} schedules, {raw_game_count} "
+        f"distinct games, {final_schedule_entries} final schedule entries"
+    )
+    print("Challenge and umpire-initiated review context regression passed.")
     print(f"Turtle files parsed: {turtle_count}")
     print(f"SHACL node shapes validated: {shacl_shape_count}")
     print(f"SPARQL queries parsed: {sparql_count}")

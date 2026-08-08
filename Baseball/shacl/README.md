@@ -9,7 +9,9 @@ reasoning.
 - [`authoritative.ttl`](authoritative.ttl) validates stable structures produced
   by the direct RML: games, plate appearances, pitching and batting acts,
   contact and ball-motion chains, baserunning, adjudication, decisions, and
-  record identity separation.
+  record identity separation. It also validates pitch-ball control failures,
+  passed-ball and wild-pitch scoring structures, uncaught-third-strike
+  composites, and the non-fabrication boundary for unresolved runner records.
 - [`query-index.ttl`](query-index.ttl) validates the disposable shortcut graph:
   one index resource and game, required fact fields, RDF term kinds, datatypes,
   and same-game containment.

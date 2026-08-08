@@ -33,7 +33,7 @@ The machine-readable catalog is
 | `game-action-density.rq` | Event counts per game and per mapped minute | Positive evidence |
 | `scorer-classification-profile.rq` | Official-scorer judgment classifications | Positive evidence |
 | `umpire-call-profile.rq` | On-field umpire pitch call versus operative replay call | Positive evidence |
-| `review-outcome-profile.rq` | Full review transition, challenger evidence, and final outcome | Positive evidence |
+| `review-outcome-profile.rq` | Review initiation, optional challenger evidence, supported transition, and final outcome | Positive evidence |
 | `hit-diversity.rq` | Players with explicit single, double, triple, and home-run evidence | Positive evidence |
 | `base-destination-profile.rq` | Safe/run destinations from explicit base-touching processes | Positive evidence |
 | `steal-attempt-efficiency.rq` | Mapped attempts, successes, caught-stealing, and unresolved attempts | Completeness-gated |

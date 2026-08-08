@@ -1,6 +1,7 @@
 [CmdletBinding()]
 param(
-    [switch] $Enable
+    [switch] $Enable,
+    [ValidateRange(1, 8)][int] $ConcurrentImports = 3
 )
 
 . (Join-Path $PSScriptRoot 'common.ps1')
@@ -76,7 +77,7 @@ try {
             schedulingStrategy = 'TIMER_DRIVEN'
             schedulingPeriod = $Definition.SchedulingPeriod
             executionNode = 'ALL'
-            concurrentlySchedulableTaskCount = 1
+            concurrentlySchedulableTaskCount = if ($Definition.ContainsKey('ConcurrentTasks')) { $Definition.ConcurrentTasks } else { 1 }
             autoTerminatedRelationships = $Definition.AutoTerminate
         }
         if ($null -eq $existing) {
@@ -225,6 +226,7 @@ try {
         @{
             Key = 'Import'; Name = '20 Archive, map, validate, and load'; Type = 'org.apache.nifi.processors.standard.ExecuteStreamCommand'
             Comments = 'Passes only the generated local staging path to the guarded importer, then runs the approved RML mapping and Fuseki PUT.'
+            ConcurrentTasks = $ConcurrentImports
             X = 900; Y = 0; SchedulingPeriod = '0 sec'; AutoTerminate = @('original')
             Properties = @{
                 'Command Path' = $powerShell

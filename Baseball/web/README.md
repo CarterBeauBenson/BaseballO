@@ -46,7 +46,9 @@ npm run check
   current contribution policy and completeness gate, with season, game,
   batting-team, venue, and batter filters;
 - a dedicated Advanced view for all 17 cataloged event-chain analytics, including
-  on-field versus operative replay calls and full replay-review transitions, with
+  on-field versus operative replay calls, challenge versus umpire initiation,
+  and supported replay-review transitions with unsupported decision families
+  shown as unclassified, with
   positive-evidence, completeness-gated, or integrity-audit semantics shown
   before execution and shared season, game, team-in-game, and venue filters;
 - dimensions and metrics generated from the existing component catalog;
