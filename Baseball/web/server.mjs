@@ -28,6 +28,7 @@ const MAX_BODY_BYTES = 64 * 1024;
 const MAX_RESULTS = 1000;
 const GAME_DATE_INDEX_TTL_MS = 30_000;
 const DATE_SCOPE_PRESETS = new Set(["one_day", "seven_days", "thirty_days", "season_to_date", "custom"]);
+const GAME_SETS = new Set(["regular_season", "all_star"]);
 const STATIC_FILES = new Map([
   ["/", "index.html"],
   ["/index.html", "index.html"],
@@ -272,6 +273,12 @@ function normalizeDateScope(value) {
   return { preset, startDate, endDate };
 }
 
+function normalizeGameSet(value) {
+  const gameSet = value ?? "regular_season";
+  if (!GAME_SETS.has(gameSet)) throw new RangeError(`Unsupported game set: ${gameSet}`);
+  return gameSet;
+}
+
 function shiftIsoDate(value, days) {
   const date = new Date(`${value}T00:00:00Z`);
   date.setUTCDate(date.getUTCDate() + days);
@@ -290,15 +297,20 @@ SELECT DISTINCT ?graph ?game WHERE {
 ORDER BY ?graph`;
 }
 
-async function readOfficialGameDates() {
-  const dates = new Map();
+async function readOfficialGameMetadata() {
+  const metadata = new Map();
   const directories = await readdir(RAW_SAMPLES_ROOT, { withFileTypes: true });
   await Promise.all(directories.filter((entry) => entry.isDirectory()).map(async (entry) => {
     const schedule = JSON.parse(await readFile(resolve(RAW_SAMPLES_ROOT, entry.name, "schedule.json"), "utf8"));
     for (const dateBlock of schedule.dates ?? []) {
       for (const game of dateBlock.games ?? []) {
         if (Number.isInteger(game.gamePk) && /^\d{4}-\d{2}-\d{2}$/u.test(game.officialDate ?? "")) {
-          dates.set(String(game.gamePk), game.officialDate);
+          metadata.set(String(game.gamePk), {
+            date: game.officialDate,
+            gameSet: game.gameType === "R" ? "regular_season" : game.gameType === "A" ? "all_star" : "other",
+            gameType: game.gameType ?? "",
+            description: game.description ?? game.seriesDescription ?? "",
+          });
         }
       }
     }
@@ -307,31 +319,33 @@ async function readOfficialGameDates() {
   const fixtureId = fixture.gamePk ?? fixture.gameData?.game?.pk;
   const fixtureDate = fixture.gameData?.datetime?.officialDate;
   if (Number.isInteger(fixtureId) && /^\d{4}-\d{2}-\d{2}$/u.test(fixtureDate ?? "")) {
-    dates.set(String(fixtureId), fixtureDate);
+    metadata.set(String(fixtureId), { date: fixtureDate, gameSet: "fixture", gameType: "fixture", description: "Development fixture" });
   }
-  return dates;
+  return metadata;
 }
 
-function mapGameDateIndex(payload, officialDates) {
+function mapGameDateIndex(payload, gameMetadata) {
   const byGraph = new Map();
   for (const binding of payload.results?.bindings ?? []) {
     const graph = binding.graph?.value;
     const game = binding.game?.value;
     const gameId = typeof game === "string" ? game.split("/").at(-1) : "";
-    const officialDate = officialDates.get(gameId);
+    const metadata = gameMetadata.get(gameId);
     if (typeof graph === "string" && graph.startsWith(AUTHORITATIVE_GRAPH_PREFIX)
-        && /^\d{4}-\d{2}-\d{2}$/u.test(officialDate ?? "")) {
-      byGraph.set(graph, { date: officialDate });
+        && /^\d{4}-\d{2}-\d{2}$/u.test(metadata?.date ?? "")) {
+      byGraph.set(graph, metadata);
     }
   }
   return [...byGraph].map(([graph, value]) => ({ graph, ...value }))
     .sort((left, right) => left.date.localeCompare(right.date) || left.graph.localeCompare(right.graph));
 }
 
-function resolveDateScope(value, index) {
+function resolveDateScope(value, index, gameSetValue) {
   const request = normalizeDateScope(value);
-  const availableStartDate = index[0]?.date ?? null;
-  const availableEndDate = index.at(-1)?.date ?? null;
+  const gameSet = normalizeGameSet(gameSetValue);
+  const selectedIndex = index.filter((entry) => entry.gameSet === gameSet);
+  const availableStartDate = selectedIndex[0]?.date ?? null;
+  const availableEndDate = selectedIndex.at(-1)?.date ?? null;
   let startDate = request.startDate ?? availableEndDate;
   let endDate = request.endDate ?? availableEndDate;
   if (availableEndDate) {
@@ -340,7 +354,7 @@ function resolveDateScope(value, index) {
     if (request.preset === "season_to_date") startDate = `${availableEndDate.slice(0, 4)}-01-01`;
   }
   const graphs = startDate && endDate
-    ? index.filter((entry) => entry.date >= startDate && entry.date <= endDate).map((entry) => entry.graph)
+    ? selectedIndex.filter((entry) => entry.date >= startDate && entry.date <= endDate).map((entry) => entry.graph)
     : [];
   return {
     graphs,
@@ -352,6 +366,7 @@ function resolveDateScope(value, index) {
       availableStartDate,
       availableEndDate,
       dateBasis: "official-source",
+      gameSet,
     },
   };
 }
@@ -482,14 +497,14 @@ export function createBaseballServer({
   async function gameDateIndex() {
     if (gameDateIndexCache?.expiresAt > Date.now()) return gameDateIndexCache.entries;
     const { payload } = await executeSparql(compileGameDateIndexQuery(), { fetchImpl, queryEndpoint });
-    const officialGameDates = await readOfficialGameDates();
-    const entries = mapGameDateIndex(payload, officialGameDates);
+    const gameMetadata = await readOfficialGameMetadata();
+    const entries = mapGameDateIndex(payload, gameMetadata);
     gameDateIndexCache = { entries, expiresAt: Date.now() + GAME_DATE_INDEX_TTL_MS };
     return entries;
   }
 
-  async function scopedGraphs(dateScope, filters = {}) {
-    const resolved = resolveDateScope(dateScope, await gameDateIndex());
+  async function scopedGraphs(dateScope, filters = {}, gameSet) {
+    const resolved = resolveDateScope(dateScope, await gameDateIndex(), gameSet);
     const filtered = await graphScope(filters, { fetchImpl, queryEndpoint });
     return { graphs: intersectGraphScopes(filtered, resolved.graphs), dateScope: resolved.meta };
   }
@@ -515,7 +530,7 @@ export function createBaseballServer({
         const input = { preset };
         if (requestUrl.searchParams.has("startDate")) input.startDate = requestUrl.searchParams.get("startDate");
         if (requestUrl.searchParams.has("endDate")) input.endDate = requestUrl.searchParams.get("endDate");
-        const { meta } = resolveDateScope(input, await gameDateIndex());
+        const { meta } = resolveDateScope(input, await gameDateIndex(), requestUrl.searchParams.get("gameSet") ?? undefined);
         sendJson(response, 200, { scope: meta });
         return;
       }
@@ -537,7 +552,8 @@ export function createBaseballServer({
       if (request.method === "GET" && requestUrl.pathname === "/api/options") {
         const familyId = requestUrl.searchParams.get("family") ?? "";
         const dimensionId = requestUrl.searchParams.get("dimension") ?? "";
-        const cacheKey = `${familyId}:${dimensionId}`;
+        const gameSet = normalizeGameSet(requestUrl.searchParams.get("gameSet") ?? undefined);
+        const cacheKey = `${gameSet}:${familyId}:${dimensionId}`;
         const dimension = requireDimension(familyId, dimensionId);
         if (!dimension.optionsQuery && !dimension.values) {
           sendJson(response, 200, { options: [] });
@@ -552,7 +568,11 @@ export function createBaseballServer({
           options = mapOptions(dimensionId, dimension, { results: { bindings: [] } });
         } else {
           const queryPath = resolveOptionsPath(dimension.optionsQuery);
-          const query = await readFile(queryPath, "utf8");
+          const sourceQuery = await readFile(queryPath, "utf8");
+          const graphs = (await gameDateIndex())
+            .filter((entry) => entry.gameSet === gameSet)
+            .map((entry) => entry.graph);
+          const query = applyGraphScope(sourceQuery, graphs);
           const { payload } = await executeSparql(query, { fetchImpl, queryEndpoint });
           options = mapOptions(dimensionId, dimension, payload);
         }
@@ -568,7 +588,7 @@ export function createBaseballServer({
         const graphFilters = Object.fromEntries(
           Object.entries(filters).filter(([id]) => !["team", "player"].includes(id)),
         );
-        const { graphs, dateScope } = await scopedGraphs(input.dateScope, graphFilters);
+        const { graphs, dateScope } = await scopedGraphs(input.dateScope, graphFilters, input.gameSet);
         let query = await readFile(EMPTY_GAMES_QUERY, "utf8");
         query = applyGraphScope(query, graphs);
         query = applyEmptyEntityFilters(query, filters);
@@ -595,7 +615,7 @@ export function createBaseballServer({
         const graphFilters = Object.fromEntries(
           Object.entries(filters).filter(([id]) => !["team", "player"].includes(id)),
         );
-        const { graphs, dateScope } = await scopedGraphs(input.dateScope, graphFilters);
+        const { graphs, dateScope } = await scopedGraphs(input.dateScope, graphFilters, input.gameSet);
         let query = applyGraphScope(compiled.query, graphs);
         query = applyDerivedEntityFilters(query, filters);
         const executedQuery = `${query.trimEnd()}\nLIMIT ${MAX_RESULTS}\n`;
@@ -629,7 +649,7 @@ export function createBaseballServer({
           throw new RangeError(`Unknown advanced query: ${input.id}`);
         }
         const filters = normalizeSpecialFilters(input.filters, ["season", "game", "venue", "team"]);
-        const { graphs, dateScope } = await scopedGraphs(input.dateScope, filters);
+        const { graphs, dateScope } = await scopedGraphs(input.dateScope, filters, input.gameSet);
         let query = await readFile(resolveAdvancedQueryPath(entry), "utf8");
         query = applyGraphScope(query, graphs);
         const executedQuery = `${query.trimEnd()}\nLIMIT ${MAX_RESULTS}\n`;
@@ -653,7 +673,7 @@ export function createBaseballServer({
 
       if (request.method === "POST" && requestUrl.pathname === "/api/query") {
         const input = normalizeQueryRequest(await readJsonBody(request));
-        const { graphs, dateScope } = await scopedGraphs(input.dateScope);
+        const { graphs, dateScope } = await scopedGraphs(input.dateScope, {}, input.gameSet);
         const query = applyGraphScope(compileAnalyticsQuery(input), graphs);
         const { payload, durationMs } = await executeSparql(query, { fetchImpl, queryEndpoint });
         sendJson(response, 200, {

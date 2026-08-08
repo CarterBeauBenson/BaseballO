@@ -83,6 +83,8 @@ The local read-only Explorer supports:
   event structures, and incomplete records;
 - Empty Games and Empty Games percentage;
 - compatible numerator/denominator combinations in the Derived view;
+- separate Regular season and 2026 All-Star Game query sets, with regular play
+  selected by default;
 - official-game-date ranges for one day, seven days, 30 days, season to date,
   or a custom range;
 - filters for season, game, player, team, and venue where the filter has one
@@ -90,9 +92,10 @@ The local read-only Explorer supports:
 - click-to-sort result columns and CSV export; and
 - inspection of the generated query used to produce a result.
 
-The checked-in research corpus contains 288 completed games dated July 14
-through August 6, 2026, plus a separate development fixture. It is a test
-corpus, not a complete season or historical database.
+The checked-in research corpus contains 287 completed regular-season games
+dated July 16 through August 6, 2026. The July 14 All-Star Game remains loaded
+as a separately selectable game set, and a development fixture is also kept
+separate. This is a test corpus, not a complete season or historical database.
 
 ## Questions this structure supports
 
@@ -136,7 +139,8 @@ flowchart TD
 
 Today that system includes:
 
-- 288 completed games in the checked-in raw corpus
+- 287 regular-season games plus one separately scoped All-Star Game in the
+  checked-in raw corpus
 - 48 standard queries and 17 advanced queries with reproducible test results
 - 18 complete-versus-summary query comparisons with identical results
 - a local read-only Explorer with date scoping, filters, derived measurements,

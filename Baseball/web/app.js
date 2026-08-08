@@ -48,6 +48,7 @@ const elements = {
   gameCount: document.querySelector("#game-count"),
   builderTitle: document.querySelector("#builder-title"),
   familyTabs: document.querySelector("#family-tabs"),
+  gameSet: document.querySelector("#game-set"),
   datePreset: document.querySelector("#date-preset"),
   customDateFields: document.querySelector("#custom-date-fields"),
   dateStart: document.querySelector("#date-start"),
@@ -115,6 +116,10 @@ function dateScopeRequest() {
   return { preset, startDate: elements.dateStart.value, endDate: elements.dateEnd.value };
 }
 
+function gameSetRequest() {
+  return elements.gameSet.value;
+}
+
 function dateLabel(value) {
   if (!value) return "No dated games";
   return new Intl.DateTimeFormat("en-US", {
@@ -127,7 +132,7 @@ function dateLabel(value) {
 
 async function refreshDateScope() {
   const request = dateScopeRequest();
-  const search = new URLSearchParams(request);
+  const search = new URLSearchParams({ ...request, gameSet: gameSetRequest() });
   elements.dateScopeStatus.textContent = "Resolving loaded game datesâ€¦";
   const { scope } = await fetchJson(`/api/date-scope?${search}`);
   if (scope.availableStartDate) {
@@ -295,9 +300,10 @@ function optionLabel() {
 }
 
 async function getOptions(familyId, dimensionId) {
-  const key = `${familyId}:${dimensionId}`;
+  const gameSet = gameSetRequest();
+  const key = `${gameSet}:${familyId}:${dimensionId}`;
   if (!optionCache.has(key)) {
-    optionCache.set(key, fetchJson(`/api/options?family=${encodeURIComponent(familyId)}&dimension=${encodeURIComponent(dimensionId)}`));
+    optionCache.set(key, fetchJson(`/api/options?family=${encodeURIComponent(familyId)}&dimension=${encodeURIComponent(dimensionId)}&gameSet=${encodeURIComponent(gameSet)}`));
   }
   return optionCache.get(key);
 }
@@ -440,6 +446,7 @@ function buildRequest() {
     dimensions: selectedValues("dimension"),
     metrics,
     filters,
+    gameSet: gameSetRequest(),
     dateScope: dateScopeRequest(),
     limit: 250,
   };
@@ -504,6 +511,9 @@ function renderMeta(meta) {
   if (meta.dateScope?.startDate) {
     values.splice(3, 0, `${dateLabel(meta.dateScope.startDate)} â€“ ${dateLabel(meta.dateScope.endDate)}`);
     values.splice(4, 0, `${meta.dateScope.gameCount} scoped game${meta.dateScope.gameCount === 1 ? "" : "s"}`);
+  }
+  if (meta.dateScope?.gameSet) {
+    values.splice(3, 0, meta.dateScope.gameSet === "all_star" ? "2026 All-Star Game" : "Regular season");
   }
   if (meta.derivedMetric) {
     values.splice(3, 0, humanizeVariable(meta.derivedMetric.resultKind));
@@ -620,6 +630,7 @@ async function runEmptyGames() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         filters: filtersFrom(elements.emptyGamesFilterControls),
+        gameSet: gameSetRequest(),
         dateScope: dateScopeRequest(),
       }),
     });
@@ -651,6 +662,7 @@ async function runDerivedMetric() {
         numerator: elements.derivedNumerator.value,
         denominator: elements.derivedDenominator.value,
         filters: filtersFrom(elements.derivedFilterControls),
+        gameSet: gameSetRequest(),
         dateScope: dateScopeRequest(),
       }),
     });
@@ -682,6 +694,7 @@ async function runAdvanced() {
       body: JSON.stringify({
         id,
         filters: filtersFrom(elements.advancedFilterControls),
+        gameSet: gameSetRequest(),
         dateScope: dateScopeRequest(),
       }),
     });
@@ -758,6 +771,11 @@ elements.advancedSelect.addEventListener("change", renderAdvancedDefinition);
 elements.derivedNumerator.addEventListener("change", renderDerivedContract);
 elements.derivedDenominator.addEventListener("change", renderDerivedContract);
 elements.copyQueryButton.addEventListener("click", () => void copyQuery());
+elements.gameSet.addEventListener("change", () => {
+  optionCache.clear();
+  configureFamily(currentFamily);
+  void refreshDateScope().catch((error) => showError(error.message));
+});
 elements.datePreset.addEventListener("change", () => {
   const custom = elements.datePreset.value === "custom";
   elements.customDateFields.hidden = !custom;

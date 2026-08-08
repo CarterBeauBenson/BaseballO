@@ -40,6 +40,8 @@ npm run check
 - a shared official-game-date scope resolved from a compact, short-lived
   graph/date index before each substantive query, with latest-day, seven-day,
   30-day, season-to-date, and custom ranges;
+- separate Regular season and 2026 All-Star Game sets, with regular-season play
+  selected by default and option lists restricted to the active set;
 - game-scoped team grouping and filtering for batting, pitching, and
   baserunning; offensive teams are derived from the half-inning while pitching
   uses the opposing fielding team;

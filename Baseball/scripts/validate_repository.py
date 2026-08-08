@@ -282,6 +282,7 @@ def validate_raw_corpus() -> tuple[int, int, int]:
         game_pks.add(game_pk)
 
     scheduled_final_pks: set[str] = set()
+    game_types: dict[str, str] = {}
     final_schedule_entries = 0
     for path in schedule_files:
         schedule = json.loads(path.read_text(encoding="utf-8"))
@@ -291,6 +292,11 @@ def validate_raw_corpus() -> tuple[int, int, int]:
                     game_pk = str(game.get("gamePk", ""))
                     if not game_pk.isdigit():
                         raise ValueError(f"Schedule contains an unsafe final gamePk: {path}")
+                    game_type = str(game.get("gameType", ""))
+                    previous_type = game_types.get(game_pk)
+                    if previous_type is not None and previous_type != game_type:
+                        raise ValueError(f"Schedule gameType changed for game {game_pk}")
+                    game_types[game_pk] = game_type
                     final_schedule_entries += 1
                     scheduled_final_pks.add(game_pk)
     if final_schedule_entries != 294:
@@ -302,6 +308,16 @@ def validate_raw_corpus() -> tuple[int, int, int]:
         extra = sorted(game_pks - scheduled_final_pks)
         raise ValueError(
             f"Raw game and final schedule identities differ; missing={missing}, extra={extra}"
+        )
+    all_star_pks = {game_pk for game_pk, game_type in game_types.items() if game_type == "A"}
+    regular_season_pks = {game_pk for game_pk, game_type in game_types.items() if game_type == "R"}
+    unsupported_game_types = sorted(set(game_types.values()) - {"A", "R"})
+    if all_star_pks != {"823443"} or len(regular_season_pks) != 287 or unsupported_game_types:
+        raise ValueError(
+            "Raw corpus must contain 287 regular-season games and only the separately "
+            "scoped 2026 All-Star Game 823443; "
+            f"regular={len(regular_season_pks)}, all_star={sorted(all_star_pks)}, "
+            f"unsupported_types={unsupported_game_types}"
         )
     return len(schedule_files), len(game_files), final_schedule_entries
 

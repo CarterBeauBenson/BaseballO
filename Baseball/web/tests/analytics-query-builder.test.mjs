@@ -115,10 +115,16 @@ before(async () => {
       : dateIndexQuery
         ? {
             head: { vars: ["graph", "game"] },
-            results: { bindings: [{
-              graph: { type: "uri", value: "https://w3id.org/baseball/graph/game/823105" },
-              game: { type: "uri", value: "https://baseballontology.org/data/game/823105" },
-            }] },
+            results: { bindings: [
+              {
+                graph: { type: "uri", value: "https://w3id.org/baseball/graph/game/823105" },
+                game: { type: "uri", value: "https://baseballontology.org/data/game/823105" },
+              },
+              {
+                graph: { type: "uri", value: "https://w3id.org/baseball/graph/game/823443" },
+                game: { type: "uri", value: "https://baseballontology.org/data/game/823443" },
+              },
+            ] },
           }
       : graphScopeQuery
         ? {
@@ -241,6 +247,39 @@ test("date presets resolve against the latest loaded official game date", async 
   assert.equal(payload.scope.startDate, "2026-07-31");
   assert.equal(payload.scope.endDate, "2026-08-06");
   assert.equal(payload.scope.gameCount, 1);
+  assert.equal(payload.scope.gameSet, "regular_season");
+});
+
+test("All-Star play is queryable only through its separate game set", async () => {
+  const scopeResponse = await request("/api/date-scope?preset=season_to_date&gameSet=all_star");
+  assert.equal(scopeResponse.status, 200);
+  const scopePayload = await scopeResponse.json();
+  assert.equal(scopePayload.scope.startDate, "2026-01-01");
+  assert.equal(scopePayload.scope.endDate, "2026-07-14");
+  assert.equal(scopePayload.scope.gameCount, 1);
+  assert.equal(scopePayload.scope.gameSet, "all_star");
+
+  const response = await request("/api/query", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      family: "games",
+      dimensions: ["venue"],
+      metrics: ["games"],
+      gameSet: "all_star",
+      dateScope: { preset: "season_to_date" },
+    }),
+  });
+  assert.equal(response.status, 200);
+  const payload = await response.json();
+  assert.equal(payload.meta.dateScope.gameSet, "all_star");
+  assert.match(payload.query, /FILTER\(\?graph IN \(<https:\/\/w3id\.org\/baseball\/graph\/game\/823443>\)\)/u);
+  assert.doesNotMatch(payload.query, /graph\/game\/823105/u);
+
+  const optionsResponse = await request("/api/options?family=games&dimension=game&gameSet=all_star");
+  assert.equal(optionsResponse.status, 200);
+  assert.match(issuedQueries.at(-1), /graph\/game\/823443/u);
+  assert.doesNotMatch(issuedQueries.at(-1), /graph\/game\/823105/u);
 });
 
 test("local server compiles selections instead of accepting raw SPARQL", async () => {

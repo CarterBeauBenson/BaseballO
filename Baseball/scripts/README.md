@@ -2,7 +2,8 @@
 
 [`validate_repository.py`](validate_repository.py) checks required paths,
 parses JSON, Turtle, and all 96 SPARQL files, verifies local Markdown links and
-Mermaid fences, validates the 288-game raw-corpus identity/date contract, runs
+Mermaid fences, validates the 287-game regular-season corpus plus the separately
+scoped 2026 All-Star Game identity/date contract, runs
 the mapping-specific validators against the fixture and accepted baseline,
 checks challenge versus umpire-review context, executes web tests, and verifies the current query audit, index,
 operational-routing, algebra, and TDB2 evidence artifacts.
