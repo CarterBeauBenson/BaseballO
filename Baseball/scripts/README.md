@@ -37,6 +37,13 @@ scripts create the connected manual-inbox NiFi flow. Command-line external
 acquisition requires an explicit approval switch; the unattended NiFi
 acquisition flow remains stopped.
 
+[`pipeline/run-nifi-evidence-stage.py`](pipeline/run-nifi-evidence-stage.py)
+executes one allowlisted stage from the versioned NiFi contract, fingerprints
+its declared dependencies, and writes reproducible evidence or failure
+quarantine. [`infra/configure-nifi-evidence.ps1`](infra/configure-nifi-evidence.ps1)
+creates the corresponding seven connected NiFi paths without embedding their
+semantic definitions in the flow.
+
 [`pipeline/submit-game-corpus-to-nifi.ps1`](pipeline/submit-game-corpus-to-nifi.ps1)
 turns a checked-in date range into one deduplicated, monitored NiFi run. NiFi
 owns staging, guarded RML execution, validation, indexing, loading, quarantine,

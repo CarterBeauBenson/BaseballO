@@ -1,0 +1,182 @@
+{
+  "contractVersion": 1,
+  "stages": {
+    "mapping-shacl-validation": {
+      "description": "Validate the direct RML contract against the fixture and meta-validate both SHACL profiles with negative smoke graphs.",
+      "schedule": "6 hours",
+      "cacheable": true,
+      "timeoutSeconds": 300,
+      "command": [
+        "{python}",
+        "scripts/pipeline/validate-mapping-shacl-contracts.py"
+      ],
+      "dependencies": [
+        "requirements-dev.txt",
+        "data/raw/game-566279.json",
+        "mappings/direct/*.ttl",
+        "mappings/direct/*.py",
+        "mappings/policies/*",
+        "ontology/*.ttl",
+        "shacl/*",
+        "scripts/pipeline/prepare-rml-context.py",
+        "scripts/pipeline/validate-mapping-shacl-contracts.py",
+        "scripts/pipeline/validate-generated-rdf.py",
+        "scripts/pipeline/validate-shacl.py"
+      ]
+    },
+    "selective-reasoning": {
+      "description": "Run the bounded selective-reasoning and CLIF proof regression suite.",
+      "schedule": "6 hours",
+      "cacheable": true,
+      "timeoutSeconds": 300,
+      "command": [
+        "{python}",
+        "scripts/reasoning/test-selective-reasoning.py"
+      ],
+      "dependencies": [
+        "requirements-dev.txt",
+        "data/raw/game-566279.json",
+        "ontology/*.ttl",
+        "reasoning/**/*",
+        "scripts/reasoning/*.py"
+      ]
+    },
+    "canned-query-audit": {
+      "description": "Verify all canned SPARQL results against the accepted eight-game baseline.",
+      "schedule": "1 day",
+      "cacheable": false,
+      "timeoutSeconds": 900,
+      "requiresLoopbackPorts": [3030],
+      "command": [
+        "{powershell}",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "scripts/pipeline/audit-canned-queries.ps1",
+        "-VerifyBaseline"
+      ],
+      "dependencies": [
+        "benchmarks/canned-query-audit/corpus-2026-08-03-baseline.json",
+        "data/raw/samples/2026-08-03/*.json",
+        "mappings/direct/mlb-direct.rml.ttl",
+        "scripts/pipeline/audit-canned-queries.ps1",
+        "sparql/**/*.rq"
+      ],
+      "stateDependencies": [
+        "pipeline/manifests/game-*-rml.json"
+      ]
+    },
+    "advanced-query-audit": {
+      "description": "Verify the advanced SPARQL catalog against the accepted eight-game baseline.",
+      "schedule": "1 day",
+      "cacheable": false,
+      "timeoutSeconds": 900,
+      "requiresLoopbackPorts": [3030],
+      "command": [
+        "{powershell}",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "scripts/pipeline/audit-advanced-queries.ps1",
+        "-VerifyBaseline"
+      ],
+      "dependencies": [
+        "benchmarks/advanced-query-audit/corpus-2026-08-03-baseline.json",
+        "data/raw/samples/2026-08-03/*.json",
+        "mappings/direct/mlb-direct.rml.ttl",
+        "scripts/pipeline/audit-advanced-queries.ps1",
+        "sparql/advanced/*"
+      ],
+      "stateDependencies": [
+        "pipeline/manifests/game-*-rml.json"
+      ]
+    },
+    "authoritative-index-equivalence": {
+      "description": "Exercise reviewed routing, exact row equivalence, fallback, and fail-closed index behavior.",
+      "schedule": "1 day",
+      "cacheable": false,
+      "timeoutSeconds": 1200,
+      "requiresLoopbackPorts": [3030],
+      "command": [
+        "{powershell}",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "scripts/pipeline/test-reviewed-query-routing.ps1"
+      ],
+      "dependencies": [
+        "benchmarks/query-index/corpus-2026-08-03-baseline.json",
+        "data/raw/samples/2026-08-03/*.json",
+        "scripts/pipeline/query-index-common.ps1",
+        "scripts/pipeline/run-reviewed-query.ps1",
+        "scripts/pipeline/test-reviewed-query-routing.ps1",
+        "sparql/query-index/**/*"
+      ],
+      "stateDependencies": [
+        "pipeline/manifests/game-*-rml.json",
+        "pipeline/manifests/game-*-query-index.json"
+      ]
+    },
+    "benchmark-evidence": {
+      "description": "Regenerate disposable exact-equivalence and timing evidence outside the repository.",
+      "schedule": "1 day",
+      "cacheable": false,
+      "timeoutSeconds": 3600,
+      "requiresLoopbackPorts": [3030],
+      "command": [
+        "{powershell}",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "scripts/pipeline/benchmark-query-index-corpus.ps1",
+        "-OutputDirectory",
+        "{artifactDirectory}"
+      ],
+      "dependencies": [
+        "benchmarks/canned-query-audit/corpus-2026-08-03-baseline.json",
+        "data/raw/samples/2026-08-03/*.json",
+        "scripts/pipeline/benchmark-query-index-corpus.ps1",
+        "scripts/pipeline/query-index-common.ps1",
+        "sparql/query-index/**/*"
+      ],
+      "stateDependencies": [
+        "pipeline/manifests/game-*-rml.json",
+        "pipeline/manifests/game-*-query-index.json"
+      ]
+    },
+    "repository-validation": {
+      "description": "Run the complete offline repository validation gate.",
+      "schedule": "6 hours",
+      "cacheable": true,
+      "timeoutSeconds": 1200,
+      "command": [
+        "{python}",
+        "scripts/validate_repository.py"
+      ],
+      "dependencies": [
+        ".github/**/*",
+        "NEXT-PHASE.md",
+        "README.md",
+        "requirements-dev.txt",
+        "archive/**/*",
+        "benchmarks/**/*",
+        "data/**/*.json",
+        "infra/**/*",
+        "mappings/**/*",
+        "mermaid/**/*",
+        "ontology/**/*",
+        "reasoning/**/*",
+        "scripts/**/*",
+        "shacl/**/*",
+        "source-schema/**/*",
+        "sparql/**/*",
+        "tests/**/*",
+        "web/**/*"
+      ]
+    }
+  }
+}

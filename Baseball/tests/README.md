@@ -30,6 +30,15 @@ The same test executes a bounded Z3 proof, while repository validation checks
 the committed 107-obligation fixture proof baseline against current profile,
 reasoner, and prover fingerprints.
 
+The NiFi evidence runner also has an offline regression suite:
+
+```powershell
+python .\tests\test_nifi_evidence_stage.py
+```
+
+It proves successful manifest generation, unchanged-input skipping,
+dependency-triggered reruns, nonzero exit propagation, and failure quarantine.
+
 With the local stack running, execute the offline end-to-end acceptance test from the repository root:
 
 ```powershell

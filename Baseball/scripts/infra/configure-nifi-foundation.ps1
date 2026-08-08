@@ -78,7 +78,8 @@ try {
         @{ Name = '02 Transactions - Daily'; Comments = 'Reserved for a future approved transaction source; no executable acquisition is enabled.'; X = 900; Y = 0 },
         @{ Name = '03 Reference Data - Annual'; Comments = 'Reserved for a future approved reference source; no executable acquisition is enabled.'; X = 1350; Y = 0 },
         @{ Name = '90 Shared RDF Mapping and Load'; Comments = 'Invoke the pinned RML processor, validate RDF, and PUT complete named graphs to Fuseki.'; X = 450; Y = 350 },
-        @{ Name = '99 Quarantine'; Comments = 'Hold failed import, mapping, validation, and graph-load artifacts with error metadata.'; X = 900; Y = 350 }
+        @{ Name = '91 Repeatable Validation and Evidence'; Comments = 'Run repository-defined validation, audit, equivalence, reasoning, and benchmark stages with fingerprinted evidence and fail-closed quarantine.'; X = 900; Y = 350 },
+        @{ Name = '99 Quarantine'; Comments = 'Hold failed import, mapping, validation, and graph-load artifacts with error metadata.'; X = 1350; Y = 350 }
     )
     foreach ($group in $groups) {
         [void](Ensure-NiFiProcessGroup -ParentId $baseballGroupId -Name $group.Name -Comments $group.Comments -X $group.X -Y $group.Y)

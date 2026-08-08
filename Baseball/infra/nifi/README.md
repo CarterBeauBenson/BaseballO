@@ -62,3 +62,45 @@ The earlier `01 Games - Daily` network-acquisition group is deliberately stopped
 The checked-in 2026-07-14 through 2026-08-06 corpus is processed locally and
 does not require this group. Explicitly approved command-line acquisition does
 not authorize enabling an unattended NiFi network flow.
+
+## Repeatable validation and evidence
+
+The `91 Repeatable Validation and Evidence` group is the first post-import
+orchestration slice. Its seven stage processors cover direct-mapping and SHACL
+checks, selective reasoning, canned and advanced SPARQL audits,
+authoritative/index equivalence, disposable benchmark generation, and the full
+offline repository gate.
+
+The authoritative stage definitions are versioned in
+[`repeatable-stages.json`](repeatable-stages.json). The NiFi processors contain
+only stage identifiers, schedules, and the shared runner invocation; query
+text, mappings, shapes, reasoning profiles, baselines, and commands remain
+reviewable repository artifacts.
+
+Configure the stopped flow after the foundation exists:
+
+```powershell
+.\scripts\infra\configure-nifi-evidence.ps1
+```
+
+Enable only stages whose runtime boundary is available. For example, the full
+offline gate does not require Fuseki:
+
+```powershell
+.\scripts\infra\configure-nifi-evidence.ps1 `
+  -EnableStage repository-validation
+```
+
+The four corpus query and benchmark stages require loopback Fuseki with the
+accepted eight-game graphs and current local build manifests. They deliberately
+disable fingerprint skipping because the dataset is mutable external state.
+Offline stages skip an unchanged dependency fingerprint unless explicitly run
+through the shared runner with `--force`.
+
+Every invocation writes a compact manifest under
+`state\pipeline\evidence\nifi\<stage>\runs`. Successful evidence is also copied
+to `latest-success.json`. A failed command returns a nonzero status to NiFi and
+copies its manifest and complete log to
+`state\pipeline\quarantine\nifi-evidence\<stage>\<run-id>`. Benchmark artifacts
+are generated below local state rather than overwriting reviewed repository
+baselines.

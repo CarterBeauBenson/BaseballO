@@ -25,6 +25,8 @@ CONTEXT_BUILDER = ROOT / "scripts" / "pipeline" / "prepare-rml-context.py"
 ONTOLOGY_OVERLAY_VALIDATOR = ROOT / "scripts" / "validate_ontology_overlay.py"
 RML_MERMAID_GENERATOR = ROOT / "scripts" / "generate_rml_mermaid.py"
 SELECTIVE_REASONING_TEST = ROOT / "scripts" / "reasoning" / "test-selective-reasoning.py"
+NIFI_EVIDENCE_TEST = ROOT / "tests" / "test_nifi_evidence_stage.py"
+NIFI_EVIDENCE_CONTRACT = ROOT / "infra" / "nifi" / "repeatable-stages.json"
 SELECTIVE_REASONER = ROOT / "scripts" / "reasoning" / "selective_reasoner.py"
 SELECTIVE_PROVER = ROOT / "scripts" / "reasoning" / "prove-selective-reasoning.py"
 REASONING_EVIDENCE = ROOT / "reasoning" / "evidence" / "fixture-566279-pa-0.json"
@@ -104,6 +106,8 @@ REQUIRED_PATHS = (
     ROOT / "scripts" / "infra" / "configure-nifi-rdf-skeleton.ps1",
     ROOT / "scripts" / "infra" / "configure-nifi-games-manual.ps1",
     ROOT / "scripts" / "infra" / "configure-nifi-games-daily.ps1",
+    ROOT / "scripts" / "infra" / "configure-nifi-evidence.ps1",
+    ROOT / "infra" / "nifi" / "repeatable-stages.json",
     ROOT / "scripts" / "pipeline" / "import-game-json.ps1",
     ROOT / "scripts" / "pipeline" / "process-staged-game-json.ps1",
     ROOT / "scripts" / "pipeline" / "test-manual-vertical-slice.ps1",
@@ -113,6 +117,7 @@ REQUIRED_PATHS = (
     ROOT / "scripts" / "pipeline" / "load-game-graph.ps1",
     ROOT / "scripts" / "pipeline" / "validate-generated-rdf.py",
     ROOT / "scripts" / "pipeline" / "validate-shacl.py",
+    ROOT / "scripts" / "pipeline" / "validate-mapping-shacl-contracts.py",
     ROOT / "scripts" / "pipeline" / "build-query-index.ps1",
     ROOT / "scripts" / "pipeline" / "compile-query-index.py",
     ROOT / "scripts" / "pipeline" / "query-index-common.ps1",
@@ -130,11 +135,13 @@ REQUIRED_PATHS = (
     ROOT / "scripts" / "pipeline" / "test-query-index-failure.ps1",
     ROOT / "scripts" / "pipeline" / "audit-canned-queries.ps1",
     ROOT / "scripts" / "pipeline" / "audit-advanced-queries.ps1",
+    ROOT / "scripts" / "pipeline" / "run-nifi-evidence-stage.py",
     ROOT / "scripts" / "reasoning" / "sync-bfo-clif.py",
     ROOT / "scripts" / "reasoning" / "selective_reasoner.py",
     ROOT / "scripts" / "reasoning" / "prove-selective-reasoning.py",
     ROOT / "scripts" / "reasoning" / "run-selective-reasoning.ps1",
     SELECTIVE_REASONING_TEST,
+    NIFI_EVIDENCE_TEST,
     RML_MERMAID_GENERATOR,
     ROOT / "sparql" / "empty-games-prototype.rq",
     ADVANCED_QUERY_ROOT / "README.md",
@@ -1062,6 +1069,54 @@ def validate_advanced_query_audit() -> int:
     return len(results)
 
 
+def validate_nifi_evidence_contract() -> int:
+    contract = json.loads(NIFI_EVIDENCE_CONTRACT.read_text(encoding="utf-8"))
+    if contract.get("contractVersion") != 1:
+        raise ValueError("NiFi evidence contractVersion must be 1")
+    stages = contract.get("stages", {})
+    expected = {
+        "mapping-shacl-validation",
+        "selective-reasoning",
+        "canned-query-audit",
+        "advanced-query-audit",
+        "authoritative-index-equivalence",
+        "benchmark-evidence",
+        "repository-validation",
+    }
+    if set(stages) != expected:
+        raise ValueError("NiFi evidence stage inventory is incomplete or unexpected")
+    for stage_name, stage in stages.items():
+        command = stage.get("command")
+        dependencies = stage.get("dependencies")
+        if not isinstance(command, list) or not command or not all(
+            isinstance(value, str) and value for value in command
+        ):
+            raise ValueError(f"NiFi evidence stage has an invalid command: {stage_name}")
+        if not isinstance(dependencies, list) or not dependencies:
+            raise ValueError(f"NiFi evidence stage has no dependencies: {stage_name}")
+        if int(stage.get("timeoutSeconds", 0)) <= 0 or not stage.get("schedule"):
+            raise ValueError(f"NiFi evidence stage has invalid execution limits: {stage_name}")
+        ports = stage.get("requiresLoopbackPorts", [])
+        if ports and (ports != [3030] or stage.get("cacheable") is not False):
+            raise ValueError(
+                f"Live NiFi stage must target loopback Fuseki and disable skipping: {stage_name}"
+            )
+        if any("http://" in value or "https://" in value for value in command):
+            raise ValueError(f"NiFi evidence command contains a network endpoint: {stage_name}")
+        for value in command:
+            if value.startswith(("scripts/", "mappings/", "data/")):
+                if not (ROOT / value).is_file():
+                    raise ValueError(
+                        f"NiFi evidence command references a missing repository file: {value}"
+                    )
+    benchmark_command = stages["benchmark-evidence"]["command"]
+    if "{artifactDirectory}" not in benchmark_command:
+        raise ValueError("NiFi benchmark evidence must be written outside the repository")
+    if stages["repository-validation"].get("cacheable") is not True:
+        raise ValueError("Offline repository validation must use dependency-aware skipping")
+    return len(stages)
+
+
 def main() -> None:
     require_layout()
     json_count = validate_json()
@@ -1076,6 +1131,8 @@ def main() -> None:
     validate_active_mapping()
     validate_rml_mermaid()
     validate_selective_reasoning()
+    nifi_evidence_stage_count = validate_nifi_evidence_contract()
+    subprocess.run([sys.executable, str(NIFI_EVIDENCE_TEST)], cwd=ROOT, check=True)
     reasoning_proof_count = validate_reasoning_evidence()
     validate_offline_pipeline_boundary()
     validate_web_app()
@@ -1099,6 +1156,8 @@ def main() -> None:
     print(f"Optimized ARQ algebra plans checked: {algebra_plan_count}")
     print("Local web explorer checks passed.")
     print("Selective reasoning contracts and offline smoke tests passed.")
+    print("NiFi evidence fingerprint and quarantine tests passed.")
+    print(f"NiFi repeatable evidence stages checked: {nifi_evidence_stage_count}")
     print(f"Selective first-order proof obligations checked: {reasoning_proof_count}")
     print(f"Canned-query corpus baselines checked: {canned_audit_count}")
     print(f"Advanced semantic query baselines checked: {advanced_audit_count}")

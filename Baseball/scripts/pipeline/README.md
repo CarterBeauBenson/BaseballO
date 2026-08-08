@@ -191,6 +191,29 @@ Resume monitoring an existing submission without enqueueing anything with:
 The run ID and complete submitted-game inventory are stored in the submission
 manifest printed by the producer command.
 
+## NiFi validation and evidence stages
+
+After configuring the foundation, create the seven stopped validation and
+evidence paths with:
+
+```powershell
+.\scripts\infra\configure-nifi-evidence.ps1
+```
+
+The stage catalog is
+[`infra/nifi/repeatable-stages.json`](../../infra/nifi/repeatable-stages.json).
+Each processor invokes
+[`run-nifi-evidence-stage.py`](run-nifi-evidence-stage.py), which fingerprints
+the stage's declared repository and local-state inputs, enforces its timeout
+and loopback-service preconditions, and emits a structured success, skip, or
+failure manifest. Failures are copied to the local quarantine tree with the
+complete stage log. Live corpus stages always execute when triggered rather
+than trusting a filesystem fingerprint for mutable Fuseki state.
+
+The existing PowerShell scripts remain the versioned execution boundary during
+this parity phase. NiFi now schedules and routes them; they are not removed
+until the corresponding automated paths have demonstrated parity.
+
 ## Explicitly approved external acquisition
 
 `acquire-daily-games.ps1` retains a fail-closed approval guard and runs only

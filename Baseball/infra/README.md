@@ -38,6 +38,7 @@ By default, binaries and mutable state live under `%LOCALAPPDATA%\BaseballO`, ou
         |-- staging\
         |-- raw\
         |-- manifests\
+        |-- evidence\
         |-- work\
         |-- rdf\
         `-- quarantine\
@@ -89,4 +90,7 @@ The local Fuseki process exposes `/$/ping`, `/$/stats`, and `/$/metrics` only on
 
 The ontology is not copied, loaded, or modified by these bootstrap scripts.
 
-The manual-import and graph-loading boundaries are documented in [`pipeline/README.md`](pipeline/README.md).
+The manual-import and graph-loading boundaries are documented in
+[`pipeline/README.md`](pipeline/README.md). The configured NiFi flows and the
+versioned repeatable-stage contract are documented in
+[`nifi/README.md`](nifi/README.md).
