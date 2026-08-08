@@ -28,11 +28,12 @@ dates from 2026-07-14 through 2026-08-06. The accepted query baseline remains
 the original eight-game 2026-08-03 subset: 231,670 authoritative triples and
 52,944 disposable query-index triples. All 48 canned queries and 17 advanced
 queries have reproducible results over that bounded baseline.
-NiFi now also has repository-defined, separately routed validation and evidence
-stages for mapping/SHACL checks, SPARQL audits, index equivalence, selective
-reasoning, benchmarks, and the complete offline repository gate. Each run emits
-a dependency-fingerprinted local manifest and quarantines failures; the
-existing PowerShell execution paths remain in place during parity validation.
+NiFi owns the per-game sequence through separate archive, freshness, RML,
+authoritative validation, graph-load, index-build/equivalence, and promotion
+processors. It also has separately routed corpus validation and evidence stages
+for SPARQL audits, selective reasoning, benchmarks, and the complete offline
+repository gate. Each run emits local evidence and quarantines failures; the
+bundled direct importer remains only as a fallback and parity reference.
 Eighteen authoritative/indexed query pairs have exact corpus results; the
 reviewed runner selects 15 indexed routes and keeps three neutral routes on the
 authoritative graph. The Explorer remains authoritative-only until its

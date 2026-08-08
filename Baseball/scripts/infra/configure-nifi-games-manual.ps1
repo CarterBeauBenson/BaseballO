@@ -71,7 +71,9 @@ try {
             [Parameter(Mandatory = $true)][hashtable] $Definition
         )
 
-        $existing = Get-Processors -GroupId $GroupId | Where-Object { $_.component.name -eq $Definition.Name } | Select-Object -First 1
+        $acceptedNames = @($Definition.Name)
+        if ($Definition.ContainsKey('LegacyNames')) { $acceptedNames += @($Definition.LegacyNames) }
+        $existing = Get-Processors -GroupId $GroupId | Where-Object { $_.component.name -in $acceptedNames } | Select-Object -First 1
         $config = @{
             properties = $Definition.Properties
             schedulingStrategy = 'TIMER_DRIVEN'
@@ -132,9 +134,11 @@ try {
             [Parameter(Mandatory = $true)][string] $Name,
             [Parameter(Mandatory = $true)][string] $SourceId,
             [Parameter(Mandatory = $true)][string] $DestinationId,
-            [Parameter(Mandatory = $true)][string] $Relationship
+            [Parameter(Mandatory = $true)][string] $Relationship,
+            [string[]] $LegacyNames = @()
         )
-        $existing = Get-Connections -GroupId $GroupId | Where-Object { $_.component.name -eq $Name } | Select-Object -First 1
+        $acceptedNames = @($Name) + @($LegacyNames)
+        $existing = Get-Connections -GroupId $GroupId | Where-Object { $_.component.name -in $acceptedNames } | Select-Object -First 1
         if ($null -ne $existing) {
             if ([string]$existing.component.source.id -eq $SourceId -and [string]$existing.component.destination.id -eq $DestinationId -and $Relationship -in @($existing.component.selectedRelationships)) {
                 Write-Host "Present connection: $Name"
@@ -184,7 +188,7 @@ try {
     $inbox = Join-Path $script:StateRoot 'pipeline\inbox\games'
     $staging = Join-Path $script:StateRoot 'pipeline\staging\manual-inbox'
     $nifiQuarantine = Join-Path $script:StateRoot 'pipeline\quarantine\nifi\games-manual'
-    $commandArguments = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $processorScript, '-InputJson', (Join-Path $staging '${filename}')) -join ';'
+    $commandArguments = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $processorScript, '-InputJson', (Join-Path $staging '${filename}'), '-SourceFileNameBase64', '${source.filename.base64}') -join ';'
     foreach ($directory in @($inbox, $staging, $nifiQuarantine)) {
         [void](New-Item -ItemType Directory -Force -Path $directory)
     }
@@ -210,6 +214,7 @@ try {
             X = 300; Y = 0; SchedulingPeriod = '0 sec'; AutoTerminate = @()
             Properties = @{
                 'source.filename' = '${filename}'
+                'source.filename.base64' = '${filename:base64Encode()}'
                 'filename' = '${uuid}.json'
             }
         },
@@ -224,8 +229,8 @@ try {
             }
         },
         @{
-            Key = 'Import'; Name = '20 Archive, map, validate, and load'; Type = 'org.apache.nifi.processors.standard.ExecuteStreamCommand'
-            Comments = 'Passes only the generated local staging path to the guarded importer, then runs the approved RML mapping and Fuseki PUT.'
+            Key = 'Import'; Name = '20 Archive and queue semantic work'; LegacyNames = @('20 Archive, map, validate, and load'); Type = 'org.apache.nifi.processors.standard.ExecuteStreamCommand'
+            Comments = 'Archives the staged bytes unchanged, writes the import manifest, and queues a compact request for the shared RDF process group.'
             ConcurrentTasks = $ConcurrentImports
             X = 900; Y = 0; SchedulingPeriod = '0 sec'; AutoTerminate = @('original')
             Properties = @{
@@ -240,8 +245,8 @@ try {
             }
         },
         @{
-            Key = 'Success'; Name = '30 Log successful manual import'; Type = 'org.apache.nifi.processors.standard.LogAttribute'
-            Comments = 'Records the successful import output in NiFi provenance and application logs.'
+            Key = 'Success'; Name = '30 Log successful archival handoff'; LegacyNames = @('30 Log successful manual import'); Type = 'org.apache.nifi.processors.standard.LogAttribute'
+            Comments = 'Records the immutable-archive result and semantic-work handoff in NiFi provenance and application logs.'
             X = 1300; Y = 0; SchedulingPeriod = '0 sec'; AutoTerminate = @('success'); Properties = @{}
         },
         @{
@@ -260,12 +265,12 @@ try {
     foreach ($definition in $definitions) {
         $processors[$definition.Key] = Ensure-Processor -GroupId $manualGroupId -Definition $definition
     }
-    [void](Ensure-Connection -GroupId $manualGroupId -Name 'manual inbox to guarded import' -SourceId $processors.Inbox.component.id -DestinationId $processors.Prepare.component.id -Relationship 'success')
+    [void](Ensure-Connection -GroupId $manualGroupId -Name 'manual inbox to archival handoff' -LegacyNames @('manual inbox to guarded import') -SourceId $processors.Inbox.component.id -DestinationId $processors.Prepare.component.id -Relationship 'success')
     [void](Ensure-Connection -GroupId $manualGroupId -Name 'prepared input to local staging' -SourceId $processors.Prepare.component.id -DestinationId $processors.Stage.component.id -Relationship 'success')
-    [void](Ensure-Connection -GroupId $manualGroupId -Name 'staged input to guarded import' -SourceId $processors.Stage.component.id -DestinationId $processors.Import.component.id -Relationship 'success')
+    [void](Ensure-Connection -GroupId $manualGroupId -Name 'staged input to archival handoff' -LegacyNames @('staged input to guarded import') -SourceId $processors.Stage.component.id -DestinationId $processors.Import.component.id -Relationship 'success')
     [void](Ensure-Connection -GroupId $manualGroupId -Name 'failed staging to quarantine' -SourceId $processors.Stage.component.id -DestinationId $processors.Failure.component.id -Relationship 'failure')
-    [void](Ensure-Connection -GroupId $manualGroupId -Name 'successful manual import output' -SourceId $processors.Import.component.id -DestinationId $processors.Success.component.id -Relationship 'output stream')
-    [void](Ensure-Connection -GroupId $manualGroupId -Name 'failed manual import output' -SourceId $processors.Import.component.id -DestinationId $processors.Failure.component.id -Relationship 'nonzero status')
+    [void](Ensure-Connection -GroupId $manualGroupId -Name 'successful archival handoff output' -LegacyNames @('successful manual import output') -SourceId $processors.Import.component.id -DestinationId $processors.Success.component.id -Relationship 'output stream')
+    [void](Ensure-Connection -GroupId $manualGroupId -Name 'failed archival handoff output' -LegacyNames @('failed manual import output') -SourceId $processors.Import.component.id -DestinationId $processors.Failure.component.id -Relationship 'nonzero status')
 
     $deadline = (Get-Date).AddSeconds(30)
     do {
@@ -282,11 +287,15 @@ try {
         throw "NiFi manual game processors are not valid: $($details -join ' | ')"
     }
 
+    $rdfFlowArguments = @{ ConcurrentGames = $ConcurrentImports }
+    if ($Enable) { $rdfFlowArguments.Enable = $true }
+    & (Join-Path $PSScriptRoot 'configure-nifi-rdf-flow.ps1') @rdfFlowArguments
+
     if ($Enable) {
         foreach ($key in @('Success', 'Failure', 'Import', 'Stage', 'Prepare', 'Inbox')) {
             [void](Set-ProcessorState -ProcessorId $processors[$key].component.id -State 'RUNNING')
         }
-        Write-Host "NiFi manual game inbox is running. Drop JSON into: $inbox"
+        Write-Host "NiFi manual game inbox and shared RDF flow are running. Drop JSON into: $inbox"
     }
     else {
         Write-Host "NiFi manual game inbox is configured, connected, valid, and stopped. Inbox: $inbox"

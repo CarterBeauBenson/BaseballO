@@ -39,6 +39,17 @@ python .\tests\test_nifi_evidence_stage.py
 It proves successful manifest generation, unchanged-input skipping,
 dependency-triggered reruns, nonzero exit propagation, and failure quarantine.
 
+The staged per-game flow has an offline contract suite:
+
+```powershell
+python .\tests\test_nifi_game_flow.py
+```
+
+It verifies byte-identical archival, work-request creation, dependency
+assessment evidence, strict local path boundaries, and raw-hash failure
+quarantine. With the local stack running, `test-nifi-rdf-flow.ps1` additionally
+forces all six semantic processors through a complete fixture rebuild.
+
 With the local stack running, execute the offline end-to-end acceptance test from the repository root:
 
 ```powershell

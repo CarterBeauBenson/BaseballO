@@ -49,11 +49,22 @@ do {
                 }
             }
     )
-    if ($newFailures.Count -gt 0) {
+    $rdfFailures = @(
+        Get-ChildItem -LiteralPath (Join-Path $pipelineRoot 'quarantine\nifi-rdf') -Filter 'manifest.json' -File -Recurse -ErrorAction SilentlyContinue |
+            Where-Object {
+                try {
+                    $failureDocument = Get-Content -LiteralPath $_.FullName -Raw | ConvertFrom-Json
+                    return [string]$failureDocument.status -eq 'failed' -and [datetime]$failureDocument.failedAtUtc -ge $startedAt
+                }
+                catch { return $false }
+            }
+    )
+    if ($newFailures.Count -gt 0 -or $rdfFailures.Count -gt 0) {
         $failureText = @($newFailures | ForEach-Object {
             $failure = Join-Path $_.FullName 'failure.json'
             if (Test-Path -LiteralPath $failure) { Get-Content -LiteralPath $failure -Raw } else { $_.FullName }
-        }) -join "`n"
+        }) + @($rdfFailures | ForEach-Object { Get-Content -LiteralPath $_.FullName -Raw })
+        $failureText = $failureText -join "`n"
         $submission.status = 'failed'
         $submission.completedAtUtc = [DateTime]::UtcNow.ToString('o')
         $submission | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $submissionPath -Encoding UTF8
@@ -83,7 +94,9 @@ do {
     if ($completed -ne $lastReported) {
         $inboxCount = @(Get-ChildItem -LiteralPath (Join-Path $pipelineRoot 'inbox\games') -File -ErrorAction SilentlyContinue).Count
         $stagingCount = @(Get-ChildItem -LiteralPath (Join-Path $pipelineRoot 'staging\manual-inbox') -File -ErrorAction SilentlyContinue).Count
-        Write-Host "NiFi corpus progress: $completed/$($entries.Count) current graph pairs; inbox=$inboxCount; staging=$stagingCount."
+        $rdfInboxCount = @(Get-ChildItem -LiteralPath (Join-Path $pipelineRoot 'inbox\rdf') -File -ErrorAction SilentlyContinue).Count
+        $rdfStagingCount = @(Get-ChildItem -LiteralPath (Join-Path $pipelineRoot 'staging\rdf-requests') -File -ErrorAction SilentlyContinue).Count
+        Write-Host "NiFi corpus progress: $completed/$($entries.Count) current graph pairs; source inbox=$inboxCount; source staging=$stagingCount; RDF inbox=$rdfInboxCount; RDF staging=$rdfStagingCount."
         $lastReported = $completed
     }
     if ($completed -eq $entries.Count) { break }

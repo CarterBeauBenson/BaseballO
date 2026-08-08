@@ -1,7 +1,8 @@
 [CmdletBinding()]
 param(
     [string] $InputJson,
-    [string] $OutputFile
+    [string] $OutputFile,
+    [switch] $DeferShaclValidation
 )
 
 . (Join-Path $PSScriptRoot '..\infra\common.ps1')
@@ -278,9 +279,11 @@ try {
         throw "Generated RDF validation failed for game $gamePk."
     }
 
-    & python $shaclValidatorPath '--profile' 'authoritative' '--data' $stageOutput
-    if ($LASTEXITCODE -ne 0) {
-        throw "Authoritative SHACL validation failed for game $gamePk."
+    if (-not $DeferShaclValidation) {
+        & python $shaclValidatorPath '--profile' 'authoritative' '--data' $stageOutput
+        if ($LASTEXITCODE -ne 0) {
+            throw "Authoritative SHACL validation failed for game $gamePk."
+        }
     }
 
     Copy-Item -LiteralPath $stageOutput -Destination $outputPath -Force
@@ -328,6 +331,8 @@ try {
         }
         outputPath = $outputPath
         outputSha256 = $outputHash
+        shaclStatus = if ($DeferShaclValidation) { 'deferred-to-nifi' } else { 'validated' }
+        shaclValidatedAtUtc = if ($DeferShaclValidation) { $null } else { [DateTime]::UtcNow.ToString('o') }
         shaclProfile = 'authoritative'
         shaclShapePath = $authoritativeShapePath
         shaclShapeSha256 = (Get-FileHash -LiteralPath $authoritativeShapePath -Algorithm SHA256).Hash.ToLowerInvariant()

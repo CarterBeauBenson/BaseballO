@@ -55,26 +55,22 @@ the subsystem READMEs and Git history; do not recreate them here.
   consistent. This covers the selected CLIF projections, not arbitrary CLIF or
   the complete BFO theory.
 - No query-index shortcut terms have been added to the ontology.
+- NiFi now owns the per-game sequence through separate freshness, RML,
+  authoritative-validation, graph-load, index/equivalence, and promotion
+  processors. A forced fixture rebuild and an unchanged manual-inbox handoff
+  both passed with stage evidence and no raw or ontology mutation.
 
 ## Next work
 
-### 1. Move repeatable orchestration into NiFi
+### 1. Finish repeatable orchestration in NiFi
 
-- Make NiFi the primary orchestration layer for as much of the repeatable
-  workflow as practical: RML execution, SHACL validation, SPARQL audits,
-  authoritative/index equivalence checks, selective reasoning profiles, and
-  benchmark evidence generation.
-- Keep RML, SHACL, SPARQL, reasoning rules, expected contracts, and validation
-  configuration versioned as repository files. NiFi should load and execute
-  those artifacts rather than hiding the authoritative definitions inside a
-  flow definition.
-- Have each NiFi process group emit a compact, reproducible evidence manifest
-  and route failed games or validation stages to quarantine with enough context
-  for diagnosis. Routine successful checks should not require interactive
-  supervision.
-- Use fingerprints and dependency-aware routing so a change reruns only the
-  affected validation stages. Preserve fail-closed behavior at every promotion
-  boundary.
+- Trigger corpus SPARQL audits, cross-game equivalence checks, and benchmark
+  evidence from successful corpus promotion rather than independent timers.
+- Add a parameterized request boundary for explicitly selected reasoning
+  anchors and profiles; retain all fixed budgets and the prohibition on
+  full-game or corpus closure.
+- Exercise the connected per-game flow over the checked-in corpus and retain
+  the bundled importer only until broader parity evidence is accepted.
 - Reduce PowerShell to Windows bootstrap, local operator entry points, and
   maintenance tasks after equivalent NiFi paths are proven. Do not remove the
   existing scripts until the automated flow has demonstrated parity.

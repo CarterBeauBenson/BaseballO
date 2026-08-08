@@ -37,6 +37,12 @@ scripts create the connected manual-inbox NiFi flow. Command-line external
 acquisition requires an explicit approval switch; the unattended NiFi
 acquisition flow remains stopped.
 
+The manual group now ends at immutable archival and work-request creation.
+`90 Shared RDF Mapping and Load` owns six separately routed semantic stages:
+freshness assessment, RML, authoritative validation, graph PUT, index
+build/equivalence, and promotion. The bundled direct importer remains a
+fallback, not the active NiFi execution path.
+
 [`pipeline/run-nifi-evidence-stage.py`](pipeline/run-nifi-evidence-stage.py)
 executes one allowlisted stage from the versioned NiFi contract, fingerprints
 its declared dependencies, and writes reproducible evidence or failure

@@ -4,14 +4,22 @@ The active manual game flow implements this contract:
 
 ```mermaid
 flowchart LR
-    S[Local manual inbox] --> H[Guarded import command]
-    H --> A[Immutable raw archives]
+    S[Local manual inbox] --> A[Immutable raw archive]
     A --> M[Separate import manifests]
-    M --> R[Final-game preflight]
+    M --> W[Compact semantic work request]
+    W --> D[Dependency freshness assessment]
+    D --> R[Guarded mapping preflight]
     R --> X[Pinned RMLMapper]
-    X --> V[Validate RDF and source counts]
-    V --> G[PUT named graph to Fuseki]
-    H --> Q[Import and NiFi quarantine]
+    X --> V[Authoritative validation and SHACL]
+    V --> G[PUT authoritative graph]
+    G --> I[Build, SHACL-check, and compare index]
+    I --> P[Promote current graph pair]
+    A --> Q[Stage-specific quarantine]
+    D --> Q
+    R --> Q
+    V --> Q
+    G --> Q
+    I --> Q
 ```
 
 The response body remains the exact supplied payload. Routing metadata such as `gamePk`, import time, source filename, and checksum belongs in FlowFile attributes and import manifests—not in rewritten JSON.
@@ -37,13 +45,21 @@ Create or repair the initial process-group hierarchy through NiFi's authenticate
 
 The command is idempotent. It creates missing groups but does not replace, delete, start, or stop existing flow components.
 
-Create the visual processor skeleton inside `90 Shared RDF Mapping and Load` with:
+Create the connected, stopped semantic flow inside
+`90 Shared RDF Mapping and Load` with:
 
 ```powershell
 .\scripts\infra\configure-nifi-rdf-skeleton.ps1
 ```
 
-This command adds five deliberately stopped, unconnected processors representing the shared semantic boundary. They remain a visual decomposition of the internal guarded command.
+The old command name is retained for compatibility and now delegates to
+`configure-nifi-rdf-flow.ps1`. The real flow contains separate assessment,
+RML, authoritative-validation, graph-load, query-index, and promotion
+processors. Each stage emits its own evidence manifest. Failed stage requests,
+manifests, and complete logs are routed under
+`quarantine\nifi-rdf\<gamePk>\<run-id>\<stage>`.
+Different games may run concurrently, while a request-owned per-game lock
+prevents two submissions from interleaving writes to the same graph artifacts.
 
 The `01 Games - Manual Inbox` group contains the executable local-only flow. Configure and enable it with:
 
@@ -51,11 +67,15 @@ The `01 Games - Manual Inbox` group contains the executable local-only flow. Con
 .\scripts\infra\configure-nifi-games-manual.ps1 -Enable
 ```
 
-The idempotent command creates a local inbox reader, collision-safe staging handoff, guarded importer, successful-run logging, and failed-output persistence. It does not contain an external HTTP processor. Use the [pipeline runbook](../../scripts/pipeline/README.md) to submit data.
+The idempotent command creates a local inbox reader, collision-safe staging
+handoff, immutable archiver, and semantic request producer. It also configures
+and enables the shared RDF flow downstream. The manual group no longer invokes
+the bundled importer. It does not contain an external HTTP processor. Use the
+[pipeline runbook](../../scripts/pipeline/README.md) to submit data.
 
 For repeatable bulk processing, `submit-game-corpus-to-nifi.ps1` is the corpus
 producer and monitor. NiFi remains the orchestrator for every game. The manual
-flow defaults to three concurrent guarded imports; pass `-ConcurrentImports`
+flow defaults to three concurrent games; pass `-ConcurrentImports`
 to the configuration or submission command to tune that bounded concurrency.
 
 The earlier `01 Games - Daily` network-acquisition group is deliberately stopped. Its design is retained for later review, but it is not part of the active pipeline.

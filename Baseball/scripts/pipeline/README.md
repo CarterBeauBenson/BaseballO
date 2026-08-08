@@ -6,8 +6,9 @@ These scripts implement the active, local-only path from a deliberately supplied
 flowchart LR
     I[Local manual inbox] --> A[Byte-identical archive]
     A --> P[Separate import manifest]
-    A --> R[run-rml.ps1]
-    R --> M[Pinned RMLMapper]
+    P --> W[NiFi semantic work request]
+    W --> R[Dependency assessment]
+    R --> M[run-rml.ps1]
     M --> V[Parse and count validation]
     V --> S[Authoritative SHACL]
     S --> T[Validated Turtle]
@@ -15,10 +16,11 @@ flowchart LR
     L --> F[Fuseki Graph Store PUT]
     F --> C[Reviewable CONSTRUCT components]
     C --> D[Disposable query-index graph]
-    R --> Q[Local quarantine]
+    D --> E[Per-stage evidence and promotion manifest]
+    R --> Q[Stage quarantine]
 ```
 
-## Direct manual import
+## Direct fallback import
 
 From the repository root, import the checked-in historical fixture without making an external request:
 
@@ -26,15 +28,20 @@ From the repository root, import the checked-in historical fixture without makin
 .\scripts\pipeline\import-game-json.ps1 -InputJson .\data\raw\game-566279.json
 ```
 
-The importer parses the supplied document without rewriting it, verifies `gamePk`, season, and game state, stores a byte-identical SHA-256-addressed archive, and writes import metadata separately. Non-final documents are safely archived but do not reach RML. Repeating an identical final document skips mapping only when the raw hash, tracked mapping hash, mapper version, RML manifest, and expected Fuseki assertion all match; `-ForceRdfLoad` overrides that optimization. `-ArchiveOnly` preserves and records the input without invoking RML or Fuseki.
+This bundled importer remains a local fallback and parity reference; it is no
+longer invoked by the NiFi manual inbox. The active NiFi path archives and
+queues first, then runs each semantic stage through its own processor. The
+fallback still supports `-ForceRdfLoad` and `-ArchiveOnly`.
 
 `run-rml.ps1` runs the mapping-specific collision and source preflight and
 stages a byte-identical JSON copy. It then creates an isolated execution-context
 copy containing the ancestor IDs needed by nested pitch records, materializes
 guarded root-identifier markers only in its temporary mapping, invokes the
 pinned mapper in strict mode, and validates complete source-to-RDF coverage.
-The generated graph must also conform to the explicit authoritative SHACL
-profile before it can leave the staging directory.
+Direct fallback execution requires the generated graph to conform to the
+authoritative SHACL profile before it leaves staging. The NiFi path records the
+RML output as deferred, then a separate validation processor reruns the RDF
+parser and SHACL profile before the graph-load processor can receive it.
 The context is disposable and never replaces the raw archive. The manifest
 records source, context-builder, execution-context, source-mapping,
 effective-mapping, and output hashes.
@@ -165,7 +172,22 @@ The command prints the absolute inbox path, normally:
 %LOCALAPPDATA%\BaseballO\state\pipeline\inbox\games
 ```
 
-Copy a completed-game JSON document into that directory. NiFi assigns a collision-safe staging filename, invokes the guarded importer, and routes command failures to quarantine. The source bytes remain available in the content-addressed raw archive or failure quarantine.
+Copy a completed-game JSON document into that directory. NiFi assigns a
+collision-safe staging filename, stores the byte-identical archive, and queues
+a compact request. `90 Shared RDF Mapping and Load` then assesses freshness,
+runs only the required semantic work, and promotes a graph pair only after RML,
+authoritative validation, graph loading, index SHACL, and exact supported-row
+equivalence succeed.
+
+Run the reproducible forced parity check with:
+
+```powershell
+.\scripts\pipeline\test-nifi-rdf-flow.ps1
+```
+
+The check submits the fixture directly to the shared request queue, requires
+all six stage manifests, verifies graph/index semantics, confirms request
+cleanup, and proves the source bytes remain unchanged.
 
 Submit a checked-in date range as one monitored NiFi corpus run with:
 
