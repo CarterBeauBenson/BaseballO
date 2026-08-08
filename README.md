@@ -175,27 +175,22 @@ updates, saved definitions, result-to-play drill-down, team workspaces, and an
 API for partner products. Those are possible product capabilities, not claims
 about the current prototype.
 
-## Why an organization would pay for it
+## Potential uses
 
-- **Less one-off data engineering:** new cross-event questions can reuse the
-  existing game connections instead of starting with a new table and pipeline.
-- **More useful custom statistics:** analysts can combine compatible
-  measurements, including percentages and ratios, while the system checks that
-  the units and groupings make sense.
-- **Faster investigation:** researchers can move between pitches, calls,
-  reviews, contact, fielding, runners, and scoring without manually stitching
-  separate exports together.
-- **Definitions people can inspect and reuse:** a result can travel with its
-  measurement definition and generated query instead of living only in an
-  analyst's private code.
-- **One foundation for several products:** the same connected data can support
-  an internal research tool, broadcast preparation, data-quality reporting,
-  notebooks, and partner-facing APIs.
+- New cross-event questions can reuse the existing game connections instead of
+  requiring a separate table and pipeline for every analysis.
+- Researchers can combine compatible measurements, including percentages and
+  ratios, while checking that their units and groupings make sense.
+- Pitches, calls, reviews, contact, fielding, runners, and scoring can be
+  examined together without manually stitching separate exports together.
+- Results can be accompanied by their measurement definitions and generated
+  queries, making an analysis easier to inspect and repeat.
+- The same connected data can support exploratory research, data-quality
+  checks, notebooks, visualizations, and other baseball-analysis tools.
 
-The likely buyers are teams, baseball data providers, media and broadcast
-groups, research organizations, and companies building baseball products. The
-value is not the underlying database technology; it is answering expensive,
-custom baseball questions with less repeated data work.
+BaseballO is an independent research and development project exploring how
+connected game data can support questions that are difficult to express with
+fixed statistics tables.
 
 ## Run the Explorer locally
 
