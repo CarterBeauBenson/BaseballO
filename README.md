@@ -50,7 +50,7 @@ every new analysis.
 BaseballO currently includes an **Empty Games** measurement: games in which a
 player appeared as a batter but recorded no qualifying offensive contribution.
 
-This is not simply “games with zero hits.” The current definition checks for:
+This is not simply "games with zero hits." The current definition checks for:
 
 - singles, doubles, triples, and home runs;
 - walks;
@@ -116,25 +116,25 @@ leaderboards, player pages, standings, and historical coverage. BaseballO is
 focused on custom questions that need several parts of a game connected at
 once.
 
-## How it works
+## Where the project is now
+
+BaseballO is already a working local research system, not just a proposed data
+model. Completed-game files can move through one repeatable workflow and become
+connected, checked, queryable game data.
 
 ```mermaid
 flowchart LR
-    source[Completed-game JSON] --> raw[Unchanged raw file]
-    raw --> events[Connected game events and roles]
-    events --> checks[Structure and coverage checks]
-    checks --> graph[Complete game graph]
-    graph --> explorer[BaseballO Explorer]
-    graph --> summaries[Rebuildable query summaries]
-    summaries --> comparison[Exact-result comparison]
+    A["Completed-game JSON"] --> B["Repeatable NiFi processing"]
+    B --> C["Connected game events and roles"]
+    C --> D["Structure and coverage checks"]
+    D --> E["Complete game store"]
+    E --> F["Local BaseballO Explorer"]
+    E --> G["Rebuildable query summaries"]
+    G --> H["Exact-result comparison"]
+    H --> F
 ```
 
-The implementation uses Apache NiFi for the repeatable game-processing
-workflow, RML to map source records, SHACL to check graph structure, and Apache
-Jena Fuseki/TDB2 to store and query the games. A baseball user does not need to
-know those technologies to use the Explorer.
-
-## Current project status
+Today that system includes:
 
 - 288 completed games in the checked-in raw corpus
 - 48 standard queries and 17 advanced queries with reproducible test results
@@ -143,6 +143,59 @@ know those technologies to use the Explorer.
   sortable results, CSV export, and generated-query inspection
 - a repeatable NiFi workflow for mapping, checking, loading, indexing, and
   testing games
+
+The implementation uses Apache NiFi for the repeatable game-processing
+workflow, RML to map source records, SHACL to check graph structure, and Apache
+Jena Fuseki/TDB2 to store and query the games. A baseball user does not need to
+know those technologies to use the Explorer.
+
+## A possible product end state
+
+The product opportunity is a research layer between raw game feeds and fixed
+leaderboards. Instead of commissioning a new data pipeline for every unusual
+question, a baseball organization could build, save, compare, and share new
+measurements from the same connected game data.
+
+```mermaid
+flowchart LR
+    A["Authorized live and historical feeds"] --> B["Continuous game processing"]
+    B --> C["Connected multi-season baseball data"]
+    C --> D["Baseball question builder"]
+    D --> E["Custom statistics and ratios"]
+    D --> F["Replay and play-chain research"]
+    D --> G["Coverage and data-quality reports"]
+    E --> H["Saved and shareable research"]
+    F --> H
+    G --> H
+    H --> I["Web product, API, notebooks, and partner tools"]
+```
+
+A mature version could add full-season and historical coverage, continuous
+updates, saved definitions, result-to-play drill-down, team workspaces, and an
+API for partner products. Those are possible product capabilities, not claims
+about the current prototype.
+
+## Why an organization would pay for it
+
+- **Less one-off data engineering:** new cross-event questions can reuse the
+  existing game connections instead of starting with a new table and pipeline.
+- **More useful custom statistics:** analysts can combine compatible
+  measurements, including percentages and ratios, while the system checks that
+  the units and groupings make sense.
+- **Faster investigation:** researchers can move between pitches, calls,
+  reviews, contact, fielding, runners, and scoring without manually stitching
+  separate exports together.
+- **Definitions people can inspect and reuse:** a result can travel with its
+  measurement definition and generated query instead of living only in an
+  analyst's private code.
+- **One foundation for several products:** the same connected data can support
+  an internal research tool, broadcast preparation, data-quality reporting,
+  notebooks, and partner-facing APIs.
+
+The likely buyers are teams, baseball data providers, media and broadcast
+groups, research organizations, and companies building baseball products. The
+value is not the underlying database technology; it is answering expensive,
+custom baseball questions with less repeated data work.
 
 ## Run the Explorer locally
 
