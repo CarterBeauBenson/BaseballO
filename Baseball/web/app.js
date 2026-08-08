@@ -31,6 +31,13 @@ const SPECIAL_FILTERS = Object.freeze({
     { id: "venue", label: "Venue", input: "iri", optionFamily: "games" },
     { id: "player", label: "Batter", input: "iri", optionFamily: "batting" },
   ],
+  derived_metrics: [
+    { id: "season", label: "Season", input: "integer", optionFamily: "games" },
+    { id: "game", label: "Game", input: "iri", optionFamily: "games" },
+    { id: "team", label: "Batting team", input: "iri", optionFamily: "games" },
+    { id: "venue", label: "Venue", input: "iri", optionFamily: "games" },
+    { id: "player", label: "Batter", input: "iri", optionFamily: "batting" },
+  ],
 });
 
 const elements = {
@@ -49,6 +56,13 @@ const elements = {
   emptyGamesFilterControls: document.querySelector("#empty-games-filter-controls"),
   runEmptyGamesButton: document.querySelector("#run-empty-games-button"),
   resetEmptyGamesButton: document.querySelector("#reset-empty-games-button"),
+  derivedBuilder: document.querySelector("#derived-builder"),
+  derivedFilterControls: document.querySelector("#derived-filter-controls"),
+  derivedNumerator: document.querySelector("#derived-numerator"),
+  derivedDenominator: document.querySelector("#derived-denominator"),
+  derivedContractText: document.querySelector("#derived-contract-text"),
+  runDerivedButton: document.querySelector("#run-derived-button"),
+  resetDerivedButton: document.querySelector("#reset-derived-button"),
   advancedBuilder: document.querySelector("#advanced-builder"),
   advancedFilterControls: document.querySelector("#advanced-filter-controls"),
   advancedSelect: document.querySelector("#advanced-query-select"),
@@ -80,6 +94,7 @@ const elements = {
 
 let catalog = {};
 let advancedCatalog = [];
+let derivedCatalog = { measures: {} };
 let currentFamily = "batting";
 let lastResponse = null;
 let toastTimer;
@@ -163,6 +178,7 @@ function setConnection({ connected, games }) {
 function renderFamilyTabs() {
   const families = [
     ...Object.entries(catalog),
+    ["derived_metrics", { label: "Derived" }],
     ["advanced", { label: "Advanced" }],
     ["empty_games", { label: "Empty Games" }],
   ];
@@ -208,6 +224,35 @@ function renderAdvancedBuilder() {
   });
   elements.advancedSelect.replaceChildren(...options);
   renderAdvancedDefinition();
+}
+
+function renderDerivedContract() {
+  const numeratorId = elements.derivedNumerator.value;
+  const denominatorId = elements.derivedDenominator.value;
+  const numerator = derivedCatalog.measures[numeratorId];
+  const denominator = derivedCatalog.measures[denominatorId];
+  if (!numerator || !denominator) return;
+  if (numeratorId === denominatorId) {
+    elements.derivedContractText.textContent = "Choose two different base measures.";
+    elements.runDerivedButton.disabled = true;
+    return;
+  }
+  const kind = numerator.subsetOf.includes(denominatorId) ? "Percentage" : "Ratio";
+  elements.derivedContractText.textContent = `${kind} · ${numerator.grain} grain · ${numerator.evidenceUniverse.replaceAll("-", " ")} · zero denominator returns no value.`;
+  elements.runDerivedButton.disabled = false;
+}
+
+function renderDerivedBuilder() {
+  const options = Object.entries(derivedCatalog.measures).map(([id, measure]) => {
+    const option = createElement("option", "", measure.label);
+    option.value = id;
+    return option;
+  });
+  elements.derivedNumerator.replaceChildren(...options.map((option) => option.cloneNode(true)));
+  elements.derivedDenominator.replaceChildren(...options.map((option) => option.cloneNode(true)));
+  elements.derivedNumerator.value = "empty_games";
+  elements.derivedDenominator.value = "offensive_games_played";
+  renderDerivedContract();
 }
 
 function createChoice(kind, id, label, selected, description) {
@@ -277,9 +322,11 @@ async function populateFilter(select, familyId, dimensionId, activeFamilyId = fa
 }
 
 function renderSpecialFilters(familyId) {
-  const container = familyId === "advanced"
-    ? elements.advancedFilterControls
-    : elements.emptyGamesFilterControls;
+  const container = {
+    advanced: elements.advancedFilterControls,
+    derived_metrics: elements.derivedFilterControls,
+    empty_games: elements.emptyGamesFilterControls,
+  }[familyId];
   const controls = SPECIAL_FILTERS[familyId].map((spec) => {
     const wrapper = createElement("div", "filter-field");
     const label = createElement("label", "", spec.label);
@@ -345,15 +392,22 @@ function configureFamily(familyId) {
   renderFamilyTabs();
   const isEmptyGames = familyId === "empty_games";
   const isAdvanced = familyId === "advanced";
-  elements.form.hidden = isEmptyGames || isAdvanced;
+  const isDerived = familyId === "derived_metrics";
+  elements.form.hidden = isEmptyGames || isAdvanced || isDerived;
   elements.emptyGamesBuilder.hidden = !isEmptyGames;
   elements.advancedBuilder.hidden = !isAdvanced;
+  elements.derivedBuilder.hidden = !isDerived;
   elements.builderTitle.textContent = isEmptyGames
     ? "Review empty games"
-    : isAdvanced ? "Explore advanced analytics" : "Shape your question";
+    : isAdvanced
+      ? "Explore advanced analytics"
+      : isDerived ? "Build a derived metric" : "Shape your question";
   if (isAdvanced) {
     renderAdvancedBuilder();
     renderSpecialFilters("advanced");
+  } else if (isDerived) {
+    renderDerivedBuilder();
+    renderSpecialFilters("derived_metrics");
   } else if (isEmptyGames) {
     renderSpecialFilters("empty_games");
   } else {
@@ -407,8 +461,15 @@ function iriSummary(value) {
   return parts.slice(-2).join(" / ");
 }
 
-function cellValue(binding) {
+function cellValue(binding, variable, meta) {
   const value = binding?.value ?? "—";
+  if (variable === "derivedValue" && binding && meta.derivedMetric) {
+    const number = Number(value);
+    if (Number.isFinite(number)) {
+      const formatted = new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }).format(number);
+      return meta.derivedMetric.resultKind === "percentage" ? `${formatted}%` : formatted;
+    }
+  }
   if (binding?.type === "uri") return iriSummary(value);
   if (/dateTime$/u.test(binding?.datatype ?? "")) {
     return new Intl.DateTimeFormat("en-US", {
@@ -441,6 +502,10 @@ function renderMeta(meta) {
     values.splice(3, 0, `${dateLabel(meta.dateScope.startDate)} â€“ ${dateLabel(meta.dateScope.endDate)}`);
     values.splice(4, 0, `${meta.dateScope.gameCount} scoped game${meta.dateScope.gameCount === 1 ? "" : "s"}`);
   }
+  if (meta.derivedMetric) {
+    values.splice(3, 0, humanizeVariable(meta.derivedMetric.resultKind));
+    values.splice(4, 0, `${humanizeVariable(meta.derivedMetric.grain)} grain`);
+  }
   elements.resultMeta.replaceChildren(...values.map((value) => createElement("span", "meta-chip", value)));
   elements.resultMeta.hidden = false;
 }
@@ -451,7 +516,8 @@ function renderResults(payload) {
   const thead = document.createElement("thead");
   const headerRow = document.createElement("tr");
   for (const variable of variables) {
-    headerRow.append(createElement("th", "", humanizeVariable(variable)));
+    const label = payload.meta?.columnLabels?.[variable] ?? humanizeVariable(variable);
+    headerRow.append(createElement("th", "", label));
   }
   thead.append(headerRow);
 
@@ -461,7 +527,7 @@ function renderResults(payload) {
     for (const variable of variables) {
       const binding = row[variable];
       const cell = createElement("td", isNumericBinding(binding) ? "numeric" : "");
-      const value = createElement("span", binding?.type === "uri" ? "iri-value" : "", cellValue(binding));
+      const value = createElement("span", binding?.type === "uri" ? "iri-value" : "", cellValue(binding, variable, payload.meta));
       if (binding?.type === "uri") value.title = binding.value;
       cell.append(value);
       tableRow.append(cell);
@@ -535,6 +601,37 @@ async function runEmptyGames() {
   }
 }
 
+async function runDerivedMetric() {
+  if (elements.derivedNumerator.value === elements.derivedDenominator.value) {
+    showError("Choose two different base measures.");
+    return;
+  }
+  elements.runDerivedButton.disabled = true;
+  elements.exportButton.disabled = true;
+  elements.resultMeta.hidden = true;
+  elements.queryInspector.hidden = true;
+  setStage("loading");
+  try {
+    const payload = await fetchJson("/api/derived", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        numerator: elements.derivedNumerator.value,
+        denominator: elements.derivedDenominator.value,
+        filters: filtersFrom(elements.derivedFilterControls),
+        dateScope: dateScopeRequest(),
+      }),
+    });
+    lastResponse = payload;
+    renderResults(payload);
+  } catch (error) {
+    lastResponse = null;
+    showError(error.message);
+  } finally {
+    renderDerivedContract();
+  }
+}
+
 async function runAdvanced() {
   const id = elements.advancedSelect.value;
   if (!advancedCatalog.some((entry) => entry.id === id)) {
@@ -605,6 +702,7 @@ elements.resetButton.addEventListener("click", () => {
 
 elements.exportButton.addEventListener("click", exportCsv);
 elements.runEmptyGamesButton.addEventListener("click", () => void runEmptyGames());
+elements.runDerivedButton.addEventListener("click", () => void runDerivedMetric());
 elements.runAdvancedButton.addEventListener("click", () => void runAdvanced());
 elements.resetEmptyGamesButton.addEventListener("click", () => {
   renderSpecialFilters("empty_games");
@@ -616,7 +714,14 @@ elements.resetAdvancedButton.addEventListener("click", () => {
   renderSpecialFilters("advanced");
   showToast("Filters reset");
 });
+elements.resetDerivedButton.addEventListener("click", () => {
+  renderDerivedBuilder();
+  renderSpecialFilters("derived_metrics");
+  showToast("Derived metric reset");
+});
 elements.advancedSelect.addEventListener("change", renderAdvancedDefinition);
+elements.derivedNumerator.addEventListener("change", renderDerivedContract);
+elements.derivedDenominator.addEventListener("change", renderDerivedContract);
 elements.copyQueryButton.addEventListener("click", () => void copyQuery());
 elements.datePreset.addEventListener("change", () => {
   const custom = elements.datePreset.value === "custom";
@@ -634,20 +739,22 @@ elements.suggestionList.addEventListener("click", (event) => {
   const button = event.target.closest("button[data-preset]");
   if (!button) return;
   configureFamily(button.dataset.preset);
-  if (!["empty_games", "advanced"].includes(button.dataset.preset)) {
+  if (catalog[button.dataset.preset]) {
     void runQuery();
   }
 });
 
 async function initialize() {
   try {
-    const [{ families }, { queries }, status] = await Promise.all([
+    const [{ families }, { queries }, derived, status] = await Promise.all([
       fetchJson("/api/catalog"),
       fetchJson("/api/advanced/catalog"),
+      fetchJson("/api/derived/catalog"),
       fetchJson("/api/status"),
     ]);
     catalog = families;
     advancedCatalog = queries;
+    derivedCatalog = derived;
     setConnection(status);
     renderFamilyTabs();
     renderBuilder();

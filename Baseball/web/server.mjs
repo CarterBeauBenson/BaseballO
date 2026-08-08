@@ -7,6 +7,10 @@ import {
   ANALYTICS_QUERY_FAMILIES,
   compileAnalyticsQuery,
 } from "./query-builder/analytics-query-builder.js";
+import {
+  buildPublicDerivedMetricCatalog,
+  compileDerivedMetricQuery,
+} from "./query-builder/derived-metric-query-builder.js";
 
 const WEB_ROOT = dirname(fileURLToPath(import.meta.url));
 const QUERY_BUILDER_ROOT = resolve(WEB_ROOT, "query-builder");
@@ -440,6 +444,16 @@ function applyEmptyEntityFilters(query, filters) {
   return query.replace(marker, `  ${clauses.join("\n  ")}\n\n${marker}`);
 }
 
+function applyDerivedEntityFilters(query, filters) {
+  const marker = "      # Derived-metric entity filters are inserted here by the allowlisted server.";
+  const clauses = [];
+  if (filters.player) clauses.push(`FILTER(?player = ${iri(filters.player)})`);
+  if (filters.team) clauses.push(`FILTER(?team = ${iri(filters.team)})`);
+  if (clauses.length === 0) return query;
+  if (!query.includes(marker)) throw new Error("The derived-metric filter boundary is missing.");
+  return query.replace(marker, `${clauses.map((clause) => `      ${clause}`).join("\n")}\n\n${marker}`);
+}
+
 async function graphScope(filters, execution) {
   if (Object.keys(filters).length === 0) return null;
   const { payload } = await executeSparql(compileGraphScopeQuery(filters), execution);
@@ -514,6 +528,11 @@ export function createBaseballServer({
         return;
       }
 
+      if (request.method === "GET" && requestUrl.pathname === "/api/derived/catalog") {
+        sendJson(response, 200, buildPublicDerivedMetricCatalog());
+        return;
+      }
+
       if (request.method === "GET" && requestUrl.pathname === "/api/options") {
         const familyId = requestUrl.searchParams.get("family") ?? "";
         const dimensionId = requestUrl.searchParams.get("dimension") ?? "";
@@ -563,6 +582,35 @@ export function createBaseballServer({
             definition: "reviewed-prototype",
             filters,
             dateScope,
+          },
+        });
+        return;
+      }
+
+      if (request.method === "POST" && requestUrl.pathname === "/api/derived") {
+        const input = await readJsonBody(request);
+        const compiled = compileDerivedMetricQuery(input);
+        const filters = normalizeSpecialFilters(input.filters, ["season", "game", "venue", "team", "player"]);
+        const graphFilters = Object.fromEntries(
+          Object.entries(filters).filter(([id]) => !["team", "player"].includes(id)),
+        );
+        const { graphs, dateScope } = await scopedGraphs(input.dateScope, graphFilters);
+        let query = applyGraphScope(compiled.query, graphs);
+        query = applyDerivedEntityFilters(query, filters);
+        const executedQuery = `${query.trimEnd()}\nLIMIT ${MAX_RESULTS}\n`;
+        const { payload, durationMs } = await executeSparql(executedQuery, { fetchImpl, queryEndpoint });
+        sendJson(response, 200, {
+          ...payload,
+          query: executedQuery,
+          meta: {
+            durationMs,
+            rowCount: payload.results?.bindings?.length ?? 0,
+            layer: "authoritative",
+            definition: "reviewed-derived-metric",
+            filters,
+            dateScope,
+            derivedMetric: compiled.contract,
+            columnLabels: { derivedValue: compiled.contract.label },
           },
         });
         return;

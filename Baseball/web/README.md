@@ -48,6 +48,9 @@ npm run check
 - a dedicated authoritative-only Empty Games review view that displays its
   current contribution policy and completeness gate, with season, game,
   batting-team, venue, and batter filters;
+- a Derived view whose allowlisted measure contracts combine Empty Games and
+  Offensive Games Played at player-game grain, labeling the subset calculation
+  as a percentage and the reverse calculation as a ratio;
 - a dedicated Advanced view for all 17 cataloged event-chain analytics, including
   on-field versus operative replay calls, challenge versus umpire initiation,
   and supported replay-review transitions with unsupported decision families

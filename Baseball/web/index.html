@@ -141,6 +141,40 @@
           </div>
         </section>
 
+        <section class="derived-builder" id="derived-builder" hidden aria-labelledby="derived-builder-title">
+          <div class="definition-card">
+            <p class="definition-status">Reviewed measure contracts · Authoritative only</p>
+            <h3 id="derived-builder-title">Combine two compatible measures</h3>
+            <p>Choose a numerator and denominator. BaseballO checks their grain, unit, dimensions, and evidence universe before compiling the calculation.</p>
+          </div>
+          <div class="derived-measure-grid">
+            <div class="filter-field">
+              <label for="derived-numerator">Numerator</label>
+              <select id="derived-numerator"></select>
+            </div>
+            <div class="derived-operator" aria-hidden="true">÷</div>
+            <div class="filter-field">
+              <label for="derived-denominator">Denominator</label>
+              <select id="derived-denominator"></select>
+            </div>
+          </div>
+          <div class="completeness-note" id="derived-contract-note">
+            <strong>Measure contract</strong>
+            <span id="derived-contract-text">Both measures count player-games in the reviewed offensive-game evidence universe.</span>
+          </div>
+          <fieldset class="control-group filters-group special-filter-group">
+            <legend><span>Narrow the question</span><small>Optional</small></legend>
+            <div class="filter-grid" id="derived-filter-controls"></div>
+          </fieldset>
+          <div class="form-actions special-form-actions">
+            <button class="run-button" id="run-derived-button" type="button">
+              <span>Calculate derived metric</span>
+              <span aria-hidden="true">→</span>
+            </button>
+            <button class="reset-button" id="reset-derived-button" type="button">Reset</button>
+          </div>
+        </section>
+
         <section class="advanced-builder" id="advanced-builder" hidden aria-labelledby="advanced-builder-title">
           <div class="definition-card">
             <p class="definition-status" id="advanced-mode">Authoritative semantic query</p>
@@ -191,6 +225,7 @@
               <button type="button" data-preset="baserunning">Runs by runner</button>
               <button type="button" data-preset="games">Games by venue</button>
               <button type="button" data-preset="empty_games">Find empty games</button>
+              <button type="button" data-preset="derived_metrics">Build an empty-game percentage</button>
               <button type="button" data-preset="advanced">Advanced event analytics</button>
             </div>
           </div>

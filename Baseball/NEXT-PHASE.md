@@ -29,7 +29,10 @@ the subsystem READMEs and Git history; do not recreate them here.
   authoritative-only. A shared official-game-date control now resolves the
   latest-day, seven-day, 30-day, season-to-date, or custom range through a
   compact cached graph/date lookup and scopes all substantive query paths
-  before execution.
+  before execution. Its Derived view now composes allowlisted compatible base
+  measures, beginning with Empty Games / Offensive Games Played at player-game
+  grain; subset calculations are percentages, reverse calculations are ratios,
+  and zero denominators remain unbound.
 - Pitching defaults now partition every mapped pitch into SME-labeled final
   call categories. Replay graphs distinguish the on-field judgment, optional
   challenge, replay-review act, both decisions, review-result ICE, and source
@@ -81,13 +84,6 @@ the subsystem READMEs and Git history; do not recreate them here.
 
 ### 1. Review the Explorer
 
-- Add a reviewed derived-metric composer that lets a user divide any two
-  compatible base measures, beginning with Empty Games / Offensive Games
-  Played at player-game grain. Every measure must declare its unit, grain,
-  dimensions, evidence universe, and zero-denominator behavior; label a result
-  as a percentage only when the numerator is a proven subset of the
-  denominator, otherwise label it as a ratio. Keep the compiler allowlisted and
-  do not accept raw formulas, ratio-of-ratios, or browser-authored SPARQL.
 - Review whether individual Advanced questions need result-level player or role
   filters in addition to the implemented season, game, team-in-game, and venue
   graph scope. Add them only through per-query catalog declarations where the

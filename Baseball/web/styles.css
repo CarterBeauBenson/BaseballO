@@ -362,6 +362,10 @@ a:focus-visible {
   color: var(--navy);
 }
 
+.family-tabs button[data-family="derived_metrics"] {
+  color: var(--red-dark);
+}
+
 .family-tabs button[data-family="empty_games"][aria-selected="true"] {
   background: var(--red);
   color: white;
@@ -549,7 +553,8 @@ a:focus-visible {
   margin-top: 0.5rem;
 }
 
-.empty-games-builder {
+.empty-games-builder,
+.derived-builder {
   border-top: 1px solid var(--line);
   padding-top: 1.25rem;
 }
@@ -561,6 +566,24 @@ a:focus-visible {
 
 .advanced-query-field {
   margin: 1rem 0;
+}
+
+.derived-measure-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: end;
+  gap: 0.65rem;
+  margin: 1rem 0;
+}
+
+.derived-operator {
+  display: grid;
+  width: 34px;
+  height: 42px;
+  place-items: center;
+  color: var(--red-dark);
+  font-size: 1.4rem;
+  font-weight: 800;
 }
 
 .definition-card {
@@ -1095,6 +1118,15 @@ pre {
 
   .filter-grid {
     grid-template-columns: 1fr;
+  }
+
+  .derived-measure-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .derived-operator {
+    width: 100%;
+    height: 22px;
   }
 
   .results-heading {
