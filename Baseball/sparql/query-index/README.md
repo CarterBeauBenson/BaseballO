@@ -69,12 +69,12 @@ families in both directions, including a label-fidelity check that detects
 encoding changes. The builder writes Fuseki's returned Turtle bytes directly
 so UTF-8 labels are never round-tripped through Windows PowerShell's legacy
 text decoding. The checked-in fixture currently yields 6,538 index
-triples from 28,419 authoritative triples, with equivalent identities for 21
+triples from 28,701 authoritative triples, with equivalent identities for 21
 hits, 282 pitches, 185 pitch calls, 134 batting acts, 112 contacts, 113 runner
 resolutions, one stolen base, and seven assignments.
 
 Across the checked-in eight-game 2026-08-03 corpus, the authoritative graph
-contains 228,576 triples and the replaceable query-index graph contains 52,944.
+contains 231,670 triples and the replaceable query-index graph contains 52,944.
 
 Before publication, the compiled graph must conform to
 [`shacl/query-index.ttl`](../../shacl/query-index.ttl). SHACL checks required

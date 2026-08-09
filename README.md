@@ -1,157 +1,228 @@
 # BaseballO
 
-**An explainable baseball knowledge graph for asking how a result happened—not
-only what the final statistic was.**
+**BaseballO lets you query baseball as connected game events instead of isolated
+statistics rows.**
 
-BaseballO models a game as connected people, roles, acts, physical processes,
-locations, times, records, judgments, and outcomes. A pitch can be followed
-through a swing, contact, ball motion, adjudication, and runner result while
-retaining the source evidence for every claim.
+A normal statistics table is good at questions such as:
 
-This is an experimental research platform, not a production statistics site.
+- How many hits did a player have?
+- How many pitches were called strikes?
+- How many games did a team win?
 
-## Why BaseballO?
+BaseballO is for questions that cross the boundaries between those rows:
 
-FanGraphs and Baseball Reference are better choices for established
-leaderboards, historical coverage, conventional statistics, and polished
-player pages. BaseballO is intended for questions where the **meaning,
-provenance, and structure of the evidence** matter as much as the number.
+- Which called strikes followed a swing, contact, review, or changed decision?
+- Who initiated a replay review, what was the original call, and what call
+  became final?
+- Which pitch, swing, contact, fielding play, and runner movement belong to the
+  same play?
+- Which players recorded hits for more than one team in the selected games,
+  and how many came with each team?
+- Which games are excluded from Empty Games analysis because their play-by-play
+  contains an unrecognized plate-appearance result?
+- Which players had the highest Empty Games percentage over a selected stretch
+  of games?
 
-Instead of storing only a statement such as “the batter had one hit,” BaseballO
-can retain the event pattern that supports it:
+BaseballO keeps the pitch, batter, pitcher, swing, contact, ball movement,
+umpire call, replay review, runner movement, and scoring result connected. That
+makes it possible to ask across the whole play instead of relying only on the
+columns chosen when a statistics table was created.
+
+## What is different from a normal stat table?
+
+| Normal baseball stat table | BaseballO |
+| --- | --- |
+| Stores a prepared result such as `1 hit` | Stores the game events that can be queried to calculate the hit |
+| Has a fixed set of columns | Allows questions across pitches, swings, contact, calls, reviews, runners, teams, venues, and officials |
+| Usually treats a player-team relationship as one field | Represents the role a player had for a team in a specific game |
+| Often requires a custom table or ETL change for a new statistic | Builds new measurements from reviewed event patterns at query time |
+| Can make missing data and zero look the same | Can exclude a game when the required source records are incomplete or unrecognized |
+| Returns an aggregate with its definition hidden in code | Shows the measurement definition and generated query with the result |
+| Uses the summary table as the data being queried | Keeps the complete game representation and treats faster summaries as rebuildable copies |
+
+A relational database could reproduce many of these features with enough
+tables, joins, rules, and custom code. The point is not that tables are
+incapable. The point is that BaseballO makes the connections and baseball
+meanings part of the shared model instead of rebuilding them separately for
+every new analysis.
+
+## A current example: Empty Games
+
+BaseballO currently includes an **Empty Games** measurement: games in which a
+player appeared as a batter but recorded no qualifying offensive contribution.
+
+This is not simply "games with zero hits." The current definition checks for:
+
+- singles, doubles, triples, and home runs;
+- walks;
+- sacrifice flies;
+- fielder's choices; and
+- explicitly recorded stolen bases.
+
+If a game contains a plate-appearance result that the current mapping does not
+recognize, BaseballO excludes that game instead of automatically calling it
+empty.
+
+The Explorer can also calculate:
 
 ```text
-pitch → swing → contact → batted-ball motion → adjudicated result
+Empty Games / Offensive Games Played
 ```
 
-That makes it possible to inspect how an answer was produced, distinguish
-similar baseball concepts precisely, detect incomplete event chains, and build
-new analytics from reusable semantic components.
+Because both counts refer to player-games from the same reviewed set of games,
+the result can be labeled as a percentage. Reversing the measurements produces
+a ratio instead. The server rejects arbitrary formulas and measurements that
+do not use compatible units and groupings.
 
-## What the current version can do
+## What the Explorer can do now
 
-The current implementation is a working local vertical slice. It can:
+The local read-only Explorer supports:
 
-- map untouched completed-game JSON directly to ontology-aligned RDF with RML;
-- represent players in game-scoped roles alongside pitches, swings, contact,
-  batted-ball motion, locations, judgments, and outcomes;
-- preserve full authoritative game graphs while generating smaller disposable
-  query-index graphs for reviewed high-value query patterns;
-- validate authoritative and indexed graphs with 30 SHACL node shapes;
-- run 48 canned SPARQL queries and 16 advanced event-chain analytics with
-  reproducible corpus baselines;
-- answer batting, pitching, baserunning, game, venue, team, and official-related
-  questions through a local read-only Explorer;
-- calculate the evidence-bounded **Empty Games** analytic without storing it
-  during ingestion;
-- expose generated SPARQL, execution metadata, tabular results, and CSV export;
-- visually audit all 247 RML triples maps through generated, pattern-sized
-  Mermaid diagrams;
-- prove equivalence between authoritative and indexed results for 18 reviewed
-  query routes; and
-- apply three selectively budgeted reasoning profiles to one explicitly chosen
-  plate appearance, with pinned BFO CLIF inputs and 107 checked first-order
-  proof obligations.
+- batting, pitching, baserunning, game, team, venue, umpire, and scorer
+  questions;
+- 17 advanced questions involving connected plays, replay reviews, unusual
+  event structures, and incomplete records;
+- Empty Games and Empty Games percentage;
+- compatible numerator/denominator combinations in the Derived view;
+- separate Regular season and 2026 All-Star Game query sets, with regular play
+  selected by default;
+- official-game-date ranges for one day, seven days, 30 days, season to date,
+  or a custom range;
+- filters for season, game, player, team, and venue where the filter has one
+  clear meaning;
+- click-to-sort result columns and CSV export; and
+- inspection of the generated query used to produce a result.
 
-The checked-in audit corpus currently contains eight completed games from
-2026-08-03 plus a separate development fixture. This is enough to test the
-architecture, not enough to claim season-scale statistical coverage.
+The checked-in research corpus contains 287 completed regular-season games
+dated July 16 through August 6, 2026. The July 14 All-Star Game remains loaded
+as a separately selectable game set, and a development fixture is also kept
+separate. This is a test corpus, not a complete season or historical database.
 
-## What a mature version would do
+## Questions this structure supports
 
-A mature BaseballO platform would extend the same evidence-preserving design to
-an authorized, season-scale or historical corpus. It would provide:
+BaseballO is being developed for questions such as:
 
-- a consistent visual question builder for ordinary, advanced, and
-  completeness-sensitive analytics;
-- reusable grouping and filtering by season, game, team, player, venue, umpire,
-  event type, and other semantically valid dimensions;
-- game-scoped team membership so trades and historical roster changes are
-  represented correctly;
-- composable questions across event chains—for example, relating pitch result,
-  swing behavior, contact, venue, umpire, game state, and eventual outcome;
-- plain baseball terminology with visible definitions whenever a measurement
-  is partial, inferred, or dependent on source completeness;
-- drill-down from every aggregate result to the events and source records that
-  justify it;
-- automatic detection of missing, contradictory, or structurally suspicious
-  game evidence;
-- a fast query layer that can be discarded and rebuilt from the full graph
-  without weakening the authoritative model;
-- selective reasoning invoked only for bounded questions where its additional
-  conclusions justify the computational cost;
-- reproducible research packages containing query text, graph version,
-  validation status, inference profile, and result provenance; and
-- stable local and service APIs for research tools, visualizations, notebooks,
-  and other baseball applications.
+- How do pitch calls relate to swings, contact, balls in play, and runner
+  outcomes?
+- How often was an original replay call affirmed or overturned?
+- Were reviews initiated by a challenge or by an umpire?
+- Which players had the highest Empty Games percentage under the stated
+  definition?
+- Which games contain broken or incomplete event chains?
+- Do faster query summaries return exactly the same rows as the complete game
+  representation?
+- How should rare baseball events be counted without forcing them into the
+  wrong category?
 
-The goal is not to reproduce a fixed menu of familiar statistics. The goal is
-to make baseball events into reusable, inspectable knowledge from which both
-familiar and previously unanticipated questions can be asked.
+This project is not trying to replace Baseball Reference, FanGraphs, Statcast,
+or other established baseball products. Those systems are better for standard
+leaderboards, player pages, standings, and historical coverage. BaseballO is
+focused on custom questions that need several parts of a game connected at
+once.
 
-## Who this is for
+## Where the project is now
 
-BaseballO is aimed at:
-
-- baseball researchers who need custom, reproducible questions;
-- analysts who want to inspect the assumptions behind a measurement;
-- knowledge-graph and ontology practitioners working with event data;
-- data engineers evaluating semantic validation and query acceleration; and
-- educators demonstrating how raw records become defensible claims.
-
-## Architecture
+BaseballO is already a working local research system, not just a proposed data
+model. Completed-game files can move through one repeatable workflow and become
+connected, checked, queryable game data.
 
 ```mermaid
-flowchart LR
-    JSON[Immutable game JSON] --> RML[Direct RML mapping]
-    RML --> SHACL[SHACL validation]
-    SHACL --> FULL[Authoritative game graph]
-    FULL --> SPARQL[Semantic queries]
-    FULL --> REASON[Selective reasoning]
-    FULL --> BUILD[Reviewed CONSTRUCT rules]
-    BUILD --> INDEX[Disposable query index]
-    SPARQL --> UI[BaseballO Explorer]
-    INDEX --> FAST[Accelerated query routes]
+flowchart TD
+    A["Completed-game<br/>JSON"] --> B["Repeatable NiFi<br/>processing"]
+    B --> C["Connected game<br/>events and roles"]
+    C --> D["Structure and<br/>coverage checks"]
+    D --> E["Complete<br/>game store"]
+    E --> F["Local BaseballO<br/>Explorer"]
+    E --> G["Rebuildable query<br/>summaries"]
+    G --> H["Exact-result<br/>comparison"]
+    H --> F
 ```
 
-The active stack uses free and open-source infrastructure, including Apache
-Jena Fuseki/TDB2 and Apache NiFi. Raw source files are immutable, derived
-statistics remain downstream, and inferred or accelerated graphs never replace
-the authoritative event graph.
+Today that system includes:
 
-## Current boundaries
+- 287 regular-season games plus one separately scoped All-Star Game in the
+  checked-in raw corpus
+- 48 standard queries and 17 advanced queries with reproducible test results
+- 18 complete-versus-summary query comparisons with identical results
+- a local read-only Explorer with date scoping, filters, derived measurements,
+  sortable results, CSV export, and generated-query inspection
+- a repeatable NiFi workflow for mapping, checking, loading, indexing, and
+  testing games
 
-- BaseballO is local and experimental; it is not publicly hosted.
-- Automated live acquisition is disabled pending an approved data source.
-- The current corpus is intentionally small.
-- Some source events remain explicitly generic where the available evidence
-  does not justify a more specific assertion.
-- Advanced absence-based analytics run only within documented completeness
-  boundaries.
-- Reasoning is selective and bounded; there is no full-corpus closure mode.
+The implementation uses Apache NiFi for the repeatable game-processing
+workflow, RML to map source records, SHACL to check graph structure, and Apache
+Jena Fuseki/TDB2 to store and query the games. A baseball user does not need to
+know those technologies to use the Explorer.
 
-## Explore the repository
+## A possible product end state
 
-The active project is under [`Baseball/`](Baseball/README.md). Useful starting
-points include:
+The product opportunity is a research layer between raw game feeds and fixed
+leaderboards. Instead of commissioning a new data pipeline for every unusual
+question, a baseball organization could build, save, compare, and share new
+measurements from the same connected game data.
 
-- [local Explorer](Baseball/web/README.md)
+```mermaid
+flowchart TD
+    A["Authorized live and<br/>historical feeds"] --> B["Continuous game<br/>processing"]
+    B --> C["Connected multi-season<br/>baseball data"]
+    C --> D["Baseball question<br/>builder"]
+    D --> E["Custom statistics<br/>and ratios"]
+    D --> F["Replay and play-chain<br/>research"]
+    D --> G["Coverage and<br/>data-quality reports"]
+    E --> H["Saved and shareable<br/>research"]
+    F --> H
+    G --> H
+    H --> I["Web product, API, notebooks,<br/>and partner tools"]
+```
+
+A mature version could add full-season and historical coverage, continuous
+updates, saved definitions, result-to-play drill-down, team workspaces, and an
+API for partner products. Those are possible product capabilities, not claims
+about the current prototype.
+
+## Potential uses
+
+- New cross-event questions can reuse the existing game connections instead of
+  requiring a separate table and pipeline for every analysis.
+- Researchers can combine compatible measurements, including percentages and
+  ratios, while checking that their units and groupings make sense.
+- Pitches, calls, reviews, contact, fielding, runners, and scoring can be
+  examined together without manually stitching separate exports together.
+- Results can be accompanied by their measurement definitions and generated
+  queries, making an analysis easier to inspect and repeat.
+- The same connected data can support exploratory research, data-quality
+  checks, notebooks, visualizations, and other baseball-analysis tools.
+
+BaseballO is an independent research and development project exploring how
+connected game data can support questions that are difficult to express with
+fixed statistics tables.
+
+## Run the Explorer locally
+
+```powershell
+powershell -ExecutionPolicy Bypass -File Baseball/scripts/infra/start-fuseki.ps1
+Set-Location Baseball/web
+npm start
+```
+
+Open <http://127.0.0.1:4173/>.
+
+See the [Explorer guide](Baseball/web/README.md) for more detail.
+
+## Technical documentation
+
+The active implementation is under [`Baseball/`](Baseball/README.md).
+
+- [Explorer and query builder](Baseball/web/README.md)
 - [query library](Baseball/sparql/README.md)
-- [RML mapping and policies](Baseball/mappings/README.md)
-- [generated Mermaid review](Baseball/mermaid/README.md)
-- [SHACL validation](Baseball/shacl/README.md)
+- [game-data mapping](Baseball/mappings/README.md)
+- [graph checks](Baseball/shacl/README.md)
+- [NiFi and Fuseki infrastructure](Baseball/infra/README.md)
 - [selective reasoning](Baseball/reasoning/README.md)
 - [current continuation plan](Baseball/NEXT-PHASE.md)
 
-## Validate the project
-
-From the repository root:
+Run the complete repository check with:
 
 ```powershell
-python -m pip install -r Baseball/requirements-dev.txt
 python Baseball/scripts/validate_repository.py
 ```
-
-The validator checks the ontology overlay, RML, raw fixtures, generated Mermaid
-documentation, SHACL shapes, SPARQL corpus, query-index equivalence contracts,
-Explorer, selective reasoning contracts, and first-order proof obligations.

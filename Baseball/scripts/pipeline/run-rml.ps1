@@ -1,7 +1,8 @@
 [CmdletBinding()]
 param(
     [string] $InputJson,
-    [string] $OutputFile
+    [string] $OutputFile,
+    [switch] $DeferShaclValidation
 )
 
 . (Join-Path $PSScriptRoot '..\infra\common.ps1')
@@ -50,8 +51,76 @@ $expectedPitchCount = 0
 $expectedBattingActCount = 0
 $expectedContactCount = 0
 $expectedRunnerRecordCount = 0
+$expectedRunnerResolutionCount = 0
+$passedBallEventIds = [System.Collections.Generic.HashSet[string]]::new()
+$wildPitchEventIds = [System.Collections.Generic.HashSet[string]]::new()
+$pitchBallControlFailureEventIds = [System.Collections.Generic.HashSet[string]]::new()
+$expectedUncaughtThirdStrikeCount = 0
 foreach ($play in @($gameDocument.liveData.plays.allPlays)) {
     $expectedRunnerRecordCount += @($play.runners).Count
+    $hasNullBatterStrikeout = $false
+    $safeBatterClassificationTypes = [System.Collections.Generic.HashSet[string]]::new()
+    foreach ($runner in @($play.runners)) {
+        if ($runner.movement.isOut -is [bool]) {
+            $expectedRunnerResolutionCount++
+        }
+        $runnerEventType = [string]$runner.details.eventType
+        if ($runnerEventType -in @('passed_ball', 'wild_pitch')) {
+            $playIndex = [int]$runner.details.playIndex
+            $classificationEvent = @($play.playEvents)[$playIndex]
+            $classificationPlayId = ''
+            if ($classificationEvent.PSObject.Properties.Name -contains 'playId') {
+                $classificationPlayId = [string]$classificationEvent.playId
+            }
+            if ($classificationEvent.isPitch -ne $true -or [string]::IsNullOrWhiteSpace($classificationPlayId)) {
+                $classificationPitchEvent = @(
+                    $play.playEvents |
+                        Where-Object {
+                            $_.isPitch -eq $true -and
+                            $_.index -le $playIndex -and
+                            $_.PSObject.Properties.Name -contains 'playId' -and
+                            -not [string]::IsNullOrWhiteSpace([string]$_.playId)
+                        } |
+                        Select-Object -Last 1
+                )
+                if ($classificationPitchEvent.Count -gt 0) {
+                    $classificationPlayId = [string]$classificationPitchEvent[0].playId
+                }
+            }
+            if ([string]::IsNullOrWhiteSpace($classificationPlayId)) {
+                throw "Game $gamePk play $($play.about.atBatIndex) has a $runnerEventType row without a source playId."
+            }
+            if ($runnerEventType -eq 'passed_ball') {
+                [void]$passedBallEventIds.Add($classificationPlayId)
+            }
+            else {
+                [void]$wildPitchEventIds.Add($classificationPlayId)
+            }
+            [void]$pitchBallControlFailureEventIds.Add($classificationPlayId)
+        }
+        if (
+            $runnerEventType -eq 'strikeout' -and
+            [string]$runner.details.runner.id -eq [string]$play.matchup.batter.id -and
+            $null -eq $runner.movement.isOut
+        ) {
+            $hasNullBatterStrikeout = $true
+        }
+        if (
+            $runnerEventType -in @('passed_ball', 'wild_pitch') -and
+            [string]$runner.details.runner.id -eq [string]$play.matchup.batter.id -and
+            $runner.movement.isOut -eq $false -and
+            [string]$runner.movement.end -eq '1B'
+        ) {
+            [void]$safeBatterClassificationTypes.Add($runnerEventType)
+        }
+    }
+    if (
+        [string]$play.result.eventType -eq 'strikeout' -and
+        $hasNullBatterStrikeout -and
+        $safeBatterClassificationTypes.Count -eq 1
+    ) {
+        $expectedUncaughtThirdStrikeCount++
+    }
     foreach ($event in @($play.playEvents)) {
         if ($event.isPitch -eq $true) {
             $expectedPitchCount++
@@ -205,14 +274,16 @@ try {
         throw "RMLMapper produced no RDF for game $gamePk."
     }
 
-    & python $validatorPath $stageOutput $gamePk '--expected-plate-appearances' $expectedPlateAppearanceCount '--expected-batter-acts' $expectedPlateAppearanceCount '--expected-pitches' $expectedPitchCount '--expected-batting-acts' $expectedBattingActCount '--expected-contacts' $expectedContactCount '--expected-runner-records' $expectedRunnerRecordCount '--expected-game-end' $expectedGameEndTime
+    & python $validatorPath $stageOutput $gamePk '--expected-plate-appearances' $expectedPlateAppearanceCount '--expected-batter-acts' $expectedPlateAppearanceCount '--expected-pitches' $expectedPitchCount '--expected-batting-acts' $expectedBattingActCount '--expected-contacts' $expectedContactCount '--expected-runner-records' $expectedRunnerRecordCount '--expected-runner-resolutions' $expectedRunnerResolutionCount '--expected-pitch-ball-control-failures' $pitchBallControlFailureEventIds.Count '--expected-passed-balls' $passedBallEventIds.Count '--expected-wild-pitches' $wildPitchEventIds.Count '--expected-uncaught-third-strikes' $expectedUncaughtThirdStrikeCount '--expected-game-end' $expectedGameEndTime
     if ($LASTEXITCODE -ne 0) {
         throw "Generated RDF validation failed for game $gamePk."
     }
 
-    & python $shaclValidatorPath '--profile' 'authoritative' '--data' $stageOutput
-    if ($LASTEXITCODE -ne 0) {
-        throw "Authoritative SHACL validation failed for game $gamePk."
+    if (-not $DeferShaclValidation) {
+        & python $shaclValidatorPath '--profile' 'authoritative' '--data' $stageOutput
+        if ($LASTEXITCODE -ne 0) {
+            throw "Authoritative SHACL validation failed for game $gamePk."
+        }
     }
 
     Copy-Item -LiteralPath $stageOutput -Destination $outputPath -Force
@@ -252,9 +323,16 @@ try {
             battingActs = $expectedBattingActCount
             contacts = $expectedContactCount
             runnerRecords = $expectedRunnerRecordCount
+            runnerResolutions = $expectedRunnerResolutionCount
+            pitchBallControlFailures = $pitchBallControlFailureEventIds.Count
+            passedBalls = $passedBallEventIds.Count
+            wildPitches = $wildPitchEventIds.Count
+            uncaughtThirdStrikes = $expectedUncaughtThirdStrikeCount
         }
         outputPath = $outputPath
         outputSha256 = $outputHash
+        shaclStatus = if ($DeferShaclValidation) { 'deferred-to-nifi' } else { 'validated' }
+        shaclValidatedAtUtc = if ($DeferShaclValidation) { $null } else { [DateTime]::UtcNow.ToString('o') }
         shaclProfile = 'authoritative'
         shaclShapePath = $authoritativeShapePath
         shaclShapeSha256 = (Get-FileHash -LiteralPath $authoritativeShapePath -Algorithm SHA256).Hash.ToLowerInvariant()

@@ -8,6 +8,8 @@ import json
 import re
 import subprocess
 import sys
+import tempfile
+from datetime import date, timedelta
 from pathlib import Path
 from urllib.parse import unquote
 
@@ -19,15 +21,42 @@ from rdflib.plugins.sparql import prepareQuery
 ROOT = Path(__file__).resolve().parents[1]
 ACTIVE_MAPPING = ROOT / "mappings" / "direct" / "mlb-direct.rml.ttl"
 MAPPING_VALIDATOR = ROOT / "mappings" / "direct" / "validate_direct_mapping.py"
+CONTEXT_BUILDER = ROOT / "scripts" / "pipeline" / "prepare-rml-context.py"
 ONTOLOGY_OVERLAY_VALIDATOR = ROOT / "scripts" / "validate_ontology_overlay.py"
 RML_MERMAID_GENERATOR = ROOT / "scripts" / "generate_rml_mermaid.py"
 SELECTIVE_REASONING_TEST = ROOT / "scripts" / "reasoning" / "test-selective-reasoning.py"
+NIFI_EVIDENCE_TEST = ROOT / "tests" / "test_nifi_evidence_stage.py"
+NIFI_GAME_FLOW_TEST = ROOT / "tests" / "test_nifi_game_flow.py"
+NIFI_CORPUS_FLOW_TEST = ROOT / "tests" / "test_nifi_corpus_flow.py"
+NIFI_EVIDENCE_CONTRACT = ROOT / "infra" / "nifi" / "repeatable-stages.json"
 SELECTIVE_REASONER = ROOT / "scripts" / "reasoning" / "selective_reasoner.py"
 SELECTIVE_PROVER = ROOT / "scripts" / "reasoning" / "prove-selective-reasoning.py"
 REASONING_EVIDENCE = ROOT / "reasoning" / "evidence" / "fixture-566279-pa-0.json"
+REASONING_REVIEW_SAMPLES = ROOT / "reasoning" / "reviewed-samples.json"
+REASONING_REVIEW_EVIDENCE = (
+    ROOT / "reasoning" / "evidence" / "fixture-566279-reviewed-samples.json"
+)
+REASONING_REVIEW_EVALUATOR = ROOT / "scripts" / "reasoning" / "evaluate-reviewed-samples.py"
+REASONING_PROFILE_ADMISSION = ROOT / "reasoning" / "profile-admission-tests.json"
 SAMPLE = ROOT / "data" / "raw" / "game-566279.json"
+RAW_SAMPLE_ROOT = ROOT / "data" / "raw" / "samples"
+REVIEW_SAMPLE = RAW_SAMPLE_ROOT / "2026-07-16" / "823440.json"
+IN_PLAY_INTERFERENCE_SAMPLE = RAW_SAMPLE_ROOT / "2026-07-20" / "824898.json"
+TRIPLE_PLAY_SAMPLE = RAW_SAMPLE_ROOT / "2026-07-21" / "824165.json"
+WILD_PITCH_UNCAUGHT_THIRD_STRIKE_SAMPLE = (
+    RAW_SAMPLE_ROOT / "2026-07-26" / "824810.json"
+)
+PASSED_BALL_UNCAUGHT_THIRD_STRIKE_SAMPLE = (
+    RAW_SAMPLE_ROOT / "2026-07-24" / "822952.json"
+)
+MULTI_CONTROL_FAILURE_SAMPLE = RAW_SAMPLE_ROOT / "2026-08-03" / "823757.json"
 MAPPING_SAMPLES = (
     SAMPLE,
+    REVIEW_SAMPLE,
+    IN_PLAY_INTERFERENCE_SAMPLE,
+    TRIPLE_PLAY_SAMPLE,
+    WILD_PITCH_UNCAUGHT_THIRD_STRIKE_SAMPLE,
+    PASSED_BALL_UNCAUGHT_THIRD_STRIKE_SAMPLE,
     *sorted((ROOT / "data" / "raw" / "samples" / "2026-08-03").glob("[0-9]*.json")),
 )
 SPARQL_ROOT = ROOT / "sparql"
@@ -66,12 +95,17 @@ REQUIRED_PATHS = (
     SHACL_ROOT / "README.md",
     SHACL_ROOT / "authoritative.ttl",
     SHACL_ROOT / "query-index.ttl",
+    SHACL_ROOT / "reasoning-output.ttl",
     ROOT / "reasoning" / "README.md",
     ROOT / "reasoning" / "bfo-clif-manifest.json",
     ROOT / "reasoning" / "profiles" / "event-order.json",
     ROOT / "reasoning" / "profiles" / "event-structure.json",
     ROOT / "reasoning" / "profiles" / "participation.json",
     REASONING_EVIDENCE,
+    REASONING_REVIEW_SAMPLES,
+    REASONING_REVIEW_EVIDENCE,
+    REASONING_REVIEW_EVALUATOR,
+    REASONING_PROFILE_ADMISSION,
     WEB_ROOT / "package.json",
     WEB_ROOT / "index.html",
     WEB_ROOT / "styles.css",
@@ -85,15 +119,25 @@ REQUIRED_PATHS = (
     ROOT / "scripts" / "infra" / "configure-nifi-rdf-skeleton.ps1",
     ROOT / "scripts" / "infra" / "configure-nifi-games-manual.ps1",
     ROOT / "scripts" / "infra" / "configure-nifi-games-daily.ps1",
+    ROOT / "scripts" / "infra" / "configure-nifi-evidence.ps1",
+    ROOT / "scripts" / "infra" / "configure-nifi-rdf-flow.ps1",
+    ROOT / "scripts" / "infra" / "configure-nifi-corpus-audits.ps1",
+    ROOT / "infra" / "nifi" / "repeatable-stages.json",
     ROOT / "scripts" / "pipeline" / "import-game-json.ps1",
     ROOT / "scripts" / "pipeline" / "process-staged-game-json.ps1",
+    ROOT / "scripts" / "pipeline" / "archive-and-queue-game-json.py",
+    ROOT / "scripts" / "pipeline" / "process-nifi-rdf-stage.ps1",
+    ROOT / "scripts" / "pipeline" / "queue-ready-corpus-audits.py",
+    ROOT / "scripts" / "pipeline" / "process-nifi-corpus-stage.py",
     ROOT / "scripts" / "pipeline" / "test-manual-vertical-slice.ps1",
+    ROOT / "scripts" / "pipeline" / "test-nifi-rdf-flow.ps1",
     ROOT / "scripts" / "pipeline" / "run-rml.ps1",
     ROOT / "scripts" / "pipeline" / "prepare-rml-context.py",
     ROOT / "scripts" / "pipeline" / "acquire-daily-games.ps1",
     ROOT / "scripts" / "pipeline" / "load-game-graph.ps1",
     ROOT / "scripts" / "pipeline" / "validate-generated-rdf.py",
     ROOT / "scripts" / "pipeline" / "validate-shacl.py",
+    ROOT / "scripts" / "pipeline" / "validate-mapping-shacl-contracts.py",
     ROOT / "scripts" / "pipeline" / "build-query-index.ps1",
     ROOT / "scripts" / "pipeline" / "compile-query-index.py",
     ROOT / "scripts" / "pipeline" / "query-index-common.ps1",
@@ -111,11 +155,15 @@ REQUIRED_PATHS = (
     ROOT / "scripts" / "pipeline" / "test-query-index-failure.ps1",
     ROOT / "scripts" / "pipeline" / "audit-canned-queries.ps1",
     ROOT / "scripts" / "pipeline" / "audit-advanced-queries.ps1",
+    ROOT / "scripts" / "pipeline" / "run-nifi-evidence-stage.py",
     ROOT / "scripts" / "reasoning" / "sync-bfo-clif.py",
     ROOT / "scripts" / "reasoning" / "selective_reasoner.py",
     ROOT / "scripts" / "reasoning" / "prove-selective-reasoning.py",
     ROOT / "scripts" / "reasoning" / "run-selective-reasoning.ps1",
     SELECTIVE_REASONING_TEST,
+    NIFI_EVIDENCE_TEST,
+    NIFI_GAME_FLOW_TEST,
+    NIFI_CORPUS_FLOW_TEST,
     RML_MERMAID_GENERATOR,
     ROOT / "sparql" / "empty-games-prototype.rq",
     ADVANCED_QUERY_ROOT / "README.md",
@@ -147,7 +195,13 @@ REQUIRED_PATHS = (
 
 OFFLINE_PIPELINE_PATHS = (
     ROOT / "scripts" / "infra" / "configure-nifi-games-manual.ps1",
+    ROOT / "scripts" / "infra" / "configure-nifi-rdf-flow.ps1",
+    ROOT / "scripts" / "infra" / "configure-nifi-corpus-audits.ps1",
     ROOT / "scripts" / "pipeline" / "import-game-json.ps1",
+    ROOT / "scripts" / "pipeline" / "archive-and-queue-game-json.py",
+    ROOT / "scripts" / "pipeline" / "process-nifi-rdf-stage.ps1",
+    ROOT / "scripts" / "pipeline" / "queue-ready-corpus-audits.py",
+    ROOT / "scripts" / "pipeline" / "process-nifi-corpus-stage.py",
     ROOT / "scripts" / "pipeline" / "process-staged-game-json.ps1",
 )
 
@@ -183,6 +237,227 @@ def validate_json() -> int:
     return len(files)
 
 
+def validate_raw_corpus() -> tuple[int, int, int]:
+    start = date.fromisoformat("2026-07-14")
+    end = date.fromisoformat("2026-08-06")
+    expected_dates: list[str] = []
+    current = start
+    while current <= end:
+        expected_dates.append(current.isoformat())
+        current += timedelta(days=1)
+
+    schedule_files = sorted(RAW_SAMPLE_ROOT.glob("????-??-??/schedule.json"))
+    game_files = sorted(
+        path
+        for path in RAW_SAMPLE_ROOT.glob("????-??-??/*.json")
+        if path.stem.isdigit()
+    )
+    if len(schedule_files) != 24 or len(game_files) != 288:
+        raise ValueError(
+            "Expected 24 dated schedules and 288 canonical raw game files; "
+            f"found {len(schedule_files)} and {len(game_files)}"
+        )
+    actual_dates = [path.parent.name for path in schedule_files]
+    if actual_dates != expected_dates:
+        raise ValueError("Raw schedule dates do not cover 2026-07-14 through 2026-08-06")
+
+    game_pks: set[str] = set()
+    for path in game_files:
+        document = json.loads(path.read_text(encoding="utf-8"))
+        game_pk = str(document.get("gamePk", ""))
+        official_date = str(
+            document.get("gameData", {}).get("datetime", {}).get("officialDate", "")
+        )
+        state = str(
+            document.get("gameData", {}).get("status", {}).get("abstractGameState", "")
+        )
+        if game_pk != path.stem:
+            raise ValueError(f"Raw game filename disagrees with gamePk: {path}")
+        if game_pk in game_pks:
+            raise ValueError(f"Duplicate raw gamePk in dated corpus: {game_pk}")
+        if official_date != path.parent.name:
+            raise ValueError(f"Raw game is not stored under its official date: {path}")
+        if state != "Final":
+            raise ValueError(f"Raw corpus contains a non-final game: {path}")
+        game_pks.add(game_pk)
+
+    scheduled_final_pks: set[str] = set()
+    game_types: dict[str, str] = {}
+    final_schedule_entries = 0
+    for path in schedule_files:
+        schedule = json.loads(path.read_text(encoding="utf-8"))
+        for schedule_date in schedule.get("dates", []):
+            for game in schedule_date.get("games", []):
+                if game.get("status", {}).get("abstractGameState") == "Final":
+                    game_pk = str(game.get("gamePk", ""))
+                    if not game_pk.isdigit():
+                        raise ValueError(f"Schedule contains an unsafe final gamePk: {path}")
+                    game_type = str(game.get("gameType", ""))
+                    previous_type = game_types.get(game_pk)
+                    if previous_type is not None and previous_type != game_type:
+                        raise ValueError(f"Schedule gameType changed for game {game_pk}")
+                    game_types[game_pk] = game_type
+                    final_schedule_entries += 1
+                    scheduled_final_pks.add(game_pk)
+    if final_schedule_entries != 294:
+        raise ValueError(
+            f"Expected 294 final schedule entries; found {final_schedule_entries}"
+        )
+    if scheduled_final_pks != game_pks:
+        missing = sorted(scheduled_final_pks - game_pks)
+        extra = sorted(game_pks - scheduled_final_pks)
+        raise ValueError(
+            f"Raw game and final schedule identities differ; missing={missing}, extra={extra}"
+        )
+    all_star_pks = {game_pk for game_pk, game_type in game_types.items() if game_type == "A"}
+    regular_season_pks = {game_pk for game_pk, game_type in game_types.items() if game_type == "R"}
+    unsupported_game_types = sorted(set(game_types.values()) - {"A", "R"})
+    if all_star_pks != {"823443"} or len(regular_season_pks) != 287 or unsupported_game_types:
+        raise ValueError(
+            "Raw corpus must contain 287 regular-season games and only the separately "
+            "scoped 2026 All-Star Game 823443; "
+            f"regular={len(regular_season_pks)}, all_star={sorted(all_star_pks)}, "
+            f"unsupported_types={unsupported_game_types}"
+        )
+    return len(schedule_files), len(game_files), final_schedule_entries
+
+
+def validate_review_context() -> None:
+    source = REVIEW_SAMPLE
+    with tempfile.TemporaryDirectory(prefix="baseballo-review-context-") as directory:
+        output = Path(directory) / "context.json"
+        subprocess.run(
+            [sys.executable, str(CONTEXT_BUILDER), str(source), str(output)],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        document = json.loads(output.read_text(encoding="utf-8"))
+
+    plays = {
+        int(play["about"]["atBatIndex"]): play
+        for play in document["liveData"]["plays"]["allPlays"]
+    }
+    challenge = plays[37]["_baseballO"]
+    umpire_review = plays[44]["_baseballO"]
+    if (
+        challenge.get("reviewInitiation") != "challenge"
+        or challenge.get("reviewType") != "pitch_result"
+        or challenge.get("reviewOriginalDecision") != "strike"
+        or challenge.get("reviewFinalDecision") != "strike"
+        or challenge.get("reviewChallengerId") != "687282"
+    ):
+        raise ValueError("Player challenge review context regression in game 823440")
+    if (
+        umpire_review.get("reviewInitiation") != "umpire_review"
+        or umpire_review.get("reviewType") != "home_run"
+        or "reviewChallengerId" in umpire_review
+        or "reviewOriginalDecision" in umpire_review
+        or "reviewFinalDecision" in umpire_review
+        or "reviewPattern" in umpire_review
+    ):
+        raise ValueError("Umpire-initiated review context regression in game 823440")
+    source_document = json.loads(source.read_text(encoding="utf-8"))
+    if "_baseballO" in source_document:
+        raise ValueError("Raw game 823440 was modified with execution-only context")
+
+    with tempfile.TemporaryDirectory(prefix="baseballo-in-play-context-") as directory:
+        output = Path(directory) / "context.json"
+        subprocess.run(
+            [sys.executable, str(CONTEXT_BUILDER), str(IN_PLAY_INTERFERENCE_SAMPLE), str(output)],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        document = json.loads(output.read_text(encoding="utf-8"))
+    interference_play = next(
+        play
+        for play in document["liveData"]["plays"]["allPlays"]
+        if int(play["about"]["atBatIndex"]) == 32
+    )
+    if interference_play["_baseballO"].get("terminalPitchIsInPlay") is not True:
+        raise ValueError("Terminal in-play catcher-interference regression in game 824898")
+    source_document = json.loads(IN_PLAY_INTERFERENCE_SAMPLE.read_text(encoding="utf-8"))
+    if "_baseballO" in source_document:
+        raise ValueError("Raw game 824898 was modified with execution-only context")
+
+    uncaught_cases = (
+        (WILD_PITCH_UNCAUGHT_THIRD_STRIKE_SAMPLE, 32, "wild_pitch"),
+        (PASSED_BALL_UNCAUGHT_THIRD_STRIKE_SAMPLE, 53, "passed_ball"),
+    )
+    for source, at_bat_index, expected_classification in uncaught_cases:
+        with tempfile.TemporaryDirectory(
+            prefix="baseballo-uncaught-third-strike-context-"
+        ) as directory:
+            output = Path(directory) / "context.json"
+            subprocess.run(
+                [sys.executable, str(CONTEXT_BUILDER), str(source), str(output)],
+                cwd=ROOT,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            document = json.loads(output.read_text(encoding="utf-8"))
+        play = next(
+            candidate
+            for candidate in document["liveData"]["plays"]["allPlays"]
+            if int(candidate["about"]["atBatIndex"]) == at_bat_index
+        )
+        context = play["_baseballO"]
+        placeholders = [
+            runner
+            for runner in play["runners"]
+            if runner["_baseballO"].get("isUncaughtThirdStrikePlaceholder") is True
+        ]
+        if (
+            context.get("isUncaughtThirdStrike") is not True
+            or context.get("uncaughtThirdStrikeEventType") != expected_classification
+            or len(placeholders) != 1
+            or placeholders[0]["_baseballO"].get("hasRunnerResolution") is not False
+            or not placeholders[0]["_baseballO"].get("eventPlayId")
+        ):
+            raise ValueError(
+                f"Uncaught-third-strike context regression in game {source.stem}"
+            )
+        source_document = json.loads(source.read_text(encoding="utf-8"))
+        if "_baseballO" in source_document:
+            raise ValueError(
+                f"Raw game {source.stem} was modified with execution-only context"
+            )
+
+    with tempfile.TemporaryDirectory(
+        prefix="baseballo-multi-control-failure-context-"
+    ) as directory:
+        output = Path(directory) / "context.json"
+        subprocess.run(
+            [
+                sys.executable,
+                str(CONTEXT_BUILDER),
+                str(MULTI_CONTROL_FAILURE_SAMPLE),
+                str(output),
+            ],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        document = json.loads(output.read_text(encoding="utf-8"))
+    classification_event_ids = {
+        runner["_baseballO"].get("eventPlayId")
+        for play in document["liveData"]["plays"]["allPlays"]
+        for runner in play.get("runners", [])
+        if runner.get("details", {}).get("eventType")
+        in {"passed_ball", "wild_pitch"}
+    }
+    if None in classification_event_ids or len(classification_event_ids) != 3:
+        raise ValueError(
+            "Multiple pitch-control failures within one plate appearance were collapsed "
+            "in game 823757"
+        )
+
+
 def validate_turtle() -> int:
     files = list(ROOT.rglob("*.ttl"))
     for path in files:
@@ -194,6 +469,7 @@ def validate_shacl_profiles() -> int:
     profiles = {
         "authoritative": SHACL_ROOT / "authoritative.ttl",
         "query-index": SHACL_ROOT / "query-index.ttl",
+        "reasoning-output": SHACL_ROOT / "reasoning-output.ttl",
     }
     shape_count = 0
     for name, path in profiles.items():
@@ -236,6 +512,23 @@ def validate_shacl_profiles() -> int:
     )
     if conforms:
         raise ValueError("Query-index SHACL profile accepted an incomplete HitFact")
+
+    invalid_reasoning = Graph()
+    invalid_reasoning.add(
+        (
+            URIRef("urn:baseball:shacl-smoke:reasoning"),
+            URIRef("http://www.w3.org/ns/prov#wasDerivedFrom"),
+            URIRef("https://w3id.org/baseball/graph/game/566279"),
+        )
+    )
+    conforms, _, _ = validate_shacl(
+        data_graph=invalid_reasoning,
+        shacl_graph=Graph().parse(profiles["reasoning-output"], format="turtle"),
+        inference="none",
+        advanced=True,
+    )
+    if conforms:
+        raise ValueError("Reasoning-output SHACL profile accepted incomplete provenance")
     return shape_count
 
 
@@ -254,11 +547,11 @@ def validate_sparql() -> int:
         len(canned_files) != 48
         or len(component_files) != 13
         or len(benchmark_files) != 18
-        or len(advanced_files) != 16
+        or len(advanced_files) != 17
     ):
         raise ValueError(
             "Expected 48 canned SPARQL queries, 13 query-index components, "
-            "18 indexed benchmark companions, and 16 advanced semantic queries; "
+            "18 indexed benchmark companions, and 17 advanced semantic queries; "
             f"found {len(canned_files)}, {len(component_files)}, "
             f"{len(benchmark_files)}, and {len(advanced_files)}"
         )
@@ -423,6 +716,91 @@ def validate_reasoning_evidence() -> int:
     if not evidence.get("allProfilesConsistent"):
         raise ValueError("Selective reasoning baseline reports an inconsistent profile")
     return total_proved
+
+
+def validate_reasoning_review_evidence() -> tuple[int, int]:
+    contract = json.loads(REASONING_REVIEW_SAMPLES.read_text(encoding="utf-8"))
+    evidence = json.loads(REASONING_REVIEW_EVIDENCE.read_text(encoding="utf-8"))
+    if contract.get("artifactType") != "baseball-selective-reasoning-reviewed-samples":
+        raise ValueError("Unknown reviewed reasoning sample contract")
+    samples = contract.get("samples", [])
+    if len(samples) != 2 or {sample.get("complexity") for sample in samples} != {"simple", "complicated"}:
+        raise ValueError("Reviewed reasoning evidence must compare simple and complicated samples")
+    raw = json.loads(SAMPLE.read_text(encoding="utf-8"))
+    plays = {int(play["about"]["atBatIndex"]): play for play in raw["liveData"]["plays"]["allPlays"]}
+    for sample in samples:
+        play = plays[int(sample["plateAppearanceIndex"])]
+        observed = {
+            "eventType": str(play["result"]["eventType"]),
+            "playEventCount": len(play.get("playEvents", [])),
+            "pitchCount": sum(1 for event in play.get("playEvents", []) if event.get("isPitch") is True),
+            "runnerRecordCount": len(play.get("runners", [])),
+            "description": str(play["result"]["description"]),
+        }
+        if any(sample.get(key) != value for key, value in observed.items()):
+            raise ValueError(f"Reviewed reasoning sample is stale: {sample.get('id')}")
+    if evidence.get("artifactType") != "baseball-selective-reasoning-reviewed-sample-evidence":
+        raise ValueError("Unknown reviewed reasoning comparison evidence")
+    if evidence.get("sourceJsonSha256") != sha256_file(SAMPLE):
+        raise ValueError("Reviewed reasoning comparison has a stale source JSON hash")
+    if evidence.get("samplesContractSha256") != sha256_file(REASONING_REVIEW_SAMPLES):
+        raise ValueError("Reviewed reasoning comparison has a stale sample-contract hash")
+    fixture_baseline = json.loads(REASONING_EVIDENCE.read_text(encoding="utf-8"))
+    if evidence.get("sourceRdfSha256") != fixture_baseline.get("sourceRdfSha256"):
+        raise ValueError("Reviewed reasoning comparison does not use the accepted fixture RDF")
+    results = evidence.get("results", [])
+    expected = {(sample["id"], profile) for sample in samples for profile in ("event-order", "event-structure", "participation")}
+    observed_keys = {(result.get("sample"), result.get("profile")) for result in results}
+    if len(results) != 6 or observed_keys != expected:
+        raise ValueError("Reviewed reasoning comparison must cover both samples with all three profiles")
+    baseline_profiles = {item["profile"]: item for item in fixture_baseline["profiles"]}
+    total_proved = 0
+    for result in results:
+        profile_id = str(result["profile"])
+        profile_path = ROOT / "reasoning" / "profiles" / f"{profile_id}.json"
+        profile = json.loads(profile_path.read_text(encoding="utf-8"))
+        if result.get("profileSha256") != sha256_file(profile_path):
+            raise ValueError(f"Reviewed reasoning profile hash is stale: {profile_id}")
+        if result.get("rulesetSha256") != baseline_profiles[profile_id]["rulesetSha256"]:
+            raise ValueError(f"Reviewed reasoning ruleset hash is stale: {profile_id}")
+        counts = result.get("counts", {})
+        budgets = profile["budgets"]
+        if int(counts.get("selectedNodes", -1)) > int(budgets["maxNodes"]):
+            raise ValueError(f"Reviewed reasoning node budget exceeded: {profile_id}")
+        if int(counts.get("assertedSliceTriples", -1)) > int(budgets["maxSourceTriples"]):
+            raise ValueError(f"Reviewed reasoning source budget exceeded: {profile_id}")
+        if int(counts.get("inferredTriples", -1)) > int(budgets["maxInferredTriples"]):
+            raise ValueError(f"Reviewed reasoning inference budget exceeded: {profile_id}")
+        comparison = result.get("queryComparison", {})
+        asserted_rows = int(comparison.get("asserted", {}).get("rowCount", -1))
+        closure_rows = int(comparison.get("closure", {}).get("rowCount", -1))
+        if int(comparison.get("newRows", -1)) != closure_rows - asserted_rows:
+            raise ValueError(f"Reviewed reasoning query comparison is inconsistent: {profile_id}")
+        for layer in ("asserted", "closure"):
+            if not re.fullmatch(r"[0-9a-f]{64}", str(comparison.get(layer, {}).get("rowSetSha256", ""))):
+                raise ValueError(f"Reviewed reasoning query hash is invalid: {profile_id}/{layer}")
+        proof = result.get("proof", {})
+        obligations = int(proof.get("obligationCount", -1))
+        proved = int(proof.get("provedCount", -1))
+        if obligations < 0 or proved != obligations or proof.get("consistency") != "sat" or proof.get("allObligationsProved") is not True:
+            raise ValueError(f"Reviewed reasoning proof is incomplete: {profile_id}")
+        shacl = result.get("shaclValidation", {})
+        expected_shapes = {
+            "explicitGraphBeforeReasoning": ("authoritative", SHACL_ROOT / "authoritative.ttl"),
+            "inferredGraphBeforeLoad": ("reasoning-output", SHACL_ROOT / "reasoning-output.ttl"),
+        }
+        for boundary, (expected_profile, shape_path) in expected_shapes.items():
+            validation = shacl.get(boundary, {})
+            if (
+                validation.get("profile") != expected_profile
+                or validation.get("conforms") is not True
+                or validation.get("shapeSha256") != sha256_file(shape_path)
+            ):
+                raise ValueError(f"Reviewed reasoning SHACL boundary is stale: {profile_id}/{boundary}")
+        total_proved += proved
+    if evidence.get("runCount") != 6 or evidence.get("allProfilesConsistent") is not True or evidence.get("allObligationsProved") is not True:
+        raise ValueError("Reviewed reasoning comparison summary is inconsistent")
+    return len(results), total_proved
 
 
 def validate_offline_pipeline_boundary() -> None:
@@ -752,11 +1130,11 @@ def validate_advanced_query_audit() -> int:
     expected_paths = {
         path.relative_to(ROOT).as_posix() for path in advanced_files
     }
-    if len(entries) != 16 or len(advanced_files) != 16 or catalog_paths != expected_paths:
-        raise ValueError("Advanced-query catalog does not cover the exact 16-query suite")
+    if len(entries) != 17 or len(advanced_files) != 17 or catalog_paths != expected_paths:
+        raise ValueError("Advanced-query catalog does not cover the exact 17-query suite")
     allowed_modes = {"positive-evidence", "completeness-gated", "integrity-audit"}
     ids = [str(entry.get("id")) for entry in entries]
-    if len(set(ids)) != 16:
+    if len(set(ids)) != 17:
         raise ValueError("Advanced-query catalog IDs must be unique")
     for entry in entries:
         if entry.get("semanticMode") not in allowed_modes:
@@ -774,7 +1152,7 @@ def validate_advanced_query_audit() -> int:
     results = report.get("results", [])
     by_id = {str(result.get("id")): result for result in results}
     entries_by_id = {str(entry["id"]): entry for entry in entries}
-    if len(results) != 16 or set(by_id) != set(entries_by_id):
+    if len(results) != 17 or set(by_id) != set(entries_by_id):
         raise ValueError("Advanced-query audit does not cover the exact catalog")
     if str(report.get("catalogSha256")) != sha256_file(ADVANCED_QUERY_CATALOG):
         raise ValueError("Advanced-query audit catalog hash is stale")
@@ -824,7 +1202,7 @@ def validate_advanced_query_audit() -> int:
         raise ValueError("Advanced-query audit corpus signature is invalid")
     if int(report.get("authoritativeTripleCount", -1)) != total_triples:
         raise ValueError("Advanced-query audit triple total is inconsistent")
-    if int(report.get("queryCount", -1)) != 16:
+    if int(report.get("queryCount", -1)) != 17:
         raise ValueError("Advanced-query audit query count is inconsistent")
     if int(report.get("queriesWithDuplicateRows", -1)) != 0:
         raise ValueError("Advanced-query audit reports duplicate rows")
@@ -838,9 +1216,91 @@ def validate_advanced_query_audit() -> int:
     return len(results)
 
 
+def validate_nifi_evidence_contract() -> int:
+    contract = json.loads(NIFI_EVIDENCE_CONTRACT.read_text(encoding="utf-8"))
+    if contract.get("contractVersion") != 1:
+        raise ValueError("NiFi evidence contractVersion must be 1")
+    stages = contract.get("stages", {})
+    expected = {
+        "mapping-shacl-validation",
+        "selective-reasoning",
+        "canned-query-audit",
+        "advanced-query-audit",
+        "authoritative-index-equivalence",
+        "benchmark-evidence",
+        "repository-validation",
+    }
+    if set(stages) != expected:
+        raise ValueError("NiFi evidence stage inventory is incomplete or unexpected")
+    for stage_name, stage in stages.items():
+        command = stage.get("command")
+        dependencies = stage.get("dependencies")
+        if not isinstance(command, list) or not command or not all(
+            isinstance(value, str) and value for value in command
+        ):
+            raise ValueError(f"NiFi evidence stage has an invalid command: {stage_name}")
+        if not isinstance(dependencies, list) or not dependencies:
+            raise ValueError(f"NiFi evidence stage has no dependencies: {stage_name}")
+        if int(stage.get("timeoutSeconds", 0)) <= 0 or not stage.get("schedule"):
+            raise ValueError(f"NiFi evidence stage has invalid execution limits: {stage_name}")
+        ports = stage.get("requiresLoopbackPorts", [])
+        if ports and (ports != [3030] or stage.get("cacheable") is not False):
+            raise ValueError(
+                f"Live NiFi stage must target loopback Fuseki and disable skipping: {stage_name}"
+            )
+        if any("http://" in value or "https://" in value for value in command):
+            raise ValueError(f"NiFi evidence command contains a network endpoint: {stage_name}")
+        for value in command:
+            if value.startswith(("scripts/", "mappings/", "data/")):
+                if not (ROOT / value).is_file():
+                    raise ValueError(
+                        f"NiFi evidence command references a missing repository file: {value}"
+                    )
+    benchmark_command = stages["benchmark-evidence"]["command"]
+    if "{artifactDirectory}" not in benchmark_command:
+        raise ValueError("NiFi benchmark evidence must be written outside the repository")
+    if stages["repository-validation"].get("cacheable") is not True:
+        raise ValueError("Offline repository validation must use dependency-aware skipping")
+    return len(stages)
+
+
+def validate_nifi_game_flow_contract() -> int:
+    manual = (ROOT / "scripts" / "infra" / "configure-nifi-games-manual.ps1").read_text(
+        encoding="utf-8"
+    )
+    shared = (ROOT / "scripts" / "infra" / "configure-nifi-rdf-flow.ps1").read_text(
+        encoding="utf-8"
+    )
+    staged = (ROOT / "scripts" / "pipeline" / "process-staged-game-json.ps1").read_text(
+        encoding="utf-8"
+    )
+    if "import-game-json.ps1" in manual or "import-game-json.ps1" in staged:
+        raise ValueError("Active NiFi manual flow still invokes the bundled importer")
+    if "archive-and-queue-game-json.py" not in staged:
+        raise ValueError("Active NiFi manual flow does not use the immutable archive queue")
+    stages = ("assess", "rml", "validate", "load", "index", "promote")
+    missing = [stage for stage in stages if f"'{stage}'" not in shared]
+    if missing:
+        raise ValueError(f"Shared NiFi RDF flow is missing stages: {', '.join(missing)}")
+    if "configure-nifi-rdf-flow.ps1" not in manual:
+        raise ValueError("Manual NiFi configuration does not configure the shared RDF flow")
+    corpus = (ROOT / "scripts" / "infra" / "configure-nifi-corpus-audits.ps1").read_text(
+        encoding="utf-8"
+    )
+    corpus_stages = ("canned", "advanced", "equivalence", "benchmark", "complete")
+    missing_corpus = [stage for stage in corpus_stages if f"'{stage}'" not in corpus]
+    if missing_corpus:
+        raise ValueError(f"NiFi corpus flow is missing stages: {', '.join(missing_corpus)}")
+    if "configure-nifi-corpus-audits.ps1" not in manual or "Queue corpus completion check" not in shared:
+        raise ValueError("Per-game promotion is not connected to the NiFi corpus audit flow")
+    return len(stages)
+
+
 def main() -> None:
     require_layout()
     json_count = validate_json()
+    raw_schedule_count, raw_game_count, final_schedule_entries = validate_raw_corpus()
+    validate_review_context()
     turtle_count = validate_turtle()
     shacl_shape_count = validate_shacl_profiles()
     sparql_count = validate_sparql()
@@ -850,7 +1310,13 @@ def main() -> None:
     validate_active_mapping()
     validate_rml_mermaid()
     validate_selective_reasoning()
+    nifi_evidence_stage_count = validate_nifi_evidence_contract()
+    nifi_game_stage_count = validate_nifi_game_flow_contract()
+    subprocess.run([sys.executable, str(NIFI_EVIDENCE_TEST)], cwd=ROOT, check=True)
+    subprocess.run([sys.executable, str(NIFI_GAME_FLOW_TEST)], cwd=ROOT, check=True)
+    subprocess.run([sys.executable, str(NIFI_CORPUS_FLOW_TEST)], cwd=ROOT, check=True)
     reasoning_proof_count = validate_reasoning_evidence()
+    reasoning_review_runs, reasoning_review_proofs = validate_reasoning_review_evidence()
     validate_offline_pipeline_boundary()
     validate_web_app()
     canned_audit_count = validate_canned_query_audit()
@@ -860,6 +1326,11 @@ def main() -> None:
     tdb2_capture_count = validate_tdb2_execution_capture()
     algebra_plan_count = validate_query_index_algebra_artifacts()
     print(f"JSON files parsed: {json_count}")
+    print(
+        f"Raw corpus checked: {raw_schedule_count} schedules, {raw_game_count} "
+        f"distinct games, {final_schedule_entries} final schedule entries"
+    )
+    print("Challenge and umpire-initiated review context regression passed.")
     print(f"Turtle files parsed: {turtle_count}")
     print(f"SHACL node shapes validated: {shacl_shape_count}")
     print(f"SPARQL queries parsed: {sparql_count}")
@@ -868,7 +1339,16 @@ def main() -> None:
     print(f"Optimized ARQ algebra plans checked: {algebra_plan_count}")
     print("Local web explorer checks passed.")
     print("Selective reasoning contracts and offline smoke tests passed.")
+    print("NiFi evidence fingerprint and quarantine tests passed.")
+    print("NiFi staged per-game archive, assessment, and quarantine tests passed.")
+    print("NiFi promotion-driven corpus readiness and completion tests passed.")
+    print(f"NiFi repeatable evidence stages checked: {nifi_evidence_stage_count}")
+    print(f"NiFi per-game semantic stages checked: {nifi_game_stage_count}")
     print(f"Selective first-order proof obligations checked: {reasoning_proof_count}")
+    print(
+        f"Reviewed reasoning comparison checked: {reasoning_review_runs} runs, "
+        f"{reasoning_review_proofs} proved obligations"
+    )
     print(f"Canned-query corpus baselines checked: {canned_audit_count}")
     print(f"Advanced semantic query baselines checked: {advanced_audit_count}")
     print(f"Corpus query-index benchmark pairs checked: {query_index_benchmark_count}")

@@ -10,10 +10,11 @@
 
 <https://baseballontology.org/baseball-event-ontology>
     a owl:Ontology ;
-    owl:versionIRI <https://baseballontology.org/2026-07-21/baseball-event-ontology> ;
-    owl:versionInfo "0.2.0"@en ;
+    owl:versionIRI <https://baseballontology.org/2026-08-05/baseball-event-ontology> ;
+    owl:versionInfo "0.3.0"@en ;
     dcterms:title "Baseball Event and Adjudication Ontology"@en ;
     dcterms:created "2026-07-21"^^xsd:date ;
+    dcterms:modified "2026-08-05"^^xsd:date ;
     owl:imports
         <http://purl.obolibrary.org/obo/bfo/2020/bfo-core.ttl> ,
         <https://www.commoncoreontologies.org/ExtendedRelationOntology> ,
@@ -195,6 +196,13 @@ base:UmpireRole a owl:Class ;
     rdfs:comment "The bearer may be a formally appointed umpire or any accepted adjudicator in an informal game."@en ;
     skos:example "The role realized by the home-plate umpire when calling a strike."@en .
 
+base:BaseballReplayOfficialRole a owl:Class ;
+    rdfs:subClassOf base:BaseballAdjudicatorRole ;
+    rdfs:label "Baseball Replay Official Role"@en ;
+    skos:definition "A Baseball Replay Official Role is a Baseball Adjudicator Role that is realized in a Baseball Replay Review Act."@en ;
+    rdfs:comment "This role distinguishes the authority exercised during replay review from the authority exercised by an on-field umpire; whether one agent bears both roles depends on the competition's review system."@en ;
+    skos:example "The role borne by an official who reviews video and issues the binding replay decision on a challenged safe call."@en .
+
 base:OfficialScorerRole a owl:Class ;
     rdfs:subClassOf base:BaseballAdjudicatorRole ;
     rdfs:label "Official Scorer Role"@en ;
@@ -341,11 +349,25 @@ base:SubstitutionAct a owl:Class ;
     skos:example "A manager replaces the starting pitcher with a reliever."@en .
 
 base:ChallengeAct a owl:Class ;
-    rdfs:subClassOf base:ManagerAct ;
+    rdfs:subClassOf base:BaseballAct ;
     rdfs:label "Challenge Act"@en ;
-    skos:definition "A Challenge Act is a Manager Act that requests review or reconsideration of an earlier baseball judgment under an applicable rule."@en ;
-    rdfs:comment "The challenged judgment may be affirmed or reversed."@en ;
-    skos:example "A manager challenges a safe call at first base."@en .
+    skos:definition "A Challenge Act is a Baseball Act that is preceded by a Baseball Judgment Act and precedes a Baseball Replay Review Act."@en ;
+    rdfs:comment "The broader parent permits both manager-initiated play challenges and player-initiated pitch challenges; the challenger is represented by a more specific subclass."@en ;
+    skos:example "A manager challenges a safe call at first base before replay review begins."@en .
+
+base:ManagerChallengeAct a owl:Class ;
+    rdfs:subClassOf base:ChallengeAct, base:ManagerAct ;
+    rdfs:label "Manager Challenge Act"@en ;
+    skos:definition "A Manager Challenge Act is a Challenge Act that is also a Manager Act."@en ;
+    rdfs:comment "This class represents a challenge initiated through a manager's authority rather than a player's authority."@en ;
+    skos:example "A manager challenges an on-field safe judgment at first base."@en .
+
+base:PlayerChallengeAct a owl:Class ;
+    rdfs:subClassOf base:ChallengeAct, base:PlayerAct ;
+    rdfs:label "Player Challenge Act"@en ;
+    skos:definition "A Player Challenge Act is a Challenge Act that is also a Player Act."@en ;
+    rdfs:comment "This class supports competitions in which a player may directly request review, including automated ball-strike challenge systems."@en ;
+    skos:example "A batter challenges a called strike under an authorized ball-strike challenge system."@en .
 
 base:BaseballAdjudicationAct a owl:Class ;
     rdfs:subClassOf base:BaseballJudgmentAct ;
@@ -353,6 +375,20 @@ base:BaseballAdjudicationAct a owl:Class ;
     skos:definition "A Baseball Adjudication Act is a Baseball Judgment Act that realizes a Baseball Adjudicator Role and has institutional force within a Baseball Game."@en ;
     rdfs:comment "This is the constitutive judgment pattern used by counted balls, strikes, hits, fouls, outs, safes, errors, runs, and related processes."@en ;
     skos:example "An accepted sandlot umpire makes a binding safe judgment."@en .
+
+base:BaseballReplayReviewAct a owl:Class ;
+    rdfs:subClassOf base:BaseballAdjudicationAct ;
+    rdfs:label "Baseball Replay Review Act"@en ;
+    skos:definition "A Baseball Replay Review Act is a Baseball Adjudication Act that has input exactly one Baseball Decision ICE and has output exactly one Baseball Decision ICE."@en ;
+    rdfs:comment "The prior decision is an input to a new adjudication; the review is not merely a second record of the original judgment."@en ;
+    skos:example "A replay official reviews video of a tag play and issues a binding out decision."@en .
+
+base:ChallengedBaseballReplayReviewAct a owl:Class ;
+    rdfs:subClassOf base:BaseballReplayReviewAct ;
+    rdfs:label "Challenged Baseball Replay Review Act"@en ;
+    skos:definition "A Challenged Baseball Replay Review Act is a Baseball Replay Review Act that is preceded by a Challenge Act."@en ;
+    rdfs:comment "This class excludes replay reviews initiated without a manager or player challenge."@en ;
+    skos:example "The replay review that follows a manager's challenge of a safe call at first base."@en .
 
 
 #################################################################
@@ -425,6 +461,13 @@ base:BallControlFailureProcess a owl:Class ;
     rdfs:comment "This class represents physical history and does not entail an Error Process, because official scoring may classify the play otherwise."@en ;
     skos:example "A ground ball passes under an infielder's glove."@en .
 
+base:PitchBallControlFailureProcess a owl:Class ;
+    rdfs:subClassOf base:BallControlFailureProcess ;
+    rdfs:label "Pitch Ball Control Failure Process"@en ;
+    skos:definition "A Pitch Ball Control Failure Process is a Ball Control Failure Process that is preceded by a Pitch Ball Motion Process."@en ;
+    rdfs:comment "This class represents the physical failure to secure a pitched Baseball and does not by itself entail a passed ball, wild pitch, strikeout, error, out, or runner advancement."@en ;
+    skos:example "A catcher does not secure a pitched Baseball after the batter swings at strike three."@en .
+
 base:TaggingProcess a owl:Class ;
     rdfs:subClassOf base:BaseballPhysicalProcess ;
     rdfs:label "Tagging Process"@en ;
@@ -457,6 +500,20 @@ base:BaseballDecisionICE a owl:Class ;
     skos:definition "A Baseball Decision ICE is a Descriptive Information Content Entity that expresses the result of a Baseball Adjudication Act about whether perceived play satisfies an adjudicator's interpretation of a Baseball Rule."@en ;
     rdfs:comment "The decision may be true or false relative to the actual physical and rule-governed structure of the world."@en ;
     skos:example "The information content that a pitch is judged a strike."@en .
+
+base:ReviewedOnFieldBaseballDecisionICE a owl:Class ;
+    rdfs:subClassOf base:BaseballDecisionICE ;
+    rdfs:label "Reviewed On-Field Baseball Decision ICE"@en ;
+    skos:definition "A Reviewed On-Field Baseball Decision ICE is a Baseball Decision ICE that is input of a Baseball Replay Review Act."@en ;
+    rdfs:comment "The class identifies a decision by its participation in review and does not imply that the on-field decision was incorrect."@en ;
+    skos:example "The information content expressing the original safe call that is supplied to replay review."@en .
+
+base:BaseballReplayDecisionICE a owl:Class ;
+    rdfs:subClassOf base:BaseballDecisionICE ;
+    rdfs:label "Baseball Replay Decision ICE"@en ;
+    skos:definition "A Baseball Replay Decision ICE is a Baseball Decision ICE that is output of a Baseball Replay Review Act."@en ;
+    rdfs:comment "The term does not use 'final' because a ruleset could authorize a later adjudication of a replay decision."@en ;
+    skos:example "The information content expressing the out decision issued after replay review of a safe call."@en .
 
 base:BallDecisionICE a owl:Class ;
     rdfs:subClassOf base:BaseballDecisionICE ;
@@ -528,12 +585,54 @@ base:SacrificeDecisionICE a owl:Class ;
     rdfs:comment "This information entity is the output of an authorized judgment and may later be recorded in a data system."@en ;
     skos:example "The scoring content crediting a sacrifice fly."@en .
 
+base:PassedBallDecisionICE a owl:Class ;
+    rdfs:subClassOf base:BaseballDecisionICE ;
+    rdfs:label "Passed Ball Decision ICE"@en ;
+    skos:definition "A Passed Ball Decision ICE is a Baseball Decision ICE that is output of a Passed Ball Judgment Act."@en ;
+    rdfs:comment "The decision records the official scoring classification and is distinct from the preceding physical failure to control the pitched Baseball."@en ;
+    skos:example "The official scoring content that charges a passed ball when a catcher does not secure a reasonably catchable pitch."@en .
+
+base:WildPitchDecisionICE a owl:Class ;
+    rdfs:subClassOf base:BaseballDecisionICE ;
+    rdfs:label "Wild Pitch Decision ICE"@en ;
+    skos:definition "A Wild Pitch Decision ICE is a Baseball Decision ICE that is output of a Wild Pitch Judgment Act."@en ;
+    rdfs:comment "The decision records the official scoring classification and is distinct from the preceding physical failure to control the pitched Baseball."@en ;
+    skos:example "The official scoring content that charges a wild pitch when a pitch cannot be handled with ordinary effort."@en .
+
 base:RunDecisionICE a owl:Class ;
     rdfs:subClassOf base:BaseballDecisionICE ;
     rdfs:label "Run Decision ICE"@en ;
     skos:definition "A Run Decision ICE is a Baseball Decision ICE that expresses an authorized judgment that a run is to be counted."@en ;
     rdfs:comment "This information entity is the output of an authorized judgment and may later be recorded in a data system."@en ;
     skos:example "The content affirming that a runner scored before the third out."@en .
+
+base:BaseballReplayReviewDispositionICE a owl:Class ;
+    rdfs:subClassOf cco:ont00000853 ;
+    rdfs:label "Baseball Replay Review Result ICE"@en ;
+    skos:definition "A Baseball Replay Review Result ICE is a Descriptive Information Content Entity that is output of a Baseball Replay Review Act, is about a Reviewed On-Field Baseball Decision ICE, and is about a Baseball Replay Decision ICE."@en ;
+    rdfs:comment "The IRI retains the earlier word 'Disposition' for identifier stability, but the label uses 'Result' to avoid confusion with BFO's technical category of disposition. This ICE describes how the replay decision relates to the reviewed on-field decision."@en ;
+    skos:example "The information content that replay review overturned an on-field safe decision and produced an out decision."@en .
+
+base:AffirmingBaseballReplayReviewDispositionICE a owl:Class ;
+    rdfs:subClassOf base:BaseballReplayReviewDispositionICE ;
+    rdfs:label "Affirming Baseball Replay Review Result ICE"@en ;
+    skos:definition "An Affirming Baseball Replay Review Result ICE is a Baseball Replay Review Result ICE that is output of an Affirming Baseball Replay Review Act."@en ;
+    rdfs:comment "MLB source values 'confirmed' and 'upheld' may both instantiate this class unless a later model introduces evidence sufficient to distinguish their epistemic thresholds."@en ;
+    skos:example "The information content that replay review affirmed an on-field out decision by producing another out decision."@en .
+
+base:OverturningBaseballReplayReviewDispositionICE a owl:Class ;
+    rdfs:subClassOf base:BaseballReplayReviewDispositionICE ;
+    rdfs:label "Overturning Baseball Replay Review Result ICE"@en ;
+    skos:definition "An Overturning Baseball Replay Review Result ICE is a Baseball Replay Review Result ICE that is output of an Overturning Baseball Replay Review Act."@en ;
+    rdfs:comment "This class represents a change between supported decision alternatives, such as safe-to-out or ball-to-strike, rather than merely the occurrence of a review."@en ;
+    skos:example "The information content that replay review overturned Shohei Ohtani's on-field safe decision and produced an out decision on the pickoff play."@en .
+
+base:BaseballReplayReviewEventRecord a owl:Class ;
+    rdfs:subClassOf base:BaseballEventRecord ;
+    rdfs:label "Baseball Replay Review Event Record"@en ;
+    skos:definition "A Baseball Replay Review Event Record is a Baseball Event Record that is about a Baseball Replay Review Act, a Reviewed On-Field Baseball Decision ICE, a Baseball Replay Decision ICE, and a Baseball Replay Review Result ICE."@en ;
+    rdfs:comment "This record keeps the source representation distinct from the review act and both decisions it describes."@en ;
+    skos:example "An MLB event record stating that a Cubs challenge overturned a safe call on Shohei Ohtani and produced an out call."@en .
 
 base:BaseballEventRecord a owl:Class ;
     rdfs:subClassOf cco:ont00000853 ;
@@ -560,6 +659,13 @@ base:UmpireJudgmentAct a owl:Class ;
     skos:definition "An Umpire Judgment Act is a Baseball Adjudication Act that realizes an Umpire Role."@en ;
     rdfs:comment "Its authority depends on contextual acceptance, not on whether the judgment accurately matches reality."@en ;
     skos:example "An umpire judges a pitch to be a strike."@en .
+
+base:ReviewedOnFieldUmpireJudgmentAct a owl:Class ;
+    rdfs:subClassOf base:UmpireJudgmentAct ;
+    rdfs:label "Reviewed On-Field Umpire Judgment Act"@en ;
+    skos:definition "A Reviewed On-Field Umpire Judgment Act is an Umpire Judgment Act that has output a Reviewed On-Field Baseball Decision ICE."@en ;
+    rdfs:comment "This act is the original on-field adjudication and remains distinct from the later replay-review act."@en ;
+    skos:example "The first-base umpire's safe judgment that is subsequently reviewed after a manager challenge."@en .
 
 base:ScorerJudgmentAct a owl:Class ;
     rdfs:subClassOf base:BaseballAdjudicationAct ;
@@ -631,6 +737,76 @@ base:SafeJudgmentAct a owl:Class ;
     rdfs:comment "It constitutes the authorized judgment component of a Safe Process."@en ;
     skos:example "The umpire judges a sliding runner safe."@en .
 
+base:AffirmingBaseballReplayReviewAct a owl:Class ;
+    rdfs:subClassOf base:BaseballReplayReviewAct ;
+    rdfs:label "Affirming Baseball Replay Review Act"@en ;
+    skos:definition "An Affirming Baseball Replay Review Act is a Baseball Replay Review Act that has one of the ball-to-ball, strike-to-strike, out-to-out, or safe-to-safe decision patterns."@en ;
+    rdfs:comment "This class normalizes both confirmed and upheld source outcomes while preserving the specific input-output decision pattern."@en ;
+    skos:example "A replay review consumes an out decision and produces an out decision."@en .
+
+base:BallAffirmingBaseballReplayReviewAct a owl:Class ;
+    rdfs:subClassOf base:AffirmingBaseballReplayReviewAct, base:BallJudgmentAct ;
+    rdfs:label "Ball-Affirming Baseball Replay Review Act"@en ;
+    skos:definition "A Ball-Affirming Baseball Replay Review Act is a Ball Judgment Act that is a Baseball Replay Review Act, has input a Ball Decision ICE, and has output a Ball Decision ICE."@en ;
+    rdfs:comment "The replay judgment preserves the original ball classification."@en ;
+    skos:example "A challenged called ball is reviewed and remains a ball."@en .
+
+base:StrikeAffirmingBaseballReplayReviewAct a owl:Class ;
+    rdfs:subClassOf base:AffirmingBaseballReplayReviewAct, base:StrikeJudgmentAct ;
+    rdfs:label "Strike-Affirming Baseball Replay Review Act"@en ;
+    skos:definition "A Strike-Affirming Baseball Replay Review Act is a Strike Judgment Act that is a Baseball Replay Review Act, has input a Strike Decision ICE, and has output a Strike Decision ICE."@en ;
+    rdfs:comment "The replay judgment preserves the original strike classification."@en ;
+    skos:example "A challenged called strike is reviewed and remains a strike."@en .
+
+base:OutAffirmingBaseballReplayReviewAct a owl:Class ;
+    rdfs:subClassOf base:AffirmingBaseballReplayReviewAct, base:OutJudgmentAct ;
+    rdfs:label "Out-Affirming Baseball Replay Review Act"@en ;
+    skos:definition "An Out-Affirming Baseball Replay Review Act is an Out Judgment Act that is a Baseball Replay Review Act, has input an Out Decision ICE, and has output an Out Decision ICE."@en ;
+    rdfs:comment "The replay judgment preserves the original out classification."@en ;
+    skos:example "A challenged force-out call is reviewed and remains an out."@en .
+
+base:SafeAffirmingBaseballReplayReviewAct a owl:Class ;
+    rdfs:subClassOf base:AffirmingBaseballReplayReviewAct, base:SafeJudgmentAct ;
+    rdfs:label "Safe-Affirming Baseball Replay Review Act"@en ;
+    skos:definition "A Safe-Affirming Baseball Replay Review Act is a Safe Judgment Act that is a Baseball Replay Review Act, has input a Safe Decision ICE, and has output a Safe Decision ICE."@en ;
+    rdfs:comment "The replay judgment preserves the original safe classification."@en ;
+    skos:example "A challenged safe call on a tag play is reviewed and remains safe."@en .
+
+base:OverturningBaseballReplayReviewAct a owl:Class ;
+    rdfs:subClassOf base:BaseballReplayReviewAct ;
+    rdfs:label "Overturning Baseball Replay Review Act"@en ;
+    skos:definition "An Overturning Baseball Replay Review Act is a Baseball Replay Review Act that has one of the ball-to-strike, strike-to-ball, out-to-safe, or safe-to-out decision patterns."@en ;
+    rdfs:comment "This class is determined by a change between the supported input and output decision types, not merely by a source string."@en ;
+    skos:example "A replay review consumes a safe decision and produces an out decision."@en .
+
+base:BallToStrikeBaseballReplayReviewAct a owl:Class ;
+    rdfs:subClassOf base:OverturningBaseballReplayReviewAct, base:StrikeJudgmentAct ;
+    rdfs:label "Ball-to-Strike Baseball Replay Review Act"@en ;
+    skos:definition "A Ball-to-Strike Baseball Replay Review Act is a Strike Judgment Act that is a Baseball Replay Review Act, has input a Ball Decision ICE, and has output a Strike Decision ICE."@en ;
+    rdfs:comment "The review changes the counted pitch classification from ball to strike."@en ;
+    skos:example "A pitcher's successful challenge changes a called ball to a strike."@en .
+
+base:StrikeToBallBaseballReplayReviewAct a owl:Class ;
+    rdfs:subClassOf base:OverturningBaseballReplayReviewAct, base:BallJudgmentAct ;
+    rdfs:label "Strike-to-Ball Baseball Replay Review Act"@en ;
+    skos:definition "A Strike-to-Ball Baseball Replay Review Act is a Ball Judgment Act that is a Baseball Replay Review Act, has input a Strike Decision ICE, and has output a Ball Decision ICE."@en ;
+    rdfs:comment "The review changes the counted pitch classification from strike to ball."@en ;
+    skos:example "A batter's successful challenge changes a called strike to a ball."@en .
+
+base:OutToSafeBaseballReplayReviewAct a owl:Class ;
+    rdfs:subClassOf base:OverturningBaseballReplayReviewAct, base:SafeJudgmentAct ;
+    rdfs:label "Out-to-Safe Baseball Replay Review Act"@en ;
+    skos:definition "An Out-to-Safe Baseball Replay Review Act is a Safe Judgment Act that is a Baseball Replay Review Act, has input an Out Decision ICE, and has output a Safe Decision ICE."@en ;
+    rdfs:comment "The review changes the adjudicated baserunning status from out to safe."@en ;
+    skos:example "Replay shows that a runner touched the base before the tag, changing out to safe."@en .
+
+base:SafeToOutBaseballReplayReviewAct a owl:Class ;
+    rdfs:subClassOf base:OverturningBaseballReplayReviewAct, base:OutJudgmentAct ;
+    rdfs:label "Safe-to-Out Baseball Replay Review Act"@en ;
+    skos:definition "A Safe-to-Out Baseball Replay Review Act is an Out Judgment Act that is a Baseball Replay Review Act, has input a Safe Decision ICE, and has output an Out Decision ICE."@en ;
+    rdfs:comment "The review changes the adjudicated baserunning status from safe to out."@en ;
+    skos:example "Replay of the pickoff of Shohei Ohtani changes the on-field safe decision to an out decision."@en .
+
 base:ScoringJudgmentAct a owl:Class ;
     rdfs:subClassOf base:ScorerJudgmentAct ;
     rdfs:label "Scoring Judgment Act"@en ;
@@ -665,6 +841,20 @@ base:SacrificeJudgmentAct a owl:Class ;
     skos:definition "A Sacrifice Judgment Act is a Scoring Judgment Act that has output a Sacrifice Decision ICE."@en ;
     rdfs:comment "It constitutes the authorized scoring component of a Sacrifice Process."@en ;
     skos:example "The scorer credits a sacrifice fly."@en .
+
+base:PassedBallJudgmentAct a owl:Class ;
+    rdfs:subClassOf base:ScoringJudgmentAct ;
+    rdfs:label "Passed Ball Judgment Act"@en ;
+    skos:definition "A Passed Ball Judgment Act is a Scoring Judgment Act that has output a Passed Ball Decision ICE and is prescribed by a Passed Ball Rule."@en ;
+    rdfs:comment "This act classifies the play for official scoring; it is not identical to the physical failure to control the pitched Baseball."@en ;
+    skos:example "An official scorer judges that a catcher's failure to secure a reasonably catchable pitch is a passed ball."@en .
+
+base:WildPitchJudgmentAct a owl:Class ;
+    rdfs:subClassOf base:ScoringJudgmentAct ;
+    rdfs:label "Wild Pitch Judgment Act"@en ;
+    skos:definition "A Wild Pitch Judgment Act is a Scoring Judgment Act that has output a Wild Pitch Decision ICE and is prescribed by a Wild Pitch Rule."@en ;
+    rdfs:comment "This act classifies the play for official scoring; it is not identical to the physical failure to control the pitched Baseball."@en ;
+    skos:example "An official scorer judges that a pitch beyond ordinary catching effort is a wild pitch."@en .
 
 base:RunJudgmentAct a owl:Class ;
     rdfs:subClassOf base:UmpireJudgmentAct ;
@@ -809,6 +999,20 @@ base:ScoringClassificationProcess a owl:Class ;
     rdfs:comment "Hit, Error, Fielder's Choice, and Sacrifice Process are subclasses and are constituted by scorer judgments."@en ;
     skos:example "The scorer's official classification of a ground-ball play."@en .
 
+base:PassedBallProcess a owl:Class ;
+    rdfs:subClassOf base:ScoringClassificationProcess ;
+    rdfs:label "Passed Ball Process"@en ;
+    skos:definition "A Passed Ball Process is a Scoring Classification Process that is preceded by a Pitch Ball Control Failure Process, has a Passed Ball Judgment Act as an occurrent part, and is prescribed by a Passed Ball Rule."@en ;
+    rdfs:comment "This counted scoring classification is distinct from the physical control failure and does not by itself entail a runner's safe arrival or an uncaught third strike."@en ;
+    skos:example "A catcher does not secure a reasonably catchable pitch and the play is officially scored as a passed ball."@en .
+
+base:WildPitchProcess a owl:Class ;
+    rdfs:subClassOf base:ScoringClassificationProcess ;
+    rdfs:label "Wild Pitch Process"@en ;
+    skos:definition "A Wild Pitch Process is a Scoring Classification Process that is preceded by a Pitch Ball Control Failure Process, has a Wild Pitch Judgment Act as an occurrent part, and is prescribed by a Wild Pitch Rule."@en ;
+    rdfs:comment "This counted scoring classification is distinct from the physical control failure and does not by itself entail a runner's safe arrival or an uncaught third strike."@en ;
+    skos:example "A pitch beyond ordinary catching effort is not secured and the play is officially scored as a wild pitch."@en .
+
 base:HitProcess a owl:Class ;
     rdfs:subClassOf base:ScoringClassificationProcess ;
     rdfs:label "Hit Process"@en ;
@@ -942,6 +1146,14 @@ base:StrikeoutProcess a owl:Class ;
     rdfs:comment "A strikeout is not asserted as a subclass of Out Process because an uncaught third strike can yield a strikeout without a counted out."@en ;
     skos:example "A batter strikes out but reaches first on an uncaught third strike."@en .
 
+base:UncaughtThirdStrikeProcess a owl:Class ;
+    rdfs:subClassOf base:BaseballInstitutionalProcess ;
+    rdfs:label "Uncaught Third Strike Process"@en ;
+    skos:altLabel "Dropped Third Strike Process"@en ;
+    skos:definition "An Uncaught Third Strike Process is a Baseball Institutional Process that has a Strikeout Process and a Pitch Ball Control Failure Process as occurrent parts and is prescribed by a Strike Rule."@en ;
+    rdfs:comment "This composite pattern does not by itself entail that the batter reached safely or was put out; those outcomes require their own adjudicated processes."@en ;
+    skos:example "A batter swings at strike three, the catcher does not secure the pitch, and the batter reaches first base on the uncaught third strike."@en .
+
 base:WalkProcess a owl:Class ;
     rdfs:subClassOf base:BaseballInstitutionalProcess ;
     rdfs:label "Walk Process"@en ;
@@ -1009,6 +1221,20 @@ base:StrikeRule a owl:Class ;
     skos:definition "A Strike Rule is a Baseball Rule that prescribes conditions under which a pitch, swing result, or foul is to be counted as a strike."@en ;
     rdfs:comment "The rule is a prescriptive information entity; a judgment about whether observed play satisfies it is a distinct act."@en ;
     skos:example "The rule governing a swing and miss."@en .
+
+base:PassedBallRule a owl:Class ;
+    rdfs:subClassOf base:BaseballRule ;
+    rdfs:label "Passed Ball Rule"@en ;
+    skos:definition "A Passed Ball Rule is a Baseball Rule that prescribes a Passed Ball Process."@en ;
+    rdfs:comment "The rule supplies the official scoring criteria for distinguishing a passed ball from other pitch-control outcomes."@en ;
+    skos:example "The official scoring rule applied when a catcher fails to secure a pitch that could have been handled with ordinary effort."@en .
+
+base:WildPitchRule a owl:Class ;
+    rdfs:subClassOf base:BaseballRule ;
+    rdfs:label "Wild Pitch Rule"@en ;
+    skos:definition "A Wild Pitch Rule is a Baseball Rule that prescribes a Wild Pitch Process."@en ;
+    rdfs:comment "The rule supplies the official scoring criteria for distinguishing a wild pitch from other pitch-control outcomes."@en ;
+    skos:example "The official scoring rule applied when a pitch cannot be handled with ordinary effort and permits advancement."@en .
 
 base:FairFoulRule a owl:Class ;
     rdfs:subClassOf base:BaseballRule ;

@@ -9,7 +9,7 @@
       "authoritative": "sparql/hits-by-player-and-venue.rq",
       "indexed": "sparql/query-index/benchmarks/indexed/hits-by-player-and-venue.rq",
       "autoLayer": "indexed",
-      "medianSpeedup": 9.74
+      "medianSpeedup": 279.862
     },
     {
       "name": "outcomes-by-player",
@@ -17,7 +17,7 @@
       "authoritative": "sparql/batting/outcomes-by-player.rq",
       "indexed": "sparql/query-index/benchmarks/indexed/outcomes-by-player.rq",
       "autoLayer": "indexed",
-      "medianSpeedup": 2.385
+      "medianSpeedup": 2.337
     },
     {
       "name": "outcomes-by-season",
@@ -25,7 +25,7 @@
       "authoritative": "sparql/batting/outcomes-by-season.rq",
       "indexed": "sparql/query-index/benchmarks/indexed/outcomes-by-season.rq",
       "autoLayer": "indexed",
-      "medianSpeedup": 56.662
+      "medianSpeedup": 1627.401
     },
     {
       "name": "plate-appearances-by-player-and-season",
@@ -33,7 +33,7 @@
       "authoritative": "sparql/batting/plate-appearances-by-player-and-season.rq",
       "indexed": "sparql/query-index/benchmarks/indexed/plate-appearances-by-player-and-season.rq",
       "autoLayer": "indexed",
-      "medianSpeedup": 2.413
+      "medianSpeedup": 56.328
     },
     {
       "name": "three-true-outcomes-by-player",
@@ -41,7 +41,7 @@
       "authoritative": "sparql/batting/three-true-outcomes-by-player.rq",
       "indexed": "sparql/query-index/benchmarks/indexed/three-true-outcomes-by-player.rq",
       "autoLayer": "indexed",
-      "medianSpeedup": 1.748
+      "medianSpeedup": 1.697
     },
     {
       "name": "extra-base-hits-by-player",
@@ -49,7 +49,7 @@
       "authoritative": "sparql/batting/extra-base-hits-by-player.rq",
       "indexed": "sparql/query-index/benchmarks/indexed/extra-base-hits-by-player.rq",
       "autoLayer": "indexed",
-      "medianSpeedup": 1.711
+      "medianSpeedup": 2.304
     },
     {
       "name": "home-runs-by-player-and-venue",
@@ -57,7 +57,7 @@
       "authoritative": "sparql/batting/home-runs-by-player-and-venue.rq",
       "indexed": "sparql/query-index/benchmarks/indexed/home-runs-by-player-and-venue.rq",
       "autoLayer": "indexed",
-      "medianSpeedup": 1.523
+      "medianSpeedup": 1.825
     },
     {
       "name": "multi-hit-games",
@@ -65,7 +65,7 @@
       "authoritative": "sparql/batting/multi-hit-games.rq",
       "indexed": "sparql/query-index/benchmarks/indexed/multi-hit-games.rq",
       "autoLayer": "indexed",
-      "medianSpeedup": 18.932
+      "medianSpeedup": 18.711
     },
     {
       "name": "total-bases-by-player-and-season",
@@ -73,7 +73,7 @@
       "authoritative": "sparql/batting/total-bases-by-player-and-season.rq",
       "indexed": "sparql/query-index/benchmarks/indexed/total-bases-by-player-and-season.rq",
       "autoLayer": "indexed",
-      "medianSpeedup": 14.649
+      "medianSpeedup": 358.042
     },
     {
       "name": "hitless-games-by-player",
@@ -81,7 +81,7 @@
       "authoritative": "sparql/batting/hitless-games-by-player.rq",
       "indexed": "sparql/query-index/benchmarks/indexed/hitless-games-by-player.rq",
       "autoLayer": "indexed",
-      "medianSpeedup": 8.506
+      "medianSpeedup": 8.164
     },
     {
       "name": "pitches-by-pitcher-and-venue",
@@ -89,7 +89,7 @@
       "authoritative": "sparql/pitching/pitches-by-pitcher-and-venue.rq",
       "indexed": "sparql/query-index/benchmarks/indexed/pitches-by-pitcher-and-venue.rq",
       "autoLayer": "indexed",
-      "medianSpeedup": 2.137
+      "medianSpeedup": 2.223
     },
     {
       "name": "pitch-summary-by-pitcher",
@@ -97,7 +97,7 @@
       "authoritative": "sparql/pitching/pitch-summary-by-pitcher.rq",
       "indexed": "sparql/query-index/benchmarks/indexed/pitch-summary-by-pitcher.rq",
       "autoLayer": "indexed",
-      "medianSpeedup": 4.836
+      "medianSpeedup": 4.439
     },
     {
       "name": "batted-balls-by-batter-and-venue",
@@ -105,7 +105,7 @@
       "authoritative": "sparql/pitching/batted-balls-by-batter-and-venue.rq",
       "indexed": "sparql/query-index/benchmarks/indexed/batted-balls-by-batter-and-venue.rq",
       "autoLayer": "indexed",
-      "medianSpeedup": 3.414
+      "medianSpeedup": 3.712
     },
     {
       "name": "events-by-player",
@@ -113,7 +113,7 @@
       "authoritative": "sparql/baserunning/events-by-player.rq",
       "indexed": "sparql/query-index/benchmarks/indexed/events-by-player.rq",
       "autoLayer": "indexed",
-      "medianSpeedup": 3.688
+      "medianSpeedup": 4.593
     },
     {
       "name": "runs-by-season-and-venue",
@@ -121,7 +121,7 @@
       "authoritative": "sparql/baserunning/runs-by-season-and-venue.rq",
       "indexed": "sparql/query-index/benchmarks/indexed/runs-by-season-and-venue.rq",
       "autoLayer": "indexed",
-      "medianSpeedup": 7.134
+      "medianSpeedup": 172.436
     },
     {
       "name": "games-by-team-and-season",
@@ -129,7 +129,7 @@
       "authoritative": "sparql/games/games-by-team-and-season.rq",
       "indexed": "sparql/query-index/benchmarks/indexed/games-by-team-and-season.rq",
       "autoLayer": "authoritative",
-      "medianSpeedup": 1.15
+      "medianSpeedup": 5.075
     },
     {
       "name": "umpire-assignments",
@@ -137,7 +137,7 @@
       "authoritative": "sparql/games/umpire-assignments.rq",
       "indexed": "sparql/query-index/benchmarks/indexed/umpire-assignments.rq",
       "autoLayer": "authoritative",
-      "medianSpeedup": 1.007
+      "medianSpeedup": 0.978
     },
     {
       "name": "available-players",
@@ -145,7 +145,7 @@
       "authoritative": "sparql/options/available-players.rq",
       "indexed": "sparql/query-index/benchmarks/indexed/available-players.rq",
       "autoLayer": "authoritative",
-      "medianSpeedup": 1.022
+      "medianSpeedup": 1.06
     }
   ]
 }

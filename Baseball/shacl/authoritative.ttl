@@ -172,6 +172,124 @@ shape:PitchBallMotionShape
         sh:message "Pitch-ball motion must be preceded by exactly one PitchAct."@en
     ] .
 
+shape:PitchBallControlFailureShape
+    a sh:NodeShape ;
+    sh:targetClass base:PitchBallControlFailureProcess ;
+    sh:nodeKind sh:IRI ;
+    sh:property shape:PlateAppearanceContextProperty ;
+    sh:property [
+        sh:path bfo:BFO_0000062 ;
+        sh:qualifiedValueShape [ sh:class base:PitchBallMotionProcess ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "A PitchBallControlFailureProcess must be preceded by exactly one PitchBallMotionProcess."@en
+    ] ;
+    sh:property [
+        sh:path bfo:BFO_0000057 ;
+        sh:qualifiedValueShape [ sh:class base:Baseball ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "A PitchBallControlFailureProcess must involve exactly one pitched Baseball."@en
+    ] .
+
+shape:PassedBallProcessShape
+    a sh:NodeShape ;
+    sh:targetClass base:PassedBallProcess ;
+    sh:nodeKind sh:IRI ;
+    sh:property shape:PlateAppearanceContextProperty ;
+    sh:property [
+        sh:path bfo:BFO_0000062 ;
+        sh:qualifiedValueShape [ sh:class base:PitchBallControlFailureProcess ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "A PassedBallProcess must be preceded by exactly one PitchBallControlFailureProcess."@en
+    ] ;
+    sh:property [
+        sh:path bfo:BFO_0000117 ;
+        sh:qualifiedValueShape [ sh:class base:PassedBallJudgmentAct ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "A PassedBallProcess must contain exactly one PassedBallJudgmentAct."@en
+    ] ;
+    sh:property [
+        sh:path cco:ont00001920 ;
+        sh:qualifiedValueShape [ sh:class base:PassedBallRule ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "A PassedBallProcess must be prescribed by exactly one PassedBallRule."@en
+    ] .
+
+shape:WildPitchProcessShape
+    a sh:NodeShape ;
+    sh:targetClass base:WildPitchProcess ;
+    sh:nodeKind sh:IRI ;
+    sh:property shape:PlateAppearanceContextProperty ;
+    sh:property [
+        sh:path bfo:BFO_0000062 ;
+        sh:qualifiedValueShape [ sh:class base:PitchBallControlFailureProcess ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "A WildPitchProcess must be preceded by exactly one PitchBallControlFailureProcess."@en
+    ] ;
+    sh:property [
+        sh:path bfo:BFO_0000117 ;
+        sh:qualifiedValueShape [ sh:class base:WildPitchJudgmentAct ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "A WildPitchProcess must contain exactly one WildPitchJudgmentAct."@en
+    ] ;
+    sh:property [
+        sh:path cco:ont00001920 ;
+        sh:qualifiedValueShape [ sh:class base:WildPitchRule ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "A WildPitchProcess must be prescribed by exactly one WildPitchRule."@en
+    ] .
+
+shape:UncaughtThirdStrikeProcessShape
+    a sh:NodeShape ;
+    sh:targetClass base:UncaughtThirdStrikeProcess ;
+    sh:nodeKind sh:IRI ;
+    sh:property shape:PlateAppearanceContextProperty ;
+    sh:property [
+        sh:path bfo:BFO_0000117 ;
+        sh:qualifiedValueShape [ sh:class base:StrikeoutProcess ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "An UncaughtThirdStrikeProcess must contain exactly one StrikeoutProcess."@en
+    ] ;
+    sh:property [
+        sh:path bfo:BFO_0000117 ;
+        sh:qualifiedValueShape [ sh:class base:PitchBallControlFailureProcess ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "An UncaughtThirdStrikeProcess must contain exactly one PitchBallControlFailureProcess."@en
+    ] ;
+    sh:property [
+        sh:path cco:ont00001920 ;
+        sh:qualifiedValueShape [ sh:class base:StrikeRule ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "An UncaughtThirdStrikeProcess must be prescribed by exactly one StrikeRule."@en
+    ] .
+
+shape:UncaughtThirdStrikePlaceholderRecordShape
+    a sh:NodeShape ;
+    sh:targetClass base:BaseballEventRecord ;
+    sh:sparql [
+        sh:message "An unresolved MLB runner placeholder about an uncaught third strike must not assert a fabricated BaserunningAct or RunnerResolutionProcess."@en ;
+        sh:select """
+            PREFIX base: <https://baseballontology.org/>
+            PREFIX cco: <https://www.commoncoreontologies.org/>
+            SELECT $this WHERE {
+              $this cco:ont00001808 ?uncaught, ?fabricated .
+              ?uncaught a base:UncaughtThirdStrikeProcess .
+              ?fabricated a ?forbiddenType .
+              FILTER (?forbiddenType IN (base:BaserunningAct, base:RunnerResolutionProcess))
+            }
+        """
+    ] .
+
 shape:BattedBallMotionShape
     a sh:NodeShape ;
     sh:targetClass base:BattedBallMotionProcess ;

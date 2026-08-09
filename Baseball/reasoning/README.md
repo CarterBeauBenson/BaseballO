@@ -13,6 +13,13 @@ Three small profiles are available:
 | `event-structure` | occurrent-part inverses and transitive paths | `occurrent-mereology.cl` |
 | `participation` | RDF participant inverses; temporally qualified CLIF facts when supported | `participation.cl` |
 
+Every profile must have a matching executable entry in
+[`profile-admission-tests.json`](profile-admission-tests.json). Admission
+requires fixed budgets, positive entailments, forbidden entailments, and a
+contradiction case for every profile-local asymmetry, irreflexivity, or
+antisymmetry constraint. A profile with no such constraint must say why a
+contradiction case is not semantically supported; the gate does not invent one.
+
 Each profile has fixed limits for containment depth, nodes, source triples,
 inferred triples, iterations, and wall-clock time. A limit violation fails the
 run without publishing a graph. These limits are part of the hashed reasoning
@@ -68,3 +75,35 @@ Run `python Baseball/scripts/reasoning/test-selective-reasoning.py` for positive
 negative, budget, deterministic-output, CLIF-export, and proof tests. The
 checked-in [fixture proof baseline](evidence/fixture-566279-pa-0.json) records
 107 of 107 proved obligations across the three profiles with Z3 5.0.0.
+
+## Reviewed complexity comparison
+
+[`reviewed-samples.json`](reviewed-samples.json) fixes two real plate
+appearances from game 566279: a one-pitch field out and an eight-event,
+multi-runner scoring single. The checked-in
+[`reviewed sample evidence`](evidence/fixture-566279-reviewed-samples.json)
+compares explicit and inferred predicate-query row sets for every profile.
+
+| Case | Profile | Selected nodes | Inferred triples | Proved obligations |
+| --- | --- | ---: | ---: | ---: |
+| Simple | `event-order` | 18 | 24 | 24/24 |
+| Simple | `event-structure` | 18 | 23 | 23/23 |
+| Simple | `participation` | 22 | 15 | 4/4 |
+| Complicated | `event-order` | 56 | 46 | 46/46 |
+| Complicated | `event-structure` | 56 | 65 | 65/65 |
+| Complicated | `participation` | 69 | 48 | 14/14 |
+
+Regenerate the comparison against the current local fixture RDF with:
+
+```powershell
+python Baseball/scripts/reasoning/evaluate-reviewed-samples.py `
+  --output-report Baseball/reasoning/evidence/fixture-566279-reviewed-samples.json
+```
+
+The evaluator never loads its disposable graphs into Fuseki.
+
+Every operator run validates the complete authoritative graph with the
+`authoritative` SHACL profile before slice extraction. After materialization
+and proof, the `reasoning-output` profile validates the disposable graph's
+source, admitted profile, and ruleset fingerprint before optional Fuseki load.
+Both reports and shape hashes are retained in the build manifest.

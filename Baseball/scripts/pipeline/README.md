@@ -6,8 +6,9 @@ These scripts implement the active, local-only path from a deliberately supplied
 flowchart LR
     I[Local manual inbox] --> A[Byte-identical archive]
     A --> P[Separate import manifest]
-    A --> R[run-rml.ps1]
-    R --> M[Pinned RMLMapper]
+    P --> W[NiFi semantic work request]
+    W --> R[Dependency assessment]
+    R --> M[run-rml.ps1]
     M --> V[Parse and count validation]
     V --> S[Authoritative SHACL]
     S --> T[Validated Turtle]
@@ -15,10 +16,11 @@ flowchart LR
     L --> F[Fuseki Graph Store PUT]
     F --> C[Reviewable CONSTRUCT components]
     C --> D[Disposable query-index graph]
-    R --> Q[Local quarantine]
+    D --> E[Per-stage evidence and promotion manifest]
+    R --> Q[Stage quarantine]
 ```
 
-## Direct manual import
+## Direct fallback import
 
 From the repository root, import the checked-in historical fixture without making an external request:
 
@@ -26,15 +28,20 @@ From the repository root, import the checked-in historical fixture without makin
 .\scripts\pipeline\import-game-json.ps1 -InputJson .\data\raw\game-566279.json
 ```
 
-The importer parses the supplied document without rewriting it, verifies `gamePk`, season, and game state, stores a byte-identical SHA-256-addressed archive, and writes import metadata separately. Non-final documents are safely archived but do not reach RML. Repeating an identical final document skips mapping only when the raw hash, tracked mapping hash, mapper version, RML manifest, and expected Fuseki assertion all match; `-ForceRdfLoad` overrides that optimization. `-ArchiveOnly` preserves and records the input without invoking RML or Fuseki.
+This bundled importer remains a local fallback and parity reference; it is no
+longer invoked by the NiFi manual inbox. The active NiFi path archives and
+queues first, then runs each semantic stage through its own processor. The
+fallback still supports `-ForceRdfLoad` and `-ArchiveOnly`.
 
 `run-rml.ps1` runs the mapping-specific collision and source preflight and
 stages a byte-identical JSON copy. It then creates an isolated execution-context
 copy containing the ancestor IDs needed by nested pitch records, materializes
 guarded root-identifier markers only in its temporary mapping, invokes the
 pinned mapper in strict mode, and validates complete source-to-RDF coverage.
-The generated graph must also conform to the explicit authoritative SHACL
-profile before it can leave the staging directory.
+Direct fallback execution requires the generated graph to conform to the
+authoritative SHACL profile before it leaves staging. The NiFi path records the
+RML output as deferred, then a separate validation processor reruns the RDF
+parser and SHACL profile before the graph-load processor can receive it.
 The context is disposable and never replaces the raw archive. The manifest
 records source, context-builder, execution-context, source-mapping,
 effective-mapping, and output hashes.
@@ -76,7 +83,7 @@ the eight corpus graphs, detects empty and duplicate result sets, and records
 order-independent RDF-term-aware hashes under
 [`benchmarks/canned-query-audit/`](../../benchmarks/canned-query-audit/).
 
-Audit the 16 advanced semantic queries independently with:
+Audit the 17 advanced semantic queries independently with:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File `
@@ -165,8 +172,76 @@ The command prints the absolute inbox path, normally:
 %LOCALAPPDATA%\BaseballO\state\pipeline\inbox\games
 ```
 
-Copy a completed-game JSON document into that directory. NiFi assigns a collision-safe staging filename, invokes the guarded importer, and routes command failures to quarantine. The source bytes remain available in the content-addressed raw archive or failure quarantine.
+Copy a completed-game JSON document into that directory. NiFi assigns a
+collision-safe staging filename, stores the byte-identical archive, and queues
+a compact request. `90 Shared RDF Mapping and Load` then assesses freshness,
+runs only the required semantic work, and promotes a graph pair only after RML,
+authoritative validation, graph loading, index SHACL, and exact supported-row
+equivalence succeed.
 
-## Parked external acquisition
+Run the reproducible forced parity check with:
 
-The earlier `acquire-daily-games.ps1` implementation and its Mermaid review are retained for a future approved source. Its NiFi processors are stopped. Do not enable that flow until the project's data-access basis is resolved.
+```powershell
+.\scripts\pipeline\test-nifi-rdf-flow.ps1
+```
+
+The check submits the fixture directly to the shared request queue, requires
+all six stage manifests, verifies graph/index semantics, confirms request
+cleanup, and proves the source bytes remain unchanged.
+
+Submit a checked-in date range as one monitored NiFi corpus run with:
+
+```powershell
+.\scripts\pipeline\submit-game-corpus-to-nifi.ps1 `
+  -FromDate 2026-07-14 `
+  -ThroughDate 2026-08-06
+```
+
+The command starts the local stack when necessary, configures and enables the
+manual-inbox flow, copies each unique final game into the inbox with a
+collision-safe name, and waits until the authoritative and query-index
+manifests match the active RML, context builder, and index contract. Duplicate
+game inputs with identical bytes are submitted once; differing bytes for the
+same game fail closed. NiFi quarantine causes the corpus run to fail
+immediately. Use `-NoWait` only when another process will monitor the run.
+When the submitted set contains the exact accepted eight-game audit scope, its
+manifest requests corpus auditing automatically. Promotion events make NiFi
+queue the four audit gates only after every submitted graph pair is current.
+Resume monitoring an existing submission without enqueueing anything with:
+
+```powershell
+.\scripts\pipeline\monitor-nifi-corpus-submission.ps1 -RunId <submission-run-id>
+```
+
+The run ID and complete submitted-game inventory are stored in the submission
+manifest printed by the producer command.
+
+## NiFi validation and evidence stages
+
+After configuring the foundation, create the seven stopped validation and
+evidence paths with:
+
+```powershell
+.\scripts\infra\configure-nifi-evidence.ps1
+```
+
+The stage catalog is
+[`infra/nifi/repeatable-stages.json`](../../infra/nifi/repeatable-stages.json).
+Each processor invokes
+[`run-nifi-evidence-stage.py`](run-nifi-evidence-stage.py), which fingerprints
+the stage's declared repository and local-state inputs, enforces its timeout
+and loopback-service preconditions, and emits a structured success, skip, or
+failure manifest. Failures are copied to the local quarantine tree with the
+complete stage log. Live corpus stages always execute when triggered rather
+than trusting a filesystem fingerprint for mutable Fuseki state.
+
+The existing PowerShell scripts remain the versioned execution boundary during
+this parity phase. NiFi now schedules and routes them; they are not removed
+until the corresponding automated paths have demonstrated parity.
+
+## Explicitly approved external acquisition
+
+`acquire-daily-games.ps1` retains a fail-closed approval guard and runs only
+when the caller supplies `-ExternalDataAccessApproved`. It archives schedules
+and game feeds by content hash with separate manifests. Its NiFi processors
+remain stopped; there is no unattended network-acquisition schedule.

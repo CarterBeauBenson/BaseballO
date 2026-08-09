@@ -1,6 +1,6 @@
 # Advanced semantic analytics
 
-This directory contains 16 exploratory analytics built from the full event
+This directory contains 17 exploratory analytics built from the full event
 patterns in the authoritative game graphs. They are not shortcut/index queries,
 and they do not flatten the graph. Each query starts from the act, process,
 participant, temporal, containment, or adjudication evidence that supports its
@@ -32,7 +32,8 @@ The machine-readable catalog is
 | `half-inning-rally-anatomy.rq` | PA, hit, walk, runner-resolution, and run counts within each half inning | Positive evidence |
 | `game-action-density.rq` | Event counts per game and per mapped minute | Positive evidence |
 | `scorer-classification-profile.rq` | Official-scorer judgment classifications | Positive evidence |
-| `umpire-call-profile.rq` | Umpire call types and their swing/contact context | Positive evidence |
+| `umpire-call-profile.rq` | On-field umpire pitch call versus operative replay call | Positive evidence |
+| `review-outcome-profile.rq` | Review initiation, optional challenger evidence, supported transition, and final outcome | Positive evidence |
 | `hit-diversity.rq` | Players with explicit single, double, triple, and home-run evidence | Positive evidence |
 | `base-destination-profile.rq` | Safe/run destinations from explicit base-touching processes | Positive evidence |
 | `steal-attempt-efficiency.rq` | Mapped attempts, successes, caught-stealing, and unresolved attempts | Completeness-gated |
@@ -47,6 +48,16 @@ or left-on-base continuity, or exact pitch-count state for every pitch. Those
 ideas are recorded as blocked in the catalog rather than approximated from
 unrelated fields. Adding them requires new source-to-RDF evidence and review;
 it is not a query-writing problem alone.
+
+MLB review descriptions identify whether a call was confirmed, upheld, or
+overturned, but do not provide the original ruling as a separate structured
+field. The mapping now creates a distinct reviewed-decision ICE only when the
+final structured state is one of the accepted ball/strike or out/safe
+alternatives: affirming reviews retain that decision type and overturned
+reviews use its modeled binary opposite. Non-pitch reviews still do not identify
+the individual base umpire whose call was reviewed, so no unsupported official
+is assigned. Pitch reviews use the game’s identified home-plate umpire for the
+on-field judgment and keep the replay decision separate.
 
 Run the reproducible eight-game audit with:
 

@@ -1,5 +1,5 @@
 import { createServer } from "node:http";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import { dirname, extname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -7,6 +7,10 @@ import {
   ANALYTICS_QUERY_FAMILIES,
   compileAnalyticsQuery,
 } from "./query-builder/analytics-query-builder.js";
+import {
+  buildPublicDerivedMetricCatalog,
+  compileDerivedMetricQuery,
+} from "./query-builder/derived-metric-query-builder.js";
 
 const WEB_ROOT = dirname(fileURLToPath(import.meta.url));
 const QUERY_BUILDER_ROOT = resolve(WEB_ROOT, "query-builder");
@@ -14,14 +18,22 @@ const OPTIONS_ROOT = resolve(WEB_ROOT, "..", "sparql", "options");
 const EMPTY_GAMES_QUERY = resolve(WEB_ROOT, "..", "sparql", "empty-games-prototype.rq");
 const ADVANCED_QUERY_ROOT = resolve(WEB_ROOT, "..", "sparql", "advanced");
 const ADVANCED_QUERY_CATALOG = resolve(ADVANCED_QUERY_ROOT, "advanced-query-catalog.json");
+const RAW_SAMPLES_ROOT = resolve(WEB_ROOT, "..", "data", "raw", "samples");
+const RAW_FIXTURE = resolve(WEB_ROOT, "..", "data", "raw", "game-566279.json");
 const DEFAULT_QUERY_ENDPOINT = "http://127.0.0.1:3030/baseball-dev/query";
 const AUTHORITATIVE_GRAPH_PREFIX = "https://w3id.org/baseball/graph/game/";
+const AUTHORITATIVE_GRAPH_GUARD = `FILTER(STRSTARTS(STR(?graph), "${AUTHORITATIVE_GRAPH_PREFIX}"))`;
+const DATA_IRI_PREFIX = "https://baseballontology.org/data/";
 const MAX_BODY_BYTES = 64 * 1024;
 const MAX_RESULTS = 1000;
+const GAME_DATE_INDEX_TTL_MS = 30_000;
+const DATE_SCOPE_PRESETS = new Set(["one_day", "seven_days", "thirty_days", "season_to_date", "custom"]);
+const GAME_SETS = new Set(["regular_season", "all_star"]);
 const STATIC_FILES = new Map([
   ["/", "index.html"],
   ["/index.html", "index.html"],
   ["/app.js", "app.js"],
+  ["/result-sort.js", "result-sort.js"],
   ["/styles.css", "styles.css"],
 ]);
 const CONTENT_TYPES = {
@@ -87,7 +99,7 @@ async function readAdvancedCatalog() {
   const catalog = JSON.parse(await readFile(ADVANCED_QUERY_CATALOG, "utf8"));
   if (catalog.artifactType !== "baseball-advanced-semantic-query-catalog"
       || !Array.isArray(catalog.queries)
-      || catalog.queries.length !== 16) {
+      || catalog.queries.length !== 17) {
     throw new Error("The advanced-query catalog is invalid.");
   }
   return catalog;
@@ -236,11 +248,266 @@ function normalizeQueryRequest(value) {
   return { ...value, limit };
 }
 
+function isoDate(value, fieldName) {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/u.test(value)) {
+    throw new TypeError(`${fieldName} must use YYYY-MM-DD`);
+  }
+  const date = new Date(`${value}T00:00:00Z`);
+  if (Number.isNaN(date.valueOf()) || date.toISOString().slice(0, 10) !== value) {
+    throw new TypeError(`${fieldName} must be a real calendar date`);
+  }
+  return value;
+}
+
+function normalizeDateScope(value) {
+  if (value === undefined) return { preset: "seven_days" };
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new TypeError("dateScope must be an object");
+  }
+  const preset = value.preset ?? "seven_days";
+  if (!DATE_SCOPE_PRESETS.has(preset)) throw new RangeError(`Unsupported date preset: ${preset}`);
+  if (preset !== "custom") return { preset };
+  const startDate = isoDate(value.startDate, "startDate");
+  const endDate = isoDate(value.endDate, "endDate");
+  if (startDate > endDate) throw new RangeError("startDate must not be after endDate");
+  return { preset, startDate, endDate };
+}
+
+function normalizeGameSet(value) {
+  const gameSet = value ?? "regular_season";
+  if (!GAME_SETS.has(gameSet)) throw new RangeError(`Unsupported game set: ${gameSet}`);
+  return gameSet;
+}
+
+function shiftIsoDate(value, days) {
+  const date = new Date(`${value}T00:00:00Z`);
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString().slice(0, 10);
+}
+
+export function compileGameDateIndexQuery() {
+  return `PREFIX base: <https://baseballontology.org/>
+
+SELECT DISTINCT ?graph ?game WHERE {
+  GRAPH ?graph {
+    ?game a base:BaseballGame .
+  }
+  ${AUTHORITATIVE_GRAPH_GUARD}
+}
+ORDER BY ?graph`;
+}
+
+async function readOfficialGameMetadata() {
+  const metadata = new Map();
+  const directories = await readdir(RAW_SAMPLES_ROOT, { withFileTypes: true });
+  await Promise.all(directories.filter((entry) => entry.isDirectory()).map(async (entry) => {
+    const schedule = JSON.parse(await readFile(resolve(RAW_SAMPLES_ROOT, entry.name, "schedule.json"), "utf8"));
+    for (const dateBlock of schedule.dates ?? []) {
+      for (const game of dateBlock.games ?? []) {
+        if (Number.isInteger(game.gamePk) && /^\d{4}-\d{2}-\d{2}$/u.test(game.officialDate ?? "")) {
+          metadata.set(String(game.gamePk), {
+            date: game.officialDate,
+            gameSet: game.gameType === "R" ? "regular_season" : game.gameType === "A" ? "all_star" : "other",
+            gameType: game.gameType ?? "",
+            description: game.description ?? game.seriesDescription ?? "",
+          });
+        }
+      }
+    }
+  }));
+  const fixture = JSON.parse(await readFile(RAW_FIXTURE, "utf8"));
+  const fixtureId = fixture.gamePk ?? fixture.gameData?.game?.pk;
+  const fixtureDate = fixture.gameData?.datetime?.officialDate;
+  if (Number.isInteger(fixtureId) && /^\d{4}-\d{2}-\d{2}$/u.test(fixtureDate ?? "")) {
+    metadata.set(String(fixtureId), { date: fixtureDate, gameSet: "fixture", gameType: "fixture", description: "Development fixture" });
+  }
+  return metadata;
+}
+
+function mapGameDateIndex(payload, gameMetadata) {
+  const byGraph = new Map();
+  for (const binding of payload.results?.bindings ?? []) {
+    const graph = binding.graph?.value;
+    const game = binding.game?.value;
+    const gameId = typeof game === "string" ? game.split("/").at(-1) : "";
+    const metadata = gameMetadata.get(gameId);
+    if (typeof graph === "string" && graph.startsWith(AUTHORITATIVE_GRAPH_PREFIX)
+        && /^\d{4}-\d{2}-\d{2}$/u.test(metadata?.date ?? "")) {
+      byGraph.set(graph, metadata);
+    }
+  }
+  return [...byGraph].map(([graph, value]) => ({ graph, ...value }))
+    .sort((left, right) => left.date.localeCompare(right.date) || left.graph.localeCompare(right.graph));
+}
+
+function resolveDateScope(value, index, gameSetValue) {
+  const request = normalizeDateScope(value);
+  const gameSet = normalizeGameSet(gameSetValue);
+  const selectedIndex = index.filter((entry) => entry.gameSet === gameSet);
+  const availableStartDate = selectedIndex[0]?.date ?? null;
+  const availableEndDate = selectedIndex.at(-1)?.date ?? null;
+  let startDate = request.startDate ?? availableEndDate;
+  let endDate = request.endDate ?? availableEndDate;
+  if (availableEndDate) {
+    if (request.preset === "seven_days") startDate = shiftIsoDate(availableEndDate, -6);
+    if (request.preset === "thirty_days") startDate = shiftIsoDate(availableEndDate, -29);
+    if (request.preset === "season_to_date") startDate = `${availableEndDate.slice(0, 4)}-01-01`;
+  }
+  const graphs = startDate && endDate
+    ? selectedIndex.filter((entry) => entry.date >= startDate && entry.date <= endDate).map((entry) => entry.graph)
+    : [];
+  return {
+    graphs,
+    meta: {
+      preset: request.preset,
+      startDate,
+      endDate,
+      gameCount: graphs.length,
+      availableStartDate,
+      availableEndDate,
+      dateBasis: "official-source",
+      gameSet,
+    },
+  };
+}
+
+function normalizeSpecialFilters(value, allowed) {
+  if (value === undefined) return {};
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new TypeError("filters must be an object");
+  }
+  const filters = {};
+  for (const [id, rawValue] of Object.entries(value)) {
+    if (!allowed.includes(id)) throw new RangeError(`Unsupported filter: ${id}`);
+    if (id === "season") {
+      if (!Number.isInteger(rawValue) || rawValue < 1800 || rawValue > 3000) {
+        throw new TypeError("season must be an integer between 1800 and 3000");
+      }
+      filters[id] = rawValue;
+      continue;
+    }
+    if (typeof rawValue !== "string"
+        || !rawValue.startsWith(DATA_IRI_PREFIX)
+        || /[<>\s]/u.test(rawValue)) {
+      throw new TypeError(`${id} must be a canonical BaseballO data IRI`);
+    }
+    filters[id] = rawValue;
+  }
+  return filters;
+}
+
+function iri(value) {
+  return `<${value}>`;
+}
+
+export function compileGraphScopeQuery(filters) {
+  const patterns = ["?game a base:BaseballGame ."];
+  const filterExpressions = [];
+  if (filters.season !== undefined) {
+    patterns.push(
+      "?game obo:BFO_0000199/obo:BFO_0000222 ?gameStartInstant .",
+      "?gameStartTimestamp a base:BaseballTimestampICE ; cco:ont00001916 ?gameStartInstant ; cco:ont00001767 ?gameStart .",
+      "BIND(YEAR(?gameStart) AS ?season)",
+    );
+    filterExpressions.push(`FILTER(?season = ${filters.season})`);
+  }
+  if (filters.game) filterExpressions.push(`FILTER(?game = ${iri(filters.game)})`);
+  if (filters.venue) {
+    patterns.push(
+      "?game cco:ont00001918 ?field .",
+      "?field a base:BaseballFieldSite ; obo:BFO_0000171 ?venue .",
+    );
+    filterExpressions.push(`FILTER(?venue = ${iri(filters.venue)})`);
+  }
+  if (filters.team) {
+    patterns.push(
+      "?teamRole a ?teamRoleClass ; obo:BFO_0000197 ?team ; obo:BFO_0000054 ?game .",
+      "VALUES ?teamRoleClass { base:HomeTeamRole base:AwayTeamRole }",
+    );
+    filterExpressions.push(`FILTER(?team = ${iri(filters.team)})`);
+  }
+  return `PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+
+SELECT DISTINCT ?graph WHERE {
+  GRAPH ?graph {
+    ${patterns.join("\n    ")}
+  }
+  ${AUTHORITATIVE_GRAPH_GUARD}
+  ${filterExpressions.join("\n  ")}
+}`;
+}
+
+function applyGraphScope(query, graphIris) {
+  if (!query.includes(AUTHORITATIVE_GRAPH_GUARD)) {
+    throw new Error("The reviewed query has no authoritative graph guard.");
+  }
+  const scope = graphIris.length === 0
+    ? "FILTER(false)"
+    : `FILTER(?graph IN (${graphIris.map(iri).join(", ")}))`;
+  return query.split(AUTHORITATIVE_GRAPH_GUARD)
+    .join(`${AUTHORITATIVE_GRAPH_GUARD}\n  ${scope}`);
+}
+
+function applyEmptyEntityFilters(query, filters) {
+  const marker = "  # Do not classify a graph whose PA result vocabulary";
+  const clauses = [];
+  if (filters.player) clauses.push(`FILTER(?player = ${iri(filters.player)})`);
+  if (filters.team) clauses.push(`FILTER(?team = ${iri(filters.team)})`);
+  if (clauses.length === 0) return query;
+  if (!query.includes(marker)) throw new Error("The Empty Games filter boundary is missing.");
+  return query.replace(marker, `  ${clauses.join("\n  ")}\n\n${marker}`);
+}
+
+function applyDerivedEntityFilters(query, filters) {
+  const marker = "      # Derived-metric entity filters are inserted here by the allowlisted server.";
+  const clauses = [];
+  if (filters.player) clauses.push(`FILTER(?player = ${iri(filters.player)})`);
+  if (filters.team) clauses.push(`FILTER(?team = ${iri(filters.team)})`);
+  if (clauses.length === 0) return query;
+  if (!query.includes(marker)) throw new Error("The derived-metric filter boundary is missing.");
+  return query.replace(marker, `${clauses.map((clause) => `      ${clause}`).join("\n")}\n\n${marker}`);
+}
+
+async function graphScope(filters, execution) {
+  if (Object.keys(filters).length === 0) return null;
+  const { payload } = await executeSparql(compileGraphScopeQuery(filters), execution);
+  return (payload.results?.bindings ?? []).flatMap((binding) => {
+    const value = binding.graph?.value;
+    return typeof value === "string" && value.startsWith(AUTHORITATIVE_GRAPH_PREFIX)
+      ? [value]
+      : [];
+  });
+}
+
+function intersectGraphScopes(left, right) {
+  if (left === null) return right;
+  const allowed = new Set(right);
+  return left.filter((graph) => allowed.has(graph));
+}
+
 export function createBaseballServer({
   fetchImpl = globalThis.fetch,
   queryEndpoint = process.env.BASEBALLO_FUSEKI_QUERY ?? DEFAULT_QUERY_ENDPOINT,
 } = {}) {
   const optionCache = new Map();
+  let gameDateIndexCache;
+
+  async function gameDateIndex() {
+    if (gameDateIndexCache?.expiresAt > Date.now()) return gameDateIndexCache.entries;
+    const { payload } = await executeSparql(compileGameDateIndexQuery(), { fetchImpl, queryEndpoint });
+    const gameMetadata = await readOfficialGameMetadata();
+    const entries = mapGameDateIndex(payload, gameMetadata);
+    gameDateIndexCache = { entries, expiresAt: Date.now() + GAME_DATE_INDEX_TTL_MS };
+    return entries;
+  }
+
+  async function scopedGraphs(dateScope, filters = {}, gameSet) {
+    const resolved = resolveDateScope(dateScope, await gameDateIndex(), gameSet);
+    const filtered = await graphScope(filters, { fetchImpl, queryEndpoint });
+    return { graphs: intersectGraphScopes(filtered, resolved.graphs), dateScope: resolved.meta };
+  }
 
   return createServer(async (request, response) => {
     const requestUrl = new URL(request.url ?? "/", "http://127.0.0.1");
@@ -258,6 +525,16 @@ export function createBaseballServer({
         return;
       }
 
+      if (request.method === "GET" && requestUrl.pathname === "/api/date-scope") {
+        const preset = requestUrl.searchParams.get("preset") ?? "seven_days";
+        const input = { preset };
+        if (requestUrl.searchParams.has("startDate")) input.startDate = requestUrl.searchParams.get("startDate");
+        if (requestUrl.searchParams.has("endDate")) input.endDate = requestUrl.searchParams.get("endDate");
+        const { meta } = resolveDateScope(input, await gameDateIndex(), requestUrl.searchParams.get("gameSet") ?? undefined);
+        sendJson(response, 200, { scope: meta });
+        return;
+      }
+
       if (request.method === "GET" && requestUrl.pathname === "/api/advanced/catalog") {
         const advancedCatalog = await readAdvancedCatalog();
         sendJson(response, 200, {
@@ -267,10 +544,16 @@ export function createBaseballServer({
         return;
       }
 
+      if (request.method === "GET" && requestUrl.pathname === "/api/derived/catalog") {
+        sendJson(response, 200, buildPublicDerivedMetricCatalog());
+        return;
+      }
+
       if (request.method === "GET" && requestUrl.pathname === "/api/options") {
         const familyId = requestUrl.searchParams.get("family") ?? "";
         const dimensionId = requestUrl.searchParams.get("dimension") ?? "";
-        const cacheKey = `${familyId}:${dimensionId}`;
+        const gameSet = normalizeGameSet(requestUrl.searchParams.get("gameSet") ?? undefined);
+        const cacheKey = `${gameSet}:${familyId}:${dimensionId}`;
         const dimension = requireDimension(familyId, dimensionId);
         if (!dimension.optionsQuery && !dimension.values) {
           sendJson(response, 200, { options: [] });
@@ -285,7 +568,11 @@ export function createBaseballServer({
           options = mapOptions(dimensionId, dimension, { results: { bindings: [] } });
         } else {
           const queryPath = resolveOptionsPath(dimension.optionsQuery);
-          const query = await readFile(queryPath, "utf8");
+          const sourceQuery = await readFile(queryPath, "utf8");
+          const graphs = (await gameDateIndex())
+            .filter((entry) => entry.gameSet === gameSet)
+            .map((entry) => entry.graph);
+          const query = applyGraphScope(sourceQuery, graphs);
           const { payload } = await executeSparql(query, { fetchImpl, queryEndpoint });
           options = mapOptions(dimensionId, dimension, payload);
         }
@@ -294,8 +581,17 @@ export function createBaseballServer({
         return;
       }
 
-      if (request.method === "GET" && requestUrl.pathname === "/api/canned/empty-games") {
-        const query = await readFile(EMPTY_GAMES_QUERY, "utf8");
+      if ((request.method === "GET" || request.method === "POST")
+          && requestUrl.pathname === "/api/canned/empty-games") {
+        const input = request.method === "POST" ? await readJsonBody(request) : {};
+        const filters = normalizeSpecialFilters(input.filters, ["season", "game", "venue", "team", "player"]);
+        const graphFilters = Object.fromEntries(
+          Object.entries(filters).filter(([id]) => !["team", "player"].includes(id)),
+        );
+        const { graphs, dateScope } = await scopedGraphs(input.dateScope, graphFilters, input.gameSet);
+        let query = await readFile(EMPTY_GAMES_QUERY, "utf8");
+        query = applyGraphScope(query, graphs);
+        query = applyEmptyEntityFilters(query, filters);
         const { payload, durationMs } = await executeSparql(query, { fetchImpl, queryEndpoint });
         sendJson(response, 200, {
           ...payload,
@@ -305,6 +601,37 @@ export function createBaseballServer({
             rowCount: payload.results?.bindings?.length ?? 0,
             layer: "authoritative",
             definition: "reviewed-prototype",
+            filters,
+            dateScope,
+          },
+        });
+        return;
+      }
+
+      if (request.method === "POST" && requestUrl.pathname === "/api/derived") {
+        const input = await readJsonBody(request);
+        const compiled = compileDerivedMetricQuery(input);
+        const filters = normalizeSpecialFilters(input.filters, ["season", "game", "venue", "team", "player"]);
+        const graphFilters = Object.fromEntries(
+          Object.entries(filters).filter(([id]) => !["team", "player"].includes(id)),
+        );
+        const { graphs, dateScope } = await scopedGraphs(input.dateScope, graphFilters, input.gameSet);
+        let query = applyGraphScope(compiled.query, graphs);
+        query = applyDerivedEntityFilters(query, filters);
+        const executedQuery = `${query.trimEnd()}\nLIMIT ${MAX_RESULTS}\n`;
+        const { payload, durationMs } = await executeSparql(executedQuery, { fetchImpl, queryEndpoint });
+        sendJson(response, 200, {
+          ...payload,
+          query: executedQuery,
+          meta: {
+            durationMs,
+            rowCount: payload.results?.bindings?.length ?? 0,
+            layer: "authoritative",
+            definition: "reviewed-derived-metric",
+            filters,
+            dateScope,
+            derivedMetric: compiled.contract,
+            columnLabels: { derivedValue: compiled.contract.label },
           },
         });
         return;
@@ -321,7 +648,10 @@ export function createBaseballServer({
         if (!entry) {
           throw new RangeError(`Unknown advanced query: ${input.id}`);
         }
-        const query = await readFile(resolveAdvancedQueryPath(entry), "utf8");
+        const filters = normalizeSpecialFilters(input.filters, ["season", "game", "venue", "team"]);
+        const { graphs, dateScope } = await scopedGraphs(input.dateScope, filters, input.gameSet);
+        let query = await readFile(resolveAdvancedQueryPath(entry), "utf8");
+        query = applyGraphScope(query, graphs);
         const executedQuery = `${query.trimEnd()}\nLIMIT ${MAX_RESULTS}\n`;
         const { payload, durationMs } = await executeSparql(executedQuery, { fetchImpl, queryEndpoint });
         sendJson(response, 200, {
@@ -334,6 +664,8 @@ export function createBaseballServer({
             definition: entry.semanticMode,
             claim: entry.claim,
             truncatedAt: MAX_RESULTS,
+            filters,
+            dateScope,
           },
         });
         return;
@@ -341,7 +673,8 @@ export function createBaseballServer({
 
       if (request.method === "POST" && requestUrl.pathname === "/api/query") {
         const input = normalizeQueryRequest(await readJsonBody(request));
-        const query = compileAnalyticsQuery(input);
+        const { graphs, dateScope } = await scopedGraphs(input.dateScope, {}, input.gameSet);
+        const query = applyGraphScope(compileAnalyticsQuery(input), graphs);
         const { payload, durationMs } = await executeSparql(query, { fetchImpl, queryEndpoint });
         sendJson(response, 200, {
           ...payload,
@@ -350,6 +683,8 @@ export function createBaseballServer({
             durationMs,
             rowCount: payload.results?.bindings?.length ?? 0,
             layer: "authoritative",
+            filters: input.filters ?? {},
+            dateScope,
           },
         });
         return;

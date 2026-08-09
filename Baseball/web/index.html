@@ -53,6 +53,40 @@
 
         <nav class="family-tabs" id="family-tabs" aria-label="Analytics family"></nav>
 
+        <fieldset class="date-scope-control">
+          <legend><span>Official game dates</span><small>Scopes loaded game graphs</small></legend>
+          <div class="date-scope-grid">
+            <div class="filter-field">
+              <label for="game-set">Game set</label>
+              <select id="game-set">
+                <option value="regular_season" selected>Regular season</option>
+                <option value="all_star">2026 All-Star Game</option>
+              </select>
+            </div>
+            <div class="filter-field">
+              <label for="date-preset">Range</label>
+              <select id="date-preset">
+                <option value="one_day">Latest day</option>
+                <option value="seven_days" selected>Latest 7 days</option>
+                <option value="thirty_days">Latest 30 days</option>
+                <option value="season_to_date">Season to date</option>
+                <option value="custom">Custom range</option>
+              </select>
+            </div>
+            <div class="custom-date-fields" id="custom-date-fields" hidden>
+              <div class="filter-field">
+                <label for="date-start">Start</label>
+                <input id="date-start" type="date">
+              </div>
+              <div class="filter-field">
+                <label for="date-end">End</label>
+                <input id="date-end" type="date">
+              </div>
+            </div>
+          </div>
+          <p class="date-scope-status" id="date-scope-status" aria-live="polite">Resolving loaded game datesâ€¦</p>
+        </fieldset>
+
         <form id="query-form">
           <fieldset class="control-group">
             <legend><span>Group results by</span><small>Choose one or more</small></legend>
@@ -97,14 +131,55 @@
               <li>Explicitly adjudicated stolen base</li>
             </ul>
           </div>
+          <fieldset class="control-group filters-group special-filter-group">
+            <legend><span>Narrow the question</span><small>Optional</small></legend>
+            <div class="filter-grid" id="empty-games-filter-controls"></div>
+          </fieldset>
           <div class="completeness-note">
             <strong>Completeness gate</strong>
             <span>Games containing an unrecognized plate-appearance result are excluded instead of being classified from incomplete evidence.</span>
           </div>
-          <button class="run-button empty-games-run" id="run-empty-games-button" type="button">
-            <span>Find empty games</span>
-            <span aria-hidden="true">→</span>
-          </button>
+          <div class="form-actions special-form-actions">
+            <button class="run-button" id="run-empty-games-button" type="button">
+              <span>Find empty games</span>
+              <span aria-hidden="true">→</span>
+            </button>
+            <button class="reset-button" id="reset-empty-games-button" type="button">Reset</button>
+          </div>
+        </section>
+
+        <section class="derived-builder" id="derived-builder" hidden aria-labelledby="derived-builder-title">
+          <div class="definition-card">
+            <p class="definition-status">Reviewed measure contracts · Authoritative only</p>
+            <h3 id="derived-builder-title">Combine two compatible measures</h3>
+            <p>Choose a numerator and denominator. BaseballO checks their grain, unit, dimensions, and evidence universe before compiling the calculation.</p>
+          </div>
+          <div class="derived-measure-grid">
+            <div class="filter-field">
+              <label for="derived-numerator">Numerator</label>
+              <select id="derived-numerator"></select>
+            </div>
+            <div class="derived-operator" aria-hidden="true">÷</div>
+            <div class="filter-field">
+              <label for="derived-denominator">Denominator</label>
+              <select id="derived-denominator"></select>
+            </div>
+          </div>
+          <div class="completeness-note" id="derived-contract-note">
+            <strong>Measure contract</strong>
+            <span id="derived-contract-text">Both measures count player-games in the reviewed offensive-game evidence universe.</span>
+          </div>
+          <fieldset class="control-group filters-group special-filter-group">
+            <legend><span>Narrow the question</span><small>Optional</small></legend>
+            <div class="filter-grid" id="derived-filter-controls"></div>
+          </fieldset>
+          <div class="form-actions special-form-actions">
+            <button class="run-button" id="run-derived-button" type="button">
+              <span>Calculate derived metric</span>
+              <span aria-hidden="true">→</span>
+            </button>
+            <button class="reset-button" id="reset-derived-button" type="button">Reset</button>
+          </div>
         </section>
 
         <section class="advanced-builder" id="advanced-builder" hidden aria-labelledby="advanced-builder-title">
@@ -117,14 +192,21 @@
             <label for="advanced-query-select">Advanced question</label>
             <select id="advanced-query-select"></select>
           </div>
+          <fieldset class="control-group filters-group special-filter-group">
+            <legend><span>Narrow the question</span><small>Optional</small></legend>
+            <div class="filter-grid" id="advanced-filter-controls"></div>
+          </fieldset>
           <div class="completeness-note" id="advanced-evidence-note">
             <strong>Evidence contract</strong>
             <span>The selected query states whether it counts positive evidence, uses a completeness gate, or reports integrity findings.</span>
           </div>
-          <button class="run-button empty-games-run" id="run-advanced-button" type="button">
-            <span>Run advanced question</span>
-            <span aria-hidden="true">â†’</span>
-          </button>
+          <div class="form-actions special-form-actions">
+            <button class="run-button" id="run-advanced-button" type="button">
+              <span>Run advanced question</span>
+              <span aria-hidden="true">→</span>
+            </button>
+            <button class="reset-button" id="reset-advanced-button" type="button">Reset</button>
+          </div>
         </section>
       </aside>
 
@@ -150,6 +232,7 @@
               <button type="button" data-preset="baserunning">Runs by runner</button>
               <button type="button" data-preset="games">Games by venue</button>
               <button type="button" data-preset="empty_games">Find empty games</button>
+              <button type="button" data-preset="derived_metrics">Build an empty-game percentage</button>
               <button type="button" data-preset="advanced">Advanced event analytics</button>
             </div>
           </div>

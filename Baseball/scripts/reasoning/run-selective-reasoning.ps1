@@ -60,6 +60,14 @@ $outputPath = [System.IO.Path]::GetFullPath($OutputDirectory)
 $profilePath = Join-Path $script:RepositoryRoot "reasoning\profiles\$Profile.json"
 $reasonerPath = Join-Path $script:RepositoryRoot 'scripts\reasoning\selective_reasoner.py'
 $proverPath = Join-Path $script:RepositoryRoot 'scripts\reasoning\prove-selective-reasoning.py'
+$shaclValidatorPath = Join-Path $script:RepositoryRoot 'scripts\pipeline\validate-shacl.py'
+$authoritativeShapePath = Join-Path $script:RepositoryRoot 'shacl\authoritative.ttl'
+$reasoningShapePath = Join-Path $script:RepositoryRoot 'shacl\reasoning-output.ttl'
+$preReasoningReport = Join-Path $outputPath 'pre-reasoning-shacl.json'
+& python $shaclValidatorPath --profile authoritative --data $rdfPath --report-json $preReasoningReport
+if ($LASTEXITCODE -ne 0) {
+    throw "Authoritative SHACL failed before reasoning for $Anchor."
+}
 & python $reasonerPath `
     --input $rdfPath `
     --game-pk $GamePk `
@@ -77,10 +85,32 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 $manifestPath = Join-Path $outputPath 'manifest.json'
+$publishedPath = Join-Path $outputPath 'published.nt'
+$postReasoningReport = Join-Path $outputPath 'post-reasoning-shacl.json'
+& python $shaclValidatorPath --profile reasoning-output --data $publishedPath --report-json $postReasoningReport
+if ($LASTEXITCODE -ne 0) {
+    throw "Reasoning-output SHACL failed before publication for $Anchor with profile $Profile."
+}
 $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
 if ([string]$manifest.gamePk -ne $GamePk -or [string]$manifest.anchor -ne $Anchor -or [string]$manifest.profile -ne $Profile) {
     throw 'Selective reasoning manifest identity mismatch.'
 }
+$manifest | Add-Member -NotePropertyName shaclValidation -NotePropertyValue ([PSCustomObject]@{
+    explicitGraphBeforeReasoning = [PSCustomObject]@{
+        profile = 'authoritative'; conforms = $true
+        shapeSha256 = (Get-FileHash -LiteralPath $authoritativeShapePath -Algorithm SHA256).Hash.ToLowerInvariant()
+        reportPath = $preReasoningReport
+        reportSha256 = (Get-FileHash -LiteralPath $preReasoningReport -Algorithm SHA256).Hash.ToLowerInvariant()
+    }
+    inferredGraphBeforeLoad = [PSCustomObject]@{
+        profile = 'reasoning-output'; conforms = $true
+        shapeSha256 = (Get-FileHash -LiteralPath $reasoningShapePath -Algorithm SHA256).Hash.ToLowerInvariant()
+        reportPath = $postReasoningReport
+        reportSha256 = (Get-FileHash -LiteralPath $postReasoningReport -Algorithm SHA256).Hash.ToLowerInvariant()
+    }
+}) -Force
+$utf8 = New-Object System.Text.UTF8Encoding($false)
+[System.IO.File]::WriteAllText($manifestPath, (($manifest | ConvertTo-Json -Depth 16) + "`n"), $utf8)
 
 if ($Load) {
     if (-not (Test-TcpPort -HostName '127.0.0.1' -Port 3030)) {
@@ -97,7 +127,6 @@ if ($Load) {
 
     $reasoningGraph = [string]$manifest.reasoningGraph
     $dataEndpoint = "http://127.0.0.1:3030/baseball-dev/data?graph=$([Uri]::EscapeDataString($reasoningGraph))"
-    $publishedPath = Join-Path $outputPath 'published.nt'
     Invoke-WebRequest -Uri $dataEndpoint -Method Put -ContentType 'application/n-triples' -InFile $publishedPath -UseBasicParsing | Out-Null
 
     $countQuery = "SELECT (COUNT(*) AS ?count) WHERE { GRAPH <$reasoningGraph> { ?s ?p ?o } }"

@@ -1,0 +1,117 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# The full replay-review transition: original on-field decision, optional
+# challenge, replay adjudication, replay decision, result information, and final
+# structured play outcome. Reviews outside the supported ball/strike and
+# out/safe decision families remain visible as not_classified rather than being
+# forced into an unsupported transition.
+SELECT ?reviewType ?sourceStatus ?reviewOutcome ?transition
+       ?originalDecision ?replayDecision ?reviewInitiation
+       ?challenger ?challengerLabel ?finalEvent ?finalPitchCall
+       (COUNT(DISTINCT ?reviewRecord) AS ?reviews)
+       (COUNT(DISTINCT ?game) AS ?games)
+WHERE {
+  GRAPH ?graph {
+    ?reviewRecord a base:BaseballReplayReviewEventRecord ;
+        cco:ont00001808 ?onFieldJudgment, ?onFieldDecision, ?reviewAct,
+            ?replayDecisionICE, ?reviewResult, ?resultJudgment .
+
+    ?onFieldJudgment a base:ReviewedOnFieldUmpireJudgmentAct ;
+        cco:ont00001986 ?onFieldDecision ;
+        obo:BFO_0000063 ?reviewAct .
+    ?reviewAct a base:BaseballReplayReviewAct ;
+        cco:ont00001921 ?onFieldDecision ;
+        cco:ont00001986 ?replayDecisionICE .
+    ?onFieldDecision a base:ReviewedOnFieldBaseballDecisionICE .
+    ?replayDecisionICE a base:BaseballReplayDecisionICE .
+    ?reviewResult a base:BaseballReplayReviewDispositionICE, ?resultClass ;
+        cco:ont00001816 ?reviewAct ;
+        dcterms:type ?reviewType ;
+        dcterms:identifier ?sourceStatus ;
+        cco:ont00001808 ?onFieldDecision, ?replayDecisionICE .
+
+    VALUES (?resultClass ?reviewOutcome) {
+      (base:AffirmingBaseballReplayReviewDispositionICE "affirming")
+      (base:OverturningBaseballReplayReviewDispositionICE "overturning")
+    }
+    OPTIONAL {
+      VALUES (?originalClass ?mappedOriginalDecision) {
+        (base:BallDecisionICE "ball")
+        (base:StrikeDecisionICE "strike")
+        (base:OutDecisionICE "out")
+        (base:SafeDecisionICE "safe")
+      }
+      ?onFieldDecision a ?originalClass .
+    }
+    OPTIONAL {
+      VALUES (?replayClass ?mappedReplayDecision) {
+        (base:BallDecisionICE "ball")
+        (base:StrikeDecisionICE "strike")
+        (base:OutDecisionICE "out")
+        (base:SafeDecisionICE "safe")
+      }
+      ?replayDecisionICE a ?replayClass .
+    }
+    OPTIONAL {
+      VALUES (?transitionClass ?mappedTransition) {
+        (base:BallAffirmingBaseballReplayReviewAct "ball_to_ball")
+        (base:StrikeAffirmingBaseballReplayReviewAct "strike_to_strike")
+        (base:OutAffirmingBaseballReplayReviewAct "out_to_out")
+        (base:SafeAffirmingBaseballReplayReviewAct "safe_to_safe")
+        (base:BallToStrikeBaseballReplayReviewAct "ball_to_strike")
+        (base:StrikeToBallBaseballReplayReviewAct "strike_to_ball")
+        (base:OutToSafeBaseballReplayReviewAct "out_to_safe")
+        (base:SafeToOutBaseballReplayReviewAct "safe_to_out")
+      }
+      ?reviewAct a ?transitionClass .
+    }
+    BIND(COALESCE(?mappedOriginalDecision, "not_classified") AS ?originalDecision)
+    BIND(COALESCE(?mappedReplayDecision, "not_classified") AS ?replayDecision)
+    BIND(COALESCE(?mappedTransition, "not_classified") AS ?transition)
+
+    OPTIONAL {
+      ?reviewRecord cco:ont00001808 ?challenge .
+      ?challenge a base:ChallengeAct ;
+          obo:BFO_0000063 ?reviewAct .
+      OPTIONAL {
+        ?challenge a base:PlayerChallengeAct ;
+            obo:BFO_0000057 ?challenger .
+        ?challenger rdfs:label ?challengerLabel .
+        BIND("player_challenge" AS ?identifiedChallengeKind)
+      }
+    }
+    BIND(
+      IF(
+        BOUND(?challenge),
+        COALESCE(?identifiedChallengeKind, "challenge_actor_not_structured"),
+        "umpire_initiated"
+      ) AS ?reviewInitiation
+    )
+
+    ?resultJudgment obo:BFO_0000132 ?result .
+    ?result a base:BaseballInstitutionalProcess ;
+        obo:BFO_0000132 ?plateAppearance .
+    ?resultRecord a base:BaseballEventRecord ;
+        cco:ont00001808 ?result ;
+        dcterms:identifier ?finalEvent .
+    ?plateAppearance a base:PlateAppearance ;
+        obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
+
+    OPTIONAL {
+      ?reviewRecord cco:ont00001808 ?pitch .
+      ?pitch a base:PitchAct .
+      ?pitchRecord a base:BaseballEventRecord ;
+          cco:ont00001808 ?pitch ;
+          dcterms:type ?finalPitchCall .
+    }
+  }
+  FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+}
+GROUP BY ?reviewType ?sourceStatus ?reviewOutcome ?transition
+         ?originalDecision ?replayDecision ?reviewInitiation
+         ?challenger ?challengerLabel ?finalEvent ?finalPitchCall
+ORDER BY ?reviewType ?sourceStatus ?transition ?challengerLabel ?finalEvent

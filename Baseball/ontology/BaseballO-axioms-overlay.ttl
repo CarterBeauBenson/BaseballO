@@ -11,14 +11,15 @@
 
 <https://baseballontology.org/baseball-event-ontology-axioms-overlay>
     a owl:Ontology ;
-    owl:versionIRI <https://baseballontology.org/2026-07-30/baseball-event-ontology-axioms-overlay> ;
-    owl:versionInfo "0.1.0"@en ;
+    owl:versionIRI <https://baseballontology.org/2026-08-05/baseball-event-ontology-axioms-overlay> ;
+    owl:versionInfo "0.2.0"@en ;
     owl:imports
         <https://baseballontology.org/baseball-event-ontology> ,
         <http://www.ontologyrepository.com/CommonCoreOntologies/Domain/CognitiveProcessOntology> ,
         <https://www.commoncoreontologies.org/ModalRelationOntology> ;
     dcterms:title "Baseball Event and Adjudication Ontology Axiom Overlay"@en ;
     dcterms:created "2026-07-30"^^xsd:date ;
+    dcterms:modified "2026-08-05"^^xsd:date ;
     rdfs:comment "Optional logical axioms for the Baseball Event and Adjudication Ontology. Load this ontology with BaseballO to enable the restrictions below; omit it to use only BaseballO's annotated taxonomic backbone."@en ;
     rdfs:comment "All class and object-property IRIs used by this overlay are declared in, or referenced by, the ontology files stored in this repository. The overlay intentionally states only necessary conditions when the complete natural-language differentia cannot be represented without new vocabulary."@en .
 
@@ -196,8 +197,23 @@ base:SubstitutionAct
         [ a owl:Restriction ; owl:onProperty cco:ont00001778 ; owl:someValuesFrom base:PlayerRole ] .
 
 base:ChallengeAct
-    rdfs:subClassOf
-        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:BaseballJudgmentAct ] .
+    owl:equivalentClass [ a owl:Class ;
+        owl:intersectionOf (
+            base:BaseballAct
+            [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:BaseballJudgmentAct ]
+            [ a owl:Restriction ; owl:onProperty obo:BFO_0000063 ; owl:someValuesFrom base:BaseballReplayReviewAct ]
+        )
+    ] .
+
+base:ManagerChallengeAct
+    owl:equivalentClass [ a owl:Class ;
+        owl:intersectionOf ( base:ChallengeAct base:ManagerAct )
+    ] .
+
+base:PlayerChallengeAct
+    owl:equivalentClass [ a owl:Class ;
+        owl:intersectionOf ( base:ChallengeAct base:PlayerAct )
+    ] .
 
 base:BaseballAdjudicationAct
     rdfs:subClassOf
@@ -251,6 +267,10 @@ base:BallControlProcess
 base:BallControlFailureProcess
     rdfs:subClassOf
         [ a owl:Restriction ; owl:onProperty obo:BFO_0000057 ; owl:someValuesFrom base:Baseball ] .
+
+base:PitchBallControlFailureProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:PitchBallMotionProcess ] .
 
 base:TaggingProcess
     rdfs:subClassOf
@@ -313,6 +333,14 @@ base:FieldersChoiceDecisionICE
 base:SacrificeDecisionICE
     rdfs:subClassOf
         [ a owl:Restriction ; owl:onProperty cco:ont00001816 ; owl:someValuesFrom base:SacrificeJudgmentAct ] .
+
+base:PassedBallDecisionICE
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001816 ; owl:someValuesFrom base:PassedBallJudgmentAct ] .
+
+base:WildPitchDecisionICE
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001816 ; owl:someValuesFrom base:WildPitchJudgmentAct ] .
 
 base:RunDecisionICE
     rdfs:subClassOf
@@ -400,6 +428,16 @@ base:FieldersChoiceJudgmentAct
 base:SacrificeJudgmentAct
     rdfs:subClassOf
         [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:SacrificeDecisionICE ] .
+
+base:PassedBallJudgmentAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:PassedBallDecisionICE ] ,
+        [ a owl:Restriction ; owl:onProperty cco:ont00001920 ; owl:someValuesFrom base:PassedBallRule ] .
+
+base:WildPitchJudgmentAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:WildPitchDecisionICE ] ,
+        [ a owl:Restriction ; owl:onProperty cco:ont00001920 ; owl:someValuesFrom base:WildPitchRule ] .
 
 base:RunJudgmentAct
     rdfs:subClassOf
@@ -500,6 +538,18 @@ base:ScoringClassificationProcess
     rdfs:subClassOf
         [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:ScoringJudgmentAct ] .
 
+base:PassedBallProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:PitchBallControlFailureProcess ] ,
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:PassedBallJudgmentAct ] ,
+        [ a owl:Restriction ; owl:onProperty cco:ont00001920 ; owl:someValuesFrom base:PassedBallRule ] .
+
+base:WildPitchProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:PitchBallControlFailureProcess ] ,
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:WildPitchJudgmentAct ] ,
+        [ a owl:Restriction ; owl:onProperty cco:ont00001920 ; owl:someValuesFrom base:WildPitchRule ] .
+
 base:HitProcess
     rdfs:subClassOf
         [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:BatBallContactProcess ] ,
@@ -548,6 +598,12 @@ base:TagOutProcess
 base:StrikeoutProcess
     rdfs:subClassOf
         [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:StrikeProcess ] ,
+        [ a owl:Restriction ; owl:onProperty cco:ont00001920 ; owl:someValuesFrom base:StrikeRule ] .
+
+base:UncaughtThirdStrikeProcess
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:StrikeoutProcess ] ,
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:PitchBallControlFailureProcess ] ,
         [ a owl:Restriction ; owl:onProperty cco:ont00001920 ; owl:someValuesFrom base:StrikeRule ] .
 
 base:WalkProcess
@@ -603,6 +659,14 @@ base:BallRule
 base:StrikeRule
     rdfs:subClassOf
         [ a owl:Restriction ; owl:onProperty cco:ont00001942 ; owl:someValuesFrom base:StrikeProcess ] .
+
+base:PassedBallRule
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001942 ; owl:someValuesFrom base:PassedBallProcess ] .
+
+base:WildPitchRule
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001942 ; owl:someValuesFrom base:WildPitchProcess ] .
 
 base:FairFoulRule
     rdfs:subClassOf
@@ -752,3 +816,189 @@ base:FoulTipProcess
 base:FoulTipCallICE
     rdfs:subClassOf
         [ a owl:Restriction ; owl:onProperty cco:ont00001816 ; owl:someValuesFrom base:FoulTipJudgmentAct ] .
+
+
+#################################################################
+# Replay-review adjudication pattern
+#################################################################
+
+base:BaseballReplayReviewAct
+    owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+        base:BaseballAdjudicationAct
+        [ a owl:Restriction ;
+          owl:onProperty cco:ont00001921 ;
+          owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+          owl:onClass base:BaseballDecisionICE ]
+        [ a owl:Restriction ;
+          owl:onProperty cco:ont00001986 ;
+          owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+          owl:onClass base:BaseballDecisionICE ]
+    ) ] .
+
+base:ReviewedOnFieldBaseballDecisionICE
+    owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+        base:BaseballDecisionICE
+        [ a owl:Restriction ; owl:onProperty cco:ont00001841 ; owl:someValuesFrom base:BaseballReplayReviewAct ]
+    ) ] .
+
+base:BaseballReplayDecisionICE
+    owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+        base:BaseballDecisionICE
+        [ a owl:Restriction ; owl:onProperty cco:ont00001816 ; owl:someValuesFrom base:BaseballReplayReviewAct ]
+    ) ] .
+
+base:ReviewedOnFieldUmpireJudgmentAct
+    owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+        base:UmpireJudgmentAct
+        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:ReviewedOnFieldBaseballDecisionICE ]
+    ) ] .
+
+base:BaseballReplayOfficialRole
+    owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+        base:BaseballAdjudicatorRole
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000054 ; owl:someValuesFrom base:BaseballReplayReviewAct ]
+    ) ] .
+
+base:ChallengedBaseballReplayReviewAct
+    owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+        base:BaseballReplayReviewAct
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:ChallengeAct ]
+    ) ] .
+
+
+#################################################################
+# Affirming replay-review transitions
+#################################################################
+
+base:BallAffirmingBaseballReplayReviewAct
+    owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+        base:BallJudgmentAct
+        base:BaseballReplayReviewAct
+        [ a owl:Restriction ; owl:onProperty cco:ont00001921 ; owl:someValuesFrom base:BallDecisionICE ]
+        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:BallDecisionICE ]
+    ) ] .
+
+base:StrikeAffirmingBaseballReplayReviewAct
+    owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+        base:StrikeJudgmentAct
+        base:BaseballReplayReviewAct
+        [ a owl:Restriction ; owl:onProperty cco:ont00001921 ; owl:someValuesFrom base:StrikeDecisionICE ]
+        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:StrikeDecisionICE ]
+    ) ] .
+
+base:OutAffirmingBaseballReplayReviewAct
+    owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+        base:OutJudgmentAct
+        base:BaseballReplayReviewAct
+        [ a owl:Restriction ; owl:onProperty cco:ont00001921 ; owl:someValuesFrom base:OutDecisionICE ]
+        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:OutDecisionICE ]
+    ) ] .
+
+base:SafeAffirmingBaseballReplayReviewAct
+    owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+        base:SafeJudgmentAct
+        base:BaseballReplayReviewAct
+        [ a owl:Restriction ; owl:onProperty cco:ont00001921 ; owl:someValuesFrom base:SafeDecisionICE ]
+        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:SafeDecisionICE ]
+    ) ] .
+
+base:AffirmingBaseballReplayReviewAct
+    owl:equivalentClass [ a owl:Class ; owl:unionOf (
+        base:BallAffirmingBaseballReplayReviewAct
+        base:StrikeAffirmingBaseballReplayReviewAct
+        base:OutAffirmingBaseballReplayReviewAct
+        base:SafeAffirmingBaseballReplayReviewAct
+    ) ] .
+
+
+#################################################################
+# Overturning replay-review transitions
+#################################################################
+
+base:BallToStrikeBaseballReplayReviewAct
+    owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+        base:StrikeJudgmentAct
+        base:BaseballReplayReviewAct
+        [ a owl:Restriction ; owl:onProperty cco:ont00001921 ; owl:someValuesFrom base:BallDecisionICE ]
+        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:StrikeDecisionICE ]
+    ) ] .
+
+base:StrikeToBallBaseballReplayReviewAct
+    owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+        base:BallJudgmentAct
+        base:BaseballReplayReviewAct
+        [ a owl:Restriction ; owl:onProperty cco:ont00001921 ; owl:someValuesFrom base:StrikeDecisionICE ]
+        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:BallDecisionICE ]
+    ) ] .
+
+base:OutToSafeBaseballReplayReviewAct
+    owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+        base:SafeJudgmentAct
+        base:BaseballReplayReviewAct
+        [ a owl:Restriction ; owl:onProperty cco:ont00001921 ; owl:someValuesFrom base:OutDecisionICE ]
+        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:SafeDecisionICE ]
+    ) ] .
+
+base:SafeToOutBaseballReplayReviewAct
+    owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+        base:OutJudgmentAct
+        base:BaseballReplayReviewAct
+        [ a owl:Restriction ; owl:onProperty cco:ont00001921 ; owl:someValuesFrom base:SafeDecisionICE ]
+        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:OutDecisionICE ]
+    ) ] .
+
+base:OverturningBaseballReplayReviewAct
+    owl:equivalentClass [ a owl:Class ; owl:unionOf (
+        base:BallToStrikeBaseballReplayReviewAct
+        base:StrikeToBallBaseballReplayReviewAct
+        base:OutToSafeBaseballReplayReviewAct
+        base:SafeToOutBaseballReplayReviewAct
+    ) ] .
+
+
+#################################################################
+# Replay-review result information and records
+#################################################################
+
+base:BaseballReplayReviewDispositionICE
+    owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+        cco:ont00000853
+        [ a owl:Restriction ; owl:onProperty cco:ont00001816 ; owl:someValuesFrom base:BaseballReplayReviewAct ]
+        [ a owl:Restriction ; owl:onProperty cco:ont00001808 ; owl:someValuesFrom base:ReviewedOnFieldBaseballDecisionICE ]
+        [ a owl:Restriction ; owl:onProperty cco:ont00001808 ; owl:someValuesFrom base:BaseballReplayDecisionICE ]
+    ) ] .
+
+base:AffirmingBaseballReplayReviewDispositionICE
+    owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+        base:BaseballReplayReviewDispositionICE
+        [ a owl:Restriction ; owl:onProperty cco:ont00001816 ; owl:someValuesFrom base:AffirmingBaseballReplayReviewAct ]
+    ) ] .
+
+base:OverturningBaseballReplayReviewDispositionICE
+    owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+        base:BaseballReplayReviewDispositionICE
+        [ a owl:Restriction ; owl:onProperty cco:ont00001816 ; owl:someValuesFrom base:OverturningBaseballReplayReviewAct ]
+    ) ] .
+
+base:BaseballReplayReviewEventRecord
+    owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+        base:BaseballEventRecord
+        [ a owl:Restriction ; owl:onProperty cco:ont00001808 ; owl:someValuesFrom base:BaseballReplayReviewAct ]
+        [ a owl:Restriction ; owl:onProperty cco:ont00001808 ; owl:someValuesFrom base:ReviewedOnFieldBaseballDecisionICE ]
+        [ a owl:Restriction ; owl:onProperty cco:ont00001808 ; owl:someValuesFrom base:BaseballReplayDecisionICE ]
+        [ a owl:Restriction ; owl:onProperty cco:ont00001808 ; owl:someValuesFrom base:BaseballReplayReviewDispositionICE ]
+    ) ] .
+
+[] a owl:AllDisjointClasses ;
+    owl:members (
+        base:BallDecisionICE
+        base:StrikeDecisionICE
+        base:OutDecisionICE
+        base:SafeDecisionICE
+    ) .
+
+base:AffirmingBaseballReplayReviewAct
+    owl:disjointWith base:OverturningBaseballReplayReviewAct .
+
+base:AffirmingBaseballReplayReviewDispositionICE
+    owl:disjointWith base:OverturningBaseballReplayReviewDispositionICE .

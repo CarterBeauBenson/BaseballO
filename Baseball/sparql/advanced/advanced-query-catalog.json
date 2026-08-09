@@ -78,7 +78,14 @@
       "path": "sparql/advanced/umpire-call-profile.rq",
       "semanticMode": "positive-evidence",
       "allowZeroRows": true,
-      "claim": "Explicit umpire call judgments with mapped swing and contact context."
+      "claim": "On-field umpire pitch calls separated from operative replay calls, with affirming or overturning review outcomes."
+    },
+    {
+      "id": "review-outcome-profile",
+      "path": "sparql/advanced/review-outcome-profile.rq",
+      "semanticMode": "positive-evidence",
+      "allowZeroRows": true,
+      "claim": "Explicit on-field decision, optional challenge, replay-review act, replay decision, review result, and final structured play or pitch outcome; unsupported decision families remain visibly unclassified."
     },
     {
       "id": "hit-diversity",

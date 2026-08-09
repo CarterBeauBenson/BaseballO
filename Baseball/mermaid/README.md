@@ -17,7 +17,7 @@ Run `python Baseball/scripts/generate_rml_mermaid.py` from the repository root a
 4. [Joins and identities](04-joins-and-identities.md)
 5. [Event process chain](05-event-process-chain.md)
 6. [Implemented shape and retained gaps](06-evaluation-findings.md)
-7. [Parked daily acquisition](07-daily-game-acquisition.md)
+7. [Guarded external acquisition](07-daily-game-acquisition.md)
 8. [Manual game import](08-manual-game-import.md)
 9. [Generated discrete event patterns](patterns/README.md)
 
@@ -25,12 +25,12 @@ Run `python Baseball/scripts/generate_rml_mermaid.py` from the repository root a
 
 | Measure | Revised mapping |
 | --- | ---: |
-| Logical sources | 56 |
-| Triples maps | 247 |
+| Logical sources | 58 |
+| Triples maps | 249 |
 | Referencing-object-map joins | 0 |
 | BaseballO classes used | 113 |
 | Undeclared BaseballO classes | 0 |
-| Sample generated triples | 28,419 |
+| Sample generated triples | 28,701 |
 | Sample plate appearances | 79 |
 | Sample pitches and pitch motions | 282 each |
 | Sample pitches with complete ancestor context | 282 |

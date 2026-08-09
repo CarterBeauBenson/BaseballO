@@ -37,17 +37,41 @@ npm run check
 ## Current capabilities
 
 - batting, pitching, baserunning, and game/assignment question families;
+- a shared official-game-date scope resolved from a compact, short-lived
+  graph/date index before each substantive query, with latest-day, seven-day,
+  30-day, season-to-date, and custom ranges;
+- separate Regular season and 2026 All-Star Game sets, with regular-season play
+  selected by default and option lists restricted to the active set;
+- game-scoped team grouping and filtering for batting, pitching, and
+  baserunning; offensive teams are derived from the half-inning while pitching
+  uses the opposing fielding team;
+- reconciled pitching totals split into balls, called strikes,
+  swinging/missed strikes, fouls/foul tips, balls put in play, and hit batters;
 - a dedicated authoritative-only Empty Games review view that displays its
-  current contribution policy and completeness gate;
-- a dedicated Advanced view for all 16 cataloged event-chain analytics, with
+  current contribution policy and completeness gate, with season, game,
+  batting-team, venue, and batter filters;
+- a Derived view whose allowlisted measure contracts combine Empty Games and
+  Offensive Games Played at player-game grain, labeling the subset calculation
+  as a percentage and the reverse calculation as a ratio;
+- a dedicated Advanced view for all 17 cataloged event-chain analytics, including
+  on-field versus operative replay calls, challenge versus umpire initiation,
+  and supported replay-review transitions with unsupported decision families
+  shown as unclassified, with
   positive-evidence, completeness-gated, or integrity-audit semantics shown
-  before execution;
+  before execution and shared season, game, team-in-game, and venue filters;
 - dimensions and metrics generated from the existing component catalog;
 - graph-backed filter options for seasons, games, players, venues, event types,
   teams, umpires, and official scorers;
-- tabular results, execution metadata, and CSV export;
+- click-sortable tabular results, execution metadata, and CSV export that
+  preserves the selected table order;
 - generated-SPARQL inspection and copy; and
 - responsive keyboard-accessible local interface.
+
+Advanced filters restrict the authoritative game graphs supplied to the
+reviewed query. Accordingly, its Team filter means that the selected team
+participated in the game; it does not silently reinterpret a query-specific
+player as belonging to that team. Empty Games uses the narrower offensive-team
+relationship for the selected batter and game.
 
 This is a local research interface, not a public deployment. Fuseki remains
 bound to loopback, update endpoints are not exposed through the explorer, and

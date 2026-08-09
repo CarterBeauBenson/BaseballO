@@ -13,6 +13,14 @@ Explorer. It supports four query families:
   explicit stolen-base processes, and games;
 - games: teams, home/away sides, venues, umpires, and official scorers.
 
+[`derived-metric-query-builder.js`](derived-metric-query-builder.js) adds a
+separate reviewed composition boundary. Each base measure declares its unit,
+player-game grain, supported dimensions, evidence universe, subset
+relationships, and zero-denominator behavior. The initial catalog permits
+Empty Games divided by Offensive Games Played as a percentage, or the reverse
+as a ratio. It rejects unknown IDs, same-measure calculations, raw formulas,
+ratio-of-ratios, and incompatible measure contracts.
+
 [`hit-query-builder.js`](hit-query-builder.js) remains as the narrower first
 prototype for callers that want only the four hit outcomes. New UI work should
 prefer the analytics builder. Select boxes should use catalog labels and IDs;

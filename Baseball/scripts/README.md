@@ -1,9 +1,11 @@
 # Scripts
 
 [`validate_repository.py`](validate_repository.py) checks required paths,
-parses JSON, Turtle, and all 95 SPARQL files, verifies local Markdown links and
-Mermaid fences, runs the mapping-specific validators against all checked-in
-games, executes web tests, and verifies the current query audit, index,
+parses JSON, Turtle, and all 96 SPARQL files, verifies local Markdown links and
+Mermaid fences, validates the 287-game regular-season corpus plus the separately
+scoped 2026 All-Star Game identity/date contract, runs
+the mapping-specific validators against the fixture and accepted baseline,
+checks challenge versus umpire-review context, executes web tests, and verifies the current query audit, index,
 operational-routing, algebra, and TDB2 evidence artifacts.
 It also meta-validates both SHACL profiles and proves with negative smoke graphs
 that incomplete authoritative and index structures are rejected.
@@ -30,13 +32,41 @@ The [`pipeline/`](pipeline/) scripts import locally supplied game JSON,
 preserve its bytes in a content-addressed archive, execute the pinned RMLMapper,
 validate generated RDF procedurally and with SHACL, load complete per-game
 named graphs, build and SHACL-check disposable query indexes, audit 48 canned
-and 16 advanced queries, benchmark 18 reviewed
+and 17 advanced queries, benchmark 18 reviewed
 pairs, and enforce 15 indexed plus three authoritative routes. Infrastructure
-scripts create the connected manual-inbox NiFi flow. The earlier
-external-acquisition flow remains stopped pending an approved data source.
+scripts create the connected manual-inbox NiFi flow. Command-line external
+acquisition requires an explicit approval switch; the unattended NiFi
+acquisition flow remains stopped.
+
+The manual group now ends at immutable archival and work-request creation.
+`90 Shared RDF Mapping and Load` owns six separately routed semantic stages:
+freshness assessment, RML, authoritative validation, graph PUT, index
+build/equivalence, and promotion. The bundled direct importer remains a
+fallback, not the active NiFi execution path.
+Successful promotions also feed the corpus coordinator. For an audit-enabled
+submission, NiFi waits for every promoted game and then owns the canned,
+advanced, equivalence, benchmark, and completion stages without an operator
+polling or launching those commands.
+
+[`pipeline/run-nifi-evidence-stage.py`](pipeline/run-nifi-evidence-stage.py)
+executes one allowlisted stage from the versioned NiFi contract, fingerprints
+its declared dependencies, and writes reproducible evidence or failure
+quarantine. [`infra/configure-nifi-evidence.ps1`](infra/configure-nifi-evidence.ps1)
+creates the corresponding seven connected NiFi paths without embedding their
+semantic definitions in the flow.
+
+[`pipeline/submit-game-corpus-to-nifi.ps1`](pipeline/submit-game-corpus-to-nifi.ps1)
+turns a checked-in date range into one deduplicated, monitored NiFi run. NiFi
+owns staging, guarded RML execution, validation, indexing, loading, quarantine,
+and provenance for every submitted game. Its companion
+[`pipeline/monitor-nifi-corpus-submission.ps1`](pipeline/monitor-nifi-corpus-submission.ps1)
+can reattach to a recorded run without enqueueing duplicate FlowFiles.
 
 The [`reasoning/`](reasoning/) scripts fetch checksum-pinned BFO CLIF modules,
 extract exactly one plate-appearance slice, apply one allowlisted reasoning
 profile, emit deterministic inferred RDF and CLIF proof inputs, and optionally
 prove the translated obligations before optionally loading the disposable named
 graph. They expose no full-game mode.
+`reasoning/evaluate-reviewed-samples.py` runs all three profiles over the
+reviewed simple/complicated real-game pair and records explicit-versus-closure
+query hashes without loading any inferred graph.

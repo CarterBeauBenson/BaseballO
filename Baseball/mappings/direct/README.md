@@ -25,7 +25,7 @@ Decision ICE
   -> is about -> counted result
 ```
 
-Separate implemented paths cover called balls, called strikes, swinging strikes, fouls, foul tips, hits, errors, fielder's choices, sacrifices, batted outs, runner safe/out/run resolutions, stolen bases, and the full intentional-walk process. See the [discrete Mermaid catalog](../../mermaid/patterns/README.md).
+Separate implemented paths cover called balls, called strikes, swinging strikes, fouls, foul tips, hits, errors, fielder's choices, sacrifices, batted outs, runner safe/out/run resolutions, stolen bases, the full intentional-walk process, pitch-ball control failures, passed balls, wild pitches, and uncaught third strikes. See the [discrete Mermaid catalog](../../mermaid/patterns/README.md).
 
 ## Input and execution boundary
 
@@ -45,7 +45,12 @@ adds only reserved `_baseballO` execution fields:
 - each runner record's enclosing atBatIndex and zero-based runnerIndex;
 - source-fact booleans needed to partition runner movements and distinguish
   sacrifice-bunt pitches without processor-unsafe negation;
-- each play's terminal pitch playId; and
+- whether a runner row carries a real Boolean safe/out resolution or is an
+  unresolved source placeholder;
+- the source pitch identifier supporting each passed-ball or wild-pitch row,
+  including action rows that must resolve to the immediately preceding pitch;
+- the exact source-supported uncaught-third-strike composite flag;
+- each play's terminal pitch playId and source-reported in-play state; and
 - the completed game's final play timestamp.
 
 The temporary mapping also materializes safe root identifiers:
@@ -71,6 +76,8 @@ execution-context, mapping, and output hashes are recorded.
 - Runner acts, records, resolutions, judgments, and decisions use the
   execution-only `(atBatIndex, runnerIndex)` structural identity required by
   the IRI policy. Runner acts and resolutions link to their plate appearance.
+- Null runner placeholders receive record identity only. They do not produce a
+  BaserunningAct or RunnerResolutionProcess.
 - Event-scoped baseball and bat IRIs keep artifacts stable through one mapped pitch without claiming cross-pitch identity.
 
 ## Conservative source boundaries
@@ -83,6 +90,9 @@ The mapping does not infer physical detail from a counted outcome alone.
 - Ordinary fouls always produce FoulBallProcess. A distinct StrikeProcess is produced only for the unambiguous count.strikes equals 1 subset; the event-local feed cannot distinguish every second counted foul from an unchanged two-strike count.
 - Coordinate ICEs and designated batted-ball sites are created when hitData.coordinates exists, but coordX and coordY literals remain deferred pending approved datatype properties.
 - Non-pitch advisory events and measurement values remain deferred.
+- A passed-ball or wild-pitch classification does not collapse into its
+  preceding physical control failure, and an uncaught third strike does not by
+  itself entail a safe or out resolution.
 
 ## Validation
 
@@ -105,5 +115,10 @@ shared foul-tip/strike identity; and event-record separation.
 The resulting Turtle must then conform to the separate
 [`authoritative SHACL profile`](../../shacl/authoritative.ttl) before it is
 published.
-Repository validation also exercises the checked-in eight-game 2026-08-03
-corpus in addition to the original fixture, without modifying any raw source.
+Repository validation exercises the accepted eight-game 2026-08-03 mapping
+subset, the original fixture, and the two passed-ball/wild-pitch
+uncaught-third-strike regression games. It checks the identity and official
+date of all 288 raw corpus games and includes an explicit regression for
+challenge versus umpire-initiated review context. Full corpus promotion uses
+the same per-game RML, SHACL, graph-load, query-index, and equivalence gates
+without modifying any raw source.

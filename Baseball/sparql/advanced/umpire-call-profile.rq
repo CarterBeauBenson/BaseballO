@@ -1,13 +1,17 @@
 PREFIX base: <https://baseballontology.org/>
 PREFIX cco: <https://www.commoncoreontologies.org/>
 PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-# Observed call-process distribution. Called/swing-associated distinctions use
-# the mapped swing relation. Without pitch-location measurements this cannot
-# assess strike-zone accuracy.
-SELECT ?umpire ?umpireLabel ?callType
-       (COUNT(DISTINCT ?judgment) AS ?calls)
+# SME-facing pitch-call distribution. Unreviewed calls have the same on-field
+# and operative call. Reviewed pitch calls report the on-field umpire decision
+# separately from the replay decision, so an overturned call is not credited
+# to the umpire as though the umpire originally made the post-review call.
+# Without pitch-location measurements this does not assess strike-zone accuracy.
+SELECT ?umpire ?umpireLabel ?onFieldCall ?operativeCall
+       ?reviewOutcome ?sourceReviewStatus
+       (COUNT(DISTINCT ?pitch) AS ?calls)
        (COUNT(DISTINCT ?game) AS ?games)
 WHERE {
   GRAPH ?graph {
@@ -15,38 +19,80 @@ WHERE {
         obo:BFO_0000197 ?umpire ;
         obo:BFO_0000054 ?game .
     ?umpire rdfs:label ?umpireLabel .
+
     {
-      ?record a base:BaseballEventRecord ; cco:ont00001808 ?pitch, ?ballProcess .
-      ?pitch a base:PitchAct .
-      ?ballProcess a base:BallProcess ; obo:BFO_0000117 ?judgment .
-      ?judgment a base:BallJudgmentAct ; obo:BFO_0000055 ?umpireRole .
-      BIND("ball" AS ?callType)
+      {
+        ?record a base:BaseballEventRecord ;
+            cco:ont00001808 ?pitch, ?ballProcess ;
+            dcterms:type ?pitchCallCode .
+        ?pitch a base:PitchAct .
+        ?ballProcess a base:BallProcess ; obo:BFO_0000117 ?judgment .
+        ?judgment a base:BallJudgmentAct ; obo:BFO_0000055 ?umpireRole .
+      }
+      UNION
+      {
+        ?record a base:BaseballEventRecord ;
+            cco:ont00001808 ?pitch, ?foulTipProcess ;
+            dcterms:type ?pitchCallCode .
+        ?pitch a base:PitchAct .
+        ?foulTipProcess a base:FoulTipProcess ; obo:BFO_0000117 ?judgment .
+        ?judgment a base:FoulTipJudgmentAct ; obo:BFO_0000055 ?umpireRole .
+      }
+      UNION
+      {
+        ?record a base:BaseballEventRecord ;
+            cco:ont00001808 ?pitch, ?strikeProcess ;
+            dcterms:type ?pitchCallCode .
+        ?pitch a base:PitchAct .
+        ?strikeProcess a base:StrikeProcess ; obo:BFO_0000117 ?judgment .
+        ?judgment a base:StrikeJudgmentAct ; obo:BFO_0000055 ?umpireRole .
+        FILTER NOT EXISTS { ?judgment a base:FoulTipJudgmentAct . }
+      }
+      VALUES (?pitchCallCode ?unreviewedCall) {
+        ("B" "ball") ("*B" "ball") ("C" "called_strike")
+        ("S" "swinging_strike") ("F" "foul") ("T" "foul_tip")
+      }
+      FILTER NOT EXISTS {
+        ?reviewRecord a base:BaseballReplayReviewEventRecord ;
+            cco:ont00001808 ?pitch .
+      }
+      BIND(?unreviewedCall AS ?onFieldCall)
+      BIND(?unreviewedCall AS ?operativeCall)
+      BIND("not_reviewed" AS ?reviewOutcome)
+      BIND("not_reviewed" AS ?sourceReviewStatus)
     }
     UNION
     {
-      ?record a base:BaseballEventRecord ; cco:ont00001808 ?pitch, ?foulTipProcess .
+      ?reviewRecord a base:BaseballReplayReviewEventRecord ;
+          cco:ont00001808 ?pitch, ?onFieldJudgment, ?reviewAct, ?reviewResult .
       ?pitch a base:PitchAct .
-      ?foulTipProcess a base:FoulTipProcess ; obo:BFO_0000117 ?judgment .
-      ?judgment a base:FoulTipJudgmentAct ; obo:BFO_0000055 ?umpireRole .
-      BIND("foul_tip" AS ?callType)
-    }
-    UNION
-    {
-      ?record a base:BaseballEventRecord ; cco:ont00001808 ?pitch, ?strikeProcess .
-      ?pitch a base:PitchAct .
-      ?strikeProcess a base:StrikeProcess ; obo:BFO_0000117 ?judgment .
-      ?judgment a base:StrikeJudgmentAct ; obo:BFO_0000055 ?umpireRole .
-      FILTER NOT EXISTS { ?judgment a base:FoulTipJudgmentAct . }
-      OPTIONAL { ?swing a base:SwingAct ; obo:BFO_0000062 ?pitch . }
-      OPTIONAL { ?swing obo:BFO_0000063 ?contact . ?contact a base:BatBallContactProcess . }
-      BIND(
-        IF(!BOUND(?swing), "called_strike",
-          IF(BOUND(?contact), "contacted_strike", "swinging_strike"))
-        AS ?callType
-      )
+      ?onFieldJudgment a base:ReviewedOnFieldUmpireJudgmentAct ;
+          obo:BFO_0000055 ?umpireRole ;
+          cco:ont00001986 ?onFieldDecision .
+      ?reviewAct a base:BaseballReplayReviewAct ;
+          cco:ont00001921 ?onFieldDecision ;
+          cco:ont00001986 ?replayDecision .
+      ?reviewResult a base:BaseballReplayReviewDispositionICE, ?reviewResultClass ;
+          dcterms:identifier ?sourceReviewStatus .
+      ?onFieldDecision a ?onFieldDecisionClass .
+      ?replayDecision a base:BaseballReplayDecisionICE, ?replayDecisionClass .
+
+      VALUES (?onFieldDecisionClass ?onFieldCall) {
+        (base:BallDecisionICE "ball")
+        (base:StrikeDecisionICE "called_strike")
+      }
+      VALUES (?replayDecisionClass ?operativeCall) {
+        (base:BallDecisionICE "ball")
+        (base:StrikeDecisionICE "called_strike")
+      }
+      VALUES (?reviewResultClass ?reviewOutcome) {
+        (base:AffirmingBaseballReplayReviewDispositionICE "affirmed")
+        (base:OverturningBaseballReplayReviewDispositionICE "overturned")
+      }
     }
   }
   FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
 }
-GROUP BY ?umpire ?umpireLabel ?callType
-ORDER BY ?umpireLabel DESC(?calls) ?callType
+GROUP BY ?umpire ?umpireLabel ?onFieldCall ?operativeCall
+         ?reviewOutcome ?sourceReviewStatus
+ORDER BY ?umpireLabel ?onFieldCall ?operativeCall ?reviewOutcome

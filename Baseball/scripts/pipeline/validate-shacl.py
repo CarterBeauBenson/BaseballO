@@ -16,6 +16,7 @@ SH = Namespace("http://www.w3.org/ns/shacl#")
 PROFILES = {
     "authoritative": ROOT / "shacl" / "authoritative.ttl",
     "query-index": ROOT / "shacl" / "query-index.ttl",
+    "reasoning-output": ROOT / "shacl" / "reasoning-output.ttl",
 }
 
 

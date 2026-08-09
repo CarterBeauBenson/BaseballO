@@ -1,69 +1,69 @@
 {
     "artifactType":  "baseball-authoritative-canned-query-corpus-audit",
     "auditVersion":  1,
-    "generatedAtUtc":  "2026-08-04T16:56:43.3100883Z",
+    "generatedAtUtc":  "2026-08-08T03:05:46.7247382Z",
     "scope":  "eight completed 2026-08-03 games; checked-in fixture 566279 excluded",
     "graphIsolation":  "Every query is scoped to the eight explicit authoritative named graphs through ?graph.",
-    "mappingSha256":  "ab85db49a66adbcba8c5e82535e3a1824626785795b7c5e3eb7169676c38b3d0",
-    "corpusSha256":  "53c64863b8f154fd867958b43bca0e2535798111aadd7fcc7f95fa6f44db4daa",
+    "mappingSha256":  "57a5cb1a54e46ee26b27f101cb1468292932df060b1f72c51331c0d029f8c2b5",
+    "corpusSha256":  "f8fdda9a115e4bdd971ce2ab203a444ad674835531d7a84d89401f0b13346ab9",
     "authoritativeGraphCount":  8,
-    "authoritativeTripleCount":  228576,
+    "authoritativeTripleCount":  231806,
     "graphSnapshots":  [
                            {
                                "gamePk":  "822867",
                                "graphIri":  "https://w3id.org/baseball/graph/game/822867",
                                "sourcePath":  "data/raw/samples/2026-08-03/822867.json",
                                "sourceSha256":  "48c4bda4beb8f2799ec8f9719cdbac385bea4ae16590af2a8513becce6ef3637",
-                               "authoritativeTripleCount":  28205
+                               "authoritativeTripleCount":  28644
                            },
                            {
                                "gamePk":  "823431",
                                "graphIri":  "https://w3id.org/baseball/graph/game/823431",
                                "sourcePath":  "data/raw/samples/2026-08-03/823431.json",
                                "sourceSha256":  "189ed4f1380d4f342e57ee4bc52b7cd207b0cd7e5a4698276c4ae66130e80aa6",
-                               "authoritativeTripleCount":  25776
+                               "authoritativeTripleCount":  26140
                            },
                            {
                                "gamePk":  "823520",
                                "graphIri":  "https://w3id.org/baseball/graph/game/823520",
                                "sourcePath":  "data/raw/samples/2026-08-03/823520.json",
                                "sourceSha256":  "2abb9bdf07cf56818b133d1fab720eebdf906de787b056f4fb40219d1df28be3",
-                               "authoritativeTripleCount":  33957
+                               "authoritativeTripleCount":  34421
                            },
                            {
                                "gamePk":  "823757",
                                "graphIri":  "https://w3id.org/baseball/graph/game/823757",
                                "sourcePath":  "data/raw/samples/2026-08-03/823757.json",
                                "sourceSha256":  "747d5c9062dfeb07f31e12758fc62a84887e0a046b4fe975f8fa5feb5276140e",
-                               "authoritativeTripleCount":  29386
+                               "authoritativeTripleCount":  29831
                            },
                            {
                                "gamePk":  "824160",
                                "graphIri":  "https://w3id.org/baseball/graph/game/824160",
                                "sourcePath":  "data/raw/samples/2026-08-03/824160.json",
                                "sourceSha256":  "f2c75d9cd0ccd6733d048540c4bb82120afbbe07a5e651e78233c8300e856dc3",
-                               "authoritativeTripleCount":  25842
+                               "authoritativeTripleCount":  26200
                            },
                            {
                                "gamePk":  "824324",
                                "graphIri":  "https://w3id.org/baseball/graph/game/824324",
                                "sourcePath":  "data/raw/samples/2026-08-03/824324.json",
                                "sourceSha256":  "1d1bcc8fec773612bc049fb85a2f243882d138a89e7d56b63d02a4e491f8f084",
-                               "authoritativeTripleCount":  30063
+                               "authoritativeTripleCount":  30508
                            },
                            {
                                "gamePk":  "824647",
                                "graphIri":  "https://w3id.org/baseball/graph/game/824647",
                                "sourcePath":  "data/raw/samples/2026-08-03/824647.json",
                                "sourceSha256":  "fd7094e35284ad89fcd272d00ef5d154f21b2cd12f608166af711f4deadbf323",
-                               "authoritativeTripleCount":  28816
+                               "authoritativeTripleCount":  29251
                            },
                            {
                                "gamePk":  "825095",
                                "graphIri":  "https://w3id.org/baseball/graph/game/825095",
                                "sourcePath":  "data/raw/samples/2026-08-03/825095.json",
                                "sourceSha256":  "53433ae39779705090ae9b8bb0132c07b12c30a47ef99efc694bc319bd11599a",
-                               "authoritativeTripleCount":  26531
+                               "authoritativeTripleCount":  26811
                            }
                        ],
     "queryCount":  48,
@@ -86,7 +86,7 @@
                         "distinctRowCount":  549,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "950187d12e288a885f1f8dd8cb2f54297660c42e2d001d31e9e45c17416930b1",
-                        "elapsedMilliseconds":  389.431
+                        "elapsedMilliseconds":  257.62
                     },
                     {
                         "query":  "sparql/baserunning/outs-by-player.rq",
@@ -102,7 +102,7 @@
                         "distinctRowCount":  152,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "325809fda17d982f855bc3b6c5ecb2c2416fa8efc7b06b0c43d39217405867d8",
-                        "elapsedMilliseconds":  69.638
+                        "elapsedMilliseconds":  19.918
                     },
                     {
                         "query":  "sparql/baserunning/resolutions-by-season.rq",
@@ -118,7 +118,7 @@
                         "distinctRowCount":  3,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "f182e637df62e798d8a808f2db11ef5ef856988f1971c32816f6ebb25a932eb8",
-                        "elapsedMilliseconds":  246.038
+                        "elapsedMilliseconds":  5753.528
                     },
                     {
                         "query":  "sparql/baserunning/runs-by-player-and-season.rq",
@@ -136,7 +136,7 @@
                         "distinctRowCount":  70,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "6ccbc92acefd9c50e20c6a5bacda1388d2eafabb9d024bd247940668f38de7c4",
-                        "elapsedMilliseconds":  65.962
+                        "elapsedMilliseconds":  1159.591
                     },
                     {
                         "query":  "sparql/baserunning/runs-by-season-and-venue.rq",
@@ -154,7 +154,7 @@
                         "distinctRowCount":  8,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "5de3bb1d8e25bd15abe9185e90a56cda87b6eb0a9d341bfe688a9257edf5b49b",
-                        "elapsedMilliseconds":  62.726
+                        "elapsedMilliseconds":  1181.266
                     },
                     {
                         "query":  "sparql/baserunning/stolen-bases-by-player.rq",
@@ -170,7 +170,7 @@
                         "distinctRowCount":  11,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "ba84cdfacc33d56ecd9c63f2c7bdfcd854bc70b31366fe470e9f02eda44e2929",
-                        "elapsedMilliseconds":  11.802
+                        "elapsedMilliseconds":  5.876
                     },
                     {
                         "query":  "sparql/batting/extra-base-hits-by-player.rq",
@@ -186,7 +186,7 @@
                         "distinctRowCount":  39,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "e3acccdacb20a0e59607b30246d98372c6a4fe4af101d55e587538370de2ce6a",
-                        "elapsedMilliseconds":  18.085
+                        "elapsedMilliseconds":  10.681
                     },
                     {
                         "query":  "sparql/batting/hitless-games-by-player.rq",
@@ -202,7 +202,7 @@
                         "distinctRowCount":  65,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "98e6f167b3198d432c3a90d45e0a6acafd39d17b8d30759c61dc43f4e3f532f2",
-                        "elapsedMilliseconds":  603.254
+                        "elapsedMilliseconds":  469.302
                     },
                     {
                         "query":  "sparql/batting/home-runs-by-player-and-venue.rq",
@@ -220,7 +220,7 @@
                         "distinctRowCount":  26,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "e29110dbbe988a5668ab2668a186b6b2967e050c5164efe5fba2d408f59b156c",
-                        "elapsedMilliseconds":  24.066
+                        "elapsedMilliseconds":  13.447
                     },
                     {
                         "query":  "sparql/batting/multi-hit-games.rq",
@@ -237,7 +237,7 @@
                         "distinctRowCount":  39,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "126c6ead6a5792c8e8a0ae6ebbfe43c3fdb84c3b7f82d8dfe949e3320bf5efbd",
-                        "elapsedMilliseconds":  216.001
+                        "elapsedMilliseconds":  137.208
                     },
                     {
                         "query":  "sparql/batting/outcomes-by-player.rq",
@@ -254,7 +254,7 @@
                         "distinctRowCount":  422,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "dfb4182aac1fd921d9d6d2d210e07edad09c826fcb22bde89ac58945863911b0",
-                        "elapsedMilliseconds":  111.647
+                        "elapsedMilliseconds":  116.328
                     },
                     {
                         "query":  "sparql/batting/outcomes-by-season.rq",
@@ -270,7 +270,7 @@
                         "distinctRowCount":  15,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "88938623c4bd1714122a4afa6a929de1ae2b7756a38c1fd6e8cb035f2e99e936",
-                        "elapsedMilliseconds":  867.025
+                        "elapsedMilliseconds":  18391.73
                     },
                     {
                         "query":  "sparql/batting/plate-appearances-by-player-and-season.rq",
@@ -288,7 +288,7 @@
                         "distinctRowCount":  158,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "91c65127c83228346803e0a1144b43baeb2a388806c93073758f48c82a8234b8",
-                        "elapsedMilliseconds":  106.949
+                        "elapsedMilliseconds":  1244.19
                     },
                     {
                         "query":  "sparql/batting/three-true-outcomes-by-player.rq",
@@ -307,7 +307,7 @@
                         "distinctRowCount":  121,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "34af0e9893f70d281483b4412b9a1e70a0ee0e57287fbb07cb8af0049d3d2c93",
-                        "elapsedMilliseconds":  47.001
+                        "elapsedMilliseconds":  76.636
                     },
                     {
                         "query":  "sparql/batting/total-bases-by-player-and-season.rq",
@@ -324,12 +324,12 @@
                         "distinctRowCount":  93,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "bc640ccf7452c3b5b7c5f62e2b66805513aea76d8a8f6b63c8bda1a013184f3e",
-                        "elapsedMilliseconds":  247.539
+                        "elapsedMilliseconds":  4627.433
                     },
                     {
                         "query":  "sparql/empty-games-prototype.rq",
                         "family":  "root",
-                        "querySha256":  "e4380070c3a5676bf7ae3f91a7f48d8b92235996b659e175b702195cc8d25221",
+                        "querySha256":  "a2a7d00749ed2890bda8d6131c1b4e59066207b2570b358d056a2d1f14ea10ea",
                         "graphBlockCount":  5,
                         "variables":  [
                                           "player",
@@ -340,7 +340,7 @@
                         "distinctRowCount":  26,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "0db56a0800a786693c3982ef2d25a1a70d9cca4cb5382d55b3e4304e84611d62",
-                        "elapsedMilliseconds":  742.345
+                        "elapsedMilliseconds":  14786.377
                     },
                     {
                         "query":  "sparql/games/games-by-season-and-venue.rq",
@@ -357,7 +357,7 @@
                         "distinctRowCount":  8,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "e95a28d0377926380837f66c2b0eba2c241d936a9062468dd83f54d5dc8391f9",
-                        "elapsedMilliseconds":  11.401
+                        "elapsedMilliseconds":  44.588
                     },
                     {
                         "query":  "sparql/games/games-by-team-and-season.rq",
@@ -374,7 +374,7 @@
                         "distinctRowCount":  16,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "1a5f30ae5342cf5e46abdab2d6c54bc952b8f6d538ea19846e619af41cebc791",
-                        "elapsedMilliseconds":  13.424
+                        "elapsedMilliseconds":  96.753
                     },
                     {
                         "query":  "sparql/games/game-timeline.rq",
@@ -390,7 +390,7 @@
                         "distinctRowCount":  8,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "2d30a5417c0142a15a93bd21a3b094559fc2368cae9711410be880e9e263fdcd",
-                        "elapsedMilliseconds":  14.446
+                        "elapsedMilliseconds":  12.252
                     },
                     {
                         "query":  "sparql/games/home-away-games-by-team.rq",
@@ -407,7 +407,7 @@
                         "distinctRowCount":  16,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "4cbd8c2df8013a65e27c4c1617d1c972df933ee843a90b622d733521ec57f4aa",
-                        "elapsedMilliseconds":  13.623
+                        "elapsedMilliseconds":  9.115
                     },
                     {
                         "query":  "sparql/games/matchups-by-season.rq",
@@ -426,7 +426,7 @@
                         "distinctRowCount":  8,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "7c232842c80857731e51aadb606ddfedf49c0308c311c7258470f5f3d24dc58f",
-                        "elapsedMilliseconds":  13.966
+                        "elapsedMilliseconds":  28.535
                     },
                     {
                         "query":  "sparql/games/official-scorer-assignments.rq",
@@ -442,7 +442,7 @@
                         "distinctRowCount":  8,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "76a24db469c040d899bc516f6fd02e3d44e13dbdd63cbb07f73beea95f3845a2",
-                        "elapsedMilliseconds":  10.992
+                        "elapsedMilliseconds":  5.459
                     },
                     {
                         "query":  "sparql/games/umpire-assignments.rq",
@@ -458,7 +458,7 @@
                         "distinctRowCount":  32,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "edcc7bcbfbd9eec6c22c2d1a3ffda24bccf8ec7f280efb36af7c3cdb9b8a07b5",
-                        "elapsedMilliseconds":  13.224
+                        "elapsedMilliseconds":  7.015
                     },
                     {
                         "query":  "sparql/hits-by-game.rq",
@@ -476,7 +476,7 @@
                         "distinctRowCount":  8,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "7eee5f18f970432435b958aca26bec8ff0bd53c96d45156534560a6e33e1f25e",
-                        "elapsedMilliseconds":  208.561
+                        "elapsedMilliseconds":  128.555
                     },
                     {
                         "query":  "sparql/hits-by-player-and-season.rq",
@@ -494,7 +494,7 @@
                         "distinctRowCount":  93,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "ed1b42e7eb293fdc813266fd702b8b898b27d81dbc536c64beedaf31dcfedbe7",
-                        "elapsedMilliseconds":  218.792
+                        "elapsedMilliseconds":  4264.37
                     },
                     {
                         "query":  "sparql/hits-by-player-and-venue.rq",
@@ -514,7 +514,7 @@
                         "distinctRowCount":  93,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "c530a4fe128b022fa766f1706b1cbaae37e400431ee971f890c5aa042ea81d03",
-                        "elapsedMilliseconds":  271.247
+                        "elapsedMilliseconds":  4347.71
                     },
                     {
                         "query":  "sparql/hits-by-season.rq",
@@ -530,7 +530,7 @@
                         "distinctRowCount":  1,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "e03dd17d7884a2161aaca25104824e25e0f2b93a52beca121e20c4b9d0a706e8",
-                        "elapsedMilliseconds":  195.661
+                        "elapsedMilliseconds":  4195.936
                     },
                     {
                         "query":  "sparql/hits-by-season-and-venue.rq",
@@ -548,7 +548,7 @@
                         "distinctRowCount":  8,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "a3ec9e4a0cd910dbefd111320b6dcf26fec2f599923aa7acedaffcb7695911c4",
-                        "elapsedMilliseconds":  230.172
+                        "elapsedMilliseconds":  4263.625
                     },
                     {
                         "query":  "sparql/hit-types-by-season.rq",
@@ -565,7 +565,7 @@
                         "distinctRowCount":  4,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "cf0c90c185dfcd7a34081ddaa06f3d25e78706b676a6d813ba989f5d6ba39efe",
-                        "elapsedMilliseconds":  232.044
+                        "elapsedMilliseconds":  4198.262
                     },
                     {
                         "query":  "sparql/options/available-baserunners.rq",
@@ -580,7 +580,7 @@
                         "distinctRowCount":  159,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "642a77d80337eb59fcb33689f4a5b3356470488586e4045cf0ba72be9c5d6ccc",
-                        "elapsedMilliseconds":  44.218
+                        "elapsedMilliseconds":  26.227
                     },
                     {
                         "query":  "sparql/options/available-baserunning-events.rq",
@@ -595,7 +595,7 @@
                         "distinctRowCount":  26,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "83261a4de123a5ff9962605dc3688466f7485c62e60f6bdb710f5778d08e5011",
-                        "elapsedMilliseconds":  279.672
+                        "elapsedMilliseconds":  5521.801
                     },
                     {
                         "query":  "sparql/options/available-batting-outcomes.rq",
@@ -610,7 +610,7 @@
                         "distinctRowCount":  15,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "83127648378d44d142ffc13e1b7e7f1acff5fd2932d2d6925afee9d56f9a2dea",
-                        "elapsedMilliseconds":  37.758
+                        "elapsedMilliseconds":  683.188
                     },
                     {
                         "query":  "sparql/options/available-games.rq",
@@ -627,7 +627,7 @@
                         "distinctRowCount":  8,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "cfa2de8f8851a7f7a8a9c0c2ad1bcf9146ed66c1acb4470c51dc08d1b5eb746a",
-                        "elapsedMilliseconds":  11.633
+                        "elapsedMilliseconds":  7.406
                     },
                     {
                         "query":  "sparql/options/available-hit-types.rq",
@@ -642,7 +642,7 @@
                         "distinctRowCount":  4,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "3ed3ec1a4694326c85abc61a8fee991cc2c2cf92e388cfb22155ed0e169744fa",
-                        "elapsedMilliseconds":  16.213
+                        "elapsedMilliseconds":  150.354
                     },
                     {
                         "query":  "sparql/options/available-official-scorers.rq",
@@ -657,7 +657,7 @@
                         "distinctRowCount":  8,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "1dc13feeee228fa6a11d257c7d5b5af18b70955d842daa8ce32ae7614def5686",
-                        "elapsedMilliseconds":  10.649
+                        "elapsedMilliseconds":  4.224
                     },
                     {
                         "query":  "sparql/options/available-pitchers.rq",
@@ -672,7 +672,7 @@
                         "distinctRowCount":  62,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "6711f8221c0895ce9937cf93443f95f03d736687df0374755450cf5153ccad03",
-                        "elapsedMilliseconds":  72.024
+                        "elapsedMilliseconds":  43.089
                     },
                     {
                         "query":  "sparql/options/available-players.rq",
@@ -687,7 +687,7 @@
                         "distinctRowCount":  158,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "235fa0bb7f4935f667ca9d579f92d105d59da8f5b2483195e41e747c230241db",
-                        "elapsedMilliseconds":  21.668
+                        "elapsedMilliseconds":  17.043
                     },
                     {
                         "query":  "sparql/options/available-seasons.rq",
@@ -701,7 +701,7 @@
                         "distinctRowCount":  1,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "e0ad9fd985e8fb68739a480156466aff3703a743a85f78edc6a08b3dd569e827",
-                        "elapsedMilliseconds":  9.869
+                        "elapsedMilliseconds":  11.662
                     },
                     {
                         "query":  "sparql/options/available-teams.rq",
@@ -716,7 +716,7 @@
                         "distinctRowCount":  16,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "06a2920e1e7a698814bb9cfed8c98c173cf9f0a797faad0b0c7095d600da3bd4",
-                        "elapsedMilliseconds":  11.042
+                        "elapsedMilliseconds":  5.823
                     },
                     {
                         "query":  "sparql/options/available-umpires.rq",
@@ -731,7 +731,7 @@
                         "distinctRowCount":  32,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "fd02b5a50ab6023c3abd5db9ae4bdacb62e0729f830d6a96bd04ef7ee221424d",
-                        "elapsedMilliseconds":  11.047
+                        "elapsedMilliseconds":  7.316
                     },
                     {
                         "query":  "sparql/options/available-venues.rq",
@@ -746,7 +746,7 @@
                         "distinctRowCount":  8,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "f72a49e9496d8b2d23c147582d90e93d1b871f5c331023fba486551d599d7cd2",
-                        "elapsedMilliseconds":  9.027
+                        "elapsedMilliseconds":  5.938
                     },
                     {
                         "query":  "sparql/pitching/balls-and-strikes-by-pitcher.rq",
@@ -763,7 +763,7 @@
                         "distinctRowCount":  122,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "4973fa04a7d9f4f183565efaee445bd1e7b09310c6602b853057b133c09288f7",
-                        "elapsedMilliseconds":  424.444
+                        "elapsedMilliseconds":  283.017
                     },
                     {
                         "query":  "sparql/pitching/batted-balls-by-batter-and-venue.rq",
@@ -781,7 +781,7 @@
                         "distinctRowCount":  157,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "ecf7046db239a74d44dc287dd72fdcc9aac634307db03fd872b774405dcd4e9e",
-                        "elapsedMilliseconds":  172.734
+                        "elapsedMilliseconds":  87.029
                     },
                     {
                         "query":  "sparql/pitching/pitches-by-pitcher-and-season.rq",
@@ -799,7 +799,7 @@
                         "distinctRowCount":  62,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "97f047d087e1acd05bb79a63cedf9916c69b62c208c987a887023e67b2acf9d2",
-                        "elapsedMilliseconds":  204.749
+                        "elapsedMilliseconds":  2387.835
                     },
                     {
                         "query":  "sparql/pitching/pitches-by-pitcher-and-venue.rq",
@@ -817,7 +817,7 @@
                         "distinctRowCount":  62,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "2c314d57faac8e18d74e27434a48529622d434b628dfa70597dbefb8b2f2128e",
-                        "elapsedMilliseconds":  113.538
+                        "elapsedMilliseconds":  73.199
                     },
                     {
                         "query":  "sparql/pitching/pitches-per-plate-appearance.rq",
@@ -835,7 +835,7 @@
                         "distinctRowCount":  62,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "7e18fa028792f03e57670616abb0089f9d80e37ad7c3c45277c18804ff03c05e",
-                        "elapsedMilliseconds":  166.908
+                        "elapsedMilliseconds":  113.122
                     },
                     {
                         "query":  "sparql/pitching/pitch-summary-by-pitcher.rq",
@@ -854,7 +854,7 @@
                         "distinctRowCount":  62,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "384c48ae11f55812c4056c3dad3ca355de460c6e66874082487103c7f3b4204a",
-                        "elapsedMilliseconds":  519.611
+                        "elapsedMilliseconds":  382.872
                     },
                     {
                         "query":  "sparql/pitching/swings-by-batter.rq",
@@ -870,7 +870,7 @@
                         "distinctRowCount":  157,
                         "duplicateRowCount":  0,
                         "rowSetSha256":  "83eb106356942de6111efe5ea74ead43a1242dc4062900144b7727c69f848edf",
-                        "elapsedMilliseconds":  73.692
+                        "elapsedMilliseconds":  33.172
                     }
                 ]
 }

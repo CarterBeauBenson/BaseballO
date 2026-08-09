@@ -49,6 +49,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--expected-batting-acts", type=int)
     parser.add_argument("--expected-contacts", type=int)
     parser.add_argument("--expected-runner-records", type=int)
+    parser.add_argument("--expected-runner-resolutions", type=int)
+    parser.add_argument("--expected-pitch-ball-control-failures", type=int)
+    parser.add_argument("--expected-passed-balls", type=int)
+    parser.add_argument("--expected-wild-pitches", type=int)
+    parser.add_argument("--expected-uncaught-third-strikes", type=int)
     parser.add_argument("--expected-game-end")
     return parser.parse_args()
 
@@ -202,16 +207,20 @@ def main() -> None:
         for subject in graph.subjects(RDF.type, BASE.BaseballEventRecord)
         if f"{DATA}game/{args.game_pk}/runner-record/" in str(subject)
     }
-    if args.expected_runner_records is not None:
+    if args.expected_runner_records is not None and len(runner_records) != args.expected_runner_records:
+        raise ValueError(
+            "runner BaseballEventRecord count does not match the source: expected "
+            f"{args.expected_runner_records}, got {len(runner_records)}"
+        )
+    if args.expected_runner_resolutions is not None:
         for label, subjects in (
             ("BaserunningAct", baserunning_acts),
             ("RunnerResolutionProcess", runner_resolutions),
-            ("runner BaseballEventRecord", runner_records),
         ):
-            if len(subjects) != args.expected_runner_records:
+            if len(subjects) != args.expected_runner_resolutions:
                 raise ValueError(
-                    f"{label} count does not match the source: expected "
-                    f"{args.expected_runner_records}, got {len(subjects)}"
+                    f"{label} count does not match resolved source movements: expected "
+                    f"{args.expected_runner_resolutions}, got {len(subjects)}"
                 )
     require_typed_link(
         graph,
@@ -259,6 +268,9 @@ def main() -> None:
         (BASE.SafeProcess, (BASE.SafeJudgmentAct,)),
         (BASE.RunProcess, (BASE.RunJudgmentAct,)),
         (BASE.StolenBaseProcess, (BASE.StolenBaseJudgmentAct,)),
+        (BASE.PassedBallProcess, (BASE.PassedBallJudgmentAct,)),
+        (BASE.WildPitchProcess, (BASE.WildPitchJudgmentAct,)),
+        (BASE.UncaughtThirdStrikeProcess, (BASE.UmpireJudgmentAct,)),
     )
     for process_class, judgment_classes in institutional_patterns:
         process_subjects = set(graph.subjects(RDF.type, process_class))
@@ -269,6 +281,92 @@ def main() -> None:
             judgment_classes,
             f"{process_class.split('/')[-1]} adjudication",
         )
+
+    exact_new_pattern_counts = (
+        (
+            BASE.PitchBallControlFailureProcess,
+            args.expected_pitch_ball_control_failures,
+            "PitchBallControlFailureProcess",
+        ),
+        (BASE.PassedBallProcess, args.expected_passed_balls, "PassedBallProcess"),
+        (BASE.WildPitchProcess, args.expected_wild_pitches, "WildPitchProcess"),
+        (
+            BASE.UncaughtThirdStrikeProcess,
+            args.expected_uncaught_third_strikes,
+            "UncaughtThirdStrikeProcess",
+        ),
+    )
+    for process_class, expected_count, label in exact_new_pattern_counts:
+        if expected_count is None:
+            continue
+        actual_count = len(set(graph.subjects(RDF.type, process_class)))
+        if actual_count != expected_count:
+            raise ValueError(
+                f"{label} count does not match the source: expected "
+                f"{expected_count}, got {actual_count}"
+            )
+
+    control_failures = set(
+        graph.subjects(RDF.type, BASE.PitchBallControlFailureProcess)
+    )
+    require_typed_link(
+        graph,
+        control_failures,
+        BFO.BFO_0000062,
+        (BASE.PitchBallMotionProcess,),
+        "PitchBallControlFailureProcess physical predecessor",
+    )
+    require_typed_link(
+        graph,
+        control_failures,
+        BFO.BFO_0000057,
+        (BASE.Baseball,),
+        "PitchBallControlFailureProcess Baseball participation",
+    )
+    for process_class, judgment_class, rule_class in (
+        (BASE.PassedBallProcess, BASE.PassedBallJudgmentAct, BASE.PassedBallRule),
+        (BASE.WildPitchProcess, BASE.WildPitchJudgmentAct, BASE.WildPitchRule),
+    ):
+        processes = set(graph.subjects(RDF.type, process_class))
+        require_typed_link(
+            graph,
+            processes,
+            BFO.BFO_0000062,
+            (BASE.PitchBallControlFailureProcess,),
+            f"{process_class.split('/')[-1]} physical predecessor",
+        )
+        require_typed_link(
+            graph,
+            processes,
+            BFO.BFO_0000117,
+            (judgment_class,),
+            f"{process_class.split('/')[-1]} scoring judgment",
+        )
+        require_typed_link(
+            graph,
+            processes,
+            CCO.ont00001920,
+            (rule_class,),
+            f"{process_class.split('/')[-1]} governing rule",
+        )
+
+    uncaught_third_strikes = set(
+        graph.subjects(RDF.type, BASE.UncaughtThirdStrikeProcess)
+    )
+    require_typed_link(
+        graph,
+        uncaught_third_strikes,
+        BFO.BFO_0000117,
+        (BASE.StrikeoutProcess,),
+        "UncaughtThirdStrikeProcess strikeout part",
+    )
+    require_typed_link(
+        graph,
+        uncaught_third_strikes,
+        BFO.BFO_0000117,
+        (BASE.PitchBallControlFailureProcess,),
+        "UncaughtThirdStrikeProcess physical failure part",
+    )
 
     fair_subjects = set(graph.subjects(RDF.type, BASE.FairBallProcess))
     require_typed_link(
@@ -361,6 +459,10 @@ def main() -> None:
     print(f"Baserunning acts: {len(baserunning_acts)}")
     print(f"Runner resolutions: {len(runner_resolutions)}")
     print(f"Runner records: {len(runner_records)}")
+    print(f"Pitch-ball control failures: {len(control_failures)}")
+    print(f"Passed balls: {len(set(graph.subjects(RDF.type, BASE.PassedBallProcess)))}")
+    print(f"Wild pitches: {len(set(graph.subjects(RDF.type, BASE.WildPitchProcess)))}")
+    print(f"Uncaught third strikes: {len(uncaught_third_strikes)}")
     print(f"Plate-appearance results with adjudication: {len(plate_result_subjects)}")
     print(f"Expected game present: {game}")
     if args.expected_game_end is not None:
