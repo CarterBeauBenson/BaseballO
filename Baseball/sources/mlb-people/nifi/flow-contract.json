@@ -1,0 +1,54 @@
+{
+  "artifactType": "baseballo-nifi-source-flow-contract",
+  "contractVersion": 1,
+  "sourceModule": "mlb-people",
+  "rootProcessGroup": "BaseballO",
+  "sourceProcessGroup": "MLB People",
+  "proofRequest": {"personId": "660271", "resourceKind": "player", "scopeKey": "person-660271"},
+  "requestAttributes": {"person.id": "$.personId", "resource.kind": "$.resourceKind", "scope.key": "$.scopeKey"},
+  "derivedAttributes": {
+    "request.scope": "https://statsapi.mlb.com/api/v1/people/${person.id}"
+  },
+  "populationDiscovery": {
+    "processorName": "Discover MLB Players",
+    "url": "https://statsapi.mlb.com/api/v1/sports/1/players?season=${season}",
+    "backfillRequest": {"season": "2026"},
+    "requestAttributes": {"season": "$.season"},
+    "recordsJsonPath": "$.people[*]",
+    "idJsonPath": "$.id",
+    "idAttribute": "person.id",
+    "splitProcessorName": "Split MLB Player Population",
+    "readProcessorName": "Read Discovered Person",
+    "prepareProcessorName": "Prepare Discovered Person Request",
+    "downstreamAttributes": {
+      "resource.kind": "player",
+      "scope.key": "person-${person.id}",
+      "request.scope": "https://statsapi.mlb.com/api/v1/people/${person.id}"
+    },
+    "detailConnector": "Acquire MLB Person"
+  },
+  "dailySchedule": {
+    "cron": "0 0 5 * * ?",
+    "timeZone": "America/New_York",
+    "attributeExpressions": {
+      "season": "${now():format(\"yyyy\",\"America/New_York\")}"
+    }
+  },
+  "acquisitions": [
+    {
+      "key": "people",
+      "processorName": "Acquire MLB Person",
+      "url": "https://statsapi.mlb.com/api/v1/people/${person.id}",
+      "filename": "person-${person.id}-${uuid}.json"
+    }
+  ],
+  "context": {
+    "builder": "mapping/prepare-context.py",
+    "contextName": "people-context.json",
+    "arguments": ["{input.people}", "{context}", "--resource-kind", "{resource.kind}", "--expected-person-id", "{person.id}", "--request-scope", "{request.scope}"]
+  },
+  "mapping": "mapping/mlb-people.rml.ttl",
+  "shacl": "shacl/authoritative.ttl",
+  "authoritativeGraphTemplate": "https://w3id.org/baseball/graph/authority/mlb-people/{scope.key}",
+  "failurePolicy": {"maximumRetriesPerStage": 3, "quarantineIsSourceLocal": true}
+}

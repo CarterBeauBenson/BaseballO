@@ -1,0 +1,26 @@
+mlb_leagues_iri_policy:
+  title: "MLB leagues source IRI policy"
+  version: "1.0"
+  semantic_contract: "mlb-organizations-source-contract partitioned by mlb-organization-endpoint-lane-separation"
+  status: "ontologist-approved"
+  namespaces:
+    data: "https://baseballontology.org/data/"
+    graph: "https://w3id.org/baseball/graph/authority/mlb-leagues/"
+  response_evidence:
+    template: "{data}source/mlb-leagues/response/leagues/{requestScopeSha256}/{responseSha256}"
+  organizations:
+    league: "{data}league/{leagueId}"
+    division_reference: "{data}division/{divisionId}"
+    identifier: "{organizationIri}/identifier/mlb-{kind}-id"
+    name: "{organizationIri}/name/proper/{exactUnicodeLexicalSha256}"
+  season:
+    entity: "{data}league/{leagueId}/season/{seasonCode}"
+    plan: "{data}league/{leagueId}/season/{seasonCode}/plan"
+    phase: "{data}league/{leagueId}/season/{seasonCode}/phase/{phaseKey}"
+    date_evidence: "{data}league/{leagueId}/season/{seasonCode}/plan/date/{fieldKey}/{dateValue}/evidence/{responseSha256}"
+    day: "{data}day/{dateValue}"
+  prohibited:
+    - Teams endpoint payloads
+    - Divisions endpoint payloads
+    - affiliation or membership relations inferred from nesting
+    - direct Date-to-Phase or Day-to-Phase boundary relations

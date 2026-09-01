@@ -1,0 +1,16 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-organizations-provider-status",
+  "title": "MLB organization provider status",
+  "status": "under-review",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [{"path": "competency-questions.md", "sha256": "04dc59746e2ff3cfb5e486ec6dbb39211562827912b0c7438be9152d19eeb1ca"}],
+    "sourceEvidence": [{"path": "source-evidence.md", "sha256": "03e8cb3b73ce8eec50f505ff5f1a4abae194d0d519937245e7b5b8ab21d33244"}],
+    "fieldSelectionInventory": [{"path": "field-selection-inventory.md", "sha256": "a2a85d7001eedb68fe61c6589d07f35363537c82dfe5940bbed299ea8bb52d0c"}],
+    "sourceIndependentMermaid": [{"path": "source-independent-mermaid.md", "sha256": "548784d0d2ee20d141afdaadb1275edfb7f8e589f1f482c266adf2bb0abebb2f"}]
+  },
+  "ontologistDecision": null
+}

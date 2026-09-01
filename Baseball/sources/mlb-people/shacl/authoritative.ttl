@@ -1,0 +1,350 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+@prefix cco: <https://www.commoncoreontologies.org/> .
+@prefix base: <https://baseballontology.org/shacl/mlb-people/> .
+@prefix bo: <https://baseballontology.org/> .
+
+base:PersonIdentifierShape a sh:NodeShape ;
+  sh:targetClass cco:ont00000649 ;
+  sh:class cco:ont00000649 ;
+  sh:nodeKind sh:IRI ;
+  sh:pattern "^https://baseballontology\\.org/data/(player|person)/[1-9][0-9]*/identifier/mlb-person-id$" ;
+  sh:property [
+    sh:path cco:ont00001916 ;
+    sh:class cco:ont00001262 ;
+    sh:minCount 1 ; sh:maxCount 1
+  ] ;
+  sh:property [
+    sh:path cco:ont00001912 ;
+    sh:hasValue <https://baseballontology.org/data/reference-system/mlb-person-id> ;
+    sh:minCount 1 ; sh:maxCount 1
+  ] ;
+  sh:property [
+    sh:path cco:ont00001765 ;
+    sh:datatype xsd:string ;
+    sh:pattern "^[1-9][0-9]*$" ;
+    sh:minCount 1 ; sh:maxCount 1
+  ] .
+base:ResponseShape a sh:NodeShape ;
+  sh:targetClass cco:ont00000853 ;
+  sh:nodeKind sh:IRI ;
+  sh:pattern "^https://baseballontology\\.org/data/source/mlb-people/response/[0-9a-f]{64}/[0-9a-f]{64}$" ;
+  sh:property [
+    sh:path cco:ont00001808 ;
+    sh:qualifiedValueShape [ sh:class cco:ont00001262 ] ;
+    sh:qualifiedMinCount 1 ; sh:qualifiedMaxCount 1
+  ] ;
+  sh:property [
+    sh:path obo:BFO_0000178 ;
+    sh:qualifiedValueShape [ sh:class cco:ont00000649 ] ;
+    sh:qualifiedMinCount 1 ; sh:qualifiedMaxCount 1
+  ] .
+
+base:ProperNameShape a sh:NodeShape ;
+  sh:targetClass cco:ont00001014 ;
+  sh:property [
+    sh:path cco:ont00001916 ;
+    sh:class cco:ont00001262 ;
+    sh:minCount 1 ; sh:maxCount 1
+  ] ;
+  sh:property [
+    sh:path cco:ont00001765 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:pattern "^[^�]*$" ;
+    sh:minCount 1 ; sh:maxCount 1
+  ] .
+
+base:NicknameShape a sh:NodeShape ;
+  sh:targetClass cco:ont00000990 ;
+  sh:property [
+    sh:path cco:ont00001916 ;
+    sh:class cco:ont00001262 ;
+    sh:minCount 1 ; sh:maxCount 1
+  ] ;
+  sh:property [
+    sh:path cco:ont00001765 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:pattern "^[^�]*$" ;
+    sh:minCount 1 ; sh:maxCount 1
+  ] .
+
+base:HeightShape a sh:NodeShape ;
+  sh:targetClass cco:ont00000967 ;
+  sh:property [
+    sh:path obo:BFO_0000197 ;
+    sh:class cco:ont00001262 ;
+    sh:minCount 1 ; sh:maxCount 1
+  ] .
+
+base:HeightMeasurementShape a sh:NodeShape ;
+  sh:target [
+    a sh:SPARQLTarget ;
+    sh:select """
+      SELECT DISTINCT ?this WHERE {
+        ?this a <https://www.commoncoreontologies.org/ont00001163> .
+        FILTER(CONTAINS(STR(?this), "/measurement/height/"))
+      }
+    """
+  ] ;
+  sh:property [
+    sh:path cco:ont00001966 ;
+    sh:class cco:ont00000967 ;
+    sh:minCount 1 ; sh:maxCount 1
+  ] ;
+  sh:property [
+    sh:path cco:ont00001769 ;
+    sh:datatype xsd:decimal ;
+    sh:minExclusive 0 ;
+    sh:minCount 1 ; sh:maxCount 1
+  ] ;
+  sh:property [
+    sh:path cco:ont00001863 ;
+    sh:hasValue cco:ont00001677 ;
+    sh:minCount 1 ; sh:maxCount 1
+  ] .
+
+base:BirthShape a sh:NodeShape ;
+  sh:targetClass cco:ont00001237 ;
+  sh:property [
+    sh:path obo:BFO_0000057 ;
+    sh:class cco:ont00001262 ;
+    sh:minCount 1 ; sh:maxCount 1
+  ] .
+
+base:BirthDateIdentifierShape a sh:NodeShape ;
+  sh:targetClass cco:ont00001340 ;
+  sh:property [
+    sh:path cco:ont00001771 ;
+    sh:datatype xsd:date ;
+    sh:minCount 1 ; sh:maxCount 1
+  ] ;
+  sh:property [
+    sh:path cco:ont00001916 ;
+    sh:class cco:ont00000800 ;
+    sh:minCount 1 ; sh:maxCount 1
+  ] .
+
+base:MassShape a sh:NodeShape ;
+  sh:targetClass cco:ont00000614 ;
+  sh:property [
+    sh:path obo:BFO_0000197 ;
+    sh:class cco:ont00001262 ;
+    sh:minCount 1 ; sh:maxCount 1
+  ] .
+
+base:MassMeasurementShape a sh:NodeShape ;
+  sh:target [
+    a sh:SPARQLTarget ;
+    sh:select """
+      SELECT DISTINCT ?this WHERE {
+        ?this a <https://www.commoncoreontologies.org/ont00001163> .
+        FILTER(CONTAINS(STR(?this), "/measurement/mass/"))
+      }
+    """
+  ] ;
+  sh:property [
+    sh:path cco:ont00001966 ;
+    sh:class cco:ont00000614 ;
+    sh:minCount 1 ; sh:maxCount 1
+  ] ;
+  sh:property [
+    sh:path cco:ont00001769 ;
+    sh:datatype xsd:decimal ;
+    sh:minExclusive 0 ;
+    sh:minCount 1 ; sh:maxCount 1
+  ] ;
+  sh:property [
+    sh:path cco:ont00001863 ;
+    sh:hasValue cco:ont00001728 ;
+    sh:minCount 1 ; sh:maxCount 1
+  ] .
+
+base:BattingSideDispositionShape a sh:NodeShape ;
+  sh:targetClass bo:BattingSideDisposition ;
+  sh:nodeKind sh:IRI ;
+  sh:pattern "/disposition/batting-side/(left|right)$" ;
+  sh:property [
+    sh:path obo:BFO_0000197 ;
+    sh:class cco:ont00001262 ;
+    sh:minCount 1 ; sh:maxCount 1
+  ] .
+
+base:ThrowingSideDispositionShape a sh:NodeShape ;
+  sh:targetClass bo:ThrowingSideDisposition ;
+  sh:nodeKind sh:IRI ;
+  sh:pattern "/disposition/throwing-side/(left|right)$" ;
+  sh:property [
+    sh:path obo:BFO_0000197 ;
+    sh:class cco:ont00001262 ;
+    sh:minCount 1 ; sh:maxCount 1
+  ] .
+
+base:SideMeasurementShape a sh:NodeShape ;
+  sh:target [
+    a sh:SPARQLTarget ;
+    sh:select """
+      SELECT DISTINCT ?this WHERE {
+        ?this a <https://www.commoncoreontologies.org/ont00000293> ;
+          <https://www.commoncoreontologies.org/ont00001912> ?system .
+        FILTER(?system IN (
+          <https://baseballontology.org/data/reference-system/mlb/batting-side>,
+          <https://baseballontology.org/data/reference-system/mlb/throwing-side>
+        ))
+      }
+    """
+  ] ;
+  sh:property [
+    sh:path cco:ont00001868 ;
+    sh:minCount 1 ; sh:maxCount 1 ;
+    sh:or (
+      [ sh:class bo:BattingSideDisposition ]
+      [ sh:class bo:ThrowingSideDisposition ]
+    )
+  ] ;
+  sh:property [
+    sh:path cco:ont00001765 ;
+    sh:datatype xsd:string ;
+    sh:in ( "L" "R" "S" ) ;
+    sh:minCount 1 ; sh:maxCount 1
+  ] .
+
+base:PositionDescriptionShape a sh:NodeShape ;
+  sh:targetClass bo:BaseballPositionDescription ;
+  sh:nodeKind sh:IRI ;
+  sh:property [
+    sh:path cco:ont00001982 ;
+    sh:qualifiedValueShape [ sh:class cco:ont00001262 ] ;
+    sh:qualifiedMinCount 1 ; sh:qualifiedMaxCount 1
+  ] ;
+  sh:property [
+    sh:path cco:ont00001982 ;
+    sh:qualifiedValueShape [
+      sh:or (
+        [ sh:class bo:PitcherRole ]
+        [ sh:class bo:CatcherRole ]
+        [ sh:class bo:FielderRole ]
+        [ sh:class bo:BatterRole ]
+        [ sh:class bo:BaseballFieldingDisposition ]
+        [ sh:class bo:BattingSideDisposition ]
+        [ sh:class bo:ThrowingSideDisposition ]
+      )
+    ] ;
+    sh:qualifiedMinCount 1
+  ] ;
+  sh:property [
+    sh:path cco:ont00001912 ;
+    sh:hasValue <https://baseballontology.org/data/reference-system/mlb/baseball-position> ;
+    sh:minCount 1 ; sh:maxCount 1
+  ] ;
+  sh:property [
+    sh:path cco:ont00001765 ;
+    sh:datatype xsd:string ;
+    sh:in ( "1" "2" "3" "4" "5" "6" "7" "8" "9" "10" "Y" ) ;
+    sh:minCount 1 ; sh:maxCount 1
+  ] .
+
+base:TwoWayPositionDescriptionShape a sh:NodeShape ;
+  sh:target [
+    a sh:SPARQLTarget ;
+    sh:select """
+      SELECT DISTINCT ?this WHERE {
+        ?this a <https://baseballontology.org/BaseballPositionDescription> ;
+          <https://www.commoncoreontologies.org/ont00001912>
+            <https://baseballontology.org/data/reference-system/mlb/baseball-position> ;
+          <https://www.commoncoreontologies.org/ont00001765> "Y" .
+      }
+    """
+  ] ;
+  sh:property [
+    sh:path cco:ont00001982 ;
+    sh:qualifiedValueShape [ sh:class bo:PitcherRole ] ;
+    sh:qualifiedMinCount 1 ; sh:qualifiedMaxCount 1
+  ] ;
+  sh:property [
+    sh:path cco:ont00001982 ;
+    sh:qualifiedValueShape [ sh:class bo:FielderRole ] ;
+    sh:qualifiedMinCount 1 ; sh:qualifiedMaxCount 1
+  ] ;
+  sh:sparql [
+    sh:message "MLB position code Y must describe one Person and that Person's Pitcher Role and Fielder Role." ;
+    sh:select """
+      PREFIX obo: <http://purl.obolibrary.org/obo/>
+      PREFIX cco: <https://www.commoncoreontologies.org/>
+      PREFIX bo: <https://baseballontology.org/>
+      SELECT $this WHERE {
+        $this cco:ont00001982 ?person, ?pitcherRole, ?fielderRole .
+        ?person a cco:ont00001262 .
+        ?pitcherRole a bo:PitcherRole ; obo:BFO_0000197 ?pitcherBearer .
+        ?fielderRole a bo:FielderRole ; obo:BFO_0000197 ?fielderBearer .
+        FILTER(?pitcherBearer != ?person || ?fielderBearer != ?person)
+      }
+    """
+  ] .
+
+base:PositionRoleShape a sh:NodeShape ;
+  sh:targetClass bo:PitcherRole, bo:CatcherRole, bo:FielderRole, bo:BatterRole ;
+  sh:property [
+    sh:path obo:BFO_0000197 ;
+    sh:class cco:ont00001262 ;
+    sh:minCount 1 ; sh:maxCount 1
+  ] .
+
+base:FieldingDispositionShape a sh:NodeShape ;
+  sh:targetClass bo:BaseballFieldingDisposition ;
+  sh:property [
+    sh:path obo:BFO_0000197 ;
+    sh:class cco:ont00001262 ;
+    sh:minCount 1 ; sh:maxCount 1
+  ] .
+
+# A source-owned graph may contain only the classes and relations in the
+# accepted solid Mermaid. This makes blocked-field leakage fail closed.
+base:GraphVocabularyShape a sh:NodeShape ;
+  sh:targetNode base:graph-contract ;
+  sh:sparql [
+    sh:message "MLB people RDF contains a predicate outside the accepted source contract." ;
+    sh:select """
+      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      PREFIX obo: <http://purl.obolibrary.org/obo/>
+      PREFIX cco: <https://www.commoncoreontologies.org/>
+      SELECT $this WHERE {
+        ?s ?p ?o .
+        FILTER (?p NOT IN (
+          rdf:type, obo:BFO_0000178, obo:BFO_0000197, obo:BFO_0000057,
+          cco:ont00001808, cco:ont00001916, cco:ont00001912,
+          cco:ont00001765, cco:ont00001966, cco:ont00001769,
+          cco:ont00001863, cco:ont00001771, cco:ont00001868,
+          cco:ont00001982
+        ))
+      } LIMIT 1
+    """
+  ] ;
+  sh:sparql [
+    sh:message "MLB people RDF contains a class outside the accepted source contract." ;
+    sh:select """
+      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      PREFIX cco: <https://www.commoncoreontologies.org/>
+      SELECT $this WHERE {
+        ?s rdf:type ?class .
+        FILTER (?class NOT IN (
+          cco:ont00001262, cco:ont00000853, cco:ont00000649,
+          cco:ont00000398, cco:ont00001014, cco:ont00000990,
+          cco:ont00000967, cco:ont00001163, cco:ont00001237,
+          cco:ont00001340, cco:ont00000800, cco:ont00000614,
+          cco:ont00000293,
+          <https://baseballontology.org/BattingSideDisposition>,
+          <https://baseballontology.org/ThrowingSideDisposition>,
+          <https://baseballontology.org/BaseballPositionDescription>,
+          <https://baseballontology.org/BaseballFieldingDisposition>,
+          <https://baseballontology.org/PitcherRole>,
+          <https://baseballontology.org/CatcherRole>,
+          <https://baseballontology.org/FielderRole>,
+          <https://baseballontology.org/BatterRole>
+        ))
+      } LIMIT 1
+    """
+  ] .

@@ -1,0 +1,36 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-venues-time-zone",
+  "title": "MLB venue time-zone evidence",
+  "status": "under-review",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "a2d6eaffd254872b74e55bb7e68e0ef336512cf25d729bed6d185b4bfcac3141"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "03545177730c12c5c6b5e855342b51d0239e3e2e931aec50288861e37ea56d43"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "fc6d79e5157827a0b9ca4ab0b4c9c8fa0f336e1ac4f67e77a7d8feda6585aa77"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "45650897484b3f65f401c2db4b4a173908f01f4a3084ef66ee143c3a81671e2f"
+      }
+    ]
+  },
+  "ontologistDecision": null
+}

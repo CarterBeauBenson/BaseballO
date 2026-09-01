@@ -1,0 +1,16 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?umpire ?umpireLabel (COUNT(DISTINCT ?game) AS ?games)
+WHERE {
+  GRAPH ?graph {
+    ?game a base:BaseballGame .
+    ?umpireRole a base:UmpireRole ;
+                 obo:BFO_0000197 ?umpire ;
+                 obo:BFO_0000054 ?game .
+    ?umpire rdfs:label ?umpireLabel .
+  }
+}
+GROUP BY ?umpire ?umpireLabel
+ORDER BY DESC(?games) LCASE(STR(?umpireLabel))

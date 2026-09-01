@@ -1,0 +1,232 @@
+{
+  "artifactType": "baseballo-source-module-catalog",
+  "contractVersion": 2,
+  "modules": [
+    {
+      "id": "mlb-game",
+      "label": "MLB Stats API game feed/live",
+      "kind": "external-authoritative",
+      "operationalStatus": "active",
+      "semanticStatus": "approved",
+      "extensionPolicy": "approved-designs-only",
+      "semanticStatusRecord": "sources/mlb-game/review/semantic-status.json",
+      "moduleRoot": "sources/mlb-game",
+      "schemaRoot": "sources/mlb-game/schema",
+      "mappingRoot": "sources/mlb-game/mapping",
+      "reviewRoot": "sources/mlb-game/review",
+      "rml": [
+        "sources/mlb-game/mapping/mlb-game.rml.ttl"
+      ],
+      "policies": [
+        "sources/mlb-game/mapping/iri-policy.yaml"
+      ],
+      "shacl": [
+        "sources/mlb-game/shacl/authoritative.ttl"
+      ],
+      "authoritativeGraphPrefixes": [
+        "https://w3id.org/baseball/graph/game/"
+      ],
+      "nifiProcessGroups": [
+        "MLB Game"
+      ],
+      "nifiContract": "sources/mlb-game/nifi/flow-contract.json",
+      "nifiProvisioner": "sources/mlb-game/nifi/provision.ps1",
+      "integrationBoundary": "promoted authoritative RDF",
+      "disconnectPolicy": {
+        "stopsOnlyThisModule": true,
+        "retainsPromotedAuthoritativeRdf": true,
+        "unrelatedModulesRemainRunnable": true
+      },
+      "derivedOutputs": [
+        "rebuildable query-index RDF",
+        "rebuildable analytical serving rows"
+      ]
+    },
+    {
+      "id": "mlb-teams",
+      "label": "MLB Stats API teams authority",
+      "kind": "external-authoritative-reference",
+      "operationalStatus": "active",
+      "semanticStatus": "approved",
+      "extensionPolicy": "approved-designs-only",
+      "semanticStatusRecord": "sources/mlb-teams/review/semantic-status.json",
+      "moduleRoot": "sources/mlb-teams",
+      "schemaRoot": "sources/mlb-teams/schema",
+      "mappingRoot": "sources/mlb-teams/mapping",
+      "reviewRoot": "sources/mlb-teams/review",
+      "rml": ["sources/mlb-teams/mapping/mlb-teams.rml.ttl"],
+      "policies": ["sources/mlb-teams/mapping/iri-policy.yaml"],
+      "shacl": ["sources/mlb-teams/shacl/authoritative.ttl"],
+      "authoritativeGraphPrefixes": ["https://w3id.org/baseball/graph/authority/mlb-teams/"],
+      "nifiProcessGroups": ["MLB Teams"],
+      "nifiContract": "sources/mlb-teams/nifi/flow-contract.json",
+      "nifiProvisioner": "sources/mlb-teams/nifi/provision.ps1",
+      "integrationBoundary": "promoted authoritative RDF",
+      "disconnectPolicy": {"stopsOnlyThisModule": true, "retainsPromotedAuthoritativeRdf": true, "unrelatedModulesRemainRunnable": true},
+      "derivedOutputs": ["rebuildable cross-source query products"]
+    },
+    {
+      "id": "mlb-leagues",
+      "label": "MLB Stats API leagues authority",
+      "kind": "external-authoritative-reference",
+      "operationalStatus": "active",
+      "semanticStatus": "approved",
+      "extensionPolicy": "approved-designs-only",
+      "semanticStatusRecord": "sources/mlb-leagues/review/semantic-status.json",
+      "moduleRoot": "sources/mlb-leagues",
+      "schemaRoot": "sources/mlb-leagues/schema",
+      "mappingRoot": "sources/mlb-leagues/mapping",
+      "reviewRoot": "sources/mlb-leagues/review",
+      "rml": ["sources/mlb-leagues/mapping/mlb-leagues.rml.ttl"],
+      "policies": ["sources/mlb-leagues/mapping/iri-policy.yaml"],
+      "shacl": ["sources/mlb-leagues/shacl/authoritative.ttl"],
+      "authoritativeGraphPrefixes": ["https://w3id.org/baseball/graph/authority/mlb-leagues/"],
+      "nifiProcessGroups": ["MLB Leagues"],
+      "nifiContract": "sources/mlb-leagues/nifi/flow-contract.json",
+      "nifiProvisioner": "sources/mlb-leagues/nifi/provision.ps1",
+      "integrationBoundary": "promoted authoritative RDF",
+      "disconnectPolicy": {"stopsOnlyThisModule": true, "retainsPromotedAuthoritativeRdf": true, "unrelatedModulesRemainRunnable": true},
+      "derivedOutputs": ["rebuildable cross-source query products"]
+    },
+    {
+      "id": "mlb-divisions",
+      "label": "MLB Stats API divisions authority",
+      "kind": "external-authoritative-reference",
+      "operationalStatus": "active",
+      "semanticStatus": "approved",
+      "extensionPolicy": "approved-designs-only",
+      "semanticStatusRecord": "sources/mlb-divisions/review/semantic-status.json",
+      "moduleRoot": "sources/mlb-divisions",
+      "schemaRoot": "sources/mlb-divisions/schema",
+      "mappingRoot": "sources/mlb-divisions/mapping",
+      "reviewRoot": "sources/mlb-divisions/review",
+      "rml": ["sources/mlb-divisions/mapping/mlb-divisions.rml.ttl"],
+      "policies": ["sources/mlb-divisions/mapping/iri-policy.yaml"],
+      "shacl": ["sources/mlb-divisions/shacl/authoritative.ttl"],
+      "authoritativeGraphPrefixes": ["https://w3id.org/baseball/graph/authority/mlb-divisions/"],
+      "nifiProcessGroups": ["MLB Divisions"],
+      "nifiContract": "sources/mlb-divisions/nifi/flow-contract.json",
+      "nifiProvisioner": "sources/mlb-divisions/nifi/provision.ps1",
+      "integrationBoundary": "promoted authoritative RDF",
+      "disconnectPolicy": {"stopsOnlyThisModule": true, "retainsPromotedAuthoritativeRdf": true, "unrelatedModulesRemainRunnable": true},
+      "derivedOutputs": ["rebuildable cross-source query products"]
+    },
+    {
+      "id": "mlb-people",
+      "label": "MLB Stats API people authority",
+      "kind": "external-authoritative-reference",
+      "operationalStatus": "active",
+      "semanticStatus": "approved",
+      "extensionPolicy": "approved-designs-only",
+      "semanticStatusRecord": "sources/mlb-people/review/semantic-status.json",
+      "moduleRoot": "sources/mlb-people",
+      "schemaRoot": "sources/mlb-people/schema",
+      "mappingRoot": "sources/mlb-people/mapping",
+      "reviewRoot": "sources/mlb-people/review",
+      "rml": [
+        "sources/mlb-people/mapping/mlb-people.rml.ttl"
+      ],
+      "policies": [
+        "sources/mlb-people/mapping/iri-policy.yaml"
+      ],
+      "shacl": [
+        "sources/mlb-people/shacl/authoritative.ttl"
+      ],
+      "authoritativeGraphPrefixes": [
+        "https://w3id.org/baseball/graph/authority/mlb-people/"
+      ],
+      "nifiProcessGroups": [
+        "MLB People"
+      ],
+      "nifiContract": "sources/mlb-people/nifi/flow-contract.json",
+      "nifiProvisioner": "sources/mlb-people/nifi/provision.ps1",
+      "integrationBoundary": "promoted authoritative RDF",
+      "disconnectPolicy": {
+        "stopsOnlyThisModule": true,
+        "retainsPromotedAuthoritativeRdf": true,
+        "unrelatedModulesRemainRunnable": true
+      },
+      "derivedOutputs": [
+        "rebuildable cross-source query products"
+      ]
+    },
+    {
+      "id": "mlb-venues",
+      "label": "MLB Stats API venue authority",
+      "kind": "external-authoritative-reference",
+      "operationalStatus": "active",
+      "semanticStatus": "approved",
+      "extensionPolicy": "approved-designs-only",
+      "semanticStatusRecord": "sources/mlb-venues/review/semantic-status.json",
+      "moduleRoot": "sources/mlb-venues",
+      "schemaRoot": "sources/mlb-venues/schema",
+      "mappingRoot": "sources/mlb-venues/mapping",
+      "reviewRoot": "sources/mlb-venues/review",
+      "rml": [
+        "sources/mlb-venues/mapping/mlb-venues.rml.ttl"
+      ],
+      "policies": [
+        "sources/mlb-venues/mapping/iri-policy.yaml"
+      ],
+      "shacl": [
+        "sources/mlb-venues/shacl/authoritative.ttl"
+      ],
+      "authoritativeGraphPrefixes": [
+        "https://w3id.org/baseball/graph/authority/mlb-venues/"
+      ],
+      "nifiProcessGroups": [
+        "MLB Venues"
+      ],
+      "nifiContract": "sources/mlb-venues/nifi/flow-contract.json",
+      "nifiProvisioner": "sources/mlb-venues/nifi/provision.ps1",
+      "integrationBoundary": "promoted authoritative RDF",
+      "disconnectPolicy": {
+        "stopsOnlyThisModule": true,
+        "retainsPromotedAuthoritativeRdf": true,
+        "unrelatedModulesRemainRunnable": true
+      },
+      "derivedOutputs": [
+        "rebuildable cross-source query products"
+      ]
+    },
+    {
+      "id": "mlb-transactions",
+      "label": "MLB Stats API transaction evidence",
+      "kind": "external-authoritative-event-evidence",
+      "operationalStatus": "active",
+      "semanticStatus": "approved",
+      "extensionPolicy": "approved-designs-only",
+      "semanticStatusRecord": "sources/mlb-transactions/review/semantic-status.json",
+      "moduleRoot": "sources/mlb-transactions",
+      "schemaRoot": "sources/mlb-transactions/schema",
+      "mappingRoot": "sources/mlb-transactions/mapping",
+      "reviewRoot": "sources/mlb-transactions/review",
+      "rml": [
+        "sources/mlb-transactions/mapping/mlb-transactions.rml.ttl"
+      ],
+      "policies": [
+        "sources/mlb-transactions/mapping/iri-policy.yaml"
+      ],
+      "shacl": [
+        "sources/mlb-transactions/shacl/authoritative.ttl"
+      ],
+      "authoritativeGraphPrefixes": [
+        "https://w3id.org/baseball/graph/event/mlb-transactions/"
+      ],
+      "nifiProcessGroups": [
+        "MLB Transactions"
+      ],
+      "nifiContract": "sources/mlb-transactions/nifi/flow-contract.json",
+      "nifiProvisioner": "sources/mlb-transactions/nifi/provision.ps1",
+      "integrationBoundary": "promoted authoritative RDF",
+      "disconnectPolicy": {
+        "stopsOnlyThisModule": true,
+        "retainsPromotedAuthoritativeRdf": true,
+        "unrelatedModulesRemainRunnable": true
+      },
+      "derivedOutputs": [
+        "rebuildable cross-source query products"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "major-league-free-agent-role",
+  "title": "Major League Free Agent Role",
+  "status": "accepted",
+  "proposedIris": [
+    "https://baseballontology.org/MajorLeagueFreeAgentRole"
+  ],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "1a704abf00a55b3aa303d483dc3afa8f4531f02eafb82fd62f15cecc1bb01242"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "3642a97a3fb9e43c7455fe3d3372301501679be9e3299e1eb1ae4af924b5e1c1"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "9fcf777a2a8cc9c1f0bf03c6eb8f644f243cc2bd3bea016776bd1d7902847ef9"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "904ac50f49b3a46b9503479ad184f6ebe35d9f0a9fb0f7b747938f811334c9d1"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-08-30",
+    "rationale": "The ontologist explicitly accepted the revised source-independent Mermaid package published at commit b8c6cc76711286c979b9acb11db3c48ae7d6a581 and authorized implementation that follows those diagrams and the recorded modeling guidance.",
+    "authorizedArtifacts": [
+      "Baseball/ontology/BaseballO.ttl",
+      "Baseball/ontology/BaseballO-axioms-overlay.ttl"
+    ]
+  }
+}

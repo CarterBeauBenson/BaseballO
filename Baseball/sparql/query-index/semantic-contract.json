@@ -1,0 +1,224 @@
+{
+  "artifactType": "baseball-query-index-semantic-contract",
+  "contractVersion": 1,
+  "semanticContractId": "baseball-query-index-v1",
+  "indexMetadataContractVersion": "1",
+  "hashAlgorithm": "canonical-text-v1",
+  "description": "Source-neutral contract for the meaning and required output grains of BaseballO query-index version 1. Script, transport, locking, compiler, and scheduler bytes are implementation provenance and are not semantic compatibility criteria.",
+  "graphContract": {
+    "authoritativeGraphPrefix": "https://w3id.org/baseball/graph/game/",
+    "indexGraphPrefix": "https://w3id.org/baseball/graph/query-index/game/",
+    "gameIriPrefix": "https://baseballontology.org/data/game/",
+    "indexResourcePrefix": "https://w3id.org/baseball/query-index-build/game/",
+    "metadataClassIri": "https://w3id.org/baseball/query-index/QueryIndex"
+  },
+  "semanticInputs": {
+    "constructComponents": [
+      {
+        "path": "sparql/query-index/components/00-index-metadata.rq",
+        "textSha256": "9e868d6f233d2892754656db0a2657b668b9e335d8d03f75d56fe65ee3a41a40"
+      },
+      {
+        "path": "sparql/query-index/components/10-game-dimensions.rq",
+        "textSha256": "93b82efe8729d8194a89d9af14c98e4eb5a605edc7fefaaf17f36e52eae51cf5"
+      },
+      {
+        "path": "sparql/query-index/components/15-plate-appearances.rq",
+        "textSha256": "9ee9420088b4339ab25ff03fd52d173a8c0065af1543e52ac17a9e28fe9e9e77"
+      },
+      {
+        "path": "sparql/query-index/components/20-plate-appearance-results.rq",
+        "textSha256": "67b64518bea5186e0a75e31d504dc8ed4c93803aafbc8c2bc62cb2e5425051fd"
+      },
+      {
+        "path": "sparql/query-index/components/30-hits.rq",
+        "textSha256": "7adcfbd8cf4697e7c48513b898c236647d736428c3134fcf57067c74d773f06c"
+      },
+      {
+        "path": "sparql/query-index/components/40-pitches.rq",
+        "textSha256": "c9c6ede18e24505b8f3ab338e9135e87a0b9992ed164dc87f367f90ffefcc4a6"
+      },
+      {
+        "path": "sparql/query-index/components/50-pitch-calls.rq",
+        "textSha256": "63e6eb759582d92bcc9cc58e2f276bd6386b40614ef3c59ba1d3dcf732ecdf39"
+      },
+      {
+        "path": "sparql/query-index/components/60-batting-acts.rq",
+        "textSha256": "b80f4bb1b0c282ef331234ad00299daa7620e50f883727d53ef2e3ec19c7b27a"
+      },
+      {
+        "path": "sparql/query-index/components/61-contacts.rq",
+        "textSha256": "34462d5deea23a5d4ea8730ed246f320d13fce6f65931e66bf25e961881f76a1"
+      },
+      {
+        "path": "sparql/query-index/components/70-runner-resolutions.rq",
+        "textSha256": "79b3a3992c734b063037cccde4a3c16881b5931f9a02c54217f68654ff3d3edd"
+      },
+      {
+        "path": "sparql/query-index/components/71-stolen-bases.rq",
+        "textSha256": "92dcdfff849a66750d243799b1d9e31738bc1d1c478036753eb36ed41cd8fecd"
+      },
+      {
+        "path": "sparql/query-index/components/80-game-assignments.rq",
+        "textSha256": "0cfb3ecb5b6af62221edfd927c47c11a0aaf07df44a0ed4b016081ec39d2c559"
+      },
+      {
+        "path": "sparql/query-index/components/90-labels.rq",
+        "textSha256": "453188cd42581f15ad36a9eee03aa217f1cf3eb97b99283da6d43e5456238800"
+      }
+    ],
+    "shaclProfile": {
+      "profile": "query-index",
+      "path": "shacl/query-index.ttl",
+      "textSha256": "66fffa750246b2bb22debd06ef8d7eabb09ca788428e13c7e24370025120cd22"
+    }
+  },
+  "factGrains": [
+    {
+      "name": "GameFact",
+      "classIri": "https://w3id.org/baseball/query-index/GameFact",
+      "component": "sparql/query-index/components/10-game-dimensions.rq",
+      "requiredProperties": [
+        "https://w3id.org/baseball/query-index/season",
+        "https://w3id.org/baseball/query-index/seasonPhase",
+        "https://w3id.org/baseball/query-index/venue",
+        "https://w3id.org/baseball/query-index/gameStart",
+        "https://w3id.org/baseball/query-index/derivedFrom"
+      ]
+    },
+    {
+      "name": "PlateAppearanceFact",
+      "classIri": "https://w3id.org/baseball/query-index/PlateAppearanceFact",
+      "component": "sparql/query-index/components/15-plate-appearances.rq",
+      "requiredProperties": [
+        "https://w3id.org/baseball/query-index/game",
+        "https://w3id.org/baseball/query-index/agent",
+        "https://w3id.org/baseball/query-index/derivedFrom"
+      ]
+    },
+    {
+      "name": "PlateAppearanceResultFact",
+      "classIri": "https://w3id.org/baseball/query-index/PlateAppearanceResultFact",
+      "component": "sparql/query-index/components/20-plate-appearance-results.rq",
+      "requiredProperties": [
+        "https://w3id.org/baseball/query-index/plateAppearance",
+        "https://w3id.org/baseball/query-index/game",
+        "https://w3id.org/baseball/query-index/agent",
+        "https://w3id.org/baseball/query-index/outcomeClass",
+        "https://w3id.org/baseball/query-index/sourceEventType",
+        "https://w3id.org/baseball/query-index/derivedFrom"
+      ]
+    },
+    {
+      "name": "HitFact",
+      "classIri": "https://w3id.org/baseball/query-index/HitFact",
+      "component": "sparql/query-index/components/30-hits.rq",
+      "requiredProperties": [
+        "https://w3id.org/baseball/query-index/agent",
+        "https://w3id.org/baseball/query-index/game",
+        "https://w3id.org/baseball/query-index/venue",
+        "https://w3id.org/baseball/query-index/hitType",
+        "https://w3id.org/baseball/query-index/plateAppearance",
+        "https://w3id.org/baseball/query-index/derivedFrom"
+      ]
+    },
+    {
+      "name": "PitchFact",
+      "classIri": "https://w3id.org/baseball/query-index/PitchFact",
+      "component": "sparql/query-index/components/40-pitches.rq",
+      "requiredProperties": [
+        "https://w3id.org/baseball/query-index/agent",
+        "https://w3id.org/baseball/query-index/game",
+        "https://w3id.org/baseball/query-index/venue",
+        "https://w3id.org/baseball/query-index/plateAppearance",
+        "https://w3id.org/baseball/query-index/derivedFrom"
+      ]
+    },
+    {
+      "name": "PitchCallFact",
+      "classIri": "https://w3id.org/baseball/query-index/PitchCallFact",
+      "component": "sparql/query-index/components/50-pitch-calls.rq",
+      "requiredProperties": [
+        "https://w3id.org/baseball/query-index/pitch",
+        "https://w3id.org/baseball/query-index/agent",
+        "https://w3id.org/baseball/query-index/game",
+        "https://w3id.org/baseball/query-index/callType",
+        "https://w3id.org/baseball/query-index/derivedFrom"
+      ]
+    },
+    {
+      "name": "BattingActFact",
+      "classIri": "https://w3id.org/baseball/query-index/BattingActFact",
+      "component": "sparql/query-index/components/60-batting-acts.rq",
+      "requiredProperties": [
+        "https://w3id.org/baseball/query-index/agent",
+        "https://w3id.org/baseball/query-index/game",
+        "https://w3id.org/baseball/query-index/plateAppearance",
+        "https://w3id.org/baseball/query-index/battingActType",
+        "https://w3id.org/baseball/query-index/derivedFrom"
+      ]
+    },
+    {
+      "name": "ContactFact",
+      "classIri": "https://w3id.org/baseball/query-index/ContactFact",
+      "component": "sparql/query-index/components/61-contacts.rq",
+      "requiredProperties": [
+        "https://w3id.org/baseball/query-index/agent",
+        "https://w3id.org/baseball/query-index/game",
+        "https://w3id.org/baseball/query-index/venue",
+        "https://w3id.org/baseball/query-index/plateAppearance",
+        "https://w3id.org/baseball/query-index/battedBall",
+        "https://w3id.org/baseball/query-index/derivedFrom"
+      ]
+    },
+    {
+      "name": "RunnerResolutionFact",
+      "classIri": "https://w3id.org/baseball/query-index/RunnerResolutionFact",
+      "component": "sparql/query-index/components/70-runner-resolutions.rq",
+      "requiredProperties": [
+        "https://w3id.org/baseball/query-index/agent",
+        "https://w3id.org/baseball/query-index/game",
+        "https://w3id.org/baseball/query-index/resolutionClass",
+        "https://w3id.org/baseball/query-index/sourceEventType",
+        "https://w3id.org/baseball/query-index/derivedFrom"
+      ]
+    },
+    {
+      "name": "StolenBaseFact",
+      "classIri": "https://w3id.org/baseball/query-index/StolenBaseFact",
+      "component": "sparql/query-index/components/71-stolen-bases.rq",
+      "requiredProperties": [
+        "https://w3id.org/baseball/query-index/agent",
+        "https://w3id.org/baseball/query-index/game",
+        "https://w3id.org/baseball/query-index/derivedFrom"
+      ]
+    },
+    {
+      "name": "AssignmentFact",
+      "classIri": "https://w3id.org/baseball/query-index/AssignmentFact",
+      "component": "sparql/query-index/components/80-game-assignments.rq",
+      "requiredProperties": [
+        "https://w3id.org/baseball/query-index/game",
+        "https://w3id.org/baseball/query-index/assignee",
+        "https://w3id.org/baseball/query-index/assignmentType",
+        "https://w3id.org/baseball/query-index/derivedFrom"
+      ]
+    }
+  ],
+  "consumerGrains": [
+    {
+      "id": "game-team-season-v1",
+      "factGrains": ["GameFact", "AssignmentFact"],
+      "assignmentTypes": [
+        "https://w3id.org/baseball/query-index/HomeTeam",
+        "https://w3id.org/baseball/query-index/AwayTeam"
+      ],
+      "scope": "per-indexed-game",
+      "exactAssignmentCountPerType": 1,
+      "distinctAssignees": true,
+      "assigneeIriPattern": "^https://baseballontology[.]org/data/team/[0-9]+$",
+      "sourceAssigneeClassIri": "https://baseballontology.org/BaseballTeam",
+      "description": "A source consumer can identify each indexed game's season and its home and away Team assignees without using an Explorer routing decision."
+    }
+  ]
+}

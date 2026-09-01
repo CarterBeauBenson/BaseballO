@@ -1,0 +1,16 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT DISTINCT ?officialScorer ?officialScorerLabel
+WHERE {
+  GRAPH ?graph {
+    ?role a base:OfficialScorerRole ;
+          obo:BFO_0000197 ?officialScorer ;
+          obo:BFO_0000054 ?game .
+    ?game a base:BaseballGame .
+    ?officialScorer rdfs:label ?officialScorerLabel .
+  }
+  FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+}
+ORDER BY LCASE(STR(?officialScorerLabel))

@@ -1,0 +1,77 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX fn: <http://www.w3.org/2005/xpath-functions#>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Transparent exploratory score, not a stored baseball statistic:
+# pitch + swing + (2 * contact) + (2 * foul). Duration is reported separately.
+SELECT ?game ?plateAppearance ?batter ?batterLabel ?pitcher ?pitcherLabel
+       ?outcome ?pitches ?swings ?contacts ?fouls ?durationMinutes
+       (?pitches + ?swings + (2 * ?contacts) + (2 * ?fouls) AS ?grindScore)
+WHERE {
+  {
+    SELECT ?graph ?game ?plateAppearance ?batter ?batterLabel ?pitcher ?pitcherLabel
+           (SAMPLE(?eventType) AS ?outcome)
+           (SAMPLE(?durationMinutesValue) AS ?durationMinutes)
+           (COUNT(DISTINCT ?pitch) AS ?pitches)
+           (COUNT(DISTINCT ?swing) AS ?swings)
+           (COUNT(DISTINCT ?contact) AS ?contacts)
+           (COUNT(DISTINCT ?foul) AS ?fouls)
+    WHERE {
+      GRAPH ?graph {
+        ?game a base:BaseballGame .
+        ?plateAppearance a base:PlateAppearance ;
+            obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game ;
+            obo:BFO_0000199 ?interval .
+        ?batterAct a base:BatterAct ;
+            obo:BFO_0000132 ?plateAppearance ;
+            obo:BFO_0000057 ?batter .
+        ?batter rdfs:label ?batterLabel .
+        ?result a base:BaseballInstitutionalProcess, ?outcomeClass ;
+            obo:BFO_0000132 ?plateAppearance .
+        VALUES (?outcomeClass ?eventType) {
+          (base:SingleProcess "single")
+          (base:DoubleProcess "double")
+          (base:TripleProcess "triple")
+          (base:HomeRunProcess "home_run")
+          (base:WalkProcess "walk")
+          (base:StrikeoutProcess "strikeout")
+          (base:HitByPitchProcess "hit_by_pitch")
+          (base:FieldersChoiceProcess "fielders_choice")
+          (base:ErrorProcess "field_error")
+          (base:SacrificeFlyProcess "sac_fly")
+          (base:SacrificeBuntProcess "sac_bunt")
+          (base:BattedBallOutProcess "field_out")
+          (base:ForceOutProcess "force_out")
+          (base:DoublePlayProcess "double_play")
+          (base:GroundedIntoDoublePlayProcess "grounded_into_double_play")
+          (base:BalkProcess "balk")
+          (base:InterferenceProcess "catcher_interf")
+        }
+        ?pitch a base:PitchAct ;
+            obo:BFO_0000132 ?plateAppearance ; obo:BFO_0000057 ?pitcher .
+        ?pitcher rdfs:label ?pitcherLabel .
+        ?interval obo:BFO_0000222 ?startInstant ; obo:BFO_0000224 ?endInstant .
+        ?startTimestamp a base:BaseballTimestampICE ;
+            cco:ont00001916 ?startInstant ; cco:ont00001767 ?startValue .
+        ?endTimestamp a base:BaseballTimestampICE ;
+            cco:ont00001916 ?endInstant ; cco:ont00001767 ?endValue .
+        BIND(?endValue - ?startValue AS ?durationValue)
+        BIND(
+          fn:days-from-duration(?durationValue) * 1440 +
+          fn:hours-from-duration(?durationValue) * 60 +
+          fn:minutes-from-duration(?durationValue) +
+          fn:seconds-from-duration(?durationValue) / 60
+          AS ?durationMinutesValue
+        )
+        OPTIONAL { ?swing a base:SwingAct ; obo:BFO_0000132 ?plateAppearance . }
+        OPTIONAL { ?contact a base:BatBallContactProcess ; obo:BFO_0000132 ?plateAppearance . }
+        OPTIONAL { ?foul a base:FoulBallProcess ; obo:BFO_0000132 ?plateAppearance . }
+      }
+      FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+    }
+    GROUP BY ?graph ?game ?plateAppearance ?batter ?batterLabel ?pitcher ?pitcherLabel
+  }
+}
+ORDER BY DESC(?grindScore) DESC(?durationMinutes) ?batterLabel

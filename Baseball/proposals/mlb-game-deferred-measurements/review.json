@@ -1,0 +1,16 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-deferred-measurements",
+  "title": "MLB-game deferred physical measurements",
+  "status": "under-review",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [{"path":"competency-questions.md","sha256":"50b2fd85a4badd9b86f9688da6864fa8153e356126c372d8ae4111e678ee7f27"}],
+    "sourceEvidence": [{"path":"source-evidence.md","sha256":"6a2c4e3ddf74f0cce87f1dd7db456754a0cec8146c70fdc747f944620e41106b"}],
+    "fieldSelectionInventory": [{"path":"field-selection-inventory.md","sha256":"a4eef565332d6495866243ebb489d26912a95fdb49399f18d746f51de3936828"}],
+    "sourceIndependentMermaid": [{"path":"source-independent-mermaid.md","sha256":"158094d4d065093a42a8d5cc1abbeec9a23abfefb6bece512280cf12003adfcb"}]
+  },
+  "ontologistDecision": null
+}

@@ -1,0 +1,49 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-transactions-source-contract",
+  "title": "MLB transactions source-specific graph contract",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "011f06634b0975864eb9dc371296cc1315c31b2e25f407268bffae379835aaeb"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "25d030fd96121add1c1b783f50be9bd29ea69fb7338f83f0d7a3b8d15717dd81"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "8b4dfaf869f5e6a4806958bcacd321af726611633b2e743e86c0ca18e9bc7897"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-specific-mermaid.md",
+        "sha256": "9558722c91e3d3d2f93ca1e01b4fa38c96581d017fd63db7bb794103696f294b"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-08-29",
+    "rationale": "The ontologist explicitly accepted the MLB transactions source-specific Mermaid contract, including its information-layer record grain, content-hash identity, conditional Death gate, detachable NiFi boundary, and retained dashed blockers. This authorizes later implementation of that exact accepted surface; Trade, uniform-number assignment, and other blocked world-process claims remain unapproved.",
+    "authorizedArtifacts": [
+      "Baseball/sources/mlb-transactions/mapping/mlb-transactions.rml.ttl",
+      "Baseball/sources/mlb-transactions/mapping/iri-policy.yaml",
+      "Baseball/sources/mlb-transactions/mapping/prepare-context.py",
+      "Baseball/sources/mlb-transactions/shacl/authoritative.ttl",
+      "Baseball/sources/mlb-transactions/review/semantic-status.json",
+      "Baseball/sources/source-modules.json"
+    ]
+  }
+}

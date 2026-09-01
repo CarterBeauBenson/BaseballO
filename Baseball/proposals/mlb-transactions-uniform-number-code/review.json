@@ -1,0 +1,16 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-transactions-uniform-number-code",
+  "title": "MLB transaction uniform-number code",
+  "status": "under-review",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [{"path": "competency-questions.md", "sha256": "7a4b0e07d15e062e7bdafbbfcbe4dbeeadaa9032bcc12e42dea47bbe83c86ed1"}],
+    "sourceEvidence": [{"path": "source-evidence.md", "sha256": "0e9fc3960b8d8cca403323708caaf6de7435098a98349123cdf8be860891dd79"}],
+    "fieldSelectionInventory": [{"path": "field-selection-inventory.md", "sha256": "410b6056913ffd2172b08647fb63b9a5ff23f944fe9b7abd2306fece709183b9"}],
+    "sourceIndependentMermaid": [{"path": "source-independent-mermaid.md", "sha256": "90aad2ef0816efe16d88241475dbcbd07678311da387117b25a8efbc0738b115"}]
+  },
+  "ontologistDecision": null
+}

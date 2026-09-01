@@ -1,0 +1,49 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-people-source-contract",
+  "title": "MLB people source-specific RDF contract",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "2a049dcf5413fa2e8d184645df174f58324a0c5a08a426f09ccbad730c2a4af5"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "83fab9045c928a3cedb462bcb5a660af161a6b50d27b5230a9a5c4b3988fd789"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "136e9a80abef653aa16b2e26e48210a254e734f8898d3634ebc2333744caced3"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-specific-mermaid.md",
+        "sha256": "7d8a1d3bbfdc761ef118d6afdba00300d8bbfde45b39c9ca2487ac0db1e9ef0e"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-08-29",
+    "rationale": "The ontologist explicitly accepted the MLB people source-specific Mermaid contract, including its solid graph shape, identity and null policies, Unicode proof obligation, detachable NiFi boundary, and retained dashed blockers. This authorizes later implementation of that exact accepted surface; weight, laterality, position, current-team, and other blocked claims remain unapproved.",
+    "authorizedArtifacts": [
+      "Baseball/sources/mlb-people/mapping/mlb-people.rml.ttl",
+      "Baseball/sources/mlb-people/mapping/iri-policy.yaml",
+      "Baseball/sources/mlb-people/mapping/prepare-context.py",
+      "Baseball/sources/mlb-people/shacl/authoritative.ttl",
+      "Baseball/sources/mlb-people/review/semantic-status.json",
+      "Baseball/sources/source-modules.json"
+    ]
+  }
+}

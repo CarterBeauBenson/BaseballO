@@ -1,0 +1,77 @@
+{
+  "artifactType": "baseballo-sparql-source-scope-catalog",
+  "contractVersion": 2,
+  "entries": [
+    {
+      "id": "mlb-game-authoritative-questions",
+      "category": "single-source",
+      "sources": ["mlb-game"],
+      "readsGraphLayers": ["authoritative-rdf"],
+      "writesGraphLayers": [],
+      "patterns": [
+        "*.rq",
+        "advanced/*.rq",
+        "baserunning/*.rq",
+        "batting/*.rq",
+        "games/*.rq",
+        "options/*.rq",
+        "pitching/*.rq"
+      ]
+    },
+    {
+      "id": "mlb-game-authoritative-serving-grains",
+      "category": "derived",
+      "sources": ["mlb-game"],
+      "readsGraphLayers": ["authoritative-rdf"],
+      "writesGraphLayers": ["analytical-sql"],
+      "patterns": [
+        "serving/empty-damage-opportunity-grain.rq",
+        "serving/game-dimension.rq"
+      ]
+    },
+    {
+      "id": "mlb-game-index-serving-grains",
+      "category": "derived",
+      "sources": ["mlb-game"],
+      "readsGraphLayers": ["indexed-rdf"],
+      "writesGraphLayers": ["analytical-sql"],
+      "patterns": ["serving/explore-assignment-grain.rq"]
+    },
+    {
+      "id": "mlb-game-mixed-serving-grains",
+      "category": "derived",
+      "sources": ["mlb-game"],
+      "readsGraphLayers": ["authoritative-rdf", "indexed-rdf"],
+      "writesGraphLayers": ["analytical-sql"],
+      "patterns": [
+        "serving/explore-batting-grain.rq",
+        "serving/explore-baserunning-grain.rq",
+        "serving/explore-pitching-grain.rq"
+      ]
+    },
+    {
+      "id": "mlb-game-index-metadata-materializer",
+      "category": "derived",
+      "sources": ["mlb-game"],
+      "readsGraphLayers": [],
+      "writesGraphLayers": ["indexed-rdf"],
+      "patterns": ["query-index/components/00-index-metadata.rq"]
+    },
+    {
+      "id": "mlb-game-index-fact-materializers",
+      "category": "derived",
+      "sources": ["mlb-game"],
+      "readsGraphLayers": ["authoritative-rdf"],
+      "writesGraphLayers": ["indexed-rdf"],
+      "patterns": ["query-index/components/[1-9]*.rq"]
+    },
+    {
+      "id": "mlb-game-index-questions",
+      "category": "derived",
+      "sources": ["mlb-game"],
+      "readsGraphLayers": ["indexed-rdf"],
+      "writesGraphLayers": [],
+      "patterns": ["query-index/benchmarks/indexed/*.rq"]
+    }
+  ]
+}

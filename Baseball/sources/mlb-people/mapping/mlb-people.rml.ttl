@@ -1,0 +1,546 @@
+@base <https://baseballontology.org/mapping/mlb-people> .
+@prefix rr: <http://www.w3.org/ns/r2rml#> .
+@prefix rml: <http://semweb.mmlab.be/ns/rml#> .
+@prefix ql: <http://semweb.mmlab.be/ns/ql#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+@prefix cco: <https://www.commoncoreontologies.org/> .
+@prefix base: <https://baseballontology.org/> .
+
+# This mapping consumes only the execution context produced by the module's
+# accepted pre-RML gate. The acquired MLB response remains byte-identical and
+# transient; the context exists only for the mapping run.
+
+<#RecordSource> a rml:LogicalSource ;
+  rml:source "people-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.records[*]" .
+
+<#FullNameSource> a rml:LogicalSource ;
+  rml:source "people-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.fullNames[*]" .
+
+<#NicknameSource> a rml:LogicalSource ;
+  rml:source "people-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.nicknames[*]" .
+
+<#HeightSource> a rml:LogicalSource ;
+  rml:source "people-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.heightMeasurements[*]" .
+
+<#MassSource> a rml:LogicalSource ;
+  rml:source "people-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.massMeasurements[*]" .
+
+<#BattingDispositionSource> a rml:LogicalSource ;
+  rml:source "people-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.battingDispositions[*]" .
+
+<#ThrowingDispositionSource> a rml:LogicalSource ;
+  rml:source "people-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.throwingDispositions[*]" .
+
+<#PositionSource> a rml:LogicalSource ;
+  rml:source "people-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.positionRecords[*]" .
+
+<#PitcherPositionSource> a rml:LogicalSource ;
+  rml:source "people-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.pitcherPositionRecords[*]" .
+
+<#CatcherPositionSource> a rml:LogicalSource ;
+  rml:source "people-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.catcherPositionRecords[*]" .
+
+<#FielderPositionSource> a rml:LogicalSource ;
+  rml:source "people-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.fielderPositionRecords[*]" .
+
+<#DesignatedHitterPositionSource> a rml:LogicalSource ;
+  rml:source "people-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.designatedHitterPositionRecords[*]" .
+
+<#TwoWayPositionSource> a rml:LogicalSource ;
+  rml:source "people-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.twoWayPositionRecords[*]" .
+
+<#PositionBattingSideSource> a rml:LogicalSource ;
+  rml:source "people-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.positionBattingSideRecords[*]" .
+
+<#PositionThrowingSideSource> a rml:LogicalSource ;
+  rml:source "people-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.positionThrowingSideRecords[*]" .
+
+<#CurrentTeamAboutnessSource> a rml:LogicalSource ;
+  rml:source "people-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.currentTeamAboutness[*]" .
+
+<#BirthSource> a rml:LogicalSource ;
+  rml:source "people-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.birthEvidence[*]" .
+
+<#PersonMap> a rr:TriplesMap ;
+  rml:logicalSource <#RecordSource> ;
+  rr:subjectMap [
+    rml:reference "personIri" ;
+    rr:termType rr:IRI ;
+    rr:class cco:ont00001262
+  ] .
+<#ResponseMap> a rr:TriplesMap ;
+  rml:logicalSource <#RecordSource> ;
+  rr:subjectMap [
+    rml:reference "responseIri" ;
+    rr:termType rr:IRI ;
+    rr:class cco:ont00000853
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001808 ;
+    rr:objectMap [ rml:reference "personIri" ; rr:termType rr:IRI ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate obo:BFO_0000178 ;
+    rr:objectMap [ rml:reference "identifierIri" ; rr:termType rr:IRI ]
+  ] .
+
+<#PersonIdentifierMap> a rr:TriplesMap ;
+  rml:logicalSource <#RecordSource> ;
+  rr:subjectMap [
+    rml:reference "identifierIri" ;
+    rr:termType rr:IRI ;
+    rr:class cco:ont00000649
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001916 ;
+    rr:objectMap [ rml:reference "personIri" ; rr:termType rr:IRI ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001912 ;
+    rr:objectMap [
+      rr:constant <https://baseballontology.org/data/reference-system/mlb-person-id> ;
+      rr:termType rr:IRI
+    ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001765 ;
+    rr:objectMap [ rml:reference "personId" ; rr:datatype xsd:string ]
+  ] .
+
+<#PersonReferenceSystemMap> a rr:TriplesMap ;
+  rml:logicalSource <#RecordSource> ;
+  rr:subjectMap [
+    rr:constant <https://baseballontology.org/data/reference-system/mlb-person-id> ;
+    rr:termType rr:IRI ;
+    rr:class cco:ont00000398
+  ] .
+
+<#FullNameMap> a rr:TriplesMap ;
+  rml:logicalSource <#FullNameSource> ;
+  rr:subjectMap [
+    rml:reference "nameIri" ;
+    rr:termType rr:IRI ;
+    rr:class cco:ont00001014
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001916 ;
+    rr:objectMap [ rml:reference "personIri" ; rr:termType rr:IRI ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001765 ;
+    rr:objectMap [ rml:reference "text" ; rr:datatype xsd:string ]
+  ] .
+
+<#ResponseFullNamePartMap> a rr:TriplesMap ;
+  rml:logicalSource <#FullNameSource> ;
+  rr:subjectMap [ rml:reference "responseIri" ; rr:termType rr:IRI ] ;
+  rr:predicateObjectMap [
+    rr:predicate obo:BFO_0000178 ;
+    rr:objectMap [ rml:reference "nameIri" ; rr:termType rr:IRI ]
+  ] .
+
+<#NicknameMap> a rr:TriplesMap ;
+  rml:logicalSource <#NicknameSource> ;
+  rr:subjectMap [
+    rml:reference "nameIri" ;
+    rr:termType rr:IRI ;
+    rr:class cco:ont00000990
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001916 ;
+    rr:objectMap [ rml:reference "personIri" ; rr:termType rr:IRI ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001765 ;
+    rr:objectMap [ rml:reference "text" ; rr:datatype xsd:string ]
+  ] .
+
+<#ResponseNicknamePartMap> a rr:TriplesMap ;
+  rml:logicalSource <#NicknameSource> ;
+  rr:subjectMap [ rml:reference "responseIri" ; rr:termType rr:IRI ] ;
+  rr:predicateObjectMap [
+    rr:predicate obo:BFO_0000178 ;
+    rr:objectMap [ rml:reference "nameIri" ; rr:termType rr:IRI ]
+  ] .
+
+<#HeightQualityMap> a rr:TriplesMap ;
+  rml:logicalSource <#HeightSource> ;
+  rr:subjectMap [
+    rml:reference "heightIri" ;
+    rr:termType rr:IRI ;
+    rr:class cco:ont00000967
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate obo:BFO_0000197 ;
+    rr:objectMap [ rml:reference "personIri" ; rr:termType rr:IRI ]
+  ] .
+
+<#HeightMeasurementMap> a rr:TriplesMap ;
+  rml:logicalSource <#HeightSource> ;
+  rr:subjectMap [
+    rml:reference "measurementIri" ;
+    rr:termType rr:IRI ;
+    rr:class cco:ont00001163
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001966 ;
+    rr:objectMap [ rml:reference "heightIri" ; rr:termType rr:IRI ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001769 ;
+    rr:objectMap [ rml:reference "totalInches" ; rr:datatype xsd:decimal ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001863 ;
+    rr:objectMap [ rr:constant cco:ont00001677 ; rr:termType rr:IRI ]
+  ] .
+
+<#ResponseHeightMeasurementPartMap> a rr:TriplesMap ;
+  rml:logicalSource <#HeightSource> ;
+  rr:subjectMap [ rml:reference "responseIri" ; rr:termType rr:IRI ] ;
+  rr:predicateObjectMap [
+    rr:predicate obo:BFO_0000178 ;
+    rr:objectMap [ rml:reference "measurementIri" ; rr:termType rr:IRI ]
+  ] .
+
+<#MassQualityMap> a rr:TriplesMap ;
+  rml:logicalSource <#MassSource> ;
+  rr:subjectMap [
+    rml:reference "massIri" ;
+    rr:termType rr:IRI ;
+    rr:class cco:ont00000614
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate obo:BFO_0000197 ;
+    rr:objectMap [ rml:reference "personIri" ; rr:termType rr:IRI ]
+  ] .
+
+<#MassMeasurementMap> a rr:TriplesMap ;
+  rml:logicalSource <#MassSource> ;
+  rr:subjectMap [
+    rml:reference "measurementIri" ;
+    rr:termType rr:IRI ;
+    rr:class cco:ont00001163
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001966 ;
+    rr:objectMap [ rml:reference "massIri" ; rr:termType rr:IRI ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001769 ;
+    rr:objectMap [ rml:reference "pounds" ; rr:datatype xsd:decimal ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001863 ;
+    rr:objectMap [ rr:constant cco:ont00001728 ; rr:termType rr:IRI ]
+  ] .
+
+<#ResponseMassMeasurementPartMap> a rr:TriplesMap ;
+  rml:logicalSource <#MassSource> ;
+  rr:subjectMap [ rml:reference "responseIri" ; rr:termType rr:IRI ] ;
+  rr:predicateObjectMap [
+    rr:predicate obo:BFO_0000178 ;
+    rr:objectMap [ rml:reference "measurementIri" ; rr:termType rr:IRI ]
+  ] .
+
+<#BattingDispositionMap> a rr:TriplesMap ;
+  rml:logicalSource <#BattingDispositionSource> ;
+  rr:subjectMap [
+    rml:reference "dispositionIri" ; rr:termType rr:IRI ;
+    rr:class base:BattingSideDisposition
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate obo:BFO_0000197 ;
+    rr:objectMap [ rml:reference "personIri" ; rr:termType rr:IRI ]
+  ] .
+
+<#BattingSideMeasurementMap> a rr:TriplesMap ;
+  rml:logicalSource <#BattingDispositionSource> ;
+  rr:subjectMap [
+    rml:reference "measurementIri" ; rr:termType rr:IRI ;
+    rr:class cco:ont00000293
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001868 ;
+    rr:objectMap [ rml:reference "dispositionIri" ; rr:termType rr:IRI ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001912 ;
+    rr:objectMap [
+      rr:constant <https://baseballontology.org/data/reference-system/mlb/batting-side> ;
+      rr:termType rr:IRI
+    ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001765 ;
+    rr:objectMap [ rml:reference "sourceCode" ; rr:datatype xsd:string ]
+  ] .
+
+<#ResponseBattingSideMeasurementPartMap> a rr:TriplesMap ;
+  rml:logicalSource <#BattingDispositionSource> ;
+  rr:subjectMap [ rml:reference "responseIri" ; rr:termType rr:IRI ] ;
+  rr:predicateObjectMap [
+    rr:predicate obo:BFO_0000178 ;
+    rr:objectMap [ rml:reference "measurementIri" ; rr:termType rr:IRI ]
+  ] .
+
+<#ThrowingDispositionMap> a rr:TriplesMap ;
+  rml:logicalSource <#ThrowingDispositionSource> ;
+  rr:subjectMap [
+    rml:reference "dispositionIri" ; rr:termType rr:IRI ;
+    rr:class base:ThrowingSideDisposition
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate obo:BFO_0000197 ;
+    rr:objectMap [ rml:reference "personIri" ; rr:termType rr:IRI ]
+  ] .
+
+<#ThrowingSideMeasurementMap> a rr:TriplesMap ;
+  rml:logicalSource <#ThrowingDispositionSource> ;
+  rr:subjectMap [
+    rml:reference "measurementIri" ; rr:termType rr:IRI ;
+    rr:class cco:ont00000293
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001868 ;
+    rr:objectMap [ rml:reference "dispositionIri" ; rr:termType rr:IRI ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001912 ;
+    rr:objectMap [
+      rr:constant <https://baseballontology.org/data/reference-system/mlb/throwing-side> ;
+      rr:termType rr:IRI
+    ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001765 ;
+    rr:objectMap [ rml:reference "sourceCode" ; rr:datatype xsd:string ]
+  ] .
+
+<#ResponseThrowingSideMeasurementPartMap> a rr:TriplesMap ;
+  rml:logicalSource <#ThrowingDispositionSource> ;
+  rr:subjectMap [ rml:reference "responseIri" ; rr:termType rr:IRI ] ;
+  rr:predicateObjectMap [
+    rr:predicate obo:BFO_0000178 ;
+    rr:objectMap [ rml:reference "measurementIri" ; rr:termType rr:IRI ]
+  ] .
+
+<#BattingSideReferenceSystemMap> a rr:TriplesMap ;
+  rml:logicalSource <#RecordSource> ;
+  rr:subjectMap [
+    rr:constant <https://baseballontology.org/data/reference-system/mlb/batting-side> ;
+    rr:termType rr:IRI ; rr:class cco:ont00000398
+  ] .
+
+<#ThrowingSideReferenceSystemMap> a rr:TriplesMap ;
+  rml:logicalSource <#RecordSource> ;
+  rr:subjectMap [
+    rr:constant <https://baseballontology.org/data/reference-system/mlb/throwing-side> ;
+    rr:termType rr:IRI ; rr:class cco:ont00000398
+  ] .
+
+<#PositionReferenceSystemMap> a rr:TriplesMap ;
+  rml:logicalSource <#RecordSource> ;
+  rr:subjectMap [
+    rr:constant <https://baseballontology.org/data/reference-system/mlb/baseball-position> ;
+    rr:termType rr:IRI ; rr:class cco:ont00000398
+  ] .
+
+<#PositionDescriptionMap> a rr:TriplesMap ;
+  rml:logicalSource <#PositionSource> ;
+  rr:subjectMap [
+    rml:reference "descriptionIri" ; rr:termType rr:IRI ;
+    rr:class base:BaseballPositionDescription
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001982 ;
+    rr:objectMap [ rml:reference "personIri" ; rr:termType rr:IRI ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001912 ;
+    rr:objectMap [
+      rr:constant <https://baseballontology.org/data/reference-system/mlb/baseball-position> ;
+      rr:termType rr:IRI
+    ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001765 ;
+    rr:objectMap [ rml:reference "positionCode" ; rr:datatype xsd:string ]
+  ] .
+
+<#ResponsePositionDescriptionPartMap> a rr:TriplesMap ;
+  rml:logicalSource <#PositionSource> ;
+  rr:subjectMap [ rml:reference "responseIri" ; rr:termType rr:IRI ] ;
+  rr:predicateObjectMap [
+    rr:predicate obo:BFO_0000178 ;
+    rr:objectMap [ rml:reference "descriptionIri" ; rr:termType rr:IRI ]
+  ] .
+
+<#PitcherPositionRoleMap> a rr:TriplesMap ;
+  rml:logicalSource <#PitcherPositionSource> ;
+  rr:subjectMap [ rml:reference "roleIri" ; rr:termType rr:IRI ; rr:class base:PitcherRole ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000197 ; rr:objectMap [ rml:reference "personIri" ; rr:termType rr:IRI ] ] .
+
+<#CatcherPositionRoleMap> a rr:TriplesMap ;
+  rml:logicalSource <#CatcherPositionSource> ;
+  rr:subjectMap [ rml:reference "roleIri" ; rr:termType rr:IRI ; rr:class base:CatcherRole ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000197 ; rr:objectMap [ rml:reference "personIri" ; rr:termType rr:IRI ] ] .
+
+<#FielderPositionRoleMap> a rr:TriplesMap ;
+  rml:logicalSource <#FielderPositionSource> ;
+  rr:subjectMap [ rml:reference "roleIri" ; rr:termType rr:IRI ; rr:class base:FielderRole ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000197 ; rr:objectMap [ rml:reference "personIri" ; rr:termType rr:IRI ] ] .
+
+<#DesignatedHitterPositionRoleMap> a rr:TriplesMap ;
+  rml:logicalSource <#DesignatedHitterPositionSource> ;
+  rr:subjectMap [ rml:reference "roleIri" ; rr:termType rr:IRI ; rr:class base:BatterRole ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000197 ; rr:objectMap [ rml:reference "personIri" ; rr:termType rr:IRI ] ] .
+
+<#TwoWayPitcherRoleMap> a rr:TriplesMap ;
+  rml:logicalSource <#TwoWayPositionSource> ;
+  rr:subjectMap [ rml:reference "pitcherRoleIri" ; rr:termType rr:IRI ; rr:class base:PitcherRole ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000197 ; rr:objectMap [ rml:reference "personIri" ; rr:termType rr:IRI ] ] .
+
+<#TwoWayFielderRoleMap> a rr:TriplesMap ;
+  rml:logicalSource <#TwoWayPositionSource> ;
+  rr:subjectMap [ rml:reference "fielderRoleIri" ; rr:termType rr:IRI ; rr:class base:FielderRole ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000197 ; rr:objectMap [ rml:reference "personIri" ; rr:termType rr:IRI ] ] .
+
+<#PitcherPositionRoleDescriptionMap> a rr:TriplesMap ;
+  rml:logicalSource <#PitcherPositionSource> ;
+  rr:subjectMap [ rml:reference "descriptionIri" ; rr:termType rr:IRI ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001982 ; rr:objectMap [ rml:reference "roleIri" ; rr:termType rr:IRI ] ] .
+
+<#CatcherPositionClusterMap> a rr:TriplesMap ;
+  rml:logicalSource <#CatcherPositionSource> ;
+  rr:subjectMap [ rml:reference "descriptionIri" ; rr:termType rr:IRI ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001982 ; rr:objectMap [ rml:reference "roleIri" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001982 ; rr:objectMap [ rml:reference "fieldingDispositionIri" ; rr:termType rr:IRI ] ] .
+
+<#FielderPositionClusterMap> a rr:TriplesMap ;
+  rml:logicalSource <#FielderPositionSource> ;
+  rr:subjectMap [ rml:reference "descriptionIri" ; rr:termType rr:IRI ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001982 ; rr:objectMap [ rml:reference "roleIri" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001982 ; rr:objectMap [ rml:reference "fieldingDispositionIri" ; rr:termType rr:IRI ] ] .
+
+<#DesignatedHitterPositionRoleDescriptionMap> a rr:TriplesMap ;
+  rml:logicalSource <#DesignatedHitterPositionSource> ;
+  rr:subjectMap [ rml:reference "descriptionIri" ; rr:termType rr:IRI ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001982 ; rr:objectMap [ rml:reference "roleIri" ; rr:termType rr:IRI ] ] .
+
+<#TwoWayPositionRoleDescriptionMap> a rr:TriplesMap ;
+  rml:logicalSource <#TwoWayPositionSource> ;
+  rr:subjectMap [ rml:reference "descriptionIri" ; rr:termType rr:IRI ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001982 ; rr:objectMap [ rml:reference "pitcherRoleIri" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001982 ; rr:objectMap [ rml:reference "fielderRoleIri" ; rr:termType rr:IRI ] ] .
+
+<#CatcherFieldingDispositionMap> a rr:TriplesMap ;
+  rml:logicalSource <#CatcherPositionSource> ;
+  rr:subjectMap [ rml:reference "fieldingDispositionIri" ; rr:termType rr:IRI ; rr:class base:BaseballFieldingDisposition ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000197 ; rr:objectMap [ rml:reference "personIri" ; rr:termType rr:IRI ] ] .
+
+<#FielderFieldingDispositionMap> a rr:TriplesMap ;
+  rml:logicalSource <#FielderPositionSource> ;
+  rr:subjectMap [ rml:reference "fieldingDispositionIri" ; rr:termType rr:IRI ; rr:class base:BaseballFieldingDisposition ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000197 ; rr:objectMap [ rml:reference "personIri" ; rr:termType rr:IRI ] ] .
+
+<#PositionBattingSideDescriptionMap> a rr:TriplesMap ;
+  rml:logicalSource <#PositionBattingSideSource> ;
+  rr:subjectMap [ rml:reference "descriptionIri" ; rr:termType rr:IRI ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001982 ; rr:objectMap [ rml:reference "dispositionIri" ; rr:termType rr:IRI ] ] .
+
+<#PositionThrowingSideDescriptionMap> a rr:TriplesMap ;
+  rml:logicalSource <#PositionThrowingSideSource> ;
+  rr:subjectMap [ rml:reference "descriptionIri" ; rr:termType rr:IRI ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001982 ; rr:objectMap [ rml:reference "dispositionIri" ; rr:termType rr:IRI ] ] .
+
+<#CurrentTeamAboutnessMap> a rr:TriplesMap ;
+  rml:logicalSource <#CurrentTeamAboutnessSource> ;
+  rr:subjectMap [ rml:reference "responseIri" ; rr:termType rr:IRI ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001808 ;
+    rr:objectMap [ rml:reference "teamIri" ; rr:termType rr:IRI ]
+  ] .
+
+<#BirthMap> a rr:TriplesMap ;
+  rml:logicalSource <#BirthSource> ;
+  rr:subjectMap [
+    rml:reference "birthIri" ;
+    rr:termType rr:IRI ;
+    rr:class cco:ont00001237
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate obo:BFO_0000057 ;
+    rr:objectMap [ rml:reference "personIri" ; rr:termType rr:IRI ]
+  ] .
+
+<#BirthDateIdentifierMap> a rr:TriplesMap ;
+  rml:logicalSource <#BirthSource> ;
+  rr:subjectMap [
+    rml:reference "dateIdentifierIri" ;
+    rr:termType rr:IRI ;
+    rr:class cco:ont00001340
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001771 ;
+    rr:objectMap [ rml:reference "date" ; rr:datatype xsd:date ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001916 ;
+    rr:objectMap [ rml:reference "dayIri" ; rr:termType rr:IRI ]
+  ] .
+
+<#BirthDayMap> a rr:TriplesMap ;
+  rml:logicalSource <#BirthSource> ;
+  rr:subjectMap [
+    rml:reference "dayIri" ;
+    rr:termType rr:IRI ;
+    rr:class cco:ont00000800
+  ] .
+
+<#ResponseBirthEvidenceMap> a rr:TriplesMap ;
+  rml:logicalSource <#BirthSource> ;
+  rr:subjectMap [ rml:reference "responseIri" ; rr:termType rr:IRI ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001808 ;
+    rr:objectMap [ rml:reference "birthIri" ; rr:termType rr:IRI ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate obo:BFO_0000178 ;
+    rr:objectMap [ rml:reference "dateIdentifierIri" ; rr:termType rr:IRI ]
+  ] .

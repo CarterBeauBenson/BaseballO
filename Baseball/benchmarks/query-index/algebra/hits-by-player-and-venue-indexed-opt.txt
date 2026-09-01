@@ -1,0 +1,17 @@
+(prefix ((idx: <https://w3id.org/baseball/query-index/>)
+         (rdfs: <http://www.w3.org/2000/01/rdf-schema#>))
+  (project (?season ?venue ?venueLabel ?player ?playerLabel ?hits ?gamesWithHits)
+    (order (?season (lcase (str ?venueLabel)) (desc ?hits) (lcase (str ?playerLabel)))
+      (extend ((?hits ?.0) (?gamesWithHits ?.1))
+        (group (?season ?venue ?venueLabel ?player ?playerLabel) ((?.0 (count distinct ?hit)) (?.1 (count distinct ?game)))
+          (graph ?graph
+            (bgp
+              (triple ?hit <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> idx:HitFact)
+              (triple ?hit idx:agent ?player)
+              (triple ?hit idx:game ?game)
+              (triple ?hit idx:venue ?venue)
+              (triple ?game <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> idx:GameFact)
+              (triple ?game idx:season ?season)
+              (triple ?player rdfs:label ?playerLabel)
+              (triple ?venue rdfs:label ?venueLabel)
+            )))))))

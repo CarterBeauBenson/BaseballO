@@ -1,0 +1,20 @@
+{
+  "artifactType": "baseballo-source-semantic-status",
+  "contractVersion": 1,
+  "moduleId": "mlb-teams",
+  "operationalStatus": "paused",
+  "semanticStatus": "approved",
+  "extensionAllowed": false,
+  "semanticAcceptance": "granted-by-ontologist",
+  "runtimePolicy": "bounded-nifi-proof-before-corpus-backfill",
+  "acceptedReview": "archive/design-records/mlb-organizations-source-contract/review.json",
+  "boundaryDecision": "archive/design-records/mlb-organization-endpoint-lane-separation/review.json",
+  "audit": "sources/mlb-teams/README.md",
+  "auditDate": "2026-09-01",
+  "openBlockers": [],
+  "notes": [
+    "Only the accepted Teams endpoint branch is executable in this module.",
+    "League and Division identifiers nested in a Team response support downstream corpus seeding but assert no affiliation.",
+    "New fields or relations require a separate ontologist-reviewed proposal."
+  ]
+}

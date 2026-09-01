@@ -1,0 +1,29 @@
+{
+  "copyright": "Synthetic BaseballO fixture; not an MLB API response.",
+  "transactions": [
+    {
+      "id": 9000001,
+      "person": {
+        "id": 553993,
+        "fullName": "Eugenio Suárez",
+        "link": "/api/v1/people/553993"
+      },
+      "fromTeam": {
+        "id": 109,
+        "name": "Fixture From Team",
+        "link": "/api/v1/teams/109"
+      },
+      "toTeam": {
+        "id": 135,
+        "name": "Fixture To Team",
+        "link": "/api/v1/teams/135"
+      },
+      "date": "2026-07-31",
+      "effectiveDate": "2026-08-01",
+      "resolutionDate": "2026-08-02",
+      "typeCode": "TR",
+      "typeDesc": "Trade",
+      "description": "Synthetic fixture — structured trade evidence."
+    }
+  ]
+}

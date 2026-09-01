@@ -1,0 +1,36 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-venues-elevation",
+  "title": "MLB venue elevation and vertical datum",
+  "status": "under-review",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "b17d80d22f00dea8ea343495377f031ad2b0ac241e6f42d787322df5d5a1314c"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "4dc1866f10a1802ea9fa430c7e91fd592af817c8d278d653166318f08d7f2b42"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "c209a6d8cf45b880a95a9b3f0f09b283ede6ed153c0c8f6a9093d12895965274"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "6ca4debaac0627090a8dda454c26ebe7ffa1bb4c352ffdbc788addc73e577f18"
+      }
+    ]
+  },
+  "ontologistDecision": null
+}

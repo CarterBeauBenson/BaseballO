@@ -1,0 +1,12 @@
+{
+  "name": "baseballo-local-explorer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Local, read-only BaseballO analytics explorer",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test tests/analytics-query-builder.test.mjs",
+    "check": "node --check server.mjs && node --check app.js && node --check result-sort.js && node --check query-builder/derived-metric-query-builder.js"
+  }
+}

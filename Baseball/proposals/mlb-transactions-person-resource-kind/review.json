@@ -1,0 +1,36 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-transactions-person-resource-kind",
+  "title": "MLB transaction Person resource-kind resolution",
+  "status": "under-review",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "6d676fd5b32e2b0fc533ef5b018bbc875ad1be12753206f0d27eac91b6331d1e"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "de77237e39236a05681d79521dc510402bfedd50ce79886b5df90a2ca4e58b55"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "638ed1e60176666058c334599b0e6e71e9b3c5dc7bed33c18e10a473ccaaad90"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "ee0240fdfca35b674c19a692d39b46def2507959e1d460f9747c0bd0ad5804d1"
+      }
+    ]
+  },
+  "ontologistDecision": null
+}

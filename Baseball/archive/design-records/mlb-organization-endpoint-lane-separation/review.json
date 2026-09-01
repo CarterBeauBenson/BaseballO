@@ -1,0 +1,64 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-organization-endpoint-lane-separation",
+  "title": "MLB organization endpoint lane separation",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "13398ae1d666304058d0b34b2ab696fed07a04a01b7c36a6f01509ff6abb6292"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "27abc6f29489f2241abb00439914a18ababc785ec93ecd95eb07d25e30b4d898"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "199170507181c979c5098ac3c48d6d0b4886ec1ab1e870919f395550d7f305f5"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "5887cffe35b81e086b593cb024a9f1fd499f5e87de99ef36c06356e6496953ee"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-09-01",
+    "rationale": "The ontologist explicitly directed that the MLB teams, leagues, and divisions APIs use separate data connectors and authorized execution of the split. The existing accepted organization semantics are preserved, while each endpoint receives an independent source module, NiFi lifecycle, RML, SHACL, graph namespace, provenance identity, retry, and quarantine boundary.",
+    "authorizedArtifacts": [
+      "Baseball/sources/source-modules.json",
+      "Baseball/sources/mlb-organizations/mapping/iri-policy.yaml",
+      "Baseball/sources/mlb-organizations/mapping/mlb-organizations.rml.ttl",
+      "Baseball/sources/mlb-organizations/mapping/prepare-context.py",
+      "Baseball/sources/mlb-organizations/review/semantic-status.json",
+      "Baseball/sources/mlb-organizations/shacl/authoritative.ttl",
+      "Baseball/sources/mlb-teams/mapping/iri-policy.yaml",
+      "Baseball/sources/mlb-teams/mapping/mlb-teams.rml.ttl",
+      "Baseball/sources/mlb-teams/mapping/prepare-context.py",
+      "Baseball/sources/mlb-teams/review/semantic-status.json",
+      "Baseball/sources/mlb-teams/shacl/authoritative.ttl",
+      "Baseball/sources/mlb-leagues/mapping/iri-policy.yaml",
+      "Baseball/sources/mlb-leagues/mapping/mlb-leagues.rml.ttl",
+      "Baseball/sources/mlb-leagues/mapping/prepare-context.py",
+      "Baseball/sources/mlb-leagues/review/semantic-status.json",
+      "Baseball/sources/mlb-leagues/shacl/authoritative.ttl",
+      "Baseball/sources/mlb-divisions/mapping/iri-policy.yaml",
+      "Baseball/sources/mlb-divisions/mapping/mlb-divisions.rml.ttl",
+      "Baseball/sources/mlb-divisions/mapping/prepare-context.py",
+      "Baseball/sources/mlb-divisions/review/semantic-status.json",
+      "Baseball/sources/mlb-divisions/shacl/authoritative.ttl"
+    ]
+  }
+}

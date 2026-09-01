@@ -1,0 +1,54 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX idx: <https://w3id.org/baseball/query-index/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+
+CONSTRUCT {
+  ?pitch a idx:PitchFact ;
+      idx:agent ?pitcher ;
+      idx:game ?game ;
+      idx:venue ?venue ;
+      idx:plateAppearance ?plateAppearance ;
+      idx:derivedFrom ?pitchMotion .
+  ?pitch a ?currentPitchType ;
+      idx:pitchType ?currentPitchType ;
+      idx:nominalCategory ?pitchTypeCategory .
+}
+WHERE {
+  VALUES (?sourceGraph ?game) {
+    (<urn:baseball:query-index:source-graph> <urn:baseball:query-index:game>)
+  }
+  GRAPH ?sourceGraph {
+    ?pitch a base:PitchAct ;
+        obo:BFO_0000132 ?plateAppearance ;
+        obo:BFO_0000057 ?pitcher ;
+        obo:BFO_0000063 ?pitchMotion ;
+        cco:ont00001918 ?field .
+    ?pitchMotion a base:PitchBallMotionProcess .
+    ?pitcher a cco:ont00001262 .
+    ?plateAppearance a base:PlateAppearance ;
+        obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
+    ?field a base:BaseballFieldSite ;
+        obo:BFO_0000171 ?venue .
+    OPTIONAL {
+      ?pitch cco:ont00001914 ?pitchTypeCategory .
+      VALUES (?pitchTypeCategory ?currentPitchType) {
+        (base:FourSeamFastballPitchTypeICE base:FourSeamFastballPitchAct)
+        (base:SinkerPitchTypeICE base:SinkerPitchAct)
+        (base:CutterPitchTypeICE base:CutterPitchAct)
+        (base:SliderPitchTypeICE base:SliderPitchAct)
+        (base:SweeperPitchTypeICE base:SweeperPitchAct)
+        (base:SlurvePitchTypeICE base:SlurvePitchAct)
+        (base:CurveballPitchTypeICE base:CurveballPitchAct)
+        (base:KnuckleCurvePitchTypeICE base:KnuckleCurvePitchAct)
+        (base:SlowCurvePitchTypeICE base:SlowCurvePitchAct)
+        (base:ChangeupPitchTypeICE base:ChangeupPitchAct)
+        (base:SplitterPitchTypeICE base:SplitterPitchAct)
+        (base:ForkballPitchTypeICE base:ForkballPitchAct)
+        (base:ScrewballPitchTypeICE base:ScrewballPitchAct)
+        (base:KnuckleballPitchTypeICE base:KnuckleballPitchAct)
+        (base:EephusPitchTypeICE base:EephusPitchAct)
+      }
+    }
+  }
+}

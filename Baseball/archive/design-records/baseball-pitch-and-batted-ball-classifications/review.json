@@ -1,0 +1,45 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "baseball-pitch-and-batted-ball-classifications",
+  "title": "Baseball pitch and batted-ball classification classes",
+  "status": "accepted",
+  "proposedIris": [
+    "https://baseballontology.org/ChangeupPitchAct",
+    "https://baseballontology.org/CurveballPitchAct",
+    "https://baseballontology.org/CutterPitchAct",
+    "https://baseballontology.org/EephusPitchAct",
+    "https://baseballontology.org/FlyBallMotionProcess",
+    "https://baseballontology.org/ForkballPitchAct",
+    "https://baseballontology.org/FourSeamFastballPitchAct",
+    "https://baseballontology.org/GroundBallMotionProcess",
+    "https://baseballontology.org/KnuckleCurvePitchAct",
+    "https://baseballontology.org/KnuckleballPitchAct",
+    "https://baseballontology.org/LineDriveMotionProcess",
+    "https://baseballontology.org/PopUpMotionProcess",
+    "https://baseballontology.org/ScrewballPitchAct",
+    "https://baseballontology.org/SinkerPitchAct",
+    "https://baseballontology.org/SliderPitchAct",
+    "https://baseballontology.org/SlowCurvePitchAct",
+    "https://baseballontology.org/SlurvePitchAct",
+    "https://baseballontology.org/SplitterPitchAct",
+    "https://baseballontology.org/SweeperPitchAct"
+  ],
+  "artifacts": {
+    "competencyQuestions": [{"path":"competency-questions.md","sha256":"ee8fbbce026bcf9fd980d1eb1502ef8f7d8030cef3a322da927796ed7920c28a"}],
+    "sourceEvidence": [{"path":"source-evidence.md","sha256":"4dcb8f3e22d3e913e499bbaaa77637755147bbc10c3cad54249d2792fa7338e1"}],
+    "fieldSelectionInventory": [{"path":"field-selection-inventory.md","sha256":"55d3b6bd630815bdeb284b20fc9457aea99169dc97479533c9b2cc2e0e7fcdd1"}],
+    "sourceIndependentMermaid": [
+      {"path":"source-independent-mermaid.md","sha256":"388c6afcc2d5b302430686fe521bb68731260381a92f701341ac5ebc12d2813e"},
+      {"path":"proposed-ontology.ttl","sha256":"77aa585b99fa46edfedf709d6dd5984c78922988530cb3ca5dcb8e1d35ebe8a5"}
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-08-31",
+    "rationale": "The ontologist explicitly accepted the corrected classification package after requiring that historical nominal evidence not drive OWL subtype inference. Current subtype assertions belong only in the rebuildable current-state graph.",
+    "authorizedArtifacts": []
+  }
+}

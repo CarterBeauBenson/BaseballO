@@ -1,0 +1,79 @@
+INFO  exec            :: QUERY
+  PREFIX  idx:  <https://w3id.org/baseball/query-index/>
+  PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+  PREFIX  base: <https://baseballontology.org/>
+
+  SELECT  ?player ?playerLabel (SUM(if(( ?outcomeClass = base:HomeRunProcess ), 1, 0)) AS ?homeRuns) (SUM(if(( ?outcomeClass = base:WalkProcess ), 1, 0)) AS ?walks) (SUM(if(( ?outcomeClass = base:StrikeoutProcess ), 1, 0)) AS ?strikeouts) (COUNT(DISTINCT ?result) AS ?threeTrueOutcomes)
+  WHERE
+    { VALUES ?graph { <https://w3id.org/baseball/graph/query-index/game/822867> <https://w3id.org/baseball/graph/query-index/game/823431> <https://w3id.org/baseball/graph/query-index/game/823520> <https://w3id.org/baseball/graph/query-index/game/823757> <https://w3id.org/baseball/graph/query-index/game/824160> <https://w3id.org/baseball/graph/query-index/game/824324> <https://w3id.org/baseball/graph/query-index/game/824647> <https://w3id.org/baseball/graph/query-index/game/825095> }
+      GRAPH ?graph
+        { ?result  a                 idx:PlateAppearanceResultFact ;
+                   idx:agent         ?player ;
+                   idx:outcomeClass  ?outcomeClass .
+          ?player  rdfs:label        ?playerLabel
+          VALUES ?outcomeClass { base:HomeRunProcess base:WalkProcess base:StrikeoutProcess }
+        }
+    }
+  GROUP BY ?player ?playerLabel
+  ORDER BY DESC(?threeTrueOutcomes) lcase(str(?playerLabel))
+INFO  exec            :: ALGEBRA
+  (project (?player ?playerLabel ?homeRuns ?walks ?strikeouts ?threeTrueOutcomes)
+    (order ((desc ?threeTrueOutcomes) (lcase (str ?playerLabel)))
+      (extend ((?homeRuns ?.0) (?walks ?.1) (?strikeouts ?.2) (?threeTrueOutcomes ?.3))
+        (group (?player ?playerLabel) ((?.0 (sum (if (= ?outcomeClass <https://baseballontology.org/HomeRunProcess>) 1 0))) (?.1 (sum (if (= ?outcomeClass <https://baseballontology.org/WalkProcess>) 1 0))) (?.2 (sum (if (= ?outcomeClass <https://baseballontology.org/StrikeoutProcess>) 1 0))) (?.3 (count distinct ?result)))
+          (sequence
+            (table (vars ?graph)
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/822867>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/823431>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/823520>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/823757>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/824160>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/824324>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/824647>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/825095>])
+            )
+            (sequence
+              (table (vars ?outcomeClass)
+                (row [?outcomeClass <https://baseballontology.org/HomeRunProcess>])
+                (row [?outcomeClass <https://baseballontology.org/WalkProcess>])
+                (row [?outcomeClass <https://baseballontology.org/StrikeoutProcess>])
+              )
+              (quadpattern
+                (quad ?graph ?result <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://w3id.org/baseball/query-index/PlateAppearanceResultFact>)
+                (quad ?graph ?result <https://w3id.org/baseball/query-index/agent> ?player)
+                (quad ?graph ?result <https://w3id.org/baseball/query-index/outcomeClass> ?outcomeClass)
+                (quad ?graph ?player <http://www.w3.org/2000/01/rdf-schema#label> ?playerLabel)
+              )))))))
+INFO  exec            :: TDB2
+  (project (?player ?playerLabel ?homeRuns ?walks ?strikeouts ?threeTrueOutcomes)
+    (order ((desc ?threeTrueOutcomes) (lcase (str ?playerLabel)))
+      (extend ((?homeRuns ?.0) (?walks ?.1) (?strikeouts ?.2) (?threeTrueOutcomes ?.3))
+        (group (?player ?playerLabel) ((?.0 (sum (if (= ?outcomeClass <https://baseballontology.org/HomeRunProcess>) 1 0))) (?.1 (sum (if (= ?outcomeClass <https://baseballontology.org/WalkProcess>) 1 0))) (?.2 (sum (if (= ?outcomeClass <https://baseballontology.org/StrikeoutProcess>) 1 0))) (?.3 (count distinct ?result)))
+          (sequence
+            (table (vars ?graph)
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/822867>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/823431>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/823520>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/823757>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/824160>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/824324>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/824647>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/825095>])
+            )
+            (sequence
+              (table (vars ?outcomeClass)
+                (row [?outcomeClass <https://baseballontology.org/HomeRunProcess>])
+                (row [?outcomeClass <https://baseballontology.org/WalkProcess>])
+                (row [?outcomeClass <https://baseballontology.org/StrikeoutProcess>])
+              )
+              (quadpattern
+                (quad ?graph ?result <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://w3id.org/baseball/query-index/PlateAppearanceResultFact>)
+                (quad ?graph ?result <https://w3id.org/baseball/query-index/agent> ?player)
+                (quad ?graph ?result <https://w3id.org/baseball/query-index/outcomeClass> ?outcomeClass)
+                (quad ?graph ?player <http://www.w3.org/2000/01/rdf-schema#label> ?playerLabel)
+              )))))))
+INFO  exec            :: Execute
+  ?result <https://w3id.org/baseball/query-index/outcomeClass> ?outcomeClass
+  ?result rdf:type <https://w3id.org/baseball/query-index/PlateAppearanceResultFact>
+  ?result <https://w3id.org/baseball/query-index/agent> ?player
+  ?player rdfs:label ?playerLabel

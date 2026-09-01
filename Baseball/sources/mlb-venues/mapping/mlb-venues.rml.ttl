@@ -1,0 +1,573 @@
+@base <https://baseballontology.org/mapping/mlb-venues> .
+@prefix rr: <http://www.w3.org/ns/r2rml#> .
+@prefix rml: <http://semweb.mmlab.be/ns/rml#> .
+@prefix ql: <http://semweb.mmlab.be/ns/ql#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+@prefix cco: <https://www.commoncoreontologies.org/> .
+@prefix base: <https://baseballontology.org/> .
+
+# This mapping reads only the transient execution context produced from an MLB
+# venues response by prepare-context.py. The helper context supplies validated
+# identity tokens and a repeated dimension record because RMLMapper does not
+# expose parent JSONPath records from nested array iterators. Semantic meaning
+# remains here: the context builder does not assert RDF types or relations.
+
+<#VenueSource> a rml:LogicalSource ;
+  rml:source "venue-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$._baseballO.venueRecords[*]" .
+
+<#NameSource> a rml:LogicalSource ;
+  rml:source "venue-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$._baseballO.nameRecords[*]" .
+
+<#DimensionSource> a rml:LogicalSource ;
+  rml:source "venue-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$._baseballO.dimensionRecords[*]" .
+
+<#CoordinateSource> a rml:LogicalSource ;
+  rml:source "venue-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$._baseballO.coordinateRecords[*]" .
+
+<#CapacitySource> a rml:LogicalSource ;
+  rml:source "venue-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$._baseballO.capacityRecords[*]" .
+
+<#SurfaceSource> a rml:LogicalSource ;
+  rml:source "venue-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$._baseballO.surfaceRecords[*]" .
+
+<#RoofSource> a rml:LogicalSource ;
+  rml:source "venue-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$._baseballO.roofRecords[*]" .
+
+<#OpenRoofSource> a rml:LogicalSource ;
+  rml:source "venue-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$._baseballO.openRoofRecords[*]" .
+
+<#VenueResponseMap> a rr:TriplesMap ;
+  rml:logicalSource <#VenueSource> ;
+  rr:subjectMap [
+    rr:template "https://baseballontology.org/data/venue-response/{venueId}/{requestedSeason}/{responseSha256}" ;
+    rr:termType rr:IRI ;
+    rr:class cco:ont00000853
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001808 ;
+    rr:objectMap [
+      rr:template "https://baseballontology.org/data/venue/{venueId}" ;
+      rr:termType rr:IRI
+    ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001808 ;
+    rr:objectMap [
+      rr:template "https://baseballontology.org/data/venue/{venueId}/baseball-field" ;
+      rr:termType rr:IRI
+    ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate obo:BFO_0000178 ;
+    rr:objectMap [
+      rr:template "https://baseballontology.org/data/venue/{venueId}/identifier/mlb-venue-id" ;
+      rr:termType rr:IRI
+    ]
+  ] .
+
+<#VenueMap> a rr:TriplesMap ;
+  rml:logicalSource <#VenueSource> ;
+  rr:subjectMap [
+    rr:template "https://baseballontology.org/data/venue/{venueId}" ;
+    rr:termType rr:IRI ;
+    rr:class base:BaseballVenue
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate obo:BFO_0000196 ;
+    rr:objectMap [
+      rr:template "https://baseballontology.org/data/venue/{venueId}/hosting-function" ;
+      rr:termType rr:IRI
+    ]
+  ] .
+
+<#VenueIdentifierMap> a rr:TriplesMap ;
+  rml:logicalSource <#VenueSource> ;
+  rr:subjectMap [
+    rr:template "https://baseballontology.org/data/venue/{venueId}/identifier/mlb-venue-id" ;
+    rr:termType rr:IRI ;
+    rr:class cco:ont00000649
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001916 ;
+    rr:objectMap [
+      rr:template "https://baseballontology.org/data/venue/{venueId}" ;
+      rr:termType rr:IRI
+    ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001912 ;
+    rr:objectMap [
+      rr:constant <https://baseballontology.org/data/reference-system/mlb-venue-identifiers> ;
+      rr:termType rr:IRI
+    ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001765 ;
+    rr:objectMap [ rml:reference "venueId" ; rr:datatype xsd:string ]
+  ] .
+
+<#VenueNameMap> a rr:TriplesMap ;
+  rml:logicalSource <#NameSource> ;
+  rr:subjectMap [
+    rr:template "https://baseballontology.org/data/venue/{venueId}/name/mlb-official/{nameLexicalSha256}" ;
+    rr:termType rr:IRI ;
+    rr:class cco:ont00001014
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001916 ;
+    rr:objectMap [
+      rr:template "https://baseballontology.org/data/venue/{venueId}" ;
+      rr:termType rr:IRI
+    ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001765 ;
+    rr:objectMap [ rml:reference "name" ; rr:datatype xsd:string ]
+  ] .
+
+<#ResponseNamePartMap> a rr:TriplesMap ;
+  rml:logicalSource <#NameSource> ;
+  rr:subjectMap [
+    rr:template "https://baseballontology.org/data/venue-response/{venueId}/{requestedSeason}/{responseSha256}" ;
+    rr:termType rr:IRI
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate obo:BFO_0000178 ;
+    rr:objectMap [
+      rr:template "https://baseballontology.org/data/venue/{venueId}/name/mlb-official/{nameLexicalSha256}" ;
+      rr:termType rr:IRI
+    ]
+  ] .
+
+<#HostingFunctionMap> a rr:TriplesMap ;
+  rml:logicalSource <#VenueSource> ;
+  rr:subjectMap [
+    rr:template "https://baseballontology.org/data/venue/{venueId}/hosting-function" ;
+    rr:termType rr:IRI ;
+    rr:class base:BaseballGameHostingFunction
+  ] .
+
+<#FieldSiteMap> a rr:TriplesMap ;
+  rml:logicalSource <#VenueSource> ;
+  rr:subjectMap [
+    rr:template "https://baseballontology.org/data/venue/{venueId}/baseball-field" ;
+    rr:termType rr:IRI ;
+    rr:class base:BaseballFieldSite
+  ] .
+
+<#VenueIdentifierReferenceSystemMap> a rr:TriplesMap ;
+  rml:logicalSource <#VenueSource> ;
+  rr:subjectMap [
+    rr:constant <https://baseballontology.org/data/reference-system/mlb-venue-identifiers> ;
+    rr:termType rr:IRI ;
+    rr:class cco:ont00000398
+  ] .
+
+<#DimensionSelectorReferenceSystemMap> a rr:TriplesMap ;
+  rml:logicalSource <#VenueSource> ;
+  rr:subjectMap [
+    rr:constant <https://baseballontology.org/data/reference-system/mlb-venue-dimension-selectors> ;
+    rr:termType rr:IRI ;
+    rr:class cco:ont00000398
+  ] .
+
+<#DimensionResponsePartMap> a rr:TriplesMap ;
+  rml:logicalSource <#DimensionSource> ;
+  rr:subjectMap [
+    rr:template "https://baseballontology.org/data/venue-response/{venueId}/{requestedSeason}/{responseSha256}" ;
+    rr:termType rr:IRI
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate obo:BFO_0000178 ;
+    rr:objectMap [
+      rr:template "https://baseballontology.org/data/venue/{venueId}/baseball-field/dimension/{requestedSeason}/{selector}/{responseSha256}/selector-id" ;
+      rr:termType rr:IRI
+    ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate obo:BFO_0000178 ;
+    rr:objectMap [
+      rr:template "https://baseballontology.org/data/venue/{venueId}/baseball-field/dimension/{requestedSeason}/{selector}/{responseSha256}/measurement" ;
+      rr:termType rr:IRI
+    ]
+  ] .
+
+<#FieldDimensionPointPartMap> a rr:TriplesMap ;
+  rml:logicalSource <#DimensionSource> ;
+  rr:subjectMap [
+    rr:template "https://baseballontology.org/data/venue/{venueId}/baseball-field" ;
+    rr:termType rr:IRI
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate obo:BFO_0000178 ;
+    rr:objectMap [
+      rr:template "https://baseballontology.org/data/venue/{venueId}/baseball-field/dimension/{requestedSeason}/{responseSha256}/origin" ;
+      rr:termType rr:IRI
+    ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate obo:BFO_0000178 ;
+    rr:objectMap [
+      rr:template "https://baseballontology.org/data/venue/{venueId}/baseball-field/dimension/{requestedSeason}/{selector}/{responseSha256}/boundary-point" ;
+      rr:termType rr:IRI
+    ]
+  ] .
+
+<#OriginFiatPointMap> a rr:TriplesMap ;
+  rml:logicalSource <#DimensionSource> ;
+  rr:subjectMap [
+    rr:template "https://baseballontology.org/data/venue/{venueId}/baseball-field/dimension/{requestedSeason}/{responseSha256}/origin" ;
+    rr:termType rr:IRI ;
+    rr:class obo:BFO_0000147
+  ] .
+
+<#BoundaryFiatPointMap> a rr:TriplesMap ;
+  rml:logicalSource <#DimensionSource> ;
+  rr:subjectMap [
+    rr:template "https://baseballontology.org/data/venue/{venueId}/baseball-field/dimension/{requestedSeason}/{selector}/{responseSha256}/boundary-point" ;
+    rr:termType rr:IRI ;
+    rr:class obo:BFO_0000147
+  ] .
+
+<#DimensionSelectorIdentifierMap> a rr:TriplesMap ;
+  rml:logicalSource <#DimensionSource> ;
+  rr:subjectMap [
+    rr:template "https://baseballontology.org/data/venue/{venueId}/baseball-field/dimension/{requestedSeason}/{selector}/{responseSha256}/selector-id" ;
+    rr:termType rr:IRI ;
+    rr:class cco:ont00000649
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001916 ;
+    rr:objectMap [
+      rr:template "https://baseballontology.org/data/venue/{venueId}/baseball-field/dimension/{requestedSeason}/{selector}/{responseSha256}/boundary-point" ;
+      rr:termType rr:IRI
+    ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001912 ;
+    rr:objectMap [
+      rr:constant <https://baseballontology.org/data/reference-system/mlb-venue-dimension-selectors> ;
+      rr:termType rr:IRI
+    ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001765 ;
+    rr:objectMap [ rml:reference "selector" ; rr:datatype xsd:string ]
+  ] .
+
+<#DistanceQualityMap> a rr:TriplesMap ;
+  rml:logicalSource <#DimensionSource> ;
+  rr:subjectMap [
+    rr:template "https://baseballontology.org/data/venue/{venueId}/baseball-field/dimension/{requestedSeason}/{selector}/{responseSha256}/distance" ;
+    rr:termType rr:IRI ;
+    rr:class base:DistanceQuality
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate obo:BFO_0000197 ;
+    rr:objectMap [
+      rr:template "https://baseballontology.org/data/venue/{venueId}/baseball-field/dimension/{requestedSeason}/{responseSha256}/origin" ;
+      rr:termType rr:IRI
+    ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate obo:BFO_0000197 ;
+    rr:objectMap [
+      rr:template "https://baseballontology.org/data/venue/{venueId}/baseball-field/dimension/{requestedSeason}/{selector}/{responseSha256}/boundary-point" ;
+      rr:termType rr:IRI
+    ]
+  ] .
+
+<#DimensionMeasurementMap> a rr:TriplesMap ;
+  rml:logicalSource <#DimensionSource> ;
+  rr:subjectMap [
+    rr:template "https://baseballontology.org/data/venue/{venueId}/baseball-field/dimension/{requestedSeason}/{selector}/{responseSha256}/measurement" ;
+    rr:termType rr:IRI ;
+    rr:class cco:ont00001163
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001966 ;
+    rr:objectMap [
+      rr:template "https://baseballontology.org/data/venue/{venueId}/baseball-field/dimension/{requestedSeason}/{selector}/{responseSha256}/distance" ;
+      rr:termType rr:IRI
+    ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001863 ;
+    rr:objectMap [
+      rr:constant cco:ont00001714 ;
+      rr:termType rr:IRI
+    ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001769 ;
+    rr:objectMap [ rml:reference "decimalValue" ; rr:datatype xsd:decimal ]
+  ] .
+
+
+#################################################################
+# Coordinates, capacity, playing surface, and roof
+#################################################################
+
+<#VenueReferencePointMap> a rr:TriplesMap ;
+  rml:logicalSource <#CoordinateSource> ;
+  rr:subjectMap [
+    rr:template "https://baseballontology.org/data/venue/{venueId}/reference-point/default" ;
+    rr:termType rr:IRI ;
+    rr:class base:BaseballVenueReferencePoint
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate obo:BFO_0000176 ;
+    rr:objectMap [
+      rr:template "https://baseballontology.org/data/venue/{venueId}" ;
+      rr:termType rr:IRI
+    ]
+  ] .
+
+<#CoordinateInformationMap> a rr:TriplesMap ;
+  rml:logicalSource <#CoordinateSource> ;
+  rr:subjectMap [
+    rr:template "https://baseballontology.org/data/venue/{venueId}/coordinates/default/{requestedSeason}/{responseSha256}" ;
+    rr:termType rr:IRI ;
+    rr:class cco:ont00000686
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001916 ;
+    rr:objectMap [
+      rr:template "https://baseballontology.org/data/venue/{venueId}/reference-point/default" ;
+      rr:termType rr:IRI
+    ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001913 ;
+    rr:objectMap [ rr:constant cco:ont00001630 ; rr:termType rr:IRI ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001766 ;
+    rr:objectMap [ rml:reference "latitude" ; rr:datatype xsd:decimal ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001764 ;
+    rr:objectMap [ rml:reference "longitude" ; rr:datatype xsd:decimal ]
+  ] .
+
+<#ResponseCoordinatePartMap> a rr:TriplesMap ;
+  rml:logicalSource <#CoordinateSource> ;
+  rr:subjectMap [
+    rr:template "https://baseballontology.org/data/venue-response/{venueId}/{requestedSeason}/{responseSha256}" ;
+    rr:termType rr:IRI
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate obo:BFO_0000178 ;
+    rr:objectMap [
+      rr:template "https://baseballontology.org/data/venue/{venueId}/coordinates/default/{requestedSeason}/{responseSha256}" ;
+      rr:termType rr:IRI
+    ]
+  ] .
+
+<#SpectatorAccommodationAmountMap> a rr:TriplesMap ;
+  rml:logicalSource <#CapacitySource> ;
+  rr:subjectMap [
+    rr:template "https://baseballontology.org/data/venue/{venueId}/quality/spectator-accommodation-amount" ;
+    rr:termType rr:IRI ;
+    rr:class base:SpectatorAccommodationAmount
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate obo:BFO_0000197 ;
+    rr:objectMap [
+      rr:template "https://baseballontology.org/data/venue/{venueId}" ;
+      rr:termType rr:IRI
+    ]
+  ] .
+
+<#CapacityMeasurementMap> a rr:TriplesMap ;
+  rml:logicalSource <#CapacitySource> ;
+  rr:subjectMap [
+    rr:template "https://baseballontology.org/data/venue/{venueId}/measurement/capacity/{requestedSeason}/{responseSha256}" ;
+    rr:termType rr:IRI ;
+    rr:class cco:ont00001163
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001966 ;
+    rr:objectMap [
+      rr:template "https://baseballontology.org/data/venue/{venueId}/quality/spectator-accommodation-amount" ;
+      rr:termType rr:IRI
+    ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001773 ;
+    rr:objectMap [ rml:reference "capacity" ; rr:datatype xsd:integer ]
+  ] .
+
+<#ResponseCapacityPartMap> a rr:TriplesMap ;
+  rml:logicalSource <#CapacitySource> ;
+  rr:subjectMap [
+    rr:template "https://baseballontology.org/data/venue-response/{venueId}/{requestedSeason}/{responseSha256}" ;
+    rr:termType rr:IRI
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate obo:BFO_0000178 ;
+    rr:objectMap [
+      rr:template "https://baseballontology.org/data/venue/{venueId}/measurement/capacity/{requestedSeason}/{responseSha256}" ;
+      rr:termType rr:IRI
+    ]
+  ] .
+
+<#PlayingSurfaceMap> a rr:TriplesMap ;
+  rml:logicalSource <#SurfaceSource> ;
+  rr:subjectMap [
+    rr:template "https://baseballontology.org/data/venue/{venueId}/surface/{requestedSeason}/{surfaceTypeToken}/{responseSha256}" ;
+    rr:termType rr:IRI ;
+    rr:class base:BaseballPlayingSurface
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate obo:BFO_0000176 ;
+    rr:objectMap [ rr:template "https://baseballontology.org/data/venue/{venueId}" ; rr:termType rr:IRI ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate obo:BFO_0000196 ;
+    rr:objectMap [
+      rr:template "https://baseballontology.org/data/venue/{venueId}/surface/{requestedSeason}/{surfaceTypeToken}/{responseSha256}/support-function" ;
+      rr:termType rr:IRI
+    ]
+  ] .
+
+<#SurfaceSupportFunctionMap> a rr:TriplesMap ;
+  rml:logicalSource <#SurfaceSource> ;
+  rr:subjectMap [
+    rr:template "https://baseballontology.org/data/venue/{venueId}/surface/{requestedSeason}/{surfaceTypeToken}/{responseSha256}/support-function" ;
+    rr:termType rr:IRI ;
+    rr:class cco:ont00001200
+  ] .
+
+<#SurfaceClassificationMap> a rr:TriplesMap ;
+  rml:logicalSource <#SurfaceSource> ;
+  rr:subjectMap [
+    rr:template "https://baseballontology.org/data/venue/{venueId}/surface/{requestedSeason}/{surfaceTypeToken}/{responseSha256}/classification" ;
+    rr:termType rr:IRI ;
+    rr:class cco:ont00000293
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001868 ;
+    rr:objectMap [
+      rr:template "https://baseballontology.org/data/venue/{venueId}/surface/{requestedSeason}/{surfaceTypeToken}/{responseSha256}" ;
+      rr:termType rr:IRI
+    ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001912 ;
+    rr:objectMap [ rr:constant <https://baseballontology.org/data/reference-system/mlb/venue-surface-type> ; rr:termType rr:IRI ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001765 ;
+    rr:objectMap [ rml:reference "surfaceType" ; rr:datatype xsd:string ]
+  ] .
+
+<#ResponseSurfaceClassificationPartMap> a rr:TriplesMap ;
+  rml:logicalSource <#SurfaceSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/venue-response/{venueId}/{requestedSeason}/{responseSha256}" ; rr:termType rr:IRI ] ;
+  rr:predicateObjectMap [
+    rr:predicate obo:BFO_0000178 ;
+    rr:objectMap [ rr:template "https://baseballontology.org/data/venue/{venueId}/surface/{requestedSeason}/{surfaceTypeToken}/{responseSha256}/classification" ; rr:termType rr:IRI ]
+  ] .
+
+<#VenueRoofMap> a rr:TriplesMap ;
+  rml:logicalSource <#RoofSource> ;
+  rr:subjectMap [
+    rr:template "https://baseballontology.org/data/venue/{venueId}/roof/{requestedSeason}/{roofTypeToken}/{responseSha256}" ;
+    rr:termType rr:IRI ;
+    rr:class base:BaseballVenueRoof
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate obo:BFO_0000176 ;
+    rr:objectMap [ rr:template "https://baseballontology.org/data/venue/{venueId}" ; rr:termType rr:IRI ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate obo:BFO_0000196 ;
+    rr:objectMap [ rr:template "https://baseballontology.org/data/venue/{venueId}/roof/{requestedSeason}/{roofTypeToken}/{responseSha256}/covering-function" ; rr:termType rr:IRI ]
+  ] .
+
+<#RoofCoveringFunctionMap> a rr:TriplesMap ;
+  rml:logicalSource <#RoofSource> ;
+  rr:subjectMap [
+    rr:template "https://baseballontology.org/data/venue/{venueId}/roof/{requestedSeason}/{roofTypeToken}/{responseSha256}/covering-function" ;
+    rr:termType rr:IRI ; rr:class cco:ont00001310
+  ] .
+
+<#RoofClassificationMap> a rr:TriplesMap ;
+  rml:logicalSource <#RoofSource> ;
+  rr:subjectMap [
+    rr:template "https://baseballontology.org/data/venue/{venueId}/roof/{requestedSeason}/{roofTypeToken}/{responseSha256}/classification" ;
+    rr:termType rr:IRI ; rr:class cco:ont00000293
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001868 ;
+    rr:objectMap [ rr:template "https://baseballontology.org/data/venue/{venueId}/roof/{requestedSeason}/{roofTypeToken}/{responseSha256}" ; rr:termType rr:IRI ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001912 ;
+    rr:objectMap [ rr:constant <https://baseballontology.org/data/reference-system/mlb/venue-roof-type> ; rr:termType rr:IRI ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001765 ;
+    rr:objectMap [ rml:reference "roofType" ; rr:datatype xsd:string ]
+  ] .
+
+<#ResponseRoofClassificationPartMap> a rr:TriplesMap ;
+  rml:logicalSource <#RoofSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/venue-response/{venueId}/{requestedSeason}/{responseSha256}" ; rr:termType rr:IRI ] ;
+  rr:predicateObjectMap [
+    rr:predicate obo:BFO_0000178 ;
+    rr:objectMap [ rr:template "https://baseballontology.org/data/venue/{venueId}/roof/{requestedSeason}/{roofTypeToken}/{responseSha256}/classification" ; rr:termType rr:IRI ]
+  ] .
+
+<#OpenRoofConfigurationMap> a rr:TriplesMap ;
+  rml:logicalSource <#OpenRoofSource> ;
+  rr:subjectMap [
+    rr:template "https://baseballontology.org/data/venue/{venueId}/measurement/roof-configuration/{requestedSeason}/{responseSha256}" ;
+    rr:termType rr:IRI ; rr:class cco:ont00000293
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001868 ;
+    rr:objectMap [ rr:template "https://baseballontology.org/data/venue/{venueId}" ; rr:termType rr:IRI ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001912 ;
+    rr:objectMap [ rr:constant <https://baseballontology.org/data/reference-system/mlb/venue-roof-type> ; rr:termType rr:IRI ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001765 ;
+    rr:objectMap [ rml:reference "roofType" ; rr:datatype xsd:string ]
+  ] .
+
+<#ResponseOpenRoofConfigurationPartMap> a rr:TriplesMap ;
+  rml:logicalSource <#OpenRoofSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/venue-response/{venueId}/{requestedSeason}/{responseSha256}" ; rr:termType rr:IRI ] ;
+  rr:predicateObjectMap [
+    rr:predicate obo:BFO_0000178 ;
+    rr:objectMap [ rr:template "https://baseballontology.org/data/venue/{venueId}/measurement/roof-configuration/{requestedSeason}/{responseSha256}" ; rr:termType rr:IRI ]
+  ] .
+
+<#VenueSurfaceTypeReferenceSystemMap> a rr:TriplesMap ;
+  rml:logicalSource <#VenueSource> ;
+  rr:subjectMap [ rr:constant <https://baseballontology.org/data/reference-system/mlb/venue-surface-type> ; rr:termType rr:IRI ; rr:class cco:ont00000398 ] .
+
+<#VenueRoofTypeReferenceSystemMap> a rr:TriplesMap ;
+  rml:logicalSource <#VenueSource> ;
+  rr:subjectMap [ rr:constant <https://baseballontology.org/data/reference-system/mlb/venue-roof-type> ; rr:termType rr:IRI ; rr:class cco:ont00000398 ] .

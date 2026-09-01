@@ -1,0 +1,24 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "external-rdf-storage-implementation-2026-08-31",
+  "title": "External RDF storage implementation",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [{"path":"competency-questions.md","sha256":"aa3938d0f4fdc917aaf05ff44408f9ca5e250afa3680b584cdaf9c3c7e9c3fe4"}],
+    "sourceEvidence": [{"path":"source-evidence.md","sha256":"245a1547851376fc3dbec17ee15934c1c202aeb15dc38dcc146f497b0a96b1f9"}],
+    "fieldSelectionInventory": [{"path":"field-selection-inventory.md","sha256":"a66256448e70cec1c8c3dba500266d2c9702936f41209b5c24ec07ffbaed184c"}],
+    "sourceIndependentMermaid": [{"path":"source-independent-mermaid.md","sha256":"a5f8a999d07ba7e7d02725342d236e014e1431635bc0f5fd4a54e97382f6d588"}]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-08-31",
+    "rationale": "The user explicitly directed BaseballO to place as much RDF as operationally appropriate on the newly attached external SSD. This authorizes guarded migration of the complete Fuseki/TDB2 state while transient inputs, orchestration state, and derived SQL remain local. It makes no ontology or mapping change.",
+    "authorizedArtifacts": [
+      "Baseball/scripts/infra/migrate-rdf-storage.ps1"
+    ]
+  }
+}

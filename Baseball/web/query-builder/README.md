@@ -1,0 +1,102 @@
+# UI query builders
+
+[`analytics-query-builder.js`](analytics-query-builder.js) is the primary
+allowlisted component catalog and compiler used by the local BaseballO
+Explorer. It supports four query families:
+
+- batting outcomes: explicitly typed and adjudicated plate-appearance results,
+  every hit type, walks, strikeouts, total bases, and games;
+- pitching: pitch acts followed by pitch-ball motion, called balls, separately
+  labeled called and swinging strikes, plate appearances faced, games, and a
+  conservative confirmed-strike metric explicitly marked as partial;
+- baserunning: adjudicated runner resolutions, runs, outs, safe resolutions,
+  explicit stolen-base processes, and games;
+- games: teams, home/away sides, venues, umpires, and official scorers.
+
+[`derived-metric-query-builder.js`](derived-metric-query-builder.js) adds a
+separate reviewed composition boundary. Each base measure declares its unit,
+player-game grain, supported dimensions, evidence universe, subset
+relationships, and zero-denominator behavior. The initial catalog permits
+Empty Games divided by Offensive Games Played as a percentage, or the reverse
+as a ratio. It rejects unknown IDs, same-measure calculations, raw formulas,
+ratio-of-ratios, and incompatible measure contracts.
+
+[`hit-query-builder.js`](hit-query-builder.js) remains as the narrower first
+prototype for callers that want only the four hit outcomes. New UI work should
+prefer the analytics builder. Select boxes should use catalog labels and IDs;
+they should never accept arbitrary SPARQL fragments from a user.
+
+The initial hit-query family provides these components:
+
+- dimensions: season, venue, player, hit type, and game;
+- metrics: distinct hits and games containing hits;
+- filters: season, venue, player, hit type, and game;
+- presentation controls: allowlisted sort fields, result limit, and offset.
+
+Each dimension also advertises an `optionsQuery`. Those small queries populate
+the corresponding select box from values that are actually present in the
+loaded graphs. They live under [`sparql/options`](../../sparql/options/) and
+return both canonical values and display labels where applicable.
+
+A UI selection such as “group by season and venue, show hits, only Petco Park”
+can be compiled as follows:
+
+```javascript
+import {
+  HIT_QUERY_COMPONENTS,
+  compileHitQuery,
+} from "./hit-query-builder.js";
+
+const query = compileHitQuery({
+  dimensions: ["season", "venue"],
+  metrics: ["hits", "games_with_hits"],
+  filters: {
+    venue: "https://baseballontology.org/data/venue/2680",
+    hit_type: ["single", "double", "triple", "home_run"],
+  },
+  sort: [
+    { id: "season", direction: "asc" },
+    { id: "hits", direction: "desc" },
+  ],
+  limit: 100,
+});
+```
+
+The broader compiler uses the same shape:
+
+```javascript
+import {
+  ANALYTICS_QUERY_FAMILIES,
+  compileAnalyticsQuery,
+} from "./analytics-query-builder.js";
+
+const query = compileAnalyticsQuery({
+  family: "batting",
+  dimensions: ["season", "venue", "player"],
+  metrics: ["hits", "home_runs", "total_bases"],
+  filters: {
+    season: 2019,
+    venue: "https://baseballontology.org/data/venue/2680",
+  },
+  limit: 250,
+});
+```
+
+The compiler accepts only known component IDs, a bounded integer season,
+allowlisted hit types, and canonical BaseballO data IRIs. This preserves the
+query boundary: the browser composes reviewed reads, while the loopback server
+enforces its own allowlist and limits. The same contracts select persistent SQL
+grains for routine reads and compile authoritative SPARQL for fail-open use.
+
+Both compilers emit the same full-pattern evidence used by the canned queries.
+They deliberately count one domain individual per statistic and do not flatten
+records, acts, processes, judgments, and decisions into a single event. The
+component catalog must remain synchronized with
+[`sparql/query-inventory.md`](../../sparql/query-inventory.md) as patterns
+change.
+
+Both UI compilers remain the canonical definition of the authoritative fallback
+and its semantic boundary. The browser normally recombines validated contract-5
+SQL grains; it never silently substitutes a final query-index answer. The
+operational query-index runner retains its separate reviewed routing manifest
+and freshness checks for batch extraction.

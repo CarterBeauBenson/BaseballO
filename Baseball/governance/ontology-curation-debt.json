@@ -1,0 +1,56 @@
+{
+  "artifactType": "baseballo-ontology-curation-debt",
+  "contractVersion": 1,
+  "status": "frozen-unreviewed-not-accepted",
+  "description": "Exact structural debt observed on 2026-08-28. These entries keep the current checkout testable while preventing expansion. They are not ontologist approval, accepted axioms, or permission to reuse a pattern. Repairing an entry must remove the corresponding manifest entry in the same reviewed change.",
+  "baseNamespace": "https://baseballontology.org/",
+  "ontologyDocuments": {
+    "base": {
+      "ontologyIri": "https://baseballontology.org/baseball-event-ontology",
+      "allowedImports": [
+        "http://purl.obolibrary.org/obo/bfo/2020/bfo-core.ttl",
+        "https://www.commoncoreontologies.org/AgentOntology",
+        "https://www.commoncoreontologies.org/ArtifactOntology",
+        "https://www.commoncoreontologies.org/EventOntology",
+        "https://www.commoncoreontologies.org/ExtendedRelationOntology",
+        "https://www.commoncoreontologies.org/GeospatialOntology",
+        "https://www.commoncoreontologies.org/InformationEntityOntology"
+      ]
+    },
+    "overlay": {
+      "ontologyIri": "https://baseballontology.org/baseball-event-ontology-axioms-overlay",
+      "allowedImports": [
+        "http://www.ontologyrepository.com/CommonCoreOntologies/Domain/CognitiveProcessOntology",
+        "https://baseballontology.org/baseball-event-ontology",
+        "https://www.commoncoreontologies.org/ModalRelationOntology"
+      ]
+    }
+  },
+  "approvedLocalProperties": {
+    "object": [],
+    "datatype": []
+  },
+  "frozenDebt": {
+    "danglingNamedParents": [
+      {
+        "class": "https://baseballontology.org/GroundedIntoDoublePlayProcess",
+        "parents": [
+          "https://baseballontology.org/PlateAppearanceResolutionProcess"
+        ]
+      }
+    ],
+    "multipleDirectNamedParents": [
+      {
+        "class": "https://baseballontology.org/GroundedIntoDoublePlayProcess",
+        "parents": [
+          "https://baseballontology.org/DoublePlayProcess",
+          "https://baseballontology.org/PlateAppearanceResolutionProcess"
+        ]
+      }
+    ],
+    "missingExampleOrEditorialNote": [
+      "https://baseballontology.org/GroundedIntoDoublePlayProcess"
+    ],
+    "notGroundedInBfoOrCco": []
+  }
+}

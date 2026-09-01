@@ -1,0 +1,29 @@
+* text=auto
+
+.editorconfig text eol=lf
+.gitattributes text eol=lf
+.gitignore text eol=lf
+*.md text eol=lf
+*.ttl text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.json text eol=lf
+*.csv text eol=lf
+*.py text eol=lf
+*.ps1 text eol=lf
+*.psd1 text eol=lf
+*.js text eol=lf
+*.mjs text eol=lf
+*.rq text eol=lf
+*.txt text eol=lf
+
+# API evidence is byte-preserved source material, not normalizable text.
+Baseball/data/raw/** -text -eol
+
+# These four legacy fixtures were normalized to LF by core.autocrlf when they
+# were first committed. Keep their canonical repository bytes stable rather
+# than silently replacing them with surviving pre-commit CRLF worktree copies.
+Baseball/data/raw/samples/2026-07-14/823443.json text eol=lf
+Baseball/data/raw/samples/2026-07-15/schedule.json text eol=lf
+Baseball/data/raw/samples/2026-07-16/823440.json text eol=lf
+Baseball/data/raw/samples/2026-07-17/822789.json text eol=lf

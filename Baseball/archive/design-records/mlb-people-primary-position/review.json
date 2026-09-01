@@ -1,0 +1,48 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-people-primary-position",
+  "title": "MLB people baseball-position description",
+  "status": "accepted",
+  "proposedIris": [
+    "https://baseballontology.org/BaseballPositionDescription",
+    "https://baseballontology.org/BaseballFieldingDisposition"
+  ],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "c2dc74bca509f12b23301959abf671bc33b8669090a9258bf8081c46e0130db9"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "88e2df4a3920a80303c7220c51800dc25ce804181eaaf4477a1db22284af75c1"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "c3557edf9007e5368d620d62103475de1c9cb2ba3293cb2cfc02aff3a01eda2f"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "8a260f19153dae559bd046f501e8aa4c658708bbd41c251798a99bb4eb3be9f6"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-08-30",
+    "rationale": "The ontologist explicitly accepted the revised source-independent Mermaid package published at commit b8c6cc76711286c979b9acb11db3c48ae7d6a581 and authorized implementation that follows those diagrams and the recorded modeling guidance.",
+    "authorizedArtifacts": [
+      "Baseball/ontology/BaseballO.ttl",
+      "Baseball/ontology/BaseballO-axioms-overlay.ttl"
+    ]
+  }
+}

@@ -1,0 +1,35 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Authoritative nominal evidence remains queryable without asserting a
+# historical provider classification as a permanent OWL type.
+SELECT ?pitcher ?pitcherLabel ?pitchType ?pitchTypeLabel
+       (COUNT(DISTINCT ?pitch) AS ?pitches)
+WHERE {
+  GRAPH ?graph {
+    ?pitch a base:PitchAct ; obo:BFO_0000057 ?pitcher ; cco:ont00001914 ?pitchType .
+    ?pitcher rdfs:label ?pitcherLabel .
+    VALUES (?pitchType ?pitchTypeLabel) {
+      (base:FourSeamFastballPitchTypeICE "Four-seam fastball")
+      (base:SinkerPitchTypeICE "Sinker")
+      (base:CutterPitchTypeICE "Cutter")
+      (base:SliderPitchTypeICE "Slider")
+      (base:SweeperPitchTypeICE "Sweeper")
+      (base:SlurvePitchTypeICE "Slurve")
+      (base:CurveballPitchTypeICE "Curveball")
+      (base:KnuckleCurvePitchTypeICE "Knuckle curve")
+      (base:SlowCurvePitchTypeICE "Slow curve")
+      (base:ChangeupPitchTypeICE "Changeup")
+      (base:SplitterPitchTypeICE "Splitter")
+      (base:ForkballPitchTypeICE "Forkball")
+      (base:ScrewballPitchTypeICE "Screwball")
+      (base:KnuckleballPitchTypeICE "Knuckleball")
+      (base:EephusPitchTypeICE "Eephus")
+    }
+  }
+  FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+}
+GROUP BY ?pitcher ?pitcherLabel ?pitchType ?pitchTypeLabel
+ORDER BY LCASE(STR(?pitcherLabel)) DESC(?pitches) ?pitchTypeLabel

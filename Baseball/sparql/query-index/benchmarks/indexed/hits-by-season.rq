@@ -1,0 +1,15 @@
+PREFIX idx: <https://w3id.org/baseball/query-index/>
+
+SELECT ?season
+       (COUNT(DISTINCT ?hit) AS ?hits)
+       (COUNT(DISTINCT ?game) AS ?gamesWithHits)
+WHERE {
+  GRAPH ?graph {
+    ?hit a idx:HitFact ;
+         idx:game ?game .
+    ?game a idx:GameFact ;
+          idx:season ?season .
+  }
+}
+GROUP BY ?season
+ORDER BY ?season

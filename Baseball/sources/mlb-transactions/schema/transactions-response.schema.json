@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://baseballontology.org/schema/mlb-transactions-response.json",
+  "title": "Observed MLB Stats API transactions response",
+  "type": "object",
+  "required": [
+    "transactions"
+  ],
+  "properties": {
+    "copyright": {
+      "type": "string"
+    },
+    "transactions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/transaction"
+      }
+    }
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "positiveId": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "personReference": {
+      "type": "object",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/positiveId"
+        },
+        "fullName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "link": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "teamReference": {
+      "type": "object",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/positiveId"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "link": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "transaction": {
+      "type": "object",
+      "required": [
+        "id",
+        "date",
+        "effectiveDate",
+        "typeCode",
+        "typeDesc"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/positiveId"
+        },
+        "person": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/personReference"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "fromTeam": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/teamReference"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "toTeam": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/teamReference"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "date": {
+          "$ref": "#/$defs/date"
+        },
+        "effectiveDate": {
+          "$ref": "#/$defs/date"
+        },
+        "resolutionDate": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/date"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "typeCode": {
+          "type": "string",
+          "minLength": 1
+        },
+        "typeDesc": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

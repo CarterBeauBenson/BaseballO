@@ -1,0 +1,61 @@
+source_module: mlb-game
+ontology_coverage_gaps:
+- id: field-relative-coordinate-values
+  status: reference-system repair complete; source contract and literal coverage unresolved
+  source_paths:
+  - playEvents[*].hitData.coordinates.coordX
+  - playEvents[*].hitData.coordinates.coordY
+  gap: BaseballFieldCoordinateReferenceSystemICE now uses the approved Fiat Line, shared Fiat Point, Angle Quality, and generic CCO Reference System pattern, but no approved datatype properties represent MLB field-relative X and Y values and the provider origin, orientation, sign, scale, projection, and polygon remain undocumented.
+  mapping_action: Keep the current valueless coordinate/location pattern disabled. Defer coordinate literals and containment until the provider contract and literal design are approved; never infer feet, latitude/longitude, or Spatial Region semantics.
+
+- id: venue-geographic-coordinate-ice
+  status: ontology alignment issue
+  source_paths:
+  - gameData.venue.location.defaultCoordinates.latitude
+  - gameData.venue.location.defaultCoordinates.longitude
+  gap: BaseballFieldCoordinateICE is field-relative and must not be used for geographic latitude and longitude.
+  mapping_action: Preserve the raw values and defer their RDF representation until an appropriate geographic-coordinate ICE pattern is approved.
+
+- id: action-event-identity-and-coverage
+  status: source and ontology gap
+  source_path: playEvents where isPitch is false
+  gap: Non-pitch actions often lack playId and include advisory or status records without an approved baseball act or process class.
+  mapping_action: Do not mint action individuals until identity and class coverage are approved.
+
+- id: runner-record-stable-identifier
+  status: resolved in execution context
+  source_path: allPlays[*].runners[*]
+  gap: A runner record exposes no source ID, array index, or ancestor atBatIndex in its local RML record.
+  mapping_action: Add the enclosing atBatIndex and zero-based runnerIndex only to the disposable execution context; use that structural pair for runner identities and plate-appearance containment while preserving the raw source unchanged.
+
+- id: fielding-credit-act-identity
+  status: source identity limitation
+  source_path: allPlays[*].runners[*].credits[*]
+  gap: A fielding credit lacks a stable ID and the ancestor context needed to create distinct FieldingAttemptAct, CatchAttemptAct, ThrowAct, or TagAttemptAct individuals.
+  mapping_action: Map the persistent FielderRole trigger only; do not reconstruct physical or intentional events from a counted result.
+
+- id: foul-count-transition
+  status: source and processor limitation
+  source_path: allPlays[*].playEvents[*].count.strikes
+  gap: An event-local foul record with count.strikes equal to 2 does not reveal whether the foul incremented the count from one or left an existing two-strike count unchanged.
+  mapping_action: Map a separate foul-related StrikeProcess only for the unambiguous count.strikes equal to 1 subset. Do not overstate ambiguous fouls.
+
+- id: pickoff-agent-context
+  status: source identity limitation
+  source_path: allPlays[*].runners[*].details.eventType
+  gap: A runner event may identify a pickoff outcome without identifying the pitcher who performed the PickoffAttemptAct in the local runner record.
+  mapping_action: Do not create a PickoffAttemptAct or infer throw and tag processes from the counted outcome alone.
+
+- id: completed-game-terminal-time
+  status: resolved by accepted source-evidence rule
+  source_paths:
+  - gameData.status
+  - metaData.gameEvents
+  - liveData.plays.allPlays[*].about.endTime
+  resolution: Select the last genuine baseball event with activity and an end timestamp only when Final, gameStateChangeToFinal, or gameStateChangeToGameOver corroborates that the game ended. This terminal event may be a wild pitch, passed ball, balk, or another non-out event and need not complete the batter's plate appearance.
+
+- id: role-stasis-boundaries
+  status: deferred until an authoritative source is selected
+  source_path: not selected
+  gap: The game feed does not establish team-tenure beginnings or endings, retirement dates, or later resumptions of a persistent role.
+  mapping_action: Create an open Stasis of Role and Temporal Interval without boundaries. This is not a blocker. Revisit the CCO Process Beginning and Process Ending pattern only after selecting an authoritative source; preserve the likely day-level precision of its identifiers and do not infer retirement from active=false or lastPlayedDate.

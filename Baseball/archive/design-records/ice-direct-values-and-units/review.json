@@ -1,0 +1,45 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "ice-direct-values-and-units",
+  "title": "Direct ICE values, Measurement Units, and Reference Systems",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "04a2ea79f3c4367888b659dc25a6386b6c662388e0c7ed8b4080f16cda02c799"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "d56dd88d8d6a6ea042dedd74a48aac24ec76adb0209e236b8bf080a6acccf098"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "d88fa8a0e6fe47749b3c8ac0bc0816684fe2fb449350dd49ed7b73ac7f183167"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "6520f0e7880cd0001956e9e826c40df1ba057b1cb35315f818baa82e114b37d3"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-08-29",
+    "rationale": "The ontologist accepted direct data values on Information Content Entities and direct use of Measurement Units and Reference Systems by Information Content Entities as reviewed. The excluded language and time-zone identifier relations remain outside this decision, and no source-specific mapping is authorized here.",
+    "authorizedArtifacts": [
+      "Baseball/ontology/CommonCoreOntologiesMerged.ttl",
+      "Baseball/ontology/ModalRelationOntology.ttl"
+    ]
+  }
+}

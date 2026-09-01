@@ -1,0 +1,20 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?team ?teamLabel ?side (COUNT(DISTINCT ?game) AS ?games)
+WHERE {
+  GRAPH ?graph {
+    ?game a base:BaseballGame .
+    ?teamRole a ?roleClass ;
+              obo:BFO_0000197 ?team ;
+              obo:BFO_0000054 ?game .
+    ?team rdfs:label ?teamLabel .
+    VALUES (?roleClass ?side) {
+      (base:HomeTeamRole "home")
+      (base:AwayTeamRole "away")
+    }
+  }
+}
+GROUP BY ?team ?teamLabel ?side
+ORDER BY LCASE(STR(?teamLabel)) ?side

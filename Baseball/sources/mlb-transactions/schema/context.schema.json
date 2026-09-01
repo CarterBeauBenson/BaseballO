@@ -1,0 +1,326 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://baseballontology.org/schema/mlb-transactions-rml-context.json",
+  "title": "Validated MLB transactions RML execution context",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "artifactType",
+    "contractVersion",
+    "moduleId",
+    "source",
+    "referenceSystems",
+    "groups",
+    "rows",
+    "aboutness",
+    "descriptions",
+    "dates",
+    "deaths",
+    "trades",
+    "tradeAgents",
+    "tradeLegs",
+    "signings"
+  ],
+  "properties": {
+    "artifactType": {
+      "const": "baseballo-mlb-transactions-rml-context"
+    },
+    "contractVersion": {
+      "const": 1
+    },
+    "moduleId": {
+      "const": "mlb-transactions"
+    },
+    "source": {
+      "type": "object"
+    },
+    "referenceSystems": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "required": [
+          "iri"
+        ],
+        "properties": {
+          "iri": {
+            "$ref": "#/$defs/iri"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "groups": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/group"
+      }
+    },
+    "rows": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/row"
+      }
+    },
+    "aboutness": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/aboutness"
+      }
+    },
+    "descriptions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/description"
+      }
+    },
+    "dates": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/date"
+      }
+    },
+    "deaths": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/death"
+      }
+    },
+    "trades": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/trade"}
+    },
+    "tradeAgents": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/tradeAgent"}
+    },
+    "tradeLegs": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/tradeLeg"}
+    },
+    "signings": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/signing"}
+    }
+  },
+  "$defs": {
+    "iri": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "group": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "groupIri",
+        "transactionIdentifierIri",
+        "transactionIdText"
+      ],
+      "properties": {
+        "groupIri": {
+          "$ref": "#/$defs/iri"
+        },
+        "transactionIdentifierIri": {
+          "$ref": "#/$defs/iri"
+        },
+        "transactionIdText": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*$"
+        }
+      }
+    },
+    "row": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "groupIri",
+        "rowIri",
+        "rowSha256",
+        "typeIri",
+        "typeCode"
+      ],
+      "properties": {
+        "groupIri": {
+          "$ref": "#/$defs/iri"
+        },
+        "rowIri": {
+          "$ref": "#/$defs/iri"
+        },
+        "rowSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "typeIri": {
+          "$ref": "#/$defs/iri"
+        },
+        "typeCode": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "aboutness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rowIri",
+        "entityIri"
+      ],
+      "properties": {
+        "rowIri": {
+          "$ref": "#/$defs/iri"
+        },
+        "entityIri": {
+          "$ref": "#/$defs/iri"
+        }
+      }
+    },
+    "description": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rowIri",
+        "descriptionIri",
+        "descriptionText"
+      ],
+      "properties": {
+        "rowIri": {
+          "$ref": "#/$defs/iri"
+        },
+        "descriptionIri": {
+          "$ref": "#/$defs/iri"
+        },
+        "descriptionText": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "date": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rowIri",
+        "dateIdentifierIri",
+        "dateValue",
+        "dayIri",
+        "fieldKeyIdentifierIri",
+        "fieldKeyText"
+      ],
+      "properties": {
+        "rowIri": {
+          "$ref": "#/$defs/iri"
+        },
+        "dateIdentifierIri": {
+          "$ref": "#/$defs/iri"
+        },
+        "dateValue": {
+          "type": "string",
+          "format": "date"
+        },
+        "dayIri": {
+          "$ref": "#/$defs/iri"
+        },
+        "fieldKeyIdentifierIri": {
+          "$ref": "#/$defs/iri"
+        },
+        "fieldKeyText": {
+          "enum": [
+            "date",
+            "effectiveDate",
+            "resolutionDate"
+          ]
+        }
+      }
+    },
+    "death": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rowIri",
+        "deathIri",
+        "personIri"
+      ],
+      "properties": {
+        "rowIri": {
+          "$ref": "#/$defs/iri"
+        },
+        "deathIri": {
+          "$ref": "#/$defs/iri"
+        },
+        "personIri": {
+          "$ref": "#/$defs/iri"
+        }
+      }
+    },
+    "trade": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["groupIri", "tradeIri"],
+      "properties": {
+        "groupIri": {"$ref": "#/$defs/iri"},
+        "tradeIri": {"$ref": "#/$defs/iri"}
+      }
+    },
+    "tradeAgent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tradeIri", "teamIri"],
+      "properties": {
+        "tradeIri": {"$ref": "#/$defs/iri"},
+        "teamIri": {"$ref": "#/$defs/iri"}
+      }
+    },
+    "tradeLeg": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rowIri", "tradeIri", "personIri", "fromTeamIri", "toTeamIri",
+        "oldRoleIri", "newRoleIri", "lossIri", "gainIri",
+        "lossRegionIri", "gainRegionIri", "dayIri", "effectiveDate"
+      ],
+      "properties": {
+        "rowIri": {"$ref": "#/$defs/iri"},
+        "tradeIri": {"$ref": "#/$defs/iri"},
+        "personIri": {"$ref": "#/$defs/iri"},
+        "fromTeamIri": {"$ref": "#/$defs/iri"},
+        "toTeamIri": {"$ref": "#/$defs/iri"},
+        "oldRoleIri": {"$ref": "#/$defs/iri"},
+        "newRoleIri": {"$ref": "#/$defs/iri"},
+        "lossIri": {"$ref": "#/$defs/iri"},
+        "gainIri": {"$ref": "#/$defs/iri"},
+        "lossRegionIri": {"$ref": "#/$defs/iri"},
+        "gainRegionIri": {"$ref": "#/$defs/iri"},
+        "dayIri": {"$ref": "#/$defs/iri"},
+        "effectiveDate": {"type": "string", "format": "date"}
+      }
+    },
+    "signing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rowIri", "contractIri", "personIri", "teamIri", "playerRoleIri",
+        "gainIri", "contractRegionIri", "gainRegionIri", "dayIri",
+        "effectiveDate", "typeCode"
+      ],
+      "properties": {
+        "rowIri": {"$ref": "#/$defs/iri"},
+        "contractIri": {"$ref": "#/$defs/iri"},
+        "personIri": {"$ref": "#/$defs/iri"},
+        "teamIri": {"$ref": "#/$defs/iri"},
+        "playerRoleIri": {"$ref": "#/$defs/iri"},
+        "gainIri": {"$ref": "#/$defs/iri"},
+        "contractRegionIri": {"$ref": "#/$defs/iri"},
+        "gainRegionIri": {"$ref": "#/$defs/iri"},
+        "dayIri": {"$ref": "#/$defs/iri"},
+        "effectiveDate": {"type": "string", "format": "date"},
+        "typeCode": {"enum": ["SGN", "SFA"]}
+      }
+    }
+  }
+}

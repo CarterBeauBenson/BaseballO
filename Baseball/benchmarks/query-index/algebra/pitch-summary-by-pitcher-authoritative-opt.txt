@@ -1,0 +1,40 @@
+(prefix ((rdfs: <http://www.w3.org/2000/01/rdf-schema#>)
+         (obo: <http://purl.obolibrary.org/obo/>)
+         (cco: <https://www.commoncoreontologies.org/>)
+         (base: <https://baseballontology.org/>))
+  (project (?pitcher ?pitcherLabel ?pitches ?balls ?strikes ?plateAppearances)
+    (order ((desc ?pitches) (lcase (str ?pitcherLabel)))
+      (extend ((?pitches ?.0) (?balls ?.1) (?strikes ?.2) (?plateAppearances ?.3))
+        (group (?pitcher ?pitcherLabel) ((?.0 (count distinct ?pitch)) (?.1 (count distinct ?ball)) (?.2 (count distinct ?strike)) (?.3 (count distinct ?plateAppearance)))
+          (graph ?graph
+            (conditional
+              (conditional
+                (bgp
+                  (triple ?pitch <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> base:PitchAct)
+                  (triple ?pitch obo:BFO_0000132 ?plateAppearance)
+                  (triple ?pitch obo:BFO_0000057 ?pitcher)
+                  (triple ?pitch obo:BFO_0000063 ?pitchMotion)
+                  (triple ?pitchMotion <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> base:PitchBallMotionProcess)
+                  (triple ?pitcher rdfs:label ?pitcherLabel)
+                )
+                (bgp
+                  (triple ?ballRecord <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> base:BaseballEventRecord)
+                  (triple ?ballRecord cco:ont00001808 ?pitch)
+                  (triple ?ballRecord cco:ont00001808 ?ball)
+                  (triple ?ball <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> base:BallProcess)
+                  (triple ?ball obo:BFO_0000117 ?ballJudgment)
+                  (triple ?ballJudgment <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> base:BallJudgmentAct)
+                ))
+              (sequence
+                (table (vars ?strikeJudgmentClass)
+                  (row [?strikeJudgmentClass base:StrikeJudgmentAct])
+                  (row [?strikeJudgmentClass base:FoulTipJudgmentAct])
+                )
+                (bgp
+                  (triple ?strikeRecord <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> base:BaseballEventRecord)
+                  (triple ?strikeRecord cco:ont00001808 ?pitch)
+                  (triple ?strikeRecord cco:ont00001808 ?strike)
+                  (triple ?strike <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> base:StrikeProcess)
+                  (triple ?strike obo:BFO_0000117 ?strikeJudgment)
+                  (triple ?strikeJudgment <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?strikeJudgmentClass)
+                )))))))))

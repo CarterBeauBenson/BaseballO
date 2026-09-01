@@ -1,0 +1,15 @@
+(prefix ((idx: <https://w3id.org/baseball/query-index/>)
+         (rdfs: <http://www.w3.org/2000/01/rdf-schema#>))
+  (project (?season ?player ?playerLabel ?plateAppearances ?games)
+    (order (?season (desc ?plateAppearances) (lcase (str ?playerLabel)))
+      (extend ((?plateAppearances ?.0) (?games ?.1))
+        (group (?season ?player ?playerLabel) ((?.0 (count distinct ?plateAppearance)) (?.1 (count distinct ?game)))
+          (graph ?graph
+            (bgp
+              (triple ?plateAppearance <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> idx:PlateAppearanceFact)
+              (triple ?plateAppearance idx:agent ?player)
+              (triple ?plateAppearance idx:game ?game)
+              (triple ?game <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> idx:GameFact)
+              (triple ?game idx:season ?season)
+              (triple ?player rdfs:label ?playerLabel)
+            )))))))

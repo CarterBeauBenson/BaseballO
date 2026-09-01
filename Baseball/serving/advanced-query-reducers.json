@@ -1,0 +1,75 @@
+{
+  "artifactType": "baseball-advanced-query-sql-reducers",
+  "contractVersion": 1,
+  "detailQueries": [
+    "event-chain-integrity",
+    "game-action-density",
+    "grinder-index",
+    "half-inning-rally-anatomy",
+    "hit-diversity",
+    "plate-appearance-fingerprint",
+    "productive-plate-appearances"
+  ],
+  "additiveQueries": {
+    "base-destination-profile": {
+      "dimensions": ["player", "playerLabel", "destination", "resolution"],
+      "sums": ["touches", "games"]
+    },
+    "batter-pitcher-matchup-profiles": {
+      "dimensions": ["batter", "batterLabel", "pitcher", "pitcherLabel"],
+      "sums": ["plateAppearances", "pitches", "swings", "contacts", "hits", "homeRuns", "walks", "strikeouts"]
+    },
+    "contact-conversion": {
+      "dimensions": ["batter", "batterLabel", "outcome"],
+      "sums": ["terminalContacts", "hits", "outs", "errors", "sacrifices", "associatedRunnerAdvances", "associatedRuns"]
+    },
+    "review-outcome-profile": {
+      "dimensions": ["reviewType", "sourceStatus", "reviewOutcome", "transition", "originalDecision", "replayDecision", "reviewInitiation", "challenger", "challengerLabel", "finalEvent", "finalPitchCall"],
+      "sums": ["reviews", "games"]
+    },
+    "scorer-classification-profile": {
+      "dimensions": ["scorer", "scorerLabel", "classification"],
+      "sums": ["judgments", "games"]
+    },
+    "steal-attempt-efficiency": {
+      "dimensions": ["player", "playerLabel"],
+      "sums": ["attempts", "successfulSteals", "caughtStealing"],
+      "derived": "steal-efficiency"
+    },
+    "swing-to-result-funnel": {
+      "dimensions": ["batter", "batterLabel"],
+      "sums": ["pitches", "swings", "contacts", "fairBalls", "foulBalls", "foulTips", "terminalResults", "hits", "battedOutcomes"]
+    },
+    "umpire-call-profile": {
+      "dimensions": ["umpire", "umpireLabel", "onFieldCall", "operativeCall", "reviewOutcome", "sourceReviewStatus"],
+      "sums": ["calls", "games"]
+    },
+    "unproductive-contact-games": {
+      "dimensions": ["player", "playerLabel"],
+      "sums": ["unproductiveContactGames"]
+    },
+    "whiff-and-take-profiles": {
+      "dimensions": ["batter", "batterLabel", "pitcher", "pitcherLabel"],
+      "sums": ["pitches", "swings", "contacts", "whiffs", "takes", "takenBalls", "calledStrikes"]
+    }
+  },
+  "ordering": {
+    "event-chain-integrity": ["graph", "issue", "entity"],
+    "game-action-density": ["-#actionEventsPerMinute", "gameStart"],
+    "grinder-index": ["-#grindScore", "-#durationMinutes", "batterLabel"],
+    "half-inning-rally-anatomy": ["game", "inningHalf"],
+    "hit-diversity": ["-#distinctHitTypes", "playerLabel"],
+    "plate-appearance-fingerprint": ["game", "startTime"],
+    "productive-plate-appearances": ["-#otherRunnerRuns", "-#otherRunnersAdvanced", "batterLabel"],
+    "base-destination-profile": ["playerLabel", "destination", "resolution"],
+    "batter-pitcher-matchup-profiles": ["-#plateAppearances", "-#pitches", "batterLabel", "pitcherLabel"],
+    "contact-conversion": ["batterLabel", "-#terminalContacts", "outcome"],
+    "review-outcome-profile": ["reviewType", "sourceStatus", "transition", "challengerLabel", "finalEvent"],
+    "scorer-classification-profile": ["scorerLabel", "-#judgments", "classification"],
+    "steal-attempt-efficiency": ["-#attempts", "-#successPercent", "playerLabel"],
+    "swing-to-result-funnel": ["-#contacts", "batterLabel"],
+    "umpire-call-profile": ["umpireLabel", "onFieldCall", "operativeCall", "reviewOutcome"],
+    "unproductive-contact-games": ["-#unproductiveContactGames", "playerLabel"],
+    "whiff-and-take-profiles": ["-#pitches", "batterLabel", "pitcherLabel"]
+  }
+}

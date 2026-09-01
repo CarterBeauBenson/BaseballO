@@ -1,0 +1,71 @@
+@prefix base: <https://baseballontology.org/> .
+@prefix cco: <https://www.commoncoreontologies.org/> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+# Review-only candidate ontology. These terms are not executable while this
+# package remains active.
+
+base:BaseballSeasonSegment a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000015 ;
+    rdfs:label "Baseball Season Segment"@en ;
+    skos:definition "A Baseball Season Segment is a Process that is an occurrent part of a Baseball Season and is prescribed by a Baseball Season Plan."@en ;
+    rdfs:comment "Unlike Baseball Season Phase, this class does not require a Baseball Game as an occurrent part."@en ;
+    skos:example "The offseason segment following the postseason of a Major League Baseball season."@en .
+
+base:BaseballSeasonPhase rdfs:subClassOf base:BaseballSeasonSegment .
+
+base:BaseballPreseasonPhase a owl:Class ; rdfs:subClassOf base:BaseballSeasonPhase ; rdfs:label "Baseball Preseason Phase"@en ; skos:definition "A Baseball Preseason Phase is a Baseball Season Phase that is measured by nominal the Preseason Segment Type ICE."@en ; rdfs:comment "The class requires actual phase evidence and does not arise from a start-date field alone."@en ; skos:example "The Spring Training game-containing phase preceding the 2026 regular season."@en .
+base:BaseballRegularSeasonPhase a owl:Class ; rdfs:subClassOf base:BaseballSeasonPhase ; rdfs:label "Baseball Regular Season Phase"@en ; skos:definition "A Baseball Regular Season Phase is a Baseball Season Phase that is measured by nominal the Regular Season Segment Type ICE."@en ; rdfs:comment "The phase remains distinct from its plan and date identifiers."@en ; skos:example "The 2026 Major League Baseball regular-season phase."@en .
+base:BaseballPostseasonPhase a owl:Class ; rdfs:subClassOf base:BaseballSeasonPhase ; rdfs:label "Baseball Postseason Phase"@en ; skos:definition "A Baseball Postseason Phase is a Baseball Season Phase that is measured by nominal the Postseason Segment Type ICE."@en ; rdfs:comment "Wild Card, Division Series, League Championship Series, and World Series Games may occur as parts without making their labels the phase itself."@en ; skos:example "The game-containing postseason phase of the 2025 Major League Baseball season."@en .
+base:BaseballAllStarPhase a owl:Class ; rdfs:subClassOf base:BaseballSeasonPhase ; rdfs:label "Baseball All-Star Phase"@en ; skos:definition "A Baseball All-Star Phase is a Baseball Season Phase that is measured by nominal the All-Star Segment Type ICE."@en ; rdfs:comment "The All-Star Game is an occurrent part of the phase; the provider game-type code is classification evidence rather than the Process itself."@en ; skos:example "The segment of a Major League Baseball season containing its All-Star Game."@en .
+base:BaseballOffseasonSegment a owl:Class ; rdfs:subClassOf base:BaseballSeasonSegment ; rdfs:label "Baseball Offseason Segment"@en ; skos:definition "A Baseball Offseason Segment is a Baseball Season Segment that is measured by nominal the Offseason Segment Type ICE."@en ; rdfs:comment "No Baseball Game is required as an occurrent part."@en ; skos:example "The segment beginning after the last postseason Game of the 2025 Major League Baseball season."@en .
+
+base:BaseballTransactionPeriod a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000202 ;
+    rdfs:label "Baseball Transaction Period"@en ;
+    skos:definition "A Baseball Transaction Period is a Temporal Interval that is subject of a Baseball Rule and is designated by a Temporal Interval Identifier."@en ;
+    rdfs:comment "A transaction period is not a Process or a collection of the transaction Acts that occupy Temporal Intervals during it. It may overlap the Temporal Intervals occupied by more than one Baseball Season Segment."@en ;
+    skos:example "The Temporal Interval designated as the salary-arbitration period by the Major League Baseball transaction calendar."@en .
+
+base:MajorLeagueFreeAgentQuietPeriod a owl:Class ; rdfs:subClassOf base:BaseballTransactionPeriod ; rdfs:label "Major League Free-Agent Quiet Period"@en ; skos:definition "A Major League Free-Agent Quiet Period is a Baseball Transaction Period that is measured by nominal the Free Agent Quiet Period Type ICE and is interval contained by a Temporal Interval that is temporal region of a Baseball Offseason Segment."@en ; rdfs:comment "The applicable rule permits a Major League free agent to negotiate only with the player's prior team."@en ; skos:example "The five-day quiet period after the 2025 World Series."@en .
+base:MajorLeagueOpenFreeAgencyPeriod a owl:Class ; rdfs:subClassOf base:BaseballTransactionPeriod ; rdfs:label "Major League Open Free-Agency Period"@en ; skos:definition "A Major League Open Free-Agency Period is a Baseball Transaction Period that is measured by nominal the Open Free Agency Period Type ICE."@en ; rdfs:comment "The applicable rule permits eligible Major League free agents to negotiate with eligible Baseball Teams; the period is not asserted as interval contained by the Temporal Interval occupied by Offseason merely because it begins there."@en ; skos:example "The period beginning when the post-World-Series quiet period ends."@en .
+base:MajorLeagueSalaryArbitrationPeriod a owl:Class ; rdfs:subClassOf base:BaseballTransactionPeriod ; rdfs:label "Major League Salary-Arbitration Period"@en ; skos:definition "A Major League Salary-Arbitration Period is a Baseball Transaction Period that is measured by nominal the Salary Arbitration Period Type ICE."@en ; rdfs:comment "Filing, figure exchange, settlement, and hearing Acts remain distinct occurrents within the period."@en ; skos:example "The salary-arbitration period containing the January exchange of figures for a Major League season."@en .
+base:MajorLeagueInternationalSigningPeriod a owl:Class ; rdfs:subClassOf base:BaseballTransactionPeriod ; rdfs:label "Major League International Signing Period"@en ; skos:definition "A Major League International Signing Period is a Baseball Transaction Period that is measured by nominal the International Signing Period Type ICE."@en ; rdfs:comment "The applicable rule permits eligible international-amateur contract formation; the official period can extend through the playing season and is not necessarily interval contained by the Temporal Interval occupied by Offseason."@en ; skos:example "The international signing period beginning January 15 and ending December 15 under a reviewed annual calendar."@en .
+
+base:PreseasonSegmentTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "preseason" .
+base:RegularSeasonSegmentTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "regular-season" .
+base:PostseasonSegmentTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "postseason" .
+base:AllStarSegmentTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "all-star" .
+base:OffseasonSegmentTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "offseason" .
+base:FreeAgentQuietPeriodTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "free-agent-quiet-period" .
+base:OpenFreeAgencyPeriodTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "open-free-agency" .
+base:SalaryArbitrationPeriodTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "salary-arbitration" .
+base:InternationalSigningPeriodTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "international-signing" .
+
+base:BaseballSeasonSegment rdfs:subClassOf [ a owl:Restriction ; owl:onProperty obo:BFO_0000132 ; owl:someValuesFrom base:BaseballSeason ], [ a owl:Restriction ; owl:onProperty cco:ont00001920 ; owl:someValuesFrom base:BaseballSeasonPlan ] .
+base:BaseballPreseasonPhase owl:equivalentClass [ a owl:Class ; owl:intersectionOf ( base:BaseballSeasonPhase [ a owl:Restriction ; owl:onProperty cco:ont00001914 ; owl:hasValue base:PreseasonSegmentTypeICE ] ) ] .
+base:BaseballRegularSeasonPhase owl:equivalentClass [ a owl:Class ; owl:intersectionOf ( base:BaseballSeasonPhase [ a owl:Restriction ; owl:onProperty cco:ont00001914 ; owl:hasValue base:RegularSeasonSegmentTypeICE ] ) ] .
+base:BaseballPostseasonPhase owl:equivalentClass [ a owl:Class ; owl:intersectionOf ( base:BaseballSeasonPhase [ a owl:Restriction ; owl:onProperty cco:ont00001914 ; owl:hasValue base:PostseasonSegmentTypeICE ] ) ] .
+base:BaseballAllStarPhase owl:equivalentClass [ a owl:Class ; owl:intersectionOf ( base:BaseballSeasonPhase [ a owl:Restriction ; owl:onProperty cco:ont00001914 ; owl:hasValue base:AllStarSegmentTypeICE ] ) ] .
+base:BaseballOffseasonSegment owl:equivalentClass [ a owl:Class ; owl:intersectionOf ( base:BaseballSeasonSegment [ a owl:Restriction ; owl:onProperty cco:ont00001914 ; owl:hasValue base:OffseasonSegmentTypeICE ] ) ] .
+base:BaseballTransactionPeriod rdfs:subClassOf
+    [ a owl:Restriction ; owl:onProperty cco:ont00001801 ; owl:someValuesFrom base:BaseballRule ],
+    [ a owl:Restriction ; owl:onProperty cco:ont00001879 ; owl:someValuesFrom cco:ont00000073 ] .
+base:MajorLeagueFreeAgentQuietPeriod owl:equivalentClass [ a owl:Class ; owl:intersectionOf ( base:BaseballTransactionPeriod [ a owl:Restriction ; owl:onProperty cco:ont00001914 ; owl:hasValue base:FreeAgentQuietPeriodTypeICE ] ) ] .
+base:MajorLeagueOpenFreeAgencyPeriod owl:equivalentClass [ a owl:Class ; owl:intersectionOf ( base:BaseballTransactionPeriod [ a owl:Restriction ; owl:onProperty cco:ont00001914 ; owl:hasValue base:OpenFreeAgencyPeriodTypeICE ] ) ] .
+base:MajorLeagueSalaryArbitrationPeriod owl:equivalentClass [ a owl:Class ; owl:intersectionOf ( base:BaseballTransactionPeriod [ a owl:Restriction ; owl:onProperty cco:ont00001914 ; owl:hasValue base:SalaryArbitrationPeriodTypeICE ] ) ] .
+base:MajorLeagueInternationalSigningPeriod owl:equivalentClass [ a owl:Class ; owl:intersectionOf ( base:BaseballTransactionPeriod [ a owl:Restriction ; owl:onProperty cco:ont00001914 ; owl:hasValue base:InternationalSigningPeriodTypeICE ] ) ] .
+base:MajorLeagueFreeAgentQuietPeriod rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty cco:ont00001971 ;
+    owl:someValuesFrom [
+        a owl:Class ;
+        owl:intersectionOf (
+            obo:BFO_0000202
+            [ a owl:Restriction ; owl:onProperty cco:ont00001874 ; owl:someValuesFrom base:BaseballOffseasonSegment ]
+        )
+    ]
+] .

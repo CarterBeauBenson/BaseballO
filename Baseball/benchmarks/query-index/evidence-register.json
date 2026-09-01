@@ -1,0 +1,36 @@
+{
+  "artifactType": "baseball-query-index-evidence-register",
+  "contractVersion": 1,
+  "captures": [
+    {
+      "id": "fixture-566279-2026-08-04",
+      "status": "historical",
+      "artifact": "benchmarks/query-index/fixture-566279-baseline.json",
+      "summary": "benchmarks/query-index/fixture-566279-baseline.md",
+      "capturedAtUtc": "2026-08-04T18:02:28.0673236Z",
+      "capturedAtCommit": "8c3ad1416a666dcad18b8fb89c7b22300254fcfa",
+      "queryIndexContractSha256": "a573269199d575f513a6481609dd101fd26da113ea8c3daef0b7daae35543629",
+      "artifactTextSha256": "1be56c87abffbd43bb278724e9e743bf1d7535565d44c98d601f89bf541165a0"
+    },
+    {
+      "id": "corpus-2026-08-03-2026-08-11",
+      "status": "historical",
+      "artifact": "benchmarks/query-index/corpus-2026-08-03-baseline.json",
+      "summary": "benchmarks/query-index/corpus-2026-08-03-baseline.md",
+      "capturedAtUtc": "2026-08-11T22:17:48.9698921Z",
+      "capturedAtCommit": "e3800ac65466ea1fe72222aaad2e579f52c559f0",
+      "queryIndexContractSha256": "a573269199d575f513a6481609dd101fd26da113ea8c3daef0b7daae35543629",
+      "artifactTextSha256": "5c41b0b7f383848f2c63793555ee7b9d15670fb699872ffadb967e466ecd7827"
+    },
+    {
+      "id": "tdb2-2026-08-03-2026-08-11",
+      "status": "historical",
+      "artifact": "benchmarks/query-index/tdb2-execution/tdb2-execution-summary.json",
+      "summary": "benchmarks/query-index/tdb2-execution/README.md",
+      "capturedAtUtc": "2026-08-11T22:48:47.0029777Z",
+      "capturedAtCommit": "e3800ac65466ea1fe72222aaad2e579f52c559f0",
+      "queryIndexContractSha256": "a573269199d575f513a6481609dd101fd26da113ea8c3daef0b7daae35543629",
+      "artifactTextSha256": "fd8b34e9a353b0f6cf8fb0100ab259dbd1bfa1b0f967b8a4ac3f48271ec54e62"
+    }
+  ]
+}

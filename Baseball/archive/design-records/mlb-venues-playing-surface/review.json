@@ -1,0 +1,47 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-venues-playing-surface",
+  "title": "MLB venue playing-surface artifact",
+  "status": "accepted",
+  "proposedIris": [
+    "https://baseballontology.org/BaseballPlayingSurface"
+  ],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "e2caa59b45f0072861984f71d06881ff786582ae19b1f393583193af66871b68"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "ca3958b20eb0c4b6560e332e6583e9bd4f858ee8b21301c3d2f317a81541fd22"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "6bd1fef86dee412d70c68e016cc0859c84f4244f2e11db195646d7a420f735f2"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "d3c03d1e32b00806ddb61d83124d1ec593f1dc387be4dea27ef0f9f2e5151f5e"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-08-30",
+    "rationale": "The ontologist explicitly accepted the revised source-independent Mermaid package published at commit b8c6cc76711286c979b9acb11db3c48ae7d6a581 and authorized implementation that follows those diagrams and the recorded modeling guidance.",
+    "authorizedArtifacts": [
+      "Baseball/ontology/BaseballO.ttl",
+      "Baseball/ontology/BaseballO-axioms-overlay.ttl"
+    ]
+  }
+}

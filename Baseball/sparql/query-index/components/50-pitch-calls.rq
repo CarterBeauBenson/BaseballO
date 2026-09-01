@@ -1,0 +1,93 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX idx: <https://w3id.org/baseball/query-index/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+
+CONSTRUCT {
+  ?callFact a idx:PitchCallFact ;
+      idx:pitch ?pitch ;
+      idx:agent ?pitcher ;
+      idx:game ?game ;
+      idx:callType ?callType ;
+      idx:derivedFrom ?record, ?semanticEvidence .
+}
+WHERE {
+  VALUES (?sourceGraph ?game) {
+    (<urn:baseball:query-index:source-graph> <urn:baseball:query-index:game>)
+  }
+  GRAPH ?sourceGraph {
+    ?pitch a base:PitchAct ;
+        obo:BFO_0000132 ?plateAppearance ;
+        obo:BFO_0000057 ?pitcher ;
+        obo:BFO_0000063 ?pitchMotion .
+    ?pitchMotion a base:PitchBallMotionProcess .
+    ?pitcher a cco:ont00001262 .
+    ?plateAppearance a base:PlateAppearance ;
+        obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
+    ?record a base:BaseballEventRecord ;
+        cco:ont00001808 ?pitch .
+    BIND(IRI(CONCAT(STR(?pitch), "/call-fact")) AS ?callFact)
+    {
+      ?record cco:ont00001808 ?semanticEvidence .
+      ?semanticEvidence a base:BallProcess .
+      BIND(idx:Ball AS ?callType)
+    }
+    UNION
+    {
+      ?record cco:ont00001808 ?semanticEvidence .
+      ?semanticEvidence a base:StrikeCallAct .
+      BIND(idx:CalledStrike AS ?callType)
+    }
+    UNION
+    {
+      ?record cco:ont00001808 ?semanticEvidence, ?battingAct .
+      ?semanticEvidence a base:StrikeProcess .
+      ?battingAct a ?battingActClass .
+      VALUES ?battingActClass { base:SwingAct base:BuntAct }
+      FILTER NOT EXISTS {
+        ?record cco:ont00001808 ?excludedFoulBall .
+        ?excludedFoulBall a base:FoulBallProcess .
+      }
+      FILTER NOT EXISTS {
+        ?record cco:ont00001808 ?excludedFoulTip .
+        ?excludedFoulTip a base:FoulTipProcess .
+      }
+      FILTER NOT EXISTS {
+        ?record cco:ont00001808 ?excludedFairBall .
+        ?excludedFairBall a base:FairBallProcess .
+      }
+      BIND(idx:SwingingStrike AS ?callType)
+    }
+    UNION
+    {
+      ?record cco:ont00001808 ?semanticEvidence .
+      ?semanticEvidence a ?foulType .
+      VALUES ?foulType { base:FoulBallProcess base:FoulTipProcess }
+      BIND(idx:Foul AS ?callType)
+    }
+    UNION
+    {
+      ?record cco:ont00001808 ?semanticEvidence .
+      ?semanticEvidence a base:FairBallProcess .
+      BIND(idx:InPlay AS ?callType)
+    }
+    UNION
+    {
+      ?semanticEvidence a base:HitByPitchProcess ;
+          obo:BFO_0000132 ?plateAppearance .
+      ?pitch obo:BFO_0000199/obo:BFO_0000224 ?pitchEndInstant .
+      ?pitchEndTimestamp a base:BaseballTimestampICE ;
+          cco:ont00001916 ?pitchEndInstant ;
+          cco:ont00001767 ?pitchEnd .
+      FILTER NOT EXISTS {
+        ?laterPitch a base:PitchAct ; obo:BFO_0000132 ?plateAppearance ;
+            obo:BFO_0000199/obo:BFO_0000224 ?laterPitchEndInstant .
+        ?laterPitchEndTimestamp a base:BaseballTimestampICE ;
+            cco:ont00001916 ?laterPitchEndInstant ;
+            cco:ont00001767 ?laterPitchEnd .
+        FILTER (?laterPitchEnd > ?pitchEnd)
+      }
+      BIND(idx:HitByPitch AS ?callType)
+    }
+  }
+}

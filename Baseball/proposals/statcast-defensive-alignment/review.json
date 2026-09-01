@@ -1,0 +1,28 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "statcast-defensive-alignment",
+  "title": "Statcast defensive alignment",
+  "status": "under-review",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [{
+      "path": "competency-questions.md",
+      "sha256": "13ccff7d11a25338f53c96666400c72e1d4afd76bb1cc38f8f31f000cdf24f64"
+    }],
+    "sourceEvidence": [{
+      "path": "source-evidence.md",
+      "sha256": "84a2ebca7e76a53e9f34274658960f7dc2c4cc65365935d403fbacf1bb912c5e"
+    }],
+    "fieldSelectionInventory": [{
+      "path": "field-selection-inventory.md",
+      "sha256": "ae269146d58b778bf6e526cbb70e8fca3f05566dba4469fbf84f8401205c7ae5"
+    }],
+    "sourceIndependentMermaid": [{
+      "path": "source-specific-mermaid.md",
+        "sha256": "71d1d6d4d1cf62a91b4275f6aa1028e59a299be00c2d915e9bf0ff0a662b269c"
+    }]
+  },
+  "ontologistDecision": null
+}

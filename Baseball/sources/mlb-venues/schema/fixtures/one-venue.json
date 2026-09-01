@@ -1,0 +1,34 @@
+{
+  "copyright": "Synthetic BaseballO fixture; not an MLB API response",
+  "venues": [
+    {
+      "id": 999999,
+      "name": "Estádio Áccent Fixture Park",
+      "season": "2025",
+      "active": true,
+      "location": {
+        "address1": "Not authoritative fixture data",
+        "defaultCoordinates": {
+          "latitude": 1.25,
+          "longitude": -2.5
+        },
+        "azimuthAngle": 12.5,
+        "elevation": 100
+      },
+      "timeZone": {
+        "id": "Etc/UTC",
+        "offset": 0
+      },
+      "fieldInfo": {
+        "capacity": 40000,
+        "turfType": "Grass",
+        "roofType": "Retractable",
+        "leftLine": 333,
+        "leftCenter": 376,
+        "center": 410,
+        "rightCenter": 373,
+        "rightLine": 318
+      }
+    }
+  ]
+}

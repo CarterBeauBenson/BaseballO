@@ -1,0 +1,22 @@
+{
+  "artifactType": "baseballo-source-semantic-status",
+  "contractVersion": 1,
+  "moduleId": "mlb-transactions",
+  "operationalStatus": "paused",
+  "semanticStatus": "approved",
+  "extensionAllowed": false,
+  "semanticAcceptance": "granted-by-ontologist",
+  "runtimePolicy": "activate-only-after-module-registration-one-record-proof-and-source-owned-nifi-wiring",
+  "audit": "sources/mlb-transactions/README.md",
+  "auditDate": "2026-08-30",
+  "acceptedReview": "archive/design-records/mlb-transactions-source-contract/review.json",
+  "openBlockers": [],
+  "notes": [
+    "Exact complete TR groups now map the accepted Trade, team-agent, Player Role, Loss, Gain, ordering, and Day-localized region pattern.",
+    "Exact SGN and SFA rows with structured Person and destination Team map contract formation and Player Role gain without inferring free agency.",
+    "The module is not an authority for persistent Person, Baseball Team, Player Role, roster-stint, or name assertions.",
+    "Uniform number, release, retirement, declaration, roster-status, and waiver branches remain information-only unless their full evidence gates are met.",
+    "Death mapping is disabled unless a separately accepted module-local code pin matches the acquired code-list bytes.",
+    "Operational activation and NiFi registration are separate integration work."
+  ]
+}

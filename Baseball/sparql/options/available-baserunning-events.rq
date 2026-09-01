@@ -1,0 +1,35 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+
+SELECT DISTINCT ?eventType ?eventTypeLabel
+WHERE {
+  GRAPH ?graph {
+    ?record a base:BaseballEventRecord ;
+            cco:ont00001808 ?resolution .
+    ?resolution a base:RunnerResolutionProcess, ?resolutionClass ;
+                obo:BFO_0000117 ?judgment .
+    ?judgment a ?judgmentClass .
+    VALUES ?judgmentClass {
+      base:OutJudgmentAct base:SafeJudgmentAct base:RunJudgmentAct
+    }
+    OPTIONAL {
+      ?record cco:ont00001808 ?specificResolution .
+      ?specificResolution a ?specificResolutionClass .
+      VALUES (?specificResolutionClass ?specificEventType) {
+        (base:StolenBaseProcess "stolen_base")
+        (base:PassedBallProcess "passed_ball")
+        (base:WildPitchProcess "wild_pitch")
+        (base:UncaughtThirdStrikeProcess "uncaught_third_strike")
+      }
+    }
+    BIND(COALESCE(
+      ?specificEventType,
+      IF(?resolutionClass = base:RunProcess, "run",
+        IF(?resolutionClass = base:OutProcess, "out", "safe"))
+    ) AS ?eventType)
+    BIND(REPLACE(STR(?eventType), "_", " ") AS ?eventTypeLabel)
+  }
+  FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+}
+ORDER BY ?eventTypeLabel

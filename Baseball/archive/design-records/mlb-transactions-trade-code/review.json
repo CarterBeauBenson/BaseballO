@@ -1,0 +1,22 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-transactions-trade-code",
+  "title": "MLB transaction Trade code",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [{"path": "competency-questions.md", "sha256": "76d1cff867dd0fba1ae13ac853a647f0088239a275e801de30924cdda6461b98"}],
+    "sourceEvidence": [{"path": "source-evidence.md", "sha256": "f9e508f2cb40c3a2911d99f67a6e71350c15573361aae249f9797ef10e6d6366"}],
+    "fieldSelectionInventory": [{"path": "field-selection-inventory.md", "sha256": "d3df3b2a48cab860e6f87c95648b7c0098cb3d673aeb90b2820bc3ab57837a49"}],
+    "sourceIndependentMermaid": [{"path": "source-independent-mermaid.md", "sha256": "be75dff6b4c7030db448a1d78623252fb8bdb825d3db5f872f8bd6504680f464"}]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-08-30",
+    "rationale": "The ontologist explicitly accepted the revised source-independent Mermaid package published at commit b8c6cc76711286c979b9acb11db3c48ae7d6a581 and authorized implementation that follows those diagrams and the recorded modeling guidance.",
+    "authorizedArtifacts": []
+  }
+}

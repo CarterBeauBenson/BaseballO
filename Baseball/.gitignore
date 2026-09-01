@@ -1,0 +1,29 @@
+# Generated RDF
+*.nq
+*.nt
+*.trig
+*.trix
+*.hdt
+
+# Do not add ad hoc raw files at data/raw root; checked-in evidence is explicit
+/data/raw/*.json
+!/data/raw/game-566279.json
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# Node / web tooling
+node_modules/
+
+# Local service runtimes and mutable state (normally stored in %LOCALAPPDATA%)
+/.runtime/
+/var/
+*.pid
+
+# Editors and operating systems
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

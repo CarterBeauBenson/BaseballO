@@ -1,0 +1,22 @@
+mlb_teams_iri_policy:
+  title: "MLB teams source IRI policy"
+  version: "1.0"
+  semantic_contract: "mlb-organizations-source-contract partitioned by mlb-organization-endpoint-lane-separation"
+  status: "ontologist-approved"
+  namespaces:
+    data: "https://baseballontology.org/data/"
+    graph: "https://w3id.org/baseball/graph/authority/mlb-teams/"
+  response_evidence:
+    template: "{data}source/mlb-teams/response/teams/{requestScopeSha256}/{responseSha256}"
+    identity: [teams endpoint family, exact request-scope SHA-256, exact response-byte SHA-256]
+  organizations:
+    team: "{data}team/{teamId}"
+    league_reference: "{data}league/{leagueId}"
+    division_reference: "{data}division/{divisionId}"
+    identifier: "{organizationIri}/identifier/mlb-{kind}-id"
+    name: "{organizationIri}/name/proper/{exactUnicodeLexicalSha256}"
+  prohibited:
+    - League endpoint payloads
+    - Division endpoint payloads
+    - affiliation or membership relations inferred from nesting
+    - source fields not admitted by the accepted contract

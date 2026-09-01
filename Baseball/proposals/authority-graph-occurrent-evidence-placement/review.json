@@ -1,0 +1,36 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "authority-graph-occurrent-evidence-placement",
+  "title": "Authority-graph placement of one-time occurrent evidence",
+  "status": "under-review",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "c4a1d222c59aa92963ffc3313f0db0fe17036d03d75061da3ee8164ac99a9f1f"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "fd0398ae94c27eafbc5ec0efbce745feb30ac477924eb247b30d60732547f7a2"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "fade381e9df7786bb346156d4d6c9236d36067b6f202fb778f4c698d54f4c7d4"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "4a55d4a387e1a43e9c7227db06a6122c05d0ac45c14049b52e53c5e797e4b98c"
+      }
+    ]
+  },
+  "ontologistDecision": null
+}

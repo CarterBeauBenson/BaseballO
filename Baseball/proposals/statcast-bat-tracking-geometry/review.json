@@ -1,0 +1,28 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "statcast-bat-tracking-geometry",
+  "title": "Statcast bat-tracking geometry",
+  "status": "under-review",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [{
+      "path": "competency-questions.md",
+      "sha256": "b97515f3abb4670463cbb8fc117361c788f78ae5a22710206eef5fb2ae74ae57"
+    }],
+    "sourceEvidence": [{
+      "path": "source-evidence.md",
+      "sha256": "6ae912e4cd10d473a72e3fb63b8af4675a1f986391ac414b0649341132dd7bfc"
+    }],
+    "fieldSelectionInventory": [{
+      "path": "field-selection-inventory.md",
+      "sha256": "54d2abdcf4ba6bb8bf67f72b2f89d145ae8f89c9f301e18edf0caca2dca5a3b2"
+    }],
+    "sourceIndependentMermaid": [{
+      "path": "source-specific-mermaid.md",
+        "sha256": "3467117255426261e9c7944e038760dfc67aace833d88687ddd44e4ed1c70755"
+    }]
+  },
+  "ontologistDecision": null
+}

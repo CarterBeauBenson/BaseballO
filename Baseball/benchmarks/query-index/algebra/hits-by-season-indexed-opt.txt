@@ -1,0 +1,12 @@
+(prefix ((idx: <https://w3id.org/baseball/query-index/>))
+  (project (?season ?hits ?gamesWithHits)
+    (order (?season)
+      (extend ((?hits ?.0) (?gamesWithHits ?.1))
+        (group (?season) ((?.0 (count distinct ?hit)) (?.1 (count distinct ?game)))
+          (graph ?graph
+            (bgp
+              (triple ?hit <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> idx:HitFact)
+              (triple ?hit idx:game ?game)
+              (triple ?game <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> idx:GameFact)
+              (triple ?game idx:season ?season)
+            )))))))

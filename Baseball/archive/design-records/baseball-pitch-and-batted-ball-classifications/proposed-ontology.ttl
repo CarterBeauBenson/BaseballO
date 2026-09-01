@@ -1,0 +1,98 @@
+@prefix base: <https://baseballontology.org/> .
+@prefix cco: <https://www.commoncoreontologies.org/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+# Review-only candidate ontology. These terms are not executable while this
+# package remains active.
+
+base:FourSeamFastballPitchAct a owl:Class ; rdfs:subClassOf base:PitchAct ; rdfs:label "Four-Seam Fastball Pitch Act"@en ; skos:definition "A Four-Seam Fastball Pitch Act is a Pitch Act that is measured by nominal the Four-Seam Fastball Pitch Type ICE."@en .
+base:SinkerPitchAct a owl:Class ; rdfs:subClassOf base:PitchAct ; rdfs:label "Sinker Pitch Act"@en ; skos:definition "A Sinker Pitch Act is a Pitch Act that is measured by nominal the Sinker Pitch Type ICE."@en .
+base:CutterPitchAct a owl:Class ; rdfs:subClassOf base:PitchAct ; rdfs:label "Cutter Pitch Act"@en ; skos:definition "A Cutter Pitch Act is a Pitch Act that is measured by nominal the Cutter Pitch Type ICE."@en .
+base:SliderPitchAct a owl:Class ; rdfs:subClassOf base:PitchAct ; rdfs:label "Slider Pitch Act"@en ; skos:definition "A Slider Pitch Act is a Pitch Act that is measured by nominal the Slider Pitch Type ICE."@en .
+base:SweeperPitchAct a owl:Class ; rdfs:subClassOf base:PitchAct ; rdfs:label "Sweeper Pitch Act"@en ; skos:definition "A Sweeper Pitch Act is a Pitch Act that is measured by nominal the Sweeper Pitch Type ICE."@en .
+base:SlurvePitchAct a owl:Class ; rdfs:subClassOf base:PitchAct ; rdfs:label "Slurve Pitch Act"@en ; skos:definition "A Slurve Pitch Act is a Pitch Act that is measured by nominal the Slurve Pitch Type ICE."@en .
+base:CurveballPitchAct a owl:Class ; rdfs:subClassOf base:PitchAct ; rdfs:label "Curveball Pitch Act"@en ; skos:definition "A Curveball Pitch Act is a Pitch Act that is measured by nominal the Curveball Pitch Type ICE."@en .
+base:KnuckleCurvePitchAct a owl:Class ; rdfs:subClassOf base:PitchAct ; rdfs:label "Knuckle-Curve Pitch Act"@en ; skos:definition "A Knuckle-Curve Pitch Act is a Pitch Act that is measured by nominal the Knuckle-Curve Pitch Type ICE."@en .
+base:SlowCurvePitchAct a owl:Class ; rdfs:subClassOf base:PitchAct ; rdfs:label "Slow Curve Pitch Act"@en ; skos:definition "A Slow Curve Pitch Act is a Pitch Act that is measured by nominal the Slow Curve Pitch Type ICE."@en .
+base:ChangeupPitchAct a owl:Class ; rdfs:subClassOf base:PitchAct ; rdfs:label "Changeup Pitch Act"@en ; skos:definition "A Changeup Pitch Act is a Pitch Act that is measured by nominal the Changeup Pitch Type ICE."@en .
+base:SplitterPitchAct a owl:Class ; rdfs:subClassOf base:PitchAct ; rdfs:label "Splitter Pitch Act"@en ; skos:definition "A Splitter Pitch Act is a Pitch Act that is measured by nominal the Splitter Pitch Type ICE."@en .
+base:ForkballPitchAct a owl:Class ; rdfs:subClassOf base:PitchAct ; rdfs:label "Forkball Pitch Act"@en ; skos:definition "A Forkball Pitch Act is a Pitch Act that is measured by nominal the Forkball Pitch Type ICE."@en .
+base:ScrewballPitchAct a owl:Class ; rdfs:subClassOf base:PitchAct ; rdfs:label "Screwball Pitch Act"@en ; skos:definition "A Screwball Pitch Act is a Pitch Act that is measured by nominal the Screwball Pitch Type ICE."@en .
+base:KnuckleballPitchAct a owl:Class ; rdfs:subClassOf base:PitchAct ; rdfs:label "Knuckleball Pitch Act"@en ; skos:definition "A Knuckleball Pitch Act is a Pitch Act that is measured by nominal the Knuckleball Pitch Type ICE."@en .
+base:EephusPitchAct a owl:Class ; rdfs:subClassOf base:PitchAct ; rdfs:label "Eephus Pitch Act"@en ; skos:definition "An Eephus Pitch Act is a Pitch Act that is measured by nominal the Eephus Pitch Type ICE."@en .
+
+base:GroundBallMotionProcess a owl:Class ; rdfs:subClassOf base:BattedBallMotionProcess ; rdfs:label "Ground-Ball Motion Process"@en ; skos:definition "A Ground-Ball Motion Process is a Batted-Ball Motion Process that is measured by nominal the Ground Ball Trajectory ICE."@en .
+base:LineDriveMotionProcess a owl:Class ; rdfs:subClassOf base:BattedBallMotionProcess ; rdfs:label "Line-Drive Motion Process"@en ; skos:definition "A Line-Drive Motion Process is a Batted-Ball Motion Process that is measured by nominal the Line Drive Trajectory ICE."@en .
+base:FlyBallMotionProcess a owl:Class ; rdfs:subClassOf base:BattedBallMotionProcess ; rdfs:label "Fly-Ball Motion Process"@en ; skos:definition "A Fly-Ball Motion Process is a Batted-Ball Motion Process that is measured by nominal the Fly Ball Trajectory ICE."@en .
+base:PopUpMotionProcess a owl:Class ; rdfs:subClassOf base:BattedBallMotionProcess ; rdfs:label "Pop-Up Motion Process"@en ; skos:definition "A Pop-Up Motion Process is a Batted-Ball Motion Process that is measured by nominal the Pop-Up Trajectory ICE."@en .
+
+# Review annotations. Physical tendencies are explanatory evidence, not
+# necessary-and-sufficient conditions for these classification-dependent kinds.
+base:FourSeamFastballPitchAct rdfs:comment "The classifies-as relation is supplied by a reusable nominal measurement; velocity, grip, and ride remain separate evidence."@en ; skos:example "A particular pitch classified FF by the reviewed MLB pitch-type system."@en .
+base:SinkerPitchAct rdfs:comment "Arm-side run, drop, grip, and velocity may support the classification but do not define every instance."@en ; skos:example "A particular pitch classified SI by the reviewed MLB pitch-type system."@en .
+base:CutterPitchAct rdfs:comment "Fastball-like and hard-slider-like cutters are retained without imposing one physical signature."@en ; skos:example "A particular pitch classified FC by the reviewed MLB pitch-type system."@en .
+base:SliderPitchAct rdfs:comment "Gyro spin, velocity, grip, and break vary by pitcher and remain separately represented."@en ; skos:example "A particular pitch classified SL by the reviewed MLB pitch-type system."@en .
+base:SweeperPitchAct rdfs:comment "The provider classification does not require one grip or a fixed horizontal-break threshold in BaseballO."@en ; skos:example "A particular pitch classified ST by the reviewed MLB pitch-type system."@en .
+base:SlurvePitchAct rdfs:comment "The provider classification admits pitches between slider and curveball tendencies without defining a numerical boundary."@en ; skos:example "A particular pitch classified SV by the reviewed MLB pitch-type system."@en .
+base:CurveballPitchAct rdfs:comment "Grip, speed, and break shape remain evidence rather than universal class restrictions."@en ; skos:example "A particular pitch classified CU by the reviewed MLB pitch-type system."@en .
+base:KnuckleCurvePitchAct rdfs:comment "The class preserves provider recognition despite physical overlap with curveballs and knuckleballs."@en ; skos:example "A particular pitch classified KC by the reviewed MLB pitch-type system."@en .
+base:SlowCurvePitchAct rdfs:comment "Slow Curve is kept distinct when the reviewed provider Reference System does so."@en ; skos:example "A particular pitch classified CS by the reviewed MLB pitch-type system."@en .
+base:ChangeupPitchAct rdfs:comment "Deception, speed separation, grip, and movement remain separately representable evidence."@en ; skos:example "A particular pitch classified CH by the reviewed MLB pitch-type system."@en .
+base:SplitterPitchAct rdfs:comment "The class does not impose a universal grip or a fixed boundary from forkballs and changeups."@en ; skos:example "A particular pitch classified FS by the reviewed MLB pitch-type system."@en .
+base:ForkballPitchAct rdfs:comment "The class preserves provider recognition while leaving grip and movement measurements independent."@en ; skos:example "A particular pitch classified FO by the reviewed MLB pitch-type system."@en .
+base:ScrewballPitchAct rdfs:comment "Arm-side breaking tendencies do not substitute for the admitted nominal classification."@en ; skos:example "A particular pitch classified SC by the reviewed MLB pitch-type system."@en .
+base:KnuckleballPitchAct rdfs:comment "Low spin and flutter may explain the classification but do not replace the classification evidence."@en ; skos:example "A particular pitch classified KN by the reviewed MLB pitch-type system."@en .
+base:EephusPitchAct rdfs:comment "The historical provider category is retained without imposing a fixed velocity or arc threshold."@en ; skos:example "A particular pitch classified EP by the reviewed MLB pitch-type system."@en .
+base:GroundBallMotionProcess rdfs:comment "This class types the batted Baseball's Motion Process, not the Swing Act, Bunt Act, contact, or terminal result."@en ; skos:example "The motion of a contacted ball classified ground_ball by the reviewed trajectory system."@en .
+base:LineDriveMotionProcess rdfs:comment "This class types the batted Baseball's Motion Process without defining a launch-angle threshold."@en ; skos:example "The motion of a contacted ball classified line_drive by the reviewed trajectory system."@en .
+base:FlyBallMotionProcess rdfs:comment "This class types the batted Baseball's Motion Process without treating every airborne ball as provider-classified fly_ball."@en ; skos:example "The motion of a contacted ball classified fly_ball by the reviewed trajectory system."@en .
+base:PopUpMotionProcess rdfs:comment "This class types the batted Baseball's Motion Process without defining a universal height or launch-angle cutoff."@en ; skos:example "The motion of a contacted ball classified popup by the reviewed trajectory system."@en .
+
+# Reusable nominal-measurement individuals and provider codes.
+base:FourSeamFastballPitchTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "FF" .
+base:SinkerPitchTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "SI" .
+base:CutterPitchTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "FC" .
+base:SliderPitchTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "SL" .
+base:SweeperPitchTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "ST" .
+base:SlurvePitchTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "SV" .
+base:CurveballPitchTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "CU" .
+base:KnuckleCurvePitchTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "KC" .
+base:SlowCurvePitchTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "CS" .
+base:ChangeupPitchTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "CH" .
+base:SplitterPitchTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "FS" .
+base:ForkballPitchTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "FO" .
+base:ScrewballPitchTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "SC" .
+base:KnuckleballPitchTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "KN" .
+base:EephusPitchTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "EP" .
+
+base:GroundBallTrajectoryICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "ground_ball" .
+base:LineDriveTrajectoryICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "line_drive" .
+base:FlyBallTrajectoryICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "fly_ball" .
+base:PopUpTrajectoryICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "popup" .
+
+# Necessary restrictions only. Historical nominal-measurement evidence cannot
+# infer class membership. The rebuildable current-state reasoning graph carries
+# the selected explicit rdf:type assertion.
+base:FourSeamFastballPitchAct rdfs:subClassOf [ a owl:Restriction ; owl:onProperty cco:ont00001914 ; owl:hasValue base:FourSeamFastballPitchTypeICE ] .
+base:SinkerPitchAct rdfs:subClassOf [ a owl:Restriction ; owl:onProperty cco:ont00001914 ; owl:hasValue base:SinkerPitchTypeICE ] .
+base:CutterPitchAct rdfs:subClassOf [ a owl:Restriction ; owl:onProperty cco:ont00001914 ; owl:hasValue base:CutterPitchTypeICE ] .
+base:SliderPitchAct rdfs:subClassOf [ a owl:Restriction ; owl:onProperty cco:ont00001914 ; owl:hasValue base:SliderPitchTypeICE ] .
+base:SweeperPitchAct rdfs:subClassOf [ a owl:Restriction ; owl:onProperty cco:ont00001914 ; owl:hasValue base:SweeperPitchTypeICE ] .
+base:SlurvePitchAct rdfs:subClassOf [ a owl:Restriction ; owl:onProperty cco:ont00001914 ; owl:hasValue base:SlurvePitchTypeICE ] .
+base:CurveballPitchAct rdfs:subClassOf [ a owl:Restriction ; owl:onProperty cco:ont00001914 ; owl:hasValue base:CurveballPitchTypeICE ] .
+base:KnuckleCurvePitchAct rdfs:subClassOf [ a owl:Restriction ; owl:onProperty cco:ont00001914 ; owl:hasValue base:KnuckleCurvePitchTypeICE ] .
+base:SlowCurvePitchAct rdfs:subClassOf [ a owl:Restriction ; owl:onProperty cco:ont00001914 ; owl:hasValue base:SlowCurvePitchTypeICE ] .
+base:ChangeupPitchAct rdfs:subClassOf [ a owl:Restriction ; owl:onProperty cco:ont00001914 ; owl:hasValue base:ChangeupPitchTypeICE ] .
+base:SplitterPitchAct rdfs:subClassOf [ a owl:Restriction ; owl:onProperty cco:ont00001914 ; owl:hasValue base:SplitterPitchTypeICE ] .
+base:ForkballPitchAct rdfs:subClassOf [ a owl:Restriction ; owl:onProperty cco:ont00001914 ; owl:hasValue base:ForkballPitchTypeICE ] .
+base:ScrewballPitchAct rdfs:subClassOf [ a owl:Restriction ; owl:onProperty cco:ont00001914 ; owl:hasValue base:ScrewballPitchTypeICE ] .
+base:KnuckleballPitchAct rdfs:subClassOf [ a owl:Restriction ; owl:onProperty cco:ont00001914 ; owl:hasValue base:KnuckleballPitchTypeICE ] .
+base:EephusPitchAct rdfs:subClassOf [ a owl:Restriction ; owl:onProperty cco:ont00001914 ; owl:hasValue base:EephusPitchTypeICE ] .
+
+base:GroundBallMotionProcess rdfs:subClassOf [ a owl:Restriction ; owl:onProperty cco:ont00001914 ; owl:hasValue base:GroundBallTrajectoryICE ] .
+base:LineDriveMotionProcess rdfs:subClassOf [ a owl:Restriction ; owl:onProperty cco:ont00001914 ; owl:hasValue base:LineDriveTrajectoryICE ] .
+base:FlyBallMotionProcess rdfs:subClassOf [ a owl:Restriction ; owl:onProperty cco:ont00001914 ; owl:hasValue base:FlyBallTrajectoryICE ] .
+base:PopUpMotionProcess rdfs:subClassOf [ a owl:Restriction ; owl:onProperty cco:ont00001914 ; owl:hasValue base:PopUpTrajectoryICE ] .

@@ -1,0 +1,29 @@
+PREFIX idx: <https://w3id.org/baseball/query-index/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?pitcher ?pitcherLabel
+       (COUNT(DISTINCT ?pitch) AS ?pitches)
+       (COUNT(DISTINCT ?ball) AS ?balls)
+       (COUNT(DISTINCT ?strike) AS ?strikes)
+       (COUNT(DISTINCT ?plateAppearance) AS ?plateAppearances)
+WHERE {
+  GRAPH ?graph {
+    ?pitch a idx:PitchFact ;
+           idx:agent ?pitcher ;
+           idx:plateAppearance ?plateAppearance .
+    ?pitcher rdfs:label ?pitcherLabel .
+    OPTIONAL {
+      ?ball a idx:PitchCallFact ;
+            idx:pitch ?pitch ;
+            idx:callType idx:Ball .
+    }
+    OPTIONAL {
+      ?strike a idx:PitchCallFact ;
+              idx:pitch ?pitch ;
+              idx:callType ?strikeCallType .
+      VALUES ?strikeCallType { idx:CalledStrike idx:SwingingStrike idx:Foul }
+    }
+  }
+}
+GROUP BY ?pitcher ?pitcherLabel
+ORDER BY DESC(?pitches) LCASE(STR(?pitcherLabel))

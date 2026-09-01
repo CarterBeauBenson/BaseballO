@@ -1,0 +1,28 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "statcast-run-win-expectancy",
+  "title": "Statcast run and win expectancy",
+  "status": "under-review",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [{
+      "path": "competency-questions.md",
+      "sha256": "933766197a27dd04636c838726b5d7db35728848bd04856e59559613430d5882"
+    }],
+    "sourceEvidence": [{
+      "path": "source-evidence.md",
+      "sha256": "a34648a604f7edc102098b0084d9d17580bd03dfa4b19452972f2c71ab0225e1"
+    }],
+    "fieldSelectionInventory": [{
+      "path": "field-selection-inventory.md",
+      "sha256": "e46372bf16b33ca074862d9d4c3ec01d8539c20a7ce0054aac648dbae4d0bfea"
+    }],
+    "sourceIndependentMermaid": [{
+      "path": "source-specific-mermaid.md",
+        "sha256": "a412b7b3f3614e54516e0b7b2debb6365b7d3bc8660a35f3ff056ad11179a426"
+    }]
+  },
+  "ontologistDecision": null
+}

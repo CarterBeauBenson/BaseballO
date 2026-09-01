@@ -1,0 +1,33 @@
+{
+  "copyright": "Checked semantic fixture; not a retained API response",
+  "leagues": [
+    {
+      "id": 103,
+      "name": "American League",
+      "season": "2025",
+      "seasonDateInfo": {
+        "seasonId": "2025",
+        "preSeasonStartDate": "2025-01-01",
+        "springStartDate": "2025-02-20",
+        "regularSeasonStartDate": "2025-03-27",
+        "regularSeasonEndDate": "2025-09-28",
+        "postSeasonStartDate": "2025-09-30",
+        "postSeasonEndDate": "2025-11-01",
+        "offseasonStartDate": "2025-11-02",
+        "offSeasonEndDate": null,
+        "qualifierPlateAppearances": 3.1
+      },
+      "divisions": [
+        {
+          "id": 201,
+          "name": "American League East"
+        }
+      ],
+      "sport": {
+        "id": 1,
+        "name": "Major League Baseball"
+      },
+      "seasonState": "inseason"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-people-pitching-laterality",
+  "title": "MLB people throwing-side disposition",
+  "status": "accepted",
+  "proposedIris": [
+    "https://baseballontology.org/ThrowingSideDisposition"
+  ],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "ffc61f7de688ee1fedd661329fd3db5448f7622fac681910bd2a173b7243475b"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "93f79eb035cba610af5bb55e210df132981c30ecefead9d14e88d8bd07d22b65"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "c7cc70ff3e71f8dae82da733fa2230e9e47e57ad5049d6ffdde513b4808d6359"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "c57577e6a5f436a9475bc16dfd85adc440919bd38034964868f100413f82981e"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-08-30",
+    "rationale": "The ontologist explicitly accepted the revised source-independent Mermaid package published at commit b8c6cc76711286c979b9acb11db3c48ae7d6a581 and authorized implementation that follows those diagrams and the recorded modeling guidance.",
+    "authorizedArtifacts": [
+      "Baseball/ontology/BaseballO.ttl",
+      "Baseball/ontology/BaseballO-axioms-overlay.ttl"
+    ]
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-classification-state-phase-decisions-2026-08-31",
+  "title": "MLB-game classification, state, and season-phase decisions",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [{"path":"competency-questions.md","sha256":"6adf7987766066b4b9348e316ff418de8669068fb0b8941e97c4a60000a10d75"}],
+    "sourceEvidence": [{"path":"source-evidence.md","sha256":"dd02ac765b09de52bb1dfd65730908a0a40c42f907c1568a67bd8e01bf1af0f8"}],
+    "fieldSelectionInventory": [{"path":"field-selection-inventory.md","sha256":"bb7898708edaac918e847452cc0f787d331c12d4ce1c1dccbf449ea22c517c84"}],
+    "sourceIndependentMermaid": [{"path":"source-independent-mermaid.md","sha256":"cfe6a05cd713c99dc49c6d6d5ca7f276e170118ab625afbfeb7568792308f085"}]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-08-31",
+    "rationale": "The ontologist explicitly accepted the named pitch classification, source-record identity, out-count grounding, provider-code, replay-history, strike-zone, and season-segment design decisions. Exact new class definitions and the provider-coordinate pattern remain subject to their own review gates.",
+    "authorizedArtifacts": [
+      "Baseball/proposals/mlb-game-deferred-measurements/competency-questions.md",
+      "Baseball/proposals/mlb-game-deferred-measurements/field-selection-inventory.md",
+      "Baseball/proposals/mlb-game-deferred-measurements/source-evidence.md",
+      "Baseball/proposals/mlb-game-deferred-measurements/source-independent-mermaid.md",
+      "Baseball/proposals/mlb-game-deferred-measurements/review.json",
+      "Baseball/sources/mlb-game/SEMANTIC-AUDIT.md",
+      "Baseball/sources/mlb-game/review/semantic-status.json"
+    ]
+  }
+}

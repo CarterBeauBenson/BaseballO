@@ -1,0 +1,53 @@
+{
+  "artifactType": "baseball-selective-reasoning-profile",
+  "contractVersion": 1,
+  "id": "event-order",
+  "description": "Bounded precedence reasoning inside one plate appearance.",
+  "anchorClass": "https://baseballontology.org/PlateAppearance",
+  "scope": {
+    "containmentDepth": 4,
+    "enrichmentDepth": 1,
+    "predicates": [
+      "http://purl.obolibrary.org/obo/BFO_0000062",
+      "http://purl.obolibrary.org/obo/BFO_0000063",
+      "http://purl.obolibrary.org/obo/BFO_0000117",
+      "http://purl.obolibrary.org/obo/BFO_0000132",
+      "http://purl.obolibrary.org/obo/BFO_0000199"
+    ]
+  },
+  "rules": {
+    "subclassTypes": false,
+    "inverse": [
+      {
+        "forward": "http://purl.obolibrary.org/obo/BFO_0000063",
+        "inverse": "http://purl.obolibrary.org/obo/BFO_0000062",
+        "evidence": "order.cl[tib-1]"
+      }
+    ],
+    "transitive": [
+      {
+        "predicate": "http://purl.obolibrary.org/obo/BFO_0000063",
+        "evidence": "order.cl[ctz-1]"
+      },
+      {
+        "predicate": "http://purl.obolibrary.org/obo/BFO_0000062",
+        "evidence": "order.cl[tib-1,ctz-1]"
+      }
+    ]
+  },
+  "constraints": {
+    "irreflexive": ["http://purl.obolibrary.org/obo/BFO_0000063"],
+    "asymmetric": ["http://purl.obolibrary.org/obo/BFO_0000063"]
+  },
+  "clif": {
+    "modules": ["universal-declaration.cl", "order.cl"],
+    "axioms": ["tib-1", "ctz-1", "hew-1", "sen-1"]
+  },
+  "budgets": {
+    "maxNodes": 180,
+    "maxSourceTriples": 900,
+    "maxInferredTriples": 3000,
+    "maxIterations": 8,
+    "maxSeconds": 15
+  }
+}

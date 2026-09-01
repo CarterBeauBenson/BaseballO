@@ -1,0 +1,443 @@
+@prefix base: <https://baseballontology.org/> .
+@prefix bfo: <http://purl.obolibrary.org/obo/> .
+@prefix cco: <https://www.commoncoreontologies.org/> .
+@prefix data: <https://baseballontology.org/data/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix shape: <https://w3id.org/baseball/shacl/mlb-leagues/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+shape:AuthoritativeProfile
+    a sh:NodeShape ;
+    sh:name "MLB leagues authoritative graph profile"@en ;
+    sh:description "Post-RML constraints over RDF emitted only by the detachable MLB leagues source module."@en .
+
+# These graph-wide checks make an unreviewed class or relation fail closed even
+# when it does not happen to target one of the entity-specific shapes below.
+shape:GraphVocabularyShape
+    a sh:NodeShape ;
+    sh:targetNode shape:graph-contract ;
+    sh:sparql [
+        sh:message "MLB leagues RDF contains a predicate outside the accepted source contract."@en ;
+        sh:select """
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX bfo: <http://purl.obolibrary.org/obo/>
+            PREFIX cco: <https://www.commoncoreontologies.org/>
+            SELECT $this WHERE {
+              ?subject ?predicate ?object .
+              FILTER (?predicate NOT IN (
+                rdf:type, bfo:BFO_0000132, bfo:BFO_0000178,
+                cco:ont00001765, cco:ont00001771, cco:ont00001808,
+                cco:ont00001912, cco:ont00001916, cco:ont00001942
+              ))
+            } LIMIT 1
+        """
+    ] ;
+    sh:sparql [
+        sh:message "MLB leagues RDF contains a class outside the accepted source contract."@en ;
+        sh:select """
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX base: <https://baseballontology.org/>
+            PREFIX cco: <https://www.commoncoreontologies.org/>
+            SELECT $this WHERE {
+              ?subject rdf:type ?class .
+              FILTER (?class NOT IN (
+                base:BaseballSeason, base:BaseballSeasonPhase,
+                base:BaseballSeasonPlan,
+                cco:ont00000398, cco:ont00000649, cco:ont00000800,
+                cco:ont00000853, cco:ont00001014, cco:ont00001180,
+                cco:ont00001340
+              ))
+            } LIMIT 1
+        """
+    ] .
+
+shape:ResponseShape
+    a sh:NodeShape ;
+    sh:targetClass cco:ont00000853 ;
+    sh:nodeKind sh:IRI ;
+    sh:pattern "^https://baseballontology\\.org/data/source/mlb-leagues/response/leagues/[0-9a-f]{64}/[0-9a-f]{64}$" ;
+    sh:property [
+        sh:path cco:ont00001808 ;
+        sh:minCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "A leagues response ICE must be about at least one emitted entity."@en
+    ] ;
+    sh:property [
+        sh:path bfo:BFO_0000178 ;
+        sh:minCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "A leagues response ICE must have at least one emitted record-level ICE part."@en
+    ] .
+
+shape:ReferenceSystemShape
+    a sh:NodeShape ;
+    sh:targetClass cco:ont00000398 ;
+    sh:nodeKind sh:IRI ;
+    sh:in (
+        <https://baseballontology.org/data/reference-system/mlb/league-id>
+        <https://baseballontology.org/data/reference-system/mlb/division-id>
+        <https://baseballontology.org/data/reference-system/mlb/season-code>
+        <https://baseballontology.org/data/reference-system/mlb/season-date-field>
+    ) .
+
+shape:OrganizationShape
+    a sh:NodeShape ;
+    sh:targetClass cco:ont00001180 ;
+    sh:nodeKind sh:IRI ;
+    sh:pattern "^https://baseballontology\\.org/data/(league|division)/[1-9][0-9]*$" ;
+    sh:property [
+        sh:path [ sh:inversePath cco:ont00001916 ] ;
+        sh:qualifiedValueShape [
+            sh:class cco:ont00000649 ;
+            sh:pattern "^https://baseballontology\\.org/data/(league|division)/[1-9][0-9]*/identifier/mlb-(league|division)-id$"
+        ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "Each emitted Organization must have exactly one matching MLB identifier."@en
+    ] ;
+    sh:property [
+        sh:path cco:ont00001939 ;
+        sh:maxCount 0 ;
+        sh:message "This source contract forbids unqualified affiliation assertions."@en
+    ] ;
+    sh:property [
+        sh:path cco:ont00001977 ;
+        sh:maxCount 0 ;
+        sh:message "This source contract forbids inverse affiliation assertions."@en
+    ] ;
+    sh:sparql [
+        sh:message "The organizations graph must not directly relate a Team to a League/Division or a Division to a League."@en ;
+        sh:select """
+            SELECT $this WHERE {
+              $this ?predicate ?target .
+              FILTER (?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+              FILTER (
+                (REGEX(STR($this), "/team/[1-9][0-9]*$") &&
+                 REGEX(STR(?target), "/(league|division)/[1-9][0-9]*$")) ||
+                (REGEX(STR($this), "/division/[1-9][0-9]*$") &&
+                 REGEX(STR(?target), "/league/[1-9][0-9]*$"))
+              )
+            }
+        """
+    ] .
+
+shape:IdentifierShape
+    a sh:NodeShape ;
+    sh:targetClass cco:ont00000649 ;
+    sh:nodeKind sh:IRI ;
+    sh:or (
+        [ sh:pattern "^https://baseballontology\\.org/data/(league|division)/[1-9][0-9]*/identifier/mlb-(league|division)-id$" ]
+        [ sh:pattern "^https://baseballontology\\.org/data/league/[1-9][0-9]*/season/[0-9]{4}/identifier/mlb-season-code$" ]
+        [ sh:pattern "^https://baseballontology\\.org/data/league/[1-9][0-9]*/season/[0-9]{4}/plan/date/[A-Za-z][A-Za-z0-9]*Date/[0-9]{4}-[0-9]{2}-[0-9]{2}/evidence/[0-9a-f]{64}/field-key$" ]
+    ) ;
+    sh:property [
+        sh:path cco:ont00001765 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "An emitted identifier must carry exactly one non-empty text value."@en
+    ] ;
+    sh:property [
+        sh:path cco:ont00001912 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:class cco:ont00000398 ;
+        sh:message "An emitted identifier must use exactly one typed Reference System."@en
+    ] ;
+    sh:property [
+        sh:path cco:ont00001916 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "An emitted identifier must designate exactly one entity."@en
+    ] ;
+    sh:sparql [
+        sh:message "An Organization identifier must use the matching kind-specific Reference System and designate the matching typed Organization."@en ;
+        sh:select """
+            PREFIX base: <https://baseballontology.org/>
+            PREFIX cco: <https://www.commoncoreontologies.org/>
+            SELECT $this WHERE {
+              FILTER REGEX(STR($this), "/(league|division)/[1-9][0-9]*/identifier/mlb-(league|division)-id$")
+              $this cco:ont00001765 ?text ;
+                    cco:ont00001912 ?reference ;
+                    cco:ont00001916 ?entity .
+              BIND(REPLACE(STR($this), "^.*/(league|division)/[1-9][0-9]*/identifier/mlb-(league|division)-id$", "$1") AS ?kind)
+              BIND(IRI(CONCAT("https://baseballontology.org/data/reference-system/mlb/", ?kind, "-id")) AS ?expected)
+              BIND(IRI(REPLACE(STR($this), "/identifier/mlb-(league|division)-id$", "")) AS ?expectedEntity)
+              BIND(REPLACE(STR(?expectedEntity), "^.*/", "") AS ?expectedText)
+              FILTER (
+                ?reference != ?expected ||
+                ?entity != ?expectedEntity ||
+                STR(?text) != ?expectedText ||
+                NOT EXISTS { ?entity a cco:ont00001180 } ||
+                false
+              )
+            }
+        """
+    ] ;
+    sh:sparql [
+        sh:message "A season-code identifier must use the MLB season-code Reference System and designate a Baseball Season."@en ;
+        sh:select """
+            PREFIX base: <https://baseballontology.org/>
+            PREFIX cco: <https://www.commoncoreontologies.org/>
+            SELECT $this WHERE {
+              FILTER REGEX(STR($this), "/season/[0-9]{4}/identifier/mlb-season-code$")
+              $this cco:ont00001765 ?text ;
+                    cco:ont00001912 ?reference ;
+                    cco:ont00001916 ?season .
+              BIND(IRI(REPLACE(STR($this), "/identifier/mlb-season-code$", "")) AS ?expectedSeason)
+              BIND(REPLACE(STR(?expectedSeason), "^.*/", "") AS ?expectedText)
+              FILTER (
+                ?reference != <https://baseballontology.org/data/reference-system/mlb/season-code> ||
+                ?season != ?expectedSeason ||
+                STR(?text) != ?expectedText ||
+                NOT EXISTS { ?season a base:BaseballSeason }
+              )
+            }
+        """
+    ] ;
+    sh:sparql [
+        sh:message "A season-date field-key identifier must use the field Reference System and designate a Calendar Date Identifier."@en ;
+        sh:select """
+            PREFIX cco: <https://www.commoncoreontologies.org/>
+            SELECT $this WHERE {
+              FILTER REGEX(STR($this), "/field-key$")
+              $this cco:ont00001765 ?text ;
+                    cco:ont00001912 ?reference ;
+                    cco:ont00001916 ?dateIdentifier .
+              BIND(IRI(REPLACE(STR($this), "/field-key$", "")) AS ?expectedDateIdentifier)
+              BIND(REPLACE(STR(?dateIdentifier), "^.*/date/([A-Za-z][A-Za-z0-9]*Date)/[0-9]{4}-[0-9]{2}-[0-9]{2}/evidence/[0-9a-f]{64}$", "$1") AS ?expectedText)
+              FILTER (
+                ?reference != <https://baseballontology.org/data/reference-system/mlb/season-date-field> ||
+                ?dateIdentifier != ?expectedDateIdentifier ||
+                STR(?text) != ?expectedText ||
+                NOT EXISTS { ?dateIdentifier a cco:ont00001340 }
+              )
+            }
+        """
+    ] .
+
+shape:ProperNameShape
+    a sh:NodeShape ;
+    sh:targetClass cco:ont00001014 ;
+    sh:nodeKind sh:IRI ;
+    sh:pattern "^https://baseballontology\\.org/data/(league|division)/[1-9][0-9]*/name/proper/[0-9a-f]{64}$" ;
+    sh:property [
+        sh:path cco:ont00001765 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "A canonical Proper Name must have one non-empty Unicode text value."@en
+    ] ;
+    sh:property [
+        sh:path cco:ont00001916 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class cco:ont00001180 ;
+        sh:message "A canonical Proper Name must designate exactly one emitted Organization."@en
+    ] ;
+    sh:sparql [
+        sh:message "A response containing a canonical Proper Name must contain an MLB identifier designating the same Organization."@en ;
+        sh:select """
+            PREFIX bfo: <http://purl.obolibrary.org/obo/>
+            PREFIX cco: <https://www.commoncoreontologies.org/>
+            SELECT $this WHERE {
+              $this cco:ont00001916 ?organization .
+              FILTER NOT EXISTS {
+                ?response bfo:BFO_0000178 $this, ?identifier .
+                ?identifier a cco:ont00000649 ; cco:ont00001916 ?organization .
+              }
+            }
+        """
+    ] ;
+    sh:sparql [
+        sh:message "A Proper Name IRI must carry the designated Organization identity and the SHA-256 of its exact text."@en ;
+        sh:select """
+            PREFIX cco: <https://www.commoncoreontologies.org/>
+            SELECT $this WHERE {
+              $this cco:ont00001765 ?text ; cco:ont00001916 ?organization .
+              BIND(IRI(REPLACE(STR($this), "/name/proper/[0-9a-f]{64}$", "")) AS ?expectedOrganization)
+              BIND(SHA256(STR(?text)) AS ?textHash)
+              FILTER (
+                ?organization != ?expectedOrganization ||
+                !STRENDS(STR($this), CONCAT("/", STR(?textHash)))
+              )
+            }
+        """
+    ] .
+
+shape:SeasonShape
+    a sh:NodeShape ;
+    sh:targetClass base:BaseballSeason ;
+    sh:nodeKind sh:IRI ;
+    sh:pattern "^https://baseballontology\\.org/data/league/[1-9][0-9]*/season/[0-9]{4}$" ;
+    sh:property [
+        sh:path [ sh:inversePath cco:ont00001916 ] ;
+        sh:qualifiedValueShape [ sh:class cco:ont00000649 ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "A Baseball Season must have exactly one MLB season-code identifier in this graph."@en
+    ] ;
+    sh:property [
+        sh:path [ sh:inversePath cco:ont00001942 ] ;
+        sh:qualifiedValueShape [ sh:class base:BaseballSeasonPlan ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "A Baseball Season must be prescribed by exactly one keyed Season Plan in this response graph."@en
+    ] .
+
+shape:SeasonPlanShape
+    a sh:NodeShape ;
+    sh:targetClass base:BaseballSeasonPlan ;
+    sh:nodeKind sh:IRI ;
+    sh:pattern "^https://baseballontology\\.org/data/league/[1-9][0-9]*/season/[0-9]{4}/plan$" ;
+    sh:property [
+        sh:path cco:ont00001942 ;
+        sh:qualifiedValueShape [ sh:class base:BaseballSeason ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "A Season Plan must prescribe exactly one keyed Baseball Season."@en
+    ] ;
+    sh:property [
+        sh:path cco:ont00001942 ;
+        sh:qualifiedValueShape [ sh:class base:BaseballSeasonPhase ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 2 ;
+        sh:message "A Season Plan must prescribe at least one and at most the two reviewed Phases."@en
+    ] ;
+    sh:sparql [
+        sh:message "A Season Plan IRI and its prescribed Season must share the accepted league/season identity."@en ;
+        sh:select """
+            PREFIX base: <https://baseballontology.org/>
+            PREFIX cco: <https://www.commoncoreontologies.org/>
+            SELECT $this WHERE {
+              $this cco:ont00001942 ?season .
+              ?season a base:BaseballSeason .
+              BIND(IRI(REPLACE(STR($this), "/plan$", "")) AS ?expectedSeason)
+              FILTER (?season != ?expectedSeason)
+            }
+        """
+    ] .
+
+shape:SeasonPhaseShape
+    a sh:NodeShape ;
+    sh:targetClass base:BaseballSeasonPhase ;
+    sh:nodeKind sh:IRI ;
+    sh:pattern "^https://baseballontology\\.org/data/league/[1-9][0-9]*/season/[0-9]{4}/phase/(regular-season|postseason)$" ;
+    sh:property [
+        sh:path bfo:BFO_0000132 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class base:BaseballSeason ;
+        sh:message "A reviewed Season Phase must be an occurrent part of exactly one keyed Season."@en
+    ] ;
+    sh:property [
+        sh:path [ sh:inversePath cco:ont00001942 ] ;
+        sh:qualifiedValueShape [ sh:class base:BaseballSeasonPlan ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "A reviewed Season Phase must be prescribed by exactly one keyed Plan."@en
+    ] ;
+    sh:sparql [
+        sh:message "The Plan prescribing a Phase must also prescribe the Season of which that Phase is a part."@en ;
+        sh:select """
+            PREFIX base: <https://baseballontology.org/>
+            PREFIX bfo: <http://purl.obolibrary.org/obo/>
+            PREFIX cco: <https://www.commoncoreontologies.org/>
+            SELECT $this WHERE {
+              $this bfo:BFO_0000132 ?season .
+              BIND(IRI(REPLACE(STR($this), "/phase/(regular-season|postseason)$", "")) AS ?expectedSeason)
+              BIND(IRI(CONCAT(STR(?expectedSeason), "/plan")) AS ?expectedPlan)
+              FILTER (
+                ?season != ?expectedSeason ||
+                NOT EXISTS { ?expectedPlan cco:ont00001942 $this, ?season }
+              )
+            }
+        """
+    ] .
+
+shape:CalendarDateIdentifierShape
+    a sh:NodeShape ;
+    sh:targetClass cco:ont00001340 ;
+    sh:nodeKind sh:IRI ;
+    sh:pattern "^https://baseballontology\\.org/data/league/[1-9][0-9]*/season/[0-9]{4}/plan/date/[A-Za-z][A-Za-z0-9]*Date/[0-9]{4}-[0-9]{2}-[0-9]{2}/evidence/[0-9a-f]{64}$" ;
+    sh:property [
+        sh:path cco:ont00001771 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:date ;
+        sh:message "A Calendar Date Identifier must have exactly one xsd:date value."@en
+    ] ;
+    sh:property [
+        sh:path cco:ont00001916 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class cco:ont00000800 ;
+        sh:message "A Calendar Date Identifier must designate exactly one Day."@en
+    ] ;
+    sh:property [
+        sh:path [ sh:inversePath bfo:BFO_0000178 ] ;
+        sh:qualifiedValueShape [ sh:class base:BaseballSeasonPlan ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "A Calendar Date Identifier must be a continuant part of exactly one keyed Season Plan."@en
+    ] ;
+    sh:property [
+        sh:path [ sh:inversePath cco:ont00001916 ] ;
+        sh:qualifiedValueShape [ sh:class cco:ont00000649 ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "A Calendar Date Identifier must be designated by exactly one response-versioned field-key identifier."@en
+    ] ;
+    sh:sparql [
+        sh:message "A Calendar Date Identifier's value, IRI, and designated Day must agree exactly."@en ;
+        sh:select """
+            PREFIX cco: <https://www.commoncoreontologies.org/>
+            SELECT $this WHERE {
+              $this cco:ont00001771 ?date ; cco:ont00001916 ?day .
+              BIND(IRI(CONCAT("https://baseballontology.org/data/day/", STR(?date))) AS ?expectedDay)
+              FILTER (
+                ?day != ?expectedDay ||
+                !CONTAINS(STR($this), CONCAT("/", STR(?date), "/evidence/"))
+              )
+            }
+        """
+    ] ;
+    sh:sparql shape:NoPhaseBoundarySparql .
+
+shape:DayShape
+    a sh:NodeShape ;
+    sh:targetClass cco:ont00000800 ;
+    sh:nodeKind sh:IRI ;
+    sh:pattern "^https://baseballontology\\.org/data/day/[0-9]{4}-[0-9]{2}-[0-9]{2}$" ;
+    sh:property [
+        sh:path [ sh:inversePath cco:ont00001916 ] ;
+        sh:qualifiedValueShape [ sh:class cco:ont00001340 ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:message "An emitted Day must be designated by at least one Calendar Date Identifier."@en
+    ] ;
+    sh:sparql shape:NoPhaseBoundarySparql .
+
+shape:NoPhaseBoundarySparql
+    a sh:SPARQLConstraint ;
+    sh:message "The accepted organizations contract contains no direct Date/Day-to-Phase boundary edge."@en ;
+    sh:select """
+        PREFIX base: <https://baseballontology.org/>
+        SELECT $this WHERE {
+          {
+            $this ?predicate ?phase .
+            ?phase a base:BaseballSeasonPhase .
+            FILTER (?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+          }
+          UNION
+          {
+            ?phase ?predicate $this .
+            ?phase a base:BaseballSeasonPhase .
+            FILTER (?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+          }
+        }
+    """ .

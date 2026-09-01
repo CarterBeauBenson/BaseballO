@@ -1,0 +1,49 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-organizations",
+  "title": "MLB teams, leagues, divisions, and seasons",
+  "status": "accepted",
+  "proposedIris": [
+    "https://baseballontology.org/BaseballSeason",
+    "https://baseballontology.org/BaseballSeasonPhase",
+    "https://baseballontology.org/BaseballSeasonPlan"
+  ],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "7eb4d38b61659df3bf1ddad2264b2176ed849cf2a5ce38814530667c15ff1ae9"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "9484f57178644bfb57c23995d66d876c2dd15eb32e23ed7460f14152d74b1259"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "2e8060900d466a634aadaf0a4bb4b2fdbd68bbaf22b84d586bf936bd797b94b2"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "fb7208c6e0d8905427727057883d9dff4be0181ff1f4baad573e1b5d104c80d6"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-08-29",
+    "rationale": "The ontologist accepted BaseballSeason, BaseballSeasonPhase, and BaseballSeasonPlan with the reviewed axioms, definitions, and annotations. BaseballLeague, BaseballDivision, temporal affiliations, phase-boundary relations, and the inventory's other explicit blockers remain unresolved; this decision does not authorize source-specific RML.",
+    "authorizedArtifacts": [
+      "Baseball/ontology/BaseballO.ttl",
+      "Baseball/ontology/BaseballO-axioms-overlay.ttl"
+    ]
+  }
+}

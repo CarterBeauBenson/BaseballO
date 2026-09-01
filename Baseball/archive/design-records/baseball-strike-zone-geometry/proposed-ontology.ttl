@@ -1,0 +1,54 @@
+@prefix base: <https://baseballontology.org/> .
+@prefix cco: <https://www.commoncoreontologies.org/> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Review-only candidate ontology. These terms are not executable while this
+# package remains active.
+
+base:BaseballStrikeZoneSite a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000029 ;
+    rdfs:label "Baseball Strike Zone Site"@en ;
+    skos:definition "A Baseball Strike Zone Site is a Site that is a continuant part of a Baseball Field Site, is subject of a Strike Rule, and has at least six Fiat Surfaces as continuant parts."@en ;
+    rdfs:comment "The Site is three-dimensional and is not an information entity, rendering, coordinate tuple, or Spatial Region. The six surfaces are instantiated with reviewed upper, lower, first-base-side, third-base-side, front, and back identities."@en ;
+    skos:example "The rulebook strike zone applicable to a batter for a particular pitch."@en .
+
+base:ABSEvaluationFiatSurface a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000146 ;
+    rdfs:label "ABS Evaluation Fiat Surface"@en ;
+    skos:definition "An ABS Evaluation Fiat Surface is a Fiat Surface that is a continuant part of a Baseball Strike Zone Site and is the subject of an ABS Evaluation Rule."@en ;
+    rdfs:comment "Under the reviewed 2026 rule, the surface intersects the midpoint of Home Plate. It is not the three-dimensional Strike Zone Site or a two-dimensional rendering."@en ;
+    skos:example "The midpoint-of-plate fiat surface used to evaluate an ABS challenge in a 2026 Major League game."@en .
+
+base:ABSEvaluationRule a owl:Class ;
+    rdfs:subClassOf base:StrikeRule ;
+    rdfs:label "ABS Evaluation Rule"@en ;
+    skos:definition "An ABS Evaluation Rule is a Strike Rule that is about an ABS Evaluation Fiat Surface and prescribes a Strike Process."@en ;
+    rdfs:comment "The rule specifies the batter-relative and plate-relative construction; it does not turn its information content into the designated fiat geometry."@en ;
+    skos:example "The 2026 Major League rule prescribing midpoint-of-plate ABS challenge evaluation."@en .
+
+base:BaseballStrikeZoneSite rdfs:subClassOf
+    [ a owl:Restriction ; owl:onProperty obo:BFO_0000176 ; owl:someValuesFrom base:BaseballFieldSite ],
+    [ a owl:Restriction ; owl:onProperty cco:ont00001801 ; owl:someValuesFrom base:StrikeRule ],
+    [ a owl:Restriction ; owl:onProperty obo:BFO_0000178 ; owl:minQualifiedCardinality "6"^^xsd:nonNegativeInteger ; owl:onClass obo:BFO_0000146 ] .
+
+base:ABSEvaluationFiatSurface owl:equivalentClass [
+    a owl:Class ;
+    owl:intersectionOf (
+        obo:BFO_0000146
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000176 ; owl:someValuesFrom base:BaseballStrikeZoneSite ]
+        [ a owl:Restriction ; owl:onProperty cco:ont00001801 ; owl:someValuesFrom base:ABSEvaluationRule ]
+    )
+] .
+
+base:ABSEvaluationRule owl:equivalentClass [
+    a owl:Class ;
+    owl:intersectionOf (
+        base:StrikeRule
+        [ a owl:Restriction ; owl:onProperty cco:ont00001808 ; owl:someValuesFrom base:ABSEvaluationFiatSurface ]
+        [ a owl:Restriction ; owl:onProperty cco:ont00001942 ; owl:someValuesFrom base:StrikeProcess ]
+    )
+] .

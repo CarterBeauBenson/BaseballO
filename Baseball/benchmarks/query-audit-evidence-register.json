@@ -1,0 +1,34 @@
+{
+  "artifactType": "baseball-query-audit-evidence-register",
+  "contractVersion": 1,
+  "captures": [
+    {
+      "id": "canned-2026-08-03",
+      "status": "historical",
+      "artifact": "benchmarks/canned-query-audit/corpus-2026-08-03-baseline.json",
+      "artifactTextSha256": "d6948062b8ab70645b37b2c7ea285b64a5bf03e50a229ea7222af4f6ccc919e6",
+      "summary": "benchmarks/canned-query-audit/corpus-2026-08-03-baseline.md",
+      "summaryTextSha256": "3963c7cf261c901a8d6c7b7b2bba334317dbf55cc440902bdf59560bdcc78fbd",
+      "capturedAtUtc": "2026-08-11T21:38:51.6248312Z",
+      "capturedAtCommit": "e3800ac65466ea1fe72222aaad2e579f52c559f0",
+      "capturedQueryHashAlgorithm": "raw-bytes-v1",
+      "compatibleQueryHashAlgorithm": "canonical-text-v1",
+      "compatibleQueryCount": 48,
+      "compatibleQuerySetSha256": "148dd222bf04bb8b0deffef228bc625780b8ef5cde4b0a695441d28c276fd53d"
+    },
+    {
+      "id": "advanced-2026-08-03",
+      "status": "historical",
+      "artifact": "benchmarks/advanced-query-audit/corpus-2026-08-03-baseline.json",
+      "artifactTextSha256": "9c6c7b2db5301958b6998ab00b4ce3c3b02adfa924d36e34750c89e08cf2c8cb",
+      "summary": "benchmarks/advanced-query-audit/corpus-2026-08-03-baseline.md",
+      "summaryTextSha256": "f776fc2b215690aaafb95e9f860a7edae8ccaa0bd92b1152e5b33af7b30e4531",
+      "capturedAtUtc": "2026-08-28T17:24:23.6453459Z",
+      "capturedAtCommit": "0cd639f8cfa5cdd5fe89d674554a2484394ca73c",
+      "capturedQueryHashAlgorithm": "raw-bytes-v1",
+      "compatibleQueryHashAlgorithm": "canonical-text-v1",
+      "compatibleQueryCount": 17,
+      "compatibleQuerySetSha256": "f263136a1b22a71f9cad42a96937ab2362d013eb0c44d87e72bedeee39f090c6"
+    }
+  ]
+}

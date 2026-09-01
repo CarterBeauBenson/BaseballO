@@ -1,0 +1,32 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "baseball-field-coordinate-reference-system-repair-2026-08-31",
+  "title": "Baseball field-coordinate Reference System repair",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [{"path":"competency-questions.md","sha256":"0eff2cd07195f01d91df6ef96e0e472ac39b040293b524354b79ee5741eb95d5"}],
+    "sourceEvidence": [{"path":"source-evidence.md","sha256":"bf504e33bdb1470c40634ca6187cd1108a95b28415028ca69c62ff8bd255780a"}],
+    "fieldSelectionInventory": [{"path":"field-selection-inventory.md","sha256":"7452d135e41b62b167b4f864cb4a0fb220b59bfc52968065de210a39f009a8ae"}],
+    "sourceIndependentMermaid": [{"path":"source-independent-mermaid.md","sha256":"5177897b9f41b42ac5ca907523aa5e73c49fa92667c2ead1b10d760e7a62fb49"}]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-08-31",
+    "rationale": "The ontologist explicitly rejected CCO Spatial Region semantics for BaseballO coordinates and approved the Fiat Line, Fiat Point, relational-quality, designative-coordinate ICE, and generic Reference System pattern. Provider display-coordinate execution remains deferred.",
+    "authorizedArtifacts": [
+      "Baseball/ontology/BaseballO.ttl",
+      "Baseball/ontology/BaseballO-axioms-overlay.ttl",
+      "Baseball/proposals/mlb-game-deferred-measurements/competency-questions.md",
+      "Baseball/proposals/mlb-game-deferred-measurements/field-selection-inventory.md",
+      "Baseball/proposals/mlb-game-deferred-measurements/source-evidence.md",
+      "Baseball/proposals/mlb-game-deferred-measurements/source-independent-mermaid.md",
+      "Baseball/proposals/mlb-game-deferred-measurements/review.json",
+      "Baseball/sources/mlb-game/mapping/ontology-coverage-gaps.yaml",
+      "Baseball/sources/mlb-game/SEMANTIC-AUDIT.md"
+    ]
+  }
+}

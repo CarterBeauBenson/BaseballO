@@ -1,0 +1,33 @@
+{
+  "artifactType": "baseball-selective-reasoning-reviewed-samples",
+  "contractVersion": 1,
+  "description": "A bounded real-game comparison set selected to contrast a one-pitch plate appearance with a multi-event, multi-runner plate appearance.",
+  "samples": [
+    {
+      "id": "simple-one-pitch-field-out",
+      "complexity": "simple",
+      "gamePk": "566279",
+      "plateAppearanceIndex": 1,
+      "anchor": "https://baseballontology.org/data/game/566279/plate-appearance/1",
+      "eventType": "field_out",
+      "playEventCount": 1,
+      "pitchCount": 1,
+      "runnerRecordCount": 1,
+      "description": "Eduardo Escobar flies out to right fielder Franmil Reyes in foul territory.",
+      "reviewRationale": "Minimal explicit event structure: one pitch and one terminal runner record."
+    },
+    {
+      "id": "complicated-eight-event-run-scoring-single",
+      "complexity": "complicated",
+      "gamePk": "566279",
+      "plateAppearanceIndex": 23,
+      "anchor": "https://baseballontology.org/data/game/566279/plate-appearance/23",
+      "eventType": "single",
+      "playEventCount": 8,
+      "pitchCount": 6,
+      "runnerRecordCount": 3,
+      "description": "Alex Avila singles on a line drive to right fielder Franmil Reyes. Ketel Marte scores.",
+      "reviewRationale": "Long pitch sequence plus multiple runner records and a scoring transition."
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "artifactType": "baseball-plate-appearance-quality-contract",
+  "version": "PAQ-1.0",
+  "range": { "minimum": 0.0, "maximum": 1.0, "displayDecimals": 3 },
+  "meaning": "A versioned decision-support rating of one plate appearance derived from authoritative MLB outcome, bounded grind, and situational evidence.",
+  "weights": {
+    "default": {
+      "outcome": 0.80,
+      "grind": 0.15,
+      "situation": 0.05
+    }
+  },
+  "bands": [
+    { "minimum": 0.850, "label": "Excellent" },
+    { "minimum": 0.650, "label": "Good" },
+    { "minimum": 0.450, "label": "Mixed" },
+    { "minimum": 0.250, "label": "Poor" },
+    { "minimum": 0.000, "label": "Bad" }
+  ],
+  "grindRule": "The existing pitches + swings + 2*contacts + 2*fouls evidence is capped at 18 before conversion to the 0-1 rating.",
+  "damageCaps": {
+    "grounded_into_double_play": 0.249,
+    "triple_play": 0.249
+  },
+  "anchors": [
+    { "description": "Long plate appearance ending in a home run", "expectedBand": "Excellent", "reason": "The elite outcome and strong grind both contribute." },
+    { "description": "First-pitch home run", "expectedBand": "Good or Excellent", "reason": "The elite result does not require artificial pitch-count padding." },
+    { "description": "Long field out", "expectedBand": "Bad or Poor", "reason": "Grind earns limited credit but cannot erase the recorded out." },
+    { "description": "Long walk", "expectedBand": "Good", "reason": "The positive outcome and grind both contribute." },
+    { "description": "Long strikeout", "expectedBand": "Bad or Poor", "reason": "Grind earns limited credit but cannot erase the failed outcome." },
+    { "description": "Single", "expectedBand": "Mixed or Good", "reason": "The positive recorded result supplies most of the score." },
+    { "description": "First-pitch groundout", "expectedBand": "Bad", "reason": "Neither outcome nor grind supplies strong positive evidence." },
+    { "description": "Ground-ball double play", "expectedBand": "Bad", "reason": "Outcome and situational components both reflect the damaging result." }
+  ]
+}

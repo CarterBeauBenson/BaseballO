@@ -1,0 +1,32 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT DISTINCT ?graph ?game ?start ?venue ?venueLabel
+                ?homeTeam ?homeTeamLabel ?awayTeam ?awayTeamLabel WHERE {
+  GRAPH ?graph {
+    ?game a base:BaseballGame ;
+        obo:BFO_0000199/obo:BFO_0000222 ?startInstant .
+    ?startTimestamp a base:BaseballTimestampICE ;
+        cco:ont00001916 ?startInstant ;
+        cco:ont00001767 ?start .
+    OPTIONAL {
+      ?game cco:ont00001918 ?field .
+      ?field a base:BaseballFieldSite ; obo:BFO_0000171 ?venue .
+      OPTIONAL { ?venue rdfs:label ?venueLabel }
+    }
+    OPTIONAL {
+      ?homeRole a base:HomeTeamRole ;
+          obo:BFO_0000197 ?homeTeam ; obo:BFO_0000054 ?game .
+      OPTIONAL { ?homeTeam rdfs:label ?homeTeamLabel }
+    }
+    OPTIONAL {
+      ?awayRole a base:AwayTeamRole ;
+          obo:BFO_0000197 ?awayTeam ; obo:BFO_0000054 ?game .
+      OPTIONAL { ?awayTeam rdfs:label ?awayTeamLabel }
+    }
+  }
+  FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+}
+ORDER BY ?graph

@@ -1,0 +1,222 @@
+@prefix base: <https://baseballontology.org/> .
+@prefix bfo: <http://purl.obolibrary.org/obo/> .
+@prefix cco: <https://www.commoncoreontologies.org/> .
+@prefix data: <https://baseballontology.org/data/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix shape: <https://w3id.org/baseball/shacl/mlb-divisions/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+shape:AuthoritativeProfile
+    a sh:NodeShape ;
+    sh:name "MLB divisions authoritative graph profile"@en ;
+    sh:description "Post-RML constraints over RDF emitted only by the detachable MLB divisions source module."@en .
+
+# These graph-wide checks make an unreviewed class or relation fail closed even
+# when it does not happen to target one of the entity-specific shapes below.
+shape:GraphVocabularyShape
+    a sh:NodeShape ;
+    sh:targetNode shape:graph-contract ;
+    sh:sparql [
+        sh:message "MLB divisions RDF contains a predicate outside the accepted source contract."@en ;
+        sh:select """
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX bfo: <http://purl.obolibrary.org/obo/>
+            PREFIX cco: <https://www.commoncoreontologies.org/>
+            SELECT $this WHERE {
+              ?subject ?predicate ?object .
+              FILTER (?predicate NOT IN (
+                rdf:type, bfo:BFO_0000178,
+                cco:ont00001765, cco:ont00001808,
+                cco:ont00001912, cco:ont00001916
+              ))
+            } LIMIT 1
+        """
+    ] ;
+    sh:sparql [
+        sh:message "MLB divisions RDF contains a class outside the accepted source contract."@en ;
+        sh:select """
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX base: <https://baseballontology.org/>
+            PREFIX cco: <https://www.commoncoreontologies.org/>
+            SELECT $this WHERE {
+              ?subject rdf:type ?class .
+              FILTER (?class NOT IN (
+                
+                cco:ont00000398, cco:ont00000649, cco:ont00000853,
+                cco:ont00001014, cco:ont00001180
+              ))
+            } LIMIT 1
+        """
+    ] .
+
+shape:ResponseShape
+    a sh:NodeShape ;
+    sh:targetClass cco:ont00000853 ;
+    sh:nodeKind sh:IRI ;
+    sh:pattern "^https://baseballontology\\.org/data/source/mlb-divisions/response/divisions/[0-9a-f]{64}/[0-9a-f]{64}$" ;
+    sh:property [
+        sh:path cco:ont00001808 ;
+        sh:minCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "A divisions response ICE must be about at least one emitted entity."@en
+    ] ;
+    sh:property [
+        sh:path bfo:BFO_0000178 ;
+        sh:minCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "A divisions response ICE must have at least one emitted record-level ICE part."@en
+    ] .
+
+shape:ReferenceSystemShape
+    a sh:NodeShape ;
+    sh:targetClass cco:ont00000398 ;
+    sh:nodeKind sh:IRI ;
+    sh:in (
+        <https://baseballontology.org/data/reference-system/mlb/league-id>
+        <https://baseballontology.org/data/reference-system/mlb/division-id>
+        ) .
+
+shape:OrganizationShape
+    a sh:NodeShape ;
+    sh:targetClass cco:ont00001180 ;
+    sh:nodeKind sh:IRI ;
+    sh:pattern "^https://baseballontology\\.org/data/(league|division)/[1-9][0-9]*$" ;
+    sh:property [
+        sh:path [ sh:inversePath cco:ont00001916 ] ;
+        sh:qualifiedValueShape [
+            sh:class cco:ont00000649 ;
+            sh:pattern "^https://baseballontology\\.org/data/(league|division)/[1-9][0-9]*/identifier/mlb-(league|division)-id$"
+        ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "Each emitted Organization must have exactly one matching MLB identifier."@en
+    ] ;
+    sh:property [
+        sh:path cco:ont00001939 ;
+        sh:maxCount 0 ;
+        sh:message "This source contract forbids unqualified affiliation assertions."@en
+    ] ;
+    sh:property [
+        sh:path cco:ont00001977 ;
+        sh:maxCount 0 ;
+        sh:message "This source contract forbids inverse affiliation assertions."@en
+    ] ;
+    sh:sparql [
+        sh:message "The organizations graph must not directly relate a Team to a League/Division or a Division to a League."@en ;
+        sh:select """
+            SELECT $this WHERE {
+              $this ?predicate ?target .
+              FILTER (?predicate != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
+              FILTER (
+                (REGEX(STR($this), "/team/[1-9][0-9]*$") &&
+                 REGEX(STR(?target), "/(league|division)/[1-9][0-9]*$")) ||
+                (REGEX(STR($this), "/division/[1-9][0-9]*$") &&
+                 REGEX(STR(?target), "/league/[1-9][0-9]*$"))
+              )
+            }
+        """
+    ] .
+
+shape:IdentifierShape
+    a sh:NodeShape ;
+    sh:targetClass cco:ont00000649 ;
+    sh:nodeKind sh:IRI ;
+    sh:pattern "^https://baseballontology\\.org/data/(league|division)/[1-9][0-9]*/identifier/mlb-(league|division)-id$" ;
+    sh:property [
+        sh:path cco:ont00001765 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "An emitted identifier must carry exactly one non-empty text value."@en
+    ] ;
+    sh:property [
+        sh:path cco:ont00001912 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:class cco:ont00000398 ;
+        sh:message "An emitted identifier must use exactly one typed Reference System."@en
+    ] ;
+    sh:property [
+        sh:path cco:ont00001916 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "An emitted identifier must designate exactly one entity."@en
+    ] ;
+    sh:sparql [
+        sh:message "An Organization identifier must use the matching kind-specific Reference System and designate the matching typed Organization."@en ;
+        sh:select """
+            PREFIX base: <https://baseballontology.org/>
+            PREFIX cco: <https://www.commoncoreontologies.org/>
+            SELECT $this WHERE {
+              FILTER REGEX(STR($this), "/(league|division)/[1-9][0-9]*/identifier/mlb-(league|division)-id$")
+              $this cco:ont00001765 ?text ;
+                    cco:ont00001912 ?reference ;
+                    cco:ont00001916 ?entity .
+              BIND(REPLACE(STR($this), "^.*/(league|division)/[1-9][0-9]*/identifier/mlb-(league|division)-id$", "$1") AS ?kind)
+              BIND(IRI(CONCAT("https://baseballontology.org/data/reference-system/mlb/", ?kind, "-id")) AS ?expected)
+              BIND(IRI(REPLACE(STR($this), "/identifier/mlb-(league|division)-id$", "")) AS ?expectedEntity)
+              BIND(REPLACE(STR(?expectedEntity), "^.*/", "") AS ?expectedText)
+              FILTER (
+                ?reference != ?expected ||
+                ?entity != ?expectedEntity ||
+                STR(?text) != ?expectedText ||
+                NOT EXISTS { ?entity a cco:ont00001180 } ||
+                false
+              )
+            }
+        """
+    ] .
+
+shape:ProperNameShape
+    a sh:NodeShape ;
+    sh:targetClass cco:ont00001014 ;
+    sh:nodeKind sh:IRI ;
+    sh:pattern "^https://baseballontology\\.org/data/(league|division)/[1-9][0-9]*/name/proper/[0-9a-f]{64}$" ;
+    sh:property [
+        sh:path cco:ont00001765 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "A canonical Proper Name must have one non-empty Unicode text value."@en
+    ] ;
+    sh:property [
+        sh:path cco:ont00001916 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class cco:ont00001180 ;
+        sh:message "A canonical Proper Name must designate exactly one emitted Organization."@en
+    ] ;
+    sh:sparql [
+        sh:message "A response containing a canonical Proper Name must contain an MLB identifier designating the same Organization."@en ;
+        sh:select """
+            PREFIX bfo: <http://purl.obolibrary.org/obo/>
+            PREFIX cco: <https://www.commoncoreontologies.org/>
+            SELECT $this WHERE {
+              $this cco:ont00001916 ?organization .
+              FILTER NOT EXISTS {
+                ?response bfo:BFO_0000178 $this, ?identifier .
+                ?identifier a cco:ont00000649 ; cco:ont00001916 ?organization .
+              }
+            }
+        """
+    ] ;
+    sh:sparql [
+        sh:message "A Proper Name IRI must carry the designated Organization identity and the SHA-256 of its exact text."@en ;
+        sh:select """
+            PREFIX cco: <https://www.commoncoreontologies.org/>
+            SELECT $this WHERE {
+              $this cco:ont00001765 ?text ; cco:ont00001916 ?organization .
+              BIND(IRI(REPLACE(STR($this), "/name/proper/[0-9a-f]{64}$", "")) AS ?expectedOrganization)
+              BIND(SHA256(STR(?text)) AS ?textHash)
+              FILTER (
+                ?organization != ?expectedOrganization ||
+                !STRENDS(STR($this), CONCAT("/", STR(?textHash)))
+              )
+            }
+        """
+    ] .

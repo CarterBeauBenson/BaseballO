@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://baseballontology.org/schema/mlb-transaction-types.json",
+  "title": "Observed MLB transactionTypes response",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/codeArray"
+    },
+    {
+      "type": "object",
+      "required": [
+        "transactionTypes"
+      ],
+      "properties": {
+        "transactionTypes": {
+          "$ref": "#/$defs/codeArray"
+        }
+      },
+      "additionalProperties": true
+    }
+  ],
+  "$defs": {
+    "codeArray": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/code"
+      }
+    },
+    "code": {
+      "type": "object",
+      "required": [
+        "code",
+        "description"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

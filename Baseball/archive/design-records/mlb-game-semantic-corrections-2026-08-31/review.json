@@ -1,0 +1,43 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-semantic-corrections-2026-08-31",
+  "title": "MLB-game semantic corrections and measurement refinements",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions":[{"path":"competency-questions.md","sha256":"0292512c10db30027045003753c4eeb19607bf26e45af57872e68ba7e0ddd2dc"}],
+    "sourceEvidence":[{"path":"source-evidence.md","sha256":"417700ecbe0e3c6a8dd9ddcd9178b9b6a499d235b0b86ed1dad5d1febd9e4e24"}],
+    "fieldSelectionInventory":[{"path":"field-selection-inventory.md","sha256":"f6bb0c75571172b8bc2a6b3aaaf5a33108c01405682f23a10eea8b1e4fbeb4ed"}],
+    "sourceIndependentMermaid":[{"path":"source-independent-mermaid.md","sha256":"cfebc367a67211f347cae7b5e72e224032b8954d02dfde8791a67d6e17359832"}]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-08-31",
+    "rationale": "The ontologist explicitly supplied the named MLB-game correction rules and measurement interpretations. The accepted boundary preserves world/information distinctions, separates institutional results from unsupported physical processes, preserves source-module isolation, and requires method- and era-specific measurement semantics.",
+    "authorizedArtifacts": [
+      "Baseball/scripts/pipeline/prepare-rml-context.py",
+      "Baseball/sources/mlb-game/mapping/mlb-game.rml.ttl",
+      "Baseball/sources/mlb-game/mapping/mapping-coverage.yaml",
+      "Baseball/sources/mlb-game/mapping/ontology-coverage-gaps.yaml",
+      "Baseball/sources/mlb-game/mapping/validate_mlb_game_mapping.py",
+      "Baseball/sources/mlb-game/shacl/authoritative.ttl",
+      "Baseball/sources/mlb-game/review/rml-mermaid-manifest.json",
+      "Baseball/sources/mlb-game/review/semantic-status.json",
+      "Baseball/sources/mlb-game/SEMANTIC-AUDIT.md",
+      "Baseball/sources/mlb-game/README.md",
+      "Baseball/proposals/mlb-game-deferred-measurements/competency-questions.md",
+      "Baseball/proposals/mlb-game-deferred-measurements/field-selection-inventory.md",
+      "Baseball/proposals/mlb-game-deferred-measurements/source-evidence.md",
+      "Baseball/proposals/mlb-game-deferred-measurements/source-independent-mermaid.md",
+      "Baseball/proposals/mlb-game-deferred-measurements/review.json",
+      "Baseball/proposals/statcast-core-motion-contact/competency-questions.md",
+      "Baseball/proposals/statcast-core-motion-contact/field-selection-inventory.md",
+      "Baseball/proposals/statcast-core-motion-contact/source-evidence.md",
+      "Baseball/proposals/statcast-core-motion-contact/source-independent-mermaid.md",
+      "Baseball/proposals/statcast-core-motion-contact/review.json"
+    ]
+  }
+}

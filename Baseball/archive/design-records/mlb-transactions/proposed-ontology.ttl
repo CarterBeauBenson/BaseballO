@@ -1,0 +1,74 @@
+@prefix base: <https://baseballontology.org/> .
+@prefix cco: <https://www.commoncoreontologies.org/> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Review-only proposed base taxonomy and annotations.
+
+base:BaseballPersonnelTradeAct a owl:Class ;
+    rdfs:subClassOf cco:ont00000228 ;
+    rdfs:label "Baseball Personnel Trade Act"@en ;
+    skos:definition "A Baseball Personnel Trade Act is a Planned Act that has at least two Baseball Teams as agents and has as occurrent parts some Loss of Role and some Gain of Role involving a Person who bears an Occupation Role that has organizational context some Baseball Team."@en ;
+    rdfs:comment "The act may be described by several Person-specific source records sharing one overall transaction identifier. The identity of the Person and team-scoped Occupation Role across the loss and gain must be established by source-specific review."@en ;
+    skos:example "Two Baseball Teams agree to exchange the contractual and roster contexts of identified players."@en .
+
+base:UniformNumberAssignmentAct a owl:Class ;
+    rdfs:subClassOf cco:ont00001374 ;
+    rdfs:label "Uniform Number Assignment Act"@en ;
+    skos:definition "A Uniform Number Assignment Act is an Act of Declarative Communication that has some Baseball Team as agent and has as output a Code Identifier that designates a team-scoped Player Role."@en ;
+    rdfs:comment "A number is assigned in an organizational context; it is not an intrinsic identifier of the Person who bears the role."@en ;
+    skos:example "A Baseball Team assigns number 17 to a Player Role for a specified roster interval."@en .
+
+# Review-only proposed overlay restrictions.
+
+base:BaseballPersonnelTradeAct rdfs:subClassOf
+    [ a owl:Restriction ; owl:onProperty cco:ont00001833 ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass base:BaseballTeam ],
+    [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom
+        [ a owl:Class ; owl:intersectionOf (
+            cco:ont00000613
+            [ a owl:Restriction ; owl:onProperty obo:BFO_0000057 ; owl:someValuesFrom
+                [ a owl:Class ; owl:intersectionOf (
+                    cco:ont00001262
+                    [ a owl:Restriction ; owl:onProperty obo:BFO_0000196 ; owl:someValuesFrom
+                        [ a owl:Class ; owl:intersectionOf (
+                            cco:ont00000984
+                            [ a owl:Restriction ; owl:onProperty cco:ont00001992 ; owl:someValuesFrom base:BaseballTeam ]
+                        ) ]
+                    ]
+                ) ]
+            ]
+        ) ]
+    ],
+    [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom
+        [ a owl:Class ; owl:intersectionOf (
+            cco:ont00001194
+            [ a owl:Restriction ; owl:onProperty obo:BFO_0000057 ; owl:someValuesFrom
+                [ a owl:Class ; owl:intersectionOf (
+                    cco:ont00001262
+                    [ a owl:Restriction ; owl:onProperty obo:BFO_0000196 ; owl:someValuesFrom
+                        [ a owl:Class ; owl:intersectionOf (
+                            cco:ont00000984
+                            [ a owl:Restriction ; owl:onProperty cco:ont00001992 ; owl:someValuesFrom base:BaseballTeam ]
+                        ) ]
+                    ]
+                ) ]
+            ]
+        ) ]
+    ] .
+
+base:UniformNumberAssignmentAct rdfs:subClassOf
+    [ a owl:Restriction ; owl:onProperty cco:ont00001833 ; owl:someValuesFrom base:BaseballTeam ],
+    [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom
+        [ a owl:Class ; owl:intersectionOf (
+            cco:ont00000077
+            [ a owl:Restriction ; owl:onProperty cco:ont00001916 ; owl:someValuesFrom
+                [ a owl:Class ; owl:intersectionOf (
+                    base:PlayerRole
+                    [ a owl:Restriction ; owl:onProperty cco:ont00001992 ; owl:someValuesFrom base:BaseballTeam ]
+                ) ]
+            ]
+        ) ]
+    ] .

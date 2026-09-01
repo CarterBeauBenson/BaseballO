@@ -1,0 +1,36 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-people-draft-evidence",
+  "title": "MLB people draft-year evidence",
+  "status": "under-review",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "c4ec0ec706c520e269b7ec4e4fa4e0067f97da111b4ba41f7845bed772af599e"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "1db8645f51de4d88c8c93396d5b6743d6c76da284debd24f85ae9a570f0cb0cf"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "4bf767e6c73ce2b89921406a2577868ddf20559dfc3df9f0bec37b276236a89d"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "7b4224e693950c0e64c15325b927341650a636f08eef4a176c0dad819a508f0b"
+      }
+    ]
+  },
+  "ontologistDecision": null
+}

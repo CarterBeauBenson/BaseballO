@@ -1,0 +1,37 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "baseball-season-and-transaction-periods",
+  "title": "Baseball season segments and transaction periods",
+  "status": "accepted",
+  "proposedIris": [
+    "https://baseballontology.org/BaseballAllStarPhase",
+    "https://baseballontology.org/BaseballOffseasonSegment",
+    "https://baseballontology.org/BaseballPostseasonPhase",
+    "https://baseballontology.org/BaseballPreseasonPhase",
+    "https://baseballontology.org/BaseballRegularSeasonPhase",
+    "https://baseballontology.org/BaseballSeasonSegment",
+    "https://baseballontology.org/BaseballTransactionPeriod",
+    "https://baseballontology.org/MajorLeagueFreeAgentQuietPeriod",
+    "https://baseballontology.org/MajorLeagueInternationalSigningPeriod",
+    "https://baseballontology.org/MajorLeagueOpenFreeAgencyPeriod",
+    "https://baseballontology.org/MajorLeagueSalaryArbitrationPeriod"
+  ],
+  "artifacts": {
+    "competencyQuestions": [{"path":"competency-questions.md","sha256":"fc10e0a0156ef25f12d94708a076c518090e3388cdfb2f8e7cee50ac26335f50"}],
+    "sourceEvidence": [{"path":"source-evidence.md","sha256":"33567bd33c681e132701da77fb6da9d55918b331940922308d7ba0b5e0aa4334"}],
+    "fieldSelectionInventory": [{"path":"field-selection-inventory.md","sha256":"a47e5feca0582d2d8984d2f5e553523aba14c32482abd17dcdcf30103bf74a83"}],
+    "sourceIndependentMermaid": [
+      {"path":"source-independent-mermaid.md","sha256":"2ed3281297336701f949e058c1f78d9412f28d7597f44576ae73f1cbd8d1a169"},
+      {"path":"proposed-ontology.ttl","sha256":"b56d811654ff847cccbc913cc069228b0614d865fdbc0f231ba757e41fe5321e"}
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-08-31",
+    "rationale": "The ontologist explicitly accepted the corrected season and transaction package after requiring Baseball Transaction Period to be a Temporal Interval rather than a Process.",
+    "authorizedArtifacts": []
+  }
+}

@@ -1,0 +1,79 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Completeness-gated prototype. "Take" and "whiff" use meaningful absence and
+# are valid only for graphs produced by the reviewed pitch-call/swing mapping.
+# The inner group resolves evidence once per pitch before absence is evaluated;
+# this both avoids correlated-OPTIONAL undercounting and keeps the plan bounded
+SELECT ?batter ?batterLabel ?pitcher ?pitcherLabel
+       (COUNT(DISTINCT ?pitch) AS ?pitches)
+       (COUNT(DISTINCT ?swing) AS ?swings)
+       (COUNT(DISTINCT ?contact) AS ?contacts)
+       (COUNT(DISTINCT ?whiffSwing) AS ?whiffs)
+       (COUNT(DISTINCT ?takePitch) AS ?takes)
+       (COUNT(DISTINCT ?ballPitch) AS ?takenBalls)
+       (COUNT(DISTINCT ?calledStrikePitch) AS ?calledStrikes)
+WHERE {
+  {
+    SELECT ?graph ?batter ?batterLabel ?pitcher ?pitcherLabel ?pitch
+           (SAMPLE(?swingCandidate) AS ?swing)
+           (SAMPLE(?contactCandidate) AS ?contact)
+           (MAX(IF(BOUND(?ballProcess), 1, 0)) AS ?ballFlag)
+           (MAX(IF(BOUND(?calledStrikeProcess), 1, 0)) AS ?calledStrikeFlag)
+    WHERE {
+      FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+      GRAPH ?graph {
+        ?batterAct a base:BatterAct ;
+            obo:BFO_0000132 ?plateAppearance ;
+            obo:BFO_0000057 ?batter .
+        ?batter rdfs:label ?batterLabel .
+        ?pitch a base:PitchAct ;
+            obo:BFO_0000132 ?plateAppearance ;
+            obo:BFO_0000057 ?pitcher .
+        ?pitcher rdfs:label ?pitcherLabel .
+        OPTIONAL {
+          ?swingCandidate a base:SwingAct ; obo:BFO_0000062 ?pitch .
+          OPTIONAL {
+            ?swingCandidate obo:BFO_0000063 ?contactCandidate .
+            ?contactCandidate a base:BatBallContactProcess .
+          }
+        }
+        OPTIONAL {
+          ?ballRecord a base:BaseballEventRecord ;
+              cco:ont00001808 ?pitch, ?ballProcess .
+          ?ballProcess a base:BallProcess ; obo:BFO_0000117 ?ballJudgment .
+          ?ballJudgment a base:BallJudgmentAct .
+        }
+        OPTIONAL {
+          ?strikeRecord a base:BaseballEventRecord ;
+              cco:ont00001808 ?pitch, ?calledStrikeProcess .
+          ?calledStrikeProcess a base:StrikeProcess ;
+              obo:BFO_0000117 ?strikeJudgment .
+          ?strikeJudgment a base:StrikeJudgmentAct .
+          FILTER NOT EXISTS { ?strikeJudgment a base:FoulTipJudgmentAct . }
+        }
+      }
+    }
+    GROUP BY ?graph ?batter ?batterLabel ?pitcher ?pitcherLabel ?pitch
+  }
+  OPTIONAL {
+    FILTER(BOUND(?swing) && !BOUND(?contact))
+    BIND(?swing AS ?whiffSwing)
+  }
+  OPTIONAL {
+    FILTER(!BOUND(?swing))
+    BIND(?pitch AS ?takePitch)
+  }
+  OPTIONAL {
+    FILTER(!BOUND(?swing) && ?ballFlag = 1)
+    BIND(?pitch AS ?ballPitch)
+  }
+  OPTIONAL {
+    FILTER(!BOUND(?swing) && ?calledStrikeFlag = 1)
+    BIND(?pitch AS ?calledStrikePitch)
+  }
+}
+GROUP BY ?batter ?batterLabel ?pitcher ?pitcherLabel
+ORDER BY DESC(?pitches) ?batterLabel ?pitcherLabel

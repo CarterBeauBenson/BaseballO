@@ -1,0 +1,38 @@
+{
+  "artifactType": "baseballo-nifi-source-flow-contract",
+  "contractVersion": 1,
+  "sourceModule": "mlb-teams",
+  "rootProcessGroup": "BaseballO",
+  "sourceProcessGroup": "MLB Teams",
+  "proofRequest": {"season": "2026", "scopeKey": "season-2026"},
+  "backfillRequest": {"season": "2026", "scopeKey": "season-2026"},
+  "dailySchedule": {
+    "cron": "0 0 5 * * ?",
+    "timeZone": "America/New_York",
+    "attributeExpressions": {
+      "season": "${now():format(\"yyyy\",\"America/New_York\")}",
+      "scope.key": "season-${now():format(\"yyyy\",\"America/New_York\")}"
+    }
+  },
+  "requestAttributes": {"season": "$.season", "scope.key": "$.scopeKey"},
+  "derivedAttributes": {
+    "request.scope": "https://statsapi.mlb.com/api/v1/teams?sportId=1&season=${season}"
+  },
+  "acquisitions": [
+    {
+      "key": "teams",
+      "processorName": "Acquire MLB Teams",
+      "url": "https://statsapi.mlb.com/api/v1/teams?sportId=1&season=${season}",
+      "filename": "teams-${scope.key}-${uuid}.json"
+    }
+  ],
+  "context": {
+    "builder": "mapping/prepare-context.py",
+    "contextName": "teams-context.json",
+    "arguments": ["{input.teams}", "{context}", "--endpoint-family", "teams", "--request-scope", "{request.scope}"]
+  },
+  "mapping": "mapping/mlb-teams.rml.ttl",
+  "shacl": "shacl/authoritative.ttl",
+  "authoritativeGraphTemplate": "https://w3id.org/baseball/graph/authority/mlb-teams/{scope.key}",
+  "failurePolicy": {"maximumRetriesPerStage": 3, "quarantineIsSourceLocal": true}
+}

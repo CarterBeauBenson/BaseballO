@@ -1,0 +1,38 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Three-type games are cycle candidates; four distinct types are completed
+# cycles within the mapped hit/judgment pattern.
+SELECT ?game ?player ?playerLabel ?distinctHitTypes ?hitTypes
+       (IF(?distinctHitTypes = 4, "cycle", "three-type candidate") AS ?status)
+WHERE {
+  {
+    SELECT ?graph ?game ?player ?playerLabel
+           (COUNT(DISTINCT ?hitType) AS ?distinctHitTypes)
+           (GROUP_CONCAT(DISTINCT ?hitTypeLabel; separator=", ") AS ?hitTypes)
+    WHERE {
+      GRAPH ?graph {
+        ?hit a ?hitType ;
+            obo:BFO_0000132 ?plateAppearance ;
+            obo:BFO_0000117 ?hitJudgment .
+        ?hitJudgment a base:HitJudgmentAct .
+        ?batterAct a base:BatterAct ;
+            obo:BFO_0000132 ?plateAppearance ;
+            obo:BFO_0000057 ?player .
+        ?plateAppearance obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
+        ?player rdfs:label ?playerLabel .
+        VALUES (?hitType ?hitTypeLabel) {
+          (base:SingleProcess "single")
+          (base:DoubleProcess "double")
+          (base:TripleProcess "triple")
+          (base:HomeRunProcess "home run")
+        }
+      }
+      FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+    }
+    GROUP BY ?graph ?game ?player ?playerLabel
+    HAVING(COUNT(DISTINCT ?hitType) >= 3)
+  }
+}
+ORDER BY DESC(?distinctHitTypes) ?playerLabel

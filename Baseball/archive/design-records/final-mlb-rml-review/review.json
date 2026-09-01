@@ -1,0 +1,65 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "final-mlb-rml-review",
+  "title": "Final MLB authority and transaction RML review",
+  "status": "accepted",
+  "proposedIris": [
+    "https://baseballontology.org/MajorLeagueFreeAgentRole",
+    "https://baseballontology.org/BaseballRosterStatusAct",
+    "https://baseballontology.org/BaseballPlayerReleaseAct",
+    "https://baseballontology.org/BaseballPlayerReleaseDecisionICE",
+    "https://baseballontology.org/FreeAgencyDeclarationAct",
+    "https://baseballontology.org/FreeAgencyDeclarationDecisionICE",
+    "https://baseballontology.org/RetirementDeclarationAct",
+    "https://baseballontology.org/RetirementDecisionICE",
+    "https://baseballontology.org/BattingSideDisposition",
+    "https://baseballontology.org/ThrowingSideDisposition",
+    "https://baseballontology.org/BaseballPositionDescription",
+    "https://baseballontology.org/BaseballFieldingDisposition",
+    "https://baseballontology.org/BaseballVenueReferencePoint",
+    "https://baseballontology.org/SpectatorSeat",
+    "https://baseballontology.org/SittingArtifactFunction",
+    "https://baseballontology.org/StandingRoomSpectatorSite",
+    "https://baseballontology.org/SpectatorAccommodationAmount",
+    "https://baseballontology.org/BaseballPlayingSurface",
+    "https://baseballontology.org/BaseballVenueRoof"
+  ],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "c3aef46ccd31ce75ea41985872b159fe60da113918298dd514c8c2ff5849ed4d"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "aa5b313c1800afb69074f5ce77f58d10bf54a5215879e76146acb31d48963808"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "43aa5e5b642087d65c417d4a47c3fd384e9225d8b82af49da49bbf8a78067441"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "731b3933965ffd4e348f0483431645932e39deca50ff74046796269ba0448fef"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-08-30",
+    "rationale": "The ontologist explicitly accepted the named Final MLB authority and transaction RML review and authorized ontology implementation that follows its nineteen component Mermaid diagrams and the modeling guidance recorded in the conversation. This consolidated record adds no semantic decision and exists so the semantic freeze can cite the complete accepted scope rather than one component package.",
+    "authorizedArtifacts": [
+      "Baseball/ontology/BaseballO.ttl",
+      "Baseball/ontology/BaseballO-axioms-overlay.ttl"
+    ]
+  }
+}

@@ -1,0 +1,36 @@
+#!/bin/sh
+# Fail closed before semantic changes leave this clone. GitHub branch protection
+# remains the server-side authority; this hook is the local containment layer.
+
+set -eu
+
+repository_root=$(git rev-parse --show-toplevel)
+validator="$repository_root/Baseball/scripts/validate_semantic_change_control.py"
+zero_oid=0000000000000000000000000000000000000000
+
+python "$validator"
+
+while read -r local_ref local_oid remote_ref remote_oid
+do
+    if [ "$local_oid" = "$zero_oid" ]; then
+        continue
+    fi
+    if [ "$remote_oid" = "$zero_oid" ]; then
+        echo "Semantic history comparison skipped for new remote ref $remote_ref; current freeze still passed."
+        continue
+    fi
+    if ! git merge-base --is-ancestor "$remote_oid" "$local_oid"; then
+        echo "Semantic history comparison requires a fast-forward push: $remote_ref" >&2
+        exit 1
+    fi
+
+    # Each protected implementation is authorized by the accepted decision
+    # present in its own parent commit. Validate every newly published commit
+    # against that parent instead of asking the newest decision to authorize
+    # the entire accumulated push range.
+    for commit in $(git rev-list --reverse --topo-order "$remote_oid..$local_oid")
+    do
+        parent=$(git rev-parse "$commit^1")
+        python "$validator" --base-ref "$parent" --head-ref "$commit"
+    done
+done

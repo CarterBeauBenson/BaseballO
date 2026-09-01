@@ -1,0 +1,22 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "team-division-member-stint",
+  "title": "Team-division member-role history",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [{"path": "competency-questions.md", "sha256": "79a5eeaaa69dabced2165c0f7c3a46021ca7de146bf92f747ab45e0c931dcc54"}],
+    "sourceEvidence": [{"path": "source-evidence.md", "sha256": "b68371a78f0e1c94769f1d6f1ddf6db3def19cb9eb8211b7b177aaa4d43fa708"}],
+    "fieldSelectionInventory": [{"path": "field-selection-inventory.md", "sha256": "25289beaf4458622a6da709086796855f27e944d8a6958d4200b5f6d6eb77b51"}],
+    "sourceIndependentMermaid": [{"path": "source-independent-mermaid.md", "sha256": "f31930b7444765f9969dd366c39f61c468fbb535418144491e1ea9a185d6ef5d"}]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-08-30",
+    "rationale": "The ontologist explicitly accepted the revised source-independent Mermaid package published at commit b8c6cc76711286c979b9acb11db3c48ae7d6a581 and authorized implementation that follows those diagrams and the recorded modeling guidance.",
+    "authorizedArtifacts": []
+  }
+}

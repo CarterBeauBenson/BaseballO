@@ -1,0 +1,143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://baseballontology.org/schema/mlb-venues-response.schema.json",
+  "title": "Observed MLB venues response mechanics for the approved BaseballO surface",
+  "type": "object",
+  "required": [
+    "venues"
+  ],
+  "properties": {
+    "venues": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/venue"
+      }
+    }
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "nullablePositiveNumber": {
+      "oneOf": [
+        {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "venue": {
+      "type": "object",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "name": {
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "season": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9]{4}$"
+            },
+            {
+              "type": "integer",
+              "minimum": 1000,
+              "maximum": 9999
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "location": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "defaultCoordinates": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "required": ["latitude", "longitude"],
+                      "properties": {
+                        "latitude": {"type": "number", "minimum": -90, "maximum": 90},
+                        "longitude": {"type": "number", "minimum": -180, "maximum": 180}
+                      },
+                      "additionalProperties": true
+                    },
+                    {"type": "null"}
+                  ]
+                }
+              },
+              "additionalProperties": true
+            },
+            {"type": "null"}
+          ]
+        },
+        "fieldInfo": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "leftLine": {
+                  "$ref": "#/$defs/nullablePositiveNumber"
+                },
+                "leftCenter": {
+                  "$ref": "#/$defs/nullablePositiveNumber"
+                },
+                "center": {
+                  "$ref": "#/$defs/nullablePositiveNumber"
+                },
+                "rightCenter": {
+                  "$ref": "#/$defs/nullablePositiveNumber"
+                },
+                "rightLine": {
+                  "$ref": "#/$defs/nullablePositiveNumber"
+                },
+                "capacity": {
+                  "oneOf": [
+                    {"type": "integer", "minimum": 1},
+                    {"type": "null"}
+                  ]
+                },
+                "turfType": {
+                  "oneOf": [
+                    {"enum": ["Grass", "Artificial Turf"]},
+                    {"type": "null"}
+                  ]
+                },
+                "roofType": {
+                  "oneOf": [
+                    {"enum": ["Open", "Dome", "Retractable"]},
+                    {"type": "null"}
+                  ]
+                }
+              },
+              "additionalProperties": true
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

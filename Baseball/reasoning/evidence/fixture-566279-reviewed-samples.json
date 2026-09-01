@@ -1,0 +1,403 @@
+{
+  "allObligationsProved": true,
+  "allProfilesConsistent": true,
+  "artifactType": "baseball-selective-reasoning-reviewed-sample-evidence",
+  "contractVersion": 1,
+  "profileCount": 3,
+  "results": [
+    {
+      "anchor": "https://baseballontology.org/data/game/566279/plate-appearance/1",
+      "complexity": "simple",
+      "counts": {
+        "assertedSliceTriples": 62,
+        "closureTriples": 86,
+        "inferencesByEvidence": {
+          "order.cl[ctz-1]": 9,
+          "order.cl[tib-1,ctz-1]": 9,
+          "order.cl[tib-1]": 6
+        },
+        "inferredTriples": 24,
+        "iterations": 4,
+        "publishedTriples": 28,
+        "selectedNodes": 18
+      },
+      "inferredSha256": "17ab2b058dbc09dc04f68da9881d4ebe59a5b41aa747514e3e590847738efc0f",
+      "profile": "event-order",
+      "profileSha256": "c00b1ff05f8ae1fefb129998030ff315e1737316237d0161f8182352024c1cf1",
+      "proof": {
+        "allObligationsProved": true,
+        "backend": "z3-solver",
+        "backendVersion": "5.0.0",
+        "consistency": "sat",
+        "obligationCount": 24,
+        "provedCount": 24
+      },
+      "queryComparison": {
+        "asserted": {
+          "predicateCounts": {
+            "http://purl.obolibrary.org/obo/BFO_0000062": 6,
+            "http://purl.obolibrary.org/obo/BFO_0000063": 6
+          },
+          "rowCount": 12,
+          "rowSetSha256": "f0fb87c2e1caae1efba9ed427f80439daaea876adf1a476a6a5d7098482cf5fb"
+        },
+        "closure": {
+          "predicateCounts": {
+            "http://purl.obolibrary.org/obo/BFO_0000062": 18,
+            "http://purl.obolibrary.org/obo/BFO_0000063": 18
+          },
+          "rowCount": 36,
+          "rowSetSha256": "da48a893bd59d8720e660d7341eaf90d762135b9b1192f050dedd1b44d1f184b"
+        },
+        "newRows": 24,
+        "predicates": [
+          "http://purl.obolibrary.org/obo/BFO_0000063",
+          "http://purl.obolibrary.org/obo/BFO_0000062"
+        ]
+      },
+      "rulesetSha256": "2c4ba1069184da7bd0218eed8f2bac596769b993c4e2a46c6e9e324a3d000bc5",
+      "sample": "simple-one-pitch-field-out",
+      "shaclValidation": {
+        "explicitGraphBeforeReasoning": {
+          "conforms": true,
+          "profile": "authoritative",
+          "shapeSha256": "e968cbe3efdd642312fa8c1008f72ad24b0435fbc656b70970c4f2b048c81b3a"
+        },
+        "inferredGraphBeforeLoad": {
+          "conforms": true,
+          "profile": "reasoning-output",
+          "shapeSha256": "5e4a8a46f3fefca91567351646b13effd3cf56878611e58b4a5601112ed783a3"
+        }
+      }
+    },
+    {
+      "anchor": "https://baseballontology.org/data/game/566279/plate-appearance/1",
+      "complexity": "simple",
+      "counts": {
+        "assertedSliceTriples": 50,
+        "closureTriples": 73,
+        "inferencesByEvidence": {
+          "occurrent-mereology.cl[kad-1]": 5,
+          "occurrent-mereology.cl[yvi-1,kad-1]": 5,
+          "occurrent-mereology.cl[yvi-1]": 13
+        },
+        "inferredTriples": 23,
+        "iterations": 3,
+        "publishedTriples": 27,
+        "selectedNodes": 18
+      },
+      "inferredSha256": "5d7935ce2e05d7d9f554c37545bc64ee1e4a767637cfa05cd01361857dfd8bee",
+      "profile": "event-structure",
+      "profileSha256": "0769a71727733adc7553b18d51d2a21d91d15b0c86103ed19c494b78865653c0",
+      "proof": {
+        "allObligationsProved": true,
+        "backend": "z3-solver",
+        "backendVersion": "5.0.0",
+        "consistency": "sat",
+        "obligationCount": 23,
+        "provedCount": 23
+      },
+      "queryComparison": {
+        "asserted": {
+          "predicateCounts": {
+            "http://purl.obolibrary.org/obo/BFO_0000117": 9,
+            "http://purl.obolibrary.org/obo/BFO_0000132": 18
+          },
+          "rowCount": 27,
+          "rowSetSha256": "4f697dc73bef345cea10b4376a3cd31c10766e626c827d7009ab8776c4899f06"
+        },
+        "closure": {
+          "predicateCounts": {
+            "http://purl.obolibrary.org/obo/BFO_0000117": 25,
+            "http://purl.obolibrary.org/obo/BFO_0000132": 25
+          },
+          "rowCount": 50,
+          "rowSetSha256": "8b63b8bc8ab0220d23144ffe65698bb792e743195bcaea7fdd199bb2d139dcc6"
+        },
+        "newRows": 23,
+        "predicates": [
+          "http://purl.obolibrary.org/obo/BFO_0000117",
+          "http://purl.obolibrary.org/obo/BFO_0000132"
+        ]
+      },
+      "rulesetSha256": "b1a3a7c1bdbf0bffcc11747703690a4267946b86c93a3087f49f594941df1e2d",
+      "sample": "simple-one-pitch-field-out",
+      "shaclValidation": {
+        "explicitGraphBeforeReasoning": {
+          "conforms": true,
+          "profile": "authoritative",
+          "shapeSha256": "e968cbe3efdd642312fa8c1008f72ad24b0435fbc656b70970c4f2b048c81b3a"
+        },
+        "inferredGraphBeforeLoad": {
+          "conforms": true,
+          "profile": "reasoning-output",
+          "shapeSha256": "5e4a8a46f3fefca91567351646b13effd3cf56878611e58b4a5601112ed783a3"
+        }
+      }
+    },
+    {
+      "anchor": "https://baseballontology.org/data/game/566279/plate-appearance/1",
+      "complexity": "simple",
+      "counts": {
+        "assertedSliceTriples": 69,
+        "closureTriples": 84,
+        "inferencesByEvidence": {
+          "BFO OWL inverseOf; temporalized analogue participation.cl[xjr-1]": 15
+        },
+        "inferredTriples": 15,
+        "iterations": 2,
+        "publishedTriples": 19,
+        "selectedNodes": 22
+      },
+      "inferredSha256": "52f2f9fdbd2a8adc034e6b91c5ef2d7503bcc48077c7c0b56ca5a2d2be5ed14e",
+      "profile": "participation",
+      "profileSha256": "da2d44f7fee92659ce982603d912d2ae7822730ca7b9ef4dd05ce4cfebb03a6c",
+      "proof": {
+        "allObligationsProved": true,
+        "backend": "z3-solver",
+        "backendVersion": "5.0.0",
+        "consistency": "sat",
+        "obligationCount": 4,
+        "provedCount": 4
+      },
+      "queryComparison": {
+        "asserted": {
+          "predicateCounts": {
+            "http://purl.obolibrary.org/obo/BFO_0000056": 0,
+            "http://purl.obolibrary.org/obo/BFO_0000057": 15
+          },
+          "rowCount": 15,
+          "rowSetSha256": "f1fdcd71c93f3a6a7a75c93d520e82e7a19f790b0aff1a020c5b0104834e47af"
+        },
+        "closure": {
+          "predicateCounts": {
+            "http://purl.obolibrary.org/obo/BFO_0000056": 15,
+            "http://purl.obolibrary.org/obo/BFO_0000057": 15
+          },
+          "rowCount": 30,
+          "rowSetSha256": "5abf1e9b6bcfc129d0e8b6ae35c487325beb0d753a47fd3b1b0f00ee5ef17a85"
+        },
+        "newRows": 15,
+        "predicates": [
+          "http://purl.obolibrary.org/obo/BFO_0000057",
+          "http://purl.obolibrary.org/obo/BFO_0000056"
+        ]
+      },
+      "rulesetSha256": "ba803a02b69bbe9059ccb0ea079553bf2dc5b773fd7cf8672fc82741c5e4e6d5",
+      "sample": "simple-one-pitch-field-out",
+      "shaclValidation": {
+        "explicitGraphBeforeReasoning": {
+          "conforms": true,
+          "profile": "authoritative",
+          "shapeSha256": "e968cbe3efdd642312fa8c1008f72ad24b0435fbc656b70970c4f2b048c81b3a"
+        },
+        "inferredGraphBeforeLoad": {
+          "conforms": true,
+          "profile": "reasoning-output",
+          "shapeSha256": "5e4a8a46f3fefca91567351646b13effd3cf56878611e58b4a5601112ed783a3"
+        }
+      }
+    },
+    {
+      "anchor": "https://baseballontology.org/data/game/566279/plate-appearance/23",
+      "complexity": "complicated",
+      "counts": {
+        "assertedSliceTriples": 178,
+        "closureTriples": 224,
+        "inferencesByEvidence": {
+          "order.cl[ctz-1]": 14,
+          "order.cl[tib-1,ctz-1]": 14,
+          "order.cl[tib-1]": 18
+        },
+        "inferredTriples": 46,
+        "iterations": 4,
+        "publishedTriples": 50,
+        "selectedNodes": 58
+      },
+      "inferredSha256": "9cff74c0c334251d4a290bcd5b697441bab0221ee8a0ed56ba54b06a72c1f4c5",
+      "profile": "event-order",
+      "profileSha256": "c00b1ff05f8ae1fefb129998030ff315e1737316237d0161f8182352024c1cf1",
+      "proof": {
+        "allObligationsProved": true,
+        "backend": "z3-solver",
+        "backendVersion": "5.0.0",
+        "consistency": "sat",
+        "obligationCount": 46,
+        "provedCount": 46
+      },
+      "queryComparison": {
+        "asserted": {
+          "predicateCounts": {
+            "http://purl.obolibrary.org/obo/BFO_0000062": 20,
+            "http://purl.obolibrary.org/obo/BFO_0000063": 16
+          },
+          "rowCount": 36,
+          "rowSetSha256": "f3707d7c28ee6ef826fd881479d23c8efc38669d53e3740f2cf0cbec8038bb24"
+        },
+        "closure": {
+          "predicateCounts": {
+            "http://purl.obolibrary.org/obo/BFO_0000062": 41,
+            "http://purl.obolibrary.org/obo/BFO_0000063": 41
+          },
+          "rowCount": 82,
+          "rowSetSha256": "1e94897c3ebab447c41d75f3a9a414b110b864c837d106eae1ce1e3a351e6b91"
+        },
+        "newRows": 46,
+        "predicates": [
+          "http://purl.obolibrary.org/obo/BFO_0000063",
+          "http://purl.obolibrary.org/obo/BFO_0000062"
+        ]
+      },
+      "rulesetSha256": "2c4ba1069184da7bd0218eed8f2bac596769b993c4e2a46c6e9e324a3d000bc5",
+      "sample": "complicated-eight-event-run-scoring-single",
+      "shaclValidation": {
+        "explicitGraphBeforeReasoning": {
+          "conforms": true,
+          "profile": "authoritative",
+          "shapeSha256": "e968cbe3efdd642312fa8c1008f72ad24b0435fbc656b70970c4f2b048c81b3a"
+        },
+        "inferredGraphBeforeLoad": {
+          "conforms": true,
+          "profile": "reasoning-output",
+          "shapeSha256": "5e4a8a46f3fefca91567351646b13effd3cf56878611e58b4a5601112ed783a3"
+        }
+      }
+    },
+    {
+      "anchor": "https://baseballontology.org/data/game/566279/plate-appearance/23",
+      "complexity": "complicated",
+      "counts": {
+        "assertedSliceTriples": 142,
+        "closureTriples": 208,
+        "inferencesByEvidence": {
+          "occurrent-mereology.cl[kad-1]": 13,
+          "occurrent-mereology.cl[yvi-1,kad-1]": 13,
+          "occurrent-mereology.cl[yvi-1]": 40
+        },
+        "inferredTriples": 66,
+        "iterations": 3,
+        "publishedTriples": 70,
+        "selectedNodes": 58
+      },
+      "inferredSha256": "de395e702d74eddfd0c18211d44bc94b06fe9b92aef31def1661802840ab830e",
+      "profile": "event-structure",
+      "profileSha256": "0769a71727733adc7553b18d51d2a21d91d15b0c86103ed19c494b78865653c0",
+      "proof": {
+        "allObligationsProved": true,
+        "backend": "z3-solver",
+        "backendVersion": "5.0.0",
+        "consistency": "sat",
+        "obligationCount": 66,
+        "provedCount": 66
+      },
+      "queryComparison": {
+        "asserted": {
+          "predicateCounts": {
+            "http://purl.obolibrary.org/obo/BFO_0000117": 17,
+            "http://purl.obolibrary.org/obo/BFO_0000132": 53
+          },
+          "rowCount": 70,
+          "rowSetSha256": "909aebb561288a09885577f5dce9e8fa0c28f35348f244df97998d725689e3e6"
+        },
+        "closure": {
+          "predicateCounts": {
+            "http://purl.obolibrary.org/obo/BFO_0000117": 68,
+            "http://purl.obolibrary.org/obo/BFO_0000132": 68
+          },
+          "rowCount": 136,
+          "rowSetSha256": "fda2585577e9a7523b12d215953a53775710a894b6da1232847ad61f3fa5b991"
+        },
+        "newRows": 66,
+        "predicates": [
+          "http://purl.obolibrary.org/obo/BFO_0000117",
+          "http://purl.obolibrary.org/obo/BFO_0000132"
+        ]
+      },
+      "rulesetSha256": "b1a3a7c1bdbf0bffcc11747703690a4267946b86c93a3087f49f594941df1e2d",
+      "sample": "complicated-eight-event-run-scoring-single",
+      "shaclValidation": {
+        "explicitGraphBeforeReasoning": {
+          "conforms": true,
+          "profile": "authoritative",
+          "shapeSha256": "e968cbe3efdd642312fa8c1008f72ad24b0435fbc656b70970c4f2b048c81b3a"
+        },
+        "inferredGraphBeforeLoad": {
+          "conforms": true,
+          "profile": "reasoning-output",
+          "shapeSha256": "5e4a8a46f3fefca91567351646b13effd3cf56878611e58b4a5601112ed783a3"
+        }
+      }
+    },
+    {
+      "anchor": "https://baseballontology.org/data/game/566279/plate-appearance/23",
+      "complexity": "complicated",
+      "counts": {
+        "assertedSliceTriples": 209,
+        "closureTriples": 261,
+        "inferencesByEvidence": {
+          "BFO OWL inverseOf; temporalized analogue participation.cl[xjr-1]": 52
+        },
+        "inferredTriples": 52,
+        "iterations": 2,
+        "publishedTriples": 56,
+        "selectedNodes": 73
+      },
+      "inferredSha256": "b19789b9ea456e28bfe7d25bb28bda44ef91be6b01489aa2d86bbbfbad417a2b",
+      "profile": "participation",
+      "profileSha256": "da2d44f7fee92659ce982603d912d2ae7822730ca7b9ef4dd05ce4cfebb03a6c",
+      "proof": {
+        "allObligationsProved": true,
+        "backend": "z3-solver",
+        "backendVersion": "5.0.0",
+        "consistency": "sat",
+        "obligationCount": 18,
+        "provedCount": 18
+      },
+      "queryComparison": {
+        "asserted": {
+          "predicateCounts": {
+            "http://purl.obolibrary.org/obo/BFO_0000056": 0,
+            "http://purl.obolibrary.org/obo/BFO_0000057": 52
+          },
+          "rowCount": 52,
+          "rowSetSha256": "c6d4e837b13781ccfb7fac2cae7d14b0d7414ae090675f01e8509821b3832212"
+        },
+        "closure": {
+          "predicateCounts": {
+            "http://purl.obolibrary.org/obo/BFO_0000056": 52,
+            "http://purl.obolibrary.org/obo/BFO_0000057": 52
+          },
+          "rowCount": 104,
+          "rowSetSha256": "34c79c73e4d0b2313859024153542bc0fc9b13cce0589f26009bd75bad2371b7"
+        },
+        "newRows": 52,
+        "predicates": [
+          "http://purl.obolibrary.org/obo/BFO_0000057",
+          "http://purl.obolibrary.org/obo/BFO_0000056"
+        ]
+      },
+      "rulesetSha256": "ba803a02b69bbe9059ccb0ea079553bf2dc5b773fd7cf8672fc82741c5e4e6d5",
+      "sample": "complicated-eight-event-run-scoring-single",
+      "shaclValidation": {
+        "explicitGraphBeforeReasoning": {
+          "conforms": true,
+          "profile": "authoritative",
+          "shapeSha256": "e968cbe3efdd642312fa8c1008f72ad24b0435fbc656b70970c4f2b048c81b3a"
+        },
+        "inferredGraphBeforeLoad": {
+          "conforms": true,
+          "profile": "reasoning-output",
+          "shapeSha256": "5e4a8a46f3fefca91567351646b13effd3cf56878611e58b4a5601112ed783a3"
+        }
+      }
+    }
+  ],
+  "runCount": 6,
+  "sampleCount": 2,
+  "samplesContract": "reasoning/reviewed-samples.json",
+  "samplesContractSha256": "1527914430536f55812047abe25e4ba88d03afd15a045065e8e8f07d296e8e78",
+  "scope": "Two explicit plate appearances only; no full-game or corpus closure.",
+  "sourceJson": "data/raw/game-566279.json",
+  "sourceJsonSha256": "e36caf73ff54d6eeac29dba350d5d37001e769eaaf4c1a9e5eac4763ad2630c2",
+  "sourceRdfSha256": "d220d3264ab8f6a2725abd1bb7e72db690b01239dc26d4bacae81c3aee3508ce"
+}

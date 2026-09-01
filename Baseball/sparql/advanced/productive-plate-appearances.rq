@@ -1,0 +1,60 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# A non-hit PA associated with an explicitly mapped advance or run by another
+# runner. This is not RBI attribution and makes no claim about official credit.
+SELECT ?game ?plateAppearance ?batter ?batterLabel
+       (SAMPLE(?eventType) AS ?outcome)
+       (COUNT(DISTINCT ?advancedRunner) AS ?otherRunnersAdvanced)
+       (COUNT(DISTINCT ?run) AS ?otherRunnerRuns)
+WHERE {
+  GRAPH ?graph {
+    ?game a base:BaseballGame .
+    ?plateAppearance a base:PlateAppearance ;
+        obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
+    ?batterAct a base:BatterAct ;
+        obo:BFO_0000132 ?plateAppearance ;
+        obo:BFO_0000057 ?batter .
+    ?batter rdfs:label ?batterLabel .
+    ?result a base:BaseballInstitutionalProcess, ?outcomeClass ;
+        obo:BFO_0000132 ?plateAppearance .
+    VALUES (?outcomeClass ?eventType) {
+      (base:SingleProcess "single")
+      (base:DoubleProcess "double")
+      (base:TripleProcess "triple")
+      (base:HomeRunProcess "home_run")
+      (base:WalkProcess "walk")
+      (base:StrikeoutProcess "strikeout")
+      (base:HitByPitchProcess "hit_by_pitch")
+      (base:FieldersChoiceProcess "fielders_choice")
+      (base:ErrorProcess "field_error")
+      (base:SacrificeFlyProcess "sac_fly")
+      (base:SacrificeBuntProcess "sac_bunt")
+      (base:BattedBallOutProcess "field_out")
+      (base:ForceOutProcess "force_out")
+      (base:DoublePlayProcess "double_play")
+      (base:GroundedIntoDoublePlayProcess "grounded_into_double_play")
+      (base:BalkProcess "balk")
+      (base:InterferenceProcess "catcher_interf")
+    }
+    FILTER NOT EXISTS {
+      ?result a ?hitType .
+      VALUES ?hitType { base:SingleProcess base:DoubleProcess base:TripleProcess base:HomeRunProcess }
+    }
+    ?runnerResolution a base:RunnerResolutionProcess ;
+        obo:BFO_0000132 ?plateAppearance ;
+        obo:BFO_0000057 ?advancedRunner ;
+        a ?productiveResolutionClass .
+    VALUES ?productiveResolutionClass { base:SafeProcess base:RunProcess }
+    FILTER(?advancedRunner != ?batter)
+    OPTIONAL {
+      ?run a base:RunnerResolutionProcess, base:RunProcess ;
+          obo:BFO_0000132 ?plateAppearance ;
+          obo:BFO_0000057 ?advancedRunner .
+    }
+  }
+  FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+}
+GROUP BY ?game ?plateAppearance ?batter ?batterLabel
+ORDER BY DESC(?otherRunnerRuns) DESC(?otherRunnersAdvanced) ?batterLabel

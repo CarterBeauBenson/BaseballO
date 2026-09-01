@@ -1,0 +1,20 @@
+{
+  "copyright": "Checked semantic fixture; not a retained API response",
+  "divisions": [
+    {
+      "id": 201,
+      "name": "American League East",
+      "season": "2025",
+      "league": {
+        "id": 103,
+        "name": "American League"
+      },
+      "sport": {
+        "id": 1,
+        "name": "Major League Baseball"
+      },
+      "abbreviation": "ALE",
+      "active": true
+    }
+  ]
+}

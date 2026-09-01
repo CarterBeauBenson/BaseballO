@@ -1,0 +1,116 @@
+artifact_type: baseballo-source-iri-policy
+contract_version: 1
+module_id: mlb-transactions
+status: accepted-design-implemented
+accepted_review: Baseball/archive/design-records/mlb-transactions-source-contract/review.json
+
+namespaces:
+  data: https://baseballontology.org/data/
+  source: https://baseballontology.org/data/source/mlb-transactions/
+  graph: https://w3id.org/baseball/graph/event/mlb-transactions/
+
+authority:
+  owns:
+    - transaction grouping descriptive information entities
+    - content-versioned transaction row descriptive information entities
+    - transaction identifier information content entities
+    - row type classification information content entities
+    - row description information content entities
+    - row date and field-key identifiers
+    - conditionally admitted row-scoped Death processes
+    - grounded Baseball Personnel Trade Acts for exact complete TR groups
+    - transaction-bounded Player Roles and their Gain or Loss processes
+    - grounded Acts of Contract Formation for exact complete SGN and SFA rows
+  references_only:
+    person: "https://baseballontology.org/data/player/{personId}"
+    baseball_team: "https://baseballontology.org/data/team/{teamId}"
+  prohibited_persistent_entity_assertions:
+    - names
+    - rdf:type assertions for referenced Persons or Baseball Teams
+    - names and descriptions of referenced Persons or Baseball Teams
+    - organization membership outside the accepted transaction-bounded Player Role branches
+
+reference_systems:
+  transaction_identifier: https://baseballontology.org/data/source/mlb-transactions/reference-system/transaction-identifier
+  transaction_type: https://baseballontology.org/data/source/mlb-transactions/reference-system/transaction-type
+  field_key: https://baseballontology.org/data/source/mlb-transactions/reference-system/field-key
+
+identities:
+  grouping:
+    source_key: id
+    template: "https://baseballontology.org/data/source/mlb-transactions/group/{id}"
+    rule: The provider id identifies an information grouping, never a world-side act.
+  transaction_identifier:
+    template: "{groupIri}/identifier/mlb-transaction-id"
+  row:
+    template: "https://baseballontology.org/data/source/mlb-transactions/row/{rowSha256}"
+    digest: SHA-256 lowercase hexadecimal over the RFC-8785-compatible selected-content serialization
+    selected_members:
+      - id
+      - personId
+      - fromTeamId
+      - toTeamId
+      - date
+      - effectiveDate
+      - resolutionDate
+      - typeCode
+      - typeDesc
+      - description
+    null_rule: Missing optional members are explicit JSON null in the identity object.
+    text_rule: Preserve decoded Unicode code points; do not trim, case-fold, or ASCII-fold.
+    canonicalization_rule: >
+      The selected value domain is limited to JSON integers, strings, and null.
+      Serialize it as RFC 8785 canonical JSON: member names sorted in canonical
+      order, no insignificant whitespace, UTF-8 encoding, and no ASCII escaping.
+    excluded:
+      - response array position
+      - request window
+      - retrieval timestamp
+      - source file path
+  row_children:
+    type_classification: "{rowIri}/type"
+    description: "{rowIri}/description"
+    date_identifier: "{rowIri}/date/{fieldKey}"
+    date_field_key_identifier: "{rowIri}/date/{fieldKey}/field-key"
+    death: "{rowIri}/process/death"
+    contract_formation: "{rowIri}/act/contract-formation"
+  trade:
+    template: "{groupIri}/act/trade"
+    gate: "all group rows have exact TR classification, one shared effective date, and structured Person/from-Team/to-Team identifiers"
+  transition_bounded_player_role:
+    template: "{personIri}/team/{teamId}/role/player/stint/{gainOrLoss}/{effectiveDate}/transaction/{transactionId}"
+    rule: "evidence-scoped identity for the exact stint boundary; cross-source equivalence is resolved only after promotion"
+  day:
+    template: "https://baseballontology.org/data/day/{YYYY-MM-DD}"
+    rule: All Calendar Date Identifiers with the same validated lexical date designate the same source-neutral Day IRI.
+
+field_keys:
+  allowed:
+    - date
+    - effectiveDate
+    - resolutionDate
+  rule: >
+    Each field-key identifier is row-scoped, has the exact source key as its
+    text value, uses the MLB transactions field-key Reference System, and
+    designates exactly one Calendar Date Identifier.
+
+death_gate:
+  default: disabled
+  required_evidence:
+    - exact transactionTypes raw-byte SHA-256 pin
+    - exact code and description pair where description is Death
+    - accepted ontologist decision authorizing the module-local pin artifact
+    - non-null validated person.id on the transaction row
+  date_rule: No transaction date is asserted as a Death boundary or temporal extent.
+
+prohibited:
+  - array-position identity
+  - person or team names in IRIs
+  - description text in IRIs except through the row content digest
+  - blank nodes for queryable individuals
+  - generic transaction acts
+  - UniformNumberAssignmentAct instances
+  - release, retirement, declaration, waiver, or roster-status Acts inferred from provider type code alone
+  - Major League Free Agent Role inferred from signing or absence of a Team
+  - process boundaries inferred from date or resolutionDate; accepted Trade/signing branches use effectiveDate only
+  - a Death inferred without the reviewed pin and non-null Person

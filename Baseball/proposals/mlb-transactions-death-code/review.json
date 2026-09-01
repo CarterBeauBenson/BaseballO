@@ -1,0 +1,16 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-transactions-death-code",
+  "title": "MLB transaction Death code",
+  "status": "under-review",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [{"path": "competency-questions.md", "sha256": "67e29848009947437db47cd033da7e56905cb8634e07dc1c60c303a40be7fcae"}],
+    "sourceEvidence": [{"path": "source-evidence.md", "sha256": "48a74452c32309fadf93eeac150b35e1550ded371882cc12ce2069ac02161907"}],
+    "fieldSelectionInventory": [{"path": "field-selection-inventory.md", "sha256": "fe6b1609f3a1dabf384868139666bee1e2d72730e2019815d5d0ae601407d0a5"}],
+    "sourceIndependentMermaid": [{"path": "source-independent-mermaid.md", "sha256": "32ab7e5dd25fcde52d3c89761e3a37e062a20261b94ab2c08fd7696dbacad354"}]
+  },
+  "ontologistDecision": null
+}

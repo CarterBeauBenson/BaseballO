@@ -1,0 +1,30 @@
+{
+  "people": [
+    {
+      "id": 660271,
+      "fullName": "Eugenio Suárez",
+      "nickName": "Geno",
+      "height": "5' 11\"",
+      "birthDate": "1991-07-18",
+      "weight": 213,
+      "batSide": {
+        "code": "R",
+        "description": "Right"
+      },
+      "pitchHand": {
+        "code": "R",
+        "description": "Right"
+      },
+      "primaryPosition": {
+        "code": "5",
+        "name": "Third Base",
+        "type": "Infielder",
+        "abbreviation": "3B"
+      },
+      "primaryNumber": "28",
+      "currentTeam": {
+        "id": 135
+      }
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "statcast-batted-ball-expectancy",
+  "title": "Statcast batted-ball expectancy models",
+  "status": "under-review",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [{
+      "path": "competency-questions.md",
+      "sha256": "136a02536f10cb2ad85feb8fc26ca5aebe7cef553e78c0c5fafffa49e87e8494"
+    }],
+    "sourceEvidence": [{
+      "path": "source-evidence.md",
+      "sha256": "fe1925508dc7dc41d01fc2eeaaecd804ab368f472b977397f947bd4d6442034a"
+    }],
+    "fieldSelectionInventory": [{
+      "path": "field-selection-inventory.md",
+      "sha256": "ef96ebbb28db254fb9c8d7dd3ffe6d8bf11049ebf38c2a63fd398d9d4522fac2"
+    }],
+    "sourceIndependentMermaid": [{
+      "path": "source-specific-mermaid.md",
+        "sha256": "358139bf904e84b6ab4a3ac71bd170f16b551c9c7625c99ad40cf84d4c75c411"
+    }]
+  },
+  "ontologistDecision": null
+}

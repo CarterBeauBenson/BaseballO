@@ -1,0 +1,16 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-organizations-season-format-flags",
+  "title": "MLB organization season-format flags",
+  "status": "under-review",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [{"path": "competency-questions.md", "sha256": "c37473cc318984851e4bc6b7ad0f31120690b75aec34a1407b2baef9e78086e8"}],
+    "sourceEvidence": [{"path": "source-evidence.md", "sha256": "9aa16229c0fdd4c9169242261e867ce7055846e4584c33f608ca609621c4aa5e"}],
+    "fieldSelectionInventory": [{"path": "field-selection-inventory.md", "sha256": "6970e22407053485642ed514eb27715bab089637e5f71c1f9e381aac5b38b446"}],
+    "sourceIndependentMermaid": [{"path": "source-independent-mermaid.md", "sha256": "c959e2df454a4e47576e1827c37f607740436c01fefedc466973ae1ad24e6d10"}]
+  },
+  "ontologistDecision": null
+}

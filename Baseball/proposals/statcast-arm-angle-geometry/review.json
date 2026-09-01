@@ -1,0 +1,28 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "statcast-arm-angle-geometry",
+  "title": "Statcast arm-angle geometry",
+  "status": "under-review",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [{
+      "path": "competency-questions.md",
+      "sha256": "67da636a18713f611f74a0710ff1231ddb31373be4ed6dcb8f92074cb0ad3d27"
+    }],
+    "sourceEvidence": [{
+      "path": "source-evidence.md",
+      "sha256": "563db355b16356e09cd0199696fe2dc131a460dd1fbf1bcab0b1dcc36d16475a"
+    }],
+    "fieldSelectionInventory": [{
+      "path": "field-selection-inventory.md",
+      "sha256": "396011e6194b69df4cd4fd1bb26751a7fc814e2333255ad33cd1f4ed636f9097"
+    }],
+    "sourceIndependentMermaid": [{
+      "path": "source-specific-mermaid.md",
+        "sha256": "21166c6f0d4ba64f0ad8aee592e2fb0c37b0a14ae9a4015bde237ba8ea4517c0"
+    }]
+  },
+  "ontologistDecision": null
+}

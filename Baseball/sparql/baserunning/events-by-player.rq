@@ -1,0 +1,38 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?player ?playerLabel ?eventType
+       (COUNT(DISTINCT ?resolution) AS ?events)
+WHERE {
+  GRAPH ?graph {
+    ?record a base:BaseballEventRecord ;
+            cco:ont00001808 ?resolution .
+    ?resolution a base:RunnerResolutionProcess, ?resolutionClass ;
+                obo:BFO_0000057 ?player ;
+                obo:BFO_0000117 ?judgment .
+    ?judgment a ?judgmentClass .
+    VALUES ?judgmentClass {
+      base:OutJudgmentAct base:SafeJudgmentAct base:RunJudgmentAct
+    }
+    OPTIONAL {
+      ?record cco:ont00001808 ?specificResolution .
+      ?specificResolution a ?specificResolutionClass .
+      VALUES (?specificResolutionClass ?specificEventType) {
+        (base:StolenBaseProcess "stolen_base")
+        (base:PassedBallProcess "passed_ball")
+        (base:WildPitchProcess "wild_pitch")
+        (base:UncaughtThirdStrikeProcess "uncaught_third_strike")
+      }
+    }
+    BIND(COALESCE(
+      ?specificEventType,
+      IF(?resolutionClass = base:RunProcess, "run",
+        IF(?resolutionClass = base:OutProcess, "out", "safe"))
+    ) AS ?eventType)
+    ?player rdfs:label ?playerLabel .
+  }
+}
+GROUP BY ?player ?playerLabel ?eventType
+ORDER BY LCASE(STR(?playerLabel)) DESC(?events) ?eventType

@@ -1,0 +1,32 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-measurement-classification-lifecycle-2026-08-31",
+  "title": "MLB-game measurement, classification, and lifecycle decisions",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [{"path":"competency-questions.md","sha256":"0cd87f5783f78a922523683c256b2dc721f5cfc030bb816322d83b5a832f1189"}],
+    "sourceEvidence": [{"path":"source-evidence.md","sha256":"e1ebdef256469bdb0eaa16c52cb3221bca9a0b738fb5a9a09f6e67d0ad65d7cd"}],
+    "fieldSelectionInventory": [{"path":"field-selection-inventory.md","sha256":"39ff8fedec6539cfc02f9d608058e1fade1a7d8119668f9c2b99ca1e513c16bb"}],
+    "sourceIndependentMermaid": [{"path":"source-independent-mermaid.md","sha256":"4499d4d9a95ca9c2582cbdb04bed2fef70bef0abb5e9edffd4683ef30fa3d21c"}]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-08-31",
+    "rationale": "The ontologist explicitly accepted the evidence-equivalence gate, evaluation-local Process Profiles, the scalar Speed versus framed Velocity distinction, classification-dependent Pitch and batted-ball Act subtypes without universal grip or trajectory conditions, reviewed offseason temporal parts, and evidence-led resolution of source placeholders. The ontologist also authorized repair of the semantic-freeze generator so it preserves the already explicit runtime admissions without silently admitting new modules.",
+    "authorizedArtifacts": [
+      "Baseball/scripts/validate_semantic_change_control.py",
+      "Baseball/governance/semantic-freeze.json",
+      "Baseball/governance/STALE-MATERIAL-AUDIT-2026-08-31.md",
+      "Baseball/ROADMAP.md",
+      "Baseball/proposals/mlb-game-deferred-measurements/competency-questions.md",
+      "Baseball/proposals/mlb-game-deferred-measurements/field-selection-inventory.md",
+      "Baseball/proposals/mlb-game-deferred-measurements/source-evidence.md",
+      "Baseball/proposals/mlb-game-deferred-measurements/source-independent-mermaid.md",
+      "Baseball/proposals/mlb-game-deferred-measurements/review.json"
+    ]
+  }
+}

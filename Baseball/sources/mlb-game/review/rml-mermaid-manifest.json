@@ -1,0 +1,363 @@
+{
+  "version": 1,
+  "source_module": "mlb-game",
+  "mapping": "sources/mlb-game/mapping/mlb-game.rml.ttl",
+  "output_root": "mermaid/patterns",
+  "limits": {
+    "maps_per_pattern": 15,
+    "semantic_nodes_per_pattern": 22,
+    "semantic_edges_per_pattern": 40,
+    "source_nodes_per_pattern": 18,
+    "source_edges_per_pattern": 26
+  },
+  "patterns": [
+    {
+      "id": "01-game-and-venue",
+      "title": "Game and venue",
+      "summary": "A baseball game occurs at a baseball-field site associated with a venue and is designated by a source identifier.",
+      "maps": ["GameMap", "GameIdentifierMap", "VenueMap", "VenueIdentifierMap", "VenueNameMap", "BaseballFieldSiteMap"]
+    },
+    {
+      "id": "02-team-participation",
+      "title": "Team participation",
+      "summary": "Home and away teams participate in a game while their contextual team roles remain distinct from the teams themselves.",
+      "maps": ["AwayTeamMap", "AwayTeamIdentifierMap", "AwayTeamNameMap", "AwayTeamRoleMap", "HomeTeamMap", "HomeTeamIdentifierMap", "HomeTeamNameMap", "HomeTeamRoleMap"]
+    },
+    {
+      "id": "03-player-identity",
+      "title": "Player identity",
+      "summary": "Every accepted player participates in the game and bears a team-scoped PlayerRole that the game realizes, including players who remain on the bench; the role participates in an open role stasis.",
+      "maps": ["PlayerMap", "PlayerIdentifierMap", "PlayerNameMap", "PlayerRoleMap", "GamePlayerTeamRoleRealizationMap", "PlayerRoleStasisMap", "PlayerRoleStasisIntervalMap"]
+    },
+    {
+      "id": "04-game-officials",
+      "title": "Game officials",
+      "summary": "Umpires and the official scorer bear persistent adjudicator roles that the game realizes and that participate in open role stases.",
+      "maps": ["UmpirePersonMap", "UmpireRoleMap", "GameUmpireCareerRealizationMap", "UmpireRoleStasisMap", "UmpireRoleStasisIntervalMap", "OfficialScorerPersonMap", "OfficialScorerRoleMap", "GameOfficialScorerCareerRealizationMap", "OfficialScorerRoleStasisMap", "OfficialScorerRoleStasisIntervalMap"]
+    },
+    {
+      "id": "05-game-time",
+      "title": "Game temporal region",
+      "summary": "A game occupies an interval bounded by temporal instants that are designated by timestamp information.",
+      "maps": ["GameTemporalIntervalMap", "GameStartInstantMap", "GameStartTimestampMap", "GameEndInstantMap", "GameEndTimestampMap"]
+    },
+    {
+      "id": "58-season-phase",
+      "title": "Season and season phase",
+      "summary": "A game is an occurrent part of a reviewed season phase, the phase is an occurrent part of its season, and the provider category remains nominal evidence in a versioned Reference System.",
+      "maps": ["SeasonMap", "SeasonPhaseMap", "GameSeasonPhaseMap", "SeasonSegmentCategoryMap", "SeasonSegmentReferenceSystemMap"]
+    },
+    {
+      "id": "06-game-containment",
+      "title": "Game containment",
+      "summary": "Game, inning, half inning, and plate appearance form an explicit occurrent-part hierarchy.",
+      "maps": ["GameInningContainmentMap", "InningMap", "InningHalfInningContainmentMap", "HalfInningMap", "HalfInningPlateAppearanceContainmentMap"]
+    },
+    {
+      "id": "07-plate-appearance-core",
+      "title": "Plate appearance and player acts",
+      "summary": "A plate appearance contains a batter act and pitch acts, with batter and pitcher persons participating through contextual roles.",
+      "maps": ["PlateAppearanceMap", "PlateAppearanceCoreContainmentMap", "BatterActMap", "BatterRoleMap", "BatterRoleStasisMap", "BatterRoleStasisIntervalMap", "PitcherRoleMap", "PitcherRoleStasisMap", "PitcherRoleStasisIntervalMap"]
+    },
+    {
+      "id": "08-plate-appearance-time",
+      "title": "Plate appearance time",
+      "summary": "A plate appearance occupies an interval whose first and last instants are designated by timestamps.",
+      "maps": ["PlateAppearanceIntervalMap", "PlateAppearanceStartInstantMap", "PlateAppearanceStartTimestampMap", "PlateAppearanceEndInstantMap", "PlateAppearanceEndTimestampMap"]
+    },
+    {
+      "id": "57-plate-appearance-start-state",
+      "title": "Plate appearance start state",
+      "summary": "Each plate appearance records its starting out count; every occupied base contributes a runner participant, a base-scoped stasis, the physical Base, and the corresponding Base Site.",
+      "maps": ["PlateAppearanceStartOutCountMap", "PlateAppearanceStartRunnerParticipantMap", "BaserunnerAtBaseStasisMap", "BaserunnerAtBaseStasisIntervalMap", "PlateAppearanceStartRunnerLocationMap", "PlateAppearanceStartBaseArtifactMap", "PlateAppearanceStartBaseIdentifierMap", "PlateAppearanceStartBaseSiteMap"]
+    },
+    {
+      "id": "09-plate-appearance-result",
+      "title": "Plate appearance result and adjudication",
+      "summary": "Every plate-appearance result is a distinct institutional process with an adjudication act, decision, and event record.",
+      "maps": ["PlateAppearanceResultContainmentMap", "PlateAppearanceResultMap", "PlateAppearanceResultJudgmentMap", "PlateAppearanceResultDecisionMap", "PlateAppearanceResultRecordMap", "PlateAppearanceResultRecordAdjudicationMap"]
+    },
+    {
+      "id": "10-pitch-physical-chain",
+      "title": "Pitch physical chain",
+      "summary": "A pitch act precedes a pitch-ball-motion process involving a pitch-scoped baseball and governed by the pitch rule.",
+      "maps": ["PitchActMap", "PitchActPhysicalOverlayMap", "PitchBallMotionMap", "PitchBaseballMap", "PitchRuleMap"]
+    },
+    {
+      "id": "11-pitch-time-and-record",
+      "title": "Pitch time and record",
+      "summary": "A pitch occupies a temporal interval, has timestamped endpoints, and is described by a separate event record.",
+      "maps": ["PitchEventRecordMap", "PitchIntervalMap", "PitchStartInstantMap", "PitchStartTimestampMap", "PitchEndInstantMap", "PitchEndTimestampMap", "PitchPhysicalRecordAboutMap"]
+    },
+    {
+      "id": "46-replay-review",
+      "title": "Replay review core",
+      "summary": "A reviewed on-field judgment produces the prior decision and leads to a distinct replay-review act that produces a replay decision; only source-described challenges create a Challenge Act or challenged-review classification.",
+      "maps": ["ReviewOnFieldJudgmentMap", "ReviewOnFieldDecisionMap", "ReviewChallengeMap", "ReviewPlayerChallengeMap", "PitchReviewOnFieldUmpireMap", "ReplayReviewActMap", "ChallengedReplayReviewActMap", "ReplayDecisionMap"]
+    },
+    {
+      "id": "47-replay-process-contexts",
+      "title": "Replay adjudicated-process contexts",
+      "summary": "The reviewed on-field judgment and replay-review act each belong to a distinct institutional process that is the subject of the corresponding decision.",
+      "maps": ["ReviewOnFieldAdjudicatedProcessMap", "ReplayAdjudicatedProcessMap"]
+    },
+    {
+      "id": "48-replay-review-record",
+      "title": "Replay review result and record",
+      "summary": "Review-result information describes the relationship between the two decisions, while a source event record is about the full review pattern, an optional challenge, and the final structured outcome.",
+      "maps": ["ReplayReviewResultMap", "ReviewEventRecordMap", "ChallengedReviewEventRecordAboutMap", "PitchReviewEventRecordAboutMap"]
+    },
+    {
+      "id": "49-replay-review-result-classification",
+      "title": "Replay review result classification",
+      "summary": "Review-result information is classified as affirming or overturning from the source review outcome.",
+      "maps": ["ReviewAffirmingResultMap", "ReviewOverturningResultMap"]
+    },
+    {
+      "id": "50-reviewed-decision-classification",
+      "title": "Reviewed on-field decision classification",
+      "summary": "The reviewed on-field decision is classified as ball, strike, out, or safe when the source supports one of those alternatives.",
+      "maps": ["ReviewOriginalBallDecisionMap", "ReviewOriginalStrikeDecisionMap", "ReviewOriginalOutDecisionMap", "ReviewOriginalSafeDecisionMap"]
+    },
+    {
+      "id": "51-replay-decision-classification",
+      "title": "Replay decision classification",
+      "summary": "The replay decision is classified as ball, strike, out, or safe from the final structured source state.",
+      "maps": ["ReviewFinalBallDecisionMap", "ReviewFinalStrikeDecisionMap", "ReviewFinalOutDecisionMap", "ReviewFinalSafeDecisionMap"]
+    },
+    {
+      "id": "52-replay-review-transitions",
+      "title": "Replay review transition patterns",
+      "summary": "Each replay-review act receives one explicit ball-to-ball, strike-to-strike, out-to-out, safe-to-safe, ball-to-strike, strike-to-ball, out-to-safe, or safe-to-out classification when the source supports it.",
+      "maps": ["ReviewBallToBallActMap", "ReviewStrikeToStrikeActMap", "ReviewOutToOutActMap", "ReviewSafeToSafeActMap", "ReviewBallToStrikeActMap", "ReviewStrikeToBallActMap", "ReviewOutToSafeActMap", "ReviewSafeToOutActMap"]
+    },
+    {
+      "id": "12-ball-adjudication",
+      "title": "Called ball adjudication",
+      "summary": "A ball process follows pitch motion and contains a judgment that produces a decision used by a call act; ball-in-dirt is a source-supported variant.",
+      "maps": ["BallProcessMap", "BallProcessMapRecordAboutMap", "BallInDirtProcessMap", "BallInDirtProcessMapRecordAboutMap", "BallProcessAdjudicationOverlayMap", "BallJudgmentMap", "BallDecisionMap", "BallCallMap", "BallAdjudicationRecordMap", "BallRuleMap"]
+    },
+    {
+      "id": "13-strike-adjudication",
+      "title": "Strike adjudication",
+      "summary": "Called and swinging strikes share a counted strike judgment and decision pattern while retaining distinct source-specific branches.",
+      "maps": ["StrikeProcessAdjudicationOverlayMap", "StrikeJudgmentMap", "StrikeDecisionMap", "StrikeAdjudicationRecordMap", "StrikeRuleMap"]
+    },
+    {
+      "id": "14-called-strike",
+      "title": "Called strike",
+      "summary": "A called strike process is followed by an explicit strike call act that consumes the strike decision.",
+      "maps": ["CalledStrikeProcessMap", "CalledStrikeProcessMapRecordAboutMap", "CalledStrikeCallMap", "CalledStrikeJudgmentCallSequenceMap", "CalledStrikeRecordCallMap"]
+    },
+    {
+      "id": "15-swinging-strike",
+      "title": "Swinging strike without contact",
+      "summary": "A neutral swing act precedes the counted strike process; no distinct successful or unsuccessful swing class is minted.",
+      "maps": ["SwingingStrikeSwingActMap", "SwingingStrikeSwingActMapRecordAboutMap", "SwingingStrikeProcessMap", "SwingingStrikeProcessMapRecordAboutMap"]
+    },
+    {
+      "id": "16-batted-ball-backbone",
+      "title": "Batted-ball physical backbone",
+      "summary": "Contact and batted-ball motion are distinct physical processes contained in a batted-ball play and involving the ball and bat artifacts.",
+      "maps": ["BattedBallPlayMap", "BattedBallPlayRecordMap", "BattedBallMotionMap", "BattedBallMotionMapRecordAboutMap", "BattedBallContactParticipantOverlayMap", "BattedBallMotionParticipantOverlayMap", "SwingBaseballBatMap"]
+    },
+    {
+      "id": "17-foul-ball-physical",
+      "title": "Foul-ball physical chain",
+      "summary": "A swing and contact precede the foul-ball process, while the batted-ball play and event record retain the physical evidence.",
+      "maps": ["FoulSwingActMap", "FoulSwingActMapRecordAboutMap", "FoulContactMap", "FoulContactMapRecordAboutMap", "FoulBallProcessMap", "FoulBallProcessMapRecordAboutMap", "BattedBallPlayFoulContainmentMap"]
+    },
+    {
+      "id": "44-foul-ball-adjudication",
+      "title": "Foul-ball adjudication",
+      "summary": "The foul-ball process contains a distinct judgment that uses the fair/foul rule, produces a decision, and precedes a call act.",
+      "maps": ["FoulBallProcessMap", "FoulBallProcessAdjudicationPartMap", "FoulBallAdjudicationMap", "FoulBallDecisionMap", "FoulBallCallMap", "FoulBallAdjudicationRecordMap", "FairFoulRuleMap"]
+    },
+    {
+      "id": "18-counted-foul-strike",
+      "title": "Counted foul strike",
+      "summary": "Where the event-local count is unambiguous, a foul contains a separately adjudicated counted strike process.",
+      "maps": ["FoulStrikeProcessMap", "FoulStrikeProcessMapRecordAboutMap", "CountedFoulStrikeProcessPartMap", "CountedFoulStrikeAdjudicationMap", "CountedFoulStrikeDecisionMap"]
+    },
+    {
+      "id": "19-foul-tip-physical",
+      "title": "Foul-tip physical chain and shared identity",
+      "summary": "A foul tip follows swing and contact, includes catching, and is one institutional-process individual typed as both foul tip and strike.",
+      "maps": ["FoulTipSwingActMap", "FoulTipSwingActMapRecordAboutMap", "FoulTipContactMap", "FoulTipContactMapRecordAboutMap", "FoulTipBallCatchingMap", "FoulTipProcessMap", "FoulTipStrikeProcessMap", "FoulTipProcessMapRecordAboutMap", "FoulTipStrikeProcessMapRecordAboutMap", "BattedBallPlayFoulTipContainmentMap"]
+    },
+    {
+      "id": "45-foul-tip-adjudication",
+      "title": "Foul-tip adjudication",
+      "summary": "The foul-tip process contains a distinct judgment and decision while the event record remains about the adjudication evidence.",
+      "maps": ["FoulTipProcessMap", "FoulTipProcessAdjudicationPartMap", "FoulTipAdjudicationMap", "FoulTipDecisionMap", "FoulTipAdjudicationRecordMap"]
+    },
+    {
+      "id": "20-in-play-out-contact",
+      "title": "In-play out contact",
+      "summary": "A swing and contact precede a fair-ball process for an in-play event whose feed call is out.",
+      "maps": ["InPlayOutSwingActMap", "InPlayOutSwingActMapRecordAboutMap", "InPlayOutContactMap", "InPlayOutContactMapRecordAboutMap", "InPlayOutFairBallMap", "InPlayOutFairBallMapRecordAboutMap"]
+    },
+    {
+      "id": "21-in-play-no-out-contact",
+      "title": "In-play no-out contact",
+      "summary": "A swing and contact precede a fair-ball process for an in-play event whose feed call records no out.",
+      "maps": ["InPlayNoOutSwingActMap", "InPlayNoOutSwingActMapRecordAboutMap", "InPlayNoOutContactMap", "InPlayNoOutContactMapRecordAboutMap", "InPlayNoOutFairBallMap", "InPlayNoOutFairBallMapRecordAboutMap"]
+    },
+    {
+      "id": "22-in-play-runs-contact",
+      "title": "In-play runs contact",
+      "summary": "A swing and contact precede a fair-ball process for an in-play event whose feed call records runs.",
+      "maps": ["InPlayRunsSwingActMap", "InPlayRunsSwingActMapRecordAboutMap", "InPlayRunsContactMap", "InPlayRunsContactMapRecordAboutMap", "InPlayRunsFairBallMap", "InPlayRunsFairBallMapRecordAboutMap"]
+    },
+    {
+      "id": "23-bunt-contact",
+      "title": "Bunt contact",
+      "summary": "Every supported bunt attempt creates a Bunt Act; only contact-supported attempts precede contact, and only in-play bunt evidence creates a fair-ball process.",
+      "maps": ["BuntActMap", "BuntActContactSequenceMap", "BuntContactMap", "BuntFairBallMap", "BuntRecordAboutMap", "BuntContactRecordAboutMap", "BuntFairBallRecordAboutMap"]
+    },
+    {
+      "id": "24-fair-ball-adjudication",
+      "title": "Fair-ball adjudication",
+      "summary": "A fair-ball process contains a judgment that uses the fair/foul rule, produces a decision, and precedes a call act.",
+      "maps": ["FairBallProcessAdjudicationPartMap", "FairBallAdjudicationMap", "FairBallDecisionMap", "FairBallCallMap", "FairBallAdjudicationRecordMap", "FairFoulRuleMap"]
+    },
+    {
+      "id": "25-batted-result-sequence",
+      "title": "Batted-ball result sequence",
+      "summary": "The terminal batted-ball motion and fair-ball classification precede the plate-appearance result, which is contained in the batted-ball play.",
+      "maps": ["TerminalBattedBallMotionResultSequenceMap", "TerminalFairBallResultSequenceMap", "TerminalBattedBallPlayResultContainmentMap"]
+    },
+    {
+      "id": "26-nominal-pitch-and-trajectory-classification",
+      "title": "Nominal pitch and batted-ball trajectory classification",
+      "summary": "A pitch or batted-ball motion is measured by a reusable nominal category ICE in a response-versioned Reference System; no provider coordinate is projected into a world-side Site.",
+      "maps": ["PitchTypeReferenceSystemMap", "PitchTypeClassificationMap", "PitchTypeCategoryMap", "PitchTypeClassificationRecordMap", "BattedTrajectoryReferenceSystemMap", "BattedTrajectoryClassificationMap", "BattedTrajectoryCategoryMap", "BattedTrajectoryClassificationRecordMap"]
+    },
+    {
+      "id": "59-pitch-event-record-identifier",
+      "title": "Pitch event-record identifier",
+      "summary": "A playId Identifier ICE designates the MLB pitch event-record ICE and carries the source value; the record remains about the real-world pitch and related evidence.",
+      "maps": ["PitchEventRecordIdentifierMap"]
+    },
+    {
+      "id": "27-counted-hit-results",
+      "title": "Counted hit results",
+      "summary": "Single, double, triple, and home-run result types share a scorer-supported hit judgment and decision while remaining distinct result classes.",
+      "maps": ["PlateAppearanceResultMap", "ResultType_single", "ResultType_double", "ResultType_triple", "ResultType_home_run", "HitResultJudgmentOverlayMap", "HitResultDecisionOverlayMap", "HitRuleMap"]
+    },
+    {
+      "id": "28-counted-out-results",
+      "title": "Counted out results",
+      "summary": "Batted outs, force outs, strikeouts, double plays, and grounded-into-double-play results share an out adjudication overlay.",
+      "maps": ["PlateAppearanceResultMap", "ResultType_field_out", "ResultType_force_out", "ResultType_strikeout", "ResultType_double_play", "ResultType_grounded_into_double_play", "OutResultJudgmentOverlayMap", "OutResultDecisionOverlayMap", "OutRuleMap"]
+    },
+    {
+      "id": "29-fielders-choice-result",
+      "title": "Fielder's-choice result",
+      "summary": "A fielder's-choice result carries its own judgment and decision using the fielder's-choice rule.",
+      "maps": ["ResultType_fielders_choice", "FieldersChoiceJudgmentOverlayMap", "FieldersChoiceDecisionOverlayMap", "FieldersChoiceRuleMap"]
+    },
+    {
+      "id": "30-error-result",
+      "title": "Error result",
+      "summary": "A field-error result carries scorer-supported error judgment and decision information using the error rule.",
+      "maps": ["ResultType_field_error", "ErrorJudgmentOverlayMap", "ErrorDecisionOverlayMap", "ErrorRuleMap"]
+    },
+    {
+      "id": "31-sacrifice-results",
+      "title": "Sacrifice results",
+      "summary": "Sacrifice-fly and sacrifice-bunt result types share a sacrifice judgment and decision overlay.",
+      "maps": ["ResultType_sac_fly", "ResultType_sac_bunt", "SacrificeJudgmentOverlayMap", "SacrificeDecisionOverlayMap", "SacrificeRuleMap"]
+    },
+    {
+      "id": "32-walk-result",
+      "title": "Walk result",
+      "summary": "A walk is a specific plate-appearance result with a source-supported umpire judgment overlay.",
+      "maps": ["ResultType_walk", "WalkResultJudgmentOverlayMap"]
+    },
+    {
+      "id": "33-hit-by-pitch-result",
+      "title": "Hit-by-pitch result",
+      "summary": "Hit by pitch is a specific plate-appearance result with a source-supported umpire judgment overlay.",
+      "maps": ["ResultType_hit_by_pitch", "HitByPitchResultJudgmentOverlayMap"]
+    },
+    {
+      "id": "34-balk-result",
+      "title": "Balk result",
+      "summary": "A balk result carries an umpire judgment using the balk rule.",
+      "maps": ["ResultType_balk", "BalkResultJudgmentOverlayMap", "BalkRuleMap"]
+    },
+    {
+      "id": "35-interference-result",
+      "title": "Interference result",
+      "summary": "A catcher-interference result carries an umpire judgment using the interference rule.",
+      "maps": ["ResultType_interference", "InterferenceResultJudgmentOverlayMap", "InterferenceRuleMap"]
+    },
+    {
+      "id": "36-obstruction-rule-boundary",
+      "title": "Obstruction rule boundary",
+      "summary": "The obstruction rule individual is available, but the active source mapping has no result pattern that safely invokes it.",
+      "maps": ["ObstructionRuleMap"]
+    },
+    {
+      "id": "37-contextual-fielding-and-running-roles",
+      "title": "Persistent fielding, catching, and baserunning roles",
+      "summary": "Players bear persistent fielder, catcher, and baserunner roles whose open stases remain distinct from the players and roles.",
+      "maps": ["BaserunnerRoleMap", "BaserunnerRoleStasisMap", "BaserunnerRoleStasisIntervalMap", "FielderRoleMap", "FielderRoleStasisMap", "FielderRoleStasisIntervalMap", "CatcherRoleMap", "CatcherRoleStasisMap", "CatcherRoleStasisIntervalMap"]
+    },
+    {
+      "id": "38-runner-out",
+      "title": "Runner out",
+      "summary": "A baserunning act precedes an out resolution containing an out judgment and decision described by a separate event record.",
+      "maps": ["RunnerOutActMap", "RunnerOutResolutionMap", "RunnerOutJudgmentMap", "RunnerOutDecisionMap", "RunnerOutAdjudicationLinksMap", "RunnerOutRecordMap", "RunnerOutRecordAdjudicationMap", "OutRuleMap"]
+    },
+    {
+      "id": "39-runner-reach",
+      "title": "Runner reaches a base",
+      "summary": "A baserunning act precedes an institutional safe resolution with judgment, decision, reached-base artifact, and record; movement.end does not assert physical base touching.",
+      "maps": ["RunnerReachActMap", "RunnerReachResolutionMap", "RunnerReachJudgmentMap", "RunnerReachDecisionMap", "RunnerReachAdjudicationLinksMap", "ReachedBaseArtifactMap", "RunnerReachRecordMap", "RunnerReachRecordAdjudicationMap", "SafeRuleMap"]
+    },
+    {
+      "id": "40-runner-advance",
+      "title": "Runner advances between bases",
+      "summary": "A baserunning act precedes an institutional safe resolution with judgment, decision, destination-base artifact, and record; movement.end does not assert physical base touching.",
+      "maps": ["RunnerAdvanceActMap", "RunnerAdvanceResolutionMap", "RunnerAdvanceJudgmentMap", "RunnerAdvanceDecisionMap", "RunnerAdvanceAdjudicationLinksMap", "AdvancedToBaseArtifactMap", "RunnerAdvanceRecordMap", "RunnerAdvanceRecordAdjudicationMap", "SafeRuleMap"]
+    },
+    {
+      "id": "41-runner-scores-from-origin",
+      "title": "Runner scores from an origin",
+      "summary": "A baserunning act from a non-base origin precedes an institutional run resolution with judgment, decision, and record; scoring does not by itself assert physical home-plate touching.",
+      "maps": ["RunnerScoreOriginActMap", "RunnerScoreOriginResolutionMap", "RunnerScoreOriginJudgmentMap", "RunnerScoreOriginDecisionMap", "RunnerScoreOriginAdjudicationLinksMap", "RunnerScoreOriginRecordMap", "RunnerScoreOriginRecordAdjudicationMap", "HomePlateArtifactMap", "RunRuleMap"]
+    },
+    {
+      "id": "42-runner-scores-from-base",
+      "title": "Runner scores from a base",
+      "summary": "A baserunning act from a base precedes an institutional run resolution with judgment, decision, and record; scoring does not by itself assert physical home-plate touching.",
+      "maps": ["RunnerScoreBaseActMap", "RunnerScoreBaseResolutionMap", "RunnerScoreBaseJudgmentMap", "RunnerScoreBaseDecisionMap", "RunnerScoreBaseAdjudicationLinksMap", "RunnerScoreBaseRecordMap", "RunnerScoreBaseRecordAdjudicationMap", "HomePlateArtifactMap", "RunRuleMap"]
+    },
+    {
+      "id": "43-stolen-base",
+      "title": "Stolen base and caught stealing",
+      "summary": "A neutral steal-attempt act may support a distinct stolen-base process and adjudication; caught stealing retains the attempt without asserting success.",
+      "maps": ["StolenBaseAttemptOverlayMap", "StolenBaseProcessMap", "StolenBaseJudgmentMap", "StolenBaseDecisionMap", "StolenBaseRecordMap", "CaughtStealingAttemptOverlayMap"]
+    },
+    {
+      "id": "54-passed-ball-classification",
+      "title": "Passed-ball scoring classification",
+      "summary": "A passed ball is an institutional scorer judgment, decision, rule, and counted process; the feed does not independently establish a physical pitch-ball control failure.",
+      "maps": ["PassedBallProcessMap", "PassedBallJudgmentMap", "PassedBallDecisionMap", "PassedBallRecordMap", "PassedBallRuleMap"]
+    },
+    {
+      "id": "55-wild-pitch-classification",
+      "title": "Wild-pitch scoring classification",
+      "summary": "A wild pitch is an institutional scorer judgment, decision, rule, and counted process; the feed does not independently establish a physical pitch-ball control failure.",
+      "maps": ["WildPitchProcessMap", "WildPitchJudgmentMap", "WildPitchDecisionMap", "WildPitchRecordMap", "WildPitchRuleMap"]
+    },
+    {
+      "id": "56-uncaught-third-strike",
+      "title": "Uncaught third strike and unresolved source placeholder",
+      "summary": "An uncaught third strike contains the strikeout and its own adjudication while MLB's null runner row remains an event record rather than becoming a fabricated physical failure, movement, or resolution.",
+      "maps": ["UncaughtThirdStrikeProcessMap", "UncaughtThirdStrikeJudgmentMap", "UncaughtThirdStrikeDecisionMap", "UncaughtThirdStrikeResultRecordMap", "UncaughtThirdStrikePlaceholderRecordMap"]
+    }
+  ]
+}

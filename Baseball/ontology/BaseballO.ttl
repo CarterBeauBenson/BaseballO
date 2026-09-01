@@ -1,0 +1,1931 @@
+@prefix base: <https://baseballontology.org/> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+@prefix cco: <https://www.commoncoreontologies.org/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://baseballontology.org/baseball-event-ontology>
+    a owl:Ontology ;
+    owl:versionIRI <https://baseballontology.org/2026-08-31/baseball-event-ontology> ;
+    owl:versionInfo "0.7.0"@en ;
+    dcterms:title "Baseball Event and Adjudication Ontology"@en ;
+    dcterms:created "2026-07-21"^^xsd:date ;
+    dcterms:modified "2026-08-31"^^xsd:date ;
+    owl:imports
+        <http://purl.obolibrary.org/obo/bfo/2020/bfo-core.ttl> ,
+        <https://www.commoncoreontologies.org/ExtendedRelationOntology> ,
+        <https://www.commoncoreontologies.org/EventOntology> ,
+        <https://www.commoncoreontologies.org/AgentOntology> ,
+        <https://www.commoncoreontologies.org/InformationEntityOntology> ,
+        <https://www.commoncoreontologies.org/ArtifactOntology> ,
+        <https://www.commoncoreontologies.org/GeospatialOntology> ;
+    rdfs:comment "This ontology separates intentional baseball acts, physical processes, institutionally counted processes, adjudicative acts, rules, and information entities. Simple labels such as Hit Process, Error Process, Ball Process, Strike Process, Foul Ball Process, Out Process, Safe Process, and Run Process denote institutionally counted processes because those are the entities normally represented in available event data. Classes for actual rule-satisfying processes independent of adjudication are intentionally deferred."@en ;
+    rdfs:comment "No domain-specific object properties are introduced. Instance data should reuse BFO and CCO relations, especially obo:BFO_0000063 (precedes), obo:BFO_0000062 (preceded by), obo:BFO_0000117 (has occurrent part), obo:BFO_0000057 (has participant), obo:BFO_0000055 (realizes), cco:ont00001921 (has input), cco:ont00001986 (has output), and cco:ont00001803 (is cause of)."@en ;
+    rdfs:comment "Canonical batted-hit pattern: a Swing Act or Bunt Act precedes a Bat-Ball Contact Process; that contact precedes a Batted-Ball Motion Process and may precede a counted Hit Process, Foul Ball Process, Batted-Ball Out Process, or another institutional resolution. The Hit Process has a Hit Judgment Act as an occurrent part. Absence-based success and failure classifications are reserved for SPARQL or SHACL rather than OWL class negation."@en .
+
+
+#################################################################
+# Core game processes
+#################################################################
+
+base:BaseballGame a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000015 ;
+    rdfs:label "Baseball Game"@en ;
+    skos:definition "A Baseball Game is a Process that is prescribed by some Baseball Rule and has as occurrent parts some Baseball Act, some Baseball Physical Process, and some Baseball Institutional Process."@en ;
+    rdfs:comment "The game is the broad processual context in which the persistent occupational roles of accepted participants may be realized."@en ;
+    skos:example "A regulation nine-inning game between two teams."@en .
+
+base:BaseballSeason a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000015 ;
+    rdfs:label "Baseball Season"@en ;
+    skos:definition "A Baseball Season is a Process that is prescribed by some Baseball Rule and has some Baseball Game as occurrent part."@en ;
+    rdfs:comment "Prescription supplies institutional delimitation without making the Season a Planned Act. The provider's season number is an identifier, and the intentional Baseball Acts within the Games do not determine the type of the Season whole. This candidate does not infer a League participant or make a Rule a continuant part of an Organization."@en ;
+    skos:example "The 2026 Major League Baseball season."@en .
+
+base:BaseballSeasonPhase a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000015 ;
+    rdfs:label "Baseball Season Phase"@en ;
+    skos:definition "A Baseball Season Phase is a Process that is an occurrent part of some Baseball Season and has some Baseball Game as occurrent part."@en ;
+    rdfs:comment "This candidate is limited to game-containing phases. A planned phase boundary does not entail that a Baseball Game occurred on the boundary date, and an offseason interval without Games is not inferred to be a Baseball Season Phase."@en ;
+    skos:example "The regular-season phase prescribed within the 2026 Major League Baseball season plan."@en .
+
+base:BaseballSeasonPlan a owl:Class ;
+    rdfs:subClassOf cco:ont00000974 ;
+    rdfs:label "Baseball Season Plan"@en ;
+    skos:definition "A Baseball Season Plan is a Plan that prescribes some Baseball Season and some Baseball Season Phase."@en ;
+    rdfs:comment "The Season and Phase have independent Process differentiae, so this prescription does not define the three terms circularly. Date Identifier parts may designate planned phase boundaries. Counts, qualifier thresholds, and format flags require their exact rule and target before inclusion."@en ;
+    skos:example "The plan specifying the phases and planned temporal boundaries of the 2026 Major League Baseball season."@en .
+
+base:Inning a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000015 ;
+    rdfs:label "Inning"@en ;
+    skos:definition "An Inning is a Process that is an occurrent part of a Baseball Game and contains one offensive half-inning for each team."@en ;
+    rdfs:comment "Extra innings are also instances of this class."@en ;
+    skos:example "The seventh inning of a game."@en .
+
+base:HalfInning a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000015 ;
+    rdfs:label "Half Inning"@en ;
+    skos:definition "A Half Inning is a Process that is an occurrent part of an Inning and during which one team is institutionally recognized as batting."@en ;
+    rdfs:comment "A half inning normally terminates when the required number of outs has been counted."@en ;
+    skos:example "The bottom of the ninth inning."@en .
+
+base:PlateAppearance a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000015 ;
+    rdfs:label "Plate Appearance"@en ;
+    skos:definition "A Plate Appearance is a Process that is an occurrent part of a Half Inning, has a Batter Act as an occurrent part, and continues until an institutionally recognized resolution occurs."@en ;
+    rdfs:comment "A Plate Appearance contains one generic Batter Act as its common realization and counting grain. It may contain zero or more Pitch Acts and need not contain a Swing Act, Bunt Act, or Bat-Ball Contact Process."@en ;
+    skos:example "A batter walks after four counted balls."@en .
+
+base:BaserunnerAtBaseStasis a owl:Class ;
+    rdfs:subClassOf cco:ont00000819 ;
+    rdfs:label "Baserunner-at-Base Stasis"@en ;
+    skos:definition "A Baserunner-at-Base Stasis is a Stasis at the beginning of a Plate Appearance during which a player bearing a Baserunner Role is located at the site occupied by a particular Base."@en ;
+    rdfs:comment "The stasis binds runner, base artifact, base site, and plate appearance without treating a game-level location assertion as timeless."@en ;
+    skos:example "A runner remains at the site of third base when a plate appearance begins."@en .
+
+base:BattedBallPlayProcess a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000015 ;
+    rdfs:label "Batted-Ball Play Process"@en ;
+    skos:definition "A Batted-Ball Play Process is a Process that begins with a Bat-Ball Contact Process and includes the ensuing ball motion, player acts, and any institutional resolutions associated with that contact."@en ;
+    rdfs:comment "This neutral container does not predetermine whether the play is counted as a hit, foul, out, error, or another result."@en ;
+    skos:example "A ground ball followed by a fielding attempt and a safe judgment."@en .
+
+
+#################################################################
+# Artifacts and sites
+#################################################################
+
+base:Baseball a owl:Class ;
+    rdfs:subClassOf cco:ont00000995 ;
+    rdfs:label "Baseball"@en ;
+    skos:definition "A Baseball is a Material Artifact that is designed to participate as the ball in a Baseball Game."@en ;
+    rdfs:comment "This class denotes the physical ball, not a record or statistical representation of it."@en ;
+    skos:example "The ball pitched during a plate appearance."@en .
+
+base:BaseballBat a owl:Class ;
+    rdfs:subClassOf cco:ont00000995 ;
+    rdfs:label "Baseball Bat"@en ;
+    skos:definition "A Baseball Bat is a Material Artifact that is designed to be used by a batter to strike a Baseball."@en ;
+    rdfs:comment "Wooden and metal bats are included when they are designed for baseball play."@en ;
+    skos:example "A wooden major-league bat."@en .
+
+base:Base a owl:Class ;
+    rdfs:subClassOf cco:ont00000995 ;
+    rdfs:label "Base"@en ;
+    skos:definition "A Base is a Material Artifact that is designed to mark a legally significant location for baserunning in a Baseball Game."@en ;
+    rdfs:comment "Home plate is represented as a subclass because of its distinct shape and functions."@en ;
+    skos:example "Second base on a baseball field."@en .
+
+base:HomePlate a owl:Class ;
+    rdfs:subClassOf base:Base ;
+    rdfs:label "Home Plate"@en ;
+    skos:definition "A Home Plate is a Base that is designed to mark the batting location and the terminal base for scoring a run."@en ;
+    rdfs:comment "The material artifact should be distinguished from the Site it occupies."@en ;
+    skos:example "The five-sided plate behind the batter's box."@en .
+
+base:BaseSite a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000029 ;
+    rdfs:label "Base Site"@en ;
+    skos:definition "A Base Site is a Site occupied by a Base and used as a legally significant location for baserunning in a Baseball Game."@en ;
+    rdfs:comment "A runner is located in the site rather than inside the material base artifact; both the runner and the Base may be located in the same Base Site."@en ;
+    skos:example "The site occupied by second base during a game."@en .
+
+base:BaseballFieldSite a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000029 ;
+    rdfs:label "Baseball Field Site"@en ;
+    skos:definition "A Baseball Field Site is a Site that is configured for the occurrence of a Baseball Game."@en ;
+    rdfs:comment "The site may contain nested sites such as fair territory, foul territory, and base sites."@en ;
+    skos:example "The playing site of a professional ballpark."@en .
+
+base:FairTerritorySite a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000029 ;
+    rdfs:label "Fair Territory Site"@en ;
+    skos:definition "A Fair Territory Site is a Site that is a continuant part of a Baseball Field Site and is designated by a baseball ruleset as fair territory."@en ;
+    rdfs:comment "Being in this site is a physical-spatial fact that may be evidence for, but is not identical to, a Fair Ball Process."@en ;
+    skos:example "The infield area between the foul lines."@en .
+
+base:FoulTerritorySite a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000029 ;
+    rdfs:label "Foul Territory Site"@en ;
+    skos:definition "A Foul Territory Site is a Site that is a continuant part of a Baseball Field Site and is designated by a baseball ruleset as foul territory."@en ;
+    rdfs:comment "Being in this site is evidence used in fair-foul judgment and is not itself a counted foul."@en ;
+    skos:example "The ground outside a foul line."@en .
+
+
+#################################################################
+# Roles
+#################################################################
+
+base:PlayerRole a owl:Class ;
+    rdfs:subClassOf cco:ont00000984 ;
+    rdfs:label "Player Role"@en ;
+    skos:definition "A Player Role is an Occupation Role that inheres in a Person by virtue of that Person's responsibility to participate as a player for a particular Baseball Team."@en ;
+    rdfs:comment "One Player Role individual is used for each Person and Baseball Team pairing across games. A new team entails a distinct Player Role; a Baseball Game may realize the role even when no specialized player act is performed."@en ;
+    skos:example "The team-scoped occupation role borne by a rostered player who remains on the bench during a game."@en .
+
+base:BatterRole a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000023 ;
+    rdfs:label "Batter Role"@en ;
+    skos:definition "A Batter Role is a Role that inheres in a Person and is realized by a Batter Act performed by that Person during a Plate Appearance."@en ;
+    rdfs:comment "One Batter Role individual inheres in a Person across that Person's baseball-playing career and is reused across games. The generic Batter Act and supported Swing Acts or Bunt Acts may realize the same Role."@en ;
+    skos:example "The persistent role realized by a player's Batter Acts in multiple games."@en .
+
+base:PitcherRole a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000023 ;
+    rdfs:label "Pitcher Role"@en ;
+    skos:definition "A Pitcher Role is a Role borne by a baseball player and realized in pitching and related defensive acts."@en ;
+    rdfs:comment "One persistent Pitcher Role individual is used for a player across games; a position player may also bear it when supported by pitching evidence."@en ;
+    skos:example "The persistent role realized by a relief pitcher's Pitch Acts."@en .
+
+base:FielderRole a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000023 ;
+    rdfs:label "Fielder Role"@en ;
+    skos:definition "A Fielder Role is a Role borne by a baseball player and realized in defensive acts directed toward controlling the ball or producing outs."@en ;
+    rdfs:comment "One persistent Fielder Role individual is used for a player across games; pitchers and catchers may also realize it in supported fielding acts."@en ;
+    skos:example "The role borne by a shortstop during a ground-ball play."@en .
+
+base:CatcherRole a owl:Class ;
+    rdfs:subClassOf base:FielderRole ;
+    rdfs:label "Catcher Role"@en ;
+    skos:definition "A Catcher Role is a Fielder Role that is realized in receiving pitches and performing defensive acts from the catcher position."@en ;
+    rdfs:comment "One persistent Catcher Role individual is used for a player across games; the role is distinct from the physical act of catching."@en ;
+    skos:example "The role borne by the starting catcher."@en .
+
+base:BaserunnerRole a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000023 ;
+    rdfs:label "Baserunner Role"@en ;
+    skos:definition "A Baserunner Role is a Role borne by a baseball player and realized in acts directed toward advancing among bases or avoiding an out."@en ;
+    rdfs:comment "One persistent Baserunner Role individual is used for a player across games and is realized only by supported baserunning acts."@en ;
+    skos:example "The role borne by a runner on first base."@en .
+
+base:ManagerRole a owl:Class ;
+    rdfs:subClassOf cco:ont00000984 ;
+    rdfs:label "Manager Role"@en ;
+    skos:definition "A Manager Role is an Occupation Role that inheres in a Person by virtue of that Person's responsibility to direct participation and strategy for a particular Baseball Team."@en ;
+    rdfs:comment "One Manager Role individual is used for each Person and Baseball Team pairing across games and supports substitutions, challenges, and other managerial acts."@en ;
+    skos:example "The role borne by a team's manager."@en .
+
+base:BaseballAdjudicatorRole a owl:Class ;
+    rdfs:subClassOf cco:ont00000187 ;
+    rdfs:label "Baseball Adjudicator Role"@en ;
+    skos:definition "A Baseball Adjudicator Role is an Authority Role that inheres in an Agent in virtue of collective acceptance of that Agent's authority to issue institutionally binding baseball judgments."@en ;
+    rdfs:comment "The collective acceptance may arise in professional, amateur, or sandlot play; formal employment is not required."@en ;
+    skos:example "A participant accepted by both sandlot teams as the person who calls balls and strikes."@en .
+
+base:UmpireRole a owl:Class ;
+    rdfs:subClassOf base:BaseballAdjudicatorRole ;
+    rdfs:label "Umpire Role"@en ;
+    skos:definition "An Umpire Role is a Baseball Adjudicator Role that is realized in judgments concerning pitches, fair-foul status, outs, safes, runs, and other on-field rule applications."@en ;
+    rdfs:comment "One persistent Umpire Role individual is used for a Person across games; the bearer may be a formally appointed umpire or any accepted adjudicator in an informal game."@en ;
+    skos:example "The role realized by the home-plate umpire when calling a strike."@en .
+
+base:BaseballReplayOfficialRole a owl:Class ;
+    rdfs:subClassOf base:BaseballAdjudicatorRole ;
+    rdfs:label "Baseball Replay Official Role"@en ;
+    skos:definition "A Baseball Replay Official Role is a Baseball Adjudicator Role that is realized in a Baseball Replay Review Act."@en ;
+    rdfs:comment "This role distinguishes the authority exercised during replay review from the authority exercised by an on-field umpire; whether one agent bears both roles depends on the competition's review system."@en ;
+    skos:example "The role borne by an official who reviews video and issues the binding replay decision on a challenged safe call."@en .
+
+base:OfficialScorerRole a owl:Class ;
+    rdfs:subClassOf base:BaseballAdjudicatorRole ;
+    rdfs:label "Official Scorer Role"@en ;
+    skos:definition "An Official Scorer Role is a Baseball Adjudicator Role that is realized in judgments concerning hits, errors, fielder's choices, sacrifices, and related scoring classifications."@en ;
+    rdfs:comment "One persistent Official Scorer Role individual is used for a Person across games; the label 'official' denotes institutional authority, not necessarily employment by a league."@en ;
+    skos:example "The role realized when a scorer classifies a play as an error."@en .
+
+
+#################################################################
+# Intentional acts
+#################################################################
+
+base:BaseballAct a owl:Class ;
+    rdfs:subClassOf cco:ont00000228 ;
+    rdfs:label "Baseball Act"@en ;
+    skos:definition "A Baseball Act is a Planned Act that is performed in the context of a Baseball Game and is directed by some baseball-related objective."@en ;
+    rdfs:comment "Act types are classified by directive structure rather than by whether their objectives are achieved."@en ;
+    skos:example "A pitch, swing, throw, steal attempt, or judgment."@en .
+
+base:PlayerAct a owl:Class ;
+    rdfs:subClassOf base:BaseballAct ;
+    rdfs:label "Player Act"@en ;
+    skos:definition "A Player Act is a Baseball Act that realizes a Player Role."@en ;
+    rdfs:comment "A failed act remains an instance of its act type when it was guided by the relevant objective."@en ;
+    skos:example "A player's attempt to field a ground ball."@en .
+
+base:BatterAct a owl:Class ;
+    rdfs:subClassOf base:PlayerAct ;
+    rdfs:label "Batter Act"@en ;
+    skos:definition "A Batter Act is a Player Act that realizes a Batter Role."@en ;
+    rdfs:comment "This is broader than swinging and includes bunting and other intentional batting behavior."@en ;
+    skos:example "A batter preparing and attempting to contact a pitch."@en .
+
+base:BatUseAct a owl:Class ;
+    rdfs:subClassOf base:BatterAct ;
+    rdfs:label "Bat Use Act"@en ;
+    skos:definition "A Bat Use Act is a Batter Act that uses a Baseball Bat with an objective concerning contact with a Baseball."@en ;
+    rdfs:comment "Swinging and bunting are distinct subclasses; neither is defined by successful contact."@en ;
+    skos:example "An attempted swing at a pitch."@en .
+
+base:SwingAct a owl:Class ;
+    rdfs:subClassOf base:BatUseAct ;
+    rdfs:label "Swing Act"@en ;
+    skos:definition "A Swing Act is a Bat Use Act that moves a Baseball Bat through a striking path with the objective of contacting a pitched Baseball."@en ;
+    rdfs:comment "A swing remains a Swing Act when it misses; when contact occurs, the Swing Act precedes the Bat-Ball Contact Process."@en ;
+    skos:example "A full swing that misses a fastball."@en .
+
+base:BuntAct a owl:Class ;
+    rdfs:subClassOf base:BatUseAct ;
+    rdfs:label "Bunt Act"@en ;
+    skos:definition "A Bunt Act is a Bat Use Act that presents or moves a Baseball Bat with the objective of making controlled contact without a full swing."@en ;
+    rdfs:comment "A failed bunt attempt remains a Bunt Act."@en ;
+    skos:example "A sacrifice-bunt attempt that misses."@en .
+
+base:PitcherAct a owl:Class ;
+    rdfs:subClassOf base:PlayerAct ;
+    rdfs:label "Pitcher Act"@en ;
+    skos:definition "A Pitcher Act is a Player Act that realizes a Pitcher Role."@en ;
+    rdfs:comment "This class groups pitching, pickoff attempts, and related intentional acts."@en ;
+    skos:example "A pitcher's delivery to home plate."@en .
+
+base:PitchAct a owl:Class ;
+    rdfs:subClassOf base:PitcherAct ;
+    rdfs:label "Pitch Act"@en ;
+    skos:definition "A Pitch Act is a Pitcher Act that releases a Baseball with the objective of delivering it toward the batter and home plate under a baseball ruleset."@en ;
+    rdfs:comment "The act is distinct from the ensuing Pitch Ball Motion Process and from the counted Ball or Strike Process."@en ;
+    skos:example "A curveball delivery."@en .
+
+base:PickoffAttemptAct a owl:Class ;
+    rdfs:subClassOf base:PitcherAct ;
+    rdfs:label "Pickoff Attempt Act"@en ;
+    skos:definition "A Pickoff Attempt Act is a Pitcher Act that is directed toward causing a baserunner to be put out before the next pitch."@en ;
+    rdfs:comment "It is classified by objective and remains a pickoff attempt when the runner returns safely."@en ;
+    skos:example "A throw to first base intended to catch the runner off the bag."@en .
+
+base:FielderAct a owl:Class ;
+    rdfs:subClassOf base:PlayerAct ;
+    rdfs:label "Fielder Act"@en ;
+    skos:definition "A Fielder Act is a Player Act that realizes a Fielder Role."@en ;
+    rdfs:comment "The act may succeed or fail independently of any later official scoring classification."@en ;
+    skos:example "A shortstop moving to field a ground ball."@en .
+
+base:FieldingAttemptAct a owl:Class ;
+    rdfs:subClassOf base:FielderAct ;
+    rdfs:label "Fielding Attempt Act"@en ;
+    skos:definition "A Fielding Attempt Act is a Fielder Act that is directed toward gaining or maintaining control of a Baseball in play."@en ;
+    rdfs:comment "Failure to control the ball does not by itself instantiate an Error Process; an authorized scoring judgment is also required."@en ;
+    skos:example "An infielder attempts to glove a ground ball."@en .
+
+base:CatchAttemptAct a owl:Class ;
+    rdfs:subClassOf base:FieldingAttemptAct ;
+    rdfs:label "Catch Attempt Act"@en ;
+    skos:definition "A Catch Attempt Act is a Fielding Attempt Act that is directed toward gaining control of a moving Baseball before it touches a disqualifying surface or object under the applicable rule."@en ;
+    rdfs:comment "The act is distinct from the physical Ball Catching Process and from a counted Catch Out Process."@en ;
+    skos:example "An outfielder dives for a fly ball."@en .
+
+base:ThrowAct a owl:Class ;
+    rdfs:subClassOf base:FielderAct ;
+    rdfs:label "Throw Act"@en ;
+    skos:definition "A Throw Act is a Fielder Act that releases a Baseball with the objective of moving it toward a target."@en ;
+    rdfs:comment "A wild or inaccurate throw remains a Throw Act."@en ;
+    skos:example "A shortstop throws to first base."@en .
+
+base:TagAttemptAct a owl:Class ;
+    rdfs:subClassOf base:FielderAct ;
+    rdfs:label "Tag Attempt Act"@en ;
+    skos:definition "A Tag Attempt Act is a Fielder Act that is directed toward touching a baserunner or base with a controlled Baseball in order to support an out judgment."@en ;
+    rdfs:comment "The act may fail even when a tagging contact process occurs if rule conditions are not met or the umpire judges the runner safe."@en ;
+    skos:example "A catcher attempts to tag a runner at home plate."@en .
+
+base:BaserunnerAct a owl:Class ;
+    rdfs:subClassOf base:PlayerAct ;
+    rdfs:label "Baserunner Act"@en ;
+    skos:definition "A Baserunner Act is a Player Act that realizes a Baserunner Role."@en ;
+    rdfs:comment "This class includes advancing, retreating, touching bases, and avoiding tags."@en ;
+    skos:example "A runner advances from first to third."@en .
+
+base:BaserunningAct a owl:Class ;
+    rdfs:subClassOf base:BaserunnerAct ;
+    rdfs:label "Baserunning Act"@en ;
+    skos:definition "A Baserunning Act is a Baserunner Act that is directed toward advancing, retreating, or remaining legally associated with one or more bases."@en ;
+    rdfs:comment "A runner can perform this act without ultimately being judged safe."@en ;
+    skos:example "A runner sprints from second base toward third."@en .
+
+base:StealAttemptAct a owl:Class ;
+    rdfs:subClassOf base:BaserunningAct ;
+    rdfs:label "Steal Attempt Act"@en ;
+    skos:definition "A Steal Attempt Act is a Baserunning Act that is directed toward advancing to another base during a pitch or related play without relying on a batted-ball advancement."@en ;
+    rdfs:comment "The act remains a steal attempt when the runner is caught."@en ;
+    skos:example "A runner breaks for second base as the pitcher delivers."@en .
+
+base:ManagerAct a owl:Class ;
+    rdfs:subClassOf base:BaseballAct ;
+    rdfs:label "Manager Act"@en ;
+    skos:definition "A Manager Act is a Baseball Act that realizes a Manager Role."@en ;
+    rdfs:comment "Manager acts concern team direction rather than direct performance of a player role."@en ;
+    skos:example "A manager requests a substitution."@en .
+
+base:SubstitutionAct a owl:Class ;
+    rdfs:subClassOf base:ManagerAct ;
+    rdfs:label "Substitution Act"@en ;
+    skos:definition "A Substitution Act is a Manager Act that is directed toward changing which player bears a game participation role."@en ;
+    rdfs:comment "The institutional effectiveness of the substitution may depend on acceptance by an adjudicator."@en ;
+    skos:example "A manager replaces the starting pitcher with a reliever."@en .
+
+base:ChallengeAct a owl:Class ;
+    rdfs:subClassOf base:BaseballAct ;
+    rdfs:label "Challenge Act"@en ;
+    skos:definition "A Challenge Act is a Baseball Act that is preceded by a Baseball Judgment Act and precedes a Baseball Replay Review Act."@en ;
+    rdfs:comment "The broader parent permits both manager-initiated play challenges and player-initiated pitch challenges; the challenger is represented by a more specific subclass."@en ;
+    skos:example "A manager challenges a safe call at first base before replay review begins."@en .
+
+base:ManagerChallengeAct a owl:Class ;
+    rdfs:subClassOf base:ChallengeAct ;
+    rdfs:label "Manager Challenge Act"@en ;
+    skos:definition "A Manager Challenge Act is a Challenge Act performed by a Person bearing a Manager Role."@en ;
+    rdfs:comment "The act is distinguished by the role borne by its agent, not by a provider code."@en ;
+    skos:example "A manager's formal request for replay review of a safe decision is a Manager Challenge Act."@en .
+
+base:PlayerChallengeAct a owl:Class ;
+    rdfs:subClassOf base:ChallengeAct ;
+    rdfs:label "Player Challenge Act"@en ;
+    skos:definition "A Player Challenge Act is a Challenge Act performed by a Person bearing a Player Role."@en ;
+    rdfs:comment "The act is distinguished by the role borne by its agent, not by a provider code."@en ;
+    skos:example "A player's formal request for review under a player-challenge rule is a Player Challenge Act."@en .
+
+base:BaseballAdjudicationAct a owl:Class ;
+    rdfs:subClassOf base:BaseballJudgmentAct ;
+    rdfs:label "Baseball Adjudication Act"@en ;
+    skos:definition "A Baseball Adjudication Act is a Baseball Judgment Act that realizes a Baseball Adjudicator Role and has institutional force within a Baseball Game."@en ;
+    rdfs:comment "This is the constitutive judgment pattern used by counted balls, strikes, hits, fouls, outs, safes, errors, runs, and related processes."@en ;
+    skos:example "An accepted sandlot umpire makes a binding safe judgment."@en .
+
+base:BaseballReplayReviewAct a owl:Class ;
+    rdfs:subClassOf base:BaseballAdjudicationAct ;
+    rdfs:label "Baseball Replay Review Act"@en ;
+    skos:definition "A Baseball Replay Review Act is a Baseball Adjudication Act that has input exactly one Baseball Decision ICE and has output exactly one Baseball Decision ICE."@en ;
+    rdfs:comment "The prior decision is an input to a new adjudication; the review is not merely a second record of the original judgment."@en ;
+    skos:example "A replay official reviews video of a tag play and issues a binding out decision."@en .
+
+base:ChallengedBaseballReplayReviewAct a owl:Class ;
+    rdfs:subClassOf base:BaseballReplayReviewAct ;
+    rdfs:label "Challenged Baseball Replay Review Act"@en ;
+    skos:definition "A Challenged Baseball Replay Review Act is a Baseball Replay Review Act that is preceded by a Challenge Act."@en ;
+    rdfs:comment "This class excludes replay reviews initiated without a manager or player challenge."@en ;
+    skos:example "The replay review that follows a manager's challenge of a safe call at first base."@en .
+
+
+#################################################################
+# Physical processes
+#################################################################
+
+base:BaseballPhysicalProcess a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000015 ;
+    rdfs:label "Baseball Physical Process"@en ;
+    skos:definition "A Baseball Physical Process is a Process that occurs during baseball play independently of whether an authorized agent correctly recognizes or classifies it."@en ;
+    rdfs:comment "These processes provide evidence for judgments but are not identical to counted institutional processes."@en ;
+    skos:example "The motion of a pitched ball."@en .
+
+base:PitchBallMotionProcess a owl:Class ;
+    rdfs:subClassOf base:BaseballPhysicalProcess ;
+    rdfs:label "Pitch-Ball Motion Process"@en ;
+    skos:definition "A Pitch-Ball Motion Process is a Baseball Physical Process in which a Baseball moves following a Pitch Act."@en ;
+    rdfs:comment "The moving ball and its qualities remain distinct from measurements and information about the pitch."@en ;
+    skos:example "The motion of a baseball from the pitcher's release toward home plate is a Pitch-Ball Motion Process."@en .
+
+base:BatBallContactProcess a owl:Class ;
+    rdfs:subClassOf base:BaseballPhysicalProcess ;
+    rdfs:label "Bat-Ball Contact Process"@en ;
+    skos:definition "A Bat-Ball Contact Process is a Baseball Physical Process that consists of physical contact between a Baseball Bat and a Baseball."@en ;
+    rdfs:comment "This process is distinct from the preceding Swing Act or Bunt Act and from any later counted Hit, Foul Ball, or Out Process."@en ;
+    skos:example "The bat contacts a pitched ball and sends it toward shortstop."@en .
+
+base:BattedBallMotionProcess a owl:Class ;
+    rdfs:subClassOf base:BaseballPhysicalProcess ;
+    rdfs:label "Batted-Ball Motion Process"@en ;
+    skos:definition "A Batted-Ball Motion Process is a Baseball Physical Process in which a Baseball moves as a consequence of a Bat-Ball Contact Process."@en ;
+    rdfs:comment "The motion process is not a trajectory measurement or a provider field describing that motion."@en ;
+    skos:example "The flight and roll of a baseball after bat-ball contact constitute a Batted-Ball Motion Process."@en .
+
+base:ThrownBallMotionProcess a owl:Class ;
+    rdfs:subClassOf base:BaseballPhysicalProcess ;
+    rdfs:label "Thrown-Ball Motion Process"@en ;
+    skos:definition "A Thrown-Ball Motion Process is a Baseball Physical Process in which a Baseball moves as a consequence of a Throw Act."@en ;
+    rdfs:comment "This class covers world-side ball motion and not a velocity, trajectory, or source observation ICE."@en ;
+    skos:example "The motion of a baseball thrown by a fielder toward first base is a Thrown-Ball Motion Process."@en .
+
+base:BallDeflectionProcess a owl:Class ;
+    rdfs:subClassOf base:BaseballPhysicalProcess ;
+    rdfs:label "Ball Deflection Process"@en ;
+    skos:definition "A Ball Deflection Process is a Baseball Physical Process that changes the direction of a moving Baseball through contact with another material entity."@en ;
+    rdfs:comment "A deflection need not be intentional and is not itself a hit, error, or out."@en ;
+    skos:example "A batted ball glances off a fielder's glove."@en .
+
+base:BallCatchingProcess a owl:Class ;
+    rdfs:subClassOf base:BaseballPhysicalProcess ;
+    rdfs:label "Ball Catching Process"@en ;
+    skos:definition "A Ball Catching Process is a Baseball Physical Process in which a fielder gains and maintains physical control of a moving Baseball."@en ;
+    rdfs:comment "A physical catch is evidence for a Catch Out Process but remains distinct from the authorized out judgment."@en ;
+    skos:example "An outfielder secures a fly ball in the glove."@en .
+
+base:BallControlProcess a owl:Class ;
+    rdfs:subClassOf base:BaseballPhysicalProcess ;
+    rdfs:label "Ball Control Process"@en ;
+    skos:definition "A Ball Control Process is a Baseball Physical Process in which a player physically maintains control of a Baseball."@en ;
+    rdfs:comment "Control can occur without an out and without an error judgment."@en ;
+    skos:example "A first baseman holds a thrown ball."@en .
+
+base:BallControlFailureProcess a owl:Class ;
+    rdfs:subClassOf base:BaseballPhysicalProcess ;
+    rdfs:label "Ball Control Failure Process"@en ;
+    skos:definition "A Ball Control Failure Process is a Baseball Physical Process in which a player fails to gain or maintain control of a Baseball during a Fielding Attempt Act."@en ;
+    rdfs:comment "This class represents physical history and does not entail an Error Process, because official scoring may classify the play otherwise."@en ;
+    skos:example "A ground ball passes under an infielder's glove."@en .
+
+base:PitchBallControlFailureProcess a owl:Class ;
+    rdfs:subClassOf base:BallControlFailureProcess ;
+    rdfs:label "Pitch Ball Control Failure Process"@en ;
+    skos:definition "A Pitch Ball Control Failure Process is a Ball Control Failure Process that is preceded by a Pitch Ball Motion Process."@en ;
+    rdfs:comment "This class represents the physical failure to secure a pitched Baseball and does not by itself entail a passed ball, wild pitch, strikeout, error, out, or runner advancement."@en ;
+    skos:example "A catcher does not secure a pitched Baseball after the batter swings at strike three."@en .
+
+base:TaggingProcess a owl:Class ;
+    rdfs:subClassOf base:BaseballPhysicalProcess ;
+    rdfs:label "Tagging Process"@en ;
+    skos:definition "A Tagging Process is a Baseball Physical Process in which a controlled Baseball or the glove containing it physically contacts a baserunner or base."@en ;
+    rdfs:comment "The process is evidence for an out judgment but may occur too late or under conditions yielding a safe judgment."@en ;
+    skos:example "A glove containing the ball touches a sliding runner."@en .
+
+base:BaseTouchingProcess a owl:Class ;
+    rdfs:subClassOf base:BaseballPhysicalProcess ;
+    rdfs:label "Base Touching Process"@en ;
+    skos:definition "A Base Touching Process is a Baseball Physical Process in which a player physically contacts a Base."@en ;
+    rdfs:comment "Physical contact may be relevant to safe, force-out, appeal, or run judgments."@en ;
+    skos:example "A runner's foot contacts first base."@en .
+
+base:BallBoundaryCrossingProcess a owl:Class ;
+    rdfs:subClassOf base:BaseballPhysicalProcess ;
+    rdfs:label "Ball Boundary Crossing Process"@en ;
+    skos:definition "A Ball Boundary Crossing Process is a Baseball Physical Process in which a Baseball crosses a spatial boundary relevant to a baseball rule."@en ;
+    rdfs:comment "A crossing may be misperceived or misclassified by an adjudicator."@en ;
+    skos:example "A batted ball crosses the outfield fence in fair territory."@en .
+
+
+#################################################################
+# Decision information content entities
+#################################################################
+
+base:BaseballDecisionICE a owl:Class ;
+    rdfs:subClassOf cco:ont00000853 ;
+    rdfs:label "Baseball Decision ICE"@en ;
+    skos:definition "A Baseball Decision ICE is a Descriptive Information Content Entity that expresses the result of a Baseball Adjudication Act about whether perceived play satisfies an adjudicator's interpretation of a Baseball Rule."@en ;
+    rdfs:comment "The decision may be true or false relative to the actual physical and rule-governed structure of the world."@en ;
+    skos:example "The information content that a pitch is judged a strike."@en .
+
+base:ReviewedOnFieldBaseballDecisionICE a owl:Class ;
+    rdfs:subClassOf base:BaseballDecisionICE ;
+    rdfs:label "Reviewed On-Field Baseball Decision ICE"@en ;
+    skos:definition "A Reviewed On-Field Baseball Decision ICE is a Baseball Decision ICE that is input of a Baseball Replay Review Act."@en ;
+    rdfs:comment "The class identifies a decision by its participation in review and does not imply that the on-field decision was incorrect."@en ;
+    skos:example "The information content expressing the original safe call that is supplied to replay review."@en .
+
+base:BaseballReplayDecisionICE a owl:Class ;
+    rdfs:subClassOf base:BaseballDecisionICE ;
+    rdfs:label "Baseball Replay Decision ICE"@en ;
+    skos:definition "A Baseball Replay Decision ICE is a Baseball Decision ICE that is output of a Baseball Replay Review Act."@en ;
+    rdfs:comment "The term does not use 'final' because a ruleset could authorize a later adjudication of a replay decision."@en ;
+    skos:example "The information content expressing the out decision issued after replay review of a safe call."@en .
+
+base:BallDecisionICE a owl:Class ;
+    rdfs:subClassOf base:BaseballDecisionICE ;
+    rdfs:label "Ball Decision ICE"@en ;
+    skos:definition "A Ball Decision ICE is a Baseball Decision ICE that expresses a judgment that a pitch is to be counted as a ball."@en ;
+    rdfs:comment "This information entity is the output of an authorized judgment and may later be recorded in a data system."@en ;
+    skos:example "The content expressed by a called ball."@en .
+
+base:StrikeDecisionICE a owl:Class ;
+    rdfs:subClassOf base:BaseballDecisionICE ;
+    rdfs:label "Strike Decision ICE"@en ;
+    skos:definition "A Strike Decision ICE is a Baseball Decision ICE that expresses a judgment that a pitch or swing result is to be counted as a strike."@en ;
+    rdfs:comment "This information entity is the output of an authorized judgment and may later be recorded in a data system."@en ;
+    skos:example "The content expressed by a called strike."@en .
+
+base:FairDecisionICE a owl:Class ;
+    rdfs:subClassOf base:BaseballDecisionICE ;
+    rdfs:label "Fair Decision ICE"@en ;
+    skos:definition "A Fair Decision ICE is a Baseball Decision ICE that expresses a judgment that a contacted ball is to be counted as fair."@en ;
+    rdfs:comment "This information entity is the output of an authorized judgment and may later be recorded in a data system."@en ;
+    skos:example "The content expressed by an umpire pointing fair."@en .
+
+base:FoulDecisionICE a owl:Class ;
+    rdfs:subClassOf base:BaseballDecisionICE ;
+    rdfs:label "Foul Decision ICE"@en ;
+    skos:definition "A Foul Decision ICE is a Baseball Decision ICE that expresses a judgment that a contacted ball is to be counted as foul."@en ;
+    rdfs:comment "This information entity is the output of an authorized judgment and may later be recorded in a data system."@en ;
+    skos:example "The content expressed by a foul call."@en .
+
+base:OutDecisionICE a owl:Class ;
+    rdfs:subClassOf base:BaseballDecisionICE ;
+    rdfs:label "Out Decision ICE"@en ;
+    skos:definition "An Out Decision ICE is a Baseball Decision ICE that expresses a judgment that an out is to be counted."@en ;
+    rdfs:comment "This information entity is the output of an authorized judgment and may later be recorded in a data system."@en ;
+    skos:example "The content expressed by an out call at first base."@en .
+
+base:SafeDecisionICE a owl:Class ;
+    rdfs:subClassOf base:BaseballDecisionICE ;
+    rdfs:label "Safe Decision ICE"@en ;
+    skos:definition "A Safe Decision ICE is a Baseball Decision ICE that expresses a judgment that a runner is to be counted as safe in the adjudicated situation."@en ;
+    rdfs:comment "This information entity is the output of an authorized judgment and may later be recorded in a data system."@en ;
+    skos:example "The content expressed by a safe call."@en .
+
+base:HitDecisionICE a owl:Class ;
+    rdfs:subClassOf base:BaseballDecisionICE ;
+    rdfs:label "Hit Decision ICE"@en ;
+    skos:definition "A Hit Decision ICE is a Baseball Decision ICE that expresses an authorized scoring judgment that a play is to be counted as a hit."@en ;
+    rdfs:comment "This information entity is the output of an authorized judgment and may later be recorded in a data system."@en ;
+    skos:example "The scoring content that credits the batter with a single."@en .
+
+base:ErrorDecisionICE a owl:Class ;
+    rdfs:subClassOf base:BaseballDecisionICE ;
+    rdfs:label "Error Decision ICE"@en ;
+    skos:definition "An Error Decision ICE is a Baseball Decision ICE that expresses an authorized scoring judgment that a play is to be counted as an error."@en ;
+    rdfs:comment "This information entity is the output of an authorized judgment and may later be recorded in a data system."@en ;
+    skos:example "The scoring content charging an error to the shortstop."@en .
+
+base:FieldersChoiceDecisionICE a owl:Class ;
+    rdfs:subClassOf base:BaseballDecisionICE ;
+    rdfs:label "Fielder's Choice Decision ICE"@en ;
+    skos:definition "A Fielder's Choice Decision ICE is a Baseball Decision ICE that expresses an authorized scoring judgment that a play is to be counted as a fielder's choice."@en ;
+    rdfs:comment "This information entity is the output of an authorized judgment and may later be recorded in a data system."@en ;
+    skos:example "The scoring content recording FC rather than a hit."@en .
+
+base:SacrificeDecisionICE a owl:Class ;
+    rdfs:subClassOf base:BaseballDecisionICE ;
+    rdfs:label "Sacrifice Decision ICE"@en ;
+    skos:definition "A Sacrifice Decision ICE is a Baseball Decision ICE that expresses an authorized scoring judgment that a play is to be counted as a sacrifice."@en ;
+    rdfs:comment "This information entity is the output of an authorized judgment and may later be recorded in a data system."@en ;
+    skos:example "The scoring content crediting a sacrifice fly."@en .
+
+base:PassedBallDecisionICE a owl:Class ;
+    rdfs:subClassOf base:BaseballDecisionICE ;
+    rdfs:label "Passed Ball Decision ICE"@en ;
+    skos:definition "A Passed Ball Decision ICE is a Baseball Decision ICE that is output of a Passed Ball Judgment Act."@en ;
+    rdfs:comment "The decision records the official scoring classification and is distinct from the preceding physical failure to control the pitched Baseball."@en ;
+    skos:example "The official scoring content that charges a passed ball when a catcher does not secure a reasonably catchable pitch."@en .
+
+base:WildPitchDecisionICE a owl:Class ;
+    rdfs:subClassOf base:BaseballDecisionICE ;
+    rdfs:label "Wild Pitch Decision ICE"@en ;
+    skos:definition "A Wild Pitch Decision ICE is a Baseball Decision ICE that is output of a Wild Pitch Judgment Act."@en ;
+    rdfs:comment "The decision records the official scoring classification and is distinct from the preceding physical failure to control the pitched Baseball."@en ;
+    skos:example "The official scoring content that charges a wild pitch when a pitch cannot be handled with ordinary effort."@en .
+
+base:RunDecisionICE a owl:Class ;
+    rdfs:subClassOf base:BaseballDecisionICE ;
+    rdfs:label "Run Decision ICE"@en ;
+    skos:definition "A Run Decision ICE is a Baseball Decision ICE that expresses an authorized judgment that a run is to be counted."@en ;
+    rdfs:comment "This information entity is the output of an authorized judgment and may later be recorded in a data system."@en ;
+    skos:example "The content affirming that a runner scored before the third out."@en .
+
+base:BaseballReplayReviewDispositionICE a owl:Class ;
+    rdfs:subClassOf cco:ont00000853 ;
+    rdfs:label "Baseball Replay Review Result ICE"@en ;
+    skos:definition "A Baseball Replay Review Result ICE is a Descriptive Information Content Entity that is output of a Baseball Replay Review Act, is about a Reviewed On-Field Baseball Decision ICE, and is about a Baseball Replay Decision ICE."@en ;
+    rdfs:comment "The IRI retains the earlier word 'Disposition' for identifier stability, but the label uses 'Result' to avoid confusion with BFO's technical category of disposition. This ICE describes how the replay decision relates to the reviewed on-field decision."@en ;
+    skos:example "The information content that replay review overturned an on-field safe decision and produced an out decision."@en .
+
+base:AffirmingBaseballReplayReviewDispositionICE a owl:Class ;
+    rdfs:subClassOf base:BaseballReplayReviewDispositionICE ;
+    rdfs:label "Affirming Baseball Replay Review Result ICE"@en ;
+    skos:definition "An Affirming Baseball Replay Review Result ICE is a Baseball Replay Review Result ICE that is output of an Affirming Baseball Replay Review Act."@en ;
+    rdfs:comment "MLB source values 'confirmed' and 'upheld' may both instantiate this class unless a later model introduces evidence sufficient to distinguish their epistemic thresholds."@en ;
+    skos:example "The information content that replay review affirmed an on-field out decision by producing another out decision."@en .
+
+base:OverturningBaseballReplayReviewDispositionICE a owl:Class ;
+    rdfs:subClassOf base:BaseballReplayReviewDispositionICE ;
+    rdfs:label "Overturning Baseball Replay Review Result ICE"@en ;
+    skos:definition "An Overturning Baseball Replay Review Result ICE is a Baseball Replay Review Result ICE that is output of an Overturning Baseball Replay Review Act."@en ;
+    rdfs:comment "This class represents a change between supported decision alternatives, such as safe-to-out or ball-to-strike, rather than merely the occurrence of a review."@en ;
+    skos:example "The information content that replay review overturned Shohei Ohtani's on-field safe decision and produced an out decision on the pickoff play."@en .
+
+base:BaseballReplayReviewEventRecord a owl:Class ;
+    rdfs:subClassOf base:BaseballEventRecord ;
+    rdfs:label "Baseball Replay Review Event Record"@en ;
+    skos:definition "A Baseball Replay Review Event Record is a Baseball Event Record that is about a Baseball Replay Review Act, a Reviewed On-Field Baseball Decision ICE, a Baseball Replay Decision ICE, and a Baseball Replay Review Result ICE."@en ;
+    rdfs:comment "This record keeps the source representation distinct from the review act and both decisions it describes."@en ;
+    skos:example "An MLB event record stating that a Cubs challenge overturned a safe call on Shohei Ohtani and produced an out call."@en .
+
+base:BaseballEventRecord a owl:Class ;
+    rdfs:subClassOf cco:ont00000853 ;
+    rdfs:label "Baseball Event Record"@en ;
+    skos:definition "A Baseball Event Record is a Descriptive Information Content Entity that describes one or more institutionally counted baseball processes."@en ;
+    rdfs:comment "This is the primary representational layer expected in event data; it does not by itself guarantee that the underlying judgment was correct."@en ;
+    skos:example "A data row recording a single, an error, or an out."@en .
+
+
+#################################################################
+# Judgment acts
+#################################################################
+
+base:BaseballJudgmentAct a owl:Class ;
+    rdfs:subClassOf base:BaseballAct ;
+    rdfs:label "Baseball Judgment Act"@en ;
+    skos:definition "A Baseball Judgment Act is a Baseball Act that evaluates evidence to determine whether perceived features of play satisfy an Agent's interpretation of a Baseball Rule."@en ;
+    rdfs:comment "This parent class does not by itself require institutional authority; spectators and players can make nonbinding judgments."@en ;
+    skos:example "A spectator judges that a runner was out."@en .
+
+base:UmpireJudgmentAct a owl:Class ;
+    rdfs:subClassOf base:BaseballAdjudicationAct ;
+    rdfs:label "Umpire Judgment Act"@en ;
+    skos:definition "An Umpire Judgment Act is a Baseball Adjudication Act that realizes an Umpire Role."@en ;
+    rdfs:comment "Its authority depends on contextual acceptance, not on whether the judgment accurately matches reality."@en ;
+    skos:example "An umpire judges a pitch to be a strike."@en .
+
+base:ReviewedOnFieldUmpireJudgmentAct a owl:Class ;
+    rdfs:subClassOf base:UmpireJudgmentAct ;
+    rdfs:label "Reviewed On-Field Umpire Judgment Act"@en ;
+    skos:definition "A Reviewed On-Field Umpire Judgment Act is an Umpire Judgment Act that has output a Reviewed On-Field Baseball Decision ICE."@en ;
+    rdfs:comment "This act is the original on-field adjudication and remains distinct from the later replay-review act."@en ;
+    skos:example "The first-base umpire's safe judgment that is subsequently reviewed after a manager challenge."@en .
+
+base:ScorerJudgmentAct a owl:Class ;
+    rdfs:subClassOf base:BaseballAdjudicationAct ;
+    rdfs:label "Scorer Judgment Act"@en ;
+    skos:definition "A Scorer Judgment Act is a Baseball Adjudication Act that realizes an Official Scorer Role."@en ;
+    rdfs:comment "It is used for institutionally binding scoring classifications such as hit, error, fielder's choice, and sacrifice."@en ;
+    skos:example "A scorer classifies a misplayed ground ball as an error."@en .
+
+base:PitchJudgmentAct a owl:Class ;
+    rdfs:subClassOf base:UmpireJudgmentAct ;
+    rdfs:label "Pitch Judgment Act"@en ;
+    skos:definition "A Pitch Judgment Act is an Umpire Judgment Act that determines the counted pitch classification under a Pitch Rule."@en ;
+    rdfs:comment "A judgment made after a pitch reaches the plate."@en ;
+    skos:example "An umpire evaluates a taken pitch."@en .
+
+base:BallJudgmentAct a owl:Class ;
+    rdfs:subClassOf base:PitchJudgmentAct ;
+    rdfs:label "Ball Judgment Act"@en ;
+    skos:definition "A Ball Judgment Act is a Pitch Judgment Act that has output a Ball Decision ICE."@en ;
+    rdfs:comment "It constitutes the authorized judgment component of a Ball Process."@en ;
+    skos:example "The umpire judges a low pitch to be a ball."@en .
+
+base:StrikeJudgmentAct a owl:Class ;
+    rdfs:subClassOf base:PitchJudgmentAct ;
+    rdfs:label "Strike Judgment Act"@en ;
+    skos:definition "A Strike Judgment Act is a Pitch Judgment Act that has output a Strike Decision ICE."@en ;
+    rdfs:comment "It constitutes the authorized judgment component of a Strike Process."@en ;
+    skos:example "The umpire judges a pitch over the plate to be a strike."@en .
+
+base:FairFoulJudgmentAct a owl:Class ;
+    rdfs:subClassOf base:UmpireJudgmentAct ;
+    rdfs:label "Fair-Foul Judgment Act"@en ;
+    skos:definition "A Fair-Foul Judgment Act is an Umpire Judgment Act that determines whether a contacted Baseball is to be counted as fair or foul under a Fair-Foul Rule."@en ;
+    rdfs:comment "It evaluates physical evidence such as trajectory, location, and boundary crossing."@en ;
+    skos:example "An umpire evaluates a ball near the foul line."@en .
+
+base:FairBallJudgmentAct a owl:Class ;
+    rdfs:subClassOf base:FairFoulJudgmentAct ;
+    rdfs:label "Fair Ball Judgment Act"@en ;
+    skos:definition "A Fair Ball Judgment Act is a Fair-Foul Judgment Act that has output a Fair Decision ICE."@en ;
+    rdfs:comment "It constitutes the authorized judgment component of a Fair Ball Process."@en ;
+    skos:example "The umpire signals that a line drive is fair."@en .
+
+base:FoulBallJudgmentAct a owl:Class ;
+    rdfs:subClassOf base:FairFoulJudgmentAct ;
+    rdfs:label "Foul Ball Judgment Act"@en ;
+    skos:definition "A Foul Ball Judgment Act is a Fair-Foul Judgment Act that has output a Foul Decision ICE."@en ;
+    rdfs:comment "It constitutes the authorized judgment component of a Foul Ball Process."@en ;
+    skos:example "The umpire calls a ground ball foul."@en .
+
+base:OutSafeJudgmentAct a owl:Class ;
+    rdfs:subClassOf base:UmpireJudgmentAct ;
+    rdfs:label "Out-Safe Judgment Act"@en ;
+    skos:definition "An Out-Safe Judgment Act is an Umpire Judgment Act that determines whether an out or safe status is to be counted under an applicable rule."@en ;
+    rdfs:comment "It may evaluate catching, tagging, force, timing, and base-touching evidence."@en ;
+    skos:example "An umpire evaluates a close play at first."@en .
+
+base:OutJudgmentAct a owl:Class ;
+    rdfs:subClassOf base:OutSafeJudgmentAct ;
+    rdfs:label "Out Judgment Act"@en ;
+    skos:definition "An Out Judgment Act is an Out-Safe Judgment Act that has output an Out Decision ICE."@en ;
+    rdfs:comment "It constitutes the authorized judgment component of an Out Process."@en ;
+    skos:example "The first-base umpire judges the batter-runner out."@en .
+
+base:SafeJudgmentAct a owl:Class ;
+    rdfs:subClassOf base:OutSafeJudgmentAct ;
+    rdfs:label "Safe Judgment Act"@en ;
+    skos:definition "A Safe Judgment Act is an Out-Safe Judgment Act that has output a Safe Decision ICE."@en ;
+    rdfs:comment "It constitutes the authorized judgment component of a Safe Process."@en ;
+    skos:example "The umpire judges a sliding runner safe."@en .
+
+base:AffirmingBaseballReplayReviewAct a owl:Class ;
+    rdfs:subClassOf base:BaseballReplayReviewAct ;
+    rdfs:label "Affirming Baseball Replay Review Act"@en ;
+    skos:definition "An Affirming Baseball Replay Review Act is a Baseball Replay Review Act that has one of the ball-to-ball, strike-to-strike, out-to-out, or safe-to-safe decision patterns."@en ;
+    rdfs:comment "This class normalizes both confirmed and upheld source outcomes while preserving the specific input-output decision pattern."@en ;
+    skos:example "A replay review consumes an out decision and produces an out decision."@en .
+
+base:BallAffirmingBaseballReplayReviewAct a owl:Class ;
+    rdfs:subClassOf base:BallJudgmentAct ;
+    rdfs:label "Ball-Affirming Baseball Replay Review Act"@en ;
+    skos:definition "A Ball-Affirming Baseball Replay Review Act is a Ball Judgment Act that is a Baseball Replay Review Act, has input a Ball Decision ICE, and has output a Ball Decision ICE."@en ;
+    rdfs:comment "The final judgment kind supplies the sole asserted parent; replay structure belongs in the overlay."@en ;
+    skos:example "A challenged called ball is reviewed and remains a ball."@en .
+
+base:StrikeAffirmingBaseballReplayReviewAct a owl:Class ;
+    rdfs:subClassOf base:StrikeJudgmentAct ;
+    rdfs:label "Strike-Affirming Baseball Replay Review Act"@en ;
+    skos:definition "A Strike-Affirming Baseball Replay Review Act is a Strike Judgment Act that is a Baseball Replay Review Act, has input a Strike Decision ICE, and has output a Strike Decision ICE."@en ;
+    rdfs:comment "The final judgment kind supplies the sole asserted parent; replay structure belongs in the overlay."@en ;
+    skos:example "A challenged called strike is reviewed and remains a strike."@en .
+
+base:OutAffirmingBaseballReplayReviewAct a owl:Class ;
+    rdfs:subClassOf base:OutJudgmentAct ;
+    rdfs:label "Out-Affirming Baseball Replay Review Act"@en ;
+    skos:definition "An Out-Affirming Baseball Replay Review Act is an Out Judgment Act that is a Baseball Replay Review Act, has input an Out Decision ICE, and has output an Out Decision ICE."@en ;
+    rdfs:comment "The final judgment kind supplies the sole asserted parent; replay structure belongs in the overlay."@en ;
+    skos:example "A challenged force-out call is reviewed and remains an out."@en .
+
+base:SafeAffirmingBaseballReplayReviewAct a owl:Class ;
+    rdfs:subClassOf base:SafeJudgmentAct ;
+    rdfs:label "Safe-Affirming Baseball Replay Review Act"@en ;
+    skos:definition "A Safe-Affirming Baseball Replay Review Act is a Safe Judgment Act that is a Baseball Replay Review Act, has input a Safe Decision ICE, and has output a Safe Decision ICE."@en ;
+    rdfs:comment "The final judgment kind supplies the sole asserted parent; replay structure belongs in the overlay."@en ;
+    skos:example "A challenged safe call on a tag play is reviewed and remains safe."@en .
+
+base:OverturningBaseballReplayReviewAct a owl:Class ;
+    rdfs:subClassOf base:BaseballReplayReviewAct ;
+    rdfs:label "Overturning Baseball Replay Review Act"@en ;
+    skos:definition "An Overturning Baseball Replay Review Act is a Baseball Replay Review Act that has one of the ball-to-strike, strike-to-ball, out-to-safe, or safe-to-out decision patterns."@en ;
+    rdfs:comment "This class is determined by a change between the supported input and output decision types, not merely by a source string."@en ;
+    skos:example "A replay review consumes a safe decision and produces an out decision."@en .
+
+base:BallToStrikeBaseballReplayReviewAct a owl:Class ;
+    rdfs:subClassOf base:StrikeJudgmentAct ;
+    rdfs:label "Ball-to-Strike Baseball Replay Review Act"@en ;
+    skos:definition "A Ball-to-Strike Baseball Replay Review Act is a Strike Judgment Act that is a Baseball Replay Review Act, has input a Ball Decision ICE, and has output a Strike Decision ICE."@en ;
+    rdfs:comment "The final judgment kind supplies the sole asserted parent; replay structure belongs in the overlay."@en ;
+    skos:example "A pitcher's successful challenge changes a called ball to a strike."@en .
+
+base:StrikeToBallBaseballReplayReviewAct a owl:Class ;
+    rdfs:subClassOf base:BallJudgmentAct ;
+    rdfs:label "Strike-to-Ball Baseball Replay Review Act"@en ;
+    skos:definition "A Strike-to-Ball Baseball Replay Review Act is a Ball Judgment Act that is a Baseball Replay Review Act, has input a Strike Decision ICE, and has output a Ball Decision ICE."@en ;
+    rdfs:comment "The final judgment kind supplies the sole asserted parent; replay structure belongs in the overlay."@en ;
+    skos:example "A batter's successful challenge changes a called strike to a ball."@en .
+
+base:OutToSafeBaseballReplayReviewAct a owl:Class ;
+    rdfs:subClassOf base:SafeJudgmentAct ;
+    rdfs:label "Out-to-Safe Baseball Replay Review Act"@en ;
+    skos:definition "An Out-to-Safe Baseball Replay Review Act is a Safe Judgment Act that is a Baseball Replay Review Act, has input an Out Decision ICE, and has output a Safe Decision ICE."@en ;
+    rdfs:comment "The final judgment kind supplies the sole asserted parent; replay structure belongs in the overlay."@en ;
+    skos:example "Replay shows that a runner touched the base before the tag, changing out to safe."@en .
+
+base:SafeToOutBaseballReplayReviewAct a owl:Class ;
+    rdfs:subClassOf base:OutJudgmentAct ;
+    rdfs:label "Safe-to-Out Baseball Replay Review Act"@en ;
+    skos:definition "A Safe-to-Out Baseball Replay Review Act is an Out Judgment Act that is a Baseball Replay Review Act, has input a Safe Decision ICE, and has output an Out Decision ICE."@en ;
+    rdfs:comment "The final judgment kind supplies the sole asserted parent; replay structure belongs in the overlay."@en ;
+    skos:example "Replay of a pickoff changes the on-field safe decision to an out decision."@en .
+
+base:ScoringJudgmentAct a owl:Class ;
+    rdfs:subClassOf base:ScorerJudgmentAct ;
+    rdfs:label "Scoring Judgment Act"@en ;
+    skos:definition "A Scoring Judgment Act is a Scorer Judgment Act that classifies a play for official scoring under a scoring rule."@en ;
+    rdfs:comment "This parent includes hit, error, fielder's choice, and sacrifice judgments."@en ;
+    skos:example "A scorer evaluates a difficult ground ball."@en .
+
+base:HitJudgmentAct a owl:Class ;
+    rdfs:subClassOf base:ScoringJudgmentAct ;
+    rdfs:label "Hit Judgment Act"@en ;
+    skos:definition "A Hit Judgment Act is a Scoring Judgment Act that has output a Hit Decision ICE."@en ;
+    rdfs:comment "It constitutes the authorized scoring component of a counted Hit Process."@en ;
+    skos:example "The scorer credits the batter with a single."@en .
+
+base:ErrorJudgmentAct a owl:Class ;
+    rdfs:subClassOf base:ScoringJudgmentAct ;
+    rdfs:label "Error Judgment Act"@en ;
+    skos:definition "An Error Judgment Act is a Scoring Judgment Act that has output an Error Decision ICE."@en ;
+    rdfs:comment "It constitutes the authorized scoring component of a counted Error Process."@en ;
+    skos:example "The scorer charges an error on a dropped throw."@en .
+
+base:FieldersChoiceJudgmentAct a owl:Class ;
+    rdfs:subClassOf base:ScoringJudgmentAct ;
+    rdfs:label "Fielder's Choice Judgment Act"@en ;
+    skos:definition "A Fielder's Choice Judgment Act is a Scoring Judgment Act that has output a Fielder's Choice Decision ICE."@en ;
+    rdfs:comment "It distinguishes the counted result from a hit even when the batter reaches base."@en ;
+    skos:example "The scorer records a fielder's choice after a throw to second."@en .
+
+base:SacrificeJudgmentAct a owl:Class ;
+    rdfs:subClassOf base:ScoringJudgmentAct ;
+    rdfs:label "Sacrifice Judgment Act"@en ;
+    skos:definition "A Sacrifice Judgment Act is a Scoring Judgment Act that has output a Sacrifice Decision ICE."@en ;
+    rdfs:comment "It constitutes the authorized scoring component of a Sacrifice Process."@en ;
+    skos:example "The scorer credits a sacrifice fly."@en .
+
+base:PassedBallJudgmentAct a owl:Class ;
+    rdfs:subClassOf base:ScoringJudgmentAct ;
+    rdfs:label "Passed Ball Judgment Act"@en ;
+    skos:definition "A Passed Ball Judgment Act is a Scoring Judgment Act that has output a Passed Ball Decision ICE and is prescribed by a Passed Ball Rule."@en ;
+    rdfs:comment "This act classifies the play for official scoring; it is not identical to the physical failure to control the pitched Baseball."@en ;
+    skos:example "An official scorer judges that a catcher's failure to secure a reasonably catchable pitch is a passed ball."@en .
+
+base:WildPitchJudgmentAct a owl:Class ;
+    rdfs:subClassOf base:ScoringJudgmentAct ;
+    rdfs:label "Wild Pitch Judgment Act"@en ;
+    skos:definition "A Wild Pitch Judgment Act is a Scoring Judgment Act that has output a Wild Pitch Decision ICE and is prescribed by a Wild Pitch Rule."@en ;
+    rdfs:comment "This act classifies the play for official scoring; it is not identical to the physical failure to control the pitched Baseball."@en ;
+    skos:example "An official scorer judges that a pitch beyond ordinary catching effort is a wild pitch."@en .
+
+base:RunJudgmentAct a owl:Class ;
+    rdfs:subClassOf base:UmpireJudgmentAct ;
+    rdfs:label "Run Judgment Act"@en ;
+    skos:definition "A Run Judgment Act is an Umpire Judgment Act that has output a Run Decision ICE under a Run Rule."@en ;
+    rdfs:comment "Scoring records may reproduce this judgment, but the on-field authority to count the run is modeled here as umpire authority."@en ;
+    skos:example "The plate umpire counts a run that crossed before the third out."@en .
+
+
+#################################################################
+# Call acts
+#################################################################
+
+base:BaseballCallAct a owl:Class ;
+    rdfs:subClassOf cco:ont00001374 ;
+    rdfs:label "Baseball Call Act"@en ;
+    skos:definition "A Baseball Call Act is an Act of Declarative Communication that publicly expresses an authorized Baseball Decision ICE and thereby communicates an institutionally binding baseball status."@en ;
+    rdfs:comment "The call is distinct from the preceding evaluative judgment, although the two may occur almost simultaneously."@en ;
+    skos:example "An umpire verbally and gesturally calls a runner out."@en .
+
+base:PitchCallAct a owl:Class ;
+    rdfs:subClassOf base:BaseballCallAct ;
+    rdfs:label "Pitch Call Act"@en ;
+    skos:definition "A Pitch Call Act is a Baseball Call Act that communicates the output of a Pitch Judgment Act."@en ;
+    rdfs:comment "An umpire communicates a pitch classification."@en ;
+    skos:example "The plate umpire makes a pitch call."@en .
+
+base:BallCallAct a owl:Class ;
+    rdfs:subClassOf base:PitchCallAct ;
+    rdfs:label "Ball Call Act"@en ;
+    skos:definition "A Ball Call Act is a Pitch Call Act that communicates a Ball Decision ICE."@en ;
+    rdfs:comment "It is the communicative act, not the Ball Process itself."@en ;
+    skos:example "The umpire says 'ball'."@en .
+
+base:StrikeCallAct a owl:Class ;
+    rdfs:subClassOf base:PitchCallAct ;
+    rdfs:label "Strike Call Act"@en ;
+    skos:definition "A Strike Call Act is a Pitch Call Act that communicates a Strike Decision ICE."@en ;
+    rdfs:comment "It is the communicative act, not the Strike Process itself."@en ;
+    skos:example "The umpire signals strike."@en .
+
+base:FairFoulCallAct a owl:Class ;
+    rdfs:subClassOf base:BaseballCallAct ;
+    rdfs:label "Fair-Foul Call Act"@en ;
+    skos:definition "A Fair-Foul Call Act is a Baseball Call Act that communicates the output of a Fair-Foul Judgment Act."@en ;
+    rdfs:comment "The act may be verbal, gestural, or both."@en ;
+    skos:example "An umpire makes a fair-foul call."@en .
+
+base:FairCallAct a owl:Class ;
+    rdfs:subClassOf base:FairFoulCallAct ;
+    rdfs:label "Fair Call Act"@en ;
+    skos:definition "A Fair Call Act is a Fair-Foul Call Act that communicates a Fair Decision ICE."@en ;
+    rdfs:comment "It communicates the counted fair status."@en ;
+    skos:example "An umpire points into fair territory."@en .
+
+base:FoulCallAct a owl:Class ;
+    rdfs:subClassOf base:FairFoulCallAct ;
+    rdfs:label "Foul Call Act"@en ;
+    skos:definition "A Foul Call Act is a Fair-Foul Call Act that communicates a Foul Decision ICE."@en ;
+    rdfs:comment "It communicates the counted foul status."@en ;
+    skos:example "An umpire raises both hands and calls foul."@en .
+
+base:OutSafeCallAct a owl:Class ;
+    rdfs:subClassOf base:BaseballCallAct ;
+    rdfs:label "Out-Safe Call Act"@en ;
+    skos:definition "An Out-Safe Call Act is a Baseball Call Act that communicates the output of an Out-Safe Judgment Act."@en ;
+    rdfs:comment "The act publicly resolves an adjudicated runner-status question."@en ;
+    skos:example "An umpire makes a call at first base."@en .
+
+base:OutCallAct a owl:Class ;
+    rdfs:subClassOf base:OutSafeCallAct ;
+    rdfs:label "Out Call Act"@en ;
+    skos:definition "An Out Call Act is an Out-Safe Call Act that communicates an Out Decision ICE."@en ;
+    rdfs:comment "It communicates an institutionally counted out."@en ;
+    skos:example "The umpire gives a clenched-fist out signal."@en .
+
+base:SafeCallAct a owl:Class ;
+    rdfs:subClassOf base:OutSafeCallAct ;
+    rdfs:label "Safe Call Act"@en ;
+    skos:definition "A Safe Call Act is an Out-Safe Call Act that communicates a Safe Decision ICE."@en ;
+    rdfs:comment "It communicates an institutionally counted safe status."@en ;
+    skos:example "The umpire extends both arms for safe."@en .
+
+
+#################################################################
+# Institutionally counted processes
+#################################################################
+
+base:BaseballInstitutionalProcess a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000015 ;
+    rdfs:label "Baseball Institutional Process"@en ;
+    skos:definition "A Baseball Institutional Process is a Process that has an authorized Baseball Adjudication Act as an occurrent part and whose baseball status depends on that adjudication."@en ;
+    rdfs:comment "Instances are the counted processes ordinarily available in event and scoring data; correctness relative to actual rule satisfaction is not entailed."@en ;
+    skos:example "A counted strike, hit, foul ball, out, safe, run, or error."@en .
+
+base:PitchClassificationProcess a owl:Class ;
+    rdfs:subClassOf base:BaseballInstitutionalProcess ;
+    rdfs:label "Pitch Classification Process"@en ;
+    skos:definition "A Pitch Classification Process is a Baseball Institutional Process that assigns a counted classification to a pitch-related history under a Pitch Rule."@en ;
+    rdfs:comment "Ball and Strike Process are subclasses."@en ;
+    skos:example "The institutional resolution of a taken pitch."@en .
+
+base:BallProcess a owl:Class ;
+    rdfs:subClassOf base:PitchClassificationProcess ;
+    rdfs:label "Ball Process"@en ;
+    skos:definition "A Ball Process is a Pitch Classification Process that has a Ball Judgment Act as an occurrent part and is counted as a ball."@en ;
+    rdfs:comment "The simple label denotes the counted status, not an independently modeled actual rule-satisfying ball."@en ;
+    skos:example "A low pitch is called and counted as ball three."@en .
+
+base:StrikeProcess a owl:Class ;
+    rdfs:subClassOf base:PitchClassificationProcess ;
+    rdfs:label "Strike Process"@en ;
+    skos:definition "A Strike Process is a Pitch Classification Process that has a Strike Judgment Act as an occurrent part and is counted as a strike."@en ;
+    rdfs:comment "It may follow a called pitch, a swing and miss, or a foul under the applicable rule."@en ;
+    skos:example "A missed swing is counted as strike two."@en .
+
+base:BattedBallClassificationProcess a owl:Class ;
+    rdfs:subClassOf base:BaseballInstitutionalProcess ;
+    rdfs:label "Batted-Ball Classification Process"@en ;
+    skos:definition "A Batted-Ball Classification Process is a Baseball Institutional Process that assigns a counted classification to play following Bat-Ball Contact."@en ;
+    rdfs:comment "Fair Ball and Foul Ball Process are immediate subclasses."@en ;
+    skos:example "The official fair-foul resolution of a contacted ball."@en .
+
+base:FairBallProcess a owl:Class ;
+    rdfs:subClassOf base:BattedBallClassificationProcess ;
+    rdfs:label "Fair Ball Process"@en ;
+    skos:definition "A Fair Ball Process is a Batted-Ball Classification Process that has a Fair Ball Judgment Act as an occurrent part and is counted as fair."@en ;
+    rdfs:comment "A physical trajectory in fair territory is evidence but does not alone instantiate this counted class."@en ;
+    skos:example "A line drive near the line is ruled fair."@en .
+
+base:FoulBallProcess a owl:Class ;
+    rdfs:subClassOf base:BattedBallClassificationProcess ;
+    rdfs:label "Foul Ball Process"@en ;
+    skos:definition "A Foul Ball Process is a Batted-Ball Classification Process that has a Foul Ball Judgment Act as an occurrent part and is counted as foul."@en ;
+    rdfs:comment "This process is downstream of contact and is not identical to the Bat-Ball Contact Process."@en ;
+    skos:example "A ground ball is called foul before reaching first base."@en .
+
+base:ScoringClassificationProcess a owl:Class ;
+    rdfs:subClassOf base:BaseballInstitutionalProcess ;
+    rdfs:label "Scoring Classification Process"@en ;
+    skos:definition "A Scoring Classification Process is a Baseball Institutional Process that assigns an official scoring classification to a play."@en ;
+    rdfs:comment "Hit, Error, Fielder's Choice, and Sacrifice Process are subclasses and are constituted by scorer judgments."@en ;
+    skos:example "The scorer's official classification of a ground-ball play."@en .
+
+base:PassedBallProcess a owl:Class ;
+    rdfs:subClassOf base:ScoringClassificationProcess ;
+    rdfs:label "Passed Ball Process"@en ;
+    skos:definition "A Passed Ball Process is a Scoring Classification Process that is preceded by a Pitch Ball Control Failure Process, has a Passed Ball Judgment Act as an occurrent part, and is prescribed by a Passed Ball Rule."@en ;
+    rdfs:comment "This counted scoring classification is distinct from the physical control failure and does not by itself entail a runner's safe arrival or an uncaught third strike."@en ;
+    skos:example "A catcher does not secure a reasonably catchable pitch and the play is officially scored as a passed ball."@en .
+
+base:WildPitchProcess a owl:Class ;
+    rdfs:subClassOf base:ScoringClassificationProcess ;
+    rdfs:label "Wild Pitch Process"@en ;
+    skos:definition "A Wild Pitch Process is a Scoring Classification Process that is preceded by a Pitch Ball Control Failure Process, has a Wild Pitch Judgment Act as an occurrent part, and is prescribed by a Wild Pitch Rule."@en ;
+    rdfs:comment "This counted scoring classification is distinct from the physical control failure and does not by itself entail a runner's safe arrival or an uncaught third strike."@en ;
+    skos:example "A pitch beyond ordinary catching effort is not secured and the play is officially scored as a wild pitch."@en .
+
+base:HitProcess a owl:Class ;
+    rdfs:subClassOf base:ScoringClassificationProcess ;
+    rdfs:label "Hit Process"@en ;
+    skos:definition "A Hit Process is a Scoring Classification Process that is preceded by a Bat-Ball Contact Process, has a Hit Judgment Act as an occurrent part, and is counted as a hit."@en ;
+    rdfs:comment "This simple name denotes the counted hit available in data. It is distinct from the Swing Act, the contact, and any future class for actual rule satisfaction."@en ;
+    skos:example "A ground ball is officially credited as a single."@en .
+
+base:ErrorProcess a owl:Class ;
+    rdfs:subClassOf base:ScoringClassificationProcess ;
+    rdfs:label "Error Process"@en ;
+    skos:definition "An Error Process is a Scoring Classification Process that has an Error Judgment Act as an occurrent part and is counted as an error."@en ;
+    rdfs:comment "A Ball Control Failure Process may supply evidence, but physical failure neither entails nor is entailed by this counted class."@en ;
+    skos:example "A shortstop is officially charged with an error."@en .
+
+base:FieldersChoiceProcess a owl:Class ;
+    rdfs:subClassOf base:ScoringClassificationProcess ;
+    rdfs:label "Fielder's Choice Process"@en ;
+    skos:definition "A Fielder's Choice Process is a Scoring Classification Process that has a Fielder's Choice Judgment Act as an occurrent part and is counted as a fielder's choice."@en ;
+    rdfs:comment "The batter may reach base, but the play is not counted as a hit."@en ;
+    skos:example "The shortstop throws to second while the batter reaches first."@en .
+
+base:SacrificeProcess a owl:Class ;
+    rdfs:subClassOf base:ScoringClassificationProcess ;
+    rdfs:label "Sacrifice Process"@en ;
+    skos:definition "A Sacrifice Process is a Scoring Classification Process that has a Sacrifice Judgment Act as an occurrent part and is counted as a sacrifice."@en ;
+    rdfs:comment "Sacrifice classifications are official scoring outcomes rather than merely the batter's intention."@en ;
+    skos:example "A fly ball is credited as a sacrifice fly."@en .
+
+base:SacrificeFlyProcess a owl:Class ;
+    rdfs:subClassOf base:SacrificeProcess ;
+    rdfs:label "Sacrifice Fly Process"@en ;
+    skos:definition "A Sacrifice Fly Process is a Sacrifice Process that is counted as a sacrifice fly."@en ;
+    rdfs:comment "The counted classification is compatible with an intentional or non-intentional result."@en ;
+    skos:example "A caught fly ball allows a runner to score."@en .
+
+base:SacrificeBuntProcess a owl:Class ;
+    rdfs:subClassOf base:SacrificeProcess ;
+    rdfs:label "Sacrifice Bunt Process"@en ;
+    skos:definition "A Sacrifice Bunt Process is a Sacrifice Process that is counted as a sacrifice bunt."@en ;
+    rdfs:comment "It should be distinguished from the preceding Bunt Act, which is classified by objective."@en ;
+    skos:example "A bunt advances a runner and is officially scored as a sacrifice."@en .
+
+base:SingleProcess a owl:Class ;
+    rdfs:subClassOf base:HitProcess ;
+    rdfs:label "Single Process"@en ;
+    skos:definition "A Single Process is a Hit Process that is counted as a single."@en ;
+    rdfs:comment "The class records the official hit type and does not collapse the physical trajectory, baserunning, or run-scoring processes into one entity."@en ;
+    skos:example "A batter is credited with one base on a hit."@en .
+
+base:DoubleProcess a owl:Class ;
+    rdfs:subClassOf base:HitProcess ;
+    rdfs:label "Double Process"@en ;
+    skos:definition "A Double Process is a Hit Process that is counted as a double."@en ;
+    rdfs:comment "The class records the official hit type and does not collapse the physical trajectory, baserunning, or run-scoring processes into one entity."@en ;
+    skos:example "A ball into the gap is credited as a double."@en .
+
+base:TripleProcess a owl:Class ;
+    rdfs:subClassOf base:HitProcess ;
+    rdfs:label "Triple Process"@en ;
+    skos:definition "A Triple Process is a Hit Process that is counted as a triple."@en ;
+    rdfs:comment "The class records the official hit type and does not collapse the physical trajectory, baserunning, or run-scoring processes into one entity."@en ;
+    skos:example "A batter is credited with three bases on a hit."@en .
+
+base:HomeRunProcess a owl:Class ;
+    rdfs:subClassOf base:HitProcess ;
+    rdfs:label "Home Run Process"@en ;
+    skos:definition "A Home Run Process is a Hit Process that is counted as a home run."@en ;
+    rdfs:comment "The class records the official hit type and does not collapse the physical trajectory, baserunning, or run-scoring processes into one entity."@en ;
+    skos:example "A fair ball over the fence is credited as a home run."@en .
+
+base:RunnerResolutionProcess a owl:Class ;
+    rdfs:subClassOf base:BaseballInstitutionalProcess ;
+    rdfs:label "Runner Resolution Process"@en ;
+    skos:definition "A Runner Resolution Process is a Baseball Institutional Process that assigns a counted status concerning a runner under an applicable rule."@en ;
+    rdfs:comment "Out, Safe, and Run Process are subclasses; multiple such processes may arise in one play."@en ;
+    skos:example "The resolution of a close play at home."@en .
+
+base:OutProcess a owl:Class ;
+    rdfs:subClassOf base:RunnerResolutionProcess ;
+    rdfs:label "Out Process"@en ;
+    skos:definition "An Out Process is a Runner Resolution Process that has an Out Judgment Act as an occurrent part and adds a counted out."@en ;
+    rdfs:comment "An Out Process may arise after contact or without contact; therefore contact is not a necessary predecessor of the general class."@en ;
+    skos:example "A runner is called out on a tag."@en .
+
+base:SafeProcess a owl:Class ;
+    rdfs:subClassOf base:RunnerResolutionProcess ;
+    rdfs:label "Safe Process"@en ;
+    skos:definition "A Safe Process is a Runner Resolution Process that has a Safe Judgment Act as an occurrent part and counts a runner as safe in the adjudicated situation."@en ;
+    rdfs:comment "Safe status may coexist in the same play with a hit, error, fielder's choice, or another runner's out."@en ;
+    skos:example "A batter-runner is called safe at first."@en .
+
+base:RunProcess a owl:Class ;
+    rdfs:subClassOf base:RunnerResolutionProcess ;
+    rdfs:label "Run Process"@en ;
+    skos:definition "A Run Process is a Runner Resolution Process that has a Run Judgment Act as an occurrent part and adds a counted run."@en ;
+    rdfs:comment "A home run play may contain several distinct Run Process instances."@en ;
+    skos:example "A runner crosses home before the third out and the run is counted."@en .
+
+base:BattedBallOutProcess a owl:Class ;
+    rdfs:subClassOf base:OutProcess ;
+    rdfs:label "Batted-Ball Out Process"@en ;
+    skos:definition "A Batted-Ball Out Process is an Out Process that is preceded by a Bat-Ball Contact Process."@en ;
+    rdfs:comment "This subclass captures contact-dependent outs without incorrectly requiring every Out Process to follow contact."@en ;
+    skos:example "A ground-ball force out."@en .
+
+base:CatchOutProcess a owl:Class ;
+    rdfs:subClassOf base:BattedBallOutProcess ;
+    rdfs:label "Catch Out Process"@en ;
+    skos:definition "A Catch Out Process is a Batted-Ball Out Process that is supported by evidence of a Ball Catching Process under the applicable Out Rule."@en ;
+    rdfs:comment "The physical catch and counted out remain distinct entities."@en ;
+    skos:example "A fly ball is caught and the batter is called out."@en .
+
+base:ForceOutProcess a owl:Class ;
+    rdfs:subClassOf base:OutProcess ;
+    rdfs:label "Force Out Process"@en ;
+    skos:definition "A Force Out Process is an Out Process that is counted because a runner required to advance is adjudged out at a required base."@en ;
+    rdfs:comment "The class can be instantiated in combination with other out, safe, hit, or fielder's-choice processes."@en ;
+    skos:example "A runner is forced out at second base."@en .
+
+base:TagOutProcess a owl:Class ;
+    rdfs:subClassOf base:OutProcess ;
+    rdfs:label "Tag Out Process"@en ;
+    skos:definition "A Tag Out Process is an Out Process that is counted because a runner is adjudged out following a relevant Tagging Process."@en ;
+    rdfs:comment "A physical tag may occur without a Tag Out Process when the runner is judged safe."@en ;
+    skos:example "A runner is tagged out while attempting to steal."@en .
+
+base:StrikeoutProcess a owl:Class ;
+    rdfs:subClassOf base:BaseballInstitutionalProcess ;
+    rdfs:label "Strikeout Process"@en ;
+    skos:definition "A Strikeout Process is a Baseball Institutional Process that counts a strikeout under a Strike Rule."@en ;
+    rdfs:comment "A strikeout is not asserted as a subclass of Out Process because an uncaught third strike can yield a strikeout without a counted out."@en ;
+    skos:example "A batter strikes out but reaches first on an uncaught third strike."@en .
+
+base:UncaughtThirdStrikeProcess a owl:Class ;
+    rdfs:subClassOf base:BaseballInstitutionalProcess ;
+    rdfs:label "Uncaught Third Strike Process"@en ;
+    skos:altLabel "Dropped Third Strike Process"@en ;
+    skos:definition "An Uncaught Third Strike Process is a Baseball Institutional Process that has a Strikeout Process and a Pitch Ball Control Failure Process as occurrent parts and is prescribed by a Strike Rule."@en ;
+    rdfs:comment "This composite pattern does not by itself entail that the batter reached safely or was put out; those outcomes require their own adjudicated processes."@en ;
+    skos:example "A batter swings at strike three, the catcher does not secure the pitch, and the batter reaches first base on the uncaught third strike."@en .
+
+base:WalkProcess a owl:Class ;
+    rdfs:subClassOf base:BaseballInstitutionalProcess ;
+    rdfs:label "Walk Process"@en ;
+    skos:definition "A Walk Process is a Baseball Institutional Process that counts an award of first base after the rule-specified ball condition is adjudicated."@en ;
+    rdfs:comment "The process is distinct from each constituent Ball Process."@en ;
+    skos:example "A batter receives first base after ball four."@en .
+
+base:HitByPitchProcess a owl:Class ;
+    rdfs:subClassOf base:BaseballInstitutionalProcess ;
+    rdfs:label "Hit-by-Pitch Process"@en ;
+    skos:definition "A Hit-by-Pitch Process is a Baseball Institutional Process that counts an award associated with a pitched Baseball contacting the batter under the applicable rule."@en ;
+    rdfs:comment "Physical contact alone does not settle the institutional classification."@en ;
+    skos:example "A batter is awarded first base after being hit by a pitch."@en .
+
+base:BalkProcess a owl:Class ;
+    rdfs:subClassOf base:BaseballInstitutionalProcess ;
+    rdfs:label "Balk Process"@en ;
+    skos:definition "A Balk Process is a Baseball Institutional Process that counts a pitching infraction under a Balk Rule."@en ;
+    rdfs:comment "The counted infraction depends on an authorized judgment."@en ;
+    skos:example "An umpire calls a balk for an illegal pitching action."@en .
+
+base:InterferenceProcess a owl:Class ;
+    rdfs:subClassOf base:BaseballInstitutionalProcess ;
+    rdfs:label "Interference Process"@en ;
+    skos:definition "An Interference Process is a Baseball Institutional Process that counts interference under an Interference Rule."@en ;
+    rdfs:comment "The class represents the institutionally adjudicated status rather than physical contact alone."@en ;
+    skos:example "Catcher's interference is called."@en .
+
+base:ObstructionProcess a owl:Class ;
+    rdfs:subClassOf base:BaseballInstitutionalProcess ;
+    rdfs:label "Obstruction Process"@en ;
+    skos:definition "An Obstruction Process is a Baseball Institutional Process that counts obstruction under an Obstruction Rule."@en ;
+    rdfs:comment "The class depends on an authorized rule judgment."@en ;
+    skos:example "A fielder without the ball obstructs a runner and the umpire calls obstruction."@en .
+
+
+#################################################################
+# Rules
+#################################################################
+
+base:BaseballRule a owl:Class ;
+    rdfs:subClassOf cco:ont00001324 ;
+    rdfs:label "Baseball Rule"@en ;
+    skos:definition "A Baseball Rule is a Process Regulation that prescribes baseball processes as required, prohibited, or permitted and supplies criteria for their institutional adjudication."@en ;
+    rdfs:comment "Rule instances should be linked to the relevant ruleset and version at the data level."@en ;
+    skos:example "A rule governing when a runner is out."@en .
+
+base:PitchRule a owl:Class ;
+    rdfs:subClassOf base:BaseballRule ;
+    rdfs:label "Pitch Rule"@en ;
+    skos:definition "A Pitch Rule is a Baseball Rule that prescribes conditions for pitching and pitch adjudication."@en ;
+    rdfs:comment "The rule is a prescriptive information entity; a judgment about whether observed play satisfies it is a distinct act."@en ;
+    skos:example "A rule defining legal delivery and pitch classification."@en .
+
+base:BallRule a owl:Class ;
+    rdfs:subClassOf base:BaseballRule ;
+    rdfs:label "Ball Rule"@en ;
+    skos:definition "A Ball Rule is a Baseball Rule that prescribes conditions under which a pitch-related history is to be counted as a ball."@en ;
+    rdfs:comment "The rule is a prescriptive information entity; a judgment about whether observed play satisfies it is a distinct act."@en ;
+    skos:example "The rule used to judge a taken pitch outside the strike zone."@en .
+
+base:StrikeRule a owl:Class ;
+    rdfs:subClassOf base:BaseballRule ;
+    rdfs:label "Strike Rule"@en ;
+    skos:definition "A Strike Rule is a Baseball Rule that prescribes conditions under which a pitch, swing result, or foul is to be counted as a strike."@en ;
+    rdfs:comment "The rule is a prescriptive information entity; a judgment about whether observed play satisfies it is a distinct act."@en ;
+    skos:example "The rule governing a swing and miss."@en .
+
+base:PassedBallRule a owl:Class ;
+    rdfs:subClassOf base:BaseballRule ;
+    rdfs:label "Passed Ball Rule"@en ;
+    skos:definition "A Passed Ball Rule is a Baseball Rule that prescribes a Passed Ball Process."@en ;
+    rdfs:comment "The rule supplies the official scoring criteria for distinguishing a passed ball from other pitch-control outcomes."@en ;
+    skos:example "The official scoring rule applied when a catcher fails to secure a pitch that could have been handled with ordinary effort."@en .
+
+base:WildPitchRule a owl:Class ;
+    rdfs:subClassOf base:BaseballRule ;
+    rdfs:label "Wild Pitch Rule"@en ;
+    skos:definition "A Wild Pitch Rule is a Baseball Rule that prescribes a Wild Pitch Process."@en ;
+    rdfs:comment "The rule supplies the official scoring criteria for distinguishing a wild pitch from other pitch-control outcomes."@en ;
+    skos:example "The official scoring rule applied when a pitch cannot be handled with ordinary effort and permits advancement."@en .
+
+base:FairFoulRule a owl:Class ;
+    rdfs:subClassOf base:BaseballRule ;
+    rdfs:label "Fair-Foul Rule"@en ;
+    skos:definition "A Fair-Foul Rule is a Baseball Rule that prescribes conditions under which a contacted Baseball is to be counted as fair or foul."@en ;
+    rdfs:comment "The rule is a prescriptive information entity; a judgment about whether observed play satisfies it is a distinct act."@en ;
+    skos:example "The rule governing a ball near the foul line."@en .
+
+base:HitRule a owl:Class ;
+    rdfs:subClassOf base:BaseballRule ;
+    rdfs:label "Hit Rule"@en ;
+    skos:definition "A Hit Rule is a Baseball Rule that prescribes conditions under which a batted-ball play is to be counted as a hit."@en ;
+    rdfs:comment "The rule is a prescriptive information entity; a judgment about whether observed play satisfies it is a distinct act."@en ;
+    skos:example "The official scoring rule for base hits."@en .
+
+base:ErrorRule a owl:Class ;
+    rdfs:subClassOf base:BaseballRule ;
+    rdfs:label "Error Rule"@en ;
+    skos:definition "An Error Rule is a Baseball Rule that prescribes conditions under which a play is to be counted as an error."@en ;
+    rdfs:comment "The rule is a prescriptive information entity; a judgment about whether observed play satisfies it is a distinct act."@en ;
+    skos:example "The official scoring rule for fielding errors."@en .
+
+base:FieldersChoiceRule a owl:Class ;
+    rdfs:subClassOf base:BaseballRule ;
+    rdfs:label "Fielder's Choice Rule"@en ;
+    skos:definition "A Fielder's Choice Rule is a Baseball Rule that prescribes conditions under which a play is to be counted as a fielder's choice."@en ;
+    rdfs:comment "The rule is a prescriptive information entity; a judgment about whether observed play satisfies it is a distinct act."@en ;
+    skos:example "The scoring rule used when a fielder attempts to retire another runner."@en .
+
+base:SacrificeRule a owl:Class ;
+    rdfs:subClassOf base:BaseballRule ;
+    rdfs:label "Sacrifice Rule"@en ;
+    skos:definition "A Sacrifice Rule is a Baseball Rule that prescribes conditions under which a play is to be counted as a sacrifice."@en ;
+    rdfs:comment "The rule is a prescriptive information entity; a judgment about whether observed play satisfies it is a distinct act."@en ;
+    skos:example "The scoring rule for a sacrifice fly."@en .
+
+base:OutRule a owl:Class ;
+    rdfs:subClassOf base:BaseballRule ;
+    rdfs:label "Out Rule"@en ;
+    skos:definition "An Out Rule is a Baseball Rule that prescribes conditions under which an out is to be counted."@en ;
+    rdfs:comment "The rule is a prescriptive information entity; a judgment about whether observed play satisfies it is a distinct act."@en ;
+    skos:example "The force-out rule."@en .
+
+base:SafeRule a owl:Class ;
+    rdfs:subClassOf base:BaseballRule ;
+    rdfs:label "Safe Rule"@en ;
+    skos:definition "A Safe Rule is a Baseball Rule that prescribes conditions under which a runner is to be counted as safe in an adjudicated situation."@en ;
+    rdfs:comment "The rule is a prescriptive information entity; a judgment about whether observed play satisfies it is a distinct act."@en ;
+    skos:example "The rule applied when a runner beats a throw."@en .
+
+base:RunRule a owl:Class ;
+    rdfs:subClassOf base:BaseballRule ;
+    rdfs:label "Run Rule"@en ;
+    skos:definition "A Run Rule is a Baseball Rule that prescribes conditions under which a run is to be counted."@en ;
+    rdfs:comment "The rule is a prescriptive information entity; a judgment about whether observed play satisfies it is a distinct act."@en ;
+    skos:example "The rule concerning a run crossing before the third out."@en .
+
+base:BalkRule a owl:Class ;
+    rdfs:subClassOf base:BaseballRule ;
+    rdfs:label "Balk Rule"@en ;
+    skos:definition "A Balk Rule is a Baseball Rule that prescribes prohibited pitching processes and their consequences."@en ;
+    rdfs:comment "The rule is a prescriptive information entity; a judgment about whether observed play satisfies it is a distinct act."@en ;
+    skos:example "The rule prohibiting certain deceptive pitching motions."@en .
+
+base:InterferenceRule a owl:Class ;
+    rdfs:subClassOf base:BaseballRule ;
+    rdfs:label "Interference Rule"@en ;
+    skos:definition "An Interference Rule is a Baseball Rule that prescribes conditions under which interference is to be counted."@en ;
+    rdfs:comment "The rule is a prescriptive information entity; a judgment about whether observed play satisfies it is a distinct act."@en ;
+    skos:example "The rule governing batter or catcher interference."@en .
+
+base:ObstructionRule a owl:Class ;
+    rdfs:subClassOf base:BaseballRule ;
+    rdfs:label "Obstruction Rule"@en ;
+    skos:definition "An Obstruction Rule is a Baseball Rule that prescribes conditions under which obstruction is to be counted."@en ;
+    rdfs:comment "The rule is a prescriptive information entity; a judgment about whether observed play satisfies it is a distinct act."@en ;
+    skos:example "The rule governing a fielder impeding a runner without the ball."@en .
+
+
+#################################################################
+# Statistics and algorithms
+#################################################################
+
+base:PlateAppearanceStartOutCountICE a owl:Class ;
+    rdfs:subClassOf cco:ont00001163 ;
+    rdfs:label "Plate Appearance Start Out Count ICE"@en ;
+    skos:definition "A Plate Appearance Start Out Count ICE is a Measurement Information Content Entity that records the number of outs at the beginning of a Plate Appearance."@en ;
+    rdfs:comment "The mapped value is source-reported game state and is restricted to zero, one, or two; it is not a downstream derived statistic."@en ;
+    skos:example "An out-count record with integer value two for a plate appearance beginning with two outs."@en .
+
+base:BaseballStatisticICE a owl:Class ;
+    rdfs:subClassOf cco:ont00001163 ;
+    rdfs:label "Baseball Statistic ICE"@en ;
+    skos:definition "A Baseball Statistic ICE is a Measurement Information Content Entity that describes a quantity, rate, or ratio derived from Baseball Event Records."@en ;
+    rdfs:comment "Its value depends on the counted processes represented in the source data."@en ;
+    skos:example "A batting average value for a season."@en .
+
+base:BattingAverageICE a owl:Class ;
+    rdfs:subClassOf base:BaseballStatisticICE ;
+    rdfs:label "Batting Average ICE"@en ;
+    skos:definition "A Batting Average ICE is a Baseball Statistic ICE that describes the ratio of counted hits to counted at-bats."@en ;
+    rdfs:comment "The statistic reflects institutional data and should not be interpreted as direct access to unjudged physical reality."@en ;
+    skos:example "A recorded batting average of .300."@en .
+
+base:OnBasePercentageICE a owl:Class ;
+    rdfs:subClassOf base:BaseballStatisticICE ;
+    rdfs:label "On-Base Percentage ICE"@en ;
+    skos:definition "An On-Base Percentage ICE is a Baseball Statistic ICE that describes an on-base ratio computed from counted plate-appearance outcomes according to an On-Base Percentage Algorithm."@en ;
+    rdfs:comment "The statistic reflects institutional data and should not be interpreted as direct access to unjudged physical reality."@en ;
+    skos:example "A recorded on-base percentage of .400."@en .
+
+base:SluggingPercentageICE a owl:Class ;
+    rdfs:subClassOf base:BaseballStatisticICE ;
+    rdfs:label "Slugging Percentage ICE"@en ;
+    skos:definition "A Slugging Percentage ICE is a Baseball Statistic ICE that describes a total-bases-per-at-bat ratio computed from counted hit types."@en ;
+    rdfs:comment "The statistic reflects institutional data and should not be interpreted as direct access to unjudged physical reality."@en ;
+    skos:example "A recorded slugging percentage of .550."@en .
+
+base:OPSICE a owl:Class ;
+    rdfs:subClassOf base:BaseballStatisticICE ;
+    rdfs:label "OPS ICE"@en ;
+    skos:definition "An OPS ICE is a Baseball Statistic ICE that describes the sum of an On-Base Percentage value and a Slugging Percentage value."@en ;
+    rdfs:comment "The statistic reflects institutional data and should not be interpreted as direct access to unjudged physical reality."@en ;
+    skos:example "A recorded OPS of .950."@en .
+
+base:BaseballStatisticAlgorithm a owl:Class ;
+    rdfs:subClassOf cco:ont00000653 ;
+    rdfs:label "Baseball Statistic Algorithm"@en ;
+    skos:definition "A Baseball Statistic Algorithm is an Algorithm that prescribes a Baseball Statistic Calculation."@en ;
+    rdfs:comment "Specific algorithms define the required counted inputs and the transformation used to produce a statistic."@en ;
+    skos:example "An algorithm for computing batting average."@en .
+
+base:BattingAverageAlgorithm a owl:Class ;
+    rdfs:subClassOf base:BaseballStatisticAlgorithm ;
+    rdfs:label "Batting Average Algorithm"@en ;
+    skos:definition "A Batting Average Algorithm is a Baseball Statistic Algorithm that prescribes division of counted hits by counted at-bats."@en ;
+    rdfs:comment "The algorithm is an information content entity and is distinct from each execution of it."@en ;
+    skos:example "The standard H divided by AB computation."@en .
+
+base:OnBasePercentageAlgorithm a owl:Class ;
+    rdfs:subClassOf base:BaseballStatisticAlgorithm ;
+    rdfs:label "On-Base Percentage Algorithm"@en ;
+    skos:definition "An On-Base Percentage Algorithm is a Baseball Statistic Algorithm that prescribes computation of on-base percentage from specified counted outcomes."@en ;
+    rdfs:comment "The algorithm is an information content entity and is distinct from each execution of it."@en ;
+    skos:example "The standard OBP computation."@en .
+
+base:SluggingPercentageAlgorithm a owl:Class ;
+    rdfs:subClassOf base:BaseballStatisticAlgorithm ;
+    rdfs:label "Slugging Percentage Algorithm"@en ;
+    skos:definition "A Slugging Percentage Algorithm is a Baseball Statistic Algorithm that prescribes computation of total bases per counted at-bat."@en ;
+    rdfs:comment "The algorithm is an information content entity and is distinct from each execution of it."@en ;
+    skos:example "The standard SLG computation."@en .
+
+base:OPSAlgorithm a owl:Class ;
+    rdfs:subClassOf base:BaseballStatisticAlgorithm ;
+    rdfs:label "OPS Algorithm"@en ;
+    skos:definition "An OPS Algorithm is a Baseball Statistic Algorithm that prescribes summing an on-base percentage value and a slugging percentage value."@en ;
+    rdfs:comment "The algorithm is an information content entity and is distinct from each execution of it."@en ;
+    skos:example "The standard OBP plus SLG computation."@en .
+
+base:BaseballTeam a owl:Class ;
+    rdfs:subClassOf cco:ont00001180 ;
+    rdfs:label "Baseball Team"@en ;
+    skos:definition "A Baseball Team is an Organization whose members are organized to participate collectively in Baseball Games."@en ;
+    rdfs:comment "Team identity is organizational and is not reduced to a provider identifier or current roster."@en ;
+    skos:example "A major-league club participating in a championship season is a Baseball Team."@en .
+
+base:BaseballGameTeamRole a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000023 ;
+    rdfs:label "Baseball Game Team Role"@en ;
+    skos:definition "A Baseball Game Team Role is a Role that inheres in a Baseball Team and is realized through that team's participation in a particular Baseball Game."@en ;
+    rdfs:comment "This class supplies the game-relative genus for home-team and away-team roles."@en ;
+    skos:example "The role borne by a club as one of the two participating teams in an occurring Baseball Game is a Baseball Game Team Role."@en .
+
+base:HomeTeamRole a owl:Class ;
+    rdfs:subClassOf base:BaseballGameTeamRole ;
+    rdfs:label "Home Team Role"@en ;
+    skos:definition "A Home Team Role is a Baseball Game Team Role that is borne by the team institutionally designated as home in a particular Baseball Game."@en ;
+    rdfs:comment "The role is realized only in the game for which the designation applies."@en ;
+    skos:example "A club assigned the home designation at a neutral site bears a Home Team Role for that game."@en .
+
+base:AwayTeamRole a owl:Class ;
+    rdfs:subClassOf base:BaseballGameTeamRole ;
+    rdfs:label "Away Team Role"@en ;
+    skos:definition "An Away Team Role is a Baseball Game Team Role that is borne by the team institutionally designated as away in a particular Baseball Game."@en ;
+    rdfs:comment "The role is realized only in the game for which the designation applies."@en ;
+    skos:example "A visiting club bears an Away Team Role realized during a road Baseball Game."@en .
+
+base:HomeBaseballTeam a owl:Class ;
+    rdfs:subClassOf base:BaseballTeam ;
+    rdfs:label "Home Baseball Team"@en ;
+    skos:definition "A Home Baseball Team is a Baseball Team that bears a Home Team Role in a particular Baseball Game."@en ;
+    rdfs:comment "Home status is game-relative and does not assert ownership of or permanent location at a venue."@en ;
+    skos:example "The team assigned the home designation in a particular game is the Home Baseball Team for that game."@en .
+
+base:AwayBaseballTeam a owl:Class ;
+    rdfs:subClassOf base:BaseballTeam ;
+    rdfs:label "Away Baseball Team"@en ;
+    skos:definition "An Away Baseball Team is a Baseball Team that bears an Away Team Role in a particular Baseball Game."@en ;
+    rdfs:comment "Away status is game-relative and is not an intrinsic or permanent feature of a team."@en ;
+    skos:example "The team assigned to bat first in a particular game is the Away Baseball Team for that game."@en .
+
+base:BaseballVenue a owl:Class ;
+    rdfs:subClassOf cco:ont00000192 ;
+    rdfs:label "Baseball Venue"@en ;
+    skos:definition "A Baseball Venue is a Facility that bears some Baseball Game Hosting Function."@en ;
+    rdfs:comment "Facility is proposed for review. The venue is not identical to a spatial Baseball Field Site, and no direct Venue-to-Field-Site relation is asserted without a separately reviewed pattern."@en ;
+    skos:example "A stadium complex designed to host professional baseball games is a Baseball Venue."@en .
+
+base:BaseballGameHostingFunction a owl:Class ;
+    rdfs:subClassOf cco:ont00000323 ;
+    rdfs:label "Baseball Game Hosting Function"@en ;
+    skos:definition "A Baseball Game Hosting Function is an Artifact Function that inheres in a Facility in virtue of that Facility being designed to host Baseball Games and whose realizations are Baseball Games."@en ;
+    rdfs:comment "Design for hosting, not mere selection or historical participation, grounds the CCO Artifact Function. The function may exist without being realized; the candidate overlay uses an all-values restriction and does not entail that a game has occurred. A temporary selected site not designed for baseball requires a different reviewed pattern."@en ;
+    skos:example "The function borne by a newly completed ballpark in virtue of its design for hosting Baseball Games is a Baseball Game Hosting Function."@en .
+
+base:BaseballGameTemporalInterval a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000202 ;
+    rdfs:label "Baseball Game Temporal Interval"@en ;
+    skos:definition "A Baseball Game Temporal Interval is a Temporal Interval during which a Baseball Game occurs."@en ;
+    rdfs:comment "This interval is distinct from any schedule string, date literal, or timestamp ICE about it."@en ;
+    skos:example "The temporal interval occupied by a completed nine-inning game is a Baseball Game Temporal Interval."@en .
+
+base:BaseballEventTemporalInstant a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000203 ;
+    rdfs:label "Baseball Event Temporal Instant"@en ;
+    skos:definition "A Baseball Event Temporal Instant is a Temporal Instant that is the first instant or last instant of a Temporal Region occupied by a Process that is an occurrent part of some Baseball Game."@en ;
+    rdfs:comment "The instant is a temporal entity in reality, not the timestamp information that designates it."@en ;
+    skos:example "The temporal instant at which a recorded pitch begins is a Baseball Event Temporal Instant."@en .
+
+base:BaseballTimestampICE a owl:Class ;
+    rdfs:subClassOf cco:ont00000540 ;
+    rdfs:label "Baseball Timestamp ICE"@en ;
+    skos:definition "A Baseball Timestamp ICE is a Temporal Instant Identifier that designates a Baseball Event Temporal Instant associated with a baseball process."@en ;
+    rdfs:comment "Under the separately reviewed ICE-direct-value foundation, this identifier bears its datetime literal directly. The identifier and its literal value remain distinct from the designated temporal instant."@en ;
+    skos:example "An ISO 8601 identifier designating the recorded start instant of a pitch is a Baseball Timestamp ICE."@en .
+
+base:BaseballFieldCoordinateReferenceSystemICE a owl:Class ;
+    rdfs:subClassOf cco:ont00000398 ;
+    rdfs:label "Baseball Field Coordinate Reference System ICE"@en ;
+    skos:definition "A Baseball Field Coordinate Reference System ICE is a Reference System that is about two Fiat Lines, a Fiat Point, and an Angle Quality and describes standards for interpreting ordered field-relative coordinate tuples."@en ;
+    rdfs:comment "In the reviewed instance pattern, the Fiat Lines meet at the shared origin Fiat Point, the Angle Quality inheres in both lines, and the information content supplies orientation, ordering, sign, and scale conventions. BaseballO does not use Spatial Region or Coordinate System Axis individuals for this pattern. This class does not assert that undocumented provider display coordinates have a physical unit or a reviewed projection to ballpark geometry."@en ;
+    skos:example "A reviewed ballpark display-coordinate convention that specifies an origin Fiat Point, perpendicular axis Fiat Lines, tuple ordering, direction, and scale is a Baseball Field Coordinate Reference System ICE."@en .
+
+base:BaseballFieldCoordinateICE a owl:Class ;
+    rdfs:subClassOf cco:ont00000686 ;
+    rdfs:label "Baseball Field Coordinate ICE"@en ;
+    skos:definition "A Baseball Field Coordinate ICE is a Designative Information Content Entity that consists of an ordered coordinate tuple interpreted under a Baseball Field Coordinate Reference System ICE and designates a field-relative Site."@en ;
+    rdfs:comment "This ICE is not the coordinate system or the designated Site. Under the separately reviewed ICE-direct-value foundation, the coordinate content itself bears its approved literal values and uses its reference system directly. Executable provider semantics remain unresolved."@en ;
+    skos:example "An ordered pair designating a batted-ball location relative to a baseball field is a Baseball Field Coordinate ICE."@en .
+
+base:BattedBallLocationSite a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000029 ;
+    rdfs:label "Batted-Ball Location Site"@en ;
+    skos:definition "A Batted-Ball Location Site is a Site that is designated by some Baseball Field Coordinate ICE and is site of some Process that is an occurrent part of some Batted-Ball Motion Process."@en ;
+    rdfs:comment "The Site is the world-side referent at a temporal part of the ball's motion, not necessarily the Site of the entire Batted-Ball Motion Process. Current provider display coordinates are insufficient by themselves to authorize executable instances."@en ;
+    skos:example "The field-relative site occupied by a batted ball when it is fielded is a Batted-Ball Location Site."@en .
+
+base:AngleQuality a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000145 ;
+    rdfs:label "Angle Quality"@en ;
+    skos:definition "An Angle Quality is a Relational Quality that inheres in two Fiat Lines that intersect at a shared Fiat Point."@en ;
+    rdfs:comment "The two Fiat Lines and their shared Fiat Point are entities in reality. An angular Measurement Information Content Entity is about the Angle Quality and does not replace it."@en ;
+    skos:example "The angle between a Fiat Line parallel to the ground and a Fiat Line extending from a pitcher's throwing shoulder to the Baseball at release."@en .
+
+base:DistanceQuality a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000145 ;
+    rdfs:label "Distance Quality"@en ;
+    skos:definition "A Distance Quality is a Relational Quality that inheres in two nonidentical Fiat Points."@en ;
+    rdfs:comment "A Distance Quality is nonnegative. A signed coordinate component requires an additional directed-displacement account and must not be asserted as a Distance Quality by convenience."@en ;
+    skos:example "The distance between the Fiat Point at home plate used by a field-dimension standard and the Fiat Point on the center-field boundary selected by that standard."@en .
+
+base:DoublePlayProcess a owl:Class ;
+    rdfs:subClassOf base:BaseballInstitutionalProcess ;
+    rdfs:label "Double Play Process"@en ;
+    skos:definition "A Double Play Process is a Baseball Institutional Process that includes exactly two institutionally counted Out Processes within one continuous play."@en ;
+    rdfs:comment "The class concerns the institutional result and does not by itself specify a particular physical trajectory or defensive technique."@en ;
+    skos:example "A continuous play on which two runners are institutionally put out is a Double Play Process."@en .
+
+base:GroundedIntoDoublePlayProcess
+    a owl:Class ;
+    rdfs:subClassOf base:PlateAppearanceResolutionProcess ,
+                    base:DoublePlayProcess ;
+    rdfs:label "Grounded Into Double Play Process"@en ;
+    skos:definition
+        "A Grounded Into Double Play Process is a Double Play Process that resolves a Plate Appearance after a ground-ball play is officially classified as producing outs involving the Batter and at least one other Baserunner."@en .
+
+base:FoulTipJudgmentAct a owl:Class ;
+    rdfs:subClassOf base:StrikeJudgmentAct ;
+    rdfs:label "Foul Tip Judgment Act"@en ;
+    skos:definition "A Foul Tip Judgment Act is a Strike Judgment Act that is preceded by some Bat-Ball Contact Process and some Ball Catching Process, is prescribed by some Strike Rule, and has output some Foul Tip Decision ICE."@en ;
+    rdfs:comment "The judgment is distinct from the contact, catch, institutional strike process, and resulting decision ICE."@en ;
+    skos:example "An umpire's act of judging a caught, sharply contacted pitch to be a foul tip is a Foul Tip Judgment Act."@en .
+
+base:FoulTipProcess a owl:Class ;
+    rdfs:subClassOf base:StrikeProcess ;
+    rdfs:label "Foul Tip Process"@en ;
+    skos:definition "A Foul Tip Process is a Strike Process that is preceded by some Bat-Ball Contact Process and some Ball Catching Process and has as occurrent part some Foul Tip Judgment Act."@en ;
+    rdfs:comment "The process is the institutionally recognized strike outcome and is distinct from its physical and informational participants."@en ;
+    skos:example "A contacted pitch caught in the legally qualifying manner and judged a foul tip is a Foul Tip Process."@en .
+
+base:FoulTipCallICE a owl:Class ;
+    rdfs:subClassOf base:StrikeDecisionICE ;
+    rdfs:label "Foul Tip Decision ICE"@en ;
+    skos:definition "A Foul Tip Decision ICE is a Strike Decision ICE that is the output of a Foul Tip Judgment Act and is about a Foul Tip Process."@en ;
+    rdfs:comment "The legacy IRI is retained for review continuity; the instance is a decision ICE, not the judgment act denoted by the provider word call."@en ;
+    skos:example "The recorded decision that a contacted and caught pitch was a foul tip is a Foul Tip Decision ICE."@en .
+
+base:BaseballPersonnelTradeAct a owl:Class ;
+    rdfs:subClassOf cco:ont00000228 ;
+    rdfs:label "Baseball Personnel Trade Act"@en ;
+    skos:definition "A Baseball Personnel Trade Act is a Planned Act that has at least two Baseball Teams as agents and has as occurrent parts some Loss of Role and some Gain of Role involving a Person who bears an Occupation Role that has organizational context some Baseball Team."@en ;
+    rdfs:comment "The act may be described by several Person-specific source records sharing one overall transaction identifier. The identity of the Person and team-scoped Occupation Role across the loss and gain must be established by source-specific review."@en ;
+    skos:example "Two Baseball Teams agree to exchange the contractual and roster contexts of identified players."@en .
+
+base:UniformNumberAssignmentAct a owl:Class ;
+    rdfs:subClassOf cco:ont00001374 ;
+    rdfs:label "Uniform Number Assignment Act"@en ;
+    skos:definition "A Uniform Number Assignment Act is an Act of Declarative Communication that has some Baseball Team as agent and has as output a Code Identifier that designates a team-scoped Player Role."@en ;
+    rdfs:comment "A number is assigned in an organizational context; it is not an intrinsic identifier of the Person who bears the role."@en ;
+    skos:example "A Baseball Team assigns number 17 to a Player Role for a specified roster interval."@en .
+
+base:BaseballStatisticCalculation a owl:Class ;
+    rdfs:subClassOf cco:ont00001158 ;
+    rdfs:label "Baseball Statistic Calculation"@en ;
+    skos:definition "A Baseball Statistic Calculation is an Act of Data Transformation that executes a Baseball Statistic Algorithm on Baseball Event Records to produce a Baseball Statistic ICE."@en ;
+    rdfs:comment "The calculation operates on records of counted processes rather than directly on unobserved actual-rule-satisfaction classes."@en ;
+    skos:example "A computation that produces a player's seasonal batting average."@en .
+
+base:StolenBaseDecisionICE
+    a owl:Class ;
+    rdfs:subClassOf base:BaseballDecisionICE ;
+    rdfs:label "Stolen Base Decision ICE"@en ;
+    skos:definition
+        "A Stolen Base Decision ICE is a Baseball Decision ICE that expresses an authorized scoring judgment that a runner is to be credited with a stolen base."@en ;
+    rdfs:comment
+        "This information entity records the counted scoring classification and does not assert that the underlying Steal Attempt Act was intrinsically successful."@en ;
+    skos:example
+        "The scoring content that credits a runner with a stolen base at second base."@en .
+
+base:StolenBaseJudgmentAct
+    a owl:Class ;
+    rdfs:subClassOf base:ScoringJudgmentAct ;
+    rdfs:label "Stolen Base Judgment Act"@en ;
+    skos:definition
+        "A Stolen Base Judgment Act is a Scoring Judgment Act that has output a Stolen Base Decision ICE."@en ;
+    rdfs:comment
+        "A safe judgment and a stolen-base judgment are distinct adjudications: an umpire determines safe or out, while a scorer determines whether the advancement is credited as a stolen base."@en ;
+    skos:example
+        "An official scorer credits a runner with a stolen base after the runner is called safe at second."@en .
+
+base:StolenBaseProcess
+    a owl:Class ;
+    rdfs:subClassOf base:ScoringClassificationProcess ;
+    rdfs:label "Stolen Base Process"@en ;
+    skos:definition
+        "A Stolen Base Process is a Scoring Classification Process that is preceded by a Steal Attempt Act, has a Stolen Base Judgment Act as an occurrent part, and credits a runner with a stolen base."@en ;
+    rdfs:comment
+        "A Stolen Base Process is not a subclass of Safe Process. A corresponding Safe Process may occur in the same play, but safe status alone does not entail stolen-base credit."@en ;
+    skos:example
+        "A runner attempts to steal second, is called safe, and is officially credited with a stolen base."@en .
+
+
+#################################################################
+# Accepted MLB authority and persistent-entity extensions
+#################################################################
+
+base:MajorLeagueFreeAgentRole a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000023 ;
+    rdfs:label "Major League Free Agent Role"@en ;
+    skos:definition "A Major League Free Agent Role is a Role that inheres in a Person and is realizable in an Act of Contract Formation with a Baseball Team that is permitted by a Baseball Rule governing Major League free agency."@en ;
+    rdfs:comment "One particular Role persists through one uninterrupted evidenced free-agency interval. Absence of a team-context Player Role does not entail this Role, and the Role may exist without being realized in a contract-formation act."@en ;
+    skos:example "The Role borne by a released Major League player during an interval in which Major League Baseball rules permit that player to contract with an eligible Baseball Team."@en .
+
+base:BattingSideDisposition a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000016 ;
+    rdfs:label "Batting Side Disposition"@en ;
+    skos:definition "A Batting Side Disposition is a Disposition that inheres in a Person and is realizable in Batter Acts in which that Person bats from a consistently preferred side of Home Plate."@en ;
+    rdfs:comment "Left-side and right-side capabilities are distinct particular dispositions. A switch hitter may bear both, and neither disposition entails that a Batter Act has occurred."@en ;
+    skos:example "The right-side batting disposition borne by a switch hitter is a Batting Side Disposition."@en .
+
+base:ThrowingSideDisposition a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000016 ;
+    rdfs:label "Throwing Side Disposition"@en ;
+    skos:definition "A Throwing Side Disposition is a Disposition that inheres in a Person and is realizable in Throw Acts or Pitch Acts in which that Person preferentially throws a Baseball from a consistent bodily side."@en ;
+    rdfs:comment "The disposition applies to baseball players generally rather than only to pitchers. An ambidextrous player may bear two particular dispositions, and neither disposition entails that a Throw Act or Pitch Act has occurred."@en ;
+    skos:example "The right-side throwing disposition borne by a shortstop is a Throwing Side Disposition."@en .
+
+base:BaseballFieldingDisposition a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000016 ;
+    rdfs:label "Baseball Fielding Disposition"@en ;
+    skos:definition "A Baseball Fielding Disposition is a Disposition that inheres in a Person and is realizable in Fielder Acts in which that Person acts to control a Baseball or produce an out from a baseball fielding position."@en ;
+    rdfs:comment "The disposition is a world-side member of the cluster described by a Baseball Position Description. Its existence does not entail a Fielder Act."@en ;
+    skos:example "The fielding disposition borne by a shortstop to control balls hit into the shortstop area is a Baseball Fielding Disposition."@en .
+
+base:BaseballRosterStatusAct a owl:Class ;
+    rdfs:subClassOf cco:ont00001374 ;
+    rdfs:label "Baseball Roster Status Act"@en ;
+    skos:definition "A Baseball Roster Status Act is an Act of Declarative Communication that has a Person as participant, has a Person or Baseball Team as agent, has output a Prescriptive Information Content Entity, and precedes a Gain of Role or Loss of Role affecting a Player Role or Major League Free Agent Role."@en ;
+    rdfs:comment "The Act, its output information entity, and the subsequent Role transition are distinct. Provider transaction labels do not by themselves establish an instance of this class."@en ;
+    skos:example "An authorized declaration that changes a professional player's institutional roster status is a Baseball Roster Status Act."@en .
+
+base:BaseballPlayerReleaseAct a owl:Class ;
+    rdfs:subClassOf base:BaseballRosterStatusAct ;
+    rdfs:label "Baseball Player Release Act"@en ;
+    skos:definition "A Baseball Player Release Act is a Baseball Roster Status Act that has a Baseball Team as agent and precedes a Loss of Role affecting a Player Role borne by a Person."@en ;
+    rdfs:comment "A release record describes this world-side Act only when the evidence identifies the Team, Person, exact team-context Player Role, direction of change, and temporal precision."@en ;
+    skos:example "A Baseball Team's authorized release of a player from the Player Role for that Team is a Baseball Player Release Act."@en .
+
+base:FreeAgencyDeclarationAct a owl:Class ;
+    rdfs:subClassOf base:BaseballRosterStatusAct ;
+    rdfs:label "Free Agency Declaration Act"@en ;
+    skos:definition "A Free Agency Declaration Act is a Baseball Roster Status Act that has a Person as agent and precedes a Gain of Role affecting a Major League Free Agent Role inhering in that Person."@en ;
+    rdfs:comment "The declaration or election Act is distinct from automatic eligibility under a rule and from the later Gain of Role that begins the free-agent interval."@en ;
+    skos:example "An eligible player's communicated election of Major League free agency is a Free Agency Declaration Act."@en .
+
+base:RetirementDeclarationAct a owl:Class ;
+    rdfs:subClassOf base:BaseballRosterStatusAct ;
+    rdfs:label "Retirement Declaration Act"@en ;
+    skos:definition "A Retirement Declaration Act is a Baseball Roster Status Act that has a Person as agent and precedes a Loss of Role affecting an evidenced Player Role or Major League Free Agent Role inhering in that Person."@en ;
+    rdfs:comment "Retirement is represented as a declaration Act followed by the supported Loss of an exact active Role. It does not license loss of every Role borne by the Person."@en ;
+    skos:example "A professional player's communicated retirement that precedes loss of the player's active team-context Role is a Retirement Declaration Act."@en .
+
+base:BaseballPlayerReleaseDecisionICE a owl:Class ;
+    rdfs:subClassOf cco:ont00000965 ;
+    rdfs:label "Baseball Player Release Decision ICE"@en ;
+    skos:definition "A Baseball Player Release Decision ICE is a Prescriptive Information Content Entity that is output of a Baseball Player Release Act and is about the Player Role affected by the subsequent Loss of Role."@en ;
+    rdfs:comment "The information entity directs or records the authorized status change; it is not the release Act, the Player Role, or the Loss of Role."@en ;
+    skos:example "The authoritative release decision output by a club's release act is a Baseball Player Release Decision ICE."@en .
+
+base:FreeAgencyDeclarationDecisionICE a owl:Class ;
+    rdfs:subClassOf cco:ont00000965 ;
+    rdfs:label "Free Agency Declaration Decision ICE"@en ;
+    skos:definition "A Free Agency Declaration Decision ICE is a Prescriptive Information Content Entity that is output of a Free Agency Declaration Act and is about the Major League Free Agent Role affected by the subsequent Gain of Role."@en ;
+    rdfs:comment "This information entity is distinct from the Person's declaration Act and the Role transition that follows it."@en ;
+    skos:example "The communicated election content output when an eligible player declares free agency is a Free Agency Declaration Decision ICE."@en .
+
+base:RetirementDecisionICE a owl:Class ;
+    rdfs:subClassOf cco:ont00000965 ;
+    rdfs:label "Retirement Decision ICE"@en ;
+    skos:definition "A Retirement Decision ICE is a Prescriptive Information Content Entity that is output of a Retirement Declaration Act and is about the Player Role or Major League Free Agent Role affected by the subsequent Loss of Role."@en ;
+    rdfs:comment "This information entity is distinct from the declaration Act, the continuing Person, and the exact active Role that ceases."@en ;
+    skos:example "The communicated retirement decision output by a player's retirement declaration is a Retirement Decision ICE."@en .
+
+base:BaseballPositionDescription a owl:Class ;
+    rdfs:subClassOf cco:ont00000853 ;
+    rdfs:label "Baseball Position Description"@en ;
+    skos:definition "A Baseball Position Description is a Descriptive Information Content Entity that describes a Person and describes one or more Roles, Dispositions, or Qualities that inhere in that Person and are characteristic of a baseball position."@en ;
+    rdfs:comment "The description is information about a real SDC cluster. It is not itself a Role or Disposition and does not assert that every described realizable entity is realized in every Baseball Game."@en ;
+    skos:example "A description identifying a Person as a shortstop by describing that Person and the associated fielding Role and Dispositions is a Baseball Position Description."@en .
+
+base:BaseballVenueReferencePoint a owl:Class ;
+    rdfs:subClassOf cco:ont00000373 ;
+    rdfs:label "Baseball Venue Reference Point"@en ;
+    skos:definition "A Baseball Venue Reference Point is a Geospatial Position that is selected as the default point designated by geospatial coordinate information about a Baseball Venue."@en ;
+    rdfs:comment "The selected point is not inferred to be Home Plate, an entrance, or a centroid. Coordinate corrections revise response-versioned information without replacing the persistent Baseball Venue."@en ;
+    skos:example "The World Geodetic System 1984 point selected as the default coordinate for a ballpark is a Baseball Venue Reference Point."@en .
+
+base:SpectatorSeat a owl:Class ;
+    rdfs:subClassOf cco:ont00000995 ;
+    rdfs:label "Spectator Seat"@en ;
+    skos:definition "A Spectator Seat is a Material Artifact that is a continuant part of a Baseball Venue and bears a Sitting Artifact Function for a spectator."@en ;
+    rdfs:comment "A venue-capacity measurement does not enumerate or mint particular Spectator Seats. The seat and its Function may exist while no spectator is present."@en ;
+    skos:example "An installed stadium seat designed to support one seated spectator is a Spectator Seat."@en .
+
+base:SittingArtifactFunction a owl:Class ;
+    rdfs:subClassOf cco:ont00001200 ;
+    rdfs:label "Sitting Artifact Function"@en ;
+    skos:definition "A Sitting Artifact Function is a Structural Support Artifact Function that inheres in a Spectator Seat and is realizable in a Process in which that Spectator Seat physically supports a seated Person."@en ;
+    rdfs:comment "The Function exists by virtue of the seat's design and may remain unrealized while the seat is empty."@en ;
+    skos:example "The support Function borne by an installed ballpark seat for seating a spectator is a Sitting Artifact Function."@en .
+
+base:StandingRoomSpectatorSite a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000029 ;
+    rdfs:label "Standing-Room Spectator Site"@en ;
+    skos:definition "A Standing-Room Spectator Site is a Site that is a continuant part of a Baseball Venue and is configured for standing spectators during events at that Baseball Venue."@en ;
+    rdfs:comment "The Site does not bear an Artifact Function. Any accommodation Function inheres in the Baseball Venue or material infrastructure that establishes the Site, and the Site may exist while empty."@en ;
+    skos:example "A designated standing-room area behind an outfield concourse is a Standing-Room Spectator Site."@en .
+
+base:SpectatorAccommodationAmount a owl:Class ;
+    rdfs:subClassOf cco:ont00000768 ;
+    rdfs:label "Spectator Accommodation Amount"@en ;
+    skos:definition "A Spectator Accommodation Amount is an Amount that inheres in a Baseball Venue in virtue of the total spectator accommodation supplied by its Spectator Seats and designed Standing-Room Spectator Sites."@en ;
+    rdfs:comment "The Amount is not current attendance or occupancy. It may continue to inhere while the Venue is empty, and a source measurement of it does not invent accommodation parts."@en ;
+    skos:example "The capacity amount of a ballpark reflecting installed seats and designed standing-room accommodation is a Spectator Accommodation Amount."@en .
+
+base:BaseballPlayingSurface a owl:Class ;
+    rdfs:subClassOf cco:ont00000995 ;
+    rdfs:label "Baseball Playing Surface"@en ;
+    skos:definition "A Baseball Playing Surface is a Material Artifact that is a continuant part of a Baseball Venue and bears a Structural Support Artifact Function for supporting participants in baseball Processes occurring at that Venue's Baseball Field Site."@en ;
+    rdfs:comment "The material artifact is distinct from the Baseball Field Site. Replacement creates a new surface particular, and the Function may exist without a current support Process."@en ;
+    skos:example "The installed natural-grass and soil surface at a ballpark is a Baseball Playing Surface."@en .
+
+base:BaseballVenueRoof a owl:Class ;
+    rdfs:subClassOf cco:ont00000995 ;
+    rdfs:label "Baseball Venue Roof"@en ;
+    skos:definition "A Baseball Venue Roof is a Material Artifact that is a continuant part of a Baseball Venue and bears a Covering Artifact Function for covering some portion of that Baseball Venue."@en ;
+    rdfs:comment "A retractable design classification does not assert the roof's open or closed position. An open-air or no-roof classification does not license a fictional roof individual."@en ;
+    skos:example "The retractable roof artifact installed at a covered ballpark is a Baseball Venue Roof."@en .
+
+
+#################################################################
+# Accepted season segments and transaction periods
+#################################################################
+
+base:BaseballSeasonSegment a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000015 ;
+    rdfs:label "Baseball Season Segment"@en ;
+    skos:definition "A Baseball Season Segment is a Process that is an occurrent part of a Baseball Season and is prescribed by a Baseball Season Plan."@en ;
+    rdfs:comment "Unlike Baseball Season Phase, this class does not require a Baseball Game as an occurrent part."@en ;
+    skos:example "The offseason segment following the postseason of a Major League Baseball season."@en .
+
+base:BaseballSeasonPhase rdfs:subClassOf base:BaseballSeasonSegment .
+
+base:BaseballPreseasonPhase a owl:Class ;
+    rdfs:subClassOf base:BaseballSeasonPhase ;
+    rdfs:label "Baseball Preseason Phase"@en ;
+    skos:definition "A Baseball Preseason Phase is a Baseball Season Phase that is measured by nominal the Preseason Segment Type ICE."@en ;
+    rdfs:comment "The class requires actual phase evidence and does not arise from a start-date field alone."@en ;
+    skos:example "The Spring Training game-containing phase preceding the 2026 regular season."@en .
+
+base:BaseballRegularSeasonPhase a owl:Class ;
+    rdfs:subClassOf base:BaseballSeasonPhase ;
+    rdfs:label "Baseball Regular Season Phase"@en ;
+    skos:definition "A Baseball Regular Season Phase is a Baseball Season Phase that is measured by nominal the Regular Season Segment Type ICE."@en ;
+    rdfs:comment "The phase remains distinct from its plan and date identifiers."@en ;
+    skos:example "The 2026 Major League Baseball regular-season phase."@en .
+
+base:BaseballPostseasonPhase a owl:Class ;
+    rdfs:subClassOf base:BaseballSeasonPhase ;
+    rdfs:label "Baseball Postseason Phase"@en ;
+    skos:definition "A Baseball Postseason Phase is a Baseball Season Phase that is measured by nominal the Postseason Segment Type ICE."@en ;
+    rdfs:comment "Wild Card, Division Series, League Championship Series, and World Series Games may occur as parts without making their labels the phase itself."@en ;
+    skos:example "The game-containing postseason phase of the 2025 Major League Baseball season."@en .
+
+base:BaseballAllStarPhase a owl:Class ;
+    rdfs:subClassOf base:BaseballSeasonPhase ;
+    rdfs:label "Baseball All-Star Phase"@en ;
+    skos:definition "A Baseball All-Star Phase is a Baseball Season Phase that is measured by nominal the All-Star Segment Type ICE."@en ;
+    rdfs:comment "The All-Star Game is an occurrent part of the phase; the provider game-type code is classification evidence rather than the Process itself."@en ;
+    skos:example "The segment of a Major League Baseball season containing its All-Star Game."@en .
+
+base:BaseballOffseasonSegment a owl:Class ;
+    rdfs:subClassOf base:BaseballSeasonSegment ;
+    rdfs:label "Baseball Offseason Segment"@en ;
+    skos:definition "A Baseball Offseason Segment is a Baseball Season Segment that is measured by nominal the Offseason Segment Type ICE."@en ;
+    rdfs:comment "No Baseball Game is required as an occurrent part."@en ;
+    skos:example "The segment beginning after the last postseason Game of the 2025 Major League Baseball season."@en .
+
+base:BaseballTransactionPeriod a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000202 ;
+    rdfs:label "Baseball Transaction Period"@en ;
+    skos:definition "A Baseball Transaction Period is a Temporal Interval that is subject of a Baseball Rule and is designated by a Temporal Interval Identifier."@en ;
+    rdfs:comment "A transaction period is not a Process or a collection of the transaction Acts that occupy Temporal Intervals during it. It may overlap the Temporal Intervals occupied by more than one Baseball Season Segment."@en ;
+    skos:example "The Temporal Interval designated as the salary-arbitration period by the Major League Baseball transaction calendar."@en .
+
+base:MajorLeagueFreeAgentQuietPeriod a owl:Class ;
+    rdfs:subClassOf base:BaseballTransactionPeriod ;
+    rdfs:label "Major League Free-Agent Quiet Period"@en ;
+    skos:definition "A Major League Free-Agent Quiet Period is a Baseball Transaction Period that is measured by nominal the Free Agent Quiet Period Type ICE and is interval contained by a Temporal Interval that is temporal region of a Baseball Offseason Segment."@en ;
+    rdfs:comment "The applicable rule permits a Major League free agent to negotiate only with the player's prior team."@en ;
+    skos:example "The five-day quiet period after the 2025 World Series."@en .
+
+base:MajorLeagueOpenFreeAgencyPeriod a owl:Class ;
+    rdfs:subClassOf base:BaseballTransactionPeriod ;
+    rdfs:label "Major League Open Free-Agency Period"@en ;
+    skos:definition "A Major League Open Free-Agency Period is a Baseball Transaction Period that is measured by nominal the Open Free Agency Period Type ICE."@en ;
+    rdfs:comment "The applicable rule permits eligible Major League free agents to negotiate with eligible Baseball Teams; the period is not asserted as interval contained by the Temporal Interval occupied by Offseason merely because it begins there."@en ;
+    skos:example "The period beginning when the post-World-Series quiet period ends."@en .
+
+base:MajorLeagueSalaryArbitrationPeriod a owl:Class ;
+    rdfs:subClassOf base:BaseballTransactionPeriod ;
+    rdfs:label "Major League Salary-Arbitration Period"@en ;
+    skos:definition "A Major League Salary-Arbitration Period is a Baseball Transaction Period that is measured by nominal the Salary Arbitration Period Type ICE."@en ;
+    rdfs:comment "Filing, figure exchange, settlement, and hearing Acts remain distinct occurrents within the period."@en ;
+    skos:example "The salary-arbitration period containing the January exchange of figures for a Major League season."@en .
+
+base:MajorLeagueInternationalSigningPeriod a owl:Class ;
+    rdfs:subClassOf base:BaseballTransactionPeriod ;
+    rdfs:label "Major League International Signing Period"@en ;
+    skos:definition "A Major League International Signing Period is a Baseball Transaction Period that is measured by nominal the International Signing Period Type ICE."@en ;
+    rdfs:comment "The applicable rule permits eligible international-amateur contract formation; the official period can extend through the playing season and is not necessarily interval contained by the Temporal Interval occupied by Offseason."@en ;
+    skos:example "The international signing period beginning January 15 and ending December 15 under a reviewed annual calendar."@en .
+
+
+#################################################################
+# Accepted pitch and batted-ball classifications
+#################################################################
+
+base:FourSeamFastballPitchAct a owl:Class ; rdfs:subClassOf base:PitchAct ; rdfs:label "Four-Seam Fastball Pitch Act"@en ; skos:definition "A Four-Seam Fastball Pitch Act is a Pitch Act that is measured by nominal the Four-Seam Fastball Pitch Type ICE."@en ; rdfs:comment "The classifies-as relation is supplied by a reusable nominal measurement; velocity, grip, and ride remain separate evidence."@en ; skos:example "A particular pitch classified FF by the reviewed MLB pitch-type system."@en .
+base:SinkerPitchAct a owl:Class ; rdfs:subClassOf base:PitchAct ; rdfs:label "Sinker Pitch Act"@en ; skos:definition "A Sinker Pitch Act is a Pitch Act that is measured by nominal the Sinker Pitch Type ICE."@en ; rdfs:comment "Arm-side run, drop, grip, and velocity may support the classification but do not define every instance."@en ; skos:example "A particular pitch classified SI by the reviewed MLB pitch-type system."@en .
+base:CutterPitchAct a owl:Class ; rdfs:subClassOf base:PitchAct ; rdfs:label "Cutter Pitch Act"@en ; skos:definition "A Cutter Pitch Act is a Pitch Act that is measured by nominal the Cutter Pitch Type ICE."@en ; rdfs:comment "Fastball-like and hard-slider-like cutters are retained without imposing one physical signature."@en ; skos:example "A particular pitch classified FC by the reviewed MLB pitch-type system."@en .
+base:SliderPitchAct a owl:Class ; rdfs:subClassOf base:PitchAct ; rdfs:label "Slider Pitch Act"@en ; skos:definition "A Slider Pitch Act is a Pitch Act that is measured by nominal the Slider Pitch Type ICE."@en ; rdfs:comment "Gyro spin, velocity, grip, and break vary by pitcher and remain separately represented."@en ; skos:example "A particular pitch classified SL by the reviewed MLB pitch-type system."@en .
+base:SweeperPitchAct a owl:Class ; rdfs:subClassOf base:PitchAct ; rdfs:label "Sweeper Pitch Act"@en ; skos:definition "A Sweeper Pitch Act is a Pitch Act that is measured by nominal the Sweeper Pitch Type ICE."@en ; rdfs:comment "The provider classification does not require one grip or a fixed horizontal-break threshold in BaseballO."@en ; skos:example "A particular pitch classified ST by the reviewed MLB pitch-type system."@en .
+base:SlurvePitchAct a owl:Class ; rdfs:subClassOf base:PitchAct ; rdfs:label "Slurve Pitch Act"@en ; skos:definition "A Slurve Pitch Act is a Pitch Act that is measured by nominal the Slurve Pitch Type ICE."@en ; rdfs:comment "The provider classification admits pitches between slider and curveball tendencies without defining a numerical boundary."@en ; skos:example "A particular pitch classified SV by the reviewed MLB pitch-type system."@en .
+base:CurveballPitchAct a owl:Class ; rdfs:subClassOf base:PitchAct ; rdfs:label "Curveball Pitch Act"@en ; skos:definition "A Curveball Pitch Act is a Pitch Act that is measured by nominal the Curveball Pitch Type ICE."@en ; rdfs:comment "Grip, speed, and break shape remain evidence rather than universal class restrictions."@en ; skos:example "A particular pitch classified CU by the reviewed MLB pitch-type system."@en .
+base:KnuckleCurvePitchAct a owl:Class ; rdfs:subClassOf base:PitchAct ; rdfs:label "Knuckle-Curve Pitch Act"@en ; skos:definition "A Knuckle-Curve Pitch Act is a Pitch Act that is measured by nominal the Knuckle-Curve Pitch Type ICE."@en ; rdfs:comment "The class preserves provider recognition despite physical overlap with curveballs and knuckleballs."@en ; skos:example "A particular pitch classified KC by the reviewed MLB pitch-type system."@en .
+base:SlowCurvePitchAct a owl:Class ; rdfs:subClassOf base:PitchAct ; rdfs:label "Slow Curve Pitch Act"@en ; skos:definition "A Slow Curve Pitch Act is a Pitch Act that is measured by nominal the Slow Curve Pitch Type ICE."@en ; rdfs:comment "Slow Curve is kept distinct when the reviewed provider Reference System does so."@en ; skos:example "A particular pitch classified CS by the reviewed MLB pitch-type system."@en .
+base:ChangeupPitchAct a owl:Class ; rdfs:subClassOf base:PitchAct ; rdfs:label "Changeup Pitch Act"@en ; skos:definition "A Changeup Pitch Act is a Pitch Act that is measured by nominal the Changeup Pitch Type ICE."@en ; rdfs:comment "Deception, speed separation, grip, and movement remain separately representable evidence."@en ; skos:example "A particular pitch classified CH by the reviewed MLB pitch-type system."@en .
+base:SplitterPitchAct a owl:Class ; rdfs:subClassOf base:PitchAct ; rdfs:label "Splitter Pitch Act"@en ; skos:definition "A Splitter Pitch Act is a Pitch Act that is measured by nominal the Splitter Pitch Type ICE."@en ; rdfs:comment "The class does not impose a universal grip or a fixed boundary from forkballs and changeups."@en ; skos:example "A particular pitch classified FS by the reviewed MLB pitch-type system."@en .
+base:ForkballPitchAct a owl:Class ; rdfs:subClassOf base:PitchAct ; rdfs:label "Forkball Pitch Act"@en ; skos:definition "A Forkball Pitch Act is a Pitch Act that is measured by nominal the Forkball Pitch Type ICE."@en ; rdfs:comment "The class preserves provider recognition while leaving grip and movement measurements independent."@en ; skos:example "A particular pitch classified FO by the reviewed MLB pitch-type system."@en .
+base:ScrewballPitchAct a owl:Class ; rdfs:subClassOf base:PitchAct ; rdfs:label "Screwball Pitch Act"@en ; skos:definition "A Screwball Pitch Act is a Pitch Act that is measured by nominal the Screwball Pitch Type ICE."@en ; rdfs:comment "Arm-side breaking tendencies do not substitute for the admitted nominal classification."@en ; skos:example "A particular pitch classified SC by the reviewed MLB pitch-type system."@en .
+base:KnuckleballPitchAct a owl:Class ; rdfs:subClassOf base:PitchAct ; rdfs:label "Knuckleball Pitch Act"@en ; skos:definition "A Knuckleball Pitch Act is a Pitch Act that is measured by nominal the Knuckleball Pitch Type ICE."@en ; rdfs:comment "Low spin and flutter may explain the classification but do not replace the classification evidence."@en ; skos:example "A particular pitch classified KN by the reviewed MLB pitch-type system."@en .
+base:EephusPitchAct a owl:Class ; rdfs:subClassOf base:PitchAct ; rdfs:label "Eephus Pitch Act"@en ; skos:definition "An Eephus Pitch Act is a Pitch Act that is measured by nominal the Eephus Pitch Type ICE."@en ; rdfs:comment "The historical provider category is retained without imposing a fixed velocity or arc threshold."@en ; skos:example "A particular pitch classified EP by the reviewed MLB pitch-type system."@en .
+
+base:GroundBallMotionProcess a owl:Class ; rdfs:subClassOf base:BattedBallMotionProcess ; rdfs:label "Ground-Ball Motion Process"@en ; skos:definition "A Ground-Ball Motion Process is a Batted-Ball Motion Process that is measured by nominal the Ground Ball Trajectory ICE."@en ; rdfs:comment "This class types the batted Baseball's Motion Process, not the Swing Act, Bunt Act, contact, or terminal result."@en ; skos:example "The motion of a contacted ball classified ground_ball by the reviewed trajectory system."@en .
+base:LineDriveMotionProcess a owl:Class ; rdfs:subClassOf base:BattedBallMotionProcess ; rdfs:label "Line-Drive Motion Process"@en ; skos:definition "A Line-Drive Motion Process is a Batted-Ball Motion Process that is measured by nominal the Line Drive Trajectory ICE."@en ; rdfs:comment "This class types the batted Baseball's Motion Process without defining a launch-angle threshold."@en ; skos:example "The motion of a contacted ball classified line_drive by the reviewed trajectory system."@en .
+base:FlyBallMotionProcess a owl:Class ; rdfs:subClassOf base:BattedBallMotionProcess ; rdfs:label "Fly-Ball Motion Process"@en ; skos:definition "A Fly-Ball Motion Process is a Batted-Ball Motion Process that is measured by nominal the Fly Ball Trajectory ICE."@en ; rdfs:comment "This class types the batted Baseball's Motion Process without treating every airborne ball as provider-classified fly_ball."@en ; skos:example "The motion of a contacted ball classified fly_ball by the reviewed trajectory system."@en .
+base:PopUpMotionProcess a owl:Class ; rdfs:subClassOf base:BattedBallMotionProcess ; rdfs:label "Pop-Up Motion Process"@en ; skos:definition "A Pop-Up Motion Process is a Batted-Ball Motion Process that is measured by nominal the Pop-Up Trajectory ICE."@en ; rdfs:comment "This class types the batted Baseball's Motion Process without defining a universal height or launch-angle cutoff."@en ; skos:example "The motion of a contacted ball classified popup by the reviewed trajectory system."@en .
+
+
+#################################################################
+# Accepted strike-zone geometry
+#################################################################
+
+base:BaseballStrikeZoneSite a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000029 ;
+    rdfs:label "Baseball Strike Zone Site"@en ;
+    skos:definition "A Baseball Strike Zone Site is a Site that is a continuant part of a Baseball Field Site, is subject of a Strike Rule, and has at least six Fiat Surfaces as continuant parts."@en ;
+    rdfs:comment "The Site is three-dimensional and is not an information entity, rendering, coordinate tuple, or Spatial Region. The six surfaces are instantiated with reviewed upper, lower, first-base-side, third-base-side, front, and back identities."@en ;
+    skos:example "The rulebook strike zone applicable to a batter for a particular pitch."@en .
+
+base:ABSEvaluationFiatSurface a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000146 ;
+    rdfs:label "ABS Evaluation Fiat Surface"@en ;
+    skos:definition "An ABS Evaluation Fiat Surface is a Fiat Surface that is a continuant part of a Baseball Strike Zone Site and is the subject of an ABS Evaluation Rule."@en ;
+    rdfs:comment "Under the reviewed 2026 rule, the surface intersects the midpoint of Home Plate. It is not the three-dimensional Strike Zone Site or a two-dimensional rendering."@en ;
+    skos:example "The midpoint-of-plate fiat surface used to evaluate an ABS challenge in a 2026 Major League game."@en .
+
+base:ABSEvaluationRule a owl:Class ;
+    rdfs:subClassOf base:StrikeRule ;
+    rdfs:label "ABS Evaluation Rule"@en ;
+    skos:definition "An ABS Evaluation Rule is a Strike Rule that is about an ABS Evaluation Fiat Surface and prescribes a Strike Process."@en ;
+    rdfs:comment "The rule specifies the batter-relative and plate-relative construction; it does not turn its information content into the designated fiat geometry."@en ;
+    skos:example "The 2026 Major League rule prescribing midpoint-of-plate ABS challenge evaluation."@en .
+
+
+#################################################################
+# Reusable nominal classifications
+#################################################################
+
+base:FourSeamFastballPitchTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "FF" .
+base:SinkerPitchTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "SI" .
+base:CutterPitchTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "FC" .
+base:SliderPitchTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "SL" .
+base:SweeperPitchTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "ST" .
+base:SlurvePitchTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "SV" .
+base:CurveballPitchTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "CU" .
+base:KnuckleCurvePitchTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "KC" .
+base:SlowCurvePitchTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "CS" .
+base:ChangeupPitchTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "CH" .
+base:SplitterPitchTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "FS" .
+base:ForkballPitchTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "FO" .
+base:ScrewballPitchTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "SC" .
+base:KnuckleballPitchTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "KN" .
+base:EephusPitchTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "EP" .
+base:GroundBallTrajectoryICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "ground_ball" .
+base:LineDriveTrajectoryICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "line_drive" .
+base:FlyBallTrajectoryICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "fly_ball" .
+base:PopUpTrajectoryICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "popup" .
+base:PreseasonSegmentTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "preseason" .
+base:RegularSeasonSegmentTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "regular-season" .
+base:PostseasonSegmentTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "postseason" .
+base:AllStarSegmentTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "all-star" .
+base:OffseasonSegmentTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "offseason" .
+base:FreeAgentQuietPeriodTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "free-agent-quiet-period" .
+base:OpenFreeAgencyPeriodTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "open-free-agency" .
+base:SalaryArbitrationPeriodTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "salary-arbitration" .
+base:InternationalSigningPeriodTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "international-signing" .

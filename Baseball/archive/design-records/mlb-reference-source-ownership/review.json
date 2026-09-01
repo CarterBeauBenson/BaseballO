@@ -1,0 +1,44 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-reference-source-ownership",
+  "title": "MLB reference-source ownership and integration boundary",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "c78fc6de9c0a37b4acf9bce2198183d34599e3959786dd2d8340573ccf9e71c5"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "f00cb937bc2dcabb89df6b5c3ba216fd5aa832622fc54acd168ff355205f2790"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "f4d88aeaba921d68d5e283ba978b7efaa44e92664044a15a0f6d9169446095b3"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "569018a8ee22d8e3c125d0a517e292c83cb1e7c8501382585bd101d0b34fba64"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-08-29",
+    "rationale": "The ontologist accepted the division in which MLB-game owns game and event facts plus canonical identity links, while MLB-organizations, MLB-people, MLB-venues, and MLB-transactions independently own their reference facts and meet only in the authoritative triple store. Existing promoted game RDF persists. The source-module catalog may record this ownership, but executable mappings and the coordinated query cutover require later approved source-specific Mermaid contracts.",
+    "authorizedArtifacts": [
+      "Baseball/sources/source-modules.json"
+    ]
+  }
+}

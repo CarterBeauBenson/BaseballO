@@ -1,0 +1,14 @@
+(prefix ((idx: <https://w3id.org/baseball/query-index/>)
+         (rdfs: <http://www.w3.org/2000/01/rdf-schema#>))
+  (project (?umpire ?umpireLabel ?games)
+    (order ((desc ?games) (lcase (str ?umpireLabel)))
+      (extend ((?games ?.0))
+        (group (?umpire ?umpireLabel) ((?.0 (count distinct ?game)))
+          (graph ?graph
+            (bgp
+              (triple ?assignment <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> idx:AssignmentFact)
+              (triple ?assignment idx:assignee ?umpire)
+              (triple ?assignment idx:assignmentType idx:Umpire)
+              (triple ?assignment idx:game ?game)
+              (triple ?umpire rdfs:label ?umpireLabel)
+            )))))))

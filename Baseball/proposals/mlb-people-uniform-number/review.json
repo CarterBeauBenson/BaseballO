@@ -1,0 +1,36 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-people-uniform-number",
+  "title": "MLB people uniform-number evidence",
+  "status": "under-review",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "78161fa576f76c25983746b66df0da1700be6c0654615ecf2a38ca457673316a"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "865bbef662dc1e64a1ad178f98dc5c55ba90637c6aff42d0d0499965a6348fc5"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "fd66f59bd31c0c53401d1b825d7afd678ef0745106527021a6671d94c63b4b3e"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "f2a5f61a2b2965719fbb1afe6b9200189affe00cc6702047233dbefbd38eec91"
+      }
+    ]
+  },
+  "ontologistDecision": null
+}

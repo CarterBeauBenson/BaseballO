@@ -1,0 +1,42 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-venue-field-dimension-foot-unit",
+  "title": "Foot unit for MLB venue field dimensions",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "e0ec027c3b1781fa2411ae53a280500963809f8465c68d83b5a1db9eec7bb1ed"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "d3e32c666e87125404398a68ae114ac45377f3f49d391e4804ca308135108029"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "c38725074c5f4f3e3ab34555dc7637260f3ca3883b8e24744449ead5d097a119"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "1a37581bdfbe969953e60d72c95efc41db2ba7de409d27765246028573d8bfc9"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-08-29",
+    "rationale": "The ontologist established that the five MLB baseball field-dimension values are distances expressed in feet. BaseballO reuses CCO Foot Measurement Unit cco:ont00001714. This decision resolves only the unit; exact Fiat Point relata, path or boundary, measurement method, physical field configuration, and temporal validity remain blocked until an approved source-specific Mermaid contract.",
+    "authorizedArtifacts": []
+  }
+}

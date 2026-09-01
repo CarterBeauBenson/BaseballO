@@ -1,0 +1,50 @@
+{
+  "artifactType": "baseball-selective-reasoning-profile",
+  "contractVersion": 1,
+  "id": "event-structure",
+  "description": "Bounded occurrent-part reasoning inside one plate appearance.",
+  "anchorClass": "https://baseballontology.org/PlateAppearance",
+  "scope": {
+    "containmentDepth": 4,
+    "enrichmentDepth": 1,
+    "predicates": [
+      "http://purl.obolibrary.org/obo/BFO_0000117",
+      "http://purl.obolibrary.org/obo/BFO_0000132",
+      "http://purl.obolibrary.org/obo/BFO_0000199"
+    ]
+  },
+  "rules": {
+    "subclassTypes": false,
+    "inverse": [
+      {
+        "forward": "http://purl.obolibrary.org/obo/BFO_0000117",
+        "inverse": "http://purl.obolibrary.org/obo/BFO_0000132",
+        "evidence": "occurrent-mereology.cl[yvi-1]"
+      }
+    ],
+    "transitive": [
+      {
+        "predicate": "http://purl.obolibrary.org/obo/BFO_0000117",
+        "evidence": "occurrent-mereology.cl[yvi-1,kad-1]"
+      },
+      {
+        "predicate": "http://purl.obolibrary.org/obo/BFO_0000132",
+        "evidence": "occurrent-mereology.cl[kad-1]"
+      }
+    ]
+  },
+  "constraints": {
+    "antisymmetric": ["http://purl.obolibrary.org/obo/BFO_0000132"]
+  },
+  "clif": {
+    "modules": ["universal-declaration.cl", "occurrent-mereology.cl"],
+    "axioms": ["yvi-1", "kad-1", "xlu-1", "zmr-1"]
+  },
+  "budgets": {
+    "maxNodes": 180,
+    "maxSourceTriples": 900,
+    "maxInferredTriples": 3000,
+    "maxIterations": 8,
+    "maxSeconds": 15
+  }
+}

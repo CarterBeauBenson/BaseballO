@@ -1,0 +1,16 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-organizations-season-counts",
+  "title": "MLB organization season counts",
+  "status": "under-review",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [{"path": "competency-questions.md", "sha256": "c08405166e5ca924233cc1f8d0f2c9b5df299067132ce493134d8626933299de"}],
+    "sourceEvidence": [{"path": "source-evidence.md", "sha256": "d5eebb8ec308d3a7ceb9ab1c95e2509fb034ca5c0f026e46f8c16b5698375a86"}],
+    "fieldSelectionInventory": [{"path": "field-selection-inventory.md", "sha256": "b4e5875a1f518eac804883a727d8154a33de4dcde32ffb3a9b438fdd636ede2b"}],
+    "sourceIndependentMermaid": [{"path": "source-independent-mermaid.md", "sha256": "b8964352331a5682111423e706fb91502ca619bd5ca2105c63aadd2f6ac9d436"}]
+  },
+  "ontologistDecision": null
+}

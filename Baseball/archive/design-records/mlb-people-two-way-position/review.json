@@ -1,0 +1,50 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-people-two-way-position",
+  "title": "MLB people two-way position role cluster",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "11b980927c13e409ae5b7e6bbc15e3fd7cf8017aac1f4e7b013b4c2bfa3c0549"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "2c20a7c82d156fed1fcaf723d96833bfb17a7f68ec87697a5f00037ad6a7050c"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "cc3785c8fb10e6970acd58062312976aecb457d56f658e6fd2d886b3de6d7b11"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "5df0090db893857147ba59ceb851085327671bfc48a38f660292299398a08d1e"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-09-01",
+    "rationale": "The ontologist decided that a two-way player is a Person with a Fielder Role and a Pitcher Role. The provider code therefore describes that accepted cluster and does not license a primitive Two-Way Player class. The previously authorized clean NiFi rebuild is also returned from its temporary reset pause to active source-module eligibility.",
+    "authorizedArtifacts": [
+      "Baseball/sources/mlb-people/mapping/prepare-context.py",
+      "Baseball/sources/mlb-people/mapping/mlb-people.rml.ttl",
+      "Baseball/sources/mlb-people/shacl/authoritative.ttl",
+      "Baseball/sources/mlb-people/schema/README.md",
+      "Baseball/sources/mlb-people/tests/test_prepare_context.py",
+      "Baseball/sources/mlb-people/nifi/flow-contract.json",
+      "Baseball/sources/source-modules.json"
+    ]
+  }
+}

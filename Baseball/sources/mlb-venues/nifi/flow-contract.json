@@ -1,0 +1,53 @@
+{
+  "artifactType": "baseballo-nifi-source-flow-contract",
+  "contractVersion": 1,
+  "sourceModule": "mlb-venues",
+  "rootProcessGroup": "BaseballO",
+  "sourceProcessGroup": "MLB Venues",
+  "proofRequest": {"season": "2026", "venueId": "1", "scopeKey": "venue-1-season-2026"},
+  "populationDiscovery": {
+    "processorName": "Discover MLB Venues",
+    "url": "https://statsapi.mlb.com/api/v1/venues?sportId=1&season=${season}",
+    "backfillRequest": {"season": "2026"},
+    "requestAttributes": {"season": "$.season"},
+    "recordsJsonPath": "$.venues[*]",
+    "idJsonPath": "$.id",
+    "idAttribute": "venue.id",
+    "splitProcessorName": "Split MLB Venue Population",
+    "readProcessorName": "Read Discovered Venue",
+    "prepareProcessorName": "Prepare Discovered Venue Request",
+    "downstreamAttributes": {
+      "scope.key": "venue-${venue.id}-season-${season}",
+      "request.scope": "https://statsapi.mlb.com/api/v1/venues?venueIds=${venue.id}&season=${season}&hydrate=location,fieldInfo,timeZone"
+    },
+    "detailConnector": "Acquire MLB Venues"
+  },
+  "dailySchedule": {
+    "cron": "0 0 5 * * ?",
+    "timeZone": "America/New_York",
+    "attributeExpressions": {
+      "season": "${now():format(\"yyyy\",\"America/New_York\")}"
+    }
+  },
+  "requestAttributes": {"season": "$.season", "venue.id": "$.venueId", "scope.key": "$.scopeKey"},
+  "derivedAttributes": {
+    "request.scope": "https://statsapi.mlb.com/api/v1/venues?venueIds=${venue.id}&season=${season}&hydrate=location,fieldInfo,timeZone"
+  },
+  "acquisitions": [
+    {
+      "key": "venues",
+      "processorName": "Acquire MLB Venues",
+      "url": "https://statsapi.mlb.com/api/v1/venues?venueIds=${venue.id}&season=${season}&hydrate=location,fieldInfo,timeZone",
+      "filename": "venues-${scope.key}-${uuid}.json"
+    }
+  ],
+  "context": {
+    "builder": "mapping/prepare-context.py",
+    "contextName": "venue-context.json",
+    "arguments": ["{input.venues}", "{context}", "--requested-season", "{season}", "--expected-sha256", "{input.venues.sha256}"]
+  },
+  "mapping": "mapping/mlb-venues.rml.ttl",
+  "shacl": "shacl/authoritative.ttl",
+  "authoritativeGraphTemplate": "https://w3id.org/baseball/graph/authority/mlb-venues/{scope.key}",
+  "failurePolicy": {"maximumRetriesPerStage": 3, "quarantineIsSourceLocal": true}
+}

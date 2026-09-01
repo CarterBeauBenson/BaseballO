@@ -1,0 +1,353 @@
+@base <https://baseballontology.org/mapping/mlb-leagues> .
+@prefix rr: <http://www.w3.org/ns/r2rml#> .
+@prefix rml: <http://semweb.mmlab.be/ns/rml#> .
+@prefix ql: <http://semweb.mmlab.be/ns/ql#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+@prefix cco: <https://www.commoncoreontologies.org/> .
+@prefix base: <https://baseballontology.org/> .
+@prefix data: <https://baseballontology.org/data/> .
+
+# This mapping consumes only the transient execution copy produced by this
+# module's prepare-context.py. The builder validates present selected source
+# values and exposes structural ancestor values; all ontology typing and
+# relations remain declarative here. No map asserts affiliation, membership,
+# agency, organization participation in a Season, or a date/phase boundary.
+
+<#ResponseSource> a rml:LogicalSource ;
+    rml:source "leagues-context.json" ;
+    rml:referenceFormulation ql:JSONPath ;
+    rml:iterator "$.responseRecords[*]" .
+
+<#OrganizationSource> a rml:LogicalSource ;
+    rml:source "leagues-context.json" ;
+    rml:referenceFormulation ql:JSONPath ;
+    rml:iterator "$.organizationRecords[*]" .
+
+<#OrganizationNameSource> a rml:LogicalSource ;
+    rml:source "leagues-context.json" ;
+    rml:referenceFormulation ql:JSONPath ;
+    rml:iterator "$.organizationRecords[?(@.name)]" .
+
+<#SeasonSource> a rml:LogicalSource ;
+    rml:source "leagues-context.json" ;
+    rml:referenceFormulation ql:JSONPath ;
+    rml:iterator "$.seasonRecords[*]" .
+
+<#PhaseSource> a rml:LogicalSource ;
+    rml:source "leagues-context.json" ;
+    rml:referenceFormulation ql:JSONPath ;
+    rml:iterator "$.phaseRecords[*]" .
+
+<#DateSource> a rml:LogicalSource ;
+    rml:source "leagues-context.json" ;
+    rml:referenceFormulation ql:JSONPath ;
+    rml:iterator "$.dateRecords[*]" .
+
+
+#################################################################
+# Response evidence and fixed provider reference systems
+#################################################################
+
+<#ResponseMap> a rr:TriplesMap ;
+    rml:logicalSource <#ResponseSource> ;
+    rr:subjectMap [
+        rr:template "https://baseballontology.org/data/source/mlb-leagues/response/{responseEndpointFamily}/{requestScopeHash}/{responseSha256}" ;
+        rr:class cco:ont00000853
+    ] .
+
+<#LeagueIdReferenceSystemMap> a rr:TriplesMap ;
+    rml:logicalSource <#ResponseSource> ;
+    rr:subjectMap [
+        rr:constant <https://baseballontology.org/data/reference-system/mlb/league-id> ;
+        rr:class cco:ont00000398
+    ] .
+
+<#DivisionIdReferenceSystemMap> a rr:TriplesMap ;
+    rml:logicalSource <#ResponseSource> ;
+    rr:subjectMap [
+        rr:constant <https://baseballontology.org/data/reference-system/mlb/division-id> ;
+        rr:class cco:ont00000398
+    ] .
+
+<#SeasonCodeReferenceSystemMap> a rr:TriplesMap ;
+    rml:logicalSource <#ResponseSource> ;
+    rr:subjectMap [
+        rr:constant <https://baseballontology.org/data/reference-system/mlb/season-code> ;
+        rr:class cco:ont00000398
+    ] .
+
+<#SeasonDateFieldReferenceSystemMap> a rr:TriplesMap ;
+    rml:logicalSource <#ResponseSource> ;
+    rr:subjectMap [
+        rr:constant <https://baseballontology.org/data/reference-system/mlb/season-date-field> ;
+        rr:class cco:ont00000398
+    ] .
+
+
+#################################################################
+# Team, league, and division Organization identities and names
+#################################################################
+
+<#OrganizationMap> a rr:TriplesMap ;
+    rml:logicalSource <#OrganizationSource> ;
+    rr:subjectMap [
+        rr:template "https://baseballontology.org/data/{entityKind}/{entityId}" ;
+        rr:class cco:ont00001180
+    ] .
+
+<#OrganizationIdentifierMap> a rr:TriplesMap ;
+    rml:logicalSource <#OrganizationSource> ;
+    rr:subjectMap [
+        rr:template "https://baseballontology.org/data/{entityKind}/{entityId}/identifier/mlb-{entityKind}-id" ;
+        rr:class cco:ont00000649
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate cco:ont00001765 ;
+        rr:objectMap [ rml:reference "entityId" ; rr:datatype xsd:string ]
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate cco:ont00001912 ;
+        rr:objectMap [
+            rr:template "https://baseballontology.org/data/reference-system/mlb/{entityKind}-id" ;
+            rr:termType rr:IRI
+        ]
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate cco:ont00001916 ;
+        rr:objectMap [
+            rr:template "https://baseballontology.org/data/{entityKind}/{entityId}" ;
+            rr:termType rr:IRI
+        ]
+    ] .
+
+<#ResponseOrganizationLinkMap> a rr:TriplesMap ;
+    rml:logicalSource <#OrganizationSource> ;
+    rr:subjectMap [
+        rr:template "https://baseballontology.org/data/source/mlb-leagues/response/{responseEndpointFamily}/{requestScopeHash}/{responseSha256}"
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate cco:ont00001808 ;
+        rr:objectMap [
+            rr:template "https://baseballontology.org/data/{entityKind}/{entityId}" ;
+            rr:termType rr:IRI
+        ]
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate obo:BFO_0000178 ;
+        rr:objectMap [
+            rr:template "https://baseballontology.org/data/{entityKind}/{entityId}/identifier/mlb-{entityKind}-id" ;
+            rr:termType rr:IRI
+        ]
+    ] .
+
+<#OrganizationNameMap> a rr:TriplesMap ;
+    rml:logicalSource <#OrganizationNameSource> ;
+    rr:subjectMap [
+        rr:template "https://baseballontology.org/data/{entityKind}/{entityId}/name/proper/{nameHash}" ;
+        rr:class cco:ont00001014
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate cco:ont00001765 ;
+        rr:objectMap [ rml:reference "name" ; rr:datatype xsd:string ]
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate cco:ont00001916 ;
+        rr:objectMap [
+            rr:template "https://baseballontology.org/data/{entityKind}/{entityId}" ;
+            rr:termType rr:IRI
+        ]
+    ] .
+
+<#ResponseNameLinkMap> a rr:TriplesMap ;
+    rml:logicalSource <#OrganizationNameSource> ;
+    rr:subjectMap [
+        rr:template "https://baseballontology.org/data/source/mlb-leagues/response/{responseEndpointFamily}/{requestScopeHash}/{responseSha256}"
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate obo:BFO_0000178 ;
+        rr:objectMap [
+            rr:template "https://baseballontology.org/data/{entityKind}/{entityId}/name/proper/{nameHash}" ;
+            rr:termType rr:IRI
+        ]
+    ] .
+
+
+#################################################################
+# League-scoped Season, Plan, and reviewed Phase identities
+#################################################################
+
+<#SeasonMap> a rr:TriplesMap ;
+    rml:logicalSource <#SeasonSource> ;
+    rr:subjectMap [
+        rr:template "https://baseballontology.org/data/league/{leagueId}/season/{seasonCode}" ;
+        rr:class base:BaseballSeason
+    ] .
+
+<#SeasonPlanMap> a rr:TriplesMap ;
+    rml:logicalSource <#SeasonSource> ;
+    rr:subjectMap [
+        rr:template "https://baseballontology.org/data/league/{leagueId}/season/{seasonCode}/plan" ;
+        rr:class base:BaseballSeasonPlan
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate cco:ont00001942 ;
+        rr:objectMap [
+            rr:template "https://baseballontology.org/data/league/{leagueId}/season/{seasonCode}" ;
+            rr:termType rr:IRI
+        ]
+    ] .
+
+<#SeasonIdentifierMap> a rr:TriplesMap ;
+    rml:logicalSource <#SeasonSource> ;
+    rr:subjectMap [
+        rr:template "https://baseballontology.org/data/league/{leagueId}/season/{seasonCode}/identifier/mlb-season-code" ;
+        rr:class cco:ont00000649
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate cco:ont00001765 ;
+        rr:objectMap [ rml:reference "seasonCode" ; rr:datatype xsd:string ]
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate cco:ont00001912 ;
+        rr:objectMap [ rr:constant <https://baseballontology.org/data/reference-system/mlb/season-code> ]
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate cco:ont00001916 ;
+        rr:objectMap [
+            rr:template "https://baseballontology.org/data/league/{leagueId}/season/{seasonCode}" ;
+            rr:termType rr:IRI
+        ]
+    ] .
+
+<#ResponseSeasonLinkMap> a rr:TriplesMap ;
+    rml:logicalSource <#SeasonSource> ;
+    rr:subjectMap [
+        rr:template "https://baseballontology.org/data/source/mlb-leagues/response/{responseEndpointFamily}/{requestScopeHash}/{responseSha256}"
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate cco:ont00001808 ;
+        rr:objectMap [
+            rr:template "https://baseballontology.org/data/league/{leagueId}/season/{seasonCode}" ;
+            rr:termType rr:IRI
+        ]
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate cco:ont00001808 ;
+        rr:objectMap [
+            rr:template "https://baseballontology.org/data/league/{leagueId}/season/{seasonCode}/plan" ;
+            rr:termType rr:IRI
+        ]
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate obo:BFO_0000178 ;
+        rr:objectMap [
+            rr:template "https://baseballontology.org/data/league/{leagueId}/season/{seasonCode}/identifier/mlb-season-code" ;
+            rr:termType rr:IRI
+        ]
+    ] .
+
+<#SeasonPhaseMap> a rr:TriplesMap ;
+    rml:logicalSource <#PhaseSource> ;
+    rr:subjectMap [
+        rr:template "https://baseballontology.org/data/league/{leagueId}/season/{seasonCode}/phase/{phaseKey}" ;
+        rr:class base:BaseballSeasonPhase
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate obo:BFO_0000132 ;
+        rr:objectMap [
+            rr:template "https://baseballontology.org/data/league/{leagueId}/season/{seasonCode}" ;
+            rr:termType rr:IRI
+        ]
+    ] .
+
+<#SeasonPlanPhaseLinkMap> a rr:TriplesMap ;
+    rml:logicalSource <#PhaseSource> ;
+    rr:subjectMap [
+        rr:template "https://baseballontology.org/data/league/{leagueId}/season/{seasonCode}/plan"
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate cco:ont00001942 ;
+        rr:objectMap [
+            rr:template "https://baseballontology.org/data/league/{leagueId}/season/{seasonCode}/phase/{phaseKey}" ;
+            rr:termType rr:IRI
+        ]
+    ] .
+
+
+#################################################################
+# Plan-part Calendar Date Identifier evidence and designated Days
+#################################################################
+
+<#CalendarDateIdentifierMap> a rr:TriplesMap ;
+    rml:logicalSource <#DateSource> ;
+    rr:subjectMap [
+        rr:template "https://baseballontology.org/data/league/{leagueId}/season/{seasonCode}/plan/date/{fieldKey}/{dateValue}/evidence/{responseSha256}" ;
+        rr:class cco:ont00001340
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate cco:ont00001771 ;
+        rr:objectMap [ rml:reference "dateValue" ; rr:datatype xsd:date ]
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate cco:ont00001916 ;
+        rr:objectMap [
+            rr:template "https://baseballontology.org/data/day/{dateValue}" ;
+            rr:termType rr:IRI
+        ]
+    ] .
+
+<#SeasonDateFieldIdentifierMap> a rr:TriplesMap ;
+    rml:logicalSource <#DateSource> ;
+    rr:subjectMap [
+        rr:template "https://baseballontology.org/data/league/{leagueId}/season/{seasonCode}/plan/date/{fieldKey}/{dateValue}/evidence/{responseSha256}/field-key" ;
+        rr:class cco:ont00000649
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate cco:ont00001765 ;
+        rr:objectMap [ rml:reference "fieldKey" ; rr:datatype xsd:string ]
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate cco:ont00001912 ;
+        rr:objectMap [ rr:constant <https://baseballontology.org/data/reference-system/mlb/season-date-field> ]
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate cco:ont00001916 ;
+        rr:objectMap [
+            rr:template "https://baseballontology.org/data/league/{leagueId}/season/{seasonCode}/plan/date/{fieldKey}/{dateValue}/evidence/{responseSha256}" ;
+            rr:termType rr:IRI
+        ]
+    ] .
+
+<#DayMap> a rr:TriplesMap ;
+    rml:logicalSource <#DateSource> ;
+    rr:subjectMap [
+        rr:template "https://baseballontology.org/data/day/{dateValue}" ;
+        rr:class cco:ont00000800
+    ] .
+
+<#SeasonPlanDateLinkMap> a rr:TriplesMap ;
+    rml:logicalSource <#DateSource> ;
+    rr:subjectMap [
+        rr:template "https://baseballontology.org/data/league/{leagueId}/season/{seasonCode}/plan"
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate obo:BFO_0000178 ;
+        rr:objectMap [
+            rr:template "https://baseballontology.org/data/league/{leagueId}/season/{seasonCode}/plan/date/{fieldKey}/{dateValue}/evidence/{responseSha256}" ;
+            rr:termType rr:IRI
+        ]
+    ] .
+
+<#ResponseDateFieldLinkMap> a rr:TriplesMap ;
+    rml:logicalSource <#DateSource> ;
+    rr:subjectMap [
+        rr:template "https://baseballontology.org/data/source/mlb-leagues/response/{responseEndpointFamily}/{requestScopeHash}/{responseSha256}"
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate obo:BFO_0000178 ;
+        rr:objectMap [
+            rr:template "https://baseballontology.org/data/league/{leagueId}/season/{seasonCode}/plan/date/{fieldKey}/{dateValue}/evidence/{responseSha256}/field-key" ;
+            rr:termType rr:IRI
+        ]
+    ] .

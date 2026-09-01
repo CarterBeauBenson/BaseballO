@@ -1,0 +1,39 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX idx: <https://w3id.org/baseball/query-index/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+CONSTRUCT {
+  ?game a idx:GameFact ;
+      idx:season ?season ;
+      idx:seasonPhase ?seasonPhaseType ;
+      idx:venue ?venue ;
+      idx:gameStart ?gameStart ;
+      idx:derivedFrom ?timestamp, ?field, ?seasonPhase .
+}
+WHERE {
+  VALUES (?sourceGraph ?game) {
+    (<urn:baseball:query-index:source-graph> <urn:baseball:query-index:game>)
+  }
+  GRAPH ?sourceGraph {
+    ?game a base:BaseballGame ;
+        cco:ont00001918 ?field ;
+        obo:BFO_0000199/obo:BFO_0000222 ?startInstant .
+    ?timestamp a base:BaseballTimestampICE ;
+        cco:ont00001916 ?startInstant ;
+        cco:ont00001767 ?gameStart .
+    ?field a base:BaseballFieldSite ;
+        obo:BFO_0000171 ?venue .
+    ?game obo:BFO_0000132 ?seasonPhase .
+    ?seasonPhase a ?seasonPhaseType ;
+        obo:BFO_0000132 ?seasonProcess .
+    VALUES ?seasonPhaseType {
+      base:BaseballPreseasonPhase
+      base:BaseballRegularSeasonPhase
+      base:BaseballPostseasonPhase
+      base:BaseballAllStarPhase
+    }
+    BIND(xsd:integer(STRAFTER(STR(?seasonProcess), "/data/season/")) AS ?season)
+  }
+}

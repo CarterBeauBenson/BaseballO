@@ -1,0 +1,19 @@
+{
+  "artifactType": "baseballo-source-semantic-status",
+  "contractVersion": 1,
+  "moduleId": "mlb-game",
+  "operationalStatus": "active",
+  "semanticStatus": "approved",
+  "extensionAllowed": false,
+  "semanticAcceptance": "granted-by-ontologist",
+  "runtimePolicy": "the-current-pinned-artifacts-may-run-asynchronously",
+  "audit": "sources/mlb-game/SEMANTIC-AUDIT.md",
+  "auditDate": "2026-08-31",
+  "openBlockers": [],
+  "notes": [
+    "The ontologist accepted the current pinned MLB-game RML contract on 2026-08-31.",
+    "Approval does not pre-authorize new fields or new semantic interpretations.",
+    "Deferred measurements, provider-coordinate grounding, and Statcast remain separately proposal-gated.",
+    "NiFi may execute the pinned contract asynchronously and must run source SHACL before promotion."
+  ]
+}

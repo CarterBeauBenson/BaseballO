@@ -1,0 +1,50 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX idx: <https://w3id.org/baseball/query-index/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+
+CONSTRUCT {
+  ?resolution a idx:RunnerResolutionFact ;
+      idx:agent ?player ;
+      idx:game ?game ;
+      idx:resolutionClass ?resolutionClass ;
+      idx:sourceEventType ?eventType ;
+      idx:derivedFrom ?record, ?judgment .
+}
+WHERE {
+  VALUES (?sourceGraph ?game) {
+    (<urn:baseball:query-index:source-graph> <urn:baseball:query-index:game>)
+  }
+  GRAPH ?sourceGraph {
+    ?record a base:BaseballEventRecord ;
+        cco:ont00001808 ?resolution .
+    ?resolution a base:RunnerResolutionProcess, ?resolutionClass ;
+        obo:BFO_0000132 ?plateAppearance ;
+        obo:BFO_0000057 ?player ;
+        obo:BFO_0000117 ?judgment .
+    ?plateAppearance a base:PlateAppearance ;
+        obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
+    ?player a cco:ont00001262 .
+    ?judgment a ?judgmentClass .
+    VALUES (?resolutionClass ?judgmentClass) {
+      (base:RunProcess base:RunJudgmentAct)
+      (base:OutProcess base:OutJudgmentAct)
+      (base:SafeProcess base:SafeJudgmentAct)
+    }
+    OPTIONAL {
+      ?record cco:ont00001808 ?specificResolution .
+      ?specificResolution a ?specificResolutionClass .
+      VALUES (?specificResolutionClass ?specificEventType) {
+        (base:StolenBaseProcess "stolen_base")
+        (base:PassedBallProcess "passed_ball")
+        (base:WildPitchProcess "wild_pitch")
+        (base:UncaughtThirdStrikeProcess "uncaught_third_strike")
+      }
+    }
+    BIND(COALESCE(
+      ?specificEventType,
+      IF(?resolutionClass = base:RunProcess, "run",
+        IF(?resolutionClass = base:OutProcess, "out", "safe"))
+    ) AS ?eventType)
+  }
+}

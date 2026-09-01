@@ -1,0 +1,28 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-current-contract-acceptance-2026-08-31",
+  "title": "MLB-game current contract acceptance",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [{"path":"competency-questions.md","sha256":"9707bedcb900e0f4fd7ebd58446b69e77ff9a50b25b780912daaa5c5a9255615"}],
+    "sourceEvidence": [{"path":"source-evidence.md","sha256":"880e357e965ecb580cc5305cb145402b70010c7fc98a0ec977e10b61f010bb77"}],
+    "fieldSelectionInventory": [{"path":"field-selection-inventory.md","sha256":"6c1692916fa27e83cb7e4316316d2c5c32bdc6ab43d3bcf9bdf33d957851604c"}],
+    "sourceIndependentMermaid": [{"path":"source-independent-mermaid.md","sha256":"9793e449dd1e906ec8e4b4085343d4680f0704f9ed4b1dab2ca51a54d354d1e2"}]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-08-31",
+    "rationale": "The ontologist explicitly accepted all MLB-game RML work completed in the reviewed package and directed implementation through SHACL, SPARQL, and downstream pipeline contracts. Future semantic expansion remains proposal-gated.",
+    "authorizedArtifacts": [
+      "Baseball/sources/source-modules.json",
+      "Baseball/sources/mlb-game/README.md",
+      "Baseball/sources/mlb-game/SEMANTIC-AUDIT.md",
+      "Baseball/sources/mlb-game/review/rml-mermaid-manifest.json",
+      "Baseball/sources/mlb-game/review/semantic-status.json"
+    ]
+  }
+}

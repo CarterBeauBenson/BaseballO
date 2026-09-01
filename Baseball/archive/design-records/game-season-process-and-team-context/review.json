@@ -1,0 +1,46 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "game-season-process-and-team-context",
+  "title": "Game and season process kinds with team-scoped occupation roles",
+  "status": "accepted",
+  "proposedIris": [
+    "https://baseballontology.org/BaseballGame"
+  ],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "d96f064df2e0093780e2a1ab192c5fcc65b009a85b51b7a0a33539d2602eb541"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "d06036961d8fc92b68230c759176e0aeb9bea32e01b725813a17108c3385865d"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "2fd82900d07423469a054307ad9d911e16a8c907ac53ad4b54ed6bed30c83e45"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "8109cb067edff0b72b822397caa012a461afbf781e5b7f0e7aec50c43855037d"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-08-28",
+    "rationale": "The ontologist explicitly classified games and seasons as temporally extended Processes with Acts as parts and directed reuse of team-scoped Occupation Roles rather than a new roster-membership role. This record authorizes only the active BaseballGame repair; the Season and transaction source packages still require complete review before executable implementation.",
+    "authorizedArtifacts": [
+      "Baseball/ontology/BaseballO.ttl"
+    ]
+  }
+}

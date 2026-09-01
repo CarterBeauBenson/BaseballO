@@ -1,0 +1,482 @@
+@prefix base: <https://baseballontology.org/> .
+@prefix idx: <https://w3id.org/baseball/query-index/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix shape: <https://w3id.org/baseball/shacl/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+shape:QueryIndexProfile
+    a sh:NodeShape ;
+    sh:name "BaseballO disposable query-index profile"@en ;
+    sh:description "Structural and containment constraints for query-index contract version 1."@en .
+
+shape:QueryIndexShape
+    a sh:NodeShape ;
+    sh:targetClass idx:QueryIndex ;
+    sh:nodeKind sh:IRI ;
+    sh:property [
+        sh:path idx:contractVersion ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:hasValue "1" ;
+        sh:message "A QueryIndex must declare contract version 1 exactly once."@en
+    ] ;
+    sh:property [
+        sh:path idx:sourceGraph ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "A QueryIndex must identify exactly one authoritative source graph."@en
+    ] ;
+    sh:property [
+        sh:path idx:indexedGame ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:class idx:GameFact ;
+        sh:message "A QueryIndex must identify exactly one indexed GameFact."@en
+    ] ;
+    sh:sparql [
+        sh:message "A per-game index graph must contain exactly one QueryIndex metadata resource."@en ;
+        sh:select """
+            PREFIX idx: <https://w3id.org/baseball/query-index/>
+            SELECT $this WHERE {
+              {
+                SELECT (COUNT(DISTINCT ?index) AS ?count)
+                WHERE { ?index a idx:QueryIndex }
+              }
+              FILTER (?count != 1)
+            }
+        """
+    ] .
+
+shape:GameFactShape
+    a sh:NodeShape ;
+    sh:targetClass idx:GameFact ;
+    sh:nodeKind sh:IRI ;
+    sh:property shape:DerivedFromProperty ;
+    sh:property [
+        sh:path idx:season ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:message "A GameFact must have exactly one integer season."@en
+    ] ;
+    sh:property [
+        sh:path idx:seasonPhase ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:in (
+            base:BaseballPreseasonPhase base:BaseballRegularSeasonPhase
+            base:BaseballPostseasonPhase base:BaseballAllStarPhase
+        ) ;
+        sh:message "A GameFact must identify exactly one reviewed current Season Phase class."@en
+    ] ;
+    sh:property [
+        sh:path idx:venue ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "A GameFact must have exactly one venue."@en
+    ] ;
+    sh:property [
+        sh:path idx:gameStart ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "A GameFact must have exactly one xsd:dateTime start."@en
+    ] ;
+    sh:sparql [
+        sh:message "The only GameFact must be the game named by QueryIndex metadata."@en ;
+        sh:select """
+            PREFIX idx: <https://w3id.org/baseball/query-index/>
+            SELECT $this WHERE {
+              ?index a idx:QueryIndex ; idx:indexedGame ?game .
+              FILTER ($this != ?game)
+            }
+        """
+    ] .
+
+shape:PlateAppearanceFactShape
+    a sh:NodeShape ;
+    sh:targetClass idx:PlateAppearanceFact ;
+    sh:nodeKind sh:IRI ;
+    sh:property shape:GameProperty,
+        shape:AgentProperty,
+        shape:DerivedFromProperty .
+
+shape:PlateAppearanceResultFactShape
+    a sh:NodeShape ;
+    sh:targetClass idx:PlateAppearanceResultFact ;
+    sh:nodeKind sh:IRI ;
+    sh:property shape:GameProperty,
+        shape:AgentProperty,
+        shape:PlateAppearanceProperty,
+        shape:OutcomeClassProperty,
+        shape:SourceEventTypeProperty,
+        shape:DerivedFromProperty .
+
+shape:HitFactShape
+    a sh:NodeShape ;
+    sh:targetClass idx:HitFact ;
+    sh:nodeKind sh:IRI ;
+    sh:property shape:GameProperty,
+        shape:AgentProperty,
+        shape:VenueProperty,
+        shape:PlateAppearanceProperty,
+        shape:HitTypeProperty,
+        shape:DerivedFromProperty .
+
+shape:PitchFactShape
+    a sh:NodeShape ;
+    sh:targetClass idx:PitchFact ;
+    sh:nodeKind sh:IRI ;
+    sh:property shape:GameProperty,
+        shape:AgentProperty,
+        shape:VenueProperty,
+        shape:PlateAppearanceProperty,
+        shape:DerivedFromProperty ;
+    sh:property [
+        sh:path idx:pitchType ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:in (
+            base:FourSeamFastballPitchAct base:SinkerPitchAct
+            base:CutterPitchAct base:SliderPitchAct base:SweeperPitchAct
+            base:SlurvePitchAct base:CurveballPitchAct base:KnuckleCurvePitchAct
+            base:SlowCurvePitchAct base:ChangeupPitchAct base:SplitterPitchAct
+            base:ForkballPitchAct base:ScrewballPitchAct base:KnuckleballPitchAct
+            base:EephusPitchAct
+        ) ;
+        sh:message "A PitchFact may have at most one current pitch-type class."@en
+    ] ;
+    sh:property [
+        sh:path idx:nominalCategory ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "A classified PitchFact may retain at most one selected nominal category."@en
+    ] ;
+    sh:sparql [
+        sh:message "A current indexed pitch type must have one selected nominal category and the Pitch Fact must carry the matching explicit rdf:type."@en ;
+        sh:select """
+            PREFIX idx: <https://w3id.org/baseball/query-index/>
+            SELECT $this WHERE {
+              {
+                $this idx:pitchType ?pitchType .
+                FILTER NOT EXISTS { $this idx:nominalCategory ?category }
+              }
+              UNION
+              {
+                $this idx:nominalCategory ?category .
+                FILTER NOT EXISTS { $this idx:pitchType ?pitchType }
+              }
+              UNION
+              {
+                $this idx:pitchType ?pitchType .
+                FILTER NOT EXISTS { $this a ?pitchType }
+              }
+            }
+        """
+    ] .
+
+shape:PitchCallFactShape
+    a sh:NodeShape ;
+    sh:targetClass idx:PitchCallFact ;
+    sh:nodeKind sh:IRI ;
+    sh:property shape:GameProperty,
+        shape:AgentProperty,
+        shape:PitchProperty,
+        shape:CallTypeProperty,
+        shape:DerivedFromProperty .
+
+shape:BattingActFactShape
+    a sh:NodeShape ;
+    sh:targetClass idx:BattingActFact ;
+    sh:nodeKind sh:IRI ;
+    sh:property shape:GameProperty,
+        shape:AgentProperty,
+        shape:PlateAppearanceProperty,
+        shape:BattingActTypeProperty,
+        shape:DerivedFromProperty .
+
+shape:ContactFactShape
+    a sh:NodeShape ;
+    sh:targetClass idx:ContactFact ;
+    sh:nodeKind sh:IRI ;
+    sh:property shape:GameProperty,
+        shape:AgentProperty,
+        shape:VenueProperty,
+        shape:PlateAppearanceProperty,
+        shape:BattedBallProperty,
+        shape:DerivedFromProperty ;
+    sh:property [
+        sh:path idx:trajectoryType ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:in (
+            base:GroundBallMotionProcess base:LineDriveMotionProcess
+            base:FlyBallMotionProcess base:PopUpMotionProcess
+        ) ;
+        sh:message "A ContactFact may have at most one current batted-ball trajectory class."@en
+    ] ;
+    sh:property [
+        sh:path idx:nominalCategory ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "A classified ContactFact may retain at most one selected nominal category."@en
+    ] ;
+    sh:sparql [
+        sh:message "A current indexed trajectory must have one selected nominal category and explicitly type the indexed batted-ball motion."@en ;
+        sh:select """
+            PREFIX idx: <https://w3id.org/baseball/query-index/>
+            SELECT $this WHERE {
+              {
+                $this idx:trajectoryType ?trajectoryType .
+                FILTER NOT EXISTS { $this idx:nominalCategory ?category }
+              }
+              UNION
+              {
+                $this idx:nominalCategory ?category .
+                FILTER NOT EXISTS { $this idx:trajectoryType ?trajectoryType }
+              }
+              UNION
+              {
+                $this idx:trajectoryType ?trajectoryType ; idx:battedBall ?battedBall .
+                FILTER NOT EXISTS { ?battedBall a ?trajectoryType }
+              }
+            }
+        """
+    ] .
+
+shape:RunnerResolutionFactShape
+    a sh:NodeShape ;
+    sh:targetClass idx:RunnerResolutionFact ;
+    sh:nodeKind sh:IRI ;
+    sh:property shape:GameProperty,
+        shape:AgentProperty,
+        shape:ResolutionClassProperty,
+        shape:SourceEventTypeProperty,
+        shape:DerivedFromProperty .
+
+shape:StolenBaseFactShape
+    a sh:NodeShape ;
+    sh:targetClass idx:StolenBaseFact ;
+    sh:nodeKind sh:IRI ;
+    sh:property shape:GameProperty,
+        shape:AgentProperty,
+        shape:DerivedFromProperty .
+
+shape:AssignmentFactShape
+    a sh:NodeShape ;
+    sh:targetClass idx:AssignmentFact ;
+    sh:nodeKind sh:IRI ;
+    sh:property shape:GameProperty,
+        shape:AssigneeProperty,
+        shape:AssignmentTypeProperty,
+        shape:DerivedFromProperty .
+
+shape:GameTeamSeasonConsumerShape
+    a sh:NodeShape ;
+    sh:targetClass idx:GameFact ;
+    sh:property [
+        sh:path [ sh:inversePath idx:game ] ;
+        sh:qualifiedValueShape [
+            sh:class idx:AssignmentFact ;
+            sh:property [
+                sh:path idx:assignmentType ;
+                sh:hasValue idx:HomeTeam
+            ]
+        ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "An indexed GameFact must have exactly one HomeTeam AssignmentFact."@en
+    ] ;
+    sh:property [
+        sh:path [ sh:inversePath idx:game ] ;
+        sh:qualifiedValueShape [
+            sh:class idx:AssignmentFact ;
+            sh:property [
+                sh:path idx:assignmentType ;
+                sh:hasValue idx:AwayTeam
+            ]
+        ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "An indexed GameFact must have exactly one AwayTeam AssignmentFact."@en
+    ] ;
+    sh:sparql [
+        sh:message "HomeTeam and AwayTeam AssignmentFacts must identify canonical BaseballO Team IRIs."@en ;
+        sh:select """
+            PREFIX idx: <https://w3id.org/baseball/query-index/>
+            SELECT $this WHERE {
+              ?assignment a idx:AssignmentFact ;
+                  idx:game $this ;
+                  idx:assignmentType ?assignmentType ;
+                  idx:assignee ?team .
+              FILTER (?assignmentType IN (idx:HomeTeam, idx:AwayTeam))
+              FILTER (
+                !isIRI(?team) ||
+                !REGEX(STR(?team), "^https://baseballontology[.]org/data/team/[0-9]+$")
+              )
+            }
+        """
+    ] ;
+    sh:sparql [
+        sh:message "The home and away AssignmentFacts for an indexed GameFact must identify distinct Teams."@en ;
+        sh:select """
+            PREFIX idx: <https://w3id.org/baseball/query-index/>
+            SELECT $this WHERE {
+              ?homeAssignment a idx:AssignmentFact ;
+                  idx:game $this ;
+                  idx:assignmentType idx:HomeTeam ;
+                  idx:assignee ?homeTeam .
+              ?awayAssignment a idx:AssignmentFact ;
+                  idx:game $this ;
+                  idx:assignmentType idx:AwayTeam ;
+                  idx:assignee ?awayTeam .
+              FILTER (?homeTeam = ?awayTeam)
+            }
+        """
+    ] .
+
+shape:SameGameFactShape
+    a sh:NodeShape ;
+    sh:targetSubjectsOf idx:game ;
+    sh:sparql [
+        sh:message "Every per-game fact must identify the game named by QueryIndex metadata."@en ;
+        sh:select """
+            PREFIX idx: <https://w3id.org/baseball/query-index/>
+            SELECT $this WHERE {
+              $this idx:game ?factGame .
+              ?index a idx:QueryIndex ; idx:indexedGame ?indexedGame .
+              FILTER (?factGame != ?indexedGame)
+            }
+        """
+    ] .
+
+shape:GameProperty
+    a sh:PropertyShape ;
+    sh:path idx:game ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+    sh:class idx:GameFact ;
+    sh:message "A query-index fact must reference exactly one indexed GameFact."@en .
+
+shape:AgentProperty
+    a sh:PropertyShape ;
+    sh:path idx:agent ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+    sh:message "The fact must identify exactly one agent IRI."@en .
+
+shape:DerivedFromProperty
+    a sh:PropertyShape ;
+    sh:path idx:derivedFrom ;
+    sh:minCount 1 ;
+    sh:nodeKind sh:IRI ;
+    sh:message "The fact must retain at least one authoritative provenance IRI."@en .
+
+shape:VenueProperty
+    a sh:PropertyShape ;
+    sh:path idx:venue ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+    sh:message "The fact must identify exactly one venue IRI."@en .
+
+shape:PlateAppearanceProperty
+    a sh:PropertyShape ;
+    sh:path idx:plateAppearance ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+    sh:class idx:PlateAppearanceFact ;
+    sh:message "The fact must identify exactly one indexed PlateAppearanceFact."@en .
+
+shape:OutcomeClassProperty
+    a sh:PropertyShape ;
+    sh:path idx:outcomeClass ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+    sh:message "The result fact must identify exactly one outcome class IRI."@en .
+
+shape:SourceEventTypeProperty
+    a sh:PropertyShape ;
+    sh:path idx:sourceEventType ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:nodeKind sh:Literal ;
+    sh:message "The fact must expose exactly one stable event-category literal derived from its reviewed semantic class."@en .
+
+shape:HitTypeProperty
+    a sh:PropertyShape ;
+    sh:path idx:hitType ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+    sh:message "A HitFact must identify exactly one hit type IRI."@en .
+
+shape:PitchProperty
+    a sh:PropertyShape ;
+    sh:path idx:pitch ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+    sh:class idx:PitchFact ;
+    sh:message "A PitchCallFact must identify exactly one indexed PitchFact."@en .
+
+shape:CallTypeProperty
+    a sh:PropertyShape ;
+    sh:path idx:callType ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+    sh:in (
+        idx:Ball idx:CalledStrike idx:SwingingStrike
+        idx:Foul idx:InPlay idx:HitByPitch
+    ) ;
+    sh:message "A PitchCallFact must identify exactly one call type IRI."@en .
+
+shape:BattingActTypeProperty
+    a sh:PropertyShape ;
+    sh:path idx:battingActType ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+    sh:message "A BattingActFact must identify exactly one act type IRI."@en .
+
+shape:BattedBallProperty
+    a sh:PropertyShape ;
+    sh:path idx:battedBall ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+    sh:message "A ContactFact must identify exactly one batted-ball motion IRI."@en .
+
+shape:ResolutionClassProperty
+    a sh:PropertyShape ;
+    sh:path idx:resolutionClass ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+    sh:message "A RunnerResolutionFact must identify exactly one resolution class IRI."@en .
+
+shape:AssigneeProperty
+    a sh:PropertyShape ;
+    sh:path idx:assignee ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+    sh:message "An AssignmentFact must identify exactly one assignee IRI."@en .
+
+shape:AssignmentTypeProperty
+    a sh:PropertyShape ;
+    sh:path idx:assignmentType ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+    sh:message "An AssignmentFact must identify exactly one assignment type IRI."@en .

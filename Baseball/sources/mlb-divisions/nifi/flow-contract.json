@@ -1,0 +1,38 @@
+{
+  "artifactType": "baseballo-nifi-source-flow-contract",
+  "contractVersion": 1,
+  "sourceModule": "mlb-divisions",
+  "rootProcessGroup": "BaseballO",
+  "sourceProcessGroup": "MLB Divisions",
+  "proofRequest": {"season": "2026", "scopeKey": "season-2026"},
+  "backfillRequest": {"season": "2026", "scopeKey": "season-2026"},
+  "dailySchedule": {
+    "cron": "0 0 5 * * ?",
+    "timeZone": "America/New_York",
+    "attributeExpressions": {
+      "season": "${now():format(\"yyyy\",\"America/New_York\")}",
+      "scope.key": "season-${now():format(\"yyyy\",\"America/New_York\")}"
+    }
+  },
+  "requestAttributes": {"season": "$.season", "scope.key": "$.scopeKey"},
+  "derivedAttributes": {
+    "request.scope": "https://statsapi.mlb.com/api/v1/divisions?sportId=1&season=${season}"
+  },
+  "acquisitions": [
+    {
+      "key": "divisions",
+      "processorName": "Acquire MLB Divisions",
+      "url": "https://statsapi.mlb.com/api/v1/divisions?sportId=1&season=${season}",
+      "filename": "divisions-${scope.key}-${uuid}.json"
+    }
+  ],
+  "context": {
+    "builder": "mapping/prepare-context.py",
+    "contextName": "divisions-context.json",
+    "arguments": ["{input.divisions}", "{context}", "--endpoint-family", "divisions", "--request-scope", "{request.scope}"]
+  },
+  "mapping": "mapping/mlb-divisions.rml.ttl",
+  "shacl": "shacl/authoritative.ttl",
+  "authoritativeGraphTemplate": "https://w3id.org/baseball/graph/authority/mlb-divisions/{scope.key}",
+  "failurePolicy": {"maximumRetriesPerStage": 3, "quarantineIsSourceLocal": true}
+}

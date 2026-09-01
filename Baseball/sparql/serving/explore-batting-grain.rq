@@ -1,0 +1,28 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX idx: <https://w3id.org/baseball/query-index/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Indexed result identity and dimensions, enriched only with the offensive
+# team relationship that is intentionally absent from query-index contract 1.
+SELECT DISTINCT ?graph ?indexGraph ?game ?gameStart ?season ?venue ?venueLabel
+                ?result ?plateAppearance ?player ?playerLabel ?team ?teamLabel ?eventType
+WHERE {
+  GRAPH ?indexGraph {
+    ?index a idx:QueryIndex ; idx:sourceGraph ?graph ; idx:indexedGame ?game ; idx:contractVersion "1" .
+    ?game a idx:GameFact ; idx:gameStart ?gameStart ; idx:season ?season ; idx:venue ?venue .
+    ?result a idx:PlateAppearanceResultFact ; idx:plateAppearance ?plateAppearance ;
+            idx:game ?game ; idx:agent ?player ; idx:sourceEventType ?eventType .
+    ?venue rdfs:label ?venueLabel .
+    ?player rdfs:label ?playerLabel .
+  }
+  GRAPH ?graph {
+    ?halfInning a base:HalfInning ; obo:BFO_0000117 ?plateAppearance .
+    BIND(IF(STRENDS(STR(?halfInning), "/top"), base:AwayTeamRole, base:HomeTeamRole) AS ?teamRoleClass)
+    ?teamRole a ?teamRoleClass ; obo:BFO_0000197 ?team ; obo:BFO_0000054 ?game .
+    ?team rdfs:label ?teamLabel .
+  }
+  FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+  FILTER(STRSTARTS(STR(?indexGraph), "https://w3id.org/baseball/graph/query-index/game/"))
+}
+ORDER BY ?graph ?result

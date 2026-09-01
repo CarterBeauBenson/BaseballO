@@ -1,0 +1,16 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX idx: <https://w3id.org/baseball/query-index/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?player ?playerLabel (COUNT(DISTINCT ?result) AS ?extraBaseHits)
+WHERE {
+  GRAPH ?graph {
+    ?result a idx:HitFact ;
+            idx:agent ?player ;
+            idx:hitType ?hitClass .
+    ?player rdfs:label ?playerLabel .
+    VALUES ?hitClass { base:DoubleProcess base:TripleProcess base:HomeRunProcess }
+  }
+}
+GROUP BY ?player ?playerLabel
+ORDER BY DESC(?extraBaseHits) LCASE(STR(?playerLabel))

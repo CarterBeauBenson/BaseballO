@@ -1,0 +1,50 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-venues-capacity",
+  "title": "MLB venue spectator-accommodation amount",
+  "status": "accepted",
+  "proposedIris": [
+    "https://baseballontology.org/SpectatorSeat",
+    "https://baseballontology.org/SittingArtifactFunction",
+    "https://baseballontology.org/StandingRoomSpectatorSite",
+    "https://baseballontology.org/SpectatorAccommodationAmount"
+  ],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "1e995a74591fa3d3bd8ffdc0798d3f3fdd1a7136639d7717b2b9ee68a2da0450"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "85f68aa43d96701848f489a814b6be91bfe1900a51efa781477b00fa3f26e40a"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "3252424d95770697e234b4176498246a0defb3f0e1c4003dd0a97bcd29704840"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "4b4d6f2b2c2e0084f80a2a0e5965d7b8176f47a295ee1fa73dd5b97589d05161"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-08-30",
+    "rationale": "The ontologist explicitly accepted the revised source-independent Mermaid package published at commit b8c6cc76711286c979b9acb11db3c48ae7d6a581 and authorized implementation that follows those diagrams and the recorded modeling guidance.",
+    "authorizedArtifacts": [
+      "Baseball/ontology/BaseballO.ttl",
+      "Baseball/ontology/BaseballO-axioms-overlay.ttl"
+    ]
+  }
+}

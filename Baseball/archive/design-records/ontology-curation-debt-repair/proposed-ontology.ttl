@@ -1,0 +1,425 @@
+@prefix base: <https://baseballontology.org/> .
+@prefix cco: <https://www.commoncoreontologies.org/> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://baseballontology.org/proposal/ontology-curation-debt-repair> a owl:Ontology ;
+    rdfs:label "Ontology curation debt repair proposal"@en ;
+    rdfs:comment "A review-only proposal. It is not an importable BaseballO module and does not record ontologist acceptance."@en .
+
+### Proposed taxonomy and annotations: teams, roles, venue, and time
+
+base:AwayBaseballTeam a owl:Class ;
+    rdfs:subClassOf base:BaseballTeam ;
+    rdfs:label "Away Baseball Team"@en ;
+    skos:definition "An Away Baseball Team is a Baseball Team that bears an Away Team Role in a particular Baseball Game."@en ;
+    rdfs:comment "Away status is game-relative and is not an intrinsic or permanent feature of a team."@en ;
+    skos:example "The team assigned to bat first in a particular game is the Away Baseball Team for that game."@en .
+
+base:AwayTeamRole a owl:Class ;
+    rdfs:subClassOf base:BaseballGameTeamRole ;
+    rdfs:label "Away Team Role"@en ;
+    skos:definition "An Away Team Role is a Baseball Game Team Role that is borne by the team institutionally designated as away in a particular Baseball Game."@en ;
+    rdfs:comment "The role is realized only in the game for which the designation applies."@en ;
+    skos:example "A visiting club bears an Away Team Role realized during a road Baseball Game."@en .
+
+base:BaseballEventTemporalInstant a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000203 ;
+    rdfs:label "Baseball Event Temporal Instant"@en ;
+    skos:definition "A Baseball Event Temporal Instant is a Temporal Instant that is the first instant or last instant of a Temporal Region occupied by a Process that is an occurrent part of some Baseball Game."@en ;
+    rdfs:comment "The instant is a temporal entity in reality, not the timestamp information that designates it."@en ;
+    skos:example "The temporal instant at which a recorded pitch begins is a Baseball Event Temporal Instant."@en .
+
+base:BaseballGameTeamRole a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000023 ;
+    rdfs:label "Baseball Game Team Role"@en ;
+    skos:definition "A Baseball Game Team Role is a Role that inheres in a Baseball Team and is realized through that team's participation in a particular Baseball Game."@en ;
+    rdfs:comment "This class supplies the game-relative genus for home-team and away-team roles."@en ;
+    skos:example "The role borne by a club as one of the two participating teams in an occurring Baseball Game is a Baseball Game Team Role."@en .
+
+base:BaseballGameTemporalInterval a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000202 ;
+    rdfs:label "Baseball Game Temporal Interval"@en ;
+    skos:definition "A Baseball Game Temporal Interval is a Temporal Interval during which a Baseball Game occurs."@en ;
+    rdfs:comment "This interval is distinct from any schedule string, date literal, or timestamp ICE about it."@en ;
+    skos:example "The temporal interval occupied by a completed nine-inning game is a Baseball Game Temporal Interval."@en .
+
+base:BaseballTeam a owl:Class ;
+    rdfs:subClassOf cco:ont00001180 ;
+    rdfs:label "Baseball Team"@en ;
+    skos:definition "A Baseball Team is an Organization whose members are organized to participate collectively in Baseball Games."@en ;
+    rdfs:comment "Team identity is organizational and is not reduced to a provider identifier or current roster."@en ;
+    skos:example "A major-league club participating in a championship season is a Baseball Team."@en .
+
+base:BaseballVenue a owl:Class ;
+    rdfs:subClassOf cco:ont00000192 ;
+    rdfs:label "Baseball Venue"@en ;
+    skos:definition "A Baseball Venue is a Facility that bears some Baseball Game Hosting Function."@en ;
+    rdfs:comment "Facility is proposed for review. The venue is not identical to a spatial Baseball Field Site, and no direct Venue-to-Field-Site relation is asserted without a separately reviewed pattern."@en ;
+    skos:example "A stadium complex designed to host professional baseball games is a Baseball Venue."@en .
+
+base:BaseballGameHostingFunction a owl:Class ;
+    rdfs:subClassOf cco:ont00000323 ;
+    rdfs:label "Baseball Game Hosting Function"@en ;
+    skos:definition "A Baseball Game Hosting Function is an Artifact Function that inheres in a Facility in virtue of that Facility being designed to host Baseball Games and whose realizations are Baseball Games."@en ;
+    rdfs:comment "Design for hosting, not mere selection or historical participation, grounds the CCO Artifact Function. The function may exist without being realized; the candidate overlay uses an all-values restriction and does not entail that a game has occurred. A temporary selected site not designed for baseball requires a different reviewed pattern."@en ;
+    skos:example "The function borne by a newly completed ballpark in virtue of its design for hosting Baseball Games is a Baseball Game Hosting Function."@en .
+
+base:HomeBaseballTeam a owl:Class ;
+    rdfs:subClassOf base:BaseballTeam ;
+    rdfs:label "Home Baseball Team"@en ;
+    skos:definition "A Home Baseball Team is a Baseball Team that bears a Home Team Role in a particular Baseball Game."@en ;
+    rdfs:comment "Home status is game-relative and does not assert ownership of or permanent location at a venue."@en ;
+    skos:example "The team assigned the home designation in a particular game is the Home Baseball Team for that game."@en .
+
+base:HomeTeamRole a owl:Class ;
+    rdfs:subClassOf base:BaseballGameTeamRole ;
+    rdfs:label "Home Team Role"@en ;
+    skos:definition "A Home Team Role is a Baseball Game Team Role that is borne by the team institutionally designated as home in a particular Baseball Game."@en ;
+    rdfs:comment "The role is realized only in the game for which the designation applies."@en ;
+    skos:example "A club assigned the home designation at a neutral site bears a Home Team Role for that game."@en .
+
+### Proposed taxonomy and annotations: timestamp and coordinate information
+
+base:BaseballFieldCoordinateICE a owl:Class ;
+    rdfs:subClassOf cco:ont00000686 ;
+    rdfs:label "Baseball Field Coordinate ICE"@en ;
+    skos:definition "A Baseball Field Coordinate ICE is a Designative Information Content Entity that consists of an ordered coordinate tuple interpreted under a Baseball Field Coordinate Reference System ICE and designates a field-relative Site."@en ;
+    rdfs:comment "This ICE is not the coordinate system or the designated Site. Under the separately reviewed ICE-direct-value foundation, the coordinate content itself bears its approved literal values and uses its reference system directly. Executable provider semantics remain unresolved."@en ;
+    skos:example "An ordered pair designating a batted-ball location relative to a baseball field is a Baseball Field Coordinate ICE."@en .
+
+base:BaseballFieldCoordinateReferenceSystemICE a owl:Class ;
+    rdfs:subClassOf cco:ont00000275 ;
+    rdfs:label "Baseball Field Coordinate Reference System ICE"@en ;
+    skos:definition "A Baseball Field Coordinate Reference System ICE is a Spatial Reference System that describes standards for interpreting field-relative coordinate values."@en ;
+    rdfs:comment "This proposal does not assert that undocumented provider display coordinates instantiate a geospatial reference system or prescribe physical field geometry."@en ;
+    skos:example "A documented ballpark coordinate convention with an origin, axes, orientation, and scale would instantiate this class."@en .
+
+base:BaseballTimestampICE a owl:Class ;
+    rdfs:subClassOf cco:ont00000540 ;
+    rdfs:label "Baseball Timestamp ICE"@en ;
+    skos:definition "A Baseball Timestamp ICE is a Temporal Instant Identifier that designates a Baseball Event Temporal Instant associated with a baseball process."@en ;
+    rdfs:comment "Under the separately reviewed ICE-direct-value foundation, this identifier bears its datetime literal directly. The identifier and its literal value remain distinct from the designated temporal instant."@en ;
+    skos:example "An ISO 8601 identifier designating the recorded start instant of a pitch is a Baseball Timestamp ICE."@en .
+
+base:BattedBallLocationSite a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000029 ;
+    rdfs:label "Batted-Ball Location Site"@en ;
+    skos:definition "A Batted-Ball Location Site is a Site that is designated by some Baseball Field Coordinate ICE and is site of some Process that is an occurrent part of some Batted-Ball Motion Process."@en ;
+    rdfs:comment "The Site is the world-side referent at a temporal part of the ball's motion, not necessarily the Site of the entire Batted-Ball Motion Process. Current provider display coordinates are insufficient by themselves to authorize executable instances."@en ;
+    skos:example "The field-relative site occupied by a batted ball when it is fielded is a Batted-Ball Location Site."@en .
+
+### Proposed taxonomy and annotations: double plays and foul tips
+
+base:DoublePlayProcess a owl:Class ;
+    rdfs:subClassOf base:BaseballInstitutionalProcess ;
+    rdfs:label "Double Play Process"@en ;
+    skos:definition "A Double Play Process is a Baseball Institutional Process that includes exactly two institutionally counted Out Processes within one continuous play."@en ;
+    rdfs:comment "The class concerns the institutional result and does not by itself specify a particular physical trajectory or defensive technique."@en ;
+    skos:example "A continuous play on which two runners are institutionally put out is a Double Play Process."@en .
+
+base:FoulTipCallICE a owl:Class ;
+    rdfs:subClassOf base:StrikeDecisionICE ;
+    rdfs:label "Foul Tip Decision ICE"@en ;
+    skos:definition "A Foul Tip Decision ICE is a Strike Decision ICE that is the output of a Foul Tip Judgment Act and is about a Foul Tip Process."@en ;
+    rdfs:comment "The legacy IRI is retained for review continuity; the instance is a decision ICE, not the judgment act denoted by the provider word call."@en ;
+    skos:example "The recorded decision that a contacted and caught pitch was a foul tip is a Foul Tip Decision ICE."@en .
+
+base:FoulTipJudgmentAct a owl:Class ;
+    rdfs:subClassOf base:StrikeJudgmentAct ;
+    rdfs:label "Foul Tip Judgment Act"@en ;
+    skos:definition "A Foul Tip Judgment Act is a Strike Judgment Act that is preceded by some Bat-Ball Contact Process and some Ball Catching Process, is prescribed by some Strike Rule, and has output some Foul Tip Decision ICE."@en ;
+    rdfs:comment "The judgment is distinct from the contact, catch, institutional strike process, and resulting decision ICE."@en ;
+    skos:example "An umpire's act of judging a caught, sharply contacted pitch to be a foul tip is a Foul Tip Judgment Act."@en .
+
+base:FoulTipProcess a owl:Class ;
+    rdfs:subClassOf base:StrikeProcess ;
+    rdfs:label "Foul Tip Process"@en ;
+    skos:definition "A Foul Tip Process is a Strike Process that is preceded by some Bat-Ball Contact Process and some Ball Catching Process and has as occurrent part some Foul Tip Judgment Act."@en ;
+    rdfs:comment "The process is the institutionally recognized strike outcome and is distinct from its physical and informational participants."@en ;
+    skos:example "A contacted pitch caught in the legally qualifying manner and judged a foul tip is a Foul Tip Process."@en .
+
+### Proposed taxonomy and annotations: challenges and ball motion
+
+base:BattedBallMotionProcess a owl:Class ;
+    rdfs:subClassOf base:BaseballPhysicalProcess ;
+    rdfs:label "Batted-Ball Motion Process"@en ;
+    skos:definition "A Batted-Ball Motion Process is a Baseball Physical Process in which a Baseball moves as a consequence of a Bat-Ball Contact Process."@en ;
+    rdfs:comment "The motion process is not a trajectory measurement or a provider field describing that motion."@en ;
+    skos:example "The flight and roll of a baseball after bat-ball contact constitute a Batted-Ball Motion Process."@en .
+
+base:ManagerChallengeAct a owl:Class ;
+    rdfs:subClassOf base:ChallengeAct ;
+    rdfs:label "Manager Challenge Act"@en ;
+    skos:definition "A Manager Challenge Act is a Challenge Act performed by a Person bearing a Manager Role."@en ;
+    rdfs:comment "The act is distinguished by the role borne by its agent, not by a provider code."@en ;
+    skos:example "A manager's formal request for replay review of a safe decision is a Manager Challenge Act."@en .
+
+base:PitchBallMotionProcess a owl:Class ;
+    rdfs:subClassOf base:BaseballPhysicalProcess ;
+    rdfs:label "Pitch-Ball Motion Process"@en ;
+    skos:definition "A Pitch-Ball Motion Process is a Baseball Physical Process in which a Baseball moves following a Pitch Act."@en ;
+    rdfs:comment "The moving ball and its qualities remain distinct from measurements and information about the pitch."@en ;
+    skos:example "The motion of a baseball from the pitcher's release toward home plate is a Pitch-Ball Motion Process."@en .
+
+base:PlayerChallengeAct a owl:Class ;
+    rdfs:subClassOf base:ChallengeAct ;
+    rdfs:label "Player Challenge Act"@en ;
+    skos:definition "A Player Challenge Act is a Challenge Act performed by a Person bearing a Player Role."@en ;
+    rdfs:comment "The act is distinguished by the role borne by its agent, not by a provider code."@en ;
+    skos:example "A player's formal request for review under a player-challenge rule is a Player Challenge Act."@en .
+
+base:ThrownBallMotionProcess a owl:Class ;
+    rdfs:subClassOf base:BaseballPhysicalProcess ;
+    rdfs:label "Thrown-Ball Motion Process"@en ;
+    skos:definition "A Thrown-Ball Motion Process is a Baseball Physical Process in which a Baseball moves as a consequence of a Throw Act."@en ;
+    rdfs:comment "This class covers world-side ball motion and not a velocity, trajectory, or source observation ICE."@en ;
+    skos:example "The motion of a baseball thrown by a fielder toward first base is a Thrown-Ball Motion Process."@en .
+
+### Proposed taxonomy and annotations: replay-review act leaves
+
+base:BallAffirmingBaseballReplayReviewAct a owl:Class ;
+    rdfs:subClassOf base:BallJudgmentAct ;
+    rdfs:label "Ball-Affirming Baseball Replay Review Act"@en ;
+    skos:definition "A Ball-Affirming Baseball Replay Review Act is a Ball Judgment Act that is a Baseball Replay Review Act, has input a Ball Decision ICE, and has output a Ball Decision ICE."@en ;
+    rdfs:comment "The final judgment kind supplies the sole asserted parent; replay structure belongs in the overlay."@en ;
+    skos:example "A challenged called ball is reviewed and remains a ball."@en .
+
+base:BallToStrikeBaseballReplayReviewAct a owl:Class ;
+    rdfs:subClassOf base:StrikeJudgmentAct ;
+    rdfs:label "Ball-to-Strike Baseball Replay Review Act"@en ;
+    skos:definition "A Ball-to-Strike Baseball Replay Review Act is a Strike Judgment Act that is a Baseball Replay Review Act, has input a Ball Decision ICE, and has output a Strike Decision ICE."@en ;
+    rdfs:comment "The final judgment kind supplies the sole asserted parent; replay structure belongs in the overlay."@en ;
+    skos:example "A pitcher's successful challenge changes a called ball to a strike."@en .
+
+base:OutAffirmingBaseballReplayReviewAct a owl:Class ;
+    rdfs:subClassOf base:OutJudgmentAct ;
+    rdfs:label "Out-Affirming Baseball Replay Review Act"@en ;
+    skos:definition "An Out-Affirming Baseball Replay Review Act is an Out Judgment Act that is a Baseball Replay Review Act, has input an Out Decision ICE, and has output an Out Decision ICE."@en ;
+    rdfs:comment "The final judgment kind supplies the sole asserted parent; replay structure belongs in the overlay."@en ;
+    skos:example "A challenged force-out call is reviewed and remains an out."@en .
+
+base:OutToSafeBaseballReplayReviewAct a owl:Class ;
+    rdfs:subClassOf base:SafeJudgmentAct ;
+    rdfs:label "Out-to-Safe Baseball Replay Review Act"@en ;
+    skos:definition "An Out-to-Safe Baseball Replay Review Act is a Safe Judgment Act that is a Baseball Replay Review Act, has input an Out Decision ICE, and has output a Safe Decision ICE."@en ;
+    rdfs:comment "The final judgment kind supplies the sole asserted parent; replay structure belongs in the overlay."@en ;
+    skos:example "Replay shows that a runner touched the base before the tag, changing out to safe."@en .
+
+base:SafeAffirmingBaseballReplayReviewAct a owl:Class ;
+    rdfs:subClassOf base:SafeJudgmentAct ;
+    rdfs:label "Safe-Affirming Baseball Replay Review Act"@en ;
+    skos:definition "A Safe-Affirming Baseball Replay Review Act is a Safe Judgment Act that is a Baseball Replay Review Act, has input a Safe Decision ICE, and has output a Safe Decision ICE."@en ;
+    rdfs:comment "The final judgment kind supplies the sole asserted parent; replay structure belongs in the overlay."@en ;
+    skos:example "A challenged safe call on a tag play is reviewed and remains safe."@en .
+
+base:SafeToOutBaseballReplayReviewAct a owl:Class ;
+    rdfs:subClassOf base:OutJudgmentAct ;
+    rdfs:label "Safe-to-Out Baseball Replay Review Act"@en ;
+    skos:definition "A Safe-to-Out Baseball Replay Review Act is an Out Judgment Act that is a Baseball Replay Review Act, has input a Safe Decision ICE, and has output an Out Decision ICE."@en ;
+    rdfs:comment "The final judgment kind supplies the sole asserted parent; replay structure belongs in the overlay."@en ;
+    skos:example "Replay of a pickoff changes the on-field safe decision to an out decision."@en .
+
+base:StrikeAffirmingBaseballReplayReviewAct a owl:Class ;
+    rdfs:subClassOf base:StrikeJudgmentAct ;
+    rdfs:label "Strike-Affirming Baseball Replay Review Act"@en ;
+    skos:definition "A Strike-Affirming Baseball Replay Review Act is a Strike Judgment Act that is a Baseball Replay Review Act, has input a Strike Decision ICE, and has output a Strike Decision ICE."@en ;
+    rdfs:comment "The final judgment kind supplies the sole asserted parent; replay structure belongs in the overlay."@en ;
+    skos:example "A challenged called strike is reviewed and remains a strike."@en .
+
+base:StrikeToBallBaseballReplayReviewAct a owl:Class ;
+    rdfs:subClassOf base:BallJudgmentAct ;
+    rdfs:label "Strike-to-Ball Baseball Replay Review Act"@en ;
+    skos:definition "A Strike-to-Ball Baseball Replay Review Act is a Ball Judgment Act that is a Baseball Replay Review Act, has input a Strike Decision ICE, and has output a Ball Decision ICE."@en ;
+    rdfs:comment "The final judgment kind supplies the sole asserted parent; replay structure belongs in the overlay."@en ;
+    skos:example "A batter's successful challenge changes a called strike to a ball."@en .
+
+### Proposed overlay-only axioms
+# These anonymous restrictions do not create additional direct named parents.
+
+base:BaseballGameTeamRole rdfs:subClassOf
+    [ a owl:Restriction ; owl:onProperty obo:BFO_0000197 ; owl:someValuesFrom base:BaseballTeam ],
+    [ a owl:Restriction ; owl:onProperty obo:BFO_0000054 ; owl:someValuesFrom base:BaseballGame ] .
+
+base:HomeBaseballTeam owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+    base:BaseballTeam
+    [ a owl:Restriction ; owl:onProperty obo:BFO_0000196 ; owl:someValuesFrom base:HomeTeamRole ]
+) ] .
+
+base:AwayBaseballTeam owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+    base:BaseballTeam
+    [ a owl:Restriction ; owl:onProperty obo:BFO_0000196 ; owl:someValuesFrom base:AwayTeamRole ]
+) ] .
+
+base:BaseballGameTemporalInterval rdfs:subClassOf
+    [ a owl:Restriction ; owl:onProperty cco:ont00001874 ; owl:someValuesFrom base:BaseballGame ] .
+
+base:BaseballEventTemporalInstant rdfs:subClassOf
+    [ a owl:Class ; owl:unionOf (
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000221 ; owl:someValuesFrom
+            [ a owl:Class ; owl:intersectionOf (
+                obo:BFO_0000008
+                [ a owl:Restriction ; owl:onProperty cco:ont00001874 ; owl:someValuesFrom
+                    [ a owl:Class ; owl:intersectionOf (
+                        obo:BFO_0000015
+                        [ a owl:Restriction ; owl:onProperty obo:BFO_0000132 ; owl:someValuesFrom base:BaseballGame ]
+                    ) ]
+                ]
+            ) ]
+        ]
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000223 ; owl:someValuesFrom
+            [ a owl:Class ; owl:intersectionOf (
+                obo:BFO_0000008
+                [ a owl:Restriction ; owl:onProperty cco:ont00001874 ; owl:someValuesFrom
+                    [ a owl:Class ; owl:intersectionOf (
+                        obo:BFO_0000015
+                        [ a owl:Restriction ; owl:onProperty obo:BFO_0000132 ; owl:someValuesFrom base:BaseballGame ]
+                    ) ]
+                ]
+            ) ]
+        ]
+    ) ] .
+
+base:BaseballVenue rdfs:subClassOf
+    [ a owl:Restriction ; owl:onProperty obo:BFO_0000196 ; owl:someValuesFrom base:BaseballGameHostingFunction ] .
+
+base:BaseballGameHostingFunction rdfs:subClassOf
+    [ a owl:Restriction ; owl:onProperty obo:BFO_0000054 ; owl:allValuesFrom base:BaseballGame ] .
+
+base:BaseballTimestampICE rdfs:subClassOf
+    [ a owl:Restriction ; owl:onProperty cco:ont00001916 ; owl:someValuesFrom base:BaseballEventTemporalInstant ],
+    [ a owl:Restriction ; owl:onProperty cco:ont00001767 ; owl:someValuesFrom xsd:dateTime ] .
+
+base:BaseballFieldCoordinateICE rdfs:subClassOf
+    [ a owl:Restriction ; owl:onProperty cco:ont00001916 ; owl:someValuesFrom obo:BFO_0000029 ],
+    [ a owl:Restriction ; owl:onProperty cco:ont00001912 ; owl:someValuesFrom base:BaseballFieldCoordinateReferenceSystemICE ] .
+
+base:BattedBallLocationSite rdfs:subClassOf
+    [ a owl:Restriction ; owl:onProperty cco:ont00001879 ; owl:someValuesFrom base:BaseballFieldCoordinateICE ],
+    [ a owl:Restriction ; owl:onProperty cco:ont00001845 ; owl:someValuesFrom
+        [ a owl:Class ; owl:intersectionOf (
+            obo:BFO_0000015
+            [ a owl:Restriction ; owl:onProperty obo:BFO_0000132 ; owl:someValuesFrom base:BattedBallMotionProcess ]
+        ) ]
+    ] .
+
+# No provider-coordinate execution axiom is proposed. The semantics of the
+# coordinate values, origin, axes, orientation, scale, and missing values must
+# be approved before a source-specific mapping uses these classes.
+
+base:DoublePlayProcess rdfs:subClassOf
+    [ a owl:Restriction ; owl:onProperty cco:ont00001777 ; owl:qualifiedCardinality "2"^^<http://www.w3.org/2001/XMLSchema#nonNegativeInteger> ; owl:onClass base:OutProcess ] .
+
+base:FoulTipJudgmentAct rdfs:subClassOf
+    [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:BatBallContactProcess ],
+    [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:BallCatchingProcess ],
+    [ a owl:Restriction ; owl:onProperty cco:ont00001920 ; owl:someValuesFrom base:StrikeRule ],
+    [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:FoulTipCallICE ] .
+
+base:FoulTipProcess rdfs:subClassOf
+    [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:FoulTipJudgmentAct ],
+    [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:BatBallContactProcess ],
+    [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:BallCatchingProcess ] .
+
+base:FoulTipCallICE rdfs:subClassOf
+    [ a owl:Restriction ; owl:onProperty cco:ont00001816 ; owl:someValuesFrom base:FoulTipJudgmentAct ],
+    [ a owl:Restriction ; owl:onProperty cco:ont00001808 ; owl:someValuesFrom base:FoulTipProcess ] .
+
+base:ManagerChallengeAct owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+    base:ChallengeAct
+    base:ManagerAct
+) ] .
+
+base:PlayerChallengeAct owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+    base:ChallengeAct
+    base:PlayerAct
+) ] .
+
+base:PitchBallMotionProcess rdfs:subClassOf
+    [ a owl:Class ; owl:intersectionOf (
+        cco:ont00001133
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:PitchAct ]
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000057 ; owl:someValuesFrom base:Baseball ]
+    ) ] .
+
+base:BattedBallMotionProcess rdfs:subClassOf
+    [ a owl:Class ; owl:intersectionOf (
+        cco:ont00001133
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:BatBallContactProcess ]
+        [ a owl:Restriction ; owl:onProperty cco:ont00001819 ; owl:someValuesFrom base:BatBallContactProcess ]
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000057 ; owl:someValuesFrom base:Baseball ]
+    ) ] .
+
+base:ThrownBallMotionProcess rdfs:subClassOf
+    [ a owl:Class ; owl:intersectionOf (
+        cco:ont00001133
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000062 ; owl:someValuesFrom base:ThrowAct ]
+        [ a owl:Restriction ; owl:onProperty cco:ont00001819 ; owl:someValuesFrom base:ThrowAct ]
+        [ a owl:Restriction ; owl:onProperty obo:BFO_0000057 ; owl:someValuesFrom base:Baseball ]
+    ) ] .
+
+base:BallAffirmingBaseballReplayReviewAct owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+    base:BallJudgmentAct base:BaseballReplayReviewAct
+    [ a owl:Restriction ; owl:onProperty cco:ont00001921 ; owl:someValuesFrom base:BallDecisionICE ]
+    [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:BallDecisionICE ]
+) ] .
+
+base:StrikeAffirmingBaseballReplayReviewAct owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+    base:StrikeJudgmentAct base:BaseballReplayReviewAct
+    [ a owl:Restriction ; owl:onProperty cco:ont00001921 ; owl:someValuesFrom base:StrikeDecisionICE ]
+    [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:StrikeDecisionICE ]
+) ] .
+
+base:OutAffirmingBaseballReplayReviewAct owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+    base:OutJudgmentAct base:BaseballReplayReviewAct
+    [ a owl:Restriction ; owl:onProperty cco:ont00001921 ; owl:someValuesFrom base:OutDecisionICE ]
+    [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:OutDecisionICE ]
+) ] .
+
+base:SafeAffirmingBaseballReplayReviewAct owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+    base:SafeJudgmentAct base:BaseballReplayReviewAct
+    [ a owl:Restriction ; owl:onProperty cco:ont00001921 ; owl:someValuesFrom base:SafeDecisionICE ]
+    [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:SafeDecisionICE ]
+) ] .
+
+base:BallToStrikeBaseballReplayReviewAct owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+    base:StrikeJudgmentAct base:BaseballReplayReviewAct
+    [ a owl:Restriction ; owl:onProperty cco:ont00001921 ; owl:someValuesFrom base:BallDecisionICE ]
+    [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:StrikeDecisionICE ]
+) ] .
+
+base:StrikeToBallBaseballReplayReviewAct owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+    base:BallJudgmentAct base:BaseballReplayReviewAct
+    [ a owl:Restriction ; owl:onProperty cco:ont00001921 ; owl:someValuesFrom base:StrikeDecisionICE ]
+    [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:BallDecisionICE ]
+) ] .
+
+base:OutToSafeBaseballReplayReviewAct owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+    base:SafeJudgmentAct base:BaseballReplayReviewAct
+    [ a owl:Restriction ; owl:onProperty cco:ont00001921 ; owl:someValuesFrom base:OutDecisionICE ]
+    [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:SafeDecisionICE ]
+) ] .
+
+base:SafeToOutBaseballReplayReviewAct owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+    base:OutJudgmentAct base:BaseballReplayReviewAct
+    [ a owl:Restriction ; owl:onProperty cco:ont00001921 ; owl:someValuesFrom base:SafeDecisionICE ]
+    [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:OutDecisionICE ]
+) ] .
+
+base:AffirmingBaseballReplayReviewAct owl:equivalentClass [ a owl:Class ; owl:unionOf (
+    base:BallAffirmingBaseballReplayReviewAct
+    base:StrikeAffirmingBaseballReplayReviewAct
+    base:OutAffirmingBaseballReplayReviewAct
+    base:SafeAffirmingBaseballReplayReviewAct
+) ] .
+
+base:OverturningBaseballReplayReviewAct owl:equivalentClass [ a owl:Class ; owl:unionOf (
+    base:BallToStrikeBaseballReplayReviewAct
+    base:StrikeToBallBaseballReplayReviewAct
+    base:OutToSafeBaseballReplayReviewAct
+    base:SafeToOutBaseballReplayReviewAct
+) ] .

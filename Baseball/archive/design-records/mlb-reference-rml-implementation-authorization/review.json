@@ -1,0 +1,58 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-reference-rml-implementation-authorization",
+  "title": "MLB reference RML implementation authorization",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "4e5725f50f1a15d06b010d0c6cca6ea5d6fef9f5ea84019c00f4e23024b7c157"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "c82c2440ada72f6781fe5325179e6d847fa2709da8c19c1501cb97d41fd20bcf"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "ce486481d770387bcda034c2ed47dc4157c424e4c5aeaf8e4ab1e08fe5d3a289"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "9e411b429e04683c29714f37af8b46ed07859c534f5bada3740d6f56b426d15e"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-08-30",
+    "rationale": "The ontologist explicitly authorized Codex to proceed with making the RML if it follows the accepted Mermaid diagrams and the modeling guidance recorded throughout the project conversation. This decision authorizes only faithful implementation of that accepted scope and leaves failed evidence gates unmapped.",
+    "authorizedArtifacts": [
+      "Baseball/sources/mlb-people/mapping/iri-policy.yaml",
+      "Baseball/sources/mlb-people/mapping/mlb-people.rml.ttl",
+      "Baseball/sources/mlb-people/mapping/prepare-context.py",
+      "Baseball/sources/mlb-people/review/semantic-status.json",
+      "Baseball/sources/mlb-people/shacl/authoritative.ttl",
+      "Baseball/sources/mlb-venues/mapping/iri-policy.yaml",
+      "Baseball/sources/mlb-venues/mapping/mlb-venues.rml.ttl",
+      "Baseball/sources/mlb-venues/mapping/prepare-context.py",
+      "Baseball/sources/mlb-venues/review/semantic-status.json",
+      "Baseball/sources/mlb-venues/shacl/authoritative.ttl",
+      "Baseball/sources/mlb-transactions/mapping/iri-policy.yaml",
+      "Baseball/sources/mlb-transactions/mapping/mlb-transactions.rml.ttl",
+      "Baseball/sources/mlb-transactions/mapping/prepare-context.py",
+      "Baseball/sources/mlb-transactions/review/semantic-status.json",
+      "Baseball/sources/mlb-transactions/shacl/authoritative.ttl"
+    ]
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "realist-geometry-foundations",
+  "title": "Realist angle and distance foundations",
+  "status": "accepted",
+  "proposedIris": [
+    "https://baseballontology.org/AngleQuality",
+    "https://baseballontology.org/DistanceQuality"
+  ],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "af17bc522c9720f769dd791c173aeec6a4cd12caf4a700ffb4d319d5fe9923ea"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "75ebc63fb23cc119ab189d287de65c4cb23b86a0c984f34a1d6f9174965c3fde"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "8021e8e2c038dfb3c9b15fb36097ac905b6c152a5c1903053736e3a5856c6165"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "c2f3b3fe7b5fd69ead625da0784a87e6ff255de4542feb133ac2a8b778fc03ed"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-08-29",
+    "rationale": "The ontologist accepted AngleQuality and DistanceQuality as realist relational qualities with the reviewed BFO and CCO grounding, axioms, definitions, and annotations. Signed displacement and every source-specific choice of lines, points, bearers, frames, and temporal grounding remain unresolved until separately reviewed.",
+    "authorizedArtifacts": [
+      "Baseball/ontology/BaseballO.ttl",
+      "Baseball/ontology/BaseballO-axioms-overlay.ttl"
+    ]
+  }
+}

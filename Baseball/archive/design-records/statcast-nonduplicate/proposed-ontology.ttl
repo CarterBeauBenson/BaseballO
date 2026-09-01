@@ -1,0 +1,38 @@
+@prefix base: <https://baseballontology.org/> .
+@prefix cco: <https://www.commoncoreontologies.org/> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+<https://baseballontology.org/proposal/statcast-nonduplicate> a owl:Ontology ;
+    rdfs:label "Statcast nonduplicate ontology proposal"@en ;
+    rdfs:comment "Review-only proposal. It is not an importable BaseballO module and records no ontologist decision."@en .
+
+# No new object or datatype property is proposed. Generic CCO Descriptive ICE,
+# Measurement ICE, Nominal Measurement ICE, Estimate ICE, Reference System,
+# Algorithm, and Act of Data Transformation cover the information/model side.
+
+base:BaseballBatSweetSpotFiatPoint a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000147 ;
+    rdfs:label "Baseball Bat Sweet-Spot Fiat Point"@en ;
+    skos:definition "A Baseball Bat Sweet-Spot Fiat Point is a Fiat Point that is continuant part of a Baseball Bat and is designated by a Designative Information Content Entity using a Reference System as the point tracked as that bat's sweet spot."@en ;
+    rdfs:comment "The selection standard and version are required for identity. The point is part of the bat in reality and is not the coordinate, designation, or tracking record about it."@en ;
+    skos:example "The fiat point on a tracked bat whose position is used to calculate attack angle at a swing's evaluation instant."@en .
+
+# Review-only candidate restrictions. The use of `uses reference system` on a
+# Designative ICE depends on prior acceptance of ice-direct-values-and-units.
+
+base:BaseballBatSweetSpotFiatPoint rdfs:subClassOf
+    [ a owl:Restriction ;
+      owl:onProperty obo:BFO_0000176 ;
+      owl:someValuesFrom base:BaseballBat
+    ],
+    [ a owl:Restriction ;
+      owl:onProperty cco:ont00001879 ;
+      owl:someValuesFrom
+        [ a owl:Class ; owl:intersectionOf (
+            cco:ont00000686
+            [ a owl:Restriction ; owl:onProperty cco:ont00001912 ; owl:someValuesFrom cco:ont00000398 ]
+        ) ]
+    ] .

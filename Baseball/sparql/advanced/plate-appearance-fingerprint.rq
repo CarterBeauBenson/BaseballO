@@ -1,0 +1,208 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX fn: <http://www.w3.org/2005/xpath-functions#>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# One evidence row per plate appearance. Authoritative MLB play-by-play supplies
+# the outcome, participants, timing, pitch/event counts, and runner resolutions.
+# PAQ-1.0 derives a baseball-style score from outcome, grind, and situational
+# evidence without source-specific enrichment assumptions.
+SELECT ?game ?plateAppearance ?batter ?batterLabel ?pitcher ?pitcherLabel
+       ?outcome ?wasHit ?hitType
+       ?startTime ?endTime ?duration ?durationMinutes
+       ?pitches ?swings ?bunts ?contacts ?balls ?strikes ?fouls ?foulTips
+       ?runnerRuns ?runnerOuts ?safeResolutions
+       ?positiveOutcome ?productiveOtherRunner
+       ?grindScore ?outcomeRating ?grindRating ?situationalRating
+       ?plateAppearanceQuality ?plateAppearanceQualityBand
+       ?plateAppearanceQualityVersion ?goodAtBatEvidenceCount ?goodAtBat
+WHERE {
+  {
+    SELECT ?graph ?game ?plateAppearance ?batter ?batterLabel ?pitcher ?pitcherLabel
+           (SAMPLE(?eventType) AS ?outcome)
+           (COALESCE(MAX(?hitFlag), 0) AS ?wasHit)
+           (SAMPLE(?hitTypeValue) AS ?hitType)
+           (SAMPLE(?startValue) AS ?startTime)
+           (SAMPLE(?endValue) AS ?endTime)
+           (SAMPLE(?durationValue) AS ?duration)
+           (SAMPLE(?durationMinutesValue) AS ?durationMinutes)
+           (COALESCE(MAX(IF(?eventKind = "pitch", ?eventCount, 0)), 0) AS ?pitches)
+           (COALESCE(MAX(IF(?eventKind = "swing", ?eventCount, 0)), 0) AS ?swings)
+           (COALESCE(MAX(IF(?eventKind = "bunt", ?eventCount, 0)), 0) AS ?bunts)
+           (COALESCE(MAX(IF(?eventKind = "contact", ?eventCount, 0)), 0) AS ?contacts)
+           (COALESCE(MAX(IF(?eventKind = "ball", ?eventCount, 0)), 0) AS ?balls)
+           (COALESCE(MAX(IF(?eventKind = "strike", ?eventCount, 0)), 0) AS ?strikes)
+           (COALESCE(MAX(IF(?eventKind = "foul", ?eventCount, 0)), 0) AS ?fouls)
+           (COALESCE(MAX(IF(?eventKind = "foul_tip", ?eventCount, 0)), 0) AS ?foulTips)
+           (COALESCE(MAX(IF(?eventKind = "run", ?eventCount, 0)), 0) AS ?runnerRuns)
+           (COALESCE(MAX(IF(?eventKind = "out", ?eventCount, 0)), 0) AS ?runnerOuts)
+           (COALESCE(MAX(IF(?eventKind = "safe", ?eventCount, 0)), 0) AS ?safeResolutions)
+           (COALESCE(MAX(?positiveOutcomeValue), 0) AS ?positiveOutcome)
+           (COALESCE(MAX(?productiveOtherRunnerValue), 0) AS ?productiveOtherRunner)
+    WHERE {
+      GRAPH ?graph {
+        ?game a base:BaseballGame .
+        ?plateAppearance a base:PlateAppearance ;
+            obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game ;
+            obo:BFO_0000199 ?plateAppearanceInterval .
+        ?batterAct a base:BatterAct ;
+            obo:BFO_0000132 ?plateAppearance ;
+            obo:BFO_0000057 ?batter .
+        ?batter rdfs:label ?batterLabel .
+        ?result a base:BaseballInstitutionalProcess, ?outcomeClass ;
+            obo:BFO_0000132 ?plateAppearance ;
+            obo:BFO_0000117 ?adjudication .
+        ?adjudication a base:BaseballAdjudicationAct .
+        VALUES (?outcomeClass ?eventType) {
+          (base:SingleProcess "single")
+          (base:DoubleProcess "double")
+          (base:TripleProcess "triple")
+          (base:HomeRunProcess "home_run")
+          (base:WalkProcess "walk")
+          (base:StrikeoutProcess "strikeout")
+          (base:HitByPitchProcess "hit_by_pitch")
+          (base:FieldersChoiceProcess "fielders_choice")
+          (base:ErrorProcess "field_error")
+          (base:SacrificeFlyProcess "sac_fly")
+          (base:SacrificeBuntProcess "sac_bunt")
+          (base:BattedBallOutProcess "field_out")
+          (base:ForceOutProcess "force_out")
+          (base:DoublePlayProcess "double_play")
+          (base:GroundedIntoDoublePlayProcess "grounded_into_double_play")
+          (base:BalkProcess "balk")
+          (base:InterferenceProcess "catcher_interf")
+        }
+        OPTIONAL {
+          ?result a ?hitClass .
+          VALUES (?hitClass ?hitFlag ?hitTypeValue) {
+            (base:SingleProcess 1 "single")
+            (base:DoubleProcess 1 "double")
+            (base:TripleProcess 1 "triple")
+            (base:HomeRunProcess 1 "home_run")
+          }
+        }
+        OPTIONAL {
+          ?result a ?positiveClass .
+          VALUES ?positiveClass {
+            base:SingleProcess base:DoubleProcess base:TripleProcess
+            base:HomeRunProcess base:WalkProcess base:HitByPitchProcess
+          }
+          BIND(1 AS ?positiveOutcomeValue)
+        }
+        OPTIONAL {
+          ?runnerResolution a base:RunnerResolutionProcess ;
+              obo:BFO_0000132 ?plateAppearance ;
+              obo:BFO_0000057 ?advancedRunner ;
+              a ?productiveResolutionClass .
+          VALUES ?productiveResolutionClass { base:SafeProcess base:RunProcess }
+          FILTER(?advancedRunner != ?batter)
+          BIND(1 AS ?productiveOtherRunnerValue)
+        }
+        OPTIONAL {
+          ?plateAppearanceInterval obo:BFO_0000222 ?startInstant ;
+              obo:BFO_0000224 ?endInstant .
+          ?startTimestamp a base:BaseballTimestampICE ;
+              cco:ont00001916 ?startInstant ;
+              cco:ont00001767 ?startValue .
+          ?endTimestamp a base:BaseballTimestampICE ;
+              cco:ont00001916 ?endInstant ;
+              cco:ont00001767 ?endValue .
+          BIND(?endValue - ?startValue AS ?durationValue)
+          BIND(
+            fn:days-from-duration(?durationValue) * 1440 +
+            fn:hours-from-duration(?durationValue) * 60 +
+            fn:minutes-from-duration(?durationValue) +
+            fn:seconds-from-duration(?durationValue) / 60
+            AS ?durationMinutesValue
+          )
+        }
+        OPTIONAL {
+          ?pitch a base:PitchAct ;
+              obo:BFO_0000132 ?plateAppearance ;
+              obo:BFO_0000057 ?pitcher .
+          ?pitcher rdfs:label ?pitcherLabel .
+        }
+      }
+      FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+      OPTIONAL {
+        SELECT ?graph ?plateAppearance ?eventKind (COUNT(DISTINCT ?event) AS ?eventCount)
+        WHERE {
+          GRAPH ?graph {
+            ?event obo:BFO_0000132 ?plateAppearance ; a ?eventClass .
+            VALUES (?eventClass ?eventKind) {
+              (base:PitchAct "pitch")
+              (base:SwingAct "swing")
+              (base:BuntAct "bunt")
+              (base:BatBallContactProcess "contact")
+              (base:BallProcess "ball")
+              (base:StrikeProcess "strike")
+              (base:FoulBallProcess "foul")
+              (base:FoulTipProcess "foul_tip")
+              (base:RunProcess "run")
+              (base:OutProcess "out")
+              (base:SafeProcess "safe")
+            }
+          }
+          FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+        }
+        GROUP BY ?graph ?plateAppearance ?eventKind
+      }
+    }
+    GROUP BY ?graph ?game ?plateAppearance ?batter ?batterLabel ?pitcher ?pitcherLabel
+  }
+  BIND(?positiveOutcome + ?productiveOtherRunner AS ?goodAtBatEvidenceCount)
+  # PAQ 1.0 keeps the familiar baseball-stat range from .000 to 1.000. The
+  # outcome rating remains visible as a distinct component.
+  BIND(IF(?outcome = "home_run", 1.000,
+    IF(?outcome = "triple", 0.950,
+    IF(?outcome = "double", 0.850,
+    IF(?outcome = "single", 0.700,
+    IF(?outcome IN ("walk", "intent_walk"), 0.800,
+    IF(?outcome = "hit_by_pitch", 0.750,
+    IF(?outcome = "catcher_interf", 0.650,
+    IF(?outcome = "sac_fly", 0.650,
+    IF(?outcome = "sac_bunt", 0.550,
+    IF(?outcome = "field_error", 0.550,
+    IF(?outcome = "fielders_choice", 0.450,
+    IF(?outcome IN ("grounded_into_double_play", "double_play", "strikeout_double_play", "sac_fly_double_play", "triple_play"), 0.000,
+    IF(?outcome = "strikeout", 0.050,
+    IF(?outcome IN ("field_out", "force_out", "fielders_choice_out", "other_out"), 0.150,
+    0.300)))))))))))))) AS ?outcomeRating)
+
+  # This is the existing transparent grind evidence, bounded to the PAQ scale.
+  # It rewards surviving pitches and producing contact/fouls but cannot outweigh
+  # the recorded outcome on its own.
+  BIND(?pitches + ?swings + (2 * ?contacts) + (2 * ?fouls) AS ?grindScore)
+  BIND(IF(?grindScore >= 18, 1.000, ?grindScore / 18.0) AS ?grindRating)
+
+  BIND(IF(
+    ?outcome IN ("grounded_into_double_play", "double_play", "strikeout_double_play", "sac_fly_double_play", "triple_play"),
+    0.000,
+    IF(?productiveOtherRunner = 1, 0.850,
+      IF(?runnerOuts > 0, 0.250, 0.500))
+  ) AS ?situationalRating)
+
+  BIND(
+    (0.800 * ?outcomeRating) +
+    (0.150 * ?grindRating) +
+    (0.050 * ?situationalRating)
+    AS ?rawPlateAppearanceQuality
+  )
+  # Damaging multi-out outcomes cannot be rehabilitated by contact or grind.
+  # The .249 ceiling keeps the reviewed ground-ball/triple-play anchors Bad.
+  BIND(IF(
+    ?outcome IN ("grounded_into_double_play", "triple_play") &&
+    ?rawPlateAppearanceQuality > 0.249,
+    0.249,
+    ?rawPlateAppearanceQuality
+  ) AS ?boundedPlateAppearanceQuality)
+  BIND(ROUND(?boundedPlateAppearanceQuality * 1000) / 1000 AS ?plateAppearanceQuality)
+  BIND(IF(?plateAppearanceQuality >= 0.850, "Excellent",
+    IF(?plateAppearanceQuality >= 0.650, "Good",
+    IF(?plateAppearanceQuality >= 0.450, "Mixed",
+    IF(?plateAppearanceQuality >= 0.250, "Poor", "Bad")))) AS ?plateAppearanceQualityBand)
+  BIND("PAQ-1.0" AS ?plateAppearanceQualityVersion)
+  BIND(IF(?plateAppearanceQuality >= 0.650, true, false) AS ?goodAtBat)
+}
+ORDER BY ?game ?startTime

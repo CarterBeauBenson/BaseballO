@@ -1,0 +1,89 @@
+artifactType: baseballo-source-iri-policy
+contractVersion: 1
+moduleId: mlb-people
+
+namespaces:
+  data: "https://baseballontology.org/data/"
+  authoritativeGraph: "https://w3id.org/baseball/graph/authority/mlb-people/"
+
+identity:
+  person:
+    key: [resourceKind, normalizedPersonId]
+    template: "{data}{resourceKind}/{normalizedPersonId}"
+    resourceKinds: [player, person]
+    note: >-
+      The resource kind is supplied by the authoritative-corpus acquisition
+      seed so this module reuses the canonical identity already referenced by
+      MLB-game RDF. A provider status field is never asserted merely to choose
+      this IRI.
+  response:
+    key: [requestScopeSha256, responseSha256]
+    template: "{data}source/mlb-people/response/{requestScopeSha256}/{responseSha256}"
+  providerIdentifier:
+    key: [person, mlb-person-id]
+    template: "{person}/identifier/mlb-person-id"
+  properName:
+    key: [person, mlb-full, exactLexicalSha256]
+    template: "{person}/name/mlb-full/{exactLexicalSha256}"
+  nickname:
+    key: [person, mlb-nickname, exactLexicalSha256]
+    template: "{person}/name/mlb-nickname/{exactLexicalSha256}"
+  heightQuality:
+    key: [person, height]
+    template: "{person}/quality/height"
+  heightMeasurement:
+    key: [person, height, responseSha256]
+    template: "{person}/measurement/height/{responseSha256}"
+  massQuality:
+    key: [person, mass]
+    template: "{person}/quality/mass"
+  massMeasurement:
+    key: [person, mass, responseSha256]
+    template: "{person}/measurement/mass/{responseSha256}"
+  sideDisposition:
+    key: [person, batting-or-throwing, left-or-right]
+    template: "{person}/disposition/{kind}-side/{side}"
+  sideMeasurement:
+    key: [person, batting-or-throwing, side, responseSha256]
+    template: "{person}/measurement/{kind}-side/{side}/{responseSha256}"
+  positionDescription:
+    key: [person, reviewed-position-code, responseSha256]
+    template: "{person}/description/baseball-position/{positionCode}/{responseSha256}"
+  fieldingDisposition:
+    key: [person, reviewed-position-code]
+    template: "{person}/disposition/fielding/{positionCode}"
+  birth:
+    key: [person, birth]
+    template: "{person}/birth"
+  birthDateIdentifier:
+    key: [person, birthDate, lexicalDate, responseSha256]
+    template: "{person}/identifier/birth-date/{lexicalDate}/{responseSha256}"
+  day:
+    key: [lexicalDate]
+    template: "{data}day/{lexicalDate}"
+
+referenceSystems:
+  mlbPersonId: "https://baseballontology.org/data/reference-system/mlb-person-id"
+  battingSide: "https://baseballontology.org/data/reference-system/mlb/batting-side"
+  throwingSide: "https://baseballontology.org/data/reference-system/mlb/throwing-side"
+  baseballPosition: "https://baseballontology.org/data/reference-system/mlb/baseball-position"
+
+graphPolicy:
+  key: [resourceKind, normalizedPersonId, responseSha256]
+  template: "{authoritativeGraph}{resourceKind}/{normalizedPersonId}/{responseSha256}"
+  replacement: immutable-content-addressed
+  authority: persistent-derived-from-transient-provider-response
+
+textPolicy:
+  decode: UTF-8 exactly once
+  lexicalForm: preserve exact Unicode scalar sequence
+  iriHash: SHA-256 of exact UTF-8 lexical bytes
+  repair: prohibited
+
+nullPolicy: Null or absent optional selected fields emit no node and no triple.
+
+worldSidePolicy:
+  massUnit: "https://www.commoncoreontologies.org/ont00001728"
+  switchCode: "S emits separate left and right dispositions and measurements"
+  currentTeam: "response aboutness only; never a Player Role or transition"
+  realization: "reference records never create Acts or realizes assertions"

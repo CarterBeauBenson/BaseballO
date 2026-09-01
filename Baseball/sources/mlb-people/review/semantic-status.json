@@ -1,0 +1,19 @@
+{
+  "artifactType": "baseballo-source-semantic-status",
+  "contractVersion": 1,
+  "moduleId": "mlb-people",
+  "operationalStatus": "paused",
+  "semanticStatus": "approved",
+  "extensionAllowed": false,
+  "semanticAcceptance": "granted-by-ontologist",
+  "runtimePolicy": "bounded-nifi-proof-before-corpus-backfill",
+  "acceptedReview": "archive/design-records/mlb-people-source-contract/review.json",
+  "audit": "sources/mlb-people/SEMANTIC-AUDIT.md",
+  "auditDate": "2026-08-30",
+  "openBlockers": [],
+  "notes": [
+    "The accepted extension packages add Mass, batting and throwing dispositions, and position-cluster descriptions without inventing realization events.",
+    "currentTeam.id remains response aboutness only; primaryNumber remains unmapped.",
+    "Future fields require their own reviewed design before executable expansion."
+  ]
+}

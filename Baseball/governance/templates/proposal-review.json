@@ -1,0 +1,16 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "replace-with-kebab-case-id",
+  "title": "Replace with the proposal title",
+  "status": "draft",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [],
+    "sourceEvidence": [],
+    "fieldSelectionInventory": [],
+    "sourceIndependentMermaid": []
+  },
+  "ontologistDecision": null
+}

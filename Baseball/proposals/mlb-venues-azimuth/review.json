@@ -1,0 +1,36 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-venues-azimuth",
+  "title": "MLB venue azimuth geometry",
+  "status": "under-review",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "a53253de0c2bfa5e13f58924bd4ed51b056b78ac4af0b8a078245d417c85c503"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "863300e56bf38030965e2ca5a7ae3620f8fdc1f9d5c59f86f907e5f7f95f8c4b"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "90519751dd9f99143a250c634edc113bc551ad6dd98198e14f0b4193371a0098"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "f11fecf584fc47b13cb63a7e95a17fe4aa1353e33f513920f198a12702179a2c"
+      }
+    ]
+  },
+  "ontologistDecision": null
+}

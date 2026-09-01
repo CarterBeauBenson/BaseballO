@@ -1,0 +1,48 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-transactions",
+  "title": "MLB personnel transactions",
+  "status": "accepted",
+  "proposedIris": [
+    "https://baseballontology.org/BaseballPersonnelTradeAct",
+    "https://baseballontology.org/UniformNumberAssignmentAct"
+  ],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "b2559d98f2d06cd9d0573767c52547ffcafed24dcfc59e8389a5a0599bb536c9"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "65734dfc74012f1e2e0a77a4f25b4b41e2e1dd7fc506f7648af5983f306a83a7"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "f426f9978544e735ae5ba6301bc8b275c47d0f52e10b624854a47d097420887e"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "ef17c57391ae2a776995313092286e0eca6ae796fcd3c62d544803f5403fc326"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-08-29",
+    "rationale": "The ontologist accepted BaseballPersonnelTradeAct, UniformNumberAssignmentAct, and the reviewed generic transaction-record pattern. Only source-proven Trade, Uniform Number Assignment, and Death claims are admitted at the world layer; all transaction families marked unresolved remain unresolved, and source-specific RML requires a later reviewed design.",
+    "authorizedArtifacts": [
+      "Baseball/ontology/BaseballO.ttl",
+      "Baseball/ontology/BaseballO-axioms-overlay.ttl"
+    ]
+  }
+}

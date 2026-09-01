@@ -1,0 +1,21 @@
+(prefix ((idx: <https://w3id.org/baseball/query-index/>)
+         (rdfs: <http://www.w3.org/2000/01/rdf-schema#>))
+  (project (?season ?team ?teamLabel ?games)
+    (order (?season (desc ?games) (lcase (str ?teamLabel)))
+      (extend ((?games ?.0))
+        (group (?season ?team ?teamLabel) ((?.0 (count distinct ?game)))
+          (graph ?graph
+            (sequence
+              (table (vars ?assignmentType)
+                (row [?assignmentType idx:HomeTeam])
+                (row [?assignmentType idx:AwayTeam])
+              )
+              (bgp
+                (triple ?game <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> idx:GameFact)
+                (triple ?game idx:season ?season)
+                (triple ?assignment <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> idx:AssignmentFact)
+                (triple ?assignment idx:assignee ?team)
+                (triple ?assignment idx:assignmentType ?assignmentType)
+                (triple ?assignment idx:game ?game)
+                (triple ?team rdfs:label ?teamLabel)
+              ))))))))

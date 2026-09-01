@@ -1,0 +1,23 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?season ?team ?teamLabel (COUNT(DISTINCT ?game) AS ?games)
+WHERE {
+  GRAPH ?graph {
+    ?game a base:BaseballGame ;
+          obo:BFO_0000199/obo:BFO_0000222 ?startInstant .
+    ?timestamp a base:BaseballTimestampICE ;
+               cco:ont00001916 ?startInstant ;
+               cco:ont00001767 ?gameStart .
+    ?teamRole obo:BFO_0000197 ?team ;
+              obo:BFO_0000054 ?game .
+    ?team rdfs:label ?teamLabel .
+    VALUES ?teamRoleType { base:HomeTeamRole base:AwayTeamRole }
+    ?teamRole a ?teamRoleType .
+    BIND(YEAR(?gameStart) AS ?season)
+  }
+}
+GROUP BY ?season ?team ?teamLabel
+ORDER BY ?season DESC(?games) LCASE(STR(?teamLabel))

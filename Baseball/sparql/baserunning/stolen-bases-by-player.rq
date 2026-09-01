@@ -1,0 +1,17 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?player ?playerLabel
+       (COUNT(DISTINCT ?stolenBase) AS ?stolenBases)
+WHERE {
+  GRAPH ?graph {
+    ?stolenBase a base:StolenBaseProcess ;
+                obo:BFO_0000057 ?player ;
+                obo:BFO_0000117 ?judgment .
+    ?judgment a base:StolenBaseJudgmentAct .
+    ?player rdfs:label ?playerLabel .
+  }
+}
+GROUP BY ?player ?playerLabel
+ORDER BY DESC(?stolenBases) LCASE(STR(?playerLabel))

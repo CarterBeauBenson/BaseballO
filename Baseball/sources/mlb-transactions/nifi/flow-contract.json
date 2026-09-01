@@ -1,0 +1,45 @@
+{
+  "artifactType": "baseballo-nifi-source-flow-contract",
+  "contractVersion": 1,
+  "sourceModule": "mlb-transactions",
+  "rootProcessGroup": "BaseballO",
+  "sourceProcessGroup": "MLB Transactions",
+  "proofRequest": {"startDate": "2026-08-31", "endDate": "2026-09-01", "scopeKey": "2026-08-31-through-2026-09-01"},
+  "backfillRequest": {"startDate": "2026-01-01", "endDate": "2026-09-01", "scopeKey": "2026-01-01-through-2026-09-01"},
+  "dailySchedule": {
+    "cron": "0 0 5 * * ?",
+    "timeZone": "America/New_York",
+    "attributeExpressions": {
+      "start.date": "${now():minus(86400000):format(\"yyyy-MM-dd\",\"America/New_York\")}",
+      "end.date": "${now():minus(86400000):format(\"yyyy-MM-dd\",\"America/New_York\")}",
+      "scope.key": "${now():minus(86400000):format(\"yyyy-MM-dd\",\"America/New_York\")}"
+    }
+  },
+  "requestAttributes": {"start.date": "$.startDate", "end.date": "$.endDate", "scope.key": "$.scopeKey"},
+  "derivedAttributes": {
+    "request.scope": "https://statsapi.mlb.com/api/v1/transactions?startDate=${start.date}&endDate=${end.date}&sportId=1"
+  },
+  "acquisitions": [
+    {
+      "key": "transaction-types",
+      "processorName": "Acquire MLB Transaction Types",
+      "url": "https://statsapi.mlb.com/api/v1/transactionTypes",
+      "filename": "transaction-types-${uuid}.json"
+    },
+    {
+      "key": "transactions",
+      "processorName": "Acquire MLB Transactions",
+      "url": "https://statsapi.mlb.com/api/v1/transactions?startDate=${start.date}&endDate=${end.date}&sportId=1",
+      "filename": "transactions-${scope.key}-${uuid}.json"
+    }
+  ],
+  "context": {
+    "builder": "mapping/prepare-context.py",
+    "contextName": "transactions-context.json",
+    "arguments": ["{input.transactions}", "{input.transaction-types}", "{context}", "--manifest", "{prepare.manifest}"]
+  },
+  "mapping": "mapping/mlb-transactions.rml.ttl",
+  "shacl": "shacl/authoritative.ttl",
+  "authoritativeGraphTemplate": "https://w3id.org/baseball/graph/event/mlb-transactions/{scope.key}",
+  "failurePolicy": {"maximumRetriesPerStage": 3, "quarantineIsSourceLocal": true}
+}

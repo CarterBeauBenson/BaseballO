@@ -1,0 +1,42 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Add VALUES clauses for ?season, ?venue, or ?player to make this a focused
+# player-at-venue lookup instead of a leaderboard.
+SELECT ?season ?venue ?venueLabel ?player ?playerLabel
+       (COUNT(DISTINCT ?hit) AS ?hits)
+       (COUNT(DISTINCT ?game) AS ?gamesWithHits)
+WHERE {
+  GRAPH ?graph {
+    ?game a base:BaseballGame ;
+          obo:BFO_0000199/obo:BFO_0000222 ?gameStartInstant .
+    ?gameStartTimestamp a base:BaseballTimestampICE ;
+                        cco:ont00001916 ?gameStartInstant ;
+                        cco:ont00001767 ?gameStart .
+
+    ?hit a base:BaseballInstitutionalProcess, ?hitClass ;
+         obo:BFO_0000132 ?plateAppearance ;
+         obo:BFO_0000117 ?hitJudgment ;
+         cco:ont00001918 ?field .
+    ?hitJudgment a base:HitJudgmentAct .
+    ?plateAppearance a base:PlateAppearance ;
+                     obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
+    ?batterAct a base:BatterAct ;
+               obo:BFO_0000132 ?plateAppearance ;
+               obo:BFO_0000057 ?player .
+    ?player rdfs:label ?playerLabel .
+    ?field a base:BaseballFieldSite ;
+           obo:BFO_0000171 ?venue .
+    ?venue a base:BaseballVenue ;
+           rdfs:label ?venueLabel .
+
+    VALUES ?hitClass {
+      base:SingleProcess base:DoubleProcess base:TripleProcess base:HomeRunProcess
+    }
+    BIND(YEAR(?gameStart) AS ?season)
+  }
+}
+GROUP BY ?season ?venue ?venueLabel ?player ?playerLabel
+ORDER BY ?season LCASE(STR(?venueLabel)) DESC(?hits) LCASE(STR(?playerLabel))

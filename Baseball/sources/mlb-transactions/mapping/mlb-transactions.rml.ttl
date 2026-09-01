@@ -1,0 +1,376 @@
+@prefix map: <https://baseballontology.org/mapping/mlb-transactions/> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+@prefix cco: <https://www.commoncoreontologies.org/> .
+@prefix ql: <http://semweb.mmlab.be/ns/ql#> .
+@prefix rml: <http://semweb.mmlab.be/ns/rml#> .
+@prefix rr: <http://www.w3.org/ns/r2rml#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix base: <https://baseballontology.org/> .
+
+# This mapping consumes only the isolated, prevalidated context created by
+# prepare-context.py. It never reads or rewrites the authoritative API bytes.
+
+map:ReferenceSystemsSource a rml:LogicalSource ;
+    rml:source "transactions-context.json" ;
+    rml:referenceFormulation ql:JSONPath ;
+    rml:iterator "$.referenceSystems[*]" .
+
+map:GroupsSource a rml:LogicalSource ;
+    rml:source "transactions-context.json" ;
+    rml:referenceFormulation ql:JSONPath ;
+    rml:iterator "$.groups[*]" .
+
+map:RowsSource a rml:LogicalSource ;
+    rml:source "transactions-context.json" ;
+    rml:referenceFormulation ql:JSONPath ;
+    rml:iterator "$.rows[*]" .
+
+map:AboutnessSource a rml:LogicalSource ;
+    rml:source "transactions-context.json" ;
+    rml:referenceFormulation ql:JSONPath ;
+    rml:iterator "$.aboutness[*]" .
+
+map:DescriptionsSource a rml:LogicalSource ;
+    rml:source "transactions-context.json" ;
+    rml:referenceFormulation ql:JSONPath ;
+    rml:iterator "$.descriptions[*]" .
+
+map:DatesSource a rml:LogicalSource ;
+    rml:source "transactions-context.json" ;
+    rml:referenceFormulation ql:JSONPath ;
+    rml:iterator "$.dates[*]" .
+
+map:DeathsSource a rml:LogicalSource ;
+    rml:source "transactions-context.json" ;
+    rml:referenceFormulation ql:JSONPath ;
+    rml:iterator "$.deaths[*]" .
+
+map:TradesSource a rml:LogicalSource ;
+    rml:source "transactions-context.json" ;
+    rml:referenceFormulation ql:JSONPath ;
+    rml:iterator "$.trades[*]" .
+
+map:TradeAgentsSource a rml:LogicalSource ;
+    rml:source "transactions-context.json" ;
+    rml:referenceFormulation ql:JSONPath ;
+    rml:iterator "$.tradeAgents[*]" .
+
+map:TradeLegsSource a rml:LogicalSource ;
+    rml:source "transactions-context.json" ;
+    rml:referenceFormulation ql:JSONPath ;
+    rml:iterator "$.tradeLegs[*]" .
+
+map:SigningsSource a rml:LogicalSource ;
+    rml:source "transactions-context.json" ;
+    rml:referenceFormulation ql:JSONPath ;
+    rml:iterator "$.signings[*]" .
+
+map:ReferenceSystemMap a rr:TriplesMap ;
+    rml:logicalSource map:ReferenceSystemsSource ;
+    rr:subjectMap [
+        rml:reference "iri" ;
+        rr:termType rr:IRI ;
+        rr:class cco:ont00000398
+    ] .
+
+map:GroupingRecordMap a rr:TriplesMap ;
+    rml:logicalSource map:GroupsSource ;
+    rr:subjectMap [
+        rml:reference "groupIri" ;
+        rr:termType rr:IRI ;
+        rr:class cco:ont00000853
+    ] .
+
+map:TransactionIdentifierMap a rr:TriplesMap ;
+    rml:logicalSource map:GroupsSource ;
+    rr:subjectMap [
+        rml:reference "transactionIdentifierIri" ;
+        rr:termType rr:IRI ;
+        rr:class cco:ont00000649
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate cco:ont00001916 ;
+        rr:objectMap [ rml:reference "groupIri" ; rr:termType rr:IRI ]
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate cco:ont00001765 ;
+        rr:objectMap [ rml:reference "transactionIdText" ; rr:datatype xsd:string ]
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate cco:ont00001912 ;
+        rr:objectMap [
+            rr:constant <https://baseballontology.org/data/source/mlb-transactions/reference-system/transaction-identifier> ;
+            rr:termType rr:IRI
+        ]
+    ] .
+
+map:RowRecordMap a rr:TriplesMap ;
+    rml:logicalSource map:RowsSource ;
+    rr:subjectMap [
+        rml:reference "rowIri" ;
+        rr:termType rr:IRI ;
+        rr:class cco:ont00000853
+    ] .
+
+map:GroupingRowPartMap a rr:TriplesMap ;
+    rml:logicalSource map:RowsSource ;
+    rr:subjectMap [ rml:reference "groupIri" ; rr:termType rr:IRI ] ;
+    rr:predicateObjectMap [
+        rr:predicate obo:BFO_0000178 ;
+        rr:objectMap [ rml:reference "rowIri" ; rr:termType rr:IRI ]
+    ] .
+
+map:RowAboutnessMap a rr:TriplesMap ;
+    rml:logicalSource map:AboutnessSource ;
+    rr:subjectMap [ rml:reference "rowIri" ; rr:termType rr:IRI ] ;
+    rr:predicateObjectMap [
+        rr:predicate cco:ont00001808 ;
+        rr:objectMap [ rml:reference "entityIri" ; rr:termType rr:IRI ]
+    ] .
+
+map:RowTypeClassificationMap a rr:TriplesMap ;
+    rml:logicalSource map:RowsSource ;
+    rr:subjectMap [
+        rml:reference "typeIri" ;
+        rr:termType rr:IRI ;
+        rr:class cco:ont00000293
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate cco:ont00001868 ;
+        rr:objectMap [ rml:reference "rowIri" ; rr:termType rr:IRI ]
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate cco:ont00001765 ;
+        rr:objectMap [ rml:reference "typeCode" ; rr:datatype xsd:string ]
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate cco:ont00001912 ;
+        rr:objectMap [
+            rr:constant <https://baseballontology.org/data/source/mlb-transactions/reference-system/transaction-type> ;
+            rr:termType rr:IRI
+        ]
+    ] .
+
+map:RowDescriptionMap a rr:TriplesMap ;
+    rml:logicalSource map:DescriptionsSource ;
+    rr:subjectMap [
+        rml:reference "descriptionIri" ;
+        rr:termType rr:IRI ;
+        rr:class cco:ont00000853
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate cco:ont00001808 ;
+        rr:objectMap [ rml:reference "rowIri" ; rr:termType rr:IRI ]
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate cco:ont00001765 ;
+        rr:objectMap [ rml:reference "descriptionText" ; rr:datatype xsd:string ]
+    ] .
+
+map:RowDatePartMap a rr:TriplesMap ;
+    rml:logicalSource map:DatesSource ;
+    rr:subjectMap [ rml:reference "rowIri" ; rr:termType rr:IRI ] ;
+    rr:predicateObjectMap [
+        rr:predicate obo:BFO_0000178 ;
+        rr:objectMap [ rml:reference "dateIdentifierIri" ; rr:termType rr:IRI ]
+    ] .
+
+map:CalendarDateIdentifierMap a rr:TriplesMap ;
+    rml:logicalSource map:DatesSource ;
+    rr:subjectMap [
+        rml:reference "dateIdentifierIri" ;
+        rr:termType rr:IRI ;
+        rr:class cco:ont00001340
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate cco:ont00001771 ;
+        rr:objectMap [ rml:reference "dateValue" ; rr:datatype xsd:date ]
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate cco:ont00001916 ;
+        rr:objectMap [ rml:reference "dayIri" ; rr:termType rr:IRI ]
+    ] .
+
+map:DayMap a rr:TriplesMap ;
+    rml:logicalSource map:DatesSource ;
+    rr:subjectMap [
+        rml:reference "dayIri" ;
+        rr:termType rr:IRI ;
+        rr:class cco:ont00000800
+    ] .
+
+map:DateFieldKeyIdentifierMap a rr:TriplesMap ;
+    rml:logicalSource map:DatesSource ;
+    rr:subjectMap [
+        rml:reference "fieldKeyIdentifierIri" ;
+        rr:termType rr:IRI ;
+        rr:class cco:ont00000649
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate cco:ont00001916 ;
+        rr:objectMap [ rml:reference "dateIdentifierIri" ; rr:termType rr:IRI ]
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate cco:ont00001765 ;
+        rr:objectMap [ rml:reference "fieldKeyText" ; rr:datatype xsd:string ]
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate cco:ont00001912 ;
+        rr:objectMap [
+            rr:constant <https://baseballontology.org/data/source/mlb-transactions/reference-system/field-key> ;
+            rr:termType rr:IRI
+        ]
+    ] .
+
+# prepare-context.py leaves $.deaths empty unless the exact accepted Death-code
+# pin matches the acquired code-list bytes and the transaction row has a Person.
+map:DeathMap a rr:TriplesMap ;
+    rml:logicalSource map:DeathsSource ;
+    rr:subjectMap [
+        rml:reference "deathIri" ;
+        rr:termType rr:IRI ;
+        rr:class cco:ont00000920
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate obo:BFO_0000057 ;
+        rr:objectMap [ rml:reference "personIri" ; rr:termType rr:IRI ]
+    ] .
+
+map:DeathRowAboutnessMap a rr:TriplesMap ;
+    rml:logicalSource map:DeathsSource ;
+    rr:subjectMap [ rml:reference "rowIri" ; rr:termType rr:IRI ] ;
+    rr:predicateObjectMap [
+        rr:predicate cco:ont00001808 ;
+        rr:objectMap [ rml:reference "deathIri" ; rr:termType rr:IRI ]
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate cco:ont00001808 ;
+        rr:objectMap [ rml:reference "personIri" ; rr:termType rr:IRI ]
+    ] .
+
+
+#################################################################
+# Grounded Trade and signing world-side processes
+#################################################################
+
+map:TradeMap a rr:TriplesMap ;
+    rml:logicalSource map:TradesSource ;
+    rr:subjectMap [
+        rml:reference "tradeIri" ; rr:termType rr:IRI ;
+        rr:class base:BaseballPersonnelTradeAct
+    ] .
+
+map:TradeAgentMap a rr:TriplesMap ;
+    rml:logicalSource map:TradeAgentsSource ;
+    rr:subjectMap [ rml:reference "tradeIri" ; rr:termType rr:IRI ] ;
+    rr:predicateObjectMap [
+        rr:predicate cco:ont00001833 ;
+        rr:objectMap [ rml:reference "teamIri" ; rr:termType rr:IRI ]
+    ] .
+
+map:TradeRowAboutnessMap a rr:TriplesMap ;
+    rml:logicalSource map:TradeLegsSource ;
+    rr:subjectMap [ rml:reference "rowIri" ; rr:termType rr:IRI ] ;
+    rr:predicateObjectMap [
+        rr:predicate cco:ont00001808 ;
+        rr:objectMap [ rml:reference "tradeIri" ; rr:termType rr:IRI ]
+    ] .
+
+map:TradeOldPlayerRoleMap a rr:TriplesMap ;
+    rml:logicalSource map:TradeLegsSource ;
+    rr:subjectMap [
+        rml:reference "oldRoleIri" ; rr:termType rr:IRI ; rr:class base:PlayerRole
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate obo:BFO_0000197 ;
+        rr:objectMap [ rml:reference "personIri" ; rr:termType rr:IRI ]
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate cco:ont00001992 ;
+        rr:objectMap [ rml:reference "fromTeamIri" ; rr:termType rr:IRI ]
+    ] .
+
+map:TradeNewPlayerRoleMap a rr:TriplesMap ;
+    rml:logicalSource map:TradeLegsSource ;
+    rr:subjectMap [
+        rml:reference "newRoleIri" ; rr:termType rr:IRI ; rr:class base:PlayerRole
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate obo:BFO_0000197 ;
+        rr:objectMap [ rml:reference "personIri" ; rr:termType rr:IRI ]
+    ] ;
+    rr:predicateObjectMap [
+        rr:predicate cco:ont00001992 ;
+        rr:objectMap [ rml:reference "toTeamIri" ; rr:termType rr:IRI ]
+    ] .
+
+map:TradeLossMap a rr:TriplesMap ;
+    rml:logicalSource map:TradeLegsSource ;
+    rr:subjectMap [
+        rml:reference "lossIri" ; rr:termType rr:IRI ; rr:class cco:ont00000613
+    ] ;
+    rr:predicateObjectMap [ rr:predicate obo:BFO_0000057 ; rr:objectMap [ rml:reference "personIri" ; rr:termType rr:IRI ] ] ;
+    rr:predicateObjectMap [ rr:predicate cco:ont00001834 ; rr:objectMap [ rml:reference "oldRoleIri" ; rr:termType rr:IRI ] ] ;
+    rr:predicateObjectMap [ rr:predicate obo:BFO_0000199 ; rr:objectMap [ rml:reference "lossRegionIri" ; rr:termType rr:IRI ] ] ;
+    rr:predicateObjectMap [ rr:predicate obo:BFO_0000063 ; rr:objectMap [ rml:reference "gainIri" ; rr:termType rr:IRI ] ] .
+
+map:TradeGainMap a rr:TriplesMap ;
+    rml:logicalSource map:TradeLegsSource ;
+    rr:subjectMap [
+        rml:reference "gainIri" ; rr:termType rr:IRI ; rr:class cco:ont00001194
+    ] ;
+    rr:predicateObjectMap [ rr:predicate obo:BFO_0000057 ; rr:objectMap [ rml:reference "personIri" ; rr:termType rr:IRI ] ] ;
+    rr:predicateObjectMap [ rr:predicate cco:ont00001834 ; rr:objectMap [ rml:reference "newRoleIri" ; rr:termType rr:IRI ] ] ;
+    rr:predicateObjectMap [ rr:predicate obo:BFO_0000199 ; rr:objectMap [ rml:reference "gainRegionIri" ; rr:termType rr:IRI ] ] .
+
+map:TradeOccurrentPartsMap a rr:TriplesMap ;
+    rml:logicalSource map:TradeLegsSource ;
+    rr:subjectMap [ rml:reference "tradeIri" ; rr:termType rr:IRI ] ;
+    rr:predicateObjectMap [ rr:predicate obo:BFO_0000117 ; rr:objectMap [ rml:reference "lossIri" ; rr:termType rr:IRI ] ] ;
+    rr:predicateObjectMap [ rr:predicate obo:BFO_0000117 ; rr:objectMap [ rml:reference "gainIri" ; rr:termType rr:IRI ] ] .
+
+map:TradeLossRegionMap a rr:TriplesMap ;
+    rml:logicalSource map:TradeLegsSource ;
+    rr:subjectMap [ rml:reference "lossRegionIri" ; rr:termType rr:IRI ; rr:class obo:BFO_0000038 ] ;
+    rr:predicateObjectMap [ rr:predicate obo:BFO_0000139 ; rr:objectMap [ rml:reference "dayIri" ; rr:termType rr:IRI ] ] .
+
+map:TradeGainRegionMap a rr:TriplesMap ;
+    rml:logicalSource map:TradeLegsSource ;
+    rr:subjectMap [ rml:reference "gainRegionIri" ; rr:termType rr:IRI ; rr:class obo:BFO_0000038 ] ;
+    rr:predicateObjectMap [ rr:predicate obo:BFO_0000139 ; rr:objectMap [ rml:reference "dayIri" ; rr:termType rr:IRI ] ] .
+
+map:ContractFormationMap a rr:TriplesMap ;
+    rml:logicalSource map:SigningsSource ;
+    rr:subjectMap [ rml:reference "contractIri" ; rr:termType rr:IRI ; rr:class cco:ont00000684 ] ;
+    rr:predicateObjectMap [ rr:predicate cco:ont00001833 ; rr:objectMap [ rml:reference "personIri" ; rr:termType rr:IRI ] ] ;
+    rr:predicateObjectMap [ rr:predicate cco:ont00001833 ; rr:objectMap [ rml:reference "teamIri" ; rr:termType rr:IRI ] ] ;
+    rr:predicateObjectMap [ rr:predicate obo:BFO_0000199 ; rr:objectMap [ rml:reference "contractRegionIri" ; rr:termType rr:IRI ] ] ;
+    rr:predicateObjectMap [ rr:predicate obo:BFO_0000063 ; rr:objectMap [ rml:reference "gainIri" ; rr:termType rr:IRI ] ] .
+
+map:SigningRowAboutnessMap a rr:TriplesMap ;
+    rml:logicalSource map:SigningsSource ;
+    rr:subjectMap [ rml:reference "rowIri" ; rr:termType rr:IRI ] ;
+    rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "contractIri" ; rr:termType rr:IRI ] ] .
+
+map:SigningPlayerRoleMap a rr:TriplesMap ;
+    rml:logicalSource map:SigningsSource ;
+    rr:subjectMap [ rml:reference "playerRoleIri" ; rr:termType rr:IRI ; rr:class base:PlayerRole ] ;
+    rr:predicateObjectMap [ rr:predicate obo:BFO_0000197 ; rr:objectMap [ rml:reference "personIri" ; rr:termType rr:IRI ] ] ;
+    rr:predicateObjectMap [ rr:predicate cco:ont00001992 ; rr:objectMap [ rml:reference "teamIri" ; rr:termType rr:IRI ] ] .
+
+map:SigningPlayerRoleGainMap a rr:TriplesMap ;
+    rml:logicalSource map:SigningsSource ;
+    rr:subjectMap [ rml:reference "gainIri" ; rr:termType rr:IRI ; rr:class cco:ont00001194 ] ;
+    rr:predicateObjectMap [ rr:predicate obo:BFO_0000057 ; rr:objectMap [ rml:reference "personIri" ; rr:termType rr:IRI ] ] ;
+    rr:predicateObjectMap [ rr:predicate cco:ont00001834 ; rr:objectMap [ rml:reference "playerRoleIri" ; rr:termType rr:IRI ] ] ;
+    rr:predicateObjectMap [ rr:predicate obo:BFO_0000199 ; rr:objectMap [ rml:reference "gainRegionIri" ; rr:termType rr:IRI ] ] .
+
+map:ContractTemporalRegionMap a rr:TriplesMap ;
+    rml:logicalSource map:SigningsSource ;
+    rr:subjectMap [ rml:reference "contractRegionIri" ; rr:termType rr:IRI ; rr:class obo:BFO_0000038 ] ;
+    rr:predicateObjectMap [ rr:predicate obo:BFO_0000139 ; rr:objectMap [ rml:reference "dayIri" ; rr:termType rr:IRI ] ] .
+
+map:SigningGainTemporalRegionMap a rr:TriplesMap ;
+    rml:logicalSource map:SigningsSource ;
+    rr:subjectMap [ rml:reference "gainRegionIri" ; rr:termType rr:IRI ; rr:class obo:BFO_0000038 ] ;
+    rr:predicateObjectMap [ rr:predicate obo:BFO_0000139 ; rr:objectMap [ rml:reference "dayIri" ; rr:termType rr:IRI ] ] .

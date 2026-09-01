@@ -1,0 +1,21 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+
+SELECT ?season ?seasonPhase ?seasonPhaseLabel
+       (COUNT(DISTINCT ?game) AS ?games)
+WHERE {
+  GRAPH ?graph {
+    ?game a base:BaseballGame ; obo:BFO_0000132 ?phase .
+    ?phase a ?seasonPhase ; obo:BFO_0000132 ?seasonProcess .
+    VALUES (?seasonPhase ?seasonPhaseLabel) {
+      (base:BaseballPreseasonPhase "Preseason")
+      (base:BaseballRegularSeasonPhase "Regular season")
+      (base:BaseballPostseasonPhase "Postseason")
+      (base:BaseballAllStarPhase "All-Star phase")
+    }
+    BIND(STRAFTER(STR(?seasonProcess), "/data/season/") AS ?season)
+  }
+  FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+}
+GROUP BY ?season ?seasonPhase ?seasonPhaseLabel
+ORDER BY DESC(?season) ?seasonPhaseLabel

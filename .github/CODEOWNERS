@@ -1,0 +1,30 @@
+# BaseballO is a single-ontologist research repository. Repository hosting
+# rules must require Code Owner review for this file to become an enforcement
+# boundary; CODEOWNERS alone does not prevent a direct push. Infrastructure
+# and application-only changes remain outside this semantic ownership gate.
+/AGENTS.md @CarterBeauBenson
+/.github/CODEOWNERS @CarterBeauBenson
+/.github/workflows/validate.yml @CarterBeauBenson
+/.githooks/ @CarterBeauBenson
+/Baseball/governance/ @CarterBeauBenson
+/Baseball/ontology/ @CarterBeauBenson
+/Baseball/proposals/ @CarterBeauBenson
+/Baseball/archive/design-records/ @CarterBeauBenson
+/Baseball/mappings/policies/ @CarterBeauBenson
+/Baseball/sources/source-modules.json @CarterBeauBenson
+/Baseball/sources/*/mapping/ @CarterBeauBenson
+/Baseball/sources/*/shacl/ @CarterBeauBenson
+/Baseball/sources/*/review/ @CarterBeauBenson
+/Baseball/shacl/ @CarterBeauBenson
+/Baseball/sparql/ @CarterBeauBenson
+/Baseball/reasoning/profiles/ @CarterBeauBenson
+/Baseball/reasoning/profile-admission-tests.json @CarterBeauBenson
+/Baseball/scripts/validate_repository.py @CarterBeauBenson
+/Baseball/scripts/validate_ontology_overlay.py @CarterBeauBenson
+/Baseball/scripts/validate_ontology_curation.py @CarterBeauBenson
+/Baseball/scripts/validate_semantic_change_control.py @CarterBeauBenson
+/Baseball/scripts/generate_rml_mermaid.py @CarterBeauBenson
+/Baseball/scripts/pipeline/prepare-rml-context.py @CarterBeauBenson
+/Baseball/scripts/pipeline/run-rml.ps1 @CarterBeauBenson
+/Baseball/scripts/pipeline/validate-generated-rdf.py @CarterBeauBenson
+/Baseball/scripts/pipeline/validate-mapping-shacl-contracts.py @CarterBeauBenson

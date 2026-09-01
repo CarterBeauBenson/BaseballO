@@ -1,0 +1,46 @@
+{
+  "artifactType": "baseball-selective-reasoning-profile",
+  "contractVersion": 1,
+  "id": "participation",
+  "description": "Bounded participant reasoning inside one plate appearance.",
+  "anchorClass": "https://baseballontology.org/PlateAppearance",
+  "scope": {
+    "containmentDepth": 4,
+    "enrichmentDepth": 1,
+    "predicates": [
+      "http://purl.obolibrary.org/obo/BFO_0000056",
+      "http://purl.obolibrary.org/obo/BFO_0000057",
+      "http://purl.obolibrary.org/obo/BFO_0000117",
+      "http://purl.obolibrary.org/obo/BFO_0000132",
+      "http://purl.obolibrary.org/obo/BFO_0000199"
+    ]
+  },
+  "rules": {
+    "subclassTypes": false,
+    "inverse": [
+      {
+        "forward": "http://purl.obolibrary.org/obo/BFO_0000057",
+        "inverse": "http://purl.obolibrary.org/obo/BFO_0000056",
+        "evidence": "BFO OWL inverseOf; temporalized analogue participation.cl[xjr-1]"
+      }
+    ],
+    "transitive": []
+  },
+  "constraints": {},
+  "clif": {
+    "modules": [
+      "universal-declaration.cl",
+      "participation.cl",
+      "existence-instantiation.cl"
+    ],
+    "axioms": ["xjr-1", "ild-2", "lqn-1"],
+    "requireExplicitTemporalRegion": true
+  },
+  "budgets": {
+    "maxNodes": 220,
+    "maxSourceTriples": 1100,
+    "maxInferredTriples": 3000,
+    "maxIterations": 6,
+    "maxSeconds": 15
+  }
+}

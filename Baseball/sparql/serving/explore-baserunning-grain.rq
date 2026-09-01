@@ -1,0 +1,35 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX idx: <https://w3id.org/baseball/query-index/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Runner identity, resolution class, event category, and game containment come
+# from the equivalence-gated index. Team context and labels remain authoritative.
+SELECT DISTINCT ?graph ?indexGraph ?game ?resolution ?player ?playerLabel ?team ?teamLabel
+                ?eventType ?resolutionClass ?stolenBase
+WHERE {
+  GRAPH ?indexGraph {
+    ?index a idx:QueryIndex ; idx:sourceGraph ?graph ; idx:indexedGame ?game ; idx:contractVersion "1" .
+    ?resolution a idx:RunnerResolutionFact ; idx:agent ?player ; idx:game ?game ;
+                idx:resolutionClass ?resolutionClass ; idx:sourceEventType ?eventType .
+  }
+  GRAPH ?graph {
+    ?resolution obo:BFO_0000132 ?plateAppearance .
+    ?plateAppearance a base:PlateAppearance ;
+      obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
+    ?player rdfs:label ?playerLabel .
+    ?halfInning a base:HalfInning ; obo:BFO_0000117 ?plateAppearance .
+    BIND(IF(STRENDS(STR(?halfInning), "/top"), base:AwayTeamRole, base:HomeTeamRole) AS ?teamRoleClass)
+    ?teamRole a ?teamRoleClass ; obo:BFO_0000197 ?team ; obo:BFO_0000054 ?game .
+    ?team rdfs:label ?teamLabel .
+    OPTIONAL {
+      ?stolenBase a base:StolenBaseProcess ; obo:BFO_0000057 ?player ;
+                  obo:BFO_0000132 ?plateAppearance ; obo:BFO_0000117 ?stolenBaseJudgment .
+      ?stolenBaseJudgment a base:StolenBaseJudgmentAct .
+    }
+  }
+  FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+  FILTER(STRSTARTS(STR(?indexGraph), "https://w3id.org/baseball/graph/query-index/game/"))
+}
+ORDER BY ?graph ?resolution

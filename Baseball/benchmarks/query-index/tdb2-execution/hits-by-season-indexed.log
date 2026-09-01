@@ -1,0 +1,64 @@
+INFO  exec            :: QUERY
+  PREFIX  idx:  <https://w3id.org/baseball/query-index/>
+
+  SELECT  ?season (COUNT(DISTINCT ?hit) AS ?hits) (COUNT(DISTINCT ?game) AS ?gamesWithHits)
+  WHERE
+    { VALUES ?graph { <https://w3id.org/baseball/graph/query-index/game/822867> <https://w3id.org/baseball/graph/query-index/game/823431> <https://w3id.org/baseball/graph/query-index/game/823520> <https://w3id.org/baseball/graph/query-index/game/823757> <https://w3id.org/baseball/graph/query-index/game/824160> <https://w3id.org/baseball/graph/query-index/game/824324> <https://w3id.org/baseball/graph/query-index/game/824647> <https://w3id.org/baseball/graph/query-index/game/825095> }
+      GRAPH ?graph
+        { ?hit   a           idx:HitFact ;
+                 idx:game    ?game .
+          ?game  a           idx:GameFact ;
+                 idx:season  ?season
+        }
+    }
+  GROUP BY ?season
+  ORDER BY ?season
+INFO  exec            :: ALGEBRA
+  (project (?season ?hits ?gamesWithHits)
+    (order (?season)
+      (extend ((?hits ?.0) (?gamesWithHits ?.1))
+        (group (?season) ((?.0 (count distinct ?hit)) (?.1 (count distinct ?game)))
+          (sequence
+            (table (vars ?graph)
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/822867>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/823431>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/823520>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/823757>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/824160>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/824324>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/824647>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/825095>])
+            )
+            (quadpattern
+              (quad ?graph ?hit <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://w3id.org/baseball/query-index/HitFact>)
+              (quad ?graph ?hit <https://w3id.org/baseball/query-index/game> ?game)
+              (quad ?graph ?game <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://w3id.org/baseball/query-index/GameFact>)
+              (quad ?graph ?game <https://w3id.org/baseball/query-index/season> ?season)
+            ))))))
+INFO  exec            :: TDB2
+  (project (?season ?hits ?gamesWithHits)
+    (order (?season)
+      (extend ((?hits ?.0) (?gamesWithHits ?.1))
+        (group (?season) ((?.0 (count distinct ?hit)) (?.1 (count distinct ?game)))
+          (sequence
+            (table (vars ?graph)
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/822867>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/823431>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/823520>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/823757>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/824160>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/824324>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/824647>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/825095>])
+            )
+            (quadpattern
+              (quad ?graph ?hit <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://w3id.org/baseball/query-index/HitFact>)
+              (quad ?graph ?hit <https://w3id.org/baseball/query-index/game> ?game)
+              (quad ?graph ?game <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://w3id.org/baseball/query-index/GameFact>)
+              (quad ?graph ?game <https://w3id.org/baseball/query-index/season> ?season)
+            ))))))
+INFO  exec            :: Execute
+  ?hit rdf:type <https://w3id.org/baseball/query-index/HitFact>
+  ?hit <https://w3id.org/baseball/query-index/game> ?game
+  ?game rdf:type <https://w3id.org/baseball/query-index/GameFact>
+  ?game <https://w3id.org/baseball/query-index/season> ?season

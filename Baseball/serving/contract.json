@@ -1,0 +1,77 @@
+{
+  "artifactType": "baseball-analytical-serving-contract",
+  "contractVersion": 5,
+  "engine": "sqlite",
+  "authority": {
+    "analyticalFacts": "derived-from-authoritative-rdf",
+    "temporaryGameSetDependency": "validated-persistent-acquisition-provenance-and-checked-historical-schedule-evidence",
+    "target": "fully-rebuildable-from-authoritative-rdf"
+  },
+  "promotion": "immutable-database-with-atomic-current-pointer",
+  "retention": {
+    "databaseBuilds": 3,
+    "evidence": "retained",
+    "recoveryBeyondRetainedBuilds": "rebuild-from-authoritative-rdf-and-persistent-game-set-evidence-until-rdf-gap-is-closed"
+  },
+  "validationStatus": "integrity-gated-with-known-game-set-authority-gap",
+  "equivalenceStatus": "pending-current-contract-sparql-to-sql-proof",
+  "knownAuthorityGap": {
+    "field": "game_dimension.game_set",
+    "currentSource": "compact acquisition provenance for new runs and checked schedule evidence for the historical corpus",
+    "problem": "authoritative MLB-game RDF does not yet represent game type or corpus-fixture membership",
+    "requiredResolution": "ontologist-approved RDF model and historical backfill before claiming RDF-only rebuildability"
+  },
+  "rolloutGate": {
+    "materializationAdmission": "shared-reusable-grains",
+    "visibleSlice": ["plate-appearance-quality", "good-at-bat"],
+    "pendingExplorerFamilies": ["advanced-reviewed-catalog", "explore", "empty-games-and-derived"],
+    "familyAdmissionRequirement": "reviewed-end-to-end-sparql-to-sql-equivalence"
+  },
+  "routes": {
+    "plate-appearance-fingerprint": {
+      "status": "admitted-visible-slice",
+      "sourceQuery": "sparql/advanced/plate-appearance-fingerprint.rq",
+      "grain": "one row per plate appearance",
+      "ratingContract": "serving/plate-appearance-quality-v1.json",
+      "views": ["plate_appearances", "player_averages"],
+      "visiblePurpose": ["plate-appearance-quality", "good-at-bat"],
+      "fallback": "authoritative-sparql"
+    },
+    "advanced-reviewed-catalog": {
+      "status": "pending-end-to-end-equivalence",
+      "sourceCatalog": "sparql/advanced/advanced-query-catalog.json",
+      "reducerContract": "serving/advanced-query-reducers.json",
+      "grain": "per-game reviewed query bindings with query-specific SQL-selected reduction",
+      "fallback": "authoritative-sparql"
+    },
+    "explore": {
+      "status": "pending-end-to-end-equivalence",
+      "sourceQueries": "sparql/serving/explore-*-grain.rq",
+      "grain": "indexed RDF identities plus bounded authoritative context at event grain",
+      "fallback": "compiled-authoritative-sparql"
+    },
+    "empty-games-and-derived": {
+      "status": "pending-end-to-end-equivalence",
+      "grain": "one completeness-gated batter-game-pitcher row plus PA damage opportunities",
+      "fallback": "authoritative-sparql"
+    },
+    "options": {
+      "status": "admitted-support-for-visible-slice",
+      "admissionScope": "filters for plate-appearance-quality and good-at-bat only",
+      "grain": "distinct values from materialized game and event dimensions",
+      "fallback": "authoritative-sparql"
+    }
+  },
+  "grains": {
+    "game_dimension": "one row per authoritative game graph",
+    "plate_appearance_fact": "one row per plate appearance with MLB outcome, pitch/event counts, runner resolutions, and PAQ components",
+    "advanced_result_fact": "one reviewed advanced-query result row per authoritative game graph before cross-game reduction",
+    "batting_result_fact": "one reviewed plate-appearance result",
+    "pitch_fact": "one pitch with its final MLB call code",
+    "runner_event_fact": "one reviewed runner resolution",
+    "assignment_fact": "one game-scoped team or official assignment",
+    "empty_player_game_fact": "one reviewed batter-game-opposing-pitcher classification",
+    "empty_damage_fact": "one failed plate appearance with damage inputs"
+  },
+  "liveSparql": "novel-research-and-fail-open-fallback"
+}

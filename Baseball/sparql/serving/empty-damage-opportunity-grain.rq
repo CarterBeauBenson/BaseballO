@@ -1,0 +1,63 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# All failure opportunities are retained at PA grain. SQL joins these rows to
+# the separately derived empty player-game classification at request time.
+SELECT ?graph ?game ?gameStart ?player ?playerLabel ?team ?teamLabel
+       ?damagePlateAppearance ?outsBefore
+       (GROUP_CONCAT(DISTINCT STRAFTER(STR(?failureType), STR(base:)); separator=", ") AS ?failureTypes)
+       (MAX(IF(?failureType IN (base:DoublePlayProcess, base:GroundedIntoDoublePlayProcess), 1, 0)) AS ?doublePlay)
+       (COALESCE(MAX(?firstFlag), 0) AS ?onFirst)
+       (COALESCE(MAX(?secondFlag), 0) AS ?onSecond)
+       (COALESCE(MAX(?thirdFlag), 0) AS ?onThird)
+       (COUNT(DISTINCT ?damagePitch) AS ?pitches)
+       (COUNT(DISTINCT ?damageSwing) AS ?swings)
+       (COUNT(DISTINCT ?damageContact) AS ?contacts)
+       (COUNT(DISTINCT ?damageFoul) AS ?fouls)
+       ?damagePitcher ?damagePitcherLabel
+WHERE {
+  GRAPH ?graph {
+    ?damageBatterAct a base:BatterAct ; obo:BFO_0000057 ?player ;
+                     obo:BFO_0000132 ?damagePlateAppearance .
+    ?damagePlateAppearance a base:PlateAppearance ;
+      obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
+    ?game a base:BaseballGame ; obo:BFO_0000199/obo:BFO_0000222 ?gameStartInstant .
+    ?gameStartTimestamp a base:BaseballTimestampICE ; cco:ont00001916 ?gameStartInstant ;
+                        cco:ont00001767 ?gameStart .
+    ?halfInning a base:HalfInning ; obo:BFO_0000117 ?damagePlateAppearance .
+    BIND(IF(STRENDS(STR(?halfInning), "/top"), base:AwayTeamRole, base:HomeTeamRole) AS ?teamRoleClass)
+    ?teamRole a ?teamRoleClass ; obo:BFO_0000197 ?team ; obo:BFO_0000054 ?game .
+    ?failureResult obo:BFO_0000132 ?damagePlateAppearance ; a ?failureType .
+    VALUES ?failureType {
+      base:BattedBallOutProcess base:ForceOutProcess base:StrikeoutProcess
+      base:DoublePlayProcess base:GroundedIntoDoublePlayProcess
+    }
+    ?damageOutCount a base:PlateAppearanceStartOutCountICE ;
+                    cco:ont00001808 ?damagePlateAppearance ; cco:ont00001773 ?outsBefore .
+    ?damagePitch a base:PitchAct ; obo:BFO_0000132 ?damagePlateAppearance ;
+                 obo:BFO_0000057 ?damagePitcher .
+    ?damagePitcher a cco:ont00001262 .
+    OPTIONAL { ?player rdfs:label ?playerLabel }
+    OPTIONAL { ?team rdfs:label ?teamLabel }
+    OPTIONAL { ?damagePitcher rdfs:label ?damagePitcherLabel }
+    OPTIONAL { ?damageSwing a base:SwingAct ; obo:BFO_0000132 ?damagePlateAppearance }
+    OPTIONAL { ?damageContact a base:BatBallContactProcess ; obo:BFO_0000132 ?damagePlateAppearance }
+    OPTIONAL { ?damageFoul a base:FoulBallProcess ; obo:BFO_0000132 ?damagePlateAppearance }
+    OPTIONAL {
+      ?occupancy a base:BaserunnerAtBaseStasis ; obo:BFO_0000132 ?damagePlateAppearance ;
+                 obo:BFO_0000057 ?occupiedBase .
+      ?occupiedBase a base:Base .
+      ?baseIdentifier a cco:ont00000649 ; cco:ont00001916 ?occupiedBase ;
+                      cco:ont00001765 ?baseCode .
+      BIND(IF(STR(?baseCode) = "1B", 1, 0) AS ?firstFlag)
+      BIND(IF(STR(?baseCode) = "2B", 1, 0) AS ?secondFlag)
+      BIND(IF(STR(?baseCode) = "3B", 1, 0) AS ?thirdFlag)
+    }
+  }
+  FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+}
+GROUP BY ?graph ?game ?gameStart ?player ?playerLabel ?team ?teamLabel
+         ?damagePlateAppearance ?outsBefore ?damagePitcher ?damagePitcherLabel
+ORDER BY ?gameStart ?game LCASE(STR(?playerLabel)) ?damagePlateAppearance

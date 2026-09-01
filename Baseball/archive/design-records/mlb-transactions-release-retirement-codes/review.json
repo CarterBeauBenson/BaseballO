@@ -1,0 +1,22 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-transactions-release-retirement-codes",
+  "title": "MLB transaction release and retirement codes",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [{"path": "competency-questions.md", "sha256": "bcc94e885478e3dc38cb8fcbeb5a6e739ba1711fa6c5a05f1d928b635d963a7f"}],
+    "sourceEvidence": [{"path": "source-evidence.md", "sha256": "d48563e0b54693ec3b50bcd6ae428af1db30de311b4c32e43388b2e834c8f9f3"}],
+    "fieldSelectionInventory": [{"path": "field-selection-inventory.md", "sha256": "443edde3cde958d8a05881f6d04e21c1b369301552781c1b7b82881aaee92414"}],
+    "sourceIndependentMermaid": [{"path": "source-independent-mermaid.md", "sha256": "198b868b575c6d8901b89572ba736f89b0286d58593e3fefe139cad81ff0308d"}]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-08-30",
+    "rationale": "The ontologist explicitly accepted the revised source-independent Mermaid package published at commit b8c6cc76711286c979b9acb11db3c48ae7d6a581 and authorized implementation that follows those diagrams and the recorded modeling guidance.",
+    "authorizedArtifacts": []
+  }
+}

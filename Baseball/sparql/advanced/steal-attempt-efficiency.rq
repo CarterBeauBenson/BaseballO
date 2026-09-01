@@ -1,0 +1,37 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Completeness-gated: the denominator is the mapped StealAttemptAct population.
+# Success and caught-stealing are positive process evidence; unresolved attempts
+# are reported rather than silently treated as failures.
+SELECT ?player ?playerLabel ?attempts ?successfulSteals ?caughtStealing
+       (?attempts - ?successfulSteals - ?caughtStealing AS ?unresolvedAttempts)
+       (ROUND((10000.0 * ?successfulSteals) / ?attempts) / 100 AS ?successPercent)
+WHERE {
+  {
+    SELECT ?player ?playerLabel
+           (COUNT(DISTINCT ?attempt) AS ?attempts)
+           (COUNT(DISTINCT ?success) AS ?successfulSteals)
+           (COUNT(DISTINCT ?caught) AS ?caughtStealing)
+    WHERE {
+      GRAPH ?graph {
+        ?attempt a base:StealAttemptAct, base:BaserunningAct ;
+            obo:BFO_0000057 ?player ;
+            obo:BFO_0000132 ?plateAppearance .
+        ?player rdfs:label ?playerLabel .
+        OPTIONAL {
+          ?success a base:StolenBaseProcess ;
+              obo:BFO_0000062 ?attempt .
+        }
+        OPTIONAL {
+          ?caught a base:RunnerResolutionProcess, base:OutProcess ;
+              obo:BFO_0000062 ?attempt .
+        }
+      }
+      FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+    }
+    GROUP BY ?player ?playerLabel
+  }
+}
+ORDER BY DESC(?attempts) DESC(?successPercent) ?playerLabel

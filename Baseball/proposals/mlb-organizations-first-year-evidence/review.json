@@ -1,0 +1,16 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-organizations-first-year-evidence",
+  "title": "MLB organization first-year evidence",
+  "status": "under-review",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [{"path": "competency-questions.md", "sha256": "2338c69853436e4240d00eab20b811a726ad1af4b5b1736ef28b80608bb4e992"}],
+    "sourceEvidence": [{"path": "source-evidence.md", "sha256": "54ea988732146bb96be3def7733b5d7b0f6c84ae1a1ef2b26b908b60374ed700"}],
+    "fieldSelectionInventory": [{"path": "field-selection-inventory.md", "sha256": "e1ffd918282a2ecbe124e140a3cfe3dd4b9a0ef9eb191a1b3cb5b43dbaf823f7"}],
+    "sourceIndependentMermaid": [{"path": "source-independent-mermaid.md", "sha256": "bbb4af34a3924f6c5733fc588e1971d13d38b7d57fe52e02ec5fb9e5e4b8c6a9"}]
+  },
+  "ontologistDecision": null
+}

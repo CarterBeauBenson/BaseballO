@@ -1,0 +1,27 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-query-index-contract-extension-2026-08-31",
+  "title": "MLB-game query-index contract extension",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [{"path":"competency-questions.md","sha256":"cd475c31c0d4bc35759274a08e98ccc4aa05f98b68bbfc4b958f0c6bf1390758"}],
+    "sourceEvidence": [{"path":"source-evidence.md","sha256":"b206ae18c064300e22f0214544877dfed3dc6caed65d4b4f88498647907aeddf"}],
+    "fieldSelectionInventory": [{"path":"field-selection-inventory.md","sha256":"5bcee84bbed1d1ee45c21e19a094350362ac526002ff2b142b81706befe7873e"}],
+    "sourceIndependentMermaid": [{"path":"source-independent-mermaid.md","sha256":"57f0966c2c62bba905b895f63b116059abe6c9adebc115aef68eaa987608dbb5"}]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-08-31",
+    "rationale": "The ontologist accepted the reviewed RML and directed that it be propagated through SHACL, SPARQL, and downstream components. This record authorizes the bounded mechanical index-contract consequences and introduces no new semantic interpretation.",
+    "authorizedArtifacts": [
+      "Baseball/scripts/pipeline/compile-query-index.py",
+      "Baseball/scripts/pipeline/test-query-index.ps1",
+      "Baseball/sparql/query-index/README.md",
+      "Baseball/sparql/query-index/benchmarks/indexed/pitch-summary-by-pitcher.rq"
+    ]
+  }
+}

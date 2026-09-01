@@ -1,0 +1,42 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-people",
+  "title": "MLB people API de-duplication and ontology-gap review",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "c381de9542f333c9d302730feedd3a7ff05394f1468ddec123261b03e7ecc306"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "952d3f8bec1de42f0d68b12a527ca55f2d4b9158b14cee10786474ed0a21a286"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "53e08a70d2a944aa06644da6c600e8a66ce319fc88f6d8e2700382361e386044"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "a97d1fb329c1f2f5ddd403a24c0d0f86f458f9e6093ae915db7a76c4fa318264"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-08-29",
+    "rationale": "The ontologist accepted the people-source de-duplication result, supported reuse patterns, and explicit ontology and identity gaps. No new class or standalone people mapping is authorized by this package; ownership, canonical identity, laterality, position, temporal team context, and the other documented blockers remain unresolved.",
+    "authorizedArtifacts": []
+  }
+}

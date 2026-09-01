@@ -1,0 +1,47 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-venues-coordinates-crs",
+  "title": "MLB venue reference-point coordinates",
+  "status": "accepted",
+  "proposedIris": [
+    "https://baseballontology.org/BaseballVenueReferencePoint"
+  ],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "1c9b87114d5395ac40eb099418f9b9ce26575e45f8dbc962d45c7394aa9dc390"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "519724e7446246c5fe3d3ab32d3b3a130598d5c37adb9f9328a975e44ae30da6"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "ffae243ec65d1d704917d270cbcb766f4936ac59b3c0c40e59cd93d1fb2286aa"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "d94e6397b8f73ec55b0f3bd20638d66e9b8eaebb154d38ad71ef90e95d3925bf"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-08-30",
+    "rationale": "The ontologist explicitly accepted the revised source-independent Mermaid package published at commit b8c6cc76711286c979b9acb11db3c48ae7d6a581 and authorized implementation that follows those diagrams and the recorded modeling guidance.",
+    "authorizedArtifacts": [
+      "Baseball/ontology/BaseballO.ttl",
+      "Baseball/ontology/BaseballO-axioms-overlay.ttl"
+    ]
+  }
+}

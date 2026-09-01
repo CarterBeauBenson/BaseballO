@@ -1,0 +1,22 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "canonical-day-authority",
+  "title": "Canonical source-neutral Day authority",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [{"path": "competency-questions.md", "sha256": "a497b15810e5f2bb43e744ac56ccc99ef76dbfed037b5231b27a2bb8afc5c5e5"}],
+    "sourceEvidence": [{"path": "source-evidence.md", "sha256": "edc3b81b92a5dbf3d94f8cf3d4728599f98f6c9272511002cfbd1393e30b4baa"}],
+    "fieldSelectionInventory": [{"path": "field-selection-inventory.md", "sha256": "7c32ec95ac858a7d6beeb503216038513a4235341131f18011f250fe2f496509"}],
+    "sourceIndependentMermaid": [{"path": "source-independent-mermaid.md", "sha256": "6f645120e8402fc7359a59ecad9b2fc9bd8ded3f6dc5bbed02ae9d28e737bec3"}]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-08-30",
+    "rationale": "The ontologist explicitly accepted the revised source-independent Mermaid package published at commit b8c6cc76711286c979b9acb11db3c48ae7d6a581 and authorized implementation that follows those diagrams and the recorded modeling guidance.",
+    "authorizedArtifacts": []
+  }
+}

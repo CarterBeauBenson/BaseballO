@@ -1,0 +1,36 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-venues-provider-status",
+  "title": "MLB venue provider status",
+  "status": "under-review",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "9f9deb0e9812282da7eeb8593319ccb0082451feaabf3233a31c9eb4fac87591"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "cf4c71863e2012ea03d21fb24e2a13faddcb964af56c69c1fd3542236cb067a2"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "7fb008cf8f1e1fd310978e163ab1685111738bc0ea186e4447df66a36900f481"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "53236b23b36ad2c0bb47b4bb93cd5206a957952ce13c9b2a447539be5b8cf549"
+      }
+    ]
+  },
+  "ontologistDecision": null
+}

@@ -1,0 +1,50 @@
+{
+  "artifactType": "baseballo-nifi-source-flow-contract",
+  "contractVersion": 1,
+  "sourceModule": "mlb-game",
+  "rootProcessGroup": "BaseballO",
+  "sourceProcessGroup": "MLB Game",
+  "proofGamePk": "566279",
+  "scheduleDiscovery": {
+    "url": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&startDate=${start.date}&endDate=${end.date}",
+    "dailyCron": "0 0 5 * * ?",
+    "timeZone": "America/New_York",
+    "backfillRequest": {
+      "startDate": "2026-01-01",
+      "endDate": "2026-09-01",
+      "requestKind": "backfill"
+    },
+    "parser": "nifi/prepare-schedule-batch.py",
+    "recordsJsonPath": "$.games[*]"
+  },
+  "batchMaterialization": {
+    "processor": "pipeline/materialize-pending-batches.py",
+    "checkPeriod": "15 min"
+  },
+  "processorOrder": [
+    "Proof Request",
+    "Read Request",
+    "Acquire MLB Game",
+    "Read MLB Response",
+    "Require Final Game",
+    "Name Transient Payload",
+    "Write Transient Payload",
+    "RML",
+    "Source SHACL",
+    "Promote Graph Pair",
+    "Materialize SQL",
+    "Cleanup Transient Artifacts",
+    "Record Success"
+  ],
+  "failurePolicy": {
+    "maximumRetriesPerStage": 3,
+    "quarantineIsSourceLocal": true,
+    "unrelatedSourceGroupsContinue": true
+  },
+  "persistence": {
+    "apiPayload": "transient-until-success-or-quarantine",
+    "authoritativeRdf": "persistent-ssd-backed-tdb2",
+    "queryIndexRdf": "persistent-operationally-rebuildable",
+    "analyticalSql": "persistent-operationally-rebuildable"
+  }
+}

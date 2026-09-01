@@ -1,0 +1,74 @@
+INFO  exec            :: QUERY
+  PREFIX  idx:  <https://w3id.org/baseball/query-index/>
+  PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+  PREFIX  base: <https://baseballontology.org/>
+
+  SELECT  ?venue ?venueLabel ?player ?playerLabel (COUNT(DISTINCT ?homeRun) AS ?homeRuns)
+  WHERE
+    { VALUES ?graph { <https://w3id.org/baseball/graph/query-index/game/822867> <https://w3id.org/baseball/graph/query-index/game/823431> <https://w3id.org/baseball/graph/query-index/game/823520> <https://w3id.org/baseball/graph/query-index/game/823757> <https://w3id.org/baseball/graph/query-index/game/824160> <https://w3id.org/baseball/graph/query-index/game/824324> <https://w3id.org/baseball/graph/query-index/game/824647> <https://w3id.org/baseball/graph/query-index/game/825095> }
+      GRAPH ?graph
+        { ?homeRun  a            idx:HitFact ;
+                    idx:agent    ?player ;
+                    idx:hitType  base:HomeRunProcess ;
+                    idx:venue    ?venue .
+          ?player   rdfs:label   ?playerLabel .
+          ?venue    rdfs:label   ?venueLabel
+        }
+    }
+  GROUP BY ?venue ?venueLabel ?player ?playerLabel
+  ORDER BY lcase(str(?venueLabel)) DESC(?homeRuns) lcase(str(?playerLabel))
+INFO  exec            :: ALGEBRA
+  (project (?venue ?venueLabel ?player ?playerLabel ?homeRuns)
+    (order ((lcase (str ?venueLabel)) (desc ?homeRuns) (lcase (str ?playerLabel)))
+      (extend ((?homeRuns ?.0))
+        (group (?venue ?venueLabel ?player ?playerLabel) ((?.0 (count distinct ?homeRun)))
+          (sequence
+            (table (vars ?graph)
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/822867>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/823431>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/823520>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/823757>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/824160>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/824324>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/824647>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/825095>])
+            )
+            (quadpattern
+              (quad ?graph ?homeRun <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://w3id.org/baseball/query-index/HitFact>)
+              (quad ?graph ?homeRun <https://w3id.org/baseball/query-index/agent> ?player)
+              (quad ?graph ?homeRun <https://w3id.org/baseball/query-index/hitType> <https://baseballontology.org/HomeRunProcess>)
+              (quad ?graph ?homeRun <https://w3id.org/baseball/query-index/venue> ?venue)
+              (quad ?graph ?player <http://www.w3.org/2000/01/rdf-schema#label> ?playerLabel)
+              (quad ?graph ?venue <http://www.w3.org/2000/01/rdf-schema#label> ?venueLabel)
+            ))))))
+INFO  exec            :: TDB2
+  (project (?venue ?venueLabel ?player ?playerLabel ?homeRuns)
+    (order ((lcase (str ?venueLabel)) (desc ?homeRuns) (lcase (str ?playerLabel)))
+      (extend ((?homeRuns ?.0))
+        (group (?venue ?venueLabel ?player ?playerLabel) ((?.0 (count distinct ?homeRun)))
+          (sequence
+            (table (vars ?graph)
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/822867>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/823431>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/823520>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/823757>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/824160>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/824324>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/824647>])
+              (row [?graph <https://w3id.org/baseball/graph/query-index/game/825095>])
+            )
+            (quadpattern
+              (quad ?graph ?homeRun <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://w3id.org/baseball/query-index/HitFact>)
+              (quad ?graph ?homeRun <https://w3id.org/baseball/query-index/agent> ?player)
+              (quad ?graph ?homeRun <https://w3id.org/baseball/query-index/hitType> <https://baseballontology.org/HomeRunProcess>)
+              (quad ?graph ?homeRun <https://w3id.org/baseball/query-index/venue> ?venue)
+              (quad ?graph ?player <http://www.w3.org/2000/01/rdf-schema#label> ?playerLabel)
+              (quad ?graph ?venue <http://www.w3.org/2000/01/rdf-schema#label> ?venueLabel)
+            ))))))
+INFO  exec            :: Execute
+  ?homeRun <https://w3id.org/baseball/query-index/hitType> <https://baseballontology.org/HomeRunProcess>
+  ?homeRun rdf:type <https://w3id.org/baseball/query-index/HitFact>
+  ?homeRun <https://w3id.org/baseball/query-index/agent> ?player
+  ?homeRun <https://w3id.org/baseball/query-index/venue> ?venue
+  ?player rdfs:label ?playerLabel
+  ?venue rdfs:label ?venueLabel

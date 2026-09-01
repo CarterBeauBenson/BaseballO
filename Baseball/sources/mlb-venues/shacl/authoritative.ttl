@@ -1,0 +1,703 @@
+@prefix base: <https://baseballontology.org/> .
+@prefix bfo: <http://purl.obolibrary.org/obo/> .
+@prefix cco: <https://www.commoncoreontologies.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix shape: <https://w3id.org/baseball/shacl/mlb-venues/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+shape:AuthoritativeProfile
+    a sh:NodeShape ;
+    sh:name "MLB venues authoritative graph profile"@en ;
+    sh:description "Accepted graph promises made by the detachable MLB venues source mapping."@en .
+
+# Keep the source graph closed to the accepted Venue/Field/distance surface.
+# This supplements the entity-specific cardinality and identity shapes below.
+shape:GraphVocabularyShape
+    a sh:NodeShape ;
+    sh:targetNode shape:graph-contract ;
+    sh:sparql [
+        sh:message "MLB venues RDF contains a predicate outside the accepted source contract."@en ;
+        sh:select """
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX bfo: <http://purl.obolibrary.org/obo/>
+            PREFIX cco: <https://www.commoncoreontologies.org/>
+            SELECT $this WHERE {
+              ?subject ?predicate ?object .
+              FILTER (?predicate NOT IN (
+                rdf:type, bfo:BFO_0000176, bfo:BFO_0000178, bfo:BFO_0000196,
+                bfo:BFO_0000197, cco:ont00001765, cco:ont00001769,
+                cco:ont00001808, cco:ont00001863, cco:ont00001912,
+                cco:ont00001913, cco:ont00001916, cco:ont00001966,
+                cco:ont00001764, cco:ont00001766, cco:ont00001773,
+                cco:ont00001868
+              ))
+            } LIMIT 1
+        """
+    ] ;
+    sh:sparql [
+        sh:message "MLB venues RDF contains a class outside the accepted source contract."@en ;
+        sh:select """
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX bfo: <http://purl.obolibrary.org/obo/>
+            PREFIX base: <https://baseballontology.org/>
+            PREFIX cco: <https://www.commoncoreontologies.org/>
+            SELECT $this WHERE {
+              ?subject rdf:type ?class .
+              FILTER (?class NOT IN (
+                base:BaseballFieldSite, base:BaseballGameHostingFunction,
+                base:BaseballVenue, base:DistanceQuality,
+                base:BaseballVenueReferencePoint,
+                base:SpectatorAccommodationAmount,
+                base:BaseballPlayingSurface, base:BaseballVenueRoof,
+                bfo:BFO_0000147, cco:ont00000398, cco:ont00000649,
+                cco:ont00000686, cco:ont00000853, cco:ont00001014,
+                cco:ont00001163, cco:ont00000293, cco:ont00001200,
+                cco:ont00001310
+              ))
+            } LIMIT 1
+        """
+    ] .
+
+shape:VenueResponseShape
+    a sh:NodeShape ;
+    sh:targetSubjectsOf cco:ont00001808 ;
+    sh:nodeKind sh:IRI ;
+    sh:class cco:ont00000853 ;
+    sh:pattern "^https://baseballontology\\.org/data/venue-response/[0-9]+/[0-9]{4}/[0-9a-f]{64}$" ;
+    sh:property [
+        sh:path cco:ont00001808 ;
+        sh:minCount 2 ;
+        sh:maxCount 2 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "A venue response DICE must be about exactly its Venue and Baseball Field Site."@en
+    ] ;
+    sh:property [
+        sh:path cco:ont00001808 ;
+        sh:qualifiedValueShape [ sh:class base:BaseballVenue ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "A venue response DICE must be about exactly one Baseball Venue."@en
+    ] ;
+    sh:property [
+        sh:path cco:ont00001808 ;
+        sh:qualifiedValueShape [ sh:class base:BaseballFieldSite ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "A venue response DICE must be about exactly one Baseball Field Site."@en
+    ] ;
+    sh:property [
+        sh:path bfo:BFO_0000178 ;
+        sh:minCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "A venue response DICE must contain at least its stable MLB venue identifier."@en
+    ] ;
+    sh:sparql [
+        sh:message "The response must contain the MLB venue identifier that designates its Venue."@en ;
+        sh:select """
+            PREFIX base: <https://baseballontology.org/>
+            PREFIX bfo: <http://purl.obolibrary.org/obo/>
+            PREFIX cco: <https://www.commoncoreontologies.org/>
+            SELECT $this WHERE {
+              $this cco:ont00001808 ?venue .
+              ?venue a base:BaseballVenue .
+              FILTER NOT EXISTS {
+                $this bfo:BFO_0000178 ?identifier .
+                ?identifier a cco:ont00000649 ;
+                  cco:ont00001916 ?venue ;
+                  cco:ont00001912 <https://baseballontology.org/data/reference-system/mlb-venue-identifiers> .
+              }
+            }
+        """
+    ] ;
+    sh:sparql [
+        sh:message "The venue response IRI must agree with the exact Venue and Field IRIs it describes."@en ;
+        sh:select """
+            PREFIX cco: <https://www.commoncoreontologies.org/>
+            SELECT $this WHERE {
+              BIND(REPLACE(STR($this), "^https://baseballontology.org/data/venue-response/([0-9]+)/.*$", "$1") AS ?venueId)
+              BIND(IRI(CONCAT("https://baseballontology.org/data/venue/", ?venueId)) AS ?expectedVenue)
+              BIND(IRI(CONCAT(STR(?expectedVenue), "/baseball-field")) AS ?expectedField)
+              FILTER NOT EXISTS {
+                $this cco:ont00001808 ?expectedVenue, ?expectedField .
+              }
+            }
+        """
+    ] .
+
+shape:VenueShape
+    a sh:NodeShape ;
+    sh:targetClass base:BaseballVenue ;
+    sh:nodeKind sh:IRI ;
+    sh:pattern "^https://baseballontology\\.org/data/venue/[0-9]+$" ;
+    sh:property [
+        sh:path bfo:BFO_0000196 ;
+        sh:qualifiedValueShape [ sh:class base:BaseballGameHostingFunction ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "A mapped Baseball Venue must bear exactly its stable Baseball Game Hosting Function."@en
+    ] ;
+    sh:property [
+        sh:path [ sh:inversePath cco:ont00001916 ] ;
+        sh:qualifiedValueShape [
+            sh:class cco:ont00000649 ;
+            sh:property [
+                sh:path cco:ont00001912 ;
+                sh:hasValue <https://baseballontology.org/data/reference-system/mlb-venue-identifiers>
+            ]
+        ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "A mapped Baseball Venue must be designated by exactly one stable MLB venue identifier."@en
+    ] ;
+    sh:sparql [
+        sh:message "The Venue must bear the hosting Function derived from its own canonical IRI."@en ;
+        sh:select """
+            PREFIX bfo: <http://purl.obolibrary.org/obo/>
+            SELECT $this WHERE {
+              BIND(IRI(CONCAT(STR($this), "/hosting-function")) AS ?expected)
+              FILTER NOT EXISTS { $this bfo:BFO_0000196 ?expected }
+            }
+        """
+    ] .
+
+shape:HostingFunctionShape
+    a sh:NodeShape ;
+    sh:targetClass base:BaseballGameHostingFunction ;
+    sh:nodeKind sh:IRI ;
+    sh:pattern "^https://baseballontology\\.org/data/venue/[0-9]+/hosting-function$" ;
+    sh:property [
+        sh:path [ sh:inversePath bfo:BFO_0000196 ] ;
+        sh:qualifiedValueShape [ sh:class base:BaseballVenue ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "A mapped hosting Function must be borne by exactly one Baseball Venue."@en
+    ] ;
+    sh:sparql [
+        sh:message "The hosting Function IRI must agree with the exact Venue that bears it."@en ;
+        sh:select """
+            PREFIX bfo: <http://purl.obolibrary.org/obo/>
+            SELECT $this WHERE {
+              BIND(IRI(REPLACE(STR($this), "/hosting-function$", "")) AS ?expectedVenue)
+              FILTER NOT EXISTS { ?expectedVenue bfo:BFO_0000196 $this }
+            }
+        """
+    ] .
+
+shape:FieldSiteShape
+    a sh:NodeShape ;
+    sh:targetClass base:BaseballFieldSite ;
+    sh:nodeKind sh:IRI ;
+    sh:pattern "^https://baseballontology\\.org/data/venue/[0-9]+/baseball-field$" ;
+    sh:sparql [
+        sh:message "The accepted venue source contract permits no direct edge between a Venue and its Field Site."@en ;
+        sh:select """
+            PREFIX base: <https://baseballontology.org/>
+            SELECT $this WHERE {
+              { $this ?relation ?venue }
+              UNION
+              { ?venue ?relation $this }
+              ?venue a base:BaseballVenue .
+            }
+        """
+    ] .
+
+shape:ReferenceSystemShape
+    a sh:NodeShape ;
+    sh:targetClass cco:ont00000398 ;
+    sh:nodeKind sh:IRI ;
+    sh:in (
+        <https://baseballontology.org/data/reference-system/mlb-venue-identifiers>
+        <https://baseballontology.org/data/reference-system/mlb-venue-dimension-selectors>
+        <https://baseballontology.org/data/reference-system/mlb/venue-surface-type>
+        <https://baseballontology.org/data/reference-system/mlb/venue-roof-type>
+    ) ;
+    sh:message "The MLB venues lane may emit only its four accepted Reference System individuals."@en .
+
+shape:IdentifierShape
+    a sh:NodeShape ;
+    sh:targetClass cco:ont00000649 ;
+    sh:nodeKind sh:IRI ;
+    sh:class cco:ont00000649 ;
+    sh:property [
+        sh:path cco:ont00001912 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in (
+            <https://baseballontology.org/data/reference-system/mlb-venue-identifiers>
+            <https://baseballontology.org/data/reference-system/mlb-venue-dimension-selectors>
+        ) ;
+        sh:message "A source identifier must use exactly one accepted MLB venue Reference System."@en
+    ] ;
+    sh:property [
+        sh:path cco:ont00001916 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "A source identifier must designate exactly one world-side entity."@en
+    ] ;
+    sh:property [
+        sh:path cco:ont00001765 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "A source identifier must carry exactly one text value."@en
+    ] ;
+    sh:or (
+        [
+            sh:pattern "^https://baseballontology\\.org/data/venue/[0-9]+/identifier/mlb-venue-id$" ;
+            sh:property [
+                sh:path cco:ont00001912 ;
+                sh:hasValue <https://baseballontology.org/data/reference-system/mlb-venue-identifiers>
+            ] ;
+            sh:property [
+                sh:path cco:ont00001916 ;
+                sh:class base:BaseballVenue
+            ] ;
+            sh:property [
+                sh:path cco:ont00001765 ;
+                sh:pattern "^[0-9]+$"
+            ]
+        ]
+        [
+            sh:pattern "^https://baseballontology\\.org/data/venue/[0-9]+/baseball-field/dimension/[0-9]{4}/(leftLine|leftCenter|center|rightCenter|rightLine)/[0-9a-f]{64}/selector-id$" ;
+            sh:property [
+                sh:path cco:ont00001912 ;
+                sh:hasValue <https://baseballontology.org/data/reference-system/mlb-venue-dimension-selectors>
+            ] ;
+            sh:property [
+                sh:path cco:ont00001916 ;
+                sh:class bfo:BFO_0000147
+            ] ;
+            sh:property [
+                sh:path cco:ont00001765 ;
+                sh:in ("leftLine" "leftCenter" "center" "rightCenter" "rightLine")
+            ] ;
+            sh:property [
+                sh:path [ sh:inversePath bfo:BFO_0000178 ] ;
+                sh:qualifiedValueShape [ sh:class cco:ont00000853 ] ;
+                sh:qualifiedMinCount 1 ;
+                sh:qualifiedMaxCount 1
+            ]
+        ]
+    ) ;
+    sh:sparql [
+        sh:message "A stable MLB venue identifier IRI and text must agree with the designated Venue IRI."@en ;
+        sh:select """
+            PREFIX base: <https://baseballontology.org/>
+            PREFIX cco: <https://www.commoncoreontologies.org/>
+            SELECT $this WHERE {
+              $this cco:ont00001912 <https://baseballontology.org/data/reference-system/mlb-venue-identifiers> ;
+                cco:ont00001916 ?venue ;
+                cco:ont00001765 ?text .
+              BIND(CONCAT(STR(?venue), "/identifier/mlb-venue-id") AS ?expectedIri)
+              BIND(STRAFTER(STR(?venue), "https://baseballontology.org/data/venue/") AS ?expectedText)
+              FILTER(STR($this) != ?expectedIri || STR(?text) != ?expectedText)
+            }
+        """
+    ] ;
+    sh:sparql [
+        sh:message "A dimension selector IRI, text, and designated boundary point must agree."@en ;
+        sh:select """
+            PREFIX cco: <https://www.commoncoreontologies.org/>
+            SELECT $this WHERE {
+              $this cco:ont00001912 <https://baseballontology.org/data/reference-system/mlb-venue-dimension-selectors> ;
+                cco:ont00001916 ?boundary ;
+                cco:ont00001765 ?text .
+              BIND(REPLACE(STR($this), "^.*/dimension/[0-9]{4}/([^/]+)/[0-9a-f]{64}/selector-id$", "$1") AS ?expectedText)
+              BIND(IRI(REPLACE(STR($this), "/selector-id$", "/boundary-point")) AS ?expectedBoundary)
+              FILTER(STR(?text) != ?expectedText || ?boundary != ?expectedBoundary)
+            }
+        """
+    ] .
+
+shape:ProperNameShape
+    a sh:NodeShape ;
+    sh:targetClass cco:ont00001014 ;
+    sh:nodeKind sh:IRI ;
+    sh:pattern "^https://baseballontology\\.org/data/venue/[0-9]+/name/mlb-official/[0-9a-f]{64}$" ;
+    sh:property [
+        sh:path cco:ont00001916 ;
+        sh:qualifiedValueShape [ sh:class base:BaseballVenue ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "An MLB official Proper Name must designate exactly one Baseball Venue."@en
+    ] ;
+    sh:property [
+        sh:path cco:ont00001765 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "An MLB official Proper Name must carry its exact decoded lexical string."@en
+    ] ;
+    sh:property [
+        sh:path [ sh:inversePath bfo:BFO_0000178 ] ;
+        sh:qualifiedValueShape [ sh:class cco:ont00000853 ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:message "Every emitted Proper Name must be a part of at least one venue response DICE."@en
+    ] ;
+    sh:sparql [
+        sh:message "The Proper Name IRI must use the exact UTF-8 lexical-name SHA-256 and designated Venue IRI."@en ;
+        sh:select """
+            PREFIX cco: <https://www.commoncoreontologies.org/>
+            SELECT $this WHERE {
+              $this cco:ont00001916 ?venue ; cco:ont00001765 ?text .
+              BIND(CONCAT(STR(?venue), "/name/mlb-official/", SHA256(STR(?text))) AS ?expected)
+              FILTER(STR($this) != ?expected)
+            }
+        """
+    ] ;
+    sh:sparql [
+        sh:message "Every response containing a Proper Name must describe the same Venue designated by that Name."@en ;
+        sh:select """
+            PREFIX bfo: <http://purl.obolibrary.org/obo/>
+            PREFIX cco: <https://www.commoncoreontologies.org/>
+            SELECT $this WHERE {
+              $this cco:ont00001916 ?venue .
+              FILTER EXISTS {
+                ?response bfo:BFO_0000178 $this .
+                FILTER NOT EXISTS { ?response cco:ont00001808 ?venue }
+              }
+            }
+        """
+    ] .
+
+shape:FiatPointShape
+    a sh:NodeShape ;
+    sh:targetClass bfo:BFO_0000147 ;
+    sh:nodeKind sh:IRI ;
+    sh:property [
+        sh:path [ sh:inversePath bfo:BFO_0000178 ] ;
+        sh:qualifiedValueShape [ sh:class base:BaseballFieldSite ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Each selected dimension Fiat Point must be a continuant part of exactly one Baseball Field Site."@en
+    ] ;
+    sh:or (
+        [
+            sh:pattern "^https://baseballontology\\.org/data/venue/[0-9]+/baseball-field/dimension/[0-9]{4}/[0-9a-f]{64}/origin$" ;
+            sh:property [
+                sh:path [ sh:inversePath cco:ont00001916 ] ;
+                sh:maxCount 0 ;
+                sh:message "The snapshot origin is not a provider selector target."@en
+            ]
+        ]
+        [
+            sh:pattern "^https://baseballontology\\.org/data/venue/[0-9]+/baseball-field/dimension/[0-9]{4}/(leftLine|leftCenter|center|rightCenter|rightLine)/[0-9a-f]{64}/boundary-point$" ;
+            sh:property [
+                sh:path [ sh:inversePath cco:ont00001916 ] ;
+                sh:qualifiedValueShape [
+                    sh:class cco:ont00000649 ;
+                    sh:property [
+                        sh:path cco:ont00001912 ;
+                        sh:hasValue <https://baseballontology.org/data/reference-system/mlb-venue-dimension-selectors>
+                    ]
+                ] ;
+                sh:qualifiedMinCount 1 ;
+                sh:qualifiedMaxCount 1 ;
+                sh:minCount 1 ;
+                sh:maxCount 1 ;
+                sh:message "A selected boundary Fiat Point must be designated by exactly one response selector identifier."@en
+            ]
+        ]
+    ) ;
+    sh:sparql [
+        sh:message "Each dimension Fiat Point must be a part of the Field encoded by its IRI."@en ;
+        sh:select """
+            PREFIX base: <https://baseballontology.org/>
+            PREFIX bfo: <http://purl.obolibrary.org/obo/>
+            SELECT $this WHERE {
+              BIND(IRI(REPLACE(STR($this), "/dimension/.*$", "")) AS ?expectedField)
+              FILTER NOT EXISTS {
+                ?expectedField a base:BaseballFieldSite ; bfo:BFO_0000178 $this .
+              }
+            }
+        """
+    ] .
+
+shape:DistanceQualityShape
+    a sh:NodeShape ;
+    sh:targetClass base:DistanceQuality ;
+    sh:nodeKind sh:IRI ;
+    sh:pattern "^https://baseballontology\\.org/data/venue/[0-9]+/baseball-field/dimension/[0-9]{4}/(leftLine|leftCenter|center|rightCenter|rightLine)/[0-9a-f]{64}/distance$" ;
+    sh:property [
+        sh:path bfo:BFO_0000197 ;
+        sh:minCount 2 ;
+        sh:maxCount 2 ;
+        sh:class bfo:BFO_0000147 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "A dimension Distance Quality must inhere in exactly two distinct Fiat Points."@en
+    ] ;
+    sh:property [
+        sh:path [ sh:inversePath cco:ont00001966 ] ;
+        sh:qualifiedValueShape [ sh:class cco:ont00001163 ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "A dimension Distance Quality must be measured by exactly one response Measurement ICE."@en
+    ] ;
+    sh:sparql [
+        sh:message "A dimension Distance Quality must use one snapshot origin and one provider-selected boundary Fiat Point."@en ;
+        sh:select """
+            PREFIX bfo: <http://purl.obolibrary.org/obo/>
+            SELECT $this WHERE {
+              BIND(IRI(REPLACE(STR($this), "/distance$", "/boundary-point")) AS ?expectedBoundary)
+              BIND(IRI(REPLACE(
+                STR($this),
+                "^(https://baseballontology.org/data/venue/[0-9]+/baseball-field/dimension/[0-9]{4})/[^/]+/([0-9a-f]{64})/distance$",
+                "$1/$2/origin"
+              )) AS ?expectedOrigin)
+              FILTER NOT EXISTS {
+                $this bfo:BFO_0000197 ?expectedOrigin, ?expectedBoundary .
+              }
+            }
+        """
+    ] ;
+    sh:sparql [
+        sh:message "The Measurement ICE related to a Distance Quality must share its exact response-scoped identity."@en ;
+        sh:select """
+            PREFIX cco: <https://www.commoncoreontologies.org/>
+            SELECT $this WHERE {
+              BIND(IRI(REPLACE(STR($this), "/distance$", "/measurement")) AS ?expectedMeasurement)
+              FILTER NOT EXISTS { ?expectedMeasurement cco:ont00001966 $this }
+            }
+        """
+    ] .
+
+shape:DimensionMeasurementShape
+    a sh:NodeShape ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:select """
+            SELECT DISTINCT ?this WHERE {
+              ?this a <https://www.commoncoreontologies.org/ont00001163> .
+              FILTER(CONTAINS(STR(?this), "/baseball-field/dimension/"))
+            }
+        """
+    ] ;
+    sh:nodeKind sh:IRI ;
+    sh:pattern "^https://baseballontology\\.org/data/venue/[0-9]+/baseball-field/dimension/[0-9]{4}/(leftLine|leftCenter|center|rightCenter|rightLine)/[0-9a-f]{64}/measurement$" ;
+    sh:property [
+        sh:path cco:ont00001966 ;
+        sh:qualifiedValueShape [ sh:class base:DistanceQuality ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "A field-dimension Measurement ICE must measure exactly one Distance Quality."@en
+    ] ;
+    sh:property [
+        sh:path cco:ont00001863 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:hasValue cco:ont00001714 ;
+        sh:message "Every MLB stadium dimension Measurement ICE must use CCO Foot."@en
+    ] ;
+    sh:property [
+        sh:path cco:ont00001769 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minExclusive 0 ;
+        sh:message "A field-dimension Measurement ICE must carry exactly one positive xsd:decimal value."@en
+    ] ;
+    sh:property [
+        sh:path [ sh:inversePath bfo:BFO_0000178 ] ;
+        sh:qualifiedValueShape [ sh:class cco:ont00000853 ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "A response-scoped Measurement ICE must be a part of exactly one venue response DICE."@en
+    ] ;
+    sh:sparql [
+        sh:message "A Measurement ICE must measure the Distance Quality with the same response-scoped identity."@en ;
+        sh:select """
+            PREFIX cco: <https://www.commoncoreontologies.org/>
+            SELECT $this WHERE {
+              BIND(IRI(REPLACE(STR($this), "/measurement$", "/distance")) AS ?expectedDistance)
+              FILTER NOT EXISTS { $this cco:ont00001966 ?expectedDistance }
+            }
+        """
+    ] ;
+    sh:sparql [
+        sh:message "A Measurement ICE must be a part of the venue response encoded by its venue, season, and response hash."@en ;
+        sh:select """
+            PREFIX bfo: <http://purl.obolibrary.org/obo/>
+            SELECT $this WHERE {
+              BIND(IRI(REPLACE(
+                STR($this),
+                "^https://baseballontology.org/data/venue/([0-9]+)/baseball-field/dimension/([0-9]{4})/[^/]+/([0-9a-f]{64})/measurement$",
+                "https://baseballontology.org/data/venue-response/$1/$2/$3"
+              )) AS ?expectedResponse)
+              FILTER NOT EXISTS { ?expectedResponse bfo:BFO_0000178 $this }
+            }
+        """
+    ] .
+
+
+#################################################################
+# Accepted coordinate, capacity, surface, and roof extensions
+#################################################################
+
+shape:VenueReferencePointShape
+    a sh:NodeShape ;
+    sh:targetClass base:BaseballVenueReferencePoint ;
+    sh:nodeKind sh:IRI ;
+    sh:pattern "^https://baseballontology\\.org/data/venue/[0-9]+/reference-point/default$" ;
+    sh:property [
+        sh:path bfo:BFO_0000176 ;
+        sh:class base:BaseballVenue ;
+        sh:minCount 1 ; sh:maxCount 1
+    ] .
+
+shape:VenueCoordinateShape
+    a sh:NodeShape ;
+    sh:targetClass cco:ont00000686 ;
+    sh:nodeKind sh:IRI ;
+    sh:pattern "^https://baseballontology\\.org/data/venue/[0-9]+/coordinates/default/[0-9]{4}/[0-9a-f]{64}$" ;
+    sh:property [
+        sh:path cco:ont00001916 ;
+        sh:class base:BaseballVenueReferencePoint ;
+        sh:minCount 1 ; sh:maxCount 1
+    ] ;
+    sh:property [
+        sh:path cco:ont00001913 ;
+        sh:hasValue cco:ont00001630 ;
+        sh:minCount 1 ; sh:maxCount 1
+    ] ;
+    sh:property [
+        sh:path cco:ont00001766 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive -90 ; sh:maxInclusive 90 ;
+        sh:minCount 1 ; sh:maxCount 1
+    ] ;
+    sh:property [
+        sh:path cco:ont00001764 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive -180 ; sh:maxInclusive 180 ;
+        sh:minCount 1 ; sh:maxCount 1
+    ] ;
+    sh:property [
+        sh:path [ sh:inversePath bfo:BFO_0000178 ] ;
+        sh:class cco:ont00000853 ;
+        sh:minCount 1 ; sh:maxCount 1
+    ] .
+
+shape:SpectatorAccommodationAmountShape
+    a sh:NodeShape ;
+    sh:targetClass base:SpectatorAccommodationAmount ;
+    sh:property [
+        sh:path bfo:BFO_0000197 ;
+        sh:class base:BaseballVenue ;
+        sh:minCount 1 ; sh:maxCount 1
+    ] .
+
+shape:CapacityMeasurementShape
+    a sh:NodeShape ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:select """
+            SELECT DISTINCT ?this WHERE {
+              ?this a <https://www.commoncoreontologies.org/ont00001163> .
+              FILTER(CONTAINS(STR(?this), "/measurement/capacity/"))
+            }
+        """
+    ] ;
+    sh:property [
+        sh:path cco:ont00001966 ;
+        sh:class base:SpectatorAccommodationAmount ;
+        sh:minCount 1 ; sh:maxCount 1
+    ] ;
+    sh:property [
+        sh:path cco:ont00001773 ;
+        sh:datatype xsd:integer ;
+        sh:minExclusive 0 ;
+        sh:minCount 1 ; sh:maxCount 1
+    ] ;
+    sh:property [
+        sh:path cco:ont00001863 ;
+        sh:maxCount 0 ;
+        sh:message "A capacity count has no physical measurement unit."@en
+    ] .
+
+shape:PlayingSurfaceShape
+    a sh:NodeShape ;
+    sh:targetClass base:BaseballPlayingSurface ;
+    sh:property [
+        sh:path bfo:BFO_0000176 ;
+        sh:class base:BaseballVenue ;
+        sh:minCount 1 ; sh:maxCount 1
+    ] ;
+    sh:property [
+        sh:path bfo:BFO_0000196 ;
+        sh:class cco:ont00001200 ;
+        sh:minCount 1 ; sh:maxCount 1
+    ] .
+
+shape:VenueRoofShape
+    a sh:NodeShape ;
+    sh:targetClass base:BaseballVenueRoof ;
+    sh:property [
+        sh:path bfo:BFO_0000176 ;
+        sh:class base:BaseballVenue ;
+        sh:minCount 1 ; sh:maxCount 1
+    ] ;
+    sh:property [
+        sh:path bfo:BFO_0000196 ;
+        sh:class cco:ont00001310 ;
+        sh:minCount 1 ; sh:maxCount 1
+    ] .
+
+shape:VenueClassificationShape
+    a sh:NodeShape ;
+    sh:targetClass cco:ont00000293 ;
+    sh:property [
+        sh:path cco:ont00001868 ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:or (
+            [ sh:class base:BaseballPlayingSurface ]
+            [ sh:class base:BaseballVenueRoof ]
+            [ sh:class base:BaseballVenue ]
+        )
+    ] ;
+    sh:property [
+        sh:path cco:ont00001912 ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:in (
+            <https://baseballontology.org/data/reference-system/mlb/venue-surface-type>
+            <https://baseballontology.org/data/reference-system/mlb/venue-roof-type>
+        )
+    ] ;
+    sh:property [
+        sh:path cco:ont00001765 ;
+        sh:datatype xsd:string ;
+        sh:in ( "Grass" "Artificial Turf" "Dome" "Retractable" "Open" ) ;
+        sh:minCount 1 ; sh:maxCount 1
+    ] ;
+    sh:property [
+        sh:path [ sh:inversePath bfo:BFO_0000178 ] ;
+        sh:class cco:ont00000853 ;
+        sh:minCount 1 ; sh:maxCount 1
+    ] ;
+    sh:sparql [
+        sh:message "Open roof configuration information must measure the Venue and must not create a roof artifact."@en ;
+        sh:select """
+            PREFIX cco: <https://www.commoncoreontologies.org/>
+            PREFIX base: <https://baseballontology.org/>
+            SELECT $this WHERE {
+              $this cco:ont00001765 "Open" ; cco:ont00001868 ?target .
+              FILTER NOT EXISTS { ?target a base:BaseballVenue }
+            }
+        """
+    ] .

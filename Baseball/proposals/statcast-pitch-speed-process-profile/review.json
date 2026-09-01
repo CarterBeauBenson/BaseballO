@@ -1,0 +1,36 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "statcast-pitch-speed-process-profile",
+  "title": "Statcast pitch speed process-profile foundation",
+  "status": "under-review",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "7be45fd50c728252b614b28e342c36739180b80806299ade57c5b3b3aea3e9df"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "a9eb96d3bed3861aa76f66127cbd44671229c2af8146230afb57ee38d446e72a"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "b96a14489f6866c9077365935f1ff8cca852a4f5d5437de52805115a235d1fc9"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "bde6d2d58ad3ea2431448485482c8706a79e6961a3e06b39f06efdcbc5ebc62b"
+      }
+    ]
+  },
+  "ontologistDecision": null
+}

@@ -1,0 +1,46 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-pitch-ball-control-evidence-boundary",
+  "title": "MLB-game pitch-ball-control evidence-boundary correction",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "47b1032bf5c5540c63307539772b124b04a267526628836e7e12e94c5e3d85af"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "ef91d759463e5315bc63a9d0fae5a3544883e539e77c8c7d37f9900b21838320"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "d2f23cdbb13b4695f8f15b86ec59e6290a691656da753e9e5be00556ed1e1fe1"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "ac1afd3875efda9ae2a0b1e153e9d89aebd3649c822de23e8f913d8bae7b88af"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-08-31",
+    "rationale": "The ontologist explicitly approved the named MLB-game pitch-ball-control evidence-boundary correction. MLB passed-ball, wild-pitch, and uncaught-third-strike classifications support their institutional processes and adjudication structure but do not independently establish a physical PitchBallControlFailureProcess. The MLB-game gate must require the supported institutional graph and reject unevidenced physical failure instances rather than require them.",
+    "authorizedArtifacts": [
+      "Baseball/scripts/pipeline/run-rml.ps1",
+      "Baseball/scripts/pipeline/validate-generated-rdf.py",
+      "Baseball/sources/mlb-game/shacl/authoritative.ttl"
+    ]
+  }
+}

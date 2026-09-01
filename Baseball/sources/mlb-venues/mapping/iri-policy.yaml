@@ -1,0 +1,113 @@
+mlb_venues_iri_policy:
+  title: "MLB venues source IRI and execution-context policy"
+  version: "1.0"
+  status: "accepted-surface"
+  accepted_review: "Baseball/archive/design-records/mlb-venues-source-contract/review.json"
+
+  source_boundary:
+    endpoint: "https://statsapi.mlb.com/api/v1/venues/{venueId}?hydrate=location,timezone,fieldInfo&season={requestedSeason}"
+    declared_source: "MLB Stats API venues response"
+    authoritative_graph_prefix: "https://w3id.org/baseball/graph/authority/mlb-venues/"
+    raw_payload_policy: >
+      API response bytes are transient. Hash the exact bytes before decoding,
+      preserve the request and validation evidence, and remove raw bytes only
+      after successful validated authority-graph promotion. Failed inputs
+      remain quarantined.
+    integration_boundary: "independently validated and promoted authoritative RDF"
+    cross_source_mapping: "forbidden"
+
+  execution_context:
+    reserved_root_key: "_baseballO"
+    rml_source_name: "venue-context.json"
+    source_is_never_overwritten: true
+    records:
+      venueRecords: "one mechanically validated identity record per venues[] member"
+      nameRecords: "one record per nonempty decoded name"
+      dimensionRecords: "one record per admitted non-null positive dimension"
+    rule: >
+      Context records expose validated ancestor identity tokens to RMLMapper.
+      They do not assert ontology types, relations, units, or world semantics.
+
+  stable_entities:
+    venue:
+      key: ["normalized positive MLB venue id"]
+      template: "https://baseballontology.org/data/venue/{venueId}"
+    venue_identifier:
+      key: ["MLB venue identifier reference system", "normalized venue id"]
+      template: "https://baseballontology.org/data/venue/{venueId}/identifier/mlb-venue-id"
+    hosting_function:
+      key: ["canonical venue IRI", "hosting-function"]
+      template: "https://baseballontology.org/data/venue/{venueId}/hosting-function"
+    field_site:
+      key: ["canonical venue IRI", "baseball-field context"]
+      template: "https://baseballontology.org/data/venue/{venueId}/baseball-field"
+    proper_name:
+      key:
+        - "canonical venue IRI"
+        - "mlb-official name kind"
+        - "SHA-256 of the exact decoded lexical name encoded as UTF-8"
+      template: "https://baseballontology.org/data/venue/{venueId}/name/mlb-official/{nameLexicalSha256}"
+      lexical_rule: >
+        Preserve spelling and Unicode exactly after JSON decoding. Do not trim,
+        case-fold, remove accents, or otherwise normalize the lexical value.
+
+  response_scoped_entities:
+    response_record:
+      key: ["venue id", "requested season", "exact response-byte SHA-256"]
+      template: "https://baseballontology.org/data/venue-response/{venueId}/{requestedSeason}/{responseSha256}"
+    origin_fiat_point:
+      key: ["venue id", "requested season", "response SHA-256", "origin selector"]
+      template: "https://baseballontology.org/data/venue/{venueId}/baseball-field/dimension/{requestedSeason}/{responseSha256}/origin"
+    boundary_fiat_point:
+      key: ["venue id", "requested season", "selector", "response SHA-256"]
+      template: "https://baseballontology.org/data/venue/{venueId}/baseball-field/dimension/{requestedSeason}/{selector}/{responseSha256}/boundary-point"
+    selector_identifier:
+      key: ["venue id", "requested season", "selector", "response SHA-256"]
+      template: "https://baseballontology.org/data/venue/{venueId}/baseball-field/dimension/{requestedSeason}/{selector}/{responseSha256}/selector-id"
+    distance_quality:
+      key: ["the two selected Fiat Point IRIs"]
+      template: "https://baseballontology.org/data/venue/{venueId}/baseball-field/dimension/{requestedSeason}/{selector}/{responseSha256}/distance"
+    measurement_ice:
+      key: ["venue id", "requested season", "selector", "response SHA-256"]
+      template: "https://baseballontology.org/data/venue/{venueId}/baseball-field/dimension/{requestedSeason}/{selector}/{responseSha256}/measurement"
+    coordinate_ice:
+      key: [venue id, requested season, response SHA-256]
+      template: "https://baseballontology.org/data/venue/{venueId}/coordinates/default/{requestedSeason}/{responseSha256}"
+    capacity_measurement:
+      key: [venue id, requested season, response SHA-256]
+      template: "https://baseballontology.org/data/venue/{venueId}/measurement/capacity/{requestedSeason}/{responseSha256}"
+    playing_surface:
+      key: [venue id, requested season, exact surface code, response SHA-256]
+      template: "https://baseballontology.org/data/venue/{venueId}/surface/{requestedSeason}/{surfaceTypeToken}/{responseSha256}"
+    venue_roof:
+      key: [venue id, requested season, exact roof code, response SHA-256]
+      template: "https://baseballontology.org/data/venue/{venueId}/roof/{requestedSeason}/{roofTypeToken}/{responseSha256}"
+
+  reference_system_individuals:
+    mlb_venue_identifiers: "https://baseballontology.org/data/reference-system/mlb-venue-identifiers"
+    mlb_venue_dimension_selectors: "https://baseballontology.org/data/reference-system/mlb-venue-dimension-selectors"
+
+  dimension_contract:
+    selectors: ["leftLine", "leftCenter", "center", "rightCenter", "rightLine"]
+    unit: "https://www.commoncoreontologies.org/ont00001714"
+    unit_label: "Foot Measurement Unit"
+    missing_or_null: "emit no selector-specific RDF"
+    present_nonnumeric_or_nonpositive: "quarantine before RML"
+    decimal_rule: "emit the normalized positive value as xsd:decimal"
+    requested_season_rule: >
+      The requested season is response and identity context only; it is not a
+      claim of season-long temporal validity.
+    measurement_process_rule: "do not mint one; the endpoint does not supply it"
+
+  forbidden_identity_inputs:
+    - "array position"
+    - "mutable natural-language label"
+    - "link navigation metadata"
+
+  excluded_surface:
+    - "active"
+    - "azimuthAngle"
+    - "elevation"
+    - "address and phone fields"
+    - "time-zone fields"
+    - "direct Venue-to-Field relation"

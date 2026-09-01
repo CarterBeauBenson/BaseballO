@@ -1,0 +1,48 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "ontology-curation-debt-repair",
+  "title": "Audit 31 frozen BaseballO curation-debt classes and propose 30 repairs",
+  "status": "accepted",
+  "proposedIris": [
+    "https://baseballontology.org/BaseballGameHostingFunction"
+  ],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "57829a17cffc61275fbe589d39bc48a9026eb8e8c9eb2073c3524e6a10ff9698"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "6e3c89917e781880503d025a1ecdb3be8b8a986e00e1ea931777e7fa10a9d289"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "5ac18a6df205b282eacd74b6908f50694d96c65d87971fcc9b7f9dab4e1cc832"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "c49854f7277f92036939d239c5bc8d2a903194793f83253309c456adaa7a9274"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-08-29",
+    "rationale": "The ontologist accepted the 30 reviewed curation-debt repairs and BaseballGameHostingFunction with their proposed axioms, Aristotelian definitions, and annotations. GroundedIntoDoublePlayProcess and executable coordinate bindings remain blocked exactly as documented.",
+    "authorizedArtifacts": [
+      "Baseball/ontology/BaseballO.ttl",
+      "Baseball/ontology/BaseballO-axioms-overlay.ttl",
+      "Baseball/governance/ontology-curation-debt.json"
+    ]
+  }
+}

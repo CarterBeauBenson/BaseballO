@@ -1,0 +1,36 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-organizations-alternate-names",
+  "title": "MLB organization alternate names",
+  "status": "under-review",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "9d835735ee16423eba0f64accd006e755d42742c14536ee6f8fb4c6dc5faf152"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "25c83b8121ec2bce7bac641fb7573bec8e5cf22e787c5bea8efb8f2ea201cbdb"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "e4671b39931aa2efb21c753cbe7fec5be8978edc1316377a16afa47af5b6a91c"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "81b098d5dde3bd42d3a51eb913faaeb21017167656abd29475df9320a1a381e6"
+      }
+    ]
+  },
+  "ontologistDecision": null
+}

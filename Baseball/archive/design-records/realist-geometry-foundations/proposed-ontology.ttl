@@ -1,0 +1,40 @@
+@prefix base: <https://baseballontology.org/> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Review-only proposed base taxonomy and annotations.
+
+base:AngleQuality a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000145 ;
+    rdfs:label "Angle Quality"@en ;
+    skos:definition "An Angle Quality is a Relational Quality that inheres in two Fiat Lines that intersect at a shared Fiat Point."@en ;
+    rdfs:comment "The two Fiat Lines and their shared Fiat Point are entities in reality. An angular Measurement Information Content Entity is about the Angle Quality and does not replace it."@en ;
+    skos:example "The angle between a Fiat Line parallel to the ground and a Fiat Line extending from a pitcher's throwing shoulder to the Baseball at release."@en .
+
+base:DistanceQuality a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000145 ;
+    rdfs:label "Distance Quality"@en ;
+    skos:definition "A Distance Quality is a Relational Quality that inheres in two nonidentical Fiat Points."@en ;
+    rdfs:comment "A Distance Quality is nonnegative. A signed coordinate component requires an additional directed-displacement account and must not be asserted as a Distance Quality by convenience."@en ;
+    skos:example "The distance between the Fiat Point at home plate used by a field-dimension standard and the Fiat Point on the center-field boundary selected by that standard."@en .
+
+# Review-only proposed overlay restrictions. These are necessary conditions,
+# not a complete OWL encoding of shared intersection or nonidentity.
+
+base:AngleQuality rdfs:subClassOf
+    [ a owl:Restriction ;
+      owl:onProperty obo:BFO_0000197 ;
+      owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ;
+      owl:onClass obo:BFO_0000142
+    ] .
+
+base:DistanceQuality rdfs:subClassOf
+    [ a owl:Restriction ;
+      owl:onProperty obo:BFO_0000197 ;
+      owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ;
+      owl:onClass obo:BFO_0000147
+    ] .

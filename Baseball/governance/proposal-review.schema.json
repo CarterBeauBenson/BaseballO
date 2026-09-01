@@ -1,0 +1,275 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://baseballontology.org/governance/proposal-review.schema.json",
+  "title": "BaseballO semantic proposal review",
+  "description": "Structural contract for an active proposal or an archived ontologist decision. A record in the active proposal catalog never authorizes executable semantic changes.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "artifactType",
+    "schemaVersion",
+    "proposalId",
+    "title",
+    "status",
+    "proposedIris",
+    "artifacts",
+    "ontologistDecision"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "pattern": "^(?:\\.\\./)+governance/proposal-review\\.schema\\.json$"
+    },
+    "artifactType": {
+      "const": "baseballo-semantic-proposal-review"
+    },
+    "schemaVersion": {
+      "const": 1
+    },
+    "proposalId": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "under-review",
+        "accepted",
+        "rejected"
+      ]
+    },
+    "proposedIris": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^https?://\\S+$"
+      }
+    },
+    "artifacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "competencyQuestions",
+        "sourceEvidence",
+        "fieldSelectionInventory",
+        "sourceIndependentMermaid"
+      ],
+      "properties": {
+        "competencyQuestions": {
+          "$ref": "#/$defs/reviewArtifacts"
+        },
+        "sourceEvidence": {
+          "$ref": "#/$defs/reviewArtifacts"
+        },
+        "fieldSelectionInventory": {
+          "$ref": "#/$defs/reviewArtifacts"
+        },
+        "sourceIndependentMermaid": {
+          "$ref": "#/$defs/reviewArtifacts"
+        }
+      }
+    },
+    "ontologistDecision": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/ontologistDecision"
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "reviewArtifacts": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/reviewArtifact"
+      }
+    },
+    "reviewArtifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\)[^\\r\\n]+$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "ontologistDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "disposition",
+        "decidedBy",
+        "decidedAt",
+        "rationale",
+        "authorizedArtifacts"
+      ],
+      "properties": {
+        "disposition": {
+          "enum": [
+            "accepted",
+            "rejected"
+          ]
+        },
+        "decidedBy": {
+          "const": "Carter Beau Benson"
+        },
+        "decidedAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1
+        },
+        "authorizedArtifacts": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^Baseball/(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\)[^\\r\\n]+$"
+          }
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": [
+              "draft",
+              "under-review"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "ontologistDecision": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": [
+              "under-review",
+              "accepted"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "artifacts": {
+            "properties": {
+              "competencyQuestions": {
+                "minItems": 1
+              },
+              "sourceEvidence": {
+                "minItems": 1
+              },
+              "fieldSelectionInventory": {
+                "minItems": 1
+              },
+              "sourceIndependentMermaid": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "accepted"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "ontologistDecision": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/ontologistDecision"
+              },
+              {
+                "properties": {
+                  "disposition": {
+                    "const": "accepted"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "rejected"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "ontologistDecision": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/ontologistDecision"
+              },
+              {
+                "properties": {
+                  "disposition": {
+                    "const": "rejected"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

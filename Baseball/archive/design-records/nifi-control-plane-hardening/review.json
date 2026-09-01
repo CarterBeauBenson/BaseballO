@@ -1,0 +1,57 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "nifi-control-plane-hardening",
+  "title": "NiFi control-plane, query-index contract, and durable handoff hardening",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "858ef9bb7bed6a48e99d3c3e19e1c618d7a5ed1549d607b55735d8d3703ee75a"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "81e0dbf86199c2684e53899cc56a61860e0ac7e7a163e6a69c7a074b7f74ff3a"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "d1bf499ba379dd35259430256db502379acc357f3056813b1615cd14c6c44a84"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "48489ffa3a87f98e48bc8335584c2e19aba3a8a89995ea2595010275b18c0af7"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-09-01",
+    "rationale": "After reviewing the repeated NiFi failures and the named eight-part hardening plan, the ontologist explicitly directed that the control-plane defects be fixed. The accepted boundary separates exact-build provenance, semantic index compatibility, Explorer routing, source-grain prerequisites, and durable dependency dispatch; it does not change BaseballO world-side semantics or admit new ontology terms.",
+    "authorizedArtifacts": [
+      "Baseball/scripts/infra/configure-nifi-rdf-flow.ps1",
+      "Baseball/scripts/generate_rml_mermaid.py",
+      "Baseball/scripts/infra/configure-nifi-rdf-skeleton.ps1",
+      "Baseball/scripts/infra/migrate-rdf-storage.ps1",
+      "Baseball/scripts/pipeline/process-nifi-rdf-stage.ps1",
+      "Baseball/scripts/pipeline/run-rml.ps1",
+      "Baseball/scripts/pipeline/test-nifi-rdf-flow.ps1",
+      "Baseball/scripts/validate_semantic_change_control.py",
+      "Baseball/scripts/validate_repository.py",
+      "Baseball/tests/test_semantic_change_control.py",
+      "Baseball/governance/semantic-freeze.json",
+      "Baseball/sparql/query-index/semantic-contract.json",
+      "Baseball/sparql/query-index/operational-query-routing.json",
+      "Baseball/shacl/query-index.ttl"
+    ]
+  }
+}

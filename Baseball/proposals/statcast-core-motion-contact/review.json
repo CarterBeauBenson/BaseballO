@@ -1,0 +1,36 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "statcast-core-motion-contact",
+  "title": "Statcast core motion and contact foundation",
+  "status": "under-review",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "a48099da18694c63575f206056d88a7f1cbd1efb0177a9a24a2e25563879e97c"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "be3dfe2ab61639292403c6173cb92da541a1453306d0ec734447328fccd31836"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "85d309c47be5dffc007e1337aa3cfa5d4d048962e1c5146eaac95100815c2173"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "3408fded57403a5c44aafbf0730d66d4b0fae8016ad8e3f2270d64c314f39969"
+      }
+    ]
+  },
+  "ontologistDecision": null
+}

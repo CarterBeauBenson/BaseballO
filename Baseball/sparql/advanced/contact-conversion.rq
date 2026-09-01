@@ -1,0 +1,77 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Only terminal contact chains whose batted-ball motion explicitly precedes a
+# PA result are counted. Earlier foul contacts are therefore not credited with
+# the terminal outcome merely because they share the plate appearance.
+SELECT ?batter ?batterLabel ?outcome
+       (COUNT(DISTINCT ?contact) AS ?terminalContacts)
+       (COUNT(DISTINCT ?hitResult) AS ?hits)
+       (COUNT(DISTINCT ?outResult) AS ?outs)
+       (COUNT(DISTINCT ?errorResult) AS ?errors)
+       (COUNT(DISTINCT ?sacrificeResult) AS ?sacrifices)
+       (COUNT(DISTINCT ?runnerAdvance) AS ?associatedRunnerAdvances)
+       (COUNT(DISTINCT ?run) AS ?associatedRuns)
+WHERE {
+  GRAPH ?graph {
+    ?swing a base:SwingAct ;
+        obo:BFO_0000057 ?batter ;
+        obo:BFO_0000063 ?contact .
+    ?batter rdfs:label ?batterLabel .
+    ?contact a base:BatBallContactProcess ;
+        obo:BFO_0000132 ?plateAppearance ;
+        obo:BFO_0000063 ?motion .
+    ?motion a base:BattedBallMotionProcess ; obo:BFO_0000063 ?result .
+    ?result a base:BaseballInstitutionalProcess, ?outcomeClass .
+    VALUES (?outcomeClass ?outcome) {
+      (base:SingleProcess "single")
+      (base:DoubleProcess "double")
+      (base:TripleProcess "triple")
+      (base:HomeRunProcess "home_run")
+      (base:WalkProcess "walk")
+      (base:StrikeoutProcess "strikeout")
+      (base:HitByPitchProcess "hit_by_pitch")
+      (base:FieldersChoiceProcess "fielders_choice")
+      (base:ErrorProcess "field_error")
+      (base:SacrificeFlyProcess "sac_fly")
+      (base:SacrificeBuntProcess "sac_bunt")
+      (base:BattedBallOutProcess "field_out")
+      (base:ForceOutProcess "force_out")
+      (base:DoublePlayProcess "double_play")
+      (base:GroundedIntoDoublePlayProcess "grounded_into_double_play")
+      (base:BalkProcess "balk")
+      (base:InterferenceProcess "catcher_interf")
+    }
+    OPTIONAL {
+      ?hitResult a ?hitType .
+      FILTER(?hitResult = ?result)
+      VALUES ?hitType { base:SingleProcess base:DoubleProcess base:TripleProcess base:HomeRunProcess }
+    }
+    OPTIONAL {
+      ?outResult a ?outType .
+      FILTER(?outResult = ?result)
+      VALUES ?outType {
+        base:BattedBallOutProcess base:ForceOutProcess base:DoublePlayProcess
+        base:GroundedIntoDoublePlayProcess
+      }
+    }
+    OPTIONAL { ?errorResult a base:ErrorProcess . FILTER(?errorResult = ?result) }
+    OPTIONAL {
+      ?sacrificeResult a ?sacrificeType .
+      FILTER(?sacrificeResult = ?result)
+      VALUES ?sacrificeType { base:SacrificeFlyProcess base:SacrificeBuntProcess }
+    }
+    OPTIONAL {
+      ?runnerAdvance a base:RunnerResolutionProcess, base:SafeProcess ;
+          obo:BFO_0000132 ?plateAppearance .
+    }
+    OPTIONAL {
+      ?run a base:RunnerResolutionProcess, base:RunProcess ;
+          obo:BFO_0000132 ?plateAppearance .
+    }
+  }
+  FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+}
+GROUP BY ?batter ?batterLabel ?outcome
+ORDER BY ?batterLabel DESC(?terminalContacts) ?outcome

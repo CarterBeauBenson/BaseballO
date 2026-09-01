@@ -1,0 +1,141 @@
+INFO  exec            :: QUERY
+  PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+  PREFIX  obo:  <http://purl.obolibrary.org/obo/>
+  PREFIX  cco:  <https://www.commoncoreontologies.org/>
+  PREFIX  base: <https://baseballontology.org/>
+
+  SELECT  ?pitcher ?pitcherLabel (COUNT(DISTINCT ?pitch) AS ?pitches) (COUNT(DISTINCT ?ball) AS ?balls) (COUNT(DISTINCT ?strike) AS ?strikes) (COUNT(DISTINCT ?plateAppearance) AS ?plateAppearances)
+  WHERE
+    { VALUES ?graph { <https://w3id.org/baseball/graph/game/822867> <https://w3id.org/baseball/graph/game/823431> <https://w3id.org/baseball/graph/game/823520> <https://w3id.org/baseball/graph/game/823757> <https://w3id.org/baseball/graph/game/824160> <https://w3id.org/baseball/graph/game/824324> <https://w3id.org/baseball/graph/game/824647> <https://w3id.org/baseball/graph/game/825095> }
+      GRAPH ?graph
+        { ?pitch    a                base:PitchAct ;
+                    obo:BFO_0000132  ?plateAppearance ;
+                    obo:BFO_0000057  ?pitcher ;
+                    obo:BFO_0000063  ?pitchMotion .
+          ?pitchMotion  a            base:PitchBallMotionProcess .
+          ?pitcher  rdfs:label       ?pitcherLabel
+          OPTIONAL
+            { ?ballRecord  a             base:BaseballEventRecord ;
+                        cco:ont00001808  ?pitch ;
+                        cco:ont00001808  ?ball .
+              ?ball     a                base:BallProcess ;
+                        obo:BFO_0000117  ?ballJudgment .
+              ?ballJudgment
+                        a                base:BallJudgmentAct
+            }
+          OPTIONAL
+            { ?strikeRecord
+                        a                base:BaseballEventRecord ;
+                        cco:ont00001808  ?pitch ;
+                        cco:ont00001808  ?strike .
+              ?strike   a                base:StrikeProcess ;
+                        obo:BFO_0000117  ?strikeJudgment .
+              ?strikeJudgment
+                        a                ?strikeJudgmentClass
+              VALUES ?strikeJudgmentClass { base:StrikeJudgmentAct base:FoulTipJudgmentAct }
+            }
+        }
+    }
+  GROUP BY ?pitcher ?pitcherLabel
+  ORDER BY DESC(?pitches) lcase(str(?pitcherLabel))
+INFO  exec            :: ALGEBRA
+  (project (?pitcher ?pitcherLabel ?pitches ?balls ?strikes ?plateAppearances)
+    (order ((desc ?pitches) (lcase (str ?pitcherLabel)))
+      (extend ((?pitches ?.0) (?balls ?.1) (?strikes ?.2) (?plateAppearances ?.3))
+        (group (?pitcher ?pitcherLabel) ((?.0 (count distinct ?pitch)) (?.1 (count distinct ?ball)) (?.2 (count distinct ?strike)) (?.3 (count distinct ?plateAppearance)))
+          (sequence
+            (table (vars ?graph)
+              (row [?graph <https://w3id.org/baseball/graph/game/822867>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823431>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823520>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823757>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824160>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824324>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824647>])
+              (row [?graph <https://w3id.org/baseball/graph/game/825095>])
+            )
+            (conditional
+              (conditional
+                (quadpattern
+                  (quad ?graph ?pitch <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/PitchAct>)
+                  (quad ?graph ?pitch <http://purl.obolibrary.org/obo/BFO_0000132> ?plateAppearance)
+                  (quad ?graph ?pitch <http://purl.obolibrary.org/obo/BFO_0000057> ?pitcher)
+                  (quad ?graph ?pitch <http://purl.obolibrary.org/obo/BFO_0000063> ?pitchMotion)
+                  (quad ?graph ?pitchMotion <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/PitchBallMotionProcess>)
+                  (quad ?graph ?pitcher <http://www.w3.org/2000/01/rdf-schema#label> ?pitcherLabel)
+                )
+                (quadpattern
+                  (quad ?graph ?ballRecord <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballEventRecord>)
+                  (quad ?graph ?ballRecord <https://www.commoncoreontologies.org/ont00001808> ?pitch)
+                  (quad ?graph ?ballRecord <https://www.commoncoreontologies.org/ont00001808> ?ball)
+                  (quad ?graph ?ball <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BallProcess>)
+                  (quad ?graph ?ball <http://purl.obolibrary.org/obo/BFO_0000117> ?ballJudgment)
+                  (quad ?graph ?ballJudgment <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BallJudgmentAct>)
+                ))
+              (sequence
+                (table (vars ?strikeJudgmentClass)
+                  (row [?strikeJudgmentClass <https://baseballontology.org/StrikeJudgmentAct>])
+                  (row [?strikeJudgmentClass <https://baseballontology.org/FoulTipJudgmentAct>])
+                )
+                (quadpattern
+                  (quad ?graph ?strikeRecord <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballEventRecord>)
+                  (quad ?graph ?strikeRecord <https://www.commoncoreontologies.org/ont00001808> ?pitch)
+                  (quad ?graph ?strikeRecord <https://www.commoncoreontologies.org/ont00001808> ?strike)
+                  (quad ?graph ?strike <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/StrikeProcess>)
+                  (quad ?graph ?strike <http://purl.obolibrary.org/obo/BFO_0000117> ?strikeJudgment)
+                  (quad ?graph ?strikeJudgment <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?strikeJudgmentClass)
+                ))))))))
+INFO  exec            :: TDB2
+  (project (?pitcher ?pitcherLabel ?pitches ?balls ?strikes ?plateAppearances)
+    (order ((desc ?pitches) (lcase (str ?pitcherLabel)))
+      (extend ((?pitches ?.0) (?balls ?.1) (?strikes ?.2) (?plateAppearances ?.3))
+        (group (?pitcher ?pitcherLabel) ((?.0 (count distinct ?pitch)) (?.1 (count distinct ?ball)) (?.2 (count distinct ?strike)) (?.3 (count distinct ?plateAppearance)))
+          (sequence
+            (table (vars ?graph)
+              (row [?graph <https://w3id.org/baseball/graph/game/822867>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823431>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823520>])
+              (row [?graph <https://w3id.org/baseball/graph/game/823757>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824160>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824324>])
+              (row [?graph <https://w3id.org/baseball/graph/game/824647>])
+              (row [?graph <https://w3id.org/baseball/graph/game/825095>])
+            )
+            (conditional
+              (conditional
+                (quadpattern
+                  (quad ?graph ?pitch <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/PitchAct>)
+                  (quad ?graph ?pitch <http://purl.obolibrary.org/obo/BFO_0000132> ?plateAppearance)
+                  (quad ?graph ?pitch <http://purl.obolibrary.org/obo/BFO_0000057> ?pitcher)
+                  (quad ?graph ?pitch <http://purl.obolibrary.org/obo/BFO_0000063> ?pitchMotion)
+                  (quad ?graph ?pitchMotion <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/PitchBallMotionProcess>)
+                  (quad ?graph ?pitcher <http://www.w3.org/2000/01/rdf-schema#label> ?pitcherLabel)
+                )
+                (quadpattern
+                  (quad ?graph ?ballRecord <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballEventRecord>)
+                  (quad ?graph ?ballRecord <https://www.commoncoreontologies.org/ont00001808> ?pitch)
+                  (quad ?graph ?ballRecord <https://www.commoncoreontologies.org/ont00001808> ?ball)
+                  (quad ?graph ?ball <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BallProcess>)
+                  (quad ?graph ?ball <http://purl.obolibrary.org/obo/BFO_0000117> ?ballJudgment)
+                  (quad ?graph ?ballJudgment <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BallJudgmentAct>)
+                ))
+              (sequence
+                (table (vars ?strikeJudgmentClass)
+                  (row [?strikeJudgmentClass <https://baseballontology.org/StrikeJudgmentAct>])
+                  (row [?strikeJudgmentClass <https://baseballontology.org/FoulTipJudgmentAct>])
+                )
+                (quadpattern
+                  (quad ?graph ?strikeRecord <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/BaseballEventRecord>)
+                  (quad ?graph ?strikeRecord <https://www.commoncoreontologies.org/ont00001808> ?pitch)
+                  (quad ?graph ?strikeRecord <https://www.commoncoreontologies.org/ont00001808> ?strike)
+                  (quad ?graph ?strike <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://baseballontology.org/StrikeProcess>)
+                  (quad ?graph ?strike <http://purl.obolibrary.org/obo/BFO_0000117> ?strikeJudgment)
+                  (quad ?graph ?strikeJudgment <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?strikeJudgmentClass)
+                ))))))))
+INFO  exec            :: Execute
+  ?pitch rdf:type <https://baseballontology.org/PitchAct>
+  ?pitch <http://purl.obolibrary.org/obo/BFO_0000132> ?plateAppearance
+  ?pitch <http://purl.obolibrary.org/obo/BFO_0000057> ?pitcher
+  ?pitch <http://purl.obolibrary.org/obo/BFO_0000063> ?pitchMotion
+  ?pitchMotion rdf:type <https://baseballontology.org/PitchBallMotionProcess>
+  ?pitcher rdfs:label ?pitcherLabel

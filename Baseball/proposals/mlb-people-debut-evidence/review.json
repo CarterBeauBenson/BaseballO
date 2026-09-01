@@ -1,0 +1,36 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-people-debut-evidence",
+  "title": "MLB people debut evidence",
+  "status": "under-review",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "c7979b8dd3b2d96059219c2224c9504683d24994ab97ae7fd34641eebef82213"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "ccc2995a201151996366c8da6d3d91df9bf17fc68e20aa97d3e4ad69e70f7bf3"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "fc0536a48cc28f1ea4af0d443dec8516d5596421a73b4d819b5c87e0dfdd81c5"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "090cb28223f934ee7969a323e65d42b0c2a9a47610b1e7f0c7cea7620ea2f917"
+      }
+    ]
+  },
+  "ontologistDecision": null
+}

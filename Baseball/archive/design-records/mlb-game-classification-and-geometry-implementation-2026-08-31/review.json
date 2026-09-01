@@ -1,0 +1,43 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-classification-and-geometry-implementation-2026-08-31",
+  "title": "MLB-game classification and geometry implementation authorization",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [{"path":"competency-questions.md","sha256":"74694f6e5dbd71b71513b2a9d58c2130331ef46dcb53908f75a26a13d247e038"}],
+    "sourceEvidence": [{"path":"source-evidence.md","sha256":"deecd90dc7e9143297e88b2f0657d64d85348f797008386813b49c8c2431cc09"}],
+    "fieldSelectionInventory": [{"path":"field-selection-inventory.md","sha256":"a764c5739b94600abd1d69b77f7791886b6fddbfabc018fd9cd261e38f929a14"}],
+    "sourceIndependentMermaid": [{"path":"source-independent-mermaid.md","sha256":"e4eaea60f5e9af4ee6abe373254407fa923fa6bce3439bdf54df7aabc38a4403"}]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-08-31",
+    "rationale": "The ontologist explicitly accepted all reviewed RML-facing work after the four blocking corrections and directed that it be implemented through ontology, RML, SHACL, SPARQL, and the existing pipeline. This record is an administrative composition of those already reviewed decisions and introduces no new semantics.",
+    "authorizedArtifacts": [
+      "Baseball/ontology/BaseballO.ttl",
+      "Baseball/ontology/BaseballO-axioms-overlay.ttl",
+      "Baseball/scripts/pipeline/prepare-rml-context.py",
+      "Baseball/sources/mlb-game/mapping/event-identity-registry.yaml",
+      "Baseball/sources/mlb-game/mapping/iri-policy.yaml",
+      "Baseball/sources/mlb-game/mapping/mapping-coverage.yaml",
+      "Baseball/sources/mlb-game/mapping/mlb-game.rml.ttl",
+      "Baseball/sources/mlb-game/mapping/ontology-coverage-gaps.yaml",
+      "Baseball/sources/mlb-game/review/rml-mermaid-manifest.json",
+      "Baseball/sources/mlb-game/review/semantic-status.json",
+      "Baseball/sources/mlb-game/shacl/authoritative.ttl",
+      "Baseball/shacl/query-index.ttl",
+      "Baseball/sparql/source-scope-catalog.json",
+      "Baseball/sparql/query-index/components/10-game-dimensions.rq",
+      "Baseball/sparql/query-index/components/40-pitches.rq",
+      "Baseball/sparql/query-index/components/61-contacts.rq",
+      "Baseball/sparql/games/games-by-season-phase.rq",
+      "Baseball/sparql/pitching/pitch-types-by-pitcher.rq",
+      "Baseball/sparql/pitching/batted-ball-trajectories.rq",
+      "Baseball/sparql/serving/explore-pitching-grain.rq"
+    ]
+  }
+}

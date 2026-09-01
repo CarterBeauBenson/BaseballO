@@ -1,0 +1,47 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX idx: <https://w3id.org/baseball/query-index/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+
+CONSTRUCT {
+  ?contact a idx:ContactFact ;
+      idx:agent ?player ;
+      idx:game ?game ;
+      idx:venue ?venue ;
+      idx:plateAppearance ?plateAppearance ;
+      idx:battedBall ?battedBall ;
+      idx:derivedFrom ?battingAct, ?battedBall .
+  ?contact idx:trajectoryType ?currentTrajectoryType ;
+      idx:nominalCategory ?trajectoryCategory .
+  ?battedBall a ?currentTrajectoryType .
+}
+WHERE {
+  VALUES (?sourceGraph ?game) {
+    (<urn:baseball:query-index:source-graph> <urn:baseball:query-index:game>)
+  }
+  GRAPH ?sourceGraph {
+    ?battedBall a base:BattedBallMotionProcess ;
+        obo:BFO_0000132 ?plateAppearance ;
+        cco:ont00001918 ?field .
+    ?contact a base:BatBallContactProcess ;
+        obo:BFO_0000063 ?battedBall .
+    ?battingAct a ?battingActClass ;
+        obo:BFO_0000057 ?player ;
+        obo:BFO_0000063 ?contact .
+    ?player a cco:ont00001262 .
+    ?plateAppearance a base:PlateAppearance ;
+        obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
+    ?field a base:BaseballFieldSite ;
+        obo:BFO_0000171 ?venue .
+    VALUES ?battingActClass { base:SwingAct base:BuntAct }
+    OPTIONAL {
+      ?battedBall cco:ont00001914 ?trajectoryCategory .
+      VALUES (?trajectoryCategory ?currentTrajectoryType) {
+        (base:GroundBallTrajectoryICE base:GroundBallMotionProcess)
+        (base:LineDriveTrajectoryICE base:LineDriveMotionProcess)
+        (base:FlyBallTrajectoryICE base:FlyBallMotionProcess)
+        (base:PopUpTrajectoryICE base:PopUpMotionProcess)
+      }
+    }
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "plate-appearance-batter-role-realization",
+  "title": "Batter Act realization of a career-persistent Batter Role",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "dde6aa8896035479d070f9f284c555ed11fa72bc4cbc3fdeb5ad5b2962f8ca11"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "a27ba011fe53fb93d607618c78ffae855588fa4dc9144217e206800221a1348e"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "6b795294dc7a5a2a76dfb72b9bafc062b893ead85cbe5d3cf6d44f148ba26315"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "e3068eec9dd4f202fad26a04de60812f735ac26550b1ee852e9c8299d3dc4815"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-08-28",
+    "rationale": "The ontologist clarified that the existing RML already models realization correctly: one generic Batter Act per Plate Appearance realizes the career-persistent Batter Role, and supported Swing and Bunt Acts may additionally realize that Role. A Batter-Role Stasis expresses persistence through participation and never realizes the Role. The Plate Appearance therefore does not need a duplicate realization edge, and the pre-change RML contract is to be restored together with its dependent SHACL, query, validation, and generated-review artifacts. The ontologist further directed that accepted competency-question answers be enforced through the pipeline's authoritative SHACL gate rather than duplicated as imperative Python semantic review.",
+    "authorizedArtifacts": [
+      "Baseball/ontology/BaseballO.ttl",
+      "Baseball/ontology/BaseballO-axioms-overlay.ttl",
+      "Baseball/mappings/policies/modeling-choices.yaml",
+      "Baseball/sources/mlb-game/mapping/mapping-coverage.yaml",
+      "Baseball/sources/mlb-game/mapping/mlb-game.rml.ttl",
+      "Baseball/sources/mlb-game/shacl/authoritative.ttl",
+      "Baseball/sources/mlb-game/review/rml-mermaid-manifest.json",
+      "Baseball/scripts/pipeline/validate-generated-rdf.py",
+      "Baseball/scripts/pipeline/run-rml.ps1",
+      "Baseball/scripts/pipeline/process-nifi-rdf-stage.ps1",
+      "Baseball/scripts/pipeline/README.md",
+      "Baseball/scripts/pipeline/test-query-index.ps1",
+      "Baseball/scripts/reasoning/test-selective-reasoning.py",
+      "Baseball/scripts/validate_ontology_overlay.py",
+      "Baseball/scripts/validate_repository.py",
+      "Baseball/tests/test_nifi_game_flow.py",
+      "Baseball/sparql/hits-by-player-and-season.rq",
+      "Baseball/sparql/hits-by-player-and-venue.rq",
+      "Baseball/sparql/batting/extra-base-hits-by-player.rq",
+      "Baseball/sparql/batting/hitless-games-by-player.rq",
+      "Baseball/sparql/batting/home-runs-by-player-and-venue.rq",
+      "Baseball/sparql/batting/multi-hit-games.rq",
+      "Baseball/sparql/batting/outcomes-by-player.rq",
+      "Baseball/sparql/batting/plate-appearances-by-player-and-season.rq",
+      "Baseball/sparql/batting/three-true-outcomes-by-player.rq",
+      "Baseball/sparql/batting/total-bases-by-player-and-season.rq",
+      "Baseball/sparql/options/available-players.rq",
+      "Baseball/sparql/advanced/batter-pitcher-matchup-profiles.rq",
+      "Baseball/sparql/advanced/grinder-index.rq",
+      "Baseball/sparql/advanced/hit-diversity.rq",
+      "Baseball/sparql/advanced/plate-appearance-fingerprint.rq",
+      "Baseball/sparql/advanced/productive-plate-appearances.rq",
+      "Baseball/sparql/advanced/swing-to-result-funnel.rq",
+      "Baseball/sparql/advanced/unproductive-contact-games.rq",
+      "Baseball/sparql/advanced/whiff-and-take-profiles.rq",
+      "Baseball/sparql/empty-games-prototype.rq",
+      "Baseball/sparql/serving/empty-damage-opportunity-grain.rq",
+      "Baseball/sparql/query-index/components/15-plate-appearances.rq",
+      "Baseball/sparql/query-index/components/20-plate-appearance-results.rq",
+      "Baseball/sparql/query-index/components/30-hits.rq",
+      "Baseball/sparql/query-index/operational-query-routing.json",
+      "Baseball/web/query-builder/hit-query-builder.js",
+      "Baseball/web/query-builder/analytics-query-builder.js",
+      "Baseball/web/query-builder/derived-metric-query-builder.js",
+      "Baseball/web/query-builder/empty-games-query-builder.js"
+    ]
+  }
+}

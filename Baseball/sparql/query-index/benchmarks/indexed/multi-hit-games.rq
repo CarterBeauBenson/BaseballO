@@ -1,0 +1,15 @@
+PREFIX idx: <https://w3id.org/baseball/query-index/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?game ?player ?playerLabel (COUNT(DISTINCT ?result) AS ?hits)
+WHERE {
+  GRAPH ?graph {
+    ?result a idx:HitFact ;
+            idx:agent ?player ;
+            idx:game ?game .
+    ?player rdfs:label ?playerLabel .
+  }
+}
+GROUP BY ?game ?player ?playerLabel
+HAVING(COUNT(DISTINCT ?result) >= 2)
+ORDER BY DESC(?hits) LCASE(STR(?playerLabel)) ?game

@@ -1,0 +1,47 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "statcast-nonduplicate",
+  "title": "Statcast non-duplicate semantic extension",
+  "status": "accepted",
+  "proposedIris": [
+    "https://baseballontology.org/BaseballBatSweetSpotFiatPoint"
+  ],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "3d43af1d7f8a4a20791ad7ee8c8441fd8e653c5fd6dbf431074205aa20e502d7"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "ad3f25538a7aa533c0d9c9cc5a43fa1336a04e90f8bbaeb12a05ad9548542717"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "74cc24cc511dca2713ed39ad92e93b3b067c090b53d18eb532d1386b16c1f847"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "275fd2f88a65235827c7c8635685383cf9a4b05d19173dce7b7b4fbab0874320"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-08-29",
+    "rationale": "The ontologist accepted BaseballBatSweetSpotFiatPoint and the reviewed Statcast non-duplicate field-selection conclusions. This decision authorizes ontology implementation only; it does not authorize Statcast RML, SHACL, ingestion, graph promotion, serving materialization, or UI exposure.",
+    "authorizedArtifacts": [
+      "Baseball/ontology/BaseballO.ttl",
+      "Baseball/ontology/BaseballO-axioms-overlay.ttl"
+    ]
+  }
+}

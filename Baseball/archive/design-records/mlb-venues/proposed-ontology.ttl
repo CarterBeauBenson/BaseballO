@@ -1,0 +1,6 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://baseballontology.org/proposal/mlb-venues> a owl:Ontology ;
+    rdfs:label "MLB venue coverage and ontology-gap review"@en ;
+    rdfs:comment "Review-only evidence package. It proposes no named class or property and is not an importable BaseballO module."@en .

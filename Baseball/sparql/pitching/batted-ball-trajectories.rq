@@ -1,0 +1,25 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?batter ?batterLabel ?trajectory ?trajectoryLabel
+       (COUNT(DISTINCT ?motion) AS ?battedBalls)
+WHERE {
+  GRAPH ?graph {
+    ?motion a base:BattedBallMotionProcess ; cco:ont00001914 ?trajectory .
+    ?contact a base:BatBallContactProcess ; obo:BFO_0000063 ?motion .
+    ?battingAct a ?battingActClass ; obo:BFO_0000063 ?contact ; obo:BFO_0000057 ?batter .
+    VALUES ?battingActClass { base:SwingAct base:BuntAct }
+    ?batter rdfs:label ?batterLabel .
+    VALUES (?trajectory ?trajectoryLabel) {
+      (base:GroundBallTrajectoryICE "Ground ball")
+      (base:LineDriveTrajectoryICE "Line drive")
+      (base:FlyBallTrajectoryICE "Fly ball")
+      (base:PopUpTrajectoryICE "Pop up")
+    }
+  }
+  FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+}
+GROUP BY ?batter ?batterLabel ?trajectory ?trajectoryLabel
+ORDER BY LCASE(STR(?batterLabel)) DESC(?battedBalls) ?trajectoryLabel

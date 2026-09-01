@@ -1,0 +1,28 @@
+{
+  "copyright": "Checked semantic fixture; not a retained API response",
+  "teams": [
+    {
+      "id": 147,
+      "name": "New York Yankees",
+      "season": 2025,
+      "league": {
+        "id": 103,
+        "name": "American League"
+      },
+      "division": {
+        "id": 201,
+        "name": "American League East"
+      },
+      "sport": {
+        "id": 1,
+        "name": "Major League Baseball"
+      },
+      "venue": {
+        "id": 3313,
+        "name": "Yankee Stadium"
+      },
+      "abbreviation": "NYY",
+      "active": true
+    }
+  ]
+}

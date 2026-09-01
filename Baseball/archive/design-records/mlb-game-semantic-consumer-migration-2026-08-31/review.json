@@ -1,0 +1,52 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-semantic-consumer-migration-2026-08-31",
+  "title": "MLB-game semantic consumer migration",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [{"path":"competency-questions.md","sha256":"f47287e1a79f9af31069fe2a57cad9df76d260a840ee0e6d42047474ff635a5b"}],
+    "sourceEvidence": [{"path":"source-evidence.md","sha256":"a74116518e9a844330ed23b70b3f176e351513b4003c99e18ffadf2d863af2ab"}],
+    "fieldSelectionInventory": [{"path":"field-selection-inventory.md","sha256":"116b480fb49dba240db54b07ed0e7d4399900554c398dac84d51bf1fb8906029"}],
+    "sourceIndependentMermaid": [{"path":"source-independent-mermaid.md","sha256":"591bd006d9b5229675d3584630b1254746d0b0ec61460249eed4cc8e8ea022c2"}]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-08-31",
+    "rationale": "The ontologist explicitly accepted all reviewed MLB-game RML work and directed its implementation through SHACL, SPARQL, and downstream consumers. This administrative record authorizes that bounded migration and introduces no new semantics.",
+    "authorizedArtifacts": [
+      "Baseball/scripts/pipeline/prepare-rml-context.py",
+      "Baseball/scripts/pipeline/test-query-index.ps1",
+      "Baseball/sources/mlb-game/mapping/mapping-coverage.yaml",
+      "Baseball/sources/mlb-game/mapping/mlb-game.rml.ttl",
+      "Baseball/sources/mlb-game/mapping/validate_mlb_game_mapping.py",
+      "Baseball/sources/mlb-game/shacl/authoritative.ttl",
+      "Baseball/shacl/query-index.ttl",
+      "Baseball/sparql/source-scope-catalog.json",
+      "Baseball/sparql/query-index/components/10-game-dimensions.rq",
+      "Baseball/sparql/query-index/components/40-pitches.rq",
+      "Baseball/sparql/query-index/components/50-pitch-calls.rq",
+      "Baseball/sparql/query-index/components/61-contacts.rq",
+      "Baseball/sparql/query-index/components/70-runner-resolutions.rq",
+      "Baseball/sparql/advanced/contact-conversion.rq",
+      "Baseball/sparql/advanced/grinder-index.rq",
+      "Baseball/sparql/advanced/plate-appearance-fingerprint.rq",
+      "Baseball/sparql/advanced/productive-plate-appearances.rq",
+      "Baseball/sparql/advanced/review-outcome-profile.rq",
+      "Baseball/sparql/advanced/umpire-call-profile.rq",
+      "Baseball/sparql/advanced/unproductive-contact-games.rq",
+      "Baseball/sparql/baserunning/events-by-player.rq",
+      "Baseball/sparql/empty-games-prototype.rq",
+      "Baseball/sparql/options/available-baserunning-events.rq",
+      "Baseball/sparql/serving/explore-baserunning-grain.rq",
+      "Baseball/sparql/serving/explore-pitching-grain.rq",
+      "Baseball/web/query-builder/analytics-query-builder.js",
+      "Baseball/web/query-builder/derived-metric-query-builder.js",
+      "Baseball/web/query-builder/empty-games-query-builder.js",
+      "Baseball/web/tests/analytics-query-builder.test.mjs"
+    ]
+  }
+}

@@ -1,0 +1,43 @@
+@prefix base: <https://baseballontology.org/> .
+@prefix cco: <https://www.commoncoreontologies.org/> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+# Review-only proposed base taxonomy and annotations.
+
+base:BaseballSeason a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000015 ;
+    rdfs:label "Baseball Season"@en ;
+    skos:definition "A Baseball Season is a Process that is prescribed by some Baseball Rule and has some Baseball Game as occurrent part."@en ;
+    rdfs:comment "Prescription supplies institutional delimitation without making the Season a Planned Act. The provider's season number is an identifier, and the intentional Baseball Acts within the Games do not determine the type of the Season whole. This candidate does not infer a League participant or make a Rule a continuant part of an Organization."@en ;
+    skos:example "The 2026 Major League Baseball season."@en .
+
+base:BaseballSeasonPhase a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000015 ;
+    rdfs:label "Baseball Season Phase"@en ;
+    skos:definition "A Baseball Season Phase is a Process that is an occurrent part of some Baseball Season and has some Baseball Game as occurrent part."@en ;
+    rdfs:comment "This candidate is limited to game-containing phases. A planned phase boundary does not entail that a Baseball Game occurred on the boundary date, and an offseason interval without Games is not inferred to be a Baseball Season Phase."@en ;
+    skos:example "The regular-season phase prescribed within the 2026 Major League Baseball season plan."@en .
+
+base:BaseballSeasonPlan a owl:Class ;
+    rdfs:subClassOf cco:ont00000974 ;
+    rdfs:label "Baseball Season Plan"@en ;
+    skos:definition "A Baseball Season Plan is a Plan that prescribes some Baseball Season and some Baseball Season Phase."@en ;
+    rdfs:comment "The Season and Phase have independent Process differentiae, so this prescription does not define the three terms circularly. Date Identifier parts may designate planned phase boundaries. Counts, qualifier thresholds, and format flags require their exact rule and target before inclusion."@en ;
+    skos:example "The plan specifying the phases and planned temporal boundaries of the 2026 Major League Baseball season."@en .
+
+# Review-only proposed overlay restrictions.
+
+base:BaseballSeason rdfs:subClassOf
+    [ a owl:Restriction ; owl:onProperty cco:ont00001920 ; owl:someValuesFrom base:BaseballRule ],
+    [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:BaseballGame ] .
+
+base:BaseballSeasonPhase rdfs:subClassOf
+    [ a owl:Restriction ; owl:onProperty obo:BFO_0000132 ; owl:someValuesFrom base:BaseballSeason ],
+    [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:someValuesFrom base:BaseballGame ] .
+
+base:BaseballSeasonPlan rdfs:subClassOf
+    [ a owl:Restriction ; owl:onProperty cco:ont00001942 ; owl:someValuesFrom base:BaseballSeason ],
+    [ a owl:Restriction ; owl:onProperty cco:ont00001942 ; owl:someValuesFrom base:BaseballSeasonPhase ] .

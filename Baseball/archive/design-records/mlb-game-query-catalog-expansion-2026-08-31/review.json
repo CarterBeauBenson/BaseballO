@@ -1,0 +1,22 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-query-catalog-expansion-2026-08-31",
+  "title": "MLB-game query catalog expansion",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [{"path":"competency-questions.md","sha256":"9fe67d4fd12872116f60accb31aecc89c67a11f51d2bc16251c4cad8f144b699"}],
+    "sourceEvidence": [{"path":"source-evidence.md","sha256":"7e179ad919265b8c676d65543fff571568fd034e0ef52e10ab86907fe5f9982a"}],
+    "fieldSelectionInventory": [{"path":"field-selection-inventory.md","sha256":"22ab84041b6b3fed6d8b720fc45e8cebd21b3fae104e96ac9d546031cd9ebfca"}],
+    "sourceIndependentMermaid": [{"path":"source-independent-mermaid.md","sha256":"3c654a6ba38e02f68be1a279101963e5991985bb3c1520292fe3770f2d00bc7f"}]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-08-31",
+    "rationale": "The ontologist accepted the MLB-game RML implementation and directed its SPARQL consequences. This record authorizes only the corresponding exact query-inventory count update; it does not relax validation.",
+    "authorizedArtifacts": ["Baseball/scripts/validate_repository.py"]
+  }
+}

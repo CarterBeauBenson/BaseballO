@@ -1,0 +1,29 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "baseball-strike-zone-geometry",
+  "title": "Baseball strike-zone geometry",
+  "status": "accepted",
+  "proposedIris": [
+    "https://baseballontology.org/ABSEvaluationFiatSurface",
+    "https://baseballontology.org/ABSEvaluationRule",
+    "https://baseballontology.org/BaseballStrikeZoneSite"
+  ],
+  "artifacts": {
+    "competencyQuestions": [{"path":"competency-questions.md","sha256":"93064fbaefc227c0e7d61c1e87dd751ff3b0731661baffbd2fd6c2768ed95a32"}],
+    "sourceEvidence": [{"path":"source-evidence.md","sha256":"09b0088a3b98bc448daea1540392668b586493bf17fbb7cef222be83f1dd4440"}],
+    "fieldSelectionInventory": [{"path":"field-selection-inventory.md","sha256":"6bb641bd5a9983616dafea681fa30859bfe6cd68c780c5698ed336cd1791d6ba"}],
+    "sourceIndependentMermaid": [
+      {"path":"source-independent-mermaid.md","sha256":"1eaf0e3ac5eadb139588ebd31bee6b9744ae4b50bd7a0472b028c9dc03e2b0db"},
+      {"path":"proposed-ontology.ttl","sha256":"8c505f4edfe12fcc14cab806e5be0783682d7c1b8a319d4577d7b07cca50b5b3"}
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-08-31",
+    "rationale": "The ontologist explicitly accepted the corrected strike-zone package with necessary restrictions only for Baseball Strike Zone Site until its six identity-bearing geometric anchors are modeled.",
+    "authorizedArtifacts": []
+  }
+}

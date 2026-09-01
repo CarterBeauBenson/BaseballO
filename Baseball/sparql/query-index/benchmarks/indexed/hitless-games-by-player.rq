@@ -1,0 +1,25 @@
+PREFIX idx: <https://w3id.org/baseball/query-index/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Negative classification is valid only when this query is run through the
+# reviewed router. The router proves that every selected per-game index is
+# current, and the build gate proves exact PlateAppearanceFact and HitFact
+# coverage before publishing an index graph.
+SELECT ?player ?playerLabel (COUNT(DISTINCT ?game) AS ?hitlessGames)
+WHERE {
+  GRAPH ?graph {
+    ?game a idx:GameFact .
+    ?plateAppearance a idx:PlateAppearanceFact ;
+                     idx:agent ?player ;
+                     idx:game ?game .
+    ?player rdfs:label ?playerLabel .
+
+    FILTER NOT EXISTS {
+      ?hit a idx:HitFact ;
+           idx:agent ?player ;
+           idx:game ?game .
+    }
+  }
+}
+GROUP BY ?player ?playerLabel
+ORDER BY DESC(?hitlessGames) LCASE(STR(?playerLabel))

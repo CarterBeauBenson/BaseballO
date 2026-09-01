@@ -1,0 +1,33 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "baseball-roster-status-institutional-model",
+  "title": "Baseball roster-status institutional model",
+  "status": "accepted",
+  "proposedIris": [
+    "https://baseballontology.org/BaseballRosterStatusAct",
+    "https://baseballontology.org/BaseballPlayerReleaseAct",
+    "https://baseballontology.org/BaseballPlayerReleaseDecisionICE",
+    "https://baseballontology.org/FreeAgencyDeclarationAct",
+    "https://baseballontology.org/FreeAgencyDeclarationDecisionICE",
+    "https://baseballontology.org/RetirementDeclarationAct",
+    "https://baseballontology.org/RetirementDecisionICE"
+  ],
+  "artifacts": {
+    "competencyQuestions": [{"path": "competency-questions.md", "sha256": "1a511b9c8a795be4539a12fa3afad6cc1d1e38f1f9d617ac9abf181d1ab0fe73"}],
+    "sourceEvidence": [{"path": "source-evidence.md", "sha256": "cc998b94208956e08dfc760e4d399576661ac88675381c01f2a3358193ccbe20"}],
+    "fieldSelectionInventory": [{"path": "field-selection-inventory.md", "sha256": "b91d2bea5f2f7720ccc20fad5518d955719db428e4ae2e20da78891d2c01b0e8"}],
+    "sourceIndependentMermaid": [{"path": "source-independent-mermaid.md", "sha256": "19251f19eea59695dde13fd15bf8a0fb0d41625b692423362c5cc70cf0bdd112"}]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-08-30",
+    "rationale": "The ontologist explicitly accepted the revised source-independent Mermaid package published at commit b8c6cc76711286c979b9acb11db3c48ae7d6a581 and authorized implementation that follows those diagrams and the recorded modeling guidance.",
+    "authorizedArtifacts": [
+      "Baseball/ontology/BaseballO.ttl",
+      "Baseball/ontology/BaseballO-axioms-overlay.ttl"
+    ]
+  }
+}

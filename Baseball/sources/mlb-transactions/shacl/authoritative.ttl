@@ -1,0 +1,630 @@
+@prefix base: <https://baseballontology.org/> .
+@prefix cco: <https://www.commoncoreontologies.org/> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix tx: <https://baseballontology.org/data/source/mlb-transactions/> .
+@prefix txsh: <https://baseballontology.org/shacl/mlb-transactions/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# This profile validates only the RDF emitted by the mlb-transactions module.
+# Raw-value and code-list checks happen before RML in prepare-context.py.
+
+txsh:GraphVocabularyShape a sh:NodeShape ;
+    sh:targetNode txsh:graph-contract ;
+    sh:sparql [
+        sh:message "MLB transactions RDF contains a predicate outside the accepted source contract." ;
+        sh:select """
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX obo: <http://purl.obolibrary.org/obo/>
+            PREFIX cco: <https://www.commoncoreontologies.org/>
+            SELECT $this WHERE {
+              ?subject ?predicate ?object .
+              FILTER (?predicate NOT IN (
+                rdf:type, obo:BFO_0000057, obo:BFO_0000178,
+                obo:BFO_0000063, obo:BFO_0000117, obo:BFO_0000139,
+                obo:BFO_0000197, obo:BFO_0000199,
+                cco:ont00001765, cco:ont00001771, cco:ont00001808,
+                cco:ont00001833, cco:ont00001834, cco:ont00001868,
+                cco:ont00001912, cco:ont00001916, cco:ont00001992
+              ))
+            } LIMIT 1
+        """
+    ] ;
+    sh:sparql [
+        sh:message "MLB transactions RDF contains a class outside the accepted source contract." ;
+        sh:select """
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX base: <https://baseballontology.org/>
+            PREFIX obo: <http://purl.obolibrary.org/obo/>
+            PREFIX cco: <https://www.commoncoreontologies.org/>
+            SELECT $this WHERE {
+              ?subject rdf:type ?class .
+              FILTER (?class NOT IN (
+                base:BaseballPersonnelTradeAct, base:PlayerRole,
+                obo:BFO_0000038,
+                cco:ont00000293, cco:ont00000398, cco:ont00000649,
+                cco:ont00000613, cco:ont00000684, cco:ont00000800,
+                cco:ont00000853, cco:ont00000920, cco:ont00001194,
+                cco:ont00001340
+              ))
+            } LIMIT 1
+        """
+    ] .
+
+txsh:TransactionIdentifierReferenceSystemShape a sh:NodeShape ;
+    sh:targetNode <https://baseballontology.org/data/source/mlb-transactions/reference-system/transaction-identifier> ;
+    sh:closed true ;
+    sh:property [
+        sh:path rdf:type ;
+        sh:hasValue cco:ont00000398 ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] .
+
+txsh:TransactionTypeReferenceSystemShape a sh:NodeShape ;
+    sh:targetNode <https://baseballontology.org/data/source/mlb-transactions/reference-system/transaction-type> ;
+    sh:closed true ;
+    sh:property [
+        sh:path rdf:type ;
+        sh:hasValue cco:ont00000398 ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] .
+
+txsh:FieldKeyReferenceSystemShape a sh:NodeShape ;
+    sh:targetNode <https://baseballontology.org/data/source/mlb-transactions/reference-system/field-key> ;
+    sh:closed true ;
+    sh:property [
+        sh:path rdf:type ;
+        sh:hasValue cco:ont00000398 ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] .
+
+txsh:TransactionIdentifierShape a sh:NodeShape ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:select """
+            SELECT DISTINCT ?this WHERE {
+              ?this <https://www.commoncoreontologies.org/ont00001912>
+                <https://baseballontology.org/data/source/mlb-transactions/reference-system/transaction-identifier> .
+            }
+        """
+    ] ;
+    sh:nodeKind sh:IRI ;
+    sh:pattern "^https://baseballontology\\.org/data/source/mlb-transactions/group/[1-9][0-9]*/identifier/mlb-transaction-id$" ;
+    sh:closed true ;
+    sh:property [
+        sh:path rdf:type ;
+        sh:hasValue cco:ont00000649 ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] ;
+    sh:property [
+        sh:path cco:ont00001916 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:pattern "^https://baseballontology\\.org/data/source/mlb-transactions/group/[1-9][0-9]*$"
+    ] ;
+    sh:property [
+        sh:path cco:ont00001765 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[1-9][0-9]*$"
+    ] ;
+    sh:property [
+        sh:path cco:ont00001912 ;
+        sh:hasValue <https://baseballontology.org/data/source/mlb-transactions/reference-system/transaction-identifier> ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] ;
+    sh:sparql [
+        sh:message "Transaction identifier text must equal the provider id in its group IRI." ;
+        sh:select """
+            SELECT $this WHERE {
+              $this <https://www.commoncoreontologies.org/ont00001765> ?value .
+              BIND(REPLACE(STR($this),
+                "^https://baseballontology[.]org/data/source/mlb-transactions/group/([1-9][0-9]*)/identifier/mlb-transaction-id$",
+                "$1") AS ?iriValue)
+              FILTER(STR(?value) != ?iriValue)
+            }
+        """
+    ] .
+
+txsh:GroupingRecordShape a sh:NodeShape ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:select """
+            SELECT DISTINCT ?this WHERE {
+              ?identifier
+                <https://www.commoncoreontologies.org/ont00001912>
+                  <https://baseballontology.org/data/source/mlb-transactions/reference-system/transaction-identifier> ;
+                <https://www.commoncoreontologies.org/ont00001916> ?this .
+            }
+        """
+    ] ;
+    sh:nodeKind sh:IRI ;
+    sh:pattern "^https://baseballontology\\.org/data/source/mlb-transactions/group/[1-9][0-9]*$" ;
+    sh:closed true ;
+    sh:property [
+        sh:path rdf:type ;
+        sh:hasValue cco:ont00000853 ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] ;
+    sh:property [
+        sh:path obo:BFO_0000178 ;
+        sh:minCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:pattern "^https://baseballontology\\.org/data/source/mlb-transactions/row/[0-9a-f]{64}$"
+    ] ;
+    sh:property [
+        sh:path [ sh:inversePath cco:ont00001916 ] ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:node txsh:TransactionIdentifierShape
+    ] .
+
+txsh:RowRecordShape a sh:NodeShape ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:select """
+            SELECT DISTINCT ?this WHERE {
+              ?classification
+                a <https://www.commoncoreontologies.org/ont00000293> ;
+                <https://www.commoncoreontologies.org/ont00001868> ?this ;
+                <https://www.commoncoreontologies.org/ont00001912>
+                  <https://baseballontology.org/data/source/mlb-transactions/reference-system/transaction-type> .
+            }
+        """
+    ] ;
+    sh:nodeKind sh:IRI ;
+    sh:pattern "^https://baseballontology\\.org/data/source/mlb-transactions/row/[0-9a-f]{64}$" ;
+    sh:closed true ;
+    sh:property [
+        sh:path rdf:type ;
+        sh:hasValue cco:ont00000853 ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] ;
+    sh:property [
+        sh:path cco:ont00001808 ;
+        sh:maxCount 4 ;
+        sh:nodeKind sh:IRI ;
+        sh:or (
+            [ sh:pattern "^https://baseballontology\\.org/data/player/[1-9][0-9]*$" ]
+            [ sh:pattern "^https://baseballontology\\.org/data/team/[1-9][0-9]*$" ]
+            [ sh:pattern "^https://baseballontology\\.org/data/source/mlb-transactions/row/[0-9a-f]{64}/process/death$" ]
+            [ sh:pattern "^https://baseballontology\\.org/data/source/mlb-transactions/group/[1-9][0-9]*/act/trade$" ]
+            [ sh:pattern "^https://baseballontology\\.org/data/source/mlb-transactions/row/[0-9a-f]{64}/act/contract-formation$" ]
+        )
+    ] ;
+    sh:property [
+        sh:path obo:BFO_0000178 ;
+        sh:minCount 2 ;
+        sh:maxCount 3 ;
+        sh:class cco:ont00001340 ;
+        sh:nodeKind sh:IRI
+    ] ;
+    sh:property [
+        sh:path [ sh:inversePath obo:BFO_0000178 ] ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:pattern "^https://baseballontology\\.org/data/source/mlb-transactions/group/[1-9][0-9]*$"
+    ] ;
+    sh:property [
+        sh:path [ sh:inversePath cco:ont00001868 ] ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class cco:ont00000293
+    ] ;
+    sh:sparql [
+        sh:message "Each row must have exactly one date and one effectiveDate field-key/date pair." ;
+        sh:select """
+            SELECT $this WHERE {
+              {
+                FILTER NOT EXISTS {
+                  $this <http://purl.obolibrary.org/obo/BFO_0000178> ?dateIdentifier .
+                  ?fieldKey
+                    <https://www.commoncoreontologies.org/ont00001916> ?dateIdentifier ;
+                    <https://www.commoncoreontologies.org/ont00001765> "date" ;
+                    <https://www.commoncoreontologies.org/ont00001912>
+                      <https://baseballontology.org/data/source/mlb-transactions/reference-system/field-key> .
+                }
+              }
+              UNION
+              {
+                FILTER NOT EXISTS {
+                  $this <http://purl.obolibrary.org/obo/BFO_0000178> ?dateIdentifier .
+                  ?fieldKey
+                    <https://www.commoncoreontologies.org/ont00001916> ?dateIdentifier ;
+                    <https://www.commoncoreontologies.org/ont00001765> "effectiveDate" ;
+                    <https://www.commoncoreontologies.org/ont00001912>
+                      <https://baseballontology.org/data/source/mlb-transactions/reference-system/field-key> .
+                }
+              }
+            }
+        """
+    ] ;
+    sh:sparql [
+        sh:message "A row may not repeat one source date field key." ;
+        sh:select """
+            SELECT $this WHERE {
+              $this <http://purl.obolibrary.org/obo/BFO_0000178> ?date1, ?date2 .
+              ?key1
+                <https://www.commoncoreontologies.org/ont00001916> ?date1 ;
+                <https://www.commoncoreontologies.org/ont00001765> ?field .
+              ?key2
+                <https://www.commoncoreontologies.org/ont00001916> ?date2 ;
+                <https://www.commoncoreontologies.org/ont00001765> ?field .
+              FILTER(?date1 != ?date2)
+            }
+        """
+    ] .
+
+txsh:RowTypeClassificationShape a sh:NodeShape ;
+    sh:targetClass cco:ont00000293 ;
+    sh:nodeKind sh:IRI ;
+    sh:pattern "^https://baseballontology\\.org/data/source/mlb-transactions/row/[0-9a-f]{64}/type$" ;
+    sh:closed true ;
+    sh:property [
+        sh:path rdf:type ;
+        sh:hasValue cco:ont00000293 ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] ;
+    sh:property [
+        sh:path cco:ont00001868 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:pattern "^https://baseballontology\\.org/data/source/mlb-transactions/row/[0-9a-f]{64}$"
+    ] ;
+    sh:property [
+        sh:path cco:ont00001765 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1
+    ] ;
+    sh:property [
+        sh:path cco:ont00001912 ;
+        sh:hasValue <https://baseballontology.org/data/source/mlb-transactions/reference-system/transaction-type> ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] .
+
+txsh:RowDescriptionShape a sh:NodeShape ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:select """
+            SELECT DISTINCT ?this WHERE {
+              ?this
+                a <https://www.commoncoreontologies.org/ont00000853> ;
+                <https://www.commoncoreontologies.org/ont00001765> ?text ;
+                <https://www.commoncoreontologies.org/ont00001808> ?row .
+              FILTER(REGEX(STR(?this),
+                "^https://baseballontology[.]org/data/source/mlb-transactions/row/[0-9a-f]{64}/description$"))
+            }
+        """
+    ] ;
+    sh:nodeKind sh:IRI ;
+    sh:pattern "^https://baseballontology\\.org/data/source/mlb-transactions/row/[0-9a-f]{64}/description$" ;
+    sh:closed true ;
+    sh:property [
+        sh:path rdf:type ;
+        sh:hasValue cco:ont00000853 ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] ;
+    sh:property [
+        sh:path cco:ont00001808 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:pattern "^https://baseballontology\\.org/data/source/mlb-transactions/row/[0-9a-f]{64}$"
+    ] ;
+    sh:property [
+        sh:path cco:ont00001765 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1
+    ] .
+
+txsh:CalendarDateIdentifierShape a sh:NodeShape ;
+    sh:targetClass cco:ont00001340 ;
+    sh:nodeKind sh:IRI ;
+    sh:pattern "^https://baseballontology\\.org/data/source/mlb-transactions/row/[0-9a-f]{64}/date/(date|effectiveDate|resolutionDate)$" ;
+    sh:closed true ;
+    sh:property [
+        sh:path rdf:type ;
+        sh:hasValue cco:ont00001340 ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] ;
+    sh:property [
+        sh:path cco:ont00001771 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:date
+    ] ;
+    sh:property [
+        sh:path cco:ont00001916 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class cco:ont00000800 ;
+        sh:nodeKind sh:IRI ;
+        sh:pattern "^https://baseballontology\\.org/data/day/[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    ] ;
+    sh:property [
+        sh:path [ sh:inversePath obo:BFO_0000178 ] ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:pattern "^https://baseballontology\\.org/data/source/mlb-transactions/row/[0-9a-f]{64}$"
+    ] ;
+    sh:property [
+        sh:path [ sh:inversePath cco:ont00001916 ] ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class cco:ont00000649
+    ] ;
+    sh:sparql [
+        sh:message "Calendar date literal, designated Day IRI, and field-key path must agree." ;
+        sh:select """
+            SELECT $this WHERE {
+              $this
+                <https://www.commoncoreontologies.org/ont00001771> ?value ;
+                <https://www.commoncoreontologies.org/ont00001916> ?day .
+              ?fieldKey
+                <https://www.commoncoreontologies.org/ont00001916> $this ;
+                <https://www.commoncoreontologies.org/ont00001765> ?field .
+              FILTER(
+                STR(?day) != CONCAT("https://baseballontology.org/data/day/", STR(?value)) ||
+                !STRENDS(STR($this), CONCAT("/date/", STR(?field)))
+              )
+            }
+        """
+    ] .
+
+txsh:DateFieldKeyIdentifierShape a sh:NodeShape ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:select """
+            SELECT DISTINCT ?this WHERE {
+              ?this <https://www.commoncoreontologies.org/ont00001912>
+                <https://baseballontology.org/data/source/mlb-transactions/reference-system/field-key> .
+            }
+        """
+    ] ;
+    sh:nodeKind sh:IRI ;
+    sh:pattern "^https://baseballontology\\.org/data/source/mlb-transactions/row/[0-9a-f]{64}/date/(date|effectiveDate|resolutionDate)/field-key$" ;
+    sh:closed true ;
+    sh:property [
+        sh:path rdf:type ;
+        sh:hasValue cco:ont00000649 ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] ;
+    sh:property [
+        sh:path cco:ont00001916 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class cco:ont00001340 ;
+        sh:nodeKind sh:IRI
+    ] ;
+    sh:property [
+        sh:path cco:ont00001765 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ( "date" "effectiveDate" "resolutionDate" )
+    ] ;
+    sh:property [
+        sh:path cco:ont00001912 ;
+        sh:hasValue <https://baseballontology.org/data/source/mlb-transactions/reference-system/field-key> ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] .
+
+txsh:DayShape a sh:NodeShape ;
+    sh:targetClass cco:ont00000800 ;
+    sh:nodeKind sh:IRI ;
+    sh:pattern "^https://baseballontology\\.org/data/day/[0-9]{4}-[0-9]{2}-[0-9]{2}$" ;
+    sh:closed true ;
+    sh:property [
+        sh:path rdf:type ;
+        sh:hasValue cco:ont00000800 ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] ;
+    sh:property [
+        sh:path [ sh:inversePath cco:ont00001916 ] ;
+        sh:minCount 1 ;
+        sh:class cco:ont00001340
+    ] .
+
+txsh:DeathShape a sh:NodeShape ;
+    sh:targetClass cco:ont00000920 ;
+    sh:nodeKind sh:IRI ;
+    sh:pattern "^https://baseballontology\\.org/data/source/mlb-transactions/row/[0-9a-f]{64}/process/death$" ;
+    sh:closed true ;
+    sh:property [
+        sh:path rdf:type ;
+        sh:hasValue cco:ont00000920 ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] ;
+    sh:property [
+        sh:path obo:BFO_0000057 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:pattern "^https://baseballontology\\.org/data/player/[1-9][0-9]*$"
+    ] ;
+    sh:property [
+        sh:path [ sh:inversePath cco:ont00001808 ] ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:pattern "^https://baseballontology\\.org/data/source/mlb-transactions/row/[0-9a-f]{64}$"
+    ] ;
+    sh:sparql [
+        sh:message "A Death row must also be about its participant Person." ;
+        sh:select """
+            SELECT $this WHERE {
+              $this <http://purl.obolibrary.org/obo/BFO_0000057> ?person .
+              ?row <https://www.commoncoreontologies.org/ont00001808> $this .
+              FILTER NOT EXISTS {
+                ?row <https://www.commoncoreontologies.org/ont00001808> ?person .
+              }
+            }
+        """
+    ] .
+
+txsh:TradeShape a sh:NodeShape ;
+    sh:targetClass base:BaseballPersonnelTradeAct ;
+    sh:nodeKind sh:IRI ;
+    sh:pattern "^https://baseballontology\\.org/data/source/mlb-transactions/group/[1-9][0-9]*/act/trade$" ;
+    sh:property [
+        sh:path cco:ont00001833 ;
+        sh:minCount 2 ;
+        sh:nodeKind sh:IRI ;
+        sh:pattern "^https://baseballontology\\.org/data/team/[1-9][0-9]*$"
+    ] ;
+    sh:property [
+        sh:path obo:BFO_0000117 ;
+        sh:minCount 2 ;
+        sh:or (
+            [ sh:class cco:ont00000613 ]
+            [ sh:class cco:ont00001194 ]
+        )
+    ] .
+
+txsh:TransactionPlayerRoleShape a sh:NodeShape ;
+    sh:targetClass base:PlayerRole ;
+    sh:nodeKind sh:IRI ;
+    sh:pattern "^https://baseballontology\\.org/data/player/[1-9][0-9]*/team/[1-9][0-9]*/role/player/stint/(gain|loss)/[0-9]{4}-[0-9]{2}-[0-9]{2}/transaction/[1-9][0-9]*$" ;
+    sh:property [
+        sh:path obo:BFO_0000197 ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:pattern "^https://baseballontology\\.org/data/player/[1-9][0-9]*$"
+    ] ;
+    sh:property [
+        sh:path cco:ont00001992 ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:pattern "^https://baseballontology\\.org/data/team/[1-9][0-9]*$"
+    ] .
+
+txsh:RoleTransitionShape a sh:NodeShape ;
+    sh:targetClass cco:ont00000613, cco:ont00001194 ;
+    sh:nodeKind sh:IRI ;
+    sh:property [
+        sh:path obo:BFO_0000057 ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:pattern "^https://baseballontology\\.org/data/player/[1-9][0-9]*$"
+    ] ;
+    sh:property [
+        sh:path cco:ont00001834 ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:class base:PlayerRole
+    ] ;
+    sh:property [
+        sh:path obo:BFO_0000199 ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:class obo:BFO_0000038
+    ] ;
+    sh:sparql [
+        sh:message "The Person participating in a transition must bear the affected Player Role." ;
+        sh:select """
+            PREFIX bfo: <http://purl.obolibrary.org/obo/>
+            PREFIX cco: <https://www.commoncoreontologies.org/>
+            SELECT $this WHERE {
+              $this bfo:BFO_0000057 ?person ; cco:ont00001834 ?role .
+              FILTER NOT EXISTS { ?role bfo:BFO_0000197 ?person }
+            }
+        """
+    ] .
+
+txsh:ContractFormationShape a sh:NodeShape ;
+    sh:targetClass cco:ont00000684 ;
+    sh:nodeKind sh:IRI ;
+    sh:pattern "^https://baseballontology\\.org/data/source/mlb-transactions/row/[0-9a-f]{64}/act/contract-formation$" ;
+    sh:property [
+        sh:path cco:ont00001833 ;
+        sh:minCount 2 ; sh:maxCount 2 ;
+        sh:nodeKind sh:IRI
+    ] ;
+    sh:property [
+        sh:path obo:BFO_0000199 ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:class obo:BFO_0000038
+    ] ;
+    sh:property [
+        sh:path obo:BFO_0000063 ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:class cco:ont00001194
+    ] .
+
+txsh:TransactionTemporalRegionShape a sh:NodeShape ;
+    sh:targetClass obo:BFO_0000038 ;
+    sh:nodeKind sh:IRI ;
+    sh:property [
+        sh:path obo:BFO_0000139 ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:class cco:ont00000800 ;
+        sh:nodeKind sh:IRI
+    ] .
+
+# Execute graph-wide blockers once from a required source-owned node.
+txsh:ModuleGraphContractShape a sh:NodeShape ;
+    sh:targetNode <https://baseballontology.org/data/source/mlb-transactions/reference-system/transaction-type> ;
+    sh:sparql [
+        sh:message "Unapproved transaction world mappings remain blocked." ;
+        sh:select """
+            SELECT $this WHERE {
+              ?entity a ?blocked .
+              FILTER(?blocked IN (
+                <https://baseballontology.org/UniformNumberAssignmentAct>,
+                <https://baseballontology.org/BaseballPlayerReleaseAct>,
+                <https://baseballontology.org/FreeAgencyDeclarationAct>,
+                <https://baseballontology.org/RetirementDeclarationAct>,
+                <https://baseballontology.org/MajorLeagueFreeAgentRole>
+              ))
+            }
+        """
+    ] ;
+    sh:sparql [
+        sh:message "The transactions lane must not publish persistent Person or Team descriptions or types." ;
+        sh:select """
+            SELECT $this WHERE {
+              ?row <https://www.commoncoreontologies.org/ont00001808> ?entity .
+              FILTER(
+                REGEX(STR(?entity), "^https://baseballontology[.]org/data/player/[1-9][0-9]*$") ||
+                REGEX(STR(?entity), "^https://baseballontology[.]org/data/team/[1-9][0-9]*$")
+              )
+              ?entity ?predicate ?value .
+            }
+        """
+    ] ;
+    sh:sparql [
+        sh:message "A transaction date identifier may only be a row part or the object designated by its field-key identifier." ;
+        sh:select """
+            SELECT $this WHERE {
+              ?dateIdentifier a <https://www.commoncoreontologies.org/ont00001340> .
+              ?subject ?predicate ?dateIdentifier .
+              FILTER(?predicate NOT IN (
+                <http://purl.obolibrary.org/obo/BFO_0000178>,
+                <https://www.commoncoreontologies.org/ont00001916>
+              ))
+            }
+        """
+    ] .

@@ -1,0 +1,89 @@
+# Clean NiFi runtime
+
+BaseballO uses one loopback-only Apache NiFi instance at
+`http://127.0.0.1:8080/nifi/`. Runtime state is stored under
+`%LOCALAPPDATA%\BaseballO\state\nifi`; no flow or processor state is kept in
+the NiFi installation directory. The starter persists
+`-Duser.timezone=America/New_York`, and every acquisition trigger uses the
+reviewed `0 0 5 * * ?` schedule.
+
+The canvas has one repository-owned root process group named `BaseballO`.
+Each detachable source owns its child group, API connector, RML, SHACL,
+retries, quarantine, promotion, and provenance path:
+
+| Source module | Process group | Corpus discovery |
+| --- | --- | --- |
+| `mlb-game` | `MLB Game` | MLB schedule response to final-game requests |
+| `mlb-teams` | `MLB Teams` | season request |
+| `mlb-leagues` | `MLB Leagues` | season request |
+| `mlb-divisions` | `MLB Divisions` | season request |
+| `mlb-people` | `MLB People` | player population to per-person requests |
+| `mlb-venues` | `MLB Venues` | venue population to per-venue requests |
+| `mlb-transactions` | `MLB Transactions` | date-range request |
+
+The provisioners reconcile only their named source group and leave sibling
+groups untouched. They do not use or migrate the retired control plane.
+
+## Operating contract
+
+The broad lifecycle is:
+
+```text
+API -> source-owned RML -> source-owned SHACL -> graph promotion
+    -> approved queries -> persistent SQL serving layer -> UI
+```
+
+Bulk and scheduled requests pass through
+`scripts/pipeline/check-source-proof-release.py`. The check is intentionally
+narrow: a source is released when a completed bounded proof exists for the
+current mapping and SHACL hashes. It does not make ontology decisions or
+constrain ordinary NiFi flow design. Proof requests bypass that release check
+so a changed source can establish a new proof.
+
+For games, schedule discovery stores only a compact expected-game manifest.
+Each final game is mapped, validated, and promoted independently. Corpus runs
+defer SQL work until all games in a schedule batch have current promotions;
+NiFi then runs one serving-layer materialization for the ready batch. A bounded
+proof still materializes immediately.
+
+## Provisioning and submission
+
+Start NiFi from the repository root:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\Baseball\scripts\infra\start-nifi.ps1
+```
+
+Each module's `nifi/provision.ps1` accepts the same operating switches:
+
+- no switch: reconcile the stopped group only;
+- `-RunProof`: start the lane and submit its bounded proof once;
+- `-StartDaily`: start the lane and enable its 05:00 Eastern trigger;
+- `-RunBackfill`: start the lane and submit its corpus request once.
+
+Example:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File `
+  .\Baseball\scripts\infra\submit-nifi-corpus.ps1 -Module all
+```
+
+The submit-only command preflights every selected running group and then sends
+`RUN_ONCE` to its existing corpus trigger. It does not reconcile the canvas or
+poll the resulting work. Use `-Module mlb-game` or an explicit list for a
+partial corpus submission. Add `-PreflightOnly` to verify readiness without
+submitting anything.
+
+Submission is asynchronous. Do not keep a terminal or Codex turn open to poll
+a normal run. Inspect the source-local evidence or quarantine only after NiFi
+reports failure or when a status check is requested.
+
+The current 2026 season-to-date request for all seven lanes was submitted on
+2026-09-01. This runbook does not infer completion from submission; its
+terminal evidence remains the authority for promoted, cleaned, or quarantined
+work.
+
+Provisioners require owned processors to be stopped and refuse to replace a
+connection containing queued FlowFiles. The full corpus trigger is therefore
+separate from reconciliation; proving or editing a lane cannot accidentally
+start the season.

@@ -1,0 +1,20 @@
+mlb_divisions_iri_policy:
+  title: "MLB divisions source IRI policy"
+  version: "1.0"
+  semantic_contract: "mlb-organizations-source-contract partitioned by mlb-organization-endpoint-lane-separation"
+  status: "ontologist-approved"
+  namespaces:
+    data: "https://baseballontology.org/data/"
+    graph: "https://w3id.org/baseball/graph/authority/mlb-divisions/"
+  response_evidence:
+    template: "{data}source/mlb-divisions/response/divisions/{requestScopeSha256}/{responseSha256}"
+  organizations:
+    division: "{data}division/{divisionId}"
+    league_reference: "{data}league/{leagueId}"
+    identifier: "{organizationIri}/identifier/mlb-{kind}-id"
+    name: "{organizationIri}/name/proper/{exactUnicodeLexicalSha256}"
+  prohibited:
+    - Teams endpoint payloads
+    - Leagues endpoint payloads
+    - League-season mapping
+    - affiliation or membership relations inferred from nesting

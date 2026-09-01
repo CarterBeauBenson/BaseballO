@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://baseballontology.org/schema/mlb-transactions-death-code-pin.json",
+  "title": "Reviewed MLB transaction Death-code pin",
+  "description": "No instance is supplied by this module. A future instance requires a separate accepted ontologist decision that authorizes its exact module-local path.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "artifactType",
+    "contractVersion",
+    "codeListSha256",
+    "deathCode",
+    "deathDescription",
+    "decisionArtifact",
+    "decisionSha256"
+  ],
+  "properties": {
+    "artifactType": {
+      "const": "baseballo-mlb-transactions-death-code-pin"
+    },
+    "contractVersion": {
+      "const": 1
+    },
+    "codeListSha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "deathCode": {
+      "type": "string",
+      "minLength": 1
+    },
+    "deathDescription": {
+      "const": "Death"
+    },
+    "decisionArtifact": {
+      "type": "string",
+      "pattern": "^Baseball/archive/design-records/.+/review\\.json$"
+    },
+    "decisionSha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  }
+}

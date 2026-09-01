@@ -1,0 +1,198 @@
+title: Direct MLB feed to BaseballO RML coverage
+source_module: mlb-game
+source_file_name_expected: game.json
+source_mutation: none
+intermediary_transformation: structural-projection-and-explicit-derived-gates
+mapping_version: 0.5.0
+completed_game_precondition: true
+
+execution_context:
+  status: generated-and-disposable
+  source: byte-identical game.json
+  output: game-context.json in the isolated RML work directory
+  reserved_key: _baseballO
+  includes:
+  - pitch atBatIndex
+  - pitch batterId and pitcherId
+  - runner atBatIndex and zero-based runnerIndex
+  - runner start-base and score-destination source facts
+  - pitch bunt-attempt fact from MLB pitch-code metadata or an in-play bunt trajectory
+  - play genuine plate-appearance structure and completed-result gates
+  - play terminalPitchPlayId
+  - plate-appearance outs before play
+  - plate-appearance start runner identity for each occupied base
+  - terminal baseball-event timestamp, corroborated by the source's Final or game-over state
+  - versioned MLB pitch-type, batted-ball trajectory, and season-segment Reference System IRIs
+  - reviewed pitch-type and batted-ball trajectory category IRIs for supported provider tokens
+  - reviewed season-phase identity and class for supported MLB game-type codes
+  - reviewed-play final decision and an unresolved-original-decision marker when an overturn proves that a prior decision existed but does not state its content
+  - uncaught-third-strike classification and source play identity
+  provenance: source, builder, context, mapping, and RDF hashes are recorded
+
+implemented:
+  context:
+    status: mapped
+    includes:
+    - BaseballGame, Inning, HalfInning, and PlateAppearance containment
+    - distinct BaseballVenue and BaseballFieldSite
+    - BaseballTeam participation and game-scoped home/away roles
+    - accepted player participation and game realization of team-scoped PlayerRole individuals, including bench players
+    - persistent batter, pitcher, baserunner, fielder, catcher, umpire, and official-scorer roles
+    - open CCO Stasis of Role and Temporal Interval structures for every mapped persistent role
+    - game, plate-appearance, and pitch temporal regions and timestamp ICEs
+    - source-reported plate-appearance start out counts
+    - plate-appearance runner participation and baserunner-at-base stases for every occupied start base
+    - venue-scoped Base artifacts and Base Sites for first, second, and third base
+
+  pitch_physical_chain:
+    status: mapped-and-fixture-coverage-validated
+    source: playEvents where isPitch is true
+    chain:
+    - PitchAct
+    - PitchBallMotionProcess
+    participants:
+    - pitcher Person
+    - persistent PitcherRole
+    - pitch-scoped Baseball
+    coverage: all 282 fixture pitches link to their plate appearance, pitcher Person, and PitcherRole
+
+  bat_use_and_contact:
+    status: mapped-with-source-supported-bunt-separation
+    source:
+    - non-bunt swing call codes S, W, F, T, X, D, and E
+    - MLB buntAttemptStatus pitch-code values L, M, and O
+    - in-play hitData.trajectory values bunt_grounder, bunt_popup, and bunt_line_drive
+    chain:
+    - SwingAct or BuntAct
+    - BatBallContactProcess when contact is supported
+    - BattedBallMotionProcess when contact is supported
+    - BattedBallPlayProcess
+    note: result.eventType sac_bunt supports the institutional sacrifice result only; it does not determine whether the batting act was a bunt
+    coverage: the context builder assigns every pitch exactly one source-supported bunt-attempt Boolean, and executable SwingAct sources exclude every true bunt attempt
+
+  pitch_call_classifications:
+    status: mapped-with-batting-act-kind-separated-from-provider-swing-status
+    includes:
+    - BallProcess with BallJudgmentAct, BallDecisionICE, and BallCallAct
+    - StrikeProcess with StrikeJudgmentAct and StrikeDecisionICE
+    - StrikeCallAct for called-strike code C
+    - FoulBallProcess with FoulBallJudgmentAct, FoulDecisionICE, and FoulCallAct
+    - FoulTipProcess sharing one individual with StrikeProcess
+    - FairBallProcess with FairBallJudgmentAct, FairDecisionICE, and FairCallAct
+    note: MLB's broad swingStatus may include bunt attempts; BuntAct versus SwingAct follows the independently reviewed ontology distinction
+
+  pitch_type_classifications:
+    status: mapped-as-persistent-nominal-evidence
+    source: playEvents[*].details.type.code
+    supported_codes:
+    - FF
+    - SI
+    - FC
+    - SL
+    - ST
+    - SV
+    - CU
+    - KC
+    - CS
+    - CH
+    - FS
+    - FO
+    - SC
+    - KN
+    - EP
+    pattern: the particular Pitch Act is measured by a reusable nominal category ICE that uses a response-versioned MLB pitch-type Reference System
+    boundary: no pitch-type-specific rdf:type is written to authoritative RDF; the rebuildable query-index selects the current explicit subtype
+
+  batted_ball_trajectory_classifications:
+    status: mapped-as-persistent-nominal-evidence
+    source: playEvents[*].hitData.trajectory
+    supported_tokens:
+    - ground_ball
+    - line_drive
+    - fly_ball
+    - popup
+    pattern: the particular Batted-Ball Motion Process is measured by a reusable nominal category ICE that uses a response-versioned MLB trajectory Reference System
+    boundary: no trajectory-specific rdf:type is written to authoritative RDF; the rebuildable query-index selects the current explicit subtype
+
+  season_phases:
+    status: mapped-for-reviewed-game-type-codes
+    source: gameData.game.type and gameData.game.season
+    mappings:
+      S: BaseballPreseasonPhase
+      R: BaseballRegularSeasonPhase
+      F,D,L,W,C,P: BaseballPostseasonPhase
+      A: BaseballAllStarPhase
+    pattern: the Game is an occurrent part of a season-scoped Phase Process, the Phase is an occurrent part of the Baseball Season, and the Phase has versioned nominal category evidence
+    deferred_codes:
+    - I
+    - E
+
+  plate_appearance_results:
+    status: mapped-with-structure-and-completion-gates
+    pattern: genuine atBatIndex, batter/pitcher matchup, and baseball activity ground PlateAppearance existence; about.isComplete plus a recognized result event separately gate the institutional result, adjudication, and decision
+    boundary: administrative pseudo-plays such as game_advisory do not mint PlateAppearance individuals, while a genuine incomplete PlateAppearance may remain represented without a completed institutional result
+    specific_types:
+    - HomeRunProcess
+    - TripleProcess
+    - DoubleProcess
+    - SingleProcess
+    - WalkProcess
+    - HitByPitchProcess
+    - FieldersChoiceProcess
+    - ErrorProcess
+    - BattedBallOutProcess
+    - ForceOutProcess
+    - StrikeoutProcess
+    - GroundedIntoDoublePlayProcess
+    - DoublePlayProcess
+    - SacrificeFlyProcess
+    - SacrificeBuntProcess
+    - BalkProcess
+    - InterferenceProcess
+    scorer_overlays:
+    - HitJudgmentAct and HitDecisionICE
+    - ErrorJudgmentAct and ErrorDecisionICE
+    - FieldersChoiceJudgmentAct and FieldersChoiceDecisionICE
+    - SacrificeJudgmentAct and SacrificeDecisionICE
+
+  runner_patterns:
+    status: mapped-at-institutional-resolution-grain
+    includes:
+    - outcome-neutral BaserunningAct paths
+    - OutProcess, SafeProcess, and RunProcess adjudication and decision ICEs
+    - explicit StealAttemptAct and separate StolenBaseProcess for stolen_base event types
+    note: execution-only atBatIndex and runnerIndex context gives every source runner record a deterministic identity and links its act and resolution to the enclosing plate appearance; movement.end supports an institutional end state and destination artifact only, never a physical BaseTouchingProcess
+
+  passed_ball_and_wild_pitch:
+    status: mapped-as-institutional-scorer-classifications
+    includes:
+    - PassedBallProcess or WildPitchProcess
+    - official-scorer Judgment Act
+    - Decision ICE and governing Rule
+    note: the feed does not independently establish a physical PitchBallControlFailureProcess, and source SHACL prohibits that unsupported physical assertion
+
+  records:
+    status: mapped
+    note: BaseballEventRecord individuals are about every supported act, process, judgment, decision, call, artifact, timestamp, and accepted nominal category described by their source record; provider routing tokens are not asserted as dcterms identifiers or types
+
+  coordinates:
+    status: blocked
+    deferred:
+    - BaseballFieldCoordinateReferenceSystemICE instance construction
+    - BaseballFieldCoordinateICE instance construction
+    - BattedBallLocationSite construction and designation
+    - BattedBallMotionProcess location assertions derived from provider display coordinates
+    - coordX and coordY literals
+    reason: provider origin, orientation, sign, scale, projection, polygon, and field grounding remain unresolved; no world-side Site is minted
+
+deferred:
+  fielding_acts:
+    reason: fielding credits lack stable ancestor-aware identity
+  pickoff_acts:
+    reason: runner records do not identify the pitcher agent for the pickoff act
+  ambiguous_second_counted_foul:
+    reason: event-local count.strikes equals 2 cannot distinguish an increment from an unchanged two-strike count
+  action_events:
+    reason: non-pitch advisory records mix unsupported classes and unstable identifiers
+  measurements:
+    reason: approved measurement ICE classes and datatype properties are incomplete

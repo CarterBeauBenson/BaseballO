@@ -1,0 +1,68 @@
+INFO  exec            :: QUERY
+  PREFIX  idx:  <https://w3id.org/baseball/query-index/>
+  PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+  SELECT  ?game ?player ?playerLabel (COUNT(DISTINCT ?result) AS ?hits)
+  WHERE
+    { VALUES ?graph { <https://w3id.org/baseball/graph/query-index/game/822867> <https://w3id.org/baseball/graph/query-index/game/823431> <https://w3id.org/baseball/graph/query-index/game/823520> <https://w3id.org/baseball/graph/query-index/game/823757> <https://w3id.org/baseball/graph/query-index/game/824160> <https://w3id.org/baseball/graph/query-index/game/824324> <https://w3id.org/baseball/graph/query-index/game/824647> <https://w3id.org/baseball/graph/query-index/game/825095> }
+      GRAPH ?graph
+        { ?result  a           idx:HitFact ;
+                   idx:agent   ?player ;
+                   idx:game    ?game .
+          ?player  rdfs:label  ?playerLabel
+        }
+    }
+  GROUP BY ?game ?player ?playerLabel
+  HAVING ( COUNT(DISTINCT ?result) >= 2 )
+  ORDER BY DESC(?hits) lcase(str(?playerLabel)) ?game
+INFO  exec            :: ALGEBRA
+  (project (?game ?player ?playerLabel ?hits)
+    (order ((desc ?hits) (lcase (str ?playerLabel)) ?game)
+      (filter (>= ?.0 2)
+        (extend ((?hits ?.0))
+          (group (?game ?player ?playerLabel) ((?.0 (count distinct ?result)))
+            (sequence
+              (table (vars ?graph)
+                (row [?graph <https://w3id.org/baseball/graph/query-index/game/822867>])
+                (row [?graph <https://w3id.org/baseball/graph/query-index/game/823431>])
+                (row [?graph <https://w3id.org/baseball/graph/query-index/game/823520>])
+                (row [?graph <https://w3id.org/baseball/graph/query-index/game/823757>])
+                (row [?graph <https://w3id.org/baseball/graph/query-index/game/824160>])
+                (row [?graph <https://w3id.org/baseball/graph/query-index/game/824324>])
+                (row [?graph <https://w3id.org/baseball/graph/query-index/game/824647>])
+                (row [?graph <https://w3id.org/baseball/graph/query-index/game/825095>])
+              )
+              (quadpattern
+                (quad ?graph ?result <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://w3id.org/baseball/query-index/HitFact>)
+                (quad ?graph ?result <https://w3id.org/baseball/query-index/agent> ?player)
+                (quad ?graph ?result <https://w3id.org/baseball/query-index/game> ?game)
+                (quad ?graph ?player <http://www.w3.org/2000/01/rdf-schema#label> ?playerLabel)
+              )))))))
+INFO  exec            :: TDB2
+  (project (?game ?player ?playerLabel ?hits)
+    (order ((desc ?hits) (lcase (str ?playerLabel)) ?game)
+      (filter (>= ?.0 2)
+        (extend ((?hits ?.0))
+          (group (?game ?player ?playerLabel) ((?.0 (count distinct ?result)))
+            (sequence
+              (table (vars ?graph)
+                (row [?graph <https://w3id.org/baseball/graph/query-index/game/822867>])
+                (row [?graph <https://w3id.org/baseball/graph/query-index/game/823431>])
+                (row [?graph <https://w3id.org/baseball/graph/query-index/game/823520>])
+                (row [?graph <https://w3id.org/baseball/graph/query-index/game/823757>])
+                (row [?graph <https://w3id.org/baseball/graph/query-index/game/824160>])
+                (row [?graph <https://w3id.org/baseball/graph/query-index/game/824324>])
+                (row [?graph <https://w3id.org/baseball/graph/query-index/game/824647>])
+                (row [?graph <https://w3id.org/baseball/graph/query-index/game/825095>])
+              )
+              (quadpattern
+                (quad ?graph ?result <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://w3id.org/baseball/query-index/HitFact>)
+                (quad ?graph ?result <https://w3id.org/baseball/query-index/agent> ?player)
+                (quad ?graph ?result <https://w3id.org/baseball/query-index/game> ?game)
+                (quad ?graph ?player <http://www.w3.org/2000/01/rdf-schema#label> ?playerLabel)
+              )))))))
+INFO  exec            :: Execute
+  ?result rdf:type <https://w3id.org/baseball/query-index/HitFact>
+  ?result <https://w3id.org/baseball/query-index/agent> ?player
+  ?result <https://w3id.org/baseball/query-index/game> ?game
+  ?player rdfs:label ?playerLabel

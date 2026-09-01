@@ -1,0 +1,16 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-organizations-qualification-thresholds",
+  "title": "MLB organization qualification thresholds",
+  "status": "under-review",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [{"path": "competency-questions.md", "sha256": "9cf53569b6a7771ef657224f72eab1c59fb1cbaf9cb0c95860c572c70bd64d07"}],
+    "sourceEvidence": [{"path": "source-evidence.md", "sha256": "30e26941bc4ef880c1640aff9999335a1bc24796b98ec4a02fa9b21cbc332cd0"}],
+    "fieldSelectionInventory": [{"path": "field-selection-inventory.md", "sha256": "d236a2cd3bf8691f3e17ec885f5e9bab63cc3cf9efa5355d9ff7f32525ad489d"}],
+    "sourceIndependentMermaid": [{"path": "source-independent-mermaid.md", "sha256": "b8047c0333ab93d209a7686585fafe729123aeac0db0427299cbc55390da1c34"}]
+  },
+  "ontologistDecision": null
+}
