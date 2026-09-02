@@ -5,10 +5,10 @@
   "ratified": false,
   "bootstrapBaseCommit": "cb16a8e6f3d487f3542b91907cde3f47ff0a0978",
   "hashCanonicalization": "utf-8-sig decode; CRLF and CR to LF; UTF-8 encode without BOM",
-  "protectedSetSha256": "ffb8d7867530e89636b261d2554adca413782021d5c6ea7de786f25afbc83755",
+  "protectedSetSha256": "65fcc409994ccf9f847dab47b67c388f81fc9c8937f5c61ccea91499b7b7ba09",
   "changeDecision": {
-    "path": "Baseball/archive/design-records/mlb-reference-rml-implementation-authorization/review.json",
-    "sha256": "5c6fb16a22d4bda69f4fa3b4bce820a76d5da0f079f509ccd9d75c564926f74d"
+    "path": "Baseball/archive/design-records/mlb-organization-endpoint-lane-separation/review.json",
+    "sha256": "86ee5df8cce0bbd8acddd144615239e315f506eb9f7722bb7071bedce4d7ce1b"
   },
   "protectedArtifacts": {
     "Baseball/governance/ontology-curation-debt.json": "2d5a4206339244641dd629eb48d86d13d98c02e47b5b5755b010861c0570e283",
@@ -36,7 +36,7 @@
     "Baseball/sources/mlb-divisions/mapping/iri-policy.yaml": "7a8bed69aef995127d437d09c038a40098c8a6d9228846141477452c84b5d563",
     "Baseball/sources/mlb-divisions/mapping/mlb-divisions.rml.ttl": "2d9053c4a5a62cb63d226ab857fba46d4d697a7d274cf09c28d800128c22a03e",
     "Baseball/sources/mlb-divisions/mapping/prepare-context.py": "7924f84caf9da86bc1f1a57edfed2b970b84ab6f622288cb98d53aaf1965d73d",
-    "Baseball/sources/mlb-divisions/review/semantic-status.json": "7cc040cf408cf454963e55f6bd7863e1b21220eadd2ca095ab875384c13a53e7",
+    "Baseball/sources/mlb-divisions/review/semantic-status.json": "0f66d5c23f17bd8c55a31a3e00bf14a72d2f11681aacf026ba1517256bc8947b",
     "Baseball/sources/mlb-game/mapping/event-type-registry.yaml": "cc0f90f3e977eb15b453fd52256ed9eb91dee2717f5cb902c3de4ffbde2f12bd",
     "Baseball/sources/mlb-game/mapping/iri-policy.yaml": "56611712ddf2214f7331ca0fa8c2068b0f21c68ce3b2a384789477235ff37d53",
     "Baseball/sources/mlb-game/mapping/mapping-coverage.yaml": "291668f4ac471a471a271f9b8083962c641564b3932dfe23f9057e7b8c4e4e14",
@@ -48,7 +48,7 @@
     "Baseball/sources/mlb-leagues/mapping/iri-policy.yaml": "9c36d490dcec38dbb7b946ba4f41f5d37aa4d831e5d5c987a424582b19f12694",
     "Baseball/sources/mlb-leagues/mapping/mlb-leagues.rml.ttl": "29447c7e421525b0267c22e7e72e560a1905ac35af841b595f0b2c5e1cc78385",
     "Baseball/sources/mlb-leagues/mapping/prepare-context.py": "a559b673cf2041724ac418e55be8225361ab84643c8988ebe9ae54db03be6ae3",
-    "Baseball/sources/mlb-leagues/review/semantic-status.json": "d482b4a086214501735eb53b58f39f810985f7f6b69ffb56a85021f6fb7abcd7",
+    "Baseball/sources/mlb-leagues/review/semantic-status.json": "7b500a67c1b27161579e50a73f51bcb99a6e2a8d0a593bec4bd280b336af0aae",
     "Baseball/sources/mlb-people/mapping/iri-policy.yaml": "456a87beac4f663ab4088bb76f25ba4bd18c740b9d2896ab68c4fed84e75beac",
     "Baseball/sources/mlb-people/mapping/mlb-people.rml.ttl": "2fb2572bff87aa32be0fe9ee9bdd4694378f167046779144b76ba57678c0e769",
     "Baseball/sources/mlb-people/mapping/prepare-context.py": "5db07193d5d4fb9b45c3919e31d1fb438063c58b38bc77338c2b6071c52a8c0b",
@@ -56,7 +56,7 @@
     "Baseball/sources/mlb-teams/mapping/iri-policy.yaml": "a3b6c9336fb1621d0cdd0848dec16729d742c8f2157e3852f7ad5338e316c6db",
     "Baseball/sources/mlb-teams/mapping/mlb-teams.rml.ttl": "ad3fd9633e37b3aa1c2b54e2a64b0680bb2b916e41a8549d2bd524bbf1817691",
     "Baseball/sources/mlb-teams/mapping/prepare-context.py": "968aa1613c635589b83dfb62d7fcea18f8c785248e6b32ca3ae2a571b85070c6",
-    "Baseball/sources/mlb-teams/review/semantic-status.json": "b8ea1316cbc8fd666b4c73cf77ea19873d480ce4f5e72b280ba653c8cd295eaf",
+    "Baseball/sources/mlb-teams/review/semantic-status.json": "3c6208978095b049fe3542a6f70dd6b3a41d6fdb4b640260313ea5232fa07efb",
     "Baseball/sources/mlb-transactions/mapping/iri-policy.yaml": "3c043d05e1d79604cbe18bf9d79f741fbf2776fddfcda5684f40d57327490615",
     "Baseball/sources/mlb-transactions/mapping/mlb-transactions.rml.ttl": "9237077df693b638eccd1099b9b71ddf47517cd23d64f437d0e0833cda0e164a",
     "Baseball/sources/mlb-transactions/mapping/prepare-context.py": "80b1ff4a1fdb1966cf6351a75c24eff6df3aa9bfcb62c2ce7ce5bb36dde8688e",
