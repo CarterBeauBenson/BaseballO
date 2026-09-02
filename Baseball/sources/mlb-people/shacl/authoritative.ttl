@@ -243,8 +243,49 @@ base:PositionDescriptionShape a sh:NodeShape ;
   sh:property [
     sh:path cco:ont00001765 ;
     sh:datatype xsd:string ;
-    sh:in ( "1" "2" "3" "4" "5" "6" "7" "8" "9" "10" "Y" ) ;
+    sh:in ( "1" "2" "3" "4" "5" "6" "7" "8" "9" "O" "10" "Y" ) ;
     sh:minCount 1 ; sh:maxCount 1
+  ] .
+
+base:GenericOutfieldPositionDescriptionShape a sh:NodeShape ;
+  sh:target [
+    a sh:SPARQLTarget ;
+    sh:select """
+      SELECT DISTINCT ?this WHERE {
+        ?this a <https://baseballontology.org/BaseballPositionDescription> ;
+          <https://www.commoncoreontologies.org/ont00001912>
+            <https://baseballontology.org/data/reference-system/mlb/baseball-position> ;
+          <https://www.commoncoreontologies.org/ont00001765> "O" .
+      }
+    """
+  ] ;
+  sh:property [
+    sh:path cco:ont00001982 ;
+    sh:qualifiedValueShape [ sh:class bo:FielderRole ] ;
+    sh:qualifiedMinCount 1 ; sh:qualifiedMaxCount 1
+  ] ;
+  sh:property [
+    sh:path cco:ont00001982 ;
+    sh:qualifiedValueShape [ sh:class bo:BaseballFieldingDisposition ] ;
+    sh:qualifiedMinCount 1 ; sh:qualifiedMaxCount 1
+  ] ;
+  sh:sparql [
+    sh:message "MLB position code O must describe one Person and that Person's Fielder Role and Baseball Fielding Disposition." ;
+    sh:select """
+      PREFIX obo: <http://purl.obolibrary.org/obo/>
+      PREFIX cco: <https://www.commoncoreontologies.org/>
+      PREFIX bo: <https://baseballontology.org/>
+      SELECT $this WHERE {
+        $this a bo:BaseballPositionDescription .
+        FILTER NOT EXISTS {
+          $this cco:ont00001982 ?person, ?fielderRole, ?fieldingDisposition .
+          ?person a cco:ont00001262 .
+          ?fielderRole a bo:FielderRole ; obo:BFO_0000197 ?person .
+          ?fieldingDisposition a bo:BaseballFieldingDisposition ;
+            obo:BFO_0000197 ?person .
+        }
+      }
+    """
   ] .
 
 base:TwoWayPositionDescriptionShape a sh:NodeShape ;

@@ -136,6 +136,40 @@ class PreparePeopleContextTests(unittest.TestCase):
                 "https://baseballontology.org/data/player/660271/role/fielder",
             )
 
+    def test_generic_outfield_position_uses_existing_fielder_cluster(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source = root / "source.json"
+            output = root / "people-context.json"
+            payload = json.loads(FIXTURE.read_text(encoding="utf-8"))
+            payload["people"][0]["primaryPosition"] = {
+                "code": "O",
+                "name": "Outfield",
+                "type": "Outfielder",
+                "abbreviation": "OF",
+            }
+            source.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+
+            result = self.run_builder(source, output)
+
+            self.assertEqual(result.returncode, 0, result.stdout)
+            context = json.loads(output.read_text(encoding="utf-8"))
+            self.assertEqual(len(context["fielderPositionRecords"]), 1)
+            row = context["fielderPositionRecords"][0]
+            self.assertEqual(row["positionCode"], "O")
+            self.assertEqual(row["positionConcept"], "fielder")
+            self.assertEqual(
+                row["roleIri"],
+                "https://baseballontology.org/data/player/660271/role/fielder",
+            )
+            self.assertEqual(
+                row["fieldingDispositionIri"],
+                "https://baseballontology.org/data/player/660271/disposition/fielding/O",
+            )
+            self.assertEqual(context["pitcherPositionRecords"], [])
+            self.assertEqual(context["catcherPositionRecords"], [])
+            self.assertEqual(context["twoWayPositionRecords"], [])
+
     def test_input_output_alias_is_rejected_without_changing_source(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             source = Path(temporary) / "source.json"

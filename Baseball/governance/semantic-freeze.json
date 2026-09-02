@@ -5,10 +5,10 @@
   "ratified": false,
   "bootstrapBaseCommit": "cb16a8e6f3d487f3542b91907cde3f47ff0a0978",
   "hashCanonicalization": "utf-8-sig decode; CRLF and CR to LF; UTF-8 encode without BOM",
-  "protectedSetSha256": "9eb62d336c78ae0d599be16d76fcc3f0b2e9f5082629eaf236a92353d33d77d1",
+  "protectedSetSha256": "04d8b1f752ccbe12821a9b2f74cef81fbfdc968fcece7513a9b34ff60c610313",
   "changeDecision": {
-    "path": "Baseball/archive/design-records/mlb-people-two-way-position/review.json",
-    "sha256": "566f5de8dcf02d9c172a59a0abce64866b899c45a900a9b6ebbb676eb0485df9"
+    "path": "Baseball/archive/design-records/mlb-people-generic-outfield-position/review.json",
+    "sha256": "c7d913c0f688670406b01b77a376db50004d0f587074787f0c29bb28d973830d"
   },
   "protectedArtifacts": {
     "Baseball/governance/ontology-curation-debt.json": "2d5a4206339244641dd629eb48d86d13d98c02e47b5b5755b010861c0570e283",
@@ -51,7 +51,7 @@
     "Baseball/sources/mlb-leagues/review/semantic-status.json": "d482b4a086214501735eb53b58f39f810985f7f6b69ffb56a85021f6fb7abcd7",
     "Baseball/sources/mlb-people/mapping/iri-policy.yaml": "456a87beac4f663ab4088bb76f25ba4bd18c740b9d2896ab68c4fed84e75beac",
     "Baseball/sources/mlb-people/mapping/mlb-people.rml.ttl": "2fb2572bff87aa32be0fe9ee9bdd4694378f167046779144b76ba57678c0e769",
-    "Baseball/sources/mlb-people/mapping/prepare-context.py": "6676a80205ba7d93ba21c40b2c02a3cb67915afed80582c21ba618d8509f5825",
+    "Baseball/sources/mlb-people/mapping/prepare-context.py": "5db07193d5d4fb9b45c3919e31d1fb438063c58b38bc77338c2b6071c52a8c0b",
     "Baseball/sources/mlb-people/review/semantic-status.json": "e4629994008480a3781f0a5d7db74ff9cb434dab3fda47d954b9b9aecd15f1f9",
     "Baseball/sources/mlb-teams/mapping/iri-policy.yaml": "a3b6c9336fb1621d0cdd0848dec16729d742c8f2157e3852f7ad5338e316c6db",
     "Baseball/sources/mlb-teams/mapping/mlb-teams.rml.ttl": "ad3fd9633e37b3aa1c2b54e2a64b0680bb2b916e41a8549d2bd524bbf1817691",
@@ -151,11 +151,11 @@
       "artifacts": {
         "authoritativeShacl": {
           "path": "Baseball/sources/mlb-people/shacl/authoritative.ttl",
-          "sha256": "412fd61a38df263bba66e53d31ec26a220bf5f6e4286b564a158854ca56c62bf"
+          "sha256": "5d0b2b9ca46a3aaee1f1fbf20ff62fb9c2d48b910ad42a3bc1db890e2b2b977b"
         },
         "contextBuilder": {
           "path": "Baseball/sources/mlb-people/mapping/prepare-context.py",
-          "sha256": "6676a80205ba7d93ba21c40b2c02a3cb67915afed80582c21ba618d8509f5825"
+          "sha256": "5db07193d5d4fb9b45c3919e31d1fb438063c58b38bc77338c2b6071c52a8c0b"
         },
         "mapping": {
           "path": "Baseball/sources/mlb-people/mapping/mlb-people.rml.ttl",

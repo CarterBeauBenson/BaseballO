@@ -17,6 +17,13 @@ Description describes the same Person and that Person's persistent Pitcher
 Role and Fielder Role. It does not type the Person as a primitive two-way kind
 and does not assert that either Role is realized by the response.
 
+MLB primary-position code `O` is the reviewed generic Outfield case. Its
+Position Description describes the same Person, that Person's persistent
+Fielder Role, and a Baseball Fielding Disposition. A throwing-side source value,
+when present, also supplies the existing Throwing Side Disposition pattern.
+The provider description does not establish an exclusive outfield-only kind or
+prevent the Person from also playing an infield position.
+
 `one-record.synthetic.json` is hand-authored test data, not a retained API
 response. It proves exact Unicode preservation and the admitted reference
 grains without retaining an API payload.

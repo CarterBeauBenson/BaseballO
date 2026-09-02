@@ -30,6 +30,7 @@ POSITION_TUPLES = {
     "7": ("Outfielder", "Outfielder", "LF", "fielder"),
     "8": ("Outfielder", "Outfielder", "CF", "fielder"),
     "9": ("Outfielder", "Outfielder", "RF", "fielder"),
+    "O": ("Outfield", "Outfielder", "OF", "fielder"),
     "10": ("Designated Hitter", "Hitter", "DH", "designated-hitter"),
     "Y": ("Two-Way Player", "Two-Way Player", "TWP", "two-way"),
 }
