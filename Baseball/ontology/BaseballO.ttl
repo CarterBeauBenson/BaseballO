@@ -47,7 +47,6 @@ base:BaseballSeason a owl:Class ;
     skos:example "The 2026 Major League Baseball season."@en .
 
 base:BaseballSeasonPhase a owl:Class ;
-    rdfs:subClassOf obo:BFO_0000015 ;
     rdfs:label "Baseball Season Phase"@en ;
     skos:definition "A Baseball Season Phase is a Process that is an occurrent part of some Baseball Season and has some Baseball Game as occurrent part."@en ;
     rdfs:comment "This candidate is limited to game-containing phases. A planned phase boundary does not entail that a Baseball Game occurred on the boundary date, and an offseason interval without Games is not inferred to be a Baseball Season Phase."@en ;

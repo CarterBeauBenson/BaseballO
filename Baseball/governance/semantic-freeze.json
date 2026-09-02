@@ -5,17 +5,17 @@
   "ratified": false,
   "bootstrapBaseCommit": "cb16a8e6f3d487f3542b91907cde3f47ff0a0978",
   "hashCanonicalization": "utf-8-sig decode; CRLF and CR to LF; UTF-8 encode without BOM",
-  "protectedSetSha256": "e1f4a7423ac7c754563eff4cfab5347d552b0d639f3c32c9e153e22787f5ed29",
+  "protectedSetSha256": "8406c5160c73f2dac1e63ccd9404f426cb6269f3d14755963695fe0b6b2dbf8c",
   "changeDecision": {
-    "path": "Baseball/archive/design-records/mlb-game-postponement/review.json",
-    "sha256": "37005f736358fa790b0a9aa7531417adf55aa13373907d88bb392f1adbaec87e"
+    "path": "Baseball/archive/design-records/baseball-season-phase-parent-repair/review.json",
+    "sha256": "bbbbd953ce969a4b86e2484a90391982897cdb7deec47561aabbe102f732266d"
   },
   "protectedArtifacts": {
     "Baseball/governance/ontology-curation-debt.json": "2d5a4206339244641dd629eb48d86d13d98c02e47b5b5755b010861c0570e283",
     "Baseball/governance/proposal-review.schema.json": "5d697e53edd2bc711bca959998f2ae95d6a1184f84d179ee4ec7a6c5f357e23c",
     "Baseball/mappings/policies/modeling-choices.yaml": "d52b3f114ebf32466c899dd40b5026fadcb6860c4388892f51e35e7e1d47ce5a",
     "Baseball/ontology/BaseballO-axioms-overlay.ttl": "a8d4369d34995d69c18df8025340db5c16a483e9a721eb4094f999fdb15c9ea4",
-    "Baseball/ontology/BaseballO.ttl": "6dc2bea4adb1c34ab1dc1a237b4cbf55960272abecbbe85413daddc61e9ef417",
+    "Baseball/ontology/BaseballO.ttl": "4c102a5b9ca163b077c540f217db083dc09c0368d996c5bb79e7f36ae5a67c64",
     "Baseball/ontology/CommonCoreOntologiesMerged.ttl": "336ced0e12afd74570cef1344b2b6f92975eb6b2159800eb7e9b20036a723273",
     "Baseball/ontology/ModalRelationOntology.ttl": "15a8103d087e47c5b8d6e4c74c0844be2f0a596dc9dadfc8031f99dfc07e9b9c",
     "Baseball/ontology/cpo.ttl": "4c797c73520449e2c1920953b3081c29e559ea2be3bc5a0a9dc603e4f0444ecb",
