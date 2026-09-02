@@ -1,0 +1,51 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-edge-case-recovery",
+  "title": "MLB-game official, review, incomplete plate-appearance, and delay edge cases",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "127a2bfc29857a143cb0662c3d52a8b8acaf18cdc55ef27da8c7cff085e116c0"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "b6fff08bf284ffbdb85d009a62a3b7f5dc251267f0de1a8d0cf5e895bbd3a6dc"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "9af925a008bffc1d6b95ce385a1f4400c138aa72fc976df4a02a5f1241bff984"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "8e681ee9462d1656c2b6fa91267f89a483b587db80c2d2740734b26befe6d95e"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-09-02",
+    "rationale": "The ontologist explicitly accepted stable-ID officials without invented names, outcome-neutral review evidence when MLB omits confirmed/overturned status, incomplete plate appearances with their evidenced pitches and no fabricated result, and a game-contained rain-delay Process with provider advisory evidence but no inferred weather cause.",
+    "authorizedArtifacts": [
+      "Baseball/governance/semantic-freeze.json",
+      "Baseball/scripts/pipeline/prepare-rml-context.py",
+      "Baseball/scripts/pipeline/run-rml.ps1",
+      "Baseball/sources/mlb-game/mapping/mlb-game.rml.ttl",
+      "Baseball/sources/mlb-game/mapping/validate_mlb_game_mapping.py",
+      "Baseball/sources/mlb-game/review/rml-mermaid-manifest.json",
+      "Baseball/sources/mlb-game/shacl/authoritative.ttl",
+      "Baseball/sources/mlb-game/tests/test_edge_case_context.py"
+    ]
+  }
+}
