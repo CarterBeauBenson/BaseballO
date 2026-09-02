@@ -1,0 +1,45 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "baseball-season-phase-parent-repair",
+  "title": "Baseball Season Phase redundant direct-parent repair",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "ac68b710c743145c354117383f087ba9d196d28a4cd294c710e53341058d8272"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "1f1f79d21679004cd99cc4446a127ebd92491644bb22e36095d7c3aebb991c64"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "6fcbe734e98fba0b58468f5572d01a7a6e3f75c8ef70a14f7406dc45c26f9b6e"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "28329b76c83e2fcdd15fac174ed6b3d0bdc38e78b087ea26b6bddc865d6ffb15"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-09-02",
+    "rationale": "The ontologist explicitly authorized removing the redundant direct BFO Process parent from BaseballSeasonPhase while retaining BaseballSeasonSegment as its direct parent and preserving Process ancestry by subclass transitivity.",
+    "authorizedArtifacts": [
+      "Baseball/governance/semantic-freeze.json",
+      "Baseball/ontology/BaseballO.ttl"
+    ]
+  }
+}
