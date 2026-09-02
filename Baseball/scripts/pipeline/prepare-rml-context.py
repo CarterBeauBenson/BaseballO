@@ -4,8 +4,10 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
+from datetime import date
 from pathlib import Path
 
 
@@ -85,7 +87,88 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("source", type=Path)
     parser.add_argument("output", type=Path)
+    parser.add_argument("--schedule-evidence", type=Path)
     return parser.parse_args()
+
+
+def schedule_postponement_context(
+    path: Path | None, game_pk: str
+) -> list[dict[str, object]]:
+    if path is None:
+        return []
+    evidence = json.loads(path.read_text(encoding="utf-8-sig"))
+    if evidence.get("artifactType") != "baseballo-mlb-game-schedule-evidence":
+        raise ValueError("Schedule evidence has an unexpected artifactType")
+    if evidence.get("contractVersion") != 1:
+        raise ValueError("Schedule evidence has an unsupported contractVersion")
+    if str(evidence.get("gamePk")) != game_pk:
+        raise ValueError("Schedule evidence gamePk does not match the game payload")
+    schedule_sha256 = str(evidence.get("scheduleSha256") or "")
+    if not re.fullmatch(r"[0-9a-f]{64}", schedule_sha256):
+        raise ValueError("Schedule evidence lacks a valid scheduleSha256")
+    records = evidence.get("postponements")
+    if not isinstance(records, list) or not records:
+        raise ValueError("Schedule evidence has no postponement records")
+
+    context: list[dict[str, object]] = []
+    for position, record in enumerate(records):
+        if not isinstance(record, dict):
+            raise ValueError(f"Schedule postponement {position} must be an object")
+        act_key = require_segment(record.get("actKey"), f"postponement {position} actKey")
+        original_key = require_segment(
+            record.get("originalPlanKey"), f"postponement {position} originalPlanKey"
+        )
+        revised_key = require_segment(
+            record.get("revisedPlanKey"), f"postponement {position} revisedPlanKey"
+        )
+        original_date = str(record.get("originalDate") or "")
+        revised_date = str(record.get("revisedDate") or "")
+        try:
+            if date.fromisoformat(original_date) >= date.fromisoformat(revised_date):
+                raise ValueError
+        except ValueError as error:
+            raise ValueError(
+                f"Schedule postponement {position} must identify ordered calendar dates"
+            ) from error
+        game_iri = f"https://baseballontology.org/data/game/{game_pk}"
+        act_iri = f"{game_iri}/schedule/postponement/{act_key}"
+        original_plan_iri = f"{game_iri}/schedule-plan/{original_key}"
+        revised_plan_iri = f"{game_iri}/schedule-plan/{revised_key}"
+        reason = str(record.get("reason") or "")
+        item: dict[str, object] = {
+            "gameIri": game_iri,
+            "actIri": act_iri,
+            "originalPlanIri": original_plan_iri,
+            "revisedPlanIri": revised_plan_iri,
+            "originalDateIdentifierIri": f"{original_plan_iri}/calendar-date",
+            "revisedDateIdentifierIri": f"{revised_plan_iri}/calendar-date",
+            "originalDayIri": f"https://baseballontology.org/data/day/{original_date}",
+            "revisedDayIri": f"https://baseballontology.org/data/day/{revised_date}",
+            "originalDate": original_date,
+            "revisedDate": revised_date,
+            "mlbOrganizationIri": (
+                "https://baseballontology.org/data/organization/major-league-baseball"
+            ),
+            "scheduleResponseIri": (
+                "https://baseballontology.org/data/source/mlb-game/schedule/response/"
+                f"sha256/{schedule_sha256}"
+            ),
+            "hasReason": bool(reason),
+        }
+        if reason:
+            reason_key = hashlib.sha256(reason.encode("utf-8")).hexdigest()[:20]
+            item.update(
+                {
+                    "reason": reason,
+                    "reasonMeasurementIri": f"{act_iri}/reason/{reason_key}",
+                    "reasonReferenceSystemIri": (
+                        "https://baseballontology.org/data/reference-system/"
+                        "mlb-game/schedule-postponement-reasons"
+                    ),
+                }
+            )
+        context.append(item)
+    return context
 
 
 def unique_player_ids_by_name(document: dict[str, object]) -> dict[str, str]:
@@ -192,6 +275,11 @@ def main() -> None:
             f"MLB batted-ball trajectory reference system observed {provider_version}"
         ),
     }
+    postponement_context = schedule_postponement_context(
+        args.schedule_evidence, game_pk
+    )
+    if postponement_context:
+        root_context["schedulePostponements"] = postponement_context
     game_type = str(game_description.get("type") or "")
     phase_definition = SEASON_PHASE_BY_GAME_TYPE.get(game_type)
     if phase_definition is not None:
@@ -658,6 +746,7 @@ def main() -> None:
     )
     print(f"Context uncaught third strikes: {uncaught_third_strike_count}")
     print(f"Context game end: {final_end_time}")
+    print(f"Context schedule postponements: {len(postponement_context)}")
 
 
 if __name__ == "__main__":

@@ -10,11 +10,11 @@
 
 <https://baseballontology.org/baseball-event-ontology>
     a owl:Ontology ;
-    owl:versionIRI <https://baseballontology.org/2026-08-31/baseball-event-ontology> ;
-    owl:versionInfo "0.7.0"@en ;
+    owl:versionIRI <https://baseballontology.org/2026-09-01/baseball-event-ontology> ;
+    owl:versionInfo "0.7.1"@en ;
     dcterms:title "Baseball Event and Adjudication Ontology"@en ;
     dcterms:created "2026-07-21"^^xsd:date ;
-    dcterms:modified "2026-08-31"^^xsd:date ;
+    dcterms:modified "2026-09-01"^^xsd:date ;
     owl:imports
         <http://purl.obolibrary.org/obo/bfo/2020/bfo-core.ttl> ,
         <https://www.commoncoreontologies.org/ExtendedRelationOntology> ,
@@ -59,6 +59,20 @@ base:BaseballSeasonPlan a owl:Class ;
     skos:definition "A Baseball Season Plan is a Plan that prescribes some Baseball Season and some Baseball Season Phase."@en ;
     rdfs:comment "The Season and Phase have independent Process differentiae, so this prescription does not define the three terms circularly. Date Identifier parts may designate planned phase boundaries. Counts, qualifier thresholds, and format flags require their exact rule and target before inclusion."@en ;
     skos:example "The plan specifying the phases and planned temporal boundaries of the 2026 Major League Baseball season."@en .
+
+base:BaseballGameSchedulePlan a owl:Class ;
+    rdfs:subClassOf cco:ont00000974 ;
+    rdfs:label "Baseball Game Schedule Plan"@en ;
+    skos:definition "A Baseball Game Schedule Plan is a Plan that prescribes a Baseball Game and has as continuant part a Temporal Interval Identifier that designates a Temporal Interval planned for that Game."@en ;
+    rdfs:comment "Distinct versions may prescribe the same Baseball Game for different planned Temporal Intervals. The Plan is not the Game or either Temporal Interval."@en ;
+    skos:example "The official plan prescribing MLB game 824621 for its revised April 3, 2026 time is a Baseball Game Schedule Plan."@en .
+
+base:BaseballGamePostponementAct a owl:Class ;
+    rdfs:subClassOf cco:ont00001374 ;
+    rdfs:label "Baseball Game Postponement Act"@en ;
+    skos:definition "A Baseball Game Postponement Act is an Act of Declarative Communication that has as input a Baseball Game Schedule Plan and has as output a distinct Baseball Game Schedule Plan that prescribes the same Baseball Game for a later planned Temporal Interval."@en ;
+    rdfs:comment "The declaration changes the institutional schedule. A source reason is nominal classification evidence and does not by itself establish a world-side cause. Same-Game identity, distinct Plan identity, and temporal ordering require the reviewed graph constraints in addition to the OWL necessary restrictions."@en ;
+    skos:example "MLB's official declaration moving game 824621 from April 2 to April 3, 2026 is a Baseball Game Postponement Act."@en .
 
 base:Inning a owl:Class ;
     rdfs:subClassOf obo:BFO_0000015 ;

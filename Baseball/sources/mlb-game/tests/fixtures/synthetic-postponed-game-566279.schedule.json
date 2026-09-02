@@ -1,0 +1,33 @@
+{
+  "dates": [
+    {
+      "date": "2018-10-26",
+      "games": [
+        {
+          "gamePk": 566279,
+          "gameDate": "2018-10-26T23:09:00Z",
+          "rescheduleDate": "2018-10-27T00:09:00Z",
+          "status": {
+            "abstractGameState": "Final",
+            "detailedState": "Postponed",
+            "reason": "Synthetic test reason"
+          }
+        }
+      ]
+    },
+    {
+      "date": "2018-10-27",
+      "games": [
+        {
+          "gamePk": 566279,
+          "gameDate": "2018-10-27T00:09:00Z",
+          "rescheduledFrom": "2018-10-26",
+          "status": {
+            "abstractGameState": "Final",
+            "detailedState": "Final"
+          }
+        }
+      ]
+    }
+  ]
+}

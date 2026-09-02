@@ -184,7 +184,6 @@ else:
         errors.append("Walk result mapping must cover both walk and intent_walk source tokens.")
 
     prohibited_fragments = (
-        "cco:ont00001833",
         "/runner-act/out/",
         "/runner-act/score/",
         "/runner-act/reach/",
@@ -258,6 +257,11 @@ else:
         'rml:reference "pitchTypeReferenceSystemIri"',
         'rml:reference "_baseballO.battedTrajectoryCategoryIri"',
         'rml:reference "battedTrajectoryReferenceSystemIri"',
+        'rml:iterator "$._baseballO.schedulePostponements[*]"',
+        "rr:class base:BaseballGamePostponementAct",
+        "rr:class base:BaseballGameSchedulePlan",
+        "rr:predicate cco:ont00001833",
+        "rr:predicate cco:ont00001942",
     )
     missing_context_fragments = [
         fragment for fragment in required_context_fragments if fragment not in mapping_text

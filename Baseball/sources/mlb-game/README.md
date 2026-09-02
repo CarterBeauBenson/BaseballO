@@ -22,6 +22,20 @@ proof requests, schedule discovery, completed-game fanout, per-game semantic
 promotion, deferred corpus materialization, cleanup, and source-local failure
 handling. There is no active NiFi manual inbox.
 
+Schedule discovery deduplicates by stable MLB `gamePk`. When the same game has
+an official postponed occurrence and a later completed occurrence, the lane
+persists compact schedule evidence and maps one game plus the postponement
+declaration, its old and revised Schedule Plans, their canonical Days, and any
+provider reason as nominal evidence. It does not assert that the provider
+reason is a world-side weather cause. Parser failures preserve the original
+response bytes for bounded retry or quarantine.
+
+A schedule request that arrives while the current mapping and SHACL still need
+a bounded proof remains inside the NiFi lane. NiFi retries the proof-release
+readiness check every 30 seconds for up to 30 minutes, releases the request as
+soon as the proof completes, and uses source-local schedule quarantine only if
+that readiness window is exhausted.
+
 The module is operationally active and its current pinned contract is
 semantically `approved`. NiFi runs it asynchronously and applies the
 source-owned SHACL profile before promotion.

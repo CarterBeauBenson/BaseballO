@@ -26,6 +26,14 @@ $schedule = $contract.scheduleDiscovery
 if ([string]$schedule.dailyCron -ne '0 0 5 * * ?' -or [string]$schedule.timeZone -ne 'America/New_York') {
     throw 'MLB Game daily acquisition must run at 05:00 America/New_York.'
 }
+$proofReleasePolicy = $contract.proofRelease
+if (
+    [int]$proofReleasePolicy.readinessRetryCount -ne 60 -or
+    [string]$proofReleasePolicy.readinessRetryDelay -ne '30 sec' -or
+    [string]$proofReleasePolicy.exhaustedAction -ne 'source-local-schedule-quarantine'
+) {
+    throw 'MLB Game proof release must wait up to 30 minutes and then quarantine locally.'
+}
 $stageScript = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\pipeline\stage.ps1'))
 $scheduleParser = [System.IO.Path]::GetFullPath((Join-Path $repositoryRoot "sources\mlb-game\$([string]$schedule.parser)"))
 $batchMaterializer = [System.IO.Path]::GetFullPath((Join-Path $repositoryRoot "sources\mlb-game\$([string]$contract.batchMaterialization.processor)"))
@@ -104,6 +112,35 @@ function Get-OrCreateProcessGroup {
         }
     }
     return $created.id
+}
+
+function Stop-OwnedProcessGroupForReconciliation {
+    param([Parameter(Mandatory = $true)][string] $GroupId)
+
+    $active = @(
+        (Get-GroupFlow -GroupId $GroupId).processors |
+            Where-Object { [string]$_.component.state -notin @('STOPPED', 'DISABLED') }
+    )
+    if ($active.Count -eq 0) {
+        return
+    }
+    Invoke-NiFi -Method PUT -Path "/flow/process-groups/$GroupId" -Body @{
+        id = $GroupId
+        state = 'STOPPED'
+        disconnectedNodeAcknowledged = $false
+    } | Out-Null
+    $deadline = [DateTime]::UtcNow.AddSeconds(30)
+    do {
+        $remaining = @(
+            (Get-GroupFlow -GroupId $GroupId).processors |
+                Where-Object { [string]$_.component.state -notin @('STOPPED', 'DISABLED') }
+        )
+        if ($remaining.Count -eq 0) {
+            return
+        }
+        Start-Sleep -Milliseconds 500
+    } while ([DateTime]::UtcNow -lt $deadline)
+    throw "The owned MLB Game process group did not stop before reconciliation: $(@($remaining.component.name) -join ', ')"
 }
 
 function Get-ProcessorType([string] $Type) {
@@ -215,6 +252,9 @@ function Ensure-Connection {
 
 function Stage-Arguments([string] $Action, [bool] $NeedsInput, [bool] $NeedsFailureStage) {
     $arguments = "-NoLogo;-NoProfile;-NonInteractive;-ExecutionPolicy;Bypass;-File;$stageScript;-Action;$Action;-GamePk;`${game.pk};-RunId;`${pipeline.run.id}"
+    if ($Action -eq 'rml') {
+        $arguments += ';-ScheduleEvidencePath;${schedule.evidence.path}'
+    }
     if ($NeedsInput) {
         $arguments += ';-InputJson;${transient.path}'
     }
@@ -246,10 +286,16 @@ function Ensure-ExitGate([string] $GroupId, [string] $Stage, [int] $X, [int] $Y)
     }
 }
 
-function Ensure-RetryProcessor([string] $GroupId, [string] $Stage, [int] $X, [int] $Y) {
+function Ensure-RetryProcessor(
+    [string] $GroupId,
+    [string] $Stage,
+    [int] $X,
+    [int] $Y,
+    [int] $MaximumRetries = 3
+) {
     return Ensure-Processor -GroupId $GroupId -Name "Retry $Stage" -Type 'org.apache.nifi.processors.standard.RetryFlowFile' -X $X -Y $Y -AutoTerminate @('failure') -SchedulingPeriod '1 sec' -Properties @{
         'Retry Attribute' = "retry.$($Stage.ToLowerInvariant().Replace(' ', '-'))"
-        'Maximum Retries' = '3'
+        'Maximum Retries' = [string]$MaximumRetries
         'Penalize Retries' = 'true'
         'Fail on Nonnumerical Overwrite' = 'true'
         'Reuse Mode' = 'fail'
@@ -269,6 +315,7 @@ function Ensure-FailureStageProcessor([string] $GroupId, [string] $Stage, [int] 
 $rootId = (Invoke-NiFi -Method GET -Path '/flow/process-groups/root').processGroupFlow.id
 $baseballGroupId = Get-OrCreateProcessGroup -ParentId $rootId -Name $script:NiFiRootProcessGroupName -X 100 -Y 100
 $groupId = Get-OrCreateProcessGroup -ParentId $baseballGroupId -Name $script:MlbGameProcessGroupName -X 100 -Y 100
+Stop-OwnedProcessGroupForReconciliation -GroupId $groupId
 
 foreach ($obsoleteConnection in @(
     '08 RML complete',
@@ -282,7 +329,8 @@ foreach ($obsoleteConnection in @(
     'retry Promotion input',
     'retry Materialization input',
     'retry Cleanup input',
-    '01 schedule batch prepared'
+    '01 schedule batch prepared',
+    'proof release failed'
 )) {
     Remove-ConnectionIfPresent -GroupId $groupId -Name $obsoleteConnection
 }
@@ -290,12 +338,13 @@ foreach ($obsoleteConnection in @(
 $processors = @{}
 $processors.request = Ensure-Processor -GroupId $groupId -Name 'Proof Request' -Type 'org.apache.nifi.processors.standard.GenerateFlowFile' -X 0 -Y 0 -SchedulingPeriod '365 days' -AutoTerminate @() -Properties @{
     'File Size' = '0B'; 'Batch Size' = '1'; 'Data Format' = 'Text'; 'Unique FlowFiles' = 'false';
-    'Custom Text' = "{`"gamePk`":`"$ProofGamePk`",`"materializeMode`":`"immediate`"}"; 'Character Set' = 'UTF-8'; 'Mime Type' = 'application/json'
+    'Custom Text' = "{`"gamePk`":`"$ProofGamePk`",`"materializeMode`":`"immediate`",`"scheduleEvidencePath`":`"none`"}"; 'Character Set' = 'UTF-8'; 'Mime Type' = 'application/json'
 }
 $processors.readRequest = Ensure-Processor -GroupId $groupId -Name 'Read Request' -Type 'org.apache.nifi.processors.standard.EvaluateJsonPath' -X 320 -Y 0 -AutoTerminate @() -Properties @{
     'Destination' = 'flowfile-attribute'; 'Return Type' = 'auto-detect'; 'Path Not Found Behavior' = 'warn';
     'Null Value Representation' = 'empty string'; 'Max String Length' = '20 MB'; 'game.pk' = '$.gamePk';
-    'materialize.mode' = '$.materializeMode'; 'batch.id' = '$.batchId'
+    'materialize.mode' = '$.materializeMode'; 'batch.id' = '$.batchId';
+    'schedule.evidence.path' = '$.scheduleEvidencePath'
 }
 $backfillText = $schedule.backfillRequest | ConvertTo-Json -Depth 10 -Compress
 $processors.backfillRequest = Ensure-Processor -GroupId $groupId -Name 'Backfill Schedule Request' -Type 'org.apache.nifi.processors.standard.GenerateFlowFile' -X 0 -Y -360 -SchedulingPeriod '365 days' -AutoTerminate @() -Properties @{
@@ -438,6 +487,7 @@ foreach ($entry in $stageProcessors.GetEnumerator()) {
     $failureProcessors[$entry.Key] = Ensure-FailureStageProcessor -GroupId $groupId -Stage $entry.Key -X $retryX -Y 560
     $retryX += 320
 }
+$processors.proofReleaseWait = Ensure-RetryProcessor -GroupId $groupId -Stage 'Proof Release Readiness' -X 1040 -Y -820 -MaximumRetries ([int]$proofReleasePolicy.readinessRetryCount)
 foreach ($stage in @('Request', 'Response', 'Eligibility', 'Schedule Request', 'Schedule Split', 'Materialization Mode', 'Proof Release')) {
     $failureProcessors[$stage] = Ensure-FailureStageProcessor -GroupId $groupId -Stage $stage -X $retryX -Y 560
     $retryX += 240
@@ -530,7 +580,9 @@ Ensure-Connection -GroupId $groupId -Name 'schedule split failure' -SourceId $pr
 Ensure-Connection -GroupId $groupId -Name 'response parse failure' -SourceId $processors.readResponse -DestinationId $failureProcessors['Response'] -Relationships @('failure', 'unmatched') | Out-Null
 Ensure-Connection -GroupId $groupId -Name 'nonfinal response' -SourceId $processors.requireFinal -DestinationId $failureProcessors['Eligibility'] -Relationships @('unmatched') | Out-Null
 Ensure-Connection -GroupId $groupId -Name 'unknown materialization mode' -SourceId $processors.chooseMaterialization -DestinationId $failureProcessors['Materialization Mode'] -Relationships @('unmatched') | Out-Null
-Ensure-Connection -GroupId $groupId -Name 'proof release failed' -SourceId $exitGates['Proof Release'] -DestinationId $failureProcessors['Proof Release'] -Relationships @('unmatched') | Out-Null
+Ensure-Connection -GroupId $groupId -Name 'proof release awaiting current proof' -SourceId $exitGates['Proof Release'] -DestinationId $processors.proofReleaseWait -Relationships @('unmatched') | Out-Null
+Ensure-Connection -GroupId $groupId -Name 'proof release readiness retry' -SourceId $processors.proofReleaseWait -DestinationId $processors.proofRelease -Relationships @('retry') | Out-Null
+Ensure-Connection -GroupId $groupId -Name 'proof release readiness exhausted' -SourceId $processors.proofReleaseWait -DestinationId $failureProcessors['Proof Release'] -Relationships @('retries_exceeded') | Out-Null
 foreach ($stage in @('Request', 'Response', 'Eligibility', 'Materialization Mode')) {
     Ensure-Connection -GroupId $groupId -Name "fail $stage to quarantine" -SourceId $failureProcessors[$stage] -DestinationId $processors.quarantine -Relationships @('success') | Out-Null
 }
@@ -554,7 +606,8 @@ $unexpectedProcessors = @($flow.processors | Where-Object { $_.component.name -n
     'Retry Cleanup','Retry Schedule HTTP','Retry Schedule Parse','Fail HTTP','Fail Write Payload','Fail RML','Fail SHACL',
     'Fail Promotion','Fail Materialization','Fail Cleanup','Fail Schedule HTTP','Fail Schedule Parse',
     'Fail Request','Fail Response','Fail Eligibility','Fail Schedule Request','Fail Schedule Split','Fail Materialization Mode','Fail Proof Release',
-    'Quarantine','Name Schedule Quarantine','Write Schedule Quarantine','Record Schedule Quarantine Failure'
+    'Quarantine','Name Schedule Quarantine','Write Schedule Quarantine','Record Schedule Quarantine Failure',
+    'Retry Proof Release Readiness'
 ) })
 if ($unexpectedProcessors.Count -gt 0) {
     throw "The owned MLB Game process group contains unexpected processors: $(@($unexpectedProcessors.component.name) -join ', ')"

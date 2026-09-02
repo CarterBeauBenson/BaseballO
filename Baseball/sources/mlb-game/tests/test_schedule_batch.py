@@ -33,7 +33,7 @@ class ScheduleBatchTests(unittest.TestCase):
             ],
             input=json.dumps(payload),
             stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
+            stderr=subprocess.PIPE,
             text=True,
             encoding="utf-8",
             errors="replace",
@@ -64,7 +64,7 @@ class ScheduleBatchTests(unittest.TestCase):
             state_root = Path(temporary)
             result = self.run_script(state_root, self.payload())
 
-            self.assertEqual(result.returncode, 0, result.stdout)
+            self.assertEqual(result.returncode, 0, result.stderr)
             output = json.loads(result.stdout)
             self.assertEqual(
                 [row["gamePk"] for row in output["games"]],
@@ -93,10 +93,64 @@ class ScheduleBatchTests(unittest.TestCase):
             changed["dates"][0]["games"][1]["gamePk"] = 900004
             third = self.run_script(state_root, changed)
 
-            self.assertEqual(first.returncode, 0, first.stdout)
-            self.assertEqual(second.returncode, 0, second.stdout)
+            self.assertEqual(first.returncode, 0, first.stderr)
+            self.assertEqual(second.returncode, 0, second.stderr)
             self.assertNotEqual(third.returncode, 0)
-            self.assertIn("different evidence", third.stdout)
+            self.assertIn("different evidence", third.stderr)
+            self.assertEqual(json.loads(third.stdout), changed)
+
+    def test_postponed_and_final_rows_become_one_game_with_revision_evidence(self) -> None:
+        payload = {
+            "dates": [
+                {
+                    "date": "2026-04-02",
+                    "games": [
+                        {
+                            "gamePk": 824621,
+                            "gameDate": "2026-04-02T23:10:00Z",
+                            "rescheduleDate": "2026-04-03T20:10:00Z",
+                            "status": {
+                                "abstractGameState": "Final",
+                                "detailedState": "Postponed",
+                                "reason": "Inclement Weather",
+                            },
+                        }
+                    ],
+                },
+                {
+                    "date": "2026-04-03",
+                    "games": [
+                        {
+                            "gamePk": 824621,
+                            "gameDate": "2026-04-03T20:10:00Z",
+                            "rescheduledFrom": "2026-04-02",
+                            "status": {
+                                "abstractGameState": "Final",
+                                "detailedState": "Final",
+                            },
+                        }
+                    ],
+                },
+            ]
+        }
+        with tempfile.TemporaryDirectory() as temporary:
+            state_root = Path(temporary)
+            result = self.run_script(state_root, payload)
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            output = json.loads(result.stdout)
+            self.assertEqual(len(output["games"]), 1)
+            request = output["games"][0]
+            self.assertEqual(request["gamePk"], "824621")
+            self.assertEqual(request["scheduleDate"], "2026-04-03")
+            evidence_path = Path(request["scheduleEvidencePath"])
+            evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
+            self.assertEqual(evidence["gamePk"], "824621")
+            self.assertEqual(len(evidence["postponements"]), 1)
+            postponement = evidence["postponements"][0]
+            self.assertEqual(postponement["originalDate"], "2026-04-02")
+            self.assertEqual(postponement["revisedDate"], "2026-04-03")
+            self.assertEqual(postponement["reason"], "Inclement Weather")
 
 
 if __name__ == "__main__":

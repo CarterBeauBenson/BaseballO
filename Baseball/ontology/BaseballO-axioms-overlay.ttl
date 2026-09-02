@@ -11,15 +11,15 @@
 
 <https://baseballontology.org/baseball-event-ontology-axioms-overlay>
     a owl:Ontology ;
-    owl:versionIRI <https://baseballontology.org/2026-08-31/baseball-event-ontology-axioms-overlay> ;
-    owl:versionInfo "0.7.0"@en ;
+    owl:versionIRI <https://baseballontology.org/2026-09-01/baseball-event-ontology-axioms-overlay> ;
+    owl:versionInfo "0.7.1"@en ;
     owl:imports
         <https://baseballontology.org/baseball-event-ontology> ,
         <http://www.ontologyrepository.com/CommonCoreOntologies/Domain/CognitiveProcessOntology> ,
         <https://www.commoncoreontologies.org/ModalRelationOntology> ;
     dcterms:title "Baseball Event and Adjudication Ontology Axiom Overlay"@en ;
     dcterms:created "2026-07-30"^^xsd:date ;
-    dcterms:modified "2026-08-31"^^xsd:date ;
+    dcterms:modified "2026-09-01"^^xsd:date ;
     rdfs:comment "Optional logical axioms for the Baseball Event and Adjudication Ontology. Load this ontology with BaseballO to enable the restrictions below; omit it to use only BaseballO's annotated taxonomic backbone."@en ;
     rdfs:comment "All class and object-property IRIs used by this overlay are declared in, or referenced by, the ontology files stored in this repository. The overlay intentionally states only necessary conditions when the complete natural-language differentia cannot be represented without new vocabulary."@en .
 
@@ -46,6 +46,32 @@ base:BaseballSeasonPhase rdfs:subClassOf
 base:BaseballSeasonPlan rdfs:subClassOf
     [ a owl:Restriction ; owl:onProperty cco:ont00001942 ; owl:someValuesFrom base:BaseballSeason ],
     [ a owl:Restriction ; owl:onProperty cco:ont00001942 ; owl:someValuesFrom base:BaseballSeasonPhase ] .
+
+base:BaseballGameSchedulePlan
+    rdfs:subClassOf
+        [ a owl:Restriction ;
+          owl:onProperty cco:ont00001942 ;
+          owl:someValuesFrom base:BaseballGame
+        ] ,
+        [ a owl:Restriction ;
+          owl:onProperty obo:BFO_0000178 ;
+          owl:someValuesFrom [
+              a owl:Class ;
+              owl:intersectionOf (
+                  cco:ont00000073
+                  [ a owl:Restriction ;
+                    owl:onProperty cco:ont00001916 ;
+                    owl:someValuesFrom obo:BFO_0000202
+                  ]
+              )
+          ]
+        ] .
+
+base:BaseballGamePostponementAct
+    rdfs:subClassOf
+        [ a owl:Restriction ; owl:onProperty cco:ont00001833 ; owl:someValuesFrom cco:ont00001017 ] ,
+        [ a owl:Restriction ; owl:onProperty cco:ont00001921 ; owl:someValuesFrom base:BaseballGameSchedulePlan ] ,
+        [ a owl:Restriction ; owl:onProperty cco:ont00001986 ; owl:someValuesFrom base:BaseballGameSchedulePlan ] .
 
 base:Inning
     rdfs:subClassOf

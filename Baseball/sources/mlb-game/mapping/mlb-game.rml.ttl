@@ -33,6 +33,16 @@
   rml:referenceFormulation ql:JSONPath ;
   rml:iterator "$._baseballO.seasonPhase" .
 
+<#SchedulePostponementSource> a rml:LogicalSource ;
+  rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$._baseballO.schedulePostponements[*]" .
+
+<#SchedulePostponementReasonSource> a rml:LogicalSource ;
+  rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$._baseballO.schedulePostponements[?(@.hasReason == true)]" .
+
 <#AwayTeamSource> a rml:LogicalSource ;
   rml:source "game.json" ;
   rml:referenceFormulation ql:JSONPath ;
@@ -515,6 +525,99 @@
     rr:predicate obo:BFO_0000057 ;
     rr:objectMap [ rr:template "https://baseballontology.org/data/team/{$.gameData.teams.home.id}" ; rr:termType rr:IRI ]
   ] .
+
+<#SchedulePostponementActMap> a rr:TriplesMap ;
+  rml:logicalSource <#SchedulePostponementSource> ;
+  rr:subjectMap [ rml:reference "actIri" ; rr:termType rr:IRI ; rr:class base:BaseballGamePostponementAct ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001833 ;
+    rr:objectMap [ rml:reference "mlbOrganizationIri" ; rr:termType rr:IRI ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001921 ;
+    rr:objectMap [ rml:reference "originalPlanIri" ; rr:termType rr:IRI ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001986 ;
+    rr:objectMap [ rml:reference "revisedPlanIri" ; rr:termType rr:IRI ]
+  ] .
+
+<#MlbOrganizationMap> a rr:TriplesMap ;
+  rml:logicalSource <#SchedulePostponementSource> ;
+  rr:subjectMap [ rml:reference "mlbOrganizationIri" ; rr:termType rr:IRI ; rr:class cco:ont00001180 ] ;
+  rr:predicateObjectMap [ rr:predicate rdfs:label ; rr:objectMap [ rr:constant "Major League Baseball" ] ] .
+
+<#OriginalSchedulePlanMap> a rr:TriplesMap ;
+  rml:logicalSource <#SchedulePostponementSource> ;
+  rr:subjectMap [ rml:reference "originalPlanIri" ; rr:termType rr:IRI ; rr:class base:BaseballGameSchedulePlan ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001942 ;
+    rr:objectMap [ rml:reference "gameIri" ; rr:termType rr:IRI ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate obo:BFO_0000178 ;
+    rr:objectMap [ rml:reference "originalDateIdentifierIri" ; rr:termType rr:IRI ]
+  ] .
+
+<#RevisedSchedulePlanMap> a rr:TriplesMap ;
+  rml:logicalSource <#SchedulePostponementSource> ;
+  rr:subjectMap [ rml:reference "revisedPlanIri" ; rr:termType rr:IRI ; rr:class base:BaseballGameSchedulePlan ] ;
+  rr:predicateObjectMap [
+    rr:predicate cco:ont00001942 ;
+    rr:objectMap [ rml:reference "gameIri" ; rr:termType rr:IRI ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate obo:BFO_0000178 ;
+    rr:objectMap [ rml:reference "revisedDateIdentifierIri" ; rr:termType rr:IRI ]
+  ] .
+
+<#OriginalScheduleDateIdentifierMap> a rr:TriplesMap ;
+  rml:logicalSource <#SchedulePostponementSource> ;
+  rr:subjectMap [ rml:reference "originalDateIdentifierIri" ; rr:termType rr:IRI ; rr:class cco:ont00001340 ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001771 ; rr:objectMap [ rml:reference "originalDate" ; rr:datatype xsd:date ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001916 ; rr:objectMap [ rml:reference "originalDayIri" ; rr:termType rr:IRI ] ] .
+
+<#RevisedScheduleDateIdentifierMap> a rr:TriplesMap ;
+  rml:logicalSource <#SchedulePostponementSource> ;
+  rr:subjectMap [ rml:reference "revisedDateIdentifierIri" ; rr:termType rr:IRI ; rr:class cco:ont00001340 ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001771 ; rr:objectMap [ rml:reference "revisedDate" ; rr:datatype xsd:date ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001916 ; rr:objectMap [ rml:reference "revisedDayIri" ; rr:termType rr:IRI ] ] .
+
+<#OriginalScheduleDayMap> a rr:TriplesMap ;
+  rml:logicalSource <#SchedulePostponementSource> ;
+  rr:subjectMap [ rml:reference "originalDayIri" ; rr:termType rr:IRI ; rr:class cco:ont00000800 ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000063 ; rr:objectMap [ rml:reference "revisedDayIri" ; rr:termType rr:IRI ] ] .
+
+<#RevisedScheduleDayMap> a rr:TriplesMap ;
+  rml:logicalSource <#SchedulePostponementSource> ;
+  rr:subjectMap [ rml:reference "revisedDayIri" ; rr:termType rr:IRI ; rr:class cco:ont00000800 ] .
+
+<#SchedulePostponementReasonMap> a rr:TriplesMap ;
+  rml:logicalSource <#SchedulePostponementReasonSource> ;
+  rr:subjectMap [ rml:reference "reasonMeasurementIri" ; rr:termType rr:IRI ; rr:class cco:ont00000293 ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001966 ; rr:objectMap [ rml:reference "actIri" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001912 ; rr:objectMap [ rml:reference "reasonReferenceSystemIri" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001765 ; rr:objectMap [ rml:reference "reason" ; rr:datatype xsd:string ] ] .
+
+<#SchedulePostponementReasonReferenceSystemMap> a rr:TriplesMap ;
+  rml:logicalSource <#SchedulePostponementReasonSource> ;
+  rr:subjectMap [ rml:reference "reasonReferenceSystemIri" ; rr:termType rr:IRI ; rr:class cco:ont00000398 ] ;
+  rr:predicateObjectMap [ rr:predicate rdfs:label ; rr:objectMap [ rr:constant "MLB schedule postponement reason reference system" ] ] .
+
+<#ScheduleResponseEvidenceMap> a rr:TriplesMap ;
+  rml:logicalSource <#SchedulePostponementSource> ;
+  rr:subjectMap [ rml:reference "scheduleResponseIri" ; rr:termType rr:IRI ; rr:class cco:ont00000853 ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "gameIri" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "actIri" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "originalPlanIri" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "revisedPlanIri" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000178 ; rr:objectMap [ rml:reference "originalDateIdentifierIri" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000178 ; rr:objectMap [ rml:reference "revisedDateIdentifierIri" ; rr:termType rr:IRI ] ] .
+
+<#ScheduleResponseReasonEvidenceMap> a rr:TriplesMap ;
+  rml:logicalSource <#SchedulePostponementReasonSource> ;
+  rr:subjectMap [ rml:reference "scheduleResponseIri" ; rr:termType rr:IRI ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000178 ; rr:objectMap [ rml:reference "reasonMeasurementIri" ; rr:termType rr:IRI ] ] .
 
 <#SeasonMap> a rr:TriplesMap ;
   rml:logicalSource <#SeasonPhaseSource> ;

@@ -2,6 +2,7 @@
 param(
     [string] $InputJson,
     [string] $OutputFile,
+    [string] $ScheduleEvidencePath,
     [switch] $DeferShaclValidation
 )
 
@@ -44,6 +45,24 @@ if (-not [string]::IsNullOrWhiteSpace($homePlateUmpireId) -and $homePlateUmpireI
 }
 if ([string]$gameDocument.gameData.status.abstractGameState -ne 'Final') {
     throw "Game $gamePk is not final; RML execution is restricted to completed games."
+}
+$resolvedScheduleEvidencePath = $null
+if (-not [string]::IsNullOrWhiteSpace($ScheduleEvidencePath) -and $ScheduleEvidencePath -ne 'none') {
+    $resolvedScheduleEvidencePath = [System.IO.Path]::GetFullPath($ScheduleEvidencePath)
+    $scheduleEvidenceRoot = [System.IO.Path]::GetFullPath(
+        (Join-Path $script:StateRoot 'pipeline\control\mlb-game\schedule-evidence')
+    )
+    $scheduleEvidencePrefix = $scheduleEvidenceRoot + [System.IO.Path]::DirectorySeparatorChar
+    if (-not $resolvedScheduleEvidencePath.StartsWith($scheduleEvidencePrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
+        throw "Schedule evidence is outside the MLB-game control root: $resolvedScheduleEvidencePath"
+    }
+    if (-not (Test-Path -LiteralPath $resolvedScheduleEvidencePath -PathType Leaf)) {
+        throw "Schedule evidence does not exist: $resolvedScheduleEvidencePath"
+    }
+    $scheduleEvidenceDocument = Get-Content -LiteralPath $resolvedScheduleEvidencePath -Raw | ConvertFrom-Json
+    if ([string]$scheduleEvidenceDocument.gamePk -ne $gamePk) {
+        throw "Schedule evidence gamePk does not match game $gamePk."
+    }
 }
 $expectedPlateAppearanceCount = @($gameDocument.liveData.plays.allPlays).Count
 $expectedPlayerParticipantCount = @(
@@ -225,7 +244,11 @@ try {
     # ancestors and does not expand parent array references as a multi-value
     # join. Generate an isolated execution-only copy that adds ancestor IDs to
     # pitch records. The staged and authoritative raw JSON remain byte-identical.
-    & python $contextBuilderPath $stageInput $stageContext
+    $contextArguments = @($contextBuilderPath, $stageInput, $stageContext)
+    if ($null -ne $resolvedScheduleEvidencePath) {
+        $contextArguments += @('--schedule-evidence', $resolvedScheduleEvidencePath)
+    }
+    & python @contextArguments
     if ($LASTEXITCODE -ne 0) {
         throw "RML execution-context generation failed for game $gamePk."
     }
@@ -336,6 +359,8 @@ try {
         contextBuilderPath = $contextBuilderPath
         contextBuilderSha256 = (Get-FileHash -LiteralPath $contextBuilderPath -Algorithm SHA256).Hash.ToLowerInvariant()
         executionContextSha256 = $contextHash
+        scheduleEvidencePath = $resolvedScheduleEvidencePath
+        scheduleEvidenceSha256 = if ($null -eq $resolvedScheduleEvidencePath) { $null } else { (Get-FileHash -LiteralPath $resolvedScheduleEvidencePath -Algorithm SHA256).Hash.ToLowerInvariant() }
         materializedRootReferences = [ordered]@{
             gamePk = $gamePkReferenceCount
             venueId = $venueReferenceCount

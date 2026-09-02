@@ -5,17 +5,17 @@
   "ratified": false,
   "bootstrapBaseCommit": "cb16a8e6f3d487f3542b91907cde3f47ff0a0978",
   "hashCanonicalization": "utf-8-sig decode; CRLF and CR to LF; UTF-8 encode without BOM",
-  "protectedSetSha256": "04d8b1f752ccbe12821a9b2f74cef81fbfdc968fcece7513a9b34ff60c610313",
+  "protectedSetSha256": "e1f4a7423ac7c754563eff4cfab5347d552b0d639f3c32c9e153e22787f5ed29",
   "changeDecision": {
-    "path": "Baseball/archive/design-records/mlb-people-generic-outfield-position/review.json",
-    "sha256": "c7d913c0f688670406b01b77a376db50004d0f587074787f0c29bb28d973830d"
+    "path": "Baseball/archive/design-records/mlb-game-postponement/review.json",
+    "sha256": "37005f736358fa790b0a9aa7531417adf55aa13373907d88bb392f1adbaec87e"
   },
   "protectedArtifacts": {
     "Baseball/governance/ontology-curation-debt.json": "2d5a4206339244641dd629eb48d86d13d98c02e47b5b5755b010861c0570e283",
     "Baseball/governance/proposal-review.schema.json": "5d697e53edd2bc711bca959998f2ae95d6a1184f84d179ee4ec7a6c5f357e23c",
     "Baseball/mappings/policies/modeling-choices.yaml": "d52b3f114ebf32466c899dd40b5026fadcb6860c4388892f51e35e7e1d47ce5a",
-    "Baseball/ontology/BaseballO-axioms-overlay.ttl": "beae456fb55c2f5fb8359c2f7bb9c15a28c41da6d85cca6490260f5880893d78",
-    "Baseball/ontology/BaseballO.ttl": "85269e7abcabae037f60d9f67776e2eea35a059d901c487101a8356d2247088c",
+    "Baseball/ontology/BaseballO-axioms-overlay.ttl": "a8d4369d34995d69c18df8025340db5c16a483e9a721eb4094f999fdb15c9ea4",
+    "Baseball/ontology/BaseballO.ttl": "6dc2bea4adb1c34ab1dc1a237b4cbf55960272abecbbe85413daddc61e9ef417",
     "Baseball/ontology/CommonCoreOntologiesMerged.ttl": "336ced0e12afd74570cef1344b2b6f92975eb6b2159800eb7e9b20036a723273",
     "Baseball/ontology/ModalRelationOntology.ttl": "15a8103d087e47c5b8d6e4c74c0844be2f0a596dc9dadfc8031f99dfc07e9b9c",
     "Baseball/ontology/cpo.ttl": "4c797c73520449e2c1920953b3081c29e559ea2be3bc5a0a9dc603e4f0444ecb",
@@ -25,7 +25,7 @@
     "Baseball/reasoning/profiles/event-structure.json": "0769a71727733adc7553b18d51d2a21d91d15b0c86103ed19c494b78865653c0",
     "Baseball/reasoning/profiles/participation.json": "da2d44f7fee92659ce982603d912d2ae7822730ca7b9ef4dd05ce4cfebb03a6c",
     "Baseball/reasoning/reviewed-samples.json": "1527914430536f55812047abe25e4ba88d03afd15a045065e8e8f07d296e8e78",
-    "Baseball/scripts/pipeline/prepare-rml-context.py": "6761657f6a7c0cc309077ffbff95e0966e8a67f99cc724df99bab1af29435fb1",
+    "Baseball/scripts/pipeline/prepare-rml-context.py": "7bb0dc5a637a6acf3f483fff64a8450a3e619821c79c967d542d24582657edc1",
     "Baseball/scripts/reasoning/evaluate-reviewed-samples.py": "c34675e4d7e4fe5b42b66859106f3f1c46f885e101c0666be2566939c71a46a6",
     "Baseball/scripts/reasoning/generate-fixture-proof-baseline.py": "f5a7939602403fb105900b19a610d3d9ec1e439e271109b4242195053800afdc",
     "Baseball/scripts/reasoning/prove-selective-reasoning.py": "c777a99842b18ddeef7047735e62db5e7769e79a419671b9a509b2de97f00af4",
@@ -40,10 +40,10 @@
     "Baseball/sources/mlb-game/mapping/event-type-registry.yaml": "cc0f90f3e977eb15b453fd52256ed9eb91dee2717f5cb902c3de4ffbde2f12bd",
     "Baseball/sources/mlb-game/mapping/iri-policy.yaml": "56611712ddf2214f7331ca0fa8c2068b0f21c68ce3b2a384789477235ff37d53",
     "Baseball/sources/mlb-game/mapping/mapping-coverage.yaml": "291668f4ac471a471a271f9b8083962c641564b3932dfe23f9057e7b8c4e4e14",
-    "Baseball/sources/mlb-game/mapping/mlb-game.rml.ttl": "ce3439b94ab338ac35642fc1a096d735b71a7a579947b9725ea9f73d3ec636bf",
+    "Baseball/sources/mlb-game/mapping/mlb-game.rml.ttl": "b3375a5469fd2c04b2fa7620b2f4ae3a2278b34aa4e03eeb52d47fa828b2ee8c",
     "Baseball/sources/mlb-game/mapping/ontology-coverage-gaps.yaml": "f6815469922ebe290f60027e0fbb2f0284cf7646ee771510e623b831b560ff81",
-    "Baseball/sources/mlb-game/mapping/validate_mlb_game_mapping.py": "4b63e48a874ed6f7609b4bd8aabf181bd18c1c6e7d4dd35ea2badaec45a598b9",
-    "Baseball/sources/mlb-game/review/rml-mermaid-manifest.json": "2e9e6994e87e4e828b74654633276da0992a14ba9f8f93059b82b212a9e417ad",
+    "Baseball/sources/mlb-game/mapping/validate_mlb_game_mapping.py": "02897591251430e69e72bc09f392597528a5ba78a83478b5c27659820583bc6a",
+    "Baseball/sources/mlb-game/review/rml-mermaid-manifest.json": "9268f75c1165eac2d296de73deadde8b1f9dd921bfd4a87d66a164ac42e393a6",
     "Baseball/sources/mlb-game/review/semantic-status.json": "5fedd1d4e3613fd3b8754fd96a15562540a3727c14a023d5ab306830d10769b7",
     "Baseball/sources/mlb-leagues/mapping/iri-policy.yaml": "9c36d490dcec38dbb7b946ba4f41f5d37aa4d831e5d5c987a424582b19f12694",
     "Baseball/sources/mlb-leagues/mapping/mlb-leagues.rml.ttl": "29447c7e421525b0267c22e7e72e560a1905ac35af841b595f0b2c5e1cc78385",
@@ -75,15 +75,15 @@
       "artifacts": {
         "authoritativeShacl": {
           "path": "Baseball/sources/mlb-game/shacl/authoritative.ttl",
-          "sha256": "6a88734317ea32cd638c897f3a79761238323102776af7aef42e7a7de04de13f"
+          "sha256": "e9fe05735fe8b4b4c0d2c64120496a94eccee9716de1ad7c2302238963333f36"
         },
         "contextBuilder": {
           "path": "Baseball/scripts/pipeline/prepare-rml-context.py",
-          "sha256": "6761657f6a7c0cc309077ffbff95e0966e8a67f99cc724df99bab1af29435fb1"
+          "sha256": "7bb0dc5a637a6acf3f483fff64a8450a3e619821c79c967d542d24582657edc1"
         },
         "mapping": {
           "path": "Baseball/sources/mlb-game/mapping/mlb-game.rml.ttl",
-          "sha256": "ce3439b94ab338ac35642fc1a096d735b71a7a579947b9725ea9f73d3ec636bf"
+          "sha256": "b3375a5469fd2c04b2fa7620b2f4ae3a2278b34aa4e03eeb52d47fa828b2ee8c"
         }
       }
     },

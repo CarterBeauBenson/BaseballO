@@ -21,6 +21,11 @@
     "processor": "pipeline/materialize-pending-batches.py",
     "checkPeriod": "15 min"
   },
+  "proofRelease": {
+    "readinessRetryCount": 60,
+    "readinessRetryDelay": "30 sec",
+    "exhaustedAction": "source-local-schedule-quarantine"
+  },
   "processorOrder": [
     "Proof Request",
     "Read Request",

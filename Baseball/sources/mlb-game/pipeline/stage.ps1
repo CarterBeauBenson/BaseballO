@@ -6,6 +6,7 @@ param(
     [Parameter(Mandatory = $true)][ValidatePattern('^\d+$')][string] $GamePk,
     [Parameter(Mandatory = $true)][ValidatePattern('^[0-9a-f]{32}$')][string] $RunId,
     [string] $InputJson,
+    [string] $ScheduleEvidencePath = 'none',
     [string] $FailureStage = 'unknown'
 )
 
@@ -99,7 +100,7 @@ switch ($Action) {
         [void](Read-GameDocument -Path $inputPath)
         $rmlScript = Join-Path $repositoryRoot 'scripts\pipeline\run-rml.ps1'
         Invoke-LoggedCommand -FailureMessage "RML failed for game $GamePk." -Command {
-            & $rmlScript -InputJson $inputPath -OutputFile $rdfPath -DeferShaclValidation
+            & $rmlScript -InputJson $inputPath -OutputFile $rdfPath -ScheduleEvidencePath $ScheduleEvidencePath -DeferShaclValidation
         }
         if (-not (Test-Path -LiteralPath $rdfPath -PathType Leaf) -or -not (Test-Path -LiteralPath $rmlManifestPath -PathType Leaf)) {
             throw "RML did not produce its RDF and manifest for game $GamePk."

@@ -682,7 +682,7 @@ shape:RunnerResolutionShape
 
 shape:JudgmentShape
     a sh:NodeShape ;
-    sh:targetSubjectsOf cco:ont00001986 ;
+    sh:targetClass base:BaseballJudgmentAct ;
     sh:nodeKind sh:IRI ;
     sh:property [
         sh:path bfo:BFO_0000132 ;
@@ -708,7 +708,7 @@ shape:JudgmentShape
 
 shape:DecisionShape
     a sh:NodeShape ;
-    sh:targetObjectsOf cco:ont00001986 ;
+    sh:targetClass base:BaseballDecisionICE ;
     sh:nodeKind sh:IRI ;
     sh:property [
         sh:path cco:ont00001808 ;
@@ -946,6 +946,129 @@ shape:SeasonPhaseShape
             SELECT $this WHERE {
               $this bfo:BFO_0000117 ?game .
               FILTER NOT EXISTS { ?game bfo:BFO_0000132 $this }
+            }
+        """
+    ] .
+
+shape:GamePostponementActShape
+    a sh:NodeShape ;
+    sh:targetClass base:BaseballGamePostponementAct ;
+    sh:nodeKind sh:IRI ;
+    sh:pattern "^https://baseballontology\\.org/data/game/[0-9]+/schedule/postponement/[0-9a-f]+$" ;
+    sh:property [
+        sh:path cco:ont00001833 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:hasValue <https://baseballontology.org/data/organization/major-league-baseball> ;
+        sh:class cco:ont00001180 ;
+        sh:message "A mapped postponement declaration must have MLB as its one official Organization agent."@en
+    ] ;
+    sh:property [
+        sh:path cco:ont00001921 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class base:BaseballGameSchedulePlan ;
+        sh:message "A mapped postponement declaration must have exactly one prior Schedule Plan as input."@en
+    ] ;
+    sh:property [
+        sh:path cco:ont00001986 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class base:BaseballGameSchedulePlan ;
+        sh:message "A mapped postponement declaration must have exactly one revised Schedule Plan as output."@en
+    ] ;
+    sh:sparql [
+        sh:message "The old and revised Schedule Plans must be distinct and prescribe the same one Baseball Game."@en ;
+        sh:select """
+            PREFIX base: <https://baseballontology.org/>
+            PREFIX cco: <https://www.commoncoreontologies.org/>
+            SELECT $this WHERE {
+              $this cco:ont00001921 ?old ; cco:ont00001986 ?new .
+              FILTER (
+                ?old = ?new ||
+                NOT EXISTS {
+                  ?old cco:ont00001942 ?game .
+                  ?new cco:ont00001942 ?game .
+                  ?game a base:BaseballGame .
+                }
+              )
+            }
+        """
+    ] ;
+    sh:sparql [
+        sh:message "The input Schedule Plan date must precede the output Schedule Plan date."@en ;
+        sh:select """
+            PREFIX bfo: <http://purl.obolibrary.org/obo/>
+            PREFIX cco: <https://www.commoncoreontologies.org/>
+            SELECT $this WHERE {
+              $this cco:ont00001921 ?old ; cco:ont00001986 ?new .
+              FILTER NOT EXISTS {
+                ?old bfo:BFO_0000178 ?oldDateId .
+                ?new bfo:BFO_0000178 ?newDateId .
+                ?oldDateId a cco:ont00001340 ; cco:ont00001771 ?oldDate ; cco:ont00001916 ?oldDay .
+                ?newDateId a cco:ont00001340 ; cco:ont00001771 ?newDate ; cco:ont00001916 ?newDay .
+                ?oldDay a cco:ont00000800 ; bfo:BFO_0000063 ?newDay .
+                ?newDay a cco:ont00000800 .
+                FILTER (?oldDate < ?newDate)
+              }
+            }
+        """
+    ] ;
+    sh:sparql [
+        sh:message "A mapped nominal postponement reason must retain its text, Reference System, and schedule-response provenance."@en ;
+        sh:select """
+            PREFIX bfo: <http://purl.obolibrary.org/obo/>
+            PREFIX cco: <https://www.commoncoreontologies.org/>
+            SELECT $this WHERE {
+              ?reason cco:ont00001966 $this .
+              FILTER NOT EXISTS {
+                ?reason a cco:ont00000293 ;
+                    cco:ont00001765 ?text ;
+                    cco:ont00001912 ?system .
+                ?system a cco:ont00000398 .
+                ?response a cco:ont00000853 ; bfo:BFO_0000178 ?reason .
+              }
+            }
+        """
+    ] .
+
+shape:GameSchedulePlanShape
+    a sh:NodeShape ;
+    sh:targetClass base:BaseballGameSchedulePlan ;
+    sh:nodeKind sh:IRI ;
+    sh:pattern "^https://baseballontology\\.org/data/game/[0-9]+/schedule-plan/[0-9a-f]+$" ;
+    sh:property [
+        sh:path cco:ont00001942 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class base:BaseballGame ;
+        sh:message "A mapped Baseball Game Schedule Plan must prescribe exactly one Baseball Game."@en
+    ] ;
+    sh:property [
+        sh:path bfo:BFO_0000178 ;
+        sh:qualifiedValueShape [ sh:class cco:ont00001340 ] ;
+        sh:qualifiedMinCount 1 ;
+        sh:qualifiedMaxCount 1 ;
+        sh:message "A mapped Baseball Game Schedule Plan must contain exactly one Calendar Date Identifier."@en
+    ] .
+
+shape:ScheduleCalendarDateIdentifierShape
+    a sh:NodeShape ;
+    sh:targetObjectsOf bfo:BFO_0000178 ;
+    sh:nodeKind sh:IRI ;
+    sh:sparql [
+        sh:message "A schedule-plan Calendar Date Identifier must have one date value and designate the matching canonical Day."@en ;
+        sh:select """
+            PREFIX base: <https://baseballontology.org/>
+            PREFIX bfo: <http://purl.obolibrary.org/obo/>
+            PREFIX cco: <https://www.commoncoreontologies.org/>
+            SELECT $this WHERE {
+              ?plan a base:BaseballGameSchedulePlan ; bfo:BFO_0000178 $this .
+              FILTER NOT EXISTS {
+                $this a cco:ont00001340 ; cco:ont00001771 ?date ; cco:ont00001916 ?day .
+                ?day a cco:ont00000800 .
+                FILTER (STR(?day) = CONCAT("https://baseballontology.org/data/day/", STR(?date)))
+              }
             }
         """
     ] .

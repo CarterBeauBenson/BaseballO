@@ -48,6 +48,12 @@
       "maps": ["SeasonMap", "SeasonPhaseMap", "GameSeasonPhaseMap", "SeasonSegmentCategoryMap", "SeasonSegmentReferenceSystemMap"]
     },
     {
+      "id": "60-game-postponement",
+      "title": "Game postponement and schedule revision",
+      "summary": "An official MLB declaration consumes an old game Schedule Plan and produces a distinct later Plan for the same game; Calendar Date Identifiers designate canonical Days, while the provider reason remains nominal evidence rather than an asserted weather cause.",
+      "maps": ["SchedulePostponementActMap", "MlbOrganizationMap", "OriginalSchedulePlanMap", "RevisedSchedulePlanMap", "OriginalScheduleDateIdentifierMap", "RevisedScheduleDateIdentifierMap", "OriginalScheduleDayMap", "RevisedScheduleDayMap", "SchedulePostponementReasonMap", "SchedulePostponementReasonReferenceSystemMap", "ScheduleResponseEvidenceMap", "ScheduleResponseReasonEvidenceMap"]
+    },
+    {
       "id": "06-game-containment",
       "title": "Game containment",
       "summary": "Game, inning, half inning, and plate appearance form an explicit occurrent-part hierarchy.",

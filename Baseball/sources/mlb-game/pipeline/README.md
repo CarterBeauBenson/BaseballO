@@ -18,6 +18,11 @@ the applicable stage contract. Persistent manifests, promotion evidence, the
 authoritative TDB2 graph, the rebuildable indexed graph, and promoted analytical
 databases remain.
 
+For a postponed completed game, the schedule request also carries the path to
+its compact revision evidence into the RML stage. That evidence is validated
+against the game identity, fingerprinted in the RML manifest, and never mixed
+into another source lane.
+
 This stage component does not decide ontology meaning. It invokes the accepted
 RML, current source SHACL, graph-pair promotion, query-index components, and
 serving materializer.
