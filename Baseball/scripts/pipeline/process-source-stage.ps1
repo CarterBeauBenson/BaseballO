@@ -44,6 +44,29 @@ if (-not $contractFile.StartsWith($modulePrefix, [System.StringComparison]::Ordi
     throw "Flow contract is not owned by its declared module $moduleId."
 }
 
+$shaclEngine = 'pyshacl'
+$shaclJenaMaxHeap = '384m'
+$runtimeExecutionProperty = $contract.PSObject.Properties['runtimeExecution']
+if ($null -ne $runtimeExecutionProperty) {
+    $sourceShaclProperty = $runtimeExecutionProperty.Value.PSObject.Properties['sourceShacl']
+    if ($null -ne $sourceShaclProperty) {
+        $engineProperty = $sourceShaclProperty.Value.PSObject.Properties['engine']
+        if ($null -ne $engineProperty -and -not [string]::IsNullOrWhiteSpace([string]$engineProperty.Value)) {
+            $shaclEngine = ([string]$engineProperty.Value).ToLowerInvariant()
+        }
+        $heapProperty = $sourceShaclProperty.Value.PSObject.Properties['jenaMaxHeap']
+        if ($null -ne $heapProperty -and -not [string]::IsNullOrWhiteSpace([string]$heapProperty.Value)) {
+            $shaclJenaMaxHeap = [string]$heapProperty.Value
+        }
+    }
+}
+if ($shaclEngine -notin @('pyshacl', 'jena')) {
+    throw "$moduleId declares an unsupported source SHACL engine: $shaclEngine"
+}
+if ($shaclJenaMaxHeap -notmatch '^[1-9][0-9]*[mMgG]$') {
+    throw "$moduleId declares an invalid Jena SHACL maximum heap: $shaclJenaMaxHeap"
+}
+
 $pipelineRoot = Join-Path $script:StateRoot 'pipeline'
 $transientRoot = [System.IO.Path]::GetFullPath((Join-Path $pipelineRoot "transient\$moduleId"))
 $workRoot = [System.IO.Path]::GetFullPath((Join-Path $pipelineRoot "work\$moduleId\$ScopeKey\$RunId"))
@@ -208,16 +231,33 @@ switch ($Action) {
         $shape = Resolve-ModuleArtifact ([string]$contract.shacl)
         $report = Join-Path $evidenceRoot 'shacl-report.json'
         $validator = Join-Path $repositoryRoot 'scripts\pipeline\validate-shacl.py'
+        $validatorArguments = @(
+            $validator,
+            '--shape-file', $shape,
+            '--data', $rdfPath,
+            '--report-json', $report,
+            '--engine', $shaclEngine
+        )
+        if ($shaclEngine -eq 'jena') {
+            $validatorArguments += @(
+                '--java', (Get-JavaExecutable),
+                '--jena-classpath', (Join-Path $script:FusekiHome 'fuseki-server.jar'),
+                '--jena-max-heap', $shaclJenaMaxHeap
+            )
+        }
         Invoke-LoggedCommand -FailureMessage "$moduleId source SHACL failed." -Command {
-            & python $validator '--shape-file' $shape '--data' $rdfPath '--report-json' $report
+            & python @validatorArguments
         }
         $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
         $manifest | Add-Member -NotePropertyName 'shaclStatus' -NotePropertyValue 'validated' -Force
         $manifest | Add-Member -NotePropertyName 'shaclValidatedAtUtc' -NotePropertyValue ([DateTime]::UtcNow.ToString('o')) -Force
         $manifest | Add-Member -NotePropertyName 'shaclShapeSha256' -NotePropertyValue ((Get-FileHash -LiteralPath $shape -Algorithm SHA256).Hash.ToLowerInvariant()) -Force
+        $manifest | Add-Member -NotePropertyName 'shaclEngine' -NotePropertyValue $shaclEngine -Force
+        $manifest | Add-Member -NotePropertyName 'shaclValidatorSha256' -NotePropertyValue ((Get-FileHash -LiteralPath $validator -Algorithm SHA256).Hash.ToLowerInvariant()) -Force
         Write-AtomicJsonFile -Path $manifestPath -Value $manifest -Depth 16
         Write-StageResult @{
             conforms = $true
+            shaclEngine = $shaclEngine
             shaclReport = $report
             shaclShape = $shape
         }

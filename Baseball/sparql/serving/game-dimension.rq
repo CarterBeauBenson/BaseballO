@@ -3,7 +3,7 @@ PREFIX cco: <https://www.commoncoreontologies.org/>
 PREFIX obo: <http://purl.obolibrary.org/obo/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-SELECT DISTINCT ?graph ?game ?start ?venue ?venueLabel
+SELECT DISTINCT ?graph ?game ?start ?rdfGameSet ?venue ?venueLabel
                 ?homeTeam ?homeTeamLabel ?awayTeam ?awayTeamLabel WHERE {
   GRAPH ?graph {
     ?game a base:BaseballGame ;
@@ -11,6 +11,16 @@ SELECT DISTINCT ?graph ?game ?start ?venue ?venueLabel
     ?startTimestamp a base:BaseballTimestampICE ;
         cco:ont00001916 ?startInstant ;
         cco:ont00001767 ?start .
+    OPTIONAL {
+      ?game obo:BFO_0000132 ?seasonPhase .
+      ?seasonPhase a ?seasonPhaseClass .
+      VALUES (?seasonPhaseClass ?rdfGameSet) {
+        (base:BaseballRegularSeasonPhase "regular_season")
+        (base:BaseballPreseasonPhase "preseason")
+        (base:BaseballPostseasonPhase "postseason")
+        (base:BaseballAllStarPhase "all_star")
+      }
+    }
     OPTIONAL {
       ?game cco:ont00001918 ?field .
       ?field a base:BaseballFieldSite ; obo:BFO_0000171 ?venue .

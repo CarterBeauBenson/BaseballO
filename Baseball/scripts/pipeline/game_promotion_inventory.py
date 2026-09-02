@@ -180,6 +180,45 @@ def resolve_query_index_manifest_admission(
     }
 
 
+def is_pending_rml_replacement(
+    state_root: Path,
+    game_pk: str,
+    rml: dict[str, Any],
+) -> bool:
+    """Prove that the mutable RML manifest describes staged, unpromoted work.
+
+    Per-game manifest paths are reused by the ingestion lane. A later replay can
+    therefore replace the RML manifest while the previous promoted graph pair and
+    its query-index manifest remain current. This admission is intentionally tied
+    to the retained staged input and output bytes; a bare manifest mutation is not
+    enough to qualify.
+    """
+    if rml.get("shaclStatus") not in {"deferred-to-nifi", "validated"}:
+        return False
+    expected_input_root = (
+        state_root / "pipeline" / "transient" / "mlb-game"
+    ).resolve()
+    expected_output = (
+        state_root / "pipeline" / "rdf" / f"game-{game_pk}.ttl"
+    ).resolve()
+    try:
+        input_path = Path(str(rml["inputPath"])).resolve()
+        output_path = Path(str(rml["outputPath"])).resolve()
+        input_sha256 = required_sha256(rml.get("inputSha256"), "RML inputSha256")
+        output_sha256 = required_sha256(rml.get("outputSha256"), "RML outputSha256")
+    except (KeyError, OSError, TypeError, ValueError):
+        return False
+    if (
+        input_path.parent != expected_input_root
+        or not re.fullmatch(rf"game-{re.escape(game_pk)}-[0-9a-fA-F-]+\.json", input_path.name)
+        or output_path != expected_output
+        or not input_path.is_file()
+        or not output_path.is_file()
+    ):
+        return False
+    return sha256_file(input_path) == input_sha256 and sha256_file(output_path) == output_sha256
+
+
 def validated_promotion_record(
     state_root: Path,
     marker_path: Path,
@@ -223,18 +262,24 @@ def validated_promotion_record(
     marker_index_sha256 = required_sha256(
         marker.get("queryIndexManifestSha256"), "promotion queryIndexManifestSha256"
     )
-    if sha256_file(rml_path) != marker_rml_sha256:
-        raise ValueError("promotion RML manifest hash mismatch")
-    if sha256_file(index_path) != marker_index_sha256:
+    current_rml_sha256 = sha256_file(rml_path)
+    current_index_sha256 = sha256_file(index_path)
+    if current_index_sha256 != marker_index_sha256:
         raise ValueError("promotion query-index manifest hash mismatch")
     rml = json_object(rml_path)
     if str(rml.get("gamePk", "")) != game_pk or rml.get("graphIri") != authoritative_graph:
         raise ValueError("RML manifest game or graph identity mismatch")
-    if required_sha256(rml.get("inputSha256"), "RML inputSha256") != raw_sha256:
-        raise ValueError("RML input hash does not match the promoted raw source")
-    authoritative_rdf_sha256 = required_sha256(rml.get("outputSha256"), "RML outputSha256")
-    if rml.get("shaclStatus") != "validated":
-        raise ValueError("RML manifest is not SHACL-validated")
+    rml_manifest_admission_mode = "exact-promoted-manifest"
+    pending_rml_replacement = current_rml_sha256 != marker_rml_sha256
+    if pending_rml_replacement:
+        if not is_pending_rml_replacement(state_root, game_pk, rml):
+            raise ValueError("promotion RML manifest hash mismatch")
+        rml_manifest_admission_mode = "pending-staging-over-current-promotion"
+    else:
+        if required_sha256(rml.get("inputSha256"), "RML inputSha256") != raw_sha256:
+            raise ValueError("RML input hash does not match the promoted raw source")
+        if rml.get("shaclStatus") != "validated":
+            raise ValueError("RML manifest is not SHACL-validated")
     index = json_object(index_path)
     if index.get("artifactType") != "baseball-query-index-build":
         raise ValueError("unsupported query-index manifest artifact type")
@@ -249,8 +294,17 @@ def validated_promotion_record(
         raise ValueError("query-index manifest graph identity mismatch")
     if index.get("indexResource") != index_resource:
         raise ValueError("query-index manifest resource identity mismatch")
-    if required_sha256(index.get("sourceRdfSha256"), "query-index sourceRdfSha256") != authoritative_rdf_sha256:
-        raise ValueError("query-index source hash does not match the authoritative RML output")
+    index_source_rdf_sha256 = required_sha256(
+        index.get("sourceRdfSha256"), "query-index sourceRdfSha256"
+    )
+    if pending_rml_replacement:
+        authoritative_rdf_sha256 = index_source_rdf_sha256
+    else:
+        authoritative_rdf_sha256 = required_sha256(
+            rml.get("outputSha256"), "RML outputSha256"
+        )
+        if index_source_rdf_sha256 != authoritative_rdf_sha256:
+            raise ValueError("query-index source hash does not match the authoritative RML output")
     if required_positive_int(index.get("sourceTripleCount"), "query-index sourceTripleCount") != authoritative_count:
         raise ValueError("authoritative triple count differs between promotion and query-index manifests")
     if required_positive_int(index.get("indexTripleCount"), "query-index indexTripleCount") != index_count:
@@ -286,6 +340,7 @@ def validated_promotion_record(
         "queryIndexSemanticContractId": manifest_admission["semanticContractId"],
         "queryIndexSemanticContractSha256": manifest_admission["semanticContractSha256"],
         "queryIndexImplementationSha256": manifest_admission["implementationSha256"],
+        "rmlManifestAdmissionMode": rml_manifest_admission_mode,
         "rmlManifestSha256": marker_rml_sha256,
         "queryIndexManifestSha256": marker_index_sha256,
     }
@@ -331,6 +386,14 @@ def promotion_inventory(state_root: Path) -> dict[str, Any]:
     if not games:
         raise ValueError("No valid per-game promotion manifests are available")
     canonical_games = [games[game_pk] for game_pk in sorted(games, key=int)]
+    fingerprint_games = [
+        {
+            key: value
+            for key, value in game.items()
+            if key != "rmlManifestAdmissionMode"
+        }
+        for game in canonical_games
+    ]
     fingerprint_payload = {
         "queryIndexRoutingSha256": admission["routingSha256"],
         "queryIndexSemanticContractId": admission["semanticContractId"],
@@ -338,7 +401,7 @@ def promotion_inventory(state_root: Path) -> dict[str, Any]:
         "legacyQueryIndexImplementationBridgeSha256Set": sorted(
             admission["fixedLegacyImplementationSha256"]
         ),
-        "games": canonical_games,
+        "games": fingerprint_games,
     }
     fingerprint = sha256_bytes(
         json.dumps(

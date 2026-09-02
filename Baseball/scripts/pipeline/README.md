@@ -68,8 +68,13 @@ duplicate statements. A successful authoritative load is followed by
 `build-query-index.ps1`, which builds and atomically replaces the smaller
 per-game query-index graph from the reviewed components under
 [`sparql/query-index/`](../../sparql/query-index/). Compiled N-Triples must pass
-the query-index SHACL profile before the graph is replaced. A failed index build
-removes the derived graph but never deletes or changes the authoritative graph.
+the query-index SHACL profile before the graph is replaced. For the MLB Game
+NiFi lane, `JenaQueryIndex.java` runs those unchanged CONSTRUCT components over
+the validated per-game RDF in an isolated Jena dataset instead of making the
+shared dataset execute the construction workload. The final index write remains
+serialized, and exact result-row equivalence is checked before the graph-pair
+commit. A failed index build removes the derived graph but never deletes or
+changes the authoritative graph.
 
 Run the complete offline acceptance check with:
 

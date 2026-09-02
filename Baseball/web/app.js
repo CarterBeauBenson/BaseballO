@@ -655,7 +655,14 @@ function renderMeta(meta) {
     values.splice(4, 0, `${meta.dateScope.gameCount} scoped game${meta.dateScope.gameCount === 1 ? "" : "s"}`);
   }
   if (meta.dateScope?.gameSet) {
-    values.splice(3, 0, meta.dateScope.gameSet === "all_star" ? "2026 All-Star Game" : "Regular season");
+    const gameSetLabels = {
+      regular_season: "Regular season",
+      preseason: "Preseason",
+      postseason: "Postseason",
+      exhibition: "Exhibition",
+      all_star: "All-Star games",
+    };
+    values.splice(3, 0, gameSetLabels[meta.dateScope.gameSet] ?? humanizeVariable(meta.dateScope.gameSet));
   }
   if (meta.derivedMetric) {
     values.splice(3, 0, humanizeVariable(meta.derivedMetric.resultKind));

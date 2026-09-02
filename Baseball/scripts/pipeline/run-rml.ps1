@@ -25,6 +25,14 @@ if ([string]::IsNullOrWhiteSpace($gamePk)) {
 if ($gamePk -notmatch '^\d+$') {
     throw "Input JSON has an unsafe gamePk value: $gamePk"
 }
+$officialDate = [string]$gameDocument.gameData.datetime.officialDate
+if ($officialDate -notmatch '^\d{4}-\d{2}-\d{2}$') {
+    throw "Game $gamePk has no canonical gameData.datetime.officialDate value."
+}
+$gameType = [string]$gameDocument.gameData.game.type
+if ([string]::IsNullOrWhiteSpace($gameType)) {
+    throw "Game $gamePk has no gameData.game.type value."
+}
 $venueId = [string]$gameDocument.gameData.venue.id
 if ([string]::IsNullOrWhiteSpace($venueId) -or $venueId -notmatch '^\d+$') {
     throw "Game $gamePk has no safe numeric gameData.venue.id value."
@@ -65,13 +73,23 @@ if (-not [string]::IsNullOrWhiteSpace($ScheduleEvidencePath) -and $ScheduleEvide
     }
 }
 $expectedPlateAppearanceCount = @($gameDocument.liveData.plays.allPlays).Count
-$expectedPlayerParticipantCount = @(
-    @($gameDocument.liveData.boxscore.teams.away.players.PSObject.Properties) +
-        @($gameDocument.liveData.boxscore.teams.home.players.PSObject.Properties) |
-        ForEach-Object { [string]$_.Value.person.id } |
-        Where-Object { -not [string]::IsNullOrWhiteSpace($_) } |
-        Sort-Object -Unique
-).Count
+$expectedPlayerRoleKeys = @(
+    foreach ($playerProperty in @($gameDocument.liveData.boxscore.teams.away.players.PSObject.Properties)) {
+        $playerId = [string]$playerProperty.Value.person.id
+        if (-not [string]::IsNullOrWhiteSpace($playerId)) {
+            "$playerId|$awayTeamId"
+        }
+    }
+    foreach ($playerProperty in @($gameDocument.liveData.boxscore.teams.home.players.PSObject.Properties)) {
+        $playerId = [string]$playerProperty.Value.person.id
+        if (-not [string]::IsNullOrWhiteSpace($playerId)) {
+            "$playerId|$homeTeamId"
+        }
+    }
+)
+# PlayerRole identity is bearer plus team context. A person legitimately listed
+# for both teams in one source record therefore contributes two distinct roles.
+$expectedPlayerParticipantCount = @($expectedPlayerRoleKeys | Sort-Object -Unique).Count
 $expectedGameEndTime = [string]@($gameDocument.liveData.plays.allPlays)[-1].about.endTime
 $expectedPitchCount = 0
 $expectedBattingActCount = 0
@@ -347,6 +365,8 @@ try {
     $manifestPath = Join-Path $manifestDirectory "game-$gamePk-rml.json"
     [PSCustomObject]@{
         gamePk = $gamePk
+        officialDate = $officialDate
+        gameType = $gameType
         graphIri = "https://w3id.org/baseball/graph/game/$gamePk"
         inputPath = $inputPath
         inputSha256 = $inputHashBefore

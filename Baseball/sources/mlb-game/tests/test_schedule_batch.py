@@ -46,14 +46,29 @@ class ScheduleBatchTests(unittest.TestCase):
                 {
                     "date": "2026-08-31",
                     "games": [
-                        {"gamePk": 900002, "status": {"abstractGameState": "Live"}},
-                        {"gamePk": 900001, "status": {"abstractGameState": "Final"}},
+                        {
+                            "gamePk": 900002,
+                            "gameType": "R",
+                            "officialDate": "2026-08-31",
+                            "status": {"abstractGameState": "Live"},
+                        },
+                        {
+                            "gamePk": 900001,
+                            "gameType": "R",
+                            "officialDate": "2026-08-31",
+                            "status": {"abstractGameState": "Final"},
+                        },
                     ],
                 },
                 {
                     "date": "2026-09-01",
                     "games": [
-                        {"gamePk": 900003, "status": {"abstractGameState": "Final"}}
+                        {
+                            "gamePk": 900003,
+                            "gameType": "R",
+                            "officialDate": "2026-09-01",
+                            "status": {"abstractGameState": "Final"},
+                        }
                     ],
                 },
             ]
@@ -82,6 +97,10 @@ class ScheduleBatchTests(unittest.TestCase):
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
             self.assertEqual(manifest["status"], "pending")
             self.assertEqual(manifest["expectedGamePks"], ["900001", "900003"])
+            self.assertEqual(
+                [(row["gamePk"], row["gameType"]) for row in manifest["games"]],
+                [("900001", "R"), ("900003", "R")],
+            )
             self.assertNotIn("dates", manifest)
 
     def test_retry_is_idempotent_but_changed_evidence_is_rejected(self) -> None:
@@ -107,6 +126,8 @@ class ScheduleBatchTests(unittest.TestCase):
                     "games": [
                         {
                             "gamePk": 824621,
+                            "gameType": "R",
+                            "officialDate": "2026-04-02",
                             "gameDate": "2026-04-02T23:10:00Z",
                             "rescheduleDate": "2026-04-03T20:10:00Z",
                             "status": {
@@ -122,6 +143,8 @@ class ScheduleBatchTests(unittest.TestCase):
                     "games": [
                         {
                             "gamePk": 824621,
+                            "gameType": "R",
+                            "officialDate": "2026-04-03",
                             "gameDate": "2026-04-03T20:10:00Z",
                             "rescheduledFrom": "2026-04-02",
                             "status": {

@@ -226,6 +226,24 @@ the triple store through explicitly multi-source SPARQL.
 
 ## 5. Serving and performance follow-through
 
+- [ ] After the active corpus run reaches terminal evidence, remove the MLB-game
+  promotion bottleneck by splitting parallel, isolated query-index preparation
+  from the single-writer graph-pair promotion stage. Keep the accepted RML,
+  source SHACL, query-index CONSTRUCT queries, graph identities, retry policy,
+  and RDF semantics unchanged.
+- [ ] Run query-index construction, query-index SHACL, and authoritative/index
+  row-equivalence against each validated per-game RDF artifact before promotion,
+  using two bounded Jena workers. Produce a hashed immutable index artifact and
+  manifest for the writer to consume.
+- [ ] Keep one short serialized promotion writer with a per-game lock. It must
+  verify artifact hashes, recoverably promote the authoritative/index graph
+  pair, perform combined post-write verification, record immutable evidence,
+  and only then release cleanup.
+- [ ] Before deploying the split flow, prove it on 50 games: authoritative RDF
+  hashes, indexed row sets, and triple counts must match the current contract;
+  every submitted game must terminate as promoted or quarantined; and measured
+  throughput must improve. Do not reconcile or modify the active promotion
+  scripts during the current corpus run.
 - [ ] Add reusable pitch and runner-resolution SQL grains when an approved UI
   family needs them.
 - [ ] Preserve comparable authoritative RDF, indexed RDF, and SQL timing

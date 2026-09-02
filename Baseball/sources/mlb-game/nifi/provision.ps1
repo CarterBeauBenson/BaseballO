@@ -34,6 +34,12 @@ if (
 ) {
     throw 'MLB Game proof release must wait up to 30 minutes and then quarantine locally.'
 }
+$failurePolicy = $contract.failurePolicy
+$maximumAttemptsPerStage = [int]$failurePolicy.maximumAttemptsPerStage
+if ($maximumAttemptsPerStage -ne 2) {
+    throw 'MLB Game work stages must quarantine after two total failed attempts.'
+}
+$maximumRetriesPerStage = $maximumAttemptsPerStage - 1
 $stageScript = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\pipeline\stage.ps1'))
 $scheduleParser = [System.IO.Path]::GetFullPath((Join-Path $repositoryRoot "sources\mlb-game\$([string]$schedule.parser)"))
 $batchMaterializer = [System.IO.Path]::GetFullPath((Join-Path $repositoryRoot "sources\mlb-game\$([string]$contract.batchMaterialization.processor)"))
@@ -161,6 +167,7 @@ function Ensure-Processor {
         [Parameter(Mandatory = $true)][AllowEmptyCollection()][string[]] $AutoTerminate,
         [int] $X,
         [int] $Y,
+        [ValidateRange(1, 2)][int] $ConcurrentTasks = 1,
         [string] $SchedulingPeriod = '0 sec',
         [ValidateSet('TIMER_DRIVEN', 'CRON_DRIVEN')][string] $SchedulingStrategy = 'TIMER_DRIVEN'
     )
@@ -174,7 +181,7 @@ function Ensure-Processor {
         schedulingPeriod = $SchedulingPeriod
         schedulingStrategy = $SchedulingStrategy
         executionNode = 'ALL'
-        concurrentlySchedulableTaskCount = 1
+        concurrentlySchedulableTaskCount = $ConcurrentTasks
         penaltyDuration = '30 sec'
         yieldDuration = '1 sec'
         bulletinLevel = 'WARN'
@@ -265,8 +272,8 @@ function Stage-Arguments([string] $Action, [bool] $NeedsInput, [bool] $NeedsFail
 }
 
 function Ensure-StageProcessor {
-    param([string] $GroupId, [string] $Name, [string] $Action, [bool] $NeedsInput, [int] $X, [int] $Y)
-    return Ensure-Processor -GroupId $GroupId -Name $Name -Type 'org.apache.nifi.processors.standard.ExecuteStreamCommand' -X $X -Y $Y -AutoTerminate @('output stream', 'nonzero status') -Properties @{
+    param([string] $GroupId, [string] $Name, [string] $Action, [bool] $NeedsInput, [int] $X, [int] $Y, [ValidateRange(1, 2)][int] $ConcurrentTasks = 1)
+    return Ensure-Processor -GroupId $GroupId -Name $Name -Type 'org.apache.nifi.processors.standard.ExecuteStreamCommand' -X $X -Y $Y -ConcurrentTasks $ConcurrentTasks -AutoTerminate @('output stream', 'nonzero status') -Properties @{
         'Working Directory' = $repositoryRoot
         'Command Path' = $powershell
         'Command Arguments Strategy' = 'Command Arguments Property'
@@ -416,7 +423,7 @@ $processors.put = Ensure-Processor -GroupId $groupId -Name 'Write Transient Payl
     'Directory' = $transientDirectory; 'Conflict Resolution Strategy' = 'fail'; 'Create Missing Directories' = 'true'
 }
 $processors.rml = Ensure-StageProcessor -GroupId $groupId -Name 'RML' -Action 'rml' -NeedsInput $true -X 2240 -Y 0
-$processors.shacl = Ensure-StageProcessor -GroupId $groupId -Name 'Source SHACL' -Action 'shacl' -NeedsInput $false -X 2560 -Y 0
+$processors.shacl = Ensure-StageProcessor -GroupId $groupId -Name 'Source SHACL' -Action 'shacl' -NeedsInput $false -X 2560 -Y 0 -ConcurrentTasks 2
 $processors.promote = Ensure-StageProcessor -GroupId $groupId -Name 'Promote Graph Pair' -Action 'promote' -NeedsInput $true -X 2880 -Y 0
 $processors.chooseMaterialization = Ensure-Processor -GroupId $groupId -Name 'Choose Materialization Mode' -Type 'org.apache.nifi.processors.standard.RouteOnAttribute' -X 3120 -Y 0 -AutoTerminate @() -Properties @{
     'Routing Strategy' = 'Route to Property name';
@@ -483,7 +490,7 @@ $retryProcessors = @{}
 $failureProcessors = @{}
 $retryX = 640
 foreach ($entry in $stageProcessors.GetEnumerator()) {
-    $retryProcessors[$entry.Key] = Ensure-RetryProcessor -GroupId $groupId -Stage $entry.Key -X $retryX -Y 300
+    $retryProcessors[$entry.Key] = Ensure-RetryProcessor -GroupId $groupId -Stage $entry.Key -X $retryX -Y 300 -MaximumRetries $maximumRetriesPerStage
     $failureProcessors[$entry.Key] = Ensure-FailureStageProcessor -GroupId $groupId -Stage $entry.Key -X $retryX -Y 560
     $retryX += 320
 }

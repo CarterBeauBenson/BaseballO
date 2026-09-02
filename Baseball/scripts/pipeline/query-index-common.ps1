@@ -6,6 +6,7 @@ function Get-QueryIndexImplementationFiles {
     $files += @(
         Get-Item -LiteralPath (Join-Path $script:RepositoryRoot 'scripts\pipeline\compile-query-index.py')
         Get-Item -LiteralPath (Join-Path $script:RepositoryRoot 'scripts\pipeline\build-query-index.ps1')
+        Get-Item -LiteralPath (Join-Path $script:RepositoryRoot 'scripts\pipeline\JenaQueryIndex.java')
         Get-Item -LiteralPath (Join-Path $script:RepositoryRoot 'scripts\infra\canonical-text.ps1')
         Get-Item -LiteralPath (Join-Path $script:RepositoryRoot 'scripts\pipeline\query-index-common.ps1')
         Get-Item -LiteralPath (Join-Path $script:RepositoryRoot 'scripts\pipeline\test-query-index.ps1')

@@ -18,6 +18,76 @@ The batch materializer may use proven indexed identities while building SQL
 grains, but a populated grain is not itself permission to route a UI family to
 SQL.
 
+## Accepted direction for the next UI R&D pass
+
+Preserve the Explorer's general visual design and the baseball interaction used
+for search. The remaining navigation, selectors, filters, result layouts, and
+information hierarchy are open to revision. This section records a design
+direction, not current functionality or authorization to change a semantic
+query contract.
+
+The primary path should be **Ask a question**. Search for players, games, teams,
+and venues should remain persistently available, while **Build a Metric** should
+be presented as an intentionally advanced workspace. The Questions interface
+must expose user questions rather than implementation or report names. A UI
+question is a versioned recipe that identifies its underlying query, result
+grain, view or reducer, default ordering, and permitted refinements. One SPARQL
+artifact may therefore support several distinct questions.
+
+Question wording must name the analytic being used instead of hiding the
+judgment behind words such as "best." Examples include:
+
+- Which plate appearances have the highest PAQ-1.0?
+- Which players have the highest average PAQ-1.0?
+- Which plate appearances have the highest Grind Score?
+- Who has the highest average Grind Score?
+- Who has the highest Empty Game Rate?
+- Which empty games have the highest Damage Score?
+
+The interaction model separates scope from calculation. Supported scopes are
+one plate appearance, one game, or a selected span of games. Calculations over
+a span may be cumulative, average or rate, or sequence and trend. Players,
+teams, pitchers, matchups, venues, game types, travel sequences, rest, weather,
+and similar features are contexts or dimensions, not additional top-level
+modes. A single plate-appearance view may later link to finer pitch and contact
+evidence without adding another top-level mode.
+
+Do not turn the knowledge graph's combinatorial power into a universal filter
+panel. All reviewed questions may remain available, but they need not all be
+visible at once. Use a small set of featured or grouped questions, question
+search or browse, sensible defaults, and only the controls that materially
+change the selected question. Put uncommon compatible controls behind a
+discoverable **Refine** action. Results should offer contextual pivots such as
+player, game, venue, matchup, or travel sequence rather than requiring the user
+to construct every path before running a question.
+
+Every answer must visibly state its analytic version, population and game set,
+time scope, minimum sample when applicable, data coverage, and serving-build
+time. Average rankings must show their denominator and must not silently rank a
+one-appearance sample against a season sample. Measurement-enabled and
+measurement-missing plate appearances require an explicit comparability rule,
+and different PAQ versions must not be silently combined. Contextual results
+such as venue, weather, rest, or travel should be described as associations
+unless a separate defensible causal model exists.
+
+Every calculated question should provide an inline **Show math** disclosure.
+It displays the complete formula in human-readable form, including component
+weights, lookup tables, conditional branches, caps, thresholds, missing-data
+rules, normalization, and rounding. It does not need to display the raw values
+for every result. Instead, an individual result should link to **View this plate
+appearance**, which shows the evidence for that one plate appearance: game and
+participants, game state, result, pitches seen, swing/foul/contact evidence,
+grind inputs, and batted-ball measurements when applicable. Routine drill-down
+data should be materialized as reusable SQL grains so following a result link
+does not require an interactive traversal of the full RDF corpus.
+
+The intended navigation is therefore:
+
+```text
+question -> scoped answer -> player/game/plate-appearance evidence
+      \-> Show math -> complete human-readable formula
+```
+
 ## Run locally
 
 For normal use, install the idempotent Windows desktop launcher once:

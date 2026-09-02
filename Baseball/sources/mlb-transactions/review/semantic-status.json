@@ -2,7 +2,7 @@
   "artifactType": "baseballo-source-semantic-status",
   "contractVersion": 1,
   "moduleId": "mlb-transactions",
-  "operationalStatus": "paused",
+  "operationalStatus": "active",
   "semanticStatus": "approved",
   "extensionAllowed": false,
   "semanticAcceptance": "granted-by-ontologist",

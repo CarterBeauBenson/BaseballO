@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import json
+import importlib.util
 import re
+import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -139,6 +142,116 @@ class NifiSourceContractTests(unittest.TestCase):
         self.assertIn('"materializeMode`":`"immediate`"', provisioner)
         self.assertIn('"materializeMode": "deferred"', parser.read_text(encoding="utf-8"))
         self.assertIn("Check Pending Batch Materialization", provisioner)
+
+    def test_game_schedule_persists_compact_game_type_provenance(self) -> None:
+        parser = ROOT / "sources" / "mlb-game" / "nifi" / "prepare-schedule-batch.py"
+        spec = importlib.util.spec_from_file_location("baseballo_schedule_batch", parser)
+        module = importlib.util.module_from_spec(spec)
+        assert spec and spec.loader
+        spec.loader.exec_module(module)
+        response = {
+            "dates": [
+                {
+                    "date": "2026-03-03",
+                    "games": [
+                        {
+                            "gamePk": 831445,
+                            "gameDate": "2026-03-03T18:00:00Z",
+                            "officialDate": "2026-03-03",
+                            "gameType": "E",
+                            "status": {
+                                "abstractGameState": "Final",
+                                "detailedState": "Final",
+                            },
+                        }
+                    ],
+                }
+            ]
+        }
+        with tempfile.TemporaryDirectory() as temporary:
+            state = Path(temporary)
+            args = SimpleNamespace(
+                state_root=state,
+                batch_id="a" * 32,
+                request_kind="backfill",
+                start_date="2026-03-03",
+                end_date="2026-03-03",
+            )
+            result = module.transform(json.dumps(response).encode("utf-8"), args)
+            manifest = json.loads(
+                (
+                    state
+                    / "pipeline"
+                    / "control"
+                    / "mlb-game"
+                    / "batches"
+                    / f"{args.batch_id}.json"
+                ).read_text(encoding="utf-8")
+            )
+
+        expected = {
+            "gamePk": "831445",
+            "officialDate": "2026-03-03",
+            "gameType": "E",
+        }
+        self.assertEqual(
+            {key: result["games"][0][key] for key in expected},
+            expected,
+        )
+        self.assertEqual(manifest["games"], [expected])
+
+    def test_current_batch_retains_game_type_before_promotion_cleanup(self) -> None:
+        stage = (
+            ROOT / "sources" / "mlb-game" / "pipeline" / "stage.ps1"
+        ).read_text(encoding="utf-8")
+        run_rml = (ROOT / "scripts" / "pipeline" / "run-rml.ps1").read_text(
+            encoding="utf-8"
+        )
+        promote = stage[stage.index("    'promote' {") :]
+
+        self.assertIn("officialDate = $officialDate", run_rml)
+        self.assertIn("gameType = $gameType", run_rml)
+        self.assertIn("Ensure-GameClassificationProvenance", stage)
+        self.assertLess(
+            promote.index("Ensure-GameClassificationProvenance"),
+            promote.index("$transactionRunId"),
+        )
+
+    def test_mlb_game_uses_jena_without_changing_semantic_inputs(self) -> None:
+        contract, _ = self.contract("mlb-game")
+        stage = (
+            ROOT / "sources" / "mlb-game" / "pipeline" / "stage.ps1"
+        ).read_text(encoding="utf-8")
+        builder = (
+            ROOT / "scripts" / "pipeline" / "build-query-index.ps1"
+        ).read_text(encoding="utf-8")
+        self.assertIn("'--engine' 'jena'", stage)
+        self.assertIn("-SourceRdfFile $rdfPath", stage)
+        self.assertIn("JenaQueryIndex.java", builder)
+        self.assertIn("$sourceRdfPath", builder)
+        execution = contract["runtimeExecution"]
+        self.assertEqual(execution["sourceShacl"]["engine"], "jena")
+        self.assertEqual(execution["sourceShacl"]["concurrentTasks"], 2)
+        self.assertEqual(execution["sourceShacl"]["shapeContract"], "unchanged")
+        self.assertEqual(execution["queryIndex"]["engine"], "jena")
+        self.assertEqual(execution["queryIndex"]["concurrentTasks"], 1)
+        self.assertEqual(execution["queryIndex"]["constructContract"], "unchanged")
+
+    def test_transactions_use_source_owned_jena_shacl_without_shape_changes(self) -> None:
+        contract, _ = self.contract("mlb-transactions")
+        execution = contract["runtimeExecution"]["sourceShacl"]
+        self.assertEqual(execution["engine"], "jena")
+        self.assertEqual(execution["jenaMaxHeap"], "512m")
+        self.assertEqual(execution["concurrentTasks"], 1)
+        self.assertEqual(execution["shapeContract"], "unchanged")
+
+        stage = (ROOT / "scripts" / "pipeline" / "process-source-stage.ps1").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("$contract.PSObject.Properties['runtimeExecution']", stage)
+        self.assertIn("'--engine', $shaclEngine", stage)
+        self.assertIn("'--jena-max-heap', $shaclJenaMaxHeap", stage)
+        self.assertIn("shaclEngine = $shaclEngine", stage)
 
     def test_bulk_and_daily_requests_are_proof_gated(self) -> None:
         checker = ROOT / "scripts" / "pipeline" / "check-source-proof-release.py"

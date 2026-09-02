@@ -125,12 +125,17 @@ def term(value: str, kind: str = "uri") -> dict[str, str]:
     return {"type": kind, "value": value}
 
 
-def dimension(game_pk: str) -> dict[str, dict[str, str]]:
-    return {
+def dimension(
+    game_pk: str, rdf_game_set: str | None = None
+) -> dict[str, dict[str, str]]:
+    value = {
         "graph": term(f"https://w3id.org/baseball/graph/game/{game_pk}"),
         "game": term(f"https://baseballontology.org/data/game/{game_pk}"),
         "start": term("2026-08-01T19:00:00Z", "literal"),
     }
+    if rdf_game_set is not None:
+        value["rdfGameSet"] = term(rdf_game_set, "literal")
+    return value
 
 
 def live_pair(game_pk: str, source_count: int = 10, index_count: int = 4) -> dict[str, dict[str, str]]:
@@ -149,6 +154,61 @@ def result(bindings: list[dict[str, object]], variables: list[str] | None = None
 
 
 class ServingMaterializerTests(unittest.TestCase):
+    def test_mlb_game_types_map_to_five_disjoint_serving_pools(self) -> None:
+        expected = {
+            "R": "regular_season",
+            "S": "preseason",
+            "E": "exhibition",
+            "F": "postseason",
+            "D": "postseason",
+            "L": "postseason",
+            "W": "postseason",
+            "C": "postseason",
+            "P": "postseason",
+            "A": "all_star",
+        }
+        self.assertEqual(
+            {code: MODULE.provenance_game_set(code) for code in expected},
+            expected,
+        )
+        with self.assertRaisesRegex(ValueError, "Unsupported or missing MLB game type"):
+            MODULE.provenance_game_set("unknown")
+
+    def test_official_metadata_reads_compact_batch_and_rml_provenance(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            state = Path(temporary)
+            write_json(
+                state / "pipeline" / "control" / "mlb-game" / "batches" / "batch.json",
+                {
+                    "games": [
+                        {
+                            "gamePk": "1",
+                            "officialDate": "2026-03-03",
+                            "gameType": "E",
+                        }
+                    ]
+                },
+            )
+            write_json(
+                state / "pipeline" / "manifests" / "game-2-rml.json",
+                {
+                    "gamePk": "2",
+                    "officialDate": "2026-03-04",
+                    "gameType": "S",
+                },
+            )
+
+            metadata = MODULE.official_metadata(state)
+
+            self.assertEqual(
+                metadata["1"],
+                {"officialDate": "2026-03-03", "gameSet": "exhibition"},
+            )
+            self.assertEqual(
+                metadata["2"],
+                {"officialDate": "2026-03-04", "gameSet": "preseason"},
+            )
+
     def test_build_retention_keeps_candidate_prior_current_and_newest_rollback(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             store = Path(temporary) / "serving"
@@ -222,6 +282,80 @@ class ServingMaterializerTests(unittest.TestCase):
                 inventory["queryIndexImplementationSha256Set"],
                 [unreviewed_implementation],
             )
+
+    def test_inventory_keeps_promoted_pair_while_replacement_rml_is_staged(self) -> None:
+        for shacl_status in ("deferred-to-nifi", "validated"):
+            with self.subTest(shacl_status=shacl_status), tempfile.TemporaryDirectory() as temporary:
+                state = Path(temporary)
+                marker = make_promotion(state, "1", A573)
+                promoted_inventory = MODULE.promotion_inventory(state.resolve())
+                marker_value = json.loads(marker.read_text(encoding="utf-8"))
+                index_path = state / "pipeline" / "manifests" / "game-1-query-index.json"
+                index = json.loads(index_path.read_text(encoding="utf-8"))
+                staged_input = (
+                    state / "pipeline" / "transient" / "mlb-game" / "game-1-abcd-1234.json"
+                )
+                staged_output = state / "pipeline" / "rdf" / "game-1.ttl"
+                staged_input.parent.mkdir(parents=True, exist_ok=True)
+                staged_output.parent.mkdir(parents=True, exist_ok=True)
+                staged_input.write_bytes(b"replacement payload\n")
+                staged_output.write_bytes(b"replacement RDF\n")
+                rml_path = state / "pipeline" / "manifests" / "game-1-rml.json"
+                write_json(
+                    rml_path,
+                    {
+                        "gamePk": "1",
+                        "graphIri": "https://w3id.org/baseball/graph/game/1",
+                        "inputPath": str(staged_input.resolve()),
+                        "inputSha256": file_sha(staged_input),
+                        "outputPath": str(staged_output.resolve()),
+                        "outputSha256": file_sha(staged_output),
+                        "shaclStatus": shacl_status,
+                    },
+                )
+
+                inventory = MODULE.promotion_inventory(state.resolve())
+
+                game = inventory["games"]["1"]
+                self.assertEqual(
+                    game["rmlManifestAdmissionMode"],
+                    "pending-staging-over-current-promotion",
+                )
+                self.assertEqual(game["rmlManifestSha256"], marker_value["rmlManifestSha256"])
+                self.assertEqual(game["authoritativeRdfSha256"], index["sourceRdfSha256"])
+                self.assertEqual(inventory["fingerprint"], promoted_inventory["fingerprint"])
+
+    def test_inventory_does_not_admit_staged_rml_when_promoted_index_manifest_changed(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            state = Path(temporary)
+            make_promotion(state, "1", A573)
+            staged_input = (
+                state / "pipeline" / "transient" / "mlb-game" / "game-1-abcd-1234.json"
+            )
+            staged_output = state / "pipeline" / "rdf" / "game-1.ttl"
+            staged_input.parent.mkdir(parents=True, exist_ok=True)
+            staged_output.parent.mkdir(parents=True, exist_ok=True)
+            staged_input.write_bytes(b"replacement payload\n")
+            staged_output.write_bytes(b"replacement RDF\n")
+            write_json(
+                state / "pipeline" / "manifests" / "game-1-rml.json",
+                {
+                    "gamePk": "1",
+                    "graphIri": "https://w3id.org/baseball/graph/game/1",
+                    "inputPath": str(staged_input.resolve()),
+                    "inputSha256": file_sha(staged_input),
+                    "outputPath": str(staged_output.resolve()),
+                    "outputSha256": file_sha(staged_output),
+                    "shaclStatus": "validated",
+                },
+            )
+            index_path = state / "pipeline" / "manifests" / "game-1-query-index.json"
+            index = json.loads(index_path.read_text(encoding="utf-8"))
+            index["sourceTripleCount"] = 11
+            write_json(index_path, index)
+
+            with self.assertRaisesRegex(ValueError, "query-index manifest hash mismatch"):
+                MODULE.promotion_inventory(state.resolve())
 
     def test_inventory_does_not_fall_back_when_newest_marker_is_invalid(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -407,6 +541,34 @@ class ServingMaterializerTests(unittest.TestCase):
             ):
                 with self.assertRaisesRegex(ValueError, "No supported persistent game-set provenance"):
                     MODULE.build(args)
+
+    def test_build_uses_authoritative_rdf_game_set_when_compact_provenance_predates_it(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            state = Path(temporary)
+            make_promotion(state, "1", B966)
+            dimension_source = MODULE.GAME_DIMENSION_QUERY.read_text(encoding="utf-8")
+
+            def offline_sparql(_endpoint: str, query: str, _timeout: int) -> dict[str, object]:
+                if query == dimension_source:
+                    return result([dimension("1", "preseason")])
+                if "COUNT(?sourceObject)" in query:
+                    return result([live_pair("1")])
+                return result([])
+
+            args = argparse.Namespace(
+                state_root=state,
+                endpoint="offline",
+                timeout=1,
+                max_games=None,
+                no_promote=True,
+            )
+            with (
+                patch.object(MODULE, "sparql", side_effect=offline_sparql),
+                patch.object(MODULE, "official_metadata", return_value={}),
+            ):
+                evidence = MODULE.build(args)
+
+            self.assertEqual(evidence["status"], "validated")
 
     def test_second_live_snapshot_drift_preserves_existing_pointer(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

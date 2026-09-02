@@ -130,9 +130,17 @@ def schedule_observations(document: dict[str, Any]) -> dict[str, list[dict[str, 
             reason = status.get("reason")
             if reason is not None and not isinstance(reason, str):
                 raise ValueError(f"{label}.status.reason must be text when present")
+            game_type = record.get("gameType")
+            if not isinstance(game_type, str) or not game_type:
+                raise ValueError(f"{label}.gameType must be non-empty text")
+            official_date = iso_date(
+                str(record.get("officialDate", "")), f"{label}.officialDate"
+            )
             games.setdefault(game_pk, []).append(
                 {
                     "scheduledDate": scheduled_date,
+                    "officialDate": official_date,
+                    "gameType": game_type,
                     "gameDate": str(record["gameDate"]) if record.get("gameDate") else None,
                     "abstractState": state,
                     "detailedState": detailed_state,
@@ -175,6 +183,8 @@ def completed_games(
         row: dict[str, str] = {
             "gamePk": game_pk,
             "scheduleDate": str(final["scheduledDate"]),
+            "officialDate": str(final["officialDate"]),
+            "gameType": str(final["gameType"]),
             "materializeMode": "deferred",
             "scheduleEvidencePath": "none",
         }
@@ -281,6 +291,14 @@ def transform(raw: bytes, args: argparse.Namespace) -> dict[str, Any]:
         "scheduleSha256": schedule_sha256,
         "expectedGameCount": len(expected),
         "expectedGamePks": expected,
+        "games": [
+            {
+                "gamePk": row["gamePk"],
+                "officialDate": row["officialDate"],
+                "gameType": row["gameType"],
+            }
+            for row in games
+        ],
     }
     if manifest_path.is_file():
         prior = json.loads(manifest_path.read_text(encoding="utf-8-sig"))
@@ -294,6 +312,7 @@ def transform(raw: bytes, args: argparse.Namespace) -> dict[str, Any]:
             "scheduleSha256",
             "expectedGameCount",
             "expectedGamePks",
+            "games",
         )
         if any(prior.get(key) != manifest.get(key) for key in immutable):
             raise ValueError(f"batch {args.batch_id} was retried with different evidence")

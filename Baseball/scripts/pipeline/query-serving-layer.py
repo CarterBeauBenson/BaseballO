@@ -19,6 +19,9 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[2]
+GAME_SETS = frozenset(
+    {"regular_season", "preseason", "postseason", "exhibition", "all_star"}
+)
 SCHEMA = ROOT / "serving" / "schema.sql"
 CONTRACT = ROOT / "serving" / "contract.json"
 QUALITY_SPEC = ROOT / "serving" / "plate-appearance-quality-v1.json"
@@ -420,7 +423,7 @@ def iso_date(value: object, field: str) -> str:
 
 def resolve_scope(connection: sqlite3.Connection, request: dict[str, Any]) -> dict[str, Any]:
     game_set = request.get("gameSet", "regular_season")
-    if game_set not in {"regular_season", "all_star"}:
+    if game_set not in GAME_SETS:
         raise ValueError(f"Unsupported game set: {game_set}")
     available = connection.execute(
         "SELECT MIN(official_date),MAX(official_date) FROM game_dimension WHERE game_set=?", (game_set,)
@@ -772,7 +775,7 @@ def query_derived(connection: sqlite3.Connection, request: dict[str, Any], build
 def query_options(connection: sqlite3.Connection, request: dict[str, Any], build: tuple[Any, ...], started: float) -> dict[str, Any]:
     family, dimension = request.get("family"), request.get("dimension")
     game_set = request.get("gameSet", "regular_season")
-    if game_set not in {"regular_season", "all_star"}:
+    if game_set not in GAME_SETS:
         raise ValueError("Unsupported game set")
     common = {
         "season": ("SELECT DISTINCT g.season FROM game_dimension g WHERE g.game_set=? ORDER BY g.season", [("season", "integer")]),

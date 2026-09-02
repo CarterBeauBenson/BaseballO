@@ -19,6 +19,9 @@ event evidence and transition-bounded Player Role identities described below.
   deterministic identities.
 - [`shacl/authoritative.ttl`](shacl/authoritative.ttl) validates only RDF
   emitted by this module.
+- Runtime source validation uses Apache Jena with one bounded worker and the
+  unchanged source-owned SHACL profile. The selected engine, validator hash,
+  shape hash, and conformance report remain in the lane's evidence.
 - [`fixtures/`](fixtures/) contains synthetic, one-record evidence. It is not a
   retained API response.
 - [`tests/test_prepare_context.py`](tests/test_prepare_context.py) checks the

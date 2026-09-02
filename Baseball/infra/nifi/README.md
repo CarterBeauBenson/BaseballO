@@ -46,6 +46,12 @@ defer SQL work until all games in a schedule batch have current promotions;
 NiFi then runs one serving-layer materialization for the ready batch. A bounded
 proof still materializes immediately.
 
+The MLB Game group uses two Apache Jena workers for its unchanged source SHACL
+profile. Its single promotion worker constructs the unchanged query-index
+SPARQL locally over each validated game graph, then serializes only the final
+graph-store write. This prevents index construction from competing with the
+shared dataset while retaining the graph-pair and per-game equivalence gates.
+
 ## Provisioning and submission
 
 Start NiFi from the repository root:

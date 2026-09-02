@@ -57,6 +57,33 @@ function Read-GameDocument([string] $Path) {
     return $document
 }
 
+function Ensure-GameClassificationProvenance([object] $GameDocument, [object] $RmlManifest) {
+    $officialDate = [string]$GameDocument.gameData.datetime.officialDate
+    if ($officialDate -notmatch '^\d{4}-\d{2}-\d{2}$') {
+        throw "Game $GamePk has no canonical gameData.datetime.officialDate value."
+    }
+    $gameType = [string]$GameDocument.gameData.game.type
+    if ([string]::IsNullOrWhiteSpace($gameType)) {
+        throw "Game $GamePk has no gameData.game.type value."
+    }
+    $expected = [ordered]@{
+        officialDate = $officialDate
+        gameType = $gameType
+    }
+    $changed = $false
+    foreach ($entry in $expected.GetEnumerator()) {
+        $property = $RmlManifest.PSObject.Properties[$entry.Key]
+        if ($null -eq $property) {
+            $RmlManifest | Add-Member -NotePropertyName $entry.Key -NotePropertyValue $entry.Value
+            $changed = $true
+        }
+        elseif ([string]$property.Value -ne [string]$entry.Value) {
+            throw "RML manifest $($entry.Key) conflicts with the retained MLB response for game $GamePk."
+        }
+    }
+    return $changed
+}
+
 function Invoke-LoggedCommand {
     param(
         [Parameter(Mandatory = $true)][scriptblock] $Command,
@@ -118,7 +145,13 @@ switch ($Action) {
         }
         $validator = Join-Path $repositoryRoot 'scripts\pipeline\validate-shacl.py'
         Invoke-LoggedCommand -FailureMessage "Authoritative SHACL failed for game $GamePk." -Command {
-            & python $validator '--profile' 'authoritative' '--data' $rdfPath
+            & python $validator `
+                '--profile' 'authoritative' `
+                '--data' $rdfPath `
+                '--engine' 'jena' `
+                '--java' (Get-JavaExecutable) `
+                '--jena-classpath' (Join-Path $script:FusekiHome 'fuseki-server.jar') `
+                '--jena-max-heap' '384m'
         }
         $manifest = Get-Content -LiteralPath $rmlManifestPath -Raw | ConvertFrom-Json
         if ([string]$manifest.gamePk -ne $GamePk) {
@@ -139,13 +172,16 @@ switch ($Action) {
     }
     'promote' {
         $inputPath = Resolve-TransientInput
-        [void](Read-GameDocument -Path $inputPath)
+        $gameDocument = Read-GameDocument -Path $inputPath
         if (-not (Test-Path -LiteralPath $rdfPath -PathType Leaf)) {
             throw "Validated RDF is missing for game $GamePk."
         }
         $rmlManifest = Get-Content -LiteralPath $rmlManifestPath -Raw | ConvertFrom-Json
         if ([string]$rmlManifest.shaclStatus -ne 'validated') {
             throw "Game $GamePk has not passed authoritative SHACL."
+        }
+        if (Ensure-GameClassificationProvenance -GameDocument $gameDocument -RmlManifest $rmlManifest) {
+            Write-AtomicJsonFile -Path $rmlManifestPath -Value $rmlManifest -Depth 16
         }
         $transactionRunId = [Guid]::NewGuid().ToString('N')
         $transaction = Join-Path $repositoryRoot 'scripts\pipeline\graph-pair-transaction.py'
@@ -161,7 +197,7 @@ switch ($Action) {
                 & $load -RdfFile $rdfPath -GamePk $GamePk
             }
             Invoke-LoggedCommand -FailureMessage "Query-index build failed for game $GamePk." -Command {
-                & $index -GamePk $GamePk
+                & $index -GamePk $GamePk -SourceRdfFile $rdfPath
             }
 
             $queryEndpoint = "$($script:FusekiDatasetUri)/query"

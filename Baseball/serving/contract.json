@@ -7,6 +7,22 @@
     "temporaryGameSetDependency": "validated-persistent-acquisition-provenance-and-checked-historical-schedule-evidence",
     "target": "fully-rebuildable-from-authoritative-rdf"
   },
+  "gameSets": {
+    "default": "regular_season",
+    "uiSelectable": ["regular_season", "preseason", "postseason", "exhibition", "all_star"],
+    "mlbGameTypeMapping": {
+      "R": "regular_season",
+      "S": "preseason",
+      "E": "exhibition",
+      "F": "postseason",
+      "D": "postseason",
+      "L": "postseason",
+      "W": "postseason",
+      "C": "postseason",
+      "P": "postseason",
+      "A": "all_star"
+    }
+  },
   "promotion": "immutable-database-with-atomic-current-pointer",
   "retention": {
     "databaseBuilds": 3,

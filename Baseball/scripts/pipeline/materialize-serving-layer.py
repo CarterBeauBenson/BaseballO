@@ -58,6 +58,19 @@ SHA256_PATTERN = re.compile(r"^[0-9a-fA-F]{64}$")
 QUERY_INDEX_ROUTING = ROOT / "sparql" / "query-index" / "operational-query-routing.json"
 QUERY_INDEX_SEMANTIC_CONTRACT = ROOT / "sparql" / "query-index" / "semantic-contract.json"
 SUPPORTED_QUERY_INDEX_CONTRACT_VERSION = 1
+GAME_SET_BY_MLB_GAME_TYPE = {
+    "R": "regular_season",
+    "S": "preseason",
+    "E": "exhibition",
+    "F": "postseason",
+    "D": "postseason",
+    "L": "postseason",
+    "W": "postseason",
+    "C": "postseason",
+    "P": "postseason",
+    "A": "all_star",
+}
+PERSISTENT_GAME_SETS = frozenset({*GAME_SET_BY_MLB_GAME_TYPE.values(), "fixture"})
 
 INTEGER_FIELDS = {
     "wasHit", "pitches", "swings", "bunts", "contacts", "balls", "strikes",
@@ -225,11 +238,12 @@ def typed(binding: dict[str, Any], field: str) -> Any:
 def provenance_game_set(game_type: object) -> str:
     """Translate only source-supported MLB game types admitted by the UI."""
     value = str(game_type or "")
-    if value == "R":
-        return "regular_season"
-    if value == "A":
-        return "all_star"
-    raise ValueError(f"Unsupported or missing MLB game type in persistent provenance: {value!r}")
+    try:
+        return GAME_SET_BY_MLB_GAME_TYPE[value]
+    except KeyError as exc:
+        raise ValueError(
+            f"Unsupported or missing MLB game type in persistent provenance: {value!r}"
+        ) from exc
 
 
 def official_metadata(state_root: Path) -> dict[str, dict[str, str]]:
@@ -267,6 +281,37 @@ def official_metadata(state_root: Path) -> dict[str, dict[str, str]]:
             value = json.loads(path.read_text(encoding="utf-8-sig"))
             game_pk = str(value.get("gamePk", ""))
             official_date = str(value.get("scheduleDate", ""))
+            if game_pk.isdigit() and len(official_date) == 10:
+                metadata[game_pk] = {
+                    "officialDate": official_date,
+                    "gameSet": provenance_game_set(value.get("gameType")),
+                }
+        except (OSError, ValueError, TypeError):
+            continue
+    for path in sorted(
+        (state_root / "pipeline" / "control" / "mlb-game" / "batches").glob("*.json"),
+        key=lambda item: item.stat().st_mtime,
+    ):
+        try:
+            value = json.loads(path.read_text(encoding="utf-8-sig"))
+            for game in value.get("games", []):
+                game_pk = str(game.get("gamePk", ""))
+                official_date = str(game.get("officialDate", ""))
+                if game_pk.isdigit() and len(official_date) == 10:
+                    metadata[game_pk] = {
+                        "officialDate": official_date,
+                        "gameSet": provenance_game_set(game.get("gameType")),
+                    }
+        except (OSError, ValueError, TypeError):
+            continue
+    for path in sorted(
+        (state_root / "pipeline" / "manifests").glob("game-*-rml.json"),
+        key=lambda item: item.stat().st_mtime,
+    ):
+        try:
+            value = json.loads(path.read_text(encoding="utf-8-sig"))
+            game_pk = str(value.get("gamePk", ""))
+            official_date = str(value.get("officialDate", ""))
             if game_pk.isdigit() and len(official_date) == 10:
                 metadata[game_pk] = {
                     "officialDate": official_date,
@@ -544,10 +589,17 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
             game_pk = game.rsplit("/", 1)[-1]
             source_meta = metadata.get(game_pk, {})
             official_date = source_meta.get("officialDate") or (lexical(dimension, "start") or "")[:10]
-            game_set = source_meta.get("gameSet")
+            provenance_set = source_meta.get("gameSet")
+            rdf_game_set = lexical(dimension, "rdfGameSet")
+            if provenance_set and rdf_game_set and provenance_set != rdf_game_set:
+                raise ValueError(
+                    f"Persistent game-set provenance conflicts with authoritative RDF for game {game_pk}: "
+                    f"{provenance_set!r} != {rdf_game_set!r}"
+                )
+            game_set = provenance_set or rdf_game_set
             if len(official_date) != 10:
                 raise ValueError(f"No official date provenance for game {game_pk}")
-            if game_set not in {"regular_season", "all_star", "fixture"}:
+            if game_set not in PERSISTENT_GAME_SETS:
                 raise ValueError(
                     f"No supported persistent game-set provenance for game {game_pk}; "
                     "authoritative RDF does not yet carry this classification"

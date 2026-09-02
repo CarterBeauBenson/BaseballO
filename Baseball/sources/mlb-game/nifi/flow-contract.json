@@ -21,6 +21,20 @@
     "processor": "pipeline/materialize-pending-batches.py",
     "checkPeriod": "15 min"
   },
+  "runtimeExecution": {
+    "sourceShacl": {
+      "engine": "jena",
+      "concurrentTasks": 2,
+      "shapeContract": "unchanged"
+    },
+    "queryIndex": {
+      "engine": "jena",
+      "source": "validated-per-game-rdf",
+      "concurrentTasks": 1,
+      "constructContract": "unchanged",
+      "finalGraphWrite": "serialized"
+    }
+  },
   "proofRelease": {
     "readinessRetryCount": 60,
     "readinessRetryDelay": "30 sec",
@@ -42,12 +56,13 @@
     "Record Success"
   ],
   "failurePolicy": {
-    "maximumRetriesPerStage": 3,
+    "maximumAttemptsPerStage": 2,
     "quarantineIsSourceLocal": true,
     "unrelatedSourceGroupsContinue": true
   },
   "persistence": {
     "apiPayload": "transient-until-success-or-quarantine",
+    "gameClassificationProvenance": "official-date-and-MLB-game-type-retained-in-compact-batch-and-RML-manifests",
     "authoritativeRdf": "persistent-ssd-backed-tdb2",
     "queryIndexRdf": "persistent-operationally-rebuildable",
     "analyticalSql": "persistent-operationally-rebuildable"

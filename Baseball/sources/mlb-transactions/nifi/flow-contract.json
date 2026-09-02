@@ -40,6 +40,14 @@
   },
   "mapping": "mapping/mlb-transactions.rml.ttl",
   "shacl": "shacl/authoritative.ttl",
+  "runtimeExecution": {
+    "sourceShacl": {
+      "engine": "jena",
+      "jenaMaxHeap": "512m",
+      "concurrentTasks": 1,
+      "shapeContract": "unchanged"
+    }
+  },
   "authoritativeGraphTemplate": "https://w3id.org/baseball/graph/event/mlb-transactions/{scope.key}",
   "failurePolicy": {"maximumRetriesPerStage": 3, "quarantineIsSourceLocal": true}
 }

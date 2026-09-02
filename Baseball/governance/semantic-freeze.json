@@ -5,10 +5,10 @@
   "ratified": false,
   "bootstrapBaseCommit": "cb16a8e6f3d487f3542b91907cde3f47ff0a0978",
   "hashCanonicalization": "utf-8-sig decode; CRLF and CR to LF; UTF-8 encode without BOM",
-  "protectedSetSha256": "8406c5160c73f2dac1e63ccd9404f426cb6269f3d14755963695fe0b6b2dbf8c",
+  "protectedSetSha256": "ffb8d7867530e89636b261d2554adca413782021d5c6ea7de786f25afbc83755",
   "changeDecision": {
-    "path": "Baseball/archive/design-records/baseball-season-phase-parent-repair/review.json",
-    "sha256": "bbbbd953ce969a4b86e2484a90391982897cdb7deec47561aabbe102f732266d"
+    "path": "Baseball/archive/design-records/mlb-reference-rml-implementation-authorization/review.json",
+    "sha256": "5c6fb16a22d4bda69f4fa3b4bce820a76d5da0f079f509ccd9d75c564926f74d"
   },
   "protectedArtifacts": {
     "Baseball/governance/ontology-curation-debt.json": "2d5a4206339244641dd629eb48d86d13d98c02e47b5b5755b010861c0570e283",
@@ -52,7 +52,7 @@
     "Baseball/sources/mlb-people/mapping/iri-policy.yaml": "456a87beac4f663ab4088bb76f25ba4bd18c740b9d2896ab68c4fed84e75beac",
     "Baseball/sources/mlb-people/mapping/mlb-people.rml.ttl": "2fb2572bff87aa32be0fe9ee9bdd4694378f167046779144b76ba57678c0e769",
     "Baseball/sources/mlb-people/mapping/prepare-context.py": "5db07193d5d4fb9b45c3919e31d1fb438063c58b38bc77338c2b6071c52a8c0b",
-    "Baseball/sources/mlb-people/review/semantic-status.json": "e4629994008480a3781f0a5d7db74ff9cb434dab3fda47d954b9b9aecd15f1f9",
+    "Baseball/sources/mlb-people/review/semantic-status.json": "b1f3d9fa2a5f65f62e1f586ce0c04ad8e0ed225cc2efac9db37d6ed1062fb294",
     "Baseball/sources/mlb-teams/mapping/iri-policy.yaml": "a3b6c9336fb1621d0cdd0848dec16729d742c8f2157e3852f7ad5338e316c6db",
     "Baseball/sources/mlb-teams/mapping/mlb-teams.rml.ttl": "ad3fd9633e37b3aa1c2b54e2a64b0680bb2b916e41a8549d2bd524bbf1817691",
     "Baseball/sources/mlb-teams/mapping/prepare-context.py": "968aa1613c635589b83dfb62d7fcea18f8c785248e6b32ca3ae2a571b85070c6",
@@ -60,7 +60,7 @@
     "Baseball/sources/mlb-transactions/mapping/iri-policy.yaml": "3c043d05e1d79604cbe18bf9d79f741fbf2776fddfcda5684f40d57327490615",
     "Baseball/sources/mlb-transactions/mapping/mlb-transactions.rml.ttl": "9237077df693b638eccd1099b9b71ddf47517cd23d64f437d0e0833cda0e164a",
     "Baseball/sources/mlb-transactions/mapping/prepare-context.py": "80b1ff4a1fdb1966cf6351a75c24eff6df3aa9bfcb62c2ce7ce5bb36dde8688e",
-    "Baseball/sources/mlb-transactions/review/semantic-status.json": "1f1113117509d35b05284eb5d43bfa45da88f288e20932d66a52dcd17b8f3f19",
+    "Baseball/sources/mlb-transactions/review/semantic-status.json": "7a516155d5703ae77775874dbbc9621ca9e887937fa774a4a694321f3d01e60d",
     "Baseball/sources/mlb-venues/mapping/iri-policy.yaml": "b99267a9b689a2ebf4d173a20422c32c96a7413209f337b226946780a6ec34f6",
     "Baseball/sources/mlb-venues/mapping/mlb-venues.rml.ttl": "4ff3df938c8abe2b3160ba37c03824b19920b5735223f329377625b889a083d2",
     "Baseball/sources/mlb-venues/mapping/prepare-context.py": "c7a627e3914ff6d6e94f43f3488820d93a2a8cb88b22b416912763ddfa6a344b",

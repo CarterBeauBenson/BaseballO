@@ -35,6 +35,11 @@ def literal(value: object) -> dict[str, str]:
 class ServingLayerTests(unittest.TestCase):
     def test_serving_contract_admits_only_paq_and_its_required_options(self) -> None:
         contract = MODULE.load_object(MODULE.CONTRACT)
+        self.assertEqual(
+            MODULE.GAME_SETS,
+            frozenset(contract["gameSets"]["uiSelectable"]),
+        )
+        self.assertEqual(contract["gameSets"]["default"], "regular_season")
         admitted_requests = [
             {"id": "plate-appearance-fingerprint"},
             {"id": "plate-appearance-fingerprint", "view": "player_averages"},

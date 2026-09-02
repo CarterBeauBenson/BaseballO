@@ -1,7 +1,9 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)][string] $GamePk,
-    [string] $ComponentRoot
+    [string] $ComponentRoot,
+    [string] $SourceRdfFile,
+    [ValidatePattern('^[0-9a-f]{64}$')][string] $SourceRdfSha256
 )
 
 . (Join-Path $PSScriptRoot '..\infra\common.ps1')
@@ -42,13 +44,29 @@ $usesCanonicalComponents = $componentRoot.Equals($canonicalComponentRoot, [Syste
 $compilerPath = Join-Path $script:RepositoryRoot 'scripts\pipeline\compile-query-index.py'
 $shaclValidatorPath = Join-Path $script:RepositoryRoot 'scripts\pipeline\validate-shacl.py'
 $queryIndexShapePath = Join-Path $script:RepositoryRoot 'shacl\query-index.ttl'
+$jenaQueryIndexPath = Join-Path $script:RepositoryRoot 'scripts\pipeline\JenaQueryIndex.java'
 $implementationHash = Get-QueryIndexImplementationHash
 $semanticAdmission = Get-QueryIndexSemanticAdmission
+$isolatedJena = -not [string]::IsNullOrWhiteSpace($SourceRdfFile)
+$sourceRdfPath = $null
+if ($isolatedJena) {
+    $sourceRdfPath = [System.IO.Path]::GetFullPath($SourceRdfFile)
+    if (-not (Test-Path -LiteralPath $sourceRdfPath -PathType Leaf)) {
+        throw "Source RDF file was not found: $sourceRdfPath"
+    }
+    if (-not (Test-Path -LiteralPath $jenaQueryIndexPath -PathType Leaf)) {
+        throw "The isolated Jena query-index processor is missing: $jenaQueryIndexPath"
+    }
+}
 
 [void](New-Item -ItemType Directory -Force -Path $componentOutputRoot)
 [void](New-Item -ItemType Directory -Force -Path $manifestRoot)
 $builtAt = [DateTime]::UtcNow
-$fusekiWriteLock = Enter-FusekiWriteLock
+$fusekiWriteLock = $null
+$indexGraphWritten = $false
+if (-not $isolatedJena) {
+    $fusekiWriteLock = Enter-FusekiWriteLock
+}
 
 try {
     $sourceAsk = "ASK { GRAPH <$sourceGraph> { <$gameIri> a <https://baseballontology.org/BaseballGame> } }"
@@ -62,38 +80,48 @@ try {
         throw "No query-index CONSTRUCT components were found at $componentRoot"
     }
 
-    foreach ($componentFile in $componentFiles) {
-        $query = Get-Content -LiteralPath $componentFile.FullName -Raw
-        $query = $query.Replace('<urn:baseball:query-index:source-graph>', "<$sourceGraph>")
-        $query = $query.Replace('<urn:baseball:query-index:game>', "<$gameIri>")
-        $query = $query.Replace('<urn:baseball:query-index:index-resource>', "<$indexResource>")
-        if ($query.Contains('urn:baseball:query-index:')) {
-            throw "Unresolved query-index placeholder in $($componentFile.Name)"
+    if ($isolatedJena) {
+        $java = Get-JavaExecutable
+        $jenaClasspath = Join-Path $script:FusekiHome 'fuseki-server.jar'
+        & $java '-Xms64m' '-Xmx512m' '--class-path' $jenaClasspath $jenaQueryIndexPath $sourceRdfPath $sourceGraph $gameIri $indexResource $componentRoot $componentOutputRoot
+        if ($LASTEXITCODE -ne 0) {
+            throw "Isolated Jena query-index execution failed for game $GamePk."
         }
-        $response = Invoke-WebRequest -Uri $queryEndpoint -Method Post -Body @{ query = $query } -Headers @{ Accept = 'text/turtle' } -UseBasicParsing
-        $componentOutput = Join-Path $componentOutputRoot "$($componentFile.BaseName).ttl"
-        # Fuseki currently returns text/turtle without a charset parameter.
-        # Windows PowerShell 5.1 decodes response.Content as ISO-8859-1 in that
-        # case, corrupting UTF-8 labels before compilation. Preserve the exact
-        # response bytes and let rdflib parse Turtle as UTF-8.
-        $rawStream = $response.RawContentStream
-        if ($null -eq $rawStream) {
-            throw "Fuseki returned no raw response stream for $($componentFile.Name)"
-        }
-        if ($rawStream.CanSeek) {
-            $rawStream.Position = 0
-        }
-        $outputStream = [System.IO.File]::Open(
-            $componentOutput,
-            [System.IO.FileMode]::Create,
-            [System.IO.FileAccess]::Write,
-            [System.IO.FileShare]::None
-        )
-        try {
-            $rawStream.CopyTo($outputStream)
-        }
-        finally {
-            $outputStream.Dispose()
+    }
+    else {
+        foreach ($componentFile in $componentFiles) {
+            $query = Get-Content -LiteralPath $componentFile.FullName -Raw
+            $query = $query.Replace('<urn:baseball:query-index:source-graph>', "<$sourceGraph>")
+            $query = $query.Replace('<urn:baseball:query-index:game>', "<$gameIri>")
+            $query = $query.Replace('<urn:baseball:query-index:index-resource>', "<$indexResource>")
+            if ($query.Contains('urn:baseball:query-index:')) {
+                throw "Unresolved query-index placeholder in $($componentFile.Name)"
+            }
+            $response = Invoke-WebRequest -Uri $queryEndpoint -Method Post -Body @{ query = $query } -Headers @{ Accept = 'text/turtle' } -UseBasicParsing
+            $componentOutput = Join-Path $componentOutputRoot "$($componentFile.BaseName).ttl"
+            # Fuseki currently returns text/turtle without a charset parameter.
+            # Windows PowerShell 5.1 decodes response.Content as ISO-8859-1 in that
+            # case, corrupting UTF-8 labels before compilation. Preserve the exact
+            # response bytes and let rdflib parse Turtle as UTF-8.
+            $rawStream = $response.RawContentStream
+            if ($null -eq $rawStream) {
+                throw "Fuseki returned no raw response stream for $($componentFile.Name)"
+            }
+            if ($rawStream.CanSeek) {
+                $rawStream.Position = 0
+            }
+            $outputStream = [System.IO.File]::Open(
+                $componentOutput,
+                [System.IO.FileMode]::Create,
+                [System.IO.FileAccess]::Write,
+                [System.IO.FileShare]::None
+            )
+            try {
+                $rawStream.CopyTo($outputStream)
+            }
+            finally {
+                $outputStream.Dispose()
+            }
         }
     }
 
@@ -102,7 +130,16 @@ try {
         throw "Query-index compilation failed for game $GamePk."
     }
 
-    & python $shaclValidatorPath '--profile' 'query-index' '--data' $compiledPath
+    $shaclArguments = @($shaclValidatorPath, '--profile', 'query-index', '--data', $compiledPath)
+    if ($isolatedJena) {
+        $shaclArguments += @(
+            '--engine', 'jena',
+            '--java', (Get-JavaExecutable),
+            '--jena-classpath', (Join-Path $script:FusekiHome 'fuseki-server.jar'),
+            '--jena-max-heap', '384m'
+        )
+    }
+    & python @shaclArguments
     if ($LASTEXITCODE -ne 0) {
         throw "Query-index SHACL validation failed for game $GamePk."
     }
@@ -116,7 +153,11 @@ try {
         throw "Query index is not a smaller projection: source=$sourceTripleCount; index=$indexTripleCount"
     }
 
+    if ($null -eq $fusekiWriteLock) {
+        $fusekiWriteLock = Enter-FusekiWriteLock
+    }
     Invoke-WebRequest -Uri $indexDataEndpoint -Method Put -ContentType 'application/n-triples' -InFile $compiledPath -UseBasicParsing | Out-Null
+    $indexGraphWritten = $true
 
     $loadedCountQuery = "SELECT (COUNT(*) AS ?count) WHERE { GRAPH <$indexGraph> { ?s ?p ?o } }"
     $loadedCountResult = Invoke-RestMethod -Uri $queryEndpoint -Method Post -Body @{ query = $loadedCountQuery } -Headers @{ Accept = 'application/sparql-results+json' }
@@ -130,6 +171,10 @@ try {
     if ($metadataResult.boolean -ne $true) {
         throw 'Loaded query index has no valid provenance metadata resource.'
     }
+    if ($isolatedJena) {
+        Exit-FusekiWriteLock -LockHandle $fusekiWriteLock
+        $fusekiWriteLock = $null
+    }
 
     # A shape-valid but incomplete or lexically corrupted index is unsafe.
     # Compare all supported semantic row sets, including exact labels, before
@@ -142,10 +187,16 @@ try {
 
     Copy-Item -LiteralPath $compiledPath -Destination $finalPath -Force
     $indexSha256 = (Get-FileHash -LiteralPath $finalPath -Algorithm SHA256).Hash.ToLowerInvariant()
-    $sourceRdfPath = Join-Path $pipelineRoot "rdf\game-$GamePk.ttl"
-    $sourceRdfSha256 = $null
-    if (Test-Path -LiteralPath $sourceRdfPath -PathType Leaf) {
-        $sourceRdfSha256 = (Get-FileHash -LiteralPath $sourceRdfPath -Algorithm SHA256).Hash.ToLowerInvariant()
+    $manifestSourceRdfPath = Join-Path $pipelineRoot "rdf\game-$GamePk.ttl"
+    $manifestSourceRdfSha256 = $null
+    if (-not [string]::IsNullOrWhiteSpace($SourceRdfSha256)) {
+        if (-not $isolatedJena) {
+            throw '-SourceRdfSha256 is valid only with -SourceRdfFile.'
+        }
+        $manifestSourceRdfSha256 = $SourceRdfSha256
+    }
+    elseif (Test-Path -LiteralPath $manifestSourceRdfPath -PathType Leaf) {
+        $manifestSourceRdfSha256 = (Get-FileHash -LiteralPath $manifestSourceRdfPath -Algorithm SHA256).Hash.ToLowerInvariant()
     }
     $manifest = [ordered]@{
         artifactType = 'baseball-query-index-build'
@@ -162,7 +213,7 @@ try {
         implementationSha256 = $implementationHash
         implementationFingerprintAlgorithm = 'query-index-generation-file-set-v1'
         contractSha256 = $implementationHash
-        sourceRdfSha256 = $sourceRdfSha256
+        sourceRdfSha256 = $manifestSourceRdfSha256
         sourceTripleCount = $sourceTripleCount
         indexPath = $finalPath
         indexSha256 = $indexSha256
@@ -171,6 +222,8 @@ try {
         shaclShapePath = $queryIndexShapePath
         shaclShapeSha256 = (Get-FileHash -LiteralPath $queryIndexShapePath -Algorithm SHA256).Hash.ToLowerInvariant()
         shaclValidatorSha256 = (Get-FileHash -LiteralPath $shaclValidatorPath -Algorithm SHA256).Hash.ToLowerInvariant()
+        shaclEngine = if ($isolatedJena) { 'jena' } else { 'pyshacl' }
+        queryExecution = if ($isolatedJena) { 'isolated-jena' } else { 'fuseki-http' }
         componentFiles = @($stats.componentFiles)
         factCounts = $stats.factCounts
     }
@@ -183,11 +236,16 @@ try {
     Write-Host "Query-index manifest: $manifestPath"
 }
 catch {
-    try {
-        Invoke-WebRequest -Uri $indexDataEndpoint -Method Delete -UseBasicParsing | Out-Null
-    }
-    catch {
-        # The derived graph may not exist. Its absence is the safe failure state.
+    if ($indexGraphWritten) {
+        if ($null -eq $fusekiWriteLock) {
+            $fusekiWriteLock = Enter-FusekiWriteLock
+        }
+        try {
+            Invoke-WebRequest -Uri $indexDataEndpoint -Method Delete -UseBasicParsing | Out-Null
+        }
+        catch {
+            # The outer graph-pair transaction restores the previous graph.
+        }
     }
     throw
 }
@@ -203,6 +261,8 @@ finally {
         }
     }
     finally {
-        Exit-FusekiWriteLock -LockHandle $fusekiWriteLock
+        if ($null -ne $fusekiWriteLock) {
+            Exit-FusekiWriteLock -LockHandle $fusekiWriteLock
+        }
     }
 }

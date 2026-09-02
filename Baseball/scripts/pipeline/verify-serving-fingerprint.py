@@ -13,6 +13,9 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[2]
+GAME_SET_BY_MLB_GAME_TYPE = json.loads(
+    (ROOT / "serving" / "contract.json").read_text(encoding="utf-8")
+)["gameSets"]["mlbGameTypeMapping"]
 
 
 def load(path: Path) -> dict[str, Any]:
@@ -24,6 +27,13 @@ def load(path: Path) -> dict[str, Any]:
 
 def digest(lines: list[str]) -> str:
     return hashlib.sha256("\n".join(sorted(lines)).encode("utf-8")).hexdigest()
+
+
+def game_set(game_type: object) -> str:
+    value = str(game_type or "")
+    if value not in GAME_SET_BY_MLB_GAME_TYPE:
+        raise ValueError(f"Unsupported MLB game type: {value!r}")
+    return str(GAME_SET_BY_MLB_GAME_TYPE[value])
 
 
 def artifact(state: Path, game_pk: str, graph: str) -> str:
@@ -46,8 +56,7 @@ def explorer_metadata(state: Path) -> dict[str, tuple[str, str]]:
                 game_pk = str(game.get("gamePk", ""))
                 official_date = str(game.get("officialDate", ""))
                 if game_pk.isdigit() and len(official_date) == 10:
-                    game_type = str(game.get("gameType", ""))
-                    metadata[game_pk] = (official_date, "regular_season" if game_type == "R" else "all_star" if game_type == "A" else "other")
+                    metadata[game_pk] = (official_date, game_set(game.get("gameType")))
     metadata["566279"] = ("2019-04-01", "fixture")
     for path in (state / "pipeline" / "manifests" / "acquisition" / "games").glob("*/*/*.json"):
         try:
@@ -55,10 +64,27 @@ def explorer_metadata(state: Path) -> dict[str, tuple[str, str]]:
             game_pk = str(manifest.get("gamePk", ""))
             official_date = str(manifest.get("scheduleDate", ""))
             if game_pk.isdigit() and len(official_date) == 10:
-                existing_set = metadata.get(game_pk, ("", "regular_season"))[1]
                 game_type = manifest.get("gameType")
-                game_set = "all_star" if game_type == "A" else "regular_season" if game_type == "R" else existing_set
-                metadata[game_pk] = (official_date, game_set)
+                metadata[game_pk] = (official_date, game_set(game_type))
+        except (OSError, ValueError, TypeError):
+            continue
+    for path in (state / "pipeline" / "control" / "mlb-game" / "batches").glob("*.json"):
+        try:
+            manifest = load(path)
+            for game in manifest.get("games", []):
+                game_pk = str(game.get("gamePk", ""))
+                official_date = str(game.get("officialDate", ""))
+                if game_pk.isdigit() and len(official_date) == 10:
+                    metadata[game_pk] = (official_date, game_set(game.get("gameType")))
+        except (OSError, ValueError, TypeError):
+            continue
+    for path in (state / "pipeline" / "manifests").glob("game-*-rml.json"):
+        try:
+            manifest = load(path)
+            game_pk = str(manifest.get("gamePk", ""))
+            official_date = str(manifest.get("officialDate", ""))
+            if game_pk.isdigit() and len(official_date) == 10:
+                metadata[game_pk] = (official_date, game_set(manifest.get("gameType")))
         except (OSError, ValueError, TypeError):
             continue
     metadata["566279"] = ("2019-04-01", "fixture")

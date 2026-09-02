@@ -5,6 +5,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
+import subprocess
 from pathlib import Path
 
 from pyshacl import validate
@@ -32,11 +34,61 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--data", type=Path, required=True)
     parser.add_argument("--report-json", type=Path)
     parser.add_argument("--meta-shacl", action="store_true")
+    parser.add_argument("--engine", choices=("pyshacl", "jena"), default="pyshacl")
+    parser.add_argument("--java", type=Path)
+    parser.add_argument("--jena-classpath", type=Path)
+    parser.add_argument("--jena-max-heap", default="384m")
     return parser.parse_args()
 
 
 def term_text(value) -> str | None:
     return None if value is None else str(value)
+
+
+def validate_with_jena(
+    *, data_path: Path, shape_path: Path, java: Path, classpath: Path, max_heap: str
+) -> tuple[bool, Graph, str]:
+    if not java.is_file():
+        raise ValueError(f"Java executable does not exist: {java}")
+    if not classpath.is_file():
+        raise ValueError(f"Jena classpath does not exist: {classpath}")
+    if not re.fullmatch(r"[1-9][0-9]*[mMgG]", max_heap):
+        raise ValueError("Jena maximum heap must look like 384m or 1g")
+
+    completed = subprocess.run(
+        [
+            str(java),
+            "-Xms64m",
+            f"-Xmx{max_heap}",
+            "-cp",
+            str(classpath),
+            "shacl.shacl_validate",
+            f"--shapes={shape_path.as_uri()}",
+            f"--data={data_path.as_uri()}",
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    standard_error = completed.stderr.decode("utf-8", errors="replace")
+    if completed.returncode != 0:
+        raise RuntimeError(
+            f"Jena SHACL exited with status {completed.returncode}: {standard_error.strip()}"
+        )
+    report_graph = Graph()
+    try:
+        report_graph.parse(data=completed.stdout, format="turtle")
+    except Exception as error:
+        raise RuntimeError(
+            "Jena SHACL did not return a Turtle validation report: "
+            f"{standard_error.strip()}"
+        ) from error
+    conforms_value = next(report_graph.objects(None, SH.conforms), None)
+    if conforms_value is None:
+        raise RuntimeError("Jena SHACL report has no sh:conforms assertion")
+    conforms = bool(conforms_value.toPython())
+    report_text = completed.stdout.decode("utf-8", errors="replace")
+    return conforms, report_graph, report_text
 
 
 def main() -> None:
@@ -54,16 +106,29 @@ def main() -> None:
 
     data_graph = Graph().parse(data_path)
     shape_graph = Graph().parse(shape_path, format="turtle")
-    conforms, report_graph, report_text = validate(
-        data_graph=data_graph,
-        shacl_graph=shape_graph,
-        inference="none",
-        advanced=True,
-        meta_shacl=args.meta_shacl,
-        allow_infos=True,
-        allow_warnings=True,
-        abort_on_first=False,
-    )
+    if args.engine == "jena":
+        if args.meta_shacl:
+            raise ValueError("--meta-shacl is available only with the pyshacl engine")
+        if args.java is None or args.jena_classpath is None:
+            raise ValueError("Jena SHACL requires --java and --jena-classpath")
+        conforms, report_graph, report_text = validate_with_jena(
+            data_path=data_path,
+            shape_path=shape_path,
+            java=args.java.resolve(),
+            classpath=args.jena_classpath.resolve(),
+            max_heap=args.jena_max_heap,
+        )
+    else:
+        conforms, report_graph, report_text = validate(
+            data_graph=data_graph,
+            shacl_graph=shape_graph,
+            inference="none",
+            advanced=True,
+            meta_shacl=args.meta_shacl,
+            allow_infos=True,
+            allow_warnings=True,
+            abort_on_first=False,
+        )
 
     if not isinstance(report_graph, Graph):
         print(report_text)
@@ -86,6 +151,7 @@ def main() -> None:
 
     report = {
         "artifactType": "baseball-shacl-validation",
+        "engine": args.engine,
         "profile": args.profile,
         "dataPath": str(data_path),
         "shapePath": str(shape_path),

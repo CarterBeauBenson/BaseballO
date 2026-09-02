@@ -1163,7 +1163,11 @@ def validate_rml_information_boundary() -> int:
     rml = Namespace("http://semweb.mmlab.be/ns/rml#")
     cco = Namespace("https://www.commoncoreontologies.org/")
     value_predicate = cco.ont00001765
-    semantic_links = {cco.ont00001808, cco.ont00001916}
+    semantic_links = {
+        cco.ont00001808,  # is about
+        cco.ont00001916,  # designates
+        cco.ont00001966,  # is a measurement of
+    }
     checked = 0
     failures: list[str] = []
     for triples_map in graph.subjects(RDF.type, rr.TriplesMap):
@@ -1185,7 +1189,7 @@ def validate_rml_information_boundary() -> int:
                 failures.append(str(triples_map))
     if failures:
         raise ValueError(
-            "Typed CCO value ICE maps require explicit aboutness or designation: "
+            "Typed CCO value ICE maps require explicit aboutness, designation, or measurement: "
             + ", ".join(failures)
         )
     return checked

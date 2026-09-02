@@ -432,14 +432,37 @@ def main() -> None:
         (BASE.StrikeoutProcess,),
         "UncaughtThirdStrikeProcess strikeout part",
     )
-    fair_subjects = set(graph.subjects(RDF.type, BASE.FairBallProcess))
-    require_typed_link(
-        graph,
-        fair_subjects,
-        BFO.BFO_0000063,
-        (BASE.BaseballInstitutionalProcess,),
-        "FairBallProcess to plate-appearance result chain",
-    )
+    # MLB can retain more than one in-play pitch event in a plate appearance
+    # (for example, a corrected spring/exhibition event). Preserve every event,
+    # but require the fair-ball/result sequence only on the batted-ball play that
+    # actually contains the terminal plate-appearance result.
+    for batted_ball_play in set(graph.subjects(RDF.type, BASE.BattedBallPlayProcess)):
+        play_parts = set(graph.objects(batted_ball_play, BFO.BFO_0000117))
+        results = {
+            part
+            for part in play_parts
+            if (part, RDF.type, BASE.BaseballInstitutionalProcess) in graph
+            and str(part).endswith("/result")
+        }
+        if not results:
+            continue
+        fair_parts = {
+            part
+            for part in play_parts
+            if (part, RDF.type, BASE.FairBallProcess) in graph
+        }
+        if len(results) != 1 or len(fair_parts) != 1:
+            raise ValueError(
+                "Terminal BattedBallPlayProcess must contain exactly one "
+                f"plate-appearance result and one FairBallProcess: {batted_ball_play}"
+            )
+        result = next(iter(results))
+        fair_ball = next(iter(fair_parts))
+        if (fair_ball, BFO.BFO_0000063, result) not in graph:
+            raise ValueError(
+                "Terminal FairBallProcess does not precede its plate-appearance "
+                f"result: {fair_ball}"
+            )
 
     plate_result_subjects = {
         subject
