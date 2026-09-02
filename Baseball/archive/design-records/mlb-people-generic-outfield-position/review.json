@@ -1,0 +1,47 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-people-generic-outfield-position",
+  "title": "MLB people generic Outfield position",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "159a347197c106618063399b91980d00b72fd2407c6d1c240871c91a5719f8ec"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "e0b75a6998c097a6fd8efd5c4d59b08501d88d67e3129a6d1cfab5aa72197559"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "99cfec53ebe99b362724addd05f90e85e377d7e4b8de85e1d247d8eeb82af503"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "306f88f4a7bd1c31b02e542eca5fc10979bec8906d9fa21f1496fb5ecedd80af"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-09-01",
+    "rationale": "The ontologist approved treating the exact MLB primary-position tuple O / Outfield / Outfielder / OF as a reusable Position Description about the existing Fielder Role pattern and clarified that outfielders may also play the infield. No exclusive outfielder kind or Role is licensed.",
+    "authorizedArtifacts": [
+      "Baseball/sources/mlb-people/mapping/prepare-context.py",
+      "Baseball/sources/mlb-people/shacl/authoritative.ttl",
+      "Baseball/sources/mlb-people/schema/README.md",
+      "Baseball/sources/mlb-people/tests/test_prepare_context.py"
+    ]
+  }
+}

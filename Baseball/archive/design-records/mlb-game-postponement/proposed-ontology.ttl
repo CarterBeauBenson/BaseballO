@@ -1,0 +1,19 @@
+@prefix base: <https://baseballontology.org/> .
+@prefix cco: <https://www.commoncoreontologies.org/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+base:BaseballGameSchedulePlan a owl:Class ;
+    rdfs:subClassOf cco:ont00000974 ;
+    rdfs:label "Baseball Game Schedule Plan"@en ;
+    skos:definition "A Baseball Game Schedule Plan is a Plan that prescribes a Baseball Game and has as continuant part a Temporal Interval Identifier that designates a Temporal Interval planned for that Game."@en ;
+    rdfs:comment "Distinct versions may prescribe the same Baseball Game for different planned Temporal Intervals. The Plan is not the Game or either Temporal Interval."@en ;
+    skos:example "The official plan prescribing MLB game 824621 for its revised April 3, 2026 time is a Baseball Game Schedule Plan."@en .
+
+base:BaseballGamePostponementAct a owl:Class ;
+    rdfs:subClassOf cco:ont00001374 ;
+    rdfs:label "Baseball Game Postponement Act"@en ;
+    skos:definition "A Baseball Game Postponement Act is an Act of Declarative Communication that has as input a Baseball Game Schedule Plan and has as output a distinct Baseball Game Schedule Plan that prescribes the same Baseball Game for a later planned Temporal Interval."@en ;
+    rdfs:comment "The declaration changes the institutional schedule. A source reason is nominal classification evidence and does not by itself establish a world-side cause. Same-Game identity, distinct Plan identity, and temporal ordering require the reviewed graph constraints in addition to the OWL necessary restrictions."@en ;
+    skos:example "MLB's official declaration moving game 824621 from April 2 to April 3, 2026 is a Baseball Game Postponement Act."@en .

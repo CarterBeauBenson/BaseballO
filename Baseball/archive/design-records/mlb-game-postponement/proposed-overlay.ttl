@@ -1,0 +1,40 @@
+@prefix base: <https://baseballontology.org/> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+@prefix cco: <https://www.commoncoreontologies.org/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+base:BaseballGameSchedulePlan
+    rdfs:subClassOf
+        [ a owl:Restriction ;
+          owl:onProperty cco:ont00001942 ;
+          owl:someValuesFrom base:BaseballGame
+        ] ,
+        [ a owl:Restriction ;
+          owl:onProperty obo:BFO_0000178 ;
+          owl:someValuesFrom [
+              a owl:Class ;
+              owl:intersectionOf (
+                  cco:ont00000073
+                  [ a owl:Restriction ;
+                    owl:onProperty cco:ont00001916 ;
+                    owl:someValuesFrom obo:BFO_0000202
+                  ]
+              )
+          ]
+        ] .
+
+base:BaseballGamePostponementAct
+    rdfs:subClassOf
+        [ a owl:Restriction ;
+          owl:onProperty cco:ont00001833 ;
+          owl:someValuesFrom cco:ont00001017
+        ] ,
+        [ a owl:Restriction ;
+          owl:onProperty cco:ont00001921 ;
+          owl:someValuesFrom base:BaseballGameSchedulePlan
+        ] ,
+        [ a owl:Restriction ;
+          owl:onProperty cco:ont00001986 ;
+          owl:someValuesFrom base:BaseballGameSchedulePlan
+        ] .

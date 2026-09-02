@@ -1,0 +1,59 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-postponement",
+  "title": "MLB-game postponement and schedule revision",
+  "status": "accepted",
+  "proposedIris": [
+    "https://baseballontology.org/BaseballGamePostponementAct",
+    "https://baseballontology.org/BaseballGameSchedulePlan"
+  ],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "6bad1378d5037cee5c2334f5736a151c997c959f6ac24c0e5b20c8078c0f15ee"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "12103b4778e721e3b903929ab79a8b2c7b0a9f22944babac8a683b8013273eed"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "85d41ea63d69d42d69b805d706cca2c7e42cba4d9720568107a6d13267757d6a"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "87aa32ace431ff4e2c6b2663c99cb7e7e711df0f1a148087f348a135c0ef70fc"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-09-01",
+    "rationale": "The ontologist explicitly approved representing an official postponement as an MLB-agent declarative act with old and revised schedule-plan inputs and outputs for the same stable game identity, retaining the provider reason as nominal evidence rather than asserting a weather cause.",
+    "authorizedArtifacts": [
+      "Baseball/ontology/BaseballO.ttl",
+      "Baseball/ontology/BaseballO-axioms-overlay.ttl",
+      "Baseball/scripts/pipeline/prepare-rml-context.py",
+      "Baseball/scripts/pipeline/run-rml.ps1",
+      "Baseball/sources/mlb-game/mapping/mlb-game.rml.ttl",
+      "Baseball/sources/mlb-game/mapping/validate_mlb_game_mapping.py",
+      "Baseball/sources/mlb-game/review/rml-mermaid-manifest.json",
+      "Baseball/mermaid/patterns/60-game-postponement.md",
+      "Baseball/sources/mlb-game/nifi/prepare-schedule-batch.py",
+      "Baseball/sources/mlb-game/nifi/provision.ps1",
+      "Baseball/sources/mlb-game/pipeline/stage.ps1",
+      "Baseball/sources/mlb-game/shacl/authoritative.ttl",
+      "Baseball/sources/mlb-game/tests/test_schedule_batch.py"
+    ]
+  }
+}
