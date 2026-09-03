@@ -6,6 +6,7 @@ SELECT ?officialScorer ?officialScorerLabel
        (COUNT(DISTINCT ?game) AS ?games)
 WHERE {
   GRAPH ?graph {
+    FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
     ?game a base:BaseballGame .
     ?scorerRole a base:OfficialScorerRole ;
                 obo:BFO_0000197 ?officialScorer ;

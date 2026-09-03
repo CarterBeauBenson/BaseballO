@@ -19,7 +19,11 @@
   },
   "batchMaterialization": {
     "processor": "pipeline/materialize-pending-batches.py",
-    "checkPeriod": "15 min"
+    "checkPeriod": "15 min",
+    "dsqCatalog": "serving/dsq-materializations.json",
+    "dsqQueryCount": 56,
+    "dsqReadOnlyWorkers": 2,
+    "resultIsolation": "one-dedicated-table-per-dsq"
   },
   "runtimeExecution": {
     "sourceShacl": {
@@ -79,10 +83,17 @@
     "RML",
     "Source SHACL",
     "Promote Graph Pair",
+    "Emit Promoted Graph Event",
     "Materialize SQL",
     "Cleanup Transient Artifacts",
     "Record Success"
   ],
+  "promotedGraphEvents": {
+    "contractVersion": 1,
+    "emitter": "scripts/pipeline/emit-promoted-graph-event.py",
+    "outbox": "pipeline/events/promoted-graphs",
+    "delivery": "immutable-idempotent-before-transient-cleanup"
+  },
   "failurePolicy": {
     "maximumAttemptsPerStage": 2,
     "quarantineIsSourceLocal": true,

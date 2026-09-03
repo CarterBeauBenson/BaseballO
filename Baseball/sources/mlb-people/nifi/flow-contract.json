@@ -50,5 +50,6 @@
   "mapping": "mapping/mlb-people.rml.ttl",
   "shacl": "shacl/authoritative.ttl",
   "authoritativeGraphTemplate": "https://w3id.org/baseball/graph/authority/mlb-people/{scope.key}",
+  "promotedGraphEvents": {"contractVersion": 1, "emitter": "scripts/pipeline/emit-promoted-graph-event.py", "outbox": "pipeline/events/promoted-graphs", "delivery": "immutable-idempotent-before-transient-cleanup"},
   "failurePolicy": {"maximumRetriesPerStage": 3, "quarantineIsSourceLocal": true}
 }

@@ -33,16 +33,21 @@ By default, binaries and mutable state live under `%LOCALAPPDATA%\BaseballO`, ou
     |   |-- database_repository\
     |   |-- flow\
     |   `-- secrets\
-    `-- pipeline\
+    |-- pipeline\
         |-- inbox\
         |-- staging\
         |-- transient\
         |-- raw\
         |-- manifests\
         |-- evidence\
+        |-- events\promoted-graphs\
         |-- work\
         |-- rdf\
         `-- quarantine\
+    `-- serving\
+        |-- builds\
+        |-- authority\
+        `-- equivalence\
 ```
 
 Set `BASEBALLO_LOCAL_ROOT` before invoking a script to use a different local disk.
@@ -120,5 +125,6 @@ The ontology is not copied, loaded, or modified by these bootstrap scripts.
 The RML, graph-loading, query-index, and serving components are documented in
 the [`scripts/pipeline` runbook](../scripts/pipeline/README.md). The seven
 configured source-owned NiFi lanes, their proof and corpus submission commands,
-and the active 05:00 Eastern schedules are documented in the
+the shared Analytical Serving, DSQ SQL Materialization, Repository Evidence,
+and Serving Equivalence groups, and the active 05:00 Eastern schedules are documented in the
 [`NiFi runbook`](nifi/README.md).

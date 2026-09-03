@@ -25,11 +25,14 @@ flowchart LR
     C --> M[Source-owned RML]
     M --> S[Source-owned SHACL]
     S --> P[Authoritative graph promotion]
-    P --> E[Immutable evidence and cleanup]
+    P --> E[Immutable promoted-graph event]
+    E --> C2[Transient cleanup]
     P --> G{MLB Game lane?}
     G -->|Yes| I[Rebuildable query-index graph]
     I --> B[Batch-aware SQL materialization]
     G -->|No| X[Source-owned authority or event graph complete]
+    E --> A[Declared post-promotion SPARQL]
+    A --> D[Immutable SQL candidate and atomic pointer]
     A -->|bounded failure| Q[Source-local quarantine]
 ```
 
@@ -161,6 +164,21 @@ Exercise all normal and failure routes with:
 .\scripts\pipeline\test-reviewed-query-routing.ps1
 ```
 
+## Compiling reusable DSQs
+
+[`compile-dsq-query.py`](compile-dsq-query.py) turns a declarative DSQ spec into
+complete SPARQL using the hash-pinned modules under
+[`sparql/query-modules/`](../../sparql/query-modules/). Version 1 accepts one
+primary indexed fact grain, reviewed game dimensions, safe `VALUES`, distinct
+counts, and additive reduction over disjoint game partitions. It rejects raw
+SPARQL injection, fact-to-fact joins, and batch averages.
+
+NiFi should compile the reviewed spec, divide the corpus into measured disjoint
+game batches, persist the additive rows in SQL, and derive final rankings or
+rates there. One exact `--index-graph` compiles to a concrete named-graph query;
+multiple graph options compile to a bounded `VALUES ?indexGraph` query. This is
+the reusable path for a newly admitted DSQ, not a second scheduler.
+
 ## Portable dehydration packages
 
 [`export-dehydration-package.ps1`](export-dehydration-package.ps1) creates a
@@ -234,12 +252,31 @@ Bounded game proofs invoke
 Schedule-driven corpus runs mark each game for deferred materialization. The
 NiFi-owned pending-batch stage waits until every expected game has a current
 promotion and then invokes the materializer once for the ready batch. It runs
-the approved serving grains and reviewed analytical queries, validates a
-candidate SQLite database, and promotes it by atomically replacing
+the approved serving grains and all 56 static DSQs, validates a candidate
+SQLite database, and promotes it by atomically replacing
 `%LOCALAPPDATA%\BaseballO\state\serving\current.json`. Versioned builds remain
 derived and rebuildable from persistent RDF.
+
+Every DSQ is persisted in its own graph-partitioned `dsq_*` table under the
+exact inventory in `serving/dsq-materializations.json`. The dedicated `DSQ SQL
+Materialization` NiFi group owns explicit full backfills; the MLB Game
+pending-batch stage owns normal post-ingest refreshes. Neither path admits a UI
+route merely because its rows were materialized.
 
 The Explorer may use live SPARQL for research questions that are not
 materialized. Routine routes move to SQL only after equivalence is established.
 If a candidate serving build fails, the prior pointer remains active and the
 RDF graph pair is not rolled back.
+
+Every successful source promotion first invokes
+[`emit-promoted-graph-event.py`](emit-promoted-graph-event.py). Its immutable,
+idempotent outbox record binds the source module, graph, scope, pipeline run,
+triple count, and exact promotion-evidence hash. The shared `Analytical
+Serving` NiFi group consumes only declared authority dependencies. Corrections
+replace the affected graph partition rather than appending a second version.
+
+[`prove-serving-equivalence.py`](prove-serving-equivalence.py) is the manual
+NiFi-owned pre-admission comparison for PAQ, Advanced, Explore, Empty Games,
+and Derived families. [`query-serving-candidate.py`](query-serving-candidate.py)
+exposes pending SQL only to that loopback proof route; normal UI admission
+remains controlled by `serving/contract.json`.

@@ -1,0 +1,13 @@
+{
+  "artifactType": "baseballo-authority-query-spec",
+  "contractVersion": 1,
+  "id": "people-provider-identifiers",
+  "claim": "Return each Person and each provider Identifier ICE that designates that Person, including its reference system and text.",
+  "sourceScope": {"category": "derived", "sources": ["mlb-people"], "readsGraphLayers": ["authoritative-rdf"], "writesGraphLayers": ["analytical-sql"]},
+  "primaryModule": "person",
+  "enrichments": ["provider-identifier"],
+  "projection": ["authorityGraph", "entity", "identifierICE", "identifierReferenceSystem", "identifierText"],
+  "values": [],
+  "orderBy": [{"variable": "entity", "direction": "asc"}],
+  "materialization": {"partitioning": "authority-graphs", "rowGrain": "person-provider-identifier", "key": ["authorityGraph", "identifierICE"], "merge": "replace-source-graph"}
+}

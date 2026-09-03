@@ -15,6 +15,7 @@ from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 ADAPTER = ROOT / "scripts" / "pipeline" / "query-serving-layer.py"
+CANDIDATE_ADAPTER = ROOT / "scripts" / "pipeline" / "query-serving-candidate.py"
 ACCEPTANCE = ROOT / "scripts" / "pipeline" / "verify-explorer-serving.py"
 REDUCERS = json.loads((ROOT / "serving" / "advanced-query-reducers.json").read_text(encoding="utf-8"))
 CATALOG = json.loads((ROOT / "sparql" / "advanced" / "advanced-query-catalog.json").read_text(encoding="utf-8"))
@@ -22,6 +23,12 @@ SPEC = importlib.util.spec_from_file_location("baseballo_serving_adapter", ADAPT
 MODULE = importlib.util.module_from_spec(SPEC)
 assert SPEC and SPEC.loader
 SPEC.loader.exec_module(MODULE)
+CANDIDATE_SPEC = importlib.util.spec_from_file_location(
+    "baseballo_serving_candidate_adapter", CANDIDATE_ADAPTER
+)
+CANDIDATE_MODULE = importlib.util.module_from_spec(CANDIDATE_SPEC)
+assert CANDIDATE_SPEC and CANDIDATE_SPEC.loader
+CANDIDATE_SPEC.loader.exec_module(CANDIDATE_MODULE)
 ACCEPTANCE_SPEC = importlib.util.spec_from_file_location("baseballo_serving_acceptance", ACCEPTANCE)
 ACCEPTANCE_MODULE = importlib.util.module_from_spec(ACCEPTANCE_SPEC)
 assert ACCEPTANCE_SPEC and ACCEPTANCE_SPEC.loader
@@ -33,6 +40,19 @@ def literal(value: object) -> dict[str, str]:
 
 
 class ServingLayerTests(unittest.TestCase):
+    def test_candidate_adapter_bypasses_only_pending_route_status(self) -> None:
+        contract = MODULE.load_object(MODULE.CONTRACT)
+        CANDIDATE_MODULE.allow_candidate_route(
+            {"id": "swing-to-result-funnel"}, contract
+        )
+        with self.assertRaisesRegex(ValueError, "Unsupported materialized route"):
+            CANDIDATE_MODULE.allow_candidate_route({"route": "unknown"}, contract)
+        with self.assertRaisesRegex(ValueError, "only for the PAQ/Good At Bat"):
+            CANDIDATE_MODULE.allow_candidate_route(
+                {"route": "options", "family": "baserunning", "dimension": "player"},
+                contract,
+            )
+
     def test_serving_contract_admits_only_paq_and_its_required_options(self) -> None:
         contract = MODULE.load_object(MODULE.CONTRACT)
         self.assertEqual(

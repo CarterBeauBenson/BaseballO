@@ -1,0 +1,25 @@
+{
+  "artifactType": "baseballo-nifi-dsq-sql-flow-contract",
+  "contractVersion": 1,
+  "rootProcessGroup": "BaseballO",
+  "processGroup": "DSQ SQL Materialization",
+  "materialization": {
+    "processor": "scripts/pipeline/materialize-serving-layer.py",
+    "catalog": "serving/dsq-materializations.json",
+    "schema": "serving/schema.sql",
+    "queryCount": 56,
+    "readOnlyWorkers": 2,
+    "tableOwnership": "one-dedicated-table-per-dsq",
+    "partitioning": "authoritative-game-graph",
+    "fullBackfillTrigger": "manual-run-once",
+    "nightlyOwner": "mlb-game schedule-batch post-promotion materialization"
+  },
+  "failurePolicy": {
+    "maximumRetries": 2,
+    "authoritativeRdfUnaffected": true,
+    "queryIndexRdfUnaffected": true,
+    "sourceLanesUnaffected": true,
+    "priorServingPointerUnaffected": true,
+    "uiAdmissionUnaffected": true
+  }
+}

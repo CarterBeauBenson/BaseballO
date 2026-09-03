@@ -1,0 +1,3 @@
+?measurementICE a cco:ont00001163 ;
+    cco:ont00001966 ?measuredEntity ;
+    cco:ont00001773 ?integerValue .

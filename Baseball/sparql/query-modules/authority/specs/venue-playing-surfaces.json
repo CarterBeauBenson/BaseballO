@@ -1,0 +1,13 @@
+{
+  "artifactType": "baseballo-authority-query-spec",
+  "contractVersion": 1,
+  "id": "venue-playing-surfaces",
+  "claim": "Return each Baseball Venue's Playing Surface and the Nominal Measurement ICE that classifies it.",
+  "sourceScope": {"category": "derived", "sources": ["mlb-venues"], "readsGraphLayers": ["authoritative-rdf"], "writesGraphLayers": ["analytical-sql"]},
+  "primaryModule": "venue",
+  "enrichments": ["venue-playing-surface", "nominal-measurement"],
+  "projection": ["authorityGraph", "entity", "classifiedEntity", "nominalMeasurementICE", "nominalReferenceSystem", "nominalCode"],
+  "values": [],
+  "orderBy": [{"variable": "entity", "direction": "asc"}],
+  "materialization": {"partitioning": "authority-graphs", "rowGrain": "venue-playing-surface-classification", "key": ["authorityGraph", "nominalMeasurementICE"], "merge": "replace-source-graph"}
+}

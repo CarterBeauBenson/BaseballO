@@ -1,0 +1,4 @@
+?positionDescriptionICE a base:BaseballPositionDescription ;
+    cco:ont00001982 ?entity ;
+    cco:ont00001912 ?positionReferenceSystem ;
+    cco:ont00001765 ?positionCode .

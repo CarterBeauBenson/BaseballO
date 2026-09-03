@@ -1,0 +1,26 @@
+{
+  "artifactType": "baseballo-authority-query-spec",
+  "contractVersion": 1,
+  "id": "organization-proper-names",
+  "claim": "Return Teams, Leagues, and Divisions with each Proper Name ICE that designates the Organization, without collapsing the three source authority lanes.",
+  "sourceScope": {
+    "category": "derived",
+    "sources": ["mlb-divisions", "mlb-leagues", "mlb-teams"],
+    "readsGraphLayers": ["authoritative-rdf"],
+    "writesGraphLayers": ["analytical-sql"]
+  },
+  "primaryModule": "organization",
+  "enrichments": ["proper-name"],
+  "projection": ["authorityGraph", "entity", "nameICE", "nameText"],
+  "values": [],
+  "orderBy": [
+    {"variable": "nameText", "direction": "asc"},
+    {"variable": "entity", "direction": "asc"}
+  ],
+  "materialization": {
+    "partitioning": "authority-graphs",
+    "rowGrain": "organization-proper-name",
+    "key": ["authorityGraph", "nameICE"],
+    "merge": "replace-source-graph"
+  }
+}

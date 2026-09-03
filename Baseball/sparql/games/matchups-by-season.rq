@@ -7,6 +7,7 @@ SELECT ?season ?awayTeam ?awayTeamLabel ?homeTeam ?homeTeamLabel
        (COUNT(DISTINCT ?game) AS ?games)
 WHERE {
   GRAPH ?graph {
+    FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
     ?game a base:BaseballGame ;
           obo:BFO_0000199/obo:BFO_0000222 ?startInstant .
     ?timestamp a base:BaseballTimestampICE ;

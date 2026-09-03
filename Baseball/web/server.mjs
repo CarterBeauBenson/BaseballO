@@ -27,6 +27,7 @@ const OPTIONS_ROOT = resolve(WEB_ROOT, "..", "sparql", "options");
 const ADVANCED_QUERY_ROOT = resolve(WEB_ROOT, "..", "sparql", "advanced");
 const ADVANCED_QUERY_CATALOG = resolve(ADVANCED_QUERY_ROOT, "advanced-query-catalog.json");
 const SERVING_QUERY_SCRIPT = resolve(WEB_ROOT, "..", "scripts", "pipeline", "query-serving-layer.py");
+const SERVING_CANDIDATE_QUERY_SCRIPT = resolve(WEB_ROOT, "..", "scripts", "pipeline", "query-serving-candidate.py");
 const RAW_SAMPLES_ROOT = resolve(WEB_ROOT, "..", "data", "raw", "samples");
 const RAW_FIXTURE = resolve(WEB_ROOT, "..", "data", "raw", "game-566279.json");
 const LOCAL_STATE_ROOT = process.env.BASEBALLO_STATE_ROOT
@@ -43,6 +44,9 @@ const GAME_DATE_INDEX_TTL_MS = 30_000;
 const RESULT_CACHE_TTL_MS = 30_000;
 const RESULT_CACHE_LIMIT = 100;
 const REQUIRE_MATERIALIZED_HEADER = "x-baseballo-require-materialized";
+const FORCE_AUTHORITATIVE_HEADER = "x-baseballo-force-authoritative";
+const USE_CANDIDATE_SQL_HEADER = "x-baseballo-use-candidate-sql";
+const EQUIVALENCE_TOKEN_HEADER = "x-baseballo-equivalence-token";
 const DATE_SCOPE_PRESETS = new Set(["one_day", "seven_days", "thirty_days", "season_to_date", "custom"]);
 const GAME_SETS = new Set(["regular_season", "all_star"]);
 const EXPLORER_RUNTIME_SOURCE_PATHS = [
@@ -98,6 +102,7 @@ const STATIC_FILES = new Map([
   ["/", "index.html"],
   ["/index.html", "index.html"],
   ["/app.js", "app.js"],
+  ["/question-recipes.js", "question-recipes.js"],
   ["/result-sort.js", "result-sort.js"],
   ["/styles.css", "styles.css"],
 ]);
@@ -132,11 +137,24 @@ function rejectMaterializedFallback(request, response) {
   return true;
 }
 
-async function executeServingQuery(input) {
+function executeRouteServing(request, servingExecutor, candidateServingExecutor, equivalenceToken, input) {
+  if (request.headers[FORCE_AUTHORITATIVE_HEADER] === "true") {
+    return Promise.reject(new Error("Authoritative execution was explicitly requested."));
+  }
+  if (request.headers[USE_CANDIDATE_SQL_HEADER] === "true") {
+    if (!equivalenceToken || request.headers[EQUIVALENCE_TOKEN_HEADER] !== equivalenceToken) {
+      return Promise.reject(new Error("Candidate SQL is available only to an authorized equivalence run."));
+    }
+    return candidateServingExecutor(input);
+  }
+  return servingExecutor(input);
+}
+
+async function executePythonServingQuery(script, input) {
   if (!LOCAL_STATE_ROOT) throw new Error("No local BaseballO state root is configured.");
   const python = process.env.BASEBALLO_PYTHON ?? "python";
   return new Promise((resolvePromise, rejectPromise) => {
-    const child = spawn(python, [SERVING_QUERY_SCRIPT, "--state-root", LOCAL_STATE_ROOT], {
+    const child = spawn(python, [script, "--state-root", LOCAL_STATE_ROOT], {
       cwd: resolve(WEB_ROOT, ".."),
       windowsHide: true,
       stdio: ["pipe", "pipe", "pipe"],
@@ -165,6 +183,14 @@ async function executeServingQuery(input) {
     });
     child.stdin.end(JSON.stringify(input));
   });
+}
+
+async function executeServingQuery(input) {
+  return executePythonServingQuery(SERVING_QUERY_SCRIPT, input);
+}
+
+async function executeCandidateServingQuery(input) {
+  return executePythonServingQuery(SERVING_CANDIDATE_QUERY_SCRIPT, input);
 }
 
 function publicError(error) {
@@ -744,6 +770,8 @@ export function createBaseballServer({
   fetchImpl = globalThis.fetch,
   queryEndpoint = process.env.BASEBALLO_FUSEKI_QUERY ?? DEFAULT_QUERY_ENDPOINT,
   servingExecutor = executeServingQuery,
+  candidateServingExecutor = executeCandidateServingQuery,
+  equivalenceToken = process.env.BASEBALLO_EQUIVALENCE_TOKEN ?? null,
 } = {}) {
   const optionCache = new Map();
   const resultCache = new Map();
@@ -808,7 +836,7 @@ export function createBaseballServer({
         const games = Number(binding.games?.value ?? 0);
         let serving = { available: false };
         try {
-          const probe = await servingExecutor({
+          const probe = await executeRouteServing(request, servingExecutor, candidateServingExecutor, equivalenceToken, {
             id: GOOD_AT_BAT_QUERY_ID,
             view: "player_averages",
             filters: {},
@@ -883,7 +911,7 @@ export function createBaseballServer({
           return;
         }
         try {
-          const materialized = await servingExecutor({
+          const materialized = await executeRouteServing(request, servingExecutor, candidateServingExecutor, equivalenceToken, {
             route: "options", family: familyId, dimension: dimensionId, gameSet,
           });
           const options = mapOptions(dimensionId, dimension, materialized);
@@ -937,7 +965,7 @@ export function createBaseballServer({
           Object.entries(filters).filter(([id]) => !["team", "player", "pitcher"].includes(id)),
         );
         try {
-          const materialized = await servingExecutor({
+          const materialized = await executeRouteServing(request, servingExecutor, candidateServingExecutor, equivalenceToken, {
             route: "empty-games", analysis, filters,
             dateScope: normalizeDateScope(input.dateScope),
             gameSet: normalizeGameSet(input.gameSet),
@@ -1043,7 +1071,7 @@ export function createBaseballServer({
         const compiled = compileDerivedMetricQuery(input);
         const filters = normalizeSpecialFilters(input.filters, ["season", "game", "venue", "team", "player"]);
         try {
-          const materialized = await servingExecutor({
+          const materialized = await executeRouteServing(request, servingExecutor, candidateServingExecutor, equivalenceToken, {
             route: "derived", numerator: input.numerator, denominator: input.denominator, filters,
             dateScope: normalizeDateScope(input.dateScope), gameSet: normalizeGameSet(input.gameSet),
           });
@@ -1132,7 +1160,7 @@ export function createBaseballServer({
           ? presentation.playerAverageColumns
           : presentation.visibleColumns;
         try {
-          const materialized = await servingExecutor({
+          const materialized = await executeRouteServing(request, servingExecutor, candidateServingExecutor, equivalenceToken, {
             id: entry.id,
             ...(view === undefined ? {} : { view }),
             filters,
@@ -1212,7 +1240,7 @@ export function createBaseballServer({
       if (request.method === "POST" && requestUrl.pathname === "/api/query") {
         const input = normalizeQueryRequest(await readJsonBody(request));
         try {
-          const materialized = await servingExecutor({
+          const materialized = await executeRouteServing(request, servingExecutor, candidateServingExecutor, equivalenceToken, {
             route: "explore", ...input,
             dateScope: normalizeDateScope(input.dateScope),
             gameSet: normalizeGameSet(input.gameSet),

@@ -1,0 +1,3 @@
+?plateAppearance a idx:PlateAppearanceFact ;
+    idx:game ?game ;
+    idx:agent ?batter .

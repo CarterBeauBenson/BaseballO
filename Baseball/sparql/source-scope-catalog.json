@@ -1,6 +1,22 @@
 {
   "artifactType": "baseballo-sparql-source-scope-catalog",
   "contractVersion": 2,
+  "runtimeBinders": [
+    {
+      "id": "reviewed-mlb-game-query-runner",
+      "source": "mlb-game",
+      "graphLayer": "authoritative-rdf",
+      "graphPrefix": "https://w3id.org/baseball/graph/game/",
+      "graphVariable": "?graph",
+      "queryRegistry": "sparql/query-index/operational-query-routing.json",
+      "queryRegistryField": "routes[].authoritative",
+      "runner": "scripts/pipeline/run-reviewed-query.ps1",
+      "regressionTests": [
+        "tests/test_sparql_source_scopes.py",
+        "scripts/pipeline/test-reviewed-query-routing.ps1"
+      ]
+    }
+  ],
   "entries": [
     {
       "id": "mlb-game-authoritative-questions",

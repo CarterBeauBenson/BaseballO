@@ -1,0 +1,24 @@
+{
+  "artifactType": "baseballo-nifi-serving-flow-contract",
+  "contractVersion": 1,
+  "rootProcessGroup": "BaseballO",
+  "processGroup": "Analytical Serving",
+  "input": {
+    "artifactType": "baseballo-promoted-graph-event",
+    "contractVersion": 1,
+    "outbox": "pipeline/events/promoted-graphs"
+  },
+  "authorityMaterialization": {
+    "processor": "scripts/pipeline/materialize-authority-serving.py",
+    "contract": "serving/authority-contract.json",
+    "checkPeriod": "1 min",
+    "maximumEventsPerBuild": 100,
+    "fullRebuildTrigger": "manual-run-once"
+  },
+  "failurePolicy": {
+    "maximumRetries": 2,
+    "authoritativeRdfUnaffected": true,
+    "sourceLanesUnaffected": true,
+    "priorServingPointerUnaffected": true
+  }
+}

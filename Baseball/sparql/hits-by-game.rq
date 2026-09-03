@@ -7,6 +7,7 @@ SELECT ?game ?gameStart ?venue ?venueLabel
        (COUNT(DISTINCT ?hit) AS ?hits)
 WHERE {
   GRAPH ?graph {
+    FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
     ?game a base:BaseballGame ;
           obo:BFO_0000199/obo:BFO_0000222 ?gameStartInstant ;
           cco:ont00001918 ?field .

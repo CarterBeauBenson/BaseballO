@@ -1,0 +1,51 @@
+{
+  "artifactType": "baseballo-dsq-query-spec",
+  "contractVersion": 1,
+  "id": "plate-appearances-by-player-and-season-modular",
+  "claim": "Count distinct plate appearances and games for each batter and represented season.",
+  "sourceScope": {
+    "category": "derived",
+    "sources": ["mlb-game"],
+    "readsGraphLayers": ["indexed-rdf"]
+  },
+  "primaryModule": "plate-appearance",
+  "enrichments": ["game-season"],
+  "dimensions": ["season", "batter"],
+  "labels": [
+    {
+      "variable": "batter",
+      "as": "batterLabel"
+    }
+  ],
+  "measures": [
+    {
+      "aggregate": "count-distinct",
+      "variable": "plateAppearance",
+      "as": "plateAppearances"
+    },
+    {
+      "aggregate": "count-distinct",
+      "variable": "game",
+      "as": "games"
+    }
+  ],
+  "values": [],
+  "materialization": {
+    "partitioning": "disjoint-game-graphs",
+    "dimensions": ["season", "batter", "batterLabel"],
+    "merge": {
+      "plateAppearances": "sum",
+      "games": "sum"
+    }
+  },
+  "orderBy": [
+    {
+      "variable": "season",
+      "direction": "asc"
+    },
+    {
+      "variable": "plateAppearances",
+      "direction": "desc"
+    }
+  ]
+}

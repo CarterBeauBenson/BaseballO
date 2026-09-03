@@ -43,6 +43,15 @@ REASONING_BASELINE_GENERATOR = (
 )
 SERVING_LAYER_TEST = ROOT / "tests" / "test_serving_layer.py"
 SERVING_MATERIALIZER_TEST = ROOT / "tests" / "test_serving_materializer.py"
+DSQ_QUERY_MODULE_TEST = ROOT / "tests" / "test_dsq_query_modules.py"
+DSQ_SQL_MATERIALIZATION_TEST = ROOT / "tests" / "test_dsq_sql_materializations.py"
+PROMOTED_GRAPH_EVENT_TEST = ROOT / "tests" / "test_promoted_graph_events.py"
+AUTHORITY_SERVING_TEST = ROOT / "tests" / "test_authority_serving_materializer.py"
+REPOSITORY_VALIDATION_OBSERVER_TEST = (
+    ROOT / "tests" / "test_repository_validation_observer.py"
+)
+SERVING_EQUIVALENCE_TEST = ROOT / "tests" / "test_serving_equivalence.py"
+SPARQL_SOURCE_SCOPE_TEST = ROOT / "tests" / "test_sparql_source_scopes.py"
 SELECTIVE_REASONER = ROOT / "scripts" / "reasoning" / "selective_reasoner.py"
 SELECTIVE_PROVER = ROOT / "scripts" / "reasoning" / "prove-selective-reasoning.py"
 REASONING_EVIDENCE = ROOT / "reasoning" / "evidence" / "fixture-566279-pa-0.json"
@@ -182,6 +191,12 @@ REQUIRED_PATHS = (
     ROOT / "scripts" / "pipeline" / "validate-mapping-shacl-contracts.py",
     ROOT / "scripts" / "pipeline" / "build-query-index.ps1",
     ROOT / "scripts" / "pipeline" / "compile-query-index.py",
+    ROOT / "scripts" / "pipeline" / "compile-dsq-query.py",
+    ROOT / "scripts" / "pipeline" / "emit-promoted-graph-event.py",
+    ROOT / "scripts" / "pipeline" / "materialize-authority-serving.py",
+    ROOT / "scripts" / "pipeline" / "record-repository-validation.py",
+    ROOT / "scripts" / "pipeline" / "query-serving-candidate.py",
+    ROOT / "scripts" / "pipeline" / "prove-serving-equivalence.py",
     ROOT / "scripts" / "pipeline" / "query-index-common.ps1",
     ROOT / "scripts" / "infra" / "canonical-text.ps1",
     ROOT / "scripts" / "pipeline" / "test-query-index.ps1",
@@ -217,6 +232,14 @@ REQUIRED_PATHS = (
     ROOT / "serving" / "contract.json",
     PAQ_CONTRACT,
     ROOT / "serving" / "schema.sql",
+    ROOT / "serving" / "authority-contract.json",
+    ROOT / "serving" / "authority-schema.sql",
+    ROOT / "serving" / "nifi" / "flow-contract.json",
+    ROOT / "serving" / "nifi" / "provision.ps1",
+    ROOT / "serving" / "equivalence" / "flow-contract.json",
+    ROOT / "serving" / "equivalence" / "provision.ps1",
+    ROOT / "infra" / "nifi" / "repository-evidence" / "flow-contract.json",
+    ROOT / "infra" / "nifi" / "repository-evidence" / "provision.ps1",
     ADVANCED_QUERY_ROOT / "README.md",
     ADVANCED_QUERY_CATALOG,
     ROOT / "sparql" / "query-inventory.md",
@@ -230,6 +253,17 @@ REQUIRED_PATHS = (
     QUERY_INDEX_EVIDENCE_REGISTER,
     ROOT / "sparql" / "query-index" / "dehydration-package.md",
     ROOT / "sparql" / "query-index" / "benchmarks" / "benchmark-pairs.json",
+    ROOT / "sparql" / "query-modules" / "README.md",
+    ROOT / "sparql" / "query-modules" / "catalog.json",
+    ROOT / "sparql" / "query-modules" / "authority" / "README.md",
+    ROOT / "sparql" / "query-modules" / "authority" / "catalog.json",
+    DSQ_QUERY_MODULE_TEST,
+    DSQ_SQL_MATERIALIZATION_TEST,
+    PROMOTED_GRAPH_EVENT_TEST,
+    AUTHORITY_SERVING_TEST,
+    REPOSITORY_VALIDATION_OBSERVER_TEST,
+    SERVING_EQUIVALENCE_TEST,
+    SPARQL_SOURCE_SCOPE_TEST,
     ROOT / "benchmarks" / "query-index" / "README.md",
     ROOT / "benchmarks" / "query-index" / "fixture-566279-baseline.md",
     ROOT / "benchmarks" / "query-index" / "fixture-566279-baseline.json",
@@ -1065,6 +1099,69 @@ def validate_source_module_contract() -> tuple[int, set[str]]:
 
 def validate_query_source_scopes(source_ids: set[str]) -> int:
     catalog = json.loads(QUERY_SCOPE_CATALOG.read_text(encoding="utf-8"))
+    source_catalog = json.loads(SOURCE_MODULE_CATALOG.read_text(encoding="utf-8"))
+    source_graph_prefixes = {
+        str(module["id"]): tuple(str(prefix) for prefix in module["authoritativeGraphPrefixes"])
+        for module in source_catalog["modules"]
+    }
+    runtime_bound_queries: dict[Path, dict[str, str]] = {}
+    binder_ids: set[str] = set()
+    for binder in catalog.get("runtimeBinders", []):
+        required = {
+            "id",
+            "source",
+            "graphLayer",
+            "graphPrefix",
+            "graphVariable",
+            "queryRegistry",
+            "queryRegistryField",
+            "runner",
+            "regressionTests",
+        }
+        if not isinstance(binder, dict) or set(binder) != required:
+            raise ValueError("SPARQL runtime binder contract is incomplete")
+        binder_id = str(binder["id"])
+        source_id = str(binder["source"])
+        graph_prefix = str(binder["graphPrefix"])
+        graph_variable = str(binder["graphVariable"])
+        if not binder_id or binder_id in binder_ids:
+            raise ValueError(f"SPARQL runtime binder ID is missing or duplicated: {binder_id}")
+        binder_ids.add(binder_id)
+        if (
+            source_id not in source_ids
+            or binder["graphLayer"] != "authoritative-rdf"
+            or graph_prefix not in source_graph_prefixes.get(source_id, ())
+            or graph_variable != "?graph"
+            or binder["queryRegistryField"] != "routes[].authoritative"
+        ):
+            raise ValueError(f"SPARQL runtime binder scope is invalid: {binder_id}")
+        registry_path = (ROOT / str(binder["queryRegistry"])).resolve()
+        runner_path = (ROOT / str(binder["runner"])).resolve()
+        tests = [(ROOT / str(path)).resolve() for path in binder["regressionTests"]]
+        if not registry_path.is_file() or not runner_path.is_file() or any(
+            not path.is_file() for path in tests
+        ):
+            raise ValueError(f"SPARQL runtime binder artifact is missing: {binder_id}")
+        registry = json.loads(registry_path.read_text(encoding="utf-8"))
+        if registry.get("artifactType") != "baseball-reviewed-query-routing":
+            raise ValueError(f"SPARQL runtime binder registry is unsupported: {binder_id}")
+        runner = runner_path.read_text(encoding="utf-8")
+        if (
+            f"$sourceGraphPrefix = '{graph_prefix}'" not in runner
+            or 'VALUES ?graph { $values }' not in runner
+            or "Get-ScopedQuery" not in runner
+        ):
+            raise ValueError(f"SPARQL runtime binder implementation has drifted: {binder_id}")
+        for route in registry.get("routes", []):
+            relative = str(route.get("authoritative", ""))
+            query_path = (ROOT / relative).resolve()
+            if not relative or not query_path.is_file() or query_path in runtime_bound_queries:
+                raise ValueError(f"SPARQL runtime binder query registration is invalid: {binder_id}")
+            runtime_bound_queries[query_path] = {
+                "id": binder_id,
+                "source": source_id,
+                "graphVariable": graph_variable,
+            }
     if (
         catalog.get("artifactType") != "baseballo-sparql-source-scope-catalog"
         or catalog.get("contractVersion") != 2
@@ -1121,11 +1218,63 @@ def validate_query_source_scopes(source_ids: set[str]) -> int:
             f"missing={missing}, duplicates={duplicates}, extra={extra}"
         )
 
+    for path, binder in runtime_bound_queries.items():
+        owners = coverage.get(path)
+        if not owners or len(owners) != 1:
+            raise ValueError(f"Runtime-bound SPARQL query lacks one scope owner: {path}")
+        owner = next(entry for entry in entries if entry["id"] == owners[0])
+        if owner["category"] != "single-source" or owner["sources"] != [binder["source"]]:
+            raise ValueError(
+                f"Runtime-bound SPARQL query differs from its source-scope owner: {path}"
+            )
+
     entries_by_id = {str(entry["id"]): entry for entry in entries}
     for path, owners in coverage.items():
         entry = entries_by_id[owners[0]]
         query = path.read_text(encoding="utf-8")
         relative = path.relative_to(SPARQL_ROOT).as_posix()
+        if entry["category"] == "single-source":
+            source_id = str(entry["sources"][0])
+            allowed_prefixes = source_graph_prefixes.get(source_id, ())
+            if not allowed_prefixes:
+                raise ValueError(
+                    f"Single-source query owner has no authoritative graph prefix: {source_id}"
+                )
+            graph_variables = set(
+                re.findall(r"\bGRAPH\s+(\?[A-Za-z_][A-Za-z0-9_]*)\s*\{", query, re.IGNORECASE)
+            )
+            fixed_graphs = re.findall(r"\bGRAPH\s+<([^>]+)>\s*\{", query, re.IGNORECASE)
+            if not graph_variables and not fixed_graphs:
+                raise ValueError(
+                    f"Static single-source query does not select an explicit named graph: {relative}"
+                )
+            for graph_iri in fixed_graphs:
+                if not any(graph_iri.startswith(prefix) for prefix in allowed_prefixes):
+                    raise ValueError(
+                        f"Single-source query reads a graph outside {source_id}: "
+                        f"{relative}; graph={graph_iri}"
+                    )
+            for variable in graph_variables:
+                guarded = any(
+                    re.search(
+                        rf"FILTER\s*\(\s*STRSTARTS\s*\(\s*STR\s*\(\s*{re.escape(variable)}\s*\)\s*,\s*"
+                        rf"['\"]{re.escape(prefix)}['\"]\s*\)\s*\)",
+                        query,
+                        re.IGNORECASE,
+                    )
+                    for prefix in allowed_prefixes
+                )
+                runtime_binder = runtime_bound_queries.get(path.resolve())
+                bound_at_runtime = (
+                    runtime_binder is not None
+                    and runtime_binder["source"] == source_id
+                    and runtime_binder["graphVariable"] == variable
+                )
+                if not guarded and not bound_at_runtime:
+                    raise ValueError(
+                        f"Static single-source query has an unguarded named-graph variable: "
+                        f"{relative}; variable={variable}; source={source_id}"
+                    )
         detected_reads: set[str] = set()
         if re.search(r"\bGRAPH\s+\?indexGraph\b", query, re.IGNORECASE):
             detected_reads.add("indexed-rdf")
@@ -2319,6 +2468,17 @@ def main() -> None:
     paq_anchor_count = validate_paq_contract()
     subprocess.run([sys.executable, str(SERVING_LAYER_TEST)], cwd=ROOT, check=True)
     subprocess.run([sys.executable, str(SERVING_MATERIALIZER_TEST)], cwd=ROOT, check=True)
+    subprocess.run([sys.executable, str(DSQ_QUERY_MODULE_TEST)], cwd=ROOT, check=True)
+    subprocess.run([sys.executable, str(DSQ_SQL_MATERIALIZATION_TEST)], cwd=ROOT, check=True)
+    subprocess.run([sys.executable, str(PROMOTED_GRAPH_EVENT_TEST)], cwd=ROOT, check=True)
+    subprocess.run([sys.executable, str(AUTHORITY_SERVING_TEST)], cwd=ROOT, check=True)
+    subprocess.run(
+        [sys.executable, str(REPOSITORY_VALIDATION_OBSERVER_TEST)],
+        cwd=ROOT,
+        check=True,
+    )
+    subprocess.run([sys.executable, str(SERVING_EQUIVALENCE_TEST)], cwd=ROOT, check=True)
+    subprocess.run([sys.executable, str(SPARQL_SOURCE_SCOPE_TEST)], cwd=ROOT, check=True)
     reasoning_proof_count = validate_reasoning_evidence()
     reasoning_review_runs, reasoning_review_proofs = validate_reasoning_review_evidence()
     validate_web_app()
@@ -2350,6 +2510,8 @@ def main() -> None:
     print(f"Mermaid blocks checked: {mermaid_count}")
     print(f"Optimized ARQ algebra plans checked: {algebra_plan_count}")
     print("Local web explorer checks passed.")
+    print("Reusable DSQ query-module contracts passed.")
+    print("Complete DSQ SQL materialization coverage passed.")
     print(f"PAQ-1.0 contract checked: {paq_anchor_count} anchor cases")
     print("Selective reasoning contracts and offline smoke tests passed.")
     print(f"Selective first-order proof obligations checked: {reasoning_proof_count}")

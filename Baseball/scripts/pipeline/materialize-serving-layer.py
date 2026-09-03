@@ -14,11 +14,15 @@ import statistics
 import tempfile
 import time
 import urllib.parse
+import urllib.error
 import urllib.request
 import uuid
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+from rdflib.plugins.sparql.processor import prepareQuery
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -40,6 +44,7 @@ VALIDATOR = ROOT / "scripts" / "pipeline" / "query-serving-layer.py"
 GOOD_AT_BAT_QUERY = ROOT / "sparql" / "advanced" / "plate-appearance-fingerprint.rq"
 ADVANCED_CATALOG = ROOT / "sparql" / "advanced" / "advanced-query-catalog.json"
 ADVANCED_REDUCERS = SERVING_ROOT / "advanced-query-reducers.json"
+DSQ_MATERIALIZATIONS = SERVING_ROOT / "dsq-materializations.json"
 GAME_DIMENSION_QUERY = ROOT / "sparql" / "serving" / "game-dimension.rq"
 EXPLORE_GRAIN_QUERIES = {
     "batting": ROOT / "sparql" / "serving" / "explore-batting-grain.rq",
@@ -54,7 +59,10 @@ INDEX_GRAPH_PREFIX = "https://w3id.org/baseball/graph/query-index/game/"
 GAME_IRI_PREFIX = "https://baseballontology.org/data/game/"
 INDEX_RESOURCE_PREFIX = "https://w3id.org/baseball/query-index-build/game/"
 GRAPH_GUARD = f'FILTER(STRSTARTS(STR(?graph), "{GRAPH_PREFIX}"))'
+INDEX_GRAPH_GUARD = f'FILTER(STRSTARTS(STR(?indexGraph), "{INDEX_GRAPH_PREFIX}"))'
+LIVE_PREFLIGHT_BATCH_SIZE = 200
 SHA256_PATTERN = re.compile(r"^[0-9a-fA-F]{64}$")
+SQL_IDENTIFIER_PATTERN = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 QUERY_INDEX_ROUTING = ROOT / "sparql" / "query-index" / "operational-query-routing.json"
 QUERY_INDEX_SEMANTIC_CONTRACT = ROOT / "sparql" / "query-index" / "semantic-contract.json"
 SUPPORTED_QUERY_INDEX_CONTRACT_VERSION = 1
@@ -143,6 +151,252 @@ def file_set_sha256(paths: dict[str, Path]) -> str:
     return digest.hexdigest()
 
 
+def dsq_query_set_sha256(entries: list[dict[str, Any]]) -> str:
+    digest = hashlib.sha256()
+    for entry in sorted(entries, key=lambda item: item["id"]):
+        digest.update(entry["id"].encode("utf-8"))
+        digest.update(b"\0")
+        digest.update((ROOT / entry["path"]).read_bytes())
+        digest.update(b"\0")
+        digest.update(entry["executionLayer"].encode("utf-8"))
+        digest.update(b"\0")
+        digest.update((ROOT / entry["executionPath"]).read_bytes())
+        digest.update(b"\0")
+        digest.update(
+            json.dumps(entry["reducer"], ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        )
+        digest.update(b"\0")
+    return digest.hexdigest()
+
+
+def _checked_identifier(value: object, label: str) -> str:
+    text_value = str(value)
+    if not SQL_IDENTIFIER_PATTERN.fullmatch(text_value):
+        raise ValueError(f"Invalid {label}: {text_value!r}")
+    return text_value
+
+
+def _relative_query_path(value: object) -> str:
+    relative = str(value).replace("\\", "/")
+    path = (ROOT / relative).resolve()
+    sparql_root = (ROOT / "sparql").resolve()
+    if path.suffix != ".rq" or sparql_root not in path.parents or not path.is_file():
+        raise ValueError(f"DSQ query path is missing or outside sparql/: {relative}")
+    return relative
+
+
+def projected_variables(path: str) -> list[str]:
+    query = prepareQuery((ROOT / path).read_text(encoding="utf-8"))
+    variables = [str(variable) for variable in query.algebra.PV]
+    if not variables or any(not SQL_IDENTIFIER_PATTERN.fullmatch(variable) for variable in variables):
+        raise ValueError(f"DSQ has an invalid projected-variable contract: {path}")
+    return variables
+
+
+def load_dsq_entries(
+    catalog: dict[str, Any], advanced_catalog: dict[str, Any], advanced_reducers: dict[str, Any]
+) -> list[dict[str, Any]]:
+    if (
+        catalog.get("artifactType") != "baseballo-dsq-sql-materialization-catalog"
+        or catalog.get("contractVersion") != 1
+    ):
+        raise ValueError("Unsupported DSQ SQL materialization catalog")
+    advanced = catalog.get("advanced")
+    if not isinstance(advanced, dict) or advanced != {
+        "catalog": "sparql/advanced/advanced-query-catalog.json",
+        "reducers": "serving/advanced-query-reducers.json",
+        "tablePrefix": "dsq_advanced_",
+    }:
+        raise ValueError("DSQ catalog does not bind the reviewed advanced query contract exactly")
+    routing = json.loads(QUERY_INDEX_ROUTING.read_text(encoding="utf-8"))
+    routes = {
+        str(route["authoritative"]): route
+        for route in routing.get("routes", [])
+        if isinstance(route, dict) and route.get("authoritative")
+    }
+    entries: list[dict[str, Any]] = []
+    detail_ids = set(advanced_reducers.get("detailQueries", []))
+    additive = advanced_reducers.get("additiveQueries", {})
+    for query in advanced_catalog.get("queries", []):
+        query_id = _checked_identifier(str(query.get("id", "")).replace("-", "_"), "advanced DSQ id")
+        source_id = str(query["id"])
+        if source_id in detail_ids:
+            filter_dimensions = [
+                str(value["variable"])
+                for value in query.get("resultFilters", [])
+                if isinstance(value, dict) and value.get("variable")
+            ]
+            reducer: dict[str, Any] = {
+                "mode": "detail",
+                "dimensions": list(dict.fromkeys(filter_dimensions)),
+                "sums": [],
+            }
+        elif source_id in additive and isinstance(additive[source_id], dict):
+            reducer = {"mode": "additive", **additive[source_id]}
+        else:
+            raise ValueError(f"Advanced DSQ has no reducer: {source_id}")
+        path = _relative_query_path(query["path"])
+        variables = projected_variables(path)
+        if not set(reducer.get("dimensions", []) + reducer.get("sums", [])).issubset(variables):
+            raise ValueError(f"Advanced DSQ reducer fields are not projected: {source_id}")
+        entries.append(
+            {
+                "id": source_id,
+                "family": "advanced",
+                "kind": "advanced",
+                "path": path,
+                "executionLayer": "authoritative",
+                "executionPath": path,
+                "table": f"dsq_advanced_{query_id}",
+                "reducer": reducer,
+                "variables": variables,
+            }
+        )
+    canned = catalog.get("cannedQueries")
+    if not isinstance(canned, list):
+        raise ValueError("DSQ catalog cannedQueries must be a list")
+    expected_canned = {
+        path.relative_to(ROOT).as_posix()
+        for directory in (
+            ROOT / "sparql",
+            ROOT / "sparql" / "batting",
+            ROOT / "sparql" / "pitching",
+            ROOT / "sparql" / "baserunning",
+            ROOT / "sparql" / "games",
+        )
+        for path in directory.glob("*.rq")
+    }
+    catalog_canned: set[str] = set()
+    for query in canned:
+        if not isinstance(query, dict):
+            raise ValueError("DSQ catalog entries must be objects")
+        query_id = str(query.get("id", ""))
+        if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", query_id):
+            raise ValueError(f"Invalid canned DSQ id: {query_id!r}")
+        path = _relative_query_path(query.get("path"))
+        variables = projected_variables(path)
+        route = routes.get(path)
+        execution_layer = "indexed" if route and route.get("autoLayer") == "indexed" else "authoritative"
+        execution_path = (
+            _relative_query_path(route["indexed"])
+            if execution_layer == "indexed"
+            else path
+        )
+        if projected_variables(execution_path) != variables:
+            raise ValueError(f"DSQ execution query changes projected variables: {query_id}")
+        catalog_canned.add(path)
+        reducer = query.get("reducer")
+        if not isinstance(reducer, dict) or reducer.get("mode") not in {"additive", "detail"}:
+            raise ValueError(f"Canned DSQ reducer is invalid: {query_id}")
+        dimensions = reducer.get("dimensions")
+        sums = reducer.get("sums")
+        if (
+            not isinstance(dimensions, list)
+            or not isinstance(sums, list)
+            or not all(isinstance(value, str) and SQL_IDENTIFIER_PATTERN.fullmatch(value) for value in dimensions + sums)
+            or set(dimensions) & set(sums)
+            or (reducer["mode"] == "additive" and not sums)
+            or (reducer["mode"] == "detail" and sums)
+            or not set(dimensions + sums).issubset(variables)
+        ):
+            raise ValueError(f"Canned DSQ reducer fields are invalid: {query_id}")
+        family = str(query.get("family", ""))
+        if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", family):
+            raise ValueError(f"Invalid DSQ family: {family!r}")
+        entries.append(
+            {
+                "id": query_id,
+                "family": family,
+                "kind": "canned",
+                "path": path,
+                "executionLayer": execution_layer,
+                "executionPath": execution_path,
+                "table": _checked_identifier(query.get("table"), "DSQ result table"),
+                "reducer": reducer,
+                "variables": variables,
+            }
+        )
+    if catalog_canned != expected_canned:
+        raise ValueError(
+            "Canned DSQ SQL coverage differs from the approved query surface: "
+            f"missing={sorted(expected_canned - catalog_canned)}, extra={sorted(catalog_canned - expected_canned)}"
+        )
+    ids = [entry["id"] for entry in entries]
+    tables = [entry["table"] for entry in entries]
+    if len(entries) != 56 or len(ids) != len(set(ids)) or len(tables) != len(set(tables)):
+        raise ValueError("DSQ SQL catalog must name 56 unique questions and result tables")
+    return entries
+
+
+def create_dsq_table(
+    connection: sqlite3.Connection, entry: dict[str, Any], variables: list[str]
+) -> None:
+    table = _checked_identifier(entry["table"], "DSQ result table")
+    checked_variables = [_checked_identifier(variable, "DSQ result variable") for variable in variables]
+    if (
+        len(checked_variables) != len(set(checked_variables))
+        or set(checked_variables) & {"graph_iri", "row_ordinal", "binding_json", "binding_sha256"}
+    ):
+        raise ValueError(f"DSQ query returned duplicate variables: {entry['id']}")
+    generated = [
+        f'"{variable}" TEXT GENERATED ALWAYS AS '
+        f'(json_extract(binding_json, \'$."{variable}".value\')) STORED'
+        for variable in checked_variables
+    ]
+    columns = [
+        "graph_iri TEXT NOT NULL REFERENCES game_dimension(graph_iri)",
+        "row_ordinal INTEGER NOT NULL",
+        "binding_json TEXT NOT NULL CHECK (json_valid(binding_json))",
+        "binding_sha256 TEXT NOT NULL",
+        *generated,
+        "PRIMARY KEY (graph_iri, row_ordinal)",
+    ]
+    connection.execute(f'CREATE TABLE "{table}" ({",".join(columns)}) STRICT')
+    connection.execute(f'CREATE INDEX "{table}_graph_idx" ON "{table}" (graph_iri)')
+    for variable in entry["reducer"].get("dimensions", []):
+        if variable in checked_variables:
+            connection.execute(
+                f'CREATE INDEX "{table}_{variable}_idx" ON "{table}" ("{variable}")'
+            )
+
+
+def insert_dsq_payload(
+    connection: sqlite3.Connection,
+    entry: dict[str, Any],
+    graph: str,
+    payload: dict[str, Any],
+    state: dict[str, Any],
+    record_source_row: Any,
+) -> int:
+    variables = payload.get("head", {}).get("vars", [])
+    expected_variables = entry["variables"]
+    bindings = payload.get("results", {}).get("bindings", [])
+    if not isinstance(variables, list) or not all(isinstance(value, str) for value in variables):
+        raise ValueError(f"DSQ query {entry['id']} returned an invalid variable contract")
+    if not isinstance(bindings, list) or not all(isinstance(value, dict) for value in bindings):
+        raise ValueError(f"DSQ query {entry['id']} returned invalid bindings")
+    if variables and variables != expected_variables:
+        raise ValueError(f"DSQ query {entry['id']} changed its projected-variable contract")
+    if state["variables"] is None:
+        state["variables"] = expected_variables
+        create_dsq_table(connection, entry, expected_variables)
+    elif state["variables"] != expected_variables:
+        raise ValueError(f"DSQ query {entry['id']} changed variables between game graphs")
+    table = _checked_identifier(entry["table"], "DSQ result table")
+    for ordinal, binding in enumerate(bindings):
+        if set(binding) - set(expected_variables):
+            raise ValueError(f"DSQ query {entry['id']} returned an undeclared binding")
+        canonical = canonical_binding(binding)
+        row = (graph, ordinal, canonical, sha256_bytes(canonical.encode("utf-8")))
+        connection.execute(
+            f'INSERT INTO "{table}" (graph_iri,row_ordinal,binding_json,binding_sha256) VALUES (?,?,?,?)',
+            row,
+        )
+        record_source_row(table, canonical_row((graph, ordinal, canonical)))
+    state["count"] += len(bindings)
+    return len(bindings)
+
+
 def atomic_json(path: Path, value: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.NamedTemporaryFile("w", encoding="utf-8", newline="\n", delete=False, dir=path.parent) as output:
@@ -208,8 +462,13 @@ def sparql(endpoint: str, query: str, timeout: int) -> dict[str, Any]:
         headers={"Accept": "application/sparql-results+json"},
         method="POST",
     )
-    with urllib.request.urlopen(request, timeout=timeout) as response:
-        result = json.load(response)
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            result = json.load(response)
+    except urllib.error.HTTPError as exc:
+        detail = exc.read(2048).decode("utf-8", errors="replace").strip()
+        message = detail or str(exc.reason)
+        raise RuntimeError(f"SPARQL endpoint returned HTTP {exc.code}: {message}") from exc
     if not isinstance(result, dict) or not isinstance(result.get("results", {}).get("bindings"), list):
         raise ValueError("Fuseki returned an invalid SPARQL result document")
     return result
@@ -355,40 +614,133 @@ validated_promotion_record = _promotion_inventory.validated_promotion_record
 promotion_inventory = _promotion_inventory.promotion_inventory
 
 
-def live_graph_state_query(inventory: dict[str, Any]) -> str:
-    rows = "\n".join(
-        "    "
-        f"(<{record['authoritativeGraph']}> <{record['queryIndexGraph']}> "
-        f"<{record['gameIri']}> <{record['queryIndexResource']}>)"
-        for record in (inventory["games"][game_pk] for game_pk in sorted(inventory["games"], key=int))
-    )
-    return f"""PREFIX base: <https://baseballontology.org/>
-PREFIX idx: <https://w3id.org/baseball/query-index/>
+def graph_batches(
+    records: list[dict[str, Any]], batch_size: int = LIVE_PREFLIGHT_BATCH_SIZE
+) -> list[list[dict[str, Any]]]:
+    if batch_size <= 0:
+        raise ValueError("Live graph-state batch size must be positive")
+    return [records[offset : offset + batch_size] for offset in range(0, len(records), batch_size)]
 
-SELECT ?sourceGraph ?indexGraph ?game ?indexResource
-       (COUNT(?sourceObject) AS ?sourceCount)
-       (COUNT(?indexObject) AS ?indexCount) WHERE {{
-  VALUES (?sourceGraph ?indexGraph ?game ?indexResource) {{
+
+def bounded_query_for_graphs(source: str, graphs: list[str]) -> str:
+    if GRAPH_GUARD not in source:
+        raise ValueError("Reviewed serving query has no authoritative graph guard")
+    if not graphs:
+        raise ValueError("A bounded serving query requires at least one graph")
+    if len(graphs) > LIVE_PREFLIGHT_BATCH_SIZE:
+        raise ValueError("A bounded serving query exceeds the live preflight batch limit")
+    for graph in graphs:
+        if not graph.startswith(GRAPH_PREFIX) or not graph[len(GRAPH_PREFIX):].isdigit():
+            raise ValueError(f"Unsafe authoritative graph: {graph}")
+    values = " ".join(f"<{graph}>" for graph in graphs)
+    return source.replace(GRAPH_GUARD, f"{GRAPH_GUARD}\n  VALUES ?graph {{ {values} }}")
+
+
+def live_source_graph_state_query(records: list[dict[str, Any]]) -> str:
+    if not records:
+        raise ValueError("A live source graph-state query requires at least one promoted graph")
+    if len(records) > LIVE_PREFLIGHT_BATCH_SIZE:
+        raise ValueError("A live source graph-state query exceeds the live preflight batch limit")
+    rows = "\n".join(
+        f"    (<{record['authoritativeGraph']}> <{record['gameIri']}>)"
+        for record in records
+    )
+    return f"""SELECT ?sourceGraph ?game (COUNT(?sourceObject) AS ?sourceCount) WHERE {{
+  VALUES (?sourceGraph ?game) {{
 {rows}
   }}
-  {{
-    GRAPH ?sourceGraph {{ ?sourceSubject ?sourcePredicate ?sourceObject }}
-  }}
-  UNION
-  {{
-    GRAPH ?indexGraph {{ ?indexSubject ?indexPredicate ?indexObject }}
-  }}
-  FILTER EXISTS {{ GRAPH ?sourceGraph {{ ?game a base:BaseballGame }} }}
-  FILTER EXISTS {{ GRAPH ?indexGraph {{ ?indexResource a idx:QueryIndex ; idx:sourceGraph ?sourceGraph }} }}
+  GRAPH ?sourceGraph {{ ?sourceSubject ?sourcePredicate ?sourceObject }}
 }}
-GROUP BY ?sourceGraph ?indexGraph ?game ?indexResource
+GROUP BY ?sourceGraph ?game
 ORDER BY ?sourceGraph
 """
 
 
+def live_index_graph_state_query(records: list[dict[str, Any]]) -> str:
+    if not records:
+        raise ValueError("A live index graph-state query requires at least one promoted graph")
+    if len(records) > LIVE_PREFLIGHT_BATCH_SIZE:
+        raise ValueError("A live index graph-state query exceeds the live preflight batch limit")
+    rows = "\n".join(
+        "    "
+        f"(<{record['queryIndexGraph']}> <{record['authoritativeGraph']}> "
+        f"<{record['gameIri']}> <{record['queryIndexResource']}>)"
+        for record in records
+    )
+    return f"""PREFIX idx: <https://w3id.org/baseball/query-index/>
+
+SELECT ?indexGraph ?sourceGraph ?game ?indexResource
+       (COUNT(?indexObject) AS ?indexCount) WHERE {{
+  VALUES (?indexGraph ?sourceGraph ?game ?indexResource) {{
+{rows}
+  }}
+  GRAPH ?indexGraph {{ ?indexSubject ?indexPredicate ?indexObject }}
+  FILTER EXISTS {{
+    GRAPH ?indexGraph {{
+      ?indexResource a idx:QueryIndex ;
+          idx:sourceGraph ?sourceGraph ;
+          idx:indexedGame ?game .
+    }}
+  }}
+}}
+GROUP BY ?indexGraph ?sourceGraph ?game ?indexResource
+ORDER BY ?indexGraph
+"""
+
+
+def adaptive_preflight_query(
+    endpoint: str,
+    timeout: int,
+    records: list[dict[str, Any]],
+    label: str,
+    query_factory: Any,
+) -> list[dict[str, Any]]:
+    try:
+        payload = sparql(endpoint, query_factory(records), timeout)
+        return payload["results"]["bindings"]
+    except Exception as exc:
+        if len(records) == 1:
+            raise RuntimeError(
+                f"Live preflight {label} failed for game {records[0]['gamePk']}: {exc}"
+            ) from exc
+        midpoint = len(records) // 2
+        return adaptive_preflight_query(
+            endpoint, timeout, records[:midpoint], label, query_factory
+        ) + adaptive_preflight_query(
+            endpoint, timeout, records[midpoint:], label, query_factory
+        )
+
+
 def live_graph_state(endpoint: str, timeout: int, inventory: dict[str, Any]) -> dict[str, Any]:
-    dimensions_payload = sparql(endpoint, GAME_DIMENSION_QUERY.read_text(encoding="utf-8"), timeout)
-    dimensions = dimensions_payload["results"]["bindings"]
+    records = [inventory["games"][game_pk] for game_pk in sorted(inventory["games"], key=int)]
+    dimension_source = GAME_DIMENSION_QUERY.read_text(encoding="utf-8")
+    dimensions: list[dict[str, Any]] = []
+    source_state_bindings: list[dict[str, Any]] = []
+    index_state_bindings: list[dict[str, Any]] = []
+    batches = graph_batches(records, LIVE_PREFLIGHT_BATCH_SIZE)
+    for batch in batches:
+        dimensions.extend(
+            adaptive_preflight_query(
+                endpoint,
+                timeout,
+                batch,
+                "dimension query",
+                lambda subset: bounded_query_for_graphs(
+                    dimension_source,
+                    [record["authoritativeGraph"] for record in subset],
+                ),
+            )
+        )
+        source_state_bindings.extend(
+            adaptive_preflight_query(
+                endpoint, timeout, batch, "source-count query", live_source_graph_state_query
+            )
+        )
+        index_state_bindings.extend(
+            adaptive_preflight_query(
+                endpoint, timeout, batch, "index-count query", live_index_graph_state_query
+            )
+        )
     by_graph = {record["authoritativeGraph"]: record for record in inventory["games"].values()}
     dimensions_by_graph: dict[str, dict[str, Any]] = {}
     unpromoted: list[str] = []
@@ -415,15 +767,32 @@ def live_graph_state(endpoint: str, timeout: int, inventory: dict[str, Any]) -> 
             + ", ".join(missing_dimensions[:5])
         )
 
-    graph_payload = sparql(endpoint, live_graph_state_query(inventory), timeout)
-    graph_states: dict[str, dict[str, Any]] = {}
-    for binding in graph_payload["results"]["bindings"]:
+    source_counts: dict[str, int] = {}
+    for binding in source_state_bindings:
         source_graph = lexical(binding, "sourceGraph") or ""
         record = by_graph.get(source_graph)
         if record is None:
-            raise ValueError(f"Live graph-state query returned an unpromoted graph: {source_graph}")
-        if source_graph in graph_states:
-            raise ValueError(f"Live graph-state query returned duplicate state: {source_graph}")
+            raise ValueError(f"Live source-count query returned an unpromoted graph: {source_graph}")
+        if source_graph in source_counts:
+            raise ValueError(f"Live source-count query returned duplicate state: {source_graph}")
+        if lexical(binding, "game") != record["gameIri"]:
+            raise ValueError(f"Live source graph identity differs from promotion evidence: {source_graph}")
+        try:
+            source_count = int(lexical(binding, "sourceCount") or "")
+        except ValueError as exc:
+            raise ValueError(f"Live source count is invalid for {source_graph}") from exc
+        if source_count != record["authoritativeTripleCount"]:
+            raise ValueError(f"Live authoritative triple count differs from promotion evidence: {source_graph}")
+        source_counts[source_graph] = source_count
+
+    index_states: dict[str, dict[str, Any]] = {}
+    for binding in index_state_bindings:
+        source_graph = lexical(binding, "sourceGraph") or ""
+        record = by_graph.get(source_graph)
+        if record is None:
+            raise ValueError(f"Live index-count query returned an unpromoted graph: {source_graph}")
+        if source_graph in index_states:
+            raise ValueError(f"Live index-count query returned duplicate state: {source_graph}")
         if (
             lexical(binding, "indexGraph") != record["queryIndexGraph"]
             or lexical(binding, "game") != record["gameIri"]
@@ -431,28 +800,42 @@ def live_graph_state(endpoint: str, timeout: int, inventory: dict[str, Any]) -> 
         ):
             raise ValueError(f"Live graph-pair identity differs from promotion evidence: {source_graph}")
         try:
-            source_count = int(lexical(binding, "sourceCount") or "")
             index_count = int(lexical(binding, "indexCount") or "")
         except ValueError as exc:
-            raise ValueError(f"Live graph counts are invalid for {source_graph}") from exc
-        if source_count != record["authoritativeTripleCount"]:
-            raise ValueError(f"Live authoritative triple count differs from promotion evidence: {source_graph}")
+            raise ValueError(f"Live index count is invalid for {source_graph}") from exc
         if index_count != record["queryIndexTripleCount"]:
             raise ValueError(f"Live query-index triple count differs from promotion evidence: {source_graph}")
-        graph_states[source_graph] = {
-            "sourceGraph": source_graph,
+        index_states[source_graph] = {
             "indexGraph": record["queryIndexGraph"],
             "game": record["gameIri"],
             "indexResource": record["queryIndexResource"],
-            "sourceCount": source_count,
             "indexCount": index_count,
         }
-    missing_states = sorted(set(by_graph) - set(graph_states))
-    if missing_states:
+
+    missing_source_counts = sorted(set(by_graph) - set(source_counts))
+    if missing_source_counts:
         raise ValueError(
-            "Valid promotion evidence has no matching live graph pair: "
-            + ", ".join(missing_states[:5])
+            "Valid promotion evidence has no matching live authoritative graph: "
+            + ", ".join(missing_source_counts[:5])
         )
+    missing_index_states = sorted(set(by_graph) - set(index_states))
+    if missing_index_states:
+        raise ValueError(
+            "Valid promotion evidence has no matching live query-index graph: "
+            + ", ".join(missing_index_states[:5])
+        )
+
+    graph_states: dict[str, dict[str, Any]] = {}
+    for source_graph in sorted(by_graph):
+        index_state = index_states[source_graph]
+        graph_states[source_graph] = {
+            "sourceGraph": source_graph,
+            "indexGraph": index_state["indexGraph"],
+            "game": index_state["game"],
+            "indexResource": index_state["indexResource"],
+            "sourceCount": source_counts[source_graph],
+            "indexCount": index_state["indexCount"],
+        }
 
     ordered_dimensions = [dimensions_by_graph[graph] for graph in sorted(dimensions_by_graph)]
     canonical_state = {
@@ -468,10 +851,32 @@ def live_graph_state(endpoint: str, timeout: int, inventory: dict[str, Any]) -> 
     }
 
 
-def corpus_snapshot(state_root: Path, endpoint: str, timeout: int) -> dict[str, Any]:
+def development_inventory_subset(
+    inventory: dict[str, Any], max_games: int | None
+) -> dict[str, Any]:
+    if not max_games:
+        return inventory
+    selected_ids = sorted(inventory["games"], key=int)[:max_games]
+    selected = {game_pk: inventory["games"][game_pk] for game_pk in selected_ids}
+    subset = {**inventory, "games": selected, "gameCount": len(selected)}
+    subset["fingerprint"] = sha256_bytes(
+        (
+            inventory["fingerprint"]
+            + "|focused-development-subset|"
+            + "|".join(selected_ids)
+        ).encode("utf-8")
+    )
+    return subset
+
+
+def corpus_snapshot(
+    state_root: Path, endpoint: str, timeout: int, max_games: int | None = None
+) -> dict[str, Any]:
     inventory_before = promotion_inventory(state_root)
+    inventory_before = development_inventory_subset(inventory_before, max_games)
     live = live_graph_state(endpoint, timeout, inventory_before)
     inventory_after = promotion_inventory(state_root)
+    inventory_after = development_inventory_subset(inventory_after, max_games)
     if inventory_after["fingerprint"] != inventory_before["fingerprint"]:
         raise RuntimeError("Promotion inventory changed while the live graph-state snapshot was captured")
     fingerprint = sha256_bytes(
@@ -481,11 +886,56 @@ def corpus_snapshot(state_root: Path, endpoint: str, timeout: int) -> dict[str, 
 
 
 def bounded_query(source: str, graph: str) -> str:
-    if GRAPH_GUARD not in source:
-        raise ValueError("Reviewed serving query has no authoritative graph guard")
+    has_authoritative_clause = "GRAPH ?graph" in source
+    has_index_clause = "GRAPH ?indexGraph" in source and "idx:sourceGraph ?graph" in source
+    if not has_authoritative_clause and not has_index_clause:
+        raise ValueError("Reviewed serving query has no graph-scoping clause")
     if not graph.startswith(GRAPH_PREFIX) or not graph[len(GRAPH_PREFIX):].isdigit():
         raise ValueError(f"Unsafe authoritative graph: {graph}")
-    return source.replace(GRAPH_GUARD, f"{GRAPH_GUARD}\n  VALUES ?graph {{ <{graph}> }}")
+    game_pk = graph[len(GRAPH_PREFIX):]
+    index_graph = f"{INDEX_GRAPH_PREFIX}{game_pk}"
+    query = source.replace("GRAPH ?graph", f"GRAPH <{graph}>")
+    query = query.replace("idx:sourceGraph ?graph", f"idx:sourceGraph <{graph}>")
+    query = query.replace(GRAPH_GUARD, "")
+    if "GRAPH ?indexGraph" in query:
+        query = query.replace("GRAPH ?indexGraph", f"GRAPH <{index_graph}>")
+        query = query.replace(INDEX_GRAPH_GUARD, "")
+    return query
+
+
+def bounded_dsq_query(source: str, graph: str, execution_layer: str) -> str:
+    if execution_layer == "authoritative":
+        return bounded_query(source, graph)
+    if execution_layer != "indexed":
+        raise ValueError(f"Unsupported DSQ execution layer: {execution_layer}")
+    if not graph.startswith(GRAPH_PREFIX) or not graph[len(GRAPH_PREFIX):].isdigit():
+        raise ValueError(f"Unsafe authoritative graph: {graph}")
+    if "GRAPH ?graph" not in source:
+        raise ValueError("Reviewed indexed DSQ has no graph-scoping clause")
+    game_pk = graph[len(GRAPH_PREFIX):]
+    index_graph = f"{INDEX_GRAPH_PREFIX}{game_pk}"
+    return source.replace("GRAPH ?graph", f"GRAPH <{index_graph}>")
+
+
+def restore_scoped_graph_bindings(
+    payload: dict[str, Any], graph: str, graph_binding: str | None = None
+) -> dict[str, Any]:
+    """Restore projected graph bindings after exact named-graph substitution."""
+    variables = payload.get("head", {}).get("vars", [])
+    bindings = payload.get("results", {}).get("bindings", [])
+    game_pk = graph[len(GRAPH_PREFIX):]
+    scoped = {
+        "graph": {"type": "uri", "value": graph_binding or graph},
+        "indexGraph": {"type": "uri", "value": f"{INDEX_GRAPH_PREFIX}{game_pk}"},
+    }
+    for variable, value in scoped.items():
+        if variable in variables:
+            for binding in bindings:
+                existing = binding.get(variable)
+                if existing is not None and existing != value:
+                    raise ValueError(f"Serving query escaped its fixed {variable} scope")
+                binding[variable] = value
+    return payload
 
 
 def canonical_binding(binding: dict[str, Any]) -> str:
@@ -515,20 +965,30 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
     query_source = GOOD_AT_BAT_QUERY.read_text(encoding="utf-8")
     catalog = json.loads(ADVANCED_CATALOG.read_text(encoding="utf-8"))
     reducers = json.loads(ADVANCED_REDUCERS.read_text(encoding="utf-8"))
+    dsq_catalog = json.loads(DSQ_MATERIALIZATIONS.read_text(encoding="utf-8"))
     advanced_entries = catalog.get("queries", [])
     reducer_ids = set(reducers.get("detailQueries", [])) | set(reducers.get("additiveQueries", {}))
     query_ids = {entry.get("id") for entry in advanced_entries}
     ordering_ids = set(reducers.get("ordering", {}))
     if len(advanced_entries) != 17 or query_ids != reducer_ids or query_ids != ordering_ids:
         raise ValueError("Advanced serving reducers do not cover the reviewed query catalog exactly")
+    dsq_entries = load_dsq_entries(dsq_catalog, catalog, reducers)
+    dsq_by_id = {entry["id"]: entry for entry in dsq_entries}
+    canned_dsq_entries = [entry for entry in dsq_entries if entry["kind"] == "canned"]
     advanced_sources = {
         entry["id"]: (ROOT / entry["path"]).read_text(encoding="utf-8")
         for entry in advanced_entries
     }
+    canned_dsq_sources = {
+        entry["id"]: (ROOT / entry["executionPath"]).read_text(encoding="utf-8")
+        for entry in canned_dsq_entries
+    }
     explore_sources = {name: path.read_text(encoding="utf-8") for name, path in EXPLORE_GRAIN_QUERIES.items()}
     started = time.perf_counter()
     snapshot_started = time.perf_counter()
-    initial_snapshot = corpus_snapshot(state_root, args.endpoint, args.timeout)
+    initial_snapshot = corpus_snapshot(
+        state_root, args.endpoint, args.timeout, args.max_games
+    )
     initial_snapshot_ms = round((time.perf_counter() - snapshot_started) * 1000, 1)
     inventory = initial_snapshot["inventory"]
     inventory_by_graph = {
@@ -547,8 +1007,15 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
     advanced_rows = 0
     advanced_counts = {entry["id"]: 0 for entry in advanced_entries}
     advanced_variables: dict[str, list[str]] = {}
+    dsq_states = {
+        entry["id"]: {"variables": None, "count": 0}
+        for entry in dsq_entries
+    }
     sparql_durations: list[float] = []
     advanced_sparql_durations: dict[str, list[float]] = {entry["id"]: [] for entry in advanced_entries}
+    canned_dsq_sparql_durations: dict[str, list[float]] = {
+        entry["id"]: [] for entry in canned_dsq_entries
+    }
     explore_sparql_durations: dict[str, list[float]] = {name: [] for name in EXPLORE_GRAIN_QUERIES}
     explore_counts = {name: 0 for name in EXPLORE_GRAIN_QUERIES}
     fingerprint_lines: list[str] = []
@@ -561,6 +1028,7 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
         "runner_event_fact",
         "assignment_fact",
         "empty_damage_fact",
+        *(entry["table"] for entry in dsq_entries),
     )
     source_row_hashers = {table: hashlib.sha256() for table in preservation_tables}
     source_row_counts = {table: 0 for table in preservation_tables}
@@ -591,11 +1059,20 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
             official_date = source_meta.get("officialDate") or (lexical(dimension, "start") or "")[:10]
             provenance_set = source_meta.get("gameSet")
             rdf_game_set = lexical(dimension, "rdfGameSet")
-            if provenance_set and rdf_game_set and provenance_set != rdf_game_set:
+            if (
+                provenance_set
+                and rdf_game_set
+                and provenance_set != rdf_game_set
+                and provenance_set != "fixture"
+            ):
                 raise ValueError(
                     f"Persistent game-set provenance conflicts with authoritative RDF for game {game_pk}: "
                     f"{provenance_set!r} != {rdf_game_set!r}"
                 )
+            # Fixture membership is corpus provenance, not a baseball game
+            # classification. It deliberately overrides the RDF game-set value
+            # only in this disposable serving build so fixtures never enter a
+            # user-selectable baseball competition pool.
             game_set = provenance_set or rdf_game_set
             if len(official_date) != 10:
                 raise ValueError(f"No official date provenance for game {game_pk}")
@@ -622,7 +1099,14 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
             artifact = promotion_record["authoritativeRdfSha256"]
             fingerprint_lines.append(f"{graph}|{official_date}|{game_set}|{artifact}")
             query_started = time.perf_counter()
-            payload = sparql(args.endpoint, bounded_query(query_source, graph), args.timeout)
+            try:
+                payload = restore_scoped_graph_bindings(
+                    sparql(args.endpoint, bounded_query(query_source, graph), args.timeout), graph
+                )
+            except Exception as exc:
+                raise RuntimeError(
+                    f"Serving query plate-appearance-fingerprint failed for {graph}: {exc}"
+                ) from exc
             paq_duration = (time.perf_counter() - query_started) * 1000
             sparql_durations.append(paq_duration)
             advanced_sparql_durations["plate-appearance-fingerprint"].append(paq_duration)
@@ -639,7 +1123,14 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
                     advanced_payload = payload
                 else:
                     advanced_started = time.perf_counter()
-                    advanced_payload = sparql(args.endpoint, bounded_query(source, graph), args.timeout)
+                    try:
+                        advanced_payload = restore_scoped_graph_bindings(
+                            sparql(args.endpoint, bounded_query(source, graph), args.timeout), graph
+                        )
+                    except Exception as exc:
+                        raise RuntimeError(
+                            f"Serving advanced query {query_id} failed for {graph}: {exc}"
+                        ) from exc
                     advanced_sparql_durations[query_id].append(
                         (time.perf_counter() - advanced_started) * 1000
                     )
@@ -661,10 +1152,58 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
                     )
                     advanced_counts[query_id] += 1
                     advanced_rows += 1
+                insert_dsq_payload(
+                    connection,
+                    dsq_by_id[query_id],
+                    graph,
+                    advanced_payload,
+                    dsq_states[query_id],
+                    record_source_row,
+                )
+            def execute_canned_dsq(entry: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any], float]:
+                query_id = entry["id"]
+                dsq_started = time.perf_counter()
+                try:
+                    dsq_payload = restore_scoped_graph_bindings(
+                        sparql(
+                            args.endpoint,
+                            bounded_dsq_query(
+                                canned_dsq_sources[query_id], graph, entry["executionLayer"]
+                            ),
+                            args.timeout,
+                        ),
+                        graph,
+                        (
+                            f"{INDEX_GRAPH_PREFIX}{graph[len(GRAPH_PREFIX):]}"
+                            if entry["executionLayer"] == "indexed"
+                            else graph
+                        ),
+                    )
+                except Exception as exc:
+                    raise RuntimeError(
+                        f"Serving DSQ {query_id} failed for {graph}: {exc}"
+                    ) from exc
+                return entry, dsq_payload, (time.perf_counter() - dsq_started) * 1000
+
+            with ThreadPoolExecutor(max_workers=getattr(args, "dsq_workers", 2)) as executor:
+                canned_results = executor.map(execute_canned_dsq, canned_dsq_entries)
+                for entry, dsq_payload, dsq_duration in canned_results:
+                    query_id = entry["id"]
+                    canned_dsq_sparql_durations[query_id].append(dsq_duration)
+                    insert_dsq_payload(
+                        connection,
+                        entry,
+                        graph,
+                        dsq_payload,
+                        dsq_states[query_id],
+                        record_source_row,
+                    )
             for grain_name, source in explore_sources.items():
                 grain_started = time.perf_counter()
                 try:
-                    grain_payload = sparql(args.endpoint, bounded_query(source, graph), args.timeout)
+                    grain_payload = restore_scoped_graph_bindings(
+                        sparql(args.endpoint, bounded_query(source, graph), args.timeout), graph
+                    )
                 except Exception as exc:
                     raise RuntimeError(f"Serving grain {grain_name} failed for {graph}: {exc}") from exc
                 explore_sparql_durations[grain_name].append((time.perf_counter() - grain_started) * 1000)
@@ -742,6 +1281,29 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
                 "UPDATE advanced_query_manifest SET variables_json=?,binding_count=? WHERE query_id=?",
                 (json.dumps(advanced_variables.get(query_id, []), separators=(",", ":")), advanced_counts[query_id], query_id),
             )
+        for entry in dsq_entries:
+            state = dsq_states[entry["id"]]
+            if state["variables"] is None:
+                raise ValueError(f"DSQ was not materialized: {entry['id']}")
+            connection.execute(
+                "INSERT INTO dsq_query_manifest VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+                (
+                    entry["id"],
+                    entry["family"],
+                    entry["kind"],
+                    entry["path"],
+                    entry["table"],
+                    sha256_file(ROOT / entry["path"]),
+                    entry["executionLayer"],
+                    entry["executionPath"],
+                    sha256_file(ROOT / entry["executionPath"]),
+                    json.dumps(
+                        entry["reducer"], ensure_ascii=False, sort_keys=True, separators=(",", ":")
+                    ),
+                    json.dumps(state["variables"], ensure_ascii=False, separators=(",", ":")),
+                    state["count"],
+                ),
+            )
         connection.execute(
             """INSERT INTO empty_player_game_fact
                SELECT b.graph_iri,b.player_iri,b.player_label,b.team_iri,b.team_label,
@@ -795,6 +1357,13 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
             sha256_bytes(binding.encode("utf-8")) != digest
             for binding, digest in connection.execute("SELECT binding_json,binding_sha256 FROM empty_damage_fact")
         )
+        dsq_hash_mismatches = sum(
+            sha256_bytes(binding.encode("utf-8")) != digest
+            for entry in dsq_entries
+            for binding, digest in connection.execute(
+                f'SELECT binding_json,binding_sha256 FROM "{entry["table"]}"'
+            )
+        )
         stored_queries = {
             "game_dimension": "SELECT * FROM game_dimension ORDER BY rowid",
             "plate_appearance_fact": (
@@ -813,6 +1382,12 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
                 "SELECT graph_iri,player_iri,team_iri,pitcher_iri,"
                 "plate_appearance_iri,binding_json FROM empty_damage_fact ORDER BY rowid"
             ),
+            **{
+                entry["table"]: (
+                    f'SELECT graph_iri,row_ordinal,binding_json FROM "{entry["table"]}" ORDER BY rowid'
+                )
+                for entry in dsq_entries
+            },
         }
         preservation_failures: list[str] = []
         for table, query in stored_queries.items():
@@ -842,6 +1417,7 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
             or hash_mismatches
             or advanced_hash_mismatches
             or damage_hash_mismatches
+            or dsq_hash_mismatches
             or preservation_failures
         ):
             raise RuntimeError("Candidate SQLite validation failed")
@@ -867,6 +1443,14 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
         if not candidate_validated:
             database.unlink(missing_ok=True)
 
+    dsq_binding_count = sum(state["count"] for state in dsq_states.values())
+    dsq_bindings_by_query = {
+        query_id: state["count"] for query_id, state in sorted(dsq_states.items())
+    }
+    dsq_execution_layers = {
+        layer: sum(entry["executionLayer"] == layer for entry in dsq_entries)
+        for layer in ("authoritative", "indexed")
+    }
     evidence = {
         "artifactType": "baseball-analytical-serving-build-evidence",
         "contractVersion": 5,
@@ -882,13 +1466,22 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
         "advancedQueryCount": len(advanced_entries),
         "advancedBindingCount": advanced_rows,
         "advancedBindingsByQuery": advanced_counts,
+        "dsqQueryCount": len(dsq_entries),
+        "dsqBindingCount": dsq_binding_count,
+        "dsqBindingsByQuery": dsq_bindings_by_query,
+        "dsqExecutionLayers": dsq_execution_layers,
         "exploreCounts": explore_counts,
         "emptyPlayerGameCount": empty_player_games,
         "integrity": {
             "sqliteIntegrityCheck": integrity,
             "foreignKeyIssueCount": len(foreign_key_issues),
-            "checkedBindingHashes": rows + advanced_rows + explore_counts["damage"],
-            "bindingHashMismatches": hash_mismatches + advanced_hash_mismatches + damage_hash_mismatches,
+            "checkedBindingHashes": rows + advanced_rows + dsq_binding_count + explore_counts["damage"],
+            "bindingHashMismatches": (
+                hash_mismatches
+                + advanced_hash_mismatches
+                + dsq_hash_mismatches
+                + damage_hash_mismatches
+            ),
             "sourceRowPreservation": binding_preservation,
         },
         "sourceCorpusIntegrity": {
@@ -911,6 +1504,7 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
         },
         "benchmark": {
             "engine": "sqlite",
+            "dsqReadOnlyWorkers": getattr(args, "dsq_workers", 2),
             "initialCorpusSnapshotMs": initial_snapshot_ms,
             "boundedAuthoritativeSparqlTotalMs": round(sum(sparql_durations), 1),
             "boundedAuthoritativeSparqlMedianPerGameMs": round(statistics.median(sparql_durations), 1),
@@ -924,6 +1518,14 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
                 }
                 for query_id, durations in sorted(advanced_sparql_durations.items())
             },
+            "cannedDsqSparqlByQuery": {
+                query_id: {
+                    "calls": len(durations),
+                    "totalMs": round(sum(durations), 1),
+                    "medianPerGameMs": round(statistics.median(durations), 1),
+                }
+                for query_id, durations in sorted(canned_dsq_sparql_durations.items())
+            },
             "exploreSparqlByGrain": {
                 name: {"calls": len(durations), "totalMs": round(sum(durations), 1),
                        "medianPerGameMs": round(statistics.median(durations), 1)}
@@ -935,6 +1537,8 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
         "sourceQuerySha256": sha256_file(GOOD_AT_BAT_QUERY),
         "advancedQuerySetSha256": advanced_query_set_sha256(catalog),
         "advancedReducerSha256": sha256_file(ADVANCED_REDUCERS),
+        "dsqMaterializationCatalogSha256": sha256_file(DSQ_MATERIALIZATIONS),
+        "dsqQuerySetSha256": dsq_query_set_sha256(dsq_entries),
         "exploreQuerySetSha256": file_set_sha256(SERVING_QUERY_FILES),
         "schemaSha256": sha256_file(SCHEMA),
         "materializerSha256": sha256_file(MATERIALIZER),
@@ -971,6 +1575,8 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
             "sourceQuerySha256": evidence["sourceQuerySha256"],
             "advancedQuerySetSha256": evidence["advancedQuerySetSha256"],
             "advancedReducerSha256": evidence["advancedReducerSha256"],
+            "dsqMaterializationCatalogSha256": evidence["dsqMaterializationCatalogSha256"],
+            "dsqQuerySetSha256": evidence["dsqQuerySetSha256"],
             "exploreQuerySetSha256": evidence["exploreQuerySetSha256"],
             "schemaSha256": evidence["schemaSha256"],
             "materializerSha256": evidence["materializerSha256"],
@@ -982,6 +1588,9 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
             "plateAppearanceCount": rows,
             "advancedQueryCount": len(advanced_entries),
             "advancedBindingCount": advanced_rows,
+            "dsqQueryCount": len(dsq_entries),
+            "dsqBindingCount": dsq_binding_count,
+            "dsqExecutionLayers": dsq_execution_layers,
             "exploreCounts": explore_counts,
             "emptyPlayerGameCount": empty_player_games,
             "evidencePath": str(evidence_path.resolve()),
@@ -999,6 +1608,13 @@ def main() -> int:
     parser.add_argument("--state-root", type=Path, default=default_state)
     parser.add_argument("--endpoint", default="http://127.0.0.1:3031/baseball-dev/query")
     parser.add_argument("--timeout", type=int, default=120)
+    parser.add_argument(
+        "--dsq-workers",
+        type=int,
+        choices=range(1, 5),
+        default=2,
+        help="Concurrent read-only DSQ SELECT workers (1-4; default 2)",
+    )
     parser.add_argument("--max-games", type=int)
     parser.add_argument("--no-promote", action="store_true")
     parser.add_argument(

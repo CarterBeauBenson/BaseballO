@@ -1,0 +1,13 @@
+{
+  "artifactType": "baseballo-authority-query-spec",
+  "contractVersion": 1,
+  "id": "calendar-days",
+  "claim": "Return each Date Identifier ICE, its date value, and the Day it designates from each admitted source graph.",
+  "sourceScope": {"category": "derived", "sources": ["mlb-leagues", "mlb-people", "mlb-transactions"], "readsGraphLayers": ["authoritative-rdf"], "writesGraphLayers": ["analytical-sql"]},
+  "primaryModule": "calendar-date-day",
+  "enrichments": [],
+  "projection": ["authorityGraph", "dateIdentifier", "dateValue", "day"],
+  "values": [],
+  "orderBy": [{"variable": "dateValue", "direction": "asc"}],
+  "materialization": {"partitioning": "authority-graphs", "rowGrain": "calendar-date-day", "key": ["authorityGraph", "dateIdentifier"], "merge": "replace-source-graph"}
+}

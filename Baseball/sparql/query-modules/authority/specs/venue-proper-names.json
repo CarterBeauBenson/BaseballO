@@ -1,0 +1,13 @@
+{
+  "artifactType": "baseballo-authority-query-spec",
+  "contractVersion": 1,
+  "id": "venue-proper-names",
+  "claim": "Return each Baseball Venue and each Proper Name ICE that designates it.",
+  "sourceScope": {"category": "derived", "sources": ["mlb-venues"], "readsGraphLayers": ["authoritative-rdf"], "writesGraphLayers": ["analytical-sql"]},
+  "primaryModule": "venue",
+  "enrichments": ["proper-name"],
+  "projection": ["authorityGraph", "entity", "nameICE", "nameText"],
+  "values": [],
+  "orderBy": [{"variable": "nameText", "direction": "asc"}],
+  "materialization": {"partitioning": "authority-graphs", "rowGrain": "venue-proper-name", "key": ["authorityGraph", "nameICE"], "merge": "replace-source-graph"}
+}

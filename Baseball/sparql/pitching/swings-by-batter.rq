@@ -6,6 +6,7 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 SELECT ?player ?playerLabel (COUNT(DISTINCT ?swing) AS ?swings)
 WHERE {
   GRAPH ?graph {
+    FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
     ?swing a base:SwingAct ;
            obo:BFO_0000057 ?player .
     ?player rdfs:label ?playerLabel .

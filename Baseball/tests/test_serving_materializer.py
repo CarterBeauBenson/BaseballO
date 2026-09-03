@@ -155,6 +155,44 @@ def result(bindings: list[dict[str, object]], variables: list[str] | None = None
 
 
 class ServingMaterializerTests(unittest.TestCase):
+    def test_baserunning_grain_correlates_stolen_base_through_the_resolution_record(self) -> None:
+        source = MODULE.EXPLORE_GRAIN_QUERIES["baserunning"].read_text(encoding="utf-8")
+
+        self.assertIn("idx:derivedFrom ?record", source)
+        self.assertIn("?record a base:BaseballEventRecord", source)
+        self.assertIn("cco:ont00001808 ?resolution", source)
+        self.assertIn("?record cco:ont00001808 ?stolenBase", source)
+        self.assertNotIn(
+            "OPTIONAL {\n      ?stolenBase a base:StolenBaseProcess",
+            source,
+        )
+
+    def test_per_game_query_uses_exact_named_graphs_and_restores_projected_scope(self) -> None:
+        graph = f"{MODULE.GRAPH_PREFIX}822687"
+        source = MODULE.EXPLORE_GRAIN_QUERIES["pitching"].read_text(encoding="utf-8")
+
+        query = MODULE.bounded_query(source, graph)
+
+        self.assertNotIn("GRAPH ?graph", query)
+        self.assertNotIn("GRAPH ?indexGraph", query)
+        self.assertNotIn(MODULE.GRAPH_GUARD, query)
+        self.assertNotIn(MODULE.INDEX_GRAPH_GUARD, query)
+        self.assertIn(f"GRAPH <{graph}>", query)
+        self.assertIn(
+            "GRAPH <https://w3id.org/baseball/graph/query-index/game/822687>",
+            query,
+        )
+        self.assertIn(f"idx:sourceGraph <{graph}>", query)
+
+        payload = result([{}], ["graph", "indexGraph", "game"])
+        restored = MODULE.restore_scoped_graph_bindings(payload, graph)
+        binding = restored["results"]["bindings"][0]
+        self.assertEqual(binding["graph"], term(graph))
+        self.assertEqual(
+            binding["indexGraph"],
+            term("https://w3id.org/baseball/graph/query-index/game/822687"),
+        )
+
     def test_mlb_game_types_map_to_five_disjoint_serving_pools(self) -> None:
         expected = {
             "R": "regular_season",
@@ -462,12 +500,20 @@ class ServingMaterializerTests(unittest.TestCase):
             inventory = MODULE.promotion_inventory(state.resolve())
             cases = (
                 (
-                    [result([dimension("1"), dimension("2")]), result([live_pair("1")])],
+                    [
+                        result([dimension("1"), dimension("2")]),
+                        result([live_pair("1")]),
+                        result([live_pair("1")]),
+                    ],
                     "without valid promotion evidence",
                 ),
-                ([result([]), result([])], "no authoritative game dimension"),
+                ([result([]), result([live_pair("1")]), result([live_pair("1")])], "no authoritative game dimension"),
                 (
-                    [result([dimension("1")]), result([live_pair("1", source_count=11)])],
+                    [
+                        result([dimension("1")]),
+                        result([live_pair("1", source_count=11)]),
+                        result([live_pair("1")]),
+                    ],
                     "triple count differs",
                 ),
             )
@@ -475,6 +521,42 @@ class ServingMaterializerTests(unittest.TestCase):
                 with self.subTest(message=message), patch.object(MODULE, "sparql", side_effect=responses):
                     with self.assertRaisesRegex(ValueError, message):
                         MODULE.live_graph_state("offline", 1, inventory)
+
+    def test_live_graph_state_preflight_batches_all_promoted_graphs(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            state = Path(temporary)
+            for game_pk in ("1", "2", "3"):
+                make_promotion(state, game_pk)
+            inventory = MODULE.promotion_inventory(state.resolve())
+            requested_batches: list[tuple[str, ...]] = []
+
+            def offline_sparql(_endpoint: str, query: str, _timeout: int) -> dict[str, object]:
+                graph_ids = tuple(
+                    game_pk
+                    for game_pk in ("1", "2", "3")
+                    if f"<{MODULE.GRAPH_PREFIX}{game_pk}>" in query
+                )
+                requested_batches.append(graph_ids)
+                if "?rdfGameSet ?venue ?venueLabel" in query:
+                    return result([dimension(game_pk) for game_pk in graph_ids])
+                if "COUNT(?sourceObject)" in query:
+                    return result([live_pair(game_pk) for game_pk in graph_ids])
+                if "COUNT(?indexObject)" in query:
+                    return result([live_pair(game_pk) for game_pk in graph_ids])
+                raise AssertionError("unexpected preflight query")
+
+            with (
+                patch.object(MODULE, "LIVE_PREFLIGHT_BATCH_SIZE", 2),
+                patch.object(MODULE, "sparql", side_effect=offline_sparql),
+            ):
+                live = MODULE.live_graph_state("offline", 1, inventory)
+
+            self.assertEqual(len(live["dimensions"]), 3)
+            self.assertEqual(len(live["graphStates"]), 3)
+            self.assertEqual(
+                requested_batches,
+                [("1", "2"), ("1", "2"), ("1", "2"), ("3",), ("3",), ("3",)],
+            )
 
     def test_corpus_snapshot_rechecks_inventory_around_live_state(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -498,12 +580,10 @@ class ServingMaterializerTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             state = Path(temporary)
             make_promotion(state, "1", B966)
-            dimension_source = MODULE.GAME_DIMENSION_QUERY.read_text(encoding="utf-8")
-
             def offline_sparql(_endpoint: str, query: str, _timeout: int) -> dict[str, object]:
-                if query == dimension_source:
+                if "?rdfGameSet ?venue ?venueLabel" in query:
                     return result([dimension("1")])
-                if "COUNT(?sourceObject)" in query:
+                if "COUNT(?sourceObject)" in query or "COUNT(?indexObject)" in query:
                     return result([live_pair("1")])
                 return result([])
 
@@ -545,12 +625,10 @@ class ServingMaterializerTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             state = Path(temporary)
             make_promotion(state, "1", B966)
-            dimension_source = MODULE.GAME_DIMENSION_QUERY.read_text(encoding="utf-8")
-
             def offline_sparql(_endpoint: str, query: str, _timeout: int) -> dict[str, object]:
-                if query == dimension_source:
+                if "?rdfGameSet ?venue ?venueLabel" in query:
                     return result([dimension("1")])
-                if "COUNT(?sourceObject)" in query:
+                if "COUNT(?sourceObject)" in query or "COUNT(?indexObject)" in query:
                     return result([live_pair("1")])
                 return result([])
 
@@ -572,12 +650,10 @@ class ServingMaterializerTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             state = Path(temporary)
             make_promotion(state, "1", B966)
-            dimension_source = MODULE.GAME_DIMENSION_QUERY.read_text(encoding="utf-8")
-
             def offline_sparql(_endpoint: str, query: str, _timeout: int) -> dict[str, object]:
-                if query == dimension_source:
+                if "?rdfGameSet ?venue ?venueLabel" in query:
                     return result([dimension("1", "preseason")])
-                if "COUNT(?sourceObject)" in query:
+                if "COUNT(?sourceObject)" in query or "COUNT(?indexObject)" in query:
                     return result([live_pair("1")])
                 return result([])
 
@@ -603,15 +679,14 @@ class ServingMaterializerTests(unittest.TestCase):
             pointer = state / "serving" / "current.json"
             write_json(pointer, {"artifactType": "prior-pointer", "buildId": "prior"})
             pointer_before = pointer.read_bytes()
-            dimension_source = MODULE.GAME_DIMENSION_QUERY.read_text(encoding="utf-8")
             dimension_calls = 0
 
             def drifting_sparql(_endpoint: str, query: str, _timeout: int) -> dict[str, object]:
                 nonlocal dimension_calls
-                if query == dimension_source:
+                if "?rdfGameSet ?venue ?venueLabel" in query:
                     dimension_calls += 1
                     return result([dimension("1")]) if dimension_calls == 1 else result([])
-                if "COUNT(?sourceObject)" in query:
+                if "COUNT(?sourceObject)" in query or "COUNT(?indexObject)" in query:
                     return result([live_pair("1")])
                 return result([])
 

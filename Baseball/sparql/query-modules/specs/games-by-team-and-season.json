@@ -1,0 +1,59 @@
+{
+  "artifactType": "baseballo-dsq-query-spec",
+  "contractVersion": 1,
+  "id": "games-by-team-and-season-modular",
+  "claim": "Count distinct games for each home or away team assignment and represented season.",
+  "sourceScope": {
+    "category": "derived",
+    "sources": ["mlb-game"],
+    "readsGraphLayers": ["indexed-rdf"]
+  },
+  "primaryModule": "assignment",
+  "enrichments": ["game-season"],
+  "dimensions": ["season", "assignee"],
+  "labels": [
+    {
+      "variable": "assignee",
+      "as": "assigneeLabel"
+    }
+  ],
+  "measures": [
+    {
+      "aggregate": "count-distinct",
+      "variable": "game",
+      "as": "games"
+    }
+  ],
+  "values": [
+    {
+      "variable": "assignmentType",
+      "terms": [
+        {
+          "type": "iri",
+          "value": "https://w3id.org/baseball/query-index/HomeTeam"
+        },
+        {
+          "type": "iri",
+          "value": "https://w3id.org/baseball/query-index/AwayTeam"
+        }
+      ]
+    }
+  ],
+  "materialization": {
+    "partitioning": "disjoint-game-graphs",
+    "dimensions": ["season", "assignee", "assigneeLabel"],
+    "merge": {
+      "games": "sum"
+    }
+  },
+  "orderBy": [
+    {
+      "variable": "season",
+      "direction": "asc"
+    },
+    {
+      "variable": "games",
+      "direction": "desc"
+    }
+  ]
+}

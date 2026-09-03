@@ -1,0 +1,2 @@
+?classifiedEntity a base:ThrowingSideDisposition ;
+    obo:BFO_0000197 ?entity .

@@ -6,6 +6,7 @@ SELECT ?player ?playerLabel
        (COUNT(DISTINCT ?stolenBase) AS ?stolenBases)
 WHERE {
   GRAPH ?graph {
+    FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
     ?stolenBase a base:StolenBaseProcess ;
                 obo:BFO_0000057 ?player ;
                 obo:BFO_0000117 ?judgment .

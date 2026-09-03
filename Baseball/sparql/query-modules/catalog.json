@@ -1,0 +1,176 @@
+{
+  "artifactType": "baseballo-dsq-query-module-catalog",
+  "catalogVersion": 1,
+  "description": "Reviewed consumer patterns over the rebuildable MLB-game query index. The catalog exposes existing fact grains without replacing their authoritative RDF evidence.",
+  "sourceScope": {
+    "category": "derived",
+    "sources": ["mlb-game"],
+    "readsGraphLayers": ["indexed-rdf"]
+  },
+  "semanticContract": {
+    "id": "baseball-query-index-v2",
+    "path": "sparql/query-index/semantic-contract.json",
+    "textSha256": "c9960712237307bebe3df60d25b6d03fb7626fddec90e94bdd5bb13d98ae86e1"
+  },
+  "fragmentRoot": "sparql/query-modules/fragments",
+  "requiredModule": "index-scope",
+  "partitionContract": {
+    "unit": "authoritative-game-graph",
+    "requiredPartitioning": "disjoint-game-graphs",
+    "v1Aggregate": "count-distinct",
+    "v1Merge": "sum",
+    "warning": "Never average batch averages. Materialize additive numerators and denominators, then derive rates in SQL."
+  },
+  "modules": [
+    {
+      "id": "index-scope",
+      "path": "sparql/query-modules/fragments/index-scope.rqfrag",
+      "textSha256": "a61edf48b82517de801fe141d09d85082e41fe9bd8020d107ee42ad80ab2549d",
+      "factGrain": "QueryIndex",
+      "canBePrimary": false,
+      "allowedEnrichments": [],
+      "requires": [],
+      "provides": ["queryIndex", "sourceGraph", "game"]
+    },
+    {
+      "id": "game",
+      "path": "sparql/query-modules/fragments/game.rqfrag",
+      "textSha256": "248cbd65f5042944c5b812b66f6972c903fb3b05b98a6077a7a31b8e20111d98",
+      "factGrain": "GameFact",
+      "canBePrimary": true,
+      "allowedEnrichments": ["game-season", "game-start", "game-venue"],
+      "requires": ["game"],
+      "provides": []
+    },
+    {
+      "id": "game-season",
+      "path": "sparql/query-modules/fragments/game-season.rqfrag",
+      "textSha256": "1726af54eaa65b60e63b883d0c0f6ad14df7696fd0987ee52a7cfacb6c6b3248",
+      "factGrain": "GameFact",
+      "canBePrimary": false,
+      "allowedEnrichments": [],
+      "requires": ["game"],
+      "provides": ["season"]
+    },
+    {
+      "id": "game-start",
+      "path": "sparql/query-modules/fragments/game-start.rqfrag",
+      "textSha256": "0461b032490d9da7b5a76e64eeed8578ad74fa8a4e562caf92ba94eee4f5d1c5",
+      "factGrain": "GameFact",
+      "canBePrimary": false,
+      "allowedEnrichments": [],
+      "requires": ["game"],
+      "provides": ["gameStart"]
+    },
+    {
+      "id": "game-venue",
+      "path": "sparql/query-modules/fragments/game-venue.rqfrag",
+      "textSha256": "f9780da47db8e77c12872c63df5e06c73c80e5a680609576732a39da538b0418",
+      "factGrain": "GameFact",
+      "canBePrimary": false,
+      "allowedEnrichments": [],
+      "requires": ["game"],
+      "provides": ["venue"]
+    },
+    {
+      "id": "plate-appearance",
+      "path": "sparql/query-modules/fragments/plate-appearance.rqfrag",
+      "textSha256": "0ee0f9ce2eeb5c57082c57fbb12de8ba6b8bca8a3ffada94e4f20612efdd953e",
+      "factGrain": "PlateAppearanceFact",
+      "canBePrimary": true,
+      "allowedEnrichments": ["game-season", "game-start", "game-venue"],
+      "requires": ["game"],
+      "provides": ["plateAppearance", "batter"]
+    },
+    {
+      "id": "plate-appearance-result",
+      "path": "sparql/query-modules/fragments/plate-appearance-result.rqfrag",
+      "textSha256": "5b83b536166293e6935c8561f61b40a562238e79dde8856400ed66e6d12fe040",
+      "factGrain": "PlateAppearanceResultFact",
+      "canBePrimary": true,
+      "allowedEnrichments": ["game-season", "game-start", "game-venue"],
+      "requires": ["game"],
+      "provides": ["result", "plateAppearance", "batter", "outcomeClass", "outcome"]
+    },
+    {
+      "id": "hit",
+      "path": "sparql/query-modules/fragments/hit.rqfrag",
+      "textSha256": "3b2b5098da89e300932218e69222c4facb4394cd7d154e1ad6ce3fb4ce27a300",
+      "factGrain": "HitFact",
+      "canBePrimary": true,
+      "allowedEnrichments": ["game-season", "game-start"],
+      "requires": ["game"],
+      "provides": ["hit", "plateAppearance", "batter", "venue", "hitType"]
+    },
+    {
+      "id": "pitch",
+      "path": "sparql/query-modules/fragments/pitch.rqfrag",
+      "textSha256": "1338b4427bd6ff99e93d77b5dbc89f532f65ac35575767afb7c833cf1585fe4b",
+      "factGrain": "PitchFact",
+      "canBePrimary": true,
+      "allowedEnrichments": ["game-season", "game-start"],
+      "requires": ["game"],
+      "provides": ["pitch", "plateAppearance", "pitcher", "venue"]
+    },
+    {
+      "id": "pitch-call",
+      "path": "sparql/query-modules/fragments/pitch-call.rqfrag",
+      "textSha256": "0d97d81898d6f4106fe5e9f873cf6feafbbc382c61096946731db0cc74718ac0",
+      "factGrain": "PitchCallFact",
+      "canBePrimary": true,
+      "allowedEnrichments": ["game-season", "game-start", "game-venue"],
+      "requires": ["game"],
+      "provides": ["pitchCall", "pitch", "pitcher", "callType"]
+    },
+    {
+      "id": "batting-act",
+      "path": "sparql/query-modules/fragments/batting-act.rqfrag",
+      "textSha256": "8e8d7f309e815d1c23ae619cdc5012061fbeabfdcef6e672cfde37319e1dac84",
+      "factGrain": "BattingActFact",
+      "canBePrimary": true,
+      "allowedEnrichments": ["game-season", "game-start", "game-venue"],
+      "requires": ["game"],
+      "provides": ["battingAct", "plateAppearance", "batter", "battingActType"]
+    },
+    {
+      "id": "contact",
+      "path": "sparql/query-modules/fragments/contact.rqfrag",
+      "textSha256": "6f84c7a451203d6e5c63537a08f9f423e66844515f4f347f348df3f97f7ea703",
+      "factGrain": "ContactFact",
+      "canBePrimary": true,
+      "allowedEnrichments": ["game-season", "game-start"],
+      "requires": ["game"],
+      "provides": ["contact", "plateAppearance", "batter", "venue", "battedBall"]
+    },
+    {
+      "id": "runner-resolution",
+      "path": "sparql/query-modules/fragments/runner-resolution.rqfrag",
+      "textSha256": "c273a2d49455021a83cbfaf75855f7eae95fde50d097f48f6902dac50a9f629b",
+      "factGrain": "RunnerResolutionFact",
+      "canBePrimary": true,
+      "allowedEnrichments": ["game-season", "game-start", "game-venue"],
+      "requires": ["game"],
+      "provides": ["runnerResolution", "runner", "resolutionClass", "eventType"]
+    },
+    {
+      "id": "stolen-base",
+      "path": "sparql/query-modules/fragments/stolen-base.rqfrag",
+      "textSha256": "9cc13c3b7b2059a13d5256b0a4b45b07cf6d1b03655bd6779c9f973fb0d02aae",
+      "factGrain": "StolenBaseFact",
+      "canBePrimary": true,
+      "allowedEnrichments": ["game-season", "game-start", "game-venue"],
+      "requires": ["game"],
+      "provides": ["stolenBase", "runner"]
+    },
+    {
+      "id": "assignment",
+      "path": "sparql/query-modules/fragments/assignment.rqfrag",
+      "textSha256": "2378fe97a96b5383d55dfbfc499a5c5886aa8c1de8db0b6e35df8a40cc538b2d",
+      "factGrain": "AssignmentFact",
+      "canBePrimary": true,
+      "allowedEnrichments": ["game-season", "game-start", "game-venue"],
+      "requires": ["game"],
+      "provides": ["assignment", "assignee", "assignmentType"]
+    }
+  ]
+}

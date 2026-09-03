@@ -21,6 +21,15 @@ retries, quarantine, promotion, and provenance path:
 | `mlb-venues` | `MLB Venues` | venue population to per-venue requests |
 | `mlb-transactions` | `MLB Transactions` | date-range request |
 
+Four sibling downstream groups do not own or control any source lane:
+
+| Downstream group | Responsibility |
+| --- | --- |
+| `Analytical Serving` | Consume immutable promoted-graph events, execute declared authority SPARQL, validate immutable SQLite candidates, and atomically promote the authority pointer |
+| `DSQ SQL Materialization` | Run an explicit full backfill of all 56 approved DSQs into independently named graph-partitioned SQL tables; nightly refresh remains owned by the MLB Game post-promotion batch stage |
+| `Repository Evidence` | Run the aggregate repository gate daily at 06:30 Eastern and retain immutable stdout, stderr, hashes, and status evidence |
+| `Serving Equivalence` | Run an explicit manual authoritative-versus-candidate-SQL family proof without admitting the route |
+
 The provisioners reconcile only their named source group and leave sibling
 groups untouched. They do not use or migrate the retired control plane.
 
@@ -83,6 +92,25 @@ submitting anything.
 Submission is asynchronous. Do not keep a terminal or Codex turn open to poll
 a normal run. Inspect the source-local evidence or quarantine only after NiFi
 reports failure or when a status check is requested.
+
+Provision the shared downstream groups independently:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File `
+  .\Baseball\serving\nifi\provision.ps1 -Start
+powershell -ExecutionPolicy Bypass -File `
+  .\Baseball\serving\dsq-nifi\provision.ps1 -RunFullBackfill
+powershell -ExecutionPolicy Bypass -File `
+  .\Baseball\infra\nifi\repository-evidence\provision.ps1 -Start
+powershell -ExecutionPolicy Bypass -File `
+  .\Baseball\serving\equivalence\provision.ps1 -Family paq -Start
+```
+
+`Serving Equivalence -RunOnce` is deliberately manual. Submit it only after
+the relevant immutable serving build exists. The proof starts and stops its
+own token-protected loopback Explorer child process, so it does not depend on
+or expose candidate routes through the normal desktop UI. A proof failure
+cannot replace an RDF or SQL pointer and cannot stop a source lane.
 
 The current 2026 season-to-date request for all seven lanes was submitted on
 2026-09-01. This runbook does not infer completion from submission; its

@@ -5,7 +5,7 @@ directory.
 
 Repository-level validation remains in
 [`../scripts/validate_repository.py`](../scripts/validate_repository.py). It
-currently parses 103 SPARQL files, checks the RML and 117 generated pattern pages,
+currently parses 106 SPARQL files, checks the RML and 117 generated pattern pages,
 executes the web tests, verifies 51 canned and 17 advanced baselines, and checks
 19 benchmark pairs, 19 reviewed routes, 38 optimized algebra plans, and 38
 direct TDB2 captures. The active mapping provides its source and collision
@@ -49,13 +49,10 @@ The abandoned NiFi control-plane, evidence-stage, and corpus-coordinator suites
 were removed with their implementation. They are archived design history, not
 current executable contracts.
 
-The clean NiFi rebuild begins with a source-owned MLB Game process group. Its
-checked-in provisioner and stage runner receive only focused parser and contract
-checks during development; NiFi owns the live bounded proof. Teams, Leagues,
-Divisions, People, Venues, and Transactions will each receive a separate
-connector, process group, source SHACL gate, retry/quarantine boundary, and
-focused contract test. Tests must not imply that one source lane controls or
-acquires another.
+The clean NiFi runtime has seven source-owned process groups. Their checked-in
+provisioners and stage runners receive only focused parser and contract checks
+during development; NiFi owns live bounded and corpus work. Tests must not
+imply that one source lane controls or acquires another.
 
 The current detachable-source and exit-gate contract is checked offline with:
 
@@ -67,6 +64,14 @@ It verifies module-owned artifacts and graph namespaces, distinct endpoint
 connectors (including People discovery/detail and both Transactions inputs),
 and the rule that an external command reaches its next semantic stage only
 through an explicit zero-exit gate.
+
+`test_sparql_source_scopes.py` requires every static single-source query to
+carry its graph-prefix guard or belong to the exact reviewed-query runtime
+binder. `test_promoted_graph_events.py`,
+`test_authority_serving_materializer.py`, and
+`test_repository_validation_observer.py` cover the immutable downstream event,
+authority SQL, and aggregate-evidence boundaries. `test_serving_equivalence.py`
+checks the pre-admission result-signature contract.
 
 With the local stack running, execute the offline end-to-end acceptance test from the project directory:
 

@@ -1,0 +1,4 @@
+?identifierICE a cco:ont00000649 ;
+    cco:ont00001916 ?entity ;
+    cco:ont00001912 ?identifierReferenceSystem ;
+    cco:ont00001765 ?identifierText .

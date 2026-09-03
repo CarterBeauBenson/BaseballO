@@ -1,0 +1,4 @@
+?nominalMeasurementICE a cco:ont00000293 ;
+    cco:ont00001868 ?classifiedEntity ;
+    cco:ont00001912 ?nominalReferenceSystem ;
+    cco:ont00001765 ?nominalCode .

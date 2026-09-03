@@ -1,0 +1,25 @@
+{
+  "artifactType": "baseballo-authority-query-spec",
+  "contractVersion": 1,
+  "id": "people-heights",
+  "claim": "Return each Person's Height quality and the Measurement ICE, decimal value, and unit that measure it, retaining the promoted authority graph as provenance.",
+  "sourceScope": {
+    "category": "derived",
+    "sources": ["mlb-people"],
+    "readsGraphLayers": ["authoritative-rdf"],
+    "writesGraphLayers": ["analytical-sql"]
+  },
+  "primaryModule": "person",
+  "enrichments": ["height-quality", "decimal-measurement"],
+  "projection": ["authorityGraph", "entity", "measuredEntity", "measurementICE", "decimalValue", "measurementUnit"],
+  "values": [],
+  "orderBy": [
+    {"variable": "entity", "direction": "asc"}
+  ],
+  "materialization": {
+    "partitioning": "authority-graphs",
+    "rowGrain": "person-height-measurement",
+    "key": ["authorityGraph", "measurementICE"],
+    "merge": "replace-source-graph"
+  }
+}

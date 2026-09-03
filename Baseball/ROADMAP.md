@@ -27,7 +27,10 @@ transient API payloads
 ## Current operational baseline (not semantic acceptance)
 
 - MLB game mapping: 326 triples maps and 87 logical sources.
-- Evidence corpus: 546 distinct completed games plus 43 schedule responses.
+- Evidence corpus: 2,572 authoritative game graphs in the live store as of
+  2026-09-03. Promotion evidence remains the admission boundary; the two MLB
+  schedule-batch manifests remain pending until the derived serving rebuild
+  reaches terminal success.
 - Query library: 51 canned, 17 advanced, and 19 reviewed
   authoritative/index equivalence pairs.
 - Explorer: shared grains for routine families can be materialized, but only
@@ -43,6 +46,17 @@ transient API payloads
   one-shot submissions rather than recurring schedules. A 2026 season-to-date
   request for all seven lanes was submitted on 2026-09-01; its result must be
   read from terminal NiFi evidence after completion or failure.
+- Shared downstream NiFi: every source lane now emits an immutable promoted-
+  graph event before cleanup. `Analytical Serving` consumes declared authority
+  dependencies into an immutable SQLite build, `Repository Evidence` runs the
+  aggregate repository gate daily at 06:30 Eastern without controlling source
+  lanes, and `Serving Equivalence` owns manual pre-admission family proofs. A
+  full authority-RDF serving rebuild was submitted asynchronously on
+  2026-09-03. Its first attempt exposed an under-correlated stolen-base join in
+  the derived runner-resolution grain; the join was corrected through its
+  source Baseball Event Record, the focused materializer suite and a live
+  stolen-base game proof passed, and NiFi owns the asynchronous retry. Terminal
+  success is still not inferred from submission.
 - MLB reference/event modules: Teams, Leagues, Divisions, People, Venues, and
   Transactions have approved semantic contracts with no open modeling blockers.
   Each owns an endpoint-specific connector, source-owned NiFi process group,
@@ -108,14 +122,14 @@ schedule and may be disabled without stopping any other connector.
 
 ### C. Shared work begins only after promotion
 
-- [ ] Emit immutable promoted-graph events from each successful source lane.
-- [ ] Trigger single-source or multi-source approved SPARQL only from declared
+- [x] Emit immutable promoted-graph events from each successful source lane.
+- [x] Trigger single-source or multi-source approved SPARQL only from declared
   promoted-graph dependencies; do not couple acquisition lanes to one another.
-- [ ] Build and validate persistent SQL serving candidates from those query
+- [x] Build and validate persistent SQL serving candidates from those query
   outputs, then promote the serving build atomically.
-- [ ] Keep serving failure isolated from authoritative RDF and every source
+- [x] Keep serving failure isolated from authoritative RDF and every source
   acquisition lane.
-- [ ] Rebuild the aggregate repository-validation/evidence stage after the
+- [x] Rebuild the aggregate repository-validation/evidence stage after the
   source-owned lanes exist; it is an asynchronous observer/gate, not their
   controller.
 
@@ -151,10 +165,15 @@ schedule and may be disabled without stopping any other connector.
   fails after authoritative replacement.
 - [x] Make game-promotion evidence immutable and record transient-payload
   cleanup as a separate event instead of rewriting the promotion marker.
-- [ ] Require each static single-source SPARQL artifact to enforce its graph
+- [x] Require each static single-source SPARQL artifact to enforce its graph
   namespace itself, or register and test the exact runtime binder that does so.
 - [ ] Capture current-contract SPARQL-to-SQL result equivalence per Explorer
-  family before labeling the integrity-gated routes equivalence-proven.
+  family before labeling the integrity-gated routes equivalence-proven. The
+  fail-closed candidate/read boundary, exact result comparator, immutable
+  evidence format, and manual NiFi lane now exist; no pending family is
+  admitted until its proof actually passes and is reviewed. The first Explore
+  family proof was submitted asynchronously on 2026-09-03; its result is not
+  inferred from submission.
 - [ ] Migrate `game_dimension.game_set` serving extraction from compact
   acquisition provenance to the accepted authoritative season-phase RDF, prove
   historical equivalence, and rebuild the serving layer. Fixture membership
@@ -253,10 +272,38 @@ the triple store through explicitly multi-source SPARQL.
   every submitted game must terminate as promoted or quarantined; and measured
   throughput must improve. Do not reconcile or modify the active promotion
   scripts during the current corpus run.
-- [ ] Add reusable pitch and runner-resolution SQL grains when an approved UI
-  family needs them.
+- [x] Add reusable pitch and runner-resolution SQL grains for the candidate
+  Explorer routes. The runner grain is keyed by one reviewed resolution and
+  correlates stolen-base evidence through the resolution's Baseball Event
+  Record; UI admission still waits for family equivalence.
+- [x] Add a hash-pinned DSQ module catalog and safe compiler over every current
+  query-index fact grain. Version 1 permits one primary fact grain, reviewed
+  game dimensions, distinct counts, and additive reduction across disjoint
+  game partitions; it rejects unreviewed fact-to-fact joins and batch averages.
+- [x] Give all 56 approved static DSQs persistent SQL coverage: 17 reviewed
+  Advanced questions and 39 non-option canned questions. Each DSQ owns a named
+  graph-partitioned table, exact query and reducer hashes, projected-variable
+  metadata, binding counts, and dimension indexes. This is candidate
+  materialization only; each UI route still requires end-to-end equivalence.
+- [x] Add a separate hash-pinned authority-RDF module catalog for reusable
+  Person, Organization, Venue, Day, name, identifier, measurement, handedness,
+  position, coordinate, capacity, and playing-surface evidence. Preserve the
+  accepted world-side/ICE patterns, source-lane intersection, graph provenance,
+  and replace-by-authority-graph SQL contract.
+- [x] Add NiFi materialization stages and SQL tables for the authority specs.
+  The materializer retains exact RDF bindings, proves source-graph replacement
+  in focused tests, and promotes an immutable pointer; UI authority lookups
+  remain future consuming features and the submitted full RDF rebuild still
+  requires terminal evidence.
+- [ ] Add explicit, equivalence-tested bridge modules only when a DSQ needs to
+  join two fact grains, then let NiFi compile and materialize that admitted
+  question through the existing serving lifecycle.
 - [ ] Preserve comparable authoritative RDF, indexed RDF, and SQL timing
   evidence at matching corpus fingerprints.
+- [ ] Make full serving rebuilds checkpointed across disjoint game batches so a
+  failed graph/query retries only its incomplete batch. Preserve the immutable
+  final database, complete-corpus integrity checks, and atomic pointer swap;
+  do not turn partial batch databases into UI-readable builds.
 - [ ] Introduce nightly incremental serving maintenance only after full rebuild
   and corrected-game replacement behavior are proven equivalent.
 - [ ] Move additional Explorer families to SQL one at a time after row, filter,
@@ -271,7 +318,8 @@ It records a discarded design.
 Continue from the clean, proven seven-lane architecture. Do not monitor the
 submitted corpus run continuously. When requested, or after NiFi records a
 terminal failure, review its persisted evidence and repair the versioned cause.
-After corpus promotion, add promoted-graph-event-driven SPARQL and SQL
-materialization, close Explorer-family equivalence one family at a time, and
-restore the aggregate repository-validation observer. Do not reproduce routine
-pipeline work with attended scripts.
+Promoted-graph-event-driven authority SPARQL and SQL materialization and the
+aggregate repository-validation observer now exist. Review their terminal
+NiFi evidence when requested, then close Explorer-family equivalence one
+family at a time. Do not reproduce routine pipeline work with attended
+scripts.

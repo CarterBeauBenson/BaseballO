@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory = $true)][ValidateSet('context', 'rml', 'shacl', 'promote', 'cleanup', 'quarantine')][string] $Action,
+    [Parameter(Mandatory = $true)][ValidateSet('context', 'rml', 'shacl', 'promote', 'emit', 'cleanup', 'quarantine')][string] $Action,
     [Parameter(Mandatory = $true)][string] $ContractPath,
     [Parameter(Mandatory = $true)][ValidatePattern('^[0-9a-f]{32}$')][string] $RunId,
     [Parameter(Mandatory = $true)][ValidatePattern('^[A-Za-z0-9._-]+$')][string] $ScopeKey,
@@ -42,6 +42,15 @@ $moduleRoot = [System.IO.Path]::GetFullPath((Join-Path $repositoryRoot "sources\
 $modulePrefix = $moduleRoot + [System.IO.Path]::DirectorySeparatorChar
 if (-not $contractFile.StartsWith($modulePrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
     throw "Flow contract is not owned by its declared module $moduleId."
+}
+$eventContract = $contract.promotedGraphEvents
+if (
+    [int]$eventContract.contractVersion -ne 1 -or
+    [string]$eventContract.emitter -ne 'scripts/pipeline/emit-promoted-graph-event.py' -or
+    [string]$eventContract.outbox -ne 'pipeline/events/promoted-graphs' -or
+    [string]$eventContract.delivery -ne 'immutable-idempotent-before-transient-cleanup'
+) {
+    throw "$moduleId promoted-graph event contract is invalid."
 }
 
 $shaclEngine = 'pyshacl'
@@ -327,6 +336,26 @@ switch ($Action) {
             authoritativeGraph = $graphIri
             tripleCount = $tripleCount
             promotionEvidence = $promotionPath
+        }
+    }
+    'emit' {
+        $promotionPath = Join-Path $evidenceRoot 'promotion.json'
+        if (-not (Test-Path -LiteralPath $promotionPath -PathType Leaf)) {
+            throw "$moduleId promotion evidence is missing; no downstream event can be emitted."
+        }
+        $emitter = Join-Path $repositoryRoot ([string]$eventContract.emitter)
+        $resultPath = Join-Path $evidenceRoot 'promoted-graph-event-emission.json'
+        Invoke-LoggedCommand -FailureMessage "$moduleId promoted-graph event emission failed." -Command {
+            & python $emitter '--state-root' $script:StateRoot '--promotion-evidence' $promotionPath '--result-json' $resultPath
+        }
+        $emission = Get-Content -LiteralPath $resultPath -Raw | ConvertFrom-Json
+        if ([string]$emission.status -notin @('created', 'already-present')) {
+            throw "$moduleId promoted-graph event was not durably emitted."
+        }
+        Write-StageResult @{
+            promotedGraphEvent = [string]$emission.eventPath
+            promotedGraphEventSha256 = [string]$emission.eventSha256
+            promotedGraphEventId = [string]$emission.eventId
         }
     }
     'cleanup' {

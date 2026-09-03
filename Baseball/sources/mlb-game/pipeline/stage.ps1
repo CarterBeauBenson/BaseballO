@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('rml', 'shacl', 'promote', 'materialize', 'cleanup', 'quarantine')]
+    [ValidateSet('rml', 'shacl', 'promote', 'emit', 'materialize', 'cleanup', 'quarantine')]
     [string] $Action,
     [Parameter(Mandatory = $true)][ValidatePattern('^\d+$')][string] $GamePk,
     [Parameter(Mandatory = $true)][ValidatePattern('^[0-9a-f]{32}$')][string] $RunId,
@@ -256,6 +256,31 @@ switch ($Action) {
                 }
             }
             throw
+        }
+    }
+    'emit' {
+        $promoteResultPath = Join-Path $stageEvidenceRoot 'promote.json'
+        if (-not (Test-Path -LiteralPath $promoteResultPath -PathType Leaf)) {
+            throw "Promotion-stage evidence is missing for game $GamePk."
+        }
+        $promoteResult = Get-Content -LiteralPath $promoteResultPath -Raw | ConvertFrom-Json
+        $promotionPath = [string]$promoteResult.promotionEvidence
+        if (-not (Test-Path -LiteralPath $promotionPath -PathType Leaf)) {
+            throw "Immutable promotion evidence is missing for game $GamePk."
+        }
+        $emitter = Join-Path $repositoryRoot 'scripts\pipeline\emit-promoted-graph-event.py'
+        $resultPath = Join-Path $stageEvidenceRoot 'promoted-graph-event-emission.json'
+        Invoke-LoggedCommand -FailureMessage "Promoted-graph event emission failed for game $GamePk." -Command {
+            & python $emitter '--state-root' $script:StateRoot '--promotion-evidence' $promotionPath '--result-json' $resultPath
+        }
+        $emission = Get-Content -LiteralPath $resultPath -Raw | ConvertFrom-Json
+        if ([string]$emission.status -notin @('created', 'already-present')) {
+            throw "Promoted-graph event was not durably emitted for game $GamePk."
+        }
+        Write-StageResult @{
+            promotedGraphEvent = [string]$emission.eventPath
+            promotedGraphEventSha256 = [string]$emission.eventSha256
+            promotedGraphEventId = [string]$emission.eventId
         }
     }
     'materialize' {

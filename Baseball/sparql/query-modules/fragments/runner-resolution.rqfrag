@@ -1,0 +1,5 @@
+?runnerResolution a idx:RunnerResolutionFact ;
+    idx:game ?game ;
+    idx:agent ?runner ;
+    idx:resolutionClass ?resolutionClass ;
+    idx:sourceEventType ?eventType .

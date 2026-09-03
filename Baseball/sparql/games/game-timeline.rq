@@ -5,6 +5,7 @@ PREFIX obo: <http://purl.obolibrary.org/obo/>
 SELECT ?game ?gameStart ?gameEnd
 WHERE {
   GRAPH ?graph {
+    FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
     ?game a base:BaseballGame ;
           obo:BFO_0000199 ?interval .
     ?interval obo:BFO_0000222 ?startInstant ;

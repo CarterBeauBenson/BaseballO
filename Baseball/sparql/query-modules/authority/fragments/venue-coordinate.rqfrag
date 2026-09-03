@@ -1,0 +1,7 @@
+?venueReferencePoint a base:BaseballVenueReferencePoint ;
+    obo:BFO_0000176 ?entity .
+?coordinateICE a cco:ont00000686 ;
+    cco:ont00001916 ?venueReferencePoint ;
+    cco:ont00001913 ?coordinateReferenceSystem ;
+    cco:ont00001766 ?latitude ;
+    cco:ont00001764 ?longitude .

@@ -1,0 +1,20 @@
+{
+  "artifactType": "baseballo-nifi-repository-evidence-flow-contract",
+  "contractVersion": 1,
+  "rootProcessGroup": "BaseballO",
+  "processGroup": "Repository Evidence",
+  "observer": {
+    "processor": "scripts/pipeline/record-repository-validation.py",
+    "schedule": "0 30 6 * * ?",
+    "timeZone": "America/New_York",
+    "manualTrigger": "run-once",
+    "timeoutSeconds": 3600
+  },
+  "failurePolicy": {
+    "maximumRetries": 2,
+    "controlsSourceLanes": false,
+    "changesAuthoritativeRdf": false,
+    "changesServingPointers": false,
+    "evidenceIsImmutable": true
+  }
+}

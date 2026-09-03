@@ -1,0 +1,5 @@
+?pitch a idx:PitchFact ;
+    idx:game ?game ;
+    idx:plateAppearance ?plateAppearance ;
+    idx:agent ?pitcher ;
+    idx:venue ?venue .

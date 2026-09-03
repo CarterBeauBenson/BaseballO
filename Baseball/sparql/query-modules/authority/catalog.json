@@ -1,0 +1,301 @@
+{
+  "artifactType": "baseballo-authority-query-module-catalog",
+  "catalogVersion": 1,
+  "description": "Reusable consumer patterns over independently promoted authority and event-evidence graphs. These patterns preserve the accepted realist structures; they do not replace them with source fields.",
+  "sourceRegistry": {
+    "path": "sources/source-modules.json",
+    "contractVersion": 2
+  },
+  "sourceContracts": [
+    {
+      "id": "mlb-divisions",
+      "semanticStatusRecord": "sources/mlb-divisions/review/semantic-status.json",
+      "graphPrefixes": ["https://w3id.org/baseball/graph/authority/mlb-divisions/"],
+      "rml": {
+        "path": "sources/mlb-divisions/mapping/mlb-divisions.rml.ttl",
+        "textSha256": "2d9053c4a5a62cb63d226ab857fba46d4d697a7d274cf09c28d800128c22a03e"
+      },
+      "shacl": {
+        "path": "sources/mlb-divisions/shacl/authoritative.ttl",
+        "textSha256": "ff2d013680885a6c6ace409edf8c9d45302e6a172b544a0fd131ed44da93e343"
+      }
+    },
+    {
+      "id": "mlb-leagues",
+      "semanticStatusRecord": "sources/mlb-leagues/review/semantic-status.json",
+      "graphPrefixes": ["https://w3id.org/baseball/graph/authority/mlb-leagues/"],
+      "rml": {
+        "path": "sources/mlb-leagues/mapping/mlb-leagues.rml.ttl",
+        "textSha256": "29447c7e421525b0267c22e7e72e560a1905ac35af841b595f0b2c5e1cc78385"
+      },
+      "shacl": {
+        "path": "sources/mlb-leagues/shacl/authoritative.ttl",
+        "textSha256": "a47bdda8a53531f73a307d42ad85506d8e5a0a2aace98d5209edce10a9b04e27"
+      }
+    },
+    {
+      "id": "mlb-people",
+      "semanticStatusRecord": "sources/mlb-people/review/semantic-status.json",
+      "graphPrefixes": ["https://w3id.org/baseball/graph/authority/mlb-people/"],
+      "rml": {
+        "path": "sources/mlb-people/mapping/mlb-people.rml.ttl",
+        "textSha256": "2fb2572bff87aa32be0fe9ee9bdd4694378f167046779144b76ba57678c0e769"
+      },
+      "shacl": {
+        "path": "sources/mlb-people/shacl/authoritative.ttl",
+        "textSha256": "5d0b2b9ca46a3aaee1f1fbf20ff62fb9c2d48b910ad42a3bc1db890e2b2b977b"
+      }
+    },
+    {
+      "id": "mlb-teams",
+      "semanticStatusRecord": "sources/mlb-teams/review/semantic-status.json",
+      "graphPrefixes": ["https://w3id.org/baseball/graph/authority/mlb-teams/"],
+      "rml": {
+        "path": "sources/mlb-teams/mapping/mlb-teams.rml.ttl",
+        "textSha256": "ad3fd9633e37b3aa1c2b54e2a64b0680bb2b916e41a8549d2bd524bbf1817691"
+      },
+      "shacl": {
+        "path": "sources/mlb-teams/shacl/authoritative.ttl",
+        "textSha256": "f19662cc793247708432e8add8dc42b3529b32db3f5038096aae45a57991ffb1"
+      }
+    },
+    {
+      "id": "mlb-transactions",
+      "semanticStatusRecord": "sources/mlb-transactions/review/semantic-status.json",
+      "graphPrefixes": ["https://w3id.org/baseball/graph/event/mlb-transactions/"],
+      "rml": {
+        "path": "sources/mlb-transactions/mapping/mlb-transactions.rml.ttl",
+        "textSha256": "9237077df693b638eccd1099b9b71ddf47517cd23d64f437d0e0833cda0e164a"
+      },
+      "shacl": {
+        "path": "sources/mlb-transactions/shacl/authoritative.ttl",
+        "textSha256": "37935d2b6b66f4831418fa57c280457acb88ef85bdb3db465fab541bf14612d6"
+      }
+    },
+    {
+      "id": "mlb-venues",
+      "semanticStatusRecord": "sources/mlb-venues/review/semantic-status.json",
+      "graphPrefixes": ["https://w3id.org/baseball/graph/authority/mlb-venues/"],
+      "rml": {
+        "path": "sources/mlb-venues/mapping/mlb-venues.rml.ttl",
+        "textSha256": "4ff3df938c8abe2b3160ba37c03824b19920b5735223f329377625b889a083d2"
+      },
+      "shacl": {
+        "path": "sources/mlb-venues/shacl/authoritative.ttl",
+        "textSha256": "1c7269a94540b5efaf7c058cc115fe7e6b8c4eea3890547880f25d4902a1ccb5"
+      }
+    }
+  ],
+  "prefixes": {
+    "base": "https://baseballontology.org/",
+    "cco": "https://www.commoncoreontologies.org/",
+    "obo": "http://purl.obolibrary.org/obo/"
+  },
+  "fragmentRoot": "sparql/query-modules/authority/fragments",
+  "materializationContract": {
+    "unit": "promoted-authority-graph",
+    "requiredPartitioning": "authority-graphs",
+    "merge": "replace-source-graph",
+    "warning": "Materialize separate reusable grains. Presentation choices such as a preferred display name belong downstream and must not erase the source evidence."
+  },
+  "modules": [
+    {
+      "id": "person",
+      "path": "sparql/query-modules/authority/fragments/person.rqfrag",
+      "textSha256": "aa660f6e2e6d5b7fd63a4bc67b135c0ef712bece1659a33f851e3a57617eabb4",
+      "canBePrimary": true,
+      "allowedEnrichments": ["proper-name", "nickname", "provider-identifier", "height-quality", "mass-quality", "decimal-measurement", "batting-side-disposition", "throwing-side-disposition", "nominal-measurement", "position-description"],
+      "requires": [],
+      "provides": ["entity"],
+      "sources": ["mlb-people"],
+      "cardinality": "many-per-graph"
+    },
+    {
+      "id": "organization",
+      "path": "sparql/query-modules/authority/fragments/organization.rqfrag",
+      "textSha256": "b1148f1adfcf97ec6cc36d09c91bf8438b1e3e98adf057009ad482f71db1788c",
+      "canBePrimary": true,
+      "allowedEnrichments": ["proper-name", "provider-identifier"],
+      "requires": [],
+      "provides": ["entity"],
+      "sources": ["mlb-divisions", "mlb-leagues", "mlb-teams"],
+      "cardinality": "many-per-graph"
+    },
+    {
+      "id": "venue",
+      "path": "sparql/query-modules/authority/fragments/venue.rqfrag",
+      "textSha256": "b6ea6bf784503ed1f58d94ba09b9a1762bd861908738e56d6cf206c34eee4935",
+      "canBePrimary": true,
+      "allowedEnrichments": ["proper-name", "provider-identifier", "venue-coordinate", "venue-capacity-quality", "integer-measurement", "venue-playing-surface", "nominal-measurement"],
+      "requires": [],
+      "provides": ["entity"],
+      "sources": ["mlb-venues"],
+      "cardinality": "many-per-graph"
+    },
+    {
+      "id": "calendar-date-day",
+      "path": "sparql/query-modules/authority/fragments/calendar-date-day.rqfrag",
+      "textSha256": "050d3574d7865b98d9dc3fac0fb2f488d2486930d1c6a94ab1e8bdad9bc4bfea",
+      "canBePrimary": true,
+      "allowedEnrichments": [],
+      "requires": [],
+      "provides": ["dateIdentifier", "dateValue", "day"],
+      "sources": ["mlb-leagues", "mlb-people", "mlb-transactions"],
+      "cardinality": "many-per-graph"
+    },
+    {
+      "id": "proper-name",
+      "path": "sparql/query-modules/authority/fragments/proper-name.rqfrag",
+      "textSha256": "157115537df2c096e21a020bec21fa317f5050604b37db7232822fb9152dcb03",
+      "canBePrimary": false,
+      "allowedEnrichments": [],
+      "requires": ["entity"],
+      "provides": ["nameICE", "nameText"],
+      "sources": ["mlb-divisions", "mlb-leagues", "mlb-people", "mlb-teams", "mlb-venues"],
+      "cardinality": "one-or-more-per-input-per-graph"
+    },
+    {
+      "id": "nickname",
+      "path": "sparql/query-modules/authority/fragments/nickname.rqfrag",
+      "textSha256": "23195fe745f66900f46063389d779913eb75e9e314f8b9cfa487ec85f9e0485a",
+      "canBePrimary": false,
+      "allowedEnrichments": [],
+      "requires": ["entity"],
+      "provides": ["nicknameICE", "nicknameText"],
+      "sources": ["mlb-people"],
+      "cardinality": "zero-or-one-per-input-per-graph"
+    },
+    {
+      "id": "provider-identifier",
+      "path": "sparql/query-modules/authority/fragments/provider-identifier.rqfrag",
+      "textSha256": "85b2ef77badf0e7ee5d51de08f21f72f9d1c987e8a5ed4378a3b82017fe90056",
+      "canBePrimary": false,
+      "allowedEnrichments": [],
+      "requires": ["entity"],
+      "provides": ["identifierICE", "identifierReferenceSystem", "identifierText"],
+      "sources": ["mlb-divisions", "mlb-leagues", "mlb-people", "mlb-teams", "mlb-venues"],
+      "cardinality": "one-or-more-per-input-per-graph"
+    },
+    {
+      "id": "height-quality",
+      "path": "sparql/query-modules/authority/fragments/height-quality.rqfrag",
+      "textSha256": "af20c4028371fc4469f2327dc6ebf443108260e6605f0c3bd9d20e1c590264fa",
+      "canBePrimary": false,
+      "allowedEnrichments": [],
+      "requires": ["entity"],
+      "provides": ["measuredEntity"],
+      "sources": ["mlb-people"],
+      "cardinality": "zero-or-one-per-input-per-graph"
+    },
+    {
+      "id": "mass-quality",
+      "path": "sparql/query-modules/authority/fragments/mass-quality.rqfrag",
+      "textSha256": "9d0ecbce0ad8994b6e0dcf7439bbc11473ad2d16be350e3483a6e41a0bbdc923",
+      "canBePrimary": false,
+      "allowedEnrichments": [],
+      "requires": ["entity"],
+      "provides": ["measuredEntity"],
+      "sources": ["mlb-people"],
+      "cardinality": "zero-or-one-per-input-per-graph"
+    },
+    {
+      "id": "decimal-measurement",
+      "path": "sparql/query-modules/authority/fragments/decimal-measurement.rqfrag",
+      "textSha256": "28c0a340e593f2772fd208dd644cd79246057e610d6c89176b31995444778438",
+      "canBePrimary": false,
+      "allowedEnrichments": [],
+      "requires": ["measuredEntity"],
+      "provides": ["decimalValue", "measurementICE", "measurementUnit"],
+      "sources": ["mlb-people", "mlb-venues"],
+      "cardinality": "one-or-more-per-input-per-graph"
+    },
+    {
+      "id": "integer-measurement",
+      "path": "sparql/query-modules/authority/fragments/integer-measurement.rqfrag",
+      "textSha256": "65f82dc99e674e72448035a9b36f377921dd59270ceff2018620035d461fa9f2",
+      "canBePrimary": false,
+      "allowedEnrichments": [],
+      "requires": ["measuredEntity"],
+      "provides": ["integerValue", "measurementICE"],
+      "sources": ["mlb-venues"],
+      "cardinality": "one-or-more-per-input-per-graph"
+    },
+    {
+      "id": "batting-side-disposition",
+      "path": "sparql/query-modules/authority/fragments/batting-side-disposition.rqfrag",
+      "textSha256": "4c587d760039b0558b47f58f82c0c35cdd066c569d3dc15770ec23eda93a8450",
+      "canBePrimary": false,
+      "allowedEnrichments": [],
+      "requires": ["entity"],
+      "provides": ["classifiedEntity"],
+      "sources": ["mlb-people"],
+      "cardinality": "zero-or-one-per-input-per-graph"
+    },
+    {
+      "id": "throwing-side-disposition",
+      "path": "sparql/query-modules/authority/fragments/throwing-side-disposition.rqfrag",
+      "textSha256": "dc3c50f2327d072dd1176241e60f722e23a678bd0be4f33ee25610da497f374f",
+      "canBePrimary": false,
+      "allowedEnrichments": [],
+      "requires": ["entity"],
+      "provides": ["classifiedEntity"],
+      "sources": ["mlb-people"],
+      "cardinality": "zero-or-one-per-input-per-graph"
+    },
+    {
+      "id": "nominal-measurement",
+      "path": "sparql/query-modules/authority/fragments/nominal-measurement.rqfrag",
+      "textSha256": "844045ecf074c0bad8b976c9e5232d9f0ffd2246e67f13230868092406e2c563",
+      "canBePrimary": false,
+      "allowedEnrichments": [],
+      "requires": ["classifiedEntity"],
+      "provides": ["nominalCode", "nominalMeasurementICE", "nominalReferenceSystem"],
+      "sources": ["mlb-people", "mlb-venues"],
+      "cardinality": "one-or-more-per-input-per-graph"
+    },
+    {
+      "id": "position-description",
+      "path": "sparql/query-modules/authority/fragments/position-description.rqfrag",
+      "textSha256": "ca25b3306064b74194a9dd84647efe7908655d2b62732acb04e51b0b26ca88f8",
+      "canBePrimary": false,
+      "allowedEnrichments": [],
+      "requires": ["entity"],
+      "provides": ["positionCode", "positionDescriptionICE", "positionReferenceSystem"],
+      "sources": ["mlb-people"],
+      "cardinality": "one-or-more-per-input-per-graph"
+    },
+    {
+      "id": "venue-coordinate",
+      "path": "sparql/query-modules/authority/fragments/venue-coordinate.rqfrag",
+      "textSha256": "4384562210825610b3e9baf67d6cfe2a5efe09df18fce8fe79bb35c0289cce24",
+      "canBePrimary": false,
+      "allowedEnrichments": [],
+      "requires": ["entity"],
+      "provides": ["coordinateICE", "coordinateReferenceSystem", "latitude", "longitude", "venueReferencePoint"],
+      "sources": ["mlb-venues"],
+      "cardinality": "one-or-more-per-input-per-graph"
+    },
+    {
+      "id": "venue-capacity-quality",
+      "path": "sparql/query-modules/authority/fragments/venue-capacity-quality.rqfrag",
+      "textSha256": "ec3cbb91cada53c97065cfd673c79ecdc57200971c3f126356d720d45671eca9",
+      "canBePrimary": false,
+      "allowedEnrichments": [],
+      "requires": ["entity"],
+      "provides": ["measuredEntity"],
+      "sources": ["mlb-venues"],
+      "cardinality": "zero-or-one-per-input-per-graph"
+    },
+    {
+      "id": "venue-playing-surface",
+      "path": "sparql/query-modules/authority/fragments/venue-playing-surface.rqfrag",
+      "textSha256": "114ec25718f7f26af796226199fa1b260e0867032222353df6737b580a0554ab",
+      "canBePrimary": false,
+      "allowedEnrichments": [],
+      "requires": ["entity"],
+      "provides": ["classifiedEntity"],
+      "sources": ["mlb-venues"],
+      "cardinality": "zero-or-one-per-input-per-graph"
+    }
+  ]
+}

@@ -12,9 +12,12 @@ WHERE {
   GRAPH ?indexGraph {
     ?index a idx:QueryIndex ; idx:sourceGraph ?graph ; idx:indexedGame ?game ; idx:contractVersion "1" .
     ?resolution a idx:RunnerResolutionFact ; idx:agent ?player ; idx:game ?game ;
-                idx:resolutionClass ?resolutionClass ; idx:sourceEventType ?eventType .
+                idx:resolutionClass ?resolutionClass ; idx:sourceEventType ?eventType ;
+                idx:derivedFrom ?record .
   }
   GRAPH ?graph {
+    ?record a base:BaseballEventRecord ;
+      cco:ont00001808 ?resolution .
     ?resolution obo:BFO_0000132 ?plateAppearance .
     ?plateAppearance a base:PlateAppearance ;
       obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
@@ -24,6 +27,7 @@ WHERE {
     ?teamRole a ?teamRoleClass ; obo:BFO_0000197 ?team ; obo:BFO_0000054 ?game .
     ?team rdfs:label ?teamLabel .
     OPTIONAL {
+      ?record cco:ont00001808 ?stolenBase .
       ?stolenBase a base:StolenBaseProcess ; obo:BFO_0000057 ?player ;
                   obo:BFO_0000132 ?plateAppearance ; obo:BFO_0000117 ?stolenBaseJudgment .
       ?stolenBaseJudgment a base:StolenBaseJudgmentAct .

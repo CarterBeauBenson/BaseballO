@@ -25,6 +25,15 @@ $contract = Get-Content -LiteralPath $contractPath -Raw | ConvertFrom-Json
 if ([string]$contract.artifactType -ne 'baseballo-nifi-source-flow-contract' -or [string]$contract.sourceModule -ne 'mlb-game') {
     throw "Unsupported MLB Game flow contract: $contractPath"
 }
+$eventContract = $contract.promotedGraphEvents
+if (
+    [int]$eventContract.contractVersion -ne 1 -or
+    [string]$eventContract.emitter -ne 'scripts/pipeline/emit-promoted-graph-event.py' -or
+    [string]$eventContract.outbox -ne 'pipeline/events/promoted-graphs' -or
+    [string]$eventContract.delivery -ne 'immutable-idempotent-before-transient-cleanup'
+) {
+    throw 'MLB Game must declare the promoted-graph event v1 delivery contract.'
+}
 $schedule = $contract.scheduleDiscovery
 if ([string]$schedule.dailyCron -ne '0 0 5 * * ?' -or [string]$schedule.timeZone -ne 'America/New_York') {
     throw 'MLB Game daily acquisition must run at 05:00 America/New_York.'
@@ -60,7 +69,8 @@ $scheduleParser = [System.IO.Path]::GetFullPath((Join-Path $repositoryRoot "sour
 $batchMaterializer = [System.IO.Path]::GetFullPath((Join-Path $repositoryRoot "sources\mlb-game\$([string]$contract.batchMaterialization.processor)"))
 $proofReleaseScript = [System.IO.Path]::GetFullPath((Join-Path $repositoryRoot 'scripts\pipeline\check-source-proof-release.py'))
 $quarantineReplayScript = [System.IO.Path]::GetFullPath((Join-Path $repositoryRoot "sources\mlb-game\$([string]$quarantineReplayPolicy.planner)"))
-foreach ($required in @($stageScript, $scheduleParser, $batchMaterializer, $proofReleaseScript, $quarantineReplayScript)) {
+$eventEmitter = [System.IO.Path]::GetFullPath((Join-Path $repositoryRoot ([string]$eventContract.emitter)))
+foreach ($required in @($stageScript, $scheduleParser, $batchMaterializer, $proofReleaseScript, $quarantineReplayScript, $eventEmitter)) {
     if (-not (Test-Path -LiteralPath $required -PathType Leaf)) {
         throw "MLB Game NiFi executable is missing: $required"
     }
@@ -346,6 +356,7 @@ foreach ($obsoleteConnection in @(
     '09 SHACL complete',
     '10 graph pair promoted',
     '13 promotion passed to materialization',
+    '13 promotion passed to materialization choice',
     '11 SQL materialized',
     '12 cleanup complete',
     'retry RML input',
@@ -518,25 +529,26 @@ $processors.put = Ensure-Processor -GroupId $groupId -Name 'Write Transient Payl
 $processors.rml = Ensure-StageProcessor -GroupId $groupId -Name 'RML' -Action 'rml' -NeedsInput $true -X 2240 -Y 0
 $processors.shacl = Ensure-StageProcessor -GroupId $groupId -Name 'Source SHACL' -Action 'shacl' -NeedsInput $false -X 2560 -Y 0 -ConcurrentTasks 2
 $processors.promote = Ensure-StageProcessor -GroupId $groupId -Name 'Promote Graph Pair' -Action 'promote' -NeedsInput $true -X 2880 -Y 0
-$processors.chooseMaterialization = Ensure-Processor -GroupId $groupId -Name 'Choose Materialization Mode' -Type 'org.apache.nifi.processors.standard.RouteOnAttribute' -X 3120 -Y 0 -AutoTerminate @() -Properties @{
+$processors.emit = Ensure-StageProcessor -GroupId $groupId -Name 'Emit Promoted Graph Event' -Action 'emit' -NeedsInput $false -X 3200 -Y 0
+$processors.chooseMaterialization = Ensure-Processor -GroupId $groupId -Name 'Choose Materialization Mode' -Type 'org.apache.nifi.processors.standard.RouteOnAttribute' -X 3440 -Y 0 -AutoTerminate @() -Properties @{
     'Routing Strategy' = 'Route to Property name';
     'immediate' = "`${materialize.mode:equals('immediate')}";
     'deferred' = "`${materialize.mode:equals('deferred')}"
 }
-$processors.materialize = Ensure-StageProcessor -GroupId $groupId -Name 'Materialize SQL' -Action 'materialize' -NeedsInput $false -X 3200 -Y 0
-$processors.cleanup = Ensure-StageProcessor -GroupId $groupId -Name 'Cleanup Transient Artifacts' -Action 'cleanup' -NeedsInput $true -X 3520 -Y 0
-$processors.chooseQuarantineResolution = Ensure-Processor -GroupId $groupId -Name 'Choose Quarantine Resolution' -Type 'org.apache.nifi.processors.standard.RouteOnAttribute' -X 3840 -Y 0 -AutoTerminate @() -Properties @{
+$processors.materialize = Ensure-StageProcessor -GroupId $groupId -Name 'Materialize SQL' -Action 'materialize' -NeedsInput $false -X 3520 -Y 0
+$processors.cleanup = Ensure-StageProcessor -GroupId $groupId -Name 'Cleanup Transient Artifacts' -Action 'cleanup' -NeedsInput $true -X 3840 -Y 0
+$processors.chooseQuarantineResolution = Ensure-Processor -GroupId $groupId -Name 'Choose Quarantine Resolution' -Type 'org.apache.nifi.processors.standard.RouteOnAttribute' -X 4160 -Y 0 -AutoTerminate @() -Properties @{
     'Routing Strategy' = 'Route to Property name';
     'ordinary' = "`${quarantine.replay.input.path:isEmpty()}";
     'replay' = "`${quarantine.replay.input.path:isEmpty():not()}"
 }
 $quarantineResolveArguments = "-B;$quarantineReplayScript;--action;resolve;--state-root;$script:StateRoot;--plan;`${quarantine.replay.plan.path};--game-pk;`${game.pk};--input;`${quarantine.replay.input.path};--input-sha256;`${quarantine.replay.input.sha256};--resolution-mode;`${quarantine.replay.resolution.mode};--promotion-evidence;`${quarantine.replay.promotion.evidence}"
-$processors.resolveQuarantineReplay = Ensure-Processor -GroupId $groupId -Name 'Resolve Quarantine Replay' -Type 'org.apache.nifi.processors.standard.ExecuteStreamCommand' -X 4160 -Y 160 -AutoTerminate @('output stream', 'nonzero status') -Properties @{
+$processors.resolveQuarantineReplay = Ensure-Processor -GroupId $groupId -Name 'Resolve Quarantine Replay' -Type 'org.apache.nifi.processors.standard.ExecuteStreamCommand' -X 4480 -Y 160 -AutoTerminate @('output stream', 'nonzero status') -Properties @{
     'Working Directory' = $repositoryRoot; 'Command Path' = $python; 'Command Arguments Strategy' = 'Command Arguments Property';
     'Command Arguments' = $quarantineResolveArguments; 'Argument Delimiter' = ';'; 'Ignore STDIN' = 'true';
     'Output Destination Attribute' = 'quarantine.replay.resolve.output'; 'Max Attribute Length' = '65536'; 'Output MIME Type' = 'application/json'
 }
-$processors.success = Ensure-Processor -GroupId $groupId -Name 'Record Success' -Type 'org.apache.nifi.processors.standard.LogAttribute' -X 4480 -Y 0 -AutoTerminate @('success') -Properties @{
+$processors.success = Ensure-Processor -GroupId $groupId -Name 'Record Success' -Type 'org.apache.nifi.processors.standard.LogAttribute' -X 4800 -Y 0 -AutoTerminate @('success') -Properties @{
     'Log Level' = 'info'; 'Log Payload' = 'false'; 'Attributes to Log Regular Expression' = '^(game|pipeline|stage|transient)\..*$';
     'Log FlowFile Properties' = 'true'; 'Output Format' = 'Line per Attribute'; 'Log Prefix' = 'BaseballO MLB Game success'; 'Character Set' = 'UTF-8'
 }
@@ -562,12 +574,13 @@ $exitGates = [ordered]@{
     'RML' = Ensure-ExitGate $groupId 'RML' 2400 150
     'SHACL' = Ensure-ExitGate $groupId 'SHACL' 2720 150
     'Promotion' = Ensure-ExitGate $groupId 'Promotion' 3040 150
-    'Materialization' = Ensure-ExitGate $groupId 'Materialization' 3360 150
-    'Cleanup' = Ensure-ExitGate $groupId 'Cleanup' 3680 150
+    'Promoted Graph Event' = Ensure-ExitGate $groupId 'Promoted Graph Event' 3360 150
+    'Materialization' = Ensure-ExitGate $groupId 'Materialization' 3680 150
+    'Cleanup' = Ensure-ExitGate $groupId 'Cleanup' 4000 150
     'Batch Materialization' = Ensure-ExitGate $groupId 'Batch Materialization' 3440 -520
     'Proof Release' = Ensure-ExitGate $groupId 'Proof Release' 1040 -580
     'Quarantine Proof' = Ensure-ExitGate $groupId 'Quarantine Proof' 1920 -1080
-    'Quarantine Resolution' = Ensure-ExitGate $groupId 'Quarantine Resolution' 4320 160
+    'Quarantine Resolution' = Ensure-ExitGate $groupId 'Quarantine Resolution' 4640 160
 }
 $processors.quarantineProofWait = Ensure-RetryProcessor -GroupId $groupId -Stage 'Quarantine Proof Readiness' -X 1760 -Y -1240 -MaximumRetries ([int]$quarantineReplayPolicy.readinessRetryCount) -SchedulingPeriod ([string]$quarantineReplayPolicy.readinessRetryDelay)
 
@@ -579,6 +592,7 @@ $stageProcessors = [ordered]@{
     'RML' = $processors.rml
     'SHACL' = $processors.shacl
     'Promotion' = $processors.promote
+    'Promoted Graph Event' = $processors.emit
     'Materialization' = $processors.materialize
     'Cleanup' = $processors.cleanup
     'Quarantine Resolution' = $processors.resolveQuarantineReplay
@@ -591,6 +605,7 @@ $retrySourceProcessors = @{
     'RML' = $exitGates.RML
     'SHACL' = $exitGates.SHACL
     'Promotion' = $exitGates.Promotion
+    'Promoted Graph Event' = $exitGates['Promoted Graph Event']
     'Materialization' = $exitGates.Materialization
     'Cleanup' = $exitGates.Cleanup
     'Quarantine Resolution' = $exitGates['Quarantine Resolution']
@@ -682,7 +697,9 @@ Ensure-Connection -GroupId $groupId -Name '09 RML passed to SHACL' -SourceId $ex
 Ensure-Connection -GroupId $groupId -Name '10 SHACL command to exit gate' -SourceId $processors.shacl -DestinationId $exitGates.SHACL -Relationships @('original') | Out-Null
 Ensure-Connection -GroupId $groupId -Name '11 SHACL passed to promotion' -SourceId $exitGates.SHACL -DestinationId $processors.promote -Relationships @('passed') | Out-Null
 Ensure-Connection -GroupId $groupId -Name '12 promotion command to exit gate' -SourceId $processors.promote -DestinationId $exitGates.Promotion -Relationships @('original') | Out-Null
-Ensure-Connection -GroupId $groupId -Name '13 promotion passed to materialization choice' -SourceId $exitGates.Promotion -DestinationId $processors.chooseMaterialization -Relationships @('passed') | Out-Null
+Ensure-Connection -GroupId $groupId -Name '13 promotion passed to event emission' -SourceId $exitGates.Promotion -DestinationId $processors.emit -Relationships @('passed') | Out-Null
+Ensure-Connection -GroupId $groupId -Name '13 event command to exit gate' -SourceId $processors.emit -DestinationId $exitGates['Promoted Graph Event'] -Relationships @('original') | Out-Null
+Ensure-Connection -GroupId $groupId -Name '13 event passed to materialization choice' -SourceId $exitGates['Promoted Graph Event'] -DestinationId $processors.chooseMaterialization -Relationships @('passed') | Out-Null
 Ensure-Connection -GroupId $groupId -Name '13 immediate materialization selected' -SourceId $processors.chooseMaterialization -DestinationId $processors.materialize -Relationships @('immediate') | Out-Null
 Ensure-Connection -GroupId $groupId -Name '13 deferred materialization selected' -SourceId $processors.chooseMaterialization -DestinationId $processors.cleanup -Relationships @('deferred') | Out-Null
 Ensure-Connection -GroupId $groupId -Name '14 materialization command to exit gate' -SourceId $processors.materialize -DestinationId $exitGates.Materialization -Relationships @('original') | Out-Null
@@ -707,6 +724,7 @@ $retryRelationships = @{
     'RML' = @('unmatched')
     'SHACL' = @('unmatched')
     'Promotion' = @('unmatched')
+    'Promoted Graph Event' = @('unmatched')
     'Materialization' = @('unmatched')
     'Cleanup' = @('unmatched')
     'Quarantine Resolution' = @('unmatched')
@@ -760,12 +778,13 @@ $unexpectedProcessors = @($flow.processors | Where-Object { $_.component.name -n
     'Split Quarantine Replay Remainder','Record Quarantine Replay Control Failure',
     'Split Final Game Requests','Read Request','Acquire MLB Game','Read MLB Response','Require Final Game','Name Transient Payload',
     'Write Transient Payload','RML','Source SHACL','Promote Graph Pair','Materialize SQL','Cleanup Transient Artifacts',
+    'Emit Promoted Graph Event','Require Promoted Graph Event Success',
     'Choose Quarantine Resolution','Resolve Quarantine Replay','Require Quarantine Resolution Success',
     'Choose Materialization Mode','Check Pending Batch Materialization','Materialize Ready Schedule Batches',
     'Record Batch Materialization Result','Record Batch Materialization Failure','Require Batch Materialization Success',
     'Require RML Success','Require SHACL Success','Require Promotion Success','Require Materialization Success','Require Cleanup Success',
-    'Record Success','Retry HTTP','Retry Write Payload','Retry RML','Retry SHACL','Retry Promotion','Retry Materialization',
-    'Retry Cleanup','Retry Schedule HTTP','Retry Schedule Parse','Fail HTTP','Fail Write Payload','Fail RML','Fail SHACL',
+    'Record Success','Retry HTTP','Retry Write Payload','Retry RML','Retry SHACL','Retry Promotion','Retry Promoted Graph Event','Retry Materialization',
+    'Retry Cleanup','Retry Schedule HTTP','Retry Schedule Parse','Fail HTTP','Fail Write Payload','Fail RML','Fail SHACL','Fail Promoted Graph Event',
     'Retry Quarantine Resolution','Fail Promotion','Fail Materialization','Fail Cleanup','Fail Quarantine Resolution','Fail Replay Fetch','Fail Quarantine Resolution Choice','Fail Schedule HTTP','Fail Schedule Parse',
     'Fail Request','Fail Response','Fail Eligibility','Fail Schedule Request','Fail Schedule Split','Fail Materialization Mode','Fail Proof Release',
     'Quarantine','Name Schedule Quarantine','Write Schedule Quarantine','Record Schedule Quarantine Failure',

@@ -1,0 +1,4 @@
+?queryIndex a idx:QueryIndex ;
+    idx:sourceGraph ?sourceGraph ;
+    idx:indexedGame ?game ;
+    idx:contractVersion "1" .

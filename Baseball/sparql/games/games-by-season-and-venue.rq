@@ -6,6 +6,7 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 SELECT ?season ?venue ?venueLabel (COUNT(DISTINCT ?game) AS ?games)
 WHERE {
   GRAPH ?graph {
+    FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
     ?game a base:BaseballGame ;
           cco:ont00001918 ?field ;
           obo:BFO_0000199/obo:BFO_0000222 ?startInstant .

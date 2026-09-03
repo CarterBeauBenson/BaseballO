@@ -1,0 +1,4 @@
+?dateIdentifier a cco:ont00001340 ;
+    cco:ont00001771 ?dateValue ;
+    cco:ont00001916 ?day .
+?day a cco:ont00000800 .

@@ -368,10 +368,79 @@ a:focus-visible {
   display: none;
 }
 
+.question-context {
+  margin: 0.5rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.scope-disclosure,
+.refine-disclosure,
+.method-disclosure,
+.math-disclosure {
+  margin: 0 0 1rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgb(255 253 247 / 58%);
+}
+
+.scope-disclosure > summary,
+.refine-disclosure > summary,
+.method-disclosure > summary,
+.math-disclosure > summary {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.65rem 0.8rem;
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 800;
+  list-style: none;
+}
+
+.scope-disclosure > summary::-webkit-details-marker,
+.refine-disclosure > summary::-webkit-details-marker,
+.method-disclosure > summary::-webkit-details-marker,
+.math-disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+
+.scope-disclosure > summary::after,
+.refine-disclosure > summary::after,
+.method-disclosure > summary::after,
+.math-disclosure > summary::after {
+  color: var(--red);
+  content: "+";
+  font-size: 1rem;
+}
+
+.scope-disclosure[open] > summary::after,
+.refine-disclosure[open] > summary::after,
+.method-disclosure[open] > summary::after,
+.math-disclosure[open] > summary::after {
+  content: "−";
+}
+
+.scope-disclosure > summary small,
+.refine-disclosure > summary small {
+  flex: 1;
+  overflow: hidden;
+  color: var(--ink-soft);
+  font-weight: 600;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .date-scope-control {
-  margin: -0.6rem 0 0;
-  padding: 0 0 1.25rem;
+  margin: 0;
+  padding: 0.8rem;
   border: 0;
+  border-top: 1px solid var(--line);
 }
 
 .date-scope-control legend {
@@ -416,6 +485,11 @@ a:focus-visible {
   margin: 0;
   padding: 1.25rem 0;
   border: 0;
+  border-top: 1px solid var(--line);
+}
+
+.refine-disclosure .control-group {
+  padding: 0.9rem 0.8rem;
   border-top: 1px solid var(--line);
 }
 
@@ -650,7 +724,18 @@ a:focus-visible {
 }
 
 .definition-section {
-  padding: 1.2rem 0;
+  margin-top: 1rem;
+}
+
+.definition-section .definition-list {
+  padding: 0 0.9rem 0.9rem;
+}
+
+.method-intro {
+  margin: 0;
+  padding: 0 0.9rem 0.7rem;
+  color: var(--ink-soft);
+  font-size: 0.76rem;
 }
 
 .empty-game-analysis-control {
@@ -711,6 +796,33 @@ a:focus-visible {
 
 .completeness-note strong {
   color: var(--ink);
+}
+
+.math-disclosure {
+  margin-top: 1rem;
+  border-left: 4px solid var(--gold);
+}
+
+.math-body {
+  padding: 0 0.9rem 0.9rem;
+  border-top: 1px solid var(--line);
+  color: var(--ink-soft);
+  font-size: 0.76rem;
+}
+
+.math-body p {
+  margin: 0.75rem 0 0;
+}
+
+.math-body ul {
+  margin: 0.65rem 0 0;
+  padding-left: 1.2rem;
+}
+
+.math-body code {
+  color: var(--ink);
+  font-size: 0.72rem;
+  white-space: normal;
 }
 
 .empty-games-run {
@@ -982,6 +1094,10 @@ th {
   text-transform: uppercase;
 }
 
+.evidence-heading {
+  padding: 0.8rem 0.9rem;
+}
+
 .table-sort-button {
   display: flex;
   width: 100%;
@@ -1037,6 +1153,118 @@ td.numeric {
   color: var(--ink-soft);
   text-overflow: ellipsis;
   vertical-align: bottom;
+}
+
+.evidence-link {
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid currentcolor;
+  background: transparent;
+  color: var(--red-dark);
+  cursor: pointer;
+  font-size: 0.74rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.evidence-dialog {
+  width: min(880px, calc(100vw - 2rem));
+  max-height: min(820px, calc(100vh - 2rem));
+  padding: clamp(1.2rem, 3vw, 2rem);
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--white);
+  box-shadow: var(--shadow);
+  color: var(--ink);
+}
+
+.evidence-dialog::backdrop {
+  background: rgb(13 39 39 / 58%);
+  backdrop-filter: blur(3px);
+}
+
+.dialog-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.dialog-heading h2 {
+  margin: 0;
+  font-family: Georgia, serif;
+  font-size: 2rem;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+}
+
+.dialog-close {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  font-size: 1.35rem;
+}
+
+.dialog-note {
+  margin: 1rem 0 1.4rem;
+  padding: 0.75rem 0.9rem;
+  border-left: 3px solid var(--gold);
+  background: var(--paper);
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+}
+
+.evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.evidence-section {
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.evidence-section h3 {
+  margin: 0 0 0.8rem;
+  color: var(--red-dark);
+  font-family: Georgia, serif;
+  font-size: 1.05rem;
+  font-weight: 500;
+}
+
+.evidence-list {
+  display: grid;
+  gap: 0.65rem;
+  margin: 0;
+}
+
+.evidence-fact {
+  display: grid;
+  grid-template-columns: minmax(115px, 0.7fr) minmax(0, 1fr);
+  gap: 0.7rem;
+}
+
+.evidence-fact dt {
+  color: var(--ink-soft);
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.evidence-fact dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
 }
 
 .query-inspector {
@@ -1217,6 +1445,15 @@ pre {
 
   .results-heading {
     align-items: flex-end;
+  }
+
+  .evidence-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .evidence-fact {
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
   }
 
   .empty-state,

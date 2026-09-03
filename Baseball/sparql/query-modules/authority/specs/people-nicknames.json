@@ -1,0 +1,13 @@
+{
+  "artifactType": "baseballo-authority-query-spec",
+  "contractVersion": 1,
+  "id": "people-nicknames",
+  "claim": "Return each Person and each Nickname ICE that designates that Person, retaining the promoted authority graph as provenance.",
+  "sourceScope": {"category": "derived", "sources": ["mlb-people"], "readsGraphLayers": ["authoritative-rdf"], "writesGraphLayers": ["analytical-sql"]},
+  "primaryModule": "person",
+  "enrichments": ["nickname"],
+  "projection": ["authorityGraph", "entity", "nicknameICE", "nicknameText"],
+  "values": [],
+  "orderBy": [{"variable": "entity", "direction": "asc"}],
+  "materialization": {"partitioning": "authority-graphs", "rowGrain": "person-nickname", "key": ["authorityGraph", "nicknameICE"], "merge": "replace-source-graph"}
+}

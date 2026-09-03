@@ -1,0 +1,2 @@
+?measuredEntity a base:SpectatorAccommodationAmount ;
+    obo:BFO_0000197 ?entity .

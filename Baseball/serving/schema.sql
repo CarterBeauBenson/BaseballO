@@ -99,6 +99,21 @@ CREATE TABLE advanced_result_fact (
     PRIMARY KEY (query_id, graph_iri, row_ordinal)
 ) STRICT;
 
+CREATE TABLE dsq_query_manifest (
+    query_id TEXT PRIMARY KEY,
+    family TEXT NOT NULL,
+    query_kind TEXT NOT NULL CHECK (query_kind IN ('advanced', 'canned')),
+    query_path TEXT NOT NULL UNIQUE,
+    result_table TEXT NOT NULL UNIQUE,
+    query_sha256 TEXT NOT NULL,
+    execution_layer TEXT NOT NULL CHECK (execution_layer IN ('authoritative', 'indexed')),
+    execution_query_path TEXT NOT NULL,
+    execution_query_sha256 TEXT NOT NULL,
+    reducer_json TEXT NOT NULL,
+    variables_json TEXT NOT NULL,
+    binding_count INTEGER NOT NULL
+) STRICT;
+
 CREATE TABLE batting_result_fact (
     graph_iri TEXT NOT NULL REFERENCES game_dimension(graph_iri),
     result_iri TEXT NOT NULL,

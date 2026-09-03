@@ -76,6 +76,18 @@ expected to reject families that have not yet passed equivalence. A future
 full-family acceptance run must retain one consistent SQL build ID, corpus
 fingerprint, coverage tuple, row count, and duration per probe.
 
+`pipeline/prove-serving-equivalence.py` closes the pre-admission gap. NiFi
+uses its isolated `query-serving-candidate.py` adapter to compare pending SQL
+with a forced authoritative Explorer response before any route status is
+changed. The comparison requires exact RDF terms, rows, ordering, corpus
+fingerprint, and one immutable SQL build. It records evidence but cannot admit
+a route.
+
+`pipeline/record-repository-validation.py` is the NiFi-owned wrapper around the
+aggregate repository gate. It writes immutable JSON plus separately hashed
+stdout and stderr logs. The `Repository Evidence` process group schedules it;
+Codex does not reproduce that recurring workflow manually.
+
 The clean NiFi runtime is provisioned per source module. Seven detachable
 process groups own Games, Teams, Leagues, Divisions, People, Venues, and
 Transactions. Each has independent acquisition, RML, source SHACL,
@@ -85,9 +97,10 @@ batch-aware SQL materialization. The shared source-stage dispatcher is
 [`pipeline/process-source-stage.ps1`](pipeline/process-source-stage.ps1);
 NiFi owns its scheduling and dependency order.
 
-The aggregate repository-validation stage is not yet rebuilt. Do not invoke
-retired configurators or reconstruct the deleted control plane around the
-remaining semantic utilities.
+The aggregate repository-validation stage is a separate asynchronous observer.
+It does not control, pause, or promote any source lane, authoritative graph, or
+serving pointer. Do not invoke retired configurators or reconstruct the deleted
+control plane around it.
 
 [`infra/migrate-rdf-storage.ps1`](infra/migrate-rdf-storage.ps1) performs the
 one-time, stopped-store migration of Fuseki/TDB2 state to a guarded external

@@ -1,0 +1,13 @@
+{
+  "artifactType": "baseballo-authority-query-spec",
+  "contractVersion": 1,
+  "id": "people-masses",
+  "claim": "Return each Person's Mass quality and the Measurement ICE, decimal value, and unit that measure it.",
+  "sourceScope": {"category": "derived", "sources": ["mlb-people"], "readsGraphLayers": ["authoritative-rdf"], "writesGraphLayers": ["analytical-sql"]},
+  "primaryModule": "person",
+  "enrichments": ["mass-quality", "decimal-measurement"],
+  "projection": ["authorityGraph", "entity", "measuredEntity", "measurementICE", "decimalValue", "measurementUnit"],
+  "values": [],
+  "orderBy": [{"variable": "entity", "direction": "asc"}],
+  "materialization": {"partitioning": "authority-graphs", "rowGrain": "person-mass-measurement", "key": ["authorityGraph", "measurementICE"], "merge": "replace-source-graph"}
+}

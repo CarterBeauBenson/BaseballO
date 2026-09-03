@@ -1,0 +1,13 @@
+{
+  "artifactType": "baseballo-authority-query-spec",
+  "contractVersion": 1,
+  "id": "people-positions",
+  "claim": "Return each Person and each Baseball Position Description ICE about that Person with the provider code and reference system.",
+  "sourceScope": {"category": "derived", "sources": ["mlb-people"], "readsGraphLayers": ["authoritative-rdf"], "writesGraphLayers": ["analytical-sql"]},
+  "primaryModule": "person",
+  "enrichments": ["position-description"],
+  "projection": ["authorityGraph", "entity", "positionDescriptionICE", "positionReferenceSystem", "positionCode"],
+  "values": [],
+  "orderBy": [{"variable": "entity", "direction": "asc"}],
+  "materialization": {"partitioning": "authority-graphs", "rowGrain": "person-position-description", "key": ["authorityGraph", "positionDescriptionICE"], "merge": "replace-source-graph"}
+}

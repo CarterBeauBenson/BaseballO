@@ -28,6 +28,8 @@ QUALITY_SPEC = ROOT / "serving" / "plate-appearance-quality-v1.json"
 SOURCE_QUERY = ROOT / "sparql" / "advanced" / "plate-appearance-fingerprint.rq"
 ADVANCED_CATALOG = ROOT / "sparql" / "advanced" / "advanced-query-catalog.json"
 ADVANCED_REDUCERS = ROOT / "serving" / "advanced-query-reducers.json"
+DSQ_MATERIALIZATIONS = ROOT / "serving" / "dsq-materializations.json"
+QUERY_INDEX_ROUTING = ROOT / "sparql" / "query-index" / "operational-query-routing.json"
 EXPLORE_GRAIN_QUERIES = {
     "batting": ROOT / "sparql" / "serving" / "explore-batting-grain.rq",
     "pitching": ROOT / "sparql" / "serving" / "explore-pitching-grain.rq",
@@ -243,6 +245,62 @@ def file_set_sha256(paths: dict[str, Path]) -> str:
         digest.update(name.encode("utf-8"))
         digest.update(b"\0")
         digest.update(path.read_bytes())
+        digest.update(b"\0")
+    return digest.hexdigest()
+
+
+def dsq_query_set_sha256(
+    dsq_catalog: dict[str, Any],
+    advanced_catalog: dict[str, Any],
+    advanced_reducers: dict[str, Any],
+    routing: dict[str, Any],
+) -> str:
+    entries: list[tuple[str, str, str, str, dict[str, Any]]] = []
+    routes = {
+        str(route["authoritative"]): route
+        for route in routing.get("routes", [])
+        if isinstance(route, dict) and route.get("authoritative")
+    }
+    details = set(advanced_reducers.get("detailQueries", []))
+    additive = advanced_reducers.get("additiveQueries", {})
+    for entry in advanced_catalog.get("queries", []):
+        query_id = str(entry["id"])
+        if query_id in details:
+            filter_dimensions = [
+                str(value["variable"])
+                for value in entry.get("resultFilters", [])
+                if isinstance(value, dict) and value.get("variable")
+            ]
+            reducer = {
+                "mode": "detail",
+                "dimensions": list(dict.fromkeys(filter_dimensions)),
+                "sums": [],
+            }
+        else:
+            reducer = {"mode": "additive", **additive[query_id]}
+        query_path = str(entry["path"])
+        entries.append((query_id, query_path, "authoritative", query_path, reducer))
+    for entry in dsq_catalog.get("cannedQueries", []):
+        query_path = str(entry["path"])
+        route = routes.get(query_path)
+        execution_layer = "indexed" if route and route.get("autoLayer") == "indexed" else "authoritative"
+        execution_path = str(route["indexed"]) if execution_layer == "indexed" else query_path
+        entries.append(
+            (str(entry["id"]), query_path, execution_layer, execution_path, entry["reducer"])
+        )
+    digest = hashlib.sha256()
+    for query_id, query_path, execution_layer, execution_path, reducer in sorted(entries):
+        digest.update(query_id.encode("utf-8"))
+        digest.update(b"\0")
+        digest.update((ROOT / query_path).read_bytes())
+        digest.update(b"\0")
+        digest.update(execution_layer.encode("utf-8"))
+        digest.update(b"\0")
+        digest.update((ROOT / execution_path).read_bytes())
+        digest.update(b"\0")
+        digest.update(
+            json.dumps(reducer, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        )
         digest.update(b"\0")
     return digest.hexdigest()
 
@@ -818,6 +876,8 @@ def query(args: argparse.Namespace, request: dict[str, Any]) -> dict[str, Any]:
     require_materialized_route_admission(request, serving_contract)
     catalog = load_object(ADVANCED_CATALOG)
     reducers = load_object(ADVANCED_REDUCERS)
+    dsq_catalog = load_object(DSQ_MATERIALIZATIONS)
+    query_index_routing = load_object(QUERY_INDEX_ROUTING)
     query_ids = {entry["id"] for entry in catalog["queries"]}
     reducer_ids = set(reducers.get("detailQueries", [])) | set(reducers.get("additiveQueries", {}))
     if query_ids != reducer_ids or query_ids != set(reducers.get("ordering", {})):
@@ -838,6 +898,12 @@ def query(args: argparse.Namespace, request: dict[str, Any]) -> dict[str, Any]:
         raise ValueError("Serving build is stale for the reviewed advanced query set")
     if pointer.get("advancedReducerSha256") != sha(ADVANCED_REDUCERS):
         raise ValueError("Serving build is stale for advanced SQL reducers")
+    if pointer.get("dsqMaterializationCatalogSha256") != sha(DSQ_MATERIALIZATIONS):
+        raise ValueError("Serving build is stale for the DSQ SQL materialization catalog")
+    if pointer.get("dsqQuerySetSha256") != dsq_query_set_sha256(
+        dsq_catalog, catalog, reducers, query_index_routing
+    ):
+        raise ValueError("Serving build is stale for the complete DSQ query set")
     if pointer.get("exploreQuerySetSha256") != file_set_sha256(SERVING_QUERY_FILES):
         raise ValueError("Serving build is stale for Explorer grain queries")
     database = Path(str(pointer.get("databasePath", ""))).resolve()
@@ -860,6 +926,15 @@ def query(args: argparse.Namespace, request: dict[str, Any]) -> dict[str, Any]:
         ).fetchone()
         if not build or build[0] != pointer.get("buildId") or build[1] != pointer.get("corpusFingerprint") or build[2] != "validated":
             raise ValueError("Serving build metadata does not match its promotion pointer")
+        dsq_coverage = connection.execute(
+            "SELECT COUNT(*),COALESCE(SUM(binding_count),0) FROM dsq_query_manifest"
+        ).fetchone()
+        if (
+            not dsq_coverage
+            or dsq_coverage[0] != pointer.get("dsqQueryCount")
+            or dsq_coverage[1] != pointer.get("dsqBindingCount")
+        ):
+            raise ValueError("Serving build DSQ coverage differs from its promotion pointer")
         route = request.get("route")
         if route == "options":
             return query_options(connection, request, build, started)

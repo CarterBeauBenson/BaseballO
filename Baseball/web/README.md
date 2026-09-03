@@ -18,16 +18,16 @@ The batch materializer may use proven indexed identities while building SQL
 grains, but a populated grain is not itself permission to route a UI family to
 SQL.
 
-## Accepted direction for the next UI R&D pass
+## Explorer interaction contract
 
 Preserve the Explorer's general visual design and the baseball interaction used
 for search. The remaining navigation, selectors, filters, result layouts, and
-information hierarchy are open to revision. This section records a design
-direction, not current functionality or authorization to change a semantic
-query contract.
+information hierarchy are open to revision. The current interface implements
+the first vertical slice of this contract without changing any semantic query
+or serving-route admission.
 
-The primary path should be **Ask a question**. Search for players, games, teams,
-and venues should remain persistently available, while **Build a Metric** should
+The primary path is **Questions**. Search for players, games, teams,
+and venues should remain persistently available as that capability grows, while **Build a Metric** should
 be presented as an intentionally advanced workspace. The Questions interface
 must expose user questions rather than implementation or report names. A UI
 question is a versioned recipe that identifies its underlying query, result
@@ -60,6 +60,13 @@ change the selected question. Put uncommon compatible controls behind a
 discoverable **Refine** action. Results should offer contextual pivots such as
 player, game, venue, matchup, or travel sequence rather than requiring the user
 to construct every path before running a question.
+
+The Questions menu keeps every reviewed question in one place but groups the
+native options by plate appearances, players and matchups, games and innings,
+Empty Games, decisions and review, and data quality. Selecting a question shows
+its answer grain and calculation type immediately. This makes the individual,
+single-game, cumulative-span, average/rate, sequence, and audit behaviors clear
+without adding another mode or exposing more filters.
 
 Every answer must visibly state its analytic version, population and game set,
 time scope, minimum sample when applicable, data coverage, and serving-build
@@ -136,9 +143,13 @@ npm run check
 - reconciled pitching totals split into balls, called strikes,
   swinging/missed strikes, fouls/foul tips, balls put in play, and hit batters;
 - three primary modes: **Explore** for simple subject-first tables,
-  **Questions** for one flat selector containing Empty Games and every reviewed
-  advanced query, and
+  **Questions** for one flat selector containing all six Empty Games analyses
+  and every reviewed advanced query as 24 plain-language question recipes, and
   **Build a Metric** for compatible numerator/denominator calculations;
+- Questions is the initial mode and no substantive query runs merely because
+  the page opened. Scope and optional refinements use progressive disclosure,
+  and only the two currently selectable game sets (Regular season and All-Star)
+  are shown;
 - a first-class **Plate Appearance Quality** view that serves the reviewed
   plate-appearance question.
   PAQ-1.0 is displayed to three decimals from `.000` through `1.000`; its
@@ -148,6 +159,13 @@ npm run check
   A `Show` selector switches the same materialized grain between individual
   plate appearances and player averages. Player averages include PA count and
   quality-band counts and are sortable by player or average PAQ.
+  The Questions selector also presents those as two distinct questions even
+  though they share one underlying query. **Show math** exposes the complete
+  PAQ-1.0 outcome table, component weights, grind and situation rules, damage
+  cap, rounding, and the current no-Statcast boundary. Individual PAQ rows link
+  to a plate-appearance evidence dialog using the complete row already returned
+  by the admitted SQL grain; pre-plate-appearance score and base/out state remain
+  explicit follow-up grain work rather than being implied;
   Route metadata distinguishes the materialized SQL build (including its build
   and corpus fingerprints) from explicit authoritative fallback;
 - a dedicated reviewed Empty Games view, currently served by authoritative
@@ -161,14 +179,17 @@ npm run check
   weights first/second/third base as 1/2/3; applies the existing
   `pitch + swing + 2*contact + 2*foul` grind score; and gives double plays a
   1.25 multiplier capped at 100 for one plate appearance. It is an exploratory
-  query result, not a stored statistic. Execution is deliberately staged: the
+  query result, not a stored statistic. Its six analyses now appear directly as
+  questions rather than behind a second analysis selector, and Damage Score has
+  a complete human-readable **Show math** disclosure. Execution is deliberately staged: the
   reviewed Empty Games query first returns only empty graph/player pairs, a
   second positive-evidence query reduces their failed plate appearances to one
   row per bad at-bat, and the server then scores and aggregates those rows by
   player-game;
 - a Build a Metric view whose allowlisted measure contracts combine Empty Games and
   Offensive Games Played at player-game grain, labeling the subset calculation
-  as a percentage and the reverse calculation as a ratio;
+  as a percentage and the reverse calculation as a ratio, with the selected
+  numerator, denominator, scale, and zero-denominator rule shown inline;
 - a reviewed Questions path for all 17 cataloged event-chain analytics,
   including the same unified at-bat evidence query for catalog completeness,
   plus

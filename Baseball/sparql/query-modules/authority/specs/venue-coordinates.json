@@ -1,0 +1,13 @@
+{
+  "artifactType": "baseballo-authority-query-spec",
+  "contractVersion": 1,
+  "id": "venue-coordinates",
+  "claim": "Return each Baseball Venue's reference point and the Coordinate ICE, reference system, latitude, and longitude that designate it.",
+  "sourceScope": {"category": "derived", "sources": ["mlb-venues"], "readsGraphLayers": ["authoritative-rdf"], "writesGraphLayers": ["analytical-sql"]},
+  "primaryModule": "venue",
+  "enrichments": ["venue-coordinate"],
+  "projection": ["authorityGraph", "entity", "venueReferencePoint", "coordinateICE", "coordinateReferenceSystem", "latitude", "longitude"],
+  "values": [],
+  "orderBy": [{"variable": "entity", "direction": "asc"}],
+  "materialization": {"partitioning": "authority-graphs", "rowGrain": "venue-coordinate-information", "key": ["authorityGraph", "coordinateICE"], "merge": "replace-source-graph"}
+}

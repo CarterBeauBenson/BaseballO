@@ -57,7 +57,23 @@
       "status": "pending-end-to-end-equivalence",
       "sourceCatalog": "sparql/advanced/advanced-query-catalog.json",
       "reducerContract": "serving/advanced-query-reducers.json",
-      "grain": "per-game reviewed query bindings with query-specific SQL-selected reduction",
+      "grain": "per-game reviewed query bindings in one independently named SQL table per DSQ, with query-specific SQL-selected reduction",
+      "fallback": "authoritative-sparql"
+    },
+    "complete-static-dsq-catalog": {
+      "status": "materialized-candidate-pending-route-equivalence",
+      "sourceCatalog": "serving/dsq-materializations.json",
+      "coverage": {
+        "advanced": 17,
+        "cannedNonOption": 39,
+        "total": 56
+      },
+      "execution": {
+        "authoritative": 42,
+        "indexed": 14,
+        "indexedSelection": "only operational-query-routing autoLayer=indexed routes with preserved equivalence evidence"
+      },
+      "grain": "one exact SPARQL result partition per authoritative game graph in a dedicated table for each DSQ",
       "fallback": "authoritative-sparql"
     },
     "explore": {
@@ -81,7 +97,9 @@
   "grains": {
     "game_dimension": "one row per authoritative game graph",
     "plate_appearance_fact": "one row per plate appearance with MLB outcome, pitch/event counts, runner resolutions, and PAQ components",
-    "advanced_result_fact": "one reviewed advanced-query result row per authoritative game graph before cross-game reduction",
+    "advanced_result_fact": "compatibility copy of reviewed advanced-query result rows while existing advanced candidate readers migrate to their dedicated DSQ tables",
+    "dsq_query_manifest": "one immutable contract row per materialized DSQ naming its query hash, reducer, projected variables, dedicated table, and binding count",
+    "dsq_*": "one dedicated persistent table per approved static DSQ; rows retain exact RDF bindings and authoritative game-graph scope before SQL reduction",
     "batting_result_fact": "one reviewed plate-appearance result",
     "pitch_fact": "one pitch with its final MLB call code",
     "runner_event_fact": "one reviewed runner resolution",

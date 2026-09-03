@@ -1,0 +1,5 @@
+?pitchCall a idx:PitchCallFact ;
+    idx:game ?game ;
+    idx:pitch ?pitch ;
+    idx:agent ?pitcher ;
+    idx:callType ?callType .

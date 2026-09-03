@@ -1,0 +1,3 @@
+?stolenBase a idx:StolenBaseFact ;
+    idx:game ?game ;
+    idx:agent ?runner .

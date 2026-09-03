@@ -16,6 +16,12 @@ import {
   compileEmptyGameEvidenceQuery,
   scoreEmptyPlateAppearanceDamage,
 } from "../query-builder/empty-games-query-builder.js";
+import {
+  buildQuestionRecipes,
+  groupedQuestionRecipes,
+  QUESTION_GROUPS,
+  QUESTION_RECIPE_COUNTS,
+} from "../question-recipes.js";
 import { sortBindings } from "../result-sort.js";
 import {
   aggregatePaqPlayerAverages,
@@ -397,6 +403,9 @@ test("Explorer separates simple exploration, reviewed questions, and metric buil
   assert.match(page, /Explorer mode/u);
   assert.doesNotMatch(page, /More complicated questions/u);
   assert.match(page, /id="question-type"><\/select>/u);
+  assert.match(page, /id="scope-disclosure"/u);
+  assert.match(page, /id="paq-math"/u);
+  assert.match(page, /View this plate appearance/u);
   assert.match(page, /Individual plate appearances/u);
   assert.match(page, /Player averages/u);
   assert.match(page, /\.000–1\.000/u);
@@ -406,10 +415,31 @@ test("Explorer separates simple exploration, reviewed questions, and metric buil
   assert.equal(appResponse.status, 200);
   const app = await appResponse.text();
   assert.match(app, /good_at_bat/u);
-  assert.match(app, /advancedCatalog\.map\(\(entry\) => \[entry\.id, entry\.label\]\)/u);
+  assert.match(app, /buildQuestionRecipes/u);
+  assert.match(app, /openPlateAppearanceEvidence/u);
   assert.match(app, /averagePlateAppearanceQuality/u);
   assert.match(app, /resultVariables/u);
   assert.match(app, /lastResponse\.head\?\.vars/u);
+});
+
+test("every reviewed analysis is exposed as a plain-language question", async () => {
+  const catalogResponse = await request("/api/advanced/catalog");
+  const { queries } = await catalogResponse.json();
+  const recipes = buildQuestionRecipes(queries, buildPublicEmptyGameCatalog());
+  assert.equal(queries.length, QUESTION_RECIPE_COUNTS.advancedQueries);
+  assert.equal(recipes.length, QUESTION_RECIPE_COUNTS.questions);
+  assert.equal(new Set(recipes.map((recipe) => recipe.id)).size, recipes.length);
+  assert.ok(recipes.every((recipe) => recipe.label.endsWith("?")));
+  assert.deepEqual(
+    recipes.filter((recipe) => recipe.queryId === "plate-appearance-fingerprint").map((recipe) => recipe.view),
+    ["plate_appearances", "player_averages"],
+  );
+  assert.equal(recipes.filter((recipe) => recipe.kind === "empty_games").length, 6);
+  assert.ok(recipes.every((recipe) => recipe.group && recipe.grain && recipe.calculation));
+  const groups = groupedQuestionRecipes(recipes);
+  assert.deepEqual(groups.map((group) => group.id), QUESTION_GROUPS.map((group) => group.id));
+  assert.deepEqual(groups.flatMap((group) => group.recipes).map((recipe) => recipe.id).sort(),
+    recipes.map((recipe) => recipe.id).sort());
 });
 
 test("derived measures expose semantic contracts and compile only compatible base measures", () => {
@@ -840,6 +870,21 @@ test("Plate Appearance Quality uses a validated materialized executor without to
     assert.equal(averages.results.bindings[0].playerLabel.value, "Eugenio Suárez");
     assert.equal(servingInputs[2].view, "player_averages");
     assert.equal(issuedQueries.length, before);
+
+    const forcedResponse = await fetch(`http://127.0.0.1:${address.port}/api/advanced`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-BaseballO-Force-Authoritative": "true",
+        Connection: "close",
+      },
+      body: JSON.stringify({ id: "plate-appearance-fingerprint", dateScope: { preset: "one_day" } }),
+    });
+    assert.equal(forcedResponse.status, 200);
+    const forced = await forcedResponse.json();
+    assert.equal(forced.meta.layer, "unified");
+    assert.equal(servingInputs.length, 3);
+    assert.ok(issuedQueries.length > before);
   } finally {
     await new Promise((resolve, reject) => materializedServer.close((error) => error ? reject(error) : resolve()));
   }
@@ -928,6 +973,75 @@ test("routine routes delegate to the materialized adapter while admission remain
     assert.equal(issuedQueries.length, before);
   } finally {
     await new Promise((resolve, reject) => materializedServer.close((error) => error ? reject(error) : resolve()));
+  }
+});
+
+test("equivalence requests use the isolated candidate SQL executor", async () => {
+  let normalCalls = 0;
+  let candidateCalls = 0;
+  const candidateServer = createBaseballServer({
+    fetchImpl: async () => { throw new Error("Candidate SQL must not touch Fuseki"); },
+    queryEndpoint: "http://fuseki.test/query",
+    servingExecutor: async () => {
+      normalCalls += 1;
+      throw new Error("Normal serving executor must not receive candidate proof requests");
+    },
+    candidateServingExecutor: async (input) => {
+      candidateCalls += 1;
+      return {
+        head: { vars: ["player", "hits"] },
+        results: { bindings: [{
+          player: { type: "uri", value: "https://baseballontology.org/data/player/1" },
+          hits: { type: "literal", value: "3" },
+        }] },
+        query: "-- candidate SQL",
+        serving: {
+          durationMs: 0.1,
+          buildId: "candidate-build",
+          corpusFingerprint: "c".repeat(64),
+          dateScope: { preset: "one_day", gameSet: "regular_season", gameCount: 1 },
+          coverage: {},
+        },
+      };
+    },
+    equivalenceToken: "test-equivalence-token",
+  });
+  await new Promise((resolve) => candidateServer.listen(0, "127.0.0.1", resolve));
+  try {
+    const address = candidateServer.address();
+    const unauthorized = await fetch(`http://127.0.0.1:${address.port}/api/query`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-BaseballO-Use-Candidate-Sql": "true",
+        "X-BaseballO-Require-Materialized": "true",
+        Connection: "close",
+      },
+      body: JSON.stringify({ family: "batting", dimensions: ["player"], metrics: ["hits"] }),
+    });
+    assert.equal(unauthorized.status, 503);
+    assert.equal(candidateCalls, 0);
+    assert.equal(normalCalls, 0);
+
+    const response = await fetch(`http://127.0.0.1:${address.port}/api/query`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-BaseballO-Use-Candidate-Sql": "true",
+        "X-BaseballO-Require-Materialized": "true",
+        "X-BaseballO-Equivalence-Token": "test-equivalence-token",
+        Connection: "close",
+      },
+      body: JSON.stringify({ family: "batting", dimensions: ["player"], metrics: ["hits"] }),
+    });
+    assert.equal(response.status, 200);
+    const payload = await response.json();
+    assert.equal(payload.meta.layer, "materialized");
+    assert.equal(payload.meta.servingBuildId, "candidate-build");
+    assert.equal(candidateCalls, 1);
+    assert.equal(normalCalls, 0);
+  } finally {
+    await new Promise((resolve, reject) => candidateServer.close((error) => error ? reject(error) : resolve()));
   }
 });
 

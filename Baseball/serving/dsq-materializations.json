@@ -1,0 +1,290 @@
+{
+  "artifactType": "baseballo-dsq-sql-materialization-catalog",
+  "contractVersion": 1,
+  "description": "Every approved static decision-support query is persisted at game-graph grain in its own SQLite table. Advanced queries are imported from the reviewed advanced catalog; the entries below cover the complete non-option canned query surface.",
+  "advanced": {
+    "catalog": "sparql/advanced/advanced-query-catalog.json",
+    "reducers": "serving/advanced-query-reducers.json",
+    "tablePrefix": "dsq_advanced_"
+  },
+  "cannedQueries": [
+    {
+      "id": "events-by-player",
+      "family": "baserunning",
+      "path": "sparql/baserunning/events-by-player.rq",
+      "table": "dsq_baserunning_events_by_player",
+      "reducer": { "mode": "additive", "dimensions": ["player", "playerLabel", "eventType"], "sums": ["events"] }
+    },
+    {
+      "id": "outs-by-player",
+      "family": "baserunning",
+      "path": "sparql/baserunning/outs-by-player.rq",
+      "table": "dsq_baserunning_outs_by_player",
+      "reducer": { "mode": "additive", "dimensions": ["player", "playerLabel"], "sums": ["baserunningOuts"] }
+    },
+    {
+      "id": "resolutions-by-season",
+      "family": "baserunning",
+      "path": "sparql/baserunning/resolutions-by-season.rq",
+      "table": "dsq_baserunning_resolutions_by_season",
+      "reducer": { "mode": "additive", "dimensions": ["season", "resolutionType"], "sums": ["resolutions"] }
+    },
+    {
+      "id": "runs-by-player-and-season",
+      "family": "baserunning",
+      "path": "sparql/baserunning/runs-by-player-and-season.rq",
+      "table": "dsq_baserunning_runs_by_player_and_season",
+      "reducer": { "mode": "additive", "dimensions": ["season", "player", "playerLabel"], "sums": ["runs", "gamesScoredIn"] }
+    },
+    {
+      "id": "runs-by-season-and-venue",
+      "family": "baserunning",
+      "path": "sparql/baserunning/runs-by-season-and-venue.rq",
+      "table": "dsq_baserunning_runs_by_season_and_venue",
+      "reducer": { "mode": "additive", "dimensions": ["season", "venue", "venueLabel"], "sums": ["runs", "gamesWithRuns"] }
+    },
+    {
+      "id": "stolen-bases-by-player",
+      "family": "baserunning",
+      "path": "sparql/baserunning/stolen-bases-by-player.rq",
+      "table": "dsq_baserunning_stolen_bases_by_player",
+      "reducer": { "mode": "additive", "dimensions": ["player", "playerLabel"], "sums": ["stolenBases"] }
+    },
+    {
+      "id": "extra-base-hits-by-player",
+      "family": "batting",
+      "path": "sparql/batting/extra-base-hits-by-player.rq",
+      "table": "dsq_batting_extra_base_hits_by_player",
+      "reducer": { "mode": "additive", "dimensions": ["player", "playerLabel"], "sums": ["extraBaseHits"] }
+    },
+    {
+      "id": "hitless-games-by-player",
+      "family": "batting",
+      "path": "sparql/batting/hitless-games-by-player.rq",
+      "table": "dsq_batting_hitless_games_by_player",
+      "reducer": { "mode": "additive", "dimensions": ["player", "playerLabel"], "sums": ["hitlessGames"] }
+    },
+    {
+      "id": "home-runs-by-player-and-venue",
+      "family": "batting",
+      "path": "sparql/batting/home-runs-by-player-and-venue.rq",
+      "table": "dsq_batting_home_runs_by_player_and_venue",
+      "reducer": { "mode": "additive", "dimensions": ["venue", "venueLabel", "player", "playerLabel"], "sums": ["homeRuns"] }
+    },
+    {
+      "id": "multi-hit-games",
+      "family": "batting",
+      "path": "sparql/batting/multi-hit-games.rq",
+      "table": "dsq_batting_multi_hit_games",
+      "reducer": { "mode": "detail", "dimensions": ["game", "player", "playerLabel"], "sums": [] }
+    },
+    {
+      "id": "outcomes-by-player",
+      "family": "batting",
+      "path": "sparql/batting/outcomes-by-player.rq",
+      "table": "dsq_batting_outcomes_by_player",
+      "reducer": { "mode": "additive", "dimensions": ["player", "playerLabel", "eventType"], "sums": ["plateAppearances"] }
+    },
+    {
+      "id": "outcomes-by-season",
+      "family": "batting",
+      "path": "sparql/batting/outcomes-by-season.rq",
+      "table": "dsq_batting_outcomes_by_season",
+      "reducer": { "mode": "additive", "dimensions": ["season", "eventType"], "sums": ["plateAppearances"] }
+    },
+    {
+      "id": "plate-appearances-by-player-and-season",
+      "family": "batting",
+      "path": "sparql/batting/plate-appearances-by-player-and-season.rq",
+      "table": "dsq_batting_plate_appearances_by_player_and_season",
+      "reducer": { "mode": "additive", "dimensions": ["season", "player", "playerLabel"], "sums": ["plateAppearances", "games"] }
+    },
+    {
+      "id": "three-true-outcomes-by-player",
+      "family": "batting",
+      "path": "sparql/batting/three-true-outcomes-by-player.rq",
+      "table": "dsq_batting_three_true_outcomes_by_player",
+      "reducer": { "mode": "additive", "dimensions": ["player", "playerLabel"], "sums": ["homeRuns", "walks", "strikeouts", "threeTrueOutcomes"] }
+    },
+    {
+      "id": "total-bases-by-player-and-season",
+      "family": "batting",
+      "path": "sparql/batting/total-bases-by-player-and-season.rq",
+      "table": "dsq_batting_total_bases_by_player_and_season",
+      "reducer": { "mode": "additive", "dimensions": ["season", "player", "playerLabel"], "sums": ["totalBases"] }
+    },
+    {
+      "id": "empty-games-prototype",
+      "family": "empty-games",
+      "path": "sparql/empty-games-prototype.rq",
+      "table": "dsq_empty_games_prototype",
+      "reducer": { "mode": "additive", "dimensions": ["player", "playerLabel"], "sums": ["emptyGames"] }
+    },
+    {
+      "id": "hit-types-by-season",
+      "family": "hits",
+      "path": "sparql/hit-types-by-season.rq",
+      "table": "dsq_hits_hit_types_by_season",
+      "reducer": { "mode": "additive", "dimensions": ["season", "hitType"], "sums": ["hits", "gamesWithHitType"] }
+    },
+    {
+      "id": "hits-by-game",
+      "family": "hits",
+      "path": "sparql/hits-by-game.rq",
+      "table": "dsq_hits_by_game",
+      "reducer": { "mode": "detail", "dimensions": ["game", "gameStart", "venue", "venueLabel"], "sums": [] }
+    },
+    {
+      "id": "hits-by-player-and-season",
+      "family": "hits",
+      "path": "sparql/hits-by-player-and-season.rq",
+      "table": "dsq_hits_by_player_and_season",
+      "reducer": { "mode": "additive", "dimensions": ["season", "player", "playerLabel"], "sums": ["hits", "gamesWithHits"] }
+    },
+    {
+      "id": "hits-by-player-and-venue",
+      "family": "hits",
+      "path": "sparql/hits-by-player-and-venue.rq",
+      "table": "dsq_hits_by_player_and_venue",
+      "reducer": { "mode": "additive", "dimensions": ["season", "venue", "venueLabel", "player", "playerLabel"], "sums": ["hits", "gamesWithHits"] }
+    },
+    {
+      "id": "hits-by-season",
+      "family": "hits",
+      "path": "sparql/hits-by-season.rq",
+      "table": "dsq_hits_by_season",
+      "reducer": { "mode": "additive", "dimensions": ["season"], "sums": ["hits", "gamesWithHits"] }
+    },
+    {
+      "id": "hits-by-season-and-venue",
+      "family": "hits",
+      "path": "sparql/hits-by-season-and-venue.rq",
+      "table": "dsq_hits_by_season_and_venue",
+      "reducer": { "mode": "additive", "dimensions": ["season", "venue", "venueLabel"], "sums": ["hits", "gamesWithHits"] }
+    },
+    {
+      "id": "game-timeline",
+      "family": "games",
+      "path": "sparql/games/game-timeline.rq",
+      "table": "dsq_games_game_timeline",
+      "reducer": { "mode": "detail", "dimensions": ["game", "gameStart", "gameEnd"], "sums": [] }
+    },
+    {
+      "id": "games-by-season-and-venue",
+      "family": "games",
+      "path": "sparql/games/games-by-season-and-venue.rq",
+      "table": "dsq_games_by_season_and_venue",
+      "reducer": { "mode": "additive", "dimensions": ["season", "venue", "venueLabel"], "sums": ["games"] }
+    },
+    {
+      "id": "games-by-season-phase",
+      "family": "games",
+      "path": "sparql/games/games-by-season-phase.rq",
+      "table": "dsq_games_by_season_phase",
+      "reducer": { "mode": "additive", "dimensions": ["season", "seasonPhase", "seasonPhaseLabel"], "sums": ["games"] }
+    },
+    {
+      "id": "games-by-team-and-season",
+      "family": "games",
+      "path": "sparql/games/games-by-team-and-season.rq",
+      "table": "dsq_games_by_team_and_season",
+      "reducer": { "mode": "additive", "dimensions": ["season", "team", "teamLabel"], "sums": ["games"] }
+    },
+    {
+      "id": "home-away-games-by-team",
+      "family": "games",
+      "path": "sparql/games/home-away-games-by-team.rq",
+      "table": "dsq_games_home_away_by_team",
+      "reducer": { "mode": "additive", "dimensions": ["team", "teamLabel", "side"], "sums": ["games"] }
+    },
+    {
+      "id": "matchups-by-season",
+      "family": "games",
+      "path": "sparql/games/matchups-by-season.rq",
+      "table": "dsq_games_matchups_by_season",
+      "reducer": { "mode": "additive", "dimensions": ["season", "awayTeam", "awayTeamLabel", "homeTeam", "homeTeamLabel"], "sums": ["games"] }
+    },
+    {
+      "id": "official-scorer-assignments",
+      "family": "games",
+      "path": "sparql/games/official-scorer-assignments.rq",
+      "table": "dsq_games_official_scorer_assignments",
+      "reducer": { "mode": "additive", "dimensions": ["officialScorer", "officialScorerLabel"], "sums": ["games"] }
+    },
+    {
+      "id": "umpire-assignments",
+      "family": "games",
+      "path": "sparql/games/umpire-assignments.rq",
+      "table": "dsq_games_umpire_assignments",
+      "reducer": { "mode": "additive", "dimensions": ["umpire", "umpireLabel"], "sums": ["games"] }
+    },
+    {
+      "id": "balls-and-strikes-by-pitcher",
+      "family": "pitching",
+      "path": "sparql/pitching/balls-and-strikes-by-pitcher.rq",
+      "table": "dsq_pitching_balls_and_strikes_by_pitcher",
+      "reducer": { "mode": "additive", "dimensions": ["pitcher", "pitcherLabel", "callType"], "sums": ["calls"] }
+    },
+    {
+      "id": "batted-ball-trajectories",
+      "family": "pitching",
+      "path": "sparql/pitching/batted-ball-trajectories.rq",
+      "table": "dsq_pitching_batted_ball_trajectories",
+      "reducer": { "mode": "additive", "dimensions": ["batter", "batterLabel", "trajectory", "trajectoryLabel"], "sums": ["battedBalls"] }
+    },
+    {
+      "id": "batted-balls-by-batter-and-venue",
+      "family": "pitching",
+      "path": "sparql/pitching/batted-balls-by-batter-and-venue.rq",
+      "table": "dsq_pitching_batted_balls_by_batter_and_venue",
+      "reducer": { "mode": "additive", "dimensions": ["venue", "venueLabel", "player", "playerLabel"], "sums": ["battedBalls"] }
+    },
+    {
+      "id": "pitch-summary-by-pitcher",
+      "family": "pitching",
+      "path": "sparql/pitching/pitch-summary-by-pitcher.rq",
+      "table": "dsq_pitching_pitch_summary_by_pitcher",
+      "reducer": { "mode": "additive", "dimensions": ["pitcher", "pitcherLabel"], "sums": ["pitches", "balls", "strikes", "plateAppearances"] }
+    },
+    {
+      "id": "pitch-types-by-pitcher",
+      "family": "pitching",
+      "path": "sparql/pitching/pitch-types-by-pitcher.rq",
+      "table": "dsq_pitching_pitch_types_by_pitcher",
+      "reducer": { "mode": "additive", "dimensions": ["pitcher", "pitcherLabel", "pitchType", "pitchTypeLabel"], "sums": ["pitches"] }
+    },
+    {
+      "id": "pitches-by-pitcher-and-season",
+      "family": "pitching",
+      "path": "sparql/pitching/pitches-by-pitcher-and-season.rq",
+      "table": "dsq_pitching_pitches_by_pitcher_and_season",
+      "reducer": { "mode": "additive", "dimensions": ["season", "pitcher", "pitcherLabel"], "sums": ["pitches", "games"] }
+    },
+    {
+      "id": "pitches-by-pitcher-and-venue",
+      "family": "pitching",
+      "path": "sparql/pitching/pitches-by-pitcher-and-venue.rq",
+      "table": "dsq_pitching_pitches_by_pitcher_and_venue",
+      "reducer": { "mode": "additive", "dimensions": ["venue", "venueLabel", "pitcher", "pitcherLabel"], "sums": ["pitches"] }
+    },
+    {
+      "id": "pitches-per-plate-appearance",
+      "family": "pitching",
+      "path": "sparql/pitching/pitches-per-plate-appearance.rq",
+      "table": "dsq_pitching_pitches_per_plate_appearance",
+      "reducer": {
+        "mode": "additive",
+        "dimensions": ["pitcher", "pitcherLabel"],
+        "sums": ["pitches", "plateAppearances"],
+        "derived": { "pitchesPerPlateAppearance": { "operation": "ratio", "numerator": "pitches", "denominator": "plateAppearances" } }
+      }
+    },
+    {
+      "id": "swings-by-batter",
+      "family": "pitching",
+      "path": "sparql/pitching/swings-by-batter.rq",
+      "table": "dsq_pitching_swings_by_batter",
+      "reducer": { "mode": "additive", "dimensions": ["player", "playerLabel"], "sums": ["swings"] }
+    }
+  ]
+}

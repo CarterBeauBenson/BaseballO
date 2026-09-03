@@ -1,4 +1,9 @@
 import { sortBindings } from "./result-sort.js";
+import {
+  buildQuestionRecipes,
+  groupedQuestionRecipes,
+  questionRecipeById,
+} from "./question-recipes.js";
 
 const GOOD_AT_BAT_QUERY_ID = "plate-appearance-fingerprint";
 
@@ -56,6 +61,8 @@ const elements = {
   exploreSubject: document.querySelector("#explore-subject"),
   questionTypeField: document.querySelector("#question-type-field"),
   questionType: document.querySelector("#question-type"),
+  questionContext: document.querySelector("#question-context"),
+  scopeSummary: document.querySelector("#scope-summary"),
   gameSet: document.querySelector("#game-set"),
   datePreset: document.querySelector("#date-preset"),
   customDateFields: document.querySelector("#custom-date-fields"),
@@ -66,6 +73,8 @@ const elements = {
   emptyGamesBuilder: document.querySelector("#empty-games-builder"),
   emptyGamesAnalysis: document.querySelector("#empty-games-analysis"),
   emptyGamesAnalysisDescription: document.querySelector("#empty-games-analysis-description"),
+  emptyGamesQuestionDescription: document.querySelector("#empty-games-question-description"),
+  emptyGamesMath: document.querySelector("#empty-games-math"),
   emptyGamesFilterControls: document.querySelector("#empty-games-filter-controls"),
   runEmptyGamesButton: document.querySelector("#run-empty-games-button"),
   resetEmptyGamesButton: document.querySelector("#reset-empty-games-button"),
@@ -74,6 +83,7 @@ const elements = {
   derivedNumerator: document.querySelector("#derived-numerator"),
   derivedDenominator: document.querySelector("#derived-denominator"),
   derivedContractText: document.querySelector("#derived-contract-text"),
+  derivedMath: document.querySelector("#derived-math"),
   runDerivedButton: document.querySelector("#run-derived-button"),
   resetDerivedButton: document.querySelector("#reset-derived-button"),
   advancedBuilder: document.querySelector("#advanced-builder"),
@@ -87,6 +97,7 @@ const elements = {
   advancedClaim: document.querySelector("#advanced-claim"),
   advancedEvidenceNote: document.querySelector("#advanced-evidence-note span"),
   paqFieldGuide: document.querySelector("#paq-field-guide"),
+  paqMath: document.querySelector("#paq-math"),
   runAdvancedButton: document.querySelector("#run-advanced-button"),
   runAdvancedLabel: document.querySelector("#run-advanced-label"),
   resetAdvancedButton: document.querySelector("#reset-advanced-button"),
@@ -97,6 +108,7 @@ const elements = {
   runButton: document.querySelector("#run-button"),
   resetButton: document.querySelector("#reset-button"),
   exportButton: document.querySelector("#export-button"),
+  resultsTitle: document.querySelector("#results-title"),
   resultMeta: document.querySelector("#result-meta"),
   emptyState: document.querySelector("#empty-state"),
   loadingState: document.querySelector("#loading-state"),
@@ -108,6 +120,9 @@ const elements = {
   queryCode: document.querySelector("#query-code"),
   copyQueryButton: document.querySelector("#copy-query-button"),
   suggestionList: document.querySelector("#suggestion-list"),
+  plateAppearanceDialog: document.querySelector("#plate-appearance-dialog"),
+  plateAppearanceDialogClose: document.querySelector("#plate-appearance-dialog-close"),
+  plateAppearanceEvidence: document.querySelector("#plate-appearance-evidence"),
   toast: document.querySelector("#toast"),
 };
 
@@ -115,8 +130,12 @@ let catalog = {};
 let advancedCatalog = [];
 let emptyGameCatalog = { analyses: {}, defaultAnalysis: "players" };
 let derivedCatalog = { measures: {} };
-let currentFamily = "batting";
-let selectedQuestionId = "empty_games";
+let questionRecipes = [];
+let currentFamily = "advanced";
+let selectedQuestionRecipeId = "paq-plate-appearances";
+let selectedQuestionId = GOOD_AT_BAT_QUERY_ID;
+let selectedAdvancedView = "plate_appearances";
+let selectedEmptyGameAnalysis = "players";
 let lastResponse = null;
 let currentSort = null;
 let toastTimer;
@@ -164,6 +183,11 @@ async function refreshDateScope() {
   elements.dateScopeStatus.textContent = scope.startDate
     ? `${dateLabel(scope.startDate)} – ${dateLabel(scope.endDate)} · ${scope.gameCount} loaded game${scope.gameCount === 1 ? "" : "s"}`
     : "No dated authoritative games are loaded.";
+  const gameSetLabel = elements.gameSet.selectedOptions[0]?.textContent ?? "Selected games";
+  const rangeLabel = elements.datePreset.selectedOptions[0]?.textContent ?? "Selected dates";
+  elements.scopeSummary.textContent = scope.startDate
+    ? `${gameSetLabel} · ${dateLabel(scope.startDate)} – ${dateLabel(scope.endDate)}`
+    : `${gameSetLabel} · ${rangeLabel}`;
   return scope;
 }
 
@@ -200,8 +224,26 @@ function setConnection({ connected, games, serving = {} }) {
     ? `${games} MLB games`
     : "Start Fuseki to explore loaded games";
   elements.servingStatus.textContent = serving.available
-    ? `SQL routine serving ready · Explore + Empty Games + Derived + ${serving.advancedQueries}/17 Questions · ${Number(serving.advancedBindings ?? 0).toLocaleString()} reviewed rows · build ${serving.buildId}`
+    ? `SQL PAQ ready · ${Number(serving.advancedBindings ?? 0).toLocaleString()} reviewed rows · build ${serving.buildId}`
     : "SQL serving unavailable · using authoritative RDF fallback";
+}
+
+function activeQuestionRecipe() {
+  return questionRecipeById(questionRecipes, selectedQuestionRecipeId);
+}
+
+function selectQuestion(recipeId) {
+  const recipe = questionRecipeById(questionRecipes, recipeId);
+  if (!recipe) return;
+  selectedQuestionRecipeId = recipe.id;
+  if (recipe.kind === "empty_games") {
+    selectedEmptyGameAnalysis = recipe.analysis;
+    configureFamily("empty_games");
+    return;
+  }
+  selectedQuestionId = recipe.queryId;
+  selectedAdvancedView = recipe.view ?? "plate_appearances";
+  configureFamily("advanced");
 }
 
 function renderFamilyTabs() {
@@ -225,11 +267,10 @@ function renderFamilyTabs() {
     button.dataset.mode = modeId;
     button.setAttribute("role", "tab");
     button.setAttribute("aria-selected", String(modeId === mode));
-    button.addEventListener("click", () => configureFamily({
-      explore: "batting",
-      questions: "empty_games",
-      derived: "derived_metrics",
-    }[modeId]));
+    button.addEventListener("click", () => {
+      if (modeId === "questions") selectQuestion(selectedQuestionRecipeId);
+      else configureFamily(modeId === "explore" ? "batting" : "derived_metrics");
+    });
     return button;
   });
   elements.familyTabs.replaceChildren(...buttons);
@@ -243,18 +284,22 @@ function renderFamilyTabs() {
   if (mode === "explore") elements.exploreSubject.value = currentFamily;
   elements.exploreSubjectField.hidden = mode !== "explore";
   elements.questionTypeField.hidden = mode !== "questions";
-  const questionEntries = [
-    ["empty_games", "Empty Games"],
-    ...advancedCatalog.map((entry) => [entry.id, entry.label]),
-  ];
-  const questionOptions = questionEntries.map(([id, label]) => {
-    const option = createElement("option", "", label);
-    option.value = id;
-    return option;
+  const questionGroups = groupedQuestionRecipes(questionRecipes).map((group) => {
+    const optgroup = document.createElement("optgroup");
+    optgroup.label = group.label;
+    optgroup.append(...group.recipes.map((recipe) => {
+      const option = createElement("option", "", recipe.label);
+      option.value = recipe.id;
+      return option;
+    }));
+    return optgroup;
   });
-  elements.questionType.replaceChildren(...questionOptions);
-  if (mode === "questions") {
-    elements.questionType.value = currentFamily === "empty_games" ? "empty_games" : selectedQuestionId;
+  elements.questionType.replaceChildren(...questionGroups);
+  if (mode === "questions") elements.questionType.value = selectedQuestionRecipeId;
+  const recipe = activeQuestionRecipe();
+  elements.questionContext.hidden = mode !== "questions" || !recipe;
+  if (recipe) {
+    elements.questionContext.textContent = `Answer: ${recipe.grain} · Calculation: ${recipe.calculation}`;
   }
 }
 
@@ -272,9 +317,9 @@ function renderAdvancedDefinition() {
     ?? advancedCatalog[0];
   if (!selected) return;
   elements.advancedSelect.value = selected.id;
-  elements.advancedBuilderTitle.textContent = currentFamily === "good_at_bat"
-    ? "Plate Appearance Quality"
-    : "Explore an event-chain analytic";
+  elements.advancedBuilderTitle.textContent = currentFamily === "advanced"
+    ? activeQuestionRecipe()?.label ?? "Ask a reviewed question"
+    : "Plate Appearance Quality";
   elements.advancedMode.textContent = advancedModeLabel(selected.semanticMode);
   elements.advancedClaim.textContent = selected.claim;
   elements.advancedEvidenceNote.textContent = selected.semanticMode === "positive-evidence"
@@ -300,11 +345,17 @@ function renderAdvancedBuilder(featuredOnly = false) {
     elements.advancedSelect.value = selectedQuestionId;
   }
   if (!elements.advancedSelect.value && entries[0]) elements.advancedSelect.value = entries[0].id;
-  if (!featuredOnly) selectedQuestionId = elements.advancedSelect.value;
+  if (featuredOnly) {
+    elements.paqView.value = selectedAdvancedView;
+  } else {
+    selectedQuestionId = elements.advancedSelect.value;
+  }
   // Questions are selected once in the top-level Questions menu.
   elements.advancedQueryField.hidden = true;
   elements.paqViewField.hidden = !featuredOnly;
-  elements.paqFieldGuide.hidden = !featuredOnly;
+  const isPaq = elements.advancedSelect.value === GOOD_AT_BAT_QUERY_ID;
+  elements.paqFieldGuide.hidden = !isPaq;
+  elements.paqMath.hidden = !isPaq;
   elements.runAdvancedLabel.textContent = featuredOnly ? "Explore plate appearances" : "Run reviewed question";
   renderAdvancedDefinition();
 }
@@ -314,6 +365,10 @@ function renderEmptyGameDefinition() {
     ?? emptyGameCatalog.analyses[emptyGameCatalog.defaultAnalysis];
   if (!selected) return;
   elements.emptyGamesAnalysisDescription.textContent = `${selected.description} ${selected.limitation}`;
+  elements.emptyGamesQuestionDescription.textContent = `${selected.description} ${selected.limitation}`;
+  elements.emptyGamesMath.hidden = elements.emptyGamesAnalysis.value !== "damage";
+  elements.emptyGamesBuilder.querySelector("#empty-games-builder-title").textContent =
+    activeQuestionRecipe()?.label ?? selected.label;
 }
 
 function renderEmptyGameBuilder() {
@@ -323,7 +378,7 @@ function renderEmptyGameBuilder() {
     return option;
   });
   elements.emptyGamesAnalysis.replaceChildren(...options);
-  elements.emptyGamesAnalysis.value = emptyGameCatalog.defaultAnalysis;
+  elements.emptyGamesAnalysis.value = selectedEmptyGameAnalysis;
   renderEmptyGameDefinition();
 }
 
@@ -340,6 +395,15 @@ function renderDerivedContract() {
   }
   const kind = numerator.subsetOf.includes(denominatorId) ? "Percentage" : "Ratio";
   elements.derivedContractText.textContent = `${kind} · ${numerator.grain} grain · ${numerator.evidenceUniverse.replaceAll("-", " ")} · zero denominator returns no value.`;
+  const scale = kind === "Percentage" ? "100 × " : "";
+  const suffix = kind === "Percentage" ? "%" : "";
+  const math = createElement("p");
+  math.append(
+    createElement("strong", "", `${numerator.label} ${kind.toLowerCase()} = `),
+    document.createTextNode(`${scale}${numerator.label} ÷ ${denominator.label}${suffix}. `),
+    document.createTextNode("Rows with a zero denominator have no calculated value."),
+  );
+  elements.derivedMath.replaceChildren(math);
   elements.runDerivedButton.disabled = false;
 }
 
@@ -522,6 +586,10 @@ function configureFamily(familyId) {
     : isAdvanced
       ? "Answer a reviewed question"
       : isDerived ? "Build a metric" : `Explore ${catalog[familyId]?.label?.toLowerCase() ?? "baseball"}`;
+  elements.resultsTitle.textContent = isEmptyGames || familyId === "advanced"
+    ? activeQuestionRecipe()?.label ?? "Results"
+    : "Results";
+  for (const disclosure of document.querySelectorAll(".refine-disclosure")) disclosure.open = false;
   if (isAdvanced) {
     renderAdvancedBuilder(isGoodAtBat);
     renderSpecialFilters(familyId);
@@ -711,6 +779,13 @@ function renderResults(payload, { resetSort = false } = {}) {
     heading.append(button);
     headerRow.append(heading);
   }
+  const hasPlateAppearanceDetail = variables.includes("plateAppearanceQuality")
+    && sourceBindings.some((row) => row.plateAppearance?.value);
+  if (hasPlateAppearanceDetail) {
+    const heading = createElement("th", "evidence-heading", "Evidence");
+    heading.scope = "col";
+    headerRow.append(heading);
+  }
   thead.append(headerRow);
 
   const tbody = document.createElement("tbody");
@@ -724,6 +799,14 @@ function renderResults(payload, { resetSort = false } = {}) {
       cell.append(value);
       tableRow.append(cell);
     }
+    if (hasPlateAppearanceDetail) {
+      const cell = createElement("td", "evidence-cell");
+      const button = createElement("button", "evidence-link", "View plate appearance");
+      button.type = "button";
+      button.addEventListener("click", () => openPlateAppearanceEvidence(row, payload.meta));
+      cell.append(button);
+      tableRow.append(cell);
+    }
     tbody.append(tableRow);
   }
   elements.resultsTable.replaceChildren(thead, tbody);
@@ -732,6 +815,37 @@ function renderResults(payload, { resetSort = false } = {}) {
   elements.exportButton.disabled = bindings.length === 0;
   renderMeta(payload.meta);
   setStage("table");
+}
+
+const PLATE_APPEARANCE_EVIDENCE_GROUPS = Object.freeze([
+  ["Game and people", ["game", "plateAppearance", "batterLabel", "pitcherLabel"]],
+  ["Result and PAQ", ["outcome", "hitType", "plateAppearanceQuality", "plateAppearanceQualityBand", "outcomeRating", "grindRating", "situationalRating", "goodAtBat"]],
+  ["Pitches and contact", ["pitches", "balls", "strikes", "swings", "bunts", "contacts", "fouls", "foulTips"]],
+  ["Runner resolutions", ["runnerRuns", "runnerOuts", "safeResolutions", "productiveOtherRunner"]],
+  ["Timing", ["startTime", "endTime", "durationMinutes"]],
+]);
+
+function openPlateAppearanceEvidence(row, meta) {
+  const groups = PLATE_APPEARANCE_EVIDENCE_GROUPS.flatMap(([title, variables]) => {
+    const facts = variables.flatMap((variable) => {
+      const binding = row[variable];
+      if (!binding) return [];
+      const wrapper = createElement("div", "evidence-fact");
+      wrapper.append(
+        createElement("dt", "", meta.columnLabels?.[variable] ?? humanizeVariable(variable)),
+        createElement("dd", binding.type === "uri" ? "iri-value" : "", cellValue(binding, variable, meta)),
+      );
+      if (binding.type === "uri") wrapper.querySelector("dd").title = binding.value;
+      return [wrapper];
+    });
+    if (facts.length === 0) return [];
+    const section = createElement("section", "evidence-section");
+    section.append(createElement("h3", "", title), createElement("dl", "evidence-list"));
+    section.querySelector("dl").append(...facts);
+    return [section];
+  });
+  elements.plateAppearanceEvidence.replaceChildren(...groups);
+  elements.plateAppearanceDialog.showModal();
 }
 
 function showError(message) {
@@ -844,7 +958,9 @@ async function runAdvanced() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         id,
-        view: currentFamily === "good_at_bat" ? elements.paqView.value : undefined,
+        view: id === GOOD_AT_BAT_QUERY_ID
+          ? currentFamily === "good_at_bat" ? elements.paqView.value : selectedAdvancedView
+          : undefined,
         filters: filtersFrom(elements.advancedFilterControls),
         gameSet: gameSetRequest(),
         dateScope: dateScopeRequest(),
@@ -898,10 +1014,7 @@ elements.form.addEventListener("submit", (event) => {
 });
 
 elements.exploreSubject.addEventListener("change", () => configureFamily(elements.exploreSubject.value));
-elements.questionType.addEventListener("change", () => {
-  selectedQuestionId = elements.questionType.value;
-  configureFamily(selectedQuestionId === "empty_games" ? "empty_games" : "advanced");
-});
+elements.questionType.addEventListener("change", () => selectQuestion(elements.questionType.value));
 
 elements.resetButton.addEventListener("click", () => {
   renderBuilder();
@@ -934,9 +1047,16 @@ elements.advancedSelect.addEventListener("change", () => {
   renderSpecialFilters(currentFamily);
 });
 elements.emptyGamesAnalysis.addEventListener("change", renderEmptyGameDefinition);
+elements.paqView.addEventListener("change", () => {
+  selectedAdvancedView = elements.paqView.value;
+});
 elements.derivedNumerator.addEventListener("change", renderDerivedContract);
 elements.derivedDenominator.addEventListener("change", renderDerivedContract);
 elements.copyQueryButton.addEventListener("click", () => void copyQuery());
+elements.plateAppearanceDialogClose.addEventListener("click", () => elements.plateAppearanceDialog.close());
+elements.plateAppearanceDialog.addEventListener("click", (event) => {
+  if (event.target === elements.plateAppearanceDialog) elements.plateAppearanceDialog.close();
+});
 elements.gameSet.addEventListener("change", () => {
   optionCache.clear();
   configureFamily(currentFamily);
@@ -955,6 +1075,11 @@ for (const input of [elements.dateStart, elements.dateEnd]) {
   });
 }
 elements.suggestionList.addEventListener("click", (event) => {
+  const questionButton = event.target.closest("button[data-question]");
+  if (questionButton) {
+    selectQuestion(questionButton.dataset.question);
+    return;
+  }
   const button = event.target.closest("button[data-preset]");
   if (!button) return;
   configureFamily(button.dataset.preset);
@@ -976,11 +1101,11 @@ async function initialize() {
     advancedCatalog = queries;
     derivedCatalog = derived;
     emptyGameCatalog = emptyGames;
+    questionRecipes = buildQuestionRecipes(advancedCatalog, emptyGameCatalog);
     setConnection(status);
-    renderFamilyTabs();
-    renderBuilder();
+    selectQuestion(selectedQuestionRecipeId);
     await refreshDateScope();
-    await runQuery();
+    setStage("empty");
   } catch (error) {
     setConnection({ connected: false, games: 0 });
     showError(error.message);

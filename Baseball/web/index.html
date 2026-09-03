@@ -62,19 +62,22 @@
           <div class="filter-field mode-selector" id="question-type-field" hidden>
             <label for="question-type">Reviewed question</label>
             <select id="question-type"></select>
+            <p class="question-context" id="question-context" hidden></p>
           </div>
         </div>
 
+        <details class="scope-disclosure" id="scope-disclosure">
+          <summary>
+            <span>Scope</span>
+            <small id="scope-summary">Regular season · Latest 7 days</small>
+          </summary>
         <fieldset class="date-scope-control">
-          <legend><span>Official game dates</span><small>Scopes loaded game graphs</small></legend>
+          <legend><span>Official game dates</span><small>Change the population</small></legend>
           <div class="date-scope-grid">
             <div class="filter-field">
               <label for="game-set">Game set</label>
               <select id="game-set">
                 <option value="regular_season" selected>Regular season</option>
-                <option value="preseason">Preseason</option>
-                <option value="postseason">Postseason</option>
-                <option value="exhibition">Exhibition</option>
                 <option value="all_star">All-Star games</option>
               </select>
             </div>
@@ -101,6 +104,7 @@
           </div>
           <p class="date-scope-status" id="date-scope-status" aria-live="polite">Resolving loaded game dates…</p>
         </fieldset>
+        </details>
 
         <form id="query-form">
           <fieldset class="control-group">
@@ -114,10 +118,13 @@
             <div class="metric-help" id="metric-help" aria-live="polite"></div>
           </fieldset>
 
-          <fieldset class="control-group filters-group">
-            <legend><span>Narrow the question</span><small>Optional</small></legend>
-            <div class="filter-grid" id="filter-controls"></div>
-          </fieldset>
+          <details class="refine-disclosure">
+            <summary><span>Refine</span><small>Optional filters</small></summary>
+            <fieldset class="control-group filters-group">
+              <legend><span>Narrow the answer</span><small>Only if needed</small></legend>
+              <div class="filter-grid" id="filter-controls"></div>
+            </fieldset>
+          </details>
 
           <div class="form-actions">
             <button class="run-button" id="run-button" type="submit">
@@ -131,13 +138,12 @@
         <section class="empty-games-builder" id="empty-games-builder" hidden aria-labelledby="empty-games-builder-title">
           <div class="definition-card">
             <p class="definition-status">Reviewed analysis · Authoritative only</p>
-            <h3 id="empty-games-builder-title">What counts as an empty game?</h3>
-            <p>
-              A player appeared as a batter but recorded no reviewed qualifying offensive contribution in that game.
-            </p>
+            <h3 id="empty-games-builder-title">Who has the highest Empty Game Rate?</h3>
+            <p id="empty-games-question-description">Empty games and offensive games played for each batter.</p>
           </div>
-          <div class="definition-section">
-            <h4>Qualifying contributions</h4>
+          <details class="method-disclosure definition-section">
+            <summary>What counts as an Empty Game?</summary>
+            <p class="method-intro">A player appeared as a batter but recorded no reviewed qualifying offensive contribution in that game.</p>
             <ul class="definition-list">
               <li>Single, double, triple, or home run</li>
               <li>Walk</li>
@@ -145,18 +151,36 @@
               <li>Fielder’s choice</li>
               <li>Explicitly adjudicated stolen base</li>
             </ul>
-          </div>
-          <div class="empty-game-analysis-control">
+          </details>
+          <div class="empty-game-analysis-control" hidden>
             <div class="filter-field">
               <label for="empty-games-analysis">Show me</label>
               <select id="empty-games-analysis"></select>
             </div>
             <p id="empty-games-analysis-description"></p>
           </div>
-          <fieldset class="control-group filters-group special-filter-group">
-            <legend><span>Narrow the question</span><small>Optional</small></legend>
-            <div class="filter-grid" id="empty-games-filter-controls"></div>
-          </fieldset>
+          <details class="math-disclosure" id="empty-games-math" hidden>
+            <summary>Show math</summary>
+            <div class="math-body">
+              <p><strong>Damage Score for one failed plate appearance</strong></p>
+              <p><code>min(100, 100 × base pressure / 6 × out pressure × quick-failure pressure × double-play pressure)</code></p>
+              <ul>
+                <li>Base pressure = 1 for first + 2 for second + 3 for third.</li>
+                <li>Out pressure = (outs before the plate appearance + 1) ÷ 3.</li>
+                <li>Grind Score = pitches + swings + 2 × contacts + 2 × fouls.</li>
+                <li>Quick-failure pressure = the smaller of 1 or 6 ÷ Grind Score (with a minimum denominator of 1).</li>
+                <li>Double-play pressure = 1.25 for a double play; otherwise 1.</li>
+                <li>Game Damage Score = the sum of its failed plate-appearance Damage Scores.</li>
+              </ul>
+            </div>
+          </details>
+          <details class="refine-disclosure">
+            <summary><span>Refine</span><small>Optional filters</small></summary>
+            <fieldset class="control-group filters-group special-filter-group">
+              <legend><span>Narrow the answer</span><small>Only if needed</small></legend>
+              <div class="filter-grid" id="empty-games-filter-controls"></div>
+            </fieldset>
+          </details>
           <div class="completeness-note">
             <strong>Completeness gate</strong>
             <span>Games containing an unrecognized plate-appearance result are excluded instead of being classified from incomplete evidence.</span>
@@ -191,10 +215,17 @@
             <strong>Measure contract</strong>
             <span id="derived-contract-text">Both measures count player-games in the reviewed offensive-game evidence universe.</span>
           </div>
-          <fieldset class="control-group filters-group special-filter-group">
-            <legend><span>Narrow the question</span><small>Optional</small></legend>
-            <div class="filter-grid" id="derived-filter-controls"></div>
-          </fieldset>
+          <details class="math-disclosure" open>
+            <summary>Show math</summary>
+            <div class="math-body" id="derived-math"></div>
+          </details>
+          <details class="refine-disclosure">
+            <summary><span>Refine</span><small>Optional filters</small></summary>
+            <fieldset class="control-group filters-group special-filter-group">
+              <legend><span>Narrow the answer</span><small>Only if needed</small></legend>
+              <div class="filter-grid" id="derived-filter-controls"></div>
+            </fieldset>
+          </details>
           <div class="form-actions special-form-actions">
             <button class="run-button" id="run-derived-button" type="button">
               <span>Calculate derived metric</span>
@@ -226,10 +257,24 @@
             <span>A baseball-style .000–1.000 rating combining authoritative outcome, bounded grind, and situational evidence.</span>
             <span class="paq-scale"><b>Excellent .850+</b><b>Good .650+</b><b>Mixed .450+</b><b>Poor .250+</b><b>Bad below .250</b></span>
           </div>
-          <fieldset class="control-group filters-group special-filter-group">
-            <legend><span>Narrow the question</span><small>Optional</small></legend>
-            <div class="filter-grid" id="advanced-filter-controls"></div>
-          </fieldset>
+          <details class="math-disclosure" id="paq-math" hidden>
+            <summary>Show math</summary>
+            <div class="math-body">
+              <p><strong>PAQ-1.0 = 80% outcome + 15% grind + 5% situation</strong>, rounded to three decimals.</p>
+              <p><strong>Outcome ratings:</strong> home run 1.000; triple .950; double .850; walk .800; hit by pitch .750; single .700; catcher interference or sacrifice fly .650; sacrifice bunt or field error .550; fielder’s choice .450; ordinary field/force out .150; strikeout .050; double or triple play .000; any other mapped result .300.</p>
+              <p><strong>Grind rating:</strong> <code>min(1.000, (pitches + swings + 2 × contacts + 2 × fouls) ÷ 18)</code>.</p>
+              <p><strong>Situation rating:</strong> .000 for a double or triple play; .850 when another runner advances safely; .250 when a runner is put out; otherwise .500.</p>
+              <p><strong>Damage cap:</strong> grounded-into-double-play and triple-play plate appearances cannot score above .249.</p>
+              <p><strong>Current evidence boundary:</strong> mapped contact contributes through Grind. PAQ-1.0 does not yet include Statcast batted-ball measurements.</p>
+            </div>
+          </details>
+          <details class="refine-disclosure">
+            <summary><span>Refine</span><small>Optional filters</small></summary>
+            <fieldset class="control-group filters-group special-filter-group">
+              <legend><span>Narrow the answer</span><small>Only if needed</small></legend>
+              <div class="filter-grid" id="advanced-filter-controls"></div>
+            </fieldset>
+          </details>
           <div class="completeness-note" id="advanced-evidence-note">
             <strong>Evidence contract</strong>
             <span>The selected query states whether it counts positive evidence, uses a completeness gate, or reports integrity findings.</span>
@@ -247,7 +292,7 @@
       <section class="results-panel" aria-labelledby="results-title">
         <div class="results-heading">
           <div>
-            <p class="panel-kicker">Graph response</p>
+            <p class="panel-kicker">Answer</p>
             <h2 id="results-title">Results</h2>
           </div>
           <button class="export-button" id="export-button" type="button" disabled>Export CSV</button>
@@ -265,10 +310,10 @@
               <button type="button" data-preset="pitching">Pitches by pitcher</button>
               <button type="button" data-preset="baserunning">Runs by runner</button>
               <button type="button" data-preset="games">Games by venue</button>
-              <button type="button" data-preset="empty_games">Find empty games</button>
+              <button type="button" data-question="empty-games-players">Who has the highest Empty Game Rate?</button>
               <button type="button" data-preset="derived_metrics">Build an empty-game percentage</button>
-              <button type="button" data-preset="good_at_bat">Explore Plate Appearance Quality</button>
-              <button type="button" data-preset="advanced">Ask a complicated question</button>
+              <button type="button" data-question="paq-player-averages">Who has the highest average PAQ-1.0?</button>
+              <button type="button" data-question="advanced-grinder-index">Which plate appearances have the highest Grind Score?</button>
             </div>
           </div>
 
@@ -308,6 +353,17 @@
     </footer>
 
     <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+    <dialog class="evidence-dialog" id="plate-appearance-dialog" aria-labelledby="plate-appearance-dialog-title">
+      <div class="dialog-heading">
+        <div>
+          <p class="panel-kicker">Plate appearance evidence</p>
+          <h2 id="plate-appearance-dialog-title">View this plate appearance</h2>
+        </div>
+        <button class="dialog-close" id="plate-appearance-dialog-close" type="button" aria-label="Close plate appearance evidence">×</button>
+      </div>
+      <p class="dialog-note">This view shows the evidence already returned for this plate appearance. Pre-plate-appearance score and base/out state are not yet part of the admitted serving grain.</p>
+      <div class="evidence-grid" id="plate-appearance-evidence"></div>
+    </dialog>
     <script type="module" src="/app.js"></script>
   </body>
 </html>

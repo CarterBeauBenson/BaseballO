@@ -1,0 +1,42 @@
+{
+  "artifactType": "baseballo-dsq-query-spec",
+  "contractVersion": 1,
+  "id": "hits-by-season-modular",
+  "claim": "Count distinct reviewed hit processes and games containing hits for each represented season.",
+  "sourceScope": {
+    "category": "derived",
+    "sources": ["mlb-game"],
+    "readsGraphLayers": ["indexed-rdf"]
+  },
+  "primaryModule": "hit",
+  "enrichments": ["game-season"],
+  "dimensions": ["season"],
+  "labels": [],
+  "measures": [
+    {
+      "aggregate": "count-distinct",
+      "variable": "hit",
+      "as": "hits"
+    },
+    {
+      "aggregate": "count-distinct",
+      "variable": "game",
+      "as": "gamesWithHits"
+    }
+  ],
+  "values": [],
+  "materialization": {
+    "partitioning": "disjoint-game-graphs",
+    "dimensions": ["season"],
+    "merge": {
+      "hits": "sum",
+      "gamesWithHits": "sum"
+    }
+  },
+  "orderBy": [
+    {
+      "variable": "season",
+      "direction": "asc"
+    }
+  ]
+}

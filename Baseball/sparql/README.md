@@ -8,6 +8,13 @@ single-source questions, multi-source integrations, and queries over derived
 products. Domain directories and stable query paths remain intact; source
 dependencies are no longer implicit in those paths.
 
+Static single-source queries must constrain their named-graph variable to the
+owning source prefix. The only registered exception is the exact 19-query
+reviewed route catalog: `run-reviewed-query.ps1` binds those files to the
+validated loaded graph set with `VALUES ?graph` before execution. Repository
+validation checks both the intrinsic guards and that exact binder registry, so
+an unscoped query cannot appear merely by adding a file to a directory.
+
 ## Query families
 
 The library is organized by the mapped domain rather than by one statistic:
@@ -21,6 +28,7 @@ The library is organized by the mapped domain rather than by one statistic:
 | [`options/`](options/) | Discovery queries that populate UI select boxes from loaded values |
 | [`advanced/`](advanced/) | Seventeen event-chain analytics with explicit positive, completeness-gated, integrity-audit, and decision-support semantics |
 | [`query-index/`](query-index/) | Reviewable `CONSTRUCT` components for the disposable per-game shortcut graph |
+| [`query-modules/`](query-modules/) | Separate hash-pinned catalogs for additive event DSQs over indexed RDF and reusable identity/attribute grains over promoted authority RDF |
 
 These are additive to the cross-cutting hit queries below. The UI-facing
 [`analytics-query-builder`](../web/query-builder/analytics-query-builder.js)
@@ -48,6 +56,16 @@ analytics that the current mapping cannot yet support. All 17 reviewed queries
 are exposed through the Explorer's Questions selector. Plate Appearance
 Quality/Good At Bat is currently admitted to SQL; the others remain
 authoritative SPARQL and are not operational query-index routes.
+
+New DSQs can reuse the guarded [`query-modules/`](query-modules/) package rather
+than rediscovering ontology, RML, and SHACL paths. Its index catalog exposes
+each accepted query-index fact as one primary grain and only composes reviewed
+game dimensions, distinct counts, and disjoint-game additive reducers. Its
+separate authority catalog exposes source-owned Person, Organization, Venue,
+Day, name, identifier, measurement, handedness, position, coordinate, capacity,
+and playing-surface patterns without flattening their accepted RDF structures.
+A compiled query still requires bounded execution and end-to-end RDF/SQL
+equivalence before it becomes an Explorer route.
 
 ## Hit query catalog
 

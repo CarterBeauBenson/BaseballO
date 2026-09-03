@@ -1,0 +1,6 @@
+?contact a idx:ContactFact ;
+    idx:game ?game ;
+    idx:plateAppearance ?plateAppearance ;
+    idx:agent ?batter ;
+    idx:venue ?venue ;
+    idx:battedBall ?battedBall .

@@ -5,6 +5,7 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 SELECT ?team ?teamLabel ?side (COUNT(DISTINCT ?game) AS ?games)
 WHERE {
   GRAPH ?graph {
+    FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
     ?game a base:BaseballGame .
     ?teamRole a ?roleClass ;
               obo:BFO_0000197 ?team ;

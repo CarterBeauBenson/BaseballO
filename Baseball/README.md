@@ -25,14 +25,15 @@ flowchart LR
     TRANSIENT --> RML[Source-owned RML]
     RML --> SHACL[Source-owned SHACL]
     SHACL --> FUSEKI[Persistent authoritative RDF<br/>Apache Jena Fuseki / TDB2]
-    FUSEKI --> CLEAN[Remove promoted API response]
+    FUSEKI --> EVENT[Immutable promoted-graph event]
+    EVENT --> CLEAN[Remove promoted API response]
     FUSEKI --> REASON[Budgeted plate-appearance reasoning]
     REASON --> INFERRED[Disposable inferred named graph]
     FUSEKI --> SPARQL[Canned full-pattern SPARQL]
     FUSEKI --> CONSTRUCT[Game-only reviewed<br/>CONSTRUCT components]
     CONSTRUCT --> INDEX[Disposable per-game query index]
     INDEX --> FAST[Reviewed accelerated query runner]
-    FUSEKI --> MATERIALIZE[Approved post-batch SPARQL]
+    EVENT --> MATERIALIZE[Dependency-declared post-promotion SPARQL]
     MATERIALIZE --> SQL[Persistent derived SQLite serving build]
     SQL --> WEB[Admitted Explorer analytics]
     SPARQL --> WEB[Novel and fallback queries]
@@ -52,8 +53,10 @@ persisted in the derived SQL layer after promotion.
 The checked-in raw corpus contains 546 distinct completed games with official
 dates from 2026-07-14 through 2026-08-25. The accepted query baseline remains
 the original eight-game 2026-08-03 subset: 246,191 authoritative triples and
-52,992 disposable query-index triples. All 51 canned queries and 17 advanced
-queries have reproducible results over that bounded baseline.
+52,992 disposable query-index triples. The preserved corpus audit covers the
+48 canned queries that existed when it was captured and all 17 advanced
+queries; the three later canned queries remain separately validated and are
+included in the current 51-query inventory.
 `plate-appearance-fingerprint` and PAQ-1.0 use authoritative MLB outcome,
 bounded grind, and situational evidence. The rating is derived downstream and
 is not asserted during ingestion.
@@ -63,8 +66,8 @@ also owns query-index promotion and batch-aware serving materialization; the
 six reference/event lanes promote only their source-owned authoritative RDF.
 Each run emits local evidence and quarantines failures without stopping an
 unrelated lane. The bundled direct game importer remains only a developer
-fallback and parity reference. The replacement flow does not yet contain the
-aggregate repository-validation stage; that remains explicit roadmap work.
+fallback and parity reference. A separate daily `Repository Evidence` process
+group owns aggregate validation without controlling any source lane.
 Nineteen authoritative/indexed query pairs have exact corpus results; the
 reviewed runner selects 16 indexed routes and keeps three reviewed routes on the
 authoritative graph. Those routes govern batch query selection, not direct
@@ -74,9 +77,11 @@ the selected layer and immutable serving-build fingerprint explicitly.
 
 Plate Appearance Quality/Good At Bat is the first admitted Explorer vertical
 slice on the persistent analytical serving layer. Contract 5 materializes
-candidate shared grains for Simple Explore, every query in the 17-query
-reviewed Advanced catalog, Empty Games, Derived, and routine option lists, but
-those additional UI families remain on authoritative SPARQL until each passes
+candidate shared grains for Simple Explore, all 17 reviewed Advanced DSQs, all
+39 non-option canned DSQs, Empty Games, Derived, and routine option lists. Each
+static DSQ owns a named graph-partitioned SQLite table, while the 12 option
+lookups reuse shared facts rather than duplicating results. Those additional UI
+families remain on authoritative SPARQL until each passes
 reviewed end-to-end equivalence. After a daily acquisition's affected
 authoritative and indexed graphs are all promoted, NiFi runs bounded per-game
 SPARQL, writes immutable graph-scoped result grains, checks retained RDF-result
@@ -89,6 +94,21 @@ facts and remain sortable in the UI. A missing, stale, or invalid build falls
 back to the matching authoritative SPARQL. Novel research questions remain live
 SPARQL until they are approved, historically backfilled, and added to NiFi's
 normal materialization lifecycle.
+Reference authority graphs now feed a separate immutable SQLite serving build
+through promoted-graph events. Corrections replace one complete source-graph
+partition, while the prior authority pointer remains live on failure. A manual
+`Serving Equivalence` group records exact authoritative-versus-candidate-SQL
+evidence before any additional UI family is admitted.
+The hash-pinned [`sparql/query-modules/`](sparql/query-modules/) package now
+provides the first reusable path for that admission. Its index catalog lets a
+declarative DSQ select one accepted event fact grain, reviewed dimensions,
+distinct measures, and an additive SQL merge contract. A separate authority
+catalog provides composable Person, Organization, Venue, Day, name, identifier,
+measurement, handedness, position, coordinate, capacity, and playing-surface
+patterns over independently promoted source graphs. The compiler produces
+bounded SPARQL without requiring each question author to retrace RML and SHACL,
+while preserving the full world-side/ICE structure. Fact-to-fact bridges remain
+blocked until they receive explicit equivalence tests.
 SQLite is derived and never a second source of truth. Its analytical facts are
 rebuildable from persistent RDF. The current regular-season/All-Star partition
 also depends on compact acquisition provenance and checked historical schedule
@@ -139,7 +159,7 @@ changes institutional effect without erasing the earlier evidence.
 | [`reasoning/`](reasoning/) | Budgeted profiles, pinned BFO CLIF source contract, and reasoning runbook | Active selective experiment |
 | [`data/`](data/) | Untouched development fixture, 546-game raw corpus, and bounded eight-game audit subset | Active immutable inputs |
 | [`archive/`](archive/) | Superseded preprocessing prototype and prior ontology snapshot | Historical |
-| [`sparql/`](sparql/) | Canned and advanced semantic queries plus reviewable components for the disposable query-index graph | Active query library and acceleration contract |
+| [`sparql/`](sparql/) | Canned and advanced semantic queries, reusable DSQ modules, and reviewable components for the disposable query-index graph | Active query library and acceleration contract |
 | [`serving/`](serving/) | Versioned derived SQLite schema, promotion contract, rebuild and rollback runbook | Routine Explorer serving active |
 | [`web/`](web/) | Playable local analytics explorer and allowlisted query compiler | Local MVP active |
 | [`scripts/`](scripts/) | Manual import, RML execution, validation, indexing, and infrastructure automation | Active |
@@ -151,12 +171,11 @@ root are defined in [`REPOSITORY-LAYOUT.md`](REPOSITORY-LAYOUT.md).
 
 ## Validation ownership
 
-The replacement NiFi flow owns the seven source runtime lifecycles but does not
-yet contain the aggregate repository-validation stage. Until that stage is
-rebuilt, developers run only focused checks for the component being changed.
-The aggregate validator remains checked in; it is not a substitute for routine
-NiFi orchestration and should not be recreated as an attended chain of
-commands.
+The replacement NiFi flow owns the seven source runtime lifecycles. A separate
+daily `Repository Evidence` group owns aggregate validation as an asynchronous
+observer; its failure never controls a source lane or changes RDF or serving
+pointers. Developers run only focused checks for the component being changed
+and do not recreate the aggregate workflow as an attended command chain.
 
 SPARQL and SHACL over accepted ontology terms are ordinary maintained project
 artifacts. Ontologist approval is required for new ontology terms, axioms,

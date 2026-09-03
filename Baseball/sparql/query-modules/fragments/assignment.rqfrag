@@ -1,0 +1,4 @@
+?assignment a idx:AssignmentFact ;
+    idx:game ?game ;
+    idx:assignee ?assignee ;
+    idx:assignmentType ?assignmentType .

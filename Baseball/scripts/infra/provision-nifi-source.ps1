@@ -28,6 +28,15 @@ $moduleRoot = [System.IO.Path]::GetFullPath((Join-Path $repositoryRoot "sources\
 if (-not $contractFile.StartsWith(($moduleRoot + [System.IO.Path]::DirectorySeparatorChar), [System.StringComparison]::OrdinalIgnoreCase)) {
     throw "Flow contract is not owned by source module $moduleId."
 }
+$eventContract = $contract.promotedGraphEvents
+if (
+    [int]$eventContract.contractVersion -ne 1 -or
+    [string]$eventContract.emitter -ne 'scripts/pipeline/emit-promoted-graph-event.py' -or
+    [string]$eventContract.outbox -ne 'pipeline/events/promoted-graphs' -or
+    [string]$eventContract.delivery -ne 'immutable-idempotent-before-transient-cleanup'
+) {
+    throw "$moduleId must declare the promoted-graph event v1 delivery contract."
+}
 $acquisitions = @($contract.acquisitions)
 $hasPopulationDiscovery = $contract.PSObject.Properties.Name -contains 'populationDiscovery'
 $hasBackfillRequest = $contract.PSObject.Properties.Name -contains 'backfillRequest'
@@ -46,10 +55,13 @@ if (-not (Test-TcpPort -HostName '127.0.0.1' -Port $script:NiFiPort)) {
 $api = $script:NiFiApiUri
 $stageScript = Join-Path $repositoryRoot 'scripts\pipeline\process-source-stage.ps1'
 $proofReleaseScript = Join-Path $repositoryRoot 'scripts\pipeline\check-source-proof-release.py'
+$eventEmitter = Join-Path $repositoryRoot ([string]$eventContract.emitter)
 $transientDirectory = [System.IO.Path]::GetFullPath((Join-Path $script:StateRoot "pipeline\transient\$moduleId"))
 $powershell = Join-Path $PSHOME 'powershell.exe'
-if (-not (Test-Path -LiteralPath $proofReleaseScript -PathType Leaf)) {
-    throw "Proof-release checker is missing: $proofReleaseScript"
+foreach ($required in @($proofReleaseScript, $eventEmitter)) {
+    if (-not (Test-Path -LiteralPath $required -PathType Leaf)) {
+        throw "Source-lane executable is missing: $required"
+    }
 }
 $pythonCommand = Get-Command python -ErrorAction Stop
 $python = $pythonCommand.Source
@@ -82,6 +94,28 @@ function Remove-ConnectionIfPresent([string] $GroupId, [string] $Name) {
 
 function Get-GroupFlow([string] $GroupId) {
     return (Invoke-NiFi -Method GET -Path "/flow/process-groups/$GroupId").processGroupFlow.flow
+}
+
+function Stop-OwnedProcessGroupForReconciliation([string] $GroupId) {
+    $flow = Get-GroupFlow $GroupId
+    $queued = @($flow.connections | Where-Object { [int64]$_.status.aggregateSnapshot.flowFilesQueued -gt 0 })
+    if ($queued.Count -gt 0) {
+        throw "$groupName has queued FlowFiles and cannot be reconciled."
+    }
+    $active = @($flow.processors | Where-Object { [string]$_.component.state -notin @('STOPPED', 'DISABLED') })
+    if ($active.Count -eq 0) { return }
+    Invoke-NiFi -Method PUT -Path "/flow/process-groups/$GroupId" -Body @{
+        id = $GroupId
+        state = 'STOPPED'
+        disconnectedNodeAcknowledged = $false
+    } | Out-Null
+    $deadline = [DateTime]::UtcNow.AddSeconds(30)
+    do {
+        $remaining = @((Get-GroupFlow $GroupId).processors | Where-Object { [string]$_.component.state -notin @('STOPPED', 'DISABLED') })
+        if ($remaining.Count -eq 0) { return }
+        Start-Sleep -Milliseconds 500
+    } while ([DateTime]::UtcNow -lt $deadline)
+    throw "$groupName did not stop before reconciliation: $(@($remaining.component.name) -join ', ')"
 }
 
 function Get-OrCreateProcessGroup([string] $ParentId, [string] $Name, [int] $X, [int] $Y) {
@@ -237,6 +271,7 @@ $catalog = Get-Content -LiteralPath (Join-Path $repositoryRoot 'sources\source-m
 $moduleIndex = [array]::IndexOf(@($catalog.modules.id), $moduleId)
 $groupY = if ($moduleIndex -ge 0) { 100 + ($moduleIndex * 180) } else { 100 }
 $groupId = Get-OrCreateProcessGroup $baseballGroupId $groupName 100 $groupY
+Stop-OwnedProcessGroupForReconciliation $groupId
 
 foreach ($obsoleteConnection in @(
     '81 context to RML',
@@ -244,6 +279,9 @@ foreach ($obsoleteConnection in @(
     '83 SHACL to promotion',
     '84 promotion to cleanup',
     '85 cleanup to success',
+    '88 promotion passed to cleanup',
+    '89 cleanup command to exit gate',
+    '90 cleanup passed to success',
     'retry Context input',
     'retry RML input',
     'retry SHACL input',
@@ -473,8 +511,9 @@ $processors.context = Ensure-Stage $groupId 'Prepare Source Context' 'context' $
 $processors.rml = Ensure-Stage $groupId 'RML' 'rml' ($baseX + 320) 0
 $processors.shacl = Ensure-Stage $groupId 'Source SHACL' 'shacl' ($baseX + 640) 0
 $processors.promote = Ensure-Stage $groupId 'Promote Authoritative Graph' 'promote' ($baseX + 960) 0
-$processors.cleanup = Ensure-Stage $groupId 'Cleanup Transient Artifacts' 'cleanup' ($baseX + 1280) 0
-$processors.success = Ensure-Processor -GroupId $groupId -Name 'Record Success' -Type 'org.apache.nifi.processors.standard.LogAttribute' -X ($baseX + 1600) -Y 0 -AutoTerminate @('success') -Properties @{
+$processors.emit = Ensure-Stage $groupId 'Emit Promoted Graph Event' 'emit' ($baseX + 1280) 0
+$processors.cleanup = Ensure-Stage $groupId 'Cleanup Transient Artifacts' 'cleanup' ($baseX + 1600) 0
+$processors.success = Ensure-Processor -GroupId $groupId -Name 'Record Success' -Type 'org.apache.nifi.processors.standard.LogAttribute' -X ($baseX + 1920) -Y 0 -AutoTerminate @('success') -Properties @{
     'Log Level' = 'info'; 'Log Payload' = 'false'; 'Attributes to Log Regular Expression' = '^(pipeline|scope|request|transient|stage)\..*$'
     'Log FlowFile Properties' = 'true'; 'Output Format' = 'Line per Attribute'; 'Log Prefix' = "BaseballO $moduleId success"; 'Character Set' = 'UTF-8'
 }
@@ -483,7 +522,8 @@ $exitGates = [ordered]@{
     'RML' = Ensure-ExitGate $groupId 'RML' ($baseX + 480) 150
     'SHACL' = Ensure-ExitGate $groupId 'SHACL' ($baseX + 800) 150
     'Promotion' = Ensure-ExitGate $groupId 'Promotion' ($baseX + 1120) 150
-    'Cleanup' = Ensure-ExitGate $groupId 'Cleanup' ($baseX + 1440) 150
+    'Promoted Graph Event' = Ensure-ExitGate $groupId 'Promoted Graph Event' ($baseX + 1440) 150
+    'Cleanup' = Ensure-ExitGate $groupId 'Cleanup' ($baseX + 1760) 150
 }
 
 Ensure-Connection -GroupId $groupId -Name '00 proof to request reader' -SourceId $processors.request -DestinationId $processors.read -Relationships @('success') | Out-Null
@@ -496,11 +536,13 @@ Ensure-Connection -GroupId $groupId -Name '84 RML passed to SHACL' -SourceId $ex
 Ensure-Connection -GroupId $groupId -Name '85 SHACL command to exit gate' -SourceId $processors.shacl -DestinationId $exitGates.SHACL -Relationships @('original') | Out-Null
 Ensure-Connection -GroupId $groupId -Name '86 SHACL passed to promotion' -SourceId $exitGates.SHACL -DestinationId $processors.promote -Relationships @('passed') | Out-Null
 Ensure-Connection -GroupId $groupId -Name '87 promotion command to exit gate' -SourceId $processors.promote -DestinationId $exitGates.Promotion -Relationships @('original') | Out-Null
-Ensure-Connection -GroupId $groupId -Name '88 promotion passed to cleanup' -SourceId $exitGates.Promotion -DestinationId $processors.cleanup -Relationships @('passed') | Out-Null
-Ensure-Connection -GroupId $groupId -Name '89 cleanup command to exit gate' -SourceId $processors.cleanup -DestinationId $exitGates.Cleanup -Relationships @('original') | Out-Null
-Ensure-Connection -GroupId $groupId -Name '90 cleanup passed to success' -SourceId $exitGates.Cleanup -DestinationId $processors.success -Relationships @('passed') | Out-Null
+Ensure-Connection -GroupId $groupId -Name '88 promotion passed to event emission' -SourceId $exitGates.Promotion -DestinationId $processors.emit -Relationships @('passed') | Out-Null
+Ensure-Connection -GroupId $groupId -Name '89 event command to exit gate' -SourceId $processors.emit -DestinationId $exitGates['Promoted Graph Event'] -Relationships @('original') | Out-Null
+Ensure-Connection -GroupId $groupId -Name '90 event passed to cleanup' -SourceId $exitGates['Promoted Graph Event'] -DestinationId $processors.cleanup -Relationships @('passed') | Out-Null
+Ensure-Connection -GroupId $groupId -Name '91 cleanup command to exit gate' -SourceId $processors.cleanup -DestinationId $exitGates.Cleanup -Relationships @('original') | Out-Null
+Ensure-Connection -GroupId $groupId -Name '92 cleanup passed to success' -SourceId $exitGates.Cleanup -DestinationId $processors.success -Relationships @('passed') | Out-Null
 
-$semanticStages = [ordered]@{'Context'=$processors.context; 'RML'=$processors.rml; 'SHACL'=$processors.shacl; 'Promotion'=$processors.promote; 'Cleanup'=$processors.cleanup}
+$semanticStages = [ordered]@{'Context'=$processors.context; 'RML'=$processors.rml; 'SHACL'=$processors.shacl; 'Promotion'=$processors.promote; 'Promoted Graph Event'=$processors.emit; 'Cleanup'=$processors.cleanup}
 foreach ($entry in $semanticStages.GetEnumerator()) {
     $stageProcessors[$entry.Key] = $entry.Value
     $retrySourceProcessors[$entry.Key] = $exitGates[$entry.Key]

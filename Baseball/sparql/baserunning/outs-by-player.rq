@@ -5,6 +5,7 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 SELECT ?player ?playerLabel (COUNT(DISTINCT ?out) AS ?baserunningOuts)
 WHERE {
   GRAPH ?graph {
+    FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
     ?out a base:RunnerResolutionProcess, base:OutProcess ;
          obo:BFO_0000057 ?player ;
          obo:BFO_0000117 ?outJudgment .

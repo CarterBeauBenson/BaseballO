@@ -7,6 +7,7 @@ SELECT ?pitcher ?pitcherLabel ?callType
        (COUNT(DISTINCT ?callProcess) AS ?calls)
 WHERE {
   GRAPH ?graph {
+    FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
     ?pitch a base:PitchAct ;
            obo:BFO_0000057 ?pitcher ;
            obo:BFO_0000063 ?pitchMotion .

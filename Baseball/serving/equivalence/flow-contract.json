@@ -1,0 +1,28 @@
+{
+  "artifactType": "baseballo-nifi-serving-equivalence-flow-contract",
+  "contractVersion": 1,
+  "rootProcessGroup": "BaseballO",
+  "processGroup": "Serving Equivalence",
+  "proof": {
+    "processor": "scripts/pipeline/prove-serving-equivalence.py",
+    "candidateAdapter": "scripts/pipeline/query-serving-candidate.py",
+    "explorerLifecycle": "isolated-child-process",
+    "families": ["paq", "advanced", "explore", "empty-games", "derived", "all"],
+    "manualTrigger": "run-once",
+    "timeoutSecondsPerRequest": 120
+  },
+  "admissionPolicy": {
+    "proofMayAdmitRoute": false,
+    "normalUiContractRemainsAuthoritative": true,
+    "exactRdfTermsRequired": true,
+    "exactRowOrderRequired": true,
+    "singleServingBuildRequired": true,
+    "singleCorpusFingerprintRequired": true
+  },
+  "failurePolicy": {
+    "maximumRetries": 2,
+    "authoritativeRdfUnaffected": true,
+    "servingPointerUnaffected": true,
+    "sourceLanesUnaffected": true
+  }
+}
