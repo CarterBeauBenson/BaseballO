@@ -90,6 +90,43 @@ def query_index_contract_admission() -> dict[str, Any]:
         != contract_sha256
     ):
         raise ValueError("Routing policy does not admit the exact query-index semantic contract")
+    compatibility_bridge = routing.get("compatibleSemanticContractBridge")
+    compatible_contracts = (
+        compatibility_bridge.get("compatibleContracts")
+        if isinstance(compatibility_bridge, dict)
+        else None
+    )
+    if (
+        not isinstance(compatibility_bridge, dict)
+        or compatibility_bridge.get("bridgeVersion") != 1
+        or compatibility_bridge.get("status") != "reviewed-backward-compatible"
+        or not isinstance(compatible_contracts, list)
+        or not compatible_contracts
+        or not str(compatibility_bridge.get("compatibilityReview", "")).strip()
+        or not str(compatibility_bridge.get("requiredOutputValidation", "")).strip()
+    ):
+        raise ValueError(
+            "Routing policy has no reviewed backward-compatible semantic-contract bridge"
+        )
+    compatible_pairs: set[tuple[str, str]] = set()
+    for index, compatible in enumerate(compatible_contracts):
+        if not isinstance(compatible, dict) or set(compatible) != {
+            "contractId",
+            "contractTextSha256",
+        }:
+            raise ValueError(f"Compatible semantic contract {index} has an invalid shape")
+        contract_id = str(compatible.get("contractId", ""))
+        contract_hash = required_sha256(
+            compatible.get("contractTextSha256"),
+            f"compatible semantic contract hash {index}",
+        )
+        if (
+            not re.fullmatch(r"baseball-query-index-v[1-9][0-9]*", contract_id)
+            or contract_id == contract.get("semanticContractId")
+            or (contract_id, contract_hash) in compatible_pairs
+        ):
+            raise ValueError(f"Compatible semantic contract {index} is invalid or duplicated")
+        compatible_pairs.add((contract_id, contract_hash))
     bridge = routing.get("legacyManifestBridge")
     fixed_hashes = bridge.get("fixedImplementationSha256") if isinstance(bridge, dict) else None
     if (
@@ -120,6 +157,7 @@ def query_index_contract_admission() -> dict[str, Any]:
         "semanticContractId": str(contract["semanticContractId"]),
         "semanticContractSha256": contract_sha256,
         "fixedLegacyImplementationSha256": fixed_legacy,
+        "compatibleSemanticContracts": compatible_pairs,
         "routingSha256": sha256_file(QUERY_INDEX_ROUTING),
         "contract": contract,
     }
@@ -133,19 +171,30 @@ def resolve_query_index_manifest_admission(
     if present and present != semantic_fields:
         raise ValueError("query-index manifest has a partial semantic-contract identity")
     if present == semantic_fields:
-        if (
-            index.get("semanticContractId") != admission["semanticContractId"]
-            or required_sha256(
+        manifest_contract = (
+            str(index.get("semanticContractId", "")),
+            required_sha256(
                 index.get("semanticContractSha256"), "query-index semanticContractSha256"
-            )
-            != admission["semanticContractSha256"]
-            or (
-                "semanticContractPath" in index
-                and index.get("semanticContractPath")
-                != "sparql/query-index/semantic-contract.json"
-            )
+            ),
+        )
+        current_contract = (
+            str(admission["semanticContractId"]),
+            str(admission["semanticContractSha256"]),
+        )
+        if (
+            "semanticContractPath" in index
+            and index.get("semanticContractPath")
+            != "sparql/query-index/semantic-contract.json"
         ):
-            raise ValueError("query-index manifest does not match the admitted semantic contract")
+            raise ValueError("query-index manifest has an unexpected semantic-contract path")
+        if manifest_contract == current_contract:
+            admission_mode = "semantic-contract"
+        elif manifest_contract in admission["compatibleSemanticContracts"]:
+            admission_mode = "compatible-semantic-contract"
+        else:
+            raise ValueError(
+                "query-index manifest does not match the admitted or reviewed-compatible semantic contract"
+            )
         implementation = required_sha256(
             index.get("implementationSha256"), "query-index implementationSha256"
         )
@@ -160,7 +209,7 @@ def resolve_query_index_manifest_admission(
         ):
             raise ValueError("query-index manifest has invalid implementation provenance")
         return {
-            "mode": "semantic-contract",
+            "mode": admission_mode,
             "semanticContractId": str(admission["semanticContractId"]),
             "semanticContractSha256": str(admission["semanticContractSha256"]),
             "implementationSha256": implementation,
@@ -448,7 +497,8 @@ SELECT ?indexGraph ?sourceGraph ?game ?season ?assignment ?assignmentType ?team 
   }}
   GRAPH ?indexGraph {{
     ?indexResource a idx:QueryIndex ; idx:sourceGraph ?sourceGraph ; idx:indexedGame ?game ; idx:contractVersion "1" .
-    ?game a idx:GameFact ; idx:season ?season .
+    ?game a idx:GameFact .
+    OPTIONAL {{ ?game idx:season ?season }}
     ?assignment a idx:AssignmentFact ; idx:game ?game ; idx:assignmentType ?assignmentType ; idx:assignee ?team .
     VALUES ?assignmentType {{ <{home}> <{away}> }}
   }}
@@ -483,7 +533,10 @@ def validate_game_team_season_rows(
         if any(
             row.get("sourceGraph") != expected["authoritativeGraph"]
             or row.get("game") != expected["gameIri"]
-            or not re.fullmatch(r"[0-9]{4}", str(row.get("season", "")))
+            or (
+                row.get("season") is not None
+                and not re.fullmatch(r"[0-9]{4}", str(row.get("season", "")))
+            )
             or row.get("assignmentType") not in assignment_types
             or not team_pattern.fullmatch(str(row.get("team", "")))
             or row.get("typedTeam") != row.get("team")

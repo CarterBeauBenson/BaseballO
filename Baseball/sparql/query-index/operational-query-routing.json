@@ -4,18 +4,30 @@
   "evidence": "benchmarks/query-index/corpus-2026-08-03-baseline.json",
   "evidenceTextSha256": "5c41b0b7f383848f2c63793555ee7b9d15670fb699872ffadb967e466ecd7827",
   "semanticAdmission": {
-    "contractId": "baseball-query-index-v1",
+    "contractId": "baseball-query-index-v2",
     "contract": "sparql/query-index/semantic-contract.json",
-    "contractTextSha256": "6955ed9a27854f8e25dded72d13ab845b82d532d78578c6dc7ea8ac77a5abab4",
-    "basis": "accepted compatibility bridge from the preserved benchmark to the unchanged indexed RDF meaning and output-grain contract"
+    "contractTextSha256": "c9960712237307bebe3df60d25b6d03fb7626fddec90e94bdd5bb13d98ae86e1",
+    "basis": "accepted unphased-game extension: every game retains core dimensions while season and Season Phase remain paired and optional when authoritative RDF has no reviewed phase"
+  },
+  "compatibleSemanticContractBridge": {
+    "bridgeVersion": 1,
+    "status": "reviewed-backward-compatible",
+    "compatibleContracts": [
+      {
+        "contractId": "baseball-query-index-v1",
+        "contractTextSha256": "6955ed9a27854f8e25dded72d13ab845b82d532d78578c6dc7ea8ac77a5abab4"
+      }
+    ],
+    "compatibilityReview": "accepted: v1 required season and Season Phase on every GameFact, so every valid v1 GameFact satisfies the relaxed v2 paired-optional rule; v2 adds unphased games without changing any existing fact meaning",
+    "requiredOutputValidation": "Consumers still validate manifest identity, implementation provenance, graph/resource identity, local artifact hash, positive graph counts, and live graph-pair metadata before admitting either contract."
   },
   "legacyManifestBridge": {
     "bridgeVersion": 1,
     "status": "reviewed-fixed",
     "appliesOnlyWhenSemanticFieldsAbsent": true,
     "legacyImplementationField": "contractSha256",
-    "semanticContractId": "baseball-query-index-v1",
-    "semanticContractSha256": "6955ed9a27854f8e25dded72d13ab845b82d532d78578c6dc7ea8ac77a5abab4",
+    "semanticContractId": "baseball-query-index-v2",
+    "semanticContractSha256": "c9960712237307bebe3df60d25b6d03fb7626fddec90e94bdd5bb13d98ae86e1",
     "fixedImplementationSha256": [
       "a573269199d575f513a6481609dd101fd26da113ea8c3daef0b7daae35543629",
       "b966f574263bf0be0e7925e99d4b49175a7056d469b664b7fc5044bda86a16ea",

@@ -57,21 +57,19 @@ shape:GameFactShape
     sh:property shape:DerivedFromProperty ;
     sh:property [
         sh:path idx:season ;
-        sh:minCount 1 ;
         sh:maxCount 1 ;
         sh:datatype xsd:integer ;
-        sh:message "A GameFact must have exactly one integer season."@en
+        sh:message "A GameFact may have at most one integer season."@en
     ] ;
     sh:property [
         sh:path idx:seasonPhase ;
-        sh:minCount 1 ;
         sh:maxCount 1 ;
         sh:nodeKind sh:IRI ;
         sh:in (
             base:BaseballPreseasonPhase base:BaseballRegularSeasonPhase
             base:BaseballPostseasonPhase base:BaseballAllStarPhase
         ) ;
-        sh:message "A GameFact must identify exactly one reviewed current Season Phase class."@en
+        sh:message "A GameFact may identify at most one reviewed current Season Phase class."@en
     ] ;
     sh:property [
         sh:path idx:venue ;
@@ -86,6 +84,17 @@ shape:GameFactShape
         sh:maxCount 1 ;
         sh:datatype xsd:dateTime ;
         sh:message "A GameFact must have exactly one xsd:dateTime start."@en
+    ] ;
+    sh:sparql [
+        sh:message "A GameFact must carry season and Season Phase together or omit both when the authoritative RDF has no reviewed phase."@en ;
+        sh:select """
+            PREFIX idx: <https://w3id.org/baseball/query-index/>
+            SELECT $this WHERE {
+              BIND(EXISTS { $this idx:season ?season } AS ?hasSeason)
+              BIND(EXISTS { $this idx:seasonPhase ?phase } AS ?hasPhase)
+              FILTER (?hasSeason != ?hasPhase)
+            }
+        """
     ] ;
     sh:sparql [
         sh:message "The only GameFact must be the game named by QueryIndex metadata."@en ;

@@ -242,9 +242,8 @@ shape:PlateAppearanceShape
     sh:property [
         sh:path bfo:BFO_0000117 ;
         sh:qualifiedValueShape [ sh:class base:BaseballInstitutionalProcess ] ;
-        sh:qualifiedMinCount 1 ;
         sh:qualifiedMaxCount 1 ;
-        sh:message "A PlateAppearance must contain exactly one terminal institutional result."@en
+        sh:message "A PlateAppearance may contain at most one terminal institutional result; an evidenced incomplete PlateAppearance has none."@en
     ] ;
     sh:property [
         sh:path [ sh:inversePath cco:ont00001808 ] ;

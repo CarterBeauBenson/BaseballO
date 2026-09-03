@@ -14,8 +14,8 @@ from pathlib import Path
 SAFE_IRI_SEGMENT = re.compile(r"^[A-Za-z0-9._~-]+$")
 CONTEXT_KEY = "_baseballO"
 REVIEW_DESCRIPTION = re.compile(
-    r"^(?P<initiator>.+?) (?P<action>challenged|reviewed) \((?P<review_type>[^)]+)\), call on the field was "
-    r"(?P<status>confirmed|overturned|upheld):",
+    r"^(?P<initiator>.+?) (?P<action>challenged|reviewed) \((?P<review_type>[^)]+)\)"
+    r"(?:, call on the field was (?P<status>confirmed|overturned|upheld))?:",
     re.IGNORECASE,
 )
 PITCH_DECISION_BY_CALL_CODE = {
@@ -212,6 +212,168 @@ def final_review_decision(
     return None
 
 
+def reviewed_play_context(
+    play: dict[str, object],
+    pitch_events: list[dict[str, object]],
+    player_ids_by_name: dict[str, str],
+    at_bat_index: str,
+) -> dict[str, object]:
+    """Return only the review claims supported by one reviewed MLB play.
+
+    MLB's pitch-result challenge wording can omit confirmed/overturned status.
+    That absence does not suppress the evidenced challenge, review, or final
+    decision, and it never licenses an invented original decision or outcome.
+    """
+    description = play.get("result", {}).get("description")
+    if not isinstance(description, str):
+        raise ValueError(f"Reviewed play {at_bat_index} has no description")
+    review_match = REVIEW_DESCRIPTION.search(description)
+    if review_match is None:
+        raise ValueError(
+            f"Reviewed play {at_bat_index} has an unrecognized review description"
+        )
+
+    review_type = require_segment(
+        re.sub(
+            r"[^a-z0-9]+",
+            "_",
+            review_match.group("review_type").lower(),
+        ).strip("_"),
+        f"Play {at_bat_index} review type",
+    )
+    review_initiation = (
+        "challenge"
+        if review_match.group("action").lower() == "challenged"
+        else "umpire_review"
+    )
+    context: dict[str, object] = {
+        "hasReview": True,
+        "hasReviewStatus": False,
+        "hasReviewChallengerId": False,
+        "reviewType": review_type,
+        "reviewInitiation": review_initiation,
+    }
+
+    status_text = review_match.group("status")
+    review_status = (
+        require_segment(status_text.lower(), f"Play {at_bat_index} review status")
+        if status_text is not None
+        else None
+    )
+    # A plate appearance can contain more than one review. The play-level
+    # reviewDetails describes the review summarized by the play-level result
+    # narrative; a reviewed pitch earlier in the same plate appearance can be
+    # a separate review with a different outcome. Prefer the matching
+    # play-level evidence and consult pitch-level evidence only when it is
+    # absent, so distinct review acts are never conflated.
+    play_review_details = play.get("reviewDetails")
+    if (
+        isinstance(play_review_details, dict)
+        and isinstance(play_review_details.get("isOverturned"), bool)
+    ):
+        structured_overturns = {play_review_details["isOverturned"]}
+    else:
+        structured_overturns = {
+            event.get("reviewDetails", {}).get("isOverturned")
+            for event in pitch_events
+            if isinstance(event.get("reviewDetails"), dict)
+            and isinstance(event.get("reviewDetails", {}).get("isOverturned"), bool)
+        }
+    if len(structured_overturns) > 1:
+        raise ValueError(
+            f"Reviewed play {at_bat_index} has conflicting structured review outcomes"
+        )
+    if structured_overturns:
+        structured_status = "overturned" if next(iter(structured_overturns)) else "confirmed"
+        if review_status is not None and review_status != structured_status:
+            raise ValueError(
+                f"Reviewed play {at_bat_index} has conflicting narrative and structured review outcomes"
+            )
+        review_status = structured_status
+
+    if review_status is not None:
+        context.update(
+            {
+                "hasReviewStatus": True,
+                "reviewStatus": review_status,
+                "reviewOutcome": (
+                    "overturning" if review_status == "overturned" else "affirming"
+                ),
+            }
+        )
+
+    if review_initiation == "challenge":
+        challenger_name = review_match.group("initiator").strip()
+        challenger_id = player_ids_by_name.get(challenger_name.casefold())
+        if challenger_id is not None:
+            context["hasReviewChallengerId"] = True
+            context["reviewChallengerId"] = require_numeric(
+                challenger_id,
+                f"Play {at_bat_index} review challenger id",
+            )
+
+    final_decision = final_review_decision(review_type, play, pitch_events)
+    if final_decision is not None:
+        context["reviewFinalDecision"] = final_decision
+    if review_status == "overturned":
+        context["hasUnresolvedOriginalDecision"] = True
+    elif review_status is not None and final_decision is not None:
+        context.update(
+            {
+                "reviewOriginalDecision": final_decision,
+                "reviewPattern": f"{final_decision}_to_{final_decision}",
+            }
+        )
+    return context
+
+
+def play_has_plate_appearance_structure(play: dict[str, object]) -> bool:
+    """Whether a provider play contains evidence of a plate appearance.
+
+    A pure administrative advisory is not a plate appearance. An advisory can,
+    however, be appended to an incomplete plate appearance that already
+    contains a real pitch or runner event; those baseball processes retain
+    their plate-appearance context even though no completed result is mapped.
+    """
+    about = play.get("about", {})
+    matchup = play.get("matchup", {})
+    play_events = play.get("playEvents", [])
+    runners = play.get("runners", [])
+    result_event_type = play.get("result", {}).get("eventType")
+    has_baseball_event = bool(
+        runners or any(event.get("isPitch") is True for event in play_events)
+    )
+    return bool(
+        isinstance(about.get("atBatIndex"), int)
+        and matchup.get("batter", {}).get("id") is not None
+        and matchup.get("pitcher", {}).get("id") is not None
+        and (play_events or runners)
+        and (
+            result_event_type not in ADMINISTRATIVE_EVENT_TYPES
+            or has_baseball_event
+        )
+    )
+
+
+def annotate_officials(document: dict[str, object]) -> int:
+    """Add mapping guards without fabricating absent official names."""
+    officials = (
+        document.get("liveData", {}).get("boxscore", {}).get("officials", [])
+    )
+    for position, assignment in enumerate(officials):
+        if CONTEXT_KEY in assignment:
+            raise ValueError(
+                f"Official {position} already contains reserved key {CONTEXT_KEY!r}"
+            )
+        official = assignment.get("official", {})
+        require_numeric(official.get("id"), f"Official {position} official.id")
+        full_name = official.get("fullName")
+        assignment[CONTEXT_KEY] = {
+            "hasOfficialName": isinstance(full_name, str) and bool(full_name.strip())
+        }
+    return len(officials)
+
+
 def main() -> None:
     args = parse_args()
     document = json.loads(args.source.read_text(encoding="utf-8"))
@@ -298,6 +460,7 @@ def main() -> None:
         }
     document[CONTEXT_KEY] = root_context
     player_ids_by_name = unique_player_ids_by_name(document)
+    official_count = annotate_officials(document)
 
     roster_player_count = 0
     boxscore_teams = (
@@ -341,14 +504,11 @@ def main() -> None:
         matchup = play.get("matchup", {})
         result_event_type = play.get("result", {}).get("eventType")
         play_events = play.get("playEvents", [])
+        pitch_events = [
+            event for event in play_events if event.get("isPitch") is True
+        ]
         runners = play.get("runners", [])
-        has_plate_appearance_structure = bool(
-            isinstance(about.get("atBatIndex"), int)
-            and matchup.get("batter", {}).get("id") is not None
-            and matchup.get("pitcher", {}).get("id") is not None
-            and (play_events or runners)
-            and result_event_type not in ADMINISTRATIVE_EVENT_TYPES
-        )
+        has_plate_appearance_structure = play_has_plate_appearance_structure(play)
         has_completed_plate_appearance_result = bool(
             has_plate_appearance_structure
             and about.get("isComplete") is True
@@ -416,56 +576,19 @@ def main() -> None:
             "startBaseOccupancies": start_base_occupancies,
             "hasPlateAppearanceStructure": has_plate_appearance_structure,
             "hasCompletedPlateAppearanceResult": has_completed_plate_appearance_result,
+            "hasReview": False,
             "hasReviewStatus": False,
             "hasReviewChallengerId": False,
         }
         occupied_base_count += len(start_base_occupancies)
-        review_status: str | None = None
         review_type: str | None = None
         review_context: dict[str, object] = {}
         if about.get("hasReview") is True:
-            description = play.get("result", {}).get("description")
-            if not isinstance(description, str):
-                raise ValueError(f"Reviewed play {at_bat_index} has no description")
-            review_match = REVIEW_DESCRIPTION.search(description)
-            if review_match is None:
-                raise ValueError(
-                    f"Reviewed play {at_bat_index} has an unrecognized review description"
-                )
-            review_status = require_segment(
-                review_match.group("status").lower(),
-                f"Play {at_bat_index} review status",
+            review_context = reviewed_play_context(
+                play, pitch_events, player_ids_by_name, at_bat_index
             )
-            review_type = require_segment(
-                re.sub(r"[^a-z0-9]+", "_", review_match.group("review_type").lower()).strip("_"),
-                f"Play {at_bat_index} review type",
-            )
-            review_initiation = (
-                "challenge"
-                if review_match.group("action").lower() == "challenged"
-                else "umpire_review"
-            )
-            review_context.update(
-                {
-                    "hasReviewStatus": True,
-                    "hasReviewChallengerId": False,
-                    "reviewStatus": review_status,
-                    "reviewType": review_type,
-                    "reviewInitiation": review_initiation,
-                    "reviewOutcome": (
-                        "overturning" if review_status == "overturned" else "affirming"
-                    ),
-                }
-            )
-            if review_initiation == "challenge":
-                challenger_name = review_match.group("initiator").strip()
-                challenger_id = player_ids_by_name.get(challenger_name.casefold())
-                if challenger_id is not None:
-                    review_context["hasReviewChallengerId"] = True
-                    review_context["reviewChallengerId"] = require_numeric(
-                        challenger_id,
-                        f"Play {at_bat_index} review challenger id",
-                    )
+            review_type = str(review_context["reviewType"])
+            play_context.update(review_context)
             review_count += 1
 
         events_by_index = {
@@ -577,9 +700,6 @@ def main() -> None:
             runner[CONTEXT_KEY] = runner_context
             runner_count += 1
 
-        pitch_events = [
-            event for event in play_events if event.get("isPitch") is True
-        ]
         if pitch_events:
             terminal_pitch = pitch_events[-1]
             terminal_pitch_id = require_segment(
@@ -622,21 +742,6 @@ def main() -> None:
                 }
             )
             uncaught_third_strike_count += 1
-
-        if review_type is not None and review_status is not None:
-            final_decision = final_review_decision(review_type, play, pitch_events)
-            if final_decision is not None:
-                review_context["reviewFinalDecision"] = final_decision
-            if review_status == "overturned":
-                review_context["hasUnresolvedOriginalDecision"] = True
-            elif final_decision is not None:
-                review_context.update(
-                    {
-                        "reviewOriginalDecision": final_decision,
-                        "reviewPattern": f"{final_decision}_to_{final_decision}",
-                    }
-                )
-            play_context.update(review_context)
 
         play[CONTEXT_KEY] = play_context
 
@@ -736,6 +841,7 @@ def main() -> None:
     )
     print(f"Context pitches: {pitch_count}")
     print(f"Context roster players: {roster_player_count}")
+    print(f"Context officials: {official_count}")
     print(f"Context runners: {runner_count}")
     print(f"Context occupied bases at plate-appearance start: {occupied_base_count}")
     print(f"Context terminal pitches: {terminal_pitch_count}")

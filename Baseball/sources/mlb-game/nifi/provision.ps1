@@ -2,6 +2,9 @@
 param(
     [switch] $RunProof,
     [switch] $RunBackfill,
+    [switch] $RunQuarantineReplay,
+    [switch] $RetryQuarantineProof,
+    [switch] $RetryQuarantineRemainder,
     [switch] $StartDaily,
     [ValidatePattern('^\d+$')][string] $ProofGamePk = '566279'
 )
@@ -40,11 +43,24 @@ if ($maximumAttemptsPerStage -ne 2) {
     throw 'MLB Game work stages must quarantine after two total failed attempts.'
 }
 $maximumRetriesPerStage = $maximumAttemptsPerStage - 1
+$quarantineReplayPolicy = $contract.quarantineReplay
+$quarantineProofGames = @($quarantineReplayPolicy.proofGames)
+if (
+    [string]$quarantineReplayPolicy.releasePolicy -ne 'all-five-exact-input-hashes-promoted-before-remainder' -or
+    [int]$quarantineReplayPolicy.readinessRetryCount -ne 120 -or
+    [string]$quarantineReplayPolicy.readinessRetryDelay -ne '30 sec' -or
+    $quarantineProofGames.Count -ne 5 -or
+    @($quarantineProofGames.gamePk | Sort-Object -Unique).Count -ne 5 -or
+    @($quarantineProofGames | Where-Object { [string]$_.gamePk -notmatch '^\d+$' -or [string]::IsNullOrWhiteSpace([string]$_.reason) }).Count -gt 0
+) {
+    throw 'MLB Game quarantine replay must prove five exact retained inputs before releasing the remainder.'
+}
 $stageScript = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\pipeline\stage.ps1'))
 $scheduleParser = [System.IO.Path]::GetFullPath((Join-Path $repositoryRoot "sources\mlb-game\$([string]$schedule.parser)"))
 $batchMaterializer = [System.IO.Path]::GetFullPath((Join-Path $repositoryRoot "sources\mlb-game\$([string]$contract.batchMaterialization.processor)"))
 $proofReleaseScript = [System.IO.Path]::GetFullPath((Join-Path $repositoryRoot 'scripts\pipeline\check-source-proof-release.py'))
-foreach ($required in @($stageScript, $scheduleParser, $batchMaterializer, $proofReleaseScript)) {
+$quarantineReplayScript = [System.IO.Path]::GetFullPath((Join-Path $repositoryRoot "sources\mlb-game\$([string]$quarantineReplayPolicy.planner)"))
+foreach ($required in @($stageScript, $scheduleParser, $batchMaterializer, $proofReleaseScript, $quarantineReplayScript)) {
     if (-not (Test-Path -LiteralPath $required -PathType Leaf)) {
         throw "MLB Game NiFi executable is missing: $required"
     }
@@ -298,9 +314,10 @@ function Ensure-RetryProcessor(
     [string] $Stage,
     [int] $X,
     [int] $Y,
-    [int] $MaximumRetries = 3
+    [int] $MaximumRetries = 3,
+    [string] $SchedulingPeriod = '1 sec'
 ) {
-    return Ensure-Processor -GroupId $GroupId -Name "Retry $Stage" -Type 'org.apache.nifi.processors.standard.RetryFlowFile' -X $X -Y $Y -AutoTerminate @('failure') -SchedulingPeriod '1 sec' -Properties @{
+    return Ensure-Processor -GroupId $GroupId -Name "Retry $Stage" -Type 'org.apache.nifi.processors.standard.RetryFlowFile' -X $X -Y $Y -AutoTerminate @('failure') -SchedulingPeriod $SchedulingPeriod -Properties @{
         'Retry Attribute' = "retry.$($Stage.ToLowerInvariant().Replace(' ', '-'))"
         'Maximum Retries' = [string]$MaximumRetries
         'Penalize Retries' = 'true'
@@ -337,7 +354,8 @@ foreach ($obsoleteConnection in @(
     'retry Materialization input',
     'retry Cleanup input',
     '01 schedule batch prepared',
-    'proof release failed'
+    'proof release failed',
+    '17 cleanup passed to success'
 )) {
     Remove-ConnectionIfPresent -GroupId $groupId -Name $obsoleteConnection
 }
@@ -399,6 +417,81 @@ $processors.prepareScheduleRequests = Ensure-Processor -GroupId $groupId -Name '
 $processors.splitSchedule = Ensure-Processor -GroupId $groupId -Name 'Split Final Game Requests' -Type 'org.apache.nifi.processors.standard.SplitJson' -X 1600 -Y -420 -AutoTerminate @('original') -Properties @{
     'JsonPath Expression' = [string]$schedule.recordsJsonPath; 'Null Value Representation' = 'empty string'; 'Max String Length' = '20 MB'
 }
+$processors.quarantineReplayRequest = Ensure-Processor -GroupId $groupId -Name 'Quarantine Replay Request' -Type 'org.apache.nifi.processors.standard.GenerateFlowFile' -X 0 -Y -960 -SchedulingPeriod '365 days' -AutoTerminate @() -Properties @{
+    'File Size' = '0B'; 'Batch Size' = '1'; 'Data Format' = 'Text'; 'Unique FlowFiles' = 'false';
+    'Custom Text' = '{}'; 'Character Set' = 'UTF-8'; 'Mime Type' = 'application/json'
+}
+$processors.quarantineProofRetryRequest = Ensure-Processor -GroupId $groupId -Name 'Quarantine Proof Retry Request' -Type 'org.apache.nifi.processors.standard.GenerateFlowFile' -X 0 -Y -1360 -SchedulingPeriod '365 days' -AutoTerminate @() -Properties @{
+    'File Size' = '0B'; 'Batch Size' = '1'; 'Data Format' = 'Text'; 'Unique FlowFiles' = 'false';
+    'Custom Text' = '{}'; 'Character Set' = 'UTF-8'; 'Mime Type' = 'application/json'
+}
+$processors.quarantineRemainderRetryRequest = Ensure-Processor -GroupId $groupId -Name 'Quarantine Remainder Retry Request' -Type 'org.apache.nifi.processors.standard.GenerateFlowFile' -X 0 -Y -1560 -SchedulingPeriod '365 days' -AutoTerminate @() -Properties @{
+    'File Size' = '0B'; 'Batch Size' = '1'; 'Data Format' = 'Text'; 'Unique FlowFiles' = 'false';
+    'Custom Text' = '{}'; 'Character Set' = 'UTF-8'; 'Mime Type' = 'application/json'
+}
+$quarantineProofRetryArguments = "-B;$quarantineReplayScript;--action;emit-latest-proof;--state-root;$script:StateRoot"
+$processors.emitQuarantineProofRetry = Ensure-Processor -GroupId $groupId -Name 'Emit Quarantine Proof Retry' -Type 'org.apache.nifi.processors.standard.ExecuteStreamCommand' -X 320 -Y -1360 -AutoTerminate @('original') -Properties @{
+    'Working Directory' = $repositoryRoot; 'Command Path' = $python; 'Command Arguments Strategy' = 'Command Arguments Property';
+    'Command Arguments' = $quarantineProofRetryArguments; 'Argument Delimiter' = ';'; 'Ignore STDIN' = 'true';
+    'Max Attribute Length' = '65536'; 'Output MIME Type' = 'application/json'
+}
+$quarantineRemainderRetryArguments = "-B;$quarantineReplayScript;--action;emit-latest-remainder;--state-root;$script:StateRoot"
+$processors.emitQuarantineRemainderRetry = Ensure-Processor -GroupId $groupId -Name 'Emit Quarantine Remainder Retry' -Type 'org.apache.nifi.processors.standard.ExecuteStreamCommand' -X 320 -Y -1560 -AutoTerminate @('original') -Properties @{
+    'Working Directory' = $repositoryRoot; 'Command Path' = $python; 'Command Arguments Strategy' = 'Command Arguments Property';
+    'Command Arguments' = $quarantineRemainderRetryArguments; 'Argument Delimiter' = ';'; 'Ignore STDIN' = 'true';
+    'Max Attribute Length' = '65536'; 'Output MIME Type' = 'application/json'
+}
+$quarantinePlanArguments = "-B;$quarantineReplayScript;--action;plan;--state-root;$script:StateRoot;--contract;$contractPath"
+$processors.planQuarantineReplay = Ensure-Processor -GroupId $groupId -Name 'Plan Quarantine Replay' -Type 'org.apache.nifi.processors.standard.ExecuteStreamCommand' -X 320 -Y -960 -AutoTerminate @('original') -Properties @{
+    'Working Directory' = $repositoryRoot; 'Command Path' = $python; 'Command Arguments Strategy' = 'Command Arguments Property';
+    'Command Arguments' = $quarantinePlanArguments; 'Argument Delimiter' = ';'; 'Ignore STDIN' = 'true';
+    'Max Attribute Length' = '65536'; 'Output MIME Type' = 'application/json'
+}
+$processors.splitQuarantinePlan = Ensure-Processor -GroupId $groupId -Name 'Split Quarantine Replay Plan' -Type 'org.apache.nifi.processors.standard.SplitJson' -X 640 -Y -960 -AutoTerminate @('original') -Properties @{
+    'JsonPath Expression' = '$.records[*]'; 'Null Value Representation' = 'empty string'; 'Max String Length' = '20 MB'
+}
+$processors.readQuarantineReplayItem = Ensure-Processor -GroupId $groupId -Name 'Read Quarantine Replay Item' -Type 'org.apache.nifi.processors.standard.EvaluateJsonPath' -X 960 -Y -960 -AutoTerminate @() -Properties @{
+    'Destination' = 'flowfile-attribute'; 'Return Type' = 'auto-detect'; 'Path Not Found Behavior' = 'warn';
+    'Null Value Representation' = 'empty string'; 'Max String Length' = '20 MB';
+    'replay.phase' = '$.phase'; 'game.pk' = '$.gamePk';
+    'quarantine.replay.input.path' = '$.inputPath'; 'quarantine.replay.input.sha256' = '$.inputSha256';
+    'quarantine.replay.plan.path' = '$.planPath'; 'materialize.mode' = '$.materializeMode';
+    'schedule.evidence.path' = '$.scheduleEvidencePath'; 'pipeline.run.id' = '$.pipelineRunId';
+    'quarantine.replay.resolution.mode' = '$.resolutionMode';
+    'quarantine.replay.promotion.evidence' = '$.promotionEvidence'
+}
+$processors.routeQuarantineReplayItem = Ensure-Processor -GroupId $groupId -Name 'Route Quarantine Replay Item' -Type 'org.apache.nifi.processors.standard.RouteOnAttribute' -X 1280 -Y -960 -AutoTerminate @() -Properties @{
+    'Routing Strategy' = 'Route to Property name';
+    'work' = "`${replay.phase:matches('^(proof|remainder)$')}";
+    'gate' = "`${replay.phase:equals('gate')}";
+    'resolve' = "`${replay.phase:equals('resolve-existing')}"
+}
+$processors.nameQuarantineReplayWork = Ensure-Processor -GroupId $groupId -Name 'Name Quarantine Replay Work' -Type 'org.apache.nifi.processors.attributes.UpdateAttribute' -X 1600 -Y -840 -AutoTerminate @() -Properties @{
+    'Delete Attributes Expression' = ''; 'Store State' = 'Do not store state'; 'Stateful Variables Initial Value' = '';
+    'Cache Value Lookup Cache Size' = '100'; 'pipeline.run.id' = "`${uuid:replace('-', '')}"
+}
+$processors.fetchQuarantineInput = Ensure-Processor -GroupId $groupId -Name 'Fetch Quarantine Input' -Type 'org.apache.nifi.processors.standard.FetchFile' -X 1920 -Y -840 -AutoTerminate @() -Properties @{
+    'File to Fetch' = '${quarantine.replay.input.path}'; 'Completion Strategy' = 'None'
+}
+$quarantineProofArguments = "-B;$quarantineReplayScript;--action;check-proof;--state-root;$script:StateRoot;--plan;`${quarantine.replay.plan.path}"
+$processors.checkQuarantineProof = Ensure-Processor -GroupId $groupId -Name 'Check Quarantine Replay Proof' -Type 'org.apache.nifi.processors.standard.ExecuteStreamCommand' -X 1600 -Y -1080 -AutoTerminate @('output stream', 'nonzero status') -Properties @{
+    'Working Directory' = $repositoryRoot; 'Command Path' = $python; 'Command Arguments Strategy' = 'Command Arguments Property';
+    'Command Arguments' = $quarantineProofArguments; 'Argument Delimiter' = ';'; 'Ignore STDIN' = 'true';
+    'Output Destination Attribute' = 'quarantine.replay.proof.output'; 'Max Attribute Length' = '65536'; 'Output MIME Type' = 'application/json'
+}
+$quarantineRemainderArguments = "-B;$quarantineReplayScript;--action;emit-remainder;--state-root;$script:StateRoot;--plan;`${quarantine.replay.plan.path}"
+$processors.emitQuarantineRemainder = Ensure-Processor -GroupId $groupId -Name 'Emit Quarantine Replay Remainder' -Type 'org.apache.nifi.processors.standard.ExecuteStreamCommand' -X 2240 -Y -1080 -AutoTerminate @('original') -Properties @{
+    'Working Directory' = $repositoryRoot; 'Command Path' = $python; 'Command Arguments Strategy' = 'Command Arguments Property';
+    'Command Arguments' = $quarantineRemainderArguments; 'Argument Delimiter' = ';'; 'Ignore STDIN' = 'true';
+    'Max Attribute Length' = '65536'; 'Output MIME Type' = 'application/json'
+}
+$processors.splitQuarantineRemainder = Ensure-Processor -GroupId $groupId -Name 'Split Quarantine Replay Remainder' -Type 'org.apache.nifi.processors.standard.SplitJson' -X 2560 -Y -1080 -AutoTerminate @('original') -Properties @{
+    'JsonPath Expression' = '$.records[*]'; 'Null Value Representation' = 'empty string'; 'Max String Length' = '20 MB'
+}
+$processors.quarantineReplayControlFailure = Ensure-Processor -GroupId $groupId -Name 'Record Quarantine Replay Control Failure' -Type 'org.apache.nifi.processors.standard.LogAttribute' -X 1920 -Y -1240 -AutoTerminate @('success') -Properties @{
+    'Log Level' = 'error'; 'Log Payload' = 'false'; 'Attributes to Log Regular Expression' = '^(execution|quarantine\.replay|replay)\..*$';
+    'Log FlowFile Properties' = 'true'; 'Output Format' = 'Line per Attribute'; 'Log Prefix' = 'BaseballO MLB Game quarantine replay control failure'; 'Character Set' = 'UTF-8'
+}
 $processors.http = Ensure-Processor -GroupId $groupId -Name 'Acquire MLB Game' -Type 'org.apache.nifi.processors.standard.InvokeHTTP' -X 640 -Y 0 -AutoTerminate @('Original') -Properties @{
     'HTTP Method' = 'GET'; 'HTTP URL' = 'https://statsapi.mlb.com/api/v1.1/game/${game.pk}/feed/live';
     'HTTP/2 Disabled' = 'False'; 'Connection Timeout' = '15 secs'; 'Socket Read Timeout' = '60 secs';
@@ -432,7 +525,18 @@ $processors.chooseMaterialization = Ensure-Processor -GroupId $groupId -Name 'Ch
 }
 $processors.materialize = Ensure-StageProcessor -GroupId $groupId -Name 'Materialize SQL' -Action 'materialize' -NeedsInput $false -X 3200 -Y 0
 $processors.cleanup = Ensure-StageProcessor -GroupId $groupId -Name 'Cleanup Transient Artifacts' -Action 'cleanup' -NeedsInput $true -X 3520 -Y 0
-$processors.success = Ensure-Processor -GroupId $groupId -Name 'Record Success' -Type 'org.apache.nifi.processors.standard.LogAttribute' -X 3840 -Y 0 -AutoTerminate @('success') -Properties @{
+$processors.chooseQuarantineResolution = Ensure-Processor -GroupId $groupId -Name 'Choose Quarantine Resolution' -Type 'org.apache.nifi.processors.standard.RouteOnAttribute' -X 3840 -Y 0 -AutoTerminate @() -Properties @{
+    'Routing Strategy' = 'Route to Property name';
+    'ordinary' = "`${quarantine.replay.input.path:isEmpty()}";
+    'replay' = "`${quarantine.replay.input.path:isEmpty():not()}"
+}
+$quarantineResolveArguments = "-B;$quarantineReplayScript;--action;resolve;--state-root;$script:StateRoot;--plan;`${quarantine.replay.plan.path};--game-pk;`${game.pk};--input;`${quarantine.replay.input.path};--input-sha256;`${quarantine.replay.input.sha256};--resolution-mode;`${quarantine.replay.resolution.mode};--promotion-evidence;`${quarantine.replay.promotion.evidence}"
+$processors.resolveQuarantineReplay = Ensure-Processor -GroupId $groupId -Name 'Resolve Quarantine Replay' -Type 'org.apache.nifi.processors.standard.ExecuteStreamCommand' -X 4160 -Y 160 -AutoTerminate @('output stream', 'nonzero status') -Properties @{
+    'Working Directory' = $repositoryRoot; 'Command Path' = $python; 'Command Arguments Strategy' = 'Command Arguments Property';
+    'Command Arguments' = $quarantineResolveArguments; 'Argument Delimiter' = ';'; 'Ignore STDIN' = 'true';
+    'Output Destination Attribute' = 'quarantine.replay.resolve.output'; 'Max Attribute Length' = '65536'; 'Output MIME Type' = 'application/json'
+}
+$processors.success = Ensure-Processor -GroupId $groupId -Name 'Record Success' -Type 'org.apache.nifi.processors.standard.LogAttribute' -X 4480 -Y 0 -AutoTerminate @('success') -Properties @{
     'Log Level' = 'info'; 'Log Payload' = 'false'; 'Attributes to Log Regular Expression' = '^(game|pipeline|stage|transient)\..*$';
     'Log FlowFile Properties' = 'true'; 'Output Format' = 'Line per Attribute'; 'Log Prefix' = 'BaseballO MLB Game success'; 'Character Set' = 'UTF-8'
 }
@@ -462,7 +566,10 @@ $exitGates = [ordered]@{
     'Cleanup' = Ensure-ExitGate $groupId 'Cleanup' 3680 150
     'Batch Materialization' = Ensure-ExitGate $groupId 'Batch Materialization' 3440 -520
     'Proof Release' = Ensure-ExitGate $groupId 'Proof Release' 1040 -580
+    'Quarantine Proof' = Ensure-ExitGate $groupId 'Quarantine Proof' 1920 -1080
+    'Quarantine Resolution' = Ensure-ExitGate $groupId 'Quarantine Resolution' 4320 160
 }
+$processors.quarantineProofWait = Ensure-RetryProcessor -GroupId $groupId -Stage 'Quarantine Proof Readiness' -X 1760 -Y -1240 -MaximumRetries ([int]$quarantineReplayPolicy.readinessRetryCount) -SchedulingPeriod ([string]$quarantineReplayPolicy.readinessRetryDelay)
 
 $stageProcessors = [ordered]@{
     'Schedule HTTP' = $processors.scheduleHttp
@@ -474,6 +581,7 @@ $stageProcessors = [ordered]@{
     'Promotion' = $processors.promote
     'Materialization' = $processors.materialize
     'Cleanup' = $processors.cleanup
+    'Quarantine Resolution' = $processors.resolveQuarantineReplay
 }
 $retrySourceProcessors = @{
     'Schedule HTTP' = $processors.scheduleHttp
@@ -485,6 +593,7 @@ $retrySourceProcessors = @{
     'Promotion' = $exitGates.Promotion
     'Materialization' = $exitGates.Materialization
     'Cleanup' = $exitGates.Cleanup
+    'Quarantine Resolution' = $exitGates['Quarantine Resolution']
 }
 $retryProcessors = @{}
 $failureProcessors = @{}
@@ -499,6 +608,8 @@ foreach ($stage in @('Request', 'Response', 'Eligibility', 'Schedule Request', '
     $failureProcessors[$stage] = Ensure-FailureStageProcessor -GroupId $groupId -Stage $stage -X $retryX -Y 560
     $retryX += 240
 }
+$failureProcessors['Replay Fetch'] = Ensure-FailureStageProcessor -GroupId $groupId -Stage 'Replay Fetch' -X $retryX -Y 560
+$failureProcessors['Quarantine Resolution Choice'] = Ensure-FailureStageProcessor -GroupId $groupId -Stage 'Quarantine Resolution Choice' -X ($retryX + 240) -Y 560
 
 $processors.quarantine = Ensure-Processor -GroupId $groupId -Name 'Quarantine' -Type 'org.apache.nifi.processors.standard.ExecuteStreamCommand' -X 2400 -Y 820 -AutoTerminate @('original', 'output stream', 'nonzero status') -Properties @{
     'Working Directory' = $repositoryRoot; 'Command Path' = $powershell; 'Command Arguments Strategy' = 'Command Arguments Property';
@@ -521,6 +632,35 @@ $processors.scheduleQuarantineFailure = Ensure-Processor -GroupId $groupId -Name
 }
 
 Ensure-Connection -GroupId $groupId -Name '01 proof to request reader' -SourceId $processors.request -DestinationId $processors.readRequest -Relationships @('success') | Out-Null
+Ensure-Connection -GroupId $groupId -Name 'quarantine replay requested' -SourceId $processors.quarantineReplayRequest -DestinationId $processors.planQuarantineReplay -Relationships @('success') | Out-Null
+Ensure-Connection -GroupId $groupId -Name 'quarantine proof retry requested' -SourceId $processors.quarantineProofRetryRequest -DestinationId $processors.emitQuarantineProofRetry -Relationships @('success') | Out-Null
+Ensure-Connection -GroupId $groupId -Name 'quarantine proof retry emitted' -SourceId $processors.emitQuarantineProofRetry -DestinationId $processors.splitQuarantinePlan -Relationships @('output stream') | Out-Null
+Ensure-Connection -GroupId $groupId -Name 'quarantine proof retry failed' -SourceId $processors.emitQuarantineProofRetry -DestinationId $processors.quarantineReplayControlFailure -Relationships @('nonzero status') | Out-Null
+Ensure-Connection -GroupId $groupId -Name 'quarantine remainder retry requested' -SourceId $processors.quarantineRemainderRetryRequest -DestinationId $processors.emitQuarantineRemainderRetry -Relationships @('success') | Out-Null
+Ensure-Connection -GroupId $groupId -Name 'quarantine remainder retry emitted' -SourceId $processors.emitQuarantineRemainderRetry -DestinationId $processors.splitQuarantinePlan -Relationships @('output stream') | Out-Null
+Ensure-Connection -GroupId $groupId -Name 'quarantine remainder retry failed' -SourceId $processors.emitQuarantineRemainderRetry -DestinationId $processors.quarantineReplayControlFailure -Relationships @('nonzero status') | Out-Null
+Ensure-Connection -GroupId $groupId -Name 'quarantine replay plan emitted' -SourceId $processors.planQuarantineReplay -DestinationId $processors.splitQuarantinePlan -Relationships @('output stream') | Out-Null
+Ensure-Connection -GroupId $groupId -Name 'quarantine replay plan failed' -SourceId $processors.planQuarantineReplay -DestinationId $processors.quarantineReplayControlFailure -Relationships @('nonzero status') | Out-Null
+Ensure-Connection -GroupId $groupId -Name 'quarantine replay plan split' -SourceId $processors.splitQuarantinePlan -DestinationId $processors.readQuarantineReplayItem -Relationships @('split') | Out-Null
+Ensure-Connection -GroupId $groupId -Name 'quarantine replay plan split failed' -SourceId $processors.splitQuarantinePlan -DestinationId $processors.quarantineReplayControlFailure -Relationships @('failure') | Out-Null
+Ensure-Connection -GroupId $groupId -Name 'quarantine replay item read' -SourceId $processors.readQuarantineReplayItem -DestinationId $processors.routeQuarantineReplayItem -Relationships @('matched') | Out-Null
+Ensure-Connection -GroupId $groupId -Name 'quarantine replay item invalid' -SourceId $processors.readQuarantineReplayItem -DestinationId $processors.quarantineReplayControlFailure -Relationships @('failure', 'unmatched') | Out-Null
+Ensure-Connection -GroupId $groupId -Name 'quarantine replay work selected' -SourceId $processors.routeQuarantineReplayItem -DestinationId $processors.nameQuarantineReplayWork -Relationships @('work') | Out-Null
+Ensure-Connection -GroupId $groupId -Name 'quarantine replay gate selected' -SourceId $processors.routeQuarantineReplayItem -DestinationId $processors.checkQuarantineProof -Relationships @('gate') | Out-Null
+Ensure-Connection -GroupId $groupId -Name 'quarantine replay existing resolution selected' -SourceId $processors.routeQuarantineReplayItem -DestinationId $processors.resolveQuarantineReplay -Relationships @('resolve') | Out-Null
+Ensure-Connection -GroupId $groupId -Name 'quarantine replay phase invalid' -SourceId $processors.routeQuarantineReplayItem -DestinationId $processors.quarantineReplayControlFailure -Relationships @('unmatched') | Out-Null
+Ensure-Connection -GroupId $groupId -Name 'quarantine replay work named' -SourceId $processors.nameQuarantineReplayWork -DestinationId $processors.fetchQuarantineInput -Relationships @('success') | Out-Null
+Ensure-Connection -GroupId $groupId -Name 'quarantine input fetched' -SourceId $processors.fetchQuarantineInput -DestinationId $processors.readResponse -Relationships @('success') | Out-Null
+Ensure-Connection -GroupId $groupId -Name 'quarantine input fetch failed' -SourceId $processors.fetchQuarantineInput -DestinationId $failureProcessors['Replay Fetch'] -Relationships @('failure', 'not.found', 'permission.denied') | Out-Null
+Ensure-Connection -GroupId $groupId -Name 'quarantine proof command to exit gate' -SourceId $processors.checkQuarantineProof -DestinationId $exitGates['Quarantine Proof'] -Relationships @('original') | Out-Null
+Ensure-Connection -GroupId $groupId -Name 'quarantine proof awaiting completion' -SourceId $exitGates['Quarantine Proof'] -DestinationId $processors.quarantineProofWait -Relationships @('unmatched') | Out-Null
+Ensure-Connection -GroupId $groupId -Name 'quarantine proof readiness retry' -SourceId $processors.quarantineProofWait -DestinationId $processors.checkQuarantineProof -Relationships @('retry') | Out-Null
+Ensure-Connection -GroupId $groupId -Name 'quarantine proof readiness exhausted' -SourceId $processors.quarantineProofWait -DestinationId $processors.quarantineReplayControlFailure -Relationships @('retries_exceeded') | Out-Null
+Ensure-Connection -GroupId $groupId -Name 'quarantine proof releases remainder' -SourceId $exitGates['Quarantine Proof'] -DestinationId $processors.emitQuarantineRemainder -Relationships @('passed') | Out-Null
+Ensure-Connection -GroupId $groupId -Name 'quarantine remainder emitted' -SourceId $processors.emitQuarantineRemainder -DestinationId $processors.splitQuarantineRemainder -Relationships @('output stream') | Out-Null
+Ensure-Connection -GroupId $groupId -Name 'quarantine remainder emission failed' -SourceId $processors.emitQuarantineRemainder -DestinationId $processors.quarantineReplayControlFailure -Relationships @('nonzero status') | Out-Null
+Ensure-Connection -GroupId $groupId -Name 'quarantine remainder split' -SourceId $processors.splitQuarantineRemainder -DestinationId $processors.readQuarantineReplayItem -Relationships @('split') | Out-Null
+Ensure-Connection -GroupId $groupId -Name 'quarantine remainder split failed' -SourceId $processors.splitQuarantineRemainder -DestinationId $processors.quarantineReplayControlFailure -Relationships @('failure') | Out-Null
 Ensure-Connection -GroupId $groupId -Name '01 backfill to schedule reader' -SourceId $processors.backfillRequest -DestinationId $processors.readScheduleRequest -Relationships @('success') | Out-Null
 Ensure-Connection -GroupId $groupId -Name '01 schedule request parsed' -SourceId $processors.readScheduleRequest -DestinationId $processors.prepareSchedule -Relationships @('matched') | Out-Null
 Ensure-Connection -GroupId $groupId -Name '01 daily schedule to preparation' -SourceId $processors.dailyRequest -DestinationId $processors.prepareDailySchedule -Relationships @('success') | Out-Null
@@ -548,7 +688,12 @@ Ensure-Connection -GroupId $groupId -Name '13 deferred materialization selected'
 Ensure-Connection -GroupId $groupId -Name '14 materialization command to exit gate' -SourceId $processors.materialize -DestinationId $exitGates.Materialization -Relationships @('original') | Out-Null
 Ensure-Connection -GroupId $groupId -Name '15 materialization passed to cleanup' -SourceId $exitGates.Materialization -DestinationId $processors.cleanup -Relationships @('passed') | Out-Null
 Ensure-Connection -GroupId $groupId -Name '16 cleanup command to exit gate' -SourceId $processors.cleanup -DestinationId $exitGates.Cleanup -Relationships @('original') | Out-Null
-Ensure-Connection -GroupId $groupId -Name '17 cleanup passed to success' -SourceId $exitGates.Cleanup -DestinationId $processors.success -Relationships @('passed') | Out-Null
+Ensure-Connection -GroupId $groupId -Name '17 cleanup passed to quarantine-resolution choice' -SourceId $exitGates.Cleanup -DestinationId $processors.chooseQuarantineResolution -Relationships @('passed') | Out-Null
+Ensure-Connection -GroupId $groupId -Name '18 ordinary work completed' -SourceId $processors.chooseQuarantineResolution -DestinationId $processors.success -Relationships @('ordinary') | Out-Null
+Ensure-Connection -GroupId $groupId -Name '18 replay selected for resolution' -SourceId $processors.chooseQuarantineResolution -DestinationId $processors.resolveQuarantineReplay -Relationships @('replay') | Out-Null
+Ensure-Connection -GroupId $groupId -Name '18 invalid quarantine-resolution choice' -SourceId $processors.chooseQuarantineResolution -DestinationId $failureProcessors['Quarantine Resolution Choice'] -Relationships @('unmatched') | Out-Null
+Ensure-Connection -GroupId $groupId -Name '19 quarantine resolution command to exit gate' -SourceId $processors.resolveQuarantineReplay -DestinationId $exitGates['Quarantine Resolution'] -Relationships @('original') | Out-Null
+Ensure-Connection -GroupId $groupId -Name '20 quarantine replay resolved' -SourceId $exitGates['Quarantine Resolution'] -DestinationId $processors.success -Relationships @('passed') | Out-Null
 Ensure-Connection -GroupId $groupId -Name 'batch materialization trigger' -SourceId $processors.batchMaterializationTrigger -DestinationId $processors.batchMaterialize -Relationships @('success') | Out-Null
 Ensure-Connection -GroupId $groupId -Name 'batch materialization command to exit gate' -SourceId $processors.batchMaterialize -DestinationId $exitGates['Batch Materialization'] -Relationships @('original') | Out-Null
 Ensure-Connection -GroupId $groupId -Name 'batch materialization passed' -SourceId $exitGates['Batch Materialization'] -DestinationId $processors.batchMaterializationResult -Relationships @('passed') | Out-Null
@@ -564,6 +709,7 @@ $retryRelationships = @{
     'Promotion' = @('unmatched')
     'Materialization' = @('unmatched')
     'Cleanup' = @('unmatched')
+    'Quarantine Resolution' = @('unmatched')
 }
 foreach ($entry in $stageProcessors.GetEnumerator()) {
     $stage = $entry.Key
@@ -581,6 +727,8 @@ foreach ($entry in $stageProcessors.GetEnumerator()) {
 
 Ensure-Connection -GroupId $groupId -Name 'Schedule HTTP no retry' -SourceId $processors.scheduleHttp -DestinationId $failureProcessors['Schedule HTTP'] -Relationships @('No Retry') | Out-Null
 Ensure-Connection -GroupId $groupId -Name 'HTTP no retry' -SourceId $processors.http -DestinationId $failureProcessors['HTTP'] -Relationships @('No Retry') | Out-Null
+Ensure-Connection -GroupId $groupId -Name 'fail Replay Fetch to quarantine' -SourceId $failureProcessors['Replay Fetch'] -DestinationId $processors.quarantine -Relationships @('success') | Out-Null
+Ensure-Connection -GroupId $groupId -Name 'fail Quarantine Resolution Choice to quarantine' -SourceId $failureProcessors['Quarantine Resolution Choice'] -DestinationId $processors.quarantine -Relationships @('success') | Out-Null
 Ensure-Connection -GroupId $groupId -Name 'request parse failure' -SourceId $processors.readRequest -DestinationId $failureProcessors['Request'] -Relationships @('failure', 'unmatched') | Out-Null
 Ensure-Connection -GroupId $groupId -Name 'schedule request parse failure' -SourceId $processors.readScheduleRequest -DestinationId $failureProcessors['Schedule Request'] -Relationships @('failure', 'unmatched') | Out-Null
 Ensure-Connection -GroupId $groupId -Name 'schedule split failure' -SourceId $processors.splitSchedule -DestinationId $failureProcessors['Schedule Split'] -Relationships @('failure') | Out-Null
@@ -604,14 +752,21 @@ $unexpectedProcessors = @($flow.processors | Where-Object { $_.component.name -n
     'Proof Request','Backfill Schedule Request','Read Schedule Request','Daily 05:00 Eastern Schedule',
     'Prepare Daily Schedule Request','Prepare Schedule Batch','Acquire MLB Schedule','Prepare Final Game Requests',
     'Check Proof Release','Require Proof Release Success',
+    'Quarantine Replay Request','Plan Quarantine Replay','Split Quarantine Replay Plan','Read Quarantine Replay Item',
+    'Quarantine Proof Retry Request','Emit Quarantine Proof Retry',
+    'Quarantine Remainder Retry Request','Emit Quarantine Remainder Retry',
+    'Route Quarantine Replay Item','Name Quarantine Replay Work','Fetch Quarantine Input','Check Quarantine Replay Proof',
+    'Require Quarantine Proof Success','Retry Quarantine Proof Readiness','Emit Quarantine Replay Remainder',
+    'Split Quarantine Replay Remainder','Record Quarantine Replay Control Failure',
     'Split Final Game Requests','Read Request','Acquire MLB Game','Read MLB Response','Require Final Game','Name Transient Payload',
     'Write Transient Payload','RML','Source SHACL','Promote Graph Pair','Materialize SQL','Cleanup Transient Artifacts',
+    'Choose Quarantine Resolution','Resolve Quarantine Replay','Require Quarantine Resolution Success',
     'Choose Materialization Mode','Check Pending Batch Materialization','Materialize Ready Schedule Batches',
     'Record Batch Materialization Result','Record Batch Materialization Failure','Require Batch Materialization Success',
     'Require RML Success','Require SHACL Success','Require Promotion Success','Require Materialization Success','Require Cleanup Success',
     'Record Success','Retry HTTP','Retry Write Payload','Retry RML','Retry SHACL','Retry Promotion','Retry Materialization',
     'Retry Cleanup','Retry Schedule HTTP','Retry Schedule Parse','Fail HTTP','Fail Write Payload','Fail RML','Fail SHACL',
-    'Fail Promotion','Fail Materialization','Fail Cleanup','Fail Schedule HTTP','Fail Schedule Parse',
+    'Retry Quarantine Resolution','Fail Promotion','Fail Materialization','Fail Cleanup','Fail Quarantine Resolution','Fail Replay Fetch','Fail Quarantine Resolution Choice','Fail Schedule HTTP','Fail Schedule Parse',
     'Fail Request','Fail Response','Fail Eligibility','Fail Schedule Request','Fail Schedule Split','Fail Materialization Mode','Fail Proof Release',
     'Quarantine','Name Schedule Quarantine','Write Schedule Quarantine','Record Schedule Quarantine Failure',
     'Retry Proof Release Readiness'
@@ -632,12 +787,15 @@ if ($invalid.Count -gt 0) {
     throw "NiFi MLB Game flow has invalid processors:`n$($invalid -join "`n")"
 }
 
-if ($RunProof -or $RunBackfill -or $StartDaily) {
+if ($RunProof -or $RunBackfill -or $RunQuarantineReplay -or $RetryQuarantineProof -or $RetryQuarantineRemainder -or $StartDaily) {
     $requestProcessorIds = @(
         $processors.request,
         $processors.backfillRequest,
         $processors.dailyRequest,
-        $processors.batchMaterializationTrigger
+        $processors.batchMaterializationTrigger,
+        $processors.quarantineReplayRequest,
+        $processors.quarantineProofRetryRequest,
+        $processors.quarantineRemainderRetryRequest
     )
     foreach ($summary in @((Get-GroupFlow -GroupId $groupId).processors | Where-Object { $_.id -notin $requestProcessorIds })) {
         $entity = Invoke-NiFi -Method GET -Path "/processors/$($summary.id)"
@@ -677,6 +835,27 @@ if ($RunProof -or $RunBackfill -or $StartDaily) {
             revision = @{ version = $backfillEntity.revision.version }; state = 'RUN_ONCE'; disconnectedNodeAcknowledged = $false
         } | Out-Null
         Write-Host 'Submitted one asynchronous MLB Game schedule backfill.'
+    }
+    if ($RunQuarantineReplay) {
+        $replayEntity = Invoke-NiFi -Method GET -Path "/processors/$($processors.quarantineReplayRequest)"
+        Invoke-NiFi -Method PUT -Path "/processors/$($processors.quarantineReplayRequest)/run-status" -Body @{
+            revision = @{ version = $replayEntity.revision.version }; state = 'RUN_ONCE'; disconnectedNodeAcknowledged = $false
+        } | Out-Null
+        Write-Host 'Submitted the asynchronous five-game quarantine proof; NiFi will release the recorded remainder only after all five exact payload hashes promote.'
+    }
+    if ($RetryQuarantineProof) {
+        $retryEntity = Invoke-NiFi -Method GET -Path "/processors/$($processors.quarantineProofRetryRequest)"
+        Invoke-NiFi -Method PUT -Path "/processors/$($processors.quarantineProofRetryRequest)/run-status" -Body @{
+            revision = @{ version = $retryEntity.revision.version }; state = 'RUN_ONCE'; disconnectedNodeAcknowledged = $false
+        } | Out-Null
+        Write-Host 'Resubmitted only the five proof payloads for the existing quarantine replay plan.'
+    }
+    if ($RetryQuarantineRemainder) {
+        $retryEntity = Invoke-NiFi -Method GET -Path "/processors/$($processors.quarantineRemainderRetryRequest)"
+        Invoke-NiFi -Method PUT -Path "/processors/$($processors.quarantineRemainderRetryRequest)/run-status" -Body @{
+            revision = @{ version = $retryEntity.revision.version }; state = 'RUN_ONCE'; disconnectedNodeAcknowledged = $false
+        } | Out-Null
+        Write-Host 'Resubmitted only unresolved remainder payloads from the latest matching quarantine replay plan.'
     }
 }
 else {

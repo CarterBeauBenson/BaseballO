@@ -79,6 +79,16 @@ $dcterms = 'http://purl.org/dc/terms/'
 $rdfs = 'http://www.w3.org/2000/01/rdf-schema#'
 $xsd = 'http://www.w3.org/2001/XMLSchema#'
 
+Assert-EquivalentRows -Name 'Game core dimensions' -Variables @('game', 'venue', 'gameStart') -FullPattern @"
+  VALUES ?game { <$gameIri> }
+  ?game a <${base}BaseballGame> ; <${cco}ont00001918> ?field ; <${obo}BFO_0000199>/<${obo}BFO_0000222> ?startInstant .
+  ?timestamp a <${base}BaseballTimestampICE> ; <${cco}ont00001916> ?startInstant ; <${cco}ont00001767> ?gameStart .
+  ?field a <${base}BaseballFieldSite> ; <${obo}BFO_0000171> ?venue .
+"@ -IndexPattern @"
+  VALUES ?game { <$gameIri> }
+  ?game a <${idx}GameFact> ; <${idx}venue> ?venue ; <${idx}gameStart> ?gameStart .
+"@
+
 Assert-EquivalentRows -Name 'Game dimensions' -Variables @('game', 'season', 'seasonPhase', 'venue') -FullPattern @"
   VALUES ?game { <$gameIri> }
   ?game a <${base}BaseballGame> ; <${cco}ont00001918> ?field ; <${obo}BFO_0000199>/<${obo}BFO_0000222> ?startInstant .

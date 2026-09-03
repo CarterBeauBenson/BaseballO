@@ -67,6 +67,24 @@ function Get-QueryIndexSemanticAdmission {
     ) {
         throw 'Operational routing does not admit the exact query-index semantic contract.'
     }
+    $compatibilityBridge = $routing.compatibleSemanticContractBridge
+    $compatibleContracts = @($compatibilityBridge.compatibleContracts)
+    if (
+        $null -eq $compatibilityBridge -or
+        [int]$compatibilityBridge.bridgeVersion -ne 1 -or
+        [string]$compatibilityBridge.status -ne 'reviewed-backward-compatible' -or
+        $compatibleContracts.Count -lt 1 -or
+        @($compatibleContracts | Where-Object {
+            [string]$_.contractId -notmatch '^baseball-query-index-v[1-9][0-9]*$' -or
+            [string]$_.contractId -eq [string]$contract.semanticContractId -or
+            [string]$_.contractTextSha256 -notmatch '^[0-9a-f]{64}$'
+        }).Count -gt 0 -or
+        @($compatibleContracts | ForEach-Object { "$([string]$_.contractId)|$([string]$_.contractTextSha256)" } | Sort-Object -Unique).Count -ne $compatibleContracts.Count -or
+        [string]::IsNullOrWhiteSpace([string]$compatibilityBridge.compatibilityReview) -or
+        [string]::IsNullOrWhiteSpace([string]$compatibilityBridge.requiredOutputValidation)
+    ) {
+        throw 'Operational routing has no valid reviewed backward-compatible semantic-contract bridge.'
+    }
     return [PSCustomObject]@{
         ContractId = [string]$contract.semanticContractId
         ContractPath = $relativeContractPath
@@ -74,6 +92,7 @@ function Get-QueryIndexSemanticAdmission {
         Contract = $contract
         Routing = $routing
         RoutingPath = $routingPath
+        CompatibleContracts = $compatibleContracts
     }
 }
 
@@ -123,13 +142,6 @@ function Resolve-QueryIndexManifestAdmission {
 
     if ($presentSemanticFields.Count -eq $semanticFields.Count) {
         if (
-            [string]$Manifest.semanticContractId -ne $admission.ContractId -or
-            [string]$Manifest.semanticContractSha256 -ne $admission.ContractSha256 -or
-            ('semanticContractPath' -in $propertyNames -and [string]$Manifest.semanticContractPath -ne $admission.ContractPath)
-        ) {
-            throw 'Query-index manifest does not match the admitted semantic contract.'
-        }
-        if (
             'implementationSha256' -notin $propertyNames -or
             [string]$Manifest.implementationSha256 -notmatch '^[0-9a-f]{64}$' -or
             [string]$Manifest.implementationFingerprintAlgorithm -ne 'query-index-generation-file-set-v1' -or
@@ -137,8 +149,28 @@ function Resolve-QueryIndexManifestAdmission {
         ) {
             throw 'Query-index manifest has invalid implementation provenance.'
         }
+        if ('semanticContractPath' -in $propertyNames -and [string]$Manifest.semanticContractPath -ne $admission.ContractPath) {
+            throw 'Query-index manifest has an unexpected semantic-contract path.'
+        }
+        $mode = $null
+        if (
+            [string]$Manifest.semanticContractId -eq $admission.ContractId -and
+            [string]$Manifest.semanticContractSha256 -eq $admission.ContractSha256
+        ) {
+            $mode = 'semantic-contract'
+        }
+        else {
+            $compatible = @($admission.CompatibleContracts | Where-Object {
+                [string]$_.contractId -eq [string]$Manifest.semanticContractId -and
+                [string]$_.contractTextSha256 -eq [string]$Manifest.semanticContractSha256
+            })
+            if ($compatible.Count -ne 1) {
+                throw 'Query-index manifest does not match the admitted or reviewed-compatible semantic contract.'
+            }
+            $mode = 'compatible-semantic-contract'
+        }
         return [PSCustomObject]@{
-            Mode = 'semantic-contract'
+            Mode = $mode
             SemanticContractId = $admission.ContractId
             SemanticContractSha256 = $admission.ContractSha256
             ImplementationSha256 = [string]$Manifest.implementationSha256

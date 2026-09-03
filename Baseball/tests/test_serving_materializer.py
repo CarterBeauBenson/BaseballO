@@ -21,6 +21,7 @@ SPEC.loader.exec_module(MODULE)
 
 A573 = "a573269199d575f513a6481609dd101fd26da113ea8c3daef0b7daae35543629"
 B966 = "b966f574263bf0be0e7925e99d4b49175a7056d469b664b7fc5044bda86a16ea"
+V1_SEMANTIC = "6955ed9a27854f8e25dded72d13ab845b82d532d78578c6dc7ea8ac77a5abab4"
 
 
 def digest(value: str) -> str:
@@ -283,6 +284,31 @@ class ServingMaterializerTests(unittest.TestCase):
                 [unreviewed_implementation],
             )
 
+    def test_inventory_accepts_reviewed_backward_compatible_v1_manifest(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            state = Path(temporary)
+            marker = make_promotion(
+                state,
+                "1",
+                digest("v1-generator-implementation"),
+                semantic_contract=True,
+            )
+            index_path = state / "pipeline" / "manifests" / "game-1-query-index.json"
+            index = json.loads(index_path.read_text(encoding="utf-8"))
+            index["semanticContractId"] = "baseball-query-index-v1"
+            index["semanticContractSha256"] = V1_SEMANTIC
+            write_json(index_path, index)
+            marker_value = json.loads(marker.read_text(encoding="utf-8"))
+            marker_value["queryIndexManifestSha256"] = file_sha(index_path)
+            write_json(marker, marker_value)
+
+            inventory = MODULE.promotion_inventory(state.resolve())
+
+            self.assertEqual(
+                inventory["games"]["1"]["queryIndexAdmissionMode"],
+                "compatible-semantic-contract",
+            )
+
     def test_inventory_keeps_promoted_pair_while_replacement_rml_is_staged(self) -> None:
         for shacl_status in ("deferred-to-nifi", "validated"):
             with self.subTest(shacl_status=shacl_status), tempfile.TemporaryDirectory() as temporary:
@@ -511,7 +537,7 @@ class ServingMaterializerTests(unittest.TestCase):
             )
             self.assertEqual(
                 evidence["sourceCorpusIntegrity"]["queryIndexSemanticContractId"],
-                "baseball-query-index-v1",
+                "baseball-query-index-v2",
             )
             self.assertEqual(evidence["sourceCorpusIntegrity"]["validatedPromotionGameCount"], 1)
 

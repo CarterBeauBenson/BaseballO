@@ -8,6 +8,7 @@ import json
 from collections import Counter
 from pathlib import Path
 
+import rdflib
 from rdflib import Graph, Namespace, RDF, RDFS, URIRef
 from rdflib.term import BNode
 
@@ -16,8 +17,6 @@ IDX = Namespace("https://w3id.org/baseball/query-index/")
 
 REQUIRED_PROPERTIES = {
     IDX.GameFact: (
-        IDX.season,
-        IDX.seasonPhase,
         IDX.venue,
         IDX.gameStart,
         IDX.derivedFrom,
@@ -107,6 +106,12 @@ def main() -> None:
     if not args.game_pk.isdigit():
         raise ValueError("game-pk must contain only digits")
 
+    # The index is an evidence-preserving projection. rdflib normally
+    # canonicalizes typed-literal lexical forms while parsing (for example,
+    # xsd:dateTime "...00.000Z" becomes "...00+00:00"). Preserve the source
+    # spelling so the exact authoritative/index row-equivalence gate can
+    # distinguish a faithful projection from a rewritten value.
+    rdflib.NORMALIZE_LITERALS = False
     graph = Graph()
     component_files = sorted(args.inputs.glob("*.ttl"))
     if not component_files:

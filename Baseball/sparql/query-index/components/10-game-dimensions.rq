@@ -25,15 +25,17 @@ WHERE {
         cco:ont00001767 ?gameStart .
     ?field a base:BaseballFieldSite ;
         obo:BFO_0000171 ?venue .
-    ?game obo:BFO_0000132 ?seasonPhase .
-    ?seasonPhase a ?seasonPhaseType ;
-        obo:BFO_0000132 ?seasonProcess .
-    VALUES ?seasonPhaseType {
-      base:BaseballPreseasonPhase
-      base:BaseballRegularSeasonPhase
-      base:BaseballPostseasonPhase
-      base:BaseballAllStarPhase
+    OPTIONAL {
+      ?game obo:BFO_0000132 ?seasonPhase .
+      ?seasonPhase a ?seasonPhaseType ;
+          obo:BFO_0000132 ?seasonProcess .
+      VALUES ?seasonPhaseType {
+        base:BaseballPreseasonPhase
+        base:BaseballRegularSeasonPhase
+        base:BaseballPostseasonPhase
+        base:BaseballAllStarPhase
+      }
+      BIND(xsd:integer(STRAFTER(STR(?seasonProcess), "/data/season/")) AS ?season)
     }
-    BIND(xsd:integer(STRAFTER(STR(?seasonProcess), "/data/season/")) AS ?season)
   }
 }

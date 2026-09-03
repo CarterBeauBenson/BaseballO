@@ -72,7 +72,7 @@ if (-not [string]::IsNullOrWhiteSpace($ScheduleEvidencePath) -and $ScheduleEvide
         throw "Schedule evidence gamePk does not match game $gamePk."
     }
 }
-$expectedPlateAppearanceCount = @($gameDocument.liveData.plays.allPlays).Count
+$expectedPlateAppearanceCount = 0
 $expectedPlayerRoleKeys = @(
     foreach ($playerProperty in @($gameDocument.liveData.boxscore.teams.away.players.PSObject.Properties)) {
         $playerId = [string]$playerProperty.Value.person.id
@@ -90,7 +90,7 @@ $expectedPlayerRoleKeys = @(
 # PlayerRole identity is bearer plus team context. A person legitimately listed
 # for both teams in one source record therefore contributes two distinct roles.
 $expectedPlayerParticipantCount = @($expectedPlayerRoleKeys | Sort-Object -Unique).Count
-$expectedGameEndTime = [string]@($gameDocument.liveData.plays.allPlays)[-1].about.endTime
+$expectedGameEndTime = $null
 $expectedPitchCount = 0
 $expectedBattingActCount = 0
 $expectedContactCount = 0
@@ -103,11 +103,22 @@ foreach ($play in @($gameDocument.liveData.plays.allPlays)) {
     $expectedRunnerRecordCount += @($play.runners).Count
     $hasNullBatterStrikeout = $false
     $safeBatterClassificationTypes = [System.Collections.Generic.HashSet[string]]::new()
+    $playResultEventType = if ($play.result.PSObject.Properties.Name -contains 'eventType') {
+        [string]$play.result.eventType
+    }
+    else {
+        ''
+    }
     foreach ($runner in @($play.runners)) {
         if ($runner.movement.isOut -is [bool]) {
             $expectedRunnerResolutionCount++
         }
-        $runnerEventType = [string]$runner.details.eventType
+        $runnerEventType = if ($runner.details.PSObject.Properties.Name -contains 'eventType') {
+            [string]$runner.details.eventType
+        }
+        else {
+            ''
+        }
         if ($runnerEventType -in @('passed_ball', 'wild_pitch')) {
             $playIndex = [int]$runner.details.playIndex
             $classificationEvent = @($play.playEvents)[$playIndex]
@@ -157,7 +168,7 @@ foreach ($play in @($gameDocument.liveData.plays.allPlays)) {
         }
     }
     if (
-        [string]$play.result.eventType -eq 'strikeout' -and
+        $playResultEventType -eq 'strikeout' -and
         $hasNullBatterStrikeout -and
         $safeBatterClassificationTypes.Count -eq 1
     ) {
@@ -192,11 +203,8 @@ foreach ($play in @($gameDocument.liveData.plays.allPlays)) {
         }
     }
 }
-if ($expectedPlateAppearanceCount -eq 0 -or $expectedPitchCount -eq 0) {
-    throw "Game $gamePk has no canonical plate appearances or pitches."
-}
-if ([string]::IsNullOrWhiteSpace($expectedGameEndTime)) {
-    throw "Game $gamePk has no final play end timestamp."
+if ($expectedPitchCount -eq 0) {
+    throw "Game $gamePk has no canonical pitches."
 }
 
 $pipelineRoot = Join-Path $script:StateRoot 'pipeline'
@@ -274,6 +282,18 @@ try {
         throw "RML execution-context generation produced no file for game $gamePk."
     }
     $contextHash = (Get-FileHash -LiteralPath $stageContext -Algorithm SHA256).Hash.ToLowerInvariant()
+    $contextDocument = Get-Content -LiteralPath $stageContext -Raw | ConvertFrom-Json
+    $expectedPlateAppearanceCount = @(
+        $contextDocument.liveData.plays.allPlays |
+            Where-Object { $_._baseballO.hasPlateAppearanceStructure -eq $true }
+    ).Count
+    $expectedGameEndTime = [string]$contextDocument._baseballO.gameEndTime
+    if ($expectedPlateAppearanceCount -eq 0) {
+        throw "Game $gamePk has no canonical plate appearances."
+    }
+    if ([string]::IsNullOrWhiteSpace($expectedGameEndTime)) {
+        throw "Game $gamePk has no canonical game-end timestamp."
+    }
 
     # RML references are evaluated relative to the current JSONPath iterator. The
     # The reusable mapping marks guarded root identifiers explicitly; materialize only

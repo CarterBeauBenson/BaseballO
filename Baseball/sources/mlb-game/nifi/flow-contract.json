@@ -40,6 +40,34 @@
     "readinessRetryDelay": "30 sec",
     "exhaustedAction": "source-local-schedule-quarantine"
   },
+  "quarantineReplay": {
+    "planner": "nifi/prepare-quarantine-replay.py",
+    "proofGames": [
+      {
+        "gamePk": "831445",
+        "reason": "unphased exhibition GameFact"
+      },
+      {
+        "gamePk": "823685",
+        "reason": "statusless pitch-result challenge"
+      },
+      {
+        "gamePk": "831470",
+        "reason": "official identifier without official name"
+      },
+      {
+        "gamePk": "823298",
+        "reason": "regular-game promotion retry"
+      },
+      {
+        "gamePk": "823523",
+        "reason": "previously stale RML-stage failure"
+      }
+    ],
+    "releasePolicy": "all-five-exact-input-hashes-promoted-before-remainder",
+    "readinessRetryCount": 120,
+    "readinessRetryDelay": "30 sec"
+  },
   "processorOrder": [
     "Proof Request",
     "Read Request",

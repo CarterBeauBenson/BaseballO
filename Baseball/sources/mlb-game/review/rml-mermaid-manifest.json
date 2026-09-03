@@ -36,6 +36,12 @@
       "maps": ["UmpirePersonMap", "UmpireRoleMap", "GameUmpireCareerRealizationMap", "UmpireRoleStasisMap", "UmpireRoleStasisIntervalMap", "OfficialScorerPersonMap", "OfficialScorerRoleMap", "GameOfficialScorerCareerRealizationMap", "OfficialScorerRoleStasisMap", "OfficialScorerRoleStasisIntervalMap"]
     },
     {
+      "id": "61-game-official-names",
+      "title": "Available game-official names",
+      "summary": "An official's stable identity is independent of whether this response supplies a name; a label is emitted only when MLB provides the name.",
+      "maps": ["UmpirePersonLabelMap"]
+    },
+    {
       "id": "05-game-time",
       "title": "Game temporal region",
       "summary": "A game occupies an interval bounded by temporal instants that are designated by timestamp information.",

@@ -106,7 +106,7 @@
 <#ReviewedPlaySource> a rml:LogicalSource ;
   rml:source "game-context.json" ;
   rml:referenceFormulation ql:JSONPath ;
-  rml:iterator "$.liveData.plays.allPlays[?(@._baseballO.hasReviewStatus == true)]" .
+  rml:iterator "$.liveData.plays.allPlays[?(@._baseballO.hasReview == true)]" .
 
 <#ChallengedReviewSource> a rml:LogicalSource ;
   rml:source "game-context.json" ;
@@ -294,9 +294,14 @@
   rml:iterator "$.liveData.plays.allPlays[*].runners[*].credits[*]" .
 
 <#OfficialSource> a rml:LogicalSource ;
-  rml:source "game.json" ;
+  rml:source "game-context.json" ;
   rml:referenceFormulation ql:JSONPath ;
   rml:iterator "$.liveData.boxscore.officials[*]" .
+
+<#NamedOfficialSource> a rml:LogicalSource ;
+  rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.liveData.boxscore.officials[?(@._baseballO.hasOfficialName == true)]" .
 
 <#BallBSource> a rml:LogicalSource ;
   rml:source "game-context.json" ;
@@ -1011,7 +1016,11 @@
 
 <#UmpirePersonMap> a rr:TriplesMap ;
   rml:logicalSource <#OfficialSource> ;
-  rr:subjectMap [ rr:template "https://baseballontology.org/data/person/{official.id}" ; rr:termType rr:IRI ; rr:class cco:ont00001262 ] ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/person/{official.id}" ; rr:termType rr:IRI ; rr:class cco:ont00001262 ] .
+
+<#UmpirePersonLabelMap> a rr:TriplesMap ;
+  rml:logicalSource <#NamedOfficialSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/person/{official.id}" ; rr:termType rr:IRI ] ;
   rr:predicateObjectMap [
     rr:predicate rdfs:label ;
     rr:objectMap [ rml:reference "official.fullName" ]

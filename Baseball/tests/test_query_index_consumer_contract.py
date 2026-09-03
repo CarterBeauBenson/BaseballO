@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import subprocess
+import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -65,6 +68,45 @@ def validate_index(*parts: str) -> tuple[bool, str]:
 
 
 class QueryIndexConsumerContractTests(unittest.TestCase):
+    def test_compiler_preserves_typed_literal_lexical_evidence(self) -> None:
+        source = GRAPH_HEADER.replace(
+            '"2026-08-15T23:05:00Z"^^xsd:dateTime',
+            '"2026-08-15T23:05:00.000Z"^^xsd:dateTime',
+        )
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            inputs = root / "components"
+            inputs.mkdir()
+            (inputs / "10-game-dimensions.ttl").write_text(
+                source, encoding="utf-8", newline="\n"
+            )
+            output = root / "index.nt"
+            stats = root / "stats.json"
+            subprocess.run(
+                [
+                    sys.executable,
+                    str(ROOT / "scripts" / "pipeline" / "compile-query-index.py"),
+                    "--inputs",
+                    str(inputs),
+                    "--output",
+                    str(output),
+                    "--stats",
+                    str(stats),
+                    "--game-pk",
+                    "1",
+                    "--source-graph",
+                    "https://w3id.org/baseball/graph/game/1",
+                    "--index-resource",
+                    "https://w3id.org/baseball/query-index-build/game/1",
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            compiled = output.read_text(encoding="utf-8")
+            self.assertIn('"2026-08-15T23:05:00.000Z"', compiled)
+            self.assertNotIn('"2026-08-15T23:05:00+00:00"', compiled)
+
     def test_one_distinct_canonical_home_and_away_team_conforms(self) -> None:
         conforms, report = validate_index(HOME, AWAY)
         self.assertTrue(conforms, report)

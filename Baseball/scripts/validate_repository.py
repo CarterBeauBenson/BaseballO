@@ -1554,7 +1554,7 @@ def validate_query_index_semantic_contract() -> tuple[dict[str, object], str]:
     if (
         contract.get("artifactType") != "baseball-query-index-semantic-contract"
         or contract.get("contractVersion") != 1
-        or contract.get("semanticContractId") != "baseball-query-index-v1"
+        or contract.get("semanticContractId") != "baseball-query-index-v2"
         or contract.get("indexMetadataContractVersion") != "1"
         or contract.get("hashAlgorithm") != "canonical-text-v1"
     ):
@@ -1611,7 +1611,7 @@ def validate_query_index_semantic_contract() -> tuple[dict[str, object], str]:
 
     idx = "https://w3id.org/baseball/query-index/"
     expected_grains = {
-        "GameFact": ("10-game-dimensions.rq", {"season", "seasonPhase", "venue", "gameStart", "derivedFrom"}),
+        "GameFact": ("10-game-dimensions.rq", {"venue", "gameStart", "derivedFrom"}),
         "PlateAppearanceFact": ("15-plate-appearances.rq", {"game", "agent", "derivedFrom"}),
         "PlateAppearanceResultFact": (
             "20-plate-appearance-results.rq",
@@ -1832,6 +1832,33 @@ def validate_reviewed_query_routing() -> int:
         raise ValueError(
             "Reviewed query routing retains implementation fingerprints as semantic admission: "
             + ", ".join(sorted(leaked_fields))
+        )
+    compatibility_bridge = routing.get("compatibleSemanticContractBridge")
+    expected_compatible_contracts = [
+        {
+            "contractId": "baseball-query-index-v1",
+            "contractTextSha256": "6955ed9a27854f8e25dded72d13ab845b82d532d78578c6dc7ea8ac77a5abab4",
+        }
+    ]
+    expected_compatibility_keys = {
+        "bridgeVersion",
+        "status",
+        "compatibleContracts",
+        "compatibilityReview",
+        "requiredOutputValidation",
+    }
+    if (
+        not isinstance(compatibility_bridge, dict)
+        or set(compatibility_bridge) != expected_compatibility_keys
+        or compatibility_bridge.get("bridgeVersion") != 1
+        or compatibility_bridge.get("status") != "reviewed-backward-compatible"
+        or compatibility_bridge.get("compatibleContracts")
+        != expected_compatible_contracts
+        or not str(compatibility_bridge.get("compatibilityReview", "")).strip()
+        or not str(compatibility_bridge.get("requiredOutputValidation", "")).strip()
+    ):
+        raise ValueError(
+            "Reviewed query routing has no exact backward-compatible semantic-contract bridge"
         )
     legacy_bridge = routing.get("legacyManifestBridge")
     expected_legacy_hashes = [

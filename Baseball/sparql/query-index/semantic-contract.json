@@ -1,7 +1,7 @@
 {
   "artifactType": "baseball-query-index-semantic-contract",
   "contractVersion": 1,
-  "semanticContractId": "baseball-query-index-v1",
+  "semanticContractId": "baseball-query-index-v2",
   "indexMetadataContractVersion": "1",
   "hashAlgorithm": "canonical-text-v1",
   "description": "Source-neutral contract for the meaning and required output grains of BaseballO query-index version 1. Script, transport, locking, compiler, and scheduler bytes are implementation provenance and are not semantic compatibility criteria.",
@@ -20,7 +20,7 @@
       },
       {
         "path": "sparql/query-index/components/10-game-dimensions.rq",
-        "textSha256": "93b82efe8729d8194a89d9af14c98e4eb5a605edc7fefaaf17f36e52eae51cf5"
+        "textSha256": "7e698a4ac1267978afeb2a08b014a0d3113182d78980bd8e57b729ef8d5eac32"
       },
       {
         "path": "sparql/query-index/components/15-plate-appearances.rq",
@@ -70,7 +70,7 @@
     "shaclProfile": {
       "profile": "query-index",
       "path": "shacl/query-index.ttl",
-      "textSha256": "66fffa750246b2bb22debd06ef8d7eabb09ca788428e13c7e24370025120cd22"
+      "textSha256": "ec6914cbc76290b65fb92ce5b3571fccff8a338adce1d1f7416c8c14ecd05d58"
     }
   },
   "factGrains": [
@@ -79,8 +79,6 @@
       "classIri": "https://w3id.org/baseball/query-index/GameFact",
       "component": "sparql/query-index/components/10-game-dimensions.rq",
       "requiredProperties": [
-        "https://w3id.org/baseball/query-index/season",
-        "https://w3id.org/baseball/query-index/seasonPhase",
         "https://w3id.org/baseball/query-index/venue",
         "https://w3id.org/baseball/query-index/gameStart",
         "https://w3id.org/baseball/query-index/derivedFrom"
@@ -218,7 +216,7 @@
       "distinctAssignees": true,
       "assigneeIriPattern": "^https://baseballontology[.]org/data/team/[0-9]+$",
       "sourceAssigneeClassIri": "https://baseballontology.org/BaseballTeam",
-      "description": "A source consumer can identify each indexed game's season and its home and away Team assignees without using an Explorer routing decision."
+      "description": "A source consumer can identify every indexed game's home and away Team assignees. Season and Season Phase occur together when the authoritative RDF supports a reviewed phase and are both absent for an unphased game."
     }
   ]
 }

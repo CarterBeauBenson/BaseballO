@@ -226,6 +226,15 @@ the triple store through explicitly multi-source SPARQL.
 
 ## 5. Serving and performance follow-through
 
+- [ ] After the active corpus run reaches terminal evidence, reorganize the
+  NiFi canvas without changing runtime behavior. Keep the root view limited to
+  the seven detachable source lanes and shared downstream work; show each
+  source lane as `Acquire -> Map -> Validate -> Promote -> Materialize`, with
+  retry, failure, quarantine, cleanup, proof, and provenance processors
+  encapsulated in nested process groups. Preserve every connector, schedule,
+  queue, relationship, retry limit, evidence contract, and source-isolation
+  boundary, and prove the reorganized flow against the existing terminal
+  evidence before replacing the current canvas.
 - [ ] After the active corpus run reaches terminal evidence, remove the MLB-game
   promotion bottleneck by splitting parallel, isolated query-index preparation
   from the single-writer graph-pair promotion stage. Keep the accepted RML,
