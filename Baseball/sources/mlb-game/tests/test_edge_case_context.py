@@ -86,6 +86,24 @@ class EdgeCaseContextTests(unittest.TestCase):
         self.assertEqual(context["reviewOutcome"], "affirming")
         self.assertEqual(context["reviewFinalDecision"], "strike")
 
+    def test_upheld_review_is_canonicalized_as_an_affirming_review(self) -> None:
+        play = {
+            "result": {
+                "description": (
+                    "Umpire reviewed (home run), call on the field was upheld: "
+                    "Kyle Schwarber doubles on a fly ball."
+                )
+            },
+            "reviewDetails": {"isOverturned": False},
+        }
+
+        context = MODULE.reviewed_play_context(play, [], {}, "44")
+
+        self.assertEqual(context["reviewStatus"], "confirmed")
+        self.assertEqual(context["reviewOutcome"], "affirming")
+        self.assertNotIn("reviewOriginalDecision", context)
+        self.assertNotIn("reviewFinalDecision", context)
+
     def test_advisory_with_pitch_keeps_incomplete_plate_appearance_context(self) -> None:
         common = {
             "about": {"atBatIndex": 44},

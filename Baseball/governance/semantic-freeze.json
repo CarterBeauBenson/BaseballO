@@ -5,7 +5,7 @@
   "ratified": false,
   "bootstrapBaseCommit": "cb16a8e6f3d487f3542b91907cde3f47ff0a0978",
   "hashCanonicalization": "utf-8-sig decode; CRLF and CR to LF; UTF-8 encode without BOM",
-  "protectedSetSha256": "8674f030faf5ee369f2f46cf00ee1e985616375527ed6dcfbcd9888ff0d32def",
+  "protectedSetSha256": "c75ef4ae3a6e4ca776f86365126cd57727e2a15d9e01e345df8df7d76ed57e42",
   "changeDecision": {
     "path": "Baseball/archive/design-records/mlb-game-edge-case-recovery/review.json",
     "sha256": "b33f21e22da090f7cccf4ebc400eb618a44f7e40e2e46d6133ba9b9920c92899"
@@ -25,7 +25,7 @@
     "Baseball/reasoning/profiles/event-structure.json": "0769a71727733adc7553b18d51d2a21d91d15b0c86103ed19c494b78865653c0",
     "Baseball/reasoning/profiles/participation.json": "da2d44f7fee92659ce982603d912d2ae7822730ca7b9ef4dd05ce4cfebb03a6c",
     "Baseball/reasoning/reviewed-samples.json": "1527914430536f55812047abe25e4ba88d03afd15a045065e8e8f07d296e8e78",
-    "Baseball/scripts/pipeline/prepare-rml-context.py": "99c96affb455c5414ee73ae33a9916382ca0301171ff59c570bc7bd69f31d590",
+    "Baseball/scripts/pipeline/prepare-rml-context.py": "214af8f3ab4b2401cb23e641bb1716efc8cebf3db32dfd86f5cd5177d93f635f",
     "Baseball/scripts/reasoning/evaluate-reviewed-samples.py": "c34675e4d7e4fe5b42b66859106f3f1c46f885e101c0666be2566939c71a46a6",
     "Baseball/scripts/reasoning/generate-fixture-proof-baseline.py": "f5a7939602403fb105900b19a610d3d9ec1e439e271109b4242195053800afdc",
     "Baseball/scripts/reasoning/prove-selective-reasoning.py": "c777a99842b18ddeef7047735e62db5e7769e79a419671b9a509b2de97f00af4",
@@ -79,7 +79,7 @@
         },
         "contextBuilder": {
           "path": "Baseball/scripts/pipeline/prepare-rml-context.py",
-          "sha256": "99c96affb455c5414ee73ae33a9916382ca0301171ff59c570bc7bd69f31d590"
+          "sha256": "214af8f3ab4b2401cb23e641bb1716efc8cebf3db32dfd86f5cd5177d93f635f"
         },
         "mapping": {
           "path": "Baseball/sources/mlb-game/mapping/mlb-game.rml.ttl",

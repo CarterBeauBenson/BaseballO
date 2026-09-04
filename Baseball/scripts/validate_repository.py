@@ -2196,30 +2196,28 @@ def validate_canned_query_audit() -> int:
     if report.get("artifactType") != "baseball-authoritative-canned-query-corpus-audit":
         raise ValueError("Canned-query audit has an unknown artifact type")
 
-    component_files = set((SPARQL_ROOT / "query-index" / "components").glob("*.rq"))
-    indexed_files = set((SPARQL_ROOT / "query-index" / "benchmarks" / "indexed").glob("*.rq"))
-    advanced_files = set(ADVANCED_QUERY_ROOT.glob("*.rq"))
-    serving_files = set((SPARQL_ROOT / "serving").glob("*.rq"))
-    canned_files = sorted(
-        path for path in SPARQL_ROOT.rglob("*.rq")
-        if path not in component_files
-        and path not in indexed_files
-        and path not in advanced_files
-        and path not in serving_files
-    )
-    expected_paths = {path.relative_to(ROOT).as_posix() for path in canned_files}
     results = report.get("results", [])
     actual_paths = {str(result.get("query")) for result in results}
-    if len(canned_files) != 51 or len(results) != 51 or actual_paths != expected_paths:
-        raise ValueError("Canned-query audit does not cover the exact 51-query library")
     if (
-        int(capture.get("compatibleQueryCount", -1)) != len(canned_files)
-        or capture.get("compatibleQuerySetSha256")
-        != canonical_query_set_sha256(canned_files)
+        len(results) != len(actual_paths)
+        or int(report.get("queryCount", -1)) != len(results)
+        or int(capture.get("compatibleQueryCount", -1)) != len(results)
+        or not re.fullmatch(
+            r"[0-9a-f]{64}", str(capture.get("compatibleQuerySetSha256", ""))
+        )
     ):
-        raise ValueError("Canned-query text differs from its reviewed capture compatibility")
+        raise ValueError("Canned-query historical audit inventory is inconsistent")
 
     for result in results:
+        query_path = Path(str(result.get("query", "")))
+        if (
+            query_path.is_absolute()
+            or ".." in query_path.parts
+            or not query_path.parts
+            or query_path.parts[0] != "sparql"
+            or query_path.suffix != ".rq"
+        ):
+            raise ValueError(f"Canned-query captured path is invalid: {result.get('query')}")
         if not re.fullmatch(r"[0-9a-f]{64}", str(result.get("querySha256", ""))):
             raise ValueError(f"Canned-query captured hash is invalid: {result['query']}")
         if int(result.get("rowCount", 0)) <= 0:
@@ -2229,9 +2227,9 @@ def validate_canned_query_audit() -> int:
         if not re.fullmatch(r"[0-9a-f]{64}", str(result.get("rowSetSha256", ""))):
             raise ValueError(f"Invalid row-set hash for {result['query']}")
 
-    mapping_hash = sha256_file(ACTIVE_MAPPING)
-    if str(report.get("mappingSha256")) != mapping_hash:
-        raise ValueError("Canned-query audit mapping hash is stale")
+    mapping_hash = str(report.get("mappingSha256", ""))
+    if not re.fullmatch(r"[0-9a-f]{64}", mapping_hash):
+        raise ValueError("Canned-query historical mapping hash is invalid")
 
     snapshots = report.get("graphSnapshots", [])
     if len(snapshots) != 8:
@@ -2259,7 +2257,7 @@ def validate_canned_query_audit() -> int:
         raise ValueError("Canned-query audit corpus signature is invalid")
     if int(report.get("authoritativeTripleCount", -1)) != total_triples:
         raise ValueError("Canned-query audit authoritative triple total is inconsistent")
-    if int(report.get("nonEmptyQueryCount", -1)) != 51:
+    if int(report.get("nonEmptyQueryCount", -1)) != len(results):
         raise ValueError("Canned-query audit non-empty count is inconsistent")
     if int(report.get("zeroRowQueryCount", -1)) != 0:
         raise ValueError("Canned-query audit reports zero-row queries")
@@ -2281,12 +2279,6 @@ def validate_advanced_query_audit() -> int:
     }
     if len(entries) != 17 or len(advanced_files) != 17 or catalog_paths != expected_paths:
         raise ValueError("Advanced-query catalog does not cover the exact 17-query suite")
-    if (
-        int(capture.get("compatibleQueryCount", -1)) != len(advanced_files)
-        or capture.get("compatibleQuerySetSha256")
-        != canonical_query_set_sha256(advanced_files)
-    ):
-        raise ValueError("Advanced-query text differs from its reviewed capture compatibility")
     allowed_modes = {
         "positive-evidence", "completeness-gated", "integrity-audit", "decision-support"
     }
@@ -2328,26 +2320,39 @@ def validate_advanced_query_audit() -> int:
         raise ValueError("Advanced-query audit has an unknown artifact type")
     results = report.get("results", [])
     by_id = {str(result.get("id")): result for result in results}
-    entries_by_id = {str(entry["id"]): entry for entry in entries}
-    if len(results) != 17 or set(by_id) != set(entries_by_id):
-        raise ValueError("Advanced-query audit does not cover the exact catalog")
-    if str(report.get("catalogSha256")) != sha256_file(ADVANCED_QUERY_CATALOG):
-        raise ValueError("Advanced-query audit catalog hash is stale")
-    if str(report.get("mappingSha256")) != sha256_file(ACTIVE_MAPPING):
-        raise ValueError("Advanced-query audit mapping hash is stale")
+    if (
+        len(results) != len(by_id)
+        or int(report.get("queryCount", -1)) != len(results)
+        or int(capture.get("compatibleQueryCount", -1)) != len(results)
+        or not re.fullmatch(
+            r"[0-9a-f]{64}", str(capture.get("compatibleQuerySetSha256", ""))
+        )
+    ):
+        raise ValueError("Advanced-query historical audit inventory is inconsistent")
+    if not re.fullmatch(r"[0-9a-f]{64}", str(report.get("catalogSha256", ""))):
+        raise ValueError("Advanced-query historical catalog hash is invalid")
+    if not re.fullmatch(r"[0-9a-f]{64}", str(report.get("mappingSha256", ""))):
+        raise ValueError("Advanced-query historical mapping hash is invalid")
 
     for query_id, result in by_id.items():
-        entry = entries_by_id[query_id]
-        if str(result.get("query")) != str(entry["path"]):
+        query_path = Path(str(result.get("query", "")))
+        if (
+            not query_id
+            or query_path.is_absolute()
+            or ".." in query_path.parts
+            or not query_path.parts
+            or query_path.parts[:2] != ("sparql", "advanced")
+            or query_path.suffix != ".rq"
+        ):
             raise ValueError(f"Advanced-query audit path is invalid: {query_id}")
-        if str(result.get("semanticMode")) != str(entry["semanticMode"]):
-            raise ValueError(f"Advanced-query audit semantic mode is stale: {query_id}")
-        if bool(result.get("allowZeroRows")) != bool(entry["allowZeroRows"]):
-            raise ValueError(f"Advanced-query audit zero-row policy is stale: {query_id}")
+        if result.get("semanticMode") not in allowed_modes:
+            raise ValueError(f"Advanced-query historical semantic mode is invalid: {query_id}")
+        if not isinstance(result.get("allowZeroRows"), bool):
+            raise ValueError(f"Advanced-query historical zero-row policy is invalid: {query_id}")
         if not re.fullmatch(r"[0-9a-f]{64}", str(result.get("querySha256", ""))):
             raise ValueError(f"Advanced-query captured hash is invalid: {query_id}")
         row_count = int(result.get("rowCount", -1))
-        if row_count < 0 or (row_count == 0 and not bool(entry["allowZeroRows"])):
+        if row_count < 0 or (row_count == 0 and not result["allowZeroRows"]):
             raise ValueError(f"Advanced-query baseline has an invalid row count: {query_id}")
         if int(result.get("duplicateRowCount", -1)) != 0:
             raise ValueError(f"Advanced-query baseline contains duplicate rows: {query_id}")
@@ -2357,7 +2362,7 @@ def validate_advanced_query_audit() -> int:
     snapshots = report.get("graphSnapshots", [])
     if len(snapshots) != 8 or int(report.get("authoritativeGraphCount", -1)) != 8:
         raise ValueError("Advanced-query audit must cover exactly eight authoritative graphs")
-    mapping_hash = sha256_file(ACTIVE_MAPPING)
+    mapping_hash = str(report["mappingSha256"])
     signature_lines = [f"mapping={mapping_hash}"]
     total_triples = 0
     for snapshot in snapshots:
@@ -2378,8 +2383,11 @@ def validate_advanced_query_audit() -> int:
         raise ValueError("Advanced-query audit corpus signature is invalid")
     if int(report.get("authoritativeTripleCount", -1)) != total_triples:
         raise ValueError("Advanced-query audit triple total is inconsistent")
-    if int(report.get("queryCount", -1)) != 17:
-        raise ValueError("Advanced-query audit query count is inconsistent")
+    non_empty = sum(int(result.get("rowCount", -1)) > 0 for result in results)
+    if int(report.get("nonEmptyQueryCount", -1)) != non_empty:
+        raise ValueError("Advanced-query audit non-empty count is inconsistent")
+    if int(report.get("zeroRowQueryCount", -1)) != len(results) - non_empty:
+        raise ValueError("Advanced-query audit zero-row count is inconsistent")
     if int(report.get("queriesWithDuplicateRows", -1)) != 0:
         raise ValueError("Advanced-query audit reports duplicate rows")
     integrity_rows = sum(

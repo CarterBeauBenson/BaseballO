@@ -55,13 +55,13 @@
           "http://purl.obolibrary.org/obo/BFO_0000062"
         ]
       },
-      "rulesetSha256": "2c4ba1069184da7bd0218eed8f2bac596769b993c4e2a46c6e9e324a3d000bc5",
+      "rulesetSha256": "e9a39e051a1b8a5ff7fd98b32ee0552b3761a7d9ecb8271cd6b824ef7f41d51b",
       "sample": "simple-one-pitch-field-out",
       "shaclValidation": {
         "explicitGraphBeforeReasoning": {
           "conforms": true,
           "profile": "authoritative",
-          "shapeSha256": "e968cbe3efdd642312fa8c1008f72ad24b0435fbc656b70970c4f2b048c81b3a"
+          "shapeSha256": "ddb99f92239a3ed9f379592d50642575e4360767a51670a06f30e46adcc23aed"
         },
         "inferredGraphBeforeLoad": {
           "conforms": true,
@@ -120,13 +120,13 @@
           "http://purl.obolibrary.org/obo/BFO_0000132"
         ]
       },
-      "rulesetSha256": "b1a3a7c1bdbf0bffcc11747703690a4267946b86c93a3087f49f594941df1e2d",
+      "rulesetSha256": "62b16da863a8ea6f032e35be54e8d15bacb676ea20acbbcaee1e2ea7bff6dc1e",
       "sample": "simple-one-pitch-field-out",
       "shaclValidation": {
         "explicitGraphBeforeReasoning": {
           "conforms": true,
           "profile": "authoritative",
-          "shapeSha256": "e968cbe3efdd642312fa8c1008f72ad24b0435fbc656b70970c4f2b048c81b3a"
+          "shapeSha256": "ddb99f92239a3ed9f379592d50642575e4360767a51670a06f30e46adcc23aed"
         },
         "inferredGraphBeforeLoad": {
           "conforms": true,
@@ -183,13 +183,13 @@
           "http://purl.obolibrary.org/obo/BFO_0000056"
         ]
       },
-      "rulesetSha256": "ba803a02b69bbe9059ccb0ea079553bf2dc5b773fd7cf8672fc82741c5e4e6d5",
+      "rulesetSha256": "e2d2a4e98b6431d325e6af52a11ff76a3f1ffce079e8baeb6a6321f32e08fa55",
       "sample": "simple-one-pitch-field-out",
       "shaclValidation": {
         "explicitGraphBeforeReasoning": {
           "conforms": true,
           "profile": "authoritative",
-          "shapeSha256": "e968cbe3efdd642312fa8c1008f72ad24b0435fbc656b70970c4f2b048c81b3a"
+          "shapeSha256": "ddb99f92239a3ed9f379592d50642575e4360767a51670a06f30e46adcc23aed"
         },
         "inferredGraphBeforeLoad": {
           "conforms": true,
@@ -248,13 +248,13 @@
           "http://purl.obolibrary.org/obo/BFO_0000062"
         ]
       },
-      "rulesetSha256": "2c4ba1069184da7bd0218eed8f2bac596769b993c4e2a46c6e9e324a3d000bc5",
+      "rulesetSha256": "e9a39e051a1b8a5ff7fd98b32ee0552b3761a7d9ecb8271cd6b824ef7f41d51b",
       "sample": "complicated-eight-event-run-scoring-single",
       "shaclValidation": {
         "explicitGraphBeforeReasoning": {
           "conforms": true,
           "profile": "authoritative",
-          "shapeSha256": "e968cbe3efdd642312fa8c1008f72ad24b0435fbc656b70970c4f2b048c81b3a"
+          "shapeSha256": "ddb99f92239a3ed9f379592d50642575e4360767a51670a06f30e46adcc23aed"
         },
         "inferredGraphBeforeLoad": {
           "conforms": true,
@@ -313,13 +313,13 @@
           "http://purl.obolibrary.org/obo/BFO_0000132"
         ]
       },
-      "rulesetSha256": "b1a3a7c1bdbf0bffcc11747703690a4267946b86c93a3087f49f594941df1e2d",
+      "rulesetSha256": "62b16da863a8ea6f032e35be54e8d15bacb676ea20acbbcaee1e2ea7bff6dc1e",
       "sample": "complicated-eight-event-run-scoring-single",
       "shaclValidation": {
         "explicitGraphBeforeReasoning": {
           "conforms": true,
           "profile": "authoritative",
-          "shapeSha256": "e968cbe3efdd642312fa8c1008f72ad24b0435fbc656b70970c4f2b048c81b3a"
+          "shapeSha256": "ddb99f92239a3ed9f379592d50642575e4360767a51670a06f30e46adcc23aed"
         },
         "inferredGraphBeforeLoad": {
           "conforms": true,
@@ -376,13 +376,13 @@
           "http://purl.obolibrary.org/obo/BFO_0000056"
         ]
       },
-      "rulesetSha256": "ba803a02b69bbe9059ccb0ea079553bf2dc5b773fd7cf8672fc82741c5e4e6d5",
+      "rulesetSha256": "e2d2a4e98b6431d325e6af52a11ff76a3f1ffce079e8baeb6a6321f32e08fa55",
       "sample": "complicated-eight-event-run-scoring-single",
       "shaclValidation": {
         "explicitGraphBeforeReasoning": {
           "conforms": true,
           "profile": "authoritative",
-          "shapeSha256": "e968cbe3efdd642312fa8c1008f72ad24b0435fbc656b70970c4f2b048c81b3a"
+          "shapeSha256": "ddb99f92239a3ed9f379592d50642575e4360767a51670a06f30e46adcc23aed"
         },
         "inferredGraphBeforeLoad": {
           "conforms": true,
@@ -399,5 +399,5 @@
   "scope": "Two explicit plate appearances only; no full-game or corpus closure.",
   "sourceJson": "data/raw/game-566279.json",
   "sourceJsonSha256": "e36caf73ff54d6eeac29dba350d5d37001e769eaaf4c1a9e5eac4763ad2630c2",
-  "sourceRdfSha256": "d220d3264ab8f6a2725abd1bb7e72db690b01239dc26d4bacae81c3aee3508ce"
+  "sourceRdfSha256": "eed927c1471d41ab2de91de825f1f3cb09375a7ded8cbd09671ba57fa8a0e554"
 }

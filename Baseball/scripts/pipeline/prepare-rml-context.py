@@ -18,6 +18,11 @@ REVIEW_DESCRIPTION = re.compile(
     r"(?:, call on the field was (?P<status>confirmed|overturned|upheld))?:",
     re.IGNORECASE,
 )
+REVIEW_STATUS_BY_NARRATIVE = {
+    "confirmed": "confirmed",
+    "upheld": "confirmed",
+    "overturned": "overturned",
+}
 PITCH_DECISION_BY_CALL_CODE = {
     "B": "ball",
     "*B": "ball",
@@ -256,7 +261,7 @@ def reviewed_play_context(
 
     status_text = review_match.group("status")
     review_status = (
-        require_segment(status_text.lower(), f"Play {at_bat_index} review status")
+        REVIEW_STATUS_BY_NARRATIVE[status_text.lower()]
         if status_text is not None
         else None
     )
