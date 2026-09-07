@@ -96,6 +96,49 @@ class QuarantineReplayTests(unittest.TestCase):
                 "proof", "proof", "proof", "proof", "proof", "gate"
             ])
 
+    def test_certified_replay_lane_selects_five_current_inputs_for_later_replay(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            state = Path(temporary)
+            contract = self.contract(state)
+            initial_paths = {
+                game_pk: add_quarantine(state, game_pk, f"initial{position}")
+                for position, game_pk in enumerate(PROOF_GAMES)
+            }
+            initial = MODULE.create_plan(state, contract)
+            for game_pk, path in initial_paths.items():
+                add_promotion(state, game_pk, input_hash(path))
+                path.unlink()
+            certified = MODULE.require_proof(state, Path(initial["planPath"]))
+
+            for position in range(6):
+                add_quarantine(state, str(900100 + position), f"later{position}")
+            later = MODULE.create_plan(state, contract)
+            later_plan = MODULE.read_object(Path(later["planPath"]))
+
+            self.assertEqual(later["proofCount"], 5)
+            self.assertEqual(later["remainderCount"], 1)
+            self.assertEqual(
+                later_plan["proofBasis"]["selectionMode"],
+                "current-inputs-after-prior-certified-proof",
+            )
+            self.assertEqual(
+                later_plan["proofBasis"]["priorProofEvidence"],
+                str(Path(initial["planPath"]).parent / "proof.json"),
+            )
+            self.assertEqual(
+                later_plan["proofBasis"]["priorProofEvidence"],
+                certified["planPath"].replace("plan.json", "proof.json"),
+            )
+
+    def test_later_replay_still_blocks_without_a_certified_prior_proof(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            state = Path(temporary)
+            for position in range(6):
+                add_quarantine(state, str(900200 + position), f"later{position}")
+
+            with self.assertRaisesRegex(ValueError, "no prior certified five-game"):
+                MODULE.create_plan(state, self.contract(state))
+
     def test_remainder_is_blocked_until_all_exact_proof_hashes_are_promoted(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             state = Path(temporary)

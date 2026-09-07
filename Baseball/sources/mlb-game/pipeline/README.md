@@ -18,6 +18,13 @@ the applicable stage contract. Persistent manifests, promotion evidence, the
 authoritative TDB2 graph, the rebuildable indexed graph, and promoted analytical
 databases remain.
 
+Quarantine replay is hash-bound and NiFi-owned. The first replay proves the
+five configured representative games before releasing its remainder. Later
+replays verify that immutable proof, then require up to five exact current
+quarantine payloads to promote before releasing any new remainder. Successfully
+resolved proof inputs do not need to remain quarantined merely to authorize a
+future replay.
+
 Compact batch and RML manifests retain each game's MLB `officialDate` and
 `gameType` after the transient response is removed. The serving materializer
 uses that evidence to keep regular-season (`R`), preseason (`S`), exhibition

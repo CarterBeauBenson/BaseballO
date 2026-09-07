@@ -95,6 +95,12 @@ question -> scoped answer -> player/game/plate-appearance evidence
       \-> Show math -> complete human-readable formula
 ```
 
+The working redesign of the primary offensive categories, the suspected
+game-context-query defect, and the boundary between PAQ-1.0 and a possible
+PAQ-2.0 are recorded in
+[`OFFENSIVE-ANALYTICS-REDESIGN.md`](OFFENSIVE-ANALYTICS-REDESIGN.md). It is a
+review document, not approval to change a live formula or query.
+
 ## Run locally
 
 For normal use, install the idempotent Windows desktop launcher once:
@@ -175,13 +181,17 @@ npm run check
   classification query supports player counts and ratios, batting-team rates,
   consecutive offensive-game stretches, whole-game results grouped by pitchers
   faced, and individual empty player-games. A damage ranking
-  crosses all seven nonempty base configurations with zero, one, or two outs;
+  currently attempts to cross all seven nonempty base configurations with zero,
+  one, or two outs;
   weights first/second/third base as 1/2/3; applies the existing
   `pitch + swing + 2*contact + 2*foul` grind score; and gives double plays a
   1.25 multiplier capped at 100 for one plate appearance. It is an exploratory
   query result, not a stored statistic. Its six analyses now appear directly as
   questions rather than behind a second analysis selector, and Damage Score has
-  a complete human-readable **Show math** disclosure. Execution is deliberately staged: the
+  a complete human-readable **Show math** disclosure. Its starting game-context
+  reconstruction is suspected to be incorrect and remains provisional under
+  the linked offensive-analytics redesign; the displayed math does not cure
+  that evidence defect. Execution is deliberately staged: the
   reviewed Empty Games query first returns only empty graph/player pairs, a
   second positive-evidence query reduces their failed plate appearances to one
   row per bad at-bat, and the server then scores and aggregates those rows by
@@ -228,8 +238,11 @@ but their UI routes remain authoritative until admitted in
 [`../serving/contract.json`](../serving/contract.json).
 
 The current SQL-backed visible slice is Plate Appearance Quality/Good At Bat,
-including individual plate appearances, player averages, and its admitted
-filter options. The status line reports the selected layer and, for a
+including individual plate appearances, player averages, a contextual minimum
+plate-appearance threshold for those averages, and its admitted filter options.
+The threshold is applied to the compact SQL result in the Explorer and defaults
+to one, so changing it does not invalidate or rebuild the immutable serving
+database. The status line reports the selected layer and, for a
 materialized response, its build and coverage. Live SPARQL remains available
 for all pending families, novel research, and fail-open fallback. The SQL
 database is derived, immutable after promotion, and rebuildable from

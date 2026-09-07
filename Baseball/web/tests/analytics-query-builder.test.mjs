@@ -29,6 +29,7 @@ import {
   buildPublicCatalog,
   compileGameDateIndexQuery,
   createBaseballServer,
+  normalizeMinimumPlateAppearances,
 } from "../server.mjs";
 
 test("public catalog exposes labels without SPARQL implementation details", () => {
@@ -761,7 +762,7 @@ test("local server runs only cataloged advanced queries", async () => {
 });
 
 test("Plate Appearance Quality player averages preserve names and calculate sortable scores", () => {
-  const payload = aggregatePaqPlayerAverages({ results: { bindings: [
+  const source = { results: { bindings: [
     {
       batter: { type: "uri", value: "https://baseballontology.org/data/player/1" },
       batterLabel: { type: "literal", value: "Eugenio Suárez" },
@@ -780,12 +781,31 @@ test("Plate Appearance Quality player averages preserve names and calculate sort
       plateAppearanceQuality: { type: "literal", value: "0.700" },
       plateAppearanceQualityBand: { type: "literal", value: "Good" },
     },
-  ] } });
+  ] } };
+  const payload = aggregatePaqPlayerAverages(source);
   assert.equal(payload.results.bindings[0].playerLabel.value, "Eugenio Suárez");
   assert.equal(payload.results.bindings[0].averagePlateAppearanceQuality.value, "0.750");
   assert.equal(payload.results.bindings[0].plateAppearances.value, "2");
   assert.equal(payload.results.bindings[0].excellentPlateAppearances.value, "1");
   assert.equal(payload.results.bindings[0].mixedPlateAppearances.value, "1");
+  const qualified = aggregatePaqPlayerAverages(source, 2);
+  assert.equal(qualified.results.bindings.length, 1);
+  assert.equal(qualified.results.bindings[0].plateAppearances.value, "2");
+});
+
+test("Plate Appearance Quality minimum is bounded and average-only", () => {
+  assert.equal(normalizeMinimumPlateAppearances(undefined, "player_averages"), 1);
+  assert.equal(normalizeMinimumPlateAppearances(25, "player_averages"), 25);
+  for (const value of [true, 0, 10_001, 1.5, "25"]) {
+    assert.throws(
+      () => normalizeMinimumPlateAppearances(value, "player_averages"),
+      /integer between 1 and 10000/u,
+    );
+  }
+  assert.throws(
+    () => normalizeMinimumPlateAppearances(25, "plate_appearances"),
+    /only to player averages/u,
+  );
 });
 
 test("Plate Appearance Quality uses a validated materialized executor without touching Fuseki", async () => {
@@ -859,7 +879,11 @@ test("Plate Appearance Quality uses a validated materialized executor without to
     const averagesResponse = await fetch(`http://127.0.0.1:${address.port}/api/advanced`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Connection: "close" },
-      body: JSON.stringify({ id: "plate-appearance-fingerprint", view: "player_averages" }),
+      body: JSON.stringify({
+        id: "plate-appearance-fingerprint",
+        view: "player_averages",
+        minimumPlateAppearances: 5,
+      }),
     });
     assert.equal(averagesResponse.status, 200);
     const averages = await averagesResponse.json();
@@ -869,6 +893,8 @@ test("Plate Appearance Quality uses a validated materialized executor without to
     ]);
     assert.equal(averages.results.bindings[0].playerLabel.value, "Eugenio Suárez");
     assert.equal(servingInputs[2].view, "player_averages");
+    assert.equal("minimumPlateAppearances" in servingInputs[2], false);
+    assert.equal(averages.meta.minimumPlateAppearances, 5);
     assert.equal(issuedQueries.length, before);
 
     const forcedResponse = await fetch(`http://127.0.0.1:${address.port}/api/advanced`, {

@@ -46,10 +46,12 @@ incapable. The point is that BaseballO makes the connections and baseball
 meanings part of the shared model instead of rebuilding them separately for
 every new analysis.
 
-## A current example: Empty Games
+## A reviewed prototype: Empty Games
 
-BaseballO currently includes an **Empty Games** measurement: games in which a
-player appeared as a batter but recorded no qualifying offensive contribution.
+BaseballO includes an **Empty Games** prototype: games in which a player
+appeared as a batter but recorded no qualifying offensive contribution under
+the current completeness-gated policy. The calculation is still being refined;
+it must not be presented as a final published statistic.
 
 This is not simply "games with zero hits." The current definition checks for:
 
@@ -82,7 +84,7 @@ The local read-only Explorer supports:
   questions;
 - 17 advanced questions involving connected plays, replay reviews, unusual
   event structures, and incomplete records;
-- a Plate Appearance Quality/Good At Bat rating from `.000` to `1.000`, with
+- the versioned PAQ-1.0/Good At Bat rating from `.000` to `1.000`, with
   individual plate appearances and sortable player averages;
 - Empty Games and Empty Games percentage;
 - compatible numerator/denominator combinations in the Derived view;
@@ -95,13 +97,19 @@ The local read-only Explorer supports:
 - click-to-sort result columns and CSV export; and
 - inspection of the generated query used to produce a result.
 
+PAQ-1.0 is retained for reproducibility, but its game-context input and formula
+are under review. Empty Games, Derived, Simple Explore, and the non-PAQ
+Advanced questions still use authoritative SPARQL and can be slow on the full
+corpus until their SQL routes pass exact equivalence. See the
+[offensive analytics redesign](Baseball/web/OFFENSIVE-ANALYTICS-REDESIGN.md)
+for the current design boundary.
+
 The checked-in evidence corpus contains 546 distinct completed games dated
 July 14 through August 25, 2026, including one separately scoped All-Star Game.
 A development fixture and a bounded eight-game regression set remain separate.
-All seven current MLB source lanes have passed bounded proofs, and a 2026
-season-to-date corpus request was submitted to NiFi on September 1, 2026. That
-request is asynchronous; submission is not a claim that the corpus is already
-complete.
+This is a fixed repository fixture, not the live datastore count. Current
+ingestion, quarantine, cleanup, graph, and serving-build status comes from
+NiFi's terminal evidence and machine-local serving pointers, not this README.
 
 ## Questions this structure supports
 
@@ -147,7 +155,7 @@ flowchart TD
     LIVE --> F
 ```
 
-Today that system includes:
+The checked-in implementation includes:
 
 - 546 distinct completed games, including one separately scoped All-Star Game,
   in the checked-in evidence corpus
@@ -211,13 +219,19 @@ fixed statistics tables.
 
 ## Run the Explorer locally
 
+For normal use, install or refresh the desktop shortcut once:
+
 ```powershell
-powershell -ExecutionPolicy Bypass -File Baseball/scripts/infra/start-fuseki.ps1
-Set-Location Baseball/web
-npm start
+powershell -ExecutionPolicy Bypass -File Baseball/scripts/infra/install-explorer-shortcut.ps1
 ```
 
-Open <http://127.0.0.1:4173/>.
+The **BaseballO Explorer** shortcut starts or reuses Fuseki, NiFi, and the
+Explorer server, then opens <http://127.0.0.1:4173/>. For a one-time launch
+without installing the shortcut, run:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File Baseball/scripts/infra/launch-explorer.ps1
+```
 
 See the [Explorer guide](Baseball/web/README.md) for more detail.
 
@@ -235,8 +249,8 @@ The active implementation is under [`Baseball/`](Baseball/README.md).
 - [repository layout](Baseball/REPOSITORY-LAYOUT.md)
 - [current roadmap](Baseball/ROADMAP.md)
 
-The replacement NiFi flow does not yet contain the aggregate
-`repository-validation` observer; rebuilding it is explicit roadmap work.
-Until then, local development uses focused component checks rather than an
-attended chain that reproduces the repository gate. The checked-in aggregate
-validator remains available to CI and to the future NiFi-owned stage.
+The replacement NiFi flow includes a separate daily `Repository Evidence`
+observer for aggregate validation. It records evidence without controlling
+source lanes, RDF promotion, or serving pointers. Local development still uses
+focused component checks rather than reproducing that aggregate workflow as an
+attended command chain.

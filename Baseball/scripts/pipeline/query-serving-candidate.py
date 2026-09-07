@@ -23,11 +23,16 @@ ORIGINAL_ADMISSION = ADAPTER.require_materialized_route_admission
 
 
 def allow_candidate_route(request: dict[str, Any], contract: dict[str, Any]) -> None:
-    """Preserve all admission validation except the final pending-status gate."""
+    """Expose materialized candidates while preserving non-admission validation."""
     try:
         ORIGINAL_ADMISSION(request, contract)
     except ValueError as exc:
-        if " is not admitted to materialized SQL" not in str(exc):
+        message = str(exc)
+        admission_failures = (
+            " is not admitted to materialized SQL",
+            "Serving contract admits SQL options only for the PAQ/Good At Bat visible slice",
+        )
+        if not any(fragment in message for fragment in admission_failures):
             raise
 
 

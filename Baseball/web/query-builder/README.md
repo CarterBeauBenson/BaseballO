@@ -85,8 +85,10 @@ const query = compileAnalyticsQuery({
 The compiler accepts only known component IDs, a bounded integer season,
 allowlisted hit types, and canonical BaseballO data IRIs. This preserves the
 query boundary: the browser composes reviewed reads, while the loopback server
-enforces its own allowlist and limits. The same contracts select persistent SQL
-grains for routine reads and compile authoritative SPARQL for fail-open use.
+enforces its own allowlist and limits. The same contracts identify candidate
+SQL grains, but the loopback server uses them only when the selected family is
+admitted by the serving contract. Pending families compile authoritative
+SPARQL; fallback is not evidence that their candidate SQL route is equivalent.
 
 Both compilers emit the same full-pattern evidence used by the canned queries.
 They deliberately count one domain individual per statistic and do not flatten
@@ -95,8 +97,9 @@ component catalog must remain synchronized with
 [`sparql/query-inventory.md`](../../sparql/query-inventory.md) as patterns
 change.
 
-Both UI compilers remain the canonical definition of the authoritative fallback
-and its semantic boundary. The browser normally recombines validated contract-5
-SQL grains; it never silently substitutes a final query-index answer. The
-operational query-index runner retains its separate reviewed routing manifest
-and freshness checks for batch extraction.
+Both UI compilers remain the canonical definition of the authoritative path
+and its semantic boundary. The currently admitted PAQ views use validated
+contract-5 SQL grains; other families remain authoritative until separately
+admitted. The browser never silently substitutes a final query-index answer.
+The operational query-index runner retains its separate reviewed routing
+manifest and freshness checks for batch extraction.

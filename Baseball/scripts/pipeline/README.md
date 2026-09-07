@@ -280,3 +280,7 @@ NiFi-owned pre-admission comparison for PAQ, Advanced, Explore, Empty Games,
 and Derived families. [`query-serving-candidate.py`](query-serving-candidate.py)
 exposes pending SQL only to that loopback proof route; normal UI admission
 remains controlled by `serving/contract.json`.
+Explore-family proof includes every non-enum filter option used by those
+families, so admitting a result route cannot silently leave its supporting
+option lists on live RDF. Failed same-corpus checks retain both the
+authoritative and candidate SQL fingerprints in their immutable evidence.

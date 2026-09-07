@@ -128,6 +128,7 @@ promotion, retry, and cleanup lifecycle. Once submitted, healthy runs are
 asynchronous and are not continuously watched.
 
 The `MLB Transactions` group passed its bounded proof, has an enabled 05:00
-Eastern trigger for the prior Eastern-calendar day, and received the 2026
-season-to-date request on 2026-09-01. It promotes one event-evidence graph per
-requested date scope; it does not create a Game query-index pair.
+Eastern trigger for the prior Eastern-calendar day, and promotes one
+event-evidence graph per requested date scope. It does not create a Game
+query-index pair. Current run status belongs to source-local terminal NiFi
+evidence, not this module contract.

@@ -43,12 +43,16 @@ The first proof-of-concept query is **Empty Games**: games in which a player
 participated offensively without a qualifying offensive contribution. The
 Explorer can examine those results as player ratios, batting-team rates,
 consecutive stretches, games against pitchers faced, or individual
-player-games. It can also rank the most damaging empty games from the exact
-runner-on-base and out state at each failed plate appearance, with double plays
-identified separately and the existing grind evidence used to discount longer
-failures. These results are derived from completeness-gated SPARQL evidence and
-are not asserted as authoritative RDF. Reusable analytical grains may be
-persisted in the derived SQL layer after promotion.
+player-games. It can also produce a provisional damage ranking from the
+currently reconstructed runner-on-base and out state at each failed plate
+appearance, with double plays identified separately and the existing grind
+evidence used to discount longer failures. The game-context reconstruction is
+under review and must not be described as exact until its starting-state query
+passes the regression plan. These results are derived from completeness-gated SPARQL evidence,
+are not asserted as authoritative RDF, and remain a reviewed prototype rather
+than a final published statistic. Reusable analytical grains are materialized
+as SQL candidates, but the Empty Games UI route remains authoritative SPARQL
+until exact end-to-end equivalence is accepted.
 
 The checked-in raw corpus contains 546 distinct completed games with official
 dates from 2026-07-14 through 2026-08-25. The accepted query baseline remains
@@ -59,7 +63,9 @@ queries; the three later canned queries remain separately validated and are
 included in the current 51-query inventory.
 `plate-appearance-fingerprint` and PAQ-1.0 use authoritative MLB outcome,
 bounded grind, and situational evidence. The rating is derived downstream and
-is not asserted during ingestion.
+is not asserted during ingestion. PAQ-1.0 remains reproducible, but its
+game-context input and replacement formula are under review in
+[`web/OFFENSIVE-ANALYTICS-REDESIGN.md`](web/OFFENSIVE-ANALYTICS-REDESIGN.md).
 
 NiFi owns seven separate acquisition-through-promotion lanes. The Game lane
 also owns query-index promotion and batch-aware serving materialization; the
@@ -123,8 +129,9 @@ numerator/denominator calculations. Detailed PAQ evidence remains available in
 the result and CSV without crowding the default table.
 The authoritative and query-index layers have executable SHACL profiles, and
 disposable reasoning output has a separate closure-safe
-provenance profile. All fixture and corpus graphs conform with zero results
-before reasoning is applied. Selective reasoning is
+provenance profile. All fixture and audit-corpus graphs conform with zero
+results before reasoning is applied in the checked-in validation evidence;
+this is not a claim about an uninspected live run. Selective reasoning is
 available for one explicitly anchored plate appearance through separate event
 order, event structure, and participation profiles. Each profile has hard
 computational budgets and emits a pinned BFO CLIF proof package alongside a
@@ -158,12 +165,12 @@ changes institutional effect without erasing the earlier evidence.
 | [`proposals/`](proposals/) | Single review-only catalog for unresolved source and ontology designs | Active review |
 | [`reasoning/`](reasoning/) | Budgeted profiles, pinned BFO CLIF source contract, and reasoning runbook | Active selective experiment |
 | [`data/`](data/) | Untouched development fixture, 546-game raw corpus, and bounded eight-game audit subset | Active immutable inputs |
-| [`archive/`](archive/) | Superseded preprocessing prototype and prior ontology snapshot | Historical |
+| [`archive/`](archive/) | Accepted, rejected, and superseded design records plus retired implementation history | Historical |
 | [`sparql/`](sparql/) | Canned and advanced semantic queries, reusable DSQ modules, and reviewable components for the disposable query-index graph | Active query library and acceleration contract |
 | [`serving/`](serving/) | Versioned derived SQLite schema, promotion contract, rebuild and rollback runbook | Routine Explorer serving active |
 | [`web/`](web/) | Playable local analytics explorer and allowlisted query compiler | Local MVP active |
-| [`scripts/`](scripts/) | Manual import, RML execution, validation, indexing, and infrastructure automation | Active |
-| [`tests/`](tests/) | Offline integration and future regression tests | Active |
+| [`scripts/`](scripts/) | NiFi-invoked pipeline components, infrastructure automation, and focused developer fallbacks | Active |
+| [`tests/`](tests/) | Offline component, contract, integration, and regression tests | Active |
 | [`infra/`](infra/) | Pinned local NiFi and Fuseki development stack | Active |
 
 The ownership rules and the distinction between the Git root and this project
@@ -256,11 +263,11 @@ and never changes the authoritative or query-index graphs.
 ## Next phase
 
 Use [`ROADMAP.md`](ROADMAP.md) as the single current continuation plan. All
-seven accepted MLB lanes passed their bounded source-owned proofs, and a 2026
-season-to-date corpus request was submitted to NiFi on 2026-09-01. Completion
-must be established from NiFi's terminal evidence, not from an attended Codex
-session. The next operational work is promotion-event-driven query/SQL
-materialization and family-by-family Explorer equivalence. The next semantic
+seven accepted MLB lanes passed their bounded source-owned proofs. Live corpus,
+quarantine, cleanup, and serving-build completion must be established from
+NiFi's terminal evidence and machine-local pointers, not from an attended Codex
+session or a timestamped README claim. The next operational work is
+family-by-family Explorer equivalence and SQL admission. The next semantic
 decisions are indexed in [`proposals/`](proposals/): remaining MLB fields,
 temporal Role histories, and the clean Statcast restart. Statcast receives no
 RML until those Mermaids are explicitly accepted. Weather and travel/rest

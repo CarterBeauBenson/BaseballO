@@ -63,14 +63,20 @@ external volume:
   -RemoveLocalAfterVerification
 ```
 
-The command stops NiFi and Fuseki, copies the stopped Fuseki state, verifies an
-exact SHA-256 inventory, writes a machine-local storage contract under
-`%LOCALAPPDATA%\BaseballO\state\storage.json`, starts and health-checks Fuseki
-from the external store, optionally removes the verified local copy, and then
-restarts NiFi. The external root contains a unique marker that prevents a
+The command copies stopped Fuseki state, verifies an exact SHA-256 inventory,
+writes a machine-local storage contract under
+`%LOCALAPPDATA%\BaseballO\state\storage.json`, and starts and checks Fuseki from
+the external store. The external root contains a unique marker that prevents a
 different volume mounted under the same drive letter from receiving RDF. If
 the configured volume or marker is absent, ingestion fails closed instead of
 silently creating a new empty local database.
+
+The migration helper still contains a retired port-8443 NiFi liveness probe,
+while the replacement NiFi runtime uses port 8080. Until that implementation
+defect is corrected, do not rely on the helper to stop or restart NiFi. Stop
+the complete stack explicitly before a future migration and restart it after
+the migration succeeds. The already configured external store does not need
+to be migrated again for normal starts.
 
 On the current workstation, that guarded contract points the high-volume RDF
 state to `D:\BaseballO\RDF`. Runtimes, transient NiFi state, and immutable
@@ -92,16 +98,14 @@ Run these commands from the `Baseball/` project directory:
 
 Open:
 
-- NiFi: <https://127.0.0.1:8443/nifi/>
+- NiFi: <http://127.0.0.1:8080/nifi/>
 - Fuseki UI: <http://127.0.0.1:3031/>
 - Fuseki query endpoint: <http://127.0.0.1:3031/baseball-dev/query>
 - Fuseki read/write Graph Store endpoint: <http://127.0.0.1:3031/baseball-dev/data>
 
-NiFi uses a self-signed local certificate. On the first start, NiFi generates a local username and password and records them in its application log. Display them with:
-
-```powershell
-.\scripts\infra\show-nifi-credentials.ps1
-```
+The replacement development runtime uses unauthenticated HTTP only on
+loopback. It does not create local NiFi credentials or use the retired
+port-8443 HTTPS setup.
 
 Stop the services cleanly before restarting Windows:
 

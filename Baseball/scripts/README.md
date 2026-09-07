@@ -45,9 +45,11 @@ monitor a healthy NiFi instance to refresh the UI.
 python scripts/validate_repository.py
 ```
 
-The checked-in pre-push hook runs the focused semantic gate before publishing.
-Enable it once in a clone with `git config core.hooksPath .githooks` from the
-Git root. CI repeats the history-aware comparison with full Git history.
+When the user reauthorizes Git, the checked-in pre-push hook runs the focused
+semantic gate before publishing. Enable it once in a clone with
+`git config core.hooksPath .githooks` from the Git root. Git and GitHub remain
+disabled until that explicit reauthorization. CI repeats the history-aware
+comparison with full Git history.
 
 Mapping-specific validation remains beside the active mapping in [`../sources/mlb-game/mapping/`](../sources/mlb-game/mapping/).
 

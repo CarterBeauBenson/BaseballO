@@ -18,6 +18,7 @@ not receive payloads or run requests from this lane. Shared identifiers meet
 only after independent RDF promotion.
 
 The `MLB Teams` NiFi group passed its bounded proof, has an enabled 05:00
-Eastern trigger, and received the 2026 corpus request on 2026-09-01. The lane
-promotes one source-owned authority graph per scope and does not build a Game
-query-index graph or invoke the Game serving materializer.
+Eastern trigger, and promotes one source-owned authority graph per scope. It
+does not build a Game query-index graph or invoke the Game serving materializer.
+Current run status belongs to source-local terminal NiFi evidence, not this
+module contract.

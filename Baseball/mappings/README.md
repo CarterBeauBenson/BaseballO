@@ -1,9 +1,9 @@
 # Shared mapping policies
 
 Executable RML is source-owned. The active MLB game mapping is in
-[`../sources/mlb-game/mapping/`](../sources/mlb-game/mapping/). Future source
-families receive sibling modules under `sources/`; they do not add files to a
-shared direct-mapping directory.
+[`../sources/mlb-game/mapping/`](../sources/mlb-game/mapping/). Every other
+source family owns its mapping inside its sibling module under `sources/`;
+none adds files to a shared direct-mapping directory.
 
 [`policies/`](policies/) contains only source-neutral realist modeling patterns
 that source modules may reuse. Source-field IRI templates and processor

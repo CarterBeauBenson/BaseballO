@@ -1,8 +1,15 @@
-# Design records
+# Historical design records
 
 Accepted and rejected proposal packages move here with their disposition and
 review history. They are not executable source modules and must not be imported
 by RML, SHACL, SPARQL, serving, or UI code.
+
+This directory is historical evidence, not a current implementation index or
+continuation plan. A record's acceptance status describes the decision at the
+time it was captured; later records or explicit repository rules may supersede
+it. Use [`../../ROADMAP.md`](../../ROADMAP.md), the active subsystem READMEs,
+and machine-readable contracts for current behavior. The list below highlights
+important records but is not intended to enumerate every archived package.
 
 - [`replay-review/`](replay-review/) — accepted on 2026-08-05 and implemented
   in the authoritative ontology and MLB game source module.
@@ -60,6 +67,8 @@ by RML, SHACL, SPARQL, serving, or UI code.
   batted-ball kinds, offseason temporal parts, and the bounded semantic-freeze
   generator repair.
 - [`nifi-control-plane-hardening/`](nifi-control-plane-hardening/) — accepted
-  on 2026-09-01; separates NiFi reconciliation, exact-build provenance,
-  semantic index compatibility, consumer-grain preflight, and durable
-  completion/outbox dispatch.
+  on 2026-09-01 and subsequently superseded when the old NiFi flow was deleted.
+  It is retained only as failure history. Do not restore its global control
+  plane or use its handoff as an implementation plan; current NiFi contracts
+  live under source modules, [`../../infra/nifi/`](../../infra/nifi/), and
+  [`../../serving/`](../../serving/).

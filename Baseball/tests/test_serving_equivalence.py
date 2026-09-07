@@ -52,6 +52,38 @@ class ServingEquivalenceTests(unittest.TestCase):
         with self.assertRaisesRegex(EQUIVALENCE.EquivalenceError, "did not execute"):
             EQUIVALENCE.response_metadata(payload, "materialized", "probe")
 
+    def test_option_signature_compares_complete_ordered_options(self) -> None:
+        first = {
+            "options": [
+                {"value": "p1", "label": "Player One"},
+                {"value": "p2", "label": "Player Two"},
+            ]
+        }
+        second = {"options": list(reversed(first["options"]))}
+        left = EQUIVALENCE.option_signature(first, "left")
+        right = EQUIVALENCE.option_signature(second, "right")
+        self.assertEqual(left["rowMultisetSha256"], right["rowMultisetSha256"])
+        self.assertNotEqual(left["rowSequenceSha256"], right["rowSequenceSha256"])
+
+    def test_option_metadata_requires_fingerprint_and_candidate_build(self) -> None:
+        authoritative = {"layer": "authoritative", "corpusFingerprint": "a" * 64}
+        candidate = {
+            "layer": "materialized",
+            "servingBuildId": "build-1",
+            "corpusFingerprint": "a" * 64,
+        }
+        self.assertIsNone(
+            EQUIVALENCE.option_response_metadata(
+                authoritative, "authoritative", "options"
+            )["buildId"]
+        )
+        self.assertEqual(
+            EQUIVALENCE.option_response_metadata(
+                candidate, "materialized", "options"
+            )["buildId"],
+            "build-1",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

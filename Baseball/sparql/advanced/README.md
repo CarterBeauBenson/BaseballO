@@ -48,6 +48,14 @@ rating, a bounded version of the existing
 `pitch + swing + 2*contact + 2*foul` grind evidence, and a situational rating.
 Outcome receives 80%, bounded grind 15%, and situation 5%.
 
+That paragraph documents the reproducible PAQ-1.0 contract; it is not an
+endorsement of the formula as the next version. The grind calculation can
+credit one pitch through several overlapping counts, and the game-context
+input is suspected to reconstruct starting state incorrectly. The replacement
+design is tracked in
+[`../../web/OFFENSIVE-ANALYTICS-REDESIGN.md`](../../web/OFFENSIVE-ANALYTICS-REDESIGN.md).
+Do not silently relabel PAQ-1.0 results as PAQ-2.0.
+
 The Explorer features this reviewed query as **Plate Appearance Quality** in
 simple Explore mode while retaining it in the complete reviewed catalog. The
 default table shows PAQ, its band, and its component ratings.

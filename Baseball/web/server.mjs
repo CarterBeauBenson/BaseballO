@@ -230,7 +230,7 @@ function advancedLabel(queryId) {
     .join(" ");
 }
 
-export function aggregatePaqPlayerAverages(payload) {
+export function aggregatePaqPlayerAverages(payload, minimumPlateAppearances = 1) {
   const players = new Map();
   for (const binding of payload.results?.bindings ?? []) {
     const player = binding.batter;
@@ -252,6 +252,7 @@ export function aggregatePaqPlayerAverages(payload) {
   }
   const integer = (value) => ({ type: "literal", datatype: `${XSD}integer`, value: String(value) });
   const bindings = [...players.values()]
+    .filter((aggregate) => aggregate.plateAppearances >= minimumPlateAppearances)
     .sort((left, right) => (right.scoreTotal / right.plateAppearances) - (left.scoreTotal / left.plateAppearances)
       || left.playerLabel.value.localeCompare(right.playerLabel.value))
     .slice(0, MAX_RESULTS)
@@ -277,6 +278,17 @@ export function aggregatePaqPlayerAverages(payload) {
       "poorPlateAppearances", "badPlateAppearances",
     ] },
     results: { bindings },
+  };
+}
+
+export function filterPaqPlayerAverages(payload, minimumPlateAppearances = 1) {
+  const bindings = (payload.results?.bindings ?? []).filter((binding) => {
+    const appearances = Number(binding.plateAppearances?.value);
+    return Number.isInteger(appearances) && appearances >= minimumPlateAppearances;
+  });
+  return {
+    ...payload,
+    results: { ...(payload.results ?? {}), bindings },
   };
 }
 
@@ -465,6 +477,20 @@ function normalizeGameSet(value) {
   const gameSet = value ?? "regular_season";
   if (!GAME_SETS.has(gameSet)) throw new RangeError(`Unsupported game set: ${gameSet}`);
   return gameSet;
+}
+
+export function normalizeMinimumPlateAppearances(value, view) {
+  if (view !== "player_averages") {
+    if (value !== undefined) {
+      throw new RangeError("Minimum plate appearances apply only to player averages.");
+    }
+    return 1;
+  }
+  if (value === undefined) return 1;
+  if (!Number.isInteger(value) || value < 1 || value > 10_000) {
+    throw new TypeError("minimumPlateAppearances must be an integer between 1 and 10000.");
+  }
+  return value;
 }
 
 function shiftIsoDate(value, days) {
@@ -929,7 +955,12 @@ export function createBaseballServer({
         const snapshot = await gameDateSnapshot();
         const cacheKey = `${snapshot.fingerprint}:${gameSet}:${familyId}:${dimensionId}`;
         if (optionCache.has(cacheKey)) {
-          sendJson(response, 200, { options: optionCache.get(cacheKey), cached: true });
+          sendJson(response, 200, {
+            options: optionCache.get(cacheKey),
+            cached: true,
+            layer: "authoritative",
+            corpusFingerprint: snapshot.fingerprint,
+          });
           return;
         }
         let options;
@@ -946,7 +977,12 @@ export function createBaseballServer({
           options = mapOptions(dimensionId, dimension, payload);
         }
         optionCache.set(cacheKey, options);
-        sendJson(response, 200, { options });
+        sendJson(response, 200, {
+          options,
+          cached: false,
+          layer: "authoritative",
+          corpusFingerprint: snapshot.fingerprint,
+        });
         return;
       }
 
@@ -1156,6 +1192,10 @@ export function createBaseballServer({
         } else if (input.view !== undefined) {
           throw new RangeError("Views are only supported for Plate Appearance Quality.");
         }
+        const minimumPlateAppearances = normalizeMinimumPlateAppearances(
+          input.minimumPlateAppearances,
+          view,
+        );
         const visibleColumns = view === "player_averages"
           ? presentation.playerAverageColumns
           : presentation.visibleColumns;
@@ -1167,13 +1207,16 @@ export function createBaseballServer({
             dateScope: normalizeDateScope(input.dateScope),
             gameSet: normalizeGameSet(input.gameSet),
           });
+          const presented = view === "player_averages"
+            ? filterPaqPlayerAverages(materialized, minimumPlateAppearances)
+            : materialized;
           sendJson(response, 200, {
-            head: materialized.head,
-            results: materialized.results,
+            head: presented.head,
+            results: presented.results,
             query: materialized.query,
             meta: {
               durationMs: materialized.serving.durationMs,
-              rowCount: materialized.results?.bindings?.length ?? 0,
+              rowCount: presented.results?.bindings?.length ?? 0,
               layer: "materialized",
               route: `Materialized SQL · ${entry.label}`,
               cached: false,
@@ -1183,6 +1226,7 @@ export function createBaseballServer({
               definition: entry.semanticMode,
               claim: entry.claim,
               view,
+              minimumPlateAppearances: view === "player_averages" ? minimumPlateAppearances : undefined,
               truncatedAt: MAX_RESULTS,
               filters,
               dateScope: materialized.serving.dateScope,
@@ -1209,7 +1253,7 @@ export function createBaseballServer({
           : `${query.trimEnd()}\nLIMIT ${MAX_RESULTS}\n`;
         const execution = await executeCachedSparql(executedQuery, corpusFingerprint);
         const payload = entry.id === GOOD_AT_BAT_QUERY_ID && view === "player_averages"
-          ? aggregatePaqPlayerAverages(execution.payload)
+          ? aggregatePaqPlayerAverages(execution.payload, minimumPlateAppearances)
           : execution.payload;
         sendJson(response, 200, {
           ...payload,
@@ -1226,6 +1270,7 @@ export function createBaseballServer({
             definition: entry.semanticMode,
             claim: entry.claim,
             view,
+            minimumPlateAppearances: view === "player_averages" ? minimumPlateAppearances : undefined,
             truncatedAt: MAX_RESULTS,
             filters,
             dateScope,

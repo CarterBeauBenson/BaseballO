@@ -25,4 +25,7 @@ and validate it against the same allowlist used by the compiler.
 `available-players` has a measured indexed companion, but the reviewed router
 keeps the authoritative version because its simple lookup performance is
 neutral. These SPARQL files remain the authoritative option definitions and
-fallbacks; routine Explorer option lists are read from the validated SQL grains.
+fallbacks. Validated SQL option grains are used only within the currently
+admitted PAQ/Good At Bat serving scope. Option lists for pending Explorer
+families remain on their authoritative path until the owning family passes
+end-to-end equivalence.

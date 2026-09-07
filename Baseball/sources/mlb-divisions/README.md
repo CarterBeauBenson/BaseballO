@@ -10,6 +10,6 @@ identity and name nested in that Division response. It adds no affiliation or
 membership relation and contains no League-season mapping.
 
 The `MLB Divisions` NiFi group passed its bounded proof, has an enabled 05:00
-Eastern trigger, and received the 2026 corpus request on 2026-09-01. It
-promotes its own authority graph and remains operationally independent of the
-Teams and Leagues groups.
+Eastern trigger, promotes its own authority graph, and remains operationally
+independent of the Teams and Leagues groups. Current run status belongs to
+source-local terminal NiFi evidence, not this module contract.

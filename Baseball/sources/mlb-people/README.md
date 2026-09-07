@@ -23,6 +23,7 @@ remains outside the mapping.
 
 The `MLB People` NiFi group passed its bounded proof. Its enabled 05:00 Eastern
 trigger discovers the current season's player population before sending
-independent detail requests, and it received the 2026 corpus request on
-2026-09-01. Successful records promote to source-owned Person authority graphs;
-one failed Person request does not stop another source module.
+independent detail requests. Successful records promote to source-owned Person
+authority graphs; one failed Person request does not stop another source
+module. Current run status belongs to source-local terminal NiFi evidence, not
+this module contract.

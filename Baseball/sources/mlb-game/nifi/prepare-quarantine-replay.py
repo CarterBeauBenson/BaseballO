@@ -181,6 +181,62 @@ def replay_config(contract_path: Path) -> dict[str, Any]:
     return replay
 
 
+def prior_certified_proof(
+    state_root: Path, configured_proof_pks: list[str]
+) -> Path | None:
+    """Return the latest still-verifiable proof of the configured replay lane."""
+    plans_root = (
+        state_root.resolve() / "pipeline" / "evidence" / "nifi" / "quarantine-replay"
+    )
+    proof_paths = sorted(
+        plans_root.glob("*/proof.json"),
+        key=lambda path: path.stat().st_mtime_ns,
+        reverse=True,
+    )
+    for proof_path in proof_paths:
+        try:
+            proof = read_object(proof_path)
+            plan_path = contained_path(
+                Path(str(proof["planPath"])), plans_root, "Prior replay plan"
+            )
+            plan = read_object(plan_path)
+            if (
+                proof.get("artifactType")
+                != "baseballo-mlb-game-quarantine-replay-proof"
+                or proof.get("contractVersion") != 1
+                or plan.get("artifactType")
+                != "baseballo-mlb-game-quarantine-replay-plan"
+                or plan.get("contractVersion") != 1
+                or plan_path.parent.name != plan.get("planId")
+                or [str(item["gamePk"]) for item in plan.get("proof", [])]
+                != configured_proof_pks
+            ):
+                continue
+            created = parse_timestamp(plan["createdAtUtc"])
+            recorded_promotions = {
+                str(contained_path(Path(str(path)), state_root / "pipeline" / "evidence" / "nifi" / "game-promotion", "Prior proof promotion"))
+                for path in proof.get("promotions", [])
+            }
+            if len(recorded_promotions) != len(configured_proof_pks):
+                continue
+            verified = []
+            for item in plan["proof"]:
+                promotion = promotion_for(
+                    state_root,
+                    str(item["gamePk"]),
+                    str(item["inputSha256"]),
+                    created,
+                )
+                if promotion is None:
+                    break
+                verified.append(str(promotion.resolve()))
+            if len(verified) == len(configured_proof_pks) and set(verified) == recorded_promotions:
+                return proof_path.resolve()
+        except (KeyError, OSError, TypeError, ValueError, json.JSONDecodeError):
+            continue
+    return None
+
+
 def work_record(candidate: dict[str, str], phase: str, plan_path: Path) -> dict[str, str]:
     return {
         "phase": phase,
@@ -231,10 +287,20 @@ def create_plan(state_root: Path, contract_path: Path) -> dict[str, Any]:
         replay_candidates[game_pk] = candidate
     proof_pks = [str(item["gamePk"]) for item in replay["proofGames"]]
     missing = [game_pk for game_pk in proof_pks if game_pk not in replay_candidates]
-    if missing:
-        raise ValueError(
-            "Representative quarantine proof inputs are missing: " + ", ".join(missing)
-        )
+    prior_proof: Path | None = None
+    proof_selection_mode = "configured-representative-games"
+    if missing and replay_candidates:
+        prior_proof = prior_certified_proof(state_root, proof_pks)
+        if prior_proof is None:
+            raise ValueError(
+                "Representative quarantine proof inputs are missing and no prior certified "
+                "five-game replay proof is available: " + ", ".join(missing)
+            )
+        # The representative edge-case proof establishes the replay mechanism.
+        # Every later replay still proves up to five exact current payload hashes
+        # before releasing any remainder, so no stale or substituted input can pass.
+        proof_pks = sorted(replay_candidates, key=int)[:5]
+        proof_selection_mode = "current-inputs-after-prior-certified-proof"
     plan_id = uuid.uuid4().hex
     plan_path = (
         state_root.resolve()
@@ -258,6 +324,10 @@ def create_plan(state_root: Path, contract_path: Path) -> dict[str, Any]:
         "planId": plan_id,
         "createdAtUtc": created,
         "contractPath": str(contract_path.resolve()),
+        "proofBasis": {
+            "selectionMode": proof_selection_mode,
+            "priorProofEvidence": str(prior_proof) if prior_proof is not None else None,
+        },
         "proof": proof,
         "remainder": remainder,
         "existingResolutions": [

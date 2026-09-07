@@ -72,9 +72,10 @@ both directions, including current pitch/trajectory classifications and a
 label-fidelity check that detects encoding changes. The builder writes Fuseki's returned Turtle bytes directly
 so UTF-8 labels are never round-tripped through Windows PowerShell's legacy
 text decoding. The preserved 2026-08-04 fixture benchmark captured 6,538 index
-triples from 28,419 authoritative triples; the current mapping produces 30,613
-authoritative fixture triples and requires a new benchmark before a current
-index count is claimed. The historical capture has equivalent identities for 21
+triples from 28,419 authoritative triples. A later historical fixture run
+recorded 30,613 authoritative triples, but neither count is a claim about the
+current 345-map RML. A new matching-corpus benchmark is required before a
+current authoritative/index count is documented. The historical capture has equivalent identities for 21
 hits, 282 pitches, 185 pitch calls, 134 batting acts, 112 contacts, 113 runner
 resolutions, one stolen base, and seven assignments.
 

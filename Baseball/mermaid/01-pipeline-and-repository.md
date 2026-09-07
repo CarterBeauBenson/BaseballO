@@ -39,12 +39,12 @@ flowchart TB
     MAP --> POLICY["policies/<br/>source-neutral realist modeling"]
     ROOT --> MERMAID["mermaid/<br/>mapping review"]
     ROOT --> DATA["data/raw/<br/>untouched development feed"]
-    ROOT --> SCRIPTS["scripts/<br/>active local import and operations"]
+    ROOT --> SCRIPTS["scripts/<br/>NiFi-invoked components and<br/>focused developer tools"]
     ROOT --> TESTS["tests/<br/>offline acceptance path"]
     ROOT --> SPARQL["sparql/<br/>source-scoped queries"]
     ROOT --> SERVING["serving/<br/>rebuildable analytical SQL"]
     ROOT --> WEB["web/<br/>Explorer"]
-    ROOT --> ARCHIVE["archive/<br/>preprocessing prototype and prior ontology"]
+    ROOT --> ARCHIVE["archive/<br/>historical design and<br/>implementation records"]
 
     POLICY -->|"governs"| MLB
     POLICY -->|"governs"| REF

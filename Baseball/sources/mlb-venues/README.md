@@ -48,8 +48,8 @@ their response-versioned measurement or classification evidence.
 
 The `MLB Venues` NiFi group passed its bounded proof. Its enabled 05:00 Eastern
 trigger discovers the season's venue population before sending independent
-detail requests, and it received the 2026 corpus request on 2026-09-01. A
-healthy run is asynchronous and is not polled continuously. Source-catalog
+detail requests. A healthy run is asynchronous and is not polled continuously;
+current status belongs to source-local terminal NiFi evidence. Source-catalog
 registration and the process-group contract are active and version controlled.
 
 ## Deliberate exclusions

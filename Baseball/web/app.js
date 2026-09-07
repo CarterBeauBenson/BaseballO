@@ -92,6 +92,8 @@ const elements = {
   advancedQueryField: document.querySelector("#advanced-query-field"),
   paqViewField: document.querySelector("#paq-view-field"),
   paqView: document.querySelector("#paq-view"),
+  paqMinimumPaField: document.querySelector("#paq-minimum-pa-field"),
+  paqMinimumPa: document.querySelector("#paq-minimum-pa"),
   advancedMode: document.querySelector("#advanced-mode"),
   advancedBuilderTitle: document.querySelector("#advanced-builder-title"),
   advancedClaim: document.querySelector("#advanced-claim"),
@@ -354,6 +356,8 @@ function renderAdvancedBuilder(featuredOnly = false) {
   elements.advancedQueryField.hidden = true;
   elements.paqViewField.hidden = !featuredOnly;
   const isPaq = elements.advancedSelect.value === GOOD_AT_BAT_QUERY_ID;
+  const paqView = featuredOnly ? elements.paqView.value : selectedAdvancedView;
+  elements.paqMinimumPaField.hidden = !isPaq || paqView !== "player_averages";
   elements.paqFieldGuide.hidden = !isPaq;
   elements.paqMath.hidden = !isPaq;
   elements.runAdvancedLabel.textContent = featuredOnly ? "Explore plate appearances" : "Run reviewed question";
@@ -961,6 +965,10 @@ async function runAdvanced() {
         view: id === GOOD_AT_BAT_QUERY_ID
           ? currentFamily === "good_at_bat" ? elements.paqView.value : selectedAdvancedView
           : undefined,
+        minimumPlateAppearances: id === GOOD_AT_BAT_QUERY_ID
+          && (currentFamily === "good_at_bat" ? elements.paqView.value : selectedAdvancedView) === "player_averages"
+          ? Number.parseInt(elements.paqMinimumPa.value, 10)
+          : undefined,
         filters: filtersFrom(elements.advancedFilterControls),
         gameSet: gameSetRequest(),
         dateScope: dateScopeRequest(),
@@ -1032,6 +1040,7 @@ elements.resetEmptyGamesButton.addEventListener("click", () => {
 });
 elements.resetAdvancedButton.addEventListener("click", () => {
   if (currentFamily === "good_at_bat") elements.paqView.value = "plate_appearances";
+  elements.paqMinimumPa.value = "1";
   renderAdvancedBuilder(currentFamily === "good_at_bat");
   renderSpecialFilters(currentFamily);
   showToast("Filters reset");
@@ -1049,6 +1058,7 @@ elements.advancedSelect.addEventListener("change", () => {
 elements.emptyGamesAnalysis.addEventListener("change", renderEmptyGameDefinition);
 elements.paqView.addEventListener("change", () => {
   selectedAdvancedView = elements.paqView.value;
+  elements.paqMinimumPaField.hidden = selectedAdvancedView !== "player_averages";
 });
 elements.derivedNumerator.addEventListener("change", renderDerivedContract);
 elements.derivedDenominator.addEventListener("change", renderDerivedContract);

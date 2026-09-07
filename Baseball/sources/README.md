@@ -30,10 +30,10 @@ provider.
 
 All seven registered modules are active. Each passed its current bounded proof,
 owns an independent 05:00 Eastern trigger, and can be stopped without stopping
-the other six. A 2026 season-to-date corpus request for all seven lanes was
-submitted to NiFi on 2026-09-01. That statement records submission only; use
-the source-local terminal evidence to establish completion, quarantine, and
-cleanup without continuously polling the processors.
+the other six. Submission and completion of a particular corpus run are
+runtime facts, not source-contract facts. Use source-local terminal evidence to
+establish promotion, quarantine, and cleanup without continuously polling the
+processors.
 
 Persistent, re-identifiable entities use module-owned authority products.
 One-time Processes and Acts require event-scoped evidence rather than reuse as

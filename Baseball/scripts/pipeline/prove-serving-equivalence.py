@@ -171,20 +171,34 @@ def managed_explorer(state_root: Path, timeout_seconds: float):
 
 
 def selected_probes(catalogs: dict[str, dict[str, Any]], family: str) -> list[dict[str, Any]]:
-    probes = [probe for probe in BASE_ACCEPTANCE.build_probes(catalogs) if probe["kind"] == "result"]
+    probes = BASE_ACCEPTANCE.build_probes(catalogs)
     if family == "paq":
-        selected = [probe for probe in probes if probe["name"].startswith(PAQ_PREFIX)]
+        selected = [
+            probe for probe in probes
+            if probe["kind"] == "result" and probe["name"].startswith(PAQ_PREFIX)
+        ]
     elif family == "advanced":
         selected = [
             probe for probe in probes
-            if probe["name"].startswith("advanced:") and not probe["name"].startswith(PAQ_PREFIX)
+            if probe["kind"] == "result"
+            and probe["name"].startswith("advanced:")
+            and not probe["name"].startswith(PAQ_PREFIX)
         ]
     elif family == "explore":
-        selected = [probe for probe in probes if probe["name"].startswith("explore:")]
+        selected = [
+            probe for probe in probes
+            if probe["name"].startswith("explore:") or probe["name"].startswith("options:")
+        ]
     elif family == "empty-games":
-        selected = [probe for probe in probes if probe["name"].startswith("empty-games:")]
+        selected = [
+            probe for probe in probes
+            if probe["kind"] == "result" and probe["name"].startswith("empty-games:")
+        ]
     elif family == "derived":
-        selected = [probe for probe in probes if probe["name"].startswith("derived:")]
+        selected = [
+            probe for probe in probes
+            if probe["kind"] == "result" and probe["name"].startswith("derived:")
+        ]
     else:
         selected = probes
     if not selected:
@@ -230,6 +244,27 @@ def result_signature(payload: dict[str, Any], label: str) -> dict[str, Any]:
     }
 
 
+def option_signature(payload: dict[str, Any], label: str) -> dict[str, Any]:
+    options = payload.get("options")
+    if not isinstance(options, list):
+        raise EquivalenceError(f"{label} has no option list")
+    canonical_rows: list[str] = []
+    fields: set[str] = set()
+    for option in options:
+        if not isinstance(option, dict) or any(not isinstance(key, str) for key in option):
+            raise EquivalenceError(f"{label} contains an invalid option")
+        fields.update(option)
+        canonical_rows.append(canonical_json(option))
+    sequence = "\n".join(canonical_rows).encode("utf-8")
+    row_set = "\n".join(sorted(canonical_rows)).encode("utf-8")
+    return {
+        "variables": sorted(fields),
+        "rowCount": len(canonical_rows),
+        "rowSequenceSha256": hashlib.sha256(sequence).hexdigest(),
+        "rowMultisetSha256": hashlib.sha256(row_set).hexdigest(),
+    }
+
+
 def response_metadata(payload: dict[str, Any], expected_layer: str, label: str) -> dict[str, Any]:
     meta = payload.get("meta")
     accepted_layers = {expected_layer}
@@ -239,6 +274,19 @@ def response_metadata(payload: dict[str, Any], expected_layer: str, label: str) 
         raise EquivalenceError(f"{label} did not execute on {expected_layer}")
     build_id = meta.get("servingBuildId")
     fingerprint = meta.get("corpusFingerprint")
+    if expected_layer == "materialized" and (not isinstance(build_id, str) or not build_id):
+        raise EquivalenceError(f"{label} has no SQL build ID")
+    if not isinstance(fingerprint, str) or len(fingerprint) != 64:
+        raise EquivalenceError(f"{label} has no valid corpus fingerprint")
+    return {"buildId": build_id, "corpusFingerprint": fingerprint}
+
+
+def option_response_metadata(payload: dict[str, Any], expected_layer: str, label: str) -> dict[str, Any]:
+    layer = payload.get("layer")
+    if layer != expected_layer:
+        raise EquivalenceError(f"{label} did not execute on {expected_layer}")
+    build_id = payload.get("servingBuildId")
+    fingerprint = payload.get("corpusFingerprint")
     if expected_layer == "materialized" and (not isinstance(build_id, str) or not build_id):
         raise EquivalenceError(f"{label} has no SQL build ID")
     if not isinstance(fingerprint, str) or len(fingerprint) != 64:
@@ -293,17 +341,31 @@ def prove(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
                 timeout_seconds=args.timeout_seconds, layer="candidate-sql",
                 equivalence_token=args.equivalence_token,
             )
-            authoritative_meta = response_metadata(authoritative, "authoritative", probe["name"])
-            candidate_meta = response_metadata(candidate, "materialized", probe["name"])
+            if probe["kind"] == "options":
+                authoritative_meta = option_response_metadata(
+                    authoritative, "authoritative", probe["name"]
+                )
+                candidate_meta = option_response_metadata(
+                    candidate, "materialized", probe["name"]
+                )
+            else:
+                authoritative_meta = response_metadata(authoritative, "authoritative", probe["name"])
+                candidate_meta = response_metadata(candidate, "materialized", probe["name"])
             if authoritative_meta["corpusFingerprint"] != candidate_meta["corpusFingerprint"]:
+                evidence["fingerprintMismatch"] = {
+                    "probe": probe["name"],
+                    "authoritative": authoritative_meta["corpusFingerprint"],
+                    "candidateSql": candidate_meta["corpusFingerprint"],
+                }
                 raise EquivalenceError(f"{probe['name']} compared different corpus fingerprints")
             if build_id is None:
                 build_id = str(candidate_meta["buildId"])
                 fingerprint = str(candidate_meta["corpusFingerprint"])
             elif (candidate_meta["buildId"], candidate_meta["corpusFingerprint"]) != (build_id, fingerprint):
                 raise EquivalenceError(f"{probe['name']} used a different immutable SQL build")
-            authoritative_signature = result_signature(authoritative, f"{probe['name']} authoritative")
-            candidate_signature = result_signature(candidate, f"{probe['name']} candidate SQL")
+            signature = option_signature if probe["kind"] == "options" else result_signature
+            authoritative_signature = signature(authoritative, f"{probe['name']} authoritative")
+            candidate_signature = signature(candidate, f"{probe['name']} candidate SQL")
             if authoritative_signature != candidate_signature:
                 raise EquivalenceError(
                     f"{probe['name']} differs: authoritative={authoritative_signature}; "

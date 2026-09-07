@@ -21,7 +21,7 @@ flowchart TD
     RAW --> FIELDING["fielding credits: role trigger only"]
 ```
 
-The active RML contains 87 logical sources. Repeated filters are deliberate:
+The active RML contains 98 logical sources. Repeated filters are deliberate:
 one source record may support distinct acts, physical processes, judgments,
 decisions, calls, counted processes, records, sites, roles, and artifacts. The
 temporary context adds ancestor identity but never changes or replaces the raw

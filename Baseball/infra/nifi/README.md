@@ -112,10 +112,10 @@ own token-protected loopback Explorer child process, so it does not depend on
 or expose candidate routes through the normal desktop UI. A proof failure
 cannot replace an RDF or SQL pointer and cannot stop a source lane.
 
-The current 2026 season-to-date request for all seven lanes was submitted on
-2026-09-01. This runbook does not infer completion from submission; its
-terminal evidence remains the authority for promoted, cleaned, or quarantined
-work.
+This runbook intentionally does not record submission or completion of a
+particular run. Source-local terminal evidence is the authority for promoted,
+cleaned, or quarantined work; serving pointers and their evidence are the
+authority for materialization status.
 
 Provisioners require owned processors to be stopped and refuse to replace a
 connection containing queued FlowFiles. The full corpus trigger is therefore

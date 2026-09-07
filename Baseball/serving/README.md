@@ -133,6 +133,13 @@ contract, query, schema, materializer, mapping, and read
 adapter hashes are all recorded in each immutable build. A change to any one
 of them makes the prior build stale.
 
+PAQ-1.0 remains available for reproducibility, but its grind and game-context
+designs are under review. The suspected context-query defect and PAQ-2.0
+boundary are documented in
+[`../web/OFFENSIVE-ANALYTICS-REDESIGN.md`](../web/OFFENSIVE-ANALYTICS-REDESIGN.md).
+An immutable build proves which formula ran; it does not prove that a disputed
+analytical definition is correct.
+
 ## Rebuild and backfill
 
 NiFi owns rebuild and backfill orchestration. A rebuild request enters the
@@ -148,9 +155,9 @@ does not replace the NiFi lifecycle or authorize a production backfill.
 Promotion does not create an equivalence claim.
 
 `serving/nifi/provision.ps1` owns incremental authority-event materialization
-and explicit full RDF rebuilds. A full authority rebuild was submitted on
-2026-09-03. Its terminal evidence, rather than submission, determines whether
-an authority serving build was promoted.
+and explicit full RDF rebuilds. A submission is not evidence of promotion;
+terminal evidence and `authority/current.json` determine whether an authority
+serving build became current.
 
 `serving/dsq-nifi/provision.ps1 -RunFullBackfill` submits a full 56-DSQ game
 backfill once and returns immediately. Normal post-ingest refresh remains in
@@ -174,8 +181,8 @@ allowlist, and input validation. The proof never edits `serving/contract.json`
 and therefore cannot admit itself. After a family has passing reviewed
 evidence, its route status can be changed deliberately and the existing
 black-box `verify-explorer-serving.py` suite can prove the admitted UI path.
-The first `explore` family proof was submitted asynchronously on 2026-09-03;
-only its terminal immutable evidence can establish equivalence.
+Submitting a family proof does not establish equivalence. Only its terminal
+immutable evidence can support a later, deliberate route-admission change.
 
 ## Failure, staleness, and rollback
 

@@ -28,22 +28,23 @@ actual emitted graph can be compared.
 8. [Direct game import fallback](08-manual-game-import.md)
 9. [Generated discrete event patterns](patterns/README.md)
 
-## Current snapshot
+## Current structural snapshot
 
 | Measure | Revised mapping |
 | --- | ---: |
-| Logical sources | 87 |
-| Triples maps | 326 |
+| Logical sources | 98 |
+| Triples maps | 345 |
 | Referencing-object-map joins | 0 |
-| BaseballO classes used | 147 |
+| BaseballO classes used | 145 |
 | Undeclared BaseballO classes | 0 |
-| Sample generated triples | 30,613 |
-| Sample plate appearances | 79 |
-| Sample pitches and pitch motions | 282 each |
-| Sample pitches with complete ancestor context | 282 |
-| Sample swing/bunt acts with complete ancestor context | 134 |
-| Sample bat-ball contacts and batted-ball motions | 112 each |
-| Sample baserunning acts, runner resolutions, and runner records | 113 each |
+| Review patterns | 60 |
+| Generated pattern pages | 120 |
+
+The generated [pattern catalog](patterns/README.md) records the current mapping
+fingerprint and triples-map assignment and is the authority when this summary
+and generated evidence disagree. Event and triple counts for individual
+fixtures belong in generated validation evidence rather than this hand-edited
+index.
 
 The end-to-end pinned RML processor and generated-RDF validator both pass on game 566279.
 The checked-in eight-game 2026-08-03 corpus also passes repository validation.

@@ -7,4 +7,6 @@ This directory contains superseded artifacts retained for provenance:
 - [`design-records/`](design-records/) preserves accepted and rejected review
   packages after they leave the single active proposal catalog.
 
-Neither artifact is part of the active pipeline. New MLB game work should target [`../sources/mlb-game/`](../sources/mlb-game/) and [`../ontology/BaseballO.ttl`](../ontology/BaseballO.ttl).
+None of these artifacts is part of the active pipeline. New MLB game work
+should target [`../sources/mlb-game/`](../sources/mlb-game/) and
+[`../ontology/BaseballO.ttl`](../ontology/BaseballO.ttl).

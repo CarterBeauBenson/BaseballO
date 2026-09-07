@@ -1,7 +1,7 @@
 # BaseballO roadmap
 
 This is the current ordered work queue. Completed implementation detail belongs
-in subsystem documentation and Git history, not in this file.
+in subsystem documentation and archived design records, not in this file.
 
 ## Fixed architecture
 
@@ -24,13 +24,10 @@ transient API payloads
   end-to-end equivalence is accepted. Live SPARQL remains for new research,
   definitions, audits, backfills, and unmigrated questions.
 
-## Current operational baseline (not semantic acceptance)
+## Implemented baseline and runtime-status boundary
 
-- MLB game mapping: 326 triples maps and 87 logical sources.
-- Evidence corpus: 2,572 authoritative game graphs in the live store as of
-  2026-09-03. Promotion evidence remains the admission boundary; the two MLB
-  schedule-batch manifests remain pending until the derived serving rebuild
-  reaches terminal success.
+- MLB game mapping: 345 triples maps and 98 logical sources. The generated
+  Mermaid catalog is the authoritative current coverage count.
 - Query library: 51 canned, 17 advanced, and 19 reviewed
   authoritative/index equivalence pairs.
 - Explorer: shared grains for routine families can be materialized, but only
@@ -43,20 +40,12 @@ transient API payloads
   bounded proofs passed RML, source SHACL, promotion, and cleanup; the Game
   proof also passed index promotion and SQL materialization. Daily 05:00
   Eastern triggers are enabled. Proof and corpus operations are explicit
-  one-shot submissions rather than recurring schedules. A 2026 season-to-date
-  request for all seven lanes was submitted on 2026-09-01; its result must be
-  read from terminal NiFi evidence after completion or failure.
+  one-shot submissions rather than recurring schedules.
 - Shared downstream NiFi: every source lane now emits an immutable promoted-
   graph event before cleanup. `Analytical Serving` consumes declared authority
   dependencies into an immutable SQLite build, `Repository Evidence` runs the
   aggregate repository gate daily at 06:30 Eastern without controlling source
-  lanes, and `Serving Equivalence` owns manual pre-admission family proofs. A
-  full authority-RDF serving rebuild was submitted asynchronously on
-  2026-09-03. Its first attempt exposed an under-correlated stolen-base join in
-  the derived runner-resolution grain; the join was corrected through its
-  source Baseball Event Record, the focused materializer suite and a live
-  stolen-base game proof passed, and NiFi owns the asynchronous retry. Terminal
-  success is still not inferred from submission.
+  lanes, and `Serving Equivalence` owns manual pre-admission family proofs.
 - MLB reference/event modules: Teams, Leagues, Divisions, People, Venues, and
   Transactions have approved semantic contracts with no open modeling blockers.
   Each owns an endpoint-specific connector, source-owned NiFi process group,
@@ -69,7 +58,12 @@ transient API payloads
   ontology debt and unresolved future-source work remain machine-readable; new
   debt or an unreviewed protected-file change fails.
 
-## Immediate. Complete the submitted corpus lifecycle and downstream serving
+Live graph counts, active queues, quarantines, submitted batches, and current
+SQL build IDs are intentionally absent from this roadmap. Read those facts from
+NiFi's terminal evidence, the graph store, and the machine-local serving
+pointers. A submitted request is never documented as completed work.
+
+## Immediate. Complete the corpus lifecycle and downstream serving
 
 Do not describe BaseballO as ready for ingestion merely because an individual
 mapping, source lane, or control primitive passes. Ingestion readiness means
@@ -142,11 +136,16 @@ schedule and may be disabled without stopping any other connector.
   must not block activation of an unrelated proven lane.
 - [x] Submit the season/corpus run only after the relevant lanes and downstream
   materialization lifecycle have passed their bounded proofs.
-- [ ] Review terminal promotion, cleanup, quarantine, and batch-materialization
-  evidence after NiFi completes the submitted run; do not poll it continuously.
+- [ ] For the next activation proof, review terminal promotion, cleanup,
+  quarantine, and batch-materialization evidence after NiFi completes; do not
+  poll it continuously.
 
 ## 0. Close discovered correctness gaps
 
+- [ ] Replace the retired port-8443 NiFi liveness probes in
+  `scripts/infra/migrate-rdf-storage.ps1` with the replacement runtime's shared
+  port configuration, then prove stop/restart behavior without moving the
+  already configured RDF store.
 - [ ] Resolve the three frozen structural findings for
   `GroundedIntoDoublePlayProcess` only after its source-independent
   institutional and ground-ball differentiae are reviewed. The obsolete six
@@ -170,10 +169,11 @@ schedule and may be disabled without stopping any other connector.
 - [ ] Capture current-contract SPARQL-to-SQL result equivalence per Explorer
   family before labeling the integrity-gated routes equivalence-proven. The
   fail-closed candidate/read boundary, exact result comparator, immutable
-  evidence format, and manual NiFi lane now exist; no pending family is
-  admitted until its proof actually passes and is reviewed. The first Explore
-  family proof was submitted asynchronously on 2026-09-03; its result is not
-  inferred from submission.
+  evidence format, complete Explore option-list comparison, and manual NiFi
+  lane now exist; no pending family is admitted until its proof actually
+  passes and is reviewed. Fingerprint mismatches record both compared values
+  rather than only a generic failure. Submission of an equivalence run does
+  not change route admission.
 - [ ] Migrate `game_dimension.game_set` serving extraction from compact
   acquisition provenance to the accepted authoritative season-phase RDF, prove
   historical equivalence, and rebuild the serving layer. Fixture membership
@@ -245,8 +245,8 @@ the triple store through explicitly multi-source SPARQL.
 
 ## 5. Serving and performance follow-through
 
-- [ ] After the active corpus run reaches terminal evidence, reorganize the
-  NiFi canvas without changing runtime behavior. Keep the root view limited to
+- [ ] With no corpus work active and after recording terminal evidence,
+  reorganize the NiFi canvas without changing runtime behavior. Keep the root view limited to
   the seven detachable source lanes and shared downstream work; show each
   source lane as `Acquire -> Map -> Validate -> Promote -> Materialize`, with
   retry, failure, quarantine, cleanup, proof, and provenance processors
@@ -254,9 +254,9 @@ the triple store through explicitly multi-source SPARQL.
   queue, relationship, retry limit, evidence contract, and source-isolation
   boundary, and prove the reorganized flow against the existing terminal
   evidence before replacing the current canvas.
-- [ ] After the active corpus run reaches terminal evidence, remove the MLB-game
-  promotion bottleneck by splitting parallel, isolated query-index preparation
-  from the single-writer graph-pair promotion stage. Keep the accepted RML,
+- [ ] With no corpus work active and after recording terminal evidence, remove
+  the MLB-game promotion bottleneck by splitting parallel, isolated query-index
+  preparation from the single-writer graph-pair promotion stage. Keep the accepted RML,
   source SHACL, query-index CONSTRUCT queries, graph identities, retry policy,
   and RDF semantics unchanged.
 - [ ] Run query-index construction, query-index SHACL, and authoritative/index
@@ -270,8 +270,8 @@ the triple store through explicitly multi-source SPARQL.
 - [ ] Before deploying the split flow, prove it on 50 games: authoritative RDF
   hashes, indexed row sets, and triple counts must match the current contract;
   every submitted game must terminate as promoted or quarantined; and measured
-  throughput must improve. Do not reconcile or modify the active promotion
-  scripts during the current corpus run.
+  throughput must improve. Do not deploy or reconcile promotion changes while
+  corpus work is active.
 - [x] Add reusable pitch and runner-resolution SQL grains for the candidate
   Explorer routes. The runner grain is keyed by one reviewed resolution and
   correlates stolen-base evidence through the resolution's Baseball Event
@@ -292,9 +292,9 @@ the triple store through explicitly multi-source SPARQL.
   and replace-by-authority-graph SQL contract.
 - [x] Add NiFi materialization stages and SQL tables for the authority specs.
   The materializer retains exact RDF bindings, proves source-graph replacement
-  in focused tests, and promotes an immutable pointer; UI authority lookups
-  remain future consuming features and the submitted full RDF rebuild still
-  requires terminal evidence.
+  in focused tests, and promotes an immutable pointer. UI authority lookups
+  remain future consuming features; any rebuild still requires terminal
+  evidence before it is described as current.
 - [ ] Add explicit, equivalence-tested bridge modules only when a DSQ needs to
   join two fact grains, then let NiFi compile and materialize that admitted
   question through the existing serving lifecycle.
@@ -309,6 +309,29 @@ the triple store through explicitly multi-source SPARQL.
 - [ ] Move additional Explorer families to SQL one at a time after row, filter,
   aggregation, and date-scope equivalence is demonstrated.
 
+## 6. Redesign the primary offensive analytics
+
+The working category definitions and implementation boundary are recorded in
+[`web/OFFENSIVE-ANALYTICS-REDESIGN.md`](web/OFFENSIVE-ANALYTICS-REDESIGN.md).
+That note does not alter PAQ-1.0 or approve a replacement formula.
+
+- [ ] Diagnose the game-context query and prove that starting base/out, inning,
+  and score evidence is not contaminated by events or state produced during
+  the plate appearance.
+- [ ] Add focused regression examples for runner movement, inning-ending runner
+  outs, two-out situations, runs scoring, and walk-offs.
+- [ ] Name and define the fifth primary offensive category; four are currently
+  identified: Damage, Grind, PAQ, and Empty Game.
+- [ ] Define the supported plate-appearance, game, stretch, and season behavior
+  for each category, including whether the result is a total, average, count,
+  or ratio.
+- [ ] Review PAQ-2.0 with outcome at approximately 60% and explicitly decide
+  how context, Grind, and batted-ball quality share the remaining weight.
+- [ ] Keep PAQ-1.0 reproducible and introduce PAQ-2.0 as a separately versioned
+  analytic only after review.
+- [ ] Materialize corrected reusable context and offensive grains through NiFi,
+  then admit each SQL route only after exact same-corpus equivalence.
+
 ## Coding continuation
 
 Git and GitHub operations are disabled until the user explicitly reauthorizes
@@ -316,8 +339,8 @@ them. Do not use the archived control-plane handoff as an implementation plan.
 It records a discarded design.
 
 Continue from the clean, proven seven-lane architecture. Do not monitor the
-submitted corpus run continuously. When requested, or after NiFi records a
-terminal failure, review its persisted evidence and repair the versioned cause.
+normal NiFi runs continuously. When requested, or after NiFi records a terminal
+failure, review persisted evidence and repair the versioned cause.
 Promoted-graph-event-driven authority SPARQL and SQL materialization and the
 aggregate repository-validation observer now exist. Review their terminal
 NiFi evidence when requested, then close Explorer-family equivalence one

@@ -5,7 +5,7 @@ directory.
 
 Repository-level validation remains in
 [`../scripts/validate_repository.py`](../scripts/validate_repository.py). It
-currently parses 106 SPARQL files, checks the RML and 117 generated pattern pages,
+currently parses 106 SPARQL files, checks the RML and 120 generated pattern pages,
 executes the web tests, verifies 51 canned and 17 advanced baselines, and checks
 19 benchmark pairs, 19 reviewed routes, 38 optimized algebra plans, and 38
 direct TDB2 captures. The active mapping provides its source and collision
@@ -45,9 +45,10 @@ It also validates the six-run reviewed simple/complicated comparison, including
 profile and ruleset hashes, fixed budgets, predicate-query row hashes, and all
 181 proved obligations.
 
-The abandoned NiFi control-plane, evidence-stage, and corpus-coordinator suites
-were removed with their implementation. They are archived design history, not
-current executable contracts.
+The retired global NiFi control-plane and corpus-coordinator suites were
+removed with their implementation. They are archived design history, not
+current executable contracts. The replacement source-local lanes and separate
+`Repository Evidence` observer have their own focused tests below.
 
 The clean NiFi runtime has seven source-owned process groups. Their checked-in
 provisioners and stage runners receive only focused parser and contract checks

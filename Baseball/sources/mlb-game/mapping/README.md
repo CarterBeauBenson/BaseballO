@@ -130,9 +130,9 @@ python Baseball/sources/mlb-game/mapping/validate_mlb_game_mapping.py Baseball/d
 
 That command is the focused static developer check for this component. NiFi's
 MLB-game mapping lane owns routine RML execution, source SHACL, promotion,
-quarantine, and evidence. The aggregate repository gate will return as a
-separate NiFi-owned stage after the clean vertical slice is proven; do not
-reproduce either workflow as a routine manual script chain.
+quarantine, and evidence. The separate NiFi `Repository Evidence` group owns
+the aggregate repository gate; do not reproduce either workflow as a routine
+manual script chain.
 
 Static validation checks Turtle, TriplesMap structure, logical sources,
 processor-incompatible JSONPath expressions, declared BaseballO classes,

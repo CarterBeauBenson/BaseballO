@@ -40,18 +40,17 @@ def literal(value: object) -> dict[str, str]:
 
 
 class ServingLayerTests(unittest.TestCase):
-    def test_candidate_adapter_bypasses_only_pending_route_status(self) -> None:
+    def test_candidate_adapter_bypasses_pending_route_admission_only(self) -> None:
         contract = MODULE.load_object(MODULE.CONTRACT)
         CANDIDATE_MODULE.allow_candidate_route(
             {"id": "swing-to-result-funnel"}, contract
         )
+        CANDIDATE_MODULE.allow_candidate_route(
+            {"route": "options", "family": "baserunning", "dimension": "player"},
+            contract,
+        )
         with self.assertRaisesRegex(ValueError, "Unsupported materialized route"):
             CANDIDATE_MODULE.allow_candidate_route({"route": "unknown"}, contract)
-        with self.assertRaisesRegex(ValueError, "only for the PAQ/Good At Bat"):
-            CANDIDATE_MODULE.allow_candidate_route(
-                {"route": "options", "family": "baserunning", "dimension": "player"},
-                contract,
-            )
 
     def test_serving_contract_admits_only_paq_and_its_required_options(self) -> None:
         contract = MODULE.load_object(MODULE.CONTRACT)

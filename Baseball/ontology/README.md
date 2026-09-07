@@ -92,6 +92,11 @@ taxonomy and annotations go in `BaseballO.ttl`, while reviewed restrictions go
 in `BaseballO-axioms-overlay.ttl`. New object properties require explicit
 approval.
 
-Run `python scripts/validate_ontology_overlay.py` from the repository root to verify that the base contains no optional restrictions, the overlay introduces no named vocabulary, every referenced class and object property occurs in the repository, and cardinality axioms do not use transitive properties. The full `python scripts/validate_repository.py` check includes this validation.
+Run `python Baseball/scripts/validate_ontology_overlay.py` from the Git
+repository root to verify that the base contains no optional restrictions, the
+overlay introduces no named vocabulary, every referenced class and object
+property occurs in the repository, and cardinality axioms do not use transitive
+properties. The full `python Baseball/scripts/validate_repository.py` check
+includes this validation.
 
 The earlier `0.2.0` snapshot is preserved in [`../archive/ontology-v0.2.0.ttl`](../archive/ontology-v0.2.0.ttl). Do not modify the active ontology merely to make a mapping convenient; unresolved MLB game coverage belongs in that source module's [`ontology-coverage-gaps.yaml`](../sources/mlb-game/mapping/ontology-coverage-gaps.yaml).
