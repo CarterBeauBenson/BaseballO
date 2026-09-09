@@ -1,0 +1,22 @@
+{
+  "artifactType": "baseballo-metric-policy-batch-decision",
+  "contractVersion": 1,
+  "decisionId": "metric-suite-gap-answers-2026-09-09",
+  "decidedAt": "2026-09-09",
+  "decidedBy": "Carter Beau Benson",
+  "scope": "Explicit answers to questions 1-6, 8 and 9. No new ontology class, object property, graph identity policy, source completeness claim or semantic fingerprint is admitted. Question 7 requires explanation and is not accepted.",
+  "accepted": [
+    {"question": 1, "id": "paq-a-immediate-consequence-cohort", "answer": "Latter", "meaning": "Compare PAs by occupied bases and out count immediately before the batter consequence, not at PA start. In the steal-then-single example, use second base for the comparison cohort. Independent progress remains excluded from batter credit."},
+    {"question": 2, "id": "independent-positive-marginal-weights", "answer": "Yes", "meaning": "Fixed additive marginal values: first to second = 1/3, second to third = 1/2, third to home = 1. First to third = 5/6 independent of source-row segmentation. These are analytical advancement points, not measured Speed."},
+    {"question": 3, "id": "independent-gain-damage-net", "answer": "I agree", "meaning": "Report positive independent advancement, accepted damage magnitude, and net contribution = advancement minus damage together. Preserve all three components."},
+    {"question": 4, "id": "rdr-review-eligible-denominator", "answer": "I agree", "meaning": "Review-dependence denominator includes all decisions eligible for review in the declared population, including decisions never reviewed. Exact outcome categories, operative identity and season-specific eligibility still require evidence and review."},
+    {"question": 5, "id": "rdr-separated-review-mechanisms", "answer": "Sure", "meaning": "Report traditional replay and ball/strike challenges separately; do not pool their review-dependence results."},
+    {"question": 6, "id": "metric-supported-safe-end-state", "answer": "yes", "meaning": "A source's explicit supported safe association with a Base at the relevant boundary may supply the metric end state even if exact physical location and persistence duration are unknown. This does not assert physical location or a stasis. The supported authoritative graph representation remains to be reviewed."},
+    {"question": 8, "id": "operative-outcome-without-original-call", "answer": "yes", "meaning": "Ordinary trajectory scoring may use a supported final operative runner outcome when the original pre-review call is unavailable. Review-dependent calculations remain unavailable where required evidence is missing. This does not make every final source label a proven operative outcome."},
+    {"question": 9, "id": "separate-contribution-and-official-pa-attribution", "answer": "It should be separated", "meaning": "Keep actual consequence-contributor attribution separate from official statistical PA attribution in mid-turn substitutions. Do not transfer the whole PA or earlier actions merely because a replacement finishes the turn. Exact participant/action links remain evidence requirements."}
+  ],
+  "unresolved": [
+    {"question": 7, "id": "reconciled-personal-trajectory-continuity", "answer": "Say more", "status": "explanation-requested-not-approved", "proposal": "Whether an independently reconciled complete history, matching participant/segment boundaries, and accounted-for movements, outcomes, substitutions and inning boundaries can establish a continuous personal trajectory. Matching IDs or adjacent records alone remain insufficient."}
+  ],
+  "unchanged": ["No new object properties, including index predicates", "No fabricated source or RDF completeness", "No new ontology terms or identity policy", "Error/FC progress exclusion and interference deferral", "Accepted terminal-out policy; no new credit for an intermediate advance in a path ending out"]
+}
