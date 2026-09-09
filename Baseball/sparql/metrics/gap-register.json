@@ -44,17 +44,18 @@
     {
       "id": "BOUNDARY_STATE",
       "title": "Locate runners at the relevant boundaries",
-      "question": "What accepted graph pattern supplies the explicitly supported safe base association at each required metric boundary?",
-      "direction": "Metric end state may use supported safe base association without asserting physical location or stasis. Its authoritative graph representation and complete boundary census remain unresolved. The larger physical Site is a separate modeling concern where physical location is asserted.",
+      "question": "What independently verified source history, supported temporal boundaries and operative outcomes admit the accepted C1/C2 graph and analytical contracts?",
+      "direction": "C2 projects a supported safe base through independently verified complete intervening history with no state-changing or unresolved event. It creates no RDF Person-to-Base relation, stasis or new adjudication. Real source coverage and boundary evidence remain pending.",
       "status": "open",
-      "disposition": "partially-resolved-review-required",
+      "disposition": "accepted-meaning-evidence-pending",
       "owner": "ontologist",
       "implementationBehavior": "calculation uses accepted policy; live output remains unavailable until source-owned graph prerequisites are admitted",
       "decisionRecords": [
         "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
         "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json",
         "archive/design-records/runner-award-origin-final-decision/review.json",
-        "archive/design-records/metric-suite-gap-answers-2026-09-09/decision.json"
+        "archive/design-records/metric-suite-gap-answers-2026-09-09/decision.json",
+        "archive/design-records/runner-continuity-boundary-projection/review.json"
       ],
       "researchAssessment": {
         "assessedOn": "2026-09-08",
@@ -72,15 +73,17 @@
       "resolvedSubgaps": [
         "Award causation plus applicable rule requirement; no event directive",
         "Immediate segment origin via movement.start designation; no preceding stasis",
-        "Batter metric HOME=0 from PA batter identity"
+        "Batter metric HOME=0 from PA batter identity",
+        "C1 personal BFO Process and C2 analytical boundary projection accepted; no new object properties"
       ],
       "remainingCoverage": "Reviewed operative award resolution, other rule editions, PA-start fallback completeness and full attributed-trajectory completeness remain separately gated.",
-      "currentGraphReview": "proposals/graph-native-metric-suite-batch-review/continuity-graph-review.md"
+      "acceptedGraphDecision": "archive/design-records/runner-continuity-boundary-projection/review.json",
+      "sourceImplementationContract": "sources/mlb-game/review/runner-continuity-source-contract.md"
     },
     {
       "id": "PATH_IDENTITY",
       "title": "Identify a continuous runner trajectory",
-      "question": "What reviewed RDF representation and source reconciliation demonstrate the accepted verified-history continuity standard?",
+      "question": "What independently verified source history, supported temporal boundaries and operative outcomes admit the accepted C1/C2 graph and analytical contracts?",
       "direction": "An independently verified complete intervening history can establish continuity for the same person with compatible movement endpoints and accounted-for events, without an intervening replacement, out, score or inning ending. A separate explicit source link is not required when this standard is met. Preserve separate contribution episodes; matching identifiers or adjacent records alone remain insufficient.",
       "status": "open",
       "disposition": "accepted-meaning-evidence-pending",
@@ -89,7 +92,8 @@
       "decisionRecords": [
         "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
         "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json",
-        "archive/design-records/runner-award-origin-final-decision/review.json"
+        "archive/design-records/runner-award-origin-final-decision/review.json",
+        "archive/design-records/runner-continuity-boundary-projection/review.json"
       ],
       "researchAssessment": {
         "assessedOn": "2026-09-08",
@@ -108,12 +112,14 @@
         "Award causation plus applicable rule requirement; no event directive",
         "Immediate segment origin via movement.start designation; no preceding stasis",
         "Batter metric HOME=0 from PA batter identity",
-        "Verified complete-history continuity evidence criterion; RDF representation and source proof remain pending"
+        "Verified complete-history criterion and C1/C2 representation accepted; real source proof remains pending",
+        "C1 personal BFO Process and C2 analytical boundary projection accepted; no new object properties"
       ],
       "remainingCoverage": "Reviewed operative award resolution, other rule editions, PA-start fallback completeness and full attributed-trajectory completeness remain separately gated.",
-      "continuityClarification": "Following the requested explanation, the user accepted the verified complete-history standard. This settles the evidence criterion, not the RDF representation or actual source coverage.",
+      "continuityClarification": "Both the verified-history standard and C1/C2 graph/projection contracts are explicitly accepted. Source reconciliation remains unproved; no repeated C1/C2 approval is required.",
       "continuityDecision": "archive/design-records/metric-suite-gap-answers-2026-09-09/continuity-decision.json",
-      "currentGraphReview": "proposals/graph-native-metric-suite-batch-review/continuity-graph-review.md"
+      "acceptedGraphDecision": "archive/design-records/runner-continuity-boundary-projection/review.json",
+      "sourceImplementationContract": "sources/mlb-game/review/runner-continuity-source-contract.md"
     },
     {
       "id": "OPERATIVE_OUTS",
@@ -420,7 +426,7 @@
     {
       "id": "RUN_CONTINUITY",
       "title": "Trace a scoring run across PAs",
-      "question": "What reviewed graph evidence and independently reconciled source history establish continuity across the scoring runner's plays and PAs?",
+      "question": "What independently verified source history, supported temporal boundaries and operative outcomes admit the accepted C1/C2 graph and analytical contracts?",
       "direction": "Use the accepted verified complete-history criterion for the same person, compatible endpoints and accounted-for events with no intervening terminal boundary. Replacement begins another person's trajectory. Contributions within the personal trajectory remain separate; adjacency or matching identifiers alone cannot establish continuity.",
       "status": "open",
       "disposition": "accepted-meaning-evidence-pending",
@@ -428,7 +434,8 @@
       "implementationBehavior": "calculation uses accepted policy; live output remains unavailable until source-owned graph prerequisites are admitted",
       "decisionRecords": [
         "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
-        "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json"
+        "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json",
+        "archive/design-records/runner-continuity-boundary-projection/review.json"
       ],
       "researchAssessment": {
         "assessedOn": "2026-09-08",
@@ -442,12 +449,14 @@
         ],
         "livePrerequisiteClosed": false
       },
-      "continuityClarification": "Following the requested explanation, the user accepted the verified complete-history standard. This settles the evidence criterion, not the RDF representation or actual source coverage.",
+      "continuityClarification": "Both the verified-history standard and C1/C2 graph/projection contracts are explicitly accepted. Source reconciliation remains unproved; no repeated C1/C2 approval is required.",
       "continuityDecision": "archive/design-records/metric-suite-gap-answers-2026-09-09/continuity-decision.json",
       "resolvedSubgaps": [
-        "Verified complete-history continuity evidence criterion; RDF representation and source proof remain pending"
+        "Verified complete-history criterion and C1/C2 representation accepted; real source proof remains pending",
+        "C1 personal BFO Process and C2 analytical boundary projection accepted; no new object properties"
       ],
-      "currentGraphReview": "proposals/graph-native-metric-suite-batch-review/continuity-graph-review.md"
+      "acceptedGraphDecision": "archive/design-records/runner-continuity-boundary-projection/review.json",
+      "sourceImplementationContract": "sources/mlb-game/review/runner-continuity-source-contract.md"
     },
     {
       "id": "SUPPORT_ATTRIBUTION",

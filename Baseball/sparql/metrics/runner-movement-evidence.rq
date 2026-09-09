@@ -8,6 +8,7 @@ PREFIX cco: <https://www.commoncoreontologies.org/>
 SELECT DISTINCT ?graph ?game ?plateAppearance ?resolution ?act ?runner ?episode
        ?originDesignation ?originRecord ?originBase ?originCode ?destinationBase ?destinationCode
        ?safeJudgment ?safeDecision
+       ?trajectory ?trajectoryHalf ?trajectoryInterval
        ?batter ?metricOrigin ?awardRule
        ?contactPlay ?award ?record ?hasSafeType ?hasOutType ?hasRunType
 WHERE {
@@ -20,7 +21,17 @@ WHERE {
     ?act a base:BaserunningAct ; bfo:BFO_0000132 ?plateAppearance .
     OPTIONAL { ?episode a base:RunnerResolutionEpisode ; bfo:BFO_0000132 ?plateAppearance ;
           bfo:BFO_0000117 ?resolution, ?act .
-      ?act a base:BaserunningAct ; cco:ont00001833 ?runner ; bfo:BFO_0000132 ?plateAppearance . }
+      ?act a base:BaserunningAct ; cco:ont00001833 ?runner ; bfo:BFO_0000132 ?plateAppearance .
+      OPTIONAL {
+        ?trajectory a bfo:BFO_0000015 ; bfo:BFO_0000117 ?episode ;
+            bfo:BFO_0000057 ?runner ; bfo:BFO_0000132 ?trajectoryHalf ;
+            bfo:BFO_0000199 ?trajectoryInterval .
+        ?trajectoryHalf a base:HalfInning .
+        ?trajectoryInterval a bfo:BFO_0000038 .
+        ?plateAppearance bfo:BFO_0000132 ?trajectoryHalf .
+        FILTER(REGEX(STR(?trajectory), "^https://baseballontology[.]org/data/game/[0-9]+/runner-trajectory/[^/]+$"))
+      }
+    }
     OPTIONAL {
       ?originDesignation a base:BaserunningSegmentOriginDesignation ;
           cco:ont00001808 ?act ; cco:ont00001916 ?originBase .

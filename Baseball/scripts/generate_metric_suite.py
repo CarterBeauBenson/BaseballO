@@ -168,6 +168,20 @@ def artifacts():
     components = [dict(id='independent-runner-advancement', authoritativeQuery=component_path,
                        inputColumns=columns, rowIdentity=['key','participant'],
                        executionMode='admitted-binding-kernel', liveAdapter='blocked-by-gap-register')]
+    boundary_path = 'sparql/serving/metric-kernels/runner-boundary-projection.rq'
+    boundary_columns = ['key','event','ordinal','base','known','changesState',
+                        'boundary','historyComplete','boundarySupported']
+    outputs[ROOT / boundary_path] = query(boundary_columns, '?key ?event ?base',
+        '''  FILTER (?historyComplete && ?boundarySupported && ?known)
+  FILTER (?base >= 1 && ?base <= 3 && ?ordinal <= ?boundary)
+  FILTER (?peerKey = ?key)
+  BIND(IF(?peerOrdinal <= ?boundary
+    && (?peerOrdinal > ?ordinal || (?peerOrdinal = ?ordinal && ?peerEvent != ?event))
+    && (!?peerKnown || ?peerChangesState), 1, 0) AS ?block)''',
+        group='GROUP BY ?key ?event ?base\nHAVING (SUM(?block) = 0)', peer=True)
+    components.append(dict(id='runner-boundary-projection', authoritativeQuery=boundary_path,
+                           inputColumns=boundary_columns, rowIdentity=['key','event'],
+                           executionMode='admitted-binding-kernel', liveAdapter='blocked-by-gap-register'))
     outputs[DEST / 'metric-catalog.json'] = json.dumps(dict(
         artifactType='baseballo-graph-native-metric-catalog', contractVersion=1,
         generator='scripts/generate_metric_suite.py', metricVersion='2.0.2',
@@ -185,7 +199,7 @@ def main():
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(text.encode('utf-8'))
     if bad: raise SystemExit('Metric generation drift: '+', '.join(bad))
-    print(('Verified' if args.check else 'Generated')+' 20 metric kernels, independent-advancement component and catalog.')
+    print(('Verified' if args.check else 'Generated')+' 20 metric kernels, advancement/boundary components and catalog.')
 
 
 if __name__=='__main__': main()

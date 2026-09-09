@@ -3,16 +3,19 @@
 **Answer update:** [the September 9 decisions](../../archive/design-records/metric-suite-gap-answers-2026-09-09/decision.json)
 settle questions 1–6, 8 and 9. The subsequent
 [continuity decision](../../archive/design-records/metric-suite-gap-answers-2026-09-09/continuity-decision.json)
-settles question 7's verified complete-history evidence criterion. Its RDF
-representation remains a separate review item. All nine policy answers are
-recorded; they do not establish complete live evidence.
+settles question 7's verified complete-history evidence criterion. The user
+subsequently accepted C1's personal Process and C2's analytical boundary
+projection. All nine policy answers and C1/C2 are recorded; they do not
+establish complete live evidence.
 
-The [C1/C2 graph review](continuity-graph-review.md) now makes the next B1/B2
-decisions concrete: a personal BFO Process containing the existing episodes,
-and an analytical boundary-state projection over independently verified
-history. These proposals remain draft. The evidence query now retains the
-existing episode, Safe Judgment, Safe Decision and origin-record identities
-through serving and SQL, including missing or conflicting bindings.
+The [C1/C2 decision](../../archive/design-records/runner-continuity-boundary-projection/review.json)
+is implemented in source SHACL, whole/episode evidence extraction, and an
+admitted-history SPARQL boundary projection. The evidence query retains
+existing episode, judgment, decision, origin-record and personal-whole IRIs
+through SQL. The [source contract](../../sources/mlb-game/review/runner-continuity-source-contract.md)
+records the first unpassed gate: verified complete real histories with
+supported lifetime and evaluation boundaries. Current raw rows do not satisfy
+that gate merely by being adjacent or marked complete.
 
 The software request covers all 20 metric calculations, serving integration,
 and one consolidated account of unresolved gaps. The formulas and routes are
@@ -59,7 +62,7 @@ the evidence or semantic decision that cannot be manufactured by code.
 | Package | Concrete unresolved case | Needed to close it |
 | --- | --- | --- |
 | B1 — Complete consequences and boundary state | Runner on third, one out, batter strikes out: identifying the batter's origin does not identify whether the runner remains, scores independently, or is out. | A reviewed graph contract for the complete relevant participant set, positive actual end states, stranded runners and pre-consequence out count. Missing runner rows cannot establish unchanged state. Existing larger-Site identity and time-qualified location remain an ontology question where physical location is asserted; they are not prerequisites for every origin designation. |
-| B2 — Personal continuity and contribution identity | One runner advances safely and is then out; a steal precedes a single; a pinch runner replaces the original runner. | The verified complete-history criterion is accepted: same person, compatible endpoints, all intervening events accounted for, and no intervening terminal boundary. RDF representation and source reconciliation still require completion. Preserve separate attributed and independent contribution episodes; matching identifiers or adjacent rows alone are insufficient. |
+| B2 — Personal continuity and contribution identity | One runner advances safely and is then out; a steal precedes a single; a pinch runner replaces the original runner. | The verified complete-history criterion is accepted: same person, compatible endpoints, all intervening events accounted for, and no intervening terminal boundary. C1/C2 are accepted and their conformance/projection components are implemented. Source reconciliation and admitted whole creation remain pending. Preserve separate attributed and independent contribution episodes; matching identifiers or adjacent rows alone are insufficient. |
 | B3 — Operative outcomes and corrections | A strikeout with an uncaught third strike; a replay changes a specific safe/out decision; an appeal changes the operative inning-ending result. | Identify each distinct operative resolution and the correction that affects it. Reconcile duplicate descriptions of one out. A PA-level review flag or a strikeout/scorer code is insufficient. Encode the reviewed outcome contract in the owning source SHACL and analytical query. |
 | B4 — Completed populations and eligibility | An unfinished batting turn produces no PA; a mid-turn substitution can separate the acting batter from statistical PA attribution; a season has missing games. | Complete eligible game/PA membership and reconciliation through the accepted cutoff, plus the scoped eligibility policy for uncommon substitutions. Ordinary display filters cannot alter the reference population. Census/reconciliation mechanics are engineering after the graph contract is reviewed. |
 | B5 — Exact pitch and defensive process evidence | A count changes without a pitch; a rundown repeats throws although official credits list one assist. | Operative ordered count-state evidence, pitch/non-pitch distinction and termination; distinct intentional field/throw/catch/tag acts, agents and supported precedence. Credit lists do not establish a complete act sequence. Some data may require additional source evidence; no new source lane is authorized by this package. |

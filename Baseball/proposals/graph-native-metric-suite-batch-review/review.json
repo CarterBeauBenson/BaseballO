@@ -7,30 +7,10 @@
   "status": "draft",
   "proposedIris": [],
   "artifacts": {
-    "competencyQuestions": [
-      {
-        "path": "continuity-graph-review.md",
-        "sha256": "692a256487d89107371baf0cc296bb6607b7a08b03f79e75e7867f54b9d07477"
-      }
-    ],
-    "sourceEvidence": [
-      {
-        "path": "continuity-graph-review.md",
-        "sha256": "692a256487d89107371baf0cc296bb6607b7a08b03f79e75e7867f54b9d07477"
-      }
-    ],
-    "fieldSelectionInventory": [
-      {
-        "path": "continuity-graph-review.md",
-        "sha256": "692a256487d89107371baf0cc296bb6607b7a08b03f79e75e7867f54b9d07477"
-      }
-    ],
-    "sourceIndependentMermaid": [
-      {
-        "path": "continuity-graph-review.md",
-        "sha256": "692a256487d89107371baf0cc296bb6607b7a08b03f79e75e7867f54b9d07477"
-      }
-    ]
+    "competencyQuestions": [],
+    "sourceEvidence": [],
+    "fieldSelectionInventory": [],
+    "sourceIndependentMermaid": []
   },
   "ontologistDecision": null
 }

@@ -707,3 +707,14 @@ baseball_iri_policy:
 # data/rule/official-baseball/{edition}/{batter-walk|batter-hbp|forced-advance}
 # identifies the applicable provision within that edition. Explicit identifiers
 # distinguish provision codes and rulebook editions. No event directive exists.
+
+# Accepted C1/C2 (2026-09-09):
+# data/game/{gamePk}/runner-trajectory/{lifetimeKey} denotes the personal
+# BFO Process, not a RunnerResolutionEpisode, Person, or Role. lifetimeKey is
+# a stable serialization of game, Person, and the supported lifetime entry
+# and termination anchors; source row adjacency never defines that lifetime.
+# Re-entry and replacement require distinct lifetime anchors. Do not use a
+# source-byte hash as the lifetime identity or reuse a PA identity for the whole.
+# No current runner row licenses minting this whole without the independently
+# verified history, episode membership, and temporal interval required by C1.
+# C2's projected metric base has no RDF IRI or Person-to-Base predicate.

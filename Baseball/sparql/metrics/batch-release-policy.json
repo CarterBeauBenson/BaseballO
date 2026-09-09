@@ -42,7 +42,7 @@
   "paq21RequiresTwoStrikeEligibility": true,
   "paq21RequiresApplicableDefensiveResolution": true,
   "unknownEligibilityIsNotInapplicable": true,
-  "boundary": "Policies apply only to admitted facts. End-state and final-outcome support, mechanism-specific eligibility and complete population evidence remain required. The verified-history continuity evidence criterion is accepted; its RDF representation and demonstrated source coverage remain pending. Error-speed credit and interference remain unresolved/deferred. No ontology terms, predicates or RDF minting rules are introduced.",
+  "boundary": "Policies apply only to admitted facts. C1 personal Processes and C2 verified-history boundary projection are accepted using existing relations only. Independently verified source history, temporal boundaries, operative outcomes and complete population evidence remain required. No new object properties or ontology classes are introduced. Error-speed credit and interference remain unresolved/deferred.",
   "followupDecision": "../../archive/design-records/metric-suite-gap-answers-2026-09-09/decision.json",
   "independentContributionOutputs": [
     "advancement",
@@ -60,10 +60,11 @@
   "safeEndStateRequiresStasis": false,
   "ordinaryScoringRequiresOriginalReviewCall": false,
   "officialPaAttributionSeparateFromConsequenceContributor": true,
-  "continuityCriterionStatus": "accepted-evidence-criterion-graph-review-pending",
+  "continuityCriterionStatus": "accepted-graph-and-projection-source-evidence-pending",
   "continuityDecision": "../../archive/design-records/metric-suite-gap-answers-2026-09-09/continuity-decision.json",
   "continuityEvidenceCriterion": "independently-verified-complete-intervening-history",
   "continuityRequiresSeparateExplicitSourceLink": false,
   "continuityPreservesSeparateContributionEpisodes": true,
-  "continuityMissingEvidenceBehavior": "unavailable"
+  "continuityMissingEvidenceBehavior": "unavailable",
+  "continuityGraphDecision": "../../archive/design-records/runner-continuity-boundary-projection/review.json"
 }

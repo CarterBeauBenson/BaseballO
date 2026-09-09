@@ -5,10 +5,10 @@
   "ratified": false,
   "bootstrapBaseCommit": "cb16a8e6f3d487f3542b91907cde3f47ff0a0978",
   "hashCanonicalization": "utf-8-sig decode; CRLF and CR to LF; UTF-8 encode without BOM",
-  "protectedSetSha256": "ba31b5a742ddbfc3c3d912341f8c1e4f648358acb3650dd4367bb2b47e3fc703",
+  "protectedSetSha256": "9c4dbe960745d72ff2340c1416114e29b801027ff1479787b64d9fb77234c36a",
   "changeDecision": {
-    "path": "Baseball/archive/design-records/runner-award-origin-final-decision/review.json",
-    "sha256": "dd5bd33763e1def75778837c5fe2e9757ace67210115677213d97c2d96640d6a"
+    "path": "Baseball/archive/design-records/runner-continuity-boundary-projection/review.json",
+    "sha256": "367d66df66dd380a2aa90228b690ae4435b12c57f61f4ee2ce7bc6d10ea6fdf1"
   },
   "protectedArtifacts": {
     "Baseball/governance/ontology-curation-debt.json": "2d5a4206339244641dd629eb48d86d13d98c02e47b5b5755b010861c0570e283",
@@ -38,7 +38,7 @@
     "Baseball/sources/mlb-divisions/mapping/prepare-context.py": "7924f84caf9da86bc1f1a57edfed2b970b84ab6f622288cb98d53aaf1965d73d",
     "Baseball/sources/mlb-divisions/review/semantic-status.json": "0f66d5c23f17bd8c55a31a3e00bf14a72d2f11681aacf026ba1517256bc8947b",
     "Baseball/sources/mlb-game/mapping/event-type-registry.yaml": "cc0f90f3e977eb15b453fd52256ed9eb91dee2717f5cb902c3de4ffbde2f12bd",
-    "Baseball/sources/mlb-game/mapping/iri-policy.yaml": "d1752d373beec87b389263cf7fd90e588fec43e3a9a343373ea5388ba93b9cf3",
+    "Baseball/sources/mlb-game/mapping/iri-policy.yaml": "4065500d81e7142b92cd27d6830c5c2841e6a43d95e7580bd927d991d88a8484",
     "Baseball/sources/mlb-game/mapping/mapping-coverage.yaml": "291668f4ac471a471a271f9b8083962c641564b3932dfe23f9057e7b8c4e4e14",
     "Baseball/sources/mlb-game/mapping/mlb-game.rml.ttl": "55c45ecc9df86d579681cfa026c088b432d3de03bbb7b6183ebb6c6fdd04c5dd",
     "Baseball/sources/mlb-game/mapping/ontology-coverage-gaps.yaml": "f6815469922ebe290f60027e0fbb2f0284cf7646ee771510e623b831b560ff81",
@@ -75,7 +75,7 @@
       "artifacts": {
         "authoritativeShacl": {
           "path": "Baseball/sources/mlb-game/shacl/authoritative.ttl",
-          "sha256": "ab421ee1a9b52a6454eb342af508c9ba6670769f0a37b5fb4e60edead64f5ce0"
+          "sha256": "7da4ded247522927bf89a558298ac4fac98b5f2be28937ae92c36b4e5238eb2d"
         },
         "contextBuilder": {
           "path": "Baseball/scripts/pipeline/prepare-rml-context.py",

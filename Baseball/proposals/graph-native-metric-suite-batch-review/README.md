@@ -1,11 +1,12 @@
 # One review for the new metric suite
 
-**Concrete next review:** [C1 and C2](continuity-graph-review.md) propose the
-personal Process whole and a verified-history projection of metric boundary
-state using existing vocabulary. They include source-independent diagrams,
-field selection, checked source evidence and the remaining implementation
-gates. These graph/analytical proposals are draft; the nine policy answers
-remain accepted.
+**C1 and C2 accepted:** the [archived decision](../../archive/design-records/runner-continuity-boundary-projection/review.json)
+accepts the personal Process whole and verified-history projection of metric
+boundary state, with no new object properties. The source SHACL contract,
+whole/episode evidence extraction and analytical projection are implemented.
+The [source contract](../../sources/mlb-game/review/runner-continuity-source-contract.md)
+identifies the remaining real-history admission gate. The nine policy answers
+and C1/C2 require no repeated vote.
 
 **Current handoff:** [the September 9 release review](current-release-review.md)
 accounts for all 21 gap codes in seven shared work packages, separates the
@@ -143,4 +144,4 @@ or removal of previously promoted RDF is required by the metric software.
 The review record stays draft, with no invented approval or pinned mutable
 artifacts. No new terms or Mermaid artifacts are declared here.
 
-The [September 9 answers](../../archive/design-records/metric-suite-gap-answers-2026-09-09/decision.json) now settle PAQ-A's immediate pre-consequence boundary, independent running weights/net, and review-eligible denominators with separated mechanisms. They also distinguish supported metric end states from physical stasis, supported final outcomes from original-call availability, and consequence contributors from official PA attribution. The subsequent [continuity acceptance](../../archive/design-records/metric-suite-gap-answers-2026-09-09/continuity-decision.json) settles question 7's verified complete-history evidence standard. Its RDF representation and demonstrated source coverage remain pending.
+The [September 9 answers](../../archive/design-records/metric-suite-gap-answers-2026-09-09/decision.json) now settle PAQ-A's immediate pre-consequence boundary, independent running weights/net, and review-eligible denominators with separated mechanisms. They also distinguish supported metric end states from physical stasis, supported final outcomes from original-call availability, and consequence contributors from official PA attribution. The subsequent [continuity acceptance](../../archive/design-records/metric-suite-gap-answers-2026-09-09/continuity-decision.json) settles question 7's verified complete-history evidence standard. C1/C2 subsequently accept that representation and projection. Demonstrated real source coverage remains pending.

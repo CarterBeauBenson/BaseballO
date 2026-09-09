@@ -708,6 +708,27 @@
       ],
       "executionMode": "admitted-binding-kernel",
       "liveAdapter": "blocked-by-gap-register"
+    },
+    {
+      "id": "runner-boundary-projection",
+      "authoritativeQuery": "sparql/serving/metric-kernels/runner-boundary-projection.rq",
+      "inputColumns": [
+        "key",
+        "event",
+        "ordinal",
+        "base",
+        "known",
+        "changesState",
+        "boundary",
+        "historyComplete",
+        "boundarySupported"
+      ],
+      "rowIdentity": [
+        "key",
+        "event"
+      ],
+      "executionMode": "admitted-binding-kernel",
+      "liveAdapter": "blocked-by-gap-register"
     }
   ]
 }

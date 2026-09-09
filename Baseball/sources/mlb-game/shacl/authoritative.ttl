@@ -1354,3 +1354,77 @@ shape:BaserunnerAtBaseStasisShape a sh:NodeShape ;
         }
       """
     ] .
+
+# Accepted C1, 2026-09-09. The IRI path selects an admitted instance grain;
+# it is not a new ontology class or property. Source completeness is a
+# separate admission requirement and cannot be proved by these triples alone.
+shape:PersonalRunnerProcessTargetShape a sh:NodeShape ;
+    sh:targetSubjectsOf bfo:BFO_0000117, bfo:BFO_0000132, bfo:BFO_0000057, bfo:BFO_0000199 ;
+    sh:or (
+        [ sh:not [ sh:pattern "^https://baseballontology[.]org/data/game/[0-9]+/runner-trajectory/[^/]+$" ] ]
+        [ sh:node shape:PersonalRunnerProcessShape ]
+    ) .
+
+shape:PersonalRunnerProcessShape a sh:NodeShape ;
+    sh:nodeKind sh:IRI ;
+    sh:class bfo:BFO_0000015 ;
+    sh:property [ sh:path cco:ont00001833 ; sh:maxCount 0 ] ;
+    sh:property [ sh:path bfo:BFO_0000055 ; sh:maxCount 0 ] ;
+    sh:property [ sh:path bfo:BFO_0000132 ; sh:qualifiedValueShape [ sh:class base:HalfInning ] ; sh:qualifiedMinCount 1 ; sh:qualifiedMaxCount 1 ] ;
+    sh:property [ sh:path bfo:BFO_0000132 ; sh:qualifiedValueShape [ sh:class base:PlateAppearance ] ; sh:qualifiedMaxCount 0 ] ;
+    sh:property [ sh:path bfo:BFO_0000199 ; sh:minCount 1 ; sh:maxCount 1 ; sh:class bfo:BFO_0000038 ] ;
+    sh:property [ sh:path bfo:BFO_0000117 ; sh:qualifiedValueShape [ sh:class base:RunnerResolutionEpisode ] ; sh:qualifiedMinCount 1 ] ;
+    sh:sparql [
+        sh:message "A personal runner Process must have one focal runner across its episodes, with all episodes in its Half Inning. It must not inherit agency or realization from its parts."@en ;
+        sh:select """
+          PREFIX base: <https://baseballontology.org/>
+          PREFIX bfo: <http://purl.obolibrary.org/obo/>
+          PREFIX cco: <https://www.commoncoreontologies.org/>
+          SELECT $this WHERE {
+            $this bfo:BFO_0000117 ?episode .
+            ?episode a base:RunnerResolutionEpisode .
+            FILTER NOT EXISTS {
+              $this bfo:BFO_0000132 ?half ; bfo:BFO_0000057 ?runner .
+              ?half a base:HalfInning .
+              ?half bfo:BFO_0000132 ?inning .
+              ?inning bfo:BFO_0000132 ?game .
+              ?game a base:BaseballGame .
+              FILTER (STR(?game) = STRBEFORE(STR($this), "/runner-trajectory/"))
+              ?runner a cco:ont00001262 .
+              ?episode bfo:BFO_0000132 ?pa ; bfo:BFO_0000117 ?act .
+              ?pa a base:PlateAppearance ; bfo:BFO_0000132 ?half .
+              ?act a base:BaserunningAct ; cco:ont00001833 ?runner .
+              FILTER NOT EXISTS {
+                $this bfo:BFO_0000117 ?otherEpisode .
+                ?otherEpisode a base:RunnerResolutionEpisode ; bfo:BFO_0000117 ?otherAct .
+                ?otherAct a base:BaserunningAct ; cco:ont00001833 ?otherRunner .
+                FILTER (?otherRunner != ?runner)
+              }
+            }
+          }
+        """
+    ] ;
+    sh:sparql [
+        sh:message "A personal runner Process cannot contain two distinct counted terminal Out/Run resolutions or also be typed as its single act/resolution episode."@en ;
+        sh:select """
+          PREFIX base: <https://baseballontology.org/>
+          PREFIX bfo: <http://purl.obolibrary.org/obo/>
+          SELECT $this WHERE {
+            { $this a base:RunnerResolutionEpisode }
+            UNION {
+              $this bfo:BFO_0000117 ?episode .
+              ?episode a base:RunnerResolutionEpisode ; bfo:BFO_0000117 ?outcome .
+              ?outcome a base:OutProcess, base:RunProcess .
+            }
+            UNION {
+              $this bfo:BFO_0000117 ?a, ?b .
+              ?a a base:RunnerResolutionEpisode ; bfo:BFO_0000117 ?outcomeA .
+              ?b a base:RunnerResolutionEpisode ; bfo:BFO_0000117 ?outcomeB .
+              ?outcomeA a ?typeA . ?outcomeB a ?typeB .
+              FILTER (?typeA IN (base:OutProcess, base:RunProcess))
+              FILTER (?typeB IN (base:OutProcess, base:RunProcess))
+              FILTER (?outcomeA != ?outcomeB)
+            }
+          }
+        """
+    ] .

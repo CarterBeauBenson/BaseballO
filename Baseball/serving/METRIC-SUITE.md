@@ -192,9 +192,9 @@ settles question 7: an independently verified complete intervening history can
 establish continuity for the same person with compatible endpoints and all
 events accounted for, provided no replacement, out, score or inning ending
 breaks the trajectory. Separate contribution episodes remain separate. Matching
-identifiers or adjacent rows alone are insufficient. The RDF representation
-and source reconciliation remain pending, so the current helpers continue to
-require admitted consolidated paths and do not join source segments.
+identifiers or adjacent rows alone are insufficient. C1/C2 subsequently accept the graph representation and projection described
+below. Source reconciliation remains pending, so the current helpers continue
+to require admitted histories and do not join raw source segments.
 
 The next evidence extraction increment retains `episode`, `safeJudgment`,
 `safeDecision` and `originRecord` from the canonical movement query through
@@ -204,7 +204,29 @@ episode assertions remain separate evidence rows for the same act/resolution
 pair. An unrelated record or decision about a different resolution cannot
 supply the missing support.
 
-The [C1/C2 draft](../proposals/graph-native-metric-suite-batch-review/continuity-graph-review.md)
-specifies the remaining personal-whole and boundary-projection review. This
-increment changes no ontology, source mapping or source SHACL. Twenty-two
-focused Python query/serving tests and eight browser/API/compiler tests passed.
+That evidence extraction increment passed twenty-two focused Python
+query/serving tests and eight browser/API/compiler tests.
+
+## Accepted C1/C2 implementation
+
+The [C1/C2 decision](../archive/design-records/runner-continuity-boundary-projection/review.json)
+was published before implementation. The source's personal Process SHACL
+contract enforces the accepted whole/episode pattern using existing relations.
+`trajectory`, `trajectoryHalf` and `trajectoryInterval` now survive evidence
+extraction and SQL; coverage counts observed bindings without certifying them
+as complete histories.
+
+`project_runner_boundary` executes the canonical `runner-boundary-projection`
+SPARQL component. It selects a supported safe base at the independently
+supported boundary only if the admitted history supplies no later or
+ambiguously concurrent state-changing/unknown event that defeats it. State
+change, terminal outcomes and unresolved review evidence prevent stale-state
+projection. A supported newer safe outcome supplies the new state. The
+returned base is analytical and receives no RDF predicate or contribution
+credit. The complete-history flag is internal input admission, never a public
+API option or a conclusion drawn from mapped row counts.
+
+The [source contract](../sources/mlb-game/review/runner-continuity-source-contract.md)
+documents the required real-history evidence. No complete-history adapter or
+personal-whole RML source is fabricated from the existing incomplete evidence.
+Live dependent metrics therefore remain gated. C1/C2 themselves are accepted.

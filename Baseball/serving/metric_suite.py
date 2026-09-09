@@ -22,7 +22,7 @@ from rdflib import Graph, Literal
 
 ROOT = Path(__file__).resolve().parents[1]
 METRICS = ROOT / 'sparql/metrics'
-VERSION = '2.0.4'
+VERSION = '2.0.5'
 
 
 class EvidenceError(ValueError):
@@ -279,6 +279,41 @@ def paq_a_population(entries, *, complete_population=False):
     for entry in entries:
         results[entry['key']]['evidence'] = sorted(set(entry['comparisonState']['evidence']))
     return results
+
+
+def project_runner_boundary(events, boundary, *, history_complete=False,
+                            boundary_supported=False, evidence=()):
+    """C2 over one admitted person's history, not raw source row indexes.
+
+    Ordinals are supplied by independently supported analytical ordering.
+    Equal ordinals do not imply order. Source coverage and graph validation
+    remain outside this calculation; the public API cannot supply these flags.
+    A returned base is an analytical state, never a new RDF assertion.
+    """
+    _integer(boundary, 'boundary ordinal')
+    _boolean(history_complete, 'verified history completeness')
+    _boolean(boundary_supported, 'boundary support')
+    if not history_complete:
+        return unavailable('RUN_CONTINUITY', 'COMPLETENESS', evidence=evidence)
+    if not boundary_supported or not evidence:
+        return unavailable('BOUNDARY_STATE', evidence=evidence)
+    rows = _unique(events, ('event',))
+    inputs = []
+    for row in rows:
+        _integer(row.get('ordinal'), 'supported event ordinal')
+        _boolean(row.get('known'), 'event state support')
+        _boolean(row.get('changesState'), 'state-change support')
+        if row.get('base') is not None:
+            _integer(row['base'], 'safe base position', 1, 3)
+        inputs.append(dict(row, key='runner-boundary', boundary=boundary,
+                           historyComplete=history_complete, boundarySupported=boundary_supported))
+    result = run_kernel('runner-boundary-projection', inputs)
+    if len(result) != 1:
+        return unavailable('BOUNDARY_STATE', evidence=evidence)
+    selected, = result
+    return available(selected['base'], evidence=evidence,
+                     basePosition=selected['base'], sourceEvent=selected['event'],
+                     projection='safe-base-at-boundary')
 
 
 def paq21_population(entries, *, complete_population=False):
@@ -564,7 +599,8 @@ def normalize_bindings(bindings, graphs):
                       'original', 'operative', 'disposition', 'plateAppearance', 'resolution',
                       'runner', 'originDesignation', 'originBase', 'destinationBase', 'batter',
                       'awardRule', 'contactPlay', 'award', 'record', 'episode',
-                      'originRecord', 'safeJudgment', 'safeDecision'):
+                      'originRecord', 'safeJudgment', 'safeDecision', 'trajectory',
+                      'trajectoryHalf', 'trajectoryInterval'):
             if field in binding and binding[field].get('type') != 'uri':
                 raise EvidenceError('Evidence identity must be an IRI: ' + field)
         if row.get('kind') not in {'plate_appearance', 'batted_play', 'run', 'player_game', 'review', 'runner_movement'}:
@@ -597,6 +633,7 @@ def movement_coverage(rows):
     for label, fields in {
         'withRunnerBinding': ('runner',),
         'withEpisodeBinding': ('episode',),
+        'withPersonalTrajectoryBinding': ('trajectory', 'trajectoryHalf', 'trajectoryInterval'),
         'withSegmentOriginBinding': ('originDesignation', 'originBase', 'originCode'),
         'withOriginRecordBinding': ('originDesignation', 'originRecord'),
         'withSafeDestinationBinding': ('destinationBase', 'destinationCode'),

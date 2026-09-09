@@ -141,6 +141,35 @@ class MovementServing(unittest.TestCase):
         self.assertNotIn('destinationBase', forced)
         self.assertEqual(forced['originCode'], '1B')
 
+    def test_personal_whole_binding_survives_sql_without_admitting_continuity(self):
+        dataset = movement_fixture()
+        graph = dataset.graph(URIRef(G1))
+        whole = URIRef('https://baseballontology.org/data/game/101/runner-trajectory/lifetime')
+        for triple in [(whole, RDF.type, BFO.BFO_0000015),
+                       (whole, BFO.BFO_0000117, URIRef(str(EX.forcedAdvance) + '/episode')),
+                       (whole, BFO.BFO_0000057, EX.runner), (whole, BFO.BFO_0000132, EX.half),
+                       (whole, BFO.BFO_0000199, EX.interval),
+                       (EX.half, RDF.type, BASE.HalfInning),
+                       (EX.interval, RDF.type, BFO.BFO_0000038)]:
+            graph.add(triple)
+        source = bindings(dataset, [G1])
+        rows = M.normalize_bindings(source, [G1])
+        forced, = [r for r in rows if r.get('trajectory')]
+        self.assertEqual(forced['trajectory'], str(whole))
+        self.assertEqual(forced['trajectoryInterval'], str(EX.interval))
+        self.assertEqual(M.movement_coverage(rows)['withPersonalTrajectoryBinding'], 1)
+        self.assertEqual(M.live_result('tfs', rows, graph_count=1)['status'], 'unavailable')
+        with database() as connection:
+            M.materialize_game(connection, G1, source)
+            stored = [json.loads(r[0]) for r in connection.execute(
+                'SELECT binding_json FROM metric_suite_evidence WHERE graph_iri=?', (G1,))]
+            self.assertIn(forced, stored)
+        raw = next(r for r in source if 'trajectory' in r)
+        for field in ('trajectory', 'trajectoryHalf', 'trajectoryInterval'):
+            bad = {**raw, field: {'type': 'literal', 'value': raw[field]['value']}}
+            with self.assertRaises(M.EvidenceError):
+                M.normalize_bindings([bad], [G1])
+
 
 if __name__ == '__main__':
     unittest.main()
