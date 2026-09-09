@@ -1,5 +1,20 @@
 # Implementation of the September 9 answers
 
+## Subsequent continuity acceptance
+
+Decision commit `2411833` was pushed before applying question 7's accepted
+verified complete-history evidence standard to the current policy and gap
+register. All nine answers are now recorded. PATH_IDENTITY and RUN_CONTINUITY
+retain their live evidence gates pending the RDF representation and actual
+source reconciliation; the serving layer still requires admitted consolidated
+paths. No segment-joining algorithm or source graph contract was introduced.
+
+Focused verification after this policy/documentation update passed all eight
+serving tests and the metric generator drift check. The report below records
+the earlier calculation implementation and its validation at that time.
+
+## Earlier calculation implementation
+
 The prior decision commit `d12b742` records accepted questions 1–6, 8 and 9.
 Question 7 remains an explanation request; no continuity criterion is accepted.
 

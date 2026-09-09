@@ -42,7 +42,7 @@
   "paq21RequiresTwoStrikeEligibility": true,
   "paq21RequiresApplicableDefensiveResolution": true,
   "unknownEligibilityIsNotInapplicable": true,
-  "boundary": "Policies apply only to admitted facts. End-state and final-outcome support, mechanism-specific eligibility and complete population evidence remain required. Question 7 does not admit continuity. Error-speed credit and interference remain unresolved/deferred. No ontology terms, predicates or identity policies are introduced.",
+  "boundary": "Policies apply only to admitted facts. End-state and final-outcome support, mechanism-specific eligibility and complete population evidence remain required. The verified-history continuity evidence criterion is accepted; its RDF representation and demonstrated source coverage remain pending. Error-speed credit and interference remain unresolved/deferred. No ontology terms, predicates or RDF minting rules are introduced.",
   "followupDecision": "../../archive/design-records/metric-suite-gap-answers-2026-09-09/decision.json",
   "independentContributionOutputs": [
     "advancement",
@@ -60,5 +60,10 @@
   "safeEndStateRequiresStasis": false,
   "ordinaryScoringRequiresOriginalReviewCall": false,
   "officialPaAttributionSeparateFromConsequenceContributor": true,
-  "continuityCriterionStatus": "unresolved-explanation-requested"
+  "continuityCriterionStatus": "accepted-evidence-criterion-graph-review-pending",
+  "continuityDecision": "../../archive/design-records/metric-suite-gap-answers-2026-09-09/continuity-decision.json",
+  "continuityEvidenceCriterion": "independently-verified-complete-intervening-history",
+  "continuityRequiresSeparateExplicitSourceLink": false,
+  "continuityPreservesSeparateContributionEpisodes": true,
+  "continuityMissingEvidenceBehavior": "unavailable"
 }

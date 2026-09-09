@@ -79,8 +79,8 @@
     {
       "id": "PATH_IDENTITY",
       "title": "Identify a continuous runner trajectory",
-      "question": "What graph evidence establishes the accepted personal trajectory and its complete parts?",
-      "direction": "Accepted lifetime: becoming a baserunner through score, out, replacement or inning end; individual plays are parts. A pinch runner begins a distinct personal trajectory. Adjacent records alone do not prove continuity.",
+      "question": "What reviewed RDF representation and source reconciliation demonstrate the accepted verified-history continuity standard?",
+      "direction": "An independently verified complete intervening history can establish continuity for the same person with compatible movement endpoints and accounted-for events, without an intervening replacement, out, score or inning ending. A separate explicit source link is not required when this standard is met. Preserve separate contribution episodes; matching identifiers or adjacent records alone remain insufficient.",
       "status": "open",
       "disposition": "accepted-meaning-evidence-pending",
       "owner": "ontologist",
@@ -106,10 +106,12 @@
       "resolvedSubgaps": [
         "Award causation plus applicable rule requirement; no event directive",
         "Immediate segment origin via movement.start designation; no preceding stasis",
-        "Batter metric HOME=0 from PA batter identity"
+        "Batter metric HOME=0 from PA batter identity",
+        "Verified complete-history continuity evidence criterion; RDF representation and source proof remain pending"
       ],
       "remainingCoverage": "Reviewed operative award resolution, other rule editions, PA-start fallback completeness and full attributed-trajectory completeness remain separately gated.",
-      "continuityClarification": "September 9 question 7 was answered Say more. No reconciled-history continuity criterion was accepted."
+      "continuityClarification": "Following the requested explanation, the user accepted the verified complete-history standard. This settles the evidence criterion, not the RDF representation or actual source coverage.",
+      "continuityDecision": "archive/design-records/metric-suite-gap-answers-2026-09-09/continuity-decision.json"
     },
     {
       "id": "OPERATIVE_OUTS",
@@ -416,8 +418,8 @@
     {
       "id": "RUN_CONTINUITY",
       "title": "Trace a scoring run across PAs",
-      "question": "What graph evidence links the scoring runner personal trajectory across plays and PAs?",
-      "direction": "The personal trajectory lifetime is accepted. Replacement ends that person trajectory and begins another; do not merge people or infer continuity from adjacent observations.",
+      "question": "What reviewed graph evidence and independently reconciled source history establish continuity across the scoring runner's plays and PAs?",
+      "direction": "Use the accepted verified complete-history criterion for the same person, compatible endpoints and accounted-for events with no intervening terminal boundary. Replacement begins another person's trajectory. Contributions within the personal trajectory remain separate; adjacency or matching identifiers alone cannot establish continuity.",
       "status": "open",
       "disposition": "accepted-meaning-evidence-pending",
       "owner": "ontologist",
@@ -438,7 +440,11 @@
         ],
         "livePrerequisiteClosed": false
       },
-      "continuityClarification": "September 9 question 7 was answered Say more. No reconciled-history continuity criterion was accepted."
+      "continuityClarification": "Following the requested explanation, the user accepted the verified complete-history standard. This settles the evidence criterion, not the RDF representation or actual source coverage.",
+      "continuityDecision": "archive/design-records/metric-suite-gap-answers-2026-09-09/continuity-decision.json",
+      "resolvedSubgaps": [
+        "Verified complete-history continuity evidence criterion; RDF representation and source proof remain pending"
+      ]
     },
     {
       "id": "SUPPORT_ATTRIBUTION",

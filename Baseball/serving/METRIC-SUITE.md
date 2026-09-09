@@ -187,4 +187,11 @@ stasis. A supported final operative outcome need not have its original call
 available for ordinary trajectory scoring. Official statistical PA attribution
 and actual consequence contributors remain separate. These are accepted policy
 requirements; no new RDF representation or source admission is inferred.
-Question 7's continuity criterion remains unresolved, not implicitly accepted.
+The subsequent [explicit continuity acceptance](../archive/design-records/metric-suite-gap-answers-2026-09-09/continuity-decision.json)
+settles question 7: an independently verified complete intervening history can
+establish continuity for the same person with compatible endpoints and all
+events accounted for, provided no replacement, out, score or inning ending
+breaks the trajectory. Separate contribution episodes remain separate. Matching
+identifiers or adjacent rows alone are insufficient. The RDF representation
+and source reconciliation remain pending, so the current helpers continue to
+require admitted consolidated paths and do not join source segments.
