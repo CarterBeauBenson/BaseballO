@@ -26,7 +26,7 @@ transient API payloads
 
 ## Implemented baseline and runtime-status boundary
 
-- MLB game mapping: 345 triples maps and 98 logical sources. The generated
+- MLB game mapping: 354 triples maps and 103 logical sources. The generated
   Mermaid catalog is the authoritative current coverage count.
 - Query library: 51 canned, 17 advanced, and 19 reviewed
   authoritative/index equivalence pairs.

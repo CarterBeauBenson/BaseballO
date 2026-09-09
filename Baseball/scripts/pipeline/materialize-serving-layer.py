@@ -26,6 +26,9 @@ from rdflib.plugins.sparql.processor import prepareQuery
 
 
 ROOT = Path(__file__).resolve().parents[2]
+_metric_spec = importlib.util.spec_from_file_location('baseballo_metric_suite', ROOT / 'serving/metric_suite.py')
+_metric_suite = importlib.util.module_from_spec(_metric_spec)
+_metric_spec.loader.exec_module(_metric_suite)
 PROMOTION_INVENTORY_MODULE = ROOT / "scripts" / "pipeline" / "game_promotion_inventory.py"
 _promotion_spec = importlib.util.spec_from_file_location(
     "baseballo_game_promotion_inventory", PROMOTION_INVENTORY_MODULE
@@ -1003,6 +1006,9 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
 
     connection = sqlite3.connect(database)
     connection.executescript(schema_bytes.decode("utf-8"))
+    _metric_suite.initialize_sql(connection)
+    metric_suite_sha256 = _metric_suite.fingerprint()
+    metric_suite_proofs = []
     rows = 0
     advanced_rows = 0
     advanced_counts = {entry["id"]: 0 for entry in advanced_entries}
@@ -1097,6 +1103,9 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
             if promotion_record is None or promotion_record["gamePk"] != game_pk:
                 raise ValueError(f"Materialization escaped the validated promotion inventory: {graph}")
             artifact = promotion_record["authoritativeRdfSha256"]
+            metric_evidence = sparql(args.endpoint, _metric_suite.evidence_query([graph]), args.timeout)
+            metric_suite_proofs.append(_metric_suite.materialize_game(
+                connection, graph, metric_evidence['results']['bindings']))
             fingerprint_lines.append(f"{graph}|{official_date}|{game_set}|{artifact}")
             query_started = time.perf_counter()
             try:
@@ -1451,7 +1460,14 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
         layer: sum(entry["executionLayer"] == layer for entry in dsq_entries)
         for layer in ("authoritative", "indexed")
     }
+    if _metric_suite.fingerprint() != metric_suite_sha256:
+        raise ValueError('Metric implementation changed during materialization')
     evidence = {
+        "metricSuiteSha256": metric_suite_sha256,
+        "metricSuite": {"games": len(metric_suite_proofs),
+                        "resultCount": sum(p['metrics'] for p in metric_suite_proofs),
+                        "evidenceRows": sum(p['evidenceRows'] for p in metric_suite_proofs),
+                        "exactRoundTrip": all(p['exactRoundTrip'] for p in metric_suite_proofs)},
         "artifactType": "baseball-analytical-serving-build-evidence",
         "contractVersion": 5,
         "evidenceSchemaVersion": 2,
@@ -1565,6 +1581,7 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
         )
         atomic_json(evidence_path, evidence)
         pointer = {
+            "metricSuiteSha256": metric_suite_sha256,
             "artifactType": "baseball-analytical-serving-pointer",
             "contractVersion": 5,
             "promotedAtUtc": promotion_time,

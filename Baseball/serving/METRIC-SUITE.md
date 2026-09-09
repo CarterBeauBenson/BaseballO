@@ -1,0 +1,139 @@
+# Graph-native metric suite
+
+This suite implements 20 metric calculations. It is separate from PAQ-1 and
+the existing Empty Game Explorer queries. The canonical catalog and shared
+availability requirements are `sparql/metrics/metric-catalog.json` and
+`sparql/metrics/gap-register.json`.
+
+## Calculation contract
+
+The kernels in `sparql/serving/metric-kernels/` consume **admitted SPARQL
+bindings**, not MLB JSON or source event labels. They are derived SQL-serving
+calculations, registered as such in `sparql/source-scope-catalog.json`.
+`scripts/generate_metric_suite.py --check` detects drift from their generator.
+The `authoritativeQuery` catalog field identifies the canonical calculation
+query; it does not claim that an empty VALUES template extracts source facts.
+
+`serving/metric_suite.py` validates identities, executes the kernels and
+retains rational numerators and denominators as arbitrary-precision decimal
+strings. Fractions are reduced before persistence. Sorting and tie comparison
+use exact rational arithmetic; display rounding is the last step. SPARQL
+uses integer cross multiplication for percentile comparisons.
+
+| Metric | Implemented calculation |
+| --- | --- |
+| TFS | Sum retained progress minus direct destruction and opportunity erosion. |
+| PAQ-2 | Exact TFS midrank in the complete season reference population. |
+| PAQ-A | Same percentile calculation within the declared starting-state cohort. |
+| Offensive Reach | Number of distinct trajectories receiving positive attributed progress. |
+| Hidden Help Rate | Other-runner progress while batter progress is zero / PAs with zero batter progress. |
+| Rally Kill Rate | PAs directly putting an existing runner out / PAs beginning with a runner. |
+| Rally Kill Severity | Existing-runner destruction / PAs beginning with a runner. |
+| Opportunity Erosion | Mean PA erosion; individual erosion is also a TFS component. |
+| Empty Game Rate | Complete player-games with at least one PA and no qualifying positive episode / games with at least one PA. |
+| Empty Game Damage | Sum of the magnitudes of negative PA and admitted independent episode scores in an Empty Game. |
+| Contribution Path Diversity | Three-channel normalized Shannon entropy counting each positive play once per channel, plus exact counts and breadth. |
+| Recovery Quality | Midrank of nonterminal pitches after the first two-strike state, within the admitted two-strike reference cohort. |
+| Defensive Resolution Depth | Longest path in the admitted defensive precedence DAG, counting intentional acts. |
+| Defender Breadth | Distinct agents in that defensive structure. |
+| Run Construction Depth | Distinct state-changing episodes on the admitted scoring trajectory. |
+| Run Construction Breadth | Distinct offensive players supporting that trajectory, including the scoring runner. |
+| Adjudication Volatility | Reversed / explicitly resolved reviews in the declared mapped population. |
+| Review Dependence Rate | Review-dependent operative outcomes / eligible operative outcomes. |
+| Role Realization Breadth | Batter, Baserunner, Pitcher and Fielder kinds actually realized in the game; generic parents excluded. |
+| PAQ-2.1 | Exact lexicographic percentile of TFS, Recovery Quality, then defensive depth, within the applicable population. |
+
+For ordinal state `s` and safe terminal state `e`, retained progress is
+`(e-s)/(4-s)` when positive and credited. Direct destruction is `1/(4-s)`.
+Surviving-runner erosion is `attributedOuts / ((4-e)*(3-outsBefore))`.
+The third out charges the remaining opportunity of stranded runners, without
+inventing an additional out. Scored and directly out paths receive no survivor
+erosion. Ordinals HOME=0, bases=1/2/3 and SCORE=4 are calculation states, not
+new spatial assertions. All primitive TFS fractions fit a denominator of 36.
+
+The accepted contact exclusions remove error/FC **progress credit**; they do
+not remove the actual shared-play terminal state from erosion. Independent
+advances may supply terminal context but are not batter progress. Only
+attributed distinct outs enter the erosion factor. A continuous path ending
+in an out retains no intermediate progress. The original start determines
+destruction, rather than the last intermediate base.
+
+Midrank is `100*(2*lower+ties-1)/(2*(N-1))`; N below two is unavailable.
+Every tied value has the same rank. PAQ-A requires explicit cohort identity.
+The reference is fixed before a player/display filter is applied. A season
+coverage gap cannot be solved by ranking just the covered games.
+The in-progress-season cutoff includes all eligible completed PAs through the
+reporting cutoff. `paq21_population` excludes known inapplicable recovery or
+defensive dimensions. Unknown applicability blocks reference completeness;
+missing applicable dimensions remain unavailable. Neither affects ordinary
+PAQ-2 eligibility by itself.
+`player_paq` returns exact mean, median, the whole value distribution and
+inclusive top (>=75) / bottom (<=25) quartile rates. `summarize` provides exact
+complete-population means; with threshold 2 it also provides the
+multi-trajectory rate for Offensive Reach. Use it on Empty Game Damage
+values only for the admitted Empty Game population.
+
+CPD retains exact rational channel proportions and the expression
+`-sum(p*ln(p))/ln(3)`. Its logarithmic value is explicitly approximate;
+it is not presented as an exact rational. Defensive longest paths and entropy
+use reducers on the canonical SPARQL rows because SPARQL 1.1 has no portable
+longest-path or logarithm operator.
+
+Empty denominators, incomplete aggregates, incomplete cohorts, conflicting
+identities, cyclic paths and missing outcomes never become zero. Exact
+duplicate identities are coalesced; conflicting observations are rejected.
+Inputs to the pure kernels are an engineering interface, not a source
+admission mechanism. The HTTP API cannot accept facts or completeness flags.
+
+`batch-release-policy.json` records the named September 8 decisions.
+`empty_game_eligible` requires a complete PA count of at least one; zero-PA
+runners remain eligible for independent baserunning metrics.
+`independent_runner_damage` returns a positive damage magnitude, comprising
+direct runner destruction plus surviving-teammate erosion. First and third,
+zero outs, first caught stealing with third unchanged gives 2/3. This helper
+does not choose positive running weights or a net independent episode score.
+`empty_game_damage` consumes signed episode scores, so a positive damage
+magnitude must be negated if supplied as a damage-only episode score.
+Positive running weights and speed-based error attribution remain open.
+
+## RDF, SQL and API
+
+`sparql/metrics/suite-evidence.rq` inventories existing PA, batted-play, run,
+realized-role and replay structures within explicitly selected promoted game
+graphs. The current adapter admits AV only over fully linked, explicitly
+resolved mapped replay reviews. Unsupported dispositions are counted as
+unresolved and excluded from that stated denominator. Conflicting original,
+operative or disposition assertions make the result unavailable. It does not
+infer official accuracy or claim a complete league-wide review population.
+
+The other live adapters report their shared gap codes and observed evidence
+coverage. They do not create zero-filled player or PA rankings. The complete
+arithmetic implementations remain available for admitted fixtures while
+those source semantics await the consolidated review.
+
+`metric-suite-schema.sql` adds disposable evidence, result and manifest
+tables to the existing serving build. Each game receives all 20 status/result
+records. Values, evidence and serialized results have exact preservation
+checks and fingerprints. Repeating a game replaces its own partition.
+Selection pools resolved review counts, rather than averaging game rates.
+The schema contains no proposal vocabulary.
+
+The existing `scripts/pipeline/materialize-serving-layer.py`, invoked by the
+MLB-game NiFi materialize stage, owns routine computation. Its immutable build
+and atomic promotion rules still apply. The suite fingerprint is recorded
+in build evidence and the serving pointer. A stale or incomplete build is
+rejected by `query-serving-layer.py`. No new source lane, acquisition schedule
+or topology is introduced. This implementation does not run a manual corpus
+build or wait on healthy asynchronous source proofs.
+
+The Explorer exposes `/metrics`, `GET /api/metrics/catalog`, and
+`POST /api/metrics/query`. The latter accepts only `metricId`, `gameSet` and
+`dateScope`. It uses validated SQL when available and falls back to scoped
+authoritative SPARQL with the same reducer. The fallback reads existing RDF
+on user request; it never acquires or transforms source payloads. The UI shows
+exact values, definitions, coverage, supporting evidence, unavailable reasons
+and downloadable results and gaps. Server-calculated scope/provenance remain
+attached to the result. The existing temporary game-set provenance dependency
+is a declared coverage limitation and does not admit a PAQ season cohort.
+
+The batch review is [here](../proposals/graph-native-metric-suite-batch-review/README.md).

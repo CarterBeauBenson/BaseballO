@@ -25,6 +25,11 @@ their rejection rationale so they cannot be accidentally revived.
 
 ## Active reviews
 
+The [new metric suite batch review](graph-native-metric-suite-batch-review/README.md)
+collects all remaining metric prerequisites in one draft package. The full
+calculation software is separately authorized and implemented; the unresolved
+ontology and graph-admission decisions remain open.
+
 The accepted source-independent review surface for the next MLB implementation
 pass is archived as
 [`FINAL-MLB-RML-REVIEW.md`](../archive/design-records/FINAL-MLB-RML-REVIEW.md).
@@ -34,6 +39,11 @@ They are design-only and authorize no ontology, RML, SHACL, acquisition, RDF,
 SQL, or UI change. Each link keeps one answerable modeling boundary visible;
 the Mermaid shows candidate world-side structure and the competency questions
 list the decisions still required.
+
+The attribution review has a separately accepted and implemented
+[A1 contact-play parthood slice](../archive/design-records/mlb-game-batted-runner-resolution-containment/README.md).
+Its remaining state, destination and non-contact patterns stay in the active
+review; that package's null decision does not undo the archived partial decision.
 
 ### Implementation gates
 
@@ -48,6 +58,7 @@ list the decisions still required.
 | Review boundary | Mermaid | Questions |
 | --- | --- | --- |
 | [Deferred MLB-game measurements](mlb-game-deferred-measurements/README.md) | [shape](mlb-game-deferred-measurements/source-independent-mermaid.md) | [decisions](mlb-game-deferred-measurements/competency-questions.md) |
+| [Batter-consequence attribution for TFS and PAQ-2](mlb-game-batter-consequence-attribution/README.md), with [resolution/award links accepted separately](../archive/design-records/mlb-game-resolution-award-links/README.md) | [shape](mlb-game-batter-consequence-attribution/source-independent-mermaid.md) | [decisions](mlb-game-batter-consequence-attribution/competency-questions.md) |
 
 ### MLB people gaps
 

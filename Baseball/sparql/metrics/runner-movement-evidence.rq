@@ -1,0 +1,51 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX bfo: <http://purl.obolibrary.org/obo/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+
+# Read-only evidence over accepted MLB-game relations, not scored trajectories.
+# Each distinct combination remains visible; no path coalescence or credit is
+# inferred. Unbound values remain unknown. Codes come from explicit identifiers.
+SELECT DISTINCT ?graph ?game ?plateAppearance ?resolution ?act ?runner
+       ?originBase ?originCode ?destinationBase ?destinationCode
+       ?contactPlay ?award ?record ?hasSafeType ?hasOutType ?hasRunType
+WHERE {
+  GRAPH ?graph {
+    ?game a base:BaseballGame .
+    ?plateAppearance a base:PlateAppearance ;
+        bfo:BFO_0000132/bfo:BFO_0000132/bfo:BFO_0000132 ?game .
+    ?resolution a base:RunnerResolutionProcess ;
+        bfo:BFO_0000132 ?plateAppearance ; bfo:BFO_0000062 ?act .
+    ?act a base:BaserunningAct ; bfo:BFO_0000132 ?plateAppearance .
+    OPTIONAL { ?resolution base:hasResolvedRunner ?runner . }
+    OPTIONAL {
+      ?act base:hasBaserunningOriginBase ?originBase .
+      OPTIONAL {
+        ?originIdentifier a cco:ont00000649 ; cco:ont00001916 ?originBase ;
+            cco:ont00001765 ?originCode .
+      }
+    }
+    OPTIONAL {
+      ?resolution base:hasAdjudicatedBase ?destinationBase .
+      OPTIONAL {
+        ?destinationIdentifier a cco:ont00000649 ;
+            cco:ont00001916 ?destinationBase ; cco:ont00001765 ?destinationCode .
+      }
+    }
+    OPTIONAL {
+      ?contactPlay a base:BattedBallPlayProcess ;
+          bfo:BFO_0000132 ?plateAppearance ; bfo:BFO_0000117 ?resolution .
+    }
+    OPTIONAL {
+      ?resolution base:settlesAwardFrom ?award .
+      ?award bfo:BFO_0000132 ?plateAppearance .
+    }
+    OPTIONAL {
+      ?record a base:BaseballEventRecord ; cco:ont00001808 ?resolution, ?act .
+    }
+    BIND(EXISTS { ?resolution a base:SafeProcess } AS ?hasSafeType)
+    BIND(EXISTS { ?resolution a base:OutProcess } AS ?hasOutType)
+    BIND(EXISTS { ?resolution a base:RunProcess } AS ?hasRunType)
+  }
+  FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+}
+ORDER BY ?game ?plateAppearance ?resolution ?act

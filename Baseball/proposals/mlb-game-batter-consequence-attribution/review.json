@@ -1,0 +1,64 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-batter-consequence-attribution",
+  "title": "MLB game batter-consequence attribution for graph-native metrics",
+  "status": "under-review",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "49cd19077de1c87c6535caa829fc6b3e66280535ee65f6fe629611a421bbedc6"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "1bca6360f60ee4e8f073fe822827901ef11bee81ec8b466b6c627185e646aa15"
+      },
+      {
+        "path": "minimal-change-plan.md",
+        "sha256": "3c851c7872be289f974bf1404fcebabf26643868598f1c5641268f1da61794c7"
+      },
+      {
+        "path": "state-modeling-review.md",
+        "sha256": "3a31c1d0b192703cbfd2cec7d5a618f62a95aa1cda6e4036ab433ca3bbc57c67"
+      },
+      {
+        "path": "metric-boundary-contract.md",
+        "sha256": "656d7f5bf51639b368a3b0b471e9148ff48990174a1636112d7e208e9c0f0315"
+      },
+      {
+        "path": "boundary-state-evidence.md",
+        "sha256": "9a59dc32e4cb53eed9266d260246f49f8231fa51845ab2028e1ad4d3273258fb"
+      },
+      {
+        "path": "boundary-state-evidence.json",
+        "sha256": "0f143c148fc58f1798612ffe2852b1139733166b4be7400bfa0602e6024ed7d6"
+      },
+      {
+        "path": "boundary-temporal-vocabulary.md",
+        "sha256": "74ea691c27cc13fda4ca9128872736138de3aec7c29d7f99763bd4215cd714ee"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "5e85f4257e4dafadfd5c8df4c85c091f9c1aea3d055bc4801d5866e916e50d60"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "890674fbc4d8967880c1e57af3c97ec36abe0e928fdfbd4af7dcfc3bc63e6316"
+      },
+      {
+        "path": "boundary-state-evidence.md",
+        "sha256": "9a59dc32e4cb53eed9266d260246f49f8231fa51845ab2028e1ad4d3273258fb"
+      }
+    ]
+  },
+  "ontologistDecision": null
+}

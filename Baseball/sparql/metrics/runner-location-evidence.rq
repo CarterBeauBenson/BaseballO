@@ -1,0 +1,36 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX bfo: <http://purl.obolibrary.org/obo/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+
+# Read-only inventory of the existing, specifically PA-start location pattern.
+# Optional enclosing links are explicit triples, not a new source assertion or
+# a temporal/transitive inference. The two individuals' exists-at times do not
+# qualify their location relation. Missing times remain unbound.
+SELECT DISTINCT ?graph ?game ?plateAppearance ?stasis ?runner ?baseSite
+       ?stasisInterval ?stasisFirstInstant ?paInterval ?paFirstInstant
+       ?enclosingLocation ?hasExplicitRunnerBaseSiteLink
+WHERE {
+  GRAPH ?graph {
+    ?game a base:BaseballGame .
+    ?plateAppearance a base:PlateAppearance ;
+        bfo:BFO_0000132/bfo:BFO_0000132/bfo:BFO_0000132 ?game .
+    ?stasis a base:BaserunnerAtBaseStasis ;
+        bfo:BFO_0000132 ?plateAppearance ;
+        bfo:BFO_0000057 ?runner ; cco:ont00001918 ?baseSite .
+    ?runner a cco:ont00001262 .
+    ?baseSite a base:BaseSite .
+    OPTIONAL {
+      ?stasis bfo:BFO_0000199 ?stasisInterval .
+      OPTIONAL { ?stasisInterval bfo:BFO_0000222 ?stasisFirstInstant . }
+    }
+    OPTIONAL {
+      ?plateAppearance bfo:BFO_0000199 ?paInterval .
+      OPTIONAL { ?paInterval bfo:BFO_0000222 ?paFirstInstant . }
+    }
+    OPTIONAL { ?baseSite bfo:BFO_0000171 ?enclosingLocation . }
+    BIND(EXISTS { ?runner bfo:BFO_0000171 ?baseSite }
+         AS ?hasExplicitRunnerBaseSiteLink)
+  }
+  FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+}
+ORDER BY ?game ?plateAppearance ?stasis ?runner

@@ -1,0 +1,27 @@
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# Analytical regression fixture only: these VALUES are explicitly admitted
+# hypothetical participant facts, not an authoritative RDF or serving schema.
+# No source attribution, path identity, completeness or boundary is inferred.
+# Valid starts are 0..3; safe/stranded ends 1..3; scored ends 4.
+# All primitive denominators divide 36: progress/destruction use 1..4,
+# erosion uses (1..3)*(1..3). Integer numerators over 36 therefore preserve
+# exact arithmetic without rounding. This is a representation, not a weight.
+SELECT ?example
+       (SUM(?progress36) AS ?progressNumerator)
+       (SUM(?destruction36) AS ?destructionNumerator)
+       (SUM(?erosion36) AS ?erosionNumerator)
+       (SUM(?progress36 - ?destruction36 - ?erosion36) AS ?tfsNumerator)
+WHERE {
+  VALUES (?example ?outsBefore ?attributedOuts ?start ?end ?terminal ?creditProgress ?creditOut) {
+    # EXAMPLE_ROWS
+  }
+  BIND(IF((?terminal = "safe" || ?terminal = "scored") && ?creditProgress && ?end > ?start,
+          xsd:integer((36 * (?end - ?start)) / (4 - ?start)), 0) AS ?progress36)
+  BIND(IF(?terminal = "out" && ?creditOut,
+          xsd:integer(36 / (4 - ?start)), 0) AS ?destruction36)
+  BIND(IF(?terminal = "safe" || ?terminal = "stranded",
+          xsd:integer((36 * ?attributedOuts) / ((4 - ?end) * (3 - ?outsBefore))), 0) AS ?erosion36)
+}
+GROUP BY ?example
+ORDER BY ?example

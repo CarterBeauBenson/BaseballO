@@ -1,0 +1,16 @@
+{
+  "artifactType": "baseballo-metric-policy",
+  "contractVersion": 1,
+  "metric": "TFS",
+  "policyId": "shared-play-actual-end-erosion",
+  "status": "accepted-policy-only",
+  "erosionBoundary": "evidenced-actual-shared-play-end",
+  "independentProgressReceivesBatterCredit": false,
+  "erosionOuts": "distinct-batter-attributed-outs-only",
+  "scoredParticipantReceivesErosion": false,
+  "requiresCompleteRelevantEvidence": true,
+  "requiresNonInningEndingPlay": true,
+  "requiresNoIndependentOuts": true,
+  "decision": "../../archive/design-records/tfs-shared-play-erosion/decision.json",
+  "boundary": "No order is inferred among overlapping events. Source index equality does not establish an admitted common boundary. Unresolved inning-ending, independent-out, walk-off, replay and completeness cases remain unscored when material."
+}

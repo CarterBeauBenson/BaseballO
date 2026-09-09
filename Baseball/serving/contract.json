@@ -2,6 +2,18 @@
   "artifactType": "baseball-analytical-serving-contract",
   "contractVersion": 5,
   "engine": "sqlite",
+  "metricSuite": {
+    "catalog": "sparql/metrics/metric-catalog.json",
+    "gapRegister": "sparql/metrics/gap-register.json",
+    "schema": "serving/metric-suite-schema.sql",
+    "implementation": "serving/metric_suite.py",
+    "route": "metric-suite",
+    "calculationStatus": "implemented",
+    "liveAvailability": "per-metric-evidence-gated",
+    "equivalence": "exact-per-game-persistence-and-focused-RDF-to-SQL-fixtures",
+    "populationAdmission": "no-inference-from-successful-arithmetic-or-persistence",
+    "fallback": "scoped-authoritative-rdf-with-the-same-reducer"
+  },
   "authority": {
     "analyticalFacts": "derived-from-authoritative-rdf",
     "temporaryGameSetDependency": "validated-persistent-acquisition-provenance-and-checked-historical-schedule-evidence",

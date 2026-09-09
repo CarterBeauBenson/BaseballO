@@ -1,0 +1,55 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX bfo: <http://purl.obolibrary.org/obo/>
+
+# Source: mlb-game authoritative graphs. This audits explicit graph links;
+# it does not calculate TFS, assign batter credit, or certify completeness.
+# Zero means no matching link in this graph, not no real-world consequence.
+SELECT ?graph ?game ?plateAppearance
+       (COUNT(DISTINCT ?resolution) AS ?mappedRunnerResolutions)
+       (COUNT(DISTINCT ?identifiedResolution) AS ?resolutionsWithExplicitRunner)
+       (COUNT(DISTINCT ?destinationResolution) AS ?safeResolutionsWithDestination)
+       (COUNT(DISTINCT ?contactResolution) AS ?contactPlayMemberResolutions)
+       (COUNT(DISTINCT ?awardResolution) AS ?awardCompletionResolutions)
+       (COUNT(DISTINCT ?missingDestination) AS ?safeResolutionsWithoutDestinationLink)
+       (COUNT(DISTINCT ?originAct) AS ?baserunningActsWithOrigin)
+WHERE {
+  GRAPH ?graph {
+    ?game a base:BaseballGame .
+    ?plateAppearance a base:PlateAppearance ;
+        bfo:BFO_0000132/bfo:BFO_0000132/bfo:BFO_0000132 ?game .
+    OPTIONAL {
+      ?resolution a base:RunnerResolutionProcess ; bfo:BFO_0000132 ?plateAppearance .
+      OPTIONAL {
+        ?resolution base:hasResolvedRunner ?runner .
+        BIND(?resolution AS ?identifiedResolution)
+      }
+      OPTIONAL {
+        ?resolution bfo:BFO_0000062 ?originAct .
+        ?originAct a base:BaserunningAct ; base:hasBaserunningOriginBase ?originBase ;
+            bfo:BFO_0000132 ?plateAppearance .
+      }
+      OPTIONAL {
+        ?resolution a base:SafeProcess ; base:hasAdjudicatedBase ?base .
+        BIND(?resolution AS ?destinationResolution)
+      }
+      OPTIONAL {
+        ?contact a base:BattedBallPlayProcess ;
+            bfo:BFO_0000132 ?plateAppearance ; bfo:BFO_0000117 ?resolution .
+        BIND(?resolution AS ?contactResolution)
+      }
+      OPTIONAL {
+        ?resolution base:settlesAwardFrom ?award .
+        ?award bfo:BFO_0000132 ?plateAppearance .
+        BIND(?resolution AS ?awardResolution)
+      }
+      OPTIONAL {
+        ?resolution a base:SafeProcess .
+        FILTER NOT EXISTS { ?resolution base:hasAdjudicatedBase ?destination }
+        BIND(?resolution AS ?missingDestination)
+      }
+    }
+  }
+  FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+}
+GROUP BY ?graph ?game ?plateAppearance
+ORDER BY ?game ?plateAppearance

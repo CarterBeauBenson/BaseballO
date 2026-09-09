@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import functools
 import hashlib
+import importlib.util
 import json
 import os
 import re
@@ -19,6 +20,9 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[2]
+_metric_spec = importlib.util.spec_from_file_location('baseballo_metric_suite', ROOT / 'serving/metric_suite.py')
+_metric_suite = importlib.util.module_from_spec(_metric_spec)
+_metric_spec.loader.exec_module(_metric_suite)
 GAME_SETS = frozenset(
     {"regular_season", "preseason", "postseason", "exhibition", "all_star"}
 )
@@ -200,6 +204,18 @@ def require_materialized_route_admission(request: dict[str, Any], contract: dict
     ):
         raise ValueError("Unsupported analytical serving admission contract")
     route = request.get("route")
+    if route == 'metric-suite':
+        # This new route is an evidence/status surface, not blanket admission
+        # of PAQ-2 or any unresolved semantic family. query_sql independently
+        # enforces the pinned suite manifest and every metric's prerequisites.
+        suite = contract.get('metricSuite', {})
+        if (suite.get('route') != route or suite.get('liveAvailability') != 'per-metric-evidence-gated'
+                or suite.get('schema') != 'serving/metric-suite-schema.sql'
+                or suite.get('implementation') != 'serving/metric_suite.py'):
+            raise ValueError('Unsupported metric suite evidence contract')
+        if request.get('metricId') not in {entry['id'] for entry in _metric_suite.catalog()['metrics']}:
+            raise ValueError('Unknown metric')
+        return
     if route == "options":
         contract_route = "options"
     elif route == "explore":
@@ -939,6 +955,13 @@ def query(args: argparse.Namespace, request: dict[str, Any]) -> dict[str, Any]:
         if route == "options":
             return query_options(connection, request, build, started)
         scope = resolve_scope(connection, request)
+        if route == "metric-suite":
+            if pointer.get('metricSuiteSha256') != _metric_suite.fingerprint():
+                raise ValueError('Serving pointer is stale for the metric suite')
+            result = _metric_suite.query_sql(connection, request, scope)
+            result['serving'] = {'buildId': build[0], 'corpusFingerprint': build[1],
+                                 'durationMs': round((time.perf_counter() - started) * 1000, 3)}
+            return result
         if route == "explore":
             return query_explore(connection, request, build, scope, started)
         if route == "empty-games":
@@ -1058,7 +1081,7 @@ def main() -> int:
         if not isinstance(request, dict):
             raise ValueError("Serving request must be an object")
         catalog = load_object(ADVANCED_CATALOG)
-        routes = {"explore", "options", "empty-games", "derived"}
+        routes = {"explore", "options", "empty-games", "derived", "metric-suite"}
         if request.get("route") not in routes and request.get("id") not in {entry["id"] for entry in catalog["queries"]}:
             raise ValueError("Only reviewed Explorer queries are materialized")
         # ASCII-safe JSON prevents the Windows console code page from corrupting

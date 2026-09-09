@@ -1,0 +1,542 @@
+{
+  "version": 3,
+  "scope": "Graph-native metric suite. Named user decisions are recorded separately from remaining ontology, identity, evidence and completeness requirements.",
+  "reviewPackage": "proposals/graph-native-metric-suite-batch-review",
+  "gaps": [
+    {
+      "id": "ATTRIBUTION",
+      "title": "Attribute offensive consequences",
+      "question": "Which play-specific evidence and reviewed model could support speed-related error credit? Interference credit remains deferred.",
+      "direction": "Retain error/FC progress exclusions. Research runner speed as possible evidence; no speed threshold or causal credit rule has been accepted. Actual-end-state erosion is confirmed, including -1/4 for the strikeout plus passed-ball score example.",
+      "status": "open",
+      "disposition": "partially-resolved-review-required",
+      "owner": "ontologist",
+      "implementationBehavior": "calculation uses accepted policy; live output remains unavailable until source-owned graph prerequisites are admitted",
+      "decisionRecords": [
+        "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
+        "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json"
+      ],
+      "researchAssessment": {
+        "assessedOn": "2026-09-08",
+        "report": "proposals/graph-native-metric-suite-batch-review/web-gap-assessment.md",
+        "resolvedFactualQuestions": [
+          "R02",
+          "R03",
+          "R06",
+          "R08"
+        ],
+        "remainingWorkKinds": [
+          "model",
+          "evidence",
+          "metric-choice",
+          "deferred"
+        ],
+        "livePrerequisiteClosed": false
+      }
+    },
+    {
+      "id": "BOUNDARY_STATE",
+      "title": "Locate runners at the relevant boundaries",
+      "question": "How should return-to-base capacity delimit the larger Site and how is location temporally qualified?",
+      "direction": "Coaching supports a context-sensitive return criterion. Preserve the nested-site direction and existing Mermaid; no fixed radius, Relational Quality, or new ontology assertion is admitted by that finding.",
+      "status": "open",
+      "disposition": "partially-resolved-review-required",
+      "owner": "ontologist",
+      "implementationBehavior": "calculation uses accepted policy; live output remains unavailable until source-owned graph prerequisites are admitted",
+      "decisionRecords": [
+        "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
+        "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json"
+      ],
+      "researchAssessment": {
+        "assessedOn": "2026-09-08",
+        "report": "proposals/graph-native-metric-suite-batch-review/web-gap-assessment.md",
+        "resolvedFactualQuestions": [
+          "R01",
+          "R04"
+        ],
+        "remainingWorkKinds": [
+          "model",
+          "evidence"
+        ],
+        "livePrerequisiteClosed": false
+      }
+    },
+    {
+      "id": "PATH_IDENTITY",
+      "title": "Identify a continuous runner trajectory",
+      "question": "What graph evidence establishes the accepted personal trajectory and its complete parts?",
+      "direction": "Accepted lifetime: becoming a baserunner through score, out, replacement or inning end; individual plays are parts. A pinch runner begins a distinct personal trajectory. Adjacent records alone do not prove continuity.",
+      "status": "open",
+      "disposition": "accepted-meaning-evidence-pending",
+      "owner": "ontologist",
+      "implementationBehavior": "calculation uses accepted policy; live output remains unavailable until source-owned graph prerequisites are admitted",
+      "decisionRecords": [
+        "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
+        "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json"
+      ],
+      "researchAssessment": {
+        "assessedOn": "2026-09-08",
+        "report": "proposals/graph-native-metric-suite-batch-review/web-gap-assessment.md",
+        "resolvedFactualQuestions": [
+          "R08",
+          "R09"
+        ],
+        "remainingWorkKinds": [
+          "model",
+          "evidence"
+        ],
+        "livePrerequisiteClosed": false
+      }
+    },
+    {
+      "id": "OPERATIVE_OUTS",
+      "title": "Count operative attributed outs",
+      "question": "How are distinct final outs identified after replay, simultaneous independent events, uncaught third strikes, and appeals?",
+      "direction": "Count distinct supported operative outs. Charge stranded-runner erosion on the third out without inventing another out or destruction.",
+      "status": "open",
+      "disposition": "batch-review-required",
+      "owner": "ontologist",
+      "implementationBehavior": "unavailable until the named semantic/evidence prerequisite is admitted",
+      "researchAssessment": {
+        "assessedOn": "2026-09-08",
+        "report": "proposals/graph-native-metric-suite-batch-review/web-gap-assessment.md",
+        "resolvedFactualQuestions": [
+          "R06",
+          "R08",
+          "R09"
+        ],
+        "remainingWorkKinds": [
+          "model",
+          "evidence"
+        ],
+        "livePrerequisiteClosed": false
+      }
+    },
+    {
+      "id": "COMPLETENESS",
+      "title": "Certify complete consequences",
+      "question": "Which source-owned graph contract proves every relevant participant, state and outcome is accounted for?",
+      "direction": "Add the accepted conformance constraints to owning source SHACL after review; unknown facts remain unavailable rather than zero.",
+      "status": "open",
+      "disposition": "batch-review-required",
+      "owner": "ontologist",
+      "implementationBehavior": "unavailable until the named semantic/evidence prerequisite is admitted",
+      "researchAssessment": {
+        "assessedOn": "2026-09-08",
+        "report": "proposals/graph-native-metric-suite-batch-review/web-gap-assessment.md",
+        "resolvedFactualQuestions": [
+          "R05",
+          "R07",
+          "R10"
+        ],
+        "remainingWorkKinds": [
+          "model",
+          "evidence"
+        ],
+        "livePrerequisiteClosed": false
+      }
+    },
+    {
+      "id": "TFS",
+      "title": "Admit TFS prerequisites",
+      "question": "TFS-dependent metrics inherit unresolved trajectory attribution, boundaries, continuity, outs and completeness.",
+      "direction": "Resolve shared TFS prerequisites once for all dependent metrics.",
+      "status": "open",
+      "disposition": "batch-review-required",
+      "owner": "ontologist",
+      "implementationBehavior": "unavailable until the named semantic/evidence prerequisite is admitted",
+      "researchAssessment": {
+        "assessedOn": "2026-09-08",
+        "report": "proposals/graph-native-metric-suite-batch-review/web-gap-assessment.md",
+        "resolvedFactualQuestions": [
+          "R01",
+          "R04",
+          "R06",
+          "R08",
+          "R09"
+        ],
+        "remainingWorkKinds": [
+          "upstream-dependencies"
+        ],
+        "livePrerequisiteClosed": false
+      }
+    },
+    {
+      "id": "REFERENCE_POPULATION",
+      "title": "Certify percentile populations",
+      "question": "What graph evidence certifies all eligible completed MLB regular-season PAs in the selected season through the reporting cutoff?",
+      "direction": "The cutoff and exact 0-100 midrank policy are accepted. Display filters cannot shrink the reference. Full coverage through the cutoff remains required; N below two is unavailable.",
+      "status": "open",
+      "disposition": "accepted-meaning-evidence-pending",
+      "owner": "ontologist",
+      "implementationBehavior": "calculation uses accepted policy; live output remains unavailable until source-owned graph prerequisites are admitted",
+      "decisionRecords": [
+        "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
+        "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json"
+      ],
+      "researchAssessment": {
+        "assessedOn": "2026-09-08",
+        "report": "proposals/graph-native-metric-suite-batch-review/web-gap-assessment.md",
+        "resolvedFactualQuestions": [
+          "R07"
+        ],
+        "remainingWorkKinds": [
+          "evidence"
+        ],
+        "livePrerequisiteClosed": false
+      }
+    },
+    {
+      "id": "PAQ_A_STATE",
+      "title": "Set the adjusted comparison boundary",
+      "question": "Use PA-start base/out state or the state immediately before the batter consequence for PAQ-A comparison cohorts?",
+      "direction": "The initial PA-start description remains draft. Neither choice gives the batter independent running credit. Actual-end-state TFS erosion has already been confirmed and is a separate decision.",
+      "status": "open",
+      "disposition": "partially-resolved-review-required",
+      "owner": "ontologist",
+      "implementationBehavior": "calculation uses accepted policy; live output remains unavailable until source-owned graph prerequisites are admitted",
+      "decisionRecords": [
+        "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
+        "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json"
+      ],
+      "researchAssessment": {
+        "assessedOn": "2026-09-08",
+        "report": "proposals/graph-native-metric-suite-batch-review/web-gap-assessment.md",
+        "resolvedFactualQuestions": [],
+        "remainingWorkKinds": [
+          "metric-choice",
+          "evidence"
+        ],
+        "livePrerequisiteClosed": false
+      }
+    },
+    {
+      "id": "OFFENSIVE_ELIGIBILITY",
+      "title": "Define eligible offensive player-games",
+      "question": "What graph evidence establishes complete PA counts and positive contributions for eligible player-games?",
+      "direction": "At least one PA is required for Empty Game eligibility. A zero-PA pinch runner is ineligible for Empty Games but remains eligible for baserunning metrics. The calculation enforces the PA minimum.",
+      "status": "open",
+      "disposition": "accepted-meaning-evidence-pending",
+      "owner": "ontologist",
+      "implementationBehavior": "calculation uses accepted policy; live output remains unavailable until source-owned graph prerequisites are admitted",
+      "decisionRecords": [
+        "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
+        "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json"
+      ],
+      "researchAssessment": {
+        "assessedOn": "2026-09-08",
+        "report": "proposals/graph-native-metric-suite-batch-review/web-gap-assessment.md",
+        "resolvedFactualQuestions": [
+          "R07"
+        ],
+        "remainingWorkKinds": [
+          "model",
+          "evidence"
+        ],
+        "livePrerequisiteClosed": false
+      }
+    },
+    {
+      "id": "INDEPENDENT_EPISODES",
+      "title": "Identify independent running contributions",
+      "question": "What source-owned evidence identifies independent running episodes and their distinct beneficiaries?",
+      "direction": "Steals and supported advances on wild pitches, passed balls and balks belong to the runner. They supply no batter progress credit. Episode identity and completeness still need graph support.",
+      "status": "open",
+      "disposition": "accepted-meaning-evidence-pending",
+      "owner": "ontologist",
+      "implementationBehavior": "calculation uses accepted policy; live output remains unavailable until source-owned graph prerequisites are admitted",
+      "decisionRecords": [
+        "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
+        "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json"
+      ],
+      "researchAssessment": {
+        "assessedOn": "2026-09-08",
+        "report": "proposals/graph-native-metric-suite-batch-review/web-gap-assessment.md",
+        "resolvedFactualQuestions": [
+          "R02",
+          "R08"
+        ],
+        "remainingWorkKinds": [
+          "model",
+          "evidence"
+        ],
+        "livePrerequisiteClosed": false
+      }
+    },
+    {
+      "id": "INDEPENDENT_SCORE",
+      "title": "Define independent trajectory damage",
+      "question": "Which increasing additive base weights and complete score formula should govern positive independent running?",
+      "direction": "Independent damage is accepted as direct runner destruction plus surviving-teammate erosion; the first/third caught-stealing example is 2/3. Positive independent advances are accepted in principle with increasing base value; exact weights and any net score remain unresolved.",
+      "status": "open",
+      "disposition": "partially-resolved-review-required",
+      "owner": "ontologist",
+      "implementationBehavior": "calculation uses accepted policy; live output remains unavailable until source-owned graph prerequisites are admitted",
+      "decisionRecords": [
+        "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
+        "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json"
+      ],
+      "researchAssessment": {
+        "assessedOn": "2026-09-08",
+        "report": "proposals/graph-native-metric-suite-batch-review/web-gap-assessment.md",
+        "resolvedFactualQuestions": [
+          "R02"
+        ],
+        "remainingWorkKinds": [
+          "metric-choice",
+          "evidence"
+        ],
+        "livePrerequisiteClosed": false
+      }
+    },
+    {
+      "id": "CHANNEL_EPISODES",
+      "title": "Count contribution channels",
+      "question": "What admitted evidence identifies each positive play and its contribution channels?",
+      "direction": "Count one positive play per channel, regardless of beneficiary count. The kernel deduplicates key/play/channel. Exact channel proportions and approximate normalized entropy are implemented.",
+      "status": "open",
+      "disposition": "accepted-meaning-evidence-pending",
+      "owner": "ontologist",
+      "implementationBehavior": "calculation uses accepted policy; live output remains unavailable until source-owned graph prerequisites are admitted",
+      "decisionRecords": [
+        "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
+        "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json"
+      ],
+      "researchAssessment": {
+        "assessedOn": "2026-09-08",
+        "report": "proposals/graph-native-metric-suite-batch-review/web-gap-assessment.md",
+        "resolvedFactualQuestions": [
+          "R08"
+        ],
+        "remainingWorkKinds": [
+          "evidence"
+        ],
+        "livePrerequisiteClosed": false
+      }
+    },
+    {
+      "id": "EXACT_PITCH_COUNTS",
+      "title": "Represent recovery evidence",
+      "question": "What source-owned evidence gives exact ordered post-pitch strike counts, first two-strike state and PA termination?",
+      "direction": "Count only nonterminal pitches after the first two-strike state; never reconstruct an exact count from an unordered ball/strike label tally.",
+      "status": "open",
+      "disposition": "batch-review-required",
+      "owner": "ontologist",
+      "implementationBehavior": "unavailable until the named semantic/evidence prerequisite is admitted",
+      "researchAssessment": {
+        "assessedOn": "2026-09-08",
+        "report": "proposals/graph-native-metric-suite-batch-review/web-gap-assessment.md",
+        "resolvedFactualQuestions": [
+          "R05"
+        ],
+        "remainingWorkKinds": [
+          "model",
+          "evidence"
+        ],
+        "livePrerequisiteClosed": false
+      }
+    },
+    {
+      "id": "DEFENSIVE_ACTS",
+      "title": "Identify defensive acts and agents",
+      "question": "What evidence identifies the distinct intentional defensive acts and their causally active agents?",
+      "direction": "Field, throw, catch and tag count as four acts even when two players perform them. The act-node counting unit is accepted; provider credit labels alone do not admit acts or their identities.",
+      "status": "open",
+      "disposition": "accepted-meaning-evidence-pending",
+      "owner": "ontologist",
+      "implementationBehavior": "calculation uses accepted policy; live output remains unavailable until source-owned graph prerequisites are admitted",
+      "decisionRecords": [
+        "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
+        "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json"
+      ],
+      "researchAssessment": {
+        "assessedOn": "2026-09-08",
+        "report": "proposals/graph-native-metric-suite-batch-review/web-gap-assessment.md",
+        "resolvedFactualQuestions": [
+          "R10"
+        ],
+        "remainingWorkKinds": [
+          "model",
+          "evidence"
+        ],
+        "livePrerequisiteClosed": false
+      }
+    },
+    {
+      "id": "DEFENSIVE_ORDER",
+      "title": "Order defensive resolution acts",
+      "question": "What relation and evidence establishes the supported precedence graph and its completeness?",
+      "direction": "Longest path counts act nodes; reject cycles and missing endpoints. Record order alone cannot establish defensive precedence.",
+      "status": "open",
+      "disposition": "batch-review-required",
+      "owner": "ontologist",
+      "implementationBehavior": "unavailable until the named semantic/evidence prerequisite is admitted",
+      "researchAssessment": {
+        "assessedOn": "2026-09-08",
+        "report": "proposals/graph-native-metric-suite-batch-review/web-gap-assessment.md",
+        "resolvedFactualQuestions": [
+          "R10"
+        ],
+        "remainingWorkKinds": [
+          "model",
+          "evidence"
+        ],
+        "livePrerequisiteClosed": false
+      }
+    },
+    {
+      "id": "RUN_CONTINUITY",
+      "title": "Trace a scoring run across PAs",
+      "question": "What graph evidence links the scoring runner personal trajectory across plays and PAs?",
+      "direction": "The personal trajectory lifetime is accepted. Replacement ends that person trajectory and begins another; do not merge people or infer continuity from adjacent observations.",
+      "status": "open",
+      "disposition": "accepted-meaning-evidence-pending",
+      "owner": "ontologist",
+      "implementationBehavior": "calculation uses accepted policy; live output remains unavailable until source-owned graph prerequisites are admitted",
+      "decisionRecords": [
+        "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
+        "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json"
+      ],
+      "researchAssessment": {
+        "assessedOn": "2026-09-08",
+        "report": "proposals/graph-native-metric-suite-batch-review/web-gap-assessment.md",
+        "resolvedFactualQuestions": [
+          "R09"
+        ],
+        "remainingWorkKinds": [
+          "model",
+          "evidence"
+        ],
+        "livePrerequisiteClosed": false
+      }
+    },
+    {
+      "id": "SUPPORT_ATTRIBUTION",
+      "title": "Attribute run support",
+      "question": "What supported causal links identify each contributor to the scoring trajectory?",
+      "direction": "Count distinct offensive contributors including the scoring runner own batting and independent running. Own single plus steal and a teammate scoring double has breadth two. Co-participation alone is insufficient.",
+      "status": "open",
+      "disposition": "accepted-meaning-evidence-pending",
+      "owner": "ontologist",
+      "implementationBehavior": "calculation uses accepted policy; live output remains unavailable until source-owned graph prerequisites are admitted",
+      "decisionRecords": [
+        "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
+        "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json"
+      ],
+      "researchAssessment": {
+        "assessedOn": "2026-09-08",
+        "report": "proposals/graph-native-metric-suite-batch-review/web-gap-assessment.md",
+        "resolvedFactualQuestions": [
+          "R02"
+        ],
+        "remainingWorkKinds": [
+          "model",
+          "evidence"
+        ],
+        "livePrerequisiteClosed": false
+      }
+    },
+    {
+      "id": "OPERATIVE_REVIEW",
+      "title": "Link review to the operative outcome",
+      "question": "Which explicit graph pattern establishes that a particular operative outcome depends on replay?",
+      "direction": "A PA-level review flag cannot make every outcome in that PA review-dependent.",
+      "status": "open",
+      "disposition": "batch-review-required",
+      "owner": "ontologist",
+      "implementationBehavior": "unavailable until the named semantic/evidence prerequisite is admitted",
+      "researchAssessment": {
+        "assessedOn": "2026-09-08",
+        "report": "proposals/graph-native-metric-suite-batch-review/web-gap-assessment.md",
+        "resolvedFactualQuestions": [
+          "R09",
+          "R12"
+        ],
+        "remainingWorkKinds": [
+          "model",
+          "evidence"
+        ],
+        "livePrerequisiteClosed": false
+      }
+    },
+    {
+      "id": "OUTCOME_POPULATION",
+      "title": "Define review-dependence denominator",
+      "question": "Which distinct institutional outcome categories form the RDR denominator, with season-specific review eligibility?",
+      "direction": "Research includes fair/foul and fan-interference categories rather than restricting consideration to out/safe and ball/strike. The exact denominator and operative outcome identity remain unresolved.",
+      "status": "open",
+      "disposition": "partially-resolved-review-required",
+      "owner": "ontologist",
+      "implementationBehavior": "calculation uses accepted policy; live output remains unavailable until source-owned graph prerequisites are admitted",
+      "decisionRecords": [
+        "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
+        "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json"
+      ],
+      "researchAssessment": {
+        "assessedOn": "2026-09-08",
+        "report": "proposals/graph-native-metric-suite-batch-review/web-gap-assessment.md",
+        "resolvedFactualQuestions": [
+          "R11",
+          "R12"
+        ],
+        "remainingWorkKinds": [
+          "metric-choice",
+          "evidence"
+        ],
+        "livePrerequisiteClosed": false
+      }
+    },
+    {
+      "id": "ROLE_POPULATION",
+      "title": "Select realized role types",
+      "question": "What complete game-scoped evidence establishes actual realization of the four selected role kinds?",
+      "direction": "Count Batter, Baserunner, Pitcher and Fielder kinds only when actually realized by that player in the game; exclude generic parent kinds. Role existence or stasis is not realization.",
+      "status": "open",
+      "disposition": "accepted-meaning-evidence-pending",
+      "owner": "ontologist",
+      "implementationBehavior": "calculation uses accepted policy; live output remains unavailable until source-owned graph prerequisites are admitted",
+      "decisionRecords": [
+        "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
+        "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json"
+      ],
+      "researchAssessment": {
+        "assessedOn": "2026-09-08",
+        "report": "proposals/graph-native-metric-suite-batch-review/web-gap-assessment.md",
+        "resolvedFactualQuestions": [],
+        "remainingWorkKinds": [
+          "model",
+          "evidence"
+        ],
+        "livePrerequisiteClosed": false
+      }
+    },
+    {
+      "id": "PAQ21_ELIGIBILITY",
+      "title": "Handle absent process tie-breakers",
+      "question": "What complete evidence distinguishes known inapplicability from unknown recovery or defensive applicability?",
+      "direction": "Known absence of a two-strike opportunity or applicable defensive resolution excludes a PA from PAQ-2.1 only. Unknown applicability blocks reference completeness; missing applicable dimensions are never zero. Ordinary PAQ-2 eligibility remains separate.",
+      "status": "open",
+      "disposition": "accepted-meaning-evidence-pending",
+      "owner": "ontologist",
+      "implementationBehavior": "calculation uses accepted policy; live output remains unavailable until source-owned graph prerequisites are admitted",
+      "decisionRecords": [
+        "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
+        "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json"
+      ],
+      "researchAssessment": {
+        "assessedOn": "2026-09-08",
+        "report": "proposals/graph-native-metric-suite-batch-review/web-gap-assessment.md",
+        "resolvedFactualQuestions": [
+          "R05",
+          "R07",
+          "R10"
+        ],
+        "remainingWorkKinds": [
+          "evidence"
+        ],
+        "livePrerequisiteClosed": false
+      }
+    }
+  ],
+  "researchAssessment": "proposals/graph-native-metric-suite-batch-review/web-gap-assessment.json"
+}

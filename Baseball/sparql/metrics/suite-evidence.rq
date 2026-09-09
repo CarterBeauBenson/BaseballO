@@ -1,0 +1,55 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+
+# Existing-term evidence inventory, not a completeness certificate. Every row
+# keeps its promoted graph and world-side referent. No provider event labels,
+# inferred continuity, inferred causation, or missing-row negative assertions.
+SELECT DISTINCT ?graph ?game ?kind ?entity ?player ?act ?roleType
+                ?reviewRecord ?original ?operative ?disposition ?decision
+WHERE {
+  GRAPH ?graph {
+    ?game a base:BaseballGame .
+    {
+      ?entity a base:PlateAppearance ;
+          obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
+      BIND("plate_appearance" AS ?kind)
+    } UNION {
+      VALUES (?entityType ?kind) {
+        (base:BattedBallPlayProcess "batted_play") (base:RunProcess "run")
+      }
+      ?entity a ?entityType ; obo:BFO_0000132+ ?game .
+    } UNION {
+      ?act obo:BFO_0000132+ ?game ; obo:BFO_0000055 ?role .
+      ?role obo:BFO_0000197 ?player ; a ?roleType .
+      VALUES ?roleType { base:BatterRole base:BaserunnerRole base:PitcherRole base:FielderRole }
+      BIND(?player AS ?entity)
+      BIND("player_game" AS ?kind)
+    } UNION {
+      ?entity a base:BaseballReplayReviewAct .
+      ?reviewRecord a base:BaseballReplayReviewEventRecord ;
+        cco:ont00001808 ?entity, ?resultJudgment .
+      ?resultJudgment obo:BFO_0000132 ?result .
+      ?result a base:BaseballInstitutionalProcess ; obo:BFO_0000132 ?reviewPA .
+      ?reviewPA a base:PlateAppearance ;
+        obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
+      BIND("review" AS ?kind)
+      OPTIONAL {
+        ?reviewRecord a base:BaseballReplayReviewEventRecord ;
+          cco:ont00001808 ?entity, ?onFieldJudgment, ?original, ?operative, ?disposition .
+        ?onFieldJudgment a base:ReviewedOnFieldUmpireJudgmentAct ;
+          cco:ont00001986 ?original ; obo:BFO_0000063 ?entity .
+        ?entity cco:ont00001921 ?original ; cco:ont00001986 ?operative .
+        ?original a base:ReviewedOnFieldBaseballDecisionICE .
+        ?operative a base:BaseballReplayDecisionICE .
+        ?disposition a base:BaseballReplayReviewDispositionICE, ?dispositionType ;
+          cco:ont00001816 ?entity ; cco:ont00001808 ?original, ?operative .
+        VALUES (?dispositionType ?decision) {
+          (base:AffirmingBaseballReplayReviewDispositionICE "affirmed")
+          (base:OverturningBaseballReplayReviewDispositionICE "reversed")
+        }
+      }
+    }
+  }
+  FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+}

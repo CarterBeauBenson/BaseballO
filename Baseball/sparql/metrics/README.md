@@ -1,7 +1,24 @@
 # Graph-native metrics roadmap
 
-Status: accepted implementation direction; attribution semantics and the
-explicit policy decisions below remain unratified.
+## Current implementation
+
+The complete 20-metric calculation suite is now implemented with exact
+arithmetic, SQL products, a read-only API and an Explorer page at `/metrics`.
+See the [implementation report](../../serving/METRIC-SUITE-IMPLEMENTATION.md)
+and [calculation contract](../../serving/METRIC-SUITE.md). The
+[batch review](../../proposals/graph-native-metric-suite-batch-review/README.md)
+collects all remaining shared gaps. The implementation is authorized by the
+user's later request to implement every metric now and review the gaps together.
+
+The checklist below remains the broader **production semantic admission**
+roadmap. Its unchecked source and release gates do not mean the new arithmetic
+software is absent. The current live adapter supports only explicitly resolved
+mapped review volatility; other metrics report unavailable with named gaps.
+
+## Original production roadmap
+
+Status: accepted implementation direction and release defaults; remaining
+attribution, before-state and completeness semantics are under review.
 
 BaseballO will rebuild its offensive analytics around connected baseball
 processes rather than weighted outcome checklists. The foundational analytical
@@ -41,12 +58,12 @@ repository's semantic review sequence.
 
 ### 1. Review the attribution contract
 
-- [ ] Inventory current RDF paths for Batter Acts, Plate Appearances,
+- [x] Inventory current RDF paths for Batter Acts, Plate Appearances,
   Batted-Ball Play Processes, runner resolutions, start states, destinations,
   outs, judgments, decisions, and replay reviews.
 - [ ] Determine whether accepted BFO, CCO, and BaseballO relations can express
   batter-linked consequences without a convenience object property.
-- [ ] Draft a source-independent Mermaid proposal before changing RML.
+- [x] Draft a source-independent Mermaid proposal before changing RML.
 - [ ] Distinguish batter-linked consequences from independent steals, caught
   stealing, pickoffs, balks, wild pitches, passed balls, and defensive
   indifference occurring during the same plate appearance.
@@ -56,6 +73,20 @@ repository's semantic review sequence.
   explicit RDF paths.
 - [ ] Preserve original and operative decisions when replay changes a result.
 - [ ] Obtain explicit ontologist review of the resulting graph pattern.
+
+The [attribution review package](../../proposals/mlb-game-batter-consequence-attribution/README.md)
+contains the static evidence inventory and reviewed diagrams. Immediate
+consequence-boundary state, continuity and operative adjudication remain
+unresolved; the bounded walk/HBP and safe-destination slice has been accepted.
+
+The user has since approved implementing the targeted fix. Its concrete A1
+contact-play parthood slice is
+[accepted separately](../../archive/design-records/mlb-game-batted-runner-resolution-containment/README.md)
+and implemented as a bounded RML addition with source SHACL. The
+[three resolution/award relations](../../archive/design-records/mlb-game-resolution-award-links/README.md)
+are also accepted and implemented. Their component and isolated RML fixture
+checks pass; current-hash NiFi one-game proof remains required. These additions
+do not establish the missing before-state or enable metric calculation.
 
 The reviewed pattern must answer:
 
@@ -170,16 +201,71 @@ Later work remains gated by additional authoritative evidence:
 - cross-plate-appearance runner continuity before Run Construction Depth and
   Run Construction Breadth.
 
-## Decisions still requiring explicit review
+## Accepted metric policies
 
-1. Whether PAQ-2 definitively uses a 0-100 percentile display, superseding the
-   earlier `.000-1.000` display convention.
-2. Whether the default reference population is all eligible MLB regular-season
-   plate appearances in the selected season.
-3. Whether reaching safely on an error or fielder's choice counts as positive
-   progress for Empty Game classification.
-4. Whether TFS components are retained with exact rational precision and
-   rounded only for display. Exact internal precision is recommended.
+The user accepted these choices on 2026-09-08:
 
-Until those decisions and the attribution graph are approved, this directory
-contains planning documentation only and no executable metric query.
+- [PAQ-2 defaults](paq-2-release-defaults.json): 0–100 percentile display;
+  eligible MLB regular-season plate appearances in the selected season;
+  exact fractions internally and display-only rounding. PAQ-1 remains unchanged.
+- [Inning-ending erosion](tfs-inning-ending-policy.json): include evidenced
+  stranded runners. Third-base runner, two outs, batter strikeout gives
+  `-1/4 - 1 = -5/4`, without inventing another out for the stranded runner.
+- [Error/FC exclusion](contact-progress-policy.json): exclude that safe
+  progress from TFS and Empty Game qualification. Preserve actual safe states,
+  attributed outs and erosion. The zero-out FC example is now `-4/9`.
+
+The [boundary contract](../../proposals/mlb-game-batter-consequence-attribution/metric-boundary-contract.md)
+records exact examples, remaining cases and population safeguards. The
+[accepted baserunning-origin decision](../../archive/design-records/mlb-game-baserunning-origin/README.md)
+supplies a bounded A3 slice, implemented in the existing context builder, RML
+and source SHACL. Component tests and an isolated RMLMapper fixture prove the
+steal-then-single origin and destination links; the NiFi one-game proof remains
+required. This does not establish unchanged participants or full continuity.
+
+## Evidence audit and remaining release gate
+
+[runner-location-evidence.rq](runner-location-evidence.rq) inventories the
+existing PA-start Stasis, temporal anchors and explicit location links. Four
+focused tests verify that it preserves missing times and separate PA contexts.
+It does not turn entity-existence times into location-validity times or infer
+a later consequence state from PA-start evidence.
+
+The [continuous-path terminal-out policy](continuous-path-terminal-out-policy.json)
+is also accepted: once continuity and attribution are evidenced, an out ends
+the path without retained intermediate progress, and destruction uses its
+original start. The boundary-association modeling direction is recorded in the
+[active review](../../proposals/mlb-game-batter-consequence-attribution/boundary-state-evidence.md).
+The [shared-play erosion convention](shared-play-erosion-policy.json) is now
+accepted for non-inning-ending plays with complete end states and no independent
+outs. It uses actual end state as erosion context without crediting independent
+progress. Other ambiguous cases remain unknown. Fifteen complete hypothetical
+examples pass the [exact SPARQL arithmetic regressions](../../tests/fixtures/metrics/README.md);
+production graph admission and scoring remain gated.
+
+[runner-movement-evidence.rq](runner-movement-evidence.rq) exposes individual
+act/resolution pairs using explicit Base Code Identifiers, with source-record,
+contact-play and award links. Five regression tests cover separate steal and
+single movements, unknown values, graph/PA scope and conflicting codes. These
+are reviewable evidence rows; they are not scored or coalesced trajectories.
+
+The [boundary evidence review](../../proposals/mlb-game-batter-consequence-attribution/boundary-state-evidence.md)
+adds concrete unchanged-runner and inning-ending examples. The current
+[location design](../../proposals/mlb-game-batter-consequence-attribution/boundary-temporal-vocabulary.md)
+preserves the existing Base Site inside a larger Site in which the runner is
+located. Larger-Site identity, temporal qualification and source completeness
+remain necessary before those cases can contribute to erosion. The Quality
+candidate is withdrawn and Mermaid diagrams are unchanged.
+
+[attribution-evidence.rq](attribution-evidence.rq) audits explicit resolution,
+runner, destination, baserunning-origin, contact-play and award links in the owning MLB-game
+authoritative graphs. It is covered by the source-scope catalog and three
+focused regression tests. Zero link counts describe graph coverage, not zero
+real-world contribution. This audit neither calculates a metric nor certifies
+that a PA is eligible.
+
+Immediate-before state, unchanged-participant evidence, continuity, operative
+out/replay identity and full attribution/completeness still block metric
+execution. A selectively covered subset cannot silently replace the accepted
+league reference population. No executable TFS/PAQ-2 scoring query or serving
+route is released yet.

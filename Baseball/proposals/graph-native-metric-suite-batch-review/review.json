@@ -1,0 +1,16 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "graph-native-metric-suite-batch-review",
+  "title": "Shared semantic and evidence gaps for the complete graph-native metric suite",
+  "status": "draft",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [],
+    "sourceEvidence": [],
+    "fieldSelectionInventory": [],
+    "sourceIndependentMermaid": []
+  },
+  "ontologistDecision": null
+}

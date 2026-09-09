@@ -511,6 +511,11 @@
   rml:referenceFormulation ql:JSONPath ;
   rml:iterator "$.liveData.plays.allPlays[?(@._baseballO.terminalPitchIsInPlay == true)]" .
 
+<#BattedRunnerResolutionSource> a rml:LogicalSource ;
+  rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.liveData.plays.allPlays[*]._baseballO.battedRunnerResolutions[*]" .
+
 <#GameMap> a rr:TriplesMap ;
   rml:logicalSource <#RootSource> ;
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}" ; rr:termType rr:IRI ; rr:class base:BaseballGame ] ;
@@ -2932,6 +2937,15 @@
   rr:predicateObjectMap [ rr:predicate obo:BFO_0000117 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/batted-ball-motion/{playId}" ; rr:termType rr:IRI ] ] ;
   rr:predicateObjectMap [ rr:predicate cco:ont00001918 ; rr:objectMap [ rr:template "https://baseballontology.org/data/venue/{$.gameData.venue.id}/baseball-field" ; rr:termType rr:IRI ] ] .
 
+# A1 adds parthood between existing individuals, not batter causation or credit.
+<#BattedBallRunnerResolutionContainmentMap> a rr:TriplesMap ;
+  rml:logicalSource <#BattedRunnerResolutionSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/batted-ball-play/{playId}" ; rr:termType rr:IRI ] ;
+  rr:predicateObjectMap [
+    rr:predicate obo:BFO_0000117 ;
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/runner-resolution/{resolutionKind}/{atBatIndex}/{runnerIndex}" ; rr:termType rr:IRI ]
+  ] .
+
 <#BattedBallContactParticipantOverlayMap> a rr:TriplesMap ;
   rml:logicalSource <#BattedPitchSource> ;
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/contact/{playId}" ; rr:termType rr:IRI ] ;
@@ -3503,3 +3517,67 @@
 <#AdvancedToBaseArtifactMap> a rr:TriplesMap ;
   rml:logicalSource <#RunnerAdvanceSource> ;
   rr:subjectMap [ rr:template "https://baseballontology.org/data/venue/{$.gameData.venue.id}/artifact/base/{movement.end}" ; rr:termType rr:IRI ; rr:class base:Base ] .
+
+# Accepted 2026-09-08: explicit resolved runner, adjudicated destination and
+# supported walk/HBP award completion. Existing resolution identities only.
+<#RunnerResolutionLinksSource> a rml:LogicalSource ;
+  rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.liveData.plays.allPlays[*]._baseballO.runnerResolutionLinks[*]" .
+
+<#AdjudicatedBaseLinksSource> a rml:LogicalSource ;
+  rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.liveData.plays.allPlays[*]._baseballO.adjudicatedBaseLinks[*]" .
+
+<#AwardResolutionLinksSource> a rml:LogicalSource ;
+  rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.liveData.plays.allPlays[*]._baseballO.awardResolutionLinks[*]" .
+
+<#ResolvedRunnerLinkMap> a rr:TriplesMap ;
+  rml:logicalSource <#RunnerResolutionLinksSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/runner-resolution/{resolutionKind}/{atBatIndex}/{runnerIndex}" ; rr:termType rr:IRI ] ;
+  rr:predicateObjectMap [ rr:predicate base:hasResolvedRunner ; rr:objectMap [ rr:template "https://baseballontology.org/data/player/{runnerId}" ; rr:termType rr:IRI ] ] .
+
+<#AdjudicatedBaseLinkMap> a rr:TriplesMap ;
+  rml:logicalSource <#AdjudicatedBaseLinksSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/runner-resolution/{resolutionKind}/{atBatIndex}/{runnerIndex}" ; rr:termType rr:IRI ] ;
+  rr:predicateObjectMap [ rr:predicate base:hasAdjudicatedBase ; rr:objectMap [ rr:template "https://baseballontology.org/data/venue/{$.gameData.venue.id}/artifact/base/{baseCode}" ; rr:termType rr:IRI ] ] .
+
+<#AwardResolutionLinkMap> a rr:TriplesMap ;
+  rml:logicalSource <#AwardResolutionLinksSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/runner-resolution/{resolutionKind}/{atBatIndex}/{runnerIndex}" ; rr:termType rr:IRI ] ;
+  rr:predicateObjectMap [ rr:predicate base:settlesAwardFrom ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{atBatIndex}/result" ; rr:termType rr:IRI ] ] .
+
+# Accepted act-scoped origins; null origin never implies Home Plate.
+<#BaserunningOriginLinksSource> a rml:LogicalSource ;
+  rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.liveData.plays.allPlays[*]._baseballO.baserunningOriginLinks[*]" .
+
+<#BaserunningOriginLinkMap> a rr:TriplesMap ;
+  rml:logicalSource <#BaserunningOriginLinksSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/runner-act/movement/{atBatIndex}/{runnerIndex}" ; rr:termType rr:IRI ] ;
+  rr:predicateObjectMap [ rr:predicate base:hasBaserunningOriginBase ; rr:objectMap [ rr:template "https://baseballontology.org/data/venue/{$.gameData.venue.id}/artifact/base/{baseCode}" ; rr:termType rr:IRI ] ] .
+
+<#BaserunningOriginBaseMap> a rr:TriplesMap ;
+  rml:logicalSource <#BaserunningOriginLinksSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/venue/{$.gameData.venue.id}/artifact/base/{baseCode}" ; rr:termType rr:IRI ; rr:class base:Base ] .
+
+<#BaserunningOriginIdentifierMap> a rr:TriplesMap ;
+  rml:logicalSource <#BaserunningOriginLinksSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/venue/{$.gameData.venue.id}/artifact/base/{baseCode}/identifier/source-base-code" ; rr:termType rr:IRI ; rr:class cco:ont00000649 ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001916 ; rr:objectMap [ rr:template "https://baseballontology.org/data/venue/{$.gameData.venue.id}/artifact/base/{baseCode}" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001765 ; rr:objectMap [ rml:reference "baseCode" ; rr:datatype xsd:string ] ] .
+
+<#BaserunningOriginRecordMap> a rr:TriplesMap ;
+  rml:logicalSource <#BaserunningOriginLinksSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/runner-record/{atBatIndex}/{runnerIndex}" ; rr:termType rr:IRI ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/runner-act/movement/{atBatIndex}/{runnerIndex}" ; rr:termType rr:IRI ] ] .
+
+<#AdjudicatedBaseIdentifierMap> a rr:TriplesMap ;
+  rml:logicalSource <#AdjudicatedBaseLinksSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/venue/{$.gameData.venue.id}/artifact/base/{baseCode}/identifier/source-base-code" ; rr:termType rr:IRI ; rr:class cco:ont00000649 ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001916 ; rr:objectMap [ rr:template "https://baseballontology.org/data/venue/{$.gameData.venue.id}/artifact/base/{baseCode}" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001765 ; rr:objectMap [ rml:reference "baseCode" ; rr:datatype xsd:string ] ] .

@@ -1,0 +1,347 @@
+{
+  "artifactType": "baseballo-metric-web-research-assessment",
+  "version": 1,
+  "assessedOn": "2026-09-08",
+  "report": "proposals/graph-native-metric-suite-batch-review/web-gap-assessment.md",
+  "scope": "Factual research resolution only; no ontologist approval or graph admission is asserted. Includes strengthened earlier findings.",
+  "counts": {
+    "sharedGapsAssessed": 21,
+    "factualQuestionsResolved": 12,
+    "fullLivePrerequisitesClosedByResearch": 0
+  },
+  "findings": [
+    {
+      "id": "R01",
+      "status": "factually-resolved",
+      "reportSection": "R01",
+      "sources": [
+        "https://probaseballinsider.com/baseball-instruction/base-running/how-to-take-a-lead-at-1st-and-2nd-base/",
+        "https://www.abca.org/magazine/magazine/2016-1_Winter/The_Hot_Corner_How_to_Incorporate_BallintheDirt_Reads_in_Baserunning_Drills.aspx"
+      ]
+    },
+    {
+      "id": "R02",
+      "status": "factually-resolved",
+      "reportSection": "R02",
+      "sources": [
+        "https://www.abca.org/magazine/magazine/2016-1_Winter/The_Hot_Corner_How_to_Incorporate_BallintheDirt_Reads_in_Baserunning_Drills.aspx"
+      ]
+    },
+    {
+      "id": "R03",
+      "status": "factually-resolved",
+      "reportSection": "R03",
+      "sources": [
+        "https://baseballsavant.mlb.com/sprint_speed_leaderboard"
+      ]
+    },
+    {
+      "id": "R04",
+      "status": "factually-resolved",
+      "reportSection": "R04",
+      "sources": [
+        "https://baseballsavant.mlb.com/leaderboard/basestealing-run-value",
+        "https://arxiv.org/html/2601.15608v2"
+      ]
+    },
+    {
+      "id": "R05",
+      "status": "factually-resolved",
+      "reportSection": "R05",
+      "sources": [
+        "https://www.mlb.com/glossary/rules/pitch-timer",
+        "https://www.mlb.com/glossary/rules/foul-tip"
+      ]
+    },
+    {
+      "id": "R06",
+      "status": "factually-resolved",
+      "reportSection": "R06",
+      "sources": [
+        "https://www.mlb.com/glossary/standard-stats/strikeout"
+      ]
+    },
+    {
+      "id": "R07",
+      "status": "factually-resolved",
+      "reportSection": "R07",
+      "sources": [
+        "https://www.mlb.com/glossary/standard-stats/plate-appearance"
+      ]
+    },
+    {
+      "id": "R08",
+      "status": "factually-resolved",
+      "reportSection": "R08",
+      "sources": [
+        "https://mktg.mlbstatic.com/mlb/official-information/2026-official-baseball-rules.pdf#page=133"
+      ]
+    },
+    {
+      "id": "R09",
+      "status": "factually-resolved",
+      "reportSection": "R09",
+      "sources": [
+        "https://mktg.mlbstatic.com/mlb/official-information/2026-official-baseball-rules.pdf#page=63"
+      ]
+    },
+    {
+      "id": "R10",
+      "status": "factually-resolved",
+      "reportSection": "R10",
+      "sources": [
+        "https://mktg.mlbstatic.com/mlb/official-information/2026-official-baseball-rules.pdf#page=138"
+      ]
+    },
+    {
+      "id": "R11",
+      "status": "factually-resolved",
+      "reportSection": "R11",
+      "sources": [
+        "https://www.mlb.com/glossary/rules/replay-review"
+      ]
+    },
+    {
+      "id": "R12",
+      "status": "factually-resolved",
+      "reportSection": "R12",
+      "sources": [
+        "https://baseballsavant.mlb.com/abs",
+        "https://baseballsavant.mlb.com/abs-metrics-documentation"
+      ]
+    }
+  ],
+  "gapAssessments": [
+    {
+      "gapId": "ATTRIBUTION",
+      "findings": [
+        "R02",
+        "R03",
+        "R06",
+        "R08"
+      ],
+      "remainingWorkKinds": [
+        "model",
+        "evidence",
+        "metric-choice",
+        "deferred"
+      ]
+    },
+    {
+      "gapId": "BOUNDARY_STATE",
+      "findings": [
+        "R01",
+        "R04"
+      ],
+      "remainingWorkKinds": [
+        "model",
+        "evidence"
+      ]
+    },
+    {
+      "gapId": "PATH_IDENTITY",
+      "findings": [
+        "R08",
+        "R09"
+      ],
+      "remainingWorkKinds": [
+        "model",
+        "evidence"
+      ]
+    },
+    {
+      "gapId": "OPERATIVE_OUTS",
+      "findings": [
+        "R06",
+        "R08",
+        "R09"
+      ],
+      "remainingWorkKinds": [
+        "model",
+        "evidence"
+      ]
+    },
+    {
+      "gapId": "COMPLETENESS",
+      "findings": [
+        "R05",
+        "R07",
+        "R10"
+      ],
+      "remainingWorkKinds": [
+        "model",
+        "evidence"
+      ]
+    },
+    {
+      "gapId": "TFS",
+      "findings": [
+        "R01",
+        "R04",
+        "R06",
+        "R08",
+        "R09"
+      ],
+      "remainingWorkKinds": [
+        "upstream-dependencies"
+      ]
+    },
+    {
+      "gapId": "REFERENCE_POPULATION",
+      "findings": [
+        "R07"
+      ],
+      "remainingWorkKinds": [
+        "evidence"
+      ]
+    },
+    {
+      "gapId": "PAQ_A_STATE",
+      "findings": [],
+      "remainingWorkKinds": [
+        "metric-choice",
+        "evidence"
+      ]
+    },
+    {
+      "gapId": "OFFENSIVE_ELIGIBILITY",
+      "findings": [
+        "R07"
+      ],
+      "remainingWorkKinds": [
+        "model",
+        "evidence"
+      ]
+    },
+    {
+      "gapId": "INDEPENDENT_EPISODES",
+      "findings": [
+        "R02",
+        "R08"
+      ],
+      "remainingWorkKinds": [
+        "model",
+        "evidence"
+      ]
+    },
+    {
+      "gapId": "INDEPENDENT_SCORE",
+      "findings": [
+        "R02"
+      ],
+      "remainingWorkKinds": [
+        "metric-choice",
+        "evidence"
+      ]
+    },
+    {
+      "gapId": "CHANNEL_EPISODES",
+      "findings": [
+        "R08"
+      ],
+      "remainingWorkKinds": [
+        "evidence"
+      ]
+    },
+    {
+      "gapId": "EXACT_PITCH_COUNTS",
+      "findings": [
+        "R05"
+      ],
+      "remainingWorkKinds": [
+        "model",
+        "evidence"
+      ]
+    },
+    {
+      "gapId": "DEFENSIVE_ACTS",
+      "findings": [
+        "R10"
+      ],
+      "remainingWorkKinds": [
+        "model",
+        "evidence"
+      ]
+    },
+    {
+      "gapId": "DEFENSIVE_ORDER",
+      "findings": [
+        "R10"
+      ],
+      "remainingWorkKinds": [
+        "model",
+        "evidence"
+      ]
+    },
+    {
+      "gapId": "RUN_CONTINUITY",
+      "findings": [
+        "R09"
+      ],
+      "remainingWorkKinds": [
+        "model",
+        "evidence"
+      ]
+    },
+    {
+      "gapId": "SUPPORT_ATTRIBUTION",
+      "findings": [
+        "R02"
+      ],
+      "remainingWorkKinds": [
+        "model",
+        "evidence"
+      ]
+    },
+    {
+      "gapId": "OPERATIVE_REVIEW",
+      "findings": [
+        "R09",
+        "R12"
+      ],
+      "remainingWorkKinds": [
+        "model",
+        "evidence"
+      ]
+    },
+    {
+      "gapId": "OUTCOME_POPULATION",
+      "findings": [
+        "R11",
+        "R12"
+      ],
+      "remainingWorkKinds": [
+        "metric-choice",
+        "evidence"
+      ]
+    },
+    {
+      "gapId": "ROLE_POPULATION",
+      "findings": [],
+      "remainingWorkKinds": [
+        "model",
+        "evidence"
+      ]
+    },
+    {
+      "gapId": "PAQ21_ELIGIBILITY",
+      "findings": [
+        "R05",
+        "R07",
+        "R10"
+      ],
+      "remainingWorkKinds": [
+        "evidence"
+      ]
+    }
+  ],
+  "localEvidence": [
+    "sources/mlb-game/schema/mlb-feed-path-inventory.csv",
+    "proposals/mlb-game-batter-consequence-attribution/source-evidence.md",
+    "proposals/mlb-game-batter-consequence-attribution/field-selection-inventory.md"
+  ],
+  "additionalComparisonSources": [
+    "https://baseballsavant.mlb.com/leaderboard/baserunning",
+    "https://baseballsavant.mlb.com/leaderboard/basestealing-run-value"
+  ]
+}

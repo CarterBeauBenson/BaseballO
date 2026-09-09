@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>New metrics · BaseballO</title>
+  <link rel="stylesheet" href="/metrics.css">
+  <script type="module" src="/metrics.js"></script>
+</head>
+<body>
+  <a class="skip" href="#metric-detail">Skip to metric</a>
+  <header><a class="brand" href="/">BaseballO <span>Explorer</span></a><a href="/">Back to questions</a></header>
+  <main>
+    <section class="intro">
+      <p class="eyebrow">Graph-native analytics</p>
+      <h1>Follow the contribution.</h1>
+      <p>Explore how plate appearances, running, defense and adjudication shape a game. Each measure includes its definition, evidence coverage and any unresolved requirements.</p>
+      <p class="note">This is the new metric suite. PAQ-2 and the new Empty Game measures are separately versioned from the existing Explorer ratings.</p>
+    </section>
+    <div class="workspace">
+      <aside aria-label="Metric selection">
+        <label for="metric-search">Find a metric</label>
+        <input id="metric-search" type="search" placeholder="Trajectory, recovery, run…">
+        <nav id="metric-list" aria-label="Metrics"></nav>
+      </aside>
+      <section id="metric-detail" tabindex="-1" aria-labelledby="metric-title">
+        <p id="metric-version" class="eyebrow"></p>
+        <h2 id="metric-title">Loading the metric catalog…</h2>
+        <p id="metric-definition"></p>
+        <dl class="facts" id="metric-facts"></dl>
+        <form id="metric-form">
+          <label>Games<select id="game-set"><option value="regular_season">Regular season</option><option value="all_star">All-Star</option></select></label>
+          <label>Period<select id="date-preset"><option value="season_to_date">Latest loaded season</option><option value="thirty_days">Last 30 loaded days</option><option value="seven_days">Last 7 loaded days</option><option value="one_day">Latest loaded day</option><option value="custom">Custom dates</option></select></label>
+          <label class="custom-date" hidden>From<input type="date" id="start-date"></label>
+          <label class="custom-date" hidden>Through<input type="date" id="end-date"></label>
+          <button id="run-metric" type="submit" disabled>Inspect metric</button>
+        </form>
+        <p id="request-status" role="status" aria-live="polite"></p>
+        <section id="result" hidden aria-label="Metric result">
+          <div class="score"><strong id="score-value"></strong><span id="score-exact"></span></div>
+          <p id="result-scope"></p>
+          <dl class="facts" id="coverage"></dl>
+          <details><summary>Supporting evidence and calculation details</summary><pre id="result-evidence"></pre></details>
+          <button id="download-result" type="button">Download result with evidence</button>
+        </section>
+        <section aria-labelledby="gap-title"><h3 id="gap-title">Requirements for this metric</h3><div id="metric-gaps"></div></section>
+      </section>
+    </div>
+    <section class="review" aria-labelledby="review-title"><h2 id="review-title">One shared gap review</h2><p>Several metrics need the same modeling decisions. Resolve each shared requirement once, then apply it across the suite.</p><button id="download-gaps" type="button" disabled>Download all gaps</button><div id="all-gaps"></div></section>
+  </main>
+</body>
+</html>

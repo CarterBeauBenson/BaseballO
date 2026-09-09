@@ -1,0 +1,693 @@
+{
+  "artifactType": "baseballo-graph-native-metric-catalog",
+  "contractVersion": 1,
+  "generator": "scripts/generate_metric_suite.py",
+  "metricVersion": "2.0.1",
+  "metrics": [
+    {
+      "id": "tfs",
+      "label": "Trajectory Fulfillment Score",
+      "version": "2.0.0",
+      "grain": "plate_appearance",
+      "higherIs": "better",
+      "unit": "trajectory fraction",
+      "userDefinition": "Attributed progress minus trajectory destruction and opportunity erosion.",
+      "semanticMode": "completeness-gated",
+      "authoritativeQuery": "sparql/serving/metric-kernels/trajectory-fulfillment-score.rq",
+      "executionMode": "admitted-binding-kernel",
+      "sourceScopeVersion": 1,
+      "completenessProfileVersion": "pending-batch-review",
+      "contributionProfileVersion": "2026-09-08",
+      "requires": [
+        "ATTRIBUTION",
+        "BOUNDARY_STATE",
+        "PATH_IDENTITY",
+        "OPERATIVE_OUTS",
+        "COMPLETENESS"
+      ],
+      "implementationStatus": "implemented",
+      "liveAdapter": "blocked-by-gap-register",
+      "referencePopulation": "declared selected evidence population",
+      "nullableColumns": [
+        "end"
+      ],
+      "inputColumns": [
+        "key",
+        "participant",
+        "start",
+        "end",
+        "terminal",
+        "creditProgress",
+        "creditOut",
+        "outsBefore",
+        "attributedOuts"
+      ],
+      "rowIdentity": [
+        "key",
+        "participant"
+      ]
+    },
+    {
+      "id": "paq-2",
+      "label": "Plate Appearance Quality",
+      "version": "2.0.0",
+      "grain": "plate_appearance",
+      "higherIs": "better",
+      "unit": "percentile",
+      "userDefinition": "Season-relative percentile of exact TFS, with tied values receiving the same midrank.",
+      "semanticMode": "completeness-gated",
+      "authoritativeQuery": "sparql/serving/metric-kernels/paq-2-core.rq",
+      "executionMode": "admitted-binding-kernel",
+      "sourceScopeVersion": 1,
+      "completenessProfileVersion": "pending-batch-review",
+      "contributionProfileVersion": "2026-09-08",
+      "requires": [
+        "TFS",
+        "REFERENCE_POPULATION"
+      ],
+      "implementationStatus": "implemented",
+      "liveAdapter": "blocked-by-gap-register",
+      "referencePopulation": "eligible MLB regular-season PAs in selected season through reporting cutoff",
+      "nullableColumns": [],
+      "inputColumns": [
+        "key",
+        "cohort",
+        "scoreN",
+        "scoreD"
+      ],
+      "rowIdentity": [
+        "key"
+      ]
+    },
+    {
+      "id": "paq-a",
+      "label": "Opportunity-Adjusted PAQ",
+      "version": "2.0.0",
+      "grain": "plate_appearance",
+      "higherIs": "better",
+      "unit": "percentile",
+      "userDefinition": "PAQ compared with plate appearances starting with the same occupied bases and out count.",
+      "semanticMode": "completeness-gated",
+      "authoritativeQuery": "sparql/serving/metric-kernels/paq-a.rq",
+      "executionMode": "admitted-binding-kernel",
+      "sourceScopeVersion": 1,
+      "completenessProfileVersion": "pending-batch-review",
+      "contributionProfileVersion": "2026-09-08",
+      "requires": [
+        "TFS",
+        "REFERENCE_POPULATION",
+        "PAQ_A_STATE"
+      ],
+      "implementationStatus": "implemented",
+      "liveAdapter": "blocked-by-gap-register",
+      "referencePopulation": "eligible MLB regular-season PAs in selected season through reporting cutoff",
+      "nullableColumns": [],
+      "inputColumns": [
+        "key",
+        "cohort",
+        "scoreN",
+        "scoreD"
+      ],
+      "rowIdentity": [
+        "key"
+      ]
+    },
+    {
+      "id": "offensive-reach",
+      "label": "Offensive Reach",
+      "version": "2.0.0",
+      "grain": "plate_appearance",
+      "higherIs": "better",
+      "unit": "trajectories",
+      "userDefinition": "Distinct offensive trajectories receiving positive batter-attributed progress.",
+      "semanticMode": "completeness-gated",
+      "authoritativeQuery": "sparql/serving/metric-kernels/offensive-reach.rq",
+      "executionMode": "admitted-binding-kernel",
+      "sourceScopeVersion": 1,
+      "completenessProfileVersion": "pending-batch-review",
+      "contributionProfileVersion": "2026-09-08",
+      "requires": [
+        "ATTRIBUTION",
+        "PATH_IDENTITY",
+        "COMPLETENESS"
+      ],
+      "implementationStatus": "implemented",
+      "liveAdapter": "blocked-by-gap-register",
+      "referencePopulation": "declared selected evidence population",
+      "nullableColumns": [],
+      "inputColumns": [
+        "key",
+        "participant",
+        "progress36"
+      ],
+      "rowIdentity": [
+        "key",
+        "participant"
+      ]
+    },
+    {
+      "id": "hidden-help-rate",
+      "label": "Hidden Help Rate",
+      "version": "2.0.0",
+      "grain": "player",
+      "higherIs": "better",
+      "unit": "proportion",
+      "userDefinition": "Among PAs with no batter progress, the proportion producing positive progress for another runner.",
+      "semanticMode": "completeness-gated",
+      "authoritativeQuery": "sparql/serving/metric-kernels/hidden-help-rate.rq",
+      "executionMode": "admitted-binding-kernel",
+      "sourceScopeVersion": 1,
+      "completenessProfileVersion": "pending-batch-review",
+      "contributionProfileVersion": "2026-09-08",
+      "requires": [
+        "ATTRIBUTION",
+        "PATH_IDENTITY",
+        "COMPLETENESS"
+      ],
+      "implementationStatus": "implemented",
+      "liveAdapter": "blocked-by-gap-register",
+      "referencePopulation": "declared selected evidence population",
+      "nullableColumns": [],
+      "inputColumns": [
+        "key",
+        "pa",
+        "batterProgress36",
+        "otherProgress36"
+      ],
+      "rowIdentity": [
+        "key",
+        "pa"
+      ]
+    },
+    {
+      "id": "rally-kill-rate",
+      "label": "Rally Kill Rate",
+      "version": "2.0.0",
+      "grain": "player",
+      "higherIs": "worse",
+      "unit": "proportion",
+      "userDefinition": "Among runner-on-base PAs, the proportion directly putting an existing runner out.",
+      "semanticMode": "completeness-gated",
+      "authoritativeQuery": "sparql/serving/metric-kernels/rally-kill-rate.rq",
+      "executionMode": "admitted-binding-kernel",
+      "sourceScopeVersion": 1,
+      "completenessProfileVersion": "pending-batch-review",
+      "contributionProfileVersion": "2026-09-08",
+      "requires": [
+        "ATTRIBUTION",
+        "BOUNDARY_STATE",
+        "OPERATIVE_OUTS",
+        "COMPLETENESS"
+      ],
+      "implementationStatus": "implemented",
+      "liveAdapter": "blocked-by-gap-register",
+      "referencePopulation": "declared selected evidence population",
+      "nullableColumns": [],
+      "inputColumns": [
+        "key",
+        "pa",
+        "runnerOnBase",
+        "existingRunnerOuts"
+      ],
+      "rowIdentity": [
+        "key",
+        "pa"
+      ]
+    },
+    {
+      "id": "rally-kill-severity",
+      "label": "Rally Kill Severity",
+      "version": "2.0.0",
+      "grain": "player",
+      "higherIs": "worse",
+      "unit": "trajectory fraction",
+      "userDefinition": "Existing-runner trajectory destruction per runner-on-base plate appearance.",
+      "semanticMode": "completeness-gated",
+      "authoritativeQuery": "sparql/serving/metric-kernels/rally-kill-severity.rq",
+      "executionMode": "admitted-binding-kernel",
+      "sourceScopeVersion": 1,
+      "completenessProfileVersion": "pending-batch-review",
+      "contributionProfileVersion": "2026-09-08",
+      "requires": [
+        "ATTRIBUTION",
+        "BOUNDARY_STATE",
+        "PATH_IDENTITY",
+        "OPERATIVE_OUTS",
+        "COMPLETENESS"
+      ],
+      "implementationStatus": "implemented",
+      "liveAdapter": "blocked-by-gap-register",
+      "referencePopulation": "declared selected evidence population",
+      "nullableColumns": [],
+      "inputColumns": [
+        "key",
+        "pa",
+        "runnerOnBase",
+        "existingDestruction36"
+      ],
+      "rowIdentity": [
+        "key",
+        "pa"
+      ]
+    },
+    {
+      "id": "opportunity-erosion",
+      "label": "Opportunity Erosion",
+      "version": "2.0.0",
+      "grain": "player",
+      "higherIs": "worse",
+      "unit": "trajectory fraction",
+      "userDefinition": "Mean loss of remaining offensive opportunity from attributed outs; also exposed per PA within TFS.",
+      "semanticMode": "completeness-gated",
+      "authoritativeQuery": "sparql/serving/metric-kernels/opportunity-erosion.rq",
+      "executionMode": "admitted-binding-kernel",
+      "sourceScopeVersion": 1,
+      "completenessProfileVersion": "pending-batch-review",
+      "contributionProfileVersion": "2026-09-08",
+      "requires": [
+        "BOUNDARY_STATE",
+        "OPERATIVE_OUTS",
+        "COMPLETENESS"
+      ],
+      "implementationStatus": "implemented",
+      "liveAdapter": "blocked-by-gap-register",
+      "referencePopulation": "declared selected evidence population",
+      "nullableColumns": [],
+      "inputColumns": [
+        "key",
+        "pa",
+        "erosion36"
+      ],
+      "rowIdentity": [
+        "key",
+        "pa"
+      ]
+    },
+    {
+      "id": "empty-game-rate",
+      "label": "Empty Game Rate",
+      "version": "2.0.1",
+      "grain": "player",
+      "higherIs": "worse",
+      "unit": "proportion",
+      "userDefinition": "Games with at least one PA and no qualifying positive contribution, divided by games with at least one PA.",
+      "semanticMode": "completeness-gated",
+      "authoritativeQuery": "sparql/serving/metric-kernels/empty-game-rate.rq",
+      "executionMode": "admitted-binding-kernel",
+      "sourceScopeVersion": 1,
+      "completenessProfileVersion": "pending-batch-review",
+      "contributionProfileVersion": "2026-09-08",
+      "requires": [
+        "OFFENSIVE_ELIGIBILITY",
+        "INDEPENDENT_EPISODES",
+        "COMPLETENESS"
+      ],
+      "implementationStatus": "implemented",
+      "liveAdapter": "blocked-by-gap-register",
+      "referencePopulation": "declared selected evidence population",
+      "nullableColumns": [],
+      "inputColumns": [
+        "key",
+        "game",
+        "plateAppearances",
+        "positiveEpisodes"
+      ],
+      "rowIdentity": [
+        "key",
+        "game"
+      ]
+    },
+    {
+      "id": "empty-game-damage",
+      "label": "Empty Game Damage",
+      "version": "2.0.0",
+      "grain": "player_game",
+      "higherIs": "worse",
+      "unit": "trajectory fraction",
+      "userDefinition": "Sum of negative TFS and approved independent trajectory damage during an Empty Game.",
+      "semanticMode": "completeness-gated",
+      "authoritativeQuery": "sparql/serving/metric-kernels/empty-game-damage.rq",
+      "executionMode": "admitted-binding-kernel",
+      "sourceScopeVersion": 1,
+      "completenessProfileVersion": "pending-batch-review",
+      "contributionProfileVersion": "2026-09-08",
+      "requires": [
+        "TFS",
+        "OFFENSIVE_ELIGIBILITY",
+        "INDEPENDENT_EPISODES",
+        "INDEPENDENT_SCORE",
+        "COMPLETENESS"
+      ],
+      "implementationStatus": "implemented",
+      "liveAdapter": "blocked-by-gap-register",
+      "referencePopulation": "declared selected evidence population",
+      "nullableColumns": [],
+      "inputColumns": [
+        "key",
+        "game",
+        "episode",
+        "empty",
+        "score36"
+      ],
+      "rowIdentity": [
+        "key",
+        "episode"
+      ]
+    },
+    {
+      "id": "contribution-path-diversity",
+      "label": "Contribution Path Diversity",
+      "version": "2.0.1",
+      "grain": "player",
+      "higherIs": "descriptive",
+      "unit": "normalized entropy",
+      "userDefinition": "Normalized Shannon diversity across batter-to-self, batter-to-other and independent runner-to-self channels, counting each positive play once per channel.",
+      "semanticMode": "completeness-gated",
+      "authoritativeQuery": "sparql/serving/metric-kernels/contribution-path-diversity.rq",
+      "executionMode": "admitted-binding-kernel",
+      "sourceScopeVersion": 1,
+      "completenessProfileVersion": "pending-batch-review",
+      "contributionProfileVersion": "2026-09-08",
+      "requires": [
+        "ATTRIBUTION",
+        "INDEPENDENT_EPISODES",
+        "CHANNEL_EPISODES",
+        "COMPLETENESS"
+      ],
+      "implementationStatus": "implemented",
+      "liveAdapter": "blocked-by-gap-register",
+      "referencePopulation": "declared selected evidence population",
+      "nullableColumns": [],
+      "inputColumns": [
+        "key",
+        "play",
+        "channel"
+      ],
+      "rowIdentity": [
+        "key",
+        "play",
+        "channel"
+      ]
+    },
+    {
+      "id": "recovery-quality",
+      "label": "Recovery Quality",
+      "version": "2.0.0",
+      "grain": "plate_appearance",
+      "higherIs": "better process quality",
+      "unit": "percentile",
+      "userDefinition": "Percentile of nonterminal pitches after the first two-strike state, among two-strike PAs.",
+      "semanticMode": "completeness-gated",
+      "authoritativeQuery": "sparql/serving/metric-kernels/recovery-quality.rq",
+      "executionMode": "admitted-binding-kernel",
+      "sourceScopeVersion": 1,
+      "completenessProfileVersion": "pending-batch-review",
+      "contributionProfileVersion": "2026-09-08",
+      "requires": [
+        "EXACT_PITCH_COUNTS",
+        "REFERENCE_POPULATION"
+      ],
+      "implementationStatus": "implemented",
+      "liveAdapter": "blocked-by-gap-register",
+      "referencePopulation": "eligible MLB regular-season two-strike PAs in selected season through reporting cutoff",
+      "nullableColumns": [],
+      "inputColumns": [
+        "key",
+        "cohort",
+        "scoreN",
+        "scoreD"
+      ],
+      "rowIdentity": [
+        "key"
+      ]
+    },
+    {
+      "id": "resolution-depth",
+      "label": "Defensive Resolution Depth",
+      "version": "2.0.0",
+      "grain": "batted_play",
+      "higherIs": "descriptive",
+      "unit": "acts",
+      "userDefinition": "Longest precedence path measured in intentional defensive acts; a single act has depth one.",
+      "semanticMode": "completeness-gated",
+      "authoritativeQuery": "sparql/serving/metric-kernels/resolution-depth.rq",
+      "executionMode": "admitted-binding-kernel",
+      "sourceScopeVersion": 1,
+      "completenessProfileVersion": "pending-batch-review",
+      "contributionProfileVersion": "2026-09-08",
+      "requires": [
+        "DEFENSIVE_ACTS",
+        "DEFENSIVE_ORDER"
+      ],
+      "implementationStatus": "implemented",
+      "liveAdapter": "blocked-by-gap-register",
+      "referencePopulation": "declared selected evidence population",
+      "nullableColumns": [
+        "next"
+      ],
+      "inputColumns": [
+        "key",
+        "act",
+        "next",
+        "agent"
+      ],
+      "rowIdentity": [
+        "key",
+        "act",
+        "next"
+      ]
+    },
+    {
+      "id": "defender-breadth",
+      "label": "Defender Breadth",
+      "version": "2.0.0",
+      "grain": "batted_play",
+      "higherIs": "descriptive",
+      "unit": "players",
+      "userDefinition": "Distinct defensive agents in the admitted defensive resolution structure.",
+      "semanticMode": "completeness-gated",
+      "authoritativeQuery": "sparql/serving/metric-kernels/defender-breadth.rq",
+      "executionMode": "admitted-binding-kernel",
+      "sourceScopeVersion": 1,
+      "completenessProfileVersion": "pending-batch-review",
+      "contributionProfileVersion": "2026-09-08",
+      "requires": [
+        "DEFENSIVE_ACTS"
+      ],
+      "implementationStatus": "implemented",
+      "liveAdapter": "blocked-by-gap-register",
+      "referencePopulation": "declared selected evidence population",
+      "nullableColumns": [],
+      "inputColumns": [
+        "key",
+        "act",
+        "agent"
+      ],
+      "rowIdentity": [
+        "key",
+        "act",
+        "agent"
+      ]
+    },
+    {
+      "id": "run-construction-depth",
+      "label": "Run Construction Depth",
+      "version": "2.0.0",
+      "grain": "run",
+      "higherIs": "descriptive",
+      "unit": "episodes",
+      "userDefinition": "Distinct state-changing episodes on the scoring runner's admitted continuous trajectory.",
+      "semanticMode": "completeness-gated",
+      "authoritativeQuery": "sparql/serving/metric-kernels/run-construction-depth.rq",
+      "executionMode": "admitted-binding-kernel",
+      "sourceScopeVersion": 1,
+      "completenessProfileVersion": "pending-batch-review",
+      "contributionProfileVersion": "2026-09-08",
+      "requires": [
+        "RUN_CONTINUITY",
+        "PATH_IDENTITY"
+      ],
+      "implementationStatus": "implemented",
+      "liveAdapter": "blocked-by-gap-register",
+      "referencePopulation": "declared selected evidence population",
+      "nullableColumns": [],
+      "inputColumns": [
+        "key",
+        "episode",
+        "changesState"
+      ],
+      "rowIdentity": [
+        "key",
+        "episode"
+      ]
+    },
+    {
+      "id": "run-construction-breadth",
+      "label": "Run Construction Breadth",
+      "version": "2.0.1",
+      "grain": "run",
+      "higherIs": "descriptive",
+      "unit": "players",
+      "userDefinition": "Distinct offensive players whose admitted contributions advance the scoring trajectory, including the scoring runner.",
+      "semanticMode": "completeness-gated",
+      "authoritativeQuery": "sparql/serving/metric-kernels/run-construction-breadth.rq",
+      "executionMode": "admitted-binding-kernel",
+      "sourceScopeVersion": 1,
+      "completenessProfileVersion": "pending-batch-review",
+      "contributionProfileVersion": "2026-09-08",
+      "requires": [
+        "RUN_CONTINUITY",
+        "SUPPORT_ATTRIBUTION"
+      ],
+      "implementationStatus": "implemented",
+      "liveAdapter": "blocked-by-gap-register",
+      "referencePopulation": "declared selected evidence population",
+      "nullableColumns": [],
+      "inputColumns": [
+        "key",
+        "episode",
+        "supporter"
+      ],
+      "rowIdentity": [
+        "key",
+        "episode",
+        "supporter"
+      ]
+    },
+    {
+      "id": "adjudication-volatility",
+      "label": "Adjudication Volatility",
+      "version": "2.0.0",
+      "grain": "review_population",
+      "higherIs": "descriptive",
+      "unit": "proportion",
+      "userDefinition": "Overturning dispositions divided by explicitly resolved replay reviews in the selected mapped population.",
+      "semanticMode": "completeness-gated",
+      "authoritativeQuery": "sparql/serving/metric-kernels/adjudication-volatility.rq",
+      "executionMode": "admitted-binding-kernel",
+      "sourceScopeVersion": 1,
+      "completenessProfileVersion": "pending-batch-review",
+      "contributionProfileVersion": "2026-09-08",
+      "requires": [],
+      "implementationStatus": "implemented",
+      "liveAdapter": "resolved-review-dispositions",
+      "referencePopulation": "declared selected evidence population",
+      "nullableColumns": [],
+      "inputColumns": [
+        "key",
+        "review",
+        "resolved",
+        "reversed"
+      ],
+      "rowIdentity": [
+        "key",
+        "review"
+      ]
+    },
+    {
+      "id": "review-dependence-rate",
+      "label": "Review Dependence Rate",
+      "version": "2.0.0",
+      "grain": "outcome_population",
+      "higherIs": "descriptive",
+      "unit": "proportion",
+      "userDefinition": "Eligible institutional outcomes whose operative result depends on replay adjudication.",
+      "semanticMode": "completeness-gated",
+      "authoritativeQuery": "sparql/serving/metric-kernels/review-dependence-rate.rq",
+      "executionMode": "admitted-binding-kernel",
+      "sourceScopeVersion": 1,
+      "completenessProfileVersion": "pending-batch-review",
+      "contributionProfileVersion": "2026-09-08",
+      "requires": [
+        "OPERATIVE_REVIEW",
+        "OUTCOME_POPULATION"
+      ],
+      "implementationStatus": "implemented",
+      "liveAdapter": "blocked-by-gap-register",
+      "referencePopulation": "declared selected evidence population",
+      "nullableColumns": [],
+      "inputColumns": [
+        "key",
+        "outcome",
+        "eligible",
+        "reviewed"
+      ],
+      "rowIdentity": [
+        "key",
+        "outcome"
+      ]
+    },
+    {
+      "id": "role-realization-breadth",
+      "label": "Role Realization Breadth",
+      "version": "2.0.1",
+      "grain": "player_game",
+      "higherIs": "descriptive",
+      "unit": "role types",
+      "userDefinition": "Distinct Batter, Baserunner, Pitcher and Fielder role kinds actually realized in the player-game, without counting generic parent roles again.",
+      "semanticMode": "completeness-gated",
+      "authoritativeQuery": "sparql/serving/metric-kernels/role-realization-breadth.rq",
+      "executionMode": "admitted-binding-kernel",
+      "sourceScopeVersion": 1,
+      "completenessProfileVersion": "pending-batch-review",
+      "contributionProfileVersion": "2026-09-08",
+      "requires": [
+        "DEFENSIVE_ACTS",
+        "ROLE_POPULATION"
+      ],
+      "implementationStatus": "implemented",
+      "liveAdapter": "blocked-by-gap-register",
+      "referencePopulation": "declared selected evidence population",
+      "nullableColumns": [],
+      "inputColumns": [
+        "key",
+        "act",
+        "roleType"
+      ],
+      "rowIdentity": [
+        "key",
+        "act",
+        "roleType"
+      ]
+    },
+    {
+      "id": "paq-2.1",
+      "label": "PAQ with Process Tie-Breakers",
+      "version": "2.1.1",
+      "grain": "plate_appearance",
+      "higherIs": "better",
+      "unit": "percentile",
+      "userDefinition": "Lexicographic percentile: TFS, then Recovery Quality, then Resolution Depth; only PAs with applicable recovery and defensive resolution enter this reference population.",
+      "semanticMode": "completeness-gated",
+      "authoritativeQuery": "sparql/serving/metric-kernels/paq-2-1.rq",
+      "executionMode": "admitted-binding-kernel",
+      "sourceScopeVersion": 1,
+      "completenessProfileVersion": "pending-batch-review",
+      "contributionProfileVersion": "2026-09-08",
+      "requires": [
+        "TFS",
+        "EXACT_PITCH_COUNTS",
+        "DEFENSIVE_ACTS",
+        "DEFENSIVE_ORDER",
+        "REFERENCE_POPULATION",
+        "PAQ21_ELIGIBILITY"
+      ],
+      "implementationStatus": "implemented",
+      "liveAdapter": "blocked-by-gap-register",
+      "referencePopulation": "eligible MLB regular-season PAs with applicable recovery and defensive resolution through reporting cutoff",
+      "nullableColumns": [],
+      "inputColumns": [
+        "key",
+        "cohort",
+        "scoreN",
+        "scoreD",
+        "recoveryN",
+        "recoveryD",
+        "depth"
+      ],
+      "rowIdentity": [
+        "key"
+      ]
+    }
+  ]
+}

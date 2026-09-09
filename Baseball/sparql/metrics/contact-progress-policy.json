@@ -1,0 +1,13 @@
+{
+  "artifactType": "baseballo-metric-policy",
+  "contractVersion": 1,
+  "policyId": "exclude-reached-on-error-and-fielders-choice-progress",
+  "status": "accepted-policy-only",
+  "appliesTo": ["TFS-progress", "Empty-Game-positive-contribution"],
+  "excludedConsequenceKinds": ["reached-on-error", "fielders-choice"],
+  "preserveSafeDestinationEvidence": true,
+  "excludeAttributedOuts": false,
+  "excludeOpportunityErosion": false,
+  "decision": "../../archive/design-records/tfs-error-fc-progress-exclusion/decision.json",
+  "boundary": "Analytical labels here identify the accepted policy; runtime queries must use reviewed graph patterns, not provider result strings. Secondary errors during otherwise credited hits still require an attribution/continuity contract."
+}

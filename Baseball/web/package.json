@@ -7,6 +7,7 @@
   "scripts": {
     "start": "node server.mjs",
     "test": "node --test tests/analytics-query-builder.test.mjs",
+    "test:metrics": "node --test tests/metric-suite.test.mjs",
     "check": "node --check server.mjs && node --check app.js && node --check question-recipes.js && node --check result-sort.js && node --check query-builder/derived-metric-query-builder.js"
   }
 }

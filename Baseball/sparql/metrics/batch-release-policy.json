@@ -1,0 +1,28 @@
+{
+  "artifactType": "baseballo-metric-policy",
+  "contractVersion": 1,
+  "policyId": "metric-suite-batch-answers-2026-09-08",
+  "status": "accepted-policy-only",
+  "decision": "../../archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
+  "clarifications": "../../archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json",
+  "emptyGameMinimumPlateAppearances": 1,
+  "zeroPaRunnerEligibleForBaserunning": true,
+  "cpdCountingUnit": "one-positive-play-per-channel",
+  "independentDamage": "direct-runner-destruction-plus-teammate-opportunity-erosion",
+  "independentPositiveEvents": ["steal", "wild-pitch", "passed-ball", "balk"],
+  "independentProgressCreditedToBatter": false,
+  "independentPositiveWeights": null,
+  "referenceCutoff": "eligible-completed-plate-appearances-through-reporting-cutoff",
+  "defensiveDepthUnit": "intentional-act-nodes",
+  "runSupportIncludesScoringRunner": true,
+  "countedRoleTypes": [
+    "https://baseballontology.org/BatterRole",
+    "https://baseballontology.org/BaserunnerRole",
+    "https://baseballontology.org/PitcherRole",
+    "https://baseballontology.org/FielderRole"
+  ],
+  "paq21RequiresTwoStrikeEligibility": true,
+  "paq21RequiresApplicableDefensiveResolution": true,
+  "unknownEligibilityIsNotInapplicable": true,
+  "boundary": "These policies apply to admitted facts only. Event labels here are documentation, not source-mapping shortcuts. Running weights, speed-related error credit, interference credit and PAQ-A state boundary remain unresolved."
+}

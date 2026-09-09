@@ -1,0 +1,642 @@
+{
+  "artifactType": "baseballo-review-source-excerpts",
+  "status": "evidence-only-not-a-transition-contract",
+  "sourcePath": "data/raw/samples/2026-08-23/824315.json",
+  "sourceSha256": "5fcc75d37a20a516d312b3bfb3d5cefb4371ebafa639851ff16173d9b1a6607c",
+  "samples": [
+    {
+      "pa": 3,
+      "inning": 1,
+      "halfInning": "top",
+      "eventType": "force_out",
+      "paOuts": 1,
+      "postFields": {
+        "postOnFirst": {
+          "present": true,
+          "value": {
+            "id": 663993,
+            "fullName": "Nathaniel Lowe",
+            "link": "/api/v1/people/663993"
+          }
+        },
+        "postOnSecond": {
+          "present": false,
+          "value": null
+        },
+        "postOnThird": {
+          "present": false,
+          "value": null
+        }
+      },
+      "runnerRows": [
+        {
+          "row": 0,
+          "movement": {
+            "originBase": "1B",
+            "start": "1B",
+            "end": null,
+            "outBase": "2B",
+            "isOut": true,
+            "outNumber": 1
+          },
+          "runnerId": 666176,
+          "eventType": "force_out",
+          "playIndex": 8
+        },
+        {
+          "row": 1,
+          "movement": {
+            "originBase": null,
+            "start": null,
+            "end": "1B",
+            "outBase": null,
+            "isOut": false,
+            "outNumber": null
+          },
+          "runnerId": 663993,
+          "eventType": "force_out",
+          "playIndex": 8
+        }
+      ],
+      "eventCounts": [
+        {
+          "index": 0,
+          "type": "pitch",
+          "eventType": null,
+          "outs": 0
+        },
+        {
+          "index": 1,
+          "type": "pickoff",
+          "eventType": null,
+          "outs": 0
+        },
+        {
+          "index": 2,
+          "type": "pitch",
+          "eventType": null,
+          "outs": 0
+        },
+        {
+          "index": 3,
+          "type": "pitch",
+          "eventType": null,
+          "outs": 0
+        },
+        {
+          "index": 4,
+          "type": "pitch",
+          "eventType": null,
+          "outs": 0
+        },
+        {
+          "index": 5,
+          "type": "pitch",
+          "eventType": null,
+          "outs": 0
+        },
+        {
+          "index": 6,
+          "type": "pickoff",
+          "eventType": null,
+          "outs": 0
+        },
+        {
+          "index": 7,
+          "type": "pitch",
+          "eventType": null,
+          "outs": 0
+        },
+        {
+          "index": 8,
+          "type": "pitch",
+          "eventType": null,
+          "outs": 0
+        }
+      ]
+    },
+    {
+      "pa": 4,
+      "inning": 1,
+      "halfInning": "top",
+      "eventType": "strikeout",
+      "paOuts": 2,
+      "postFields": {
+        "postOnFirst": {
+          "present": true,
+          "value": {
+            "id": 663993,
+            "fullName": "Nathaniel Lowe",
+            "link": "/api/v1/people/663993"
+          }
+        },
+        "postOnSecond": {
+          "present": false,
+          "value": null
+        },
+        "postOnThird": {
+          "present": false,
+          "value": null
+        }
+      },
+      "runnerRows": [
+        {
+          "row": 0,
+          "movement": {
+            "originBase": null,
+            "start": null,
+            "end": null,
+            "outBase": "1B",
+            "isOut": true,
+            "outNumber": 2
+          },
+          "runnerId": 694197,
+          "eventType": "strikeout",
+          "playIndex": 6
+        }
+      ],
+      "eventCounts": [
+        {
+          "index": 0,
+          "type": "pitch",
+          "eventType": null,
+          "outs": 1
+        },
+        {
+          "index": 1,
+          "type": "pitch",
+          "eventType": null,
+          "outs": 1
+        },
+        {
+          "index": 2,
+          "type": "pitch",
+          "eventType": null,
+          "outs": 1
+        },
+        {
+          "index": 3,
+          "type": "pitch",
+          "eventType": null,
+          "outs": 1
+        },
+        {
+          "index": 4,
+          "type": "action",
+          "eventType": "batter_timeout",
+          "outs": 1
+        },
+        {
+          "index": 5,
+          "type": "pitch",
+          "eventType": null,
+          "outs": 1
+        },
+        {
+          "index": 6,
+          "type": "pitch",
+          "eventType": null,
+          "outs": 1
+        }
+      ]
+    },
+    {
+      "pa": 15,
+      "inning": 2,
+      "halfInning": "top",
+      "eventType": "field_out",
+      "paOuts": 2,
+      "postFields": {
+        "postOnFirst": {
+          "present": false,
+          "value": null
+        },
+        "postOnSecond": {
+          "present": true,
+          "value": {
+            "id": 666176,
+            "fullName": "Jo Adell",
+            "link": "/api/v1/people/666176"
+          }
+        },
+        "postOnThird": {
+          "present": true,
+          "value": {
+            "id": 800050,
+            "fullName": "Chase DeLauter",
+            "link": "/api/v1/people/800050"
+          }
+        }
+      },
+      "runnerRows": [
+        {
+          "row": 0,
+          "movement": {
+            "originBase": null,
+            "start": null,
+            "end": null,
+            "outBase": "1B",
+            "isOut": true,
+            "outNumber": 2
+          },
+          "runnerId": 663993,
+          "eventType": "field_out",
+          "playIndex": 1
+        }
+      ],
+      "eventCounts": [
+        {
+          "index": 0,
+          "type": "pitch",
+          "eventType": null,
+          "outs": 1
+        },
+        {
+          "index": 1,
+          "type": "pitch",
+          "eventType": null,
+          "outs": 1
+        }
+      ]
+    },
+    {
+      "pa": 16,
+      "inning": 2,
+      "halfInning": "top",
+      "eventType": "strikeout",
+      "paOuts": 3,
+      "postFields": {
+        "postOnFirst": {
+          "present": false,
+          "value": null
+        },
+        "postOnSecond": {
+          "present": false,
+          "value": null
+        },
+        "postOnThird": {
+          "present": false,
+          "value": null
+        }
+      },
+      "runnerRows": [
+        {
+          "row": 0,
+          "movement": {
+            "originBase": null,
+            "start": null,
+            "end": null,
+            "outBase": "1B",
+            "isOut": true,
+            "outNumber": 3
+          },
+          "runnerId": 694197,
+          "eventType": "strikeout",
+          "playIndex": 3
+        }
+      ],
+      "eventCounts": [
+        {
+          "index": 0,
+          "type": "pitch",
+          "eventType": null,
+          "outs": 2
+        },
+        {
+          "index": 1,
+          "type": "pitch",
+          "eventType": null,
+          "outs": 2
+        },
+        {
+          "index": 2,
+          "type": "pitch",
+          "eventType": null,
+          "outs": 2
+        },
+        {
+          "index": 3,
+          "type": "pitch",
+          "eventType": null,
+          "outs": 2
+        }
+      ]
+    },
+    {
+      "pa": 29,
+      "inning": 3,
+      "halfInning": "bottom",
+      "eventType": "double",
+      "paOuts": 0,
+      "postFields": {
+        "postOnFirst": {
+          "present": false,
+          "value": null
+        },
+        "postOnSecond": {
+          "present": true,
+          "value": {
+            "id": 650489,
+            "fullName": "Willi Castro",
+            "link": "/api/v1/people/650489"
+          }
+        },
+        "postOnThird": {
+          "present": false,
+          "value": null
+        }
+      },
+      "runnerRows": [
+        {
+          "row": 0,
+          "movement": {
+            "originBase": null,
+            "start": null,
+            "end": "2B",
+            "outBase": null,
+            "isOut": false,
+            "outNumber": null
+          },
+          "runnerId": 650489,
+          "eventType": "double",
+          "playIndex": 1
+        }
+      ],
+      "eventCounts": [
+        {
+          "index": 0,
+          "type": "pitch",
+          "eventType": null,
+          "outs": 0
+        },
+        {
+          "index": 1,
+          "type": "pitch",
+          "eventType": null,
+          "outs": 0
+        }
+      ]
+    },
+    {
+      "pa": 30,
+      "inning": 3,
+      "halfInning": "bottom",
+      "eventType": "strikeout",
+      "paOuts": 1,
+      "postFields": {
+        "postOnFirst": {
+          "present": false,
+          "value": null
+        },
+        "postOnSecond": {
+          "present": true,
+          "value": {
+            "id": 650489,
+            "fullName": "Willi Castro",
+            "link": "/api/v1/people/650489"
+          }
+        },
+        "postOnThird": {
+          "present": false,
+          "value": null
+        }
+      },
+      "runnerRows": [
+        {
+          "row": 0,
+          "movement": {
+            "originBase": null,
+            "start": null,
+            "end": null,
+            "outBase": "1B",
+            "isOut": true,
+            "outNumber": 1
+          },
+          "runnerId": 666160,
+          "eventType": "strikeout",
+          "playIndex": 6
+        }
+      ],
+      "eventCounts": [
+        {
+          "index": 0,
+          "type": "pitch",
+          "eventType": null,
+          "outs": 0
+        },
+        {
+          "index": 1,
+          "type": "pitch",
+          "eventType": null,
+          "outs": 0
+        },
+        {
+          "index": 2,
+          "type": "action",
+          "eventType": "batter_timeout",
+          "outs": 0
+        },
+        {
+          "index": 3,
+          "type": "pitch",
+          "eventType": null,
+          "outs": 0
+        },
+        {
+          "index": 4,
+          "type": "pitch",
+          "eventType": null,
+          "outs": 0
+        },
+        {
+          "index": 5,
+          "type": "pitch",
+          "eventType": null,
+          "outs": 0
+        },
+        {
+          "index": 6,
+          "type": "pitch",
+          "eventType": null,
+          "outs": 0
+        }
+      ]
+    },
+    {
+      "pa": 34,
+      "inning": 4,
+      "halfInning": "top",
+      "eventType": "triple",
+      "paOuts": 1,
+      "postFields": {
+        "postOnFirst": {
+          "present": false,
+          "value": null
+        },
+        "postOnSecond": {
+          "present": false,
+          "value": null
+        },
+        "postOnThird": {
+          "present": true,
+          "value": {
+            "id": 800050,
+            "fullName": "Chase DeLauter",
+            "link": "/api/v1/people/800050"
+          }
+        }
+      },
+      "runnerRows": [
+        {
+          "row": 0,
+          "movement": {
+            "originBase": null,
+            "start": null,
+            "end": "3B",
+            "outBase": null,
+            "isOut": false,
+            "outNumber": null
+          },
+          "runnerId": 800050,
+          "eventType": "triple",
+          "playIndex": 5
+        }
+      ],
+      "eventCounts": [
+        {
+          "index": 0,
+          "type": "pitch",
+          "eventType": null,
+          "outs": 1
+        },
+        {
+          "index": 1,
+          "type": "pitch",
+          "eventType": null,
+          "outs": 1
+        },
+        {
+          "index": 2,
+          "type": "pitch",
+          "eventType": null,
+          "outs": 1
+        },
+        {
+          "index": 3,
+          "type": "pitch",
+          "eventType": null,
+          "outs": 1
+        },
+        {
+          "index": 4,
+          "type": "pitch",
+          "eventType": null,
+          "outs": 1
+        },
+        {
+          "index": 5,
+          "type": "pitch",
+          "eventType": null,
+          "outs": 1
+        }
+      ]
+    },
+    {
+      "pa": 35,
+      "inning": 4,
+      "halfInning": "top",
+      "eventType": "strikeout",
+      "paOuts": 2,
+      "postFields": {
+        "postOnFirst": {
+          "present": false,
+          "value": null
+        },
+        "postOnSecond": {
+          "present": false,
+          "value": null
+        },
+        "postOnThird": {
+          "present": true,
+          "value": {
+            "id": 800050,
+            "fullName": "Chase DeLauter",
+            "link": "/api/v1/people/800050"
+          }
+        }
+      },
+      "runnerRows": [
+        {
+          "row": 0,
+          "movement": {
+            "originBase": null,
+            "start": null,
+            "end": null,
+            "outBase": "1B",
+            "isOut": true,
+            "outNumber": 2
+          },
+          "runnerId": 666176,
+          "eventType": "strikeout",
+          "playIndex": 8
+        }
+      ],
+      "eventCounts": [
+        {
+          "index": 0,
+          "type": "pitch",
+          "eventType": null,
+          "outs": 1
+        },
+        {
+          "index": 1,
+          "type": "pitch",
+          "eventType": null,
+          "outs": 1
+        },
+        {
+          "index": 2,
+          "type": "pitch",
+          "eventType": null,
+          "outs": 1
+        },
+        {
+          "index": 3,
+          "type": "action",
+          "eventType": "batter_timeout",
+          "outs": 1
+        },
+        {
+          "index": 4,
+          "type": "pitch",
+          "eventType": null,
+          "outs": 1
+        },
+        {
+          "index": 5,
+          "type": "pitch",
+          "eventType": null,
+          "outs": 1
+        },
+        {
+          "index": 6,
+          "type": "pitch",
+          "eventType": null,
+          "outs": 1
+        },
+        {
+          "index": 7,
+          "type": "pitch",
+          "eventType": null,
+          "outs": 1
+        },
+        {
+          "index": 8,
+          "type": "pitch",
+          "eventType": null,
+          "outs": 1
+        }
+      ]
+    }
+  ]
+}

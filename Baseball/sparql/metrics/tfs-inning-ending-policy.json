@@ -1,0 +1,12 @@
+{
+  "artifactType": "baseballo-metric-policy",
+  "contractVersion": 1,
+  "metric": "TFS",
+  "policyId": "inning-ending-stranded-runner-erosion",
+  "status": "accepted-policy-only",
+  "includeEvidencedStrandedRunnersInErosion": true,
+  "inferAdditionalOutsFromInningEnd": false,
+  "assignDestructionToStrandedRunners": false,
+  "decision": "../../archive/design-records/tfs-inning-ending-erosion/decision.json",
+  "boundary": "Requires complete, reviewed runner and out evidence. Missing rows do not establish stranded status. Simultaneous independent outs and walk-off truncation remain unresolved."
+}

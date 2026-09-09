@@ -1,0 +1,12 @@
+{
+  "artifactType": "baseballo-metric-policy",
+  "contractVersion": 1,
+  "metric": "TFS",
+  "policyId": "continuous-path-terminal-out",
+  "status": "accepted-policy-only",
+  "requiresEvidencedContinuousAttributedPath": true,
+  "terminalOutStart": "original-path-start",
+  "retainIntermediateSafeProgressOnTerminalOut": false,
+  "decision": "../../archive/design-records/tfs-continuous-path-terminal-out/decision.json",
+  "boundary": "No executable coalescence or scoring is admitted until continuity, attribution and operative terminal-resolution evidence are reviewed."
+}

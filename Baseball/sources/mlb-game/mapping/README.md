@@ -35,6 +35,22 @@ Separate implemented paths cover called balls, called strikes, swinging strikes,
 
 ## Input and execution boundary
 
+The [accepted resolution/award relations](../../../archive/design-records/mlb-game-resolution-award-links/README.md)
+identify the runner resolved, a supported adjudicated first/second/third Base,
+and completion of a particular walk/HBP award. Three small mapping additions
+reuse the existing resolution, runner, Base and award IRIs. The
+[source design](../review/resolution-award-source-design.md) specifies the
+conservative forced-chain guards. Missing links do not establish unchanged
+state or zero contribution; these relations do not complete TFS/PAQ-2.
+
+The [accepted baserunning origin](../../../archive/design-records/mlb-game-baserunning-origin/README.md)
+links an existing Baserunning Act to its supported starting Base. The
+[source design](../review/baserunning-origin-source-design.md) requires agreement
+between the source origin and start, a unique event join and an unambiguous
+runner row. Explicit Base Code Identifiers support query joins for origins and
+adjudicated destinations without parsing IRIs. No missing row supplies an
+unchanged state, and separate acts are not automatically coalesced.
+
 The authoritative source is named `game.json` during RML execution. It is
 copied byte-for-byte and is never normalized or rewritten.
 
@@ -121,6 +137,14 @@ The mapping does not infer physical detail from a counted outcome alone.
   entail a safe or out resolution.
 
 ## Validation
+
+The accepted 2026-09-08 A1 extension connects an evidenced subset of existing
+Runner Resolution Processes to their Batted-Ball Play Process. It requires
+completed, recognized contact-result evidence, a unique terminal-event join,
+and a matching runner classification. Mixed or unknown cases remain unlinked.
+This is parthood only; it does not establish batter credit, independence when
+absent, destination, or institutional base occupancy. See the
+[accepted decision](../../../archive/design-records/mlb-game-batted-runner-resolution-containment/README.md).
 
 From the repository root:
 

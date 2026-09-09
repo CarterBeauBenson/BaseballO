@@ -1,0 +1,19 @@
+{
+  "artifactType": "baseballo-metric-release-defaults",
+  "contractVersion": 1,
+  "metric": "PAQ-2",
+  "status": "accepted-defaults-only",
+  "display": { "scale": "percentile", "minimum": 0, "maximum": 100 },
+  "referencePopulation": {
+    "competition": "MLB",
+    "seasonPhase": "regular-season",
+    "seasonScope": "selected-season",
+    "members": "eligible-plate-appearances"
+  },
+  "precision": {
+    "internal": "exact-rational",
+    "rounding": "display-only"
+  },
+  "decision": "../../archive/design-records/paq-2-release-defaults/decision.json",
+  "boundary": "This accepts the three release defaults only. Eligibility, full attribution, before-state, completeness and contribution policies remain unresolved; this file does not authorize publishing a percentile from an incomplete or selectively covered league population."
+}

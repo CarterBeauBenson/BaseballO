@@ -9,6 +9,7 @@ import {
   ANALYTICS_QUERY_FAMILIES,
   compileAnalyticsQuery,
 } from "./query-builder/analytics-query-builder.js";
+import { metricCatalog, validateMetricRequest, compileMetricEvidenceQuery } from './query-builder/metric-suite-query-builder.js';
 import {
   buildPublicDerivedMetricCatalog,
   compileDerivedMetricQuery,
@@ -28,6 +29,7 @@ const ADVANCED_QUERY_ROOT = resolve(WEB_ROOT, "..", "sparql", "advanced");
 const ADVANCED_QUERY_CATALOG = resolve(ADVANCED_QUERY_ROOT, "advanced-query-catalog.json");
 const SERVING_QUERY_SCRIPT = resolve(WEB_ROOT, "..", "scripts", "pipeline", "query-serving-layer.py");
 const SERVING_CANDIDATE_QUERY_SCRIPT = resolve(WEB_ROOT, "..", "scripts", "pipeline", "query-serving-candidate.py");
+const METRIC_REDUCER_SCRIPT = resolve(WEB_ROOT, '..', 'scripts', 'pipeline', 'query-metric-suite.py');
 const RAW_SAMPLES_ROOT = resolve(WEB_ROOT, "..", "data", "raw", "samples");
 const RAW_FIXTURE = resolve(WEB_ROOT, "..", "data", "raw", "game-566279.json");
 const LOCAL_STATE_ROOT = process.env.BASEBALLO_STATE_ROOT
@@ -99,6 +101,10 @@ const ADVANCED_PRESENTATION = Object.freeze({
   }),
 });
 const STATIC_FILES = new Map([
+  ['/metrics', 'metrics.html'],
+  ['/metrics.html', 'metrics.html'],
+  ['/metrics.js', 'metrics.js'],
+  ['/metrics.css', 'metrics.css'],
   ["/", "index.html"],
   ["/index.html", "index.html"],
   ["/app.js", "app.js"],
@@ -796,6 +802,7 @@ export function createBaseballServer({
   fetchImpl = globalThis.fetch,
   queryEndpoint = process.env.BASEBALLO_FUSEKI_QUERY ?? DEFAULT_QUERY_ENDPOINT,
   servingExecutor = executeServingQuery,
+  metricReducer = (input) => executePythonServingQuery(METRIC_REDUCER_SCRIPT, input),
   candidateServingExecutor = executeCandidateServingQuery,
   equivalenceToken = process.env.BASEBALLO_EQUIVALENCE_TOKEN ?? null,
 } = {}) {
@@ -850,6 +857,28 @@ export function createBaseballServer({
   return createServer(async (request, response) => {
     const requestUrl = new URL(request.url ?? "/", "http://127.0.0.1");
     try {
+      if (request.method === 'GET' && requestUrl.pathname === '/api/metrics/catalog') {
+        sendJson(response, 200, await metricCatalog());
+        return;
+      }
+      if (request.method === 'POST' && requestUrl.pathname === '/api/metrics/query') {
+        const input = validateMetricRequest(await readJsonBody(request), await metricCatalog());
+        try {
+          const result = await executeRouteServing(request, servingExecutor, candidateServingExecutor, equivalenceToken, input);
+          sendJson(response, 200, result);
+          return;
+        } catch {
+          if (rejectMaterializedFallback(request, response)) return;
+        }
+        const scope = await scopedGraphs(input.dateScope, {}, input.gameSet);
+        const query = await compileMetricEvidenceQuery(scope.graphs);
+        const { payload, durationMs } = await executeCachedSparql(query, scope.corpusFingerprint);
+        const result = await metricReducer({ metricId: input.metricId, graphs: scope.graphs,
+          bindings: payload.results.bindings });
+        sendJson(response, 200, { ...result, dateScope: scope.dateScope,
+          corpusFingerprint: scope.corpusFingerprint, query, durationMs });
+        return;
+      }
       if (request.method === "GET" && requestUrl.pathname === "/api/catalog") {
         sendJson(response, 200, { families: buildPublicCatalog() });
         return;
