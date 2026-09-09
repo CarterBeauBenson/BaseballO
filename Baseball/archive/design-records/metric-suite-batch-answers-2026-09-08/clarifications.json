@@ -1,0 +1,12 @@
+{
+  "artifactType": "baseballo-metric-policy-batch-clarification",
+  "contractVersion": 1,
+  "decidedAt": "2026-09-08",
+  "decidedBy": "Carter Beau Benson",
+  "accepted": [
+    {"id": "actual-end-state-erosion-retained", "answer": "Actual-end-state erosion: -1/4", "meaning": "Retain the earlier bounded actual-end-state erosion policy. In the third-base/one-out strikeout plus passed-ball score example, TFS is -1/4. The runner's advance receives no batter progress credit."},
+    {"id": "run-support-includes-runner", "answer": "Yes, count both contributors", "meaning": "Run Construction Breadth includes each distinct offensive player whose supported contribution advanced the scoring runner, including that runner's own batting and independent running. Own single plus steal followed by a teammate's scoring double has breadth two."},
+    {"id": "four-realized-role-kinds", "answer": "Yes, use those four kinds", "meaning": "Initially count Batter Role, Baserunner Role, Pitcher Role and Fielder Role when actually realized by the player in the game. Do not count generic parent roles again."}
+  ],
+  "boundary": "No source completeness, new ontology vocabulary, semantic pin refresh, or PAQ-A comparison boundary is approved here."
+}

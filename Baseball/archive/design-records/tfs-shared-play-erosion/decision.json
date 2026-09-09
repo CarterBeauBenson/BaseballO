@@ -1,0 +1,13 @@
+{
+  "artifactType": "baseballo-metric-policy-decision",
+  "contractVersion": 1,
+  "decisionId": "tfs-shared-play-erosion",
+  "disposition": "accepted",
+  "decidedBy": "Carter Beau Benson",
+  "decidedAt": "2026-09-08",
+  "question": "Do you approve using the actual state after the shared play for erosion, counting only batter-attributed progress and outs, for non-inning-ending plays with known end states and no independent outs?",
+  "answer": "good I agree . LEts keep going",
+  "accepted": "For a non-inning-ending shared play with complete relevant evidence and no independent outs, evaluate erosion using the actual end state after the shared play. Independent safe advances or scoring may change that context but receive no batter progress credit. Only distinct batter-attributed outs enter the erosion numerator; scored participants receive no survivor erosion.",
+  "boundary": "This accepts the bounded evaluation convention, not event ordering, common-boundary identity from a source index, participant completeness, operative replay identity, inning-ending or walk-off handling, or metric publication.",
+  "reviewedPolicy": "reviewed-policy.md"
+}

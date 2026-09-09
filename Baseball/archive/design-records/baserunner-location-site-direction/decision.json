@@ -1,0 +1,14 @@
+{
+  "artifactType": "baseballo-modeling-direction-decision",
+  "contractVersion": 1,
+  "decisionId": "baserunner-location-site-direction",
+  "disposition": "accepted-direction-only",
+  "decidedBy": "Carter Beau Benson",
+  "decidedAt": "2026-09-08",
+  "userStatement": "That does not seem like a relational quality, since it does not inhere in both the base and player. I think located at would be better with an understanding of the second base site as being larger than the literal base",
+  "accepted": "Keep the existing Base Site unchanged and locate it in the larger surrounding Site under discussion. Locate the runner in that larger Site. Drop the Relational Quality candidate for this fact and leave Mermaid diagrams unchanged.",
+  "rejectedCandidate": "Reifying the recognized runner/Base association as a BFO Relational Quality.",
+  "existingVocabulary": "The pinned BFO relation is located in (BFO_0000171). Existing BaseSite is a Site and its comment already allows both runner and Base to be located in it.",
+  "boundary": "This selects a nested-site location direction using existing vocabulary. It does not select the larger Site extent or instance identity, establish source support at a particular boundary, generalize the PA-start Stasis, or authorize new runtime assertions. Keep adjudication and touching evidence distinct from spatial location.",
+  "clarification": "We do not need to change anything in the mermiad. The base site can be located in this other site we are talking about"
+}

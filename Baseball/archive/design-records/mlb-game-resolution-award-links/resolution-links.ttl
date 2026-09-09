@@ -1,0 +1,34 @@
+@prefix base: <https://baseballontology.org/> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+@prefix cco: <https://www.commoncoreontologies.org/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+# REVIEW ONLY. No import into the ontology or executable source contracts.
+# These primitive relations are proposed, not inferred from their endpoints.
+
+base:hasResolvedRunner a owl:ObjectProperty ;
+    rdfs:subPropertyOf obo:BFO_0000057 ;
+    rdfs:domain base:RunnerResolutionProcess ;
+    rdfs:range cco:ont00001262 ;
+    rdfs:label "has resolved runner"@en ;
+    skos:definition "A relation between a Runner Resolution Process and a Person whose counted runner status is assigned by that process."@en ;
+    rdfs:comment "The Person participates as the runner being resolved. Other participating Persons are not thereby the resolved runner. The process supplies the event and temporal scope."@en ;
+    skos:example "A particular Safe Process has resolved runner the batter who is counted safe at first."@en .
+
+base:hasAdjudicatedBase a owl:ObjectProperty ;
+    rdfs:domain base:SafeProcess ;
+    rdfs:range base:Base ;
+    rdfs:label "has adjudicated base"@en ;
+    skos:definition "A relation between a Safe Process and a Base at which that process counts its resolved runner safe in the adjudicated situation."@en ;
+    rdfs:comment "The relation is scoped to the particular Safe Process, not to an interval of continued physical location or institutional entitlement. A counted run requires Run Process evidence. The Base is not an output produced by the adjudication."@en ;
+    skos:example "The Safe Process resolving a runner's advance to second has adjudicated base the particular second Base used in that Game."@en .
+
+base:settlesAwardFrom a owl:ObjectProperty ;
+    rdfs:domain [ a owl:Class ; owl:unionOf ( base:SafeProcess base:RunProcess ) ] ;
+    rdfs:range [ a owl:Class ; owl:unionOf ( base:WalkProcess base:HitByPitchProcess ) ] ;
+    rdfs:label "settles award from"@en ;
+    skos:definition "A relation between a Safe Process or Run Process and a Walk Process or Hit-by-Pitch Process when the former counts its resolved runner's arrival at the base awarded by the latter, directly to the batter or through forced advancement under the applicable rule."@en ;
+    rdfs:comment "An award alone does not establish a completed arrival. This relation requires the particular award, runner and counted arrival; it asserts neither batter causation nor occurrent parthood. Independent or excess advances do not acquire this relation from a shared Plate Appearance."@en ;
+    skos:example "A Safe Process counting a forced runner safe at second settles award from the particular Walk Process that awarded first to the batter and forced that advance."@en .

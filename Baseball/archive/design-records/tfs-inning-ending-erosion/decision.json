@@ -1,0 +1,20 @@
+{
+  "artifactType": "baseballo-metric-policy-decision",
+  "contractVersion": 1,
+  "decisionId": "tfs-inning-ending-erosion",
+  "disposition": "accepted",
+  "decidedBy": "Carter Beau Benson",
+  "decidedAt": "2026-09-08",
+  "question": "For TFS, with a runner on third and two outs, a batter strikeout ends the inning. I recommend charging the stranded runner's lost opportunity too: −0.25 batter destruction and −1.00 erosion, for −1.25 total. Should inning-ending outs work this way?",
+  "answer": "Charge stranded-runner erosion",
+  "accepted": "Include evidenced stranded runners in opportunity erosion when the batter-attributed consequence ends the inning. They are not additionally counted as out or assigned trajectory destruction merely because the inning ended.",
+  "example": {
+    "outsBefore": 2,
+    "attributedOuts": 1,
+    "strandedRunnerBase": "3B",
+    "batterDestruction": "1/4",
+    "runnerErosion": "1/1",
+    "tfs": "-5/4"
+  },
+  "boundary": "This accepts the inning-ending erosion policy. It does not authorize inferring stranded runners from missing source rows, resolve simultaneous independent outs, or change inning-ending runners into Out Process instances."
+}

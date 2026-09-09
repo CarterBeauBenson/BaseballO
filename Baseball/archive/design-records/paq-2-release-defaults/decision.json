@@ -1,0 +1,20 @@
+{
+  "artifactType": "baseballo-metric-defaults-decision",
+  "contractVersion": 1,
+  "decisionId": "paq-2-release-defaults",
+  "disposition": "accepted",
+  "decidedBy": "Carter Beau Benson",
+  "decidedAt": "2026-09-08",
+  "question": "For PAQ-2's first release, I recommend a 0–100 percentile display, a reference population of eligible MLB regular-season plate appearances from the selected season, and exact fractions internally with rounding only for display. Does that match what you want?",
+  "answer": "Use those three defaults",
+  "accepted": [
+    "0–100 percentile display",
+    "Eligible MLB regular-season plate appearances from the selected season as reference population",
+    "Exact rational internal values with rounding only for display"
+  ],
+  "exclusions": [
+    "No new ontology term, relation or identity policy",
+    "No acceptance of unresolved eligibility, attribution, before-state, completeness or contribution policy",
+    "No change to PAQ-1 or authorization of public PAQ-2 results from partial coverage"
+  ]
+}

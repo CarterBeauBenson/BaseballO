@@ -1,0 +1,13 @@
+{
+  "artifactType": "baseballo-metric-policy-decision",
+  "contractVersion": 1,
+  "decisionId": "tfs-error-fc-progress-exclusion",
+  "disposition": "accepted",
+  "decidedBy": "Carter Beau Benson",
+  "decidedAt": "2026-09-08",
+  "question": "Should safe progress caused within the batter's contact play count toward TFS and Empty Game classification when the batter reaches on an error or fielder's choice? Independent steals, wild pitches, and similar events would still be excluded.",
+  "answer": "Exclude both",
+  "accepted": "Exclude safe progress within reached-on-error and fielder's-choice consequences from the TFS progress component and Empty Game positive-contribution qualification.",
+  "boundary": "This changes analytical credit, not the actual safe destination or runner status. It does not exclude attributed outs or opportunity erosion, count safe runners as out, or resolve separate secondary-error advancement within an otherwise credited hit.",
+  "supersedes": "The supplied specification's positive progress allowance in the FC example where a runner from first is out and the batter reaches first with zero outs."
+}

@@ -1,0 +1,58 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-resolution-award-links",
+  "title": "Runner identity, adjudicated base and completion of walk/HBP awards",
+  "status": "accepted",
+  "proposedIris": [
+    "https://baseballontology.org/hasResolvedRunner",
+    "https://baseballontology.org/hasAdjudicatedBase",
+    "https://baseballontology.org/settlesAwardFrom"
+  ],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "19d19870a942bbdaba9f6041719d25e1a9289e000de6e160fe47832b829d1ba0"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "resolution-links-review.md",
+        "sha256": "08afbc766323a5f75df3b3bc3d2b761db9b89173320e5b96d303058c002dc495"
+      },
+      {
+        "path": "resolution-links.ttl",
+        "sha256": "70a0818e308dc9c531d588967a9e15f00e6f412dc1e18839a37999cfe411f0a6"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "89c43fa9924f234de9123ec379c78e0d66e8a3160ec89567e7ecb956fa62cf7d"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "1b122f448b7c180054e3e98c5a1bb0156da5e8b87af778574ab4d13d214276ce"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-09-08",
+    "rationale": "The user answered \"Okay, lets keep it going\" directly to the explicit question requesting approval of hasResolvedRunner, hasAdjudicatedBase, and settlesAwardFrom, with the concrete linked specification. This accepts those three named relations and their bounded conformance obligations only; A3 initial state and A5/A6 metric completeness remain unresolved.",
+    "authorizedArtifacts": [
+      "Baseball/ontology/BaseballO.ttl",
+      "Baseball/ontology/BaseballO-axioms-overlay.ttl",
+      "Baseball/scripts/pipeline/prepare-rml-context.py",
+      "Baseball/sources/mlb-game/mapping/mlb-game.rml.ttl",
+      "Baseball/sources/mlb-game/shacl/authoritative.ttl",
+      "Baseball/sources/mlb-game/review/rml-mermaid-manifest.json",
+      "Baseball/governance/ontology-curation-debt.json"
+    ]
+  }
+}

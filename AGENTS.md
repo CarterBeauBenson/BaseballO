@@ -13,9 +13,8 @@
 
 ## Git workflow
 
-- Git is temporarily disabled by the user's explicit direction. Do not run Git commands, create commits, or contact GitHub until the user explicitly reauthorizes Git.
-- The remaining branch and publishing rules describe the workflow after that
-  reauthorization; they do not override the current prohibition.
+- Git was explicitly reauthorized by the user on 2026-09-08 with the direction
+  to push the completed work. Follow the branch and publishing rules below.
 - Use `dev` as the working and publishing branch.
 - Never push directly to `main`.
 - Never force-push, rebase published commits, or rewrite remote history without explicit user approval.

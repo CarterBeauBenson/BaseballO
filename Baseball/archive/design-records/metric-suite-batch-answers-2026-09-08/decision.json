@@ -1,0 +1,103 @@
+{
+  "artifactType": "baseballo-metric-policy-batch-decision",
+  "contractVersion": 1,
+  "decisionId": "metric-suite-batch-answers-2026-09-08",
+  "decidedAt": "2026-09-08",
+  "decidedBy": "Carter Beau Benson",
+  "scope": "Named answers to the 12-question metric review; acceptance is limited to explicit answers below. No ontology vocabulary, source completeness, mapping coverage or semantic pins are admitted.",
+  "accepted": [
+    {
+      "id": "runner-trajectory-lifetime",
+      "question": 2,
+      "answer": "Yes",
+      "meaning": "One person's overall runner trajectory extends from becoming a baserunner until scoring, being put out, replacement, or inning end. Individual plays form parts of it. A pinch runner begins a distinct personal trajectory; any relationship to the prior runner's contribution remains separate.",
+      "remaining": "Actual continuity evidence, accepted terms/relations and graph identity implementation."
+    },
+    {
+      "id": "independent-positive-running",
+      "question": 5,
+      "answer": "Yes, and that can be part of the speed index or whatever you called it for runners. Not all runners can advance on a passed ball. Each base should be worth more, since each base is harder to advance on and more meaningful. This would be the positive version of damage.",
+      "meaning": "Credit supported independent advances on steals, wild pitches, passed balls and balks to the runner, not the batter. Build a positive running-contribution measure with increasing value for later bases.",
+      "remaining": "Exact weights, multi-base additivity, metric name, episode identity and source coverage. This is not approval to treat contribution as a physical Speed measurement."
+    },
+    {
+      "id": "independent-out-damage",
+      "question": 6,
+      "answer": "Yes., agree",
+      "meaning": "An independent runner out charges that runner's destruction and erosion imposed on surviving teammates. Accepted example: runners first and third, zero outs, first-base runner caught stealing, third-base runner unchanged: 1/3 destruction plus 1/3 erosion = 2/3 damage.",
+      "remaining": "Source-attribution and state completeness; independent positive/net-score composition remains unresolved."
+    },
+    {
+      "id": "empty-game-pa-eligibility",
+      "question": 7,
+      "answer": "No, if they get no plate appearance, they are inelgible. They are eligble for the baserunning metric though.",
+      "meaning": "An offensive player-game must contain at least one plate appearance to be eligible for Empty Game classification/rate/damage. A zero-PA runner remains eligible for the separate baserunning metric.",
+      "remaining": "Prove complete player-game PA counts and offensive episodes; do not infer zero from missing rows."
+    },
+    {
+      "id": "cpd-play-channel-unit",
+      "question": 8,
+      "answer": "I agree. It should be one per channel",
+      "meaning": "Count at most one positive contribution episode per play per channel for CPD, regardless of how many runners benefit in that channel. Offensive Reach separately counts benefited trajectories.",
+      "remaining": "Admitted play identity and positive channel attribution."
+    },
+    {
+      "id": "independent-progress-not-batter-credit",
+      "question": 9,
+      "answer": "No, a passed ball on a strikeout should not benefit the hitter. It A steal by the baserunner should not benefit the hitter. Those go into base runner stats.",
+      "meaning": "Independent advances belong to baserunning statistics and do not receive batter progress credit.",
+      "remaining": "Clarify whether this also revises previously accepted actual-end-state erosion relief. PAQ-A start-state cohort boundary was not answered."
+    },
+    {
+      "id": "season-reference-cutoff",
+      "question": 9,
+      "answer": "Yes to your second question",
+      "meaning": "During an unfinished season, use eligible completed PAs through the selected reporting cutoff as the reference, requiring complete coverage through that cutoff.",
+      "remaining": "Authoritative population classification, membership, temporal cutoff and completeness evidence."
+    },
+    {
+      "id": "defensive-act-count-grain",
+      "question": 10,
+      "answer": "Yes. 4 acts",
+      "meaning": "Fielding, throwing, catching and tagging in the stated example are four intentional acts, even though there are only two players. Depth counts supported act nodes; breadth counts agents.",
+      "remaining": "Accepted act taxonomy/identity, agents, precedence and complete graph evidence."
+    },
+    {
+      "id": "paq21-applicable-population",
+      "question": 12,
+      "answer": "Yes, sounds good",
+      "meaning": "Accept the second subquestion: PAs without a two-strike recovery opportunity or applicable defensive resolution are excluded from PAQ-2.1's comparison population, while remaining eligible for ordinary PAQ-2 subject to its own requirements.",
+      "remaining": "Distinguish known inapplicability from missing evidence and prove the full applicable reference population."
+    }
+  ],
+  "deferred": [
+    {
+      "question": 4,
+      "id": "interference-progress-credit",
+      "answer": "Lets save this one for later. I need to think on it. It does not really mean the batter did anything good, more that the catcher messed up.",
+      "meaning": "Do not add interference progress credit."
+    }
+  ],
+  "researchOrClarification": [
+    {
+      "question": 1,
+      "id": "return-capable-base-site",
+      "instruction": "Research coaching: if the runner can get back on a pickoff move, treat them as at that base. Preserve nested sites and unchanged Mermaid; no fixed radius chosen."
+    },
+    {
+      "question": 3,
+      "id": "speed-related-error-credit",
+      "instruction": "Investigate batter running speed availability and speed-sensitive error credit. No threshold, causal model or replacement for the existing error/FC exclusion is approved."
+    },
+    {
+      "question": 11,
+      "id": "run-support-and-role-scope",
+      "instruction": "User did not understand the bundled question. Ask run-construction support and role types separately; neither accepted."
+    },
+    {
+      "question": 12,
+      "id": "replay-family-scope",
+      "instruction": "Research fair/foul and fan-interference reviewability; do not confine the intended metric to out/safe and ball/strike. Exact denominator and season-specific mechanisms still need specification."
+    }
+  ]
+}

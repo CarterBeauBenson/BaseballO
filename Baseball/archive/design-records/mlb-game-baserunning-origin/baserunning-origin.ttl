@@ -1,0 +1,13 @@
+@prefix base: <https://baseballontology.org/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+# REVIEW ONLY: no executable mapping, contract or ontology import.
+base:hasBaserunningOriginBase a owl:ObjectProperty ;
+    rdfs:domain base:BaserunningAct ;
+    rdfs:range base:Base ;
+    rdfs:label "has baserunning origin base"@en ;
+    skos:definition "A relation between a Baserunning Act and a Base from which its runner undertakes advancement or retreat with respect to the rule-governed progression among bases in the Game."@en ;
+    rdfs:comment "The particular act qualifies the origin at its beginning. This does not assert physical contact with the Base artifact, continued entitlement to that Base, or a new Baserunner Role. A source's missing origin does not establish Home Plate as origin."@en ;
+    skos:example "After stealing second earlier in the Plate Appearance, a runner undertakes an advance to third on a single; that later Baserunning Act has origin the particular second Base."@en .

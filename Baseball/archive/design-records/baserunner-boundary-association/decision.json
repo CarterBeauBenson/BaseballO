@@ -1,0 +1,13 @@
+{
+  "artifactType": "baseballo-modeling-direction-decision",
+  "contractVersion": 1,
+  "decisionId": "baserunner-boundary-association",
+  "disposition": "accepted-direction-only",
+  "decidedBy": "Carter Beau Benson",
+  "decidedAt": "2026-09-08",
+  "question": "Should we represent a runner's association with a base at an evidenced game boundary, without claiming physical contact or uninterrupted persistence?",
+  "answer": "Yes. They do not literally stand on the base, but they do have to make contact with it",
+  "accepted": "Represent the runner's rule-governed association with a particular Base at an evidenced Game boundary. Distinguish that association from continuously standing on the Base and from evidence of an interval of persistence.",
+  "contactClarification": "The user emphasized required contact with the Base. This is retained as a modeling requirement to resolve explicitly; it is not evidence that a particular touch occurred and does not authorize deriving a Base Touching Process from an occupancy field.",
+  "boundary": "The exact world-side relation, temporal qualification, identity and source evidence contract still require a concrete ontology review. No new ontology term, RML assertion, persistence inference or semantic fingerprint is accepted by this direction decision."
+}

@@ -1,0 +1,47 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-batted-runner-resolution-containment",
+  "title": "A1: supported runner resolutions as occurrent parts of their batted-ball play",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "bde4c77650e010779b9bf5d6bd21faf7e51218d0cb0ecf6e545e4e4778393bd4"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "2cd1686e010ddd8d86607069bdb9222af070891ac83acbc4168499fd3d46c5f4"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "389809c0590e6064960671786ab71b9bc4ea22044e703b2ea4d4518c092d461a"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "619d9fca2682b9ea1bab1530de145cad77ea590466ebce7654e9a6b2b56ed5c6"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-09-08",
+    "rationale": "The user explicitly clarified approval of the proposed targeted fix, after A1 contact-play parthood was described as the concrete semantic update. This record accepts only that described structural slice; no unresolved institutional state, destination or non-contact relation is admitted.",
+    "authorizedArtifacts": [
+      "Baseball/scripts/pipeline/prepare-rml-context.py",
+      "Baseball/sources/mlb-game/mapping/mlb-game.rml.ttl",
+      "Baseball/sources/mlb-game/shacl/authoritative.ttl",
+      "Baseball/sources/mlb-game/review/rml-mermaid-manifest.json"
+    ]
+  }
+}

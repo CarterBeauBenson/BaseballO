@@ -1,0 +1,20 @@
+{
+  "artifactType": "baseballo-metric-policy-decision",
+  "contractVersion": 1,
+  "decisionId": "tfs-continuous-path-terminal-out",
+  "disposition": "accepted",
+  "decidedBy": "Carter Beau Benson",
+  "decidedAt": "2026-09-08",
+  "question": "If one continuous batter-attributed play takes a runner from first to second, then out trying for third, should TFS use the original start and final outcome: no progress credit and destruction of 1/3?",
+  "answer": "Yes",
+  "accepted": "For a participant path evidenced to be one continuous batter-attributed consequence ending in an out, evaluate from the path's original start to the terminal out. Do not retain intermediate safe-progress credit; calculate destruction from the original start.",
+  "example": {
+    "originalStart": "1B",
+    "intermediateSafeBase": "2B",
+    "terminalOutcome": "out trying for 3B",
+    "progress": "0/1",
+    "destruction": "1/3",
+    "participantContributionBeforeOtherParticipantsErosion": "-1/3"
+  },
+  "boundary": "This is a scoring policy conditional on proven continuity and attribution. It does not identify continuous paths from array adjacency, common runner identity, shared event index or contact-play membership alone, and does not coalesce independent steals or wild pitches."
+}

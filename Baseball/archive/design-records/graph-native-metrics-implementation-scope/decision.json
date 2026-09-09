@@ -1,0 +1,10 @@
+{
+  "artifactType": "baseballo-implementation-scope-decision",
+  "contractVersion": 1,
+  "decidedBy": "Carter Beau Benson",
+  "decidedAt": "2026-09-08",
+  "instruction": "I want you to implement all of the new metrics and document gaps, then we can remove those gaps in one swing",
+  "scope": "Implement the complete supplied metric suite, including future calculation components, queries, serving integration, UI and tests. Consolidate outstanding semantic and data gaps for one review.",
+  "boundary": "This authorizes software implementation with explicit unavailable results where prerequisites are unresolved. It does not approve ontology terms, graph identity assumptions, source evidence completeness, semantic fingerprints, Git, or silently treating unavailable metrics as zero.",
+  "supersedes": "Incremental stopping for each unresolved metric question. Earlier deferred-calculation instructions are superseded for staged software implementation; live metric validity remains gated."
+}

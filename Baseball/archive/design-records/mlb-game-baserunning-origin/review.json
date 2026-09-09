@@ -1,0 +1,55 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-baserunning-origin",
+  "title": "Origin Base of the particular Baserunning Act",
+  "status": "accepted",
+  "proposedIris": [
+    "https://baseballontology.org/hasBaserunningOriginBase"
+  ],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "competency-questions.md",
+        "sha256": "b9dbf0e4d2cce51a8766a576c10c691dcc52aa00bb31cf8b165ffb32a3d47f7f"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "baserunning-origin-review.md",
+        "sha256": "3b6b7fc83eb791fa04d187f9bb875651adda5088dce49a3778277c1dc58fe8df"
+      },
+      {
+        "path": "baserunning-origin.ttl",
+        "sha256": "e35ea07eba797f077053eeef3c656851b9c236135603b0ea9d62805d9504625e"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "4e5e847db36cf74ffc26d8a57177530a7c7c86da3abe689f13eb9b35dc6ffbb9"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "baserunning-origin-review.md",
+        "sha256": "3b6b7fc83eb791fa04d187f9bb875651adda5088dce49a3778277c1dc58fe8df"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-09-08",
+    "rationale": "The user explicitly answered Yes to approval of hasBaserunningOriginBase and its linked concrete review. This accepts the act-scoped origin relation, conservative source subset and source SHACL obligations. Continuity, unchanged participants and complete consequence-boundary state remain unresolved.",
+    "authorizedArtifacts": [
+      "Baseball/ontology/BaseballO.ttl",
+      "Baseball/governance/ontology-curation-debt.json",
+      "Baseball/scripts/pipeline/prepare-rml-context.py",
+      "Baseball/sources/mlb-game/mapping/mlb-game.rml.ttl",
+      "Baseball/sources/mlb-game/shacl/authoritative.ttl",
+      "Baseball/sources/mlb-game/review/rml-mermaid-manifest.json"
+    ]
+  }
+}

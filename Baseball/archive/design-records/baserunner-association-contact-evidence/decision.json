@@ -1,0 +1,12 @@
+{
+  "artifactType": "baseballo-modeling-direction-decision",
+  "contractVersion": 1,
+  "decisionId": "baserunner-association-contact-evidence",
+  "disposition": "accepted-direction-only",
+  "decidedBy": "Carter Beau Benson",
+  "decidedAt": "2026-09-08",
+  "question": "If the official adjudication counts a runner safe at second, but the feed does not document the touch, may we represent the runner's association with second while leaving the particular touching process unknown?",
+  "answer": "Yes",
+  "accepted": "Supported recognized base association does not require the feed to document a particular touching process. Represent evidenced physical contact separately; its absence from the evidence neither establishes a missed touch nor erases the supported recognized association.",
+  "boundary": "This clarifies the accepted boundary-association direction and the user's required-contact statement. It does not establish continuous persistence, transfer an adjudicated destination to arbitrary later boundaries, settle operative replay identity, or accept new ontology terms or runtime mappings."
+}
