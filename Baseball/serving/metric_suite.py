@@ -22,7 +22,7 @@ from rdflib import Graph, Literal
 
 ROOT = Path(__file__).resolve().parents[1]
 METRICS = ROOT / 'sparql/metrics'
-VERSION = '2.0.6'
+VERSION = '2.0.7'
 
 
 class EvidenceError(ValueError):
@@ -633,6 +633,7 @@ def movement_coverage(rows):
     for label, fields in {
         'withRunnerBinding': ('runner',),
         'withEpisodeBinding': ('episode',),
+        'withRunnerEpisodeRecordBinding': ('runner', 'episode', 'record'),
         'withPersonalTrajectoryBinding': ('trajectory', 'trajectoryHalf', 'trajectoryInterval'),
         'withSegmentOriginBinding': ('originDesignation', 'originBase', 'originCode'),
         'withOriginRecordBinding': ('originDesignation', 'originRecord'),
@@ -652,6 +653,25 @@ def movement_coverage(rows):
     return coverage
 
 
+def movement_coverage_by_game(rows, consequences=()):
+    """Inventory observed graph bindings, never diagnose source freshness from absence.
+
+    Keep games with PA evidence but no movement evidence visible. Selected
+    graphs with no rows at all are reported separately by the caller; they
+    cannot be given invented per-game evidence here.
+    """
+    groups, scored = defaultdict(list), defaultdict(int)
+    for row in rows:
+        groups[row['graph']].append(row)
+    for consequence in consequences:
+        scored[consequence['graph']] += 1
+    return [dict(graph=graph,
+                 observedPlateAppearances=len({r['entity'] for r in observations if r['kind'] == 'plate_appearance'}),
+                 runnerMovements=movement_coverage(observations),
+                 supportedAwardConsequences=scored[graph])
+            for graph, observations in sorted(groups.items())]
+
+
 def live_result(metric_id, rows, *, graph_count):
     entry = next((e for e in catalog()['metrics'] if e['id'] == metric_id), None)
     if entry is None:
@@ -666,6 +686,8 @@ def live_result(metric_id, rows, *, graph_count):
                              scope='selected promoted game graphs', grain=entry['grain'])
         if metric_id == 'tfs':
             result['consequences'] = loaded_award_consequences(rows)
+            coverage['byGame'] = movement_coverage_by_game(rows, result['consequences'])
+            coverage['selectedGraphsWithoutEvidence'] = max(0, graph_count - len(coverage['byGame']))
             coverage['supportedAwardConsequences'] = len(result['consequences'])
             coverage['observedPAsWithoutSupportedAwardConsequence'] = max(
                 0, coverage['observedEntities']['plate_appearance'] - len(result['consequences']))

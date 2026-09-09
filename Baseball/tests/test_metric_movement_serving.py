@@ -37,6 +37,42 @@ def movement_fixture():
 
 
 class MovementServing(unittest.TestCase):
+    def test_per_game_inventory_preserves_empty_and_unbound_evidence(self):
+        dataset = movement_fixture()
+        for triple in fixture(graph=G2, decisions=()).graph(URIRef(G2)):
+            dataset.graph(URIRef(G2)).add(triple)
+        source = bindings(dataset, [G1, G2])
+        rows = M.normalize_bindings(source + source, [G1, G2])
+        direct = M.live_result('tfs', rows, graph_count=3)
+        games = {r['graph']: r for r in direct['coverage']['byGame']}
+        self.assertEqual(set(games), {G1, G2})
+        self.assertEqual(games[G1]['runnerMovements']['observedPairs'], 3)
+        self.assertEqual(games[G1]['runnerMovements']['withRunnerEpisodeRecordBinding'], 3)
+        self.assertEqual(games[G1]['runnerMovements']['withoutMetricOriginBinding'], 1)
+        self.assertEqual(games[G2]['observedPlateAppearances'], 1)
+        self.assertEqual(games[G2]['runnerMovements']['observedPairs'], 0)
+        self.assertFalse(games[G2]['runnerMovements']['populationComplete'])
+        self.assertEqual(direct['coverage']['selectedGraphsWithoutEvidence'], 1)
+        self.assertIsNone(direct['value'])
+        with database() as connection:
+            for graph in [G1, G2]:
+                M.materialize_game(connection, graph, [r for r in source if r['graph']['value'] == graph])
+            stored = M.query_sql(connection, {'metricId':'tfs'}, {
+                'gameSet':'regular_season','startDate':'2026-08-01','endDate':'2026-08-02'})['metric']
+            self.assertEqual(stored['coverage']['byGame'], direct['coverage']['byGame'])
+            self.assertEqual(stored['coverage']['selectedGraphsWithoutEvidence'], 0)
+
+    def test_joint_support_cannot_be_assembled_from_separate_incomplete_observations(self):
+        rows = M.normalize_bindings(bindings(movement_fixture(), [G1]), [G1])
+        complete = next(r for r in rows if r['kind'] == 'runner_movement')
+        missing_record = {k:v for k,v in complete.items() if k != 'record'}
+        missing_runner = {k:v for k,v in complete.items() if k != 'runner'}
+        coverage = M.movement_coverage([missing_record, missing_runner])
+        self.assertEqual(coverage['observedPairs'], 1)
+        self.assertEqual(coverage['withRunnerBinding'], 1)
+        self.assertEqual(coverage['withSourceRecordBinding'], 1)
+        self.assertEqual(coverage['withRunnerEpisodeRecordBinding'], 0)
+
     def test_movement_paths_and_unknowns_survive_sql_without_admitting_scores(self):
         source = bindings(movement_fixture(), [G1])
         rows = M.normalize_bindings(source, [G1])

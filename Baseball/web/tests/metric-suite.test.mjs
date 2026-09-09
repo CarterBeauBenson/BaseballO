@@ -5,7 +5,7 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { createBaseballServer } from '../server.mjs';
 import { metricCatalog, validateMetricRequest, compileMetricEvidenceQuery } from '../query-builder/metric-suite-query-builder.js';
-import { displayFraction, resultHeadline } from '../metrics.js';
+import { displayFraction, resultHeadline, movementEvidenceLabel } from '../metrics.js';
 
 async function withServer(options, work) {
   const server = createBaseballServer(options);
@@ -72,6 +72,12 @@ test('consequence results remain visible without presenting a whole-population s
   assert.equal(resultHeadline({ status: 'unavailable', value: null, consequences: [{ value: { numerator: '25', denominator: '12' } }] }), '1 supported award consequence');
   assert.equal(resultHeadline({ status: 'unavailable', value: null, consequences: [] }), 'Unavailable');
   assert.equal(resultHeadline({ status: 'available', value: { numerator: '1', denominator: '3' } }), '0.33');
+});
+
+test('movement coverage reports observed bindings without claiming source completeness', () => {
+  assert.equal(movementEvidenceLabel({ withRunnerEpisodeRecordBinding: 0, observedPairs: 0 }), '0/0 movements have runner, episode and record bindings');
+  assert.equal(movementEvidenceLabel({ withRunnerEpisodeRecordBinding: 4, observedPairs: 4 }), '4/4 movements have runner, episode and record bindings');
+  assert.equal(movementEvidenceLabel({ withRunnerEpisodeRecordBinding: 0, observedPairs: 118 }), '0/118 movements have runner, episode and record bindings');
 });
 
 test('API returns SQL results and rejects caller supplied evidence before execution', async () => {

@@ -47,6 +47,9 @@ class LoadedAwardTFS(unittest.TestCase):
         self.assertEqual(scored['status'], 'unavailable')
         self.assertIsNone(scored['value'])
         self.assertFalse(scored['coverage']['populationComplete'])
+        game, = scored['coverage']['byGame']
+        self.assertEqual(game['supportedAwardConsequences'], 1)
+        self.assertEqual(game['runnerMovements']['withRunnerEpisodeRecordBinding'], 4)
         row, = scored['consequences']
         self.assertEqual(row['value'], M.exact(M.Fraction(25, 12)))
         self.assertEqual(row['components']['erosion'], M.exact(0))

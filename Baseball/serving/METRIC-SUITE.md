@@ -282,3 +282,42 @@ Remaining work is broader source coverage and complete consequence boundaries,
 operative outs and continuity where needed, followed by complete reference
 populations. This bounded result closes the lack of any real TFS-consequence
 output; it does not close the general completeness or C1/C2 source-history gaps.
+
+## Per-game evidence coverage and bounded refresh
+
+Suite implementation 2.0.7 adds `coverage.byGame` to TFS responses. Each entry
+retains its exact promoted graph, observed PA count, movement binding inventory
+and number of supported award consequences. `withRunnerEpisodeRecordBinding`
+counts distinct act/resolution pairs with all three bindings in the **same
+observation**. Separate incomplete observations cannot be combined to satisfy
+that count. Duplicate bindings do not inflate it. The inventory remains
+independent of score admission and never certifies a complete history.
+
+Games with PA evidence and no movement evidence remain visible with zero
+observed movements and `populationComplete: false`. Selected graphs with no
+evidence rows at all are counted separately in `selectedGraphsWithoutEvidence`;
+the adapter does not invent their per-game evidence. Missing bindings alone
+do not establish that a source is stale, a runner was absent or a game had no
+offensive contribution. The page exposes this inventory under **Movement
+evidence by game**, and SQL and JSON downloads preserve it exactly.
+
+The [live coverage capture](../benchmarks/metrics/runner-evidence-by-game-http-2026-09-09.json)
+verified all 15 selected graphs on 2026-08-25: 1,567 observed movements, 118 with
+joint runner/episode/record bindings, and one supported award consequence.
+Per-game counts reconcile exactly to the overall counts. The actual API used
+authoritative RDF fallback; this capture does not prove a finished SQL build.
+
+The [day-refresh submission](../benchmarks/metrics/runner-evidence-day-refresh-submission-2026-09-09.json)
+requests that date through the existing source-owned NiFi backfill lane.
+Its normal release prerequisite is proof game 566279. The latest completed
+proof predates the accepted C1 SHACL change, so an additional
+[proof-refresh submission](../benchmarks/metrics/runner-evidence-proof-refresh-submission-2026-09-09.json)
+requests that same configured proof through RML, SHACL, graph-pair promotion,
+SQL and cleanup. Both receipts record submissions, not completion. NiFi's
+existing release/retry and deferred batch-materialization stages own the
+remaining execution. The daily 05:00 Eastern schedule is unchanged.
+
+Refreshing accepted mappings can improve binding coverage. It does not
+establish the complete boundaries, personal histories, operative outs or
+reference populations still required for broader metrics. No source mappings,
+validation gates or semantic approvals are changed by this increment.

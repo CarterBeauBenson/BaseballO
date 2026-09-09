@@ -1,0 +1,18 @@
+{
+  "artifactType": "baseballo-nifi-bounded-metric-refresh-submission",
+  "submittedAtUtc": "2026-09-09T21:40:12.880258+00:00",
+  "sourceModule": "mlb-game",
+  "processorId": "5ef4eac1-01a0-1000-ef71-c07a4342d365",
+  "request": {
+    "startDate": "2026-08-25",
+    "endDate": "2026-08-25",
+    "requestKind": "backfill"
+  },
+  "responseRevision": {
+    "version": 2,
+    "lastModifier": "anonymous"
+  },
+  "requestedState": "RUN_ONCE",
+  "completionVerified": false,
+  "purpose": "Refresh accepted runner evidence across the first 15-game metric demonstration day through the existing source lane; retain all normal validation and promotion gates."
+}

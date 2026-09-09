@@ -19,7 +19,14 @@ that gate merely by being adjacent or marked complete.
 
 The software request covers all 20 metric calculations, serving integration,
 and one consolidated account of unresolved gaps. The formulas and routes are
-implemented. **Nineteen metrics still cannot produce valid live scores.**
+implemented. **Complete-population results for nineteen metrics remain gated.**
+TFS now exposes a bounded loaded Walk/HBP consequence, with real game 823016
+producing exact 25/12. This does not admit a complete PA score or a reference
+population. The [current serving contract](../../serving/METRIC-SUITE.md#first-live-award-consequence)
+records that result and its limits. Per-game coverage identifies missing
+bindings; a bounded refresh of the demonstration day and its prerequisite
+proof has been submitted to NiFi. These are operational submissions, not
+new semantic decisions or proof that the remaining evidence gaps are closed.
 This document identifies the remaining work without reopening settled policy
 or treating successful arithmetic as source admission.
 

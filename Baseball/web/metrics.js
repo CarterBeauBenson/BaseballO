@@ -18,6 +18,29 @@ export function resultHeadline(result) {
   return count ? `${count} supported award consequence${count === 1 ? '' : 's'}` : 'Unavailable';
 }
 
+export function movementEvidenceLabel(coverage) {
+  return `${coverage.withRunnerEpisodeRecordBinding}/${coverage.observedPairs} movements have runner, episode and record bindings`;
+}
+
+function renderGameCoverage(games = []) {
+  byId('game-coverage').hidden = !games.length;
+  const target = byId('game-coverage-table'); target.replaceChildren();
+  if (!games.length) return;
+  const table = node('table'), head = node('thead'), heading = node('tr'), body = node('tbody');
+  for (const label of ['Game', 'Observed PAs', 'Movement evidence', 'Single origin value', 'Award evidence', 'Scored award consequences']) {
+    const cell = node('th', label); cell.scope = 'col'; heading.append(cell);
+  }
+  head.append(heading);
+  for (const game of games) {
+    const row = node('tr'), movement = game.runnerMovements;
+    for (const value of [game.graph.split('/').at(-1), game.observedPlateAppearances,
+      movementEvidenceLabel(movement), movement.withOneMetricOriginBinding,
+      movement.withCausalRequiredAwardBinding, game.supportedAwardConsequences]) row.append(node('td', String(value)));
+    body.append(row);
+  }
+  table.append(head, body); target.append(table);
+}
+
 function renderConsequences(results = []) {
   const target = byId('award-consequences');
   target.replaceChildren(); target.hidden = !results.length;
@@ -122,11 +145,13 @@ async function inspect(event) {
     byId('result-scope').textContent = result.scope ?? 'Selected evidence population';
     const coverage = result.coverage ?? {};
     const movement = coverage.runnerMovements;
+    renderGameCoverage(coverage.byGame);
     renderConsequences(result.consequences);
     facts(byId('coverage'), [['Games', coverage.games ?? payload.graphCount ?? 0], ['Evidence rows', coverage.evidenceRows ?? 0],
       ...(coverage.supportedAwardConsequences !== undefined ? [
         ['Supported award consequences', coverage.supportedAwardConsequences],
-        ['Other observed PAs', coverage.observedPAsWithoutSupportedAwardConsequence]] : []),
+        ['Other observed PAs', coverage.observedPAsWithoutSupportedAwardConsequence],
+        ['Selected games with no evidence rows', coverage.selectedGraphsWithoutEvidence]] : []),
       ...(coverage.resolvedReviews !== undefined ? [['Resolved reviews', coverage.resolvedReviews], ['Unresolved reviews', coverage.unresolvedReviews]] : []),
       ...(movement ? [['Runner movements observed', movement.observedPairs],
         ['Movements with one origin value', movement.withOneMetricOriginBinding],

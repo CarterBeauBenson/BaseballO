@@ -1,0 +1,18 @@
+{
+  "artifactType": "baseballo-nifi-source-proof-refresh-submission",
+  "submittedAtUtc": "2026-09-09T21:43:31.592474+00:00",
+  "sourceModule": "mlb-game",
+  "processorId": "5e89e2f4-01a0-1000-4b06-fcf9b197942f",
+  "request": {
+    "gamePk": "566279",
+    "materializeMode": "immediate",
+    "scheduleEvidencePath": "none"
+  },
+  "responseRevision": {
+    "version": 6,
+    "lastModifier": "anonymous"
+  },
+  "requestedState": "RUN_ONCE",
+  "completionVerified": false,
+  "reason": "The normal batch release requires proof game 566279. Its latest completed proof predates the accepted C1 SHACL change. Refresh the existing proof through all unchanged gates, including SQL and cleanup; the submitted day batch must wait for NiFi to release it."
+}

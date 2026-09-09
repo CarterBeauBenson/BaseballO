@@ -1,5 +1,16 @@
 # Graph-native metric suite implementation
 
+**Coverage expansion submitted (2026-09-09):** TFS now includes per-game
+movement coverage in the API, SQL result and Explorer. The live API verifies
+118 jointly supported movements out of 1,567 observed across the 15-game day.
+The existing NiFi lane has received a bounded day-refresh request and the
+required proof refresh; the latter is necessary because the last completed
+proof predates accepted C1 validation. Completion is not claimed. The
+[coverage contract and receipts](METRIC-SUITE.md#per-game-evidence-coverage-and-bounded-refresh)
+record the evidence and pending work. This increment passed 21 Python and ten
+Node tests, including exact per-game reconciliation, separate incomplete
+observations, empty evidence and SQL round trips.
+
 **First usable TFS consequence (2026-09-09):** game 823016, PA source index 40
 now returns **25/12 (2.08)** for the positively supported bases-loaded Walk
 consequence through the real Explorer API. The page displays its four advances,
