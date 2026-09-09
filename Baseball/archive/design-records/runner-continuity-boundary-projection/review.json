@@ -1,0 +1,64 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "runner-continuity-boundary-projection",
+  "title": "Accepted C1/C2: personal runner Processes and verified-history boundary projection",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "reviewed-design.md",
+        "sha256": "4de95821e0145f584abc17ef73fe26c54dcbd712f9decd4d7dc5da88ea86c3a0"
+      },
+      {
+        "path": "user-decision.md",
+        "sha256": "b1264593a6114b2e5b997b9846219af80cc2c12445b35685f1ab801adbd933cd"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "reviewed-design.md",
+        "sha256": "4de95821e0145f584abc17ef73fe26c54dcbd712f9decd4d7dc5da88ea86c3a0"
+      },
+      {
+        "path": "user-decision.md",
+        "sha256": "b1264593a6114b2e5b997b9846219af80cc2c12445b35685f1ab801adbd933cd"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "reviewed-design.md",
+        "sha256": "4de95821e0145f584abc17ef73fe26c54dcbd712f9decd4d7dc5da88ea86c3a0"
+      },
+      {
+        "path": "user-decision.md",
+        "sha256": "b1264593a6114b2e5b997b9846219af80cc2c12445b35685f1ab801adbd933cd"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "reviewed-design.md",
+        "sha256": "4de95821e0145f584abc17ef73fe26c54dcbd712f9decd4d7dc5da88ea86c3a0"
+      },
+      {
+        "path": "user-decision.md",
+        "sha256": "b1264593a6114b2e5b997b9846219af80cc2c12445b35685f1ab801adbd933cd"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-09-09",
+    "rationale": "Explicit user acceptance of C1 and C2, with no new object properties. Implement the reviewed existing-vocabulary graph and analytical contracts; source histories must independently meet the accepted completeness standard.",
+    "authorizedArtifacts": [
+      "Baseball/sources/mlb-game/shacl/authoritative.ttl",
+      "Baseball/sources/mlb-game/mapping/mlb-game.rml.ttl",
+      "Baseball/sources/mlb-game/mapping/iri-policy.yaml",
+      "Baseball/scripts/pipeline/prepare-rml-context.py",
+      "Baseball/sources/mlb-game/review/rml-mermaid-manifest.json"
+    ]
+  }
+}
