@@ -444,6 +444,8 @@ def evidence_query(graphs):
     if any(not isinstance(g, str) or not re.fullmatch(r'https://w3id\.org/baseball/graph/game/[0-9]+', g)
            for g in graph_list):
         raise EvidenceError('Unsafe or non-authoritative metric graph')
+    if not graph_list:
+        return 'SELECT ?graph ?game ?kind ?entity WHERE { BIND(0 AS ?emptyScope) FILTER(?emptyScope = 1) }'
     # A false filter avoids SPARQL engine differences around empty VALUES.
     scope = ('VALUES ?graph { ' + ' '.join('<' + g + '>' for g in graph_list) + ' }') if graph_list else 'FILTER(false)'
     prefixes, queries = set(), []

@@ -36,7 +36,19 @@ export async function compileMetricEvidenceQuery(graphs) {
   if (!Array.isArray(graphs) || graphs.some(g => typeof g !== 'string' || !/^https:\/\/w3id\.org\/baseball\/graph\/game\/\d+$/.test(g))) {
     throw new TypeError('Invalid authoritative graph scope.');
   }
-  const source = await readFile(new URL('suite-evidence.rq', root), 'utf8');
-  const values = graphs.length ? `VALUES ?graph { ${[...new Set(graphs)].sort().map(g => `<${g}>`).join(' ')} }` : 'FILTER(false)';
-  return source.replace('WHERE {', `WHERE {\n  ${values}`);
+  const selected = [...new Set(graphs)].sort();
+  if (!selected.length) return 'SELECT ?graph ?game ?kind ?entity WHERE { BIND(0 AS ?emptyScope) FILTER(?emptyScope = 1) }';
+  const values = selected.length ? `VALUES ?graph { ${selected.map(g => `<${g}>`).join(' ')} }` : 'FILTER(false)';
+  const prefixes = new Set();
+  const sources = await Promise.all(['suite-evidence.rq', 'runner-movement-evidence.rq'].map(async name => {
+    const source = (await readFile(new URL(name, root), 'utf8')).replace(/\r\n/g, '\n').replaceAll('bfo:', 'obo:');
+    for (const prefix of source.match(/^PREFIX .+$/gm) ?? []) prefixes.add(prefix);
+    return source.replace(/^PREFIX .+\n/gm, '').replace('WHERE {', `WHERE {\n  ${values}`);
+  }));
+  // Keep the authoritative fallback and Python SQL extractor equivalent.
+  // A cross-runtime regression compares the complete compiled query text.
+  const dataset = selected.map(g => `\nFROM NAMED <${g}>`).join('');
+  return [...prefixes].sort().join('\n') + '\nSELECT *' + dataset + '\nWHERE {\n{ {\n' + sources[0]
+    + '\n} } UNION { {\n' + sources[1]
+    + '\n} BIND("runner_movement" AS ?kind) BIND(?resolution AS ?entity) }\n}';
 }

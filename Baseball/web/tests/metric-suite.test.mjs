@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { readFile } from 'node:fs/promises';
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import { createBaseballServer } from '../server.mjs';
 import { metricCatalog, validateMetricRequest, compileMetricEvidenceQuery } from '../query-builder/metric-suite-query-builder.js';
 import { displayFraction } from '../metrics.js';
@@ -39,8 +41,23 @@ test('evidence query is restricted to the exact authoritative graph selection', 
   const graph = 'https://w3id.org/baseball/graph/game/101';
   const query = await compileMetricEvidenceQuery([graph]);
   assert.ok(query.includes(`VALUES ?graph { <${graph}> }`));
-  assert.ok((await compileMetricEvidenceQuery([])).includes('FILTER(false)'));
+  const empty = await compileMetricEvidenceQuery([]);
+  assert.ok(empty.includes('FILTER(?emptyScope = 1)'));
+  assert.ok(!empty.includes('GRAPH ?graph'), 'an empty scope must not scan any named graph');
   await assert.rejects(compileMetricEvidenceQuery([graph + '> } SERVICE <https://example.com> { ?s ?p ?o } #']));
+});
+
+test('live fallback and SQL extraction compile identical evidence for every scope', async () => {
+  const script = `import json,sys\nfrom pathlib import Path\nsys.path.insert(0,str(Path(sys.argv[1])/'serving'))\nimport metric_suite\nprint(json.dumps(metric_suite.evidence_query(json.load(sys.stdin))))`;
+  const root = fileURLToPath(new URL('../../', import.meta.url));
+  const graph = 'https://w3id.org/baseball/graph/game/101';
+  for (const graphs of [[], [graph], [graph, graph, graph.replace('101', '102')]]) {
+    const result = spawnSync(process.env.BASEBALLO_PYTHON ?? 'python', ['-c', script, root], {
+      input: JSON.stringify(graphs), encoding: 'utf8', timeout: 15000, windowsHide: true,
+    });
+    assert.equal(result.status, 0, result.stderr || result.error?.message);
+    assert.equal(await compileMetricEvidenceQuery(graphs), JSON.parse(result.stdout));
+  }
 });
 
 test('display rounding retains arbitrarily large exact rational arithmetic', () => {

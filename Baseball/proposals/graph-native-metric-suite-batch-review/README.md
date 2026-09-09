@@ -1,10 +1,18 @@
 # One review for the new metric suite
 
+**Current handoff:** [the September 9 release review](current-release-review.md)
+accounts for all 21 gap codes in seven shared work packages, separates the
+three remaining metric choices from model/evidence work, and records the
+20-route end-to-end audit. Its final award/origin links supersede the older
+property-based partial implementations cited below.
+
 **2026-09-09 correction:** the user clarified that new object properties are
 not permitted and that the earlier natural-language answers were misunderstood.
 See the [four-property correction and targeted removal package](object-property-correction.md).
 The historical acceptance records must not be used to authorize further work
-with those predicates. No replacement model is admitted by the pasted advice.
+with those predicates. The later
+[named final award/origin decision](../../archive/design-records/runner-award-origin-final-decision/user-decision.md)
+explicitly admits the corrected patterns and has been implemented.
 
 The user requested all metric calculations and supporting software now, with
 the remaining gaps collected for one subsequent review. That software scope

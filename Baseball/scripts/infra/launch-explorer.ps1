@@ -60,7 +60,8 @@ function Get-ExplorerSourceFingerprint {
         (Join-Path $webRoot 'server.mjs'),
         (Join-Path $webRoot 'query-builder\analytics-query-builder.js'),
         (Join-Path $webRoot 'query-builder\derived-metric-query-builder.js'),
-        (Join-Path $webRoot 'query-builder\empty-games-query-builder.js')
+        (Join-Path $webRoot 'query-builder\empty-games-query-builder.js'),
+        (Join-Path $webRoot 'query-builder\metric-suite-query-builder.js')
     )
     $hashes = foreach ($path in $paths) {
         if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {

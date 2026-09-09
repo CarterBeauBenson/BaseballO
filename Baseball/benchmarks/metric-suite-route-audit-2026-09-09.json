@@ -1,0 +1,299 @@
+{
+  "artifactType": "baseballo-metric-route-audit",
+  "observedAtUtc": "2026-09-09T14:07:12.284558+00:00",
+  "dateScope": {
+    "preset": "custom",
+    "startDate": "2026-08-25",
+    "endDate": "2026-08-25"
+  },
+  "routes": [
+    {
+      "metric": "tfs",
+      "status": "unavailable",
+      "value": null,
+      "gaps": [
+        "ATTRIBUTION",
+        "BOUNDARY_STATE",
+        "COMPLETENESS",
+        "OPERATIVE_OUTS",
+        "PATH_IDENTITY"
+      ],
+      "execution": "authoritative-rdf",
+      "graphCount": 15,
+      "movementPairs": 1567,
+      "seconds": 5.613
+    },
+    {
+      "metric": "paq-2",
+      "status": "unavailable",
+      "value": null,
+      "gaps": [
+        "REFERENCE_POPULATION",
+        "TFS"
+      ],
+      "execution": "authoritative-rdf",
+      "graphCount": 15,
+      "movementPairs": 1567,
+      "seconds": 1.185
+    },
+    {
+      "metric": "paq-a",
+      "status": "unavailable",
+      "value": null,
+      "gaps": [
+        "PAQ_A_STATE",
+        "REFERENCE_POPULATION",
+        "TFS"
+      ],
+      "execution": "authoritative-rdf",
+      "graphCount": 15,
+      "movementPairs": 1567,
+      "seconds": 1.158
+    },
+    {
+      "metric": "offensive-reach",
+      "status": "unavailable",
+      "value": null,
+      "gaps": [
+        "ATTRIBUTION",
+        "COMPLETENESS",
+        "PATH_IDENTITY"
+      ],
+      "execution": "authoritative-rdf",
+      "graphCount": 15,
+      "movementPairs": 1567,
+      "seconds": 1.206
+    },
+    {
+      "metric": "hidden-help-rate",
+      "status": "unavailable",
+      "value": null,
+      "gaps": [
+        "ATTRIBUTION",
+        "COMPLETENESS",
+        "PATH_IDENTITY"
+      ],
+      "execution": "authoritative-rdf",
+      "graphCount": 15,
+      "movementPairs": 1567,
+      "seconds": 1.158
+    },
+    {
+      "metric": "rally-kill-rate",
+      "status": "unavailable",
+      "value": null,
+      "gaps": [
+        "ATTRIBUTION",
+        "BOUNDARY_STATE",
+        "COMPLETENESS",
+        "OPERATIVE_OUTS"
+      ],
+      "execution": "authoritative-rdf",
+      "graphCount": 15,
+      "movementPairs": 1567,
+      "seconds": 1.144
+    },
+    {
+      "metric": "rally-kill-severity",
+      "status": "unavailable",
+      "value": null,
+      "gaps": [
+        "ATTRIBUTION",
+        "BOUNDARY_STATE",
+        "COMPLETENESS",
+        "OPERATIVE_OUTS",
+        "PATH_IDENTITY"
+      ],
+      "execution": "authoritative-rdf",
+      "graphCount": 15,
+      "movementPairs": 1567,
+      "seconds": 1.147
+    },
+    {
+      "metric": "opportunity-erosion",
+      "status": "unavailable",
+      "value": null,
+      "gaps": [
+        "BOUNDARY_STATE",
+        "COMPLETENESS",
+        "OPERATIVE_OUTS"
+      ],
+      "execution": "authoritative-rdf",
+      "graphCount": 15,
+      "movementPairs": 1567,
+      "seconds": 1.271
+    },
+    {
+      "metric": "empty-game-rate",
+      "status": "unavailable",
+      "value": null,
+      "gaps": [
+        "COMPLETENESS",
+        "INDEPENDENT_EPISODES",
+        "OFFENSIVE_ELIGIBILITY"
+      ],
+      "execution": "authoritative-rdf",
+      "graphCount": 15,
+      "movementPairs": 1567,
+      "seconds": 1.104
+    },
+    {
+      "metric": "empty-game-damage",
+      "status": "unavailable",
+      "value": null,
+      "gaps": [
+        "COMPLETENESS",
+        "INDEPENDENT_EPISODES",
+        "INDEPENDENT_SCORE",
+        "OFFENSIVE_ELIGIBILITY",
+        "TFS"
+      ],
+      "execution": "authoritative-rdf",
+      "graphCount": 15,
+      "movementPairs": 1567,
+      "seconds": 1.196
+    },
+    {
+      "metric": "contribution-path-diversity",
+      "status": "unavailable",
+      "value": null,
+      "gaps": [
+        "ATTRIBUTION",
+        "CHANNEL_EPISODES",
+        "COMPLETENESS",
+        "INDEPENDENT_EPISODES"
+      ],
+      "execution": "authoritative-rdf",
+      "graphCount": 15,
+      "movementPairs": 1567,
+      "seconds": 1.083
+    },
+    {
+      "metric": "recovery-quality",
+      "status": "unavailable",
+      "value": null,
+      "gaps": [
+        "EXACT_PITCH_COUNTS",
+        "REFERENCE_POPULATION"
+      ],
+      "execution": "authoritative-rdf",
+      "graphCount": 15,
+      "movementPairs": 1567,
+      "seconds": 1.157
+    },
+    {
+      "metric": "resolution-depth",
+      "status": "unavailable",
+      "value": null,
+      "gaps": [
+        "DEFENSIVE_ACTS",
+        "DEFENSIVE_ORDER"
+      ],
+      "execution": "authoritative-rdf",
+      "graphCount": 15,
+      "movementPairs": 1567,
+      "seconds": 1.323
+    },
+    {
+      "metric": "defender-breadth",
+      "status": "unavailable",
+      "value": null,
+      "gaps": [
+        "DEFENSIVE_ACTS"
+      ],
+      "execution": "authoritative-rdf",
+      "graphCount": 15,
+      "movementPairs": 1567,
+      "seconds": 1.107
+    },
+    {
+      "metric": "run-construction-depth",
+      "status": "unavailable",
+      "value": null,
+      "gaps": [
+        "PATH_IDENTITY",
+        "RUN_CONTINUITY"
+      ],
+      "execution": "authoritative-rdf",
+      "graphCount": 15,
+      "movementPairs": 1567,
+      "seconds": 1.177
+    },
+    {
+      "metric": "run-construction-breadth",
+      "status": "unavailable",
+      "value": null,
+      "gaps": [
+        "RUN_CONTINUITY",
+        "SUPPORT_ATTRIBUTION"
+      ],
+      "execution": "authoritative-rdf",
+      "graphCount": 15,
+      "movementPairs": 1567,
+      "seconds": 1.17
+    },
+    {
+      "metric": "adjudication-volatility",
+      "status": "available",
+      "value": {
+        "numerator": "13",
+        "denominator": "23"
+      },
+      "gaps": [],
+      "execution": "authoritative-rdf",
+      "graphCount": 15,
+      "movementPairs": 1567,
+      "seconds": 1.422
+    },
+    {
+      "metric": "review-dependence-rate",
+      "status": "unavailable",
+      "value": null,
+      "gaps": [
+        "OPERATIVE_REVIEW",
+        "OUTCOME_POPULATION"
+      ],
+      "execution": "authoritative-rdf",
+      "graphCount": 15,
+      "movementPairs": 1567,
+      "seconds": 1.15
+    },
+    {
+      "metric": "role-realization-breadth",
+      "status": "unavailable",
+      "value": null,
+      "gaps": [
+        "DEFENSIVE_ACTS",
+        "ROLE_POPULATION"
+      ],
+      "execution": "authoritative-rdf",
+      "graphCount": 15,
+      "movementPairs": 1567,
+      "seconds": 1.132
+    },
+    {
+      "metric": "paq-2.1",
+      "status": "unavailable",
+      "value": null,
+      "gaps": [
+        "DEFENSIVE_ACTS",
+        "DEFENSIVE_ORDER",
+        "EXACT_PITCH_COUNTS",
+        "PAQ21_ELIGIBILITY",
+        "REFERENCE_POPULATION",
+        "TFS"
+      ],
+      "execution": "authoritative-rdf",
+      "graphCount": 15,
+      "movementPairs": 1567,
+      "seconds": 1.243
+    }
+  ],
+  "emptySelection": {
+    "graphCount": 0,
+    "evidenceRows": 0,
+    "status": "unavailable",
+    "seconds": 0.742
+  },
+  "allTwentyRoutesPassed": true
+}

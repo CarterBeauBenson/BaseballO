@@ -56,6 +56,7 @@ const EXPLORER_RUNTIME_SOURCE_PATHS = [
   resolve(QUERY_BUILDER_ROOT, "analytics-query-builder.js"),
   resolve(QUERY_BUILDER_ROOT, "derived-metric-query-builder.js"),
   resolve(QUERY_BUILDER_ROOT, "empty-games-query-builder.js"),
+  resolve(QUERY_BUILDER_ROOT, "metric-suite-query-builder.js"),
 ];
 const explorerSourceHashes = await Promise.all(EXPLORER_RUNTIME_SOURCE_PATHS.map(async (path) =>
   createHash("sha256").update(await readFile(path)).digest("hex")));
