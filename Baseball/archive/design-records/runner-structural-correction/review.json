@@ -1,0 +1,55 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "runner-structural-correction",
+  "title": "Remove four runner properties and implement the supplied structural replacement",
+  "status": "accepted",
+  "proposedIris": [
+    "https://baseballontology.org/RunnerResolutionEpisode",
+    "https://baseballontology.org/BaseAwardDirectiveICE",
+    "https://baseballontology.org/PlateAppearanceStartBaserunnerAtBaseStasis"
+  ],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "e7ef5d66240cd71d69a191caad473ae106d1c116c3bfd5d24bbdb68474e6c7df"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "README.md",
+        "sha256": "e7ef5d66240cd71d69a191caad473ae106d1c116c3bfd5d24bbdb68474e6c7df"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "e7ef5d66240cd71d69a191caad473ae106d1c116c3bfd5d24bbdb68474e6c7df"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "README.md",
+        "sha256": "e7ef5d66240cd71d69a191caad473ae106d1c116c3bfd5d24bbdb68474e6c7df"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-09-09",
+    "rationale": "The user explicitly directed: I want you to remove and fix in accordance with what I sent you. The supplied text names the episode, decision content, award directive and generalized stasis with PA-start subclass. No new object properties. Unsupported directive and persistence evidence remains unavailable.",
+    "authorizedArtifacts": [
+      "Baseball/ontology/BaseballO.ttl",
+      "Baseball/governance/ontology-curation-debt.json",
+      "Baseball/scripts/pipeline/prepare-rml-context.py",
+      "Baseball/sources/mlb-game/mapping/mlb-game.rml.ttl",
+      "Baseball/sources/mlb-game/shacl/authoritative.ttl",
+      "Baseball/sources/mlb-game/review/rml-mermaid-manifest.json",
+      "Baseball/ontology/BaseballO-axioms-overlay.ttl",
+      "Baseball/sources/mlb-game/mapping/iri-policy.yaml"
+    ]
+  }
+}
