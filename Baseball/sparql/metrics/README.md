@@ -61,8 +61,8 @@ repository's semantic review sequence.
 - [x] Inventory current RDF paths for Batter Acts, Plate Appearances,
   Batted-Ball Play Processes, runner resolutions, start states, destinations,
   outs, judgments, decisions, and replay reviews.
-- [ ] Determine whether accepted BFO, CCO, and BaseballO relations can express
-  batter-linked consequences without a convenience object property.
+- [x] Express the accepted contact-play and award slices through existing
+  BFO/CCO relations, episodes and decisions, without new object properties.
 - [x] Draft a source-independent Mermaid proposal before changing RML.
 - [ ] Distinguish batter-linked consequences from independent steals, caught
   stealing, pickoffs, balks, wild pitches, passed balls, and defensive
@@ -103,14 +103,25 @@ The reviewed pattern must answer:
 
 ### 2. Extend and prove the MLB-game graph
 
-- [ ] Implement only the approved MLB-game RML additions.
-- [ ] Translate the accepted graph contract into MLB-game SHACL.
-- [ ] Keep TFS and PAQ out of authoritative source RML.
+- [x] Implement the approved contact-play, episode, safe-decision, award and
+  segment-origin MLB-game RML additions.
+- [x] Translate those accepted graph contracts into MLB-game SHACL.
+- [x] Keep TFS and PAQ out of authoritative source RML.
 - [ ] Add fixtures for every required attribution and trajectory edge case.
-- [ ] Run a one-game RML, SHACL, and semantic inspection proof.
+- [x] Run a local one-game RML, SHACL, and semantic inspection proof of the
+  accepted slices (game 823016; evidence linked below).
+- [ ] Complete a NiFi-owned one-game proof through graph-pair promotion and
+  serving materialization using the corrected mapping.
 - [ ] Run a small diverse-game proof before historical reconstruction.
 - [ ] Reacquire historical payloads transiently through NiFi and replace graph
   pairs only after their new versions validate.
+
+The [local proof evidence](../../archive/design-records/runner-award-origin-final-decision/implementation.md)
+establishes the admitted graph slices, not complete trajectory scoring. The
+bounded [NiFi submission for game 566279](../../archive/design-records/runner-award-origin-final-decision/nifi-proof-submission.json)
+was accepted on 2026-09-09. NiFi owns its execution and reports success or
+quarantine asynchronously. Submission alone does not check off promotion,
+materialization or release.
 
 ### 3. Build one reusable trajectory grain
 

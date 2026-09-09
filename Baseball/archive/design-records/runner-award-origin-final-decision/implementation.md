@@ -67,3 +67,25 @@ This is a local developer proof. No existing promoted graphs were rewritten,
 no raw source was edited, and no NiFi schedule or topology changed. Normal
 NiFi mapping/validation/promotion supplies corrected graphs and serving products;
 repository-wide validation remains its asynchronous observer gate.
+
+## Subsequent NiFi proof submission
+
+On 2026-09-09 at 13:45:53 UTC, NiFi accepted one `RUN_ONCE` request for game
+566279 using implementation commit `603730ce27b72b0380c483496d7206ade63ca382`.
+The existing MLB Game Proof Request processor returned revision 2. The request
+selects immediate serving materialization and no schedule evidence file.
+This MLB game exercises the verified 2019 rule edition and forced walk advances.
+The [submission receipt](nifi-proof-submission.json) records the exact request,
+processor identity, mapping hash and source SHACL hash.
+
+Fuseki and NiFi were initially stopped and were started with the repository's
+existing startup scripts and configured storage. NiFi took about 100 seconds
+to become ready, exceeding the initial 45-second readiness check. The required
+source processors were valid and running before submission; daily acquisition
+was also running. No flow reprovisioning or schedule change was needed.
+
+This is a submission receipt, not a successful graph-pair or serving-promotion
+report. NiFi owns those gates and their evidence, retries and quarantine. No
+healthy-run polling, historical corpus request, or manual transformation was
+performed. Complete trajectory scoring and percentile release remain gated by
+the unresolved prerequisites in the metric gap register.
