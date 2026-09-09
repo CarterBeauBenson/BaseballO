@@ -111,6 +111,22 @@ coverage. They do not create zero-filled player or PA rankings. The complete
 arithmetic implementations remain available for admitted fixtures while
 those source semantics await the consolidated review.
 
+Suite version 2.0.2 composes that inventory with the accepted
+`sparql/metrics/runner-movement-evidence.rq`, scoped to the same explicit game
+graphs. It preserves each act/resolution pair, PA, runner, origin designation,
+safe destination, causal award, required rule and source-record binding in the
+existing SQL evidence table. The canonical movement query is reused directly;
+there is no additional RDF predicate or source mapping.
+
+`coverage.runnerMovements` counts observed pairs and the presence of those
+paths. It separately counts pairs with one, multiple or no metric-origin
+values. Multiple bindings remain visible, and duplicate rows cannot inflate
+pair counts. One bound value is an inventory fact, not a completeness or
+attribution certificate. Counts of missing bindings describe query evidence,
+not a runner's physical absence. The metrics page summarizes these counts;
+the full coverage object remains in downloadable results. No trajectory
+coalescence, unsupported unchanged-runner state, or new score is inferred.
+
 `metric-suite-schema.sql` adds disposable evidence, result and manifest
 tables to the existing serving build. Each game receives all 20 status/result
 records. Values, evidence and serialized results have exact preservation

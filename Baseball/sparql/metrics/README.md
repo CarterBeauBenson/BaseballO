@@ -123,6 +123,14 @@ was accepted on 2026-09-09. NiFi owns its execution and reports success or
 quarantine asynchronously. Submission alone does not check off promotion,
 materialization or release.
 
+The subsequent [NiFi stage observation](../../archive/design-records/runner-award-origin-final-decision/nifi-proof-observation.json)
+confirms SHACL success and graph-pair promotion for that game; serving
+completion remains unverified. Suite 2.0.2 now preserves the accepted movement
+bindings in SQL and reports their observed coverage through the API and
+metrics page. Its [live query proof](../../archive/design-records/runner-award-origin-final-decision/metric-serving-evidence.json)
+has 113 movement pairs, with exact canonical-query row equivalence. This
+closes the serving evidence integration task, not the open completeness gates.
+
 ### 3. Build one reusable trajectory grain
 
 - [ ] Produce one plate-appearance consequence row.

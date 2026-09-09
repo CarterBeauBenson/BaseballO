@@ -1,0 +1,71 @@
+{
+    "artifactType":  "baseballo-nifi-proof-observation",
+    "gamePk":  "566279",
+    "pipelineRunId":  "3e3447623d554c428eaba68dd94b0f87",
+    "stages":  {
+                   "rml":  {
+                               "result":  {
+                                              "artifactType":  "baseballo-mlb-game-stage-result",
+                                              "contractVersion":  1,
+                                              "action":  "rml",
+                                              "gamePk":  "566279",
+                                              "pipelineRunId":  "3e3447623d554c428eaba68dd94b0f87",
+                                              "completedAtUtc":  "2026-09-09T13:46:10.1400661Z",
+                                              "rdfSha256":  "fa65beb269dff2e9b2935f632c55a3013ef50bcc92fea24d521dace46753e836",
+                                              "rdfPath":  "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\rdf\\game-566279.ttl",
+                                              "inputSha256":  "970bb20779cc50ab9a8b1a091d41e3d03f51e09d8840a0874e725b64581e0b27",
+                                              "rmlManifest":  "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\manifests\\game-566279-rml.json"
+                                          },
+                               "sha256":  "02182115e7644df7130ad3b4ec68a797b7892a93126457183adb66bd69f1f512"
+                           },
+                   "shacl":  {
+                                 "result":  {
+                                                "artifactType":  "baseballo-mlb-game-stage-result",
+                                                "contractVersion":  1,
+                                                "action":  "shacl",
+                                                "gamePk":  "566279",
+                                                "pipelineRunId":  "3e3447623d554c428eaba68dd94b0f87",
+                                                "completedAtUtc":  "2026-09-09T13:46:17.2685082Z",
+                                                "rdfPath":  "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\rdf\\game-566279.ttl",
+                                                "conforms":  true,
+                                                "shaclProfile":  "authoritative",
+                                                "rmlManifest":  "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\manifests\\game-566279-rml.json"
+                                            },
+                                 "sha256":  "fac8e1cc468011bbaab6da9fbdce8d16a697a7efb803c516e259f2ed9d789c77"
+                             },
+                   "promote":  {
+                                   "result":  {
+                                                  "artifactType":  "baseballo-mlb-game-stage-result",
+                                                  "contractVersion":  1,
+                                                  "action":  "promote",
+                                                  "gamePk":  "566279",
+                                                  "pipelineRunId":  "3e3447623d554c428eaba68dd94b0f87",
+                                                  "completedAtUtc":  "2026-09-09T13:46:40.2044855Z",
+                                                  "authoritativeTripleCount":  31593,
+                                                  "promotionEvidence":  "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\evidence\\nifi\\game-promotion\\566279\\f79d9ee250be4676a2967c0c282d0f34.json",
+                                                  "transactionRunId":  "f79d9ee250be4676a2967c0c282d0f34",
+                                                  "queryIndexGraph":  "https://w3id.org/baseball/graph/query-index/game/566279",
+                                                  "queryIndexTripleCount":  8254,
+                                                  "authoritativeGraph":  "https://w3id.org/baseball/graph/game/566279"
+                                              },
+                                   "sha256":  "6006d700cb6762446a320c8c0d852dcac09e03a4e3701f0d56afdb32dbb4b024"
+                               },
+                   "emit":  {
+                                "result":  {
+                                               "artifactType":  "baseballo-mlb-game-stage-result",
+                                               "contractVersion":  1,
+                                               "action":  "emit",
+                                               "gamePk":  "566279",
+                                               "pipelineRunId":  "3e3447623d554c428eaba68dd94b0f87",
+                                               "completedAtUtc":  "2026-09-09T13:46:41.9747581Z",
+                                               "promotedGraphEventSha256":  "2d2932f365e2b3c8d7499798e7e200f3673afafe1a9143971ba475866a917e4d",
+                                               "promotedGraphEvent":  "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\events\\promoted-graphs\\mlb-game\\game-566279\\7db8aadf42535d51a749ca45b0d31e226501bfd639c7310032151d1895fc4b64.json",
+                                               "promotedGraphEventId":  "7db8aadf42535d51a749ca45b0d31e226501bfd639c7310032151d1895fc4b64"
+                                           },
+                                "sha256":  "e113248204ae0edfb8ef4fe255042073ee67c78015c324740380dfd1173ce11b"
+                            }
+               },
+    "graphPairPromoted":  true,
+    "servingCompletionVerified":  false,
+    "servingObservation":  "At the requested status inspection, Materialize SQL was running and one request was queued from Choose Materialization Mode. No successful serving-promotion result was observed for this run."
+}

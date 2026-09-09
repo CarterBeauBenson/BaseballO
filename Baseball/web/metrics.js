@@ -79,8 +79,13 @@ async function inspect(event) {
     byId('score-exact').textContent = result.value ? `Exact: ${result.value.numerator}/${result.value.denominator}` : '';
     byId('result-scope').textContent = result.scope ?? 'Selected evidence population';
     const coverage = result.coverage ?? {};
+    const movement = coverage.runnerMovements;
     facts(byId('coverage'), [['Games', coverage.games ?? payload.graphCount ?? 0], ['Evidence rows', coverage.evidenceRows ?? 0],
-      ...(coverage.resolvedReviews !== undefined ? [['Resolved reviews', coverage.resolvedReviews], ['Unresolved reviews', coverage.unresolvedReviews]] : [])]);
+      ...(coverage.resolvedReviews !== undefined ? [['Resolved reviews', coverage.resolvedReviews], ['Unresolved reviews', coverage.unresolvedReviews]] : []),
+      ...(movement ? [['Runner movements observed', movement.observedPairs],
+        ['Movements with one origin value', movement.withOneMetricOriginBinding],
+        ['Movements missing origin evidence', movement.withoutMetricOriginBinding],
+        ['Movements with conflicting origin values', movement.withMultipleMetricOriginBindings]] : [])]);
     byId('result-evidence').textContent = JSON.stringify({ coverage, components: result.components ?? {}, evidence: result.evidence ?? [],
       implementation: payload.implementationSha256, corpus: payload.corpusFingerprint ?? payload.serving?.corpusFingerprint,
       dateScope: payload.dateScope, execution: payload.execution }, null, 2);

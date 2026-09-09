@@ -89,3 +89,41 @@ report. NiFi owns those gates and their evidence, retries and quarantine. No
 healthy-run polling, historical corpus request, or manual transformation was
 performed. Complete trajectory scoring and percentile release remain gated by
 the unresolved prerequisites in the metric gap register.
+
+## Promoted graph and metric evidence integration
+
+The user's subsequent request to continue prompted a result inspection. NiFi
+run `3e3447623d554c428eaba68dd94b0f87` passed source SHACL with zero violations
+and promoted game 566279 at 13:46:40 UTC on 2026-09-09: 31,593 authoritative
+triples and 8,254 query-index triples. The promoted-graph event was emitted.
+The [stage observation](nifi-proof-observation.json) retains the completed
+stage results and their hashes. At inspection, SQL materialization was running
+with a request queued; serving completion is not claimed.
+
+Suite 2.0.2 now carries the accepted movement-query bindings through its
+existing SQL evidence table and live API reducer. It exposes observed movement
+coverage in metric results and the metrics page. This is an engineering
+projection over accepted graph paths; ontology, identity, RML, SHACL, scoring
+meaning and semantic admissions are unchanged. Unknown and conflicting values
+remain distinct, and observations do not certify whole-trajectory completeness.
+
+Eleven focused serving tests passed, covering RDF-to-SQL preservation,
+idempotence, graph isolation, conflicting and missing origins, batter HOME=0,
+exact result equality, and unchanged unavailable-score behavior. The browser
+script passed Node's syntax check.
+
+The [live query evidence](metric-serving-evidence.json) records 925 suite rows,
+including 113 movement pairs. All 113 have one bound metric-origin value;
+34 have segment-origin designations, 46 have safe-destination bindings, 89
+have contact-play links and 8 have causal award plus rule-requirement links.
+The composed query's movement rows exactly equal the canonical movement query
+over this graph. Restricting the composed dataset with `FROM NAMED` avoids
+unrelated-graph scanning: the final scoped query completed in 0.304 seconds.
+The initial VALUES-only live check failed to return complete JSON; that
+failure is not counted as a passed check.
+
+TFS remains unavailable for attribution, boundary state, completeness,
+operative outs and path identity. An origin value on every observed movement
+does not account for unchanged runners or prove every relevant consequence.
+NiFi's existing materialization stage will consume the new version; no manual
+corpus build or additional proof request was made for this serving update.

@@ -22,7 +22,7 @@ from rdflib import Graph, Literal
 
 ROOT = Path(__file__).resolve().parents[1]
 METRICS = ROOT / 'sparql/metrics'
-VERSION = '2.0.1'
+VERSION = '2.0.2'
 
 
 class EvidenceError(ValueError):
@@ -439,15 +439,30 @@ def public_catalog():
 
 
 def evidence_query(graphs):
-    """Bound the existing-term query to explicit promoted game graph IRIs."""
+    """Compose accepted inventories within explicit promoted game graphs."""
     graph_list = sorted(set(graphs))
     if any(not isinstance(g, str) or not re.fullmatch(r'https://w3id\.org/baseball/graph/game/[0-9]+', g)
            for g in graph_list):
         raise EvidenceError('Unsafe or non-authoritative metric graph')
-    source = (METRICS / 'suite-evidence.rq').read_text(encoding='utf-8')
     # A false filter avoids SPARQL engine differences around empty VALUES.
     scope = ('VALUES ?graph { ' + ' '.join('<' + g + '>' for g in graph_list) + ' }') if graph_list else 'FILTER(false)'
-    return source.replace('WHERE {', 'WHERE {\n  ' + scope, 1)
+    prefixes, queries = set(), []
+    for name in ('suite-evidence.rq', 'runner-movement-evidence.rq'):
+        source = (METRICS / name).read_text(encoding='utf-8')
+        # Both canonical files name the same OBO namespace with different
+        # aliases. Use one alias in the composed query for RDFLib/Jena parity.
+        source = source.replace('bfo:', 'obo:')
+        prefixes.update(re.findall(r'^PREFIX .+$', source, flags=re.MULTILINE))
+        source = re.sub(r'^PREFIX .+\n', '', source, flags=re.MULTILINE)
+        queries.append(source.replace('WHERE {', 'WHERE {\n  ' + scope, 1))
+    # Reuse the canonical movement query rather than maintaining another copy
+    # of the accepted graph paths in a serving-only query or RDF index.
+    # Restrict the dataset as well as the bindings: otherwise Jena can scan
+    # unrelated named graphs before joining the selected graph VALUES.
+    dataset = ''.join('\nFROM NAMED <' + g + '>' for g in graph_list)
+    return ('\n'.join(sorted(prefixes)) + '\nSELECT *' + dataset + '\nWHERE {\n{ {\n' + queries[0]
+            + '\n} } UNION { {\n' + queries[1]
+            + '\n} BIND("runner_movement" AS ?kind) BIND(?resolution AS ?entity) }\n}')
 
 
 def normalize_bindings(bindings, graphs):
@@ -460,11 +475,17 @@ def normalize_bindings(bindings, graphs):
         if row.get('graph') not in allowed or not row.get('entity') or not row.get('game'):
             raise EvidenceError('Evidence escaped its graph scope or lacks a referent')
         for field in ('graph', 'game', 'entity', 'player', 'act', 'roleType', 'reviewRecord',
-                      'original', 'operative', 'disposition'):
+                      'original', 'operative', 'disposition', 'plateAppearance', 'resolution',
+                      'runner', 'originDesignation', 'originBase', 'destinationBase', 'batter',
+                      'awardRule', 'contactPlay', 'award', 'record'):
             if field in binding and binding[field].get('type') != 'uri':
                 raise EvidenceError('Evidence identity must be an IRI: ' + field)
-        if row.get('kind') not in {'plate_appearance', 'batted_play', 'run', 'player_game', 'review'}:
+        if row.get('kind') not in {'plate_appearance', 'batted_play', 'run', 'player_game', 'review', 'runner_movement'}:
             raise EvidenceError('Unknown evidence grain')
+        if row['kind'] == 'runner_movement' and (
+                not all(row.get(f) for f in ('plateAppearance', 'resolution', 'act'))
+                or row['entity'] != row['resolution']):
+            raise EvidenceError('Movement evidence lacks its PA, act or resolution identity')
         rows.append(row)
     # Stable exact duplicates are harmless; conflicting review facts survive
     # normalization so the disposition adapter can refuse them explicitly.
@@ -479,6 +500,31 @@ def _hash(text):
     return hashlib.sha256(text.encode('utf-8')).hexdigest()
 
 
+def movement_coverage(rows):
+    """Count observed bindings, without certifying trajectory completeness."""
+    groups = defaultdict(list)
+    for row in rows:
+        if row['kind'] == 'runner_movement':
+            groups[(row['graph'], row['plateAppearance'], row['act'], row['resolution'])].append(row)
+    coverage = {'observedPairs': len(groups), 'populationComplete': False}
+    for label, fields in {
+        'withRunnerBinding': ('runner',),
+        'withSegmentOriginBinding': ('originDesignation', 'originBase', 'originCode'),
+        'withSafeDestinationBinding': ('destinationBase', 'destinationCode'),
+        'withContactPlayBinding': ('contactPlay',),
+        'withCausalRequiredAwardBinding': ('award', 'awardRule'),
+        'withSourceRecordBinding': ('record',),
+    }.items():
+        coverage[label] = sum(any(all(r.get(f) is not None for f in fields) for r in observations)
+                              for observations in groups.values())
+    origins = [set(r['metricOrigin'] for r in observations if 'metricOrigin' in r)
+               for observations in groups.values()]
+    coverage.update(withOneMetricOriginBinding=sum(len(values) == 1 for values in origins),
+                    withMultipleMetricOriginBindings=sum(len(values) > 1 for values in origins),
+                    withoutMetricOriginBinding=sum(not values for values in origins))
+    return coverage
+
+
 def live_result(metric_id, rows, *, graph_count):
     entry = next((e for e in catalog()['metrics'] if e['id'] == metric_id), None)
     if entry is None:
@@ -486,6 +532,7 @@ def live_result(metric_id, rows, *, graph_count):
     coverage = {'games': graph_count, 'evidenceRows': len(rows),
                 'observedEntities': {kind: len({(r['graph'], r['entity']) for r in rows if r['kind'] == kind})
                                      for kind in ['plate_appearance', 'batted_play', 'run', 'player_game', 'review']},
+                'runnerMovements': movement_coverage(rows),
                 'populationComplete': False}
     if entry['requires']:
         return unavailable(*entry['requires'], coverage=coverage, metricId=metric_id,
