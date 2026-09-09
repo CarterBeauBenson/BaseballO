@@ -1,0 +1,69 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "runner-award-origin-final-decision",
+  "title": "Final user decision: causal and required advances; segment origin designations",
+  "status": "accepted",
+  "proposedIris": [
+    "https://baseballontology.org/BaserunningSegmentOriginDesignation"
+  ],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "e2ef0236eaebb2dbfc88f95ce2ca1d827596863170314e16d834b775a81de4a8"
+      },
+      {
+        "path": "user-decision.md",
+        "sha256": "272bb096349c8af8667781e97b1e11f06e15ac67c3e117421b4dc34019999a8a"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "README.md",
+        "sha256": "e2ef0236eaebb2dbfc88f95ce2ca1d827596863170314e16d834b775a81de4a8"
+      },
+      {
+        "path": "user-decision.md",
+        "sha256": "272bb096349c8af8667781e97b1e11f06e15ac67c3e117421b4dc34019999a8a"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "e2ef0236eaebb2dbfc88f95ce2ca1d827596863170314e16d834b775a81de4a8"
+      },
+      {
+        "path": "user-decision.md",
+        "sha256": "272bb096349c8af8667781e97b1e11f06e15ac67c3e117421b4dc34019999a8a"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "README.md",
+        "sha256": "e2ef0236eaebb2dbfc88f95ce2ca1d827596863170314e16d834b775a81de4a8"
+      },
+      {
+        "path": "user-decision.md",
+        "sha256": "272bb096349c8af8667781e97b1e11f06e15ac67c3e117421b4dc34019999a8a"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-09-09",
+    "rationale": "The user supplied FINAL DECISION FOR THE TWO REMAINING METRIC GAPS as the current request. Its A-F instructions explicitly replace the directive and stasis-boundary requirements, introduce the named origin designation, and define HOME and existing-runner metric origin policy.",
+    "authorizedArtifacts": [
+      "Baseball/ontology/BaseballO.ttl",
+      "Baseball/governance/ontology-curation-debt.json",
+      "Baseball/scripts/pipeline/prepare-rml-context.py",
+      "Baseball/sources/mlb-game/mapping/mlb-game.rml.ttl",
+      "Baseball/sources/mlb-game/shacl/authoritative.ttl",
+      "Baseball/sources/mlb-game/review/rml-mermaid-manifest.json",
+      "Baseball/ontology/BaseballO-axioms-overlay.ttl",
+      "Baseball/sources/mlb-game/mapping/iri-policy.yaml"
+    ]
+  }
+}
