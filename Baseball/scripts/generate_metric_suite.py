@@ -151,7 +151,7 @@ def artifacts():
                             executionMode='admitted-binding-kernel', sourceScopeVersion=1,
                             completenessProfileVersion='pending-batch-review', contributionProfileVersion='2026-09-08',
                             requires=requires, implementationStatus='implemented',
-                            liveAdapter='resolved-review-dispositions' if id=='adjudication-volatility' else 'blocked-by-gap-register',
+                            liveAdapter='resolved-review-dispositions' if id=='adjudication-volatility' else 'loaded-award-consequences' if id=='tfs' else 'blocked-by-gap-register',
                             referencePopulation=('eligible MLB regular-season two-strike PAs in selected season through reporting cutoff' if id=='recovery-quality' else 'eligible MLB regular-season PAs with applicable recovery and defensive resolution through reporting cutoff' if id=='paq-2.1' else 'eligible MLB regular-season PAs in selected season through reporting cutoff' if id.startswith('paq') else 'declared selected evidence population'),
                             nullableColumns=['end'] if id=='tfs' else ['next'] if id=='resolution-depth' else [],
                             inputColumns=kernel['inputColumns'], rowIdentity=kernel['rowIdentity']))
@@ -182,6 +182,51 @@ def artifacts():
     components.append(dict(id='runner-boundary-projection', authoritativeQuery=boundary_path,
                            inputColumns=boundary_columns, rowIdentity=['key','event'],
                            executionMode='admitted-binding-kernel', liveAdapter='blocked-by-gap-register'))
+    # Analytical selection over the canonical movement bindings. All observations
+    # for a candidate PA enter this query, including unbound/conflicting paths.
+    # Positive coverage of each forced station bounds this consequence; it does
+    # not certify complete PA history, a personal whole, or a game population.
+    loaded_path = 'sparql/serving/metric-kernels/loaded-award-tfs.rq'
+    loaded_columns = ('key binding runner batter act resolution episode record award awardRule '
+                      'metricOrigin originDesignation originRecord originBase originCode '
+                      'safeJudgment safeDecision destinationBase destinationCode '
+                      'hasSafeType hasOutType hasRunType contactPlay').split()
+    outputs[ROOT / loaded_path] = query(loaded_columns,
+        '?key (SUM(?progress36) AS ?numerator) (36 AS ?denominator)',
+        '''  BIND(COALESCE(BOUND(?runner) && BOUND(?batter) && BOUND(?act)
+    && BOUND(?resolution) && BOUND(?episode) && BOUND(?record)
+    && BOUND(?award) && BOUND(?awardRule) && !BOUND(?contactPlay)
+    && ?hasOutType="false"
+    && ((?metricOrigin="0" && ?runner=?batter && !BOUND(?originDesignation))
+      || (?runner!=?batter && BOUND(?originDesignation) && BOUND(?originBase)
+        && ?originRecord=?record
+        && ((?metricOrigin="1" && ?originCode="1B")
+          || (?metricOrigin="2" && ?originCode="2B")
+          || (?metricOrigin="3" && ?originCode="3B"))))
+    && ((?hasSafeType="true" && ?hasRunType="false"
+        && BOUND(?safeJudgment) && BOUND(?safeDecision) && BOUND(?destinationBase)
+        && ((?metricOrigin="0" && ?destinationCode="1B")
+          || (?metricOrigin="1" && ?destinationCode="2B")
+          || (?metricOrigin="2" && ?destinationCode="3B")))
+      || (?metricOrigin="3" && ?hasRunType="true" && ?hasSafeType="false"
+        && !BOUND(?safeDecision) && !BOUND(?destinationBase))), false) AS ?supported)
+  BIND(IF(?supported, 1, 0) AS ?supportedCount)
+  BIND(IF(?supported, xsd:integer(36/(4-xsd:integer(?metricOrigin))), 0) AS ?progress36)''',
+        group='''GROUP BY ?key
+HAVING (COUNT(*)=4 && SUM(?supportedCount)=4
+  && COUNT(DISTINCT ?binding)=4 && COUNT(DISTINCT ?runner)=4
+  && COUNT(DISTINCT ?act)=4 && COUNT(DISTINCT ?resolution)=4
+  && COUNT(DISTINCT ?episode)=4 && COUNT(DISTINCT ?metricOrigin)=4
+  && COUNT(DISTINCT ?batter)=1 && COUNT(DISTINCT ?award)=1)''').replace(
+            '# Calculation on admitted SPARQL bindings; not a source-evidence admission rule.',
+            '# Bounded analytical selection on canonical runner-movement-evidence.rq bindings.\n'
+            '# Award-consequence TFS only: no inference of full PA or game completeness.\n'
+            '# Four positively supported safe/scoring steps imply zero destruction/erosion\n'
+            '# for this consequence, independently of the unknown pre-award out count.')
+    components.append(dict(id='loaded-award-tfs', authoritativeQuery=loaded_path,
+                           inputColumns=loaded_columns, rowIdentity=['key','binding'],
+                           executionMode='canonical-movement-binding-selection',
+                           liveAdapter='loaded-award-consequences'))
     outputs[DEST / 'metric-catalog.json'] = json.dumps(dict(
         artifactType='baseballo-graph-native-metric-catalog', contractVersion=1,
         generator='scripts/generate_metric_suite.py', metricVersion='2.0.2',
@@ -199,7 +244,7 @@ def main():
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(text.encode('utf-8'))
     if bad: raise SystemExit('Metric generation drift: '+', '.join(bad))
-    print(('Verified' if args.check else 'Generated')+' 20 metric kernels, advancement/boundary components and catalog.')
+    print(('Verified' if args.check else 'Generated')+' 20 metric kernels, three components and catalog.')
 
 
 if __name__=='__main__': main()

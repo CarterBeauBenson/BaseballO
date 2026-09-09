@@ -22,7 +22,7 @@ from rdflib import Graph, Literal
 
 ROOT = Path(__file__).resolve().parents[1]
 METRICS = ROOT / 'sparql/metrics'
-VERSION = '2.0.5'
+VERSION = '2.0.6'
 
 
 class EvidenceError(ValueError):
@@ -662,8 +662,16 @@ def live_result(metric_id, rows, *, graph_count):
                 'runnerMovements': movement_coverage(rows),
                 'populationComplete': False}
     if entry['requires']:
-        return unavailable(*entry['requires'], coverage=coverage, metricId=metric_id,
-                           scope='selected promoted game graphs', grain=entry['grain'])
+        result = unavailable(*entry['requires'], coverage=coverage, metricId=metric_id,
+                             scope='selected promoted game graphs', grain=entry['grain'])
+        if metric_id == 'tfs':
+            result['consequences'] = loaded_award_consequences(rows)
+            coverage['supportedAwardConsequences'] = len(result['consequences'])
+            coverage['observedPAsWithoutSupportedAwardConsequence'] = max(
+                0, coverage['observedEntities']['plate_appearance'] - len(result['consequences']))
+            result['scope'] = ('Award-consequence results below; complete plate-appearance '
+                               'and selected-population TFS remain unavailable.')
+        return result
     # AV deliberately describes only explicitly resolved mapped reviews. It
     # makes no claim about all league reviews or the correctness of officials.
     review_groups = defaultdict(list)
@@ -690,6 +698,41 @@ def live_result(metric_id, rows, *, graph_count):
     result.update(coverage=coverage, metricId=metric_id, evidence=sorted(set(evidence)),
                   scope=coverage['population'], grain=entry['grain'])
     return result
+
+
+def loaded_award_consequences(rows):
+    """Select bounded award consequences in SPARQL, retaining incomplete PAs.
+
+    This does not admit a whole-PA score or erase the general TFS prerequisites.
+    Python groups/serializes evidence; the query owns analytical eligibility and
+    exact calculation. No unknown out count is replaced with zero.
+    """
+    groups = defaultdict(dict)
+    for row in rows:
+        if row['kind'] == 'runner_movement':
+            groups[_json([row['graph'], row['plateAppearance']])][_json(row)] = row
+    candidates = {key: observations for key, observations in groups.items()
+                  if any(r.get('award') for r in observations.values())}
+    inputs = [dict(row, key=key, binding=identity)
+              for key, observations in candidates.items() for identity, row in observations.items()]
+    if not inputs:
+        return []
+    results = []
+    for calculated in run_kernel('loaded-award-tfs', inputs):
+        observations = list(candidates[calculated['key']].values())
+        first = observations[0]
+        evidence_fields = ('plateAppearance', 'batter', 'runner', 'award', 'awardRule',
+                           'act', 'resolution', 'episode', 'record', 'originDesignation',
+                           'originRecord', 'originBase', 'safeJudgment', 'safeDecision', 'destinationBase')
+        value = Fraction(calculated['numerator'], calculated['denominator'])
+        results.append(available(value, graph=first['graph'], game=first['game'],
+            plateAppearance=first['plateAppearance'], batter=first['batter'], award=first['award'],
+            grain='award_consequence', scope='positively supported loaded Walk/HBP force chain',
+            completePlateAppearance=False,
+            components={'progress': exact(value), 'destruction': exact(0), 'erosion': exact(0)},
+            evidence=[r[f] for r in observations for f in evidence_fields if f in r],
+            movements=sorted(observations, key=lambda r: r['metricOrigin'])))
+    return sorted(results, key=lambda r: (r['graph'], r['plateAppearance'], r['award']))
 
 
 def initialize_sql(connection):

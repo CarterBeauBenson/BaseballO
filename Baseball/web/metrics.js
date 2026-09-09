@@ -12,6 +12,46 @@ export function displayFraction(value, places = 2) {
   return `${negative && rounded ? '-' : ''}${rounded / scale}${places ? '.' + String(rounded % scale).padStart(places, '0') : ''}`;
 }
 
+export function resultHeadline(result) {
+  if (result.status === 'available') return result.value ? displayFraction(result.value) : result.approximateValue.toFixed(3);
+  const count = result.consequences?.length ?? 0;
+  return count ? `${count} supported award consequence${count === 1 ? '' : 's'}` : 'Unavailable';
+}
+
+function renderConsequences(results = []) {
+  const target = byId('award-consequences');
+  target.replaceChildren(); target.hidden = !results.length;
+  if (!results.length) return;
+  target.append(node('h3', 'Supported award consequences'),
+    node('p', 'Each score covers a positively supported loaded Walk/HBP force chain. Complete plate-appearance and game scores still require the evidence listed below.'));
+  const math = node('details');
+  math.append(node('summary', 'Show math'), node('p',
+    'TFS = progress − destruction − erosion. For this four-runner force chain: HOME → 1B contributes 1/4; 1B → 2B contributes 1/3; 2B → 3B contributes 1/2; 3B → score contributes 1. All four resolve safely or score, so destruction and erosion are zero. Total: 25/12, displayed as 2.08.'));
+  target.append(math);
+  const table = node('table'), head = node('thead'), heading = node('tr'), body = node('tbody');
+  for (const label of ['Game / PA source index', 'Batter', 'Consequence TFS', 'Evidence']) {
+    const cell = node('th', label); cell.scope = 'col'; heading.append(cell);
+  }
+  head.append(heading);
+  for (const result of results) {
+    const row = node('tr');
+    row.append(node('td', `${result.graph.split('/').at(-1)} / ${result.plateAppearance.split('/').at(-1)}`),
+      node('td', result.batter.split('/').at(-1)),
+      node('td', `${displayFraction(result.value)} (${result.value.numerator}/${result.value.denominator})`));
+    const evidence = node('td'), detail = node('details');
+    detail.append(node('summary', 'Trace four advances'));
+    const advances = node('ul');
+    for (const movement of result.movements) {
+      advances.append(node('li', `${movement.runner === result.batter ? 'Batter' : 'Runner'} ${movement.runner.split('/').at(-1)}: ${movement.metricOrigin === '0' ? 'HOME' : movement.originCode} → ${movement.hasRunType === 'true' ? 'score' : movement.destinationCode}`));
+    }
+    detail.append(advances, node('pre', JSON.stringify({
+      award: result.award, components: result.components, movements: result.movements,
+    }, null, 2)));
+    evidence.append(detail); row.append(evidence); body.append(row);
+  }
+  table.append(head, body); target.append(table);
+}
+
 function facts(target, entries) {
   target.replaceChildren(...entries.map(([label, value]) => { const item = node('div'); item.append(node('dt', label), node('dd', String(value))); return item; }));
 }
@@ -38,7 +78,9 @@ function choose(metric) {
   byId('metric-definition').textContent = metric.userDefinition;
   facts(byId('metric-facts'), [['Grain', metric.grain.replaceAll('_', ' ')], ['Unit', metric.unit], ['Interpretation', metric.higherIs], ['Reference population', metric.referencePopulation]]);
   byId('result').hidden = true;
-  byId('request-status').textContent = metric.requires.length ? 'Calculation implemented. Live values await the requirements below.' : 'Inspect the selected mapped review population.';
+  byId('request-status').textContent = metric.liveAdapter === 'loaded-award-consequences' ?
+    'Inspect supported loaded Walk/HBP consequences and the remaining TFS requirements.' :
+    metric.requires.length ? 'Calculation implemented. Live values await the requirements below.' : 'Inspect the selected mapped review population.';
   byId('run-metric').disabled = false;
   renderRequirements(metric.requires);
   document.querySelectorAll('#metric-list button').forEach(button => button.setAttribute('aria-current', String(button.dataset.id === metric.id)));
@@ -50,7 +92,8 @@ function renderList() {
   byId('metric-list').replaceChildren(...catalog.metrics.filter(m => (m.label + ' ' + m.id).toLowerCase().includes(term)).map(metric => {
     const button = node('button', metric.label); button.type = 'button'; button.dataset.id = metric.id;
     button.setAttribute('aria-current', String(selected?.id === metric.id));
-    button.append(node('small', metric.requires.length ? 'Awaiting shared requirements' : 'Resolved review evidence'));
+    button.append(node('small', metric.liveAdapter === 'loaded-award-consequences' ? 'Supported award consequences' :
+      metric.requires.length ? 'Awaiting shared requirements' : 'Resolved review evidence'));
     button.addEventListener('click', () => choose(metric)); return button;
   }));
 }
@@ -74,13 +117,16 @@ async function inspect(event) {
     if (activeRequest !== controller) return;
     lastResult = payload;
     const result = payload.metric;
-    byId('score-value').textContent = result.status === 'available' ?
-      (result.value ? displayFraction(result.value) : result.approximateValue.toFixed(3)) : 'Unavailable';
+    byId('score-value').textContent = resultHeadline(result);
     byId('score-exact').textContent = result.value ? `Exact: ${result.value.numerator}/${result.value.denominator}` : '';
     byId('result-scope').textContent = result.scope ?? 'Selected evidence population';
     const coverage = result.coverage ?? {};
     const movement = coverage.runnerMovements;
+    renderConsequences(result.consequences);
     facts(byId('coverage'), [['Games', coverage.games ?? payload.graphCount ?? 0], ['Evidence rows', coverage.evidenceRows ?? 0],
+      ...(coverage.supportedAwardConsequences !== undefined ? [
+        ['Supported award consequences', coverage.supportedAwardConsequences],
+        ['Other observed PAs', coverage.observedPAsWithoutSupportedAwardConsequence]] : []),
       ...(coverage.resolvedReviews !== undefined ? [['Resolved reviews', coverage.resolvedReviews], ['Unresolved reviews', coverage.unresolvedReviews]] : []),
       ...(movement ? [['Runner movements observed', movement.observedPairs],
         ['Movements with one origin value', movement.withOneMetricOriginBinding],
@@ -91,7 +137,9 @@ async function inspect(event) {
       dateScope: payload.dateScope, execution: payload.execution }, null, 2);
     renderRequirements(result.gaps ?? []);
     byId('result').hidden = false;
-    byId('request-status').textContent = result.status === 'available' ? 'Result ready for the stated population.' : 'No valid score can be produced from the current evidence. The unresolved requirements are listed below.';
+    byId('request-status').textContent = result.consequences?.length ?
+      'Supported award-consequence scores are ready. Broader TFS requirements remain listed below.' :
+      result.status === 'available' ? 'Result ready for the stated population.' : 'No valid score can be produced from the current evidence. The unresolved requirements are listed below.';
   } catch (error) {
     if (error.name !== 'AbortError') byId('request-status').textContent = error.message;
   } finally {

@@ -105,7 +105,8 @@ unresolved and excluded from that stated denominator. Conflicting original,
 operative or disposition assertions make the result unavailable. It does not
 infer official accuracy or claim a complete league-wide review population.
 
-The other live adapters report their shared gap codes and observed evidence
+TFS also exposes the bounded award consequences documented below. Complete PA
+TFS and the other live adapters report their shared gap codes and observed evidence
 coverage. They do not create zero-filled player or PA rankings. The complete
 arithmetic implementations remain available for admitted fixtures while
 those source semantics await the consolidated review.
@@ -230,3 +231,54 @@ The [source contract](../sources/mlb-game/review/runner-continuity-source-contra
 documents the required real-history evidence. No complete-history adapter or
 personal-whole RML source is fabricated from the existing incomplete evidence.
 Live dependent metrics therefore remain gated. C1/C2 themselves are accepted.
+
+## First live award consequence
+
+Suite implementation 2.0.6 adds `loaded-award-tfs.rq`, an analytical selection
+over **all canonical movement bindings for each candidate PA**, including
+missing and conflicting paths. The accepted
+[award and origin decision](../archive/design-records/runner-award-origin-final-decision/user-decision.md)
+already supplies the causal, normative and origin meanings. This increment
+introduces no ontology terms, predicates, identity policy or source mapping.
+
+The selection requires four distinct runners, acts, resolutions and episodes
+under one award and one batter. The positively supported grid is batter
+HOME→1B, existing runner 1B→2B, existing runner 2B→3B, and existing runner
+3B→score. Each advance requires the accepted causal award and required-rule
+paths, its source record, and its own destination decision or Run resolution.
+Existing runners also require their act's source-origin designation and record.
+Missing paths, contradictory codes or types, duplicate identities, extra
+movement observations and contact/award ambiguity withhold the entire chain.
+Exactly four rows alone is never sufficient.
+
+For this bounded consequence, progress is `1/4 + 1/3 + 1/2 + 1 = 25/12`.
+All four paths resolve safely or score, so direct destruction and erosion
+are zero for the consequence. No pre-award out count is invented, and no
+unchanged-runner or cross-PA history is reconstructed. The general TFS kernel
+and its approved formula are unchanged.
+
+`live_result('tfs', ...)` returns these results in `consequences`, each with
+`grain: award_consequence`, `completePlateAppearance: false`, exact components
+and the four supporting movement bindings. The outer complete-population
+result remains unavailable, retaining every existing TFS requirement. Coverage
+counts supported consequences and other observed PAs; it never assigns zero to
+missing PAs. No mean, ranking, season percentile or whole-game score is derived
+from this subset. SQL preserves the exact nested result and evidence unchanged.
+
+The [live HTTP capture](../benchmarks/metrics/loaded-award-823016-2026-09-09.json)
+records a real **25/12** result for game **823016**, PA source index **40**, batter
+**687637**, after the existing NiFi lane refreshed that game. The request selected
+the 15 loaded regular-season games on 2026-08-25: one supported consequence,
+1,163 other observed PAs, and no claim of complete PA coverage. Execution used
+authoritative RDF fallback and took 17.484 seconds; this is not proof of a
+current production SQL build. NiFi continues to own materialization.
+
+To inspect it, open `/metrics#tfs`, select regular season and custom dates
+2026-08-25 through 2026-08-25, then inspect the metric. The result shows the exact
+fraction, rounded display, math and four advances with their evidence. The
+download preserves the complete response.
+
+Remaining work is broader source coverage and complete consequence boundaries,
+operative outs and continuity where needed, followed by complete reference
+populations. This bounded result closes the lack of any real TFS-consequence
+output; it does not close the general completeness or C1/C2 source-history gaps.

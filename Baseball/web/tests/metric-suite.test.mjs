@@ -5,7 +5,7 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { createBaseballServer } from '../server.mjs';
 import { metricCatalog, validateMetricRequest, compileMetricEvidenceQuery } from '../query-builder/metric-suite-query-builder.js';
-import { displayFraction } from '../metrics.js';
+import { displayFraction, resultHeadline } from '../metrics.js';
 
 async function withServer(options, work) {
   const server = createBaseballServer(options);
@@ -66,6 +66,12 @@ test('display rounding retains arbitrarily large exact rational arithmetic', () 
   assert.equal(displayFraction({ numerator: '1999', denominator: '2000' }), '1.00');
   assert.equal(displayFraction({ numerator: '100000000000000000000000000000001', denominator: '100000000000000000000000000000000' }), '1.00');
   assert.equal(displayFraction(null), 'Unavailable');
+});
+
+test('consequence results remain visible without presenting a whole-population score', () => {
+  assert.equal(resultHeadline({ status: 'unavailable', value: null, consequences: [{ value: { numerator: '25', denominator: '12' } }] }), '1 supported award consequence');
+  assert.equal(resultHeadline({ status: 'unavailable', value: null, consequences: [] }), 'Unavailable');
+  assert.equal(resultHeadline({ status: 'available', value: { numerator: '1', denominator: '3' } }), '0.33');
 });
 
 test('API returns SQL results and rejects caller supplied evidence before execution', async () => {

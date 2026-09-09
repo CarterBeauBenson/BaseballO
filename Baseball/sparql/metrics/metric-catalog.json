@@ -26,7 +26,7 @@
         "COMPLETENESS"
       ],
       "implementationStatus": "implemented",
-      "liveAdapter": "blocked-by-gap-register",
+      "liveAdapter": "loaded-award-consequences",
       "referencePopulation": "declared selected evidence population",
       "nullableColumns": [
         "end"
@@ -729,6 +729,41 @@
       ],
       "executionMode": "admitted-binding-kernel",
       "liveAdapter": "blocked-by-gap-register"
+    },
+    {
+      "id": "loaded-award-tfs",
+      "authoritativeQuery": "sparql/serving/metric-kernels/loaded-award-tfs.rq",
+      "inputColumns": [
+        "key",
+        "binding",
+        "runner",
+        "batter",
+        "act",
+        "resolution",
+        "episode",
+        "record",
+        "award",
+        "awardRule",
+        "metricOrigin",
+        "originDesignation",
+        "originRecord",
+        "originBase",
+        "originCode",
+        "safeJudgment",
+        "safeDecision",
+        "destinationBase",
+        "destinationCode",
+        "hasSafeType",
+        "hasOutType",
+        "hasRunType",
+        "contactPlay"
+      ],
+      "rowIdentity": [
+        "key",
+        "binding"
+      ],
+      "executionMode": "canonical-movement-binding-selection",
+      "liveAdapter": "loaded-award-consequences"
     }
   ]
 }

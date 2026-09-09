@@ -1,5 +1,15 @@
 # Graph-native metric suite implementation
 
+**First usable TFS consequence (2026-09-09):** game 823016, PA source index 40
+now returns **25/12 (2.08)** for the positively supported bases-loaded Walk
+consequence through the real Explorer API. The page displays its four advances,
+math and evidence. Complete PA and population TFS remain unavailable. The
+[contract and limits](METRIC-SUITE.md#first-live-award-consequence) and
+[immutable HTTP capture](../benchmarks/metrics/loaded-award-823016-2026-09-09.json)
+record the result. Focused checks passed: 19 Python tests and nine Node tests,
+including missing/conflicting evidence, duplicate handling, exact SQL round
+trip, date selection, request rejection and the API/UI result contract.
+
 **Current end-to-end status (2026-09-09):** all 20 live metric HTTP routes have
 been exercised over the selected 15-game day, including the real Python
 reducer and authoritative fallback. The latest pass fixed a missed browser
@@ -48,8 +58,9 @@ products. No manual corpus rebuild or source-proof polling was performed.
 All 20 arithmetic implementations and generic SQL value persistence are
 tested. **This does not mean all 20 metrics have valid live scores.** AV has
 an existing-evidence adapter scoped to explicitly resolved mapped reviews.
-The other 19 return unavailable with named prerequisites until the batch
-review resolves the missing graph semantics and source coverage.
+Complete-population results for the other 19 remain unavailable with named
+prerequisites. TFS now additionally exposes the bounded award-consequence
+results described above, without dropping those broader requirements.
 
 ## Focused validation on 2026-09-08
 

@@ -12,8 +12,10 @@ user's later request to implement every metric now and review the gaps together.
 
 The checklist below remains the broader **production semantic admission**
 roadmap. Its unchecked source and release gates do not mean the new arithmetic
-software is absent. The current live adapter supports only explicitly resolved
-mapped review volatility; other metrics report unavailable with named gaps.
+software is absent. The live adapters support explicitly resolved mapped review
+volatility and a bounded loaded Walk/HBP consequence under TFS. Complete PA TFS
+and the other metrics retain their named gaps. See the
+[first live consequence](../../serving/METRIC-SUITE.md#first-live-award-consequence).
 
 ## Original production roadmap
 
@@ -288,8 +290,8 @@ that a PA is eligible.
 Immediate-before state, unchanged-participant evidence, continuity, operative
 out/replay identity and full attribution/completeness still block metric
 execution. A selectively covered subset cannot silently replace the accepted
-league reference population. No executable TFS/PAQ-2 scoring query or serving
-route is released yet.
+league reference population. Complete PA TFS and PAQ-2 remain unreleased; the
+bounded award-consequence result described above does not supply that population.
 
 ## Final award and origin decision (2026-09-09)
 
