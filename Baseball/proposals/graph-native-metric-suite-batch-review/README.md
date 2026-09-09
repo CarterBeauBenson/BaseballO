@@ -1,5 +1,11 @@
 # One review for the new metric suite
 
+**2026-09-09 correction:** the user clarified that new object properties are
+not permitted and that the earlier natural-language answers were misunderstood.
+See the [four-property correction and targeted removal package](object-property-correction.md).
+The historical acceptance records must not be used to authorize further work
+with those predicates. No replacement model is admitted by the pasted advice.
+
 The user requested all metric calculations and supporting software now, with
 the remaining gaps collected for one subsequent review. That software scope
 is recorded in the [implementation decision](../../archive/design-records/graph-native-metrics-implementation-scope/decision.json).
