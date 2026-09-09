@@ -1,0 +1,13 @@
+{
+  "artifactType": "baseballo-metric-origin-policy",
+  "version": 1,
+  "decision": "archive/design-records/runner-award-origin-final-decision/review.json",
+  "batterInitialPosition": 0,
+  "batterInitialMeaning": "Metric HOME from PA batter identity; not an RDF movement origin or stasis",
+  "existingRunnerPriority": ["act-specific segment origin designation", "positively supported PA-start stasis plus act beginning there and no intervening same-runner movement", "unavailable"],
+  "sourceSegmentField": "movement.start",
+  "neverSubstitute": ["movement.originBase", "previous safe destination", "most recent known base", "array ordering", "assumed continuity"],
+  "requiresStasisForDesignation": false,
+  "requiresSharedEndingBeginningInstant": false,
+  "ambiguousEvidence": "unavailable"
+}

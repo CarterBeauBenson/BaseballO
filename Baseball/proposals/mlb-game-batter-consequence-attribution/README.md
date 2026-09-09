@@ -5,13 +5,13 @@ next deliverable in the [metrics roadmap](../../sparql/metrics/README.md).
 The ontologist approved the targeted fix. The concrete A1 contact-play
 parthood slice is recorded in a
 [separate accepted decision](../../archive/design-records/mlb-game-batted-runner-resolution-containment/README.md).
-The four local runner object properties have been withdrawn. The user's
-[structural correction](../../archive/design-records/runner-structural-correction/README.md)
-replaces runner identity with an episode/act/agent path and safe destination
-with judgment/decision aboutness. Origin requires actual preceding stasis
-boundaries; award completion requires a particular directive prescribing the
-act. The current source does not establish those latter two paths. Full
-pre-consequence state and metric completeness remain unresolved.
+The four local runner object properties remain withdrawn. The [final user
+decision](../../archive/design-records/runner-award-origin-final-decision/README.md)
+resolves award attribution through causal/normative relations and segment
+origin through the source's Designative ICE. Batter metric HOME=0 requires no
+origin stasis. Episode and safe-decision structure remains implemented.
+Full consequence completeness, unchanged runners, and operative replay coverage
+are separate remaining prerequisites.
 
 This package asks how a plate appearance's batter-linked consequences can be
 distinguished from independent runner events. It is the prerequisite for TFS,

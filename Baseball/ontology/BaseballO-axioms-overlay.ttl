@@ -1438,11 +1438,11 @@ base:ABSEvaluationRule owl:equivalentClass [
 base:RunnerResolutionEpisode rdfs:subClassOf
     [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ; owl:onClass base:BaserunningAct ],
     [ a owl:Restriction ; owl:onProperty obo:BFO_0000117 ; owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ; owl:onClass base:RunnerResolutionProcess ] .
-base:BaseAwardDirectiveICE rdfs:subClassOf
-    [ a owl:Restriction ; owl:onProperty cco:ont00001816 ; owl:someValuesFrom [ a owl:Class ; owl:unionOf ( base:WalkProcess base:HitByPitchProcess ) ] ],
-    [ a owl:Restriction ; owl:onProperty cco:ont00001942 ; owl:someValuesFrom base:BaserunningAct ],
-    [ a owl:Restriction ; owl:onProperty cco:ont00001808 ; owl:someValuesFrom cco:ont00001262 ],
-    [ a owl:Restriction ; owl:onProperty cco:ont00001808 ; owl:someValuesFrom base:Base ] .
 base:PlateAppearanceStartBaserunnerAtBaseStasis rdfs:subClassOf
     [ a owl:Restriction ; owl:onProperty obo:BFO_0000132 ; owl:someValuesFrom base:PlateAppearance ],
     [ a owl:Restriction ; owl:onProperty obo:BFO_0000199 ; owl:someValuesFrom obo:BFO_0000038 ] .
+
+base:BaserunningSegmentOriginDesignation rdfs:subClassOf
+    [ a owl:Restriction ; owl:onProperty cco:ont00001916 ; owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ; owl:onClass base:Base ],
+    [ a owl:Restriction ; owl:onProperty cco:ont00001808 ; owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ; owl:onClass base:BaserunningAct ],
+    [ a owl:Restriction ; owl:onProperty obo:BFO_0000176 ; owl:someValuesFrom base:BaseballEventRecord ] .

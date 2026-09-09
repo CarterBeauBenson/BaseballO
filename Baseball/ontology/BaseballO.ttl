@@ -1950,16 +1950,16 @@ base:RunnerResolutionEpisode a owl:Class ;
     rdfs:comment "Identity follows the particular act and resolution pair. The episode does not acquire agency or Planned Act status from its parts."@en ;
     skos:example "The episode containing a runner's advance toward second and the Safe Process resolving that advance."@en .
 
-base:BaseAwardDirectiveICE a owl:Class ;
-    rdfs:subClassOf cco:ont00000965 ;
-    rdfs:label "Base Award Directive ICE"@en ;
-    skos:definition "A Base Award Directive ICE is a Prescriptive Information Content Entity that is an output of a Walk Process or Hit-by-Pitch Process, is about the awarded Person and Base, and prescribes that Person's Baserunning Act toward that Base."@en ;
-    rdfs:comment "The sole Person and Base referents identify the awarded runner and destination in this reviewed content contract. Completion evidence alone does not license a directive instance. A directive is not realized by the act it prescribes."@en ;
-    skos:example "A particular first-base award directive output by a Walk Process prescribes the awarded batter's baserunning act toward first."@en .
-
 base:PlateAppearanceStartBaserunnerAtBaseStasis a owl:Class ;
     rdfs:subClassOf base:BaserunnerAtBaseStasis ;
     rdfs:label "Plate-Appearance-Start Baserunner-at-Base Stasis"@en ;
     skos:definition "A Plate-Appearance-Start Baserunner-at-Base Stasis is a Baserunner-at-Base Stasis that is an occurrent part of a Plate Appearance and occupies a Temporal Interval whose first instant is the first instant of that Plate Appearance."@en ;
     rdfs:comment "Preserves the existing PA-start identity and source boundary. Its ending instant is not inferred from the next recorded event."@en ;
     skos:example "The stasis of a runner at third when a particular plate appearance begins."@en .
+
+base:BaserunningSegmentOriginDesignation a owl:Class ;
+    rdfs:subClassOf cco:ont00000686 ;
+    rdfs:label "Baserunning Segment Origin Designation"@en ;
+    skos:definition "A Baserunning Segment Origin Designation is a Designative Information Content Entity that designates the Base represented by a source record as the origin of a particular Baserunning Act."@en ;
+    rdfs:comment "The designation is about the particular act and is a continuant part of its source Baseball Event Record. It designates the source-reported segment origin, not physical location, a stasis, temporal adjacency or continuity. MLB movement.start supplies the immediate segment origin; originBase is not substituted for it."@en ;
+    skos:example "A row with originBase 2B, start 3B and end score supplies a designation of third Base as the origin of this segment's Baserunning Act."@en .

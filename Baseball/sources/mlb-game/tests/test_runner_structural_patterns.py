@@ -55,7 +55,7 @@ class RunnerPatternShaclTests(unittest.TestCase):
         profile = Graph().parse(ROOT / 'sources/mlb-game/shacl/authoritative.ttl')
         cls.shapes = Graph()
         pending = [SHAPE[x] for x in ['RunnerResolutionEpisodeShape', 'SafeDecisionDestinationShape',
-                    'BaseAwardDirectiveShape', 'WithdrawnRunnerPropertiesShape', 'JudgmentShape', 'DecisionShape',
+                    'SegmentOriginDesignationShape', 'AwardCausedAdvanceShape', 'WithdrawnAwardDirectiveShape', 'WithdrawnRunnerPropertiesShape', 'JudgmentShape', 'DecisionShape',
                     'BaserunnerAtBaseStasisShape']]
         visited = set()
         while pending:
@@ -121,15 +121,52 @@ class RunnerPatternShaclTests(unittest.TestCase):
                 else: g.add((self.decision, CCO.ont00001808, DATA.untyped))
                 self.assertFalse(self.conforms(g)[0])
 
-    def test_directive_requires_its_own_evidence_and_is_not_realized(self):
+    def origin_graph(self):
         g = self.graph()
-        source = DATA['game/1/plate-appearance/2/result']
-        directive = award(g, source, self.act, self.pa, self.runner, self.base)
-        self.assertFalse(self.conforms(g)[0])
-        for entity in [source, directive]: g.add((self.record, CCO.ont00001808, entity))
+        origin = URIRef(str(self.record) + '/origin-designation')
+        base = DATA['venue/2/artifact/base/1B']
+        identifier = URIRef(str(base) + '/identifier/source-base-code')
+        for triple in [(origin, RDF.type, BASE.BaserunningSegmentOriginDesignation),
+                       (origin, CCO.ont00001808, self.act), (origin, CCO.ont00001916, base),
+                       (origin, BFO.BFO_0000176, self.record), (base, RDF.type, BASE.Base),
+                       (identifier, RDF.type, CCO.ont00000649), (identifier, CCO.ont00001916, base),
+                       (identifier, CCO.ont00001765, Literal('1B'))]: g.add(triple)
+        return g, origin
+
+    def test_designation_requires_its_own_record_and_act(self):
+        g, origin = self.origin_graph()
         ok, report = self.conforms(g)
         self.assertTrue(ok, report)
-        g.add((self.act, BFO.BFO_0000055, directive))
+        self.assertEqual(list(g.subjects(RDF.type, BASE.BaserunnerAtBaseStasis)), [])
+        g.set((origin, CCO.ont00001808, DATA.otherAct))
+        self.assertFalse(self.conforms(g)[0])
+        g, origin = self.origin_graph()
+        g.set((origin, BFO.BFO_0000176, DATA.otherRecord))
+        self.assertFalse(self.conforms(g)[0])
+
+    def test_causal_force_requires_correct_rule_and_next_destination(self):
+        g, origin = self.origin_graph()
+        source = URIRef(str(self.pa) + '/result')
+        rule = award(g, source, self.act, self.pa)
+        rule_id = URIRef(str(rule) + '/identifier')
+        for triple in [(source, CCO.ont00001918, self.field), (rule, BFO.BFO_0000176, DATA.edition),
+                       (DATA.edition, RDF.type, CCO.ont00000965), (rule_id, RDF.type, CCO.ont00000649),
+                       (rule_id, CCO.ont00001916, rule), (rule_id, CCO.ont00001765, Literal('5.06(b)(3)(B)')),
+                       (DATA.batterAct, RDF.type, BASE.BatterAct), (DATA.batterAct, BFO.BFO_0000132, self.pa),
+                       (DATA.batterAct, BFO.BFO_0000055, DATA.batterRole), (DATA.batterRole, RDF.type, BASE.BatterRole),
+                       (DATA.batterRole, BFO.BFO_0000197, DATA.batter),
+                       (self.record, CCO.ont00001808, source), (self.record, CCO.ont00001808, rule)]: g.add(triple)
+        ok, report = self.conforms(g)
+        self.assertTrue(ok, report)
+        g.set((rule_id, CCO.ont00001765, Literal('5.05(b)(1)')))
+        self.assertFalse(self.conforms(g)[0])
+        g.set((rule_id, CCO.ont00001765, Literal('5.06(b)(3)(B)')))
+        g.remove((rule, CCO.ont00001974, self.act))
+        self.assertFalse(self.conforms(g)[0])
+
+    def test_event_specific_directive_is_withdrawn(self):
+        g = self.graph()
+        g.add((DATA.directive, RDF.type, BASE.BaseAwardDirectiveICE))
         self.assertFalse(self.conforms(g)[0])
 
     def test_each_withdrawn_predicate_fails_conformance(self):

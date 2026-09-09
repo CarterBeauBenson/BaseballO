@@ -752,31 +752,85 @@ shape:SafeDecisionDestinationShape a sh:NodeShape ;
       """
     ] .
 
-shape:BaseAwardDirectiveShape a sh:NodeShape ;
-    sh:targetClass base:BaseAwardDirectiveICE ;
-    sh:property [ sh:path cco:ont00001942 ; sh:minCount 1 ; sh:maxCount 1 ; sh:class base:BaserunningAct ] ;
-    sh:property [ sh:path cco:ont00001808 ; sh:minCount 2 ; sh:maxCount 2 ;
-      sh:or ( [ sh:class cco:ont00001262 ] [ sh:class base:Base ] ) ] ;
-    sh:property [ sh:path [ sh:inversePath cco:ont00001986 ] ; sh:minCount 1 ; sh:maxCount 1 ;
-      sh:or ( [ sh:class base:WalkProcess ] [ sh:class base:HitByPitchProcess ] ) ] ;
+shape:SegmentOriginDesignationShape a sh:NodeShape ;
+    sh:targetClass base:BaserunningSegmentOriginDesignation ; sh:nodeKind sh:IRI ;
+    sh:property [ sh:path cco:ont00001808 ; sh:minCount 1 ; sh:maxCount 1 ; sh:class base:BaserunningAct ] ;
+    sh:property [ sh:path cco:ont00001916 ; sh:minCount 1 ; sh:maxCount 1 ; sh:class base:Base ] ;
+    sh:property [ sh:path bfo:BFO_0000176 ; sh:minCount 1 ; sh:maxCount 1 ; sh:class base:BaseballEventRecord ] ;
     sh:sparql [
-      sh:message "The directive must identify the awarded act's runner and one destination Base, with source evidence and the award's PA; it is prescribed, not realized."@en ;
+      sh:message "A segment origin must designate a coded Base in the act's field and belong to its corresponding source record and unique episode."@en ;
       sh:select """
         PREFIX base: <https://baseballontology.org/>
         PREFIX bfo: <http://purl.obolibrary.org/obo/>
         PREFIX cco: <https://www.commoncoreontologies.org/>
         SELECT $this WHERE {
-          FILTER (NOT EXISTS {
-            $this cco:ont00001942 ?act ; cco:ont00001808 ?runner, ?base .
-            ?base a base:Base . ?runner a cco:ont00001262 .
-            ?act cco:ont00001833 ?runner ; bfo:BFO_0000132 ?pa .
-            ?episode a base:RunnerResolutionEpisode ; bfo:BFO_0000117 ?act ; bfo:BFO_0000132 ?pa .
-            ?award cco:ont00001986 $this ; bfo:BFO_0000132 ?pa .
-            ?record a base:BaseballEventRecord ; cco:ont00001808 $this, ?award, ?act .
-          } || EXISTS { ?process bfo:BFO_0000055 $this })
+          $this cco:ont00001808 ?act ; cco:ont00001916 ?base ; bfo:BFO_0000176 ?record .
+          FILTER NOT EXISTS {
+            ?record cco:ont00001808 ?act, ?episode .
+            ?episode a base:RunnerResolutionEpisode ; bfo:BFO_0000117 ?act .
+            ?act cco:ont00001918 ?field ; cco:ont00001833 ?runner .
+            ?identifier a cco:ont00000649 ; cco:ont00001916 ?base ; cco:ont00001765 ?code .
+            FILTER (?code IN ("1B", "2B", "3B"))
+            FILTER (STR(?base) = CONCAT(STRBEFORE(STR(?field), "/baseball-field"), "/artifact/base/", STR(?code)))
+            FILTER (STR($this) = CONCAT(STR(?record), "/origin-designation"))
+          }
+        }
+      """
+    ] ;
+    sh:sparql [ sh:message "An act must not have multiple segment origin designations."@en ;
+      sh:select """
+        PREFIX base: <https://baseballontology.org/>
+        PREFIX cco: <https://www.commoncoreontologies.org/>
+        SELECT $this WHERE { $this cco:ont00001808 ?act .
+          ?other a base:BaserunningSegmentOriginDesignation ; cco:ont00001808 ?act . FILTER (?other != $this) }
+      """
+    ] .
+
+shape:AwardCausedAdvanceShape a sh:NodeShape ;
+    sh:targetClass base:WalkProcess, base:HitByPitchProcess ;
+    sh:sparql [
+      sh:message "An award-caused advance must have a matching normative rule, same-PA episode, runner, field, and source record; batter arrival is 1B and forced arrival is exactly the next base or counted run."@en ;
+      sh:select """
+        PREFIX base: <https://baseballontology.org/>
+        PREFIX bfo: <http://purl.obolibrary.org/obo/>
+        PREFIX cco: <https://www.commoncoreontologies.org/>
+        SELECT $this WHERE {
+          $this cco:ont00001803 ?act .
+          FILTER NOT EXISTS {
+            $this bfo:BFO_0000132 ?pa ; cco:ont00001918 ?field .
+            ?act a base:BaserunningAct ; bfo:BFO_0000132 ?pa ; cco:ont00001918 ?field ;
+                cco:ont00001833 ?runner ; cco:ont00001807 ?rule .
+            ?rule a base:BaseballRule ; cco:ont00001974 ?act ; bfo:BFO_0000176 ?edition .
+            ?edition a cco:ont00000965 .
+            ?ruleId a cco:ont00000649 ; cco:ont00001916 ?rule ; cco:ont00001765 ?ruleCode .
+            ?episode a base:RunnerResolutionEpisode ; bfo:BFO_0000132 ?pa ; bfo:BFO_0000117 ?act, ?resolution .
+            ?resolution a base:RunnerResolutionProcess ; bfo:BFO_0000132 ?pa ; bfo:BFO_0000057 ?runner .
+            ?record a base:BaseballEventRecord ; cco:ont00001808 $this, ?act, ?rule, ?resolution .
+            ?batterAct a base:BatterAct ; bfo:BFO_0000132 ?pa ; bfo:BFO_0000055 ?batterRole .
+            ?batterRole a base:BatterRole ; bfo:BFO_0000197 ?batter .
+            { ?resolution a base:SafeProcess ; bfo:BFO_0000117/cco:ont00001986 ?decision .
+              ?decision a base:SafeDecisionICE ; cco:ont00001808 ?resolution, ?destination .
+              ?destination a base:Base .
+              ?destinationId a cco:ont00000649 ; cco:ont00001916 ?destination ; cco:ont00001765 ?end .
+            } UNION { ?resolution a base:RunProcess . BIND("score" AS ?end) }
+            OPTIONAL {
+              ?origin a base:BaserunningSegmentOriginDesignation ; cco:ont00001808 ?act ; cco:ont00001916 ?startBase .
+              ?startId a cco:ont00000649 ; cco:ont00001916 ?startBase ; cco:ont00001765 ?start .
+            }
+            FILTER ((?runner = ?batter && ?end = "1B" &&
+                ((EXISTS { $this a base:WalkProcess } && ?ruleCode = "5.05(b)(1)") ||
+                 (EXISTS { $this a base:HitByPitchProcess } && ?ruleCode = "5.05(b)(2)"))) ||
+                (?runner != ?batter && ?ruleCode = "5.06(b)(3)(B)" &&
+                 ((?start = "1B" && ?end = "2B") || (?start = "2B" && ?end = "3B") || (?start = "3B" && ?end = "score"))))
+          }
         }
       """
     ] .
+
+shape:WithdrawnAwardDirectiveShape a sh:NodeShape ;
+    sh:targetClass base:BaseAwardDirectiveICE ;
+    sh:sparql [ sh:message "The event-specific Base Award Directive pattern is withdrawn."@en ;
+      sh:select "SELECT $this WHERE { $this ?p ?o }" ] .
 
 shape:WithdrawnRunnerPropertiesShape a sh:NodeShape ;
     sh:targetSubjectsOf base:hasResolvedRunner, base:hasAdjudicatedBase,

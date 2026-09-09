@@ -14,7 +14,8 @@
       "implementationBehavior": "calculation uses accepted policy; live output remains unavailable until source-owned graph prerequisites are admitted",
       "decisionRecords": [
         "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
-        "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json"
+        "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json",
+        "archive/design-records/runner-award-origin-final-decision/review.json"
       ],
       "researchAssessment": {
         "assessedOn": "2026-09-08",
@@ -32,7 +33,13 @@
           "deferred"
         ],
         "livePrerequisiteClosed": false
-      }
+      },
+      "resolvedSubgaps": [
+        "Award causation plus applicable rule requirement; no event directive",
+        "Immediate segment origin via movement.start designation; no preceding stasis",
+        "Batter metric HOME=0 from PA batter identity"
+      ],
+      "remainingCoverage": "Reviewed operative award resolution, other rule editions, PA-start fallback completeness and full attributed-trajectory completeness remain separately gated."
     },
     {
       "id": "BOUNDARY_STATE",
@@ -45,7 +52,8 @@
       "implementationBehavior": "calculation uses accepted policy; live output remains unavailable until source-owned graph prerequisites are admitted",
       "decisionRecords": [
         "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
-        "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json"
+        "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json",
+        "archive/design-records/runner-award-origin-final-decision/review.json"
       ],
       "researchAssessment": {
         "assessedOn": "2026-09-08",
@@ -59,7 +67,13 @@
           "evidence"
         ],
         "livePrerequisiteClosed": false
-      }
+      },
+      "resolvedSubgaps": [
+        "Award causation plus applicable rule requirement; no event directive",
+        "Immediate segment origin via movement.start designation; no preceding stasis",
+        "Batter metric HOME=0 from PA batter identity"
+      ],
+      "remainingCoverage": "Reviewed operative award resolution, other rule editions, PA-start fallback completeness and full attributed-trajectory completeness remain separately gated."
     },
     {
       "id": "PATH_IDENTITY",
@@ -72,7 +86,8 @@
       "implementationBehavior": "calculation uses accepted policy; live output remains unavailable until source-owned graph prerequisites are admitted",
       "decisionRecords": [
         "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
-        "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json"
+        "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json",
+        "archive/design-records/runner-award-origin-final-decision/review.json"
       ],
       "researchAssessment": {
         "assessedOn": "2026-09-08",
@@ -86,7 +101,13 @@
           "evidence"
         ],
         "livePrerequisiteClosed": false
-      }
+      },
+      "resolvedSubgaps": [
+        "Award causation plus applicable rule requirement; no event directive",
+        "Immediate segment origin via movement.start designation; no preceding stasis",
+        "Batter metric HOME=0 from PA batter identity"
+      ],
+      "remainingCoverage": "Reviewed operative award resolution, other rule editions, PA-start fallback completeness and full attributed-trajectory completeness remain separately gated."
     },
     {
       "id": "OPERATIVE_OUTS",

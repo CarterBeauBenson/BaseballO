@@ -6,7 +6,8 @@ PREFIX cco: <https://www.commoncoreontologies.org/>
 # Each distinct combination remains visible; no path coalescence or credit is
 # inferred. Unbound values remain unknown. Codes come from explicit identifiers.
 SELECT DISTINCT ?graph ?game ?plateAppearance ?resolution ?act ?runner
-       ?originBase ?originCode ?destinationBase ?destinationCode
+       ?originDesignation ?originBase ?originCode ?destinationBase ?destinationCode
+       ?batter ?metricOrigin ?awardRule
        ?contactPlay ?award ?record ?hasSafeType ?hasOutType ?hasRunType
 WHERE {
   GRAPH ?graph {
@@ -20,12 +21,9 @@ WHERE {
           bfo:BFO_0000117 ?resolution, ?act .
       ?act a base:BaserunningAct ; cco:ont00001833 ?runner ; bfo:BFO_0000132 ?plateAppearance . }
     OPTIONAL {
-      FILTER(BOUND(?runner))
-      ?originStasis a base:BaserunnerAtBaseStasis ; bfo:BFO_0000057 ?runner, ?originBase ;
-          bfo:BFO_0000063 ?act ; bfo:BFO_0000199 ?stasisInterval .
-      ?originBase a base:Base .
-      ?stasisInterval bfo:BFO_0000224 ?boundary .
-      ?act bfo:BFO_0000199/bfo:BFO_0000222 ?boundary .
+      ?originDesignation a base:BaserunningSegmentOriginDesignation ;
+          cco:ont00001808 ?act ; cco:ont00001916 ?originBase .
+        ?originBase a base:Base .
       OPTIONAL {
         ?originIdentifier a cco:ont00000649 ; cco:ont00001916 ?originBase ;
             cco:ont00001765 ?originCode .
@@ -46,18 +44,22 @@ WHERE {
           bfo:BFO_0000132 ?plateAppearance ; bfo:BFO_0000117 ?resolution .
     }
     OPTIONAL {
-      FILTER(BOUND(?runner))
-      ?award bfo:BFO_0000132 ?plateAppearance ; cco:ont00001986 ?directive .
-      { ?award a base:WalkProcess } UNION { ?award a base:HitByPitchProcess }
-      ?directive a base:BaseAwardDirectiveICE ; cco:ont00001942 ?act ; cco:ont00001808 ?runner, ?awardedBase .
-      ?awardedBase a base:Base .
-      ?awardEpisode a base:RunnerResolutionEpisode ; bfo:BFO_0000117 ?act, ?resolution .
-      ?resolution a base:SafeProcess ; bfo:BFO_0000117/cco:ont00001986 ?awardDecision .
-      ?awardDecision a base:SafeDecisionICE ; cco:ont00001808 ?resolution, ?awardedBase .
+      ?award bfo:BFO_0000132 ?plateAppearance ; cco:ont00001803 ?act .
+        { ?award a base:WalkProcess } UNION { ?award a base:HitByPitchProcess }
+        ?awardRule a base:BaseballRule ; cco:ont00001974 ?act .
+        ?awardEpisode a base:RunnerResolutionEpisode ; bfo:BFO_0000117 ?act, ?resolution .
+        { ?resolution a base:SafeProcess } UNION { ?resolution a base:RunProcess }
     }
     OPTIONAL {
       ?record a base:BaseballEventRecord ; cco:ont00001808 ?resolution, ?act .
     }
+    OPTIONAL {
+      ?batterAct a base:BatterAct ; bfo:BFO_0000132 ?plateAppearance ; bfo:BFO_0000055 ?batterRole .
+      ?batterRole a base:BatterRole ; bfo:BFO_0000197 ?batter .
+    }
+    # HOME=0 is an analytical initial position, never an RDF origin assertion.
+    BIND(IF(?originCode = "1B", 1, IF(?originCode = "2B", 2, IF(?originCode = "3B", 3, 1/0))) AS ?segmentOriginPosition)
+    BIND(IF(BOUND(?batter) && ?runner = ?batter, 0, ?segmentOriginPosition) AS ?metricOrigin)
     BIND(EXISTS { ?resolution a base:SafeProcess } AS ?hasSafeType)
     BIND(EXISTS { ?resolution a base:OutProcess } AS ?hasOutType)
     BIND(EXISTS { ?resolution a base:RunProcess } AS ?hasRunType)

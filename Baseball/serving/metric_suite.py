@@ -44,7 +44,7 @@ def policies():
 def fingerprint():
     paths = [Path(__file__), ROOT / 'serving/metric-suite-schema.sql',
              METRICS / 'metric-catalog.json', METRICS / 'gap-register.json',
-             METRICS / 'batch-release-policy.json']
+             METRICS / 'batch-release-policy.json', METRICS / 'trajectory-origin-policy.json']
     paths.extend(sorted(METRICS.glob('*.rq')))
     paths.extend(ROOT / e['authoritativeQuery'] for e in catalog()['metrics'])
     return hashlib.sha256('\n'.join(
@@ -129,7 +129,45 @@ def run_kernel(metric_id, rows):
             for row in Graph().query(query)]
 
 
-def trajectories(participants, outs_before, attributed_outs):
+def trajectory_origin(row, batter):
+    """Resolve the metric initial position from admitted, act-scoped evidence.
+
+    This accepts graph bindings, not MLB source fields. A caller must supply
+    positive PA-start/no-intervening-movement evidence for the optional fallback.
+    Empty arrays or missing events do not certify that condition.
+    """
+    participant = row.get('participant')
+    if not isinstance(batter, str) or not batter or not isinstance(participant, str) or not participant:
+        return unavailable('AMBIGUOUS_BATTER_OR_RUNNER_IDENTITY')
+    if participant == batter:
+        return available(0, originBasis='metric-batter-HOME')
+    codes = {'1B': 1, '2B': 2, '3B': 3}
+    designations = row.get('originDesignations', [])
+    if designations:
+        identities, starts, evidence = set(), set(), []
+        for designation in designations:
+            if (not designation.get('designation') or not designation.get('record')
+                    or not row.get('act') or designation.get('act') != row['act']
+                    or designation.get('baseCode') not in codes):
+                return unavailable('AMBIGUOUS_SEGMENT_ORIGIN')
+            identities.add(designation['designation'])
+            starts.add(designation['baseCode'])
+            evidence.extend([designation['designation'], designation['record']])
+        if len(identities) != 1 or len(starts) != 1:
+            return unavailable('AMBIGUOUS_SEGMENT_ORIGIN')
+        return available(codes[next(iter(starts))], evidence=evidence, originBasis='segment-designation')
+    fallback = row.get('paStartOrigin') or {}
+    if (fallback.get('actBeginsAtPAStart') is True
+            and fallback.get('noInterveningSameRunnerMovement') is True
+            and fallback.get('evidence') and fallback.get('stasis')
+            and row.get('act') and fallback.get('act') == row['act']
+            and fallback.get('runner') == participant and fallback.get('baseCode') in codes):
+        return available(codes[fallback['baseCode']], evidence=[fallback['stasis'], *fallback['evidence']],
+                         originBasis='positively-supported-PA-start')
+    return unavailable('SEGMENT_ORIGIN_UNAVAILABLE')
+
+
+def trajectories(participants, outs_before, attributed_outs, *, batter=None):
     """One already coalesced, complete attributed consequence. No raw rows."""
     _integer(outs_before, 'outs before', 0, 2)
     _integer(attributed_outs, 'attributed outs', 0, 3 - outs_before)
@@ -138,7 +176,15 @@ def trajectories(participants, outs_before, attributed_outs):
         return unavailable('MISSING_PARTICIPANTS')
     inputs, evidence = [], []
     for row in rows:
-        start = _integer(row.get('start'), 'original start', 0, 3)
+        if batter is not None:
+            origin = trajectory_origin(row, batter)
+            if origin['status'] != 'available':
+                return origin
+            start = int(fraction(origin['value']))
+            evidence.extend(origin['evidence'])
+        else:
+            # Existing callers already supply admitted, coalesced trajectory starts.
+            start = _integer(row.get('start'), 'original start', 0, 3)
         outcome = row.get('terminal')
         if outcome not in {'safe', 'scored', 'out', 'stranded'}:
             return unavailable('UNKNOWN_TERMINAL_STATE')

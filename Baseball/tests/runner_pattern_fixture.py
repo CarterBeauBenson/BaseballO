@@ -18,12 +18,10 @@ def movement(g, rr, act, pa, runner=None, origin=None, destination=None):
                        (episode, BFO.BFO_0000117, act), (act, CCO.ont00001833, runner),
                        (runner, RDF.type, CCO.ont00001262)]: g.add(triple)
     if origin:
-        stasis, interval, act_interval, boundary = [URIRef(str(act) + '/' + x) for x in ['stasis', 'stasis-interval', 'interval', 'boundary']]
-        for triple in [(stasis, RDF.type, BASE.BaserunnerAtBaseStasis),
-                       (stasis, BFO.BFO_0000057, runner), (stasis, BFO.BFO_0000057, origin),
-                       (origin, RDF.type, BASE.Base), (stasis, BFO.BFO_0000063, act),
-                       (stasis, BFO.BFO_0000199, interval), (interval, BFO.BFO_0000224, boundary),
-                       (act, BFO.BFO_0000199, act_interval), (act_interval, BFO.BFO_0000222, boundary)]: g.add(triple)
+        designation = URIRef(str(act) + '/origin-designation')
+        for triple in [(designation, RDF.type, BASE.BaserunningSegmentOriginDesignation),
+                       (designation, CCO.ont00001808, act), (designation, CCO.ont00001916, origin),
+                       (origin, RDF.type, BASE.Base)]: g.add(triple)
     if destination:
         for triple in [(rr, RDF.type, BASE.SafeProcess), (rr, BFO.BFO_0000117, judgment),
                        (judgment, RDF.type, BASE.SafeJudgmentAct), (judgment, CCO.ont00001986, decision),
@@ -33,10 +31,9 @@ def movement(g, rr, act, pa, runner=None, origin=None, destination=None):
     return episode, judgment, decision
 
 
-def award(g, source, act, pa, runner, destination):
-    directive = URIRef(str(source) + '/directive')
+def award(g, source, act, pa):
+    rule = URIRef(str(source) + '/rule')
     for triple in [(source, RDF.type, BASE.WalkProcess), (source, BFO.BFO_0000132, pa),
-                   (source, CCO.ont00001986, directive), (directive, RDF.type, BASE.BaseAwardDirectiveICE),
-                   (directive, CCO.ont00001942, act), (directive, CCO.ont00001808, runner),
-                   (directive, CCO.ont00001808, destination)]: g.add(triple)
-    return directive
+                   (source, CCO.ont00001803, act), (rule, RDF.type, BASE.BaseballRule),
+                   (rule, CCO.ont00001974, act), (act, CCO.ont00001807, rule)]: g.add(triple)
+    return rule

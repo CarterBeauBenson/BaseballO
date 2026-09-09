@@ -1,17 +1,20 @@
-# Runner origin through stasis boundaries
+# Source-designated movement origins
 
-The four local runner object properties were withdrawn on 2026-09-09.
-The [runner structural correction](../../../archive/design-records/runner-structural-correction/README.md) supersedes the earlier shortcut design.
+Implements the [final user decision](../../../archive/design-records/runner-award-origin-final-decision/README.md).
 
-The general `BaserunnerAtBaseStasis` is no longer restricted to a PA start.
-Existing mapped instances keep their identities and gain the narrower
-`PlateAppearanceStartBaserunnerAtBaseStasis` type. PA-start temporal and location
-checks remain on that subclass. Stasis has participants, not agents or role
-realizations.
+The final user decision replaces event-specific award directives with
+Walk/HBP **is cause of** the particular Baserunning Act and the applicable
+Baseball Rule **requires** that act. Existing runners require positive source
+force evidence (`r_adv_force`), exact next-base completion and same-event
+identity. Reviewed/ambiguous PAs and unverified rule editions are withheld by
+the current conservative source selection.
 
-Origin queries require the same runner, a Base participant, explicit precedence,
-and a stasis ending at the act's first instant. Neither `movement.start`,
-`movement.originBase`, the next recorded event nor a bare precedes edge proves
-that boundary or persistence. No new stases or ending instants are emitted by
-this correction. Existing PA-start evidence remains available in its own query;
-origin stays unbound until authoritative boundary evidence exists.
+`BaserunningSegmentOriginDesignation` is about the act, designates the Base
+from `movement.start`, and is part of its source record. `originBase` is not
+substituted for start. No stasis, physical location, shared boundary or runner
+continuity is inferred. The metric supplies HOME=0 for the PA batter. Existing
+runners use their act's designation first; PA-start fallback requires positive
+act-start and no-intervening-movement evidence, otherwise origin is unavailable.
+The current source does not manufacture that fallback completeness evidence.
+
+The generalized stasis and PA-start subclass remain for positively supported states. No new object properties or RDF index predicates are introduced.

@@ -3,7 +3,7 @@
 > Correction, 2026-09-09: passages below describing the four local runner
 > properties are historical and withdrawn. Use the [structural correction](../../archive/design-records/runner-structural-correction/README.md).
 > Episode/agent and decision-destination paths replace the first two shortcuts;
-> directive prescription and stasis boundaries remain source-evidence gaps.
+> the [final decision](../../archive/design-records/runner-award-origin-final-decision/README.md) replaces directives and stasis-boundary requirements with causal/normative award paths and segment-origin designations.
 
 
 Nodes use accepted classes. Solid arrows show existing structural patterns;

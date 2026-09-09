@@ -83,10 +83,11 @@ The user has since approved implementing the targeted fix. Its concrete A1
 contact-play parthood slice is
 [accepted separately](../../archive/design-records/mlb-game-batted-runner-resolution-containment/README.md)
 and implemented as a bounded RML addition with source SHACL. The
-[structural correction](../../archive/design-records/runner-structural-correction/README.md)
-replaces the withdrawn local relations with episode/agent and safe-decision
-paths. Directive and stasis-boundary source evidence remains unavailable.
-These changes do not establish missing before-state or enable metric scoring.
+[final award/origin decision](../../archive/design-records/runner-award-origin-final-decision/README.md)
+retains episode/agent and safe-decision paths, replaces directives with causal
+and normative relations, and supplies act-specific origin designations.
+These resolve the two named modeling gaps; whole-trajectory completeness and
+other live metric prerequisites remain independently gated.
 
 The reviewed pattern must answer:
 
@@ -217,10 +218,11 @@ The user accepted these choices on 2026-09-08:
 
 The [boundary contract](../../proposals/mlb-game-batter-consequence-attribution/metric-boundary-contract.md)
 records exact examples, remaining cases and population safeguards. The
-[historical baserunning-origin decision](../../archive/design-records/mlb-game-baserunning-origin/README.md)
-is superseded by the user's structural correction. A movement-start field does
-not prove a preceding stasis interval; origin remains unbound until that
-interval and its ending at the act's beginning are evidenced.
+[final origin policy](trajectory-origin-policy.json) uses movement segment
+designations and gives the PA batter metric HOME=0. No preceding stasis or
+shared ending/beginning instant is required. Existing-runner PA-start fallback
+requires positive support for the act beginning there without intervening
+same-runner movement; it is never reconstructed from missing records.
 
 ## Evidence audit and remaining release gate
 
@@ -244,9 +246,9 @@ production graph admission and scoring remain gated.
 
 [runner-movement-evidence.rq](runner-movement-evidence.rq) exposes individual
 act/resolution pairs using explicit Base Code Identifiers, with source-record,
-contact-play paths and evidence-dependent award/origin paths. Seven regression
+contact-play, causal award and source-origin designation paths. Nine regression
 tests cover separate movements, unknown values, graph/PA scope, conflicting
-codes, missing stasis boundaries and matching award destinations. These
+codes, no continuity fallback, normative requirements and batter metric HOME. These
 are reviewable evidence rows; they are not scored or coalesced trajectories.
 
 The [boundary evidence review](../../proposals/mlb-game-batter-consequence-attribution/boundary-state-evidence.md)
@@ -270,19 +272,31 @@ execution. A selectively covered subset cannot silently replace the accepted
 league reference population. No executable TFS/PAQ-2 scoring query or serving
 route is released yet.
 
-## Runner structural correction (2026-09-09)
+## Final award and origin decision (2026-09-09)
 
-The [user-directed correction](../../archive/design-records/runner-structural-correction/README.md)
-removes all four local runner object properties. `runner-movement-evidence.rq`
-and `attribution-evidence.rq` now traverse episode/act/agent and
-resolution/judgment/decision/Base paths. Origin requires an evidenced shared
-stasis-ending/act-start boundary. Award completion requires an explicit award
-directive prescribing the same act and matching its counted safe destination.
-Current MLB rows supply neither that directive evidence nor new stasis ending
-boundaries. Missing bindings remain unknown; metric arithmetic and release
-availability are unchanged. `runner-location-evidence.rq` specifically queries
-the PA-start stasis subclass, preserving the existing boundary scope.
+The final user decision replaces event-specific award directives with
+Walk/HBP **is cause of** the particular Baserunning Act and the applicable
+Baseball Rule **requires** that act. Existing runners require positive source
+force evidence (`r_adv_force`), exact next-base completion and same-event
+identity. Reviewed/ambiguous PAs and unverified rule editions are withheld by
+the current conservative source selection.
 
-Previously promoted graphs are not rewritten by this code change. Until NiFi
-maps, validates and promotes a corrected graph, the new structural bindings
-may be absent. The queries do not fall back to the withdrawn shortcuts.
+`BaserunningSegmentOriginDesignation` is about the act, designates the Base
+from `movement.start`, and is part of its source record. `originBase` is not
+substituted for start. No stasis, physical location, shared boundary or runner
+continuity is inferred. The metric supplies HOME=0 for the PA batter. Existing
+runners use their act's designation first; PA-start fallback requires positive
+act-start and no-intervening-movement evidence, otherwise origin is unavailable.
+The current source does not manufacture that fallback completeness evidence.
+
+The source maps the verified 2019 and 2026 Official Baseball Rule editions.
+Other editions do not acquire rule-dependent assertions until verified. This
+is field coverage, not a new semantic gap or a reason to stop unrelated ingestion.
+
+`metric_suite.trajectories(..., batter=...)` applies the admitted origin policy;
+its input is graph evidence, not raw MLB JSON. The existing already-coalesced
+input interface remains available. Missing or conflicting origin evidence is
+unavailable. Exact TFS arithmetic and other metric eligibility gates remain.
+
+Previously promoted graphs require normal NiFi replacement before the new
+paths appear. This code change does not silently rewrite promoted RDF.

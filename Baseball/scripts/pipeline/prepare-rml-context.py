@@ -167,6 +167,97 @@ def runner_episode_evidence(play: dict, at_bat_index: str) -> dict[str, list[dic
     return products
 
 
+def runner_metric_evidence(play: dict, at_bat_index: str, season: str) -> dict[str, list[dict]]:
+    """Select source rows for the user's final award/origin graph contracts.
+
+    Start is a source designation, never persistence evidence. The force flag
+    is positive evidence, not a conclusion reconstructed from occupied bases.
+    Reviewed PAs and unverified rule editions withhold award assertions only.
+    """
+    products = {"segmentOrigins": [], "awardAdvances": []}
+    if not str(at_bat_index).isdigit() or isinstance(at_bat_index, bool):
+        return products
+    rows = play.get("runners", [])
+    known = {int(r["runnerIndex"]): r for r in runner_episode_evidence(play, at_bat_index)["runnerEpisodes"]}
+
+    def identity(row):
+        d, m = row.get("details", {}), row.get("movement", {})
+        return (str(d.get("runner", {}).get("id")), d.get("playIndex"),
+                m.get("start"), m.get("end"), m.get("isOut"), d.get("eventType"))
+
+    unambiguous = {i: item for i, item in known.items()
+                   if sum(identity(r) == identity(rows[i]) for r in rows) == 1}
+    for i, item in unambiguous.items():
+        start = rows[i].get("movement", {}).get("start")
+        if start in {"1B", "2B", "3B"}:
+            products["segmentOrigins"].append({**item, "baseCode": start})
+
+    result = play.get("result", {}).get("eventType")
+    events = play.get("playEvents", [])
+    if (str(season) not in {"2019", "2026"}
+            or play.get("about", {}).get("isComplete") is not True
+            or result not in {"walk", "intent_walk", "hit_by_pitch"}
+            or play.get("about", {}).get("hasReview") is True or play.get("reviewDetails")
+            or any(e.get("reviewDetails") or e.get("details", {}).get("hasReview") is True for e in events)):
+        return products
+    batter = str(play.get("matchup", {}).get("batter", {}).get("id"))
+    award_types = {"walk", "intent_walk"} if result in {"walk", "intent_walk"} else {"hit_by_pitch"}
+    batter_rows = [(i, r) for i, r in enumerate(rows)
+                   if str(r.get("details", {}).get("runner", {}).get("id")) == batter
+                   and r.get("details", {}).get("eventType") in award_types]
+    if len(batter_rows) != 1:
+        return products
+    bi, br = batter_rows[0]
+    bd, bm = br.get("details", {}), br.get("movement", {})
+    index = bd.get("playIndex")
+    matches = [e for e in events if type(e.get("index")) is int and e["index"] == index]
+    if (type(index) is not int or index < 0 or len(matches) != 1
+            or bi not in unambiguous or bm.get("start") is not None
+            or bm.get("isOut") is not False or bm.get("end") != "1B"
+            or bd.get("movementReason") is not None
+            or str(play.get("matchup", {}).get("postOnFirst", {}).get("id")) != batter):
+        return products
+    event = matches[0]
+    pitches = [e for e in events if e.get("isPitch") is True]
+    if result == "intent_walk":
+        if event.get("details", {}).get("eventType") != "intent_walk":
+            return products
+    elif (not pitches or pitches[-1].get("index") != index
+          or (result == "walk" and event.get("count", {}).get("balls") != 4)
+          or (result == "hit_by_pitch" and event.get("details", {}).get("call", {}).get("code") != "H")):
+        return products
+    event_rows = [(i, r) for i, r in enumerate(rows)
+                  if type(r.get("details", {}).get("playIndex")) is int and r["details"]["playIndex"] == index]
+    edition = f"https://baseballontology.org/data/rule/official-baseball/{season}"
+    for i, row in event_rows:
+        if i not in unambiguous:
+            continue
+        d, m = row.get("details", {}), row.get("movement", {})
+        runner = str(d.get("runner", {}).get("id"))
+        if (d.get("eventType") not in award_types or m.get("isOut") is not False
+                or sum(str(r.get("details", {}).get("runner", {}).get("id")) == runner for _, r in event_rows) != 1):
+            continue
+        if i == bi:
+            code = "5.05(b)(2)" if result == "hit_by_pitch" else "5.05(b)(1)"
+            rule_key = "batter-hbp" if result == "hit_by_pitch" else "batter-walk"
+        else:
+            expected = {"1B": "2B", "2B": "3B", "3B": "score"}.get(m.get("start"))
+            if d.get("movementReason") != "r_adv_force" or expected is None or m.get("end") != expected:
+                continue
+            if expected == "score":
+                if d.get("isScoringEvent") is not True:
+                    continue
+            elif str(play.get("matchup", {}).get({"2B": "postOnSecond", "3B": "postOnThird"}[expected], {}).get("id")) != runner:
+                continue
+            code, rule_key = "5.06(b)(3)(B)", "forced-advance"
+        products["awardAdvances"].append({**unambiguous[i], "ruleIri": edition + "/" + rule_key,
+            "ruleCode": code, "ruleEditionIri": edition,
+            "ruleIdentifierIri": edition + "/" + rule_key + "/identifier",
+            "ruleEditionIdentifierIri": edition + "/identifier",
+            "ruleEditionIdentifier": f"Official Baseball Rules {season}"})
+    return products
+
+
 def require_numeric(value: object, label: str) -> str:
     rendered = str(value if value is not None else "")
     if not rendered.isdigit():
@@ -674,6 +765,7 @@ def main() -> None:
             "startBaseOccupancies": start_base_occupancies,
             "battedRunnerResolutions": batted_runner_resolution_links(play, at_bat_index),
             **runner_episode_evidence(play, at_bat_index),
+            **runner_metric_evidence(play, at_bat_index, season),
             "hasPlateAppearanceStructure": has_plate_appearance_structure,
             "hasCompletedPlateAppearanceResult": has_completed_plate_appearance_result,
             "hasReview": False,

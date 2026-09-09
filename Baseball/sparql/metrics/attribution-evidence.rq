@@ -28,12 +28,9 @@ WHERE {
       }
       OPTIONAL {
         ?resolution bfo:BFO_0000062 ?act .
-        FILTER(BOUND(?runner))
-        ?originStasis a base:BaserunnerAtBaseStasis ; bfo:BFO_0000057 ?runner, ?originBase ;
-          bfo:BFO_0000063 ?act ; bfo:BFO_0000199 ?stasisInterval .
+        ?originDesignation a base:BaserunningSegmentOriginDesignation ;
+          cco:ont00001808 ?act ; cco:ont00001916 ?originBase .
         ?originBase a base:Base .
-        ?stasisInterval bfo:BFO_0000224 ?boundary .
-        ?act bfo:BFO_0000199/bfo:BFO_0000222 ?boundary .
         BIND(?act AS ?originAct)
       }
       OPTIONAL {
@@ -49,14 +46,11 @@ WHERE {
         BIND(?resolution AS ?contactResolution)
       }
       OPTIONAL {
-        FILTER(BOUND(?runner))
-        ?award bfo:BFO_0000132 ?plateAppearance ; cco:ont00001986 ?directive .
+        ?award bfo:BFO_0000132 ?plateAppearance ; cco:ont00001803 ?act .
         { ?award a base:WalkProcess } UNION { ?award a base:HitByPitchProcess }
-        ?directive a base:BaseAwardDirectiveICE ; cco:ont00001942 ?act ; cco:ont00001808 ?runner, ?awardedBase .
-        ?awardedBase a base:Base .
+        ?awardRule a base:BaseballRule ; cco:ont00001974 ?act .
         ?awardEpisode a base:RunnerResolutionEpisode ; bfo:BFO_0000117 ?act, ?resolution .
-        ?resolution a base:SafeProcess ; bfo:BFO_0000117/cco:ont00001986 ?awardDecision .
-        ?awardDecision a base:SafeDecisionICE ; cco:ont00001808 ?resolution, ?awardedBase .
+        { ?resolution a base:SafeProcess } UNION { ?resolution a base:RunProcess }
         BIND(?resolution AS ?awardResolution)
       }
       OPTIONAL {

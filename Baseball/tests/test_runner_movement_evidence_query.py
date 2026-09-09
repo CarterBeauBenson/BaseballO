@@ -69,7 +69,7 @@ class RunnerMovementEvidenceTests(unittest.TestCase):
     def test_index_and_other_pa_evidence_do_not_join(self):
         rr, act = self.movement('out')
         self.g.add((rr, RDF.type, BASE.OutProcess))
-        award(self.g, EX.award, act, EX.otherPA, EX.runner, EX.base)
+        award(self.g, EX.award, act, EX.otherPA)
         self.g.add((EX.award, BFO.BFO_0000132, EX.otherPA))
         indexed = self.ds.graph(URIRef('https://w3id.org/baseball/graph/index/game/824315'))
         for t in self.g: indexed.add(t)
@@ -84,20 +84,37 @@ class RunnerMovementEvidenceTests(unittest.TestCase):
         self.code(EX.alpha, '1B'); self.code(EX.alpha, '2B')
         self.assertEqual({str(r['originCode']) for r in self.rows()}, {'1B', '2B'})
 
-    def test_precedence_without_shared_boundary_does_not_supply_origin(self):
-        rr, act = self.movement('no-boundary', EX.alpha, EX.beta)
-        self.g.remove((None, BFO.BFO_0000224, None))
+    def test_designation_does_not_require_stasis(self):
+        self.movement('no-stasis', EX.alpha, EX.beta)
         row, = self.rows()
-        self.assertNotIn('originBase', row)
+        self.assertEqual(row['originBase'], EX.alpha)
+        self.assertEqual(list(self.g.subjects(RDF.type, BASE.BaserunnerAtBaseStasis)), [])
 
-    def test_award_requires_same_runner_act_and_counted_destination(self):
+    def test_previous_safe_or_stasis_is_not_an_origin_designation(self):
+        self.movement('previous', destination=EX.alpha)
+        rr, act = self.movement('current')
+        self.g.add((EX.previous, BFO.BFO_0000063, act))
+        self.g.add((EX.stasis, RDF.type, BASE.BaserunnerAtBaseStasis))
+        self.g.add((EX.stasis, BFO.BFO_0000057, EX.alpha))
+        self.g.add((EX.stasis, BFO.BFO_0000057, EX.runner))
+        self.g.add((EX.stasis, BFO.BFO_0000063, act))
+        self.assertTrue(all('originBase' not in row for row in self.rows()))
+
+    def test_award_requires_causal_and_normative_paths(self):
         rr, act = self.movement('awarded', destination=EX.beta)
-        directive = award(self.g, EX.award, act, EX.pa, EX.runner, EX.beta)
+        rule = award(self.g, EX.award, act, EX.pa)
         self.assertEqual(self.rows()[0]['award'], EX.award)
-        self.g.remove((directive, CCO.ont00001808, EX.beta))
-        self.g.add((directive, CCO.ont00001808, EX.otherBase))
-        self.g.add((EX.otherBase, RDF.type, BASE.Base))
+        self.g.remove((rule, CCO.ont00001974, act))
         self.assertNotIn('award', self.rows()[0])
+
+    def test_batter_metric_home_does_not_require_source_origin(self):
+        self.movement('double', destination=EX.beta, runner=EX.batter)
+        for t in [(EX.batterAct, RDF.type, BASE.BatterAct),
+                  (EX.batterAct, BFO.BFO_0000132, EX.pa), (EX.batterAct, BFO.BFO_0000055, EX.batterRole),
+                  (EX.batterRole, RDF.type, BASE.BatterRole), (EX.batterRole, BFO.BFO_0000197, EX.batter)]: self.g.add(t)
+        row, = self.rows()
+        self.assertEqual(int(row['metricOrigin']), 0)
+        self.assertNotIn('originBase', row)
 
     def test_catalog_is_single_source_read_only(self):
         catalog = json.loads((ROOT / 'sparql/source-scope-catalog.json').read_text())

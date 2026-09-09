@@ -3,7 +3,7 @@
 > Correction, 2026-09-09: passages below describing the four local runner
 > properties are historical and withdrawn. Use the [structural correction](../../archive/design-records/runner-structural-correction/README.md).
 > Episode/agent and decision-destination paths replace the first two shortcuts;
-> directive prescription and stasis boundaries remain source-evidence gaps.
+> the [final decision](../../archive/design-records/runner-award-origin-final-decision/README.md) replaces directives and stasis-boundary requirements with causal/normative award paths and segment-origin designations.
 
 
 Status: **nested-site direction selected; identity, temporal scope and source evidence under review**.
@@ -50,9 +50,9 @@ holds at some time; it does not select that boundary. Applying `exists at` to
 the runner and Site would establish their existence then, not the location
 relation between them. The former association-entity approach is withdrawn.
 
-The existing `BaserunnerAtBaseStasis` remains specifically at PA start. It is
-not generalized to later consequences, and an isolated observation does not
-establish an interval of persistence. Source fields must support the intended
+The generalized `BaserunnerAtBaseStasis` and its PA-start subclass remain
+available for supported persistence. An isolated observation does not
+establish an interval of persistence; segment origins now use Designative ICEs. Source fields must support the intended
 location at the selected boundary; missing movement rows still cannot prove
 unchanged location or stranding.
 

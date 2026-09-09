@@ -789,13 +789,30 @@
     {
       "id": "62-runner-structural-pattern",
       "title": "Runner episode and safe decision destination",
-      "summary": "An episode pairs one baserunning act and resolution. The act has the runner as agent; the safe decision identifies the counted destination. No directives or origin stases are manufactured from completion rows.",
+      "summary": "An episode pairs one baserunning act and resolution. The act has the runner as agent; the Safe Decision identifies the counted destination.",
       "maps": [
         "RunnerEpisodeMap",
         "RunnerEpisodeAgentMap",
         "RunnerEpisodeRecordMap",
         "SafeDecisionDestinationMap",
         "SafeDestinationIdentifierMap"
+      ]
+    },
+    {
+      "id": "63-award-cause-and-segment-origin",
+      "title": "Required award advances and source-designated segment origins",
+      "summary": "A walk/HBP causes only an evidenced exact award advance required by its applicable rule. A source origin designation identifies movement.start without asserting a stasis or continuity.",
+      "maps": [
+        "SegmentOriginDesignationMap",
+        "SegmentOriginBaseMap",
+        "SegmentOriginBaseIdentifierMap",
+        "AwardCauseMap",
+        "AwardRequirementMap",
+        "AwardRequiredByMap",
+        "AwardEvidenceRecordMap",
+        "AwardRuleEditionMap",
+        "AwardRuleIdentifierMap",
+        "AwardRuleEditionIdentifierMap"
       ]
     }
   ]

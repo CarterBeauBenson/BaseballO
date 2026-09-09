@@ -700,3 +700,10 @@ baseball_iri_policy:
 # Existing PA start-state stasis identities are retained with the narrower
 # PlateAppearanceStartBaserunnerAtBaseStasis type as well as their general type.
 # No award directive or new origin-stasis identity is emitted without evidence.
+
+# Final origin/award decision (2026-09-09) supersedes the prior directive gap:
+# runner-record/{PA}/{row}/origin-designation designates that row's movement.start
+# and is about the already identified movement act. It is a part of the record.
+# data/rule/official-baseball/{edition}/{batter-walk|batter-hbp|forced-advance}
+# identifies the applicable provision within that edition. Explicit identifiers
+# distinguish provision codes and rulebook editions. No event directive exists.

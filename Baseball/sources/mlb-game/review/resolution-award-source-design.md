@@ -1,23 +1,20 @@
-# Runner episodes and decision destinations
+# Award causes and rule requirements
 
-The four local runner object properties were withdrawn on 2026-09-09.
-The [runner structural correction](../../../archive/design-records/runner-structural-correction/README.md) supersedes the earlier shortcut design.
+Implements the [final user decision](../../../archive/design-records/runner-award-origin-final-decision/README.md).
 
-`runnerEpisodes` pairs each supported existing movement act with its existing
-resolution. `RunnerEpisodeMap` asserts the two occurrent parts and the PA;
-`RunnerEpisodeAgentMap` identifies the act's agent, whose persistent Baserunner
-Role already supplies the bearer/realization path. The source record is about
-both parts and the episode. SHACL checks uniqueness, same runner, PA, field,
-precedence and provenance.
+The final user decision replaces event-specific award directives with
+Walk/HBP **is cause of** the particular Baserunning Act and the applicable
+Baseball Rule **requires** that act. Existing runners require positive source
+force evidence (`r_adv_force`), exact next-base completion and same-event
+identity. Reviewed/ambiguous PAs and unverified rule editions are withheld by
+the current conservative source selection.
 
-`safeDecisionDestinations` supplies the sole destination Base referent of a
-completed, non-out row's existing Safe Decision ICE. The judgment output
-remains about its own Safe Process and additionally the counted destination.
-The Base has its explicit source code identifier. A generic decision about
-some Base does not suffice: this path uses the reviewed Safe Decision contract.
+`BaserunningSegmentOriginDesignation` is about the act, designates the Base
+from `movement.start`, and is part of its source record. `originBase` is not
+substituted for start. No stasis, physical location, shared boundary or runner
+continuity is inferred. The metric supplies HOME=0 for the PA batter. Existing
+runners use their act's designation first; PA-start fallback requires positive
+act-start and no-intervening-movement evidence, otherwise origin is unavailable.
+The current source does not manufacture that fallback completeness evidence.
 
-Walk/HBP completion rows no longer produce award links. The award directive
-pattern is declared and validated, but this source does not yet establish
-particular directive content/prescription. The award-completion query requires
-that full path and the same counted safe destination. Run completions still
-need destination evidence; no award binding is inferred merely from scoring.
+The generalized stasis and PA-start subclass remain for positively supported states. No new object properties or RDF index predicates are introduced.

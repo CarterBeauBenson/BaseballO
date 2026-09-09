@@ -39,7 +39,7 @@ class MetricEvidenceQueryTests(unittest.TestCase):
         self.graph.add((EX.out, RDF.type, BASE.OutProcess))
         movement(self.graph, EX.safe, EX.act, EX.pa, EX.runner, EX.first, EX.second)
         self.graph.add((EX.act, CCO.ont00001833, EX.otherRunner))
-        award(self.graph, EX.award, EX.act, EX.pa, EX.runner, EX.second)
+        award(self.graph, EX.award, EX.act, EX.pa)
         for bp in [EX.contact1, EX.contact2]:
             self.graph.add((bp, RDF.type, BASE.BattedBallPlayProcess))
             self.graph.add((bp, BFO.BFO_0000132, EX.pa))
