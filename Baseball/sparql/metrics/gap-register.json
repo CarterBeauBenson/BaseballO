@@ -74,7 +74,8 @@
         "Immediate segment origin via movement.start designation; no preceding stasis",
         "Batter metric HOME=0 from PA batter identity"
       ],
-      "remainingCoverage": "Reviewed operative award resolution, other rule editions, PA-start fallback completeness and full attributed-trajectory completeness remain separately gated."
+      "remainingCoverage": "Reviewed operative award resolution, other rule editions, PA-start fallback completeness and full attributed-trajectory completeness remain separately gated.",
+      "currentGraphReview": "proposals/graph-native-metric-suite-batch-review/continuity-graph-review.md"
     },
     {
       "id": "PATH_IDENTITY",
@@ -111,7 +112,8 @@
       ],
       "remainingCoverage": "Reviewed operative award resolution, other rule editions, PA-start fallback completeness and full attributed-trajectory completeness remain separately gated.",
       "continuityClarification": "Following the requested explanation, the user accepted the verified complete-history standard. This settles the evidence criterion, not the RDF representation or actual source coverage.",
-      "continuityDecision": "archive/design-records/metric-suite-gap-answers-2026-09-09/continuity-decision.json"
+      "continuityDecision": "archive/design-records/metric-suite-gap-answers-2026-09-09/continuity-decision.json",
+      "currentGraphReview": "proposals/graph-native-metric-suite-batch-review/continuity-graph-review.md"
     },
     {
       "id": "OPERATIVE_OUTS",
@@ -444,7 +446,8 @@
       "continuityDecision": "archive/design-records/metric-suite-gap-answers-2026-09-09/continuity-decision.json",
       "resolvedSubgaps": [
         "Verified complete-history continuity evidence criterion; RDF representation and source proof remain pending"
-      ]
+      ],
+      "currentGraphReview": "proposals/graph-native-metric-suite-batch-review/continuity-graph-review.md"
     },
     {
       "id": "SUPPORT_ATTRIBUTION",

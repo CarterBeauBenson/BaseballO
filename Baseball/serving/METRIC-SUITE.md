@@ -195,3 +195,16 @@ breaks the trajectory. Separate contribution episodes remain separate. Matching
 identifiers or adjacent rows alone are insufficient. The RDF representation
 and source reconciliation remain pending, so the current helpers continue to
 require admitted consolidated paths and do not join source segments.
+
+The next evidence extraction increment retains `episode`, `safeJudgment`,
+`safeDecision` and `originRecord` from the canonical movement query through
+SQL storage. Those fields are IRI-validated. Coverage reports the observed
+supporting paths without asserting population completeness; conflicting
+episode assertions remain separate evidence rows for the same act/resolution
+pair. An unrelated record or decision about a different resolution cannot
+supply the missing support.
+
+The [C1/C2 draft](../proposals/graph-native-metric-suite-batch-review/continuity-graph-review.md)
+specifies the remaining personal-whole and boundary-projection review. This
+increment changes no ontology, source mapping or source SHACL. Twenty-two
+focused Python query/serving tests and eight browser/API/compiler tests passed.

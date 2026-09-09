@@ -7,6 +7,13 @@ settles question 7's verified complete-history evidence criterion. Its RDF
 representation remains a separate review item. All nine policy answers are
 recorded; they do not establish complete live evidence.
 
+The [C1/C2 graph review](continuity-graph-review.md) now makes the next B1/B2
+decisions concrete: a personal BFO Process containing the existing episodes,
+and an analytical boundary-state projection over independently verified
+history. These proposals remain draft. The evidence query now retains the
+existing episode, Safe Judgment, Safe Decision and origin-record identities
+through serving and SQL, including missing or conflicting bindings.
+
 The software request covers all 20 metric calculations, serving integration,
 and one consolidated account of unresolved gaps. The formulas and routes are
 implemented. **Nineteen metrics still cannot produce valid live scores.**

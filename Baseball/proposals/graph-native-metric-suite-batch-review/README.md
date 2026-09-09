@@ -1,5 +1,12 @@
 # One review for the new metric suite
 
+**Concrete next review:** [C1 and C2](continuity-graph-review.md) propose the
+personal Process whole and a verified-history projection of metric boundary
+state using existing vocabulary. They include source-independent diagrams,
+field selection, checked source evidence and the remaining implementation
+gates. These graph/analytical proposals are draft; the nine policy answers
+remain accepted.
+
 **Current handoff:** [the September 9 release review](current-release-review.md)
 accounts for all 21 gap codes in seven shared work packages, separates the
 subsequently answered metric choices from model/evidence work, and records the

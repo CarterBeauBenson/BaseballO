@@ -5,8 +5,9 @@ PREFIX cco: <https://www.commoncoreontologies.org/>
 # Read-only evidence over accepted MLB-game relations, not scored trajectories.
 # Each distinct combination remains visible; no path coalescence or credit is
 # inferred. Unbound values remain unknown. Codes come from explicit identifiers.
-SELECT DISTINCT ?graph ?game ?plateAppearance ?resolution ?act ?runner
-       ?originDesignation ?originBase ?originCode ?destinationBase ?destinationCode
+SELECT DISTINCT ?graph ?game ?plateAppearance ?resolution ?act ?runner ?episode
+       ?originDesignation ?originRecord ?originBase ?originCode ?destinationBase ?destinationCode
+       ?safeJudgment ?safeDecision
        ?batter ?metricOrigin ?awardRule
        ?contactPlay ?award ?record ?hasSafeType ?hasOutType ?hasRunType
 WHERE {
@@ -24,6 +25,10 @@ WHERE {
       ?originDesignation a base:BaserunningSegmentOriginDesignation ;
           cco:ont00001808 ?act ; cco:ont00001916 ?originBase .
         ?originBase a base:Base .
+      OPTIONAL {
+        ?originDesignation bfo:BFO_0000176 ?originRecord .
+        ?originRecord a base:BaseballEventRecord .
+      }
       OPTIONAL {
         ?originIdentifier a cco:ont00000649 ; cco:ont00001916 ?originBase ;
             cco:ont00001765 ?originCode .

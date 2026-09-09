@@ -24,6 +24,8 @@ def movement_fixture():
         graph.add((record, RDF.type, BASE.BaseballEventRecord))
         graph.add((record, CCO.ont00001808, act))
         graph.add((record, CCO.ont00001808, resolution))
+        if origin:
+            graph.add((URIRef(str(act) + '/origin-designation'), BFO.BFO_0000176, record))
         if key != 'unknownAdvance':
             award(graph, EX.walk, act, EX.pa)
     for base, code in [(EX.first, '1B'), (EX.second, '2B')]:
@@ -47,12 +49,19 @@ class MovementServing(unittest.TestCase):
         self.assertEqual((forced['originCode'], forced['destinationCode']), ('1B', '2B'))
         self.assertEqual(forced['record'], str(EX.forcedAdvanceRecord))
         self.assertEqual(forced['award'], str(EX.walk))
+        self.assertEqual(forced['episode'], str(EX.forcedAdvance) + '/episode')
+        self.assertEqual(forced['originRecord'], str(EX.forcedAdvanceRecord))
+        self.assertEqual(forced['safeJudgment'], str(EX.forcedAdvance) + '/judgment')
+        self.assertEqual(forced['safeDecision'], str(EX.forcedAdvance) + '/decision')
         self.assertNotIn('metricOrigin', movements[str(EX.unknownAdvance)])
         direct = M.live_result('tfs', rows, graph_count=1)
         observed = direct['coverage']['runnerMovements']
         self.assertEqual(observed['observedPairs'], 3)
         self.assertEqual(observed['withCausalRequiredAwardBinding'], 2)
         self.assertEqual(observed['withSegmentOriginBinding'], 1)
+        self.assertEqual(observed['withEpisodeBinding'], 3)
+        self.assertEqual(observed['withOriginRecordBinding'], 1)
+        self.assertEqual(observed['withSafeDecisionBinding'], 2)
         self.assertEqual(observed['withOneMetricOriginBinding'], 2)
         self.assertEqual(observed['withoutMetricOriginBinding'], 1)
         self.assertFalse(observed['populationComplete'])
@@ -90,7 +99,9 @@ class MovementServing(unittest.TestCase):
         both = M.normalize_bindings(bindings(dataset, [G1, G2]), [G1, G2])
         self.assertEqual(M.movement_coverage(both)['observedPairs'], 6)
         row = next(r for r in source if r['kind']['value'] == 'runner_movement')
-        for field in ('act', 'plateAppearance', 'resolution', 'runner'):
+        for field in ('act', 'plateAppearance', 'resolution', 'runner', 'episode',
+                      'originRecord', 'safeJudgment', 'safeDecision'):
+            row = next(r for r in source if field in r and r['kind']['value'] == 'runner_movement')
             bad = {**row, field: {'type': 'literal', 'value': row[field]['value']}}
             with self.assertRaises(M.EvidenceError):
                 M.normalize_bindings([bad], [G1])
@@ -98,6 +109,37 @@ class MovementServing(unittest.TestCase):
         del bad['act']
         with self.assertRaises(M.EvidenceError):
             M.normalize_bindings([bad], [G1])
+
+    def test_multiple_episode_assertions_survive_without_changing_pair_count(self):
+        dataset = movement_fixture()
+        graph = dataset.graph(URIRef(G1))
+        for predicate, value in [(RDF.type, BASE.RunnerResolutionEpisode),
+                                 (BFO.BFO_0000132, EX.pa),
+                                 (BFO.BFO_0000117, EX.forcedAdvance),
+                                 (BFO.BFO_0000117, EX.forcedAdvanceAct)]:
+            graph.add((EX.otherEpisode, predicate, value))
+        rows = M.normalize_bindings(bindings(dataset, [G1]), [G1])
+        forced = [r for r in rows if r['kind'] == 'runner_movement' and r['entity'] == str(EX.forcedAdvance)]
+        self.assertEqual({r['episode'] for r in forced},
+                         {str(EX.otherEpisode), str(EX.forcedAdvance) + '/episode'})
+        self.assertEqual(M.movement_coverage(rows)['observedPairs'], 3)
+        self.assertEqual(M.live_result('tfs', rows, graph_count=1)['status'], 'unavailable')
+
+    def test_unlinked_record_and_other_resolution_decision_do_not_supply_support(self):
+        dataset = movement_fixture()
+        graph = dataset.graph(URIRef(G1))
+        graph.remove((URIRef(str(EX.forcedAdvanceAct) + '/origin-designation'),
+                      BFO.BFO_0000176, EX.forcedAdvanceRecord))
+        graph.remove((URIRef(str(EX.forcedAdvance) + '/decision'),
+                      CCO.ont00001808, EX.forcedAdvance))
+        graph.add((URIRef(str(EX.forcedAdvance) + '/decision'),
+                   CCO.ont00001808, EX.batterAdvance))
+        rows = M.normalize_bindings(bindings(dataset, [G1]), [G1])
+        forced, = [r for r in rows if r['kind'] == 'runner_movement' and r['entity'] == str(EX.forcedAdvance)]
+        self.assertNotIn('originRecord', forced)
+        self.assertNotIn('safeDecision', forced)
+        self.assertNotIn('destinationBase', forced)
+        self.assertEqual(forced['originCode'], '1B')
 
 
 if __name__ == '__main__':

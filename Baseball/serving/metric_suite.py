@@ -22,7 +22,7 @@ from rdflib import Graph, Literal
 
 ROOT = Path(__file__).resolve().parents[1]
 METRICS = ROOT / 'sparql/metrics'
-VERSION = '2.0.3'
+VERSION = '2.0.4'
 
 
 class EvidenceError(ValueError):
@@ -563,7 +563,8 @@ def normalize_bindings(bindings, graphs):
         for field in ('graph', 'game', 'entity', 'player', 'act', 'roleType', 'reviewRecord',
                       'original', 'operative', 'disposition', 'plateAppearance', 'resolution',
                       'runner', 'originDesignation', 'originBase', 'destinationBase', 'batter',
-                      'awardRule', 'contactPlay', 'award', 'record'):
+                      'awardRule', 'contactPlay', 'award', 'record', 'episode',
+                      'originRecord', 'safeJudgment', 'safeDecision'):
             if field in binding and binding[field].get('type') != 'uri':
                 raise EvidenceError('Evidence identity must be an IRI: ' + field)
         if row.get('kind') not in {'plate_appearance', 'batted_play', 'run', 'player_game', 'review', 'runner_movement'}:
@@ -595,8 +596,11 @@ def movement_coverage(rows):
     coverage = {'observedPairs': len(groups), 'populationComplete': False}
     for label, fields in {
         'withRunnerBinding': ('runner',),
+        'withEpisodeBinding': ('episode',),
         'withSegmentOriginBinding': ('originDesignation', 'originBase', 'originCode'),
+        'withOriginRecordBinding': ('originDesignation', 'originRecord'),
         'withSafeDestinationBinding': ('destinationBase', 'destinationCode'),
+        'withSafeDecisionBinding': ('safeJudgment', 'safeDecision', 'destinationBase'),
         'withContactPlayBinding': ('contactPlay',),
         'withCausalRequiredAwardBinding': ('award', 'awardRule'),
         'withSourceRecordBinding': ('record',),
