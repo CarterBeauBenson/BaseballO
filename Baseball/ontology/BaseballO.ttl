@@ -97,8 +97,8 @@ base:PlateAppearance a owl:Class ;
 base:BaserunnerAtBaseStasis a owl:Class ;
     rdfs:subClassOf cco:ont00000819 ;
     rdfs:label "Baserunner-at-Base Stasis"@en ;
-    skos:definition "A Baserunner-at-Base Stasis is a Stasis at the beginning of a Plate Appearance during which a player bearing a Baserunner Role is located at the site occupied by a particular Base."@en ;
-    rdfs:comment "The stasis binds runner, base artifact, base site, and plate appearance without treating a game-level location assertion as timeless."@en ;
+    skos:definition "A Baserunner-at-Base Stasis is a Stasis during which a Person bearing a Baserunner Role remains located at the Base Site occupied by a particular Base."@en ;
+    rdfs:comment "The stasis binds runner, Base and Base Site over its occupied Temporal Interval. Its PA-start subclass preserves the previously mapped boundary. Stasis participation is not agency or role realization; a source start-base value alone does not establish persistence or an ending boundary."@en ;
     skos:example "A runner remains at the site of third base when a plate appearance begins."@en .
 
 base:BattedBallPlayProcess a owl:Class ;
@@ -1943,42 +1943,23 @@ base:OpenFreeAgencyPeriodTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:on
 base:SalaryArbitrationPeriodTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "salary-arbitration" .
 base:InternationalSigningPeriodTypeICE a owl:NamedIndividual, cco:ont00000293 ; cco:ont00001765 "international-signing" .
 
+base:RunnerResolutionEpisode a owl:Class ;
+    rdfs:subClassOf obo:BFO_0000015 ;
+    rdfs:label "Runner Resolution Episode"@en ;
+    skos:definition "A Runner Resolution Episode is a Process that has as occurrent parts one particular Baserunning Act and the Runner Resolution Process that is preceded by and resolves that act."@en ;
+    rdfs:comment "Identity follows the particular act and resolution pair. The episode does not acquire agency or Planned Act status from its parts."@en ;
+    skos:example "The episode containing a runner's advance toward second and the Safe Process resolving that advance."@en .
 
-#################################################################
-# Accepted runner-resolution and award relations (2026-09-08)
-#################################################################
+base:BaseAwardDirectiveICE a owl:Class ;
+    rdfs:subClassOf cco:ont00000965 ;
+    rdfs:label "Base Award Directive ICE"@en ;
+    skos:definition "A Base Award Directive ICE is a Prescriptive Information Content Entity that is an output of a Walk Process or Hit-by-Pitch Process, is about the awarded Person and Base, and prescribes that Person's Baserunning Act toward that Base."@en ;
+    rdfs:comment "The sole Person and Base referents identify the awarded runner and destination in this reviewed content contract. Completion evidence alone does not license a directive instance. A directive is not realized by the act it prescribes."@en ;
+    skos:example "A particular first-base award directive output by a Walk Process prescribes the awarded batter's baserunning act toward first."@en .
 
-base:hasResolvedRunner a owl:ObjectProperty ;
-    rdfs:subPropertyOf obo:BFO_0000057 ;
-    rdfs:domain base:RunnerResolutionProcess ;
-    rdfs:range cco:ont00001262 ;
-    rdfs:label "has resolved runner"@en ;
-    skos:definition "A relation between a Runner Resolution Process and a Person whose counted runner status is assigned by that process."@en ;
-    rdfs:comment "The Person participates as the runner being resolved. Other participating Persons are not thereby the resolved runner. The process supplies the event and temporal scope."@en ;
-    skos:example "A particular Safe Process has resolved runner the batter who is counted safe at first."@en .
-
-base:hasAdjudicatedBase a owl:ObjectProperty ;
-    rdfs:domain base:SafeProcess ;
-    rdfs:range base:Base ;
-    rdfs:label "has adjudicated base"@en ;
-    skos:definition "A relation between a Safe Process and a Base at which that process counts its resolved runner safe in the adjudicated situation."@en ;
-    rdfs:comment "The relation is scoped to the particular Safe Process, not to an interval of continued physical location or institutional entitlement. A counted run requires Run Process evidence. The Base is not an output produced by the adjudication."@en ;
-    skos:example "The Safe Process resolving a runner's advance to second has adjudicated base the particular second Base used in that Game."@en .
-
-base:settlesAwardFrom a owl:ObjectProperty ;
-    rdfs:domain [ a owl:Class ; owl:unionOf ( base:SafeProcess base:RunProcess ) ] ;
-    rdfs:range [ a owl:Class ; owl:unionOf ( base:WalkProcess base:HitByPitchProcess ) ] ;
-    rdfs:label "settles award from"@en ;
-    skos:definition "A relation between a Safe Process or Run Process and a Walk Process or Hit-by-Pitch Process when the former counts its resolved runner's arrival at the base awarded by the latter, directly to the batter or through forced advancement under the applicable rule."@en ;
-    rdfs:comment "An award alone does not establish a completed arrival. This relation requires the particular award, runner and counted arrival; it asserts neither batter causation nor occurrent parthood. Independent or excess advances do not acquire this relation from a shared Plate Appearance."@en ;
-    skos:example "A Safe Process counting a forced runner safe at second settles award from the particular Walk Process that awarded first to the batter and forced that advance."@en .
-
-
-# Accepted baserunning-origin relation, 2026-09-08
-base:hasBaserunningOriginBase a owl:ObjectProperty ;
-    rdfs:domain base:BaserunningAct ;
-    rdfs:range base:Base ;
-    rdfs:label "has baserunning origin base"@en ;
-    skos:definition "A relation between a Baserunning Act and a Base from which its runner undertakes advancement or retreat with respect to the rule-governed progression among bases in the Game."@en ;
-    rdfs:comment "The particular act qualifies the origin at its beginning. This does not assert physical contact with the Base artifact, continued entitlement to that Base, or a new Baserunner Role. A source's missing origin does not establish Home Plate as origin."@en ;
-    skos:example "After stealing second earlier in the Plate Appearance, a runner undertakes an advance to third on a single; that later Baserunning Act has origin the particular second Base."@en .
+base:PlateAppearanceStartBaserunnerAtBaseStasis a owl:Class ;
+    rdfs:subClassOf base:BaserunnerAtBaseStasis ;
+    rdfs:label "Plate-Appearance-Start Baserunner-at-Base Stasis"@en ;
+    skos:definition "A Plate-Appearance-Start Baserunner-at-Base Stasis is a Baserunner-at-Base Stasis that is an occurrent part of a Plate Appearance and occupies a Temporal Interval whose first instant is the first instant of that Plate Appearance."@en ;
+    rdfs:comment "Preserves the existing PA-start identity and source boundary. Its ending instant is not inferred from the next recorded event."@en ;
+    skos:example "The stasis of a runner at third when a particular plate appearance begins."@en .

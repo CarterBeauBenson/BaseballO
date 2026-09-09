@@ -16,16 +16,26 @@ WHERE {
     ?resolution a base:RunnerResolutionProcess ;
         bfo:BFO_0000132 ?plateAppearance ; bfo:BFO_0000062 ?act .
     ?act a base:BaserunningAct ; bfo:BFO_0000132 ?plateAppearance .
-    OPTIONAL { ?resolution base:hasResolvedRunner ?runner . }
+    OPTIONAL { ?episode a base:RunnerResolutionEpisode ; bfo:BFO_0000132 ?plateAppearance ;
+          bfo:BFO_0000117 ?resolution, ?act .
+      ?act a base:BaserunningAct ; cco:ont00001833 ?runner ; bfo:BFO_0000132 ?plateAppearance . }
     OPTIONAL {
-      ?act base:hasBaserunningOriginBase ?originBase .
+      FILTER(BOUND(?runner))
+      ?originStasis a base:BaserunnerAtBaseStasis ; bfo:BFO_0000057 ?runner, ?originBase ;
+          bfo:BFO_0000063 ?act ; bfo:BFO_0000199 ?stasisInterval .
+      ?originBase a base:Base .
+      ?stasisInterval bfo:BFO_0000224 ?boundary .
+      ?act bfo:BFO_0000199/bfo:BFO_0000222 ?boundary .
       OPTIONAL {
         ?originIdentifier a cco:ont00000649 ; cco:ont00001916 ?originBase ;
             cco:ont00001765 ?originCode .
       }
     }
     OPTIONAL {
-      ?resolution base:hasAdjudicatedBase ?destinationBase .
+      ?resolution a base:SafeProcess ; bfo:BFO_0000117 ?safeJudgment .
+      ?safeJudgment a base:SafeJudgmentAct ; cco:ont00001986 ?safeDecision .
+      ?safeDecision a base:SafeDecisionICE ; cco:ont00001808 ?resolution, ?destinationBase .
+      ?destinationBase a base:Base .
       OPTIONAL {
         ?destinationIdentifier a cco:ont00000649 ;
             cco:ont00001916 ?destinationBase ; cco:ont00001765 ?destinationCode .
@@ -36,8 +46,14 @@ WHERE {
           bfo:BFO_0000132 ?plateAppearance ; bfo:BFO_0000117 ?resolution .
     }
     OPTIONAL {
-      ?resolution base:settlesAwardFrom ?award .
-      ?award bfo:BFO_0000132 ?plateAppearance .
+      FILTER(BOUND(?runner))
+      ?award bfo:BFO_0000132 ?plateAppearance ; cco:ont00001986 ?directive .
+      { ?award a base:WalkProcess } UNION { ?award a base:HitByPitchProcess }
+      ?directive a base:BaseAwardDirectiveICE ; cco:ont00001942 ?act ; cco:ont00001808 ?runner, ?awardedBase .
+      ?awardedBase a base:Base .
+      ?awardEpisode a base:RunnerResolutionEpisode ; bfo:BFO_0000117 ?act, ?resolution .
+      ?resolution a base:SafeProcess ; bfo:BFO_0000117/cco:ont00001986 ?awardDecision .
+      ?awardDecision a base:SafeDecisionICE ; cco:ont00001808 ?resolution, ?awardedBase .
     }
     OPTIONAL {
       ?record a base:BaseballEventRecord ; cco:ont00001808 ?resolution, ?act .

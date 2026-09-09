@@ -1,0 +1,32 @@
+{
+  "artifactType": "baseballo-runner-structural-correction-proof",
+  "scope": "Focused developer fixture and one-game proof; no corpus promotion",
+  "gamePk": "566279",
+  "counts": {
+    "RunnerResolutionEpisode": 113,
+    "BaserunningAct": 113,
+    "RunnerResolutionProcess": 113,
+    "PlateAppearanceStartBaserunnerAtBaseStasis": 51,
+    "BaseAwardDirectiveICE": 0,
+    "destination_decisions": 46,
+    "withdrawn_predicate_triples": 0,
+    "triples": 31401
+  },
+  "fullGameShacl": {
+    "artifactType": "baseball-shacl-validation",
+    "engine": "jena",
+    "dataTripleCount": 31401,
+    "shapeTripleCount": 909,
+    "conforms": true,
+    "resultCount": 0,
+    "results": []
+  },
+  "rawInputSha256": "e36caf73ff54d6eeac29dba350d5d37001e769eaaf4c1a9e5eac4763ad2630c2",
+  "artifacts": {
+    "ontology/BaseballO.ttl": "2cca328492a46a15e79fbd36ac1f6fbe90c2840a8109bb054cb87b3658181803",
+    "ontology/BaseballO-axioms-overlay.ttl": "d08f0742167e4517b91af22c5f9fbf10abe922520c4abca06faf137ac006ebcf",
+    "scripts/pipeline/prepare-rml-context.py": "2862eea42392438889ce7fe5f0ac5c280b2119839200feded53d961f5a35ab37",
+    "sources/mlb-game/mapping/mlb-game.rml.ttl": "ef70601419120731d914fe59980ec1dbefa4ce070f2bbca8ce5b46dbea3cb112",
+    "sources/mlb-game/shacl/authoritative.ttl": "2000f7e6a920186bcfe0e60a12e489fe3e0038ebc7ac81eddb6e757bfcd261b6"
+  }
+}

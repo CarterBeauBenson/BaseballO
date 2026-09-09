@@ -12,7 +12,9 @@ interpretation was wrong. The archived accepted-status records are historical
 records of that interpretation, not sufficient authorization to keep extending
 or using these properties in new work.
 
-This document records the correction and prepares a removal-only package.
+**Execution update:** The user subsequently directed ?I want you to remove and fix in accordance with what I sent you?. The [published structural correction](../../archive/design-records/runner-structural-correction/README.md) supersedes the removal-only assessment below. Implementation removes the four predicates, adds the supported episode/decision paths, and leaves unsupported directive and stasis-boundary evidence unavailable.
+
+The following is the pre-authorization assessment. This document recorded the correction and prepared a removal-only package.
 It does not claim that removal has executed, change a protected semantic pin,
 or mark a replacement design as approved. The four declarations and their
 existing executable dependencies are still present at this point.

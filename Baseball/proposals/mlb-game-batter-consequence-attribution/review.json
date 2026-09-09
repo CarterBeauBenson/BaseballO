@@ -40,19 +40,19 @@
       },
       {
         "path": "boundary-temporal-vocabulary.md",
-        "sha256": "74ea691c27cc13fda4ca9128872736138de3aec7c29d7f99763bd4215cd714ee"
+        "sha256": "9d55f85972cd1e1aedc99583cdcd7ac50ce7f73850b3e661eb1438173c01668e"
       }
     ],
     "fieldSelectionInventory": [
       {
         "path": "field-selection-inventory.md",
-        "sha256": "5e85f4257e4dafadfd5c8df4c85c091f9c1aea3d055bc4801d5866e916e50d60"
+        "sha256": "fbf738f40711c0fe5d74f580acec4471e1e5f91f23e572dc7ab23e66b52000f8"
       }
     ],
     "sourceIndependentMermaid": [
       {
         "path": "source-independent-mermaid.md",
-        "sha256": "890674fbc4d8967880c1e57af3c97ec36abe0e928fdfbd4af7dcfc3bc63e6316"
+        "sha256": "3631151217eacef2bda2415d8da899eba32fa7586edcc083966e7a08e3edf944"
       },
       {
         "path": "boundary-state-evidence.md",

@@ -27,7 +27,7 @@ class RunnerLocationEvidenceTests(unittest.TestCase):
         pa, stasis = EX[key], EX[key + '-stasis']
         for t in [(pa, RDF.type, BASE.PlateAppearance),
                   (pa, BFO.BFO_0000132, EX.half),
-                  (stasis, RDF.type, BASE.BaserunnerAtBaseStasis),
+                  (stasis, RDF.type, BASE.PlateAppearanceStartBaserunnerAtBaseStasis),
                   (stasis, BFO.BFO_0000132, pa),
                   (stasis, BFO.BFO_0000057, EX.runner),
                   (stasis, CCO.ont00001918, EX.site)]: self.g.add(t)
@@ -70,7 +70,7 @@ class RunnerLocationEvidenceTests(unittest.TestCase):
         indexed = self.ds.graph(URIRef('https://w3id.org/baseball/graph/index/game/1'))
         for t in self.g: indexed.add(t)
         self.assertEqual(len(self.rows()), 1)
-        self.g.remove((stasis, RDF.type, BASE.BaserunnerAtBaseStasis))
+        self.g.remove((stasis, RDF.type, BASE.PlateAppearanceStartBaserunnerAtBaseStasis))
         self.g.add((stasis, RDF.type, CCO.ont00000819))
         self.assertEqual(self.rows(), [])
 

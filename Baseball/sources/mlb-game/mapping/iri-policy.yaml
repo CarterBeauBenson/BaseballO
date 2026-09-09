@@ -692,3 +692,11 @@ baseball_iri_policy:
           https://baseballontology.org/data/game/566279/plate-appearance/3/runner-movement/2
       run_process:
         iri: "https://baseballontology.org/data/game/566279/process/run/3/2"
+
+# User-directed structural correction (2026-09-09):
+# runner-episode/{atBatIndex}/{runnerIndex} in the existing game namespace
+# denotes the pair of the existing movement act and its particular resolution.
+# It is not PA identity and does not mint an event-scoped Baserunner Role.
+# Existing PA start-state stasis identities are retained with the narrower
+# PlateAppearanceStartBaserunnerAtBaseStasis type as well as their general type.
+# No award directive or new origin-stasis identity is emitted without evidence.

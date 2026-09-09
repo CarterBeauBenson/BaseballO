@@ -27,12 +27,7 @@
     }
   },
   "approvedLocalProperties": {
-    "object": [
-      "https://baseballontology.org/hasAdjudicatedBase",
-      "https://baseballontology.org/hasBaserunningOriginBase",
-      "https://baseballontology.org/hasResolvedRunner",
-      "https://baseballontology.org/settlesAwardFrom"
-    ],
+    "object": [],
     "datatype": []
   },
   "frozenDebt": {

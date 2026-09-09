@@ -143,104 +143,28 @@ def batted_runner_resolution_links(play: dict, at_bat_index: str) -> list[dict[s
     return links
 
 
-def runner_resolution_links(play: dict, at_bat_index: str) -> dict[str, list[dict]]:
-    """Select existing identities for accepted resolution and origin relations.
+def runner_episode_evidence(play: dict, at_bat_index: str) -> dict[str, list[dict]]:
+    """Select the existing act/resolution pair and supported safe decision content.
 
-    This selects source evidence for RML. It does not reconstruct intervening
-    state, merge resolution identities, or assign analytical batter credit.
+    No directive or immediately preceding stasis is inferred from movement rows.
+    The RML/SHACL layer expresses and validates the reviewed structural pattern.
     """
-    rows = play.get("runners", [])
-    links = {"runnerResolutionLinks": [], "adjudicatedBaseLinks": [],
-             "awardResolutionLinks": [], "baserunningOriginLinks": []}
-    by_position = {}
+    products = {"runnerEpisodes": [], "safeDecisionDestinations": []}
     complete = play.get("about", {}).get("isComplete") is True
-    for position, row in enumerate(rows):
+    for position, row in enumerate(play.get("runners", [])):
         movement = row.get("movement", {})
         runner_id = row.get("details", {}).get("runner", {}).get("id")
         if type(movement.get("isOut")) is not bool or not str(runner_id).isdigit():
             continue
-        # Same identity branches as the existing Runner*Source iterators.
         kind = ("out" if movement["isOut"] else
                 "score" if movement.get("end") == "score" else
                 "advance" if movement.get("start") in {"1B", "2B", "3B"} else "reach")
         item = {"atBatIndex": at_bat_index, "runnerIndex": str(position),
                 "resolutionKind": kind, "runnerId": str(runner_id)}
-        links["runnerResolutionLinks"].append(item)
-        by_position[position] = item
+        products["runnerEpisodes"].append(item)
         if complete and not movement["isOut"] and movement.get("end") in {"1B", "2B", "3B"}:
-            links["adjudicatedBaseLinks"].append({**item, "baseCode": movement["end"]})
-        event_index = row.get("details", {}).get("playIndex")
-        if (
-            complete
-            and movement.get("start") in {"1B", "2B", "3B"}
-            and movement.get("originBase") == movement["start"]
-            and type(event_index) is int and event_index >= 0
-            and sum(e.get("index") == event_index for e in play.get("playEvents", [])) == 1
-            and any(type(e.get("index")) is int and e["index"] == event_index
-                    for e in play.get("playEvents", []))
-            and sum(str(r.get("details", {}).get("runner", {}).get("id")) == str(runner_id)
-                    and r.get("details", {}).get("playIndex") == event_index for r in rows) == 1
-        ):
-            links["baserunningOriginLinks"].append({**item, "baseCode": movement["start"]})
-
-    result = play.get("result", {}).get("eventType")
-    events = play.get("playEvents", [])
-    if (not complete or result not in {"walk", "hit_by_pitch"}
-            or play.get("about", {}).get("hasReview") is True
-            or play.get("reviewDetails")
-            or any(e.get("reviewDetails") or e.get("details", {}).get("hasReview") is True
-                   for e in events)):
-        return links
-    pitches = [e for e in events if e.get("isPitch") is True]
-    if not pitches:
-        return links
-    terminal = pitches[-1]
-    event_index = terminal.get("index")
-    if (type(event_index) is not int or event_index < 0
-            or sum(e.get("index") == event_index for e in events) != 1
-            or (result == "walk" and terminal.get("count", {}).get("balls") != 4)
-            or (result == "hit_by_pitch" and terminal.get("details", {}).get("call", {}).get("code") != "H")):
-        return links
-    event_rows = [(i, r) for i, r in enumerate(rows)
-                  if type(r.get("details", {}).get("playIndex")) is int
-                  and r["details"]["playIndex"] == event_index]
-    matchup = play.get("matchup", {})
-    batter_id = str(matchup.get("batter", {}).get("id"))
-    destinations = {"1B": "postOnFirst", "2B": "postOnSecond", "3B": "postOnThird"}
-
-    def supported(position: int, row: dict, end: str) -> bool:
-        details = row.get("details", {})
-        movement = row.get("movement", {})
-        runner_id = str(details.get("runner", {}).get("id"))
-        return bool(
-            position in by_position
-            and details.get("eventType") == result
-            and movement.get("isOut") is False
-            and movement.get("end") == end
-            and sum(str(r.get("details", {}).get("runner", {}).get("id")) == runner_id
-                    for _, r in event_rows) == 1
-            and (details.get("isScoringEvent") is True if end == "score" else
-                 str(matchup.get(destinations[end], {}).get("id")) == runner_id)
-        )
-
-    batters = [(i, r) for i, r in event_rows
-               if str(r.get("details", {}).get("runner", {}).get("id")) == batter_id]
-    if (len(batters) != 1 or batters[0][1].get("movement", {}).get("start") is not None
-            or not supported(*batters[0], "1B")):
-        return links
-    links["awardResolutionLinks"].append(by_position[batters[0][0]])
-    used_runners = {batter_id}
-    for start, end in [("1B", "2B"), ("2B", "3B"), ("3B", "score")]:
-        candidates = [(i, r) for i, r in event_rows if r.get("movement", {}).get("start") == start]
-        if len(candidates) != 1:
-            break  # No assertion of emptiness or continuity follows from a gap.
-        i, row = candidates[0]
-        runner_id = str(row.get("details", {}).get("runner", {}).get("id"))
-        if runner_id in used_runners or not supported(i, row, end):
-            break
-        used_runners.add(runner_id)
-        links["awardResolutionLinks"].append(by_position[i])
-    return links
+            products["safeDecisionDestinations"].append({**item, "baseCode": movement["end"]})
+    return products
 
 
 def require_numeric(value: object, label: str) -> str:
@@ -749,7 +673,7 @@ def main() -> None:
             "outsBefore": outs_after_previous_play,
             "startBaseOccupancies": start_base_occupancies,
             "battedRunnerResolutions": batted_runner_resolution_links(play, at_bat_index),
-            **runner_resolution_links(play, at_bat_index),
+            **runner_episode_evidence(play, at_bat_index),
             "hasPlateAppearanceStructure": has_plate_appearance_structure,
             "hasCompletedPlateAppearanceResult": has_completed_plate_appearance_result,
             "hasReview": False,

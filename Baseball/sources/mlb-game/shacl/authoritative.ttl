@@ -275,9 +275,9 @@ shape:PlateAppearanceStartOutCountShape
         sh:message "A plate-appearance start out count must be the integer 0, 1, or 2."@en
     ] .
 
-shape:BaserunnerAtBaseStasisShape
+shape:PlateAppearanceStartBaserunnerAtBaseStasisShape
     a sh:NodeShape ;
-    sh:targetClass base:BaserunnerAtBaseStasis ;
+    sh:targetClass base:PlateAppearanceStartBaserunnerAtBaseStasis ;
     sh:nodeKind sh:IRI ;
     sh:pattern "^https://baseballontology\\.org/data/game/[0-9]+/plate-appearance/[0-9]+/start-state/base/(1B|2B|3B)/stasis$" ;
     sh:property shape:PlateAppearanceContextProperty ;
@@ -679,147 +679,110 @@ shape:RunnerResolutionShape
         sh:message "A RunnerResolutionProcess must contain exactly one judgment act."@en
     ] .
 
-shape:ResolvedRunnerLinksShape
-    a sh:NodeShape ;
-    sh:targetSubjectsOf base:hasResolvedRunner, base:hasAdjudicatedBase, base:settlesAwardFrom ;
-    sh:class base:RunnerResolutionProcess ;
+shape:RunnerResolutionEpisodeShape a sh:NodeShape ;
+    sh:targetClass base:RunnerResolutionEpisode ; sh:nodeKind sh:IRI ;
     sh:property shape:PlateAppearanceContextProperty ;
-    sh:property [
-        sh:path base:hasResolvedRunner ;
-        sh:minCount 1 ; sh:maxCount 1 ; sh:class cco:ont00001262 ; sh:nodeKind sh:IRI
+    sh:property [ sh:path bfo:BFO_0000117 ; sh:minCount 2 ; sh:maxCount 2 ;
+        sh:or ( [ sh:class base:BaserunningAct ] [ sh:class base:RunnerResolutionProcess ] ) ] ;
+    sh:property [ sh:path bfo:BFO_0000117 ;
+        sh:qualifiedValueShape [ sh:class base:BaserunningAct ;
+            sh:property [ sh:path cco:ont00001833 ; sh:minCount 1 ; sh:maxCount 1 ; sh:class cco:ont00001262 ] ] ;
+        sh:qualifiedMinCount 1 ; sh:qualifiedMaxCount 1 ] ;
+    sh:property [ sh:path bfo:BFO_0000117 ;
+        sh:qualifiedValueShape [ sh:class base:RunnerResolutionProcess ] ;
+        sh:qualifiedMinCount 1 ; sh:qualifiedMaxCount 1 ] ;
+    sh:sparql [
+      sh:message "The act/resolution pair must share runner, persistent role bearer, PA, field and source record; the resolution must be preceded by this act."@en ;
+      sh:select """
+        PREFIX base: <https://baseballontology.org/>
+        PREFIX bfo: <http://purl.obolibrary.org/obo/>
+        PREFIX cco: <https://www.commoncoreontologies.org/>
+        SELECT $this WHERE {
+          FILTER NOT EXISTS {
+            $this bfo:BFO_0000132 ?pa ; bfo:BFO_0000117 ?act, ?resolution .
+            ?act a base:BaserunningAct ; cco:ont00001833 ?runner ;
+                bfo:BFO_0000055 ?role ; bfo:BFO_0000132 ?pa ; cco:ont00001918 ?field .
+            ?role a base:BaserunnerRole ; bfo:BFO_0000197 ?runner .
+            ?resolution a base:RunnerResolutionProcess ; bfo:BFO_0000062 ?act ;
+                bfo:BFO_0000057 ?runner ; bfo:BFO_0000132 ?pa ; cco:ont00001918 ?field .
+            ?record a base:BaseballEventRecord ; cco:ont00001808 $this, ?act, ?resolution .
+            FILTER (?act != ?resolution)
+          }
+        }
+      """
     ] ;
     sh:sparql [
-        sh:message "The resolved runner must participate in this resolution, with source-record and judgment/decision evidence about this same resolution."@en ;
-        sh:select """
-          PREFIX base: <https://baseballontology.org/>
-          PREFIX bfo: <http://purl.obolibrary.org/obo/>
-          PREFIX cco: <https://www.commoncoreontologies.org/>
-          SELECT $this WHERE {
-            $this base:hasResolvedRunner ?runner .
-            FILTER NOT EXISTS {
-              $this bfo:BFO_0000057 ?runner ; bfo:BFO_0000117 ?judgment .
-              ?judgment cco:ont00001986 ?decision .
-              ?decision cco:ont00001808 $this .
-              ?record a base:BaseballEventRecord ; cco:ont00001808 $this, ?decision .
-            }
-          }
-        """
+      sh:message "An act or resolution cannot belong to two runner resolution episodes."@en ;
+      sh:select """
+        PREFIX base: <https://baseballontology.org/>
+        PREFIX bfo: <http://purl.obolibrary.org/obo/>
+        SELECT $this WHERE {
+          $this bfo:BFO_0000117 ?part .
+          ?other a base:RunnerResolutionEpisode ; bfo:BFO_0000117 ?part .
+          FILTER (?other != $this)
+        }
+      """
     ] .
 
-shape:AdjudicatedBaseLinksShape
-    a sh:NodeShape ;
-    sh:targetSubjectsOf base:hasAdjudicatedBase ;
-    sh:class base:SafeProcess ;
-    sh:property [
-        sh:path base:hasAdjudicatedBase ;
-        sh:minCount 1 ; sh:maxCount 1 ; sh:class base:Base ; sh:nodeKind sh:IRI
-    ] ;
+shape:SafeDecisionDestinationShape a sh:NodeShape ;
+    sh:targetClass base:SafeDecisionICE ;
+    sh:property [ sh:path cco:ont00001808 ;
+        sh:qualifiedValueShape [ sh:class base:Base ] ; sh:qualifiedMaxCount 1 ] ;
     sh:sparql [
-        sh:message "An adjudicated base must be the first, second or third Base in this resolution's existing field context; Home Plate does not substitute for a counted run."@en ;
-        sh:select """
-          PREFIX base: <https://baseballontology.org/>
-          PREFIX cco: <https://www.commoncoreontologies.org/>
-          SELECT $this WHERE {
-            $this base:hasAdjudicatedBase ?base .
-            FILTER NOT EXISTS {
-              $this cco:ont00001918 ?field .
-              FILTER (STRENDS(STR(?field), "/baseball-field"))
-              FILTER (STR(?base) IN (
-                CONCAT(STRBEFORE(STR(?field), "/baseball-field"), "/artifact/base/1B"),
-                CONCAT(STRBEFORE(STR(?field), "/baseball-field"), "/artifact/base/2B"),
-                CONCAT(STRBEFORE(STR(?field), "/baseball-field"), "/artifact/base/3B")))
-            }
+      sh:message "A Safe Decision's Base referent must be the single coded destination in its episode's field, with judgment and source evidence for that same Safe Process."@en ;
+      sh:select """
+        PREFIX base: <https://baseballontology.org/>
+        PREFIX bfo: <http://purl.obolibrary.org/obo/>
+        PREFIX cco: <https://www.commoncoreontologies.org/>
+        SELECT $this WHERE {
+          $this cco:ont00001808 ?base . ?base a base:Base .
+          FILTER NOT EXISTS {
+            $this cco:ont00001808 ?resolution .
+            ?resolution a base:SafeProcess ; bfo:BFO_0000117 ?judgment ; cco:ont00001918 ?field .
+            ?judgment a base:SafeJudgmentAct ; cco:ont00001986 $this .
+            ?episode a base:RunnerResolutionEpisode ; bfo:BFO_0000117 ?resolution .
+            ?record a base:BaseballEventRecord ; cco:ont00001808 $this, ?resolution .
+            ?identifier a cco:ont00000649 ; cco:ont00001916 ?base ; cco:ont00001765 ?code .
+            FILTER (?code IN ("1B", "2B", "3B"))
+            FILTER (STR(?base) = CONCAT(STRBEFORE(STR(?field), "/baseball-field"), "/artifact/base/", STR(?code)))
+            FILTER (STRENDS(STR(?field), "/baseball-field"))
+            FILTER NOT EXISTS { ?identifier cco:ont00001765 ?otherCode . FILTER (?otherCode != ?code) }
           }
-        """
+        }
+      """
     ] .
 
-shape:BaserunningOriginLinksShape
-    a sh:NodeShape ;
-    sh:targetSubjectsOf base:hasBaserunningOriginBase ;
-    sh:class base:BaserunningAct ; sh:nodeKind sh:IRI ;
-    sh:property shape:PlateAppearanceContextProperty ;
-    sh:property [
-        sh:path base:hasBaserunningOriginBase ;
-        sh:minCount 1 ; sh:maxCount 1 ; sh:class base:Base ; sh:nodeKind sh:IRI
-    ] ;
+shape:BaseAwardDirectiveShape a sh:NodeShape ;
+    sh:targetClass base:BaseAwardDirectiveICE ;
+    sh:property [ sh:path cco:ont00001942 ; sh:minCount 1 ; sh:maxCount 1 ; sh:class base:BaserunningAct ] ;
+    sh:property [ sh:path cco:ont00001808 ; sh:minCount 2 ; sh:maxCount 2 ;
+      sh:or ( [ sh:class cco:ont00001262 ] [ sh:class base:Base ] ) ] ;
+    sh:property [ sh:path [ sh:inversePath cco:ont00001986 ] ; sh:minCount 1 ; sh:maxCount 1 ;
+      sh:or ( [ sh:class base:WalkProcess ] [ sh:class base:HitByPitchProcess ] ) ] ;
     sh:sparql [
-        sh:message "A linked baserunning origin requires the same runner, PA/game and field as its supported resolution, with a source record about both act and resolution."@en ;
-        sh:select """
-          PREFIX base: <https://baseballontology.org/>
-          PREFIX bfo: <http://purl.obolibrary.org/obo/>
-          PREFIX cco: <https://www.commoncoreontologies.org/>
-          SELECT $this WHERE {
-            $this base:hasBaserunningOriginBase ?base .
-            FILTER NOT EXISTS {
-              $this bfo:BFO_0000057 ?runner ; bfo:BFO_0000132 ?pa ; cco:ont00001918 ?field .
-              ?runner a cco:ont00001262 .
-              ?pa a base:PlateAppearance .
-              ?resolution a base:RunnerResolutionProcess ;
-                bfo:BFO_0000062 $this ; base:hasResolvedRunner ?runner ;
-                bfo:BFO_0000132 ?pa ; cco:ont00001918 ?field .
-              ?record a base:BaseballEventRecord ; cco:ont00001808 $this, ?resolution .
-              FILTER (STRSTARTS(STR($this), CONCAT(STRBEFORE(STR(?pa), "/plate-appearance/"), "/runner-act/movement/")))
-              FILTER (STRSTARTS(STR(?resolution), CONCAT(STRBEFORE(STR(?pa), "/plate-appearance/"), "/runner-resolution/")))
-              FILTER (STRENDS(STR(?field), "/baseball-field"))
-              FILTER (STR(?base) IN (
-                CONCAT(STRBEFORE(STR(?field), "/baseball-field"), "/artifact/base/1B"),
-                CONCAT(STRBEFORE(STR(?field), "/baseball-field"), "/artifact/base/2B"),
-                CONCAT(STRBEFORE(STR(?field), "/baseball-field"), "/artifact/base/3B")))
-            }
-          }
-        """
+      sh:message "The directive must identify the awarded act's runner and one destination Base, with source evidence and the award's PA; it is prescribed, not realized."@en ;
+      sh:select """
+        PREFIX base: <https://baseballontology.org/>
+        PREFIX bfo: <http://purl.obolibrary.org/obo/>
+        PREFIX cco: <https://www.commoncoreontologies.org/>
+        SELECT $this WHERE {
+          FILTER (NOT EXISTS {
+            $this cco:ont00001942 ?act ; cco:ont00001808 ?runner, ?base .
+            ?base a base:Base . ?runner a cco:ont00001262 .
+            ?act cco:ont00001833 ?runner ; bfo:BFO_0000132 ?pa .
+            ?episode a base:RunnerResolutionEpisode ; bfo:BFO_0000117 ?act ; bfo:BFO_0000132 ?pa .
+            ?award cco:ont00001986 $this ; bfo:BFO_0000132 ?pa .
+            ?record a base:BaseballEventRecord ; cco:ont00001808 $this, ?award, ?act .
+          } || EXISTS { ?process bfo:BFO_0000055 $this })
+        }
+      """
     ] .
 
-shape:LinkedBaserunningBaseCodeShape
-    a sh:NodeShape ;
-    sh:targetObjectsOf base:hasBaserunningOriginBase, base:hasAdjudicatedBase ;
-    sh:class base:Base ; sh:nodeKind sh:IRI ;
-    sh:sparql [
-        sh:message "A linked Base must have its explicit first/second/third Code Identifier; metrics must not extract a Base position from IRI text."@en ;
-        sh:select """
-          PREFIX cco: <https://www.commoncoreontologies.org/>
-          SELECT $this WHERE {
-            FILTER NOT EXISTS {
-              ?identifier a cco:ont00000649 ; cco:ont00001916 $this ; cco:ont00001765 ?code .
-              FILTER (?code IN ("1B", "2B", "3B"))
-              FILTER (STR(?identifier) = CONCAT(STR($this), "/identifier/source-base-code"))
-              FILTER (STRENDS(STR($this), CONCAT("/artifact/base/", STR(?code))))
-              FILTER NOT EXISTS { ?identifier cco:ont00001765 ?otherCode . FILTER (?otherCode != ?code) }
-            }
-          }
-        """
-    ] .
-
-shape:AwardResolutionLinksShape
-    a sh:NodeShape ;
-    sh:targetSubjectsOf base:settlesAwardFrom ;
-    sh:or ( [ sh:class base:SafeProcess ] [ sh:class base:RunProcess ] ) ;
-    sh:property [
-        sh:path base:settlesAwardFrom ; sh:minCount 1 ; sh:maxCount 1 ;
-        sh:nodeKind sh:IRI ;
-        sh:or ( [ sh:class base:WalkProcess ] [ sh:class base:HitByPitchProcess ] )
-    ] ;
-    sh:sparql [
-        sh:message "An award completion must share its award's PA, game identity and field; a safe completion must have an explicit adjudicated base."@en ;
-        sh:select """
-          PREFIX base: <https://baseballontology.org/>
-          PREFIX bfo: <http://purl.obolibrary.org/obo/>
-          PREFIX cco: <https://www.commoncoreontologies.org/>
-          SELECT $this WHERE {
-            $this base:settlesAwardFrom ?award .
-            FILTER (
-              NOT EXISTS {
-                $this bfo:BFO_0000132 ?pa ; cco:ont00001918 ?field .
-                ?award bfo:BFO_0000132 ?pa ; cco:ont00001918 ?field .
-                ?pa a base:PlateAppearance .
-                FILTER (STR(?award) = CONCAT(STR(?pa), "/result"))
-                FILTER (STRSTARTS(STR($this), CONCAT(STRBEFORE(STR(?pa), "/plate-appearance/"), "/runner-resolution/")))
-              }
-              || (EXISTS { $this a base:SafeProcess } && NOT EXISTS { $this base:hasAdjudicatedBase ?base })
-            )
-          }
-        """
-    ] .
+shape:WithdrawnRunnerPropertiesShape a sh:NodeShape ;
+    sh:targetSubjectsOf base:hasResolvedRunner, base:hasAdjudicatedBase,
+        base:settlesAwardFrom, base:hasBaserunningOriginBase ;
+    sh:sparql [ sh:message "Withdrawn runner object properties must not occur in promoted source RDF."@en ;
+      sh:select "SELECT $this WHERE { $this ?predicate ?object }" ] .
 
 shape:BattedRunnerResolutionContainmentShape
     a sh:NodeShape ;
@@ -856,7 +819,7 @@ shape:BattedRunnerResolutionContainmentShape
 
 shape:JudgmentShape
     a sh:NodeShape ;
-    sh:targetClass base:BaseballJudgmentAct ;
+    sh:targetClass base:BaseballJudgmentAct, base:SafeJudgmentAct ;
     sh:nodeKind sh:IRI ;
     sh:property [
         sh:path bfo:BFO_0000132 ;
@@ -872,25 +835,32 @@ shape:JudgmentShape
         sh:nodeKind sh:IRI ;
         sh:message "A judgment must have exactly one decision output."@en
     ] ;
-    sh:property [
-        sh:path ( cco:ont00001986 cco:ont00001808 ) ;
-        sh:minCount 1 ;
-        sh:maxCount 1 ;
-        sh:equals bfo:BFO_0000132 ;
-        sh:message "A judgment's decision output must be about the process containing that judgment."@en
+    sh:sparql [
+        sh:message "A judgment's decision must be about its containing process; only a Safe Decision may additionally identify its one destination Base."@en ;
+        sh:select """
+          PREFIX base: <https://baseballontology.org/>
+          PREFIX bfo: <http://purl.obolibrary.org/obo/>
+          PREFIX cco: <https://www.commoncoreontologies.org/>
+          SELECT $this WHERE {
+            $this bfo:BFO_0000132 ?process ; cco:ont00001986 ?decision .
+            FILTER (NOT EXISTS { ?decision cco:ont00001808 ?process }
+              || EXISTS { ?decision cco:ont00001808 ?other . FILTER (?other != ?process)
+                  FILTER NOT EXISTS { $this a base:SafeJudgmentAct . ?process a base:SafeProcess .
+                    ?decision a base:SafeDecisionICE . ?other a base:Base . } })
+          }
+        """
     ] .
 
-shape:DecisionShape
-    a sh:NodeShape ;
-    sh:targetClass base:BaseballDecisionICE ;
-    sh:nodeKind sh:IRI ;
-    sh:property [
-        sh:path cco:ont00001808 ;
-        sh:minCount 1 ;
-        sh:maxCount 1 ;
-        sh:nodeKind sh:IRI ;
-        sh:message "A baseball decision must be about exactly one adjudicated process."@en
-    ] .
+shape:DecisionShape a sh:NodeShape ;
+    sh:targetClass base:BaseballDecisionICE, base:SafeDecisionICE ; sh:nodeKind sh:IRI ;
+    sh:or (
+      [ sh:property [ sh:path cco:ont00001808 ; sh:minCount 1 ; sh:maxCount 1 ; sh:nodeKind sh:IRI ] ]
+      [ sh:class base:SafeDecisionICE ;
+        sh:property [ sh:path cco:ont00001808 ; sh:minCount 2 ; sh:maxCount 2 ; sh:nodeKind sh:IRI ;
+          sh:or ( [ sh:class base:SafeProcess ] [ sh:class base:Base ] ) ] ;
+        sh:property [ sh:path cco:ont00001808 ; sh:qualifiedValueShape [ sh:class base:SafeProcess ] ; sh:qualifiedMinCount 1 ; sh:qualifiedMaxCount 1 ] ;
+        sh:property [ sh:path cco:ont00001808 ; sh:qualifiedValueShape [ sh:class base:Base ] ; sh:qualifiedMinCount 1 ; sh:qualifiedMaxCount 1 ] ]
+    ) .
 
 shape:AdjudicatedProcessShape
     a sh:NodeShape ;
@@ -1304,3 +1274,29 @@ shape:PitcherRoleProperty
     sh:qualifiedMinCount 1 ;
     sh:qualifiedMaxCount 1 ;
     sh:message "A PitchAct must realize exactly one PitcherRole."@en .
+
+shape:BaserunnerAtBaseStasisShape a sh:NodeShape ;
+    sh:targetClass base:BaserunnerAtBaseStasis, base:PlateAppearanceStartBaserunnerAtBaseStasis ;
+    sh:property [ sh:path bfo:BFO_0000055 ; sh:maxCount 0 ] ;
+    sh:property [ sh:path cco:ont00001833 ; sh:maxCount 0 ] ;
+    sh:property [ sh:path bfo:BFO_0000199 ; sh:minCount 1 ; sh:maxCount 1 ; sh:class bfo:BFO_0000038 ] ;
+    sh:property [ sh:path bfo:BFO_0000057 ; sh:qualifiedValueShape [ sh:class cco:ont00001262 ] ; sh:qualifiedMinCount 1 ; sh:qualifiedMaxCount 1 ] ;
+    sh:property [ sh:path bfo:BFO_0000057 ; sh:qualifiedValueShape [ sh:class base:Base ] ; sh:qualifiedMinCount 1 ; sh:qualifiedMaxCount 1 ] ;
+    sh:property [ sh:path bfo:BFO_0000057 ; sh:qualifiedValueShape [ sh:class base:BaseSite ] ; sh:qualifiedMinCount 1 ; sh:qualifiedMaxCount 1 ] ;
+    sh:sparql [
+      sh:message "A runner-at-base stasis must bind the role bearer and Base to the same occupied Base Site."@en ;
+      sh:select """
+        PREFIX base: <https://baseballontology.org/>
+        PREFIX bfo: <http://purl.obolibrary.org/obo/>
+        PREFIX cco: <https://www.commoncoreontologies.org/>
+        SELECT $this WHERE {
+          FILTER NOT EXISTS {
+            $this bfo:BFO_0000057 ?runner, ?base, ?site ; cco:ont00001918 ?site .
+            ?runner a cco:ont00001262 ; bfo:BFO_0000171 ?site .
+            ?base a base:Base ; bfo:BFO_0000171 ?site .
+            ?site a base:BaseSite .
+            ?role a base:BaserunnerRole ; bfo:BFO_0000197 ?runner .
+          }
+        }
+      """
+    ] .

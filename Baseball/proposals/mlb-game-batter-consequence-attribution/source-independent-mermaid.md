@@ -1,5 +1,11 @@
 # Source-independent attribution review shapes
 
+> Correction, 2026-09-09: passages below describing the four local runner
+> properties are historical and withdrawn. Use the [structural correction](../../archive/design-records/runner-structural-correction/README.md).
+> Episode/agent and decision-destination paths replace the first two shortcuts;
+> directive prescription and stasis boundaries remain source-evidence gaps.
+
+
 Nodes use accepted classes. Solid arrows show existing structural patterns;
 dotted arrows are candidate assertions requiring review. A disconnected orange
 note marks a gap, not an RDF individual, property, or executable substitute.

@@ -1,4 +1,5 @@
 PREFIX base: <https://baseballontology.org/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
 PREFIX bfo: <http://purl.obolibrary.org/obo/>
 
 # Source: mlb-game authoritative graphs. This audits explicit graph links;
@@ -20,16 +21,26 @@ WHERE {
     OPTIONAL {
       ?resolution a base:RunnerResolutionProcess ; bfo:BFO_0000132 ?plateAppearance .
       OPTIONAL {
-        ?resolution base:hasResolvedRunner ?runner .
+        ?episode a base:RunnerResolutionEpisode ; bfo:BFO_0000132 ?plateAppearance ;
+          bfo:BFO_0000117 ?resolution, ?act .
+        ?act a base:BaserunningAct ; cco:ont00001833 ?runner ; bfo:BFO_0000132 ?plateAppearance .
         BIND(?resolution AS ?identifiedResolution)
       }
       OPTIONAL {
-        ?resolution bfo:BFO_0000062 ?originAct .
-        ?originAct a base:BaserunningAct ; base:hasBaserunningOriginBase ?originBase ;
-            bfo:BFO_0000132 ?plateAppearance .
+        ?resolution bfo:BFO_0000062 ?act .
+        FILTER(BOUND(?runner))
+        ?originStasis a base:BaserunnerAtBaseStasis ; bfo:BFO_0000057 ?runner, ?originBase ;
+          bfo:BFO_0000063 ?act ; bfo:BFO_0000199 ?stasisInterval .
+        ?originBase a base:Base .
+        ?stasisInterval bfo:BFO_0000224 ?boundary .
+        ?act bfo:BFO_0000199/bfo:BFO_0000222 ?boundary .
+        BIND(?act AS ?originAct)
       }
       OPTIONAL {
-        ?resolution a base:SafeProcess ; base:hasAdjudicatedBase ?base .
+        ?resolution a base:SafeProcess ; bfo:BFO_0000117 ?safeJudgment .
+        ?safeJudgment a base:SafeJudgmentAct ; cco:ont00001986 ?safeDecision .
+        ?safeDecision a base:SafeDecisionICE ; cco:ont00001808 ?resolution, ?destinationBase .
+        ?destinationBase a base:Base .
         BIND(?resolution AS ?destinationResolution)
       }
       OPTIONAL {
@@ -38,13 +49,22 @@ WHERE {
         BIND(?resolution AS ?contactResolution)
       }
       OPTIONAL {
-        ?resolution base:settlesAwardFrom ?award .
-        ?award bfo:BFO_0000132 ?plateAppearance .
+        FILTER(BOUND(?runner))
+        ?award bfo:BFO_0000132 ?plateAppearance ; cco:ont00001986 ?directive .
+        { ?award a base:WalkProcess } UNION { ?award a base:HitByPitchProcess }
+        ?directive a base:BaseAwardDirectiveICE ; cco:ont00001942 ?act ; cco:ont00001808 ?runner, ?awardedBase .
+        ?awardedBase a base:Base .
+        ?awardEpisode a base:RunnerResolutionEpisode ; bfo:BFO_0000117 ?act, ?resolution .
+        ?resolution a base:SafeProcess ; bfo:BFO_0000117/cco:ont00001986 ?awardDecision .
+        ?awardDecision a base:SafeDecisionICE ; cco:ont00001808 ?resolution, ?awardedBase .
         BIND(?resolution AS ?awardResolution)
       }
       OPTIONAL {
         ?resolution a base:SafeProcess .
-        FILTER NOT EXISTS { ?resolution base:hasAdjudicatedBase ?destination }
+        FILTER NOT EXISTS { ?resolution a base:SafeProcess ; bfo:BFO_0000117 ?safeJudgment .
+        ?safeJudgment a base:SafeJudgmentAct ; cco:ont00001986 ?safeDecision .
+        ?safeDecision a base:SafeDecisionICE ; cco:ont00001808 ?resolution, ?destinationBase .
+        ?destinationBase a base:Base . }
         BIND(?resolution AS ?missingDestination)
       }
     }

@@ -4,6 +4,7 @@ import unittest
 from pathlib import Path
 
 from rdflib import Dataset, Namespace, RDF, URIRef
+from runner_pattern_fixture import movement, award, CCO
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = Namespace("https://baseballontology.org/")
@@ -36,15 +37,9 @@ class MetricEvidenceQueryTests(unittest.TestCase):
             self.graph.add((rr, BFO.BFO_0000132, EX.pa))
         for rr in [EX.safe, EX.unknownSafe]: self.graph.add((rr, RDF.type, BASE.SafeProcess))
         self.graph.add((EX.out, RDF.type, BASE.OutProcess))
-        self.graph.add((EX.safe, BASE.hasResolvedRunner, EX.runner))
-        self.graph.add((EX.safe, BASE.hasResolvedRunner, EX.otherRunner))
-        self.graph.add((EX.safe, BASE.hasAdjudicatedBase, EX.second))
-        self.graph.add((EX.safe, BFO.BFO_0000062, EX.act))
-        self.graph.add((EX.act, RDF.type, BASE.BaserunningAct))
-        self.graph.add((EX.act, BFO.BFO_0000132, EX.pa))
-        self.graph.add((EX.act, BASE.hasBaserunningOriginBase, EX.first))
-        self.graph.add((EX.safe, BASE.settlesAwardFrom, EX.award))
-        self.graph.add((EX.award, BFO.BFO_0000132, EX.pa))
+        movement(self.graph, EX.safe, EX.act, EX.pa, EX.runner, EX.first, EX.second)
+        self.graph.add((EX.act, CCO.ont00001833, EX.otherRunner))
+        award(self.graph, EX.award, EX.act, EX.pa, EX.runner, EX.second)
         for bp in [EX.contact1, EX.contact2]:
             self.graph.add((bp, RDF.type, BASE.BattedBallPlayProcess))
             self.graph.add((bp, BFO.BFO_0000132, EX.pa))

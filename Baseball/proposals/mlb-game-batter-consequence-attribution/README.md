@@ -5,13 +5,13 @@ next deliverable in the [metrics roadmap](../../sparql/metrics/README.md).
 The ontologist approved the targeted fix. The concrete A1 contact-play
 parthood slice is recorded in a
 [separate accepted decision](../../archive/design-records/mlb-game-batted-runner-resolution-containment/README.md).
-The three accepted relations now make the destination and walk/HBP award
-links concrete in [resolution-links-review.md](../../archive/design-records/mlb-game-resolution-award-links/resolution-links-review.md).
-Their acceptance is recorded separately; ontology, RML and SHACL implementation
-now reuse existing runner-resolution and Base identities.
-The [accepted origin relation](../../archive/design-records/mlb-game-baserunning-origin/README.md)
-also links a particular supported Baserunning Act to its starting Base.
-Complete pre-consequence state and full metric completeness remain unresolved.
+The four local runner object properties have been withdrawn. The user's
+[structural correction](../../archive/design-records/runner-structural-correction/README.md)
+replaces runner identity with an episode/act/agent path and safe destination
+with judgment/decision aboutness. Origin requires actual preceding stasis
+boundaries; award completion requires a particular directive prescribing the
+act. The current source does not establish those latter two paths. Full
+pre-consequence state and metric completeness remain unresolved.
 
 This package asks how a plate appearance's batter-linked consequences can be
 distinguished from independent runner events. It is the prerequisite for TFS,
@@ -30,9 +30,9 @@ PAQ-2, Offensive Reach, Hidden Help, Rally Kill, and Opportunity Erosion.
    physical-location meaning of the existing stasis and the remaining
    institutional base-association gap.
 7. [Concrete resolution and award links](../../archive/design-records/mlb-game-resolution-award-links/resolution-links-review.md): the
-   three accepted relations, temporal scope, forced-walk/HBP evidence,
+   withdrawn relations and historical review, forced-walk/HBP evidence,
    negative cases and their SHACL obligations.
-8. [Baserunning origin](../../archive/design-records/mlb-game-baserunning-origin/baserunning-origin-review.md): the accepted
+8. [Baserunning origin](../../archive/design-records/mlb-game-baserunning-origin/baserunning-origin-review.md): the withdrawn
    act-to-origin relation, with real steal-then-partial-advance evidence.
 9. [Metric boundary contract](metric-boundary-contract.md): accepted release,
    error/FC and inning-ending policies, exact examples and remaining gates.

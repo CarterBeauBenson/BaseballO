@@ -1,5 +1,11 @@
 # Field selection and de-duplication
 
+> Correction, 2026-09-09: passages below describing the four local runner
+> properties are historical and withdrawn. Use the [structural correction](../../archive/design-records/runner-structural-correction/README.md).
+> Episode/agent and decision-destination paths replace the first two shortcuts;
+> directive prescription and stasis boundaries remain source-evidence gaps.
+
+
 Owner: `mlb-game`. All paths under `P` refer to an individual
 `liveData.plays.allPlays[]` object. This is a bounded inventory of fields needed
 to investigate attribution, not a proposal to map the whole response again.

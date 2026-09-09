@@ -77,16 +77,16 @@ repository's semantic review sequence.
 The [attribution review package](../../proposals/mlb-game-batter-consequence-attribution/README.md)
 contains the static evidence inventory and reviewed diagrams. Immediate
 consequence-boundary state, continuity and operative adjudication remain
-unresolved; the bounded walk/HBP and safe-destination slice has been accepted.
+unresolved. The original shortcut relations were withdrawn on 2026-09-09.
 
 The user has since approved implementing the targeted fix. Its concrete A1
 contact-play parthood slice is
 [accepted separately](../../archive/design-records/mlb-game-batted-runner-resolution-containment/README.md)
 and implemented as a bounded RML addition with source SHACL. The
-[three resolution/award relations](../../archive/design-records/mlb-game-resolution-award-links/README.md)
-are also accepted and implemented. Their component and isolated RML fixture
-checks pass; current-hash NiFi one-game proof remains required. These additions
-do not establish the missing before-state or enable metric calculation.
+[structural correction](../../archive/design-records/runner-structural-correction/README.md)
+replaces the withdrawn local relations with episode/agent and safe-decision
+paths. Directive and stasis-boundary source evidence remains unavailable.
+These changes do not establish missing before-state or enable metric scoring.
 
 The reviewed pattern must answer:
 
@@ -217,11 +217,10 @@ The user accepted these choices on 2026-09-08:
 
 The [boundary contract](../../proposals/mlb-game-batter-consequence-attribution/metric-boundary-contract.md)
 records exact examples, remaining cases and population safeguards. The
-[accepted baserunning-origin decision](../../archive/design-records/mlb-game-baserunning-origin/README.md)
-supplies a bounded A3 slice, implemented in the existing context builder, RML
-and source SHACL. Component tests and an isolated RMLMapper fixture prove the
-steal-then-single origin and destination links; the NiFi one-game proof remains
-required. This does not establish unchanged participants or full continuity.
+[historical baserunning-origin decision](../../archive/design-records/mlb-game-baserunning-origin/README.md)
+is superseded by the user's structural correction. A movement-start field does
+not prove a preceding stasis interval; origin remains unbound until that
+interval and its ending at the act's beginning are evidenced.
 
 ## Evidence audit and remaining release gate
 
@@ -245,8 +244,9 @@ production graph admission and scoring remain gated.
 
 [runner-movement-evidence.rq](runner-movement-evidence.rq) exposes individual
 act/resolution pairs using explicit Base Code Identifiers, with source-record,
-contact-play and award links. Five regression tests cover separate steal and
-single movements, unknown values, graph/PA scope and conflicting codes. These
+contact-play paths and evidence-dependent award/origin paths. Seven regression
+tests cover separate movements, unknown values, graph/PA scope, conflicting
+codes, missing stasis boundaries and matching award destinations. These
 are reviewable evidence rows; they are not scored or coalesced trajectories.
 
 The [boundary evidence review](../../proposals/mlb-game-batter-consequence-attribution/boundary-state-evidence.md)
@@ -269,3 +269,20 @@ out/replay identity and full attribution/completeness still block metric
 execution. A selectively covered subset cannot silently replace the accepted
 league reference population. No executable TFS/PAQ-2 scoring query or serving
 route is released yet.
+
+## Runner structural correction (2026-09-09)
+
+The [user-directed correction](../../archive/design-records/runner-structural-correction/README.md)
+removes all four local runner object properties. `runner-movement-evidence.rq`
+and `attribution-evidence.rq` now traverse episode/act/agent and
+resolution/judgment/decision/Base paths. Origin requires an evidenced shared
+stasis-ending/act-start boundary. Award completion requires an explicit award
+directive prescribing the same act and matching its counted safe destination.
+Current MLB rows supply neither that directive evidence nor new stasis ending
+boundaries. Missing bindings remain unknown; metric arithmetic and release
+availability are unchanged. `runner-location-evidence.rq` specifically queries
+the PA-start stasis subclass, preserving the existing boundary scope.
+
+Previously promoted graphs are not rewritten by this code change. Until NiFi
+maps, validates and promotes a corrected graph, the new structural bindings
+may be absent. The queries do not fall back to the withdrawn shortcuts.

@@ -4,6 +4,7 @@ import unittest
 from pathlib import Path
 
 from rdflib import Dataset, Literal, Namespace, RDF, URIRef
+from runner_pattern_fixture import movement, award
 
 ROOT = Path(__file__).resolve().parents[1]
 QUERY = ROOT / 'sparql/metrics/runner-movement-evidence.rq'
@@ -25,14 +26,7 @@ class RunnerMovementEvidenceTests(unittest.TestCase):
 
     def movement(self, key, origin=None, destination=None, runner=EX.runner):
         rr, act = EX[key], EX[key + '-act']
-        for t in [(rr, RDF.type, BASE.RunnerResolutionProcess),
-                  (rr, BFO.BFO_0000132, EX.pa), (rr, BFO.BFO_0000062, act),
-                  (act, RDF.type, BASE.BaserunningAct), (act, BFO.BFO_0000132, EX.pa)]: self.g.add(t)
-        if runner: self.g.add((rr, BASE.hasResolvedRunner, runner))
-        if origin: self.g.add((act, BASE.hasBaserunningOriginBase, origin))
-        if destination:
-            self.g.add((rr, BASE.hasAdjudicatedBase, destination))
-            self.g.add((rr, RDF.type, BASE.SafeProcess))
+        movement(self.g, rr, act, EX.pa, runner, origin, destination)
         return rr, act
 
     def code(self, base, value):
@@ -75,7 +69,7 @@ class RunnerMovementEvidenceTests(unittest.TestCase):
     def test_index_and_other_pa_evidence_do_not_join(self):
         rr, act = self.movement('out')
         self.g.add((rr, RDF.type, BASE.OutProcess))
-        self.g.add((rr, BASE.settlesAwardFrom, EX.award))
+        award(self.g, EX.award, act, EX.otherPA, EX.runner, EX.base)
         self.g.add((EX.award, BFO.BFO_0000132, EX.otherPA))
         indexed = self.ds.graph(URIRef('https://w3id.org/baseball/graph/index/game/824315'))
         for t in self.g: indexed.add(t)
@@ -89,6 +83,21 @@ class RunnerMovementEvidenceTests(unittest.TestCase):
         self.movement('conflict', origin=EX.alpha)
         self.code(EX.alpha, '1B'); self.code(EX.alpha, '2B')
         self.assertEqual({str(r['originCode']) for r in self.rows()}, {'1B', '2B'})
+
+    def test_precedence_without_shared_boundary_does_not_supply_origin(self):
+        rr, act = self.movement('no-boundary', EX.alpha, EX.beta)
+        self.g.remove((None, BFO.BFO_0000224, None))
+        row, = self.rows()
+        self.assertNotIn('originBase', row)
+
+    def test_award_requires_same_runner_act_and_counted_destination(self):
+        rr, act = self.movement('awarded', destination=EX.beta)
+        directive = award(self.g, EX.award, act, EX.pa, EX.runner, EX.beta)
+        self.assertEqual(self.rows()[0]['award'], EX.award)
+        self.g.remove((directive, CCO.ont00001808, EX.beta))
+        self.g.add((directive, CCO.ont00001808, EX.otherBase))
+        self.g.add((EX.otherBase, RDF.type, BASE.Base))
+        self.assertNotIn('award', self.rows()[0])
 
     def test_catalog_is_single_source_read_only(self):
         catalog = json.loads((ROOT / 'sparql/source-scope-catalog.json').read_text())

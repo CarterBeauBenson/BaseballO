@@ -787,25 +787,15 @@
       ]
     },
     {
-      "id": "62-resolution-award-links",
-      "title": "Runner resolution and award links",
-      "summary": "A resolution identifies its runner; a supported Safe Process identifies its adjudicated Base; a completed direct or forced walk/HBP arrival settles its particular award without asserting continued entitlement or batter causation.",
+      "id": "62-runner-structural-pattern",
+      "title": "Runner episode and safe decision destination",
+      "summary": "An episode pairs one baserunning act and resolution. The act has the runner as agent; the safe decision identifies the counted destination. No directives or origin stases are manufactured from completion rows.",
       "maps": [
-        "ResolvedRunnerLinkMap",
-        "AdjudicatedBaseLinkMap",
-        "AwardResolutionLinkMap"
-      ]
-    },
-    {
-      "id": "63-baserunning-origin",
-      "title": "Baserunning origin and explicit Base identifiers",
-      "summary": "The particular baserunning act identifies its corroborated origin Base and source record. Origin and adjudicated destination Bases have explicit categorical Code Identifiers; neither absence nor an IRI string supplies metric state.",
-      "maps": [
-        "BaserunningOriginLinkMap",
-        "BaserunningOriginBaseMap",
-        "BaserunningOriginIdentifierMap",
-        "BaserunningOriginRecordMap",
-        "AdjudicatedBaseIdentifierMap"
+        "RunnerEpisodeMap",
+        "RunnerEpisodeAgentMap",
+        "RunnerEpisodeRecordMap",
+        "SafeDecisionDestinationMap",
+        "SafeDestinationIdentifierMap"
       ]
     }
   ]
