@@ -1,0 +1,41 @@
+{
+  "artifactType": "baseballo-metric-policy-batch-decision",
+  "contractVersion": 1,
+  "decisionId": "metric-suite-verified-history-continuity-2026-09-09",
+  "decidedAt": "2026-09-09",
+  "decidedBy": "Carter Beau Benson",
+  "follows": "decision.json",
+  "scope": "Acceptance of the explained evidence criterion for question 7. The RDF representation remains a separate review item.",
+  "accepted": [
+    {
+      "question": 7,
+      "id": "reconciled-personal-trajectory-continuity",
+      "answer": "Okay, I agree",
+      "meaning": "An independently verified complete intervening history is sufficient to establish that movements belong to one person's continuous runner trajectory. A separate explicit source statement linking the movements is not required when that standard is met.",
+      "requiredEvidence": [
+        "The same person throughout the proposed continuous trajectory",
+        "Compatible movement endpoints",
+        "Independently verified complete coverage of the intervening history, with events accounted for",
+        "No intervening replacement, out, score or inning ending that breaks the proposed continuity"
+      ],
+      "insufficientEvidence": [
+        "Matching player identifiers alone",
+        "Adjacent source records alone",
+        "Absence of a movement row without independently established coverage"
+      ],
+      "contributionBoundary": "One personal trajectory retains separate batter-attributed and independent contribution episodes. In the single, steal, teammate-single example, the steal belongs to the runner and the teammate's single receives only second-to-third credit.",
+      "replacementBoundary": "Replacement ends the original person's trajectory and starts a different person's trajectory.",
+      "missingEvidenceBehavior": "Keep dependent metrics unavailable when the required coverage or continuity evidence cannot be established."
+    }
+  ],
+  "remainingReview": [
+    "Authoritative RDF representation and executable graph contract for this evidence",
+    "Source reconciliation demonstrating that actual histories satisfy the accepted standard"
+  ],
+  "unchanged": [
+    "No new object properties, including index predicates",
+    "No new ontology terms, RDF minting rules or semantic fingerprint approval",
+    "No assumption that existing source records or promoted graphs already meet the accepted standard",
+    "Existing personal trajectory lifetime and separate contribution attribution"
+  ]
+}
