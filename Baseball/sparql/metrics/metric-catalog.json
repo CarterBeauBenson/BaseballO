@@ -2,7 +2,7 @@
   "artifactType": "baseballo-graph-native-metric-catalog",
   "contractVersion": 1,
   "generator": "scripts/generate_metric_suite.py",
-  "metricVersion": "2.0.1",
+  "metricVersion": "2.0.2",
   "metrics": [
     {
       "id": "tfs",
@@ -82,11 +82,11 @@
     {
       "id": "paq-a",
       "label": "Opportunity-Adjusted PAQ",
-      "version": "2.0.0",
+      "version": "2.0.2",
       "grain": "plate_appearance",
       "higherIs": "better",
       "unit": "percentile",
-      "userDefinition": "PAQ compared with plate appearances starting with the same occupied bases and out count.",
+      "userDefinition": "PAQ compared with plate appearances having the same occupied bases and out count immediately before the batter consequence.",
       "semanticMode": "completeness-gated",
       "authoritativeQuery": "sparql/serving/metric-kernels/paq-a.rq",
       "executionMode": "admitted-binding-kernel",
@@ -587,11 +587,11 @@
     {
       "id": "review-dependence-rate",
       "label": "Review Dependence Rate",
-      "version": "2.0.0",
+      "version": "2.0.2",
       "grain": "outcome_population",
       "higherIs": "descriptive",
       "unit": "proportion",
-      "userDefinition": "Eligible institutional outcomes whose operative result depends on replay adjudication.",
+      "userDefinition": "Review-dependent operative outcomes divided by all review-eligible decisions in the declared population, with traditional replay and ball/strike challenges reported separately.",
       "semanticMode": "completeness-gated",
       "authoritativeQuery": "sparql/serving/metric-kernels/review-dependence-rate.rq",
       "executionMode": "admitted-binding-kernel",
@@ -688,6 +688,26 @@
       "rowIdentity": [
         "key"
       ]
+    }
+  ],
+  "components": [
+    {
+      "id": "independent-runner-advancement",
+      "authoritativeQuery": "sparql/serving/metric-kernels/independent-runner-advancement.rq",
+      "inputColumns": [
+        "key",
+        "participant",
+        "start",
+        "end",
+        "terminal",
+        "creditProgress"
+      ],
+      "rowIdentity": [
+        "key",
+        "participant"
+      ],
+      "executionMode": "admitted-binding-kernel",
+      "liveAdapter": "blocked-by-gap-register"
     }
   ]
 }

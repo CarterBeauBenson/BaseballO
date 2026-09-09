@@ -24,7 +24,7 @@ uses integer cross multiplication for percentile comparisons.
 | --- | --- |
 | TFS | Sum retained progress minus direct destruction and opportunity erosion. |
 | PAQ-2 | Exact TFS midrank in the complete season reference population. |
-| PAQ-A | Same percentile calculation within the declared starting-state cohort. |
+| PAQ-A | Same percentile calculation within the declared immediate pre-consequence base/out cohort. |
 | Offensive Reach | Number of distinct trajectories receiving positive attributed progress. |
 | Hidden Help Rate | Other-runner progress while batter progress is zero / PAs with zero batter progress. |
 | Rally Kill Rate | PAs directly putting an existing runner out / PAs beginning with a runner. |
@@ -90,11 +90,10 @@ admission mechanism. The HTTP API cannot accept facts or completeness flags.
 runners remain eligible for independent baserunning metrics.
 `independent_runner_damage` returns a positive damage magnitude, comprising
 direct runner destruction plus surviving-teammate erosion. First and third,
-zero outs, first caught stealing with third unchanged gives 2/3. This helper
-does not choose positive running weights or a net independent episode score.
+zero outs, first caught stealing with third unchanged gives 2/3. The separate contribution helper implements the subsequently accepted positive weights and net score.
 `empty_game_damage` consumes signed episode scores, so a positive damage
 magnitude must be negated if supplied as a damage-only episode score.
-Positive running weights and speed-based error attribution remain open.
+Positive running weights are now accepted; speed-based error attribution remains open.
 
 ## RDF, SQL and API
 
@@ -153,3 +152,39 @@ attached to the result. The existing temporary game-set provenance dependency
 is a declared coverage limitation and does not admit a PAQ season cohort.
 
 The batch review is [here](../proposals/graph-native-metric-suite-batch-review/README.md).
+
+## September 9 accepted policy implementation
+
+The [named answers](../archive/design-records/metric-suite-gap-answers-2026-09-09/decision.json)
+are reflected in the executable policy and catalog. `paq_a_population` forms
+cohorts from an admitted immediate pre-consequence base/out state, its evidence
+and a declared reference population. A PA-start state after an intervening steal
+cannot substitute. Missing boundary evidence prevents population admission.
+The lower-level percentile kernel still consumes already admitted cohort keys.
+
+`independent_runner_contribution` takes one already complete, coalesced episode,
+using the same participant/out-state contract as the accepted damage helper.
+Its canonical SPARQL component adds 1/3 for first-to-second, 1/2 for
+second-to-third, and 1 for third-to-home. A direct first-to-third path and its
+supported segment sum both yield 5/6. Results retain advancement, damage and
+net = advancement minus damage as exact fractions. The existing terminal-out
+policy remains: a coalesced path ending out keeps no intermediate advancement.
+The helper does not infer continuity or accept raw source segments as a path.
+This is a calculation component of the suite, not a newly admitted live metric.
+
+`review_dependence_by_mechanism` receives one declared population per call and
+keeps traditional replay and ball/strike challenges separate. Every eligible
+outcome enters its mechanism's denominator, including unreviewed outcomes;
+the numerator requires supported operative review dependence. Its internal
+`reviewDependent` flag is passed to the older kernel column named `reviewed`;
+a review's mere presence must not populate that flag. Unknown eligibility or
+dependence blocks the affected mechanism, and incomplete populations remain
+unavailable. Outcome categories and season-specific eligibility still require
+a reviewed source contract.
+
+Supported safe end-state association need not assert physical location or a
+stasis. A supported final operative outcome need not have its original call
+available for ordinary trajectory scoring. Official statistical PA attribution
+and actual consequence contributors remain separate. These are accepted policy
+requirements; no new RDF representation or source admission is inferred.
+Question 7's continuity criterion remains unresolved, not implicitly accepted.

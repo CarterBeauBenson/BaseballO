@@ -22,7 +22,7 @@ from rdflib import Graph, Literal
 
 ROOT = Path(__file__).resolve().parents[1]
 METRICS = ROOT / 'sparql/metrics'
-VERSION = '2.0.2'
+VERSION = '2.0.3'
 
 
 class EvidenceError(ValueError):
@@ -46,7 +46,7 @@ def fingerprint():
              METRICS / 'metric-catalog.json', METRICS / 'gap-register.json',
              METRICS / 'batch-release-policy.json', METRICS / 'trajectory-origin-policy.json']
     paths.extend(sorted(METRICS.glob('*.rq')))
-    paths.extend(ROOT / e['authoritativeQuery'] for e in catalog()['metrics'])
+    paths.extend(ROOT / e['authoritativeQuery'] for e in [*catalog()['metrics'], *catalog().get('components', [])])
     return hashlib.sha256('\n'.join(
         p.relative_to(ROOT).as_posix() + ':' + hashlib.sha256(p.read_bytes()).hexdigest()
         for p in paths).encode()).hexdigest()
@@ -109,7 +109,7 @@ def _unique(rows, fields, nullable=()):
 
 
 def run_kernel(metric_id, rows):
-    entry = next((e for e in catalog()['metrics'] if e['id'] == metric_id), None)
+    entry = next((e for e in [*catalog()['metrics'], *catalog().get('components', [])] if e['id'] == metric_id), None)
     if entry is None:
         raise EvidenceError('Unknown metric')
     columns = entry['inputColumns']
@@ -257,6 +257,30 @@ def player_paq(results):
         'distribution': [exact(v) for v in values]})
 
 
+def paq_a_population(entries, *, complete_population=False):
+    """Build cohorts only from admitted immediate pre-consequence base/out states."""
+    entries = _unique(entries, ('key',))
+    prepared = []
+    for entry in entries:
+        state = entry.get('comparisonState') or {}
+        if (state.get('boundary') != policies()['paqAComparisonBoundary']
+                or not state.get('evidence') or not entry.get('referencePopulation')
+                or state.get('occupiedBases') is None or state.get('outs') is None):
+            return {e['key']: unavailable('PAQ_A_STATE') for e in entries}
+        bases = state['occupiedBases']
+        if not isinstance(bases, list) or any(type(b) is not int or b not in (1,2,3) for b in bases) or len(set(bases)) != len(bases):
+            raise EvidenceError('Invalid admitted occupied-base state')
+        outs = _integer(state['outs'], 'pre-consequence outs', 0, 2)
+        if not isinstance(entry['referencePopulation'], str):
+            raise EvidenceError('Invalid PAQ-A reference population')
+        cohort = _json([entry['referencePopulation'], sorted(bases), outs])
+        prepared.append(dict(entry, cohort=cohort))
+    results = percentiles(prepared, metric_id='paq-a', complete_population=complete_population)
+    for entry in entries:
+        results[entry['key']]['evidence'] = sorted(set(entry['comparisonState']['evidence']))
+    return results
+
+
 def paq21_population(entries, *, complete_population=False):
     """Select the accepted applicable population without inventing zero scores."""
     _boolean(complete_population, 'reference population completeness')
@@ -285,13 +309,73 @@ def empty_game_eligible(plate_appearances):
 
 
 def independent_runner_damage(participants, outs_before, attributed_outs):
-    """Accepted damage magnitude only; positive running weights remain pending."""
+    """Accepted direct destruction plus surviving-teammate erosion magnitude."""
     rows = [dict(row, creditProgress=False) for row in participants]
     result = trajectories(rows, outs_before, attributed_outs)
     if result['status'] != 'available':
         return result
     return available(-fraction(result['value']), evidence=result['evidence'],
                      components={k: result['components'][k] for k in ['destruction', 'erosion']})
+
+
+def independent_runner_contribution(participants, outs_before, attributed_outs):
+    """Gain, damage and net for one already admitted complete/coalesced episode.
+
+    This does not join source segments or decide continuity. An out-ending
+    personal path retains no intermediate advancement under the existing policy.
+    """
+    rows = _unique(participants, ('participant',))
+    damage = independent_runner_damage(rows, outs_before, attributed_outs)
+    if damage['status'] != 'available':
+        return damage
+    inputs = []
+    for row in rows:
+        credit = _boolean(row.get('creditProgress'), 'independent progress attribution')
+        if credit and row['terminal'] in ('safe', 'scored'):
+            _integer(row['start'], 'independent advance origin', 1, 3)
+        inputs.append(dict(row, key='independent-episode'))
+    calculated, = run_kernel('independent-runner-advancement', inputs)
+    gain = Fraction(int(calculated['numerator']), int(calculated['denominator']))
+    loss = fraction(damage['value'])
+    return available(gain-loss, evidence=damage['evidence'], components={
+        'advancement': exact(gain), 'damage': exact(loss), 'net': exact(gain-loss),
+        'destruction': damage['components']['destruction'], 'erosion': damage['components']['erosion']})
+
+
+def review_dependence_by_mechanism(rows, *, complete_populations):
+    """Separate already admitted outcome populations; never pool mechanisms.
+
+    reviewDependent means supported dependence of the operative outcome,
+    not merely that a review occurred. The generic kernel's legacy column
+    named reviewed receives this dependency flag.
+    """
+    mechanisms = policies()['reviewDependenceMechanisms']
+    if any(row.get('mechanism') not in mechanisms for row in rows):
+        return {m: unavailable('REVIEW_MECHANISM_UNKNOWN') for m in mechanisms}
+    results = {}
+    for mechanism in mechanisms:
+        complete = complete_populations.get(mechanism, False)
+        _boolean(complete, 'mechanism population completeness')
+        selected = _unique([r for r in rows if r['mechanism'] == mechanism], ('outcome',))
+        if not complete:
+            results[mechanism] = unavailable('OUTCOME_POPULATION')
+            continue
+        if any(r.get('eligible') is None for r in selected):
+            results[mechanism] = unavailable('OUTCOME_POPULATION')
+            continue
+        inputs = []
+        for row in selected:
+            if not _boolean(row['eligible'], 'review eligibility'):
+                continue
+            if row.get('reviewDependent') is None:
+                break
+            inputs.append(dict(key=mechanism, outcome=row['outcome'], eligible=True,
+                               reviewed=_boolean(row['reviewDependent'], 'operative review dependence')))
+        else:
+            results[mechanism] = calculate('review-dependence-rate', inputs)
+            continue
+        results[mechanism] = unavailable('OPERATIVE_REVIEW')
+    return results
 
 
 def recovery_steps(pitches):

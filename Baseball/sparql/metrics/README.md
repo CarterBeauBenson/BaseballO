@@ -35,8 +35,8 @@ repository's semantic review sequence.
 - Trajectory Fulfillment Score (TFS) is the foundational plate-appearance
   consequence measure.
 - PAQ-2 is a league-relative percentile derived from TFS.
-- PAQ-A compares a plate appearance with others beginning in the same occupied
-  base and out state.
+- PAQ-A compares a plate appearance with others having the same occupied
+  bases and out count immediately before the batter consequence.
 - Offensive Reach, Hidden Help, Rally Kill, Opportunity Erosion, Empty Games,
   and Contribution Path Diversity reuse the same attributed-consequence grain.
 - Canonical analytical meaning remains in version-controlled SPARQL and metric

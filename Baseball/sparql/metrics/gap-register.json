@@ -44,8 +44,8 @@
     {
       "id": "BOUNDARY_STATE",
       "title": "Locate runners at the relevant boundaries",
-      "question": "How should return-to-base capacity delimit the larger Site and how is location temporally qualified?",
-      "direction": "Coaching supports a context-sensitive return criterion. Preserve the nested-site direction and existing Mermaid; no fixed radius, Relational Quality, or new ontology assertion is admitted by that finding.",
+      "question": "What accepted graph pattern supplies the explicitly supported safe base association at each required metric boundary?",
+      "direction": "Metric end state may use supported safe base association without asserting physical location or stasis. Its authoritative graph representation and complete boundary census remain unresolved. The larger physical Site is a separate modeling concern where physical location is asserted.",
       "status": "open",
       "disposition": "partially-resolved-review-required",
       "owner": "ontologist",
@@ -53,7 +53,8 @@
       "decisionRecords": [
         "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
         "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json",
-        "archive/design-records/runner-award-origin-final-decision/review.json"
+        "archive/design-records/runner-award-origin-final-decision/review.json",
+        "archive/design-records/metric-suite-gap-answers-2026-09-09/decision.json"
       ],
       "researchAssessment": {
         "assessedOn": "2026-09-08",
@@ -107,15 +108,16 @@
         "Immediate segment origin via movement.start designation; no preceding stasis",
         "Batter metric HOME=0 from PA batter identity"
       ],
-      "remainingCoverage": "Reviewed operative award resolution, other rule editions, PA-start fallback completeness and full attributed-trajectory completeness remain separately gated."
+      "remainingCoverage": "Reviewed operative award resolution, other rule editions, PA-start fallback completeness and full attributed-trajectory completeness remain separately gated.",
+      "continuityClarification": "September 9 question 7 was answered Say more. No reconciled-history continuity criterion was accepted."
     },
     {
       "id": "OPERATIVE_OUTS",
       "title": "Count operative attributed outs",
-      "question": "How are distinct final outs identified after replay, simultaneous independent events, uncaught third strikes, and appeals?",
-      "direction": "Count distinct supported operative outs. Charge stranded-runner erosion on the third out without inventing another out or destruction.",
+      "question": "What evidence identifies distinct supported final operative outcomes and their attribution?",
+      "direction": "A supported final outcome may serve ordinary trajectory scoring without the original pre-review call. That does not turn a strikeout label into an out, settle duplicate identities, or supply missing review-dependent evidence.",
       "status": "open",
-      "disposition": "batch-review-required",
+      "disposition": "partially-resolved-review-required",
       "owner": "ontologist",
       "implementationBehavior": "unavailable until the named semantic/evidence prerequisite is admitted",
       "researchAssessment": {
@@ -131,7 +133,10 @@
           "evidence"
         ],
         "livePrerequisiteClosed": false
-      }
+      },
+      "decisionRecords": [
+        "archive/design-records/metric-suite-gap-answers-2026-09-09/decision.json"
+      ]
     },
     {
       "id": "COMPLETENESS",
@@ -210,15 +215,16 @@
     {
       "id": "PAQ_A_STATE",
       "title": "Set the adjusted comparison boundary",
-      "question": "Use PA-start base/out state or the state immediately before the batter consequence for PAQ-A comparison cohorts?",
-      "direction": "The initial PA-start description remains draft. Neither choice gives the batter independent running credit. Actual-end-state TFS erosion has already been confirmed and is a separate decision.",
+      "question": "What admitted graph evidence identifies complete base/out state immediately before the batter consequence?",
+      "direction": "Use the immediate pre-consequence base/out state, as accepted September 9. PA-start state cannot substitute after an intervening event.",
       "status": "open",
-      "disposition": "partially-resolved-review-required",
+      "disposition": "accepted-meaning-evidence-pending",
       "owner": "ontologist",
       "implementationBehavior": "calculation uses accepted policy; live output remains unavailable until source-owned graph prerequisites are admitted",
       "decisionRecords": [
         "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
-        "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json"
+        "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json",
+        "archive/design-records/metric-suite-gap-answers-2026-09-09/decision.json"
       ],
       "researchAssessment": {
         "assessedOn": "2026-09-08",
@@ -234,15 +240,16 @@
     {
       "id": "OFFENSIVE_ELIGIBILITY",
       "title": "Define eligible offensive player-games",
-      "question": "What graph evidence establishes complete PA counts and positive contributions for eligible player-games?",
-      "direction": "At least one PA is required for Empty Game eligibility. A zero-PA pinch runner is ineligible for Empty Games but remains eligible for baserunning metrics. The calculation enforces the PA minimum.",
+      "question": "What complete PA/contribution evidence separates official statistical PA attribution from actual consequence contributors?",
+      "direction": "At least one PA remains required for Empty Game eligibility. Keep official PA attribution and actual consequence-contributor attribution separate in mid-turn substitutions; do not transfer the whole turn to its final batter. Zero-PA runners remain eligible for baserunning metrics.",
       "status": "open",
       "disposition": "accepted-meaning-evidence-pending",
       "owner": "ontologist",
       "implementationBehavior": "calculation uses accepted policy; live output remains unavailable until source-owned graph prerequisites are admitted",
       "decisionRecords": [
         "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
-        "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json"
+        "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json",
+        "archive/design-records/metric-suite-gap-answers-2026-09-09/decision.json"
       ],
       "researchAssessment": {
         "assessedOn": "2026-09-08",
@@ -287,15 +294,16 @@
     {
       "id": "INDEPENDENT_SCORE",
       "title": "Define independent trajectory damage",
-      "question": "Which increasing additive base weights and complete score formula should govern positive independent running?",
-      "direction": "Independent damage is accepted as direct runner destruction plus surviving-teammate erosion; the first/third caught-stealing example is 2/3. Positive independent advances are accepted in principle with increasing base value; exact weights and any net score remain unresolved.",
+      "question": "What complete independent-episode evidence supports the accepted gain, damage and net components?",
+      "direction": "Fixed additive gains: first-to-second 1/3, second-to-third 1/2, third-to-home 1. Report advancement, accepted damage, and advancement-minus-damage separately. The weight and net-score choices are settled.",
       "status": "open",
-      "disposition": "partially-resolved-review-required",
+      "disposition": "accepted-meaning-evidence-pending",
       "owner": "ontologist",
       "implementationBehavior": "calculation uses accepted policy; live output remains unavailable until source-owned graph prerequisites are admitted",
       "decisionRecords": [
         "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
-        "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json"
+        "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json",
+        "archive/design-records/metric-suite-gap-answers-2026-09-09/decision.json"
       ],
       "researchAssessment": {
         "assessedOn": "2026-09-08",
@@ -429,7 +437,8 @@
           "evidence"
         ],
         "livePrerequisiteClosed": false
-      }
+      },
+      "continuityClarification": "September 9 question 7 was answered Say more. No reconciled-history continuity criterion was accepted."
     },
     {
       "id": "SUPPORT_ATTRIBUTION",
@@ -460,10 +469,10 @@
     {
       "id": "OPERATIVE_REVIEW",
       "title": "Link review to the operative outcome",
-      "question": "Which explicit graph pattern establishes that a particular operative outcome depends on replay?",
-      "direction": "A PA-level review flag cannot make every outcome in that PA review-dependent.",
+      "question": "What supported graph links establish a particular final outcome depends on the identified review mechanism?",
+      "direction": "Keep traditional replay and ball/strike challenges separate. Missing original calls need not block supported ordinary final-state scoring, but missing required review evidence still blocks the review calculation.",
       "status": "open",
-      "disposition": "batch-review-required",
+      "disposition": "partially-resolved-review-required",
       "owner": "ontologist",
       "implementationBehavior": "unavailable until the named semantic/evidence prerequisite is admitted",
       "researchAssessment": {
@@ -478,20 +487,24 @@
           "evidence"
         ],
         "livePrerequisiteClosed": false
-      }
+      },
+      "decisionRecords": [
+        "archive/design-records/metric-suite-gap-answers-2026-09-09/decision.json"
+      ]
     },
     {
       "id": "OUTCOME_POPULATION",
       "title": "Define review-dependence denominator",
-      "question": "Which distinct institutional outcome categories form the RDR denominator, with season-specific review eligibility?",
-      "direction": "Research includes fair/foul and fan-interference categories rather than restricting consideration to out/safe and ball/strike. The exact denominator and operative outcome identity remain unresolved.",
+      "question": "Which exact outcome categories and supported season-specific eligibility define each complete mechanism population?",
+      "direction": "Denominator is all eligible decisions, including never-reviewed decisions. Separate traditional replay and ball/strike challenges. Category scope, outcome identities and evidence completeness remain unresolved.",
       "status": "open",
       "disposition": "partially-resolved-review-required",
       "owner": "ontologist",
       "implementationBehavior": "calculation uses accepted policy; live output remains unavailable until source-owned graph prerequisites are admitted",
       "decisionRecords": [
         "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
-        "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json"
+        "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json",
+        "archive/design-records/metric-suite-gap-answers-2026-09-09/decision.json"
       ],
       "researchAssessment": {
         "assessedOn": "2026-09-08",

@@ -6,6 +6,8 @@ to the existing NiFi serving consumer. Run with --check for a focused drift chec
 from pathlib import Path
 import argparse
 import json
+from fractions import Fraction
+from math import lcm
 
 ROOT = Path(__file__).resolve().parents[1]
 DEST = ROOT / 'sparql/metrics'
@@ -16,7 +18,7 @@ DEFINITIONS = [
     ('paq-2', 'Plate Appearance Quality', 'paq-2-core', 'plate_appearance', 'better', 'percentile',
      'Season-relative percentile of exact TFS, with tied values receiving the same midrank.', ['TFS', 'REFERENCE_POPULATION']),
     ('paq-a', 'Opportunity-Adjusted PAQ', 'paq-a', 'plate_appearance', 'better', 'percentile',
-     'PAQ compared with plate appearances starting with the same occupied bases and out count.', ['TFS', 'REFERENCE_POPULATION', 'PAQ_A_STATE']),
+     'PAQ compared with plate appearances having the same occupied bases and out count immediately before the batter consequence.', ['TFS', 'REFERENCE_POPULATION', 'PAQ_A_STATE']),
     ('offensive-reach', 'Offensive Reach', 'offensive-reach', 'plate_appearance', 'better', 'trajectories',
      'Distinct offensive trajectories receiving positive batter-attributed progress.', ['ATTRIBUTION', 'PATH_IDENTITY', 'COMPLETENESS']),
     ('hidden-help-rate', 'Hidden Help Rate', 'hidden-help-rate', 'player', 'better', 'proportion',
@@ -46,7 +48,7 @@ DEFINITIONS = [
     ('adjudication-volatility', 'Adjudication Volatility', 'adjudication-volatility', 'review_population', 'descriptive', 'proportion',
      'Overturning dispositions divided by explicitly resolved replay reviews in the selected mapped population.', []),
     ('review-dependence-rate', 'Review Dependence Rate', 'review-dependence-rate', 'outcome_population', 'descriptive', 'proportion',
-     'Eligible institutional outcomes whose operative result depends on replay adjudication.', ['OPERATIVE_REVIEW', 'OUTCOME_POPULATION']),
+     'Review-dependent operative outcomes divided by all review-eligible decisions in the declared population, with traditional replay and ball/strike challenges reported separately.', ['OPERATIVE_REVIEW', 'OUTCOME_POPULATION']),
     ('role-realization-breadth', 'Role Realization Breadth', 'role-realization-breadth', 'player_game', 'descriptive', 'role types',
      'Distinct Batter, Baserunner, Pitcher and Fielder role kinds actually realized in the player-game, without counting generic parent roles again.', ['DEFENSIVE_ACTS', 'ROLE_POPULATION']),
     ('paq-2.1', 'PAQ with Process Tie-Breakers', 'paq-2-1', 'plate_appearance', 'better', 'percentile',
@@ -143,7 +145,7 @@ def artifacts():
         kernel = all_kernels[id]
         path = f'sparql/serving/metric-kernels/{filename}.rq'
         outputs[ROOT / path] = kernel['source']
-        entries.append(dict(id=id, label=label, version='2.1.1' if id=='paq-2.1' else '2.0.1' if id in {'empty-game-rate','contribution-path-diversity','run-construction-breadth','role-realization-breadth'} else '2.0.0',
+        entries.append(dict(id=id, label=label, version='2.1.1' if id=='paq-2.1' else '2.0.2' if id in {'paq-a','review-dependence-rate'} else '2.0.1' if id in {'empty-game-rate','contribution-path-diversity','run-construction-breadth','role-realization-breadth'} else '2.0.0',
                             grain=grain, higherIs=higher, unit=unit, userDefinition=definition,
                             semanticMode='completeness-gated', authoritativeQuery=path,
                             executionMode='admitted-binding-kernel', sourceScopeVersion=1,
@@ -153,10 +155,23 @@ def artifacts():
                             referencePopulation=('eligible MLB regular-season two-strike PAs in selected season through reporting cutoff' if id=='recovery-quality' else 'eligible MLB regular-season PAs with applicable recovery and defensive resolution through reporting cutoff' if id=='paq-2.1' else 'eligible MLB regular-season PAs in selected season through reporting cutoff' if id.startswith('paq') else 'declared selected evidence population'),
                             nullableColumns=['end'] if id=='tfs' else ['next'] if id=='resolution-depth' else [],
                             inputColumns=kernel['inputColumns'], rowIdentity=kernel['rowIdentity']))
+    weights = json.loads((DEST / 'batch-release-policy.json').read_text())['independentPositiveWeights']
+    fractions = {int(k.split('-')[0]): Fraction(int(v['numerator']), int(v['denominator'])) for k,v in weights.items()}
+    denominator = lcm(*(f.denominator for f in fractions.values()))
+    terms = [f'IF(?start<={start} && ?end>{start},{int(value*denominator)},0)' for start,value in sorted(fractions.items())]
+    component_path = 'sparql/serving/metric-kernels/independent-runner-advancement.rq'
+    columns = ['key','participant','start','end','terminal','creditProgress']
+    outputs[ROOT / component_path] = query(columns,
+        f'?key (SUM(?gain) AS ?numerator) ({denominator} AS ?denominator)',
+        '  BIND(IF((?terminal="safe" || ?terminal="scored") && ?creditProgress, '
+        + '+'.join(terms) + ', 0) AS ?gain)')
+    components = [dict(id='independent-runner-advancement', authoritativeQuery=component_path,
+                       inputColumns=columns, rowIdentity=['key','participant'],
+                       executionMode='admitted-binding-kernel', liveAdapter='blocked-by-gap-register')]
     outputs[DEST / 'metric-catalog.json'] = json.dumps(dict(
         artifactType='baseballo-graph-native-metric-catalog', contractVersion=1,
-        generator='scripts/generate_metric_suite.py', metricVersion='2.0.1',
-        metrics=entries), indent=2)+'\n'
+        generator='scripts/generate_metric_suite.py', metricVersion='2.0.2',
+        metrics=entries, components=components), indent=2)+'\n'
     return outputs
 
 
@@ -168,9 +183,9 @@ def main():
             if not path.exists() or path.read_text(encoding='utf-8')!=text: bad.append(path.name)
         else:
             path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text(text,encoding='utf-8')
+            path.write_bytes(text.encode('utf-8'))
     if bad: raise SystemExit('Metric generation drift: '+', '.join(bad))
-    print(('Verified' if args.check else 'Generated')+' 20 metric kernels and catalog.')
+    print(('Verified' if args.check else 'Generated')+' 20 metric kernels, independent-advancement component and catalog.')
 
 
 if __name__=='__main__': main()

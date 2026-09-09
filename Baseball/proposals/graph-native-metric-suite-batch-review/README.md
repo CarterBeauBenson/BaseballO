@@ -2,7 +2,7 @@
 
 **Current handoff:** [the September 9 release review](current-release-review.md)
 accounts for all 21 gap codes in seven shared work packages, separates the
-three remaining metric choices from model/evidence work, and records the
+subsequently answered metric choices from model/evidence work, and records the
 20-route end-to-end audit. Its final award/origin links supersede the older
 property-based partial implementations cited below.
 
@@ -35,8 +35,8 @@ same register and allows one download of the whole review.
   baserunning metrics.
 - Independent advances on steals, wild pitches, passed balls and balks belong
   to the runner. Independent damage includes direct destruction and surviving
-  teammate erosion. Increasing positive base values are wanted; weights remain
-  to be selected.
+  teammate erosion. The September 9 follow-up selects marginal positive values
+  of 1/3, 1/2 and 1, reported alongside damage and net contribution.
 - CPD counts a positive play once per channel, regardless of beneficiary count.
 - Reference populations include eligible completed season PAs through the
   reporting cutoff, with complete coverage required.
@@ -135,3 +135,5 @@ or removal of previously promoted RDF is required by the metric software.
 
 The review record stays draft, with no invented approval or pinned mutable
 artifacts. No new terms or Mermaid artifacts are declared here.
+
+The [September 9 answers](../../archive/design-records/metric-suite-gap-answers-2026-09-09/decision.json) now settle PAQ-A's immediate pre-consequence boundary, independent running weights/net, and review-eligible denominators with separated mechanisms. They also distinguish supported metric end states from physical stasis, supported final outcomes from original-call availability, and consequence contributors from official PA attribution. Question 7 remains unresolved pending the requested explanation.

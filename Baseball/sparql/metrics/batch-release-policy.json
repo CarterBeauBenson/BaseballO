@@ -9,9 +9,27 @@
   "zeroPaRunnerEligibleForBaserunning": true,
   "cpdCountingUnit": "one-positive-play-per-channel",
   "independentDamage": "direct-runner-destruction-plus-teammate-opportunity-erosion",
-  "independentPositiveEvents": ["steal", "wild-pitch", "passed-ball", "balk"],
+  "independentPositiveEvents": [
+    "steal",
+    "wild-pitch",
+    "passed-ball",
+    "balk"
+  ],
   "independentProgressCreditedToBatter": false,
-  "independentPositiveWeights": null,
+  "independentPositiveWeights": {
+    "1-2": {
+      "numerator": "1",
+      "denominator": "3"
+    },
+    "2-3": {
+      "numerator": "1",
+      "denominator": "2"
+    },
+    "3-4": {
+      "numerator": "1",
+      "denominator": "1"
+    }
+  },
   "referenceCutoff": "eligible-completed-plate-appearances-through-reporting-cutoff",
   "defensiveDepthUnit": "intentional-act-nodes",
   "runSupportIncludesScoringRunner": true,
@@ -24,5 +42,23 @@
   "paq21RequiresTwoStrikeEligibility": true,
   "paq21RequiresApplicableDefensiveResolution": true,
   "unknownEligibilityIsNotInapplicable": true,
-  "boundary": "These policies apply to admitted facts only. Event labels here are documentation, not source-mapping shortcuts. Running weights, speed-related error credit, interference credit and PAQ-A state boundary remain unresolved."
+  "boundary": "Policies apply only to admitted facts. End-state and final-outcome support, mechanism-specific eligibility and complete population evidence remain required. Question 7 does not admit continuity. Error-speed credit and interference remain unresolved/deferred. No ontology terms, predicates or identity policies are introduced.",
+  "followupDecision": "../../archive/design-records/metric-suite-gap-answers-2026-09-09/decision.json",
+  "independentContributionOutputs": [
+    "advancement",
+    "damage",
+    "net"
+  ],
+  "independentNet": "advancement-minus-damage",
+  "paqAComparisonBoundary": "immediately-before-batter-consequence",
+  "reviewDependenceDenominator": "all-review-eligible-decisions-in-declared-population",
+  "reviewDependenceMechanisms": [
+    "traditional-replay",
+    "ball-strike-challenge"
+  ],
+  "safeEndStateRequiresPhysicalLocation": false,
+  "safeEndStateRequiresStasis": false,
+  "ordinaryScoringRequiresOriginalReviewCall": false,
+  "officialPaAttributionSeparateFromConsequenceContributor": true,
+  "continuityCriterionStatus": "unresolved-explanation-requested"
 }

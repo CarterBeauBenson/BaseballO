@@ -1,5 +1,9 @@
 # Current metric release review — 2026-09-09
 
+**Answer update:** [the September 9 decisions](../../archive/design-records/metric-suite-gap-answers-2026-09-09/decision.json)
+settle questions 1–6, 8 and 9. Question 7 requests an explanation and remains
+unapproved. The accepted choices below do not establish complete live evidence.
+
 The software request covers all 20 metric calculations, serving integration,
 and one consolidated account of unresolved gaps. The formulas and routes are
 implemented. **Nineteen metrics still cannot produce valid live scores.**
@@ -49,17 +53,17 @@ the evidence or semantic decision that cannot be manufactured by code.
 | B3 — Operative outcomes and corrections | A strikeout with an uncaught third strike; a replay changes a specific safe/out decision; an appeal changes the operative inning-ending result. | Identify each distinct operative resolution and the correction that affects it. Reconcile duplicate descriptions of one out. A PA-level review flag or a strikeout/scorer code is insufficient. Encode the reviewed outcome contract in the owning source SHACL and analytical query. |
 | B4 — Completed populations and eligibility | An unfinished batting turn produces no PA; a mid-turn substitution can separate the acting batter from statistical PA attribution; a season has missing games. | Complete eligible game/PA membership and reconciliation through the accepted cutoff, plus the scoped eligibility policy for uncommon substitutions. Ordinary display filters cannot alter the reference population. Census/reconciliation mechanics are engineering after the graph contract is reviewed. |
 | B5 — Exact pitch and defensive process evidence | A count changes without a pitch; a rundown repeats throws although official credits list one assist. | Operative ordered count-state evidence, pitch/non-pitch distinction and termination; distinct intentional field/throw/catch/tag acts, agents and supported precedence. Credit lists do not establish a complete act sequence. Some data may require additional source evidence; no new source lane is authorized by this package. |
-| B6 — Remaining numerical/population choices | PAQ-A can use two different comparison boundaries; positive independent advances need increasing weights; review-dependence needs its denominator. | The three explicit metric choices below. Their selection does not approve new ontology vocabulary or establish source completeness. |
+| B6 — Accepted choices awaiting evidence | PAQ-A uses the immediate pre-consequence state; independent marginal gains are 1/3, 1/2 and 1; review dependence uses all review-eligible decisions, separated by mechanism. | The choices below are settled. Complete admitted inputs still depend on B1–B4; these choices do not authorize new ontology vocabulary. |
 | B7 — Deferred extensions | Speed might help explain an error; catcher interference may benefit the batter without batter achievement. | Retain the accepted error/FC exclusion and the user's interference deferral. A speed threshold or causal-credit rule requires a separate explicit decision with evidence. These extensions need not be invented to implement the already accepted policy. |
 
-### Three metric choices still needing an answer
+### Three metric choices, subsequently answered
 
 1. **PAQ-A comparison boundary.** Choose PA-start base/out state or the state
    immediately before the batter consequence. Example: a runner steals second
    before the batter's single. PA-start compares the PA with first-base starts;
    the immediate boundary compares it with second-base starts. Both preserve
    the accepted independent-credit exclusion and actual-end-state erosion.
-   The current PA-start wording is draft, not an accepted answer.
+   **Accepted answer:** use the immediate pre-consequence state.
 2. **Positive independent running.** Specify the increasing marginal values
    for the base transitions being scored and whether positive running remains
    a separate reported quantity or combines with accepted damage in a net
@@ -67,6 +71,8 @@ the evidence or semantic decision that cannot be manufactured by code.
    regardless of source-row segmentation. No empirical Speed or run-expectancy
    interpretation follows from selecting these weights. Negative damage is
    already defined; it does not need a new formula decision.
+   **Accepted answer:** marginal weights 1/3, 1/2 and 1; report advancement,
+   damage and their net together.
 3. **Review-dependence denominator.** Select the distinct institutional outcome
    categories in the denominator and whether the population is all such
    outcomes or only season-eligible reviewable outcomes. The numerator must
@@ -74,6 +80,9 @@ the evidence or semantic decision that cannot be manufactured by code.
    Research already includes conditional fair/foul and fan-interference
    eligibility; the 2026 ABS mechanism cannot silently enter an older replay
    population. This choice does not change AV's existing mapped-review scope.
+   **Accepted answer:** all review-eligible decisions, including never-reviewed
+   decisions; traditional replay and ball/strike challenges reported separately.
+   Exact outcome-category scope and eligibility evidence remain unresolved.
 
 ### Coverage of all 21 register codes
 
