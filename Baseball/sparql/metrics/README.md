@@ -13,7 +13,8 @@ user's later request to implement every metric now and review the gaps together.
 The checklist below remains the broader **production semantic admission**
 roadmap. Its unchecked source and release gates do not mean the new arithmetic
 software is absent. The live adapters support explicitly resolved mapped review
-volatility and a bounded loaded Walk/HBP consequence under TFS. Complete PA TFS
+volatility and bounded loaded Walk/HBP consequences under TFS and Offensive
+Reach. Complete PA TFS
 and the other metrics retain their named gaps. See the
 [first live consequence](../../serving/METRIC-SUITE.md#first-live-award-consequence).
 

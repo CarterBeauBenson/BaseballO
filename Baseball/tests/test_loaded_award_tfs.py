@@ -37,11 +37,39 @@ def loaded_fixture():
     return dataset
 
 
-def result(dataset):
-    return M.live_result('tfs', M.normalize_bindings(bindings(dataset, [G1]), [G1]), graph_count=1)
+def result(dataset, metric_id='tfs'):
+    return M.live_result(metric_id, M.normalize_bindings(bindings(dataset, [G1]), [G1]), graph_count=1)
 
 
 class LoadedAwardTFS(unittest.TestCase):
+    def test_offensive_reach_counts_positive_paths_and_round_trips_without_aggregating(self):
+        source = bindings(loaded_fixture(), [G1])
+        rows = M.normalize_bindings(source + source, [G1])
+        reach = M.live_result('offensive-reach', rows, graph_count=1)
+        tfs = M.live_result('tfs', rows, graph_count=1)
+        self.assertEqual(reach['status'], 'unavailable')
+        self.assertIsNone(reach['value'])
+        self.assertEqual(set(reach['gaps']), {'ATTRIBUTION', 'PATH_IDENTITY', 'COMPLETENESS'})
+        score, = reach['consequences']
+        self.assertEqual(score['value'], M.exact(4))
+        self.assertEqual(score['components'], {'positiveTrajectories': M.exact(4)})
+        self.assertEqual(score['evidence'], tfs['consequences'][0]['evidence'])
+        self.assertEqual(score['movements'], tfs['consequences'][0]['movements'])
+        self.assertEqual(score['grain'], 'award_consequence')
+        self.assertFalse(score['completePlateAppearance'])
+        with database() as connection:
+            M.materialize_game(connection, G1, source + source)
+            M.materialize_game(connection, G2, bindings(fixture(graph=G2, decisions=()), [G2]))
+            scope = {'gameSet':'regular_season', 'startDate':'2026-08-01', 'endDate':'2026-08-01'}
+            self.assertEqual(M.query_sql(connection, {'metricId':'offensive-reach'}, scope)['metric'], reach)
+            scope['endDate'] = '2026-08-02'
+            pooled = M.query_sql(connection, {'metricId':'offensive-reach'}, scope)['metric']
+            self.assertEqual(pooled['consequences'], reach['consequences'])
+            self.assertIsNone(pooled['value'])
+            self.assertEqual(pooled['coverage']['observedPAsWithoutSupportedAwardConsequence'], 1)
+            scope['startDate'] = '2026-08-02'
+            self.assertEqual(M.query_sql(connection, {'metricId':'offensive-reach'}, scope)['metric']['consequences'], [])
+
     def test_exact_consequence_preserves_full_pa_gap_and_all_four_proofs(self):
         scored = result(loaded_fixture())
         self.assertEqual(scored['status'], 'unavailable')
@@ -86,11 +114,13 @@ class LoadedAwardTFS(unittest.TestCase):
                 if remove: graph.remove(remove)
                 if add: graph.add(add)
                 self.assertEqual(result(dataset)['consequences'], [])
+                self.assertEqual(result(dataset, 'offensive-reach')['consequences'], [])
 
     def test_extra_movement_is_not_filtered_away_before_selection(self):
         dataset = loaded_fixture()
         movement(dataset.graph(URIRef(G1)), EX.extraResolution, EX.extraAct, EX.pa, EX.runner1)
         self.assertEqual(result(dataset)['consequences'], [])
+        self.assertEqual(result(dataset, 'offensive-reach')['consequences'], [])
 
     def test_duplicates_scopes_and_sql_round_trip(self):
         dataset = loaded_fixture()

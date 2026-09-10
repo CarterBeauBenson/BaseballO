@@ -132,7 +132,7 @@
         "COMPLETENESS"
       ],
       "implementationStatus": "implemented",
-      "liveAdapter": "blocked-by-gap-register",
+      "liveAdapter": "loaded-award-consequences",
       "referencePopulation": "declared selected evidence population",
       "nullableColumns": [],
       "inputColumns": [

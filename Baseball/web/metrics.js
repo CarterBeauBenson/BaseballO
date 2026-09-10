@@ -41,18 +41,31 @@ function renderGameCoverage(games = []) {
   table.append(head, body); target.append(table);
 }
 
-function renderConsequences(results = []) {
+export function consequencePresentation(metricId) {
+  if (metricId === 'offensive-reach') return {
+    label: 'Consequence Offensive Reach',
+    math: 'Offensive Reach counts distinct trajectories with positive attributed progress. The supported loaded Walk/HBP chain advances the batter and all three existing runners: 1 + 1 + 1 + 1 = 4 trajectories. Each trajectory counts once.',
+    places: 0,
+  };
+  return {
+    label: 'Consequence TFS',
+    math: 'TFS = progress − destruction − erosion. For this four-runner force chain: HOME → 1B contributes 1/4; 1B → 2B contributes 1/3; 2B → 3B contributes 1/2; 3B → score contributes 1. All four resolve safely or score, so destruction and erosion are zero. Total: 25/12, displayed as 2.08.',
+    places: 2,
+  };
+}
+
+function renderConsequences(results = [], metricId = 'tfs') {
+  const presentation = consequencePresentation(metricId);
   const target = byId('award-consequences');
   target.replaceChildren(); target.hidden = !results.length;
   if (!results.length) return;
   target.append(node('h3', 'Supported award consequences'),
     node('p', 'Each score covers a positively supported loaded Walk/HBP force chain. Complete plate-appearance and game scores still require the evidence listed below.'));
   const math = node('details');
-  math.append(node('summary', 'Show math'), node('p',
-    'TFS = progress − destruction − erosion. For this four-runner force chain: HOME → 1B contributes 1/4; 1B → 2B contributes 1/3; 2B → 3B contributes 1/2; 3B → score contributes 1. All four resolve safely or score, so destruction and erosion are zero. Total: 25/12, displayed as 2.08.'));
+  math.append(node('summary', 'Show math'), node('p', presentation.math));
   target.append(math);
   const table = node('table'), head = node('thead'), heading = node('tr'), body = node('tbody');
-  for (const label of ['Game / PA source index', 'Batter', 'Consequence TFS', 'Evidence']) {
+  for (const label of ['Game / PA source index', 'Batter', presentation.label, 'Evidence']) {
     const cell = node('th', label); cell.scope = 'col'; heading.append(cell);
   }
   head.append(heading);
@@ -60,7 +73,7 @@ function renderConsequences(results = []) {
     const row = node('tr');
     row.append(node('td', `${result.graph.split('/').at(-1)} / ${result.plateAppearance.split('/').at(-1)}`),
       node('td', result.batter.split('/').at(-1)),
-      node('td', `${displayFraction(result.value)} (${result.value.numerator}/${result.value.denominator})`));
+      node('td', `${displayFraction(result.value, presentation.places)} (${result.value.numerator}/${result.value.denominator})`));
     const evidence = node('td'), detail = node('details');
     detail.append(node('summary', 'Trace four advances'));
     const advances = node('ul');
@@ -102,7 +115,7 @@ function choose(metric) {
   facts(byId('metric-facts'), [['Grain', metric.grain.replaceAll('_', ' ')], ['Unit', metric.unit], ['Interpretation', metric.higherIs], ['Reference population', metric.referencePopulation]]);
   byId('result').hidden = true;
   byId('request-status').textContent = metric.liveAdapter === 'loaded-award-consequences' ?
-    'Inspect supported loaded Walk/HBP consequences and the remaining TFS requirements.' :
+    'Inspect supported loaded Walk/HBP consequences and the remaining metric requirements.' :
     metric.requires.length ? 'Calculation implemented. Live values await the requirements below.' : 'Inspect the selected mapped review population.';
   byId('run-metric').disabled = false;
   renderRequirements(metric.requires);
@@ -146,7 +159,7 @@ async function inspect(event) {
     const coverage = result.coverage ?? {};
     const movement = coverage.runnerMovements;
     renderGameCoverage(coverage.byGame);
-    renderConsequences(result.consequences);
+    renderConsequences(result.consequences, result.metricId);
     facts(byId('coverage'), [['Games', coverage.games ?? payload.graphCount ?? 0], ['Evidence rows', coverage.evidenceRows ?? 0],
       ...(coverage.supportedAwardConsequences !== undefined ? [
         ['Supported award consequences', coverage.supportedAwardConsequences],
@@ -163,7 +176,7 @@ async function inspect(event) {
     renderRequirements(result.gaps ?? []);
     byId('result').hidden = false;
     byId('request-status').textContent = result.consequences?.length ?
-      'Supported award-consequence scores are ready. Broader TFS requirements remain listed below.' :
+      'Supported award-consequence scores are ready. Broader metric requirements remain listed below.' :
       result.status === 'available' ? 'Result ready for the stated population.' : 'No valid score can be produced from the current evidence. The unresolved requirements are listed below.';
   } catch (error) {
     if (error.name !== 'AbortError') byId('request-status').textContent = error.message;

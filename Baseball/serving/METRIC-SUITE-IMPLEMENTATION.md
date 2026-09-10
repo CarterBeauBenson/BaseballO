@@ -1,5 +1,14 @@
 # Graph-native metric suite implementation
 
+**Offensive Reach live consequence (2026-09-09):** the real Explorer API now
+returns **4** for the same supported award consequence whose TFS is 25/12.
+Both metrics preserve the same four advances and evidence. The new display
+uses a trajectory count and its own math; whole-PA and population values remain
+gated. See the [contract and HTTP proof](METRIC-SUITE.md#live-offensive-reach-consequence).
+The 22 Python and 11 Node tests passed, along with the generator drift check.
+They cover both metrics' shared rejection behavior, duplicate
+handling, SQL round trips, date scopes and distinct UI units.
+
 **Coverage expansion submitted (2026-09-09):** TFS now includes per-game
 movement coverage in the API, SQL result and Explorer. The live API verifies
 118 jointly supported movements out of 1,567 observed across the 15-game day.
@@ -70,7 +79,7 @@ All 20 arithmetic implementations and generic SQL value persistence are
 tested. **This does not mean all 20 metrics have valid live scores.** AV has
 an existing-evidence adapter scoped to explicitly resolved mapped reviews.
 Complete-population results for the other 19 remain unavailable with named
-prerequisites. TFS now additionally exposes the bounded award-consequence
+prerequisites. TFS and Offensive Reach additionally expose bounded award-consequence
 results described above, without dropping those broader requirements.
 
 ## Focused validation on 2026-09-08

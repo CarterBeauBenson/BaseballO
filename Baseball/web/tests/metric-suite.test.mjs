@@ -5,7 +5,7 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { createBaseballServer } from '../server.mjs';
 import { metricCatalog, validateMetricRequest, compileMetricEvidenceQuery } from '../query-builder/metric-suite-query-builder.js';
-import { displayFraction, resultHeadline, movementEvidenceLabel } from '../metrics.js';
+import { displayFraction, resultHeadline, movementEvidenceLabel, consequencePresentation } from '../metrics.js';
 
 async function withServer(options, work) {
   const server = createBaseballServer(options);
@@ -72,6 +72,15 @@ test('consequence results remain visible without presenting a whole-population s
   assert.equal(resultHeadline({ status: 'unavailable', value: null, consequences: [{ value: { numerator: '25', denominator: '12' } }] }), '1 supported award consequence');
   assert.equal(resultHeadline({ status: 'unavailable', value: null, consequences: [] }), 'Unavailable');
   assert.equal(resultHeadline({ status: 'available', value: { numerator: '1', denominator: '3' } }), '0.33');
+});
+
+test('Offensive Reach displays a trajectory count with its own math and unit', () => {
+  const reach = consequencePresentation('offensive-reach'), tfs = consequencePresentation('tfs');
+  assert.equal(reach.label, 'Consequence Offensive Reach');
+  assert.equal(displayFraction({ numerator: '4', denominator: '1' }, reach.places), '4');
+  assert.ok(reach.math.includes('positive attributed progress'));
+  assert.ok(!reach.math.includes('25/12'));
+  assert.equal(displayFraction({ numerator: '25', denominator: '12' }, tfs.places), '2.08');
 });
 
 test('movement coverage reports observed bindings without claiming source completeness', () => {

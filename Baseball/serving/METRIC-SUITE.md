@@ -321,3 +321,36 @@ Refreshing accepted mappings can improve binding coverage. It does not
 establish the complete boundaries, personal histories, operative outs or
 reference populations still required for broader metrics. No source mappings,
 validation gates or semantic approvals are changed by this increment.
+
+## Live Offensive Reach consequence
+
+Suite implementation 2.0.8 exposes **Offensive Reach** for the same supported
+loaded Walk/HBP consequences as TFS. The shared canonical SPARQL selection
+counts distinct runners only after requiring a separate, positively advanced
+act/resolution path for each runner in the complete four-step award chain.
+Within this bounded grain, each runner has exactly one admitted trajectory.
+The count is `4/1`; TFS for the same chain remains `25/12`. The count is not
+derived by rounding or otherwise converting TFS.
+
+The adapter preserves the same movement records and evidence IRIs in both
+results. Offensive Reach reports `positiveTrajectories` as its component and
+retains `grain: award_consequence` and `completePlateAppearance: false`.
+Its outer selected-population value remains null, with the existing
+ATTRIBUTION, PATH_IDENTITY and COMPLETENESS requirements. Missing, conflicting,
+independent or extra movement evidence cannot enter through a separate,
+less restrictive Reach adapter. Duplicate rows do not increase the score.
+No whole-game total, average or multi-trajectory rate is computed from the
+covered subset.
+
+The [real HTTP capture](../benchmarks/metrics/offensive-reach-823016-http-2026-09-09.json)
+records Offensive Reach **4** for game 823016, PA source index 40, batter 687637.
+The request selected the 15 loaded regular-season games on 2026-08-25 and used
+authoritative RDF fallback. It returned one supported award consequence.
+The page at `/metrics#offensive-reach` displays the integer count, exact
+fraction, distinct-trajectory explanation and all four advances. Set custom
+dates to 2026-08-25 through 2026-08-25 to reproduce that selection.
+
+The current accepted formula, RML, source SHACL, personal-trajectory model and
+population admission requirements are unchanged. This is reuse of an admitted
+consequence by another implemented metric, not evidence that the broader
+source-history or reference-population gaps have closed.

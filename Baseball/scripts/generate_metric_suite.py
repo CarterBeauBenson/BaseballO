@@ -151,7 +151,7 @@ def artifacts():
                             executionMode='admitted-binding-kernel', sourceScopeVersion=1,
                             completenessProfileVersion='pending-batch-review', contributionProfileVersion='2026-09-08',
                             requires=requires, implementationStatus='implemented',
-                            liveAdapter='resolved-review-dispositions' if id=='adjudication-volatility' else 'loaded-award-consequences' if id=='tfs' else 'blocked-by-gap-register',
+                            liveAdapter='resolved-review-dispositions' if id=='adjudication-volatility' else 'loaded-award-consequences' if id in {'tfs','offensive-reach'} else 'blocked-by-gap-register',
                             referencePopulation=('eligible MLB regular-season two-strike PAs in selected season through reporting cutoff' if id=='recovery-quality' else 'eligible MLB regular-season PAs with applicable recovery and defensive resolution through reporting cutoff' if id=='paq-2.1' else 'eligible MLB regular-season PAs in selected season through reporting cutoff' if id.startswith('paq') else 'declared selected evidence population'),
                             nullableColumns=['end'] if id=='tfs' else ['next'] if id=='resolution-depth' else [],
                             inputColumns=kernel['inputColumns'], rowIdentity=kernel['rowIdentity']))
@@ -192,7 +192,8 @@ def artifacts():
                       'safeJudgment safeDecision destinationBase destinationCode '
                       'hasSafeType hasOutType hasRunType contactPlay').split()
     outputs[ROOT / loaded_path] = query(loaded_columns,
-        '?key (SUM(?progress36) AS ?numerator) (36 AS ?denominator)',
+        '?key (SUM(?progress36) AS ?numerator) (36 AS ?denominator) '
+        '(COUNT(DISTINCT ?runner) AS ?offensiveReach)',
         '''  BIND(COALESCE(BOUND(?runner) && BOUND(?batter) && BOUND(?act)
     && BOUND(?resolution) && BOUND(?episode) && BOUND(?record)
     && BOUND(?award) && BOUND(?awardRule) && !BOUND(?contactPlay)

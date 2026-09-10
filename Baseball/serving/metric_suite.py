@@ -22,7 +22,7 @@ from rdflib import Graph, Literal
 
 ROOT = Path(__file__).resolve().parents[1]
 METRICS = ROOT / 'sparql/metrics'
-VERSION = '2.0.7'
+VERSION = '2.0.8'
 
 
 class EvidenceError(ValueError):
@@ -684,15 +684,15 @@ def live_result(metric_id, rows, *, graph_count):
     if entry['requires']:
         result = unavailable(*entry['requires'], coverage=coverage, metricId=metric_id,
                              scope='selected promoted game graphs', grain=entry['grain'])
-        if metric_id == 'tfs':
-            result['consequences'] = loaded_award_consequences(rows)
+        if metric_id in {'tfs', 'offensive-reach'}:
+            result['consequences'] = loaded_award_consequences(rows, metric_id=metric_id)
             coverage['byGame'] = movement_coverage_by_game(rows, result['consequences'])
             coverage['selectedGraphsWithoutEvidence'] = max(0, graph_count - len(coverage['byGame']))
             coverage['supportedAwardConsequences'] = len(result['consequences'])
             coverage['observedPAsWithoutSupportedAwardConsequence'] = max(
                 0, coverage['observedEntities']['plate_appearance'] - len(result['consequences']))
             result['scope'] = ('Award-consequence results below; complete plate-appearance '
-                               'and selected-population TFS remain unavailable.')
+                               f'and selected-population {entry["label"]} remain unavailable.')
         return result
     # AV deliberately describes only explicitly resolved mapped reviews. It
     # makes no claim about all league reviews or the correctness of officials.
@@ -722,13 +722,15 @@ def live_result(metric_id, rows, *, graph_count):
     return result
 
 
-def loaded_award_consequences(rows):
+def loaded_award_consequences(rows, *, metric_id='tfs'):
     """Select bounded award consequences in SPARQL, retaining incomplete PAs.
 
     This does not admit a whole-PA score or erase the general TFS prerequisites.
     Python groups/serializes evidence; the query owns analytical eligibility and
     exact calculation. No unknown out count is replaced with zero.
     """
+    if metric_id not in {'tfs', 'offensive-reach'}:
+        raise EvidenceError('Unsupported award-consequence metric')
     groups = defaultdict(dict)
     for row in rows:
         if row['kind'] == 'runner_movement':
@@ -747,11 +749,18 @@ def loaded_award_consequences(rows):
                            'act', 'resolution', 'episode', 'record', 'originDesignation',
                            'originRecord', 'originBase', 'safeJudgment', 'safeDecision', 'destinationBase')
         value = Fraction(calculated['numerator'], calculated['denominator'])
+        components = {'progress': exact(value), 'destruction': exact(0), 'erosion': exact(0)}
+        if metric_id == 'offensive-reach':
+            # The shared SPARQL selection proves strictly positive attributed
+            # progress for every counted runner; no source rows or generic
+            # participants outside that admitted consequence enter this count.
+            value = Fraction(calculated['offensiveReach'])
+            components = {'positiveTrajectories': exact(value)}
         results.append(available(value, graph=first['graph'], game=first['game'],
             plateAppearance=first['plateAppearance'], batter=first['batter'], award=first['award'],
             grain='award_consequence', scope='positively supported loaded Walk/HBP force chain',
             completePlateAppearance=False,
-            components={'progress': exact(value), 'destruction': exact(0), 'erosion': exact(0)},
+            components=components,
             evidence=[r[f] for r in observations for f in evidence_fields if f in r],
             movements=sorted(observations, key=lambda r: r['metricOrigin'])))
     return sorted(results, key=lambda r: (r['graph'], r['plateAppearance'], r['award']))

@@ -4,7 +4,7 @@
 # Four positively supported safe/scoring steps imply zero destruction/erosion
 # for this consequence, independently of the unknown pre-award out count.
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-SELECT ?key (SUM(?progress36) AS ?numerator) (36 AS ?denominator)
+SELECT ?key (SUM(?progress36) AS ?numerator) (36 AS ?denominator) (COUNT(DISTINCT ?runner) AS ?offensiveReach)
 WHERE {
   VALUES (?key ?binding ?runner ?batter ?act ?resolution ?episode ?record ?award ?awardRule ?metricOrigin ?originDesignation ?originRecord ?originBase ?originCode ?safeJudgment ?safeDecision ?destinationBase ?destinationCode ?hasSafeType ?hasOutType ?hasRunType ?contactPlay) {
     # INPUT_ROWS
