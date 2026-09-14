@@ -12,10 +12,69 @@ export function displayFraction(value, places = 2) {
   return `${negative && rounded ? '-' : ''}${rounded / scale}${places ? '.' + String(rounded % scale).padStart(places, '0') : ''}`;
 }
 
-export function resultHeadline(result) {
-  if (result.status === 'available') return result.value ? displayFraction(result.value) : result.approximateValue.toFixed(3);
+export function formatMetricValue(value, unit) {
+  if (!value) return 'Unavailable';
+  if (unit === 'proportion') return displayFraction({ numerator: String(BigInt(value.numerator) * 100n), denominator: value.denominator }, 1) + '%';
+  const counts = ['trajectories', 'acts', 'players', 'episodes', 'role types'];
+  return displayFraction(value, counts.includes(unit) && value.denominator === '1' ? 0 : 2);
+}
+
+export function resultHeadline(result, unit) {
+  if (result.status === 'available') return result.value ? formatMetricValue(result.value, unit) :
+    Number.isFinite(result.approximateValue) ? result.approximateValue.toFixed(3) : 'Unavailable';
   const count = result.consequences?.length ?? 0;
   return count ? `${count} supported award consequence${count === 1 ? '' : 's'}` : 'Unavailable';
+}
+
+export function resultPresentation(payload, metric) {
+  const result = payload.metric, coverage = result.coverage ?? {};
+  if ((coverage.games ?? payload.graphCount) === 0) return { state: 'empty', badge: 'No games selected',
+    headline: 'No games in this date range', message: 'Choose dates within the loaded range shown below.' };
+  if (result.status === 'available') return { state: 'available', badge: 'Result available',
+    headline: resultHeadline(result, metric.unit), message: 'Result ready for the stated evidence population.' };
+  if (result.consequences?.length) return { state: 'partial', badge: 'Limited play results',
+    headline: result.consequences.length === 1 ? formatMetricValue(result.consequences[0].value, metric.unit) : resultHeadline(result, metric.unit),
+    message: `Showing ${result.consequences.length} supported award play${result.consequences.length === 1 ? '' : 's'}.` };
+  return { state: 'unavailable', badge: 'Evidence incomplete', headline: 'Not yet calculable',
+    message: result.gaps?.includes('EMPTY_DENOMINATOR') ? 'No eligible resolved evidence is available for this calculation in the selection.' :
+      'The selected evidence does not support a score yet. The remaining requirements are listed below.' };
+}
+
+export function resultDateLabel(payload) {
+  const scope = payload.dateScope ?? {};
+  const period = scope.startDate && scope.endDate ? `${scope.startDate} to ${scope.endDate}` : 'Dates not reported';
+  return `${scope.gameSet === 'all_star' ? 'All-Star' : scope.gameSet === 'regular_season' ? 'Regular season' : 'Selected games'} · ${period}`;
+}
+
+export function displayPlayer(labels, graph, player) {
+  return labels?.find(row => row.graph === graph && row.entity === player)?.label ?? `Player #${player.split('/').at(-1)}`;
+}
+
+export function selectionFromUrl(url) {
+  const p = new URL(url).searchParams, preset = p.get('preset'), gameSet = p.get('gameSet');
+  const validDate = value => /^\d{4}-\d{2}-\d{2}$/.test(value ?? '') && Number.isFinite(Date.parse(value)) && new Date(value).toISOString().slice(0, 10) === value;
+  const selection = { preset: ['one_day','seven_days','thirty_days','season_to_date'].includes(preset) ? preset : 'one_day',
+    gameSet: gameSet === 'all_star' ? gameSet : 'regular_season' };
+  if (preset === 'custom' && validDate(p.get('startDate')) && validDate(p.get('endDate')) && p.get('startDate') <= p.get('endDate')) {
+    Object.assign(selection, { preset, startDate: p.get('startDate'), endDate: p.get('endDate') });
+  }
+  return selection;
+}
+
+function saveSelection() {
+  const url = new URL(location.href); url.search = ''; url.hash = selected.id;
+  url.searchParams.set('gameSet', byId('game-set').value);
+  url.searchParams.set('preset', byId('date-preset').value);
+  if (byId('date-preset').value === 'custom') for (const key of ['start', 'end']) url.searchParams.set(key + 'Date', byId(key + '-date').value);
+  history.replaceState(null, '', url);
+}
+
+function invalidateSelection() {
+  activeRequest?.abort(); activeRequest = null; lastResult = null;
+  byId('result').hidden = true; byId('download-result').disabled = true;
+  byId('run-metric').disabled = false;
+  byId('request-status').textContent = 'Selection changed. Inspect the metric to load matching results.';
+  renderRequirements(selected.requires); saveSelection();
 }
 
 export function movementEvidenceLabel(coverage) {
@@ -54,13 +113,13 @@ export function consequencePresentation(metricId) {
   };
 }
 
-function renderConsequences(results = [], metricId = 'tfs') {
+function renderConsequences(results = [], metricId = 'tfs', labels = []) {
   const presentation = consequencePresentation(metricId);
   const target = byId('award-consequences');
   target.replaceChildren(); target.hidden = !results.length;
   if (!results.length) return;
   target.append(node('h3', 'Supported award consequences'),
-    node('p', 'Each score covers a positively supported loaded Walk/HBP force chain. Complete plate-appearance and game scores still require the evidence listed below.'));
+    node('p', 'Scores for the batter and forced-runner advances caused by each listed Walk/HBP.'));
   const math = node('details');
   math.append(node('summary', 'Show math'), node('p', presentation.math));
   target.append(math);
@@ -72,18 +131,21 @@ function renderConsequences(results = [], metricId = 'tfs') {
   for (const result of results) {
     const row = node('tr');
     row.append(node('td', `${result.graph.split('/').at(-1)} / ${result.plateAppearance.split('/').at(-1)}`),
-      node('td', result.batter.split('/').at(-1)),
+      node('td', displayPlayer(labels, result.graph, result.batter)),
       node('td', `${displayFraction(result.value, presentation.places)} (${result.value.numerator}/${result.value.denominator})`));
     const evidence = node('td'), detail = node('details');
     detail.append(node('summary', 'Trace four advances'));
     const advances = node('ul');
     for (const movement of result.movements) {
-      advances.append(node('li', `${movement.runner === result.batter ? 'Batter' : 'Runner'} ${movement.runner.split('/').at(-1)}: ${movement.metricOrigin === '0' ? 'HOME' : movement.originCode} → ${movement.hasRunType === 'true' ? 'score' : movement.destinationCode}`));
+      advances.append(node('li', `${displayPlayer(labels, result.graph, movement.runner)}${movement.runner === result.batter ? ' (batter)' : ''}: ${movement.metricOrigin === '0' ? 'HOME' : movement.originCode} → ${movement.hasRunType === 'true' ? 'score' : movement.destinationCode}`));
     }
-    detail.append(advances, node('pre', JSON.stringify({
+    const records = node('details'); records.append(node('summary', 'Technical evidence'), node('pre', JSON.stringify({
       award: result.award, components: result.components, movements: result.movements,
     }, null, 2)));
-    evidence.append(detail); row.append(evidence); body.append(row);
+    detail.append(advances, records);
+    evidence.append(detail); row.append(evidence);
+    ['Game / PA index', 'Batter', presentation.label, 'Evidence'].forEach((label, index) => { row.children[index].dataset.label = label; });
+    body.append(row);
   }
   table.append(head, body); target.append(table);
 }
@@ -103,12 +165,13 @@ function gapDetails(gap, affected = false) {
 function renderRequirements(ids) {
   const registered = new Map(catalog.gapRegister.gaps.map(g => [g.id, g]));
   byId('metric-gaps').replaceChildren(...(ids.length ? ids.map(id => registered.has(id) ? gapDetails(registered.get(id)) : node('p', id.replaceAll('_', ' '))) :
-    [node('p', 'This calculation uses explicitly resolved mapped replay reviews. The result reports that population and any reviews lacking a supported disposition.')]));
+    [node('p', selected.id === 'adjudication-volatility' ? 'This result covers explicitly resolved mapped replay reviews. Unresolved reviews are reported separately.' : 'No additional requirements were reported for this result.')]));
 }
 
 function choose(metric) {
   activeRequest?.abort(); activeRequest = null;
   selected = metric; lastResult = null;
+  byId('download-result').disabled = true;
   byId('metric-title').textContent = metric.label;
   byId('metric-version').textContent = `Version ${metric.version} · ${metric.id}`;
   byId('metric-definition').textContent = metric.userDefinition;
@@ -120,7 +183,7 @@ function choose(metric) {
   byId('run-metric').disabled = false;
   renderRequirements(metric.requires);
   document.querySelectorAll('#metric-list button').forEach(button => button.setAttribute('aria-current', String(button.dataset.id === metric.id)));
-  history.replaceState(null, '', '#' + metric.id);
+  saveSelection();
 }
 
 function renderList() {
@@ -128,8 +191,8 @@ function renderList() {
   byId('metric-list').replaceChildren(...catalog.metrics.filter(m => (m.label + ' ' + m.id).toLowerCase().includes(term)).map(metric => {
     const button = node('button', metric.label); button.type = 'button'; button.dataset.id = metric.id;
     button.setAttribute('aria-current', String(selected?.id === metric.id));
-    button.append(node('small', metric.liveAdapter === 'loaded-award-consequences' ? 'Supported award consequences' :
-      metric.requires.length ? 'Awaiting shared requirements' : 'Resolved review evidence'));
+    button.append(node('small', metric.liveAdapter === 'loaded-award-consequences' ? 'Limited play results' :
+      metric.requires.length ? 'Evidence pending' : 'Resolved review results'));
     button.addEventListener('click', () => choose(metric)); return button;
   }));
 }
@@ -143,6 +206,7 @@ async function inspect(event) {
   event.preventDefault();
   activeRequest?.abort(); const controller = new AbortController(); activeRequest = controller;
   byId('run-metric').disabled = true; byId('result').hidden = true; lastResult = null;
+  byId('download-result').disabled = true;
   byId('request-status').textContent = 'Reading metric evidence…';
   const dateScope = { preset: byId('date-preset').value };
   if (dateScope.preset === 'custom') { dateScope.startDate = byId('start-date').value; dateScope.endDate = byId('end-date').value; }
@@ -153,33 +217,40 @@ async function inspect(event) {
     if (activeRequest !== controller) return;
     lastResult = payload;
     const result = payload.metric;
-    byId('score-value').textContent = resultHeadline(result);
-    byId('score-exact').textContent = result.value ? `Exact: ${result.value.numerator}/${result.value.denominator}` : '';
-    byId('result-scope').textContent = result.scope ?? 'Selected evidence population';
+    const presentation = resultPresentation(payload, selected);
+    byId('result').dataset.state = presentation.state;
+    byId('result-badge').textContent = presentation.badge;
+    byId('result-dates').textContent = resultDateLabel(payload);
+    const loaded = payload.dateScope ?? {};
+    byId('loaded-dates').textContent = loaded.availableStartDate && loaded.availableEndDate ?
+      `Loaded dates: ${loaded.availableStartDate} to ${loaded.availableEndDate}.` : '';
+    byId('score-value').textContent = presentation.headline;
+    const single = presentation.state === 'partial' && result.consequences.length === 1 ? result.consequences[0] : null;
+    const displayed = result.value ?? single?.value;
+    byId('score-exact').textContent = displayed ? `Exact: ${displayed.numerator}/${displayed.denominator}` : '';
+    byId('result-subject').textContent = single ?
+      `${displayPlayer(payload.display?.labels, single.graph, single.batter)} · Game ${single.graph.split('/').at(-1)} · PA source index ${single.plateAppearance.split('/').at(-1)}` : '';
+    byId('result-scope').textContent = presentation.state === 'partial' ?
+      'These scores cover the shown Walk/HBP advances only. Full plate-appearance and population results remain unavailable.' : result.scope ?? 'Selected evidence population';
+    byId('coverage-details').open = presentation.state === 'empty' || selected.id === 'adjudication-volatility';
     const coverage = result.coverage ?? {};
-    const movement = coverage.runnerMovements;
     renderGameCoverage(coverage.byGame);
-    renderConsequences(result.consequences, result.metricId);
-    facts(byId('coverage'), [['Games', coverage.games ?? payload.graphCount ?? 0], ['Evidence rows', coverage.evidenceRows ?? 0],
+    renderConsequences(result.consequences, result.metricId, payload.display?.labels);
+    facts(byId('coverage'), [['Games', coverage.games ?? payload.graphCount ?? 0],
       ...(coverage.supportedAwardConsequences !== undefined ? [
         ['Supported award consequences', coverage.supportedAwardConsequences],
-        ['Other observed PAs', coverage.observedPAsWithoutSupportedAwardConsequence],
+        ['Observed PAs without a scored award result', coverage.observedPAsWithoutSupportedAwardConsequence],
         ['Selected games with no evidence rows', coverage.selectedGraphsWithoutEvidence]] : []),
-      ...(coverage.resolvedReviews !== undefined ? [['Resolved reviews', coverage.resolvedReviews], ['Unresolved reviews', coverage.unresolvedReviews]] : []),
-      ...(movement ? [['Runner movements observed', movement.observedPairs],
-        ['Movements with one origin value', movement.withOneMetricOriginBinding],
-        ['Movements missing origin evidence', movement.withoutMetricOriginBinding],
-        ['Movements with conflicting origin values', movement.withMultipleMetricOriginBindings]] : [])]);
+      ...(coverage.resolvedReviews !== undefined ? [['Resolved reviews', coverage.resolvedReviews], ['Unresolved reviews', coverage.unresolvedReviews]] : [])]);
     byId('result-evidence').textContent = JSON.stringify({ coverage, components: result.components ?? {}, evidence: result.evidence ?? [],
       implementation: payload.implementationSha256, corpus: payload.corpusFingerprint ?? payload.serving?.corpusFingerprint,
-      dateScope: payload.dateScope, execution: payload.execution }, null, 2);
+      dateScope: payload.dateScope, execution: payload.execution, display: payload.display }, null, 2);
     renderRequirements(result.gaps ?? []);
     byId('result').hidden = false;
-    byId('request-status').textContent = result.consequences?.length ?
-      'Supported award-consequence scores are ready. Broader metric requirements remain listed below.' :
-      result.status === 'available' ? 'Result ready for the stated population.' : 'No valid score can be produced from the current evidence. The unresolved requirements are listed below.';
+    byId('download-result').disabled = false;
+    byId('request-status').textContent = presentation.message;
   } catch (error) {
-    if (error.name !== 'AbortError') byId('request-status').textContent = error.message;
+    if (activeRequest === controller && error.name !== 'AbortError') byId('request-status').textContent = error.message;
   } finally {
     if (activeRequest === controller) { byId('run-metric').disabled = false; activeRequest = null; }
   }
@@ -190,6 +261,13 @@ async function start() {
     const response = await fetch('/api/metrics/catalog');
     if (!response.ok) throw new Error('The metric catalog could not be loaded.');
     catalog = await response.json();
+    const initial = selectionFromUrl(location.href);
+    byId('game-set').value = initial.gameSet; byId('date-preset').value = initial.preset;
+    byId('start-date').value = initial.startDate ?? ''; byId('end-date').value = initial.endDate ?? '';
+    const updateDates = () => document.querySelectorAll('.custom-date').forEach(label => {
+      label.hidden = byId('date-preset').value !== 'custom'; label.querySelector('input').required = !label.hidden;
+    });
+    updateDates();
     renderList(); choose(catalog.metrics.find(m => '#' + m.id === location.hash) ?? catalog.metrics[0]);
     byId('all-gaps').replaceChildren(...catalog.gapRegister.gaps.map(g => gapDetails(g, true)));
     byId('download-gaps').disabled = false;
@@ -197,10 +275,9 @@ async function start() {
     byId('download-result').addEventListener('click', () => { if (lastResult) download(selected.id + '-result.json', lastResult); });
     byId('metric-search').addEventListener('input', renderList);
     byId('metric-form').addEventListener('submit', inspect);
-    byId('date-preset').addEventListener('change', () => {
-      const custom = byId('date-preset').value === 'custom';
-      document.querySelectorAll('.custom-date').forEach(label => { label.hidden = !custom; label.querySelector('input').required = custom; });
-    });
+    byId('metric-form').addEventListener('input', invalidateSelection);
+    byId('metric-form').addEventListener('change', invalidateSelection);
+    byId('date-preset').addEventListener('change', updateDates);
   } catch (error) { byId('metric-title').textContent = 'Metrics unavailable'; byId('request-status').textContent = error.message; }
 }
 

@@ -1,5 +1,16 @@
 # Graph-native metric suite implementation
 
+**Presentation and SQL verification (2026-09-14):** the demonstration day now
+has all 1,567 observed runner/episode/record bindings and serves TFS, Offensive
+Reach and Adjudication Volatility from SQL. The page shows names, exact values,
+partial-result scope and response dates; rates display as percentages, counts
+as counts. Changing a selection immediately invalidates the displayed result
+and download, and late responses cannot overwrite the new selection.
+The [live captures and inspected screenshots](../benchmarks/metrics/presentation-2026-09-14/README.md)
+record 16 passing Node tests, two source-scope tests and a real desktop/mobile
+browser regression. Scoring kernels, source mappings and eligibility policies
+are unchanged; the remaining metric evidence gaps are not declared closed.
+
 **Offensive Reach live consequence (2026-09-09):** the real Explorer API now
 returns **4** for the same supported award consequence whose TFS is 25/12.
 Both metrics preserve the same four advances and evidence. The new display

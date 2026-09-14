@@ -4,8 +4,8 @@ import { readFile } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { createBaseballServer } from '../server.mjs';
-import { metricCatalog, validateMetricRequest, compileMetricEvidenceQuery } from '../query-builder/metric-suite-query-builder.js';
-import { displayFraction, resultHeadline, movementEvidenceLabel, consequencePresentation } from '../metrics.js';
+import { metricCatalog, validateMetricRequest, compileMetricEvidenceQuery, metricDisplayTargets, compileMetricDisplayQuery, normalizeMetricDisplayLabels } from '../query-builder/metric-suite-query-builder.js';
+import { displayFraction, resultHeadline, movementEvidenceLabel, consequencePresentation, formatMetricValue, resultPresentation, resultDateLabel, selectionFromUrl, displayPlayer } from '../metrics.js';
 
 async function withServer(options, work) {
   const server = createBaseballServer(options);
@@ -66,6 +66,68 @@ test('display rounding retains arbitrarily large exact rational arithmetic', () 
   assert.equal(displayFraction({ numerator: '1999', denominator: '2000' }), '1.00');
   assert.equal(displayFraction({ numerator: '100000000000000000000000000000001', denominator: '100000000000000000000000000000000' }), '1.00');
   assert.equal(displayFraction(null), 'Unavailable');
+});
+
+test('rate displays scale exact fractions only for percentages, and counts keep their unit', () => {
+  const rate = { numerator: '13', denominator: '23' };
+  assert.equal(formatMetricValue(rate, 'proportion'), '56.5%');
+  assert.deepEqual(rate, { numerator: '13', denominator: '23' });
+  assert.equal(formatMetricValue({ numerator: '0', denominator: '1' }, 'proportion'), '0.0%');
+  assert.equal(formatMetricValue({ numerator: '4', denominator: '1' }, 'trajectories'), '4');
+  assert.equal(formatMetricValue({ numerator: '75', denominator: '1' }, 'percentile'), '75.00');
+  assert.equal(resultHeadline({ status: 'available', value: null }), 'Unavailable');
+});
+
+test('empty selections, incomplete evidence and partial play results have distinct presentation', () => {
+  const metric = { unit: 'trajectory fraction' };
+  const payload = { metric: { status: 'unavailable', value: null, coverage: { games: 1 } } };
+  assert.equal(resultPresentation(payload, metric).state, 'unavailable');
+  payload.metric.consequences = [{ value: { numerator: '25', denominator: '12' } }];
+  assert.equal(resultPresentation(payload, metric).state, 'partial');
+  assert.equal(resultPresentation(payload, metric).headline, '2.08');
+  payload.metric.consequences.push({ value: { numerator:'1',denominator:'4' } });
+  assert.equal(resultPresentation(payload, metric).headline, '2 supported award consequences');
+  payload.metric.coverage.games = 0;
+  assert.equal(resultPresentation(payload, metric).state, 'empty');
+  assert.equal(resultDateLabel({ dateScope: { gameSet:'all_star',startDate:'2026-07-16',endDate:'2026-07-16' } }), 'All-Star · 2026-07-16 to 2026-07-16');
+});
+
+test('bookmarked selections validate dates and preserve supported scopes', () => {
+  assert.deepEqual(selectionFromUrl('http://localhost/metrics?preset=custom&startDate=2026-08-25&endDate=2026-08-25&gameSet=all_star#tfs'),
+    { preset:'custom',gameSet:'all_star',startDate:'2026-08-25',endDate:'2026-08-25' });
+  for (const dates of ['startDate=2026-02-31&endDate=2026-03-10','startDate=2026-09-01&endDate=2026-08-01','startDate=2026-08-01']) {
+    assert.equal(selectionFromUrl('http://localhost/?preset=custom&'+dates).preset, 'one_day');
+  }
+});
+
+test('display labels are graph-scoped, optional, and never choose a conflicting name', async () => {
+  const graph = 'https://w3id.org/baseball/graph/game/823016', player = 'https://baseballontology.org/data/player/687637';
+  const targets = metricDisplayTargets([{ graph, batter:player, movements:[{runner:player}] }]);
+  assert.equal(targets.length, 1);
+  const query = await compileMetricDisplayQuery(targets);
+  assert.ok(query.includes(`FROM NAMED <${graph}>`));
+  assert.ok(query.includes(`(<${graph}> <${player}>)`));
+  assert.equal(await compileMetricDisplayQuery([]), null);
+  await assert.rejects(compileMetricDisplayQuery([{ graph:graph+'>',entity:player }]));
+  const row = { graph:{type:'uri',value:graph},entity:{type:'uri',value:player},label:{type:'literal',value:'Dylan Beavers'} };
+  const labels = normalizeMetricDisplayLabels([row,row],targets);
+  assert.equal(displayPlayer(labels,graph,player),'Dylan Beavers');
+  assert.equal(displayPlayer(labels,graph+'0',player),'Player #687637');
+  assert.deepEqual(normalizeMetricDisplayLabels([row,{...row,label:{type:'literal',value:'Conflicting name'}}],targets),[]);
+  assert.deepEqual(normalizeMetricDisplayLabels([{...row,graph:{type:'uri',value:graph+'0'}}],targets),[]);
+});
+
+test('optional label lookup failure preserves a successful SQL metric response', async () => {
+  const result = { execution:'materialized-sql',metric:{ status:'unavailable',value:null,
+    consequences:[{graph:'https://w3id.org/baseball/graph/game/823016',batter:'https://baseballontology.org/data/player/687637',movements:[]}] } };
+  await withServer({ servingExecutor:async()=>result,fetchImpl:async()=>{throw new Error('labels offline');} },async url=>{
+    const response = await fetch(url+'/api/metrics/query',{method:'POST',body:JSON.stringify({metricId:'tfs'})});
+    assert.equal(response.status,200);
+    const payload = await response.json();
+    assert.deepEqual(payload.metric,result.metric);
+    assert.equal(payload.execution,'materialized-sql');
+    assert.deepEqual(payload.display,{source:'identifier-fallback',labels:[]});
+  });
 });
 
 test('consequence results remain visible without presenting a whole-population score', () => {

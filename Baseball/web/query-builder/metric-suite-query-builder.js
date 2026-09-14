@@ -2,6 +2,42 @@ import { readFile } from 'node:fs/promises';
 
 const root = new URL('../../sparql/metrics/', import.meta.url);
 
+export function metricDisplayTargets(consequences = []) {
+  const targets = new Map();
+  for (const row of consequences) {
+    if (!/^https:\/\/w3id\.org\/baseball\/graph\/game\/\d+$/.test(row.graph)) throw new TypeError('Invalid display graph.');
+    for (const entity of [row.batter, ...(row.movements ?? []).map(m => m.runner)]) {
+      if (!/^https:\/\/baseballontology\.org\/data\/player\/\d+$/.test(entity)) throw new TypeError('Invalid display player.');
+      targets.set(JSON.stringify([row.graph, entity]), { graph: row.graph, entity });
+    }
+  }
+  return [...targets.values()];
+}
+
+export async function compileMetricDisplayQuery(targets) {
+  if (!targets.length) return null;
+  // Validate even when called independently of metricDisplayTargets.
+  metricDisplayTargets(targets.map(t => ({ graph: t.graph, batter: t.entity })));
+  const source = await readFile(new URL('../metric-display-labels.rq', root), 'utf8');
+  return source.replace('# DATASET', [...new Set(targets.map(t => t.graph))].sort().map(g => `FROM NAMED <${g}>`).join('\n'))
+    .replace('# DISPLAY_ROWS', targets.map(t => `(<${t.graph}> <${t.entity}>)`).join('\n'));
+}
+
+export function normalizeMetricDisplayLabels(bindings, targets) {
+  const allowed = new Set(targets.map(t => JSON.stringify([t.graph, t.entity]))), labels = new Map();
+  for (const row of bindings) {
+    const key = JSON.stringify([row.graph?.value, row.entity?.value]);
+    if (!allowed.has(key) || row.graph?.type !== 'uri' || row.entity?.type !== 'uri'
+      || row.label?.type !== 'literal' || typeof row.label.value !== 'string' || !row.label.value.trim()) continue;
+    if (!labels.has(key)) labels.set(key, new Set());
+    labels.get(key).add(row.label.value);
+  }
+  return targets.flatMap(t => {
+    const values = labels.get(JSON.stringify([t.graph, t.entity]));
+    return values?.size === 1 ? [{ ...t, label: [...values][0] }] : [];
+  });
+}
+
 export async function metricCatalog() {
   const [catalog, register] = await Promise.all([
     readFile(new URL('metric-catalog.json', root), 'utf8'),

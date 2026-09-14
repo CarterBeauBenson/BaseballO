@@ -103,6 +103,32 @@ review document, not approval to change a live formula or query.
 
 ## Run locally
 
+The new metric page is `/metrics`. It starts with the latest loaded day and
+stores the metric, game set and date selection in the URL for bookmarks. Its
+verified-example link selects August 25, 2026; press **Inspect metric** to read
+that result. TFS and Offensive Reach currently expose limited award-play
+results, while Adjudication Volatility covers explicitly resolved mapped
+reviews. The page labels those scopes independently of the full metric grain.
+
+Selection changes hide the old result and disable its download immediately.
+Aborted or late requests cannot replace the current status. Dates printed on
+the result come from its response. Exact fractions survive downloads; display
+rates use percentages and trajectory counts use integer formatting. A single
+supported play shows its own score and player prominently; multiple plays are
+listed individually without an invented aggregate. Coverage, loaded dates and
+technical records remain available in disclosures.
+
+Optional player labels come from `sparql/metric-display-labels.rq`, restricted
+to the result's existing game graphs and player IRIs. The server allows three
+seconds for this annotation lookup, then keeps the successful metric result
+with explicit IDs if labels are unavailable. Conflicting labels are not chosen
+arbitrarily. Annotations remain outside the metric value and evidence admission.
+
+`tests/metrics-browser-smoke.ps1` is a focused Windows check using isolated
+headless Chrome and the running Explorer. It verifies the real example, request
+races and desktop/mobile presentation. It writes temporary screenshots and
+does not touch the user's browser profile or run source workflows.
+
 For normal use, install the idempotent Windows desktop launcher once:
 
 ```powershell

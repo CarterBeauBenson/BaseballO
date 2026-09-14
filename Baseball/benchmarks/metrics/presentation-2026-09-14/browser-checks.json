@@ -1,0 +1,22 @@
+{
+  "artifactType": "baseballo-metric-browser-regression",
+  "test": "web/tests/metrics-browser-smoke.ps1",
+  "viewportWidths": [
+    1280,
+    390
+  ],
+  "verified": {
+    "bookmarkDatesRestored": true,
+    "livePlayerName": "Dylan Beavers",
+    "liveTfsExact": "25/12",
+    "partialScopeBadge": "Limited play results",
+    "lateSuccessRejected": true,
+    "lateErrorRejected": true,
+    "staleDownloadDisabled": true,
+    "mobileHorizontalOverflow": false
+  },
+  "screenshots": {
+    "desktop.png": "2f5cd7b364485e79a1f46ea1fbd2bdfd44c4b3d02986f90acb482a8d3834a4e9",
+    "mobile.png": "4c6ada162e7ddf8327d5e0d0e038216b1da96d15109b953ee6ac17a5ee562ee8"
+  }
+}

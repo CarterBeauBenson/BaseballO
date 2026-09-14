@@ -1,0 +1,12 @@
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+# Single-source display annotations only. Never used to admit or score a metric.
+SELECT DISTINCT ?graph ?entity ?label
+# DATASET
+WHERE {
+  VALUES (?graph ?entity) {
+    # DISPLAY_ROWS
+  }
+  GRAPH ?graph { ?entity rdfs:label ?label }
+  FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+  FILTER(isLiteral(?label))
+}

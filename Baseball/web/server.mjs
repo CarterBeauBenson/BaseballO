@@ -9,7 +9,7 @@ import {
   ANALYTICS_QUERY_FAMILIES,
   compileAnalyticsQuery,
 } from "./query-builder/analytics-query-builder.js";
-import { metricCatalog, validateMetricRequest, compileMetricEvidenceQuery } from './query-builder/metric-suite-query-builder.js';
+import { metricCatalog, validateMetricRequest, compileMetricEvidenceQuery, metricDisplayTargets, compileMetricDisplayQuery, normalizeMetricDisplayLabels } from './query-builder/metric-suite-query-builder.js';
 import {
   buildPublicDerivedMetricCatalog,
   compileDerivedMetricQuery,
@@ -384,7 +384,7 @@ async function readJsonBody(request) {
   return value;
 }
 
-async function executeSparql(query, { fetchImpl, queryEndpoint }) {
+async function executeSparql(query, { fetchImpl, queryEndpoint, timeoutMs = 30_000 }) {
   const startedAt = performance.now();
   const response = await fetchImpl(queryEndpoint, {
     method: "POST",
@@ -393,7 +393,7 @@ async function executeSparql(query, { fetchImpl, queryEndpoint }) {
       "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
     },
     body: new URLSearchParams({ query }),
-    signal: AbortSignal.timeout(30_000),
+    signal: AbortSignal.timeout(timeoutMs),
   });
   if (!response.ok) {
     const details = (await response.text()).replace(/\s+/gu, " ").slice(0, 240);
@@ -811,6 +811,21 @@ export function createBaseballServer({
   const resultCache = new Map();
   let gameDateIndexCache;
 
+  async function metricDisplay(result) {
+    if (!result.metric?.consequences?.length) return result;
+    // Optional labels cannot invalidate an otherwise valid SQL/RDF result.
+    // These annotations are scoped to its game graphs and never enter scoring.
+    try {
+      const targets = metricDisplayTargets(result.metric.consequences);
+      const query = await compileMetricDisplayQuery(targets);
+      const { payload } = await executeSparql(query, { fetchImpl, queryEndpoint, timeoutMs: 3000 });
+      return { ...result, display: { source: 'selected-game-rdf-labels',
+        labels: normalizeMetricDisplayLabels(payload.results?.bindings ?? [], targets) } };
+    } catch {
+      return { ...result, display: { source: 'identifier-fallback', labels: [] } };
+    }
+  }
+
   async function gameDateSnapshot() {
     if (gameDateIndexCache?.expiresAt > Date.now()) return gameDateIndexCache;
     const { payload } = await executeSparql(compileGameDateIndexQuery(), { fetchImpl, queryEndpoint });
@@ -866,7 +881,7 @@ export function createBaseballServer({
         const input = validateMetricRequest(await readJsonBody(request), await metricCatalog());
         try {
           const result = await executeRouteServing(request, servingExecutor, candidateServingExecutor, equivalenceToken, input);
-          sendJson(response, 200, result);
+          sendJson(response, 200, await metricDisplay(result));
           return;
         } catch {
           if (rejectMaterializedFallback(request, response)) return;
@@ -876,8 +891,8 @@ export function createBaseballServer({
         const { payload, durationMs } = await executeCachedSparql(query, scope.corpusFingerprint);
         const result = await metricReducer({ metricId: input.metricId, graphs: scope.graphs,
           bindings: payload.results.bindings });
-        sendJson(response, 200, { ...result, dateScope: scope.dateScope,
-          corpusFingerprint: scope.corpusFingerprint, query, durationMs });
+        sendJson(response, 200, await metricDisplay({ ...result, dateScope: scope.dateScope,
+          corpusFingerprint: scope.corpusFingerprint, query, durationMs }));
         return;
       }
       if (request.method === "GET" && requestUrl.pathname === "/api/catalog") {
