@@ -1,5 +1,5 @@
 const byId = id => document.getElementById(id);
-let catalog, selected, lastResult, activeRequest;
+let catalog, selected, lastResult, activeRequest, examples;
 const node = (tag, text) => { const element = document.createElement(tag); if (text !== undefined) element.textContent = text; return element; };
 
 export function displayFraction(value, places = 2) {
@@ -48,6 +48,32 @@ export function resultDateLabel(payload) {
 
 export function displayPlayer(labels, graph, player) {
   return labels?.find(row => row.graph === graph && row.entity === player)?.label ?? `Player #${player.split('/').at(-1)}`;
+}
+
+export function exampleAnswer(result, unit) {
+  if (result.status !== 'available') return 'Example result: unavailable (no defined denominator).';
+  if (result.value) return `Example result: ${formatMetricValue(result.value, unit)}${unit === 'proportion' ? '' : ' ' + unit}. Exact: ${result.value.numerator}/${result.value.denominator}.`;
+  return `Example result: approximately ${result.approximateValue.toFixed(3)} ${unit}. Logarithmic results are approximate; channel counts remain exact.`;
+}
+
+function renderExampleCase() {
+  const entry = examples?.metrics[selected.id], item = entry?.cases[Number(byId('example-choice').value)];
+  byId('example-formula').textContent = entry?.formula ?? '';
+  byId('example-title').textContent = item?.title ?? '';
+  byId('example-explanation').textContent = item?.explanation ?? 'Worked examples are unavailable. You can still inspect selected-game evidence below.';
+  byId('example-equation').textContent = item?.equation ?? '';
+  byId('example-answer').textContent = item ? exampleAnswer(item.result, selected.unit) : '';
+}
+
+function renderExamples() {
+  const cases = examples?.metrics[selected.id]?.cases ?? [];
+  const choice = byId('example-choice');
+  choice.replaceChildren(...cases.map((item, index) => {
+    const option = node('option', item.title); option.value = String(index); return option;
+  }));
+  choice.value = '0';
+  choice.hidden = byId('example-choice-label').hidden = cases.length < 2;
+  renderExampleCase();
 }
 
 export function selectionFromUrl(url) {
@@ -182,6 +208,7 @@ function choose(metric) {
     metric.requires.length ? 'Calculation implemented. Live values await the requirements below.' : 'Inspect the selected mapped review population.';
   byId('run-metric').disabled = false;
   renderRequirements(metric.requires);
+  renderExamples();
   document.querySelectorAll('#metric-list button').forEach(button => button.setAttribute('aria-current', String(button.dataset.id === metric.id)));
   saveSelection();
 }
@@ -278,6 +305,12 @@ async function start() {
     byId('metric-form').addEventListener('input', invalidateSelection);
     byId('metric-form').addEventListener('change', invalidateSelection);
     byId('date-preset').addEventListener('change', updateDates);
+    byId('example-choice').addEventListener('change', renderExampleCase);
+    // Examples are presentation-only. Failure must not disable live inspection.
+    fetch('/metric-examples.json').then(async response => {
+      if (!response.ok) throw new Error('Examples unavailable');
+      examples = await response.json(); renderExamples();
+    }).catch(() => { examples = undefined; renderExamples(); });
   } catch (error) { byId('metric-title').textContent = 'Metrics unavailable'; byId('request-status').textContent = error.message; }
 }
 

@@ -110,6 +110,15 @@ that result. TFS and Offensive Reach currently expose limited award-play
 results, while Adjudication Volatility covers explicitly resolved mapped
 reviews. The page labels those scopes independently of the full metric grain.
 
+Every metric has a **How this metric works** disclosure with a formula and a
+worked hypothetical example. TFS, PAQ-2, contribution diversity and review
+dependence include scenario choices. These examples are available even when
+live evidence is incomplete and never enter selected-game results or downloads.
+The same [worked guide](metric-worked-examples.md) can be read on GitHub.
+`scripts/generate_metric_examples.py` builds both the guide and the static JSON
+using the existing calculation kernels and independently specified expected
+answers. Run it with `--check` to verify both generated artifacts.
+
 Selection changes hide the old result and disable its download immediately.
 Aborted or late requests cannot replace the current status. Dates printed on
 the result come from its response. Exact fractions survive downloads; display
@@ -125,7 +134,8 @@ with explicit IDs if labels are unavailable. Conflicting labels are not chosen
 arbitrarily. Annotations remain outside the metric value and evidence admission.
 
 `tests/metrics-browser-smoke.ps1` is a focused Windows check using isolated
-headless Chrome and the running Explorer. It verifies the real example, request
+headless Chrome and the running Explorer. It verifies all twenty worked metric
+explanations, their isolation from live results, the real example, request
 races and desktop/mobile presentation. It writes temporary screenshots and
 does not touch the user's browser profile or run source workflows.
 

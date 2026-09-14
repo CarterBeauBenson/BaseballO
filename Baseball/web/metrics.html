@@ -29,6 +29,17 @@
         <h2 id="metric-title">Loading the metric catalog…</h2>
         <p id="metric-definition"></p>
         <details><summary>Metric definition and scope</summary><dl class="facts" id="metric-facts"></dl></details>
+        <details id="metric-example">
+          <summary>How this metric works</summary>
+          <p class="example-notice">Illustrative calculation — hypothetical inputs, separate from selected-game results.</p>
+          <p id="example-formula"></p>
+          <label id="example-choice-label" for="example-choice" hidden>Example scenario</label>
+          <select id="example-choice" hidden></select>
+          <h3 id="example-title"></h3>
+          <p id="example-explanation">Loading worked examples…</p>
+          <p id="example-equation"></p>
+          <p id="example-answer" aria-live="polite"></p>
+        </details>
         <form id="metric-form">
           <label>Games<select id="game-set"><option value="regular_season">Regular season</option><option value="all_star">All-Star</option></select></label>
           <label>Period<select id="date-preset"><option value="one_day">Latest loaded day</option><option value="seven_days">Last 7 loaded days</option><option value="thirty_days">Last 30 loaded days</option><option value="season_to_date">Latest loaded season</option><option value="custom">Custom dates</option></select></label>

@@ -106,6 +106,7 @@ const STATIC_FILES = new Map([
   ['/metrics.html', 'metrics.html'],
   ['/metrics.js', 'metrics.js'],
   ['/metrics.css', 'metrics.css'],
+  ['/metric-examples.json', 'metric-examples.json'],
   ["/", "index.html"],
   ["/index.html", "index.html"],
   ["/app.js", "app.js"],
@@ -114,6 +115,7 @@ const STATIC_FILES = new Map([
   ["/styles.css", "styles.css"],
 ]);
 const CONTENT_TYPES = {
+  ".json": "application/json; charset=utf-8",
   ".css": "text/css; charset=utf-8",
   ".html": "text/html; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",

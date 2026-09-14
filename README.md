@@ -234,6 +234,8 @@ powershell -ExecutionPolicy Bypass -File Baseball/scripts/infra/launch-explorer.
 ```
 
 See the [Explorer guide](Baseball/web/README.md) for more detail.
+The [worked metric examples](Baseball/web/metric-worked-examples.md) explain all
+20 new metrics with hypothetical inputs checked against their calculation code.
 
 ## Technical documentation
 

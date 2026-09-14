@@ -5,7 +5,7 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { createBaseballServer } from '../server.mjs';
 import { metricCatalog, validateMetricRequest, compileMetricEvidenceQuery, metricDisplayTargets, compileMetricDisplayQuery, normalizeMetricDisplayLabels } from '../query-builder/metric-suite-query-builder.js';
-import { displayFraction, resultHeadline, movementEvidenceLabel, consequencePresentation, formatMetricValue, resultPresentation, resultDateLabel, selectionFromUrl, displayPlayer } from '../metrics.js';
+import { displayFraction, resultHeadline, movementEvidenceLabel, consequencePresentation, formatMetricValue, resultPresentation, resultDateLabel, selectionFromUrl, displayPlayer, exampleAnswer } from '../metrics.js';
 
 async function withServer(options, work) {
   const server = createBaseballServer(options);
@@ -22,6 +22,38 @@ test('all twenty metrics expose definitions and resolvable shared gaps', async (
     assert.ok(metric.userDefinition); assert.ok(metric.version);
     assert.ok(metric.requires.every(id => ids.has(id)));
   }
+});
+
+test('worked examples cover every metric and match independently specified kernel answers', async () => {
+  const root = fileURLToPath(new URL('../../', import.meta.url));
+  const result = spawnSync(process.env.BASEBALLO_PYTHON ?? 'python', [root + '/scripts/generate_metric_examples.py', '--check'], {
+    encoding: 'utf8', timeout: 30000, windowsHide: true,
+  });
+  assert.equal(result.status, 0, result.stderr || result.stdout || result.error?.message);
+  const examples = JSON.parse(await readFile(new URL('../metric-examples.json', import.meta.url), 'utf8'));
+  const catalog = await metricCatalog();
+  assert.deepEqual(Object.keys(examples.metrics).sort(), catalog.metrics.map(m => m.id).sort());
+  for (const metric of catalog.metrics) for (const item of examples.metrics[metric.id].cases) {
+    assert.ok(item.explanation && item.equation);
+    assert.match(exampleAnswer(item.result, metric.unit), /^Example result:/);
+  }
+  assert.equal(exampleAnswer(examples.metrics['hidden-help-rate'].cases[0].result, 'proportion'),
+    'Example result: 50.0%. Exact: 1/2.');
+  assert.match(exampleAnswer(examples.metrics['paq-2'].cases[1].result, 'percentile'), /unavailable/);
+  assert.match(exampleAnswer(examples.metrics['contribution-path-diversity'].cases[0].result, 'normalized entropy'), /approximately 1.000/);
+});
+
+test('illustrations are served as a separate static artifact, without reading game evidence', async () => {
+  await withServer({ fetchImpl: async () => { throw Error('Static examples must not query RDF'); } }, async base => {
+    const response = await fetch(base + '/metric-examples.json');
+    assert.equal(response.status, 200);
+    assert.match(response.headers.get('content-type'), /^application\/json/);
+    const payload = await response.json();
+    assert.equal(payload.artifactType, 'baseballo-illustrative-metric-examples');
+    assert.match(payload.notice, /not results from the selected games/);
+    assert.equal(payload.metrics.tfs.cases[2].result.value.numerator, '-1');
+    assert.equal(payload.metrics.tfs.cases[2].result.value.denominator, '4');
+  });
 });
 
 test('public requests cannot submit graph facts, admission flags or query text', async () => {

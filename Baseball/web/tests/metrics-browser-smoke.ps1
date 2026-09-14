@@ -72,6 +72,19 @@ try {
   const id = x => document.getElementById(x);
   const assert = (value, message) => { if (!value) throw Error(message); };
   assert(id('date-preset').value === 'custom' && id('start-date').value === '2026-08-25', 'Bookmark did not restore dates');
+  for (let i=0; i<100 && !id('example-answer').textContent; i++) await new Promise(r=>setTimeout(r,50));
+  const buttons = [...document.querySelectorAll('#metric-list button')];
+  assert(buttons.length === 20, 'Expected all twenty metric choices');
+  for (const button of buttons) {
+    button.click();
+    assert(id('example-answer').textContent.startsWith('Example result:'), 'Missing worked example: '+button.dataset.id);
+    assert(id('example-formula').textContent && id('example-equation').textContent, 'Missing calculation explanation');
+    assert(id('result').hidden && id('download-result').disabled, 'Example became a live result');
+  }
+  buttons.find(b=>b.dataset.id==='tfs').click();
+  id('example-choice').value='2'; id('example-choice').dispatchEvent(new Event('change'));
+  assert(id('example-answer').textContent.includes('-1/4'), 'Passed-ball example did not update');
+  assert(id('result').hidden && id('download-result').disabled, 'Changing example admitted a live score');
   id('metric-form').requestSubmit();
   for (let i=0; i<600 && id('result').hidden; i++) await new Promise(r=>setTimeout(r,50));
   assert(!id('result').hidden, 'Live metric result did not render: '+id('request-status').textContent);
@@ -80,8 +93,12 @@ try {
   assert(id('award-consequences').textContent.includes('Dylan Beavers'), 'Supported player name did not render');
   assert(id('award-consequences').textContent.includes('25/12'), 'Exact TFS result did not render');
   assert(!id('download-result').disabled, 'Matching result download is disabled');
+  id('example-choice').value='1'; id('example-choice').dispatchEvent(new Event('change'));
+  assert(id('example-answer').textContent.includes('-5/4'), 'Third-out example did not update');
+  assert(id('score-exact').textContent.includes('25/12') && !id('download-result').disabled,
+    'Changing illustration altered the actual game result');
   id('metric-detail').scrollIntoView();
-  return {badge:id('result-badge').textContent,dates:id('result-dates').textContent,player:'Dylan Beavers',exact:'25/12'};
+  return {badge:id('result-badge').textContent,dates:id('result-dates').textContent,player:'Dylan Beavers',exact:'25/12',workedMetrics:20,examplesIsolatedFromLiveResults:true};
 })()
 '@
     $capture = Invoke-Cdp 'Page.captureScreenshot' @{format='png'}
@@ -91,6 +108,11 @@ try {
     $null = Invoke-Page "document.getElementById('award-consequences').scrollIntoView()"
     $capture = Invoke-Cdp 'Page.captureScreenshot' @{format='png'}
     [IO.File]::WriteAllBytes($mobileCapture, [Convert]::FromBase64String($capture.data))
+    $null = Invoke-Page "document.getElementById('metric-example').open=true; document.getElementById('metric-example').scrollIntoView()"
+    if (-not (Invoke-Page 'document.documentElement.scrollWidth <= innerWidth')) { throw 'Mobile example overflows horizontally.' }
+    $exampleCapture = Join-Path $profileDirectory 'example-mobile.png'
+    $capture = Invoke-Cdp 'Page.captureScreenshot' @{format='png'}
+    [IO.File]::WriteAllBytes($exampleCapture, [Convert]::FromBase64String($capture.data))
     $races = Invoke-Page @'
 (async () => {
   const id = x => document.getElementById(x), original = window.fetch;
@@ -117,7 +139,7 @@ try {
   } finally { window.fetch=original; }
 })()
 '@
-    @{live=$observed; regressions=$races; desktopCapture=$desktopCapture; mobileCapture=$mobileCapture} | ConvertTo-Json -Depth 10
+    @{live=$observed; regressions=$races; desktopCapture=$desktopCapture; mobileCapture=$mobileCapture; exampleCapture=$exampleCapture} | ConvertTo-Json -Depth 10
 } finally {
     if ($socket.State -eq [Net.WebSockets.WebSocketState]::Open) {
         try { $null = Invoke-Cdp 'Browser.close' } catch { }

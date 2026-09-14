@@ -1,0 +1,599 @@
+{
+  "artifactType": "baseballo-illustrative-metric-examples",
+  "generator": "scripts/generate_metric_examples.py",
+  "notice": "Hypothetical inputs checked with the metric calculation code. These are not results from the selected games.",
+  "metrics": {
+    "tfs": {
+      "formula": "TFS = attributed progress − trajectory destruction − opportunity erosion.",
+      "cases": [
+        {
+          "title": "Strikeout; runner stays on third",
+          "explanation": "One out before the PA. The batter strikes out and the runner remains on third. The batter loses 1/4; the runner loses 1/2 of remaining opportunity.",
+          "equation": "0 − 1/4 − 1/2 = −3/4",
+          "result": {
+            "status": "available",
+            "value": {
+              "numerator": "-3",
+              "denominator": "4"
+            },
+            "gaps": [],
+            "evidence": [],
+            "components": {
+              "progress": {
+                "numerator": "0",
+                "denominator": "1"
+              },
+              "destruction": {
+                "numerator": "1",
+                "denominator": "4"
+              },
+              "erosion": {
+                "numerator": "1",
+                "denominator": "2"
+              }
+            }
+          }
+        },
+        {
+          "title": "Third out strands the runner",
+          "explanation": "Two outs before the PA. The strikeout ends the inning. Charge 1/4 for the batter and 1 for the stranded runner; stranding is not an extra out.",
+          "equation": "0 − 1/4 − 1 = −5/4",
+          "result": {
+            "status": "available",
+            "value": {
+              "numerator": "-5",
+              "denominator": "4"
+            },
+            "gaps": [],
+            "evidence": [],
+            "components": {
+              "progress": {
+                "numerator": "0",
+                "denominator": "1"
+              },
+              "destruction": {
+                "numerator": "1",
+                "denominator": "4"
+              },
+              "erosion": {
+                "numerator": "1",
+                "denominator": "1"
+              }
+            }
+          }
+        },
+        {
+          "title": "Strikeout; runner scores on a passed ball",
+          "explanation": "One out before the PA. The batter is out; the runner on third scores independently on a passed ball. The hitter gets no progress credit. The actual scored runner has no remaining opportunity to erode.",
+          "equation": "0 − 1/4 − 0 = −1/4",
+          "result": {
+            "status": "available",
+            "value": {
+              "numerator": "-1",
+              "denominator": "4"
+            },
+            "gaps": [],
+            "evidence": [],
+            "components": {
+              "progress": {
+                "numerator": "0",
+                "denominator": "1"
+              },
+              "destruction": {
+                "numerator": "1",
+                "denominator": "4"
+              },
+              "erosion": {
+                "numerator": "0",
+                "denominator": "1"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "paq-2": {
+      "formula": "Percentile = 100 × (2 × lower scores + tied scores − 1) / (2 × (population size − 1)).",
+      "cases": [
+        {
+          "title": "Two PAs tie exactly",
+          "explanation": "Assume a complete illustrative reference population of four PAs: −1/4, 1/3, 2/6 and 1/2. The middle two tie exactly. Real PAQ uses the eligible selected-season population through the reporting cutoff.",
+          "equation": "For either middle PA: 100 × (2 × 1 + 2 − 1) / (2 × 3) = 50",
+          "result": {
+            "status": "available",
+            "value": {
+              "numerator": "50",
+              "denominator": "1"
+            },
+            "gaps": [],
+            "evidence": [],
+            "components": {
+              "population": 4,
+              "lower": 1,
+              "ties": 2
+            }
+          }
+        },
+        {
+          "title": "Only one eligible PA",
+          "explanation": "A reference population with one PA cannot define this percentile. An unavailable result is not a zero percentile.",
+          "equation": "Population size − 1 = 0; the percentile is unavailable.",
+          "result": {
+            "status": "unavailable",
+            "value": null,
+            "gaps": [
+              "EMPTY_DENOMINATOR"
+            ],
+            "evidence": [],
+            "components": {
+              "population": 1,
+              "lower": 0,
+              "ties": 1,
+              "numerator": {
+                "numerator": "0",
+                "denominator": "1"
+              },
+              "denominator": {
+                "numerator": "0",
+                "denominator": "1"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "paq-a": {
+      "formula": "Percentile = 100 × (2 × lower scores + tied scores − 1) / (2 × (population size − 1)).",
+      "cases": [
+        {
+          "title": "Compare the same base and out state",
+          "explanation": "The target PA has TFS −1/4, with a runner on third and one out immediately before the consequence. Its only illustrative peer in that state has −3/4. A bases-empty PA with no outs is in a different cohort.",
+          "equation": "Within the two-PA cohort: 100 × (2 × 1 + 1 − 1) / (2 × 1) = 100",
+          "result": {
+            "status": "available",
+            "value": {
+              "numerator": "100",
+              "denominator": "1"
+            },
+            "gaps": [],
+            "evidence": [
+              "illustrative-boundary"
+            ],
+            "components": {
+              "population": 2,
+              "lower": 1,
+              "ties": 1
+            }
+          }
+        }
+      ]
+    },
+    "offensive-reach": {
+      "formula": "Count distinct trajectories with positive batter-attributed progress.",
+      "cases": [
+        {
+          "title": "Two trajectories advance",
+          "explanation": "The batter and one existing runner make positive attributed progress. A third runner has no progress. Count each advancing trajectory once, regardless of how far it advances.",
+          "equation": "1 batter trajectory + 1 runner trajectory = 2",
+          "result": {
+            "status": "available",
+            "value": {
+              "numerator": "2",
+              "denominator": "1"
+            },
+            "gaps": [],
+            "evidence": [],
+            "components": {}
+          }
+        }
+      ]
+    },
+    "hidden-help-rate": {
+      "formula": "PAs helping another runner with no batter progress / PAs with no batter progress.",
+      "cases": [
+        {
+          "title": "Help in one of two qualifying PAs",
+          "explanation": "Across three PAs, two produce no batter progress; one of those helps another runner. The PA with batter progress is outside this denominator.",
+          "equation": "1 / 2 = 50%",
+          "result": {
+            "status": "available",
+            "value": {
+              "numerator": "1",
+              "denominator": "2"
+            },
+            "gaps": [],
+            "evidence": [],
+            "components": {}
+          }
+        }
+      ]
+    },
+    "rally-kill-rate": {
+      "formula": "Runner-on-base PAs directly putting an existing runner out / runner-on-base PAs.",
+      "cases": [
+        {
+          "title": "One of two opportunities ends a runner’s path",
+          "explanation": "One of two runner-on-base PAs directly puts an existing runner out. A third PA starts with empty bases and does not enter the denominator.",
+          "equation": "1 / 2 = 50%",
+          "result": {
+            "status": "available",
+            "value": {
+              "numerator": "1",
+              "denominator": "2"
+            },
+            "gaps": [],
+            "evidence": [],
+            "components": {}
+          }
+        }
+      ]
+    },
+    "rally-kill-severity": {
+      "formula": "Existing-runner destruction / runner-on-base PAs.",
+      "cases": [
+        {
+          "title": "A runner from first is put out",
+          "explanation": "One of two runner-on-base PAs directly destroys a trajectory beginning at first, costing 1/3. The other costs zero. This isolates destruction from erosion.",
+          "equation": "(1/3 + 0) / 2 = 1/6",
+          "result": {
+            "status": "available",
+            "value": {
+              "numerator": "1",
+              "denominator": "6"
+            },
+            "gaps": [],
+            "evidence": [],
+            "components": {}
+          }
+        }
+      ]
+    },
+    "opportunity-erosion": {
+      "formula": "Sum of PA opportunity erosion / number of PAs.",
+      "cases": [
+        {
+          "title": "Average two erosion amounts",
+          "explanation": "Two fully accounted-for PAs have erosion amounts of 1/2 and 1/3. This reports their mean loss of opportunity.",
+          "equation": "(1/2 + 1/3) / 2 = 5/12",
+          "result": {
+            "status": "available",
+            "value": {
+              "numerator": "5",
+              "denominator": "12"
+            },
+            "gaps": [],
+            "evidence": [],
+            "components": {}
+          }
+        }
+      ]
+    },
+    "empty-game-rate": {
+      "formula": "Eligible games with no qualifying positive contribution / games with at least one PA.",
+      "cases": [
+        {
+          "title": "A running-only appearance is outside the denominator",
+          "explanation": "One game has a PA and no positive contribution; another has a PA and two positive contributions. A third has no PA, so it is ineligible here even though the player can have running statistics.",
+          "equation": "1 empty game / 2 eligible games = 50%",
+          "result": {
+            "status": "available",
+            "value": {
+              "numerator": "1",
+              "denominator": "2"
+            },
+            "gaps": [],
+            "evidence": [],
+            "components": {}
+          }
+        }
+      ]
+    },
+    "empty-game-damage": {
+      "formula": "Magnitude of negative TFS + independent runner damage during an Empty Game.",
+      "cases": [
+        {
+          "title": "Batting and running damage in one eligible Empty Game",
+          "explanation": "Assume the game is completely observed and qualifies as empty. One PA has TFS −1/4; an independent running episode contributes −1/3. Damage reports their positive loss magnitude.",
+          "equation": "1/4 + 1/3 = 7/12",
+          "result": {
+            "status": "available",
+            "value": {
+              "numerator": "7",
+              "denominator": "12"
+            },
+            "gaps": [],
+            "evidence": [],
+            "components": {
+              "episodes": 2
+            }
+          }
+        }
+      ]
+    },
+    "contribution-path-diversity": {
+      "formula": "−Σ(channel share × ln(channel share)) / ln(3); each positive play counts once per channel.",
+      "cases": [
+        {
+          "title": "All three channels used equally",
+          "explanation": "One hit helps the batter and another runner, so it counts once in each of those channels. A steal adds one runner-to-self play. Diversity describes the mix, not total offensive value.",
+          "equation": "Shares = 1/3, 1/3, 1/3; normalized diversity = 1",
+          "result": {
+            "status": "available",
+            "value": null,
+            "approximateValue": 0.9999999999999998,
+            "exactExpression": "-sum(p*ln(p))/ln(3)",
+            "gaps": [],
+            "components": {
+              "channelCounts": [
+                1,
+                1,
+                1
+              ],
+              "probabilities": [
+                {
+                  "numerator": "1",
+                  "denominator": "3"
+                },
+                {
+                  "numerator": "1",
+                  "denominator": "3"
+                },
+                {
+                  "numerator": "1",
+                  "denominator": "3"
+                }
+              ],
+              "pathBreadth": 3
+            },
+            "evidence": []
+          }
+        },
+        {
+          "title": "Only one channel used",
+          "explanation": "All positive plays are in the batter-to-self channel. Concentration in one channel gives diversity zero; it does not mean no contribution occurred.",
+          "equation": "Shares = 1, 0, 0; normalized diversity = 0",
+          "result": {
+            "status": "available",
+            "value": null,
+            "approximateValue": -0.0,
+            "exactExpression": "-sum(p*ln(p))/ln(3)",
+            "gaps": [],
+            "components": {
+              "channelCounts": [
+                1,
+                0,
+                0
+              ],
+              "probabilities": [
+                {
+                  "numerator": "1",
+                  "denominator": "1"
+                },
+                {
+                  "numerator": "0",
+                  "denominator": "1"
+                },
+                {
+                  "numerator": "0",
+                  "denominator": "1"
+                }
+              ],
+              "pathBreadth": 1
+            },
+            "evidence": []
+          }
+        }
+      ]
+    },
+    "recovery-quality": {
+      "formula": "Count later nonterminal pitches after the first two-strike state, then take their reference-population percentile.",
+      "cases": [
+        {
+          "title": "Two extra nonterminal pitches",
+          "explanation": "Post-pitch strike counts are 0, 1, 2, 2, 2, 3. The pitch reaching two strikes and the terminal pitch are excluded from the extra-pitch count. Assume the complete illustrative two-strike population has counts 0, 2 and 4.",
+          "equation": "2 extra pitches; the middle of counts 0, 2, 4 has percentile 50.",
+          "result": {
+            "status": "available",
+            "value": {
+              "numerator": "50",
+              "denominator": "1"
+            },
+            "gaps": [],
+            "evidence": [],
+            "components": {
+              "population": 3,
+              "lower": 1,
+              "ties": 1
+            }
+          }
+        }
+      ]
+    },
+    "resolution-depth": {
+      "formula": "Number of intentional acts on the longest supported precedence path.",
+      "cases": [
+        {
+          "title": "Field, throw, catch, tag",
+          "explanation": "Assume four distinct intentional acts with supported order: field → throw → catch → tag. Depth counts acts; a single act would have depth one.",
+          "equation": "4 acts along the path = depth 4",
+          "result": {
+            "status": "available",
+            "value": {
+              "numerator": "4",
+              "denominator": "1"
+            },
+            "gaps": [],
+            "evidence": [
+              "catch",
+              "field",
+              "tag",
+              "throw"
+            ],
+            "components": {
+              "defenderBreadth": 2
+            }
+          }
+        }
+      ]
+    },
+    "defender-breadth": {
+      "formula": "Count distinct defensive agents in the supported resolution structure.",
+      "cases": [
+        {
+          "title": "Four acts by two defenders",
+          "explanation": "Defender A fields and throws. Defender B catches and tags. Repeated acts by the same player do not add another defender.",
+          "equation": "Distinct defenders {A, B} = 2",
+          "result": {
+            "status": "available",
+            "value": {
+              "numerator": "2",
+              "denominator": "1"
+            },
+            "gaps": [],
+            "evidence": [],
+            "components": {}
+          }
+        }
+      ]
+    },
+    "run-construction-depth": {
+      "formula": "Count distinct state-changing episodes along the scoring runner’s admitted continuous trajectory.",
+      "cases": [
+        {
+          "title": "Single, steal, then score on a double",
+          "explanation": "Assume complete continuity for the same runner: a single reaches first, a steal reaches second, and a teammate’s double brings the runner home. These are three separate state-changing episodes.",
+          "equation": "1 single + 1 steal + 1 scoring advance = 3 episodes",
+          "result": {
+            "status": "available",
+            "value": {
+              "numerator": "3",
+              "denominator": "1"
+            },
+            "gaps": [],
+            "evidence": [],
+            "components": {}
+          }
+        }
+      ]
+    },
+    "run-construction-breadth": {
+      "formula": "Count distinct offensive players whose supported contributions advance the scoring trajectory.",
+      "cases": [
+        {
+          "title": "The scorer contributes twice",
+          "explanation": "The scorer singles and steals, then a teammate doubles the scorer home. The scorer counts once despite two contributions; the teammate adds one.",
+          "equation": "Distinct contributors {scorer, teammate} = 2",
+          "result": {
+            "status": "available",
+            "value": {
+              "numerator": "2",
+              "denominator": "1"
+            },
+            "gaps": [],
+            "evidence": [],
+            "components": {}
+          }
+        }
+      ]
+    },
+    "adjudication-volatility": {
+      "formula": "Overturning dispositions / explicitly resolved mapped reviews.",
+      "cases": [
+        {
+          "title": "An unresolved review stays outside the denominator",
+          "explanation": "Of three mapped reviews, one overturns, one resolves without overturning, and one remains unresolved. This describes resolved mapped reviews, not all decisions or umpire accuracy.",
+          "equation": "1 overturn / 2 resolved reviews = 50%",
+          "result": {
+            "status": "available",
+            "value": {
+              "numerator": "1",
+              "denominator": "2"
+            },
+            "gaps": [],
+            "evidence": [],
+            "components": {}
+          }
+        }
+      ]
+    },
+    "review-dependence-rate": {
+      "formula": "Review-dependent operative outcomes / all review-eligible decisions, separately for each mechanism.",
+      "cases": [
+        {
+          "title": "Traditional replay",
+          "explanation": "Assume the complete illustrative traditional replay population contains 4 eligible decisions and one operative outcome that depends on review. Merely being reviewed does not establish dependence. The two mechanisms are not pooled.",
+          "equation": "1 review-dependent outcome / 4 eligible decisions = 25%",
+          "result": {
+            "status": "available",
+            "value": {
+              "numerator": "1",
+              "denominator": "4"
+            },
+            "gaps": [],
+            "evidence": [],
+            "components": {}
+          }
+        },
+        {
+          "title": "Ball/strike challenges",
+          "explanation": "Assume the complete illustrative ball/strike challenges population contains 2 eligible decisions and one operative outcome that depends on review. Merely being reviewed does not establish dependence. The two mechanisms are not pooled.",
+          "equation": "1 review-dependent outcome / 2 eligible decisions = 50%",
+          "result": {
+            "status": "available",
+            "value": {
+              "numerator": "1",
+              "denominator": "2"
+            },
+            "gaps": [],
+            "evidence": [],
+            "components": {}
+          }
+        }
+      ]
+    },
+    "role-realization-breadth": {
+      "formula": "Count the distinct realized kinds among Batter, Baserunner, Pitcher and Fielder.",
+      "cases": [
+        {
+          "title": "Batting twice and running once",
+          "explanation": "Assume a complete player-game role population: two acts realize Batter Role and one realizes Baserunner Role. Count realized kinds once; generic parent roles do not add kinds.",
+          "equation": "Distinct realized kinds {Batter, Baserunner} = 2",
+          "result": {
+            "status": "available",
+            "value": {
+              "numerator": "2",
+              "denominator": "1"
+            },
+            "gaps": [],
+            "evidence": [],
+            "components": {}
+          }
+        }
+      ]
+    },
+    "paq-2.1": {
+      "formula": "Rank TFS first, Recovery Quality second, and Resolution Depth third; convert that ordering to a percentile.",
+      "cases": [
+        {
+          "title": "Process quality breaks a TFS tie",
+          "explanation": "Assume all three PAs are eligible: A has (−3/4, 100, 20), B has (3/2, 0, 1), and C has (3/2, 0, 2). A ranks last despite stronger process scores. C beats B only at the third comparison.",
+          "equation": "Order A < B < C; B receives percentile 50.",
+          "result": {
+            "status": "available",
+            "value": {
+              "numerator": "50",
+              "denominator": "1"
+            },
+            "gaps": [],
+            "evidence": [],
+            "components": {
+              "population": 3,
+              "lower": 1,
+              "ties": 1
+            }
+          }
+        }
+      ]
+    }
+  }
+}
