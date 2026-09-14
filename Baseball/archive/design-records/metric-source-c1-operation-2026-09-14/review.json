@@ -1,0 +1,81 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "metric-source-c1-operation-2026-09-14",
+  "title": "Accepted E1 source authority and existing-vocabulary C1 mapping",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "source-admission.md",
+        "sha256": "b8b886daa45c0ac2221bba9cfdc417203a12413a3adfa56ab71a6226f18291be"
+      },
+      {
+        "path": "c1-c2-design.md",
+        "sha256": "4de95821e0145f584abc17ef73fe26c54dcbd712f9decd4d7dc5da88ea86c3a0"
+      },
+      {
+        "path": "user-decision.md",
+        "sha256": "9fab02c4dacc15ea49fe1b75eb7f235d0b4b6cdcc9867c0e625efecc34f88398"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-admission.md",
+        "sha256": "b8b886daa45c0ac2221bba9cfdc417203a12413a3adfa56ab71a6226f18291be"
+      },
+      {
+        "path": "c1-c2-design.md",
+        "sha256": "4de95821e0145f584abc17ef73fe26c54dcbd712f9decd4d7dc5da88ea86c3a0"
+      },
+      {
+        "path": "user-decision.md",
+        "sha256": "9fab02c4dacc15ea49fe1b75eb7f235d0b4b6cdcc9867c0e625efecc34f88398"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "source-admission.md",
+        "sha256": "b8b886daa45c0ac2221bba9cfdc417203a12413a3adfa56ab71a6226f18291be"
+      },
+      {
+        "path": "c1-c2-design.md",
+        "sha256": "4de95821e0145f584abc17ef73fe26c54dcbd712f9decd4d7dc5da88ea86c3a0"
+      },
+      {
+        "path": "user-decision.md",
+        "sha256": "9fab02c4dacc15ea49fe1b75eb7f235d0b4b6cdcc9867c0e625efecc34f88398"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-admission.md",
+        "sha256": "b8b886daa45c0ac2221bba9cfdc417203a12413a3adfa56ab71a6226f18291be"
+      },
+      {
+        "path": "c1-c2-design.md",
+        "sha256": "4de95821e0145f584abc17ef73fe26c54dcbd712f9decd4d7dc5da88ea86c3a0"
+      },
+      {
+        "path": "user-decision.md",
+        "sha256": "9fab02c4dacc15ea49fe1b75eb7f235d0b4b6cdcc9867c0e625efecc34f88398"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-09-14",
+    "rationale": "Explicit yes to the named E1 source policy and C1 extension of existing MLB RML, with no new classes or object properties. All source, graph and population evidence gates remain required.",
+    "authorizedArtifacts": [
+      "Baseball/scripts/pipeline/prepare-rml-context.py",
+      "Baseball/sources/mlb-game/mapping/mlb-game.rml.ttl",
+      "Baseball/sources/mlb-game/mapping/iri-policy.yaml",
+      "Baseball/sources/mlb-game/mapping/reconcile-runner-histories.py",
+      "Baseball/sources/mlb-game/shacl/authoritative.ttl",
+      "Baseball/sources/mlb-game/review/rml-mermaid-manifest.json"
+    ]
+  }
+}
