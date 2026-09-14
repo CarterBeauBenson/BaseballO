@@ -1,7 +1,8 @@
 [CmdletBinding()]
 param(
     [string] $BrowserPath = 'C:\Program Files\Google\Chrome\Application\chrome.exe',
-    [string] $BaseUrl = 'http://127.0.0.1:4173'
+    [string] $BaseUrl = 'http://127.0.0.1:4173',
+    [string] $RunDepthProof
 )
 # Focused Windows UI regression; isolated headless profile, no browser packages.
 # Uses the running Explorer and the previously verified August 25 example.
@@ -139,7 +140,44 @@ try {
   } finally { window.fetch=original; }
 })()
 '@
-    @{live=$observed; regressions=$races; desktopCapture=$desktopCapture; mobileCapture=$mobileCapture; exampleCapture=$exampleCapture} | ConvertTo-Json -Depth 10
+    $runProof = $null
+    $runCapture = $null
+    if ($RunDepthProof) {
+        # Render the separately validated real-RDF/SQL proof as an HTTP fixture.
+        # This tests presentation and makes no claim of live graph promotion.
+        $proofJson = Get-Content -LiteralPath $RunDepthProof -Raw
+        $null = Invoke-Page ("window.runDepthProof = " + $proofJson)
+        $runProof = Invoke-Page @'
+(async () => {
+  const id=x=>document.getElementById(x), original=window.fetch;
+  const assert=(v,m)=>{if(!v)throw Error(m);};
+  try {
+    document.querySelector('[data-id="run-construction-depth"]').click();
+    const payload=window.runDepthProof;
+    payload.dateScope={gameSet:'regular_season',startDate:'2019-04-01',endDate:'2019-04-01'};
+    window.fetch=async()=>new Response(JSON.stringify(payload));
+    id('metric-form').requestSubmit();
+    for(let i=0;i<100&&id('result').hidden;i++)await new Promise(r=>setTimeout(r,50));
+    assert(!id('result').hidden,'Run result failed to render');
+    const cards=[...id('run-results').querySelectorAll('article')];
+    assert(cards.length===9,'Expected nine complete run histories');
+    const flores=cards.find(c=>c.querySelector('h4').textContent==='Player #527038');
+    assert(flores?.querySelector('strong').textContent==='3 episodes','Real run depth changed');
+    assert(flores.querySelectorAll('li').length===3,'Episode trace is incomplete');
+    assert(id('result').dataset.state==='partial'&&id('result-scope').textContent.includes('incomplete'),'Population scope overstated');
+    assert(id('coverage').textContent.includes('Observed runs without a result4'),'Missing coverage gap');
+    assert(!id('download-result').disabled,'Run evidence download disabled');
+    id('run-results').scrollIntoView();
+    assert(document.documentElement.scrollWidth<=innerWidth,'Run cards overflow mobile');
+    return {fixture:'validated real RDF and SQL, not live promotion',runs:9,unresolvedRuns:4,floresDepth:3,mobileOverflow:false};
+  } finally {window.fetch=original;delete window.runDepthProof;}
+})()
+'@
+        $runCapture = Join-Path $profileDirectory 'run-depth-mobile.png'
+        $capture = Invoke-Cdp 'Page.captureScreenshot' @{format='png'}
+        [IO.File]::WriteAllBytes($runCapture, [Convert]::FromBase64String($capture.data))
+    }
+    @{live=$observed; regressions=$races; runDepth=$runProof; runCapture=$runCapture; desktopCapture=$desktopCapture; mobileCapture=$mobileCapture; exampleCapture=$exampleCapture} | ConvertTo-Json -Depth 10
 } finally {
     if ($socket.State -eq [Net.WebSockets.WebSocketState]::Open) {
         try { $null = Invoke-Cdp 'Browser.close' } catch { }

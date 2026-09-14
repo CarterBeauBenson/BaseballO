@@ -508,7 +508,7 @@
         "PATH_IDENTITY"
       ],
       "implementationStatus": "implemented",
-      "liveAdapter": "blocked-by-gap-register",
+      "liveAdapter": "personal-run-histories",
       "referencePopulation": "declared selected evidence population",
       "nullableColumns": [],
       "inputColumns": [

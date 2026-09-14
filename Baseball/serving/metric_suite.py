@@ -22,7 +22,7 @@ from rdflib import Graph, Literal
 
 ROOT = Path(__file__).resolve().parents[1]
 METRICS = ROOT / 'sparql/metrics'
-VERSION = '2.0.8'
+VERSION = '2.0.9'
 
 
 class EvidenceError(ValueError):
@@ -603,8 +603,11 @@ def normalize_bindings(bindings, graphs):
                       'trajectoryHalf', 'trajectoryInterval'):
             if field in binding and binding[field].get('type') != 'uri':
                 raise EvidenceError('Evidence identity must be an IRI: ' + field)
-        if row.get('kind') not in {'plate_appearance', 'batted_play', 'run', 'player_game', 'review', 'runner_movement'}:
+        if row.get('kind') not in {'plate_appearance', 'batted_play', 'run', 'player_game', 'review', 'runner_movement', 'runner_history'}:
             raise EvidenceError('Unknown evidence grain')
+        if row['kind'] == 'runner_history' and (row.get('trajectory') != row['entity'] or
+                not all(row.get(f) for f in ('episode', 'player', 'trajectoryHalf', 'trajectoryInterval'))):
+            raise EvidenceError('Personal history lacks its graph membership or scope')
         if row['kind'] == 'runner_movement' and (
                 not all(row.get(f) for f in ('plateAppearance', 'resolution', 'act'))
                 or row['entity'] != row['resolution']):
@@ -684,6 +687,11 @@ def live_result(metric_id, rows, *, graph_count):
     if entry['requires']:
         result = unavailable(*entry['requires'], coverage=coverage, metricId=metric_id,
                              scope='selected promoted game graphs', grain=entry['grain'])
+        if metric_id == 'run-construction-depth':
+            result['runs'] = run_construction_results(rows)
+            coverage['supportedRuns'] = len(result['runs'])
+            coverage['observedRunsWithoutResult'] = max(0, coverage['observedEntities']['run'] - len(result['runs']))
+            result['scope'] = 'Complete individual scoring histories below; coverage of all selected runs remains separately gated.'
         if metric_id in {'tfs', 'offensive-reach'}:
             result['consequences'] = loaded_award_consequences(rows, metric_id=metric_id)
             coverage['byGame'] = movement_coverage_by_game(rows, result['consequences'])
@@ -720,6 +728,68 @@ def live_result(metric_id, rows, *, graph_count):
     result.update(coverage=coverage, metricId=metric_id, evidence=sorted(set(evidence)),
                   scope=coverage['population'], grain=entry['grain'])
     return result
+
+
+def run_construction_results(rows):
+    """Complete per-run depth over promoted E1/C1 wholes and exact members.
+
+    Never infer a whole from adjacent movement rows. The independent C1 member
+    inventory ensures a missing movement binding cannot shorten a scored run.
+    Source reconciliation and source SHACL precede graph promotion in NiFi.
+    """
+    histories, movements = defaultdict(list), defaultdict(list)
+    for row in rows:
+        if row['kind'] == 'runner_history':
+            histories[(row['graph'], row['trajectory'])].append(row)
+        elif row['kind'] == 'runner_movement' and row.get('trajectory'):
+            movements[(row['graph'], row['trajectory'])].append(row)
+    results = []
+    for key, members in sorted(histories.items()):
+        signatures = {(r['game'], r['player'], r['trajectoryHalf'], r['trajectoryInterval']) for r in members}
+        if len(signatures) != 1:
+            continue
+        game, runner, half, interval = next(iter(signatures))
+        expected = {r['episode'] for r in members}
+        observed = defaultdict(list)
+        for row in movements[key]:
+            observed[row.get('episode')].append(row)
+        if set(observed) != expected:
+            continue
+        inputs, trace, runs = [], [], []
+        for episode in sorted(expected):
+            candidates = observed[episode]
+            # Optional paths may have duplicates; conflicting or missing state
+            # facts must remain visible instead of selecting the first value.
+            fields = ('game', 'runner', 'act', 'resolution', 'metricOrigin', 'hasSafeType',
+                      'hasOutType', 'hasRunType', 'destinationCode', 'trajectoryHalf', 'trajectoryInterval')
+            states = {tuple(r.get(f) for f in fields) for r in candidates}
+            if len(states) != 1:
+                break
+            row = candidates[0]
+            if (row.get('game') != game or row.get('runner') != runner or row.get('trajectoryHalf') != half
+                    or row.get('trajectoryInterval') != interval or row.get('metricOrigin') not in {'0', '1', '2', '3'}
+                    or row.get('hasOutType') != 'false'):
+                break
+            if row.get('hasRunType') == 'true' and row.get('hasSafeType') == 'false':
+                end = 4; runs.append(row['resolution'])
+            elif row.get('hasRunType') == 'false' and row.get('hasSafeType') == 'true' and row.get('destinationCode') in {'1B', '2B', '3B'}:
+                end = int(row['destinationCode'][0])
+            else:
+                break
+            start = int(row['metricOrigin'])
+            inputs.append(dict(key=key[1], episode=episode, changesState=start != end))
+            trace.append(dict(episode=episode, act=row['act'], resolution=row['resolution'],
+                              start=start, end=end, changesState=start != end))
+        else:
+            if len(runs) != 1:
+                continue
+            calculated = calculate('run-construction-depth', inputs)
+            calculated.update(graph=key[0], game=game, trajectory=key[1], runner=runner,
+                              run=runs[0], grain='run', completeTrajectory=True, episodes=trace,
+                              scope='complete admitted scoring-runner history',
+                              evidence=sorted({key[1], interval, half, *expected, *runs}))
+            results.append(calculated)
+    return results
 
 
 def loaded_award_consequences(rows, *, metric_id='tfs'):

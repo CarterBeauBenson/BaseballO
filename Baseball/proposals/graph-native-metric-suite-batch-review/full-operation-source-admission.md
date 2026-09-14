@@ -1,6 +1,10 @@
 # Full metric operation: source-admission decision
 
-Status: **draft; not accepted**. Prepared 2026-09-14 after the user clarified
+Status: **E1 accepted; E2 investigation remains open**. The explicit
+[September 14 decision](../../archive/design-records/metric-source-c1-operation-2026-09-14/review.json)
+accepts E1 and the existing MLB C1 mapping extension, with no new classes or
+object properties. That record was committed and pushed before implementation.
+The original request below is retained for context. Prepared 2026-09-14 after the user clarified
 that the deliverable is full operation of all metrics. Examples, formula
 tests, unavailable HTTP responses, and bounded award results do not meet that
 deliverable.
@@ -126,6 +130,17 @@ plays; it cannot alone enumerate eligible decisions that were never reviewed.
 These are investigation leads, not source admission or a promise of coverage.
 
 ## Implementation sequence and honest completion
+
+Implemented September 14: conservative source reconciliation selects C1
+histories only from fully accounted-for three-out half-innings. The real
+566279 proof produced 18 personal processes and 34 episode memberships;
+authoritative SHACL passed and source-to-RDF membership matched exactly.
+Run Construction Depth produced nine complete individual run results out of
+13 observed runs, with exact SQL equivalence. See the
+[proof and remaining limits](../../benchmarks/metrics/c1-run-depth-2026-09-14/README.md).
+This does not admit the missing histories, C2 boundary populations, complete PA
+attribution, or season reference populations. E2 remains an investigation,
+not approval of another source or modeling contract.
 
 After E1 is resolved, implement and prove its source reconciliation against
 the real cases above, followed by the accepted C1/C2 source mapping, source

@@ -5,9 +5,11 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.util
 import json
 import re
-from datetime import date
+from datetime import date, datetime
+from collections import defaultdict
 from pathlib import Path
 
 
@@ -165,6 +167,188 @@ def runner_episode_evidence(play: dict, at_bat_index: str) -> dict[str, list[dic
         if complete and not movement["isOut"] and movement.get("end") in {"1B", "2B", "3B"}:
             products["safeDecisionDestinations"].append({**item, "baseCode": movement["end"]})
     return products
+
+
+def personal_runner_histories(raw: bytes) -> dict:
+    """E1/C1 source reconciliation, independent of mapped-row counts.
+
+    Only fully reconciled half innings enter this first source selection.
+    Unknown review/substitution effects withhold the whole half, not just the
+    inconvenient row. No location, adjudication or strict precedence is minted.
+    Temporal values below are event bounds, not claimed exact runner timestamps.
+    """
+    checker = Path(__file__).resolve().parents[2] / 'sources/mlb-game/pipeline/reconcile-metric-source.py'
+    canonical = checker.read_text(encoding='utf-8-sig').replace('\r\n', '\n').replace('\r', '\n').encode()
+    if hashlib.sha256(canonical).hexdigest() != '98fb3cf7ca09388675f173c0492d51f5f0e8ddb7d9cdf4ce1004d5769543b502':
+        raise ValueError('Runner-history source reconciler differs from its reviewed dependency pin')
+    spec = importlib.util.spec_from_file_location('runner_source_reconciler', checker)
+    module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
+    document = json.loads(raw)
+    source = module.reconcile(raw, str(document['gamePk']))
+    result = dict(inputSha256=source['inputSha256'], sourceRevision=source['sourceRevision'],
+                  sourceAuthorityDecision='archive/design-records/metric-source-c1-operation-2026-09-14/review.json',
+                  sourceConsistency=source['status'], histories=[], episodeMembership=[], halves=[],
+                  graphCoverageVerified=False, metricPopulationAdmitted=False)
+    if source['status'] != 'consistent':
+        result['sourceIssues'] = source['issues']
+        return result
+    groups = defaultdict(list)
+    for play in document['liveData']['plays']['allPlays']:
+        groups[(play['about']['inning'], play['about']['halfInning'])].append(play)
+
+    def instant(value):
+        try:
+            t = datetime.fromisoformat(value.replace('Z', '+00:00'))
+            return t if t.tzinfo is not None else None
+        except (AttributeError, ValueError):
+            return None
+
+    neutral = {'batter_timeout', 'mound_visit', 'pitching_substitution',
+               'defensive_substitution', 'defensive_switch'}
+    advisories = {'Status Change - Pre-Game', 'Status Change - Warmup',
+                  'Status Change - In Progress', 'Mound Visit.', 'Injury Delay.'}
+    independent = {'balk', 'wild_pitch', 'passed_ball', 'stolen_base_2b', 'stolen_base_3b',
+                   'stolen_base_home', 'caught_stealing_2b', 'caught_stealing_3b',
+                   'caught_stealing_home', 'pickoff_1b', 'pickoff_2b', 'pickoff_3b'}
+    for (inning, half), plays in groups.items():
+        active, histories, memberships, problems = {}, [], [], []
+        outs = 0
+        previous_pa_end = None
+
+        def block(code, pa=None):
+            problems.append(dict(code=code, atBatIndex=pa))
+
+        def finish(item, anchor, terminal, bound):
+            # Stable serialization of the reviewed lifetime anchors, not a
+            # source revision, PA index or row-position identity for the whole.
+            identity = [str(document['gamePk']), item['runnerId'], item['entryAnchor'], anchor]
+            key = hashlib.sha256(json.dumps(identity, separators=(',', ':')).encode()).hexdigest()
+            completed = dict(item, lifetimeKey=key, terminationAnchor=anchor,
+                             terminal=terminal, latestEndBound=bound)
+            histories.append(completed)
+            memberships.extend(dict(lifetimeKey=key, **episode) for episode in item['episodes'])
+
+        for play in plays:
+            pa = play['atBatIndex']; about = play['about']; rows = play['runners']
+            pa_start, pa_end = instant(about['startTime']), instant(about['endTime'])
+            if previous_pa_end and pa_start < previous_pa_end:
+                block('AMBIGUOUS_PA_TIME_ORDER', pa)
+            previous_pa_end = pa_end
+            if about.get('hasReview') is not False or play.get('reviewDetails'):
+                block('UNRESOLVED_REVIEW_EFFECT', pa)
+            events = play['playEvents']
+            if not events:
+                block('MISSING_BOUNDARY_EVENT', pa); continue
+            event_by_index = {event['index']: event for event in events}
+            event_rows = defaultdict(list)
+            for row_index, row in enumerate(rows):
+                event_rows[row['details']['playIndex']].append((row_index, row))
+            admitted_pairs = {int(item['runnerIndex']): item for item in runner_episode_evidence(play, str(pa))['runnerEpisodes']}
+            if len(admitted_pairs) != len(rows):
+                block('UNSUPPORTED_RUNNER_EPISODE', pa)
+            last_event_end = None
+            for event in events:
+                index = event['index']; details = event.get('details', {})
+                kind, event_type = event.get('type'), details.get('eventType')
+                selected = event_rows[index]
+                if event.get('reviewDetails') or details.get('hasReview') is True:
+                    block('UNRESOLVED_REVIEW_EFFECT', pa)
+                supported = (event.get('isPitch') is True or kind in {'pickoff', 'stepoff', 'no_pitch'}
+                             or event_type in neutral or event_type in independent
+                             or (event_type == 'game_advisory' and details.get('description') in advisories))
+                if not supported:
+                    block('UNSUPPORTED_EVENT_EFFECT:' + str(event_type or kind), pa)
+                if event_type in independent and not selected:
+                    block('MISSING_INDEPENDENT_MOVEMENT', pa)
+                start, end = instant(event.get('startTime')), instant(event.get('endTime'))
+                # Neutral administrative observations need no invented instant.
+                # All pitch/movement boundary events require usable time bounds.
+                if event.get('isPitch') is True or selected:
+                    if (not start or not end or start > end or start < pa_start or end > pa_end
+                            or (last_event_end and start < last_event_end)):
+                        block('UNSUPPORTED_EVENT_TIME_ORDER', pa)
+                    if end:
+                        last_event_end = end
+                    if event.get('count', {}).get('outs') != outs:
+                        block('PRE_EVENT_OUT_COUNT_MISMATCH', pa)
+                if selected and not re.fullmatch(r'[A-Za-z0-9._~-]+', str(event.get('playId') or '')):
+                    block('MISSING_STABLE_MOVEMENT_ANCHOR', pa)
+                event_anchor = str(event.get('playId') or '')
+                by_runner = defaultdict(list)
+                for row_index, row in selected:
+                    by_runner[str(row['details']['runner']['id'])].append((row_index, row))
+                out_numbers = []
+                for runner, pending_rows in by_runner.items():
+                    batter = runner == str(play['matchup']['batter']['id'])
+                    if runner not in active:
+                        if not batter or sum(r['movement'].get('start') is None for _, r in pending_rows) != 1:
+                            block('UNSUPPORTED_RUNNER_ENTRY', pa); continue
+                        # An ordinary batter out contributes an out, not a
+                        # fabricated personal baserunning lifetime.
+                        if len(pending_rows) == 1 and pending_rows[0][1]['movement'].get('isOut') is True:
+                            out_numbers.append(pending_rows[0][1]['movement'].get('outNumber'))
+                            continue
+                        active[runner] = dict(runnerId=runner, inning=str(inning), half=half,
+                            entryAnchor=event_anchor, earliestStartBound=event.get('startTime'), episodes=[], base=None)
+                    item = active[runner]
+                    remaining = list(pending_rows)
+                    while remaining:
+                        matching = [(i, row) for i, row in remaining if row['movement'].get('start') == item['base']]
+                        if len(matching) != 1:
+                            block('AMBIGUOUS_RUNNER_SEGMENT_CHAIN', pa); break
+                        i, row = matching[0]; remaining.remove((i, row))
+                        m, d = row['movement'], row['details']
+                        if i not in admitted_pairs:
+                            block('UNSUPPORTED_RUNNER_EPISODE', pa); break
+                        item['episodes'].append(admitted_pairs[i])
+                        out, end_base, score = m.get('isOut'), m.get('end'), d.get('isScoringEvent')
+                        if type(out) is not bool or (score is True) != (end_base == 'score') or (out and score):
+                            block('CONFLICTING_RUNNER_OUTCOME', pa); break
+                        if out or score:
+                            if remaining:
+                                block('MOVEMENT_AFTER_TERMINATION', pa)
+                            if out:
+                                out_numbers.append(m.get('outNumber'))
+                            finish(item, event_anchor, 'out' if out else 'score', event.get('endTime'))
+                            del active[runner]
+                            break
+                        if end_base not in {'1B', '2B', '3B'}:
+                            block('UNKNOWN_SAFE_DESTINATION', pa); break
+                        item['base'] = end_base
+                if any(type(n) is not int for n in out_numbers) or sorted(out_numbers) != list(range(outs + 1, outs + len(out_numbers) + 1)):
+                    block('DISTINCT_OUT_RECONCILIATION_FAILED', pa)
+                outs += len(out_numbers)
+                if outs > 3:
+                    block('TOO_MANY_OUTS', pa)
+                occupied = [item['base'] for item in active.values() if item['base'] is not None]
+                if len(set(occupied)) != len(occupied):
+                    block('CONFLICTING_BASE_OCCUPANCY', pa)
+            if play.get('count', {}).get('outs') != outs:
+                block('POST_PA_OUT_COUNT_MISMATCH', pa)
+            for code, field in [('1B', 'postOnFirst'), ('2B', 'postOnSecond'), ('3B', 'postOnThird')]:
+                reported = play.get('matchup', {}).get(field)
+                if reported is not None and active.get(str(reported.get('id')), {}).get('base') != code:
+                    block('POST_BASE_RECONCILIATION_FAILED', pa)
+            if outs == 3 and play is not plays[-1]:
+                block('EVENT_AFTER_HALF_END', pa)
+        if outs != 3:
+            # Walkoffs, shortened games and incomplete halves require their
+            # supported game-ending boundary; never clear those runners here.
+            block('UNSUPPORTED_HALF_TERMINATION')
+        last_play = plays[-1]
+        terminal_events = [event_by_index[r['details']['playIndex']] for r in last_play['runners']
+                           if r['movement'].get('isOut') is True and r['movement'].get('outNumber') == 3]
+        if len(terminal_events) != 1 or not terminal_events[0].get('playId'):
+            block('UNSUPPORTED_THIRD_OUT_ANCHOR')
+        elif not problems:
+            for item in active.values():
+                finish(item, terminal_events[0]['playId'], 'stranded', last_play['about']['endTime'])
+        result['halves'].append(dict(inning=inning, half=half, status='withheld' if problems else 'reconciled',
+                                    issues=problems, personalHistories=0 if problems else len(histories)))
+        if not problems:
+            result['histories'].extend({k: v for k, v in h.items() if k != 'base'} for h in histories)
+            result['episodeMembership'].extend(memberships)
+    return result
 
 
 def runner_metric_evidence(play: dict, at_bat_index: str, season: str) -> dict[str, list[dict]]:
@@ -614,6 +798,7 @@ def main() -> None:
         f"{provider_version}"
     )
     root_context: dict[str, object] = {
+        "runnerHistoryReconciliation": personal_runner_histories(args.source.read_bytes()),
         "gameEndTime": final_end_time,
         "pitchTypeReferenceSystemIri": f"{provider_reference_root}/pitch-types",
         "pitchTypeReferenceSystemLabel": (

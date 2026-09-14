@@ -814,11 +814,13 @@ export function createBaseballServer({
   let gameDateIndexCache;
 
   async function metricDisplay(result) {
-    if (!result.metric?.consequences?.length) return result;
+    const subjects = [...(result.metric?.consequences ?? []),
+      ...(result.metric?.runs ?? []).map(run => ({ graph: run.graph, batter: run.runner }))];
+    if (!subjects.length) return result;
     // Optional labels cannot invalidate an otherwise valid SQL/RDF result.
     // These annotations are scoped to its game graphs and never enter scoring.
     try {
-      const targets = metricDisplayTargets(result.metric.consequences);
+      const targets = metricDisplayTargets(subjects);
       const query = await compileMetricDisplayQuery(targets);
       const { payload } = await executeSparql(query, { fetchImpl, queryEndpoint, timeoutMs: 3000 });
       return { ...result, display: { source: 'selected-game-rdf-labels',

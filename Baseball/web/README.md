@@ -109,6 +109,11 @@ verified-example link selects August 25, 2026; press **Inspect metric** to read
 that result. TFS and Offensive Reach currently expose limited award-play
 results, while Adjudication Volatility covers explicitly resolved mapped
 reviews. The page labels those scopes independently of the full metric grain.
+Run Construction Depth also lists complete individual scoring histories when
+the selected promoted graphs contain reconciled C1 processes. Each card shows
+its episode count and trace; unresolved runs remain visible in coverage.
+The [nine-run proof](../benchmarks/metrics/c1-run-depth-2026-09-14/README.md)
+verifies the adapter and SQL before NiFi promotion.
 
 Every metric has a **How this metric works** disclosure with a formula and a
 worked hypothetical example. TFS, PAQ-2, contribution diversity and review

@@ -1,0 +1,919 @@
+﻿{
+    "gamePk":  "566279",
+    "officialDate":  "2019-04-01",
+    "gameType":  "R",
+    "graphIri":  "https://w3id.org/baseball/graph/game/566279",
+    "inputPath":  "C:\\Users\\carte\\OneDrive\\Desktop\\BaseballO\\Baseball\\data\\raw\\game-566279.json",
+    "inputSha256":  "e36caf73ff54d6eeac29dba350d5d37001e769eaaf4c1a9e5eac4763ad2630c2",
+    "mappingPath":  "C:\\Users\\carte\\OneDrive\\Desktop\\BaseballO\\Baseball\\sources\\mlb-game\\mapping\\mlb-game.rml.ttl",
+    "mappingSha256":  "a2469ac1f5a25943b6069f2873eb4b91992150a34aa29eb87cf656c8d5089893",
+    "semanticFreezePath":  "C:\\Users\\carte\\OneDrive\\Desktop\\BaseballO\\Baseball\\governance\\semantic-freeze.json",
+    "semanticFreezeSha256":  "1197a79562685b725aac40d3efff001069d2cc159cbac121123d04d25ba992f9",
+    "semanticAdmission":  "mlb-game:frozen-known-debt",
+    "effectiveMappingSha256":  "112651b0fef47f6aa0e2bcc7e738e59d030d5bd5e0fb3340dd2ea97c2266e131",
+    "contextBuilderPath":  "C:\\Users\\carte\\OneDrive\\Desktop\\BaseballO\\Baseball\\scripts\\pipeline\\prepare-rml-context.py",
+    "contextBuilderSha256":  "16678f31eb10de041d11a73d69c71ece4d3638f813bec4a2512c10d6f20d1384",
+    "executionContextSha256":  "557d42bde8d8ce61905b514605221bb8e3a9bcd67b007be7eaca293cf3163798",
+    "runnerHistoryReconciliation":  {
+                                        "inputSha256":  "e36caf73ff54d6eeac29dba350d5d37001e769eaaf4c1a9e5eac4763ad2630c2",
+                                        "sourceRevision":  "20190402_051518",
+                                        "sourceAuthorityDecision":  "archive/design-records/metric-source-c1-operation-2026-09-14/review.json",
+                                        "sourceConsistency":  "consistent",
+                                        "histories":  [
+                                                          {
+                                                              "runnerId":  "430945",
+                                                              "inning":  "1",
+                                                              "half":  "top",
+                                                              "entryAnchor":  "d884423e-0eaf-4b77-b7c1-76f2788e0b21",
+                                                              "earliestStartBound":  "2019-04-02T02:12:34.926Z",
+                                                              "episodes":  [
+                                                                               {
+                                                                                   "atBatIndex":  "0",
+                                                                                   "runnerIndex":  "0",
+                                                                                   "resolutionKind":  "score",
+                                                                                   "runnerId":  "430945"
+                                                                               }
+                                                                           ],
+                                                              "lifetimeKey":  "0c752304f1c0e511a9f2730ebebc5549228a52bd6016d8eb8f91c9a9ac485f04",
+                                                              "terminationAnchor":  "d884423e-0eaf-4b77-b7c1-76f2788e0b21",
+                                                              "terminal":  "score",
+                                                              "latestEndBound":  "2019-04-02T02:12:59.484Z"
+                                                          },
+                                                          {
+                                                              "runnerId":  "527038",
+                                                              "inning":  "1",
+                                                              "half":  "top",
+                                                              "entryAnchor":  "a800e0a3-50b0-4e6f-8846-8a7a30dc075a",
+                                                              "earliestStartBound":  "2019-04-02T02:14:35.146Z",
+                                                              "episodes":  [
+                                                                               {
+                                                                                   "atBatIndex":  "2",
+                                                                                   "runnerIndex":  "0",
+                                                                                   "resolutionKind":  "reach",
+                                                                                   "runnerId":  "527038"
+                                                                               },
+                                                                               {
+                                                                                   "atBatIndex":  "3",
+                                                                                   "runnerIndex":  "1",
+                                                                                   "resolutionKind":  "advance",
+                                                                                   "runnerId":  "527038"
+                                                                               },
+                                                                               {
+                                                                                   "atBatIndex":  "3",
+                                                                                   "runnerIndex":  "2",
+                                                                                   "resolutionKind":  "score",
+                                                                                   "runnerId":  "527038"
+                                                                               }
+                                                                           ],
+                                                              "lifetimeKey":  "1d9100b21f2ecf33c61d3540e4df374a5d40835a5d73a6020b15a27fb973dc85",
+                                                              "terminationAnchor":  "b46c1a97-7cbf-4a67-84c5-3bd11644bf92",
+                                                              "terminal":  "score",
+                                                              "latestEndBound":  "2019-04-02T02:15:39.477Z"
+                                                          },
+                                                          {
+                                                              "runnerId":  "444482",
+                                                              "inning":  "1",
+                                                              "half":  "top",
+                                                              "entryAnchor":  "b46c1a97-7cbf-4a67-84c5-3bd11644bf92",
+                                                              "earliestStartBound":  "2019-04-02T02:15:24.495Z",
+                                                              "episodes":  [
+                                                                               {
+                                                                                   "atBatIndex":  "3",
+                                                                                   "runnerIndex":  "0",
+                                                                                   "resolutionKind":  "reach",
+                                                                                   "runnerId":  "444482"
+                                                                               },
+                                                                               {
+                                                                                   "atBatIndex":  "5",
+                                                                                   "runnerIndex":  "1",
+                                                                                   "resolutionKind":  "out",
+                                                                                   "runnerId":  "444482"
+                                                                               }
+                                                                           ],
+                                                              "lifetimeKey":  "c0688b1c974c2614a83c3e178b6c205229db0d5cae4bd4779dffc14ae6c740c0",
+                                                              "terminationAnchor":  "94ca39a6-3031-4377-a18a-43a040e1f8c2",
+                                                              "terminal":  "out",
+                                                              "latestEndBound":  "2019-04-02T02:19:51.095Z"
+                                                          },
+                                                          {
+                                                              "runnerId":  "572233",
+                                                              "inning":  "1",
+                                                              "half":  "top",
+                                                              "entryAnchor":  "0aaf3e0d-1ffb-4aa9-8f7d-4fcda6d845ae",
+                                                              "earliestStartBound":  "2019-04-02T02:17:41.298Z",
+                                                              "episodes":  [
+                                                                               {
+                                                                                   "atBatIndex":  "4",
+                                                                                   "runnerIndex":  "0",
+                                                                                   "resolutionKind":  "reach",
+                                                                                   "runnerId":  "572233"
+                                                                               }
+                                                                           ],
+                                                              "lifetimeKey":  "576be789061ed27176a1684a10c328fc288ecfc81fc1c41c1694b50bee347445",
+                                                              "terminationAnchor":  "94ca39a6-3031-4377-a18a-43a040e1f8c2",
+                                                              "terminal":  "stranded",
+                                                              "latestEndBound":  "2019-04-02T02:19:51.095Z"
+                                                          },
+                                                          {
+                                                              "runnerId":  "592518",
+                                                              "inning":  "1",
+                                                              "half":  "bottom",
+                                                              "entryAnchor":  "504c93f9-e4d4-4ca4-a752-bc0ee018107c",
+                                                              "earliestStartBound":  "2019-04-02T02:26:28.892Z",
+                                                              "episodes":  [
+                                                                               {
+                                                                                   "atBatIndex":  "8",
+                                                                                   "runnerIndex":  "0",
+                                                                                   "resolutionKind":  "reach",
+                                                                                   "runnerId":  "592518"
+                                                                               },
+                                                                               {
+                                                                                   "atBatIndex":  "9",
+                                                                                   "runnerIndex":  "0",
+                                                                                   "resolutionKind":  "out",
+                                                                                   "runnerId":  "592518"
+                                                                               }
+                                                                           ],
+                                                              "lifetimeKey":  "1516476c6e4ceb9b96a53d12e3b53c3a7c7b4140e31fadf44faa0599f560969d",
+                                                              "terminationAnchor":  "a80d080b-52fd-4c9e-bf03-105633267f14",
+                                                              "terminal":  "out",
+                                                              "latestEndBound":  "2019-04-02T02:27:29.019Z"
+                                                          },
+                                                          {
+                                                              "runnerId":  "614177",
+                                                              "inning":  "1",
+                                                              "half":  "bottom",
+                                                              "entryAnchor":  "a80d080b-52fd-4c9e-bf03-105633267f14",
+                                                              "earliestStartBound":  "2019-04-02T02:27:19.309Z",
+                                                              "episodes":  [
+                                                                               {
+                                                                                   "atBatIndex":  "9",
+                                                                                   "runnerIndex":  "1",
+                                                                                   "resolutionKind":  "reach",
+                                                                                   "runnerId":  "614177"
+                                                                               }
+                                                                           ],
+                                                              "lifetimeKey":  "6f40951d51251ff6b11e37f34f68f6cdb9c64dc8920e4d1eaab0184cbc4f7249",
+                                                              "terminationAnchor":  "a80d080b-52fd-4c9e-bf03-105633267f14",
+                                                              "terminal":  "stranded",
+                                                              "latestEndBound":  "2019-04-02T02:27:29.019Z"
+                                                          },
+                                                          {
+                                                              "runnerId":  "614173",
+                                                              "inning":  "3",
+                                                              "half":  "bottom",
+                                                              "entryAnchor":  "52736da3-e301-41b8-a740-a597342a3259",
+                                                              "earliestStartBound":  "2019-04-02T03:18:21.969Z",
+                                                              "episodes":  [
+                                                                               {
+                                                                                   "atBatIndex":  "26",
+                                                                                   "runnerIndex":  "0",
+                                                                                   "resolutionKind":  "reach",
+                                                                                   "runnerId":  "614173"
+                                                                               },
+                                                                               {
+                                                                                   "atBatIndex":  "27",
+                                                                                   "runnerIndex":  "0",
+                                                                                   "resolutionKind":  "advance",
+                                                                                   "runnerId":  "614173"
+                                                                               }
+                                                                           ],
+                                                              "lifetimeKey":  "7f9c6d5f96de342519b92ce362ee79f4853684b4e321ec488ce70bce714a2859",
+                                                              "terminationAnchor":  "0d5df728-3145-47a5-802a-ce7129948f7c",
+                                                              "terminal":  "stranded",
+                                                              "latestEndBound":  "2019-04-02T03:25:42.542Z"
+                                                          },
+                                                          {
+                                                              "runnerId":  "435079",
+                                                              "inning":  "3",
+                                                              "half":  "bottom",
+                                                              "entryAnchor":  "565e930b-fa0c-43b2-887a-f79eef22628d",
+                                                              "earliestStartBound":  "2019-04-02T03:21:50.544Z",
+                                                              "episodes":  [
+                                                                               {
+                                                                                   "atBatIndex":  "27",
+                                                                                   "runnerIndex":  "1",
+                                                                                   "resolutionKind":  "reach",
+                                                                                   "runnerId":  "435079"
+                                                                               }
+                                                                           ],
+                                                              "lifetimeKey":  "66b7fe957dbcab8044e3e7f640e1d7f40d6f671e0a0562dd3842e76a35a58e2d",
+                                                              "terminationAnchor":  "0d5df728-3145-47a5-802a-ce7129948f7c",
+                                                              "terminal":  "stranded",
+                                                              "latestEndBound":  "2019-04-02T03:25:42.542Z"
+                                                          },
+                                                          {
+                                                              "runnerId":  "444482",
+                                                              "inning":  "5",
+                                                              "half":  "top",
+                                                              "entryAnchor":  "558458c1-499b-48a6-b3d5-83ec843f158d",
+                                                              "earliestStartBound":  "2019-04-02T03:41:02.328Z",
+                                                              "episodes":  [
+                                                                               {
+                                                                                   "atBatIndex":  "36",
+                                                                                   "runnerIndex":  "0",
+                                                                                   "resolutionKind":  "reach",
+                                                                                   "runnerId":  "444482"
+                                                                               },
+                                                                               {
+                                                                                   "atBatIndex":  "37",
+                                                                                   "runnerIndex":  "1",
+                                                                                   "resolutionKind":  "advance",
+                                                                                   "runnerId":  "444482"
+                                                                               },
+                                                                               {
+                                                                                   "atBatIndex":  "38",
+                                                                                   "runnerIndex":  "1",
+                                                                                   "resolutionKind":  "score",
+                                                                                   "runnerId":  "444482"
+                                                                               }
+                                                                           ],
+                                                              "lifetimeKey":  "55582534f7b28ea7ac2dba2b237d5744f9fe86626fe4e20f764be770dc75a47c",
+                                                              "terminationAnchor":  "38108c8a-3ac5-4949-849a-1513f573fd6a",
+                                                              "terminal":  "score",
+                                                              "latestEndBound":  "2019-04-02T03:44:43.215Z"
+                                                          },
+                                                          {
+                                                              "runnerId":  "572233",
+                                                              "inning":  "5",
+                                                              "half":  "top",
+                                                              "entryAnchor":  "9a41bc01-2bc6-490d-b996-2ead248f79aa",
+                                                              "earliestStartBound":  "2019-04-02T03:43:38.317Z",
+                                                              "episodes":  [
+                                                                               {
+                                                                                   "atBatIndex":  "37",
+                                                                                   "runnerIndex":  "0",
+                                                                                   "resolutionKind":  "reach",
+                                                                                   "runnerId":  "572233"
+                                                                               },
+                                                                               {
+                                                                                   "atBatIndex":  "38",
+                                                                                   "runnerIndex":  "2",
+                                                                                   "resolutionKind":  "advance",
+                                                                                   "runnerId":  "572233"
+                                                                               },
+                                                                               {
+                                                                                   "atBatIndex":  "39",
+                                                                                   "runnerIndex":  "1",
+                                                                                   "resolutionKind":  "score",
+                                                                                   "runnerId":  "572233"
+                                                                               }
+                                                                           ],
+                                                              "lifetimeKey":  "48748eac0083207fa8d85fcd368e700f91ee201f12d5402c6acbc7a2401ad651",
+                                                              "terminationAnchor":  "258cb1a7-d22f-4c50-9902-fea432dfdb3a",
+                                                              "terminal":  "score",
+                                                              "latestEndBound":  "2019-04-02T03:48:45.190Z"
+                                                          },
+                                                          {
+                                                              "runnerId":  "606466",
+                                                              "inning":  "5",
+                                                              "half":  "top",
+                                                              "entryAnchor":  "38108c8a-3ac5-4949-849a-1513f573fd6a",
+                                                              "earliestStartBound":  "2019-04-02T03:44:35.107Z",
+                                                              "episodes":  [
+                                                                               {
+                                                                                   "atBatIndex":  "38",
+                                                                                   "runnerIndex":  "0",
+                                                                                   "resolutionKind":  "reach",
+                                                                                   "runnerId":  "606466"
+                                                                               },
+                                                                               {
+                                                                                   "atBatIndex":  "39",
+                                                                                   "runnerIndex":  "2",
+                                                                                   "resolutionKind":  "advance",
+                                                                                   "runnerId":  "606466"
+                                                                               },
+                                                                               {
+                                                                                   "atBatIndex":  "40",
+                                                                                   "runnerIndex":  "0",
+                                                                                   "resolutionKind":  "score",
+                                                                                   "runnerId":  "606466"
+                                                                               }
+                                                                           ],
+                                                              "lifetimeKey":  "4584645c618f29daf2d03e7ec418163d8db9a73e89ada3cc6f9ada8029be8560",
+                                                              "terminationAnchor":  "f452b584-3418-4c22-b1c3-a33dbaed2e5d",
+                                                              "terminal":  "score",
+                                                              "latestEndBound":  "2019-04-02T03:52:32.317Z"
+                                                          },
+                                                          {
+                                                              "runnerId":  "605113",
+                                                              "inning":  "5",
+                                                              "half":  "top",
+                                                              "entryAnchor":  "258cb1a7-d22f-4c50-9902-fea432dfdb3a",
+                                                              "earliestStartBound":  "2019-04-02T03:48:33.812Z",
+                                                              "episodes":  [
+                                                                               {
+                                                                                   "atBatIndex":  "39",
+                                                                                   "runnerIndex":  "0",
+                                                                                   "resolutionKind":  "reach",
+                                                                                   "runnerId":  "605113"
+                                                                               },
+                                                                               {
+                                                                                   "atBatIndex":  "40",
+                                                                                   "runnerIndex":  "1",
+                                                                                   "resolutionKind":  "score",
+                                                                                   "runnerId":  "605113"
+                                                                               }
+                                                                           ],
+                                                              "lifetimeKey":  "23bcf307ab45de65591be91b0bdba38b2aa28c5324a8edc38f010844b75aa8d0",
+                                                              "terminationAnchor":  "f452b584-3418-4c22-b1c3-a33dbaed2e5d",
+                                                              "terminal":  "score",
+                                                              "latestEndBound":  "2019-04-02T03:52:32.317Z"
+                                                          },
+                                                          {
+                                                              "runnerId":  "488671",
+                                                              "inning":  "5",
+                                                              "half":  "top",
+                                                              "entryAnchor":  "f452b584-3418-4c22-b1c3-a33dbaed2e5d",
+                                                              "earliestStartBound":  "2019-04-02T03:52:21.640Z",
+                                                              "episodes":  [
+                                                                               {
+                                                                                   "atBatIndex":  "40",
+                                                                                   "runnerIndex":  "2",
+                                                                                   "resolutionKind":  "reach",
+                                                                                   "runnerId":  "488671"
+                                                                               }
+                                                                           ],
+                                                              "lifetimeKey":  "6fa0facad6dce2cdb5dc054578b044cc935e029581998a370c44ff24b10c0a63",
+                                                              "terminationAnchor":  "71e1aca5-c9ac-4c16-b685-5a7d34fd2ed5",
+                                                              "terminal":  "stranded",
+                                                              "latestEndBound":  "2019-04-02T03:56:43.535Z"
+                                                          },
+                                                          {
+                                                              "runnerId":  "543333",
+                                                              "inning":  "6",
+                                                              "half":  "bottom",
+                                                              "entryAnchor":  "c2b49514-daf3-4658-a68e-11836bcd878b",
+                                                              "earliestStartBound":  "2019-04-02T04:20:29.026Z",
+                                                              "episodes":  [
+                                                                               {
+                                                                                   "atBatIndex":  "51",
+                                                                                   "runnerIndex":  "0",
+                                                                                   "resolutionKind":  "reach",
+                                                                                   "runnerId":  "543333"
+                                                                               },
+                                                                               {
+                                                                                   "atBatIndex":  "52",
+                                                                                   "runnerIndex":  "1",
+                                                                                   "resolutionKind":  "advance",
+                                                                                   "runnerId":  "543333"
+                                                                               },
+                                                                               {
+                                                                                   "atBatIndex":  "53",
+                                                                                   "runnerIndex":  "1",
+                                                                                   "resolutionKind":  "score",
+                                                                                   "runnerId":  "543333"
+                                                                               }
+                                                                           ],
+                                                              "lifetimeKey":  "f4e8813aae768bd7777bfda87928d555c226b3859ad97e90bed4de1626de31d5",
+                                                              "terminationAnchor":  "a4f03d92-701e-4106-bfda-b39575000f5f",
+                                                              "terminal":  "score",
+                                                              "latestEndBound":  "2019-04-02T04:23:13.890Z"
+                                                          },
+                                                          {
+                                                              "runnerId":  "665487",
+                                                              "inning":  "6",
+                                                              "half":  "bottom",
+                                                              "entryAnchor":  "4885e564-a39c-42bf-8de8-341ddbb3fe6e",
+                                                              "earliestStartBound":  "2019-04-02T04:26:14.838Z",
+                                                              "episodes":  [
+                                                                               {
+                                                                                   "atBatIndex":  "55",
+                                                                                   "runnerIndex":  "0",
+                                                                                   "resolutionKind":  "score",
+                                                                                   "runnerId":  "665487"
+                                                                               }
+                                                                           ],
+                                                              "lifetimeKey":  "a8d593ea0f21390446dc575c83d069e2e6eebe272fbe4ae8d40bbab7740b65a0",
+                                                              "terminationAnchor":  "4885e564-a39c-42bf-8de8-341ddbb3fe6e",
+                                                              "terminal":  "score",
+                                                              "latestEndBound":  "2019-04-02T04:26:40.330Z"
+                                                          },
+                                                          {
+                                                              "runnerId":  "592518",
+                                                              "inning":  "6",
+                                                              "half":  "bottom",
+                                                              "entryAnchor":  "4bffa03f-7d60-44ca-963a-ddf985457c44",
+                                                              "earliestStartBound":  "2019-04-02T04:21:29.753Z",
+                                                              "episodes":  [
+                                                                               {
+                                                                                   "atBatIndex":  "52",
+                                                                                   "runnerIndex":  "0",
+                                                                                   "resolutionKind":  "reach",
+                                                                                   "runnerId":  "592518"
+                                                                               },
+                                                                               {
+                                                                                   "atBatIndex":  "55",
+                                                                                   "runnerIndex":  "1",
+                                                                                   "resolutionKind":  "score",
+                                                                                   "runnerId":  "592518"
+                                                                               }
+                                                                           ],
+                                                              "lifetimeKey":  "3def19d615d9018409685eaf26e8234cfd396bafda7cfd2dc67d77445f60e4ae",
+                                                              "terminationAnchor":  "4885e564-a39c-42bf-8de8-341ddbb3fe6e",
+                                                              "terminal":  "score",
+                                                              "latestEndBound":  "2019-04-02T04:26:40.330Z"
+                                                          },
+                                                          {
+                                                              "runnerId":  "572233",
+                                                              "inning":  "8",
+                                                              "half":  "top",
+                                                              "entryAnchor":  "b219133d-81b4-475a-b072-918473247543",
+                                                              "earliestStartBound":  "2019-04-02T04:52:27.275Z",
+                                                              "episodes":  [
+                                                                               {
+                                                                                   "atBatIndex":  "68",
+                                                                                   "runnerIndex":  "0",
+                                                                                   "resolutionKind":  "reach",
+                                                                                   "runnerId":  "572233"
+                                                                               }
+                                                                           ],
+                                                              "lifetimeKey":  "6c0cbadd143c7cf9e84ab8062596aeb5d16efaf53d241ab97ed6ffaaaf7d9026",
+                                                              "terminationAnchor":  "f6c5f2f2-398c-474e-9e7c-d6851e02016f",
+                                                              "terminal":  "stranded",
+                                                              "latestEndBound":  "2019-04-02T04:54:35.437Z"
+                                                          },
+                                                          {
+                                                              "runnerId":  "543333",
+                                                              "inning":  "8",
+                                                              "half":  "bottom",
+                                                              "entryAnchor":  "0a825505-5af3-4240-9f03-2aad4abba5e4",
+                                                              "earliestStartBound":  "2019-04-02T04:57:58.506Z",
+                                                              "episodes":  [
+                                                                               {
+                                                                                   "atBatIndex":  "70",
+                                                                                   "runnerIndex":  "0",
+                                                                                   "resolutionKind":  "reach",
+                                                                                   "runnerId":  "543333"
+                                                                               },
+                                                                               {
+                                                                                   "atBatIndex":  "71",
+                                                                                   "runnerIndex":  "0",
+                                                                                   "resolutionKind":  "out",
+                                                                                   "runnerId":  "543333"
+                                                                               }
+                                                                           ],
+                                                              "lifetimeKey":  "06f950a175f7070900009626fd80cb0c35df3598aaedfad321585805ede1f241",
+                                                              "terminationAnchor":  "fad24397-a235-400c-b98f-3fdc8167ae5e",
+                                                              "terminal":  "out",
+                                                              "latestEndBound":  "2019-04-02T04:59:23.124Z"
+                                                          }
+                                                      ],
+                                        "episodeMembership":  [
+                                                                  {
+                                                                      "lifetimeKey":  "0c752304f1c0e511a9f2730ebebc5549228a52bd6016d8eb8f91c9a9ac485f04",
+                                                                      "atBatIndex":  "0",
+                                                                      "runnerIndex":  "0",
+                                                                      "resolutionKind":  "score",
+                                                                      "runnerId":  "430945"
+                                                                  },
+                                                                  {
+                                                                      "lifetimeKey":  "1d9100b21f2ecf33c61d3540e4df374a5d40835a5d73a6020b15a27fb973dc85",
+                                                                      "atBatIndex":  "2",
+                                                                      "runnerIndex":  "0",
+                                                                      "resolutionKind":  "reach",
+                                                                      "runnerId":  "527038"
+                                                                  },
+                                                                  {
+                                                                      "lifetimeKey":  "1d9100b21f2ecf33c61d3540e4df374a5d40835a5d73a6020b15a27fb973dc85",
+                                                                      "atBatIndex":  "3",
+                                                                      "runnerIndex":  "1",
+                                                                      "resolutionKind":  "advance",
+                                                                      "runnerId":  "527038"
+                                                                  },
+                                                                  {
+                                                                      "lifetimeKey":  "1d9100b21f2ecf33c61d3540e4df374a5d40835a5d73a6020b15a27fb973dc85",
+                                                                      "atBatIndex":  "3",
+                                                                      "runnerIndex":  "2",
+                                                                      "resolutionKind":  "score",
+                                                                      "runnerId":  "527038"
+                                                                  },
+                                                                  {
+                                                                      "lifetimeKey":  "c0688b1c974c2614a83c3e178b6c205229db0d5cae4bd4779dffc14ae6c740c0",
+                                                                      "atBatIndex":  "3",
+                                                                      "runnerIndex":  "0",
+                                                                      "resolutionKind":  "reach",
+                                                                      "runnerId":  "444482"
+                                                                  },
+                                                                  {
+                                                                      "lifetimeKey":  "c0688b1c974c2614a83c3e178b6c205229db0d5cae4bd4779dffc14ae6c740c0",
+                                                                      "atBatIndex":  "5",
+                                                                      "runnerIndex":  "1",
+                                                                      "resolutionKind":  "out",
+                                                                      "runnerId":  "444482"
+                                                                  },
+                                                                  {
+                                                                      "lifetimeKey":  "576be789061ed27176a1684a10c328fc288ecfc81fc1c41c1694b50bee347445",
+                                                                      "atBatIndex":  "4",
+                                                                      "runnerIndex":  "0",
+                                                                      "resolutionKind":  "reach",
+                                                                      "runnerId":  "572233"
+                                                                  },
+                                                                  {
+                                                                      "lifetimeKey":  "1516476c6e4ceb9b96a53d12e3b53c3a7c7b4140e31fadf44faa0599f560969d",
+                                                                      "atBatIndex":  "8",
+                                                                      "runnerIndex":  "0",
+                                                                      "resolutionKind":  "reach",
+                                                                      "runnerId":  "592518"
+                                                                  },
+                                                                  {
+                                                                      "lifetimeKey":  "1516476c6e4ceb9b96a53d12e3b53c3a7c7b4140e31fadf44faa0599f560969d",
+                                                                      "atBatIndex":  "9",
+                                                                      "runnerIndex":  "0",
+                                                                      "resolutionKind":  "out",
+                                                                      "runnerId":  "592518"
+                                                                  },
+                                                                  {
+                                                                      "lifetimeKey":  "6f40951d51251ff6b11e37f34f68f6cdb9c64dc8920e4d1eaab0184cbc4f7249",
+                                                                      "atBatIndex":  "9",
+                                                                      "runnerIndex":  "1",
+                                                                      "resolutionKind":  "reach",
+                                                                      "runnerId":  "614177"
+                                                                  },
+                                                                  {
+                                                                      "lifetimeKey":  "7f9c6d5f96de342519b92ce362ee79f4853684b4e321ec488ce70bce714a2859",
+                                                                      "atBatIndex":  "26",
+                                                                      "runnerIndex":  "0",
+                                                                      "resolutionKind":  "reach",
+                                                                      "runnerId":  "614173"
+                                                                  },
+                                                                  {
+                                                                      "lifetimeKey":  "7f9c6d5f96de342519b92ce362ee79f4853684b4e321ec488ce70bce714a2859",
+                                                                      "atBatIndex":  "27",
+                                                                      "runnerIndex":  "0",
+                                                                      "resolutionKind":  "advance",
+                                                                      "runnerId":  "614173"
+                                                                  },
+                                                                  {
+                                                                      "lifetimeKey":  "66b7fe957dbcab8044e3e7f640e1d7f40d6f671e0a0562dd3842e76a35a58e2d",
+                                                                      "atBatIndex":  "27",
+                                                                      "runnerIndex":  "1",
+                                                                      "resolutionKind":  "reach",
+                                                                      "runnerId":  "435079"
+                                                                  },
+                                                                  {
+                                                                      "lifetimeKey":  "55582534f7b28ea7ac2dba2b237d5744f9fe86626fe4e20f764be770dc75a47c",
+                                                                      "atBatIndex":  "36",
+                                                                      "runnerIndex":  "0",
+                                                                      "resolutionKind":  "reach",
+                                                                      "runnerId":  "444482"
+                                                                  },
+                                                                  {
+                                                                      "lifetimeKey":  "55582534f7b28ea7ac2dba2b237d5744f9fe86626fe4e20f764be770dc75a47c",
+                                                                      "atBatIndex":  "37",
+                                                                      "runnerIndex":  "1",
+                                                                      "resolutionKind":  "advance",
+                                                                      "runnerId":  "444482"
+                                                                  },
+                                                                  {
+                                                                      "lifetimeKey":  "55582534f7b28ea7ac2dba2b237d5744f9fe86626fe4e20f764be770dc75a47c",
+                                                                      "atBatIndex":  "38",
+                                                                      "runnerIndex":  "1",
+                                                                      "resolutionKind":  "score",
+                                                                      "runnerId":  "444482"
+                                                                  },
+                                                                  {
+                                                                      "lifetimeKey":  "48748eac0083207fa8d85fcd368e700f91ee201f12d5402c6acbc7a2401ad651",
+                                                                      "atBatIndex":  "37",
+                                                                      "runnerIndex":  "0",
+                                                                      "resolutionKind":  "reach",
+                                                                      "runnerId":  "572233"
+                                                                  },
+                                                                  {
+                                                                      "lifetimeKey":  "48748eac0083207fa8d85fcd368e700f91ee201f12d5402c6acbc7a2401ad651",
+                                                                      "atBatIndex":  "38",
+                                                                      "runnerIndex":  "2",
+                                                                      "resolutionKind":  "advance",
+                                                                      "runnerId":  "572233"
+                                                                  },
+                                                                  {
+                                                                      "lifetimeKey":  "48748eac0083207fa8d85fcd368e700f91ee201f12d5402c6acbc7a2401ad651",
+                                                                      "atBatIndex":  "39",
+                                                                      "runnerIndex":  "1",
+                                                                      "resolutionKind":  "score",
+                                                                      "runnerId":  "572233"
+                                                                  },
+                                                                  {
+                                                                      "lifetimeKey":  "4584645c618f29daf2d03e7ec418163d8db9a73e89ada3cc6f9ada8029be8560",
+                                                                      "atBatIndex":  "38",
+                                                                      "runnerIndex":  "0",
+                                                                      "resolutionKind":  "reach",
+                                                                      "runnerId":  "606466"
+                                                                  },
+                                                                  {
+                                                                      "lifetimeKey":  "4584645c618f29daf2d03e7ec418163d8db9a73e89ada3cc6f9ada8029be8560",
+                                                                      "atBatIndex":  "39",
+                                                                      "runnerIndex":  "2",
+                                                                      "resolutionKind":  "advance",
+                                                                      "runnerId":  "606466"
+                                                                  },
+                                                                  {
+                                                                      "lifetimeKey":  "4584645c618f29daf2d03e7ec418163d8db9a73e89ada3cc6f9ada8029be8560",
+                                                                      "atBatIndex":  "40",
+                                                                      "runnerIndex":  "0",
+                                                                      "resolutionKind":  "score",
+                                                                      "runnerId":  "606466"
+                                                                  },
+                                                                  {
+                                                                      "lifetimeKey":  "23bcf307ab45de65591be91b0bdba38b2aa28c5324a8edc38f010844b75aa8d0",
+                                                                      "atBatIndex":  "39",
+                                                                      "runnerIndex":  "0",
+                                                                      "resolutionKind":  "reach",
+                                                                      "runnerId":  "605113"
+                                                                  },
+                                                                  {
+                                                                      "lifetimeKey":  "23bcf307ab45de65591be91b0bdba38b2aa28c5324a8edc38f010844b75aa8d0",
+                                                                      "atBatIndex":  "40",
+                                                                      "runnerIndex":  "1",
+                                                                      "resolutionKind":  "score",
+                                                                      "runnerId":  "605113"
+                                                                  },
+                                                                  {
+                                                                      "lifetimeKey":  "6fa0facad6dce2cdb5dc054578b044cc935e029581998a370c44ff24b10c0a63",
+                                                                      "atBatIndex":  "40",
+                                                                      "runnerIndex":  "2",
+                                                                      "resolutionKind":  "reach",
+                                                                      "runnerId":  "488671"
+                                                                  },
+                                                                  {
+                                                                      "lifetimeKey":  "f4e8813aae768bd7777bfda87928d555c226b3859ad97e90bed4de1626de31d5",
+                                                                      "atBatIndex":  "51",
+                                                                      "runnerIndex":  "0",
+                                                                      "resolutionKind":  "reach",
+                                                                      "runnerId":  "543333"
+                                                                  },
+                                                                  {
+                                                                      "lifetimeKey":  "f4e8813aae768bd7777bfda87928d555c226b3859ad97e90bed4de1626de31d5",
+                                                                      "atBatIndex":  "52",
+                                                                      "runnerIndex":  "1",
+                                                                      "resolutionKind":  "advance",
+                                                                      "runnerId":  "543333"
+                                                                  },
+                                                                  {
+                                                                      "lifetimeKey":  "f4e8813aae768bd7777bfda87928d555c226b3859ad97e90bed4de1626de31d5",
+                                                                      "atBatIndex":  "53",
+                                                                      "runnerIndex":  "1",
+                                                                      "resolutionKind":  "score",
+                                                                      "runnerId":  "543333"
+                                                                  },
+                                                                  {
+                                                                      "lifetimeKey":  "a8d593ea0f21390446dc575c83d069e2e6eebe272fbe4ae8d40bbab7740b65a0",
+                                                                      "atBatIndex":  "55",
+                                                                      "runnerIndex":  "0",
+                                                                      "resolutionKind":  "score",
+                                                                      "runnerId":  "665487"
+                                                                  },
+                                                                  {
+                                                                      "lifetimeKey":  "3def19d615d9018409685eaf26e8234cfd396bafda7cfd2dc67d77445f60e4ae",
+                                                                      "atBatIndex":  "52",
+                                                                      "runnerIndex":  "0",
+                                                                      "resolutionKind":  "reach",
+                                                                      "runnerId":  "592518"
+                                                                  },
+                                                                  {
+                                                                      "lifetimeKey":  "3def19d615d9018409685eaf26e8234cfd396bafda7cfd2dc67d77445f60e4ae",
+                                                                      "atBatIndex":  "55",
+                                                                      "runnerIndex":  "1",
+                                                                      "resolutionKind":  "score",
+                                                                      "runnerId":  "592518"
+                                                                  },
+                                                                  {
+                                                                      "lifetimeKey":  "6c0cbadd143c7cf9e84ab8062596aeb5d16efaf53d241ab97ed6ffaaaf7d9026",
+                                                                      "atBatIndex":  "68",
+                                                                      "runnerIndex":  "0",
+                                                                      "resolutionKind":  "reach",
+                                                                      "runnerId":  "572233"
+                                                                  },
+                                                                  {
+                                                                      "lifetimeKey":  "06f950a175f7070900009626fd80cb0c35df3598aaedfad321585805ede1f241",
+                                                                      "atBatIndex":  "70",
+                                                                      "runnerIndex":  "0",
+                                                                      "resolutionKind":  "reach",
+                                                                      "runnerId":  "543333"
+                                                                  },
+                                                                  {
+                                                                      "lifetimeKey":  "06f950a175f7070900009626fd80cb0c35df3598aaedfad321585805ede1f241",
+                                                                      "atBatIndex":  "71",
+                                                                      "runnerIndex":  "0",
+                                                                      "resolutionKind":  "out",
+                                                                      "runnerId":  "543333"
+                                                                  }
+                                                              ],
+                                        "halves":  [
+                                                       {
+                                                           "inning":  1,
+                                                           "half":  "top",
+                                                           "status":  "reconciled",
+                                                           "issues":  [
+
+                                                                      ],
+                                                           "personalHistories":  4
+                                                       },
+                                                       {
+                                                           "inning":  1,
+                                                           "half":  "bottom",
+                                                           "status":  "reconciled",
+                                                           "issues":  [
+
+                                                                      ],
+                                                           "personalHistories":  2
+                                                       },
+                                                       {
+                                                           "inning":  2,
+                                                           "half":  "top",
+                                                           "status":  "withheld",
+                                                           "issues":  [
+                                                                          {
+                                                                              "code":  "MISSING_STABLE_MOVEMENT_ANCHOR",
+                                                                              "atBatIndex":  12
+                                                                          }
+                                                                      ],
+                                                           "personalHistories":  0
+                                                       },
+                                                       {
+                                                           "inning":  2,
+                                                           "half":  "bottom",
+                                                           "status":  "reconciled",
+                                                           "issues":  [
+
+                                                                      ],
+                                                           "personalHistories":  0
+                                                       },
+                                                       {
+                                                           "inning":  3,
+                                                           "half":  "top",
+                                                           "status":  "withheld",
+                                                           "issues":  [
+                                                                          {
+                                                                              "code":  "MISSING_STABLE_MOVEMENT_ANCHOR",
+                                                                              "atBatIndex":  23
+                                                                          }
+                                                                      ],
+                                                           "personalHistories":  0
+                                                       },
+                                                       {
+                                                           "inning":  3,
+                                                           "half":  "bottom",
+                                                           "status":  "reconciled",
+                                                           "issues":  [
+
+                                                                      ],
+                                                           "personalHistories":  2
+                                                       },
+                                                       {
+                                                           "inning":  4,
+                                                           "half":  "top",
+                                                           "status":  "reconciled",
+                                                           "issues":  [
+
+                                                                      ],
+                                                           "personalHistories":  0
+                                                       },
+                                                       {
+                                                           "inning":  4,
+                                                           "half":  "bottom",
+                                                           "status":  "reconciled",
+                                                           "issues":  [
+
+                                                                      ],
+                                                           "personalHistories":  0
+                                                       },
+                                                       {
+                                                           "inning":  5,
+                                                           "half":  "top",
+                                                           "status":  "reconciled",
+                                                           "issues":  [
+
+                                                                      ],
+                                                           "personalHistories":  5
+                                                       },
+                                                       {
+                                                           "inning":  5,
+                                                           "half":  "bottom",
+                                                           "status":  "withheld",
+                                                           "issues":  [
+                                                                          {
+                                                                              "code":  "UNSUPPORTED_EVENT_EFFECT:offensive_substitution",
+                                                                              "atBatIndex":  44
+                                                                          }
+                                                                      ],
+                                                           "personalHistories":  0
+                                                       },
+                                                       {
+                                                           "inning":  6,
+                                                           "half":  "top",
+                                                           "status":  "reconciled",
+                                                           "issues":  [
+
+                                                                      ],
+                                                           "personalHistories":  0
+                                                       },
+                                                       {
+                                                           "inning":  6,
+                                                           "half":  "bottom",
+                                                           "status":  "reconciled",
+                                                           "issues":  [
+
+                                                                      ],
+                                                           "personalHistories":  3
+                                                       },
+                                                       {
+                                                           "inning":  7,
+                                                           "half":  "top",
+                                                           "status":  "withheld",
+                                                           "issues":  [
+                                                                          {
+                                                                              "code":  "UNSUPPORTED_EVENT_EFFECT:offensive_substitution",
+                                                                              "atBatIndex":  60
+                                                                          }
+                                                                      ],
+                                                           "personalHistories":  0
+                                                       },
+                                                       {
+                                                           "inning":  7,
+                                                           "half":  "bottom",
+                                                           "status":  "reconciled",
+                                                           "issues":  [
+
+                                                                      ],
+                                                           "personalHistories":  0
+                                                       },
+                                                       {
+                                                           "inning":  8,
+                                                           "half":  "top",
+                                                           "status":  "reconciled",
+                                                           "issues":  [
+
+                                                                      ],
+                                                           "personalHistories":  1
+                                                       },
+                                                       {
+                                                           "inning":  8,
+                                                           "half":  "bottom",
+                                                           "status":  "reconciled",
+                                                           "issues":  [
+
+                                                                      ],
+                                                           "personalHistories":  1
+                                                       },
+                                                       {
+                                                           "inning":  9,
+                                                           "half":  "top",
+                                                           "status":  "reconciled",
+                                                           "issues":  [
+
+                                                                      ],
+                                                           "personalHistories":  0
+                                                       },
+                                                       {
+                                                           "inning":  9,
+                                                           "half":  "bottom",
+                                                           "status":  "reconciled",
+                                                           "issues":  [
+
+                                                                      ],
+                                                           "personalHistories":  0
+                                                       }
+                                                   ],
+                                        "graphCoverageVerified":  false,
+                                        "metricPopulationAdmitted":  false
+                                    },
+    "runnerHistoryMembershipVerified":  true,
+    "runnerHistoryVerifierSha256":  "0410ba77a248d9a38771bbddbe1f01c3ed3f0556b47a60bb2291a88d424ffc9f",
+    "scheduleEvidencePath":  null,
+    "scheduleEvidenceSha256":  null,
+    "materializedRootReferences":  {
+                                       "gamePk":  642,
+                                       "venueId":  66,
+                                       "awayTeamId":  1,
+                                       "homeTeamId":  1,
+                                       "officialScorerId":  14,
+                                       "homePlateUmpireId":  16
+                                   },
+    "mappingBaseIri":  "https://baseballontology.org/mapping/mlb-direct",
+    "mapperVersion":  "8.1.0",
+    "serialization":  "turtle",
+    "sourceCounts":  {
+                         "playerParticipants":  50,
+                         "plateAppearances":  79,
+                         "batterActs":  79,
+                         "pitches":  282,
+                         "battingActs":  134,
+                         "contacts":  112,
+                         "runnerRecords":  113,
+                         "runnerResolutions":  113,
+                         "pitchBallControlFailures":  0,
+                         "passedBalls":  0,
+                         "wildPitches":  0,
+                         "uncaughtThirdStrikes":  0
+                     },
+    "outputPath":  "C:\\Users\\carte\\AppData\\Local\\Temp\\baseballo-c1-proof-20260914-jena\\rdf\\game-566279.ttl",
+    "outputSha256":  "16148ae9f3116dbce72caf2e92d477d271472dd35b082e7ab684ac94f71b7c1b",
+    "shaclStatus":  "validated",
+    "shaclValidatedAtUtc":  "2026-09-14T20:27:59.0398897Z",
+    "shaclProfile":  "authoritative",
+    "shaclShapePath":  "C:\\Users\\carte\\OneDrive\\Desktop\\BaseballO\\Baseball\\sources\\mlb-game\\shacl\\authoritative.ttl",
+    "shaclShapeSha256":  "7da4ded247522927bf89a558298ac4fac98b5f2be28937ae92c36b4e5238eb2d",
+    "shaclValidatorSha256":  "5d4743c4f0baecce33ae75cac809f3c5d9ab50408abb8f0f3b182391b0cd26d2",
+    "completedAtUtc":  "2026-09-14T20:27:59.0800440Z"
+}

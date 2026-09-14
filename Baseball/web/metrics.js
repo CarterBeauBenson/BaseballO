@@ -32,6 +32,9 @@ export function resultPresentation(payload, metric) {
     headline: 'No games in this date range', message: 'Choose dates within the loaded range shown below.' };
   if (result.status === 'available') return { state: 'available', badge: 'Result available',
     headline: resultHeadline(result, metric.unit), message: 'Result ready for the stated evidence population.' };
+  if (result.runs?.length) return { state: 'partial', badge: 'Complete individual run results',
+    headline: result.runs.length === 1 ? formatMetricValue(result.runs[0].value, metric.unit) : `${result.runs.length} run results`,
+    message: `Showing ${result.runs.length} complete scoring histories. Other observed runs may remain unresolved.` };
   if (result.consequences?.length) return { state: 'partial', badge: 'Limited play results',
     headline: result.consequences.length === 1 ? formatMetricValue(result.consequences[0].value, metric.unit) : resultHeadline(result, metric.unit),
     message: `Showing ${result.consequences.length} supported award play${result.consequences.length === 1 ? '' : 's'}.` };
@@ -176,6 +179,26 @@ function renderConsequences(results = [], metricId = 'tfs', labels = []) {
   table.append(head, body); target.append(table);
 }
 
+function renderRunResults(results = [], labels = []) {
+  const target = byId('run-results'); target.replaceChildren(); target.hidden = !results.length;
+  if (!results.length) return;
+  target.append(node('h3', 'Run Construction Depth'), node('p',
+    'Each score counts the state-changing episodes in one complete scoring-runner history. Held-base observations add no depth.'));
+  const base = value => value === 0 ? 'HOME' : value === 4 ? 'score' : value + 'B';
+  for (const result of results) {
+    const card = node('article'), title = node('h4', displayPlayer(labels, result.graph, result.runner));
+    const trace = node('details'); trace.append(node('summary', 'Trace the episodes'));
+    const list = node('ul');
+    for (const episode of result.episodes) list.append(node('li',
+      `${base(episode.start)} → ${base(episode.end)}${episode.changesState ? '' : ' (no state change)'} · PA source index ${episode.episode.split('/').at(-2)}`));
+    trace.append(list);
+    const technical = node('details'); technical.append(node('summary', 'Technical evidence'), node('pre', JSON.stringify(result, null, 2)));
+    card.append(title, node('strong', `${formatMetricValue(result.value, 'episodes')} ${result.value.numerator === result.value.denominator ? 'episode' : 'episodes'}`),
+      node('p', `Game ${result.graph.split('/').at(-1)} · Run ${result.run.split('/').slice(-2).join('/')}`), trace, technical);
+    target.append(card);
+  }
+}
+
 function facts(target, entries) {
   target.replaceChildren(...entries.map(([label, value]) => { const item = node('div'); item.append(node('dt', label), node('dd', String(value))); return item; }));
 }
@@ -205,6 +228,7 @@ function choose(metric) {
   byId('result').hidden = true;
   byId('request-status').textContent = metric.liveAdapter === 'loaded-award-consequences' ?
     'Inspect supported loaded Walk/HBP consequences and the remaining metric requirements.' :
+    metric.liveAdapter === 'personal-run-histories' ? 'Inspect complete scoring-runner histories and their episode counts.' :
     metric.requires.length ? 'Calculation implemented. Live values await the requirements below.' : 'Inspect the selected mapped review population.';
   byId('run-metric').disabled = false;
   renderRequirements(metric.requires);
@@ -219,6 +243,7 @@ function renderList() {
     const button = node('button', metric.label); button.type = 'button'; button.dataset.id = metric.id;
     button.setAttribute('aria-current', String(selected?.id === metric.id));
     button.append(node('small', metric.liveAdapter === 'loaded-award-consequences' ? 'Limited play results' :
+      metric.liveAdapter === 'personal-run-histories' ? 'Individual run results' :
       metric.requires.length ? 'Evidence pending' : 'Resolved review results'));
     button.addEventListener('click', () => choose(metric)); return button;
   }));
@@ -252,23 +277,28 @@ async function inspect(event) {
     byId('loaded-dates').textContent = loaded.availableStartDate && loaded.availableEndDate ?
       `Loaded dates: ${loaded.availableStartDate} to ${loaded.availableEndDate}.` : '';
     byId('score-value').textContent = presentation.headline;
-    const single = presentation.state === 'partial' && result.consequences.length === 1 ? result.consequences[0] : null;
-    const displayed = result.value ?? single?.value;
+    const single = presentation.state === 'partial' && result.consequences?.length === 1 ? result.consequences[0] : null;
+    const singleRun = result.runs?.length === 1 ? result.runs[0] : null;
+    const displayed = result.value ?? single?.value ?? singleRun?.value;
     byId('score-exact').textContent = displayed ? `Exact: ${displayed.numerator}/${displayed.denominator}` : '';
     byId('result-subject').textContent = single ?
-      `${displayPlayer(payload.display?.labels, single.graph, single.batter)} · Game ${single.graph.split('/').at(-1)} · PA source index ${single.plateAppearance.split('/').at(-1)}` : '';
-    byId('result-scope').textContent = presentation.state === 'partial' ?
+      `${displayPlayer(payload.display?.labels, single.graph, single.batter)} · Game ${single.graph.split('/').at(-1)} · PA source index ${single.plateAppearance.split('/').at(-1)}` :
+      singleRun ? `${displayPlayer(payload.display?.labels, singleRun.graph, singleRun.runner)} · Game ${singleRun.graph.split('/').at(-1)}` : '';
+    byId('result-scope').textContent = result.runs?.length ?
+      'Each listed score covers a complete individual run. Coverage of all runs in the selection remains incomplete.' : presentation.state === 'partial' ?
       'These scores cover the shown Walk/HBP advances only. Full plate-appearance and population results remain unavailable.' : result.scope ?? 'Selected evidence population';
     byId('coverage-details').open = presentation.state === 'empty' || selected.id === 'adjudication-volatility';
     const coverage = result.coverage ?? {};
     renderGameCoverage(coverage.byGame);
     renderConsequences(result.consequences, result.metricId, payload.display?.labels);
+    renderRunResults(result.runs, payload.display?.labels);
     facts(byId('coverage'), [['Games', coverage.games ?? payload.graphCount ?? 0],
       ...(coverage.supportedAwardConsequences !== undefined ? [
         ['Supported award consequences', coverage.supportedAwardConsequences],
         ['Observed PAs without a scored award result', coverage.observedPAsWithoutSupportedAwardConsequence],
         ['Selected games with no evidence rows', coverage.selectedGraphsWithoutEvidence]] : []),
-      ...(coverage.resolvedReviews !== undefined ? [['Resolved reviews', coverage.resolvedReviews], ['Unresolved reviews', coverage.unresolvedReviews]] : [])]);
+      ...(coverage.resolvedReviews !== undefined ? [['Resolved reviews', coverage.resolvedReviews], ['Unresolved reviews', coverage.unresolvedReviews]] : []),
+      ...(coverage.supportedRuns !== undefined ? [['Complete scoring histories', coverage.supportedRuns], ['Observed runs without a result', coverage.observedRunsWithoutResult]] : [])]);
     byId('result-evidence').textContent = JSON.stringify({ coverage, components: result.components ?? {}, evidence: result.evidence ?? [],
       implementation: payload.implementationSha256, corpus: payload.corpusFingerprint ?? payload.serving?.corpusFingerprint,
       dateScope: payload.dateScope, execution: payload.execution, display: payload.display }, null, 2);

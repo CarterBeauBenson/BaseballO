@@ -718,3 +718,16 @@ baseball_iri_policy:
 # No current runner row licenses minting this whole without the independently
 # verified history, episode membership, and temporal interval required by C1.
 # C2's projected metric base has no RDF IRI or Person-to-Base predicate.
+
+# E1/C1 implementation (explicitly accepted 2026-09-14): lifetimeKey is the
+# SHA-256 of compact JSON [gamePk, runnerId, entryPlayId, terminationPlayId].
+# These are the positively supported lifetime anchors, not source-array order
+# or a response hash. For stranding, terminationPlayId identifies the counted
+# third-out event. Identical anchors survive source revisions and reordered
+# runner rows. Existing episode IRIs retain their own reviewed row grain.
+# Only fully reconciled half innings currently supply this mapping. Unsupported
+# substitutions/reviews, missing stable anchors, unresolved movement chains,
+# inconsistent outs/occupancy and ambiguous time bounds withhold the half.
+# runner-trajectory/{lifetimeKey}/temporal-interval is the lifetime's interval.
+# Source event timestamps bound its support; they are not emitted as fabricated
+# exact instants for the runner's entry or termination.

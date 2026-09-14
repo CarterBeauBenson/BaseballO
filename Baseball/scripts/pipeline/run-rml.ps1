@@ -3,6 +3,8 @@ param(
     [string] $InputJson,
     [string] $OutputFile,
     [string] $ScheduleEvidencePath,
+    [string] $DeveloperEvidenceRoot,
+    [ValidateSet('pyshacl', 'jena')][string] $ShaclEngine = 'pyshacl',
     [switch] $DeferShaclValidation
 )
 
@@ -207,7 +209,12 @@ if ($expectedPitchCount -eq 0) {
     throw "Game $gamePk has no canonical pitches."
 }
 
-$pipelineRoot = Join-Path $script:StateRoot 'pipeline'
+$pipelineRoot = if ([string]::IsNullOrWhiteSpace($DeveloperEvidenceRoot)) {
+    Join-Path $script:StateRoot 'pipeline'
+} else {
+    # Focused one-game checks must not replace NiFi's active manifests.
+    [System.IO.Path]::GetFullPath($DeveloperEvidenceRoot)
+}
 $rdfDirectory = Join-Path $pipelineRoot 'rdf'
 $manifestDirectory = Join-Path $pipelineRoot 'manifests'
 $workDirectory = Join-Path $pipelineRoot 'work'
@@ -236,6 +243,9 @@ $mappingBaseIri = 'https://baseballontology.org/mapping/mlb-direct'
 $inputHashBefore = (Get-FileHash -LiteralPath $inputPath -Algorithm SHA256).Hash.ToLowerInvariant()
 $mappingHash = (Get-FileHash -LiteralPath $mappingPath -Algorithm SHA256).Hash.ToLowerInvariant()
 $stage = Join-Path $workDirectory ("rml-$gamePk-" + [Guid]::NewGuid().ToString('N'))
+if (-not ([System.IO.Path]::GetFullPath($stage)).StartsWith(
+    [System.IO.Path]::GetFullPath($workDirectory) + [System.IO.Path]::DirectorySeparatorChar,
+    [System.StringComparison]::OrdinalIgnoreCase)) { throw 'RML stage escaped its work directory.' }
 [void](New-Item -ItemType Directory -Path $stage)
 $stageInput = Join-Path $stage 'game.json'
 $stageContext = Join-Path $stage 'game-context.json'
@@ -369,10 +379,20 @@ try {
     }
 
     if (-not $DeferShaclValidation) {
-        & python $shaclValidatorPath '--profile' 'authoritative' '--data' $stageOutput
+        if ($ShaclEngine -eq 'jena') {
+            & python $shaclValidatorPath '--profile' 'authoritative' '--data' $stageOutput '--engine' 'jena' '--java' $java '--jena-classpath' (Join-Path $script:FusekiHome 'fuseki-server.jar') '--jena-max-heap' '384m'
+        } else {
+            & python $shaclValidatorPath '--profile' 'authoritative' '--data' $stageOutput
+        }
         if ($LASTEXITCODE -ne 0) {
             throw "Authoritative SHACL validation failed for game $gamePk."
         }
+    }
+
+    $runnerHistoryVerifier = Join-Path $script:RepositoryRoot 'sources\mlb-game\pipeline\verify-runner-history-serialization.py'
+    & python $runnerHistoryVerifier '--context' $stageContext '--rdf' $stageOutput
+    if ($LASTEXITCODE -ne 0) {
+        throw "C1 runner-history serialization differs from its source inventory for game $gamePk."
     }
 
     Copy-Item -LiteralPath $stageOutput -Destination $outputPath -Force
@@ -399,6 +419,9 @@ try {
         contextBuilderPath = $contextBuilderPath
         contextBuilderSha256 = (Get-FileHash -LiteralPath $contextBuilderPath -Algorithm SHA256).Hash.ToLowerInvariant()
         executionContextSha256 = $contextHash
+        runnerHistoryReconciliation = $contextDocument._baseballO.runnerHistoryReconciliation
+        runnerHistoryMembershipVerified = $true
+        runnerHistoryVerifierSha256 = (Get-FileHash -LiteralPath $runnerHistoryVerifier -Algorithm SHA256).Hash.ToLowerInvariant()
         scheduleEvidencePath = $resolvedScheduleEvidencePath
         scheduleEvidenceSha256 = if ($null -eq $resolvedScheduleEvidencePath) { $null } else { (Get-FileHash -LiteralPath $resolvedScheduleEvidencePath -Algorithm SHA256).Hash.ToLowerInvariant() }
         materializedRootReferences = [ordered]@{
@@ -435,7 +458,7 @@ try {
         shaclShapeSha256 = (Get-FileHash -LiteralPath $authoritativeShapePath -Algorithm SHA256).Hash.ToLowerInvariant()
         shaclValidatorSha256 = (Get-FileHash -LiteralPath $shaclValidatorPath -Algorithm SHA256).Hash.ToLowerInvariant()
         completedAtUtc = [DateTime]::UtcNow.ToString('o')
-    } | ConvertTo-Json | Set-Content -LiteralPath $manifestPath -Encoding UTF8
+    } | ConvertTo-Json -Depth 30 | Set-Content -LiteralPath $manifestPath -Encoding UTF8
 
     Write-Host "RML output: $outputPath"
     Write-Host "RML manifest: $manifestPath"

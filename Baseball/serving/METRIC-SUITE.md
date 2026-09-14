@@ -97,6 +97,20 @@ Positive running weights are now accepted; speed-based error attribution remains
 
 ## RDF, SQL and API
 
+Suite 2.0.9 adds **Run Construction Depth** for complete individual scoring
+histories explicitly represented by the accepted C1 personal process. The
+query inventories every member episode independently of movement bindings;
+missing or conflicting members withhold the result rather than reduce its
+depth. Held-base episodes contribute zero. Each result retains its run,
+runner, whole, episode trace and exact fraction in SQL and JSON.
+
+The [real-game proof](../benchmarks/metrics/c1-run-depth-2026-09-14/README.md)
+supports nine of 13 observed runs in game 566279, including Wilmer Flores at
+depth 3. The overall population value stays unavailable. The page lists
+complete individual results and the four unresolved runs separately.
+Routine promotion and materialization remain owned by the existing NiFi lane;
+an isolated proof is not a claim that its new graphs have been promoted.
+
 `sparql/metrics/suite-evidence.rq` inventories existing PA, batted-play, run,
 realized-role and replay structures within explicitly selected promoted game
 graphs. The current adapter admits AV only over fully linked, explicitly

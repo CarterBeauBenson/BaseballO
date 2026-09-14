@@ -3520,6 +3520,28 @@
 
 <#RunnerEpisodeSource> a rml:LogicalSource ; rml:source "game-context.json" ; rml:referenceFormulation ql:JSONPath ; rml:iterator "$.liveData.plays.allPlays[*]._baseballO.runnerEpisodes[*]" .
 
+# Accepted E1/C1: emit only complete source-reconciled personal lifetimes.
+# The interval is the lifetime's interval; source event bounds are retained in
+# provenance and are not substituted for exact runner start/end instants.
+<#PersonalRunnerSource> a rml:LogicalSource ; rml:source "game-context.json" ; rml:referenceFormulation ql:JSONPath ; rml:iterator "$._baseballO.runnerHistoryReconciliation.histories[*]" .
+<#PersonalRunnerMembershipSource> a rml:LogicalSource ; rml:source "game-context.json" ; rml:referenceFormulation ql:JSONPath ; rml:iterator "$._baseballO.runnerHistoryReconciliation.episodeMembership[*]" .
+
+<#PersonalRunnerProcessMap> a rr:TriplesMap ;
+  rml:logicalSource <#PersonalRunnerSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/runner-trajectory/{lifetimeKey}" ; rr:termType rr:IRI ; rr:class obo:BFO_0000015 ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000132 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/inning/{inning}/{half}" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000057 ; rr:objectMap [ rr:template "https://baseballontology.org/data/player/{runnerId}" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000199 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/runner-trajectory/{lifetimeKey}/temporal-interval" ; rr:termType rr:IRI ] ] .
+
+<#PersonalRunnerIntervalMap> a rr:TriplesMap ;
+  rml:logicalSource <#PersonalRunnerSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/runner-trajectory/{lifetimeKey}/temporal-interval" ; rr:termType rr:IRI ; rr:class obo:BFO_0000038 ] .
+
+<#PersonalRunnerMembershipMap> a rr:TriplesMap ;
+  rml:logicalSource <#PersonalRunnerMembershipSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/runner-trajectory/{lifetimeKey}" ; rr:termType rr:IRI ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000117 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/runner-episode/{atBatIndex}/{runnerIndex}" ; rr:termType rr:IRI ] ] .
+
 <#SafeDecisionDestinationSource> a rml:LogicalSource ; rml:source "game-context.json" ; rml:referenceFormulation ql:JSONPath ; rml:iterator "$.liveData.plays.allPlays[*]._baseballO.safeDecisionDestinations[*]" .
 
 <#RunnerEpisodeMap> a rr:TriplesMap ;

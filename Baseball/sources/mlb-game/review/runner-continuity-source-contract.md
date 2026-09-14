@@ -1,5 +1,36 @@
 # C1/C2 implementation and source admission boundary
 
+## September 14 implementation update
+
+The user explicitly accepted E1's source authority and the C1 extension of
+the existing MLB mapping in [this decision](../../../archive/design-records/metric-source-c1-operation-2026-09-14/review.json).
+`prepare-rml-context.py` now reconciles complete half-inning histories before
+selecting C1 lifetimes. The existing RML emits the reviewed whole, interval,
+participant, half-inning and episode-membership pattern below. No classes,
+object properties, location assertions or later safe adjudications are added.
+
+The real 566279 fixture selects 18 lifetimes. Unresolved reviews, offensive
+substitutions, missing event anchors, incompatible segment chains and time/out
+conflicts withhold the affected half. Reconciliation starts from the full raw
+source inventory, not emitted rows. It retains separate contribution episodes,
+checks actual post-base observations and preserves stranded runners at the
+third-out boundary. A direct batter out without an evidenced baserunning entry
+does not create a personal runner whole. Partial/walkoff halves remain withheld
+pending supported termination handling.
+
+The lifetime key serializes the supported game/person/entry/termination anchors
+as documented in the existing IRI policy. Event timestamps are evidence bounds;
+the mapping does not turn them into exact runner timestamps. The whole occupies
+its own Temporal Interval without an invented duration or scalar timestamp.
+
+NiFi's RML component compares selected episode membership with actual generated
+membership, then relies on the owning source SHACL for graph conformance before
+promotion. The RML manifest retains the input hash, source revision, selected
+lifetimes, withheld-half reasons and serialization verification after cleanup.
+None of this proves a complete season population or supplies the missing
+defensive/count-state contracts. The older first-unpassed-gate text below is
+historical context; real C1 source selection and mapping are now implemented.
+
 The [accepted decision](../../../archive/design-records/runner-continuity-boundary-projection/review.json)
 authorizes C1's BFO Process grain and C2's analytical state projection. It
 prohibits new object properties. This module owns the source conformance

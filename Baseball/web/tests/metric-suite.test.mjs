@@ -124,6 +124,17 @@ test('empty selections, incomplete evidence and partial play results have distin
   assert.equal(resultDateLabel({ dateScope: { gameSet:'all_star',startDate:'2026-07-16',endDate:'2026-07-16' } }), 'All-Star · 2026-07-16 to 2026-07-16');
 });
 
+test('complete individual runs display their own depth without implying full population coverage', () => {
+  const metric = { unit: 'episodes' };
+  const payload = { metric: { status: 'unavailable', value: null, coverage: { games: 1 },
+    runs: [{ value: { numerator: '3', denominator: '1' }, completeTrajectory: true }] } };
+  assert.equal(resultPresentation(payload, metric).headline, '3');
+  assert.equal(resultPresentation(payload, metric).badge, 'Complete individual run results');
+  payload.metric.runs.push({ value: { numerator: '1', denominator: '1' }, completeTrajectory: true });
+  assert.equal(resultPresentation(payload, metric).headline, '2 run results');
+  assert.equal(resultPresentation(payload, metric).state, 'partial');
+});
+
 test('bookmarked selections validate dates and preserve supported scopes', () => {
   assert.deepEqual(selectionFromUrl('http://localhost/metrics?preset=custom&startDate=2026-08-25&endDate=2026-08-25&gameSet=all_star#tfs'),
     { preset:'custom',gameSet:'all_star',startDate:'2026-08-25',endDate:'2026-08-25' });
