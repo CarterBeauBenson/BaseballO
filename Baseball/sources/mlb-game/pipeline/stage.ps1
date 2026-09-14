@@ -125,6 +125,18 @@ switch ($Action) {
     'rml' {
         $inputPath = Resolve-TransientInput
         [void](Read-GameDocument -Path $inputPath)
+        # Preserve the source census before mapping and eventual raw cleanup.
+        # Consistency is diagnostic; this never admits new metric graph facts
+        # or changes the existing pinned ingester's conformance contract.
+        $metricSourcePath = Join-Path $stageEvidenceRoot 'metric-source-reconciliation.json'
+        $metricReconciler = Join-Path $PSScriptRoot 'reconcile-metric-source.py'
+        Invoke-LoggedCommand -FailureMessage "Metric source inventory could not be retained for game $GamePk." -Command {
+            & python $metricReconciler '--input' $inputPath '--game-pk' $GamePk '--output' $metricSourcePath
+        }
+        $metricSource = Get-Content -LiteralPath $metricSourcePath -Raw | ConvertFrom-Json
+        if ([string]$metricSource.inputSha256 -ne (Get-FileHash -LiteralPath $inputPath -Algorithm SHA256).Hash.ToLowerInvariant()) {
+            throw "Source changed during metric reconciliation for game $GamePk."
+        }
         $rmlScript = Join-Path $repositoryRoot 'scripts\pipeline\run-rml.ps1'
         Invoke-LoggedCommand -FailureMessage "RML failed for game $GamePk." -Command {
             & $rmlScript -InputJson $inputPath -OutputFile $rdfPath -ScheduleEvidencePath $ScheduleEvidencePath -DeferShaclValidation
@@ -137,6 +149,9 @@ switch ($Action) {
             rdfPath = $rdfPath
             rdfSha256 = (Get-FileHash -LiteralPath $rdfPath -Algorithm SHA256).Hash.ToLowerInvariant()
             rmlManifest = $rmlManifestPath
+            metricSourceReconciliation = $metricSourcePath
+            metricSourceReconciliationSha256 = (Get-FileHash -LiteralPath $metricSourcePath -Algorithm SHA256).Hash.ToLowerInvariant()
+            metricSourceConsistency = [string]$metricSource.status
         }
     }
     'shacl' {

@@ -8,6 +8,30 @@ dependency order, bounded retries, quarantine routing, and provenance.
 
 `rml -> shacl -> promote -> materialize -> cleanup`
 
+Before invoking the unchanged RML, the `rml` action now calls
+`reconcile-metric-source.py`. It retains a source-revision/input-hash-bound
+inventory in the run's `metric-source-reconciliation.json`, with its path,
+digest and consistency result in the stage evidence. The inventory survives
+transient cleanup. NiFi's existing source lane owns invocation and retries;
+no additional processor, mapping, source lane or ontology term is introduced.
+
+The check reconciles unfiltered play membership, inning/scoring indexes,
+movement-to-event links, explicit pitch membership and inning/team run totals.
+MLB `pitchIndex` also contains non-pitch events, so its length is not used as
+a pitch count. Event and PA count fields retain their separate scopes.
+Missing post-base fields remain absent observations. Identical inputs produce
+identical reports for the same reconciler version.
+
+This is mechanical consistency evidence, not exhaustive-history authority,
+graph coverage or metric eligibility. All three admission flags remain false.
+An inconsistency is retained for review and does not change the currently
+pinned ingester's semantic admission; failure to create the durable inventory
+uses the existing stage failure/retry route. New full metric results cannot
+be released from this report. Source authority, operative effects/boundaries,
+source-to-graph reconciliation and population reconciliation remain separate
+requirements. The user's conditional direction does not authorize filling
+missing graph assertions through new RML or raw-source SQL calculations.
+
 The API response is written only to the transient MLB-game directory. A failed
 run retains that payload in the lane quarantine. A bounded proof materializes
 and promotes SQLite immediately. A schedule-driven corpus game instead records
