@@ -4,8 +4,8 @@ import { readFile } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { createBaseballServer } from '../server.mjs';
-import { metricCatalog, validateMetricRequest, compileMetricEvidenceQuery, metricDisplayTargets, compileMetricDisplayQuery, normalizeMetricDisplayLabels } from '../query-builder/metric-suite-query-builder.js';
-import { displayFraction, resultHeadline, movementEvidenceLabel, consequencePresentation, formatMetricValue, resultPresentation, resultDateLabel, selectionFromUrl, displayPlayer, exampleAnswer } from '../metrics.js';
+import { metricCatalog, validateMetricRequest, validateDashboardRequest, compileMetricEvidenceQuery, metricDisplayTargets, compileMetricDisplayQuery, normalizeMetricDisplayLabels } from '../query-builder/metric-suite-query-builder.js';
+import { displayFraction, resultHeadline, movementEvidenceLabel, consequencePresentation, formatMetricValue, resultPresentation, resultDateLabel, selectionFromUrl, displayPlayer, exampleAnswer, dashboardSummary } from '../metrics.js';
 
 async function withServer(options, work) {
   const server = createBaseballServer(options);
@@ -234,4 +234,51 @@ test('page includes accessible selectors, evidence downloads and no inline execu
   assert.ok(html.includes('aria-live="polite"'));
   assert.ok(!/\son\w+=/.test(html)); assert.ok(!script.includes('innerHTML'));
   assert.ok(script.includes('activeRequest !== controller'));
+});
+
+test('dashboard only accepts shared dates and game selection', async () => {
+  const catalog = await metricCatalog();
+  for (const key of ['metricId','view','bindings','graphs','completePopulation','query','filters']) {
+    assert.throws(() => validateDashboardRequest({ [key]: 'tfs' }, catalog));
+  }
+  assert.throws(() => validateDashboardRequest({ dateScope: { preset:'custom',startDate:'2026-09-12',endDate:'2026-09-01' } }, catalog));
+  assert.deepEqual(validateDashboardRequest({ dateScope: { preset:'one_day' } }, catalog),
+    { route:'metric-suite', view:'dashboard', gameSet:'regular_season', dateScope:{preset:'one_day'} });
+});
+
+test('dashboard distinguishes scoped zero, individual results, absent scores and empty selections', () => {
+  const metrics = [
+    {status:'available',value:{numerator:'0',denominator:'1'}},
+    {status:'unavailable',value:null,consequences:[{value:{numerator:'25',denominator:'12'}}]},
+    {status:'unavailable',value:null,runs:[{value:{numerator:'3',denominator:'1'}}]},
+    {status:'unavailable',value:null},
+  ];
+  assert.deepEqual(dashboardSummary({graphCount:15,metrics}), {games:15,available:1,partial:2,unavailable:1,empty:0});
+  assert.deepEqual(dashboardSummary({graphCount:0,metrics}), {games:0,available:0,partial:0,unavailable:0,empty:4});
+});
+
+test('dashboard executes once through SQL and rejects injected facts before execution', async () => {
+  let calls=0;
+  await withServer({servingExecutor:async input=>{ calls++; assert.equal(input.view,'dashboard'); assert.equal(input.metricId,undefined);
+    return {metrics:[],execution:'materialized-sql'}; }}, async url=>{
+    const response=await fetch(url+'/api/metrics/dashboard',{method:'POST',body:JSON.stringify({dateScope:{preset:'one_day'}})});
+    assert.equal(response.status,200); assert.equal((await response.json()).execution,'materialized-sql');
+    const invalid=await fetch(url+'/api/metrics/dashboard',{method:'POST',body:JSON.stringify({bindings:[]})});
+    assert.equal(invalid.status,400); assert.equal(calls,1);
+  });
+});
+
+test('dashboard fallback reduces one common RDF selection and respects SQL-required requests', async () => {
+  let reductions=0;
+  await withServer({servingExecutor:async()=>{throw Error('stale');},
+    fetchImpl:async()=>new Response(JSON.stringify({head:{vars:[]},results:{bindings:[]}})),
+    metricReducer:async input=>{reductions++; assert.equal(input.view,'dashboard'); assert.deepEqual(input.graphs,[]);
+      return {metrics:[],execution:'authoritative-rdf'};}
+  },async url=>{
+    const options={method:'POST',body:JSON.stringify({dateScope:{preset:'one_day'}})};
+    const response=await fetch(url+'/api/metrics/dashboard',options);
+    assert.equal(response.status,200); assert.equal((await response.json()).execution,'authoritative-rdf');
+    const required=await fetch(url+'/api/metrics/dashboard',{...options,headers:{'x-baseballo-require-materialized':'true'}});
+    assert.equal(required.status,503); assert.equal(reductions,1);
+  });
 });

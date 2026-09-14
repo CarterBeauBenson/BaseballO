@@ -68,6 +68,15 @@ export function validateMetricRequest(input, catalog) {
   return { route: 'metric-suite', metricId: input.metricId, dateScope, gameSet: input.gameSet ?? 'regular_season' };
 }
 
+export function validateDashboardRequest(input, catalog) {
+  if (!input || typeof input !== 'object' || Array.isArray(input) ||
+      Object.keys(input).some(key => !['dateScope', 'gameSet'].includes(key))) {
+    throw new TypeError('Only date scope and game set may be selected for the dashboard.');
+  }
+  const { metricId, ...validated } = validateMetricRequest({ ...input, metricId: catalog.metrics[0].id }, catalog);
+  return { ...validated, view: 'dashboard' };
+}
+
 export async function compileMetricEvidenceQuery(graphs) {
   if (!Array.isArray(graphs) || graphs.some(g => typeof g !== 'string' || !/^https:\/\/w3id\.org\/baseball\/graph\/game\/\d+$/.test(g))) {
     throw new TypeError('Invalid authoritative graph scope.');

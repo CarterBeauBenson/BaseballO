@@ -213,8 +213,7 @@ def require_materialized_route_admission(request: dict[str, Any], contract: dict
                 or suite.get('schema') != 'serving/metric-suite-schema.sql'
                 or suite.get('implementation') != 'serving/metric_suite.py'):
             raise ValueError('Unsupported metric suite evidence contract')
-        if request.get('metricId') not in {entry['id'] for entry in _metric_suite.catalog()['metrics']}:
-            raise ValueError('Unknown metric')
+        _metric_suite.requested_metric_ids(request)
         return
     if route == "options":
         contract_route = "options"

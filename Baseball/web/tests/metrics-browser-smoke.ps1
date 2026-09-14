@@ -86,7 +86,7 @@ try {
   id('example-choice').value='2'; id('example-choice').dispatchEvent(new Event('change'));
   assert(id('example-answer').textContent.includes('-1/4'), 'Passed-ball example did not update');
   assert(id('result').hidden && id('download-result').disabled, 'Changing example admitted a live score');
-  id('metric-form').requestSubmit();
+  id('run-metric').click();
   for (let i=0; i<600 && id('result').hidden; i++) await new Promise(r=>setTimeout(r,50));
   assert(!id('result').hidden, 'Live metric result did not render: '+id('request-status').textContent);
   assert(id('result').dataset.state === 'partial', 'Award result must be marked partial');
@@ -102,10 +102,51 @@ try {
   return {badge:id('result-badge').textContent,dates:id('result-dates').textContent,player:'Dylan Beavers',exact:'25/12',workedMetrics:20,examplesIsolatedFromLiveResults:true};
 })()
 '@
+    $dashboard = Invoke-Page @'
+(async () => {
+  const id=x=>document.getElementById(x), original=window.fetch;
+  const assert=(v,m)=>{if(!v)throw Error(m);};
+  try {
+    let calls=0;
+    window.fetch=async(...args)=>{
+      const response=await original(...args);
+      if(args[0]==='/api/metrics/dashboard'){calls++;window.dashboardCapture=await response.clone().json();}
+      return response;
+    };
+    id('metric-form').requestSubmit();
+    for(let i=0;i<600&&id('dashboard-overview').hidden;i++)await new Promise(r=>setTimeout(r,50));
+    assert(!id('dashboard-overview').hidden,'Dashboard failed: '+id('dashboard-status').textContent);
+    assert(calls===1,'Dashboard issued multiple selection requests');
+    const cards=[...document.querySelectorAll('#metric-list button')];
+    assert(cards.length===20&&window.dashboardCapture.metrics.length===20,'Dashboard omitted metrics');
+    assert(cards.find(b=>b.dataset.id==='tfs').dataset.state==='partial','TFS scope changed');
+    assert(cards.find(b=>b.dataset.id==='offensive-reach').querySelector('strong').textContent==='4','Reach integer missing');
+    const paq=cards.find(b=>b.dataset.id==='paq-2');
+    assert(paq.dataset.state==='unavailable'&&!paq.querySelector('strong').textContent.includes('0'),'Missing PAQ became zero');
+    assert(!id('download-dashboard').disabled,'Dashboard download disabled');
+    window.fetch=()=>{throw Error('Card selection must reuse dashboard evidence');};
+    cards.find(b=>b.dataset.id==='offensive-reach').click();
+    assert(id('score-exact').textContent==='Exact: 4/1','Card detail differs from dashboard');
+    id('metric-visibility').value='results';id('metric-visibility').dispatchEvent(new Event('change'));
+    assert([...document.querySelectorAll('#metric-list button')].every(b=>['available','partial'].includes(b.dataset.state)),'Result filter included missing scores');
+    id('metric-visibility').value='all';id('metric-visibility').dispatchEvent(new Event('change'));
+    document.querySelector('[data-id="tfs"]').click();
+    document.querySelector('.dashboard').scrollIntoView();
+    return {metrics:20,sharedRequests:calls,scopePreserved:true,cardDetailExact:true,
+      execution:window.dashboardCapture.execution,graphCount:window.dashboardCapture.graphCount};
+  } finally {window.fetch=original;}
+})()
+'@
+    $dashboardCapture = Join-Path $profileDirectory 'dashboard-response.json'
+    (Invoke-Page 'window.dashboardCapture') | ConvertTo-Json -Depth 60 | Set-Content -LiteralPath $dashboardCapture -Encoding UTF8
     $capture = Invoke-Cdp 'Page.captureScreenshot' @{format='png'}
     [IO.File]::WriteAllBytes($desktopCapture, [Convert]::FromBase64String($capture.data))
     $null = Invoke-Cdp 'Emulation.setDeviceMetricsOverride' @{width=390;height=844;deviceScaleFactor=1;mobile=$true}
     if (-not (Invoke-Page 'document.documentElement.scrollWidth <= innerWidth')) { throw 'Mobile page overflows horizontally.' }
+    $null = Invoke-Page "document.querySelector('.dashboard').scrollIntoView()"
+    $dashboardMobile = Join-Path $profileDirectory 'dashboard-mobile.png'
+    $capture = Invoke-Cdp 'Page.captureScreenshot' @{format='png'}
+    [IO.File]::WriteAllBytes($dashboardMobile, [Convert]::FromBase64String($capture.data))
     $null = Invoke-Page "document.getElementById('award-consequences').scrollIntoView()"
     $capture = Invoke-Cdp 'Page.captureScreenshot' @{format='png'}
     [IO.File]::WriteAllBytes($mobileCapture, [Convert]::FromBase64String($capture.data))
@@ -121,7 +162,7 @@ try {
   try {
     let resolveOld;
     window.fetch = () => new Promise(resolve => {resolveOld=resolve;});
-    id('metric-form').requestSubmit();
+    id('run-metric').click();
     id('game-set').value='all_star'; id('game-set').dispatchEvent(new Event('change',{bubbles:true}));
     assert(id('result').hidden && id('download-result').disabled, 'Selection change retained old result/download');
     resolveOld(new Response(JSON.stringify({metric:{status:'available',value:{numerator:'999',denominator:'1'}}})));
@@ -129,14 +170,23 @@ try {
     assert(id('result').hidden && !id('score-value').textContent.includes('999'), 'Late success overwrote new selection');
     let rejectOld;
     window.fetch = () => new Promise((resolve,reject) => {rejectOld=reject;});
-    id('metric-form').requestSubmit();
+    id('run-metric').click();
     id('start-date').value='2026-08-24'; id('start-date').dispatchEvent(new Event('input',{bubbles:true}));
     rejectOld(Error('obsolete request error'));
     await new Promise(r=>setTimeout(r,100));
     assert(!id('request-status').textContent.includes('obsolete'), 'Late error overwrote current status');
     assert(!id('run-metric').disabled && id('download-result').disabled, 'Selection controls were left stale');
     assert(location.search.includes('2026-08-24') && location.search.includes('all_star'), 'URL selection was not updated');
-    return {lateSuccessRejected:true,lateErrorRejected:true,staleDownloadDisabled:true,mobileOverflow:false};
+    let resolveDashboard;
+    window.fetch=()=>new Promise(resolve=>{resolveDashboard=resolve;});
+    id('metric-form').requestSubmit();
+    id('game-set').value='regular_season';id('game-set').dispatchEvent(new Event('change',{bubbles:true}));
+    resolveDashboard(new Response(JSON.stringify(window.dashboardCapture)));
+    await new Promise(r=>setTimeout(r,100));
+    assert(id('dashboard-overview').hidden&&id('download-dashboard').disabled,'Late dashboard response restored stale results');
+    assert([...document.querySelectorAll('#metric-list button')].every(b=>b.dataset.state==='unloaded'),'Old dashboard cards retained scores');
+    assert(!id('load-dashboard').disabled,'Dashboard refresh remained disabled');
+    return {lateSuccessRejected:true,lateErrorRejected:true,lateDashboardRejected:true,staleDownloadDisabled:true,mobileOverflow:false};
   } finally { window.fetch=original; }
 })()
 '@
@@ -156,7 +206,7 @@ try {
     const payload=window.runDepthProof;
     payload.dateScope={gameSet:'regular_season',startDate:'2019-04-01',endDate:'2019-04-01'};
     window.fetch=async()=>new Response(JSON.stringify(payload));
-    id('metric-form').requestSubmit();
+    id('run-metric').click();
     for(let i=0;i<100&&id('result').hidden;i++)await new Promise(r=>setTimeout(r,50));
     assert(!id('result').hidden,'Run result failed to render');
     const cards=[...id('run-results').querySelectorAll('article')];
@@ -177,7 +227,7 @@ try {
         $capture = Invoke-Cdp 'Page.captureScreenshot' @{format='png'}
         [IO.File]::WriteAllBytes($runCapture, [Convert]::FromBase64String($capture.data))
     }
-    @{live=$observed; regressions=$races; runDepth=$runProof; runCapture=$runCapture; desktopCapture=$desktopCapture; mobileCapture=$mobileCapture; exampleCapture=$exampleCapture} | ConvertTo-Json -Depth 10
+    @{live=$observed; dashboard=$dashboard; dashboardCapture=$dashboardCapture; dashboardMobile=$dashboardMobile; regressions=$races; runDepth=$runProof; runCapture=$runCapture; desktopCapture=$desktopCapture; mobileCapture=$mobileCapture; exampleCapture=$exampleCapture} | ConvertTo-Json -Depth 10
 } finally {
     if ($socket.State -eq [Net.WebSockets.WebSocketState]::Open) {
         try { $null = Invoke-Cdp 'Browser.close' } catch { }

@@ -26,7 +26,7 @@ def main():
         graphs = request['graphs']
         metrics.evidence_query(graphs)  # Validate the exact authoritative scope.
         rows = metrics.normalize_bindings(request['bindings'], graphs)
-        result = {'metric': metrics.live_result(request['metricId'], rows, graph_count=len(set(graphs))),
+        result = {**metrics.selected_results(request, rows, graph_count=len(set(graphs))),
                   'implementationSha256': metrics.fingerprint(), 'execution': 'authoritative-rdf',
                   'graphCount': len(set(graphs))}
         print(json.dumps(result, ensure_ascii=True))

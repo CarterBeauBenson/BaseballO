@@ -9,7 +9,7 @@ import {
   ANALYTICS_QUERY_FAMILIES,
   compileAnalyticsQuery,
 } from "./query-builder/analytics-query-builder.js";
-import { metricCatalog, validateMetricRequest, compileMetricEvidenceQuery, metricDisplayTargets, compileMetricDisplayQuery, normalizeMetricDisplayLabels } from './query-builder/metric-suite-query-builder.js';
+import { metricCatalog, validateMetricRequest, validateDashboardRequest, compileMetricEvidenceQuery, metricDisplayTargets, compileMetricDisplayQuery, normalizeMetricDisplayLabels } from './query-builder/metric-suite-query-builder.js';
 import {
   buildPublicDerivedMetricCatalog,
   compileDerivedMetricQuery,
@@ -814,8 +814,8 @@ export function createBaseballServer({
   let gameDateIndexCache;
 
   async function metricDisplay(result) {
-    const subjects = [...(result.metric?.consequences ?? []),
-      ...(result.metric?.runs ?? []).map(run => ({ graph: run.graph, batter: run.runner }))];
+    const subjects = (result.metrics ?? [result.metric]).filter(Boolean).flatMap(metric => [
+      ...(metric.consequences ?? []), ...(metric.runs ?? []).map(run => ({ graph: run.graph, batter: run.runner }))]);
     if (!subjects.length) return result;
     // Optional labels cannot invalidate an otherwise valid SQL/RDF result.
     // These annotations are scoped to its game graphs and never enter scoring.
@@ -881,8 +881,9 @@ export function createBaseballServer({
         sendJson(response, 200, await metricCatalog());
         return;
       }
-      if (request.method === 'POST' && requestUrl.pathname === '/api/metrics/query') {
-        const input = validateMetricRequest(await readJsonBody(request), await metricCatalog());
+      if (request.method === 'POST' && ['/api/metrics/query', '/api/metrics/dashboard'].includes(requestUrl.pathname)) {
+        const validate = requestUrl.pathname.endsWith('/dashboard') ? validateDashboardRequest : validateMetricRequest;
+        const input = validate(await readJsonBody(request), await metricCatalog());
         try {
           const result = await executeRouteServing(request, servingExecutor, candidateServingExecutor, equivalenceToken, input);
           sendJson(response, 200, await metricDisplay(result));
@@ -893,7 +894,7 @@ export function createBaseballServer({
         const scope = await scopedGraphs(input.dateScope, {}, input.gameSet);
         const query = await compileMetricEvidenceQuery(scope.graphs);
         const { payload, durationMs } = await executeCachedSparql(query, scope.corpusFingerprint);
-        const result = await metricReducer({ metricId: input.metricId, graphs: scope.graphs,
+        const result = await metricReducer({ ...(input.view ? { view: input.view } : { metricId: input.metricId }), graphs: scope.graphs,
           bindings: payload.results.bindings });
         sendJson(response, 200, await metricDisplay({ ...result, dateScope: scope.dateScope,
           corpusFingerprint: scope.corpusFingerprint, query, durationMs }));

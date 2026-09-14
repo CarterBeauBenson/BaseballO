@@ -103,10 +103,16 @@ review document, not approval to change a live formula or query.
 
 ## Run locally
 
-The new metric page is `/metrics`. It starts with the latest loaded day and
-stores the metric, game set and date selection in the URL for bookmarks. Its
-verified-example link selects August 25, 2026; press **Inspect metric** to read
-that result. TFS and Offensive Reach currently expose limited award-play
+The contribution dashboard is `/metrics`. It starts with the latest loaded
+day selected and stores the metric, game set and dates in the URL. Choose
+**Load dashboard** to read all 20 metrics in one shared selection. The summary
+counts selected games, metrics with scoped results, metrics with individual
+results, and metrics without scores. Search or filter the cards, then select
+one to open its exact result and evidence without another query. **Back to
+dashboard** returns to the overview. Downloads preserve the complete response;
+changing dates immediately clears cards, details and downloads.
+
+The verified-example link selects August 25, 2026. TFS and Offensive Reach currently expose limited award-play
 results, while Adjudication Volatility covers explicitly resolved mapped
 reviews. The page labels those scopes independently of the full metric grain.
 Run Construction Depth also lists complete individual scoring histories when
@@ -114,6 +120,9 @@ the selected promoted graphs contain reconciled C1 processes. Each card shows
 its episode count and trace; unresolved runs remain visible in coverage.
 The [nine-run proof](../benchmarks/metrics/c1-run-depth-2026-09-14/README.md)
 verifies the adapter and SQL before NiFi promotion.
+The [live dashboard capture](../benchmarks/metrics/dashboard-2026-09-14/README.md)
+shows 15 selected games, two metrics with individual play results, one scoped
+review metric, and 17 without scores. This is not full operation of all metrics.
 
 Every metric has a **How this metric works** disclosure with a formula and a
 worked hypothetical example. TFS, PAQ-2, contribution diversity and review
@@ -140,8 +149,9 @@ arbitrarily. Annotations remain outside the metric value and evidence admission.
 
 `tests/metrics-browser-smoke.ps1` is a focused Windows check using isolated
 headless Chrome and the running Explorer. It verifies all twenty worked metric
-explanations, their isolation from live results, the real example, request
-races and desktop/mobile presentation. It writes temporary screenshots and
+explanations, their isolation from live results, the real example, one shared
+dashboard request, exact card details, request races and desktop/mobile
+presentation. It writes temporary screenshots and the actual dashboard response, and
 does not touch the user's browser profile or run source workflows.
 
 For normal use, install the idempotent Windows desktop launcher once:

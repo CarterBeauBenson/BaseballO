@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>New metrics · BaseballO</title>
+  <title>Metric dashboard · BaseballO</title>
   <link rel="stylesheet" href="/metrics.css">
   <script type="module" src="/metrics.js"></script>
 </head>
@@ -12,19 +12,40 @@
   <header><a class="brand" href="/">BaseballO <span>Explorer</span></a><a href="/">Back to questions</a></header>
   <main>
     <section class="intro">
-      <p class="eyebrow">Graph-native analytics</p>
-      <h1>Follow the contribution.</h1>
-      <p>Explore how plate appearances, running, defense and adjudication shape a game. Each measure includes its definition, evidence coverage and any unresolved requirements.</p>
-      <p class="note">This is the new metric suite. PAQ-2 and the new Empty Game measures are separately versioned from the existing Explorer ratings.</p>
-      <p><a href="/metrics?gameSet=regular_season&amp;preset=custom&amp;startDate=2026-08-25&amp;endDate=2026-08-25#tfs">Open the verified bases-loaded walk example</a>, then choose Inspect metric to see its score and four advances.</p>
+      <p class="eyebrow">BaseballO analytics</p>
+      <h1>Contribution dashboard</h1>
+      <p>See what the selected games support across batting, running, defense and reviews. Open any metric to trace its results and remaining evidence needs.</p>
+      <p><a href="/metrics?gameSet=regular_season&amp;preset=custom&amp;startDate=2026-08-25&amp;endDate=2026-08-25#tfs">Explore the verified bases-loaded walk</a></p>
+    </section>
+    <section class="dashboard" aria-labelledby="dashboard-title">
+      <h2 id="dashboard-title">Selected games</h2>
+      <form id="metric-form">
+        <label>Games<select id="game-set"><option value="regular_season">Regular season</option><option value="all_star">All-Star</option></select></label>
+        <label>Period<select id="date-preset"><option value="one_day">Latest loaded day</option><option value="seven_days">Last 7 loaded days</option><option value="thirty_days">Last 30 loaded days</option><option value="season_to_date">Latest loaded season</option><option value="custom">Custom dates</option></select></label>
+        <label class="custom-date" hidden>From<input type="date" id="start-date"></label>
+        <label class="custom-date" hidden>Through<input type="date" id="end-date"></label>
+        <button id="load-dashboard" type="submit" disabled>Load dashboard</button>
+      </form>
+      <p id="dashboard-status" role="status" aria-live="polite">Choose a period and load all 20 metrics together.</p>
+      <section id="dashboard-overview" hidden aria-label="Selection summary">
+        <p id="dashboard-dates"></p>
+        <dl id="dashboard-summary" class="dashboard-summary"></dl>
+        <p id="dashboard-coverage"></p>
+        <button id="download-dashboard" type="button" disabled>Download dashboard with evidence</button>
+      </section>
+      <div class="dashboard-tools">
+        <div>
+        <label for="metric-search">Find a metric</label>
+        <input id="metric-search" type="search" placeholder="Trajectory, recovery, run…"></div>
+        <label>Show<select id="metric-visibility"><option value="all">All metrics</option><option value="results">With results</option><option value="gaps">Evidence incomplete</option></select></label>
+      </div>
+      <nav id="metric-list" aria-label="Metrics"></nav>
+      <p id="metric-list-empty" hidden>No metrics match this view.</p>
+      <p class="note">Individual play and run results retain their own scope. Missing evidence never becomes a zero score. PAQ-2 and the new Empty Game measures are separately versioned from the existing Explorer ratings.</p>
     </section>
     <div class="workspace">
-      <aside aria-label="Metric selection">
-        <label for="metric-search">Find a metric</label>
-        <input id="metric-search" type="search" placeholder="Trajectory, recovery, run…">
-        <nav id="metric-list" aria-label="Metrics"></nav>
-      </aside>
       <section id="metric-detail" tabindex="-1" aria-labelledby="metric-title">
+        <button id="back-to-dashboard" type="button">Back to dashboard</button>
         <p id="metric-version" class="eyebrow"></p>
         <h2 id="metric-title">Loading the metric catalog…</h2>
         <p id="metric-definition"></p>
@@ -40,13 +61,7 @@
           <p id="example-equation"></p>
           <p id="example-answer" aria-live="polite"></p>
         </details>
-        <form id="metric-form">
-          <label>Games<select id="game-set"><option value="regular_season">Regular season</option><option value="all_star">All-Star</option></select></label>
-          <label>Period<select id="date-preset"><option value="one_day">Latest loaded day</option><option value="seven_days">Last 7 loaded days</option><option value="thirty_days">Last 30 loaded days</option><option value="season_to_date">Latest loaded season</option><option value="custom">Custom dates</option></select></label>
-          <label class="custom-date" hidden>From<input type="date" id="start-date"></label>
-          <label class="custom-date" hidden>Through<input type="date" id="end-date"></label>
-          <button id="run-metric" type="submit" disabled>Inspect metric</button>
-        </form>
+        <button id="run-metric" type="button" disabled>Inspect metric</button>
         <p id="request-status" role="status" aria-live="polite"></p>
         <section id="result" hidden aria-label="Metric result">
           <p id="result-badge" class="result-badge"></p>

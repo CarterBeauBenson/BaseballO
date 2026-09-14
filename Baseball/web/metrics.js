@@ -1,5 +1,5 @@
 const byId = id => document.getElementById(id);
-let catalog, selected, lastResult, activeRequest, examples;
+let catalog, selected, lastResult, activeRequest, examples, dashboardResult, dashboardRequest;
 const node = (tag, text) => { const element = document.createElement(tag); if (text !== undefined) element.textContent = text; return element; };
 
 export function displayFraction(value, places = 2) {
@@ -100,6 +100,11 @@ function saveSelection() {
 
 function invalidateSelection() {
   activeRequest?.abort(); activeRequest = null; lastResult = null;
+  dashboardRequest?.abort(); dashboardRequest = null; dashboardResult = null;
+  byId('dashboard-overview').hidden = true; byId('download-dashboard').disabled = true;
+  byId('load-dashboard').disabled = false;
+  byId('dashboard-status').textContent = 'Selection changed. Load the dashboard for matching results.';
+  renderList();
   byId('result').hidden = true; byId('download-result').disabled = true;
   byId('run-metric').disabled = false;
   byId('request-status').textContent = 'Selection changed. Inspect the metric to load matching results.';
@@ -235,18 +240,90 @@ function choose(metric) {
   renderExamples();
   document.querySelectorAll('#metric-list button').forEach(button => button.setAttribute('aria-current', String(button.dataset.id === metric.id)));
   saveSelection();
+  const result = dashboardResult?.metrics.find(result => result.metricId === metric.id);
+  if (result) {
+    const { metrics, ...context } = dashboardResult;
+    showResult({ ...context, metric: result });
+  }
+}
+
+export function dashboardSummary(payload) {
+  const summary = { games: payload.graphCount ?? payload.metrics[0]?.coverage?.games ?? 0,
+    available: 0, partial: 0, unavailable: 0, empty: 0 };
+  for (const metric of payload.metrics) {
+    const state = resultPresentation({ ...payload, metric }, { unit: '' }).state;
+    summary[state]++;
+  }
+  return summary;
 }
 
 function renderList() {
   const term = byId('metric-search').value.trim().toLowerCase();
-  byId('metric-list').replaceChildren(...catalog.metrics.filter(m => (m.label + ' ' + m.id).toLowerCase().includes(term)).map(metric => {
-    const button = node('button', metric.label); button.type = 'button'; button.dataset.id = metric.id;
+  const visibility = byId('metric-visibility').value;
+  const buttons = catalog.metrics.filter(m => (m.label + ' ' + m.id).toLowerCase().includes(term)).flatMap(metric => {
+    const result = dashboardResult?.metrics.find(result => result.metricId === metric.id);
+    const presentation = result ? resultPresentation({ ...dashboardResult, metric: result }, metric) : null;
+    if (visibility === 'results' && !['available', 'partial'].includes(presentation?.state)) return [];
+    if (visibility === 'gaps' && presentation?.state !== 'unavailable' && presentation?.state !== 'partial') return [];
+    const button = node('button'); button.type = 'button'; button.dataset.id = metric.id;
+    button.dataset.state = presentation?.state ?? 'unloaded';
+    button.append(node('span', metric.label));
     button.setAttribute('aria-current', String(selected?.id === metric.id));
-    button.append(node('small', metric.liveAdapter === 'loaded-award-consequences' ? 'Limited play results' :
-      metric.liveAdapter === 'personal-run-histories' ? 'Individual run results' :
-      metric.requires.length ? 'Evidence pending' : 'Resolved review results'));
-    button.addEventListener('click', () => choose(metric)); return button;
-  }));
+    const scope = result?.consequences?.length ? `${result.consequences.length} award play${result.consequences.length === 1 ? '' : 's'}` :
+      result?.runs?.length ? `${result.runs.length} complete scoring histories` :
+      result?.coverage?.resolvedReviews !== undefined ? `${result.coverage.resolvedReviews} resolved mapped reviews` : metric.grain.replaceAll('_', ' ');
+    button.append(node('strong', presentation?.headline ?? 'Not loaded'),
+      node('small', presentation?.badge ?? 'Load selected-game evidence'),
+      node('small', `${scope} · ${metric.unit}`));
+    button.addEventListener('click', () => {
+      choose(metric); byId('metric-detail').focus({ preventScroll: true }); byId('metric-detail').scrollIntoView({ block: 'start' });
+    });
+    return [button];
+  });
+  byId('metric-list').replaceChildren(...buttons);
+  byId('metric-list-empty').hidden = Boolean(buttons.length);
+}
+
+function selectedScope() {
+  const dateScope = { preset: byId('date-preset').value };
+  if (dateScope.preset === 'custom') { dateScope.startDate = byId('start-date').value; dateScope.endDate = byId('end-date').value; }
+  return { dateScope, gameSet: byId('game-set').value };
+}
+
+async function loadDashboard(event) {
+  event.preventDefault();
+  invalidateSelection();
+  const controller = new AbortController(); dashboardRequest = controller;
+  byId('load-dashboard').disabled = true;
+  byId('dashboard-status').textContent = 'Reading one shared evidence selection for all 20 metrics…';
+  try {
+    const response = await fetch('/api/metrics/dashboard', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(selectedScope()), signal: controller.signal });
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error ?? 'Dashboard request failed.');
+    if (dashboardRequest !== controller) return;
+    const expected = new Set(catalog.metrics.map(metric => metric.id));
+    if (!Array.isArray(payload.metrics) || payload.metrics.length !== expected.size ||
+        new Set(payload.metrics.map(metric => metric.metricId)).size !== expected.size ||
+        payload.metrics.some(metric => !expected.has(metric.metricId))) throw new Error('Dashboard response is incomplete.');
+    dashboardResult = payload;
+    const summary = dashboardSummary(payload);
+    facts(byId('dashboard-summary'), [['Selected games', summary.games], ['Metrics with scoped results', summary.available],
+      ['Metrics with individual results', summary.partial], ['Metrics without a score', summary.unavailable + summary.empty]]);
+    byId('dashboard-dates').textContent = resultDateLabel(payload);
+    const coverage = payload.metrics[0].coverage ?? {}, movement = coverage.runnerMovements;
+    byId('dashboard-coverage').textContent = `${coverage.observedEntities?.plate_appearance ?? 0} observed plate appearances · ${coverage.observedEntities?.run ?? 0} observed runs` +
+      (movement ? ` · ${movement.withPersonalTrajectoryBinding ?? 0} of ${movement.observedPairs} movement pairs linked to a personal history.` : '.') +
+      ' Coverage of eligible events may still be incomplete.';
+    byId('dashboard-overview').hidden = false; byId('download-dashboard').disabled = false;
+    byId('dashboard-status').textContent = summary.games ? 'Dashboard loaded. Select a card to inspect its exact result, scope and evidence.' : 'No games in this selection. Try another date range.';
+    renderList();
+    if (!activeRequest) choose(selected);
+  } catch (error) {
+    if (dashboardRequest === controller && error.name !== 'AbortError') byId('dashboard-status').textContent = error.message;
+  } finally {
+    if (dashboardRequest === controller) { byId('load-dashboard').disabled = false; dashboardRequest = null; }
+  }
 }
 
 function download(name, payload) {
@@ -254,8 +331,51 @@ function download(name, payload) {
   const link = node('a'); link.href = url; link.download = name; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
+function showResult(payload) {
+  lastResult = payload;
+  const result = payload.metric;
+  const presentation = resultPresentation(payload, selected);
+  byId('result').dataset.state = presentation.state;
+  byId('result-badge').textContent = presentation.badge;
+  byId('result-dates').textContent = resultDateLabel(payload);
+  const loaded = payload.dateScope ?? {};
+  byId('loaded-dates').textContent = loaded.availableStartDate && loaded.availableEndDate ?
+    `Loaded dates: ${loaded.availableStartDate} to ${loaded.availableEndDate}.` : '';
+  byId('score-value').textContent = presentation.headline;
+  const single = presentation.state === 'partial' && result.consequences?.length === 1 ? result.consequences[0] : null;
+  const singleRun = result.runs?.length === 1 ? result.runs[0] : null;
+  const displayed = result.value ?? single?.value ?? singleRun?.value;
+  byId('score-exact').textContent = displayed ? `Exact: ${displayed.numerator}/${displayed.denominator}` : '';
+  byId('result-subject').textContent = single ?
+    `${displayPlayer(payload.display?.labels, single.graph, single.batter)} · Game ${single.graph.split('/').at(-1)} · PA source index ${single.plateAppearance.split('/').at(-1)}` :
+    singleRun ? `${displayPlayer(payload.display?.labels, singleRun.graph, singleRun.runner)} · Game ${singleRun.graph.split('/').at(-1)}` : '';
+  byId('result-scope').textContent = result.runs?.length ?
+    'Each listed score covers a complete individual run. Coverage of all runs in the selection remains incomplete.' : presentation.state === 'partial' ?
+    'These scores cover the shown Walk/HBP advances only. Full plate-appearance and population results remain unavailable.' : result.scope ?? 'Selected evidence population';
+  byId('coverage-details').open = presentation.state === 'empty' || selected.id === 'adjudication-volatility';
+  const coverage = result.coverage ?? {};
+  renderGameCoverage(coverage.byGame);
+  renderConsequences(result.consequences, result.metricId, payload.display?.labels);
+  renderRunResults(result.runs, payload.display?.labels);
+  facts(byId('coverage'), [['Games', coverage.games ?? payload.graphCount ?? 0],
+    ...(coverage.supportedAwardConsequences !== undefined ? [
+      ['Supported award consequences', coverage.supportedAwardConsequences],
+      ['Observed PAs without a scored award result', coverage.observedPAsWithoutSupportedAwardConsequence],
+      ['Selected games with no evidence rows', coverage.selectedGraphsWithoutEvidence]] : []),
+    ...(coverage.resolvedReviews !== undefined ? [['Resolved reviews', coverage.resolvedReviews], ['Unresolved reviews', coverage.unresolvedReviews]] : []),
+    ...(coverage.supportedRuns !== undefined ? [['Complete scoring histories', coverage.supportedRuns], ['Observed runs without a result', coverage.observedRunsWithoutResult]] : [])]);
+  byId('result-evidence').textContent = JSON.stringify({ coverage, components: result.components ?? {}, evidence: result.evidence ?? [],
+    implementation: payload.implementationSha256, corpus: payload.corpusFingerprint ?? payload.serving?.corpusFingerprint,
+    dateScope: payload.dateScope, execution: payload.execution, display: payload.display }, null, 2);
+  renderRequirements(result.gaps ?? []);
+  byId('result').hidden = false;
+  byId('download-result').disabled = false;
+  byId('request-status').textContent = presentation.message;
+}
+
 async function inspect(event) {
   event.preventDefault();
+  if (!byId('metric-form').reportValidity()) return;
   activeRequest?.abort(); const controller = new AbortController(); activeRequest = controller;
   byId('run-metric').disabled = true; byId('result').hidden = true; lastResult = null;
   byId('download-result').disabled = true;
@@ -267,45 +387,7 @@ async function inspect(event) {
       body: JSON.stringify({ metricId: selected.id, gameSet: byId('game-set').value, dateScope }), signal: controller.signal });
     const payload = await response.json(); if (!response.ok) throw new Error(payload.error ?? 'Metric request failed.');
     if (activeRequest !== controller) return;
-    lastResult = payload;
-    const result = payload.metric;
-    const presentation = resultPresentation(payload, selected);
-    byId('result').dataset.state = presentation.state;
-    byId('result-badge').textContent = presentation.badge;
-    byId('result-dates').textContent = resultDateLabel(payload);
-    const loaded = payload.dateScope ?? {};
-    byId('loaded-dates').textContent = loaded.availableStartDate && loaded.availableEndDate ?
-      `Loaded dates: ${loaded.availableStartDate} to ${loaded.availableEndDate}.` : '';
-    byId('score-value').textContent = presentation.headline;
-    const single = presentation.state === 'partial' && result.consequences?.length === 1 ? result.consequences[0] : null;
-    const singleRun = result.runs?.length === 1 ? result.runs[0] : null;
-    const displayed = result.value ?? single?.value ?? singleRun?.value;
-    byId('score-exact').textContent = displayed ? `Exact: ${displayed.numerator}/${displayed.denominator}` : '';
-    byId('result-subject').textContent = single ?
-      `${displayPlayer(payload.display?.labels, single.graph, single.batter)} · Game ${single.graph.split('/').at(-1)} · PA source index ${single.plateAppearance.split('/').at(-1)}` :
-      singleRun ? `${displayPlayer(payload.display?.labels, singleRun.graph, singleRun.runner)} · Game ${singleRun.graph.split('/').at(-1)}` : '';
-    byId('result-scope').textContent = result.runs?.length ?
-      'Each listed score covers a complete individual run. Coverage of all runs in the selection remains incomplete.' : presentation.state === 'partial' ?
-      'These scores cover the shown Walk/HBP advances only. Full plate-appearance and population results remain unavailable.' : result.scope ?? 'Selected evidence population';
-    byId('coverage-details').open = presentation.state === 'empty' || selected.id === 'adjudication-volatility';
-    const coverage = result.coverage ?? {};
-    renderGameCoverage(coverage.byGame);
-    renderConsequences(result.consequences, result.metricId, payload.display?.labels);
-    renderRunResults(result.runs, payload.display?.labels);
-    facts(byId('coverage'), [['Games', coverage.games ?? payload.graphCount ?? 0],
-      ...(coverage.supportedAwardConsequences !== undefined ? [
-        ['Supported award consequences', coverage.supportedAwardConsequences],
-        ['Observed PAs without a scored award result', coverage.observedPAsWithoutSupportedAwardConsequence],
-        ['Selected games with no evidence rows', coverage.selectedGraphsWithoutEvidence]] : []),
-      ...(coverage.resolvedReviews !== undefined ? [['Resolved reviews', coverage.resolvedReviews], ['Unresolved reviews', coverage.unresolvedReviews]] : []),
-      ...(coverage.supportedRuns !== undefined ? [['Complete scoring histories', coverage.supportedRuns], ['Observed runs without a result', coverage.observedRunsWithoutResult]] : [])]);
-    byId('result-evidence').textContent = JSON.stringify({ coverage, components: result.components ?? {}, evidence: result.evidence ?? [],
-      implementation: payload.implementationSha256, corpus: payload.corpusFingerprint ?? payload.serving?.corpusFingerprint,
-      dateScope: payload.dateScope, execution: payload.execution, display: payload.display }, null, 2);
-    renderRequirements(result.gaps ?? []);
-    byId('result').hidden = false;
-    byId('download-result').disabled = false;
-    byId('request-status').textContent = presentation.message;
+    showResult(payload);
   } catch (error) {
     if (activeRequest === controller && error.name !== 'AbortError') byId('request-status').textContent = error.message;
   } finally {
@@ -331,7 +413,14 @@ async function start() {
     byId('download-gaps').addEventListener('click', () => download('baseballo-metric-gaps.json', catalog.gapRegister));
     byId('download-result').addEventListener('click', () => { if (lastResult) download(selected.id + '-result.json', lastResult); });
     byId('metric-search').addEventListener('input', renderList);
-    byId('metric-form').addEventListener('submit', inspect);
+    byId('load-dashboard').disabled = false;
+    byId('metric-form').addEventListener('submit', loadDashboard);
+    byId('run-metric').addEventListener('click', inspect);
+    byId('back-to-dashboard').addEventListener('click', () => {
+      byId('metric-search').focus({ preventScroll: true }); document.querySelector('.dashboard').scrollIntoView({ block: 'start' });
+    });
+    byId('metric-visibility').addEventListener('change', renderList);
+    byId('download-dashboard').addEventListener('click', () => { if (dashboardResult) download('baseballo-dashboard.json', dashboardResult); });
     byId('metric-form').addEventListener('input', invalidateSelection);
     byId('metric-form').addEventListener('change', invalidateSelection);
     byId('date-preset').addEventListener('change', updateDates);

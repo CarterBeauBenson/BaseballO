@@ -168,6 +168,28 @@ is a declared coverage limitation and does not admit a PAQ season cohort.
 
 The batch review is [here](../proposals/graph-native-metric-suite-batch-review/README.md).
 
+## Shared dashboard selection
+
+Suite 2.0.10 adds `POST /api/metrics/dashboard`, accepting only `gameSet` and
+`dateScope`. It selects all 20 existing metrics over one common evidence read.
+SQL checks each selected game's result for every metric, including checksums,
+then reads the game evidence once. The RDF fallback compiles and executes one
+canonical evidence query and invokes the same existing metric calculations.
+Every result matches an individual query over those bindings. The response
+preserves fractions, scope, coverage, evidence, graph count, implementation
+fingerprint and serving or RDF provenance. Missing or stale SQL still fails
+closed; requiring materialized results still disables fallback.
+
+This is a read-only view within the existing metric-suite route and admission
+contract. Metric meanings, RML, source SHACL, ontology, source selection and
+population prerequisites are unchanged. NiFi's existing materializer still
+owns routine refresh; the dashboard never starts ingestion or source mapping.
+
+The [live dashboard proof](../benchmarks/metrics/dashboard-2026-09-14/README.md)
+records the actual endpoint response and browser presentation. Its SQL path
+is separately checked with complete-run RDF fixtures and exact round trips;
+the live capture used authoritative RDF fallback, not a finished SQL refresh.
+
 ## September 9 accepted policy implementation
 
 The [named answers](../archive/design-records/metric-suite-gap-answers-2026-09-09/decision.json)

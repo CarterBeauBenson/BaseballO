@@ -22,7 +22,7 @@ from rdflib import Graph, Literal
 
 ROOT = Path(__file__).resolve().parents[1]
 METRICS = ROOT / 'sparql/metrics'
-VERSION = '2.0.9'
+VERSION = '2.0.10'
 
 
 class EvidenceError(ValueError):
@@ -889,13 +889,26 @@ def materialize_game(connection, graph, bindings):
     return {'metrics': len(catalog()['metrics']), 'evidenceRows': len(rows), 'exactRoundTrip': True}
 
 
+def requested_metric_ids(request):
+    ids = [entry['id'] for entry in catalog()['metrics']]
+    if request.get('view') == 'dashboard' and 'metricId' not in request:
+        return ids
+    if request.get('view') is not None or request.get('metricId') not in ids:
+        raise EvidenceError('Unknown metric selection')
+    return [request['metricId']]
+
+
+def selected_results(request, rows, *, graph_count):
+    ids = requested_metric_ids(request)
+    results = [live_result(metric_id, rows, graph_count=graph_count) for metric_id in ids]
+    return {'metrics': results} if request.get('view') == 'dashboard' else {'metric': results[0]}
+
+
 def query_sql(connection, request, scope):
     manifest = connection.execute('SELECT version,implementation_sha256 FROM metric_suite_manifest WHERE singleton=1').fetchone()
     if manifest != (VERSION, fingerprint()):
         raise EvidenceError('Serving build is stale for the metric suite')
-    metric_id = request.get('metricId')
-    if metric_id not in {e['id'] for e in catalog()['metrics']}:
-        raise EvidenceError('Unknown metric')
+    metric_ids = requested_metric_ids(request)
     if request.get('filters'):
         raise EvidenceError('Metric suite currently supports game/date scope only')
     parameters = (scope['gameSet'], scope['startDate'], scope['endDate'])
@@ -903,14 +916,15 @@ def query_sql(connection, request, scope):
         'SELECT graph_iri FROM game_dimension WHERE game_set=? AND official_date BETWEEN ? AND ? ORDER BY graph_iri', parameters)]
     rows = []
     for graph in graphs:
-        if len(read_results(connection, graph, metric_id)) != 1:
-            raise EvidenceError('Metric build lacks a selected game')
+        for metric_id in metric_ids:
+            if len(read_results(connection, graph, metric_id)) != 1:
+                raise EvidenceError('Metric build lacks a selected game')
         for text, digest in connection.execute('SELECT binding_json,binding_sha256 FROM metric_suite_evidence WHERE graph_iri=?', (graph,)):
             if _hash(text) != digest:
                 raise EvidenceError('Metric SQL evidence checksum mismatch')
             rows.append(json.loads(text))
     # Pool distinct resolved reviews; never average per-game percentages. Full
     # cohort metrics remain unavailable until their admission gaps are closed.
-    return {'metric': live_result(metric_id, rows, graph_count=len(graphs)),
+    return {**selected_results(request, rows, graph_count=len(graphs)),
             'implementationSha256': fingerprint(), 'dateScope': scope,
             'execution': 'materialized-sql', 'graphCount': len(graphs)}
