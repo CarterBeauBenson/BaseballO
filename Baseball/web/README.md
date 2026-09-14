@@ -103,6 +103,13 @@ review document, not approval to change a live formula or query.
 
 ## Run locally
 
+All 20 measures now have a shared [presentation system](METRIC-NAMING-REVIEW.md):
+plain-language names, questions, reading guides, units and six perspectives.
+The display catalog is `metric-presentation.json`. The API combines it with
+the analytical catalog without changing metric IDs, formulas, units used in
+calculations or eligibility. Technical names remain searchable and visible
+in the detail disclosure. The generated worked guide uses the same labels.
+
 The contribution dashboard is `/metrics`. It starts with the latest loaded
 day selected and stores the metric, game set and dates in the URL. Choose
 **Load dashboard** to read all 20 metrics in one shared selection. The summary

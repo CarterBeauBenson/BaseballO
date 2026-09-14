@@ -14,7 +14,7 @@
     <section class="intro">
       <p class="eyebrow">BaseballO analytics</p>
       <h1>Contribution dashboard</h1>
-      <p>See what the selected games support across batting, running, defense and reviews. Open any metric to trace its results and remaining evidence needs.</p>
+      <p>What did the batter contribute? Who helped build a run? How did the defense and reviews shape the play? Choose a perspective to explore the questions behind each measure.</p>
       <p><a href="/metrics?gameSet=regular_season&amp;preset=custom&amp;startDate=2026-08-25&amp;endDate=2026-08-25#tfs">Explore the verified bases-loaded walk</a></p>
     </section>
     <section class="dashboard" aria-labelledby="dashboard-title">
@@ -36,8 +36,9 @@
       <div class="dashboard-tools">
         <div>
         <label for="metric-search">Find a metric</label>
-        <input id="metric-search" type="search" placeholder="Trajectory, recovery, run…"></div>
-        <label>Show<select id="metric-visibility"><option value="all">All metrics</option><option value="results">With results</option><option value="gaps">Evidence incomplete</option></select></label>
+        <input id="metric-search" type="search" placeholder="Contribution, runs, reviews…"></div>
+        <label>Perspective<select id="metric-group"><option value="all">All perspectives</option></select></label>
+        <label>Show<select id="metric-visibility"><option value="all">All metrics</option><option value="results">With results</option><option value="gaps">Coverage gaps</option></select></label>
       </div>
       <nav id="metric-list" aria-label="Metrics"></nav>
       <p id="metric-list-empty" hidden>No metrics match this view.</p>
@@ -48,8 +49,10 @@
         <button id="back-to-dashboard" type="button">Back to dashboard</button>
         <p id="metric-version" class="eyebrow"></p>
         <h2 id="metric-title">Loading the metric catalog…</h2>
+        <p id="metric-question" class="metric-question"></p>
         <p id="metric-definition"></p>
-        <details><summary>Metric definition and scope</summary><dl class="facts" id="metric-facts"></dl></details>
+        <section class="reading-guide" aria-labelledby="reading-title"><h3 id="reading-title">Reading this measure</h3><p id="metric-reading"></p><dl class="facts" id="metric-facts"></dl></section>
+        <details><summary>Technical definition and identifiers</summary><p id="metric-technical"></p></details>
         <details id="metric-example">
           <summary>How this metric works</summary>
           <p class="example-notice">Illustrative calculation — hypothetical inputs, separate from selected-game results.</p>
@@ -77,10 +80,10 @@
           <details><summary>Supporting evidence and calculation details</summary><pre id="result-evidence"></pre></details>
           <button id="download-result" type="button" disabled>Download result with evidence</button>
         </section>
-        <section aria-labelledby="gap-title"><h3 id="gap-title">Evidence and remaining requirements</h3><div id="metric-gaps"></div></section>
+        <section aria-labelledby="gap-title"><h3 id="gap-title">Data needed for this result</h3><div id="metric-gaps"></div></section>
       </section>
     </div>
-    <details class="review"><summary>All remaining metric work</summary><p>Shared requirements include missing source evidence, implementation work and unresolved decisions. Accepted decisions remain recorded in each requirement.</p><button id="download-gaps" type="button" disabled>Download all gaps</button><div id="all-gaps"></div></details>
+    <details class="review"><summary>Data coverage and technical requirements</summary><p>The measures have defined meanings. Producing results also requires complete supporting data and the corresponding implementation. The records below track those requirements.</p><button id="download-gaps" type="button" disabled>Download coverage requirements</button><div id="all-gaps"></div></details>
   </main>
 </body>
 </html>

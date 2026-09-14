@@ -1,0 +1,29 @@
+{
+  "comparison": "all live metric results, including exact fractions, evidence and coverage",
+  "previousCapture": "../dashboard-2026-09-14/dashboard-response.json",
+  "metricCount": 20,
+  "graphCount": 15,
+  "dateScope": {
+    "preset": "custom",
+    "startDate": "2026-08-25",
+    "endDate": "2026-08-25",
+    "gameCount": 15,
+    "availableStartDate": "2026-07-16",
+    "availableEndDate": "2026-08-25",
+    "dateBasis": "official-source",
+    "gameSet": "regular_season"
+  },
+  "execution": "authoritative-rdf",
+  "previousMetricsSha256": "b995f4dd4ce03c851b51b29d68a610f3a58695c61bb8684f86e9a0f1039b00b1",
+  "currentMetricsSha256": "b995f4dd4ce03c851b51b29d68a610f3a58695c61bb8684f86e9a0f1039b00b1",
+  "calculationFingerprint": "42785bedc50b894e4dc55724797c31d99923cd21f85b97db218692bdbf82cd9c",
+  "exactMatch": true,
+  "browserChecks": {
+    "readingGuides": 20,
+    "perspectives": 6,
+    "legacyNameSearch": true,
+    "staleResponsesRejected": true,
+    "mobileOverflow": false
+  },
+  "nodeTestsPassed": 24
+}

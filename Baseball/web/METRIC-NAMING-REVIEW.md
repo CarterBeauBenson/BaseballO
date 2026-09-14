@@ -1,15 +1,20 @@
-# Metric dashboard naming review
+# Metric dashboard presentation
+
+Implemented September 14 after the user's clarification that all settled
+metrics should be reconsidered as a presentation system. The dashboard now
+uses the labels and explanations in [metric-presentation.json](metric-presentation.json),
+with matching [worked examples](metric-worked-examples.md).
 
 The dashboard names should say what is counted or compared. A short label and
 a precise subtitle work better than an ontology term or an unexplained acronym.
 Names must not imply runs produced, scoring probability, success, or defensive
 skill when the calculation does not estimate those things.
 
-These are editorial recommendations for dashboard labels. They do not rename
+These are editorial choices for dashboard labels. They do not rename
 ontology terms, change metric IDs or formulas, or resolve missing evidence.
-The existing names remain searchable aliases if these labels are adopted.
+The existing names remain searchable aliases and appear in technical details.
 
-## Primary recommendation
+## Primary label
 
 Replace **Trajectory Fulfillment Score** with **Plate Appearance Contribution**.
 
@@ -26,14 +31,14 @@ traveled. The internal ID `tfs` can remain unchanged.
 explicit about attributing the result to the batter. "Offensive Contribution
 Score" is broader and could be confused with independent baserunning.
 
-## Whole-suite recommendations
+## Whole-suite labels
 
-| Current name | Recommended dashboard label | Essential explanation |
+| Technical name | Dashboard label | Essential explanation |
 | --- | --- | --- |
 | Trajectory Fulfillment Score | Plate Appearance Contribution | Attributed progress minus direct loss and lost opportunity; signed and normalized. |
 | Plate Appearance Quality | Plate Appearance Quality | Keep the established name; show its season percentile and explain its dependence on the contribution score. |
 | Opportunity-Adjusted PAQ | Situation-Adjusted PAQ | Compare within the same immediate base/out situation; not the PA-start situation after an intervening event. |
-| Offensive Reach | Offensive Reach | Keep for now. Explain that it counts distinct runner histories advanced, not bases gained or movement events. "Runners Advanced" is attractive but must not silently replace trajectory count with person count. |
+| Offensive Reach | Offensive Reach | Retained, with the unit "runner histories advanced." The count remains histories, not bases gained or movement events. |
 | Hidden Help Rate | Help Without Advancing | Among PAs with no batter progress, the share advancing another runner. No inference about whether the batter reached base. |
 | Rally Kill Rate | Runner Out Rate | Among PAs starting with runners aboard, the share directly putting an existing runner out. It does not establish that a rally was underway or ended. |
 | Rally Kill Severity | Runner Loss per PA | Weighted direct loss of existing runners per PA starting with runners aboard, including PAs without such a loss. It is not severity conditional on a runner being put out. |
@@ -52,6 +57,19 @@ Score" is broader and could be confused with independent baserunning.
 | PAQ with Process Tie-Breakers | PAQ with Tie-Breakers | Contribution first, then two-strike extension and defensive sequence length, within the accepted applicable population. |
 
 ## Presentation details
+
+The six perspectives are **At the plate**, **Helping and losing runners**,
+**Building a run**, **Player contribution**, **Making the defensive play**, and
+**Reviewing the call**. They organize navigation; they do not introduce metric
+families or ontology classes. Every card states its question, and every detail
+view explains the unit, scope, reference and how to interpret the value.
+
+The catalog's presentation response retains `technicalLabel`,
+`technicalDefinition`, stable metric IDs and every calculation-contract field.
+The checked-in analytical catalog and its serving fingerprint are unchanged.
+The new display units are explanatory labels, not numerical conversions or
+new measurement units. Percentage scaling still applies only to proportions;
+percentiles retain their 0–100 scale, and exact fractions remain downloadable.
 
 - Show the returned result's actual scope next to its value: an individual
   award play, a complete scoring history, or a stated review population.

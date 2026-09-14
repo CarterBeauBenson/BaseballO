@@ -39,11 +39,16 @@ export function normalizeMetricDisplayLabels(bindings, targets) {
 }
 
 export async function metricCatalog() {
-  const [catalog, register] = await Promise.all([
+  const [catalog, register, presentation] = await Promise.all([
     readFile(new URL('metric-catalog.json', root), 'utf8'),
     readFile(new URL('gap-register.json', root), 'utf8'),
+    readFile(new URL('../metric-presentation.json', import.meta.url), 'utf8'),
   ]);
-  return { ...JSON.parse(catalog), gapRegister: JSON.parse(register) };
+  const source = JSON.parse(catalog), display = JSON.parse(presentation);
+  return { ...source, gapRegister: JSON.parse(register), presentationVersion: display.version, groups: display.groups,
+    metrics: source.metrics.map(metric => ({ ...metric, technicalLabel: metric.label,
+      technicalDefinition: metric.userDefinition, label: display.metrics[metric.id].label,
+      userDefinition: display.metrics[metric.id].summary, presentation: display.metrics[metric.id] })) };
 }
 
 export function validateMetricRequest(input, catalog) {

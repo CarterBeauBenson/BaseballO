@@ -38,7 +38,7 @@ export function resultPresentation(payload, metric) {
   if (result.consequences?.length) return { state: 'partial', badge: 'Limited play results',
     headline: result.consequences.length === 1 ? formatMetricValue(result.consequences[0].value, metric.unit) : resultHeadline(result, metric.unit),
     message: `Showing ${result.consequences.length} supported award play${result.consequences.length === 1 ? '' : 's'}.` };
-  return { state: 'unavailable', badge: 'Evidence incomplete', headline: 'Not yet calculable',
+  return { state: 'unavailable', badge: 'Evidence incomplete', headline: 'Result unavailable',
     message: result.gaps?.includes('EMPTY_DENOMINATOR') ? 'No eligible resolved evidence is available for this calculation in the selection.' :
       'The selected evidence does not support a score yet. The remaining requirements are listed below.' };
 }
@@ -53,10 +53,10 @@ export function displayPlayer(labels, graph, player) {
   return labels?.find(row => row.graph === graph && row.entity === player)?.label ?? `Player #${player.split('/').at(-1)}`;
 }
 
-export function exampleAnswer(result, unit) {
+export function exampleAnswer(result, unit, unitLabel = unit) {
   if (result.status !== 'available') return 'Example result: unavailable (no defined denominator).';
-  if (result.value) return `Example result: ${formatMetricValue(result.value, unit)}${unit === 'proportion' ? '' : ' ' + unit}. Exact: ${result.value.numerator}/${result.value.denominator}.`;
-  return `Example result: approximately ${result.approximateValue.toFixed(3)} ${unit}. Logarithmic results are approximate; channel counts remain exact.`;
+  if (result.value) return `Example result: ${formatMetricValue(result.value, unit)}${unit === 'proportion' ? '' : ' ' + unitLabel}. Exact: ${result.value.numerator}/${result.value.denominator}.`;
+  return `Example result: approximately ${result.approximateValue.toFixed(3)} ${unitLabel}. Logarithmic results are approximate; channel counts remain exact.`;
 }
 
 function renderExampleCase() {
@@ -65,7 +65,7 @@ function renderExampleCase() {
   byId('example-title').textContent = item?.title ?? '';
   byId('example-explanation').textContent = item?.explanation ?? 'Worked examples are unavailable. You can still inspect selected-game evidence below.';
   byId('example-equation').textContent = item?.equation ?? '';
-  byId('example-answer').textContent = item ? exampleAnswer(item.result, selected.unit) : '';
+  byId('example-answer').textContent = item ? exampleAnswer(item.result, selected.unit, selected.presentation?.unitLabel) : '';
 }
 
 function renderExamples() {
@@ -141,8 +141,8 @@ export function consequencePresentation(metricId) {
     places: 0,
   };
   return {
-    label: 'Consequence TFS',
-    math: 'TFS = progress − destruction − erosion. For this four-runner force chain: HOME → 1B contributes 1/4; 1B → 2B contributes 1/3; 2B → 3B contributes 1/2; 3B → score contributes 1. All four resolve safely or score, so destruction and erosion are zero. Total: 25/12, displayed as 2.08.',
+    label: 'Plate Appearance Contribution · award play',
+    math: 'Contribution = progress − direct loss − lost opportunity. For this four-runner force chain: HOME → 1B contributes 1/4; 1B → 2B contributes 1/3; 2B → 3B contributes 1/2; 3B → score contributes 1. All four resolve safely or score, so the loss terms are zero. Total: 25/12, displayed as 2.08.',
     places: 2,
   };
 }
@@ -187,7 +187,7 @@ function renderConsequences(results = [], metricId = 'tfs', labels = []) {
 function renderRunResults(results = [], labels = []) {
   const target = byId('run-results'); target.replaceChildren(); target.hidden = !results.length;
   if (!results.length) return;
-  target.append(node('h3', 'Run Construction Depth'), node('p',
+  target.append(node('h3', 'Scoring History Length'), node('p',
     'Each score counts the state-changing episodes in one complete scoring-runner history. Held-base observations add no depth.'));
   const base = value => value === 0 ? 'HOME' : value === 4 ? 'score' : value + 'B';
   for (const result of results) {
@@ -227,14 +227,17 @@ function choose(metric) {
   selected = metric; lastResult = null;
   byId('download-result').disabled = true;
   byId('metric-title').textContent = metric.label;
-  byId('metric-version').textContent = `Version ${metric.version} · ${metric.id}`;
+  byId('metric-version').textContent = catalog.groups.find(group => group.id === metric.presentation.group).label;
   byId('metric-definition').textContent = metric.userDefinition;
-  facts(byId('metric-facts'), [['Grain', metric.grain.replaceAll('_', ' ')], ['Unit', metric.unit], ['Interpretation', metric.higherIs], ['Reference population', metric.referencePopulation]]);
+  byId('metric-question').textContent = metric.presentation.question;
+  byId('metric-reading').textContent = metric.presentation.reading;
+  facts(byId('metric-facts'), [['Reported as', metric.presentation.unitLabel], ['Scope', metric.presentation.scopeLabel], ['Reference', metric.presentation.reference]]);
+  byId('metric-technical').textContent = `${metric.technicalLabel} · ${metric.id} · Version ${metric.version}. ${metric.technicalDefinition} Technical unit: ${metric.unit}.`;
   byId('result').hidden = true;
   byId('request-status').textContent = metric.liveAdapter === 'loaded-award-consequences' ?
     'Inspect supported loaded Walk/HBP consequences and the remaining metric requirements.' :
     metric.liveAdapter === 'personal-run-histories' ? 'Inspect complete scoring-runner histories and their episode counts.' :
-    metric.requires.length ? 'Calculation implemented. Live values await the requirements below.' : 'Inspect the selected mapped review population.';
+    metric.requires.length ? 'Inspect the selected games to see supported results and their coverage.' : 'Inspect the selected mapped review population.';
   byId('run-metric').disabled = false;
   renderRequirements(metric.requires);
   renderExamples();
@@ -257,24 +260,33 @@ export function dashboardSummary(payload) {
   return summary;
 }
 
+export function matchesMetric(metric, term, group = 'all') {
+  const searchable = [metric.label, metric.technicalLabel, metric.id, metric.presentation?.question, metric.presentation?.summary].join(' ').toLowerCase();
+  return (group === 'all' || metric.presentation?.group === group) && searchable.includes(term.trim().toLowerCase());
+}
+
 function renderList() {
   const term = byId('metric-search').value.trim().toLowerCase();
   const visibility = byId('metric-visibility').value;
-  const buttons = catalog.metrics.filter(m => (m.label + ' ' + m.id).toLowerCase().includes(term)).flatMap(metric => {
+  const group = byId('metric-group').value;
+  const ordered = catalog.groups.flatMap(group => catalog.metrics.filter(metric => metric.presentation.group === group.id));
+  const buttons = ordered.filter(m => matchesMetric(m, term, group)).flatMap(metric => {
     const result = dashboardResult?.metrics.find(result => result.metricId === metric.id);
     const presentation = result ? resultPresentation({ ...dashboardResult, metric: result }, metric) : null;
     if (visibility === 'results' && !['available', 'partial'].includes(presentation?.state)) return [];
     if (visibility === 'gaps' && presentation?.state !== 'unavailable' && presentation?.state !== 'partial') return [];
     const button = node('button'); button.type = 'button'; button.dataset.id = metric.id;
     button.dataset.state = presentation?.state ?? 'unloaded';
-    button.append(node('span', metric.label));
+    const category = node('small', catalog.groups.find(group => group.id === metric.presentation.group).label); category.className = 'card-category';
+    const question = node('p', metric.presentation.question); question.className = 'card-question';
+    button.append(category, node('span', metric.label), question);
     button.setAttribute('aria-current', String(selected?.id === metric.id));
     const scope = result?.consequences?.length ? `${result.consequences.length} award play${result.consequences.length === 1 ? '' : 's'}` :
       result?.runs?.length ? `${result.runs.length} complete scoring histories` :
-      result?.coverage?.resolvedReviews !== undefined ? `${result.coverage.resolvedReviews} resolved mapped reviews` : metric.grain.replaceAll('_', ' ');
+      result?.coverage?.resolvedReviews !== undefined ? `${result.coverage.resolvedReviews} resolved mapped reviews` : metric.presentation.scopeLabel;
     button.append(node('strong', presentation?.headline ?? 'Not loaded'),
       node('small', presentation?.badge ?? 'Load selected-game evidence'),
-      node('small', `${scope} · ${metric.unit}`));
+      node('small', `${scope} · ${metric.presentation.unitLabel}`));
     button.addEventListener('click', () => {
       choose(metric); byId('metric-detail').focus({ preventScroll: true }); byId('metric-detail').scrollIntoView({ block: 'start' });
     });
@@ -407,6 +419,7 @@ async function start() {
       label.hidden = byId('date-preset').value !== 'custom'; label.querySelector('input').required = !label.hidden;
     });
     updateDates();
+    byId('metric-group').append(...catalog.groups.map(group => { const option = node('option', group.label); option.value = group.id; return option; }));
     renderList(); choose(catalog.metrics.find(m => '#' + m.id === location.hash) ?? catalog.metrics[0]);
     byId('all-gaps').replaceChildren(...catalog.gapRegister.gaps.map(g => gapDetails(g, true)));
     byId('download-gaps').disabled = false;
@@ -420,6 +433,7 @@ async function start() {
       byId('metric-search').focus({ preventScroll: true }); document.querySelector('.dashboard').scrollIntoView({ block: 'start' });
     });
     byId('metric-visibility').addEventListener('change', renderList);
+    byId('metric-group').addEventListener('change', renderList);
     byId('download-dashboard').addEventListener('click', () => { if (dashboardResult) download('baseballo-dashboard.json', dashboardResult); });
     byId('metric-form').addEventListener('input', invalidateSelection);
     byId('metric-form').addEventListener('change', invalidateSelection);

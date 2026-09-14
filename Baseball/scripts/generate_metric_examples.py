@@ -16,6 +16,7 @@ M = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(M)
 DEST = ROOT / 'web/metric-examples.json'
 GUIDE = ROOT / 'web/metric-worked-examples.md'
+PRESENTATION = ROOT / 'web/metric-presentation.json'
 
 
 def build():
@@ -142,6 +143,17 @@ def build():
         'Order A < B < C; B receives percentile 50.',
         M.paq21_population(lexicographic, complete_population=True)['B'], 50)
     assert set(examples) == {e['id'] for e in M.catalog()['metrics']}
+    # Editorial text is independent of calculation IDs, inputs and answers.
+    display = json.loads(PRESENTATION.read_text(encoding='utf-8'))['metrics']
+    replacements = [(m['label'], display[m['id']]['label']) for m in M.catalog()['metrics']]
+    replacements += [('TFS', display['tfs']['label']), ('trajectory destruction', 'direct loss'),
+                     ('opportunity erosion', 'lost opportunity')]
+    for entry in examples.values():
+        for original, replacement in replacements:
+            entry['formula'] = entry['formula'].replace(original, replacement)
+            for case in entry['cases']:
+                for field in ('title', 'explanation', 'equation'):
+                    case[field] = case[field].replace(original, replacement)
     return dict(artifactType='baseballo-illustrative-metric-examples',
                 generator='scripts/generate_metric_examples.py',
                 notice='Hypothetical inputs checked with the metric calculation code. These are not results from the selected games.',
@@ -157,10 +169,14 @@ def guide(payload):
              'These examples assume the stated attribution, continuity and complete illustrative populations. '
              'They do not close the [live evidence gaps](../proposals/graph-native-metric-suite-batch-review/current-release-review.md). '
              'Real season percentiles require the accepted eligible season population, not these small demonstration populations.', '']
+    display = json.loads(PRESENTATION.read_text(encoding='utf-8'))['metrics']
     for metric in M.catalog()['metrics']:
+        presentation = display[metric['id']]
         entry = payload['metrics'][metric['id']]
-        lines.extend([f'## {metric["label"]}', '', entry['formula'], '',
-                      f'Unit: {metric["unit"]}. [Calculation kernel](../{metric["authoritativeQuery"]}).', ''])
+        lines.extend([f'## {presentation["label"]}', '', presentation['question'], '',
+                      presentation['summary'], '', presentation['reading'], '', entry['formula'], '',
+                      f'Reported as: {presentation["unitLabel"]}; {presentation["scopeLabel"]}.', '',
+                      f'Technical reference: {metric["label"]} (`{metric["id"]}`). [Calculation kernel](../{metric["authoritativeQuery"]}).', ''])
         for case in entry['cases']:
             lines.extend([f'### {case["title"]}', '', case['explanation'], '', case['equation'], ''])
             if case['result']['status'] == 'unavailable':

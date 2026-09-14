@@ -5,7 +5,7 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { createBaseballServer } from '../server.mjs';
 import { metricCatalog, validateMetricRequest, validateDashboardRequest, compileMetricEvidenceQuery, metricDisplayTargets, compileMetricDisplayQuery, normalizeMetricDisplayLabels } from '../query-builder/metric-suite-query-builder.js';
-import { displayFraction, resultHeadline, movementEvidenceLabel, consequencePresentation, formatMetricValue, resultPresentation, resultDateLabel, selectionFromUrl, displayPlayer, exampleAnswer, dashboardSummary } from '../metrics.js';
+import { displayFraction, resultHeadline, movementEvidenceLabel, consequencePresentation, formatMetricValue, resultPresentation, resultDateLabel, selectionFromUrl, displayPlayer, exampleAnswer, dashboardSummary, matchesMetric } from '../metrics.js';
 
 async function withServer(options, work) {
   const server = createBaseballServer(options);
@@ -22,6 +22,26 @@ test('all twenty metrics expose definitions and resolvable shared gaps', async (
     assert.ok(metric.userDefinition); assert.ok(metric.version);
     assert.ok(metric.requires.every(id => ids.has(id)));
   }
+});
+
+test('all twenty presentation entries preserve the settled calculation contracts and old names', async () => {
+  const source = JSON.parse(await readFile(new URL('../../sparql/metrics/metric-catalog.json', import.meta.url), 'utf8'));
+  const display = await metricCatalog();
+  assert.equal(display.groups.length, 6);
+  for (const metric of display.metrics) {
+    const original = source.metrics.find(m => m.id === metric.id);
+    const {label,userDefinition,technicalLabel,technicalDefinition,presentation,...contract}=metric;
+    const {label:oldLabel,userDefinition:oldDefinition,...expected}=original;
+    assert.deepEqual(contract,expected,'Presentation altered the calculation contract: '+metric.id);
+    assert.equal(technicalLabel,oldLabel); assert.equal(technicalDefinition,oldDefinition);
+    for (const key of ['label','question','summary','reading','unitLabel','scopeLabel','reference']) assert.ok(presentation[key]);
+    assert.ok(display.groups.some(group=>group.id===presentation.group));
+    assert.ok(matchesMetric(metric,oldLabel)); assert.ok(matchesMetric(metric,metric.id));
+    assert.ok(matchesMetric(metric,label,presentation.group));
+    assert.equal(matchesMetric(metric,label,'unknown'),false);
+  }
+  assert.equal(display.metrics.find(m=>m.id==='tfs').label,'Plate Appearance Contribution');
+  assert.equal(display.metrics.find(m=>m.id==='adjudication-volatility').label,'Replay Overturn Rate');
 });
 
 test('worked examples cover every metric and match independently specified kernel answers', async () => {

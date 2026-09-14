@@ -1,0 +1,173 @@
+{
+  "version": 1,
+  "groups": [
+    {"id":"batting","label":"At the plate","question":"What did the plate appearance contribute?"},
+    {"id":"runners","label":"Helping and losing runners","question":"What happened to the runners already aboard?"},
+    {"id":"runs","label":"Building a run","question":"What went into this runner scoring?"},
+    {"id":"profile","label":"Player contribution","question":"How did the player contribute across games?"},
+    {"id":"defense","label":"Making the defensive play","question":"How many actions and defenders were involved?"},
+    {"id":"reviews","label":"Reviewing the call","question":"How did review affect the decisions?"}
+  ],
+  "metrics": {
+    "tfs": {
+      "label":"Plate Appearance Contribution","group":"batting",
+      "question":"How much did the batter contribute?",
+      "summary":"Credit for advancing the batter and other runners, minus the cost of outs and lost scoring opportunity.",
+      "unitLabel":"weighted contribution","scopeLabel":"per plate appearance",
+      "reading":"Positive means credited progress exceeds the losses; negative means the losses exceed progress. The weighting accounts for each runner's starting situation. This is not a count of runs or a scoring probability.",
+      "reference":"The plate appearance being measured; no comparison population is required for its own score."
+    },
+    "paq-2": {
+      "label":"Plate Appearance Quality","group":"batting",
+      "question":"Where does this contribution rank in the season?",
+      "summary":"The season percentile of Plate Appearance Contribution, with equal contributions receiving equal ranks.",
+      "unitLabel":"percentile · 0–100","scopeLabel":"per plate appearance",
+      "reading":"Higher means a greater contribution relative to eligible regular-season plate appearances. A percentile is a rank, not the chance of a successful outcome.",
+      "reference":"All eligible MLB regular-season plate appearances in the selected season through the reporting cutoff. Display filters do not shrink that reference."
+    },
+    "paq-a": {
+      "label":"Situation-Adjusted PAQ","group":"batting",
+      "question":"How does it compare with the same opportunity?",
+      "summary":"Contribution ranked against plate appearances with the same occupied bases and out count immediately before the batter's consequence.",
+      "unitLabel":"percentile · 0–100","scopeLabel":"per plate appearance",
+      "reading":"Higher means a greater contribution among matching base/out situations. Use the situation immediately before the consequence, including any intervening runner changes.",
+      "reference":"Eligible selected-season plate appearances in the same immediate base/out situation."
+    },
+    "offensive-reach": {
+      "label":"Offensive Reach","group":"batting",
+      "question":"How widely did the batter help runners advance?",
+      "summary":"The number of distinct runner histories receiving positive progress credited to the batter, including the batter's own history.",
+      "unitLabel":"runner histories advanced","scopeLabel":"per plate appearance",
+      "reading":"Count each qualifying history once, regardless of the number of bases or movement events. This measures the extent of the help; Plate Appearance Contribution measures the weighted progress and losses.",
+      "reference":"The complete set of runner histories affected by the plate appearance."
+    },
+    "recovery-quality": {
+      "label":"Two-Strike Extension Rank","group":"batting",
+      "question":"How long did the plate appearance continue after two strikes?",
+      "summary":"The percentile of pitches that continue the plate appearance after its first two-strike state, excluding the terminal pitch.",
+      "unitLabel":"percentile · 0–100","scopeLabel":"per two-strike plate appearance",
+      "reading":"Higher means more nonterminal pitches after reaching two strikes. It does not say whether the batter eventually reached base or produced a positive contribution.",
+      "reference":"The complete applicable comparison population of plate appearances reaching two strikes."
+    },
+    "paq-2.1": {
+      "label":"PAQ with Tie-Breakers","group":"batting",
+      "question":"How are equal contributions separated?",
+      "summary":"Rank contribution first, then use two-strike extension and defensive sequence length to break remaining ties.",
+      "unitLabel":"percentile · 0–100","scopeLabel":"per applicable plate appearance",
+      "reading":"The measures are compared in order, not added together. A later measure cannot overcome a difference in an earlier one. This rank uses its own applicable population.",
+      "reference":"Eligible plate appearances with applicable two-strike and defensive dimensions. Missing applicable evidence prevents a complete comparison."
+    },
+    "hidden-help-rate": {
+      "label":"Help Without Advancing","group":"runners",
+      "question":"How often does the batter help while making no progress?",
+      "summary":"Among plate appearances with no batter progress, the share producing credited progress for another runner.",
+      "unitLabel":"percentage","scopeLabel":"player rate",
+      "reading":"Higher means the batter helps another runner more often in these qualifying appearances. The denominator excludes appearances with batter progress.",
+      "reference":"The player's eligible plate appearances with zero batter progress."
+    },
+    "rally-kill-rate": {
+      "label":"Runner Out Rate","group":"runners",
+      "question":"How often does the plate appearance cost an existing runner?",
+      "summary":"Among plate appearances starting with runners aboard, the share directly putting at least one of those runners out.",
+      "unitLabel":"percentage","scopeLabel":"player rate",
+      "reading":"Higher means an existing runner is put out in more qualifying appearances. Count the appearance once even if multiple runners are out; the batter's own out is not an existing-runner out.",
+      "reference":"The player's eligible plate appearances starting with at least one runner on base."
+    },
+    "rally-kill-severity": {
+      "label":"Runner Loss per PA","group":"runners",
+      "question":"How costly are the existing runners put out?",
+      "summary":"Weighted direct loss of existing runners, averaged across plate appearances starting with runners aboard.",
+      "unitLabel":"weighted loss per PA","scopeLabel":"player average",
+      "reading":"Higher means greater direct loss. The average includes qualifying appearances with no such loss; it is not an average only over plays that put a runner out. Lost opportunity is measured separately.",
+      "reference":"The player's eligible plate appearances starting with at least one runner on base."
+    },
+    "opportunity-erosion": {
+      "label":"Scoring Opportunity Lost","group":"runners",
+      "question":"How much remaining opportunity did the outs remove?",
+      "summary":"Average loss of runners' remaining opportunity caused by attributed outs, including the loss when the inning ends with runners stranded.",
+      "unitLabel":"weighted loss per PA","scopeLabel":"player average",
+      "reading":"Higher means more opportunity lost. Use runners' actual ending states: a runner who has scored has no remaining opportunity to lose. This is a defined opportunity weight, not an estimated scoring probability.",
+      "reference":"The player's complete eligible plate appearances. Individual losses also enter Plate Appearance Contribution."
+    },
+    "run-construction-depth": {
+      "label":"Scoring History Length","group":"runs",
+      "question":"How many state changes make up this scoring history?",
+      "summary":"The number of state-changing episodes in one complete history of a runner who scores, including the scoring episode.",
+      "unitLabel":"state-changing episodes","scopeLabel":"per run",
+      "reading":"More episodes means a longer scoring history, not necessarily a better one. Remaining at the same base adds nothing. Several episodes can occur within one plate appearance.",
+      "reference":"One complete personal scoring history, from supported entry to the counted run."
+    },
+    "run-construction-breadth": {
+      "label":"Run Contributors","group":"runs",
+      "question":"How many offensive players helped create the run?",
+      "summary":"Distinct offensive players whose supported contributions advanced the scoring runner, including that runner's own contribution.",
+      "unitLabel":"players","scopeLabel":"per run",
+      "reading":"Count each contributor once, even if that player helped more than once. More contributors describes a more shared construction of the run; it is not an individual skill rating.",
+      "reference":"The complete supported contributions to one scoring history."
+    },
+    "empty-game-rate": {
+      "label":"Empty Game Rate","group":"profile",
+      "question":"How often does the player finish without a positive contribution?",
+      "summary":"The share of games with at least one plate appearance and no qualifying positive offensive contribution.",
+      "unitLabel":"percentage","scopeLabel":"player rate",
+      "reading":"Higher means more Empty Games. An Empty Game is not simply a hitless or scoreless game. Games with no plate appearance are excluded from this rate.",
+      "reference":"The player's complete eligible games with at least one plate appearance."
+    },
+    "empty-game-damage": {
+      "label":"Empty Game Damage","group":"profile",
+      "question":"What did the negative contributions cost in an Empty Game?",
+      "summary":"The total magnitude of negative plate-appearance and qualifying independent running contributions during an Empty Game.",
+      "unitLabel":"weighted loss","scopeLabel":"per Empty Game",
+      "reading":"Higher means more damage in that game. Only games meeting the Empty Game definition qualify; an ineligible or unclassified game does not receive a zero.",
+      "reference":"One complete eligible Empty Game, including its applicable independent running events."
+    },
+    "contribution-path-diversity": {
+      "label":"Contribution Mix","group":"profile",
+      "question":"How balanced are the player's ways of contributing?",
+      "summary":"Balance across helping oneself through batting, helping other runners through batting, and advancing through independent running.",
+      "unitLabel":"balance index · 0–1","scopeLabel":"player profile",
+      "reading":"Higher means a more even mix across the three channels, not more total contribution. Count each positive play once per channel. The index uses normalized entropy and is approximate because it contains logarithms.",
+      "reference":"The player's complete qualifying positive contributions across the three channels."
+    },
+    "role-realization-breadth": {
+      "label":"Roles Played","group":"profile",
+      "question":"Which kinds of baseball participation did the player actually perform?",
+      "summary":"The number of Batter, Baserunner, Pitcher and Fielder role kinds actually performed by the player during the game.",
+      "unitLabel":"role kinds","scopeLabel":"per player-game",
+      "reading":"Count each of the four role kinds once. This is not a count of defensive positions, roster assignments, or roles the player could have performed.",
+      "reference":"The player's supported role realizations in one complete game."
+    },
+    "resolution-depth": {
+      "label":"Longest Defensive Sequence","group":"defense",
+      "question":"How many intentional actions formed the longest defensive sequence?",
+      "summary":"The number of intentional defensive acts along the longest supported ordered path in a batted-ball play.",
+      "unitLabel":"acts","scopeLabel":"per batted-ball play",
+      "reading":"One act has length one. Count the longest path, not every act in parallel branches. Longer does not by itself mean better defense or greater difficulty.",
+      "reference":"The complete supported defensive act structure for the play."
+    },
+    "defender-breadth": {
+      "label":"Defenders Involved","group":"defense",
+      "question":"How many defenders acted in resolving the play?",
+      "summary":"The number of distinct defensive agents in the supported defensive play structure.",
+      "unitLabel":"players","scopeLabel":"per batted-ball play",
+      "reading":"Count each defender once, regardless of how many supported acts they perform. A credit list alone does not establish the complete set of agents.",
+      "reference":"The complete supported defensive act structure for the play."
+    },
+    "adjudication-volatility": {
+      "label":"Replay Overturn Rate","group":"reviews",
+      "question":"How often did a resolved replay review overturn the decision?",
+      "summary":"Overturning decisions as a share of explicitly resolved mapped replay reviews.",
+      "unitLabel":"percentage","scopeLabel":"resolved review population",
+      "reading":"The denominator contains resolved mapped reviews, not all calls or all review-eligible decisions. Unresolved reviews are reported separately. This is not an overall umpire accuracy score.",
+      "reference":"Explicitly resolved mapped replay reviews in the selected games."
+    },
+    "review-dependence-rate": {
+      "label":"Outcomes Changed by Review","group":"reviews",
+      "question":"How often did an eligible decision's final outcome depend on review?",
+      "summary":"Review-dependent final outcomes as a share of all review-eligible decisions, including decisions that were never reviewed.",
+      "unitLabel":"percentage","scopeLabel":"eligible decision population",
+      "reading":"This denominator is broader than Replay Overturn Rate's. Report traditional replay and ball/strike challenges separately; review occurring does not alone establish outcome dependence.",
+      "reference":"The complete eligible decision population for the stated review mechanism."
+    }
+  }
+}

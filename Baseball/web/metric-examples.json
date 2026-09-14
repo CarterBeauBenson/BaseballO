@@ -4,7 +4,7 @@
   "notice": "Hypothetical inputs checked with the metric calculation code. These are not results from the selected games.",
   "metrics": {
     "tfs": {
-      "formula": "TFS = attributed progress − trajectory destruction − opportunity erosion.",
+      "formula": "Plate Appearance Contribution = attributed progress − direct loss − lost opportunity.",
       "cases": [
         {
           "title": "Strikeout; runner stays on third",
@@ -147,7 +147,7 @@
       "cases": [
         {
           "title": "Compare the same base and out state",
-          "explanation": "The target PA has TFS −1/4, with a runner on third and one out immediately before the consequence. Its only illustrative peer in that state has −3/4. A bases-empty PA with no outs is in a different cohort.",
+          "explanation": "The target PA has Plate Appearance Contribution −1/4, with a runner on third and one out immediately before the consequence. Its only illustrative peer in that state has −3/4. A bases-empty PA with no outs is in a different cohort.",
           "equation": "Within the two-PA cohort: 100 × (2 × 1 + 1 − 1) / (2 × 1) = 100",
           "result": {
             "status": "available",
@@ -249,7 +249,7 @@
       ]
     },
     "opportunity-erosion": {
-      "formula": "Sum of PA opportunity erosion / number of PAs.",
+      "formula": "Sum of PA lost opportunity / number of PAs.",
       "cases": [
         {
           "title": "Average two erosion amounts",
@@ -289,11 +289,11 @@
       ]
     },
     "empty-game-damage": {
-      "formula": "Magnitude of negative TFS + independent runner damage during an Empty Game.",
+      "formula": "Magnitude of negative Plate Appearance Contribution + independent runner damage during an Empty Game.",
       "cases": [
         {
           "title": "Batting and running damage in one eligible Empty Game",
-          "explanation": "Assume the game is completely observed and qualifies as empty. One PA has TFS −1/4; an independent running episode contributes −1/3. Damage reports their positive loss magnitude.",
+          "explanation": "Assume the game is completely observed and qualifies as empty. One PA has Plate Appearance Contribution −1/4; an independent running episode contributes −1/3. Damage reports their positive loss magnitude.",
           "equation": "1/4 + 1/3 = 7/12",
           "result": {
             "status": "available",
@@ -572,10 +572,10 @@
       ]
     },
     "paq-2.1": {
-      "formula": "Rank TFS first, Recovery Quality second, and Resolution Depth third; convert that ordering to a percentile.",
+      "formula": "Rank Plate Appearance Contribution first, Two-Strike Extension Rank second, and Resolution Depth third; convert that ordering to a percentile.",
       "cases": [
         {
-          "title": "Process quality breaks a TFS tie",
+          "title": "Process quality breaks a Plate Appearance Contribution tie",
           "explanation": "Assume all three PAs are eligible: A has (−3/4, 100, 20), B has (3/2, 0, 1), and C has (3/2, 0, 2). A ranks last despite stronger process scores. C beats B only at the third comparison.",
           "equation": "Order A < B < C; B receives percentile 50.",
           "result": {

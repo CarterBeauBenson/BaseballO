@@ -8,11 +8,19 @@ In the [local metric page](http://127.0.0.1:4173/metrics), choose a metric and o
 
 These examples assume the stated attribution, continuity and complete illustrative populations. They do not close the [live evidence gaps](../proposals/graph-native-metric-suite-batch-review/current-release-review.md). Real season percentiles require the accepted eligible season population, not these small demonstration populations.
 
-## Trajectory Fulfillment Score
+## Plate Appearance Contribution
 
-TFS = attributed progress − trajectory destruction − opportunity erosion.
+How much did the batter contribute?
 
-Unit: trajectory fraction. [Calculation kernel](../sparql/serving/metric-kernels/trajectory-fulfillment-score.rq).
+Credit for advancing the batter and other runners, minus the cost of outs and lost scoring opportunity.
+
+Positive means credited progress exceeds the losses; negative means the losses exceed progress. The weighting accounts for each runner's starting situation. This is not a count of runs or a scoring probability.
+
+Plate Appearance Contribution = attributed progress − direct loss − lost opportunity.
+
+Reported as: weighted contribution; per plate appearance.
+
+Technical reference: Trajectory Fulfillment Score (`tfs`). [Calculation kernel](../sparql/serving/metric-kernels/trajectory-fulfillment-score.rq).
 
 ### Strikeout; runner stays on third
 
@@ -34,9 +42,17 @@ One out before the PA. The batter is out; the runner on third scores independent
 
 ## Plate Appearance Quality
 
+Where does this contribution rank in the season?
+
+The season percentile of Plate Appearance Contribution, with equal contributions receiving equal ranks.
+
+Higher means a greater contribution relative to eligible regular-season plate appearances. A percentile is a rank, not the chance of a successful outcome.
+
 Percentile = 100 × (2 × lower scores + tied scores − 1) / (2 × (population size − 1)).
 
-Unit: percentile. [Calculation kernel](../sparql/serving/metric-kernels/paq-2-core.rq).
+Reported as: percentile · 0–100; per plate appearance.
+
+Technical reference: Plate Appearance Quality (`paq-2`). [Calculation kernel](../sparql/serving/metric-kernels/paq-2-core.rq).
 
 ### Two PAs tie exactly
 
@@ -52,23 +68,39 @@ Population size − 1 = 0; the percentile is unavailable.
 
 Result: unavailable; the denominator is zero.
 
-## Opportunity-Adjusted PAQ
+## Situation-Adjusted PAQ
+
+How does it compare with the same opportunity?
+
+Contribution ranked against plate appearances with the same occupied bases and out count immediately before the batter's consequence.
+
+Higher means a greater contribution among matching base/out situations. Use the situation immediately before the consequence, including any intervening runner changes.
 
 Percentile = 100 × (2 × lower scores + tied scores − 1) / (2 × (population size − 1)).
 
-Unit: percentile. [Calculation kernel](../sparql/serving/metric-kernels/paq-a.rq).
+Reported as: percentile · 0–100; per plate appearance.
+
+Technical reference: Opportunity-Adjusted PAQ (`paq-a`). [Calculation kernel](../sparql/serving/metric-kernels/paq-a.rq).
 
 ### Compare the same base and out state
 
-The target PA has TFS −1/4, with a runner on third and one out immediately before the consequence. Its only illustrative peer in that state has −3/4. A bases-empty PA with no outs is in a different cohort.
+The target PA has Plate Appearance Contribution −1/4, with a runner on third and one out immediately before the consequence. Its only illustrative peer in that state has −3/4. A bases-empty PA with no outs is in a different cohort.
 
 Within the two-PA cohort: 100 × (2 × 1 + 1 − 1) / (2 × 1) = 100
 
 ## Offensive Reach
 
+How widely did the batter help runners advance?
+
+The number of distinct runner histories receiving positive progress credited to the batter, including the batter's own history.
+
+Count each qualifying history once, regardless of the number of bases or movement events. This measures the extent of the help; Plate Appearance Contribution measures the weighted progress and losses.
+
 Count distinct trajectories with positive batter-attributed progress.
 
-Unit: trajectories. [Calculation kernel](../sparql/serving/metric-kernels/offensive-reach.rq).
+Reported as: runner histories advanced; per plate appearance.
+
+Technical reference: Offensive Reach (`offensive-reach`). [Calculation kernel](../sparql/serving/metric-kernels/offensive-reach.rq).
 
 ### Two trajectories advance
 
@@ -76,11 +108,19 @@ The batter and one existing runner make positive attributed progress. A third ru
 
 1 batter trajectory + 1 runner trajectory = 2
 
-## Hidden Help Rate
+## Help Without Advancing
+
+How often does the batter help while making no progress?
+
+Among plate appearances with no batter progress, the share producing credited progress for another runner.
+
+Higher means the batter helps another runner more often in these qualifying appearances. The denominator excludes appearances with batter progress.
 
 PAs helping another runner with no batter progress / PAs with no batter progress.
 
-Unit: proportion. [Calculation kernel](../sparql/serving/metric-kernels/hidden-help-rate.rq).
+Reported as: percentage; player rate.
+
+Technical reference: Hidden Help Rate (`hidden-help-rate`). [Calculation kernel](../sparql/serving/metric-kernels/hidden-help-rate.rq).
 
 ### Help in one of two qualifying PAs
 
@@ -88,11 +128,19 @@ Across three PAs, two produce no batter progress; one of those helps another run
 
 1 / 2 = 50%
 
-## Rally Kill Rate
+## Runner Out Rate
+
+How often does the plate appearance cost an existing runner?
+
+Among plate appearances starting with runners aboard, the share directly putting at least one of those runners out.
+
+Higher means an existing runner is put out in more qualifying appearances. Count the appearance once even if multiple runners are out; the batter's own out is not an existing-runner out.
 
 Runner-on-base PAs directly putting an existing runner out / runner-on-base PAs.
 
-Unit: proportion. [Calculation kernel](../sparql/serving/metric-kernels/rally-kill-rate.rq).
+Reported as: percentage; player rate.
+
+Technical reference: Rally Kill Rate (`rally-kill-rate`). [Calculation kernel](../sparql/serving/metric-kernels/rally-kill-rate.rq).
 
 ### One of two opportunities ends a runner’s path
 
@@ -100,11 +148,19 @@ One of two runner-on-base PAs directly puts an existing runner out. A third PA s
 
 1 / 2 = 50%
 
-## Rally Kill Severity
+## Runner Loss per PA
+
+How costly are the existing runners put out?
+
+Weighted direct loss of existing runners, averaged across plate appearances starting with runners aboard.
+
+Higher means greater direct loss. The average includes qualifying appearances with no such loss; it is not an average only over plays that put a runner out. Lost opportunity is measured separately.
 
 Existing-runner destruction / runner-on-base PAs.
 
-Unit: trajectory fraction. [Calculation kernel](../sparql/serving/metric-kernels/rally-kill-severity.rq).
+Reported as: weighted loss per PA; player average.
+
+Technical reference: Rally Kill Severity (`rally-kill-severity`). [Calculation kernel](../sparql/serving/metric-kernels/rally-kill-severity.rq).
 
 ### A runner from first is put out
 
@@ -112,11 +168,19 @@ One of two runner-on-base PAs directly destroys a trajectory beginning at first,
 
 (1/3 + 0) / 2 = 1/6
 
-## Opportunity Erosion
+## Scoring Opportunity Lost
 
-Sum of PA opportunity erosion / number of PAs.
+How much remaining opportunity did the outs remove?
 
-Unit: trajectory fraction. [Calculation kernel](../sparql/serving/metric-kernels/opportunity-erosion.rq).
+Average loss of runners' remaining opportunity caused by attributed outs, including the loss when the inning ends with runners stranded.
+
+Higher means more opportunity lost. Use runners' actual ending states: a runner who has scored has no remaining opportunity to lose. This is a defined opportunity weight, not an estimated scoring probability.
+
+Sum of PA lost opportunity / number of PAs.
+
+Reported as: weighted loss per PA; player average.
+
+Technical reference: Opportunity Erosion (`opportunity-erosion`). [Calculation kernel](../sparql/serving/metric-kernels/opportunity-erosion.rq).
 
 ### Average two erosion amounts
 
@@ -126,9 +190,17 @@ Two fully accounted-for PAs have erosion amounts of 1/2 and 1/3. This reports th
 
 ## Empty Game Rate
 
+How often does the player finish without a positive contribution?
+
+The share of games with at least one plate appearance and no qualifying positive offensive contribution.
+
+Higher means more Empty Games. An Empty Game is not simply a hitless or scoreless game. Games with no plate appearance are excluded from this rate.
+
 Eligible games with no qualifying positive contribution / games with at least one PA.
 
-Unit: proportion. [Calculation kernel](../sparql/serving/metric-kernels/empty-game-rate.rq).
+Reported as: percentage; player rate.
+
+Technical reference: Empty Game Rate (`empty-game-rate`). [Calculation kernel](../sparql/serving/metric-kernels/empty-game-rate.rq).
 
 ### A running-only appearance is outside the denominator
 
@@ -138,21 +210,37 @@ One game has a PA and no positive contribution; another has a PA and two positiv
 
 ## Empty Game Damage
 
-Magnitude of negative TFS + independent runner damage during an Empty Game.
+What did the negative contributions cost in an Empty Game?
 
-Unit: trajectory fraction. [Calculation kernel](../sparql/serving/metric-kernels/empty-game-damage.rq).
+The total magnitude of negative plate-appearance and qualifying independent running contributions during an Empty Game.
+
+Higher means more damage in that game. Only games meeting the Empty Game definition qualify; an ineligible or unclassified game does not receive a zero.
+
+Magnitude of negative Plate Appearance Contribution + independent runner damage during an Empty Game.
+
+Reported as: weighted loss; per Empty Game.
+
+Technical reference: Empty Game Damage (`empty-game-damage`). [Calculation kernel](../sparql/serving/metric-kernels/empty-game-damage.rq).
 
 ### Batting and running damage in one eligible Empty Game
 
-Assume the game is completely observed and qualifies as empty. One PA has TFS −1/4; an independent running episode contributes −1/3. Damage reports their positive loss magnitude.
+Assume the game is completely observed and qualifies as empty. One PA has Plate Appearance Contribution −1/4; an independent running episode contributes −1/3. Damage reports their positive loss magnitude.
 
 1/4 + 1/3 = 7/12
 
-## Contribution Path Diversity
+## Contribution Mix
+
+How balanced are the player's ways of contributing?
+
+Balance across helping oneself through batting, helping other runners through batting, and advancing through independent running.
+
+Higher means a more even mix across the three channels, not more total contribution. Count each positive play once per channel. The index uses normalized entropy and is approximate because it contains logarithms.
 
 −Σ(channel share × ln(channel share)) / ln(3); each positive play counts once per channel.
 
-Unit: normalized entropy. [Calculation kernel](../sparql/serving/metric-kernels/contribution-path-diversity.rq).
+Reported as: balance index · 0–1; player profile.
+
+Technical reference: Contribution Path Diversity (`contribution-path-diversity`). [Calculation kernel](../sparql/serving/metric-kernels/contribution-path-diversity.rq).
 
 ### All three channels used equally
 
@@ -170,11 +258,19 @@ Shares = 1, 0, 0; normalized diversity = 0
 
 Approximate result: -0.000. Logarithmic values are approximate; channel counts remain exact.
 
-## Recovery Quality
+## Two-Strike Extension Rank
+
+How long did the plate appearance continue after two strikes?
+
+The percentile of pitches that continue the plate appearance after its first two-strike state, excluding the terminal pitch.
+
+Higher means more nonterminal pitches after reaching two strikes. It does not say whether the batter eventually reached base or produced a positive contribution.
 
 Count later nonterminal pitches after the first two-strike state, then take their reference-population percentile.
 
-Unit: percentile. [Calculation kernel](../sparql/serving/metric-kernels/recovery-quality.rq).
+Reported as: percentile · 0–100; per two-strike plate appearance.
+
+Technical reference: Recovery Quality (`recovery-quality`). [Calculation kernel](../sparql/serving/metric-kernels/recovery-quality.rq).
 
 ### Two extra nonterminal pitches
 
@@ -182,11 +278,19 @@ Post-pitch strike counts are 0, 1, 2, 2, 2, 3. The pitch reaching two strikes an
 
 2 extra pitches; the middle of counts 0, 2, 4 has percentile 50.
 
-## Defensive Resolution Depth
+## Longest Defensive Sequence
+
+How many intentional actions formed the longest defensive sequence?
+
+The number of intentional defensive acts along the longest supported ordered path in a batted-ball play.
+
+One act has length one. Count the longest path, not every act in parallel branches. Longer does not by itself mean better defense or greater difficulty.
 
 Number of intentional acts on the longest supported precedence path.
 
-Unit: acts. [Calculation kernel](../sparql/serving/metric-kernels/resolution-depth.rq).
+Reported as: acts; per batted-ball play.
+
+Technical reference: Defensive Resolution Depth (`resolution-depth`). [Calculation kernel](../sparql/serving/metric-kernels/resolution-depth.rq).
 
 ### Field, throw, catch, tag
 
@@ -194,11 +298,19 @@ Assume four distinct intentional acts with supported order: field → throw → 
 
 4 acts along the path = depth 4
 
-## Defender Breadth
+## Defenders Involved
+
+How many defenders acted in resolving the play?
+
+The number of distinct defensive agents in the supported defensive play structure.
+
+Count each defender once, regardless of how many supported acts they perform. A credit list alone does not establish the complete set of agents.
 
 Count distinct defensive agents in the supported resolution structure.
 
-Unit: players. [Calculation kernel](../sparql/serving/metric-kernels/defender-breadth.rq).
+Reported as: players; per batted-ball play.
+
+Technical reference: Defender Breadth (`defender-breadth`). [Calculation kernel](../sparql/serving/metric-kernels/defender-breadth.rq).
 
 ### Four acts by two defenders
 
@@ -206,11 +318,19 @@ Defender A fields and throws. Defender B catches and tags. Repeated acts by the 
 
 Distinct defenders {A, B} = 2
 
-## Run Construction Depth
+## Scoring History Length
+
+How many state changes make up this scoring history?
+
+The number of state-changing episodes in one complete history of a runner who scores, including the scoring episode.
+
+More episodes means a longer scoring history, not necessarily a better one. Remaining at the same base adds nothing. Several episodes can occur within one plate appearance.
 
 Count distinct state-changing episodes along the scoring runner’s admitted continuous trajectory.
 
-Unit: episodes. [Calculation kernel](../sparql/serving/metric-kernels/run-construction-depth.rq).
+Reported as: state-changing episodes; per run.
+
+Technical reference: Run Construction Depth (`run-construction-depth`). [Calculation kernel](../sparql/serving/metric-kernels/run-construction-depth.rq).
 
 ### Single, steal, then score on a double
 
@@ -218,11 +338,19 @@ Assume complete continuity for the same runner: a single reaches first, a steal 
 
 1 single + 1 steal + 1 scoring advance = 3 episodes
 
-## Run Construction Breadth
+## Run Contributors
+
+How many offensive players helped create the run?
+
+Distinct offensive players whose supported contributions advanced the scoring runner, including that runner's own contribution.
+
+Count each contributor once, even if that player helped more than once. More contributors describes a more shared construction of the run; it is not an individual skill rating.
 
 Count distinct offensive players whose supported contributions advance the scoring trajectory.
 
-Unit: players. [Calculation kernel](../sparql/serving/metric-kernels/run-construction-breadth.rq).
+Reported as: players; per run.
+
+Technical reference: Run Construction Breadth (`run-construction-breadth`). [Calculation kernel](../sparql/serving/metric-kernels/run-construction-breadth.rq).
 
 ### The scorer contributes twice
 
@@ -230,11 +358,19 @@ The scorer singles and steals, then a teammate doubles the scorer home. The scor
 
 Distinct contributors {scorer, teammate} = 2
 
-## Adjudication Volatility
+## Replay Overturn Rate
+
+How often did a resolved replay review overturn the decision?
+
+Overturning decisions as a share of explicitly resolved mapped replay reviews.
+
+The denominator contains resolved mapped reviews, not all calls or all review-eligible decisions. Unresolved reviews are reported separately. This is not an overall umpire accuracy score.
 
 Overturning dispositions / explicitly resolved mapped reviews.
 
-Unit: proportion. [Calculation kernel](../sparql/serving/metric-kernels/adjudication-volatility.rq).
+Reported as: percentage; resolved review population.
+
+Technical reference: Adjudication Volatility (`adjudication-volatility`). [Calculation kernel](../sparql/serving/metric-kernels/adjudication-volatility.rq).
 
 ### An unresolved review stays outside the denominator
 
@@ -242,11 +378,19 @@ Of three mapped reviews, one overturns, one resolves without overturning, and on
 
 1 overturn / 2 resolved reviews = 50%
 
-## Review Dependence Rate
+## Outcomes Changed by Review
+
+How often did an eligible decision's final outcome depend on review?
+
+Review-dependent final outcomes as a share of all review-eligible decisions, including decisions that were never reviewed.
+
+This denominator is broader than Replay Overturn Rate's. Report traditional replay and ball/strike challenges separately; review occurring does not alone establish outcome dependence.
 
 Review-dependent operative outcomes / all review-eligible decisions, separately for each mechanism.
 
-Unit: proportion. [Calculation kernel](../sparql/serving/metric-kernels/review-dependence-rate.rq).
+Reported as: percentage; eligible decision population.
+
+Technical reference: Review Dependence Rate (`review-dependence-rate`). [Calculation kernel](../sparql/serving/metric-kernels/review-dependence-rate.rq).
 
 ### Traditional replay
 
@@ -260,11 +404,19 @@ Assume the complete illustrative ball/strike challenges population contains 2 el
 
 1 review-dependent outcome / 2 eligible decisions = 50%
 
-## Role Realization Breadth
+## Roles Played
+
+Which kinds of baseball participation did the player actually perform?
+
+The number of Batter, Baserunner, Pitcher and Fielder role kinds actually performed by the player during the game.
+
+Count each of the four role kinds once. This is not a count of defensive positions, roster assignments, or roles the player could have performed.
 
 Count the distinct realized kinds among Batter, Baserunner, Pitcher and Fielder.
 
-Unit: role types. [Calculation kernel](../sparql/serving/metric-kernels/role-realization-breadth.rq).
+Reported as: role kinds; per player-game.
+
+Technical reference: Role Realization Breadth (`role-realization-breadth`). [Calculation kernel](../sparql/serving/metric-kernels/role-realization-breadth.rq).
 
 ### Batting twice and running once
 
@@ -272,13 +424,21 @@ Assume a complete player-game role population: two acts realize Batter Role and 
 
 Distinct realized kinds {Batter, Baserunner} = 2
 
-## PAQ with Process Tie-Breakers
+## PAQ with Tie-Breakers
 
-Rank TFS first, Recovery Quality second, and Resolution Depth third; convert that ordering to a percentile.
+How are equal contributions separated?
 
-Unit: percentile. [Calculation kernel](../sparql/serving/metric-kernels/paq-2-1.rq).
+Rank contribution first, then use two-strike extension and defensive sequence length to break remaining ties.
 
-### Process quality breaks a TFS tie
+The measures are compared in order, not added together. A later measure cannot overcome a difference in an earlier one. This rank uses its own applicable population.
+
+Rank Plate Appearance Contribution first, Two-Strike Extension Rank second, and Resolution Depth third; convert that ordering to a percentile.
+
+Reported as: percentile · 0–100; per applicable plate appearance.
+
+Technical reference: PAQ with Process Tie-Breakers (`paq-2.1`). [Calculation kernel](../sparql/serving/metric-kernels/paq-2-1.rq).
+
+### Process quality breaks a Plate Appearance Contribution tie
 
 Assume all three PAs are eligible: A has (−3/4, 100, 20), B has (3/2, 0, 1), and C has (3/2, 0, 2). A ranks last despite stronger process scores. C beats B only at the third comparison.
 

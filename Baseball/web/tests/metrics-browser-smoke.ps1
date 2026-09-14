@@ -78,6 +78,8 @@ try {
   assert(buttons.length === 20, 'Expected all twenty metric choices');
   for (const button of buttons) {
     button.click();
+    assert(id('metric-question').textContent && id('metric-reading').textContent, 'Missing presentation guide: '+button.dataset.id);
+    assert(id('metric-technical').textContent.includes(button.dataset.id), 'Technical identity missing');
     assert(id('example-answer').textContent.startsWith('Example result:'), 'Missing worked example: '+button.dataset.id);
     assert(id('example-formula').textContent && id('example-equation').textContent, 'Missing calculation explanation');
     assert(id('result').hidden && id('download-result').disabled, 'Example became a live result');
@@ -124,6 +126,17 @@ try {
     const paq=cards.find(b=>b.dataset.id==='paq-2');
     assert(paq.dataset.state==='unavailable'&&!paq.querySelector('strong').textContent.includes('0'),'Missing PAQ became zero');
     assert(!id('download-dashboard').disabled,'Dashboard download disabled');
+    id('metric-group').value='reviews';id('metric-group').dispatchEvent(new Event('change'));
+    assert(document.querySelectorAll('#metric-list button').length===2,'Review perspective did not isolate its two metrics');
+    assert(!id('download-dashboard').disabled,'Perspective filter invalidated the evidence selection');
+    id('metric-group').value='all';id('metric-group').dispatchEvent(new Event('change'));
+    id('metric-search').value='Trajectory Fulfillment Score';id('metric-search').dispatchEvent(new Event('input'));
+    const aliasCards=[...document.querySelectorAll('#metric-list button')];
+    assert(aliasCards.length===1&&aliasCards[0].dataset.id==='tfs','Old name no longer finds the metric');
+    aliasCards[0].click();
+    assert(id('metric-title').textContent==='Plate Appearance Contribution','New name did not reach detail');
+    assert(id('metric-technical').textContent.includes('Trajectory Fulfillment Score'),'Technical alias lost');
+    id('metric-search').value='';id('metric-search').dispatchEvent(new Event('input'));
     window.fetch=()=>{throw Error('Card selection must reuse dashboard evidence');};
     cards.find(b=>b.dataset.id==='offensive-reach').click();
     assert(id('score-exact').textContent==='Exact: 4/1','Card detail differs from dashboard');
@@ -133,6 +146,7 @@ try {
     document.querySelector('[data-id="tfs"]').click();
     document.querySelector('.dashboard').scrollIntoView();
     return {metrics:20,sharedRequests:calls,scopePreserved:true,cardDetailExact:true,
+      presentationGuides:20,perspectives:6,legacyNameSearch:true,
       execution:window.dashboardCapture.execution,graphCount:window.dashboardCapture.graphCount};
   } finally {window.fetch=original;}
 })()
