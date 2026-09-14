@@ -1,0 +1,32 @@
+{
+  "artifactType": "baseballo-runtime-hardening-verification",
+  "date": "2026-09-14",
+  "nodeVersion": "v24.21.0",
+  "focusedWebTestsPassed": 71,
+  "powerShellFilesParsed": 4,
+  "livenessHttpStatus": 200,
+  "readinessHttpStatusBeforeRebuild": 503,
+  "servingDiagnostic": "Serving build is stale for mlb-game.rml.ttl",
+  "nifiRebuild": "submitted asynchronously; completion not observed",
+  "metricCount": 20,
+  "graphCount": 15,
+  "execution": "authoritative-rdf",
+  "exactMetricsMatchPreviousCapture": true,
+  "previousCapture": "../dashboard-2026-09-14/dashboard-response.json",
+  "calculationFingerprint": "42785bedc50b894e4dc55724797c31d99923cd21f85b97db218692bdbf82cd9c",
+  "browserChecks": {
+    "readingGuides": 20,
+    "perspectives": 6,
+    "legacyNameSearch": true,
+    "sharedDashboardRequests": 1,
+    "cardDetailExact": true,
+    "staleResponsesRejected": true,
+    "staleDownloadDisabled": true,
+    "mobileOverflow": false,
+    "separateRunDepthFixture": {
+      "completeRuns": 9,
+      "unresolvedRuns": 4
+    }
+  },
+  "productionReady": false
+}

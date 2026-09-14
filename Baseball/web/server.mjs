@@ -1,6 +1,6 @@
 import { createServer } from "node:http";
 import { createHash } from "node:crypto";
-import { spawn } from "node:child_process";
+import { HttpFailure, boundedRequestHandler, runJsonCommand, requestSignal, boundedResponseJson } from './runtime-safety.mjs';
 import { readFile, readdir } from "node:fs/promises";
 import { dirname, extname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -45,6 +45,7 @@ const GOOD_AT_BAT_QUERY_ID = "plate-appearance-fingerprint";
 const GAME_DATE_INDEX_TTL_MS = 30_000;
 const RESULT_CACHE_TTL_MS = 30_000;
 const RESULT_CACHE_LIMIT = 100;
+const RESULT_CACHE_BYTES = 32 * 1024 * 1024;
 const REQUIRE_MATERIALIZED_HEADER = "x-baseballo-require-materialized";
 const FORCE_AUTHORITATIVE_HEADER = "x-baseballo-force-authoritative";
 const USE_CANDIDATE_SQL_HEADER = "x-baseballo-use-candidate-sql";
@@ -53,6 +54,7 @@ const DATE_SCOPE_PRESETS = new Set(["one_day", "seven_days", "thirty_days", "sea
 const GAME_SETS = new Set(["regular_season", "all_star"]);
 const EXPLORER_RUNTIME_SOURCE_PATHS = [
   resolve(WEB_ROOT, "server.mjs"),
+  resolve(WEB_ROOT, "runtime-safety.mjs"),
   resolve(QUERY_BUILDER_ROOT, "analytics-query-builder.js"),
   resolve(QUERY_BUILDER_ROOT, "derived-metric-query-builder.js"),
   resolve(QUERY_BUILDER_ROOT, "empty-games-query-builder.js"),
@@ -129,12 +131,16 @@ function responseHeaders(contentType) {
     "Referrer-Policy": "no-referrer",
     "X-Content-Type-Options": "nosniff",
     "X-Frame-Options": "DENY",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
   };
 }
 
 function sendJson(response, statusCode, payload) {
+  if (response.destroyed || response.writableEnded) return;
+  const serialized = JSON.stringify(payload);
+  if (Buffer.byteLength(serialized) > 32 * 1024 * 1024) throw new HttpFailure(502, 'response-limit', 'The result is too large. Narrow the selection.');
   response.writeHead(statusCode, responseHeaders("application/json; charset=utf-8"));
-  response.end(JSON.stringify(payload));
+  response.end(serialized);
 }
 
 function rejectMaterializedFallback(request, response) {
@@ -162,35 +168,8 @@ function executeRouteServing(request, servingExecutor, candidateServingExecutor,
 async function executePythonServingQuery(script, input) {
   if (!LOCAL_STATE_ROOT) throw new Error("No local BaseballO state root is configured.");
   const python = process.env.BASEBALLO_PYTHON ?? "python";
-  return new Promise((resolvePromise, rejectPromise) => {
-    const child = spawn(python, [script, "--state-root", LOCAL_STATE_ROOT], {
-      cwd: resolve(WEB_ROOT, ".."),
-      windowsHide: true,
-      stdio: ["pipe", "pipe", "pipe"],
-    });
-    let stdout = "";
-    let stderr = "";
-    child.stdout.setEncoding("utf8");
-    child.stderr.setEncoding("utf8");
-    child.stdout.on("data", (chunk) => {
-      stdout += chunk;
-      if (stdout.length > 16 * 1024 * 1024) child.kill();
-    });
-    child.stderr.on("data", (chunk) => { stderr += chunk; });
-    child.on("error", rejectPromise);
-    child.on("close", (code) => {
-      try {
-        const payload = JSON.parse(stdout);
-        if (code !== 0 || payload.status === "unavailable") {
-          rejectPromise(new Error(payload.error ?? stderr ?? "Serving query failed."));
-          return;
-        }
-        resolvePromise(payload);
-      } catch (error) {
-        rejectPromise(error);
-      }
-    });
-    child.stdin.end(JSON.stringify(input));
+  return runJsonCommand(python, [script, '--state-root', LOCAL_STATE_ROOT], {
+    input, cwd: resolve(WEB_ROOT, '..'),
   });
 }
 
@@ -203,6 +182,7 @@ async function executeCandidateServingQuery(input) {
 }
 
 function publicError(error) {
+  if (error instanceof HttpFailure) return { status: error.status, message: error.message, code: error.code };
   if (error?.cause?.code === "ECONNREFUSED" || error?.code === "ECONNREFUSED") {
     return { status: 503, message: "The local graph database is not available." };
   }
@@ -362,12 +342,17 @@ export function buildPublicCatalog() {
 }
 
 async function readJsonBody(request) {
+  if (Number(request.headers['content-length'] ?? 0) > MAX_BODY_BYTES) {
+    request.resume();
+    throw new HttpFailure(413, 'request-body-limit', 'The request is too large.');
+  }
   const chunks = [];
   let size = 0;
-  for await (const chunk of request) {
+  for await (const chunk of request.iterator({ destroyOnReturn: false })) {
     size += chunk.length;
     if (size > MAX_BODY_BYTES) {
-      throw new RangeError("The request is too large.");
+      request.resume();
+      throw new HttpFailure(413, 'request-body-limit', 'The request is too large.');
     }
     chunks.push(chunk);
   }
@@ -395,14 +380,14 @@ async function executeSparql(query, { fetchImpl, queryEndpoint, timeoutMs = 30_0
       "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
     },
     body: new URLSearchParams({ query }),
-    signal: AbortSignal.timeout(timeoutMs),
+    signal: requestSignal(timeoutMs),
   });
   if (!response.ok) {
-    const details = (await response.text()).replace(/\s+/gu, " ").slice(0, 240);
-    throw new Error(`Fuseki returned ${response.status}: ${details}`);
+    await response.body?.cancel();
+    throw new HttpFailure(502, 'graph-query-failed', 'The graph database could not complete the query.');
   }
   return {
-    payload: await response.json(),
+    payload: await boundedResponseJson(response),
     durationMs: Math.round((performance.now() - startedAt) * 10) / 10,
   };
 }
@@ -808,9 +793,11 @@ export function createBaseballServer({
   metricReducer = (input) => executePythonServingQuery(METRIC_REDUCER_SCRIPT, input),
   candidateServingExecutor = executeCandidateServingQuery,
   equivalenceToken = process.env.BASEBALLO_EQUIVALENCE_TOKEN ?? null,
+  requestLimits,
 } = {}) {
   const optionCache = new Map();
   const resultCache = new Map();
+  let cachedBytes = 0;
   let gameDateIndexCache;
 
   async function metricDisplay(result) {
@@ -839,6 +826,7 @@ export function createBaseballServer({
     if (gameDateIndexCache?.fingerprint && gameDateIndexCache.fingerprint !== fingerprint) {
       optionCache.clear();
       resultCache.clear();
+      cachedBytes = 0;
     }
     gameDateIndexCache = { entries, fingerprint, expiresAt: Date.now() + GAME_DATE_INDEX_TTL_MS };
     return gameDateIndexCache;
@@ -851,8 +839,18 @@ export function createBaseballServer({
       return { payload: cached.payload, durationMs: 0, cached: true };
     }
     const executed = await executeSparql(query, { fetchImpl, queryEndpoint });
-    if (resultCache.size >= RESULT_CACHE_LIMIT) resultCache.delete(resultCache.keys().next().value);
-    resultCache.set(key, { payload: executed.payload, expiresAt: Date.now() + RESULT_CACHE_TTL_MS });
+    for (const [storedKey, entry] of resultCache) {
+      if (entry.expiresAt <= Date.now() || storedKey === key) { cachedBytes -= entry.bytes; resultCache.delete(storedKey); }
+    }
+    const bytes = Buffer.byteLength(JSON.stringify(executed.payload));
+    if (bytes <= RESULT_CACHE_BYTES) {
+      while (resultCache.size >= RESULT_CACHE_LIMIT || cachedBytes + bytes > RESULT_CACHE_BYTES) {
+        const oldest = resultCache.keys().next().value;
+        cachedBytes -= resultCache.get(oldest).bytes; resultCache.delete(oldest);
+      }
+      resultCache.set(key, { payload: executed.payload, bytes, expiresAt: Date.now() + RESULT_CACHE_TTL_MS });
+      cachedBytes += bytes;
+    }
     return { ...executed, cached: false };
   }
 
@@ -874,9 +872,35 @@ export function createBaseballServer({
     };
   }
 
-  return createServer(async (request, response) => {
+  const sendError = (response, error) => {
+    const { status, message, code } = publicError(error);
+    sendJson(response, status, { error: message, ...(code ? { code } : {}) });
+  };
+  const handler = boundedRequestHandler(async (request, response) => {
     const requestUrl = new URL(request.url ?? "/", "http://127.0.0.1");
     try {
+      if (request.method === 'GET' && requestUrl.pathname === '/health/live') {
+        sendJson(response, 200, { service: 'baseballo-explorer', status: 'alive', nodeVersion: process.version });
+        return;
+      }
+      if (request.method === 'GET' && requestUrl.pathname === '/health/ready') {
+        let serving;
+        try {
+          serving = await servingExecutor({route:'metric-suite',view:'dashboard',gameSet:'regular_season',dateScope:{preset:'one_day'}});
+        } catch {
+          throw new HttpFailure(503, 'serving-not-ready', 'The materialized dashboard is not ready.');
+        }
+        const expected = (await metricCatalog()).metrics.map(metric => metric.id);
+        const actual = new Set(serving.metrics?.map(metric => metric.metricId));
+        if (serving.execution !== 'materialized-sql' || !Number.isInteger(serving.graphCount) || serving.graphCount < 1 ||
+            serving.metrics?.length !== expected.length || actual.size !== expected.length || !expected.every(id => actual.has(id))) {
+          throw new HttpFailure(503, 'serving-not-ready', 'A complete materialized dashboard selection is not available.');
+        }
+        sendJson(response, 200, { service:'baseballo-explorer',status:'ready',readiness:'materialized-serving',
+          graphCount:serving.graphCount,metricsWithScopedResults:serving.metrics.filter(metric=>metric.status==='available').length,
+          metricCoverageIsSeparate:true });
+        return;
+      }
       if (request.method === 'GET' && requestUrl.pathname === '/api/metrics/catalog') {
         sendJson(response, 200, await metricCatalog());
         return;
@@ -938,6 +962,7 @@ export function createBaseballServer({
         sendJson(response, 200, {
           service: "baseballo-explorer",
           processId: process.pid,
+          nodeVersion: process.version,
           explorerSourceFingerprint: EXPLORER_SOURCE_FINGERPRINT,
           connected: true,
           games,
@@ -1395,20 +1420,34 @@ export function createBaseballServer({
       const { status, message } = publicError(error);
       sendJson(response, status, { error: message });
     }
-  });
+  }, sendError, requestLimits);
+  const server = createServer({ headersTimeout: 10_000, requestTimeout: 15_000, connectionsCheckingInterval: 1000,
+    keepAliveTimeout: 5000, maxHeaderSize: 16 * 1024 }, handler);
+  server.maxHeadersCount = 64;
+  server.maxRequestsPerSocket = 100;
+  server.on('close', handler.abortAll);
+  server.beginShutdown = () => { handler.drain(); server.close(); };
+  server.abortWork = handler.abortAll;
+  return server;
 }
 
 const launchedDirectly = process.argv[1]
   && resolve(process.argv[1]) === resolve(fileURLToPath(import.meta.url));
 
 if (launchedDirectly) {
-  const port = Number.parseInt(process.env.PORT ?? "4173", 10);
+  const port = Number(process.env.PORT ?? '4173');
+  if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('PORT must be an integer from 1 to 65535');
   const server = createBaseballServer();
   server.listen(port, "127.0.0.1", () => {
     console.log(`BaseballO Explorer: http://127.0.0.1:${port}/`);
     console.log(`Graph endpoint: ${process.env.BASEBALLO_FUSEKI_QUERY ?? DEFAULT_QUERY_ENDPOINT}`);
   });
   for (const signal of ["SIGINT", "SIGTERM"]) {
-    process.on(signal, () => server.close(() => process.exit(0)));
+    process.once(signal, () => {
+      server.beginShutdown();
+      const forced = setTimeout(() => { server.abortWork(); server.closeAllConnections(); process.exit(1); }, 10_000);
+      forced.unref();
+      server.once('close', () => { clearTimeout(forced); process.exit(0); });
+    });
   }
 }

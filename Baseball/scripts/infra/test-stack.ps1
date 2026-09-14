@@ -55,10 +55,10 @@ if ($null -ne $curl) {
     if ($status -notin @('200', '302', '303')) {
         throw "NiFi returned unexpected HTTP status $status."
     }
-    Write-Host "NiFi: HTTPS endpoint healthy (HTTP $status)."
+    Write-Host "NiFi: configured endpoint healthy (HTTP $status)."
 }
 else {
-    Write-Host 'NiFi: HTTPS port is reachable (curl.exe unavailable for an HTTP probe).'
+    Write-Host 'NiFi: configured port is reachable (curl.exe unavailable for an HTTP probe).'
 }
 
 Write-Host 'BaseballO local stack checks passed.'

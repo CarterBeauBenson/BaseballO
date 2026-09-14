@@ -1,4 +1,12 @@
 @{
+    Node = @{
+        Version          = '24.21.0'
+        ArchiveName      = 'node-v24.21.0-win-x64.zip'
+        Url              = 'https://nodejs.org/dist/v24.21.0/node-v24.21.0-win-x64.zip'
+        HashAlgorithm    = 'SHA256'
+        Hash             = '158f7685b44de51f6c0df1d153526cbcd3e1bc739a8dfc607721cef75de9e541'
+        InstallDirectory = 'node-v24.21.0-win-x64'
+    }
     Java = @{
         Version          = '21.0.12+8'
         ArchiveName      = 'OpenJDK21U-jdk_x64_windows_hotspot_21.0.12_8.zip'

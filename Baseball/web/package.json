@@ -3,11 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "engines": { "node": ">=24.21.0 <25" },
   "description": "Local, read-only BaseballO analytics explorer",
   "scripts": {
     "start": "node server.mjs",
     "test": "node --test tests/analytics-query-builder.test.mjs",
     "test:metrics": "node --test tests/metric-suite.test.mjs",
+    "test:runtime": "node --test tests/runtime-safety.test.mjs",
     "check": "node --check server.mjs && node --check app.js && node --check question-recipes.js && node --check result-sort.js && node --check query-builder/derived-metric-query-builder.js"
   }
 }

@@ -157,7 +157,7 @@ $marker = [ordered]@{
     }
 }
 
-$nifiWasRunning = Test-TcpPort -HostName '127.0.0.1' -Port 8443
+$nifiWasRunning = Test-TcpPort -HostName '127.0.0.1' -Port $script:NiFiPort
 $fusekiWasRunning = Test-BaseballFusekiService
 $storageConfigWritten = $false
 $externalStoreCommitted = $false
@@ -261,7 +261,7 @@ catch {
     if (-not $externalStoreCommitted -and $fusekiWasRunning -and -not (Test-TcpPort -HostName '127.0.0.1' -Port 3031)) {
         try { & (Join-Path $PSScriptRoot 'start-fuseki.ps1') -TimeoutSeconds 180 } catch { Write-Warning "Could not restore local Fuseki automatically: $($_.Exception.Message)" }
     }
-    if ($nifiWasRunning -and -not (Test-TcpPort -HostName '127.0.0.1' -Port 8443)) {
+    if ($nifiWasRunning -and -not (Test-TcpPort -HostName '127.0.0.1' -Port $script:NiFiPort)) {
         try { & (Join-Path $PSScriptRoot 'start-nifi.ps1') -TimeoutSeconds 600 } catch { Write-Warning "Could not restore NiFi automatically: $($_.Exception.Message)" }
     }
     throw $failure

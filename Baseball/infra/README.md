@@ -6,6 +6,7 @@ This directory defines BaseballO's no-license-fee local development services:
 - Apache NiFi 2.10.0
 - Apache Jena Fuseki 6.1.0 with persistent TDB2 storage
 - RMLMapper 8.1.0
+- Node.js 24.21.0 LTS for the Explorer (installed separately below)
 
 Versions and release checksums are pinned in [`versions.psd1`](versions.psd1). The bootstrap script verifies every archive before extraction.
 
@@ -71,11 +72,8 @@ different volume mounted under the same drive letter from receiving RDF. If
 the configured volume or marker is absent, ingestion fails closed instead of
 silently creating a new empty local database.
 
-The migration helper still contains a retired port-8443 NiFi liveness probe,
-while the replacement NiFi runtime uses port 8080. Until that implementation
-defect is corrected, do not rely on the helper to stop or restart NiFi. Stop
-the complete stack explicitly before a future migration and restart it after
-the migration succeeds. The already configured external store does not need
+The migration helper uses the configured NiFi port when checking whether to
+stop and restart NiFi. The already configured external store does not need
 to be migrated again for normal starts.
 
 On the current workstation, that guarded contract points the high-volume RDF
@@ -125,6 +123,23 @@ deployment.
 The local Fuseki process exposes `/$/ping`, `/$/stats`, and `/$/metrics` only on loopback for health and operations. Stop the stack before Windows shutdown when practical; TDB2 remains the transactional persistence layer.
 
 The ontology is not copied, loaded, or modified by these bootstrap scripts.
+
+## Explorer runtime and release checks
+
+Install the checksum-pinned portable Node runtime once, then use the launcher:
+
+```powershell
+.\scripts\infra\install-explorer-runtime.ps1
+.\scripts\infra\launch-explorer.ps1 -NoBrowser
+```
+
+The launcher checks both the application fingerprint and Node version before
+reusing a running Explorer. It does not change the system Node installation.
+`GET /health/live` checks the web process; `GET /health/ready` checks the
+materialized metrics dashboard without allowing an RDF fallback. Readiness
+does not claim complete evidence for every metric. See the
+[production readiness record](PRODUCTION-READINESS.md) for the release boundary,
+focused checks, remaining blockers, and rollback procedure.
 
 The RML, graph-loading, query-index, and serving components are documented in
 the [`scripts/pipeline` runbook](../scripts/pipeline/README.md). The seven

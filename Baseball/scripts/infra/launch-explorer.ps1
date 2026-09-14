@@ -58,6 +58,7 @@ function Get-StringSha256 {
 function Get-ExplorerSourceFingerprint {
     $paths = @(
         (Join-Path $webRoot 'server.mjs'),
+        (Join-Path $webRoot 'runtime-safety.mjs'),
         (Join-Path $webRoot 'query-builder\analytics-query-builder.js'),
         (Join-Path $webRoot 'query-builder\derived-metric-query-builder.js'),
         (Join-Path $webRoot 'query-builder\empty-games-query-builder.js'),
@@ -150,8 +151,11 @@ try {
         $expectedFingerprint = Get-ExplorerSourceFingerprint
         $serviceProperty = $status.PSObject.Properties['service']
         $fingerprintProperty = $status.PSObject.Properties['explorerSourceFingerprint']
+        $runtimeProperty = $status.PSObject.Properties['nodeVersion']
         if ($null -ne $serviceProperty -and
             $null -ne $fingerprintProperty -and
+            $null -ne $runtimeProperty -and
+            $runtimeProperty.Value -eq ('v' + $script:Versions.Node.Version) -and
             $serviceProperty.Value -eq 'baseballo-explorer' -and
             $fingerprintProperty.Value -eq $expectedFingerprint) {
             Write-Host "BaseballO Explorer is already current at $explorerUri"
@@ -163,9 +167,14 @@ try {
     }
 
     if (-not (Test-TcpPort -HostName '127.0.0.1' -Port 4173)) {
-        $node = Get-Command node.exe -ErrorAction Stop
+        $node = Join-Path (Join-Path $script:LocalRoot 'runtimes') ($script:Versions.Node.InstallDirectory + '\node.exe')
+        if (-not (Test-Path -LiteralPath $node -PathType Leaf)) {
+            throw 'Install the pinned Explorer runtime first: scripts/infra/install-explorer-runtime.ps1'
+        }
+        $nodeVersion = & $node --version
+        if ($LASTEXITCODE -ne 0 -or $nodeVersion -ne ('v' + $script:Versions.Node.Version)) { throw 'Explorer runtime version differs from its pin.' }
         $startedExplorerProcess = Start-Process `
-            -FilePath $node.Source `
+            -FilePath $node `
             -ArgumentList @('server.mjs') `
             -WorkingDirectory $webRoot `
             -RedirectStandardOutput (Join-Path $logDirectory 'stdout.log') `
