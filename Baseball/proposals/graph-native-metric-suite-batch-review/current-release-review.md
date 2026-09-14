@@ -1,5 +1,13 @@
 # Current metric release review — 2026-09-09
 
+**September 14 scope clarification:** the deliverable is full operation of all
+20 metrics on real admitted evidence, including complete applicable reference
+populations and source-to-UI processing. Formula examples and bounded award
+results do not complete it. The [source-admission review](full-operation-source-admission.md)
+identifies the concrete completeness-authority decision and additional evidence
+needed to proceed without inventing missing facts. That review is a draft,
+not an accepted change to the current source contract.
+
 **Answer update:** [the September 9 decisions](../../archive/design-records/metric-suite-gap-answers-2026-09-09/decision.json)
 settle questions 1–6, 8 and 9. The subsequent
 [continuity decision](../../archive/design-records/metric-suite-gap-answers-2026-09-09/continuity-decision.json)
