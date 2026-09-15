@@ -92,6 +92,21 @@ class RecoveryTests(unittest.TestCase):
         self.assertTrue(self.step()["deferMaterialization"])
         self.assertEqual(self.nifi.calls, [])
 
+    def test_proof_can_rebuild_after_obsolete_sql_job_finishes(self):
+        self.plan['proofRebuildsServing'] = True
+        recovery.save(self.root / 'serving/current.json', {'buildId': 'old-build'})
+        self.nifi.sql['status']['aggregateSnapshot']['activeThreadCount'] = 1
+        self.assertEqual(self.step()['status'], 'waiting-serving')
+        self.assertEqual(self.nifi.calls, [])
+        self.nifi.sql['status']['aggregateSnapshot']['activeThreadCount'] = 0
+        self.assertEqual(self.step()['status'], 'waiting-proof')
+        self.assertEqual(self.plan['prerequisiteResolution'], 'idle-proof-will-rebuild')
+        # An obsolete build has not satisfied any proof stage or released a
+        # refresh. The ordinary full source proof must still complete.
+        self.assertNotIn('proofRelease', self.plan)
+        self.assertEqual(self.step()['status'], 'waiting-proof')
+        self.assertEqual(self.nifi.calls, [('run', 'proof')])
+
     def test_waits_for_active_source_materializer(self):
         self.nifi.materialize["status"]["aggregateSnapshot"]["activeThreadCount"] = 1
         self.assertEqual(self.step()["status"], "waiting-serving")

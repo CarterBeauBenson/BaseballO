@@ -62,10 +62,57 @@ class RunConstructionServing(unittest.TestCase):
         self.assertEqual(run['value'], M.exact(2))
         self.assertEqual(len(run['episodes']), 3)
 
+    def same_pa_fixture(self, held=True):
+        dataset = run_fixture(held=held)
+        graph = dataset.graph(G1)
+        # The batter reaches first and has another movement observation during
+        # the SAME PA. Canonical evidence deliberately keeps metricOrigin=0 for
+        # batter consequence arithmetic; the segment designation remains 1B.
+        for subject, predicate, _ in list(graph.triples((None, BFO.BFO_0000132, EX.pa1))):
+            graph.remove((subject, predicate, EX.pa1))
+            graph.add((subject, predicate, EX.pa0))
+        graph.remove((EX.pa1, None, None))
+        return dataset
+
+    def test_same_pa_batter_hold_does_not_add_run_depth(self):
+        dataset = self.same_pa_fixture()
+        source = bindings(dataset, [G1])
+        rows = M.normalize_bindings(source, [G1])
+        held, = [r for r in rows if r.get('resolution') == str(EX.resolution1)]
+        self.assertEqual((held['metricOrigin'], held['originCode']), ('0', '1B'))
+        result = M.live_result('run-construction-depth', rows, graph_count=1)
+        run, = result['runs']
+        self.assertEqual(run['value'], M.exact(2))
+        episode, = [r for r in run['episodes'] if r['resolution'] == str(EX.resolution1)]
+        self.assertEqual((episode['start'], episode['end'], episode['changesState']), (1, 1, False))
+        with database() as connection:
+            M.materialize_game(connection, G1, source)
+            scope = {'gameSet':'regular_season', 'startDate':'2026-08-01', 'endDate':'2026-08-01'}
+            self.assertEqual(M.query_sql(connection, {'metricId':'run-construction-depth'}, scope)['metric'], result)
+
+    def test_same_pa_batter_further_advance_still_counts_once(self):
+        run, = score(self.same_pa_fixture(held=False))['runs']
+        self.assertEqual(run['value'], M.exact(3))
+        episode, = [r for r in run['episodes'] if r['resolution'] == str(EX.resolution1)]
+        self.assertEqual((episode['start'], episode['end']), (1, 2))
+
+    def test_batter_home_override_cannot_hide_conflicting_segment_origins(self):
+        dataset = self.same_pa_fixture()
+        dataset.graph(G1).add((URIRef(str(EX.first) + '/code'), CCO.ont00001765, Literal('3B')))
+        self.assertEqual(score(dataset)['runs'], [])
+
+    def test_designated_but_unidentified_base_cannot_fall_back_to_batter_home(self):
+        dataset = self.same_pa_fixture()
+        dataset.graph(G1).remove((URIRef(str(EX.first) + '/code'), CCO.ont00001765, None))
+        self.assertEqual(score(dataset)['runs'], [])
+
     def test_missing_movement_cannot_shorten_a_complete_run(self):
         dataset = run_fixture()
         dataset.graph(G1).remove((EX.resolution1, BFO.BFO_0000062, None))
-        self.assertEqual(score(dataset)['runs'], [])
+        result = score(dataset)
+        self.assertEqual(result['runs'], [])
+        self.assertEqual(result['unresolvedRuns'][0]['gaps'], ['PERSONAL_HISTORY_MEMBER_COVERAGE'])
+        self.assertEqual(result['coverage']['runGapCounts'], {'PERSONAL_HISTORY_MEMBER_COVERAGE': 1})
 
     def test_missing_c1_whole_or_extra_member_withholds_score(self):
         for extra in (False, True):
@@ -80,6 +127,45 @@ class RunConstructionServing(unittest.TestCase):
             if fault == 'origin': graph.add((URIRef(str(EX.first) + '/code'), CCO.ont00001765, Literal('3B')))
             else: graph.add((EX.resolution2, RDF.type, BASE.OutProcess))
             self.assertEqual(score(dataset)['runs'], [])
+
+    def test_missing_history_identifies_the_actual_counted_run(self):
+        dataset = run_fixture()
+        dataset.graph(G1).remove((WHOLE, RDF.type, BFO.BFO_0000015))
+        result = score(dataset)
+        self.assertEqual(result['coverage']['observedRunsWithoutResult'], 1)
+        missing, = result['unresolvedRuns']
+        self.assertEqual(missing['run'], str(EX.resolution2))
+        self.assertEqual(missing['gaps'], ['MISSING_PERSONAL_SCORING_HISTORY'])
+
+    def test_two_personal_histories_cannot_double_count_one_run(self):
+        dataset = run_fixture()
+        graph = dataset.graph(G1)
+        other = EX['runner-trajectory/ambiguous-life']
+        for _, predicate, obj in list(graph.triples((WHOLE, None, None))):
+            graph.add((other, predicate, obj))
+        result = score(dataset)
+        self.assertEqual(result['runs'], [])
+        missing, = result['unresolvedRuns']
+        self.assertEqual(missing['gaps'], ['AMBIGUOUS_SCORING_HISTORY'])
+        self.assertEqual(len(missing['trajectories']), 2)
+        self.assertEqual(result['coverage']['observedRunsWithoutResult'], 1)
+
+    def test_unresolved_member_does_not_disappear_from_dashboard_or_sql(self):
+        dataset = run_fixture()
+        graph = dataset.graph(G1)
+        graph.add((EX.unresolvedRun, RDF.type, BASE.RunProcess))
+        graph.add((EX.unresolvedRun, BFO.BFO_0000132, EX.pa2))
+        source = bindings(dataset, [G1])
+        rows = M.normalize_bindings(source, [G1])
+        expected = M.live_result('run-construction-depth', rows, graph_count=1)
+        self.assertEqual(len(expected['runs']), 1)
+        self.assertEqual(len(expected['unresolvedRuns']), 1)
+        with database() as connection:
+            M.materialize_game(connection, G1, source)
+            scope = {'gameSet':'regular_season', 'startDate':'2026-08-01', 'endDate':'2026-08-01'}
+            response = M.query_sql(connection, {'view':'dashboard'}, scope)
+            actual, = [r for r in response['metrics'] if r['metricId'] == 'run-construction-depth']
+            self.assertEqual(actual, expected)
 
 
 if __name__ == '__main__': unittest.main()

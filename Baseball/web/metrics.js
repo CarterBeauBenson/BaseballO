@@ -251,6 +251,43 @@ function choose(metric) {
   }
 }
 
+export function unresolvedRunRows(results = []) {
+  const reasons = {
+    MISSING_PERSONAL_SCORING_HISTORY: 'A complete history for this scoring runner is missing.',
+    PERSONAL_HISTORY_MEMBER_COVERAGE: 'An episode in the runner’s history is missing its movement evidence.',
+    CONFLICTING_PERSONAL_HISTORY: 'The history has conflicting runner or game information.',
+    CONFLICTING_SEGMENT_STATE: 'The movement evidence gives conflicting base states.',
+    UNSUPPORTED_SCORING_HISTORY: 'The runner’s identity or terminal outcome is unresolved.',
+    UNSUPPORTED_SEGMENT_END: 'A movement’s ending base or outcome is unresolved.',
+    UNSUPPORTED_SEGMENT_ORIGIN: 'A movement’s starting base is unresolved.',
+    SCORING_HISTORY_TERMINAL_COVERAGE: 'The history does not establish one counted run.',
+    AMBIGUOUS_SCORING_HISTORY: 'More than one personal history claims this run.',
+  };
+  return results.map(result => ({ game: result.graph.split('/').at(-1),
+    run: result.run.split('/').slice(-2).join('/'),
+    reason: [...new Set((result.gaps ?? []).map(gap => reasons[gap] ?? 'Additional history evidence is required.'))].join(' '),
+    evidence: result }));
+}
+
+function renderUnresolvedRuns(results = []) {
+  const target = byId('unresolved-run-results'); target.replaceChildren(); target.hidden = !results.length;
+  if (!results.length) return;
+  target.append(node('h3', 'Scoring histories needing more evidence'), node('p',
+    'These counted runs have no score yet. They remain part of the selection and prevent a complete aggregate.'));
+  const table = node('table'), head = node('thead'), header = node('tr'), body = node('tbody');
+  const columns = ['Game', 'Run', 'Missing evidence'];
+  header.append(...columns.map(label => node('th', label))); head.append(header);
+  for (const result of unresolvedRunRows(results)) {
+    const row = node('tr'), detail = node('td'); detail.append(node('p', result.reason));
+    const evidence = node('details'); evidence.append(node('summary', 'Technical evidence'),
+      node('pre', JSON.stringify(result.evidence, null, 2))); detail.append(evidence);
+    row.append(node('td', result.game), node('td', result.run), detail);
+    columns.forEach((label, index) => { row.children[index].dataset.label = label; });
+    body.append(row);
+  }
+  table.append(head, body); target.append(table);
+}
+
 function scheduleDashboardLoad() {
   invalidateSelection();
   const scope = selectedScope().dateScope;
@@ -444,6 +481,7 @@ function showResult(payload) {
   renderGameCoverage(coverage.byGame);
   renderConsequences(result.consequences, result.metricId, payload.display?.labels);
   renderRunResults(result.runs, payload.display?.labels);
+  renderUnresolvedRuns(result.unresolvedRuns);
   renderRanking(payload, selected);
   facts(byId('coverage'), [['Games', coverage.games ?? payload.graphCount ?? 0],
     ...(coverage.supportedAwardConsequences !== undefined ? [

@@ -213,10 +213,16 @@ def advance(state_root, plan, nifi, release=proof_release):
     if phase == "waiting-serving":
         pointer_file = state_root / "serving" / "current.json"
         pointer = read(pointer_file) if pointer_file.exists() else {}
-        if sql_busy or pointer.get("buildId") != plan["requiredBuildId"]:
+        promoted = pointer.get("buildId") == plan["requiredBuildId"]
+        if sql_busy or (not promoted and not plan.get("proofRebuildsServing", False)):
             return finish(phase, "Waiting for the prerequisite SQL build to promote and become idle")
-        if not Path(pointer.get("databasePath", "")).is_file():
+        if promoted and not Path(pointer.get("databasePath", "")).is_file():
             raise ValueError("promoted SQL pointer has no database")
+        # The normal proof's materialize stage performs a complete validated SQL
+        # build itself. When explicitly queued in this mode, an obsolete prior
+        # build need only finish, not promote. No old pointer or failed build is
+        # admitted as current evidence, and the full proof gate still applies.
+        plan["prerequisiteResolution"] = "promoted" if promoted else "idle-proof-will-rebuild"
         proof = processors["Proof Request"]
         if not request_idle(proof):
             return finish(phase, "Waiting for the proof request processor to become idle")
@@ -313,6 +319,8 @@ def main():
     parser.add_argument("--nifi-api", default="http://127.0.0.1:8080/nifi-api")
     parser.add_argument("--start-date")
     parser.add_argument("--end-date")
+    parser.add_argument("--proof-rebuilds-serving", action="store_true",
+                        help="After SQL becomes idle, let the normal proof rebuild serving even if the prior build did not promote")
     args = parser.parse_args()
     state_root = args.state_root.resolve()
     if args.enqueue:
@@ -333,7 +341,8 @@ def main():
                     "createdAtUtc": now(), "requiredBuildId": args.required_build_id,
                     "sourceGroupId": args.source_group_id, "sqlGroupId": args.sql_group_id,
                     "sqlProcessorId": args.sql_processor_id, "nifiApi": args.nifi_api,
-                    "startDate": args.start_date, "endDate": args.end_date}
+                    "startDate": args.start_date, "endDate": args.end_date,
+                    "proofRebuildsServing": args.proof_rebuilds_serving}
             save(path, plan)
         print(json.dumps({"status": "queued", "path": str(path)}))
     else:

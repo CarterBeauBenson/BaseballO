@@ -33,6 +33,14 @@ work on subsequent ticks. Its durable status is
 root. The batch worker loads the helper on each invocation, so updating this
 helper does not require restarting the source group or the active SQL build.
 
+For a scoring correction that makes an active build obsolete, enqueue with
+`--proof-rebuilds-serving`. This waits for the known SQL processors to become
+idle, then starts the normal proof even if the obsolete build did not promote.
+The proof's existing materialization stage builds and validates the entire
+serving product itself; a prior successful SQL build is not required for that
+stage. The full current source-proof release gate still controls the backfill.
+The audit records `idle-proof-will-rebuild` rather than claiming promotion.
+
 An OS lock serializes recovery ticks. Dispatch intent is saved atomically
 before `RUN_ONCE`. If the response is lost, later ticks inspect evidence and
 never repeat that request automatically. A proof quarantine records failure

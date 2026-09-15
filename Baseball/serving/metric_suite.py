@@ -22,7 +22,7 @@ from rdflib import Graph, Literal
 
 ROOT = Path(__file__).resolve().parents[1]
 METRICS = ROOT / 'sparql/metrics'
-VERSION = '2.0.10'
+VERSION = '2.0.11'
 
 
 class EvidenceError(ValueError):
@@ -688,9 +688,12 @@ def live_result(metric_id, rows, *, graph_count):
         result = unavailable(*entry['requires'], coverage=coverage, metricId=metric_id,
                              scope='selected promoted game graphs', grain=entry['grain'])
         if metric_id == 'run-construction-depth':
-            result['runs'] = run_construction_results(rows)
+            result.update(run_construction_evidence(rows))
             coverage['supportedRuns'] = len(result['runs'])
-            coverage['observedRunsWithoutResult'] = max(0, coverage['observedEntities']['run'] - len(result['runs']))
+            coverage['observedRunsWithoutResult'] = len(result['unresolvedRuns'])
+            coverage['runGapCounts'] = dict(sorted(
+                (reason, sum(reason in run['gaps'] for run in result['unresolvedRuns']))
+                for reason in {reason for run in result['unresolvedRuns'] for reason in run['gaps']}))
             result['scope'] = 'Complete individual scoring histories below; coverage of all selected runs remains separately gated.'
         if metric_id in {'tfs', 'offensive-reach'}:
             result['consequences'] = loaded_award_consequences(rows, metric_id=metric_id)
@@ -731,6 +734,10 @@ def live_result(metric_id, rows, *, graph_count):
 
 
 def run_construction_results(rows):
+    return run_construction_evidence(rows)['runs']
+
+
+def run_construction_evidence(rows):
     """Complete per-run depth over promoted E1/C1 wholes and exact members.
 
     Never infer a whole from adjacent movement rows. The independent C1 member
@@ -738,15 +745,21 @@ def run_construction_results(rows):
     Source reconciliation and source SHACL precede graph promotion in NiFi.
     """
     histories, movements = defaultdict(list), defaultdict(list)
+    observed_runs, run_histories, failures = {}, defaultdict(set), {}
     for row in rows:
         if row['kind'] == 'runner_history':
             histories[(row['graph'], row['trajectory'])].append(row)
         elif row['kind'] == 'runner_movement' and row.get('trajectory'):
             movements[(row['graph'], row['trajectory'])].append(row)
+            if row.get('hasRunType') == 'true':
+                run_histories[(row['graph'], row['resolution'])].add((row['graph'], row['trajectory']))
+        elif row['kind'] == 'run':
+            observed_runs[(row['graph'], row['entity'])] = row['game']
     results = []
     for key, members in sorted(histories.items()):
         signatures = {(r['game'], r['player'], r['trajectoryHalf'], r['trajectoryInterval']) for r in members}
         if len(signatures) != 1:
+            failures[key] = 'CONFLICTING_PERSONAL_HISTORY'
             continue
         game, runner, half, interval = next(iter(signatures))
         expected = {r['episode'] for r in members}
@@ -754,34 +767,56 @@ def run_construction_results(rows):
         for row in movements[key]:
             observed[row.get('episode')].append(row)
         if set(observed) != expected:
+            failures[key] = 'PERSONAL_HISTORY_MEMBER_COVERAGE'
             continue
         inputs, trace, runs = [], [], []
         for episode in sorted(expected):
             candidates = observed[episode]
             # Optional paths may have duplicates; conflicting or missing state
             # facts must remain visible instead of selecting the first value.
-            fields = ('game', 'runner', 'act', 'resolution', 'metricOrigin', 'hasSafeType',
-                      'hasOutType', 'hasRunType', 'destinationCode', 'trajectoryHalf', 'trajectoryInterval')
+            fields = ('game', 'runner', 'act', 'resolution', 'batter', 'metricOrigin',
+                      'originDesignation', 'originBase', 'originCode', 'hasSafeType',
+                      'hasOutType', 'hasRunType', 'destinationBase', 'destinationCode',
+                      'trajectoryHalf', 'trajectoryInterval')
             states = {tuple(r.get(f) for f in fields) for r in candidates}
             if len(states) != 1:
+                failures[key] = 'CONFLICTING_SEGMENT_STATE'
                 break
             row = candidates[0]
             if (row.get('game') != game or row.get('runner') != runner or row.get('trajectoryHalf') != half
                     or row.get('trajectoryInterval') != interval or row.get('metricOrigin') not in {'0', '1', '2', '3'}
                     or row.get('hasOutType') != 'false'):
+                failures[key] = 'UNSUPPORTED_SCORING_HISTORY'
                 break
             if row.get('hasRunType') == 'true' and row.get('hasSafeType') == 'false':
                 end = 4; runs.append(row['resolution'])
             elif row.get('hasRunType') == 'false' and row.get('hasSafeType') == 'true' and row.get('destinationCode') in {'1B', '2B', '3B'}:
                 end = int(row['destinationCode'][0])
             else:
+                failures[key] = 'UNSUPPORTED_SEGMENT_END'
                 break
-            start = int(row['metricOrigin'])
+            # metricOrigin belongs to the batter-attributed consequence: it is
+            # HOME=0 for that PA's batter even after the batter reaches base.
+            # Run depth counts each actual segment's state change instead.
+            # An explicit segment origin takes priority and must not disappear
+            # behind that analytical HOME override, including conflicting codes.
+            if row.get('originDesignation') or row.get('originBase') or row.get('originCode'):
+                if (not row.get('originDesignation') or not row.get('originBase')
+                        or row.get('originCode') not in {'1B', '2B', '3B'}):
+                    failures[key] = 'UNSUPPORTED_SEGMENT_ORIGIN'
+                    break
+                start = int(row['originCode'][0])
+            elif row.get('metricOrigin') == '0' and row.get('runner') == row.get('batter'):
+                start = 0
+            else:
+                failures[key] = 'UNSUPPORTED_SEGMENT_ORIGIN'
+                break
             inputs.append(dict(key=key[1], episode=episode, changesState=start != end))
             trace.append(dict(episode=episode, act=row['act'], resolution=row['resolution'],
                               start=start, end=end, changesState=start != end))
         else:
             if len(runs) != 1:
+                failures[key] = 'SCORING_HISTORY_TERMINAL_COVERAGE'
                 continue
             calculated = calculate('run-construction-depth', inputs)
             calculated.update(graph=key[0], game=game, trajectory=key[1], runner=runner,
@@ -789,7 +824,27 @@ def run_construction_results(rows):
                               scope='complete admitted scoring-runner history',
                               evidence=sorted({key[1], interval, half, *expected, *runs}))
             results.append(calculated)
-    return results
+    # A counted Run must have one supported personal history. Never pick the
+    # first candidate or count it twice when two wholes claim the same Run.
+    supported = {(run['graph'], run['run']): run for run in results
+                 if len(run_histories[(run['graph'], run['run'])]) == 1
+                 and (run['graph'], run['run']) in observed_runs}
+    unresolved = []
+    for key, game in sorted(observed_runs.items()):
+        if key in supported:
+            continue
+        owners = run_histories[key]
+        if len(owners) > 1:
+            reasons = ['AMBIGUOUS_SCORING_HISTORY']
+        elif not owners:
+            reasons = ['MISSING_PERSONAL_SCORING_HISTORY']
+        else:
+            owner, = owners
+            reasons = [failures.get(owner, 'MISSING_PERSONAL_SCORING_HISTORY')]
+        unresolved.append(dict(graph=key[0], game=game, run=key[1], status='unavailable',
+                               value=None, gaps=reasons,
+                               trajectories=sorted(owner[1] for owner in owners)))
+    return {'runs': [supported[key] for key in sorted(supported)], 'unresolvedRuns': unresolved}
 
 
 def loaded_award_consequences(rows, *, metric_id='tfs'):

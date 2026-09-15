@@ -5,7 +5,20 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { createBaseballServer } from '../server.mjs';
 import { metricCatalog, validateMetricRequest, validateDashboardRequest, compileMetricEvidenceQuery, metricDisplayTargets, compileMetricDisplayQuery, normalizeMetricDisplayLabels, automaticMinimumPA, playerLeaderboard } from '../query-builder/metric-suite-query-builder.js';
-import { displayFraction, resultHeadline, movementEvidenceLabel, consequencePresentation, formatMetricValue, resultPresentation, resultDateLabel, selectionFromUrl, displayPlayer, exampleAnswer, dashboardSummary, matchesMetric, metricRanking, dashboardLoadStatus } from '../metrics.js';
+import { displayFraction, resultHeadline, movementEvidenceLabel, consequencePresentation, formatMetricValue, resultPresentation, resultDateLabel, selectionFromUrl, displayPlayer, exampleAnswer, dashboardSummary, matchesMetric, metricRanking, dashboardLoadStatus, unresolvedRunRows } from '../metrics.js';
+
+test('unresolved runs keep their identities and explain the actual evidence problem', () => {
+  const evidence = { graph: 'https://w3id.org/baseball/graph/game/566279',
+    run: 'https://baseballontology.org/data/game/566279/runner-resolution/23/0',
+    status: 'unavailable', value: null, gaps: ['CONFLICTING_SEGMENT_STATE'] };
+  const [row] = unresolvedRunRows([evidence]);
+  assert.equal(row.game, '566279'); assert.equal(row.run, '23/0');
+  assert.match(row.reason, /conflicting base states/);
+  assert.deepEqual(row.evidence, evidence);
+  assert.match(unresolvedRunRows([{ ...evidence, gaps: ['MISSING_PERSONAL_SCORING_HISTORY'] }])[0].reason, /complete history/);
+  assert.match(unresolvedRunRows([{ ...evidence, gaps: ['NEW_GAP'] }])[0].reason, /Additional history evidence/);
+  assert.deepEqual(unresolvedRunRows(), []);
+});
 
 test('loaded game evidence does not report that player leaderboards are ready', () => {
   const missing = { graphCount: 14, metrics: [{status:'available',value:{numerator:'1',denominator:'2'}}] };

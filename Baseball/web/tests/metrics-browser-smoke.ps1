@@ -248,6 +248,12 @@ window.fetch = (...args) => {
     assert(flores.querySelectorAll('li').length===3,'Episode trace is incomplete');
     assert(id('result').dataset.state==='partial'&&id('result-scope').textContent.includes('incomplete'),'Population scope overstated');
     assert(id('coverage').textContent.includes('Observed runs without a result4'),'Missing coverage gap');
+    if (payload.metric.unresolvedRuns) {
+      const missing=id('unresolved-run-results');
+      assert(!missing.hidden && missing.querySelectorAll('tbody tr').length===4,'Unresolved run inventory did not render');
+      assert(missing.textContent.includes('complete history for this scoring runner is missing'),'Actual missing-history reason is not visible');
+      assert(missing.textContent.includes('14/1'),'The affected counted run was lost');
+    }
     assert(!id('download-result').disabled,'Run evidence download disabled');
     id('run-results').scrollIntoView();
     assert(document.documentElement.scrollWidth<=innerWidth,'Run cards overflow mobile');
