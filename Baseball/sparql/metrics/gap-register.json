@@ -260,14 +260,15 @@
       "question": "Preserve official PA attribution separately from actual agency. Separate Batter Acts per uninterrupted player participation in a substituted PA are accepted; implement and reconcile this beyond B1 ordinary-turn coverage.",
       "direction": "Preserve official PA attribution separately from actual agency. Separate Batter Acts per uninterrupted player participation in a substituted PA are accepted; implement and reconcile this beyond B1 ordinary-turn coverage.",
       "status": "open",
-      "disposition": "accepted-policy-source-implementation-pending",
+      "disposition": "partial-source-implementation-complete-population-pending",
       "owner": "engineering",
-      "implementationBehavior": "calculation uses accepted policy; live output remains unavailable until source-owned graph prerequisites are admitted",
+      "implementationBehavior": "Actual substituted Batter Acts and swing/bunt attribution implemented and proved through RML, SHACL, canonical query and SQL. Official statistical PA assignment and complete selected population remain independently gated.",
       "decisionRecords": [
         "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
         "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json",
         "archive/design-records/metric-suite-gap-answers-2026-09-09/decision.json",
-        "archive/design-records/metric-completion-decisions-2026-09-15/decision.json"
+        "archive/design-records/metric-completion-decisions-2026-09-15/decision.json",
+        "archive/design-records/substituted-batter-participation/review.json"
       ],
       "researchAssessment": {
         "assessedOn": "2026-09-08",
@@ -280,7 +281,8 @@
           "evidence"
         ],
         "livePrerequisiteClosed": false
-      }
+      },
+      "implementationEvidence": "benchmarks/metrics/substituted-batters-2026-09-15/result.json"
     },
     {
       "id": "INDEPENDENT_EPISODES",

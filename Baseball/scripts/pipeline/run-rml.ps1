@@ -298,6 +298,10 @@ try {
             Where-Object { $_._baseballO.hasPlateAppearanceStructure -eq $true }
     ).Count
     $expectedGameEndTime = [string]$contextDocument._baseballO.gameEndTime
+    $batterParticipationEvidence = @(foreach ($contextPlay in $contextDocument.liveData.plays.allPlays) {
+        foreach ($participation in $contextPlay._baseballO.batterParticipations) { $participation }
+    })
+    $expectedBatterActCount = $batterParticipationEvidence.Count
     if ($expectedPlateAppearanceCount -eq 0) {
         throw "Game $gamePk has no canonical plate appearances."
     }
@@ -373,7 +377,7 @@ try {
         throw "RMLMapper produced no RDF for game $gamePk."
     }
 
-    & python $validatorPath $stageOutput $gamePk '--expected-player-participants' $expectedPlayerParticipantCount '--expected-plate-appearances' $expectedPlateAppearanceCount '--expected-batter-acts' $expectedPlateAppearanceCount '--expected-pitches' $expectedPitchCount '--expected-batting-acts' $expectedBattingActCount '--expected-contacts' $expectedContactCount '--expected-runner-records' $expectedRunnerRecordCount '--expected-runner-resolutions' $expectedRunnerResolutionCount '--expected-pitch-ball-control-failures' 0 '--expected-passed-balls' $passedBallEventIds.Count '--expected-wild-pitches' $wildPitchEventIds.Count '--expected-uncaught-third-strikes' $expectedUncaughtThirdStrikeCount '--expected-game-end' $expectedGameEndTime
+    & python $validatorPath $stageOutput $gamePk '--expected-player-participants' $expectedPlayerParticipantCount '--expected-plate-appearances' $expectedPlateAppearanceCount '--expected-batter-acts' $expectedBatterActCount '--expected-pitches' $expectedPitchCount '--expected-batting-acts' $expectedBattingActCount '--expected-contacts' $expectedContactCount '--expected-runner-records' $expectedRunnerRecordCount '--expected-runner-resolutions' $expectedRunnerResolutionCount '--expected-pitch-ball-control-failures' 0 '--expected-passed-balls' $passedBallEventIds.Count '--expected-wild-pitches' $wildPitchEventIds.Count '--expected-uncaught-third-strikes' $expectedUncaughtThirdStrikeCount '--expected-game-end' $expectedGameEndTime
     if ($LASTEXITCODE -ne 0) {
         throw "Generated RDF validation failed for game $gamePk."
     }
@@ -428,6 +432,7 @@ try {
         runnerHistoryReconciliation = $contextDocument._baseballO.runnerHistoryReconciliation
         runnerHistoryMembershipVerified = $true
         runnerHistoryVerifierSha256 = (Get-FileHash -LiteralPath $runnerHistoryVerifier -Algorithm SHA256).Hash.ToLowerInvariant()
+        batterParticipationEvidence = $batterParticipationEvidence
         metricMappingEvidence = $contextDocument._baseballO.metricMappingEvidence
         metricMappingMembershipVerified = $true
         metricMappingVerifierSha256 = (Get-FileHash -LiteralPath $metricMappingVerifier -Algorithm SHA256).Hash.ToLowerInvariant()
@@ -447,7 +452,7 @@ try {
         sourceCounts = [ordered]@{
             playerParticipants = $expectedPlayerParticipantCount
             plateAppearances = $expectedPlateAppearanceCount
-            batterActs = $expectedPlateAppearanceCount
+            batterActs = $expectedBatterActCount
             pitches = $expectedPitchCount
             battingActs = $expectedBattingActCount
             contacts = $expectedContactCount

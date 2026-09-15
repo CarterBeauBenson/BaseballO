@@ -231,8 +231,7 @@ shape:PlateAppearanceShape
         sh:path bfo:BFO_0000117 ;
         sh:qualifiedValueShape [ sh:class base:BatterAct ] ;
         sh:qualifiedMinCount 1 ;
-        sh:qualifiedMaxCount 1 ;
-        sh:message "A PlateAppearance must contain exactly one BatterAct."@en
+        sh:message "A PlateAppearance must contain the distinct Batter Acts of its actual batting participants."@en
     ] ;
     sh:property [
         sh:path bfo:BFO_0000055 ;
@@ -362,7 +361,7 @@ shape:BatterActShape
     a sh:NodeShape ;
     sh:targetClass base:BatterAct ;
     sh:nodeKind sh:IRI ;
-    sh:pattern "^https://baseballontology\\.org/data/game/[0-9]+/plate-appearance/[0-9]+/batter-act$" ;
+    sh:pattern "^https://baseballontology\\.org/data/game/[0-9]+/plate-appearance/[0-9]+/batter-act(/[0-9]+)?$" ;
     sh:property shape:PlateAppearanceContextProperty,
         shape:BatterPersonProperty,
         shape:BatterRoleProperty ;
@@ -418,6 +417,23 @@ shape:BattingActionShape
         shape:BatterActContextProperty,
         shape:BatterPersonProperty,
         shape:BatterRoleProperty ;
+    sh:sparql [
+        sh:message "A batting action must agree with its enclosing Batter Act's person, persistent role and PA."@en ;
+        sh:select """
+            PREFIX base: <https://baseballontology.org/>
+            PREFIX bfo: <http://purl.obolibrary.org/obo/>
+            PREFIX cco: <https://www.commoncoreontologies.org/>
+            SELECT $this WHERE {
+              $this bfo:BFO_0000132 ?act, ?pa ; bfo:BFO_0000057 ?person ; bfo:BFO_0000055 ?role .
+              ?act a base:BatterAct . ?pa a base:PlateAppearance .
+              ?person a cco:ont00001262 . ?role a base:BatterRole .
+              FILTER NOT EXISTS {
+                ?act bfo:BFO_0000132 ?pa ; bfo:BFO_0000057 ?person ; bfo:BFO_0000055 ?role .
+                ?pa bfo:BFO_0000117 ?act ; bfo:BFO_0000057 ?person .
+              }
+            }
+        """
+    ] ;
     sh:property [
         sh:path bfo:BFO_0000062 ;
         sh:qualifiedValueShape [ sh:class base:PitchAct ] ;

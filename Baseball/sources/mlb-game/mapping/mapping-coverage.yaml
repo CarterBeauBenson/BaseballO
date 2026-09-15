@@ -3,7 +3,7 @@ source_module: mlb-game
 source_file_name_expected: game.json
 source_mutation: none
 intermediary_transformation: structural-projection-and-explicit-derived-gates
-mapping_version: 0.6.1
+mapping_version: 0.6.2
 completed_game_precondition: true
 
 execution_context:
@@ -13,7 +13,8 @@ execution_context:
   reserved_key: _baseballO
   includes:
   - pitch atBatIndex
-  - pitch batterId and pitcherId
+  - pitch actual batterId, enclosing batterActIri, and pitcherId
+  - accepted Q4 per-person batting participations from explicit reconciled PH changes
   - runner atBatIndex and zero-based runnerIndex
   - runner start-base and score-destination source facts
   - pitch bunt-attempt fact from MLB pitch-code metadata or an in-play bunt trajectory

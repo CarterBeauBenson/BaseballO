@@ -1,6 +1,6 @@
 baseball_iri_policy:
   title: "Baseball Knowledge Graph IRI Policy"
-  version: "1.6"
+  version: "1.7"
   status: "canonical"
   effective_until: "Explicitly revised by the project owner"
 
@@ -756,3 +756,12 @@ baseball_iri_policy:
 # runner-trajectory/{lifetimeKey}/temporal-interval is the lifetime's interval.
 # Source event timestamps bound its support; they are not emitted as fabricated
 # exact instants for the runner's entry or termination.
+
+# Q4 actual batting participation, accepted 2026-09-15:
+# archive/design-records/substituted-batter-participation/review.json
+# One actual batter keeps game/{gamePk}/plate-appearance/{PA}/batter-act.
+# Multiple actual batters use that path plus /{playerId}; each accepted identity
+# is one uninterrupted person's participation in that PA. Re-entry/repeated
+# person stints are withheld by this bounded source projection, never merged.
+# Each uses player/{playerId}/role/batter, not a new role per appearance.
+# Statistical PA assignment is independently reconciled, not an act count.

@@ -794,6 +794,91 @@ def annotate_officials(document: dict[str, object]) -> int:
     return len(officials)
 
 
+def batter_participation_context(play: dict, game_pk: str, *, source_consistent: bool) -> dict:
+    """Q4 actual per-person participation; official PA credit is independent.
+
+    Explicit PH replacement chains assign delivered pitches to their actual
+    batters. No lineup replacement by itself proves earlier participation.
+    Ambiguous attribution fails preparation rather than promoting false agents.
+    """
+    pa = require_numeric(play['about']['atBatIndex'], 'batting participation PA')
+    final = require_numeric(play['matchup']['batter']['id'], 'final batter')
+    base = f'https://baseballontology.org/data/game/{game_pk}/plate-appearance/{pa}'
+    events = play.get('playEvents', [])
+    changes = []
+    for event in events:
+        if event.get('details', {}).get('eventType') != 'offensive_substitution':
+            continue
+        position = event.get('position', {}).get('abbreviation')
+        if position == 'PR':
+            continue  # A pinch runner does not change the person batting.
+        if position != 'PH' or event.get('isSubstitution') is not True or event.get('isPitch') is not False:
+            raise ValueError(f'PA {pa}: ambiguous offensive substitution')
+        changes.append(event)
+    current = require_numeric(changes[0]['replacedPlayer']['id'], 'replaced batter') if changes else final
+    assignments, observed, replaced = {}, [], set()
+
+    def instant(value):
+        try:
+            t = datetime.fromisoformat(value.replace('Z', '+00:00'))
+            return t if t.tzinfo is not None else None
+        except (AttributeError, ValueError):
+            return None
+
+    if changes:
+        indexes = [e.get('index') for e in events]
+        if any(type(i) is not int for i in indexes) or indexes != list(range(len(events))):
+            raise ValueError(f'PA {pa}: incomplete substitution event membership')
+    for event in events:
+        if event in changes:
+            outgoing = require_numeric(event.get('replacedPlayer', {}).get('id'), 'replaced batter')
+            incoming = require_numeric(event.get('player', {}).get('id'), 'replacement batter')
+            if outgoing != current or incoming == current or incoming in replaced:
+                raise ValueError(f'PA {pa}: conflicting or repeated batter stint')
+            if event.get('reviewDetails') or event.get('details', {}).get('hasReview') is not False:
+                raise ValueError(f'PA {pa}: unresolved substitution review')
+            replaced.add(current)
+            current = incoming
+        elif event.get('isPitch') is True or (event.get('type') == 'no_pitch' and
+                (event.get('details', {}).get('isBall') is True or event.get('details', {}).get('isStrike') is True)):
+            if current not in observed:
+                observed.append(current)
+            if event.get('isPitch') is True:
+                pid = require_segment(event.get('playId'), 'assigned pitch')
+                if pid in assignments:
+                    raise ValueError(f'PA {pa}: duplicate assigned pitch')
+                assignments[pid] = current
+    if current != final:
+        raise ValueError(f'PA {pa}: substitution chain disagrees with final matchup')
+    if final not in observed:
+        if observed:
+            raise ValueError(f'PA {pa}: replacement has no supported batting participation')
+        observed.append(final)  # Preserve the existing no-pitch PA pattern.
+    if len(observed) > 1:
+        if not source_consistent:
+            raise ValueError(f'PA {pa}: substituted participation needs reconciled source membership')
+        # Corroborate the side of every substitution on which actual pitches
+        # occurred. These source bounds are not exact Batter Act intervals.
+        for change in changes:
+            start, end = instant(change.get('startTime')), instant(change.get('endTime'))
+            if not start or not end or start > end:
+                raise ValueError(f'PA {pa}: unsupported substitution boundary')
+            for event in events:
+                if not (event.get('isPitch') is True or (event.get('type') == 'no_pitch' and
+                        (event.get('details', {}).get('isBall') is True or event.get('details', {}).get('isStrike') is True))):
+                    continue
+                a, b = instant(event.get('startTime')), instant(event.get('endTime'))
+                if not a or not b or a > b or (event['index'] < change['index'] and b > start) or (event['index'] > change['index'] and a < end):
+                    raise ValueError(f'PA {pa}: pitch overlaps substitution boundary')
+    rows = [dict(atBatIndex=pa, playerId=person,
+                 actIri=base+'/batter-act'+('/'+person if len(observed) > 1 else ''),
+                 pitchIds=[pid for pid, actor in assignments.items() if actor == person])
+            for person in observed]
+    by_person = {row['playerId']: row for row in rows}
+    return dict(participations=rows, pitches={pid: dict(batterId=person, batterActIri=by_person[person]['actIri'])
+                for pid, person in assignments.items()})
+
+
 def automatic_count_awards(document: dict) -> dict:
     """Select Q5's explicit count awards; never convert provider rows to pitches.
 
@@ -1244,6 +1329,9 @@ def main() -> None:
             "hasReviewStatus": False,
             "hasReviewChallengerId": False,
         }
+        batting_context = batter_participation_context(play, game_pk,
+            source_consistent=root_context['runnerHistoryReconciliation']['sourceConsistency'] == 'consistent')
+        play_context['batterParticipations'] = batting_context['participations'] if has_plate_appearance_structure else []
         occupied_base_count += len(start_base_occupancies)
         review_type: str | None = None
         review_context: dict[str, object] = {}
@@ -1449,7 +1537,7 @@ def main() -> None:
             )
             event_context: dict[str, object] = {
                 "atBatIndex": at_bat_index,
-                "batterId": batter_id,
+                **batting_context['pitches'][play_id],
                 "pitcherId": pitcher_id,
                 "isBuntAttempt": is_bunt_attempt,
                 "matchesBuntContactSource": (

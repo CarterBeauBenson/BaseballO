@@ -18,6 +18,11 @@
 # participating teams. The execution harness resolves only those markers in a temporary
 # mapping copy because nested JSONPath references are relative to their logical-source record.
 
+<#BatterParticipationSource> a rml:LogicalSource ;
+  rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.liveData.plays.allPlays[*]._baseballO.batterParticipations[*]" .
+
 <#RootSource> a rml:LogicalSource ;
   rml:source "game.json" ;
   rml:referenceFormulation ql:JSONPath ;
@@ -904,15 +909,15 @@
   rr:subjectMap [ rr:template "https://baseballontology.org/data/player/{person.id}/team/{_baseballO.teamId}/role/player/stasis/temporal-interval" ; rr:termType rr:IRI ; rr:class obo:BFO_0000038 ] .
 
 <#BatterRoleMap> a rr:TriplesMap ;
-  rml:logicalSource <#PlaySource> ;
-  rr:subjectMap [ rr:template "https://baseballontology.org/data/player/{matchup.batter.id}/role/batter" ; rr:termType rr:IRI ; rr:class base:BatterRole ] ;
+  rml:logicalSource <#BatterParticipationSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/player/{playerId}/role/batter" ; rr:termType rr:IRI ; rr:class base:BatterRole ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000197 ;
-    rr:objectMap [ rr:template "https://baseballontology.org/data/player/{matchup.batter.id}" ; rr:termType rr:IRI ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/player/{playerId}" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000056 ;
-    rr:objectMap [ rr:template "https://baseballontology.org/data/player/{matchup.batter.id}/role/batter/stasis" ; rr:termType rr:IRI ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/player/{playerId}/role/batter/stasis" ; rr:termType rr:IRI ]
   ] .
 
 <#PitcherRoleMap> a rr:TriplesMap ;
@@ -964,15 +969,15 @@
   ] .
 
 <#BatterRoleStasisMap> a rr:TriplesMap ;
-  rml:logicalSource <#PlaySource> ;
-  rr:subjectMap [ rr:template "https://baseballontology.org/data/player/{matchup.batter.id}/role/batter/stasis" ; rr:termType rr:IRI ; rr:class cco:ont00000824 ] ;
-  rr:predicateObjectMap [ rr:predicate obo:BFO_0000057 ; rr:objectMap [ rr:template "https://baseballontology.org/data/player/{matchup.batter.id}" ; rr:termType rr:IRI ] ] ;
-  rr:predicateObjectMap [ rr:predicate obo:BFO_0000057 ; rr:objectMap [ rr:template "https://baseballontology.org/data/player/{matchup.batter.id}/role/batter" ; rr:termType rr:IRI ] ] ;
-  rr:predicateObjectMap [ rr:predicate obo:BFO_0000199 ; rr:objectMap [ rr:template "https://baseballontology.org/data/player/{matchup.batter.id}/role/batter/stasis/temporal-interval" ; rr:termType rr:IRI ] ] .
+  rml:logicalSource <#BatterParticipationSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/player/{playerId}/role/batter/stasis" ; rr:termType rr:IRI ; rr:class cco:ont00000824 ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000057 ; rr:objectMap [ rr:template "https://baseballontology.org/data/player/{playerId}" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000057 ; rr:objectMap [ rr:template "https://baseballontology.org/data/player/{playerId}/role/batter" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000199 ; rr:objectMap [ rr:template "https://baseballontology.org/data/player/{playerId}/role/batter/stasis/temporal-interval" ; rr:termType rr:IRI ] ] .
 
 <#BatterRoleStasisIntervalMap> a rr:TriplesMap ;
-  rml:logicalSource <#PlaySource> ;
-  rr:subjectMap [ rr:template "https://baseballontology.org/data/player/{matchup.batter.id}/role/batter/stasis/temporal-interval" ; rr:termType rr:IRI ; rr:class obo:BFO_0000038 ] .
+  rml:logicalSource <#BatterParticipationSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/player/{playerId}/role/batter/stasis/temporal-interval" ; rr:termType rr:IRI ; rr:class obo:BFO_0000038 ] .
 
 <#PitcherRoleStasisMap> a rr:TriplesMap ;
   rml:logicalSource <#PlaySource> ;
@@ -1272,19 +1277,19 @@
   rr:predicateObjectMap [ rr:predicate obo:BFO_0000176 ; rr:objectMap [ rr:template "https://baseballontology.org/data/venue/{$.gameData.venue.id}/baseball-field" ; rr:termType rr:IRI ] ] .
 
 <#BatterActMap> a rr:TriplesMap ;
-  rml:logicalSource <#PlaySource> ;
-  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{about.atBatIndex}/batter-act" ; rr:termType rr:IRI ; rr:class base:BatterAct ] ;
+  rml:logicalSource <#BatterParticipationSource> ;
+  rr:subjectMap [ rml:reference "actIri" ; rr:termType rr:IRI ; rr:class base:BatterAct ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000132 ;
-    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{about.atBatIndex}" ; rr:termType rr:IRI ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{atBatIndex}" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000057 ;
-    rr:objectMap [ rr:template "https://baseballontology.org/data/player/{matchup.batter.id}" ; rr:termType rr:IRI ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/player/{playerId}" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000055 ;
-    rr:objectMap [ rr:template "https://baseballontology.org/data/player/{matchup.batter.id}/role/batter" ; rr:termType rr:IRI ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/player/{playerId}/role/batter" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate cco:ont00001918 ;
@@ -2015,7 +2020,7 @@
   ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000132 ;
-    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}/batter-act" ; rr:termType rr:IRI ]
+    rr:objectMap [ rml:reference "_baseballO.batterActIri" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate cco:ont00001918 ;
@@ -2055,7 +2060,7 @@
   ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000132 ;
-    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}/batter-act" ; rr:termType rr:IRI ]
+    rr:objectMap [ rml:reference "_baseballO.batterActIri" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate cco:ont00001918 ;
@@ -2099,7 +2104,7 @@
   ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000132 ;
-    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}/batter-act" ; rr:termType rr:IRI ]
+    rr:objectMap [ rml:reference "_baseballO.batterActIri" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate cco:ont00001918 ;
@@ -2143,7 +2148,7 @@
   ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000132 ;
-    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}/batter-act" ; rr:termType rr:IRI ]
+    rr:objectMap [ rml:reference "_baseballO.batterActIri" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate cco:ont00001918 ;
@@ -2187,7 +2192,7 @@
   ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000132 ;
-    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}/batter-act" ; rr:termType rr:IRI ]
+    rr:objectMap [ rml:reference "_baseballO.batterActIri" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate cco:ont00001918 ;
@@ -2231,7 +2236,7 @@
   ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000132 ;
-    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}/batter-act" ; rr:termType rr:IRI ]
+    rr:objectMap [ rml:reference "_baseballO.batterActIri" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate cco:ont00001918 ;
@@ -2888,7 +2893,7 @@
   rml:logicalSource <#BuntSource> ;
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/act/bunt/{playId}" ; rr:termType rr:IRI ; rr:class base:BuntAct ] ;
   rr:predicateObjectMap [ rr:predicate obo:BFO_0000132 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}" ; rr:termType rr:IRI ] ] ;
-  rr:predicateObjectMap [ rr:predicate obo:BFO_0000132 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}/batter-act" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000132 ; rr:objectMap [ rml:reference "_baseballO.batterActIri" ; rr:termType rr:IRI ] ] ;
   rr:predicateObjectMap [ rr:predicate obo:BFO_0000057 ; rr:objectMap [ rr:template "https://baseballontology.org/data/player/{_baseballO.batterId}" ; rr:termType rr:IRI ] ] ;
   rr:predicateObjectMap [ rr:predicate obo:BFO_0000055 ; rr:objectMap [ rr:template "https://baseballontology.org/data/player/{_baseballO.batterId}/role/batter" ; rr:termType rr:IRI ] ] ;
   rr:predicateObjectMap [ rr:predicate obo:BFO_0000057 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/artifact/baseball-bat/{playId}" ; rr:termType rr:IRI ] ] ;
@@ -3491,9 +3496,10 @@
   rr:predicateObjectMap [ rr:predicate obo:BFO_0000117 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{about.atBatIndex}" ; rr:termType rr:IRI ] ] .
 
 <#PlateAppearanceCoreContainmentMap> a rr:TriplesMap ;
-  rml:logicalSource <#PlaySource> ;
-  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{about.atBatIndex}" ; rr:termType rr:IRI ] ;
-  rr:predicateObjectMap [ rr:predicate obo:BFO_0000117 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{about.atBatIndex}/batter-act" ; rr:termType rr:IRI ] ] .
+  rml:logicalSource <#BatterParticipationSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{atBatIndex}" ; rr:termType rr:IRI ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000057 ; rr:objectMap [ rr:template "https://baseballontology.org/data/player/{playerId}" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000117 ; rr:objectMap [ rml:reference "actIri" ; rr:termType rr:IRI ] ] .
 
 <#PlateAppearanceResultContainmentMap> a rr:TriplesMap ;
   rml:logicalSource <#CompletedPlaySource> ;

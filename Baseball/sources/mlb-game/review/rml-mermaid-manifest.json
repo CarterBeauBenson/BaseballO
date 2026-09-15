@@ -132,7 +132,7 @@
     {
       "id": "07-plate-appearance-core",
       "title": "Plate appearance and player acts",
-      "summary": "A plate appearance contains a batter act and pitch acts, with batter and pitcher persons participating through contextual roles.",
+      "summary": "A plate appearance contains distinct Batter Acts for each actual uninterrupted batting participant, reusing persistent Batter Roles; actual participation remains separate from official statistical PA credit.",
       "maps": [
         "PlateAppearanceMap",
         "PlateAppearanceCoreContainmentMap",

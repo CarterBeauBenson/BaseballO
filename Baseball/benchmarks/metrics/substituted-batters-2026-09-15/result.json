@@ -1,0 +1,74 @@
+{
+  "artifactType": "baseballo-metric-mapping-proof",
+  "status": "passed-isolated-developer-proof",
+  "acceptedDecisionCommit": "db602fe",
+  "decision": "archive/design-records/substituted-batter-participation/review.json",
+  "gamePk": "824169",
+  "source": "data/raw/samples/2026-07-18/824169.json",
+  "inputSha256": "977175eabf976564953f859ad4f342b249d3c0c0aacbae1f8b41d65c5e3cac75",
+  "completedAtUtc": "2026-09-15T18:25:20.6523987Z",
+  "hashes": {
+    "mappingSha256": "f1f0054989fa91a76b8aa21a857f8b08cdeea24a88177e68a5ec0bb7ad0c493e",
+    "contextBuilderSha256": "67562453c55a121ae1840375b76a583c364335d63d14ae3354697dfc9620a1ab",
+    "executionContextSha256": "04fdfb2d48a627ffa191bcce533418e9eb898ec5a73f230954b17babb0162ba1",
+    "shaclShapeSha256": "220d31325dccf4a58504542f8deb581828ec0709641cbf902f7594ad3929ba40",
+    "metricMappingVerifierSha256": "f6cfa73b4e5ce0a7f1610fd2b95462b1b8c3ca899f50db5afc431133252b1315",
+    "effectiveMappingSha256": "a5c8d52e704c2564f83a674b8b54af466e058ffa0bc1e2550c074c3a7619bae0"
+  },
+  "rdfSha256": "f96db782d3c8ab048df1ea86bc7fe25dfa418d7da43925e44cf6876f8298b061",
+  "rdfTriples": 36833,
+  "sourceCounts": {
+    "playerParticipants": 52,
+    "plateAppearances": 88,
+    "batterActs": 89,
+    "pitches": 343,
+    "battingActs": 159,
+    "contacts": 114,
+    "runnerRecords": 120,
+    "runnerResolutions": 120,
+    "pitchBallControlFailures": 0,
+    "passedBalls": 0,
+    "wildPitches": 0,
+    "uncaughtThirdStrikes": 0
+  },
+  "shaclEngine": "jena",
+  "shaclConforms": true,
+  "shaclViolations": 0,
+  "sourceConsistency": "consistent",
+  "sourceToGraphMembershipVerified": true,
+  "substitutedPA": "31",
+  "participations": [
+    {
+      "atBatIndex": "31",
+      "playerId": "572233",
+      "actIri": "https://baseballontology.org/data/game/824169/plate-appearance/31/batter-act/572233",
+      "pitchIds": [
+        "7febb4e5-9fa3-3a27-a086-d8dcf22a4742"
+      ]
+    },
+    {
+      "atBatIndex": "31",
+      "playerId": "664774",
+      "actIri": "https://baseballontology.org/data/game/824169/plate-appearance/31/batter-act/664774",
+      "pitchIds": [
+        "cd838106-ce29-3078-bbd5-d179196d7c43",
+        "ff3d0d48-096a-3d81-bc50-a9d6013f1337",
+        "955cab76-2895-3a3a-8121-d4d765593deb",
+        "a1c07bd3-e270-3f5a-9b5c-9985124af2cc"
+      ]
+    }
+  ],
+  "focusedTestsPassed": 22,
+  "realOnePaRmlShaclQuerySqlProof": true,
+  "graphPromoted": false,
+  "officialStatisticalAttributionAdmitted": false,
+  "metricPopulationAdmitted": false,
+  "semanticRatificationChanged": false,
+  "postProofGuardVerification": {
+    "reason": "Reject a replacement with no supported participation; require count-award bounds across substitutions too.",
+    "contextBuilderSha256": "d992a428bed23de245c159d4f577529be10bdd5d0b14ccbb27b3fef03fb6cd82",
+    "wholeGameExecutionContextUnchanged": true,
+    "executionContextSha256": "04fdfb2d48a627ffa191bcce533418e9eb898ec5a73f230954b17babb0162ba1",
+    "latestRealOnePaRmlShaclQuerySqlPassed": true
+  }
+}

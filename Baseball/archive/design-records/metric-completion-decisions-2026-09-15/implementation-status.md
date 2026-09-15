@@ -36,6 +36,17 @@ records the real one-PA and whole-game results. Full ordered count extraction,
 corrections, termination and complete player populations remain unfinished;
 the first-pass table above is historical, not the updated award-mapping status.
 
+## Subsequent question 4 implementation
+
+The scoped record was pushed as `db602fe` before executable changes. Separate
+actual Batter Acts, persistent roles, and pitch/swing/bunt attribution across
+explicit PH changes are now implemented through source context, RML and SHACL.
+The [proof](../../../benchmarks/metrics/substituted-batters-2026-09-15/README.md)
+passes real one-PA and whole-game checks plus canonical query/SQL retention.
+Official statistical PA assignment remains independently gated; multiple
+actual Batter Acts must not become multiple official PAs or automatic player
+qualification. The first-pass table above preserves the earlier status.
+
 ## Non-pitch source fixtures for the accepted next mapping
 
 These are existing checked-in source fields, not a missing external source or
