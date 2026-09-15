@@ -1,5 +1,10 @@
 # One review for the new metric suite
 
+The [concrete defensive-source research](defensive-source-research-2026-09-14.md)
+corrects the broad "missing defensive evidence" claim with Retrosheet sequence
+examples, Statcast throwing/receiving products, official ABS eligibility, and
+the results of bounded access checks. Settled metric decisions are not reopened.
+
 The [September 14 operational audit](operational-blockers-2026-09-14.md) records
 the missing live player-score producer, all 20 metrics, and the remaining
 engineering, source-evidence and player-presentation decisions. The requested

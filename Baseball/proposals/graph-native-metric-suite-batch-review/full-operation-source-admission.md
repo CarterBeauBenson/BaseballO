@@ -1,5 +1,11 @@
 # Full metric operation: source-admission decision
 
+E2 follow-up: [bounded defensive and review source research](defensive-source-research-2026-09-14.md)
+now identifies concrete Retrosheet sequence evidence and Statcast products,
+with explicit historical/current-season and access limitations. The earlier
+absence of a full act sequence in MLB scoring credits is not a finding that
+no richer public evidence exists.
+
 Status: **E1 accepted; E2 investigation remains open**. The explicit
 [September 14 decision](../../archive/design-records/metric-source-c1-operation-2026-09-14/review.json)
 accepts E1 and the existing MLB C1 mapping extension, with no new classes or

@@ -3,6 +3,14 @@
 Engineering audit, September 14, 2026. **The requested dashboard is incomplete.**
 This draft does not record a new ontologist decision or authorize vocabulary.
 
+Follow-up: the user directed web research rather than repeating the questions
+below. The [source investigation](defensive-source-research-2026-09-14.md)
+identifies accessible historical defensive sequences, throwing/receiving
+products, official ABS eligibility, and specific access/coverage limits.
+The previous assistant candidates below remain historical, unaccepted
+proposals; they are not a prerequisite for continuing this research or the
+engineering already authorized by accepted decisions.
+
 The top-five display and qualification code exist. The backend does not yet
 produce their `playerResults` input. In `serving/metric_suite.py`, `live_result`
 returns unavailable whenever the catalog entry has prerequisites; it does not
@@ -79,7 +87,7 @@ establishes complete player participation or qualifies a player for ranking.
    is not automatically a score for every participant. The assignment and
    aggregation rule must be explicit before those cards can rank players.
 
-## Outstanding player-presentation decisions
+## Earlier assistant player-presentation candidates
 
 These are concrete candidates, not accepted policy:
 
