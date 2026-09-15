@@ -90,7 +90,8 @@ window.fetch = (...args) => {
   id('end-date').value=''; id('end-date').dispatchEvent(new Event('input',{bubbles:true}));
   for (let i=0; i<100 && !id('example-answer').textContent; i++) await new Promise(r=>setTimeout(r,50));
   const buttons = [...document.querySelectorAll('#metric-list button')];
-  assert(buttons.length === 20, 'Expected all twenty metric choices');
+  assert(buttons.length === 19, 'Expected nineteen public metric choices');
+  assert(!buttons.some(button=>button.dataset.id==='role-realization-breadth'),'Backend roles appeared as a public metric');
   for (const button of buttons) {
     button.click();
     assert(id('metric-question').textContent && id('metric-reading').textContent, 'Missing presentation guide: '+button.dataset.id);
@@ -100,6 +101,7 @@ window.fetch = (...args) => {
     assert(id('result').hidden && id('download-result').disabled, 'Example became a live result');
   }
   buttons.find(b=>b.dataset.id==='tfs').click();
+  assert(id('metric-facts').textContent.includes('Average contribution per eligible PA'),'Accepted player aggregation guide missing');
   id('example-choice').value='2'; id('example-choice').dispatchEvent(new Event('change'));
   assert(id('example-answer').textContent.includes('-1/4'), 'Passed-ball example did not update');
   assert(id('result').hidden && id('download-result').disabled, 'Changing example admitted a live score');
@@ -117,7 +119,7 @@ window.fetch = (...args) => {
   assert(id('score-exact').textContent.includes('25/12') && !id('download-result').disabled,
     'Changing illustration altered the actual game result');
   id('metric-detail').scrollIntoView();
-  return {badge:id('result-badge').textContent,dates:id('result-dates').textContent,player:'Dylan Beavers',exact:'25/12',workedMetrics:20,examplesIsolatedFromLiveResults:true};
+  return {badge:id('result-badge').textContent,dates:id('result-dates').textContent,player:'Dylan Beavers',exact:'25/12',workedMetrics:19,examplesIsolatedFromLiveResults:true};
 })()
 '@
     $dashboard = Invoke-Page @'
@@ -136,7 +138,7 @@ window.fetch = (...args) => {
     assert(!id('dashboard-overview').hidden,'Dashboard failed: '+id('dashboard-status').textContent);
     assert(calls===1,'Dashboard issued multiple selection requests');
     const cards=[...document.querySelectorAll('#metric-list button')];
-    assert(cards.length===20&&window.dashboardCapture.metrics.length===20,'Dashboard omitted metrics');
+    assert(cards.length===19&&window.dashboardCapture.metrics.length===19,'Dashboard omitted metrics');
     assert(cards.find(b=>b.dataset.id==='tfs').dataset.state==='partial','TFS scope changed');
     assert(cards.find(b=>b.dataset.id==='offensive-reach').querySelector('strong').textContent==='4','Reach integer missing');
     const paq=cards.find(b=>b.dataset.id==='paq-2');
@@ -161,8 +163,8 @@ window.fetch = (...args) => {
     id('metric-visibility').value='all';id('metric-visibility').dispatchEvent(new Event('change'));
     document.querySelector('[data-id="tfs"]').click();
     document.querySelector('.dashboard').scrollIntoView();
-    return {metrics:20,sharedRequests:calls,scopePreserved:true,cardDetailExact:true,
-      presentationGuides:20,perspectives:6,legacyNameSearch:true,
+    return {metrics:19,sharedRequests:calls,scopePreserved:true,cardDetailExact:true,
+      presentationGuides:19,perspectives:6,legacyNameSearch:true,
       execution:window.dashboardCapture.execution,graphCount:window.dashboardCapture.graphCount};
   } finally {window.fetch=original;}
 })()
@@ -336,8 +338,8 @@ window.fetch = (...args) => {
   for(let i=0;i<800&&(!id('dashboard-overview')||id('dashboard-overview').hidden);i++)await new Promise(r=>setTimeout(r,50));
   if(!id('dashboard-overview')||id('dashboard-overview').hidden)throw Error('Default dashboard did not load automatically: '+id('dashboard-status')?.textContent);
   if(id('date-preset').value!=='one_day'||window.initialDashboardRequests!==1)throw Error('Default load did not use one latest-day request');
-  if(document.querySelectorAll('#metric-list button').length!==20||id('download-dashboard').disabled)throw Error('Automatic dashboard response did not populate all cards and download');
-  return {sharedRequests:window.initialDashboardRequests,dates:id('dashboard-dates').textContent,metrics:20};
+  if(document.querySelectorAll('#metric-list button').length!==19||id('download-dashboard').disabled)throw Error('Automatic dashboard response did not populate all cards and download');
+  return {sharedRequests:window.initialDashboardRequests,dates:id('dashboard-dates').textContent,metrics:19};
 })()
 '@
     @{leaderboard=$leaderboard; leaderboardCapture=$leaderboardCapture; leaderboardMobile=$leaderboardMobile; autoLoad=$autoLoad; live=$observed; dashboard=$dashboard; dashboardCapture=$dashboardCapture; dashboardMobile=$dashboardMobile; regressions=$races; runDepth=$runProof; runCapture=$runCapture; desktopCapture=$desktopCapture; mobileCapture=$mobileCapture; exampleCapture=$exampleCapture} | ConvertTo-Json -Depth 10

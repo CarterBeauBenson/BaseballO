@@ -7,9 +7,12 @@ Follow-up: the user directed web research rather than repeating the questions
 below. The [source investigation](defensive-source-research-2026-09-14.md)
 identifies accessible historical defensive sequences, throwing/receiving
 products, official ABS eligibility, and specific access/coverage limits.
-The previous assistant candidates below remain historical, unaccepted
-proposals; they are not a prerequisite for continuing this research or the
-engineering already authorized by accepted decisions.
+The September 15 [player-presentation decision](../../archive/design-records/player-metric-presentation-2026-09-15/user-decision.md)
+now accepts PA-score means, means of individual PA percentiles, scoring-runner
+construction means, participating-defender means, and affected-player review
+attribution. Role breadth remains backend-only. Those choices need no further
+vote; source evidence, aggregation implementation, and non-batting numerical
+minimums remain work to complete.
 
 The top-five display and qualification code exist. The backend does not yet
 produce their `playerResults` input. In `serving/metric_suite.py`, `live_result`
@@ -58,11 +61,11 @@ they are not three complete PA scores or qualified player rows.
 | Recovery Quality | None | Supported ordered post-pitch counts, termination, and complete reference population |
 | Defensive Resolution Depth | None | Complete intentional defensive acts and supported precedence |
 | Defender Breadth | None | Complete defensive agents in the resolution |
-| Run Construction Depth | Complete individual admitted scoring histories | Coverage of the selected run population and a player aggregation rule |
+| Run Construction Depth | Complete individual admitted scoring histories | Coverage of the selected run population and implementation of the accepted scoring-runner mean |
 | Run Construction Breadth | None | Complete histories and supported causal contributions, including the scorer |
-| Adjudication Volatility | Explicitly resolved mapped reviews | Player attribution if this is to become a player leaderboard |
+| Adjudication Volatility | Explicitly resolved mapped reviews | Supported links to the affected batter/runner and implementation of accepted player attribution |
 | Review Dependence Rate | None | All eligible decisions, mechanism-specific eligibility, operative review links, and player attribution |
-| Role Realization Breadth | None | Complete actual realization of the four accepted role kinds |
+| Role Realization Breadth (backend only) | None | Complete actual realization of the four accepted role kinds; no public card |
 | PAQ-2.1 | None | Complete TFS, recovery and defensive inputs, applicability, and reference population |
 
 Independent runner advancement, damage, and net also require their complete
@@ -91,13 +94,15 @@ establishes complete player participation or qualifies a player for ranking.
    cannot silently stand in for official PA totals. Qualification additionally
    needs the player's applicable team-game exposure, including missed games
    and team changes; counting only appearances would lower the minimum.
-4. **Player presentation meaning:** a score for a run, defensive play, or review
-   is not automatically a score for every participant. The assignment and
-   aggregation rule must be explicit before those cards can rank players.
+4. **Player presentation implementation:** the September 15 decision now
+   specifies assignment and aggregation. The corresponding input evidence
+   must still be complete before those cards can rank players.
 
-## Earlier assistant player-presentation candidates
+## Disposition of earlier player-presentation candidates
 
-These are concrete candidates, not accepted policy:
+The September 15 decision accepts the run and defensive means below and selects
+affected-player review statistics. Retaining review-only public panels is not
+the selected direction. Numerical non-batting minimums remain unresolved.
 
 - **Runs:** assign a run's construction score to its scoring runner and display
   that player's mean across their fully supported runs in the selected range.
@@ -107,17 +112,16 @@ These are concrete candidates, not accepted policy:
   or breadth over fully supported defensive resolutions in which they acted.
   This describes their participated-in plays, not individual defensive skill.
   Do not assign a play to a rostered fielder without actual agency evidence.
-- **Reviews:** either retain the accepted review-level panels, or define player
-  populations around the batter/runner whose particular outcome is affected.
-  The latter requires an explicit outcome-to-player evidence path. Review
+- **Reviews:** use player populations around the batter/runner whose particular
+  outcome is affected. This requires an explicit outcome-to-player evidence path. Review
   Dependence must still include that player's eligible never-reviewed decisions
   in its denominator, and retain separate review mechanisms.
 - **Participation:** the role-appropriate approach is accepted. Numerical
   non-batting thresholds and their exposure denominators remain unspecified;
   record them before ranking. Never substitute a PA minimum for a pitcher.
 
-Acceptance of one candidate does not establish the required source evidence
-or authorize a new predicate. The full deliverable is reached only when real
+Acceptance does not establish the required source evidence or authorize a new
+predicate. The full deliverable is reached only when real
 qualified player rows pass source admission, calculation, SQL equivalence and
 the live HTTP/browser path. The current seven-player browser fixture proves
 presentation only. This audit records the unfinished work; it does not close it.

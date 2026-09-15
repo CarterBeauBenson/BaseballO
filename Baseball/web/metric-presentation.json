@@ -1,5 +1,6 @@
 {
-  "version": 1,
+  "version": 2,
+  "playerPresentationDecision": "archive/design-records/player-metric-presentation-2026-09-15/user-decision.md",
   "groups": [
     {"id":"batting","label":"At the plate","question":"What did the plate appearance contribute?"},
     {"id":"runners","label":"Helping and losing runners","question":"What happened to the runners already aboard?"},
@@ -10,6 +11,7 @@
   ],
   "metrics": {
     "tfs": {
+      "playerSummary":"Average contribution per eligible PA; total contribution belongs in the expanded view.",
       "label":"Plate Appearance Contribution","group":"batting",
       "question":"How much did the batter contribute?",
       "summary":"Credit for advancing the batter and other runners, minus the cost of outs and lost scoring opportunity.",
@@ -18,6 +20,7 @@
       "reference":"The plate appearance being measured; no comparison population is required for its own score."
     },
     "paq-2": {
+      "playerSummary":"Average of the player's individual PA percentiles, using the full accepted season reference.",
       "label":"Plate Appearance Quality","group":"batting",
       "question":"Where does this contribution rank in the season?",
       "summary":"The season percentile of Plate Appearance Contribution, with equal contributions receiving equal ranks.",
@@ -26,6 +29,7 @@
       "reference":"All eligible MLB regular-season plate appearances in the selected season through the reporting cutoff. Display filters do not shrink that reference."
     },
     "paq-a": {
+      "playerSummary":"Average of the player's individual situation-adjusted PA percentiles.",
       "label":"Situation-Adjusted PAQ","group":"batting",
       "question":"How does it compare with the same opportunity?",
       "summary":"Contribution ranked against plate appearances with the same occupied bases and out count immediately before the batter's consequence.",
@@ -34,6 +38,7 @@
       "reference":"Eligible selected-season plate appearances in the same immediate base/out situation."
     },
     "offensive-reach": {
+      "playerSummary":"Average reach per eligible PA; total reach belongs in the expanded view.",
       "label":"Offensive Reach","group":"batting",
       "question":"How widely did the batter help runners advance?",
       "summary":"The number of distinct runner histories receiving positive progress credited to the batter, including the batter's own history.",
@@ -42,6 +47,7 @@
       "reference":"The complete set of runner histories affected by the plate appearance."
     },
     "recovery-quality": {
+      "playerSummary":"Average of the player's eligible PA extension percentiles.",
       "label":"Two-Strike Extension Rank","group":"batting",
       "question":"How long did the plate appearance continue after two strikes?",
       "summary":"The percentile of pitches that continue the plate appearance after its first two-strike state, excluding the terminal pitch.",
@@ -50,6 +56,7 @@
       "reference":"The complete applicable comparison population of plate appearances reaching two strikes."
     },
     "paq-2.1": {
+      "playerSummary":"Average of the player's eligible individual PA percentiles, preserving applicability exclusions.",
       "label":"PAQ with Tie-Breakers","group":"batting",
       "question":"How are equal contributions separated?",
       "summary":"Rank contribution first, then use two-strike extension and defensive sequence length to break remaining ties.",
@@ -90,6 +97,7 @@
       "reference":"The player's complete eligible plate appearances. Individual losses also enter Plate Appearance Contribution."
     },
     "run-construction-depth": {
+      "playerSummary":"Average construction depth of the player's scored runs, including teammates' contributions.",
       "label":"Scoring History Length","group":"runs",
       "question":"How many state changes make up this scoring history?",
       "summary":"The number of state-changing episodes in one complete history of a runner who scores, including the scoring episode.",
@@ -98,6 +106,7 @@
       "reference":"One complete personal scoring history, from supported entry to the counted run."
     },
     "run-construction-breadth": {
+      "playerSummary":"Average contributor count for the player's scored runs. Contributions retain their actual owners.",
       "label":"Run Contributors","group":"runs",
       "question":"How many offensive players helped create the run?",
       "summary":"Distinct offensive players whose supported contributions advanced the scoring runner, including that runner's own contribution.",
@@ -130,6 +139,7 @@
       "reference":"The player's complete qualifying positive contributions across the three channels."
     },
     "role-realization-breadth": {
+      "visibility":"backend",
       "label":"Roles Played","group":"profile",
       "question":"Which kinds of baseball participation did the player actually perform?",
       "summary":"The number of Batter, Baserunner, Pitcher and Fielder role kinds actually performed by the player during the game.",
@@ -138,6 +148,7 @@
       "reference":"The player's supported role realizations in one complete game."
     },
     "resolution-depth": {
+      "playerSummary":"Average depth of defensive resolutions in which the player actually acted; this describes participation, not individual skill.",
       "label":"Longest Defensive Sequence","group":"defense",
       "question":"How many intentional actions formed the longest defensive sequence?",
       "summary":"The number of intentional defensive acts along the longest supported ordered path in a batted-ball play.",
@@ -146,6 +157,7 @@
       "reference":"The complete supported defensive act structure for the play."
     },
     "defender-breadth": {
+      "playerSummary":"Average defender count in resolutions in which the player actually acted; this describes participation, not individual skill.",
       "label":"Defenders Involved","group":"defense",
       "question":"How many defenders acted in resolving the play?",
       "summary":"The number of distinct defensive agents in the supported defensive play structure.",
@@ -154,6 +166,7 @@
       "reference":"The complete supported defensive act structure for the play."
     },
     "adjudication-volatility": {
+      "playerSummary":"Resolved reviews affecting this player's batting or baserunning outcomes. An overturn does not automatically credit the player.",
       "label":"Replay Overturn Rate","group":"reviews",
       "question":"How often did a resolved replay review overturn the decision?",
       "summary":"Overturning decisions as a share of explicitly resolved mapped replay reviews.",
@@ -162,6 +175,7 @@
       "reference":"Explicitly resolved mapped replay reviews in the selected games."
     },
     "review-dependence-rate": {
+      "playerSummary":"Review-eligible decisions affecting this player's batting or baserunning outcomes, including never-reviewed decisions; mechanisms remain separate.",
       "label":"Outcomes Changed by Review","group":"reviews",
       "question":"How often did an eligible decision's final outcome depend on review?",
       "summary":"Review-dependent final outcomes as a share of all review-eligible decisions, including decisions that were never reviewed.",

@@ -95,10 +95,15 @@ export async function metricCatalog() {
     readFile(new URL('../metric-presentation.json', import.meta.url), 'utf8'),
   ]);
   const source = JSON.parse(catalog), display = JSON.parse(presentation);
-  return { ...source, gapRegister: JSON.parse(register), presentationVersion: display.version, groups: display.groups,
-    metrics: source.metrics.map(metric => ({ ...metric, technicalLabel: metric.label,
+  const metrics = source.metrics.filter(metric => display.metrics[metric.id].visibility !== 'backend')
+    .map(metric => ({ ...metric, technicalLabel: metric.label,
       technicalDefinition: metric.userDefinition, label: display.metrics[metric.id].label,
-      userDefinition: display.metrics[metric.id].summary, presentation: display.metrics[metric.id] })) };
+      userDefinition: display.metrics[metric.id].summary, presentation: display.metrics[metric.id] }));
+  const requirements = new Set(metrics.flatMap(metric => metric.requires));
+  return { ...source, gapRegister: { ...JSON.parse(register),
+    gaps: JSON.parse(register).gaps.filter(gap => requirements.has(gap.id)) },
+    presentationVersion: display.version, playerPresentationDecision: display.playerPresentationDecision,
+    groups: display.groups, metrics };
 }
 
 export function validateMetricRequest(input, catalog) {

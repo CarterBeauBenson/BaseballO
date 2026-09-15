@@ -111,9 +111,14 @@ async function withServer(options, work) {
   finally { server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); }
 }
 
-test('all twenty metrics expose definitions and resolvable shared gaps', async () => {
+test('nineteen public metrics expose definitions while role breadth stays in the backend', async () => {
   const catalog = await metricCatalog();
-  assert.equal(catalog.metrics.length, 20);
+  assert.equal(catalog.metrics.length, 19);
+  assert.ok(!catalog.metrics.some(metric => metric.id === 'role-realization-breadth'));
+  assert.throws(() => validateMetricRequest({metricId:'role-realization-breadth'}, catalog), /Unknown metric/);
+  const backend = JSON.parse(await readFile(new URL('../../sparql/metrics/metric-catalog.json', import.meta.url), 'utf8'));
+  assert.equal(backend.metrics.length,20);
+  assert.ok(backend.metrics.some(metric => metric.id === 'role-realization-breadth'));
   const ids = new Set(catalog.gapRegister.gaps.map(g => g.id));
   for (const metric of catalog.metrics) {
     assert.ok(metric.userDefinition); assert.ok(metric.version);
@@ -121,7 +126,7 @@ test('all twenty metrics expose definitions and resolvable shared gaps', async (
   }
 });
 
-test('all twenty presentation entries preserve the settled calculation contracts and old names', async () => {
+test('public presentation entries preserve the settled calculation contracts and old names', async () => {
   const source = JSON.parse(await readFile(new URL('../../sparql/metrics/metric-catalog.json', import.meta.url), 'utf8'));
   const display = await metricCatalog();
   assert.equal(display.groups.length, 6);
@@ -149,7 +154,8 @@ test('worked examples cover every metric and match independently specified kerne
   assert.equal(result.status, 0, result.stderr || result.stdout || result.error?.message);
   const examples = JSON.parse(await readFile(new URL('../metric-examples.json', import.meta.url), 'utf8'));
   const catalog = await metricCatalog();
-  assert.deepEqual(Object.keys(examples.metrics).sort(), catalog.metrics.map(m => m.id).sort());
+  assert.ok(catalog.metrics.every(metric => examples.metrics[metric.id]));
+  assert.equal(Object.keys(examples.metrics).length,20,'Backend examples retain every calculation');
   for (const metric of catalog.metrics) for (const item of examples.metrics[metric.id].cases) {
     assert.ok(item.explanation && item.equation);
     assert.match(exampleAnswer(item.result, metric.unit), /^Example result:/);
@@ -167,6 +173,8 @@ test('illustrations are served as a separate static artifact, without reading ga
     assert.match(response.headers.get('content-type'), /^application\/json/);
     const payload = await response.json();
     assert.equal(payload.artifactType, 'baseballo-illustrative-metric-examples');
+    assert.equal(Object.keys(payload.metrics).length,19);
+    assert.equal(payload.metrics['role-realization-breadth'],undefined);
     assert.match(payload.notice, /not results from the selected games/);
     assert.equal(payload.metrics.tfs.cases[2].result.value.numerator, '-1');
     assert.equal(payload.metrics.tfs.cases[2].result.value.denominator, '4');
@@ -338,7 +346,7 @@ test('API returns SQL results and rejects caller supplied evidence before execut
   let calls = 0;
   const result = { metric: { metricId: 'tfs', status: 'unavailable', value: null, gaps: ['BOUNDARY_STATE'] }, execution: 'materialized-sql' };
   await withServer({ servingExecutor: async input => { calls++; assert.equal(input.route, 'metric-suite'); return result; } }, async url => {
-    const catalog = await (await fetch(url + '/api/metrics/catalog')).json(); assert.equal(catalog.metrics.length, 20);
+    const catalog = await (await fetch(url + '/api/metrics/catalog')).json(); assert.equal(catalog.metrics.length, 19);
     let response = await fetch(url + '/api/metrics/query', { method: 'POST', body: JSON.stringify({ metricId: 'tfs' }) });
     assert.equal(response.status, 200);
     const payload = await response.json();
@@ -347,6 +355,8 @@ test('API returns SQL results and rejects caller supplied evidence before execut
     assert.equal(leaderboard.status, 'unavailable');
     assert.deepEqual(leaderboard.gaps, ['COMPLETE_PLAYER_SCORES']);
     response = await fetch(url + '/api/metrics/query', { method: 'POST', body: JSON.stringify({ metricId: 'tfs', bindings: [] }) });
+    assert.equal(response.status, 400); assert.equal(calls, 1);
+    response = await fetch(url + '/api/metrics/query', { method: 'POST', body: JSON.stringify({ metricId: 'role-realization-breadth' }) });
     assert.equal(response.status, 400); assert.equal(calls, 1);
     for (const path of ['/metrics', '/metrics.js', '/metrics.css']) {
       const page = await fetch(url + path); assert.equal(page.status, 200);
@@ -411,6 +421,21 @@ test('dashboard executes once through SQL and rejects injected facts before exec
     const invalid=await fetch(url+'/api/metrics/dashboard',{method:'POST',body:JSON.stringify({bindings:[]})});
     assert.equal(invalid.status,400); assert.equal(calls,1);
   });
+});
+
+test('SQL and RDF dashboard responses hide backend roles and retain the input evidence unchanged', async () => {
+  const backend = {metrics:[{metricId:'tfs',status:'unavailable',value:null},
+    {metricId:'role-realization-breadth',status:'available',value:{numerator:'4',denominator:'1'}}]};
+  for (const mode of ['sql','rdf']) {
+    await withServer({servingExecutor:async()=>{if(mode==='rdf')throw Error('stale'); return backend;},
+      fetchImpl:async()=>new Response(JSON.stringify({results:{bindings:[]}})),
+      metricReducer:async()=>backend},async url=>{
+      const response=await fetch(url+'/api/metrics/dashboard',{method:'POST',body:'{}'});
+      assert.equal(response.status,200);
+      assert.deepEqual((await response.json()).metrics.map(metric=>metric.metricId),['tfs']);
+      assert.equal(backend.metrics.length,2);
+    });
+  }
 });
 
 test('dashboard fallback reduces one common RDF selection and respects SQL-required requests', async () => {

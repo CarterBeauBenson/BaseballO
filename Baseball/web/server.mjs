@@ -841,7 +841,7 @@ export function createBaseballServer({
     const definitions = new Map((await metricCatalog()).metrics.map(metric => [metric.id, metric]));
     const ranked = metric => definitions.has(metric.metricId) ? { ...metric,
       leaderboard: playerLeaderboard(metric, definitions.get(metric.metricId), result.dateScope) } : metric;
-    result = result.metrics ? { ...result, metrics: result.metrics.map(ranked) } :
+    result = result.metrics ? { ...result, metrics: result.metrics.filter(metric => definitions.has(metric.metricId)).map(ranked) } :
       result.metric ? { ...result, metric: ranked(result.metric) } : result;
     const subjects = (result.metrics ?? [result.metric]).filter(Boolean).flatMap(metric => [
       ...(metric.consequences ?? []),
@@ -1457,6 +1457,12 @@ export function createBaseballServer({
       if (request.method === "GET" && STATIC_FILES.has(requestUrl.pathname)) {
         const fileName = STATIC_FILES.get(requestUrl.pathname);
         const body = await readFile(resolve(WEB_ROOT, fileName));
+        if (requestUrl.pathname === '/metric-examples.json') {
+          const examples = JSON.parse(body), visible = new Set((await metricCatalog()).metrics.map(metric => metric.id));
+          sendJson(response, 200, { ...examples,
+            metrics: Object.fromEntries(Object.entries(examples.metrics).filter(([id]) => visible.has(id))) });
+          return;
+        }
         response.writeHead(200, responseHeaders(CONTENT_TYPES[extname(fileName)] ?? "application/octet-stream"));
         response.end(body);
         return;

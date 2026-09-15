@@ -232,7 +232,9 @@ function choose(metric) {
   byId('metric-definition').textContent = metric.userDefinition;
   byId('metric-question').textContent = metric.presentation.question;
   byId('metric-reading').textContent = metric.presentation.reading;
-  facts(byId('metric-facts'), [['Reported as', metric.presentation.unitLabel], ['Scope', metric.presentation.scopeLabel], ['Reference', metric.presentation.reference]]);
+  facts(byId('metric-facts'), [['Reported as', metric.presentation.unitLabel], ['Scope', metric.presentation.scopeLabel],
+    ...(metric.presentation.playerSummary ? [['Player leaderboard', metric.presentation.playerSummary]] : []),
+    ['Reference', metric.presentation.reference]]);
   byId('metric-technical').textContent = `${metric.technicalLabel} · ${metric.id} · Version ${metric.version}. ${metric.technicalDefinition} Technical unit: ${metric.unit}.`;
   byId('result').hidden = true;
   byId('request-status').textContent = metric.liveAdapter === 'loaded-award-consequences' ?
@@ -436,7 +438,7 @@ async function loadDashboard(event) {
   invalidateSelection();
   const controller = new AbortController(); dashboardRequest = controller;
   byId('load-dashboard').disabled = true;
-  byId('dashboard-status').textContent = 'Reading one shared evidence selection for all 20 metrics…';
+  byId('dashboard-status').textContent = `Reading one shared evidence selection for all ${catalog.metrics.length} metrics…`;
   try {
     const response = await fetch('/api/metrics/dashboard', { method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(selectedScope()), signal: controller.signal });
