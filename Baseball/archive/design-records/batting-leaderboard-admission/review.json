@@ -1,0 +1,53 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "batting-leaderboard-admission",
+  "title": "B1: reconciled batting qualification over existing graph patterns",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "127da02cf317f39cb38207951612b37b7c90bc76ce6320fd96c6892014950d1b"
+      },
+      {
+        "path": "user-decision.md",
+        "sha256": "c27f1d08854dbb43d3123aac4bdaab79555661e3d8eb6f8b805683ab18bb643f"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "364aeadc2b0634cc00f625b96304bfe5aaf325e0c733c2b0a6c8adac9204a350"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "364aeadc2b0634cc00f625b96304bfe5aaf325e0c733c2b0a6c8adac9204a350"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "c0272e3122e40cadef9c10b73955f41ff07a68ae1d8c700a58a51ab40d404065"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-09-15",
+    "rationale": "Explicit Yes / Yes to B1 official-PA reconciliation and game-specific team exposure, subject to the reviewed completeness and substitution gates; no new ontology terms, object properties or RML assertions.",
+    "authorizedArtifacts": [
+      "Baseball/sources/mlb-game/shacl/",
+      "Baseball/sources/mlb-game/pipeline/",
+      "Baseball/sparql/metrics/",
+      "Baseball/serving/",
+      "Baseball/scripts/pipeline/",
+      "Baseball/web/"
+    ]
+  }
+}

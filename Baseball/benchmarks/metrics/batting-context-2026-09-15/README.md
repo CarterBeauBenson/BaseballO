@@ -13,8 +13,8 @@ source records. The existing three resolved review results are unchanged.
 This disproves absence of the basic game/player/team path. It does not prove
 complete selected-game coverage, future missing-game membership or official
 PA credit. Those interpretation and admission conditions are specified by
-[B1](../../../proposals/batting-leaderboard-admission/README.md), still awaiting
-the ontologist's decision. No qualifier or leaderboard is released here.
+[B1](../../../archive/design-records/batting-leaderboard-admission/README.md), which
+was awaiting the ontologist's decision when this observation was captured. No qualifier or leaderboard is released here.
 
 Focused validation: 10 batting-context/aggregation tests, 11 serving tests,
 4 shared-dashboard tests and 37 Node dashboard/API tests. This proof used

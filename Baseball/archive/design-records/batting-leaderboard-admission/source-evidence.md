@@ -17,7 +17,7 @@ provider is proposed. Raw checked-in bytes remain unchanged.
 
 ## Positive observation
 
-The [retained proof](../../benchmarks/metrics/batting-participation-2026-09-15/README.md)
+The [retained proof](../../../benchmarks/metrics/batting-participation-2026-09-15/README.md)
 checks game 824315: 77 graph observations, 20 batting players, all player
 boxscore counts equal, team totals 41 and 36. The two offensive substitutions
 are at event index zero and 0–0 counts. This is evidence to test B1, not an
@@ -40,7 +40,7 @@ as the universally credited batter.
 
 ## Required focused proof
 
-After acceptance: the positive game, the interrupted-turn counterexample,
+Required for implementation: the positive game, the interrupted-turn counterexample,
 synthetic two-strike replacement, mismatching player totals with matching team
 totals, a missed game, team change, doubleheader and missing selected game.
 All source-conformance decisions belong in the source-owned SHACL profile;

@@ -93,8 +93,8 @@ a role's mere existence or from adjacent games. The
 [real-game context proof](../benchmarks/metrics/batting-context-2026-09-15/README.md)
 finds all 52 source roster pairs, including 32 players with no batting result.
 The basic exposure path therefore exists. Conditional use for qualification
-is proposed in [B1](../proposals/batting-leaderboard-admission/README.md), not
-silently admitted by this inventory. The new `player_team_game` evidence grain
+was accepted in [B1](../archive/design-records/batting-leaderboard-admission/README.md)
+on 2026-09-15. Implementation must still establish its game and population proofs. The new `player_team_game` evidence grain
 is derived SQL/query structure, not an RDF predicate or a public role metric.
 
 Validation: 36 component Node tests and nine serving tests, including exact

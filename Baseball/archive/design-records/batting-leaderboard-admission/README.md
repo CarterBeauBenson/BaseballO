@@ -1,20 +1,20 @@
 # B1: first batting leaderboard admission
 
-Status: draft, not accepted. No new ontology term, object property, source
+Status: accepted by Carter Beau Benson on 2026-09-15; see [the decision](user-decision.md). No new ontology term, object property, source
 module or RML assertion is proposed. This is a named analytical source-contract
 decision over existing MLB graph patterns, not a claim that a game passed it.
 
-## Decision requested
+## Accepted decision
 
-May the following independently reconciled graph population supply official
+The independently reconciled graph population below may supply official
 PA qualification and applicable team-game exposure for the first batting
-leaderboard, without creating an RDF statistical-credit relation?
+leaderboard, without creating an RDF statistical-credit relation.
 
 1. Count each distinct completed batting turn through its existing PA,
    Batter Act, realized Batter Role and bearer, and the existing adjudicated
    batting-result pattern. Counted result types are Single, Double, Triple,
    Home Run, Batted Ball Out, Force Out, Grounded Into Double Play, Double Play,
-   Sacrifice Fly, Sacrifice Bunt, Walk (including intentional walk), HBP,
+   Sacrifice Fly, Sacrifice Bunt, Strikeout, Walk (including intentional walk), HBP,
    Fielders Choice, Error and Interference Processes. Statistical eligibility
    does not grant positive metric credit: error/FC exclusions and interference
    deferral remain in force.
@@ -57,13 +57,13 @@ its applicable dependent summaries only when their full inputs pass.
 
 ## Why explicit review is needed
 
-Previous decisions separate actual contribution from official statistical PA
-credit. They have not accepted the conditional equivalence above. The proposal
+Earlier decisions separate actual contribution from official statistical PA
+credit. B1 accepts the conditional equivalence above. The decision
 uses a bounded analytical population over existing entities; it does not claim
 that generic batting participation universally equals official credit.
 The repository requires a named decision before a new source/semantic query
-assumption becomes executable. Until B1 is accepted, only read-only inventories
-and tests of already accepted graph paths may be implemented.
+assumption becomes executable. This acceptance is recorded and published
+separately before its engineering consequences.
 
 See [source evidence and field selection](source-evidence.md) and the
 [existing graph shapes](source-independent-mermaid.md).
