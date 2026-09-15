@@ -1,6 +1,6 @@
 baseball_iri_policy:
   title: "Baseball Knowledge Graph IRI Policy"
-  version: "1.4"
+  version: "1.5"
   status: "canonical"
   effective_until: "Explicitly revised by the project owner"
 
@@ -47,6 +47,18 @@ baseball_iri_policy:
       judgment: "{data}game/{gamePk}/judgment/{judgmentType}/{playId}"
       decision: "{data}game/{gamePk}/decision/{decisionType}/{playId}"
       call: "{data}game/{gamePk}/call/{callType}/{playId}"
+
+    affirmed_pitch_review:
+      decision: "archive/design-records/mlb-game-metric-mapping-completion/review.json"
+      operative_judgment: "Reuse judgment/{ball|strike}/{playId}, or the existing PA review act when duplicate narrative evidence identifies that same review."
+      operative_decision: "Reuse decision/{ball|strike}/{playId}, or the canonical PA review decision/replay in that duplicate case."
+      original_root: "{data}game/{gamePk}/review/pitch/{playId}/"
+      rule: >
+        The original judgment and decision are distinct from the operative
+        review judgment and decision. Reconcile every reference to one
+        canonical identity before mapping; never repair duplicate reviews with
+        owl:sameAs. Other out/safe reviews in the PA remain distinct. M1 adds
+        counted foul coverage without changing the existing strike identities.
 
     plate_appearance_result:
       template: "{data}game/{gamePk}/plate-appearance/{atBatIndex}/result"

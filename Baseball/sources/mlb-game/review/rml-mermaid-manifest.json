@@ -114,11 +114,7 @@
         "OriginalScheduleDateIdentifierMap",
         "RevisedScheduleDateIdentifierMap",
         "OriginalScheduleDayMap",
-        "RevisedScheduleDayMap",
-        "SchedulePostponementReasonMap",
-        "SchedulePostponementReasonReferenceSystemMap",
-        "ScheduleResponseEvidenceMap",
-        "ScheduleResponseReasonEvidenceMap"
+        "RevisedScheduleDayMap"
       ]
     },
     {
@@ -823,6 +819,40 @@
         "PersonalRunnerProcessMap",
         "PersonalRunnerIntervalMap",
         "PersonalRunnerMembershipMap"
+      ]
+    },
+    {
+      "id": "65-pitch-original-umpire-routing",
+      "title": "Original pitch umpire attribution",
+      "summary": "An affirmed reviewed pitch retains the on-field umpire on the original judgment; the operative review judgment does not inherit that role.",
+      "maps": [
+        "M2BallOnFieldAgencyMap",
+        "M2StrikeOnFieldAgencyMap"
+      ]
+    },
+    {
+      "id": "66-affirmed-pitch-review",
+      "title": "Affirmed review of a particular called pitch",
+      "summary": "The operative pitch judgment is the review act. Distinct original and operative decisions concern the same pitched motion; one counted result and reconciled review identity are retained.",
+      "maps": [
+        "M2OperativeReviewMap",
+        "M2OperativeDecisionMap",
+        "M2OriginalJudgmentMap",
+        "M2OriginalDecisionMap",
+        "M2OriginalProcessMap",
+        "M2DispositionMap",
+        "M2RecordMap"
+      ]
+    },
+    {
+      "id": "67-postponement-source-evidence",
+      "title": "Postponement source and reason evidence",
+      "summary": "Existing schedule-response evidence and nominal reason classification, separated from the schedule revision view to keep both diagrams readable.",
+      "maps": [
+        "SchedulePostponementReasonMap",
+        "SchedulePostponementReasonReferenceSystemMap",
+        "ScheduleResponseEvidenceMap",
+        "ScheduleResponseReasonEvidenceMap"
       ]
     }
   ]

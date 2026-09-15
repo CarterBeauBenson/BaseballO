@@ -8,3 +8,7 @@ the checked-in cross-model catalog under
 This is a post-implementation non-regression contract. New source coverage must
 first be designed in the repository-level proposal catalog; generated diagrams
 do not replace prior ontologist review.
+
+The [M1/M2 implementation record](metric-mapping-completion.md) covers accepted
+counted-foul increments and affirmed pitch reviews, with source-to-RDF
+reconciliation and the bounded proof.

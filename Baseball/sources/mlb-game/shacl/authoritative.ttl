@@ -1428,3 +1428,96 @@ shape:PersonalRunnerProcessShape a sh:NodeShape ;
           }
         """
     ] .
+# M1/M2 accepted 2026-09-15. These source contracts use existing vocabulary.
+# Source membership is checked separately; SHACL checks the represented facts.
+shape:CountedFoulStrikeShape a sh:NodeShape ;
+    sh:targetClass base:StrikeProcess ;
+    sh:sparql [
+        sh:message "A counted foul strike requires one typed judgment/output, its foul and PA, and source-record coverage."@en ;
+        sh:select """
+          PREFIX base: <https://baseballontology.org/>
+          PREFIX bfo: <http://purl.obolibrary.org/obo/>
+          PREFIX cco: <https://www.commoncoreontologies.org/>
+          SELECT $this WHERE {
+            $this bfo:BFO_0000062 ?foul . ?foul a base:FoulBallProcess .
+            FILTER NOT EXISTS {
+              $this bfo:BFO_0000132 ?pa ; bfo:BFO_0000117 ?judgment .
+              ?pa a base:PlateAppearance .
+              ?foul bfo:BFO_0000132 ?pa .
+              ?judgment a base:StrikeJudgmentAct ; bfo:BFO_0000132 $this ; cco:ont00001986 ?decision .
+              ?decision a base:StrikeDecisionICE ; cco:ont00001808 $this .
+              ?record a base:BaseballEventRecord ; cco:ont00001808 $this, ?foul, ?judgment, ?decision .
+              FILTER NOT EXISTS { $this bfo:BFO_0000117 ?j2 . ?j2 a base:StrikeJudgmentAct . FILTER (?j2 != ?judgment) }
+              FILTER NOT EXISTS { ?judgment cco:ont00001986 ?d2 . FILTER (?d2 != ?decision) }
+            }
+          }
+        """
+    ] .
+
+shape:M2OriginalJudgmentTargetShape a sh:NodeShape ;
+    sh:targetClass base:ReviewedOnFieldUmpireJudgmentAct ;
+    sh:or (
+        [ sh:not [ sh:or ( [ sh:class base:BallJudgmentAct ] [ sh:class base:StrikeJudgmentAct ] ) ] ]
+        [ sh:node shape:M2OriginalJudgmentShape ]
+    ) .
+
+shape:M2OriginalJudgmentShape a sh:NodeShape ;
+    sh:not [ sh:class base:BaseballReplayReviewAct ] ;
+    sh:property [ sh:path cco:ont00001986 ; sh:minCount 1 ; sh:maxCount 1 ; sh:class base:ReviewedOnFieldBaseballDecisionICE ;
+        sh:node [
+            sh:property [ sh:path cco:ont00001841 ; sh:minCount 1 ; sh:maxCount 1 ; sh:node shape:M2OperativeReviewShape ]
+        ]
+    ] ;
+    sh:sparql [
+        sh:message "M2 original and operative judgments/decisions must be distinct, affirm matching content about one pitch motion, and retain one operative counted process."@en ;
+        sh:select """
+          PREFIX base: <https://baseballontology.org/>
+          PREFIX bfo: <http://purl.obolibrary.org/obo/>
+          PREFIX cco: <https://www.commoncoreontologies.org/>
+          SELECT $this WHERE {
+            FILTER NOT EXISTS {
+              $this cco:ont00001986 ?old ; bfo:BFO_0000063 ?review ; bfo:BFO_0000132 ?originalProcess .
+              ?originalProcess a base:BaseballInstitutionalProcess ; bfo:BFO_0000117 $this .
+              ?old cco:ont00001808 ?originalProcess, ?motion ; cco:ont00001841 ?review .
+              ?motion a base:PitchBallMotionProcess .
+              ?review a base:BaseballReplayReviewAct ; cco:ont00001921 ?old ; cco:ont00001986 ?new, ?disposition ; bfo:BFO_0000132 ?process .
+              ?new a base:BaseballReplayDecisionICE ; cco:ont00001808 ?motion, ?process .
+              ?process bfo:BFO_0000117 ?review .
+              ?disposition a base:AffirmingBaseballReplayReviewDispositionICE ; cco:ont00001816 ?review ; cco:ont00001808 ?old, ?new .
+              FILTER (?old != ?new && $this != ?review && ?originalProcess != ?process)
+              {
+                $this a base:BallJudgmentAct . ?old a base:BallDecisionICE .
+                ?review a base:BallJudgmentAct, base:BallAffirmingBaseballReplayReviewAct .
+                ?new a base:BallDecisionICE . ?process a base:BallProcess .
+                FILTER NOT EXISTS { ?old a base:StrikeDecisionICE }
+                FILTER NOT EXISTS { ?new a base:StrikeDecisionICE }
+              } UNION {
+                $this a base:StrikeJudgmentAct . ?old a base:StrikeDecisionICE .
+                ?review a base:StrikeJudgmentAct, base:StrikeAffirmingBaseballReplayReviewAct .
+                ?new a base:StrikeDecisionICE . ?process a base:StrikeProcess .
+                FILTER NOT EXISTS { ?old a base:BallDecisionICE }
+                FILTER NOT EXISTS { ?new a base:BallDecisionICE }
+              }
+              FILTER NOT EXISTS { ?old cco:ont00001808 ?otherMotion . ?otherMotion a base:PitchBallMotionProcess . FILTER (?otherMotion != ?motion) }
+              FILTER NOT EXISTS { ?new cco:ont00001808 ?otherMotion . ?otherMotion a base:PitchBallMotionProcess . FILTER (?otherMotion != ?motion) }
+            }
+          }
+        """
+    ] .
+
+shape:M2OperativeReviewShape a sh:NodeShape ;
+    sh:class base:BaseballReplayReviewAct ;
+    sh:property [ sh:path cco:ont00001921 ; sh:maxCount 2 ] ;
+    sh:property [ sh:path cco:ont00001986 ; sh:minCount 2 ; sh:maxCount 2 ] ;
+    sh:property [ sh:path cco:ont00001921 ; sh:disjoint cco:ont00001986 ;
+        sh:qualifiedValueShape [ sh:class base:ReviewedOnFieldBaseballDecisionICE ] ;
+        sh:qualifiedMinCount 1 ; sh:qualifiedMaxCount 1 ] ;
+    sh:property [ sh:path cco:ont00001986 ;
+        sh:qualifiedValueShape [ sh:or ( [ sh:class base:BallDecisionICE ] [ sh:class base:StrikeDecisionICE ] ) ] ;
+        sh:qualifiedMinCount 1 ; sh:qualifiedMaxCount 1 ] ;
+    sh:property [ sh:path cco:ont00001986 ;
+        sh:qualifiedValueShape [ sh:class base:AffirmingBaseballReplayReviewDispositionICE ] ;
+        sh:qualifiedMinCount 1 ; sh:qualifiedMaxCount 1 ] ;
+    sh:property [ sh:path cco:ont00001833 ; sh:maxCount 0 ] ;
+    sh:property [ sh:path bfo:BFO_0000057 ; sh:maxCount 0 ] ;
+    sh:property [ sh:path bfo:BFO_0000055 ; sh:maxCount 0 ] .

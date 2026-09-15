@@ -1,0 +1,184 @@
+{
+  "artifactType": "baseballo-metric-mapping-proof",
+  "status": "passed-isolated-developer-proof",
+  "acceptedDecisionCommit": "027e47c6a66d",
+  "decision": "archive/design-records/mlb-game-metric-mapping-completion/review.json",
+  "gamePk": "824315",
+  "source": "data/raw/samples/2026-08-23/824315.json",
+  "inputSha256": "5fcc75d37a20a516d312b3bfb3d5cefb4371ebafa639851ff16173d9b1a6607c",
+  "sourceRevision": "20260823_222717",
+  "hashes": {
+    "mappingSha256": "eb537822e4bab673851aa84bf233b33843d82c93e6cce031fecfd402d6c46950",
+    "contextBuilderSha256": "208fdf3df204375dba73672b77a6e25e82d2f5adb5809bcd54964f1b75e89bcb",
+    "executionContextSha256": "62f333e0ba18b2148edea02954383e31bdbc4e19bb6f82346480c37ea06b1292",
+    "shaclShapeSha256": "55e5bbfdbecfa1913c91ce441ea44477b6b75a053833e064b091814c011cf421",
+    "metricMappingVerifierSha256": "8194f38353fb338d379e137a07c2a4fcb45923f389e7f9d7cd0071e55fb945ed"
+  },
+  "rdfSha256": "9b213c7257b876bd416e338cae872fc0349f2cc81800cf02a5a9b641d3065547",
+  "rdfTriples": 38419,
+  "shaclEngine": "jena",
+  "shaclConforms": true,
+  "shaclViolations": 0,
+  "sourceToGraphMembershipVerified": true,
+  "addedCountedFouls": 21,
+  "allCountedFouls": 41,
+  "addedAffirmedPitchReviews": 2,
+  "allReviews": 3,
+  "focusedSourceConformanceTests": 13,
+  "existingReviewContextTests": 6,
+  "rmlOnePaAndSyntheticDuplicateProof": true,
+  "diagramReferenceTests": 2,
+  "countedFouls": [
+    {
+      "atBatIndex": "1",
+      "playId": "92780bd5-071f-3dbd-b881-b25ab1d213a2",
+      "eventIndex": 4
+    },
+    {
+      "atBatIndex": "3",
+      "playId": "a24b6421-11bc-3285-ac55-aa9b5f943e37",
+      "eventIndex": 5
+    },
+    {
+      "atBatIndex": "5",
+      "playId": "032a48d7-7086-3f92-9764-dcd9b1137b33",
+      "eventIndex": 5
+    },
+    {
+      "atBatIndex": "11",
+      "playId": "1520fd85-33a5-3a3f-9b2f-f17687ffa6c3",
+      "eventIndex": 3
+    },
+    {
+      "atBatIndex": "18",
+      "playId": "10e91d90-5290-3044-9e51-717dd85cb6d7",
+      "eventIndex": 3
+    },
+    {
+      "atBatIndex": "20",
+      "playId": "58428c42-199c-3b65-b3e9-f23c6179c57a",
+      "eventIndex": 2
+    },
+    {
+      "atBatIndex": "23",
+      "playId": "d206156e-ea28-327c-bc88-4c662ace1bdf",
+      "eventIndex": 2
+    },
+    {
+      "atBatIndex": "24",
+      "playId": "8f65ed38-ad35-343c-9c2b-08abf2553f0e",
+      "eventIndex": 3
+    },
+    {
+      "atBatIndex": "28",
+      "playId": "f08b270c-708f-360a-9d1a-8da601c7fbe3",
+      "eventIndex": 1
+    },
+    {
+      "atBatIndex": "31",
+      "playId": "66c5a624-8345-374b-88d4-c4873fedf1ce",
+      "eventIndex": 1
+    },
+    {
+      "atBatIndex": "36",
+      "playId": "c418c4d5-e276-37e7-834c-ddb953da73b2",
+      "eventIndex": 4
+    },
+    {
+      "atBatIndex": "39",
+      "playId": "a1f970ef-d15e-36b1-84ca-b451efc2e4d1",
+      "eventIndex": 4
+    },
+    {
+      "atBatIndex": "40",
+      "playId": "ee4a4ae1-0eb5-3d95-8ff0-f8c314838d3e",
+      "eventIndex": 2
+    },
+    {
+      "atBatIndex": "42",
+      "playId": "ca23bf03-ce63-32df-bf5f-45b613b495b9",
+      "eventIndex": 4
+    },
+    {
+      "atBatIndex": "48",
+      "playId": "f02970f4-86a9-3d07-9375-295c2edc4110",
+      "eventIndex": 1
+    },
+    {
+      "atBatIndex": "49",
+      "playId": "ec648c8a-397d-3ca1-aefb-4b0aa19f4347",
+      "eventIndex": 2
+    },
+    {
+      "atBatIndex": "58",
+      "playId": "7880a193-588d-389c-857a-6425328f1af7",
+      "eventIndex": 1
+    },
+    {
+      "atBatIndex": "62",
+      "playId": "0365709d-1b7b-3978-9145-695e12e24b61",
+      "eventIndex": 1
+    },
+    {
+      "atBatIndex": "70",
+      "playId": "ef0bab22-1437-35d2-a3e0-96a5b7d09509",
+      "eventIndex": 2
+    },
+    {
+      "atBatIndex": "72",
+      "playId": "1869a431-675e-38a5-9d6c-8a452c382591",
+      "eventIndex": 2
+    },
+    {
+      "atBatIndex": "75",
+      "playId": "3574b2e8-a91f-3560-a23f-253cd4c38c11",
+      "eventIndex": 2
+    }
+  ],
+  "reviews": [
+    {
+      "atBatIndex": "36",
+      "playId": "4edb573f-e278-3f46-a0a2-c2a87cef6afb",
+      "eventIndex": 5,
+      "reviewIri": "https://baseballontology.org/data/game/824315/judgment/ball/4edb573f-e278-3f46-a0a2-c2a87cef6afb",
+      "operativeDecisionIri": "https://baseballontology.org/data/game/824315/decision/ball/4edb573f-e278-3f46-a0a2-c2a87cef6afb",
+      "originalJudgmentIri": "https://baseballontology.org/data/game/824315/review/pitch/4edb573f-e278-3f46-a0a2-c2a87cef6afb/judgment/on-field",
+      "originalDecisionIri": "https://baseballontology.org/data/game/824315/review/pitch/4edb573f-e278-3f46-a0a2-c2a87cef6afb/decision/on-field",
+      "originalProcessIri": "https://baseballontology.org/data/game/824315/review/pitch/4edb573f-e278-3f46-a0a2-c2a87cef6afb/process/on-field",
+      "dispositionIri": "https://baseballontology.org/data/game/824315/review/pitch/4edb573f-e278-3f46-a0a2-c2a87cef6afb/result",
+      "recordIri": "https://baseballontology.org/data/game/824315/event-record/review/pitch/4edb573f-e278-3f46-a0a2-c2a87cef6afb",
+      "pitchIri": "https://baseballontology.org/data/game/824315/pitch/4edb573f-e278-3f46-a0a2-c2a87cef6afb",
+      "motionIri": "https://baseballontology.org/data/game/824315/process/pitch-ball-motion/4edb573f-e278-3f46-a0a2-c2a87cef6afb",
+      "processIri": "https://baseballontology.org/data/game/824315/process/ball/4edb573f-e278-3f46-a0a2-c2a87cef6afb",
+      "judgmentClassIri": "https://baseballontology.org/BallJudgmentAct",
+      "decisionClassIri": "https://baseballontology.org/BallDecisionICE",
+      "reviewClassIri": "https://baseballontology.org/BallAffirmingBaseballReplayReviewAct",
+      "ruleIri": "https://baseballontology.org/data/rule/ball",
+      "affectedBatterSupported": true,
+      "reusesPlayReview": false
+    },
+    {
+      "atBatIndex": "43",
+      "playId": "349a9764-76e7-374c-ae7d-e73adedef1a9",
+      "eventIndex": 0,
+      "reviewIri": "https://baseballontology.org/data/game/824315/judgment/ball/349a9764-76e7-374c-ae7d-e73adedef1a9",
+      "operativeDecisionIri": "https://baseballontology.org/data/game/824315/decision/ball/349a9764-76e7-374c-ae7d-e73adedef1a9",
+      "originalJudgmentIri": "https://baseballontology.org/data/game/824315/review/pitch/349a9764-76e7-374c-ae7d-e73adedef1a9/judgment/on-field",
+      "originalDecisionIri": "https://baseballontology.org/data/game/824315/review/pitch/349a9764-76e7-374c-ae7d-e73adedef1a9/decision/on-field",
+      "originalProcessIri": "https://baseballontology.org/data/game/824315/review/pitch/349a9764-76e7-374c-ae7d-e73adedef1a9/process/on-field",
+      "dispositionIri": "https://baseballontology.org/data/game/824315/review/pitch/349a9764-76e7-374c-ae7d-e73adedef1a9/result",
+      "recordIri": "https://baseballontology.org/data/game/824315/event-record/review/pitch/349a9764-76e7-374c-ae7d-e73adedef1a9",
+      "pitchIri": "https://baseballontology.org/data/game/824315/pitch/349a9764-76e7-374c-ae7d-e73adedef1a9",
+      "motionIri": "https://baseballontology.org/data/game/824315/process/pitch-ball-motion/349a9764-76e7-374c-ae7d-e73adedef1a9",
+      "processIri": "https://baseballontology.org/data/game/824315/process/ball/349a9764-76e7-374c-ae7d-e73adedef1a9",
+      "judgmentClassIri": "https://baseballontology.org/BallJudgmentAct",
+      "decisionClassIri": "https://baseballontology.org/BallDecisionICE",
+      "reviewClassIri": "https://baseballontology.org/BallAffirmingBaseballReplayReviewAct",
+      "ruleIri": "https://baseballontology.org/data/rule/ball",
+      "affectedBatterSupported": true,
+      "reusesPlayReview": false
+    }
+  ],
+  "corpusPromotion": "pending-existing-NiFi-proof-and-refresh",
+  "metricPopulationAdmitted": false
+}

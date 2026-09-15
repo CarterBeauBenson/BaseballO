@@ -3,7 +3,7 @@ source_module: mlb-game
 source_file_name_expected: game.json
 source_mutation: none
 intermediary_transformation: structural-projection-and-explicit-derived-gates
-mapping_version: 0.5.0
+mapping_version: 0.6.0
 completed_game_precondition: true
 
 execution_context:
@@ -25,6 +25,8 @@ execution_context:
   - versioned MLB pitch-type, batted-ball trajectory, and season-segment Reference System IRIs
   - reviewed pitch-type and batted-ball trajectory category IRIs for supported provider tokens
   - reviewed season-phase identity and class for supported MLB game-type codes
+  - accepted M1 reconciled ordinary foul increments from one strike to two
+  - accepted M2 explicit affirmed pitch-review identities and source-to-graph inventory
   - reviewed-play final decision and an unresolved-original-decision marker when an overturn proves that a prior decision existed but does not state its content
   - uncaught-third-strike classification and source play identity
   provenance: source, builder, context, mapping, and RDF hashes are recorded
@@ -190,8 +192,8 @@ deferred:
     reason: fielding credits lack stable ancestor-aware identity
   pickoff_acts:
     reason: runner records do not identify the pitcher agent for the pickoff act
-  ambiguous_second_counted_foul:
-    reason: event-local count.strikes equals 2 cannot distinguish an increment from an unchanged two-strike count
+  unreconciled_second_counted_foul:
+    reason: M1 now maps reconciled ordinary 1-to-2 foul increments; incomplete or contradictory prefixes remain withheld
   action_events:
     reason: non-pitch advisory records mix unsupported classes and unstable identifiers
   measurements:

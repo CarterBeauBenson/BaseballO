@@ -14,6 +14,7 @@
     "The ontologist accepted the current pinned MLB-game RML contract on 2026-08-31.",
     "Approval does not pre-authorize new fields or new semantic interpretations.",
     "Deferred measurements, provider-coordinate grounding, and Statcast remain separately proposal-gated.",
-    "NiFi may execute the pinned contract asynchronously and must run source SHACL before promotion."
+    "NiFi may execute the pinned contract asynchronously and must run source SHACL before promotion.",
+    "M1 counted-foul coverage and M2 affirmed pitch-review mapping, including judgment identity and module pin updates, were explicitly accepted on 2026-09-15 in archive/design-records/mlb-game-metric-mapping-completion/review.json. Other extensions remain gated."
   ]
 }

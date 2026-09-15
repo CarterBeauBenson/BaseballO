@@ -645,6 +645,13 @@ def reviewed_play_context(
         and isinstance(play_review_details.get("isOverturned"), bool)
     ):
         structured_overturns = {play_review_details["isOverturned"]}
+    elif review_type == "pitch_result":
+        # A pitch-result narrative refers to the terminal pitch. Earlier
+        # explicit pitch reviews are distinct M2 events, not votes on its result.
+        terminal_details = pitch_events[-1].get("reviewDetails", {}) if pitch_events else {}
+        structured_overturns = ({terminal_details["isOverturned"]}
+                               if isinstance(terminal_details, dict)
+                               and type(terminal_details.get("isOverturned")) is bool else set())
     else:
         structured_overturns = {
             event.get("reviewDetails", {}).get("isOverturned")
@@ -745,6 +752,157 @@ def annotate_officials(document: dict[str, object]) -> int:
             "hasOfficialName": isinstance(full_name, str) and bool(full_name.strip())
         }
     return len(officials)
+
+
+def metric_pitch_context(document: dict) -> dict:
+    """Accepted M1/M2 source selection; graph semantics belong to RML/SHACL.
+
+    Inspect unfiltered event prefixes. Counters are mapping evidence, not new
+    RDF count states. The retained inventory also checks exact serialization.
+    """
+    game = str(document['gamePk'])
+    data = f'https://baseballontology.org/data/game/{game}/'
+    base = 'https://baseballontology.org/'
+    evidence = dict(decision='archive/design-records/mlb-game-metric-mapping-completion/review.json',
+                    countedFouls=[], withheldFouls=[], pitchReviews=[], withheldReviews=[])
+    root = document[CONTEXT_KEY]
+    source = root['runnerHistoryReconciliation']
+    evidence.update(inputSha256=source['inputSha256'], sourceRevision=source['sourceRevision'])
+    rows = []
+
+    def instant(value):
+        try:
+            t = datetime.fromisoformat(value.replace('Z', '+00:00'))
+            return t if t.tzinfo is not None else None
+        except (ValueError, AttributeError):
+            return None
+
+    def counts(event):
+        c = event.get('count', {})
+        if all(type(c.get(k)) is int and 0 <= c[k] <= n
+               for k, n in [('balls', 4), ('strikes', 3), ('outs', 3)]):
+            return c['balls'], c['strikes']
+        return None
+
+    plays = document['liveData']['plays']['allPlays']
+    all_ids = [e.get('playId') for p in plays for e in p.get('playEvents', []) if e.get('isPitch') is True]
+    for play in plays:
+        pa = str(play['about']['atBatIndex'])
+        events = play.get('playEvents', [])
+        pitches = [e for e in events if e.get('isPitch') is True]
+        pc = play[CONTEXT_KEY]
+        indexes = [e.get('index') for e in events]
+        prefix_problem = None
+        if source['sourceConsistency'] != 'consistent':
+            prefix_problem = 'SOURCE_RECONCILIATION_FAILED'
+        elif play['about'].get('isComplete') is not True:
+            prefix_problem = 'INCOMPLETE_PA'
+        elif any(type(i) is not int for i in indexes) or indexes != list(range(len(events))):
+            prefix_problem = 'EVENT_MEMBERSHIP_OR_ORDER'
+        elif play.get('reviewDetails') or play['about'].get('hasReview') is not False:
+            prefix_problem = 'UNRESOLVED_PA_REVIEW'
+        previous = None
+        prior = (0, 0)
+        has_batting_substitution = any(e.get('details', {}).get('eventType') == 'offensive_substitution' for e in events)
+        for event in events:
+            details = event.get('details', {})
+            code = details.get('call', {}).get('code')
+            after = counts(event)
+            start, end = instant(event.get('startTime')), instant(event.get('endTime'))
+            if not start or not end or end < start or (previous and (not instant(previous.get('endTime')) or instant(previous['endTime']) > start)):
+                prefix_problem = prefix_problem or 'UNSUPPORTED_EVENT_TIME_ORDER'
+            if event.get('reviewDetails') or details.get('hasReview') is True:
+                prefix_problem = prefix_problem or 'UNRESOLVED_PREFIX_REVIEW'
+            if event.get('isSubstitution') is True or 'substitution' in str(details.get('eventType', '')):
+                prefix_problem = prefix_problem or 'SUBSTITUTION_IN_PREFIX'
+            if after is None:
+                prefix_problem = prefix_problem or 'INVALID_COUNTER'
+            elif prior is not None:
+                balls, strikes = prior
+                if balls >= 4 or strikes >= 3:
+                    prefix_problem = prefix_problem or 'COUNTER_RESET_AFTER_TERMINATION'
+                if event.get('isPitch') is True:
+                    if code in {'B', '*B'}: expected = (balls + 1, strikes)
+                    elif code in {'C', 'S', 'W', 'M', 'T', 'O', 'L'}: expected = (balls, strikes + 1)
+                    elif code == 'F': expected = (balls, min(2, strikes + 1))
+                    elif code in {'X', 'D', 'E', 'H'}: expected = prior
+                    else: expected = None
+                else:
+                    neutral = details.get('eventType') in {'batter_timeout', 'mound_visit', 'defensive_switch'} or event.get('type') in {'pickoff', 'stepoff', 'no_pitch'}
+                    expected = prior if neutral else None
+                if expected is None or expected != after:
+                    prefix_problem = prefix_problem or 'UNEXPLAINED_COUNTER_TRANSITION'
+            if event.get('isPitch') is not True:
+                previous, prior = event, after
+                continue
+            pid = event.get('playId')
+            ec = event[CONTEXT_KEY]
+            unique_id = isinstance(pid, str) and SAFE_IRI_SEGMENT.fullmatch(pid) and all_ids.count(pid) == 1
+            if not unique_id:
+                prefix_problem = prefix_problem or 'AMBIGUOUS_PITCH_ID'
+            for kind in ('ball', 'strike'):
+                ec[f'{kind}JudgmentIri'] = data + f'judgment/{kind}/{pid}'
+                ec[f'{kind}DecisionIri'] = data + f'decision/{kind}/{pid}'
+                ec[f'{kind}OnFieldJudgmentIri'] = ec[f'{kind}JudgmentIri']
+            ec['isSecondCountedFoul'] = False
+            if code == 'F' and after and after[1] == 2:
+                item = dict(atBatIndex=pa, playId=pid, eventIndex=event.get('index'))
+                if prefix_problem is None and previous is not None and prior == (after[0], 1) and ec['isBuntAttempt'] is False:
+                    ec['isSecondCountedFoul'] = True
+                    evidence['countedFouls'].append(item)
+                else:
+                    evidence['withheldFouls'].append(dict(item, reason=prefix_problem or 'NO_SECOND_STRIKE_INCREMENT'))
+
+            review = event.get('reviewDetails')
+            if review is not None:
+                item = dict(atBatIndex=pa, playId=pid, eventIndex=event.get('index'))
+                kind = PITCH_DECISION_BY_CALL_CODE.get(code)
+                reason = None
+                if not unique_id: reason = 'AMBIGUOUS_PITCH_ID'
+                elif not isinstance(review, dict) or review.get('inProgress') is not False or review.get('isOverturned') is not False:
+                    reason = 'NOT_EXPLICIT_COMPLETED_AFFIRMATION'
+                elif not kind or details.get('isBall') is not (kind == 'ball') or details.get('isStrike') is not (kind == 'strike') or details.get('hasReview') is False:
+                    reason = 'CONFLICTING_OR_UNSUPPORTED_CALL'
+                legacy = pc.get('reviewType') == 'pitch_result' and bool(pitches) and event is pitches[-1]
+                if legacy and (pc.get('reviewOutcome') != 'affirming' or pc.get('reviewFinalDecision') != kind or pc.get('reviewOriginalDecision') != kind):
+                    reason = 'CONFLICTING_PA_REVIEW'
+                if reason:
+                    evidence['withheldReviews'].append(dict(item, reason=reason))
+                    if legacy:
+                        # The same explicit contradictory/incomplete review
+                        # cannot survive through the older PA-narrative route.
+                        for context in (pc, ec):
+                            for key in list(context):
+                                if key.startswith('review') or key.startswith('hasReview') or key == 'hasUnresolvedOriginalDecision':
+                                    context.pop(key)
+                            context.update(hasReview=False, hasReviewStatus=False, hasReviewChallengerId=False)
+                else:
+                    review_root = data + (f'review/{pa}/' if legacy else f'review/pitch/{pid}/')
+                    if legacy:
+                        ec[f'{kind}JudgmentIri'] = review_root + 'act'
+                        ec[f'{kind}DecisionIri'] = review_root + 'decision/replay'
+                    ec[f'{kind}OnFieldJudgmentIri'] = review_root + 'judgment/on-field'
+                    row = dict(item, reviewIri=ec[f'{kind}JudgmentIri'],
+                               operativeDecisionIri=ec[f'{kind}DecisionIri'],
+                               originalJudgmentIri=review_root+'judgment/on-field',
+                               originalDecisionIri=review_root+'decision/on-field',
+                               originalProcessIri=review_root+'process/on-field',
+                               dispositionIri=review_root+'result',
+                               recordIri=data+(f'event-record/review/{pa}' if legacy else f'event-record/review/pitch/{pid}'),
+                               pitchIri=data+f'pitch/{pid}', motionIri=data+f'process/pitch-ball-motion/{pid}',
+                               processIri=data+f'process/{kind}/{pid}',
+                               judgmentClassIri=base+kind.title()+'JudgmentAct',
+                               decisionClassIri=base+kind.title()+'DecisionICE',
+                               reviewClassIri=base+kind.title()+'AffirmingBaseballReplayReviewAct',
+                               ruleIri='https://baseballontology.org/data/rule/'+kind,
+                               affectedBatterSupported=not has_batting_substitution,
+                               reusesPlayReview=legacy)
+                    rows.append(row)
+                    evidence['pitchReviews'].append(row.copy())
+            previous, prior = event, after
+    root['metricPitchReviews'] = rows
+    root['metricMappingEvidence'] = evidence
+    return evidence
 
 
 def main() -> None:
@@ -1211,6 +1369,7 @@ def main() -> None:
                 event[CONTEXT_KEY].update(review_context)
             pitch_count += 1
 
+    metric_pitch_context(document)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(
         json.dumps(document, ensure_ascii=False, separators=(",", ":")),

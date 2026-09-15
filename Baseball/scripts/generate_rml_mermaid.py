@@ -104,7 +104,7 @@ def readable_uri(value: URIRef, labels: dict[URIRef, str]) -> str:
     return labels.get(value, local_name(value))
 
 
-def term_key(graph: Graph, term_map: BNode | URIRef) -> tuple[str, str]:
+def term_key(graph: Graph, term_map: BNode | URIRef, source_scope: str | None = None) -> tuple[str, str]:
     template = graph.value(term_map, RR.template)
     if template is not None:
         return ("template", str(template))
@@ -113,7 +113,9 @@ def term_key(graph: Graph, term_map: BNode | URIRef) -> tuple[str, str]:
         return ("constant", str(constant))
     reference = graph.value(term_map, RML.reference) or graph.value(term_map, RR.column)
     if reference is not None:
-        return ("reference", str(reference))
+        kind = "iri-reference" if graph.value(term_map, RR.termType) == RR.IRI else "reference"
+        value = f"{source_scope}::{reference}" if kind == "iri-reference" and source_scope else str(reference)
+        return (kind, value)
     return ("anonymous", str(term_map))
 
 
@@ -171,14 +173,15 @@ def parse_mapping(path: Path) -> tuple[Graph, dict[str, MapInfo]]:
                         if parent_subject is None:
                             raise ValueError(f"{name} references parent map without a subject: {parent}")
                         spec = ObjectSpec(
-                            key=term_key(graph, parent_subject),
+                            key=term_key(graph, parent_subject, str(graph.value(parent, RML.logicalSource))),
                             mode="join",
                             parent_map=map_name(parent),
                             joins=joins,
                         )
                     else:
-                        key = term_key(graph, object_map)
-                        mode = "literal" if key[0] == "reference" else "template"
+                        key = term_key(graph, object_map, str(logical_source))
+                        mode = ("literal" if key[0] == "reference" else
+                                "IRI reference" if key[0] == "iri-reference" else "template")
                         constant = graph.value(object_map, RR.constant)
                         if isinstance(constant, Literal):
                             mode = "literal"
@@ -204,7 +207,7 @@ def parse_mapping(path: Path) -> tuple[Graph, dict[str, MapInfo]]:
             source=source_name,
             source_file=source_file,
             iterator=iterator,
-            subject_key=term_key(graph, subject_map),
+            subject_key=term_key(graph, subject_map, str(logical_source)),
             classes=classes,
             relations=tuple(relations),
         )
@@ -282,6 +285,8 @@ def template_hint(key: tuple[str, str]) -> str:
     kind, value = key
     if kind in {"literal", "reference"}:
         return "Literal value"
+    if kind == "iri-reference":
+        return "Referenced resource"
     if kind == "constant":
         return local_name(value).replace("-", " ").title()
     pieces = [
@@ -445,13 +450,13 @@ def source_page(
                     relation.object.key, selected, infos, labels
                 )
                 predicate = readable_uri(relation.predicate, labels)
-                mode = "join" if relation.object.mode == "join" else "template"
+                mode = relation.object.mode
                 external_targets[info.name].add(
                     f"{predicate} -> {target_label} ({mode})"
                 )
                 continue
             predicate = readable_uri(relation.predicate, labels)
-            mode = "join" if relation.object.mode == "join" else "template"
+            mode = relation.object.mode
             arrow = "-->" if mode == "join" else "-.->"
             relation_lines.add(
                 f"    {node_ids[info.name]} {arrow}|{mermaid_escape(predicate)}; {mode}| {target_id}"
@@ -507,7 +512,7 @@ def source_page(
             "",
             pattern["summary"],
             "",
-            "Solid relation arrows are explicit parent-triples-map joins. Dotted relation arrows are IRI-template matches inferred by the reviewer from the actual RML templates. Cross-pattern targets are listed in the table rather than drawn, keeping the diagram small.",
+            "Solid relation arrows are explicit parent-triples-map joins. Dotted arrows match IRI templates or IRI-valued references within the same logical source. Cross-pattern targets are listed in the table rather than drawn. Unresolved dynamic resource types remain generic; the accepted design supplies their reviewed interpretation.",
             "",
             "```mermaid",
             *lines,

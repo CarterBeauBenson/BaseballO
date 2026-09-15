@@ -348,13 +348,12 @@
   rml:referenceFormulation ql:JSONPath ;
   rml:iterator "$.liveData.plays.allPlays[*].playEvents[?(@.isPitch == true && @.details.call.code == 'F' || @.isPitch == true && @.details.call.code == 'L')]" .
 
-# The event-local feed cannot distinguish every second-strike foul from a
-# two-strike foul. This conservative source emits only unambiguous first
-# counted fouls; the remaining ambiguity is documented as a source gap.
+# Accepted M1: retain first-strike fouls and add reconciled 1-to-2 increments.
+# The context gate inspects every prefix event; post-count 2 alone is insufficient.
 <#CountedFoulSource> a rml:LogicalSource ;
   rml:source "game-context.json" ;
   rml:referenceFormulation ql:JSONPath ;
-  rml:iterator "$.liveData.plays.allPlays[*].playEvents[?(@.isPitch == true && @.details.call.code == 'F' && @.count.strikes == 1)]" .
+  rml:iterator "$.liveData.plays.allPlays[*].playEvents[?(@.isPitch == true && @.details.call.code == 'F' && @.count.strikes == 1 || @.isPitch == true && @._baseballO.isSecondCountedFoul == true)]" .
 
 <#FoulTipSource> a rml:LogicalSource ;
   rml:source "game-context.json" ;
@@ -1673,7 +1672,8 @@
   rml:logicalSource <#ReviewedPitchPlaySource> ;
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/review/{about.atBatIndex}/judgment/on-field" ; rr:termType rr:IRI ] ;
   rr:predicateObjectMap [ rr:predicate obo:BFO_0000057 ; rr:objectMap [ rr:template "https://baseballontology.org/data/person/{$.homePlateUmpire.id}" ; rr:termType rr:IRI ] ] ;
-  rr:predicateObjectMap [ rr:predicate obo:BFO_0000055 ; rr:objectMap [ rr:template "https://baseballontology.org/data/person/{$.homePlateUmpire.id}/role/umpire" ; rr:termType rr:IRI ] ] .
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000055 ; rr:objectMap [ rr:template "https://baseballontology.org/data/person/{$.homePlateUmpire.id}/role/umpire" ; rr:termType rr:IRI ] ] ;
+.
 
 <#ReplayReviewActMap> a rr:TriplesMap ;
   rml:logicalSource <#ReviewedPlaySource> ;
@@ -1978,7 +1978,9 @@
   rr:predicateObjectMap [
     rr:predicate cco:ont00001808 ;
     rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/strike/{playId}" ; rr:termType rr:IRI ]
-  ] .
+  ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "_baseballO.strikeJudgmentIri" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "_baseballO.strikeDecisionIri" ; rr:termType rr:IRI ] ] .
 
 <#FoulTipStrikeProcessMap> a rr:TriplesMap ;
   rml:logicalSource <#AllFoulTipSource> ;
@@ -3029,21 +3031,19 @@
 <#BallProcessAdjudicationOverlayMap> a rr:TriplesMap ;
   rml:logicalSource <#AllBallSource> ;
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/ball/{playId}" ; rr:termType rr:IRI ] ;
-  rr:predicateObjectMap [ rr:predicate obo:BFO_0000117 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/judgment/ball/{playId}" ; rr:termType rr:IRI ] ] .
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000117 ; rr:objectMap [ rml:reference "_baseballO.ballJudgmentIri" ; rr:termType rr:IRI ] ] .
 
 <#BallJudgmentMap> a rr:TriplesMap ;
   rml:logicalSource <#AllBallSource> ;
-  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/judgment/ball/{playId}" ; rr:termType rr:IRI ; rr:class base:BallJudgmentAct ] ;
+  rr:subjectMap [ rml:reference "_baseballO.ballJudgmentIri" ; rr:termType rr:IRI ; rr:class base:BallJudgmentAct ] ;
   rr:predicateObjectMap [ rr:predicate obo:BFO_0000132 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/ball/{playId}" ; rr:termType rr:IRI ] ] ;
-  rr:predicateObjectMap [ rr:predicate obo:BFO_0000057 ; rr:objectMap [ rr:template "https://baseballontology.org/data/person/{$.homePlateUmpire.id}" ; rr:termType rr:IRI ] ] ;
-  rr:predicateObjectMap [ rr:predicate obo:BFO_0000055 ; rr:objectMap [ rr:template "https://baseballontology.org/data/person/{$.homePlateUmpire.id}/role/umpire" ; rr:termType rr:IRI ] ] ;
   rr:predicateObjectMap [ rr:predicate cco:ont00001921 ; rr:objectMap [ rr:constant <https://baseballontology.org/data/rule/ball> ] ] ;
-  rr:predicateObjectMap [ rr:predicate cco:ont00001986 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/decision/ball/{playId}" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001986 ; rr:objectMap [ rml:reference "_baseballO.ballDecisionIri" ; rr:termType rr:IRI ] ] ;
   rr:predicateObjectMap [ rr:predicate obo:BFO_0000063 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/call/ball/{playId}" ; rr:termType rr:IRI ] ] .
 
 <#BallDecisionMap> a rr:TriplesMap ;
   rml:logicalSource <#AllBallSource> ;
-  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/decision/ball/{playId}" ; rr:termType rr:IRI ; rr:class base:BallDecisionICE ] ;
+  rr:subjectMap [ rml:reference "_baseballO.ballDecisionIri" ; rr:termType rr:IRI ; rr:class base:BallDecisionICE ] ;
   rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/ball/{playId}" ; rr:termType rr:IRI ] ] .
 
 <#BallCallMap> a rr:TriplesMap ;
@@ -3052,37 +3052,35 @@
   rr:predicateObjectMap [ rr:predicate obo:BFO_0000132 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}" ; rr:termType rr:IRI ] ] ;
   rr:predicateObjectMap [ rr:predicate obo:BFO_0000057 ; rr:objectMap [ rr:template "https://baseballontology.org/data/person/{$.homePlateUmpire.id}" ; rr:termType rr:IRI ] ] ;
   rr:predicateObjectMap [ rr:predicate obo:BFO_0000055 ; rr:objectMap [ rr:template "https://baseballontology.org/data/person/{$.homePlateUmpire.id}/role/umpire" ; rr:termType rr:IRI ] ] ;
-  rr:predicateObjectMap [ rr:predicate cco:ont00001921 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/decision/ball/{playId}" ; rr:termType rr:IRI ] ] .
+  rr:predicateObjectMap [ rr:predicate cco:ont00001921 ; rr:objectMap [ rml:reference "_baseballO.ballDecisionIri" ; rr:termType rr:IRI ] ] .
 
 <#BallAdjudicationRecordMap> a rr:TriplesMap ;
   rml:logicalSource <#AllBallSource> ;
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/event-record/pitch/{playId}" ; rr:termType rr:IRI ] ;
-  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/judgment/ball/{playId}" ; rr:termType rr:IRI ] ] ;
-  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/decision/ball/{playId}" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "_baseballO.ballJudgmentIri" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "_baseballO.ballDecisionIri" ; rr:termType rr:IRI ] ] ;
   rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/call/ball/{playId}" ; rr:termType rr:IRI ] ] .
 
 <#StrikeProcessAdjudicationOverlayMap> a rr:TriplesMap ;
   rml:logicalSource <#CalledOrSwingingStrikeSource> ;
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/strike/{playId}" ; rr:termType rr:IRI ] ;
-  rr:predicateObjectMap [ rr:predicate obo:BFO_0000117 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/judgment/strike/{playId}" ; rr:termType rr:IRI ] ] .
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000117 ; rr:objectMap [ rml:reference "_baseballO.strikeJudgmentIri" ; rr:termType rr:IRI ] ] .
 
 <#StrikeJudgmentMap> a rr:TriplesMap ;
   rml:logicalSource <#CalledOrSwingingStrikeSource> ;
-  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/judgment/strike/{playId}" ; rr:termType rr:IRI ; rr:class base:StrikeJudgmentAct ] ;
+  rr:subjectMap [ rml:reference "_baseballO.strikeJudgmentIri" ; rr:termType rr:IRI ; rr:class base:StrikeJudgmentAct ] ;
   rr:predicateObjectMap [ rr:predicate obo:BFO_0000132 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/strike/{playId}" ; rr:termType rr:IRI ] ] ;
-  rr:predicateObjectMap [ rr:predicate obo:BFO_0000057 ; rr:objectMap [ rr:template "https://baseballontology.org/data/person/{$.homePlateUmpire.id}" ; rr:termType rr:IRI ] ] ;
-  rr:predicateObjectMap [ rr:predicate obo:BFO_0000055 ; rr:objectMap [ rr:template "https://baseballontology.org/data/person/{$.homePlateUmpire.id}/role/umpire" ; rr:termType rr:IRI ] ] ;
   rr:predicateObjectMap [ rr:predicate cco:ont00001921 ; rr:objectMap [ rr:constant <https://baseballontology.org/data/rule/strike> ] ] ;
-  rr:predicateObjectMap [ rr:predicate cco:ont00001986 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/decision/strike/{playId}" ; rr:termType rr:IRI ] ] .
+  rr:predicateObjectMap [ rr:predicate cco:ont00001986 ; rr:objectMap [ rml:reference "_baseballO.strikeDecisionIri" ; rr:termType rr:IRI ] ] .
 
 <#StrikeDecisionMap> a rr:TriplesMap ;
   rml:logicalSource <#CalledOrSwingingStrikeSource> ;
-  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/decision/strike/{playId}" ; rr:termType rr:IRI ; rr:class base:StrikeDecisionICE ] ;
+  rr:subjectMap [ rml:reference "_baseballO.strikeDecisionIri" ; rr:termType rr:IRI ; rr:class base:StrikeDecisionICE ] ;
   rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/strike/{playId}" ; rr:termType rr:IRI ] ] .
 
 <#CalledStrikeJudgmentCallSequenceMap> a rr:TriplesMap ;
   rml:logicalSource <#CalledStrikeSource> ;
-  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/judgment/strike/{playId}" ; rr:termType rr:IRI ] ;
+  rr:subjectMap [ rml:reference "_baseballO.strikeJudgmentIri" ; rr:termType rr:IRI ] ;
   rr:predicateObjectMap [ rr:predicate obo:BFO_0000063 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/call/strike/{playId}" ; rr:termType rr:IRI ] ] .
 
 <#CalledStrikeCallMap> a rr:TriplesMap ;
@@ -3091,13 +3089,13 @@
   rr:predicateObjectMap [ rr:predicate obo:BFO_0000132 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{_baseballO.atBatIndex}" ; rr:termType rr:IRI ] ] ;
   rr:predicateObjectMap [ rr:predicate obo:BFO_0000057 ; rr:objectMap [ rr:template "https://baseballontology.org/data/person/{$.homePlateUmpire.id}" ; rr:termType rr:IRI ] ] ;
   rr:predicateObjectMap [ rr:predicate obo:BFO_0000055 ; rr:objectMap [ rr:template "https://baseballontology.org/data/person/{$.homePlateUmpire.id}/role/umpire" ; rr:termType rr:IRI ] ] ;
-  rr:predicateObjectMap [ rr:predicate cco:ont00001921 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/decision/strike/{playId}" ; rr:termType rr:IRI ] ] .
+  rr:predicateObjectMap [ rr:predicate cco:ont00001921 ; rr:objectMap [ rml:reference "_baseballO.strikeDecisionIri" ; rr:termType rr:IRI ] ] .
 
 <#StrikeAdjudicationRecordMap> a rr:TriplesMap ;
   rml:logicalSource <#CalledOrSwingingStrikeSource> ;
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/event-record/pitch/{playId}" ; rr:termType rr:IRI ] ;
-  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/judgment/strike/{playId}" ; rr:termType rr:IRI ] ] ;
-  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/decision/strike/{playId}" ; rr:termType rr:IRI ] ] .
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "_baseballO.strikeJudgmentIri" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "_baseballO.strikeDecisionIri" ; rr:termType rr:IRI ] ] .
 
 <#CalledStrikeRecordCallMap> a rr:TriplesMap ;
   rml:logicalSource <#CalledStrikeSource> ;
@@ -3106,20 +3104,20 @@
 
 <#CountedFoulStrikeAdjudicationMap> a rr:TriplesMap ;
   rml:logicalSource <#CountedFoulSource> ;
-  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/judgment/strike/{playId}" ; rr:termType rr:IRI ; rr:class base:StrikeJudgmentAct ] ;
+  rr:subjectMap [ rml:reference "_baseballO.strikeJudgmentIri" ; rr:termType rr:IRI ; rr:class base:StrikeJudgmentAct ] ;
   rr:predicateObjectMap [ rr:predicate obo:BFO_0000132 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/strike/{playId}" ; rr:termType rr:IRI ] ] ;
   rr:predicateObjectMap [ rr:predicate cco:ont00001921 ; rr:objectMap [ rr:constant <https://baseballontology.org/data/rule/strike> ] ] ;
-  rr:predicateObjectMap [ rr:predicate cco:ont00001986 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/decision/strike/{playId}" ; rr:termType rr:IRI ] ] .
+  rr:predicateObjectMap [ rr:predicate cco:ont00001986 ; rr:objectMap [ rml:reference "_baseballO.strikeDecisionIri" ; rr:termType rr:IRI ] ] .
 
 <#CountedFoulStrikeDecisionMap> a rr:TriplesMap ;
   rml:logicalSource <#CountedFoulSource> ;
-  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/decision/strike/{playId}" ; rr:termType rr:IRI ; rr:class base:StrikeDecisionICE ] ;
+  rr:subjectMap [ rml:reference "_baseballO.strikeDecisionIri" ; rr:termType rr:IRI ; rr:class base:StrikeDecisionICE ] ;
   rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/strike/{playId}" ; rr:termType rr:IRI ] ] .
 
 <#CountedFoulStrikeProcessPartMap> a rr:TriplesMap ;
   rml:logicalSource <#CountedFoulSource> ;
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/strike/{playId}" ; rr:termType rr:IRI ] ;
-  rr:predicateObjectMap [ rr:predicate obo:BFO_0000117 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/judgment/strike/{playId}" ; rr:termType rr:IRI ] ] .
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000117 ; rr:objectMap [ rml:reference "_baseballO.strikeJudgmentIri" ; rr:termType rr:IRI ] ] .
 
 <#FairBallAdjudicationMap> a rr:TriplesMap ;
   rml:logicalSource <#AllInPlaySource> ;
@@ -3621,3 +3619,82 @@
   rr:subjectMap [ rml:reference "ruleEditionIdentifierIri" ; rr:termType rr:IRI ; rr:class cco:ont00000649 ] ;
   rr:predicateObjectMap [ rr:predicate cco:ont00001916 ; rr:objectMap [ rml:reference "ruleEditionIri" ; rr:termType rr:IRI ] ] ;
   rr:predicateObjectMap [ rr:predicate cco:ont00001765 ; rr:objectMap [ rml:reference "ruleEditionIdentifier" ] ] .
+
+
+<#M2BallOnFieldAgencyMap> a rr:TriplesMap ;
+  rml:logicalSource <#AllBallSource> ;
+  rr:subjectMap [ rml:reference "_baseballO.ballOnFieldJudgmentIri" ; rr:termType rr:IRI ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000057 ; rr:objectMap [ rr:template "https://baseballontology.org/data/person/{$.homePlateUmpire.id}" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000055 ; rr:objectMap [ rr:template "https://baseballontology.org/data/person/{$.homePlateUmpire.id}/role/umpire" ; rr:termType rr:IRI ] ] ;
+.
+
+
+<#M2StrikeOnFieldAgencyMap> a rr:TriplesMap ;
+  rml:logicalSource <#CalledOrSwingingStrikeSource> ;
+  rr:subjectMap [ rml:reference "_baseballO.strikeOnFieldJudgmentIri" ; rr:termType rr:IRI ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000057 ; rr:objectMap [ rr:template "https://baseballontology.org/data/person/{$.homePlateUmpire.id}" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000055 ; rr:objectMap [ rr:template "https://baseballontology.org/data/person/{$.homePlateUmpire.id}/role/umpire" ; rr:termType rr:IRI ] ] ;
+.
+
+# Accepted M2: selected explicit affirmed pitch reviews, with canonical identity
+# reconciliation in the source context. These are existing vocabulary only.
+<#M2PitchReviewSource> a rml:LogicalSource ;
+  rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$._baseballO.metricPitchReviews[*]" .
+
+<#M2OperativeReviewMap> a rr:TriplesMap ;
+  rml:logicalSource <#M2PitchReviewSource> ;
+  rr:subjectMap [ rml:reference "reviewIri" ; rr:termType rr:IRI ; rr:class base:BaseballReplayReviewAct ] ;
+  rr:predicateObjectMap [ rr:predicate rdf:type ; rr:objectMap [ rml:reference "reviewClassIri" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001921 ; rr:objectMap [ rml:reference "originalDecisionIri" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001986 ; rr:objectMap [ rml:reference "operativeDecisionIri" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001986 ; rr:objectMap [ rml:reference "dispositionIri" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000132 ; rr:objectMap [ rml:reference "processIri" ; rr:termType rr:IRI ] ] .
+
+<#M2OperativeDecisionMap> a rr:TriplesMap ;
+  rml:logicalSource <#M2PitchReviewSource> ;
+  rr:subjectMap [ rml:reference "operativeDecisionIri" ; rr:termType rr:IRI ; rr:class base:BaseballReplayDecisionICE ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "motionIri" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001816 ; rr:objectMap [ rml:reference "reviewIri" ; rr:termType rr:IRI ] ] .
+
+<#M2OriginalJudgmentMap> a rr:TriplesMap ;
+  rml:logicalSource <#M2PitchReviewSource> ;
+  rr:subjectMap [ rml:reference "originalJudgmentIri" ; rr:termType rr:IRI ; rr:class base:ReviewedOnFieldUmpireJudgmentAct ] ;
+  rr:predicateObjectMap [ rr:predicate rdf:type ; rr:objectMap [ rml:reference "judgmentClassIri" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000132 ; rr:objectMap [ rml:reference "originalProcessIri" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001921 ; rr:objectMap [ rml:reference "ruleIri" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001986 ; rr:objectMap [ rml:reference "originalDecisionIri" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000063 ; rr:objectMap [ rml:reference "reviewIri" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001833 ; rr:objectMap [ rr:template "https://baseballontology.org/data/person/{$.homePlateUmpire.id}" ; rr:termType rr:IRI ] ] ;
+.
+
+<#M2OriginalDecisionMap> a rr:TriplesMap ;
+  rml:logicalSource <#M2PitchReviewSource> ;
+  rr:subjectMap [ rml:reference "originalDecisionIri" ; rr:termType rr:IRI ; rr:class base:ReviewedOnFieldBaseballDecisionICE ] ;
+  rr:predicateObjectMap [ rr:predicate rdf:type ; rr:objectMap [ rml:reference "decisionClassIri" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "originalProcessIri" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "motionIri" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001841 ; rr:objectMap [ rml:reference "reviewIri" ; rr:termType rr:IRI ] ] .
+
+<#M2OriginalProcessMap> a rr:TriplesMap ;
+  rml:logicalSource <#M2PitchReviewSource> ;
+  rr:subjectMap [ rml:reference "originalProcessIri" ; rr:termType rr:IRI ; rr:class base:BaseballInstitutionalProcess ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000117 ; rr:objectMap [ rml:reference "originalJudgmentIri" ; rr:termType rr:IRI ] ] .
+
+<#M2DispositionMap> a rr:TriplesMap ;
+  rml:logicalSource <#M2PitchReviewSource> ;
+  rr:subjectMap [ rml:reference "dispositionIri" ; rr:termType rr:IRI ; rr:class base:AffirmingBaseballReplayReviewDispositionICE ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001816 ; rr:objectMap [ rml:reference "reviewIri" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "originalDecisionIri" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "operativeDecisionIri" ; rr:termType rr:IRI ] ] .
+
+<#M2RecordMap> a rr:TriplesMap ;
+  rml:logicalSource <#M2PitchReviewSource> ;
+  rr:subjectMap [ rml:reference "recordIri" ; rr:termType rr:IRI ; rr:class base:BaseballReplayReviewEventRecord ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "reviewIri" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "originalJudgmentIri" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "originalDecisionIri" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "operativeDecisionIri" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "dispositionIri" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "pitchIri" ; rr:termType rr:IRI ] ] .

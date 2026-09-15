@@ -395,6 +395,12 @@ try {
         throw "C1 runner-history serialization differs from its source inventory for game $gamePk."
     }
 
+    $metricMappingVerifier = Join-Path $script:RepositoryRoot 'sources\mlb-game\pipeline\verify-metric-mapping-serialization.py'
+    & python $metricMappingVerifier '--context' $stageContext '--rdf' $stageOutput
+    if ($LASTEXITCODE -ne 0) {
+        throw "M1/M2 serialization differs from its source inventory for game $gamePk."
+    }
+
     Copy-Item -LiteralPath $stageOutput -Destination $outputPath -Force
     $outputHash = (Get-FileHash -LiteralPath $outputPath -Algorithm SHA256).Hash.ToLowerInvariant()
     $inputHashAfter = (Get-FileHash -LiteralPath $inputPath -Algorithm SHA256).Hash.ToLowerInvariant()
@@ -422,6 +428,9 @@ try {
         runnerHistoryReconciliation = $contextDocument._baseballO.runnerHistoryReconciliation
         runnerHistoryMembershipVerified = $true
         runnerHistoryVerifierSha256 = (Get-FileHash -LiteralPath $runnerHistoryVerifier -Algorithm SHA256).Hash.ToLowerInvariant()
+        metricMappingEvidence = $contextDocument._baseballO.metricMappingEvidence
+        metricMappingMembershipVerified = $true
+        metricMappingVerifierSha256 = (Get-FileHash -LiteralPath $metricMappingVerifier -Algorithm SHA256).Hash.ToLowerInvariant()
         scheduleEvidencePath = $resolvedScheduleEvidencePath
         scheduleEvidenceSha256 = if ($null -eq $resolvedScheduleEvidencePath) { $null } else { (Get-FileHash -LiteralPath $resolvedScheduleEvidencePath -Algorithm SHA256).Hash.ToLowerInvariant() }
         materializedRootReferences = [ordered]@{

@@ -1,0 +1,67 @@
+"""Compare M1/M2 source-selected identities with serialized RDF.
+
+This is a membership/serialization check, not an imperative semantic validator.
+The source-owned SHACL profile constrains the meaning of the selected graph.
+"""
+import argparse
+import json
+from pathlib import Path
+
+from rdflib import Graph, Namespace, RDF, URIRef
+
+BASE = Namespace('https://baseballontology.org/')
+BFO = Namespace('http://purl.obolibrary.org/obo/')
+CCO = Namespace('https://www.commoncoreontologies.org/')
+
+
+def verify(document, graph):
+    root = document['_baseballO']
+    evidence = root['metricMappingEvidence']
+    data = f"https://baseballontology.org/data/game/{document['gamePk']}/"
+    plays = document['liveData']['plays']['allPlays']
+    expected_fouls = {data + f"process/strike/{e['playId']}"
+                      for p in plays for e in p.get('playEvents', [])
+                      if e.get('isPitch') is True and e.get('details', {}).get('call', {}).get('code') == 'F'
+                      and e.get('count', {}).get('strikes') == 1}
+    expected_fouls.update(data + f"process/strike/{e['playId']}" for e in evidence['countedFouls'])
+    actual_fouls = {str(s) for s in graph.subjects(RDF.type, BASE.StrikeProcess)
+                    if any((o, RDF.type, BASE.FoulBallProcess) in graph for o in graph.objects(s, BFO.BFO_0000062))}
+    if expected_fouls != actual_fouls:
+        raise ValueError(f'M1 serialization differs: missing={len(expected_fouls-actual_fouls)}, extra={len(actual_fouls-expected_fouls)}')
+    expected_reviews = {data + f"review/{p['about']['atBatIndex']}/act" for p in plays if p['_baseballO'].get('hasReview') is True}
+    expected_reviews.update(row['reviewIri'] for row in evidence['pitchReviews'])
+    actual_reviews = {str(s) for s in graph.subjects(RDF.type, BASE.BaseballReplayReviewAct)}
+    if expected_reviews != actual_reviews:
+        raise ValueError(f'M2 review census differs: missing={len(expected_reviews-actual_reviews)}, extra={len(actual_reviews-expected_reviews)}')
+    for row in evidence['pitchReviews']:
+        required = [
+            (row['reviewIri'], CCO.ont00001921, row['originalDecisionIri']),
+            (row['reviewIri'], CCO.ont00001986, row['operativeDecisionIri']),
+            (row['originalJudgmentIri'], RDF.type, str(BASE.ReviewedOnFieldUmpireJudgmentAct)),
+            (row['originalJudgmentIri'], RDF.type, row['judgmentClassIri']),
+            (row['reviewIri'], RDF.type, row['reviewClassIri']),
+            (row['originalDecisionIri'], CCO.ont00001808, row['motionIri']),
+            (row['operativeDecisionIri'], CCO.ont00001808, row['motionIri']),
+        ]
+        required.extend((row['recordIri'], CCO.ont00001808, row[k]) for k in
+                        ('reviewIri', 'originalJudgmentIri', 'originalDecisionIri', 'operativeDecisionIri', 'dispositionIri', 'pitchIri'))
+        for s, p, o in required:
+            if (URIRef(s), p, URIRef(o)) not in graph:
+                raise ValueError(f'M2 selected identity not serialized for pitch {row["playId"]}: {s} {p} {o}')
+    return dict(gamePk=str(document['gamePk']), inputSha256=evidence['inputSha256'],
+                addedCountedFouls=len(evidence['countedFouls']), allCountedFouls=len(expected_fouls),
+                affirmedPitchReviews=len(evidence['pitchReviews']), allReviews=len(expected_reviews),
+                sourceToGraphMembershipVerified=True, semanticConformance='requires-owning-source-SHACL',
+                metricPopulationAdmitted=False)
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--context', type=Path, required=True)
+    parser.add_argument('--rdf', type=Path, required=True)
+    args = parser.parse_args()
+    print(json.dumps(verify(json.loads(args.context.read_bytes()), Graph().parse(args.rdf)), sort_keys=True))
+
+
+if __name__ == '__main__':
+    main()
