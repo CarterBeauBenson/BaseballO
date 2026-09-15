@@ -124,6 +124,21 @@ test('readiness requires all metric identities in nonempty materialized serving,
   });
 });
 
+test('launcher identity stays available without graph or SQL dependencies', async()=>{
+  let calls=0;
+  const unavailable=async()=>{calls++;throw Error('Dependency unavailable');};
+  await withServer({servingExecutor:unavailable,fetchImpl:unavailable},async url=>{
+    const response=await fetch(url+'/health/live');
+    assert.equal(response.status,200);
+    const identity=await response.json();
+    assert.equal(identity.service,'baseballo-explorer');
+    assert.equal(identity.processId,process.pid);
+    assert.equal(identity.nodeVersion,process.version);
+    assert.match(identity.explorerSourceFingerprint,/^[0-9a-f]{64}$/);
+    assert.equal(calls,0);
+  });
+});
+
 test('readiness fails closed for stale, empty or incomplete serving and never falls back to RDF', async()=>{
   const metrics=(await metricCatalog()).metrics.map(metric=>({metricId:metric.id,status:'available'}));
   for(const output of [null,{graphCount:0,metrics},{graphCount:1,metrics:metrics.slice(1)},

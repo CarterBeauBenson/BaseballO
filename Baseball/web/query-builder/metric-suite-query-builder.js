@@ -18,7 +18,7 @@ export async function compileMetricDisplayQuery(targets) {
   if (!targets.length) return null;
   // Validate even when called independently of metricDisplayTargets.
   metricDisplayTargets(targets.map(t => ({ graph: t.graph, batter: t.entity })));
-  const source = await readFile(new URL('../metric-display-labels.rq', root), 'utf8');
+  const source = await readFile(new URL('../options/metric-display-labels.rq', root), 'utf8');
   return source.replace('# DATASET', [...new Set(targets.map(t => t.graph))].sort().map(g => `FROM NAMED <${g}>`).join('\n'))
     .replace('# DISPLAY_ROWS', targets.map(t => `(<${t.graph}> <${t.entity}>)`).join('\n'));
 }

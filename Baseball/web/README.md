@@ -148,7 +148,7 @@ supported play shows its own score and player prominently; multiple plays are
 listed individually without an invented aggregate. Coverage, loaded dates and
 technical records remain available in disclosures.
 
-Optional player labels come from `sparql/metric-display-labels.rq`, restricted
+Optional player labels come from `sparql/options/metric-display-labels.rq`, restricted
 to the result's existing game graphs and player IRIs. The server allows three
 seconds for this annotation lookup, then keeps the successful metric result
 with explicit IDs if labels are unavailable. Conflicting labels are not chosen

@@ -155,6 +155,14 @@ def result(bindings: list[dict[str, object]], variables: list[str] | None = None
 
 
 class ServingMaterializerTests(unittest.TestCase):
+    def test_checked_in_dsq_surface_matches_catalog_with_display_helpers(self) -> None:
+        catalog = json.loads(MODULE.DSQ_MATERIALIZATIONS.read_text(encoding="utf-8"))
+        advanced = json.loads(MODULE.ADVANCED_CATALOG.read_text(encoding="utf-8"))
+        reducers = json.loads(MODULE.ADVANCED_REDUCERS.read_text(encoding="utf-8"))
+        entries = MODULE.load_dsq_entries(catalog, advanced, reducers)
+        self.assertEqual(len(entries), 56)
+        self.assertFalse(any(entry["path"].endswith("metric-display-labels.rq") for entry in entries))
+
     def test_baserunning_grain_correlates_stolen_base_through_the_resolution_record(self) -> None:
         source = MODULE.EXPLORE_GRAIN_QUERIES["baserunning"].read_text(encoding="utf-8")
 

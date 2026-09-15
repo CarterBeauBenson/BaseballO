@@ -880,7 +880,8 @@ export function createBaseballServer({
     const requestUrl = new URL(request.url ?? "/", "http://127.0.0.1");
     try {
       if (request.method === 'GET' && requestUrl.pathname === '/health/live') {
-        sendJson(response, 200, { service: 'baseballo-explorer', status: 'alive', nodeVersion: process.version });
+        sendJson(response, 200, { service: 'baseballo-explorer', status: 'alive', nodeVersion: process.version,
+          processId: process.pid, explorerSourceFingerprint: EXPLORER_SOURCE_FINGERPRINT });
         return;
       }
       if (request.method === 'GET' && requestUrl.pathname === '/health/ready') {

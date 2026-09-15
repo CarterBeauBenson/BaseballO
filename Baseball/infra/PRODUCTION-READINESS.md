@@ -60,10 +60,30 @@ Health endpoints are read-only and do not launch a rebuild.
 
 The measured liveness response was 200 on Node v24.21.0. Readiness returned 503;
 the read-only adapter reported `Serving build is stale for mlb-game.rml.ttl`.
-One asynchronous rebuild was submitted successfully through the existing
+The first asynchronous rebuild exhausted its retries. The retained NiFi failure
+at 19:35:22 Eastern reported that `sparql/metric-display-labels.rq` was missing
+from the approved canned DSQ SQL surface. This optional display lookup had been
+placed beside materialized questions, causing the existing exact catalog check
+to reject it. The unchanged query now lives under `sparql/options/`, alongside
+other display lookups. No DSQ, reducer, query definition or validation rule was
+removed or relaxed. A focused regression loads the actual checked-in catalog
+and verifies all 56 DSQs while excluding the display helper.
+
+The corrected build was resubmitted through the existing
 `serving/dsq-nifi/provision.ps1 -RunFullBackfill` workflow. Submission is not
-completion or promotion. No healthy NiFi run was polled. Terminal NiFi evidence
-and a later readiness check must establish recovery.
+completion or promotion. Terminal NiFi evidence and a later readiness check
+must establish recovery; the corrected run was left asynchronous.
+
+The follow-up also makes launcher identity independent of graph/SQL queries:
+`/health/live` returns the process ID and application fingerprint. The launcher
+checks the replacement runtime before stopping an older process and verifies
+that its reported PID owns port 4173. A dependency outage no longer prevents
+identifying the running Explorer. The legacy status endpoint is used only when
+upgrading an older Explorer without the full liveness response. Restart and
+subsequent reuse of the current Explorer were both verified on the workstation.
+The follow-up passed 38 focused web tests, the exact DSQ catalog regression and
+the source-scope checks. It does not install unattended startup or claim SQL
+readiness.
 
 ## Remaining release blockers
 

@@ -29,6 +29,18 @@ function Invoke-StartupScript {
 }
 
 function Get-ExplorerStatus {
+    # Startup identity must remain readable when SQL or Fuseki is unavailable
+    # or query slots are occupied. Retain the old endpoint only for upgrading
+    # an Explorer that predates the complete liveness identity response.
+    try {
+        $live = Invoke-RestMethod -Uri "${explorerUri}health/live" -Method Get -TimeoutSec 5
+        if ($live.service -eq 'baseballo-explorer' -and $live.status -eq 'alive' -and
+            $null -ne $live.PSObject.Properties['explorerSourceFingerprint'] -and
+            $null -ne $live.PSObject.Properties['processId']) {
+            return $live
+        }
+    }
+    catch { }
     try {
         $status = Invoke-RestMethod -Uri $explorerStatusUri -Method Get -TimeoutSec 5
         if ($status.connected -eq $true) {
@@ -97,11 +109,9 @@ function Stop-StaleExplorer {
     param([Parameter(Mandatory = $true)] $Status)
 
     $processIdProperty = $Status.PSObject.Properties['processId']
-    $listenerPid = if ($null -ne $processIdProperty) {
-        [int]$processIdProperty.Value
-    }
-    else {
-        Get-ExplorerListenerProcessId
+    $listenerPid = Get-ExplorerListenerProcessId
+    if ($null -ne $processIdProperty -and [int]$processIdProperty.Value -ne $listenerPid) {
+        throw 'Explorer identity does not match the process listening on port 4173.'
     }
     $process = Get-Process -Id $listenerPid -ErrorAction Stop
     if ($process.ProcessName -ne 'node') {
@@ -138,6 +148,14 @@ try {
     Initialize-LocalLayout
     [void](New-Item -ItemType Directory -Force -Path $logDirectory)
 
+    # Verify the replacement runtime before stopping a usable older process.
+    $node = Join-Path (Join-Path $script:LocalRoot 'runtimes') ($script:Versions.Node.InstallDirectory + '\node.exe')
+    if (-not (Test-Path -LiteralPath $node -PathType Leaf)) {
+        throw 'Install the pinned Explorer runtime first: scripts/infra/install-explorer-runtime.ps1'
+    }
+    $nodeVersion = & $node --version
+    if ($LASTEXITCODE -ne 0 -or $nodeVersion -ne ('v' + $script:Versions.Node.Version)) { throw 'Explorer runtime version differs from its pin.' }
+
     Invoke-StartupScript -Path (Join-Path $PSScriptRoot 'start-fuseki.ps1')
     if (-not $SkipNiFi) {
         Invoke-StartupScript -Path (Join-Path $PSScriptRoot 'start-nifi.ps1')
@@ -167,12 +185,6 @@ try {
     }
 
     if (-not (Test-TcpPort -HostName '127.0.0.1' -Port 4173)) {
-        $node = Join-Path (Join-Path $script:LocalRoot 'runtimes') ($script:Versions.Node.InstallDirectory + '\node.exe')
-        if (-not (Test-Path -LiteralPath $node -PathType Leaf)) {
-            throw 'Install the pinned Explorer runtime first: scripts/infra/install-explorer-runtime.ps1'
-        }
-        $nodeVersion = & $node --version
-        if ($LASTEXITCODE -ne 0 -or $nodeVersion -ne ('v' + $script:Versions.Node.Version)) { throw 'Explorer runtime version differs from its pin.' }
         $startedExplorerProcess = Start-Process `
             -FilePath $node `
             -ArgumentList @('server.mjs') `
@@ -189,7 +201,7 @@ try {
         if ($null -eq (Get-ExplorerStatus)) {
             throw 'The Explorer opened its port, but its BaseballO health check failed.'
         }
-        Write-Host "BaseballO Explorer is ready at $explorerUri"
+        Write-Host "BaseballO Explorer is running at $explorerUri (data readiness: ${explorerUri}health/ready)"
     }
 
     if (-not $NoBrowser) {
