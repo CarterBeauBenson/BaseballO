@@ -25,6 +25,12 @@ their rejection rationale so they cannot be accidentally revived.
 
 ## Active reviews
 
+[M3/M4 counted-foul completion](mlb-game-counted-foul-completion/README.md)
+is a new bounded review of four source-present omissions found in the pitch
+audit. It proposes extending existing patterns across specifically reconciled
+prefix cases and counted foul bunts, with no new vocabulary. M1/M2 and the
+metric formulas remain accepted; this package records no further approval.
+
 The [September 15 completion answers](../archive/design-records/metric-completion-decisions-2026-09-15/user-decision.md)
 accept B2 contact continuations, catcher-interference exclusion, separate
 substituted Batter Acts, automatic ball/strike awards, supported defensive
