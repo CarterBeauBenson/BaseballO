@@ -25,6 +25,13 @@ their rejection rationale so they cannot be accidentally revived.
 
 ## Active reviews
 
+The [September 15 completion answers](../archive/design-records/metric-completion-decisions-2026-09-15/user-decision.md)
+accept B2 contact continuations, catcher-interference exclusion, separate
+substituted Batter Acts, automatic ball/strike awards, supported defensive
+action evidence, time-specific review eligibility, walk-off boundaries and
+the exact leaderboard minima. Shared strikeout/runner-out allocation remains
+unresolved because the user identified a possible called hit-and-run.
+
 The [new metric suite batch review](graph-native-metric-suite-batch-review/README.md)
 collects all remaining metric prerequisites in one draft package. The full
 calculation software is separately authorized and implemented; the unresolved

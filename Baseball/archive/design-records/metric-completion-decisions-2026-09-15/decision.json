@@ -1,0 +1,41 @@
+{
+  "artifactType": "baseballo-metric-policy-batch-decision",
+  "contractVersion": 1,
+  "decisionId": "metric-completion-decisions-2026-09-15",
+  "decidedAt": "2026-09-15",
+  "decidedBy": "Carter Beau Benson",
+  "userDecision": "user-decision.md",
+  "acceptedQuestionNumbers": [1, 3, 4, 5, 6, 7, 8, 9],
+  "unresolvedQuestionNumbers": [2],
+  "proposedIris": [],
+  "accepted": {
+    "contactContinuation": "../contact-play-continuation-membership/review.json",
+    "catcherInterferencePositiveBatterCredit": false,
+    "catcherInterferenceAlonePreventsEmptyGame": false,
+    "batterActIdentity": "one-per-uninterrupted-person-participation-in-one-pa",
+    "automaticCountAwardsUseExistingBallStrikeProcesses": true,
+    "automaticCountAwardsArePitches": false,
+    "automaticSecondStrikeEstablishesTwoStrikeCount": true,
+    "defensiveActEvidence": "explicit-mlb-description-reconciled-with-structured-play-evidence",
+    "defensiveActIdentity": "distinct-supported-intentional-performance",
+    "reviewEligibility": "legal-initiation-at-decision-time-under-applicable-season-rules",
+    "absDecisionDeduplicatedAcrossEligibleSides": true,
+    "walkoffBoundary": "supported-official-game-ending-boundary",
+    "additionalErosionMerelyForWalkoff": false,
+    "qualification": {
+      "independent-running": {"floor": 3, "teamGamesDivisor": 10},
+      "defensive-resolution": {"floor": 3, "teamGamesDivisor": 10},
+      "run-construction": {"floor": 2, "teamGamesDivisor": 5},
+      "review-overturn": {"floor": 3, "teamGamesDivisor": 40, "separateByMechanism": true},
+      "traditional-review-dependence": {"floor": 3, "teamGamesDivisor": 2},
+      "ball-strike-review-dependence": {"floor": 10, "teamGamesDivisor": 1},
+      "specialized-batting": {"floor": 3, "teamGamesDivisor": 5, "requiresBattingMinimum": true}
+    },
+    "relaxQualificationToFillFiveRows": false
+  },
+  "unresolved": {
+    "sharedOutAllocation": "not-accepted-hit-and-run-counterexample",
+    "hitAndRunAllocation": "awaiting-explicit-attribution-decision"
+  },
+  "scope": "Named semantic, identity and presentation decisions only; no new ontology terms, object properties, source lane or global semantic ratification. Question 3 is recorded under the catcher-interference case actually asked."
+}

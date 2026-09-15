@@ -1,6 +1,8 @@
 # B2: mixed-label continuations of one contact play
 
-Status: draft, awaiting the ontologist. No new ontology terms, object
+Status: accepted on September 15, 2026, by Carter Beau Benson's explicit
+"1. Yes" to B2 in the [completion decisions](../metric-completion-decisions-2026-09-15/user-decision.md).
+Implementation follows in a separate commit. No new ontology terms, object
 properties, personal-trajectory identities, source lane or metric formula.
 
 ## Concrete source and competency question

@@ -1,0 +1,48 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "contact-play-continuation-membership",
+  "title": "B2 mixed-label continuations of one contact play",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "c31d8db9881a59d3b0776b7287836f3ace2ad8cae339efb66019c1d73afcb690"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "README.md",
+        "sha256": "c31d8db9881a59d3b0776b7287836f3ace2ad8cae339efb66019c1d73afcb690"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "c31d8db9881a59d3b0776b7287836f3ace2ad8cae339efb66019c1d73afcb690"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "README.md",
+        "sha256": "c31d8db9881a59d3b0776b7287836f3ace2ad8cae339efb66019c1d73afcb690"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-09-15",
+    "rationale": "Explicit 1. Yes to the named B2 contact continuation contract; existing BFO parthood and existing identities only. Shared-out allocation was not accepted.",
+    "authorizedArtifacts": [
+      "Baseball/sources/mlb-game/",
+      "Baseball/scripts/pipeline/",
+      "Baseball/sparql/metrics/",
+      "Baseball/serving/",
+      "Baseball/web/"
+    ]
+  }
+}
