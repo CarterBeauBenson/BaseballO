@@ -1,0 +1,51 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "automatic-count-awards",
+  "title": "Question 5: automatic Ball and Strike awards without delivered pitches",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "75a5b273e75f015121d156beda3fe0048ee325a45d5df60645ade46ed0ce0f8d"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "README.md",
+        "sha256": "75a5b273e75f015121d156beda3fe0048ee325a45d5df60645ade46ed0ce0f8d"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "75a5b273e75f015121d156beda3fe0048ee325a45d5df60645ade46ed0ce0f8d"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "README.md",
+        "sha256": "75a5b273e75f015121d156beda3fe0048ee325a45d5df60645ade46ed0ce0f8d"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-09-15",
+    "rationale": "Records the explicit question 5 acceptance already published in b4d4f88: existing Ball/Strike processes and judgment pattern for automatic awards, no Pitch Act, automatic second strike counts but contributes zero recovery pitches. Existing scoping and vocabulary only; no new ontology or global ratification. Engineering paths enumerate that accepted scope.",
+    "authorizedArtifacts": [
+      "Baseball/scripts/pipeline/prepare-rml-context.py",
+      "Baseball/sources/mlb-game/mapping/mlb-game.rml.ttl",
+      "Baseball/sources/mlb-game/mapping/iri-policy.yaml",
+      "Baseball/sources/mlb-game/mapping/mapping-coverage.yaml",
+      "Baseball/sources/mlb-game/mapping/ontology-coverage-gaps.yaml",
+      "Baseball/sources/mlb-game/shacl/authoritative.ttl",
+      "Baseball/sources/mlb-game/review/semantic-status.json",
+      "Baseball/sources/mlb-game/review/rml-mermaid-manifest.json"
+    ]
+  }
+}
