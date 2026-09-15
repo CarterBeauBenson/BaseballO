@@ -57,6 +57,23 @@ tick. The obsolete proof never releases backfill. Missing completion, an
 ambiguous dispatch, failed conformance or quarantine cannot take this path;
 multiple new obsolete completions require attribution instead of a retry.
 
+An independently recorded SQL implementation-change failure has a separate
+recovery path. It requires one new, uniquely attributable quarantined proof,
+an accepted dispatch, successful RML/SHACL/promotion/event-emission records,
+ordered completion timestamps, and the materializer's terminal
+`implementation-changed` result. The exact prior materializer error
+`Metric implementation changed during materialization` is also recognized,
+including its Windows UTF-16 command log. Missing stages, nonconformance,
+ambiguous requests, unrelated errors, and multiple candidates never qualify.
+
+After both SQL processors are idle, the worker records the quarantine,
+command-log and successful-stage hashes in `obsoleteSqlProofs`, then queues a
+new full proof on the next tick. The original quarantine and inputs remain
+untouched. This is limited to one automatic proof per current metric/build
+implementation revision. It does not release the failed proof or reset the
+source stage's two-attempt retry policy. Repeated failure under the same
+implementation requires a focused fix.
+
 A prerequisite build that never promotes leaves the request in
 `waiting-serving`; an uncertain dispatch without downstream evidence remains
 pending. These are explicit diagnostic states, not permission to erase an

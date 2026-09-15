@@ -210,6 +210,75 @@ def completed_obsolete_proofs(state_root, prior_runs):
     return obsolete
 
 
+def serving_revision():
+    """Bound automatic recovery to one attempt per current scoring/build revision."""
+    path=BASEBALL_ROOT/'serving/metric_suite.py'
+    spec=importlib.util.spec_from_file_location('mlb_recovery_metric_fingerprint',path)
+    module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+    paths=[BASEBALL_ROOT/'scripts/pipeline'/name for name in
+           ('materialize-serving-layer.py','serving_query_cache.py','serving_build_guard.py')]
+    inputs={str(p.relative_to(BASEBALL_ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
+    inputs['metric-suite']=module.fingerprint()
+    return hashlib.sha256(json.dumps(inputs,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+
+
+def obsolete_sql_failure(state_root, plan, failures):
+    """Recognize a terminated proof whose SQL code changed during its build.
+
+    This never releases a source proof. A new full proof may be queued only
+    from unique, positively attributed quarantine and prior successful stages.
+    Other failures, active/ambiguous work and incomplete evidence do not qualify.
+    """
+    if len(failures)!=1 or plan.get('dispatchOutcome')!='accepted':return None
+    proof_pk=str(read(CONTRACT)['proofGamePk'])
+    failure_path=state_root/'pipeline/quarantine/mlb-game'/proof_pk/next(iter(failures))
+    failure=read(failure_path);run=failure_path.parent.name
+    if (failure.get('artifactType')!='baseballo-mlb-game-quarantine'
+            or failure.get('contractVersion')!=1 or failure.get('failedStage')!='materialize'
+            or failure.get('pipelineRunId')!=run or str(failure.get('gamePk'))!=proof_pk
+            or run in plan['priorProofRuns']):return None
+    def instant(value):
+        if not isinstance(value,str):raise ValueError('Missing recovery event timestamp')
+        parsed=datetime.fromisoformat(value.replace('Z','+00:00'))
+        if parsed.tzinfo is None:raise ValueError('Unqualified recovery event timestamp')
+        return parsed
+    try:
+        dispatched=instant(plan.get('dispatchedAtUtc'))
+        ended=instant(failure.get('quarantinedAtUtc'))
+        if ended<dispatched:return None
+        root=state_root/'pipeline/evidence/mlb-game'/proof_pk
+        candidates={p.name for p in root.iterdir() if p.is_dir()}-set(plan['priorProofRuns'])
+        if candidates!={run}:return None
+        directory=root/run
+        if any((directory/(stage+'.json')).exists() for stage in ('materialize','cleanup')):return None
+        hashes={}
+        previous=dispatched
+        for action in ('rml','shacl','promote','emit'):
+            stage_path=directory/(action+'.json')
+            record=read(stage_path)
+            if (record.get('artifactType')!='baseballo-mlb-game-stage-result'
+                    or record.get('contractVersion')!=1 or record.get('action')!=action
+                    or record.get('pipelineRunId')!=run or str(record.get('gamePk'))!=proof_pk):return None
+            completed=instant(record.get('completedAtUtc'))
+            if not previous<=completed<=ended:return None
+            previous=completed
+            if action=='shacl' and record.get('conforms') is not True:return None
+            hashes[action]=hashlib.sha256(stage_path.read_bytes()).hexdigest()
+        log=directory/'materialize.log'
+        if log.stat().st_size>1024*1024:return None
+        raw=log.read_bytes()
+        output=json.loads(raw.decode('utf-16' if raw.startswith((b'\xff\xfe',b'\xfe\xff')) else 'utf-8-sig'))
+        if not isinstance(output,dict) or output.get('status')!='failed':return None
+        if (output.get('failureKind')!='implementation-changed'
+                and output!={'status':'failed','error':'Metric implementation changed during materialization'}):return None
+    except (OSError,ValueError,KeyError):return None
+    return dict(proofRunId=run,quarantinedAtUtc=failure['quarantinedAtUtc'],
+        quarantineEvidence=str(failure_path.relative_to(state_root)),
+        quarantineSha256=hashlib.sha256(failure_path.read_bytes()).hexdigest(),
+        materializeLogSha256=hashlib.sha256(raw).hexdigest(),stageEvidenceSha256=hashes,
+        failureKind='implementation-changed')
+
+
 def advance(state_root, plan, nifi, release=proof_release):
     """Perform at most one dispatch; caller holds the source-local plan lock."""
     path = plan_path(state_root)
@@ -282,6 +351,18 @@ def advance(state_root, plan, nifi, release=proof_release):
         failures = set(names(quarantine_root, "*/failure.json")) - set(plan["priorProofFailures"])
         if failures:
             plan["proofFailureEvidence"] = sorted(failures)
+            obsolete=obsolete_sql_failure(state_root,plan,failures)
+            if obsolete:
+                if sql_busy or not request_idle(processors['Proof Request']):
+                    return finish(phase,'Obsolete SQL proof reached quarantine; waiting for active work to finish')
+                revision=serving_revision()
+                if any(p['retryImplementationSha256']==revision for p in plan.get('obsoleteSqlProofs',[])):
+                    return finish('failed','Current implementation already received an obsolete-SQL proof retry',sql_busy)
+                plan.setdefault('obsoleteSqlProofs',[]).append({**obsolete,
+                    'retryImplementationSha256':revision,'priorDispatchedAtUtc':plan['dispatchedAtUtc'],
+                    'priorDispatchOutcome':plan['dispatchOutcome'],'recordedAtUtc':now()})
+                plan['proofRebuildsServing']=True
+                return finish('waiting-serving','Obsolete SQL proof retained in quarantine; queued a full current proof')
             return finish("failed", "Proof reached quarantine; retained evidence requires a focused fix", sql_busy)
         obsolete = completed_obsolete_proofs(state_root, set(plan['priorProofRuns']))
         if len(obsolete) > 1:

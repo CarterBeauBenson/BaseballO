@@ -222,6 +222,77 @@ class RecoveryTests(unittest.TestCase):
         self.assertTrue(old.is_file())
         self.assertEqual(self.nifi.calls, [("run", "proof")])
 
+    def obsolete_sql(self,run='a'*32,legacy=False):
+        directory=self.proof_root/run
+        for action in ('rml','shacl','promote','emit'):
+            recovery.save(directory/(action+'.json'),dict(artifactType='baseballo-mlb-game-stage-result',
+                contractVersion=1,action=action,pipelineRunId=run,gamePk='566279',
+                conforms=True,completedAtUtc=recovery.now()))
+        output=dict(status='failed',error='Metric implementation changed during materialization')
+        if not legacy:output.update(error='Serving implementation changed during materialization: metric-suite',
+                                    failureKind='implementation-changed')
+        (directory/'materialize.log').write_text(json.dumps(output),encoding='utf-16' if legacy else 'utf-8')
+        failure=self.failure_root/run/'failure.json'
+        recovery.save(failure,dict(artifactType='baseballo-mlb-game-quarantine',contractVersion=1,
+            pipelineRunId=run,gamePk='566279',failedStage='materialize',quarantinedAtUtc=recovery.now()))
+        return directory,failure
+
+    def test_obsolete_sql_failure_queues_full_proof_and_preserves_quarantine(self):
+        self.step();directory,failure=self.obsolete_sql()
+        before=failure.read_bytes()
+        self.assertEqual(self.step()['status'],'waiting-serving')
+        self.assertNotIn('proofRelease',self.plan)
+        self.assertEqual(len(self.nifi.calls),1)
+        audit=self.plan['obsoleteSqlProofs'][0]
+        self.assertEqual(audit['proofRunId'],directory.name)
+        self.assertEqual(audit['quarantineSha256'],hashlib.sha256(before).hexdigest())
+        self.assertEqual(set(audit['stageEvidenceSha256']),{'rml','shacl','promote','emit'})
+        self.assertEqual(self.step()['status'],'waiting-proof')
+        self.assertEqual(len(self.nifi.calls),2)
+        self.assertEqual(self.step()['status'],'waiting-proof')
+        self.assertEqual(failure.read_bytes(),before)
+
+    def test_exact_legacy_materializer_error_is_recognized_from_windows_log(self):
+        self.step();self.obsolete_sql(legacy=True)
+        self.assertEqual(self.step()['status'],'waiting-serving')
+
+    def test_one_automatic_obsolete_sql_retry_per_implementation(self):
+        self.step();self.obsolete_sql()
+        self.assertEqual(self.step()['status'],'waiting-serving')
+        self.step();self.obsolete_sql(run='b'*32)
+        self.assertEqual(self.step()['status'],'failed')
+        self.assertIn('already received',self.plan['reason'])
+        self.assertEqual(len(self.nifi.calls),2)
+
+    def test_obsolete_sql_quarantine_waits_for_both_sql_processors_to_be_idle(self):
+        self.step();self.obsolete_sql()
+        self.nifi.materialize['status']['aggregateSnapshot']['activeThreadCount']=1
+        self.assertEqual(self.step()['status'],'waiting-proof')
+        self.assertEqual(len(self.nifi.calls),1)
+        self.nifi.materialize['status']['aggregateSnapshot']['activeThreadCount']=0
+        self.assertEqual(self.step()['status'],'waiting-serving')
+
+    def test_incomplete_failed_ambiguous_or_unattributed_proofs_cannot_auto_retry(self):
+        def write_bad_shacl(directory):
+            record=recovery.read(directory/'shacl.json');record['conforms']=False
+            recovery.save(directory/'shacl.json',record)
+        mutations=[lambda d,f:(d/'emit.json').unlink(),
+                   lambda d,f:write_bad_shacl(d),
+                   lambda d,f:self.plan.update(dispatchOutcome='uncertain'),
+                   lambda d,f:(self.proof_root/'unrelated-new-run').mkdir(),
+                   lambda d,f:recovery.save(d/'cleanup.json',{}),
+                   lambda d,f:(d/'materialize.log').write_text(json.dumps({'status':'failed','error':'Database corruption'})),
+                   lambda d,f:recovery.save(f,{**recovery.read(f),'gamePk':'different'}),
+                   lambda d,f:recovery.save(f,{**recovery.read(f),'quarantinedAtUtc':'2020-01-01T00:00:00Z'})]
+        for mutate in mutations:
+            with self.subTest(mutation=mutate):
+                # Each case gets its own dispatched intent and complete fixture.
+                self.setUp()
+                self.step();directory,failure=self.obsolete_sql();mutate(directory,failure)
+                self.assertEqual(self.step()['status'],'failed')
+                self.assertNotIn('obsoleteSqlProofs',self.plan)
+                self.assertEqual(len(self.nifi.calls),1)
+
     def ready_refresh(self):
         self.step()
         self.release = {"released": True, "proofRunId": "new-run"}
