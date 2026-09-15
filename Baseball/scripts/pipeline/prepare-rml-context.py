@@ -219,7 +219,7 @@ def personal_runner_histories(raw: bytes) -> dict:
     """
     checker = Path(__file__).resolve().parents[2] / 'sources/mlb-game/pipeline/reconcile-metric-source.py'
     canonical = checker.read_text(encoding='utf-8-sig').replace('\r\n', '\n').replace('\r', '\n').encode()
-    if hashlib.sha256(canonical).hexdigest() != '98fb3cf7ca09388675f173c0492d51f5f0e8ddb7d9cdf4ce1004d5769543b502':
+    if hashlib.sha256(canonical).hexdigest() != 'c2473ca60d9b8f2c6d6883f62f716cead407f9ebca3ac6a0cf30b7e7dacc3575':
         raise ValueError('Runner-history source reconciler differs from its reviewed dependency pin')
     spec = importlib.util.spec_from_file_location('runner_source_reconciler', checker)
     module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
@@ -794,6 +794,90 @@ def annotate_officials(document: dict[str, object]) -> int:
     return len(officials)
 
 
+def automatic_count_awards(document: dict) -> dict:
+    """Select Q5's explicit count awards; never convert provider rows to pitches.
+
+    Individual award evidence is separate from a complete ordered PA census.
+    Times support conservative precedence only, not exact judgment duration.
+    """
+    base = 'https://baseballontology.org/'
+    data = base + f"data/game/{document['gamePk']}/"
+    plays = document['liveData']['plays']['allPlays']
+    ids = [e.get('playId') for p in plays for e in p.get('playEvents', []) if e.get('playId')]
+    source = document[CONTEXT_KEY]['runnerHistoryReconciliation']
+    admitted, withheld = [], []
+
+    def count(event):
+        c = event.get('count', {})
+        return (c['balls'], c['strikes']) if all(type(c.get(k)) is int and 0 <= c[k] <= n
+            for k, n in [('balls', 4), ('strikes', 3), ('outs', 3)]) else None
+
+    def instant(value):
+        try:
+            t = datetime.fromisoformat(value.replace('Z', '+00:00'))
+            return t if t.tzinfo is not None else None
+        except (ValueError, AttributeError):
+            return None
+
+    for play in plays:
+        events = play.get('playEvents', [])
+        indexes = [e.get('index') for e in events]
+        bounds = [(instant(e.get('startTime')), instant(e.get('endTime'))) for e in events]
+        ordered = (all(a is not None and b is not None and a <= b for a, b in bounds)
+                   and all(a[1] <= b[0] for a, b in zip(bounds, bounds[1:])))
+        pa = str(play['about']['atBatIndex'])
+        for index, event in enumerate(events):
+            details = event.get('details', {})
+            code = details.get('call', {}).get('code')
+            if not (code in {'VP', 'AC', 'VB'} or (event.get('isPitch') is False and
+                    (details.get('isBall') is True or details.get('isStrike') is True))):
+                continue
+            item = dict(atBatIndex=pa, playId=event.get('playId'), eventIndex=event.get('index'))
+            kind = {'VP': 'ball', 'AC': 'strike'}.get(code)
+            before = count(events[index - 1]) if index else (0, 0)
+            after = count(event)
+            pid = event.get('playId')
+            reason = None
+            if source['sourceConsistency'] != 'consistent': reason = 'SOURCE_RECONCILIATION_FAILED'
+            elif play['about'].get('isComplete') is not True: reason = 'INCOMPLETE_PA'
+            elif any(type(i) is not int for i in indexes) or indexes != list(range(len(events))): reason = 'EVENT_MEMBERSHIP_OR_ORDER'
+            elif not kind: reason = 'AUTOMATIC_AWARD_KIND_NOT_ADMITTED'
+            elif event.get('isPitch') is not False or event.get('type') != 'no_pitch': reason = 'CONTRADICTORY_PITCH_FLAG'
+            elif not isinstance(pid, str) or not SAFE_IRI_SEGMENT.fullmatch(pid) or ids.count(pid) != 1: reason = 'AMBIGUOUS_EVENT_ID'
+            elif (details.get('violation', {}).get('type') != ('pitcher_pitch_timer' if kind == 'ball' else 'batter_pitch_timer')
+                  or details.get('isBall') is not (kind == 'ball') or details.get('isStrike') is not (kind == 'strike')
+                  or details.get('isInPlay') is not False): reason = 'CONFLICTING_AUTOMATIC_AWARD'
+            elif (play.get('reviewDetails') or play['about'].get('hasReview') is not False
+                  or any(e.get('reviewDetails') or e.get('details', {}).get('hasReview') is True for e in events)
+                  or details.get('hasReview') is not False): reason = 'UNRESOLVED_COUNT_REVIEW'
+            elif event.get('isSubstitution') is True: reason = 'CONFLICTING_SUBSTITUTION_EVENT'
+            elif not ordered: reason = 'UNSUPPORTED_EVENT_TIME_ORDER'
+            elif before is None or after is None: reason = 'INVALID_COUNTER'
+            elif before[0] >= 4 or before[1] >= 3: reason = 'COUNTER_RESET_AFTER_TERMINATION'
+            elif after != (before[0] + (kind == 'ball'), before[1] + (kind == 'strike')): reason = 'UNEXPLAINED_COUNTER_TRANSITION'
+            if reason:
+                withheld.append(dict(item, reason=reason))
+                continue
+            row = dict(item, kind=kind, processIri=data+f'process/{kind}/{pid}',
+                judgmentIri=data+f'judgment/{kind}/{pid}', decisionIri=data+f'decision/{kind}/{pid}',
+                processClassIri=base+kind.title()+'Process', judgmentClassIri=base+kind.title()+'JudgmentAct',
+                decisionClassIri=base+kind.title()+'DecisionICE', ruleIri=base+'data/rule/'+kind,
+                ruleClassIri=base+kind.title()+'Rule',
+                plateAppearanceIri=data+'plate-appearance/'+pa,
+                recordIri=data+'event-record/count-award/'+pid,
+                recordIdentifierIri=data+'event-record/count-award/'+pid+'/identifier/mlb-play-id',
+                description=details.get('description', ''),
+                ballsBefore=before[0], strikesBefore=before[1], ballsAfter=after[0], strikesAfter=after[1])
+            for name, neighbors in [('previousPitchIri', reversed(events[:index])), ('nextPitchIri', events[index+1:])]:
+                neighbor = next((e for e in neighbors if e.get('isPitch') is True), None)
+                if neighbor and isinstance(neighbor.get('playId'), str) and SAFE_IRI_SEGMENT.fullmatch(neighbor['playId']) and ids.count(neighbor['playId']) == 1:
+                    row[name] = data+'pitch/'+neighbor['playId']
+            admitted.append(row)
+    document[CONTEXT_KEY]['metricAutomaticAwards'] = admitted
+    return dict(automaticAwards=admitted, withheldAutomaticAwards=withheld,
+                automaticAwardDecision='archive/design-records/automatic-count-awards/review.json')
+
+
 def metric_pitch_context(document: dict) -> dict:
     """Accepted M1/M2 source selection; graph semantics belong to RML/SHACL.
 
@@ -806,6 +890,8 @@ def metric_pitch_context(document: dict) -> dict:
     evidence = dict(decision='archive/design-records/mlb-game-metric-mapping-completion/review.json',
                     countedFouls=[], withheldFouls=[], pitchReviews=[], withheldReviews=[])
     root = document[CONTEXT_KEY]
+    evidence.update(automatic_count_awards(document))
+    automatic_ids = {(r['atBatIndex'], r['playId']) for r in evidence['automaticAwards']}
     source = root['runnerHistoryReconciliation']
     evidence.update(inputSha256=source['inputSha256'], sourceRevision=source['sourceRevision'])
     rows = []
@@ -869,7 +955,10 @@ def metric_pitch_context(document: dict) -> dict:
                     else: expected = None
                 else:
                     neutral = details.get('eventType') in {'batter_timeout', 'mound_visit', 'defensive_switch'} or event.get('type') in {'pickoff', 'stepoff', 'no_pitch'}
-                    expected = prior if neutral else None
+                    if (pa, event.get('playId')) in automatic_ids:
+                        expected = (balls + (code == 'VP'), strikes + (code == 'AC'))
+                    else:
+                        expected = prior if neutral else None
                 if expected is None or expected != after:
                     prefix_problem = prefix_problem or 'UNEXPLAINED_COUNTER_TRANSITION'
             if event.get('isPitch') is not True:

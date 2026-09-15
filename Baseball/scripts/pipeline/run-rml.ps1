@@ -398,7 +398,7 @@ try {
     $metricMappingVerifier = Join-Path $script:RepositoryRoot 'sources\mlb-game\pipeline\verify-metric-mapping-serialization.py'
     & python $metricMappingVerifier '--context' $stageContext '--rdf' $stageOutput
     if ($LASTEXITCODE -ne 0) {
-        throw "M1/M2 serialization differs from its source inventory for game $gamePk."
+        throw "Metric mapping serialization differs from its source inventory for game $gamePk."
     }
 
     Copy-Item -LiteralPath $stageOutput -Destination $outputPath -Force

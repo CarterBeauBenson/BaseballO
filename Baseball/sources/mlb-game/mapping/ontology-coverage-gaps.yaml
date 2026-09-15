@@ -17,10 +17,10 @@ ontology_coverage_gaps:
   mapping_action: Preserve the raw values and defer their RDF representation until an appropriate geographic-coordinate ICE pattern is approved.
 
 - id: action-event-identity-and-coverage
-  status: source and ontology gap
+  status: partially resolved for explicit timer count awards; other action coverage remains gated
   source_path: playEvents where isPitch is false
   gap: Non-pitch actions often lack playId and include advisory or status records without an approved baseball act or process class.
-  mapping_action: Do not mint action individuals until identity and class coverage are approved.
+  mapping_action: Q5 maps explicit VP/AC timer awards through existing Ball/Strike Process and judgment identities when source IDs, flags and increments reconcile. Do not mint other action individuals until identity and class coverage are approved; intentional-walk counter rows are not an umpire-act census.
 
 - id: runner-record-stable-identifier
   status: resolved in execution context

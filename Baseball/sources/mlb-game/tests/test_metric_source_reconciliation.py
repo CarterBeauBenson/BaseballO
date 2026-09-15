@@ -15,6 +15,15 @@ SOURCE = ROOT / 'data/raw/samples/2026-08-23/824315.json'
 
 
 class ReconciliationTests(unittest.TestCase):
+    def test_unplayed_bottom_half_is_not_inserted_by_membership_comparison(self):
+        raw=(ROOT/'data/raw/samples/2026-07-18/824088.json').read_bytes()
+        source=json.loads(raw)
+        self.assertNotIn('runs',source['liveData']['linescore']['innings'][8]['home'])
+        self.assertFalse(source['liveData']['plays']['playsByInning'][8]['bottom'])
+        actual=R.reconcile(raw,'824088')
+        self.assertEqual(actual['status'],'consistent',actual['issues'])
+        self.assertFalse(any(p['inning']==9 and p['half']=='bottom' for p in actual['inventory']))
+
     @classmethod
     def setUpClass(cls):
         cls.raw = SOURCE.read_bytes()

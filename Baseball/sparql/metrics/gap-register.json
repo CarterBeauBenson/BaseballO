@@ -367,9 +367,9 @@
       "question": "Automatic awards use existing Ball/Strike Process and judgment patterns without fictitious pitches; automatic second strikes establish the count. Full source/RDF count history, correction and termination coverage remains engineering work.",
       "direction": "Automatic awards use existing Ball/Strike Process and judgment patterns without fictitious pitches; automatic second strikes establish the count. Full source/RDF count history, correction and termination coverage remains engineering work.",
       "status": "open",
-      "disposition": "accepted-policy-source-implementation-pending",
+      "disposition": "partial-source-implementation-complete-population-pending",
       "owner": "engineering",
-      "implementationBehavior": "unavailable until the named semantic/evidence prerequisite is admitted",
+      "implementationBehavior": "Explicit VP/AC timer awards are mapped, source-SHACL checked and retained by canonical query/SQL evidence; the recovery calculator updates counts without adding pitches. Complete ordered count histories, corrections, termination and eligible player populations remain required for live scores.",
       "researchAssessment": {
         "assessedOn": "2026-09-08",
         "report": "proposals/graph-native-metric-suite-batch-review/web-gap-assessment.md",
@@ -383,8 +383,10 @@
         "livePrerequisiteClosed": false
       },
       "decisionRecords": [
-        "archive/design-records/metric-completion-decisions-2026-09-15/decision.json"
-      ]
+        "archive/design-records/metric-completion-decisions-2026-09-15/decision.json",
+        "archive/design-records/automatic-count-awards/review.json"
+      ],
+      "implementationEvidence": "benchmarks/metrics/automatic-count-awards-2026-09-15/result.json"
     },
     {
       "id": "DEFENSIVE_ACTS",

@@ -854,6 +854,22 @@
         "ScheduleResponseEvidenceMap",
         "ScheduleResponseReasonEvidenceMap"
       ]
+    },
+    {
+      "id": "68-automatic-count-awards",
+      "title": "Automatic count awards without pitches",
+      "summary": "An evidenced timer penalty contributes one counted Ball or Strike Process, with a distinct judgment, decision and source record; it contributes no Pitch Act.",
+      "maps": [
+        "AutomaticCountProcessMap",
+        "AutomaticCountPAContainmentMap",
+        "AutomaticCountJudgmentMap",
+        "AutomaticCountDecisionMap",
+        "AutomaticCountRuleMap",
+        "AutomaticCountRecordMap",
+        "AutomaticCountRecordIdentifierMap",
+        "AutomaticCountPriorPitchMap",
+        "AutomaticCountNextPitchMap"
+      ]
     }
   ]
 }

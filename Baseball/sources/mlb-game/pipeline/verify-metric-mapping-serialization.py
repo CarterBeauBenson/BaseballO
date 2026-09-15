@@ -1,4 +1,4 @@
-"""Compare M1/M2 source-selected identities with serialized RDF.
+"""Compare M1/M2 and Q5 source-selected identities with serialized RDF.
 
 This is a membership/serialization check, not an imperative semantic validator.
 The source-owned SHACL profile constrains the meaning of the selected graph.
@@ -48,7 +48,20 @@ def verify(document, graph):
         for s, p, o in required:
             if (URIRef(s), p, URIRef(o)) not in graph:
                 raise ValueError(f'M2 selected identity not serialized for pitch {row["playId"]}: {s} {p} {o}')
+    awards = evidence.get('automaticAwards', [])
+    expected_awards = {row['recordIri'] for row in awards}
+    actual_awards = {str(s) for s in graph.subjects(RDF.type, BASE.BaseballEventRecord)
+                     if '/event-record/count-award/' in str(s)}
+    if expected_awards != actual_awards:
+        raise ValueError(f'Automatic count award census differs: missing={len(expected_awards-actual_awards)}, extra={len(actual_awards-expected_awards)}')
+    for row in awards:
+        # Mechanical identity serialization only. Matching types, cardinalities,
+        # absent fictitious pitches and order conformance belong to source SHACL.
+        for key in ('processIri', 'judgmentIri', 'decisionIri'):
+            if (URIRef(row['recordIri']), CCO.ont00001808, URIRef(row[key])) not in graph:
+                raise ValueError(f'Automatic award identity not serialized: {row["playId"]} {key}')
     return dict(gamePk=str(document['gamePk']), inputSha256=evidence['inputSha256'],
+                automaticCountAwards=len(awards), withheldAutomaticCountAwards=len(evidence.get('withheldAutomaticAwards', [])),
                 addedCountedFouls=len(evidence['countedFouls']), allCountedFouls=len(expected_fouls),
                 affirmedPitchReviews=len(evidence['pitchReviews']), allReviews=len(expected_reviews),
                 sourceToGraphMembershipVerified=True, semanticConformance='requires-owning-source-SHACL',

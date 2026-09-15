@@ -1,6 +1,6 @@
 baseball_iri_policy:
   title: "Baseball Knowledge Graph IRI Policy"
-  version: "1.5"
+  version: "1.6"
   status: "canonical"
   effective_until: "Explicitly revised by the project owner"
 
@@ -47,6 +47,19 @@ baseball_iri_policy:
       judgment: "{data}game/{gamePk}/judgment/{judgmentType}/{playId}"
       decision: "{data}game/{gamePk}/decision/{decisionType}/{playId}"
       call: "{data}game/{gamePk}/call/{callType}/{playId}"
+
+    automatic_count_award:
+      decision: "archive/design-records/automatic-count-awards/review.json"
+      counted_process: "{data}game/{gamePk}/process/{ball|strike}/{playId}"
+      judgment: "Reuse the existing judgment/{ball|strike}/{playId} scope."
+      decision_ice: "Reuse the existing decision/{ball|strike}/{playId} scope."
+      record: "{data}game/{gamePk}/event-record/count-award/{playId}"
+      rule: >
+        Require one explicit admitted non-pitch award and an event ID unique
+        across the game's source events. Preserve the existing distinction
+        between counted process, judgment, decision and record. No Pitch Act,
+        pitch motion, named umpire, or exact judgment interval is inferred.
+        Provider intentional-walk counter rows remain withheld.
 
     affirmed_pitch_review:
       decision: "archive/design-records/mlb-game-metric-mapping-completion/review.json"

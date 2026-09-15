@@ -23,7 +23,7 @@ from rdflib import Graph, Literal
 
 ROOT = Path(__file__).resolve().parents[1]
 METRICS = ROOT / 'sparql/metrics'
-VERSION = '2.0.19'
+VERSION = '2.0.20'
 
 
 class EvidenceError(ValueError):
@@ -467,27 +467,42 @@ def review_dependence_by_mechanism(rows, *, complete_populations):
 
 
 def recovery_steps(pitches):
-    """Input is already ordered, unique, exact post-pitch count evidence."""
-    pitches = _unique(pitches, ('pitch',))
+    """Already admitted, ordered count history, including Q5 non-pitch awards.
+
+    A row identifies either a delivered ``pitch`` or a ``countAward`` process.
+    Automatic awards update strikes but never contribute recovery pitches.
+    No source membership or event ordering is inferred by this reducer.
+    """
+    events = []
+    for row in pitches:
+        pitch, award = row.get('pitch'), row.get('countAward')
+        if bool(pitch) == bool(award):
+            raise EvidenceError('Identify exactly one pitch or automatic count award')
+        if award and row.get('awardKind') not in {'ball', 'strike'}:
+            raise EvidenceError('An automatic award needs its admitted ball/strike kind')
+        events.append(dict(row, event=pitch or award, isPitch=bool(pitch)))
+    pitches = _unique(events, ('event',))
     if not pitches:
         return unavailable('EXACT_PITCH_COUNTS')
     two_strikes, steps, previous_strikes = False, 0, 0
     for index, pitch in enumerate(pitches):
         strikes = _integer(pitch.get('strikesAfter'), 'post-pitch strikes', 0, 3)
-        terminal = _boolean(pitch.get('terminal'), 'terminal pitch')
+        terminal = _boolean(pitch.get('terminal'), 'terminal count-history event')
         if strikes < previous_strikes or (strikes == 3 and not terminal):
             raise EvidenceError('Inconsistent operative strike-count sequence')
+        if not pitch['isPitch'] and strikes != previous_strikes + (pitch['awardKind'] == 'strike'):
+            raise EvidenceError('Automatic award disagrees with its operative count increment')
         previous_strikes = strikes
         if terminal and index != len(pitches) - 1:
-            raise EvidenceError('A terminal pitch cannot precede another pitch in this PA')
-        if two_strikes and not terminal:
+            raise EvidenceError('A terminal event cannot precede another event in this PA')
+        if two_strikes and not terminal and pitch['isPitch']:
             steps += 1
         two_strikes = two_strikes or strikes >= 2
     if not pitches[-1]['terminal']:
         return unavailable('INCOMPLETE_PLATE_APPEARANCE')
     if not two_strikes:
         return unavailable('NOT_TWO_STRIKE_ELIGIBLE')
-    return available(steps, evidence=[p['pitch'] for p in pitches])
+    return available(steps, evidence=[p['event'] for p in pitches])
 
 
 def defensive_depth(acts):
@@ -658,15 +673,19 @@ def normalize_bindings(bindings, graphs):
                       'awardRule', 'contactPlay', 'award', 'record', 'episode',
                       'originRecord', 'safeJudgment', 'safeDecision', 'trajectory',
                       'trajectoryHalf', 'trajectoryInterval', 'paHalf', 'paInterval',
-                      'paStartInstant', 'paEndInstant', 'paStartTimestamp', 'paEndTimestamp', 'paOutCount'):
+                      'paStartInstant', 'paEndInstant', 'paStartTimestamp', 'paEndTimestamp', 'paOutCount',
+                      'countJudgment', 'countDecision', 'countRule', 'priorPitch', 'nextPitch'):
             if field in binding and binding[field].get('type') != 'uri':
                 raise EvidenceError('Evidence identity must be an IRI: ' + field)
         for field in ('paStart', 'paEnd'):
             if field in binding and (binding[field].get('type') != 'literal'
                     or binding[field].get('datatype') != 'http://www.w3.org/2001/XMLSchema#dateTime'):
                 raise EvidenceError('PA boundary requires an explicit dateTime value: ' + field)
-        if row.get('kind') not in {'plate_appearance', 'batted_play', 'run', 'player_game', 'player_team_game', 'review', 'runner_movement', 'runner_history'}:
+        if row.get('kind') not in {'plate_appearance', 'batted_play', 'run', 'player_game', 'player_team_game', 'review', 'runner_movement', 'runner_history', 'automatic_count_award'}:
             raise EvidenceError('Unknown evidence grain')
+        if row['kind'] == 'automatic_count_award' and (row.get('countAwardKind') not in {'ball', 'strike'} or
+                not all(row.get(f) for f in ('plateAppearance', 'countJudgment', 'countDecision', 'countRule', 'record'))):
+            raise EvidenceError('Automatic count award lacks its admitted process/judgment/decision structure')
         if row['kind'] == 'player_team_game' and (row.get('playerTeamRole') != row['entity'] or not row.get('player')):
             raise EvidenceError('Player/team game evidence lacks its realized role or bearer')
         if row['kind'] == 'runner_history' and (row.get('trajectory') != row['entity'] or

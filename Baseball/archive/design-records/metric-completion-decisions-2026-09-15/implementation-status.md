@@ -25,6 +25,17 @@ do not constitute complete player or season-reference populations. No new
 runtime corpus-refresh request or monitoring loop was started in this pass;
 the existing NiFi lane and asynchronous work remain enabled.
 
+## Subsequent question 5 implementation
+
+The automatic count-award scope was published in `6344630` before executable
+changes. Explicit timer-ball and timer-strike awards now pass source selection,
+RML, source SHACL, canonical SPARQL evidence and SQL retention. The recovery
+calculator accepts automatic awards without counting them as pitches.
+The [bounded proof](../../../benchmarks/metrics/automatic-count-awards-2026-09-15/README.md)
+records the real one-PA and whole-game results. Full ordered count extraction,
+corrections, termination and complete player populations remain unfinished;
+the first-pass table above is historical, not the updated award-mapping status.
+
 ## Non-pitch source fixtures for the accepted next mapping
 
 These are existing checked-in source fields, not a missing external source or

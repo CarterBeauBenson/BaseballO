@@ -155,7 +155,9 @@ def reconcile(raw: bytes, game_pk: str):
             for half in ('top', 'bottom'):
                 reported_members[(i + 1, half)] = indexes(row.get(half), f'/liveData/plays/playsByInning/{i}/{half}')
         for key in set(half_members) | set(reported_members):
-            if Counter(half_members[key]) != Counter(reported_members[key]):
+            # A defaultdict lookup would insert an unplayed bottom half into
+            # the observed census. Preserve absence for the linescore check.
+            if Counter(half_members.get(key, [])) != Counter(reported_members.get(key, [])):
                 issue('INNING_MEMBERSHIP_MISMATCH', '/liveData/plays/playsByInning', inning=key[0], half=key[1])
     if Counter(indexes(root.get('scoringPlays'), '/liveData/plays/scoringPlays')) != Counter(scoring_ids):
         issue('SCORING_INDEX_MISMATCH', '/liveData/plays/scoringPlays')

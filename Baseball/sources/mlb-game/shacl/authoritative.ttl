@@ -936,6 +936,81 @@ shape:AdjudicatedProcessShape
         sh:message "A counted institutional process must contain a judgment act."@en
     ] .
 
+shape:AutomaticCountAwardRecordShape a sh:NodeShape ;
+    sh:targetClass base:BaseballEventRecord ;
+    sh:sparql [
+      sh:message "An automatic count award must retain exactly one matching counted process, judgment and decision in its PA, with its source identifier and existing rule."@en ;
+      sh:select """
+        PREFIX base: <https://baseballontology.org/>
+        PREFIX bfo: <http://purl.obolibrary.org/obo/>
+        PREFIX cco: <https://www.commoncoreontologies.org/>
+        SELECT $this WHERE {
+          FILTER(CONTAINS(STR($this), "/event-record/count-award/"))
+          FILTER NOT EXISTS {
+            { ?process a base:BallProcess . ?judgment a base:BallJudgmentAct .
+              ?decision a base:BallDecisionICE . ?rule a base:BallRule . BIND(base:BallProcess AS ?processType) }
+            UNION { ?process a base:StrikeProcess . ?judgment a base:StrikeJudgmentAct .
+              ?decision a base:StrikeDecisionICE . ?rule a base:StrikeRule . BIND(base:StrikeProcess AS ?processType) }
+            $this cco:ont00001808 ?process, ?judgment, ?decision .
+            ?process bfo:BFO_0000132 ?pa ; bfo:BFO_0000117 ?judgment .
+            ?pa a base:PlateAppearance ; bfo:BFO_0000117 ?process .
+            ?judgment bfo:BFO_0000132 ?process ;
+                cco:ont00001986 ?decision ; cco:ont00001921 ?rule .
+            ?decision cco:ont00001808 ?process .
+            ?identifier a cco:ont00000649 ; cco:ont00001916 $this ; cco:ont00001765 ?id .
+            FILTER(?process != ?judgment && ?process != ?decision && ?judgment != ?decision)
+            FILTER(STR(?id) = STRAFTER(STR($this), "/event-record/count-award/"))
+            FILTER NOT EXISTS { $this cco:ont00001808 ?extra . FILTER(?extra NOT IN (?process, ?judgment, ?decision)) }
+            FILTER NOT EXISTS { ?process bfo:BFO_0000117 ?extra . FILTER(?extra != ?judgment) }
+            FILTER NOT EXISTS { ?process bfo:BFO_0000132 ?extra . FILTER(?extra != ?pa) }
+            FILTER NOT EXISTS { ?judgment bfo:BFO_0000132 ?extra . FILTER(?extra != ?process) }
+            FILTER NOT EXISTS { ?judgment cco:ont00001986 ?extra . FILTER(?extra != ?decision) }
+            FILTER NOT EXISTS { ?decision cco:ont00001808 ?extra . FILTER(?extra != ?process) }
+            FILTER NOT EXISTS { ?process a ?otherType . FILTER(?otherType IN (base:BallProcess, base:StrikeProcess) && ?otherType != ?processType) }
+          }
+        }
+      """
+    ] ;
+    sh:sparql [
+      sh:message "An automatic count award must not fabricate a pitch, ball motion, named adjudicator or exact judgment interval from a no-pitch source event."@en ;
+      sh:select """
+        PREFIX base: <https://baseballontology.org/>
+        PREFIX bfo: <http://purl.obolibrary.org/obo/>
+        PREFIX cco: <https://www.commoncoreontologies.org/>
+        SELECT $this WHERE {
+          FILTER(CONTAINS(STR($this), "/event-record/count-award/"))
+          BIND(STRBEFORE(STR($this), "event-record/count-award/") AS ?root)
+          BIND(STRAFTER(STR($this), "/event-record/count-award/") AS ?id)
+          BIND(IRI(CONCAT(?root, "pitch/", ?id)) AS ?pitch)
+          BIND(IRI(CONCAT(?root, "process/pitch-ball-motion/", ?id)) AS ?motion)
+          { ?pitch a base:PitchAct }
+          UNION { ?motion ?p ?o }
+          UNION { $this cco:ont00001808 ?judgment .
+            ?judgment a ?type ; ?unsupported ?value .
+            FILTER(?type IN (base:BallJudgmentAct, base:StrikeJudgmentAct))
+            FILTER(?unsupported IN (bfo:BFO_0000199, bfo:BFO_0000055, bfo:BFO_0000057, cco:ont00001833))
+          }
+        }
+      """
+    ] ;
+    sh:sparql [
+      sh:message "Automatic-award ordering anchors must be actual neighboring pitches in the same PA and must not form a precedence cycle."@en ;
+      sh:select """
+        PREFIX base: <https://baseballontology.org/>
+        PREFIX bfo: <http://purl.obolibrary.org/obo/>
+        PREFIX cco: <https://www.commoncoreontologies.org/>
+        SELECT $this WHERE {
+          FILTER(CONTAINS(STR($this), "/event-record/count-award/"))
+          $this cco:ont00001808 ?process .
+          ?process a ?type ; bfo:BFO_0000132 ?pa .
+          FILTER(?type IN (base:BallProcess, base:StrikeProcess))
+          { { ?process bfo:BFO_0000063 ?neighbor } UNION { ?neighbor bfo:BFO_0000063 ?process }
+            FILTER NOT EXISTS { ?neighbor a base:PitchAct ; bfo:BFO_0000132 ?pa }
+          } UNION { ?process bfo:BFO_0000063+ ?process }
+        }
+      """
+    ] .
+
 shape:TimestampShape
     a sh:NodeShape ;
     sh:targetClass base:BaseballTimestampICE ;

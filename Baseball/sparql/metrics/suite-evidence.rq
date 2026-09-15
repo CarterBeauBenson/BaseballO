@@ -12,6 +12,7 @@ SELECT DISTINCT ?graph ?game ?kind ?entity ?player ?act ?roleType
                 ?trajectory ?episode ?trajectoryHalf ?trajectoryInterval
                 ?paHalf ?paInterval ?paStartInstant ?paEndInstant
                 ?paStartTimestamp ?paEndTimestamp ?paStart ?paEnd ?paOutCount ?paOutsBefore
+                ?plateAppearance ?countAwardKind ?countJudgment ?countDecision ?countRule ?record ?priorPitch ?nextPitch
 WHERE {
   GRAPH ?graph {
     ?game a base:BaseballGame .
@@ -101,6 +102,20 @@ WHERE {
       FILTER(REGEX(STR(?trajectory), "^https://baseballontology[.]org/data/game/[0-9]+/runner-trajectory/[^/]+$"))
       BIND(?trajectory AS ?entity)
       BIND("runner_history" AS ?kind)
+    } UNION {
+      # Q5: source-owned award records distinguish counted non-pitch processes
+      # from delivered pitches. No count-state literal or Pitch Act is invented.
+      ?record a base:BaseballEventRecord ; cco:ont00001808 ?entity, ?countJudgment, ?countDecision .
+      FILTER(CONTAINS(STR(?record), "/event-record/count-award/"))
+      VALUES (?countType ?countAwardKind) { (base:BallProcess "ball") (base:StrikeProcess "strike") }
+      ?entity a ?countType ; obo:BFO_0000132 ?countPA ; obo:BFO_0000117 ?countJudgment .
+      ?countPA a base:PlateAppearance ; obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
+      ?countJudgment obo:BFO_0000132 ?entity ; cco:ont00001986 ?countDecision ; cco:ont00001921 ?countRule .
+      ?countDecision cco:ont00001808 ?entity .
+      BIND(?countPA AS ?plateAppearance)
+      OPTIONAL { ?priorPitch a base:PitchAct ; obo:BFO_0000063 ?entity ; obo:BFO_0000132 ?countPA . }
+      OPTIONAL { ?entity obo:BFO_0000063 ?nextPitch . ?nextPitch a base:PitchAct ; obo:BFO_0000132 ?countPA . }
+      BIND("automatic_count_award" AS ?kind)
     } UNION {
       ?entity a base:BaseballReplayReviewAct .
       ?reviewRecord a base:BaseballReplayReviewEventRecord ;
