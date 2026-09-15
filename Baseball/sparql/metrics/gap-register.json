@@ -11,7 +11,7 @@
       "status": "open",
       "disposition": "confirmed-hit-and-run-policy-resolved-source-admission-open",
       "owner": "ontologist-for-shared-out-allocation; engineering-for-accepted-mappings",
-      "implementationBehavior": "calculation uses accepted policy; live output remains unavailable until source-owned graph prerequisites are admitted",
+      "implementationBehavior": "Conditional complete-player Reach, Hidden Help and Empty Games use accepted contact-play, normative-award and independent-steal channels. Unknown positive attribution and unresolved repeated-consequence coalescence withhold the population. Full TFS and other independent channels remain unfinished.",
       "decisionRecords": [
         "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
         "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json",
@@ -42,7 +42,8 @@
         "Batter metric HOME=0 from PA batter identity",
         "Confirmed failed hit-and-run damage belongs to the batter, without duplicate running damage"
       ],
-      "remainingCoverage": "Reviewed operative award resolution, other rule editions, PA-start fallback completeness and full attributed-trajectory completeness remain separately gated."
+      "remainingCoverage": "Reviewed operative award resolution, other rule editions, PA-start fallback completeness and full attributed-trajectory completeness remain separately gated.",
+      "implementationEvidence": "benchmarks/metrics/batting-progress-players-2026-09-15/result.json"
     },
     {
       "id": "BOUNDARY_STATE",
@@ -262,7 +263,7 @@
       "status": "open",
       "disposition": "partial-source-implementation-complete-population-pending",
       "owner": "engineering",
-      "implementationBehavior": "Actual substituted Batter Acts and swing/bunt attribution implemented and proved through RML, SHACL, canonical query and SQL. Official statistical PA assignment and complete selected population remain independently gated.",
+      "implementationBehavior": "B1 official PA and selected-schedule admission feed conditional Reach, Hidden Help and Empty Games player producers. Explicit PR changes between other rostered people preserve the unchanged batter while official totals and single-Batter-Act conformance still reconcile. Unresolved multiple-batter official assignments remain withheld.",
       "decisionRecords": [
         "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
         "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json",
@@ -282,7 +283,7 @@
         ],
         "livePrerequisiteClosed": false
       },
-      "implementationEvidence": "benchmarks/metrics/substituted-batters-2026-09-15/result.json"
+      "implementationEvidence": "benchmarks/metrics/batting-progress-players-2026-09-15/result.json"
     },
     {
       "id": "INDEPENDENT_EPISODES",

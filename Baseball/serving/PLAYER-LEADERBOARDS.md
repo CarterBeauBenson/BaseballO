@@ -65,6 +65,14 @@ error/FC/interference batting progress. Only then does it emit scorer means
 and complete player results. Non-scoring games remain in each player's team
 exposure. Pinch runners need no inferred PA count or batting minimum.
 
+Offensive Reach, Hidden Help Rate and Empty Games also have conditional player
+producers. They require separate complete runner-resolution admission, B1
+official PA counts and complete selected schedules. Supported contact, award
+and independent-steal channels preserve the accepted batting exclusions and
+independent running's effect on Empty Games. Unknown contribution channels or
+unresolved consequence coalescence withhold the complete population. See the
+[source/serving contract](../sources/mlb-game/pipeline/BATTING-PROGRESS-ADMISSION.md).
+
 Other metric player producers remain unfinished. The isolated browser
 fixtures are UI tests, not live baseball data. A deployed build must pass the
 new admission stage and materialize its proof; an older graph or proof cannot

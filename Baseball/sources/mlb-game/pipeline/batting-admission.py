@@ -125,12 +125,24 @@ def census(raw, game_pk):
         if player not in owners or owners[player]['side'] != ('away' if play['about']['halfInning']=='top' else 'home'):
             issues.append(dict(code='BATTER_ROSTER_MISMATCH', atBatIndex=index))
         events = play.get('playEvents', [])
-        # A PH event at the untouched 0-0 boundary can be reconciled. Every
-        # other offensive replacement is withheld; no original-credit guess.
+        # A PH event at the untouched 0-0 boundary can be reconciled. An
+        # explicit PR change between two other rostered people leaves this
+        # batter unchanged. Counts and the exact single-Batter-Act graph census
+        # still reconcile independently; no multi-batter credit is guessed.
         for position, event in enumerate(events):
             if event.get('details', {}).get('eventType') != 'offensive_substitution':
                 continue
             prior = events[:position]
+            new_id=event.get('player',{}).get('id')
+            old_id=event.get('replacedPlayer',{}).get('id')
+            runner_only=(event.get('position',{}).get('abbreviation')=='PR'
+                and event.get('isPitch') is False and event.get('isSubstitution') is True
+                and type(event.get('base')) is int and event['base'] in (1,2,3)
+                and integer(new_id) and integer(old_id) and min(new_id,old_id)>0
+                and len({new_id,old_id,play['matchup']['batter']['id']})==3
+                and player in owners
+                and all(owners.get(BASE+'data/player/'+str(v),{}).get('side')==owners[player]['side']
+                        for v in (new_id,old_id)))
             pristine = (position == 0 and event.get('index') == 0
                         and event.get('position', {}).get('abbreviation') == 'PH'
                         and event.get('player', {}).get('id') == play['matchup']['batter']['id']
@@ -140,7 +152,7 @@ def census(raw, game_pk):
                         and not any(e.get('isPitch') is True or e.get('details', {}).get('isInPlay') is True
                                     or e.get('count', {}).get('balls', 0) != 0
                                     or e.get('count', {}).get('strikes', 0) != 0 for e in prior))
-            if not pristine:
+            if not (pristine or runner_only):
                 issues.append(dict(code='OFFENSIVE_REPLACEMENT_WITHIN_TURN', atBatIndex=index,
                                    eventIndex=event.get('index')))
         row = dict(pa=pa, player=player, resultType=BASE+result_type if result_type else None,

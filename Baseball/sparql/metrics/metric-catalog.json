@@ -132,7 +132,7 @@
         "COMPLETENESS"
       ],
       "implementationStatus": "implemented",
-      "liveAdapter": "loaded-award-consequences",
+      "liveAdapter": "complete-batting-progress-players",
       "referencePopulation": "declared selected evidence population",
       "nullableColumns": [],
       "inputColumns": [
@@ -165,7 +165,7 @@
         "COMPLETENESS"
       ],
       "implementationStatus": "implemented",
-      "liveAdapter": "blocked-by-gap-register",
+      "liveAdapter": "complete-batting-progress-players",
       "referencePopulation": "declared selected evidence population",
       "nullableColumns": [],
       "inputColumns": [
@@ -303,7 +303,7 @@
         "COMPLETENESS"
       ],
       "implementationStatus": "implemented",
-      "liveAdapter": "blocked-by-gap-register",
+      "liveAdapter": "complete-batting-progress-players",
       "referencePopulation": "declared selected evidence population",
       "nullableColumns": [],
       "inputColumns": [

@@ -1,0 +1,20 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# E1 exact final runner-resolution census. This certifies graph membership,
+# supported outcomes and participant identity, not completeness of attribution.
+[] a sh:NodeShape ; sh:targetNode <__GAME__> ;
+  sh:sparql [ sh:message "Runner-resolution membership or participant differs from the final source" ;
+    sh:select """__PREFIXES__
+SELECT $this WHERE {
+  { __MISSING__ }
+  UNION {
+    ?resolution a base:RunnerResolutionProcess ; obo:BFO_0000132+ $this .
+    FILTER(?resolution NOT IN (__RESOLUTIONS__))
+  }
+  UNION {
+    ?resolution a base:RunnerResolutionProcess ; obo:BFO_0000132 ?pa ; obo:BFO_0000062 ?act .
+    ?pa a base:PlateAppearance ; obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 $this .
+    ?act a base:BaserunningAct ; cco:ont00001833 ?player .
+    FILTER(CONCAT(STR(?resolution), "|", STR(?act), "|", STR(?player), "|", STR(?pa)) NOT IN (__IDENTITIES__))
+  }
+} """ ] .

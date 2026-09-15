@@ -1,5 +1,15 @@
 # Implementation status after the first accepted completion pass
 
+September 15 batting-progress continuation: Offensive Reach, Hidden Help Rate
+and Empty Games now have conditional complete-player producers. The real game
+824087 passes the complete 90-resolution and 73-official-PA SHACL censuses,
+canonical Jena extraction and exact SQL retention. Unknown channels and
+unresolved multi-resolution consequences remain withheld. Existing minima,
+selected-schedule coverage and independent-running treatment remain enforced.
+The [batting-progress evidence](../../../benchmarks/metrics/batting-progress-players-2026-09-15/README.md)
+records the bounded scope; this is engineering progress, not new approval or
+a claim that the live dashboard is populated.
+
 September 15 continuation: both Run Construction Depth and Run Construction
 Breadth now produce conditional exact player means. The fresh game 824087
 proof has all seven counted runs, zero unresolved scoring histories and exact

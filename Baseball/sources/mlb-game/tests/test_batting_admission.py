@@ -87,6 +87,19 @@ class SourceAdmission(unittest.TestCase):
         doc=raw();doc['liveData']['plays']['allPlays'].pop()
         self.assertEqual(census(doc)['status'],'withheld')
 
+    def test_explicit_other_players_pinch_run_does_not_transfer_this_batters_pa(self):
+        doc=raw('824087','2026-07-20');source=census(doc)
+        self.assertEqual(source['status'],'reconciled',source['issues'])
+        self.assertEqual(sum(r['officialPA'] for r in source['roster']),73)
+        for fault in ('batter','unknown-player','same-player','base','substitution'):
+            changed=copy.deepcopy(doc);pa=changed['liveData']['plays']['allPlays'][53];event=pa['playEvents'][0]
+            if fault=='batter':event['player']['id']=pa['matchup']['batter']['id']
+            elif fault=='unknown-player':event['player']['id']=999999999
+            elif fault=='same-player':event['player']['id']=event['replacedPlayer']['id']
+            elif fault=='base':event.pop('base')
+            else:event['isSubstitution']=False
+            self.assertIn('OFFENSIVE_REPLACEMENT_WITHIN_TURN',{i['code'] for i in census(changed)['issues']},fault)
+
 
 class GraphAdmission(unittest.TestCase):
     def conforms(self,source,graph):

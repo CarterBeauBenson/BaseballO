@@ -252,6 +252,7 @@ function choose(metric) {
   byId('request-status').textContent = metric.liveAdapter === 'loaded-award-consequences' ?
     'Inspect supported loaded Walk/HBP consequences and the remaining metric requirements.' :
     metric.liveAdapter.startsWith('personal-run-histories') ? 'Inspect scoring histories, contributors and qualified player averages.' :
+    metric.liveAdapter === 'complete-batting-progress-players' ? 'Inspect qualified player results for the selected period.' :
     metric.requires.length ? 'Inspect the selected games to see supported results and their coverage.' : 'Inspect the selected mapped review population.';
   byId('run-metric').disabled = false;
   renderRequirements(metric.requires);

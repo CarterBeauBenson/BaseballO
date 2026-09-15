@@ -187,6 +187,13 @@ switch ($Action) {
             throw "B1 source differs from the mapped revision for game $GamePk."
         }
         $battingAdmissionPath = Join-Path $stageEvidenceRoot 'batting-admission.json'
+        $runnerResolutionAdmissionPath = Join-Path $stageEvidenceRoot 'runner-resolution-admission.json'
+        $runnerResolutionAdmitter = Join-Path $PSScriptRoot 'runner-resolution-admission.py'
+        Invoke-LoggedCommand -FailureMessage "Runner-resolution census validation could not execute for game $GamePk." -Command {
+            & python $runnerResolutionAdmitter '--input' $inputPath '--rdf' $rdfPath '--game-pk' $GamePk `
+                '--output' $runnerResolutionAdmissionPath '--java' (Get-JavaExecutable) `
+                '--jena-classpath' (Join-Path $script:FusekiHome 'fuseki-server.jar')
+        }
         $scoringRunAdmissionPath = Join-Path $stageEvidenceRoot 'scoring-run-admission.json'
         $scoringRunAdmitter = Join-Path $PSScriptRoot 'scoring-run-admission.py'
         Invoke-LoggedCommand -FailureMessage "Counted-run qualification validation could not execute for game $GamePk." -Command {
@@ -214,6 +221,8 @@ switch ($Action) {
             conforms = $true
             rmlManifest = $rmlManifestPath
             battingAdmission = $battingAdmissionPath
+            runnerResolutionAdmission = $runnerResolutionAdmissionPath
+            runnerResolutionAdmissionSha256 = (Get-FileHash -LiteralPath $runnerResolutionAdmissionPath -Algorithm SHA256).Hash.ToLowerInvariant()
             scoringRunAdmission = $scoringRunAdmissionPath
             scoringRunAdmissionSha256 = (Get-FileHash -LiteralPath $scoringRunAdmissionPath -Algorithm SHA256).Hash.ToLowerInvariant()
             contactContinuationAdmission = $contactAdmissionPath
@@ -289,6 +298,8 @@ switch ($Action) {
             $promotion.battingAdmissionSha256 = [string]$shaclResult.battingAdmissionSha256
             $promotion.scoringRunAdmission = [string]$shaclResult.scoringRunAdmission
             $promotion.scoringRunAdmissionSha256 = [string]$shaclResult.scoringRunAdmissionSha256
+            $promotion.runnerResolutionAdmission = [string]$shaclResult.runnerResolutionAdmission
+            $promotion.runnerResolutionAdmissionSha256 = [string]$shaclResult.runnerResolutionAdmissionSha256
             $promotion.contactContinuationAdmission = [string]$shaclResult.contactContinuationAdmission
             $promotion.contactContinuationAdmissionSha256 = [string]$shaclResult.contactContinuationAdmissionSha256
             Write-AtomicJsonFile -Path $promotionPath -Value $promotion -Depth 16
