@@ -187,6 +187,13 @@ switch ($Action) {
             throw "B1 source differs from the mapped revision for game $GamePk."
         }
         $battingAdmissionPath = Join-Path $stageEvidenceRoot 'batting-admission.json'
+        $scoringRunAdmissionPath = Join-Path $stageEvidenceRoot 'scoring-run-admission.json'
+        $scoringRunAdmitter = Join-Path $PSScriptRoot 'scoring-run-admission.py'
+        Invoke-LoggedCommand -FailureMessage "Counted-run qualification validation could not execute for game $GamePk." -Command {
+            & python $scoringRunAdmitter '--input' $inputPath '--rdf' $rdfPath '--game-pk' $GamePk `
+                '--output' $scoringRunAdmissionPath '--java' (Get-JavaExecutable) `
+                '--jena-classpath' (Join-Path $script:FusekiHome 'fuseki-server.jar')
+        }
         $contactAdmissionPath = Join-Path $stageEvidenceRoot 'contact-continuation-admission.json'
         $contactAdmitter = Join-Path $PSScriptRoot 'contact-continuation-admission.py'
         Invoke-LoggedCommand -FailureMessage "B2 contact continuation SHACL failed for game $GamePk." -Command {
@@ -207,6 +214,8 @@ switch ($Action) {
             conforms = $true
             rmlManifest = $rmlManifestPath
             battingAdmission = $battingAdmissionPath
+            scoringRunAdmission = $scoringRunAdmissionPath
+            scoringRunAdmissionSha256 = (Get-FileHash -LiteralPath $scoringRunAdmissionPath -Algorithm SHA256).Hash.ToLowerInvariant()
             contactContinuationAdmission = $contactAdmissionPath
             contactContinuationAdmissionSha256 = (Get-FileHash -LiteralPath $contactAdmissionPath -Algorithm SHA256).Hash.ToLowerInvariant()
             battingAdmissionSha256 = (Get-FileHash -LiteralPath $battingAdmissionPath -Algorithm SHA256).Hash.ToLowerInvariant()
@@ -278,6 +287,8 @@ switch ($Action) {
             $shaclResult = Get-Content -LiteralPath (Join-Path $stageEvidenceRoot 'shacl.json') -Raw | ConvertFrom-Json
             $promotion.battingAdmission = [string]$shaclResult.battingAdmission
             $promotion.battingAdmissionSha256 = [string]$shaclResult.battingAdmissionSha256
+            $promotion.scoringRunAdmission = [string]$shaclResult.scoringRunAdmission
+            $promotion.scoringRunAdmissionSha256 = [string]$shaclResult.scoringRunAdmissionSha256
             $promotion.contactContinuationAdmission = [string]$shaclResult.contactContinuationAdmission
             $promotion.contactContinuationAdmissionSha256 = [string]$shaclResult.contactContinuationAdmissionSha256
             Write-AtomicJsonFile -Path $promotionPath -Value $promotion -Depth 16

@@ -38,8 +38,9 @@ new player score. The HTTP request allowlist still rejects evidence,
 An admitted adapter must supply `playerPopulationComplete: true` and a
 `playerResults` array for the complete applicable player score population.
 Each row must carry the metric ID, player IRI, available exact metric value,
-matching start/end dates and game set, complete participation evidence, PA
-count and team-game count. Optional `playerLabel` is display text only.
+matching start/end dates and game set, complete participation evidence and
+team-game count. Batting metrics also require independently admitted official
+PA counts. Optional `playerLabel` is display text only.
 Rows must be unique by player. Missing, conflicting or out-of-scope evidence
 withholds the ranking. These interface flags serialize an independently
 established admission result; setting a flag is not an admission procedure.
@@ -54,11 +55,17 @@ individual Walk/HBP and run-history results remain inspectable separately.
 
 ## Still blocked
 
-This release implements qualification and presentation, **not live player
-score production**. The existing metric adapters do not yet emit the complete
-`playerResults` interface. Consequently the current live cards have no player
-leaders; they explain that complete player scores are unavailable. The
-isolated seven-player browser fixture is a UI test, not live baseball data.
+Run Construction Depth now has a live player producer. NiFi validates the
+complete counted-run census and game roster against the final source before
+promotion. SQL independently checks selected schedule coverage and requires a
+complete C1 history for every counted run. Only then does it emit scorer means
+and complete player results. Non-scoring games remain in each player's team
+exposure. Pinch runners need no inferred PA count or batting minimum.
+
+Other metric player producers remain unfinished. The isolated browser
+fixtures are UI tests, not live baseball data. A deployed build must pass the
+new admission stage and materialize its proof; an older graph or proof cannot
+be assumed to satisfy this contract.
 
 1. Complete player aggregates and their full applicable game/PA/run populations
    must be supplied through the accepted source-to-SQL lifecycle. Partial award
@@ -103,6 +110,5 @@ not the full eligible running population. The card shows the minimum actually
 met. Scores carry `value: null`, `approximateValue`, and exact `channelCounts`;
 both the preview and expanded table support this representation.
 
-No ontology, RML, SHACL, metric kernel, semantic-freeze pin or reference
-population was changed. Source-proof recovery and corpus refresh remain
-separate prerequisites described in [production readiness](../infra/PRODUCTION-READINESS.md).
+Source-proof recovery and corpus refresh remain separate prerequisites
+described in [production readiness](../infra/PRODUCTION-READINESS.md).

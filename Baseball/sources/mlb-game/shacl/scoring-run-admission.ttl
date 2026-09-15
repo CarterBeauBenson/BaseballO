@@ -1,0 +1,32 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# E1/C1: source expectations certify the complete counted Run population and
+# game-specific roster, independently of whether every run has a C1 history.
+# Bindings are proof inputs, never new assertions in the authoritative graph.
+[] a sh:NodeShape ; sh:targetNode <__GAME__> ;
+  sh:sparql [ sh:message "Counted Run membership or scorer differs from the reconciled final source" ;
+    sh:select """__PREFIXES__
+SELECT $this WHERE {
+  { __MISSING_RUNS__ }
+  UNION {
+    ?run a base:RunProcess ; obo:BFO_0000132+ $this .
+    FILTER(?run NOT IN (__RUNS__))
+  }
+  UNION {
+    ?run a base:RunProcess ; obo:BFO_0000132+ $this .
+    ?run obo:BFO_0000062 ?act . ?act a base:BaserunningAct ; cco:ont00001833 ?player .
+    FILTER(CONCAT(STR(?run), "|", STR(?act), "|", STR(?player)) NOT IN (__SCORERS__))
+  }
+} """ ] ;
+  sh:sparql [ sh:message "Run qualification roster differs from the final game roster" ;
+    sh:select """__PREFIXES__
+SELECT $this WHERE {
+  { __MISSING_ROSTER__ }
+  UNION {
+    $this obo:BFO_0000055 ?role . ?role a base:PlayerRole .
+    OPTIONAL { ?role obo:BFO_0000197 ?player . }
+    OPTIONAL { ?role cco:ont00001992 ?team . }
+    FILTER(!BOUND(?player) || !BOUND(?team) ||
+      CONCAT(STR(?role), "|", STR(?player), "|", STR(?team)) NOT IN (__ROSTER__))
+  }
+} """ ] .

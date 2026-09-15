@@ -1,5 +1,12 @@
 # Implementation status after the first accepted completion pass
 
+September 15 serving follow-through: Run Construction Depth now has a
+conditional complete-player producer, backed by independent counted-run and
+roster SHACL admission. It requires all selected schedules and scoring
+histories before returning scorer means; no batting minimum is imposed on
+pinch runners. The [focused evidence](../../../benchmarks/metrics/scoring-run-players-2026-09-15/README.md)
+does not claim that all live ranges or the other metrics are complete.
+
 The table below preserves the first pass. The subsequent two choices were
 accepted and published in `fecdf87`; their implementation and remaining source
 admission work are recorded in [followup-implementation.md](followup-implementation.md).

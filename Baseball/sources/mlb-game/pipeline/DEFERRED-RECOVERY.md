@@ -49,6 +49,14 @@ satisfy the new request. Multiple matching new batches fail attribution.
 Read/configuration errors defer dependent materialization and appear in the
 NiFi batch result. No stage evidence or semantic approval is synthesized.
 
+If the existing release checker finds all required successful stages and
+cleanup for a new proof, but its mapping or SHACL hash is now obsolete, the
+worker preserves that completion and its stage hashes in `supersededProofs`.
+After the known processors become idle it queues a new proof on the next
+tick. The obsolete proof never releases backfill. Missing completion, an
+ambiguous dispatch, failed conformance or quarantine cannot take this path;
+multiple new obsolete completions require attribution instead of a retry.
+
 A prerequisite build that never promotes leaves the request in
 `waiting-serving`; an uncertain dispatch without downstream evidence remains
 pending. These are explicit diagnostic states, not permission to erase an

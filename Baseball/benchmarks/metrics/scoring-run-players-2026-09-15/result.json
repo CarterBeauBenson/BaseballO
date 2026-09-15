@@ -1,0 +1,28 @@
+{
+  "artifactType": "baseballo-scoring-run-admission",
+  "authoritativeRdfSha256": "4e3c5876c2430175920e2f9bf093d8becfd5ee90047e27b50258e012858027ed",
+  "contractVersion": 1,
+  "engine": "jena",
+  "gamePk": "824087",
+  "graph": "https://w3id.org/baseball/graph/game/824087",
+  "graphConforms": true,
+  "implementationSha256": "303dd0592ac2e9253dacaec7aa0d5074ce175691e9a706aee3caec164a50fef4",
+  "issues": [],
+  "reportSha256": "4a53a3befd9bcdb7273ef3d6e47a83be519927771faee49ef0d2a44ee23be2be",
+  "shapeSha256": "43ea6c36329538a47988749d2a70c3a597605dfd9745164193666376f26f3ad0",
+  "sourceCensusSha256": "c2eb01c6bac074d422858eebad6f4bbe80009c6a8821eafd31c25181ed7e0817",
+  "sourceReconciled": true,
+  "sourceRevision": "20260721_021040",
+  "sourceSha256": "249a1df5bb53bc0e5fac2ba16f2204029e7d6325229824523e7fccc85779f237",
+  "status": "admitted",
+  "developerEvidenceScope": "existing isolated whole-game RDF; no graph promotion",
+  "countedRuns": 7,
+  "rosterMembers": 52,
+  "focusedChecks": {
+    "newSourceAndPlayerTests": 8,
+    "existingServingTests": 35,
+    "dashboardTests": 40,
+    "recoveryTests": 29
+  },
+  "livePopulationComplete": false
+}

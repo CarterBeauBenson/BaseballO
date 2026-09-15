@@ -66,6 +66,21 @@ test('Empty Games uses the retained count rather than the reduced rate numerator
   assert.equal(playerSummaryValue({kind:'count',count:5,eligibleGames:4},metric.id),null);
 });
 
+test('complete scoring-run player means qualify by runs without invented PA totals', () => {
+  const metric={id:'run-construction-depth',higherIs:'descriptive',unit:'episodes'};
+  const row=(id,sum,count)=>playerScore(id,0,{metricId:metric.id,plateAppearances:undefined,
+    aggregate:{kind:'mean',sum:{numerator:String(sum),denominator:'1'},count}});
+  const board=playerLeaderboard({playerPopulationComplete:true,
+    playerResults:[row(1,7,2),row(2,99,1),row(3,6,2)]},metric,leaderboardScope);
+  assert.equal(board.status,'available');
+  assert.deepEqual(board.rows.map(r=>r.name),['Player 1','Player 3']);
+  assert.deepEqual(board.rows[0].value,{numerator:'7',denominator:'2'});
+  assert.match(board.rows[0].qualificationLabel,/2 runs scored/);
+  assert.equal(board.rows[0].minimumPA,null);
+  assert.equal(playerLeaderboard({playerPopulationComplete:false,playerResults:[row(1,7,2)]},
+    metric,leaderboardScope).status,'unavailable');
+});
+
 test('automatic PA minimum follows the approved rule across selected team-game counts', () => {
   assert.deepEqual([1, 5, 7, 30, 162].map(automaticMinimumPA), [3, 16, 22, 93, 502]);
   for (const games of [0, -1, 1.5, NaN]) assert.throws(() => automaticMinimumPA(games));

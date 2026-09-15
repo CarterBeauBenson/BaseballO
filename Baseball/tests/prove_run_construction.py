@@ -66,7 +66,8 @@ def main():
         M.materialize_game(database, graph, bindings)
         response = M.query_sql(database, {'metricId':'run-construction-depth'},
                               {'gameSet':'regular_season', 'startDate':'2019-04-01', 'endDate':'2019-04-01'})
-        assert response['metric'] == result
+        assert {k:response['metric'][k] for k in result} == result
+        assert response['metric']['playerPopulationComplete'] is False
         if boundary_result is not None:
             boundary_response = M.query_sql(database, {'metricId': 'tfs'},
                                            {'gameSet':'regular_season', 'startDate':'2019-04-01', 'endDate':'2019-04-01'})

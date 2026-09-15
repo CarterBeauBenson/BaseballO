@@ -53,7 +53,9 @@ class RunConstructionServing(unittest.TestCase):
             M.materialize_game(connection, G1, source + source)
             M.materialize_game(connection, G2, bindings(fixture(graph=G2, decisions=()), [G2]))
             scope = {'gameSet':'regular_season', 'startDate':'2026-08-01', 'endDate':'2026-08-01'}
-            self.assertEqual(M.query_sql(connection, {'metricId':'run-construction-depth'}, scope)['metric'], result)
+            actual = M.query_sql(connection, {'metricId':'run-construction-depth'}, scope)['metric']
+            self.assertEqual({k:actual[k] for k in result}, result)
+            self.assertFalse(actual['playerPopulationComplete'])
             scope['startDate'] = scope['endDate'] = '2026-08-02'
             self.assertEqual(M.query_sql(connection, {'metricId':'run-construction-depth'}, scope)['metric']['runs'], [])
 
@@ -88,7 +90,9 @@ class RunConstructionServing(unittest.TestCase):
         with database() as connection:
             M.materialize_game(connection, G1, source)
             scope = {'gameSet':'regular_season', 'startDate':'2026-08-01', 'endDate':'2026-08-01'}
-            self.assertEqual(M.query_sql(connection, {'metricId':'run-construction-depth'}, scope)['metric'], result)
+            actual = M.query_sql(connection, {'metricId':'run-construction-depth'}, scope)['metric']
+            self.assertEqual({k:actual[k] for k in result}, result)
+            self.assertFalse(actual['playerPopulationComplete'])
 
     def test_same_pa_batter_further_advance_still_counts_once(self):
         run, = score(self.same_pa_fixture(held=False))['runs']
@@ -165,7 +169,8 @@ class RunConstructionServing(unittest.TestCase):
             scope = {'gameSet':'regular_season', 'startDate':'2026-08-01', 'endDate':'2026-08-01'}
             response = M.query_sql(connection, {'view':'dashboard'}, scope)
             actual, = [r for r in response['metrics'] if r['metricId'] == 'run-construction-depth']
-            self.assertEqual(actual, expected)
+            self.assertEqual({k:actual[k] for k in expected}, expected)
+            self.assertFalse(actual['playerPopulationComplete'])
 
 
 if __name__ == '__main__': unittest.main()

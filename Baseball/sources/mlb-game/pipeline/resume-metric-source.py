@@ -10,6 +10,8 @@ from __future__ import annotations
 import argparse
 from contextlib import contextmanager
 from datetime import date, datetime, timezone
+import hashlib
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -172,6 +174,42 @@ def names(path, pattern):
     return sorted(str(item.relative_to(path)) for item in path.glob(pattern))
 
 
+def completed_obsolete_proofs(state_root, prior_runs):
+    """Identify positively completed work invalidated by a mapping/SHACL edit.
+
+    The existing release checker must reach its current-artifact hash check:
+    missing stages, failed conformance and incomplete cleanup never qualify.
+    This observes old completion; it does not release that proof or infer that
+    a request with no completion evidence may be repeated.
+    """
+    spec = importlib.util.spec_from_file_location('mlb_completed_proof_checker', CHECKER)
+    checker = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(checker)
+    contract = read(CONTRACT)
+    module, scope, required = checker.proof_identity(contract)
+    root = state_root/'pipeline/evidence'/module/scope
+    if not root.is_dir():
+        return []
+    obsolete = []
+    for path in sorted(root.iterdir()):
+        if not path.is_dir() or path.name in prior_runs:
+            continue
+        matched, reason, _ = checker.evidence_matches(path, module, scope, required, contract, CONTRACT)
+        if not matched and reason.startswith('proof artifact changed after the proof: '):
+            cleanup = read(path/'cleanup.json')
+            # Completion must be positively recorded, not inferred from age.
+            completed = cleanup.get('completedAtUtc')
+            if not isinstance(completed, str):
+                continue
+            instant = datetime.fromisoformat(completed.replace('Z','+00:00'))
+            if instant.tzinfo is None:
+                continue
+            obsolete.append(dict(proofRunId=path.name, proofCompletedAtUtc=completed, reason=reason,
+                stageEvidenceSha256={name:hashlib.sha256((path/(name+'.json')).read_bytes()).hexdigest()
+                                     for name in required}))
+    return obsolete
+
+
 def advance(state_root, plan, nifi, release=proof_release):
     """Perform at most one dispatch; caller holds the source-local plan lock."""
     path = plan_path(state_root)
@@ -245,6 +283,21 @@ def advance(state_root, plan, nifi, release=proof_release):
         if failures:
             plan["proofFailureEvidence"] = sorted(failures)
             return finish("failed", "Proof reached quarantine; retained evidence requires a focused fix", sql_busy)
+        obsolete = completed_obsolete_proofs(state_root, set(plan['priorProofRuns']))
+        if len(obsolete) > 1:
+            plan['obsoleteProofCandidates'] = obsolete
+            return finish('failed', 'Multiple completed obsolete proofs require dispatch attribution', sql_busy)
+        if obsolete:
+            if sql_busy or not request_idle(processors['Proof Request']):
+                return finish(phase, 'Completed proof is obsolete; waiting for active work to finish')
+            plan.setdefault('supersededProofs', []).append({**obsolete[0],
+                'priorDispatchedAtUtc':plan.get('dispatchedAtUtc'),
+                'priorDispatchOutcome':plan.get('dispatchOutcome'), 'recordedAtUtc':now()})
+            plan['proofRebuildsServing'] = True
+            # Next tick rechecks processor identity/idle state and persists a
+            # new intent before dispatching. The obsolete proof never releases
+            # backfill, and its original files and request audit are preserved.
+            return finish('waiting-serving', 'Completed proof used older artifacts; queued a current proof')
         return finish(phase, "Waiting for actual RML, SHACL, promotion, materialization and cleanup evidence")
 
     if phase == "ready-refresh":

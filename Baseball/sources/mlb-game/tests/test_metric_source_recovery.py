@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import importlib.util
+import hashlib
 import json
 from pathlib import Path
 import tempfile
@@ -157,6 +158,55 @@ class RecoveryTests(unittest.TestCase):
         self.step()
         self.assertTrue(self.step()["deferMaterialization"])
         self.assertEqual(self.nifi.calls, [("run", "proof")])
+
+    def obsolete_proof(self, run='completed-obsolete'):
+        path=self.proof_root/run
+        mapping=self.root/'mapping.ttl';mapping.write_text('current mapping')
+        shape=self.root/'shape.ttl';shape.write_text('current shape')
+        manifest=self.root/'manifest.json'
+        recovery.save(manifest,dict(mappingPath=str(mapping),mappingSha256='older-hash',
+            shaclShapePath=str(shape),shaclShapeSha256=hashlib.sha256(shape.read_bytes()).hexdigest()))
+        for action in ('rml','shacl','promote','materialize','cleanup'):
+            recovery.save(path/(action+'.json'),dict(action=action,pipelineRunId=run,gamePk='566279',
+                rmlManifest=str(manifest),conforms=True,authoritativeRdfRemainsInGraphStore=True,
+                completedAtUtc='2026-09-15T19:00:00Z'))
+        return path
+
+    def test_completed_obsolete_proof_queues_fresh_work_without_releasing_backfill(self):
+        self.step();path=self.obsolete_proof()
+        self.assertEqual(self.step()['status'],'waiting-serving')
+        self.assertEqual(self.nifi.calls,[('run','proof')])
+        self.assertNotIn('proofRelease',self.plan)
+        old=self.plan['supersededProofs'][0]
+        self.assertEqual(old['proofRunId'],path.name)
+        self.assertEqual(set(old['stageEvidenceSha256']),{'rml','shacl','promote','materialize','cleanup'})
+        self.assertEqual(self.step()['status'],'waiting-proof')
+        self.assertEqual(self.nifi.calls,[('run','proof'),('run','proof')])
+        self.assertEqual(self.step()['status'],'waiting-proof')
+        self.assertEqual(len(self.nifi.calls),2)
+        self.assertTrue((path/'cleanup.json').exists())
+
+    def test_obsolete_mapping_without_completed_proof_never_retries(self):
+        self.step();path=self.obsolete_proof()
+        (path/'cleanup.json').unlink()
+        self.assertEqual(self.step()['status'],'waiting-proof')
+        self.assertEqual(self.nifi.calls,[('run','proof')])
+
+    def test_completed_obsolete_proof_waits_for_idle_and_rejects_multiple_candidates(self):
+        self.step();self.obsolete_proof()
+        self.nifi.sql['status']['aggregateSnapshot']['activeThreadCount']=1
+        self.assertEqual(self.step()['status'],'waiting-proof')
+        self.nifi.sql['status']['aggregateSnapshot']['activeThreadCount']=0
+        self.obsolete_proof('second-completion')
+        self.assertEqual(self.step()['status'],'failed')
+        self.assertEqual(self.nifi.calls,[('run','proof')])
+
+    def test_failed_conformance_cannot_be_relabelled_as_obsolete_completion(self):
+        self.step();path=self.obsolete_proof()
+        shacl=recovery.read(path/'shacl.json');shacl['conforms']=False
+        recovery.save(path/'shacl.json',shacl)
+        self.assertEqual(self.step()['status'],'waiting-proof')
+        self.assertEqual(self.nifi.calls,[('run','proof')])
 
     def test_new_quarantine_fails_and_preserves_evidence(self):
         old = self.failure_root / "old-run/failure.json"

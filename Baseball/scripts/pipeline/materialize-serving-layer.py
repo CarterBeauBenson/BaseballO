@@ -33,6 +33,10 @@ _batting_spec = importlib.util.spec_from_file_location('baseballo_batting_admiss
     ROOT / 'sources/mlb-game/pipeline/batting-admission.py')
 _batting_admission = importlib.util.module_from_spec(_batting_spec)
 _batting_spec.loader.exec_module(_batting_admission)
+_run_spec = importlib.util.spec_from_file_location('baseballo_scoring_run_admission',
+    ROOT / 'sources/mlb-game/pipeline/scoring-run-admission.py')
+_run_admission = importlib.util.module_from_spec(_run_spec)
+_run_spec.loader.exec_module(_run_admission)
 PROMOTION_INVENTORY_MODULE = ROOT / "scripts" / "pipeline" / "game_promotion_inventory.py"
 _promotion_spec = importlib.util.spec_from_file_location(
     "baseballo_game_promotion_inventory", PROMOTION_INVENTORY_MODULE
@@ -1114,7 +1118,8 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
             metric_evidence = sparql(args.endpoint, _metric_suite.evidence_query([graph]), args.timeout)
             metric_suite_proofs.append(_metric_suite.materialize_game(
                 connection, graph, metric_evidence['results']['bindings'],
-                batting_admission=_batting_admission.promoted_admission(state_root, promotion_record)))
+                batting_admission=_batting_admission.promoted_admission(state_root, promotion_record),
+                scoring_run_admission=_run_admission.promoted_admission(state_root, promotion_record)))
             fingerprint_lines.append(f"{graph}|{official_date}|{game_set}|{artifact}")
             query_started = time.perf_counter()
             try:

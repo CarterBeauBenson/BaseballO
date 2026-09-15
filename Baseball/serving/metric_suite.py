@@ -23,7 +23,7 @@ from rdflib import Graph, Literal
 
 ROOT = Path(__file__).resolve().parents[1]
 METRICS = ROOT / 'sparql/metrics'
-VERSION = '2.0.21'
+VERSION = '2.0.22'
 
 
 class EvidenceError(ValueError):
@@ -48,6 +48,8 @@ def fingerprint():
              METRICS / 'batch-release-policy.json', METRICS / 'trajectory-origin-policy.json']
     paths.extend(sorted(METRICS.glob('*.rq')))
     paths.extend([ROOT / 'sources/mlb-game/pipeline/batting-admission.py',
+                  ROOT / 'sources/mlb-game/pipeline/scoring-run-admission.py',
+                  ROOT / 'sources/mlb-game/shacl/scoring-run-admission.ttl',
                   ROOT / 'sources/mlb-game/pipeline/contact-continuation-admission.py',
                   ROOT / 'sources/mlb-game/shacl/contact-continuation.ttl',
                   ROOT / 'sources/mlb-game/shacl/batting-admission.ttl',
@@ -1273,6 +1275,78 @@ def run_construction_evidence(rows):
     return {'runs': [supported[key] for key in sorted(supported)], 'unresolvedRuns': unresolved}
 
 
+def scoring_run_players(rows, *, graphs, admissions, date_scope, schedule, evidence):
+    """Pool complete run histories by scorer after independent source admission.
+
+    Counted-run membership, C1 member coverage, complete selected schedules and
+    game rosters are separate gates. This does not infer official PA credit or
+    require a batting minimum for a pinch runner.
+    """
+    missing = dict(playerPopulationComplete=False, playerResults=[])
+    denied = sorted(g for g in graphs if admissions.get(g, {}).get('status') != 'admitted'
+                    or admissions[g].get('sourceReconciled') is not True
+                    or admissions[g].get('graphConforms') is not True)
+    blockers = []
+    if not graphs or denied:
+        blockers.append('COUNTED_RUN_POPULATION')
+    if schedule.get('complete') is not True:
+        blockers.append('COMPLETE_SELECTED_SCHEDULE')
+    if evidence['unresolvedRuns']:
+        blockers.append('COMPLETE_SCORING_HISTORIES')
+    if blockers:
+        return dict(missing, playerSummaryGaps=blockers,
+                    playerCoverage=dict(withheldGraphs=denied, unresolvedRuns=len(evidence['unresolvedRuns'])))
+    graph_set = set(graphs)
+    exposure, game_rosters = defaultdict(set), defaultdict(set)
+    observed = {}
+    for row in rows:
+        if row['graph'] not in graph_set:
+            raise EvidenceError('Run population escaped the selected graphs')
+        if row['kind'] == 'run':
+            key = (row['graph'], row['entity'])
+            if key in observed and observed[key] != row['game']:
+                raise EvidenceError('Counted Run has conflicting game scope')
+            observed[key] = row['game']
+        elif row['kind'] == 'player_team_game':
+            if not all(row.get(f) for f in ('player','game','team','teamRole')):
+                raise EvidenceError('Admitted run population lacks complete game roster bindings')
+            if not re.fullmatch(r'https://baseballontology[.]org/data/player/[0-9]+', row['player']):
+                raise EvidenceError('Invalid scoring population player identity')
+            exposure[row['player']].add((row['game'], row['team']))
+            game_rosters[(row['graph'], row['game'])].add(row['player'])
+    if {g for g, _ in game_rosters} != graph_set:
+        raise EvidenceError('Admitted run population lacks a selected game roster')
+    runs = _unique(evidence['runs'], ('graph','run'))
+    if {(r['graph'], r['run']) for r in runs} != set(observed):
+        return dict(missing, playerSummaryGaps=['COMPLETE_SCORING_HISTORIES'])
+    grouped = defaultdict(list)
+    for run in runs:
+        if (run.get('status') != 'available' or run.get('completeTrajectory') is not True
+                or observed[(run['graph'], run['run'])] != run['game']
+                or run.get('runner') not in game_rosters[(run['graph'], run['game'])]):
+            return dict(missing, playerSummaryGaps=['COMPLETE_SCORING_HISTORIES'])
+        value = fraction(run['value'])
+        if exact(value) != run['value'] or value.denominator != 1 or value < 1:
+            raise EvidenceError('Run depth requires a positive exact episode count')
+        grouped[run['runner']].append(value)
+    output = []
+    for player, values in sorted(grouped.items()):
+        games = exposure[player]
+        if len({game for game, _ in games}) != len(games):
+            raise EvidenceError('One player has conflicting team exposure in a selected game')
+        total = sum(values, Fraction())
+        output.append(dict(player=player, metricId='run-construction-depth', status='available',
+            dateScope=dict(date_scope), completeParticipation=True, teamGames=len(games),
+            aggregate=dict(kind='mean', sum=exact(total), count=len(values)), value=exact(total/len(values))))
+    summary = summarize(runs) if runs else unavailable('EMPTY_DENOMINATOR')
+    return dict(playerPopulationComplete=True, playerResults=output, playerSummaryGaps=[],
+                status=summary['status'], value=summary['value'], gaps=summary['gaps'],
+                coverage={**evidence.get('coverage', {}), 'populationComplete':True},
+                scope='Complete selected-period scoring-run population; player means are by scoring runner.',
+                playerCoverage=dict(admittedGames=len(graph_set), countedRuns=len(runs),
+                                    scoringPlayers=len(output), rosteredPlayers=len(exposure)))
+
+
 def loaded_award_consequences(rows, *, metric_id='tfs'):
     """Select bounded award consequences in SPARQL, retaining incomplete PAs.
 
@@ -1353,7 +1427,7 @@ def read_results(connection, graph, metric_id):
     return results
 
 
-def materialize_game(connection, graph, bindings, *, batting_admission=None):
+def materialize_game(connection, graph, bindings, *, batting_admission=None, scoring_run_admission=None):
     rows = normalize_bindings(bindings, [graph])
     connection.execute('DELETE FROM metric_suite_evidence WHERE graph_iri=?', (graph,))
     connection.execute('DELETE FROM metric_suite_result WHERE graph_iri=?', (graph,))
@@ -1362,6 +1436,9 @@ def materialize_game(connection, graph, bindings, *, batting_admission=None):
     proof_text = _json(batting_admission or {'status':'withheld'})
     connection.execute('INSERT OR REPLACE INTO metric_suite_admission VALUES (?,?,?)',
                        (graph, proof_text, _hash(proof_text)))
+    run_proof_text = _json(scoring_run_admission or {'status':'withheld'})
+    connection.execute('INSERT OR REPLACE INTO metric_suite_run_admission VALUES (?,?,?)',
+                       (graph, run_proof_text, _hash(run_proof_text)))
     for row in rows:
         text = _json(row)
         connection.execute('INSERT INTO metric_suite_evidence VALUES (?,?,?)', (graph, _hash(text), text))
@@ -1401,7 +1478,7 @@ def query_sql(connection, request, scope):
     graphs = [r[0] for r in connection.execute(
         'SELECT graph_iri FROM game_dimension WHERE game_set=? AND official_date BETWEEN ? AND ? ORDER BY graph_iri', parameters)]
     rows = []
-    admissions = {}
+    admissions, run_admissions = {}, {}
     for graph in graphs:
         for metric_id in metric_ids:
             if len(read_results(connection, graph, metric_id)) != 1:
@@ -1416,12 +1493,22 @@ def query_sql(connection, request, scope):
             if _hash(text) != digest:
                 raise EvidenceError('Metric SQL admission checksum mismatch')
             admissions[graph] = json.loads(text)
+        record = connection.execute('SELECT proof_json,proof_sha256 FROM metric_suite_run_admission WHERE graph_iri=?', (graph,)).fetchone()
+        if record:
+            text, digest = record
+            if _hash(text) != digest:
+                raise EvidenceError('Metric SQL run admission checksum mismatch')
+            run_admissions[graph] = json.loads(text)
     # Pool distinct resolved reviews; never average per-game percentages. Full
     # cohort metrics remain unavailable until their admission gaps are closed.
     result = selected_results(request, rows, graph_count=len(graphs))
     schedule = selected_schedule_coverage(connection,scope,graphs)
     qualification = batting_qualification(rows, graphs=graphs, admissions=admissions,
         date_scope=scope, selected_games_complete=schedule['complete'])
+    for metric in result.get('metrics', [result.get('metric')]):
+        if metric['metricId'] == 'run-construction-depth':
+            metric.update(scoring_run_players(rows, graphs=graphs, admissions=run_admissions,
+                date_scope=scope, schedule=schedule, evidence=metric))
     # Admission metadata is separate from scores, retaining exact equality
     # between the existing RDF calculation and its SQL result.
     result['battingQualification'] = {
