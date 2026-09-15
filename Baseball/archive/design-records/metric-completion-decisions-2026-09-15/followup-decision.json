@@ -1,0 +1,21 @@
+{
+  "artifactType": "baseballo-metric-policy-followup-decision",
+  "contractVersion": 1,
+  "decisionId": "metric-completion-hit-and-run-cpd-2026-09-15",
+  "decidedAt": "2026-09-15",
+  "decidedBy": "Carter Beau Benson",
+  "userDecision": "followup-user-decision.md",
+  "predecessor": "decision.json",
+  "proposedIris": [],
+  "accepted": {
+    "confirmedFailedHitAndRunRunnerOutResponsibility": "batter",
+    "duplicateIndependentRunningDamage": false,
+    "contributionPathDiversityQualification": "batting-minimum-or-independent-running-minimum",
+    "zeroPAEligibleThroughIndependentRunning": true
+  },
+  "unresolved": {
+    "confirmedHitAndRunSourceAdmission": "requires-explicit-supported-strategy-evidence",
+    "sharedIndependentOutAllocation": "earlier-equal-split-not-accepted"
+  },
+  "scope": "The two named follow-up choices only; existing formulas and qualification thresholds remain in force."
+}
