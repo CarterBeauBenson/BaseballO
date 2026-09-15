@@ -3,6 +3,14 @@
 Engineering audit, September 14, 2026. **The requested dashboard is incomplete.**
 This draft does not record a new ontologist decision or authorize vocabulary.
 
+**September 15 correction:** the [fresh source-availability audit](source-availability-correction-2026-09-15.md)
+retracts the blanket missing-source explanation. Official PA totals, event
+counts/times, runner observations, defensive sequences and review details are
+present in the inspected MLB payload. Incomplete mappings, adapters and
+coverage verification must be distinguished from genuinely absent evidence.
+Full intentional-act and review-eligibility sufficiency remains unverified,
+not proven universally unavailable.
+
 Follow-up: the user directed web research rather than repeating the questions
 below. The [source investigation](defensive-source-research-2026-09-14.md)
 identifies accessible historical defensive sequences, throwing/receiving
