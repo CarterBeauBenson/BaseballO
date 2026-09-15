@@ -188,25 +188,13 @@ Two fully accounted-for PAs have erosion amounts of 1/2 and 1/3. This reports th
 
 (1/2 + 1/3) / 2 = 5/12
 
-## Empty Game Rate
+## Empty Games
 
-How often does the player finish without a positive contribution?
+The public dashboard reports a count for the selected period. The backend retains the rate calculation and its unreduced game counts.
 
-The share of games with at least one plate appearance and no qualifying positive offensive contribution.
+Example: one empty game and one nonempty eligible game, plus a running-only appearance with no PA, yields **1 Empty Game**. The retained backend rate is 1/2 (50%); it is not the public count.
 
-Higher means more Empty Games. An Empty Game is not simply a hitless or scoreless game. Games with no plate appearance are excluded from this rate.
-
-Eligible games with no qualifying positive contribution / games with at least one PA.
-
-Reported as: percentage; player rate.
-
-Technical reference: Empty Game Rate (`empty-game-rate`). [Calculation kernel](../sparql/serving/metric-kernels/empty-game-rate.rq).
-
-### A running-only appearance is outside the denominator
-
-One game has a PA and no positive contribution; another has a PA and two positive contributions. A third has no PA, so it is ineligible here even though the player can have running statistics.
-
-1 empty game / 2 eligible games = 50%
+[Backend calculation kernel](../sparql/serving/metric-kernels/empty-game-rate.rq).
 
 ## Empty Game Damage
 

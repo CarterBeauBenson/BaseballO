@@ -15,7 +15,7 @@ export function displayFraction(value, places = 2) {
 export function formatMetricValue(value, unit) {
   if (!value) return 'Unavailable';
   if (unit === 'proportion') return displayFraction({ numerator: String(BigInt(value.numerator) * 100n), denominator: value.denominator }, 1) + '%';
-  const counts = ['trajectories', 'acts', 'players', 'episodes', 'role types'];
+  const counts = ['trajectories', 'acts', 'players', 'episodes', 'role types', 'games'];
   return displayFraction(value, counts.includes(unit) && value.denominator === '1' ? 0 : 2);
 }
 
@@ -55,6 +55,7 @@ export function displayPlayer(labels, graph, player) {
 
 export function exampleAnswer(result, unit, unitLabel = unit) {
   if (result.status !== 'available') return 'Example result: unavailable (no defined denominator).';
+  if (unit === 'games' && result.value?.numerator === '1' && result.value.denominator === '1') unitLabel = 'game';
   if (result.value) return `Example result: ${formatMetricValue(result.value, unit)}${unit === 'proportion' ? '' : ' ' + unitLabel}. Exact: ${result.value.numerator}/${result.value.denominator}.`;
   return `Example result: approximately ${result.approximateValue.toFixed(3)} ${unitLabel}. Logarithmic results are approximate; channel counts remain exact.`;
 }
@@ -348,6 +349,7 @@ export function metricRanking(payload, metric) {
   return { rows: board?.status === 'available' ? board.rows.map(row => ({ ...row,
     context: `${row.plateAppearances} PA · minimum ${row.minimumPA} PA` })) : [],
     scope: 'qualified players', order: board?.order ?? '', qualification: board?.qualification?.rule ?? '',
+    unit: board?.unit ?? metric.unit, summaryKind: board?.summaryKind ?? (metric.id === 'empty-game-rate' ? 'count' : 'mean'),
     message: !result ? 'Loading player rankings…' : board?.message ?? 'Complete player scores are not yet available for this period.' };
 }
 
@@ -357,13 +359,13 @@ function rankingPreview(payload, metric) {
     list.append(node('span', ranking.message), node('small', ranking.qualification));
     return list;
   }
-  const heading = node('span', `Top ${Math.min(5, ranking.rows.length)} · ${ranking.scope}`); heading.className = 'ranking-caption';
+  const heading = node('span', `Top ${Math.min(5, ranking.rows.length)} · ${ranking.summaryKind === 'count' ? 'count' : 'average'} in selected period`); heading.className = 'ranking-caption';
   list.append(heading);
   for (const row of ranking.rows.slice(0, 5)) {
     const line = node('span'); line.className = 'ranking-row';
     const person = node('span'); person.className = 'ranking-person';
     person.append(node('span', row.name), node('small', row.context));
-    const score = node('span', formatMetricValue(row.value, metric.unit)); score.className = 'ranking-score';
+    const score = node('span', formatMetricValue(row.value, ranking.unit)); score.className = 'ranking-score';
     score.title = `Exact: ${row.value.numerator}/${row.value.denominator}`;
     line.append(node('span', String(row.rank)), person, score); list.append(line);
   }
@@ -381,13 +383,13 @@ function renderRanking(payload, metric) {
   target.append(node('h3', `All ${ranking.rows.length} ranked ${ranking.scope}`),
     node('p', `${ranking.order}. Ties share a rank. ${ranking.qualification}`));
   const table = node('table'), head = node('thead'), header = node('tr'), body = node('tbody');
-  for (const label of ['Rank', 'Player / minimum PA', metric.presentation.unitLabel, 'Exact value']) {
+  for (const label of ['Rank', 'Player / minimum PA', `${ranking.summaryKind === 'count' ? 'Count' : 'Average'} · ${metric.presentation.unitLabel}`, 'Exact value']) {
     const cell = node('th', label); cell.scope = 'col'; header.append(cell);
   }
   head.append(header);
   for (const row of ranking.rows) {
     const line = node('tr'), person = node('td'); person.append(node('span', row.name), node('small', row.context));
-    line.append(node('td', String(row.rank)), person, node('td', formatMetricValue(row.value, metric.unit)),
+    line.append(node('td', String(row.rank)), person, node('td', formatMetricValue(row.value, ranking.unit)),
       node('td', `${row.value.numerator}/${row.value.denominator}`)); body.append(line);
   }
   table.append(head, body); target.append(table);

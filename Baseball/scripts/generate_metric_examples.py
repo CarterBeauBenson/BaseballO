@@ -173,6 +173,13 @@ def guide(payload):
     for metric in M.catalog()['metrics']:
         presentation = display[metric['id']]
         entry = payload['metrics'][metric['id']]
+        if metric['id'] == 'empty-game-rate':
+            lines.extend(['## Empty Games', '',
+                          'The public dashboard reports a count for the selected period. The backend retains the rate calculation and its unreduced game counts.', '',
+                          'Example: one empty game and one nonempty eligible game, plus a running-only appearance with no PA, yields **1 Empty Game**. '
+                          'The retained backend rate is 1/2 (50%); it is not the public count.', '',
+                          f'[Backend calculation kernel](../{metric["authoritativeQuery"]}).', ''])
+            continue
         lines.extend([f'## {presentation["label"]}', '', presentation['question'], '',
                       presentation['summary'], '', presentation['reading'], '', entry['formula'], '',
                       f'Reported as: {presentation["unitLabel"]}; {presentation["scopeLabel"]}.', '',

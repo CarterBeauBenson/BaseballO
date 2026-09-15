@@ -23,7 +23,7 @@ from rdflib import Graph, Literal
 
 ROOT = Path(__file__).resolve().parents[1]
 METRICS = ROOT / 'sparql/metrics'
-VERSION = '2.0.12'
+VERSION = '2.0.13'
 
 
 class EvidenceError(ValueError):
@@ -522,8 +522,10 @@ def calculate(metric_id, rows):
                 'exactExpression': '-sum(p*ln(p))/ln(3)', 'gaps': [],
                 'components': {'channelCounts': counts, 'probabilities': [exact(p) for p in probabilities],
                                'pathBreadth': sum(c > 0 for c in counts)}, 'evidence': []}
-    return ratio(int(result['numerator']), int(result['denominator']),
-                 components={k: v for k, v in result.items() if k not in {'key', 'numerator', 'denominator'}})
+    components = {k: v for k, v in result.items() if k not in {'key', 'numerator', 'denominator'}}
+    if metric_id == 'empty-game-rate':
+        components.update(emptyGames=int(result['numerator']), eligibleGames=int(result['denominator']))
+    return ratio(int(result['numerator']), int(result['denominator']), components=components)
 
 
 def empty_game_damage(pa_scores, independent_scores, *, empty, complete):

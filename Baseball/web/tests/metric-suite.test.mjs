@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { createBaseballServer } from '../server.mjs';
-import { metricCatalog, validateMetricRequest, validateDashboardRequest, compileMetricEvidenceQuery, metricDisplayTargets, compileMetricDisplayQuery, normalizeMetricDisplayLabels, automaticMinimumPA, playerLeaderboard } from '../query-builder/metric-suite-query-builder.js';
+import { metricCatalog, validateMetricRequest, validateDashboardRequest, compileMetricEvidenceQuery, metricDisplayTargets, compileMetricDisplayQuery, normalizeMetricDisplayLabels, automaticMinimumPA, playerLeaderboard, playerSummaryValue, publicMetricResult } from '../query-builder/metric-suite-query-builder.js';
 import { displayFraction, resultHeadline, movementEvidenceLabel, consequencePresentation, formatMetricValue, resultPresentation, resultDateLabel, selectionFromUrl, displayPlayer, exampleAnswer, dashboardSummary, matchesMetric, metricRanking, dashboardLoadStatus, unresolvedRunRows } from '../metrics.js';
 
 test('unresolved runs keep their identities and explain the actual evidence problem', () => {
@@ -32,10 +32,39 @@ test('loaded game evidence does not report that player leaderboards are ready', 
 const leaderboardScope = { startDate: '2026-09-01', endDate: '2026-09-07', gameSet: 'regular_season' };
 const leaderboardMetric = { id: 'tfs', higherIs: 'better' };
 function playerScore(id, numerator, extras = {}) {
-  return { player: `https://baseballontology.org/data/player/${id}`, playerLabel: `Player ${id}`,
+  const row = { player: `https://baseballontology.org/data/player/${id}`, playerLabel: `Player ${id}`,
     metricId: 'tfs', status: 'available', dateScope: leaderboardScope, completeParticipation: true,
     plateAppearances: 25, teamGames: 7, value: { numerator: String(numerator), denominator: '1' }, ...extras };
+  if (!('aggregate' in extras)) row.aggregate={kind:'mean',count:25,
+    sum:{numerator:String(BigInt(row.value.numerator)*25n),denominator:row.value.denominator}};
+  return row;
 }
+
+test('selected-range means use exact sums and counts, never a supplied total or mean of daily means', () => {
+  assert.deepEqual(playerSummaryValue({kind:'mean',sum:{numerator:'7',denominator:'3'},count:2},'tfs'),
+    {numerator:'7',denominator:'6'});
+  assert.deepEqual(playerSummaryValue({kind:'mean',sum:{numerator:'0',denominator:'3'},count:2},'tfs'),
+    {numerator:'0',denominator:'1'});
+  const row=playerScore(1,999,{aggregate:{kind:'mean',sum:{numerator:'25',denominator:'12'},count:25}});
+  assert.deepEqual(playerLeaderboard({playerPopulationComplete:true,playerResults:[row]},leaderboardMetric,leaderboardScope).rows[0].value,
+    {numerator:'1',denominator:'12'});
+  for (const aggregate of [undefined,{kind:'total',count:25},{kind:'mean',count:0,sum:{numerator:'1',denominator:'1'}}])
+    assert.equal(playerSummaryValue(aggregate,'tfs'),null);
+});
+
+test('Empty Games uses the retained count rather than the reduced rate numerator', () => {
+  const metric={id:'empty-game-rate',higherIs:'worse',unit:'games'};
+  const row=playerScore(1,1,{metricId:metric.id,aggregate:{kind:'count',count:4,eligibleGames:6}});
+  const board=playerLeaderboard({playerPopulationComplete:true,playerResults:[row]},metric,leaderboardScope);
+  assert.deepEqual(board.rows[0].value,{numerator:'4',denominator:'1'});
+  assert.equal(board.summaryKind,'count'); assert.equal(board.unit,'games');
+  const raw={metricId:metric.id,status:'available',value:{numerator:'1',denominator:'2'},components:{emptyGames:4,eligibleGames:8}};
+  assert.deepEqual(publicMetricResult(raw).value,{numerator:'4',denominator:'1'});
+  assert.equal(exampleAnswer({status:'available',value:{numerator:'1',denominator:'1'}},'games'),'Example result: 1 game. Exact: 1/1.');
+  assert.deepEqual(raw.value,{numerator:'1',denominator:'2'});
+  assert.equal(publicMetricResult({...raw,components:{}}).status,'unavailable');
+  assert.equal(playerSummaryValue({kind:'count',count:5,eligibleGames:4},metric.id),null);
+});
 
 test('automatic PA minimum follows the approved rule across selected team-game counts', () => {
   assert.deepEqual([1, 5, 7, 30, 162].map(automaticMinimumPA), [3, 16, 22, 93, 502]);
@@ -132,10 +161,12 @@ test('public presentation entries preserve the settled calculation contracts and
   assert.equal(display.groups.length, 6);
   for (const metric of display.metrics) {
     const original = source.metrics.find(m => m.id === metric.id);
-    const {label,userDefinition,technicalLabel,technicalDefinition,presentation,...contract}=metric;
-    const {label:oldLabel,userDefinition:oldDefinition,...expected}=original;
+    const {label,userDefinition,technicalLabel,technicalDefinition,technicalUnit,unit,presentation,...contract}=metric;
+    const {label:oldLabel,userDefinition:oldDefinition,unit:oldUnit,...expected}=original;
     assert.deepEqual(contract,expected,'Presentation altered the calculation contract: '+metric.id);
     assert.equal(technicalLabel,oldLabel); assert.equal(technicalDefinition,oldDefinition);
+    assert.equal(technicalUnit,oldUnit);
+    assert.equal(unit,metric.id==='empty-game-rate'?'games':oldUnit);
     for (const key of ['label','question','summary','reading','unitLabel','scopeLabel','reference']) assert.ok(presentation[key]);
     assert.ok(display.groups.some(group=>group.id===presentation.group));
     assert.ok(matchesMetric(metric,oldLabel)); assert.ok(matchesMetric(metric,metric.id));
@@ -175,6 +206,8 @@ test('illustrations are served as a separate static artifact, without reading ga
     assert.equal(payload.artifactType, 'baseballo-illustrative-metric-examples');
     assert.equal(Object.keys(payload.metrics).length,19);
     assert.equal(payload.metrics['role-realization-breadth'],undefined);
+    assert.deepEqual(payload.metrics['empty-game-rate'].cases[0].result.value,{numerator:'1',denominator:'1'});
+    assert.doesNotMatch(payload.metrics['empty-game-rate'].formula, /\//);
     assert.match(payload.notice, /not results from the selected games/);
     assert.equal(payload.metrics.tfs.cases[2].result.value.numerator, '-1');
     assert.equal(payload.metrics.tfs.cases[2].result.value.denominator, '4');

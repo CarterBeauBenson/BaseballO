@@ -1,5 +1,7 @@
 {
-  "version": 2,
+  "version": 3,
+  "selectedRangeDecision": "archive/design-records/player-metric-presentation-2026-09-15/selected-range-defaults.md",
+  "defaultPlayerSummary":"Average over eligible observations in the selected timespan.",
   "playerPresentationDecision": "archive/design-records/player-metric-presentation-2026-09-15/user-decision.md",
   "groups": [
     {"id":"batting","label":"At the plate","question":"What did the plate appearance contribute?"},
@@ -11,7 +13,7 @@
   ],
   "metrics": {
     "tfs": {
-      "playerSummary":"Average contribution per eligible PA; total contribution belongs in the expanded view.",
+      "playerSummary":"Average contribution per eligible PA in the selected timespan.",
       "label":"Plate Appearance Contribution","group":"batting",
       "question":"How much did the batter contribute?",
       "summary":"Credit for advancing the batter and other runners, minus the cost of outs and lost scoring opportunity.",
@@ -38,7 +40,7 @@
       "reference":"Eligible selected-season plate appearances in the same immediate base/out situation."
     },
     "offensive-reach": {
-      "playerSummary":"Average reach per eligible PA; total reach belongs in the expanded view.",
+      "playerSummary":"Average reach per eligible PA in the selected timespan.",
       "label":"Offensive Reach","group":"batting",
       "question":"How widely did the batter help runners advance?",
       "summary":"The number of distinct runner histories receiving positive progress credited to the batter, including the batter's own history.",
@@ -115,11 +117,13 @@
       "reference":"The complete supported contributions to one scoring history."
     },
     "empty-game-rate": {
-      "label":"Empty Game Rate","group":"profile",
-      "question":"How often does the player finish without a positive contribution?",
-      "summary":"The share of games with at least one plate appearance and no qualifying positive offensive contribution.",
-      "unitLabel":"percentage","scopeLabel":"player rate",
-      "reading":"Higher means more Empty Games. An Empty Game is not simply a hitless or scoreless game. Games with no plate appearance are excluded from this rate.",
+      "playerSummary":"Count of eligible Empty Games in the selected timespan.",
+      "displayUnit":"games",
+      "label":"Empty Games","group":"profile",
+      "question":"How many games ended without a positive contribution?",
+      "summary":"The number of games in the selected timespan with at least one plate appearance and no qualifying positive offensive contribution.",
+      "unitLabel":"games","scopeLabel":"selected-period count",
+      "reading":"Higher means more Empty Games. An Empty Game is not simply a hitless or scoreless game. Games with no plate appearance are excluded from the count.",
       "reference":"The player's complete eligible games with at least one plate appearance."
     },
     "empty-game-damage": {

@@ -283,7 +283,10 @@
             },
             "gaps": [],
             "evidence": [],
-            "components": {}
+            "components": {
+              "emptyGames": 1,
+              "eligibleGames": 2
+            }
           }
         }
       ]

@@ -134,6 +134,17 @@ class MetricServing(unittest.TestCase):
             conn.execute("UPDATE metric_suite_evidence SET binding_sha256='bad' WHERE rowid=(SELECT MIN(rowid) FROM metric_suite_evidence)")
             with self.assertRaises(M.EvidenceError): M.query_sql(conn,{'metricId':'tfs'},scope)
 
+    def test_empty_game_count_survives_fraction_reduction_and_sql(self):
+        rows=[dict(key='player',game=str(i),plateAppearances=1,positiveEpisodes=0 if i<4 else 1)
+              for i in range(8)]
+        rows.append(dict(key='player',game='runner-only',plateAppearances=0,positiveEpisodes=0))
+        result=M.calculate('empty-game-rate',rows)
+        self.assertEqual(result['value'],M.exact(M.Fraction(1,2)))
+        self.assertEqual(result['components'],dict(emptyGames=4,eligibleGames=8))
+        with database() as conn:
+            M.store_result(conn,G1,'empty-game-rate','fixture',result)
+            self.assertEqual(M.read_results(conn,G1,'empty-game-rate'),[result])
+
     def test_all_metric_values_round_trip_without_float_loss(self):
         with database() as conn:
             # Exercise the generic SQL contract on the actual calculated output

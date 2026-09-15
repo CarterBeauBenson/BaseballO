@@ -11,12 +11,38 @@ export function automaticMinimumPA(teamGames) {
   return Number((31n * BigInt(teamGames) + 5n) / 10n);
 }
 
+export function playerSummaryValue(aggregate, metricId) {
+  if (metricId === 'empty-game-rate') {
+    if (aggregate?.kind !== 'count' || !Number.isSafeInteger(aggregate.count) || aggregate.count < 0 ||
+        !Number.isSafeInteger(aggregate.eligibleGames) || aggregate.eligibleGames < aggregate.count) return null;
+    return {numerator:String(aggregate.count),denominator:'1'};
+  }
+  if (aggregate?.kind !== 'mean' || !Number.isSafeInteger(aggregate.count) || aggregate.count < 1 ||
+      typeof aggregate.sum?.numerator !== 'string' || typeof aggregate.sum?.denominator !== 'string' ||
+      !/^-?\d+$/u.test(aggregate.sum?.numerator ?? '') || !/^\d+$/u.test(aggregate.sum?.denominator ?? '') ||
+      BigInt(aggregate.sum.denominator) < 1n) return null;
+  let numerator=BigInt(aggregate.sum.numerator), denominator=BigInt(aggregate.sum.denominator)*BigInt(aggregate.count);
+  let a=numerator<0n?-numerator:numerator, b=denominator;
+  while(b) [a,b]=[b,a%b];
+  return {numerator:String(numerator/a),denominator:String(denominator/a)};
+}
+
+export function publicMetricResult(result) {
+  if (result.metricId !== 'empty-game-rate' || result.status !== 'available') return result;
+  const value=playerSummaryValue({kind:'count',count:result.components?.emptyGames,
+    eligibleGames:result.components?.eligibleGames},result.metricId);
+  return value ? {...result,value,summaryKind:'count'} :
+    {...result,status:'unavailable',value:null,gaps:[...(result.gaps ?? []),'OFFENSIVE_ELIGIBILITY']};
+}
+
 export function playerLeaderboard(result, metric, dateScope) {
   const batting = BATTING_LEADERBOARDS.has(metric.id);
   const qualification = batting ? { status: 'defined', kind: 'plate_appearances',
     rule: '3.1 PA per team game in the selected range, rounded to the nearest whole PA.' } :
     { status: 'pending', kind: 'role_participation', rule: 'A role-specific participation minimum is still required.' };
   const board = { status: 'unavailable', rows: [], qualification,
+    summaryKind: metric.id === 'empty-game-rate' ? 'count' : 'mean',
+    unit: metric.id === 'empty-game-rate' ? 'games' : metric.unit,
     order: metric.higherIs === 'worse' ? 'Lowest scores first' : 'Highest scores first' };
   if (!batting) return { ...board, gaps: ['ROLE_QUALIFICATION'],
     message: 'Player rankings await a defined participation minimum and complete player scores.' };
@@ -27,20 +53,20 @@ export function playerLeaderboard(result, metric, dateScope) {
   const seen = new Set(), rows = [];
   let belowMinimum = 0;
   for (const row of result.playerResults) {
+    const value = playerSummaryValue(row.aggregate, metric.id);
     const sameScope = dateScope && ['startDate', 'endDate', 'gameSet'].every(key =>
       typeof dateScope[key] === 'string' && row.dateScope?.[key] === dateScope[key]);
     if (!sameScope || row.metricId !== metric.id || row.status !== 'available' || row.completeParticipation !== true ||
         !/^https:\/\/baseballontology\.org\/data\/player\/\d+$/u.test(row.player ?? '') || seen.has(row.player) ||
         !Number.isSafeInteger(row.plateAppearances) || row.plateAppearances < 0 ||
         !Number.isSafeInteger(row.teamGames) || row.teamGames < 1 ||
-        !/^-?\d+$/u.test(row.value?.numerator ?? '') || !/^\d+$/u.test(row.value?.denominator ?? '') ||
-        BigInt(row.value.denominator) < 1n) return { ...board, gaps: ['PLAYER_SCORE_COVERAGE'],
+        !value) return { ...board, gaps: ['PLAYER_SCORE_COVERAGE'],
       message: 'Player scores or participation evidence are incomplete for this period.' };
     seen.add(row.player);
     const minimumPA = automaticMinimumPA(row.teamGames);
     if (row.plateAppearances < minimumPA) { belowMinimum++; continue; }
     rows.push({ player: row.player, name: row.playerLabel?.trim() || `Player #${row.player.split('/').at(-1)}`,
-      value: row.value, plateAppearances: row.plateAppearances, teamGames: row.teamGames, minimumPA });
+      value, observationCount: row.aggregate.count, plateAppearances: row.plateAppearances, teamGames: row.teamGames, minimumPA });
   }
   const compare = (a, b) => {
     const difference = BigInt(a.value.numerator) * BigInt(b.value.denominator) - BigInt(b.value.numerator) * BigInt(a.value.denominator);
@@ -96,13 +122,16 @@ export async function metricCatalog() {
   ]);
   const source = JSON.parse(catalog), display = JSON.parse(presentation);
   const metrics = source.metrics.filter(metric => display.metrics[metric.id].visibility !== 'backend')
-    .map(metric => ({ ...metric, technicalLabel: metric.label,
+    .map(metric => ({ ...metric, technicalLabel: metric.label, technicalUnit: metric.unit,
+      unit: display.metrics[metric.id].displayUnit ?? metric.unit,
       technicalDefinition: metric.userDefinition, label: display.metrics[metric.id].label,
-      userDefinition: display.metrics[metric.id].summary, presentation: display.metrics[metric.id] }));
+      userDefinition: display.metrics[metric.id].summary, presentation: {...display.metrics[metric.id],
+        playerSummary:display.metrics[metric.id].playerSummary ?? display.defaultPlayerSummary} }));
   const requirements = new Set(metrics.flatMap(metric => metric.requires));
   return { ...source, gapRegister: { ...JSON.parse(register),
     gaps: JSON.parse(register).gaps.filter(gap => requirements.has(gap.id)) },
     presentationVersion: display.version, playerPresentationDecision: display.playerPresentationDecision,
+    selectedRangeDecision: display.selectedRangeDecision,
     groups: display.groups, metrics };
 }
 

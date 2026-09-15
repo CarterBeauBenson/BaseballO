@@ -102,6 +102,10 @@ window.fetch = (...args) => {
   }
   buttons.find(b=>b.dataset.id==='tfs').click();
   assert(id('metric-facts').textContent.includes('Average contribution per eligible PA'),'Accepted player aggregation guide missing');
+  buttons.find(b=>b.dataset.id==='empty-game-rate').click();
+  assert(id('metric-title').textContent==='Empty Games','Empty Games retained a rate title');
+  assert(id('example-answer').textContent.includes('1 game')&&!id('example-answer').textContent.includes('%'),'Empty Games example must show the count');
+  buttons.find(b=>b.dataset.id==='tfs').click();
   id('example-choice').value='2'; id('example-choice').dispatchEvent(new Event('change'));
   assert(id('example-answer').textContent.includes('-1/4'), 'Passed-ball example did not update');
   assert(id('result').hidden && id('download-result').disabled, 'Changing example admitted a live score');
@@ -311,6 +315,7 @@ window.fetch = (...args) => {
     assert(card.querySelectorAll('.ranking-row').length===5,'Card must show exactly five leaders');
     assert(card.textContent.includes('UI Test Player 1')&&!card.textContent.includes('UI Test Player 6'),'Preview did not keep the top five');
     assert(card.textContent.includes('minimum 3 PA'),'Automatic participation minimum is missing');
+    assert(card.textContent.includes('average in selected period'),'Selected-period average default is missing');
     window.fetch=()=>{throw Error('Opening the card must reuse its loaded player results');};
     card.click();
     assert(id('metric-ranking').querySelectorAll('tbody tr').length===7,'Expanded view must show all qualified players');

@@ -9,7 +9,7 @@ import {
   ANALYTICS_QUERY_FAMILIES,
   compileAnalyticsQuery,
 } from "./query-builder/analytics-query-builder.js";
-import { metricCatalog, validateMetricRequest, validateDashboardRequest, compileMetricEvidenceQuery, metricDisplayTargets, compileMetricDisplayQuery, normalizeMetricDisplayLabels, playerLeaderboard } from './query-builder/metric-suite-query-builder.js';
+import { metricCatalog, validateMetricRequest, validateDashboardRequest, compileMetricEvidenceQuery, metricDisplayTargets, compileMetricDisplayQuery, normalizeMetricDisplayLabels, playerLeaderboard, publicMetricResult } from './query-builder/metric-suite-query-builder.js';
 import {
   buildPublicDerivedMetricCatalog,
   compileDerivedMetricQuery,
@@ -839,7 +839,7 @@ export function createBaseballServer({
 
   async function metricDisplay(result) {
     const definitions = new Map((await metricCatalog()).metrics.map(metric => [metric.id, metric]));
-    const ranked = metric => definitions.has(metric.metricId) ? { ...metric,
+    const ranked = metric => definitions.has(metric.metricId) ? { ...publicMetricResult(metric),
       leaderboard: playerLeaderboard(metric, definitions.get(metric.metricId), result.dateScope) } : metric;
     result = result.metrics ? { ...result, metrics: result.metrics.filter(metric => definitions.has(metric.metricId)).map(ranked) } :
       result.metric ? { ...result, metric: ranked(result.metric) } : result;
@@ -1459,8 +1459,13 @@ export function createBaseballServer({
         const body = await readFile(resolve(WEB_ROOT, fileName));
         if (requestUrl.pathname === '/metric-examples.json') {
           const examples = JSON.parse(body), visible = new Set((await metricCatalog()).metrics.map(metric => metric.id));
-          sendJson(response, 200, { ...examples,
-            metrics: Object.fromEntries(Object.entries(examples.metrics).filter(([id]) => visible.has(id))) });
+          const metrics=Object.fromEntries(Object.entries(examples.metrics).filter(([id]) => visible.has(id)));
+          if (metrics['empty-game-rate']) metrics['empty-game-rate'] = {
+            formula:'Count eligible games with no qualifying positive offensive contribution.',
+            cases:metrics['empty-game-rate'].cases.map(item=>({...item,
+              equation:`${item.result.components.emptyGames} empty game(s) in the selected period.`,
+              result:publicMetricResult({...item.result,metricId:'empty-game-rate'})}))};
+          sendJson(response, 200, { ...examples, metrics });
           return;
         }
         response.writeHead(200, responseHeaders(CONTENT_TYPES[extname(fileName)] ?? "application/octet-stream"));
