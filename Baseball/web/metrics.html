@@ -18,15 +18,16 @@
       <p><a href="/metrics?gameSet=regular_season&amp;preset=custom&amp;startDate=2026-08-25&amp;endDate=2026-08-25#tfs">Explore the verified bases-loaded walk</a></p>
     </section>
     <section class="dashboard" aria-labelledby="dashboard-title">
-      <h2 id="dashboard-title">Selected games</h2>
+      <h2 id="dashboard-title">Player leaderboards</h2>
+      <p class="note">Top five qualified players for the selected period. Batting minimums adjust automatically: 3.1 plate appearances per team game, rounded to the nearest whole PA. Other roles require their own participation minimums.</p>
       <form id="metric-form">
         <label>Games<select id="game-set"><option value="regular_season">Regular season</option><option value="all_star">All-Star</option></select></label>
         <label>Period<select id="date-preset"><option value="one_day">Latest loaded day</option><option value="seven_days">Last 7 loaded days</option><option value="thirty_days">Last 30 loaded days</option><option value="season_to_date">Latest loaded season</option><option value="custom">Custom dates</option></select></label>
         <label class="custom-date" hidden>From<input type="date" id="start-date"></label>
         <label class="custom-date" hidden>Through<input type="date" id="end-date"></label>
-        <button id="load-dashboard" type="submit" disabled>Load dashboard</button>
+        <button id="load-dashboard" type="submit" disabled>Refresh dashboard</button>
       </form>
-      <p id="dashboard-status" role="status" aria-live="polite">Choose a period and load all 20 metrics together.</p>
+      <p id="dashboard-status" role="status" aria-live="polite">Loading metrics…</p>
       <section id="dashboard-overview" hidden aria-label="Selection summary">
         <p id="dashboard-dates"></p>
         <dl id="dashboard-summary" class="dashboard-summary"></dl>
@@ -72,6 +73,7 @@
           <div class="score"><strong id="score-value"></strong><span id="score-exact"></span></div>
           <p id="result-subject"></p>
           <p id="result-scope"></p>
+          <section id="metric-ranking" hidden aria-label="Qualified player leaderboard"></section>
           <section id="award-consequences" hidden aria-label="Supported award consequences"></section>
           <section id="run-results" hidden aria-label="Complete scoring-runner histories"></section>
           <details id="coverage-details"><summary>Coverage and loaded dates</summary><p id="loaded-dates" class="note"></p><dl class="facts" id="coverage"></dl>

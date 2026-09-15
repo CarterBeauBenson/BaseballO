@@ -62,7 +62,16 @@ try {
     }
     if ($null -eq $page) { throw 'Isolated Chrome did not start.' }
     $null = $socket.ConnectAsync([Uri]$page.webSocketDebuggerUrl, [Threading.CancellationToken]::None).GetAwaiter().GetResult()
+    $null = Invoke-Cdp 'Page.enable'
     $null = Invoke-Cdp 'Emulation.setDeviceMetricsOverride' @{width=1280;height=1500;deviceScaleFactor=1;mobile=$false}
+    $null = Invoke-Cdp 'Page.addScriptToEvaluateOnNewDocument' @{source=@'
+window.initialDashboardRequests = 0;
+const originalDashboardFetch = window.fetch;
+window.fetch = (...args) => {
+  if (args[0] === '/api/metrics/dashboard') window.initialDashboardRequests++;
+  return originalDashboardFetch(...args);
+};
+'@}
     $null = Invoke-Cdp 'Page.navigate' @{url="$BaseUrl/metrics?gameSet=regular_season&preset=custom&startDate=2026-08-25&endDate=2026-08-25#tfs"}
     for ($attempt=0; $attempt -lt 80; $attempt++) {
         if (Invoke-Page "Boolean(document.getElementById('run-metric') && !document.getElementById('run-metric').disabled)") { break }
@@ -73,6 +82,12 @@ try {
   const id = x => document.getElementById(x);
   const assert = (value, message) => { if (!value) throw Error(message); };
   assert(id('date-preset').value === 'custom' && id('start-date').value === '2026-08-25', 'Bookmark did not restore dates');
+  for (let i=0; i<800 && id('dashboard-overview').hidden; i++) await new Promise(r=>setTimeout(r,50));
+  assert(!id('dashboard-overview').hidden, 'Bookmarked dashboard did not load automatically: '+id('dashboard-status').textContent);
+  assert(window.initialDashboardRequests === 1, 'Opening the page must issue one shared dashboard request; saw '+window.initialDashboardRequests);
+  assert(id('dashboard-dates').textContent.includes('2026-08-25'), 'Automatic load lost the bookmarked scope');
+  // Clear live selection before the separate illustration-isolation checks.
+  id('end-date').value=''; id('end-date').dispatchEvent(new Event('input',{bubbles:true}));
   for (let i=0; i<100 && !id('example-answer').textContent; i++) await new Promise(r=>setTimeout(r,50));
   const buttons = [...document.querySelectorAll('#metric-list button')];
   assert(buttons.length === 20, 'Expected all twenty metric choices');
@@ -88,6 +103,7 @@ try {
   id('example-choice').value='2'; id('example-choice').dispatchEvent(new Event('change'));
   assert(id('example-answer').textContent.includes('-1/4'), 'Passed-ball example did not update');
   assert(id('result').hidden && id('download-result').disabled, 'Changing example admitted a live score');
+  id('end-date').value='2026-08-25';
   id('run-metric').click();
   for (let i=0; i<600 && id('result').hidden; i++) await new Promise(r=>setTimeout(r,50));
   assert(!id('result').hidden, 'Live metric result did not render: '+id('request-status').textContent);
@@ -200,6 +216,7 @@ try {
     assert(id('dashboard-overview').hidden&&id('download-dashboard').disabled,'Late dashboard response restored stale results');
     assert([...document.querySelectorAll('#metric-list button')].every(b=>b.dataset.state==='unloaded'),'Old dashboard cards retained scores');
     assert(!id('load-dashboard').disabled,'Dashboard refresh remained disabled');
+    id('end-date').value='';id('end-date').dispatchEvent(new Event('input',{bubbles:true}));
     return {lateSuccessRejected:true,lateErrorRejected:true,lateDashboardRejected:true,staleDownloadDisabled:true,mobileOverflow:false};
   } finally { window.fetch=original; }
 })()
@@ -219,6 +236,7 @@ try {
     document.querySelector('[data-id="run-construction-depth"]').click();
     const payload=window.runDepthProof;
     payload.dateScope={gameSet:'regular_season',startDate:'2019-04-01',endDate:'2019-04-01'};
+    id('end-date').value='2026-08-25';
     window.fetch=async()=>new Response(JSON.stringify(payload));
     id('run-metric').click();
     for(let i=0;i<100&&id('result').hidden;i++)await new Promise(r=>setTimeout(r,50));
@@ -241,7 +259,64 @@ try {
         $capture = Invoke-Cdp 'Page.captureScreenshot' @{format='png'}
         [IO.File]::WriteAllBytes($runCapture, [Convert]::FromBase64String($capture.data))
     }
-    @{live=$observed; dashboard=$dashboard; dashboardCapture=$dashboardCapture; dashboardMobile=$dashboardMobile; regressions=$races; runDepth=$runProof; runCapture=$runCapture; desktopCapture=$desktopCapture; mobileCapture=$mobileCapture; exampleCapture=$exampleCapture} | ConvertTo-Json -Depth 10
+    $null = Invoke-Cdp 'Emulation.setDeviceMetricsOverride' @{width=1280;height=1500;deviceScaleFactor=1;mobile=$false}
+    $leaderboard = Invoke-Page @'
+(async () => {
+  const id=x=>document.getElementById(x),original=window.fetch;
+  const assert=(value,message)=>{if(!value)throw Error(message);};
+  // UI-only fixture: backend qualification and one-PA exclusion have separate
+  // server tests. These names/scores never enter the running data service.
+  const fixture=structuredClone(window.dashboardCapture);
+  fixture.metrics.find(m=>m.metricId==='tfs').leaderboard={
+    status:'available',order:'Highest scores first',qualification:{rule:'3.1 PA per team game, rounded to the nearest whole PA.'},
+    rows:Array.from({length:7},(_,i)=>({player:'https://baseballontology.org/data/player/'+(i+1),
+      name:'UI Test Player '+(i+1),rank:i+1,plateAppearances:4,teamGames:1,minimumPA:3,
+      value:{numerator:String(7-i),denominator:'1'}}))
+  };
+  let calls=0;
+  try {
+    window.fetch=async(...args)=>{if(args[0]==='/api/metrics/dashboard'){calls++;return new Response(JSON.stringify(fixture));}return original(...args);};
+    id('date-preset').value='custom';id('date-preset').dispatchEvent(new Event('change',{bubbles:true}));
+    id('start-date').value='2026-08-25';id('start-date').dispatchEvent(new Event('input',{bubbles:true}));
+    id('end-date').value='2026-08-25';id('end-date').dispatchEvent(new Event('input',{bubbles:true}));
+    for(let i=0;i<100&&id('dashboard-overview').hidden;i++)await new Promise(r=>setTimeout(r,50));
+    assert(calls===1&&!id('dashboard-overview').hidden,'Date edits did not automatically coalesce into one refresh');
+    const card=document.querySelector('[data-id="tfs"]');
+    assert(card.querySelectorAll('.ranking-row').length===5,'Card must show exactly five leaders');
+    assert(card.textContent.includes('UI Test Player 1')&&!card.textContent.includes('UI Test Player 6'),'Preview did not keep the top five');
+    assert(card.textContent.includes('minimum 3 PA'),'Automatic participation minimum is missing');
+    window.fetch=()=>{throw Error('Opening the card must reuse its loaded player results');};
+    card.click();
+    assert(id('metric-ranking').querySelectorAll('tbody tr').length===7,'Expanded view must show all qualified players');
+    assert(id('metric-ranking').textContent.includes('UI Test Player 7'),'Expanded view omitted the remaining players');
+    document.querySelector('.dashboard').scrollIntoView();
+    return {fixture:'synthetic UI-only qualified player results',previewPlayers:5,detailPlayers:7,automaticRangeRequests:calls,cardClickRequests:0};
+  } finally {window.fetch=original;}
+})()
+'@
+    $leaderboardCapture = Join-Path $profileDirectory 'leaderboard-fixture-desktop.png'
+    $capture = Invoke-Cdp 'Page.captureScreenshot' @{format='png'}
+    [IO.File]::WriteAllBytes($leaderboardCapture, [Convert]::FromBase64String($capture.data))
+    $null = Invoke-Cdp 'Emulation.setDeviceMetricsOverride' @{width=390;height=844;deviceScaleFactor=1;mobile=$true}
+    if (-not (Invoke-Page 'document.documentElement.scrollWidth <= innerWidth')) { throw 'Player leaderboard overflows mobile.' }
+    $null = Invoke-Page "document.querySelector('[data-id=tfs]').scrollIntoView()"
+    $null = Invoke-Page "new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))"
+    if (-not (Invoke-Page "document.querySelector('[data-id=tfs]>span').getBoundingClientRect().height>0 && document.querySelector('[data-id=tfs]>.card-question').getBoundingClientRect().height>0")) { throw 'Player leaderboard hid its metric name or question on mobile.' }
+    $leaderboardMobile = Join-Path $profileDirectory 'leaderboard-fixture-mobile.png'
+    $capture = Invoke-Cdp 'Page.captureScreenshot' @{format='png'}
+    [IO.File]::WriteAllBytes($leaderboardMobile, [Convert]::FromBase64String($capture.data))
+    $null = Invoke-Cdp 'Page.navigate' @{url="$BaseUrl/metrics"}
+    $autoLoad = Invoke-Page @'
+(async () => {
+  const id=x=>document.getElementById(x);
+  for(let i=0;i<800&&(!id('dashboard-overview')||id('dashboard-overview').hidden);i++)await new Promise(r=>setTimeout(r,50));
+  if(!id('dashboard-overview')||id('dashboard-overview').hidden)throw Error('Default dashboard did not load automatically: '+id('dashboard-status')?.textContent);
+  if(id('date-preset').value!=='one_day'||window.initialDashboardRequests!==1)throw Error('Default load did not use one latest-day request');
+  if(document.querySelectorAll('#metric-list button').length!==20||id('download-dashboard').disabled)throw Error('Automatic dashboard response did not populate all cards and download');
+  return {sharedRequests:window.initialDashboardRequests,dates:id('dashboard-dates').textContent,metrics:20};
+})()
+'@
+    @{leaderboard=$leaderboard; leaderboardCapture=$leaderboardCapture; leaderboardMobile=$leaderboardMobile; autoLoad=$autoLoad; live=$observed; dashboard=$dashboard; dashboardCapture=$dashboardCapture; dashboardMobile=$dashboardMobile; regressions=$races; runDepth=$runProof; runCapture=$runCapture; desktopCapture=$desktopCapture; mobileCapture=$mobileCapture; exampleCapture=$exampleCapture} | ConvertTo-Json -Depth 10
 } finally {
     if ($socket.State -eq [Net.WebSockets.WebSocketState]::Open) {
         try { $null = Invoke-Cdp 'Browser.close' } catch { }

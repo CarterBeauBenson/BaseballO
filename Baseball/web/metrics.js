@@ -1,5 +1,5 @@
 const byId = id => document.getElementById(id);
-let catalog, selected, lastResult, activeRequest, examples, dashboardResult, dashboardRequest;
+let catalog, selected, lastResult, activeRequest, examples, dashboardResult, dashboardRequest, refreshTimer;
 const node = (tag, text) => { const element = document.createElement(tag); if (text !== undefined) element.textContent = text; return element; };
 
 export function displayFraction(value, places = 2) {
@@ -99,11 +99,12 @@ function saveSelection() {
 }
 
 function invalidateSelection() {
+  clearTimeout(refreshTimer);
   activeRequest?.abort(); activeRequest = null; lastResult = null;
   dashboardRequest?.abort(); dashboardRequest = null; dashboardResult = null;
   byId('dashboard-overview').hidden = true; byId('download-dashboard').disabled = true;
   byId('load-dashboard').disabled = false;
-  byId('dashboard-status').textContent = 'Selection changed. Load the dashboard for matching results.';
+  byId('dashboard-status').textContent = 'Selection changed. Updating the dashboard…';
   renderList();
   byId('result').hidden = true; byId('download-result').disabled = true;
   byId('run-metric').disabled = false;
@@ -250,6 +251,17 @@ function choose(metric) {
   }
 }
 
+function scheduleDashboardLoad() {
+  invalidateSelection();
+  const scope = selectedScope().dateScope;
+  if (!byId('metric-form').checkValidity() ||
+      (scope.preset === 'custom' && (!scope.startDate || !scope.endDate || scope.startDate > scope.endDate))) {
+    byId('dashboard-status').textContent = 'Choose a valid start and end date to load the dashboard.';
+    return;
+  }
+  refreshTimer = setTimeout(() => byId('metric-form').requestSubmit(), 400);
+}
+
 export function dashboardSummary(payload) {
   const summary = { games: payload.graphCount ?? payload.metrics[0]?.coverage?.games ?? 0,
     available: 0, partial: 0, unavailable: 0, empty: 0 };
@@ -265,6 +277,57 @@ export function matchesMetric(metric, term, group = 'all') {
   return (group === 'all' || metric.presentation?.group === group) && searchable.includes(term.trim().toLowerCase());
 }
 
+export function metricRanking(payload, metric) {
+  const result = payload?.metrics?.find(row => row.metricId === metric.id) ?? payload?.metric;
+  const board = result?.leaderboard;
+  return { rows: board?.status === 'available' ? board.rows.map(row => ({ ...row,
+    context: `${row.plateAppearances} PA · minimum ${row.minimumPA} PA` })) : [],
+    scope: 'qualified players', order: board?.order ?? '', qualification: board?.qualification?.rule ?? '',
+    message: !result ? 'Loading player rankings…' : board?.message ?? 'Complete player scores are not yet available for this period.' };
+}
+
+function rankingPreview(payload, metric) {
+  const ranking = metricRanking(payload, metric), list = node('span'); list.className = 'card-ranking';
+  if (!ranking.rows.length) {
+    list.append(node('span', ranking.message), node('small', ranking.qualification));
+    return list;
+  }
+  const heading = node('span', `Top ${Math.min(5, ranking.rows.length)} · ${ranking.scope}`); heading.className = 'ranking-caption';
+  list.append(heading);
+  for (const row of ranking.rows.slice(0, 5)) {
+    const line = node('span'); line.className = 'ranking-row';
+    const person = node('span'); person.className = 'ranking-person';
+    person.append(node('span', row.name), node('small', row.context));
+    const score = node('span', formatMetricValue(row.value, metric.unit)); score.className = 'ranking-score';
+    score.title = `Exact: ${row.value.numerator}/${row.value.denominator}`;
+    line.append(node('span', String(row.rank)), person, score); list.append(line);
+  }
+  list.append(node('small', `${ranking.order} · ${ranking.rows.length} qualified players`));
+  return list;
+}
+
+function renderRanking(payload, metric) {
+  const ranking = metricRanking(payload, metric), target = byId('metric-ranking');
+  target.replaceChildren(); target.hidden = false;
+  if (!ranking.rows.length) {
+    target.append(node('h3', 'Player leaderboard'), node('p', ranking.message), node('p', ranking.qualification));
+    return;
+  }
+  target.append(node('h3', `All ${ranking.rows.length} ranked ${ranking.scope}`),
+    node('p', `${ranking.order}. Ties share a rank. ${ranking.qualification}`));
+  const table = node('table'), head = node('thead'), header = node('tr'), body = node('tbody');
+  for (const label of ['Rank', 'Player / minimum PA', metric.presentation.unitLabel, 'Exact value']) {
+    const cell = node('th', label); cell.scope = 'col'; header.append(cell);
+  }
+  head.append(header);
+  for (const row of ranking.rows) {
+    const line = node('tr'), person = node('td'); person.append(node('span', row.name), node('small', row.context));
+    line.append(node('td', String(row.rank)), person, node('td', formatMetricValue(row.value, metric.unit)),
+      node('td', `${row.value.numerator}/${row.value.denominator}`)); body.append(line);
+  }
+  table.append(head, body); target.append(table);
+}
+
 function renderList() {
   const term = byId('metric-search').value.trim().toLowerCase();
   const visibility = byId('metric-visibility').value;
@@ -276,7 +339,8 @@ function renderList() {
     if (visibility === 'results' && !['available', 'partial'].includes(presentation?.state)) return [];
     if (visibility === 'gaps' && presentation?.state !== 'unavailable' && presentation?.state !== 'partial') return [];
     const button = node('button'); button.type = 'button'; button.dataset.id = metric.id;
-    button.dataset.state = presentation?.state ?? 'unloaded';
+    const hasLeaders = result?.leaderboard?.status === 'available';
+    button.dataset.state = hasLeaders ? 'available' : presentation?.state ?? 'unloaded';
     const category = node('small', catalog.groups.find(group => group.id === metric.presentation.group).label); category.className = 'card-category';
     const question = node('p', metric.presentation.question); question.className = 'card-question';
     button.append(category, node('span', metric.label), question);
@@ -284,9 +348,11 @@ function renderList() {
     const scope = result?.consequences?.length ? `${result.consequences.length} award play${result.consequences.length === 1 ? '' : 's'}` :
       result?.runs?.length ? `${result.runs.length} complete scoring histories` :
       result?.coverage?.resolvedReviews !== undefined ? `${result.coverage.resolvedReviews} resolved mapped reviews` : metric.presentation.scopeLabel;
-    button.append(node('strong', presentation?.headline ?? 'Not loaded'),
+    if (!hasLeaders) button.append(node('strong', presentation?.headline ?? 'Not loaded'),
       node('small', presentation?.badge ?? 'Load selected-game evidence'),
       node('small', `${scope} · ${metric.presentation.unitLabel}`));
+    button.append(rankingPreview(dashboardResult, metric));
+    const more = node('small', 'View all results and evidence →'); more.className = 'card-more'; button.append(more);
     button.addEventListener('click', () => {
       choose(metric); byId('metric-detail').focus({ preventScroll: true }); byId('metric-detail').scrollIntoView({ block: 'start' });
     });
@@ -321,7 +387,8 @@ async function loadDashboard(event) {
     dashboardResult = payload;
     const summary = dashboardSummary(payload);
     facts(byId('dashboard-summary'), [['Selected games', summary.games], ['Metrics with scoped results', summary.available],
-      ['Metrics with individual results', summary.partial], ['Metrics without a score', summary.unavailable + summary.empty]]);
+      ['Metrics with individual results', summary.partial], ['Metrics without a score', summary.unavailable + summary.empty],
+      ['Player leaderboards available', payload.metrics.filter(metric => metric.leaderboard?.status === 'available').length]]);
     byId('dashboard-dates').textContent = resultDateLabel(payload);
     const coverage = payload.metrics[0].coverage ?? {}, movement = coverage.runnerMovements;
     byId('dashboard-coverage').textContent = `${coverage.observedEntities?.plate_appearance ?? 0} observed plate appearances · ${coverage.observedEntities?.run ?? 0} observed runs` +
@@ -369,6 +436,7 @@ function showResult(payload) {
   renderGameCoverage(coverage.byGame);
   renderConsequences(result.consequences, result.metricId, payload.display?.labels);
   renderRunResults(result.runs, payload.display?.labels);
+  renderRanking(payload, selected);
   facts(byId('coverage'), [['Games', coverage.games ?? payload.graphCount ?? 0],
     ...(coverage.supportedAwardConsequences !== undefined ? [
       ['Supported award consequences', coverage.supportedAwardConsequences],
@@ -435,8 +503,8 @@ async function start() {
     byId('metric-visibility').addEventListener('change', renderList);
     byId('metric-group').addEventListener('change', renderList);
     byId('download-dashboard').addEventListener('click', () => { if (dashboardResult) download('baseballo-dashboard.json', dashboardResult); });
-    byId('metric-form').addEventListener('input', invalidateSelection);
-    byId('metric-form').addEventListener('change', invalidateSelection);
+    byId('metric-form').addEventListener('input', scheduleDashboardLoad);
+    byId('metric-form').addEventListener('change', scheduleDashboardLoad);
     byId('date-preset').addEventListener('change', updateDates);
     byId('example-choice').addEventListener('change', renderExampleCase);
     // Examples are presentation-only. Failure must not disable live inspection.
@@ -444,7 +512,12 @@ async function start() {
       if (!response.ok) throw new Error('Examples unavailable');
       examples = await response.json(); renderExamples();
     }).catch(() => { examples = undefined; renderExamples(); });
-  } catch (error) { byId('metric-title').textContent = 'Metrics unavailable'; byId('request-status').textContent = error.message; }
+    byId('metric-form').requestSubmit();
+  } catch (error) {
+    byId('metric-title').textContent = 'Metrics unavailable';
+    byId('dashboard-status').textContent = error.message;
+    byId('request-status').textContent = error.message;
+  }
 }
 
 if (typeof document !== 'undefined') start();

@@ -4,8 +4,83 @@ import { readFile } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { createBaseballServer } from '../server.mjs';
-import { metricCatalog, validateMetricRequest, validateDashboardRequest, compileMetricEvidenceQuery, metricDisplayTargets, compileMetricDisplayQuery, normalizeMetricDisplayLabels } from '../query-builder/metric-suite-query-builder.js';
-import { displayFraction, resultHeadline, movementEvidenceLabel, consequencePresentation, formatMetricValue, resultPresentation, resultDateLabel, selectionFromUrl, displayPlayer, exampleAnswer, dashboardSummary, matchesMetric } from '../metrics.js';
+import { metricCatalog, validateMetricRequest, validateDashboardRequest, compileMetricEvidenceQuery, metricDisplayTargets, compileMetricDisplayQuery, normalizeMetricDisplayLabels, automaticMinimumPA, playerLeaderboard } from '../query-builder/metric-suite-query-builder.js';
+import { displayFraction, resultHeadline, movementEvidenceLabel, consequencePresentation, formatMetricValue, resultPresentation, resultDateLabel, selectionFromUrl, displayPlayer, exampleAnswer, dashboardSummary, matchesMetric, metricRanking } from '../metrics.js';
+
+const leaderboardScope = { startDate: '2026-09-01', endDate: '2026-09-07', gameSet: 'regular_season' };
+const leaderboardMetric = { id: 'tfs', higherIs: 'better' };
+function playerScore(id, numerator, extras = {}) {
+  return { player: `https://baseballontology.org/data/player/${id}`, playerLabel: `Player ${id}`,
+    metricId: 'tfs', status: 'available', dateScope: leaderboardScope, completeParticipation: true,
+    plateAppearances: 25, teamGames: 7, value: { numerator: String(numerator), denominator: '1' }, ...extras };
+}
+
+test('automatic PA minimum follows the approved rule across selected team-game counts', () => {
+  assert.deepEqual([1, 5, 7, 30, 162].map(automaticMinimumPA), [3, 16, 22, 93, 502]);
+  for (const games of [0, -1, 1.5, NaN]) assert.throws(() => automaticMinimumPA(games));
+});
+
+test('player rankings exclude a one-PA high score and adapt to each team exposure', () => {
+  const result = { playerPopulationComplete: true, playerResults: [
+    playerScore(1, 999, { plateAppearances: 1 }), playerScore(2, 3),
+    playerScore(3, 4, { teamGames: 5, plateAppearances: 16 }), playerScore(4, 5, { plateAppearances: 21 }),
+  ] };
+  const board = playerLeaderboard(result, leaderboardMetric, leaderboardScope);
+  assert.deepEqual(board.rows.map(row => [row.name, row.minimumPA]), [['Player 3', 16], ['Player 2', 22]]);
+  assert.equal(board.belowMinimum, 2);
+  const day = playerLeaderboard({ ...result, playerResults: [playerScore(1, 999, { plateAppearances: 1, teamGames: 1 })] }, leaderboardMetric, leaderboardScope);
+  assert.equal(day.status, 'empty');
+});
+
+test('player rankings sort exact scores, share tie ranks, and preserve all detail rows', () => {
+  const result = { playerPopulationComplete: true, playerResults: [
+    playerScore(1, '9007199254740992'), playerScore(2, '9007199254740993'),
+    playerScore(3, '18014398509481986', { value: { numerator: '18014398509481986', denominator: '2' } }),
+    ...[4, 5, 6, 7, 8].map(id => playerScore(id, 10 - id)),
+  ] };
+  const board = playerLeaderboard(result, leaderboardMetric, leaderboardScope);
+  assert.deepEqual(board.rows.slice(0, 3).map(row => row.rank), [1, 1, 3]);
+  assert.equal(board.rows[0].name, 'Player 2');
+  const displayed = metricRanking({ metric: { ...result, leaderboard: board } }, leaderboardMetric);
+  assert.equal(displayed.rows.length, 8);
+  assert.equal(displayed.rows[0].context, '25 PA · minimum 22 PA');
+  const worse = playerLeaderboard(result, { ...leaderboardMetric, higherIs: 'worse' }, leaderboardScope);
+  assert.equal(worse.rows[0].name, 'Player 8');
+});
+
+test('incomplete scores, mismatched dates, duplicate players and partial plays cannot become leaders', () => {
+  for (const result of [
+    { status: 'available', value: { numerator: '99', denominator: '1' } },
+    { consequences: [playerScore(1, 99)], runs: [playerScore(1, 99)] },
+    { playerPopulationComplete: false, playerResults: [playerScore(1, 99)] },
+    { playerPopulationComplete: true, playerResults: [playerScore(1, 99, { completeParticipation: false })] },
+    { playerPopulationComplete: true, playerResults: [playerScore(1, 99, { dateScope: { ...leaderboardScope, startDate: '2025-09-01' } })] },
+    { playerPopulationComplete: true, playerResults: [playerScore(1, 99), playerScore(1, 99)] },
+  ]) {
+    const board = playerLeaderboard(result, leaderboardMetric, leaderboardScope);
+    assert.equal(board.status, 'unavailable'); assert.deepEqual(board.rows, []);
+  }
+});
+
+test('non-batting leaderboards do not silently apply a PA minimum', () => {
+  const board = playerLeaderboard({ playerPopulationComplete: true, playerResults: [playerScore(1, 99)] },
+    { id: 'defender-breadth', higherIs: 'descriptive' }, leaderboardScope);
+  assert.equal(board.qualification.kind, 'role_participation');
+  assert.equal(board.qualification.status, 'pending'); assert.deepEqual(board.rows, []);
+});
+
+test('dashboard applies qualification server-side to trusted player aggregates', async () => {
+  await withServer({ servingExecutor: async () => ({ execution: 'materialized-sql', dateScope: leaderboardScope,
+    metrics: [{ metricId: 'tfs', playerPopulationComplete: true, playerResults: [
+      playerScore(1, 999, { plateAppearances: 1 }), playerScore(2, 3),
+    ] }] }) }, async url => {
+    const response = await fetch(url + '/api/metrics/dashboard', { method: 'POST', body: JSON.stringify({ dateScope: { preset: 'one_day' } }) });
+    const body = await response.json(); assert.equal(response.status, 200);
+    assert.deepEqual(body.metrics[0].leaderboard.rows.map(row => row.name), ['Player 2']);
+    const injected = await fetch(url + '/api/metrics/dashboard', { method: 'POST', body: JSON.stringify({ playerResults: [playerScore(1, 999)] }) });
+    assert.equal(injected.status, 400);
+  });
+});
 
 async function withServer(options, work) {
   const server = createBaseballServer(options);
@@ -220,7 +295,12 @@ test('API returns SQL results and rejects caller supplied evidence before execut
   await withServer({ servingExecutor: async input => { calls++; assert.equal(input.route, 'metric-suite'); return result; } }, async url => {
     const catalog = await (await fetch(url + '/api/metrics/catalog')).json(); assert.equal(catalog.metrics.length, 20);
     let response = await fetch(url + '/api/metrics/query', { method: 'POST', body: JSON.stringify({ metricId: 'tfs' }) });
-    assert.equal(response.status, 200); assert.deepEqual(await response.json(), result);
+    assert.equal(response.status, 200);
+    const payload = await response.json();
+    const { leaderboard, ...scoredMetric } = payload.metric;
+    assert.deepEqual({ ...payload, metric: scoredMetric }, result);
+    assert.equal(leaderboard.status, 'unavailable');
+    assert.deepEqual(leaderboard.gaps, ['COMPLETE_PLAYER_SCORES']);
     response = await fetch(url + '/api/metrics/query', { method: 'POST', body: JSON.stringify({ metricId: 'tfs', bindings: [] }) });
     assert.equal(response.status, 400); assert.equal(calls, 1);
     for (const path of ['/metrics', '/metrics.js', '/metrics.css']) {

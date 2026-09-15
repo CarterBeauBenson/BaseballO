@@ -2,6 +2,56 @@ import { readFile } from 'node:fs/promises';
 
 const root = new URL('../../sparql/metrics/', import.meta.url);
 
+const BATTING_LEADERBOARDS = new Set(['tfs', 'paq-2', 'paq-a', 'offensive-reach',
+  'hidden-help-rate', 'rally-kill-rate', 'rally-kill-severity', 'opportunity-erosion',
+  'empty-game-rate', 'empty-game-damage', 'recovery-quality', 'paq-2.1']);
+
+export function automaticMinimumPA(teamGames) {
+  if (!Number.isSafeInteger(teamGames) || teamGames < 1) throw new RangeError('Complete team-game exposure is required.');
+  return Number((31n * BigInt(teamGames) + 5n) / 10n);
+}
+
+export function playerLeaderboard(result, metric, dateScope) {
+  const batting = BATTING_LEADERBOARDS.has(metric.id);
+  const qualification = batting ? { status: 'defined', kind: 'plate_appearances',
+    rule: '3.1 PA per team game in the selected range, rounded to the nearest whole PA.' } :
+    { status: 'pending', kind: 'role_participation', rule: 'A role-specific participation minimum is still required.' };
+  const board = { status: 'unavailable', rows: [], qualification,
+    order: metric.higherIs === 'worse' ? 'Lowest scores first' : 'Highest scores first' };
+  if (!batting) return { ...board, gaps: ['ROLE_QUALIFICATION'],
+    message: 'Player rankings await a defined participation minimum and complete player scores.' };
+  // Only the trusted serving adapter can supply these aggregates. Award
+  // consequences, individual runs and population-only scores are insufficient.
+  if (result.playerPopulationComplete !== true || !Array.isArray(result.playerResults)) return {
+    ...board, gaps: ['COMPLETE_PLAYER_SCORES'], message: 'Complete player scores are not yet available for this period.' };
+  const seen = new Set(), rows = [];
+  let belowMinimum = 0;
+  for (const row of result.playerResults) {
+    const sameScope = dateScope && ['startDate', 'endDate', 'gameSet'].every(key =>
+      typeof dateScope[key] === 'string' && row.dateScope?.[key] === dateScope[key]);
+    if (!sameScope || row.metricId !== metric.id || row.status !== 'available' || row.completeParticipation !== true ||
+        !/^https:\/\/baseballontology\.org\/data\/player\/\d+$/u.test(row.player ?? '') || seen.has(row.player) ||
+        !Number.isSafeInteger(row.plateAppearances) || row.plateAppearances < 0 ||
+        !Number.isSafeInteger(row.teamGames) || row.teamGames < 1 ||
+        !/^-?\d+$/u.test(row.value?.numerator ?? '') || !/^\d+$/u.test(row.value?.denominator ?? '') ||
+        BigInt(row.value.denominator) < 1n) return { ...board, gaps: ['PLAYER_SCORE_COVERAGE'],
+      message: 'Player scores or participation evidence are incomplete for this period.' };
+    seen.add(row.player);
+    const minimumPA = automaticMinimumPA(row.teamGames);
+    if (row.plateAppearances < minimumPA) { belowMinimum++; continue; }
+    rows.push({ player: row.player, name: row.playerLabel?.trim() || `Player #${row.player.split('/').at(-1)}`,
+      value: row.value, plateAppearances: row.plateAppearances, teamGames: row.teamGames, minimumPA });
+  }
+  const compare = (a, b) => {
+    const difference = BigInt(a.value.numerator) * BigInt(b.value.denominator) - BigInt(b.value.numerator) * BigInt(a.value.denominator);
+    return difference < 0n ? -1 : difference > 0n ? 1 : 0;
+  };
+  rows.sort((a, b) => (metric.higherIs === 'worse' ? 1 : -1) * compare(a, b) || a.player.localeCompare(b.player));
+  rows.forEach((row, index) => { row.rank = index && compare(row, rows[index - 1]) === 0 ? rows[index - 1].rank : index + 1; });
+  return { ...board, status: rows.length ? 'available' : 'empty', rows, belowMinimum, gaps: [],
+    message: rows.length ? `${rows.length} qualified players` : 'No players meet the automatic PA minimum for this period.' };
+}
+
 export function metricDisplayTargets(consequences = []) {
   const targets = new Map();
   for (const row of consequences) {

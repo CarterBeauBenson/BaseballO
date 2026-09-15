@@ -9,7 +9,7 @@ import {
   ANALYTICS_QUERY_FAMILIES,
   compileAnalyticsQuery,
 } from "./query-builder/analytics-query-builder.js";
-import { metricCatalog, validateMetricRequest, validateDashboardRequest, compileMetricEvidenceQuery, metricDisplayTargets, compileMetricDisplayQuery, normalizeMetricDisplayLabels } from './query-builder/metric-suite-query-builder.js';
+import { metricCatalog, validateMetricRequest, validateDashboardRequest, compileMetricEvidenceQuery, metricDisplayTargets, compileMetricDisplayQuery, normalizeMetricDisplayLabels, playerLeaderboard } from './query-builder/metric-suite-query-builder.js';
 import {
   buildPublicDerivedMetricCatalog,
   compileDerivedMetricQuery,
@@ -838,6 +838,11 @@ export function createBaseballServer({
   let gameDateIndexCache;
 
   async function metricDisplay(result) {
+    const definitions = new Map((await metricCatalog()).metrics.map(metric => [metric.id, metric]));
+    const ranked = metric => definitions.has(metric.metricId) ? { ...metric,
+      leaderboard: playerLeaderboard(metric, definitions.get(metric.metricId), result.dateScope) } : metric;
+    result = result.metrics ? { ...result, metrics: result.metrics.map(ranked) } :
+      result.metric ? { ...result, metric: ranked(result.metric) } : result;
     const subjects = (result.metrics ?? [result.metric]).filter(Boolean).flatMap(metric => [
       ...(metric.consequences ?? []), ...(metric.runs ?? []).map(run => ({ graph: run.graph, batter: run.runner }))]);
     if (!subjects.length) return result;

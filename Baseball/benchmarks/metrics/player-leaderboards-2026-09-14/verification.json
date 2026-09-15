@@ -1,0 +1,22 @@
+﻿{
+    "artifactType":  "baseballo-player-leaderboard-ui-verification",
+    "metricTestsPassed":  30,
+    "runtimeTestsPassed":  14,
+    "automaticInitialLoad":  true,
+    "automaticRangeRefresh":  true,
+    "requestsPerRefresh":  1,
+    "uiFixture":  {
+                      "synthetic":  true,
+                      "previewPlayers":  5,
+                      "expandedPlayers":  7,
+                      "cardClickRequests":  0,
+                      "mobileOverflow":  false
+                  },
+    "onePAHighScoreExcludedByServerTest":  true,
+    "exactRankingAndTiesPassed":  true,
+    "latestLoadedDay":  "2026-09-13",
+    "livePlayerLeaderboards":  0,
+    "livePlayerScoreProductionImplemented":  false,
+    "nonBattingThresholdsDefined":  false,
+    "productionReady":  false
+}

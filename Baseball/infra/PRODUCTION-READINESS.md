@@ -147,6 +147,13 @@ library wheel hashes are from their pinned PyPI release metadata.
 
 ## Current game dates and remaining coverage
 
+The [player leaderboard contract](../serving/PLAYER-LEADERBOARDS.md) records
+the subsequently requested automatic page/range loading, top-five player
+cards, expanded lists, and accepted PA minimum. The presentation and server
+qualification adapter are implemented. Complete live player aggregates and
+the precise non-batting minimums are still missing; the isolated leaderboard
+UI fixture does not count as live metric availability.
+
 The Explorer previously read the historical acquisition directory but omitted
 the current MLB lane's compact `game-<id>-rml.json` manifests. This hid already
 promoted games after August 25. It now reads the same retained official date
