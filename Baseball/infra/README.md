@@ -113,6 +113,10 @@ Stop the services cleanly before restarting Windows:
 
 ## Security boundary
 
+For signed-in workstation supervision and maintenance controls, see
+[Local operations](LOCAL-OPERATIONS.md). This provides service recovery under
+the current Windows account; it does not expose the stack publicly.
+
 Both services bind to loopback for development. The Fuseki update and Graph
 Store write endpoints must never be exposed directly to a public UI. The
 current local Explorer server exposes only allowlisted, parameterized reads;

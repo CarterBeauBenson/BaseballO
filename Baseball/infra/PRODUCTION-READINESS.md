@@ -93,7 +93,7 @@ readiness.
 | Serving | Obtain a validated current immutable SQL build and passing readiness. Keep source and SQL equivalence/admission gates intact. The current browser smoke used authoritative RDF for 15 games on August 25. |
 | Metric coverage | Complete the accepted source backfill and inspect coverage across the intended release population. Twenty implemented cards and worked examples do not mean twenty population-level scores are available. |
 | Recovery | Define recovery-time and recovery-point objectives, an off-machine destination, retention and ownership. Exercise an isolated restore of authoritative RDF, source/promotion evidence and required machine configuration. The existing Fuseki backup helper alone is not a tested disaster-recovery system. Put recurring work in NiFi. |
-| Operations | Configure and verify unattended startup, failure restart, disk/log retention and alerting on the selected host. Use the existing NiFi source and Repository Evidence owners. A desktop launcher is not an unattended service. |
+| Operations | Per-user local supervision is installed and Explorer recovery is verified; see [Local operations](LOCAL-OPERATIONS.md). Before-login operation, reboot acceptance, disk/log retention and external alerting remain open. Use the existing NiFi source and Repository Evidence owners. |
 | Runtime maintenance | The observed Python runtime is 3.10.8. Select and validate a maintained patched runtime for all owning NiFi and web components. Node is pinned for Explorer, but other tools using global Node have not been migrated. |
 | Semantic governance | The existing semantic freeze remains `frozen-unratified`. This engineering release does not ratify it, resolve ontology debt or authorize new terms/mappings. |
 
