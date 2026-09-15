@@ -180,6 +180,26 @@ part of the UI repair. Resolving this source failure must respect the existing
 semantic review boundary. Readiness still returned HTTP 503 after deployment;
 the NiFi-owned SQL rebuild was left asynchronous.
 
+The accepted E1/C1 source policy is already recorded in the
+[September 14 decision](../archive/design-records/metric-source-c1-operation-2026-09-14/user-decision.md);
+it does not require another vote. The latest retained fixture run,
+`bae7bdd6577e42e587dcd5dcfca07840`, passed source SHACL (31,717 triples,
+zero violations), promoted its graph pair and emitted its promoted-graph
+event. It then failed serving materialization on the same display-query
+catalog error repaired above. This is a downstream operational failure,
+not a rejection of the accepted C1 pattern. The older September 13 graph
+products were ingested before that C1 update.
+
+The existing source proof-release check requires completed materialization
+and cleanup as well as source validation/promotion. After the current SQL
+build completes, resume through the existing MLB Game NiFi proof workflow
+(`sources/mlb-game/nifi/provision.ps1 -RunProof`) before requesting the
+accepted corpus refresh. Do not submit a competing proof promotion during
+the active rebuild, fabricate completion evidence, or bypass the proof gate.
+The completed SQL rebuild alone does not fill in a failed source proof's
+stage records. This source-proof recovery remains pending; no healthy NiFi
+run was polled or held open for completion.
+
 ## Rollback
 
 Retain the current verified Node LTS installation. Revert the identified

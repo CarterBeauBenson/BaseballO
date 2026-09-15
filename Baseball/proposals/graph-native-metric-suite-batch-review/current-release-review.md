@@ -1,5 +1,14 @@
 # Current metric release review — 2026-09-09
 
+**September 14 operational update:** the named E1 source-authority policy and
+existing-vocabulary C1 implementation were subsequently
+[explicitly accepted](../../archive/design-records/metric-source-c1-operation-2026-09-14/user-decision.md).
+The historical draft below is not an outstanding vote on that policy.
+The [production evidence](../../infra/PRODUCTION-READINESS.md#current-game-dates-and-remaining-coverage)
+now distinguishes the current source proof's successful SHACL/promotion from
+its downstream SQL failure, and records the latest September 13 live coverage.
+Full operation remains incomplete.
+
 **September 14 scope clarification:** the deliverable is full operation of all
 20 metrics on real admitted evidence, including complete applicable reference
 populations and source-to-UI processing. Formula examples and bounded award
