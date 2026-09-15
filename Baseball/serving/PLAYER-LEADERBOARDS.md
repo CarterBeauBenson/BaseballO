@@ -17,12 +17,16 @@ exposure throughout the selected range, including games the player missed;
 it must not be replaced with games in which the player appeared. Incomplete
 schedule/team exposure cannot lower the minimum.
 
-The server sorts qualifying player scores by exact integer cross multiplication.
+The server sorts qualifying rational player scores by exact integer cross multiplication.
 Metrics whose existing catalog says higher is worse use ascending order;
 others use descending order, explicitly labeled. Equal exact values share
 a competition rank; player IRI deterministically orders ties. Cards show at
 most five rows, and the full list preserves all qualified players. Rounding
 is only for display. A one-PA high score is excluded even on a one-game day.
+Contribution Mix retains exact channel counts and evaluates and orders its
+logarithmic scores approximately, before display rounding. Equal numerical
+entropy evaluations share a rank; channel permutations and proportional counts
+preserve ties. This does not turn logarithmic results into exact fractions.
 
 ## Serving interface and admission boundary
 
@@ -68,8 +72,10 @@ isolated seven-player browser fixture is a UI test, not live baseball data.
    their eligible observation counts; Recovery Quality and PAQ-2.1 require
    both the existing PA minimum and their applicable-observation minimum.
    Participation must still be complete. No minimum is relaxed to fill a card.
-   Contribution Path Diversity's mixed-channel qualification was not expressly
-   included in that numerical table and remains separately unresolved.
+   The [follow-up decision](../archive/design-records/metric-completion-decisions-2026-09-15/followup-user-decision.md)
+   qualifies Contribution Path Diversity through **either** the batting or
+   independent-running minimum, including zero-PA runners. This OR rule is
+   implemented without changing the other metrics' qualification rules.
 4. Affected-player review attribution is already accepted. Review cards now
    display separate traditional-replay and ball/strike leaderboard groups,
    with no pooled denominator or combined player rank. The trusted producer
@@ -79,6 +85,23 @@ isolated seven-player browser fixture is a UI test, not live baseball data.
 The public participation text names PAs, runs, defensive resolutions or review
 decisions. It does not expose ontology Role terminology. The same player may
 appear in both review groups, each with its own qualification and rank.
+
+## Contribution Mix serving rows
+
+The trusted producer supplies `aggregate: {kind: "channel_entropy",
+channelCounts: [batterSelf, batterOther, runnerSelf]}` for the complete selected
+period. Count each positive play once per channel before pooling. The server
+computes the existing normalized Shannon entropy from these exact nonnegative
+integer counts. It rejects a fraction-valued mean or an empty positive-channel
+population; averaging daily entropy scores would change the metric.
+
+Each row additionally supplies the independently established
+`independentRunningEpisodes` count alongside `plateAppearances`, complete
+participation, date scope and applicable team-game exposure. Both counts must
+be known; zero is distinct from missing. Positive running channel counts are
+not the full eligible running population. The card shows the minimum actually
+met. Scores carry `value: null`, `approximateValue`, and exact `channelCounts`;
+both the preview and expanded table support this representation.
 
 No ontology, RML, SHACL, metric kernel, semantic-freeze pin or reference
 population was changed. Source-proof recovery and corpus refresh remain

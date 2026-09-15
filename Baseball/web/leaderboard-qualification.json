@@ -1,6 +1,8 @@
 {
-  "version": 1,
+  "version": 2,
   "decision": "archive/design-records/metric-completion-decisions-2026-09-15/decision.json",
+  "followupDecision": "archive/design-records/metric-completion-decisions-2026-09-15/followup-decision.json",
+  "eitherBattingOrRunning": ["contribution-path-diversity"],
   "policies": {
     "independent-running": {"floor": 3, "teamGamesDivisor": 10, "unit": "running episodes"},
     "defensive-resolution": {"floor": 3, "teamGamesDivisor": 10, "unit": "defensive resolutions"},
@@ -14,6 +16,7 @@
     "independent-runner-advancement": "independent-running",
     "independent-runner-damage": "independent-running",
     "independent-runner-contribution": "independent-running",
+    "contribution-path-diversity": "independent-running",
     "resolution-depth": "defensive-resolution",
     "defender-breadth": "defensive-resolution",
     "run-construction-depth": "run-construction",

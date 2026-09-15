@@ -29,8 +29,12 @@ The [September 15 completion answers](../archive/design-records/metric-completio
 accept B2 contact continuations, catcher-interference exclusion, separate
 substituted Batter Acts, automatic ball/strike awards, supported defensive
 action evidence, time-specific review eligibility, walk-off boundaries and
-the exact leaderboard minima. Shared strikeout/runner-out allocation remains
-unresolved because the user identified a possible called hit-and-run.
+the exact leaderboard minima. The subsequent
+[two-choice follow-up](../archive/design-records/metric-completion-decisions-2026-09-15/followup-user-decision.md)
+assigns confirmed failed hit-and-run damage to the batter and qualifies
+Contribution Mix through either batting or independent running. Confirming a
+called strategy in source evidence remains separate; the earlier equal split
+for genuinely independent simultaneous outs was not accepted.
 
 The [new metric suite batch review](graph-native-metric-suite-batch-review/README.md)
 collects all remaining metric prerequisites in one draft package. The full

@@ -1,22 +1,23 @@
 {
-  "version": 4,
+  "version": 5,
   "scope": "Graph-native metric suite. Named user decisions are recorded separately from remaining ontology, identity, evidence and completeness requirements.",
   "reviewPackage": "proposals/graph-native-metric-suite-batch-review",
   "gaps": [
     {
       "id": "ATTRIBUTION",
       "title": "Attribute offensive consequences",
-      "question": "Catcher-interference positive batter credit is excluded. B2 contact continuations are accepted. Resolve called hit-and-run versus independent runner-out damage; error-speed credit remains an optional deferred extension.",
-      "direction": "Catcher-interference positive batter credit is excluded. B2 contact continuations are accepted. Resolve called hit-and-run versus independent runner-out damage; error-speed credit remains an optional deferred extension.",
+      "question": "Confirmed failed hit-and-run runner-out damage belongs to the batter. Implement source admission for confirming the called strategy; other shared independent-out allocation remains unaccepted. Catcher-interference exclusion and B2 are accepted; speed-conditioned error credit is optional and deferred.",
+      "direction": "Apply both confirmed failed hit-and-run outs to the batter with existing destruction and erosion formulas and no duplicate running damage. A swinging strikeout plus caught stealing alone does not confirm the strategy. Complete source/graph attribution coverage remains required.",
       "status": "open",
-      "disposition": "partially-resolved-hit-and-run-allocation-open",
+      "disposition": "confirmed-hit-and-run-policy-resolved-source-admission-open",
       "owner": "ontologist-for-shared-out-allocation; engineering-for-accepted-mappings",
       "implementationBehavior": "calculation uses accepted policy; live output remains unavailable until source-owned graph prerequisites are admitted",
       "decisionRecords": [
         "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
         "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json",
         "archive/design-records/runner-award-origin-final-decision/review.json",
-        "archive/design-records/metric-completion-decisions-2026-09-15/decision.json"
+        "archive/design-records/metric-completion-decisions-2026-09-15/decision.json",
+        "archive/design-records/metric-completion-decisions-2026-09-15/followup-decision.json"
       ],
       "researchAssessment": {
         "assessedOn": "2026-09-08",
@@ -38,7 +39,8 @@
       "resolvedSubgaps": [
         "Award causation plus applicable rule requirement; no event directive",
         "Immediate segment origin via movement.start designation; no preceding stasis",
-        "Batter metric HOME=0 from PA batter identity"
+        "Batter metric HOME=0 from PA batter identity",
+        "Confirmed failed hit-and-run damage belongs to the batter, without duplicate running damage"
       ],
       "remainingCoverage": "Reviewed operative award resolution, other rule editions, PA-start fallback completeness and full attributed-trajectory completeness remain separately gated."
     },
@@ -48,7 +50,7 @@
       "question": "C1/C2 and walk-off evaluation at the supported game-ending boundary are accepted. Add no erosion merely because the game ends. Full boundary reconciliation and unresolved shared-out attribution remain separate dependencies.",
       "direction": "C1/C2 and walk-off evaluation at the supported game-ending boundary are accepted. Add no erosion merely because the game ends. Full boundary reconciliation and unresolved shared-out attribution remain separate dependencies.",
       "status": "open",
-      "disposition": "partially-resolved-hit-and-run-allocation-open",
+      "disposition": "confirmed-hit-and-run-policy-resolved-other-boundary-work-open",
       "owner": "engineering; shared-out-policy-awaiting-user",
       "implementationBehavior": "calculation uses accepted policy; live output remains unavailable until source-owned graph prerequisites are admitted",
       "decisionRecords": [
@@ -57,7 +59,8 @@
         "archive/design-records/runner-award-origin-final-decision/review.json",
         "archive/design-records/metric-suite-gap-answers-2026-09-09/decision.json",
         "archive/design-records/runner-continuity-boundary-projection/review.json",
-        "archive/design-records/metric-completion-decisions-2026-09-15/decision.json"
+        "archive/design-records/metric-completion-decisions-2026-09-15/decision.json",
+        "archive/design-records/metric-completion-decisions-2026-09-15/followup-decision.json"
       ],
       "researchAssessment": {
         "assessedOn": "2026-09-08",

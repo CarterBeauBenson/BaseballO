@@ -354,6 +354,17 @@ export function metricRanking(payload, metric) {
     message: !result ? 'Loading player rankings…' : board?.message ?? 'Complete player scores are not yet available for this period.' };
 }
 
+export function rankingScore(row, unit) {
+  if (row.value) return {text:formatMetricValue(row.value, unit),
+    evidence:`${row.value.numerator}/${row.value.denominator}`, title:`Exact: ${row.value.numerator}/${row.value.denominator}`};
+  if (Number.isFinite(row.approximateValue) && Array.isArray(row.channelCounts)) {
+    const evidence = row.channelCounts.join(' / ');
+    return {text:`≈ ${row.approximateValue.toFixed(3)}`, evidence,
+      title:`Exact positive channel counts (own batting / helping runners / independent running): ${evidence}. Logarithmic score and ordering are approximate.`};
+  }
+  return {text:'Unavailable', evidence:'', title:''};
+}
+
 function rankingPreview(payload, metric) {
   const ranking = metricRanking(payload, metric), list = node('span'); list.className = 'card-ranking';
   if (ranking.groups.length) {
@@ -373,8 +384,9 @@ function rankingPreview(payload, metric) {
     const line = node('span'); line.className = 'ranking-row';
     const person = node('span'); person.className = 'ranking-person';
     person.append(node('span', row.name), node('small', row.context));
-    const score = node('span', formatMetricValue(row.value, ranking.unit)); score.className = 'ranking-score';
-    score.title = `Exact: ${row.value.numerator}/${row.value.denominator}`;
+    const display = rankingScore(row, ranking.unit);
+    const score = node('span', display.text); score.className = 'ranking-score';
+    score.title = display.title;
     line.append(node('span', String(row.rank)), person, score); list.append(line);
   }
   list.append(node('small', `${ranking.order} · ${ranking.rows.length} qualified players`));
@@ -394,15 +406,16 @@ function renderRanking(payload, metric) {
     target.append(node('p', `${group.label}: ${group.message} ${group.qualification?.rule ?? ''}`));
   }
   const table = node('table'), head = node('thead'), header = node('tr'), body = node('tbody');
-  for (const label of ['Rank', 'Player / participation minimum', `${ranking.summaryKind === 'count' ? 'Count' : 'Average'} · ${metric.presentation.unitLabel}`, 'Exact value']) {
+  for (const label of ['Rank', 'Player / participation minimum', `${ranking.summaryKind === 'count' ? 'Count' : 'Average'} · ${metric.presentation.unitLabel}`,
+    metric.id === 'contribution-path-diversity' ? 'Exact channel counts' : 'Exact value']) {
     const cell = node('th', label); cell.scope = 'col'; header.append(cell);
   }
   head.append(header);
   for (const row of ranking.rows) {
     const line = node('tr'), person = node('td'); person.append(node('span', row.name), node('small', row.context));
     if (row.mechanismLabel) person.append(node('small', row.mechanismLabel));
-    line.append(node('td', String(row.rank)), person, node('td', formatMetricValue(row.value, ranking.unit)),
-      node('td', `${row.value.numerator}/${row.value.denominator}`)); body.append(line);
+    const display = rankingScore(row, ranking.unit), evidence = node('td', display.evidence); evidence.title = display.title;
+    line.append(node('td', String(row.rank)), person, node('td', display.text), evidence); body.append(line);
   }
   table.append(head, body); target.append(table);
 }

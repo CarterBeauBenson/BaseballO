@@ -23,7 +23,7 @@ from rdflib import Graph, Literal
 
 ROOT = Path(__file__).resolve().parents[1]
 METRICS = ROOT / 'sparql/metrics'
-VERSION = '2.0.18'
+VERSION = '2.0.19'
 
 
 class EvidenceError(ValueError):
@@ -222,6 +222,47 @@ def trajectories(participants, outs_before, attributed_outs, *, batter=None, bat
     components = {k: exact(Fraction(result[k], 36)) for k in ['progress', 'destruction', 'erosion']}
     return available(Fraction(result['numerator']) / Fraction(result['denominator']),
                      evidence=evidence, components=components)
+
+
+def failed_hit_and_run_scores(participants, outs_before, *, batter, runner,
+                              confirmed=False, confirmation_evidence=(), complete=False):
+    """Route one admitted swinging-K/runner-thrown-out consequence to its owner.
+
+    Confirmation and complete coalesced participants must already be admitted
+    independently. This is not a source classifier: a K/CS pair is insufficient.
+    The empty running-score list prevents a duplicate damage observation; it is
+    not a zero-valued running episode eligible for a participation denominator.
+    Analytical responsibility does not change the agent of any running act.
+    """
+    _boolean(confirmed, 'called hit-and-run confirmation')
+    _boolean(complete, 'consequence completeness')
+    if not confirmed or not confirmation_evidence:
+        return unavailable('CALLED_HIT_AND_RUN_UNCONFIRMED')
+    if not complete:
+        return unavailable('ATTRIBUTED_CONSEQUENCE_INCOMPLETE')
+    if (not isinstance(confirmation_evidence, (list, tuple)) or
+            any(not isinstance(item, str) or not item.strip() for item in confirmation_evidence)):
+        raise EvidenceError('Confirmation requires admitted evidence identities')
+    if not batter or not runner or batter == runner:
+        raise EvidenceError('Distinct batter and runner identities are required')
+    rows = _unique(participants, ('participant',))
+    by_person = {row['participant']: row for row in rows}
+    if not {batter, runner} <= by_person.keys():
+        return unavailable('MISSING_PARTICIPANTS')
+    if (by_person[batter].get('start') != 0 or
+            type(by_person[runner].get('start')) is not int or
+            by_person[runner]['start'] not in (1, 2, 3) or
+            {row['participant'] for row in rows if row.get('terminal') == 'out'} != {batter, runner}):
+        raise EvidenceError('This allocation requires the batter out and the identified runner out')
+    # Both outs use the settled formula together. Other runners retain actual
+    # terminal states, including a scored runner's zero remaining erosion.
+    attributed = [dict(row, creditProgress=False, creditOut=row['participant'] in {batter, runner}) for row in rows]
+    score = trajectories(attributed, outs_before, 2)
+    if score['status'] != 'available':
+        return score
+    score['evidence'] = sorted(set(score['evidence']) | set(confirmation_evidence))
+    return dict(score, batter=batter, runner=runner, attributedOuts=2,
+                attribution='confirmed-failed-hit-and-run', independentRunningScores=[])
 
 
 def percentiles(entries, *, metric_id='paq-2', complete_population=False):

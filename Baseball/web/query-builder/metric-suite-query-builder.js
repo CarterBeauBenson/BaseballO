@@ -20,6 +20,9 @@ export function automaticMinimumPA(teamGames) {
 }
 
 export function playerSummaryValue(aggregate, metricId) {
+  // CPD is the entropy of the pooled positive channels, not a mean of daily
+  // entropy scores and not an exact fraction. It has its own summary below.
+  if (metricId === 'contribution-path-diversity') return null;
   if (metricId === 'empty-game-rate') {
     if (aggregate?.kind !== 'count' || !Number.isSafeInteger(aggregate.count) || aggregate.count < 0 ||
         !Number.isSafeInteger(aggregate.eligibleGames) || aggregate.eligibleGames < aggregate.count) return null;
@@ -33,6 +36,18 @@ export function playerSummaryValue(aggregate, metricId) {
   let a=numerator<0n?-numerator:numerator, b=denominator;
   while(b) [a,b]=[b,a%b];
   return {numerator:String(numerator/a),denominator:String(denominator/a)};
+}
+
+export function playerChannelSummary(aggregate) {
+  if (aggregate?.kind !== 'channel_entropy' || !Array.isArray(aggregate.channelCounts) ||
+      aggregate.channelCounts.length !== 3 || aggregate.channelCounts.some(c => !Number.isSafeInteger(c) || c < 0)) return null;
+  const count = aggregate.channelCounts.reduce((a, b) => a + b, 0);
+  if (!Number.isSafeInteger(count) || count < 1) return null;
+  // Sort only the arithmetic terms, retaining the named channel order in the
+  // result. Permuting channels must not introduce floating-point tie noise.
+  const terms = aggregate.channelCounts.filter(c => c > 0).map(c => c / count).sort((a, b) => a - b);
+  const approximateValue = Math.min(1, Math.max(0, -terms.reduce((sum, p) => sum + p * Math.log(p), 0) / Math.log(3)));
+  return {value:null, approximateValue, channelCounts:[...aggregate.channelCounts], count};
 }
 
 export function publicMetricResult(result) {
@@ -60,14 +75,16 @@ export function playerLeaderboard(result, metric, dateScope, mechanism = null) {
       message:rows.length ? `${rows.length} qualified player entries across separate review mechanisms` : 'No qualified review leaderboard is available for this period.'};
   }
   const batting = BATTING_LEADERBOARDS.has(metric.id);
+  const either = participationPolicies.eitherBattingOrRunning.includes(metric.id);
   const policyId = metric.id === 'review-dependence-rate' ?
     (mechanism === 'traditional-replay' ? 'traditional-review-dependence' : 'ball-strike-review-dependence') : participationPolicies.metrics[metric.id];
   const policy = participationPolicies.policies[policyId];
   const paRule = '3.1 PA per team game in the selected range, rounded to the nearest whole PA.';
   const participationRule = policy ? `At least ${policy.floor} ${policy.unit}, or one per ${policy.teamGamesDivisor} team game${policy.teamGamesDivisor === 1 ? '' : 's'} in the selected range, whichever is greater; round upward.` : '';
   const qualification = {status:batting || policy ? 'defined' : 'pending',
-    kind:batting ? 'plate_appearances' : 'role_participation', policyId:policyId ?? 'batting',
-    rule:[batting ? paRule : '', participationRule].filter(Boolean).join(' ')};
+    kind:either ? 'either_batting_or_running' : batting ? 'plate_appearances' : 'role_participation', policyId:policyId ?? 'batting',
+    rule:either ? `Meet either the batting minimum (${paRule}) or the running minimum (${participationRule})` :
+      [batting ? paRule : '', participationRule].filter(Boolean).join(' ')};
   const board = { status: 'unavailable', rows: [], qualification,
     summaryKind: metric.id === 'empty-game-rate' ? 'count' : 'mean',
     unit: metric.id === 'empty-game-rate' ? 'games' : metric.unit,
@@ -81,27 +98,42 @@ export function playerLeaderboard(result, metric, dateScope, mechanism = null) {
   const seen = new Set(), rows = [];
   let belowMinimum = 0;
   for (const row of result.playerResults) {
+    const channelSummary = metric.id === 'contribution-path-diversity' ? playerChannelSummary(row.aggregate) : null;
     const value = playerSummaryValue(row.aggregate, metric.id);
     const sameScope = dateScope && ['startDate', 'endDate', 'gameSet'].every(key =>
       typeof dateScope[key] === 'string' && row.dateScope?.[key] === dateScope[key]);
     if (!sameScope || row.metricId !== metric.id || row.status !== 'available' || row.completeParticipation !== true ||
         !/^https:\/\/baseballontology\.org\/data\/player\/\d+$/u.test(row.player ?? '') || seen.has(row.player) ||
-        (batting && (!Number.isSafeInteger(row.plateAppearances) || row.plateAppearances < 0)) ||
+        ((batting || either) && (!Number.isSafeInteger(row.plateAppearances) || row.plateAppearances < 0)) ||
+        (either && (!Number.isSafeInteger(row.independentRunningEpisodes) || row.independentRunningEpisodes < 0)) ||
         (mechanism && row.mechanism !== mechanism) ||
         !Number.isSafeInteger(row.teamGames) || row.teamGames < 1 ||
-        !value) return { ...board, gaps: ['PLAYER_SCORE_COVERAGE'],
+        !(channelSummary || value)) return { ...board, gaps: ['PLAYER_SCORE_COVERAGE'],
       message: 'Player scores or participation evidence are incomplete for this period.' };
     seen.add(row.player);
-    const minimumPA = batting ? automaticMinimumPA(row.teamGames) : null;
+    const minimumPA = batting || either ? automaticMinimumPA(row.teamGames) : null;
     const minimumObservations = policy ? automaticMinimumObservations(policyId, row.teamGames) : null;
-    if ((batting && row.plateAppearances < minimumPA) || (policy && row.aggregate.count < minimumObservations)) { belowMinimum++; continue; }
+    const participationCount = either ? row.independentRunningEpisodes : row.aggregate.count;
+    const battingQualified = (batting || either) && row.plateAppearances >= minimumPA;
+    const observationsQualified = policy && participationCount >= minimumObservations;
+    if (either ? !(battingQualified || observationsQualified) :
+        ((batting && !battingQualified) || (policy && !observationsQualified))) { belowMinimum++; continue; }
     rows.push({ player: row.player, name: row.playerLabel?.trim() || `Player #${row.player.split('/').at(-1)}`,
-      value, observationCount: row.aggregate.count, plateAppearances: row.plateAppearances, teamGames: row.teamGames, minimumPA,
-      minimumObservations, observationUnit:policy?.unit,
-      qualificationLabel:[batting ? `${row.plateAppearances} PA · minimum ${minimumPA} PA` : '',
-        policy ? `${row.aggregate.count} ${policy.unit} · minimum ${minimumObservations}` : ''].filter(Boolean).join('; ') });
+      value, ...(channelSummary ? {approximateValue:channelSummary.approximateValue, channelCounts:channelSummary.channelCounts} : {}),
+      observationCount: channelSummary?.count ?? row.aggregate.count, plateAppearances: row.plateAppearances, teamGames: row.teamGames, minimumPA,
+      ...(either ? {independentRunningEpisodes:row.independentRunningEpisodes,
+        qualifiedThrough:[battingQualified ? 'batting' : '', observationsQualified ? 'running' : ''].filter(Boolean)} : {}),
+      minimumObservations, minimumObservationUnit:policy?.unit,
+      observationUnit:channelSummary ? 'positive channel occurrences' : policy?.unit,
+      qualificationLabel:either ? [battingQualified ? `${row.plateAppearances} PA · minimum ${minimumPA} PA` : '',
+        observationsQualified ? `${participationCount} ${policy.unit} · minimum ${minimumObservations}` : ''].filter(Boolean).join('; ') :
+        [batting ? `${row.plateAppearances} PA · minimum ${minimumPA} PA` : '',
+        policy ? `${participationCount} ${policy.unit} · minimum ${minimumObservations}` : ''].filter(Boolean).join('; ') });
   }
   const compare = (a, b) => {
+    // Logarithmic scores retain exact input counts, but their numerical
+    // evaluation and ordering are approximate. Never sort rounded display text.
+    if (metric.id === 'contribution-path-diversity') return Math.sign(a.approximateValue - b.approximateValue);
     const difference = BigInt(a.value.numerator) * BigInt(b.value.denominator) - BigInt(b.value.numerator) * BigInt(a.value.denominator);
     return difference < 0n ? -1 : difference > 0n ? 1 : 0;
   };

@@ -1,5 +1,9 @@
 # Implementation status after the first accepted completion pass
 
+The table below preserves the first pass. The subsequent two choices were
+accepted and published in `fecdf87`; their implementation and remaining source
+admission work are recorded in [followup-implementation.md](followup-implementation.md).
+
 The [user's decisions](user-decision.md) were published in `b4d4f88` before
 implementation. B2's exact engineering paths were subsequently published in
 `d95d537`. This status is engineering evidence, not additional user approval.
