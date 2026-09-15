@@ -5,7 +5,7 @@ from pathlib import Path
 import sqlite3
 import unittest
 from unittest.mock import patch
-from rdflib import Dataset
+from rdflib import Dataset, Namespace, RDF
 
 ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location('metric_suite', ROOT/'serving/metric_suite.py')
@@ -62,6 +62,31 @@ def bindings(dataset, graphs):
     return json.loads(dataset.query(M.evidence_query(graphs)).serialize(format='json'))['results']['bindings']
 
 
+def pitch_review_fixture():
+    """Asserted M2 shape: no inferred parent types or final-result record link.
+
+    Two distinct pitches in one PA accompany an older play-level review.
+    No challenger identity is used as an affected-player assertion.
+    """
+    dataset = fixture(decisions=('reversed',))
+    for i, kind in enumerate(('Ball', 'Strike')):
+        dataset.graph(G1).parse(data=PREFIX.replace('<urn:test:>', '<urn:test:101:>')+f'''
+ex:pitchReview{i} a base:BaseballReplayReviewAct, base:{kind}AffirmingBaseballReplayReviewAct ;
+  obo:BFO_0000132 ex:pitchResult{i} ; cco:ont00001921 ex:pitchOriginal{i} ;
+  cco:ont00001986 ex:pitchOperative{i}, ex:pitchDisposition{i} .
+ex:pitchResult{i} a base:{kind}Process ; obo:BFO_0000132 ex:pa .
+ex:pitchRecord{i} a base:BaseballReplayReviewEventRecord ; cco:ont00001808
+  ex:pitchReview{i}, ex:pitchJudgment{i}, ex:pitchOriginal{i}, ex:pitchOperative{i}, ex:pitchDisposition{i}, ex:pitch{i} .
+ex:pitchJudgment{i} a base:ReviewedOnFieldUmpireJudgmentAct ;
+  cco:ont00001986 ex:pitchOriginal{i} ; obo:BFO_0000063 ex:pitchReview{i} .
+ex:pitchOriginal{i} a base:ReviewedOnFieldBaseballDecisionICE .
+ex:pitchOperative{i} a base:BaseballReplayDecisionICE .
+ex:pitchDisposition{i} a base:AffirmingBaseballReplayReviewDispositionICE ;
+  cco:ont00001816 ex:pitchReview{i} ; cco:ont00001808 ex:pitchOriginal{i}, ex:pitchOperative{i} .
+''', format='turtle')
+    return dataset
+
+
 def database():
     connection = sqlite3.connect(':memory:')
     connection.execute('PRAGMA foreign_keys=ON')
@@ -75,6 +100,49 @@ def database():
 
 
 class MetricServing(unittest.TestCase):
+    def test_asserted_pitch_reviews_reach_sql_without_inference_or_duplicate_counts(self):
+        data = pitch_review_fixture()
+        original_bindings = bindings(data, [G1])
+        rows = M.normalize_bindings(original_bindings, [G1])
+        result = M.live_result('adjudication-volatility', rows, graph_count=1)
+        self.assertEqual(result['coverage']['resolvedReviews'], 3)
+        self.assertEqual(result['coverage']['unresolvedReviews'], 0)
+        self.assertEqual(result['value'], M.exact(M.Fraction(1, 3)))
+        self.assertFalse(result['coverage']['populationComplete'])
+        self.assertTrue(all('player' not in r for r in rows if r['kind'] == 'review'))
+        with database() as conn:
+            M.materialize_game(conn, G1, original_bindings + original_bindings)
+            actual = M.query_sql(conn, {'metricId': 'adjudication-volatility'},
+                {'gameSet': 'regular_season', 'startDate': '2026-08-01', 'endDate': '2026-08-01'})
+            self.assertEqual(actual['metric'], result)
+        # Optional inferred types and a legacy duplicate scope path must not
+        # turn one canonical review into two observations.
+        base = Namespace('https://baseballontology.org/')
+        ex = Namespace('urn:test:101:')
+        cco = Namespace('https://www.commoncoreontologies.org/')
+        g = data.graph(G1)
+        for i in range(2):
+            g.add((ex[f'pitchResult{i}'], RDF.type, base.BaseballInstitutionalProcess))
+            g.add((ex[f'pitchDisposition{i}'], RDF.type, base.BaseballReplayReviewDispositionICE))
+        g.add((ex.pitchRecord0, cco.ont00001808, ex.resultJudgment0))
+        enriched = M.normalize_bindings(bindings(data, [G1]), [G1])
+        self.assertEqual(M.live_result('adjudication-volatility', enriched, graph_count=1), result)
+
+    def test_pitch_review_needs_game_containment_and_supported_disposition(self):
+        data = pitch_review_fixture()
+        ex = Namespace('urn:test:101:')
+        bfo = Namespace('http://purl.obolibrary.org/obo/')
+        base = Namespace('https://baseballontology.org/')
+        g = data.graph(G1)
+        g.remove((ex.pitchResult0, bfo.BFO_0000132, ex.pa))
+        g.remove((ex.pitchDisposition1, RDF.type, base.AffirmingBaseballReplayReviewDispositionICE))
+        rows = M.normalize_bindings(bindings(data, [G1]), [G1])
+        self.assertNotIn(str(ex.pitchReview0), {r['entity'] for r in rows})
+        result = M.live_result('adjudication-volatility', rows, graph_count=1)
+        self.assertEqual(result['coverage']['resolvedReviews'], 1)
+        self.assertEqual(result['coverage']['unresolvedReviews'], 1)
+        self.assertEqual(result['value'], M.exact(M.Fraction(1)))
+
     def test_existing_term_query_preserves_entities_and_resolved_review_population(self):
         rows=M.normalize_bindings(bindings(fixture(),[G1]),[G1])
         self.assertEqual({r['kind'] for r in rows}, {'plate_appearance','batted_play','run','player_game','review'})

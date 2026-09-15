@@ -59,9 +59,23 @@ WHERE {
     } UNION {
       ?entity a base:BaseballReplayReviewAct .
       ?reviewRecord a base:BaseballReplayReviewEventRecord ;
-        cco:ont00001808 ?entity, ?resultJudgment .
-      ?resultJudgment obo:BFO_0000132 ?result .
-      ?result a base:BaseballInstitutionalProcess ; obo:BFO_0000132 ?reviewPA .
+        cco:ont00001808 ?entity .
+      {
+        # Existing play-level reviews are scoped by the final result judgment.
+        ?reviewRecord cco:ont00001808 ?resultJudgment .
+        ?resultJudgment obo:BFO_0000132 ?result .
+        ?result a base:BaseballInstitutionalProcess ; obo:BFO_0000132 ?reviewPA .
+      } UNION {
+        # M2's operative pitch judgment is itself the review. Its counted
+        # ball/strike process belongs to the PA; the original process does not.
+        # Match asserted source types without requiring an inference graph.
+        ?entity a ?pitchReviewType ; obo:BFO_0000132 ?result .
+        VALUES (?pitchReviewType ?pitchResultType) {
+          (base:BallAffirmingBaseballReplayReviewAct base:BallProcess)
+          (base:StrikeAffirmingBaseballReplayReviewAct base:StrikeProcess)
+        }
+        ?result a ?pitchResultType ; obo:BFO_0000132 ?reviewPA .
+      }
       ?reviewPA a base:PlateAppearance ;
         obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
       BIND("review" AS ?kind)
@@ -73,7 +87,7 @@ WHERE {
         ?entity cco:ont00001921 ?original ; cco:ont00001986 ?operative .
         ?original a base:ReviewedOnFieldBaseballDecisionICE .
         ?operative a base:BaseballReplayDecisionICE .
-        ?disposition a base:BaseballReplayReviewDispositionICE, ?dispositionType ;
+        ?disposition a ?dispositionType ;
           cco:ont00001816 ?entity ; cco:ont00001808 ?original, ?operative .
         VALUES (?dispositionType ?decision) {
           (base:AffirmingBaseballReplayReviewDispositionICE "affirmed")

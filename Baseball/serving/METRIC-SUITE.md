@@ -119,6 +119,17 @@ unresolved and excluded from that stated denominator. Conflicting original,
 operative or disposition assertions make the result unavailable. It does not
 infer official accuracy or claim a complete league-wide review population.
 
+Suite 2.0.14 follows both accepted review graph contracts. Older play-level
+reviews remain scoped through their recorded final-result judgment. M2 pitch
+reviews are scoped through their operative counted Ball/Strike Process and
+its PA. The query matches their asserted specific disposition types, so the
+authoritative graph does not need inferred parent-type triples. Distinct
+reviews remain distinct even within one PA; duplicate scope paths cannot
+inflate the denominator. The [full-game serving proof](../benchmarks/metrics/m2-serving-2026-09-15/README.md)
+retains all three reviews and verifies exact SQL/RDF equivalence. The source
+mapping proof and this extraction proof do not establish a player population
+or the complete eligible, never-reviewed decision census.
+
 TFS also exposes the bounded award consequences documented below. Complete PA
 TFS and the other live adapters report their shared gap codes and observed evidence
 coverage. They do not create zero-filled player or PA rankings. The complete

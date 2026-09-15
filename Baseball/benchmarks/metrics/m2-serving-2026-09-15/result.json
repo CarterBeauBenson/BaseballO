@@ -1,0 +1,110 @@
+{
+  "status": "passed-isolated-developer-proof",
+  "graph": "https://w3id.org/baseball/graph/game/824315",
+  "rdfSha256": "9b213c7257b876bd416e338cae872fc0349f2cc81800cf02a5a9b641d3065547",
+  "mappingProof": "benchmarks/metrics/m1-m2-mappings-2026-09-15/result.json",
+  "querySha256": "3bca316c19d6c6032f786c9aecf08a06ec9b56dd52ed071306e6b0e6d97f3617",
+  "implementationSha256": "04030c06e3197c37606b1d4d6e0fec75295c5d9a144e9e65c6dfa2fba85a76e1",
+  "suiteVersion": "2.0.14",
+  "jenaQueryPassed": true,
+  "sqlExactMatch": true,
+  "reviewRows": [
+    {
+      "decision": "affirmed",
+      "disposition": "https://baseballontology.org/data/game/824315/review/12/result",
+      "entity": "https://baseballontology.org/data/game/824315/review/12/act",
+      "game": "https://baseballontology.org/data/game/824315",
+      "graph": "https://w3id.org/baseball/graph/game/824315",
+      "kind": "review",
+      "operative": "https://baseballontology.org/data/game/824315/review/12/decision/replay",
+      "original": "https://baseballontology.org/data/game/824315/review/12/decision/on-field",
+      "reviewRecord": "https://baseballontology.org/data/game/824315/event-record/review/12"
+    },
+    {
+      "decision": "affirmed",
+      "disposition": "https://baseballontology.org/data/game/824315/review/pitch/349a9764-76e7-374c-ae7d-e73adedef1a9/result",
+      "entity": "https://baseballontology.org/data/game/824315/judgment/ball/349a9764-76e7-374c-ae7d-e73adedef1a9",
+      "game": "https://baseballontology.org/data/game/824315",
+      "graph": "https://w3id.org/baseball/graph/game/824315",
+      "kind": "review",
+      "operative": "https://baseballontology.org/data/game/824315/decision/ball/349a9764-76e7-374c-ae7d-e73adedef1a9",
+      "original": "https://baseballontology.org/data/game/824315/review/pitch/349a9764-76e7-374c-ae7d-e73adedef1a9/decision/on-field",
+      "reviewRecord": "https://baseballontology.org/data/game/824315/event-record/review/pitch/349a9764-76e7-374c-ae7d-e73adedef1a9"
+    },
+    {
+      "decision": "affirmed",
+      "disposition": "https://baseballontology.org/data/game/824315/review/pitch/4edb573f-e278-3f46-a0a2-c2a87cef6afb/result",
+      "entity": "https://baseballontology.org/data/game/824315/judgment/ball/4edb573f-e278-3f46-a0a2-c2a87cef6afb",
+      "game": "https://baseballontology.org/data/game/824315",
+      "graph": "https://w3id.org/baseball/graph/game/824315",
+      "kind": "review",
+      "operative": "https://baseballontology.org/data/game/824315/decision/ball/4edb573f-e278-3f46-a0a2-c2a87cef6afb",
+      "original": "https://baseballontology.org/data/game/824315/review/pitch/4edb573f-e278-3f46-a0a2-c2a87cef6afb/decision/on-field",
+      "reviewRecord": "https://baseballontology.org/data/game/824315/event-record/review/pitch/4edb573f-e278-3f46-a0a2-c2a87cef6afb"
+    }
+  ],
+  "metric": {
+    "status": "available",
+    "value": {
+      "numerator": "0",
+      "denominator": "1"
+    },
+    "gaps": [],
+    "evidence": [
+      "https://baseballontology.org/data/game/824315/decision/ball/349a9764-76e7-374c-ae7d-e73adedef1a9",
+      "https://baseballontology.org/data/game/824315/decision/ball/4edb573f-e278-3f46-a0a2-c2a87cef6afb",
+      "https://baseballontology.org/data/game/824315/event-record/review/12",
+      "https://baseballontology.org/data/game/824315/event-record/review/pitch/349a9764-76e7-374c-ae7d-e73adedef1a9",
+      "https://baseballontology.org/data/game/824315/event-record/review/pitch/4edb573f-e278-3f46-a0a2-c2a87cef6afb",
+      "https://baseballontology.org/data/game/824315/judgment/ball/349a9764-76e7-374c-ae7d-e73adedef1a9",
+      "https://baseballontology.org/data/game/824315/judgment/ball/4edb573f-e278-3f46-a0a2-c2a87cef6afb",
+      "https://baseballontology.org/data/game/824315/review/12/act",
+      "https://baseballontology.org/data/game/824315/review/12/decision/on-field",
+      "https://baseballontology.org/data/game/824315/review/12/decision/replay",
+      "https://baseballontology.org/data/game/824315/review/12/result",
+      "https://baseballontology.org/data/game/824315/review/pitch/349a9764-76e7-374c-ae7d-e73adedef1a9/decision/on-field",
+      "https://baseballontology.org/data/game/824315/review/pitch/349a9764-76e7-374c-ae7d-e73adedef1a9/result",
+      "https://baseballontology.org/data/game/824315/review/pitch/4edb573f-e278-3f46-a0a2-c2a87cef6afb/decision/on-field",
+      "https://baseballontology.org/data/game/824315/review/pitch/4edb573f-e278-3f46-a0a2-c2a87cef6afb/result"
+    ],
+    "components": {},
+    "coverage": {
+      "games": 1,
+      "evidenceRows": 1122,
+      "observedEntities": {
+        "plate_appearance": 77,
+        "batted_play": 158,
+        "run": 9,
+        "player_game": 31,
+        "review": 3
+      },
+      "runnerMovements": {
+        "observedPairs": 113,
+        "populationComplete": false,
+        "withRunnerBinding": 113,
+        "withEpisodeBinding": 113,
+        "withRunnerEpisodeRecordBinding": 113,
+        "withPersonalTrajectoryBinding": 32,
+        "withSegmentOriginBinding": 36,
+        "withOriginRecordBinding": 36,
+        "withSafeDestinationBinding": 50,
+        "withSafeDecisionBinding": 50,
+        "withContactPlayBinding": 85,
+        "withCausalRequiredAwardBinding": 8,
+        "withSourceRecordBinding": 113,
+        "withOneMetricOriginBinding": 113,
+        "withMultipleMetricOriginBindings": 0,
+        "withoutMetricOriginBinding": 0
+      },
+      "populationComplete": false,
+      "resolvedReviews": 3,
+      "unresolvedReviews": 0,
+      "population": "explicitly resolved mapped reviews in selected graphs"
+    },
+    "metricId": "adjudication-volatility",
+    "scope": "explicitly resolved mapped reviews in selected graphs",
+    "grain": "review_population"
+  },
+  "corpusPromotion": "not-performed",
+  "playerPopulationAdmitted": false
+}
