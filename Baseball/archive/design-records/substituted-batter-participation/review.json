@@ -1,0 +1,51 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "substituted-batter-participation",
+  "title": "Question 4: separate actual Batter Acts within one PA",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "08c9445052b6455cfd94ff1aecf29261bf3787a7950737a04b3f8a9f0a045492"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "README.md",
+        "sha256": "08c9445052b6455cfd94ff1aecf29261bf3787a7950737a04b3f8a9f0a045492"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "08c9445052b6455cfd94ff1aecf29261bf3787a7950737a04b3f8a9f0a045492"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "README.md",
+        "sha256": "08c9445052b6455cfd94ff1aecf29261bf3787a7950737a04b3f8a9f0a045492"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-09-15",
+    "rationale": "Records the existing explicit Yes, separate answer to question 4, published in b4d4f88. Actual uninterrupted per-person participation and persistent roles only; official statistical attribution remains independently gated. No new ontology terms, OPs or global ratification.",
+    "authorizedArtifacts": [
+      "Baseball/scripts/pipeline/prepare-rml-context.py",
+      "Baseball/sources/mlb-game/mapping/mlb-game.rml.ttl",
+      "Baseball/sources/mlb-game/mapping/iri-policy.yaml",
+      "Baseball/sources/mlb-game/mapping/mapping-coverage.yaml",
+      "Baseball/sources/mlb-game/mapping/ontology-coverage-gaps.yaml",
+      "Baseball/sources/mlb-game/shacl/authoritative.ttl",
+      "Baseball/sources/mlb-game/review/semantic-status.json",
+      "Baseball/sources/mlb-game/review/rml-mermaid-manifest.json"
+    ]
+  }
+}
