@@ -1,0 +1,30 @@
+{
+  "status": "passed-isolated-developer-proof",
+  "graph": "https://w3id.org/baseball/graph/game/824315",
+  "rdfSha256": "9b213c7257b876bd416e338cae872fc0349f2cc81800cf02a5a9b641d3065547",
+  "mappingProof": "benchmarks/metrics/m1-m2-mappings-2026-09-15/result.json",
+  "querySha256": "fb8d2a793b810192ed513e32e111f729e7e003abc5b324df5186cd46ebfbd27e",
+  "implementationSha256": "4a98c2b0ca99dfe1223685f804e9377bf7b9d899cdf3ca9f4f32b8cc4f4223c4",
+  "suiteVersion": "2.0.16",
+  "jenaQueryPassed": true,
+  "sqlExactMatch": true,
+  "playerPopulationAdmitted": false,
+  "sourceRosterPairs": 52,
+  "sourceRosterMatches": true,
+  "observedPlayerTeamGamePairs": 52,
+  "rosteredPlayersWithoutBattingResult": 32,
+  "adjudicatedPlateAppearances": 77,
+  "resultTypeCounts": {
+    "https://baseballontology.org/BaseballInstitutionalProcess": 77,
+    "https://baseballontology.org/BattedBallOutProcess": 30,
+    "https://baseballontology.org/DoubleProcess": 4,
+    "https://baseballontology.org/ForceOutProcess": 6,
+    "https://baseballontology.org/GroundedIntoDoublePlayProcess": 1,
+    "https://baseballontology.org/SacrificeFlyProcess": 1,
+    "https://baseballontology.org/SingleProcess": 13,
+    "https://baseballontology.org/StrikeoutProcess": 14,
+    "https://baseballontology.org/TripleProcess": 2,
+    "https://baseballontology.org/WalkProcess": 6
+  },
+  "qualificationAdmitted": false
+}

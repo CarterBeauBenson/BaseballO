@@ -86,6 +86,17 @@ adapter yet:** complete PA scores, official-credit membership and applicable
 team-game exposure remain prerequisites. No qualified real-player leaderboard
 is produced by this change, and no HTTP caller can provide these facts.
 
+Suite 2.0.16 additionally transports existing adjudicated batting-result
+Process/Act/Decision/Record paths and game realization of team-context Player
+Roles. It preserves missing team contexts and does not infer membership from
+a role's mere existence or from adjacent games. The
+[real-game context proof](../benchmarks/metrics/batting-context-2026-09-15/README.md)
+finds all 52 source roster pairs, including 32 players with no batting result.
+The basic exposure path therefore exists. Conditional use for qualification
+is proposed in [B1](../proposals/batting-leaderboard-admission/README.md), not
+silently admitted by this inventory. The new `player_team_game` evidence grain
+is derived SQL/query structure, not an RDF predicate or a public role metric.
+
 Validation: 36 component Node tests and nine serving tests, including exact
 mean arithmetic, unreduced empty-game counts, SQL round trips, visibility,
 eligibility, and SQL/RDF response projection. Browser verification checks the

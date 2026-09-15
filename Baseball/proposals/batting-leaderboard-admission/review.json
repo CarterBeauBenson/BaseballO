@@ -1,0 +1,36 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "batting-leaderboard-admission",
+  "title": "B1: reconciled batting qualification over existing graph patterns",
+  "status": "draft",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "3c92c012fa1a84fdb5a62cf23a53c22a7ab616017aaad7f40eebd8e88400cf5d"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "af8a4677a6a33f773076f97e4b9cdf3adf4a62ebfaca2e48ab9adfd2ff391c4f"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "af8a4677a6a33f773076f97e4b9cdf3adf4a62ebfaca2e48ab9adfd2ff391c4f"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "c0272e3122e40cadef9c10b73955f41ff07a68ae1d8c700a58a51ab40d404065"
+      }
+    ]
+  },
+  "ontologistDecision": null
+}

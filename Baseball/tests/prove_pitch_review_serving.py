@@ -20,6 +20,7 @@ def main():
     parser.add_argument('--java', required=True)
     parser.add_argument('--jena-classpath', required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--include-batting-context', action='store_true')
     args = parser.parse_args()
     proof_path = ROOT/'benchmarks/metrics/m1-m2-mappings-2026-09-15/result.json'
     proof = json.loads(proof_path.read_bytes())
@@ -56,6 +57,9 @@ def main():
             (graph, 'https://baseballontology.org/data/game/'+proof['gamePk'], proof['gamePk'],
              '2026-08-23', '2026-08-23T00:00:00Z', 2026, 'regular_season', None, None, None, None, None, None))
         M.materialize_game(database, graph, bindings)
+        stored = [json.loads(row[0]) for row in database.execute(
+            'SELECT binding_json FROM metric_suite_evidence WHERE graph_iri=?', (graph,))]
+        assert sorted(stored, key=M._json) == sorted(rows, key=M._json)
         response = M.query_sql(database, {'metricId': 'adjudication-volatility'},
             {'gameSet': 'regular_season', 'startDate': '2026-08-23', 'endDate': '2026-08-23'})
         assert response['metric'] == result
@@ -65,6 +69,19 @@ def main():
                   implementationSha256=M.fingerprint(), suiteVersion=M.VERSION,
                   jenaQueryPassed=True, sqlExactMatch=True, reviewRows=reviews, metric=result,
                   corpusPromotion='not-performed', playerPopulationAdmitted=False)
+    if args.include_batting_context:
+        source = json.loads((ROOT/proof['source']).read_bytes())
+        expected = {(str(player['person']['id']), str(team['team']['id']))
+                    for team in source['liveData']['boxscore']['teams'].values()
+                    for player in team['players'].values()}
+        roster = [row for row in rows if row['kind'] == 'player_team_game']
+        assert all(row.get('teamRole') for row in roster)
+        actual = {(row['player'].rsplit('/', 1)[-1], row['team'].rsplit('/', 1)[-1]) for row in roster}
+        assert actual == expected
+        report['battingContext'] = dict(playerTeamGameRows=roster,
+            sourceRosterPairs=len(expected), sourceRosterMatches=True,
+            adjudicatedResults=[row for row in rows if row['kind'] == 'plate_appearance' and row.get('paResult')],
+            qualificationAdmitted=False)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2)+'\n', encoding='utf-8')
     print(json.dumps(dict(resolvedReviews=result['coverage']['resolvedReviews'],

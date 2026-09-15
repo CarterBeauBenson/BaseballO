@@ -2,7 +2,7 @@
 import unittest
 
 from rdflib import Namespace, RDF
-from test_metric_suite_serving import M, G1, fixture, bindings
+from test_metric_suite_serving import M, G1, G2, PREFIX, fixture, bindings, database
 
 SCOPE = dict(startDate='2026-08-01', endDate='2026-08-07', gameSet='regular_season')
 PLAYER = 'https://baseballontology.org/data/player/1'
@@ -26,6 +26,59 @@ def summarize(members, scores, people, **kwargs):
 
 
 class BattingPlayerSummaries(unittest.TestCase):
+    def test_existing_game_roles_include_nonbatters_without_inferred_membership(self):
+        data = fixture(decisions=())
+        g = data.graph(G1)
+        g.parse(data=PREFIX.replace('<urn:test:>', '<urn:test:101:>')+'''
+ex:game obo:BFO_0000055 ex:benchRole, ex:unknownTeamRole .
+ex:benchRole a base:PlayerRole ; obo:BFO_0000197 ex:bench ; cco:ont00001992 ex:team .
+ex:unknownTeamRole a base:PlayerRole ; obo:BFO_0000197 ex:unknown .
+ex:teamRole a base:HomeTeamRole ; obo:BFO_0000197 ex:team ; obo:BFO_0000054 ex:game .
+ex:unusedRole a base:PlayerRole ; obo:BFO_0000197 ex:unused ; cco:ont00001992 ex:team .
+''', format='turtle')
+        source = bindings(data, [G1])
+        rows = M.normalize_bindings(source, [G1])
+        actual = [row for row in rows if row['kind'] == 'player_team_game']
+        self.assertEqual(len(actual), 2)
+        bench, = [r for r in actual if r['player'].endswith(':bench')]
+        self.assertEqual(bench['team'], 'urn:test:101:team')
+        self.assertEqual(bench['teamRole'], 'urn:test:101:teamRole')
+        unknown, = [r for r in actual if r['player'].endswith(':unknown')]
+        self.assertNotIn('team', unknown)
+        self.assertFalse(any(r.get('player') == bench['player'] and r['kind'] == 'plate_appearance' for r in rows))
+        self.assertFalse(M.batting_participation(rows)['teamGameExposureVerified'])
+        # Supply the other named graph locally: RDFLib otherwise dereferences
+        # a missing FROM NAMED URI, which is outside this isolated fixture.
+        data.graph(G2).parse(data=PREFIX+'ex:unrelated a base:PlayerRole .', format='turtle')
+        self.assertEqual(bindings(data, [G2]), [])
+        with database() as connection:
+            M.materialize_game(connection, G1, source)
+            stored = [M.json.loads(row[0]) for row in connection.execute(
+                'SELECT binding_json FROM metric_suite_evidence WHERE graph_iri=?', (G1,))]
+            self.assertEqual(sorted(stored, key=M._json), sorted(rows, key=M._json))
+
+    def test_adjudicated_result_inventory_does_not_declare_pa_eligibility(self):
+        data = fixture(decisions=())
+        data.graph(G1).parse(data=PREFIX.replace('<urn:test:>', '<urn:test:101:>')+'''
+ex:result a base:BaseballInstitutionalProcess, base:WalkProcess ; obo:BFO_0000132 ex:pa .
+ex:judgment a base:BaseballAdjudicationAct ; obo:BFO_0000132 ex:result ; cco:ont00001986 ex:decision .
+ex:decision a base:BaseballDecisionICE ; cco:ont00001808 ex:result .
+ex:record a base:BaseballEventRecord ; cco:ont00001808 ex:result, ex:judgment, ex:decision .
+''', format='turtle')
+        source = bindings(data, [G1])
+        rows = M.normalize_bindings(source, [G1])
+        pas = [r for r in rows if r['kind'] == 'plate_appearance']
+        self.assertEqual(len(pas), 2)  # Both asserted types remain visible.
+        self.assertEqual({r['paResultType'].rsplit('/', 1)[-1] for r in pas},
+                         {'BaseballInstitutionalProcess', 'WalkProcess'})
+        self.assertEqual({r['paResultDecision'] for r in pas}, {'urn:test:101:decision'})
+        self.assertEqual(M.batting_participation(rows)['observedPlateAppearances'], 1)
+        self.assertFalse(M.batting_participation(rows)['officialPlateAppearanceCreditVerified'])
+        term = next(b for b in source if 'paResultType' in b)['paResultType']
+        term['type'] = 'literal'
+        with self.assertRaises(M.EvidenceError):
+            M.normalize_bindings(source, [G1])
+
     def test_exact_mean_keeps_missed_games_in_qualification(self):
         members, scores, people = inputs()
         result = summarize(members, scores, people)

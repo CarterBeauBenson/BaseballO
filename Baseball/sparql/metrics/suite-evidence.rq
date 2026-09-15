@@ -6,6 +6,8 @@ PREFIX obo: <http://purl.obolibrary.org/obo/>
 # keeps its promoted graph and world-side referent. No provider event labels,
 # inferred continuity, inferred causation, or missing-row negative assertions.
 SELECT DISTINCT ?graph ?game ?kind ?entity ?player ?act ?roleType
+                ?playerTeamRole ?team ?teamRole
+                ?paResult ?paResultType ?paResultJudgment ?paResultDecision ?paResultRecord
                 ?reviewRecord ?original ?operative ?disposition ?decision
                 ?trajectory ?episode ?trajectoryHalf ?trajectoryInterval
                 ?paHalf ?paInterval ?paStartInstant ?paEndInstant
@@ -21,6 +23,16 @@ WHERE {
       OPTIONAL {
         ?act a base:BatterAct ; obo:BFO_0000132 ?entity ; obo:BFO_0000055 ?battingRole .
         ?battingRole a base:BatterRole ; obo:BFO_0000197 ?player .
+      }
+      # Inventory the existing adjudicated result. These bindings do not by
+      # themselves declare statistical PA eligibility or player qualification.
+      OPTIONAL {
+        ?paResult a base:BaseballInstitutionalProcess, ?paResultType ; obo:BFO_0000132 ?entity .
+        ?paResultJudgment a base:BaseballAdjudicationAct ; obo:BFO_0000132 ?paResult ;
+            cco:ont00001986 ?paResultDecision .
+        ?paResultDecision a base:BaseballDecisionICE ; cco:ont00001808 ?paResult .
+        ?paResultRecord a base:BaseballEventRecord ;
+            cco:ont00001808 ?paResult, ?paResultJudgment, ?paResultDecision .
       }
       OPTIONAL { ?entity obo:BFO_0000132 ?paHalf . ?paHalf a base:HalfInning . }
       OPTIONAL {
@@ -54,6 +66,19 @@ WHERE {
       VALUES ?roleType { base:BatterRole base:BaserunnerRole base:PitcherRole base:FielderRole }
       BIND(?player AS ?entity)
       BIND("player_game" AS ?kind)
+    } UNION {
+      # Game-specific assertions; do not infer historical membership from
+      # adjacent games, or equate an unbounded role stasis with realization.
+      ?game obo:BFO_0000055 ?playerTeamRole .
+      ?playerTeamRole a base:PlayerRole ; obo:BFO_0000197 ?player .
+      OPTIONAL { ?playerTeamRole cco:ont00001992 ?team . }
+      OPTIONAL {
+        ?playerTeamRole cco:ont00001992 ?team .
+        ?teamRole a ?teamRoleType ; obo:BFO_0000197 ?team ; obo:BFO_0000054 ?game .
+        VALUES ?teamRoleType { base:HomeTeamRole base:AwayTeamRole }
+      }
+      BIND(?playerTeamRole AS ?entity)
+      BIND("player_team_game" AS ?kind)
     } UNION {
       ?trajectory a obo:BFO_0000015 ; obo:BFO_0000117 ?episode ;
           obo:BFO_0000057 ?player ; obo:BFO_0000132 ?trajectoryHalf ;

@@ -23,7 +23,7 @@ from rdflib import Graph, Literal
 
 ROOT = Path(__file__).resolve().parents[1]
 METRICS = ROOT / 'sparql/metrics'
-VERSION = '2.0.15'
+VERSION = '2.0.16'
 
 
 class EvidenceError(ValueError):
@@ -599,6 +599,8 @@ def normalize_bindings(bindings, graphs):
         if row.get('graph') not in allowed or not row.get('entity') or not row.get('game'):
             raise EvidenceError('Evidence escaped its graph scope or lacks a referent')
         for field in ('graph', 'game', 'entity', 'player', 'act', 'roleType', 'reviewRecord',
+                      'playerTeamRole', 'team', 'teamRole', 'paResult', 'paResultType',
+                      'paResultJudgment', 'paResultDecision', 'paResultRecord',
                       'original', 'operative', 'disposition', 'plateAppearance', 'resolution',
                       'runner', 'originDesignation', 'originBase', 'destinationBase', 'batter',
                       'awardRule', 'contactPlay', 'award', 'record', 'episode',
@@ -611,8 +613,10 @@ def normalize_bindings(bindings, graphs):
             if field in binding and (binding[field].get('type') != 'literal'
                     or binding[field].get('datatype') != 'http://www.w3.org/2001/XMLSchema#dateTime'):
                 raise EvidenceError('PA boundary requires an explicit dateTime value: ' + field)
-        if row.get('kind') not in {'plate_appearance', 'batted_play', 'run', 'player_game', 'review', 'runner_movement', 'runner_history'}:
+        if row.get('kind') not in {'plate_appearance', 'batted_play', 'run', 'player_game', 'player_team_game', 'review', 'runner_movement', 'runner_history'}:
             raise EvidenceError('Unknown evidence grain')
+        if row['kind'] == 'player_team_game' and (row.get('playerTeamRole') != row['entity'] or not row.get('player')):
+            raise EvidenceError('Player/team game evidence lacks its realized role or bearer')
         if row['kind'] == 'runner_history' and (row.get('trajectory') != row['entity'] or
                 not all(row.get(f) for f in ('episode', 'player', 'trajectoryHalf', 'trajectoryInterval'))):
             raise EvidenceError('Personal history lacks its graph membership or scope')
