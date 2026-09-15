@@ -1,5 +1,18 @@
 # Implementation status after the first accepted completion pass
 
+September 15 Recovery continuation: Two-Strike Extension Rank is the seventh
+conditional public player producer. All 79 official PAs and 282 pitches in
+game 566279 pass the source-count and B1 checks; canonical Jena extraction and
+SQL retain 40 eligible and 39 known ineligible histories exactly. Complete
+season ranking precedes selected-date player means. The common exact rank
+engine removes quadratic peer comparison for all four percentile metrics.
+See the [Recovery proof](../../../benchmarks/metrics/recovery-inputs-2026-09-15/README.md)
+and the [current nineteen-metric status](../../../serving/METRIC-READINESS.md).
+The source-profile ownership catalog repair needs a named protected-pin
+decision; its actual gate has not passed. M3/M4 remains separately pending.
+This is not complete live population admission or a claim that all nineteen
+player producers are implemented.
+
 September 15 B2 serving continuation: the accepted six-movement contact now
 feeds the shared player producer instead of only an isolated inspection query.
 Exact C1 membership and a nonbranching original-to-terminal path give Reach 2,

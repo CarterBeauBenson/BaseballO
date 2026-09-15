@@ -1,0 +1,37 @@
+PREFIX base: <https://baseballontology.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+
+# Count facts are existing institutional Processes, not source counter literals.
+# A separate source-owned census must admit the complete ordered history.
+SELECT DISTINCT ?graph ?game ?entity ?plateAppearance ?record
+       ?pitchInterval ?pitchStartInstant ?pitchEndInstant ?pitchStartTimestamp ?pitchEndTimestamp
+       ?pitchStart ?pitchEnd ?strikeProcess ?strikeJudgment ?strikeDecision
+WHERE {
+  GRAPH ?graph {
+    ?game a base:BaseballGame .
+    ?plateAppearance a base:PlateAppearance ; obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
+    ?entity a base:PitchAct ; obo:BFO_0000132 ?plateAppearance .
+    OPTIONAL { ?record a base:BaseballEventRecord ; cco:ont00001808 ?entity .
+      FILTER(CONTAINS(STR(?record), "/event-record/pitch/")) }
+    OPTIONAL {
+      ?entity obo:BFO_0000199 ?pitchInterval .
+      ?pitchInterval a obo:BFO_0000038 ; obo:BFO_0000222 ?pitchStartInstant ; obo:BFO_0000224 ?pitchEndInstant .
+      ?pitchStartInstant a base:BaseballEventTemporalInstant .
+      ?pitchEndInstant a base:BaseballEventTemporalInstant .
+      ?pitchStartTimestamp a base:BaseballTimestampICE ; cco:ont00001916 ?pitchStartInstant ;
+          cco:ont00001808 ?entity ; cco:ont00001767 ?pitchStart .
+      ?pitchEndTimestamp a base:BaseballTimestampICE ; cco:ont00001916 ?pitchEndInstant ;
+          cco:ont00001808 ?entity ; cco:ont00001767 ?pitchEnd .
+    }
+    OPTIONAL {
+      ?record cco:ont00001808 ?strikeProcess .
+      ?strikeProcess a base:StrikeProcess ; obo:BFO_0000132 ?plateAppearance ; obo:BFO_0000117 ?strikeJudgment .
+      VALUES ?strikeJudgmentType { base:StrikeJudgmentAct base:FoulTipJudgmentAct }
+      VALUES ?strikeDecisionType { base:StrikeDecisionICE base:FoulTipCallICE }
+      ?strikeJudgment a ?strikeJudgmentType ; cco:ont00001986 ?strikeDecision .
+      ?strikeDecision a ?strikeDecisionType ; cco:ont00001808 ?strikeProcess .
+    }
+  }
+  FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
+}

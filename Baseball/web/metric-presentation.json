@@ -55,7 +55,7 @@
       "summary":"The percentile of pitches that continue the plate appearance after its first two-strike state, excluding the terminal pitch.",
       "unitLabel":"percentile · 0–100","scopeLabel":"per two-strike plate appearance",
       "reading":"Higher means more nonterminal pitches after reaching two strikes. It does not say whether the batter eventually reached base or produced a positive contribution.",
-      "reference":"The complete applicable comparison population of plate appearances reaching two strikes."
+      "reference":"All eligible MLB regular-season plate appearances reaching two strikes in the selected season through the reporting cutoff. Display dates do not shrink that reference."
     },
     "paq-2.1": {
       "playerSummary":"Average of the player's eligible individual PA percentiles, preserving applicability exclusions.",

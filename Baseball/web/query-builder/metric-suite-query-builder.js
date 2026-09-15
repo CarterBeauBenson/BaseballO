@@ -250,7 +250,7 @@ export async function compileMetricEvidenceQuery(graphs) {
   if (!selected.length) return 'SELECT ?graph ?game ?kind ?entity WHERE { BIND(0 AS ?emptyScope) FILTER(?emptyScope = 1) }';
   const values = selected.length ? `VALUES ?graph { ${selected.map(g => `<${g}>`).join(' ')} }` : 'FILTER(false)';
   const prefixes = new Set();
-  const sources = await Promise.all(['suite-evidence.rq', 'runner-movement-evidence.rq'].map(async name => {
+  const sources = await Promise.all(['suite-evidence.rq', 'runner-movement-evidence.rq', 'pitch-count-evidence.rq'].map(async name => {
     const source = (await readFile(new URL(name, root), 'utf8')).replace(/\r\n/g, '\n').replaceAll('bfo:', 'obo:');
     for (const prefix of source.match(/^PREFIX .+$/gm) ?? []) prefixes.add(prefix);
     return source.replace(/^PREFIX .+\n/gm, '').replace('WHERE {', `WHERE {\n  ${values}`);
@@ -260,5 +260,6 @@ export async function compileMetricEvidenceQuery(graphs) {
   const dataset = selected.map(g => `\nFROM NAMED <${g}>`).join('');
   return [...prefixes].sort().join('\n') + '\nSELECT *' + dataset + '\nWHERE {\n{ {\n' + sources[0]
     + '\n} } UNION { {\n' + sources[1]
-    + '\n} BIND("runner_movement" AS ?kind) BIND(?resolution AS ?entity) }\n}';
+    + '\n} BIND("runner_movement" AS ?kind) BIND(?resolution AS ?entity) }'
+    + '\nUNION { {\n' + sources[2] + '\n} BIND("pitch_count" AS ?kind) }\n}';
 }

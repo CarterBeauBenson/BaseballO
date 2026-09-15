@@ -187,6 +187,13 @@ switch ($Action) {
             throw "B1 source differs from the mapped revision for game $GamePk."
         }
         $battingAdmissionPath = Join-Path $stageEvidenceRoot 'batting-admission.json'
+        $pitchCountAdmissionPath = Join-Path $stageEvidenceRoot 'pitch-count-admission.json'
+        $pitchCountAdmitter = Join-Path $PSScriptRoot 'pitch-count-admission.py'
+        Invoke-LoggedCommand -FailureMessage "Pitch-count completeness validation could not execute for game $GamePk." -Command {
+            & python $pitchCountAdmitter '--input' $inputPath '--rdf' $rdfPath '--game-pk' $GamePk `
+                '--output' $pitchCountAdmissionPath '--java' (Get-JavaExecutable) `
+                '--jena-classpath' (Join-Path $script:FusekiHome 'fuseki-server.jar')
+        }
         $runnerResolutionAdmissionPath = Join-Path $stageEvidenceRoot 'runner-resolution-admission.json'
         $runnerResolutionAdmitter = Join-Path $PSScriptRoot 'runner-resolution-admission.py'
         Invoke-LoggedCommand -FailureMessage "Runner-resolution census validation could not execute for game $GamePk." -Command {
@@ -221,6 +228,8 @@ switch ($Action) {
             conforms = $true
             rmlManifest = $rmlManifestPath
             battingAdmission = $battingAdmissionPath
+            pitchCountAdmission = $pitchCountAdmissionPath
+            pitchCountAdmissionSha256 = (Get-FileHash -LiteralPath $pitchCountAdmissionPath -Algorithm SHA256).Hash.ToLowerInvariant()
             runnerResolutionAdmission = $runnerResolutionAdmissionPath
             runnerResolutionAdmissionSha256 = (Get-FileHash -LiteralPath $runnerResolutionAdmissionPath -Algorithm SHA256).Hash.ToLowerInvariant()
             scoringRunAdmission = $scoringRunAdmissionPath
@@ -296,6 +305,8 @@ switch ($Action) {
             $shaclResult = Get-Content -LiteralPath (Join-Path $stageEvidenceRoot 'shacl.json') -Raw | ConvertFrom-Json
             $promotion.battingAdmission = [string]$shaclResult.battingAdmission
             $promotion.battingAdmissionSha256 = [string]$shaclResult.battingAdmissionSha256
+            $promotion.pitchCountAdmission = [string]$shaclResult.pitchCountAdmission
+            $promotion.pitchCountAdmissionSha256 = [string]$shaclResult.pitchCountAdmissionSha256
             $promotion.scoringRunAdmission = [string]$shaclResult.scoringRunAdmission
             $promotion.scoringRunAdmissionSha256 = [string]$shaclResult.scoringRunAdmissionSha256
             $promotion.runnerResolutionAdmission = [string]$shaclResult.runnerResolutionAdmission

@@ -1,0 +1,9 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix base: <https://baseballontology.org/> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+@prefix cco: <https://www.commoncoreontologies.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Existing pitch/strike/Q5 structures, bound to the independent source census.
+# Missing coverage withholds Recovery/PAQ inputs; no new RDF is manufactured.
+# __COUNT_SHAPES__

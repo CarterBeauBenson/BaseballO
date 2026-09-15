@@ -213,8 +213,8 @@
       "direction": "The cutoff and exact 0-100 midrank policy are accepted. Display filters cannot shrink the reference. Full coverage through the cutoff remains required; N below two is unavailable.",
       "status": "open",
       "disposition": "accepted-meaning-evidence-pending",
-      "owner": "ontologist",
-      "implementationBehavior": "calculation uses accepted policy; live output remains unavailable until source-owned graph prerequisites are admitted",
+      "owner": "engineering",
+      "implementationBehavior": "Exact grouped rational midranks replace quadratic peer comparison for all four percentile metrics. Recovery requires independent calendar-day schedule coverage, every reference game through cutoff and complete official PA/count histories before selecting display dates. Other percentile player producers remain unfinished.",
       "decisionRecords": [
         "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
         "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json"
@@ -373,7 +373,7 @@
       "status": "open",
       "disposition": "partial-source-implementation-complete-population-pending",
       "owner": "engineering",
-      "implementationBehavior": "Explicit VP/AC timer awards are mapped, source-SHACL checked and retained by canonical query/SQL evidence; the recovery calculator updates counts without adding pitches. Complete ordered count histories, corrections, termination and eligible player populations remain required for live scores.",
+      "implementationBehavior": "Existing-term pitch/count census and source SHACL now feed canonical ordered Recovery extraction, promotion-bound proof retention, exact SQL inputs and a conditional season-ranked player producer. The 79-PA/282-pitch reference passes; M3/M4, Q5 review-containing awards and other unadmitted histories withhold complete season results. Source-profile ownership registration is separately pending.",
       "researchAssessment": {
         "assessedOn": "2026-09-08",
         "report": "proposals/graph-native-metric-suite-batch-review/web-gap-assessment.md",
@@ -390,7 +390,7 @@
         "archive/design-records/metric-completion-decisions-2026-09-15/decision.json",
         "archive/design-records/automatic-count-awards/review.json"
       ],
-      "implementationEvidence": "benchmarks/metrics/automatic-count-awards-2026-09-15/result.json"
+      "implementationEvidence": "benchmarks/metrics/recovery-inputs-2026-09-15/result.json"
     },
     {
       "id": "DEFENSIVE_ACTS",

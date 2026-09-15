@@ -1,0 +1,26 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-metric-profile-registration",
+  "title": "Register existing MLB metric validation profiles and update only the protected catalog pin",
+  "status": "draft",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "5d4e08232b411752de9d90e16140a75daaeecd577fbf87dd45ea4e1c66bf3ac4"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-modules.proposed.json",
+        "sha256": "7314bcda6095e2323d7d65e2b3ec08c4b2d0b5a966be3fdcff9950a63082aaff"
+      }
+    ],
+    "fieldSelectionInventory": [],
+    "sourceIndependentMermaid": []
+  },
+  "ontologistDecision": null
+}

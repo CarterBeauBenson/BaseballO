@@ -148,7 +148,8 @@
         "metrics/attribution-evidence.rq",
         "metrics/runner-movement-evidence.rq",
         "metrics/runner-location-evidence.rq",
-        "metrics/suite-evidence.rq"
+        "metrics/suite-evidence.rq",
+        "metrics/pitch-count-evidence.rq"
       ]
     },
     {

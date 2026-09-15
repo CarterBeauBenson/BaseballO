@@ -1,0 +1,2897 @@
+{
+  "artifactType": "baseballo-recovery-input-developer-proof",
+  "gamePk": "566279",
+  "sourceSha256": "e36caf73ff54d6eeac29dba350d5d37001e769eaaf4c1a9e5eac4763ad2630c2",
+  "rdfSha256": "abfc9fb3db734aea9caaa04ad1f16fbab73df139a8f5c5c101d40385a2e62be8",
+  "implementationSha256": "c9807a52a5a428c25ebb3c10228928b5c6c090d0e35ad7eb4843db54614b0f5b",
+  "sourceAdmission": {
+    "artifactType": "baseballo-pitch-count-admission",
+    "contractVersion": 1,
+    "gamePk": "566279",
+    "graph": "https://w3id.org/baseball/graph/game/566279",
+    "sourceSha256": "e36caf73ff54d6eeac29dba350d5d37001e769eaaf4c1a9e5eac4763ad2630c2",
+    "sourceRevision": "20190402_051518",
+    "authoritativeRdfSha256": "abfc9fb3db734aea9caaa04ad1f16fbab73df139a8f5c5c101d40385a2e62be8",
+    "implementationSha256": "92d3b43ea0c6e12e788444e1d40acb3efe7cf5254fbac157677aa7a1eeb70112",
+    "status": "admitted",
+    "sourceReconciled": true,
+    "graphConforms": true,
+    "issues": [],
+    "sourceCensusSha256": "0dc9008e12a0d3436020ecce7e4d635ce61d74fc67d4b496f9ce39b7e7734eb4",
+    "shapeSha256": "b60094ae042a817ddee12d572d3e030b6291970b3d90bebca5c16e6073056cda",
+    "reportSha256": "4a53a3befd9bcdb7273ef3d6e47a83be519927771faee49ef0d2a44ee23be2be",
+    "engine": "jena"
+  },
+  "battingAdmission": {
+    "artifactType": "baseballo-batting-admission",
+    "contractVersion": 1,
+    "gamePk": "566279",
+    "graph": "https://w3id.org/baseball/graph/game/566279",
+    "sourceSha256": "e36caf73ff54d6eeac29dba350d5d37001e769eaaf4c1a9e5eac4763ad2630c2",
+    "sourceRevision": "20190402_051518",
+    "authoritativeRdfSha256": "abfc9fb3db734aea9caaa04ad1f16fbab73df139a8f5c5c101d40385a2e62be8",
+    "implementationSha256": "c2f101e568c3ab887281fd39ea2ef45350c6425a191b13af65d508e09a1627bc",
+    "status": "admitted",
+    "sourceReconciled": true,
+    "graphConforms": true,
+    "issues": [],
+    "selectedPopulationComplete": false,
+    "sourceCensusSha256": "d9923c2659488cf2f5a36c26f9a373174e303192aeb4e5bb7c0091f2a2a98a2d",
+    "shapeSha256": "bb9e53cef1ac8806650d680d3f6a385ee05bc2b775e1c12baaf5cd3ed88e7c7b",
+    "reportSha256": "4a53a3befd9bcdb7273ef3d6e47a83be519927771faee49ef0d2a44ee23be2be",
+    "engine": "jena"
+  },
+  "jenaQueryPassed": true,
+  "sqlExactMatch": true,
+  "officialPlateAppearances": 79,
+  "twoStrikeEligible": 40,
+  "knownIneligible": 39,
+  "recoveryStepDistribution": {
+    "0": 19,
+    "1": 9,
+    "2": 6,
+    "3": 1,
+    "4": 5
+  },
+  "result": {
+    "complete": true,
+    "plateAppearances": [
+      {
+        "status": "available",
+        "value": {
+          "numerator": "0",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/566279/pitch/85753f11-d524-4e4e-bdc0-52166a87f03b",
+          "https://baseballontology.org/data/game/566279/pitch/b662e907-9786-495e-867a-0d4756a3de76",
+          "https://baseballontology.org/data/game/566279/pitch/d884423e-0eaf-4b77-b7c1-76f2788e0b21"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/0",
+        "player": "https://baseballontology.org/data/player/430945",
+        "twoStrikeEligible": true,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/b662e907-9786-495e-867a-0d4756a3de76",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/85753f11-d524-4e4e-bdc0-52166a87f03b",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/d884423e-0eaf-4b77-b7c1-76f2788e0b21",
+            "strikesAfter": 2,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "NOT_TWO_STRIKE_ELIGIBLE"
+        ],
+        "evidence": [],
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/1",
+        "player": "https://baseballontology.org/data/player/500871",
+        "twoStrikeEligible": false,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/dd48a02f-1230-4b4f-8c31-83c01cfcee5f",
+            "strikesAfter": 0,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "1",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/566279/pitch/054cda80-c6b0-4117-921d-be9eb59a0410",
+          "https://baseballontology.org/data/game/566279/pitch/80d09deb-c279-4149-b8a3-7e279ae78a58",
+          "https://baseballontology.org/data/game/566279/pitch/822e7ab9-4478-4cf2-ba0e-2897f48c6ebe",
+          "https://baseballontology.org/data/game/566279/pitch/aaf73a9b-78de-442c-bb20-f4750cce1326"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/10",
+        "player": "https://baseballontology.org/data/player/605113",
+        "twoStrikeEligible": true,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/80d09deb-c279-4149-b8a3-7e279ae78a58",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/aaf73a9b-78de-442c-bb20-f4750cce1326",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/822e7ab9-4478-4cf2-ba0e-2897f48c6ebe",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/054cda80-c6b0-4117-921d-be9eb59a0410",
+            "strikesAfter": 3,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "4",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/566279/pitch/210f100b-8b27-4444-ac8b-4f1fc39bcc64",
+          "https://baseballontology.org/data/game/566279/pitch/2b53a649-7768-4d5b-bfee-8a10ae5ea48c",
+          "https://baseballontology.org/data/game/566279/pitch/40b7100d-4ca9-4a02-8984-1568a4468b5e",
+          "https://baseballontology.org/data/game/566279/pitch/5d8de1c2-3bde-430e-80e7-6d5300e6efe8",
+          "https://baseballontology.org/data/game/566279/pitch/7c8e34c8-67fa-42ab-ba99-c1e163ad9b68",
+          "https://baseballontology.org/data/game/566279/pitch/af7e163d-2b72-4678-b115-ffcd37add8a5",
+          "https://baseballontology.org/data/game/566279/pitch/bd5e994e-e81c-40ce-b4d5-7e3c73734458",
+          "https://baseballontology.org/data/game/566279/pitch/f812cc5c-175d-4b95-9306-6127f8ae5ed5"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/11",
+        "player": "https://baseballontology.org/data/player/488671",
+        "twoStrikeEligible": true,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/7c8e34c8-67fa-42ab-ba99-c1e163ad9b68",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/40b7100d-4ca9-4a02-8984-1568a4468b5e",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/5d8de1c2-3bde-430e-80e7-6d5300e6efe8",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/210f100b-8b27-4444-ac8b-4f1fc39bcc64",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/bd5e994e-e81c-40ce-b4d5-7e3c73734458",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/af7e163d-2b72-4678-b115-ffcd37add8a5",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/2b53a649-7768-4d5b-bfee-8a10ae5ea48c",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/f812cc5c-175d-4b95-9306-6127f8ae5ed5",
+            "strikesAfter": 2,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "1",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/566279/pitch/3f7bf9e8-77db-4e60-adda-78eef2322661",
+          "https://baseballontology.org/data/game/566279/pitch/48299b05-e714-4326-92ea-5496d38a43d1",
+          "https://baseballontology.org/data/game/566279/pitch/6a945a8a-99e9-4941-8005-94cc9a136a8c",
+          "https://baseballontology.org/data/game/566279/pitch/7d884491-b685-413c-8f52-e4e91405bba6",
+          "https://baseballontology.org/data/game/566279/pitch/a05f90a9-c21a-4e07-a4e0-7660dd0beb46",
+          "https://baseballontology.org/data/game/566279/pitch/c1409c99-d1a3-4a1a-a210-adc6bafab57c"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/12",
+        "player": "https://baseballontology.org/data/player/518876",
+        "twoStrikeEligible": true,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/6a945a8a-99e9-4941-8005-94cc9a136a8c",
+            "strikesAfter": 0,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/3f7bf9e8-77db-4e60-adda-78eef2322661",
+            "strikesAfter": 0,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/48299b05-e714-4326-92ea-5496d38a43d1",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/7d884491-b685-413c-8f52-e4e91405bba6",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/a05f90a9-c21a-4e07-a4e0-7660dd0beb46",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/c1409c99-d1a3-4a1a-a210-adc6bafab57c",
+            "strikesAfter": 2,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "NOT_TWO_STRIKE_ELIGIBLE"
+        ],
+        "evidence": [],
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/13",
+        "player": "https://baseballontology.org/data/player/430945",
+        "twoStrikeEligible": false,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/f4532c0c-c240-4971-bd00-1eedb1a273de",
+            "strikesAfter": 0,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "0",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/566279/pitch/0a00e9c6-3c6a-46fd-97d5-9addb8b84aef",
+          "https://baseballontology.org/data/game/566279/pitch/409d03b4-393a-4f42-8448-3a819a71655c",
+          "https://baseballontology.org/data/game/566279/pitch/8b4b5e4d-150a-4d45-9547-db190d862370"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/14",
+        "player": "https://baseballontology.org/data/player/500871",
+        "twoStrikeEligible": true,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/8b4b5e4d-150a-4d45-9547-db190d862370",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/0a00e9c6-3c6a-46fd-97d5-9addb8b84aef",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/409d03b4-393a-4f42-8448-3a819a71655c",
+            "strikesAfter": 2,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "NOT_TWO_STRIKE_ELIGIBLE"
+        ],
+        "evidence": [],
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/15",
+        "player": "https://baseballontology.org/data/player/527038",
+        "twoStrikeEligible": false,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/d45f722d-8537-4582-b77d-ccf9378094ee",
+            "strikesAfter": 0,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/c79e1734-4430-4201-98ee-f170ac0bb0e2",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/c56aa9d3-6e0a-4a0c-bcfa-c03eaeb0db7d",
+            "strikesAfter": 1,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "0",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/566279/pitch/9f0833df-0f6a-40dc-852d-87ce2b200fd0",
+          "https://baseballontology.org/data/game/566279/pitch/a88bfebb-fd03-4ffe-bb02-c30474d08cbf",
+          "https://baseballontology.org/data/game/566279/pitch/fc3a34ca-02a2-40af-84d2-0e1be2ea0160"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/16",
+        "player": "https://baseballontology.org/data/player/571976",
+        "twoStrikeEligible": true,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/a88bfebb-fd03-4ffe-bb02-c30474d08cbf",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/fc3a34ca-02a2-40af-84d2-0e1be2ea0160",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/9f0833df-0f6a-40dc-852d-87ce2b200fd0",
+            "strikesAfter": 3,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "NOT_TWO_STRIKE_ELIGIBLE"
+        ],
+        "evidence": [],
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/17",
+        "player": "https://baseballontology.org/data/player/665487",
+        "twoStrikeEligible": false,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/01a13a5f-7b30-43cd-b657-fdc1888a99e8",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/0d7ed07e-c1b1-4876-9232-95e25bfb28ca",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/47c08363-31e4-4ce6-8d11-811a2031b88e",
+            "strikesAfter": 1,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "2",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/566279/pitch/3d09bf71-7106-4e9a-ac73-88b3d4b4b82a",
+          "https://baseballontology.org/data/game/566279/pitch/43190bc4-6d43-44a0-9bc7-cb26879c2ef8",
+          "https://baseballontology.org/data/game/566279/pitch/6d49aa82-fa44-47b7-b573-c1926a67afc2",
+          "https://baseballontology.org/data/game/566279/pitch/cc046585-87e7-4f12-ab60-e49bc78e304a",
+          "https://baseballontology.org/data/game/566279/pitch/f7fb7299-b1fb-44bc-914b-d7b71c53f896"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/18",
+        "player": "https://baseballontology.org/data/player/622534",
+        "twoStrikeEligible": true,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/6d49aa82-fa44-47b7-b573-c1926a67afc2",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/cc046585-87e7-4f12-ab60-e49bc78e304a",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/43190bc4-6d43-44a0-9bc7-cb26879c2ef8",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/f7fb7299-b1fb-44bc-914b-d7b71c53f896",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/3d09bf71-7106-4e9a-ac73-88b3d4b4b82a",
+            "strikesAfter": 2,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "NOT_TWO_STRIKE_ELIGIBLE"
+        ],
+        "evidence": [],
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/19",
+        "player": "https://baseballontology.org/data/player/444482",
+        "twoStrikeEligible": false,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/63a7e987-7c0f-49df-927e-c15ce695fdf7",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/c3d4ae87-15e1-4900-9f0a-fe38f1aa65db",
+            "strikesAfter": 1,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "NOT_TWO_STRIKE_ELIGIBLE"
+        ],
+        "evidence": [],
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/2",
+        "player": "https://baseballontology.org/data/player/527038",
+        "twoStrikeEligible": false,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/08ad9b26-aff3-4849-ad61-7aa3428b72e7",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/dfe04d15-6fdf-4f65-ab38-10041801b354",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/a800e0a3-50b0-4e6f-8846-8a7a30dc075a",
+            "strikesAfter": 1,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "0",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/566279/pitch/17b150e3-c797-434c-b346-13ec4bf2eed8",
+          "https://baseballontology.org/data/game/566279/pitch/21a9a15b-98ab-4c3f-bbab-23889ae5ef8c",
+          "https://baseballontology.org/data/game/566279/pitch/6ea851d9-a14a-4cc8-a627-f3f6dbb56276",
+          "https://baseballontology.org/data/game/566279/pitch/bd1c34a8-28a7-461f-9067-8bd1c5baea3b",
+          "https://baseballontology.org/data/game/566279/pitch/df2d7de4-7199-4ce9-a820-068ed853d9f3"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/20",
+        "player": "https://baseballontology.org/data/player/572233",
+        "twoStrikeEligible": true,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/21a9a15b-98ab-4c3f-bbab-23889ae5ef8c",
+            "strikesAfter": 0,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/6ea851d9-a14a-4cc8-a627-f3f6dbb56276",
+            "strikesAfter": 0,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/17b150e3-c797-434c-b346-13ec4bf2eed8",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/df2d7de4-7199-4ce9-a820-068ed853d9f3",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/bd1c34a8-28a7-461f-9067-8bd1c5baea3b",
+            "strikesAfter": 3,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "4",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/566279/pitch/3db75bbd-eb15-446f-b0ea-b177b7413b09",
+          "https://baseballontology.org/data/game/566279/pitch/3f896eab-ab95-49df-b7f2-acc42d12c40c",
+          "https://baseballontology.org/data/game/566279/pitch/6def8181-78e3-4bc5-b23a-55e7eefd6c36",
+          "https://baseballontology.org/data/game/566279/pitch/755d357d-661c-43da-95f9-76a751ba8ffb",
+          "https://baseballontology.org/data/game/566279/pitch/8739015c-5bc3-44a6-8d93-45f5fe68e333",
+          "https://baseballontology.org/data/game/566279/pitch/90440c2e-d8b4-4bbf-9a7a-62e9db986351",
+          "https://baseballontology.org/data/game/566279/pitch/ca5a7906-1727-438f-a1eb-a369f7d03fd5"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/21",
+        "player": "https://baseballontology.org/data/player/606466",
+        "twoStrikeEligible": true,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/755d357d-661c-43da-95f9-76a751ba8ffb",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/ca5a7906-1727-438f-a1eb-a369f7d03fd5",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/90440c2e-d8b4-4bbf-9a7a-62e9db986351",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/3f896eab-ab95-49df-b7f2-acc42d12c40c",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/6def8181-78e3-4bc5-b23a-55e7eefd6c36",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/8739015c-5bc3-44a6-8d93-45f5fe68e333",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/3db75bbd-eb15-446f-b0ea-b177b7413b09",
+            "strikesAfter": 2,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "1",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/566279/pitch/2a38467c-b18c-4f01-8307-78f1380ab4d6",
+          "https://baseballontology.org/data/game/566279/pitch/75042a7f-ff03-4da8-b6e6-f10fe47033ff",
+          "https://baseballontology.org/data/game/566279/pitch/7b8b0c7a-a516-4069-b2eb-64354818f5ee",
+          "https://baseballontology.org/data/game/566279/pitch/85086f8a-237d-433a-8085-1b6556070140",
+          "https://baseballontology.org/data/game/566279/pitch/cccd0250-67b1-45fd-8c72-dffb77b47e0a"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/22",
+        "player": "https://baseballontology.org/data/player/605113",
+        "twoStrikeEligible": true,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/7b8b0c7a-a516-4069-b2eb-64354818f5ee",
+            "strikesAfter": 0,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/85086f8a-237d-433a-8085-1b6556070140",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/cccd0250-67b1-45fd-8c72-dffb77b47e0a",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/2a38467c-b18c-4f01-8307-78f1380ab4d6",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/75042a7f-ff03-4da8-b6e6-f10fe47033ff",
+            "strikesAfter": 2,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "0",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/566279/pitch/234cbb96-ffd3-47c2-b9e6-60d556d920cd",
+          "https://baseballontology.org/data/game/566279/pitch/2d9f1499-2d38-478b-bca5-245a231d707f",
+          "https://baseballontology.org/data/game/566279/pitch/79a93e9c-3ad3-48b8-bf20-1424a96617d7",
+          "https://baseballontology.org/data/game/566279/pitch/9742d969-ba6d-4b3a-90d1-d50cf220e541",
+          "https://baseballontology.org/data/game/566279/pitch/a7f095c0-554b-4558-be2f-0def171cde5f",
+          "https://baseballontology.org/data/game/566279/pitch/c734f185-f7df-414d-918e-9454dc9d6db0"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/23",
+        "player": "https://baseballontology.org/data/player/488671",
+        "twoStrikeEligible": true,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/79a93e9c-3ad3-48b8-bf20-1424a96617d7",
+            "strikesAfter": 0,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/9742d969-ba6d-4b3a-90d1-d50cf220e541",
+            "strikesAfter": 0,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/2d9f1499-2d38-478b-bca5-245a231d707f",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/c734f185-f7df-414d-918e-9454dc9d6db0",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/a7f095c0-554b-4558-be2f-0def171cde5f",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/234cbb96-ffd3-47c2-b9e6-60d556d920cd",
+            "strikesAfter": 2,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "0",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/566279/pitch/17930dfc-e035-4484-ba47-e21457d009e4",
+          "https://baseballontology.org/data/game/566279/pitch/3d43e70c-9752-4206-8ea1-b045ca15b569",
+          "https://baseballontology.org/data/game/566279/pitch/4dd804e4-4d39-491e-a4ba-2818c4d6d3c1",
+          "https://baseballontology.org/data/game/566279/pitch/bde1e908-b5f4-4105-876f-74ca5a3ed536"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/24",
+        "player": "https://baseballontology.org/data/player/518876",
+        "twoStrikeEligible": true,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/17930dfc-e035-4484-ba47-e21457d009e4",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/bde1e908-b5f4-4105-876f-74ca5a3ed536",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/4dd804e4-4d39-491e-a4ba-2818c4d6d3c1",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/3d43e70c-9752-4206-8ea1-b045ca15b569",
+            "strikesAfter": 2,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "NOT_TWO_STRIKE_ELIGIBLE"
+        ],
+        "evidence": [],
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/25",
+        "player": "https://baseballontology.org/data/player/595978",
+        "twoStrikeEligible": false,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/ea2366c8-969b-473a-b447-47d7d882bbcc",
+            "strikesAfter": 0,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/28e799bb-b2e2-47d4-8ab4-da5dfacc1857",
+            "strikesAfter": 0,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/cfa7b47a-ade9-42e6-a341-22b720f9d414",
+            "strikesAfter": 0,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "4",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/566279/pitch/179a6152-b371-4e33-9b75-9bd9279ddb63",
+          "https://baseballontology.org/data/game/566279/pitch/200bcd7d-da93-4e44-956e-5b4e6f43a281",
+          "https://baseballontology.org/data/game/566279/pitch/52736da3-e301-41b8-a740-a597342a3259",
+          "https://baseballontology.org/data/game/566279/pitch/7b220961-fac0-48fa-aa47-c769c29d6df5",
+          "https://baseballontology.org/data/game/566279/pitch/b24c0f80-694f-449a-ad4f-aa5fb28835f9",
+          "https://baseballontology.org/data/game/566279/pitch/e079cb28-0038-4bf8-ab9a-75828df43ca5",
+          "https://baseballontology.org/data/game/566279/pitch/e5a77f89-e49b-4975-9f1b-2e07e1431ab5"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/26",
+        "player": "https://baseballontology.org/data/player/614173",
+        "twoStrikeEligible": true,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/b24c0f80-694f-449a-ad4f-aa5fb28835f9",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/e079cb28-0038-4bf8-ab9a-75828df43ca5",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/179a6152-b371-4e33-9b75-9bd9279ddb63",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/200bcd7d-da93-4e44-956e-5b4e6f43a281",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/7b220961-fac0-48fa-aa47-c769c29d6df5",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/e5a77f89-e49b-4975-9f1b-2e07e1431ab5",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/52736da3-e301-41b8-a740-a597342a3259",
+            "strikesAfter": 2,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "1",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/566279/pitch/465b336c-a82f-4b18-8b6f-631de5e83406",
+          "https://baseballontology.org/data/game/566279/pitch/565e930b-fa0c-43b2-887a-f79eef22628d",
+          "https://baseballontology.org/data/game/566279/pitch/584cd60c-4614-4cce-8a03-1adce23d5518",
+          "https://baseballontology.org/data/game/566279/pitch/6e33ac3e-8747-4045-95d9-27d6e23851d0",
+          "https://baseballontology.org/data/game/566279/pitch/e1db321a-47df-4e03-9f2b-2714d5c4b6a7",
+          "https://baseballontology.org/data/game/566279/pitch/efd64d42-64d2-4a89-9a18-534a516b1ac4"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/27",
+        "player": "https://baseballontology.org/data/player/435079",
+        "twoStrikeEligible": true,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/6e33ac3e-8747-4045-95d9-27d6e23851d0",
+            "strikesAfter": 0,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/e1db321a-47df-4e03-9f2b-2714d5c4b6a7",
+            "strikesAfter": 0,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/efd64d42-64d2-4a89-9a18-534a516b1ac4",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/584cd60c-4614-4cce-8a03-1adce23d5518",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/465b336c-a82f-4b18-8b6f-631de5e83406",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/565e930b-fa0c-43b2-887a-f79eef22628d",
+            "strikesAfter": 2,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "NOT_TWO_STRIKE_ELIGIBLE"
+        ],
+        "evidence": [],
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/28",
+        "player": "https://baseballontology.org/data/player/543333",
+        "twoStrikeEligible": false,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/8820d677-bdc3-4f12-a2cd-c42bb96afe60",
+            "strikesAfter": 0,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/c7c38fd0-6115-4c9b-96c9-d7fca0028d7f",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/7b264949-6d7a-42e6-93eb-a49b27b19943",
+            "strikesAfter": 1,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "NOT_TWO_STRIKE_ELIGIBLE"
+        ],
+        "evidence": [],
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/29",
+        "player": "https://baseballontology.org/data/player/592518",
+        "twoStrikeEligible": false,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/1cf7a9f3-d89c-4eb6-8e86-2b7d761ed0f9",
+            "strikesAfter": 0,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/0d5df728-3145-47a5-802a-ce7129948f7c",
+            "strikesAfter": 0,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "NOT_TWO_STRIKE_ELIGIBLE"
+        ],
+        "evidence": [],
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/3",
+        "player": "https://baseballontology.org/data/player/444482",
+        "twoStrikeEligible": false,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/b46c1a97-7cbf-4a67-84c5-3bd11644bf92",
+            "strikesAfter": 0,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "NOT_TWO_STRIKE_ELIGIBLE"
+        ],
+        "evidence": [],
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/30",
+        "player": "https://baseballontology.org/data/player/430945",
+        "twoStrikeEligible": false,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/4e3ff786-2807-418f-8257-46c566838f0e",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/74296072-7ec7-41eb-807e-e6fd51d25d6f",
+            "strikesAfter": 1,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "NOT_TWO_STRIKE_ELIGIBLE"
+        ],
+        "evidence": [],
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/31",
+        "player": "https://baseballontology.org/data/player/500871",
+        "twoStrikeEligible": false,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/d5f305e6-3d46-4687-a778-39b69fcf2716",
+            "strikesAfter": 0,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/60ff03ed-553d-47b4-962e-e14e2ecd6f0d",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/754575bc-b5d0-44fb-b626-b1b2e40c646f",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/276f1164-fd76-421d-9253-112613c3cc41",
+            "strikesAfter": 1,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "NOT_TWO_STRIKE_ELIGIBLE"
+        ],
+        "evidence": [],
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/32",
+        "player": "https://baseballontology.org/data/player/527038",
+        "twoStrikeEligible": false,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/18a83c99-f6e7-4b9c-b00d-6072f87916cf",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/48f63eee-7ac0-4527-9314-f3bf55883f6c",
+            "strikesAfter": 1,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "NOT_TWO_STRIKE_ELIGIBLE"
+        ],
+        "evidence": [],
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/33",
+        "player": "https://baseballontology.org/data/player/614177",
+        "twoStrikeEligible": false,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/933bfd97-ca2f-454c-8201-ebfda20753c7",
+            "strikesAfter": 0,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "1",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/566279/pitch/50c19c93-9c27-4aa2-a11e-692df8d174ed",
+          "https://baseballontology.org/data/game/566279/pitch/b13950f3-bbe9-4112-aa50-51790604e4d7",
+          "https://baseballontology.org/data/game/566279/pitch/b2e9d729-a894-4dd9-bd60-37376e173c0e",
+          "https://baseballontology.org/data/game/566279/pitch/f0331035-46e0-436c-ab6a-52b108535dbe",
+          "https://baseballontology.org/data/game/566279/pitch/f108aca8-31bf-437b-b57e-d7437d3c2427"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/34",
+        "player": "https://baseballontology.org/data/player/571976",
+        "twoStrikeEligible": true,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/f108aca8-31bf-437b-b57e-d7437d3c2427",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/b13950f3-bbe9-4112-aa50-51790604e4d7",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/50c19c93-9c27-4aa2-a11e-692df8d174ed",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/b2e9d729-a894-4dd9-bd60-37376e173c0e",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/f0331035-46e0-436c-ab6a-52b108535dbe",
+            "strikesAfter": 2,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "1",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/566279/pitch/186abc23-af43-4f9a-9538-bf6fd46c820d",
+          "https://baseballontology.org/data/game/566279/pitch/3c9269a3-a861-473d-b621-84f4d41890be",
+          "https://baseballontology.org/data/game/566279/pitch/8e84db71-2577-41cf-98b3-9de00c21a21d",
+          "https://baseballontology.org/data/game/566279/pitch/d50eb90d-ce51-43d7-aa8b-b05f9a88b866",
+          "https://baseballontology.org/data/game/566279/pitch/f6bedf9d-9538-4e92-9d14-d8b7e982b289"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/35",
+        "player": "https://baseballontology.org/data/player/665487",
+        "twoStrikeEligible": true,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/d50eb90d-ce51-43d7-aa8b-b05f9a88b866",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/3c9269a3-a861-473d-b621-84f4d41890be",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/f6bedf9d-9538-4e92-9d14-d8b7e982b289",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/8e84db71-2577-41cf-98b3-9de00c21a21d",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/186abc23-af43-4f9a-9538-bf6fd46c820d",
+            "strikesAfter": 3,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "NOT_TWO_STRIKE_ELIGIBLE"
+        ],
+        "evidence": [],
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/36",
+        "player": "https://baseballontology.org/data/player/444482",
+        "twoStrikeEligible": false,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/76e405c4-5a82-4e38-91a4-36cffcb9ca52",
+            "strikesAfter": 0,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/9b5fce5c-963f-4713-a9f4-ee8fb75a73f2",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/558458c1-499b-48a6-b3d5-83ec843f158d",
+            "strikesAfter": 1,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "NOT_TWO_STRIKE_ELIGIBLE"
+        ],
+        "evidence": [],
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/37",
+        "player": "https://baseballontology.org/data/player/572233",
+        "twoStrikeEligible": false,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/dd28900c-ff09-45fc-8a5f-c00b231d7efd",
+            "strikesAfter": 0,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/2a31ebee-8f0b-471d-ae74-b975b16cdf56",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/8ba0027b-26d6-4502-89b0-7f9d8be50762",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/22f872d4-b47a-4818-aa49-0a5b33df2373",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/9a41bc01-2bc6-490d-b996-2ead248f79aa",
+            "strikesAfter": 1,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "NOT_TWO_STRIKE_ELIGIBLE"
+        ],
+        "evidence": [],
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/38",
+        "player": "https://baseballontology.org/data/player/606466",
+        "twoStrikeEligible": false,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/38108c8a-3ac5-4949-849a-1513f573fd6a",
+            "strikesAfter": 0,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "2",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/566279/pitch/258cb1a7-d22f-4c50-9902-fea432dfdb3a",
+          "https://baseballontology.org/data/game/566279/pitch/3ccc0544-493d-4033-9cee-8bbf7f1cf764",
+          "https://baseballontology.org/data/game/566279/pitch/b3dd56e5-d9bb-4fa4-925f-a305be58dd6d",
+          "https://baseballontology.org/data/game/566279/pitch/c8fc5f9a-3490-4d24-a418-7be7c30cee3f",
+          "https://baseballontology.org/data/game/566279/pitch/e8e2862a-c8a4-4322-bf4f-ee195095e1ef"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/39",
+        "player": "https://baseballontology.org/data/player/605113",
+        "twoStrikeEligible": true,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/b3dd56e5-d9bb-4fa4-925f-a305be58dd6d",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/c8fc5f9a-3490-4d24-a418-7be7c30cee3f",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/e8e2862a-c8a4-4322-bf4f-ee195095e1ef",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/3ccc0544-493d-4033-9cee-8bbf7f1cf764",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/258cb1a7-d22f-4c50-9902-fea432dfdb3a",
+            "strikesAfter": 2,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "NOT_TWO_STRIKE_ELIGIBLE"
+        ],
+        "evidence": [],
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/4",
+        "player": "https://baseballontology.org/data/player/572233",
+        "twoStrikeEligible": false,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/2b5ff81d-1633-4971-b10e-ec319866f3cd",
+            "strikesAfter": 0,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/46bc698e-11b7-4cae-a3cb-aa828c006d9e",
+            "strikesAfter": 0,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/24edbd94-60e0-4168-b33a-b9fe764cebd9",
+            "strikesAfter": 0,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/0aaf3e0d-1ffb-4aa9-8f7d-4fcda6d845ae",
+            "strikesAfter": 0,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "1",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/566279/pitch/0c115910-7190-4e66-bd32-c7acd86233e9",
+          "https://baseballontology.org/data/game/566279/pitch/59d9a88a-5577-4b49-b3c2-7ba5cf287775",
+          "https://baseballontology.org/data/game/566279/pitch/633f54fe-bdda-4306-a14b-593ed15fbfaf",
+          "https://baseballontology.org/data/game/566279/pitch/78448859-360b-4540-87ac-700de6847b2c",
+          "https://baseballontology.org/data/game/566279/pitch/f452b584-3418-4c22-b1c3-a33dbaed2e5d",
+          "https://baseballontology.org/data/game/566279/pitch/f58f56e7-493e-486d-9689-bcc3ec0c68bd"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/40",
+        "player": "https://baseballontology.org/data/player/488671",
+        "twoStrikeEligible": true,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/0c115910-7190-4e66-bd32-c7acd86233e9",
+            "strikesAfter": 0,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/f58f56e7-493e-486d-9689-bcc3ec0c68bd",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/78448859-360b-4540-87ac-700de6847b2c",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/633f54fe-bdda-4306-a14b-593ed15fbfaf",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/59d9a88a-5577-4b49-b3c2-7ba5cf287775",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/f452b584-3418-4c22-b1c3-a33dbaed2e5d",
+            "strikesAfter": 2,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "0",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/566279/pitch/2def9726-de41-4a62-bceb-bb1e8a6d2f99",
+          "https://baseballontology.org/data/game/566279/pitch/685cf427-e5f6-47ab-9515-af6e889aa48a",
+          "https://baseballontology.org/data/game/566279/pitch/e5a6a62c-b603-4dc2-8636-d4cf329a498d"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/41",
+        "player": "https://baseballontology.org/data/player/518876",
+        "twoStrikeEligible": true,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/2def9726-de41-4a62-bceb-bb1e8a6d2f99",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/685cf427-e5f6-47ab-9515-af6e889aa48a",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/e5a6a62c-b603-4dc2-8636-d4cf329a498d",
+            "strikesAfter": 3,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "NOT_TWO_STRIKE_ELIGIBLE"
+        ],
+        "evidence": [],
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/42",
+        "player": "https://baseballontology.org/data/player/430945",
+        "twoStrikeEligible": false,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/7b051c11-a557-45db-af22-2adbe8b38296",
+            "strikesAfter": 0,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "1",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/566279/pitch/10ac0d82-fce4-47d0-8b53-1d65d85c860b",
+          "https://baseballontology.org/data/game/566279/pitch/122c3261-2491-4ebd-b043-bc6bd4c11cf6",
+          "https://baseballontology.org/data/game/566279/pitch/1ec657f0-0db2-4672-a612-935648448336",
+          "https://baseballontology.org/data/game/566279/pitch/71e1aca5-c9ac-4c16-b685-5a7d34fd2ed5",
+          "https://baseballontology.org/data/game/566279/pitch/8aa824bb-3aac-4721-b3b2-ee73cb9bfac9"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/43",
+        "player": "https://baseballontology.org/data/player/500871",
+        "twoStrikeEligible": true,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/1ec657f0-0db2-4672-a612-935648448336",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/10ac0d82-fce4-47d0-8b53-1d65d85c860b",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/122c3261-2491-4ebd-b043-bc6bd4c11cf6",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/8aa824bb-3aac-4721-b3b2-ee73cb9bfac9",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/71e1aca5-c9ac-4c16-b685-5a7d34fd2ed5",
+            "strikesAfter": 3,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "0",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/566279/pitch/1be78d74-ff77-46c7-8d7d-9b8a44cb4653",
+          "https://baseballontology.org/data/game/566279/pitch/2051080d-78e7-4741-a694-543731311b07",
+          "https://baseballontology.org/data/game/566279/pitch/777a610c-2363-4174-95fb-80fdc9e8ac48",
+          "https://baseballontology.org/data/game/566279/pitch/79c4f76f-7d2d-44d5-9dcf-50d449784ee4"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/44",
+        "player": "https://baseballontology.org/data/player/594824",
+        "twoStrikeEligible": true,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/79c4f76f-7d2d-44d5-9dcf-50d449784ee4",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/2051080d-78e7-4741-a694-543731311b07",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/777a610c-2363-4174-95fb-80fdc9e8ac48",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/1be78d74-ff77-46c7-8d7d-9b8a44cb4653",
+            "strikesAfter": 3,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "4",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/566279/pitch/21bd8b83-d2a6-4474-86d5-1076a260e627",
+          "https://baseballontology.org/data/game/566279/pitch/31f6c18a-9a28-483d-8a95-a4f42773cd7d",
+          "https://baseballontology.org/data/game/566279/pitch/3bd1c957-c60f-4bcf-9184-0de053e08c3d",
+          "https://baseballontology.org/data/game/566279/pitch/7c596913-e98b-4f4f-83cb-c8f5c35ab796",
+          "https://baseballontology.org/data/game/566279/pitch/9d480540-1201-417b-834c-2bb08df521c7",
+          "https://baseballontology.org/data/game/566279/pitch/b9976866-2244-4b3a-a3f3-bca969fe7c84",
+          "https://baseballontology.org/data/game/566279/pitch/c397b666-214f-496a-b421-036eba0b15dd"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/45",
+        "player": "https://baseballontology.org/data/player/595978",
+        "twoStrikeEligible": true,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/c397b666-214f-496a-b421-036eba0b15dd",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/3bd1c957-c60f-4bcf-9184-0de053e08c3d",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/7c596913-e98b-4f4f-83cb-c8f5c35ab796",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/31f6c18a-9a28-483d-8a95-a4f42773cd7d",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/b9976866-2244-4b3a-a3f3-bca969fe7c84",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/9d480540-1201-417b-834c-2bb08df521c7",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/21bd8b83-d2a6-4474-86d5-1076a260e627",
+            "strikesAfter": 2,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "2",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/566279/pitch/0a708c04-ec77-42ba-b1f1-f5115b30f3a1",
+          "https://baseballontology.org/data/game/566279/pitch/0d774a5a-3e88-422e-aae8-d6a3309efcfc",
+          "https://baseballontology.org/data/game/566279/pitch/1a4a01b0-e4b8-4e9e-a582-49f08523b4a6",
+          "https://baseballontology.org/data/game/566279/pitch/23c7d6a3-4370-4ce7-bcd6-5971a95da6b8",
+          "https://baseballontology.org/data/game/566279/pitch/cd272bf6-fa1f-404a-af19-b282d2922abd",
+          "https://baseballontology.org/data/game/566279/pitch/e3781171-d2d8-46fc-b478-210051c90ef5"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/46",
+        "player": "https://baseballontology.org/data/player/614173",
+        "twoStrikeEligible": true,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/0a708c04-ec77-42ba-b1f1-f5115b30f3a1",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/23c7d6a3-4370-4ce7-bcd6-5971a95da6b8",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/e3781171-d2d8-46fc-b478-210051c90ef5",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/cd272bf6-fa1f-404a-af19-b282d2922abd",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/1a4a01b0-e4b8-4e9e-a582-49f08523b4a6",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/0d774a5a-3e88-422e-aae8-d6a3309efcfc",
+            "strikesAfter": 2,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "NOT_TWO_STRIKE_ELIGIBLE"
+        ],
+        "evidence": [],
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/47",
+        "player": "https://baseballontology.org/data/player/435079",
+        "twoStrikeEligible": false,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/3e7cca58-11c6-41ca-b32c-5a497cdd5589",
+            "strikesAfter": 0,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/84fb6022-db9b-4e9c-b5d6-cfb5b365961f",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/b77f33a9-8f25-4e5c-8290-2388c3e368dc",
+            "strikesAfter": 1,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "NOT_TWO_STRIKE_ELIGIBLE"
+        ],
+        "evidence": [],
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/48",
+        "player": "https://baseballontology.org/data/player/527038",
+        "twoStrikeEligible": false,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/63e82848-eacf-41eb-be43-8044afeae2f5",
+            "strikesAfter": 0,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/ffce59e9-012d-42a2-8b3f-600a4fd50d26",
+            "strikesAfter": 0,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "4",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/566279/pitch/1e97f755-38dc-4ea0-b781-38021bd3bbf5",
+          "https://baseballontology.org/data/game/566279/pitch/5d6e5e52-9405-4dd1-ad39-3b8e332cde7a",
+          "https://baseballontology.org/data/game/566279/pitch/5d795224-5cc5-4b04-a9a2-f2cf585c4ae8",
+          "https://baseballontology.org/data/game/566279/pitch/c60a8188-bcae-4645-b976-4c2896929c10",
+          "https://baseballontology.org/data/game/566279/pitch/d8a371fd-f7d4-4c67-9e04-33a1de4bc241",
+          "https://baseballontology.org/data/game/566279/pitch/d9007e5e-6376-4c93-a85d-e5d6b544c484",
+          "https://baseballontology.org/data/game/566279/pitch/f7902035-f8fd-46f7-8d23-e3cd8ba09ba2"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/49",
+        "player": "https://baseballontology.org/data/player/444482",
+        "twoStrikeEligible": true,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/c60a8188-bcae-4645-b976-4c2896929c10",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/d9007e5e-6376-4c93-a85d-e5d6b544c484",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/d8a371fd-f7d4-4c67-9e04-33a1de4bc241",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/1e97f755-38dc-4ea0-b781-38021bd3bbf5",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/5d6e5e52-9405-4dd1-ad39-3b8e332cde7a",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/f7902035-f8fd-46f7-8d23-e3cd8ba09ba2",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/5d795224-5cc5-4b04-a9a2-f2cf585c4ae8",
+            "strikesAfter": 2,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "NOT_TWO_STRIKE_ELIGIBLE"
+        ],
+        "evidence": [],
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/5",
+        "player": "https://baseballontology.org/data/player/606466",
+        "twoStrikeEligible": false,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/744ed480-c224-4c2b-adba-8082f39a9235",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/ec5e61c3-7edc-4c2b-8383-2337a15e0854",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/94ca39a6-3031-4377-a18a-43a040e1f8c2",
+            "strikesAfter": 1,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "NOT_TWO_STRIKE_ELIGIBLE"
+        ],
+        "evidence": [],
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/50",
+        "player": "https://baseballontology.org/data/player/572233",
+        "twoStrikeEligible": false,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/eea9da9d-2cc5-4a36-9fba-b0a248fbb222",
+            "strikesAfter": 0,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/994de5c8-8e02-4a09-8193-c7d663c66db7",
+            "strikesAfter": 0,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "1",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/566279/pitch/3e222d5d-e736-47a9-a15e-8796be328537",
+          "https://baseballontology.org/data/game/566279/pitch/798cbef0-0480-4233-af0e-d73dc733f4c1",
+          "https://baseballontology.org/data/game/566279/pitch/86b57c8d-5980-4bbc-a1e6-cf3c3080686a",
+          "https://baseballontology.org/data/game/566279/pitch/b47a9025-2665-492b-89b9-be601bdbebb6",
+          "https://baseballontology.org/data/game/566279/pitch/bf3c3b41-ac28-4859-92a1-5592fa3fbc2a",
+          "https://baseballontology.org/data/game/566279/pitch/c2b49514-daf3-4658-a68e-11836bcd878b"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/51",
+        "player": "https://baseballontology.org/data/player/543333",
+        "twoStrikeEligible": true,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/b47a9025-2665-492b-89b9-be601bdbebb6",
+            "strikesAfter": 0,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/3e222d5d-e736-47a9-a15e-8796be328537",
+            "strikesAfter": 0,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/bf3c3b41-ac28-4859-92a1-5592fa3fbc2a",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/86b57c8d-5980-4bbc-a1e6-cf3c3080686a",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/798cbef0-0480-4233-af0e-d73dc733f4c1",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/c2b49514-daf3-4658-a68e-11836bcd878b",
+            "strikesAfter": 2,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "NOT_TWO_STRIKE_ELIGIBLE"
+        ],
+        "evidence": [],
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/52",
+        "player": "https://baseballontology.org/data/player/592518",
+        "twoStrikeEligible": false,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/4bffa03f-7d60-44ca-963a-ddf985457c44",
+            "strikesAfter": 0,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "NOT_TWO_STRIKE_ELIGIBLE"
+        ],
+        "evidence": [],
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/53",
+        "player": "https://baseballontology.org/data/player/614177",
+        "twoStrikeEligible": false,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/fe724eb4-87cf-447d-ad67-f324825d3cd5",
+            "strikesAfter": 0,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/a4f03d92-701e-4106-bfda-b39575000f5f",
+            "strikesAfter": 0,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "0",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/566279/pitch/15474805-349c-4783-a39a-a389da049630",
+          "https://baseballontology.org/data/game/566279/pitch/4eea9405-fd92-42ca-abb3-026eec0b1162",
+          "https://baseballontology.org/data/game/566279/pitch/92cbd9b9-d220-4b17-bbc7-5eba74f8a0d6",
+          "https://baseballontology.org/data/game/566279/pitch/93071822-117a-4982-96b6-47c0a2ff5442"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/54",
+        "player": "https://baseballontology.org/data/player/571976",
+        "twoStrikeEligible": true,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/15474805-349c-4783-a39a-a389da049630",
+            "strikesAfter": 0,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/93071822-117a-4982-96b6-47c0a2ff5442",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/92cbd9b9-d220-4b17-bbc7-5eba74f8a0d6",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/4eea9405-fd92-42ca-abb3-026eec0b1162",
+            "strikesAfter": 2,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "NOT_TWO_STRIKE_ELIGIBLE"
+        ],
+        "evidence": [],
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/55",
+        "player": "https://baseballontology.org/data/player/665487",
+        "twoStrikeEligible": false,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/4885e564-a39c-42bf-8de8-341ddbb3fe6e",
+            "strikesAfter": 0,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "NOT_TWO_STRIKE_ELIGIBLE"
+        ],
+        "evidence": [],
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/56",
+        "player": "https://baseballontology.org/data/player/594824",
+        "twoStrikeEligible": false,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/03efed79-ec97-44f0-9ad1-7d1691d6f3f1",
+            "strikesAfter": 0,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "0",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/566279/pitch/1f4581a9-4075-49c1-afe0-1112f86de7e7",
+          "https://baseballontology.org/data/game/566279/pitch/47767618-5eb0-4563-9526-830414df03bb",
+          "https://baseballontology.org/data/game/566279/pitch/6cc4785e-a34d-4908-b4fd-56c35e067aad"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/57",
+        "player": "https://baseballontology.org/data/player/606466",
+        "twoStrikeEligible": true,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/47767618-5eb0-4563-9526-830414df03bb",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/1f4581a9-4075-49c1-afe0-1112f86de7e7",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/6cc4785e-a34d-4908-b4fd-56c35e067aad",
+            "strikesAfter": 2,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "2",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/566279/pitch/707f67de-a053-4d94-a5b9-1274279c4fa0",
+          "https://baseballontology.org/data/game/566279/pitch/bc04d68e-914e-4555-aadd-82d51cd142ac",
+          "https://baseballontology.org/data/game/566279/pitch/bde4e80e-13d0-4533-b390-84dda9103f75",
+          "https://baseballontology.org/data/game/566279/pitch/f1582e00-b52f-4418-94a1-6cdf8abc08c6",
+          "https://baseballontology.org/data/game/566279/pitch/fe11f7f8-bb7a-4b42-b1ce-c9b570e0103b"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/58",
+        "player": "https://baseballontology.org/data/player/605113",
+        "twoStrikeEligible": true,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/bc04d68e-914e-4555-aadd-82d51cd142ac",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/707f67de-a053-4d94-a5b9-1274279c4fa0",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/f1582e00-b52f-4418-94a1-6cdf8abc08c6",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/bde4e80e-13d0-4533-b390-84dda9103f75",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/fe11f7f8-bb7a-4b42-b1ce-c9b570e0103b",
+            "strikesAfter": 2,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "0",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/566279/pitch/19d6ddfe-7e1b-4514-9a7d-7ae02f26aaf1",
+          "https://baseballontology.org/data/game/566279/pitch/4d67b50e-6f33-4259-9be9-5848b636ab6f",
+          "https://baseballontology.org/data/game/566279/pitch/8ce7d3b8-3701-41fe-9afa-82455b3900ad",
+          "https://baseballontology.org/data/game/566279/pitch/90340390-0c29-4e83-b72b-316f4ab2f45d",
+          "https://baseballontology.org/data/game/566279/pitch/e0b0ba9c-5fb4-485b-ae57-1c4ee9e3eb3a",
+          "https://baseballontology.org/data/game/566279/pitch/e5b04aaf-ea39-43f0-9315-a2a5addeabe6"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/59",
+        "player": "https://baseballontology.org/data/player/488671",
+        "twoStrikeEligible": true,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/90340390-0c29-4e83-b72b-316f4ab2f45d",
+            "strikesAfter": 0,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/4d67b50e-6f33-4259-9be9-5848b636ab6f",
+            "strikesAfter": 0,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/e5b04aaf-ea39-43f0-9315-a2a5addeabe6",
+            "strikesAfter": 0,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/19d6ddfe-7e1b-4514-9a7d-7ae02f26aaf1",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/8ce7d3b8-3701-41fe-9afa-82455b3900ad",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/e0b0ba9c-5fb4-485b-ae57-1c4ee9e3eb3a",
+            "strikesAfter": 2,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "0",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/566279/pitch/4395f4c0-8894-4396-b8ce-9f216bc5a910",
+          "https://baseballontology.org/data/game/566279/pitch/a0708c72-d303-4897-8802-4fd86085117f",
+          "https://baseballontology.org/data/game/566279/pitch/b05a8717-c2f5-4356-b848-e7cfe6523adf"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/6",
+        "player": "https://baseballontology.org/data/player/435079",
+        "twoStrikeEligible": true,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/a0708c72-d303-4897-8802-4fd86085117f",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/4395f4c0-8894-4396-b8ce-9f216bc5a910",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/b05a8717-c2f5-4356-b848-e7cfe6523adf",
+            "strikesAfter": 2,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "NOT_TWO_STRIKE_ELIGIBLE"
+        ],
+        "evidence": [],
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/60",
+        "player": "https://baseballontology.org/data/player/571875",
+        "twoStrikeEligible": false,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/5e5bd997-b351-45d5-a028-918e0172470a",
+            "strikesAfter": 0,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "0",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/566279/pitch/3b21d34e-ce85-4e9e-b3c8-a2722eaf638e",
+          "https://baseballontology.org/data/game/566279/pitch/50afeda6-9f4d-4acc-ad74-73e8aebeaad7",
+          "https://baseballontology.org/data/game/566279/pitch/a2c46a98-8bf1-4240-8fd7-a16596e58707"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/61",
+        "player": "https://baseballontology.org/data/player/430945",
+        "twoStrikeEligible": true,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/3b21d34e-ce85-4e9e-b3c8-a2722eaf638e",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/a2c46a98-8bf1-4240-8fd7-a16596e58707",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/50afeda6-9f4d-4acc-ad74-73e8aebeaad7",
+            "strikesAfter": 2,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "NOT_TWO_STRIKE_ELIGIBLE"
+        ],
+        "evidence": [],
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/62",
+        "player": "https://baseballontology.org/data/player/500871",
+        "twoStrikeEligible": false,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/3be4a7d0-8912-4f77-a212-5d26c7f1a562",
+            "strikesAfter": 0,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/c19e843c-5666-4cb4-aa28-5abe8c7e725f",
+            "strikesAfter": 0,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "NOT_TWO_STRIKE_ELIGIBLE"
+        ],
+        "evidence": [],
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/63",
+        "player": "https://baseballontology.org/data/player/595978",
+        "twoStrikeEligible": false,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/fe08b41f-1041-446c-b223-0c9b736e50a0",
+            "strikesAfter": 0,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/490761f7-48d0-4daa-ad1b-47a445e11713",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/09ff66dc-b1aa-4727-a33b-9e8b0f969fcb",
+            "strikesAfter": 1,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "0",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/566279/pitch/1a4c45f1-e60e-4a7f-8d79-74a0309782d3",
+          "https://baseballontology.org/data/game/566279/pitch/1de943a3-55a1-4ad5-90ba-3e3fe7a83a91",
+          "https://baseballontology.org/data/game/566279/pitch/47dd00cc-89a9-431a-baa2-74ab8fdd921b",
+          "https://baseballontology.org/data/game/566279/pitch/82e0f4b0-557a-4ffb-8169-9c93d36a9e1e",
+          "https://baseballontology.org/data/game/566279/pitch/933f5f42-5621-4888-9ee8-fc55db71150a",
+          "https://baseballontology.org/data/game/566279/pitch/b0ec6fd4-b05e-4178-9487-f359965283dd"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/64",
+        "player": "https://baseballontology.org/data/player/614173",
+        "twoStrikeEligible": true,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/933f5f42-5621-4888-9ee8-fc55db71150a",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/47dd00cc-89a9-431a-baa2-74ab8fdd921b",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/1de943a3-55a1-4ad5-90ba-3e3fe7a83a91",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/1a4c45f1-e60e-4a7f-8d79-74a0309782d3",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/b0ec6fd4-b05e-4178-9487-f359965283dd",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/82e0f4b0-557a-4ffb-8169-9c93d36a9e1e",
+            "strikesAfter": 3,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "NOT_TWO_STRIKE_ELIGIBLE"
+        ],
+        "evidence": [],
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/65",
+        "player": "https://baseballontology.org/data/player/664208",
+        "twoStrikeEligible": false,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/b4f96661-98af-4d37-99af-ac9d4b23f4fe",
+            "strikesAfter": 0,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "NOT_TWO_STRIKE_ELIGIBLE"
+        ],
+        "evidence": [],
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/66",
+        "player": "https://baseballontology.org/data/player/527038",
+        "twoStrikeEligible": false,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/878616bc-0601-4726-b38c-8facea4d1758",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/ca12b507-6794-4842-b963-35e7d5738938",
+            "strikesAfter": 1,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "0",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/566279/pitch/1e73aa8f-faa9-48fc-9551-5b5940fc940b",
+          "https://baseballontology.org/data/game/566279/pitch/2b7456fb-7b4c-45c9-b4a2-4800425b75db",
+          "https://baseballontology.org/data/game/566279/pitch/ae7dea24-039d-4f13-90a3-c1de3db1abd1"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/67",
+        "player": "https://baseballontology.org/data/player/444482",
+        "twoStrikeEligible": true,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/ae7dea24-039d-4f13-90a3-c1de3db1abd1",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/2b7456fb-7b4c-45c9-b4a2-4800425b75db",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/1e73aa8f-faa9-48fc-9551-5b5940fc940b",
+            "strikesAfter": 2,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "NOT_TWO_STRIKE_ELIGIBLE"
+        ],
+        "evidence": [],
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/68",
+        "player": "https://baseballontology.org/data/player/572233",
+        "twoStrikeEligible": false,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/9803a4b7-3fa2-4650-ae0d-4fd38a3b7933",
+            "strikesAfter": 0,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/b219133d-81b4-475a-b072-918473247543",
+            "strikesAfter": 0,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "2",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/566279/pitch/59ee211f-c985-4190-8cbb-0444a01f5138",
+          "https://baseballontology.org/data/game/566279/pitch/a8b5c022-4908-4702-a3c6-2fd5f0a8d3f7",
+          "https://baseballontology.org/data/game/566279/pitch/c277d5bf-b79f-423e-bb80-e9029d2b7bb8",
+          "https://baseballontology.org/data/game/566279/pitch/cc0bffff-d1d6-412c-84cc-c78162ee5100",
+          "https://baseballontology.org/data/game/566279/pitch/f6c5f2f2-398c-474e-9e7c-d6851e02016f"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/69",
+        "player": "https://baseballontology.org/data/player/606466",
+        "twoStrikeEligible": true,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/c277d5bf-b79f-423e-bb80-e9029d2b7bb8",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/59ee211f-c985-4190-8cbb-0444a01f5138",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/a8b5c022-4908-4702-a3c6-2fd5f0a8d3f7",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/cc0bffff-d1d6-412c-84cc-c78162ee5100",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/f6c5f2f2-398c-474e-9e7c-d6851e02016f",
+            "strikesAfter": 3,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "NOT_TWO_STRIKE_ELIGIBLE"
+        ],
+        "evidence": [],
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/7",
+        "player": "https://baseballontology.org/data/player/543333",
+        "twoStrikeEligible": false,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/cd66573b-dfb1-4be2-818c-82999fb714d4",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/8cace716-3eb6-4d72-8712-28c1edb4e24d",
+            "strikesAfter": 1,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "NOT_TWO_STRIKE_ELIGIBLE"
+        ],
+        "evidence": [],
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/70",
+        "player": "https://baseballontology.org/data/player/543333",
+        "twoStrikeEligible": false,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/bb31b538-a51a-48c4-b7a7-17e936e7d761",
+            "strikesAfter": 0,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/01a0fdde-8036-488d-ab83-09a94150833a",
+            "strikesAfter": 0,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/3ca1e091-e807-4d31-a4df-532354a6837c",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/0a825505-5af3-4240-9f03-2aad4abba5e4",
+            "strikesAfter": 1,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "NOT_TWO_STRIKE_ELIGIBLE"
+        ],
+        "evidence": [],
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/71",
+        "player": "https://baseballontology.org/data/player/592518",
+        "twoStrikeEligible": false,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/9e27d2fa-aa0b-46c9-bbd9-f5b1357581c5",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/fad24397-a235-400c-b98f-3fdc8167ae5e",
+            "strikesAfter": 1,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "3",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/566279/pitch/1769c980-60c1-4955-a87b-8466a8c6a49f",
+          "https://baseballontology.org/data/game/566279/pitch/401bf8e9-323e-4fb6-867e-bc868a1928a3",
+          "https://baseballontology.org/data/game/566279/pitch/56387fe0-adfc-4f3b-8060-ccf3d40d178d",
+          "https://baseballontology.org/data/game/566279/pitch/57c83802-2bdd-46be-8959-710bb1be7d6b",
+          "https://baseballontology.org/data/game/566279/pitch/59a2bc26-bd6b-4e26-ae60-d4cbbeb4cd7b",
+          "https://baseballontology.org/data/game/566279/pitch/a135cc46-0c56-4d6d-be70-1ebc0142311e",
+          "https://baseballontology.org/data/game/566279/pitch/b21ed0f7-76e5-40d6-8bfc-6b22332529f7",
+          "https://baseballontology.org/data/game/566279/pitch/b5ceb430-01ec-4cf4-9f10-aeed89fea0b1"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/72",
+        "player": "https://baseballontology.org/data/player/614177",
+        "twoStrikeEligible": true,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/401bf8e9-323e-4fb6-867e-bc868a1928a3",
+            "strikesAfter": 0,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/1769c980-60c1-4955-a87b-8466a8c6a49f",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/57c83802-2bdd-46be-8959-710bb1be7d6b",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/a135cc46-0c56-4d6d-be70-1ebc0142311e",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/59a2bc26-bd6b-4e26-ae60-d4cbbeb4cd7b",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/b5ceb430-01ec-4cf4-9f10-aeed89fea0b1",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/56387fe0-adfc-4f3b-8060-ccf3d40d178d",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/b21ed0f7-76e5-40d6-8bfc-6b22332529f7",
+            "strikesAfter": 2,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "0",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/566279/pitch/a40afd5e-bf23-4bd4-8161-0059a7962eba",
+          "https://baseballontology.org/data/game/566279/pitch/bdbf92b8-9814-4284-9242-fcab9d58c329",
+          "https://baseballontology.org/data/game/566279/pitch/f2e2c13f-baad-47e8-a652-94c5e083c9f8",
+          "https://baseballontology.org/data/game/566279/pitch/f490e086-bf6e-4d92-a137-d3cbd225bb32"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/73",
+        "player": "https://baseballontology.org/data/player/605113",
+        "twoStrikeEligible": true,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/f2e2c13f-baad-47e8-a652-94c5e083c9f8",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/bdbf92b8-9814-4284-9242-fcab9d58c329",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/a40afd5e-bf23-4bd4-8161-0059a7962eba",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/f490e086-bf6e-4d92-a137-d3cbd225bb32",
+            "strikesAfter": 3,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "0",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/566279/pitch/76e4df9a-1d9d-47f8-be52-84f460012ed2",
+          "https://baseballontology.org/data/game/566279/pitch/c9636147-f0e0-432a-8c3d-074e20ffac70",
+          "https://baseballontology.org/data/game/566279/pitch/e17fdbc7-5c55-4c46-9573-bbbc6a15d778"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/74",
+        "player": "https://baseballontology.org/data/player/488671",
+        "twoStrikeEligible": true,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/c9636147-f0e0-432a-8c3d-074e20ffac70",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/76e4df9a-1d9d-47f8-be52-84f460012ed2",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/e17fdbc7-5c55-4c46-9573-bbbc6a15d778",
+            "strikesAfter": 3,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "2",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/566279/pitch/4e86bc8a-7a06-4b59-a204-d2e01ba5af81",
+          "https://baseballontology.org/data/game/566279/pitch/4ff85149-7866-4b98-8a79-0607a007e439",
+          "https://baseballontology.org/data/game/566279/pitch/53ea4e6b-c8d6-4c37-bedc-1151277e232d",
+          "https://baseballontology.org/data/game/566279/pitch/7aa44dfe-5cbd-49ab-9998-e925e47569e7",
+          "https://baseballontology.org/data/game/566279/pitch/e43ef014-2658-4bd4-be8d-57e1d78db79a"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/75",
+        "player": "https://baseballontology.org/data/player/641541",
+        "twoStrikeEligible": true,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/4ff85149-7866-4b98-8a79-0607a007e439",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/4e86bc8a-7a06-4b59-a204-d2e01ba5af81",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/7aa44dfe-5cbd-49ab-9998-e925e47569e7",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/e43ef014-2658-4bd4-be8d-57e1d78db79a",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/53ea4e6b-c8d6-4c37-bedc-1151277e232d",
+            "strikesAfter": 3,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "NOT_TWO_STRIKE_ELIGIBLE"
+        ],
+        "evidence": [],
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/76",
+        "player": "https://baseballontology.org/data/player/571976",
+        "twoStrikeEligible": false,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/63cd08be-42bf-4bcb-a405-2d25e75c2332",
+            "strikesAfter": 0,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "0",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/566279/pitch/38bcac82-bb98-4f4c-b3a5-17593142b371",
+          "https://baseballontology.org/data/game/566279/pitch/67c6eb88-3edf-4943-beba-8e234403688b",
+          "https://baseballontology.org/data/game/566279/pitch/ead7d5a9-4f32-45ed-93d0-db0aea123aed",
+          "https://baseballontology.org/data/game/566279/pitch/ee8e49bd-ff67-434f-84f5-8d9cf947babb"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/77",
+        "player": "https://baseballontology.org/data/player/665487",
+        "twoStrikeEligible": true,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/67c6eb88-3edf-4943-beba-8e234403688b",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/ee8e49bd-ff67-434f-84f5-8d9cf947babb",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/ead7d5a9-4f32-45ed-93d0-db0aea123aed",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/38bcac82-bb98-4f4c-b3a5-17593142b371",
+            "strikesAfter": 2,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "0",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/566279/pitch/2211326c-96c5-4089-beff-238afe57f9cd",
+          "https://baseballontology.org/data/game/566279/pitch/403e4d6a-4684-4ecf-b01d-22eee527cd95",
+          "https://baseballontology.org/data/game/566279/pitch/d4748e0f-4d4d-41ef-b8a9-8162828b6386",
+          "https://baseballontology.org/data/game/566279/pitch/d9ca3fbf-3c04-4d04-89cb-2d8e6f7d6579"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/78",
+        "player": "https://baseballontology.org/data/player/594824",
+        "twoStrikeEligible": true,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/d4748e0f-4d4d-41ef-b8a9-8162828b6386",
+            "strikesAfter": 0,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/d9ca3fbf-3c04-4d04-89cb-2d8e6f7d6579",
+            "strikesAfter": 1,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/2211326c-96c5-4089-beff-238afe57f9cd",
+            "strikesAfter": 2,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/403e4d6a-4684-4ecf-b01d-22eee527cd95",
+            "strikesAfter": 3,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "NOT_TWO_STRIKE_ELIGIBLE"
+        ],
+        "evidence": [],
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/8",
+        "player": "https://baseballontology.org/data/player/592518",
+        "twoStrikeEligible": false,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/17bd0a2f-b00d-4b0b-8f78-441c293308f2",
+            "strikesAfter": 0,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/84a201e0-db91-4b5a-9050-ada2c3581265",
+            "strikesAfter": 0,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/39f7d2f4-5b99-4b16-bf06-c7aa23caeba8",
+            "strikesAfter": 0,
+            "terminal": false
+          },
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/504c93f9-e4d4-4ca4-a752-bc0ee018107c",
+            "strikesAfter": 0,
+            "terminal": true
+          }
+        ]
+      },
+      {
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "NOT_TWO_STRIKE_ELIGIBLE"
+        ],
+        "evidence": [],
+        "graph": "https://w3id.org/baseball/graph/game/566279",
+        "plateAppearance": "https://baseballontology.org/data/game/566279/plate-appearance/9",
+        "player": "https://baseballontology.org/data/player/614177",
+        "twoStrikeEligible": false,
+        "countHistory": [
+          {
+            "pitch": "https://baseballontology.org/data/game/566279/pitch/a80d080b-52fd-4c9e-bf03-105633267f14",
+            "strikesAfter": 0,
+            "terminal": true
+          }
+        ]
+      }
+    ],
+    "gaps": []
+  },
+  "seasonPopulationComplete": false,
+  "livePopulationComplete": false
+}
