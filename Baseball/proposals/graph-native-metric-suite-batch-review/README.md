@@ -1,5 +1,10 @@
 # One review for the new metric suite
 
+The [September 14 operational audit](operational-blockers-2026-09-14.md) records
+the missing live player-score producer, all 20 metrics, and the remaining
+engineering, source-evidence and player-presentation decisions. The requested
+qualified player dashboard is incomplete. E1/C1 and C1/C2 do not need another vote.
+
 **C1 and C2 accepted:** the [archived decision](../../archive/design-records/runner-continuity-boundary-projection/review.json)
 accepts the personal Process whole and verified-history projection of metric
 boundary state, with no new object properties. The source SHACL contract,
