@@ -19,6 +19,11 @@ and only then atomically replaces the local
 end-to-end SPARQL-to-SQL result equivalence. A failed build leaves the prior
 pointer unchanged.
 
+NiFi builds reuse exact SELECT answers for unchanged validated graph pairs
+and stop at implementation checkpoints when their inputs change. The
+[build reuse contract](BUILD-REUSE.md) describes cache identity, corruption
+recovery, progress evidence, and the unchanged final promotion checks.
+
 Reference authority facts use a separate immutable SQLite product and pointer
 under `%LOCALAPPDATA%\BaseballO\state\serving\authority`. Immutable promoted-
 graph events identify the exact source graph and promotion evidence. The

@@ -629,6 +629,57 @@ class ServingMaterializerTests(unittest.TestCase):
             )
             self.assertEqual(evidence["sourceCorpusIntegrity"]["validatedPromotionGameCount"], 1)
 
+    def test_warm_build_reuses_answers_preserves_rows_and_rechecks_live_snapshot(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            state=Path(temporary)
+            make_promotion(state,'1',B966)
+            calls=[]
+            def offline_sparql(_endpoint,query,_timeout):
+                calls.append(query)
+                if '?rdfGameSet ?venue ?venueLabel' in query:return result([dimension('1')])
+                if 'COUNT(?sourceObject)' in query or 'COUNT(?indexObject)' in query:return result([live_pair('1')])
+                return result([])
+            args=argparse.Namespace(state_root=state,endpoint='offline',timeout=1,max_games=None,no_promote=False)
+            with patch.object(MODULE,'sparql',side_effect=offline_sparql), patch.object(
+                    MODULE,'official_metadata',return_value={'1':{'gameSet':'regular_season'}}):
+                cold=MODULE.build(args)
+                cold_calls=len(calls);calls.clear()
+                warm=MODULE.build(args)
+            self.assertGreater(cold_calls,len(calls))
+            self.assertEqual(len(calls),6)  # Two fresh three-query source snapshots.
+            self.assertGreater(warm['benchmark']['queryCache']['hits'],50)
+            self.assertEqual(warm['benchmark']['queryCache']['misses'],0)
+            self.assertEqual(warm['benchmark']['queryCache']['bypassed'],0)
+            self.assertEqual(cold['integrity'],warm['integrity'])
+            self.assertEqual(cold['sourceCorpusIntegrity'],warm['sourceCorpusIntegrity'])
+            self.assertTrue(warm['sourceCorpusIntegrity']['liveGraphStateRechecked'])
+            self.assertEqual(json.loads((state/'serving/current.json').read_text())['buildId'],warm['buildId'])
+
+    def test_implementation_drift_aborts_candidate_and_preserves_pointer(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            state=Path(temporary);make_promotion(state,'1',B966)
+            pointer=state/'serving/current.json'
+            write_json(pointer,{'buildId':'prior'})
+            before=pointer.read_bytes()
+            current=MODULE._metric_suite.fingerprint()
+            drift=False
+            def offline_sparql(_endpoint,query,_timeout):
+                nonlocal drift
+                if '?rdfGameSet ?venue ?venueLabel' in query:return result([dimension('1')])
+                if 'COUNT(?sourceObject)' in query or 'COUNT(?indexObject)' in query:return result([live_pair('1')])
+                drift=True
+                return result([])
+            args=argparse.Namespace(state_root=state,endpoint='offline',timeout=1,max_games=None,no_promote=False)
+            with patch.object(MODULE,'sparql',side_effect=offline_sparql), patch.object(
+                    MODULE,'official_metadata',return_value={'1':{'gameSet':'regular_season'}}), patch.object(
+                    MODULE._metric_suite,'fingerprint',side_effect=lambda:'changed' if drift else current):
+                with self.assertRaises(MODULE._build_guard.InputsChanged):MODULE.build(args)
+            self.assertEqual(pointer.read_bytes(),before)
+            self.assertEqual(list((state/'serving/builds').glob('*.sqlite')),[])
+            progress=json.loads(next((state/'serving/builds').glob('*.progress.json')).read_text())
+            self.assertEqual(progress['status'],'invalidated')
+            self.assertIn('metric-suite',progress['changedInputs'])
+
     def test_build_fails_closed_without_game_set_provenance(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             state = Path(temporary)

@@ -29,6 +29,7 @@ ROOT = Path(__file__).resolve().parents[2]
 _metric_spec = importlib.util.spec_from_file_location('baseballo_metric_suite', ROOT / 'serving/metric_suite.py')
 _metric_suite = importlib.util.module_from_spec(_metric_spec)
 _metric_spec.loader.exec_module(_metric_suite)
+_LOADED_METRIC_SHA256 = _metric_suite.fingerprint()
 _batting_spec = importlib.util.spec_from_file_location('baseballo_batting_admission',
     ROOT / 'sources/mlb-game/pipeline/batting-admission.py')
 _batting_admission = importlib.util.module_from_spec(_batting_spec)
@@ -41,6 +42,14 @@ _resolution_spec = importlib.util.spec_from_file_location('baseballo_runner_reso
     ROOT / 'sources/mlb-game/pipeline/runner-resolution-admission.py')
 _resolution_admission = importlib.util.module_from_spec(_resolution_spec)
 _resolution_spec.loader.exec_module(_resolution_admission)
+_cache_spec = importlib.util.spec_from_file_location('baseballo_serving_query_cache',
+    ROOT / 'scripts/pipeline/serving_query_cache.py')
+_query_cache = importlib.util.module_from_spec(_cache_spec)
+_cache_spec.loader.exec_module(_query_cache)
+_guard_spec = importlib.util.spec_from_file_location('baseballo_serving_build_guard',
+    ROOT / 'scripts/pipeline/serving_build_guard.py')
+_build_guard = importlib.util.module_from_spec(_guard_spec)
+_guard_spec.loader.exec_module(_build_guard)
 PROMOTION_INVENTORY_MODULE = ROOT / "scripts" / "pipeline" / "game_promotion_inventory.py"
 _promotion_spec = importlib.util.spec_from_file_location(
     "baseballo_game_promotion_inventory", PROMOTION_INVENTORY_MODULE
@@ -49,6 +58,10 @@ if _promotion_spec is None or _promotion_spec.loader is None:
     raise RuntimeError("Cannot load the source-neutral game-promotion inventory module")
 _promotion_inventory = importlib.util.module_from_spec(_promotion_spec)
 _promotion_spec.loader.exec_module(_promotion_inventory)
+_LOADED_MODULE_HASHES = {Path(module.__file__): hashlib.sha256(Path(module.__file__).read_bytes()).hexdigest()
+                        for module in (_batting_admission,_run_admission,_resolution_admission,
+                                       _query_cache,_build_guard,_promotion_inventory)}
+_LOADED_MODULE_HASHES[Path(__file__).resolve()] = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
 SERVING_ROOT = ROOT / "serving"
 SCHEMA = SERVING_ROOT / "schema.sql"
 CONTRACT = SERVING_ROOT / "contract.json"
@@ -968,6 +981,17 @@ def update_row_sequence(hasher: Any, row: str) -> None:
 
 
 def build(args: argparse.Namespace) -> dict[str, Any]:
+    progress = {}
+    try:
+        return _build(args, progress)
+    except Exception as error:
+        if 'guard' in progress:
+            try: progress['guard'].fail(error)
+            except OSError: pass  # Preserve the original failure if progress storage also fails.
+        raise
+
+
+def _build(args: argparse.Namespace, progress: dict[str, Any]) -> dict[str, Any]:
     state_root = args.state_root.resolve()
     store_root = state_root / "serving"
     builds_root = store_root / "builds"
@@ -976,11 +1000,16 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
     evidence_root.mkdir(parents=True, exist_ok=True)
     build_id = f"{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}-{uuid.uuid4().hex[:12]}"
     database = builds_root / f"{build_id}.sqlite"
-    schema_bytes = SCHEMA.read_bytes()
-    query_source = GOOD_AT_BAT_QUERY.read_text(encoding="utf-8")
-    catalog = json.loads(ADVANCED_CATALOG.read_text(encoding="utf-8"))
-    reducers = json.loads(ADVANCED_REDUCERS.read_text(encoding="utf-8"))
-    dsq_catalog = json.loads(DSQ_MATERIALIZATIONS.read_text(encoding="utf-8"))
+    loaded_hashes = dict(_LOADED_MODULE_HASHES)
+    def read_input(path):
+        content=path.read_bytes()
+        loaded_hashes[path]=sha256_bytes(content)
+        return content
+    schema_bytes = read_input(SCHEMA)
+    query_source = read_input(GOOD_AT_BAT_QUERY).decode('utf-8')
+    catalog = json.loads(read_input(ADVANCED_CATALOG))
+    reducers = json.loads(read_input(ADVANCED_REDUCERS))
+    dsq_catalog = json.loads(read_input(DSQ_MATERIALIZATIONS))
     advanced_entries = catalog.get("queries", [])
     reducer_ids = set(reducers.get("detailQueries", [])) | set(reducers.get("additiveQueries", {}))
     query_ids = {entry.get("id") for entry in advanced_entries}
@@ -991,14 +1020,30 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
     dsq_by_id = {entry["id"]: entry for entry in dsq_entries}
     canned_dsq_entries = [entry for entry in dsq_entries if entry["kind"] == "canned"]
     advanced_sources = {
-        entry["id"]: (ROOT / entry["path"]).read_text(encoding="utf-8")
+        entry["id"]: read_input(ROOT / entry["path"]).decode('utf-8')
         for entry in advanced_entries
     }
     canned_dsq_sources = {
-        entry["id"]: (ROOT / entry["executionPath"]).read_text(encoding="utf-8")
+        entry["id"]: read_input(ROOT / entry["executionPath"]).decode('utf-8')
         for entry in canned_dsq_entries
     }
-    explore_sources = {name: path.read_text(encoding="utf-8") for name, path in EXPLORE_GRAIN_QUERIES.items()}
+    explore_sources = {name: read_input(path).decode('utf-8') for name, path in EXPLORE_GRAIN_QUERIES.items()}
+    guarded_paths={str(path.relative_to(ROOT)):path for path in {
+        MATERIALIZER,SCHEMA,CONTRACT,QUALITY_SPEC,MAPPING,VALIDATOR,
+        ADVANCED_CATALOG,ADVANCED_REDUCERS,DSQ_MATERIALIZATIONS,PROMOTION_INVENTORY_MODULE,
+        QUERY_INDEX_ROUTING,QUERY_INDEX_SEMANTIC_CONTRACT,
+        ROOT/'scripts/pipeline/serving_query_cache.py',ROOT/'scripts/pipeline/serving_build_guard.py',
+        ROOT/'sources/mlb-game/pipeline/reconcile-metric-source.py',ROOT/'scripts/pipeline/validate-shacl.py',
+        *loaded_hashes,
+        *SERVING_QUERY_FILES.values(),*(ROOT/e['path'] for e in advanced_entries),
+        *(ROOT/e['executionPath'] for e in canned_dsq_entries)}}
+    guard=_build_guard.BuildInputGuard(paths=guarded_paths,metric_fingerprint=_metric_suite.fingerprint,
+        progress_path=builds_root/(build_id+'.progress.json'),build_id=build_id,
+        loaded_hashes={str(p.relative_to(ROOT)):value for p,value in loaded_hashes.items()},
+        loaded_metric_hash=_LOADED_METRIC_SHA256)
+    progress['guard']=guard
+    guard.check(completed=0,total=None,phase='source-snapshot')
+    cache=_query_cache.ServingQueryCache(store_root/'query-cache.sqlite')
     started = time.perf_counter()
     snapshot_started = time.perf_counter()
     initial_snapshot = corpus_snapshot(
@@ -1015,6 +1060,7 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
         dimensions = dimensions[:args.max_games]
     if not dimensions:
         raise RuntimeError("Authoritative RDF has no materializable games")
+    guard.check(completed=0,total=len(dimensions),phase='source-queries')
 
     connection = sqlite3.connect(database)
     connection.executescript(schema_bytes.decode("utf-8"))
@@ -1023,7 +1069,7 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
         text = _metric_suite._json(proof)
         connection.execute('INSERT INTO metric_suite_schedule_coverage VALUES (?,?,?)',
                            (day, text, _metric_suite._hash(text)))
-    metric_suite_sha256 = _metric_suite.fingerprint()
+    metric_suite_sha256 = guard.metric_hash
     metric_suite_proofs = []
     rows = 0
     advanced_rows = 0
@@ -1074,6 +1120,8 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
                 (entry["id"], sha256_file(ROOT / entry["path"]), reducer_mode, "[]", 0),
             )
         for index, dimension in enumerate(dimensions, start=1):
+            if index>1 and (index-1)%10==0:
+                guard.check(completed=index-1,total=len(dimensions),phase='source-queries')
             graph = lexical(dimension, "graph") or ""
             game = lexical(dimension, "game") or ""
             game_pk = game.rsplit("/", 1)[-1]
@@ -1119,7 +1167,10 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
             if promotion_record is None or promotion_record["gamePk"] != game_pk:
                 raise ValueError(f"Materialization escaped the validated promotion inventory: {graph}")
             artifact = promotion_record["authoritativeRdfSha256"]
-            metric_evidence = sparql(args.endpoint, _metric_suite.evidence_query([graph]), args.timeout)
+            def scoped_sparql(query,slot):
+                return cache.query(endpoint=args.endpoint,query=query,slot=slot,promotion=promotion_record,
+                    fetch=lambda:sparql(args.endpoint,query,args.timeout))
+            metric_evidence = scoped_sparql(_metric_suite.evidence_query([graph]),'metric-suite')
             metric_suite_proofs.append(_metric_suite.materialize_game(
                 connection, graph, metric_evidence['results']['bindings'],
                 batting_admission=_batting_admission.promoted_admission(state_root, promotion_record),
@@ -1129,7 +1180,7 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
             query_started = time.perf_counter()
             try:
                 payload = restore_scoped_graph_bindings(
-                    sparql(args.endpoint, bounded_query(query_source, graph), args.timeout), graph
+                    scoped_sparql(bounded_query(query_source, graph),'advanced:plate-appearance-fingerprint'), graph
                 )
             except Exception as exc:
                 raise RuntimeError(
@@ -1153,7 +1204,7 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
                     advanced_started = time.perf_counter()
                     try:
                         advanced_payload = restore_scoped_graph_bindings(
-                            sparql(args.endpoint, bounded_query(source, graph), args.timeout), graph
+                            scoped_sparql(bounded_query(source, graph),'advanced:'+query_id), graph
                         )
                     except Exception as exc:
                         raise RuntimeError(
@@ -1193,12 +1244,11 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
                 dsq_started = time.perf_counter()
                 try:
                     dsq_payload = restore_scoped_graph_bindings(
-                        sparql(
-                            args.endpoint,
+                        scoped_sparql(
                             bounded_dsq_query(
                                 canned_dsq_sources[query_id], graph, entry["executionLayer"]
                             ),
-                            args.timeout,
+                            'canned:'+query_id,
                         ),
                         graph,
                         (
@@ -1230,7 +1280,7 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
                 grain_started = time.perf_counter()
                 try:
                     grain_payload = restore_scoped_graph_bindings(
-                        sparql(args.endpoint, bounded_query(source, graph), args.timeout), graph
+                        scoped_sparql(bounded_query(source, graph),'explore:'+grain_name), graph
                     )
                 except Exception as exc:
                     raise RuntimeError(f"Serving grain {grain_name} failed for {graph}: {exc}") from exc
@@ -1304,6 +1354,7 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
                     explore_counts[grain_name] += 1
             if index % 10 == 0:
                 connection.commit()
+        guard.check(completed=len(dimensions),total=len(dimensions),phase='sql-validation')
         for query_id in sorted(advanced_counts):
             connection.execute(
                 "UPDATE advanced_query_manifest SET variables_json=?,binding_count=? WHERE query_id=?",
@@ -1479,10 +1530,10 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
         layer: sum(entry["executionLayer"] == layer for entry in dsq_entries)
         for layer in ("authoritative", "indexed")
     }
-    if _metric_suite.fingerprint() != metric_suite_sha256:
-        raise ValueError('Metric implementation changed during materialization')
+    guard.check(completed=len(dimensions),total=len(dimensions),phase='publication-checks')
     evidence = {
         "metricSuiteSha256": metric_suite_sha256,
+        "buildInputHashes":dict(guard.hashes),
         "metricSuite": {"games": len(metric_suite_proofs),
                         "resultCount": sum(p['metrics'] for p in metric_suite_proofs),
                         "evidenceRows": sum(p['evidenceRows'] for p in metric_suite_proofs),
@@ -1538,6 +1589,7 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
             ],
         },
         "benchmark": {
+            "queryCache":dict(cache.stats),
             "engine": "sqlite",
             "dsqReadOnlyWorkers": getattr(args, "dsq_workers", 2),
             "initialCorpusSnapshotMs": initial_snapshot_ms,
@@ -1594,6 +1646,7 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
         evidence["sourceCorpusIntegrity"]["promotionInventoryRechecked"] = True
         evidence["sourceCorpusIntegrity"]["liveGraphStateRechecked"] = True
         promotion_time = utc_now()
+        guard.check(completed=len(dimensions),total=len(dimensions),phase='promotion')
         evidence["promotionReadyAtUtc"] = promotion_time
         evidence["retention"] = enforce_build_retention(
             store_root, database, getattr(args, "retain_builds", 3)
@@ -1633,8 +1686,10 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
         }
         # This is deliberately the final filesystem mutation. Any failure before
         # this atomic swap leaves the prior validated pointer active.
+        guard.finish('ready-for-promotion')
         atomic_json(store_root / "current.json", pointer)
         return {**evidence, "status": "promoted", "promotedAtUtc": promotion_time}
+    guard.finish('validated')
     return evidence
 
 
@@ -1664,7 +1719,8 @@ def main() -> int:
         print(json.dumps(build(args), separators=(",", ":")))
         return 0
     except Exception as exc:
-        print(json.dumps({"status": "failed", "error": str(exc)}, separators=(",", ":")))
+        print(json.dumps({"status": "failed", "error": str(exc),
+            "failureKind":"implementation-changed" if isinstance(exc,_build_guard.InputsChanged) else "execution-failed"}, separators=(",", ":")))
         return 1
 
 
