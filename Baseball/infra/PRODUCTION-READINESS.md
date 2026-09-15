@@ -94,7 +94,7 @@ readiness.
 | Metric coverage | Complete the accepted source backfill and inspect coverage across the intended release population. Twenty implemented cards and worked examples do not mean twenty population-level scores are available. |
 | Recovery | The [RDF recovery stages](RDF-RECOVERY.md) pass failure-path tests and an actual isolated Fuseki backup/TDB2 restore fixture. Define RPO/RTO, destination, retention and NiFi ownership; preserve runtime evidence/configuration and test the full corpus off-machine. The fixture does not close disaster recovery. |
 | Operations | Per-user local supervision is installed and Explorer recovery is verified; see [Local operations](LOCAL-OPERATIONS.md). Before-login operation, reboot acceptance, disk/log retention and external alerting remain open. Use the existing NiFi source and Repository Evidence owners. |
-| Runtime maintenance | The observed Python runtime is 3.10.8. Select and validate a maintained patched runtime for all owning NiFi and web components. Node is pinned for Explorer, but other tools using global Node have not been migrated. |
+| Runtime maintenance | Explorer now uses isolated Python 3.13.15, with its existing RDF libraries pinned, and Node 24.21.0. NiFi still uses its existing Python 3.10.8 installation; migrate its dependencies and configured processors after component validation at a safe boundary. Other tools using global Node remain outside the Explorer upgrade. |
 | Semantic governance | The existing semantic freeze remains `frozen-unratified`. This engineering release does not ratify it, resolve ontology debt or authorize new terms/mappings. |
 
 ## Release procedure for the current private installation
@@ -107,6 +107,7 @@ From the `Baseball/` directory, install and start the pinned Explorer runtime:
 
 ```powershell
 .\scripts\infra\install-explorer-runtime.ps1
+.\scripts\infra\install-explorer-python.ps1
 .\scripts\infra\launch-explorer.ps1 -NoBrowser -SkipNiFi
 ```
 
@@ -128,6 +129,21 @@ For a changed web release, inspect `/health/live` and `/health/ready` and run
 `web/tests/metrics-browser-smoke.ps1` against the local Explorer. A readiness
 failure blocks a production declaration even if RDF fallback still works.
 Do not use a successful liveness response as evidence of data readiness.
+
+## Python worker verification
+
+The [Python upgrade evidence](../benchmarks/metrics/python-runtime-2026-09-14/verification.json)
+records 72 web checks, 23 metric kernel checks, eight metric serving checks,
+12 serving-adapter checks and a passing browser capture. The adapter also
+passed under the previous Python runtime. A Windows metadata inconsistency
+was reproduced during verification: path-based stat and open-file stat exposed
+different ctime observations just after creation/replacement. The adapter now
+uses handle-based metadata consistently, retaining device, inode, size, mtime
+and ctime checks. The replacement-detection regression passed 30 consecutive
+runs after that fix. Every live metric result and calculation fingerprint
+matched the prior capture exactly. The Python archive hash is from the
+[official 3.13.15 release](https://www.python.org/downloads/release/python-31315/);
+library wheel hashes are from their pinned PyPI release metadata.
 
 ## Rollback
 

@@ -881,7 +881,8 @@ export function createBaseballServer({
     try {
       if (request.method === 'GET' && requestUrl.pathname === '/health/live') {
         sendJson(response, 200, { service: 'baseballo-explorer', status: 'alive', nodeVersion: process.version,
-          processId: process.pid, explorerSourceFingerprint: EXPLORER_SOURCE_FINGERPRINT });
+          processId: process.pid, explorerSourceFingerprint: EXPLORER_SOURCE_FINGERPRINT,
+          pythonVersion: process.env.BASEBALLO_PYTHON_VERSION ?? null });
         return;
       }
       if (request.method === 'GET' && requestUrl.pathname === '/health/ready') {
@@ -964,6 +965,7 @@ export function createBaseballServer({
           service: "baseballo-explorer",
           processId: process.pid,
           nodeVersion: process.version,
+          pythonVersion: process.env.BASEBALLO_PYTHON_VERSION ?? null,
           explorerSourceFingerprint: EXPLORER_SOURCE_FINGERPRINT,
           connected: true,
           games,

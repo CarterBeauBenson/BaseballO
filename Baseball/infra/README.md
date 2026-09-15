@@ -134,11 +134,16 @@ Install the checksum-pinned portable Node runtime once, then use the launcher:
 
 ```powershell
 .\scripts\infra\install-explorer-runtime.ps1
+.\scripts\infra\install-explorer-python.ps1
 .\scripts\infra\launch-explorer.ps1 -NoBrowser
 ```
 
 The launcher checks both the application fingerprint and Node version before
 reusing a running Explorer. It does not change the system Node installation.
+Its worker uses isolated Python 3.13.15 with checksum-pinned RDFLib 7.6.0 and
+pyparsing 3.1.1. The installer and launcher check imports and versions; global
+Python, its packages and the running NiFi processors remain unchanged. The
+embedded runtime has no dependency on user site-packages or pip at runtime.
 `GET /health/live` checks the web process; `GET /health/ready` checks the
 materialized metrics dashboard without allowing an RDF fallback. Readiness
 does not claim complete evidence for every metric. See the

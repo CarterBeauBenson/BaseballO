@@ -66,7 +66,12 @@ def sha(path: Path) -> str:
 
 
 def file_identity(path: Path) -> tuple[int, int, int, int, int]:
-    metadata = path.stat()
+    # Use the same handle-based metadata API as the hashing pass. On Windows,
+    # path stat and open-handle stat can expose different ctime observations
+    # immediately after file creation/replacement. Keep every identity field;
+    # do not weaken replacement detection by dropping ctime or inode.
+    with path.open("rb") as stream:
+        metadata = os.fstat(stream.fileno())
     return (
         metadata.st_dev,
         metadata.st_ino,

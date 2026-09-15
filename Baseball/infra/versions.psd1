@@ -1,4 +1,25 @@
 @{
+    ExplorerPython = @{
+        Version          = '3.13.15'
+        ArchiveName      = 'python-3.13.15-embed-amd64.zip'
+        Url              = 'https://www.python.org/ftp/python/3.13.15/python-3.13.15-embed-amd64.zip'
+        Hash             = 'd1f04d990aee1253d8569e8e5104e30fa9f5fa830899f14843448872d936a2cf'
+        InstallDirectory = 'python-3.13.15-explorer'
+        Packages = @(
+            @{
+                Name = 'rdflib'; Version = '7.6.0'
+                FileName = 'rdflib-7.6.0-py3-none-any.whl'
+                Url = 'https://files.pythonhosted.org/packages/10/c2/6604a71269e0c1bd75656d5a001432d16f2cc5b8c057140ec797155c295e/rdflib-7.6.0-py3-none-any.whl'
+                Hash = '30c0a3ebf4c0e09215f066be7246794b6492e054e782d7ac2a34c9f70a15e0dd'
+            },
+            @{
+                Name = 'pyparsing'; Version = '3.1.1'
+                FileName = 'pyparsing-3.1.1-py3-none-any.whl'
+                Url = 'https://files.pythonhosted.org/packages/39/92/8486ede85fcc088f1b3dba4ce92dd29d126fd96b0008ea213167940a2475/pyparsing-3.1.1-py3-none-any.whl'
+                Hash = '32c7c0b711493c72ff18a981d24f28aaf9c1fb7ed5e9667c9e84e3db623bdbfb'
+            }
+        )
+    }
     Node = @{
         Version          = '24.21.0'
         ArchiveName      = 'node-v24.21.0-win-x64.zip'

@@ -1,0 +1,20 @@
+{
+  "artifactType": "baseballo-explorer-python-upgrade-proof",
+  "python": "3.13.15",
+  "node": "24.21.0",
+  "rdflib": "7.6.0",
+  "pyparsing": "3.1.1",
+  "webTestsPassed": 72,
+  "metricKernelTestsPassed": 23,
+  "metricServingTestsPassed": 8,
+  "servingAdapterTestsPassed": 12,
+  "oldPythonAdapterTestsPassed": 12,
+  "fileReplacementStressRunsPassed": 30,
+  "browserPassed": true,
+  "exactMetricResultsUnchanged": true,
+  "metricCount": 20,
+  "calculationFingerprint": "42785bedc50b894e4dc55724797c31d99923cd21f85b97db218692bdbf82cd9c",
+  "execution": "authoritative-rdf",
+  "nifiPythonChanged": false,
+  "productionReady": false
+}

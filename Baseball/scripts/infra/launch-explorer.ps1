@@ -155,6 +155,11 @@ try {
     }
     $nodeVersion = & $node --version
     if ($LASTEXITCODE -ne 0 -or $nodeVersion -ne ('v' + $script:Versions.Node.Version)) { throw 'Explorer runtime version differs from its pin.' }
+    $python = Join-Path $script:RuntimesRoot ($script:Versions.ExplorerPython.InstallDirectory + '\python.exe')
+    if (-not (Test-Path -LiteralPath $python -PathType Leaf)) { throw 'Install the pinned worker runtime first: scripts/infra/install-explorer-python.ps1' }
+    $pythonIdentity = & $python -c 'import sys,rdflib,pyparsing,sqlite3; print(sys.version.split()[0],rdflib.__version__,pyparsing.__version__)'
+    $expectedPythonIdentity = $script:Versions.ExplorerPython.Version + ' ' + $script:Versions.ExplorerPython.Packages[0].Version + ' ' + $script:Versions.ExplorerPython.Packages[1].Version
+    if ($LASTEXITCODE -ne 0 -or $pythonIdentity -ne $expectedPythonIdentity) { throw 'Explorer worker runtime or libraries differ from their pins.' }
 
     Invoke-StartupScript -Path (Join-Path $PSScriptRoot 'start-fuseki.ps1')
     if (-not $SkipNiFi) {
@@ -170,9 +175,12 @@ try {
         $serviceProperty = $status.PSObject.Properties['service']
         $fingerprintProperty = $status.PSObject.Properties['explorerSourceFingerprint']
         $runtimeProperty = $status.PSObject.Properties['nodeVersion']
+        $pythonProperty = $status.PSObject.Properties['pythonVersion']
         if ($null -ne $serviceProperty -and
             $null -ne $fingerprintProperty -and
             $null -ne $runtimeProperty -and
+            $null -ne $pythonProperty -and
+            $pythonProperty.Value -eq $script:Versions.ExplorerPython.Version -and
             $runtimeProperty.Value -eq ('v' + $script:Versions.Node.Version) -and
             $serviceProperty.Value -eq 'baseballo-explorer' -and
             $fingerprintProperty.Value -eq $expectedFingerprint) {
@@ -185,14 +193,24 @@ try {
     }
 
     if (-not (Test-TcpPort -HostName '127.0.0.1' -Port 4173)) {
-        $startedExplorerProcess = Start-Process `
-            -FilePath $node `
-            -ArgumentList @('server.mjs') `
-            -WorkingDirectory $webRoot `
-            -RedirectStandardOutput (Join-Path $logDirectory 'stdout.log') `
-            -RedirectStandardError (Join-Path $logDirectory 'stderr.log') `
-            -PassThru `
-            -WindowStyle Hidden
+        $priorPython = $env:BASEBALLO_PYTHON
+        $priorPythonVersion = $env:BASEBALLO_PYTHON_VERSION
+        $env:BASEBALLO_PYTHON = $python
+        $env:BASEBALLO_PYTHON_VERSION = $script:Versions.ExplorerPython.Version
+        try {
+            $startedExplorerProcess = Start-Process `
+                -FilePath $node `
+                -ArgumentList @('server.mjs') `
+                -WorkingDirectory $webRoot `
+                -RedirectStandardOutput (Join-Path $logDirectory 'stdout.log') `
+                -RedirectStandardError (Join-Path $logDirectory 'stderr.log') `
+                -PassThru `
+                -WindowStyle Hidden
+        }
+        finally {
+            $env:BASEBALLO_PYTHON = $priorPython
+            $env:BASEBALLO_PYTHON_VERSION = $priorPythonVersion
+        }
         Set-Content -LiteralPath $pidFile -Value $startedExplorerProcess.Id -Encoding ASCII -NoNewline
 
         if (-not (Wait-TcpPort -HostName '127.0.0.1' -Port 4173 -Open $true -TimeoutSeconds $TimeoutSeconds)) {
