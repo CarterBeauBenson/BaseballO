@@ -1,0 +1,51 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "walkoff-runner-boundary",
+  "title": "Question 8: supported game-ending runner boundary",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "436942cce7b82556ae85efee9bf1b5af6802a117c4e2223dbfb40c3687357fd2"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "README.md",
+        "sha256": "436942cce7b82556ae85efee9bf1b5af6802a117c4e2223dbfb40c3687357fd2"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "436942cce7b82556ae85efee9bf1b5af6802a117c4e2223dbfb40c3687357fd2"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "README.md",
+        "sha256": "436942cce7b82556ae85efee9bf1b5af6802a117c4e2223dbfb40c3687357fd2"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-09-15",
+    "rationale": "Records the existing explicit acceptance of question 8 in b4d4f88: supported final-game boundary, counted effects only and no erosion merely for game ending. Existing C1 interval and game endpoint only; no new ontology, OP, source lane or global ratification.",
+    "authorizedArtifacts": [
+      "Baseball/scripts/pipeline/prepare-rml-context.py",
+      "Baseball/sources/mlb-game/mapping/mlb-game.rml.ttl",
+      "Baseball/sources/mlb-game/mapping/iri-policy.yaml",
+      "Baseball/sources/mlb-game/mapping/mapping-coverage.yaml",
+      "Baseball/sources/mlb-game/mapping/ontology-coverage-gaps.yaml",
+      "Baseball/sources/mlb-game/shacl/authoritative.ttl",
+      "Baseball/sources/mlb-game/review/semantic-status.json",
+      "Baseball/sources/mlb-game/review/rml-mermaid-manifest.json"
+    ]
+  }
+}
