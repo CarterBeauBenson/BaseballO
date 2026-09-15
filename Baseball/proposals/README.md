@@ -57,6 +57,7 @@ review; that package's null decision does not undo the archived partial decision
 
 | Review boundary | Mermaid | Questions |
 | --- | --- | --- |
+| [Metric mapping completion: M1 counted fouls and M2 affirmed pitch reviews](mlb-game-metric-mapping-completion/README.md) | [world-side shapes](mlb-game-metric-mapping-completion/source-independent-mermaid.md), [source-specific design](mlb-game-metric-mapping-completion/source-specific-mermaid.md) | [exact contracts](mlb-game-metric-mapping-completion/mapping-contract.md) |
 | [Deferred MLB-game measurements](mlb-game-deferred-measurements/README.md) | [shape](mlb-game-deferred-measurements/source-independent-mermaid.md) | [decisions](mlb-game-deferred-measurements/competency-questions.md) |
 | [Batter-consequence attribution for TFS and PAQ-2](mlb-game-batter-consequence-attribution/README.md), with [resolution/award links accepted separately](../archive/design-records/mlb-game-resolution-award-links/README.md) | [shape](mlb-game-batter-consequence-attribution/source-independent-mermaid.md) | [decisions](mlb-game-batter-consequence-attribution/competency-questions.md) |
 

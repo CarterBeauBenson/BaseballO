@@ -57,3 +57,9 @@ case-specific interpretation, not blanket rejection of defensive evidence.
 No metric is marked available by this audit. It changes the diagnosis and the
 burden of proof: identify the exact unsupported assertion and inspected source
 before calling something a source-evidence gap.
+
+The subsequent [mapping completion review](../mlb-game-metric-mapping-completion/README.md)
+specifies M1 (second-strike foul coverage) and M2 (affirmed pitch reviews),
+with exact source observations, field inventory, world-side/source-specific
+diagrams and proposed conformance conditions. Its decision remains null;
+it is not an implemented mapping extension.

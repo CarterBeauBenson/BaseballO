@@ -1,0 +1,1379 @@
+{
+  "artifactType": "baseballo-mapping-review-source-observations",
+  "status": "diagnostic-only-not-admitted",
+  "source": "data/raw/samples/2026-08-23/824315.json",
+  "sourceSha256": "5fcc75d37a20a516d312b3bfb3d5cefb4371ebafa639851ff16173d9b1a6607c",
+  "sourceRevision": "20260823_222717",
+  "gamePk": 824315,
+  "counts": {
+    "playEvents": 413,
+    "pitches": 360,
+    "candidateSecondCountedFouls": 27,
+    "heldTwoStrikeFouls": 46,
+    "explicitPitchReviews": 2
+  },
+  "candidateSecondCountedFouls": [
+    {
+      "atBatIndex": 1,
+      "eventIndex": 4,
+      "playId": "92780bd5-071f-3dbd-b881-b25ab1d213a2",
+      "previousEventIndex": 3,
+      "previousCount": {
+        "balls": 3,
+        "strikes": 1,
+        "outs": 0
+      },
+      "count": {
+        "balls": 3,
+        "strikes": 2,
+        "outs": 0
+      },
+      "previousEndTime": "2026-08-23T19:14:38.283Z",
+      "startTime": "2026-08-23T19:14:57.644Z"
+    },
+    {
+      "atBatIndex": 2,
+      "eventIndex": 1,
+      "playId": "cc230907-649e-3bb5-bd54-335087113c53",
+      "previousEventIndex": 0,
+      "previousCount": {
+        "balls": 0,
+        "strikes": 1,
+        "outs": 0
+      },
+      "count": {
+        "balls": 0,
+        "strikes": 2,
+        "outs": 0
+      },
+      "previousEndTime": "2026-08-23T19:18:04.316Z",
+      "startTime": "2026-08-23T19:18:19.358Z"
+    },
+    {
+      "atBatIndex": 3,
+      "eventIndex": 5,
+      "playId": "a24b6421-11bc-3285-ac55-aa9b5f943e37",
+      "previousEventIndex": 4,
+      "previousCount": {
+        "balls": 3,
+        "strikes": 1,
+        "outs": 0
+      },
+      "count": {
+        "balls": 3,
+        "strikes": 2,
+        "outs": 0
+      },
+      "previousEndTime": "2026-08-23T19:22:10.087Z",
+      "startTime": "2026-08-23T19:22:27.602Z"
+    },
+    {
+      "atBatIndex": 5,
+      "eventIndex": 5,
+      "playId": "032a48d7-7086-3f92-9764-dcd9b1137b33",
+      "previousEventIndex": 4,
+      "previousCount": {
+        "balls": 3,
+        "strikes": 1,
+        "outs": 2
+      },
+      "count": {
+        "balls": 3,
+        "strikes": 2,
+        "outs": 2
+      },
+      "previousEndTime": "2026-08-23T19:28:52.090Z",
+      "startTime": "2026-08-23T19:29:11.643Z"
+    },
+    {
+      "atBatIndex": 11,
+      "eventIndex": 3,
+      "playId": "1520fd85-33a5-3a3f-9b2f-f17687ffa6c3",
+      "previousEventIndex": 2,
+      "previousCount": {
+        "balls": 2,
+        "strikes": 1,
+        "outs": 0
+      },
+      "count": {
+        "balls": 2,
+        "strikes": 2,
+        "outs": 0
+      },
+      "previousEndTime": "2026-08-23T19:44:29.243Z",
+      "startTime": "2026-08-23T19:44:46.201Z"
+    },
+    {
+      "atBatIndex": 12,
+      "eventIndex": 1,
+      "playId": "bdb23f7f-4f65-39ab-a2a7-7af378832dee",
+      "previousEventIndex": 0,
+      "previousCount": {
+        "balls": 0,
+        "strikes": 1,
+        "outs": 1
+      },
+      "count": {
+        "balls": 0,
+        "strikes": 2,
+        "outs": 1
+      },
+      "previousEndTime": "2026-08-23T19:46:35.179Z",
+      "startTime": "2026-08-23T19:46:52.734Z"
+    },
+    {
+      "atBatIndex": 18,
+      "eventIndex": 3,
+      "playId": "10e91d90-5290-3044-9e51-717dd85cb6d7",
+      "previousEventIndex": 2,
+      "previousCount": {
+        "balls": 2,
+        "strikes": 1,
+        "outs": 1
+      },
+      "count": {
+        "balls": 2,
+        "strikes": 2,
+        "outs": 1
+      },
+      "previousEndTime": "2026-08-23T20:01:23.850Z",
+      "startTime": "2026-08-23T20:01:34.975Z"
+    },
+    {
+      "atBatIndex": 20,
+      "eventIndex": 2,
+      "playId": "58428c42-199c-3b65-b3e9-f23c6179c57a",
+      "previousEventIndex": 1,
+      "previousCount": {
+        "balls": 1,
+        "strikes": 1,
+        "outs": 1
+      },
+      "count": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 1
+      },
+      "previousEndTime": "2026-08-23T20:05:20.176Z",
+      "startTime": "2026-08-23T20:05:33.963Z"
+    },
+    {
+      "atBatIndex": 23,
+      "eventIndex": 2,
+      "playId": "d206156e-ea28-327c-bc88-4c662ace1bdf",
+      "previousEventIndex": 1,
+      "previousCount": {
+        "balls": 0,
+        "strikes": 1,
+        "outs": 2
+      },
+      "count": {
+        "balls": 0,
+        "strikes": 2,
+        "outs": 2
+      },
+      "previousEndTime": "2026-08-23T20:10:19.159Z",
+      "startTime": "2026-08-23T20:10:33.764Z"
+    },
+    {
+      "atBatIndex": 24,
+      "eventIndex": 3,
+      "playId": "8f65ed38-ad35-343c-9c2b-08abf2553f0e",
+      "previousEventIndex": 2,
+      "previousCount": {
+        "balls": 1,
+        "strikes": 1,
+        "outs": 2
+      },
+      "count": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 2
+      },
+      "previousEndTime": "2026-08-23T20:13:41.649Z",
+      "startTime": "2026-08-23T20:13:57.309Z"
+    },
+    {
+      "atBatIndex": 28,
+      "eventIndex": 1,
+      "playId": "f08b270c-708f-360a-9d1a-8da601c7fbe3",
+      "previousEventIndex": 0,
+      "previousCount": {
+        "balls": 0,
+        "strikes": 1,
+        "outs": 2
+      },
+      "count": {
+        "balls": 0,
+        "strikes": 2,
+        "outs": 2
+      },
+      "previousEndTime": "2026-08-23T20:26:15.701Z",
+      "startTime": "2026-08-23T20:26:48.855Z"
+    },
+    {
+      "atBatIndex": 31,
+      "eventIndex": 1,
+      "playId": "66c5a624-8345-374b-88d4-c4873fedf1ce",
+      "previousEventIndex": 0,
+      "previousCount": {
+        "balls": 0,
+        "strikes": 1,
+        "outs": 1
+      },
+      "count": {
+        "balls": 0,
+        "strikes": 2,
+        "outs": 1
+      },
+      "previousEndTime": "2026-08-23T20:33:26.152Z",
+      "startTime": "2026-08-23T20:33:40.960Z"
+    },
+    {
+      "atBatIndex": 36,
+      "eventIndex": 4,
+      "playId": "c418c4d5-e276-37e7-834c-ddb953da73b2",
+      "previousEventIndex": 3,
+      "previousCount": {
+        "balls": 2,
+        "strikes": 1,
+        "outs": 2
+      },
+      "count": {
+        "balls": 2,
+        "strikes": 2,
+        "outs": 2
+      },
+      "previousEndTime": "2026-08-23T20:49:04.251Z",
+      "startTime": "2026-08-23T20:49:18.217Z"
+    },
+    {
+      "atBatIndex": 39,
+      "eventIndex": 4,
+      "playId": "a1f970ef-d15e-36b1-84ca-b451efc2e4d1",
+      "previousEventIndex": 3,
+      "previousCount": {
+        "balls": 2,
+        "strikes": 1,
+        "outs": 1
+      },
+      "count": {
+        "balls": 2,
+        "strikes": 2,
+        "outs": 1
+      },
+      "previousEndTime": "2026-08-23T20:56:32.481Z",
+      "startTime": "2026-08-23T20:56:43.448Z"
+    },
+    {
+      "atBatIndex": 40,
+      "eventIndex": 2,
+      "playId": "ee4a4ae1-0eb5-3d95-8ff0-f8c314838d3e",
+      "previousEventIndex": 1,
+      "previousCount": {
+        "balls": 1,
+        "strikes": 1,
+        "outs": 2
+      },
+      "count": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 2
+      },
+      "previousEndTime": "2026-08-23T20:58:08.940Z",
+      "startTime": "2026-08-23T20:58:24.952Z"
+    },
+    {
+      "atBatIndex": 41,
+      "eventIndex": 2,
+      "playId": "6ff11e45-091b-383b-af03-dd6e97b90894",
+      "previousEventIndex": 1,
+      "previousCount": {
+        "balls": 0,
+        "strikes": 1,
+        "outs": 0
+      },
+      "count": {
+        "balls": 0,
+        "strikes": 2,
+        "outs": 0
+      },
+      "previousEndTime": "2026-08-23T21:01:29.377Z",
+      "startTime": "2026-08-23T21:01:39.106Z"
+    },
+    {
+      "atBatIndex": 42,
+      "eventIndex": 4,
+      "playId": "ca23bf03-ce63-32df-bf5f-45b613b495b9",
+      "previousEventIndex": 3,
+      "previousCount": {
+        "balls": 3,
+        "strikes": 1,
+        "outs": 1
+      },
+      "count": {
+        "balls": 3,
+        "strikes": 2,
+        "outs": 1
+      },
+      "previousEndTime": "2026-08-23T21:03:49.179Z",
+      "startTime": "2026-08-23T21:04:09.122Z"
+    },
+    {
+      "atBatIndex": 48,
+      "eventIndex": 1,
+      "playId": "f02970f4-86a9-3d07-9375-295c2edc4110",
+      "previousEventIndex": 0,
+      "previousCount": {
+        "balls": 0,
+        "strikes": 1,
+        "outs": 0
+      },
+      "count": {
+        "balls": 0,
+        "strikes": 2,
+        "outs": 0
+      },
+      "previousEndTime": "2026-08-23T21:16:41.035Z",
+      "startTime": "2026-08-23T21:16:53.981Z"
+    },
+    {
+      "atBatIndex": 49,
+      "eventIndex": 2,
+      "playId": "ec648c8a-397d-3ca1-aefb-4b0aa19f4347",
+      "previousEventIndex": 1,
+      "previousCount": {
+        "balls": 1,
+        "strikes": 1,
+        "outs": 1
+      },
+      "count": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 1
+      },
+      "previousEndTime": "2026-08-23T21:21:06.596Z",
+      "startTime": "2026-08-23T21:21:21.095Z"
+    },
+    {
+      "atBatIndex": 52,
+      "eventIndex": 2,
+      "playId": "c4bd092c-10c2-343f-a837-90d7a022334d",
+      "previousEventIndex": 1,
+      "previousCount": {
+        "balls": 0,
+        "strikes": 1,
+        "outs": 0
+      },
+      "count": {
+        "balls": 0,
+        "strikes": 2,
+        "outs": 0
+      },
+      "previousEndTime": "2026-08-23T21:29:31.561Z",
+      "startTime": "2026-08-23T21:29:40.154Z"
+    },
+    {
+      "atBatIndex": 58,
+      "eventIndex": 1,
+      "playId": "7880a193-588d-389c-857a-6425328f1af7",
+      "previousEventIndex": 0,
+      "previousCount": {
+        "balls": 0,
+        "strikes": 1,
+        "outs": 2
+      },
+      "count": {
+        "balls": 0,
+        "strikes": 2,
+        "outs": 2
+      },
+      "previousEndTime": "2026-08-23T21:38:14.181Z",
+      "startTime": "2026-08-23T21:38:25.692Z"
+    },
+    {
+      "atBatIndex": 62,
+      "eventIndex": 1,
+      "playId": "0365709d-1b7b-3978-9145-695e12e24b61",
+      "previousEventIndex": 0,
+      "previousCount": {
+        "balls": 0,
+        "strikes": 1,
+        "outs": 2
+      },
+      "count": {
+        "balls": 0,
+        "strikes": 2,
+        "outs": 2
+      },
+      "previousEndTime": "2026-08-23T21:50:43.865Z",
+      "startTime": "2026-08-23T21:51:07.147Z"
+    },
+    {
+      "atBatIndex": 63,
+      "eventIndex": 2,
+      "playId": "57576d13-d413-3edf-859b-8054842ce462",
+      "previousEventIndex": 1,
+      "previousCount": {
+        "balls": 0,
+        "strikes": 1,
+        "outs": 0
+      },
+      "count": {
+        "balls": 0,
+        "strikes": 2,
+        "outs": 0
+      },
+      "previousEndTime": "2026-08-23T21:54:58.187Z",
+      "startTime": "2026-08-23T21:55:16.485Z"
+    },
+    {
+      "atBatIndex": 69,
+      "eventIndex": 3,
+      "playId": "4a4f4b55-8ebd-3251-b7fb-dc05c841722c",
+      "previousEventIndex": 2,
+      "previousCount": {
+        "balls": 0,
+        "strikes": 1,
+        "outs": 1
+      },
+      "count": {
+        "balls": 0,
+        "strikes": 2,
+        "outs": 1
+      },
+      "previousEndTime": "2026-08-23T22:11:07.152Z",
+      "startTime": "2026-08-23T22:11:22.824Z"
+    },
+    {
+      "atBatIndex": 70,
+      "eventIndex": 2,
+      "playId": "ef0bab22-1437-35d2-a3e0-96a5b7d09509",
+      "previousEventIndex": 1,
+      "previousCount": {
+        "balls": 1,
+        "strikes": 1,
+        "outs": 2
+      },
+      "count": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 2
+      },
+      "previousEndTime": "2026-08-23T22:13:16.849Z",
+      "startTime": "2026-08-23T22:13:28.635Z"
+    },
+    {
+      "atBatIndex": 72,
+      "eventIndex": 2,
+      "playId": "1869a431-675e-38a5-9d6c-8a452c382591",
+      "previousEventIndex": 1,
+      "previousCount": {
+        "balls": 1,
+        "strikes": 1,
+        "outs": 1
+      },
+      "count": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 1
+      },
+      "previousEndTime": "2026-08-23T22:19:24.281Z",
+      "startTime": "2026-08-23T22:19:38.495Z"
+    },
+    {
+      "atBatIndex": 75,
+      "eventIndex": 2,
+      "playId": "3574b2e8-a91f-3560-a23f-253cd4c38c11",
+      "previousEventIndex": 1,
+      "previousCount": {
+        "balls": 1,
+        "strikes": 1,
+        "outs": 1
+      },
+      "count": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 1
+      },
+      "previousEndTime": "2026-08-23T22:25:44.331Z",
+      "startTime": "2026-08-23T22:25:51.907Z"
+    }
+  ],
+  "heldTwoStrikeFouls": [
+    {
+      "atBatIndex": 1,
+      "eventIndex": 5,
+      "playId": "4b1e1af2-9761-3501-9756-991cf5add816",
+      "previousEventIndex": 4,
+      "previousCount": {
+        "balls": 3,
+        "strikes": 2,
+        "outs": 0
+      },
+      "count": {
+        "balls": 3,
+        "strikes": 2,
+        "outs": 0
+      },
+      "previousEndTime": "2026-08-23T19:15:00.861Z",
+      "startTime": "2026-08-23T19:15:22.156Z"
+    },
+    {
+      "atBatIndex": 1,
+      "eventIndex": 6,
+      "playId": "041bfcd6-9bb8-3f25-9ee2-909d16a19b9b",
+      "previousEventIndex": 5,
+      "previousCount": {
+        "balls": 3,
+        "strikes": 2,
+        "outs": 0
+      },
+      "count": {
+        "balls": 3,
+        "strikes": 2,
+        "outs": 0
+      },
+      "previousEndTime": "2026-08-23T19:15:26.011Z",
+      "startTime": "2026-08-23T19:15:49.990Z"
+    },
+    {
+      "atBatIndex": 1,
+      "eventIndex": 7,
+      "playId": "a45c5132-bcc4-38c7-9bc6-206208a843fc",
+      "previousEventIndex": 6,
+      "previousCount": {
+        "balls": 3,
+        "strikes": 2,
+        "outs": 0
+      },
+      "count": {
+        "balls": 3,
+        "strikes": 2,
+        "outs": 0
+      },
+      "previousEndTime": "2026-08-23T19:15:56.584Z",
+      "startTime": "2026-08-23T19:16:20.277Z"
+    },
+    {
+      "atBatIndex": 1,
+      "eventIndex": 8,
+      "playId": "e084009f-1b19-3491-bcec-62d32ecc2320",
+      "previousEventIndex": 7,
+      "previousCount": {
+        "balls": 3,
+        "strikes": 2,
+        "outs": 0
+      },
+      "count": {
+        "balls": 3,
+        "strikes": 2,
+        "outs": 0
+      },
+      "previousEndTime": "2026-08-23T19:16:24.463Z",
+      "startTime": "2026-08-23T19:16:44.567Z"
+    },
+    {
+      "atBatIndex": 2,
+      "eventIndex": 3,
+      "playId": "0ff948bc-5b47-394d-a39d-1e594e9f3521",
+      "previousEventIndex": 2,
+      "previousCount": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 0
+      },
+      "count": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 0
+      },
+      "previousEndTime": "2026-08-23T19:18:50.417Z",
+      "startTime": "2026-08-23T19:19:08.566Z"
+    },
+    {
+      "atBatIndex": 3,
+      "eventIndex": 7,
+      "playId": "3026cc02-81b9-3e15-ac6f-d40d06dde5cb",
+      "previousEventIndex": 6,
+      "previousCount": {
+        "balls": 3,
+        "strikes": 2,
+        "outs": 0
+      },
+      "count": {
+        "balls": 3,
+        "strikes": 2,
+        "outs": 0
+      },
+      "previousEndTime": "2026-08-23T19:22:58.566Z",
+      "startTime": "2026-08-23T19:23:13.948Z"
+    },
+    {
+      "atBatIndex": 4,
+      "eventIndex": 5,
+      "playId": "aae8bd79-9d16-32c7-af37-402bc7d8005e",
+      "previousEventIndex": 4,
+      "previousCount": {
+        "balls": 2,
+        "strikes": 2,
+        "outs": 1
+      },
+      "count": {
+        "balls": 2,
+        "strikes": 2,
+        "outs": 1
+      },
+      "previousEndTime": "2026-08-23T19:25:58.849Z",
+      "startTime": "2026-08-23T19:25:58.849Z"
+    },
+    {
+      "atBatIndex": 8,
+      "eventIndex": 4,
+      "playId": "cb640760-fc50-38fc-8d57-9f0516e0b8bc",
+      "previousEventIndex": 3,
+      "previousCount": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 1
+      },
+      "count": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 1
+      },
+      "previousEndTime": "2026-08-23T19:37:36.926Z",
+      "startTime": "2026-08-23T19:37:52.717Z"
+    },
+    {
+      "atBatIndex": 8,
+      "eventIndex": 5,
+      "playId": "68aecdd2-8a66-3101-b2ae-9b3a56fd12ca",
+      "previousEventIndex": 4,
+      "previousCount": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 1
+      },
+      "count": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 1
+      },
+      "previousEndTime": "2026-08-23T19:37:56.053Z",
+      "startTime": "2026-08-23T19:38:13.870Z"
+    },
+    {
+      "atBatIndex": 11,
+      "eventIndex": 4,
+      "playId": "10f009ac-7d18-3050-ae5c-d4009a4fdb63",
+      "previousEventIndex": 3,
+      "previousCount": {
+        "balls": 2,
+        "strikes": 2,
+        "outs": 0
+      },
+      "count": {
+        "balls": 2,
+        "strikes": 2,
+        "outs": 0
+      },
+      "previousEndTime": "2026-08-23T19:44:49.445Z",
+      "startTime": "2026-08-23T19:45:11.630Z"
+    },
+    {
+      "atBatIndex": 12,
+      "eventIndex": 2,
+      "playId": "152a6bf1-a100-3421-b45e-49d8866cc076",
+      "previousEventIndex": 1,
+      "previousCount": {
+        "balls": 0,
+        "strikes": 2,
+        "outs": 1
+      },
+      "count": {
+        "balls": 0,
+        "strikes": 2,
+        "outs": 1
+      },
+      "previousEndTime": "2026-08-23T19:46:55.734Z",
+      "startTime": "2026-08-23T19:47:17.162Z"
+    },
+    {
+      "atBatIndex": 12,
+      "eventIndex": 4,
+      "playId": "75506607-1050-32a9-b489-6b038b52bef0",
+      "previousEventIndex": 3,
+      "previousCount": {
+        "balls": 0,
+        "strikes": 2,
+        "outs": 1
+      },
+      "count": {
+        "balls": 0,
+        "strikes": 2,
+        "outs": 1
+      },
+      "previousEndTime": "2026-08-23T19:47:48.626Z",
+      "startTime": "2026-08-23T19:48:04.883Z"
+    },
+    {
+      "atBatIndex": 17,
+      "eventIndex": 4,
+      "playId": "33d6eef4-4021-3e35-8a63-81b144cdb506",
+      "previousEventIndex": 3,
+      "previousCount": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 0
+      },
+      "count": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 0
+      },
+      "previousEndTime": "2026-08-23T19:59:49.595Z",
+      "startTime": "2026-08-23T20:00:02.607Z"
+    },
+    {
+      "atBatIndex": 18,
+      "eventIndex": 4,
+      "playId": "49741149-aaf9-3ecd-aa59-a1badd9a8377",
+      "previousEventIndex": 3,
+      "previousCount": {
+        "balls": 2,
+        "strikes": 2,
+        "outs": 1
+      },
+      "count": {
+        "balls": 2,
+        "strikes": 2,
+        "outs": 1
+      },
+      "previousEndTime": "2026-08-23T20:01:38.565Z",
+      "startTime": "2026-08-23T20:01:53.205Z"
+    },
+    {
+      "atBatIndex": 18,
+      "eventIndex": 5,
+      "playId": "2300f0f1-c949-38c9-a3ec-32575e269f2f",
+      "previousEventIndex": 4,
+      "previousCount": {
+        "balls": 2,
+        "strikes": 2,
+        "outs": 1
+      },
+      "count": {
+        "balls": 2,
+        "strikes": 2,
+        "outs": 1
+      },
+      "previousEndTime": "2026-08-23T20:01:59.432Z",
+      "startTime": "2026-08-23T20:02:16.269Z"
+    },
+    {
+      "atBatIndex": 18,
+      "eventIndex": 6,
+      "playId": "0e59e146-3da5-36e1-94c8-da814c9342ff",
+      "previousEventIndex": 5,
+      "previousCount": {
+        "balls": 2,
+        "strikes": 2,
+        "outs": 1
+      },
+      "count": {
+        "balls": 2,
+        "strikes": 2,
+        "outs": 1
+      },
+      "previousEndTime": "2026-08-23T20:02:19.963Z",
+      "startTime": "2026-08-23T20:02:38.406Z"
+    },
+    {
+      "atBatIndex": 18,
+      "eventIndex": 7,
+      "playId": "bbf768a5-2ee6-3726-8900-465b0cecb064",
+      "previousEventIndex": 6,
+      "previousCount": {
+        "balls": 2,
+        "strikes": 2,
+        "outs": 1
+      },
+      "count": {
+        "balls": 2,
+        "strikes": 2,
+        "outs": 1
+      },
+      "previousEndTime": "2026-08-23T20:02:42.915Z",
+      "startTime": "2026-08-23T20:02:59.410Z"
+    },
+    {
+      "atBatIndex": 20,
+      "eventIndex": 3,
+      "playId": "4dbdae07-eccf-3055-85d4-f14bff8d3025",
+      "previousEventIndex": 2,
+      "previousCount": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 1
+      },
+      "count": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 1
+      },
+      "previousEndTime": "2026-08-23T20:05:37.526Z",
+      "startTime": "2026-08-23T20:05:56.395Z"
+    },
+    {
+      "atBatIndex": 23,
+      "eventIndex": 4,
+      "playId": "1716f1c2-45dc-3db6-99de-13be94f47398",
+      "previousEventIndex": 3,
+      "previousCount": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 2
+      },
+      "count": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 2
+      },
+      "previousEndTime": "2026-08-23T20:11:00.215Z",
+      "startTime": "2026-08-23T20:11:18.155Z"
+    },
+    {
+      "atBatIndex": 23,
+      "eventIndex": 5,
+      "playId": "47d921a2-f9d0-3699-b224-f3dd19e27a70",
+      "previousEventIndex": 4,
+      "previousCount": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 2
+      },
+      "count": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 2
+      },
+      "previousEndTime": "2026-08-23T20:11:21.155Z",
+      "startTime": "2026-08-23T20:11:38.991Z"
+    },
+    {
+      "atBatIndex": 24,
+      "eventIndex": 4,
+      "playId": "f05727e5-84eb-32c3-9c47-f87207ccd7de",
+      "previousEventIndex": 3,
+      "previousCount": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 2
+      },
+      "count": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 2
+      },
+      "previousEndTime": "2026-08-23T20:14:01.006Z",
+      "startTime": "2026-08-23T20:14:19.303Z"
+    },
+    {
+      "atBatIndex": 24,
+      "eventIndex": 5,
+      "playId": "15cb316d-9b3a-3999-81f2-0d37e38d968a",
+      "previousEventIndex": 4,
+      "previousCount": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 2
+      },
+      "count": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 2
+      },
+      "previousEndTime": "2026-08-23T20:14:22.911Z",
+      "startTime": "2026-08-23T20:14:41.425Z"
+    },
+    {
+      "atBatIndex": 24,
+      "eventIndex": 6,
+      "playId": "2dd832c9-783d-3156-a5f8-5ab8e1c99dfa",
+      "previousEventIndex": 5,
+      "previousCount": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 2
+      },
+      "count": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 2
+      },
+      "previousEndTime": "2026-08-23T20:14:48.676Z",
+      "startTime": "2026-08-23T20:15:05.262Z"
+    },
+    {
+      "atBatIndex": 24,
+      "eventIndex": 7,
+      "playId": "281a21dc-868a-3a85-a6bf-95f86a3c4895",
+      "previousEventIndex": 6,
+      "previousCount": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 2
+      },
+      "count": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 2
+      },
+      "previousEndTime": "2026-08-23T20:15:13.055Z",
+      "startTime": "2026-08-23T20:15:48.906Z"
+    },
+    {
+      "atBatIndex": 24,
+      "eventIndex": 9,
+      "playId": "a580f006-c68e-3716-b059-5d193556f306",
+      "previousEventIndex": 8,
+      "previousCount": {
+        "balls": 2,
+        "strikes": 2,
+        "outs": 2
+      },
+      "count": {
+        "balls": 2,
+        "strikes": 2,
+        "outs": 2
+      },
+      "previousEndTime": "2026-08-23T20:16:13.340Z",
+      "startTime": "2026-08-23T20:16:33.986Z"
+    },
+    {
+      "atBatIndex": 24,
+      "eventIndex": 10,
+      "playId": "8d8f2a86-ec0f-360d-a7e9-efd286edc83d",
+      "previousEventIndex": 9,
+      "previousCount": {
+        "balls": 2,
+        "strikes": 2,
+        "outs": 2
+      },
+      "count": {
+        "balls": 2,
+        "strikes": 2,
+        "outs": 2
+      },
+      "previousEndTime": "2026-08-23T20:16:37.641Z",
+      "startTime": "2026-08-23T20:16:55.932Z"
+    },
+    {
+      "atBatIndex": 26,
+      "eventIndex": 6,
+      "playId": "c9ed25c6-52cd-357d-8382-531d9d2653c9",
+      "previousEventIndex": 5,
+      "previousCount": {
+        "balls": 3,
+        "strikes": 2,
+        "outs": 1
+      },
+      "count": {
+        "balls": 3,
+        "strikes": 2,
+        "outs": 1
+      },
+      "previousEndTime": "2026-08-23T20:23:08.185Z",
+      "startTime": "2026-08-23T20:23:25.799Z"
+    },
+    {
+      "atBatIndex": 30,
+      "eventIndex": 4,
+      "playId": "931500b5-dfc9-3ddb-8345-fdde7e12bba2",
+      "previousEventIndex": 3,
+      "previousCount": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 0
+      },
+      "count": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 0
+      },
+      "previousEndTime": "2026-08-23T20:31:54.342Z",
+      "startTime": "2026-08-23T20:32:08.971Z"
+    },
+    {
+      "atBatIndex": 30,
+      "eventIndex": 5,
+      "playId": "ae16021f-0bce-30eb-9928-06f5576d6c25",
+      "previousEventIndex": 4,
+      "previousCount": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 0
+      },
+      "count": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 0
+      },
+      "previousEndTime": "2026-08-23T20:32:12.866Z",
+      "startTime": "2026-08-23T20:32:30.856Z"
+    },
+    {
+      "atBatIndex": 31,
+      "eventIndex": 6,
+      "playId": "16490227-d6ff-3783-a6b0-d32f4ffdad9f",
+      "previousEventIndex": 5,
+      "previousCount": {
+        "balls": 2,
+        "strikes": 2,
+        "outs": 2
+      },
+      "count": {
+        "balls": 2,
+        "strikes": 2,
+        "outs": 2
+      },
+      "previousEndTime": "2026-08-23T20:35:07.436Z",
+      "startTime": "2026-08-23T20:35:23.513Z"
+    },
+    {
+      "atBatIndex": 33,
+      "eventIndex": 4,
+      "playId": "94cf8446-2fc7-3c71-ac63-47a18c152f8a",
+      "previousEventIndex": 3,
+      "previousCount": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 0
+      },
+      "count": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 0
+      },
+      "previousEndTime": "2026-08-23T20:41:39.486Z",
+      "startTime": "2026-08-23T20:41:52.117Z"
+    },
+    {
+      "atBatIndex": 35,
+      "eventIndex": 4,
+      "playId": "3aad5ec7-4a81-3ea4-b84b-c23acbfccddd",
+      "previousEventIndex": 3,
+      "previousCount": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 1
+      },
+      "count": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 1
+      },
+      "previousEndTime": "2026-08-23T20:46:09.012Z",
+      "startTime": "2026-08-23T20:46:09.012Z"
+    },
+    {
+      "atBatIndex": 35,
+      "eventIndex": 6,
+      "playId": "996d4d1e-4075-305f-aa7e-a4a9ab1b9b2f",
+      "previousEventIndex": 5,
+      "previousCount": {
+        "balls": 2,
+        "strikes": 2,
+        "outs": 1
+      },
+      "count": {
+        "balls": 2,
+        "strikes": 2,
+        "outs": 1
+      },
+      "previousEndTime": "2026-08-23T20:46:37.225Z",
+      "startTime": "2026-08-23T20:46:57.208Z"
+    },
+    {
+      "atBatIndex": 35,
+      "eventIndex": 7,
+      "playId": "d23246f9-872b-3ea3-9d5e-da944f81fc88",
+      "previousEventIndex": 6,
+      "previousCount": {
+        "balls": 2,
+        "strikes": 2,
+        "outs": 1
+      },
+      "count": {
+        "balls": 2,
+        "strikes": 2,
+        "outs": 1
+      },
+      "previousEndTime": "2026-08-23T20:47:01.542Z",
+      "startTime": "2026-08-23T20:47:22.660Z"
+    },
+    {
+      "atBatIndex": 42,
+      "eventIndex": 5,
+      "playId": "2729fe79-6ab5-37e5-8ce6-3a00e896095d",
+      "previousEventIndex": 4,
+      "previousCount": {
+        "balls": 3,
+        "strikes": 2,
+        "outs": 1
+      },
+      "count": {
+        "balls": 3,
+        "strikes": 2,
+        "outs": 1
+      },
+      "previousEndTime": "2026-08-23T21:04:13.012Z",
+      "startTime": "2026-08-23T21:04:34.614Z"
+    },
+    {
+      "atBatIndex": 46,
+      "eventIndex": 5,
+      "playId": "fbdd58b4-ac39-391e-acfb-2108ef92cb78",
+      "previousEventIndex": 4,
+      "previousCount": {
+        "balls": 2,
+        "strikes": 2,
+        "outs": 1
+      },
+      "count": {
+        "balls": 2,
+        "strikes": 2,
+        "outs": 1
+      },
+      "previousEndTime": "2026-08-23T21:11:34.925Z",
+      "startTime": "2026-08-23T21:11:47.988Z"
+    },
+    {
+      "atBatIndex": 48,
+      "eventIndex": 2,
+      "playId": "5b411b08-1deb-30af-bd50-b871572236d8",
+      "previousEventIndex": 1,
+      "previousCount": {
+        "balls": 0,
+        "strikes": 2,
+        "outs": 0
+      },
+      "count": {
+        "balls": 0,
+        "strikes": 2,
+        "outs": 0
+      },
+      "previousEndTime": "2026-08-23T21:17:01.326Z",
+      "startTime": "2026-08-23T21:17:26.377Z"
+    },
+    {
+      "atBatIndex": 48,
+      "eventIndex": 4,
+      "playId": "6cc10176-86ef-3444-8f1a-84a2ca03cc0d",
+      "previousEventIndex": 3,
+      "previousCount": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 0
+      },
+      "count": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 0
+      },
+      "previousEndTime": "2026-08-23T21:17:53.497Z",
+      "startTime": "2026-08-23T21:18:05.190Z"
+    },
+    {
+      "atBatIndex": 51,
+      "eventIndex": 5,
+      "playId": "4fa74e8d-f51e-3ac1-989f-2ff7c3628010",
+      "previousEventIndex": 4,
+      "previousCount": {
+        "balls": 3,
+        "strikes": 2,
+        "outs": 2
+      },
+      "count": {
+        "balls": 3,
+        "strikes": 2,
+        "outs": 2
+      },
+      "previousEndTime": "2026-08-23T21:25:39.683Z",
+      "startTime": "2026-08-23T21:26:08.875Z"
+    },
+    {
+      "atBatIndex": 62,
+      "eventIndex": 3,
+      "playId": "0b57a30f-8e58-3b80-b9f1-7230abf60097",
+      "previousEventIndex": 2,
+      "previousCount": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 2
+      },
+      "count": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 2
+      },
+      "previousEndTime": "2026-08-23T21:51:38.776Z",
+      "startTime": "2026-08-23T21:51:51.730Z"
+    },
+    {
+      "atBatIndex": 63,
+      "eventIndex": 3,
+      "playId": "a0a85529-33d5-3c30-8353-2520da5009d8",
+      "previousEventIndex": 2,
+      "previousCount": {
+        "balls": 0,
+        "strikes": 2,
+        "outs": 0
+      },
+      "count": {
+        "balls": 0,
+        "strikes": 2,
+        "outs": 0
+      },
+      "previousEndTime": "2026-08-23T21:55:20.521Z",
+      "startTime": "2026-08-23T21:55:44.892Z"
+    },
+    {
+      "atBatIndex": 63,
+      "eventIndex": 4,
+      "playId": "fcc617b7-0505-3815-aa7d-e085e44c88fb",
+      "previousEventIndex": 3,
+      "previousCount": {
+        "balls": 0,
+        "strikes": 2,
+        "outs": 0
+      },
+      "count": {
+        "balls": 0,
+        "strikes": 2,
+        "outs": 0
+      },
+      "previousEndTime": "2026-08-23T21:55:48.811Z",
+      "startTime": "2026-08-23T21:56:07.357Z"
+    },
+    {
+      "atBatIndex": 63,
+      "eventIndex": 5,
+      "playId": "5bfabd19-e1c2-3f25-9e91-b6731e7039d6",
+      "previousEventIndex": 4,
+      "previousCount": {
+        "balls": 0,
+        "strikes": 2,
+        "outs": 0
+      },
+      "count": {
+        "balls": 0,
+        "strikes": 2,
+        "outs": 0
+      },
+      "previousEndTime": "2026-08-23T21:56:13.154Z",
+      "startTime": "2026-08-23T21:56:49.202Z"
+    },
+    {
+      "atBatIndex": 63,
+      "eventIndex": 6,
+      "playId": "de2e097e-ef94-327c-868c-d63e2e7efa71",
+      "previousEventIndex": 5,
+      "previousCount": {
+        "balls": 0,
+        "strikes": 2,
+        "outs": 0
+      },
+      "count": {
+        "balls": 0,
+        "strikes": 2,
+        "outs": 0
+      },
+      "previousEndTime": "2026-08-23T21:56:53.052Z",
+      "startTime": "2026-08-23T21:57:09.073Z"
+    },
+    {
+      "atBatIndex": 71,
+      "eventIndex": 4,
+      "playId": "36225dd6-e24d-3c06-88fb-414c186e1fd8",
+      "previousEventIndex": 3,
+      "previousCount": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 0
+      },
+      "count": {
+        "balls": 1,
+        "strikes": 2,
+        "outs": 0
+      },
+      "previousEndTime": "2026-08-23T22:17:33.370Z",
+      "startTime": "2026-08-23T22:17:52.301Z"
+    },
+    {
+      "atBatIndex": 73,
+      "eventIndex": 5,
+      "playId": "6e183e6f-d061-361a-b11f-425b37938452",
+      "previousEventIndex": 4,
+      "previousCount": {
+        "balls": 3,
+        "strikes": 2,
+        "outs": 2
+      },
+      "count": {
+        "balls": 3,
+        "strikes": 2,
+        "outs": 2
+      },
+      "previousEndTime": "2026-08-23T22:22:01.566Z",
+      "startTime": "2026-08-23T22:22:15.073Z"
+    }
+  ],
+  "explicitPitchReviews": [
+    {
+      "atBatIndex": 36,
+      "eventIndex": 5,
+      "playId": "4edb573f-e278-3f46-a0a2-c2a87cef6afb",
+      "call": {
+        "code": "B",
+        "description": "Ball"
+      },
+      "reviewDetails": {
+        "isOverturned": false,
+        "inProgress": false,
+        "reviewType": "MJ",
+        "challengeTeamId": 115,
+        "player": {
+          "id": 664954,
+          "fullName": "Brett Sullivan",
+          "link": "/api/v1/people/664954"
+        }
+      },
+      "paResultDescription": "Nathaniel Lowe singles on a line drive to center fielder Cole Carrigg. Chase DeLauter scores.",
+      "isTerminalPitch": false
+    },
+    {
+      "atBatIndex": 43,
+      "eventIndex": 0,
+      "playId": "349a9764-76e7-374c-ae7d-e73adedef1a9",
+      "call": {
+        "code": "B",
+        "description": "Ball"
+      },
+      "reviewDetails": {
+        "isOverturned": false,
+        "inProgress": false,
+        "reviewType": "MJ",
+        "challengeTeamId": 115,
+        "player": {
+          "id": 664954,
+          "fullName": "Brett Sullivan",
+          "link": "/api/v1/people/664954"
+        }
+      },
+      "paResultDescription": "Austin Hedges grounds into a double play, shortstop Ezequiel Tovar to second baseman Ryan Ritter to first baseman Connor Norby. Angel Martínez out at 2nd. Austin Hedges out at 1st.",
+      "isTerminalPitch": false
+    }
+  ]
+}

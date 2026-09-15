@@ -1,0 +1,48 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-metric-mapping-completion",
+  "title": "M1 counted-foul coverage and M2 affirmed pitch-review mapping",
+  "status": "under-review",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "5b5ca98e60e51c5edd28b8db7dc7a1864c28c3d677fd614f73a921b9f136ff1f"
+      },
+      {
+        "path": "mapping-contract.md",
+        "sha256": "e40a8a07779d69c0fb3597686a2831c1e539dd5807a70d16eaab1d146239af04"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "e4b69b77a6ccb2bffffae19c98a2808d8d150984d82127c2474090ff765b978f"
+      },
+      {
+        "path": "source-capture.json",
+        "sha256": "3047cf27c10ab2feb8598acac511f2791f7c0b3983c39eba40d49407076ee89e"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "474fb3f5884a3954b7de9fefc3937b1ecc0314f049bc71f6c17a9fdb79ee9f49"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "3dddb38bd68490b39571441bcca644fca00d6d9558cc5bf610c2dcdf30197a30"
+      },
+      {
+        "path": "source-specific-mermaid.md",
+        "sha256": "10425813e0dde2a3a09fcd7cfc9951ce3a2177a70cda10c354d74c71e073d427"
+      }
+    ]
+  },
+  "ontologistDecision": null
+}
