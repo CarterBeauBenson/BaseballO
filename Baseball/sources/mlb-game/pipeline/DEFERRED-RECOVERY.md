@@ -8,7 +8,7 @@ No additional process group or acquisition schedule is introduced.
 The worker waits for an explicitly named SQL build to appear in the promoted
 serving pointer and for both known SQL processors to be idle. It then submits
 the existing `Proof Request` once. After the existing source-proof checker
-verifies a new completed run against current RML and SHACL, the worker submits
+verifies a new completed run against current RML, context builder and SHACL, the worker submits
 the existing `Backfill Schedule Request` for the queued date range. Batch
 completion comes from the normal batch manifest after promotion and SQL
 materialization; submission is never reported as completion.
@@ -50,7 +50,7 @@ Read/configuration errors defer dependent materialization and appear in the
 NiFi batch result. No stage evidence or semantic approval is synthesized.
 
 If the existing release checker finds all required successful stages and
-cleanup for a new proof, but its mapping or SHACL hash is now obsolete, the
+cleanup for a new proof, but its mapping, context-builder or SHACL hash is now obsolete, the
 worker preserves that completion and its stage hashes in `supersededProofs`.
 After the known processors become idle it queues a new proof on the next
 tick. The obsolete proof never releases backfill. Missing completion, an

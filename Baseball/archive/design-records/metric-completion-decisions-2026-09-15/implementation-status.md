@@ -1,5 +1,15 @@
 # Implementation status after the first accepted completion pass
 
+September 15 continuation: both Run Construction Depth and Run Construction
+Breadth now produce conditional exact player means. The fresh game 824087
+proof has all seven counted runs, zero unresolved scoring histories and exact
+RDF/query/SQL agreement for both metrics. Complete selected-schedule admission
+remains mandatory. The original reference game's source now reconciles all
+13 scoring histories. Scoped player names reach both dashboard and expanded
+rankings; breadth details show contributors. See the
+[new evidence](../../../benchmarks/metrics/run-construction-players-2026-09-15/README.md).
+This implements existing accepted decisions and records no new approval.
+
 September 15 serving follow-through: Run Construction Depth now has a
 conditional complete-player producer, backed by independent counted-run and
 roster SHACL admission. It requires all selected schedules and scoring

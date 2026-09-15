@@ -508,7 +508,7 @@
         "PATH_IDENTITY"
       ],
       "implementationStatus": "implemented",
-      "liveAdapter": "personal-run-histories",
+      "liveAdapter": "personal-run-histories-and-players",
       "referencePopulation": "declared selected evidence population",
       "nullableColumns": [],
       "inputColumns": [
@@ -540,7 +540,7 @@
         "SUPPORT_ATTRIBUTION"
       ],
       "implementationStatus": "implemented",
-      "liveAdapter": "blocked-by-gap-register",
+      "liveAdapter": "personal-run-histories-and-players",
       "referencePopulation": "declared selected evidence population",
       "nullableColumns": [],
       "inputColumns": [

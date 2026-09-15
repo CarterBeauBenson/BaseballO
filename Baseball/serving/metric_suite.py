@@ -23,7 +23,7 @@ from rdflib import Graph, Literal
 
 ROOT = Path(__file__).resolve().parents[1]
 METRICS = ROOT / 'sparql/metrics'
-VERSION = '2.0.22'
+VERSION = '2.0.23'
 
 
 class EvidenceError(ValueError):
@@ -677,7 +677,7 @@ def normalize_bindings(bindings, graphs):
                       'trajectoryHalf', 'trajectoryInterval', 'paHalf', 'paInterval',
                       'paStartInstant', 'paEndInstant', 'paStartTimestamp', 'paEndTimestamp', 'paOutCount',
                       'countJudgment', 'countDecision', 'countRule', 'priorPitch', 'nextPitch',
-                      'trajectoryEndInstant', 'gameEndTimestamp'):
+                      'trajectoryEndInstant', 'gameEndTimestamp', 'independentStealAct'):
             if field in binding and binding[field].get('type') != 'uri':
                 raise EvidenceError('Evidence identity must be an IRI: ' + field)
         for field in ('paStart', 'paEnd', 'gameEnd'):
@@ -963,8 +963,8 @@ def live_result(metric_id, rows, *, graph_count):
     if entry['requires']:
         result = unavailable(*entry['requires'], coverage=coverage, metricId=metric_id,
                              scope='selected promoted game graphs', grain=entry['grain'])
-        if metric_id == 'run-construction-depth':
-            result.update(run_construction_evidence(rows))
+        if metric_id in {'run-construction-depth', 'run-construction-breadth'}:
+            result.update(run_construction_evidence(rows, metric_id=metric_id))
             coverage['supportedRuns'] = len(result['runs'])
             coverage['observedRunsWithoutResult'] = len(result['unresolvedRuns'])
             coverage['runGapCounts'] = dict(sorted(
@@ -1172,14 +1172,16 @@ def segment_origin(row):
     return None
 
 
-def run_construction_evidence(rows):
+def run_construction_evidence(rows, *, metric_id='run-construction-depth'):
     """Complete per-run depth over promoted E1/C1 wholes and exact members.
 
     Never infer a whole from adjacent movement rows. The independent C1 member
     inventory ensures a missing movement binding cannot shorten a scored run.
     Source reconciliation and source SHACL precede graph promotion in NiFi.
     """
-    histories, movements = defaultdict(list), defaultdict(list)
+    if metric_id not in {'run-construction-depth','run-construction-breadth'}:
+        raise EvidenceError('Not a run-construction metric')
+    histories, movements, pa_types = defaultdict(list), defaultdict(list), defaultdict(set)
     observed_runs, run_histories, failures = {}, defaultdict(set), {}
     for row in rows:
         if row['kind'] == 'runner_history':
@@ -1190,6 +1192,8 @@ def run_construction_evidence(rows):
                 run_histories[(row['graph'], row['resolution'])].add((row['graph'], row['trajectory']))
         elif row['kind'] == 'run':
             observed_runs[(row['graph'], row['entity'])] = row['game']
+        elif row['kind'] == 'plate_appearance' and row.get('recognizedBattingResult') in ('true','1'):
+            pa_types[(row['graph'],row['entity'])].add(row.get('paResultType'))
     results = []
     for key, members in sorted(histories.items()):
         signatures = {(r['game'], r['player'], r['trajectoryHalf'], r['trajectoryInterval']) for r in members}
@@ -1204,7 +1208,7 @@ def run_construction_evidence(rows):
         if set(observed) != expected:
             failures[key] = 'PERSONAL_HISTORY_MEMBER_COVERAGE'
             continue
-        inputs, trace, runs = [], [], []
+        inputs, supporters, trace, runs = [], [], [], []
         for episode in sorted(expected):
             candidates = observed[episode]
             # Optional paths may have duplicates; conflicting or missing state
@@ -1214,6 +1218,9 @@ def run_construction_evidence(rows):
                       'hasOutType', 'hasRunType', 'destinationBase', 'destinationCode',
                       'trajectoryHalf', 'trajectoryInterval')
             states = {tuple(r.get(f) for f in fields) for r in candidates}
+            if metric_id == 'run-construction-breadth':
+                states = {tuple(r.get(f) for f in (*fields, 'plateAppearance','contactPlay','award','awardRule','independentStealAct'))
+                          for r in candidates}
             if len(states) != 1:
                 failures[key] = 'CONFLICTING_SEGMENT_STATE'
                 break
@@ -1240,17 +1247,47 @@ def run_construction_evidence(rows):
                 failures[key] = 'UNSUPPORTED_SEGMENT_ORIGIN'
                 break
             inputs.append(dict(key=key[1], episode=episode, changesState=start != end))
+            if metric_id == 'run-construction-breadth' and start != end:
+                if end <= start:
+                    failures[key] = 'UNSUPPORTED_CONTRIBUTION_DIRECTION'
+                    break
+                channels = [bool(row.get('contactPlay')), bool(row.get('award') and row.get('awardRule')),
+                            row.get('independentStealAct') == row['act']]
+                if sum(channels) != 1:
+                    failures[key] = 'UNSUPPORTED_RUN_CONTRIBUTOR'
+                    break
+                contributor = runner if channels[2] else row.get('batter')
+                if not contributor:
+                    failures[key] = 'UNSUPPORTED_RUN_CONTRIBUTOR'
+                    break
+                if not channels[2]:
+                    types = pa_types[(key[0],row['plateAppearance'])]
+                    if len(types) != 1:
+                        failures[key] = 'UNSUPPORTED_BATTING_CREDIT_CLASSIFICATION'
+                        break
+                    if next(iter(types)) in policies()['batterProgressExcludedResultTypes']:
+                        contributor = None
+                if contributor:
+                    supporters.append(dict(key=key[1],episode=episode,supporter=contributor,
+                        channel='independent-running' if channels[2] else 'batting',
+                        support=row['act'] if channels[2] else row['contactPlay'] if channels[0] else row['award']))
             trace.append(dict(episode=episode, act=row['act'], resolution=row['resolution'],
                               start=start, end=end, changesState=start != end))
         else:
             if len(runs) != 1:
                 failures[key] = 'SCORING_HISTORY_TERMINAL_COVERAGE'
                 continue
-            calculated = calculate('run-construction-depth', inputs)
+            calculated = (calculate(metric_id, inputs) if metric_id == 'run-construction-depth'
+                          else calculate(metric_id, supporters) if supporters else available(0))
             calculated.update(graph=key[0], game=game, trajectory=key[1], runner=runner,
                               run=runs[0], grain='run', completeTrajectory=True, episodes=trace,
                               scope='complete admitted scoring-runner history',
                               evidence=sorted({key[1], interval, half, *expected, *runs}))
+            if metric_id == 'run-construction-breadth':
+                calculated['contributors'] = sorted({s['supporter'] for s in supporters})
+                calculated['contributions'] = [{k:v for k,v in s.items() if k!='key'} for s in supporters]
+                calculated['evidence'] = sorted({*calculated['evidence'],
+                    *(s['support'] for s in supporters), *calculated['contributors']})
             results.append(calculated)
     # A counted Run must have one supported personal history. Never pick the
     # first candidate or count it twice when two wholes claim the same Run.
@@ -1282,6 +1319,9 @@ def scoring_run_players(rows, *, graphs, admissions, date_scope, schedule, evide
     game rosters are separate gates. This does not infer official PA credit or
     require a batting minimum for a pinch runner.
     """
+    metric_id = evidence.get('metricId', 'run-construction-depth')
+    if metric_id not in {'run-construction-depth','run-construction-breadth'}:
+        raise EvidenceError('Not a scoring-run player metric')
     missing = dict(playerPopulationComplete=False, playerResults=[])
     denied = sorted(g for g in graphs if admissions.get(g, {}).get('status') != 'admitted'
                     or admissions[g].get('sourceReconciled') is not True
@@ -1326,8 +1366,8 @@ def scoring_run_players(rows, *, graphs, admissions, date_scope, schedule, evide
                 or run.get('runner') not in game_rosters[(run['graph'], run['game'])]):
             return dict(missing, playerSummaryGaps=['COMPLETE_SCORING_HISTORIES'])
         value = fraction(run['value'])
-        if exact(value) != run['value'] or value.denominator != 1 or value < 1:
-            raise EvidenceError('Run depth requires a positive exact episode count')
+        if exact(value) != run['value'] or value.denominator != 1 or value < (metric_id == 'run-construction-depth'):
+            raise EvidenceError('Run metric requires an exact nonnegative count; depth must be positive')
         grouped[run['runner']].append(value)
     output = []
     for player, values in sorted(grouped.items()):
@@ -1335,8 +1375,9 @@ def scoring_run_players(rows, *, graphs, admissions, date_scope, schedule, evide
         if len({game for game, _ in games}) != len(games):
             raise EvidenceError('One player has conflicting team exposure in a selected game')
         total = sum(values, Fraction())
-        output.append(dict(player=player, metricId='run-construction-depth', status='available',
+        output.append(dict(player=player, metricId=metric_id, status='available',
             dateScope=dict(date_scope), completeParticipation=True, teamGames=len(games),
+            graphs=sorted({r['graph'] for r in runs if r['runner']==player}),
             aggregate=dict(kind='mean', sum=exact(total), count=len(values)), value=exact(total/len(values))))
     summary = summarize(runs) if runs else unavailable('EMPTY_DENOMINATOR')
     return dict(playerPopulationComplete=True, playerResults=output, playerSummaryGaps=[],
@@ -1506,7 +1547,7 @@ def query_sql(connection, request, scope):
     qualification = batting_qualification(rows, graphs=graphs, admissions=admissions,
         date_scope=scope, selected_games_complete=schedule['complete'])
     for metric in result.get('metrics', [result.get('metric')]):
-        if metric['metricId'] == 'run-construction-depth':
+        if metric['metricId'] in {'run-construction-depth','run-construction-breadth'}:
             metric.update(scoring_run_players(rows, graphs=graphs, admissions=run_admissions,
                 date_scope=scope, schedule=schedule, evidence=metric))
     # Admission metadata is separate from scores, retaining exact equality

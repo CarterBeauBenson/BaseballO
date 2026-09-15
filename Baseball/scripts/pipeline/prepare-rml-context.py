@@ -244,6 +244,65 @@ def supported_walkoff_boundary(document: dict, last_play: dict) -> dict | None:
                 gameEndInstantIri=f"https://baseballontology.org/data/game/{document['gamePk']}/temporal-instant/end")
 
 
+def accounted_runner_count_reviews(play: dict) -> dict:
+    """E1: reconcile completed operative pitch calls before runner continuity.
+
+    This does not infer an original call or review eligibility. C1 needs the
+    final operative effects; M2 separately controls the review RDF pattern.
+    Field-play reviews and contradictory/in-progress calls remain unresolved.
+    """
+    events = play.get('playEvents', [])
+    pitches = [e for e in events if e.get('isPitch') is True]
+    identified, problems = {}, []
+    pa_review = play.get('reviewDetails')
+    pa_flag = play.get('about', {}).get('hasReview')
+    terminal_review = None
+    if pa_flag is not False or pa_review:
+        match = REVIEW_DESCRIPTION.search(play.get('result', {}).get('description', ''))
+        if (pa_flag is not True or not pitches or not isinstance(pa_review, dict) or pa_review.get('inProgress') is not False
+                or type(pa_review.get('isOverturned')) is not bool or not match
+                or match.group('review_type').lower() != 'pitch result'):
+            problems.append('UNRESOLVED_PA_REVIEW')
+        else:
+            narrative = match.group('status')
+            if narrative and (REVIEW_STATUS_BY_NARRATIVE[narrative.lower()] == 'overturned') != pa_review['isOverturned']:
+                problems.append('CONFLICTING_PA_REVIEW')
+            else:
+                terminal_review = pitches[-1]
+    for position, event in enumerate(events):
+        details = event.get('details', {})
+        event_review = event.get('reviewDetails')
+        candidate = event_review or (pa_review if event is terminal_review else None)
+        if candidate is None and details.get('hasReview') is not True:
+            continue
+        code = details.get('call', {}).get('code')
+        kind = PITCH_DECISION_BY_CALL_CODE.get(code)
+        if (not isinstance(candidate, dict) or candidate.get('inProgress') is not False
+                or type(candidate.get('isOverturned')) is not bool or candidate.get('reviewType') != 'MJ'
+                or event.get('isPitch') is not True or not kind
+                or details.get('isBall') is not (kind == 'ball') or details.get('isStrike') is not (kind == 'strike')
+                or details.get('isInPlay') is not False
+                or not SAFE_IRI_SEGMENT.fullmatch(str(event.get('playId') or ''))):
+            problems.append('UNRESOLVED_EVENT_REVIEW')
+            continue
+        if event is terminal_review and event_review and any(event_review.get(k) != pa_review.get(k)
+                for k in ('inProgress','isOverturned','reviewType')):
+            problems.append('CONFLICTING_EVENT_AND_PA_REVIEW')
+            continue
+        before = events[position-1].get('count', {}) if position else dict(balls=0,strikes=0)
+        after = event.get('count', {})
+        if (any(type(c.get(key)) is not int or not 0 <= c[key] <= limit
+                for c in (before,after) for key,limit in (('balls',4),('strikes',3)))
+                or before['balls'] >= 4 or before['strikes'] >= 3
+                or after['balls'] != before['balls'] + (kind == 'ball')
+                or after['strikes'] != before['strikes'] + (kind == 'strike')):
+            problems.append('CONFLICTING_OPERATIVE_REVIEW_COUNT')
+            continue
+        identified[event['index']] = dict(playId=event['playId'], kind=kind,
+            overturned=candidate['isOverturned'], scope='final operative pitch call; original call not inferred')
+    return dict(events=identified, issues=problems)
+
+
 def personal_runner_histories(raw: bytes) -> dict:
     """E1/C1 source reconciliation, independent of mapped-row counts.
 
@@ -311,8 +370,17 @@ def personal_runner_histories(raw: bytes) -> dict:
             if previous_pa_end and pa_start < previous_pa_end:
                 block('AMBIGUOUS_PA_TIME_ORDER', pa)
             previous_pa_end = pa_end
-            if about.get('hasReview') is not False or play.get('reviewDetails'):
+            reviews = accounted_runner_count_reviews(play)
+            if reviews['issues']:
                 block('UNRESOLVED_REVIEW_EFFECT', pa)
+            # Q4 validates actual batter changes independently of runner
+            # replacement. A known PH with no movement and no active outgoing
+            # runner is administrative for this personal-history census.
+            try:
+                batter_participation_context(play, str(document['gamePk']), source_consistent=True)
+                batting_changes_supported = True
+            except (ValueError, KeyError):
+                batting_changes_supported = False
             events = play['playEvents']
             if not events:
                 block('MISSING_BOUNDARY_EVENT', pa); continue
@@ -328,10 +396,15 @@ def personal_runner_histories(raw: bytes) -> dict:
                 index = event['index']; details = event.get('details', {})
                 kind, event_type = event.get('type'), details.get('eventType')
                 selected = event_rows[index]
-                if event.get('reviewDetails') or details.get('hasReview') is True:
+                if (event.get('reviewDetails') or details.get('hasReview') is True) and index not in reviews['events']:
                     block('UNRESOLVED_REVIEW_EFFECT', pa)
+                batting_only = (batting_changes_supported and event_type == 'offensive_substitution'
+                    and event.get('position', {}).get('abbreviation') == 'PH'
+                    and not selected and str(event.get('replacedPlayer', {}).get('id')) not in active
+                    and str(event.get('player', {}).get('id')) not in active)
                 supported = (event.get('isPitch') is True or kind in {'pickoff', 'stepoff', 'no_pitch'}
                              or event_type in neutral or event_type in independent
+                             or batting_only
                              or (event_type == 'game_advisory' and details.get('description') in advisories))
                 if not supported:
                     block('UNSUPPORTED_EVENT_EFFECT:' + str(event_type or kind), pa)
@@ -348,9 +421,8 @@ def personal_runner_histories(raw: bytes) -> dict:
                         last_event_end = end
                     if event.get('count', {}).get('outs') != outs:
                         block('PRE_EVENT_OUT_COUNT_MISMATCH', pa)
-                if selected and not re.fullmatch(r'[A-Za-z0-9._~-]+', str(event.get('playId') or '')):
-                    block('MISSING_STABLE_MOVEMENT_ANCHOR', pa)
                 event_anchor = str(event.get('playId') or '')
+                stable_anchor = bool(SAFE_IRI_SEGMENT.fullmatch(event_anchor))
                 by_runner = defaultdict(list)
                 for row_index, row in selected:
                     by_runner[str(row['details']['runner']['id'])].append((row_index, row))
@@ -365,6 +437,8 @@ def personal_runner_histories(raw: bytes) -> dict:
                         if len(pending_rows) == 1 and pending_rows[0][1]['movement'].get('isOut') is True:
                             out_numbers.append(pending_rows[0][1]['movement'].get('outNumber'))
                             continue
+                        if not stable_anchor:
+                            block('MISSING_STABLE_MOVEMENT_ANCHOR', pa)
                         active[runner] = dict(runnerId=runner, inning=str(inning), half=half,
                             entryAnchor=event_anchor, earliestStartBound=event.get('startTime'), episodes=[], base=None)
                     item = active[runner]
@@ -386,6 +460,8 @@ def personal_runner_histories(raw: bytes) -> dict:
                                 block('MOVEMENT_AFTER_TERMINATION', pa)
                             if out:
                                 out_numbers.append(m.get('outNumber'))
+                            if not stable_anchor:
+                                block('MISSING_STABLE_MOVEMENT_ANCHOR', pa)
                             finish(item, event_anchor, 'out' if out else 'score', event.get('endTime'))
                             del active[runner]
                             break
@@ -439,7 +515,7 @@ def runner_metric_evidence(play: dict, at_bat_index: str, season: str) -> dict[s
 
     Start is a source designation, never persistence evidence. The force flag
     is positive evidence, not a conclusion reconstructed from occupied bases.
-    Reviewed PAs and unverified rule editions withhold award assertions only.
+    Unresolved reviews and unverified rule editions withhold award assertions.
     """
     products = {"segmentOrigins": [], "awardAdvances": []}
     if not str(at_bat_index).isdigit() or isinstance(at_bat_index, bool):
@@ -463,9 +539,11 @@ def runner_metric_evidence(play: dict, at_bat_index: str, season: str) -> dict[s
     events = play.get("playEvents", [])
     if (str(season) not in {"2019", "2026"}
             or play.get("about", {}).get("isComplete") is not True
-            or result not in {"walk", "intent_walk", "hit_by_pitch"}
-            or play.get("about", {}).get("hasReview") is True or play.get("reviewDetails")
-            or any(e.get("reviewDetails") or e.get("details", {}).get("hasReview") is True for e in events)):
+            or result not in {"walk", "intent_walk", "hit_by_pitch"}):
+        return products
+    has_review = (play.get('about', {}).get('hasReview') is True or play.get('reviewDetails')
+                  or any(e.get('reviewDetails') or e.get('details', {}).get('hasReview') is True for e in events))
+    if has_review and accounted_runner_count_reviews(play)['issues']:
         return products
     batter = str(play.get("matchup", {}).get("batter", {}).get("id"))
     award_types = {"walk", "intent_walk"} if result in {"walk", "intent_walk"} else {"hit_by_pitch"}

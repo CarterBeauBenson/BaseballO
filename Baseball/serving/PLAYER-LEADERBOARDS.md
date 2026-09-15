@@ -55,10 +55,13 @@ individual Walk/HBP and run-history results remain inspectable separately.
 
 ## Still blocked
 
-Run Construction Depth now has a live player producer. NiFi validates the
+Run Construction Depth and Run Construction Breadth now have live player
+producers. NiFi validates the
 complete counted-run census and game roster against the final source before
 promotion. SQL independently checks selected schedule coverage and requires a
-complete C1 history for every counted run. Only then does it emit scorer means
+complete C1 history for every counted run. Breadth additionally requires every
+advance's supported contribution channel, including explicitly excluded
+error/FC/interference batting progress. Only then does it emit scorer means
 and complete player results. Non-scoring games remain in each player's team
 exposure. Pinch runners need no inferred PA count or batting minimum.
 
@@ -69,7 +72,9 @@ be assumed to satisfy this contract.
 
 1. Complete player aggregates and their full applicable game/PA/run populations
    must be supplied through the accepted source-to-SQL lifecycle. Partial award
-   consequences and nine of thirteen scoring histories do not qualify.
+   consequences or a subset of scoring histories do not qualify. All thirteen
+   reference-game scoring histories now reconcile; this is separate from
+   complete selected-range admission.
 2. Complete selected-period participation and team-game exposure must be
    established, including absent games and applicable multi-team history.
    Missing graphs cannot silently shrink qualification denominators.

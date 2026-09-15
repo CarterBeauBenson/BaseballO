@@ -4,8 +4,8 @@ import { readFile } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { createBaseballServer } from '../server.mjs';
-import { metricCatalog, validateMetricRequest, validateDashboardRequest, compileMetricEvidenceQuery, metricDisplayTargets, compileMetricDisplayQuery, normalizeMetricDisplayLabels, automaticMinimumPA, automaticMinimumObservations, playerLeaderboard, playerSummaryValue, publicMetricResult } from '../query-builder/metric-suite-query-builder.js';
-import { displayFraction, resultHeadline, movementEvidenceLabel, consequencePresentation, formatMetricValue, resultPresentation, resultDateLabel, selectionFromUrl, displayPlayer, exampleAnswer, dashboardSummary, matchesMetric, metricRanking, dashboardLoadStatus, unresolvedRunRows } from '../metrics.js';
+import { metricCatalog, validateMetricRequest, validateDashboardRequest, compileMetricEvidenceQuery, metricDisplayTargets, compileMetricDisplayQuery, normalizeMetricDisplayLabels, labelMetricPlayers, automaticMinimumPA, automaticMinimumObservations, playerLeaderboard, playerSummaryValue, publicMetricResult } from '../query-builder/metric-suite-query-builder.js';
+import { displayFraction, resultHeadline, movementEvidenceLabel, consequencePresentation, runMetricPresentation, formatMetricValue, resultPresentation, resultDateLabel, selectionFromUrl, displayPlayer, exampleAnswer, dashboardSummary, matchesMetric, metricRanking, dashboardLoadStatus, unresolvedRunRows } from '../metrics.js';
 
 test('unresolved runs keep their identities and explain the actual evidence problem', () => {
   const evidence = { graph: 'https://w3id.org/baseball/graph/game/566279',
@@ -79,6 +79,27 @@ test('complete scoring-run player means qualify by runs without invented PA tota
   assert.equal(board.rows[0].minimumPA,null);
   assert.equal(playerLeaderboard({playerPopulationComplete:false,playerResults:[row(1,7,2)]},
     metric,leaderboardScope).status,'unavailable');
+});
+
+test('player cards use scoped names without letting labels change identities or values', () => {
+  const graph='https://w3id.org/baseball/graph/game/1';
+  const metric={metricId:'run-construction-depth',playerResults:[playerScore(1,7,{graphs:[graph]})]};
+  const label={graph,entity:metric.playerResults[0].player,label:'Actual Player Name'};
+  const named=labelMetricPlayers(metric,[label]);
+  assert.equal(named.playerResults[0].playerLabel,label.label);
+  assert.deepEqual(named.playerResults[0].value,metric.playerResults[0].value);
+  assert.equal(metric.playerResults[0].playerLabel,'Player 1');
+  assert.equal(labelMetricPlayers(metric,[{...label,graph:graph+'2'}]).playerResults[0].playerLabel,'Player 1');
+  const ambiguous=labelMetricPlayers(metric,[label,{...label,label:'Conflicting Name'}]);
+  assert.equal(ambiguous.playerResults[0].playerLabel,undefined);
+});
+
+test('run contributor details are not presented as episode depth', () => {
+  assert.equal(runMetricPresentation('run-construction-breadth').heading,'Run Contributors');
+  assert.equal(runMetricPresentation('run-construction-breadth').plural,'contributors');
+  assert.equal(runMetricPresentation('run-construction-depth').plural,'episodes');
+  assert.match(unresolvedRunRows([{graph:'https://w3id.org/baseball/graph/game/1',run:'urn:run/1/0',
+    gaps:['UNSUPPORTED_RUN_CONTRIBUTOR']}])[0].reason,/contribution channel/);
 });
 
 test('automatic PA minimum follows the approved rule across selected team-game counts', () => {
@@ -401,6 +422,34 @@ test('optional label lookup failure preserves a successful SQL metric response',
     assert.equal(payload.execution,'materialized-sql');
     assert.deepEqual(payload.display,{source:'identifier-fallback',labels:[]});
   });
+});
+
+test('dashboard and expanded metric ranks receive names from their scored game graphs', async () => {
+  const graph='https://w3id.org/baseball/graph/game/824087';
+  const row=playerScore(1,0,{metricId:'run-construction-breadth',graphs:[graph],
+    aggregate:{kind:'mean',sum:{numerator:'5',denominator:'1'},count:2}});
+  const metric={metricId:row.metricId,status:'available',playerPopulationComplete:true,playerResults:[row]};
+  for (const dashboard of [true,false]) {
+    const result={execution:'materialized-sql',dateScope:leaderboardScope,
+      ...(dashboard?{metrics:[metric]}:{metric})};
+    await withServer({servingExecutor:async()=>result,fetchImpl:async(_url,options)=>{
+      assert.ok(options.body.get('query').includes(`<${graph}>`));
+      return new Response(JSON.stringify({results:{bindings:[{
+        graph:{type:'uri',value:graph},entity:{type:'uri',value:row.player},
+        label:{type:'literal',value:'Scoring Player'}
+      }]}}));
+    }},async url=>{
+      const response=await fetch(url+'/api/metrics/'+(dashboard?'dashboard':'query'),
+        {method:'POST',body:JSON.stringify(dashboard?{}:{metricId:metric.metricId})});
+      assert.equal(response.status,200);
+      const body=await response.json();
+      const board=(dashboard?body.metrics[0]:body.metric).leaderboard;
+      assert.equal(board.status,'available');
+      assert.equal(board.rows[0].name,'Scoring Player');
+      assert.deepEqual(board.rows[0].value,{numerator:'5',denominator:'2'});
+    });
+  }
+  assert.equal(row.playerLabel,'Player 1');
 });
 
 test('runner boundary labels remain optional and do not manufacture a metric score', async () => {

@@ -105,10 +105,20 @@ def evidence_matches(
     except ValueError as exc:
         return False, str(exc), None
 
-    hash_pairs = (
+    hash_pairs = [
         ("mappingPath", "mappingSha256", "mapping"),
         ("shaclShapePath", "shaclShapeSha256", "shacl"),
-    )
+    ]
+    if module == 'mlb-game':
+        # Context selects the admitted source surface even when no Triples Map
+        # changes. A completed proof of older context cannot release a new
+        # corpus pass. Pin the actual owning implementation, not a manifest-
+        # supplied alternate file with a conveniently matching hash.
+        expected_context = contract_path.parents[3]/'scripts/pipeline/prepare-rml-context.py'
+        value = manifest.get('contextBuilderPath')
+        if not isinstance(value, str) or Path(value).resolve() != expected_context.resolve():
+            return False, 'MLB proof has no current owning context-builder path', None
+        hash_pairs.append(('contextBuilderPath','contextBuilderSha256','contextBuilder'))
     for path_key, hash_key, contract_key in hash_pairs:
         value = manifest.get(path_key)
         expected = str(manifest.get(hash_key, "")).lower()

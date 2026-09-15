@@ -164,6 +164,17 @@ export async function compileMetricDisplayQuery(targets) {
     .replace('# DISPLAY_ROWS', targets.map(t => `(<${t.graph}> <${t.entity}>)`).join('\n'));
 }
 
+export function labelMetricPlayers(metric, labels) {
+  if (!Array.isArray(metric.playerResults)) return metric;
+  return { ...metric, playerResults: metric.playerResults.map(row => {
+    const graphs = new Set(row.graphs ?? (metric.runs ?? []).filter(run => run.runner === row.player).map(run => run.graph));
+    const names = new Set(labels.filter(label => label.entity === row.player && graphs.has(label.graph)).map(label => label.label));
+    if (names.size === 1) return { ...row, playerLabel: [...names][0] };
+    if (names.size > 1) { const { playerLabel, ...unnamed } = row; return unnamed; }
+    return row;
+  }) };
+}
+
 export function normalizeMetricDisplayLabels(bindings, targets) {
   const allowed = new Set(targets.map(t => JSON.stringify([t.graph, t.entity]))), labels = new Map();
   for (const row of bindings) {

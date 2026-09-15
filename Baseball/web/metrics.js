@@ -186,11 +186,19 @@ function renderConsequences(results = [], metricId = 'tfs', labels = []) {
   table.append(head, body); target.append(table);
 }
 
-function renderRunResults(results = [], labels = []) {
+export function runMetricPresentation(metricId) {
+  return metricId === 'run-construction-breadth' ? {
+    heading:'Run Contributors', singular:'contributor', plural:'contributors', unit:'players',
+    description:'Each score counts distinct offensive players whose supported contributions advanced this scoring runner. Each contributor counts once.',
+  } : {heading:'Scoring History Length', singular:'episode', plural:'episodes', unit:'episodes',
+    description:'Each score counts the state-changing episodes in one complete scoring-runner history. Held-base observations add no depth.'};
+}
+
+function renderRunResults(results = [], labels = [], metricId = 'run-construction-depth') {
   const target = byId('run-results'); target.replaceChildren(); target.hidden = !results.length;
   if (!results.length) return;
-  target.append(node('h3', 'Scoring History Length'), node('p',
-    'Each score counts the state-changing episodes in one complete scoring-runner history. Held-base observations add no depth.'));
+  const presentation=runMetricPresentation(metricId);
+  target.append(node('h3', presentation.heading), node('p', presentation.description));
   const base = value => value === 0 ? 'HOME' : value === 4 ? 'score' : value + 'B';
   for (const result of results) {
     const card = node('article'), title = node('h4', displayPlayer(labels, result.graph, result.runner));
@@ -200,8 +208,11 @@ function renderRunResults(results = [], labels = []) {
       `${base(episode.start)} → ${base(episode.end)}${episode.changesState ? '' : ' (no state change)'} · PA source index ${episode.episode.split('/').at(-2)}`));
     trace.append(list);
     const technical = node('details'); technical.append(node('summary', 'Technical evidence'), node('pre', JSON.stringify(result, null, 2)));
-    card.append(title, node('strong', `${formatMetricValue(result.value, 'episodes')} ${result.value.numerator === result.value.denominator ? 'episode' : 'episodes'}`),
+    card.append(title, node('strong', `${formatMetricValue(result.value, presentation.unit)} ${result.value.numerator === result.value.denominator ? presentation.singular : presentation.plural}`),
       node('p', `Game ${result.graph.split('/').at(-1)} · Run ${result.run.split('/').slice(-2).join('/')}`), trace, technical);
+    if (Array.isArray(result.contributors)) card.insertBefore(node('p', result.contributors.length ?
+      'Contributors: '+result.contributors.map(player => displayPlayer(labels,result.graph,player)).join(', ') :
+      'No credited positive contribution in this fully accounted scoring history.'), trace);
     target.append(card);
   }
 }
@@ -240,7 +251,7 @@ function choose(metric) {
   byId('result').hidden = true;
   byId('request-status').textContent = metric.liveAdapter === 'loaded-award-consequences' ?
     'Inspect supported loaded Walk/HBP consequences and the remaining metric requirements.' :
-    metric.liveAdapter === 'personal-run-histories' ? 'Inspect complete scoring-runner histories and their episode counts.' :
+    metric.liveAdapter.startsWith('personal-run-histories') ? 'Inspect scoring histories, contributors and qualified player averages.' :
     metric.requires.length ? 'Inspect the selected games to see supported results and their coverage.' : 'Inspect the selected mapped review population.';
   byId('run-metric').disabled = false;
   renderRequirements(metric.requires);
@@ -265,6 +276,9 @@ export function unresolvedRunRows(results = []) {
     UNSUPPORTED_SEGMENT_ORIGIN: 'A movement’s starting base is unresolved.',
     SCORING_HISTORY_TERMINAL_COVERAGE: 'The history does not establish one counted run.',
     AMBIGUOUS_SCORING_HISTORY: 'More than one personal history claims this run.',
+    UNSUPPORTED_RUN_CONTRIBUTOR: 'An advancing episode lacks one supported contribution channel.',
+    UNSUPPORTED_BATTING_CREDIT_CLASSIFICATION: 'An advancing episode lacks a resolved batting-credit classification.',
+    UNSUPPORTED_CONTRIBUTION_DIRECTION: 'An episode does not establish positive progress toward scoring.',
   };
   return results.map(result => ({ game: result.graph.split('/').at(-1),
     run: result.run.split('/').slice(-2).join('/'),
@@ -520,14 +534,14 @@ function showResult(payload) {
   byId('result-subject').textContent = single ?
     `${displayPlayer(payload.display?.labels, single.graph, single.batter)} · Game ${single.graph.split('/').at(-1)} · PA source index ${single.plateAppearance.split('/').at(-1)}` :
     singleRun ? `${displayPlayer(payload.display?.labels, singleRun.graph, singleRun.runner)} · Game ${singleRun.graph.split('/').at(-1)}` : '';
-  byId('result-scope').textContent = result.runs?.length ?
+  byId('result-scope').textContent = result.playerPopulationComplete === true ? result.scope : result.runs?.length ?
     'Each listed score covers a complete individual run. Coverage of all runs in the selection remains incomplete.' : presentation.state === 'partial' ?
     'These scores cover the shown Walk/HBP advances only. Full plate-appearance and population results remain unavailable.' : result.scope ?? 'Selected evidence population';
   byId('coverage-details').open = presentation.state === 'empty' || selected.id === 'adjudication-volatility';
   const coverage = result.coverage ?? {};
   renderGameCoverage(coverage.byGame);
   renderConsequences(result.consequences, result.metricId, payload.display?.labels);
-  renderRunResults(result.runs, payload.display?.labels);
+  renderRunResults(result.runs, payload.display?.labels, result.metricId);
   renderUnresolvedRuns(result.unresolvedRuns);
   renderRunnerBoundaries(result.runnerBoundaryStates, payload.display?.labels);
   renderRanking(payload, selected);

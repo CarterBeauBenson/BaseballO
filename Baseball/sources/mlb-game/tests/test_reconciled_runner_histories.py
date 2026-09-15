@@ -26,7 +26,9 @@ class ReconciledRunnerHistories(unittest.TestCase):
         return next(h for h in result['halves'] if h['inning'] == 1 and h['half'] == 'top')
 
     def test_real_histories_join_across_pas_keep_episodes_and_stranding(self):
-        self.assertEqual(len(self.result['histories']), 18)
+        self.assertEqual(len(self.result['histories']), 31)
+        self.assertTrue(all(h['status']=='reconciled' for h in self.result['halves']))
+        self.assertEqual(sum(h['terminal']=='score' for h in self.result['histories']),13)
         runner = next(h for h in self.result['histories'] if h['runnerId'] == '527038')
         self.assertEqual(runner['terminal'], 'score')
         self.assertEqual([(r['atBatIndex'], r['runnerIndex']) for r in runner['episodes']], [('2', '0'), ('3', '1'), ('3', '2')])
@@ -82,7 +84,7 @@ class ReconciledRunnerHistories(unittest.TestCase):
         for row in self.result['episodeMembership']:
             graph.add((URIRef(root + 'runner-trajectory/' + row['lifetimeKey']), V.BFO.BFO_0000117,
                        URIRef(root + f"runner-episode/{row['atBatIndex']}/{row['runnerIndex']}")))
-        self.assertEqual(V.verify(document, graph)['personalHistories'], 18)
+        self.assertEqual(V.verify(document, graph)['personalHistories'], 31)
         triple = next(iter(graph)); graph.remove(triple)
         with self.assertRaisesRegex(ValueError, 'serialization differs'):
             V.verify(document, graph)

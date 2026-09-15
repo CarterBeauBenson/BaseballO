@@ -164,8 +164,10 @@ class RecoveryTests(unittest.TestCase):
         mapping=self.root/'mapping.ttl';mapping.write_text('current mapping')
         shape=self.root/'shape.ttl';shape.write_text('current shape')
         manifest=self.root/'manifest.json'
+        context=recovery.BASEBALL_ROOT/'scripts/pipeline/prepare-rml-context.py'
         recovery.save(manifest,dict(mappingPath=str(mapping),mappingSha256='older-hash',
-            shaclShapePath=str(shape),shaclShapeSha256=hashlib.sha256(shape.read_bytes()).hexdigest()))
+            shaclShapePath=str(shape),shaclShapeSha256=hashlib.sha256(shape.read_bytes()).hexdigest(),
+            contextBuilderPath=str(context),contextBuilderSha256=hashlib.sha256(context.read_bytes()).hexdigest()))
         for action in ('rml','shacl','promote','materialize','cleanup'):
             recovery.save(path/(action+'.json'),dict(action=action,pipelineRunId=run,gamePk='566279',
                 rmlManifest=str(manifest),conforms=True,authoritativeRdfRemainsInGraphStore=True,

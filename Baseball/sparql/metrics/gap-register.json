@@ -450,7 +450,7 @@
       "status": "open",
       "disposition": "partial-source-implementation-complete-population-pending",
       "owner": "engineering",
-      "implementationBehavior": "C1 source reconciliation, RML/SHACL and bounded complete run results are implemented, including supported walk-off game endpoints for active histories. Other incomplete histories and full selected populations remain withheld.",
+      "implementationBehavior": "C1 source reconciliation, RML/SHACL and conditional depth/breadth player producers are implemented. The reference game has all 13 scoring histories; the walk-off game has all seven. Accounted pitch-review effects, batter-only replacements and intermediate movements preserve accepted histories. Complete selected schedules, source run/roster admission and every counted run remain required; other unresolved histories are withheld.",
       "decisionRecords": [
         "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
         "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json",
@@ -469,15 +469,15 @@
         ],
         "livePrerequisiteClosed": false
       },
-      "continuityClarification": "Verified-history and C1/C2 decisions already accepted; real ordinary and walk-off history proofs now pass. Full source/selected-population coverage remains separate work.",
+      "continuityClarification": "Verified-history and C1/C2 decisions already accepted; complete scoring populations now pass two real-game source reconciliations and the focused walk-off RML/SHACL/query/SQL proof. Full deployed selected-population coverage remains separate work.",
       "continuityDecision": "archive/design-records/metric-suite-gap-answers-2026-09-09/continuity-decision.json",
       "resolvedSubgaps": [
-        "Verified complete-history criterion and C1/C2 representation accepted; real source proof remains pending",
+        "Verified complete-history criterion and C1/C2 representation accepted; real ordinary and walk-off scoring histories reconcile",
         "C1 personal BFO Process and C2 analytical boundary projection accepted; no new object properties"
       ],
       "acceptedGraphDecision": "archive/design-records/runner-continuity-boundary-projection/review.json",
       "sourceImplementationContract": "sources/mlb-game/review/runner-continuity-source-contract.md",
-      "implementationEvidence": "benchmarks/metrics/walkoff-runner-boundary-2026-09-15/result.json"
+      "implementationEvidence": "benchmarks/metrics/run-construction-players-2026-09-15/result.json"
     },
     {
       "id": "SUPPORT_ATTRIBUTION",
@@ -485,9 +485,9 @@
       "question": "What supported causal links identify each contributor to the scoring trajectory?",
       "direction": "Count distinct offensive contributors including the scoring runner own batting and independent running. Own single plus steal and a teammate scoring double has breadth two. Co-participation alone is insufficient.",
       "status": "open",
-      "disposition": "accepted-meaning-evidence-pending",
-      "owner": "ontologist",
-      "implementationBehavior": "calculation uses accepted policy; live output remains unavailable until source-owned graph prerequisites are admitted",
+      "disposition": "conditional-source-producer-implemented-full-population-pending",
+      "owner": "engineering",
+      "implementationBehavior": "Live breadth counts distinct contributors through accepted contact-play, normative-award and independent-steal evidence, with the accepted batting exclusions. Every advancing episode must have unambiguous supported attribution; partial channels never become complete player scores. Other independent running channels still require their supported causal graph extraction. Complete selected schedules and counted-run admission remain required.",
       "decisionRecords": [
         "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
         "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json"
@@ -503,7 +503,8 @@
           "evidence"
         ],
         "livePrerequisiteClosed": false
-      }
+      },
+      "implementationEvidence": "benchmarks/metrics/run-construction-players-2026-09-15/result.json"
     },
     {
       "id": "OPERATIVE_REVIEW",

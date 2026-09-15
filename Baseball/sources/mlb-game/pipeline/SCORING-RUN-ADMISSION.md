@@ -20,8 +20,12 @@ implementation and retained evidence. It imports only proof provenance into
 The canonical RDF query supplies runs, C1 membership and realized game roster
 context. The scorer producer requires every counted run to have exactly one
 complete scoring history, and every selected schedule date/game to reconcile.
-It then pools episode depths by scoring runner and publishes exact sums and
-counts for player means. Non-scoring game roster exposures remain in the
+It then pools episode depths or distinct contributor counts by scoring runner
+and publishes exact sums and counts for player means. Breadth requires a
+supported contact-play, normative-award or independent-steal channel for every
+positive episode; unknown or ambiguous attribution withholds the whole run.
+The accepted error, fielder's-choice and catcher-interference exclusions still
+apply. Co-participation alone supplies no contributor. Non-scoring game roster exposures remain in the
 qualification denominator. Run qualification uses runs scored, so the producer
 does not invent official PA counts for pinch runners or require B1 batting
 admission. A player with no scored runs has no run mean.
@@ -30,3 +34,10 @@ This is a conditional live producer, not a declaration that a deployed range
 is complete. Missing C1 histories still withhold the selected population. The
 new proof is required on the next normal source proof/refresh; an old build
 cannot acquire admission merely because the serving code changed.
+
+Completed, consistently evidenced pitch reviews can reconcile final operative
+effects without inventing an original call. Explicit batter-only replacements
+and intermediate movement rows do not erase existing personal lifetimes.
+Entry and termination identity still require their accepted positive anchors;
+pinch-runner replacements and unresolved event effects remain gated. See the
+[source implementation record](../review/runner-history-effects.md).

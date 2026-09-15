@@ -5,10 +5,10 @@
   "ratified": false,
   "bootstrapBaseCommit": "cb16a8e6f3d487f3542b91907cde3f47ff0a0978",
   "hashCanonicalization": "utf-8-sig decode; CRLF and CR to LF; UTF-8 encode without BOM",
-  "protectedSetSha256": "d702326c01ba758813ec7a1287756e20135d6a175956fb54a4bf5f6cb23f23ea",
+  "protectedSetSha256": "33c7e7cc410a84a344e733477ad81f1b474269ed400699e151af5605c87f4156",
   "changeDecision": {
-    "path": "Baseball/archive/design-records/walkoff-runner-boundary/review.json",
-    "sha256": "dd72740bebf43693311108b6ecd38d80282eef4dd7ac90480667bfb207c61934"
+    "path": "Baseball/archive/design-records/metric-source-c1-operation-2026-09-14/review.json",
+    "sha256": "fd70f5d25a8fac26ca370e61294cb7e67862d1256f97cbea63df1a12732ec090"
   },
   "protectedArtifacts": {
     "Baseball/governance/ontology-curation-debt.json": "2d5a4206339244641dd629eb48d86d13d98c02e47b5b5755b010861c0570e283",
@@ -25,7 +25,7 @@
     "Baseball/reasoning/profiles/event-structure.json": "0769a71727733adc7553b18d51d2a21d91d15b0c86103ed19c494b78865653c0",
     "Baseball/reasoning/profiles/participation.json": "da2d44f7fee92659ce982603d912d2ae7822730ca7b9ef4dd05ce4cfebb03a6c",
     "Baseball/reasoning/reviewed-samples.json": "1527914430536f55812047abe25e4ba88d03afd15a045065e8e8f07d296e8e78",
-    "Baseball/scripts/pipeline/prepare-rml-context.py": "db02c71541fbc5ef0db50b4adc191a4eec0ef85246149f6cb195f4716359fdc2",
+    "Baseball/scripts/pipeline/prepare-rml-context.py": "2a2d487a927ed54547403cffad035b8dadcfa6d9b708ebcbb5e854a7c083d402",
     "Baseball/scripts/reasoning/evaluate-reviewed-samples.py": "c34675e4d7e4fe5b42b66859106f3f1c46f885e101c0666be2566939c71a46a6",
     "Baseball/scripts/reasoning/generate-fixture-proof-baseline.py": "f5a7939602403fb105900b19a610d3d9ec1e439e271109b4242195053800afdc",
     "Baseball/scripts/reasoning/prove-selective-reasoning.py": "c777a99842b18ddeef7047735e62db5e7769e79a419671b9a509b2de97f00af4",
@@ -79,7 +79,7 @@
         },
         "contextBuilder": {
           "path": "Baseball/scripts/pipeline/prepare-rml-context.py",
-          "sha256": "db02c71541fbc5ef0db50b4adc191a4eec0ef85246149f6cb195f4716359fdc2"
+          "sha256": "2a2d487a927ed54547403cffad035b8dadcfa6d9b708ebcbb5e854a7c083d402"
         },
         "mapping": {
           "path": "Baseball/sources/mlb-game/mapping/mlb-game.rml.ttl",

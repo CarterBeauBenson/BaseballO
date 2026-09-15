@@ -9,7 +9,7 @@ import {
   ANALYTICS_QUERY_FAMILIES,
   compileAnalyticsQuery,
 } from "./query-builder/analytics-query-builder.js";
-import { metricCatalog, validateMetricRequest, validateDashboardRequest, compileMetricEvidenceQuery, metricDisplayTargets, compileMetricDisplayQuery, normalizeMetricDisplayLabels, playerLeaderboard, publicMetricResult } from './query-builder/metric-suite-query-builder.js';
+import { metricCatalog, validateMetricRequest, validateDashboardRequest, compileMetricEvidenceQuery, metricDisplayTargets, compileMetricDisplayQuery, normalizeMetricDisplayLabels, labelMetricPlayers, playerLeaderboard, publicMetricResult } from './query-builder/metric-suite-query-builder.js';
 import {
   buildPublicDerivedMetricCatalog,
   compileDerivedMetricQuery,
@@ -845,6 +845,8 @@ export function createBaseballServer({
       result.metric ? { ...result, metric: ranked(result.metric) } : result;
     const subjects = (result.metrics ?? [result.metric]).filter(Boolean).flatMap(metric => [
       ...(metric.consequences ?? []),
+      ...(metric.playerResults ?? []).flatMap(row => (row.graphs ?? []).map(graph => ({graph, batter:row.player}))),
+      ...(metric.runs ?? []).flatMap(row => (row.contributors ?? []).map(player => ({graph:row.graph, batter:player}))),
       ...[...(metric.runs ?? []), ...(metric.runnerBoundaryStates ?? [])]
         .map(row => ({ graph: row.graph, batter: row.runner }))]);
     if (!subjects.length) return result;
@@ -854,8 +856,11 @@ export function createBaseballServer({
       const targets = metricDisplayTargets(subjects);
       const query = await compileMetricDisplayQuery(targets);
       const { payload } = await executeSparql(query, { fetchImpl, queryEndpoint, timeoutMs: 3000 });
-      return { ...result, display: { source: 'selected-game-rdf-labels',
-        labels: normalizeMetricDisplayLabels(payload.results?.bindings ?? [], targets) } };
+      const labels = normalizeMetricDisplayLabels(payload.results?.bindings ?? [], targets);
+      const named = metric => ranked(labelMetricPlayers(metric, labels));
+      return { ...result,
+        ...(result.metrics ? {metrics:result.metrics.map(named)} : {metric:named(result.metric)}),
+        display: { source: 'selected-game-rdf-labels', labels } };
     } catch {
       return { ...result, display: { source: 'identifier-fallback', labels: [] } };
     }

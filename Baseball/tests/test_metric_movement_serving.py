@@ -190,7 +190,8 @@ class MovementServing(unittest.TestCase):
             graph.add(triple)
         source = bindings(dataset, [G1])
         rows = M.normalize_bindings(source, [G1])
-        forced, = [r for r in rows if r.get('trajectory')]
+        forced, = [r for r in rows if r['kind'] == 'runner_movement' and r.get('trajectory')]
+        self.assertEqual(len([r for r in rows if r['kind'] == 'runner_history']), 1)
         self.assertEqual(forced['trajectory'], str(whole))
         self.assertEqual(forced['trajectoryInterval'], str(EX.interval))
         self.assertEqual(M.movement_coverage(rows)['withPersonalTrajectoryBinding'], 1)
