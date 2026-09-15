@@ -75,7 +75,88 @@ def score(data,metric,**changes):
     return M.batting_progress_players(metric,rows,**args)
 
 
+def continuation_fixture():
+    """B2's six-segment structure with the existing C1 whole pattern."""
+    data=fixture();g=data.graph(G1);pa=URIRef(str(GAME)+'/plate-appearance/0')
+    contact=URIRef(str(pa)+'/contact');half=URIRef(str(GAME)+'/half')
+    g.add((half,RDF.type,BASE.HalfInning))
+    p3=URIRef('https://baseballontology.org/data/player/3')
+    def base(n):return URIRef(str(GAME)+'/base/'+str(n))
+    original=URIRef(str(pa)+'/resolution')
+    episodes={P1:[URIRef(str(original)+'/episode')],P2:[],p3:[]}
+    for suffix,player,start,end,out in [('batter-out',P1,1,None,True),
+            ('first-second',P2,1,2,False),('second-third',P2,2,3,False),
+            ('third-safe',p3,2,3,False),('scored',p3,3,None,False)]:
+        rr=URIRef(str(pa)+'/'+suffix);act=URIRef(str(rr)+'/act')
+        episode,_,_=movement(g,rr,act,pa,player,origin=base(start),destination=base(end) if end else None)
+        if not end:g.add((rr,RDF.type,BASE.OutProcess if out else BASE.RunProcess))
+        g.add((contact,BFO.BFO_0000117,rr));episodes[player].append(episode)
+    for player,members in episodes.items():
+        whole=URIRef(str(GAME)+'/runner-trajectory/'+str(player).rsplit('/',1)[-1])
+        interval=URIRef(str(whole)+'/interval')
+        g.add((whole,RDF.type,BFO.BFO_0000015));g.add((whole,BFO.BFO_0000057,player))
+        g.add((whole,BFO.BFO_0000132,half));g.add((whole,BFO.BFO_0000199,interval))
+        g.add((interval,RDF.type,BFO.BFO_0000038))
+        for episode in members:g.add((whole,BFO.BFO_0000117,episode))
+    return data
+
+
 class ProgressPlayers(unittest.TestCase):
+    def test_reviewed_contact_continuation_reaches_all_four_player_producers(self):
+        data=continuation_fixture()
+        reach=score(data,'offensive-reach')
+        self.assertTrue(reach['playerPopulationComplete'])
+        pa=reach['progressEvidence']['plateAppearances'][0]
+        self.assertEqual(pa['reach'],2)
+        self.assertFalse(pa['batterPositive'])
+        self.assertEqual(len(pa['coalescedContactPaths']),3)
+        batter=next(p for p in pa['coalescedContactPaths'] if p['player']==str(P1))
+        self.assertEqual((batter['start'],batter['end'],batter['positive']),(0,None,False))
+        self.assertEqual(reach['playerResults'][0]['value'],M.exact(1))
+        self.assertEqual(score(data,'hidden-help-rate')['playerResults'][0]['value'],M.exact(M.Fraction(2,3)))
+        self.assertEqual(score(data,'empty-game-rate')['playerResults'][0]['value'],M.exact(0))
+        self.assertEqual(score(data,'contribution-path-diversity')['playerResults'][0]['aggregate']['channelCounts'],[0,2,0])
+
+    def test_continuation_needs_exact_c1_membership_not_just_contact_or_person(self):
+        for change in ('missing_member','missing_resolution','different_whole','independent'):
+            with self.subTest(change=change):
+                data=continuation_fixture();g=data.graph(G1);pa=str(GAME)+'/plate-appearance/0'
+                out=URIRef(pa+'/batter-out');whole=URIRef(str(GAME)+'/runner-trajectory/1')
+                if change=='missing_member':g.remove((whole,BFO.BFO_0000117,URIRef(str(out)+'/episode')))
+                elif change=='missing_resolution':g.remove((out,BFO.BFO_0000062,None))
+                elif change=='different_whole':
+                    other=URIRef(str(whole)+'-other')
+                    for _,p,o in list(g.triples((whole,None,None))):g.add((other,p,o))
+                else:g.add((URIRef(str(out)+'/act'),RDF.type,BASE.StealAttemptAct))
+                self.assertFalse(score(data,'offensive-reach')['playerPopulationComplete'])
+
+    def test_continuation_rejects_branch_reverse_and_disconnected_progress(self):
+        for start,end in ((1,3),(3,2),(3,3)):
+            with self.subTest(start=start,end=end):
+                data=continuation_fixture();g=data.graph(G1);pa=URIRef(str(GAME)+'/plate-appearance/0')
+                rr=URIRef(str(pa)+'/extra');act=URIRef(str(rr)+'/act')
+                episode,_,_=movement(g,rr,act,pa,P1,origin=URIRef(str(GAME)+'/base/'+str(start)),
+                                     destination=URIRef(str(GAME)+'/base/'+str(end)))
+                g.add((URIRef(str(pa)+'/contact'),BFO.BFO_0000117,rr))
+                g.add((URIRef(str(GAME)+'/runner-trajectory/1'),BFO.BFO_0000117,episode))
+                self.assertFalse(score(data,'offensive-reach')['playerPopulationComplete'])
+
+    def test_continuation_is_independent_of_binding_order_and_keeps_sql_equivalence(self):
+        data=continuation_fixture();raw=bindings(data,[G1]);rows=M.normalize_bindings(raw,[G1])
+        first=M.batting_progress_evidence(rows)
+        other=M.batting_progress_evidence(list(reversed(rows)))
+        canonical=lambda result:{p['plateAppearance']:(p['reach'],p['batterPositive'],p['otherPositivePlayers'],
+                                  sorted(p['coalescedContactPaths'],key=lambda r:r['player'])) for p in result['plateAppearances']}
+        self.assertEqual(canonical(first),canonical(other))
+        with database() as connection:
+            M.materialize_game(connection,G1,raw,batting_admission=PROOF,runner_resolution_admission=PROOF)
+            proof=dict(completeResponse=True,games=[dict(gamePk='101',gameType='R',final=True,unplayed=False)])
+            text=M._json(proof)
+            connection.execute('INSERT INTO metric_suite_schedule_coverage VALUES (?,?,?)',(SCOPE['startDate'],text,M._hash(text)))
+            for metric in M.PROGRESS_METRICS:
+                result=M.query_sql(connection,{'metricId':metric},SCOPE)['metric']
+                self.assertEqual(result['playerResults'],score(data,metric)['playerResults'])
+
     def test_contribution_mix_counts_channels_not_beneficiaries(self):
         data=fixture();result=score(data,'contribution-path-diversity')
         self.assertTrue(result['playerPopulationComplete'])

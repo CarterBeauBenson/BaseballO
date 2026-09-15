@@ -94,9 +94,9 @@
       "question": "What independently verified source history, supported temporal boundaries and operative outcomes admit the accepted C1/C2 graph and analytical contracts?",
       "direction": "An independently verified complete intervening history can establish continuity for the same person with compatible movement endpoints and accounted-for events, without an intervening replacement, out, score or inning ending. A separate explicit source link is not required when this standard is met. Preserve separate contribution episodes; matching identifiers or adjacent records alone remain insufficient.",
       "status": "open",
-      "disposition": "accepted-meaning-evidence-pending",
-      "owner": "ontologist",
-      "implementationBehavior": "calculation uses accepted policy; live output remains unavailable until source-owned graph prerequisites are admitted",
+      "disposition": "partial-source-implementation-complete-population-pending",
+      "owner": "engineering",
+      "implementationBehavior": "Existing C1 personal histories support run construction and B2 contact-progress coalescence. Exact member coverage and a nonbranching original-to-terminal path are required; a terminal Out removes intermediate credit. Unsupported histories and complete population coverage remain withheld.",
       "decisionRecords": [
         "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
         "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json",
@@ -124,10 +124,11 @@
         "C1 personal BFO Process and C2 analytical boundary projection accepted; no new object properties"
       ],
       "remainingCoverage": "Reviewed operative award resolution, other rule editions, PA-start fallback completeness and full attributed-trajectory completeness remain separately gated.",
-      "continuityClarification": "Both the verified-history standard and C1/C2 graph/projection contracts are explicitly accepted. Source reconciliation remains unproved; no repeated C1/C2 approval is required.",
+      "continuityClarification": "The verified-history standard, E1 source authority and C1/C2 graph/projection contracts are accepted. Bounded source reconciliation and B2 contact continuations are implemented and proved. Wider source/graph coverage remains engineering work; no repeated C1/C2 approval is required.",
       "continuityDecision": "archive/design-records/metric-suite-gap-answers-2026-09-09/continuity-decision.json",
       "acceptedGraphDecision": "archive/design-records/runner-continuity-boundary-projection/review.json",
-      "sourceImplementationContract": "sources/mlb-game/review/runner-continuity-source-contract.md"
+      "sourceImplementationContract": "sources/mlb-game/review/runner-continuity-source-contract.md",
+      "implementationEvidence": "benchmarks/metrics/contact-progress-2026-09-15/result.json"
     },
     {
       "id": "OPERATIVE_OUTS",
@@ -162,9 +163,9 @@
       "question": "Which source-owned graph contract proves every relevant participant, state and outcome is accounted for?",
       "direction": "Add the accepted conformance constraints to owning source SHACL after review; unknown facts remain unavailable rather than zero.",
       "status": "open",
-      "disposition": "batch-review-required",
-      "owner": "ontologist",
-      "implementationBehavior": "unavailable until the named semantic/evidence prerequisite is admitted",
+      "disposition": "partial-source-implementation-complete-population-pending",
+      "owner": "engineering",
+      "implementationBehavior": "E1 is accepted. Independent source-owned official-PA, counted-run, roster, runner-resolution and B2 continuation conformance gates are implemented. Selected schedules and every applicable metric input remain mandatory before complete player results; partial successful examples never admit a population.",
       "researchAssessment": {
         "assessedOn": "2026-09-08",
         "report": "proposals/graph-native-metric-suite-batch-review/web-gap-assessment.md",

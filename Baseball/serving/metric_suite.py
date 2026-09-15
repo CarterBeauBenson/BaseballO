@@ -23,7 +23,7 @@ from rdflib import Graph, Literal
 
 ROOT = Path(__file__).resolve().parents[1]
 METRICS = ROOT / 'sparql/metrics'
-VERSION = '2.0.25'
+VERSION = '2.0.26'
 
 
 class EvidenceError(ValueError):
@@ -1442,21 +1442,95 @@ def loaded_award_consequences(rows, *, metric_id='tfs'):
 PROGRESS_METRICS = {'offensive-reach','hidden-help-rate','empty-game-rate','contribution-path-diversity'}
 
 
+def contact_progress_path(members, history_rows, movement_rows):
+    """Evaluate B2's nonbranching path inside an existing admitted C1 whole.
+
+    Shared person or contact identity alone does not establish continuity.
+    Require exact whole membership and a complete same-PA contact portion.
+    Base transitions order this analytical traversal; no temporal assertions
+    or new episode identities are produced. Independent channels stay separate.
+    """
+    missing = dict(status='unavailable', gap='COMPLETE_CONSEQUENCE_COALESCENCE')
+    states = [row for row, _ in members]
+    signatures = {tuple(r.get(f) for f in ('graph','game','plateAppearance','runner',
+                  'contactPlay','trajectory','trajectoryHalf','trajectoryInterval')) for r in states}
+    if len(signatures) != 1 or any(v is None for v in next(iter(signatures))):
+        return missing
+    graph, game, pa, runner, contact, whole, half, interval = next(iter(signatures))
+    histories = history_rows.get((graph, whole), [])
+    if not histories or {(r['game'],r['player'],r['trajectoryHalf'],r['trajectoryInterval']) for r in histories} != {(game,runner,half,interval)}:
+        return missing
+    expected = {r['episode'] for r in histories}
+    observed = movement_rows.get((graph, whole), [])
+    if {r.get('episode') for r in observed} != expected:
+        return missing
+    if any((r.get('game'),r.get('runner'),r.get('trajectoryHalf'),r.get('trajectoryInterval')) !=
+           (game,runner,half,interval) for r in observed):
+        return missing
+    # No omitted or independently attributed member may disappear behind the
+    # contact's convenient rows. Scope is the actual PA, not IRI/array order.
+    current = [r for r in observed if r['plateAppearance'] == pa]
+    if ({r['episode'] for r in current} != {r['episode'] for r in states}
+            or any(r.get('contactPlay') != contact or r.get('award') or r.get('independentStealAct') for r in current)):
+        return missing
+    if any(len({r[field] for r in states}) != len(states) for field in ('episode','resolution','act')):
+        return missing
+    edges, held = {}, []
+    for row in states:
+        start = segment_origin(row)
+        end = (None if row['hasOutType'] == 'true' else 4 if row['hasRunType'] == 'true'
+               else int(row['destinationCode'][0]) if row.get('destinationCode') in {'1B','2B','3B'} else None)
+        if start is None or (row['hasOutType'] != 'true' and (end is None or end < start)):
+            return missing
+        item = dict(episode=row['episode'],resolution=row['resolution'],start=start,end=end)
+        if start == end:
+            held.append(item)
+        elif start in edges:
+            return missing  # Branch, conflicting terminal, or repeated transition.
+        else:
+            edges[start] = item
+    if not edges:
+        return missing
+    start = min([*edges, *(r['start'] for r in held)])
+    if runner == states[0].get('batter') and start != 0:
+        return missing
+    position, visited, trace = start, {start}, []
+    while position in edges:
+        item = edges.pop(position)
+        trace.append(item)
+        position = item['end']
+        if position is None:
+            break
+        visited.add(position)
+    if edges or any(r['start'] not in visited for r in held):
+        return missing  # Disconnected transitions or unsupported held base.
+    # A unique terminal Out consumes all preceding safe credit. A counted Run
+    # or terminal Safe keeps only the original-to-terminal positive indicator.
+    return dict(status='available',positive=position is not None and position > start,
+                trajectory=whole,contactPlay=contact,player=runner,start=start,end=position,
+                segments=trace,heldObservations=sorted(held,key=lambda r:r['episode']))
+
+
 def batting_progress_evidence(rows):
-    """Complete single-resolution contributions; population admission is separate.
+    """Complete supported contributions; population admission is separate.
 
     A repeated resolution in one attributed consequence still needs supported
     coalescence. It cannot become two positives or retain progress before an
     out. Different supported channels remain separate contributions.
     """
     pas, movements = defaultdict(list), defaultdict(list)
+    histories, history_movements = defaultdict(list), defaultdict(list)
     for row in rows:
         if row['kind']=='plate_appearance':pas[(row['graph'],row['entity'])].append(row)
         elif row['kind']=='runner_movement':movements[(row['graph'],row['plateAppearance'])].append(row)
+        if row['kind']=='runner_history':histories[(row['graph'],row['trajectory'])].append(row)
+        elif row['kind']=='runner_movement' and row.get('trajectory'):
+            history_movements[(row['graph'],row['trajectory'])].append(row)
     completed, withheld = [], []
     fields=('runner','act','episode','resolution','originDesignation','originBase','originCode',
             'metricOrigin','destinationBase','destinationCode','safeJudgment','safeDecision',
-            'hasSafeType','hasOutType','hasRunType','contactPlay','award','awardRule','independentStealAct')
+            'hasSafeType','hasOutType','hasRunType','contactPlay','award','awardRule','independentStealAct',
+            'trajectory','trajectoryHalf','trajectoryInterval')
     for (graph,pa), observations in sorted(pas.items()):
         reasons=[]
         players={r.get('player') for r in observations};games={r.get('game') for r in observations}
@@ -1470,7 +1544,7 @@ def batting_progress_evidence(rows):
         channels, independent, other = defaultdict(list), [], set()
         positive_channels=set();independent_episodes=[];independent_gaps=[]
         unsupported_outs=set();positive_runners=set()
-        self_positive=False
+        self_positive=False;coalesced=[]
         for resolution,candidates in resolutions.items():
             if len({tuple(r.get(f) for f in fields) for r in candidates})!=1:
                 reasons.append('CONFLICTING_SEGMENT_STATE');continue
@@ -1505,9 +1579,21 @@ def batting_progress_evidence(rows):
         if positive_runners & unsupported_outs:
             reasons.append('COMPLETE_CONSEQUENCE_COALESCENCE')
         for (runner,channel,support), members in channels.items():
-            if len(members)!=1:
+            if channel=='contact' and any(
+                    row.get('trajectory') and
+                    {r['episode'] for r in histories[(graph,row['trajectory'])]} !=
+                    {r.get('episode') for r in history_movements[(graph,row['trajectory'])]}
+                    for row,_ in members):
                 reasons.append('COMPLETE_CONSEQUENCE_COALESCENCE');continue
-            row,positive=members[0]
+            if len(members)!=1:
+                path=(contact_progress_path(members,histories,history_movements) if channel=='contact'
+                      else dict(status='unavailable'))
+                if path['status']!='available':
+                    reasons.append('COMPLETE_CONSEQUENCE_COALESCENCE');continue
+                positive=path['positive'];coalesced.append(path)
+                row=members[0][0]
+            else:
+                row,positive=members[0]
             if channel=='running':
                 independent_episodes.append(dict(player=runner,episode=row['episode'],support=support))
                 if row.get('hasOutType')=='true' and any(t.endswith('/StrikeoutProcess') for t in types):
@@ -1533,8 +1619,10 @@ def batting_progress_evidence(rows):
             independentPositive=independent,
             independentEpisodes=independent_episodes,independentEpisodeGaps=sorted(set(independent_gaps)),
             positiveChannels=[dict(player=p,play=play,channel=channel) for p,play,channel in sorted(positive_channels)],
+            coalescedContactPaths=coalesced,
             evidence=sorted({r[f] for r in movements[(graph,pa)] for f in
-                ('resolution','act','episode','contactPlay','award','awardRule','independentStealAct') if r.get(f)})))
+                ('resolution','act','episode','contactPlay','award','awardRule','independentStealAct',
+                 'trajectory','trajectoryHalf','trajectoryInterval') if r.get(f)})))
     inputs=[]
     for pa in completed:
         key=_json([pa['graph'],pa['plateAppearance']])

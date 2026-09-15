@@ -34,6 +34,21 @@ positive progress, or repeated resolutions in one attributed consequence,
 requires complete supported coalescence before it can score. Safe progress
 before a terminal out is never retained just to fill a card.
 
+B2 contact continuations now feed all four player producers. Multiple
+resolutions must belong to one existing C1 personal Process with exact member
+coverage, the same contact and a complete same-PA portion. A nonbranching
+forward sequence of explicit segment origins and Safe/Run/Out destinations
+supplies one original-to-terminal result. A terminal Out removes all earlier
+safe credit; surviving multisegment progress counts the runner once and the
+play once per channel. Missing whole membership, disconnected or branching
+segments, reverse progress and independent-channel mixing remain withheld.
+The traversal creates no RDF temporal assertion or new identity. Its retained
+trace names every existing resolution, episode and personal Process.
+
+The [real six-movement proof](../../../benchmarks/metrics/contact-progress-2026-09-15/README.md)
+reproduces the accepted Offensive Reach of two through canonical Jena extraction
+and SQL. This replaces the earlier example-only query with the shared producer.
+
 The existing SPARQL kernels count reached participants, pool Hidden Help's
 applicable PA numerator/denominator, and identify Empty Games. Player rows
 publish exact range means for Reach and Help and game counts for Empty Games.

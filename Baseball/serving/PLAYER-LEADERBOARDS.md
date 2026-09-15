@@ -73,6 +73,12 @@ independent running's effect on Empty Games. Unknown contribution channels or
 unresolved consequence coalescence withhold the complete population. See the
 [source/serving contract](../sources/mlb-game/pipeline/BATTING-PROGRESS-ADMISSION.md).
 
+Accepted B2 contact continuations now reach these four producers through exact
+C1 membership and nonbranching segment reconciliation. Several safe advances
+count a surviving runner once; a terminal out removes intermediate credit.
+The real six-movement example yields Reach 2 and exact RDF/SQL agreement in
+the [continuation proof](../benchmarks/metrics/contact-progress-2026-09-15/README.md).
+
 Contribution Mix additionally requires a complete independent-attempt census.
 It pools exact positive play/channel counts, counts nonpositive running
 attempts separately for qualification, and includes zero-PA runners. Known

@@ -1,5 +1,14 @@
 # Implementation status after the first accepted completion pass
 
+September 15 B2 serving continuation: the accepted six-movement contact now
+feeds the shared player producer instead of only an isolated inspection query.
+Exact C1 membership and a nonbranching original-to-terminal path give Reach 2,
+remove the batter's intermediate credit before his out, and count each surviving
+runner once. Fresh B2 source SHACL, canonical Jena extraction and SQL agree.
+See the [continuation proof](../../../benchmarks/metrics/contact-progress-2026-09-15/README.md).
+This extends four existing player producers; it does not add a seventh metric
+or admit the two other unresolved PAs in the older 824315 graph.
+
 September 15 Contribution Mix continuation: the sixth conditional public
 player producer pools the accepted positive play/channel counts and retains
 independent running participation separately. Zero-PA runners remain eligible.

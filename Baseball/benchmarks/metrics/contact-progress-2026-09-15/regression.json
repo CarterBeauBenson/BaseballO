@@ -1,0 +1,2614 @@
+{
+  "artifactType": "baseballo-batting-progress-player-developer-proof",
+  "gamePk": "824087",
+  "sourceSha256": "249a1df5bb53bc0e5fac2ba16f2204029e7d6325229824523e7fccc85779f237",
+  "rdfSha256": "ded9c6b83739d9da9c913d0715a60b0596e4b8a9047ef2238a689654440b4e16",
+  "implementationSha256": "5e5e6bf5283a70beae27893396dde9800372f76c82eb7900de6bcb60ace8560e",
+  "sourceAdmissions": {
+    "batting": {
+      "artifactType": "baseballo-batting-admission",
+      "contractVersion": 1,
+      "gamePk": "824087",
+      "graph": "https://w3id.org/baseball/graph/game/824087",
+      "sourceSha256": "249a1df5bb53bc0e5fac2ba16f2204029e7d6325229824523e7fccc85779f237",
+      "sourceRevision": "20260721_021040",
+      "authoritativeRdfSha256": "ded9c6b83739d9da9c913d0715a60b0596e4b8a9047ef2238a689654440b4e16",
+      "implementationSha256": "c2f101e568c3ab887281fd39ea2ef45350c6425a191b13af65d508e09a1627bc",
+      "status": "admitted",
+      "sourceReconciled": true,
+      "graphConforms": true,
+      "issues": [],
+      "selectedPopulationComplete": false,
+      "sourceCensusSha256": "f12bc91b160219df26008105713ccdfbde7a7ee4de95526bff570b9898d6475d",
+      "shapeSha256": "68010b77a32da9be19289dbb01e41092f8906aff2b7d14872bcb6298cd8cce4f",
+      "reportSha256": "4a53a3befd9bcdb7273ef3d6e47a83be519927771faee49ef0d2a44ee23be2be",
+      "engine": "jena"
+    },
+    "runnerResolutions": {
+      "artifactType": "baseballo-runner-resolution-admission",
+      "contractVersion": 1,
+      "gamePk": "824087",
+      "graph": "https://w3id.org/baseball/graph/game/824087",
+      "sourceSha256": "249a1df5bb53bc0e5fac2ba16f2204029e7d6325229824523e7fccc85779f237",
+      "sourceRevision": "20260721_021040",
+      "authoritativeRdfSha256": "ded9c6b83739d9da9c913d0715a60b0596e4b8a9047ef2238a689654440b4e16",
+      "implementationSha256": "b094307ad32e286a4ede9c9f7836473c23948f43c538f1442d4d9584c8f61f8d",
+      "status": "admitted",
+      "sourceReconciled": true,
+      "graphConforms": true,
+      "issues": [],
+      "sourceCensusSha256": "00b96f4306cec274de4f67b69376720ace866fadfe91648c81441954f6f7ce32",
+      "shapeSha256": "609181a86279ce67672795216ec8df3484bab3f57154873f3d33209bf2722bcb",
+      "reportSha256": "4a53a3befd9bcdb7273ef3d6e47a83be519927771faee49ef0d2a44ee23be2be",
+      "engine": "jena"
+    }
+  },
+  "jenaQueryPassed": true,
+  "sqlExactMatch": true,
+  "officialPlateAppearances": 73,
+  "observedRunnerResolutions": 90,
+  "isolatedOneGameResults": {
+    "contribution-path-diversity": {
+      "status": "available",
+      "value": null,
+      "approximateValue": 0.6844856132451033,
+      "exactExpression": "-sum(p*ln(p))/ln(3)",
+      "gaps": [],
+      "components": {
+        "channelCounts": [
+          23,
+          12,
+          1
+        ],
+        "probabilities": [
+          {
+            "numerator": "23",
+            "denominator": "36"
+          },
+          {
+            "numerator": "1",
+            "denominator": "3"
+          },
+          {
+            "numerator": "1",
+            "denominator": "36"
+          }
+        ],
+        "pathBreadth": 3
+      },
+      "evidence": [],
+      "playerPopulationComplete": true,
+      "playerResults": [
+        {
+          "status": "available",
+          "value": null,
+          "approximateValue": 0.6309297535714574,
+          "exactExpression": "-sum(p*ln(p))/ln(3)",
+          "gaps": [],
+          "components": {
+            "channelCounts": [
+              2,
+              2,
+              0
+            ],
+            "probabilities": [
+              {
+                "numerator": "1",
+                "denominator": "2"
+              },
+              {
+                "numerator": "1",
+                "denominator": "2"
+              },
+              {
+                "numerator": "0",
+                "denominator": "1"
+              }
+            ],
+            "pathBreadth": 2
+          },
+          "evidence": [],
+          "player": "https://baseballontology.org/data/player/521692",
+          "metricId": "contribution-path-diversity",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "independentRunningEpisodes": 0,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "channel_entropy",
+            "channelCounts": [
+              2,
+              2,
+              0
+            ]
+          }
+        },
+        {
+          "status": "available",
+          "value": null,
+          "approximateValue": 0.6309297535714574,
+          "exactExpression": "-sum(p*ln(p))/ln(3)",
+          "gaps": [],
+          "components": {
+            "channelCounts": [
+              1,
+              1,
+              0
+            ],
+            "probabilities": [
+              {
+                "numerator": "1",
+                "denominator": "2"
+              },
+              {
+                "numerator": "1",
+                "denominator": "2"
+              },
+              {
+                "numerator": "0",
+                "denominator": "1"
+              }
+            ],
+            "pathBreadth": 2
+          },
+          "evidence": [],
+          "player": "https://baseballontology.org/data/player/642715",
+          "metricId": "contribution-path-diversity",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "independentRunningEpisodes": 0,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "channel_entropy",
+            "channelCounts": [
+              1,
+              1,
+              0
+            ]
+          }
+        },
+        {
+          "status": "available",
+          "value": null,
+          "approximateValue": 0.5793801642856949,
+          "exactExpression": "-sum(p*ln(p))/ln(3)",
+          "gaps": [],
+          "components": {
+            "channelCounts": [
+              2,
+              1,
+              0
+            ],
+            "probabilities": [
+              {
+                "numerator": "2",
+                "denominator": "3"
+              },
+              {
+                "numerator": "1",
+                "denominator": "3"
+              },
+              {
+                "numerator": "0",
+                "denominator": "1"
+              }
+            ],
+            "pathBreadth": 2
+          },
+          "evidence": [],
+          "player": "https://baseballontology.org/data/player/646240",
+          "metricId": "contribution-path-diversity",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "independentRunningEpisodes": 0,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "channel_entropy",
+            "channelCounts": [
+              2,
+              1,
+              0
+            ]
+          }
+        },
+        {
+          "status": "available",
+          "value": null,
+          "approximateValue": -0.0,
+          "exactExpression": "-sum(p*ln(p))/ln(3)",
+          "gaps": [],
+          "components": {
+            "channelCounts": [
+              0,
+              1,
+              0
+            ],
+            "probabilities": [
+              {
+                "numerator": "0",
+                "denominator": "1"
+              },
+              {
+                "numerator": "1",
+                "denominator": "1"
+              },
+              {
+                "numerator": "0",
+                "denominator": "1"
+              }
+            ],
+            "pathBreadth": 1
+          },
+          "evidence": [],
+          "player": "https://baseballontology.org/data/player/650333",
+          "metricId": "contribution-path-diversity",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "independentRunningEpisodes": 0,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "channel_entropy",
+            "channelCounts": [
+              0,
+              1,
+              0
+            ]
+          }
+        },
+        {
+          "status": "available",
+          "value": null,
+          "approximateValue": -0.0,
+          "exactExpression": "-sum(p*ln(p))/ln(3)",
+          "gaps": [],
+          "components": {
+            "channelCounts": [
+              2,
+              0,
+              0
+            ],
+            "probabilities": [
+              {
+                "numerator": "1",
+                "denominator": "1"
+              },
+              {
+                "numerator": "0",
+                "denominator": "1"
+              },
+              {
+                "numerator": "0",
+                "denominator": "1"
+              }
+            ],
+            "pathBreadth": 1
+          },
+          "evidence": [],
+          "player": "https://baseballontology.org/data/player/657041",
+          "metricId": "contribution-path-diversity",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "independentRunningEpisodes": 0,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "channel_entropy",
+            "channelCounts": [
+              2,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "status": "available",
+          "value": null,
+          "approximateValue": 0.6309297535714574,
+          "exactExpression": "-sum(p*ln(p))/ln(3)",
+          "gaps": [],
+          "components": {
+            "channelCounts": [
+              1,
+              1,
+              0
+            ],
+            "probabilities": [
+              {
+                "numerator": "1",
+                "denominator": "2"
+              },
+              {
+                "numerator": "1",
+                "denominator": "2"
+              },
+              {
+                "numerator": "0",
+                "denominator": "1"
+              }
+            ],
+            "pathBreadth": 2
+          },
+          "evidence": [],
+          "player": "https://baseballontology.org/data/player/668942",
+          "metricId": "contribution-path-diversity",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "independentRunningEpisodes": 0,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "channel_entropy",
+            "channelCounts": [
+              1,
+              1,
+              0
+            ]
+          }
+        },
+        {
+          "status": "available",
+          "value": null,
+          "approximateValue": -0.0,
+          "exactExpression": "-sum(p*ln(p))/ln(3)",
+          "gaps": [],
+          "components": {
+            "channelCounts": [
+              2,
+              0,
+              0
+            ],
+            "probabilities": [
+              {
+                "numerator": "1",
+                "denominator": "1"
+              },
+              {
+                "numerator": "0",
+                "denominator": "1"
+              },
+              {
+                "numerator": "0",
+                "denominator": "1"
+              }
+            ],
+            "pathBreadth": 1
+          },
+          "evidence": [],
+          "player": "https://baseballontology.org/data/player/671218",
+          "metricId": "contribution-path-diversity",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "independentRunningEpisodes": 0,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "channel_entropy",
+            "channelCounts": [
+              2,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "status": "available",
+          "value": null,
+          "approximateValue": -0.0,
+          "exactExpression": "-sum(p*ln(p))/ln(3)",
+          "gaps": [],
+          "components": {
+            "channelCounts": [
+              1,
+              0,
+              0
+            ],
+            "probabilities": [
+              {
+                "numerator": "1",
+                "denominator": "1"
+              },
+              {
+                "numerator": "0",
+                "denominator": "1"
+              },
+              {
+                "numerator": "0",
+                "denominator": "1"
+              }
+            ],
+            "pathBreadth": 1
+          },
+          "evidence": [],
+          "player": "https://baseballontology.org/data/player/677951",
+          "metricId": "contribution-path-diversity",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 2,
+          "teamGames": 1,
+          "independentRunningEpisodes": 0,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "channel_entropy",
+            "channelCounts": [
+              1,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "status": "available",
+          "value": null,
+          "approximateValue": 0.6309297535714574,
+          "exactExpression": "-sum(p*ln(p))/ln(3)",
+          "gaps": [],
+          "components": {
+            "channelCounts": [
+              2,
+              2,
+              0
+            ],
+            "probabilities": [
+              {
+                "numerator": "1",
+                "denominator": "2"
+              },
+              {
+                "numerator": "1",
+                "denominator": "2"
+              },
+              {
+                "numerator": "0",
+                "denominator": "1"
+              }
+            ],
+            "pathBreadth": 2
+          },
+          "evidence": [],
+          "player": "https://baseballontology.org/data/player/679845",
+          "metricId": "contribution-path-diversity",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 3,
+          "teamGames": 1,
+          "independentRunningEpisodes": 0,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "channel_entropy",
+            "channelCounts": [
+              2,
+              2,
+              0
+            ]
+          }
+        },
+        {
+          "status": "available",
+          "value": null,
+          "approximateValue": 0.5793801642856949,
+          "exactExpression": "-sum(p*ln(p))/ln(3)",
+          "gaps": [],
+          "components": {
+            "channelCounts": [
+              2,
+              1,
+              0
+            ],
+            "probabilities": [
+              {
+                "numerator": "2",
+                "denominator": "3"
+              },
+              {
+                "numerator": "1",
+                "denominator": "3"
+              },
+              {
+                "numerator": "0",
+                "denominator": "1"
+              }
+            ],
+            "pathBreadth": 2
+          },
+          "evidence": [],
+          "player": "https://baseballontology.org/data/player/686469",
+          "metricId": "contribution-path-diversity",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "independentRunningEpisodes": 0,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "channel_entropy",
+            "channelCounts": [
+              2,
+              1,
+              0
+            ]
+          }
+        },
+        {
+          "status": "available",
+          "value": null,
+          "approximateValue": 0.6309297535714574,
+          "exactExpression": "-sum(p*ln(p))/ln(3)",
+          "gaps": [],
+          "components": {
+            "channelCounts": [
+              1,
+              1,
+              0
+            ],
+            "probabilities": [
+              {
+                "numerator": "1",
+                "denominator": "2"
+              },
+              {
+                "numerator": "1",
+                "denominator": "2"
+              },
+              {
+                "numerator": "0",
+                "denominator": "1"
+              }
+            ],
+            "pathBreadth": 2
+          },
+          "evidence": [],
+          "player": "https://baseballontology.org/data/player/686475",
+          "metricId": "contribution-path-diversity",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 1,
+          "teamGames": 1,
+          "independentRunningEpisodes": 0,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "channel_entropy",
+            "channelCounts": [
+              1,
+              1,
+              0
+            ]
+          }
+        },
+        {
+          "status": "available",
+          "value": null,
+          "approximateValue": 0.5793801642856949,
+          "exactExpression": "-sum(p*ln(p))/ln(3)",
+          "gaps": [],
+          "components": {
+            "channelCounts": [
+              2,
+              1,
+              0
+            ],
+            "probabilities": [
+              {
+                "numerator": "2",
+                "denominator": "3"
+              },
+              {
+                "numerator": "1",
+                "denominator": "3"
+              },
+              {
+                "numerator": "0",
+                "denominator": "1"
+              }
+            ],
+            "pathBreadth": 2
+          },
+          "evidence": [],
+          "player": "https://baseballontology.org/data/player/686555",
+          "metricId": "contribution-path-diversity",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 3,
+          "teamGames": 1,
+          "independentRunningEpisodes": 0,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "channel_entropy",
+            "channelCounts": [
+              2,
+              1,
+              0
+            ]
+          }
+        },
+        {
+          "status": "available",
+          "value": null,
+          "approximateValue": -0.0,
+          "exactExpression": "-sum(p*ln(p))/ln(3)",
+          "gaps": [],
+          "components": {
+            "channelCounts": [
+              1,
+              0,
+              0
+            ],
+            "probabilities": [
+              {
+                "numerator": "1",
+                "denominator": "1"
+              },
+              {
+                "numerator": "0",
+                "denominator": "1"
+              },
+              {
+                "numerator": "0",
+                "denominator": "1"
+              }
+            ],
+            "pathBreadth": 1
+          },
+          "evidence": [],
+          "player": "https://baseballontology.org/data/player/686681",
+          "metricId": "contribution-path-diversity",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "independentRunningEpisodes": 0,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "channel_entropy",
+            "channelCounts": [
+              1,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "status": "available",
+          "value": null,
+          "approximateValue": 0.5793801642856949,
+          "exactExpression": "-sum(p*ln(p))/ln(3)",
+          "gaps": [],
+          "components": {
+            "channelCounts": [
+              2,
+              0,
+              1
+            ],
+            "probabilities": [
+              {
+                "numerator": "2",
+                "denominator": "3"
+              },
+              {
+                "numerator": "0",
+                "denominator": "1"
+              },
+              {
+                "numerator": "1",
+                "denominator": "3"
+              }
+            ],
+            "pathBreadth": 2
+          },
+          "evidence": [],
+          "player": "https://baseballontology.org/data/player/691740",
+          "metricId": "contribution-path-diversity",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 3,
+          "teamGames": 1,
+          "independentRunningEpisodes": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "channel_entropy",
+            "channelCounts": [
+              2,
+              0,
+              1
+            ]
+          }
+        },
+        {
+          "status": "available",
+          "value": null,
+          "approximateValue": -0.0,
+          "exactExpression": "-sum(p*ln(p))/ln(3)",
+          "gaps": [],
+          "components": {
+            "channelCounts": [
+              0,
+              1,
+              0
+            ],
+            "probabilities": [
+              {
+                "numerator": "0",
+                "denominator": "1"
+              },
+              {
+                "numerator": "1",
+                "denominator": "1"
+              },
+              {
+                "numerator": "0",
+                "denominator": "1"
+              }
+            ],
+            "pathBreadth": 1
+          },
+          "evidence": [],
+          "player": "https://baseballontology.org/data/player/695600",
+          "metricId": "contribution-path-diversity",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "independentRunningEpisodes": 0,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "channel_entropy",
+            "channelCounts": [
+              0,
+              1,
+              0
+            ]
+          }
+        },
+        {
+          "status": "available",
+          "value": null,
+          "approximateValue": -0.0,
+          "exactExpression": "-sum(p*ln(p))/ln(3)",
+          "gaps": [],
+          "components": {
+            "channelCounts": [
+              1,
+              0,
+              0
+            ],
+            "probabilities": [
+              {
+                "numerator": "1",
+                "denominator": "1"
+              },
+              {
+                "numerator": "0",
+                "denominator": "1"
+              },
+              {
+                "numerator": "0",
+                "denominator": "1"
+              }
+            ],
+            "pathBreadth": 1
+          },
+          "evidence": [],
+          "player": "https://baseballontology.org/data/player/805811",
+          "metricId": "contribution-path-diversity",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "independentRunningEpisodes": 0,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "channel_entropy",
+            "channelCounts": [
+              1,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "status": "available",
+          "value": null,
+          "approximateValue": -0.0,
+          "exactExpression": "-sum(p*ln(p))/ln(3)",
+          "gaps": [],
+          "components": {
+            "channelCounts": [
+              1,
+              0,
+              0
+            ],
+            "probabilities": [
+              {
+                "numerator": "1",
+                "denominator": "1"
+              },
+              {
+                "numerator": "0",
+                "denominator": "1"
+              },
+              {
+                "numerator": "0",
+                "denominator": "1"
+              }
+            ],
+            "pathBreadth": 1
+          },
+          "evidence": [],
+          "player": "https://baseballontology.org/data/player/808982",
+          "metricId": "contribution-path-diversity",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "independentRunningEpisodes": 0,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "channel_entropy",
+            "channelCounts": [
+              1,
+              0,
+              0
+            ]
+          }
+        }
+      ],
+      "playerSummaryGaps": [],
+      "scope": "Complete selected-period positive play/channel counts; batting or independent-running qualification applies."
+    },
+    "empty-game-rate": {
+      "status": "available",
+      "value": {
+        "numerator": "3",
+        "denominator": "1"
+      },
+      "gaps": [],
+      "evidence": [],
+      "components": {
+        "emptyGames": 3,
+        "eligibleGames": 20
+      },
+      "playerPopulationComplete": true,
+      "playerResults": [
+        {
+          "player": "https://baseballontology.org/data/player/521692",
+          "metricId": "empty-game-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "count",
+            "count": 0,
+            "eligibleGames": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/642715",
+          "metricId": "empty-game-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "count",
+            "count": 0,
+            "eligibleGames": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/646240",
+          "metricId": "empty-game-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "count",
+            "count": 0,
+            "eligibleGames": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/650333",
+          "metricId": "empty-game-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "count",
+            "count": 0,
+            "eligibleGames": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/657041",
+          "metricId": "empty-game-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "count",
+            "count": 0,
+            "eligibleGames": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/668942",
+          "metricId": "empty-game-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "count",
+            "count": 0,
+            "eligibleGames": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/669477",
+          "metricId": "empty-game-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "count",
+            "count": 1,
+            "eligibleGames": 1
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/671218",
+          "metricId": "empty-game-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "count",
+            "count": 0,
+            "eligibleGames": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/677951",
+          "metricId": "empty-game-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 2,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "count",
+            "count": 0,
+            "eligibleGames": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/679845",
+          "metricId": "empty-game-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 3,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "count",
+            "count": 0,
+            "eligibleGames": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/686469",
+          "metricId": "empty-game-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "count",
+            "count": 0,
+            "eligibleGames": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/686475",
+          "metricId": "empty-game-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 1,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "count",
+            "count": 0,
+            "eligibleGames": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/686555",
+          "metricId": "empty-game-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 3,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "count",
+            "count": 0,
+            "eligibleGames": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/686681",
+          "metricId": "empty-game-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "count",
+            "count": 0,
+            "eligibleGames": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/687551",
+          "metricId": "empty-game-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "count",
+            "count": 1,
+            "eligibleGames": 1
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/691740",
+          "metricId": "empty-game-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 3,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "count",
+            "count": 0,
+            "eligibleGames": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/695506",
+          "metricId": "empty-game-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "count",
+            "count": 1,
+            "eligibleGames": 1
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/695600",
+          "metricId": "empty-game-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "count",
+            "count": 0,
+            "eligibleGames": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/805811",
+          "metricId": "empty-game-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "count",
+            "count": 0,
+            "eligibleGames": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/808982",
+          "metricId": "empty-game-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "count",
+            "count": 0,
+            "eligibleGames": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        }
+      ],
+      "playerSummaryGaps": [],
+      "scope": "Complete selected-period batting progress and independent positive running; official PA eligibility applied."
+    },
+    "hidden-help-rate": {
+      "status": "available",
+      "value": {
+        "numerator": "3",
+        "denominator": "50"
+      },
+      "gaps": [],
+      "evidence": [],
+      "components": {},
+      "playerPopulationComplete": true,
+      "playerResults": [
+        {
+          "player": "https://baseballontology.org/data/player/521692",
+          "metricId": "hidden-help-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 2
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/642715",
+          "metricId": "hidden-help-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 3
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/646240",
+          "metricId": "hidden-help-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 2
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/650333",
+          "metricId": "hidden-help-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "1",
+              "denominator": "1"
+            },
+            "count": 4
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "4"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/657041",
+          "metricId": "hidden-help-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 2
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/668942",
+          "metricId": "hidden-help-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "1",
+              "denominator": "1"
+            },
+            "count": 3
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "3"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/669477",
+          "metricId": "hidden-help-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 4
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/671218",
+          "metricId": "hidden-help-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 2
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/677951",
+          "metricId": "hidden-help-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 2,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/679845",
+          "metricId": "hidden-help-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 3,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/686469",
+          "metricId": "hidden-help-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 2
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/686555",
+          "metricId": "hidden-help-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 3,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/686681",
+          "metricId": "hidden-help-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 3
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/687551",
+          "metricId": "hidden-help-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 4
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/691740",
+          "metricId": "hidden-help-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 3,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/695506",
+          "metricId": "hidden-help-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 4
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/695600",
+          "metricId": "hidden-help-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "1",
+              "denominator": "1"
+            },
+            "count": 5
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "5"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/805811",
+          "metricId": "hidden-help-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 3
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/808982",
+          "metricId": "hidden-help-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 3
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        }
+      ],
+      "playerSummaryGaps": [],
+      "scope": "Complete selected-period batting progress and independent positive running; official PA eligibility applied."
+    },
+    "offensive-reach": {
+      "status": "available",
+      "value": {
+        "numerator": "37",
+        "denominator": "73"
+      },
+      "gaps": [],
+      "evidence": [],
+      "components": {},
+      "playerPopulationComplete": true,
+      "playerResults": [
+        {
+          "player": "https://baseballontology.org/data/player/521692",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "5",
+              "denominator": "1"
+            },
+            "count": 4
+          },
+          "value": {
+            "numerator": "5",
+            "denominator": "4"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/642715",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "2",
+              "denominator": "1"
+            },
+            "count": 4
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "2"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/646240",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "3",
+              "denominator": "1"
+            },
+            "count": 4
+          },
+          "value": {
+            "numerator": "3",
+            "denominator": "4"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/650333",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "1",
+              "denominator": "1"
+            },
+            "count": 4
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "4"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/657041",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "2",
+              "denominator": "1"
+            },
+            "count": 4
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "2"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/668942",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "2",
+              "denominator": "1"
+            },
+            "count": 4
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "2"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/669477",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 4
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/671218",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "2",
+              "denominator": "1"
+            },
+            "count": 4
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "2"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/677951",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 2,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "1",
+              "denominator": "1"
+            },
+            "count": 2
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "2"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/679845",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 3,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "5",
+              "denominator": "1"
+            },
+            "count": 3
+          },
+          "value": {
+            "numerator": "5",
+            "denominator": "3"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/686469",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "3",
+              "denominator": "1"
+            },
+            "count": 4
+          },
+          "value": {
+            "numerator": "3",
+            "denominator": "4"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/686475",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 1,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "2",
+              "denominator": "1"
+            },
+            "count": 1
+          },
+          "value": {
+            "numerator": "2",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/686555",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 3,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "3",
+              "denominator": "1"
+            },
+            "count": 3
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/686681",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "1",
+              "denominator": "1"
+            },
+            "count": 4
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "4"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/687551",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 4
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/691740",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 3,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "2",
+              "denominator": "1"
+            },
+            "count": 3
+          },
+          "value": {
+            "numerator": "2",
+            "denominator": "3"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/695506",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 4
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/695600",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "1",
+              "denominator": "1"
+            },
+            "count": 5
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "5"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/805811",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "1",
+              "denominator": "1"
+            },
+            "count": 4
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "4"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/808982",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2026-07-20",
+            "endDate": "2026-07-20",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/824087"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "1",
+              "denominator": "1"
+            },
+            "count": 4
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "4"
+          }
+        }
+      ],
+      "playerSummaryGaps": [],
+      "scope": "Complete selected-period batting progress and independent positive running; official PA eligibility applied."
+    }
+  },
+  "publicDateRangeWithoutScheduleAdmission": "withheld",
+  "livePopulationComplete": false,
+  "scope": "Complete isolated reference game; independent public selected-schedule admission remains required"
+}
