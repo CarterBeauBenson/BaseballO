@@ -1,6 +1,11 @@
 # MLB metric mapping completion review
 
-Status: **under review; no implementation or ontologist acceptance recorded**.
+Status: **accepted by Carter Beau Benson on 2026-09-15; implementation follows in a separate commit**.
+
+The user answered "Approve" to the explicit request to accept M1 and M2,
+including M2's judgment identity rule. See [user-decision.md](user-decision.md).
+The remaining text preserves the reviewed scope; future-tense approval
+wording below records what was presented, not an unresolved vote.
 
 Two concrete extensions are ready for review. They reuse existing BaseballO,
 BFO and CCO vocabulary. They introduce **no classes, properties, or metric
@@ -65,7 +70,7 @@ as absent merely because their mappings remain unfinished.
 
 ## Why acceptance is still needed
 
-The repository's [AGENTS.md](../../../AGENTS.md) states: "General instructions
+The repository's [AGENTS.md](../../../../AGENTS.md) states: "General instructions
 such as 'continue,' 'execute,' 'finish,' or 'take in this source' are not
 approval for a new semantic assertion or a new pipeline topology. Approval
 must identify the proposal or named modeling decision being accepted."

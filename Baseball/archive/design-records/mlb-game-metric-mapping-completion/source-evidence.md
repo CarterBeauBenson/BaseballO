@@ -57,7 +57,7 @@ challenges and exclusions. The existence of a reviewed-pitch record is not
 a complete opportunity population, and a final challenge count is not the
 state at every earlier event. No new review denominator is admitted here.
 
-The prior [source-availability correction](../graph-native-metric-suite-batch-review/source-availability-correction-2026-09-15.md)
+The prior [source-availability correction](../../../proposals/graph-native-metric-suite-batch-review/source-availability-correction-2026-09-15.md)
 contains the wider PA, runner, defensive and review evidence. This package
 turns two identified omissions into explicit mapping contracts; it does not
 reverse that correction or claim that the other source fields are absent.

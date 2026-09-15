@@ -58,8 +58,8 @@ No metric is marked available by this audit. It changes the diagnosis and the
 burden of proof: identify the exact unsupported assertion and inspected source
 before calling something a source-evidence gap.
 
-The subsequent [mapping completion review](../mlb-game-metric-mapping-completion/README.md)
+The subsequent [mapping completion review](../../archive/design-records/mlb-game-metric-mapping-completion/README.md)
 specifies M1 (second-strike foul coverage) and M2 (affirmed pitch reviews),
 with exact source observations, field inventory, world-side/source-specific
-diagrams and proposed conformance conditions. Its decision remains null;
-it is not an implemented mapping extension.
+diagrams and proposed conformance conditions. M1/M2 were accepted on September 15;
+implementation follows the separately published decision.
