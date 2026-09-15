@@ -505,11 +505,13 @@ SELECT DISTINCT ?graph ?game WHERE {
 ORDER BY ?graph`;
 }
 
-export async function readOfficialGameMetadata() {
+export async function readOfficialGameMetadata({
+  stateRoot = LOCAL_STATE_ROOT, samplesRoot = RAW_SAMPLES_ROOT, fixturePath = RAW_FIXTURE,
+} = {}) {
   const metadata = new Map();
-  const directories = await readdir(RAW_SAMPLES_ROOT, { withFileTypes: true });
+  const directories = await readdir(samplesRoot, { withFileTypes: true });
   await Promise.all(directories.filter((entry) => entry.isDirectory()).map(async (entry) => {
-    const schedule = JSON.parse(await readFile(resolve(RAW_SAMPLES_ROOT, entry.name, "schedule.json"), "utf8"));
+    const schedule = JSON.parse(await readFile(resolve(samplesRoot, entry.name, "schedule.json"), "utf8"));
     for (const dateBlock of schedule.dates ?? []) {
       for (const game of dateBlock.games ?? []) {
         if (Number.isInteger(game.gamePk) && /^\d{4}-\d{2}-\d{2}$/u.test(game.officialDate ?? "")) {
@@ -523,14 +525,14 @@ export async function readOfficialGameMetadata() {
       }
     }
   }));
-  const fixture = JSON.parse(await readFile(RAW_FIXTURE, "utf8"));
+  const fixture = JSON.parse(await readFile(fixturePath, "utf8"));
   const fixtureId = fixture.gamePk ?? fixture.gameData?.game?.pk;
   const fixtureDate = fixture.gameData?.datetime?.officialDate;
   if (Number.isInteger(fixtureId) && /^\d{4}-\d{2}-\d{2}$/u.test(fixtureDate ?? "")) {
     metadata.set(String(fixtureId), { date: fixtureDate, gameSet: "fixture", gameType: "fixture", description: "Development fixture" });
   }
-  if (LOCAL_STATE_ROOT) {
-    const acquisitionRoot = resolve(LOCAL_STATE_ROOT, "pipeline", "manifests", "acquisition", "games");
+  if (stateRoot) {
+    const acquisitionRoot = resolve(stateRoot, "pipeline", "manifests", "acquisition", "games");
     async function visit(directory) {
       let entries;
       try {
@@ -554,8 +556,8 @@ export async function readOfficialGameMetadata() {
               date: manifest.scheduleDate,
               gameSet: manifest.gameType === "A"
                 ? "all_star"
-                : manifest.gameType === "R" ? "regular_season" : existing?.gameSet ?? "regular_season",
-              gameType: manifest.gameType ?? existing?.gameType ?? "R",
+                : manifest.gameType === "R" ? "regular_season" : manifest.gameType ? "other" : existing?.gameSet ?? "other",
+              gameType: manifest.gameType ?? existing?.gameType ?? "",
               description: "Compact acquisition provenance",
             });
           }
@@ -565,6 +567,41 @@ export async function readOfficialGameMetadata() {
       }));
     }
     await visit(acquisitionRoot);
+    // The current source lane retains date/type in its compact RML manifest
+    // before deleting a successfully promoted transient input. SQL reads this
+    // same provenance. A manifest alone never admits a game: mapGameDateIndex
+    // intersects these records with the authoritative graph query below.
+    const manifestRoot = resolve(stateRoot, "pipeline", "manifests");
+    let manifests = [];
+    try {
+      manifests = (await readdir(manifestRoot, { withFileTypes: true }))
+        .filter((entry) => entry.isFile() && /^game-\d+-rml\.json$/u.test(entry.name));
+    } catch (error) {
+      if (error.code !== "ENOENT") throw error;
+    }
+    // Bound concurrent opens for a full season rather than opening every game.
+    for (let offset = 0; offset < manifests.length; offset += 32) {
+      await Promise.all(manifests.slice(offset, offset + 32).map(async (entry) => {
+        let manifest;
+        try {
+          manifest = JSON.parse((await readFile(resolve(manifestRoot, entry.name), "utf8")).replace(/^\uFEFF/u, ""));
+        } catch (error) {
+          if (error instanceof SyntaxError || error.code === "ENOENT") return;
+          throw error;
+        }
+        const gameId = entry.name.slice(5, -9);
+        if (String(manifest?.gamePk) !== gameId
+            || manifest.graphIri !== `${AUTHORITATIVE_GRAPH_PREFIX}${gameId}`
+            || !/^\d{4}-\d{2}-\d{2}$/u.test(manifest.officialDate ?? "")
+            || typeof manifest.gameType !== "string" || !manifest.gameType) return;
+        metadata.set(gameId, {
+          date: manifest.officialDate,
+          gameType: manifest.gameType,
+          gameSet: manifest.gameType === "R" ? "regular_season" : manifest.gameType === "A" ? "all_star" : "other",
+          description: "Retained MLB game provenance",
+        });
+      }));
+    }
     if (Number.isInteger(fixtureId) && /^\d{4}-\d{2}-\d{2}$/u.test(fixtureDate ?? "")) {
       metadata.set(String(fixtureId), { date: fixtureDate, gameSet: "fixture", gameType: "fixture", description: "Development fixture" });
     }

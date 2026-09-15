@@ -1,0 +1,12 @@
+﻿{
+    "scope":  {
+                  "preset":  "one_day",
+                  "startDate":  "2026-09-13",
+                  "endDate":  "2026-09-13",
+                  "gameCount":  14,
+                  "availableStartDate":  "2026-03-26",
+                  "availableEndDate":  "2026-09-13",
+                  "dateBasis":  "official-source",
+                  "gameSet":  "regular_season"
+              }
+}

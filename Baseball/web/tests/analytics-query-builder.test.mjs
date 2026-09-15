@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { after, before, test } from "node:test";
+import './game-date-provenance.test.mjs';
 
 import {
   ANALYTICS_QUERY_FAMILIES,

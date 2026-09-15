@@ -45,7 +45,7 @@ capture. The separate nine-run fixture is still distinct from live promotion.
 ## Health contract
 
 `GET /health/live` reports whether the Explorer process responds and includes
-its Node version. It performs no database query.
+its Node and configured Python versions. It performs no database query.
 
 `GET /health/ready` queries the latest loaded regular-season day through the
 validated SQL adapter. It requires a nonempty graph selection and exactly the
@@ -90,8 +90,8 @@ readiness.
 | Area | Required before declaring production |
 | --- | --- |
 | Deployment boundary | Choose the host and intended audience. Current Explorer, NiFi and Fuseki are loopback services. Public hosting, authentication, TLS and firewall policy are not configured. Host/origin guards deliberately do not trust forwarding headers. |
-| Serving | Obtain a validated current immutable SQL build and passing readiness. Keep source and SQL equivalence/admission gates intact. The current browser smoke used authoritative RDF for 15 games on August 25. |
-| Metric coverage | Complete the accepted source backfill and inspect coverage across the intended release population. Twenty implemented cards and worked examples do not mean twenty population-level scores are available. |
+| Serving | Obtain a validated current immutable SQL build and passing readiness. Keep source and SQL equivalence/admission gates intact. Readiness still returned 503 after the date lookup repair; the latest-day dashboard used authoritative RDF. |
+| Metric coverage | Complete the accepted source backfill and inspect coverage across the intended release population. September 13 has 14 promoted games out of 15 scheduled, and only one of the 20 metrics has a scoped result. The remaining game failed source SHACL. See the exact evidence below; no gate was bypassed. |
 | Recovery | The [RDF recovery stages](RDF-RECOVERY.md) pass failure-path tests and an actual isolated Fuseki backup/TDB2 restore fixture. Define RPO/RTO, destination, retention and NiFi ownership; preserve runtime evidence/configuration and test the full corpus off-machine. The fixture does not close disaster recovery. |
 | Operations | Per-user local supervision is installed and Explorer recovery is verified; see [Local operations](LOCAL-OPERATIONS.md). Before-login operation, reboot acceptance, disk/log retention and external alerting remain open. Use the existing NiFi source and Repository Evidence owners. |
 | Runtime maintenance | Explorer now uses isolated Python 3.13.15, with its existing RDF libraries pinned, and Node 24.21.0. NiFi still uses its existing Python 3.10.8 installation; migrate its dependencies and configured processors after component validation at a safe boundary. Other tools using global Node remain outside the Explorer upgrade. |
@@ -144,6 +144,41 @@ runs after that fix. Every live metric result and calculation fingerprint
 matched the prior capture exactly. The Python archive hash is from the
 [official 3.13.15 release](https://www.python.org/downloads/release/python-31315/);
 library wheel hashes are from their pinned PyPI release metadata.
+
+## Current game dates and remaining coverage
+
+The Explorer previously read the historical acquisition directory but omitted
+the current MLB lane's compact `game-<id>-rml.json` manifests. This hid already
+promoted games after August 25. It now reads the same retained official date
+and game type used by SQL, checks the manifest's game/graph identity, and still
+intersects metadata with authoritative games returned by Fuseki. Prepared or
+quarantined inputs alone cannot enter the date selection. The fixture remains
+separate, and absent or non-regular game types never default to regular season.
+Concurrent manifest reads are bounded to 32.
+
+The [date repair evidence](../benchmarks/metrics/date-provenance-2026-09-14/verification.json)
+records 39 focused checks and a passing real-browser regression. The earlier
+August 25 metric results and calculation fingerprint are unchanged. A separate
+live latest-day request now selects September 13, with available dates starting
+March 26. That range describes loaded games, not complete season coverage.
+
+The September 13 capture contains 14 promoted games, 1,050 observed plate
+appearances and all 20 metric entries. Only Adjudication Volatility has an
+available scoped result (explicitly resolved mapped reviews); 19 metrics report
+unavailable. Their exact gap codes are retained in the verification record.
+Observed runner movements still lack personal trajectory bindings, population
+completeness remains false, and complete defensive acts/role populations are
+not established. A current SQL build will not create those missing semantics.
+
+The fifteenth scheduled game, `824952`, was quarantined at source SHACL on
+September 14. Its report identifies
+`game/824952/plate-appearance/76/start-state/base/3B/stasis` and states:
+“A runner-at-base stasis must bind the role bearer and Base to the same occupied
+Base Site.” The exact retained run is `726ec6f8493444d9ab31fdad9136052f`.
+No retry, mapping edit, ontology change or semantic-freeze refresh was made as
+part of the UI repair. Resolving this source failure must respect the existing
+semantic review boundary. Readiness still returned HTTP 503 after deployment;
+the NiFi-owned SQL rebuild was left asynchronous.
 
 ## Rollback
 

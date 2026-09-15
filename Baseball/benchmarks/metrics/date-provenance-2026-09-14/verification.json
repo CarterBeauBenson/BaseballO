@@ -1,0 +1,206 @@
+﻿{
+    "artifactType":  "baseballo-game-date-provenance-proof",
+    "focusedTestsPassed":  39,
+    "browserPassed":  true,
+    "historicalMetricResultsUnchanged":  true,
+    "historicalMetricCount":  20,
+    "calculationFingerprint":  "42785bedc50b894e4dc55724797c31d99923cd21f85b97db218692bdbf82cd9c",
+    "previousAvailableEndDate":  "2026-08-25",
+    "currentAvailableStartDate":  "2026-03-26",
+    "currentAvailableEndDate":  "2026-09-13",
+    "selectedPromotedGames":  14,
+    "scheduledGames":  15,
+    "execution":  "authoritative-rdf",
+    "metricsWithScopedResults":  1,
+    "metricStatuses":  [
+                           {
+                               "metricId":  "tfs",
+                               "status":  "unavailable",
+                               "gaps":  [
+                                            "ATTRIBUTION",
+                                            "BOUNDARY_STATE",
+                                            "COMPLETENESS",
+                                            "OPERATIVE_OUTS",
+                                            "PATH_IDENTITY"
+                                        ]
+                           },
+                           {
+                               "metricId":  "paq-2",
+                               "status":  "unavailable",
+                               "gaps":  [
+                                            "REFERENCE_POPULATION",
+                                            "TFS"
+                                        ]
+                           },
+                           {
+                               "metricId":  "paq-a",
+                               "status":  "unavailable",
+                               "gaps":  [
+                                            "PAQ_A_STATE",
+                                            "REFERENCE_POPULATION",
+                                            "TFS"
+                                        ]
+                           },
+                           {
+                               "metricId":  "offensive-reach",
+                               "status":  "unavailable",
+                               "gaps":  [
+                                            "ATTRIBUTION",
+                                            "COMPLETENESS",
+                                            "PATH_IDENTITY"
+                                        ]
+                           },
+                           {
+                               "metricId":  "hidden-help-rate",
+                               "status":  "unavailable",
+                               "gaps":  [
+                                            "ATTRIBUTION",
+                                            "COMPLETENESS",
+                                            "PATH_IDENTITY"
+                                        ]
+                           },
+                           {
+                               "metricId":  "rally-kill-rate",
+                               "status":  "unavailable",
+                               "gaps":  [
+                                            "ATTRIBUTION",
+                                            "BOUNDARY_STATE",
+                                            "COMPLETENESS",
+                                            "OPERATIVE_OUTS"
+                                        ]
+                           },
+                           {
+                               "metricId":  "rally-kill-severity",
+                               "status":  "unavailable",
+                               "gaps":  [
+                                            "ATTRIBUTION",
+                                            "BOUNDARY_STATE",
+                                            "COMPLETENESS",
+                                            "OPERATIVE_OUTS",
+                                            "PATH_IDENTITY"
+                                        ]
+                           },
+                           {
+                               "metricId":  "opportunity-erosion",
+                               "status":  "unavailable",
+                               "gaps":  [
+                                            "BOUNDARY_STATE",
+                                            "COMPLETENESS",
+                                            "OPERATIVE_OUTS"
+                                        ]
+                           },
+                           {
+                               "metricId":  "empty-game-rate",
+                               "status":  "unavailable",
+                               "gaps":  [
+                                            "COMPLETENESS",
+                                            "INDEPENDENT_EPISODES",
+                                            "OFFENSIVE_ELIGIBILITY"
+                                        ]
+                           },
+                           {
+                               "metricId":  "empty-game-damage",
+                               "status":  "unavailable",
+                               "gaps":  [
+                                            "COMPLETENESS",
+                                            "INDEPENDENT_EPISODES",
+                                            "INDEPENDENT_SCORE",
+                                            "OFFENSIVE_ELIGIBILITY",
+                                            "TFS"
+                                        ]
+                           },
+                           {
+                               "metricId":  "contribution-path-diversity",
+                               "status":  "unavailable",
+                               "gaps":  [
+                                            "ATTRIBUTION",
+                                            "CHANNEL_EPISODES",
+                                            "COMPLETENESS",
+                                            "INDEPENDENT_EPISODES"
+                                        ]
+                           },
+                           {
+                               "metricId":  "recovery-quality",
+                               "status":  "unavailable",
+                               "gaps":  [
+                                            "EXACT_PITCH_COUNTS",
+                                            "REFERENCE_POPULATION"
+                                        ]
+                           },
+                           {
+                               "metricId":  "resolution-depth",
+                               "status":  "unavailable",
+                               "gaps":  [
+                                            "DEFENSIVE_ACTS",
+                                            "DEFENSIVE_ORDER"
+                                        ]
+                           },
+                           {
+                               "metricId":  "defender-breadth",
+                               "status":  "unavailable",
+                               "gaps":  [
+                                            "DEFENSIVE_ACTS"
+                                        ]
+                           },
+                           {
+                               "metricId":  "run-construction-depth",
+                               "status":  "unavailable",
+                               "gaps":  [
+                                            "PATH_IDENTITY",
+                                            "RUN_CONTINUITY"
+                                        ]
+                           },
+                           {
+                               "metricId":  "run-construction-breadth",
+                               "status":  "unavailable",
+                               "gaps":  [
+                                            "RUN_CONTINUITY",
+                                            "SUPPORT_ATTRIBUTION"
+                                        ]
+                           },
+                           {
+                               "metricId":  "adjudication-volatility",
+                               "status":  "available",
+                               "gaps":  [
+
+                                        ]
+                           },
+                           {
+                               "metricId":  "review-dependence-rate",
+                               "status":  "unavailable",
+                               "gaps":  [
+                                            "OPERATIVE_REVIEW",
+                                            "OUTCOME_POPULATION"
+                                        ]
+                           },
+                           {
+                               "metricId":  "role-realization-breadth",
+                               "status":  "unavailable",
+                               "gaps":  [
+                                            "DEFENSIVE_ACTS",
+                                            "ROLE_POPULATION"
+                                        ]
+                           },
+                           {
+                               "metricId":  "paq-2.1",
+                               "status":  "unavailable",
+                               "gaps":  [
+                                            "DEFENSIVE_ACTS",
+                                            "DEFENSIVE_ORDER",
+                                            "EXACT_PITCH_COUNTS",
+                                            "PAQ21_ELIGIBILITY",
+                                            "REFERENCE_POPULATION",
+                                            "TFS"
+                                        ]
+                           }
+                       ],
+    "quarantinedGame":  {
+                            "gamePk":  "824952",
+                            "runId":  "726ec6f8493444d9ab31fdad9136052f",
+                            "failedStage":  "shacl",
+                            "focusNode":  "https://baseballontology.org/data/game/824952/plate-appearance/76/start-state/base/3B/stasis",
+                            "message":  "A runner-at-base stasis must bind the role bearer and Base to the same occupied Base Site."
+                        },
+    "ontologyOrMappingChanged":  false,
+    "productionReady":  false
+}
