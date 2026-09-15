@@ -52,3 +52,8 @@ Schedule runs materialize SQL once per completed batch rather than once per
 discovered game. A run's submission, promotion, quarantine, cleanup, and
 materialization status must be read from terminal NiFi evidence; this README
 does not track a live batch.
+
+When a source proof must wait for a serving rebuild, the existing periodic
+batch worker can own the dependency sequence through
+[deferred proof and refresh recovery](pipeline/DEFERRED-RECOVERY.md). It submits
+the normal proof and bounded backfill only after their prerequisites complete.

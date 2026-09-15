@@ -19,6 +19,7 @@ MODULE_ROOT = Path(__file__).resolve().parents[1]
 BASEBALL_ROOT = MODULE_ROOT.parents[1]
 INVENTORY_SCRIPT = BASEBALL_ROOT / "scripts" / "pipeline" / "game_promotion_inventory.py"
 MATERIALIZER = BASEBALL_ROOT / "scripts" / "pipeline" / "materialize-serving-layer.py"
+RECOVERY_SCRIPT = MODULE_ROOT / "pipeline" / "resume-metric-source.py"
 
 
 def parse_args() -> argparse.Namespace:
@@ -78,6 +79,15 @@ def promotion_inventory(state_root: Path) -> dict[str, Any]:
 def main() -> int:
     args = parse_args()
     state_root = args.state_root.resolve()
+    recovery_spec = importlib.util.spec_from_file_location("mlb_metric_source_recovery", RECOVERY_SCRIPT)
+    if recovery_spec is None or recovery_spec.loader is None:
+        raise ValueError("cannot load the MLB source recovery worker")
+    recovery_module = importlib.util.module_from_spec(recovery_spec)
+    recovery_spec.loader.exec_module(recovery_module)
+    recovery = recovery_module.tick(state_root)
+    if recovery["deferMaterialization"]:
+        print(json.dumps({"status": "deferred", "sourceRecovery": recovery}, separators=(",", ":")))
+        return 0
     batch_root = state_root / "pipeline" / "control" / "mlb-game" / "batches"
     batch_root.mkdir(parents=True, exist_ok=True)
     pending: list[tuple[datetime, Path, dict[str, Any]]] = []
