@@ -290,6 +290,29 @@ test('optional label lookup failure preserves a successful SQL metric response',
   });
 });
 
+test('runner boundary labels remain optional and do not manufacture a metric score', async () => {
+  const graph = 'https://w3id.org/baseball/graph/game/566279', runner = 'https://baseballontology.org/data/player/444482';
+  const result = { execution:'materialized-sql', metric:{ metricId:'tfs', status:'unavailable', value:null,
+    runnerBoundaryStates:[{graph,runner,basePosition:2,completePlateAppearance:false,populationComplete:false}] } };
+  let labelQueries = 0;
+  await withServer({ servingExecutor:async()=>result, fetchImpl:async(_url, options)=>{
+    assert.ok(options.body.get('query').includes(runner)); labelQueries++;
+    return new Response(JSON.stringify({results:{bindings:[{
+      graph:{type:'uri',value:graph},entity:{type:'uri',value:runner},label:{type:'literal',value:'Test name'}
+    }]}}));
+  } }, async url=>{
+    const response = await fetch(url+'/api/metrics/query',{method:'POST',body:JSON.stringify({metricId:'tfs'})});
+    assert.equal(response.status,200);
+    const payload = await response.json();
+    assert.equal(labelQueries,1);
+    assert.equal(displayPlayer(payload.display.labels,graph,runner),'Test name');
+    assert.deepEqual(payload.metric.runnerBoundaryStates,result.metric.runnerBoundaryStates);
+    assert.equal(payload.metric.status,'unavailable');
+    assert.equal(payload.metric.value,null);
+    assert.equal(payload.metric.leaderboard.status,'unavailable');
+  });
+});
+
 test('consequence results remain visible without presenting a whole-population score', () => {
   assert.equal(resultHeadline({ status: 'unavailable', value: null, consequences: [{ value: { numerator: '25', denominator: '12' } }] }), '1 supported award consequence');
   assert.equal(resultHeadline({ status: 'unavailable', value: null, consequences: [] }), 'Unavailable');

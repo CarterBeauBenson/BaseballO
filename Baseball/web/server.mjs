@@ -844,7 +844,9 @@ export function createBaseballServer({
     result = result.metrics ? { ...result, metrics: result.metrics.map(ranked) } :
       result.metric ? { ...result, metric: ranked(result.metric) } : result;
     const subjects = (result.metrics ?? [result.metric]).filter(Boolean).flatMap(metric => [
-      ...(metric.consequences ?? []), ...(metric.runs ?? []).map(run => ({ graph: run.graph, batter: run.runner }))]);
+      ...(metric.consequences ?? []),
+      ...[...(metric.runs ?? []), ...(metric.runnerBoundaryStates ?? [])]
+        .map(row => ({ graph: row.graph, batter: row.runner }))]);
     if (!subjects.length) return result;
     // Optional labels cannot invalidate an otherwise valid SQL/RDF result.
     // These annotations are scoped to its game graphs and never enter scoring.

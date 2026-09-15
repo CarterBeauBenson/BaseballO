@@ -8,12 +8,34 @@ PREFIX obo: <http://purl.obolibrary.org/obo/>
 SELECT DISTINCT ?graph ?game ?kind ?entity ?player ?act ?roleType
                 ?reviewRecord ?original ?operative ?disposition ?decision
                 ?trajectory ?episode ?trajectoryHalf ?trajectoryInterval
+                ?paHalf ?paInterval ?paStartInstant ?paEndInstant
+                ?paStartTimestamp ?paEndTimestamp ?paStart ?paEnd ?paOutCount ?paOutsBefore
 WHERE {
   GRAPH ?graph {
     ?game a base:BaseballGame .
     {
       ?entity a base:PlateAppearance ;
           obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
+      OPTIONAL { ?entity obo:BFO_0000132 ?paHalf . ?paHalf a base:HalfInning . }
+      OPTIONAL {
+        ?entity obo:BFO_0000199 ?paInterval . ?paInterval a obo:BFO_0000038 .
+        OPTIONAL {
+          ?paInterval obo:BFO_0000222 ?paStartInstant .
+          ?paStartInstant a base:BaseballEventTemporalInstant .
+          ?paStartTimestamp a base:BaseballTimestampICE ; cco:ont00001916 ?paStartInstant ;
+              cco:ont00001808 ?entity ; cco:ont00001767 ?paStart .
+        }
+        OPTIONAL {
+          ?paInterval obo:BFO_0000224 ?paEndInstant .
+          ?paEndInstant a base:BaseballEventTemporalInstant .
+          ?paEndTimestamp a base:BaseballTimestampICE ; cco:ont00001916 ?paEndInstant ;
+              cco:ont00001808 ?entity ; cco:ont00001767 ?paEnd .
+        }
+      }
+      OPTIONAL {
+        ?paOutCount a base:PlateAppearanceStartOutCountICE ; cco:ont00001808 ?entity ;
+            cco:ont00001773 ?paOutsBefore .
+      }
       BIND("plate_appearance" AS ?kind)
     } UNION {
       VALUES (?entityType ?kind) {

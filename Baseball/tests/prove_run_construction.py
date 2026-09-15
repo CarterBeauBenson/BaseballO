@@ -40,6 +40,7 @@ def main():
     parser.add_argument('--java', required=True)
     parser.add_argument('--jena-classpath', required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--include-boundaries', action='store_true')
     args = parser.parse_args()
     graph = 'https://w3id.org/baseball/graph/game/566279'
     with tempfile.TemporaryDirectory(prefix='baseballo-run-query-') as temporary:
@@ -52,6 +53,7 @@ def main():
         bindings = json.loads((directory / 'bindings.json').read_bytes())['results']['bindings']
     rows = M.normalize_bindings(bindings, [graph])
     result = M.live_result('run-construction-depth', rows, graph_count=1)
+    boundary_result = M.live_result('tfs', rows, graph_count=1) if args.include_boundaries else None
     flores = [r for r in result['runs'] if r['runner'].endswith('/527038')]
     assert len(flores) == 1 and flores[0]['value'] == M.exact(3), flores
     assert all(r['completeTrajectory'] for r in result['runs'])
@@ -65,10 +67,18 @@ def main():
         response = M.query_sql(database, {'metricId':'run-construction-depth'},
                               {'gameSet':'regular_season', 'startDate':'2019-04-01', 'endDate':'2019-04-01'})
         assert response['metric'] == result
-    args.output.write_text(json.dumps(dict(metric=result, sqlExactMatch=True), indent=2) + '\n', encoding='utf-8')
+        if boundary_result is not None:
+            boundary_response = M.query_sql(database, {'metricId': 'tfs'},
+                                           {'gameSet':'regular_season', 'startDate':'2019-04-01', 'endDate':'2019-04-01'})
+            assert boundary_response['metric'] == boundary_result
+    report = dict(metric=result, sqlExactMatch=True, implementationSha256=M.fingerprint())
+    if boundary_result is not None:
+        report['boundaryMetric'] = boundary_result
+    args.output.write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8')
     print(json.dumps(dict(supportedRuns=len(result['runs']),
                           observedRuns=result['coverage']['observedEntities']['run'],
-                          floresDepth=flores[0]['value'], sqlExactMatch=True)))
+                          floresDepth=flores[0]['value'], sqlExactMatch=True,
+                          runnerBoundaryStates=len(boundary_result['runnerBoundaryStates']) if boundary_result else None)))
 
 
 if __name__ == '__main__': main()

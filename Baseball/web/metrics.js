@@ -288,6 +288,24 @@ function renderUnresolvedRuns(results = []) {
   table.append(head, body); target.append(table);
 }
 
+function renderRunnerBoundaries(results = [], labels) {
+  const target = byId('runner-boundaries'); target.replaceChildren(); target.hidden = !results.length;
+  if (!results.length) return;
+  target.append(node('h3', 'Supported runner base states'), node('p',
+    'Complete personal histories support these unchanged bases through the listed plate appearances. These are inputs to scoring; they do not establish all runners, a complete PA score, or player eligibility.'));
+  const table = node('table'), head = node('thead'), header = node('tr'), body = node('tbody');
+  const columns = ['Runner', 'Game / plate appearance', 'Base throughout PA'];
+  header.append(...columns.map(label => { const cell = node('th', label); cell.scope = 'col'; return cell; })); head.append(header);
+  for (const result of results) {
+    const row = node('tr');
+    row.append(node('td', displayPlayer(labels, result.graph, result.runner)),
+      node('td', `${result.graph.split('/').at(-1)} / ${result.plateAppearance.split('/').at(-1)}`),
+      node('td', ['Unknown', 'First', 'Second', 'Third'][result.basePosition] ?? 'Unknown'));
+    columns.forEach((label, index) => { row.children[index].dataset.label = label; }); body.append(row);
+  }
+  table.append(head, body); target.append(table);
+}
+
 function scheduleDashboardLoad() {
   invalidateSelection();
   const scope = selectedScope().dateScope;
@@ -482,15 +500,18 @@ function showResult(payload) {
   renderConsequences(result.consequences, result.metricId, payload.display?.labels);
   renderRunResults(result.runs, payload.display?.labels);
   renderUnresolvedRuns(result.unresolvedRuns);
+  renderRunnerBoundaries(result.runnerBoundaryStates, payload.display?.labels);
   renderRanking(payload, selected);
   facts(byId('coverage'), [['Games', coverage.games ?? payload.graphCount ?? 0],
     ...(coverage.supportedAwardConsequences !== undefined ? [
       ['Supported award consequences', coverage.supportedAwardConsequences],
       ['Observed PAs without a scored award result', coverage.observedPAsWithoutSupportedAwardConsequence],
       ['Selected games with no evidence rows', coverage.selectedGraphsWithoutEvidence]] : []),
+    ...(coverage.runnerBoundaryProjection ? [['Supported unchanged runner states', coverage.runnerBoundaryProjection.unchangedRunnerPAs]] : []),
     ...(coverage.resolvedReviews !== undefined ? [['Resolved reviews', coverage.resolvedReviews], ['Unresolved reviews', coverage.unresolvedReviews]] : []),
     ...(coverage.supportedRuns !== undefined ? [['Complete scoring histories', coverage.supportedRuns], ['Observed runs without a result', coverage.observedRunsWithoutResult]] : [])]);
   byId('result-evidence').textContent = JSON.stringify({ coverage, components: result.components ?? {}, evidence: result.evidence ?? [],
+    runnerBoundaryStates: result.runnerBoundaryStates,
     implementation: payload.implementationSha256, corpus: payload.corpusFingerprint ?? payload.serving?.corpusFingerprint,
     dateScope: payload.dateScope, execution: payload.execution, display: payload.display }, null, 2);
   renderRequirements(result.gaps ?? []);

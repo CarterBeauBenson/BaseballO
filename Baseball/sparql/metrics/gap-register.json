@@ -45,7 +45,7 @@
       "id": "BOUNDARY_STATE",
       "title": "Locate runners at the relevant boundaries",
       "question": "What independently verified source history, supported temporal boundaries and operative outcomes admit the accepted C1/C2 graph and analytical contracts?",
-      "direction": "C2 projects a supported safe base through independently verified complete intervening history with no state-changing or unresolved event. It creates no RDF Person-to-Base relation, stasis or new adjudication. Real source coverage and boundary evidence remain pending.",
+      "direction": "C2 projects a supported safe base through independently verified complete intervening history with no state-changing or unresolved event. It creates no RDF Person-to-Base relation, stasis or new adjudication. The bounded live adapter now handles intervening PAs strictly bracketed by episodes in complete C1 histories; full within-PA and termination coverage remains pending.",
       "status": "open",
       "disposition": "accepted-meaning-evidence-pending",
       "owner": "ontologist",
@@ -74,9 +74,11 @@
         "Award causation plus applicable rule requirement; no event directive",
         "Immediate segment origin via movement.start designation; no preceding stasis",
         "Batter metric HOME=0 from PA batter identity",
-        "C1 personal BFO Process and C2 analytical boundary projection accepted; no new object properties"
+        "C1 personal BFO Process and C2 analytical boundary projection accepted; no new object properties",
+        "Bounded C2 live adapter, exact SQL round trip and UI evidence for unchanged runners strictly between supported PA bounds"
       ],
-      "remainingCoverage": "Reviewed operative award resolution, other rule editions, PA-start fallback completeness and full attributed-trajectory completeness remain separately gated.",
+      "remainingCoverage": "Within-PA episode order, immediate consequence bounds and out count, full affected-runner census, unbounded stranding, and complete attributed trajectories remain separately gated. The bounded projection does not admit a complete PA or player population.",
+      "implementationEvidence": "benchmarks/metrics/c2-boundaries-2026-09-14/README.md",
       "acceptedGraphDecision": "archive/design-records/runner-continuity-boundary-projection/review.json",
       "sourceImplementationContract": "sources/mlb-game/review/runner-continuity-source-contract.md"
     },

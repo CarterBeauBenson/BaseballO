@@ -257,7 +257,25 @@ window.fetch = (...args) => {
     assert(!id('download-result').disabled,'Run evidence download disabled');
     id('run-results').scrollIntoView();
     assert(document.documentElement.scrollWidth<=innerWidth,'Run cards overflow mobile');
-    return {fixture:'validated real RDF and SQL, not live promotion',runs:9,unresolvedRuns:4,floresDepth:3,mobileOverflow:false};
+    let boundaryStates=0;
+    if (payload.boundaryMetric) {
+      document.querySelector('[data-id="tfs"]').click();
+      window.fetch=async()=>new Response(JSON.stringify({...payload,metric:payload.boundaryMetric}));
+      id('run-metric').click();
+      for(let i=0;i<100&&id('result').hidden;i++)await new Promise(r=>setTimeout(r,50));
+      id('coverage-details').open=true;
+      const states=id('runner-boundaries');
+      assert(!states.hidden&&states.querySelectorAll('tbody tr').length===3,'Expected three real runner boundary states');
+      assert(states.textContent.includes('Player #444482')&&states.textContent.includes('Second'),'Supported second-base state missing');
+      assert(states.textContent.includes('inputs to scoring'),'Runner states presented as full scores');
+      assert(id('result').dataset.state!=='available','Runner states promoted an unavailable metric');
+      assert(id('metric-ranking').querySelectorAll('tbody tr').length===0,'Runner states manufactured player rankings');
+      assert(!id('download-result').disabled,'Runner evidence download disabled');
+      states.scrollIntoView();
+      assert(document.documentElement.scrollWidth<=innerWidth,'Runner states overflow mobile');
+      boundaryStates=3;
+    }
+    return {fixture:'validated real RDF and SQL, not live promotion',runs:9,unresolvedRuns:4,floresDepth:3,boundaryStates,mobileOverflow:false};
   } finally {window.fetch=original;delete window.runDepthProof;}
 })()
 '@

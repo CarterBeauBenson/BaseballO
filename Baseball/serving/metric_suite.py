@@ -9,6 +9,7 @@ logarithms generally have no rational representation.
 from __future__ import annotations
 
 from collections import defaultdict, deque
+from datetime import datetime, timezone
 from fractions import Fraction
 import hashlib
 import json
@@ -22,7 +23,7 @@ from rdflib import Graph, Literal
 
 ROOT = Path(__file__).resolve().parents[1]
 METRICS = ROOT / 'sparql/metrics'
-VERSION = '2.0.11'
+VERSION = '2.0.12'
 
 
 class EvidenceError(ValueError):
@@ -600,9 +601,14 @@ def normalize_bindings(bindings, graphs):
                       'runner', 'originDesignation', 'originBase', 'destinationBase', 'batter',
                       'awardRule', 'contactPlay', 'award', 'record', 'episode',
                       'originRecord', 'safeJudgment', 'safeDecision', 'trajectory',
-                      'trajectoryHalf', 'trajectoryInterval'):
+                      'trajectoryHalf', 'trajectoryInterval', 'paHalf', 'paInterval',
+                      'paStartInstant', 'paEndInstant', 'paStartTimestamp', 'paEndTimestamp', 'paOutCount'):
             if field in binding and binding[field].get('type') != 'uri':
                 raise EvidenceError('Evidence identity must be an IRI: ' + field)
+        for field in ('paStart', 'paEnd'):
+            if field in binding and (binding[field].get('type') != 'literal'
+                    or binding[field].get('datatype') != 'http://www.w3.org/2001/XMLSchema#dateTime'):
+                raise EvidenceError('PA boundary requires an explicit dateTime value: ' + field)
         if row.get('kind') not in {'plate_appearance', 'batted_play', 'run', 'player_game', 'review', 'runner_movement', 'runner_history'}:
             raise EvidenceError('Unknown evidence grain')
         if row['kind'] == 'runner_history' and (row.get('trajectory') != row['entity'] or
@@ -704,6 +710,10 @@ def live_result(metric_id, rows, *, graph_count):
                 0, coverage['observedEntities']['plate_appearance'] - len(result['consequences']))
             result['scope'] = ('Award-consequence results below; complete plate-appearance '
                                f'and selected-population {entry["label"]} remain unavailable.')
+        if metric_id == 'tfs':
+            boundaries = runner_boundary_states(rows)
+            result['runnerBoundaryStates'] = boundaries['states']
+            coverage['runnerBoundaryProjection'] = boundaries['coverage']
         return result
     # AV deliberately describes only explicitly resolved mapped reviews. It
     # makes no claim about all league reviews or the correctness of officials.
@@ -735,6 +745,161 @@ def live_result(metric_id, rows, *, graph_count):
 
 def run_construction_results(rows):
     return run_construction_evidence(rows)['runs']
+
+
+def runner_boundary_states(rows):
+    """C2 for unchanged runners bracketed by complete C1 history episodes.
+
+    Existing PA timestamp/instant paths provide conservative episode bounds.
+    No source index becomes an ordering assertion. A runner with no episode
+    during a PA, a prior Safe outcome, and a later episode in the same complete
+    history retains that safe base throughout the PA. Unknown order, missing
+    member bindings and unbounded termination cannot supply this projection.
+    This supplies individual base states, not a complete PA occupancy or score.
+    """
+    pas, histories, movements = defaultdict(list), defaultdict(list), defaultdict(list)
+    for row in rows:
+        if row['kind'] == 'plate_appearance':
+            pas[(row['graph'], row['entity'])].append(row)
+        elif row['kind'] == 'runner_history':
+            histories[(row['graph'], row['trajectory'])].append(row)
+        elif row['kind'] == 'runner_movement' and row.get('trajectory'):
+            movements[(row['graph'], row['trajectory'])].append(row)
+
+    temporal_fields = ('game', 'paHalf', 'paInterval', 'paStartInstant', 'paEndInstant',
+                       'paStartTimestamp', 'paEndTimestamp', 'paStart', 'paEnd')
+    intervals = {}
+    for key, observations in pas.items():
+        signatures = {tuple(row.get(field) for field in temporal_fields) for row in observations}
+        if len(signatures) != 1 or any(value is None for value in next(iter(signatures))):
+            continue
+        row = observations[0]
+        try:
+            start = datetime.fromisoformat(row['paStart'].replace('Z', '+00:00'))
+            end = datetime.fromisoformat(row['paEnd'].replace('Z', '+00:00'))
+        except ValueError:
+            continue
+        if start.tzinfo is None or end.tzinfo is None or start >= end:
+            continue
+        intervals[key] = dict(row, start=start.astimezone(timezone.utc), end=end.astimezone(timezone.utc))
+
+    by_half = defaultdict(list)
+    for (graph, pa), bounds in intervals.items():
+        by_half[(graph, bounds['game'], bounds['paHalf'])].append((pa, bounds))
+    states, withheld, ordered = [], [], 0
+    state_fields = ('game', 'plateAppearance', 'runner', 'act', 'resolution',
+                    'hasSafeType', 'hasOutType', 'hasRunType', 'safeJudgment', 'safeDecision',
+                    'destinationBase', 'destinationCode', 'trajectoryHalf', 'trajectoryInterval',
+                    'originDesignation', 'originBase', 'originCode', 'metricOrigin', 'batter')
+    for key, members in sorted(histories.items()):
+        signatures = {(row['game'], row['player'], row['trajectoryHalf'], row['trajectoryInterval']) for row in members}
+        reason = None
+        if len(signatures) != 1:
+            reason = 'CONFLICTING_PERSONAL_HISTORY'
+        else:
+            game, runner, half, interval = next(iter(signatures))
+            expected = {row['episode'] for row in members}
+            observed = defaultdict(list)
+            for row in movements[key]:
+                observed[row.get('episode')].append(row)
+            if set(observed) != expected:
+                reason = 'PERSONAL_HISTORY_MEMBER_COVERAGE'
+        episodes, seen_pas = [], set()
+        if reason is None:
+            for episode in sorted(expected):
+                candidates = observed[episode]
+                signatures = {tuple(row.get(field) for field in state_fields) for row in candidates}
+                if len(signatures) != 1:
+                    reason = 'CONFLICTING_SEGMENT_STATE'; break
+                row = candidates[0]
+                if (row.get('game') != game or row.get('runner') != runner or row.get('trajectoryHalf') != half
+                        or row.get('trajectoryInterval') != interval):
+                    reason = 'CONFLICTING_PERSONAL_HISTORY'; break
+                pa = row['plateAppearance']
+                bounds = intervals.get((key[0], pa))
+                if bounds is None or bounds['paHalf'] != half or bounds['game'] != game:
+                    reason = 'UNSUPPORTED_PA_BOUNDARY'; break
+                if pa in seen_pas:
+                    reason = 'UNSUPPORTED_WITHIN_PA_EPISODE_ORDER'; break
+                seen_pas.add(pa)
+                outcome = (row.get('hasSafeType'), row.get('hasOutType'), row.get('hasRunType'))
+                if outcome == ('true', 'false', 'false') and row.get('destinationCode') in {'1B', '2B', '3B'}:
+                    if not all(row.get(field) for field in ('safeJudgment', 'safeDecision', 'destinationBase')):
+                        reason = 'UNSUPPORTED_SEGMENT_END'; break
+                    base = int(row['destinationCode'][0])
+                    origin = segment_origin(row)
+                    if origin is None:
+                        reason = 'UNSUPPORTED_SEGMENT_ORIGIN'; break
+                    changes = origin != base
+                elif outcome in {('false', 'true', 'false'), ('false', 'false', 'true')}:
+                    base, changes = None, True
+                else:
+                    reason = 'UNSUPPORTED_SEGMENT_END'; break
+                episodes.append(dict(row, bounds=bounds, base=base, changes=changes))
+        if reason is None:
+            episodes.sort(key=lambda row: row['bounds']['start'])
+            if any(a['bounds']['end'] >= b['bounds']['start'] for a, b in zip(episodes, episodes[1:])):
+                reason = 'OVERLAPPING_EPISODE_BOUNDS'
+            elif any(row['base'] is None for row in episodes[:-1]):
+                reason = 'EVENT_AFTER_TERMINAL_OUTCOME'
+            elif any(segment_origin(b) != a['base'] for a, b in zip(episodes, episodes[1:])):
+                reason = 'UNSUPPORTED_EPISODE_STATE_ORDER'
+        if reason is not None:
+            withheld.append(dict(graph=key[0], trajectory=key[1], gap=reason))
+            continue
+        ordered += 1
+        # A later episode bounds continuity independently of this projection.
+        # No projection beyond the final episode or across a reset is inferred.
+        for prior, following in zip(episodes, episodes[1:]):
+            if prior['base'] is None:
+                continue
+            for pa, bounds in by_half[(key[0], game, half)]:
+                if (pa in seen_pas
+                        or not (prior['bounds']['end'] < bounds['start'] < bounds['end'] < following['bounds']['start'])):
+                    continue
+                evidence = {key[1], interval, half, *expected,
+                            *(row[field] for row in episodes for field in ('act', 'resolution')),
+                            prior['safeJudgment'], prior['safeDecision'], prior['destinationBase'],
+                            *(row[field] for row in (prior['bounds'], bounds, following['bounds'])
+                              for field in ('entity', 'paInterval', 'paStartInstant', 'paEndInstant',
+                                            'paStartTimestamp', 'paEndTimestamp'))}
+                # The complete interval being projected lies between these two
+                # adjacent members of the independently checked whole. Earlier
+                # observations do not replace the most recent Safe evidence.
+                events = [dict(event=row['resolution'], ordinal=2 * index, base=row['base'],
+                               known=True, changesState=row['changes'])
+                          for index, row in enumerate((prior, following))]
+                projected = project_runner_boundary(events, 1, history_complete=True,
+                                                     boundary_supported=True, evidence=evidence)
+                if projected['status'] == 'available':
+                    states.append(dict(projected, graph=key[0], game=game, runner=runner, trajectory=key[1],
+                                       plateAppearance=pa, halfInning=half,
+                                       boundaryScope='unchanged throughout this plate appearance',
+                                       beforeEpisode=following['episode'], afterEpisode=prior['episode'],
+                                       completePlateAppearance=False, populationComplete=False))
+    identities = defaultdict(list)
+    for state in states:
+        identities[(state['graph'], state['plateAppearance'], state['runner'])].append(state)
+    ambiguous = [key for key, values in identities.items() if len(values) != 1]
+    states = [values[0] for values in identities.values() if len(values) == 1]
+    return {'states': sorted(states, key=lambda row: (row['graph'], row['plateAppearance'], row['runner'], row['trajectory'])),
+            'coverage': {'historiesChecked': len(histories), 'historiesWithSupportedOrder': ordered,
+                         'unchangedRunnerPAs': len(states), 'withheldHistories': withheld,
+                         'ambiguousRunnerPAs': len(ambiguous),
+                         'populationComplete': False,
+                         'boundaryScope': 'intervening PAs strictly between supported episode bounds'}}
+
+
+def segment_origin(row):
+    """Actual segment start; keep the batter-consequence HOME override scoped."""
+    if row.get('originDesignation') or row.get('originBase') or row.get('originCode'):
+        if (row.get('originDesignation') and row.get('originBase')
+                and row.get('originCode') in {'1B', '2B', '3B'}):
+            return int(row['originCode'][0])
+    elif (row.get('runner') and row.get('metricOrigin') == '0'
+          and row.get('runner') == row.get('batter')):
+        return 0
+    return None
 
 
 def run_construction_evidence(rows):
@@ -800,15 +965,8 @@ def run_construction_evidence(rows):
             # Run depth counts each actual segment's state change instead.
             # An explicit segment origin takes priority and must not disappear
             # behind that analytical HOME override, including conflicting codes.
-            if row.get('originDesignation') or row.get('originBase') or row.get('originCode'):
-                if (not row.get('originDesignation') or not row.get('originBase')
-                        or row.get('originCode') not in {'1B', '2B', '3B'}):
-                    failures[key] = 'UNSUPPORTED_SEGMENT_ORIGIN'
-                    break
-                start = int(row['originCode'][0])
-            elif row.get('metricOrigin') == '0' and row.get('runner') == row.get('batter'):
-                start = 0
-            else:
+            start = segment_origin(row)
+            if start is None:
                 failures[key] = 'UNSUPPORTED_SEGMENT_ORIGIN'
                 break
             inputs.append(dict(key=key[1], episode=episode, changesState=start != end))

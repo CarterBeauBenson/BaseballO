@@ -34,6 +34,14 @@ No new object properties are permitted.
 
 ## Concrete remaining work
 
+The [C2 implementation and real-game proof](../../benchmarks/metrics/c2-boundaries-2026-09-14/README.md)
+now supply unchanged runner states for intervening PAs strictly bracketed by
+episodes in complete C1 histories. This closes that bounded adapter case.
+Within-PA episode order, unbounded stranding, full affected-runner census,
+official PA attribution and complete player scores remain separate requirements.
+The proof's three states are retained through SQL and shown in UI coverage;
+they are not three complete PA scores or qualified player rows.
+
 | Metric | Current live calculation | Required input/implementation still missing |
 | --- | --- | --- |
 | TFS | Bounded loaded Walk/HBP consequences | Complete consequences, immediate boundaries, operative attributed outs, and player aggregation |
