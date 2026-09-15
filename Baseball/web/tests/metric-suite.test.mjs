@@ -5,7 +5,16 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { createBaseballServer } from '../server.mjs';
 import { metricCatalog, validateMetricRequest, validateDashboardRequest, compileMetricEvidenceQuery, metricDisplayTargets, compileMetricDisplayQuery, normalizeMetricDisplayLabels, automaticMinimumPA, playerLeaderboard } from '../query-builder/metric-suite-query-builder.js';
-import { displayFraction, resultHeadline, movementEvidenceLabel, consequencePresentation, formatMetricValue, resultPresentation, resultDateLabel, selectionFromUrl, displayPlayer, exampleAnswer, dashboardSummary, matchesMetric, metricRanking } from '../metrics.js';
+import { displayFraction, resultHeadline, movementEvidenceLabel, consequencePresentation, formatMetricValue, resultPresentation, resultDateLabel, selectionFromUrl, displayPlayer, exampleAnswer, dashboardSummary, matchesMetric, metricRanking, dashboardLoadStatus } from '../metrics.js';
+
+test('loaded game evidence does not report that player leaderboards are ready', () => {
+  const missing = { graphCount: 14, metrics: [{status:'available',value:{numerator:'1',denominator:'2'}}] };
+  assert.match(dashboardLoadStatus(missing), /no player leaderboards are available/);
+  assert.match(dashboardLoadStatus(missing), /Refreshing will not create those scores/);
+  assert.match(dashboardLoadStatus({ graphCount: 0, metrics: [] }), /No games/);
+  assert.match(dashboardLoadStatus({ graphCount: 14, metrics: [{leaderboard:{status:'available',rows:[{player:'1'}]}}] }), /^1 player leaderboard loaded/);
+  assert.match(dashboardLoadStatus({ graphCount: 14, metrics: [{leaderboard:{status:'available',rows:[]}}] }), /no player leaderboards/);
+});
 
 const leaderboardScope = { startDate: '2026-09-01', endDate: '2026-09-07', gameSet: 'regular_season' };
 const leaderboardMetric = { id: 'tfs', higherIs: 'better' };

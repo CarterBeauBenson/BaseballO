@@ -272,6 +272,14 @@ export function dashboardSummary(payload) {
   return summary;
 }
 
+export function dashboardLoadStatus(payload) {
+  const games = payload.graphCount ?? payload.metrics?.[0]?.coverage?.games ?? 0;
+  const leaders = payload.metrics?.filter(metric => metric.leaderboard?.status === 'available' && metric.leaderboard.rows?.length).length ?? 0;
+  if (!games) return 'No games in this selection. Try another date range.';
+  if (!leaders) return `Game data loaded for ${games} game${games === 1 ? '' : 's'}, but no player leaderboards are available. Complete player scores and participation requirements are still missing. Refreshing will not create those scores.`;
+  return `${leaders} player leaderboard${leaders === 1 ? '' : 's'} loaded. Select a card to see all qualified players and their evidence.`;
+}
+
 export function matchesMetric(metric, term, group = 'all') {
   const searchable = [metric.label, metric.technicalLabel, metric.id, metric.presentation?.question, metric.presentation?.summary].join(' ').toLowerCase();
   return (group === 'all' || metric.presentation?.group === group) && searchable.includes(term.trim().toLowerCase());
@@ -395,7 +403,7 @@ async function loadDashboard(event) {
       (movement ? ` · ${movement.withPersonalTrajectoryBinding ?? 0} of ${movement.observedPairs} movement pairs linked to a personal history.` : '.') +
       ' Coverage of eligible events may still be incomplete.';
     byId('dashboard-overview').hidden = false; byId('download-dashboard').disabled = false;
-    byId('dashboard-status').textContent = summary.games ? 'Dashboard loaded. Select a card to inspect its exact result, scope and evidence.' : 'No games in this selection. Try another date range.';
+    byId('dashboard-status').textContent = dashboardLoadStatus(payload);
     renderList();
     if (!activeRequest) choose(selected);
   } catch (error) {
