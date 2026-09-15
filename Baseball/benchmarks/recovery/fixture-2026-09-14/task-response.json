@@ -1,0 +1,9 @@
+{
+  "response": {
+    "task": "Backup",
+    "taskId": "1",
+    "started": "2026-09-14T20:29:21.088-04:00",
+    "finished": "2026-09-14T20:29:21.120-04:00",
+    "success": true
+  }
+}

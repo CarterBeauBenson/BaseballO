@@ -1,33 +1,23 @@
 [CmdletBinding()]
-param([int] $TimeoutSeconds = 120)
+param(
+    [ValidateSet('Submit', 'Complete', 'Verify')][string] $Action = 'Submit',
+    [string] $Job
+)
 
 . (Join-Path $PSScriptRoot 'common.ps1')
 
-if (-not (Test-TcpPort -HostName '127.0.0.1' -Port 3031)) {
-    throw 'Fuseki is not running on port 3031.'
+$component = Join-Path $script:RepositoryRoot 'scripts\pipeline\rdf-recovery.py'
+$recoveryRoot = Join-Path $script:StateRoot 'recovery'
+$arguments = @($component, '--root', $recoveryRoot, $Action.ToLowerInvariant())
+if ($Action -eq 'Submit') {
+    if ($Job) { throw 'A new submission cannot reuse a job identity.' }
+    $arguments += @('--server', $script:FusekiBaseUri, '--dataset', 'baseball-dev', '--backups', (Join-Path $script:FusekiState 'backups'))
 }
-
-$request = Invoke-RestMethod -Uri 'http://127.0.0.1:3031/$/backup/baseball-dev' -Method Post
-$taskId = [string]$request.taskId
-if ([string]::IsNullOrWhiteSpace($taskId)) {
-    throw 'Fuseki did not return a backup task identifier.'
+else {
+    if (-not $Job) { throw 'Complete and Verify require the submitted Job identity.' }
+    $arguments += @('--job', $Job)
 }
-
-$deadline = (Get-Date).AddSeconds($TimeoutSeconds)
-do {
-    Start-Sleep -Seconds 1
-    $task = Invoke-RestMethod -Uri "http://127.0.0.1:3031/`$/tasks/$taskId" -Method Get
-    if ($null -ne $task -and $null -ne $task.finished) {
-        if ($task.success -ne $true) {
-            throw "Fuseki backup task $taskId failed."
-        }
-        $backup = Get-ChildItem (Join-Path $script:FusekiState 'backups') -Filter 'baseball-dev_*.nq.gz' -File | Sort-Object LastWriteTime -Descending | Select-Object -First 1
-        if ($null -eq $backup) {
-            throw 'Fuseki reported a successful backup but no backup file was found.'
-        }
-        Write-Host "Fuseki backup completed: $($backup.FullName)"
-        exit 0
-    }
-} while ((Get-Date) -lt $deadline)
-
-throw "Fuseki backup task $taskId did not finish within $TimeoutSeconds seconds."
+& python @arguments
+if ($LASTEXITCODE -ne 0) { throw "RDF recovery stage $Action failed. Inspect its job evidence." }
+# Complete returns pending without sleeping when Fuseki is still working.
+# NiFi owns requeue, retry and scheduling; this wrapper is not a scheduler.

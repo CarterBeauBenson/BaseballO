@@ -1,0 +1,30 @@
+{
+  "artifactType": "baseballo-rdf-recovery-fixture-proof",
+  "status": "passed",
+  "checkedAtUtc": "2026-09-15T00:29:24.435854+00:00",
+  "scope": "synthetic-isolated-fixture",
+  "liveDatasetTouched": false,
+  "offMachineCopy": false,
+  "bindings": 4,
+  "namedGraphs": 2,
+  "defaultGraphPreserved": true,
+  "unicodePreserved": true,
+  "blankNodeLabelPreserved": true,
+  "largeIntegerPreserved": true,
+  "archiveSha256": "032dc962e3958b1905bddb06819131fdb9abbc94b5ebbfa0232625332b534f56",
+  "restore": {
+    "artifactType": "baseballo-rdf-restore-proof",
+    "scope": "isolated-rdf-dataset",
+    "status": "loaded",
+    "startedAtUtc": "2026-09-15T00:29:21.218037+00:00",
+    "jobId": "2808b35a29d6499888294094ced81181",
+    "archive": {
+      "sha256": "032dc962e3958b1905bddb06819131fdb9abbc94b5ebbfa0232625332b534f56",
+      "bytes": 244,
+      "uncompressedBytes": 479
+    },
+    "databasePath": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\recovery-fixtures\\proof-20260914-c\\recovery\\restores\\97af24c5ebe742b0aed9b4e61f76d6c5\\tdb2",
+    "promoted": false,
+    "finishedAtUtc": "2026-09-15T00:29:22.720227+00:00"
+  }
+}
