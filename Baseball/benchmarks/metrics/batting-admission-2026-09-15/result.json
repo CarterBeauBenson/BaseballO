@@ -1,0 +1,52 @@
+{
+  "status": "passed-isolated-developer-proof",
+  "source": "data/raw/samples/2026-08-23/824315.json",
+  "battingAdmission": {
+    "artifactType": "baseballo-batting-admission",
+    "authoritativeRdfSha256": "9b213c7257b876bd416e338cae872fc0349f2cc81800cf02a5a9b641d3065547",
+    "contractVersion": 1,
+    "engine": "jena",
+    "gamePk": "824315",
+    "graph": "https://w3id.org/baseball/graph/game/824315",
+    "graphConforms": true,
+    "implementationSha256": "55c50ec3740e160e55ab4d2c21a5ccac3473f11a6872230a80be94f98fcc316e",
+    "issues": [],
+    "reportSha256": "4a53a3befd9bcdb7273ef3d6e47a83be519927771faee49ef0d2a44ee23be2be",
+    "selectedPopulationComplete": false,
+    "shapeSha256": "fd0bf033301baa2fd580dc7681c75714a38edb21fab0dc0ee0243b6292576f4b",
+    "sourceCensusSha256": "8f52927cc5e44a5c1d97d4ed11a1d9a7c6737dc474fa383f466e0a531f1adf8d",
+    "sourceReconciled": true,
+    "sourceRevision": "20260823_222717",
+    "sourceSha256": "5fcc75d37a20a516d312b3bfb3d5cefb4371ebafa639851ff16173d9b1a6607c",
+    "status": "admitted"
+  },
+  "serving": {
+    "graph": "https://w3id.org/baseball/graph/game/824315",
+    "rdfSha256": "9b213c7257b876bd416e338cae872fc0349f2cc81800cf02a5a9b641d3065547",
+    "querySha256": "85b7737026d5bfdd36e7a79dfab81fc68645cfc2ea466adc33ca6ea0fb94e611",
+    "implementationSha256": "0c23d57638c26b30c14fd7445b1b9a8d49984e4edd2a037c43c54f2a5e7c12a3",
+    "suiteVersion": "2.0.17",
+    "jenaQueryPassed": true,
+    "sqlExactMatch": true,
+    "battingAdmission": {
+      "proofSha256": "7dc9108666c9a1b16c252d60d62a6d5862ba531b780e4a2473ca8bbe6ef5d836",
+      "allPlayerCountsMatchSource": true,
+      "officialPlateAppearances": 77,
+      "rosteredPlayers": 52,
+      "zeroPAPlayers": 32,
+      "sqlExactMatch": true,
+      "selectedScheduleComplete": false,
+      "completePlayerScores": false
+    }
+  },
+  "focusedChecks": {
+    "sourceAdmission": 10,
+    "scheduleBatch": 4,
+    "battingSummary": 12,
+    "metricServing": 11,
+    "dashboard": 4,
+    "node": 37
+  },
+  "livePopulationReleased": false,
+  "corpusPromotion": "not-performed"
+}

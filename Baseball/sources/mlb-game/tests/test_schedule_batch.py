@@ -14,6 +14,29 @@ BATCH_ID = "a" * 32
 
 
 class ScheduleBatchTests(unittest.TestCase):
+    def test_qualification_keeps_nonfinal_games_and_checks_response_totals(self):
+        payload = self.payload()
+        payload['totalGames'] = 3
+        for block in payload['dates']:
+            block['totalGames'] = len(block['games'])
+        with tempfile.TemporaryDirectory() as temporary:
+            state_root = Path(temporary)
+            result = self.run_script(state_root,payload)
+            self.assertEqual(result.returncode,0,result.stderr)
+            path=state_root/'pipeline/control/mlb-game/batches'/f'{BATCH_ID}.json'
+            coverage=json.loads(path.read_bytes())['qualificationCoverage']
+            self.assertTrue(coverage['completeResponse'])
+            rows=coverage['days']['2026-08-31']
+            self.assertEqual(len(rows),2)
+            self.assertEqual({r['gamePk'] for r in rows if not r['final']},{'900002'})
+        payload['totalGames']=2
+        with tempfile.TemporaryDirectory() as temporary:
+            state_root=Path(temporary)
+            result=self.run_script(state_root,payload)
+            self.assertEqual(result.returncode,0,result.stderr)
+            path=state_root/'pipeline/control/mlb-game/batches'/f'{BATCH_ID}.json'
+            self.assertFalse(json.loads(path.read_bytes())['qualificationCoverage']['completeResponse'])
+
     def run_script(self, state_root: Path, payload: dict) -> subprocess.CompletedProcess[str]:
         return subprocess.run(
             [

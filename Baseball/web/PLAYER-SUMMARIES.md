@@ -102,3 +102,17 @@ mean arithmetic, unreduced empty-game counts, SQL round trips, visibility,
 eligibility, and SQL/RDF response projection. Browser verification checks the
 19-card dashboard, selected-period average captions, and count-only Empty
 Games example alongside the existing automatic-load and stale-request checks.
+
+## B1 qualification implementation ? 2026-09-15
+
+Suite 2.0.17 adds the accepted conditional qualification adapter. NiFi now
+reconciles official PA credit and full game rosters in the source SHACL stage,
+retains promotion-bound proof hashes, and captures independent schedule
+coverage. SQL counts remain projections of the canonical RDF query, including
+zero-PA roster members and distinct game/team pairs. Missing games or dates
+cannot lower the minimum. See the [real source/graph/SQL proof](../benchmarks/metrics/batting-admission-2026-09-15/README.md).
+
+This closes B1's implementation gate. It does not yet supply complete Offensive
+Reach scores: [B2's contact continuation decision](../proposals/contact-play-continuation-membership/README.md)
+remains open. Public cards therefore still withhold player rankings rather
+than presenting the qualified counts as metric scores.

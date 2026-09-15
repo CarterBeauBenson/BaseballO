@@ -177,12 +177,30 @@ switch ($Action) {
         $manifest.shaclValidatedAtUtc = [DateTime]::UtcNow.ToString('o')
         $manifest.shaclShapeSha256 = (Get-FileHash -LiteralPath $shapePath -Algorithm SHA256).Hash.ToLowerInvariant()
         $manifest.shaclValidatorSha256 = (Get-FileHash -LiteralPath $validator -Algorithm SHA256).Hash.ToLowerInvariant()
+        # B1 is a separate qualification proof over this exact source/RDF pair.
+        # Withheld batting qualification does not disable the accepted ingester.
+        if ([string]::IsNullOrWhiteSpace($InputJson)) {
+            $InputJson = [string]$manifest.inputPath
+        }
+        $inputPath = Resolve-TransientInput
+        if ((Get-FileHash -LiteralPath $inputPath -Algorithm SHA256).Hash.ToLowerInvariant() -ne [string]$manifest.inputSha256) {
+            throw "B1 source differs from the mapped revision for game $GamePk."
+        }
+        $battingAdmissionPath = Join-Path $stageEvidenceRoot 'batting-admission.json'
+        $battingAdmitter = Join-Path $PSScriptRoot 'batting-admission.py'
+        Invoke-LoggedCommand -FailureMessage "B1 qualification validation could not execute for game $GamePk." -Command {
+            & python $battingAdmitter '--input' $inputPath '--rdf' $rdfPath '--game-pk' $GamePk `
+                '--output' $battingAdmissionPath '--java' (Get-JavaExecutable) `
+                '--jena-classpath' (Join-Path $script:FusekiHome 'fuseki-server.jar')
+        }
         Write-AtomicJsonFile -Path $rmlManifestPath -Value $manifest -Depth 16
         Write-StageResult @{
             rdfPath = $rdfPath
             shaclProfile = 'authoritative'
             conforms = $true
             rmlManifest = $rmlManifestPath
+            battingAdmission = $battingAdmissionPath
+            battingAdmissionSha256 = (Get-FileHash -LiteralPath $battingAdmissionPath -Algorithm SHA256).Hash.ToLowerInvariant()
         }
     }
     'promote' {
@@ -248,6 +266,9 @@ switch ($Action) {
                 queryIndexManifest = $indexManifestPath
                 queryIndexManifestSha256 = (Get-FileHash -LiteralPath $indexManifestPath -Algorithm SHA256).Hash.ToLowerInvariant()
             }
+            $shaclResult = Get-Content -LiteralPath (Join-Path $stageEvidenceRoot 'shacl.json') -Raw | ConvertFrom-Json
+            $promotion.battingAdmission = [string]$shaclResult.battingAdmission
+            $promotion.battingAdmissionSha256 = [string]$shaclResult.battingAdmissionSha256
             Write-AtomicJsonFile -Path $promotionPath -Value $promotion -Depth 16
             Invoke-LoggedCommand -FailureMessage "Could not commit graph-pair transaction for game $GamePk." -Command {
                 & python $transaction '--state-root' $script:StateRoot '--game-pk' $GamePk '--run-id' $transactionRunId '--action' 'commit'

@@ -3,6 +3,11 @@ CREATE TABLE IF NOT EXISTS metric_suite_manifest (
   singleton INTEGER PRIMARY KEY CHECK(singleton=1),
   version TEXT NOT NULL, implementation_sha256 TEXT NOT NULL
 ) STRICT;
+CREATE TABLE IF NOT EXISTS metric_suite_schedule_coverage (
+  official_date TEXT PRIMARY KEY,
+  proof_json TEXT NOT NULL CHECK(json_valid(proof_json)),
+  proof_sha256 TEXT NOT NULL
+) STRICT;
 CREATE TABLE IF NOT EXISTS metric_suite_evidence (
   graph_iri TEXT NOT NULL REFERENCES game_dimension(graph_iri),
   binding_sha256 TEXT NOT NULL, binding_json TEXT NOT NULL CHECK(json_valid(binding_json)),
@@ -21,3 +26,9 @@ CREATE TABLE IF NOT EXISTS metric_suite_result (
 ) STRICT;
 CREATE INDEX IF NOT EXISTS metric_suite_result_by_metric
   ON metric_suite_result(metric_id,graph_iri);
+-- Hash-bound validation provenance, separate from RDF-derived metric facts.
+CREATE TABLE IF NOT EXISTS metric_suite_admission (
+  graph_iri TEXT PRIMARY KEY REFERENCES game_dimension(graph_iri),
+  proof_json TEXT NOT NULL CHECK(json_valid(proof_json)),
+  proof_sha256 TEXT NOT NULL
+) STRICT;

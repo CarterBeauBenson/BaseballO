@@ -7,7 +7,7 @@ PREFIX obo: <http://purl.obolibrary.org/obo/>
 # inferred continuity, inferred causation, or missing-row negative assertions.
 SELECT DISTINCT ?graph ?game ?kind ?entity ?player ?act ?roleType
                 ?playerTeamRole ?team ?teamRole
-                ?paResult ?paResultType ?paResultJudgment ?paResultDecision ?paResultRecord
+                ?paResult ?paResultType ?paResultJudgment ?paResultDecision ?paResultRecord ?recognizedBattingResult
                 ?reviewRecord ?original ?operative ?disposition ?decision
                 ?trajectory ?episode ?trajectoryHalf ?trajectoryInterval
                 ?paHalf ?paInterval ?paStartInstant ?paEndInstant
@@ -33,6 +33,15 @@ WHERE {
         ?paResultDecision a base:BaseballDecisionICE ; cco:ont00001808 ?paResult .
         ?paResultRecord a base:BaseballEventRecord ;
             cco:ont00001808 ?paResult, ?paResultJudgment, ?paResultDecision .
+        # B1 classification over existing result types. This becomes official
+        # qualification ONLY when the separate source/RDF proof is admitted.
+        BIND(?paResultType IN (
+          base:SingleProcess, base:DoubleProcess, base:TripleProcess, base:HomeRunProcess,
+          base:BattedBallOutProcess, base:ForceOutProcess, base:GroundedIntoDoublePlayProcess,
+          base:DoublePlayProcess, base:SacrificeFlyProcess, base:SacrificeBuntProcess,
+          base:StrikeoutProcess, base:WalkProcess, base:HitByPitchProcess,
+          base:FieldersChoiceProcess, base:ErrorProcess, base:InterferenceProcess
+        ) AS ?recognizedBattingResult)
       }
       OPTIONAL { ?entity obo:BFO_0000132 ?paHalf . ?paHalf a base:HalfInning . }
       OPTIONAL {

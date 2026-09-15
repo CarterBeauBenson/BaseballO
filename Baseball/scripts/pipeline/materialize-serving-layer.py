@@ -29,6 +29,10 @@ ROOT = Path(__file__).resolve().parents[2]
 _metric_spec = importlib.util.spec_from_file_location('baseballo_metric_suite', ROOT / 'serving/metric_suite.py')
 _metric_suite = importlib.util.module_from_spec(_metric_spec)
 _metric_spec.loader.exec_module(_metric_suite)
+_batting_spec = importlib.util.spec_from_file_location('baseballo_batting_admission',
+    ROOT / 'sources/mlb-game/pipeline/batting-admission.py')
+_batting_admission = importlib.util.module_from_spec(_batting_spec)
+_batting_spec.loader.exec_module(_batting_admission)
 PROMOTION_INVENTORY_MODULE = ROOT / "scripts" / "pipeline" / "game_promotion_inventory.py"
 _promotion_spec = importlib.util.spec_from_file_location(
     "baseballo_game_promotion_inventory", PROMOTION_INVENTORY_MODULE
@@ -1007,6 +1011,10 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
     connection = sqlite3.connect(database)
     connection.executescript(schema_bytes.decode("utf-8"))
     _metric_suite.initialize_sql(connection)
+    for day, proof in _batting_admission.schedule_coverage(state_root).items():
+        text = _metric_suite._json(proof)
+        connection.execute('INSERT INTO metric_suite_schedule_coverage VALUES (?,?,?)',
+                           (day, text, _metric_suite._hash(text)))
     metric_suite_sha256 = _metric_suite.fingerprint()
     metric_suite_proofs = []
     rows = 0
@@ -1105,7 +1113,8 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
             artifact = promotion_record["authoritativeRdfSha256"]
             metric_evidence = sparql(args.endpoint, _metric_suite.evidence_query([graph]), args.timeout)
             metric_suite_proofs.append(_metric_suite.materialize_game(
-                connection, graph, metric_evidence['results']['bindings']))
+                connection, graph, metric_evidence['results']['bindings'],
+                batting_admission=_batting_admission.promoted_admission(state_root, promotion_record)))
             fingerprint_lines.append(f"{graph}|{official_date}|{game_set}|{artifact}")
             query_started = time.perf_counter()
             try:

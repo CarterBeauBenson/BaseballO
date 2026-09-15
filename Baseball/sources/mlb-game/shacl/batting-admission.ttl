@@ -1,0 +1,44 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# B1 (accepted 2026-09-15). Parameterized by the independently reconciled
+# final source census. This is a qualification profile, not new domain RDF.
+# All matching and cardinality constraints execute in SHACL, before promotion.
+[] a sh:NodeShape ; sh:targetNode <__GAME__> ;
+   sh:sparql [ sh:message "B1 exact unfiltered PA/result/batter membership differs from source" ;
+     sh:select """__PREFIXES__
+SELECT $this WHERE {
+  { __MISSING_PA__ }
+  UNION {
+    ?pa a base:PlateAppearance ; obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 $this .
+    FILTER(?pa NOT IN (__PAS__))
+  }
+  UNION {
+    ?pa a base:PlateAppearance ; obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 $this .
+    ?act a base:BatterAct ; obo:BFO_0000132 ?pa ; obo:BFO_0000055 ?role .
+    ?role a base:BatterRole ; obo:BFO_0000197 ?player .
+    FILTER(CONCAT(STR(?pa), "|", STR(?act), "|", STR(?role), "|", STR(?player)) NOT IN (__BATTERS__))
+  }
+  UNION {
+    ?pa a base:PlateAppearance ; obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 $this .
+    ?result a base:BaseballInstitutionalProcess ; obo:BFO_0000132 ?pa ; a ?type .
+    FILTER(?type IN (__RESULT_TYPES__))
+    FILTER(CONCAT(STR(?pa), "|", STR(?result), "|", STR(?type)) NOT IN (__RESULTS__))
+  }
+}""" ] ;
+   sh:sparql [ sh:message "B1 game-specific player/team exposure differs from the final roster" ;
+     sh:select """__PREFIXES__
+SELECT $this WHERE {
+  { __MISSING_ROSTER__ }
+  UNION {
+    $this obo:BFO_0000055 ?role . ?role a base:PlayerRole .
+    OPTIONAL { ?role obo:BFO_0000197 ?player . }
+    OPTIONAL { ?role cco:ont00001992 ?team . }
+    FILTER(!BOUND(?player) || !BOUND(?team) ||
+      CONCAT(STR(?role), "|", STR(?player), "|", STR(?team)) NOT IN (__ROSTER__))
+  }
+}""" ] .
+
+# Each player, including independently reconciled zero totals, gets a
+# parameterized count constraint. The counted set is exactly the accepted
+# adjudicated result pattern. No count is copied into the authoritative graph.
+# __PLAYER_COUNT_SHAPES__

@@ -14,7 +14,7 @@ import os
 import re
 import sys
 import tempfile
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timezone, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -246,6 +246,37 @@ def completed_games(
     return requests
 
 
+def qualification_coverage(document, observations, start_date, end_date):
+    """B1 transport completeness: retain the full schedule, including nonfinals.
+
+    This is provenance, not a new assertion about games or team membership.
+    A response without independently reconcilable totals cannot certify a day.
+    """
+    blocks = document['dates']
+    count = sum(len(block['games']) for block in blocks)
+    valid = (type(document.get('totalGames')) is int and document['totalGames'] == count
+             and len({b['date'] for b in blocks}) == len(blocks)
+             and all(start_date <= b['date'] <= end_date
+                     and type(b.get('totalGames')) is int
+                     and b['totalGames'] == len(b['games']) for b in blocks))
+    days = {}
+    current = date.fromisoformat(start_date)
+    end = date.fromisoformat(end_date)
+    while current <= end:
+        days[current.isoformat()] = []
+        current += timedelta(days=1)
+    for game_pk, records in observations.items():
+        for row in records:
+            if row['officialDate'] not in days:
+                valid = False
+                continue
+            days[row['officialDate']].append(dict(gamePk=game_pk, gameType=row['gameType'],
+                final=row['abstractState']=='Final' and str(row['detailedState'] or '').casefold()
+                    not in {'postponed','cancelled','suspended'},
+                unplayed=str(row['detailedState'] or '').casefold() in {'postponed','cancelled'}))
+    return dict(contractVersion=1, completeResponse=valid, days=days)
+
+
 def transform(raw: bytes, args: argparse.Namespace) -> dict[str, Any]:
     if not BATCH_ID.fullmatch(args.batch_id):
         raise ValueError("--batch-id must contain 32 lowercase hex digits")
@@ -289,6 +320,7 @@ def transform(raw: bytes, args: argparse.Namespace) -> dict[str, Any]:
         "requestedEndDate": end_date,
         "createdAtUtc": created,
         "scheduleSha256": schedule_sha256,
+        "qualificationCoverage": qualification_coverage(document, observations, start_date, end_date),
         "expectedGameCount": len(expected),
         "expectedGamePks": expected,
         "games": [
@@ -310,6 +342,7 @@ def transform(raw: bytes, args: argparse.Namespace) -> dict[str, Any]:
             "requestedStartDate",
             "requestedEndDate",
             "scheduleSha256",
+            "qualificationCoverage",
             "expectedGameCount",
             "expectedGamePks",
             "games",

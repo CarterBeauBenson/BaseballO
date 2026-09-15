@@ -26,6 +26,54 @@ def summarize(members, scores, people, **kwargs):
 
 
 class BattingPlayerSummaries(unittest.TestCase):
+    def test_b1_proof_and_selected_schedule_are_separate_gates(self):
+        import importlib.util
+        from rdflib import Dataset
+        path=M.ROOT/'sources/mlb-game/tests/test_batting_admission.py'
+        spec=importlib.util.spec_from_file_location('b1_fixture',path)
+        component=importlib.util.module_from_spec(spec);spec.loader.exec_module(component)
+        _,source_graph=component.fixture()
+        data=Dataset()
+        for triple in source_graph:data.graph(G1).add(triple)
+        source=bindings(data,[G1]);rows=M.normalize_bindings(source,[G1])
+        admission=dict(status='admitted',sourceReconciled=True,graphConforms=True)
+        args=dict(graphs=[G1],admissions={G1:admission},date_scope=SCOPE)
+        partial=M.batting_qualification(rows,**args)
+        self.assertTrue(partial['officialPlateAppearanceCreditVerified'])
+        self.assertFalse(partial['teamGameExposureVerified'])
+        self.assertEqual(len(partial['expectedObservations']),1)
+        self.assertEqual([p['plateAppearances'] for p in partial['participation']],[1,0])
+        full=M.batting_qualification(rows,**args,selected_games_complete=True)
+        self.assertTrue(full['teamGameExposureVerified'])
+        self.assertTrue(all(p['completeParticipation'] for p in full['participation']))
+        denied=M.batting_qualification(rows,**{**args,'admissions':{}},selected_games_complete=True)
+        self.assertEqual(denied['participation'],[])
+        with database() as connection:
+            M.materialize_game(connection,G1,source,batting_admission=admission)
+            response=M.query_sql(connection,{'metricId':'offensive-reach'},
+                dict(gameSet='regular_season',startDate='2026-08-01',endDate='2026-08-01'))
+            self.assertTrue(response['battingQualification']['officialPlateAppearanceCreditVerified'])
+            self.assertEqual(response['battingQualification']['officialPlateAppearances'],1)
+            self.assertFalse(response['battingQualification']['teamGameExposureVerified'])
+            self.assertEqual(response['metric']['status'],'unavailable')
+
+    def test_missing_selected_game_or_day_cannot_lower_minimum(self):
+        scope=dict(gameSet='regular_season',startDate='2026-08-01',endDate='2026-08-01')
+        def store(connection, games, complete=True):
+            text=M._json(dict(completeResponse=complete,games=[dict(gamePk=g,gameType='R',
+                                  final=True,unplayed=False) for g in games]))
+            connection.execute('INSERT OR REPLACE INTO metric_suite_schedule_coverage VALUES (?,?,?)',
+                               ('2026-08-01',text,M._hash(text)))
+        with database() as connection:
+            self.assertFalse(M.selected_schedule_coverage(connection,scope,[G1])['complete'])
+            store(connection,['101','102'])
+            self.assertEqual(M.selected_schedule_coverage(connection,scope,[G1])['missingGraphs'],[G2])
+            self.assertTrue(M.selected_schedule_coverage(connection,scope,[G1,G2])['complete'])
+            store(connection,['101','102'],complete=False)
+            self.assertFalse(M.selected_schedule_coverage(connection,scope,[G1,G2])['complete'])
+            store(connection,['101'])
+            self.assertFalse(M.selected_schedule_coverage(connection,{**scope,'endDate':'2026-08-02'},[G1])['complete'])
+
     def test_existing_game_roles_include_nonbatters_without_inferred_membership(self):
         data = fixture(decisions=())
         g = data.graph(G1)

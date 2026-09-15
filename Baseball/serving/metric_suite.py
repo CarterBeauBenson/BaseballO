@@ -9,7 +9,7 @@ logarithms generally have no rational representation.
 from __future__ import annotations
 
 from collections import defaultdict, deque
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone, timedelta
 from fractions import Fraction
 import hashlib
 import json
@@ -23,7 +23,7 @@ from rdflib import Graph, Literal
 
 ROOT = Path(__file__).resolve().parents[1]
 METRICS = ROOT / 'sparql/metrics'
-VERSION = '2.0.16'
+VERSION = '2.0.17'
 
 
 class EvidenceError(ValueError):
@@ -47,6 +47,9 @@ def fingerprint():
              METRICS / 'metric-catalog.json', METRICS / 'gap-register.json',
              METRICS / 'batch-release-policy.json', METRICS / 'trajectory-origin-policy.json']
     paths.extend(sorted(METRICS.glob('*.rq')))
+    paths.extend([ROOT / 'sources/mlb-game/pipeline/batting-admission.py',
+                  ROOT / 'sources/mlb-game/shacl/batting-admission.ttl',
+                  ROOT / 'sources/mlb-game/nifi/prepare-schedule-batch.py'])
     paths.extend(ROOT / e['authoritativeQuery'] for e in [*catalog()['metrics'], *catalog().get('components', [])])
     return hashlib.sha256('\n'.join(
         p.relative_to(ROOT).as_posix() + ':' + hashlib.sha256(p.read_bytes()).hexdigest()
@@ -708,6 +711,92 @@ def batting_participation(rows):
                 teamGameExposureVerified=False)
 
 
+def batting_qualification(rows, *, graphs, admissions, date_scope, selected_games_complete=False):
+    """Project B1-admitted RDF counts; source expectations never enter here.
+
+    Per-game admission and selected-game coverage are independent. A loaded
+    subset cannot supply the denominator of a wider selected-period ranking.
+    """
+    graph_set = set(graphs)
+    denied = sorted(g for g in graph_set if admissions.get(g, {}).get('status') != 'admitted'
+                    or admissions[g].get('sourceReconciled') is not True
+                    or admissions[g].get('graphConforms') is not True)
+    result = dict(officialPlateAppearanceCreditVerified=False, teamGameExposureVerified=False,
+                  selectedGamesComplete=selected_games_complete is True,
+                  admittedGames=len(graph_set)-len(denied), withheldGraphs=denied,
+                  expectedObservations=[], participation=[])
+    if not graph_set or denied:
+        return result
+    people, members = defaultdict(set), {}
+    observed_graphs = set()
+    for row in rows:
+        if row['graph'] not in graph_set:
+            raise EvidenceError('Batting qualification escaped selected graphs')
+        if row['kind'] == 'player_team_game':
+            if not all(row.get(f) for f in ('player','game','team','teamRole')):
+                raise EvidenceError('Admitted batting exposure has incomplete RDF bindings')
+            people[row['player']].add((row['game'], row['team']))
+            observed_graphs.add(row['graph'])
+        if row['kind'] == 'plate_appearance' and row.get('recognizedBattingResult') in ('true','1'):
+            if not all(row.get(f) for f in ('player','act','paResult','paResultType',
+                                           'paResultJudgment','paResultDecision','paResultRecord')):
+                raise EvidenceError('Admitted PA has incomplete adjudicated RDF bindings')
+            key = (row['graph'],row['entity'])
+            value = dict(graph=row['graph'],plateAppearance=row['entity'],player=row['player'])
+            if key in members and members[key] != value:
+                raise EvidenceError('Admitted PA has conflicting player assignment')
+            members[key] = value
+    if observed_graphs != graph_set or any(m['player'] not in people for m in members.values()):
+        raise EvidenceError('Admitted qualification is missing game/player evidence')
+    counts = defaultdict(int)
+    for member in members.values():
+        counts[member['player']] += 1
+    result.update(officialPlateAppearanceCreditVerified=True,
+                  teamGameExposureVerified=selected_games_complete is True,
+                  expectedObservations=sorted(members.values(),key=_json),
+                  participation=[dict(player=player, plateAppearances=counts[player],
+                      completeParticipation=selected_games_complete is True, dateScope=date_scope,
+                      teamGameExposure=[dict(game=game,team=team) for game,team in sorted(exposure)])
+                      for player,exposure in sorted(people.items())])
+    return result
+
+
+def selected_schedule_coverage(connection, scope, graphs):
+    """Compare independent schedule provenance with selected promoted graphs."""
+    game_types = {'regular_season': {'R'}, 'postseason': {'F','D','L','W','C','P'},
+                  'preseason': {'S'}, 'exhibition': {'E'}, 'all_star': {'A'}}
+    allowed = game_types.get(scope['gameSet'])
+    if allowed is None:
+        return dict(complete=False, gaps=['UNSUPPORTED_SCHEDULE_SCOPE'])
+    expected, unresolved, missing_days = set(), set(), []
+    day, end = date.fromisoformat(scope['startDate']), date.fromisoformat(scope['endDate'])
+    while day <= end:
+        row = connection.execute('SELECT proof_json,proof_sha256 FROM metric_suite_schedule_coverage '
+                                 'WHERE official_date=?', (day.isoformat(),)).fetchone()
+        if not row:
+            missing_days.append(day.isoformat())
+        else:
+            text, digest = row
+            if _hash(text) != digest:
+                raise EvidenceError('Selected schedule proof checksum mismatch')
+            proof = json.loads(text)
+            if proof.get('completeResponse') is not True:
+                missing_days.append(day.isoformat())
+            for game in proof.get('games', []):
+                if game['gameType'] not in allowed:
+                    continue
+                graph = 'https://w3id.org/baseball/graph/game/'+game['gamePk']
+                if game['final']:
+                    expected.add(graph)
+                elif not game['unplayed']:
+                    unresolved.add(graph)
+        day += timedelta(days=1)
+    missing, unexpected = sorted(expected-set(graphs)), sorted(set(graphs)-expected)
+    return dict(complete=not (missing_days or missing or unexpected or unresolved),
+                missingDates=missing_days, missingGraphs=missing, unexpectedGraphs=unexpected,
+                unresolvedGraphs=sorted(unresolved), expectedGames=len(expected))
+
+
 def summarize_batting_players(metric_id, scores, *, expected_observations,
                               participation, date_scope, population_complete=False):
     """Exact selected-period PA means over independently admitted memberships.
@@ -1195,10 +1284,15 @@ def read_results(connection, graph, metric_id):
     return results
 
 
-def materialize_game(connection, graph, bindings):
+def materialize_game(connection, graph, bindings, *, batting_admission=None):
     rows = normalize_bindings(bindings, [graph])
     connection.execute('DELETE FROM metric_suite_evidence WHERE graph_iri=?', (graph,))
     connection.execute('DELETE FROM metric_suite_result WHERE graph_iri=?', (graph,))
+    # Caller is the NiFi materializer, which validates promotion-bound proof
+    # provenance. HTTP callers have no path to submit these admission inputs.
+    proof_text = _json(batting_admission or {'status':'withheld'})
+    connection.execute('INSERT OR REPLACE INTO metric_suite_admission VALUES (?,?,?)',
+                       (graph, proof_text, _hash(proof_text)))
     for row in rows:
         text = _json(row)
         connection.execute('INSERT INTO metric_suite_evidence VALUES (?,?,?)', (graph, _hash(text), text))
@@ -1238,6 +1332,7 @@ def query_sql(connection, request, scope):
     graphs = [r[0] for r in connection.execute(
         'SELECT graph_iri FROM game_dimension WHERE game_set=? AND official_date BETWEEN ? AND ? ORDER BY graph_iri', parameters)]
     rows = []
+    admissions = {}
     for graph in graphs:
         for metric_id in metric_ids:
             if len(read_results(connection, graph, metric_id)) != 1:
@@ -1246,8 +1341,24 @@ def query_sql(connection, request, scope):
             if _hash(text) != digest:
                 raise EvidenceError('Metric SQL evidence checksum mismatch')
             rows.append(json.loads(text))
+        record = connection.execute('SELECT proof_json,proof_sha256 FROM metric_suite_admission WHERE graph_iri=?', (graph,)).fetchone()
+        if record:
+            text, digest = record
+            if _hash(text) != digest:
+                raise EvidenceError('Metric SQL admission checksum mismatch')
+            admissions[graph] = json.loads(text)
     # Pool distinct resolved reviews; never average per-game percentages. Full
     # cohort metrics remain unavailable until their admission gaps are closed.
-    return {**selected_results(request, rows, graph_count=len(graphs)),
+    result = selected_results(request, rows, graph_count=len(graphs))
+    schedule = selected_schedule_coverage(connection,scope,graphs)
+    qualification = batting_qualification(rows, graphs=graphs, admissions=admissions,
+        date_scope=scope, selected_games_complete=schedule['complete'])
+    # Admission metadata is separate from scores, retaining exact equality
+    # between the existing RDF calculation and its SQL result.
+    result['battingQualification'] = {
+        **{k:v for k,v in qualification.items() if k not in {'expectedObservations','participation'}},
+        'officialPlateAppearances':len(qualification['expectedObservations']),
+        'rosteredPlayers':len(qualification['participation']), 'schedule':schedule}
+    return {**result,
             'implementationSha256': fingerprint(), 'dateScope': scope,
             'execution': 'materialized-sql', 'graphCount': len(graphs)}
