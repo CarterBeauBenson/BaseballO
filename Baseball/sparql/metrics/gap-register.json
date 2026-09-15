@@ -448,13 +448,14 @@
       "question": "What independently verified source history, supported temporal boundaries and operative outcomes admit the accepted C1/C2 graph and analytical contracts?",
       "direction": "Use the accepted verified complete-history criterion for the same person, compatible endpoints and accounted-for events with no intervening terminal boundary. Replacement begins another person's trajectory. Contributions within the personal trajectory remain separate; adjacency or matching identifiers alone cannot establish continuity.",
       "status": "open",
-      "disposition": "accepted-meaning-evidence-pending",
-      "owner": "ontologist",
-      "implementationBehavior": "calculation uses accepted policy; live output remains unavailable until source-owned graph prerequisites are admitted",
+      "disposition": "partial-source-implementation-complete-population-pending",
+      "owner": "engineering",
+      "implementationBehavior": "C1 source reconciliation, RML/SHACL and bounded complete run results are implemented, including supported walk-off game endpoints for active histories. Other incomplete histories and full selected populations remain withheld.",
       "decisionRecords": [
         "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
         "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json",
-        "archive/design-records/runner-continuity-boundary-projection/review.json"
+        "archive/design-records/runner-continuity-boundary-projection/review.json",
+        "archive/design-records/walkoff-runner-boundary/review.json"
       ],
       "researchAssessment": {
         "assessedOn": "2026-09-08",
@@ -468,14 +469,15 @@
         ],
         "livePrerequisiteClosed": false
       },
-      "continuityClarification": "Both the verified-history standard and C1/C2 graph/projection contracts are explicitly accepted. Source reconciliation remains unproved; no repeated C1/C2 approval is required.",
+      "continuityClarification": "Verified-history and C1/C2 decisions already accepted; real ordinary and walk-off history proofs now pass. Full source/selected-population coverage remains separate work.",
       "continuityDecision": "archive/design-records/metric-suite-gap-answers-2026-09-09/continuity-decision.json",
       "resolvedSubgaps": [
         "Verified complete-history criterion and C1/C2 representation accepted; real source proof remains pending",
         "C1 personal BFO Process and C2 analytical boundary projection accepted; no new object properties"
       ],
       "acceptedGraphDecision": "archive/design-records/runner-continuity-boundary-projection/review.json",
-      "sourceImplementationContract": "sources/mlb-game/review/runner-continuity-source-contract.md"
+      "sourceImplementationContract": "sources/mlb-game/review/runner-continuity-source-contract.md",
+      "implementationEvidence": "benchmarks/metrics/walkoff-runner-boundary-2026-09-15/result.json"
     },
     {
       "id": "SUPPORT_ATTRIBUTION",

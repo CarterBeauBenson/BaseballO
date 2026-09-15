@@ -10,6 +10,7 @@ SELECT DISTINCT ?graph ?game ?kind ?entity ?player ?act ?roleType
                 ?paResult ?paResultType ?paResultJudgment ?paResultDecision ?paResultRecord ?recognizedBattingResult ?batterProgressExcluded
                 ?reviewRecord ?original ?operative ?disposition ?decision
                 ?trajectory ?episode ?trajectoryHalf ?trajectoryInterval
+                ?trajectoryEndInstant ?gameEndTimestamp ?gameEnd
                 ?paHalf ?paInterval ?paStartInstant ?paEndInstant
                 ?paStartTimestamp ?paEndTimestamp ?paStart ?paEnd ?paOutCount ?paOutsBefore
                 ?plateAppearance ?countAwardKind ?countJudgment ?countDecision ?countRule ?record ?priorPitch ?nextPitch
@@ -99,6 +100,12 @@ WHERE {
           obo:BFO_0000057 ?player ; obo:BFO_0000132 ?trajectoryHalf ;
           obo:BFO_0000199 ?trajectoryInterval .
       ?trajectoryHalf a base:HalfInning ; obo:BFO_0000132/obo:BFO_0000132 ?game .
+      OPTIONAL {
+        ?trajectoryInterval obo:BFO_0000224 ?trajectoryEndInstant .
+        ?game obo:BFO_0000199/obo:BFO_0000224 ?trajectoryEndInstant .
+        ?gameEndTimestamp a base:BaseballTimestampICE ; cco:ont00001916 ?trajectoryEndInstant ;
+            cco:ont00001808 ?game ; cco:ont00001767 ?gameEnd .
+      }
       FILTER(REGEX(STR(?trajectory), "^https://baseballontology[.]org/data/game/[0-9]+/runner-trajectory/[^/]+$"))
       BIND(?trajectory AS ?entity)
       BIND("runner_history" AS ?kind)

@@ -65,3 +65,9 @@ ontology_coverage_gaps:
   resolution: Separate existing Batter Acts and persistent roles for each supported uninterrupted person in a PA; assign existing swings and bunts to their actual batter across explicit PH changes.
   decision: archive/design-records/substituted-batter-participation/review.json
   boundary: Official statistical PA attribution remains independently gated; no new class, OP, exact act interval or lineup-only participation is asserted.
+
+- id: walkoff-personal-history-termination
+  status: implemented under accepted question 8
+  resolution: A completely reconciled walk-off half can terminate at the supported official game endpoint without a third out. Still-active C1 intervals reuse that endpoint; scored histories retain counted outcomes.
+  decision: archive/design-records/walkoff-runner-boundary/review.json
+  boundary: Unresolved reviews, substitutions, placed-runner entry and other incomplete histories remain withheld; game end adds no out, advance or erosion.

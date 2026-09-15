@@ -1,0 +1,170 @@
+{
+  "artifactType": "baseballo-metric-mapping-proof",
+  "status": "passed-isolated-developer-proof",
+  "acceptedDecisionCommit": "4c2c899",
+  "decision": "archive/design-records/walkoff-runner-boundary/review.json",
+  "gamePk": "824087",
+  "source": "data/raw/samples/2026-07-20/824087.json",
+  "inputSha256": "249a1df5bb53bc0e5fac2ba16f2204029e7d6325229824523e7fccc85779f237",
+  "sourceRevision": "20260721_021040",
+  "completedAtUtc": "2026-09-15T18:45:46.0309541Z",
+  "hashes": {
+    "mappingSha256": "475f4c47f3b0bb3941dc4380421823ad817aec29e827ff53c3a606a354c62018",
+    "contextBuilderSha256": "db02c71541fbc5ef0db50b4adc191a4eec0ef85246149f6cb195f4716359fdc2",
+    "executionContextSha256": "81d141119e00f683a13f2007692c0f6ed581dd176166543e8f2c4a8e5967e9fa",
+    "shaclShapeSha256": "d9580aab4e38bb592cfe9d548e0e01b7a1262d8dd83c4e7111c6f6828a209a90",
+    "runnerHistoryVerifierSha256": "f9cc49483d4c3f3bbeeb1891c04fad32fbe5e14a9c64eaacda9548de14587b15",
+    "metricMappingVerifierSha256": "f6cfa73b4e5ce0a7f1610fd2b95462b1b8c3ca899f50db5afc431133252b1315",
+    "effectiveMappingSha256": "c6daec5345c4ed974f8bd3bbe7033db5e7c52475f580ea2e475204efc3e46269"
+  },
+  "rdfSha256": "4e3c5876c2430175920e2f9bf093d8becfd5ee90047e27b50258e012858027ed",
+  "rdfTriples": 29175,
+  "sourceCounts": {
+    "playerParticipants": 52,
+    "plateAppearances": 73,
+    "batterActs": 73,
+    "pitches": 267,
+    "battingActs": 117,
+    "contacts": 96,
+    "runnerRecords": 90,
+    "runnerResolutions": 90,
+    "pitchBallControlFailures": 0,
+    "passedBalls": 0,
+    "wildPitches": 0,
+    "uncaughtThirdStrikes": 0
+  },
+  "shaclEngine": "jena",
+  "shaclConforms": true,
+  "shaclViolations": 0,
+  "sourceConsistency": "consistent",
+  "sourceToGraphMembershipVerified": true,
+  "personalHistories": 7,
+  "episodeMemberships": 11,
+  "gameEndedHistories": 2,
+  "walkoffHalf": {
+    "inning": 9,
+    "half": "bottom",
+    "status": "reconciled",
+    "issues": [],
+    "personalHistories": 3,
+    "gameEndingBoundary": {
+      "eventId": "ccc18a37-bb05-3485-94d6-7d80bada52b6",
+      "endTime": "2026-07-21T02:10:40.603Z",
+      "gameEndInstantIri": "https://baseballontology.org/data/game/824087/temporal-instant/end"
+    }
+  },
+  "walkoffHistories": [
+    {
+      "runnerId": "668942",
+      "inning": "9",
+      "half": "bottom",
+      "entryAnchor": "2aa7828e-20e1-3423-bfdf-41059ac941d8",
+      "earliestStartBound": "2026-07-21T02:06:46.716Z",
+      "episodes": [
+        {
+          "atBatIndex": "69",
+          "runnerIndex": "0",
+          "resolutionKind": "reach",
+          "runnerId": "668942"
+        },
+        {
+          "atBatIndex": "70",
+          "runnerIndex": "0",
+          "resolutionKind": "advance",
+          "runnerId": "668942"
+        },
+        {
+          "atBatIndex": "71",
+          "runnerIndex": "1",
+          "resolutionKind": "advance",
+          "runnerId": "668942"
+        },
+        {
+          "atBatIndex": "72",
+          "runnerIndex": "0",
+          "resolutionKind": "score",
+          "runnerId": "668942"
+        }
+      ],
+      "lifetimeKey": "c8e04543a5267c7d6909b6ea09505a76314f05c3073fbf4a520e449733375670",
+      "terminationAnchor": "ccc18a37-bb05-3485-94d6-7d80bada52b6",
+      "terminal": "score",
+      "latestEndBound": "2026-07-21T02:10:40.603Z"
+    },
+    {
+      "runnerId": "686475",
+      "inning": "9",
+      "half": "bottom",
+      "entryAnchor": "0eee4580-7515-36e6-819a-f4eb0894b26f",
+      "earliestStartBound": "2026-07-21T02:07:25.987Z",
+      "episodes": [
+        {
+          "atBatIndex": "70",
+          "runnerIndex": "1",
+          "resolutionKind": "reach",
+          "runnerId": "686475"
+        },
+        {
+          "atBatIndex": "72",
+          "runnerIndex": "1",
+          "resolutionKind": "advance",
+          "runnerId": "686475"
+        }
+      ],
+      "lifetimeKey": "36d727a8b0bb081a2971449b4f796511ab6241d156b45ecb9ea21e142e4a1058",
+      "terminationAnchor": "ccc18a37-bb05-3485-94d6-7d80bada52b6",
+      "terminal": "game-ended",
+      "latestEndBound": "2026-07-21T02:10:40.603Z",
+      "gameEndInstantIri": "https://baseballontology.org/data/game/824087/temporal-instant/end"
+    },
+    {
+      "runnerId": "679845",
+      "inning": "9",
+      "half": "bottom",
+      "entryAnchor": "ccc18a37-bb05-3485-94d6-7d80bada52b6",
+      "earliestStartBound": "2026-07-21T02:10:33.306Z",
+      "episodes": [
+        {
+          "atBatIndex": "72",
+          "runnerIndex": "2",
+          "resolutionKind": "reach",
+          "runnerId": "679845"
+        }
+      ],
+      "lifetimeKey": "772e458bf0d3c4ce8bdf2078a467e4a5997e420a692f77661c9c07bac66c34c5",
+      "terminationAnchor": "ccc18a37-bb05-3485-94d6-7d80bada52b6",
+      "terminal": "game-ended",
+      "latestEndBound": "2026-07-21T02:10:40.603Z",
+      "gameEndInstantIri": "https://baseballontology.org/data/game/824087/temporal-instant/end"
+    }
+  ],
+  "boundedRunConstructionDepth": {
+    "runner": "https://baseballontology.org/data/player/668942",
+    "numerator": "4",
+    "denominator": "1",
+    "segments": [
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        4
+      ]
+    ],
+    "scope": "one complete scoring history, not a player population"
+  },
+  "focusedTestsPassed": 56,
+  "realHalfRmlShaclQuerySqlProof": true,
+  "graphPromoted": false,
+  "metricPopulationAdmitted": false,
+  "semanticRatificationChanged": false
+}

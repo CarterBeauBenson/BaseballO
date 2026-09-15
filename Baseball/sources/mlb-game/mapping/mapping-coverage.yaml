@@ -3,7 +3,7 @@ source_module: mlb-game
 source_file_name_expected: game.json
 source_mutation: none
 intermediary_transformation: structural-projection-and-explicit-derived-gates
-mapping_version: 0.6.2
+mapping_version: 0.6.3
 completed_game_precondition: true
 
 execution_context:
@@ -12,6 +12,7 @@ execution_context:
   output: game-context.json in the isolated RML work directory
   reserved_key: _baseballO
   includes:
+  - accepted Q8 reconciled walk-off C1 histories and existing game endpoint for still-active runners
   - pitch atBatIndex
   - pitch actual batterId, enclosing batterActIri, and pitcherId
   - accepted Q4 per-person batting participations from explicit reconciled PH changes

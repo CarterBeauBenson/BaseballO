@@ -23,7 +23,7 @@ from rdflib import Graph, Literal
 
 ROOT = Path(__file__).resolve().parents[1]
 METRICS = ROOT / 'sparql/metrics'
-VERSION = '2.0.20'
+VERSION = '2.0.21'
 
 
 class EvidenceError(ValueError):
@@ -674,10 +674,11 @@ def normalize_bindings(bindings, graphs):
                       'originRecord', 'safeJudgment', 'safeDecision', 'trajectory',
                       'trajectoryHalf', 'trajectoryInterval', 'paHalf', 'paInterval',
                       'paStartInstant', 'paEndInstant', 'paStartTimestamp', 'paEndTimestamp', 'paOutCount',
-                      'countJudgment', 'countDecision', 'countRule', 'priorPitch', 'nextPitch'):
+                      'countJudgment', 'countDecision', 'countRule', 'priorPitch', 'nextPitch',
+                      'trajectoryEndInstant', 'gameEndTimestamp'):
             if field in binding and binding[field].get('type') != 'uri':
                 raise EvidenceError('Evidence identity must be an IRI: ' + field)
-        for field in ('paStart', 'paEnd'):
+        for field in ('paStart', 'paEnd', 'gameEnd'):
             if field in binding and (binding[field].get('type') != 'literal'
                     or binding[field].get('datatype') != 'http://www.w3.org/2001/XMLSchema#dateTime'):
                 raise EvidenceError('PA boundary requires an explicit dateTime value: ' + field)

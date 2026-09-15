@@ -47,6 +47,16 @@ Official statistical PA assignment remains independently gated; multiple
 actual Batter Acts must not become multiple official PAs or automatic player
 qualification. The first-pass table above preserves the earlier status.
 
+## Subsequent question 8 implementation
+
+The scoped record was pushed as `4c2c899` before executable changes. Completely
+reconciled walk-off halves can now end at the supported game boundary without
+a third out. Two active histories in game 824087 reuse the existing game
+endpoint, while the scorer's complete history yields Run Construction Depth 4
+through canonical SPARQL and SQL. The [bounded proof](../../../benchmarks/metrics/walkoff-runner-boundary-2026-09-15/README.md)
+passes real half- and whole-game RML/SHACL. Other history gaps and full player
+populations remain separate; this is not a completed leaderboard release.
+
 ## Non-pitch source fixtures for the accepted next mapping
 
 These are existing checked-in source fields, not a missing external source or

@@ -1,6 +1,6 @@
 baseball_iri_policy:
   title: "Baseball Knowledge Graph IRI Policy"
-  version: "1.7"
+  version: "1.8"
   status: "canonical"
   effective_until: "Explicitly revised by the project owner"
 
@@ -765,3 +765,9 @@ baseball_iri_policy:
 # person stints are withheld by this bounded source projection, never merged.
 # Each uses player/{playerId}/role/batter, not a new role per appearance.
 # Statistical PA assignment is independently reconciled, not an act count.
+
+# Q8 walk-off boundary, accepted 2026-09-15:
+# archive/design-records/walkoff-runner-boundary/review.json
+# A still-active C1 history uses the existing terminal event anchor in its
+# lifetime key and the existing game/{gamePk}/temporal-instant/end as its
+# interval's last instant. This creates no new out, score, or runner advance.

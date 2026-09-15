@@ -209,6 +209,41 @@ def runner_episode_evidence(play: dict, at_bat_index: str) -> dict[str, list[dic
     return products
 
 
+def supported_walkoff_boundary(document: dict, last_play: dict) -> dict | None:
+    """Q8 source boundary only; the caller still reconciles the entire half."""
+    plays = document['liveData']['plays']['allPlays']
+    about, result = last_play['about'], last_play['result']
+    linescore = document['liveData']['linescore']
+    scheduled = linescore.get('scheduledInnings')
+    status = document['gameData'].get('status', {})
+    if (last_play is not plays[-1] or len(plays) < 2 or about.get('halfInning') != 'bottom'
+            or type(scheduled) is not int or scheduled < 1 or about.get('inning', 0) < scheduled
+            or status.get('abstractGameState') != 'Final' or status.get('codedGameState') != 'F'
+            or about.get('isScoringPlay') is not True or last_play.get('count', {}).get('outs') not in (0, 1, 2)):
+        return None
+    prior = plays[-2]['result']
+    scores = [result.get('awayScore'), result.get('homeScore'), prior.get('awayScore'), prior.get('homeScore')]
+    if any(type(n) is not int or n < 0 for n in scores):
+        return None
+    away, home, before_away, before_home = scores
+    if (home <= away or before_home > before_away or away != before_away
+            or home != linescore.get('teams', {}).get('home', {}).get('runs')
+            or away != linescore.get('teams', {}).get('away', {}).get('runs')):
+        return None
+    scores = [r for r in last_play['runners'] if r['details'].get('isScoringEvent') is True]
+    events = last_play['playEvents']
+    if not events or not scores or home - before_home != len(scores):
+        return None
+    terminal = events[-1]
+    if (any(r['details']['playIndex'] != terminal['index'] or r['movement'].get('end') != 'score'
+            or r['movement'].get('isOut') is not False for r in scores)
+            or not SAFE_IRI_SEGMENT.fullmatch(str(terminal.get('playId') or ''))
+            or terminal.get('endTime') != about.get('endTime')):
+        return None
+    return dict(eventId=terminal['playId'], endTime=about['endTime'],
+                gameEndInstantIri=f"https://baseballontology.org/data/game/{document['gamePk']}/temporal-instant/end")
+
+
 def personal_runner_histories(raw: bytes) -> dict:
     """E1/C1 source reconciliation, independent of mapped-row counts.
 
@@ -265,6 +300,8 @@ def personal_runner_histories(raw: bytes) -> dict:
             key = hashlib.sha256(json.dumps(identity, separators=(',', ':')).encode()).hexdigest()
             completed = dict(item, lifetimeKey=key, terminationAnchor=anchor,
                              terminal=terminal, latestEndBound=bound)
+            if terminal == 'game-ended':
+                completed['gameEndInstantIri'] = f"https://baseballontology.org/data/game/{document['gamePk']}/temporal-instant/end"
             histories.append(completed)
             memberships.extend(dict(lifetimeKey=key, **episode) for episode in item['episodes'])
 
@@ -371,20 +408,26 @@ def personal_runner_histories(raw: bytes) -> dict:
                     block('POST_BASE_RECONCILIATION_FAILED', pa)
             if outs == 3 and play is not plays[-1]:
                 block('EVENT_AFTER_HALF_END', pa)
-        if outs != 3:
-            # Walkoffs, shortened games and incomplete halves require their
-            # supported game-ending boundary; never clear those runners here.
-            block('UNSUPPORTED_HALF_TERMINATION')
         last_play = plays[-1]
-        terminal_events = [event_by_index[r['details']['playIndex']] for r in last_play['runners']
-                           if r['movement'].get('isOut') is True and r['movement'].get('outNumber') == 3]
-        if len(terminal_events) != 1 or not terminal_events[0].get('playId'):
-            block('UNSUPPORTED_THIRD_OUT_ANCHOR')
-        elif not problems:
-            for item in active.values():
-                finish(item, terminal_events[0]['playId'], 'stranded', last_play['about']['endTime'])
+        boundary = supported_walkoff_boundary(document, last_play) if outs != 3 else None
+        if boundary:
+            if not problems:
+                for item in active.values():
+                    finish(item, boundary['eventId'], 'game-ended', boundary['endTime'])
+        else:
+            if outs != 3:
+                block('UNSUPPORTED_HALF_TERMINATION')
+            terminal_events = [event_by_index[r['details']['playIndex']] for r in last_play['runners']
+                               if r['movement'].get('isOut') is True and r['movement'].get('outNumber') == 3]
+            if len(terminal_events) != 1 or not terminal_events[0].get('playId'):
+                block('UNSUPPORTED_THIRD_OUT_ANCHOR')
+            elif not problems:
+                for item in active.values():
+                    finish(item, terminal_events[0]['playId'], 'stranded', last_play['about']['endTime'])
         result['halves'].append(dict(inning=inning, half=half, status='withheld' if problems else 'reconciled',
                                     issues=problems, personalHistories=0 if problems else len(histories)))
+        if boundary and not problems:
+            result['halves'][-1]['gameEndingBoundary'] = boundary
         if not problems:
             result['histories'].extend({k: v for k, v in h.items() if k != 'base'} for h in histories)
             result['episodeMembership'].extend(memberships)

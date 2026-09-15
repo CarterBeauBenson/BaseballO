@@ -814,11 +814,12 @@
     {
       "id": "64-personal-runner-process",
       "title": "Source-reconciled personal runner lifetime",
-      "summary": "The accepted C1 BFO Process contains the complete supported episode membership for one runner in one half inning, occupies its own interval and inherits no agency or role realization.",
+      "summary": "The accepted C1 BFO Process contains the complete supported episode membership for one runner in one half inning, occupies its own interval and inherits no agency or role realization. Still-active histories in a reconciled walk-off end at the existing game endpoint without a fabricated out or advance.",
       "maps": [
         "PersonalRunnerProcessMap",
         "PersonalRunnerIntervalMap",
-        "PersonalRunnerMembershipMap"
+        "PersonalRunnerMembershipMap",
+        "PersonalRunnerGameEndIntervalMap"
       ]
     },
     {

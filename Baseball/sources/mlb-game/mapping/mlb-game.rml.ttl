@@ -3541,6 +3541,15 @@
   rml:logicalSource <#PersonalRunnerSource> ;
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/runner-trajectory/{lifetimeKey}/temporal-interval" ; rr:termType rr:IRI ; rr:class obo:BFO_0000038 ] .
 
+<#PersonalRunnerGameEndSource> a rml:LogicalSource ;
+  rml:source "game-context.json" ; rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$._baseballO.runnerHistoryReconciliation.histories[?(@.terminal == 'game-ended')]" .
+
+<#PersonalRunnerGameEndIntervalMap> a rr:TriplesMap ;
+  rml:logicalSource <#PersonalRunnerGameEndSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/runner-trajectory/{lifetimeKey}/temporal-interval" ; rr:termType rr:IRI ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000224 ; rr:objectMap [ rml:reference "gameEndInstantIri" ; rr:termType rr:IRI ] ] .
+
 <#PersonalRunnerMembershipMap> a rr:TriplesMap ;
   rml:logicalSource <#PersonalRunnerMembershipSource> ;
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/runner-trajectory/{lifetimeKey}" ; rr:termType rr:IRI ] ;

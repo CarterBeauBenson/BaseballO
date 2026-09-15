@@ -27,8 +27,15 @@ def verify(document, graph):
     actual_wholes = {str(s) for s in graph.subjects() if str(s).startswith(prefix) and '/' not in str(s)[len(prefix):]}
     if expected_wholes != actual_wholes:
         raise ValueError('C1 whole serialization differs from source-selected inventory')
+    expected_ends = {(prefix + row['lifetimeKey'] + '/temporal-interval', row['gameEndInstantIri'])
+                     for row in evidence['histories'] if row.get('gameEndInstantIri')}
+    actual_ends = {(str(s), str(o)) for s, o in graph.subject_objects(BFO.BFO_0000224)
+                   if str(s).startswith(prefix) and str(s).endswith('/temporal-interval')}
+    if expected_ends != actual_ends:
+        raise ValueError('C1 game-ending boundary serialization differs from source-selected inventory')
     return dict(gamePk=game, inputSha256=evidence['inputSha256'],
                 personalHistories=len(expected_wholes), episodeMemberships=len(expected),
+                gameEndedHistories=len(expected_ends),
                 sourceToGraphMembershipVerified=True, semanticConformance='requires-owning-source-SHACL',
                 populationComplete=False)
 

@@ -1465,6 +1465,34 @@ shape:PersonalRunnerProcessShape a sh:NodeShape ;
     sh:property [ sh:path bfo:BFO_0000132 ; sh:qualifiedValueShape [ sh:class base:PlateAppearance ] ; sh:qualifiedMaxCount 0 ] ;
     sh:property [ sh:path bfo:BFO_0000199 ; sh:minCount 1 ; sh:maxCount 1 ; sh:class bfo:BFO_0000038 ] ;
     sh:property [ sh:path bfo:BFO_0000117 ; sh:qualifiedValueShape [ sh:class base:RunnerResolutionEpisode ] ; sh:qualifiedMinCount 1 ] ;
+    sh:property [ sh:path bfo:BFO_0000199 ; sh:node [
+        sh:property [ sh:path bfo:BFO_0000224 ; sh:maxCount 1 ; sh:class base:BaseballEventTemporalInstant ]
+    ] ] ;
+    sh:sparql [
+        sh:message "A game-ended personal history must use its own game's supported endpoint and cannot also contain a counted Out or Run."@en ;
+        sh:select """
+          PREFIX base: <https://baseballontology.org/>
+          PREFIX bfo: <http://purl.obolibrary.org/obo/>
+          PREFIX cco: <https://www.commoncoreontologies.org/>
+          PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+          SELECT $this WHERE {
+            $this bfo:BFO_0000199 ?interval . ?interval bfo:BFO_0000224 ?end .
+            FILTER NOT EXISTS {
+              $this bfo:BFO_0000132 ?half . ?half a base:HalfInning ; bfo:BFO_0000132 ?inning .
+              ?inning bfo:BFO_0000132 ?game . ?game a base:BaseballGame ; bfo:BFO_0000199 ?gameInterval .
+              FILTER (STR(?game) = STRBEFORE(STR($this), "/runner-trajectory/"))
+              ?gameInterval a base:BaseballGameTemporalInterval ; bfo:BFO_0000224 ?end .
+              ?end a base:BaseballEventTemporalInstant .
+              ?timestamp a base:BaseballTimestampICE ; cco:ont00001916 ?end ; cco:ont00001808 ?game ; cco:ont00001767 ?value .
+              FILTER (DATATYPE(?value) = xsd:dateTime)
+              FILTER NOT EXISTS {
+                $this bfo:BFO_0000117 ?episode . ?episode a base:RunnerResolutionEpisode ; bfo:BFO_0000117 ?outcome .
+                ?outcome a ?type . FILTER (?type IN (base:OutProcess, base:RunProcess))
+              }
+            }
+          }
+        """
+    ] ;
     sh:sparql [
         sh:message "A personal runner Process must have one focal runner across its episodes, with all episodes in its Half Inning. It must not inherit agency or realization from its parts."@en ;
         sh:select """
