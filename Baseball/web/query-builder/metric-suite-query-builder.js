@@ -1,6 +1,14 @@
 import { readFile } from 'node:fs/promises';
 
 const root = new URL('../../sparql/metrics/', import.meta.url);
+const participationPolicies = JSON.parse(await readFile(new URL('../leaderboard-qualification.json', import.meta.url), 'utf8'));
+const REVIEW_MECHANISMS = [['traditional-replay', 'Traditional replay'], ['ball-strike-challenge', 'Ball/strike challenges']];
+
+export function automaticMinimumObservations(policyId, teamGames) {
+  const policy = participationPolicies.policies[policyId];
+  if (!policy || !Number.isSafeInteger(teamGames) || teamGames < 1) throw new RangeError('A defined policy and complete team-game exposure are required.');
+  return Math.max(policy.floor, Number((BigInt(teamGames) + BigInt(policy.teamGamesDivisor) - 1n) / BigInt(policy.teamGamesDivisor)));
+}
 
 const BATTING_LEADERBOARDS = new Set(['tfs', 'paq-2', 'paq-a', 'offensive-reach',
   'hidden-help-rate', 'rally-kill-rate', 'rally-kill-severity', 'opportunity-erosion',
@@ -35,16 +43,36 @@ export function publicMetricResult(result) {
     {...result,status:'unavailable',value:null,gaps:[...(result.gaps ?? []),'OFFENSIVE_ELIGIBILITY']};
 }
 
-export function playerLeaderboard(result, metric, dateScope) {
+export function playerLeaderboard(result, metric, dateScope, mechanism = null) {
+  if (['adjudication-volatility', 'review-dependence-rate'].includes(metric.id) && mechanism === null) {
+    // Distinct denominator populations and qualifications; never pool reviews.
+    if (result.playerResults !== undefined && (!Array.isArray(result.playerResults) ||
+        result.playerResults.some(row => !REVIEW_MECHANISMS.some(([id]) => row?.mechanism === id))))
+      return {status:'unavailable', rows:[], gaps:['REVIEW_MECHANISM_UNKNOWN'], message:'Review mechanisms must be established before ranking players.'};
+    const groups = REVIEW_MECHANISMS.map(([id, label]) => ({mechanism:id, label,
+      ...playerLeaderboard(result.byMechanism?.[id] ?? {...result,
+        playerResults:result.playerResults?.filter(row => row.mechanism === id)}, metric, dateScope, id)}));
+    const rows = groups.flatMap(group => group.rows.map(row => ({...row, mechanism:group.mechanism, mechanismLabel:group.label})));
+    return {status:rows.length ? 'available' : groups.every(group => group.status === 'empty') ? 'empty' : 'unavailable',
+      rows, groups, summaryKind:'mean', unit:metric.unit, order:'Highest scores first',
+      qualification:{status:'defined', rule:'Each review mechanism has its own population and automatic minimum.'},
+      gaps:[...new Set(groups.flatMap(group => group.gaps ?? []))],
+      message:rows.length ? `${rows.length} qualified player entries across separate review mechanisms` : 'No qualified review leaderboard is available for this period.'};
+  }
   const batting = BATTING_LEADERBOARDS.has(metric.id);
-  const qualification = batting ? { status: 'defined', kind: 'plate_appearances',
-    rule: '3.1 PA per team game in the selected range, rounded to the nearest whole PA.' } :
-    { status: 'pending', kind: 'role_participation', rule: 'A role-specific participation minimum is still required.' };
+  const policyId = metric.id === 'review-dependence-rate' ?
+    (mechanism === 'traditional-replay' ? 'traditional-review-dependence' : 'ball-strike-review-dependence') : participationPolicies.metrics[metric.id];
+  const policy = participationPolicies.policies[policyId];
+  const paRule = '3.1 PA per team game in the selected range, rounded to the nearest whole PA.';
+  const participationRule = policy ? `At least ${policy.floor} ${policy.unit}, or one per ${policy.teamGamesDivisor} team game${policy.teamGamesDivisor === 1 ? '' : 's'} in the selected range, whichever is greater; round upward.` : '';
+  const qualification = {status:batting || policy ? 'defined' : 'pending',
+    kind:batting ? 'plate_appearances' : 'role_participation', policyId:policyId ?? 'batting',
+    rule:[batting ? paRule : '', participationRule].filter(Boolean).join(' ')};
   const board = { status: 'unavailable', rows: [], qualification,
     summaryKind: metric.id === 'empty-game-rate' ? 'count' : 'mean',
     unit: metric.id === 'empty-game-rate' ? 'games' : metric.unit,
     order: metric.higherIs === 'worse' ? 'Lowest scores first' : 'Highest scores first' };
-  if (!batting) return { ...board, gaps: ['ROLE_QUALIFICATION'],
+  if (!batting && !policy) return { ...board, gaps: ['ROLE_QUALIFICATION'],
     message: 'Player rankings await a defined participation minimum and complete player scores.' };
   // Only the trusted serving adapter can supply these aggregates. Award
   // consequences, individual runs and population-only scores are insufficient.
@@ -58,15 +86,20 @@ export function playerLeaderboard(result, metric, dateScope) {
       typeof dateScope[key] === 'string' && row.dateScope?.[key] === dateScope[key]);
     if (!sameScope || row.metricId !== metric.id || row.status !== 'available' || row.completeParticipation !== true ||
         !/^https:\/\/baseballontology\.org\/data\/player\/\d+$/u.test(row.player ?? '') || seen.has(row.player) ||
-        !Number.isSafeInteger(row.plateAppearances) || row.plateAppearances < 0 ||
+        (batting && (!Number.isSafeInteger(row.plateAppearances) || row.plateAppearances < 0)) ||
+        (mechanism && row.mechanism !== mechanism) ||
         !Number.isSafeInteger(row.teamGames) || row.teamGames < 1 ||
         !value) return { ...board, gaps: ['PLAYER_SCORE_COVERAGE'],
       message: 'Player scores or participation evidence are incomplete for this period.' };
     seen.add(row.player);
-    const minimumPA = automaticMinimumPA(row.teamGames);
-    if (row.plateAppearances < minimumPA) { belowMinimum++; continue; }
+    const minimumPA = batting ? automaticMinimumPA(row.teamGames) : null;
+    const minimumObservations = policy ? automaticMinimumObservations(policyId, row.teamGames) : null;
+    if ((batting && row.plateAppearances < minimumPA) || (policy && row.aggregate.count < minimumObservations)) { belowMinimum++; continue; }
     rows.push({ player: row.player, name: row.playerLabel?.trim() || `Player #${row.player.split('/').at(-1)}`,
-      value, observationCount: row.aggregate.count, plateAppearances: row.plateAppearances, teamGames: row.teamGames, minimumPA });
+      value, observationCount: row.aggregate.count, plateAppearances: row.plateAppearances, teamGames: row.teamGames, minimumPA,
+      minimumObservations, observationUnit:policy?.unit,
+      qualificationLabel:[batting ? `${row.plateAppearances} PA · minimum ${minimumPA} PA` : '',
+        policy ? `${row.aggregate.count} ${policy.unit} · minimum ${minimumObservations}` : ''].filter(Boolean).join('; ') });
   }
   const compare = (a, b) => {
     const difference = BigInt(a.value.numerator) * BigInt(b.value.denominator) - BigInt(b.value.numerator) * BigInt(a.value.denominator);
@@ -75,7 +108,7 @@ export function playerLeaderboard(result, metric, dateScope) {
   rows.sort((a, b) => (metric.higherIs === 'worse' ? 1 : -1) * compare(a, b) || a.player.localeCompare(b.player));
   rows.forEach((row, index) => { row.rank = index && compare(row, rows[index - 1]) === 0 ? rows[index - 1].rank : index + 1; });
   return { ...board, status: rows.length ? 'available' : 'empty', rows, belowMinimum, gaps: [],
-    message: rows.length ? `${rows.length} qualified players` : 'No players meet the automatic PA minimum for this period.' };
+    message: rows.length ? `${rows.length} qualified players` : 'No players meet the automatic participation minimum for this period.' };
 }
 
 export function metricDisplayTargets(consequences = []) {

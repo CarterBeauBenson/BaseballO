@@ -1,0 +1,18 @@
+{
+  "gamePk": "824315",
+  "atBatIndex": 6,
+  "scope": "bounded B2 source/RDF proof; no live player population",
+  "sourceSha256": "5fcc75d37a20a516d312b3bfb3d5cefb4371ebafa639851ff16173d9b1a6607c",
+  "rdfSha256": "a18335bb0306894d367fcec2e9ff7e6a85e7931eeb9c53d243840d79ed949952",
+  "triples": 38422,
+  "addedParthoodTriples": 3,
+  "authoritativeShaclConforms": true,
+  "contactResolutions": 6,
+  "personalHistoriesInContact": 3,
+  "positiveSurvivingHistories": [
+    "https://baseballontology.org/data/game/824315/runner-trajectory/31b30a8127588ef75706b4189429e85fb13e9f5937d25965774cfdad912615d8",
+    "https://baseballontology.org/data/game/824315/runner-trajectory/a297a4d8e264fb66ef1858b0751261539aab10127f5d6ff458af9032a724ebef"
+  ],
+  "offensiveReach": 2,
+  "playerPopulationComplete": false
+}

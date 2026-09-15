@@ -187,6 +187,13 @@ switch ($Action) {
             throw "B1 source differs from the mapped revision for game $GamePk."
         }
         $battingAdmissionPath = Join-Path $stageEvidenceRoot 'batting-admission.json'
+        $contactAdmissionPath = Join-Path $stageEvidenceRoot 'contact-continuation-admission.json'
+        $contactAdmitter = Join-Path $PSScriptRoot 'contact-continuation-admission.py'
+        Invoke-LoggedCommand -FailureMessage "B2 contact continuation SHACL failed for game $GamePk." -Command {
+            & python $contactAdmitter '--input' $inputPath '--rdf' $rdfPath '--game-pk' $GamePk `
+                '--output' $contactAdmissionPath '--java' (Get-JavaExecutable) `
+                '--jena-classpath' (Join-Path $script:FusekiHome 'fuseki-server.jar')
+        }
         $battingAdmitter = Join-Path $PSScriptRoot 'batting-admission.py'
         Invoke-LoggedCommand -FailureMessage "B1 qualification validation could not execute for game $GamePk." -Command {
             & python $battingAdmitter '--input' $inputPath '--rdf' $rdfPath '--game-pk' $GamePk `
@@ -200,6 +207,8 @@ switch ($Action) {
             conforms = $true
             rmlManifest = $rmlManifestPath
             battingAdmission = $battingAdmissionPath
+            contactContinuationAdmission = $contactAdmissionPath
+            contactContinuationAdmissionSha256 = (Get-FileHash -LiteralPath $contactAdmissionPath -Algorithm SHA256).Hash.ToLowerInvariant()
             battingAdmissionSha256 = (Get-FileHash -LiteralPath $battingAdmissionPath -Algorithm SHA256).Hash.ToLowerInvariant()
         }
     }
@@ -269,6 +278,8 @@ switch ($Action) {
             $shaclResult = Get-Content -LiteralPath (Join-Path $stageEvidenceRoot 'shacl.json') -Raw | ConvertFrom-Json
             $promotion.battingAdmission = [string]$shaclResult.battingAdmission
             $promotion.battingAdmissionSha256 = [string]$shaclResult.battingAdmissionSha256
+            $promotion.contactContinuationAdmission = [string]$shaclResult.contactContinuationAdmission
+            $promotion.contactContinuationAdmissionSha256 = [string]$shaclResult.contactContinuationAdmissionSha256
             Write-AtomicJsonFile -Path $promotionPath -Value $promotion -Depth 16
             Invoke-LoggedCommand -FailureMessage "Could not commit graph-pair transaction for game $GamePk." -Command {
                 & python $transaction '--state-root' $script:StateRoot '--game-pk' $GamePk '--run-id' $transactionRunId '--action' 'commit'

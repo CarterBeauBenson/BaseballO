@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { createBaseballServer } from '../server.mjs';
-import { metricCatalog, validateMetricRequest, validateDashboardRequest, compileMetricEvidenceQuery, metricDisplayTargets, compileMetricDisplayQuery, normalizeMetricDisplayLabels, automaticMinimumPA, playerLeaderboard, playerSummaryValue, publicMetricResult } from '../query-builder/metric-suite-query-builder.js';
+import { metricCatalog, validateMetricRequest, validateDashboardRequest, compileMetricEvidenceQuery, metricDisplayTargets, compileMetricDisplayQuery, normalizeMetricDisplayLabels, automaticMinimumPA, automaticMinimumObservations, playerLeaderboard, playerSummaryValue, publicMetricResult } from '../query-builder/metric-suite-query-builder.js';
 import { displayFraction, resultHeadline, movementEvidenceLabel, consequencePresentation, formatMetricValue, resultPresentation, resultDateLabel, selectionFromUrl, displayPlayer, exampleAnswer, dashboardSummary, matchesMetric, metricRanking, dashboardLoadStatus, unresolvedRunRows } from '../metrics.js';
 
 test('unresolved runs keep their identities and explain the actual evidence problem', () => {
@@ -114,10 +114,38 @@ test('incomplete scores, mismatched dates, duplicate players and partial plays c
 });
 
 test('non-batting leaderboards do not silently apply a PA minimum', () => {
-  const board = playerLeaderboard({ playerPopulationComplete: true, playerResults: [playerScore(1, 99)] },
+  const board = playerLeaderboard({ playerPopulationComplete: true, playerResults: [playerScore(1, 99,
+    {metricId:'defender-breadth',plateAppearances:0,aggregate:{kind:'mean',count:3,sum:{numerator:'9',denominator:'1'}}})] },
     { id: 'defender-breadth', higherIs: 'descriptive' }, leaderboardScope);
   assert.equal(board.qualification.kind, 'role_participation');
-  assert.equal(board.qualification.status, 'pending'); assert.deepEqual(board.rows, []);
+  assert.equal(board.qualification.status, 'defined'); assert.equal(board.rows.length, 1);
+  assert.equal(board.rows[0].minimumPA, null); assert.equal(board.rows[0].minimumObservations, 3);
+  assert.match(metricRanking({metric:{leaderboard:board}}, {id:'defender-breadth'}).rows[0].context, /3 defensive resolutions/);
+});
+
+test('observation minima reject tiny samples and use exact selected team exposure', () => {
+  assert.deepEqual([1,7,162].map(g=>automaticMinimumObservations('run-construction',g)),[2,2,33]);
+  assert.deepEqual([1,7,162].map(g=>automaticMinimumObservations('review-overturn',g)),[3,3,5]);
+  assert.deepEqual([1,7,162].map(g=>automaticMinimumObservations('defensive-resolution',g)),[3,3,17]);
+  for (const n of [0,-1,1.5,NaN]) assert.throws(()=>automaticMinimumObservations('run-construction',n));
+  const metric={id:'recovery-quality',higherIs:'better'};
+  const tiny=playerScore(1,99,{metricId:metric.id,aggregate:{kind:'mean',count:2,sum:{numerator:'198',denominator:'1'}}});
+  assert.equal(playerLeaderboard({playerPopulationComplete:true,playerResults:[tiny]},metric,leaderboardScope).status,'empty');
+  const noPA=playerScore(1,99,{metricId:metric.id,plateAppearances:0});
+  assert.equal(playerLeaderboard({playerPopulationComplete:true,playerResults:[noPA]},metric,leaderboardScope).status,'empty');
+});
+
+test('review mechanisms qualify and rank separately, including the same affected player', () => {
+  const metric={id:'review-dependence-rate',higherIs:'descriptive',unit:'proportion'};
+  const row=(mechanism,count)=>playerScore(1,1,{metricId:metric.id,plateAppearances:0,mechanism,
+    aggregate:{kind:'mean',count,sum:{numerator:'1',denominator:'1'}}});
+  const board=playerLeaderboard({playerPopulationComplete:true,playerResults:[row('traditional-replay',4),row('ball-strike-challenge',10)]},metric,leaderboardScope);
+  assert.deepEqual(board.groups.map(g=>g.rows[0].minimumObservations),[4,10]);
+  assert.deepEqual(board.rows.map(r=>r.rank),[1,1]);
+  const short=playerLeaderboard({playerPopulationComplete:true,playerResults:[row('traditional-replay',3),row('ball-strike-challenge',9)]},metric,leaderboardScope);
+  assert.equal(short.status,'empty'); assert.equal(short.rows.length,0);
+  const unknown=playerLeaderboard({playerPopulationComplete:true,playerResults:[row('unknown',10)]},metric,leaderboardScope);
+  assert.equal(unknown.status,'unavailable');
 });
 
 test('dashboard applies qualification server-side to trusted player aggregates', async () => {

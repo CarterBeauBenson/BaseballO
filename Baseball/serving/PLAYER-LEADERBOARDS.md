@@ -62,12 +62,23 @@ isolated seven-player browser fixture is a UI test, not live baseball data.
 2. Complete selected-period participation and team-game exposure must be
    established, including absent games and applicable multi-team history.
    Missing graphs cannot silently shrink qualification denominators.
-3. Exact non-batting participation thresholds are still unspecified. The
-   user approved role-specific minima, not particular numbers. Running,
-   defensive, mixed-role and review cards remain withheld at that boundary.
-4. A review-population ratio does not assign a score to a player. Any missing
-   player attribution or aggregation policy for non-player metric grains
-   needs its own explicit decision; the card layout does not authorize it.
+3. The [September 15 thresholds](../archive/design-records/metric-completion-decisions-2026-09-15/user-decision.md)
+   are now accepted and implemented in `web/leaderboard-qualification.json`.
+   Defensive, run-construction, independent-running and review summaries use
+   their eligible observation counts; Recovery Quality and PAQ-2.1 require
+   both the existing PA minimum and their applicable-observation minimum.
+   Participation must still be complete. No minimum is relaxed to fill a card.
+   Contribution Path Diversity's mixed-channel qualification was not expressly
+   included in that numerical table and remains separately unresolved.
+4. Affected-player review attribution is already accepted. Review cards now
+   display separate traditional-replay and ball/strike leaderboard groups,
+   with no pooled denominator or combined player rank. The trusted producer
+   must supply each row's supported `mechanism`, or separate complete results
+   in `byMechanism`. Source/graph population production remains unfinished.
+
+The public participation text names PAs, runs, defensive resolutions or review
+decisions. It does not expose ontology Role terminology. The same player may
+appear in both review groups, each with its own qualification and rank.
 
 No ontology, RML, SHACL, metric kernel, semantic-freeze pin or reference
 population was changed. Source-proof recovery and corpus refresh remain

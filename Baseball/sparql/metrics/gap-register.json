@@ -1,21 +1,22 @@
 {
-  "version": 3,
+  "version": 4,
   "scope": "Graph-native metric suite. Named user decisions are recorded separately from remaining ontology, identity, evidence and completeness requirements.",
   "reviewPackage": "proposals/graph-native-metric-suite-batch-review",
   "gaps": [
     {
       "id": "ATTRIBUTION",
       "title": "Attribute offensive consequences",
-      "question": "Which play-specific evidence and reviewed model could support speed-related error credit? Interference credit remains deferred.",
-      "direction": "Retain error/FC progress exclusions. Research runner speed as possible evidence; no speed threshold or causal credit rule has been accepted. Actual-end-state erosion is confirmed, including -1/4 for the strikeout plus passed-ball score example.",
+      "question": "Catcher-interference positive batter credit is excluded. B2 contact continuations are accepted. Resolve called hit-and-run versus independent runner-out damage; error-speed credit remains an optional deferred extension.",
+      "direction": "Catcher-interference positive batter credit is excluded. B2 contact continuations are accepted. Resolve called hit-and-run versus independent runner-out damage; error-speed credit remains an optional deferred extension.",
       "status": "open",
-      "disposition": "partially-resolved-review-required",
-      "owner": "ontologist",
+      "disposition": "partially-resolved-hit-and-run-allocation-open",
+      "owner": "ontologist-for-shared-out-allocation; engineering-for-accepted-mappings",
       "implementationBehavior": "calculation uses accepted policy; live output remains unavailable until source-owned graph prerequisites are admitted",
       "decisionRecords": [
         "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
         "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json",
-        "archive/design-records/runner-award-origin-final-decision/review.json"
+        "archive/design-records/runner-award-origin-final-decision/review.json",
+        "archive/design-records/metric-completion-decisions-2026-09-15/decision.json"
       ],
       "researchAssessment": {
         "assessedOn": "2026-09-08",
@@ -44,18 +45,19 @@
     {
       "id": "BOUNDARY_STATE",
       "title": "Locate runners at the relevant boundaries",
-      "question": "What independently verified source history, supported temporal boundaries and operative outcomes admit the accepted C1/C2 graph and analytical contracts?",
-      "direction": "C2 projects a supported safe base through independently verified complete intervening history with no state-changing or unresolved event. It creates no RDF Person-to-Base relation, stasis or new adjudication. The bounded live adapter now handles intervening PAs strictly bracketed by episodes in complete C1 histories; full within-PA and termination coverage remains pending.",
+      "question": "C1/C2 and walk-off evaluation at the supported game-ending boundary are accepted. Add no erosion merely because the game ends. Full boundary reconciliation and unresolved shared-out attribution remain separate dependencies.",
+      "direction": "C1/C2 and walk-off evaluation at the supported game-ending boundary are accepted. Add no erosion merely because the game ends. Full boundary reconciliation and unresolved shared-out attribution remain separate dependencies.",
       "status": "open",
-      "disposition": "accepted-meaning-evidence-pending",
-      "owner": "ontologist",
+      "disposition": "partially-resolved-hit-and-run-allocation-open",
+      "owner": "engineering; shared-out-policy-awaiting-user",
       "implementationBehavior": "calculation uses accepted policy; live output remains unavailable until source-owned graph prerequisites are admitted",
       "decisionRecords": [
         "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
         "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json",
         "archive/design-records/runner-award-origin-final-decision/review.json",
         "archive/design-records/metric-suite-gap-answers-2026-09-09/decision.json",
-        "archive/design-records/runner-continuity-boundary-projection/review.json"
+        "archive/design-records/runner-continuity-boundary-projection/review.json",
+        "archive/design-records/metric-completion-decisions-2026-09-15/decision.json"
       ],
       "researchAssessment": {
         "assessedOn": "2026-09-08",
@@ -252,16 +254,17 @@
     {
       "id": "OFFENSIVE_ELIGIBILITY",
       "title": "Define eligible offensive player-games",
-      "question": "What complete PA/contribution evidence separates official statistical PA attribution from actual consequence contributors?",
-      "direction": "At least one PA remains required for Empty Game eligibility. Keep official PA attribution and actual consequence-contributor attribution separate in mid-turn substitutions; do not transfer the whole turn to its final batter. Zero-PA runners remain eligible for baserunning metrics.",
+      "question": "Preserve official PA attribution separately from actual agency. Separate Batter Acts per uninterrupted player participation in a substituted PA are accepted; implement and reconcile this beyond B1 ordinary-turn coverage.",
+      "direction": "Preserve official PA attribution separately from actual agency. Separate Batter Acts per uninterrupted player participation in a substituted PA are accepted; implement and reconcile this beyond B1 ordinary-turn coverage.",
       "status": "open",
-      "disposition": "accepted-meaning-evidence-pending",
-      "owner": "ontologist",
+      "disposition": "accepted-policy-source-implementation-pending",
+      "owner": "engineering",
       "implementationBehavior": "calculation uses accepted policy; live output remains unavailable until source-owned graph prerequisites are admitted",
       "decisionRecords": [
         "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
         "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json",
-        "archive/design-records/metric-suite-gap-answers-2026-09-09/decision.json"
+        "archive/design-records/metric-suite-gap-answers-2026-09-09/decision.json",
+        "archive/design-records/metric-completion-decisions-2026-09-15/decision.json"
       ],
       "researchAssessment": {
         "assessedOn": "2026-09-08",
@@ -358,11 +361,11 @@
     {
       "id": "EXACT_PITCH_COUNTS",
       "title": "Represent recovery evidence",
-      "question": "What source-owned evidence gives exact ordered post-pitch strike counts, first two-strike state and PA termination?",
-      "direction": "Count only nonterminal pitches after the first two-strike state; never reconstruct an exact count from an unordered ball/strike label tally.",
+      "question": "Automatic awards use existing Ball/Strike Process and judgment patterns without fictitious pitches; automatic second strikes establish the count. Full source/RDF count history, correction and termination coverage remains engineering work.",
+      "direction": "Automatic awards use existing Ball/Strike Process and judgment patterns without fictitious pitches; automatic second strikes establish the count. Full source/RDF count history, correction and termination coverage remains engineering work.",
       "status": "open",
-      "disposition": "batch-review-required",
-      "owner": "ontologist",
+      "disposition": "accepted-policy-source-implementation-pending",
+      "owner": "engineering",
       "implementationBehavior": "unavailable until the named semantic/evidence prerequisite is admitted",
       "researchAssessment": {
         "assessedOn": "2026-09-08",
@@ -375,20 +378,24 @@
           "evidence"
         ],
         "livePrerequisiteClosed": false
-      }
+      },
+      "decisionRecords": [
+        "archive/design-records/metric-completion-decisions-2026-09-15/decision.json"
+      ]
     },
     {
       "id": "DEFENSIVE_ACTS",
       "title": "Identify defensive acts and agents",
-      "question": "What evidence identifies the distinct intentional defensive acts and their causally active agents?",
-      "direction": "Field, throw, catch and tag count as four acts even when two players perform them. The act-node counting unit is accepted; provider credit labels alone do not admit acts or their identities.",
+      "question": "Distinct intentional defensive performances, agents and supported order may be established from explicit MLB descriptions reconciled with structured evidence. Complete act coverage remains required; credits alone do not establish it.",
+      "direction": "Distinct intentional defensive performances, agents and supported order may be established from explicit MLB descriptions reconciled with structured evidence. Complete act coverage remains required; credits alone do not establish it.",
       "status": "open",
-      "disposition": "accepted-meaning-evidence-pending",
-      "owner": "ontologist",
+      "disposition": "accepted-policy-source-implementation-pending",
+      "owner": "engineering",
       "implementationBehavior": "calculation uses accepted policy; live output remains unavailable until source-owned graph prerequisites are admitted",
       "decisionRecords": [
         "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
-        "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json"
+        "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json",
+        "archive/design-records/metric-completion-decisions-2026-09-15/decision.json"
       ],
       "researchAssessment": {
         "assessedOn": "2026-09-08",
@@ -406,11 +413,11 @@
     {
       "id": "DEFENSIVE_ORDER",
       "title": "Order defensive resolution acts",
-      "question": "What relation and evidence establishes the supported precedence graph and its completeness?",
-      "direction": "Longest path counts act nodes; reject cycles and missing endpoints. Record order alone cannot establish defensive precedence.",
+      "question": "Use supported order among distinct performances. Repeated throws are distinct, superclass typing is not another act, and complete depth needs the complete supported sequence.",
+      "direction": "Use supported order among distinct performances. Repeated throws are distinct, superclass typing is not another act, and complete depth needs the complete supported sequence.",
       "status": "open",
-      "disposition": "batch-review-required",
-      "owner": "ontologist",
+      "disposition": "accepted-policy-source-implementation-pending",
+      "owner": "engineering",
       "implementationBehavior": "unavailable until the named semantic/evidence prerequisite is admitted",
       "researchAssessment": {
         "assessedOn": "2026-09-08",
@@ -423,7 +430,10 @@
           "evidence"
         ],
         "livePrerequisiteClosed": false
-      }
+      },
+      "decisionRecords": [
+        "archive/design-records/metric-completion-decisions-2026-09-15/decision.json"
+      ]
     },
     {
       "id": "RUN_CONTINUITY",
@@ -489,11 +499,11 @@
     {
       "id": "OPERATIVE_REVIEW",
       "title": "Link review to the operative outcome",
-      "question": "What supported graph links establish a particular final outcome depends on the identified review mechanism?",
-      "direction": "Keep traditional replay and ball/strike challenges separate. Missing original calls need not block supported ordinary final-state scoring, but missing required review evidence still blocks the review calculation.",
+      "question": "Continue source-to-graph operative-decision and correction reconciliation; retain the accepted affected-player display and separate review mechanisms.",
+      "direction": "Continue source-to-graph operative-decision and correction reconciliation; retain the accepted affected-player display and separate review mechanisms.",
       "status": "open",
-      "disposition": "partially-resolved-review-required",
-      "owner": "ontologist",
+      "disposition": "accepted-policy-source-implementation-pending",
+      "owner": "engineering",
       "implementationBehavior": "unavailable until the named semantic/evidence prerequisite is admitted",
       "researchAssessment": {
         "assessedOn": "2026-09-08",
@@ -509,22 +519,24 @@
         "livePrerequisiteClosed": false
       },
       "decisionRecords": [
-        "archive/design-records/metric-suite-gap-answers-2026-09-09/decision.json"
+        "archive/design-records/metric-suite-gap-answers-2026-09-09/decision.json",
+        "archive/design-records/metric-completion-decisions-2026-09-15/decision.json"
       ]
     },
     {
       "id": "OUTCOME_POPULATION",
       "title": "Define review-dependence denominator",
-      "question": "Which exact outcome categories and supported season-specific eligibility define each complete mechanism population?",
-      "direction": "Denominator is all eligible decisions, including never-reviewed decisions. Separate traditional replay and ball/strike challenges. Category scope, outcome identities and evidence completeness remain unresolved.",
+      "question": "Review eligibility is legal initiation at the decision time under applicable season rules. Count each ABS decision once if either side is eligible. Establish complete separate populations, challenge availability and exceptions.",
+      "direction": "Review eligibility is legal initiation at the decision time under applicable season rules. Count each ABS decision once if either side is eligible. Establish complete separate populations, challenge availability and exceptions.",
       "status": "open",
-      "disposition": "partially-resolved-review-required",
-      "owner": "ontologist",
+      "disposition": "accepted-policy-source-implementation-pending",
+      "owner": "engineering",
       "implementationBehavior": "calculation uses accepted policy; live output remains unavailable until source-owned graph prerequisites are admitted",
       "decisionRecords": [
         "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
         "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json",
-        "archive/design-records/metric-suite-gap-answers-2026-09-09/decision.json"
+        "archive/design-records/metric-suite-gap-answers-2026-09-09/decision.json",
+        "archive/design-records/metric-completion-decisions-2026-09-15/decision.json"
       ],
       "researchAssessment": {
         "assessedOn": "2026-09-08",

@@ -1,0 +1,12 @@
+PREFIX base:<https://baseballontology.org/>
+PREFIX bfo:<http://purl.obolibrary.org/obo/>
+SELECT DISTINCT ?trajectory WHERE {
+?play a base:BattedBallPlayProcess ; bfo:BFO_0000132 <https://baseballontology.org/data/game/824315/plate-appearance/6> ; bfo:BFO_0000117 ?resolution .
+?trajectory a bfo:BFO_0000015 ; bfo:BFO_0000117 ?episode .
+?episode a base:RunnerResolutionEpisode ; bfo:BFO_0000117 ?resolution .
+?resolution a ?safeKind . FILTER(?safeKind IN (base:SafeProcess,base:RunProcess))
+FILTER NOT EXISTS {
+ ?play bfo:BFO_0000117 ?out . ?out a base:OutProcess .
+ ?trajectory bfo:BFO_0000117 ?outEpisode . ?outEpisode a base:RunnerResolutionEpisode ; bfo:BFO_0000117 ?out .
+}
+}

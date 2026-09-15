@@ -23,7 +23,7 @@ from rdflib import Graph, Literal
 
 ROOT = Path(__file__).resolve().parents[1]
 METRICS = ROOT / 'sparql/metrics'
-VERSION = '2.0.17'
+VERSION = '2.0.18'
 
 
 class EvidenceError(ValueError):
@@ -48,6 +48,8 @@ def fingerprint():
              METRICS / 'batch-release-policy.json', METRICS / 'trajectory-origin-policy.json']
     paths.extend(sorted(METRICS.glob('*.rq')))
     paths.extend([ROOT / 'sources/mlb-game/pipeline/batting-admission.py',
+                  ROOT / 'sources/mlb-game/pipeline/contact-continuation-admission.py',
+                  ROOT / 'sources/mlb-game/shacl/contact-continuation.ttl',
                   ROOT / 'sources/mlb-game/shacl/batting-admission.ttl',
                   ROOT / 'sources/mlb-game/nifi/prepare-schedule-batch.py'])
     paths.extend(ROOT / e['authoritativeQuery'] for e in [*catalog()['metrics'], *catalog().get('components', [])])
@@ -171,13 +173,15 @@ def trajectory_origin(row, batter):
     return unavailable('SEGMENT_ORIGIN_UNAVAILABLE')
 
 
-def trajectories(participants, outs_before, attributed_outs, *, batter=None):
+def trajectories(participants, outs_before, attributed_outs, *, batter=None, batter_result_type=None):
     """One already coalesced, complete attributed consequence. No raw rows."""
     _integer(outs_before, 'outs before', 0, 2)
     _integer(attributed_outs, 'attributed outs', 0, 3 - outs_before)
     rows = _unique(participants, ('participant',))
     if not rows:
         return unavailable('MISSING_PARTICIPANTS')
+    exclude_progress = (batter_result_type is not None and
+                        batter_result_type in policies()['batterProgressExcludedResultTypes'])
     inputs, evidence = [], []
     for row in rows:
         if batter is not None:
@@ -200,6 +204,10 @@ def trajectories(participants, outs_before, attributed_outs, *, batter=None):
         if outcome == 'stranded' and outs_before + attributed_outs != 3:
             raise EvidenceError('Stranding requires an evidenced inning-ending consequence')
         progress = _boolean(row.get('creditProgress'), 'progress attribution')
+        # Owning MLB result contract maps InterferenceProcess only from
+        # catcher_interf. This is a credit exclusion, not an inferred cause.
+        if exclude_progress:
+            progress = False
         credit_out = _boolean(row.get('creditOut'), 'out attribution')
         if credit_out and outcome != 'out':
             raise EvidenceError('Out attribution requires an out')

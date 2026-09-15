@@ -33,8 +33,8 @@ PITCH_DECISION_BY_CALL_CODE = {
 BUNT_CALL_CODES = {"L", "M", "O"}
 BUNT_TRAJECTORIES = {"bunt_grounder", "bunt_popup", "bunt_line_drive"}
 ADMINISTRATIVE_EVENT_TYPES = {"game_advisory"}
-# A1 is contact-play membership only. This initial subset deliberately omits
-# mixed runner classifications; absence is not evidence of independence.
+# A1 and accepted B2 express contact-play membership only. B2 admits the
+# bounded other_out continuation after complete C1 source reconciliation.
 BATTED_RUNNER_RESULT_TYPES = {
     "single", "double", "triple", "home_run", "field_out", "force_out",
     "grounded_into_double_play", "double_play", "sac_fly", "sac_bunt",
@@ -83,12 +83,13 @@ OUT_SAFE_REVIEW_TYPES = {
 }
 
 
-def batted_runner_resolution_links(play: dict, at_bat_index: str) -> list[dict[str, str]]:
+def batted_runner_resolution_links(play: dict, at_bat_index: str, histories: dict | None = None) -> list[dict[str, str]]:
     """Expose evidenced existing resolution identities for A1 RML parthood.
 
     A PA or event-index join alone is insufficient. Require a completed,
     recognized contact result and a uniquely indexed terminal in-play pitch,
-    and admit only runner rows carrying that same result classification.
+    A1 admits matching result classifications. B2's mixed other_out case
+    additionally requires the accepted complete-source/C1 continuation gate.
     This does not calculate attribution, destination, or trajectory state.
     """
     result_type = play.get("result", {}).get("eventType")
@@ -115,6 +116,11 @@ def batted_runner_resolution_links(play: dict, at_bat_index: str) -> list[dict[s
         or sum(event.get("index") == event_index for event in events) != 1
     ):
         return []
+    rows = play.get('runners', [])
+    mixed = any(row.get('details', {}).get('eventType') == 'other_out' for row in rows)
+    if mixed:
+        if not contact_continuation_supported(play, at_bat_index, event_index, histories):
+            return []  # Never expose only the convenient half of a B2 play.
     links = []
     for position, runner in enumerate(play.get("runners", [])):
         runner_details = runner.get("details", {})
@@ -123,7 +129,7 @@ def batted_runner_resolution_links(play: dict, at_bat_index: str) -> list[dict[s
         if (
             type(runner_event_index) is not int
             or runner_event_index != event_index
-            or runner_details.get("eventType") != result_type
+            or runner_details.get("eventType") not in ({result_type, 'other_out'} if mixed else {result_type})
             or type(movement.get("isOut")) is not bool
         ):
             continue
@@ -143,6 +149,40 @@ def batted_runner_resolution_links(play: dict, at_bat_index: str) -> list[dict[s
             "playId": play_id,
         })
     return links
+
+
+def contact_continuation_supported(play, at_bat_index, terminal_index, histories):
+    """B2 source selection, never a graph-conformance or score calculation."""
+    if not histories or histories.get('sourceConsistency') != 'consistent':
+        return False
+    if play.get('about', {}).get('hasReview') is not False or play.get('reviewDetails'):
+        return False
+    events, rows = play.get('playEvents', []), play.get('runners', [])
+    if [e.get('index') for e in events] != list(range(len(events))):
+        return False
+    for event in events:
+        details = event.get('details', {})
+        if (event.get('reviewDetails') or details.get('hasReview') is True or event.get('isSubstitution') is True
+                or (event.get('isPitch') is not True and details.get('eventType') not in {'batter_timeout', 'mound_visit'})):
+            return False
+    allowed = {play.get('result', {}).get('eventType'), 'other_out'}
+    membership = defaultdict(list)
+    for item in histories.get('episodeMembership', []):
+        if item['atBatIndex'] == at_bat_index:
+            membership[item['runnerIndex']].append(item)
+    personal = {}
+    for index, row in enumerate(rows):
+        details = row.get('details', {})
+        matches = membership[str(index)]
+        if (details.get('playIndex') != terminal_index or details.get('eventType') not in allowed
+                or len(matches) != 1 or not matches[0].get('lifetimeKey')
+                or str(details.get('runner', {}).get('id')) != matches[0]['runnerId']):
+            return False
+        runner, lifetime = matches[0]['runnerId'], matches[0]['lifetimeKey']
+        if runner in personal and personal[runner] != lifetime:
+            return False
+        personal[runner] = lifetime
+    return bool(rows)
 
 
 def runner_episode_evidence(play: dict, at_bat_index: str) -> dict[str, list[dict]]:
@@ -1106,7 +1146,7 @@ def main() -> None:
         play_context: dict[str, object] = {
             "outsBefore": outs_after_previous_play,
             "startBaseOccupancies": start_base_occupancies,
-            "battedRunnerResolutions": batted_runner_resolution_links(play, at_bat_index),
+            "battedRunnerResolutions": batted_runner_resolution_links(play, at_bat_index, root_context['runnerHistoryReconciliation']),
             **runner_episode_evidence(play, at_bat_index),
             **runner_metric_evidence(play, at_bat_index, season),
             "hasPlateAppearanceStructure": has_plate_appearance_structure,

@@ -7,7 +7,7 @@ PREFIX obo: <http://purl.obolibrary.org/obo/>
 # inferred continuity, inferred causation, or missing-row negative assertions.
 SELECT DISTINCT ?graph ?game ?kind ?entity ?player ?act ?roleType
                 ?playerTeamRole ?team ?teamRole
-                ?paResult ?paResultType ?paResultJudgment ?paResultDecision ?paResultRecord ?recognizedBattingResult
+                ?paResult ?paResultType ?paResultJudgment ?paResultDecision ?paResultRecord ?recognizedBattingResult ?batterProgressExcluded
                 ?reviewRecord ?original ?operative ?disposition ?decision
                 ?trajectory ?episode ?trajectoryHalf ?trajectoryInterval
                 ?paHalf ?paInterval ?paStartInstant ?paEndInstant
@@ -42,6 +42,11 @@ WHERE {
           base:StrikeoutProcess, base:WalkProcess, base:HitByPitchProcess,
           base:FieldersChoiceProcess, base:ErrorProcess, base:InterferenceProcess
         ) AS ?recognizedBattingResult)
+        # Owning MLB contract: this InterferenceProcess result is catcher_interf.
+        # Preserve official eligibility and actual outcomes; exclude positive
+        # batting credit, including Empty Game positive-contribution counting.
+        BIND(?paResultType IN (base:ErrorProcess, base:FieldersChoiceProcess,
+          base:InterferenceProcess) AS ?batterProgressExcluded)
       }
       OPTIONAL { ?entity obo:BFO_0000132 ?paHalf . ?paHalf a base:HalfInning . }
       OPTIONAL {

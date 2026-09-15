@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "decision": "archive/design-records/metric-completion-decisions-2026-09-15/decision.json",
+  "policies": {
+    "independent-running": {"floor": 3, "teamGamesDivisor": 10, "unit": "running episodes"},
+    "defensive-resolution": {"floor": 3, "teamGamesDivisor": 10, "unit": "defensive resolutions"},
+    "run-construction": {"floor": 2, "teamGamesDivisor": 5, "unit": "runs scored"},
+    "review-overturn": {"floor": 3, "teamGamesDivisor": 40, "unit": "completed reviews"},
+    "traditional-review-dependence": {"floor": 3, "teamGamesDivisor": 2, "unit": "eligible decisions"},
+    "ball-strike-review-dependence": {"floor": 10, "teamGamesDivisor": 1, "unit": "eligible decisions"},
+    "specialized-batting": {"floor": 3, "teamGamesDivisor": 5, "unit": "applicable PAs"}
+  },
+  "metrics": {
+    "independent-runner-advancement": "independent-running",
+    "independent-runner-damage": "independent-running",
+    "independent-runner-contribution": "independent-running",
+    "resolution-depth": "defensive-resolution",
+    "defender-breadth": "defensive-resolution",
+    "run-construction-depth": "run-construction",
+    "run-construction-breadth": "run-construction",
+    "adjudication-volatility": "review-overturn",
+    "recovery-quality": "specialized-batting",
+    "paq-2.1": "specialized-batting"
+  }
+}

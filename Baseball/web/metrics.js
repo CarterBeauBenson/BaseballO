@@ -347,7 +347,8 @@ export function metricRanking(payload, metric) {
   const result = payload?.metrics?.find(row => row.metricId === metric.id) ?? payload?.metric;
   const board = result?.leaderboard;
   return { rows: board?.status === 'available' ? board.rows.map(row => ({ ...row,
-    context: `${row.plateAppearances} PA · minimum ${row.minimumPA} PA` })) : [],
+    context: row.qualificationLabel ?? `${row.plateAppearances} PA · minimum ${row.minimumPA} PA` })) : [],
+    groups: board?.groups ?? [],
     scope: 'qualified players', order: board?.order ?? '', qualification: board?.qualification?.rule ?? '',
     unit: board?.unit ?? metric.unit, summaryKind: board?.summaryKind ?? (metric.id === 'empty-game-rate' ? 'count' : 'mean'),
     message: !result ? 'Loading player rankings…' : board?.message ?? 'Complete player scores are not yet available for this period.' };
@@ -355,6 +356,13 @@ export function metricRanking(payload, metric) {
 
 function rankingPreview(payload, metric) {
   const ranking = metricRanking(payload, metric), list = node('span'); list.className = 'card-ranking';
+  if (ranking.groups.length) {
+    for (const group of ranking.groups) {
+      list.append(node('strong', group.label));
+      list.append(rankingPreview({metric:{leaderboard:group}}, metric));
+    }
+    return list;
+  }
   if (!ranking.rows.length) {
     list.append(node('span', ranking.message), node('small', ranking.qualification));
     return list;
@@ -382,13 +390,17 @@ function renderRanking(payload, metric) {
   }
   target.append(node('h3', `All ${ranking.rows.length} ranked ${ranking.scope}`),
     node('p', `${ranking.order}. Ties share a rank. ${ranking.qualification}`));
+  for (const group of ranking.groups.filter(group => group.status !== 'available')) {
+    target.append(node('p', `${group.label}: ${group.message} ${group.qualification?.rule ?? ''}`));
+  }
   const table = node('table'), head = node('thead'), header = node('tr'), body = node('tbody');
-  for (const label of ['Rank', 'Player / minimum PA', `${ranking.summaryKind === 'count' ? 'Count' : 'Average'} · ${metric.presentation.unitLabel}`, 'Exact value']) {
+  for (const label of ['Rank', 'Player / participation minimum', `${ranking.summaryKind === 'count' ? 'Count' : 'Average'} · ${metric.presentation.unitLabel}`, 'Exact value']) {
     const cell = node('th', label); cell.scope = 'col'; header.append(cell);
   }
   head.append(header);
   for (const row of ranking.rows) {
     const line = node('tr'), person = node('td'); person.append(node('span', row.name), node('small', row.context));
+    if (row.mechanismLabel) person.append(node('small', row.mechanismLabel));
     line.append(node('td', String(row.rank)), person, node('td', formatMetricValue(row.value, ranking.unit)),
       node('td', `${row.value.numerator}/${row.value.denominator}`)); body.append(line);
   }

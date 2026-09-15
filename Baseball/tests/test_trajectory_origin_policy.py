@@ -10,6 +10,14 @@ SPEC.loader.exec_module(M)
 
 
 class TrajectoryOriginPolicyTests(unittest.TestCase):
+    def test_catcher_interference_excludes_awarded_batter_progress_and_retains_erosion(self):
+        rows=[dict(participant='batter',start=0,end=1,terminal='safe',creditProgress=True,creditOut=False)]
+        score=M.trajectories(rows,0,0,batter_result_type='https://baseballontology.org/InterferenceProcess')
+        self.assertEqual(M.fraction(score['value']),0)
+        self.assertEqual(M.fraction(score['components']['progress']),0)
+        self.assertTrue(M.empty_game_eligible(1))
+        self.assertTrue(rows[0]['creditProgress'])  # No mutation of admitted evidence.
+
     def runner(self, code='2B'):
         return dict(participant='runner', act='act', originDesignations=[dict(
             designation='origin', record='record', act='act', baseCode=code)])

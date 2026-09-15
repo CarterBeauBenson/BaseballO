@@ -1,0 +1,6 @@
+# B2 parameterized source-owned profile. NiFi binds target/hasValue terms from
+# the independently reconciled source inventory, not the mapped graph count.
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix base: <https://baseballontology.org/> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+# __CONTINUATION_SHAPES__
