@@ -1,5 +1,20 @@
 # Implementation status after the first accepted completion pass
 
+September 15 Contribution Mix continuation: the sixth conditional public
+player producer pools the accepted positive play/channel counts and retains
+independent running participation separately. Zero-PA runners remain eligible.
+The whole-game 824087 proof passes updated Steal Attempt typing conformance,
+all 90 runner resolutions, 73 official PAs, canonical Jena extraction and
+exact SQL retention. See the [Contribution Mix proof](../../../benchmarks/metrics/contribution-mix-players-2026-09-15/README.md).
+This is not a claim that the selected live corpus is admitted or that the
+remaining thirteen producers are finished.
+
+The NiFi serving build now reuses queries bound to validated graph versions
+and checks implementation hashes every ten games. Its recovery worker can
+recognize the exact quarantined implementation-change failure and queue one
+full proof per current implementation revision, preserving the failed audit.
+These are engineering changes within the existing lane and lifecycle.
+
 September 15 batting-progress continuation: Offensive Reach, Hidden Help Rate
 and Empty Games now have conditional complete-player producers. The real game
 824087 passes the complete 90-resolution and 73-official-PA SHACL censuses,

@@ -23,7 +23,7 @@ from rdflib import Graph, Literal
 
 ROOT = Path(__file__).resolve().parents[1]
 METRICS = ROOT / 'sparql/metrics'
-VERSION = '2.0.24'
+VERSION = '2.0.25'
 
 
 class EvidenceError(ValueError):
@@ -539,6 +539,20 @@ def defensive_depth(acts):
                      components={'defenderBreadth': len({a['agent'] for a in acts})})
 
 
+def channel_entropy(counts):
+    if len(counts)!=3 or any(type(c) is not int or c<0 for c in counts):
+        raise EvidenceError('Channel entropy requires three nonnegative integer counts')
+    total=sum(counts)
+    if total==0:
+        return unavailable('EMPTY_DENOMINATOR',components={'channelCounts':counts,'pathBreadth':0})
+    probabilities=[Fraction(c,total) for c in counts]
+    entropy=-sum(float(p)*math.log(float(p)) for p in probabilities if p)/math.log(3)
+    return {'status':'available','value':None,'approximateValue':entropy,
+            'exactExpression':'-sum(p*ln(p))/ln(3)','gaps':[],
+            'components':{'channelCounts':counts,'probabilities':[exact(p) for p in probabilities],
+                          'pathBreadth':sum(c>0 for c in counts)},'evidence':[]}
+
+
 def calculate(metric_id, rows):
     """Compute a declared kernel on admitted facts. Never accepts feed JSON."""
     entry = next((e for e in catalog()['metrics'] if e['id'] == metric_id), None)
@@ -583,16 +597,7 @@ def calculate(metric_id, rows):
         raise EvidenceError('Use separate calls for distinct aggregation keys')
     result = results[0]
     if metric_id == 'contribution-path-diversity':
-        counts = [int(result[c]) for c in ['self', 'other', 'running']]
-        total = sum(counts)
-        if total == 0:
-            return unavailable('EMPTY_DENOMINATOR', components={'channelCounts': counts, 'pathBreadth': 0})
-        probabilities = [Fraction(c, total) for c in counts]
-        entropy = -sum(float(p) * math.log(float(p)) for p in probabilities if p) / math.log(3)
-        return {'status': 'available', 'value': None, 'approximateValue': entropy,
-                'exactExpression': '-sum(p*ln(p))/ln(3)', 'gaps': [],
-                'components': {'channelCounts': counts, 'probabilities': [exact(p) for p in probabilities],
-                               'pathBreadth': sum(c > 0 for c in counts)}, 'evidence': []}
+        return channel_entropy([int(result[c]) for c in ['self','other','running']])
     components = {k: v for k, v in result.items() if k not in {'key', 'numerator', 'denominator'}}
     if metric_id == 'empty-game-rate':
         components.update(emptyGames=int(result['numerator']), eligibleGames=int(result['denominator']))
@@ -1434,7 +1439,7 @@ def loaded_award_consequences(rows, *, metric_id='tfs'):
     return sorted(results, key=lambda r: (r['graph'], r['plateAppearance'], r['award']))
 
 
-PROGRESS_METRICS = {'offensive-reach','hidden-help-rate','empty-game-rate'}
+PROGRESS_METRICS = {'offensive-reach','hidden-help-rate','empty-game-rate','contribution-path-diversity'}
 
 
 def batting_progress_evidence(rows):
@@ -1463,6 +1468,7 @@ def batting_progress_evidence(rows):
         resolutions=defaultdict(list)
         for row in movements[(graph,pa)]:resolutions[row['resolution']].append(row)
         channels, independent, other = defaultdict(list), [], set()
+        positive_channels=set();independent_episodes=[];independent_gaps=[]
         unsupported_outs=set();positive_runners=set()
         self_positive=False
         for resolution,candidates in resolutions.items():
@@ -1488,7 +1494,9 @@ def batting_progress_evidence(rows):
                     reasons.append('UNSUPPORTED_PROGRESS_BOUNDARY');continue
                 positive=end>start
             if positive:positive_runners.add(runner)
-            if outcome[1]=='true' and not supports:unsupported_outs.add(runner)
+            if outcome[1]=='true' and not supports:
+                unsupported_outs.add(runner)
+                if runner!=player:independent_gaps.append('UNRESOLVED_RUNNING_EPISODE_ATTRIBUTION')
             if len(supports)>1 or (positive and len(supports)!=1):
                 reasons.append('UNRESOLVED_PROGRESS_ATTRIBUTION');continue
             if supports:
@@ -1500,14 +1508,22 @@ def batting_progress_evidence(rows):
             if len(members)!=1:
                 reasons.append('COMPLETE_CONSEQUENCE_COALESCENCE');continue
             row,positive=members[0]
+            if channel=='running':
+                independent_episodes.append(dict(player=runner,episode=row['episode'],support=support))
+                if row.get('hasOutType')=='true' and any(t.endswith('/StrikeoutProcess') for t in types):
+                    # K + CS does not establish whether this was the accepted
+                    # batter-owned failed hit-and-run or an independent attempt.
+                    independent_gaps.append('STRIKEOUT_RUNNING_OUT_STRATEGY_UNRESOLVED')
             if not positive:continue
             if channel=='running':
                 independent.append(dict(player=runner,episode=row['episode'],support=support))
+                positive_channels.add((runner,row['episode'],'runner_self'))
             elif not types:
                 reasons.append('UNRESOLVED_BATTING_RESULT')
             elif not excluded:
                 if runner==player:self_positive=True
                 else:other.add(runner)
+                positive_channels.add((player,support,'batter_self' if runner==player else 'batter_other'))
         if types and player not in {r.get('runner') for r in movements[(graph,pa)]}:
             reasons.append('MISSING_BATTER_RESOLUTION')
         if reasons:
@@ -1515,6 +1531,8 @@ def batting_progress_evidence(rows):
         completed.append(dict(graph=graph,game=game,plateAppearance=pa,player=player,
             officialResult=bool(types),batterPositive=self_positive,otherPositivePlayers=sorted(other),
             independentPositive=independent,
+            independentEpisodes=independent_episodes,independentEpisodeGaps=sorted(set(independent_gaps)),
+            positiveChannels=[dict(player=p,play=play,channel=channel) for p,play,channel in sorted(positive_channels)],
             evidence=sorted({r[f] for r in movements[(graph,pa)] for f in
                 ('resolution','act','episode','contactPlay','award','awardRule','independentStealAct') if r.get(f)})))
     inputs=[]
@@ -1547,6 +1565,8 @@ def batting_progress_players(metric_id, rows, *, graphs, admissions, qualificati
     if {(p['graph'],p['plateAppearance'],p['player']) for p in pas if p['officialResult']} != {
             (p['graph'],p['plateAppearance'],p['player']) for p in expected}:
         return dict(missing,playerSummaryGaps=['COMPLETE_PA_PROGRESS'])
+    if metric_id=='contribution-path-diversity':
+        return contribution_mix_players(evidence,qualification=qualification,date_scope=date_scope)
     people=qualification['participation'];output=[]
     by_player=defaultdict(list);running=defaultdict(set)
     for pa in pas:
@@ -1593,6 +1613,43 @@ def batting_progress_players(metric_id, rows, *, graphs, admissions, qualificati
         summary=available(total/count) if count else unavailable('EMPTY_DENOMINATOR')
     return dict(summary,playerPopulationComplete=True,playerResults=output,playerSummaryGaps=[],
         progressEvidence=evidence,scope='Complete selected-period batting progress and independent positive running; official PA eligibility applied.')
+
+
+def contribution_mix_players(evidence, *, qualification, date_scope):
+    """Pool positive play/channel occurrences after the common admission gates."""
+    pas=evidence['plateAppearances']
+    gaps=sorted({gap for pa in pas for gap in pa['independentEpisodeGaps']})
+    if gaps:return dict(playerPopulationComplete=False,playerResults=[],playerSummaryGaps=gaps,progressEvidence=evidence)
+    people={p['player']:p for p in qualification['participation']}
+    inputs=[];running=defaultdict(set);graphs=defaultdict(set);official=defaultdict(int)
+    for pa in pas:
+        if pa['officialResult']:official[pa['player']]+=1
+        for item in pa['positiveChannels']:
+            player=item['player']
+            if player not in people:raise EvidenceError('Contribution player lacks admitted roster exposure')
+            inputs.append(dict(key=player,play=_json([pa['graph'],item['play']]),channel=item['channel']))
+            graphs[player].add(pa['graph'])
+        for item in pa['independentEpisodes']:
+            if item['player'] not in people:raise EvidenceError('Running participant lacks admitted roster exposure')
+            running[item['player']].add((pa['graph'],item['episode']))
+    inputs=_unique(inputs,('key','play','channel'))
+    counts={row['key']:[int(row[c]) for c in ('self','other','running')]
+            for row in run_kernel('contribution-path-diversity',inputs)} if inputs else {}
+    output=[]
+    for player,person in sorted(people.items()):
+        if official[player]!=person['plateAppearances']:
+            return dict(playerPopulationComplete=False,playerResults=[],playerSummaryGaps=['COMPLETE_PA_PROGRESS'])
+        score=channel_entropy(counts.get(player,[0,0,0]))
+        if score['status']!='available':continue  # Known zero contribution denominator, not a zero entropy score.
+        games=person['teamGameExposure']
+        if len({g['game'] for g in games})!=len(games):raise EvidenceError('Conflicting contribution team exposure')
+        output.append(dict(score,player=player,metricId='contribution-path-diversity',dateScope=dict(date_scope),
+            completeParticipation=True,plateAppearances=official[player],teamGames=len(games),
+            independentRunningEpisodes=len(running[player]),graphs=sorted(graphs[player]),
+            aggregate=dict(kind='channel_entropy',channelCounts=counts[player])))
+    summary=channel_entropy([sum(p['aggregate']['channelCounts'][i] for p in output) for i in range(3)])
+    return dict(summary,playerPopulationComplete=True,playerResults=output,playerSummaryGaps=[],
+        progressEvidence=evidence,scope='Complete selected-period positive play/channel counts; batting or independent-running qualification applies.')
 
 
 def initialize_sql(connection):

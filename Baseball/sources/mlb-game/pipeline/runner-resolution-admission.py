@@ -18,6 +18,8 @@ spec = importlib.util.spec_from_file_location('resolution_admission_support', HE
 B = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(B)
 SHAPE = HERE.parent/'shacl/runner-resolution-admission.ttl'
+STEAL_TYPES={'stolen_base_2b','stolen_base_3b','stolen_base_home',
+             'caught_stealing_2b','caught_stealing_3b','caught_stealing_home'}
 
 
 def fingerprint():
@@ -50,6 +52,7 @@ def census(raw, game_pk):
                 episode=game+'/runner-episode/'+suffix,pa=game+'/plate-appearance/'+pa,
                 player=B.BASE+'data/player/'+B.identity(row['details']['runner']['id']),
                 outcome='OutProcess' if out else 'RunProcess' if end=='score' else 'SafeProcess',
+                stealAttempt=row['details'].get('eventType') in STEAL_TYPES,
                 origin=start,
                 destination=end if not out and end!='score' else None))
     return dict(gamePk=game_pk,game=game,sourceSha256=B.sha(raw),sourceRevision=source['sourceRevision'],
@@ -66,6 +69,10 @@ def shape_text(source):
         %(act)s a base:BaserunningAct ; obo:BFO_0000132 %(pa)s ; cco:ont00001833 %(player)s .
         %(episode)s a base:RunnerResolutionEpisode ; obo:BFO_0000132 %(pa)s ;
           obo:BFO_0000117 %(resolution)s, %(act)s .""" % dict(fields,outcome=row['outcome'])
+        if row.get('stealAttempt'):
+            pattern+='\n%s a base:StealAttemptAct .' % fields['act']
+        else:
+            pattern+='\nFILTER NOT EXISTS { %s a base:StealAttemptAct }' % fields['act']
         if row['destination']:
             pattern+='\n%s obo:BFO_0000117 ?judgment . ?judgment a base:SafeJudgmentAct ; cco:ont00001986 ?decision .\n?decision a base:SafeDecisionICE ; cco:ont00001808 %s, ?base . ?base a base:Base .\n?identifier a cco:ont00000649 ; cco:ont00001916 ?base ; cco:ont00001765 %s .' % (fields['resolution'],fields['resolution'],B.terms([row['destination']]))
         if row.get('origin'):

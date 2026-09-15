@@ -1,7 +1,8 @@
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 
 # E1 exact final runner-resolution census. This certifies graph membership,
-# supported outcomes and participant identity, not completeness of attribution.
+# supported outcomes, participant identity and existing Steal Attempt typing,
+# not completeness of analytical independence or attribution.
 [] a sh:NodeShape ; sh:targetNode <__GAME__> ;
   sh:sparql [ sh:message "Runner-resolution membership or participant differs from the final source" ;
     sh:select """__PREFIXES__

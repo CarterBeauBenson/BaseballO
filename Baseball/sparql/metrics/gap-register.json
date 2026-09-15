@@ -345,9 +345,9 @@
       "question": "What admitted evidence identifies each positive play and its contribution channels?",
       "direction": "Count one positive play per channel, regardless of beneficiary count. The kernel deduplicates key/play/channel. Exact channel proportions and approximate normalized entropy are implemented.",
       "status": "open",
-      "disposition": "accepted-meaning-evidence-pending",
-      "owner": "ontologist",
-      "implementationBehavior": "calculation uses accepted policy; live output remains unavailable until source-owned graph prerequisites are admitted",
+      "disposition": "partial-source-implementation-complete-population-pending",
+      "owner": "engineering",
+      "implementationBehavior": "Conditional Contribution Mix player producer pools distinct positive play/channel occurrences after complete runner-resolution, official-PA, roster and selected-schedule admission. Separate independent-episode participation retains nonpositive attempts. Missing channel support, unresolved coalescence and ambiguous strikeout/running-out strategy withhold the population. Full deployed population remains pending.",
       "decisionRecords": [
         "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
         "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json"

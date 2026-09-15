@@ -1,0 +1,2755 @@
+{
+  "artifactType": "baseballo-contribution-mix-player-developer-proof",
+  "gamePk": "824087",
+  "sourceSha256": "249a1df5bb53bc0e5fac2ba16f2204029e7d6325229824523e7fccc85779f237",
+  "rdfSha256": "ded9c6b83739d9da9c913d0715a60b0596e4b8a9047ef2238a689654440b4e16",
+  "implementationSha256": "95c2cacd44064607cc513da4d429bef68d1f1f0e0333b3e5b41a2ca6d113ec1c",
+  "sourceAdmissions": {
+    "batting": {
+      "artifactType": "baseballo-batting-admission",
+      "contractVersion": 1,
+      "gamePk": "824087",
+      "graph": "https://w3id.org/baseball/graph/game/824087",
+      "sourceSha256": "249a1df5bb53bc0e5fac2ba16f2204029e7d6325229824523e7fccc85779f237",
+      "sourceRevision": "20260721_021040",
+      "authoritativeRdfSha256": "ded9c6b83739d9da9c913d0715a60b0596e4b8a9047ef2238a689654440b4e16",
+      "implementationSha256": "c2f101e568c3ab887281fd39ea2ef45350c6425a191b13af65d508e09a1627bc",
+      "status": "admitted",
+      "sourceReconciled": true,
+      "graphConforms": true,
+      "issues": [],
+      "selectedPopulationComplete": false,
+      "sourceCensusSha256": "f12bc91b160219df26008105713ccdfbde7a7ee4de95526bff570b9898d6475d",
+      "shapeSha256": "68010b77a32da9be19289dbb01e41092f8906aff2b7d14872bcb6298cd8cce4f",
+      "reportSha256": "4a53a3befd9bcdb7273ef3d6e47a83be519927771faee49ef0d2a44ee23be2be",
+      "engine": "jena"
+    },
+    "runnerResolutions": {
+      "artifactType": "baseballo-runner-resolution-admission",
+      "contractVersion": 1,
+      "gamePk": "824087",
+      "graph": "https://w3id.org/baseball/graph/game/824087",
+      "sourceSha256": "249a1df5bb53bc0e5fac2ba16f2204029e7d6325229824523e7fccc85779f237",
+      "sourceRevision": "20260721_021040",
+      "authoritativeRdfSha256": "ded9c6b83739d9da9c913d0715a60b0596e4b8a9047ef2238a689654440b4e16",
+      "implementationSha256": "b094307ad32e286a4ede9c9f7836473c23948f43c538f1442d4d9584c8f61f8d",
+      "status": "admitted",
+      "sourceReconciled": true,
+      "graphConforms": true,
+      "issues": [],
+      "sourceCensusSha256": "00b96f4306cec274de4f67b69376720ace866fadfe91648c81441954f6f7ce32",
+      "shapeSha256": "609181a86279ce67672795216ec8df3484bab3f57154873f3d33209bf2722bcb",
+      "reportSha256": "4a53a3befd9bcdb7273ef3d6e47a83be519927771faee49ef0d2a44ee23be2be",
+      "engine": "jena"
+    }
+  },
+  "jenaQueryPassed": true,
+  "sqlExactMatch": true,
+  "officialPlateAppearances": 73,
+  "observedRunnerResolutions": 90,
+  "publicDateRangeWithoutScheduleAdmission": "withheld",
+  "livePopulationComplete": false,
+  "contributionMix": {
+    "status": "available",
+    "value": null,
+    "approximateValue": 0.6844856132451033,
+    "exactExpression": "-sum(p*ln(p))/ln(3)",
+    "gaps": [],
+    "components": {
+      "channelCounts": [
+        23,
+        12,
+        1
+      ],
+      "probabilities": [
+        {
+          "numerator": "23",
+          "denominator": "36"
+        },
+        {
+          "numerator": "1",
+          "denominator": "3"
+        },
+        {
+          "numerator": "1",
+          "denominator": "36"
+        }
+      ],
+      "pathBreadth": 3
+    },
+    "evidence": [],
+    "playerPopulationComplete": true,
+    "playerResults": [
+      {
+        "status": "available",
+        "value": null,
+        "approximateValue": 0.6309297535714574,
+        "exactExpression": "-sum(p*ln(p))/ln(3)",
+        "gaps": [],
+        "components": {
+          "channelCounts": [
+            2,
+            2,
+            0
+          ],
+          "probabilities": [
+            {
+              "numerator": "1",
+              "denominator": "2"
+            },
+            {
+              "numerator": "1",
+              "denominator": "2"
+            },
+            {
+              "numerator": "0",
+              "denominator": "1"
+            }
+          ],
+          "pathBreadth": 2
+        },
+        "evidence": [],
+        "player": "https://baseballontology.org/data/player/521692",
+        "metricId": "contribution-path-diversity",
+        "dateScope": {
+          "startDate": "2026-07-20",
+          "endDate": "2026-07-20",
+          "gameSet": "regular_season"
+        },
+        "completeParticipation": true,
+        "plateAppearances": 4,
+        "teamGames": 1,
+        "independentRunningEpisodes": 0,
+        "graphs": [
+          "https://w3id.org/baseball/graph/game/824087"
+        ],
+        "aggregate": {
+          "kind": "channel_entropy",
+          "channelCounts": [
+            2,
+            2,
+            0
+          ]
+        }
+      },
+      {
+        "status": "available",
+        "value": null,
+        "approximateValue": 0.6309297535714574,
+        "exactExpression": "-sum(p*ln(p))/ln(3)",
+        "gaps": [],
+        "components": {
+          "channelCounts": [
+            1,
+            1,
+            0
+          ],
+          "probabilities": [
+            {
+              "numerator": "1",
+              "denominator": "2"
+            },
+            {
+              "numerator": "1",
+              "denominator": "2"
+            },
+            {
+              "numerator": "0",
+              "denominator": "1"
+            }
+          ],
+          "pathBreadth": 2
+        },
+        "evidence": [],
+        "player": "https://baseballontology.org/data/player/642715",
+        "metricId": "contribution-path-diversity",
+        "dateScope": {
+          "startDate": "2026-07-20",
+          "endDate": "2026-07-20",
+          "gameSet": "regular_season"
+        },
+        "completeParticipation": true,
+        "plateAppearances": 4,
+        "teamGames": 1,
+        "independentRunningEpisodes": 0,
+        "graphs": [
+          "https://w3id.org/baseball/graph/game/824087"
+        ],
+        "aggregate": {
+          "kind": "channel_entropy",
+          "channelCounts": [
+            1,
+            1,
+            0
+          ]
+        }
+      },
+      {
+        "status": "available",
+        "value": null,
+        "approximateValue": 0.5793801642856949,
+        "exactExpression": "-sum(p*ln(p))/ln(3)",
+        "gaps": [],
+        "components": {
+          "channelCounts": [
+            2,
+            1,
+            0
+          ],
+          "probabilities": [
+            {
+              "numerator": "2",
+              "denominator": "3"
+            },
+            {
+              "numerator": "1",
+              "denominator": "3"
+            },
+            {
+              "numerator": "0",
+              "denominator": "1"
+            }
+          ],
+          "pathBreadth": 2
+        },
+        "evidence": [],
+        "player": "https://baseballontology.org/data/player/646240",
+        "metricId": "contribution-path-diversity",
+        "dateScope": {
+          "startDate": "2026-07-20",
+          "endDate": "2026-07-20",
+          "gameSet": "regular_season"
+        },
+        "completeParticipation": true,
+        "plateAppearances": 4,
+        "teamGames": 1,
+        "independentRunningEpisodes": 0,
+        "graphs": [
+          "https://w3id.org/baseball/graph/game/824087"
+        ],
+        "aggregate": {
+          "kind": "channel_entropy",
+          "channelCounts": [
+            2,
+            1,
+            0
+          ]
+        }
+      },
+      {
+        "status": "available",
+        "value": null,
+        "approximateValue": -0.0,
+        "exactExpression": "-sum(p*ln(p))/ln(3)",
+        "gaps": [],
+        "components": {
+          "channelCounts": [
+            0,
+            1,
+            0
+          ],
+          "probabilities": [
+            {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            {
+              "numerator": "1",
+              "denominator": "1"
+            },
+            {
+              "numerator": "0",
+              "denominator": "1"
+            }
+          ],
+          "pathBreadth": 1
+        },
+        "evidence": [],
+        "player": "https://baseballontology.org/data/player/650333",
+        "metricId": "contribution-path-diversity",
+        "dateScope": {
+          "startDate": "2026-07-20",
+          "endDate": "2026-07-20",
+          "gameSet": "regular_season"
+        },
+        "completeParticipation": true,
+        "plateAppearances": 4,
+        "teamGames": 1,
+        "independentRunningEpisodes": 0,
+        "graphs": [
+          "https://w3id.org/baseball/graph/game/824087"
+        ],
+        "aggregate": {
+          "kind": "channel_entropy",
+          "channelCounts": [
+            0,
+            1,
+            0
+          ]
+        }
+      },
+      {
+        "status": "available",
+        "value": null,
+        "approximateValue": -0.0,
+        "exactExpression": "-sum(p*ln(p))/ln(3)",
+        "gaps": [],
+        "components": {
+          "channelCounts": [
+            2,
+            0,
+            0
+          ],
+          "probabilities": [
+            {
+              "numerator": "1",
+              "denominator": "1"
+            },
+            {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            {
+              "numerator": "0",
+              "denominator": "1"
+            }
+          ],
+          "pathBreadth": 1
+        },
+        "evidence": [],
+        "player": "https://baseballontology.org/data/player/657041",
+        "metricId": "contribution-path-diversity",
+        "dateScope": {
+          "startDate": "2026-07-20",
+          "endDate": "2026-07-20",
+          "gameSet": "regular_season"
+        },
+        "completeParticipation": true,
+        "plateAppearances": 4,
+        "teamGames": 1,
+        "independentRunningEpisodes": 0,
+        "graphs": [
+          "https://w3id.org/baseball/graph/game/824087"
+        ],
+        "aggregate": {
+          "kind": "channel_entropy",
+          "channelCounts": [
+            2,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "status": "available",
+        "value": null,
+        "approximateValue": 0.6309297535714574,
+        "exactExpression": "-sum(p*ln(p))/ln(3)",
+        "gaps": [],
+        "components": {
+          "channelCounts": [
+            1,
+            1,
+            0
+          ],
+          "probabilities": [
+            {
+              "numerator": "1",
+              "denominator": "2"
+            },
+            {
+              "numerator": "1",
+              "denominator": "2"
+            },
+            {
+              "numerator": "0",
+              "denominator": "1"
+            }
+          ],
+          "pathBreadth": 2
+        },
+        "evidence": [],
+        "player": "https://baseballontology.org/data/player/668942",
+        "metricId": "contribution-path-diversity",
+        "dateScope": {
+          "startDate": "2026-07-20",
+          "endDate": "2026-07-20",
+          "gameSet": "regular_season"
+        },
+        "completeParticipation": true,
+        "plateAppearances": 4,
+        "teamGames": 1,
+        "independentRunningEpisodes": 0,
+        "graphs": [
+          "https://w3id.org/baseball/graph/game/824087"
+        ],
+        "aggregate": {
+          "kind": "channel_entropy",
+          "channelCounts": [
+            1,
+            1,
+            0
+          ]
+        }
+      },
+      {
+        "status": "available",
+        "value": null,
+        "approximateValue": -0.0,
+        "exactExpression": "-sum(p*ln(p))/ln(3)",
+        "gaps": [],
+        "components": {
+          "channelCounts": [
+            2,
+            0,
+            0
+          ],
+          "probabilities": [
+            {
+              "numerator": "1",
+              "denominator": "1"
+            },
+            {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            {
+              "numerator": "0",
+              "denominator": "1"
+            }
+          ],
+          "pathBreadth": 1
+        },
+        "evidence": [],
+        "player": "https://baseballontology.org/data/player/671218",
+        "metricId": "contribution-path-diversity",
+        "dateScope": {
+          "startDate": "2026-07-20",
+          "endDate": "2026-07-20",
+          "gameSet": "regular_season"
+        },
+        "completeParticipation": true,
+        "plateAppearances": 4,
+        "teamGames": 1,
+        "independentRunningEpisodes": 0,
+        "graphs": [
+          "https://w3id.org/baseball/graph/game/824087"
+        ],
+        "aggregate": {
+          "kind": "channel_entropy",
+          "channelCounts": [
+            2,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "status": "available",
+        "value": null,
+        "approximateValue": -0.0,
+        "exactExpression": "-sum(p*ln(p))/ln(3)",
+        "gaps": [],
+        "components": {
+          "channelCounts": [
+            1,
+            0,
+            0
+          ],
+          "probabilities": [
+            {
+              "numerator": "1",
+              "denominator": "1"
+            },
+            {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            {
+              "numerator": "0",
+              "denominator": "1"
+            }
+          ],
+          "pathBreadth": 1
+        },
+        "evidence": [],
+        "player": "https://baseballontology.org/data/player/677951",
+        "metricId": "contribution-path-diversity",
+        "dateScope": {
+          "startDate": "2026-07-20",
+          "endDate": "2026-07-20",
+          "gameSet": "regular_season"
+        },
+        "completeParticipation": true,
+        "plateAppearances": 2,
+        "teamGames": 1,
+        "independentRunningEpisodes": 0,
+        "graphs": [
+          "https://w3id.org/baseball/graph/game/824087"
+        ],
+        "aggregate": {
+          "kind": "channel_entropy",
+          "channelCounts": [
+            1,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "status": "available",
+        "value": null,
+        "approximateValue": 0.6309297535714574,
+        "exactExpression": "-sum(p*ln(p))/ln(3)",
+        "gaps": [],
+        "components": {
+          "channelCounts": [
+            2,
+            2,
+            0
+          ],
+          "probabilities": [
+            {
+              "numerator": "1",
+              "denominator": "2"
+            },
+            {
+              "numerator": "1",
+              "denominator": "2"
+            },
+            {
+              "numerator": "0",
+              "denominator": "1"
+            }
+          ],
+          "pathBreadth": 2
+        },
+        "evidence": [],
+        "player": "https://baseballontology.org/data/player/679845",
+        "metricId": "contribution-path-diversity",
+        "dateScope": {
+          "startDate": "2026-07-20",
+          "endDate": "2026-07-20",
+          "gameSet": "regular_season"
+        },
+        "completeParticipation": true,
+        "plateAppearances": 3,
+        "teamGames": 1,
+        "independentRunningEpisodes": 0,
+        "graphs": [
+          "https://w3id.org/baseball/graph/game/824087"
+        ],
+        "aggregate": {
+          "kind": "channel_entropy",
+          "channelCounts": [
+            2,
+            2,
+            0
+          ]
+        }
+      },
+      {
+        "status": "available",
+        "value": null,
+        "approximateValue": 0.5793801642856949,
+        "exactExpression": "-sum(p*ln(p))/ln(3)",
+        "gaps": [],
+        "components": {
+          "channelCounts": [
+            2,
+            1,
+            0
+          ],
+          "probabilities": [
+            {
+              "numerator": "2",
+              "denominator": "3"
+            },
+            {
+              "numerator": "1",
+              "denominator": "3"
+            },
+            {
+              "numerator": "0",
+              "denominator": "1"
+            }
+          ],
+          "pathBreadth": 2
+        },
+        "evidence": [],
+        "player": "https://baseballontology.org/data/player/686469",
+        "metricId": "contribution-path-diversity",
+        "dateScope": {
+          "startDate": "2026-07-20",
+          "endDate": "2026-07-20",
+          "gameSet": "regular_season"
+        },
+        "completeParticipation": true,
+        "plateAppearances": 4,
+        "teamGames": 1,
+        "independentRunningEpisodes": 0,
+        "graphs": [
+          "https://w3id.org/baseball/graph/game/824087"
+        ],
+        "aggregate": {
+          "kind": "channel_entropy",
+          "channelCounts": [
+            2,
+            1,
+            0
+          ]
+        }
+      },
+      {
+        "status": "available",
+        "value": null,
+        "approximateValue": 0.6309297535714574,
+        "exactExpression": "-sum(p*ln(p))/ln(3)",
+        "gaps": [],
+        "components": {
+          "channelCounts": [
+            1,
+            1,
+            0
+          ],
+          "probabilities": [
+            {
+              "numerator": "1",
+              "denominator": "2"
+            },
+            {
+              "numerator": "1",
+              "denominator": "2"
+            },
+            {
+              "numerator": "0",
+              "denominator": "1"
+            }
+          ],
+          "pathBreadth": 2
+        },
+        "evidence": [],
+        "player": "https://baseballontology.org/data/player/686475",
+        "metricId": "contribution-path-diversity",
+        "dateScope": {
+          "startDate": "2026-07-20",
+          "endDate": "2026-07-20",
+          "gameSet": "regular_season"
+        },
+        "completeParticipation": true,
+        "plateAppearances": 1,
+        "teamGames": 1,
+        "independentRunningEpisodes": 0,
+        "graphs": [
+          "https://w3id.org/baseball/graph/game/824087"
+        ],
+        "aggregate": {
+          "kind": "channel_entropy",
+          "channelCounts": [
+            1,
+            1,
+            0
+          ]
+        }
+      },
+      {
+        "status": "available",
+        "value": null,
+        "approximateValue": 0.5793801642856949,
+        "exactExpression": "-sum(p*ln(p))/ln(3)",
+        "gaps": [],
+        "components": {
+          "channelCounts": [
+            2,
+            1,
+            0
+          ],
+          "probabilities": [
+            {
+              "numerator": "2",
+              "denominator": "3"
+            },
+            {
+              "numerator": "1",
+              "denominator": "3"
+            },
+            {
+              "numerator": "0",
+              "denominator": "1"
+            }
+          ],
+          "pathBreadth": 2
+        },
+        "evidence": [],
+        "player": "https://baseballontology.org/data/player/686555",
+        "metricId": "contribution-path-diversity",
+        "dateScope": {
+          "startDate": "2026-07-20",
+          "endDate": "2026-07-20",
+          "gameSet": "regular_season"
+        },
+        "completeParticipation": true,
+        "plateAppearances": 3,
+        "teamGames": 1,
+        "independentRunningEpisodes": 0,
+        "graphs": [
+          "https://w3id.org/baseball/graph/game/824087"
+        ],
+        "aggregate": {
+          "kind": "channel_entropy",
+          "channelCounts": [
+            2,
+            1,
+            0
+          ]
+        }
+      },
+      {
+        "status": "available",
+        "value": null,
+        "approximateValue": -0.0,
+        "exactExpression": "-sum(p*ln(p))/ln(3)",
+        "gaps": [],
+        "components": {
+          "channelCounts": [
+            1,
+            0,
+            0
+          ],
+          "probabilities": [
+            {
+              "numerator": "1",
+              "denominator": "1"
+            },
+            {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            {
+              "numerator": "0",
+              "denominator": "1"
+            }
+          ],
+          "pathBreadth": 1
+        },
+        "evidence": [],
+        "player": "https://baseballontology.org/data/player/686681",
+        "metricId": "contribution-path-diversity",
+        "dateScope": {
+          "startDate": "2026-07-20",
+          "endDate": "2026-07-20",
+          "gameSet": "regular_season"
+        },
+        "completeParticipation": true,
+        "plateAppearances": 4,
+        "teamGames": 1,
+        "independentRunningEpisodes": 0,
+        "graphs": [
+          "https://w3id.org/baseball/graph/game/824087"
+        ],
+        "aggregate": {
+          "kind": "channel_entropy",
+          "channelCounts": [
+            1,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "status": "available",
+        "value": null,
+        "approximateValue": 0.5793801642856949,
+        "exactExpression": "-sum(p*ln(p))/ln(3)",
+        "gaps": [],
+        "components": {
+          "channelCounts": [
+            2,
+            0,
+            1
+          ],
+          "probabilities": [
+            {
+              "numerator": "2",
+              "denominator": "3"
+            },
+            {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            {
+              "numerator": "1",
+              "denominator": "3"
+            }
+          ],
+          "pathBreadth": 2
+        },
+        "evidence": [],
+        "player": "https://baseballontology.org/data/player/691740",
+        "metricId": "contribution-path-diversity",
+        "dateScope": {
+          "startDate": "2026-07-20",
+          "endDate": "2026-07-20",
+          "gameSet": "regular_season"
+        },
+        "completeParticipation": true,
+        "plateAppearances": 3,
+        "teamGames": 1,
+        "independentRunningEpisodes": 1,
+        "graphs": [
+          "https://w3id.org/baseball/graph/game/824087"
+        ],
+        "aggregate": {
+          "kind": "channel_entropy",
+          "channelCounts": [
+            2,
+            0,
+            1
+          ]
+        }
+      },
+      {
+        "status": "available",
+        "value": null,
+        "approximateValue": -0.0,
+        "exactExpression": "-sum(p*ln(p))/ln(3)",
+        "gaps": [],
+        "components": {
+          "channelCounts": [
+            0,
+            1,
+            0
+          ],
+          "probabilities": [
+            {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            {
+              "numerator": "1",
+              "denominator": "1"
+            },
+            {
+              "numerator": "0",
+              "denominator": "1"
+            }
+          ],
+          "pathBreadth": 1
+        },
+        "evidence": [],
+        "player": "https://baseballontology.org/data/player/695600",
+        "metricId": "contribution-path-diversity",
+        "dateScope": {
+          "startDate": "2026-07-20",
+          "endDate": "2026-07-20",
+          "gameSet": "regular_season"
+        },
+        "completeParticipation": true,
+        "plateAppearances": 5,
+        "teamGames": 1,
+        "independentRunningEpisodes": 0,
+        "graphs": [
+          "https://w3id.org/baseball/graph/game/824087"
+        ],
+        "aggregate": {
+          "kind": "channel_entropy",
+          "channelCounts": [
+            0,
+            1,
+            0
+          ]
+        }
+      },
+      {
+        "status": "available",
+        "value": null,
+        "approximateValue": -0.0,
+        "exactExpression": "-sum(p*ln(p))/ln(3)",
+        "gaps": [],
+        "components": {
+          "channelCounts": [
+            1,
+            0,
+            0
+          ],
+          "probabilities": [
+            {
+              "numerator": "1",
+              "denominator": "1"
+            },
+            {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            {
+              "numerator": "0",
+              "denominator": "1"
+            }
+          ],
+          "pathBreadth": 1
+        },
+        "evidence": [],
+        "player": "https://baseballontology.org/data/player/805811",
+        "metricId": "contribution-path-diversity",
+        "dateScope": {
+          "startDate": "2026-07-20",
+          "endDate": "2026-07-20",
+          "gameSet": "regular_season"
+        },
+        "completeParticipation": true,
+        "plateAppearances": 4,
+        "teamGames": 1,
+        "independentRunningEpisodes": 0,
+        "graphs": [
+          "https://w3id.org/baseball/graph/game/824087"
+        ],
+        "aggregate": {
+          "kind": "channel_entropy",
+          "channelCounts": [
+            1,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "status": "available",
+        "value": null,
+        "approximateValue": -0.0,
+        "exactExpression": "-sum(p*ln(p))/ln(3)",
+        "gaps": [],
+        "components": {
+          "channelCounts": [
+            1,
+            0,
+            0
+          ],
+          "probabilities": [
+            {
+              "numerator": "1",
+              "denominator": "1"
+            },
+            {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            {
+              "numerator": "0",
+              "denominator": "1"
+            }
+          ],
+          "pathBreadth": 1
+        },
+        "evidence": [],
+        "player": "https://baseballontology.org/data/player/808982",
+        "metricId": "contribution-path-diversity",
+        "dateScope": {
+          "startDate": "2026-07-20",
+          "endDate": "2026-07-20",
+          "gameSet": "regular_season"
+        },
+        "completeParticipation": true,
+        "plateAppearances": 4,
+        "teamGames": 1,
+        "independentRunningEpisodes": 0,
+        "graphs": [
+          "https://w3id.org/baseball/graph/game/824087"
+        ],
+        "aggregate": {
+          "kind": "channel_entropy",
+          "channelCounts": [
+            1,
+            0,
+            0
+          ]
+        }
+      }
+    ],
+    "playerSummaryGaps": [],
+    "progressEvidence": {
+      "plateAppearances": [
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/0",
+          "player": "https://baseballontology.org/data/player/650333",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/6f877466-2910-364a-94ac-62f23dafbd4e",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/0/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/0/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/0/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/1",
+          "player": "https://baseballontology.org/data/player/805811",
+          "officialResult": true,
+          "batterPositive": true,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [
+            {
+              "player": "https://baseballontology.org/data/player/805811",
+              "play": "https://baseballontology.org/data/game/824087/plate-appearance/1/result",
+              "channel": "batter_self"
+            }
+          ],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/plate-appearance/1/result",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/1/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/1/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/reach/1/0",
+            "https://baseballontology.org/data/rule/official-baseball/2026/batter-walk"
+          ],
+          "reach": 1
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/10",
+          "player": "https://baseballontology.org/data/player/687551",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/7ef4d03c-2ccf-314c-a3e7-d29dff817124",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/10/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/10/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/10/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/11",
+          "player": "https://baseballontology.org/data/player/657041",
+          "officialResult": true,
+          "batterPositive": true,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [
+            {
+              "player": "https://baseballontology.org/data/player/657041",
+              "play": "https://baseballontology.org/data/game/824087/process/batted-ball-play/21bce89c-2f59-310d-a886-a3b0dcb3d9af",
+              "channel": "batter_self"
+            }
+          ],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/21bce89c-2f59-310d-a886-a3b0dcb3d9af",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/11/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/11/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/reach/11/0"
+          ],
+          "reach": 1
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/12",
+          "player": "https://baseballontology.org/data/player/686469",
+          "officialResult": true,
+          "batterPositive": true,
+          "otherPositivePlayers": [
+            "https://baseballontology.org/data/player/657041"
+          ],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [
+            {
+              "player": "https://baseballontology.org/data/player/686469",
+              "play": "https://baseballontology.org/data/game/824087/plate-appearance/12/result",
+              "channel": "batter_other"
+            },
+            {
+              "player": "https://baseballontology.org/data/player/686469",
+              "play": "https://baseballontology.org/data/game/824087/plate-appearance/12/result",
+              "channel": "batter_self"
+            }
+          ],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/plate-appearance/12/result",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/12/0",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/12/1",
+            "https://baseballontology.org/data/game/824087/runner-episode/12/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/12/1",
+            "https://baseballontology.org/data/game/824087/runner-resolution/advance/12/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/reach/12/1",
+            "https://baseballontology.org/data/rule/official-baseball/2026/batter-walk",
+            "https://baseballontology.org/data/rule/official-baseball/2026/forced-advance"
+          ],
+          "reach": 2
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/13",
+          "player": "https://baseballontology.org/data/player/521692",
+          "officialResult": true,
+          "batterPositive": true,
+          "otherPositivePlayers": [
+            "https://baseballontology.org/data/player/657041",
+            "https://baseballontology.org/data/player/686469"
+          ],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [
+            {
+              "player": "https://baseballontology.org/data/player/521692",
+              "play": "https://baseballontology.org/data/game/824087/plate-appearance/13/result",
+              "channel": "batter_other"
+            },
+            {
+              "player": "https://baseballontology.org/data/player/521692",
+              "play": "https://baseballontology.org/data/game/824087/plate-appearance/13/result",
+              "channel": "batter_self"
+            }
+          ],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/plate-appearance/13/result",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/13/0",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/13/1",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/13/2",
+            "https://baseballontology.org/data/game/824087/runner-episode/13/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/13/1",
+            "https://baseballontology.org/data/game/824087/runner-episode/13/2",
+            "https://baseballontology.org/data/game/824087/runner-resolution/advance/13/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/advance/13/1",
+            "https://baseballontology.org/data/game/824087/runner-resolution/reach/13/2",
+            "https://baseballontology.org/data/rule/official-baseball/2026/batter-hbp",
+            "https://baseballontology.org/data/rule/official-baseball/2026/forced-advance"
+          ],
+          "reach": 3
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/14",
+          "player": "https://baseballontology.org/data/player/686681",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/1e8d6d08-fb2c-3a04-bd2b-77a373a96a68",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/14/0",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/14/1",
+            "https://baseballontology.org/data/game/824087/runner-episode/14/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/14/1",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/14/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/14/1"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/15",
+          "player": "https://baseballontology.org/data/player/668942",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/e4b16fab-7efd-3097-be85-24d998febd1a",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/15/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/15/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/15/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/16",
+          "player": "https://baseballontology.org/data/player/691740",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/6752e49f-9547-30fc-b0e2-efbec889fdd6",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/16/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/16/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/16/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/17",
+          "player": "https://baseballontology.org/data/player/650333",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/bc333490-1f04-3ddd-9d71-eadc4fc21586",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/17/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/17/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/17/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/18",
+          "player": "https://baseballontology.org/data/player/805811",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/runner-act/movement/18/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/18/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/18/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/19",
+          "player": "https://baseballontology.org/data/player/686555",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/95d790f2-c9ff-30ed-a332-585f80d19f19",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/19/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/19/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/19/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/2",
+          "player": "https://baseballontology.org/data/player/669477",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/21f7c682-0ee8-3bad-b114-9685e8f29ffd",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/2/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/2/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/2/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/20",
+          "player": "https://baseballontology.org/data/player/695600",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/845663f9-511d-3022-9a6c-1f8490c973c5",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/20/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/20/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/20/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/21",
+          "player": "https://baseballontology.org/data/player/677951",
+          "officialResult": true,
+          "batterPositive": true,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [
+            {
+              "player": "https://baseballontology.org/data/player/677951",
+              "play": "https://baseballontology.org/data/game/824087/plate-appearance/21/result",
+              "channel": "batter_self"
+            }
+          ],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/plate-appearance/21/result",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/21/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/21/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/reach/21/0",
+            "https://baseballontology.org/data/rule/official-baseball/2026/batter-walk"
+          ],
+          "reach": 1
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/22",
+          "player": "https://baseballontology.org/data/player/695506",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/85291bdb-6503-32fd-b42d-d5e4a992ab93",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/22/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/22/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/22/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/23",
+          "player": "https://baseballontology.org/data/player/669477",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/runner-act/movement/23/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/23/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/23/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/24",
+          "player": "https://baseballontology.org/data/player/646240",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/f76ee148-63bf-3e93-88d5-c61b08b887ad",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/24/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/24/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/24/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/25",
+          "player": "https://baseballontology.org/data/player/671218",
+          "officialResult": true,
+          "batterPositive": true,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [
+            {
+              "player": "https://baseballontology.org/data/player/671218",
+              "play": "https://baseballontology.org/data/game/824087/process/batted-ball-play/b43113bc-7eb4-31c7-8b07-790421f5300a",
+              "channel": "batter_self"
+            }
+          ],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/b43113bc-7eb4-31c7-8b07-790421f5300a",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/25/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/25/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/score/25/0"
+          ],
+          "reach": 1
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/26",
+          "player": "https://baseballontology.org/data/player/808982",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/01987d59-cb36-38f8-bef9-3d11fb88b024",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/26/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/26/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/26/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/27",
+          "player": "https://baseballontology.org/data/player/657041",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/runner-act/movement/27/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/27/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/27/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/28",
+          "player": "https://baseballontology.org/data/player/686469",
+          "officialResult": true,
+          "batterPositive": true,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [
+            {
+              "player": "https://baseballontology.org/data/player/686469",
+              "play": "https://baseballontology.org/data/game/824087/plate-appearance/28/result",
+              "channel": "batter_self"
+            }
+          ],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/plate-appearance/28/result",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/28/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/28/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/reach/28/0",
+            "https://baseballontology.org/data/rule/official-baseball/2026/batter-hbp"
+          ],
+          "reach": 1
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/29",
+          "player": "https://baseballontology.org/data/player/521692",
+          "officialResult": true,
+          "batterPositive": true,
+          "otherPositivePlayers": [
+            "https://baseballontology.org/data/player/686469"
+          ],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [
+            {
+              "player": "https://baseballontology.org/data/player/521692",
+              "play": "https://baseballontology.org/data/game/824087/process/batted-ball-play/b524f8a5-e710-3ca9-b5ba-f2d693524822",
+              "channel": "batter_other"
+            },
+            {
+              "player": "https://baseballontology.org/data/player/521692",
+              "play": "https://baseballontology.org/data/game/824087/process/batted-ball-play/b524f8a5-e710-3ca9-b5ba-f2d693524822",
+              "channel": "batter_self"
+            }
+          ],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/b524f8a5-e710-3ca9-b5ba-f2d693524822",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/29/0",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/29/1",
+            "https://baseballontology.org/data/game/824087/runner-episode/29/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/29/1",
+            "https://baseballontology.org/data/game/824087/runner-resolution/score/29/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/score/29/1"
+          ],
+          "reach": 2
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/3",
+          "player": "https://baseballontology.org/data/player/646240",
+          "officialResult": true,
+          "batterPositive": true,
+          "otherPositivePlayers": [
+            "https://baseballontology.org/data/player/805811"
+          ],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [
+            {
+              "player": "https://baseballontology.org/data/player/646240",
+              "play": "https://baseballontology.org/data/game/824087/plate-appearance/3/result",
+              "channel": "batter_other"
+            },
+            {
+              "player": "https://baseballontology.org/data/player/646240",
+              "play": "https://baseballontology.org/data/game/824087/plate-appearance/3/result",
+              "channel": "batter_self"
+            }
+          ],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/plate-appearance/3/result",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/3/0",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/3/1",
+            "https://baseballontology.org/data/game/824087/runner-episode/3/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/3/1",
+            "https://baseballontology.org/data/game/824087/runner-resolution/advance/3/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/reach/3/1",
+            "https://baseballontology.org/data/rule/official-baseball/2026/batter-walk",
+            "https://baseballontology.org/data/rule/official-baseball/2026/forced-advance"
+          ],
+          "reach": 2
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/30",
+          "player": "https://baseballontology.org/data/player/686681",
+          "officialResult": true,
+          "batterPositive": true,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [
+            {
+              "player": "https://baseballontology.org/data/player/686681",
+              "play": "https://baseballontology.org/data/game/824087/process/batted-ball-play/c9160b01-2224-3bec-9f9f-769ca7ec289c",
+              "channel": "batter_self"
+            }
+          ],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/c9160b01-2224-3bec-9f9f-769ca7ec289c",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/30/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/30/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/reach/30/0"
+          ],
+          "reach": 1
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/31",
+          "player": "https://baseballontology.org/data/player/668942",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [
+            "https://baseballontology.org/data/player/686681"
+          ],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [
+            {
+              "player": "https://baseballontology.org/data/player/668942",
+              "play": "https://baseballontology.org/data/game/824087/process/batted-ball-play/58eaaa2e-487b-3717-92d9-5aaa101c9ec5",
+              "channel": "batter_other"
+            }
+          ],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/58eaaa2e-487b-3717-92d9-5aaa101c9ec5",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/31/0",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/31/1",
+            "https://baseballontology.org/data/game/824087/runner-episode/31/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/31/1",
+            "https://baseballontology.org/data/game/824087/runner-resolution/advance/31/1",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/31/0"
+          ],
+          "reach": 1
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/32",
+          "player": "https://baseballontology.org/data/player/686555",
+          "officialResult": true,
+          "batterPositive": true,
+          "otherPositivePlayers": [
+            "https://baseballontology.org/data/player/686681"
+          ],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [
+            {
+              "player": "https://baseballontology.org/data/player/686555",
+              "play": "https://baseballontology.org/data/game/824087/process/batted-ball-play/da386b29-64d2-35f2-912e-2d1426dac52f",
+              "channel": "batter_other"
+            },
+            {
+              "player": "https://baseballontology.org/data/player/686555",
+              "play": "https://baseballontology.org/data/game/824087/process/batted-ball-play/da386b29-64d2-35f2-912e-2d1426dac52f",
+              "channel": "batter_self"
+            }
+          ],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/da386b29-64d2-35f2-912e-2d1426dac52f",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/32/0",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/32/1",
+            "https://baseballontology.org/data/game/824087/runner-episode/32/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/32/1",
+            "https://baseballontology.org/data/game/824087/runner-resolution/reach/32/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/score/32/1"
+          ],
+          "reach": 2
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/33",
+          "player": "https://baseballontology.org/data/player/695600",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/16b06536-6084-3cea-ab73-db70b839b7b7",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/33/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/33/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/33/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/34",
+          "player": "https://baseballontology.org/data/player/642715",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/5866a625-51d4-3d33-a015-c64223eb579a",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/34/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/34/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/34/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/35",
+          "player": "https://baseballontology.org/data/player/687551",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/d491b1af-3af3-3a05-b1a8-483b6070247e",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/35/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/35/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/35/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/36",
+          "player": "https://baseballontology.org/data/player/691740",
+          "officialResult": true,
+          "batterPositive": true,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [
+            {
+              "player": "https://baseballontology.org/data/player/691740",
+              "play": "https://baseballontology.org/data/game/824087/process/batted-ball-play/0d2c5cf6-8136-35c1-a38c-4eb7ba66eb5c",
+              "channel": "batter_self"
+            }
+          ],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/0d2c5cf6-8136-35c1-a38c-4eb7ba66eb5c",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/36/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/36/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/reach/36/0"
+          ],
+          "reach": 1
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/37",
+          "player": "https://baseballontology.org/data/player/650333",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [
+            {
+              "player": "https://baseballontology.org/data/player/691740",
+              "episode": "https://baseballontology.org/data/game/824087/runner-episode/37/0",
+              "support": "https://baseballontology.org/data/game/824087/runner-act/movement/37/0"
+            }
+          ],
+          "independentEpisodes": [
+            {
+              "player": "https://baseballontology.org/data/player/691740",
+              "episode": "https://baseballontology.org/data/game/824087/runner-episode/37/0",
+              "support": "https://baseballontology.org/data/game/824087/runner-act/movement/37/0"
+            }
+          ],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [
+            {
+              "player": "https://baseballontology.org/data/player/691740",
+              "play": "https://baseballontology.org/data/game/824087/runner-episode/37/0",
+              "channel": "runner_self"
+            }
+          ],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/3939228d-0def-3a04-b084-1eedebb8ac8a",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/37/0",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/37/1",
+            "https://baseballontology.org/data/game/824087/runner-episode/37/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/37/1",
+            "https://baseballontology.org/data/game/824087/runner-resolution/advance/37/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/37/1"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/38",
+          "player": "https://baseballontology.org/data/player/679845",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/7041c9db-5860-35dc-9dcd-cae1f880f7cd",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/38/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/38/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/38/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/39",
+          "player": "https://baseballontology.org/data/player/695506",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/runner-act/movement/39/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/39/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/39/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/4",
+          "player": "https://baseballontology.org/data/player/671218",
+          "officialResult": true,
+          "batterPositive": true,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [
+            {
+              "player": "https://baseballontology.org/data/player/671218",
+              "play": "https://baseballontology.org/data/game/824087/process/batted-ball-play/eb59f80f-db24-3475-8c9b-e88b3813873b",
+              "channel": "batter_self"
+            }
+          ],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/eb59f80f-db24-3475-8c9b-e88b3813873b",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/4/0",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/4/1",
+            "https://baseballontology.org/data/game/824087/runner-episode/4/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/4/1",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/4/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/reach/4/1"
+          ],
+          "reach": 1
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/40",
+          "player": "https://baseballontology.org/data/player/657041",
+          "officialResult": true,
+          "batterPositive": true,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [
+            {
+              "player": "https://baseballontology.org/data/player/657041",
+              "play": "https://baseballontology.org/data/game/824087/process/batted-ball-play/ee7e7796-fdee-3c48-828e-47e376b30d51",
+              "channel": "batter_self"
+            }
+          ],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/ee7e7796-fdee-3c48-828e-47e376b30d51",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/40/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/40/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/reach/40/0"
+          ],
+          "reach": 1
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/41",
+          "player": "https://baseballontology.org/data/player/686469",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/56191791-83ac-36b1-9379-5636815eb457",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/41/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/41/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/41/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/42",
+          "player": "https://baseballontology.org/data/player/805811",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/runner-act/movement/42/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/42/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/42/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/43",
+          "player": "https://baseballontology.org/data/player/669477",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/b091cdd1-9cab-3e92-b26f-f947382c2946",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/43/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/43/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/43/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/44",
+          "player": "https://baseballontology.org/data/player/646240",
+          "officialResult": true,
+          "batterPositive": true,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [
+            {
+              "player": "https://baseballontology.org/data/player/646240",
+              "play": "https://baseballontology.org/data/game/824087/process/batted-ball-play/6b0c16dc-0820-381e-bfab-351ed2ad8757",
+              "channel": "batter_self"
+            }
+          ],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/6b0c16dc-0820-381e-bfab-351ed2ad8757",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/44/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/44/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/reach/44/0"
+          ],
+          "reach": 1
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/45",
+          "player": "https://baseballontology.org/data/player/671218",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/runner-act/movement/45/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/45/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/45/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/46",
+          "player": "https://baseballontology.org/data/player/521692",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/runner-act/movement/46/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/46/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/46/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/47",
+          "player": "https://baseballontology.org/data/player/686681",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/fc27cd54-2668-3134-86ec-6e801dbe0f91",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/47/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/47/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/47/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/48",
+          "player": "https://baseballontology.org/data/player/668942",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/876e8167-38fa-3ae8-8411-52cb4a027ca2",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/48/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/48/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/48/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/49",
+          "player": "https://baseballontology.org/data/player/808982",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/5ff6377f-5b61-309b-9f8d-4b3e34dc0280",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/49/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/49/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/49/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/5",
+          "player": "https://baseballontology.org/data/player/695600",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/runner-act/movement/5/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/5/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/5/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/50",
+          "player": "https://baseballontology.org/data/player/642715",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/ab59c59d-e3fc-37ba-8987-b9634028cc94",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/50/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/50/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/50/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/51",
+          "player": "https://baseballontology.org/data/player/687551",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/b2b2ae4b-0920-36d4-8424-09a8128b6717",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/51/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/51/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/51/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/52",
+          "player": "https://baseballontology.org/data/player/686555",
+          "officialResult": true,
+          "batterPositive": true,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [
+            {
+              "player": "https://baseballontology.org/data/player/686555",
+              "play": "https://baseballontology.org/data/game/824087/process/batted-ball-play/f55715ca-61b7-34e2-a860-c0eb483d8f00",
+              "channel": "batter_self"
+            }
+          ],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/f55715ca-61b7-34e2-a860-c0eb483d8f00",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/52/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/52/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/reach/52/0"
+          ],
+          "reach": 1
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/53",
+          "player": "https://baseballontology.org/data/player/695600",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/5645cea3-f632-36a2-8fe3-aafaceaec9be",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/53/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/53/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/53/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/54",
+          "player": "https://baseballontology.org/data/player/679845",
+          "officialResult": true,
+          "batterPositive": true,
+          "otherPositivePlayers": [
+            "https://baseballontology.org/data/player/686475"
+          ],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [
+            {
+              "player": "https://baseballontology.org/data/player/679845",
+              "play": "https://baseballontology.org/data/game/824087/process/batted-ball-play/8fc0ff72-7c52-3dee-b1c7-07217c5e2b84",
+              "channel": "batter_other"
+            },
+            {
+              "player": "https://baseballontology.org/data/player/679845",
+              "play": "https://baseballontology.org/data/game/824087/process/batted-ball-play/8fc0ff72-7c52-3dee-b1c7-07217c5e2b84",
+              "channel": "batter_self"
+            }
+          ],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/8fc0ff72-7c52-3dee-b1c7-07217c5e2b84",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/54/0",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/54/1",
+            "https://baseballontology.org/data/game/824087/runner-episode/54/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/54/1",
+            "https://baseballontology.org/data/game/824087/runner-resolution/advance/54/1",
+            "https://baseballontology.org/data/game/824087/runner-resolution/reach/54/0"
+          ],
+          "reach": 2
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/55",
+          "player": "https://baseballontology.org/data/player/695506",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/8b5ed7d4-d41e-339b-9a9f-311c13d5c21a",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/55/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/55/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/55/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/56",
+          "player": "https://baseballontology.org/data/player/657041",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/runner-act/movement/56/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/56/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/56/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/57",
+          "player": "https://baseballontology.org/data/player/691740",
+          "officialResult": true,
+          "batterPositive": true,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [
+            {
+              "player": "https://baseballontology.org/data/player/691740",
+              "play": "https://baseballontology.org/data/game/824087/process/batted-ball-play/6593d151-d10e-3011-9da3-a25bdfb08688",
+              "channel": "batter_self"
+            }
+          ],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/6593d151-d10e-3011-9da3-a25bdfb08688",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/57/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/57/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/reach/57/0"
+          ],
+          "reach": 1
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/58",
+          "player": "https://baseballontology.org/data/player/650333",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [
+            "https://baseballontology.org/data/player/691740"
+          ],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [
+            {
+              "player": "https://baseballontology.org/data/player/650333",
+              "play": "https://baseballontology.org/data/game/824087/process/batted-ball-play/a3bdbc9a-38e9-3c80-aa8a-deb78e12c31e",
+              "channel": "batter_other"
+            }
+          ],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/a3bdbc9a-38e9-3c80-aa8a-deb78e12c31e",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/58/0",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/58/1",
+            "https://baseballontology.org/data/game/824087/runner-episode/58/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/58/1",
+            "https://baseballontology.org/data/game/824087/runner-resolution/advance/58/1",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/58/0"
+          ],
+          "reach": 1
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/59",
+          "player": "https://baseballontology.org/data/player/805811",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/runner-act/movement/59/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/59/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/59/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/6",
+          "player": "https://baseballontology.org/data/player/677951",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/runner-act/movement/6/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/6/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/6/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/60",
+          "player": "https://baseballontology.org/data/player/669477",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/cbd56d72-0e2f-3cfc-aaf0-4134ed2e6e52",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/60/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/60/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/60/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/61",
+          "player": "https://baseballontology.org/data/player/686469",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/27109168-63ae-36f8-97f8-3a356133f318",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/61/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/61/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/61/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/62",
+          "player": "https://baseballontology.org/data/player/521692",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/e07e2fbe-5c29-3d65-b5da-98efa23f3e62",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/62/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/62/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/62/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/63",
+          "player": "https://baseballontology.org/data/player/686681",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/c77520f8-16fa-3b8f-9f86-145929a48771",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/63/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/63/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/63/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/64",
+          "player": "https://baseballontology.org/data/player/646240",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/runner-act/movement/64/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/64/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/64/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/65",
+          "player": "https://baseballontology.org/data/player/671218",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/runner-act/movement/65/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/65/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/65/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/66",
+          "player": "https://baseballontology.org/data/player/808982",
+          "officialResult": true,
+          "batterPositive": true,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [
+            {
+              "player": "https://baseballontology.org/data/player/808982",
+              "play": "https://baseballontology.org/data/game/824087/process/batted-ball-play/834c154b-c38f-39a8-a347-ae08ecd8a611",
+              "channel": "batter_self"
+            }
+          ],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/834c154b-c38f-39a8-a347-ae08ecd8a611",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/66/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/66/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/reach/66/0"
+          ],
+          "reach": 1
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/67",
+          "player": "https://baseballontology.org/data/player/642715",
+          "officialResult": true,
+          "batterPositive": true,
+          "otherPositivePlayers": [
+            "https://baseballontology.org/data/player/808982"
+          ],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [
+            {
+              "player": "https://baseballontology.org/data/player/642715",
+              "play": "https://baseballontology.org/data/game/824087/process/batted-ball-play/ec46b1c8-d63a-37c2-b8dc-bcb5b680bbe6",
+              "channel": "batter_other"
+            },
+            {
+              "player": "https://baseballontology.org/data/player/642715",
+              "play": "https://baseballontology.org/data/game/824087/process/batted-ball-play/ec46b1c8-d63a-37c2-b8dc-bcb5b680bbe6",
+              "channel": "batter_self"
+            }
+          ],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/ec46b1c8-d63a-37c2-b8dc-bcb5b680bbe6",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/67/0",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/67/1",
+            "https://baseballontology.org/data/game/824087/runner-episode/67/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/67/1",
+            "https://baseballontology.org/data/game/824087/runner-resolution/score/67/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/score/67/1"
+          ],
+          "reach": 2
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/68",
+          "player": "https://baseballontology.org/data/player/687551",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/8b1e1564-740a-3e11-8c92-a5ada6bd326c",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/68/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/68/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/68/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/69",
+          "player": "https://baseballontology.org/data/player/668942",
+          "officialResult": true,
+          "batterPositive": true,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [
+            {
+              "player": "https://baseballontology.org/data/player/668942",
+              "play": "https://baseballontology.org/data/game/824087/process/batted-ball-play/2aa7828e-20e1-3423-bfdf-41059ac941d8",
+              "channel": "batter_self"
+            }
+          ],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/2aa7828e-20e1-3423-bfdf-41059ac941d8",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/69/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/69/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/reach/69/0"
+          ],
+          "reach": 1
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/7",
+          "player": "https://baseballontology.org/data/player/695506",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/5dbe86e5-0cdc-3566-ba71-b221f8140d08",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/7/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/7/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/7/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/70",
+          "player": "https://baseballontology.org/data/player/686475",
+          "officialResult": true,
+          "batterPositive": true,
+          "otherPositivePlayers": [
+            "https://baseballontology.org/data/player/668942"
+          ],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [
+            {
+              "player": "https://baseballontology.org/data/player/686475",
+              "play": "https://baseballontology.org/data/game/824087/process/batted-ball-play/0eee4580-7515-36e6-819a-f4eb0894b26f",
+              "channel": "batter_other"
+            },
+            {
+              "player": "https://baseballontology.org/data/player/686475",
+              "play": "https://baseballontology.org/data/game/824087/process/batted-ball-play/0eee4580-7515-36e6-819a-f4eb0894b26f",
+              "channel": "batter_self"
+            }
+          ],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/0eee4580-7515-36e6-819a-f4eb0894b26f",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/70/0",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/70/1",
+            "https://baseballontology.org/data/game/824087/runner-episode/70/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/70/1",
+            "https://baseballontology.org/data/game/824087/runner-resolution/advance/70/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/reach/70/1"
+          ],
+          "reach": 2
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/71",
+          "player": "https://baseballontology.org/data/player/695600",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [
+            "https://baseballontology.org/data/player/668942"
+          ],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [
+            {
+              "player": "https://baseballontology.org/data/player/695600",
+              "play": "https://baseballontology.org/data/game/824087/process/batted-ball-play/01bb83c9-ce4b-363e-a38d-8f808466a869",
+              "channel": "batter_other"
+            }
+          ],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/01bb83c9-ce4b-363e-a38d-8f808466a869",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/71/0",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/71/1",
+            "https://baseballontology.org/data/game/824087/runner-episode/71/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/71/1",
+            "https://baseballontology.org/data/game/824087/runner-resolution/advance/71/1",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/71/0"
+          ],
+          "reach": 1
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/72",
+          "player": "https://baseballontology.org/data/player/679845",
+          "officialResult": true,
+          "batterPositive": true,
+          "otherPositivePlayers": [
+            "https://baseballontology.org/data/player/668942",
+            "https://baseballontology.org/data/player/686475"
+          ],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [
+            {
+              "player": "https://baseballontology.org/data/player/679845",
+              "play": "https://baseballontology.org/data/game/824087/process/batted-ball-play/ccc18a37-bb05-3485-94d6-7d80bada52b6",
+              "channel": "batter_other"
+            },
+            {
+              "player": "https://baseballontology.org/data/player/679845",
+              "play": "https://baseballontology.org/data/game/824087/process/batted-ball-play/ccc18a37-bb05-3485-94d6-7d80bada52b6",
+              "channel": "batter_self"
+            }
+          ],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/ccc18a37-bb05-3485-94d6-7d80bada52b6",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/72/0",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/72/1",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/72/2",
+            "https://baseballontology.org/data/game/824087/runner-episode/72/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/72/1",
+            "https://baseballontology.org/data/game/824087/runner-episode/72/2",
+            "https://baseballontology.org/data/game/824087/runner-resolution/advance/72/1",
+            "https://baseballontology.org/data/game/824087/runner-resolution/reach/72/2",
+            "https://baseballontology.org/data/game/824087/runner-resolution/score/72/0"
+          ],
+          "reach": 3
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/8",
+          "player": "https://baseballontology.org/data/player/808982",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/process/batted-ball-play/395d921a-e16d-34e5-bbf1-5cf1ec5126ea",
+            "https://baseballontology.org/data/game/824087/runner-act/movement/8/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/8/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/8/0"
+          ],
+          "reach": 0
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/824087",
+          "game": "https://baseballontology.org/data/game/824087",
+          "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/9",
+          "player": "https://baseballontology.org/data/player/642715",
+          "officialResult": true,
+          "batterPositive": false,
+          "otherPositivePlayers": [],
+          "independentPositive": [],
+          "independentEpisodes": [],
+          "independentEpisodeGaps": [],
+          "positiveChannels": [],
+          "evidence": [
+            "https://baseballontology.org/data/game/824087/runner-act/movement/9/0",
+            "https://baseballontology.org/data/game/824087/runner-episode/9/0",
+            "https://baseballontology.org/data/game/824087/runner-resolution/out/9/0"
+          ],
+          "reach": 0
+        }
+      ],
+      "unresolvedPlateAppearances": []
+    },
+    "scope": "Complete selected-period positive play/channel counts; batting or independent-running qualification applies."
+  },
+  "otherProgressRegressions": {
+    "empty-game-rate": {
+      "status": "available",
+      "value": {
+        "numerator": "3",
+        "denominator": "1"
+      },
+      "playerPopulationComplete": true
+    },
+    "hidden-help-rate": {
+      "status": "available",
+      "value": {
+        "numerator": "3",
+        "denominator": "50"
+      },
+      "playerPopulationComplete": true
+    },
+    "offensive-reach": {
+      "status": "available",
+      "value": {
+        "numerator": "37",
+        "denominator": "73"
+      },
+      "playerPopulationComplete": true
+    }
+  },
+  "definedPlayerScores": 17,
+  "qualifiedPlayersInIsolatedGame": 15
+}

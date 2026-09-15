@@ -1,13 +1,17 @@
 # Complete batting progress and Empty Games
 
 The accepted E1, B1, A1/B2 and metric policies now have conditional live player
-producers for Offensive Reach, Hidden Help Rate and Empty Games. No ontology,
+producers for Offensive Reach, Hidden Help Rate, Empty Games and Contribution
+Mix. No ontology,
 RML or identity policy changed. Source expectations remain validation inputs;
 all metric facts come from the canonical promoted-RDF query.
 
 `runner-resolution-admission.py` binds the complete final runner census to the
 owning `runner-resolution-admission.ttl` SHACL profile. It checks each existing
-resolution, act, episode, player, PA, outcome and supported base endpoints.
+resolution, act, episode, player, PA, outcome, supported base endpoints and
+the existing Steal Attempt typing for the six mapped steal/caught-stealing
+event types. Missing or spurious Steal Attempt typing fails the source-bound
+shape. This does not by itself assert analytical independence.
 Missing or extra resolutions and contradictory participant/destination evidence
 cannot admit a population. Source revision, RDF, implementation, shapes and
 report hashes remain bound to the promotion marker. The SQL table stores only
@@ -35,6 +39,23 @@ applicable PA numerator/denominator, and identify Empty Games. Player rows
 publish exact range means for Reach and Help and game counts for Empty Games.
 The existing automatic PA minimum and graph-scoped player names apply. A known
 empty Help denominator has no rate; it is distinct from an incomplete score.
+
+Contribution Mix uses the same common admissions and then requires a complete
+independent-running participation inventory. Distinct positive contact/award
+plays count once in each applicable batting channel; an independent positive
+episode counts once for its runner. Multiple beneficiaries cannot inflate the
+batter-other channel. All distinct supported independent attempts, including
+nonpositive attempts, enter the separate participation count. A strikeout with
+a runner caught stealing is withheld because the accepted hit-and-run decision
+does not let those outcomes alone establish strategy or responsibility.
+Unattributed non-batter outs also withhold that participation census.
+
+Exact selected-period channel counts feed the existing normalized entropy
+formula. No daily entropy scores are averaged and no exact fraction is
+fabricated for logarithms. Players with no positive contributions have a known
+empty entropy denominator. Zero-PA players with positive independent running
+remain eligible through the accepted running minimum; the UI applies batting
+OR running qualification using the separate complete participation counts.
 
 The whole-game proof covers all 73 PAs and 90 runner resolutions in game
 824087. The public date-range request remains withheld without independent

@@ -2,6 +2,7 @@
 import copy
 import importlib.util
 import json
+import math
 import unittest
 from pathlib import Path
 
@@ -75,6 +76,57 @@ def score(data,metric,**changes):
 
 
 class ProgressPlayers(unittest.TestCase):
+    def test_contribution_mix_counts_channels_not_beneficiaries(self):
+        data=fixture();result=score(data,'contribution-path-diversity')
+        self.assertTrue(result['playerPopulationComplete'])
+        self.assertEqual([p['aggregate']['channelCounts'] for p in result['playerResults']],[[1,1,0],[0,0,1]])
+        self.assertAlmostEqual(result['playerResults'][0]['approximateValue'],math.log(2)/math.log(3))
+        self.assertEqual(result['playerResults'][1]['independentRunningEpisodes'],1)
+        # Another beneficiary on the same contact remains one batter-other play.
+        g=data.graph(G1);pa=URIRef(str(GAME)+'/plate-appearance/1');runner=URIRef('https://baseballontology.org/data/player/3')
+        rr=URIRef(str(pa)+'/runner3');act=URIRef(str(pa)+'/runner3-act')
+        movement(g,rr,act,pa,runner,origin=URIRef(str(GAME)+'/base/2'),destination=URIRef(str(GAME)+'/base/3'))
+        g.add((URIRef(str(pa)+'/contact'),BFO.BFO_0000117,rr))
+        self.assertEqual(score(data,'contribution-path-diversity')['playerResults'][0]['aggregate']['channelCounts'],[1,1,0])
+
+    def test_contribution_mix_does_not_infer_strategy_from_strikeout_and_caught_stealing(self):
+        data=fixture();g=data.graph(G1);rr=URIRef(str(GAME)+'/plate-appearance/2/steal')
+        g.remove((rr,RDF.type,BASE.SafeProcess));g.add((rr,RDF.type,BASE.OutProcess))
+        result=score(data,'contribution-path-diversity')
+        self.assertFalse(result['playerPopulationComplete'])
+        self.assertEqual(result['playerSummaryGaps'],['STRIKEOUT_RUNNING_OUT_STRATEGY_UNRESOLVED'])
+
+    def test_contribution_mix_keeps_nonpositive_attempts_and_zero_pa_participants(self):
+        data=fixture();rows=M.normalize_bindings(bindings(data,[G1]),[G1])
+        evidence=M.batting_progress_evidence(rows)
+        q=M.batting_qualification(rows,graphs=[G1],admissions={G1:PROOF},date_scope=SCOPE,selected_games_complete=True)
+        # Exercise the pure aggregate with separately admitted participation.
+        # Only positive occurrences enter entropy; all three distinct attempts
+        # enter the independently supplied running participation inventory.
+        evidence['plateAppearances']=[p for p in evidence['plateAppearances'] if p['player']!=str(P2)]
+        running=evidence['plateAppearances'][-1]
+        original=running['independentEpisodes'][0]
+        running['independentEpisodes'].extend([{**original,'episode':original['episode']+'/missed1'},
+                                               {**original,'episode':original['episode']+'/missed2'}])
+        next(p for p in q['participation'] if p['player']==str(P2))['plateAppearances']=0
+        result=M.contribution_mix_players(evidence,qualification=q,date_scope=SCOPE)
+        runner=next(p for p in result['playerResults'] if p['player']==str(P2))
+        self.assertEqual(runner['plateAppearances'],0)
+        self.assertEqual(runner['independentRunningEpisodes'],3)
+        self.assertEqual(runner['aggregate']['channelCounts'],[0,0,1])
+
+    def test_contribution_mix_pools_period_channels_and_omits_known_empty_denominators(self):
+        data=fixture();rows=M.normalize_bindings(bindings(data,[G1]),[G1])
+        evidence=M.batting_progress_evidence(rows)
+        q=M.batting_qualification(rows,graphs=[G1],admissions={G1:PROOF},date_scope=SCOPE,selected_games_complete=True)
+        for pa in evidence['plateAppearances']:
+            pa['positiveChannels']=[c for c in pa['positiveChannels'] if c['player']==str(P1)]
+        result=M.contribution_mix_players(evidence,qualification=q,date_scope=SCOPE)
+        self.assertEqual(len(result['playerResults']),1)
+        self.assertEqual(result['playerResults'][0]['aggregate']['channelCounts'],[1,1,0])
+        # Each separate play has entropy zero; their pooled channels do not.
+        self.assertGreater(result['playerResults'][0]['approximateValue'],0)
+
     def test_exact_reach_help_and_empty_games_include_independent_positive_running(self):
         data=fixture()
         reach=score(data,'offensive-reach');self.assertTrue(reach['playerPopulationComplete'])
@@ -140,6 +192,10 @@ class ResolutionCensus(unittest.TestCase):
         self.assertTrue(check())
         g.add((URIRef(pa+'/run-act'),CCO.ont00001833,P2));self.assertFalse(check())
         g.remove((URIRef(pa+'/run-act'),CCO.ont00001833,P2))
+        g.add((URIRef(pa+'/run-act'),RDF.type,BASE.StealAttemptAct));self.assertFalse(check())
+        source['resolutions'][0]['stealAttempt']=True;self.assertTrue(check())
+        g.remove((URIRef(pa+'/run-act'),RDF.type,BASE.StealAttemptAct));self.assertFalse(check())
+        source['resolutions'][0]['stealAttempt']=False
         source['resolutions'][0]['destination']='2B';self.assertFalse(check())
         source['resolutions']=[];self.assertFalse(check())
 
