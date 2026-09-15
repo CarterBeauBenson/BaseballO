@@ -250,6 +250,35 @@ test('live fallback and SQL extraction compile identical evidence for every scop
   }
 });
 
+test('Python player means feed qualification without reducing missed-game exposure', () => {
+  const script = `import json,sys
+from pathlib import Path
+sys.path.insert(0,str(Path(sys.argv[1])/'serving'))
+import metric_suite as m
+scope=json.load(sys.stdin)
+members=[]; scores=[]; people=[]
+for p in range(1,7):
+    player='https://baseballontology.org/data/player/'+str(p)
+    for i in range(3):
+        member=dict(graph='https://w3id.org/baseball/graph/game/101',plateAppearance='https://example.org/pa/'+str(p)+'/'+str(i),player=player)
+        members.append(member)
+        scores.append(dict(member,metricId='offensive-reach',status='available',completePlateAppearance=True,dateScope=scope,value=m.exact(p)))
+    exposure=[dict(game='https://example.org/game/'+str(i),team='https://example.org/team/1') for i in range(7 if p==6 else 1)]
+    people.append(dict(player=player,dateScope=scope,completeParticipation=True,plateAppearances=3,teamGameExposure=exposure))
+print(json.dumps(m.summarize_batting_players('offensive-reach',scores,expected_observations=members,participation=people,date_scope=scope,population_complete=True)))`;
+  const root = fileURLToPath(new URL('../../', import.meta.url));
+  const result = spawnSync(process.env.BASEBALLO_PYTHON ?? 'python', ['-c', script, root], {
+    input: JSON.stringify(leaderboardScope), encoding: 'utf8', timeout: 15000, windowsHide: true,
+  });
+  assert.equal(result.status, 0, result.stderr || result.error?.message);
+  const board = playerLeaderboard(JSON.parse(result.stdout), {id:'offensive-reach',higherIs:'better'}, leaderboardScope);
+  assert.equal(board.status, 'available');
+  assert.equal(board.rows.length, 5);
+  assert.equal(board.belowMinimum, 1); // The largest mean belongs to an unqualified player.
+  assert.equal(board.rows[0].player, 'https://baseballontology.org/data/player/5');
+  assert.deepEqual(board.rows[0].value, {numerator:'5',denominator:'1'});
+});
+
 test('display rounding retains arbitrarily large exact rational arithmetic', () => {
   assert.equal(displayFraction({ numerator: '1', denominator: '3' }), '0.33');
   assert.equal(displayFraction({ numerator: '-5', denominator: '4' }), '-1.25');

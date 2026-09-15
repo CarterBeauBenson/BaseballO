@@ -16,6 +16,12 @@ WHERE {
     {
       ?entity a base:PlateAppearance ;
           obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 ?game .
+      # Actual batting participation, not official statistical PA assignment.
+      # Keep unassigned and multiply assigned PAs visible for reconciliation.
+      OPTIONAL {
+        ?act a base:BatterAct ; obo:BFO_0000132 ?entity ; obo:BFO_0000055 ?battingRole .
+        ?battingRole a base:BatterRole ; obo:BFO_0000197 ?player .
+      }
       OPTIONAL { ?entity obo:BFO_0000132 ?paHalf . ?paHalf a base:HalfInning . }
       OPTIONAL {
         ?entity obo:BFO_0000199 ?paInterval . ?paInterval a obo:BFO_0000038 .

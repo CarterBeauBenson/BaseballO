@@ -1,0 +1,194 @@
+{
+  "status": "passed-review-only-count-comparison",
+  "gamePk": "824315",
+  "source": "data/raw/samples/2026-08-23/824315.json",
+  "sourceSha256": "5fcc75d37a20a516d312b3bfb3d5cefb4371ebafa639851ff16173d9b1a6607c",
+  "rdfSha256": "9b213c7257b876bd416e338cae872fc0349f2cc81800cf02a5a9b641d3065547",
+  "querySha256": "e44c20b60be4564187c893f2819e4fdb9b94e4dae2fa05dcf23474e29d2b5f90",
+  "implementationSha256": "d4b4c847d8b213110a6da77fa1b54f23163fbc59365dea6b92ec32555df27143",
+  "jenaQueryPassed": true,
+  "sqlExactMatch": true,
+  "observedPlateAppearances": 77,
+  "players": [
+    {
+      "player": "https://baseballontology.org/data/player/595978",
+      "name": "Austin Hedges",
+      "teamId": 114,
+      "sourceOfficialPlateAppearances": 4,
+      "observedGraphPlateAppearances": 4
+    },
+    {
+      "player": "https://baseballontology.org/data/player/650489",
+      "name": "Willi Castro",
+      "teamId": 115,
+      "sourceOfficialPlateAppearances": 4,
+      "observedGraphPlateAppearances": 4
+    },
+    {
+      "player": "https://baseballontology.org/data/player/663993",
+      "name": "Nathaniel Lowe",
+      "teamId": 114,
+      "sourceOfficialPlateAppearances": 5,
+      "observedGraphPlateAppearances": 5
+    },
+    {
+      "player": "https://baseballontology.org/data/player/664954",
+      "name": "Brett Sullivan",
+      "teamId": 115,
+      "sourceOfficialPlateAppearances": 4,
+      "observedGraphPlateAppearances": 4
+    },
+    {
+      "player": "https://baseballontology.org/data/player/664983",
+      "name": "Jake McCarthy",
+      "teamId": 115,
+      "sourceOfficialPlateAppearances": 4,
+      "observedGraphPlateAppearances": 4
+    },
+    {
+      "player": "https://baseballontology.org/data/player/666160",
+      "name": "Mickey Moniak",
+      "teamId": 115,
+      "sourceOfficialPlateAppearances": 4,
+      "observedGraphPlateAppearances": 4
+    },
+    {
+      "player": "https://baseballontology.org/data/player/666176",
+      "name": "Jo Adell",
+      "teamId": 114,
+      "sourceOfficialPlateAppearances": 5,
+      "observedGraphPlateAppearances": 5
+    },
+    {
+      "player": "https://baseballontology.org/data/player/677587",
+      "name": "Brayan Rocchio",
+      "teamId": 114,
+      "sourceOfficialPlateAppearances": 4,
+      "observedGraphPlateAppearances": 4
+    },
+    {
+      "player": "https://baseballontology.org/data/player/678662",
+      "name": "Ezequiel Tovar",
+      "teamId": 115,
+      "sourceOfficialPlateAppearances": 4,
+      "observedGraphPlateAppearances": 4
+    },
+    {
+      "player": "https://baseballontology.org/data/player/680757",
+      "name": "Steven Kwan",
+      "teamId": 114,
+      "sourceOfficialPlateAppearances": 5,
+      "observedGraphPlateAppearances": 5
+    },
+    {
+      "player": "https://baseballontology.org/data/player/681198",
+      "name": "TJ Rumfield",
+      "teamId": 115,
+      "sourceOfficialPlateAppearances": 2,
+      "observedGraphPlateAppearances": 2
+    },
+    {
+      "player": "https://baseballontology.org/data/player/681393",
+      "name": "Connor Norby",
+      "teamId": 115,
+      "sourceOfficialPlateAppearances": 4,
+      "observedGraphPlateAppearances": 4
+    },
+    {
+      "player": "https://baseballontology.org/data/player/682657",
+      "name": "Angel Mart\u00ednez",
+      "teamId": 114,
+      "sourceOfficialPlateAppearances": 4,
+      "observedGraphPlateAppearances": 4
+    },
+    {
+      "player": "https://baseballontology.org/data/player/683953",
+      "name": "Travis Bazzana",
+      "teamId": 114,
+      "sourceOfficialPlateAppearances": 4,
+      "observedGraphPlateAppearances": 4
+    },
+    {
+      "player": "https://baseballontology.org/data/player/687597",
+      "name": "Jordan Beck",
+      "teamId": 115,
+      "sourceOfficialPlateAppearances": 2,
+      "observedGraphPlateAppearances": 2
+    },
+    {
+      "player": "https://baseballontology.org/data/player/687859",
+      "name": "Troy Johnston",
+      "teamId": 115,
+      "sourceOfficialPlateAppearances": 2,
+      "observedGraphPlateAppearances": 2
+    },
+    {
+      "player": "https://baseballontology.org/data/player/690022",
+      "name": "Ryan Ritter",
+      "teamId": 115,
+      "sourceOfficialPlateAppearances": 2,
+      "observedGraphPlateAppearances": 2
+    },
+    {
+      "player": "https://baseballontology.org/data/player/694197",
+      "name": "Angel Genao",
+      "teamId": 114,
+      "sourceOfficialPlateAppearances": 5,
+      "observedGraphPlateAppearances": 5
+    },
+    {
+      "player": "https://baseballontology.org/data/player/694249",
+      "name": "Cole Carrigg",
+      "teamId": 115,
+      "sourceOfficialPlateAppearances": 4,
+      "observedGraphPlateAppearances": 4
+    },
+    {
+      "player": "https://baseballontology.org/data/player/800050",
+      "name": "Chase DeLauter",
+      "teamId": 114,
+      "sourceOfficialPlateAppearances": 5,
+      "observedGraphPlateAppearances": 5
+    }
+  ],
+  "teams": [
+    {
+      "side": "away",
+      "teamId": 114,
+      "sourceOfficialPlateAppearances": 41
+    },
+    {
+      "side": "home",
+      "teamId": 115,
+      "sourceOfficialPlateAppearances": 36
+    }
+  ],
+  "offensiveSubstitutions": [
+    {
+      "atBatIndex": 53,
+      "eventIndex": 0,
+      "count": {
+        "balls": 0,
+        "strikes": 0,
+        "outs": 1
+      },
+      "playerId": 687859
+    },
+    {
+      "atBatIndex": 55,
+      "eventIndex": 0,
+      "count": {
+        "balls": 0,
+        "strikes": 0,
+        "outs": 2
+      },
+      "playerId": 681198
+    }
+  ],
+  "perPlayerCountsMatch": true,
+  "officialCreditGraphContractAdmitted": false,
+  "teamGameExposureContractAdmitted": false,
+  "metricScoresProduced": false,
+  "playerLeaderboardProduced": false,
+  "limitation": "Count equality in this game does not identify official credit on substituted turns or prove selected-period team exposure."
+}

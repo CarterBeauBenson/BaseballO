@@ -28,6 +28,26 @@ returns unavailable whenever the catalog entry has prerequisites; it does not
 evaluate a complete source-to-player scoring adapter for those entries. Formula
 implementations and browser fixtures are not evidence of operational metrics.
 
+**September 15 batting follow-up:** the exact PA-mean reducer now exists,
+but the live adapters still cannot supply its independently complete inputs.
+The [batting participation proof](../../benchmarks/metrics/batting-participation-2026-09-15/README.md)
+extracts 77 observations for 20 players through Jena and SQL, all matching
+the inspected game's player boxscore totals. Another checked-in game provides
+a concrete counterexample: Harry Ford has five matchup records and four
+official PAs; the extra record ends on another runner's inning-ending caught
+stealing. `about.isComplete` and a mapped Batter Act do not identify official
+credit. The [reducer contract](../../web/PLAYER-SUMMARIES.md#backend-pa-mean-reducer-and-participation-inventory)
+separates score membership, official PA qualification and team-game exposure.
+
+The next semantic gate is the accepted representation and identity of official
+statistical PA credit, including interrupted turns and substituted batters.
+The user has already decided that official credit and actual contribution are
+separate; that policy is not being reopened. A source-total literal attached
+to a Person or a label on a new ICE would not express the missing relationship.
+Applicable team-game exposure additionally needs its supported historical
+membership scope. These are not licensed by M1/M2 acceptance, and no new
+ontology term, object property, RML or source SHACL is introduced here.
+
 ## Settled decisions remain settled
 
 The [accepted E1/C1 decision](../../archive/design-records/metric-source-c1-operation-2026-09-14/review.json)

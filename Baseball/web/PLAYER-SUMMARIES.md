@@ -50,6 +50,42 @@ evidence and non-batting numerical participation thresholds are still required
 before their leaderboards can be populated. Existing NiFi fingerprint checks
 control materialization after reducer changes; no source freeze is refreshed.
 
+## Backend PA-mean reducer and participation inventory
+
+Suite 2.0.15 adds `summarize_batting_players` for the accepted PA-mean metrics.
+It requires an independent expected observation census, complete PA scores,
+official PA totals and independently established applicable team-game exposure.
+Missing, extra, conflicting, partial or differently scoped score rows cannot
+produce a player population. Exact duplicates are idempotent. Official PA
+credit is not inferred from the number of metric observations. Zero-official-PA
+players remain ineligible for batting summaries. Empty Games and non-PA means
+are outside this reducer.
+
+The mean is the exact sum of individual scores divided by their count, with
+the sum/count retained for the public projection. Qualification uses the
+separate official total and the complete team-game list, including missed
+games, team changes and distinct games in a doubleheader. The reducer consumes
+those independently admitted inputs; it does not invent their graph paths.
+The existing server remains the owner of qualification and ranking.
+
+The canonical evidence query now extracts actual PA/Batter Act/realized
+Batter Role/bearer links, including PAs without a resolved bearer. Every live
+result retains `coverage.battingParticipation`: per-player observed PA counts,
+unassigned PAs and ambiguous PAs. These are participation observations, not
+official totals. Both official-credit and team-exposure verification flags
+remain false until owning source contracts can establish them.
+
+The [real-game proof](../benchmarks/metrics/batting-participation-2026-09-15/README.md)
+checks 77 observations for 20 players through Jena and SQL and compares their
+counts with the immutable boxscore. A separate real interrupted-turn example
+shows why count equality cannot become a general attribution policy.
+
+The PA-mean reducer is implemented and tested, including direct Python output
+through the JavaScript qualification code. **It is not called by a live scoring
+adapter yet:** complete PA scores, official-credit membership and applicable
+team-game exposure remain prerequisites. No qualified real-player leaderboard
+is produced by this change, and no HTTP caller can provide these facts.
+
 Validation: 36 component Node tests and nine serving tests, including exact
 mean arithmetic, unreduced empty-game counts, SQL round trips, visibility,
 eligibility, and SQL/RDF response projection. Browser verification checks the

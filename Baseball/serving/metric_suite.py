@@ -23,7 +23,7 @@ from rdflib import Graph, Literal
 
 ROOT = Path(__file__).resolve().parents[1]
 METRICS = ROOT / 'sparql/metrics'
-VERSION = '2.0.14'
+VERSION = '2.0.15'
 
 
 class EvidenceError(ValueError):
@@ -683,6 +683,109 @@ def movement_coverage_by_game(rows, consequences=()):
             for graph, observations in sorted(groups.items())]
 
 
+def batting_participation(rows):
+    """Inventory accepted PA/Batter Act/realized Role paths, not official PA credit."""
+    pas, players = defaultdict(set), defaultdict(set)
+    for row in rows:
+        if row['kind'] != 'plate_appearance':
+            continue
+        key = (row['graph'], row['entity'])
+        pas[key]  # Preserve PAs whose participation path is absent.
+        if row.get('player') and row.get('act'):
+            pas[key].add(row['player'])
+            players[row['player']].add(key)
+    return dict(observedPlateAppearances=len(pas),
+                withOneBatter=sum(len(values) == 1 for values in pas.values()),
+                withMultipleBatters=sum(len(values) > 1 for values in pas.values()),
+                withoutBatter=sum(not values for values in pas.values()),
+                players=[dict(player=player, observedPlateAppearances=len(members))
+                         for player, members in sorted(players.items())],
+                officialPlateAppearanceCreditVerified=False,
+                teamGameExposureVerified=False)
+
+
+def summarize_batting_players(metric_id, scores, *, expected_observations,
+                              participation, date_scope, population_complete=False):
+    """Exact selected-period PA means over independently admitted memberships.
+
+    Internal reducer only. Callers must derive the observation census, official
+    PA credit and applicable team-game exposure from admitted graph contracts.
+    This function neither infers those contracts nor accepts HTTP evidence.
+    The source adapters currently cannot supply that full input contract.
+    """
+    pa_metrics = {'tfs', 'offensive-reach', 'paq-2', 'paq-a', 'paq-2.1',
+                  'hidden-help-rate', 'rally-kill-rate', 'rally-kill-severity',
+                  'opportunity-erosion', 'recovery-quality'}
+    if metric_id not in pa_metrics:
+        raise EvidenceError('This reducer requires a per-PA mean metric')
+    missing = dict(playerPopulationComplete=False, playerResults=[])
+    if population_complete is not True:
+        return dict(missing, playerSummaryGaps=['COMPLETE_PLAYER_POPULATION'])
+    if (not isinstance(date_scope, dict) or
+            not all(isinstance(date_scope.get(f), str) and date_scope[f]
+                    for f in ('startDate', 'endDate', 'gameSet'))):
+        raise EvidenceError('Player summary lacks its selected date scope')
+    if date_scope['startDate'] > date_scope['endDate']:
+        raise EvidenceError('Reversed player summary date scope')
+    fields = ('graph', 'plateAppearance', 'player')
+    expected = _unique(expected_observations, fields)
+    scored = _unique(scores, fields)
+    people = _unique(participation, ('player',))
+    keys = lambda collection: {tuple(r[f] for f in fields) for r in collection}
+    if keys(expected) != keys(scored):
+        return dict(missing, playerSummaryGaps=['COMPLETE_PA_SCORES'])
+    if any(r.get('metricId') != metric_id or r.get('status') != 'available'
+           or r.get('completePlateAppearance') is not True or r.get('dateScope') != date_scope
+           for r in scored):
+        return dict(missing, playerSummaryGaps=['COMPLETE_PA_SCORES'])
+    owners = {r['player'] for r in people}
+    if any(r['player'] not in owners for r in expected):
+        return dict(missing, playerSummaryGaps=['COMPLETE_PARTICIPATION'])
+    grouped = defaultdict(list)
+    for row in scored:
+        value = row.get('value')
+        if (not isinstance(value, dict) or set(value) != {'numerator', 'denominator'}
+                or not all(isinstance(v, str) for v in value.values())):
+            raise EvidenceError('Player observation requires an exact fraction')
+        try:
+            score = Fraction(int(value['numerator']), int(value['denominator']))
+        except (ValueError, ZeroDivisionError):
+            raise EvidenceError('Invalid player observation fraction') from None
+        if exact(score) != value:
+            raise EvidenceError('Player observation fraction must be normalized')
+        grouped[row['player']].append(score)
+    output = []
+    for person in people:
+        if (not re.fullmatch(r'https://baseballontology[.]org/data/player/[0-9]+', person['player'])
+                or person.get('completeParticipation') is not True
+                or person.get('dateScope') != date_scope):
+            return dict(missing, playerSummaryGaps=['COMPLETE_PARTICIPATION'])
+        official = _integer(person.get('plateAppearances'), 'official PA total')
+        # A missed game is still an exposure. Independent membership comes
+        # from the caller; never derive this list from the scored PA rows.
+        games = person.get('teamGameExposure')
+        if not isinstance(games, list) or not games:
+            return dict(missing, playerSummaryGaps=['TEAM_GAME_EXPOSURE'])
+        exposure = _unique(games, ('game', 'team'))
+        if any(not all(isinstance(r[f], str) and re.match(r'^https?://\S+$', r[f])
+                       for f in ('game', 'team')) for r in exposure):
+            raise EvidenceError('Team-game exposure requires graph identities')
+        values = grouped[person['player']]
+        if official == 0:
+            # Accepted batting eligibility; independent running is separate.
+            continue
+        if not values:
+            return dict(missing, playerSummaryGaps=['COMPLETE_PA_SCORES'])
+        total = sum(values, Fraction())
+        output.append(dict(player=person['player'], metricId=metric_id, status='available',
+                           dateScope=dict(date_scope), completeParticipation=True,
+                           plateAppearances=official, teamGames=len(exposure),
+                           aggregate=dict(kind='mean', sum=exact(total), count=len(values)),
+                           value=exact(total / len(values))))
+    return dict(playerPopulationComplete=True,
+                playerResults=sorted(output, key=lambda r: r['player']), playerSummaryGaps=[])
+
+
 def live_result(metric_id, rows, *, graph_count):
     entry = next((e for e in catalog()['metrics'] if e['id'] == metric_id), None)
     if entry is None:
@@ -691,6 +794,7 @@ def live_result(metric_id, rows, *, graph_count):
                 'observedEntities': {kind: len({(r['graph'], r['entity']) for r in rows if r['kind'] == kind})
                                      for kind in ['plate_appearance', 'batted_play', 'run', 'player_game', 'review']},
                 'runnerMovements': movement_coverage(rows),
+                'battingParticipation': batting_participation(rows),
                 'populationComplete': False}
     if entry['requires']:
         result = unavailable(*entry['requires'], coverage=coverage, metricId=metric_id,
