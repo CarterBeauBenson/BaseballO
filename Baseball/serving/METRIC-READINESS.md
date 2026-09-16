@@ -95,10 +95,16 @@ retain the independent schedule requirement.
 
 [C3's accepted identity review](../archive/design-records/mlb-game-runner-boundary-anchors/README.md)
 addresses non-pitch action, replacement and placed-runner boundaries without
-pitch IDs. The user accepted all three C3 questions on September 16;
-implementation follows the separately published decision. Acceptance is not a
-source completeness claim. The contract keeps the existing C1 graph pattern, creates
-no ontology terms, and identifies separate state/time gaps it does not resolve.
+pitch IDs. The user accepted all three C3 questions on September 16 and the
+decision was published in `06cc732` before implementation. The
+[C3 implementation proof](../benchmarks/metrics/c3-runner-boundaries-2026-09-16/README.md)
+raises complete source histories to **12 of 15** fixtures, with **404 personal
+histories** and all earlier whole identities preserved. Game 823989 passes
+RML/source SHACL and exact history admission for 40 histories; all 14 scoring
+histories also survive canonical query and exact SQL retention for Scoring
+History Length. Zero-episode placed runners, the two non-pitch review cases,
+the third-out state conflict and separate PA-start states remain explicit
+gaps. No ontology terms or object properties were introduced.
 
 The new NiFi-owned review inventory retains PA-level as well as event-level
 records before transient input cleanup. In game 822773, the fifth `MJ`
@@ -116,7 +122,7 @@ engine also passes exact equivalence checks for all four rank metrics and a
 
 ## Concrete release gates
 
-The seven metric SHACL profiles are registered in the owning module's
+The eight metric SHACL profiles are registered in the owning module's
 operational `pipeline/validation-profiles.json`. Exact ownership and inventory
 checks cover both that registry and the existing pinned source contract.
 The registration blocker is resolved without a protected catalog or freeze

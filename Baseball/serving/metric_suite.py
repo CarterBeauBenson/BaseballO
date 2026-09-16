@@ -24,7 +24,7 @@ from rdflib import Graph, Literal
 
 ROOT = Path(__file__).resolve().parents[1]
 METRICS = ROOT / 'sparql/metrics'
-VERSION = '2.0.34'
+VERSION = '2.0.35'
 
 
 class EvidenceError(ValueError):
@@ -57,6 +57,8 @@ def fingerprint():
                   ROOT / 'sources/mlb-game/shacl/runner-boundary-admission.ttl',
                   ROOT / 'sources/mlb-game/pipeline/defensive-admission.py',
                   ROOT / 'sources/mlb-game/shacl/defensive-admission.ttl',
+                  ROOT / 'sources/mlb-game/pipeline/runner-history-admission.py',
+                  ROOT / 'sources/mlb-game/shacl/runner-history-admission.ttl',
                   ROOT / 'scripts/pipeline/prepare-rml-context.py',
                   ROOT / 'sources/mlb-game/pipeline/pitch-count-admission.py',
                   ROOT / 'sources/mlb-game/shacl/pitch-count-admission.ttl',

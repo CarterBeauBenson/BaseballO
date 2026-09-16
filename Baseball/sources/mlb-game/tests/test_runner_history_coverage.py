@@ -53,14 +53,17 @@ class RunnerHistoryCoverage(unittest.TestCase):
             else:play['playEvents'][0]['details']['hasReview']=True
             self.assertTrue(CONTEXT.accounted_runner_history_reviews(play)['issues'],fault)
 
-    def test_empty_strikeout_record_is_accounted_once_and_does_not_admit_automatic_runner(self):
+    def test_empty_strikeout_record_is_accounted_once_with_separate_c3_placed_runner(self):
         doc=source(823826);play=doc['liveData']['plays']['allPlays'][78]
         self.assertEqual(CONTEXT.nonmovement_strikeout_records(play),{3:4})
         result=histories(doc)
         half=next(h for h in result['halves'] if h['inning']==10 and h['half']=='bottom')
-        self.assertEqual(half['status'],'withheld')
+        self.assertEqual(half['status'],'reconciled')
         self.assertNotIn('UNSUPPORTED_RUNNER_EPISODE',{i['code'] for i in half['issues'] if i['atBatIndex']==78})
-        self.assertIn('UNSUPPORTED_EVENT_EFFECT:runner_placed',{i['code'] for i in half['issues']})
+        placed=next(h for h in result['histories'] if h['entryAnchor']=='placement/10/bottom/640459')
+        self.assertTrue(placed['episodes'])
+        self.assertFalse(any(e['atBatIndex']=='78' and e['runnerIndex']=='3' for e in placed['episodes']))
+        self.assertIn('C3_ADMINISTRATIVE_BASE_BOUNDARY',{i['code'] for i in result['boundaryIssues']})
         # Corrupting the null record must restore the missing-episode error.
         play['runners'][3]['movement']['outBase']='1B'
         result=histories(doc)

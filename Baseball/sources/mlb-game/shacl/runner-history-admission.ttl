@@ -1,0 +1,10 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix base: <https://baseballontology.org/> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+@prefix cco: <https://www.commoncoreontologies.org/> .
+
+# C1/C3 exact selected-history conformance. The owning authoritative profile
+# separately requires each episode's full act, outcome, Person and half pattern.
+# Complete selected histories do not prove all PA-start locations or a season.
+# __RUNNER_HISTORY_SHAPES__

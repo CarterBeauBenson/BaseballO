@@ -284,6 +284,7 @@ try {
     $previousRmlManifest = Join-Path $manifestDirectory "game-$gamePk-rml.json"
     if (Test-Path -LiteralPath $previousRmlManifest -PathType Leaf) {
         $contextArguments += @('--previous-defensive-evidence', $previousRmlManifest)
+        $contextArguments += @('--previous-runner-history', $previousRmlManifest)
     }
     if ($null -ne $resolvedScheduleEvidencePath) {
         $contextArguments += @('--schedule-evidence', $resolvedScheduleEvidencePath)

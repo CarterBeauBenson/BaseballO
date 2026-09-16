@@ -21,9 +21,9 @@ class RunnerHistoryEffects(unittest.TestCase):
 
     def test_completed_affirmation_and_overturn_keep_all_seven_scoring_histories(self):
         result=CONTEXT.personal_runner_histories(self.raw)
-        self.assertEqual(len(result['histories']),21)
+        self.assertEqual(len(result['histories']),24)
         self.assertEqual(sum(h['terminal']=='score' for h in result['histories']),7)
-        self.assertEqual(len(result['episodeMembership']),37)
+        self.assertEqual(len(result['episodeMembership']),40)
         self.assertEqual(self.half(result,1,'top')['status'],'reconciled')
         self.assertEqual(self.half(result,4,'bottom')['status'],'reconciled')
         self.assertFalse(result['metricPopulationAdmitted'])
@@ -58,11 +58,13 @@ class RunnerHistoryEffects(unittest.TestCase):
         play['result']['description']=play['result']['description'].replace('pitch result','tag play')
         self.assertIn('UNRESOLVED_PA_REVIEW',CONTEXT.accounted_runner_count_reviews(play)['issues'])
 
-    def test_pinch_runner_still_requires_its_own_personal_lifetime(self):
+    def test_c3_pinch_runner_has_its_own_personal_lifetime(self):
         result=CONTEXT.personal_runner_histories(self.raw)
-        self.assertEqual(self.half(result,7,'bottom')['status'],'withheld')
-        self.assertTrue(any(i['code']=='UNSUPPORTED_EVENT_EFFECT:offensive_substitution'
-                            for i in self.half(result,7,'bottom')['issues']))
+        self.assertEqual(self.half(result,7,'bottom')['status'],'reconciled')
+        outgoing=next(h for h in result['histories'] if h['terminal']=='replaced')
+        incoming=next(h for h in result['histories'] if h['entryAnchor']==outgoing['terminationAnchor'])
+        self.assertNotEqual(outgoing['runnerId'],incoming['runnerId'])
+        self.assertNotEqual(outgoing['lifetimeKey'],incoming['lifetimeKey'])
 
     def test_intermediate_steal_keeps_its_existing_episode_without_a_new_lifetime_anchor(self):
         result=CONTEXT.personal_runner_histories(self.raw)

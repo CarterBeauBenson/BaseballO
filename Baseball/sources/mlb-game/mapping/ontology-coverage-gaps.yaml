@@ -70,4 +70,10 @@ ontology_coverage_gaps:
   status: implemented under accepted question 8
   resolution: A completely reconciled walk-off half can terminate at the supported official game endpoint without a third out. Still-active C1 intervals reuse that endpoint; scored histories retain counted outcomes.
   decision: archive/design-records/walkoff-runner-boundary/review.json
-  boundary: Unresolved reviews, substitutions, placed-runner entry and other incomplete histories remain withheld; game end adds no out, advance or erosion.
+  boundary: Unsupported replacements, zero-episode placed runners, unresolved reviews and other incomplete histories remain withheld; game end adds no out, advance or erosion.
+
+- id: runner-history-nonpitch-boundaries
+  status: implemented under accepted C3
+  decision: archive/design-records/mlb-game-runner-boundary-anchors/review.json
+  resolution: Unique composite anchors identify non-pitch terminal actions, explicit PR replacements and extra-inning placements using the existing personal Process RML pattern. Source witnesses, exact SHACL membership and prior-manifest correction checks preserve separate Persons and existing identities.
+  boundary: Zero-episode lifetimes, ambiguous corrections, collisions, unsupported time/state boundaries and unresolved review effects remain withheld. Administrative base fields create no physical stasis or Safe decision.

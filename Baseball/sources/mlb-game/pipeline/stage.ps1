@@ -187,6 +187,13 @@ switch ($Action) {
             throw "B1 source differs from the mapped revision for game $GamePk."
         }
         $battingAdmissionPath = Join-Path $stageEvidenceRoot 'batting-admission.json'
+        $runnerHistoryAdmissionPath = Join-Path $stageEvidenceRoot 'runner-history-admission.json'
+        $runnerHistoryAdmitter = Join-Path $PSScriptRoot 'runner-history-admission.py'
+        Invoke-LoggedCommand -FailureMessage "C1/C3 runner history source/graph conformance failed for game $GamePk." -Command {
+            & python $runnerHistoryAdmitter '--input' $inputPath '--rdf' $rdfPath '--game-pk' $GamePk `
+                '--output' $runnerHistoryAdmissionPath '--java' (Get-JavaExecutable) `
+                '--jena-classpath' (Join-Path $script:FusekiHome 'fuseki-server.jar')
+        }
         $defensiveAdmissionPath = Join-Path $stageEvidenceRoot 'defensive-admission.json'
         $defensiveAdmitter = Join-Path $PSScriptRoot 'defensive-admission.py'
         Invoke-LoggedCommand -FailureMessage "D1 defensive source/graph conformance failed for game $GamePk." -Command {
@@ -249,6 +256,8 @@ switch ($Action) {
             conforms = $true
             rmlManifest = $rmlManifestPath
             battingAdmission = $battingAdmissionPath
+            runnerHistoryAdmission = $runnerHistoryAdmissionPath
+            runnerHistoryAdmissionSha256 = (Get-FileHash -LiteralPath $runnerHistoryAdmissionPath -Algorithm SHA256).Hash.ToLowerInvariant()
             defensiveAdmission = $defensiveAdmissionPath
             defensiveAdmissionSha256 = (Get-FileHash -LiteralPath $defensiveAdmissionPath -Algorithm SHA256).Hash.ToLowerInvariant()
             reviewInventory = $reviewInventoryPath
@@ -337,6 +346,10 @@ switch ($Action) {
             if ($null -ne $shaclResult.PSObject.Properties['defensiveAdmission']) {
                 $promotion.defensiveAdmission = [string]$shaclResult.defensiveAdmission
                 $promotion.defensiveAdmissionSha256 = [string]$shaclResult.defensiveAdmissionSha256
+            }
+            if ($null -ne $shaclResult.PSObject.Properties['runnerHistoryAdmission']) {
+                $promotion.runnerHistoryAdmission = [string]$shaclResult.runnerHistoryAdmission
+                $promotion.runnerHistoryAdmissionSha256 = [string]$shaclResult.runnerHistoryAdmissionSha256
             }
             $promotion.pitchCountAdmission = [string]$shaclResult.pitchCountAdmission
             $promotion.pitchCountAdmissionSha256 = [string]$shaclResult.pitchCountAdmissionSha256

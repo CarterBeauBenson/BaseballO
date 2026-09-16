@@ -767,6 +767,18 @@ baseball_iri_policy:
 # runner-trajectory/{lifetimeKey}/temporal-interval is the lifetime's interval.
 # Source event timestamps bound its support; they are not emitted as fabricated
 # exact instants for the runner's entry or termination.
+# C3 extension, explicitly accepted 2026-09-16 in
+# archive/design-records/mlb-game-runner-boundary-anchors/review.json:
+# Preserve existing pitch anchors. Where those are absent, the same outer
+# [gamePk, runnerId, entryAnchor, terminationAnchor] hash accepts unique tokens:
+# action/{actionPlayId}/{eventType}/{outcomeRunnerId},
+# replacement/{inning}/{half}/{outgoingPersonId}/{incomingPersonId}, or
+# placement/{inning}/{half}/{personId}. These tokens are not new RDF entities.
+# Reconcile all source witnesses, exact per-person episodes and temporal bounds.
+# Replacement never transfers the outgoing person's episodes to the incoming
+# runner; placement never fabricates an advance or Safe decision. Zero-episode
+# lifetimes stay unresolved. Colliding tokens and uncertain corrections are
+# withheld/quarantined, not renumbered. C3 grants no new PA-start location stasis.
 
 # Q4 actual batting participation, accepted 2026-09-15:
 # archive/design-records/substituted-batter-participation/review.json

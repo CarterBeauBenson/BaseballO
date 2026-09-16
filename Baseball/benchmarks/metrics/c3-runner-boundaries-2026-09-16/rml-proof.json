@@ -1,0 +1,23 @@
+{
+  "gamePk": "823989",
+  "inputSha256": "c514ca5c88becd1d917b5b9f2ff3e8d5cf4fca21831dd8377702ed42518b00a5",
+  "mappingSha256": "9dda8b5110491293e9b7c93625275eca382790b5a0be0147b2781cea4a2d4a47",
+  "semanticFreezeSha256": "69e6a4671a97c49e81c07b80a7b8c0bc6e0fade9887c1dcaa6057eeaea89b892",
+  "effectiveMappingSha256": "a26022fab87505c09a3d6013834ae4d158cf656f0df239f91b729083b46642af",
+  "contextBuilderSha256": "966da165010bf8919cbb9d7bf80b5c777441c6168c6b46a30a17d5b1548e5112",
+  "executionContextSha256": "8f34f138548d01d21a249f4f5eeaacb50972b35482683ae1bf017c3ca84933c9",
+  "runnerHistoryMembershipVerified": true,
+  "runnerHistoryVerifierSha256": "f9cc49483d4c3f3bbeeb1891c04fad32fbe5e14a9c64eaacda9548de14587b15",
+  "metricMappingVerifierSha256": "f6cfa73b4e5ce0a7f1610fd2b95462b1b8c3ca899f50db5afc431133252b1315",
+  "scheduleEvidenceSha256": null,
+  "outputSha256": "71a78479f2b19a4e764dd0e5cf2950176a652923a669b8b5565ae6d65050753e",
+  "shaclStatus": "validated",
+  "shaclShapeSha256": "dc57d46500eb8f5993d54a3277bc4801881b9b4ff1cec69ba7ea56f2697ac8cd",
+  "shaclValidatorSha256": "5d4743c4f0baecce33ae75cac809f3c5d9ab50408abb8f0f3b182391b0cd26d2",
+  "triples": 42045,
+  "personalHistories": 40,
+  "episodeMemberships": 81,
+  "sameRdfOnRetry": true,
+  "isolatedDeveloperProof": true,
+  "livePopulationComplete": false
+}

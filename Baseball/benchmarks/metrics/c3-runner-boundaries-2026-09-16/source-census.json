@@ -1,0 +1,1842 @@
+{
+  "game": "https://baseballontology.org/data/game/823989",
+  "gamePk": "823989",
+  "history": {
+    "boundaryAnchorCensus": [
+      {
+        "anchor": "replacement/2/bottom/672569/642350",
+        "atBatIndex": 18,
+        "base": 2,
+        "earliestStartBound": "2026-08-26T02:22:13.464Z",
+        "eventIndex": 12,
+        "form": "replacement",
+        "latestEndBound": "2026-08-26T02:22:34.848Z",
+        "outgoingRunnerId": "672569",
+        "runnerId": "642350",
+        "sourcePointer": "/liveData/plays/allPlays/18/playEvents/12"
+      },
+      {
+        "anchor": "placement/10/top/677587",
+        "atBatIndex": 86,
+        "base": 2,
+        "earliestStartBound": "2026-08-26T04:46:32.445Z",
+        "eventIndex": 1,
+        "form": "placement",
+        "latestEndBound": "2026-08-26T04:46:45.040Z",
+        "runnerId": "677587",
+        "sourcePointer": "/liveData/plays/allPlays/86/playEvents/1"
+      },
+      {
+        "anchor": "placement/10/bottom/666139",
+        "atBatIndex": 92,
+        "base": 2,
+        "earliestStartBound": "2026-08-26T04:55:23.959Z",
+        "eventIndex": 1,
+        "form": "placement",
+        "latestEndBound": "2026-08-26T04:56:12.571Z",
+        "runnerId": "666139",
+        "sourcePointer": "/liveData/plays/allPlays/92/playEvents/1"
+      }
+    ],
+    "boundaryAnchorCollisions": [],
+    "boundaryIdentityDecision": "archive/design-records/mlb-game-runner-boundary-anchors/review.json",
+    "boundaryIssues": [
+      {
+        "anchor": "replacement/2/bottom/672569/642350",
+        "atBatIndex": 18,
+        "code": "C3_ADMINISTRATIVE_BASE_BOUNDARY",
+        "sourcePointer": "/liveData/plays/allPlays/18/playEvents/12"
+      },
+      {
+        "anchor": "placement/10/top/677587",
+        "atBatIndex": 86,
+        "code": "C3_ADMINISTRATIVE_BASE_BOUNDARY",
+        "sourcePointer": "/liveData/plays/allPlays/86/playEvents/1"
+      },
+      {
+        "anchor": "placement/10/bottom/666139",
+        "atBatIndex": 92,
+        "code": "C3_ADMINISTRATIVE_BASE_BOUNDARY",
+        "sourcePointer": "/liveData/plays/allPlays/92/playEvents/1"
+      }
+    ],
+    "episodeMembership": [
+      {
+        "atBatIndex": "0",
+        "lifetimeKey": "64a6dbfa70e23d2a4d931df443dd29288023a139ef5dc9b372ba9765470643df",
+        "resolutionKind": "reach",
+        "runnerId": "680757",
+        "runnerIndex": "0"
+      },
+      {
+        "atBatIndex": "1",
+        "lifetimeKey": "64a6dbfa70e23d2a4d931df443dd29288023a139ef5dc9b372ba9765470643df",
+        "resolutionKind": "advance",
+        "runnerId": "680757",
+        "runnerIndex": "0"
+      },
+      {
+        "atBatIndex": "3",
+        "lifetimeKey": "64a6dbfa70e23d2a4d931df443dd29288023a139ef5dc9b372ba9765470643df",
+        "resolutionKind": "advance",
+        "runnerId": "680757",
+        "runnerIndex": "1"
+      },
+      {
+        "atBatIndex": "1",
+        "lifetimeKey": "2aaf59c096c9a12e01a6b3a90dc1e44ae129f1276c6d19771e0ffabd3ef41ee8",
+        "resolutionKind": "reach",
+        "runnerId": "683953",
+        "runnerIndex": "1"
+      },
+      {
+        "atBatIndex": "3",
+        "lifetimeKey": "2aaf59c096c9a12e01a6b3a90dc1e44ae129f1276c6d19771e0ffabd3ef41ee8",
+        "resolutionKind": "advance",
+        "runnerId": "683953",
+        "runnerIndex": "2"
+      },
+      {
+        "atBatIndex": "8",
+        "lifetimeKey": "9de0af4d9f4465b6a2e9c6c4cc26cf54fadaf5bbbe0407a67896ceabce483347",
+        "resolutionKind": "score",
+        "runnerId": "687093",
+        "runnerIndex": "0"
+      },
+      {
+        "atBatIndex": "6",
+        "lifetimeKey": "d7b906ca055fe31dd38cfec3e2815ed5c7961f4bf6b0244bbd316b50d7601d20",
+        "resolutionKind": "reach",
+        "runnerId": "545361",
+        "runnerIndex": "0"
+      },
+      {
+        "atBatIndex": "8",
+        "lifetimeKey": "d7b906ca055fe31dd38cfec3e2815ed5c7961f4bf6b0244bbd316b50d7601d20",
+        "resolutionKind": "score",
+        "runnerId": "545361",
+        "runnerIndex": "1"
+      },
+      {
+        "atBatIndex": "10",
+        "lifetimeKey": "53c9627c5858541ba42bfa537daca1b902de819b3e8c715c8ac5b7a4ba2b9b80",
+        "resolutionKind": "reach",
+        "runnerId": "682657",
+        "runnerIndex": "0"
+      },
+      {
+        "atBatIndex": "11",
+        "lifetimeKey": "53c9627c5858541ba42bfa537daca1b902de819b3e8c715c8ac5b7a4ba2b9b80",
+        "resolutionKind": "advance",
+        "runnerId": "682657",
+        "runnerIndex": "0"
+      },
+      {
+        "atBatIndex": "12",
+        "lifetimeKey": "53c9627c5858541ba42bfa537daca1b902de819b3e8c715c8ac5b7a4ba2b9b80",
+        "resolutionKind": "advance",
+        "runnerId": "682657",
+        "runnerIndex": "1"
+      },
+      {
+        "atBatIndex": "13",
+        "lifetimeKey": "53c9627c5858541ba42bfa537daca1b902de819b3e8c715c8ac5b7a4ba2b9b80",
+        "resolutionKind": "out",
+        "runnerId": "682657",
+        "runnerIndex": "0"
+      },
+      {
+        "atBatIndex": "11",
+        "lifetimeKey": "fa0f908df3208441570240228a0c999475007c36d0de0f21994c6992c8af2ec0",
+        "resolutionKind": "reach",
+        "runnerId": "672275",
+        "runnerIndex": "1"
+      },
+      {
+        "atBatIndex": "12",
+        "lifetimeKey": "fa0f908df3208441570240228a0c999475007c36d0de0f21994c6992c8af2ec0",
+        "resolutionKind": "advance",
+        "runnerId": "672275",
+        "runnerIndex": "2"
+      },
+      {
+        "atBatIndex": "13",
+        "lifetimeKey": "fa0f908df3208441570240228a0c999475007c36d0de0f21994c6992c8af2ec0",
+        "resolutionKind": "advance",
+        "runnerId": "672275",
+        "runnerIndex": "2"
+      },
+      {
+        "atBatIndex": "12",
+        "lifetimeKey": "445e257e36a1cc3aa0e7cb425a15c88367517dae553d5084bf160597e66a495e",
+        "resolutionKind": "reach",
+        "runnerId": "690984",
+        "runnerIndex": "0"
+      },
+      {
+        "atBatIndex": "13",
+        "lifetimeKey": "445e257e36a1cc3aa0e7cb425a15c88367517dae553d5084bf160597e66a495e",
+        "resolutionKind": "advance",
+        "runnerId": "690984",
+        "runnerIndex": "3"
+      },
+      {
+        "atBatIndex": "14",
+        "lifetimeKey": "c02c5fede6f6a00ab5569592027968cbb093dbfcd2355ad73413fff79b0f88f4",
+        "resolutionKind": "reach",
+        "runnerId": "680757",
+        "runnerIndex": "0"
+      },
+      {
+        "atBatIndex": "16",
+        "lifetimeKey": "c5235b6b0018e9ff16acb9b2ae7bf946bd670f40edf9ddf8c3dd192ab9298507",
+        "resolutionKind": "score",
+        "runnerId": "695681",
+        "runnerIndex": "0"
+      },
+      {
+        "atBatIndex": "17",
+        "lifetimeKey": "99212264fdb9bbd2e290e34c83046110395045d1bf71150100e5ba28efbd95a8",
+        "resolutionKind": "reach",
+        "runnerId": "672569",
+        "runnerIndex": "0"
+      },
+      {
+        "atBatIndex": "18",
+        "lifetimeKey": "99212264fdb9bbd2e290e34c83046110395045d1bf71150100e5ba28efbd95a8",
+        "resolutionKind": "advance",
+        "runnerId": "672569",
+        "runnerIndex": "0"
+      },
+      {
+        "atBatIndex": "18",
+        "lifetimeKey": "eb315314b51dfaf0df57bc4b701ea71071021bab377489e6286ff3d4b92ae599",
+        "resolutionKind": "advance",
+        "runnerId": "642350",
+        "runnerIndex": "2"
+      },
+      {
+        "atBatIndex": "18",
+        "lifetimeKey": "eb315314b51dfaf0df57bc4b701ea71071021bab377489e6286ff3d4b92ae599",
+        "resolutionKind": "score",
+        "runnerId": "642350",
+        "runnerIndex": "3"
+      },
+      {
+        "atBatIndex": "18",
+        "lifetimeKey": "67ceca158bb85782854bbf81b7559eafa77c78e1200edcae9e3c5f7e782c8801",
+        "resolutionKind": "reach",
+        "runnerId": "694203",
+        "runnerIndex": "1"
+      },
+      {
+        "atBatIndex": "19",
+        "lifetimeKey": "67ceca158bb85782854bbf81b7559eafa77c78e1200edcae9e3c5f7e782c8801",
+        "resolutionKind": "advance",
+        "runnerId": "694203",
+        "runnerIndex": "1"
+      },
+      {
+        "atBatIndex": "20",
+        "lifetimeKey": "67ceca158bb85782854bbf81b7559eafa77c78e1200edcae9e3c5f7e782c8801",
+        "resolutionKind": "score",
+        "runnerId": "694203",
+        "runnerIndex": "1"
+      },
+      {
+        "atBatIndex": "20",
+        "lifetimeKey": "cca1f8c21abeeebb077b7974ac620a800d242767178e38953e759883cd035810",
+        "resolutionKind": "reach",
+        "runnerId": "687263",
+        "runnerIndex": "0"
+      },
+      {
+        "atBatIndex": "21",
+        "lifetimeKey": "cca1f8c21abeeebb077b7974ac620a800d242767178e38953e759883cd035810",
+        "resolutionKind": "advance",
+        "runnerId": "687263",
+        "runnerIndex": "0"
+      },
+      {
+        "atBatIndex": "21",
+        "lifetimeKey": "3628b1f8f526a0fe1907d466c8059f7f0fc3e53b0c236664cfc6b127d3d783bd",
+        "resolutionKind": "reach",
+        "runnerId": "545361",
+        "runnerIndex": "1"
+      },
+      {
+        "atBatIndex": "26",
+        "lifetimeKey": "cf5480e2f30b04d6f7de309b3bfe9a7cca97a58a8cd284753ac86d7b563fa1d4",
+        "resolutionKind": "reach",
+        "runnerId": "663993",
+        "runnerIndex": "0"
+      },
+      {
+        "atBatIndex": "28",
+        "lifetimeKey": "3b37c373c8946ef1935be568f774cbb27f8b0d599d77acaa000fad4ee3f3024e",
+        "resolutionKind": "reach",
+        "runnerId": "666139",
+        "runnerIndex": "0"
+      },
+      {
+        "atBatIndex": "32",
+        "lifetimeKey": "e12474d311ec1b8b56854e753ba8f285d1b1818c50165127358c4dea7c05ff01",
+        "resolutionKind": "reach",
+        "runnerId": "672275",
+        "runnerIndex": "0"
+      },
+      {
+        "atBatIndex": "34",
+        "lifetimeKey": "e12474d311ec1b8b56854e753ba8f285d1b1818c50165127358c4dea7c05ff01",
+        "resolutionKind": "advance",
+        "runnerId": "672275",
+        "runnerIndex": "0"
+      },
+      {
+        "atBatIndex": "35",
+        "lifetimeKey": "e12474d311ec1b8b56854e753ba8f285d1b1818c50165127358c4dea7c05ff01",
+        "resolutionKind": "advance",
+        "runnerId": "672275",
+        "runnerIndex": "1"
+      },
+      {
+        "atBatIndex": "36",
+        "lifetimeKey": "e12474d311ec1b8b56854e753ba8f285d1b1818c50165127358c4dea7c05ff01",
+        "resolutionKind": "score",
+        "runnerId": "672275",
+        "runnerIndex": "1"
+      },
+      {
+        "atBatIndex": "35",
+        "lifetimeKey": "878e48f7f863f2c3eac3bcc2a1b02707117ac5e8771270da1645ce305745b642",
+        "resolutionKind": "reach",
+        "runnerId": "680757",
+        "runnerIndex": "0"
+      },
+      {
+        "atBatIndex": "36",
+        "lifetimeKey": "878e48f7f863f2c3eac3bcc2a1b02707117ac5e8771270da1645ce305745b642",
+        "resolutionKind": "advance",
+        "runnerId": "680757",
+        "runnerIndex": "2"
+      },
+      {
+        "atBatIndex": "37",
+        "lifetimeKey": "878e48f7f863f2c3eac3bcc2a1b02707117ac5e8771270da1645ce305745b642",
+        "resolutionKind": "score",
+        "runnerId": "680757",
+        "runnerIndex": "1"
+      },
+      {
+        "atBatIndex": "36",
+        "lifetimeKey": "f7772e8907f1b124f1a56f209685605e3ab27485f367c4566e857634ba267383",
+        "resolutionKind": "reach",
+        "runnerId": "683953",
+        "runnerIndex": "0"
+      },
+      {
+        "atBatIndex": "37",
+        "lifetimeKey": "f7772e8907f1b124f1a56f209685605e3ab27485f367c4566e857634ba267383",
+        "resolutionKind": "advance",
+        "runnerId": "683953",
+        "runnerIndex": "2"
+      },
+      {
+        "atBatIndex": "37",
+        "lifetimeKey": "f7772e8907f1b124f1a56f209685605e3ab27485f367c4566e857634ba267383",
+        "resolutionKind": "score",
+        "runnerId": "683953",
+        "runnerIndex": "3"
+      },
+      {
+        "atBatIndex": "37",
+        "lifetimeKey": "b422e24bddfbee236500dc0961ddaf9d780a714571976549c8a096bb769578b9",
+        "resolutionKind": "reach",
+        "runnerId": "608070",
+        "runnerIndex": "0"
+      },
+      {
+        "atBatIndex": "41",
+        "lifetimeKey": "f934235a72bd38df5ced1b574737efb66f0b1a43ccd81b3488c23d34e4a5bdad",
+        "resolutionKind": "reach",
+        "runnerId": "545361",
+        "runnerIndex": "0"
+      },
+      {
+        "atBatIndex": "44",
+        "lifetimeKey": "69a54da92d5310c50f9a571abc50202e21d5bbe7778b38daac0784eabbb988d6",
+        "resolutionKind": "reach",
+        "runnerId": "682657",
+        "runnerIndex": "0"
+      },
+      {
+        "atBatIndex": "46",
+        "lifetimeKey": "69a54da92d5310c50f9a571abc50202e21d5bbe7778b38daac0784eabbb988d6",
+        "resolutionKind": "advance",
+        "runnerId": "682657",
+        "runnerIndex": "1"
+      },
+      {
+        "atBatIndex": "47",
+        "lifetimeKey": "69a54da92d5310c50f9a571abc50202e21d5bbe7778b38daac0784eabbb988d6",
+        "resolutionKind": "advance",
+        "runnerId": "682657",
+        "runnerIndex": "1"
+      },
+      {
+        "atBatIndex": "47",
+        "lifetimeKey": "69a54da92d5310c50f9a571abc50202e21d5bbe7778b38daac0784eabbb988d6",
+        "resolutionKind": "score",
+        "runnerId": "682657",
+        "runnerIndex": "2"
+      },
+      {
+        "atBatIndex": "46",
+        "lifetimeKey": "fed524f7080ffdafa948a73cfa52d8f303f33bd14974621fcd76d49eea21c97d",
+        "resolutionKind": "reach",
+        "runnerId": "690984",
+        "runnerIndex": "0"
+      },
+      {
+        "atBatIndex": "47",
+        "lifetimeKey": "fed524f7080ffdafa948a73cfa52d8f303f33bd14974621fcd76d49eea21c97d",
+        "resolutionKind": "advance",
+        "runnerId": "690984",
+        "runnerIndex": "3"
+      },
+      {
+        "atBatIndex": "48",
+        "lifetimeKey": "fed524f7080ffdafa948a73cfa52d8f303f33bd14974621fcd76d49eea21c97d",
+        "resolutionKind": "advance",
+        "runnerId": "690984",
+        "runnerIndex": "3"
+      },
+      {
+        "atBatIndex": "48",
+        "lifetimeKey": "fed524f7080ffdafa948a73cfa52d8f303f33bd14974621fcd76d49eea21c97d",
+        "resolutionKind": "score",
+        "runnerId": "690984",
+        "runnerIndex": "4"
+      },
+      {
+        "atBatIndex": "47",
+        "lifetimeKey": "169f27de85b7ddc44c5725869e911e131ece7008600a6e1d6bead401aabb7d09",
+        "resolutionKind": "reach",
+        "runnerId": "677587",
+        "runnerIndex": "0"
+      },
+      {
+        "atBatIndex": "48",
+        "lifetimeKey": "169f27de85b7ddc44c5725869e911e131ece7008600a6e1d6bead401aabb7d09",
+        "resolutionKind": "advance",
+        "runnerId": "677587",
+        "runnerIndex": "1"
+      },
+      {
+        "atBatIndex": "48",
+        "lifetimeKey": "169f27de85b7ddc44c5725869e911e131ece7008600a6e1d6bead401aabb7d09",
+        "resolutionKind": "advance",
+        "runnerId": "677587",
+        "runnerIndex": "2"
+      },
+      {
+        "atBatIndex": "48",
+        "lifetimeKey": "425c4d1a2d54a1f183c6dbc937189f64ce034e6f4538f192a5d0eefd872c2a59",
+        "resolutionKind": "reach",
+        "runnerId": "680757",
+        "runnerIndex": "0"
+      },
+      {
+        "atBatIndex": "50",
+        "lifetimeKey": "6f6928aa909e1318f8d2914e40ab1faba26dd2a07f931942f73d8925224b877d",
+        "resolutionKind": "score",
+        "runnerId": "687093",
+        "runnerIndex": "0"
+      },
+      {
+        "atBatIndex": "53",
+        "lifetimeKey": "d5d10eb3f1722a741c09dac9991e9b3372240270851e3a2a41dc6be1394957d4",
+        "resolutionKind": "reach",
+        "runnerId": "642350",
+        "runnerIndex": "0"
+      },
+      {
+        "atBatIndex": "58",
+        "lifetimeKey": "7cf03af8296a1cbab6dfe82419619303a672e95e960b741a9e35b7a262c0ce84",
+        "resolutionKind": "reach",
+        "runnerId": "624428",
+        "runnerIndex": "0"
+      },
+      {
+        "atBatIndex": "63",
+        "lifetimeKey": "be6e144c7b88ead6ba6eef4037a9363e60c58917e667cb5d19c74bdd9c03e182",
+        "resolutionKind": "reach",
+        "runnerId": "672275",
+        "runnerIndex": "0"
+      },
+      {
+        "atBatIndex": "67",
+        "lifetimeKey": "a872faf5626e840435992617e605d10b74e9af311c20630974faeadcac22093f",
+        "resolutionKind": "reach",
+        "runnerId": "666139",
+        "runnerIndex": "0"
+      },
+      {
+        "atBatIndex": "68",
+        "lifetimeKey": "a872faf5626e840435992617e605d10b74e9af311c20630974faeadcac22093f",
+        "resolutionKind": "advance",
+        "runnerId": "666139",
+        "runnerIndex": "1"
+      },
+      {
+        "atBatIndex": "70",
+        "lifetimeKey": "0623e467c23d58d78cb8520f1995dadd9146229385fe4b4f97e82a3a51aed6c2",
+        "resolutionKind": "reach",
+        "runnerId": "680757",
+        "runnerIndex": "0"
+      },
+      {
+        "atBatIndex": "71",
+        "lifetimeKey": "0623e467c23d58d78cb8520f1995dadd9146229385fe4b4f97e82a3a51aed6c2",
+        "resolutionKind": "advance",
+        "runnerId": "680757",
+        "runnerIndex": "1"
+      },
+      {
+        "atBatIndex": "72",
+        "lifetimeKey": "0623e467c23d58d78cb8520f1995dadd9146229385fe4b4f97e82a3a51aed6c2",
+        "resolutionKind": "advance",
+        "runnerId": "680757",
+        "runnerIndex": "1"
+      },
+      {
+        "atBatIndex": "72",
+        "lifetimeKey": "0623e467c23d58d78cb8520f1995dadd9146229385fe4b4f97e82a3a51aed6c2",
+        "resolutionKind": "score",
+        "runnerId": "680757",
+        "runnerIndex": "2"
+      },
+      {
+        "atBatIndex": "72",
+        "lifetimeKey": "ae5ee78b0f40f1df0425ca8d2e9b396b1ba6cf6a65ead7fa11f16dd21b7c06c6",
+        "resolutionKind": "reach",
+        "runnerId": "608070",
+        "runnerIndex": "0"
+      },
+      {
+        "atBatIndex": "73",
+        "lifetimeKey": "ae5ee78b0f40f1df0425ca8d2e9b396b1ba6cf6a65ead7fa11f16dd21b7c06c6",
+        "resolutionKind": "advance",
+        "runnerId": "608070",
+        "runnerIndex": "1"
+      },
+      {
+        "atBatIndex": "76",
+        "lifetimeKey": "ee169f1c2a6c3e314fc5fcae30d9f3084e615cf9a23c7839df48a5e7fbbd440d",
+        "resolutionKind": "reach",
+        "runnerId": "624428",
+        "runnerIndex": "0"
+      },
+      {
+        "atBatIndex": "80",
+        "lifetimeKey": "e9aecffcce1cad86a555f022bacedde48c3b4ae4328ae57c161f3b85edd18fb6",
+        "resolutionKind": "reach",
+        "runnerId": "672275",
+        "runnerIndex": "0"
+      },
+      {
+        "atBatIndex": "86",
+        "lifetimeKey": "9d6eb84b04fe4629ce652bb940f56c1fb48bd031c38d3d89adc17fea9a052eef",
+        "resolutionKind": "reach",
+        "runnerId": "680757",
+        "runnerIndex": "0"
+      },
+      {
+        "atBatIndex": "88",
+        "lifetimeKey": "9d6eb84b04fe4629ce652bb940f56c1fb48bd031c38d3d89adc17fea9a052eef",
+        "resolutionKind": "advance",
+        "runnerId": "680757",
+        "runnerIndex": "1"
+      },
+      {
+        "atBatIndex": "88",
+        "lifetimeKey": "9d6eb84b04fe4629ce652bb940f56c1fb48bd031c38d3d89adc17fea9a052eef",
+        "resolutionKind": "score",
+        "runnerId": "680757",
+        "runnerIndex": "2"
+      },
+      {
+        "atBatIndex": "86",
+        "lifetimeKey": "b01d21e3e11712a7b491a5781fcb4d835ddbeac293c253117d000eb6001ce5c6",
+        "resolutionKind": "advance",
+        "runnerId": "677587",
+        "runnerIndex": "1"
+      },
+      {
+        "atBatIndex": "88",
+        "lifetimeKey": "b01d21e3e11712a7b491a5781fcb4d835ddbeac293c253117d000eb6001ce5c6",
+        "resolutionKind": "score",
+        "runnerId": "677587",
+        "runnerIndex": "3"
+      },
+      {
+        "atBatIndex": "88",
+        "lifetimeKey": "7edea8d9443fd84503b96f5ba9947b10a52723adf5f484d896c0f72064cd0fd3",
+        "resolutionKind": "reach",
+        "runnerId": "608070",
+        "runnerIndex": "0"
+      },
+      {
+        "atBatIndex": "90",
+        "lifetimeKey": "7edea8d9443fd84503b96f5ba9947b10a52723adf5f484d896c0f72064cd0fd3",
+        "resolutionKind": "advance",
+        "runnerId": "608070",
+        "runnerIndex": "0"
+      },
+      {
+        "atBatIndex": "89",
+        "lifetimeKey": "5c4ea69ccf6cc9fd6d5af0bbc1985c19c219f167591d09b4aecbe3ba0cf42ecf",
+        "resolutionKind": "reach",
+        "runnerId": "666176",
+        "runnerIndex": "0"
+      },
+      {
+        "atBatIndex": "90",
+        "lifetimeKey": "5c4ea69ccf6cc9fd6d5af0bbc1985c19c219f167591d09b4aecbe3ba0cf42ecf",
+        "resolutionKind": "advance",
+        "runnerId": "666176",
+        "runnerIndex": "1"
+      },
+      {
+        "atBatIndex": "93",
+        "lifetimeKey": "4107455f059dece92dc839ece0f398ec1b917dda6b4be27df555573b3553fd3d",
+        "resolutionKind": "advance",
+        "runnerId": "666139",
+        "runnerIndex": "1"
+      },
+      {
+        "atBatIndex": "92",
+        "lifetimeKey": "eff095174d94084f312ac1b1303ae0c4b2d41a5413faadf0dfd7962c2d4a4da8",
+        "resolutionKind": "reach",
+        "runnerId": "695681",
+        "runnerIndex": "0"
+      },
+      {
+        "atBatIndex": "93",
+        "lifetimeKey": "eff095174d94084f312ac1b1303ae0c4b2d41a5413faadf0dfd7962c2d4a4da8",
+        "resolutionKind": "advance",
+        "runnerId": "695681",
+        "runnerIndex": "2"
+      }
+    ],
+    "graphCoverageVerified": false,
+    "halves": [
+      {
+        "half": "top",
+        "inning": 1,
+        "issues": [],
+        "personalHistories": 2,
+        "status": "reconciled"
+      },
+      {
+        "half": "bottom",
+        "inning": 1,
+        "issues": [],
+        "personalHistories": 2,
+        "status": "reconciled"
+      },
+      {
+        "half": "top",
+        "inning": 2,
+        "issues": [],
+        "personalHistories": 4,
+        "status": "reconciled"
+      },
+      {
+        "half": "bottom",
+        "inning": 2,
+        "issues": [],
+        "personalHistories": 6,
+        "status": "reconciled"
+      },
+      {
+        "half": "top",
+        "inning": 3,
+        "issues": [],
+        "personalHistories": 1,
+        "status": "reconciled"
+      },
+      {
+        "half": "bottom",
+        "inning": 3,
+        "issues": [],
+        "personalHistories": 1,
+        "status": "reconciled"
+      },
+      {
+        "half": "top",
+        "inning": 4,
+        "issues": [],
+        "personalHistories": 4,
+        "status": "reconciled"
+      },
+      {
+        "half": "bottom",
+        "inning": 4,
+        "issues": [],
+        "personalHistories": 1,
+        "status": "reconciled"
+      },
+      {
+        "half": "top",
+        "inning": 5,
+        "issues": [],
+        "personalHistories": 4,
+        "status": "reconciled"
+      },
+      {
+        "half": "bottom",
+        "inning": 5,
+        "issues": [],
+        "personalHistories": 2,
+        "status": "reconciled"
+      },
+      {
+        "half": "top",
+        "inning": 6,
+        "issues": [],
+        "personalHistories": 0,
+        "status": "reconciled"
+      },
+      {
+        "half": "bottom",
+        "inning": 6,
+        "issues": [],
+        "personalHistories": 1,
+        "status": "reconciled"
+      },
+      {
+        "half": "top",
+        "inning": 7,
+        "issues": [],
+        "personalHistories": 1,
+        "status": "reconciled"
+      },
+      {
+        "half": "bottom",
+        "inning": 7,
+        "issues": [],
+        "personalHistories": 1,
+        "status": "reconciled"
+      },
+      {
+        "half": "top",
+        "inning": 8,
+        "issues": [],
+        "personalHistories": 2,
+        "status": "reconciled"
+      },
+      {
+        "half": "bottom",
+        "inning": 8,
+        "issues": [],
+        "personalHistories": 1,
+        "status": "reconciled"
+      },
+      {
+        "half": "top",
+        "inning": 9,
+        "issues": [],
+        "personalHistories": 1,
+        "status": "reconciled"
+      },
+      {
+        "half": "bottom",
+        "inning": 9,
+        "issues": [],
+        "personalHistories": 0,
+        "status": "reconciled"
+      },
+      {
+        "half": "top",
+        "inning": 10,
+        "issues": [],
+        "personalHistories": 4,
+        "status": "reconciled"
+      },
+      {
+        "half": "bottom",
+        "inning": 10,
+        "issues": [],
+        "personalHistories": 2,
+        "status": "reconciled"
+      }
+    ],
+    "histories": [
+      {
+        "earliestStartBound": "2026-08-26T01:39:45.671Z",
+        "entryAnchor": "6355bd29-03ac-356d-b948-f28b20d0d1f8",
+        "episodes": [
+          {
+            "atBatIndex": "0",
+            "resolutionKind": "reach",
+            "runnerId": "680757",
+            "runnerIndex": "0"
+          },
+          {
+            "atBatIndex": "1",
+            "resolutionKind": "advance",
+            "runnerId": "680757",
+            "runnerIndex": "0"
+          },
+          {
+            "atBatIndex": "3",
+            "resolutionKind": "advance",
+            "runnerId": "680757",
+            "runnerIndex": "1"
+          }
+        ],
+        "half": "top",
+        "inning": "1",
+        "latestEndBound": "2026-08-26T01:47:13.550Z",
+        "lifetimeKey": "64a6dbfa70e23d2a4d931df443dd29288023a139ef5dc9b372ba9765470643df",
+        "runnerId": "680757",
+        "terminal": "stranded",
+        "terminationAnchor": "0c9fc7f2-0ee0-35e1-99cc-79b0dd9f9a4c"
+      },
+      {
+        "earliestStartBound": "2026-08-26T01:42:18.372Z",
+        "entryAnchor": "1225ef96-39dd-3ee1-ae2a-63d8c64d6521",
+        "episodes": [
+          {
+            "atBatIndex": "1",
+            "resolutionKind": "reach",
+            "runnerId": "683953",
+            "runnerIndex": "1"
+          },
+          {
+            "atBatIndex": "3",
+            "resolutionKind": "advance",
+            "runnerId": "683953",
+            "runnerIndex": "2"
+          }
+        ],
+        "half": "top",
+        "inning": "1",
+        "latestEndBound": "2026-08-26T01:47:13.550Z",
+        "lifetimeKey": "2aaf59c096c9a12e01a6b3a90dc1e44ae129f1276c6d19771e0ffabd3ef41ee8",
+        "runnerId": "683953",
+        "terminal": "stranded",
+        "terminationAnchor": "0c9fc7f2-0ee0-35e1-99cc-79b0dd9f9a4c"
+      },
+      {
+        "earliestStartBound": "2026-08-26T01:56:57.004Z",
+        "entryAnchor": "1999c7da-d8d8-3847-b9b3-f8ad054c6be6",
+        "episodes": [
+          {
+            "atBatIndex": "8",
+            "resolutionKind": "score",
+            "runnerId": "687093",
+            "runnerIndex": "0"
+          }
+        ],
+        "half": "bottom",
+        "inning": "1",
+        "latestEndBound": "2026-08-26T01:57:23.488Z",
+        "lifetimeKey": "9de0af4d9f4465b6a2e9c6c4cc26cf54fadaf5bbbe0407a67896ceabce483347",
+        "runnerId": "687093",
+        "terminal": "score",
+        "terminationAnchor": "1999c7da-d8d8-3847-b9b3-f8ad054c6be6"
+      },
+      {
+        "earliestStartBound": "2026-08-26T01:52:52.286Z",
+        "entryAnchor": "f7c0f603-38ad-335d-bfe8-bce943a8d58b",
+        "episodes": [
+          {
+            "atBatIndex": "6",
+            "resolutionKind": "reach",
+            "runnerId": "545361",
+            "runnerIndex": "0"
+          },
+          {
+            "atBatIndex": "8",
+            "resolutionKind": "score",
+            "runnerId": "545361",
+            "runnerIndex": "1"
+          }
+        ],
+        "half": "bottom",
+        "inning": "1",
+        "latestEndBound": "2026-08-26T01:57:23.488Z",
+        "lifetimeKey": "d7b906ca055fe31dd38cfec3e2815ed5c7961f4bf6b0244bbd316b50d7601d20",
+        "runnerId": "545361",
+        "terminal": "score",
+        "terminationAnchor": "1999c7da-d8d8-3847-b9b3-f8ad054c6be6"
+      },
+      {
+        "earliestStartBound": "2026-08-26T02:02:09.365Z",
+        "entryAnchor": "0ff97678-a022-3bbb-b366-c1858f36644d",
+        "episodes": [
+          {
+            "atBatIndex": "10",
+            "resolutionKind": "reach",
+            "runnerId": "682657",
+            "runnerIndex": "0"
+          },
+          {
+            "atBatIndex": "11",
+            "resolutionKind": "advance",
+            "runnerId": "682657",
+            "runnerIndex": "0"
+          },
+          {
+            "atBatIndex": "12",
+            "resolutionKind": "advance",
+            "runnerId": "682657",
+            "runnerIndex": "1"
+          },
+          {
+            "atBatIndex": "13",
+            "resolutionKind": "out",
+            "runnerId": "682657",
+            "runnerIndex": "0"
+          }
+        ],
+        "half": "top",
+        "inning": "2",
+        "latestEndBound": "2026-08-26T02:05:55.983Z",
+        "lifetimeKey": "53c9627c5858541ba42bfa537daca1b902de819b3e8c715c8ac5b7a4ba2b9b80",
+        "runnerId": "682657",
+        "terminal": "out",
+        "terminationAnchor": "9a7d57ca-f832-3753-a80d-0e01f5b9864d"
+      },
+      {
+        "earliestStartBound": "2026-08-26T02:04:25.957Z",
+        "entryAnchor": "392ecb0f-f031-3782-afee-d0ae44489b83",
+        "episodes": [
+          {
+            "atBatIndex": "11",
+            "resolutionKind": "reach",
+            "runnerId": "672275",
+            "runnerIndex": "1"
+          },
+          {
+            "atBatIndex": "12",
+            "resolutionKind": "advance",
+            "runnerId": "672275",
+            "runnerIndex": "2"
+          },
+          {
+            "atBatIndex": "13",
+            "resolutionKind": "advance",
+            "runnerId": "672275",
+            "runnerIndex": "2"
+          }
+        ],
+        "half": "top",
+        "inning": "2",
+        "latestEndBound": "2026-08-26T02:10:32.684Z",
+        "lifetimeKey": "fa0f908df3208441570240228a0c999475007c36d0de0f21994c6992c8af2ec0",
+        "runnerId": "672275",
+        "terminal": "stranded",
+        "terminationAnchor": "43df0801-f3fb-304b-8ac1-5b368e8dfcf1"
+      },
+      {
+        "earliestStartBound": "2026-08-26T02:05:05.046Z",
+        "entryAnchor": "e30ab9b5-5396-3672-a946-10b3466c16af",
+        "episodes": [
+          {
+            "atBatIndex": "12",
+            "resolutionKind": "reach",
+            "runnerId": "690984",
+            "runnerIndex": "0"
+          },
+          {
+            "atBatIndex": "13",
+            "resolutionKind": "advance",
+            "runnerId": "690984",
+            "runnerIndex": "3"
+          }
+        ],
+        "half": "top",
+        "inning": "2",
+        "latestEndBound": "2026-08-26T02:10:32.684Z",
+        "lifetimeKey": "445e257e36a1cc3aa0e7cb425a15c88367517dae553d5084bf160597e66a495e",
+        "runnerId": "690984",
+        "terminal": "stranded",
+        "terminationAnchor": "43df0801-f3fb-304b-8ac1-5b368e8dfcf1"
+      },
+      {
+        "earliestStartBound": "2026-08-26T02:07:57.982Z",
+        "entryAnchor": "29791bb7-8119-3add-8d37-7fd667f2b848",
+        "episodes": [
+          {
+            "atBatIndex": "14",
+            "resolutionKind": "reach",
+            "runnerId": "680757",
+            "runnerIndex": "0"
+          }
+        ],
+        "half": "top",
+        "inning": "2",
+        "latestEndBound": "2026-08-26T02:10:32.684Z",
+        "lifetimeKey": "c02c5fede6f6a00ab5569592027968cbb093dbfcd2355ad73413fff79b0f88f4",
+        "runnerId": "680757",
+        "terminal": "stranded",
+        "terminationAnchor": "43df0801-f3fb-304b-8ac1-5b368e8dfcf1"
+      },
+      {
+        "earliestStartBound": "2026-08-26T02:14:04.660Z",
+        "entryAnchor": "91093bac-3d85-374c-a209-994759944c72",
+        "episodes": [
+          {
+            "atBatIndex": "16",
+            "resolutionKind": "score",
+            "runnerId": "695681",
+            "runnerIndex": "0"
+          }
+        ],
+        "half": "bottom",
+        "inning": "2",
+        "latestEndBound": "2026-08-26T02:14:29.898Z",
+        "lifetimeKey": "c5235b6b0018e9ff16acb9b2ae7bf946bd670f40edf9ddf8c3dd192ab9298507",
+        "runnerId": "695681",
+        "terminal": "score",
+        "terminationAnchor": "91093bac-3d85-374c-a209-994759944c72"
+      },
+      {
+        "earliestStartBound": "2026-08-26T02:16:48.178Z",
+        "entryAnchor": "06a2ef2d-6d45-336d-a5dd-f16678e742d9",
+        "episodes": [
+          {
+            "atBatIndex": "17",
+            "resolutionKind": "reach",
+            "runnerId": "672569",
+            "runnerIndex": "0"
+          },
+          {
+            "atBatIndex": "18",
+            "resolutionKind": "advance",
+            "runnerId": "672569",
+            "runnerIndex": "0"
+          }
+        ],
+        "half": "bottom",
+        "inning": "2",
+        "latestEndBound": "2026-08-26T02:22:34.848Z",
+        "lifetimeKey": "99212264fdb9bbd2e290e34c83046110395045d1bf71150100e5ba28efbd95a8",
+        "runnerId": "672569",
+        "terminal": "replaced",
+        "terminationAnchor": "replacement/2/bottom/672569/642350",
+        "terminationWitness": {
+          "anchor": "replacement/2/bottom/672569/642350",
+          "atBatIndex": 18,
+          "base": 2,
+          "earliestStartBound": "2026-08-26T02:22:13.464Z",
+          "eventIndex": 12,
+          "form": "replacement",
+          "latestEndBound": "2026-08-26T02:22:34.848Z",
+          "outgoingRunnerId": "672569",
+          "runnerId": "642350",
+          "sourcePointer": "/liveData/plays/allPlays/18/playEvents/12"
+        }
+      },
+      {
+        "earliestStartBound": "2026-08-26T02:22:13.464Z",
+        "entryAnchor": "replacement/2/bottom/672569/642350",
+        "entryAtBatIndex": 18,
+        "entryWitness": {
+          "anchor": "replacement/2/bottom/672569/642350",
+          "atBatIndex": 18,
+          "base": 2,
+          "earliestStartBound": "2026-08-26T02:22:13.464Z",
+          "eventIndex": 12,
+          "form": "replacement",
+          "latestEndBound": "2026-08-26T02:22:34.848Z",
+          "outgoingRunnerId": "672569",
+          "runnerId": "642350",
+          "sourcePointer": "/liveData/plays/allPlays/18/playEvents/12"
+        },
+        "episodes": [
+          {
+            "atBatIndex": "18",
+            "resolutionKind": "advance",
+            "runnerId": "642350",
+            "runnerIndex": "2"
+          },
+          {
+            "atBatIndex": "18",
+            "resolutionKind": "score",
+            "runnerId": "642350",
+            "runnerIndex": "3"
+          }
+        ],
+        "half": "bottom",
+        "inning": "2",
+        "latestEndBound": "2026-08-26T02:22:52.380Z",
+        "lifetimeKey": "eb315314b51dfaf0df57bc4b701ea71071021bab377489e6286ff3d4b92ae599",
+        "runnerId": "642350",
+        "terminal": "score",
+        "terminationAnchor": "50e1fff2-e98b-3887-b9e3-1e79083d3ae1"
+      },
+      {
+        "earliestStartBound": "2026-08-26T02:22:34.848Z",
+        "entryAnchor": "50e1fff2-e98b-3887-b9e3-1e79083d3ae1",
+        "episodes": [
+          {
+            "atBatIndex": "18",
+            "resolutionKind": "reach",
+            "runnerId": "694203",
+            "runnerIndex": "1"
+          },
+          {
+            "atBatIndex": "19",
+            "resolutionKind": "advance",
+            "runnerId": "694203",
+            "runnerIndex": "1"
+          },
+          {
+            "atBatIndex": "20",
+            "resolutionKind": "score",
+            "runnerId": "694203",
+            "runnerIndex": "1"
+          }
+        ],
+        "half": "bottom",
+        "inning": "2",
+        "latestEndBound": "2026-08-26T02:25:41.520Z",
+        "lifetimeKey": "67ceca158bb85782854bbf81b7559eafa77c78e1200edcae9e3c5f7e782c8801",
+        "runnerId": "694203",
+        "terminal": "score",
+        "terminationAnchor": "fbe24e6f-ef49-34c9-9a52-a34623829bb1"
+      },
+      {
+        "earliestStartBound": "2026-08-26T02:25:29.435Z",
+        "entryAnchor": "fbe24e6f-ef49-34c9-9a52-a34623829bb1",
+        "episodes": [
+          {
+            "atBatIndex": "20",
+            "resolutionKind": "reach",
+            "runnerId": "687263",
+            "runnerIndex": "0"
+          },
+          {
+            "atBatIndex": "21",
+            "resolutionKind": "advance",
+            "runnerId": "687263",
+            "runnerIndex": "0"
+          }
+        ],
+        "half": "bottom",
+        "inning": "2",
+        "latestEndBound": "2026-08-26T02:36:26.341Z",
+        "lifetimeKey": "cca1f8c21abeeebb077b7974ac620a800d242767178e38953e759883cd035810",
+        "runnerId": "687263",
+        "terminal": "stranded",
+        "terminationAnchor": "b209a1e9-3114-3010-8951-9d24d2e3c4a4"
+      },
+      {
+        "earliestStartBound": "2026-08-26T02:29:42.907Z",
+        "entryAnchor": "61e91a92-954b-3485-90d1-12e6d459a0ab",
+        "episodes": [
+          {
+            "atBatIndex": "21",
+            "resolutionKind": "reach",
+            "runnerId": "545361",
+            "runnerIndex": "1"
+          }
+        ],
+        "half": "bottom",
+        "inning": "2",
+        "latestEndBound": "2026-08-26T02:36:26.341Z",
+        "lifetimeKey": "3628b1f8f526a0fe1907d466c8059f7f0fc3e53b0c236664cfc6b127d3d783bd",
+        "runnerId": "545361",
+        "terminal": "stranded",
+        "terminationAnchor": "b209a1e9-3114-3010-8951-9d24d2e3c4a4"
+      },
+      {
+        "earliestStartBound": "2026-08-26T02:42:29.682Z",
+        "entryAnchor": "3988bb84-baf2-3599-af0a-1d0ae6325554",
+        "episodes": [
+          {
+            "atBatIndex": "26",
+            "resolutionKind": "reach",
+            "runnerId": "663993",
+            "runnerIndex": "0"
+          }
+        ],
+        "half": "top",
+        "inning": "3",
+        "latestEndBound": "2026-08-26T02:43:25.298Z",
+        "lifetimeKey": "cf5480e2f30b04d6f7de309b3bfe9a7cca97a58a8cd284753ac86d7b563fa1d4",
+        "runnerId": "663993",
+        "terminal": "stranded",
+        "terminationAnchor": "be8b9624-950c-3bba-a441-6cd63131f3e4"
+      },
+      {
+        "earliestStartBound": "2026-08-26T02:46:39.953Z",
+        "entryAnchor": "f688c3a0-3285-326c-8a97-46ddbf235346",
+        "episodes": [
+          {
+            "atBatIndex": "28",
+            "resolutionKind": "reach",
+            "runnerId": "666139",
+            "runnerIndex": "0"
+          }
+        ],
+        "half": "bottom",
+        "inning": "3",
+        "latestEndBound": "2026-08-26T02:52:26.076Z",
+        "lifetimeKey": "3b37c373c8946ef1935be568f774cbb27f8b0d599d77acaa000fad4ee3f3024e",
+        "runnerId": "666139",
+        "terminal": "stranded",
+        "terminationAnchor": "914baf37-ff93-352a-af7f-03118046ad23"
+      },
+      {
+        "earliestStartBound": "2026-08-26T02:55:35.226Z",
+        "entryAnchor": "8ee4e5d2-df4b-3f2c-a787-70d22bab5e55",
+        "episodes": [
+          {
+            "atBatIndex": "32",
+            "resolutionKind": "reach",
+            "runnerId": "672275",
+            "runnerIndex": "0"
+          },
+          {
+            "atBatIndex": "34",
+            "resolutionKind": "advance",
+            "runnerId": "672275",
+            "runnerIndex": "0"
+          },
+          {
+            "atBatIndex": "35",
+            "resolutionKind": "advance",
+            "runnerId": "672275",
+            "runnerIndex": "1"
+          },
+          {
+            "atBatIndex": "36",
+            "resolutionKind": "score",
+            "runnerId": "672275",
+            "runnerIndex": "1"
+          }
+        ],
+        "half": "top",
+        "inning": "4",
+        "latestEndBound": "2026-08-26T03:05:01.929Z",
+        "lifetimeKey": "e12474d311ec1b8b56854e753ba8f285d1b1818c50165127358c4dea7c05ff01",
+        "runnerId": "672275",
+        "terminal": "score",
+        "terminationAnchor": "241451d3-c3f0-3228-9360-6076ce573bf4"
+      },
+      {
+        "earliestStartBound": "2026-08-26T03:04:03.573Z",
+        "entryAnchor": "2e75e09b-c6f7-3576-be27-0b3c170c97b4",
+        "episodes": [
+          {
+            "atBatIndex": "35",
+            "resolutionKind": "reach",
+            "runnerId": "680757",
+            "runnerIndex": "0"
+          },
+          {
+            "atBatIndex": "36",
+            "resolutionKind": "advance",
+            "runnerId": "680757",
+            "runnerIndex": "2"
+          },
+          {
+            "atBatIndex": "37",
+            "resolutionKind": "score",
+            "runnerId": "680757",
+            "runnerIndex": "1"
+          }
+        ],
+        "half": "top",
+        "inning": "4",
+        "latestEndBound": "2026-08-26T03:06:37.958Z",
+        "lifetimeKey": "878e48f7f863f2c3eac3bcc2a1b02707117ac5e8771270da1645ce305745b642",
+        "runnerId": "680757",
+        "terminal": "score",
+        "terminationAnchor": "b8647ad3-17fd-35ae-92b8-821072b73ef0"
+      },
+      {
+        "earliestStartBound": "2026-08-26T03:04:50.102Z",
+        "entryAnchor": "241451d3-c3f0-3228-9360-6076ce573bf4",
+        "episodes": [
+          {
+            "atBatIndex": "36",
+            "resolutionKind": "reach",
+            "runnerId": "683953",
+            "runnerIndex": "0"
+          },
+          {
+            "atBatIndex": "37",
+            "resolutionKind": "advance",
+            "runnerId": "683953",
+            "runnerIndex": "2"
+          },
+          {
+            "atBatIndex": "37",
+            "resolutionKind": "score",
+            "runnerId": "683953",
+            "runnerIndex": "3"
+          }
+        ],
+        "half": "top",
+        "inning": "4",
+        "latestEndBound": "2026-08-26T03:06:37.958Z",
+        "lifetimeKey": "f7772e8907f1b124f1a56f209685605e3ab27485f367c4566e857634ba267383",
+        "runnerId": "683953",
+        "terminal": "score",
+        "terminationAnchor": "b8647ad3-17fd-35ae-92b8-821072b73ef0"
+      },
+      {
+        "earliestStartBound": "2026-08-26T03:06:25.956Z",
+        "entryAnchor": "b8647ad3-17fd-35ae-92b8-821072b73ef0",
+        "episodes": [
+          {
+            "atBatIndex": "37",
+            "resolutionKind": "reach",
+            "runnerId": "608070",
+            "runnerIndex": "0"
+          }
+        ],
+        "half": "top",
+        "inning": "4",
+        "latestEndBound": "2026-08-26T03:10:48.566Z",
+        "lifetimeKey": "b422e24bddfbee236500dc0961ddaf9d780a714571976549c8a096bb769578b9",
+        "runnerId": "608070",
+        "terminal": "stranded",
+        "terminationAnchor": "0e1cea69-9f41-34b7-9771-28120e1b485c"
+      },
+      {
+        "earliestStartBound": "2026-08-26T03:17:25.685Z",
+        "entryAnchor": "f36c88ec-4575-3b48-9d0e-11558e2c4466",
+        "episodes": [
+          {
+            "atBatIndex": "41",
+            "resolutionKind": "reach",
+            "runnerId": "545361",
+            "runnerIndex": "0"
+          }
+        ],
+        "half": "bottom",
+        "inning": "4",
+        "latestEndBound": "2026-08-26T03:19:56.528Z",
+        "lifetimeKey": "f934235a72bd38df5ced1b574737efb66f0b1a43ccd81b3488c23d34e4a5bdad",
+        "runnerId": "545361",
+        "terminal": "stranded",
+        "terminationAnchor": "00c51f13-3a39-3bbe-a17d-3deba2554581"
+      },
+      {
+        "earliestStartBound": "2026-08-26T03:24:20.670Z",
+        "entryAnchor": "6dfe0821-f25b-3b64-8b5e-81f1f2e4e7b8",
+        "episodes": [
+          {
+            "atBatIndex": "44",
+            "resolutionKind": "reach",
+            "runnerId": "682657",
+            "runnerIndex": "0"
+          },
+          {
+            "atBatIndex": "46",
+            "resolutionKind": "advance",
+            "runnerId": "682657",
+            "runnerIndex": "1"
+          },
+          {
+            "atBatIndex": "47",
+            "resolutionKind": "advance",
+            "runnerId": "682657",
+            "runnerIndex": "1"
+          },
+          {
+            "atBatIndex": "47",
+            "resolutionKind": "score",
+            "runnerId": "682657",
+            "runnerIndex": "2"
+          }
+        ],
+        "half": "top",
+        "inning": "5",
+        "latestEndBound": "2026-08-26T03:29:56.610Z",
+        "lifetimeKey": "69a54da92d5310c50f9a571abc50202e21d5bbe7778b38daac0784eabbb988d6",
+        "runnerId": "682657",
+        "terminal": "score",
+        "terminationAnchor": "206afc31-85b9-3c53-a812-5e3487e15370"
+      },
+      {
+        "earliestStartBound": "2026-08-26T03:28:35.829Z",
+        "entryAnchor": "467bf8a4-5036-3ae7-8978-b901a3449bfe",
+        "episodes": [
+          {
+            "atBatIndex": "46",
+            "resolutionKind": "reach",
+            "runnerId": "690984",
+            "runnerIndex": "0"
+          },
+          {
+            "atBatIndex": "47",
+            "resolutionKind": "advance",
+            "runnerId": "690984",
+            "runnerIndex": "3"
+          },
+          {
+            "atBatIndex": "48",
+            "resolutionKind": "advance",
+            "runnerId": "690984",
+            "runnerIndex": "3"
+          },
+          {
+            "atBatIndex": "48",
+            "resolutionKind": "score",
+            "runnerId": "690984",
+            "runnerIndex": "4"
+          }
+        ],
+        "half": "top",
+        "inning": "5",
+        "latestEndBound": "2026-08-26T03:31:50.720Z",
+        "lifetimeKey": "fed524f7080ffdafa948a73cfa52d8f303f33bd14974621fcd76d49eea21c97d",
+        "runnerId": "690984",
+        "terminal": "score",
+        "terminationAnchor": "e6d4d77e-29a6-300e-80e7-ff26f42b323f"
+      },
+      {
+        "earliestStartBound": "2026-08-26T03:29:38.671Z",
+        "entryAnchor": "206afc31-85b9-3c53-a812-5e3487e15370",
+        "episodes": [
+          {
+            "atBatIndex": "47",
+            "resolutionKind": "reach",
+            "runnerId": "677587",
+            "runnerIndex": "0"
+          },
+          {
+            "atBatIndex": "48",
+            "resolutionKind": "advance",
+            "runnerId": "677587",
+            "runnerIndex": "1"
+          },
+          {
+            "atBatIndex": "48",
+            "resolutionKind": "advance",
+            "runnerId": "677587",
+            "runnerIndex": "2"
+          }
+        ],
+        "half": "top",
+        "inning": "5",
+        "latestEndBound": "2026-08-26T03:33:23.564Z",
+        "lifetimeKey": "169f27de85b7ddc44c5725869e911e131ece7008600a6e1d6bead401aabb7d09",
+        "runnerId": "677587",
+        "terminal": "stranded",
+        "terminationAnchor": "90a49a32-4dce-3be6-a5f7-090366cc3d71"
+      },
+      {
+        "earliestStartBound": "2026-08-26T03:31:40.740Z",
+        "entryAnchor": "e6d4d77e-29a6-300e-80e7-ff26f42b323f",
+        "episodes": [
+          {
+            "atBatIndex": "48",
+            "resolutionKind": "reach",
+            "runnerId": "680757",
+            "runnerIndex": "0"
+          }
+        ],
+        "half": "top",
+        "inning": "5",
+        "latestEndBound": "2026-08-26T03:33:23.564Z",
+        "lifetimeKey": "425c4d1a2d54a1f183c6dbc937189f64ce034e6f4538f192a5d0eefd872c2a59",
+        "runnerId": "680757",
+        "terminal": "stranded",
+        "terminationAnchor": "90a49a32-4dce-3be6-a5f7-090366cc3d71"
+      },
+      {
+        "earliestStartBound": "2026-08-26T03:36:16.136Z",
+        "entryAnchor": "a8efecb7-92e4-3d23-b282-916aa5c823d6",
+        "episodes": [
+          {
+            "atBatIndex": "50",
+            "resolutionKind": "score",
+            "runnerId": "687093",
+            "runnerIndex": "0"
+          }
+        ],
+        "half": "bottom",
+        "inning": "5",
+        "latestEndBound": "2026-08-26T03:36:41.811Z",
+        "lifetimeKey": "6f6928aa909e1318f8d2914e40ab1faba26dd2a07f931942f73d8925224b877d",
+        "runnerId": "687093",
+        "terminal": "score",
+        "terminationAnchor": "a8efecb7-92e4-3d23-b282-916aa5c823d6"
+      },
+      {
+        "earliestStartBound": "2026-08-26T03:40:55.318Z",
+        "entryAnchor": "6feff151-2d14-39d9-920d-06da6f7f8b0f",
+        "episodes": [
+          {
+            "atBatIndex": "53",
+            "resolutionKind": "reach",
+            "runnerId": "642350",
+            "runnerIndex": "0"
+          }
+        ],
+        "half": "bottom",
+        "inning": "5",
+        "latestEndBound": "2026-08-26T03:42:31.639Z",
+        "lifetimeKey": "d5d10eb3f1722a741c09dac9991e9b3372240270851e3a2a41dc6be1394957d4",
+        "runnerId": "642350",
+        "terminal": "stranded",
+        "terminationAnchor": "2b62a637-a241-3155-9a1c-a1a9d6f88bdb"
+      },
+      {
+        "earliestStartBound": "2026-08-26T03:50:45.181Z",
+        "entryAnchor": "877b7240-bc51-3eac-9bb9-42ceb79ddda2",
+        "episodes": [
+          {
+            "atBatIndex": "58",
+            "resolutionKind": "reach",
+            "runnerId": "624428",
+            "runnerIndex": "0"
+          }
+        ],
+        "half": "bottom",
+        "inning": "6",
+        "latestEndBound": "2026-08-26T03:54:45.150Z",
+        "lifetimeKey": "7cf03af8296a1cbab6dfe82419619303a672e95e960b741a9e35b7a262c0ce84",
+        "runnerId": "624428",
+        "terminal": "stranded",
+        "terminationAnchor": "3617785c-ea9f-38df-9792-75b303bcb6ff"
+      },
+      {
+        "earliestStartBound": "2026-08-26T04:00:41.132Z",
+        "entryAnchor": "25d04d2c-7392-3fd1-a804-f9956dd4811f",
+        "episodes": [
+          {
+            "atBatIndex": "63",
+            "resolutionKind": "reach",
+            "runnerId": "672275",
+            "runnerIndex": "0"
+          }
+        ],
+        "half": "top",
+        "inning": "7",
+        "latestEndBound": "2026-08-26T04:03:53.080Z",
+        "lifetimeKey": "be6e144c7b88ead6ba6eef4037a9363e60c58917e667cb5d19c74bdd9c03e182",
+        "runnerId": "672275",
+        "terminal": "stranded",
+        "terminationAnchor": "25ab1299-7416-34cb-897e-8ba4d299c0ed"
+      },
+      {
+        "earliestStartBound": "2026-08-26T04:07:49.220Z",
+        "entryAnchor": "e97833c5-f7e8-377d-aefc-3c83630f2007",
+        "episodes": [
+          {
+            "atBatIndex": "67",
+            "resolutionKind": "reach",
+            "runnerId": "666139",
+            "runnerIndex": "0"
+          },
+          {
+            "atBatIndex": "68",
+            "resolutionKind": "advance",
+            "runnerId": "666139",
+            "runnerIndex": "1"
+          }
+        ],
+        "half": "bottom",
+        "inning": "7",
+        "latestEndBound": "2026-08-26T04:10:11.723Z",
+        "lifetimeKey": "a872faf5626e840435992617e605d10b74e9af311c20630974faeadcac22093f",
+        "runnerId": "666139",
+        "terminal": "stranded",
+        "terminationAnchor": "cdbadc4c-f958-390c-9068-a137a20a7532"
+      },
+      {
+        "earliestStartBound": "2026-08-26T04:13:38.319Z",
+        "entryAnchor": "ecb2dfda-d2bd-3115-95a7-c3a381e97e5c",
+        "episodes": [
+          {
+            "atBatIndex": "70",
+            "resolutionKind": "reach",
+            "runnerId": "680757",
+            "runnerIndex": "0"
+          },
+          {
+            "atBatIndex": "71",
+            "resolutionKind": "advance",
+            "runnerId": "680757",
+            "runnerIndex": "1"
+          },
+          {
+            "atBatIndex": "72",
+            "resolutionKind": "advance",
+            "runnerId": "680757",
+            "runnerIndex": "1"
+          },
+          {
+            "atBatIndex": "72",
+            "resolutionKind": "score",
+            "runnerId": "680757",
+            "runnerIndex": "2"
+          }
+        ],
+        "half": "top",
+        "inning": "8",
+        "latestEndBound": "2026-08-26T04:18:13.017Z",
+        "lifetimeKey": "0623e467c23d58d78cb8520f1995dadd9146229385fe4b4f97e82a3a51aed6c2",
+        "runnerId": "680757",
+        "terminal": "score",
+        "terminationAnchor": "6d974723-16d0-3c9a-bc49-ff18a31ff84a"
+      },
+      {
+        "earliestStartBound": "2026-08-26T04:18:01.077Z",
+        "entryAnchor": "6d974723-16d0-3c9a-bc49-ff18a31ff84a",
+        "episodes": [
+          {
+            "atBatIndex": "72",
+            "resolutionKind": "reach",
+            "runnerId": "608070",
+            "runnerIndex": "0"
+          },
+          {
+            "atBatIndex": "73",
+            "resolutionKind": "advance",
+            "runnerId": "608070",
+            "runnerIndex": "1"
+          }
+        ],
+        "half": "top",
+        "inning": "8",
+        "latestEndBound": "2026-08-26T04:21:09.041Z",
+        "lifetimeKey": "ae5ee78b0f40f1df0425ca8d2e9b396b1ba6cf6a65ead7fa11f16dd21b7c06c6",
+        "runnerId": "608070",
+        "terminal": "stranded",
+        "terminationAnchor": "c14002ae-f6dc-3e63-8430-8b65b72d68af"
+      },
+      {
+        "earliestStartBound": "2026-08-26T04:24:39.340Z",
+        "entryAnchor": "d6cf6c88-b982-34e5-900f-0fc60493a7fc",
+        "episodes": [
+          {
+            "atBatIndex": "76",
+            "resolutionKind": "reach",
+            "runnerId": "624428",
+            "runnerIndex": "0"
+          }
+        ],
+        "half": "bottom",
+        "inning": "8",
+        "latestEndBound": "2026-08-26T04:28:22.548Z",
+        "lifetimeKey": "ee169f1c2a6c3e314fc5fcae30d9f3084e615cf9a23c7839df48a5e7fbbd440d",
+        "runnerId": "624428",
+        "terminal": "stranded",
+        "terminationAnchor": "d2111453-8a01-3cbb-8be1-9ba5759286e9"
+      },
+      {
+        "earliestStartBound": "2026-08-26T04:33:00.775Z",
+        "entryAnchor": "7ede37cc-2901-3fd4-b373-09229524706e",
+        "episodes": [
+          {
+            "atBatIndex": "80",
+            "resolutionKind": "reach",
+            "runnerId": "672275",
+            "runnerIndex": "0"
+          }
+        ],
+        "half": "top",
+        "inning": "9",
+        "latestEndBound": "2026-08-26T04:37:17.860Z",
+        "lifetimeKey": "e9aecffcce1cad86a555f022bacedde48c3b4ae4328ae57c161f3b85edd18fb6",
+        "runnerId": "672275",
+        "terminal": "stranded",
+        "terminationAnchor": "2dbc6e7f-4611-3e6a-9b28-af7fa67f34d7"
+      },
+      {
+        "earliestStartBound": "2026-08-26T04:48:06.668Z",
+        "entryAnchor": "3321ff2b-1154-36b8-9b10-b1d712e9b330",
+        "episodes": [
+          {
+            "atBatIndex": "86",
+            "resolutionKind": "reach",
+            "runnerId": "680757",
+            "runnerIndex": "0"
+          },
+          {
+            "atBatIndex": "88",
+            "resolutionKind": "advance",
+            "runnerId": "680757",
+            "runnerIndex": "1"
+          },
+          {
+            "atBatIndex": "88",
+            "resolutionKind": "score",
+            "runnerId": "680757",
+            "runnerIndex": "2"
+          }
+        ],
+        "half": "top",
+        "inning": "10",
+        "latestEndBound": "2026-08-26T04:50:15.800Z",
+        "lifetimeKey": "9d6eb84b04fe4629ce652bb940f56c1fb48bd031c38d3d89adc17fea9a052eef",
+        "runnerId": "680757",
+        "terminal": "score",
+        "terminationAnchor": "81e669e7-9908-3e8e-8dff-fcef1b349915"
+      },
+      {
+        "earliestStartBound": "2026-08-26T04:46:32.445Z",
+        "entryAnchor": "placement/10/top/677587",
+        "entryAtBatIndex": 86,
+        "entryWitness": {
+          "anchor": "placement/10/top/677587",
+          "atBatIndex": 86,
+          "base": 2,
+          "earliestStartBound": "2026-08-26T04:46:32.445Z",
+          "eventIndex": 1,
+          "form": "placement",
+          "latestEndBound": "2026-08-26T04:46:45.040Z",
+          "runnerId": "677587",
+          "sourcePointer": "/liveData/plays/allPlays/86/playEvents/1"
+        },
+        "episodes": [
+          {
+            "atBatIndex": "86",
+            "resolutionKind": "advance",
+            "runnerId": "677587",
+            "runnerIndex": "1"
+          },
+          {
+            "atBatIndex": "88",
+            "resolutionKind": "score",
+            "runnerId": "677587",
+            "runnerIndex": "3"
+          }
+        ],
+        "half": "top",
+        "inning": "10",
+        "latestEndBound": "2026-08-26T04:50:15.800Z",
+        "lifetimeKey": "b01d21e3e11712a7b491a5781fcb4d835ddbeac293c253117d000eb6001ce5c6",
+        "runnerId": "677587",
+        "terminal": "score",
+        "terminationAnchor": "81e669e7-9908-3e8e-8dff-fcef1b349915"
+      },
+      {
+        "earliestStartBound": "2026-08-26T04:50:00.817Z",
+        "entryAnchor": "81e669e7-9908-3e8e-8dff-fcef1b349915",
+        "episodes": [
+          {
+            "atBatIndex": "88",
+            "resolutionKind": "reach",
+            "runnerId": "608070",
+            "runnerIndex": "0"
+          },
+          {
+            "atBatIndex": "90",
+            "resolutionKind": "advance",
+            "runnerId": "608070",
+            "runnerIndex": "0"
+          }
+        ],
+        "half": "top",
+        "inning": "10",
+        "latestEndBound": "2026-08-26T04:53:38.687Z",
+        "lifetimeKey": "7edea8d9443fd84503b96f5ba9947b10a52723adf5f484d896c0f72064cd0fd3",
+        "runnerId": "608070",
+        "terminal": "stranded",
+        "terminationAnchor": "cb92b74f-26b4-3932-8414-9fde70c51f7e"
+      },
+      {
+        "earliestStartBound": "2026-08-26T04:50:46.318Z",
+        "entryAnchor": "08239896-0906-1033-000c-f08cd117d70a",
+        "episodes": [
+          {
+            "atBatIndex": "89",
+            "resolutionKind": "reach",
+            "runnerId": "666176",
+            "runnerIndex": "0"
+          },
+          {
+            "atBatIndex": "90",
+            "resolutionKind": "advance",
+            "runnerId": "666176",
+            "runnerIndex": "1"
+          }
+        ],
+        "half": "top",
+        "inning": "10",
+        "latestEndBound": "2026-08-26T04:53:38.687Z",
+        "lifetimeKey": "5c4ea69ccf6cc9fd6d5af0bbc1985c19c219f167591d09b4aecbe3ba0cf42ecf",
+        "runnerId": "666176",
+        "terminal": "stranded",
+        "terminationAnchor": "cb92b74f-26b4-3932-8414-9fde70c51f7e"
+      },
+      {
+        "earliestStartBound": "2026-08-26T04:55:23.959Z",
+        "entryAnchor": "placement/10/bottom/666139",
+        "entryAtBatIndex": 92,
+        "entryWitness": {
+          "anchor": "placement/10/bottom/666139",
+          "atBatIndex": 92,
+          "base": 2,
+          "earliestStartBound": "2026-08-26T04:55:23.959Z",
+          "eventIndex": 1,
+          "form": "placement",
+          "latestEndBound": "2026-08-26T04:56:12.571Z",
+          "runnerId": "666139",
+          "sourcePointer": "/liveData/plays/allPlays/92/playEvents/1"
+        },
+        "episodes": [
+          {
+            "atBatIndex": "93",
+            "resolutionKind": "advance",
+            "runnerId": "666139",
+            "runnerIndex": "1"
+          }
+        ],
+        "half": "bottom",
+        "inning": "10",
+        "latestEndBound": "2026-08-26T05:01:43.132Z",
+        "lifetimeKey": "4107455f059dece92dc839ece0f398ec1b917dda6b4be27df555573b3553fd3d",
+        "runnerId": "666139",
+        "terminal": "stranded",
+        "terminationAnchor": "18832e31-c646-379e-8b9d-698cbc60c8e1"
+      },
+      {
+        "earliestStartBound": "2026-08-26T04:57:35.397Z",
+        "entryAnchor": "66270f46-0819-3dc1-b074-2355c7f22291",
+        "episodes": [
+          {
+            "atBatIndex": "92",
+            "resolutionKind": "reach",
+            "runnerId": "695681",
+            "runnerIndex": "0"
+          },
+          {
+            "atBatIndex": "93",
+            "resolutionKind": "advance",
+            "runnerId": "695681",
+            "runnerIndex": "2"
+          }
+        ],
+        "half": "bottom",
+        "inning": "10",
+        "latestEndBound": "2026-08-26T05:01:43.132Z",
+        "lifetimeKey": "eff095174d94084f312ac1b1303ae0c4b2d41a5413faadf0dfd7962c2d4a4da8",
+        "runnerId": "695681",
+        "terminal": "stranded",
+        "terminationAnchor": "18832e31-c646-379e-8b9d-698cbc60c8e1"
+      }
+    ],
+    "inputSha256": "c514ca5c88becd1d917b5b9f2ff3e8d5cf4fca21831dd8377702ed42518b00a5",
+    "metricPopulationAdmitted": false,
+    "sourceAuthorityDecision": "archive/design-records/metric-source-c1-operation-2026-09-14/review.json",
+    "sourceConsistency": "consistent",
+    "sourceRevision": "20260826_050143",
+    "withheldHistories": []
+  },
+  "populationComplete": true,
+  "sourceReconciled": true,
+  "sourceSha256": "c514ca5c88becd1d917b5b9f2ff3e8d5cf4fca21831dd8377702ed42518b00a5"
+}
