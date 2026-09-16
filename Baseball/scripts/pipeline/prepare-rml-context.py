@@ -1228,8 +1228,56 @@ def automatic_count_awards(document: dict) -> dict:
                 automaticAwardDecision='archive/design-records/automatic-count-awards/review.json')
 
 
+def counted_foul_neutral_event(document: dict, play: dict, event: dict, prior: tuple | None) -> str | None:
+    """M3's bounded, positively reconciled non-pitch count-neutral records."""
+    detail = event.get('details', {})
+    count = event.get('count', {})
+    if (event.get('isPitch') is not False or prior != (count.get('balls'), count.get('strikes'))
+            or detail.get('isOut') is not False or detail.get('hasReview') is not False
+            or detail.get('isScoringPlay') is not False or event.get('reviewDetails')):
+        return None
+    kind = detail.get('eventType')
+    events = play.get('playEvents', [])
+    index = event.get('index')
+    if kind in {'stolen_base_2b', 'stolen_base_3b'} and event.get('isSubstitution') is not True:
+        rows = [r for r in play.get('runners', []) if r.get('details', {}).get('playIndex') == index]
+        if len(rows) != 1 or not index:
+            return None
+        row = rows[0]; movement = row.get('movement', {}); rd = row.get('details', {})
+        before, after = ('1B', '2B') if kind == 'stolen_base_2b' else ('2B', '3B')
+        if (rd.get('eventType') == kind and rd.get('runner', {}).get('id') == event.get('player', {}).get('id')
+                and type(rd.get('runner', {}).get('id')) is int and rd.get('isScoringEvent') is False
+                and movement.get('start') == before and movement.get('end') == after
+                and movement.get('isOut') is False and movement.get('outNumber') is None
+                and count.get('outs') == events[index-1].get('count', {}).get('outs')):
+            return 'reconciled-steal'
+    if kind == 'pitching_substitution' and event.get('isSubstitution') is True and prior == (0, 0):
+        if (event.get('position', {}).get('abbreviation') != 'P'
+                or any(e.get('isPitch') is True or e.get('details', {}).get('call', {}).get('code') in {'VP','AC','VB'} for e in events[:index])
+                or any(e.get('details', {}).get('eventType') == 'offensive_substitution' for e in events)
+                or sum(e.get('details', {}).get('eventType') == kind for e in events) != 1):
+            return None
+        team = 'home' if play.get('about', {}).get('isTopInning') is True else 'away'
+        roster = document.get('liveData', {}).get('boxscore', {}).get('teams', {}).get(team, {})
+        pitchers = roster.get('pitchers', [])
+        people = document.get('gameData', {}).get('players', {})
+        incoming = event.get('player', {}).get('id')
+        names = {pid: people.get('ID'+str(pid), {}).get('fullName') for pid in pitchers}
+        # Some feeds identify the outgoing pitcher only in the final narrative.
+        # Require an exact unique pair of rostered people, never a fuzzy name.
+        pairs = [(a,b) for a in pitchers for b in pitchers if a != b and names[a] and names[b]
+                 and detail.get('description') == f'Pitching Change: {names[a]} replaces {names[b]}.']
+        subsequent = [e for e in events[index+1:] if e.get('isPitch') is True]
+        if (len(pairs) == 1 and pairs[0][0] == incoming and subsequent
+                and play.get('matchup', {}).get('pitcher', {}).get('id') == incoming
+                and all(str(e.get(CONTEXT_KEY, {}).get('pitcherId')) == str(incoming) for e in subsequent)
+                and (event.get('replacedPlayer') is None or event['replacedPlayer'].get('id') == pairs[0][1])):
+            return 'initial-pitching-change'
+    return None
+
+
 def metric_pitch_context(document: dict) -> dict:
-    """Accepted M1/M2 source selection; graph semantics belong to RML/SHACL.
+    """Accepted M1–M4 source selection; graph semantics belong to RML/SHACL.
 
     Inspect unfiltered event prefixes. Counters are mapping evidence, not new
     RDF count states. The retained inventory also checks exact serialization.
@@ -1238,7 +1286,8 @@ def metric_pitch_context(document: dict) -> dict:
     data = f'https://baseballontology.org/data/game/{game}/'
     base = 'https://baseballontology.org/'
     evidence = dict(decision='archive/design-records/mlb-game-metric-mapping-completion/review.json',
-                    countedFouls=[], withheldFouls=[], pitchReviews=[], withheldReviews=[])
+                    countedFouls=[], withheldFouls=[], pitchReviews=[], withheldReviews=[], prefixInventory=[],
+                    countedFoulCompletionDecision='archive/design-records/mlb-game-counted-foul-completion/review.json')
     root = document[CONTEXT_KEY]
     evidence.update(automatic_count_awards(document))
     automatic_ids = {(r['atBatIndex'], r['playId']) for r in evidence['automaticAwards']}
@@ -1268,6 +1317,7 @@ def metric_pitch_context(document: dict) -> dict:
         pitches = [e for e in events if e.get('isPitch') is True]
         pc = play[CONTEXT_KEY]
         indexes = [e.get('index') for e in events]
+        reviews = accounted_runner_count_reviews(play)
         prefix_problem = None
         if source['sourceConsistency'] != 'consistent':
             prefix_problem = 'SOURCE_RECONCILIATION_FAILED'
@@ -1275,7 +1325,7 @@ def metric_pitch_context(document: dict) -> dict:
             prefix_problem = 'INCOMPLETE_PA'
         elif any(type(i) is not int for i in indexes) or indexes != list(range(len(events))):
             prefix_problem = 'EVENT_MEMBERSHIP_OR_ORDER'
-        elif play.get('reviewDetails') or play['about'].get('hasReview') is not False:
+        elif reviews['issues']:
             prefix_problem = 'UNRESOLVED_PA_REVIEW'
         previous = None
         prior = (0, 0)
@@ -1287,9 +1337,10 @@ def metric_pitch_context(document: dict) -> dict:
             start, end = instant(event.get('startTime')), instant(event.get('endTime'))
             if not start or not end or end < start or (previous and (not instant(previous.get('endTime')) or instant(previous['endTime']) > start)):
                 prefix_problem = prefix_problem or 'UNSUPPORTED_EVENT_TIME_ORDER'
-            if event.get('reviewDetails') or details.get('hasReview') is True:
+            if (event.get('reviewDetails') or details.get('hasReview') is True) and event.get('index') not in reviews['events']:
                 prefix_problem = prefix_problem or 'UNRESOLVED_PREFIX_REVIEW'
-            if event.get('isSubstitution') is True or 'substitution' in str(details.get('eventType', '')):
+            neutral_extension = counted_foul_neutral_event(document, play, event, prior)
+            if (event.get('isSubstitution') is True or 'substitution' in str(details.get('eventType', ''))) and neutral_extension != 'initial-pitching-change':
                 prefix_problem = prefix_problem or 'SUBSTITUTION_IN_PREFIX'
             if after is None:
                 prefix_problem = prefix_problem or 'INVALID_COUNTER'
@@ -1304,13 +1355,17 @@ def metric_pitch_context(document: dict) -> dict:
                     elif code in {'X', 'D', 'E', 'H'}: expected = prior
                     else: expected = None
                 else:
-                    neutral = details.get('eventType') in {'batter_timeout', 'mound_visit', 'defensive_switch'} or event.get('type') in {'pickoff', 'stepoff', 'no_pitch'}
+                    neutral = bool(neutral_extension) or details.get('eventType') in {'batter_timeout', 'mound_visit', 'defensive_switch'} or event.get('type') in {'pickoff', 'stepoff', 'no_pitch'}
                     if (pa, event.get('playId')) in automatic_ids:
                         expected = (balls + (code == 'VP'), strikes + (code == 'AC'))
                     else:
                         expected = prior if neutral else None
                 if expected is None or expected != after:
                     prefix_problem = prefix_problem or 'UNEXPLAINED_COUNTER_TRANSITION'
+            evidence['prefixInventory'].append(dict(atBatIndex=pa, eventIndex=event.get('index'),
+                playId=event.get('playId'), call=code, before=prior, after=after,
+                accountedExtension=neutral_extension or ('operative-pitch-review' if event.get('index') in reviews['events'] else None),
+                problem=prefix_problem))
             if event.get('isPitch') is not True:
                 previous, prior = event, after
                 continue
@@ -1324,13 +1379,28 @@ def metric_pitch_context(document: dict) -> dict:
                 ec[f'{kind}DecisionIri'] = data + f'decision/{kind}/{pid}'
                 ec[f'{kind}OnFieldJudgmentIri'] = ec[f'{kind}JudgmentIri']
             ec['isSecondCountedFoul'] = False
+            ec['isCountedFoulBunt'] = False
             if code == 'F' and after and after[1] == 2:
                 item = dict(atBatIndex=pa, playId=pid, eventIndex=event.get('index'))
-                if prefix_problem is None and previous is not None and prior == (after[0], 1) and ec['isBuntAttempt'] is False:
+                if (prefix_problem is None and previous is not None and prior == (after[0], 1) and ec['isBuntAttempt'] is False
+                        and details.get('isStrike') is True and details.get('isBall') is False and details.get('isInPlay') is False):
                     ec['isSecondCountedFoul'] = True
                     evidence['countedFouls'].append(item)
                 else:
                     evidence['withheldFouls'].append(dict(item, reason=prefix_problem or 'NO_SECOND_STRIKE_INCREMENT'))
+            if code == 'L':
+                item = dict(atBatIndex=pa, playId=pid, eventIndex=event.get('index'), kind='foul-bunt')
+                third = after is not None and after[1] == 3
+                terminal = (event is pitches[-1] and play.get('result', {}).get('eventType') in {'strikeout','strikeout_double_play'}
+                            and pc.get('terminalPitchPlayId') == pid)
+                if (prefix_problem is None and prior is not None and after == (prior[0], prior[1]+1)
+                        and ec.get('isBuntAttempt') is True and ec.get('matchesBuntContactSource') is True
+                        and details.get('isStrike') is True and details.get('isBall') is False and details.get('isInPlay') is False
+                        and ec.get('batterId') and ec.get('pitcherId') and (not third or terminal)):
+                    ec['isCountedFoulBunt'] = True
+                    evidence['countedFouls'].append(item)
+                else:
+                    evidence['withheldFouls'].append(dict(item, reason=prefix_problem or 'UNSUPPORTED_COUNTED_FOUL_BUNT'))
 
             review = event.get('reviewDetails')
             if review is not None:

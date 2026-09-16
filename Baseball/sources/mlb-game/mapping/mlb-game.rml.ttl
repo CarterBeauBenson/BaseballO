@@ -358,7 +358,7 @@
 <#CountedFoulSource> a rml:LogicalSource ;
   rml:source "game-context.json" ;
   rml:referenceFormulation ql:JSONPath ;
-  rml:iterator "$.liveData.plays.allPlays[*].playEvents[?(@.isPitch == true && @.details.call.code == 'F' && @.count.strikes == 1 || @.isPitch == true && @._baseballO.isSecondCountedFoul == true)]" .
+  rml:iterator "$.liveData.plays.allPlays[*].playEvents[?(@.isPitch == true && @.details.call.code == 'F' && @.count.strikes == 1 || @.isPitch == true && @._baseballO.isSecondCountedFoul == true || @.isPitch == true && @._baseballO.isCountedFoulBunt == true)]" .
 
 <#FoulTipSource> a rml:LogicalSource ;
   rml:source "game-context.json" ;

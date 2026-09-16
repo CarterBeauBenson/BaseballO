@@ -58,3 +58,18 @@ serving materialization. Daily external acquisition stays at 05:00 Eastern.
 The other [mapping inventory gaps](../../../archive/design-records/mlb-game-metric-mapping-completion/field-selection-inventory.md)
 remain separate. In particular, M1 is not a complete general count-state
 mapping, and M2 does not establish all eligible unreviewed decisions.
+
+## M3/M4 completion, accepted September 16
+
+The separate decision in `e4166c1` accepts reconciled non-scoring steals,
+initial roster-resolved pitching changes and completed MJ operative reviews
+in an ordinary counted-foul prefix. Every unfiltered event remains in the
+retained prefix inventory; counter corrections and ambiguous joins withhold
+the added strike. M2's original/operative review mapping is unchanged.
+
+Counted L foul bunts reuse the existing `BuntAct` class and its contact/role
+pattern. The review's prose ?Bunt Attempt Act? refers to that existing term;
+no `BuntAttemptAct` class or new property is declared. First/second strikes
+do not become strikeouts. A third requires the supported terminal strikeout
+result. SHACL additionally enforces the existing Strike Rule input and field
+location. Exact source/RDF membership includes the added foul-bunt strikes.

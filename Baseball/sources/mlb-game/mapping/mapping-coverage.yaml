@@ -28,6 +28,8 @@ execution_context:
   - reviewed pitch-type and batted-ball trajectory category IRIs for supported provider tokens
   - reviewed season-phase identity and class for supported MLB game-type codes
   - accepted M1 reconciled ordinary foul increments from one strike to two
+  - accepted M3 reconciled steal, initial pitching change and completed MJ review prefixes
+  - accepted M4 counted foul bunts through the existing strike adjudication pattern
   - accepted M2 explicit affirmed pitch-review identities and source-to-graph inventory
   - accepted Q5 explicit VP/AC timer count awards, separate from delivered pitches, with selected/withheld event identities
   - reviewed-play final decision and an unresolved-original-decision marker when an overturn proves that a prior decision existed but does not state its content

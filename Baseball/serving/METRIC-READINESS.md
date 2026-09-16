@@ -72,11 +72,12 @@ the applicable PAQ-2.1 population before taking selected-period player means.
 These consumers have no public evidence-submission path. NiFi does not yet
 produce the defensive admission that would enable their live source population.
 
-[D1](../archive/design-records/mlb-game-defensive-acts/README.md) was accepted on September 16 for
-the missing source projection/identity implementation, not an acceptance record.
-Automatic approval review rejected an attempted retrospective Q6 authorization
-record; it was removed. Q6's act meanings remain accepted; D1 now has its own
-explicit mapping/identity decision. M3/M4 was explicitly accepted with D1 on September 16. Implementation and proofs follow the decision commit.
+[D1](../archive/design-records/mlb-game-defensive-acts/README.md) and
+[M3/M4](../archive/design-records/mlb-game-counted-foul-completion/README.md)
+were explicitly accepted and published in `e4166c1`. M3/M4 is implemented;
+the [real-game proof](../benchmarks/metrics/m3-m4-mappings-2026-09-16/README.md)
+closes all four named omissions and admits the complete 73-PA, 267-pitch
+count history of game 824087. D1 source implementation follows.
 
 The new NiFi-owned review inventory retains PA-level as well as event-level
 records before transient input cleanup. In game 822773, the fifth `MJ`
@@ -100,7 +101,7 @@ checks cover both that registry and the existing pinned source contract.
 The registration blocker is resolved without a protected catalog or freeze
 change. The [unnecessary approval request was withdrawn](../archive/design-records/mlb-game-metric-profile-registration/disposition.md).
 
-M3/M4 is accepted for four counted-foul cases; implementation proofs remain required. The Q5 case in game
+M3/M4 implementation and its bounded count-admission proof are complete. The Q5 case in game
 824087 PA 32 is repaired: a later completed affirmed pitch review no longer
 hides the earlier clock strike. Strict RML also handles an absent neighboring
 pitch without failing. Source evidence presence,

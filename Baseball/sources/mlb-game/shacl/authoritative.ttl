@@ -1563,7 +1563,9 @@ shape:CountedFoulStrikeShape a sh:NodeShape ;
               $this bfo:BFO_0000132 ?pa ; bfo:BFO_0000117 ?judgment .
               ?pa a base:PlateAppearance .
               ?foul bfo:BFO_0000132 ?pa .
-              ?judgment a base:StrikeJudgmentAct ; bfo:BFO_0000132 $this ; cco:ont00001986 ?decision .
+              ?judgment a base:StrikeJudgmentAct ; bfo:BFO_0000132 $this ; cco:ont00001986 ?decision ; cco:ont00001921 <https://baseballontology.org/data/rule/strike> .
+              <https://baseballontology.org/data/rule/strike> a base:StrikeRule .
+              $this cco:ont00001918 ?field .
               ?decision a base:StrikeDecisionICE ; cco:ont00001808 $this .
               ?record a base:BaseballEventRecord ; cco:ont00001808 $this, ?foul, ?judgment, ?decision .
               FILTER NOT EXISTS { $this bfo:BFO_0000117 ?j2 . ?j2 a base:StrikeJudgmentAct . FILTER (?j2 != ?judgment) }

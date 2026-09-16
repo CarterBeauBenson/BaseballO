@@ -1,0 +1,50 @@
+{
+  "scope": "bounded developer proof; no promotion",
+  "decisionCommit": "e4166c1",
+  "gamePk": "824087",
+  "sourceSha256": "249a1df5bb53bc0e5fac2ba16f2204029e7d6325229824523e7fccc85779f237",
+  "authoritativeRdfSha256": "024f017a1d98018f214e7364dcdbb6bd88a5082535cb62ba11f96c9d9c2a7612",
+  "triples": 29351,
+  "plateAppearances": 73,
+  "pitches": 267,
+  "countedFouls": 26,
+  "addedCompletionCases": [
+    {
+      "atBatIndex": 37,
+      "eventIndex": 3
+    },
+    {
+      "atBatIndex": 64,
+      "eventIndex": 2
+    },
+    {
+      "atBatIndex": 65,
+      "eventIndex": 2
+    },
+    {
+      "atBatIndex": 72,
+      "eventIndex": 0
+    }
+  ],
+  "sourceTests": 19,
+  "onePaRmlPassed": true,
+  "wholeGameShaclConforms": true,
+  "pitchCountAdmission": {
+    "artifactType": "baseballo-pitch-count-admission",
+    "authoritativeRdfSha256": "024f017a1d98018f214e7364dcdbb6bd88a5082535cb62ba11f96c9d9c2a7612",
+    "contractVersion": 1,
+    "engine": "jena",
+    "gamePk": "824087",
+    "graph": "https://w3id.org/baseball/graph/game/824087",
+    "graphConforms": true,
+    "implementationSha256": "f883650d7221dc71be178b6c58283cc6344fe0279173dc91846830212b67a03b",
+    "issues": [],
+    "reportSha256": "4a53a3befd9bcdb7273ef3d6e47a83be519927771faee49ef0d2a44ee23be2be",
+    "shapeSha256": "3f5fdacfeab55de51323eba7d4bb07848a6dc0ae55169fd9b316f8137157e904",
+    "sourceCensusSha256": "aba1a350ef82ba87e36087c4960728523e819ebe9ccee6791d3ed670e23099fc",
+    "sourceReconciled": true,
+    "sourceRevision": "20260721_021040",
+    "sourceSha256": "249a1df5bb53bc0e5fac2ba16f2204029e7d6325229824523e7fccc85779f237",
+    "status": "admitted"
+  }
+}

@@ -38,7 +38,7 @@ ontology_coverage_gaps:
   status: source and processor limitation
   source_path: allPlays[*].playEvents[*].count.strikes
   gap: An event-local foul record with count.strikes equal to 2 does not reveal whether the foul incremented the count from one or left an existing two-strike count unchanged.
-  mapping_action: Map a separate foul-related StrikeProcess only for the unambiguous count.strikes equal to 1 subset. Do not overstate ambiguous fouls.
+  mapping_action: Retain first-strike fouls and map fully reconciled one-to-two ordinary fouls under M1/M3 and counted foul bunts under M4. Prefix counters, identity and participation must reconcile; a held two-strike ordinary foul creates no further StrikeProcess.
 
 - id: pickoff-agent-context
   status: source identity limitation

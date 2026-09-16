@@ -168,6 +168,8 @@ class ConformanceTests(unittest.TestCase):
             (n.strike,RDF.type,BASE.StrikeProcess),(n.foul,RDF.type,BASE.FoulBallProcess),
             (n.strike,BFO.BFO_0000062,n.foul),(n.strike,BFO.BFO_0000132,n.pa),(n.foul,BFO.BFO_0000132,n.pa),
             (n.pa,RDF.type,BASE.PlateAppearance),(n.strike,BFO.BFO_0000117,n.judgment),
+            (n.strike,CCO.ont00001918,n.field),(n.judgment,CCO.ont00001921,BASE["data/rule/strike"]),
+            (BASE["data/rule/strike"],RDF.type,BASE.StrikeRule),
             (n.judgment,RDF.type,BASE.StrikeJudgmentAct),(n.judgment,BFO.BFO_0000132,n.strike),
             (n.judgment,CCO.ont00001986,n.decision),(n.decision,RDF.type,BASE.StrikeDecisionICE),
             (n.decision,CCO.ont00001808,n.strike),(n.record,RDF.type,BASE.BaseballEventRecord),
@@ -176,7 +178,7 @@ class ConformanceTests(unittest.TestCase):
         check=lambda graph: validate(graph,shacl_graph=self.shapes,use_shapes=[str(SHAPE.CountedFoulStrikeShape)])[0]
         self.assertTrue(check(g))
         for triple in [(n.judgment,CCO.ont00001986,n.decision),(n.record,CCO.ont00001808,n.decision),
-                       (n.foul,BFO.BFO_0000132,n.pa)]:
+                       (n.foul,BFO.BFO_0000132,n.pa),(n.judgment,CCO.ont00001921,BASE["data/rule/strike"])]:
             g.remove(triple);self.assertFalse(check(g));g.add(triple)
 
     def test_optional_umpire_removal_preserves_mapping_syntax(self):
