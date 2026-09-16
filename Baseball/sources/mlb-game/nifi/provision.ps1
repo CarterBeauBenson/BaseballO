@@ -35,6 +35,10 @@ if (
     throw 'MLB Game must declare the promoted-graph event v1 delivery contract.'
 }
 $schedule = $contract.scheduleDiscovery
+$batchChecksEnabled = $contract.batchMaterialization.periodicChecksEnabled
+if ($batchChecksEnabled -isnot [bool]) {
+    throw 'MLB Game periodicChecksEnabled must be an explicit boolean.'
+}
 if ([string]$schedule.dailyCron -ne '0 0 5 * * ?' -or [string]$schedule.timeZone -ne 'America/New_York') {
     throw 'MLB Game daily acquisition must run at 05:00 America/New_York.'
 }
@@ -556,6 +560,16 @@ $processors.batchMaterializationTrigger = Ensure-Processor -GroupId $groupId -Na
     'File Size' = '0B'; 'Batch Size' = '1'; 'Data Format' = 'Text'; 'Unique FlowFiles' = 'false';
     'Custom Text' = '{}'; 'Character Set' = 'UTF-8'; 'Mime Type' = 'application/json'
 }
+# User disabled this periodic trigger on 2026-09-16. Reprovisioning or starting
+# daily acquisition/backfill must not silently re-enable it.
+if (-not $batchChecksEnabled) {
+    $materializationTrigger = Invoke-NiFi -Method GET -Path "/processors/$($processors.batchMaterializationTrigger)"
+    if ([string]$materializationTrigger.component.state -eq 'RUNNING') {
+        Invoke-NiFi -Method PUT -Path "/processors/$($processors.batchMaterializationTrigger)/run-status" -Body @{
+            revision = @{ version = $materializationTrigger.revision.version }; state = 'STOPPED'; disconnectedNodeAcknowledged = $false
+        } | Out-Null
+    }
+}
 $batchMaterializationArguments = "-B;$batchMaterializer;--state-root;$script:StateRoot"
 $processors.batchMaterialize = Ensure-Processor -GroupId $groupId -Name 'Materialize Ready Schedule Batches' -Type 'org.apache.nifi.processors.standard.ExecuteStreamCommand' -X 3200 -Y -520 -AutoTerminate @('output stream', 'nonzero status') -Properties @{
     'Working Directory' = $repositoryRoot; 'Command Path' = $python; 'Command Arguments Strategy' = 'Command Arguments Property';
@@ -827,13 +841,15 @@ if ($RunProof -or $RunBackfill -or $RunQuarantineReplay -or $RetryQuarantineProo
         }
     }
     if ($StartDaily) {
-        foreach ($processorId in @($processors.dailyRequest, $processors.batchMaterializationTrigger)) {
+        $dailyTriggerIds = @($processors.dailyRequest)
+        if ($batchChecksEnabled) { $dailyTriggerIds += $processors.batchMaterializationTrigger }
+        foreach ($processorId in $dailyTriggerIds) {
             $entity = Invoke-NiFi -Method GET -Path "/processors/$processorId"
             Invoke-NiFi -Method PUT -Path "/processors/$processorId/run-status" -Body @{
                 revision = @{ version = $entity.revision.version }; state = 'RUNNING'; disconnectedNodeAcknowledged = $false
             } | Out-Null
         }
-        Write-Host 'Enabled 05:00 Eastern MLB Game acquisition and pending-batch SQL materialization.'
+        Write-Host "Enabled 05:00 Eastern MLB Game acquisition; periodic batch checks enabled: $batchChecksEnabled."
     }
     if ($RunProof) {
         $requestEntity = Invoke-NiFi -Method GET -Path "/processors/$($processors.request)"
@@ -844,7 +860,7 @@ if ($RunProof -or $RunBackfill -or $RunQuarantineReplay -or $RetryQuarantineProo
     }
     if ($RunBackfill) {
         $materializationTrigger = Invoke-NiFi -Method GET -Path "/processors/$($processors.batchMaterializationTrigger)"
-        if ([string]$materializationTrigger.component.state -ne 'RUNNING') {
+        if ($batchChecksEnabled -and [string]$materializationTrigger.component.state -ne 'RUNNING') {
             Invoke-NiFi -Method PUT -Path "/processors/$($processors.batchMaterializationTrigger)/run-status" -Body @{
                 revision = @{ version = $materializationTrigger.revision.version }; state = 'RUNNING'; disconnectedNodeAcknowledged = $false
             } | Out-Null

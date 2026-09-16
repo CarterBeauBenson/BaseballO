@@ -19,6 +19,7 @@
   },
   "batchMaterialization": {
     "processor": "pipeline/materialize-pending-batches.py",
+    "periodicChecksEnabled": false,
     "checkPeriod": "15 min",
     "dsqCatalog": "serving/dsq-materializations.json",
     "dsqQueryCount": 56,

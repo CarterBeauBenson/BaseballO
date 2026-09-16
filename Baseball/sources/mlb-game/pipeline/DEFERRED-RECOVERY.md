@@ -1,9 +1,17 @@
 # Deferred MLB proof and refresh
 
-`resume-metric-source.py` advances a queued recovery from the existing
-`Materialize Ready Schedule Batches` worker. The existing `Check Pending Batch
-Materialization` trigger must be running at its contract's 15-minute interval.
-No additional process group or acquisition schedule is introduced.
+The user disabled the 15-minute `Check Pending Batch Materialization` trigger
+on 2026-09-16. Its live state is stopped and the source contract now sets
+`batchMaterialization.periodicChecksEnabled` to false. Provisioning, including
+`StartDaily` and `RunBackfill`, preserves that choice. Daily 05:00 Eastern
+acquisition remains enabled. Already queued or running work is not cancelled.
+
+`resume-metric-source.py` advances a queued recovery when the existing
+`Materialize Ready Schedule Batches` worker is invoked. With the periodic
+trigger stopped, there are no timer-driven checks to advance pending recovery
+or deferred batch materialization. The workflow below describes the worker's
+behavior when invoked; it does not authorize re-enabling the timer or replacing
+it with a different recurring schedule.
 
 The worker waits for an explicitly named SQL build to appear in the promoted
 serving pointer and for both known SQL processors to be idle. It then submits
