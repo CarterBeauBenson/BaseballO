@@ -194,6 +194,13 @@ switch ($Action) {
                 '--output' $pitchCountAdmissionPath '--java' (Get-JavaExecutable) `
                 '--jena-classpath' (Join-Path $script:FusekiHome 'fuseki-server.jar')
         }
+        $runnerBoundaryAdmissionPath = Join-Path $stageEvidenceRoot 'runner-boundary-admission.json'
+        $runnerBoundaryAdmitter = Join-Path $PSScriptRoot 'runner-boundary-admission.py'
+        Invoke-LoggedCommand -FailureMessage "Runner boundary SHACL could not execute for game $GamePk." -Command {
+            & python $runnerBoundaryAdmitter '--input' $inputPath '--rdf' $rdfPath '--game-pk' $GamePk `
+                '--output' $runnerBoundaryAdmissionPath '--java' (Get-JavaExecutable) `
+                '--jena-classpath' (Join-Path $script:FusekiHome 'fuseki-server.jar')
+        }
         $runnerResolutionAdmissionPath = Join-Path $stageEvidenceRoot 'runner-resolution-admission.json'
         $runnerResolutionAdmitter = Join-Path $PSScriptRoot 'runner-resolution-admission.py'
         Invoke-LoggedCommand -FailureMessage "Runner-resolution census validation could not execute for game $GamePk." -Command {
@@ -230,6 +237,8 @@ switch ($Action) {
             battingAdmission = $battingAdmissionPath
             pitchCountAdmission = $pitchCountAdmissionPath
             pitchCountAdmissionSha256 = (Get-FileHash -LiteralPath $pitchCountAdmissionPath -Algorithm SHA256).Hash.ToLowerInvariant()
+            runnerBoundaryAdmission = $runnerBoundaryAdmissionPath
+            runnerBoundaryAdmissionSha256 = (Get-FileHash -LiteralPath $runnerBoundaryAdmissionPath -Algorithm SHA256).Hash.ToLowerInvariant()
             runnerResolutionAdmission = $runnerResolutionAdmissionPath
             runnerResolutionAdmissionSha256 = (Get-FileHash -LiteralPath $runnerResolutionAdmissionPath -Algorithm SHA256).Hash.ToLowerInvariant()
             scoringRunAdmission = $scoringRunAdmissionPath
@@ -309,6 +318,8 @@ switch ($Action) {
             $promotion.pitchCountAdmissionSha256 = [string]$shaclResult.pitchCountAdmissionSha256
             $promotion.scoringRunAdmission = [string]$shaclResult.scoringRunAdmission
             $promotion.scoringRunAdmissionSha256 = [string]$shaclResult.scoringRunAdmissionSha256
+            $promotion.runnerBoundaryAdmission = [string]$shaclResult.runnerBoundaryAdmission
+            $promotion.runnerBoundaryAdmissionSha256 = [string]$shaclResult.runnerBoundaryAdmissionSha256
             $promotion.runnerResolutionAdmission = [string]$shaclResult.runnerResolutionAdmission
             $promotion.runnerResolutionAdmissionSha256 = [string]$shaclResult.runnerResolutionAdmissionSha256
             $promotion.contactContinuationAdmission = [string]$shaclResult.contactContinuationAdmission

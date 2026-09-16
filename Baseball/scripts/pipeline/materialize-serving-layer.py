@@ -46,6 +46,10 @@ _count_spec = importlib.util.spec_from_file_location('baseballo_pitch_count_admi
     ROOT / 'sources/mlb-game/pipeline/pitch-count-admission.py')
 _count_admission = importlib.util.module_from_spec(_count_spec)
 _count_spec.loader.exec_module(_count_admission)
+_boundary_spec = importlib.util.spec_from_file_location('baseballo_runner_boundary_admission',
+    ROOT / 'sources/mlb-game/pipeline/runner-boundary-admission.py')
+_boundary_admission = importlib.util.module_from_spec(_boundary_spec)
+_boundary_spec.loader.exec_module(_boundary_admission)
 _cache_spec = importlib.util.spec_from_file_location('baseballo_serving_query_cache',
     ROOT / 'scripts/pipeline/serving_query_cache.py')
 _query_cache = importlib.util.module_from_spec(_cache_spec)
@@ -63,7 +67,7 @@ if _promotion_spec is None or _promotion_spec.loader is None:
 _promotion_inventory = importlib.util.module_from_spec(_promotion_spec)
 _promotion_spec.loader.exec_module(_promotion_inventory)
 _LOADED_MODULE_HASHES = {Path(module.__file__): hashlib.sha256(Path(module.__file__).read_bytes()).hexdigest()
-                        for module in (_batting_admission,_run_admission,_resolution_admission,_count_admission,
+                        for module in (_batting_admission,_run_admission,_resolution_admission,_count_admission,_boundary_admission,
                                        _query_cache,_build_guard,_promotion_inventory)}
 _LOADED_MODULE_HASHES[Path(__file__).resolve()] = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
 SERVING_ROOT = ROOT / "serving"
@@ -1180,7 +1184,8 @@ def _build(args: argparse.Namespace, progress: dict[str, Any]) -> dict[str, Any]
                 batting_admission=_batting_admission.promoted_admission(state_root, promotion_record),
                 scoring_run_admission=_run_admission.promoted_admission(state_root, promotion_record),
                 runner_resolution_admission=_resolution_admission.promoted_admission(state_root, promotion_record),
-                pitch_count_admission=_count_admission.promoted_admission(state_root, promotion_record)))
+                pitch_count_admission=_count_admission.promoted_admission(state_root, promotion_record),
+                runner_boundary_admission=_boundary_admission.promoted_admission(state_root, promotion_record)))
             fingerprint_lines.append(f"{graph}|{official_date}|{game_set}|{artifact}")
             query_started = time.perf_counter()
             try:

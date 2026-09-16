@@ -24,7 +24,7 @@ from rdflib import Graph, Literal
 
 ROOT = Path(__file__).resolve().parents[1]
 METRICS = ROOT / 'sparql/metrics'
-VERSION = '2.0.27'
+VERSION = '2.0.28'
 
 
 class EvidenceError(ValueError):
@@ -53,6 +53,9 @@ def fingerprint():
                   ROOT / 'sources/mlb-game/shacl/scoring-run-admission.ttl',
                   ROOT / 'sources/mlb-game/pipeline/runner-resolution-admission.py',
                   ROOT / 'sources/mlb-game/shacl/runner-resolution-admission.ttl',
+                  ROOT / 'sources/mlb-game/pipeline/runner-boundary-admission.py',
+                  ROOT / 'sources/mlb-game/shacl/runner-boundary-admission.ttl',
+                  ROOT / 'scripts/pipeline/prepare-rml-context.py',
                   ROOT / 'sources/mlb-game/pipeline/pitch-count-admission.py',
                   ROOT / 'sources/mlb-game/shacl/pitch-count-admission.ttl',
                   ROOT / 'sources/mlb-game/pipeline/contact-continuation-admission.py',
@@ -758,7 +761,7 @@ def evidence_query(graphs):
     # A false filter avoids SPARQL engine differences around empty VALUES.
     scope = ('VALUES ?graph { ' + ' '.join('<' + g + '>' for g in graph_list) + ' }') if graph_list else 'FILTER(false)'
     prefixes, queries = set(), []
-    for name in ('suite-evidence.rq', 'runner-movement-evidence.rq', 'pitch-count-evidence.rq'):
+    for name in ('suite-evidence.rq', 'runner-movement-evidence.rq', 'pitch-count-evidence.rq', 'runner-location-evidence.rq'):
         source = (METRICS / name).read_text(encoding='utf-8')
         # Both canonical files name the same OBO namespace with different
         # aliases. Use one alias in the composed query for RDFLib/Jena parity.
@@ -774,7 +777,8 @@ def evidence_query(graphs):
     return ('\n'.join(sorted(prefixes)) + '\nSELECT *' + dataset + '\nWHERE {\n{ {\n' + queries[0]
             + '\n} } UNION { {\n' + queries[1]
             + '\n} BIND("runner_movement" AS ?kind) BIND(?resolution AS ?entity) }'
-            + '\nUNION { {\n' + queries[2] + '\n} BIND("pitch_count" AS ?kind) }\n}')
+            + '\nUNION { {\n' + queries[2] + '\n} BIND("pitch_count" AS ?kind) }'
+            + '\nUNION { {\n' + queries[3] + '\n} BIND("runner_location" AS ?kind) BIND(?stasis AS ?entity) }\n}')
 
 
 def normalize_bindings(bindings, graphs):
@@ -798,14 +802,15 @@ def normalize_bindings(bindings, graphs):
                       'countJudgment', 'countDecision', 'countRule', 'priorPitch', 'nextPitch',
                       'trajectoryEndInstant', 'gameEndTimestamp', 'independentStealAct',
                       'pitchInterval','pitchStartInstant','pitchEndInstant','pitchStartTimestamp','pitchEndTimestamp',
-                      'strikeProcess','strikeJudgment','strikeDecision'):
+                      'strikeProcess','strikeJudgment','strikeDecision',
+                      'stasis','baseSite','occupiedBase','stasisInterval','stasisFirstInstant','paFirstInstant','enclosingLocation'):
             if field in binding and binding[field].get('type') != 'uri':
                 raise EvidenceError('Evidence identity must be an IRI: ' + field)
         for field in ('paStart', 'paEnd', 'gameEnd', 'pitchStart', 'pitchEnd'):
             if field in binding and (binding[field].get('type') != 'literal'
                     or binding[field].get('datatype') != 'http://www.w3.org/2001/XMLSchema#dateTime'):
                 raise EvidenceError('PA boundary requires an explicit dateTime value: ' + field)
-        if row.get('kind') not in {'plate_appearance', 'batted_play', 'run', 'player_game', 'player_team_game', 'review', 'runner_movement', 'runner_history', 'automatic_count_award', 'pitch_count'}:
+        if row.get('kind') not in {'plate_appearance', 'batted_play', 'run', 'player_game', 'player_team_game', 'review', 'runner_movement', 'runner_history', 'automatic_count_award', 'pitch_count', 'runner_location'}:
             raise EvidenceError('Unknown evidence grain')
         if row['kind'] == 'automatic_count_award' and (row.get('countAwardKind') not in {'ball', 'strike'} or
                 not all(row.get(f) for f in ('plateAppearance', 'countJudgment', 'countDecision', 'countRule', 'record'))):
@@ -1880,18 +1885,20 @@ def recovery_game_inputs(rows, *, graph, batting_admission, pitch_count_admissio
     return dict(complete=True, plateAppearances=evidence['plateAppearances'], gaps=[])
 
 
-def recovery_players(connection, *, graphs, qualification, date_scope):
+def season_rank_players(connection, *, metric_id, graphs, qualification, date_scope):
     """Season-through-cutoff midranks, then selected-period player means.
 
     Every calendar day of the reference season has an independent schedule
     proof. Neither the selected start date nor the first loaded game can
     shrink the reference population. Off-season zero-game days are explicit.
     """
+    if metric_id not in {'recovery-quality','paq-2','paq-a'}:raise EvidenceError('Not a supported season player rank')
+    recovery=metric_id=='recovery-quality'
     def denied(*gaps, **details):
         return dict(unavailable(*gaps), playerPopulationComplete=False, playerResults=[],
                     playerSummaryGaps=list(gaps), **details)
     if date_scope['gameSet']!='regular_season':
-        return denied('RECOVERY_REGULAR_SEASON_SCOPE')
+        return denied('RECOVERY_REGULAR_SEASON_SCOPE' if recovery else 'PAQ_REGULAR_SEASON_SCOPE')
     if not (qualification['officialPlateAppearanceCreditVerified']
             and qualification['teamGameExposureVerified'] and qualification['selectedGamesComplete']):
         return denied('COMPLETE_BATTING_QUALIFICATION')
@@ -1911,34 +1918,40 @@ def recovery_players(connection, *, graphs, qualification, date_scope):
             return denied('REFERENCE_POPULATION_INCOMPLETE', referencePopulations=references)
         observations=[];withheld=[]
         for graph in reference_graphs:
-            proof_record=connection.execute('SELECT proof_json,proof_sha256 FROM metric_suite_count_admission WHERE graph_iri=?',
-                                            (graph,)).fetchone()
-            if proof_record and _hash(proof_record[0])!=proof_record[1]:
-                raise EvidenceError('Metric SQL pitch-count admission checksum mismatch')
-            proof=json.loads(proof_record[0]) if proof_record else {}
-            results=read_results(connection,graph,'recovery-quality')
-            if len(results)!=1:raise EvidenceError('Recovery reference build lacks a game')
-            inputs=results[0].get('recoveryInputs',{})
-            if (inputs.get('complete') is not True or proof.get('status')!='admitted'
-                    or proof.get('sourceReconciled') is not True or proof.get('graphConforms') is not True):
+            proof_tables=(['metric_suite_count_admission','metric_suite_admission'] if recovery else
+                ['metric_suite_boundary_admission','metric_suite_runner_resolution_admission','metric_suite_admission'])
+            admitted=True
+            for table in proof_tables:
+                proof_record=connection.execute(f'SELECT proof_json,proof_sha256 FROM {table} WHERE graph_iri=?',(graph,)).fetchone()
+                if proof_record and _hash(proof_record[0])!=proof_record[1]:
+                    raise EvidenceError('Metric SQL reference admission checksum mismatch')
+                proof=json.loads(proof_record[0]) if proof_record else {}
+                admitted=admitted and proof.get('status')=='admitted' and proof.get('sourceReconciled') is True and proof.get('graphConforms') is True
+            results=read_results(connection,graph,'recovery-quality' if recovery else 'tfs')
+            if len(results)!=1:raise EvidenceError('Season reference build lacks a game')
+            inputs=results[0].get('recoveryInputs' if recovery else 'contributionInputs',{})
+            if inputs.get('complete') is not True or not admitted:
                 withheld.append(graph);continue
             observations.extend(inputs['plateAppearances'])
             if graph in selected_graphs:selected.extend(inputs['plateAppearances'])
         if withheld:
-            return denied('REFERENCE_COUNT_HISTORY_INCOMPLETE',withheldGraphs=withheld,referencePopulations=references)
-        entries=[dict(key=_json([r['graph'],r['plateAppearance']]),score=r['value'])
-                 for r in observations if r['twoStrikeEligible']]
+            return denied('REFERENCE_COUNT_HISTORY_INCOMPLETE' if recovery else 'REFERENCE_CONTRIBUTIONS_INCOMPLETE',withheldGraphs=withheld,referencePopulations=references)
+        entries=[dict(key=_json([r['graph'],r['plateAppearance']]),score=r['value'] if recovery else r['score']['value'],
+                          comparisonState=r.get('comparisonState'),referencePopulation=str(year))
+                 for r in observations if not recovery or r['twoStrikeEligible']]
         reference['applicablePlateAppearances']=len(entries)
         if len(entries)==1:
             return denied('REFERENCE_POPULATION_TOO_SMALL',referencePopulations=references)
-        ranks.update(percentiles(entries,metric_id='recovery-quality',complete_population=True))
+        season_ranks=(paq_a_population(entries,complete_population=True) if metric_id=='paq-a' else
+                      percentiles(entries,metric_id=metric_id,complete_population=True))
+        ranks.update(season_ranks)
     identity=lambda r:(r['graph'],r['plateAppearance'],r['player'])
     expected={identity(r) for r in qualification['expectedObservations']}
     if {identity(r) for r in selected}!=expected or len(selected)!=len(expected):
-        return denied('RECOVERY_SELECTED_PA_COVERAGE',referencePopulations=references)
+        return denied('RECOVERY_SELECTED_PA_COVERAGE' if recovery else 'PAQ_SELECTED_PA_COVERAGE',referencePopulations=references)
     by_player=defaultdict(list);player_graphs=defaultdict(set)
     for row in selected:
-        if row['twoStrikeEligible']:
+        if not recovery or row['twoStrikeEligible']:
             rank=ranks[_json([row['graph'],row['plateAppearance']])]
             if rank['status']!='available':
                 return denied('REFERENCE_POPULATION_TOO_SMALL',referencePopulations=references)
@@ -1952,13 +1965,209 @@ def recovery_players(connection, *, graphs, qualification, date_scope):
         exposure=person['teamGameExposure']
         if len({g['game'] for g in exposure})!=len(exposure):
             raise EvidenceError('Conflicting Recovery team exposure')
-        output.append(dict(summary,player=player,metricId='recovery-quality',dateScope=dict(date_scope),
+        output.append(dict(summary,player=player,metricId=metric_id,dateScope=dict(date_scope),
             completeParticipation=True,plateAppearances=person['plateAppearances'],teamGames=len(exposure),
             graphs=sorted(player_graphs[player]),
             aggregate=dict(kind='mean',count=len(scores),sum=summary['components']['total'])))
     summary=summarize([score for scores in by_player.values() for score in scores])
     return dict(summary,playerPopulationComplete=True,playerResults=output,playerSummaryGaps=[],
-                referencePopulations=references,scope='Season-relative Recovery percentiles averaged over applicable selected-period PAs.')
+                referencePopulations=references,scope='Season-relative percentiles averaged over applicable selected-period PAs; independent state cohorts for PAQ-A.')
+
+
+def recovery_players(connection, *, graphs, qualification, date_scope):
+    return season_rank_players(connection,metric_id='recovery-quality',graphs=graphs,
+        qualification=qualification,date_scope=date_scope)
+
+
+CONTRIBUTION_METRICS = {'tfs','rally-kill-rate','rally-kill-severity','opportunity-erosion','empty-game-damage'}
+
+
+def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolution_admission, runner_boundary_admission):
+    """C2 plus B2 for complete, single attributed PA consequences.
+
+    Admission certifies the existing full history and PA-start population,
+    including empty starts. Values and participants still come only from RDF.
+    Unchanged runners retain their state through an exhaustively accounted PA;
+    three actual outs strand them without inventing another Out Process.
+    Mixed independent changes await an immediate-consequence boundary adapter.
+    """
+    missing=dict(complete=False,plateAppearances=[],unresolvedPlateAppearances=[])
+    proofs=(('OFFICIAL_PA_POPULATION',batting_admission),
+            ('COMPLETE_RUNNER_RESOLUTION_POPULATION',runner_resolution_admission),
+            ('COMPLETE_RUNNER_BOUNDARIES',runner_boundary_admission))
+    denied=[gap for gap,proof in proofs if proof.get('status')!='admitted'
+            or proof.get('sourceReconciled') is not True or proof.get('graphConforms') is not True]
+    if denied:return dict(missing,gaps=denied)
+    if any(r['graph']!=graph for r in rows):raise EvidenceError('Contribution escaped its admitted graph')
+    pas,locations,movements,histories,history_movements=(defaultdict(list) for _ in range(5))
+    for row in rows:
+        if row['kind']=='plate_appearance':pas[row['entity']].append(row)
+        elif row['kind']=='runner_location':locations[row['plateAppearance']].append(row)
+        elif row['kind']=='runner_movement':
+            movements[row['plateAppearance']].append(row)
+            if row.get('trajectory'):history_movements[(graph,row['trajectory'])].append(row)
+        elif row['kind']=='runner_history':histories[(graph,row['trajectory'])].append(row)
+    completed,withheld=[],[]
+    fields=('runner','act','episode','resolution','originDesignation','originBase','originCode','originRecord',
+            'metricOrigin','destinationBase','destinationCode','safeJudgment','safeDecision',
+            'hasSafeType','hasOutType','hasRunType','contactPlay','award','awardRule','independentStealAct',
+            'trajectory','trajectoryHalf','trajectoryInterval')
+    for pa,observations in sorted(pas.items()):
+        types={r['paResultType'] for r in observations if r.get('recognizedBattingResult') in ('true','1')}
+        if not types:continue  # B1 separately verifies interrupted, uncredited turns.
+        reasons=[]
+        signatures={tuple(r.get(f) for f in ('game','player','paHalf','paInterval','paStartInstant','paOutsBefore')) for r in observations}
+        if len(types)!=1 or len(signatures)!=1 or any(v is None for v in next(iter(signatures))):
+            withheld.append(dict(plateAppearance=pa,gaps=['AMBIGUOUS_PA_BOUNDARY']));continue
+        game,batter,half,interval,instant,outs_text=next(iter(signatures))
+        if not re.fullmatch('[012]',outs_text):
+            withheld.append(dict(plateAppearance=pa,gaps=['UNSUPPORTED_PA_OUT_COUNT']));continue
+        outs_before=int(outs_text);result_type=next(iter(types))
+        excluded=result_type in policies()['batterProgressExcludedResultTypes']
+        starts={};evidence={pa,interval,instant,half};by_runner=defaultdict(list)
+        for row in locations[pa]:
+            code=row.get('occupiedBaseCode');runner=row.get('runner')
+            if (code not in {'1B','2B','3B'} or not runner or runner==batter
+                    or row.get('paInterval')!=interval or row.get('stasisFirstInstant')!=instant
+                    or row.get('paFirstInstant')!=instant or not row.get('occupiedBase')):
+                reasons.append('UNSUPPORTED_START_OCCUPANCY');continue
+            position=int(code[0])
+            if runner in starts and starts[runner]!=position:reasons.append('CONFLICTING_START_OCCUPANCY')
+            starts[runner]=position
+            evidence.update(row[f] for f in ('stasis','stasisInterval','occupiedBase','baseSite') if row.get(f))
+        if len(set(starts.values()))!=len(starts):reasons.append('CONFLICTING_START_OCCUPANCY')
+        resolutions=defaultdict(list)
+        for row in movements[pa]:resolutions[row['resolution']].append(row)
+        for candidates in resolutions.values():
+            if len({tuple(r.get(f) for f in fields) for r in candidates})!=1:
+                reasons.append('CONFLICTING_SEGMENT_STATE');continue
+            row=candidates[0]
+            if not all(row.get(f) for f in ('runner','act','episode','record')):
+                reasons.append('INCOMPLETE_RUNNER_OUTCOME');continue
+            by_runner[row['runner']].append(row)
+        if batter not in by_runner:reasons.append('MISSING_BATTER_RESOLUTION')
+        if set(by_runner)-{batter}-set(starts):reasons.append('UNSUPPORTED_WITHIN_PA_ENTRY')
+        participants=[];supports=set()
+        for runner,members in by_runner.items():
+            start=0 if runner==batter else starts.get(runner)
+            terminal,end,credit=None,None,False
+            for row in members:
+                flags=(row.get('hasSafeType'),row.get('hasOutType'),row.get('hasRunType'))
+                if flags not in {('true','false','false'),('false','true','false'),('false','false','true')}:
+                    reasons.append('UNSUPPORTED_SEGMENT_END')
+                if row.get('independentStealAct'):reasons.append('MIXED_CONSEQUENCE_BOUNDARY')
+                evidence.update(row[f] for f in ('act','resolution','episode','record','originDesignation','originRecord',
+                    'safeJudgment','safeDecision','trajectory','trajectoryInterval','contactPlay','award','awardRule') if row.get(f))
+            if len(members)>1:
+                path=contact_progress_path([(r,False) for r in members],histories,history_movements)
+                if path['status']!='available' or path['start']!=start:
+                    reasons.append('COMPLETE_CONSEQUENCE_COALESCENCE');continue
+                end=path['end'];terminal='out' if end is None else 'scored' if end==4 else 'safe'
+                supports.add(('contact',path['contactPlay']));credit=True
+            else:
+                row=members[0];origin=segment_origin(row)
+                if origin!=start or start is None:reasons.append('UNSUPPORTED_IMMEDIATE_ORIGIN')
+                terminal='out' if row.get('hasOutType')=='true' else 'scored' if row.get('hasRunType')=='true' else 'safe'
+                end=None if terminal=='out' else 4 if terminal=='scored' else int(row['destinationCode'][0]) if row.get('destinationCode') in {'1B','2B','3B'} else None
+                if terminal=='safe' and (not all(row.get(f) for f in ('safeJudgment','safeDecision','destinationBase')) or end is None):
+                    reasons.append('UNSUPPORTED_SEGMENT_END')
+                channels=[]
+                if row.get('contactPlay'):channels.append(('contact',row['contactPlay']))
+                if row.get('award') and row.get('awardRule'):channels.append(('award',row['award']))
+                if len(channels)>1:reasons.append('AMBIGUOUS_CONSEQUENCE_ATTRIBUTION')
+                if channels:
+                    supports.update(channels);credit=True
+                elif runner==batter and terminal=='out' and result_type.endswith('/StrikeoutProcess'):
+                    supports.add(('strikeout',pa));credit=True
+                elif terminal!='safe' or end!=start:
+                    reasons.append('UNRESOLVED_CONSEQUENCE_ATTRIBUTION')
+            if terminal=='safe' and end is not None and start is not None and end<start:
+                reasons.append('UNSUPPORTED_PROGRESS_BOUNDARY')
+            participants.append(dict(participant=runner,start=start,end=end,terminal=terminal,
+                creditProgress=credit and not excluded,creditOut=credit and terminal=='out'))
+        if len(supports)!=1:reasons.append('MIXED_CONSEQUENCE_BOUNDARY')
+        actual_outs=sum(r['terminal']=='out' for r in participants)
+        attributed_outs=sum(r['creditOut'] for r in participants)
+        if actual_outs!=attributed_outs:reasons.append('UNRESOLVED_OUT_OWNERSHIP')
+        if outs_before+actual_outs>3:reasons.append('CONFLICTING_OUT_COUNT')
+        # C2's projection uses the independently admitted complete history.
+        # No later movement, new stasis, Safe decision or exact end instant is minted.
+        participants.extend(dict(participant=runner,start=base,end=base,terminal='safe',
+            creditProgress=False,creditOut=False) for runner,base in starts.items() if runner not in by_runner)
+        if outs_before+actual_outs==3:
+            for row in participants:
+                if row['terminal']=='safe':row['terminal']='stranded'
+        if reasons:
+            withheld.append(dict(plateAppearance=pa,gaps=sorted(set(reasons))));continue
+        score=trajectories(participants,outs_before,attributed_outs)
+        if score['status']!='available':
+            withheld.append(dict(plateAppearance=pa,gaps=score['gaps']));continue
+        score['evidence']=sorted(evidence)
+        existing=[r for r in participants if r['participant']!=batter and r['creditOut']]
+        completed.append(dict(graph=graph,game=game,plateAppearance=pa,player=batter,
+            runnerOnBase=bool(starts),outsBefore=outs_before,attributedOuts=attributed_outs,
+            comparisonState=dict(boundary=policies()['paqAComparisonBoundary'],occupiedBases=sorted(starts.values()),
+                outs=outs_before,evidence=sorted(evidence)),
+            existingRunnerOuts=len(existing),existingDestruction=exact(sum((Fraction(1,4-r['start']) for r in existing),Fraction())),
+            participants=participants,score=score))
+    return dict(complete=bool(pas) and not withheld,plateAppearances=completed,
+        independentDamageComplete=bool(pas) and not withheld and len(completed)==len(pas),
+        unresolvedPlateAppearances=withheld,gaps=['COMPLETE_PA_CONTRIBUTIONS'] if withheld else [])
+
+
+def contribution_players(metric_id, inputs, *, qualification, date_scope):
+    if metric_id not in CONTRIBUTION_METRICS:raise EvidenceError('Not a contribution metric')
+    missing=dict(unavailable('COMPLETE_PA_CONTRIBUTIONS'),playerPopulationComplete=False,playerResults=[])
+    if not qualification['officialPlateAppearanceCreditVerified']:
+        return dict(missing,playerSummaryGaps=['OFFICIAL_PA_POPULATION'])
+    if not qualification['teamGameExposureVerified']:
+        return dict(missing,playerSummaryGaps=['COMPLETE_SELECTED_SCHEDULE'])
+    if not inputs or any(not i['complete'] for i in inputs):
+        return dict(missing,playerSummaryGaps=['COMPLETE_PA_CONTRIBUTIONS'])
+    pas=[p for i in inputs for p in i['plateAppearances']]
+    expected={(p['graph'],p['plateAppearance'],p['player']) for p in qualification['expectedObservations']}
+    actual=[(p['graph'],p['plateAppearance'],p['player']) for p in pas]
+    if set(actual)!=expected or len(actual)!=len(expected):
+        return dict(missing,playerSummaryGaps=['COMPLETE_PA_CONTRIBUTIONS'])
+    if metric_id=='empty-game-damage' and any(i.get('independentDamageComplete') is not True for i in inputs):
+        return dict(missing,playerSummaryGaps=['INDEPENDENT_DAMAGE_COVERAGE'])
+    by_player=defaultdict(list);output=[]
+    for pa in pas:by_player[pa['player']].append(pa)
+    for person in qualification['participation']:
+        observations=by_player[person['player']]
+        if len(observations)!=person['plateAppearances']:
+            return dict(missing,playerSummaryGaps=['COMPLETE_PA_CONTRIBUTIONS'])
+        if metric_id in {'rally-kill-rate','rally-kill-severity'}:
+            observations=[p for p in observations if p['runnerOnBase']]
+        if not observations:continue  # Known empty applicable denominator.
+        values=[]
+        for pa in observations:
+            if metric_id=='tfs':value=fraction(pa['score']['value'])
+            elif metric_id=='opportunity-erosion':value=fraction(pa['score']['components']['erosion'])
+            elif metric_id=='rally-kill-rate':value=Fraction(pa['existingRunnerOuts']>0)
+            elif metric_id=='rally-kill-severity':value=fraction(pa['existingDestruction'])
+            else:continue
+            values.append(value)
+        if metric_id=='empty-game-damage':
+            by_game=defaultdict(list)
+            for pa in observations:by_game[pa['game']].append(pa)
+            # This first adapter admits only exhaustively reconciled games
+            # whose every movement belongs to the accepted PA consequence (or
+            # holds its base). No independent damaging episode is omitted.
+            values=[fraction(empty_game_damage([p['score'] for p in game_pas],[],empty=True,complete=True)['value'])
+                for game_pas in by_game.values() if all(fraction(p['score']['components']['progress'])==0 for p in game_pas)]
+            if not values:continue
+        total=sum(values,Fraction());count=len(values);games=person['teamGameExposure']
+        if len({g['game'] for g in games})!=len(games):raise EvidenceError('Conflicting contribution team exposure')
+        output.append(dict(player=person['player'],metricId=metric_id,status='available',dateScope=dict(date_scope),
+            completeParticipation=True,plateAppearances=person['plateAppearances'],teamGames=len(games),
+            graphs=sorted({p['graph'] for p in observations}),aggregate=dict(kind='mean',sum=exact(total),count=count),
+            value=exact(total/count)))
+    count=sum(p['aggregate']['count'] for p in output)
+    total=sum((fraction(p['aggregate']['sum']) for p in output),Fraction())
+    summary=available(total/count) if count else unavailable('EMPTY_DENOMINATOR')
+    return dict(summary,playerPopulationComplete=True,playerResults=output,playerSummaryGaps=[],
+        scope='Complete selected-period attributed PA consequences; pooled applicable observations.')
 
 
 def initialize_sql(connection):
@@ -1998,7 +2207,7 @@ def read_results(connection, graph, metric_id):
 
 
 def materialize_game(connection, graph, bindings, *, batting_admission=None, scoring_run_admission=None,
-                     runner_resolution_admission=None, pitch_count_admission=None):
+                     runner_resolution_admission=None, pitch_count_admission=None, runner_boundary_admission=None):
     rows = normalize_bindings(bindings, [graph])
     connection.execute('DELETE FROM metric_suite_evidence WHERE graph_iri=?', (graph,))
     connection.execute('DELETE FROM metric_suite_result WHERE graph_iri=?', (graph,))
@@ -2016,11 +2225,17 @@ def materialize_game(connection, graph, bindings, *, batting_admission=None, sco
     count_proof_text = _json(pitch_count_admission or {'status':'withheld'})
     connection.execute('INSERT OR REPLACE INTO metric_suite_count_admission VALUES (?,?,?)',
                        (graph, count_proof_text, _hash(count_proof_text)))
+    boundary_proof_text = _json(runner_boundary_admission or {'status':'withheld'})
+    connection.execute('INSERT OR REPLACE INTO metric_suite_boundary_admission VALUES (?,?,?)',
+                       (graph, boundary_proof_text, _hash(boundary_proof_text)))
+    contribution_inputs=contribution_game_inputs(rows,graph=graph,batting_admission=batting_admission or {},
+        runner_resolution_admission=runner_resolution_admission or {},runner_boundary_admission=runner_boundary_admission or {})
     for row in rows:
         text = _json(row)
         connection.execute('INSERT INTO metric_suite_evidence VALUES (?,?,?)', (graph, _hash(text), text))
     for entry in catalog()['metrics']:
         result = live_result(entry['id'], rows, graph_count=1)
+        if entry['id']=='tfs':result['contributionInputs']=contribution_inputs
         if entry['id']=='recovery-quality':
             result['recoveryInputs']=recovery_game_inputs(rows,graph=graph,
                 batting_admission=batting_admission or {},pitch_count_admission=pitch_count_admission or {})
@@ -2059,10 +2274,22 @@ def query_sql(connection, request, scope):
         'SELECT graph_iri FROM game_dimension WHERE game_set=? AND official_date BETWEEN ? AND ? ORDER BY graph_iri', parameters)]
     rows = []
     admissions, run_admissions, resolution_admissions = {}, {}, {}
+    contribution_inputs=[]
     for graph in graphs:
         for metric_id in metric_ids:
             if len(read_results(connection, graph, metric_id)) != 1:
                 raise EvidenceError('Metric build lacks a selected game')
+        if set(metric_ids) & CONTRIBUTION_METRICS:
+            retained=read_results(connection,graph,'tfs')
+            if len(retained)!=1 or 'contributionInputs' not in retained[0]:
+                raise EvidenceError('Metric build lacks contribution inputs')
+            admitted=True
+            for table in ('metric_suite_boundary_admission','metric_suite_runner_resolution_admission','metric_suite_admission'):
+                record=connection.execute(f'SELECT proof_json,proof_sha256 FROM {table} WHERE graph_iri=?',(graph,)).fetchone()
+                if record and _hash(record[0])!=record[1]:raise EvidenceError('Metric SQL contribution admission checksum mismatch')
+                proof=json.loads(record[0]) if record else {}
+                admitted=admitted and proof.get('status')=='admitted' and proof.get('sourceReconciled') is True and proof.get('graphConforms') is True
+            contribution_inputs.append(retained[0]['contributionInputs'] if admitted else dict(complete=False))
         for text, digest in connection.execute('SELECT binding_json,binding_sha256 FROM metric_suite_evidence WHERE graph_iri=?', (graph,)):
             if _hash(text) != digest:
                 raise EvidenceError('Metric SQL evidence checksum mismatch')
@@ -2092,6 +2319,14 @@ def query_sql(connection, request, scope):
     qualification = batting_qualification(rows, graphs=graphs, admissions=admissions,
         date_scope=scope, selected_games_complete=schedule['complete'])
     for metric in result.get('metrics', [result.get('metric')]):
+        if metric['metricId'] in CONTRIBUTION_METRICS:
+            metric.update(contribution_players(metric['metricId'],contribution_inputs,qualification=qualification,date_scope=scope))
+            if metric['playerPopulationComplete']:
+                metric['coverage']={**metric['coverage'],'populationComplete':True}
+        if metric['metricId'] in {'paq-2','paq-a'}:
+            metric.update(season_rank_players(connection,metric_id=metric['metricId'],graphs=graphs,qualification=qualification,date_scope=scope))
+            if metric['playerPopulationComplete']:
+                metric['coverage']={**metric['coverage'],'populationComplete':True}
         if metric['metricId']=='recovery-quality':
             metric.update(recovery_players(connection,graphs=graphs,qualification=qualification,date_scope=scope))
             if metric['playerPopulationComplete']:

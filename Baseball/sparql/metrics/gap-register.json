@@ -11,7 +11,7 @@
       "status": "open",
       "disposition": "confirmed-hit-and-run-policy-resolved-source-admission-open",
       "owner": "ontologist-for-shared-out-allocation; engineering-for-accepted-mappings",
-      "implementationBehavior": "Conditional complete-player Reach, Hidden Help and Empty Games use accepted contact-play, normative-award and independent-steal channels. Unknown positive attribution and unresolved repeated-consequence coalescence withhold the population. Full TFS and other independent channels remain unfinished.",
+      "implementationBehavior": "Conditional contribution, runner-out, direct-loss, erosion, PAQ and PAQ-A player adapters use a separate source-owned boundary SHACL proof and complete B1/runner inventories. Unchanged runners and third-out stranding are supported for a complete single attributed PA consequence. Mixed independent/contact changes, unresolved attribution and any incomplete selected or reference population remain withheld.",
       "decisionRecords": [
         "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
         "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json",
@@ -43,7 +43,7 @@
         "Confirmed failed hit-and-run damage belongs to the batter, without duplicate running damage"
       ],
       "remainingCoverage": "Reviewed operative award resolution, other rule editions, PA-start fallback completeness and full attributed-trajectory completeness remain separately gated.",
-      "implementationEvidence": "benchmarks/metrics/batting-progress-players-2026-09-15/result.json"
+      "implementationEvidence": "benchmarks/metrics/contribution-inputs-2026-09-15/result.json"
     },
     {
       "id": "BOUNDARY_STATE",
@@ -53,7 +53,7 @@
       "status": "open",
       "disposition": "confirmed-hit-and-run-policy-resolved-other-boundary-work-open",
       "owner": "engineering; shared-out-policy-awaiting-user",
-      "implementationBehavior": "calculation uses accepted policy; live output remains unavailable until source-owned graph prerequisites are admitted",
+      "implementationBehavior": "Conditional contribution, runner-out, direct-loss, erosion, PAQ and PAQ-A player adapters use a separate source-owned boundary SHACL proof and complete B1/runner inventories. Unchanged runners and third-out stranding are supported for a complete single attributed PA consequence. Mixed independent/contact changes, unresolved attribution and any incomplete selected or reference population remain withheld.",
       "decisionRecords": [
         "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
         "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json",
@@ -84,7 +84,7 @@
         "Bounded C2 live adapter, exact SQL round trip and UI evidence for unchanged runners strictly between supported PA bounds"
       ],
       "remainingCoverage": "Within-PA episode order, immediate consequence bounds and out count, full affected-runner census, unbounded stranding, and complete attributed trajectories remain separately gated. The bounded projection does not admit a complete PA or player population.",
-      "implementationEvidence": "benchmarks/metrics/c2-boundaries-2026-09-14/README.md",
+      "implementationEvidence": "benchmarks/metrics/contribution-inputs-2026-09-15/result.json",
       "acceptedGraphDecision": "archive/design-records/runner-continuity-boundary-projection/review.json",
       "sourceImplementationContract": "sources/mlb-game/review/runner-continuity-source-contract.md"
     },
@@ -138,7 +138,7 @@
       "status": "open",
       "disposition": "partially-resolved-review-required",
       "owner": "ontologist",
-      "implementationBehavior": "unavailable until the named semantic/evidence prerequisite is admitted",
+      "implementationBehavior": "Conditional contribution, runner-out, direct-loss, erosion, PAQ and PAQ-A player adapters use a separate source-owned boundary SHACL proof and complete B1/runner inventories. Unchanged runners and third-out stranding are supported for a complete single attributed PA consequence. Mixed independent/contact changes, unresolved attribution and any incomplete selected or reference population remain withheld.",
       "researchAssessment": {
         "assessedOn": "2026-09-08",
         "report": "proposals/graph-native-metric-suite-batch-review/web-gap-assessment.md",
@@ -155,7 +155,8 @@
       },
       "decisionRecords": [
         "archive/design-records/metric-suite-gap-answers-2026-09-09/decision.json"
-      ]
+      ],
+      "implementationEvidence": "benchmarks/metrics/contribution-inputs-2026-09-15/result.json"
     },
     {
       "id": "COMPLETENESS",
@@ -189,7 +190,7 @@
       "status": "open",
       "disposition": "batch-review-required",
       "owner": "ontologist",
-      "implementationBehavior": "unavailable until the named semantic/evidence prerequisite is admitted",
+      "implementationBehavior": "Conditional contribution, runner-out, direct-loss, erosion, PAQ and PAQ-A player adapters use a separate source-owned boundary SHACL proof and complete B1/runner inventories. Unchanged runners and third-out stranding are supported for a complete single attributed PA consequence. Mixed independent/contact changes, unresolved attribution and any incomplete selected or reference population remain withheld.",
       "researchAssessment": {
         "assessedOn": "2026-09-08",
         "report": "proposals/graph-native-metric-suite-batch-review/web-gap-assessment.md",
@@ -204,7 +205,8 @@
           "upstream-dependencies"
         ],
         "livePrerequisiteClosed": false
-      }
+      },
+      "implementationEvidence": "benchmarks/metrics/contribution-inputs-2026-09-15/result.json"
     },
     {
       "id": "REFERENCE_POPULATION",

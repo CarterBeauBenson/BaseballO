@@ -7,6 +7,7 @@ PREFIX cco: <https://www.commoncoreontologies.org/>
 # a temporal/transitive inference. The two individuals' exists-at times do not
 # qualify their location relation. Missing times remain unbound.
 SELECT DISTINCT ?graph ?game ?plateAppearance ?stasis ?runner ?baseSite
+       ?occupiedBase ?occupiedBaseCode
        ?stasisInterval ?stasisFirstInstant ?paInterval ?paFirstInstant
        ?enclosingLocation ?hasExplicitRunnerBaseSiteLink
 WHERE {
@@ -19,6 +20,12 @@ WHERE {
         bfo:BFO_0000057 ?runner ; cco:ont00001918 ?baseSite .
     ?runner a cco:ont00001262 .
     ?baseSite a base:BaseSite .
+    OPTIONAL {
+      ?stasis bfo:BFO_0000057 ?occupiedBase .
+      ?occupiedBase a base:Base ; bfo:BFO_0000171 ?baseSite .
+      ?baseIdentifier a cco:ont00000649 ; cco:ont00001916 ?occupiedBase ;
+          cco:ont00001765 ?occupiedBaseCode .
+    }
     OPTIONAL {
       ?stasis bfo:BFO_0000199 ?stasisInterval .
       OPTIONAL { ?stasisInterval bfo:BFO_0000222 ?stasisFirstInstant . }

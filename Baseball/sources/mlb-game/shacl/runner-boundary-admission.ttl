@@ -1,0 +1,45 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# Source expectations certify the existing graph, never provide serving values.
+# Exact membership includes empty PA-start populations and all C1 episodes.
+[] a sh:NodeShape ; sh:targetNode <__GAME__> ;
+  sh:sparql [ sh:message "PA-start boundary or personal-history coverage differs from reconciled source" ;
+    sh:select """__PREFIXES__
+SELECT $this WHERE {
+  { __MISSING__ }
+  UNION {
+    ?stasis a base:PlateAppearanceStartBaserunnerAtBaseStasis ; obo:BFO_0000132+ $this .
+    FILTER(?stasis NOT IN (__STASES__))
+  }
+  UNION {
+    ?whole a obo:BFO_0000015 ; obo:BFO_0000132+ $this ; obo:BFO_0000057 ?player ; obo:BFO_0000132 ?half .
+    ?player a cco:ont00001262 . ?half a base:HalfInning .
+    FILTER(CONTAINS(STR(?whole), "/runner-trajectory/"))
+    FILTER(CONCAT(STR(?whole), "|", STR(?player), "|", STR(?half)) NOT IN (__WHOLES__))
+  }
+  UNION {
+    ?resolution a base:OutProcess, base:RunnerResolutionProcess ; obo:BFO_0000132+ $this .
+    FILTER NOT EXISTS {
+      ?resolution obo:BFO_0000117 ?judgment .
+      ?judgment a base:OutJudgmentAct ; cco:ont00001986 ?decision .
+      ?decision a base:OutDecisionICE ; cco:ont00001808 ?resolution .
+    }
+  }
+  UNION {
+    ?pa a base:PlateAppearance ; obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 $this .
+    ?count a base:PlateAppearanceStartOutCountICE ; cco:ont00001808 ?pa ; cco:ont00001773 ?outs .
+    FILTER(CONCAT(STR(?pa), "|", STR(?outs)) NOT IN (__OUT_COUNTS__))
+  }
+  UNION {
+    ?stasis a base:PlateAppearanceStartBaserunnerAtBaseStasis ; obo:BFO_0000132 ?pa ;
+      obo:BFO_0000057 ?player ; cco:ont00001918 ?site .
+    ?player a cco:ont00001262 .
+    ?pa a base:PlateAppearance ; obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 $this .
+    FILTER(CONCAT(STR(?pa), "|", STR(?stasis), "|", STR(?player), "|", STR(?site)) NOT IN (__OCCUPANTS__))
+  }
+  UNION {
+    ?whole a obo:BFO_0000015 ; obo:BFO_0000132+ $this ; obo:BFO_0000117 ?episode .
+    FILTER(CONTAINS(STR(?whole), "/runner-trajectory/"))
+    FILTER(CONCAT(STR(?whole), "|", STR(?episode)) NOT IN (__MEMBERSHIPS__))
+  }
+} """ ] .
