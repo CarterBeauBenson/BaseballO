@@ -114,6 +114,21 @@ supported affected batters. This is concrete mapping coverage debt, not absent
 provider evidence. Inventory counters are diagnostic and never admit scores,
 review mechanisms, original-call content or eligible-decision populations.
 
+The [upheld runner-review follow-up](../benchmarks/metrics/live-refresh-runner-reviews-2026-09-16/README.md)
+accounts for the explicit final effects of both non-pitch tag reviews without
+adding review RDF or assigning a mechanism. Complete personal histories now
+cover **13 of 15** fixtures and **409 histories**, with all prior identities
+and episode allocations preserved. Game 825042 proves all nine scoring
+histories through Jena and exact SQL for both Scoring History Length and Run
+Contributors. The zero-episode placed runner and third-out base-state conflict
+remain withheld. Separate PA-boundary and review-population gates are unchanged.
+
+The same follow-up replaces slow grouped live graph counts with equivalent
+fixed-graph aggregates. All independent graph-pair identity/count checks remain.
+A 200-game live batch completed source/index counts in 8.23/2.52 seconds and
+matched every promotion count. This addresses the observed 30-second query
+timeouts in NiFi's corpus preflight; it does not certify a complete live build.
+
 The new Recovery producer is proven from a complete real-game input set
 (79 PAs, 282 pitches) through exact SQL retention. Complete-season ranking
 and selected-range means have focused integration tests. The common percentile

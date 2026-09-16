@@ -1,0 +1,106 @@
+[
+  {
+    "gamePk": 823826,
+    "form": "replacement",
+    "triples": 1871,
+    "episodes": 1,
+    "history": {
+      "runnerId": "642201",
+      "inning": "9",
+      "half": "top",
+      "entryAnchor": "replacement/9/top/678011/642201",
+      "entryWitness": {
+        "atBatIndex": 68,
+        "eventIndex": 0,
+        "sourcePointer": "/liveData/plays/allPlays/68/playEvents/0",
+        "earliestStartBound": "2026-08-26T01:13:33.082Z",
+        "latestEndBound": "2026-08-26T01:13:41.696Z",
+        "form": "replacement",
+        "runnerId": "642201",
+        "outgoingRunnerId": "678011",
+        "base": 1,
+        "anchor": "replacement/9/top/678011/642201"
+      },
+      "entryAtBatIndex": 68,
+      "earliestStartBound": "2026-08-26T01:13:33.082Z",
+      "episodes": [
+        {
+          "atBatIndex": "68",
+          "runnerIndex": "0",
+          "resolutionKind": "out",
+          "runnerId": "642201"
+        }
+      ],
+      "lifetimeKey": "3e06d4379df296dbbe0c429f10a6a5a05462a960522cda0f116e4b17aaa3df6d",
+      "terminationAnchor": "action/c0cfa943-62b2-37af-b3ca-e30728f2d8b2/caught_stealing_2b/642201",
+      "terminal": "out",
+      "latestEndBound": "2026-08-26T01:15:36.769Z",
+      "terminationWitness": {
+        "atBatIndex": 68,
+        "eventIndex": 3,
+        "sourcePointer": "/liveData/plays/allPlays/68/playEvents/3",
+        "earliestStartBound": "2026-08-26T01:14:25.169Z",
+        "latestEndBound": "2026-08-26T01:15:36.769Z",
+        "form": "action",
+        "runnerId": "642201",
+        "associationId": "c0cfa943-62b2-37af-b3ca-e30728f2d8b2",
+        "eventType": "caught_stealing_2b",
+        "runnerPointers": [
+          "/liveData/plays/allPlays/68/runners/0"
+        ],
+        "terminalRecords": 1,
+        "anchor": "action/c0cfa943-62b2-37af-b3ca-e30728f2d8b2/caught_stealing_2b/642201"
+      }
+    },
+    "rmlPassed": true,
+    "sourceBoundShaclPassed": true,
+    "scope": "one-lifetime developer fixture; not game population admission"
+  },
+  {
+    "gamePk": 825042,
+    "form": "replacement",
+    "triples": 1995,
+    "episodes": 2,
+    "history": {
+      "runnerId": "699912",
+      "inning": "9",
+      "half": "bottom",
+      "entryAnchor": "replacement/9/bottom/694374/699912",
+      "entryWitness": {
+        "atBatIndex": 69,
+        "eventIndex": 0,
+        "sourcePointer": "/liveData/plays/allPlays/69/playEvents/0",
+        "earliestStartBound": "2026-08-26T04:11:23.309Z",
+        "latestEndBound": "2026-08-26T04:11:39.538Z",
+        "form": "replacement",
+        "runnerId": "699912",
+        "outgoingRunnerId": "694374",
+        "base": 1,
+        "anchor": "replacement/9/bottom/694374/699912"
+      },
+      "entryAtBatIndex": 69,
+      "earliestStartBound": "2026-08-26T04:11:23.309Z",
+      "episodes": [
+        {
+          "atBatIndex": "70",
+          "runnerIndex": "0",
+          "resolutionKind": "advance",
+          "runnerId": "699912"
+        },
+        {
+          "atBatIndex": "70",
+          "runnerIndex": "2",
+          "resolutionKind": "score",
+          "runnerId": "699912"
+        }
+      ],
+      "lifetimeKey": "446841e59dcd811581682e00299b66efce51107f7812426120fdae71a0487686",
+      "terminationAnchor": "88d06342-51c7-3d1d-9fa0-8149e4f9c5db",
+      "terminal": "score",
+      "latestEndBound": "2026-08-26T04:16:20.939Z"
+    },
+    "rmlPassed": true,
+    "sourceBoundShaclPassed": true,
+    "scope": "one-lifetime developer fixture; not game population admission"
+  }
+]

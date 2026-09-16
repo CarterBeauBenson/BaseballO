@@ -1,0 +1,14 @@
+{
+  "source": {
+    "baselineSeconds": 3.8471,
+    "optimizedSeconds": 0.2375,
+    "exactBindings": true,
+    "rows": 6
+  },
+  "index": {
+    "baselineSeconds": 0.2147,
+    "optimizedSeconds": 0.0831,
+    "exactBindings": true,
+    "rows": 6
+  }
+}

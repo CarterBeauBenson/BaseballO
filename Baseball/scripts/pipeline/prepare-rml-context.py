@@ -319,6 +319,60 @@ def accounted_runner_count_reviews(play: dict) -> dict:
     return dict(events=identified, issues=problems)
 
 
+def unchanged_runner_tag_review(play: dict, position: int) -> dict | None:
+    """E1 final movement effects only; no original decision or review RDF.
+
+    An explicit completed affirmation of the named runner's steal/tag outcome
+    leaves that final source movement operative. C1/C3 still reconcile its
+    time, active runner, episode and (for an out) stable boundary separately.
+    """
+    events = play.get('playEvents', [])
+    if position == 0 or position >= len(events)-1:
+        return None
+    event = events[position]; details = event.get('details', {})
+    review = event.get('reviewDetails'); description = details.get('description', '')
+    match = REVIEW_DESCRIPTION.search(description)
+    event_type = details.get('eventType')
+    kinds = {'stolen_base_2b': ('1B', '2B', False, '2nd'),
+             'stolen_base_3b': ('2B', '3B', False, '3rd'),
+             'caught_stealing_2b': ('1B', '2B', True, '2nd'),
+             'caught_stealing_3b': ('2B', '3B', True, '3rd')}
+    if (play.get('about', {}).get('isComplete') is not True or event_type not in kinds
+            or event.get('type') != 'action' or event.get('isPitch') is not False
+            or event.get('isSubstitution') is True or details.get('hasReview') is not True
+            or not isinstance(review, dict) or review.get('inProgress') is not False
+            or review.get('isOverturned') is not False or review.get('reviewType') != 'MA'
+            or not match or match.group('review_type').lower() != 'tag play'
+            or (match.group('status') or '').lower() not in {'confirmed', 'upheld'}
+            or details.get('isScoringPlay') is not False
+            or any(details.get(k) is True for k in ('isBall', 'isStrike', 'isInPlay'))):
+        return None
+    rows = [r for r in play.get('runners', []) if r.get('details', {}).get('playIndex') == event.get('index')]
+    if len(rows) != 1:
+        return None
+    row = rows[0]; movement = row.get('movement', {}); runner = row.get('details', {}).get('runner', {})
+    origin, destination, out, ordinal = kinds[event_type]
+    name = runner.get('fullName')
+    before = events[position-1].get('count', {}); after = event.get('count', {})
+    if (type(runner.get('id')) is not int or runner['id'] <= 0 or not isinstance(name, str) or not name
+            or row['details'].get('eventType') != event_type or row['details'].get('isScoringEvent') is not False
+            or movement.get('originBase') != origin or movement.get('start') != origin
+            or movement.get('isOut') is not out or details.get('isOut') is not out
+            or movement.get('end') != (None if out else destination)
+            or movement.get('outBase') != (destination if out else None)
+            or any(type(c.get(k)) is not int or not 0 <= c[k] <= limit
+                   for c in (before, after) for k, limit in (('balls', 3), ('strikes', 2), ('outs', 3)))
+            or before['outs'] >= 3 or after['outs'] != before['outs'] + int(out)
+            or any(before[k] != after[k] for k in ('balls', 'strikes'))
+            or movement.get('outNumber') != (after['outs'] if out else None)):
+        return None
+    outcome_text = (r' caught stealing ' if out else r' steals(?: \(\d+\))? ') + ordinal + r' base[.,]'
+    if not re.match(re.escape(name) + outcome_text, description[match.end():].strip()):
+        return None
+    return dict(kind='unchanged-runner-tag-review', runnerId=str(runner['id']), overturned=False,
+                scope='final runner-history effects only; no original decision or mechanism assigned')
+
+
 def accounted_runner_history_reviews(play: dict) -> dict:
     """Account for the final effects of a bounded completed field review.
 
@@ -354,7 +408,7 @@ def accounted_runner_history_reviews(play: dict) -> dict:
         # count scope. Earlier reviews are examined independently below.
         count_scope['about'] = {**play['about'], 'hasReview': False}
         count_scope.pop('reviewDetails', None)
-    fouls, count_events = {}, []
+    accounted, count_events = {}, []
     for position, event in enumerate(events):
         detail = event.get('details', {})
         candidate = event.get('reviewDetails')
@@ -378,8 +432,9 @@ def accounted_runner_history_reviews(play: dict) -> dict:
             and after['balls'] == before['balls'] and after['strikes'] == min(2, before['strikes']+1)
             and type(before.get('outs')) is int and 0 <= before['outs'] < 3
             and after.get('outs') == before['outs'])
-        if unchanged_foul:
-            fouls[event['index']] = dict(playId=event['playId'], kind='unchanged-foul',
+        runner_tag = unchanged_runner_tag_review(play, position)
+        if unchanged_foul or runner_tag:
+            accounted[event['index']] = runner_tag or dict(playId=event['playId'], kind='unchanged-foul',
                 overturned=False, scope='final runner-history effects only')
             clean = {**event, 'details': {**detail, 'hasReview': False}}
             clean.pop('reviewDetails', None)
@@ -388,7 +443,7 @@ def accounted_runner_history_reviews(play: dict) -> dict:
             count_events.append(event)
     count_scope['playEvents'] = count_events
     result = accounted_runner_count_reviews(count_scope)
-    result['events'].update(fouls)
+    result['events'].update(accounted)
     if supported:
         result['accountedFieldReview'] = dict(eventIndex=terminal['index'], playId=terminal['playId'],
             reviewType=review['reviewType'], overturned=review['isOverturned'])

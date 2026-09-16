@@ -58,6 +58,10 @@ _cache_spec = importlib.util.spec_from_file_location('baseballo_serving_query_ca
     ROOT / 'scripts/pipeline/serving_query_cache.py')
 _query_cache = importlib.util.module_from_spec(_cache_spec)
 _cache_spec.loader.exec_module(_query_cache)
+_preflight_spec = importlib.util.spec_from_file_location('baseballo_serving_preflight_queries',
+    ROOT / 'scripts/pipeline/serving_preflight_queries.py')
+_preflight_queries = importlib.util.module_from_spec(_preflight_spec)
+_preflight_spec.loader.exec_module(_preflight_queries)
 _guard_spec = importlib.util.spec_from_file_location('baseballo_serving_build_guard',
     ROOT / 'scripts/pipeline/serving_build_guard.py')
 _build_guard = importlib.util.module_from_spec(_guard_spec)
@@ -72,7 +76,7 @@ _promotion_inventory = importlib.util.module_from_spec(_promotion_spec)
 _promotion_spec.loader.exec_module(_promotion_inventory)
 _LOADED_MODULE_HASHES = {Path(module.__file__): hashlib.sha256(Path(module.__file__).read_bytes()).hexdigest()
                         for module in (_batting_admission,_run_admission,_resolution_admission,_count_admission,_boundary_admission,_defense_admission,
-                                       _query_cache,_build_guard,_promotion_inventory)}
+                                       _query_cache,_preflight_queries,_build_guard,_promotion_inventory)}
 _LOADED_MODULE_HASHES[Path(__file__).resolve()] = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
 SERVING_ROOT = ROOT / "serving"
 SCHEMA = SERVING_ROOT / "schema.sql"
@@ -681,19 +685,7 @@ def live_source_graph_state_query(records: list[dict[str, Any]]) -> str:
         raise ValueError("A live source graph-state query requires at least one promoted graph")
     if len(records) > LIVE_PREFLIGHT_BATCH_SIZE:
         raise ValueError("A live source graph-state query exceeds the live preflight batch limit")
-    rows = "\n".join(
-        f"    (<{record['authoritativeGraph']}> <{record['gameIri']}>)"
-        for record in records
-    )
-    return f"""SELECT ?sourceGraph ?game (COUNT(?sourceObject) AS ?sourceCount) WHERE {{
-  VALUES (?sourceGraph ?game) {{
-{rows}
-  }}
-  GRAPH ?sourceGraph {{ ?sourceSubject ?sourcePredicate ?sourceObject }}
-}}
-GROUP BY ?sourceGraph ?game
-ORDER BY ?sourceGraph
-"""
+    return _preflight_queries.source_counts(records)
 
 
 def live_index_graph_state_query(records: list[dict[str, Any]]) -> str:
@@ -701,31 +693,7 @@ def live_index_graph_state_query(records: list[dict[str, Any]]) -> str:
         raise ValueError("A live index graph-state query requires at least one promoted graph")
     if len(records) > LIVE_PREFLIGHT_BATCH_SIZE:
         raise ValueError("A live index graph-state query exceeds the live preflight batch limit")
-    rows = "\n".join(
-        "    "
-        f"(<{record['queryIndexGraph']}> <{record['authoritativeGraph']}> "
-        f"<{record['gameIri']}> <{record['queryIndexResource']}>)"
-        for record in records
-    )
-    return f"""PREFIX idx: <https://w3id.org/baseball/query-index/>
-
-SELECT ?indexGraph ?sourceGraph ?game ?indexResource
-       (COUNT(?indexObject) AS ?indexCount) WHERE {{
-  VALUES (?indexGraph ?sourceGraph ?game ?indexResource) {{
-{rows}
-  }}
-  GRAPH ?indexGraph {{ ?indexSubject ?indexPredicate ?indexObject }}
-  FILTER EXISTS {{
-    GRAPH ?indexGraph {{
-      ?indexResource a idx:QueryIndex ;
-          idx:sourceGraph ?sourceGraph ;
-          idx:indexedGame ?game .
-    }}
-  }}
-}}
-GROUP BY ?indexGraph ?sourceGraph ?game ?indexResource
-ORDER BY ?indexGraph
-"""
+    return _preflight_queries.index_counts(records)
 
 
 def adaptive_preflight_query(

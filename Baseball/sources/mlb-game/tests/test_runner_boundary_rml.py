@@ -14,16 +14,18 @@ from test_rmlmapper_iterator_compatibility import installed_tools, materialized_
 
 
 class RunnerBoundaryRml(unittest.TestCase):
-    def test_three_boundary_kinds_use_existing_personal_history_rml(self):
-        for game,form in ((824233,'action'),(823259,'replacement'),(823989,'placement')):
-            with self.subTest(form=form):
-                workspace=Path(tempfile.mkdtemp(prefix='baseballo-c3-'+form+'-'))
+    def test_accepted_boundaries_and_upheld_reviews_use_existing_personal_history_rml(self):
+        for game,form,person in ((824233,'action',None),(823259,'replacement',None),(823989,'placement',None),
+                                 (823826,'replacement','642201'),(825042,'replacement','699912')):
+            with self.subTest(game=game,form=form):
+                workspace=Path(tempfile.mkdtemp(prefix=f'baseballo-c3-{game}-{form}-'))
                 raw=(ROOT/f'data/raw/samples/2026-08-25/{game}.json').read_bytes()
                 (workspace/'game.json').write_bytes(raw)
                 subprocess.run([sys.executable,str(ROOT/'scripts/pipeline/prepare-rml-context.py'),
                     str(workspace/'game.json'),str(workspace/'complete.json')],check=True,capture_output=True)
                 d=json.loads((workspace/'complete.json').read_bytes());history=d['_baseballO']['runnerHistoryReconciliation']
-                row=next(h for h in history['histories'] if (h.get('entryWitness') or h.get('terminationWitness') or {}).get('form')==form)
+                row=next(h for h in history['histories'] if (h.get('entryWitness') or h.get('terminationWitness') or {}).get('form')==form
+                         and (person is None or h['runnerId']==person))
                 history['histories']=[row]
                 history['episodeMembership']=[r for r in history['episodeMembership'] if r['lifetimeKey']==row['lifetimeKey']]
                 pas={int(r['atBatIndex']) for r in row['episodes']}

@@ -1,0 +1,19 @@
+{
+  "artifactType": "baseballo-runner-history-admission",
+  "authoritativeRdfSha256": "9ddb2f4596876dafa5c7f0f7f82a6e1951b837473d9d05ed19a503f85e230518",
+  "contractVersion": 1,
+  "engine": "jena",
+  "gamePk": "825042",
+  "graph": "https://w3id.org/baseball/graph/game/825042",
+  "graphConforms": true,
+  "implementationSha256": "0ade053ede52d62f5b9b56775c3f1c78a3e2669be83b4a62195cce98d28ef1d5",
+  "issues": [],
+  "populationComplete": true,
+  "reportSha256": "4a53a3befd9bcdb7273ef3d6e47a83be519927771faee49ef0d2a44ee23be2be",
+  "selectedHistories": 22,
+  "shapeSha256": "b4dca31afaa2845945aa41ae5f41e5c2deaaf43bf7161c48fd46dcc3c0bda22a",
+  "sourceCensusSha256": "8f1f9d77c55f08feebde5b3092300f8eca19ccdb0c63b4edcf7c226b9c24c3c5",
+  "sourceReconciled": true,
+  "sourceSha256": "4588d11562cd1d4882ac7eb237d1a98be6e65b38728b04c597e31867daff4a1c",
+  "status": "admitted"
+}

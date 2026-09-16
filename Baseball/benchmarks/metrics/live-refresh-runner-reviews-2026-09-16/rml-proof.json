@@ -1,0 +1,13 @@
+{
+  "gamePk": "825042",
+  "inputSha256": "4588d11562cd1d4882ac7eb237d1a98be6e65b38728b04c597e31867daff4a1c",
+  "outputSha256": "9ddb2f4596876dafa5c7f0f7f82a6e1951b837473d9d05ed19a503f85e230518",
+  "shaclStatus": "validated",
+  "semanticFreezeSha256": "421319f646a369a8d8af7d32d57f8c3afa73fa8f1b109c42551e673641dbf803",
+  "contextBuilderSha256": "94899bcb8ea525341ea10089042ede6af6ecd167d324093e24a8107214b5049d",
+  "mappingSha256": "9dda8b5110491293e9b7c93625275eca382790b5a0be0147b2781cea4a2d4a47",
+  "personalHistories": 22,
+  "episodeMemberships": 41,
+  "triples": 29498,
+  "sourceBoundHistoryAdmission": "admitted"
+}

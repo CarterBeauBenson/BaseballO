@@ -547,9 +547,9 @@ class ServingMaterializerTests(unittest.TestCase):
                 requested_batches.append(graph_ids)
                 if "?rdfGameSet ?venue ?venueLabel" in query:
                     return result([dimension(game_pk) for game_pk in graph_ids])
-                if "COUNT(?sourceObject)" in query:
+                if "AS ?sourceCount" in query:
                     return result([live_pair(game_pk) for game_pk in graph_ids])
-                if "COUNT(?indexObject)" in query:
+                if "AS ?indexCount" in query:
                     return result([live_pair(game_pk) for game_pk in graph_ids])
                 raise AssertionError("unexpected preflight query")
 
@@ -591,7 +591,7 @@ class ServingMaterializerTests(unittest.TestCase):
             def offline_sparql(_endpoint: str, query: str, _timeout: int) -> dict[str, object]:
                 if "?rdfGameSet ?venue ?venueLabel" in query:
                     return result([dimension("1")])
-                if "COUNT(?sourceObject)" in query or "COUNT(?indexObject)" in query:
+                if "AS ?sourceCount" in query or "AS ?indexCount" in query:
                     return result([live_pair("1")])
                 return result([])
 
@@ -637,7 +637,7 @@ class ServingMaterializerTests(unittest.TestCase):
             def offline_sparql(_endpoint,query,_timeout):
                 calls.append(query)
                 if '?rdfGameSet ?venue ?venueLabel' in query:return result([dimension('1')])
-                if 'COUNT(?sourceObject)' in query or 'COUNT(?indexObject)' in query:return result([live_pair('1')])
+                if 'AS ?sourceCount' in query or 'AS ?indexCount' in query:return result([live_pair('1')])
                 return result([])
             args=argparse.Namespace(state_root=state,endpoint='offline',timeout=1,max_games=None,no_promote=False)
             with patch.object(MODULE,'sparql',side_effect=offline_sparql), patch.object(
@@ -666,7 +666,7 @@ class ServingMaterializerTests(unittest.TestCase):
             def offline_sparql(_endpoint,query,_timeout):
                 nonlocal drift
                 if '?rdfGameSet ?venue ?venueLabel' in query:return result([dimension('1')])
-                if 'COUNT(?sourceObject)' in query or 'COUNT(?indexObject)' in query:return result([live_pair('1')])
+                if 'AS ?sourceCount' in query or 'AS ?indexCount' in query:return result([live_pair('1')])
                 drift=True
                 return result([])
             args=argparse.Namespace(state_root=state,endpoint='offline',timeout=1,max_games=None,no_promote=False)
@@ -687,7 +687,7 @@ class ServingMaterializerTests(unittest.TestCase):
             def offline_sparql(_endpoint: str, query: str, _timeout: int) -> dict[str, object]:
                 if "?rdfGameSet ?venue ?venueLabel" in query:
                     return result([dimension("1")])
-                if "COUNT(?sourceObject)" in query or "COUNT(?indexObject)" in query:
+                if "AS ?sourceCount" in query or "AS ?indexCount" in query:
                     return result([live_pair("1")])
                 return result([])
 
@@ -712,7 +712,7 @@ class ServingMaterializerTests(unittest.TestCase):
             def offline_sparql(_endpoint: str, query: str, _timeout: int) -> dict[str, object]:
                 if "?rdfGameSet ?venue ?venueLabel" in query:
                     return result([dimension("1", "preseason")])
-                if "COUNT(?sourceObject)" in query or "COUNT(?indexObject)" in query:
+                if "AS ?sourceCount" in query or "AS ?indexCount" in query:
                     return result([live_pair("1")])
                 return result([])
 
@@ -745,7 +745,7 @@ class ServingMaterializerTests(unittest.TestCase):
                 if "?rdfGameSet ?venue ?venueLabel" in query:
                     dimension_calls += 1
                     return result([dimension("1")]) if dimension_calls == 1 else result([])
-                if "COUNT(?sourceObject)" in query or "COUNT(?indexObject)" in query:
+                if "AS ?sourceCount" in query or "AS ?indexCount" in query:
                     return result([live_pair("1")])
                 return result([])
 

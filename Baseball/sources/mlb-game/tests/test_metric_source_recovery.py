@@ -60,6 +60,16 @@ class FakeNiFi:
 
 
 class CompletedPlanArchiveTests(unittest.TestCase):
+    def test_preflight_query_change_is_a_new_recovery_revision(self):
+        before = recovery.serving_revision()
+        helper = recovery.BASEBALL_ROOT / 'scripts/pipeline/serving_preflight_queries.py'
+        read_bytes = Path.read_bytes
+        def changed(path):
+            value = read_bytes(path)
+            return value + b'\n' if path == helper else value
+        with patch.object(Path, 'read_bytes', changed):
+            self.assertNotEqual(recovery.serving_revision(), before)
+
     def test_completed_plan_is_preserved_exactly_and_retry_is_idempotent(self):
         with tempfile.TemporaryDirectory() as directory:
             path=Path(directory)/'metric-source-recovery.json'
