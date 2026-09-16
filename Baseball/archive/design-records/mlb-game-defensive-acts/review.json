@@ -1,0 +1,63 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-defensive-acts",
+  "title": "D1 defensive-act source projection and particular identity",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "ee2f61dbb0fef30e9d6c83759fa1dcb47a1a0f0feecd10107604823d674a59d7"
+      },
+      {
+        "path": "mapping-contract.md",
+        "sha256": "29ada3570cdf035ee7375a8da3fb4156a4e90b40fef6f9fdfff96fc760d63198"
+      },
+      {
+        "path": "user-decision.md",
+        "sha256": "bdd9572cea5cd0a6da56f636985ac416b0e390dbd338e165573419a43b80eeb5"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "2c2dec7c46f28d5330a727ef7a9c88342a4e5268fa4f1f9c8c58792a2656243b"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "2c2dec7c46f28d5330a727ef7a9c88342a4e5268fa4f1f9c8c58792a2656243b"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "4ab3c3414553de0c563fb9ffc67dce4001ce4b4ec534a445edf1363a91b37e3c"
+      },
+      {
+        "path": "source-specific-mermaid.md",
+        "sha256": "c8d29cbc3a6ea82801ba70524cf1f62cf30eb0a657ad766947b6ad4a46e05e3e"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-09-16",
+    "rationale": "Explicit current-conversation answer: ?Approve D1 and M3/M4.? Accepts the prepared D1 contract and its scoped implementation consequences; no new vocabulary, object properties or global freeze ratification.",
+    "authorizedArtifacts": [
+      "Baseball/scripts/pipeline/prepare-rml-context.py",
+      "Baseball/sources/mlb-game/mapping/mlb-game.rml.ttl",
+      "Baseball/sources/mlb-game/mapping/iri-policy.yaml",
+      "Baseball/sources/mlb-game/mapping/mapping-coverage.yaml",
+      "Baseball/sources/mlb-game/mapping/ontology-coverage-gaps.yaml",
+      "Baseball/sources/mlb-game/shacl/authoritative.ttl",
+      "Baseball/sources/mlb-game/review/semantic-status.json",
+      "Baseball/sources/mlb-game/review/rml-mermaid-manifest.json"
+    ]
+  }
+}

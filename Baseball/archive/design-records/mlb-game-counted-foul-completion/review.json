@@ -1,20 +1,24 @@
 {
-  "$schema": "../../governance/proposal-review.schema.json",
+  "$schema": "../../../governance/proposal-review.schema.json",
   "artifactType": "baseballo-semantic-proposal-review",
   "schemaVersion": 1,
   "proposalId": "mlb-game-counted-foul-completion",
   "title": "M3 reconciled counted-foul prefixes and M4 counted foul bunts",
-  "status": "draft",
+  "status": "accepted",
   "proposedIris": [],
   "artifacts": {
     "competencyQuestions": [
       {
         "path": "README.md",
-        "sha256": "30c70951bd03f06b1e8e652809588e1516090b1463f63a8a0418a43f33e0dca4"
+        "sha256": "0c1cce9cb31be981adb70bf7647111262049df40b92c7ec929a933cf37cc19a8"
       },
       {
         "path": "mapping-contract.md",
         "sha256": "4c5d1a69a5cd2f1d57012e302a004d5f33727608347c51740f3a9ccef94b86d7"
+      },
+      {
+        "path": "user-decision.md",
+        "sha256": "9f7387d3b327b97de6ba9debe4a0a20cea74988e5f7b690213e911ea8561bd13"
       }
     ],
     "sourceEvidence": [
@@ -44,5 +48,20 @@
       }
     ]
   },
-  "ontologistDecision": null
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-09-16",
+    "rationale": "Explicit current-conversation answer: ?Approve D1 and M3/M4.? Accepts the prepared M3/M4 contract and its scoped implementation consequences; no new vocabulary, object properties or global freeze ratification.",
+    "authorizedArtifacts": [
+      "Baseball/scripts/pipeline/prepare-rml-context.py",
+      "Baseball/sources/mlb-game/mapping/mlb-game.rml.ttl",
+      "Baseball/sources/mlb-game/mapping/iri-policy.yaml",
+      "Baseball/sources/mlb-game/mapping/mapping-coverage.yaml",
+      "Baseball/sources/mlb-game/mapping/ontology-coverage-gaps.yaml",
+      "Baseball/sources/mlb-game/shacl/authoritative.ttl",
+      "Baseball/sources/mlb-game/review/semantic-status.json",
+      "Baseball/sources/mlb-game/review/rml-mermaid-manifest.json"
+    ]
+  }
 }

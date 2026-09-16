@@ -25,15 +25,11 @@ their rejection rationale so they cannot be accidentally revived.
 
 ## Active reviews
 
-[D1 defensive-act projection](mlb-game-defensive-acts/README.md) specifies
-the concrete identity and source projection for the already accepted Q6
-act kinds. It records no acceptance and makes no complete-population claim.
-
-[M3/M4 counted-foul completion](mlb-game-counted-foul-completion/README.md)
-is a new bounded review of four source-present omissions found in the pitch
-audit. It proposes extending existing patterns across specifically reconciled
-prefix cases and counted foul bunts, with no new vocabulary. M1/M2 and the
-metric formulas remain accepted; this package records no further approval.
+[D1 defensive-act projection](../archive/design-records/mlb-game-defensive-acts/README.md)
+and [M3/M4 counted-foul completion](../archive/design-records/mlb-game-counted-foul-completion/README.md)
+were explicitly accepted on September 16 and archived. Their implementation
+uses existing terms and creates no object properties. Source and population
+proofs remain required before live metric admission.
 
 The [September 15 completion answers](../archive/design-records/metric-completion-decisions-2026-09-15/user-decision.md)
 accept B2 contact continuations, catcher-interference exclusion, separate

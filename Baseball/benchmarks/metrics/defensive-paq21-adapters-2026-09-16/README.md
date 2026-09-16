@@ -70,9 +70,9 @@ establish each decision's eligibility.
 
 ## Review boundary
 
-[D1](../../../proposals/mlb-game-defensive-acts/README.md) is the concrete draft
+[D1](../../../archive/design-records/mlb-game-defensive-acts/README.md) is the concrete draft
 defensive mapping/identity package. The attempted retrospective acceptance
 record was rejected by automatic review and removed. This draft records no
-approval. [M3/M4](../../../proposals/mlb-game-counted-foul-completion/README.md)
+approval. [M3/M4](../../../archive/design-records/mlb-game-counted-foul-completion/README.md)
 is still separately pending. Existing formulas, full-population requirements,
 qualification minima and source ownership are unchanged.

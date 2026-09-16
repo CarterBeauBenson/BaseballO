@@ -37,4 +37,4 @@ independently establish what occurred in any particular play.
 | unmentioned actions, exact catch/tag overlap, exhaustive whole-play sequence | Unresolved | Keep explicit gap; do not infer from ordinary scoring credits or missing rows |
 
 No genuinely additional provider field is proposed. Existing wider defensive
-research remains in the [metric review](../graph-native-metric-suite-batch-review/defensive-source-research-2026-09-14.md).
+research remains in the [metric review](../../../proposals/graph-native-metric-suite-batch-review/defensive-source-research-2026-09-14.md).

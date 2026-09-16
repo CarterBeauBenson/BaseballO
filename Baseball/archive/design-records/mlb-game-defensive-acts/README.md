@@ -1,23 +1,17 @@
 # D1: project the accepted defensive acts into the MLB game graph
 
-Draft for review. Q6 already accepts the four existing act kinds, actual agents,
+Accepted by Carter Beau Benson on 2026-09-16: **?Approve D1 and M3/M4.?**
+See [the decision record](user-decision.md). Q6 already accepts the four existing act kinds, actual agents,
 distinct performances and supported order. D1 supplies the concrete identity
 and source projection that Q6 did not enumerate. It changes no metric meaning,
 ontology term, object property or pipeline topology.
 
-An attempted conversion of the earlier Q6 answer into an accepted `review.json`
-was rejected by automatic approval review on September 16: it would have
-asserted authorization of an exact mapping record on the user's behalf. That
-attempted record was removed. This package has no recorded acceptance.
+## Accepted scope
 
-## Decision requested
-
-Approve D1's [mapping contract](mapping-contract.md), including stable
-performance identity within the existing contact event and reuse of each
-person's career-persistent Fielder Role. The source-independent and
-source-specific shapes below are review-only. Approval would authorize the
-owning MLB context, RML, IRI policy, source SHACL and scoped proof-pin updates.
-No global semantic freeze refresh is requested.
+The [mapping contract](mapping-contract.md) and both Mermaid shapes are
+accepted, including stable performance identity and persistent Fielder Roles.
+The decision authorizes the owning context, RML, IRI policy, source SHACL and
+scoped proof-pin updates. It does not globally ratify the semantic freeze.
 
 The first bounded cases are a named single-fielder fly/line/pop catch, an
 explicitly described ground-ball fielding and throw, an explicitly described
@@ -49,7 +43,7 @@ D1 does not turn that uncertainty into a four-node `precedes` chain.
    defensive observation minimum. No new role or batting threshold is added.
 
 The serving consumer and tests use existing vocabulary without depending on
-this proposed IRI template. They cannot make D1 accepted or populate the live
+the accepted IRI template. They cannot populate the live
 defensive cards before the source projection and population proof are ready.
 
 Read the [inventory and source evidence](source-evidence.md),
