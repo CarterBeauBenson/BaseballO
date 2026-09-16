@@ -1,0 +1,51 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "extra-inning-placement-adjudication",
+  "title": "Distinct extra-inning placement adjudication and zero-movement personal history",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "e6b0a5ccd7aafc3275062811f27d843176917ef07f2a3ce98c1a41950640e626"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "e3754b953079f21dc8ac6744011b178e0c17b92cb0e2e446e439ad33304c8fc6"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "e3754b953079f21dc8ac6744011b178e0c17b92cb0e2e446e439ad33304c8fc6"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "mermaid.md",
+        "sha256": "a24a6b834972c4868f4296f2e3622e8ce7d3cd16f0b9ad2c6505bbdc80de9dec"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-09-16",
+    "rationale": "Explicit 2026-09-16 user decision: It is a different act. It is a judicative act that puts the runner on second in extra innings. The user also directed the agent to resolve the other (third-out forceout tracker) case. Reuse existing classes and relations; no new object properties. This supersedes the C3 zero-episode placement limitation only.",
+    "authorizedArtifacts": [
+      "Baseball/scripts/pipeline/prepare-rml-context.py",
+      "Baseball/sources/mlb-game/mapping/iri-policy.yaml",
+      "Baseball/sources/mlb-game/mapping/mlb-game.rml.ttl",
+      "Baseball/sources/mlb-game/mapping/mapping-coverage.yaml",
+      "Baseball/sources/mlb-game/mapping/ontology-coverage-gaps.yaml",
+      "Baseball/sources/mlb-game/shacl/authoritative.ttl",
+      "Baseball/sources/mlb-game/review/semantic-status.json",
+      "Baseball/sources/mlb-game/review/rml-mermaid-manifest.json"
+    ]
+  }
+}
