@@ -1,0 +1,2912 @@
+{
+  "gamePk": "822773",
+  "officialDate": "2026-08-25",
+  "gameType": "R",
+  "graphIri": "https://w3id.org/baseball/graph/game/822773",
+  "inputPath": "C:\\Users\\carte\\OneDrive\\Desktop\\BaseballO\\Baseball\\data\\raw\\samples\\2026-08-25\\822773.json",
+  "inputSha256": "fa98482cc0ddb8760e77864cd7225ecac498ba8ee86b5a7bfcb8a1753483353d",
+  "mappingPath": "C:\\Users\\carte\\OneDrive\\Desktop\\BaseballO\\Baseball\\sources\\mlb-game\\mapping\\mlb-game.rml.ttl",
+  "mappingSha256": "a67dbfc25c191c8b89cbb9a38b4e3a3f348374e37180679a6c7c99f69e4088a9",
+  "semanticFreezePath": "C:\\Users\\carte\\OneDrive\\Desktop\\BaseballO\\Baseball\\governance\\semantic-freeze.json",
+  "semanticFreezeSha256": "bc93355d49ac60e9ba151712f04ad81b3b92687a68670d88538c7b7f24c563e9",
+  "semanticAdmission": "mlb-game:frozen-known-debt",
+  "effectiveMappingSha256": "81a5ae803aa1298a1ac24acaa6e450e49009c0bf8964fd5ad5fae57de703f8cd",
+  "contextBuilderPath": "C:\\Users\\carte\\OneDrive\\Desktop\\BaseballO\\Baseball\\scripts\\pipeline\\prepare-rml-context.py",
+  "contextBuilderSha256": "df4b93a82799ce440986a4d9d184de5d540fa0a77f81990e44410302e33a8901",
+  "executionContextSha256": "137890c8c0997b210561c7f20f96276fcc868cad7bdf86b6d96126518a6be1d7",
+  "runnerHistoryReconciliation": {
+    "inputSha256": "fa98482cc0ddb8760e77864cd7225ecac498ba8ee86b5a7bfcb8a1753483353d",
+    "sourceRevision": "20260826_020513",
+    "sourceAuthorityDecision": "archive/design-records/metric-source-c1-operation-2026-09-14/review.json",
+    "sourceConsistency": "consistent",
+    "histories": [
+      {
+        "runnerId": "686469",
+        "inning": "1",
+        "half": "top",
+        "entryAnchor": "7d3d9cc9-fc55-35b6-993b-d282f628f2fd",
+        "earliestStartBound": "2026-08-25T23:11:25.042Z",
+        "episodes": [
+          {
+            "atBatIndex": "2",
+            "runnerIndex": "2",
+            "resolutionKind": "reach",
+            "runnerId": "686469"
+          },
+          {
+            "atBatIndex": "3",
+            "runnerIndex": "0",
+            "resolutionKind": "out",
+            "runnerId": "686469"
+          }
+        ],
+        "lifetimeKey": "d881fe3f80792c1b7d01a2270ede7b5bf3a12121022a2527bf029a8bd6cb86cf",
+        "terminationAnchor": "d1acecad-d1ad-3764-b345-e2eae6117827",
+        "terminal": "out",
+        "latestEndBound": "2026-08-25T23:12:45.405Z"
+      },
+      {
+        "runnerId": "695600",
+        "inning": "1",
+        "half": "top",
+        "entryAnchor": "af074926-cb1e-3779-b5e8-e185563099a1",
+        "earliestStartBound": "2026-08-25T23:07:19.004Z",
+        "episodes": [
+          {
+            "atBatIndex": "0",
+            "runnerIndex": "0",
+            "resolutionKind": "reach",
+            "runnerId": "695600"
+          },
+          {
+            "atBatIndex": "1",
+            "runnerIndex": "0",
+            "resolutionKind": "advance",
+            "runnerId": "695600"
+          },
+          {
+            "atBatIndex": "2",
+            "runnerIndex": "0",
+            "resolutionKind": "advance",
+            "runnerId": "695600"
+          },
+          {
+            "atBatIndex": "3",
+            "runnerIndex": "2",
+            "resolutionKind": "score",
+            "runnerId": "695600"
+          }
+        ],
+        "lifetimeKey": "f8670e546a6d5d92dc85251ea33e468f7c6ba5973bad1179cdce1145ea8d56f7",
+        "terminationAnchor": "d1acecad-d1ad-3764-b345-e2eae6117827",
+        "terminal": "score",
+        "latestEndBound": "2026-08-25T23:12:45.405Z"
+      },
+      {
+        "runnerId": "677951",
+        "inning": "1",
+        "half": "top",
+        "entryAnchor": "9d79015f-341a-3622-9a82-3c613db0da74",
+        "earliestStartBound": "2026-08-25T23:09:44.904Z",
+        "episodes": [
+          {
+            "atBatIndex": "1",
+            "runnerIndex": "1",
+            "resolutionKind": "reach",
+            "runnerId": "677951"
+          },
+          {
+            "atBatIndex": "2",
+            "runnerIndex": "1",
+            "resolutionKind": "advance",
+            "runnerId": "677951"
+          },
+          {
+            "atBatIndex": "3",
+            "runnerIndex": "3",
+            "resolutionKind": "advance",
+            "runnerId": "677951"
+          }
+        ],
+        "lifetimeKey": "c3b2a06818680f2cf9c8c1583ff53f462319f715b9bdcf085f9bb3e7ed27146d",
+        "terminationAnchor": "5469c7a0-9fbc-38b6-8883-ad13774895db",
+        "terminal": "stranded",
+        "latestEndBound": "2026-08-25T23:17:35.328Z"
+      },
+      {
+        "runnerId": "686681",
+        "inning": "1",
+        "half": "top",
+        "entryAnchor": "6434f0e0-4fae-3f8a-a393-93b190800537",
+        "earliestStartBound": "2026-08-25T23:14:56.755Z",
+        "episodes": [
+          {
+            "atBatIndex": "4",
+            "runnerIndex": "0",
+            "resolutionKind": "reach",
+            "runnerId": "686681"
+          }
+        ],
+        "lifetimeKey": "d68be0ab7410b762f4ec6f781f29e3b0d4509e6870b867ed9e75a1a3d7ee3644",
+        "terminationAnchor": "5469c7a0-9fbc-38b6-8883-ad13774895db",
+        "terminal": "stranded",
+        "latestEndBound": "2026-08-25T23:17:35.328Z"
+      },
+      {
+        "runnerId": "703520",
+        "inning": "1",
+        "half": "bottom",
+        "entryAnchor": "731ff6db-3411-366b-9c78-872e95353046",
+        "earliestStartBound": "2026-08-25T23:21:20.534Z",
+        "episodes": [
+          {
+            "atBatIndex": "6",
+            "runnerIndex": "0",
+            "resolutionKind": "reach",
+            "runnerId": "703520"
+          },
+          {
+            "atBatIndex": "7",
+            "runnerIndex": "1",
+            "resolutionKind": "advance",
+            "runnerId": "703520"
+          },
+          {
+            "atBatIndex": "9",
+            "runnerIndex": "0",
+            "resolutionKind": "advance",
+            "runnerId": "703520"
+          },
+          {
+            "atBatIndex": "10",
+            "runnerIndex": "1",
+            "resolutionKind": "score",
+            "runnerId": "703520"
+          }
+        ],
+        "lifetimeKey": "4ea1344533910e472dd087fc56666193a728addc4dec8e310f146dc1fd7331ed",
+        "terminationAnchor": "9eca0b1a-8c86-33c0-8aa7-a4c7f2c26b17",
+        "terminal": "score",
+        "latestEndBound": "2026-08-25T23:27:30.927Z"
+      },
+      {
+        "runnerId": "664770",
+        "inning": "1",
+        "half": "bottom",
+        "entryAnchor": "62602231-0662-374f-b0bb-b67d7510a76e",
+        "earliestStartBound": "2026-08-25T23:23:33.467Z",
+        "episodes": [
+          {
+            "atBatIndex": "7",
+            "runnerIndex": "0",
+            "resolutionKind": "reach",
+            "runnerId": "664770"
+          },
+          {
+            "atBatIndex": "9",
+            "runnerIndex": "1",
+            "resolutionKind": "advance",
+            "runnerId": "664770"
+          }
+        ],
+        "lifetimeKey": "6de1f6dcfc237e30312cba9f28343e19ad0d2088dce088a59109f04a8370005a",
+        "terminationAnchor": "aab92a25-79ee-3495-82fa-7449810b0cd7",
+        "terminal": "stranded",
+        "latestEndBound": "2026-08-25T23:31:40.696Z"
+      },
+      {
+        "runnerId": "672960",
+        "inning": "1",
+        "half": "bottom",
+        "entryAnchor": "5c0d8cfd-9947-3f98-91d0-ce4bba8a3612",
+        "earliestStartBound": "2026-08-25T23:26:33.771Z",
+        "episodes": [
+          {
+            "atBatIndex": "9",
+            "runnerIndex": "2",
+            "resolutionKind": "reach",
+            "runnerId": "672960"
+          }
+        ],
+        "lifetimeKey": "ac073fdd6bc24d00192db52b62123649b3de1e0517bcfb2ff14bd7b4dbe0edc5",
+        "terminationAnchor": "aab92a25-79ee-3495-82fa-7449810b0cd7",
+        "terminal": "stranded",
+        "latestEndBound": "2026-08-25T23:31:40.696Z"
+      },
+      {
+        "runnerId": "686555",
+        "inning": "2",
+        "half": "top",
+        "entryAnchor": "f3b7e6d3-2752-3a50-8b5e-526d6c6fb5f9",
+        "earliestStartBound": "2026-08-25T23:35:05.250Z",
+        "episodes": [
+          {
+            "atBatIndex": "12",
+            "runnerIndex": "0",
+            "resolutionKind": "reach",
+            "runnerId": "686555"
+          },
+          {
+            "atBatIndex": "13",
+            "runnerIndex": "1",
+            "resolutionKind": "advance",
+            "runnerId": "686555"
+          }
+        ],
+        "lifetimeKey": "db28b1e72fc7810084ce98bda852bd75d766765f314d0f7c14b82afe976d48bb",
+        "terminationAnchor": "bd0c549f-a5ca-3da7-a2e5-cd181bd3e484",
+        "terminal": "stranded",
+        "latestEndBound": "2026-08-25T23:40:37.571Z"
+      },
+      {
+        "runnerId": "665926",
+        "inning": "2",
+        "half": "bottom",
+        "entryAnchor": "0fd73f6e-3ab1-31a2-ace3-38494fb52c93",
+        "earliestStartBound": "2026-08-25T23:43:08.416Z",
+        "episodes": [
+          {
+            "atBatIndex": "16",
+            "runnerIndex": "0",
+            "resolutionKind": "reach",
+            "runnerId": "665926"
+          },
+          {
+            "atBatIndex": "17",
+            "runnerIndex": "1",
+            "resolutionKind": "advance",
+            "runnerId": "665926"
+          }
+        ],
+        "lifetimeKey": "e04e3c53c75661db898aa4749064b29c2054bf7738a1402d359e4a6b7957d030",
+        "terminationAnchor": "6e2e6ffe-a337-3508-add2-59a3b65b0c2a",
+        "terminal": "stranded",
+        "latestEndBound": "2026-08-25T23:49:03.390Z"
+      },
+      {
+        "runnerId": "686555",
+        "inning": "4",
+        "half": "top",
+        "entryAnchor": "597a0502-3ac0-3948-aceb-dcabe7b2f500",
+        "earliestStartBound": "2026-08-26T00:05:23.386Z",
+        "episodes": [
+          {
+            "atBatIndex": "28",
+            "runnerIndex": "0",
+            "resolutionKind": "reach",
+            "runnerId": "686555"
+          }
+        ],
+        "lifetimeKey": "4c86f295f32cffcc11a323bd0ebba8a77b9b1927fe923d0b295a6598512a917b",
+        "terminationAnchor": "c49c1435-17a7-3c50-9ae8-70a3d13d5801",
+        "terminal": "stranded",
+        "latestEndBound": "2026-08-26T00:07:22.858Z"
+      },
+      {
+        "runnerId": "665926",
+        "inning": "4",
+        "half": "bottom",
+        "entryAnchor": "4c8eb301-c8af-3062-b1c8-3c651ea08855",
+        "earliestStartBound": "2026-08-26T00:13:32.231Z",
+        "episodes": [
+          {
+            "atBatIndex": "32",
+            "runnerIndex": "0",
+            "resolutionKind": "reach",
+            "runnerId": "665926"
+          },
+          {
+            "atBatIndex": "33",
+            "runnerIndex": "0",
+            "resolutionKind": "out",
+            "runnerId": "665926"
+          }
+        ],
+        "lifetimeKey": "efc52b132405023fc6adb74986da5b3cf7fe52dab1d67b9b1697f8a3a9ef900d",
+        "terminationAnchor": "19ff67b4-8d3e-3592-b206-df10c3f6977e",
+        "terminal": "out",
+        "latestEndBound": "2026-08-26T00:16:01.377Z"
+      },
+      {
+        "runnerId": "676391",
+        "inning": "4",
+        "half": "bottom",
+        "entryAnchor": "af9a78c6-c725-30ce-b058-6ebb2817c18f",
+        "earliestStartBound": "2026-08-26T00:12:33.589Z",
+        "episodes": [
+          {
+            "atBatIndex": "31",
+            "runnerIndex": "0",
+            "resolutionKind": "reach",
+            "runnerId": "676391"
+          },
+          {
+            "atBatIndex": "32",
+            "runnerIndex": "1",
+            "resolutionKind": "advance",
+            "runnerId": "676391"
+          },
+          {
+            "atBatIndex": "32",
+            "runnerIndex": "2",
+            "resolutionKind": "advance",
+            "runnerId": "676391"
+          }
+        ],
+        "lifetimeKey": "110d5ee8c95a72f5b0f5bd6f8198fca6a68f9077635edc98e151df7cddb5ea39",
+        "terminationAnchor": "19ff67b4-8d3e-3592-b206-df10c3f6977e",
+        "terminal": "stranded",
+        "latestEndBound": "2026-08-26T00:16:01.377Z"
+      },
+      {
+        "runnerId": "695600",
+        "inning": "5",
+        "half": "top",
+        "entryAnchor": "43f9090f-7933-3e5f-b784-f7b3f6c388d2",
+        "earliestStartBound": "2026-08-26T00:22:14.196Z",
+        "episodes": [
+          {
+            "atBatIndex": "35",
+            "runnerIndex": "0",
+            "resolutionKind": "reach",
+            "runnerId": "695600"
+          },
+          {
+            "atBatIndex": "36",
+            "runnerIndex": "0",
+            "resolutionKind": "out",
+            "runnerId": "695600"
+          }
+        ],
+        "lifetimeKey": "5c56454d4edab600a2e963fa8273a95789cef7c33fc5983a95ff22d9ede9017d",
+        "terminationAnchor": "0d1da428-9d01-393d-863b-643d124018be",
+        "terminal": "out",
+        "latestEndBound": "2026-08-26T00:22:54.322Z"
+      },
+      {
+        "runnerId": "677951",
+        "inning": "5",
+        "half": "top",
+        "entryAnchor": "0d1da428-9d01-393d-863b-643d124018be",
+        "earliestStartBound": "2026-08-26T00:22:47.590Z",
+        "episodes": [
+          {
+            "atBatIndex": "36",
+            "runnerIndex": "1",
+            "resolutionKind": "reach",
+            "runnerId": "677951"
+          },
+          {
+            "atBatIndex": "37",
+            "runnerIndex": "1",
+            "resolutionKind": "advance",
+            "runnerId": "677951"
+          },
+          {
+            "atBatIndex": "37",
+            "runnerIndex": "2",
+            "resolutionKind": "advance",
+            "runnerId": "677951"
+          },
+          {
+            "atBatIndex": "38",
+            "runnerIndex": "3",
+            "resolutionKind": "score",
+            "runnerId": "677951"
+          }
+        ],
+        "lifetimeKey": "63b8508719066af54a9ae2eff1a365a579f6d4646062a51e2aa7b6fa6db949ce",
+        "terminationAnchor": "1ecd0095-fcbf-311e-8508-909fd05f4c0c",
+        "terminal": "score",
+        "latestEndBound": "2026-08-26T00:28:29.946Z"
+      },
+      {
+        "runnerId": "686469",
+        "inning": "5",
+        "half": "top",
+        "entryAnchor": "63ab8310-a813-3c9c-9d2f-adc619b4e5d7",
+        "earliestStartBound": "2026-08-26T00:24:05.481Z",
+        "episodes": [
+          {
+            "atBatIndex": "37",
+            "runnerIndex": "0",
+            "resolutionKind": "reach",
+            "runnerId": "686469"
+          },
+          {
+            "atBatIndex": "38",
+            "runnerIndex": "1",
+            "resolutionKind": "advance",
+            "runnerId": "686469"
+          },
+          {
+            "atBatIndex": "38",
+            "runnerIndex": "2",
+            "resolutionKind": "advance",
+            "runnerId": "686469"
+          }
+        ],
+        "lifetimeKey": "94cc55a52d135a394e8ba322f97f1a35f7d58a7176199e40cb53543b0bf99bda",
+        "terminationAnchor": "b58c75a3-4994-3b9f-b118-8cdf92db07f6",
+        "terminal": "stranded",
+        "latestEndBound": "2026-08-26T00:30:24.888Z"
+      },
+      {
+        "runnerId": "521692",
+        "inning": "5",
+        "half": "top",
+        "entryAnchor": "1ecd0095-fcbf-311e-8508-909fd05f4c0c",
+        "earliestStartBound": "2026-08-26T00:28:19.179Z",
+        "episodes": [
+          {
+            "atBatIndex": "38",
+            "runnerIndex": "0",
+            "resolutionKind": "reach",
+            "runnerId": "521692"
+          }
+        ],
+        "lifetimeKey": "fff533de13c67950fc1c8455cd179716b3f7e64caeafa3109d66e0b99a344611",
+        "terminationAnchor": "b58c75a3-4994-3b9f-b118-8cdf92db07f6",
+        "terminal": "stranded",
+        "latestEndBound": "2026-08-26T00:30:24.888Z"
+      },
+      {
+        "runnerId": "703520",
+        "inning": "5",
+        "half": "bottom",
+        "entryAnchor": "894e13fb-6194-394e-a118-b79e551b4391",
+        "earliestStartBound": "2026-08-26T00:35:39.615Z",
+        "episodes": [
+          {
+            "atBatIndex": "41",
+            "runnerIndex": "0",
+            "resolutionKind": "reach",
+            "runnerId": "703520"
+          },
+          {
+            "atBatIndex": "41",
+            "runnerIndex": "1",
+            "resolutionKind": "advance",
+            "runnerId": "703520"
+          }
+        ],
+        "lifetimeKey": "d32495bc0227ed6ce29b8cd6d89ede2049661e06198d151abbeed67676de86e7",
+        "terminationAnchor": "ad549368-68fd-3d46-a20b-901aec45c141",
+        "terminal": "stranded",
+        "latestEndBound": "2026-08-26T00:41:14.060Z"
+      },
+      {
+        "runnerId": "679845",
+        "inning": "6",
+        "half": "top",
+        "entryAnchor": "54c2edba-04dc-3335-88ae-69c90f457b96",
+        "earliestStartBound": "2026-08-26T00:44:42.774Z",
+        "episodes": [
+          {
+            "atBatIndex": "44",
+            "runnerIndex": "0",
+            "resolutionKind": "reach",
+            "runnerId": "679845"
+          },
+          {
+            "atBatIndex": "46",
+            "runnerIndex": "1",
+            "resolutionKind": "advance",
+            "runnerId": "679845"
+          },
+          {
+            "atBatIndex": "46",
+            "runnerIndex": "2",
+            "resolutionKind": "advance",
+            "runnerId": "679845"
+          },
+          {
+            "atBatIndex": "47",
+            "runnerIndex": "2",
+            "resolutionKind": "score",
+            "runnerId": "679845"
+          }
+        ],
+        "lifetimeKey": "471d18d0f9285c00a3be12585c15ac83f2de407688f4971ae1fe67ea9ddb796c",
+        "terminationAnchor": "1127a085-367b-3726-a744-2d5e4eb43b08",
+        "terminal": "score",
+        "latestEndBound": "2026-08-26T00:52:53.678Z"
+      },
+      {
+        "runnerId": "670231",
+        "inning": "6",
+        "half": "top",
+        "entryAnchor": "7abf4560-b9c2-38e5-87f4-1d36c38ede95",
+        "earliestStartBound": "2026-08-26T00:48:33.915Z",
+        "episodes": [
+          {
+            "atBatIndex": "46",
+            "runnerIndex": "0",
+            "resolutionKind": "reach",
+            "runnerId": "670231"
+          },
+          {
+            "atBatIndex": "47",
+            "runnerIndex": "3",
+            "resolutionKind": "advance",
+            "runnerId": "670231"
+          },
+          {
+            "atBatIndex": "47",
+            "runnerIndex": "4",
+            "resolutionKind": "advance",
+            "runnerId": "670231"
+          },
+          {
+            "atBatIndex": "48",
+            "runnerIndex": "1",
+            "resolutionKind": "score",
+            "runnerId": "670231"
+          }
+        ],
+        "lifetimeKey": "4b75a0f91d892adf10d901bcbfafffc599eff14e462240ad92585f575f998cc1",
+        "terminationAnchor": "052cf223-7bfa-33de-9454-006ae7ce3d7c",
+        "terminal": "score",
+        "latestEndBound": "2026-08-26T00:54:08.231Z"
+      },
+      {
+        "runnerId": "664728",
+        "inning": "6",
+        "half": "top",
+        "entryAnchor": "1127a085-367b-3726-a744-2d5e4eb43b08",
+        "earliestStartBound": "2026-08-26T00:52:39.629Z",
+        "episodes": [
+          {
+            "atBatIndex": "47",
+            "runnerIndex": "0",
+            "resolutionKind": "reach",
+            "runnerId": "664728"
+          },
+          {
+            "atBatIndex": "47",
+            "runnerIndex": "1",
+            "resolutionKind": "advance",
+            "runnerId": "664728"
+          },
+          {
+            "atBatIndex": "50",
+            "runnerIndex": "0",
+            "resolutionKind": "advance",
+            "runnerId": "664728"
+          }
+        ],
+        "lifetimeKey": "93c3fbd513fd869c3f66c3c469c542e362c2d6e02cda132171f911a97471cbbf",
+        "terminationAnchor": "fff9d24f-b25e-3e59-8ad4-def525fe5a67",
+        "terminal": "stranded",
+        "latestEndBound": "2026-08-26T00:56:46.402Z"
+      },
+      {
+        "runnerId": "677951",
+        "inning": "6",
+        "half": "top",
+        "entryAnchor": "08227736-0506-1033-000c-f08cd117d70a",
+        "earliestStartBound": "2026-08-26T00:54:52.928Z",
+        "episodes": [
+          {
+            "atBatIndex": "49",
+            "runnerIndex": "0",
+            "resolutionKind": "reach",
+            "runnerId": "677951"
+          },
+          {
+            "atBatIndex": "50",
+            "runnerIndex": "1",
+            "resolutionKind": "advance",
+            "runnerId": "677951"
+          }
+        ],
+        "lifetimeKey": "a8ee9b329dcb0dd384fc6f4e733e1baebaaf74d6fc7b031f63491c73fd303f12",
+        "terminationAnchor": "fff9d24f-b25e-3e59-8ad4-def525fe5a67",
+        "terminal": "stranded",
+        "latestEndBound": "2026-08-26T00:56:46.402Z"
+      },
+      {
+        "runnerId": "521692",
+        "inning": "7",
+        "half": "top",
+        "entryAnchor": "cc7a53a8-822b-362e-addd-7c59a2459749",
+        "earliestStartBound": "2026-08-26T01:07:45.989Z",
+        "episodes": [
+          {
+            "atBatIndex": "54",
+            "runnerIndex": "0",
+            "resolutionKind": "reach",
+            "runnerId": "521692"
+          },
+          {
+            "atBatIndex": "57",
+            "runnerIndex": "1",
+            "resolutionKind": "advance",
+            "runnerId": "521692"
+          },
+          {
+            "atBatIndex": "58",
+            "runnerIndex": "0",
+            "resolutionKind": "advance",
+            "runnerId": "521692"
+          }
+        ],
+        "lifetimeKey": "b6e5a4a1b8c2cadffc23039bcc8cca3ed96a89cd3b6f597846294e4e7c1b9773",
+        "terminationAnchor": "7c283c76-6bf3-3ff4-a9db-7ab250e0fada",
+        "terminal": "stranded",
+        "latestEndBound": "2026-08-26T01:15:06.564Z"
+      },
+      {
+        "runnerId": "686555",
+        "inning": "7",
+        "half": "top",
+        "entryAnchor": "ce256d3f-4f08-352c-a711-9189f45b4e21",
+        "earliestStartBound": "2026-08-26T01:11:43.843Z",
+        "episodes": [
+          {
+            "atBatIndex": "57",
+            "runnerIndex": "0",
+            "resolutionKind": "reach",
+            "runnerId": "686555"
+          },
+          {
+            "atBatIndex": "58",
+            "runnerIndex": "1",
+            "resolutionKind": "advance",
+            "runnerId": "686555"
+          }
+        ],
+        "lifetimeKey": "1aab5e0f2311ae3f63676a23e7427281b578c076fd81c460a86b541e40c35e18",
+        "terminationAnchor": "7c283c76-6bf3-3ff4-a9db-7ab250e0fada",
+        "terminal": "stranded",
+        "latestEndBound": "2026-08-26T01:15:06.564Z"
+      },
+      {
+        "runnerId": "670231",
+        "inning": "7",
+        "half": "top",
+        "entryAnchor": "36b95b29-2420-3cce-83c2-955536e75dd9",
+        "earliestStartBound": "2026-08-26T01:13:40.712Z",
+        "episodes": [
+          {
+            "atBatIndex": "58",
+            "runnerIndex": "2",
+            "resolutionKind": "reach",
+            "runnerId": "670231"
+          }
+        ],
+        "lifetimeKey": "c2af9f0f5bbe2c5df8042cb7214d4e5823187c1e706230840ba5aff90feaf1ec",
+        "terminationAnchor": "7c283c76-6bf3-3ff4-a9db-7ab250e0fada",
+        "terminal": "stranded",
+        "latestEndBound": "2026-08-26T01:15:06.564Z"
+      },
+      {
+        "runnerId": "665926",
+        "inning": "7",
+        "half": "bottom",
+        "entryAnchor": "c22173cc-d287-324b-916d-6c9fa550c873",
+        "earliestStartBound": "2026-08-26T01:18:41.345Z",
+        "episodes": [
+          {
+            "atBatIndex": "60",
+            "runnerIndex": "0",
+            "resolutionKind": "reach",
+            "runnerId": "665926"
+          },
+          {
+            "atBatIndex": "61",
+            "runnerIndex": "0",
+            "resolutionKind": "out",
+            "runnerId": "665926"
+          }
+        ],
+        "lifetimeKey": "78674d7bcb35bd1120370d07227e69dfbf0e5f87078df00e69728d4f184468c8",
+        "terminationAnchor": "5112adea-7c1c-3e88-b7ae-ff97a427d578",
+        "terminal": "out",
+        "latestEndBound": "2026-08-26T01:21:18.229Z"
+      },
+      {
+        "runnerId": "686469",
+        "inning": "8",
+        "half": "top",
+        "entryAnchor": "fbba2a5a-c9cf-3eec-b722-913528a5064c",
+        "earliestStartBound": "2026-08-26T01:30:39.769Z",
+        "episodes": [
+          {
+            "atBatIndex": "65",
+            "runnerIndex": "0",
+            "resolutionKind": "reach",
+            "runnerId": "686469"
+          },
+          {
+            "atBatIndex": "66",
+            "runnerIndex": "0",
+            "resolutionKind": "advance",
+            "runnerId": "686469"
+          }
+        ],
+        "lifetimeKey": "baccb172558b57fb46106ae184dd12d5947aadf83381a3eaa8e1a0c89644bd3e",
+        "terminationAnchor": "4eb2f3d9-60aa-3ceb-9275-5a76f3ed2b56",
+        "terminal": "stranded",
+        "latestEndBound": "2026-08-26T01:32:54.646Z"
+      },
+      {
+        "runnerId": "664770",
+        "inning": "8",
+        "half": "bottom",
+        "entryAnchor": "1b2639ae-6fe9-3c27-a311-9a55626a8357",
+        "earliestStartBound": "2026-08-26T01:38:27.148Z",
+        "episodes": [
+          {
+            "atBatIndex": "68",
+            "runnerIndex": "0",
+            "resolutionKind": "reach",
+            "runnerId": "664770"
+          },
+          {
+            "atBatIndex": "69",
+            "runnerIndex": "1",
+            "resolutionKind": "advance",
+            "runnerId": "664770"
+          }
+        ],
+        "lifetimeKey": "1b2c306b9c30d9d3274f7729dcd38769ebe2ae710a79624e580c045a7e848760",
+        "terminationAnchor": "c4589511-a2b0-3ba8-96e9-71cc1cb3486d",
+        "terminal": "stranded",
+        "latestEndBound": "2026-08-26T01:48:03.145Z"
+      },
+      {
+        "runnerId": "665489",
+        "inning": "8",
+        "half": "bottom",
+        "entryAnchor": "b2e44d08-9069-31a6-a370-ae101a370d97",
+        "earliestStartBound": "2026-08-26T01:40:19.968Z",
+        "episodes": [
+          {
+            "atBatIndex": "69",
+            "runnerIndex": "0",
+            "resolutionKind": "reach",
+            "runnerId": "665489"
+          }
+        ],
+        "lifetimeKey": "3e7f8442a088cf42df574b60849683e7f7377c0b7dfcd83489d44cb8da3feed9",
+        "terminationAnchor": "c4589511-a2b0-3ba8-96e9-71cc1cb3486d",
+        "terminal": "stranded",
+        "latestEndBound": "2026-08-26T01:48:03.145Z"
+      },
+      {
+        "runnerId": "660821",
+        "inning": "8",
+        "half": "bottom",
+        "entryAnchor": "9f7829f6-aa03-3b15-bdb7-9de8ac881397",
+        "earliestStartBound": "2026-08-26T01:43:13.903Z",
+        "episodes": [
+          {
+            "atBatIndex": "71",
+            "runnerIndex": "0",
+            "resolutionKind": "reach",
+            "runnerId": "660821"
+          }
+        ],
+        "lifetimeKey": "9f824c07f87a6f87b735f19faea954d444ba7ce60d94571b7cb7efebdc072b80",
+        "terminationAnchor": "c4589511-a2b0-3ba8-96e9-71cc1cb3486d",
+        "terminal": "stranded",
+        "latestEndBound": "2026-08-26T01:48:03.145Z"
+      },
+      {
+        "runnerId": "686475",
+        "inning": "9",
+        "half": "top",
+        "entryAnchor": "87ec2571-2a27-3e96-8922-06ea34fe8063",
+        "earliestStartBound": "2026-08-26T01:51:19.309Z",
+        "episodes": [
+          {
+            "atBatIndex": "73",
+            "runnerIndex": "0",
+            "resolutionKind": "reach",
+            "runnerId": "686475"
+          },
+          {
+            "atBatIndex": "74",
+            "runnerIndex": "0",
+            "resolutionKind": "advance",
+            "runnerId": "686475"
+          },
+          {
+            "atBatIndex": "75",
+            "runnerIndex": "1",
+            "resolutionKind": "advance",
+            "runnerId": "686475"
+          },
+          {
+            "atBatIndex": "76",
+            "runnerIndex": "1",
+            "resolutionKind": "score",
+            "runnerId": "686475"
+          }
+        ],
+        "lifetimeKey": "99df7886c800b271758fc97ab4f62324a8acb296ec7c0375398b954d45ac2694",
+        "terminationAnchor": "eeb5f053-71ff-3e2d-b485-46db7242d418",
+        "terminal": "score",
+        "latestEndBound": "2026-08-26T01:55:14.571Z"
+      },
+      {
+        "runnerId": "670231",
+        "inning": "9",
+        "half": "top",
+        "entryAnchor": "eeb5f053-71ff-3e2d-b485-46db7242d418",
+        "earliestStartBound": "2026-08-26T01:55:03.290Z",
+        "episodes": [
+          {
+            "atBatIndex": "76",
+            "runnerIndex": "0",
+            "resolutionKind": "reach",
+            "runnerId": "670231"
+          },
+          {
+            "atBatIndex": "77",
+            "runnerIndex": "1",
+            "resolutionKind": "advance",
+            "runnerId": "670231"
+          },
+          {
+            "atBatIndex": "77",
+            "runnerIndex": "2",
+            "resolutionKind": "advance",
+            "runnerId": "670231"
+          }
+        ],
+        "lifetimeKey": "ce1549c4f540c89f435e6618146a76165123be46db16fcba185a7a0dbc0cae45",
+        "terminationAnchor": "80981554-2620-3150-8297-cae885900694",
+        "terminal": "stranded",
+        "latestEndBound": "2026-08-26T01:57:57.535Z"
+      },
+      {
+        "runnerId": "664728",
+        "inning": "9",
+        "half": "top",
+        "entryAnchor": "043b8cc9-8f27-30bd-bdf9-4d454aff87c1",
+        "earliestStartBound": "2026-08-26T01:57:06.626Z",
+        "episodes": [
+          {
+            "atBatIndex": "77",
+            "runnerIndex": "0",
+            "resolutionKind": "reach",
+            "runnerId": "664728"
+          }
+        ],
+        "lifetimeKey": "bc0db1aea55755e7c56a67a29daee6e93fe856ed2bf3274031cfa136d160761d",
+        "terminationAnchor": "80981554-2620-3150-8297-cae885900694",
+        "terminal": "stranded",
+        "latestEndBound": "2026-08-26T01:57:57.535Z"
+      },
+      {
+        "runnerId": "664770",
+        "inning": "9",
+        "half": "bottom",
+        "entryAnchor": "31d63bee-b632-3456-b321-5cf1390ddc21",
+        "earliestStartBound": "2026-08-26T02:05:01.694Z",
+        "episodes": [
+          {
+            "atBatIndex": "83",
+            "runnerIndex": "1",
+            "resolutionKind": "reach",
+            "runnerId": "664770"
+          },
+          {
+            "atBatIndex": "83",
+            "runnerIndex": "3",
+            "resolutionKind": "out",
+            "runnerId": "664770"
+          }
+        ],
+        "lifetimeKey": "7c3560dc27e2743af67dfd7bfd0d08c310271ff4b9acfc76d929ce5a6a1916bf",
+        "terminationAnchor": "31d63bee-b632-3456-b321-5cf1390ddc21",
+        "terminal": "out",
+        "latestEndBound": "2026-08-26T02:05:13.196Z"
+      },
+      {
+        "runnerId": "703520",
+        "inning": "9",
+        "half": "bottom",
+        "entryAnchor": "759b6aba-1320-3445-9cbd-48b9ca8731ee",
+        "earliestStartBound": "2026-08-26T02:04:05.178Z",
+        "episodes": [
+          {
+            "atBatIndex": "82",
+            "runnerIndex": "0",
+            "resolutionKind": "reach",
+            "runnerId": "703520"
+          },
+          {
+            "atBatIndex": "83",
+            "runnerIndex": "0",
+            "resolutionKind": "advance",
+            "runnerId": "703520"
+          },
+          {
+            "atBatIndex": "83",
+            "runnerIndex": "2",
+            "resolutionKind": "score",
+            "runnerId": "703520"
+          }
+        ],
+        "lifetimeKey": "d5583679c6634381a4add3e590cec72caeb69b5723083ff1fd7a074320396919",
+        "terminationAnchor": "31d63bee-b632-3456-b321-5cf1390ddc21",
+        "terminal": "score",
+        "latestEndBound": "2026-08-26T02:05:13.196Z"
+      },
+      {
+        "runnerId": "663662",
+        "inning": "9",
+        "half": "bottom",
+        "entryAnchor": "3a694b6c-2e3f-375f-ac98-457ac7f9d365",
+        "earliestStartBound": "2026-08-26T02:03:16.049Z",
+        "episodes": [
+          {
+            "atBatIndex": "81",
+            "runnerIndex": "0",
+            "resolutionKind": "reach",
+            "runnerId": "663662"
+          },
+          {
+            "atBatIndex": "82",
+            "runnerIndex": "1",
+            "resolutionKind": "advance",
+            "runnerId": "663662"
+          },
+          {
+            "atBatIndex": "82",
+            "runnerIndex": "2",
+            "resolutionKind": "advance",
+            "runnerId": "663662"
+          },
+          {
+            "atBatIndex": "83",
+            "runnerIndex": "4",
+            "resolutionKind": "score",
+            "runnerId": "663662"
+          }
+        ],
+        "lifetimeKey": "6f633d80741edd58b2fb119fa87df3506c4ac2cdda33ab2fb1cb9d7c76cdcad8",
+        "terminationAnchor": "31d63bee-b632-3456-b321-5cf1390ddc21",
+        "terminal": "score",
+        "latestEndBound": "2026-08-26T02:05:13.196Z"
+      }
+    ],
+    "episodeMembership": [
+      {
+        "lifetimeKey": "d881fe3f80792c1b7d01a2270ede7b5bf3a12121022a2527bf029a8bd6cb86cf",
+        "atBatIndex": "2",
+        "runnerIndex": "2",
+        "resolutionKind": "reach",
+        "runnerId": "686469"
+      },
+      {
+        "lifetimeKey": "d881fe3f80792c1b7d01a2270ede7b5bf3a12121022a2527bf029a8bd6cb86cf",
+        "atBatIndex": "3",
+        "runnerIndex": "0",
+        "resolutionKind": "out",
+        "runnerId": "686469"
+      },
+      {
+        "lifetimeKey": "f8670e546a6d5d92dc85251ea33e468f7c6ba5973bad1179cdce1145ea8d56f7",
+        "atBatIndex": "0",
+        "runnerIndex": "0",
+        "resolutionKind": "reach",
+        "runnerId": "695600"
+      },
+      {
+        "lifetimeKey": "f8670e546a6d5d92dc85251ea33e468f7c6ba5973bad1179cdce1145ea8d56f7",
+        "atBatIndex": "1",
+        "runnerIndex": "0",
+        "resolutionKind": "advance",
+        "runnerId": "695600"
+      },
+      {
+        "lifetimeKey": "f8670e546a6d5d92dc85251ea33e468f7c6ba5973bad1179cdce1145ea8d56f7",
+        "atBatIndex": "2",
+        "runnerIndex": "0",
+        "resolutionKind": "advance",
+        "runnerId": "695600"
+      },
+      {
+        "lifetimeKey": "f8670e546a6d5d92dc85251ea33e468f7c6ba5973bad1179cdce1145ea8d56f7",
+        "atBatIndex": "3",
+        "runnerIndex": "2",
+        "resolutionKind": "score",
+        "runnerId": "695600"
+      },
+      {
+        "lifetimeKey": "c3b2a06818680f2cf9c8c1583ff53f462319f715b9bdcf085f9bb3e7ed27146d",
+        "atBatIndex": "1",
+        "runnerIndex": "1",
+        "resolutionKind": "reach",
+        "runnerId": "677951"
+      },
+      {
+        "lifetimeKey": "c3b2a06818680f2cf9c8c1583ff53f462319f715b9bdcf085f9bb3e7ed27146d",
+        "atBatIndex": "2",
+        "runnerIndex": "1",
+        "resolutionKind": "advance",
+        "runnerId": "677951"
+      },
+      {
+        "lifetimeKey": "c3b2a06818680f2cf9c8c1583ff53f462319f715b9bdcf085f9bb3e7ed27146d",
+        "atBatIndex": "3",
+        "runnerIndex": "3",
+        "resolutionKind": "advance",
+        "runnerId": "677951"
+      },
+      {
+        "lifetimeKey": "d68be0ab7410b762f4ec6f781f29e3b0d4509e6870b867ed9e75a1a3d7ee3644",
+        "atBatIndex": "4",
+        "runnerIndex": "0",
+        "resolutionKind": "reach",
+        "runnerId": "686681"
+      },
+      {
+        "lifetimeKey": "4ea1344533910e472dd087fc56666193a728addc4dec8e310f146dc1fd7331ed",
+        "atBatIndex": "6",
+        "runnerIndex": "0",
+        "resolutionKind": "reach",
+        "runnerId": "703520"
+      },
+      {
+        "lifetimeKey": "4ea1344533910e472dd087fc56666193a728addc4dec8e310f146dc1fd7331ed",
+        "atBatIndex": "7",
+        "runnerIndex": "1",
+        "resolutionKind": "advance",
+        "runnerId": "703520"
+      },
+      {
+        "lifetimeKey": "4ea1344533910e472dd087fc56666193a728addc4dec8e310f146dc1fd7331ed",
+        "atBatIndex": "9",
+        "runnerIndex": "0",
+        "resolutionKind": "advance",
+        "runnerId": "703520"
+      },
+      {
+        "lifetimeKey": "4ea1344533910e472dd087fc56666193a728addc4dec8e310f146dc1fd7331ed",
+        "atBatIndex": "10",
+        "runnerIndex": "1",
+        "resolutionKind": "score",
+        "runnerId": "703520"
+      },
+      {
+        "lifetimeKey": "6de1f6dcfc237e30312cba9f28343e19ad0d2088dce088a59109f04a8370005a",
+        "atBatIndex": "7",
+        "runnerIndex": "0",
+        "resolutionKind": "reach",
+        "runnerId": "664770"
+      },
+      {
+        "lifetimeKey": "6de1f6dcfc237e30312cba9f28343e19ad0d2088dce088a59109f04a8370005a",
+        "atBatIndex": "9",
+        "runnerIndex": "1",
+        "resolutionKind": "advance",
+        "runnerId": "664770"
+      },
+      {
+        "lifetimeKey": "ac073fdd6bc24d00192db52b62123649b3de1e0517bcfb2ff14bd7b4dbe0edc5",
+        "atBatIndex": "9",
+        "runnerIndex": "2",
+        "resolutionKind": "reach",
+        "runnerId": "672960"
+      },
+      {
+        "lifetimeKey": "db28b1e72fc7810084ce98bda852bd75d766765f314d0f7c14b82afe976d48bb",
+        "atBatIndex": "12",
+        "runnerIndex": "0",
+        "resolutionKind": "reach",
+        "runnerId": "686555"
+      },
+      {
+        "lifetimeKey": "db28b1e72fc7810084ce98bda852bd75d766765f314d0f7c14b82afe976d48bb",
+        "atBatIndex": "13",
+        "runnerIndex": "1",
+        "resolutionKind": "advance",
+        "runnerId": "686555"
+      },
+      {
+        "lifetimeKey": "e04e3c53c75661db898aa4749064b29c2054bf7738a1402d359e4a6b7957d030",
+        "atBatIndex": "16",
+        "runnerIndex": "0",
+        "resolutionKind": "reach",
+        "runnerId": "665926"
+      },
+      {
+        "lifetimeKey": "e04e3c53c75661db898aa4749064b29c2054bf7738a1402d359e4a6b7957d030",
+        "atBatIndex": "17",
+        "runnerIndex": "1",
+        "resolutionKind": "advance",
+        "runnerId": "665926"
+      },
+      {
+        "lifetimeKey": "4c86f295f32cffcc11a323bd0ebba8a77b9b1927fe923d0b295a6598512a917b",
+        "atBatIndex": "28",
+        "runnerIndex": "0",
+        "resolutionKind": "reach",
+        "runnerId": "686555"
+      },
+      {
+        "lifetimeKey": "efc52b132405023fc6adb74986da5b3cf7fe52dab1d67b9b1697f8a3a9ef900d",
+        "atBatIndex": "32",
+        "runnerIndex": "0",
+        "resolutionKind": "reach",
+        "runnerId": "665926"
+      },
+      {
+        "lifetimeKey": "efc52b132405023fc6adb74986da5b3cf7fe52dab1d67b9b1697f8a3a9ef900d",
+        "atBatIndex": "33",
+        "runnerIndex": "0",
+        "resolutionKind": "out",
+        "runnerId": "665926"
+      },
+      {
+        "lifetimeKey": "110d5ee8c95a72f5b0f5bd6f8198fca6a68f9077635edc98e151df7cddb5ea39",
+        "atBatIndex": "31",
+        "runnerIndex": "0",
+        "resolutionKind": "reach",
+        "runnerId": "676391"
+      },
+      {
+        "lifetimeKey": "110d5ee8c95a72f5b0f5bd6f8198fca6a68f9077635edc98e151df7cddb5ea39",
+        "atBatIndex": "32",
+        "runnerIndex": "1",
+        "resolutionKind": "advance",
+        "runnerId": "676391"
+      },
+      {
+        "lifetimeKey": "110d5ee8c95a72f5b0f5bd6f8198fca6a68f9077635edc98e151df7cddb5ea39",
+        "atBatIndex": "32",
+        "runnerIndex": "2",
+        "resolutionKind": "advance",
+        "runnerId": "676391"
+      },
+      {
+        "lifetimeKey": "5c56454d4edab600a2e963fa8273a95789cef7c33fc5983a95ff22d9ede9017d",
+        "atBatIndex": "35",
+        "runnerIndex": "0",
+        "resolutionKind": "reach",
+        "runnerId": "695600"
+      },
+      {
+        "lifetimeKey": "5c56454d4edab600a2e963fa8273a95789cef7c33fc5983a95ff22d9ede9017d",
+        "atBatIndex": "36",
+        "runnerIndex": "0",
+        "resolutionKind": "out",
+        "runnerId": "695600"
+      },
+      {
+        "lifetimeKey": "63b8508719066af54a9ae2eff1a365a579f6d4646062a51e2aa7b6fa6db949ce",
+        "atBatIndex": "36",
+        "runnerIndex": "1",
+        "resolutionKind": "reach",
+        "runnerId": "677951"
+      },
+      {
+        "lifetimeKey": "63b8508719066af54a9ae2eff1a365a579f6d4646062a51e2aa7b6fa6db949ce",
+        "atBatIndex": "37",
+        "runnerIndex": "1",
+        "resolutionKind": "advance",
+        "runnerId": "677951"
+      },
+      {
+        "lifetimeKey": "63b8508719066af54a9ae2eff1a365a579f6d4646062a51e2aa7b6fa6db949ce",
+        "atBatIndex": "37",
+        "runnerIndex": "2",
+        "resolutionKind": "advance",
+        "runnerId": "677951"
+      },
+      {
+        "lifetimeKey": "63b8508719066af54a9ae2eff1a365a579f6d4646062a51e2aa7b6fa6db949ce",
+        "atBatIndex": "38",
+        "runnerIndex": "3",
+        "resolutionKind": "score",
+        "runnerId": "677951"
+      },
+      {
+        "lifetimeKey": "94cc55a52d135a394e8ba322f97f1a35f7d58a7176199e40cb53543b0bf99bda",
+        "atBatIndex": "37",
+        "runnerIndex": "0",
+        "resolutionKind": "reach",
+        "runnerId": "686469"
+      },
+      {
+        "lifetimeKey": "94cc55a52d135a394e8ba322f97f1a35f7d58a7176199e40cb53543b0bf99bda",
+        "atBatIndex": "38",
+        "runnerIndex": "1",
+        "resolutionKind": "advance",
+        "runnerId": "686469"
+      },
+      {
+        "lifetimeKey": "94cc55a52d135a394e8ba322f97f1a35f7d58a7176199e40cb53543b0bf99bda",
+        "atBatIndex": "38",
+        "runnerIndex": "2",
+        "resolutionKind": "advance",
+        "runnerId": "686469"
+      },
+      {
+        "lifetimeKey": "fff533de13c67950fc1c8455cd179716b3f7e64caeafa3109d66e0b99a344611",
+        "atBatIndex": "38",
+        "runnerIndex": "0",
+        "resolutionKind": "reach",
+        "runnerId": "521692"
+      },
+      {
+        "lifetimeKey": "d32495bc0227ed6ce29b8cd6d89ede2049661e06198d151abbeed67676de86e7",
+        "atBatIndex": "41",
+        "runnerIndex": "0",
+        "resolutionKind": "reach",
+        "runnerId": "703520"
+      },
+      {
+        "lifetimeKey": "d32495bc0227ed6ce29b8cd6d89ede2049661e06198d151abbeed67676de86e7",
+        "atBatIndex": "41",
+        "runnerIndex": "1",
+        "resolutionKind": "advance",
+        "runnerId": "703520"
+      },
+      {
+        "lifetimeKey": "471d18d0f9285c00a3be12585c15ac83f2de407688f4971ae1fe67ea9ddb796c",
+        "atBatIndex": "44",
+        "runnerIndex": "0",
+        "resolutionKind": "reach",
+        "runnerId": "679845"
+      },
+      {
+        "lifetimeKey": "471d18d0f9285c00a3be12585c15ac83f2de407688f4971ae1fe67ea9ddb796c",
+        "atBatIndex": "46",
+        "runnerIndex": "1",
+        "resolutionKind": "advance",
+        "runnerId": "679845"
+      },
+      {
+        "lifetimeKey": "471d18d0f9285c00a3be12585c15ac83f2de407688f4971ae1fe67ea9ddb796c",
+        "atBatIndex": "46",
+        "runnerIndex": "2",
+        "resolutionKind": "advance",
+        "runnerId": "679845"
+      },
+      {
+        "lifetimeKey": "471d18d0f9285c00a3be12585c15ac83f2de407688f4971ae1fe67ea9ddb796c",
+        "atBatIndex": "47",
+        "runnerIndex": "2",
+        "resolutionKind": "score",
+        "runnerId": "679845"
+      },
+      {
+        "lifetimeKey": "4b75a0f91d892adf10d901bcbfafffc599eff14e462240ad92585f575f998cc1",
+        "atBatIndex": "46",
+        "runnerIndex": "0",
+        "resolutionKind": "reach",
+        "runnerId": "670231"
+      },
+      {
+        "lifetimeKey": "4b75a0f91d892adf10d901bcbfafffc599eff14e462240ad92585f575f998cc1",
+        "atBatIndex": "47",
+        "runnerIndex": "3",
+        "resolutionKind": "advance",
+        "runnerId": "670231"
+      },
+      {
+        "lifetimeKey": "4b75a0f91d892adf10d901bcbfafffc599eff14e462240ad92585f575f998cc1",
+        "atBatIndex": "47",
+        "runnerIndex": "4",
+        "resolutionKind": "advance",
+        "runnerId": "670231"
+      },
+      {
+        "lifetimeKey": "4b75a0f91d892adf10d901bcbfafffc599eff14e462240ad92585f575f998cc1",
+        "atBatIndex": "48",
+        "runnerIndex": "1",
+        "resolutionKind": "score",
+        "runnerId": "670231"
+      },
+      {
+        "lifetimeKey": "93c3fbd513fd869c3f66c3c469c542e362c2d6e02cda132171f911a97471cbbf",
+        "atBatIndex": "47",
+        "runnerIndex": "0",
+        "resolutionKind": "reach",
+        "runnerId": "664728"
+      },
+      {
+        "lifetimeKey": "93c3fbd513fd869c3f66c3c469c542e362c2d6e02cda132171f911a97471cbbf",
+        "atBatIndex": "47",
+        "runnerIndex": "1",
+        "resolutionKind": "advance",
+        "runnerId": "664728"
+      },
+      {
+        "lifetimeKey": "93c3fbd513fd869c3f66c3c469c542e362c2d6e02cda132171f911a97471cbbf",
+        "atBatIndex": "50",
+        "runnerIndex": "0",
+        "resolutionKind": "advance",
+        "runnerId": "664728"
+      },
+      {
+        "lifetimeKey": "a8ee9b329dcb0dd384fc6f4e733e1baebaaf74d6fc7b031f63491c73fd303f12",
+        "atBatIndex": "49",
+        "runnerIndex": "0",
+        "resolutionKind": "reach",
+        "runnerId": "677951"
+      },
+      {
+        "lifetimeKey": "a8ee9b329dcb0dd384fc6f4e733e1baebaaf74d6fc7b031f63491c73fd303f12",
+        "atBatIndex": "50",
+        "runnerIndex": "1",
+        "resolutionKind": "advance",
+        "runnerId": "677951"
+      },
+      {
+        "lifetimeKey": "b6e5a4a1b8c2cadffc23039bcc8cca3ed96a89cd3b6f597846294e4e7c1b9773",
+        "atBatIndex": "54",
+        "runnerIndex": "0",
+        "resolutionKind": "reach",
+        "runnerId": "521692"
+      },
+      {
+        "lifetimeKey": "b6e5a4a1b8c2cadffc23039bcc8cca3ed96a89cd3b6f597846294e4e7c1b9773",
+        "atBatIndex": "57",
+        "runnerIndex": "1",
+        "resolutionKind": "advance",
+        "runnerId": "521692"
+      },
+      {
+        "lifetimeKey": "b6e5a4a1b8c2cadffc23039bcc8cca3ed96a89cd3b6f597846294e4e7c1b9773",
+        "atBatIndex": "58",
+        "runnerIndex": "0",
+        "resolutionKind": "advance",
+        "runnerId": "521692"
+      },
+      {
+        "lifetimeKey": "1aab5e0f2311ae3f63676a23e7427281b578c076fd81c460a86b541e40c35e18",
+        "atBatIndex": "57",
+        "runnerIndex": "0",
+        "resolutionKind": "reach",
+        "runnerId": "686555"
+      },
+      {
+        "lifetimeKey": "1aab5e0f2311ae3f63676a23e7427281b578c076fd81c460a86b541e40c35e18",
+        "atBatIndex": "58",
+        "runnerIndex": "1",
+        "resolutionKind": "advance",
+        "runnerId": "686555"
+      },
+      {
+        "lifetimeKey": "c2af9f0f5bbe2c5df8042cb7214d4e5823187c1e706230840ba5aff90feaf1ec",
+        "atBatIndex": "58",
+        "runnerIndex": "2",
+        "resolutionKind": "reach",
+        "runnerId": "670231"
+      },
+      {
+        "lifetimeKey": "78674d7bcb35bd1120370d07227e69dfbf0e5f87078df00e69728d4f184468c8",
+        "atBatIndex": "60",
+        "runnerIndex": "0",
+        "resolutionKind": "reach",
+        "runnerId": "665926"
+      },
+      {
+        "lifetimeKey": "78674d7bcb35bd1120370d07227e69dfbf0e5f87078df00e69728d4f184468c8",
+        "atBatIndex": "61",
+        "runnerIndex": "0",
+        "resolutionKind": "out",
+        "runnerId": "665926"
+      },
+      {
+        "lifetimeKey": "baccb172558b57fb46106ae184dd12d5947aadf83381a3eaa8e1a0c89644bd3e",
+        "atBatIndex": "65",
+        "runnerIndex": "0",
+        "resolutionKind": "reach",
+        "runnerId": "686469"
+      },
+      {
+        "lifetimeKey": "baccb172558b57fb46106ae184dd12d5947aadf83381a3eaa8e1a0c89644bd3e",
+        "atBatIndex": "66",
+        "runnerIndex": "0",
+        "resolutionKind": "advance",
+        "runnerId": "686469"
+      },
+      {
+        "lifetimeKey": "1b2c306b9c30d9d3274f7729dcd38769ebe2ae710a79624e580c045a7e848760",
+        "atBatIndex": "68",
+        "runnerIndex": "0",
+        "resolutionKind": "reach",
+        "runnerId": "664770"
+      },
+      {
+        "lifetimeKey": "1b2c306b9c30d9d3274f7729dcd38769ebe2ae710a79624e580c045a7e848760",
+        "atBatIndex": "69",
+        "runnerIndex": "1",
+        "resolutionKind": "advance",
+        "runnerId": "664770"
+      },
+      {
+        "lifetimeKey": "3e7f8442a088cf42df574b60849683e7f7377c0b7dfcd83489d44cb8da3feed9",
+        "atBatIndex": "69",
+        "runnerIndex": "0",
+        "resolutionKind": "reach",
+        "runnerId": "665489"
+      },
+      {
+        "lifetimeKey": "9f824c07f87a6f87b735f19faea954d444ba7ce60d94571b7cb7efebdc072b80",
+        "atBatIndex": "71",
+        "runnerIndex": "0",
+        "resolutionKind": "reach",
+        "runnerId": "660821"
+      },
+      {
+        "lifetimeKey": "99df7886c800b271758fc97ab4f62324a8acb296ec7c0375398b954d45ac2694",
+        "atBatIndex": "73",
+        "runnerIndex": "0",
+        "resolutionKind": "reach",
+        "runnerId": "686475"
+      },
+      {
+        "lifetimeKey": "99df7886c800b271758fc97ab4f62324a8acb296ec7c0375398b954d45ac2694",
+        "atBatIndex": "74",
+        "runnerIndex": "0",
+        "resolutionKind": "advance",
+        "runnerId": "686475"
+      },
+      {
+        "lifetimeKey": "99df7886c800b271758fc97ab4f62324a8acb296ec7c0375398b954d45ac2694",
+        "atBatIndex": "75",
+        "runnerIndex": "1",
+        "resolutionKind": "advance",
+        "runnerId": "686475"
+      },
+      {
+        "lifetimeKey": "99df7886c800b271758fc97ab4f62324a8acb296ec7c0375398b954d45ac2694",
+        "atBatIndex": "76",
+        "runnerIndex": "1",
+        "resolutionKind": "score",
+        "runnerId": "686475"
+      },
+      {
+        "lifetimeKey": "ce1549c4f540c89f435e6618146a76165123be46db16fcba185a7a0dbc0cae45",
+        "atBatIndex": "76",
+        "runnerIndex": "0",
+        "resolutionKind": "reach",
+        "runnerId": "670231"
+      },
+      {
+        "lifetimeKey": "ce1549c4f540c89f435e6618146a76165123be46db16fcba185a7a0dbc0cae45",
+        "atBatIndex": "77",
+        "runnerIndex": "1",
+        "resolutionKind": "advance",
+        "runnerId": "670231"
+      },
+      {
+        "lifetimeKey": "ce1549c4f540c89f435e6618146a76165123be46db16fcba185a7a0dbc0cae45",
+        "atBatIndex": "77",
+        "runnerIndex": "2",
+        "resolutionKind": "advance",
+        "runnerId": "670231"
+      },
+      {
+        "lifetimeKey": "bc0db1aea55755e7c56a67a29daee6e93fe856ed2bf3274031cfa136d160761d",
+        "atBatIndex": "77",
+        "runnerIndex": "0",
+        "resolutionKind": "reach",
+        "runnerId": "664728"
+      },
+      {
+        "lifetimeKey": "7c3560dc27e2743af67dfd7bfd0d08c310271ff4b9acfc76d929ce5a6a1916bf",
+        "atBatIndex": "83",
+        "runnerIndex": "1",
+        "resolutionKind": "reach",
+        "runnerId": "664770"
+      },
+      {
+        "lifetimeKey": "7c3560dc27e2743af67dfd7bfd0d08c310271ff4b9acfc76d929ce5a6a1916bf",
+        "atBatIndex": "83",
+        "runnerIndex": "3",
+        "resolutionKind": "out",
+        "runnerId": "664770"
+      },
+      {
+        "lifetimeKey": "d5583679c6634381a4add3e590cec72caeb69b5723083ff1fd7a074320396919",
+        "atBatIndex": "82",
+        "runnerIndex": "0",
+        "resolutionKind": "reach",
+        "runnerId": "703520"
+      },
+      {
+        "lifetimeKey": "d5583679c6634381a4add3e590cec72caeb69b5723083ff1fd7a074320396919",
+        "atBatIndex": "83",
+        "runnerIndex": "0",
+        "resolutionKind": "advance",
+        "runnerId": "703520"
+      },
+      {
+        "lifetimeKey": "d5583679c6634381a4add3e590cec72caeb69b5723083ff1fd7a074320396919",
+        "atBatIndex": "83",
+        "runnerIndex": "2",
+        "resolutionKind": "score",
+        "runnerId": "703520"
+      },
+      {
+        "lifetimeKey": "6f633d80741edd58b2fb119fa87df3506c4ac2cdda33ab2fb1cb9d7c76cdcad8",
+        "atBatIndex": "81",
+        "runnerIndex": "0",
+        "resolutionKind": "reach",
+        "runnerId": "663662"
+      },
+      {
+        "lifetimeKey": "6f633d80741edd58b2fb119fa87df3506c4ac2cdda33ab2fb1cb9d7c76cdcad8",
+        "atBatIndex": "82",
+        "runnerIndex": "1",
+        "resolutionKind": "advance",
+        "runnerId": "663662"
+      },
+      {
+        "lifetimeKey": "6f633d80741edd58b2fb119fa87df3506c4ac2cdda33ab2fb1cb9d7c76cdcad8",
+        "atBatIndex": "82",
+        "runnerIndex": "2",
+        "resolutionKind": "advance",
+        "runnerId": "663662"
+      },
+      {
+        "lifetimeKey": "6f633d80741edd58b2fb119fa87df3506c4ac2cdda33ab2fb1cb9d7c76cdcad8",
+        "atBatIndex": "83",
+        "runnerIndex": "4",
+        "resolutionKind": "score",
+        "runnerId": "663662"
+      }
+    ],
+    "halves": [
+      {
+        "inning": 1,
+        "half": "top",
+        "status": "reconciled",
+        "issues": [],
+        "personalHistories": 4
+      },
+      {
+        "inning": 1,
+        "half": "bottom",
+        "status": "reconciled",
+        "issues": [],
+        "personalHistories": 3
+      },
+      {
+        "inning": 2,
+        "half": "top",
+        "status": "reconciled",
+        "issues": [],
+        "personalHistories": 1
+      },
+      {
+        "inning": 2,
+        "half": "bottom",
+        "status": "reconciled",
+        "issues": [],
+        "personalHistories": 1
+      },
+      {
+        "inning": 3,
+        "half": "top",
+        "status": "reconciled",
+        "issues": [],
+        "personalHistories": 0
+      },
+      {
+        "inning": 3,
+        "half": "bottom",
+        "status": "reconciled",
+        "issues": [],
+        "personalHistories": 0
+      },
+      {
+        "inning": 4,
+        "half": "top",
+        "status": "reconciled",
+        "issues": [],
+        "personalHistories": 1
+      },
+      {
+        "inning": 4,
+        "half": "bottom",
+        "status": "reconciled",
+        "issues": [],
+        "personalHistories": 2
+      },
+      {
+        "inning": 5,
+        "half": "top",
+        "status": "reconciled",
+        "issues": [],
+        "personalHistories": 4
+      },
+      {
+        "inning": 5,
+        "half": "bottom",
+        "status": "reconciled",
+        "issues": [],
+        "personalHistories": 1
+      },
+      {
+        "inning": 6,
+        "half": "top",
+        "status": "reconciled",
+        "issues": [],
+        "personalHistories": 4
+      },
+      {
+        "inning": 6,
+        "half": "bottom",
+        "status": "reconciled",
+        "issues": [],
+        "personalHistories": 0
+      },
+      {
+        "inning": 7,
+        "half": "top",
+        "status": "reconciled",
+        "issues": [],
+        "personalHistories": 3
+      },
+      {
+        "inning": 7,
+        "half": "bottom",
+        "status": "reconciled",
+        "issues": [],
+        "personalHistories": 1
+      },
+      {
+        "inning": 8,
+        "half": "top",
+        "status": "reconciled",
+        "issues": [],
+        "personalHistories": 1
+      },
+      {
+        "inning": 8,
+        "half": "bottom",
+        "status": "reconciled",
+        "issues": [],
+        "personalHistories": 3
+      },
+      {
+        "inning": 9,
+        "half": "top",
+        "status": "reconciled",
+        "issues": [],
+        "personalHistories": 3
+      },
+      {
+        "inning": 9,
+        "half": "bottom",
+        "status": "reconciled",
+        "issues": [],
+        "personalHistories": 3
+      }
+    ],
+    "boundaryIssues": [
+      {
+        "code": "AMBIGUOUS_PA_TIME_ORDER",
+        "atBatIndex": 50,
+        "previousEndBound": "2026-08-26T00:56:28.166000+00:00",
+        "startBound": "2026-08-26T00:54:52.930Z"
+      }
+    ],
+    "graphCoverageVerified": false,
+    "metricPopulationAdmitted": false
+  },
+  "runnerHistoryMembershipVerified": true,
+  "runnerHistoryVerifierSha256": "f9cc49483d4c3f3bbeeb1891c04fad32fbe5e14a9c64eaacda9548de14587b15",
+  "batterParticipationEvidence": [
+    {
+      "atBatIndex": "0",
+      "playerId": "695600",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/0/batter-act",
+      "pitchIds": [
+        "af074926-cb1e-3779-b5e8-e185563099a1"
+      ]
+    },
+    {
+      "atBatIndex": "1",
+      "playerId": "677951",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/1/batter-act",
+      "pitchIds": [
+        "37068ecd-fb5e-30c9-b8e4-976587feeca4",
+        "b88bab74-7518-3379-934b-aaa89478d5a7",
+        "241ba63e-52b3-3ff1-8b86-8bf8c262eefc",
+        "5af8dcc6-3cc7-3a1d-b236-efcd4d498bd8",
+        "016cda15-5f9e-3198-8079-669ff17a2673",
+        "9d79015f-341a-3622-9a82-3c613db0da74"
+      ]
+    },
+    {
+      "atBatIndex": "2",
+      "playerId": "686469",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/2/batter-act",
+      "pitchIds": [
+        "dc4d5d62-cfab-316d-bb99-e2cca2940d5a",
+        "5a7d7af6-d645-36ca-b4b6-37683e53a025",
+        "39db859e-7838-3f7f-82f8-83e8cbf327cc",
+        "7d3d9cc9-fc55-35b6-993b-d282f628f2fd"
+      ]
+    },
+    {
+      "atBatIndex": "3",
+      "playerId": "521692",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/3/batter-act",
+      "pitchIds": [
+        "d8e6c8e5-0957-3668-af05-e2e414f00596",
+        "d1acecad-d1ad-3764-b345-e2eae6117827"
+      ]
+    },
+    {
+      "atBatIndex": "4",
+      "playerId": "686681",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/4/batter-act",
+      "pitchIds": [
+        "07aa1b5e-b735-32c7-907d-609ef8528a13",
+        "31923b4b-55eb-32ac-8e3a-f0e8976e13df",
+        "3d04facd-d15d-39ba-8ad6-6c10934d82bc",
+        "fbe9a325-61ec-3a0e-aad8-e72ef74a1a05",
+        "a06319cc-1e3c-3784-80bd-e1a3534ae5a8",
+        "6434f0e0-4fae-3f8a-a393-93b190800537"
+      ]
+    },
+    {
+      "atBatIndex": "5",
+      "playerId": "679845",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/5/batter-act",
+      "pitchIds": [
+        "5c48d11e-14b3-3bb1-8f21-7e66cf56cb4a",
+        "68208a63-5755-3f15-b187-c7d09f83371f",
+        "07c02a30-95cc-3d4f-b45a-2d53f68de943",
+        "df90f46a-55f1-3e70-9c3d-0c03c8bf4c2f",
+        "5469c7a0-9fbc-38b6-8883-ad13774895db"
+      ]
+    },
+    {
+      "atBatIndex": "6",
+      "playerId": "703520",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/6/batter-act",
+      "pitchIds": [
+        "411e23b1-17fc-3efc-9af7-893511580a93",
+        "ad9f52fd-9081-390b-b6db-41427d509b48",
+        "a325b26a-2c26-3ffb-b477-a490645f3c52",
+        "e245674b-691e-3f36-a861-72ee03420686",
+        "56c24d28-9b22-356a-8dfc-33f19541c56b",
+        "327e1767-60de-3bfe-a9fd-ea57424e7ef1",
+        "731ff6db-3411-366b-9c78-872e95353046"
+      ]
+    },
+    {
+      "atBatIndex": "7",
+      "playerId": "664770",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/7/batter-act",
+      "pitchIds": [
+        "23aecc3d-29af-3c04-9d2c-784744a1ac51",
+        "38ee1ae8-422b-3a12-87fe-415b4831f961",
+        "5d392897-d512-362b-a6eb-ca1a77a80aea",
+        "a7ca2eed-fdf8-3cb4-a028-8b6b4a8ff33a",
+        "84d1d1f1-9b13-33d7-a617-f9b95fc08590",
+        "62602231-0662-374f-b0bb-b67d7510a76e"
+      ]
+    },
+    {
+      "atBatIndex": "8",
+      "playerId": "665489",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/8/batter-act",
+      "pitchIds": [
+        "8d00be31-aa4c-3e75-9885-6af44e8498fa",
+        "7ef767cc-03fe-30da-bf5d-7c1de18bda6b"
+      ]
+    },
+    {
+      "atBatIndex": "9",
+      "playerId": "672960",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/9/batter-act",
+      "pitchIds": [
+        "0300b34f-c3de-320b-b573-e00964fb6e48",
+        "56191e06-9a13-3708-a8e1-de336a8081a5",
+        "9f6ccccb-6469-39df-8ecb-b20e7964033d",
+        "fee0734d-de15-36df-b277-2b8d9c90fdf0",
+        "0e00fe14-9cdc-33cc-9831-8687f9ddaf78",
+        "cdb18c8d-0778-3051-bcb0-a78507c275e4",
+        "5c0d8cfd-9947-3f98-91d0-ce4bba8a3612"
+      ]
+    },
+    {
+      "atBatIndex": "10",
+      "playerId": "660821",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/10/batter-act",
+      "pitchIds": [
+        "0a48f2ca-cdb4-37a6-bd8e-7422d8feeaeb",
+        "9eca0b1a-8c86-33c0-8aa7-a4c7f2c26b17"
+      ]
+    },
+    {
+      "atBatIndex": "11",
+      "playerId": "676391",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/11/batter-act",
+      "pitchIds": [
+        "e9b187d5-c382-331b-be6b-39dbee07198f",
+        "429219f2-61d0-3174-97d7-fb2b7f274a79",
+        "c1415c68-c1f4-30b5-b950-81acdc526025",
+        "aab92a25-79ee-3495-82fa-7449810b0cd7"
+      ]
+    },
+    {
+      "atBatIndex": "12",
+      "playerId": "686555",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/12/batter-act",
+      "pitchIds": [
+        "a1ecfaf3-f621-3fb3-8b0d-f95e81f15058",
+        "f304eb45-7e8d-30a7-8d3c-01d09e3a7c97",
+        "816a9f17-c1ba-3a95-a45d-2e6bb2817be1",
+        "c0ab759f-0dc2-394c-91f0-4707bf0d7e27",
+        "ad52e5b4-b9f3-3d7b-b32d-afa5398d3948",
+        "f3b7e6d3-2752-3a50-8b5e-526d6c6fb5f9"
+      ]
+    },
+    {
+      "atBatIndex": "13",
+      "playerId": "670231",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/13/batter-act",
+      "pitchIds": [
+        "b547d62d-33c3-3f12-a9fd-0e05069401be",
+        "a4df81d2-cd57-3800-8202-4aa40807fb63",
+        "a46c6690-d2cd-371d-aea6-33cbbfb5a0be",
+        "9cf97690-b763-33af-baff-ca47416e0e24"
+      ]
+    },
+    {
+      "atBatIndex": "14",
+      "playerId": "664728",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/14/batter-act",
+      "pitchIds": [
+        "e2a0ed48-466e-3ecf-b4b4-e8fbe7b1295c",
+        "1f044874-0eca-345e-994d-3c72b55b57e1",
+        "a778dc4b-d5bd-35fa-9299-06e4ea85c263"
+      ]
+    },
+    {
+      "atBatIndex": "15",
+      "playerId": "695600",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/15/batter-act",
+      "pitchIds": [
+        "60b203d8-b33d-338c-96c4-1c0f8504ce4f",
+        "ac0da152-cc3d-34a0-b5b8-dd66332d17c9",
+        "9a58135f-776b-33ed-80b8-3766fe8cac68",
+        "6c4f343c-3927-385b-8f83-026b3a50e519",
+        "3870ad20-870f-3ec5-85a3-129ff9c1f766",
+        "bd0c549f-a5ca-3da7-a2e5-cd181bd3e484"
+      ]
+    },
+    {
+      "atBatIndex": "16",
+      "playerId": "665926",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/16/batter-act",
+      "pitchIds": [
+        "0fd73f6e-3ab1-31a2-ace3-38494fb52c93"
+      ]
+    },
+    {
+      "atBatIndex": "17",
+      "playerId": "678218",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/17/batter-act",
+      "pitchIds": [
+        "9aab853c-aa32-3d3a-a81f-ec650d361a09",
+        "195a840c-f96d-3773-9cb4-94ca79680e8f",
+        "a77b2961-a8cb-3049-a60b-dc2618fd29c5",
+        "70554c60-382c-3d53-9fe4-54333f7b90e3"
+      ]
+    },
+    {
+      "atBatIndex": "18",
+      "playerId": "664702",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/18/batter-act",
+      "pitchIds": [
+        "19be05a2-08b5-3e05-a8b8-ddf3847d0ca3",
+        "20a309f8-8ed4-3876-ba92-0907121bbc3f",
+        "a5a6e71d-943b-3f8c-b4b7-1565a844cd47",
+        "b0e3903c-f794-3624-aa8c-0327ad44ec5f",
+        "5bd1aef7-5e0c-32ff-921f-c99e57b024de",
+        "c990c5de-6655-3497-974e-0657dd7e3773"
+      ]
+    },
+    {
+      "atBatIndex": "19",
+      "playerId": "703520",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/19/batter-act",
+      "pitchIds": [
+        "48eaecec-2af2-350a-a1b2-a7f7ad1f4068",
+        "fb5e7169-74de-37d3-ab87-fae2558b9232",
+        "6c47efd3-2cde-3255-aa1d-faec152d44f6",
+        "9f50405a-a1f4-38e5-a23c-0399c7f395de",
+        "6e2e6ffe-a337-3508-add2-59a3b65b0c2a"
+      ]
+    },
+    {
+      "atBatIndex": "20",
+      "playerId": "677951",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/20/batter-act",
+      "pitchIds": [
+        "f79803d4-13dd-3ca2-b3d0-179e22e36b23",
+        "405274f3-e54a-3e17-a3a4-d69aff7a2323",
+        "1ddc856e-cba9-3164-8391-17769bd3425e"
+      ]
+    },
+    {
+      "atBatIndex": "21",
+      "playerId": "686469",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/21/batter-act",
+      "pitchIds": [
+        "28b51dfb-ae0c-3cdc-8282-0c205bc3503f",
+        "7a2a183c-c6af-3613-b15e-25139452c016",
+        "fcd2897d-22ea-3337-a2a6-639b85c48cf8"
+      ]
+    },
+    {
+      "atBatIndex": "22",
+      "playerId": "521692",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/22/batter-act",
+      "pitchIds": [
+        "8d437255-3917-30e5-9143-9a1f08686e2b"
+      ]
+    },
+    {
+      "atBatIndex": "23",
+      "playerId": "664770",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/23/batter-act",
+      "pitchIds": [
+        "2a1fbd4e-f6ec-31cc-8f2a-5f7260c5a727",
+        "89971594-8b58-369e-97c7-3a417c44ac10"
+      ]
+    },
+    {
+      "atBatIndex": "24",
+      "playerId": "665489",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/24/batter-act",
+      "pitchIds": [
+        "d74fa01f-4c84-3380-bfb9-89f50e40969c",
+        "40a698d2-4b89-37c8-8536-7213482a9fbc"
+      ]
+    },
+    {
+      "atBatIndex": "25",
+      "playerId": "672960",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/25/batter-act",
+      "pitchIds": [
+        "33ea1266-dfc1-3ea1-9bc4-f6616c749abe",
+        "47625d16-1806-3d60-8517-32539e785483",
+        "2d578744-b228-33ce-a9ea-28ee8227806c",
+        "4c5f37ef-fff2-3606-ac91-27cf2558eac8",
+        "662c8dd3-b4c1-3a6f-a57a-00a2b86d9ad5",
+        "a50ddc5b-d86a-328d-8218-61c476fad085"
+      ]
+    },
+    {
+      "atBatIndex": "26",
+      "playerId": "686681",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/26/batter-act",
+      "pitchIds": [
+        "105ddb91-e85a-35c6-b925-56e16026854a",
+        "a36d92df-8a03-3d5c-bfeb-04823cd6bd0e",
+        "6afe0c7e-bd62-368f-8ec6-20124f37eec8"
+      ]
+    },
+    {
+      "atBatIndex": "27",
+      "playerId": "679845",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/27/batter-act",
+      "pitchIds": [
+        "a21fdb46-2454-3eea-9b77-31bb5fbf5f71",
+        "2da5435b-ba11-3963-b3b0-df59388ffe9b",
+        "78f7cf8c-aaaa-32d8-9f65-81e0545b0a51"
+      ]
+    },
+    {
+      "atBatIndex": "28",
+      "playerId": "686555",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/28/batter-act",
+      "pitchIds": [
+        "716e2e85-79d3-36e5-bb23-ca68d93c9701",
+        "1481991c-eaa5-3791-a339-576d984122be",
+        "4c4a77aa-a6e8-3e31-9621-898adc8c4a23",
+        "0bae90df-7f2a-3a8d-b5a4-f7c8d22c206e",
+        "597a0502-3ac0-3948-aceb-dcabe7b2f500"
+      ]
+    },
+    {
+      "atBatIndex": "29",
+      "playerId": "670231",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/29/batter-act",
+      "pitchIds": [
+        "b3e5d32f-4521-3a7c-9ce2-129266f9ddc4",
+        "e82153f1-fc40-309b-b34f-75d2fedb3200",
+        "86e28c35-6c3b-3864-bd61-fbcdb7500f27",
+        "c49c1435-17a7-3c50-9ae8-70a3d13d5801"
+      ]
+    },
+    {
+      "atBatIndex": "30",
+      "playerId": "660821",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/30/batter-act",
+      "pitchIds": [
+        "53b30a31-d84c-309c-9446-87cc161f47ab",
+        "22cd783c-abe3-3e79-9433-f9ae640d49bd",
+        "56630705-9f40-3db8-9dd4-fe0b078b2d58",
+        "af297e73-ed3b-3993-bf23-f219c62bf689",
+        "1b451c39-5d8f-336a-9bfc-1a63ad9952bd",
+        "377098d0-f4a6-3166-aa86-207ff3f0d942"
+      ]
+    },
+    {
+      "atBatIndex": "31",
+      "playerId": "676391",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/31/batter-act",
+      "pitchIds": [
+        "6df6f017-104f-3d78-9bcd-d94e7ab8501d",
+        "2c8f1d40-8011-3573-b9d5-fb1a2937ee65",
+        "be8d6e5a-2e61-319d-913d-3500abf80ba6",
+        "fc854a9f-6995-3de0-ae92-219abbb91ce2",
+        "af9a78c6-c725-30ce-b058-6ebb2817c18f"
+      ]
+    },
+    {
+      "atBatIndex": "32",
+      "playerId": "665926",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/32/batter-act",
+      "pitchIds": [
+        "e574da3a-3c48-3923-bd45-3dabad4cd942",
+        "4c8eb301-c8af-3062-b1c8-3c651ea08855"
+      ]
+    },
+    {
+      "atBatIndex": "33",
+      "playerId": "678218",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/33/batter-act",
+      "pitchIds": [
+        "545bd55d-11e6-3a35-a76b-28f2b9b1b03c",
+        "d8f97a5a-a2e3-3cfa-8874-1c8b78296e5c",
+        "7deb56c8-16d8-3409-b5d9-d8fa29b83355",
+        "a7f2f022-059c-3e86-b639-0b4395074dae",
+        "19ff67b4-8d3e-3592-b206-df10c3f6977e"
+      ]
+    },
+    {
+      "atBatIndex": "34",
+      "playerId": "664728",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/34/batter-act",
+      "pitchIds": [
+        "b651e570-9bae-3db7-a4e4-99621ee28b50",
+        "95f6ecee-5fe4-3add-8197-5329b8d5d2e7",
+        "bc4d5d59-ec85-3a22-8a9a-87c01ba9046d",
+        "cd8bf186-bf43-32f5-bf2f-e41f05646762",
+        "a3afabe9-b61c-3547-90da-3220aa328fd7"
+      ]
+    },
+    {
+      "atBatIndex": "35",
+      "playerId": "695600",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/35/batter-act",
+      "pitchIds": [
+        "a1f1ebb5-ac1d-362d-a325-6adf36ccb82c",
+        "e1089249-230d-3831-9e0c-ea3bfc2b757e",
+        "8790f73b-f6f1-3c9f-904d-d430581ad70e",
+        "88e0c634-c7a8-36fc-810d-7fe46e8e895a",
+        "eeb16c9c-14f9-3003-be0a-6e400c021495",
+        "43f9090f-7933-3e5f-b784-f7b3f6c388d2"
+      ]
+    },
+    {
+      "atBatIndex": "36",
+      "playerId": "677951",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/36/batter-act",
+      "pitchIds": [
+        "0d1da428-9d01-393d-863b-643d124018be"
+      ]
+    },
+    {
+      "atBatIndex": "37",
+      "playerId": "686469",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/37/batter-act",
+      "pitchIds": [
+        "cedff082-0898-32b8-8108-366a670fb012",
+        "27a449d4-210e-368a-9085-11ad8bb511aa",
+        "63ab8310-a813-3c9c-9d2f-adc619b4e5d7"
+      ]
+    },
+    {
+      "atBatIndex": "38",
+      "playerId": "521692",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/38/batter-act",
+      "pitchIds": [
+        "ce90335c-aee5-3b93-a6a3-07ffcf687a47",
+        "7d397c3c-466d-36c5-a939-f0f35df8f474",
+        "deff20f4-7b87-340a-87b1-adef02b491eb",
+        "74b6de08-1147-3e47-98e8-6bf665d8c625",
+        "78882ffe-1dc4-3fc3-b1e7-19273e070a1b",
+        "e026d7da-f190-323c-a7df-8f7a8cf4660c",
+        "dd0fc004-d998-3f46-9201-90838b6c1fa2",
+        "1ecd0095-fcbf-311e-8508-909fd05f4c0c"
+      ]
+    },
+    {
+      "atBatIndex": "39",
+      "playerId": "686681",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/39/batter-act",
+      "pitchIds": [
+        "dfe93451-f35e-3681-beca-23416a81a4b2",
+        "6e5b5bcf-5f76-3f20-8c61-036fde9303e2",
+        "4f2eaba2-8ff9-3630-85dd-8b22a0038a1d",
+        "b58c75a3-4994-3b9f-b118-8cdf92db07f6"
+      ]
+    },
+    {
+      "atBatIndex": "40",
+      "playerId": "664702",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/40/batter-act",
+      "pitchIds": [
+        "97ecd7ea-ec47-31af-a5fd-fcb3c0d8ac9d",
+        "5750e0ce-6ef1-3b82-8b7c-82e3723697b6",
+        "5a9c0d66-675a-392e-a00e-7efdbfe6a824",
+        "561aaf18-32da-3005-a9d4-ec8f8a61ad4c",
+        "5706de67-809a-312c-996e-678e522a3847",
+        "1a3fa3f0-be21-395a-9885-5ee61011b116"
+      ]
+    },
+    {
+      "atBatIndex": "41",
+      "playerId": "703520",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/41/batter-act",
+      "pitchIds": [
+        "3ad8e53d-c2a9-3cdc-9fe7-d3849633a31e",
+        "cfafdd2b-92ea-3eb1-a9d5-651145793a56",
+        "972dfc04-97e5-3e78-a120-ad6221e35ffd",
+        "894e13fb-6194-394e-a118-b79e551b4391"
+      ]
+    },
+    {
+      "atBatIndex": "42",
+      "playerId": "664770",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/42/batter-act",
+      "pitchIds": [
+        "0341e49b-1a5d-3965-85d4-34c9b9b69642",
+        "2c8565eb-7215-3715-89f2-746116366b3f",
+        "7b7493fd-9041-3093-8f3f-7e77836b0726",
+        "c607cdf5-f776-3352-ab1e-f7dd6e77ed19",
+        "ba358ab7-5367-32f2-83cf-dc2976b04810",
+        "741e3864-98d4-3c29-8b26-fcd032150ef4"
+      ]
+    },
+    {
+      "atBatIndex": "43",
+      "playerId": "665489",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/43/batter-act",
+      "pitchIds": [
+        "ad549368-68fd-3d46-a20b-901aec45c141"
+      ]
+    },
+    {
+      "atBatIndex": "44",
+      "playerId": "679845",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/44/batter-act",
+      "pitchIds": [
+        "dfbe44a9-f613-3034-a32b-50508835da2d",
+        "a6525f5e-35be-37dd-8cce-0f6b6d2c5190",
+        "277d6742-29ba-3b8e-9f42-d3167bd10b70",
+        "b20a4aba-e1be-3b91-bcfb-6cff6301a7b7",
+        "54c2edba-04dc-3335-88ae-69c90f457b96"
+      ]
+    },
+    {
+      "atBatIndex": "45",
+      "playerId": "686555",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/45/batter-act",
+      "pitchIds": [
+        "40dbf861-ab38-3e1c-8a7b-18ffc8612c68",
+        "7847ffca-abb6-392a-8a04-f14be1dc8938",
+        "03fba270-4f21-3319-ad46-fcb808020b38"
+      ]
+    },
+    {
+      "atBatIndex": "46",
+      "playerId": "670231",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/46/batter-act",
+      "pitchIds": [
+        "fbf87ccf-9139-36fc-8bd9-86f2370524c9",
+        "b835d582-6218-318a-8f6d-65bf9e0ff2a8",
+        "e6ab7511-a7cf-391e-a977-67c6ecaa349c",
+        "7abf4560-b9c2-38e5-87f4-1d36c38ede95"
+      ]
+    },
+    {
+      "atBatIndex": "47",
+      "playerId": "664728",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/47/batter-act",
+      "pitchIds": [
+        "c00f60c0-466e-38da-bf69-cdef3ad76af9",
+        "b44be334-1deb-3d26-af53-165a6203c118",
+        "1127a085-367b-3726-a744-2d5e4eb43b08"
+      ]
+    },
+    {
+      "atBatIndex": "48",
+      "playerId": "695600",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/48/batter-act",
+      "pitchIds": [
+        "e7478aa2-2aa7-30b0-bac1-40976aa0cdf0",
+        "052cf223-7bfa-33de-9454-006ae7ce3d7c"
+      ]
+    },
+    {
+      "atBatIndex": "49",
+      "playerId": "677951",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/49/batter-act",
+      "pitchIds": []
+    },
+    {
+      "atBatIndex": "50",
+      "playerId": "686469",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/50/batter-act",
+      "pitchIds": [
+        "36f6be39-849a-3b61-b327-8e261d8513e9",
+        "a89ce818-26f8-3b52-b4e8-7900bdf5e31f",
+        "4e391526-f446-322e-ae0e-a1e05992d7c0",
+        "fff9d24f-b25e-3e59-8ad4-def525fe5a67"
+      ]
+    },
+    {
+      "atBatIndex": "51",
+      "playerId": "672960",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/51/batter-act",
+      "pitchIds": [
+        "8e55b6cf-5330-34fd-8e96-7f6c78341a85",
+        "b2f110f3-fa3c-3fc8-8c22-9108ffc4bbdc",
+        "e318e2d6-bcb0-38b4-99a4-0a805fb9e1c6",
+        "1aaaeb9b-89ba-34e0-8e3b-1298c01944e9",
+        "93f21f0b-4ee7-37b7-91e9-c51d945a14f1",
+        "dcf629b2-b598-3681-a55d-ad658df44432"
+      ]
+    },
+    {
+      "atBatIndex": "52",
+      "playerId": "660821",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/52/batter-act",
+      "pitchIds": [
+        "a3347a3d-62e6-3c7a-b4ab-a04ceb97549a",
+        "3d8482cc-9d40-3270-83b6-5f227bf93b28",
+        "4f0fc291-1816-3d1f-ac2e-a3931fd35fc7",
+        "a36536d7-9979-3158-b656-4996e4c412f3",
+        "6eaa9717-66da-3da7-8297-627245a6d079"
+      ]
+    },
+    {
+      "atBatIndex": "53",
+      "playerId": "676391",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/53/batter-act",
+      "pitchIds": [
+        "ffe6c723-7730-3949-8150-6ec7602ef135",
+        "f64631da-4a29-3900-a3ff-903907f7420c"
+      ]
+    },
+    {
+      "atBatIndex": "54",
+      "playerId": "521692",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/54/batter-act",
+      "pitchIds": [
+        "110fafe2-a506-3d3c-bb27-f7ee1eac788a",
+        "e07d231f-9e7a-380e-a417-e1c45cebeb67",
+        "877e06b5-1646-3136-a990-d9f57ef96b6e",
+        "6ca703bf-ed4c-33ed-8b26-8a9f75f03e26",
+        "18ce9738-ec6d-38a5-be84-380430bc0775",
+        "cc7a53a8-822b-362e-addd-7c59a2459749"
+      ]
+    },
+    {
+      "atBatIndex": "55",
+      "playerId": "686475",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/55/batter-act",
+      "pitchIds": [
+        "7583b78f-0770-35e4-afaa-2cf85f8641e7",
+        "3f621c65-94ac-3f49-b596-7c6dcfdf43d6",
+        "2501d3df-bd39-325b-ab9d-3d15c49e9b5c"
+      ]
+    },
+    {
+      "atBatIndex": "56",
+      "playerId": "679845",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/56/batter-act",
+      "pitchIds": [
+        "e146e77a-139c-3dcf-ad1d-1080f49d3e84",
+        "0e0c5bdb-3bc7-3531-9375-28c690f170f6",
+        "ef869f03-cee5-3963-a1de-1d08c4cf6d31",
+        "800a6ed7-e906-3fac-969a-631dfc01c230"
+      ]
+    },
+    {
+      "atBatIndex": "57",
+      "playerId": "686555",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/57/batter-act",
+      "pitchIds": [
+        "bb149bc8-5cd6-3eab-9738-999bdc9d9543",
+        "ce256d3f-4f08-352c-a711-9189f45b4e21"
+      ]
+    },
+    {
+      "atBatIndex": "58",
+      "playerId": "670231",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/58/batter-act",
+      "pitchIds": [
+        "90b6e1a3-31d6-39ca-bfcd-f8767086b3f6",
+        "c0fd5a43-49bd-3e4d-84a4-477a33d4dc7d",
+        "8beac34a-dc4a-3502-b246-02ee0ffed505",
+        "98f0db87-e252-37ea-bde8-c5f74fdaf79b",
+        "36b95b29-2420-3cce-83c2-955536e75dd9"
+      ]
+    },
+    {
+      "atBatIndex": "59",
+      "playerId": "664728",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/59/batter-act",
+      "pitchIds": [
+        "14b9870c-095d-3a91-9d60-d017c5b7c21f",
+        "7c283c76-6bf3-3ff4-a9db-7ab250e0fada"
+      ]
+    },
+    {
+      "atBatIndex": "60",
+      "playerId": "665926",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/60/batter-act",
+      "pitchIds": [
+        "65b3942f-b107-325e-9e33-4e4cabae3b06",
+        "1a0e07e1-1278-38b8-94c9-ecc8b4421863",
+        "a95dfaac-bbac-37d9-ac47-0cc1854c7e5f",
+        "eb52958d-8a69-346f-a114-d66960d520dc",
+        "c22173cc-d287-324b-916d-6c9fa550c873"
+      ]
+    },
+    {
+      "atBatIndex": "61",
+      "playerId": "672386",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/61/batter-act",
+      "pitchIds": [
+        "042580e7-2c1e-3eca-9132-618747bb72fe",
+        "1c885495-9e5c-3136-bc49-5398fa196e11",
+        "13fb4d56-0b55-3ae6-b48f-e166d4c24d71",
+        "5112adea-7c1c-3e88-b7ae-ff97a427d578"
+      ]
+    },
+    {
+      "atBatIndex": "62",
+      "playerId": "543807",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/62/batter-act",
+      "pitchIds": [
+        "1cdb57e3-585b-3a8c-850e-a679744f4af5"
+      ]
+    },
+    {
+      "atBatIndex": "63",
+      "playerId": "695600",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/63/batter-act",
+      "pitchIds": [
+        "0f81885d-df79-3f38-bee4-667dc324238b",
+        "3f2c79c5-eaee-32bf-84bf-2e4b52896201",
+        "fa7f4a8d-576a-3537-b9b1-6480ea48fdb2",
+        "f5623b78-a3b1-3a40-8bad-d4728761f255"
+      ]
+    },
+    {
+      "atBatIndex": "64",
+      "playerId": "677951",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/64/batter-act",
+      "pitchIds": [
+        "55dfc0d9-4676-3133-9ac8-c8560b0462ef",
+        "e5e12f74-e2d5-3635-94fc-97dcccacd082",
+        "50d0550e-13e2-3603-99d7-48d20301b0c0",
+        "79da4fe6-a0c8-3990-bd6e-2d2631138517",
+        "23df5a92-b5f1-30ec-8278-e11cbaae6798",
+        "715211a3-ddc4-3956-ba9e-554292762ca0"
+      ]
+    },
+    {
+      "atBatIndex": "65",
+      "playerId": "686469",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/65/batter-act",
+      "pitchIds": [
+        "95d86374-1519-3516-b0cb-db3a8abfb54e",
+        "76a6b542-3eed-3fd3-83b6-d4e9d3a32c22",
+        "23c5e026-d758-32a3-9481-a785920dc4c9",
+        "1f815404-cf58-32ab-97ab-9727a5be171d",
+        "61f3ac86-7588-3e1b-856b-1bcd57d8c6f8",
+        "fbba2a5a-c9cf-3eec-b722-913528a5064c"
+      ]
+    },
+    {
+      "atBatIndex": "66",
+      "playerId": "521692",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/66/batter-act",
+      "pitchIds": [
+        "e08faa73-0ad4-3d70-9498-04bd17b79d6c",
+        "615db1ed-7a57-3c8d-b19e-e3ddc87d1111",
+        "de03d602-a5b3-368b-85e2-d959c22b5529",
+        "178c0cf8-c221-305b-8934-d1cede1e641a",
+        "4eb2f3d9-60aa-3ceb-9275-5a76f3ed2b56"
+      ]
+    },
+    {
+      "atBatIndex": "67",
+      "playerId": "703520",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/67/batter-act",
+      "pitchIds": [
+        "c1e8c155-6914-3039-822e-c784ad174ee8",
+        "3472f253-da15-3b29-9756-aa5c886729fa",
+        "30e7eec0-5c2a-3ef9-92ec-0d52a20d929a",
+        "fa2c5706-51e5-3ff8-bd8e-02391a3b05df",
+        "a6793879-c6d1-3dd4-9c17-5bcc074c1cdd"
+      ]
+    },
+    {
+      "atBatIndex": "68",
+      "playerId": "664770",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/68/batter-act",
+      "pitchIds": [
+        "b8a0dde0-f07b-36f6-9574-b69d415423ce",
+        "7a4f77ff-be91-3b76-9d07-548a7af00fa3",
+        "c5c6cff2-6c65-3ac6-ad82-9b2830f515e7",
+        "23a8a2d8-0039-3871-be3a-c30d71452d35",
+        "1b2639ae-6fe9-3c27-a311-9a55626a8357"
+      ]
+    },
+    {
+      "atBatIndex": "69",
+      "playerId": "665489",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/69/batter-act",
+      "pitchIds": [
+        "a99c1398-c0c6-33ae-bf98-ba7aeb6c4800",
+        "6af05253-4dcd-357a-b2b3-74aa3e5e3cda",
+        "8b325f7d-e34f-345e-8379-351289c05fd9",
+        "034ada0a-765e-3c9e-8074-65ba8fa6088e",
+        "b2e44d08-9069-31a6-a370-ae101a370d97"
+      ]
+    },
+    {
+      "atBatIndex": "70",
+      "playerId": "672960",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/70/batter-act",
+      "pitchIds": [
+        "4e0d65f5-7e2e-3ec3-a3b1-95441271aead",
+        "c53650bb-f8d1-3a48-88c5-cd29dda5c5c6"
+      ]
+    },
+    {
+      "atBatIndex": "71",
+      "playerId": "660821",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/71/batter-act",
+      "pitchIds": [
+        "89aa22eb-c486-3ed7-b43c-2dd82469d059",
+        "9f7829f6-aa03-3b15-bdb7-9de8ac881397"
+      ]
+    },
+    {
+      "atBatIndex": "72",
+      "playerId": "676391",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/72/batter-act",
+      "pitchIds": [
+        "9a13f546-1032-387b-84d1-ffaf2112501a",
+        "798c810b-1db1-3f2b-a8f7-236d223abc79",
+        "e05869ab-aef2-32b5-805c-5683a678d697",
+        "8e04086b-f44f-3307-b84d-31fb9e23a3b1",
+        "21f5f059-d554-3220-9baf-755e8ab3d0f2",
+        "c4589511-a2b0-3ba8-96e9-71cc1cb3486d"
+      ]
+    },
+    {
+      "atBatIndex": "73",
+      "playerId": "686475",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/73/batter-act",
+      "pitchIds": [
+        "6388a2fa-265d-3d54-8788-9ca1435d9f6e",
+        "b6c93594-e995-3687-a68a-14ca2e7678d7",
+        "d23f266b-a07d-3531-ace9-cb492a1402cd",
+        "87ec2571-2a27-3e96-8922-06ea34fe8063"
+      ]
+    },
+    {
+      "atBatIndex": "74",
+      "playerId": "679845",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/74/batter-act",
+      "pitchIds": [
+        "476360a5-8583-3ca5-a8eb-a692eadf49d2",
+        "6368241a-1ac4-3655-a29d-262928cd362a",
+        "0977f3a4-84bc-395a-946f-2d7d0ceae551"
+      ]
+    },
+    {
+      "atBatIndex": "75",
+      "playerId": "686555",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/75/batter-act",
+      "pitchIds": [
+        "306b2532-f3ae-3dff-b8ba-dcf8a5f53ce1",
+        "cbe126b1-9ee9-3d7d-9da0-8d6502e264d9"
+      ]
+    },
+    {
+      "atBatIndex": "76",
+      "playerId": "670231",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/76/batter-act",
+      "pitchIds": [
+        "61276118-c28c-3753-979f-0b019b613f90",
+        "eca3c50b-5439-3138-b5f2-4da2ba65dedc",
+        "16c07c60-9943-37aa-8298-5562a5d6b935",
+        "eeb5f053-71ff-3e2d-b485-46db7242d418"
+      ]
+    },
+    {
+      "atBatIndex": "77",
+      "playerId": "664728",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/77/batter-act",
+      "pitchIds": [
+        "c707ac8d-0f85-374f-99da-b212da363953",
+        "f843e3aa-a092-3907-8cc4-6c14a80a7a52",
+        "691c3206-e4e2-3305-8bcf-0561c47158ab",
+        "043b8cc9-8f27-30bd-bdf9-4d454aff87c1"
+      ]
+    },
+    {
+      "atBatIndex": "78",
+      "playerId": "695600",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/78/batter-act",
+      "pitchIds": [
+        "80981554-2620-3150-8297-cae885900694"
+      ]
+    },
+    {
+      "atBatIndex": "79",
+      "playerId": "665926",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/79/batter-act",
+      "pitchIds": [
+        "e905215f-5a11-39fc-8804-b5116cd1d9e9"
+      ]
+    },
+    {
+      "atBatIndex": "80",
+      "playerId": "672386",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/80/batter-act",
+      "pitchIds": [
+        "719588e0-a42d-3121-a1e8-d15662b6a052",
+        "01a79289-9e80-3b93-bc3f-ffc861b4c5db",
+        "0097397e-8d47-3135-9d18-631e60e40759",
+        "cf99bd9d-4732-37c2-a397-3a16941d2f16",
+        "bd64c362-7aeb-3f5f-9e37-0d8cc8fba960"
+      ]
+    },
+    {
+      "atBatIndex": "81",
+      "playerId": "663662",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/81/batter-act",
+      "pitchIds": [
+        "54934149-faf8-3637-8be8-bfc81a6c6cec",
+        "3a694b6c-2e3f-375f-ac98-457ac7f9d365"
+      ]
+    },
+    {
+      "atBatIndex": "82",
+      "playerId": "703520",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/82/batter-act",
+      "pitchIds": [
+        "ecf9e0e9-2403-3a51-972d-e9059470c096",
+        "759b6aba-1320-3445-9cbd-48b9ca8731ee"
+      ]
+    },
+    {
+      "atBatIndex": "83",
+      "playerId": "664770",
+      "actIri": "https://baseballontology.org/data/game/822773/plate-appearance/83/batter-act",
+      "pitchIds": [
+        "826fbba3-8b64-3325-9005-cea711744fc0",
+        "31d63bee-b632-3456-b321-5cf1390ddc21"
+      ]
+    }
+  ],
+  "metricMappingEvidence": {
+    "decision": "archive/design-records/mlb-game-metric-mapping-completion/review.json",
+    "countedFouls": [
+      {
+        "atBatIndex": "9",
+        "playId": "0e00fe14-9cdc-33cc-9831-8687f9ddaf78",
+        "eventIndex": 4
+      },
+      {
+        "atBatIndex": "19",
+        "playId": "6c47efd3-2cde-3255-aa1d-faec152d44f6",
+        "eventIndex": 2
+      },
+      {
+        "atBatIndex": "27",
+        "playId": "2da5435b-ba11-3963-b3b0-df59388ffe9b",
+        "eventIndex": 1
+      },
+      {
+        "atBatIndex": "31",
+        "playId": "be8d6e5a-2e61-319d-913d-3500abf80ba6",
+        "eventIndex": 2
+      },
+      {
+        "atBatIndex": "33",
+        "playId": "a7f2f022-059c-3e86-b639-0b4395074dae",
+        "eventIndex": 3
+      },
+      {
+        "atBatIndex": "34",
+        "playId": "95f6ecee-5fe4-3add-8197-5329b8d5d2e7",
+        "eventIndex": 1
+      },
+      {
+        "atBatIndex": "35",
+        "playId": "eeb16c9c-14f9-3003-be0a-6e400c021495",
+        "eventIndex": 4
+      },
+      {
+        "atBatIndex": "41",
+        "playId": "972dfc04-97e5-3e78-a120-ad6221e35ffd",
+        "eventIndex": 3
+      },
+      {
+        "atBatIndex": "42",
+        "playId": "ba358ab7-5367-32f2-83cf-dc2976b04810",
+        "eventIndex": 4
+      },
+      {
+        "atBatIndex": "50",
+        "playId": "a89ce818-26f8-3b52-b4e8-7900bdf5e31f",
+        "eventIndex": 1
+      },
+      {
+        "atBatIndex": "52",
+        "playId": "a36536d7-9979-3158-b656-4996e4c412f3",
+        "eventIndex": 3
+      },
+      {
+        "atBatIndex": "64",
+        "playId": "50d0550e-13e2-3603-99d7-48d20301b0c0",
+        "eventIndex": 2
+      },
+      {
+        "atBatIndex": "72",
+        "playId": "e05869ab-aef2-32b5-805c-5683a678d697",
+        "eventIndex": 3
+      },
+      {
+        "atBatIndex": "80",
+        "playId": "cf99bd9d-4732-37c2-a397-3a16941d2f16",
+        "eventIndex": 4
+      }
+    ],
+    "withheldFouls": [
+      {
+        "atBatIndex": "5",
+        "playId": "df90f46a-55f1-3e70-9c3d-0c03c8bf4c2f",
+        "eventIndex": 4,
+        "reason": "NO_SECOND_STRIKE_INCREMENT"
+      },
+      {
+        "atBatIndex": "6",
+        "playId": "327e1767-60de-3bfe-a9fd-ea57424e7ef1",
+        "eventIndex": 6,
+        "reason": "NO_SECOND_STRIKE_INCREMENT"
+      },
+      {
+        "atBatIndex": "7",
+        "playId": "84d1d1f1-9b13-33d7-a617-f9b95fc08590",
+        "eventIndex": 4,
+        "reason": "NO_SECOND_STRIKE_INCREMENT"
+      },
+      {
+        "atBatIndex": "9",
+        "playId": "cdb18c8d-0778-3051-bcb0-a78507c275e4",
+        "eventIndex": 5,
+        "reason": "NO_SECOND_STRIKE_INCREMENT"
+      },
+      {
+        "atBatIndex": "11",
+        "playId": "c1415c68-c1f4-30b5-b950-81acdc526025",
+        "eventIndex": 2,
+        "reason": "UNRESOLVED_PREFIX_REVIEW"
+      },
+      {
+        "atBatIndex": "19",
+        "playId": "9f50405a-a1f4-38e5-a23c-0399c7f395de",
+        "eventIndex": 4,
+        "reason": "NO_SECOND_STRIKE_INCREMENT"
+      },
+      {
+        "atBatIndex": "38",
+        "playId": "78882ffe-1dc4-3fc3-b1e7-19273e070a1b",
+        "eventIndex": 5,
+        "reason": "NO_SECOND_STRIKE_INCREMENT"
+      },
+      {
+        "atBatIndex": "38",
+        "playId": "e026d7da-f190-323c-a7df-8f7a8cf4660c",
+        "eventIndex": 6,
+        "reason": "NO_SECOND_STRIKE_INCREMENT"
+      },
+      {
+        "atBatIndex": "40",
+        "playId": "5706de67-809a-312c-996e-678e522a3847",
+        "eventIndex": 4,
+        "reason": "UNRESOLVED_PREFIX_REVIEW"
+      },
+      {
+        "atBatIndex": "51",
+        "playId": "1aaaeb9b-89ba-34e0-8e3b-1298c01944e9",
+        "eventIndex": 4,
+        "reason": "SUBSTITUTION_IN_PREFIX"
+      },
+      {
+        "atBatIndex": "51",
+        "playId": "93f21f0b-4ee7-37b7-91e9-c51d945a14f1",
+        "eventIndex": 5,
+        "reason": "SUBSTITUTION_IN_PREFIX"
+      },
+      {
+        "atBatIndex": "56",
+        "playId": "ef869f03-cee5-3963-a1de-1d08c4cf6d31",
+        "eventIndex": 3,
+        "reason": "NO_SECOND_STRIKE_INCREMENT"
+      },
+      {
+        "atBatIndex": "61",
+        "playId": "1c885495-9e5c-3136-bc49-5398fa196e11",
+        "eventIndex": 3,
+        "reason": "SUBSTITUTION_IN_PREFIX"
+      },
+      {
+        "atBatIndex": "72",
+        "playId": "8e04086b-f44f-3307-b84d-31fb9e23a3b1",
+        "eventIndex": 5,
+        "reason": "UNEXPLAINED_COUNTER_TRANSITION"
+      },
+      {
+        "atBatIndex": "72",
+        "playId": "21f5f059-d554-3220-9baf-755e8ab3d0f2",
+        "eventIndex": 6,
+        "reason": "UNEXPLAINED_COUNTER_TRANSITION"
+      }
+    ],
+    "pitchReviews": [
+      {
+        "atBatIndex": "28",
+        "playId": "0bae90df-7f2a-3a8d-b5a4-f7c8d22c206e",
+        "eventIndex": 3,
+        "reviewIri": "https://baseballontology.org/data/game/822773/judgment/ball/0bae90df-7f2a-3a8d-b5a4-f7c8d22c206e",
+        "operativeDecisionIri": "https://baseballontology.org/data/game/822773/decision/ball/0bae90df-7f2a-3a8d-b5a4-f7c8d22c206e",
+        "originalJudgmentIri": "https://baseballontology.org/data/game/822773/review/pitch/0bae90df-7f2a-3a8d-b5a4-f7c8d22c206e/judgment/on-field",
+        "originalDecisionIri": "https://baseballontology.org/data/game/822773/review/pitch/0bae90df-7f2a-3a8d-b5a4-f7c8d22c206e/decision/on-field",
+        "originalProcessIri": "https://baseballontology.org/data/game/822773/review/pitch/0bae90df-7f2a-3a8d-b5a4-f7c8d22c206e/process/on-field",
+        "dispositionIri": "https://baseballontology.org/data/game/822773/review/pitch/0bae90df-7f2a-3a8d-b5a4-f7c8d22c206e/result",
+        "recordIri": "https://baseballontology.org/data/game/822773/event-record/review/pitch/0bae90df-7f2a-3a8d-b5a4-f7c8d22c206e",
+        "pitchIri": "https://baseballontology.org/data/game/822773/pitch/0bae90df-7f2a-3a8d-b5a4-f7c8d22c206e",
+        "motionIri": "https://baseballontology.org/data/game/822773/process/pitch-ball-motion/0bae90df-7f2a-3a8d-b5a4-f7c8d22c206e",
+        "processIri": "https://baseballontology.org/data/game/822773/process/ball/0bae90df-7f2a-3a8d-b5a4-f7c8d22c206e",
+        "judgmentClassIri": "https://baseballontology.org/BallJudgmentAct",
+        "decisionClassIri": "https://baseballontology.org/BallDecisionICE",
+        "reviewClassIri": "https://baseballontology.org/BallAffirmingBaseballReplayReviewAct",
+        "ruleIri": "https://baseballontology.org/data/rule/ball",
+        "affectedBatterSupported": true,
+        "reusesPlayReview": false
+      },
+      {
+        "atBatIndex": "61",
+        "playId": "13fb4d56-0b55-3ae6-b48f-e166d4c24d71",
+        "eventIndex": 4,
+        "reviewIri": "https://baseballontology.org/data/game/822773/judgment/ball/13fb4d56-0b55-3ae6-b48f-e166d4c24d71",
+        "operativeDecisionIri": "https://baseballontology.org/data/game/822773/decision/ball/13fb4d56-0b55-3ae6-b48f-e166d4c24d71",
+        "originalJudgmentIri": "https://baseballontology.org/data/game/822773/review/pitch/13fb4d56-0b55-3ae6-b48f-e166d4c24d71/judgment/on-field",
+        "originalDecisionIri": "https://baseballontology.org/data/game/822773/review/pitch/13fb4d56-0b55-3ae6-b48f-e166d4c24d71/decision/on-field",
+        "originalProcessIri": "https://baseballontology.org/data/game/822773/review/pitch/13fb4d56-0b55-3ae6-b48f-e166d4c24d71/process/on-field",
+        "dispositionIri": "https://baseballontology.org/data/game/822773/review/pitch/13fb4d56-0b55-3ae6-b48f-e166d4c24d71/result",
+        "recordIri": "https://baseballontology.org/data/game/822773/event-record/review/pitch/13fb4d56-0b55-3ae6-b48f-e166d4c24d71",
+        "pitchIri": "https://baseballontology.org/data/game/822773/pitch/13fb4d56-0b55-3ae6-b48f-e166d4c24d71",
+        "motionIri": "https://baseballontology.org/data/game/822773/process/pitch-ball-motion/13fb4d56-0b55-3ae6-b48f-e166d4c24d71",
+        "processIri": "https://baseballontology.org/data/game/822773/process/ball/13fb4d56-0b55-3ae6-b48f-e166d4c24d71",
+        "judgmentClassIri": "https://baseballontology.org/BallJudgmentAct",
+        "decisionClassIri": "https://baseballontology.org/BallDecisionICE",
+        "reviewClassIri": "https://baseballontology.org/BallAffirmingBaseballReplayReviewAct",
+        "ruleIri": "https://baseballontology.org/data/rule/ball",
+        "affectedBatterSupported": false,
+        "reusesPlayReview": false
+      }
+    ],
+    "withheldReviews": [
+      {
+        "atBatIndex": "11",
+        "playId": "c1415c68-c1f4-30b5-b950-81acdc526025",
+        "eventIndex": 2,
+        "reason": "CONFLICTING_OR_UNSUPPORTED_CALL"
+      },
+      {
+        "atBatIndex": "40",
+        "playId": "97ecd7ea-ec47-31af-a5fd-fcb3c0d8ac9d",
+        "eventIndex": 0,
+        "reason": "NOT_EXPLICIT_COMPLETED_AFFIRMATION"
+      },
+      {
+        "atBatIndex": "71",
+        "playId": "89aa22eb-c486-3ed7-b43c-2dd82469d059",
+        "eventIndex": 0,
+        "reason": "NOT_EXPLICIT_COMPLETED_AFFIRMATION"
+      }
+    ],
+    "automaticAwards": [],
+    "withheldAutomaticAwards": [
+      {
+        "atBatIndex": "49",
+        "playId": "08227736-0506-1003-000c-f08cd117d70a",
+        "eventIndex": 0,
+        "reason": "AUTOMATIC_AWARD_KIND_NOT_ADMITTED"
+      },
+      {
+        "atBatIndex": "49",
+        "playId": "08227736-0506-1013-000c-f08cd117d70a",
+        "eventIndex": 1,
+        "reason": "AUTOMATIC_AWARD_KIND_NOT_ADMITTED"
+      },
+      {
+        "atBatIndex": "49",
+        "playId": "08227736-0506-1023-000c-f08cd117d70a",
+        "eventIndex": 2,
+        "reason": "AUTOMATIC_AWARD_KIND_NOT_ADMITTED"
+      },
+      {
+        "atBatIndex": "49",
+        "playId": "08227736-0506-1033-000c-f08cd117d70a",
+        "eventIndex": 3,
+        "reason": "AUTOMATIC_AWARD_KIND_NOT_ADMITTED"
+      }
+    ],
+    "automaticAwardDecision": "archive/design-records/automatic-count-awards/review.json",
+    "inputSha256": "fa98482cc0ddb8760e77864cd7225ecac498ba8ee86b5a7bfcb8a1753483353d",
+    "sourceRevision": "20260826_020513"
+  },
+  "metricMappingMembershipVerified": true,
+  "metricMappingVerifierSha256": "f6cfa73b4e5ce0a7f1610fd2b95462b1b8c3ca899f50db5afc431133252b1315",
+  "scheduleEvidencePath": null,
+  "scheduleEvidenceSha256": null,
+  "materializedRootReferences": {
+    "gamePk": 615,
+    "venueId": 66,
+    "awayTeamId": 1,
+    "homeTeamId": 1,
+    "officialScorerId": 14,
+    "homePlateUmpireId": 17
+  },
+  "mappingBaseIri": "https://baseballontology.org/mapping/mlb-direct",
+  "mapperVersion": "8.1.0",
+  "serialization": "turtle",
+  "sourceCounts": {
+    "playerParticipants": 52,
+    "plateAppearances": 84,
+    "batterActs": 84,
+    "pitches": 323,
+    "battingActs": 145,
+    "contacts": 113,
+    "runnerRecords": 132,
+    "runnerResolutions": 132,
+    "pitchBallControlFailures": 0,
+    "passedBalls": 0,
+    "wildPitches": 1,
+    "uncaughtThirdStrikes": 0
+  },
+  "outputPath": "C:\\Users\\carte\\AppData\\Local\\Temp\\baseballo-c1-final-records-2026-09-16\\rdf\\game-822773.ttl",
+  "outputSha256": "96f16aa2ee808b0e8a30a8557321567aa52376489f9c0a47704c227bc7f92cf8",
+  "shaclStatus": "validated",
+  "shaclValidatedAtUtc": "2026-09-16T15:49:29.8619446Z",
+  "shaclProfile": "authoritative",
+  "shaclShapePath": "C:\\Users\\carte\\OneDrive\\Desktop\\BaseballO\\Baseball\\sources\\mlb-game\\shacl\\authoritative.ttl",
+  "shaclShapeSha256": "d9580aab4e38bb592cfe9d548e0e01b7a1262d8dd83c4e7111c6f6828a209a90",
+  "shaclValidatorSha256": "5d4743c4f0baecce33ae75cac809f3c5d9ab50408abb8f0f3b182391b0cd26d2",
+  "completedAtUtc": "2026-09-16T15:49:29.8808673Z"
+}

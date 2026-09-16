@@ -23,45 +23,17 @@ STEAL_TYPES={'stolen_base_2b','stolen_base_3b','stolen_base_home',
 
 
 def fingerprint():
-    paths = [Path(__file__), SHAPE, HERE/'batting-admission.py',
+    paths = [Path(__file__), SHAPE, CONTEXT_PATH, HERE/'batting-admission.py',
              HERE/'reconcile-metric-source.py', ROOT/'scripts/pipeline/validate-shacl.py']
     return B.sha('\n'.join(p.relative_to(ROOT).as_posix()+':'+B.sha(p.read_bytes()) for p in paths).encode())
 
 
-def nonmovement_strikeout_records(play):
-    """Recognize an empty K record beside an explicit safe WP/PB movement.
-
-    The complete positive companion and post-state establish the boundary;
-    the null fields alone establish neither an out nor a safe advancement.
-    Preserve the distinct source records without inventing a second running act.
-    """
-    if (play.get('result', {}).get('eventType') != 'strikeout'
-            or play['result'].get('isOut') is not False or play.get('count', {}).get('strikes') != 3
-            or play.get('about', {}).get('hasReview') is not False):
-        return {}
-    batter = play.get('matchup', {}).get('batter', {}).get('id')
-    if not B.integer(batter) or batter == 0 or play['matchup'].get('postOnFirst', {}).get('id') != batter:
-        return {}
-    records = [(i,r) for i,r in enumerate(play.get('runners', [])) if r.get('details', {}).get('runner', {}).get('id') == batter]
-    if len(records) != 2:
-        return {}
-    empty = [(i,r) for i,r in records if r.get('details', {}).get('eventType') == 'strikeout'
-             and set(r.get('movement', {})) == {'originBase','start','end','outBase','isOut','outNumber'}
-             and all(v is None for v in r['movement'].values())
-             and r['details'].get('isScoringEvent') is False and not r.get('credits')]
-    safe = [(i,r) for i,r in records if r.get('details', {}).get('eventType') in {'wild_pitch','passed_ball'}
-            and r.get('movement') == dict(originBase=None,start=None,end='1B',outBase=None,isOut=False,outNumber=None)
-            and r['details'].get('isScoringEvent') is False]
-    if len(empty) != 1 or len(safe) != 1:
-        return {}
-    index = empty[0][1]['details'].get('playIndex')
-    events = [e for e in play.get('playEvents', []) if e.get('index') == index]
-    if (safe[0][1]['details'].get('playIndex') != index or len(events) != 1
-            or events[0].get('isPitch') is not True or events[0].get('count', {}).get('strikes') != 3
-            or events[0].get('details', {}).get('isInPlay') is not False):
-        return {}
-    return {empty[0][0]: safe[0][0]}
-
+# Share the exact source-selection rule with C1; no independently drifting
+# interpretation of the same empty source record. The context builder is
+# pinned by runtime semantic admission and included in this proof fingerprint.
+CONTEXT_PATH = ROOT/'scripts/pipeline/prepare-rml-context.py'
+CONTEXT = B.module(CONTEXT_PATH, 'runner_record_context')
+nonmovement_strikeout_records = CONTEXT.nonmovement_strikeout_records
 
 def census(raw, game_pk):
     game_pk = B.identity(int(game_pk))

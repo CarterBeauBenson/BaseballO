@@ -347,16 +347,86 @@ def accounted_runner_history_reviews(play: dict) -> dict:
         and bool(terminal_rows)
         and all(type(r.get('movement', {}).get('isOut')) is bool
                 and type(r.get('details', {}).get('isScoringEvent')) is bool for r in terminal_rows))
-    if not supported:
-        return accounted_runner_count_reviews(play)
-    # Only the positively accounted terminal field review leaves the count
-    # review scope. Earlier event reviews are still examined independently.
-    count_scope = {**play, 'about': {**play['about'], 'hasReview': False}}
-    count_scope.pop('reviewDetails', None)
+    count_scope = {**play}
+    if supported:
+        # Only the positively accounted terminal field review leaves the
+        # count scope. Earlier reviews are examined independently below.
+        count_scope['about'] = {**play['about'], 'hasReview': False}
+        count_scope.pop('reviewDetails', None)
+    fouls, count_events = {}, []
+    for position, event in enumerate(events):
+        detail = event.get('details', {})
+        candidate = event.get('reviewDetails')
+        before = events[position-1].get('count', {}) if position else dict(balls=0, strikes=0)
+        after = event.get('count', {})
+        # E1 final-state reconciliation only: an affirmed ordinary foul with
+        # no movement/out cannot change runner occupancy. This does not admit
+        # M3/M4 count/review RDF, original calls, or challenge eligibility.
+        unchanged_foul = (play.get('about', {}).get('isComplete') is True
+            and position < len(events)-1 and isinstance(candidate, dict)
+            and candidate.get('inProgress') is False and candidate.get('isOverturned') is False
+            and candidate.get('reviewType') == 'MO' and detail.get('hasReview') is True
+            and event.get('isPitch') is True and detail.get('call', {}).get('code') == 'F'
+            and detail.get('isInPlay') is False and detail.get('isOut') is False
+            and detail.get('isStrike') is True and detail.get('isBall') is False
+            and SAFE_IRI_SEGMENT.fullmatch(str(event.get('playId') or ''))
+            and not any(r.get('details', {}).get('playIndex') == event.get('index')
+                        for r in play.get('runners', []))
+            and all(type(c.get(k)) is int and 0 <= c[k] <= limit
+                    for c in (before, after) for k, limit in (('balls', 3), ('strikes', 2)))
+            and after['balls'] == before['balls'] and after['strikes'] == min(2, before['strikes']+1)
+            and type(before.get('outs')) is int and 0 <= before['outs'] < 3
+            and after.get('outs') == before['outs'])
+        if unchanged_foul:
+            fouls[event['index']] = dict(playId=event['playId'], kind='unchanged-foul',
+                overturned=False, scope='final runner-history effects only')
+            clean = {**event, 'details': {**detail, 'hasReview': False}}
+            clean.pop('reviewDetails', None)
+            count_events.append(clean)
+        else:
+            count_events.append(event)
+    count_scope['playEvents'] = count_events
     result = accounted_runner_count_reviews(count_scope)
-    result['accountedFieldReview'] = dict(eventIndex=terminal['index'], playId=terminal['playId'],
-        reviewType=review['reviewType'], overturned=review['isOverturned'])
+    result['events'].update(fouls)
+    if supported:
+        result['accountedFieldReview'] = dict(eventIndex=terminal['index'], playId=terminal['playId'],
+            reviewType=review['reviewType'], overturned=review['isOverturned'])
     return result
+
+
+def nonmovement_strikeout_records(play):
+    """Recognize an empty K record beside an explicit safe WP/PB movement.
+
+    The complete positive companion and post-state establish the boundary;
+    the null fields alone establish neither an out nor a safe advancement.
+    Preserve the distinct source records without inventing a second running act.
+    """
+    if (play.get('result', {}).get('eventType') != 'strikeout'
+            or play['result'].get('isOut') is not False or play.get('count', {}).get('strikes') != 3
+            or play.get('about', {}).get('hasReview') is not False):
+        return {}
+    batter = play.get('matchup', {}).get('batter', {}).get('id')
+    if type(batter) is not int or batter <= 0 or play['matchup'].get('postOnFirst', {}).get('id') != batter:
+        return {}
+    records = [(i,r) for i,r in enumerate(play.get('runners', [])) if r.get('details', {}).get('runner', {}).get('id') == batter]
+    if len(records) != 2:
+        return {}
+    empty = [(i,r) for i,r in records if r.get('details', {}).get('eventType') == 'strikeout'
+             and set(r.get('movement', {})) == {'originBase','start','end','outBase','isOut','outNumber'}
+             and all(v is None for v in r['movement'].values())
+             and r['details'].get('isScoringEvent') is False and not r.get('credits')]
+    safe = [(i,r) for i,r in records if r.get('details', {}).get('eventType') in {'wild_pitch','passed_ball'}
+            and r.get('movement') == dict(originBase=None,start=None,end='1B',outBase=None,isOut=False,outNumber=None)
+            and r['details'].get('isScoringEvent') is False]
+    if len(empty) != 1 or len(safe) != 1:
+        return {}
+    index = empty[0][1]['details'].get('playIndex')
+    events = [e for e in play.get('playEvents', []) if e.get('index') == index]
+    if (safe[0][1]['details'].get('playIndex') != index or len(events) != 1
+            or events[0].get('isPitch') is not True or events[0].get('count', {}).get('strikes') != 3
+            or events[0].get('details', {}).get('isInPlay') is not False):
+        return {}
+    return {empty[0][0]: safe[0][0]}
 
 
 def personal_runner_histories(raw: bytes) -> dict:
@@ -448,10 +518,14 @@ def personal_runner_histories(raw: bytes) -> dict:
                 block('MISSING_BOUNDARY_EVENT', pa); continue
             event_by_index = {event['index']: event for event in events}
             event_rows = defaultdict(list)
+            nonmovements = nonmovement_strikeout_records(play)
             for row_index, row in enumerate(rows):
-                event_rows[row['details']['playIndex']].append((row_index, row))
+                if row_index not in nonmovements:
+                    event_rows[row['details']['playIndex']].append((row_index, row))
             admitted_pairs = {int(item['runnerIndex']): item for item in runner_episode_evidence(play, str(pa))['runnerEpisodes']}
-            if len(admitted_pairs) != len(rows):
+            # Account for every source record without turning the all-null K
+            # bookkeeping companion into a second movement or lifetime entry.
+            if set(admitted_pairs) != set(range(len(rows))) - set(nonmovements):
                 block('UNSUPPORTED_RUNNER_EPISODE', pa)
             for event_position, event in enumerate(events):
                 index = event['index']; details = event.get('details', {})

@@ -9,6 +9,7 @@ SELECT DISTINCT ?graph ?game ?kind ?entity ?player ?act ?roleType
                 ?playerTeamRole ?team ?teamRole
                 ?paResult ?paResultType ?paResultJudgment ?paResultDecision ?paResultRecord ?recognizedBattingResult ?batterProgressExcluded
                 ?reviewRecord ?original ?operative ?disposition ?decision
+                ?reviewPA ?reviewPitch ?reviewMotion ?reviewBatterAct ?affectedPlayer
                 ?trajectory ?episode ?trajectoryHalf ?trajectoryInterval
                 ?trajectoryEndInstant ?gameEndTimestamp ?gameEnd
                 ?paHalf ?paInterval ?paStartInstant ?paEndInstant
@@ -159,6 +160,33 @@ WHERE {
         VALUES (?dispositionType ?decision) {
           (base:AffirmingBaseballReplayReviewDispositionICE "affirmed")
           (base:OverturningBaseballReplayReviewDispositionICE "reversed")
+        }
+        OPTIONAL {
+          # Accepted M2 CQ7: identify the affected batter through the common
+          # reviewed motion, its exact pitch and actual batting participation.
+          # This is subject attribution, not review mechanism/eligibility.
+          ?original cco:ont00001808 ?reviewMotion .
+          ?operative cco:ont00001808 ?reviewMotion .
+          ?reviewMotion a base:PitchBallMotionProcess ; obo:BFO_0000132 ?reviewPA ;
+              obo:BFO_0000062 ?reviewPitch .
+          ?reviewPitch a base:PitchAct ; obo:BFO_0000132 ?reviewPA .
+          ?reviewRecord cco:ont00001808 ?reviewPitch .
+          OPTIONAL {
+            # The existing graph has no pitch-to-taking-act relation. A PA
+            # with several batting stints therefore remains unassigned here.
+            ?reviewBatterAct a base:BatterAct ; obo:BFO_0000132 ?reviewPA ;
+                obo:BFO_0000057 ?affectedPlayer ; obo:BFO_0000055 ?reviewBatterRole .
+            ?reviewBatterRole a base:BatterRole ; obo:BFO_0000197 ?affectedPlayer .
+            FILTER NOT EXISTS {
+              ?otherBatterAct a base:BatterAct ; obo:BFO_0000132 ?reviewPA .
+              FILTER(?otherBatterAct != ?reviewBatterAct)
+            }
+            FILTER NOT EXISTS {
+              ?reviewBatterAct obo:BFO_0000055 ?otherBatterRole .
+              ?otherBatterRole a base:BatterRole ; obo:BFO_0000197 ?otherBatter .
+              FILTER(?otherBatter != ?affectedPlayer)
+            }
+          }
         }
       }
     }

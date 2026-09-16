@@ -32,3 +32,20 @@ The [real-game proof and source comparison](../../../benchmarks/metrics/runner-h
 record 70 complete PA calculations, five complete scoring histories, exact SQL
 checks and remaining gaps. They do not admit the live date or reference season.
 No raw bytes or archived decisions changed.
+
+The [next focused repair](../../../benchmarks/metrics/runner-records-review-subjects-2026-09-16/README.md)
+accounts for a completed, affirmed ordinary foul review when the final event
+explicitly has no in-play, out or runner effect and its counts reconcile.
+This admits C1 history continuity only. It does not extend M1/M2 counted-foul
+or original-review mapping, and M3/M4 remains a separate draft. Pending,
+overturned, terminal, conflicting and movement-bearing reviews stay withheld.
+
+`nonmovement_strikeout_records` now has one implementation in the pinned
+context builder, shared by C1 and runner-resolution admission. The exact
+all-null strikeout bookkeeping record requires an explicit same-batter,
+same-event safe WP/PB companion and corroborating post-first-base state.
+C1 accounts for that source record without adding a second episode, out or
+lifetime entry. The runner-resolution SHACL still forbids that extra act and
+requires the existing uncaught-third-strike structure. Its fingerprint now
+includes the shared context implementation. Automatic-runner and replacement
+identity gaps remain separate and do not disappear when this record reconciles.

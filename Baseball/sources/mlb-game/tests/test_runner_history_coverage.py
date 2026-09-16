@@ -20,6 +20,53 @@ def histories(doc):
 
 
 class RunnerHistoryCoverage(unittest.TestCase):
+    def test_affirmed_foul_preserves_history_without_admitting_count_review(self):
+        doc=source(822773); play=doc['liveData']['plays']['allPlays'][11]
+        before=copy.deepcopy(play)
+        review=CONTEXT.accounted_runner_history_reviews(play)
+        self.assertEqual(review['issues'],[])
+        self.assertEqual(review['events'][2]['kind'],'unchanged-foul')
+        self.assertEqual(play,before)
+        self.assertTrue(CONTEXT.accounted_runner_count_reviews(play)['issues'])
+        result=histories(doc)
+        self.assertTrue(all(h['status']=='reconciled' for h in result['halves']))
+        self.assertEqual(sum(h['terminal']=='score' for h in result['histories']),8)
+        # The separate overlapping PA header still blocks boundary admission.
+        self.assertEqual(len(result['boundaryIssues']),1)
+        self.assertEqual(B.census(json.dumps(doc).encode(),'822773')['status'],'withheld')
+
+    def test_changed_or_incompletely_supported_reviewed_foul_stays_unresolved(self):
+        for fault in ('overturned','pending','missing-disposition','mechanism','out','movement',
+                      'ball-count','strike-count','out-count','missing-anchor','terminal','earlier-review'):
+            play=source(822773)['liveData']['plays']['allPlays'][11];event=play['playEvents'][2]
+            if fault=='overturned':event['reviewDetails']['isOverturned']=True
+            elif fault=='pending':event['reviewDetails']['inProgress']=True
+            elif fault=='missing-disposition':event['reviewDetails'].pop('isOverturned')
+            elif fault=='mechanism':event['reviewDetails']['reviewType']='unknown'
+            elif fault=='out':event['details']['isOut']=True
+            elif fault=='movement':play['runners'][0]['details']['playIndex']=2
+            elif fault=='ball-count':event['count']['balls']=2
+            elif fault=='strike-count':event['count']['strikes']=1
+            elif fault=='out-count':event['count']['outs']=3
+            elif fault=='missing-anchor':event.pop('playId')
+            elif fault=='terminal':play['playEvents'].pop()
+            else:play['playEvents'][0]['details']['hasReview']=True
+            self.assertTrue(CONTEXT.accounted_runner_history_reviews(play)['issues'],fault)
+
+    def test_empty_strikeout_record_is_accounted_once_and_does_not_admit_automatic_runner(self):
+        doc=source(823826);play=doc['liveData']['plays']['allPlays'][78]
+        self.assertEqual(CONTEXT.nonmovement_strikeout_records(play),{3:4})
+        result=histories(doc)
+        half=next(h for h in result['halves'] if h['inning']==10 and h['half']=='bottom')
+        self.assertEqual(half['status'],'withheld')
+        self.assertNotIn('UNSUPPORTED_RUNNER_EPISODE',{i['code'] for i in half['issues'] if i['atBatIndex']==78})
+        self.assertIn('UNSUPPORTED_EVENT_EFFECT:runner_placed',{i['code'] for i in half['issues']})
+        # Corrupting the null record must restore the missing-episode error.
+        play['runners'][3]['movement']['outBase']='1B'
+        result=histories(doc)
+        self.assertIn('UNSUPPORTED_RUNNER_EPISODE',{
+            i['code'] for h in result['halves'] for i in h['issues'] if i['atBatIndex']==78})
+
     def test_overlapping_pa_headers_do_not_erase_independently_ordered_histories(self):
         doc=source(823505); result=histories(doc)
         self.assertTrue(all(h['status']=='reconciled' for h in result['halves']))

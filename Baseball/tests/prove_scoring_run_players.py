@@ -25,6 +25,8 @@ def main():
         parser.add_argument('--'+name,type=Path,required=True)
     parser.add_argument('--java',required=True)
     parser.add_argument('--jena-classpath',required=True)
+    parser.add_argument('--metrics',nargs='+',choices=('run-construction-depth','run-construction-breadth'),
+                        default=['run-construction-depth','run-construction-breadth'])
     args=parser.parse_args()
     manifest=json.loads(args.manifest.read_bytes())
     game=str(manifest['gamePk'])
@@ -44,8 +46,7 @@ def main():
                     str(output/'query.rq'),str(output/'bindings.json')],check=True,timeout=60)
     bindings=json.loads((output/'bindings.json').read_bytes())['results']['bindings']
     rows=M.normalize_bindings(bindings,[graph])
-    results={metric:M.live_result(metric,rows,graph_count=1)
-             for metric in ('run-construction-depth','run-construction-breadth')}
+    results={metric:M.live_result(metric,rows,graph_count=1) for metric in args.metrics}
     source=json.loads((output/'admission.source.json').read_bytes())
     for result in results.values():
         assert result['unresolvedRuns']==[],result['unresolvedRuns']
@@ -76,6 +77,7 @@ def main():
             assert response['metric']['playerSummaryGaps']==['COMPLETE_SELECTED_SCHEDULE']
         assert connection.execute('SELECT COUNT(*) FROM metric_suite_evidence').fetchone()[0]==len(rows)
     report=dict(artifactType='baseballo-scoring-run-player-developer-proof',gamePk=game,
+        metrics=list(results),
         sourceSha256=proof['sourceSha256'],rdfSha256=proof['authoritativeRdfSha256'],
         implementationSha256=M.fingerprint(),admission=proof,jenaQueryPassed=True,
         observedRuns=len(source['runs']),unresolvedRuns=0,sqlExactMatch=True,

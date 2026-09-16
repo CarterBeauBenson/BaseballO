@@ -1,0 +1,51 @@
+{
+  "artifactType": "baseballo-review-subject-developer-proof",
+  "gamePk": "822773",
+  "sourceSha256": "fa98482cc0ddb8760e77864cd7225ecac498ba8ee86b5a7bfcb8a1753483353d",
+  "rdfSha256": "96f16aa2ee808b0e8a30a8557321567aa52376489f9c0a47704c227bc7f92cf8",
+  "rmlManifestSha256": "d9762156ead54ea8c7de38a222849647af3360c002951c4a38d66d7cadf59e44",
+  "implementationSha256": "f7594780e4612dd54abc1f641ddf08ea24faacbdb6e7da305e8fc1bb551e57e4",
+  "querySha256": "35d88d8aaf89d0a0c610756f8188523576574c16e25997c58937fdd38a337138",
+  "jenaQueryPassed": true,
+  "sqlExactMatch": true,
+  "subjects": [
+    {
+      "graph": "https://w3id.org/baseball/graph/game/822773",
+      "review": "https://baseballontology.org/data/game/822773/judgment/ball/0bae90df-7f2a-3a8d-b5a4-f7c8d22c206e",
+      "affectedPlayer": "https://baseballontology.org/data/player/686555",
+      "attributionStatus": "supported",
+      "gaps": [],
+      "reviewPA": "https://baseballontology.org/data/game/822773/plate-appearance/28",
+      "reviewPitch": "https://baseballontology.org/data/game/822773/pitch/0bae90df-7f2a-3a8d-b5a4-f7c8d22c206e",
+      "reviewMotion": "https://baseballontology.org/data/game/822773/process/pitch-ball-motion/0bae90df-7f2a-3a8d-b5a4-f7c8d22c206e",
+      "reviewBatterAct": "https://baseballontology.org/data/game/822773/plate-appearance/28/batter-act",
+      "decision": "affirmed"
+    },
+    {
+      "graph": "https://w3id.org/baseball/graph/game/822773",
+      "review": "https://baseballontology.org/data/game/822773/judgment/ball/13fb4d56-0b55-3ae6-b48f-e166d4c24d71",
+      "affectedPlayer": "https://baseballontology.org/data/player/672386",
+      "attributionStatus": "supported",
+      "gaps": [],
+      "reviewPA": "https://baseballontology.org/data/game/822773/plate-appearance/61",
+      "reviewPitch": "https://baseballontology.org/data/game/822773/pitch/13fb4d56-0b55-3ae6-b48f-e166d4c24d71",
+      "reviewMotion": "https://baseballontology.org/data/game/822773/process/pitch-ball-motion/13fb4d56-0b55-3ae6-b48f-e166d4c24d71",
+      "reviewBatterAct": "https://baseballontology.org/data/game/822773/plate-appearance/61/batter-act",
+      "decision": "affirmed"
+    },
+    {
+      "graph": "https://w3id.org/baseball/graph/game/822773",
+      "review": "https://baseballontology.org/data/game/822773/review/15/act",
+      "affectedPlayer": null,
+      "attributionStatus": "withheld",
+      "gaps": [
+        "AFFECTED_PLAYER_EVIDENCE"
+      ]
+    }
+  ],
+  "affectedBattersVerified": 2,
+  "sourceShaclConforms": true,
+  "playerPopulationComplete": false,
+  "reviewMechanismsAdmitted": false,
+  "corpusPromotion": "not-performed"
+}

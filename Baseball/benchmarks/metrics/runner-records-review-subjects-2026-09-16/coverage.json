@@ -1,0 +1,2672 @@
+{
+  "artifactType": "baseballo-c1-source-coverage-followup",
+  "baselineCommit": "641a3cb",
+  "completeGamesBefore": 8,
+  "completeGamesAfter": 9,
+  "historiesBefore": 360,
+  "historiesAfter": 363,
+  "livePopulationComplete": false,
+  "games": [
+    {
+      "gamePk": "822693",
+      "sourcePath": "Baseball/data/raw/samples/2026-08-25/822693.json",
+      "sourceSha256": "c2701c7de786df80013b21b36d74e8c5d6f6b1d0063bfab86d83ce6f5fb5fe02",
+      "histories": 21,
+      "scoringHistories": 4,
+      "complete": true,
+      "halves": [
+        {
+          "inning": 1,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 1,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 2,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 2,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 3,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 3,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 4,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 4
+        },
+        {
+          "inning": 4,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 5,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 5,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 6,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 6,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 7,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 7,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 8,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 8,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 9,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 9,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        }
+      ],
+      "boundaryIssues": []
+    },
+    {
+      "gamePk": "822773",
+      "sourcePath": "Baseball/data/raw/samples/2026-08-25/822773.json",
+      "sourceSha256": "fa98482cc0ddb8760e77864cd7225ecac498ba8ee86b5a7bfcb8a1753483353d",
+      "histories": 35,
+      "scoringHistories": 8,
+      "complete": true,
+      "halves": [
+        {
+          "inning": 1,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 4
+        },
+        {
+          "inning": 1,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 3
+        },
+        {
+          "inning": 2,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 2,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 3,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 3,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 4,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 4,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 5,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 4
+        },
+        {
+          "inning": 5,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 6,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 4
+        },
+        {
+          "inning": 6,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 7,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 3
+        },
+        {
+          "inning": 7,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 8,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 8,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 3
+        },
+        {
+          "inning": 9,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 3
+        },
+        {
+          "inning": 9,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 3
+        }
+      ],
+      "boundaryIssues": [
+        {
+          "code": "AMBIGUOUS_PA_TIME_ORDER",
+          "atBatIndex": 50,
+          "previousEndBound": "2026-08-26T00:56:28.166000+00:00",
+          "startBound": "2026-08-26T00:54:52.930Z"
+        }
+      ]
+    },
+    {
+      "gamePk": "823016",
+      "sourcePath": "Baseball/data/raw/samples/2026-08-25/823016.json",
+      "sourceSha256": "a443116b6a3be5f3f4b3eb1b623a352ecffd198d9f9cb921cf4d9cac8af9c15d",
+      "histories": 29,
+      "scoringHistories": 14,
+      "complete": true,
+      "halves": [
+        {
+          "inning": 1,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 1,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 2,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 2,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 3,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 4
+        },
+        {
+          "inning": 3,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 3
+        },
+        {
+          "inning": 4,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 4,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 5,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 10
+        },
+        {
+          "inning": 5,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 6,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 6,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 7,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 7,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 8,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 8,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 9,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 9,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        }
+      ],
+      "boundaryIssues": []
+    },
+    {
+      "gamePk": "823098",
+      "sourcePath": "Baseball/data/raw/samples/2026-08-25/823098.json",
+      "sourceSha256": "d8e4a976ef2af31a4b15557d2c768b7b20b86a064aa7684202e019d5bb885148",
+      "histories": 21,
+      "scoringHistories": 5,
+      "complete": true,
+      "halves": [
+        {
+          "inning": 1,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 1,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 2,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 3
+        },
+        {
+          "inning": 2,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 3,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 3,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 4,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 4,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 5,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 5,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 6,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 6,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 7,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 7,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 4
+        },
+        {
+          "inning": 8,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 8,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 9,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        }
+      ],
+      "boundaryIssues": []
+    },
+    {
+      "gamePk": "823181",
+      "sourcePath": "Baseball/data/raw/samples/2026-08-25/823181.json",
+      "sourceSha256": "c1ea2b543a0ecd745b93d95b45d012568b985ab4ed77124e11ffffad20b95737",
+      "histories": 24,
+      "scoringHistories": 4,
+      "complete": true,
+      "halves": [
+        {
+          "inning": 1,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 1,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 5
+        },
+        {
+          "inning": 2,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 2,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 3,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 3,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 4,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 4,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 5,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 5,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 6,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 6,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 3
+        },
+        {
+          "inning": 7,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 7,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 8,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 8,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 9,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        }
+      ],
+      "boundaryIssues": [
+        {
+          "code": "AMBIGUOUS_PA_TIME_ORDER",
+          "atBatIndex": 33,
+          "previousEndBound": "2026-08-26T02:52:24.830000+00:00",
+          "startBound": "2026-08-26T02:52:24.582Z"
+        }
+      ]
+    },
+    {
+      "gamePk": "823259",
+      "sourcePath": "Baseball/data/raw/samples/2026-08-25/823259.json",
+      "sourceSha256": "b5b826832364a092e279a223c29f41dee4d52e65e72002b7c80c3280ca7a0be1",
+      "histories": 13,
+      "scoringHistories": 1,
+      "complete": false,
+      "halves": [
+        {
+          "inning": 1,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 3
+        },
+        {
+          "inning": 1,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 2,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 2,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 3,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 3,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 4,
+          "half": "top",
+          "status": "withheld",
+          "issues": [
+            {
+              "code": "PRE_EVENT_OUT_COUNT_MISMATCH",
+              "atBatIndex": 26
+            },
+            {
+              "code": "MISSING_STABLE_MOVEMENT_ANCHOR",
+              "atBatIndex": 26
+            }
+          ],
+          "personalHistories": 0
+        },
+        {
+          "inning": 4,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 5,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 5,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 6,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 6,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 7,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 7,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 8,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 8,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 9,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 9,
+          "half": "bottom",
+          "status": "withheld",
+          "issues": [
+            {
+              "code": "UNSUPPORTED_EVENT_EFFECT:offensive_substitution",
+              "atBatIndex": 64
+            },
+            {
+              "code": "UNSUPPORTED_RUNNER_ENTRY",
+              "atBatIndex": 64
+            }
+          ],
+          "personalHistories": 0
+        }
+      ],
+      "boundaryIssues": [
+        {
+          "code": "AMBIGUOUS_PA_TIME_ORDER",
+          "atBatIndex": 15,
+          "previousEndBound": "2026-08-26T02:14:07.012000+00:00",
+          "startBound": "2026-08-26T02:14:06.487Z"
+        }
+      ]
+    },
+    {
+      "gamePk": "823505",
+      "sourcePath": "Baseball/data/raw/samples/2026-08-25/823505.json",
+      "sourceSha256": "7ed5458dcdc4f7b7dde37735ea5060649bf52f2cc29e3f73f3e9573b64c4d395",
+      "histories": 35,
+      "scoringHistories": 16,
+      "complete": true,
+      "halves": [
+        {
+          "inning": 1,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 1,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 2,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 2,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 3,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 3,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 5
+        },
+        {
+          "inning": 4,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 4,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 5,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 3
+        },
+        {
+          "inning": 5,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 6,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 6,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 7,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 7,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 4
+        },
+        {
+          "inning": 8,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 4
+        },
+        {
+          "inning": 8,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 3
+        },
+        {
+          "inning": 9,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 9,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        }
+      ],
+      "boundaryIssues": [
+        {
+          "code": "AMBIGUOUS_PA_TIME_ORDER",
+          "atBatIndex": 12,
+          "previousEndBound": "2026-08-25T23:30:04.241000+00:00",
+          "startBound": "2026-08-25T23:29:50.792Z"
+        },
+        {
+          "code": "AMBIGUOUS_PA_TIME_ORDER",
+          "atBatIndex": 28,
+          "previousEndBound": "2026-08-26T00:06:31.016000+00:00",
+          "startBound": "2026-08-26T00:06:11.718Z"
+        },
+        {
+          "code": "AMBIGUOUS_PA_TIME_ORDER",
+          "atBatIndex": 51,
+          "previousEndBound": "2026-08-26T00:56:04.835000+00:00",
+          "startBound": "2026-08-26T00:56:03.192Z"
+        },
+        {
+          "code": "AMBIGUOUS_PA_TIME_ORDER",
+          "atBatIndex": 52,
+          "previousEndBound": "2026-08-26T00:57:58.269000+00:00",
+          "startBound": "2026-08-26T00:57:44.481Z"
+        },
+        {
+          "code": "AMBIGUOUS_PA_TIME_ORDER",
+          "atBatIndex": 55,
+          "previousEndBound": "2026-08-26T01:02:58.347000+00:00",
+          "startBound": "2026-08-26T01:02:57.327Z"
+        },
+        {
+          "code": "AMBIGUOUS_PA_TIME_ORDER",
+          "atBatIndex": 81,
+          "previousEndBound": "2026-08-26T02:05:50.124000+00:00",
+          "startBound": "2026-08-26T02:05:49.286Z"
+        }
+      ]
+    },
+    {
+      "gamePk": "823585",
+      "sourcePath": "Baseball/data/raw/samples/2026-08-25/823585.json",
+      "sourceSha256": "9bc6c0423abeea6adee187b4299ce70573aff6b8e71e158c7a42118d84139699",
+      "histories": 24,
+      "scoringHistories": 4,
+      "complete": false,
+      "halves": [
+        {
+          "inning": 1,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 1,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 3
+        },
+        {
+          "inning": 2,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 2,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 3,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 3
+        },
+        {
+          "inning": 3,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 4,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 4,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 5,
+          "half": "top",
+          "status": "withheld",
+          "issues": [
+            {
+              "code": "UNSUPPORTED_EVENT_EFFECT:offensive_substitution",
+              "atBatIndex": 35
+            },
+            {
+              "code": "POST_BASE_RECONCILIATION_FAILED",
+              "atBatIndex": 35
+            },
+            {
+              "code": "UNSUPPORTED_RUNNER_ENTRY",
+              "atBatIndex": 36
+            },
+            {
+              "code": "CONFLICTING_BASE_OCCUPANCY",
+              "atBatIndex": 36
+            },
+            {
+              "code": "POST_PA_OUT_COUNT_MISMATCH",
+              "atBatIndex": 36
+            },
+            {
+              "code": "UNSUPPORTED_HALF_TERMINATION",
+              "atBatIndex": null
+            }
+          ],
+          "personalHistories": 0
+        },
+        {
+          "inning": 5,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 6,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 6,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 4
+        },
+        {
+          "inning": 7,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 7,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 8,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 8,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 9,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 4
+        },
+        {
+          "inning": 9,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 10,
+          "half": "top",
+          "status": "withheld",
+          "issues": [
+            {
+              "code": "UNSUPPORTED_EVENT_EFFECT:runner_placed",
+              "atBatIndex": 74
+            },
+            {
+              "code": "POST_BASE_RECONCILIATION_FAILED",
+              "atBatIndex": 74
+            },
+            {
+              "code": "POST_BASE_RECONCILIATION_FAILED",
+              "atBatIndex": 75
+            },
+            {
+              "code": "POST_BASE_RECONCILIATION_FAILED",
+              "atBatIndex": 76
+            }
+          ],
+          "personalHistories": 0
+        },
+        {
+          "inning": 10,
+          "half": "bottom",
+          "status": "withheld",
+          "issues": [
+            {
+              "code": "UNSUPPORTED_EVENT_EFFECT:runner_placed",
+              "atBatIndex": 78
+            },
+            {
+              "code": "POST_BASE_RECONCILIATION_FAILED",
+              "atBatIndex": 78
+            },
+            {
+              "code": "POST_BASE_RECONCILIATION_FAILED",
+              "atBatIndex": 79
+            },
+            {
+              "code": "UNSUPPORTED_RUNNER_ENTRY",
+              "atBatIndex": 80
+            },
+            {
+              "code": "POST_BASE_RECONCILIATION_FAILED",
+              "atBatIndex": 80
+            },
+            {
+              "code": "UNSUPPORTED_RUNNER_ENTRY",
+              "atBatIndex": 81
+            }
+          ],
+          "personalHistories": 0
+        }
+      ],
+      "boundaryIssues": []
+    },
+    {
+      "gamePk": "823826",
+      "sourcePath": "Baseball/data/raw/samples/2026-08-25/823826.json",
+      "sourceSha256": "1c2f05b2a5dc3a806a348ff45bed3e1b2d8d1e32c70d7f52509bec6c15d9237e",
+      "histories": 19,
+      "scoringHistories": 4,
+      "complete": false,
+      "halves": [
+        {
+          "inning": 1,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 1,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 2,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 3
+        },
+        {
+          "inning": 2,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 3,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 3,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 4,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 3
+        },
+        {
+          "inning": 4,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 5,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 5,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 4
+        },
+        {
+          "inning": 6,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 6,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 3
+        },
+        {
+          "inning": 7,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 7,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 8,
+          "half": "top",
+          "status": "withheld",
+          "issues": [
+            {
+              "code": "CONFLICTING_BASE_OCCUPANCY",
+              "atBatIndex": 61
+            }
+          ],
+          "personalHistories": 0
+        },
+        {
+          "inning": 8,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 9,
+          "half": "top",
+          "status": "withheld",
+          "issues": [
+            {
+              "code": "UNRESOLVED_REVIEW_EFFECT",
+              "atBatIndex": 68
+            },
+            {
+              "code": "UNSUPPORTED_EVENT_EFFECT:offensive_substitution",
+              "atBatIndex": 68
+            },
+            {
+              "code": "UNRESOLVED_REVIEW_EFFECT",
+              "atBatIndex": 68
+            },
+            {
+              "code": "PRE_EVENT_OUT_COUNT_MISMATCH",
+              "atBatIndex": 68
+            },
+            {
+              "code": "UNSUPPORTED_RUNNER_ENTRY",
+              "atBatIndex": 68
+            },
+            {
+              "code": "PRE_EVENT_OUT_COUNT_MISMATCH",
+              "atBatIndex": 68
+            },
+            {
+              "code": "DISTINCT_OUT_RECONCILIATION_FAILED",
+              "atBatIndex": 68
+            },
+            {
+              "code": "POST_PA_OUT_COUNT_MISMATCH",
+              "atBatIndex": 68
+            },
+            {
+              "code": "UNSUPPORTED_HALF_TERMINATION",
+              "atBatIndex": null
+            }
+          ],
+          "personalHistories": 0
+        },
+        {
+          "inning": 9,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 10,
+          "half": "top",
+          "status": "withheld",
+          "issues": [
+            {
+              "code": "UNSUPPORTED_EVENT_EFFECT:runner_placed",
+              "atBatIndex": 72
+            },
+            {
+              "code": "UNSUPPORTED_RUNNER_ENTRY",
+              "atBatIndex": 72
+            },
+            {
+              "code": "POST_BASE_RECONCILIATION_FAILED",
+              "atBatIndex": 72
+            },
+            {
+              "code": "UNSUPPORTED_RUNNER_ENTRY",
+              "atBatIndex": 73
+            }
+          ],
+          "personalHistories": 0
+        },
+        {
+          "inning": 10,
+          "half": "bottom",
+          "status": "withheld",
+          "issues": [
+            {
+              "code": "UNSUPPORTED_EVENT_EFFECT:runner_placed",
+              "atBatIndex": 75
+            },
+            {
+              "code": "POST_BASE_RECONCILIATION_FAILED",
+              "atBatIndex": 75
+            },
+            {
+              "code": "POST_BASE_RECONCILIATION_FAILED",
+              "atBatIndex": 76
+            },
+            {
+              "code": "UNSUPPORTED_RUNNER_ENTRY",
+              "atBatIndex": 77
+            },
+            {
+              "code": "POST_BASE_RECONCILIATION_FAILED",
+              "atBatIndex": 77
+            },
+            {
+              "code": "UNSUPPORTED_RUNNER_ENTRY",
+              "atBatIndex": 78
+            }
+          ],
+          "personalHistories": 0
+        },
+        {
+          "inning": 11,
+          "half": "top",
+          "status": "withheld",
+          "issues": [
+            {
+              "code": "UNSUPPORTED_EVENT_EFFECT:runner_placed",
+              "atBatIndex": 80
+            },
+            {
+              "code": "UNSUPPORTED_RUNNER_ENTRY",
+              "atBatIndex": 80
+            },
+            {
+              "code": "POST_BASE_RECONCILIATION_FAILED",
+              "atBatIndex": 80
+            },
+            {
+              "code": "POST_BASE_RECONCILIATION_FAILED",
+              "atBatIndex": 81
+            },
+            {
+              "code": "UNSUPPORTED_RUNNER_ENTRY",
+              "atBatIndex": 82
+            },
+            {
+              "code": "POST_PA_OUT_COUNT_MISMATCH",
+              "atBatIndex": 82
+            },
+            {
+              "code": "PRE_EVENT_OUT_COUNT_MISMATCH",
+              "atBatIndex": 83
+            },
+            {
+              "code": "PRE_EVENT_OUT_COUNT_MISMATCH",
+              "atBatIndex": 83
+            },
+            {
+              "code": "POST_PA_OUT_COUNT_MISMATCH",
+              "atBatIndex": 83
+            },
+            {
+              "code": "PRE_EVENT_OUT_COUNT_MISMATCH",
+              "atBatIndex": 84
+            },
+            {
+              "code": "PRE_EVENT_OUT_COUNT_MISMATCH",
+              "atBatIndex": 84
+            },
+            {
+              "code": "PRE_EVENT_OUT_COUNT_MISMATCH",
+              "atBatIndex": 84
+            },
+            {
+              "code": "PRE_EVENT_OUT_COUNT_MISMATCH",
+              "atBatIndex": 84
+            },
+            {
+              "code": "DISTINCT_OUT_RECONCILIATION_FAILED",
+              "atBatIndex": 84
+            },
+            {
+              "code": "POST_PA_OUT_COUNT_MISMATCH",
+              "atBatIndex": 84
+            },
+            {
+              "code": "PRE_EVENT_OUT_COUNT_MISMATCH",
+              "atBatIndex": 85
+            },
+            {
+              "code": "PRE_EVENT_OUT_COUNT_MISMATCH",
+              "atBatIndex": 85
+            },
+            {
+              "code": "PRE_EVENT_OUT_COUNT_MISMATCH",
+              "atBatIndex": 85
+            },
+            {
+              "code": "DISTINCT_OUT_RECONCILIATION_FAILED",
+              "atBatIndex": 85
+            },
+            {
+              "code": "POST_PA_OUT_COUNT_MISMATCH",
+              "atBatIndex": 85
+            },
+            {
+              "code": "UNSUPPORTED_HALF_TERMINATION",
+              "atBatIndex": null
+            }
+          ],
+          "personalHistories": 0
+        },
+        {
+          "inning": 11,
+          "half": "bottom",
+          "status": "withheld",
+          "issues": [
+            {
+              "code": "UNSUPPORTED_EVENT_EFFECT:runner_placed",
+              "atBatIndex": 86
+            },
+            {
+              "code": "POST_BASE_RECONCILIATION_FAILED",
+              "atBatIndex": 86
+            },
+            {
+              "code": "POST_BASE_RECONCILIATION_FAILED",
+              "atBatIndex": 87
+            },
+            {
+              "code": "UNSUPPORTED_RUNNER_ENTRY",
+              "atBatIndex": 88
+            },
+            {
+              "code": "POST_BASE_RECONCILIATION_FAILED",
+              "atBatIndex": 88
+            }
+          ],
+          "personalHistories": 0
+        }
+      ],
+      "boundaryIssues": []
+    },
+    {
+      "gamePk": "823989",
+      "sourcePath": "Baseball/data/raw/samples/2026-08-25/823989.json",
+      "sourceSha256": "c514ca5c88becd1d917b5b9f2ff3e8d5cf4fca21831dd8377702ed42518b00a5",
+      "histories": 28,
+      "scoringHistories": 9,
+      "complete": false,
+      "halves": [
+        {
+          "inning": 1,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 1,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 2,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 4
+        },
+        {
+          "inning": 2,
+          "half": "bottom",
+          "status": "withheld",
+          "issues": [
+            {
+              "code": "UNSUPPORTED_EVENT_EFFECT:offensive_substitution",
+              "atBatIndex": 18
+            },
+            {
+              "code": "UNSUPPORTED_RUNNER_ENTRY",
+              "atBatIndex": 18
+            },
+            {
+              "code": "CONFLICTING_BASE_OCCUPANCY",
+              "atBatIndex": 18
+            },
+            {
+              "code": "CONFLICTING_BASE_OCCUPANCY",
+              "atBatIndex": 21
+            },
+            {
+              "code": "CONFLICTING_BASE_OCCUPANCY",
+              "atBatIndex": 22
+            },
+            {
+              "code": "CONFLICTING_BASE_OCCUPANCY",
+              "atBatIndex": 22
+            },
+            {
+              "code": "CONFLICTING_BASE_OCCUPANCY",
+              "atBatIndex": 22
+            },
+            {
+              "code": "CONFLICTING_BASE_OCCUPANCY",
+              "atBatIndex": 22
+            },
+            {
+              "code": "CONFLICTING_BASE_OCCUPANCY",
+              "atBatIndex": 22
+            },
+            {
+              "code": "CONFLICTING_BASE_OCCUPANCY",
+              "atBatIndex": 22
+            },
+            {
+              "code": "CONFLICTING_BASE_OCCUPANCY",
+              "atBatIndex": 22
+            },
+            {
+              "code": "CONFLICTING_BASE_OCCUPANCY",
+              "atBatIndex": 22
+            },
+            {
+              "code": "CONFLICTING_BASE_OCCUPANCY",
+              "atBatIndex": 22
+            },
+            {
+              "code": "CONFLICTING_BASE_OCCUPANCY",
+              "atBatIndex": 22
+            },
+            {
+              "code": "CONFLICTING_BASE_OCCUPANCY",
+              "atBatIndex": 22
+            },
+            {
+              "code": "CONFLICTING_BASE_OCCUPANCY",
+              "atBatIndex": 22
+            },
+            {
+              "code": "CONFLICTING_BASE_OCCUPANCY",
+              "atBatIndex": 22
+            },
+            {
+              "code": "CONFLICTING_BASE_OCCUPANCY",
+              "atBatIndex": 23
+            }
+          ],
+          "personalHistories": 0
+        },
+        {
+          "inning": 3,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 3,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 4,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 4
+        },
+        {
+          "inning": 4,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 5,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 4
+        },
+        {
+          "inning": 5,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 6,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 6,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 7,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 7,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 8,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 8,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 9,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 9,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 10,
+          "half": "top",
+          "status": "withheld",
+          "issues": [
+            {
+              "code": "UNSUPPORTED_EVENT_EFFECT:runner_placed",
+              "atBatIndex": 86
+            },
+            {
+              "code": "UNSUPPORTED_RUNNER_ENTRY",
+              "atBatIndex": 86
+            },
+            {
+              "code": "POST_BASE_RECONCILIATION_FAILED",
+              "atBatIndex": 86
+            },
+            {
+              "code": "POST_BASE_RECONCILIATION_FAILED",
+              "atBatIndex": 87
+            },
+            {
+              "code": "UNSUPPORTED_RUNNER_ENTRY",
+              "atBatIndex": 88
+            }
+          ],
+          "personalHistories": 0
+        },
+        {
+          "inning": 10,
+          "half": "bottom",
+          "status": "withheld",
+          "issues": [
+            {
+              "code": "UNSUPPORTED_EVENT_EFFECT:runner_placed",
+              "atBatIndex": 92
+            },
+            {
+              "code": "POST_BASE_RECONCILIATION_FAILED",
+              "atBatIndex": 92
+            },
+            {
+              "code": "UNSUPPORTED_RUNNER_ENTRY",
+              "atBatIndex": 93
+            },
+            {
+              "code": "POST_BASE_RECONCILIATION_FAILED",
+              "atBatIndex": 93
+            },
+            {
+              "code": "POST_BASE_RECONCILIATION_FAILED",
+              "atBatIndex": 94
+            }
+          ],
+          "personalHistories": 0
+        }
+      ],
+      "boundaryIssues": []
+    },
+    {
+      "gamePk": "824233",
+      "sourcePath": "Baseball/data/raw/samples/2026-08-25/824233.json",
+      "sourceSha256": "aeb5a4c4f0ba59bf73af79427d943137bb573412d9d5ca655f0d107694667abc",
+      "histories": 18,
+      "scoringHistories": 5,
+      "complete": false,
+      "halves": [
+        {
+          "inning": 1,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 1,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 2,
+          "half": "top",
+          "status": "withheld",
+          "issues": [
+            {
+              "code": "PRE_EVENT_OUT_COUNT_MISMATCH",
+              "atBatIndex": 8
+            },
+            {
+              "code": "MISSING_STABLE_MOVEMENT_ANCHOR",
+              "atBatIndex": 8
+            }
+          ],
+          "personalHistories": 0
+        },
+        {
+          "inning": 2,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 3,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 3,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 4,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 4
+        },
+        {
+          "inning": 4,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 5,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 5,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 5
+        },
+        {
+          "inning": 6,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 6,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 7,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 7,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 8,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 8,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 9,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        }
+      ],
+      "boundaryIssues": [
+        {
+          "code": "AMBIGUOUS_PA_TIME_ORDER",
+          "atBatIndex": 22,
+          "previousEndBound": "2026-08-25T23:30:09.189000+00:00",
+          "startBound": "2026-08-25T23:30:08.893Z"
+        },
+        {
+          "code": "AMBIGUOUS_PA_TIME_ORDER",
+          "atBatIndex": 39,
+          "previousEndBound": "2026-08-26T00:05:45.271000+00:00",
+          "startBound": "2026-08-26T00:05:31.237Z"
+        }
+      ]
+    },
+    {
+      "gamePk": "824556",
+      "sourcePath": "Baseball/data/raw/samples/2026-08-25/824556.json",
+      "sourceSha256": "09af25775444c803565de0bd750d0d590165c17cb647e9f7f03a9e5c11697e8f",
+      "histories": 41,
+      "scoringHistories": 18,
+      "complete": true,
+      "halves": [
+        {
+          "inning": 1,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 1,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 7
+        },
+        {
+          "inning": 2,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 2,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 3,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 3,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 4,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 4,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 6
+        },
+        {
+          "inning": 5,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 5
+        },
+        {
+          "inning": 5,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 3
+        },
+        {
+          "inning": 6,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 5
+        },
+        {
+          "inning": 6,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 7,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 7,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 8,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 8,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 9,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 4
+        }
+      ],
+      "boundaryIssues": [
+        {
+          "code": "AMBIGUOUS_PA_TIME_ORDER",
+          "atBatIndex": 60,
+          "previousEndBound": "2026-08-26T01:55:01.914000+00:00",
+          "startBound": "2026-08-26T01:54:51.471Z"
+        }
+      ]
+    },
+    {
+      "gamePk": "824881",
+      "sourcePath": "Baseball/data/raw/samples/2026-08-25/824881.json",
+      "sourceSha256": "da4379f15eeb966b3fa7af7131aaa502f9a8f7e9df54a3ac105e25dfaac457ea",
+      "histories": 26,
+      "scoringHistories": 7,
+      "complete": true,
+      "halves": [
+        {
+          "inning": 1,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 1,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 4
+        },
+        {
+          "inning": 2,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 5
+        },
+        {
+          "inning": 2,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 3,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 3,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 4,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 3
+        },
+        {
+          "inning": 4,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 5,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 5,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 6,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 6,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 7,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 7,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 3
+        },
+        {
+          "inning": 8,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 8,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 9,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        }
+      ],
+      "boundaryIssues": [
+        {
+          "code": "AMBIGUOUS_PA_TIME_ORDER",
+          "atBatIndex": 34,
+          "previousEndBound": "2026-08-26T00:25:47.803000+00:00",
+          "startBound": "2026-08-26T00:25:47.492Z"
+        }
+      ]
+    },
+    {
+      "gamePk": "824962",
+      "sourcePath": "Baseball/data/raw/samples/2026-08-25/824962.json",
+      "sourceSha256": "a8e1221a02238c433f6044ec9d58f8023af0854cc0e0875da890193fc8515df7",
+      "histories": 16,
+      "scoringHistories": 6,
+      "complete": true,
+      "halves": [
+        {
+          "inning": 1,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 1,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 2,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 2,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 3,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 3,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 4,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 4,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 5,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 5,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 6,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 6,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 3
+        },
+        {
+          "inning": 7,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 5
+        },
+        {
+          "inning": 7,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 8,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 8,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 9,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        }
+      ],
+      "boundaryIssues": [
+        {
+          "code": "AMBIGUOUS_PA_TIME_ORDER",
+          "atBatIndex": 1,
+          "previousEndBound": "2026-08-26T01:41:41.633000+00:00",
+          "startBound": "2026-08-26T01:41:41.258Z"
+        },
+        {
+          "code": "AMBIGUOUS_PA_TIME_ORDER",
+          "atBatIndex": 14,
+          "previousEndBound": "2026-08-26T02:06:48.930000+00:00",
+          "startBound": "2026-08-26T02:06:47.330Z"
+        }
+      ]
+    },
+    {
+      "gamePk": "825042",
+      "sourcePath": "Baseball/data/raw/samples/2026-08-25/825042.json",
+      "sourceSha256": "4588d11562cd1d4882ac7eb237d1a98be6e65b38728b04c597e31867daff4a1c",
+      "histories": 13,
+      "scoringHistories": 4,
+      "complete": false,
+      "halves": [
+        {
+          "inning": 1,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 1,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 2,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 2,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 3,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 3,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 4,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 3
+        },
+        {
+          "inning": 4,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 5,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 5,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 6,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 2
+        },
+        {
+          "inning": 6,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 1
+        },
+        {
+          "inning": 7,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 3
+        },
+        {
+          "inning": 7,
+          "half": "bottom",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 8,
+          "half": "top",
+          "status": "reconciled",
+          "issues": [],
+          "personalHistories": 0
+        },
+        {
+          "inning": 8,
+          "half": "bottom",
+          "status": "withheld",
+          "issues": [
+            {
+              "code": "UNSUPPORTED_EVENT_EFFECT:offensive_substitution",
+              "atBatIndex": 59
+            },
+            {
+              "code": "UNSUPPORTED_RUNNER_ENTRY",
+              "atBatIndex": 59
+            },
+            {
+              "code": "CONFLICTING_BASE_OCCUPANCY",
+              "atBatIndex": 59
+            },
+            {
+              "code": "POST_BASE_RECONCILIATION_FAILED",
+              "atBatIndex": 59
+            },
+            {
+              "code": "CONFLICTING_BASE_OCCUPANCY",
+              "atBatIndex": 60
+            },
+            {
+              "code": "CONFLICTING_BASE_OCCUPANCY",
+              "atBatIndex": 60
+            },
+            {
+              "code": "CONFLICTING_BASE_OCCUPANCY",
+              "atBatIndex": 60
+            },
+            {
+              "code": "CONFLICTING_BASE_OCCUPANCY",
+              "atBatIndex": 60
+            },
+            {
+              "code": "CONFLICTING_BASE_OCCUPANCY",
+              "atBatIndex": 60
+            },
+            {
+              "code": "POST_BASE_RECONCILIATION_FAILED",
+              "atBatIndex": 60
+            },
+            {
+              "code": "CONFLICTING_BASE_OCCUPANCY",
+              "atBatIndex": 61
+            },
+            {
+              "code": "CONFLICTING_BASE_OCCUPANCY",
+              "atBatIndex": 61
+            },
+            {
+              "code": "CONFLICTING_BASE_OCCUPANCY",
+              "atBatIndex": 61
+            },
+            {
+              "code": "CONFLICTING_BASE_OCCUPANCY",
+              "atBatIndex": 61
+            },
+            {
+              "code": "UNSUPPORTED_RUNNER_ENTRY",
+              "atBatIndex": 61
+            }
+          ],
+          "personalHistories": 0
+        },
+        {
+          "inning": 9,
+          "half": "top",
+          "status": "withheld",
+          "issues": [
+            {
+              "code": "PRE_EVENT_OUT_COUNT_MISMATCH",
+              "atBatIndex": 66
+            },
+            {
+              "code": "MISSING_STABLE_MOVEMENT_ANCHOR",
+              "atBatIndex": 66
+            }
+          ],
+          "personalHistories": 0
+        },
+        {
+          "inning": 9,
+          "half": "bottom",
+          "status": "withheld",
+          "issues": [
+            {
+              "code": "UNSUPPORTED_EVENT_EFFECT:offensive_substitution",
+              "atBatIndex": 69
+            },
+            {
+              "code": "POST_BASE_RECONCILIATION_FAILED",
+              "atBatIndex": 69
+            },
+            {
+              "code": "UNRESOLVED_REVIEW_EFFECT",
+              "atBatIndex": 70
+            },
+            {
+              "code": "UNRESOLVED_REVIEW_EFFECT",
+              "atBatIndex": 70
+            },
+            {
+              "code": "UNSUPPORTED_RUNNER_ENTRY",
+              "atBatIndex": 70
+            },
+            {
+              "code": "UNSUPPORTED_RUNNER_ENTRY",
+              "atBatIndex": 70
+            }
+          ],
+          "personalHistories": 0
+        }
+      ],
+      "boundaryIssues": []
+    }
+  ]
+}

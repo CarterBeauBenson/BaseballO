@@ -1,0 +1,31 @@
+{
+  "artifactType": "baseballo-run-contributor-gap",
+  "gamePk": "822773",
+  "metricId": "run-construction-breadth",
+  "sourceSha256": "fa98482cc0ddb8760e77864cd7225ecac498ba8ee86b5a7bfcb8a1753483353d",
+  "rdfSha256": "96f16aa2ee808b0e8a30a8557321567aa52376489f9c0a47704c227bc7f92cf8",
+  "implementationSha256": "f7594780e4612dd54abc1f641ddf08ea24faacbdb6e7da305e8fc1bb551e57e4",
+  "supportedRuns": 7,
+  "unresolvedRuns": [
+    {
+      "graph": "https://w3id.org/baseball/graph/game/822773",
+      "game": "https://baseballontology.org/data/game/822773",
+      "run": "https://baseballontology.org/data/game/822773/runner-resolution/score/83/2",
+      "status": "unavailable",
+      "value": null,
+      "gaps": [
+        "UNSUPPORTED_RUN_CONTRIBUTOR"
+      ],
+      "trajectories": [
+        "https://baseballontology.org/data/game/822773/runner-trajectory/d5583679c6634381a4add3e590cec72caeb69b5723083ff1fd7a074320396919"
+      ]
+    }
+  ],
+  "sourceCase": {
+    "atBatIndex": 83,
+    "runnerIndex": 0,
+    "runnerId": 703520,
+    "eventType": "defensive_indiff"
+  },
+  "livePopulationComplete": false
+}

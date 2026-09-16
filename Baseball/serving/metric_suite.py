@@ -24,7 +24,7 @@ from rdflib import Graph, Literal
 
 ROOT = Path(__file__).resolve().parents[1]
 METRICS = ROOT / 'sparql/metrics'
-VERSION = '2.0.30'
+VERSION = '2.0.31'
 
 
 class EvidenceError(ValueError):
@@ -794,6 +794,7 @@ def normalize_bindings(bindings, graphs):
                       'playerTeamRole', 'team', 'teamRole', 'paResult', 'paResultType',
                       'paResultJudgment', 'paResultDecision', 'paResultRecord',
                       'original', 'operative', 'disposition', 'plateAppearance', 'resolution',
+                      'reviewPA', 'reviewPitch', 'reviewMotion', 'reviewBatterAct', 'affectedPlayer',
                       'runner', 'originDesignation', 'originBase', 'destinationBase', 'batter',
                       'awardRule', 'contactPlay', 'award', 'record', 'episode',
                       'originRecord', 'safeJudgment', 'safeDecision', 'trajectory',
@@ -1237,6 +1238,40 @@ def summarize_paq21_players(reference_observations, *, expected_reference, selec
     return result
 
 
+def review_player_evidence(rows):
+    """M2 subject attribution from existing RDF, never a population proof.
+
+    The source/graph review census and mechanism evidence are independent
+    prerequisites for player rates. Unknown or conflicting subjects retain
+    the review without assigning the final PA batter or its challenger.
+    """
+    groups = defaultdict(list)
+    for row in rows:
+        if row['kind'] == 'review':
+            groups[(row['graph'], row['entity'])].append(row)
+    output = []
+    fields = ('reviewPA', 'reviewPitch', 'reviewMotion', 'reviewBatterAct', 'affectedPlayer')
+    for (graph, review), observations in sorted(groups.items()):
+        decisions = {(r.get('original'), r.get('operative'), r.get('decision')) for r in observations}
+        subjects = {tuple(r.get(f) for f in fields) for r in observations}
+        gap = None
+        if len(decisions) != 1:
+            gap = 'CONFLICTING_REVIEW_DISPOSITION'
+        elif not all(next(iter(decisions))) or next(iter(decisions))[2] not in {'affirmed', 'reversed'}:
+            gap = 'OPERATIVE_REVIEW'
+        elif len(subjects) != 1:
+            gap = 'CONFLICTING_REVIEW_SUBJECT'
+        elif not all(next(iter(subjects))):
+            gap = 'AFFECTED_PLAYER_EVIDENCE'
+        item = dict(graph=graph, review=review, affectedPlayer=None,
+                    attributionStatus='withheld' if gap else 'supported', gaps=[gap] if gap else [])
+        if gap is None:
+            item.update(zip(fields, next(iter(subjects))))
+            item['decision'] = next(iter(decisions))[2]
+        output.append(item)
+    return output
+
+
 def live_result(metric_id, rows, *, graph_count):
     entry = next((e for e in catalog()['metrics'] if e['id'] == metric_id), None)
     if entry is None:
@@ -1295,8 +1330,10 @@ def live_result(metric_id, rows, *, graph_count):
     coverage.update(resolvedReviews=len(admitted), unresolvedReviews=unresolved,
                     population='explicitly resolved mapped reviews in selected graphs')
     result = calculate(metric_id, admitted)
+    subjects = review_player_evidence(rows)
+    coverage['reviewsWithAffectedPlayer'] = sum(r['attributionStatus']=='supported' for r in subjects)
     result.update(coverage=coverage, metricId=metric_id, evidence=sorted(set(evidence)),
-                  scope=coverage['population'], grain=entry['grain'])
+                  scope=coverage['population'], grain=entry['grain'], reviewEvidence=subjects)
     return result
 
 

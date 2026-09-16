@@ -27,6 +27,15 @@ including isolated player means for six batting metrics and both run metrics.
 PA-start ambiguity remains separately withheld; this developer result does not
 assert that the live date range or reference season is ready.
 
+The [subsequent record/review proof](../benchmarks/metrics/runner-records-review-subjects-2026-09-16/README.md)
+raises complete source histories to **9 of 15** (363 personal histories).
+Game 822773 passes RML/source SHACL with 35 histories and 83 episode links.
+Canonical review extraction now follows the shared decision subject to the
+pitch and its unique actual batting participation; two real affected batters
+survive exact SQL retention. Substituted/ambiguous participation remains
+unassigned. This closes a bounded affected-player extraction gap, not the
+separate review-mechanism, complete-population or qualification gates.
+
 | Public metric | Player producer | Remaining work before complete live results |
 | --- | --- | --- |
 | Plate Appearance Contribution | Implemented conditionally | Complete attributed PA inputs and selected schedules; supported independent prefixes stay separate |
@@ -45,7 +54,7 @@ assert that the live date range or reference season is ready.
 | Defenders Involved | Unfinished | Complete supported defensive act/agent population and participation |
 | Scoring History Length | Implemented conditionally | Every counted scoring history, source run/roster proof and selected schedule |
 | Run Contributors | Implemented conditionally | Same complete scoring histories with supported contribution ownership |
-| Replay Overturn Rate | Unfinished as a player producer | Existing review-population calculation is available; affected-player assignment, mechanism and complete player qualification remain |
+| Replay Overturn Rate | Unfinished as a player producer | Pitch-review affected-player extraction and SQL retention implemented; other subjects, mechanisms, complete population and qualification remain |
 | Outcomes Changed by Review | Unfinished | Complete eligible never-reviewed decisions, decision-time legal availability, operative outcomes, affected players and separate mechanisms |
 | PAQ with Tie-Breakers | Unfinished | Contribution, two-strike and defensive dimensions with known applicability and a complete separate season reference |
 
