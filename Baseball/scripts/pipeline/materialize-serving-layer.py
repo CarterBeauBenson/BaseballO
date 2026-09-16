@@ -11,6 +11,7 @@ import os
 import re
 import sqlite3
 import statistics
+import sys
 import tempfile
 import time
 import urllib.parse
@@ -26,6 +27,17 @@ from rdflib.plugins.sparql.processor import prepareQuery
 
 
 ROOT = Path(__file__).resolve().parents[2]
+_release_spec = importlib.util.spec_from_file_location('baseballo_serving_release', ROOT / 'scripts/pipeline/serving_release.py')
+_serving_release = importlib.util.module_from_spec(_release_spec)
+_release_spec.loader.exec_module(_serving_release)
+if __name__ == '__main__':
+    try:
+        _release_exit = _serving_release.dispatch(ROOT, sys.argv[1:], mode='build')
+    except Exception as error:
+        print(json.dumps({'status':'failed','error':str(error),'failureKind':'release-preparation-failed'}))
+        raise SystemExit(1)
+    if _release_exit is not None:
+        raise SystemExit(_release_exit)
 _metric_spec = importlib.util.spec_from_file_location('baseballo_metric_suite', ROOT / 'serving/metric_suite.py')
 _metric_suite = importlib.util.module_from_spec(_metric_spec)
 _metric_spec.loader.exec_module(_metric_suite)
@@ -973,6 +985,9 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
 
 def _build(args: argparse.Namespace, progress: dict[str, Any]) -> dict[str, Any]:
     state_root = args.state_root.resolve()
+    runtime_release = _serving_release.own_descriptor(ROOT)
+    if runtime_release:
+        _serving_release.verify_release(state_root, runtime_release)
     store_root = state_root / "serving"
     builds_root = store_root / "builds"
     evidence_root = store_root / "evidence"
@@ -1514,7 +1529,10 @@ def _build(args: argparse.Namespace, progress: dict[str, Any]) -> dict[str, Any]
         for layer in ("authoritative", "indexed")
     }
     guard.check(completed=len(dimensions),total=len(dimensions),phase='publication-checks')
+    if runtime_release:
+        _serving_release.verify_release(state_root, runtime_release)
     evidence = {
+        "runtimeRelease": runtime_release,
         "metricSuiteSha256": metric_suite_sha256,
         "buildInputHashes":dict(guard.hashes),
         "metricSuite": {"games": len(metric_suite_proofs),
@@ -1636,6 +1654,7 @@ def _build(args: argparse.Namespace, progress: dict[str, Any]) -> dict[str, Any]
         )
         atomic_json(evidence_path, evidence)
         pointer = {
+            "runtimeRelease": runtime_release,
             "metricSuiteSha256": metric_suite_sha256,
             "artifactType": "baseball-analytical-serving-pointer",
             "contractVersion": 5,

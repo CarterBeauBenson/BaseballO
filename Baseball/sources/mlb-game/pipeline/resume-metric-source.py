@@ -258,10 +258,21 @@ def serving_revision():
     spec=importlib.util.spec_from_file_location('mlb_recovery_metric_fingerprint',path)
     module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
     paths=[BASEBALL_ROOT/'scripts/pipeline'/name for name in
-           ('materialize-serving-layer.py','serving_query_cache.py','serving_preflight_queries.py','serving_build_guard.py')]
+           ('materialize-serving-layer.py','serving_query_cache.py','serving_preflight_queries.py','serving_build_guard.py','serving_release.py')]
     inputs={str(p.relative_to(BASEBALL_ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
     inputs['metric-suite']=module.fingerprint()
     return hashlib.sha256(json.dumps(inputs,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+
+
+def serving_launcher_committed():
+    """A first-deployment refusal is retryable only after the launcher is committed."""
+    for name in ('serving_release.py','materialize-serving-layer.py'):
+        relative='Baseball/scripts/pipeline/'+name
+        result=subprocess.run(['git','-C',str(BASEBALL_ROOT.parent),'show','HEAD:'+relative],
+                              capture_output=True,check=False,timeout=15)
+        if result.returncode or result.stdout!=(BASEBALL_ROOT/'scripts/pipeline'/name).read_bytes():
+            return False
+    return True
 
 
 def obsolete_sql_failure(state_root, plan, failures):
@@ -306,14 +317,19 @@ def obsolete_sql_failure(state_root, plan, failures):
         raw=log.read_bytes()
         output=json.loads(raw.decode('utf-16' if raw.startswith((b'\xff\xfe',b'\xfe\xff')) else 'utf-8-sig'))
         if not isinstance(output,dict) or output.get('status')!='failed':return None
-        if (output.get('failureKind')!='implementation-changed'
+        failure_kind='implementation-changed'
+        if output=={'status':'failed','error':'Commit the serving release launcher before deploying it',
+                    'failureKind':'release-preparation-failed'}:
+            if not serving_launcher_committed():return None
+            failure_kind='release-not-committed'
+        elif (output.get('failureKind')!='implementation-changed'
                 and output!={'status':'failed','error':'Metric implementation changed during materialization'}):return None
     except (OSError,ValueError,KeyError):return None
     return dict(proofRunId=run,quarantinedAtUtc=failure['quarantinedAtUtc'],
         quarantineEvidence=str(failure_path.relative_to(state_root)),
         quarantineSha256=hashlib.sha256(failure_path.read_bytes()).hexdigest(),
         materializeLogSha256=hashlib.sha256(raw).hexdigest(),stageEvidenceSha256=hashes,
-        failureKind='implementation-changed')
+        failureKind=failure_kind)
 
 
 def advance(state_root, plan, nifi, release=proof_release):
@@ -464,6 +480,17 @@ def advance(state_root, plan, nifi, release=proof_release):
 
 
 def tick(state_root):
+    # NiFi also pairs an existing validated database with its exact historical
+    # runtime. This runs independently of a long replacement SQL build.
+    release_path=BASEBALL_ROOT/'scripts/pipeline/serving_release.py'
+    spec=importlib.util.spec_from_file_location('mlb_serving_release',release_path)
+    serving_release=importlib.util.module_from_spec(spec);spec.loader.exec_module(serving_release)
+    try:
+        release_result=serving_release.prepare_legacy(BASEBALL_ROOT.parent,state_root)
+    except (OSError,ValueError,subprocess.SubprocessError) as error:
+        # Failure cannot admit a legacy pointer; a new normal build still runs.
+        release_result={'status':'failed','error':str(error)}
+    serving_release.atomic(Path(state_root)/'serving/runtime-preparation.json',release_result)
     path = plan_path(state_root)
     if not path.exists():
         return {"status": "idle", "deferMaterialization": False}

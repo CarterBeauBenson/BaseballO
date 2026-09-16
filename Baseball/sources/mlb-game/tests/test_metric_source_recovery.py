@@ -295,6 +295,23 @@ class RecoveryTests(unittest.TestCase):
         self.step();self.obsolete_sql(legacy=True)
         self.assertEqual(self.step()['status'],'waiting-serving')
 
+    def test_initial_release_refusal_requires_committed_launcher_and_preserves_failure(self):
+        self.step();directory,failure=self.obsolete_sql()
+        output={'status':'failed','error':'Commit the serving release launcher before deploying it',
+                'failureKind':'release-preparation-failed'}
+        (directory/'materialize.log').write_text(json.dumps(output),encoding='utf-8')
+        before=failure.read_bytes()
+        failures=set(recovery.names(self.failure_root,'*/failure.json'))-set(self.plan['priorProofFailures'])
+        with patch.object(recovery,'serving_launcher_committed',return_value=False):
+            self.assertIsNone(recovery.obsolete_sql_failure(self.root,self.plan,failures))
+        with patch.object(recovery,'serving_launcher_committed',return_value=True):
+            self.assertEqual(self.step()['status'],'waiting-serving')
+        self.assertEqual(self.plan['obsoleteSqlProofs'][0]['failureKind'],'release-not-committed')
+        self.assertEqual(failure.read_bytes(),before)
+        output['error']='Serving release manifest changed'
+        (directory/'materialize.log').write_text(json.dumps(output),encoding='utf-8')
+        self.assertIsNone(recovery.obsolete_sql_failure(self.root,self.plan,failures))
+
     def test_both_historical_and_nifi_stage_names_are_recognized(self):
         for stage in ('materialize','materialization'):
             with self.subTest(stage=stage):

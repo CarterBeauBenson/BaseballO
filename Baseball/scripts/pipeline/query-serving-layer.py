@@ -20,6 +20,17 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[2]
+_release_spec = importlib.util.spec_from_file_location('baseballo_serving_release', ROOT / 'scripts/pipeline/serving_release.py')
+_serving_release = importlib.util.module_from_spec(_release_spec)
+_release_spec.loader.exec_module(_serving_release)
+if __name__ == '__main__':
+    try:
+        _release_exit = _serving_release.dispatch(ROOT, sys.argv[1:], mode='query')
+    except Exception as error:
+        print(json.dumps({'status':'unavailable','error':str(error)}))
+        raise SystemExit(2)
+    if _release_exit is not None:
+        raise SystemExit(_release_exit)
 _metric_spec = importlib.util.spec_from_file_location('baseballo_metric_suite', ROOT / 'serving/metric_suite.py')
 _metric_suite = importlib.util.module_from_spec(_metric_spec)
 _metric_spec.loader.exec_module(_metric_suite)
@@ -903,7 +914,7 @@ def query(args: argparse.Namespace, request: dict[str, Any]) -> dict[str, Any]:
     if query_ids != reducer_ids or query_ids != set(reducers.get("ordering", {})):
         raise ValueError("Reviewed SQL reducer coverage is incomplete")
     pointer_path = args.state_root.resolve() / "serving" / "current.json"
-    pointer = load_object(pointer_path)
+    pointer = _serving_release.query_pointer(args.state_root.resolve(), ROOT)
     if pointer.get("artifactType") != "baseball-analytical-serving-pointer" or pointer.get("contractVersion") != 5:
         raise ValueError("Unsupported serving pointer contract")
     for key, path in (

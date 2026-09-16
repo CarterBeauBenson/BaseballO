@@ -135,8 +135,10 @@ PAQ-1.0 is defined by [`plate-appearance-quality-v1.json`](plate-appearance-qual
 It produces one `.000`–`1.000` rating per plate appearance from MLB outcome,
 the existing bounded grind evidence, and situational evidence. The rating
 contract, query, schema, materializer, mapping, and read
-adapter hashes are all recorded in each immutable build. A change to any one
-of them makes the prior build stale.
+adapter hashes are all recorded in each immutable build. Each published build
+uses its captured code release; changes to that release make it invalid, while
+working-tree edits do not invalidate the published pair. See
+[immutable serving releases](BUILD-REUSE.md#immutable-code-and-database-releases).
 
 PAQ-1.0 remains available for reproducibility, but its grind and game-context
 designs are under review. The suspected context-query defect and PAQ-2.0
