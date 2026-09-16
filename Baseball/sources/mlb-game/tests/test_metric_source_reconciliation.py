@@ -74,6 +74,27 @@ class ReconciliationTests(unittest.TestCase):
         report = self.changed(lambda d: d['liveData']['linescore']['innings'][0]['away'].update(runs=999))
         self.assertIn('INNING_RUN_TOTAL_MISMATCH', self.codes(report))
 
+    def test_event_scoring_evidence_survives_a_nonscoring_pa_header(self):
+        doc=copy.deepcopy(self.source)
+        p=next(p for p in doc['liveData']['plays']['allPlays'] if p['about']['isScoringPlay'])
+        p['about']['isScoringPlay']=False
+        scored={r['details']['playIndex'] for r in p['runners'] if r['details']['isScoringEvent']}
+        for e in p['playEvents']:
+            if e['index'] in scored:e['details']['isScoringPlay']=True
+        report=R.reconcile(json.dumps(doc).encode(),'824315')
+        self.assertEqual(report['status'],'consistent',report['issues'])
+        for fault in ('missing-event-flag','missing-index','phantom-event-run'):
+            changed=copy.deepcopy(doc);play=changed['liveData']['plays']['allPlays'][p['atBatIndex']]
+            if fault=='missing-event-flag':
+                for e in play['playEvents']:e['details']['isScoringPlay']=False
+                code='SCORING_MEMBERSHIP_MISMATCH'
+            elif fault=='missing-index':
+                changed['liveData']['plays']['scoringPlays'].remove(p['atBatIndex']);code='SCORING_INDEX_MISMATCH'
+            else:
+                next(e for e in play['playEvents'] if e['index'] not in scored)['details']['isScoringPlay']=True
+                code='SCORING_EVENT_MEMBERSHIP_MISMATCH'
+            self.assertIn(code,self.codes(R.reconcile(json.dumps(changed).encode(),'824315')))
+
     def test_missing_or_duplicate_event_cannot_satisfy_movement_link(self):
         report = self.changed(lambda d: d['liveData']['plays']['allPlays'][35]['playEvents'].pop())
         self.assertIn('MOVEMENT_EVENT_MEMBERSHIP_MISMATCH', self.codes(report))

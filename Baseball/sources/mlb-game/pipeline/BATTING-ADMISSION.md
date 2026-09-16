@@ -10,6 +10,20 @@ batting-stat blocks imply zero only when nonnegative PA totals and an exact
 zero team-total residual independently establish that result. Unresolved
 credit, substitutions or source inconsistencies withhold qualification.
 
+A pinch hitter at an untouched 0-0 count may follow a pitching change or mound
+visit in the event array. Those entries must be explicit non-pitch actions
+with unchanged outs, zero balls/strikes, no count award, scoring, out or runner
+movement. Their array position does not establish earlier batting participation.
+The incoming/outgoing roster identities and exact graph/official-PA census
+still have to reconcile. Other prefixes and actual mid-turn substitutions do
+not acquire single-batter admission from this rule.
+
+Source scoring reconciliation uses both the PA header and explicit event
+scoring evidence. A passed-ball score before a later groundout can have a false
+PA-header scoring flag. Every scored runner must then match an explicitly
+flagged event; scoringPlays and inning/team totals must still match. This does
+not turn an independent run into batting contribution.
+
 The script binds source expectations into
 `../shacl/batting-admission.ttl`. Graph membership and cardinality decisions
 execute in SHACL: exact PA/Batter Act/Role/bearer and adjudication paths,

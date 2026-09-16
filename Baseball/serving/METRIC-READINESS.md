@@ -7,6 +7,18 @@ each requires complete source/graph, period, eligibility and qualification
 admission. All twenty calculation kernels exist; Role Realization Breadth is
 the backend-only twentieth metric and is not another public card.
 
+The September 16 live check confirmed the August 25 NiFi refresh completed and
+the API returned all 19 cards from the SQL build. The selected schedule covered
+all 15 games, but six official-PA admissions were withheld and no player
+leaderboard was populated. The [focused follow-up](../benchmarks/metrics/dashboard-admission-fixes-2026-09-16/README.md)
+repairs zero-count pinch hitters after pitching changes/mound visits, event-level
+scoring before a nonscoring batting result, and an empty strikeout record beside
+an explicit safe wild-pitch advance. All six affected sources now reconcile.
+Game 823826 passes current RML/source SHACL plus B1, counted-run and
+runner-resolution admissions. The new NiFi request owns fresh population
+validation and serving publication; those checks are not a claim that all
+player histories or leaderboards are complete.
+
 | Public metric | Player producer | Remaining work before complete live results |
 | --- | --- | --- |
 | Plate Appearance Contribution | Implemented conditionally | Complete attributed PA inputs and selected schedules; supported independent prefixes stay separate |

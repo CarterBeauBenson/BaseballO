@@ -1,0 +1,273 @@
+{
+  "artifactType": "baseballo-dashboard-observation",
+  "observedDate": "2026-09-16",
+  "request": {
+    "gameSet": "regular_season",
+    "dateScope": {
+      "preset": "custom",
+      "startDate": "2026-08-25",
+      "endDate": "2026-08-25"
+    }
+  },
+  "responseSha256": "1cabc39d783d9232d09a3a827e8cceed75a42f805564ed3deee73b12a59f28ac",
+  "battingQualification": {
+    "officialPlateAppearanceCreditVerified": false,
+    "teamGameExposureVerified": false,
+    "selectedGamesComplete": true,
+    "admittedGames": 9,
+    "withheldGraphs": [
+      "https://w3id.org/baseball/graph/game/823259",
+      "https://w3id.org/baseball/graph/game/823505",
+      "https://w3id.org/baseball/graph/game/823585",
+      "https://w3id.org/baseball/graph/game/823826",
+      "https://w3id.org/baseball/graph/game/824881",
+      "https://w3id.org/baseball/graph/game/825042"
+    ],
+    "officialPlateAppearances": 0,
+    "rosteredPlayers": 0,
+    "schedule": {
+      "complete": true,
+      "missingDates": [],
+      "missingGraphs": [],
+      "unexpectedGraphs": [],
+      "unresolvedGraphs": [],
+      "expectedGames": 15
+    }
+  },
+  "implementationSha256": "6f275ba6a7564697f70f335bc3419e755c8f1697e86774ee381ca28ec4bba064",
+  "dateScope": {
+    "preset": "custom",
+    "startDate": "2026-08-25",
+    "endDate": "2026-08-25",
+    "availableStartDate": "2026-03-26",
+    "availableEndDate": "2026-09-15",
+    "dateBasis": "official-source",
+    "gameSet": "regular_season"
+  },
+  "execution": "materialized-sql",
+  "graphCount": 15,
+  "serving": {
+    "buildId": "20260916T093853Z-5161e35b64e3",
+    "corpusFingerprint": "ee43fd1ffcfce2125d740e537ec7727358b7d258ad1c202f528381dccba8e8a0",
+    "durationMs": 8106.617
+  },
+  "publicCards": 19,
+  "populatedPlayerLeaderboards": 0,
+  "metrics": [
+    {
+      "metricId": "tfs",
+      "status": "unavailable",
+      "gaps": [
+        "COMPLETE_PA_CONTRIBUTIONS"
+      ],
+      "playerPopulationComplete": false,
+      "playerSummaryGaps": [
+        "OFFICIAL_PA_POPULATION"
+      ]
+    },
+    {
+      "metricId": "paq-2",
+      "status": "unavailable",
+      "gaps": [
+        "COMPLETE_BATTING_QUALIFICATION"
+      ],
+      "playerPopulationComplete": false,
+      "playerSummaryGaps": [
+        "COMPLETE_BATTING_QUALIFICATION"
+      ]
+    },
+    {
+      "metricId": "paq-a",
+      "status": "unavailable",
+      "gaps": [
+        "COMPLETE_BATTING_QUALIFICATION"
+      ],
+      "playerPopulationComplete": false,
+      "playerSummaryGaps": [
+        "COMPLETE_BATTING_QUALIFICATION"
+      ]
+    },
+    {
+      "metricId": "offensive-reach",
+      "status": "unavailable",
+      "gaps": [
+        "ATTRIBUTION",
+        "COMPLETENESS",
+        "PATH_IDENTITY"
+      ],
+      "playerPopulationComplete": false,
+      "playerSummaryGaps": [
+        "COMPLETE_RUNNER_RESOLUTION_POPULATION",
+        "OFFICIAL_PA_POPULATION",
+        "COMPLETE_SELECTED_SCHEDULE"
+      ]
+    },
+    {
+      "metricId": "hidden-help-rate",
+      "status": "unavailable",
+      "gaps": [
+        "ATTRIBUTION",
+        "COMPLETENESS",
+        "PATH_IDENTITY"
+      ],
+      "playerPopulationComplete": false,
+      "playerSummaryGaps": [
+        "COMPLETE_RUNNER_RESOLUTION_POPULATION",
+        "OFFICIAL_PA_POPULATION",
+        "COMPLETE_SELECTED_SCHEDULE"
+      ]
+    },
+    {
+      "metricId": "rally-kill-rate",
+      "status": "unavailable",
+      "gaps": [
+        "COMPLETE_PA_CONTRIBUTIONS"
+      ],
+      "playerPopulationComplete": false,
+      "playerSummaryGaps": [
+        "OFFICIAL_PA_POPULATION"
+      ]
+    },
+    {
+      "metricId": "rally-kill-severity",
+      "status": "unavailable",
+      "gaps": [
+        "COMPLETE_PA_CONTRIBUTIONS"
+      ],
+      "playerPopulationComplete": false,
+      "playerSummaryGaps": [
+        "OFFICIAL_PA_POPULATION"
+      ]
+    },
+    {
+      "metricId": "opportunity-erosion",
+      "status": "unavailable",
+      "gaps": [
+        "COMPLETE_PA_CONTRIBUTIONS"
+      ],
+      "playerPopulationComplete": false,
+      "playerSummaryGaps": [
+        "OFFICIAL_PA_POPULATION"
+      ]
+    },
+    {
+      "metricId": "empty-game-rate",
+      "status": "unavailable",
+      "gaps": [
+        "COMPLETENESS",
+        "INDEPENDENT_EPISODES",
+        "OFFENSIVE_ELIGIBILITY"
+      ],
+      "playerPopulationComplete": false,
+      "playerSummaryGaps": [
+        "COMPLETE_RUNNER_RESOLUTION_POPULATION",
+        "OFFICIAL_PA_POPULATION",
+        "COMPLETE_SELECTED_SCHEDULE"
+      ]
+    },
+    {
+      "metricId": "empty-game-damage",
+      "status": "unavailable",
+      "gaps": [
+        "COMPLETE_PA_CONTRIBUTIONS"
+      ],
+      "playerPopulationComplete": false,
+      "playerSummaryGaps": [
+        "OFFICIAL_PA_POPULATION"
+      ]
+    },
+    {
+      "metricId": "contribution-path-diversity",
+      "status": "unavailable",
+      "gaps": [
+        "ATTRIBUTION",
+        "CHANNEL_EPISODES",
+        "COMPLETENESS",
+        "INDEPENDENT_EPISODES"
+      ],
+      "playerPopulationComplete": false,
+      "playerSummaryGaps": [
+        "COMPLETE_RUNNER_RESOLUTION_POPULATION",
+        "OFFICIAL_PA_POPULATION",
+        "COMPLETE_SELECTED_SCHEDULE"
+      ]
+    },
+    {
+      "metricId": "recovery-quality",
+      "status": "unavailable",
+      "gaps": [
+        "COMPLETE_BATTING_QUALIFICATION"
+      ],
+      "playerPopulationComplete": false,
+      "playerSummaryGaps": [
+        "COMPLETE_BATTING_QUALIFICATION"
+      ]
+    },
+    {
+      "metricId": "resolution-depth",
+      "status": "unavailable",
+      "gaps": [
+        "DEFENSIVE_ACTS",
+        "DEFENSIVE_ORDER"
+      ]
+    },
+    {
+      "metricId": "defender-breadth",
+      "status": "unavailable",
+      "gaps": [
+        "DEFENSIVE_ACTS"
+      ]
+    },
+    {
+      "metricId": "run-construction-depth",
+      "status": "unavailable",
+      "gaps": [
+        "PATH_IDENTITY",
+        "RUN_CONTINUITY"
+      ],
+      "playerPopulationComplete": false,
+      "playerSummaryGaps": [
+        "COUNTED_RUN_POPULATION",
+        "COMPLETE_SCORING_HISTORIES"
+      ]
+    },
+    {
+      "metricId": "run-construction-breadth",
+      "status": "unavailable",
+      "gaps": [
+        "RUN_CONTINUITY",
+        "SUPPORT_ATTRIBUTION"
+      ],
+      "playerPopulationComplete": false,
+      "playerSummaryGaps": [
+        "COUNTED_RUN_POPULATION",
+        "COMPLETE_SCORING_HISTORIES"
+      ]
+    },
+    {
+      "metricId": "adjudication-volatility",
+      "status": "available",
+      "gaps": []
+    },
+    {
+      "metricId": "review-dependence-rate",
+      "status": "unavailable",
+      "gaps": [
+        "OPERATIVE_REVIEW",
+        "OUTCOME_POPULATION"
+      ]
+    },
+    {
+      "metricId": "paq-2.1",
+      "status": "unavailable",
+      "gaps": [
+        "DEFENSIVE_ACTS",
+        "DEFENSIVE_ORDER",
+        "EXACT_PITCH_COUNTS",
+        "PAQ21_ELIGIBILITY",
+        "REFERENCE_POPULATION",
+        "TFS"
+      ]
+    }
+  ]
+}

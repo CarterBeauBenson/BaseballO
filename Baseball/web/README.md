@@ -111,8 +111,10 @@ calculations or eligibility. Technical names remain searchable and visible
 in the detail disclosure. The generated worked guide uses the same labels.
 
 The contribution dashboard is `/metrics`. It starts with the latest loaded
-day selected and stores the metric, game set and dates in the URL. Choose
-**Load dashboard** to read all 20 metrics in one shared selection. The summary
+day selected and stores the metric, game set and dates in the URL. It loads
+the 19 public metrics automatically on entry and after valid range changes.
+Qualified player cards show the top five; selecting a card opens the full list.
+Role Realization Breadth remains a backend measure. The summary
 counts selected games, metrics with scoped results, metrics with individual
 results, and metrics without scores. Search or filter the cards, then select
 one to open its exact result and evidence without another query. **Back to

@@ -560,8 +560,8 @@ $processors.batchMaterializationTrigger = Ensure-Processor -GroupId $groupId -Na
     'File Size' = '0B'; 'Batch Size' = '1'; 'Data Format' = 'Text'; 'Unique FlowFiles' = 'false';
     'Custom Text' = '{}'; 'Character Set' = 'UTF-8'; 'Mime Type' = 'application/json'
 }
-# User disabled this periodic trigger on 2026-09-16. Reprovisioning or starting
-# daily acquisition/backfill must not silently re-enable it.
+# Preserve the explicit periodic-check setting when reprovisioning. The user
+# restored the 15-minute trigger on 2026-09-16 after its temporary shutdown.
 if (-not $batchChecksEnabled) {
     $materializationTrigger = Invoke-NiFi -Method GET -Path "/processors/$($processors.batchMaterializationTrigger)"
     if ([string]$materializationTrigger.component.state -eq 'RUNNING') {

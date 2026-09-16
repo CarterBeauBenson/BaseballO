@@ -57,6 +57,32 @@ def fixture():
 
 
 class SourceAdmission(unittest.TestCase):
+    def test_neutral_zero_count_prefix_before_pinch_hitter_is_not_mid_turn(self):
+        for event_types in (['pitching_substitution'], ['mound_visit'], ['mound_visit', 'pitching_substitution']):
+            doc=raw();pa=doc['liveData']['plays']['allPlays'][53]
+            amount=len(event_types);ph=copy.deepcopy(pa['playEvents'][0])
+            prefix=[]
+            for i,event_type in enumerate(event_types):
+                e=copy.deepcopy(ph);e['index']=i;e['details']['eventType']=event_type
+                e['details'].update(isScoringPlay=False,isOut=False)
+                prefix.append(e)
+            for e in pa['playEvents']:e['index']+=amount
+            for r in pa['runners']:r['details']['playIndex']+=amount
+            pa['pitchIndex']=[i+amount for i in pa['pitchIndex']]
+            pa['actionIndex']=list(range(amount))+[i+amount for i in pa['actionIndex']]
+            pa['playEvents']=prefix+pa['playEvents']
+            self.assertEqual(census(doc)['issues'],[],event_types)
+            for fault in ('pitch','award','count','movement','unknown','out','missing-count'):
+                changed=copy.deepcopy(doc);p=changed['liveData']['plays']['allPlays'][53];e=p['playEvents'][0]
+                if fault=='pitch':e['isPitch']=True
+                elif fault=='award':e['details']['isStrike']=True
+                elif fault=='count':e['count']['strikes']=1
+                elif fault=='movement':p['runners'][0]['details']['playIndex']=0
+                elif fault=='unknown':e['details']['eventType']='unknown'
+                elif fault=='out':e['count']['outs']+=1
+                else:e['count'].pop('balls')
+                self.assertIn('OFFENSIVE_REPLACEMENT_WITHIN_TURN',{i['code'] for i in census(changed)['issues']},fault)
+
     def test_positive_real_source_and_interrupted_turn(self):
         source=census(raw());self.assertEqual(source['issues'],[])
         self.assertEqual(sum(p['officialPA'] for p in source['roster']),77)

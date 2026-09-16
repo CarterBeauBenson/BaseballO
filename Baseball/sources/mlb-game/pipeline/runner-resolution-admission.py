@@ -28,16 +28,57 @@ def fingerprint():
     return B.sha('\n'.join(p.relative_to(ROOT).as_posix()+':'+B.sha(p.read_bytes()) for p in paths).encode())
 
 
+def nonmovement_strikeout_records(play):
+    """Recognize an empty K record beside an explicit safe WP/PB movement.
+
+    The complete positive companion and post-state establish the boundary;
+    the null fields alone establish neither an out nor a safe advancement.
+    Preserve the distinct source records without inventing a second running act.
+    """
+    if (play.get('result', {}).get('eventType') != 'strikeout'
+            or play['result'].get('isOut') is not False or play.get('count', {}).get('strikes') != 3
+            or play.get('about', {}).get('hasReview') is not False):
+        return {}
+    batter = play.get('matchup', {}).get('batter', {}).get('id')
+    if not B.integer(batter) or batter == 0 or play['matchup'].get('postOnFirst', {}).get('id') != batter:
+        return {}
+    records = [(i,r) for i,r in enumerate(play.get('runners', [])) if r.get('details', {}).get('runner', {}).get('id') == batter]
+    if len(records) != 2:
+        return {}
+    empty = [(i,r) for i,r in records if r.get('details', {}).get('eventType') == 'strikeout'
+             and set(r.get('movement', {})) == {'originBase','start','end','outBase','isOut','outNumber'}
+             and all(v is None for v in r['movement'].values())
+             and r['details'].get('isScoringEvent') is False and not r.get('credits')]
+    safe = [(i,r) for i,r in records if r.get('details', {}).get('eventType') in {'wild_pitch','passed_ball'}
+            and r.get('movement') == dict(originBase=None,start=None,end='1B',outBase=None,isOut=False,outNumber=None)
+            and r['details'].get('isScoringEvent') is False]
+    if len(empty) != 1 or len(safe) != 1:
+        return {}
+    index = empty[0][1]['details'].get('playIndex')
+    events = [e for e in play.get('playEvents', []) if e.get('index') == index]
+    if (safe[0][1]['details'].get('playIndex') != index or len(events) != 1
+            or events[0].get('isPitch') is not True or events[0].get('count', {}).get('strikes') != 3
+            or events[0].get('details', {}).get('isInPlay') is not False):
+        return {}
+    return {empty[0][0]: safe[0][0]}
+
+
 def census(raw, game_pk):
     game_pk = B.identity(int(game_pk))
     source = B.SOURCE.reconcile(raw, game_pk)
     doc = json.loads(raw)
     game = B.BASE+'data/game/'+game_pk
     issues = [dict(code='SOURCE_RECONCILIATION', detail=i) for i in source['issues']]
-    resolutions = []
+    resolutions, nonmovements = [], []
     for play in doc['liveData']['plays']['allPlays']:
         pa = str(play['atBatIndex'])
+        empty_records = nonmovement_strikeout_records(play)
         for index, row in enumerate(play['runners']):
+            if index in empty_records:
+                nonmovements.append(dict(pa=game+'/plate-appearance/'+pa,runnerIndex=index,
+                    companionRunnerIndex=empty_records[index],sourceRecordSha256=B.sha(json.dumps(row,sort_keys=True,separators=(',',':')).encode()),
+                    absentAct=game+'/runner-act/movement/'+pa+'/'+str(index)))
+                continue
             movement = row['movement']
             start, end, out = movement.get('start'), movement.get('end'), movement.get('isOut')
             if type(out) is not bool or start not in (None,'1B','2B','3B') or (not out and end not in ('1B','2B','3B','score')):
@@ -56,11 +97,20 @@ def census(raw, game_pk):
                 origin=start,
                 destination=end if not out and end!='score' else None))
     return dict(gamePk=game_pk,game=game,sourceSha256=B.sha(raw),sourceRevision=source['sourceRevision'],
-                status='withheld' if issues else 'reconciled',issues=issues,resolutions=resolutions)
+                status='withheld' if issues else 'reconciled',issues=issues,resolutions=resolutions,
+                nonMovementRecords=nonmovements)
 
 
 def shape_text(source):
     missing, identities = [], []
+    for row in source.get('nonMovementRecords', []):
+        pa=B.iri(row['pa']); process=B.iri(row['pa']+'/uncaught-third-strike')
+        missing.append('''{ FILTER NOT EXISTS {
+          %s a base:UncaughtThirdStrikeProcess ; obo:BFO_0000132 %s ; obo:BFO_0000117 ?judgment .
+          ?judgment a base:UmpireJudgmentAct ; cco:ont00001986 ?decision .
+          ?decision a base:BaseballDecisionICE ; cco:ont00001808 %s .
+        } }''' % (process,pa,process))
+        missing.append('{ %s a base:BaserunningAct . }' % B.iri(row['absentAct']))
     for row in source['resolutions']:
         fields={key:B.iri(row[key]) for key in ('resolution','act','episode','pa','player')}
         pattern="""%(resolution)s a base:RunnerResolutionProcess, base:%(outcome)s ;

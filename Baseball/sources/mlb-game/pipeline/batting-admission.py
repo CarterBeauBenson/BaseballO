@@ -143,15 +143,31 @@ def census(raw, game_pk):
                 and player in owners
                 and all(owners.get(BASE+'data/player/'+str(v),{}).get('side')==owners[player]['side']
                         for v in (new_id,old_id)))
-            pristine = (position == 0 and event.get('index') == 0
+            # A pitching change or mound visit can precede a PH in the feed
+            # without a pitch or count award having begun batting. Array
+            # position is not evidence of prior batting participation.
+            neutral_prefix = all(
+                e.get('index') == i and e.get('type') == 'action' and e.get('isPitch') is False
+                and e.get('details', {}).get('eventType') in {'pitching_substitution', 'mound_visit'}
+                and e.get('details', {}).get('isInPlay') is not True
+                and e.get('details', {}).get('isBall') is not True
+                and e.get('details', {}).get('isStrike') is not True
+                and e.get('details', {}).get('isScoringPlay') is False
+                and e.get('details', {}).get('isOut') is False
+                and e.get('count', {}).get('balls') == 0
+                and e.get('count', {}).get('strikes') == 0
+                and e.get('count', {}).get('outs') == event.get('count', {}).get('outs')
+                and not any(r.get('details', {}).get('playIndex') == e.get('index') for r in play.get('runners', []))
+                for i, e in enumerate(prior))
+            pristine = (event.get('index') == position and neutral_prefix
+                        and event.get('isPitch') is False and event.get('isSubstitution') is True
                         and event.get('position', {}).get('abbreviation') == 'PH'
                         and event.get('player', {}).get('id') == play['matchup']['batter']['id']
                         and integer(event.get('replacedPlayer', {}).get('id'))
                         and event.get('count', {}).get('balls') == 0
                         and event.get('count', {}).get('strikes') == 0
-                        and not any(e.get('isPitch') is True or e.get('details', {}).get('isInPlay') is True
-                                    or e.get('count', {}).get('balls', 0) != 0
-                                    or e.get('count', {}).get('strikes', 0) != 0 for e in prior))
+                        and old_id > 0 and old_id != new_id
+                        and owners.get(BASE+'data/player/'+str(old_id), {}).get('side') == owners.get(player, {}).get('side'))
             if not (pristine or runner_only):
                 issues.append(dict(code='OFFENSIVE_REPLACEMENT_WITHIN_TURN', atBatIndex=index,
                                    eventIndex=event.get('index')))

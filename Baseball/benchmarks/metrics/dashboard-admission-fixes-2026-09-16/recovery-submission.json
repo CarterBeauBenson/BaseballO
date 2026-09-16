@@ -1,0 +1,29 @@
+{
+  "artifactType": "baseballo-recovery-submission-observation",
+  "completionClaim": false,
+  "plan": {
+    "artifactType": "baseballo-mlb-game-deferred-recovery",
+    "contractVersion": 1,
+    "phase": "waiting-serving",
+    "createdAtUtc": "2026-09-16T14:34:42.368508Z",
+    "requiredBuildId": "20260916T093853Z-5161e35b64e3",
+    "sourceGroupId": "5e89a4b4-01a0-1000-767a-9b1e7df5794c",
+    "sqlGroupId": "68df30fa-01a0-1000-b321-7c212b03409c",
+    "sqlProcessorId": "68df31cb-01a0-1000-12b7-17fe27d35d87",
+    "nifiApi": "http://127.0.0.1:8080/nifi-api",
+    "startDate": "2026-08-25",
+    "endDate": "2026-08-25",
+    "proofRebuildsServing": true,
+    "previousCompletedPlan": {
+      "path": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\control\\mlb-game\\recovery-history\\de488da975bc2a08a84ad4c13bcfca16d8097af482fd024645ecb540ec11d5dd.json",
+      "sha256": "de488da975bc2a08a84ad4c13bcfca16d8097af482fd024645ecb540ec11d5dd",
+      "phase": "complete"
+    }
+  },
+  "periodicTrigger": {
+    "processorId": "5ef4efd5-01a0-1000-e62c-c440ee4ca3a8",
+    "name": "Check Pending Batch Materialization",
+    "restoredState": "RUNNING",
+    "schedulingPeriod": "15 min"
+  }
+}

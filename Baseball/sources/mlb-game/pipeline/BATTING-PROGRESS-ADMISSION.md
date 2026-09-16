@@ -18,6 +18,17 @@ report hashes remain bound to the promotion marker. The SQL table stores only
 that proof provenance. NiFi runs it before promotion in the existing source
 SHACL stage; it is independent of the counted-run and official-PA admissions.
 
+An all-null strikeout runner record does not automatically describe a second
+movement or an out. A bounded case is now reconciled when the same batter has
+exactly one explicit safe wild-pitch/passed-ball companion at the same third
+strike, the final result is not an out, and the post-state independently puts
+that batter on first. The census retains the empty record's hash and companion
+index. SHACL requires the existing Uncaught Third Strike judgment/decision
+pattern, the actual safe movement, and absence of an invented extra running act.
+Missing, contradictory, partial or reviewed cases remain unresolved. This
+source-record distinction supplies neither batting credit nor an independent
+contribution channel.
+
 Serving additionally requires complete selected schedules and independently
 reconciled official PA assignment and roster exposure. An explicit pinch-runner
 replacement between two other rostered people does not change the batter.

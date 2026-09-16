@@ -132,9 +132,21 @@ def reconcile(raw: bytes, game_pk: str):
                 isScoringEvent=details.get('isScoringEvent'),
                 sourceSha256=digest(json.dumps(row, sort_keys=True, separators=(',', ':')).encode())))
         is_scoring = about.get('isScoringPlay')
-        if type(is_scoring) is not bool or is_scoring != (scored > 0):
+        scoring_event_ids = {event.get('index') for event in events
+                             if event.get('details', {}).get('isScoringPlay') is True}
+        scoring_movement_ids = {row['playIndex'] for row in movement_rows if row['isScoringEvent'] is True}
+        # A run on an earlier event (for example a passed ball before a
+        # groundout) may have an event scoring flag while the PA result's
+        # header flag is false. Reconcile that explicit event/runner evidence
+        # with scoringPlays and the inning totals; do not drop the run or turn
+        # it into a positive batting consequence.
+        supported_event_scores = bool(scored) and scoring_movement_ids <= scoring_event_ids
+        if (type(is_scoring) is not bool or is_scoring and not scored
+                or is_scoring is False and scored and not supported_event_scores):
             issue('SCORING_MEMBERSHIP_MISMATCH', path)
-        if is_scoring is True:
+        if not scoring_event_ids <= scoring_movement_ids:
+            issue('SCORING_EVENT_MEMBERSHIP_MISMATCH', path)
+        if scored:
             scoring_ids.append(pa)
         scoring_by_half[(inning, half)] += scored
         inventory.append(dict(sourcePosition=position, atBatIndex=pa, inning=inning, half=half,

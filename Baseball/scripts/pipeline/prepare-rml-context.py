@@ -313,7 +313,7 @@ def personal_runner_histories(raw: bytes) -> dict:
     """
     checker = Path(__file__).resolve().parents[2] / 'sources/mlb-game/pipeline/reconcile-metric-source.py'
     canonical = checker.read_text(encoding='utf-8-sig').replace('\r\n', '\n').replace('\r', '\n').encode()
-    if hashlib.sha256(canonical).hexdigest() != 'c2473ca60d9b8f2c6d6883f62f716cead407f9ebca3ac6a0cf30b7e7dacc3575':
+    if hashlib.sha256(canonical).hexdigest() != '4b4bd708b1f0a8c9936d2e5c9f42c298840dd65d1a2995892810ddcb9b11dc90':
         raise ValueError('Runner-history source reconciler differs from its reviewed dependency pin')
     spec = importlib.util.spec_from_file_location('runner_source_reconciler', checker)
     module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)

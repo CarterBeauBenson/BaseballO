@@ -59,6 +59,35 @@ class FakeNiFi:
         return value
 
 
+class CompletedPlanArchiveTests(unittest.TestCase):
+    def test_completed_plan_is_preserved_exactly_and_retry_is_idempotent(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/'metric-source-recovery.json'
+            self.assertIsNone(recovery.archive_completed_plan(path))
+            raw=json.dumps(dict(artifactType=recovery.ARTIFACT,contractVersion=1,phase='complete',
+                batchId='previous',resumedFailures=[{'reason':'retained audit'}]),indent=3).encode()
+            path.write_bytes(raw)
+            first=recovery.archive_completed_plan(path)
+            self.assertEqual(path.read_bytes(),raw)
+            self.assertEqual(Path(first['path']).read_bytes(),raw)
+            self.assertEqual(first['sha256'],hashlib.sha256(raw).hexdigest())
+            self.assertEqual(recovery.archive_completed_plan(path),first)
+            Path(first['path']).write_bytes(b'corrupted')
+            with self.assertRaisesRegex(ValueError,'content hash'):
+                recovery.archive_completed_plan(path)
+
+    def test_pending_failed_or_unknown_plans_are_not_overwritten(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/'metric-source-recovery.json'
+            for phase in ('waiting-proof','waiting-serving','waiting-batch','failed','unknown'):
+                raw=json.dumps(dict(artifactType=recovery.ARTIFACT,contractVersion=1,phase=phase)).encode()
+                path.write_bytes(raw)
+                with self.assertRaisesRegex(ValueError,'Only a completed'):
+                    recovery.archive_completed_plan(path)
+                self.assertEqual(path.read_bytes(),raw)
+                self.assertFalse((path.parent/'recovery-history').exists())
+
+
 class RecoveryTests(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()

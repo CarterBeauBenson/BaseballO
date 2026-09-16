@@ -1,0 +1,902 @@
+{
+  "artifactType": "baseballo-dashboard-admission-developer-proof",
+  "gamePk": "823826",
+  "implementationSha256": "a8525e4a1636dce6e5f9f9460fc35c7d89e6c5be68867e43847c73ae6ef765cd",
+  "sourceAdmissions": {
+    "batting": {
+      "artifactType": "baseballo-batting-admission",
+      "authoritativeRdfSha256": "20327a04462549ec32ecb80df41b778b26ea39cada9c84c0653e79044c19532b",
+      "contractVersion": 1,
+      "engine": "jena",
+      "gamePk": "823826",
+      "graph": "https://w3id.org/baseball/graph/game/823826",
+      "graphConforms": true,
+      "implementationSha256": "676c43536dd4eca650cf8d3436bb97757b817db559af493d60a73a8d81b7b41c",
+      "issues": [],
+      "reportSha256": "4a53a3befd9bcdb7273ef3d6e47a83be519927771faee49ef0d2a44ee23be2be",
+      "selectedPopulationComplete": false,
+      "shapeSha256": "bda11f36de9708620c9f926c4b20b5c63f8c597f8386ef196aa4a2c278e1ff32",
+      "sourceCensusSha256": "3aa31ed2ecad42e3a4e1e560fb1e1b0d388e521d89e955fe965ec88fbdf05ea6",
+      "sourceReconciled": true,
+      "sourceRevision": "20260826_020649",
+      "sourceSha256": "e859ba4714eeee3fa143a68b48d697d9fb8b3787ee09c7b0b93412dd50bd3423",
+      "status": "admitted"
+    },
+    "scoring-run": {
+      "artifactType": "baseballo-scoring-run-admission",
+      "authoritativeRdfSha256": "20327a04462549ec32ecb80df41b778b26ea39cada9c84c0653e79044c19532b",
+      "contractVersion": 1,
+      "engine": "jena",
+      "gamePk": "823826",
+      "graph": "https://w3id.org/baseball/graph/game/823826",
+      "graphConforms": true,
+      "implementationSha256": "d290cbed0027459ad360f4f04c75bd6fce2d742be3ca492a0f24514dff4f4bcc",
+      "issues": [],
+      "reportSha256": "4a53a3befd9bcdb7273ef3d6e47a83be519927771faee49ef0d2a44ee23be2be",
+      "shapeSha256": "95fe01a7de4a728af004a30aee0bc1d0c9e7d68dad7d2a32a13d50565d76ad36",
+      "sourceCensusSha256": "c8382286284c0d9ccd37e03b18f3ffb0502db4771e3756c88cafc1eb15a0c35e",
+      "sourceReconciled": true,
+      "sourceRevision": "20260826_020649",
+      "sourceSha256": "e859ba4714eeee3fa143a68b48d697d9fb8b3787ee09c7b0b93412dd50bd3423",
+      "status": "admitted"
+    },
+    "runner-resolution": {
+      "artifactType": "baseballo-runner-resolution-admission",
+      "authoritativeRdfSha256": "20327a04462549ec32ecb80df41b778b26ea39cada9c84c0653e79044c19532b",
+      "contractVersion": 1,
+      "engine": "jena",
+      "gamePk": "823826",
+      "graph": "https://w3id.org/baseball/graph/game/823826",
+      "graphConforms": true,
+      "implementationSha256": "7e73d8a5a8bd1aadeb25b37dd029ed29c9f95d8b640388527a068c582e0738f0",
+      "issues": [],
+      "reportSha256": "4a53a3befd9bcdb7273ef3d6e47a83be519927771faee49ef0d2a44ee23be2be",
+      "shapeSha256": "299102b48457011719399aa397e7fefadcb89a37362faaca092837b1637f349c",
+      "sourceCensusSha256": "f0e5db95be37752db701d300f2b19978e10be0a1aa817a5f9e39b0890e921aea",
+      "sourceReconciled": true,
+      "sourceRevision": "20260826_020649",
+      "sourceSha256": "e859ba4714eeee3fa143a68b48d697d9fb8b3787ee09c7b0b93412dd50bd3423",
+      "status": "admitted"
+    }
+  },
+  "jenaQueryPassed": true,
+  "sqlExactMatch": true,
+  "officialPlateAppearances": 90,
+  "rosteredPlayers": 52,
+  "isolatedOneGameParticipation": [
+    {
+      "player": "https://baseballontology.org/data/player/543243",
+      "plateAppearances": 0,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/111"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/547973",
+      "plateAppearances": 0,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/111"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/575929",
+      "plateAppearances": 5,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/111"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/594027",
+      "plateAppearances": 0,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/111"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/624133",
+      "plateAppearances": 0,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/111"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/640459",
+      "plateAppearances": 5,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/146"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/642201",
+      "plateAppearances": 0,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/111"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/645261",
+      "plateAppearances": 0,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/146"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/655316",
+      "plateAppearances": 5,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/111"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/656848",
+      "plateAppearances": 0,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/146"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/657136",
+      "plateAppearances": 5,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/111"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/663330",
+      "plateAppearances": 1,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/111"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/663558",
+      "plateAppearances": 0,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/111"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/663776",
+      "plateAppearances": 0,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/111"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/663969",
+      "plateAppearances": 0,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/146"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/665052",
+      "plateAppearances": 5,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/146"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/665923",
+      "plateAppearances": 2,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/146"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/667652",
+      "plateAppearances": 0,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/146"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/668939",
+      "plateAppearances": 0,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/111"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/669062",
+      "plateAppearances": 0,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/111"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/669065",
+      "plateAppearances": 2,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/146"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/669364",
+      "plateAppearances": 5,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/146"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/669711",
+      "plateAppearances": 0,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/111"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/672640",
+      "plateAppearances": 5,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/146"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/676083",
+      "plateAppearances": 0,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/146"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/676534",
+      "plateAppearances": 0,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/146"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/676604",
+      "plateAppearances": 0,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/146"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/677800",
+      "plateAppearances": 5,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/111"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/677870",
+      "plateAppearances": 5,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/146"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/678011",
+      "plateAppearances": 4,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/111"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/678394",
+      "plateAppearances": 0,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/111"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/678882",
+      "plateAppearances": 5,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/111"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/680767",
+      "plateAppearances": 0,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/146"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/680776",
+      "plateAppearances": 5,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/111"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/681508",
+      "plateAppearances": 4,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/111"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/681544",
+      "plateAppearances": 0,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/111"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/681715",
+      "plateAppearances": 5,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/146"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/682663",
+      "plateAppearances": 3,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/146"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/683357",
+      "plateAppearances": 0,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/146"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/686765",
+      "plateAppearances": 5,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/111"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/687473",
+      "plateAppearances": 0,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/146"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/687562",
+      "plateAppearances": 0,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/111"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/687941",
+      "plateAppearances": 0,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/111"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/690978",
+      "plateAppearances": 0,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/146"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/691587",
+      "plateAppearances": 0,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/146"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/691594",
+      "plateAppearances": 5,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/146"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/691788",
+      "plateAppearances": 0,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/146"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/694795",
+      "plateAppearances": 0,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/146"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/702332",
+      "plateAppearances": 1,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/111"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/801139",
+      "plateAppearances": 0,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/111"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/805300",
+      "plateAppearances": 3,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/146"
+        }
+      ]
+    },
+    {
+      "player": "https://baseballontology.org/data/player/806188",
+      "plateAppearances": 0,
+      "completeParticipation": true,
+      "dateScope": {
+        "startDate": "2026-08-25",
+        "endDate": "2026-08-25",
+        "gameSet": "regular_season"
+      },
+      "teamGameExposure": [
+        {
+          "game": "https://baseballontology.org/data/game/823826",
+          "team": "https://baseballontology.org/data/team/146"
+        }
+      ]
+    }
+  ],
+  "publicDateRangeWithoutScheduleAdmission": "withheld",
+  "livePopulationComplete": false
+}

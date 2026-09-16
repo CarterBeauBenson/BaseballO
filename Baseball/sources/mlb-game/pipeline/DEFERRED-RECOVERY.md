@@ -1,17 +1,15 @@
 # Deferred MLB proof and refresh
 
-The user disabled the 15-minute `Check Pending Batch Materialization` trigger
-on 2026-09-16. Its live state is stopped and the source contract now sets
-`batchMaterialization.periodicChecksEnabled` to false. Provisioning, including
-`StartDaily` and `RunBackfill`, preserves that choice. Daily 05:00 Eastern
-acquisition remains enabled. Already queued or running work is not cancelled.
+The user restored the 15-minute `Check Pending Batch Materialization` trigger
+on 2026-09-16 after its temporary shutdown. Its live state is running and the
+source contract sets `batchMaterialization.periodicChecksEnabled` to true.
+Provisioning preserves the explicit setting. Daily 05:00 Eastern acquisition
+remains enabled.
 
 `resume-metric-source.py` advances a queued recovery when the existing
-`Materialize Ready Schedule Batches` worker is invoked. With the periodic
-trigger stopped, there are no timer-driven checks to advance pending recovery
-or deferred batch materialization. The workflow below describes the worker's
-behavior when invoked; it does not authorize re-enabling the timer or replacing
-it with a different recurring schedule.
+`Materialize Ready Schedule Batches` worker is invoked. The periodic trigger
+checks pending recovery and deferred batch materialization; a check does not
+necessarily start a rebuild. Stopping it pauses those timer-driven checks.
 
 The worker waits for an explicitly named SQL build to appear in the promoted
 serving pointer and for both known SQL processors to be idle. It then submits
@@ -106,6 +104,11 @@ A prerequisite build that never promotes leaves the request in
 pending. These are explicit diagnostic states, not permission to erase an
 audit or retry a potentially accepted request. A replacement request must
 preserve the previous plan and resolve the recorded failure/uncertainty first.
+When the previous plan is complete, `--enqueue` preserves its exact bytes in
+`recovery-history/<sha256>.json` under the same plan lock before atomically
+writing the new request. The new plan references that archive. Retrying the
+archive step is idempotent; a corrupt archive or any pending/failed prior plan
+is rejected without replacing it.
 The worker changes only the stopped backfill request's date payload and retains
 its previous payload in the audit. It does not change the daily 05:00 Eastern
 schedule or the normal two-attempt source-stage retry/quarantine policy.

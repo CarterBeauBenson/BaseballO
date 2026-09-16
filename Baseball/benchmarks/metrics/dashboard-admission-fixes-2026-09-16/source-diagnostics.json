@@ -1,0 +1,375 @@
+{
+  "artifactType": "baseballo-focused-source-admission-diagnostics",
+  "implementationSha256": "676c43536dd4eca650cf8d3436bb97757b817db559af493d60a73a8d81b7b41c",
+  "games": [
+    {
+      "gamePk": "823259",
+      "source": {
+        "url": "https://statsapi.mlb.com/api/v1.1/game/823259/feed/live",
+        "sourceSha256": "386d9d0ae9ddaae3f57eee00570c695222d2c2bc66af8a6e3eb615efd9d4503d",
+        "sourceRevision": "20260826_040312",
+        "purpose": "focused dashboard source-admission diagnostic"
+      },
+      "previousBattingAdmission": {
+        "status": "withheld",
+        "issues": [
+          {
+            "atBatIndex": 51,
+            "code": "OFFENSIVE_REPLACEMENT_WITHIN_TURN",
+            "eventIndex": 1
+          }
+        ]
+      },
+      "currentSourceAdmission": {
+        "status": "reconciled",
+        "issues": [],
+        "members": 65,
+        "rosteredPlayers": 51
+      },
+      "zeroCountPinchHitters": [
+        {
+          "atBatIndex": 51,
+          "eventIndex": 1,
+          "priorEvents": [
+            "pitching_substitution"
+          ],
+          "count": {
+            "balls": 0,
+            "strikes": 0,
+            "outs": 0
+          }
+        }
+      ],
+      "priorPromotion": {
+        "matchesDiagnosticBytes": true,
+        "evidencePath": "pipeline/evidence/nifi/game-promotion/823259/10816ce79d3a4c3187c236d1c8061123.json",
+        "evidenceSha256": "2e6689bac0e5b12423cce626d44fe2e6feceba72d175844323a5df77ed74d943",
+        "pipelineRunId": "f5269245870549e996e5cdf23851655c",
+        "transactionRunId": "10816ce79d3a4c3187c236d1c8061123",
+        "promotedAtUtc": "2026-09-16T08:59:57.6397534Z",
+        "rawSha256": "386d9d0ae9ddaae3f57eee00570c695222d2c2bc66af8a6e3eb615efd9d4503d",
+        "authoritativeGraph": "https://w3id.org/baseball/graph/game/823259",
+        "authoritativeTripleCount": 27870,
+        "queryIndexGraph": "https://w3id.org/baseball/graph/query-index/game/823259",
+        "queryIndexTripleCount": 7301
+      },
+      "rawRetention": "eligible-for-removal-after-matching-prior-graph-pair-promotion"
+    },
+    {
+      "gamePk": "823505",
+      "source": {
+        "url": "https://statsapi.mlb.com/api/v1.1/game/823505/feed/live",
+        "sourceSha256": "ea548655ed8307ae3d45e3e8cdbb0fa1aaa7bc0bcf73fe919357b94a750ca357",
+        "sourceRevision": "20260826_021432",
+        "purpose": "focused dashboard source-admission diagnostic"
+      },
+      "previousBattingAdmission": {
+        "status": "withheld",
+        "issues": [
+          {
+            "atBatIndex": 66,
+            "code": "OFFENSIVE_REPLACEMENT_WITHIN_TURN",
+            "eventIndex": 1
+          }
+        ]
+      },
+      "currentSourceAdmission": {
+        "status": "reconciled",
+        "issues": [],
+        "members": 86,
+        "rosteredPlayers": 52
+      },
+      "zeroCountPinchHitters": [
+        {
+          "atBatIndex": 66,
+          "eventIndex": 1,
+          "priorEvents": [
+            "pitching_substitution"
+          ],
+          "count": {
+            "balls": 0,
+            "strikes": 0,
+            "outs": 0
+          }
+        }
+      ],
+      "priorPromotion": {
+        "matchesDiagnosticBytes": false,
+        "evidencePath": "pipeline/evidence/nifi/game-promotion/823505/499d19bf555542f3a6c71a570c87152f.json",
+        "evidenceSha256": "c7aa2b354c00b5b7e2206ce5e81810e2238377037dcb6c4cee143eac14f45fe8",
+        "pipelineRunId": "20edb4e600e64fdb9759576f883e2917",
+        "transactionRunId": "499d19bf555542f3a6c71a570c87152f",
+        "promotedAtUtc": "2026-09-16T09:01:30.2529708Z",
+        "rawSha256": "1bf1dc84c832c998ebe69770ac725a8cd948b6fe225c2b6d84ef2b95c3cbd2b0",
+        "authoritativeGraph": "https://w3id.org/baseball/graph/game/823505",
+        "authoritativeTripleCount": 35525,
+        "queryIndexGraph": "https://w3id.org/baseball/graph/query-index/game/823505",
+        "queryIndexTripleCount": 9222
+      },
+      "rawRetention": "retained-for-retry-until-matching-graph-pair-promotion"
+    },
+    {
+      "gamePk": "823585",
+      "source": {
+        "url": "https://statsapi.mlb.com/api/v1.1/game/823585/feed/live",
+        "sourceSha256": "f0ce01d588d8b33835b0e3f8d569641dc735f64d39518a57853b0e880f492e81",
+        "sourceRevision": "20260826_021119",
+        "purpose": "focused dashboard source-admission diagnostic"
+      },
+      "previousBattingAdmission": {
+        "status": "withheld",
+        "issues": [
+          {
+            "atBatIndex": 60,
+            "code": "OFFENSIVE_REPLACEMENT_WITHIN_TURN",
+            "eventIndex": 1
+          },
+          {
+            "atBatIndex": 65,
+            "code": "OFFENSIVE_REPLACEMENT_WITHIN_TURN",
+            "eventIndex": 1
+          }
+        ]
+      },
+      "currentSourceAdmission": {
+        "status": "reconciled",
+        "issues": [],
+        "members": 82,
+        "rosteredPlayers": 52
+      },
+      "zeroCountPinchHitters": [
+        {
+          "atBatIndex": 60,
+          "eventIndex": 1,
+          "priorEvents": [
+            "pitching_substitution"
+          ],
+          "count": {
+            "balls": 0,
+            "strikes": 0,
+            "outs": 0
+          }
+        },
+        {
+          "atBatIndex": 65,
+          "eventIndex": 1,
+          "priorEvents": [
+            "mound_visit"
+          ],
+          "count": {
+            "balls": 0,
+            "strikes": 0,
+            "outs": 0
+          }
+        }
+      ],
+      "priorPromotion": {
+        "matchesDiagnosticBytes": true,
+        "evidencePath": "pipeline/evidence/nifi/game-promotion/823585/aafb56c350c0419e8aa1825affe078db.json",
+        "evidenceSha256": "d2a9aa0577a5252747ed16f4c4f5547dbf7c33915cf496f1f6727792c3ee983f",
+        "pipelineRunId": "d2a98c0725754e45ab7d6f7733f029da",
+        "transactionRunId": "aafb56c350c0419e8aa1825affe078db",
+        "promotedAtUtc": "2026-09-16T09:02:56.9021887Z",
+        "rawSha256": "f0ce01d588d8b33835b0e3f8d569641dc735f64d39518a57853b0e880f492e81",
+        "authoritativeGraph": "https://w3id.org/baseball/graph/game/823585",
+        "authoritativeTripleCount": 34492,
+        "queryIndexGraph": "https://w3id.org/baseball/graph/query-index/game/823585",
+        "queryIndexTripleCount": 8891
+      },
+      "rawRetention": "eligible-for-removal-after-matching-prior-graph-pair-promotion"
+    },
+    {
+      "gamePk": "823826",
+      "source": {
+        "url": "https://statsapi.mlb.com/api/v1.1/game/823826/feed/live",
+        "sourceSha256": "e859ba4714eeee3fa143a68b48d697d9fb8b3787ee09c7b0b93412dd50bd3423",
+        "sourceRevision": "20260826_020649",
+        "purpose": "focused dashboard source-admission diagnostic"
+      },
+      "previousBattingAdmission": {
+        "status": "withheld",
+        "issues": [
+          {
+            "code": "SOURCE_RECONCILIATION",
+            "detail": {
+              "code": "SCORING_MEMBERSHIP_MISMATCH",
+              "path": "/liveData/plays/allPlays/73"
+            }
+          },
+          {
+            "code": "SOURCE_RECONCILIATION",
+            "detail": {
+              "code": "SCORING_INDEX_MISMATCH",
+              "path": "/liveData/plays/scoringPlays"
+            }
+          },
+          {
+            "atBatIndex": 62,
+            "code": "OFFENSIVE_REPLACEMENT_WITHIN_TURN",
+            "eventIndex": 1
+          }
+        ]
+      },
+      "currentSourceAdmission": {
+        "status": "reconciled",
+        "issues": [],
+        "members": 90,
+        "rosteredPlayers": 52
+      },
+      "zeroCountPinchHitters": [
+        {
+          "atBatIndex": 62,
+          "eventIndex": 1,
+          "priorEvents": [
+            "pitching_substitution"
+          ],
+          "count": {
+            "balls": 0,
+            "strikes": 0,
+            "outs": 0
+          }
+        }
+      ],
+      "priorPromotion": {
+        "matchesDiagnosticBytes": true,
+        "evidencePath": "pipeline/evidence/nifi/game-promotion/823826/370deabf899a4f5d926bab8829a810c6.json",
+        "evidenceSha256": "c44e185ca020bb092887509d0d352c4679cc394952e85dd2984be96628e67cfe",
+        "pipelineRunId": "4720c2ce9f5c477282ec4755a3f86d41",
+        "transactionRunId": "370deabf899a4f5d926bab8829a810c6",
+        "promotedAtUtc": "2026-09-16T09:04:24.1253656Z",
+        "rawSha256": "e859ba4714eeee3fa143a68b48d697d9fb8b3787ee09c7b0b93412dd50bd3423",
+        "authoritativeGraph": "https://w3id.org/baseball/graph/game/823826",
+        "authoritativeTripleCount": 39244,
+        "queryIndexGraph": "https://w3id.org/baseball/graph/query-index/game/823826",
+        "queryIndexTripleCount": 10245
+      },
+      "rawRetention": "eligible-for-removal-after-matching-prior-graph-pair-promotion"
+    },
+    {
+      "gamePk": "824881",
+      "source": {
+        "url": "https://statsapi.mlb.com/api/v1.1/game/824881/feed/live",
+        "sourceSha256": "27f31b5b88009edb7d9b3bd47c0c2a76e34c46bf0066bce1b0212e9a4a528e35",
+        "sourceRevision": "20260826_015854",
+        "purpose": "focused dashboard source-admission diagnostic"
+      },
+      "previousBattingAdmission": {
+        "status": "withheld",
+        "issues": [
+          {
+            "atBatIndex": 55,
+            "code": "OFFENSIVE_REPLACEMENT_WITHIN_TURN",
+            "eventIndex": 1
+          },
+          {
+            "atBatIndex": 64,
+            "code": "OFFENSIVE_REPLACEMENT_WITHIN_TURN",
+            "eventIndex": 2
+          }
+        ]
+      },
+      "currentSourceAdmission": {
+        "status": "reconciled",
+        "issues": [],
+        "members": 75,
+        "rosteredPlayers": 52
+      },
+      "zeroCountPinchHitters": [
+        {
+          "atBatIndex": 55,
+          "eventIndex": 1,
+          "priorEvents": [
+            "pitching_substitution"
+          ],
+          "count": {
+            "balls": 0,
+            "strikes": 0,
+            "outs": 0
+          }
+        },
+        {
+          "atBatIndex": 64,
+          "eventIndex": 2,
+          "priorEvents": [
+            "mound_visit",
+            "pitching_substitution"
+          ],
+          "count": {
+            "balls": 0,
+            "strikes": 0,
+            "outs": 2
+          }
+        }
+      ],
+      "priorPromotion": {
+        "matchesDiagnosticBytes": true,
+        "evidencePath": "pipeline/evidence/nifi/game-promotion/824881/693b9b655edc4ba0bf78666a3ef66b11.json",
+        "evidenceSha256": "7b631d7e8a4fb8f2f69ff69fc550ddca033c8c8f1b01c1baaf93bcbb25398aa7",
+        "pipelineRunId": "49101a8347be418d8a193f3bc0abc03b",
+        "transactionRunId": "693b9b655edc4ba0bf78666a3ef66b11",
+        "promotedAtUtc": "2026-09-16T09:12:46.0798730Z",
+        "rawSha256": "27f31b5b88009edb7d9b3bd47c0c2a76e34c46bf0066bce1b0212e9a4a528e35",
+        "authoritativeGraph": "https://w3id.org/baseball/graph/game/824881",
+        "authoritativeTripleCount": 32275,
+        "queryIndexGraph": "https://w3id.org/baseball/graph/query-index/game/824881",
+        "queryIndexTripleCount": 8310
+      },
+      "rawRetention": "eligible-for-removal-after-matching-prior-graph-pair-promotion"
+    },
+    {
+      "gamePk": "825042",
+      "source": {
+        "url": "https://statsapi.mlb.com/api/v1.1/game/825042/feed/live",
+        "sourceSha256": "f4439219cc2af5fbd859dca9cea8d529a2b7d7ba6711a100f3468ad167cd6035",
+        "sourceRevision": "20260826_041620",
+        "purpose": "focused dashboard source-admission diagnostic"
+      },
+      "previousBattingAdmission": {
+        "status": "withheld",
+        "issues": [
+          {
+            "atBatIndex": 70,
+            "code": "OFFENSIVE_REPLACEMENT_WITHIN_TURN",
+            "eventIndex": 1
+          }
+        ]
+      },
+      "currentSourceAdmission": {
+        "status": "reconciled",
+        "issues": [],
+        "members": 71,
+        "rosteredPlayers": 52
+      },
+      "zeroCountPinchHitters": [
+        {
+          "atBatIndex": 70,
+          "eventIndex": 1,
+          "priorEvents": [
+            "mound_visit"
+          ],
+          "count": {
+            "balls": 0,
+            "strikes": 0,
+            "outs": 2
+          }
+        }
+      ],
+      "priorPromotion": {
+        "matchesDiagnosticBytes": false,
+        "evidencePath": "pipeline/evidence/nifi/game-promotion/825042/6d7c81c92e374d328e97ece95d079966.json",
+        "evidenceSha256": "1b1b34137ad47b71c7a59e3a5d67b44bf5be06790d0d4f197e0bebd0149996b3",
+        "pipelineRunId": "76f208cbc03946419ce19b46ea26f878",
+        "transactionRunId": "6d7c81c92e374d328e97ece95d079966",
+        "promotedAtUtc": "2026-09-16T09:16:57.4411370Z",
+        "rawSha256": "008c8cbc4f28c2f608d45cbd6cb814c81d5bd1eab370ca1f188bd0a30300910c",
+        "authoritativeGraph": "https://w3id.org/baseball/graph/game/825042",
+        "authoritativeTripleCount": 29317,
+        "queryIndexGraph": "https://w3id.org/baseball/graph/query-index/game/825042",
+        "queryIndexTripleCount": 7525
+      },
+      "rawRetention": "retained-for-retry-until-matching-graph-pair-promotion"
+    }
+  ],
+  "allSixSourceCensusesReconciled": true,
+  "allSixNewGraphsProven": false
+}

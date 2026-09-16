@@ -78,6 +78,33 @@ def plan_path(state_root):
     return state_root / "pipeline" / "control" / "mlb-game" / "metric-source-recovery.json"
 
 
+def archive_completed_plan(path):
+    """Called under the plan lock; retain exact bytes before a new request.
+
+    A completed request can be superseded. Pending or failed work still needs
+    its own resolution and must never be overwritten by enqueue.
+    """
+    if not path.exists():
+        return None
+    raw = path.read_bytes()
+    prior = json.loads(raw)
+    if (prior.get('artifactType') != ARTIFACT or prior.get('contractVersion') != 1
+            or prior.get('phase') != 'complete'):
+        raise ValueError('Only a completed recovery plan can be archived for another request')
+    digest = hashlib.sha256(raw).hexdigest()
+    archive = path.parent / 'recovery-history' / (digest + '.json')
+    archive.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        with archive.open('xb') as stream:
+            stream.write(raw)
+            stream.flush()
+            os.fsync(stream.fileno())
+    except FileExistsError:
+        if archive.read_bytes() != raw:
+            raise ValueError('Completed recovery archive differs from its content hash')
+    return dict(path=str(archive), sha256=digest, phase='complete')
+
+
 @contextmanager
 def lock(path):
     """OS releases the lock on crashes; no stale lease files to clear manually."""
@@ -516,14 +543,15 @@ def main():
                        "Materialize All DSQs", "ExecuteStreamCommand")
         path = plan_path(state_root)
         with lock(path.with_suffix(".lock")):
-            if path.exists():
-                raise ValueError("recovery plan already exists; preserve its audit before queuing another")
+            previous_plan = archive_completed_plan(path)
             plan = {"artifactType": ARTIFACT, "contractVersion": 1, "phase": "waiting-serving",
                     "createdAtUtc": now(), "requiredBuildId": args.required_build_id,
                     "sourceGroupId": args.source_group_id, "sqlGroupId": args.sql_group_id,
                     "sqlProcessorId": args.sql_processor_id, "nifiApi": args.nifi_api,
                     "startDate": args.start_date, "endDate": args.end_date,
                     "proofRebuildsServing": args.proof_rebuilds_serving}
+            if previous_plan:
+                plan['previousCompletedPlan'] = previous_plan
             save(path, plan)
         print(json.dumps({"status": "queued", "path": str(path)}))
     else:
