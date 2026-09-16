@@ -52,3 +52,8 @@ CREATE TABLE IF NOT EXISTS metric_suite_boundary_admission (
   proof_json TEXT NOT NULL CHECK(json_valid(proof_json)),
   proof_sha256 TEXT NOT NULL
 ) STRICT;
+CREATE TABLE IF NOT EXISTS metric_suite_defensive_admission (
+  graph_iri TEXT PRIMARY KEY REFERENCES game_dimension(graph_iri),
+  proof_json TEXT NOT NULL CHECK(json_valid(proof_json)),
+  proof_sha256 TEXT NOT NULL
+) STRICT;

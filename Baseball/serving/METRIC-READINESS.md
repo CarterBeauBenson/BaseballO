@@ -1,8 +1,10 @@
 # Nineteen public metrics: implementation and release status
 
-Fourteen public player producers are implemented conditionally. The other five
-now have tested numerical player reducers, but their source-to-serving adapters
-remain unfinished. This is not a claim that fourteen live leaderboards are populated:
+Fourteen public player producers are implemented conditionally. Of the other
+five, defensive depth/breadth and PAQ with Tie-Breakers now have connected,
+tested SQL consumers, while their defensive source projection/admission remains
+unfinished. The two review player producers still need graph/population
+integration. This is not a claim that fourteen live leaderboards are populated:
 each requires complete source/graph, period, eligibility and qualification
 admission. All twenty calculation kernels exist; Role Realization Breadth is
 the backend-only twentieth metric and is not another public card.
@@ -50,17 +52,39 @@ separate review-mechanism, complete-population or qualification gates.
 | Empty Game Damage | Implemented conditionally | Complete Empty Game classification and negative PA contributions; this adapter admits only games with no separate independent damaging episodes or interrupted turns |
 | Contribution Mix | Implemented conditionally | Complete positive play/channel inventory and separate running-attempt qualification |
 | Two-Strike Extension Rank | Implemented conditionally | Complete pitch/count and B1 admissions for every reference-season game, plus independent schedules through the cutoff |
-| Longest Defensive Sequence | Unfinished | Reconciled distinct intentional defensive performances, agents, supported order and complete participation |
-| Defenders Involved | Unfinished | Complete supported defensive act/agent population and participation |
+| Longest Defensive Sequence | SQL consumer implemented; source producer unfinished | D1 source projection, complete act/agent/order admission and independent roster proof |
+| Defenders Involved | SQL consumer implemented; source producer unfinished | D1 source projection, complete act/agent admission and independent roster proof; order is a separate gate |
 | Scoring History Length | Implemented conditionally | Every counted scoring history, source run/roster proof and selected schedule |
 | Run Contributors | Implemented conditionally | Same complete scoring histories with supported contribution ownership |
 | Replay Overturn Rate | Unfinished as a player producer | Pitch-review affected-player extraction and SQL retention implemented; other subjects, mechanisms, complete population and qualification remain |
 | Outcomes Changed by Review | Unfinished | Complete eligible never-reviewed decisions, decision-time legal availability, operative outcomes, affected players and separate mechanisms |
-| PAQ with Tie-Breakers | Unfinished | Contribution, two-strike and defensive dimensions with known applicability and a complete separate season reference |
+| PAQ with Tie-Breakers | SQL consumer implemented; defensive source prerequisite unfinished | Admitted contribution, two-strike and defensive inputs; complete separate season references and selected participation |
 
 The settled meanings, minima, averages, Empty Game count, separate review
 mechanisms and backend-only role handling remain unchanged. No object
 properties or ontology terms were introduced.
+
+The [September 16 serving integration](../benchmarks/metrics/defensive-paq21-adapters-2026-09-16/README.md)
+connects the defensive graph inventory and exact player means to SQL, retaining
+independent roster and order gates. PAQ with Tie-Breakers joins exact PA
+identities, ranks Recovery across all eligible season PAs first, then ranks
+the applicable PAQ-2.1 population before taking selected-period player means.
+These consumers have no public evidence-submission path. NiFi does not yet
+produce the defensive admission that would enable their live source population.
+
+[D1](../proposals/mlb-game-defensive-acts/README.md) is a concrete **draft** for
+the missing source projection/identity implementation, not an acceptance record.
+Automatic approval review rejected an attempted retrospective Q6 authorization
+record; it was removed. Q6's act meanings remain accepted; D1 requires its own
+explicit mapping/identity decision. M3/M4 remains separately pending.
+
+The new NiFi-owned review inventory retains PA-level as well as event-level
+records before transient input cleanup. In game 822773, the fifth `MJ`
+observation is at PA 15, so the five observed records reconcile with the
+reported ABS total. The current RDF retains three resolved reviews and two
+supported affected batters. This is concrete mapping coverage debt, not absent
+provider evidence. Inventory counters are diagnostic and never admit scores,
+review mechanisms, original-call content or eligible-decision populations.
 
 The new Recovery producer is proven from a complete real-game input set
 (79 PAs, 282 pitches) through exact SQL retention. Complete-season ranking

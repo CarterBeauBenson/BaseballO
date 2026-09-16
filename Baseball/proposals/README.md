@@ -25,6 +25,10 @@ their rejection rationale so they cannot be accidentally revived.
 
 ## Active reviews
 
+[D1 defensive-act projection](mlb-game-defensive-acts/README.md) specifies
+the concrete identity and source projection for the already accepted Q6
+act kinds. It records no acceptance and makes no complete-population claim.
+
 [M3/M4 counted-foul completion](mlb-game-counted-foul-completion/README.md)
 is a new bounded review of four source-present omissions found in the pitch
 audit. It proposes extending existing patterns across specifically reconciled

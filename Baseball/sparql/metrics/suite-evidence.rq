@@ -10,6 +10,7 @@ SELECT DISTINCT ?graph ?game ?kind ?entity ?player ?act ?roleType
                 ?paResult ?paResultType ?paResultJudgment ?paResultDecision ?paResultRecord ?recognizedBattingResult ?batterProgressExcluded
                 ?reviewRecord ?original ?operative ?disposition ?decision
                 ?reviewPA ?reviewPitch ?reviewMotion ?reviewBatterAct ?affectedPlayer
+                ?defensiveAct ?defensiveActType ?defensiveAgent ?defensiveRole ?defensiveNext
                 ?trajectory ?episode ?trajectoryHalf ?trajectoryInterval
                 ?trajectoryEndInstant ?gameEndTimestamp ?gameEnd
                 ?paHalf ?paInterval ?paStartInstant ?paEndInstant
@@ -77,6 +78,23 @@ WHERE {
         (base:BattedBallPlayProcess "batted_play") (base:RunProcess "run")
       }
       ?entity a ?entityType ; obo:BFO_0000132+ ?game .
+      OPTIONAL {
+        ?entity a base:BattedBallPlayProcess ; obo:BFO_0000132+ ?plateAppearance .
+        ?plateAppearance a base:PlateAppearance .
+      }
+      OPTIONAL {
+        ?entity a base:BattedBallPlayProcess .
+        VALUES ?defensiveActType { base:FieldingAttemptAct base:CatchAttemptAct base:ThrowAct base:TagAttemptAct }
+        ?defensiveAct a ?defensiveActType ; obo:BFO_0000132+ ?entity .
+        OPTIONAL {
+          ?defensiveAct cco:ont00001833 ?defensiveAgent .
+          OPTIONAL {
+            ?defensiveAct obo:BFO_0000055 ?defensiveRole .
+            ?defensiveRole a base:FielderRole ; obo:BFO_0000197 ?defensiveAgent .
+          }
+        }
+        OPTIONAL { ?defensiveAct obo:BFO_0000063 ?defensiveNext . }
+      }
     } UNION {
       ?act obo:BFO_0000132+ ?game ; obo:BFO_0000055 ?role .
       ?role obo:BFO_0000197 ?player ; a ?roleType .

@@ -1,0 +1,204 @@
+{
+  "artifactType": "baseballo-mlb-game-review-source-inventory",
+  "contractVersion": 1,
+  "gamePk": "822773",
+  "sourceSha256": "fa98482cc0ddb8760e77864cd7225ecac498ba8ee86b5a7bfcb8a1753483353d",
+  "implementationSha256": "8b9ba0765fef2f865a1d7f8beceb42f5f0440c830c57fa8c0698351ea5cf55d4",
+  "status": "diagnostic",
+  "metricPopulationAdmitted": false,
+  "graphConformanceAssessed": false,
+  "observations": [
+    {
+      "pointer": "/liveData/plays/allPlays/11/playEvents/2",
+      "atBatIndex": 11,
+      "eventIndex": 2,
+      "playId": "c1415c68-c1f4-30b5-b950-81acdc526025",
+      "isPitch": true,
+      "sourceHasReview": true,
+      "reviewDetails": {
+        "isOverturned": false,
+        "inProgress": false,
+        "reviewType": "MO",
+        "challengeTeamId": 141
+      },
+      "resultDescription": null,
+      "eventCall": {
+        "code": "F",
+        "description": "Foul"
+      },
+      "reportedBatterId": 676391
+    },
+    {
+      "pointer": "/liveData/plays/allPlays/15",
+      "atBatIndex": 15,
+      "eventIndex": null,
+      "playId": null,
+      "isPitch": null,
+      "sourceHasReview": true,
+      "reviewDetails": {
+        "isOverturned": true,
+        "inProgress": false,
+        "reviewType": "MJ",
+        "challengeTeamId": 141,
+        "player": {
+          "id": 678218,
+          "fullName": "Brandon Valenzuela",
+          "link": "/api/v1/people/678218"
+        }
+      },
+      "resultDescription": "Brandon Valenzuela challenged (pitch result), call on the field was overturned: Carter Jensen called out on strikes.",
+      "eventCall": null,
+      "reportedBatterId": 695600
+    },
+    {
+      "pointer": "/liveData/plays/allPlays/28/playEvents/3",
+      "atBatIndex": 28,
+      "eventIndex": 3,
+      "playId": "0bae90df-7f2a-3a8d-b5a4-f7c8d22c206e",
+      "isPitch": true,
+      "sourceHasReview": true,
+      "reviewDetails": {
+        "isOverturned": false,
+        "inProgress": false,
+        "reviewType": "MJ",
+        "challengeTeamId": 141,
+        "player": {
+          "id": 678218,
+          "fullName": "Brandon Valenzuela",
+          "link": "/api/v1/people/678218"
+        }
+      },
+      "resultDescription": null,
+      "eventCall": {
+        "code": "B",
+        "description": "Ball"
+      },
+      "reportedBatterId": 686555
+    },
+    {
+      "pointer": "/liveData/plays/allPlays/40/playEvents/0",
+      "atBatIndex": 40,
+      "eventIndex": 0,
+      "playId": "97ecd7ea-ec47-31af-a5fd-fcb3c0d8ac9d",
+      "isPitch": true,
+      "sourceHasReview": true,
+      "reviewDetails": {
+        "isOverturned": true,
+        "inProgress": false,
+        "reviewType": "MJ",
+        "challengeTeamId": 141,
+        "player": {
+          "id": 664702,
+          "fullName": "Myles Straw",
+          "link": "/api/v1/people/664702"
+        }
+      },
+      "resultDescription": null,
+      "eventCall": {
+        "code": "B",
+        "description": "Ball"
+      },
+      "reportedBatterId": 664702
+    },
+    {
+      "pointer": "/liveData/plays/allPlays/61/playEvents/4",
+      "atBatIndex": 61,
+      "eventIndex": 4,
+      "playId": "13fb4d56-0b55-3ae6-b48f-e166d4c24d71",
+      "isPitch": true,
+      "sourceHasReview": true,
+      "reviewDetails": {
+        "isOverturned": false,
+        "inProgress": false,
+        "reviewType": "MJ",
+        "challengeTeamId": 118,
+        "player": {
+          "id": 695600,
+          "fullName": "Carter Jensen",
+          "link": "/api/v1/people/695600"
+        }
+      },
+      "resultDescription": null,
+      "eventCall": {
+        "code": "B",
+        "description": "Ball"
+      },
+      "reportedBatterId": 672386
+    },
+    {
+      "pointer": "/liveData/plays/allPlays/71/playEvents/0",
+      "atBatIndex": 71,
+      "eventIndex": 0,
+      "playId": "89aa22eb-c486-3ed7-b43c-2dd82469d059",
+      "isPitch": true,
+      "sourceHasReview": true,
+      "reviewDetails": {
+        "isOverturned": true,
+        "inProgress": false,
+        "reviewType": "MJ",
+        "challengeTeamId": 141,
+        "player": {
+          "id": 660821,
+          "fullName": "Jes\u00fas S\u00e1nchez",
+          "link": "/api/v1/people/660821"
+        }
+      },
+      "resultDescription": null,
+      "eventCall": {
+        "code": "B",
+        "description": "Ball"
+      },
+      "reportedBatterId": 660821
+    }
+  ],
+  "issues": [],
+  "observationCounts": [
+    {
+      "providerCode": "MJ",
+      "outcome": "affirmed",
+      "count": 2
+    },
+    {
+      "providerCode": "MJ",
+      "outcome": "overturned",
+      "count": 3
+    },
+    {
+      "providerCode": "MO",
+      "outcome": "affirmed",
+      "count": 1
+    }
+  ],
+  "reportedFinalCounters": {
+    "review": {
+      "hasChallenges": true,
+      "away": {
+        "used": 0,
+        "remaining": 1
+      },
+      "home": {
+        "used": 1,
+        "remaining": 0
+      }
+    },
+    "absChallenges": {
+      "hasChallenges": true,
+      "away": {
+        "usedSuccessful": 0,
+        "usedFailed": 1,
+        "remaining": 1
+      },
+      "home": {
+        "usedSuccessful": 3,
+        "usedFailed": 1,
+        "remaining": 1
+      }
+    }
+  },
+  "limitations": [
+    "Observations are not reconciled review identities.",
+    "Provider codes do not establish an RDF mechanism or eligible-decision population.",
+    "Reported players are not automatically affected players.",
+    "Final counters do not establish decision-time challenge availability."
+  ]
+}

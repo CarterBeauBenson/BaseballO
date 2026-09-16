@@ -187,6 +187,13 @@ switch ($Action) {
             throw "B1 source differs from the mapped revision for game $GamePk."
         }
         $battingAdmissionPath = Join-Path $stageEvidenceRoot 'batting-admission.json'
+        # Retain both PA- and event-level review observations before transient
+        # cleanup. This diagnostic is not a review-population admission gate.
+        $reviewInventoryPath = Join-Path $stageEvidenceRoot 'review-inventory.json'
+        $reviewInventory = Join-Path $PSScriptRoot 'review-inventory.py'
+        Invoke-LoggedCommand -FailureMessage "Review source inventory could not execute for game $GamePk." -Command {
+            & python $reviewInventory '--input' $inputPath '--game-pk' $GamePk '--output' $reviewInventoryPath
+        }
         $pitchCountAdmissionPath = Join-Path $stageEvidenceRoot 'pitch-count-admission.json'
         $pitchCountAdmitter = Join-Path $PSScriptRoot 'pitch-count-admission.py'
         Invoke-LoggedCommand -FailureMessage "Pitch-count completeness validation could not execute for game $GamePk." -Command {
@@ -235,6 +242,8 @@ switch ($Action) {
             conforms = $true
             rmlManifest = $rmlManifestPath
             battingAdmission = $battingAdmissionPath
+            reviewInventory = $reviewInventoryPath
+            reviewInventorySha256 = (Get-FileHash -LiteralPath $reviewInventoryPath -Algorithm SHA256).Hash.ToLowerInvariant()
             pitchCountAdmission = $pitchCountAdmissionPath
             pitchCountAdmissionSha256 = (Get-FileHash -LiteralPath $pitchCountAdmissionPath -Algorithm SHA256).Hash.ToLowerInvariant()
             runnerBoundaryAdmission = $runnerBoundaryAdmissionPath
@@ -324,6 +333,12 @@ switch ($Action) {
             $promotion.runnerResolutionAdmissionSha256 = [string]$shaclResult.runnerResolutionAdmissionSha256
             $promotion.contactContinuationAdmission = [string]$shaclResult.contactContinuationAdmission
             $promotion.contactContinuationAdmissionSha256 = [string]$shaclResult.contactContinuationAdmissionSha256
+            # A previously completed SHACL stage may predate this diagnostic.
+            # Its absence must not invalidate an otherwise valid promotion.
+            if ($null -ne $shaclResult.PSObject.Properties['reviewInventory']) {
+                $promotion.reviewInventory = [string]$shaclResult.reviewInventory
+                $promotion.reviewInventorySha256 = [string]$shaclResult.reviewInventorySha256
+            }
             Write-AtomicJsonFile -Path $promotionPath -Value $promotion -Depth 16
             Invoke-LoggedCommand -FailureMessage "Could not commit graph-pair transaction for game $GamePk." -Command {
                 & python $transaction '--state-root' $script:StateRoot '--game-pk' $GamePk '--run-id' $transactionRunId '--action' 'commit'

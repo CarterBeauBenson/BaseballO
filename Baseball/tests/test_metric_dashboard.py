@@ -33,7 +33,14 @@ class MetricDashboard(unittest.TestCase):
             M.materialize_game(connection, G2, bindings(fixture(graph=G2, decisions=()), [G2]))
             scope = {'gameSet':'regular_season','startDate':'2026-08-01','endDate':'2026-08-01'}
             result = M.query_sql(connection, {'view':'dashboard'}, scope)
-            self.assertEqual(result['metrics'], expected['metrics'])
+            # SQL adds independent schedule/source admission. Compare the
+            # shared request with each separately selected SQL metric; raw
+            # graph inventory is deliberately not a population certificate.
+            for metric in result['metrics']:
+                single=M.query_sql(connection,{'metricId':metric['metricId']},scope)['metric']
+                self.assertEqual(metric,single)
+                self.assertFalse(metric.get('playerPopulationComplete',False))
+                self.assertEqual(metric.get('playerResults',[]),[])
             self.assertEqual(result['graphCount'], 1)
             # A single missing metric invalidates the dashboard's SQL selection.
             connection.execute('DELETE FROM metric_suite_result WHERE graph_iri=? AND metric_id=?', (G1,'paq-2'))
