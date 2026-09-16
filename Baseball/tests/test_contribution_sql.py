@@ -52,6 +52,18 @@ SCOPE=dict(startDate='2026-08-02',endDate='2026-08-03',gameSet='regular_season')
 
 
 class ContributionSQL(unittest.TestCase):
+    def test_known_contribution_does_not_manufacture_an_adjusted_paq_state(self):
+        with database() as conn:
+            stored,=M.read_results(conn,G1,'tfs')
+            stored['contributionInputs']['plateAppearances'][0]['comparisonState']=None
+            M.store_result(conn,G1,'tfs','game-scope',stored)
+            scope=dict(SCOPE,startDate='2026-08-01')
+            for metric in ('tfs','paq-2'):
+                self.assertTrue(M.query_sql(conn,dict(metricId=metric),scope)['metric']['playerPopulationComplete'])
+            adjusted=M.query_sql(conn,dict(metricId='paq-a'),scope)['metric']
+            self.assertFalse(adjusted['playerPopulationComplete'])
+            self.assertEqual(adjusted['playerSummaryGaps'],['PAQ_A_STATE'])
+
     def test_empty_damage_averages_only_empty_games_and_requires_independent_coverage(self):
         with database() as conn:
             scope=dict(SCOPE,startDate='2026-08-01')

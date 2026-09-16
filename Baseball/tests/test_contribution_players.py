@@ -43,6 +43,65 @@ def qualification(result):
 
 
 class ContributionPlayers(unittest.TestCase):
+    def test_complete_award_inventory_separates_an_unrelated_safe_advance(self):
+        rows=fixture(outs=1,runner_base=1,contact=False);pa=rows[0]['entity']
+        rows[0]['paResultType']=BASE+'WalkProcess'
+        batter=rows[-1];batter.update(hasOutType='false',hasSafeType='true',destinationBase=GAME+'/base/1',
+            destinationCode='1B',safeJudgment='batter-safe',safeDecision='batter-decision',award=pa+'/result',awardRule='walk-rule')
+        runner=dict(batter,runner=RUNNER,act='runner-act',episode='runner-episode',resolution='runner-safe',entity='runner-safe',
+            originDesignation='origin',originBase=GAME+'/base/1',originCode='1B',destinationBase=GAME+'/base/2',destinationCode='2B')
+        for key in ('award','awardRule'):runner.pop(key)
+        rows.append(runner)
+        self.assertFalse(inputs(rows)['complete'])  # Mere missing causation is insufficient.
+        result=inputs(rows,runner_boundary_admission=dict(PROOF,awardAttributionComplete=True))
+        self.assertTrue(result['complete'],result)
+        item,=result['plateAppearances']
+        self.assertEqual(M.fraction(item['score']['value']),Fraction(1,4))
+        self.assertTrue(item['runnerOnBase'])
+        self.assertIsNone(item['comparisonState'])  # Do not invent the movement's time relative to the walk.
+        self.assertFalse(result['independentDamageComplete'])
+
+    def test_error_fc_exclusion_does_not_demand_positive_credit_attribution(self):
+        rows=fixture(outs=0,runner_base=3,contact=True);pa=rows[0]['entity']
+        rows[0]['paResultType']=BASE+'FieldersChoiceProcess'
+        batter=rows[-1];batter.update(hasOutType='false',hasSafeType='true',destinationBase=GAME+'/base/1',
+            destinationCode='1B',safeJudgment='batter-safe',safeDecision='batter-decision')
+        runner=dict(batter,runner=RUNNER,act='runner-act',episode='runner-episode',resolution='runner-score',entity='runner-score',
+            originDesignation='origin',originBase=GAME+'/base/3',originCode='3B',hasSafeType='false',hasRunType='true')
+        for key in ('contactPlay','destinationBase','destinationCode','safeJudgment','safeDecision'):runner.pop(key)
+        rows.append(runner)
+        result=inputs(rows);self.assertTrue(result['complete'],result)
+        self.assertEqual(result['plateAppearances'][0]['score']['value'],M.exact(0))
+        rows[0]['paResultType']=BASE+'SingleProcess'
+        self.assertFalse(inputs(rows)['complete'])  # Exclusion never leaks to a credited hit.
+
+    def test_steal_prefix_stays_separate_and_contact_starts_at_second(self):
+        rows=fixture(outs=1,runner_base=1,contact=True);pa=rows[0]['entity']
+        rows[0]['paResultType']=BASE+'SingleProcess'
+        batter=rows[-1];batter.update(hasOutType='false',hasSafeType='true',destinationBase=GAME+'/base/1',
+            destinationCode='1B',safeJudgment='batter-safe',safeDecision='batter-decision')
+        whole=GAME+'/runner-trajectory/runner';interval=whole+'/interval'
+        first=dict(batter,runner=RUNNER,act='steal-act',episode='steal-episode',resolution='steal-safe',entity='steal-safe',
+            originDesignation='origin-1',originBase=GAME+'/base/1',originCode='1B',destinationBase=GAME+'/base/2',
+            destinationCode='2B',independentStealAct='steal-act',trajectory=whole,trajectoryHalf=GAME+'/half',trajectoryInterval=interval)
+        first.pop('contactPlay')
+        last=dict(first,act='contact-act',episode='contact-episode',resolution='score',entity='score',originDesignation='origin-2',
+            originBase=GAME+'/base/2',originCode='2B',hasSafeType='false',hasRunType='true',contactPlay=batter['contactPlay'])
+        for key in ('independentStealAct','destinationBase','destinationCode','safeJudgment','safeDecision'):last.pop(key)
+        rows.extend([first,last])
+        for episode in ('steal-episode','contact-episode'):
+            rows.append(dict(kind='runner_history',graph=G1,game=GAME,entity=whole,trajectory=whole,player=RUNNER,
+                trajectoryHalf=GAME+'/half',trajectoryInterval=interval,episode=episode))
+        result=inputs(rows);self.assertTrue(result['complete'],result)
+        item,=result['plateAppearances']
+        self.assertEqual(M.fraction(item['score']['value']),Fraction(5,4))
+        self.assertEqual(item['comparisonState']['occupiedBases'],[2])
+        self.assertEqual(item['independentPositive'],[dict(player=RUNNER,episode='steal-episode',act='steal-act',start=1,end=2)])
+        self.assertEqual(inputs(list(reversed(rows))),result)
+        self.assertFalse(inputs(rows[:-1])['complete'])
+        last['originCode']='3B'
+        self.assertFalse(inputs(rows)['complete'])
+
     def test_third_out_strands_runner_without_invented_destruction(self):
         result=inputs(fixture())
         self.assertTrue(result['complete'],result)

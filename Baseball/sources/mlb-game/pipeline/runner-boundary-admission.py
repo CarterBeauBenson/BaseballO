@@ -45,12 +45,29 @@ def census(raw, game_pk):
     issues += [dict(code='INCOMPLETE_PERSONAL_HISTORIES', detail=h) for h in history['halves'] if h['status']!='reconciled']
     if history['sourceConsistency']!='consistent' and not issues:
         issues.append(dict(code='SOURCE_RECONCILIATION'))
-    boundaries, active, half, outs = [], {}, None, 0
+    boundaries, active, half, outs, awards = [], {}, None, 0, []
     for play in doc['liveData']['plays']['allPlays']:
         current = (play['about']['inning'], play['about']['halfInning'])
         if current != half:
             active, outs, half = {}, 0, current
         pa = str(play['atBatIndex'])
+        if play.get('result',{}).get('eventType') in {'walk','intent_walk','hit_by_pitch'}:
+            selected=CONTEXT.runner_metric_evidence(play,pa,str(doc['gameData']['game']['season']))['awardAdvances']
+            # Check the accepted award selector's coverage independently of
+            # the emitted graph. A missing forced-advance mapping is not an
+            # independently caused movement merely because its edge is absent.
+            expected={str(i) for i,row in enumerate(play['runners'])
+                if row['details'].get('eventType') in {'walk','intent_walk','hit_by_pitch'}}
+            if {row['runnerIndex'] for row in selected}!=expected or not expected:
+                issues.append(dict(code='INCOMPLETE_AWARD_ATTRIBUTION',atBatIndex=pa))
+            independent={'balk','wild_pitch','passed_ball','stolen_base_2b','stolen_base_3b','stolen_base_home'}
+            for i,row in enumerate(play['runners']):
+                movement=row['movement']
+                held=movement.get('isOut') is False and movement.get('start')==movement.get('end') and movement.get('start') in {'1B','2B','3B'}
+                if str(i) not in expected and not held and row['details'].get('eventType') not in independent:
+                    issues.append(dict(code='UNRESOLVED_NONAWARD_MOVEMENT',atBatIndex=pa,runnerIndex=i))
+            awards.extend(dict(award=game+'/plate-appearance/'+pa+'/result',
+                act=game+'/runner-act/movement/'+pa+'/'+row['runnerIndex'],rule=row['ruleIri']) for row in selected)
         boundaries.append(dict(pa=game+'/plate-appearance/'+pa, outs=outs,
             occupants=[dict(player=B.BASE+'data/player/'+runner, base=base,
                 stasis=game+'/plate-appearance/'+pa+'/start-state/base/'+base+'/stasis')
@@ -68,7 +85,8 @@ def census(raw, game_pk):
         outs = play['count']['outs']
     return dict(gamePk=game_pk, game=game, sourceSha256=B.sha(raw), sourceRevision=history['sourceRevision'],
         status='withheld' if issues else 'reconciled', issues=issues, boundaries=boundaries,
-        histories=history['histories'], venue=B.BASE+'data/venue/'+B.identity(doc['gameData']['venue']['id']))
+        histories=history['histories'], awards=awards,
+        venue=B.BASE+'data/venue/'+B.identity(doc['gameData']['venue']['id']))
 
 
 def shape_text(source):
@@ -106,10 +124,15 @@ obo:BFO_0000057 {B.iri(player)} ; obo:BFO_0000132 {B.iri(half)} ; obo:BFO_000019
 {B.iri(half)} a base:HalfInning ; obo:BFO_0000132/obo:BFO_0000132 $this .
 ?interval a obo:BFO_0000038 . {B.iri(member)} a base:RunnerResolutionEpisode ."""
             missing.append('{ FILTER NOT EXISTS { '+pattern+' } }')
+    for award in source.get('awards',[]):
+        pattern=f"""{B.iri(award['award'])} cco:ont00001803 {B.iri(award['act'])} .
+{B.iri(award['rule'])} a base:BaseballRule ; cco:ont00001974 {B.iri(award['act'])} ."""
+        missing.append('{ FILTER NOT EXISTS { '+pattern+' } }')
     text=SHAPE.read_text(encoding='utf-8')
     values=dict(GAME=source['game'], PREFIXES=B.PREFIXES, MISSING=' UNION '.join(missing) or 'FILTER(1=0)',
         OCCUPANTS=B.terms(identities), OUT_COUNTS=B.terms(out_counts), MEMBERSHIPS=B.terms(memberships),
-        WHOLES=B.terms(wholes), STASES=', '.join(B.iri(s) for s in stases) or '<urn:baseballo:no-start-stases>')
+        WHOLES=B.terms(wholes), AWARDS=B.terms(['|'.join(a[k] for k in ('award','act','rule')) for a in source.get('awards',[])]),
+        STASES=', '.join(B.iri(s) for s in stases) or '<urn:baseballo:no-start-stases>')
     for key,value in values.items(): text=text.replace('__'+key+'__',value)
     Graph().parse(data=text,format='turtle')
     return text
@@ -149,6 +172,7 @@ def prove(*, raw, game_pk, rdf_path, output, java=None, classpath=None):
         raise ValueError('Runner-boundary admission inputs changed during validation')
     if proof['sourceReconciled'] and proof['graphConforms']:
         proof['status'] = 'admitted'
+        proof['awardAttributionComplete'] = True
     B.SOURCE.write_atomic(output, proof)
     return proof
 

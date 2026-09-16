@@ -45,6 +45,22 @@ def fixture():
 
 
 class BoundaryAdmission(unittest.TestCase):
+    def test_award_attribution_membership_is_complete_not_inferred_from_absence(self):
+        graph,source=fixture();pa=source['boundaries'][0]['pa']
+        award,act,rule=map(URIRef,(pa+'/result',pa+'/award-act','urn:award-rule'))
+        source['awards']=[dict(award=str(award),act=str(act),rule=str(rule))]
+        for triple in ((award,RDF.type,BASE.WalkProcess),(award,BFO.BFO_0000132,URIRef(pa)),
+                       (act,RDF.type,BASE.BaserunningAct),(award,CCO.ont00001803,act),
+                       (rule,RDF.type,BASE.BaseballRule),(rule,CCO.ont00001974,act)):
+            graph.add(triple)
+        def conforms():return validate(graph,shacl_graph=A.shape_text(source),shacl_graph_format='turtle',advanced=True)[0]
+        self.assertTrue(conforms())
+        graph.remove((award,CCO.ont00001803,act));self.assertFalse(conforms())
+        graph.add((award,CCO.ont00001803,act))
+        extra=URIRef('urn:extra-running-act')
+        graph.add((extra,RDF.type,BASE.BaserunningAct));graph.add((award,CCO.ont00001803,extra))
+        self.assertFalse(conforms())
+
     def test_real_source_reconciles_all_boundaries_without_modification(self):
         path=M.ROOT/'data/raw/game-566279.json';raw=path.read_bytes()
         source=A.census(raw,'566279')
@@ -65,6 +81,13 @@ class BoundaryAdmission(unittest.TestCase):
         source=A.census(json.dumps(doc).encode(),'566279')
         self.assertEqual(source['status'],'withheld')
         self.assertTrue(source['issues'])
+
+    def test_unknown_award_companion_is_not_certified_as_nonbatting(self):
+        doc=json.loads((M.ROOT/'data/raw/game-566279.json').read_bytes())
+        doc['liveData']['plays']['allPlays'][12]['runners'][0]['details']['eventType']='error'
+        source=A.census(json.dumps(doc).encode(),'566279')
+        self.assertEqual(source['status'],'withheld')
+        self.assertIn('UNRESOLVED_NONAWARD_MOVEMENT',{issue['code'] for issue in source['issues']})
 
     def test_exact_existing_graph_and_negative_boundary_membership(self):
         graph,source=fixture()

@@ -8,12 +8,12 @@ the backend-only twentieth metric and is not another public card.
 
 | Public metric | Player producer | Remaining work before complete live results |
 | --- | --- | --- |
-| Plate Appearance Contribution | Implemented conditionally | Complete single-consequence PA inputs, selected schedules; mixed independent/contact attribution remains withheld |
+| Plate Appearance Contribution | Implemented conditionally | Complete attributed PA inputs and selected schedules; supported independent prefixes stay separate |
 | Plate Appearance Quality | Implemented conditionally | Every reference-season contribution input and independent schedule through cutoff |
 | Situation-Adjusted PAQ | Implemented conditionally | Same complete season, admitted immediate base/out states and at least two reference observations per applicable state |
 | Offensive Reach | Implemented conditionally | Complete selected schedules, B1, runner census, supported attribution and contact continuations |
 | Help Without Advancing | Implemented conditionally | Same complete progress population; pooled applicable PA denominator |
-| Runner Out Rate | Implemented conditionally | Complete runner-on-base eligibility and attributed existing-runner outs; mixed consequences remain withheld |
+| Runner Out Rate | Implemented conditionally | Complete runner-on-base eligibility and attributed existing-runner outs; independent changes cannot be charged to the batter |
 | Runner Loss per PA | Implemented conditionally | Same complete eligibility and outcome ownership; exact direct-loss weights retained |
 | Scoring Opportunity Lost | Implemented conditionally | Complete admitted PA boundaries and attributed outs; actual ends and third-out stranding retained |
 | Empty Games | Implemented conditionally | Complete official PAs and positive batting/running channels; retained game count |
@@ -65,19 +65,27 @@ therefore preserve an unchanged runner through the PA and strand that runner
 at the third out without manufacturing an Out Process. No RML, ontology,
 object property, semantic freeze or approval status changed.
 
-[The real-game proof](../benchmarks/metrics/contribution-inputs-2026-09-15/result.json)
+[The corrected real-game proof](../benchmarks/metrics/contribution-mixed-plays-2026-09-15/result.json)
 passes source SHACL, canonical Jena extraction and exact SQL retention for
-game 566279: all 79 PA-start boundaries and 31 personal histories reconcile;
-76 PA contribution inputs are supported and three are withheld. They are:
-PA 12 (balk then walk), PA 23 (steal then single), and PA 40 (an error during a
-fielder's choice). The source contains these events. Their remaining work is
-separate-channel/boundary adaptation; this incomplete game cannot supply a
-contribution leaderboard or season reference.
+game 566279: **79 of 79 contribution scores resolve**. Its 31 personal histories
+and all PA-start boundaries reconcile. The isolated one-game player summaries
+for Contribution, Runner Out Rate, Runner Loss and Opportunity Lost match SQL.
+No season or public date-range schedule is fabricated by this developer proof.
 
-PAQ and PAQ-A use the same complete-season scheduler checks as Recovery,
-rank before selecting display dates, and retain exact player means. PAQ-A
-uses immediate base/out cohorts only for admitted single-consequence PAs.
-Empty Game Damage averages complete Empty Games, never inserts zero for a
-non-Empty Game, and withholds games whose independent damage is unresolved.
+The three formerly withheld scores are now retained: PA 12 (balk then walk)
+= 1/4 for the batter; PA 23 (steal then single) = 5/4 for the batter with the
+steal kept separate and the contact beginning at second; PA 40 (fielder's
+choice plus error) = 0 under the accepted positive-credit exclusion.
+The award proof independently checks all expected causal/normative award
+members before absence of an award link can exclude another movement.
+
+PAQ can consume the complete contribution inputs once its season is admitted.
+PAQ-A separately requires a supported immediate comparison state: 77 of the
+79 have one. PAs 12 and 40 still lack sufficient graph ordering for that state;
+this is not a reason to suppress their known contribution values. The existing
+balk record is descriptive; the adapter does not convert its text into a new
+causal assertion. Independent damage/positive-running classification is also
+kept separate, so complete batting inputs do not falsely certify Empty Games.
+
 The five remaining producers require defensive/review evidence adaptation;
 these new conditional producers do not finish those pipelines.

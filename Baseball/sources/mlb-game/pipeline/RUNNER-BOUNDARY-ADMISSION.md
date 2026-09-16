@@ -21,19 +21,25 @@ promotion loader verifies those hashes and the owning game evidence path;
 missing or stale proof cannot admit a score. NiFi retains the proof in the
 existing promotion record and supplies it to SQL materialization.
 
-The first contribution adapter admits a complete single attributed PA
-consequence: a supported contact path, causal/normative award, or the
-batter's supported strikeout Out. It applies B2 coalescence, excludes positive
-error/FC/interference credit, and accounts for every movement. Complete
-history allows C2 to preserve unchanged runners through that PA. Three
-actual outs strand survivors; no Out, stasis or timestamp is manufactured.
-Runners who score have no remaining erosion, and a walk-off adds no out.
+The contribution adapter separates a verified independent steal prefix from
+its contact suffix inside the complete C1 history. It evaluates the contact
+from its own segment origin and retains the steal separately. A unique forward
+base chain orders this analytical traversal; source row positions never assert
+strict temporal precedence. Branches, omitted members and reversed chains fail.
 
-Independent movement mixed with the PA consequence remains withheld until
-its immediate boundary and separate contribution are admitted. A strikeout
-and caught stealing alone never establish a called hit-and-run. Therefore
-the real reference game's PAs 12, 23 and 40 remain explicit adapter gaps,
-not missing source data or available zero scores.
+For awards, the profile checks the accepted selector's full source coverage
+and every expected existing causal/normative edge. An absent edge alone cannot
+exclude a forced advance. With that census admitted, an unrelated safe advance
+is not charged to the batter's walk. For error/FC/interference exclusions with
+no outs, unknown positive-credit ownership does not prevent the known zero
+batting contribution. Actual terminal states remain available for erosion.
+
+The reference game's PAs 12, 23 and 40 now resolve; all 79 contribution inputs
+are complete. Score completeness, immediate-state completeness and independent
+running classification are distinct. PAQ-A still withholds unknown immediate
+states (PAs 12 and 40 in this graph), and no balk causality or timing is invented
+from a record label. Called hit-and-run ownership still needs independent
+confirmation; a strikeout/caught-stealing pair alone remains insufficient.
 
 The resulting inputs serve Contribution, Runner Out Rate, Runner Loss per
 PA and Scoring Opportunity Lost. PAQ and PAQ-A additionally require the

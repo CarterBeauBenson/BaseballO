@@ -11,7 +11,7 @@
       "status": "open",
       "disposition": "confirmed-hit-and-run-policy-resolved-source-admission-open",
       "owner": "ontologist-for-shared-out-allocation; engineering-for-accepted-mappings",
-      "implementationBehavior": "Conditional contribution, runner-out, direct-loss, erosion, PAQ and PAQ-A player adapters use a separate source-owned boundary SHACL proof and complete B1/runner inventories. Unchanged runners and third-out stranding are supported for a complete single attributed PA consequence. Mixed independent/contact changes, unresolved attribution and any incomplete selected or reference population remain withheld.",
+      "implementationBehavior": "The reference game now has 79/79 graph-derived PA contribution scores and complete isolated player means. A verified independent steal prefix is separated from contact, full award membership excludes unrelated advances from the batter score, and excluded no-out FC/error positives no longer block zero contributions. Immediate comparison states remain separately gated (77/79 in this graph); unknown timing and independent running classification are not supplied by a known batting score.",
       "decisionRecords": [
         "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
         "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json",
@@ -43,7 +43,7 @@
         "Confirmed failed hit-and-run damage belongs to the batter, without duplicate running damage"
       ],
       "remainingCoverage": "Reviewed operative award resolution, other rule editions, PA-start fallback completeness and full attributed-trajectory completeness remain separately gated.",
-      "implementationEvidence": "benchmarks/metrics/contribution-inputs-2026-09-15/result.json"
+      "implementationEvidence": "benchmarks/metrics/contribution-mixed-plays-2026-09-15/result.json"
     },
     {
       "id": "BOUNDARY_STATE",
@@ -53,7 +53,7 @@
       "status": "open",
       "disposition": "confirmed-hit-and-run-policy-resolved-other-boundary-work-open",
       "owner": "engineering; shared-out-policy-awaiting-user",
-      "implementationBehavior": "Conditional contribution, runner-out, direct-loss, erosion, PAQ and PAQ-A player adapters use a separate source-owned boundary SHACL proof and complete B1/runner inventories. Unchanged runners and third-out stranding are supported for a complete single attributed PA consequence. Mixed independent/contact changes, unresolved attribution and any incomplete selected or reference population remain withheld.",
+      "implementationBehavior": "The reference game now has 79/79 graph-derived PA contribution scores and complete isolated player means. A verified independent steal prefix is separated from contact, full award membership excludes unrelated advances from the batter score, and excluded no-out FC/error positives no longer block zero contributions. Immediate comparison states remain separately gated (77/79 in this graph); unknown timing and independent running classification are not supplied by a known batting score.",
       "decisionRecords": [
         "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
         "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json",
@@ -84,7 +84,7 @@
         "Bounded C2 live adapter, exact SQL round trip and UI evidence for unchanged runners strictly between supported PA bounds"
       ],
       "remainingCoverage": "Within-PA episode order, immediate consequence bounds and out count, full affected-runner census, unbounded stranding, and complete attributed trajectories remain separately gated. The bounded projection does not admit a complete PA or player population.",
-      "implementationEvidence": "benchmarks/metrics/contribution-inputs-2026-09-15/result.json",
+      "implementationEvidence": "benchmarks/metrics/contribution-mixed-plays-2026-09-15/result.json",
       "acceptedGraphDecision": "archive/design-records/runner-continuity-boundary-projection/review.json",
       "sourceImplementationContract": "sources/mlb-game/review/runner-continuity-source-contract.md"
     },
@@ -138,7 +138,7 @@
       "status": "open",
       "disposition": "partially-resolved-review-required",
       "owner": "ontologist",
-      "implementationBehavior": "Conditional contribution, runner-out, direct-loss, erosion, PAQ and PAQ-A player adapters use a separate source-owned boundary SHACL proof and complete B1/runner inventories. Unchanged runners and third-out stranding are supported for a complete single attributed PA consequence. Mixed independent/contact changes, unresolved attribution and any incomplete selected or reference population remain withheld.",
+      "implementationBehavior": "The reference game now has 79/79 graph-derived PA contribution scores and complete isolated player means. A verified independent steal prefix is separated from contact, full award membership excludes unrelated advances from the batter score, and excluded no-out FC/error positives no longer block zero contributions. Immediate comparison states remain separately gated (77/79 in this graph); unknown timing and independent running classification are not supplied by a known batting score.",
       "researchAssessment": {
         "assessedOn": "2026-09-08",
         "report": "proposals/graph-native-metric-suite-batch-review/web-gap-assessment.md",
@@ -156,7 +156,7 @@
       "decisionRecords": [
         "archive/design-records/metric-suite-gap-answers-2026-09-09/decision.json"
       ],
-      "implementationEvidence": "benchmarks/metrics/contribution-inputs-2026-09-15/result.json"
+      "implementationEvidence": "benchmarks/metrics/contribution-mixed-plays-2026-09-15/result.json"
     },
     {
       "id": "COMPLETENESS",
@@ -190,7 +190,7 @@
       "status": "open",
       "disposition": "batch-review-required",
       "owner": "ontologist",
-      "implementationBehavior": "Conditional contribution, runner-out, direct-loss, erosion, PAQ and PAQ-A player adapters use a separate source-owned boundary SHACL proof and complete B1/runner inventories. Unchanged runners and third-out stranding are supported for a complete single attributed PA consequence. Mixed independent/contact changes, unresolved attribution and any incomplete selected or reference population remain withheld.",
+      "implementationBehavior": "The reference game now has 79/79 graph-derived PA contribution scores and complete isolated player means. A verified independent steal prefix is separated from contact, full award membership excludes unrelated advances from the batter score, and excluded no-out FC/error positives no longer block zero contributions. Immediate comparison states remain separately gated (77/79 in this graph); unknown timing and independent running classification are not supplied by a known batting score.",
       "researchAssessment": {
         "assessedOn": "2026-09-08",
         "report": "proposals/graph-native-metric-suite-batch-review/web-gap-assessment.md",
@@ -206,7 +206,7 @@
         ],
         "livePrerequisiteClosed": false
       },
-      "implementationEvidence": "benchmarks/metrics/contribution-inputs-2026-09-15/result.json"
+      "implementationEvidence": "benchmarks/metrics/contribution-mixed-plays-2026-09-15/result.json"
     },
     {
       "id": "REFERENCE_POPULATION",

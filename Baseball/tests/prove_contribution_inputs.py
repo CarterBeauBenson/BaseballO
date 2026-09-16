@@ -42,6 +42,22 @@ def main():
     bindings=json.loads((output/'bindings.json').read_bytes())['results']['bindings']
     rows=M.normalize_bindings(bindings,[graph])
     result=M.contribution_game_inputs(rows,graph=graph,batting_admission=batting,runner_resolution_admission=resolution,runner_boundary_admission=admission)
+    assert result['complete'],result['unresolvedPlateAppearances']
+    day=json.loads(raw)['gameData']['datetime']['officialDate']
+    scope=dict(startDate=day,endDate=day,gameSet='regular_season')
+    # A deliberately isolated one-game developer scope, not an assertion that
+    # the date's complete MLB schedule is loaded.
+    qualification=M.batting_qualification(rows,graphs=[graph],admissions={graph:batting},date_scope=scope,selected_games_complete=True)
+    player_results={metric:M.contribution_players(metric,[result],qualification=qualification,date_scope=scope)
+        for metric in ('tfs','rally-kill-rate','rally-kill-severity','opportunity-erosion')}
+    assert all(r['playerPopulationComplete'] for r in player_results.values()),player_results
+    if game=='566279':
+        by_pa={int(p['plateAppearance'].rsplit('/',1)[1]):p for p in result['plateAppearances']}
+        for index,value in ((12,'1/4'),(23,'5/4'),(40,'0')):
+            assert M.fraction(by_pa[index]['score']['value'])==M.fraction(value),(index,by_pa[index])
+        assert by_pa[23]['comparisonState']['occupiedBases']==[2]
+        assert by_pa[23]['independentPositive'][0]['start']==1
+        assert by_pa[23]['independentPositive'][0]['end']==2
     with sqlite3.connect(':memory:') as conn:
         conn.execute('PRAGMA foreign_keys=ON');conn.executescript((M.ROOT/'serving/schema.sql').read_text());M.initialize_sql(conn)
         day=json.loads(raw)['gameData']['datetime']['officialDate']
@@ -50,16 +66,22 @@ def main():
         M.materialize_game(conn,graph,bindings,batting_admission=batting,runner_resolution_admission=resolution,runner_boundary_admission=admission)
         retained,=M.read_results(conn,graph,'tfs')
         assert retained['contributionInputs']==result
-        assert retained['status']=='unavailable'  # Partial PA inputs are not a game/population score.
+        for metric,expected in player_results.items():
+            assert M.contribution_players(metric,[retained['contributionInputs']],qualification=qualification,date_scope=scope)==expected
+            public=M.query_sql(conn,dict(metricId=metric),scope)['metric']
+            assert public['playerPopulationComplete'] is False  # Independent schedule intentionally absent.
+    assert args.input.read_bytes()==raw
     report=dict(artifactType='baseballo-contribution-input-developer-proof',gamePk=game,
         sourceSha256=A.B.sha(raw),rdfSha256=A.B.sha(rdf.read_bytes()),implementationSha256=M.fingerprint(),
         sourceAdmission=admission,battingAdmission=batting,runnerResolutionAdmission=resolution,jenaQueryPassed=True,sqlExactMatch=True,
         completedPlateAppearances=len(result['plateAppearances']),
         unresolvedPlateAppearances=len(result['unresolvedPlateAppearances']),
         gapCounts=dict(Counter(g for p in result['unresolvedPlateAppearances'] for g in p['gaps'])),
-        result=result,livePopulationComplete=False)
+        result=result,isolatedOneGamePlayerResults=player_results,
+        immediateComparisonStates=sum(p['comparisonState'] is not None for p in result['plateAppearances']),
+        publicDateRangeWithoutScheduleAdmission='withheld',livePopulationComplete=False)
     (output/'result.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
-    print(json.dumps({k:v for k,v in report.items() if k not in ('result','sourceAdmission','battingAdmission','runnerResolutionAdmission')}))
+    print(json.dumps({k:v for k,v in report.items() if k not in ('result','sourceAdmission','battingAdmission','runnerResolutionAdmission','isolatedOneGamePlayerResults')}))
 
 
 if __name__=='__main__':main()

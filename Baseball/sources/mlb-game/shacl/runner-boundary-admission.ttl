@@ -8,6 +8,13 @@
 SELECT $this WHERE {
   { __MISSING__ }
   UNION {
+    ?award a ?type ; obo:BFO_0000132+ $this ; cco:ont00001803 ?act .
+    FILTER(?type IN (base:WalkProcess, base:HitByPitchProcess))
+    ?act a base:BaserunningAct .
+    OPTIONAL { ?rule a base:BaseballRule ; cco:ont00001974 ?act }
+    FILTER(!BOUND(?rule) || CONCAT(STR(?award), "|", STR(?act), "|", STR(?rule)) NOT IN (__AWARDS__))
+  }
+  UNION {
     ?stasis a base:PlateAppearanceStartBaserunnerAtBaseStasis ; obo:BFO_0000132+ $this .
     FILTER(?stasis NOT IN (__STASES__))
   }
