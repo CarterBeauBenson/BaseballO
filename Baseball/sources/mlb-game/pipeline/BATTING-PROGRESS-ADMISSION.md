@@ -56,6 +56,13 @@ segments, reverse progress and independent-channel mixing remain withheld.
 The traversal creates no RDF temporal assertion or new identity. Its retained
 trace names every existing resolution, episode and personal Process.
 
+The [September 16 proof](../../../benchmarks/metrics/runner-history-coverage-2026-09-16/README.md)
+also covers a supported independent steal before a reviewed contact continuation.
+All prefix and terminal episodes must reconcile in C1, but only the terminal
+contact's resolutions enter its B2 membership. Source-owned SHACL rejects
+placing the earlier steal inside that contact. Complete final field-review
+effects are distinct from unresolved original-call or affected-player evidence.
+
 The [real six-movement proof](../../../benchmarks/metrics/contact-progress-2026-09-15/README.md)
 reproduces the accepted Offensive Reach of two through canonical Jena extraction
 and SQL. This replaces the earlier example-only query with the shared producer.

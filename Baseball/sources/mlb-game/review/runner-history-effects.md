@@ -1,5 +1,10 @@
 # Accounted effects within accepted personal histories
 
+The [September 16 coverage repair](runner-history-coverage.md) adds a separate
+bounded path for completed terminal field-review effects. The pitch-count
+review path described below remains strict; it does not classify those reviews
+as pitch reviews or reconstruct an original call.
+
 This implements the existing E1/C1 complete-history criterion, Q4 actual
 batter separation, and the accepted policy that ordinary scoring does not
 require an original review call. It creates no term, predicate, identity

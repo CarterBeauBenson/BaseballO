@@ -65,5 +65,41 @@ class ContactContinuationTests(unittest.TestCase):
         graph.add((URIRef(root+'/extra'),RDF.type,BASE.RunnerResolutionProcess))
         self.assertFalse(validate(graph,shacl_graph=shapes)[0])
 
+    def test_separate_steal_before_reviewed_contact_keeps_both_contributions_separate(self):
+        raw=(ROOT/'data/raw/samples/2026-08-25/823098.json').read_bytes()
+        histories=B2.CONTEXT.personal_runner_histories(raw)
+        play=json.loads(raw)['liveData']['plays']['allPlays'][45]
+        links=B2.CONTEXT.batted_runner_resolution_links(play,'45',histories)
+        self.assertEqual([(r['runnerIndex'],r['resolutionKind']) for r in links],
+                         [('1','reach'),('2','score'),('3','out')])
+        # Row 0 remains in the personal history, outside contact membership.
+        self.assertTrue(any(m['atBatIndex']=='45' and m['runnerIndex']=='0' for m in histories['episodeMembership']))
+        for fault in ('same-event','unknown-prefix','missing-prefix-membership','pending-review','substitution'):
+            p,h=copy.deepcopy(play),copy.deepcopy(histories)
+            if fault=='same-event':p['runners'][0]['details']['playIndex']=8
+            elif fault=='unknown-prefix':p['playEvents'][7]['details']['eventType']='unknown'
+            elif fault=='missing-prefix-membership':h['episodeMembership']=[m for m in h['episodeMembership'] if not (m['atBatIndex']=='45' and m['runnerIndex']=='0')]
+            elif fault=='pending-review':p['reviewDetails']['inProgress']=True
+            else:p['playEvents'][5]['isSubstitution']=True
+            self.assertEqual(B2.CONTEXT.batted_runner_resolution_links(p,'45',h),[],fault)
+
+    def test_owning_shape_rejects_steal_resolution_inside_later_contact(self):
+        raw=(ROOT/'data/raw/samples/2026-08-25/823098.json').read_bytes()
+        source=B2.census(raw,'823098');source['plays']=[p for p in source['plays'] if p['atBatIndex']=='45']
+        play,=source['plays'];self.assertEqual(play['status'],'admitted')
+        shapes=Graph().parse(data=B2.shape_text(source),format='turtle')
+        root='https://baseballontology.org/data/game/823098';target=URIRef(root+'/process/batted-ball-play/'+play['playId'])
+        graph=Graph();graph.add((target,RDF.type,BASE.BattedBallPlayProcess))
+        for row in play['links']:
+            r=URIRef(root+'/runner-resolution/'+row['resolutionKind']+'/45/'+row['runnerIndex'])
+            graph.add((target,BFO.BFO_0000117,r));graph.add((r,RDF.type,BASE.RunnerResolutionProcess))
+        for row in play['memberships']:
+            graph.add((URIRef(root+'/runner-trajectory/'+row['lifetimeKey']),BFO.BFO_0000117,
+                       URIRef(root+'/runner-episode/45/'+row['runnerIndex'])))
+        self.assertTrue(validate(graph,shacl_graph=shapes)[0])
+        steal=URIRef(root+'/runner-resolution/advance/45/0')
+        graph.add((steal,RDF.type,BASE.RunnerResolutionProcess));graph.add((target,BFO.BFO_0000117,steal))
+        self.assertFalse(validate(graph,shacl_graph=shapes)[0])
+
 
 if __name__=='__main__': unittest.main()

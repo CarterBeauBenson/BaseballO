@@ -43,6 +43,7 @@ def census(raw, game_pk):
     game = B.BASE+'data/game/'+game_pk
     issues = [dict(code='SOURCE_RECONCILIATION', detail=i) for i in history.get('sourceIssues', [])]
     issues += [dict(code='INCOMPLETE_PERSONAL_HISTORIES', detail=h) for h in history['halves'] if h['status']!='reconciled']
+    issues += [dict(code='UNSUPPORTED_PA_START_BOUNDARY', detail=i) for i in history.get('boundaryIssues', [])]
     if history['sourceConsistency']!='consistent' and not issues:
         issues.append(dict(code='SOURCE_RECONCILIATION'))
     boundaries, active, half, outs, awards = [], {}, None, 0, []
@@ -60,7 +61,8 @@ def census(raw, game_pk):
                 if row['details'].get('eventType') in {'walk','intent_walk','hit_by_pitch'}}
             if {row['runnerIndex'] for row in selected}!=expected or not expected:
                 issues.append(dict(code='INCOMPLETE_AWARD_ATTRIBUTION',atBatIndex=pa))
-            independent={'balk','wild_pitch','passed_ball','stolen_base_2b','stolen_base_3b','stolen_base_home'}
+            independent={'balk','wild_pitch','passed_ball','stolen_base_2b','stolen_base_3b','stolen_base_home',
+                         'defensive_indiff','pickoff_error_1b','pickoff_error_2b','pickoff_error_3b'}
             for i,row in enumerate(play['runners']):
                 movement=row['movement']
                 held=movement.get('isOut') is False and movement.get('start')==movement.get('end') and movement.get('start') in {'1B','2B','3B'}

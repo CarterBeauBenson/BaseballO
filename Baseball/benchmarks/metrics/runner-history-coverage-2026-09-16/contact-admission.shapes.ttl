@@ -1,0 +1,15 @@
+# B2 parameterized source-owned profile. NiFi binds target/hasValue terms from
+# the independently reconciled source inventory, not the mapped graph count.
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix base: <https://baseballontology.org/> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+[] a sh:NodeShape ; sh:targetNode <https://baseballontology.org/data/game/823098/process/batted-ball-play/46603849-b924-3bdd-845c-ff69a8a877c3> ; sh:property [ sh:path obo:BFO_0000117 ;
+          sh:qualifiedValueShape [ sh:class base:RunnerResolutionProcess ] ;
+          sh:qualifiedMinCount 3 ; sh:qualifiedMaxCount 3 ] ;
+sh:property [ sh:path obo:BFO_0000117 ; sh:hasValue <https://baseballontology.org/data/game/823098/runner-resolution/reach/45/1> ] ;
+sh:property [ sh:path obo:BFO_0000117 ; sh:hasValue <https://baseballontology.org/data/game/823098/runner-resolution/score/45/2> ] ;
+sh:property [ sh:path obo:BFO_0000117 ; sh:hasValue <https://baseballontology.org/data/game/823098/runner-resolution/out/45/3> ] .
+[] a sh:NodeShape ; sh:targetNode <https://baseballontology.org/data/game/823098/runner-trajectory/f6441e5d8be1e8915ad09e12e01785aafd41998575945bfd9ff1001324aa01b8> ; sh:property [ sh:path obo:BFO_0000117 ; sh:hasValue <https://baseballontology.org/data/game/823098/runner-episode/45/1> ] .
+[] a sh:NodeShape ; sh:targetNode <https://baseballontology.org/data/game/823098/runner-trajectory/f6441e5d8be1e8915ad09e12e01785aafd41998575945bfd9ff1001324aa01b8> ; sh:property [ sh:path obo:BFO_0000117 ; sh:hasValue <https://baseballontology.org/data/game/823098/runner-episode/45/3> ] .
+[] a sh:NodeShape ; sh:targetNode <https://baseballontology.org/data/game/823098/runner-trajectory/baea9e6b5ad854605c45c2db55f884fd58ef5ae1624a23bf4e93572528accfec> ; sh:property [ sh:path obo:BFO_0000117 ; sh:hasValue <https://baseballontology.org/data/game/823098/runner-episode/45/0> ] .
+[] a sh:NodeShape ; sh:targetNode <https://baseballontology.org/data/game/823098/runner-trajectory/baea9e6b5ad854605c45c2db55f884fd58ef5ae1624a23bf4e93572528accfec> ; sh:property [ sh:path obo:BFO_0000117 ; sh:hasValue <https://baseballontology.org/data/game/823098/runner-episode/45/2> ] .

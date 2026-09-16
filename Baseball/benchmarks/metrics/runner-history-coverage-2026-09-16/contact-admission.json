@@ -1,0 +1,15 @@
+{
+  "admittedPlays": 1,
+  "artifactType": "baseballo-contact-continuation-admission",
+  "authoritativeRdfSha256": "99e2cb73dd99d14c1bcebce9d2da2b182db6d9a88a8344170f9ba7f62192ab6d",
+  "conforms": true,
+  "contractVersion": 1,
+  "gamePk": "823098",
+  "implementationSha256": "c0c82aabbe29e2f98e4b6656aed38b1cc40c528925103716339ca147f403fe0b",
+  "reportSha256": "4a53a3befd9bcdb7273ef3d6e47a83be519927771faee49ef0d2a44ee23be2be",
+  "shapeSha256": "f5320125796db824dd927a50bdfa1a4f5f0c939f626cd51d3c940aa383881204",
+  "sourceCensusSha256": "f8fd3007af6ad5ae0a2e8066867e905b52deba7ce5393137b3ba52c10eaefc61",
+  "sourceSha256": "d8e4a976ef2af31a4b15557d2c768b7b20b86a064aa7684202e019d5bb885148",
+  "status": "validated",
+  "withheldPlays": 0
+}

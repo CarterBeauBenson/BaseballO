@@ -19,6 +19,14 @@ runner-resolution admissions. The new NiFi request owns fresh population
 validation and serving publication; those checks are not a claim that all
 player histories or leaderboards are complete.
 
+The subsequent [C1/B2 coverage repair](../benchmarks/metrics/runner-history-coverage-2026-09-16/README.md)
+raises complete source histories from 2 to 8 of the 15 unchanged August 25
+fixtures (292 to 360 personal histories). Game 823098 proves all 70 PA
+contributions and all five scoring histories through Jena and exact SQL,
+including isolated player means for six batting metrics and both run metrics.
+PA-start ambiguity remains separately withheld; this developer result does not
+assert that the live date range or reference season is ready.
+
 | Public metric | Player producer | Remaining work before complete live results |
 | --- | --- | --- |
 | Plate Appearance Contribution | Implemented conditionally | Complete attributed PA inputs and selected schedules; supported independent prefixes stay separate |

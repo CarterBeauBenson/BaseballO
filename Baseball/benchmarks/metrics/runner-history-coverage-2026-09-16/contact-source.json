@@ -1,0 +1,61 @@
+{
+  "gamePk": "823098",
+  "plays": [
+    {
+      "atBatIndex": "45",
+      "links": [
+        {
+          "atBatIndex": "45",
+          "playId": "46603849-b924-3bdd-845c-ff69a8a877c3",
+          "resolutionKind": "reach",
+          "runnerIndex": "1"
+        },
+        {
+          "atBatIndex": "45",
+          "playId": "46603849-b924-3bdd-845c-ff69a8a877c3",
+          "resolutionKind": "score",
+          "runnerIndex": "2"
+        },
+        {
+          "atBatIndex": "45",
+          "playId": "46603849-b924-3bdd-845c-ff69a8a877c3",
+          "resolutionKind": "out",
+          "runnerIndex": "3"
+        }
+      ],
+      "memberships": [
+        {
+          "atBatIndex": "45",
+          "lifetimeKey": "f6441e5d8be1e8915ad09e12e01785aafd41998575945bfd9ff1001324aa01b8",
+          "resolutionKind": "reach",
+          "runnerId": "647304",
+          "runnerIndex": "1"
+        },
+        {
+          "atBatIndex": "45",
+          "lifetimeKey": "f6441e5d8be1e8915ad09e12e01785aafd41998575945bfd9ff1001324aa01b8",
+          "resolutionKind": "out",
+          "runnerId": "647304",
+          "runnerIndex": "3"
+        },
+        {
+          "atBatIndex": "45",
+          "lifetimeKey": "baea9e6b5ad854605c45c2db55f884fd58ef5ae1624a23bf4e93572528accfec",
+          "resolutionKind": "advance",
+          "runnerId": "677594",
+          "runnerIndex": "0"
+        },
+        {
+          "atBatIndex": "45",
+          "lifetimeKey": "baea9e6b5ad854605c45c2db55f884fd58ef5ae1624a23bf4e93572528accfec",
+          "resolutionKind": "score",
+          "runnerId": "677594",
+          "runnerIndex": "2"
+        }
+      ],
+      "playId": "46603849-b924-3bdd-845c-ff69a8a877c3",
+      "status": "admitted"
+    }
+  ],
+  "sourceSha256": "d8e4a976ef2af31a4b15557d2c768b7b20b86a064aa7684202e019d5bb885148"
+}

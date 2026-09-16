@@ -1,5 +1,6 @@
 """Q8 supported walk-off completion, with unchanged counted effects."""
 import copy
+from datetime import datetime
 import importlib.util
 import json
 from pathlib import Path
@@ -10,11 +11,12 @@ import tempfile
 import unittest
 
 from pyshacl import validate
-from rdflib import Dataset, Graph, RDF, URIRef
+from rdflib import Graph, RDF, URIRef
 from test_metric_mapping_completion import ROOT, CONTEXT, BASE, BFO, CCO, SHAPE
 
 sys.path.insert(0,str(ROOT/'tests'))
-from test_rmlmapper_iterator_compatibility import installed_tools, materialized_subset, RR
+from test_rmlmapper_iterator_compatibility import installed_tools, local_root, materialized_subset, RR
+from prove_run_construction import JAVA
 
 SOURCE=ROOT/'data/raw/samples/2026-07-20/824087.json'
 
@@ -110,9 +112,16 @@ class WalkoffRunnerBoundary(unittest.TestCase):
                 broken.add((episode,BFO.BFO_0000117,URIRef('urn:fake-out')));broken.add((URIRef('urn:fake-out'),RDF.type,BASE.OutProcess))
             self.assertFalse(conforms(broken)[0],fault)
         spec=importlib.util.spec_from_file_location('walkoff_serving',ROOT/'serving/metric_suite.py');serving=importlib.util.module_from_spec(spec);spec.loader.exec_module(serving)
-        dataset=Dataset();graph_iri='https://w3id.org/baseball/graph/game/824087'
-        for t in g:dataset.graph(URIRef(graph_iri)).add(t)
-        bindings=json.loads(dataset.query(serving.evidence_query([graph_iri])).serialize(format='json'))['results']['bindings']
+        # Use the production query engine; RDFLib's evaluation of this complete
+        # OPTIONAL-heavy query can stall even on the one-half fixture.
+        graph_iri='https://w3id.org/baseball/graph/game/824087'
+        jars=list((local_root()/'runtimes').glob('*/fuseki-server.jar'))
+        self.assertEqual(len(jars),1,'Expected one installed Jena runtime')
+        (workspace/'MetricQuery.java').write_text(JAVA,encoding='utf-8')
+        (workspace/'query.rq').write_text(serving.evidence_query([graph_iri]),encoding='utf-8')
+        subprocess.run([str(java),'-Xmx512m','--class-path',str(jars[0]),str(workspace/'MetricQuery.java'),
+            str(output),graph_iri,str(workspace/'query.rq'),str(workspace/'bindings.json')],check=True,timeout=60)
+        bindings=json.loads((workspace/'bindings.json').read_bytes())['results']['bindings']
         rows=serving.normalize_bindings(bindings,[graph_iri])
         run,=serving.run_construction_evidence(rows)['runs']
         self.assertEqual(run['runner'],'https://baseballontology.org/data/player/668942')
@@ -120,7 +129,8 @@ class WalkoffRunnerBoundary(unittest.TestCase):
         self.assertEqual([(e['start'],e['end']) for e in run['episodes']],[(0,1),(1,2),(2,3),(3,4)])
         end_rows=[r for r in rows if r.get('trajectoryEndInstant')]
         self.assertEqual({r['player'].rsplit('/',1)[-1] for r in end_rows},{'686475','679845'})
-        self.assertEqual({r['gameEnd'] for r in end_rows},{'2026-07-21T02:10:40.603000+00:00'})
+        self.assertEqual({datetime.fromisoformat(r['gameEnd'].replace('Z','+00:00')) for r in end_rows},
+                         {datetime.fromisoformat('2026-07-21T02:10:40.603000+00:00')})
         with sqlite3.connect(':memory:') as connection:
             serving.initialize_sql(connection);self.assertTrue(serving.materialize_game(connection,graph_iri,bindings)['exactRoundTrip'])
             retained=[json.loads(r[0]) for r in connection.execute('SELECT binding_json FROM metric_suite_evidence')]
