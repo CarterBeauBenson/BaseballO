@@ -1,0 +1,63 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-runner-boundary-anchors",
+  "title": "C3 stable runner-history action, replacement and placement boundaries",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "500b4a0ea44bac2e2ed4abefee55a5d570eae9e2949e745bb67eb89e76bbe09a"
+      },
+      {
+        "path": "mapping-contract.md",
+        "sha256": "e867845886bde09df383ecca0a3bafbaf44295c1e178371ae90745b77318c90f"
+      },
+      {
+        "path": "user-decision.md",
+        "sha256": "7caeedda22422e92599cadb4291575dce9396234676a94e7984899fabf4cc3ce"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "57ac47e1fd80f497146d94b6e390e5d42974b5146f023252793815338d4875ff"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "source-evidence.md",
+        "sha256": "57ac47e1fd80f497146d94b6e390e5d42974b5146f023252793815338d4875ff"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "626a713474a1d4ee05c75ae038efdf502d92ec16b30d283a666cafc3e128a7f6"
+      },
+      {
+        "path": "source-specific-mermaid.md",
+        "sha256": "859191a3e0de1369bc118e6e04c7bfc9fc03891337ed8bc6dbf78e4726bb2c64"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-09-16",
+    "rationale": "Explicit current-conversation answers: 1. yes; 2. yes; 3. yes, to the three prepared C3 identity/mapping questions. No new ontology terms or object properties; retain the contract bounds and correction policy.",
+    "authorizedArtifacts": [
+      "Baseball/scripts/pipeline/prepare-rml-context.py",
+      "Baseball/sources/mlb-game/mapping/iri-policy.yaml",
+      "Baseball/sources/mlb-game/mapping/mlb-game.rml.ttl",
+      "Baseball/sources/mlb-game/mapping/mapping-coverage.yaml",
+      "Baseball/sources/mlb-game/mapping/ontology-coverage-gaps.yaml",
+      "Baseball/sources/mlb-game/shacl/authoritative.ttl",
+      "Baseball/sources/mlb-game/review/semantic-status.json",
+      "Baseball/sources/mlb-game/review/rml-mermaid-manifest.json"
+    ]
+  }
+}

@@ -1,6 +1,8 @@
 # C3: stable runner-history boundaries without pitch IDs
 
-Status: **under review, not authorized for execution**. This package extends
+Status: **accepted by Carter Beau Benson on 2026-09-16**. The user answered
+yes to all three named C3 questions; see [the decision](user-decision.md).
+This package extends
 the existing C1 instance-identity contract. It proposes no ontology classes,
 object properties, data properties or new pipeline stages.
 
@@ -10,7 +12,7 @@ remaining mapping problem is concrete: MLB sometimes supplies `actionPlayId`
 instead of `playId`, and supplies neither for a pinch runner or placed runner.
 The current admitted serialization accepts pitch `playId` anchors only.
 
-**Requested decision:** accept the three bounded anchor forms and correction
+**Accepted decision:** the three bounded anchor forms and correction
 policy in [mapping-contract.md](mapping-contract.md), allowing the existing
 C1 RML to represent those histories with the same accepted graph shape.
 This is approval of particular identity and mapping scope, not permission to

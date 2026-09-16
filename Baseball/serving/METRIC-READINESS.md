@@ -93,10 +93,11 @@ independent outs and interrupted turns still withhold the affected population.
 Focused SQL tests compare Empty Game Damage against the Empty Games count and
 retain the independent schedule requirement.
 
-[C3's prepared identity review](../proposals/mlb-game-runner-boundary-anchors/README.md)
+[C3's accepted identity review](../archive/design-records/mlb-game-runner-boundary-anchors/README.md)
 addresses non-pitch action, replacement and placed-runner boundaries without
-pitch IDs. It is under review, not an implemented extension or source
-completeness claim. The proposal keeps the existing C1 graph pattern, creates
+pitch IDs. The user accepted all three C3 questions on September 16;
+implementation follows the separately published decision. Acceptance is not a
+source completeness claim. The contract keeps the existing C1 graph pattern, creates
 no ontology terms, and identifies separate state/time gaps it does not resolve.
 
 The new NiFi-owned review inventory retains PA-level as well as event-level
