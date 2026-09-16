@@ -1,5 +1,5 @@
 {
-  "$schema": "../../governance/proposal-review.schema.json",
+  "$schema": "../../../governance/proposal-review.schema.json",
   "artifactType": "baseballo-semantic-proposal-review",
   "schemaVersion": 1,
   "proposalId": "mlb-game-metric-profile-registration",
@@ -9,7 +9,7 @@
   "artifacts": {
     "competencyQuestions": [
       {
-        "path": "README.md",
+        "path": "request.md",
         "sha256": "5d4e08232b411752de9d90e16140a75daaeecd577fbf87dd45ea4e1c66bf3ac4"
       }
     ],

@@ -8,8 +8,10 @@ season ranking precedes selected-date player means. The common exact rank
 engine removes quadratic peer comparison for all four percentile metrics.
 See the [Recovery proof](../../../benchmarks/metrics/recovery-inputs-2026-09-15/README.md)
 and the [current nineteen-metric status](../../../serving/METRIC-READINESS.md).
-The source-profile ownership catalog repair needs a named protected-pin
-decision; its actual gate has not passed. M3/M4 remains separately pending.
+The source-profile ownership repair now uses the source's operational
+validation registry; exact inventory and unique ownership pass without a
+protected catalog or pin change. The unnecessary approval request was
+withdrawn. M3/M4 remains separately pending.
 This is not complete live population admission or a claim that all nineteen
 player producers are implemented.
 

@@ -40,11 +40,11 @@ engine also passes exact equivalence checks for all four rank metrics and a
 
 ## Concrete release gates
 
-The unchanged source ownership check rejects the current catalog because five
-metric SHACL profiles are unregistered, four of which predate Recovery. The
-[prepared ownership repair](../proposals/mlb-game-metric-profile-registration/README.md)
-passes the validator in isolation. Applying its protected catalog pin requires
-the named user decision. No global ratification is proposed.
+The five metric SHACL profiles are registered in the owning module's
+operational `pipeline/validation-profiles.json`. Exact ownership and inventory
+checks cover both that registry and the existing pinned source contract.
+The registration blocker is resolved without a protected catalog or freeze
+change. The [unnecessary approval request was withdrawn](../archive/design-records/mlb-game-metric-profile-registration/disposition.md).
 
 M3/M4 remains a separate draft for four counted-foul cases. A further known
 Q5 case in game 824087 PA 32 is withheld because the PA contains a review;

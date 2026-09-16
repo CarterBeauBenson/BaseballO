@@ -26,9 +26,9 @@ unknown eligibility. All four percentile implementations are compared against
 the retained canonical SPARQL kernels, including exact large fractions, ties,
 separate cohorts and a 20,200-observation nonquadratic path.
 
-The source-module ownership check has a separate known failure: five metric
-profiles are absent from the pinned catalog. The
-[proposed registration](../../../proposals/mlb-game-metric-profile-registration/README.md)
-passes the unchanged catalog and source-scope validators in isolation. The
-actual protected catalog and pin remain unchanged pending named approval.
-That release gate is not made to pass by this developer proof.
+The subsequent operational registration repair closes the source ownership
+failure using the owning module's `pipeline/validation-profiles.json`.
+Exact inventory and unique-ownership checks still apply to every profile.
+The protected catalog and freeze remain unchanged; the
+[approval request was withdrawn](../../../archive/design-records/mlb-game-metric-profile-registration/disposition.md).
+This registration does not change the real-game proof or admit a season.

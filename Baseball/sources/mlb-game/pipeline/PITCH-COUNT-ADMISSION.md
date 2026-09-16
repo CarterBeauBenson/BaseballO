@@ -62,10 +62,11 @@ unfinished. Four additional pitched-strike cases are covered by the separate
 draft M3/M4 proposal. No selector, mapping, ontology or freeze pin was changed
 by this component.
 
-The new profile and four pre-existing metric profiles also require the exact
-[source ownership registration](../../../proposals/mlb-game-metric-profile-registration/README.md).
-The actual catalog fails the unchanged ownership check; the proposed catalog
-passes it. The protected catalog/pin remain unchanged pending the named decision.
+The new profile and four pre-existing metric profiles are registered in the
+source-owned `pipeline/validation-profiles.json`. The ownership validator
+retains exact membership and unique ownership across operational profiles and
+the pinned source contract. The protected catalog and freeze remain unchanged.
+The [unnecessary approval request was withdrawn](../../../archive/design-records/mlb-game-metric-profile-registration/disposition.md).
 
 The [nineteen-metric status](../../../serving/METRIC-READINESS.md) distinguishes
 implemented player producers from remaining work and live population admission.

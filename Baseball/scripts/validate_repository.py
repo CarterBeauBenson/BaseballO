@@ -862,6 +862,29 @@ def validate_query_contract() -> None:
                 )
 
 
+def operational_validation_profiles(module_root: Path, module_id: str) -> list[str]:
+    """Read source-owned operational checks without changing its pinned RML contract.
+
+    Registration establishes ownership only. These files still participate in
+    the exact, unique SHACL inventory below; it never makes a profile optional.
+    """
+    path = module_root / 'pipeline' / 'validation-profiles.json'
+    if not path.is_file():
+        return []
+    record = json.loads(path.read_text(encoding='utf-8'))
+    if (not isinstance(record, dict)
+            or set(record) != {'artifactType', 'contractVersion', 'moduleId', 'profiles'}
+            or record['artifactType'] != 'baseballo-source-validation-profile-catalog'
+            or record['contractVersion'] != 1 or record['moduleId'] != module_id):
+        raise ValueError(f'Invalid operational validation profile catalog: {module_id}')
+    profiles = record['profiles']
+    if (not isinstance(profiles, list) or not profiles
+            or any(not isinstance(p, str) or not re.fullmatch(r'shacl/[a-z0-9-]+\.ttl', p) for p in profiles)
+            or len(profiles) != len(set(profiles))):
+        raise ValueError(f'Invalid or duplicate operational validation profile: {module_id}')
+    return [f'sources/{module_id}/{p}' for p in profiles]
+
+
 def validate_source_module_contract() -> tuple[int, set[str]]:
     catalog = json.loads(SOURCE_MODULE_CATALOG.read_text(encoding="utf-8"))
     if (
@@ -877,6 +900,7 @@ def validate_source_module_contract() -> tuple[int, set[str]]:
     registered_rml: set[Path] = set()
     registered_shacl: set[Path] = set()
     registered_policies: set[Path] = set()
+    validation_catalogs: set[Path] = set()
     graph_prefixes: list[tuple[str, str]] = []
     nifi_process_groups: dict[str, str] = {}
     for module in modules:
@@ -992,7 +1016,10 @@ def validate_source_module_contract() -> tuple[int, set[str]]:
             if path in registered_rml:
                 raise ValueError(f"RML is owned by multiple source modules: {value}")
             registered_rml.add(path)
-        for value in module["shacl"]:
+        operational_profiles = operational_validation_profiles(module_root, module_id)
+        if operational_profiles:
+            validation_catalogs.add((module_root / 'pipeline/validation-profiles.json').resolve())
+        for value in [*module["shacl"], *operational_profiles]:
             path = (ROOT / value).resolve()
             if not path.is_file() or not path.is_relative_to(
                 (module_root / "shacl").resolve()
@@ -1063,6 +1090,11 @@ def validate_source_module_contract() -> tuple[int, set[str]]:
                     f"Source graph prefixes overlap: {left_id}/{right_id}"
                 )
 
+    actual_validation_catalogs = {
+        path.resolve() for path in (ROOT / 'sources').glob('*/pipeline/validation-profiles.json')
+    }
+    if actual_validation_catalogs != validation_catalogs:
+        raise ValueError('Every operational validation catalog must belong to a declared source module')
     actual_rml = {
         path.resolve() for path in (ROOT / "sources").glob("*/mapping/*.rml.ttl")
     }

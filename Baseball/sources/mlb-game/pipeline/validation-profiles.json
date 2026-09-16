@@ -1,0 +1,12 @@
+{
+  "artifactType": "baseballo-source-validation-profile-catalog",
+  "contractVersion": 1,
+  "moduleId": "mlb-game",
+  "profiles": [
+    "shacl/batting-admission.ttl",
+    "shacl/contact-continuation.ttl",
+    "shacl/runner-resolution-admission.ttl",
+    "shacl/scoring-run-admission.ttl",
+    "shacl/pitch-count-admission.ttl"
+  ]
+}
