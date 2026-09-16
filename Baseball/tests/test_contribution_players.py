@@ -60,6 +60,12 @@ class ContributionPlayers(unittest.TestCase):
         self.assertTrue(item['runnerOnBase'])
         self.assertIsNone(item['comparisonState'])  # Do not invent the movement's time relative to the walk.
         self.assertFalse(result['independentDamageComplete'])
+        q=qualification(result)
+        reach=M.contribution_players('offensive-reach',[result],qualification=q,date_scope=SCOPE)
+        self.assertEqual(M.fraction(reach['value']),1)
+        help_score=M.contribution_players('hidden-help-rate',[result],qualification=q,date_scope=SCOPE)
+        self.assertTrue(help_score['playerPopulationComplete'])
+        self.assertEqual(help_score['gaps'],['EMPTY_DENOMINATOR'])
 
     def test_error_fc_exclusion_does_not_demand_positive_credit_attribution(self):
         rows=fixture(outs=0,runner_base=3,contact=True);pa=rows[0]['entity']
@@ -72,6 +78,10 @@ class ContributionPlayers(unittest.TestCase):
         rows.append(runner)
         result=inputs(rows);self.assertTrue(result['complete'],result)
         self.assertEqual(result['plateAppearances'][0]['score']['value'],M.exact(0))
+        for metric in ('offensive-reach','hidden-help-rate'):
+            score=M.contribution_players(metric,[result],qualification=qualification(result),date_scope=SCOPE)
+            self.assertTrue(score['playerPopulationComplete'])
+            self.assertEqual(score['value'],M.exact(0))
         rows[0]['paResultType']=BASE+'SingleProcess'
         self.assertFalse(inputs(rows)['complete'])  # Exclusion never leaks to a credited hit.
 

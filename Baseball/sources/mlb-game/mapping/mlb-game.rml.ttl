@@ -3704,14 +3704,27 @@
   rr:predicateObjectMap [ rr:predicate cco:ont00001765 ; rr:objectMap [ rml:reference "playId" ; rr:datatype xsd:string ] ] .
 
 <#AutomaticCountPriorPitchMap> a rr:TriplesMap ;
-  rml:logicalSource <#AutomaticCountAwardSource> ;
+  rml:logicalSource <#AutomaticCountPriorPitchSource> ;
   rr:subjectMap [ rml:reference "previousPitchIri" ; rr:termType rr:IRI ] ;
   rr:predicateObjectMap [ rr:predicate obo:BFO_0000063 ; rr:objectMap [ rml:reference "processIri" ; rr:termType rr:IRI ] ] .
 
 <#AutomaticCountNextPitchMap> a rr:TriplesMap ;
-  rml:logicalSource <#AutomaticCountAwardSource> ;
+  rml:logicalSource <#AutomaticCountNextPitchSource> ;
   rr:subjectMap [ rml:reference "processIri" ; rr:termType rr:IRI ] ;
   rr:predicateObjectMap [ rr:predicate obo:BFO_0000063 ; rr:objectMap [ rml:reference "nextPitchIri" ; rr:termType rr:IRI ] ] .
+
+# Optional neighbors are selected before strict reference evaluation. A clock
+# award may precede the first pitch or itself end a PA; neither boundary
+# licenses a fabricated neighbor or dropping the award's counted process.
+<#AutomaticCountPriorPitchSource> a rml:LogicalSource ;
+  rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$._baseballO.metricAutomaticAwards[?(@.previousPitchIri)]" .
+
+<#AutomaticCountNextPitchSource> a rml:LogicalSource ;
+  rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$._baseballO.metricAutomaticAwards[?(@.nextPitchIri)]" .
 
 <#M2PitchReviewSource> a rml:LogicalSource ;
   rml:source "game-context.json" ;

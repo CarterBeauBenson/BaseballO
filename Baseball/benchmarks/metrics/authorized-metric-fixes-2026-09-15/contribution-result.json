@@ -1,0 +1,3495 @@
+{
+  "artifactType": "baseballo-contribution-input-developer-proof",
+  "gamePk": "566279",
+  "sourceSha256": "e36caf73ff54d6eeac29dba350d5d37001e769eaaf4c1a9e5eac4763ad2630c2",
+  "rdfSha256": "abfc9fb3db734aea9caaa04ad1f16fbab73df139a8f5c5c101d40385a2e62be8",
+  "implementationSha256": "6f275ba6a7564697f70f335bc3419e755c8f1697e86774ee381ca28ec4bba064",
+  "sourceAdmission": {
+    "artifactType": "baseballo-runner-boundary-admission",
+    "contractVersion": 1,
+    "gamePk": "566279",
+    "graph": "https://w3id.org/baseball/graph/game/566279",
+    "sourceSha256": "e36caf73ff54d6eeac29dba350d5d37001e769eaaf4c1a9e5eac4763ad2630c2",
+    "sourceRevision": "20190402_051518",
+    "authoritativeRdfSha256": "abfc9fb3db734aea9caaa04ad1f16fbab73df139a8f5c5c101d40385a2e62be8",
+    "implementationSha256": "ce71f44e632075138733f227f6032593a71e6dff415c111ffeef92d3d3a812b2",
+    "status": "admitted",
+    "sourceReconciled": true,
+    "graphConforms": true,
+    "issues": [],
+    "sourceCensusSha256": "2511e88638543a8c69f802ca400b923becea4f3f6067c8017e6d995ff83c256f",
+    "shapeSha256": "4f5904a30746f8828ed53d6ed107a7de98bb57a39f99d53c3ee3bdcb336a57cb",
+    "reportSha256": "4a53a3befd9bcdb7273ef3d6e47a83be519927771faee49ef0d2a44ee23be2be",
+    "engine": "jena",
+    "awardAttributionComplete": true
+  },
+  "battingAdmission": {
+    "artifactType": "baseballo-batting-admission",
+    "contractVersion": 1,
+    "gamePk": "566279",
+    "graph": "https://w3id.org/baseball/graph/game/566279",
+    "sourceSha256": "e36caf73ff54d6eeac29dba350d5d37001e769eaaf4c1a9e5eac4763ad2630c2",
+    "sourceRevision": "20190402_051518",
+    "authoritativeRdfSha256": "abfc9fb3db734aea9caaa04ad1f16fbab73df139a8f5c5c101d40385a2e62be8",
+    "implementationSha256": "c2f101e568c3ab887281fd39ea2ef45350c6425a191b13af65d508e09a1627bc",
+    "status": "admitted",
+    "sourceReconciled": true,
+    "graphConforms": true,
+    "issues": [],
+    "selectedPopulationComplete": false,
+    "sourceCensusSha256": "d9923c2659488cf2f5a36c26f9a373174e303192aeb4e5bb7c0091f2a2a98a2d",
+    "shapeSha256": "bb9e53cef1ac8806650d680d3f6a385ee05bc2b775e1c12baaf5cd3ed88e7c7b",
+    "reportSha256": "4a53a3befd9bcdb7273ef3d6e47a83be519927771faee49ef0d2a44ee23be2be",
+    "engine": "jena"
+  },
+  "runnerResolutionAdmission": {
+    "artifactType": "baseballo-runner-resolution-admission",
+    "contractVersion": 1,
+    "gamePk": "566279",
+    "graph": "https://w3id.org/baseball/graph/game/566279",
+    "sourceSha256": "e36caf73ff54d6eeac29dba350d5d37001e769eaaf4c1a9e5eac4763ad2630c2",
+    "sourceRevision": "20190402_051518",
+    "authoritativeRdfSha256": "abfc9fb3db734aea9caaa04ad1f16fbab73df139a8f5c5c101d40385a2e62be8",
+    "implementationSha256": "b094307ad32e286a4ede9c9f7836473c23948f43c538f1442d4d9584c8f61f8d",
+    "status": "admitted",
+    "sourceReconciled": true,
+    "graphConforms": true,
+    "issues": [],
+    "sourceCensusSha256": "2bbb00a2943d5cd92ae8399059155e411078cf7580dbaacfa01734577faf4a13",
+    "shapeSha256": "01ac233ccaadcb51d5a7468e973bb6e172262b3ce55141496b3310761fde9d5f",
+    "reportSha256": "4a53a3befd9bcdb7273ef3d6e47a83be519927771faee49ef0d2a44ee23be2be",
+    "engine": "jena"
+  },
+  "jenaQueryPassed": true,
+  "sqlExactMatch": true,
+  "completedPlateAppearances": 79,
+  "unresolvedPlateAppearances": 0,
+  "gapCounts": {},
+  "isolatedOneGamePlayerResults": {
+    "tfs": {
+      "status": "available",
+      "value": {
+        "numerator": "37",
+        "denominator": "948"
+      },
+      "gaps": [],
+      "evidence": [],
+      "components": {},
+      "playerPopulationComplete": true,
+      "playerResults": [
+        {
+          "player": "https://baseballontology.org/data/player/430945",
+          "metricId": "tfs",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "7",
+              "denominator": "6"
+            },
+            "count": 5
+          },
+          "value": {
+            "numerator": "7",
+            "denominator": "30"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/435079",
+          "metricId": "tfs",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 3,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "-1",
+              "denominator": "4"
+            },
+            "count": 3
+          },
+          "value": {
+            "numerator": "-1",
+            "denominator": "12"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/444482",
+          "metricId": "tfs",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "7",
+              "denominator": "4"
+            },
+            "count": 5
+          },
+          "value": {
+            "numerator": "7",
+            "denominator": "20"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/488671",
+          "metricId": "tfs",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "11",
+              "denominator": "6"
+            },
+            "count": 5
+          },
+          "value": {
+            "numerator": "11",
+            "denominator": "30"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/500871",
+          "metricId": "tfs",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "-7",
+              "denominator": "12"
+            },
+            "count": 5
+          },
+          "value": {
+            "numerator": "-7",
+            "denominator": "60"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/518876",
+          "metricId": "tfs",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 3,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "-7",
+              "denominator": "9"
+            },
+            "count": 3
+          },
+          "value": {
+            "numerator": "-7",
+            "denominator": "27"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/527038",
+          "metricId": "tfs",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "-7",
+              "denominator": "3"
+            },
+            "count": 5
+          },
+          "value": {
+            "numerator": "-7",
+            "denominator": "15"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/543333",
+          "metricId": "tfs",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "-1",
+              "denominator": "6"
+            },
+            "count": 4
+          },
+          "value": {
+            "numerator": "-1",
+            "denominator": "24"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/571875",
+          "metricId": "tfs",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 1,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "19",
+              "denominator": "12"
+            },
+            "count": 1
+          },
+          "value": {
+            "numerator": "19",
+            "denominator": "12"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/571976",
+          "metricId": "tfs",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "-7",
+              "denominator": "6"
+            },
+            "count": 4
+          },
+          "value": {
+            "numerator": "-7",
+            "denominator": "24"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/572233",
+          "metricId": "tfs",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "1",
+              "denominator": "1"
+            },
+            "count": 5
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "5"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/592518",
+          "metricId": "tfs",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "-2",
+              "denominator": "3"
+            },
+            "count": 4
+          },
+          "value": {
+            "numerator": "-1",
+            "denominator": "6"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/594824",
+          "metricId": "tfs",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 3,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "-3",
+              "denominator": "4"
+            },
+            "count": 3
+          },
+          "value": {
+            "numerator": "-1",
+            "denominator": "4"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/595978",
+          "metricId": "tfs",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 3,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "-3",
+              "denominator": "4"
+            },
+            "count": 3
+          },
+          "value": {
+            "numerator": "-1",
+            "denominator": "4"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/605113",
+          "metricId": "tfs",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "17",
+              "denominator": "9"
+            },
+            "count": 5
+          },
+          "value": {
+            "numerator": "17",
+            "denominator": "45"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/606466",
+          "metricId": "tfs",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "13",
+              "denominator": "12"
+            },
+            "count": 5
+          },
+          "value": {
+            "numerator": "13",
+            "denominator": "60"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/614173",
+          "metricId": "tfs",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 3,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "1",
+              "denominator": "4"
+            },
+            "count": 3
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "12"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/614177",
+          "metricId": "tfs",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "-19",
+              "denominator": "36"
+            },
+            "count": 4
+          },
+          "value": {
+            "numerator": "-19",
+            "denominator": "144"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/622534",
+          "metricId": "tfs",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 1,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "-1",
+              "denominator": "4"
+            },
+            "count": 1
+          },
+          "value": {
+            "numerator": "-1",
+            "denominator": "4"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/641541",
+          "metricId": "tfs",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 1,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "-1",
+              "denominator": "4"
+            },
+            "count": 1
+          },
+          "value": {
+            "numerator": "-1",
+            "denominator": "4"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/664208",
+          "metricId": "tfs",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 1,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "-1",
+              "denominator": "4"
+            },
+            "count": 1
+          },
+          "value": {
+            "numerator": "-1",
+            "denominator": "4"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/665487",
+          "metricId": "tfs",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "5",
+              "denominator": "4"
+            },
+            "count": 4
+          },
+          "value": {
+            "numerator": "5",
+            "denominator": "16"
+          }
+        }
+      ],
+      "playerSummaryGaps": [],
+      "scope": "Complete selected-period attributed PA consequences; pooled applicable observations."
+    },
+    "rally-kill-rate": {
+      "status": "available",
+      "value": {
+        "numerator": "6",
+        "denominator": "35"
+      },
+      "gaps": [],
+      "evidence": [],
+      "components": {},
+      "playerPopulationComplete": true,
+      "playerResults": [
+        {
+          "player": "https://baseballontology.org/data/player/430945",
+          "metricId": "rally-kill-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "1",
+              "denominator": "1"
+            },
+            "count": 3
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "3"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/435079",
+          "metricId": "rally-kill-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 3,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 2
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/444482",
+          "metricId": "rally-kill-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/488671",
+          "metricId": "rally-kill-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 3
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/500871",
+          "metricId": "rally-kill-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 3
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/518876",
+          "metricId": "rally-kill-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 3,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "1",
+              "denominator": "1"
+            },
+            "count": 3
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "3"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/527038",
+          "metricId": "rally-kill-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "1",
+              "denominator": "1"
+            },
+            "count": 1
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/543333",
+          "metricId": "rally-kill-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/571875",
+          "metricId": "rally-kill-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 1,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/571976",
+          "metricId": "rally-kill-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/572233",
+          "metricId": "rally-kill-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 3
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/592518",
+          "metricId": "rally-kill-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "1",
+              "denominator": "1"
+            },
+            "count": 3
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "3"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/605113",
+          "metricId": "rally-kill-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 3
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/606466",
+          "metricId": "rally-kill-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "1",
+              "denominator": "1"
+            },
+            "count": 4
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "4"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/614177",
+          "metricId": "rally-kill-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "1",
+              "denominator": "1"
+            },
+            "count": 2
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "2"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/665487",
+          "metricId": "rally-kill-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        }
+      ],
+      "playerSummaryGaps": [],
+      "scope": "Complete selected-period attributed PA consequences; pooled applicable observations."
+    },
+    "rally-kill-severity": {
+      "status": "available",
+      "value": {
+        "numerator": "13",
+        "denominator": "210"
+      },
+      "gaps": [],
+      "evidence": [],
+      "components": {},
+      "playerPopulationComplete": true,
+      "playerResults": [
+        {
+          "player": "https://baseballontology.org/data/player/430945",
+          "metricId": "rally-kill-severity",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "1",
+              "denominator": "3"
+            },
+            "count": 3
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "9"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/435079",
+          "metricId": "rally-kill-severity",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 3,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 2
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/444482",
+          "metricId": "rally-kill-severity",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/488671",
+          "metricId": "rally-kill-severity",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 3
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/500871",
+          "metricId": "rally-kill-severity",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 3
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/518876",
+          "metricId": "rally-kill-severity",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 3,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "1",
+              "denominator": "3"
+            },
+            "count": 3
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "9"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/527038",
+          "metricId": "rally-kill-severity",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "1",
+              "denominator": "3"
+            },
+            "count": 1
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "3"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/543333",
+          "metricId": "rally-kill-severity",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/571875",
+          "metricId": "rally-kill-severity",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 1,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/571976",
+          "metricId": "rally-kill-severity",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/572233",
+          "metricId": "rally-kill-severity",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 3
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/592518",
+          "metricId": "rally-kill-severity",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "1",
+              "denominator": "3"
+            },
+            "count": 3
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "9"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/605113",
+          "metricId": "rally-kill-severity",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 3
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/606466",
+          "metricId": "rally-kill-severity",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "1",
+              "denominator": "2"
+            },
+            "count": 4
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "8"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/614177",
+          "metricId": "rally-kill-severity",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "1",
+              "denominator": "3"
+            },
+            "count": 2
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "6"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/665487",
+          "metricId": "rally-kill-severity",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        }
+      ],
+      "playerSummaryGaps": [],
+      "scope": "Complete selected-period attributed PA consequences; pooled applicable observations."
+    },
+    "opportunity-erosion": {
+      "status": "available",
+      "value": {
+        "numerator": "31",
+        "denominator": "316"
+      },
+      "gaps": [],
+      "evidence": [],
+      "components": {},
+      "playerPopulationComplete": true,
+      "playerResults": [
+        {
+          "player": "https://baseballontology.org/data/player/430945",
+          "metricId": "opportunity-erosion",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "5",
+              "denominator": "6"
+            },
+            "count": 5
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "6"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/435079",
+          "metricId": "opportunity-erosion",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 3,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "1",
+              "denominator": "3"
+            },
+            "count": 3
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "9"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/444482",
+          "metricId": "opportunity-erosion",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 5
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/488671",
+          "metricId": "opportunity-erosion",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 5
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/500871",
+          "metricId": "opportunity-erosion",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "5",
+              "denominator": "3"
+            },
+            "count": 5
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "3"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/518876",
+          "metricId": "opportunity-erosion",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 3,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "4",
+              "denominator": "9"
+            },
+            "count": 3
+          },
+          "value": {
+            "numerator": "4",
+            "denominator": "27"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/527038",
+          "metricId": "opportunity-erosion",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "3",
+              "denominator": "2"
+            },
+            "count": 5
+          },
+          "value": {
+            "numerator": "3",
+            "denominator": "10"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/543333",
+          "metricId": "opportunity-erosion",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "5",
+              "denominator": "12"
+            },
+            "count": 4
+          },
+          "value": {
+            "numerator": "5",
+            "denominator": "48"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/571875",
+          "metricId": "opportunity-erosion",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 1,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/571976",
+          "metricId": "opportunity-erosion",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "1",
+              "denominator": "6"
+            },
+            "count": 4
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "24"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/572233",
+          "metricId": "opportunity-erosion",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "1",
+              "denominator": "6"
+            },
+            "count": 5
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "30"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/592518",
+          "metricId": "opportunity-erosion",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "5",
+              "denominator": "6"
+            },
+            "count": 4
+          },
+          "value": {
+            "numerator": "5",
+            "denominator": "24"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/594824",
+          "metricId": "opportunity-erosion",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 3,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 3
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/595978",
+          "metricId": "opportunity-erosion",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 3,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 3
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/605113",
+          "metricId": "opportunity-erosion",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "5",
+              "denominator": "18"
+            },
+            "count": 5
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "18"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/606466",
+          "metricId": "opportunity-erosion",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "2",
+              "denominator": "3"
+            },
+            "count": 5
+          },
+          "value": {
+            "numerator": "2",
+            "denominator": "15"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/614173",
+          "metricId": "opportunity-erosion",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 3,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 3
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/614177",
+          "metricId": "opportunity-erosion",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "4",
+              "denominator": "9"
+            },
+            "count": 4
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "9"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/622534",
+          "metricId": "opportunity-erosion",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 1,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/641541",
+          "metricId": "opportunity-erosion",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 1,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/664208",
+          "metricId": "opportunity-erosion",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 1,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/665487",
+          "metricId": "opportunity-erosion",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 4
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        }
+      ],
+      "playerSummaryGaps": [],
+      "scope": "Complete selected-period attributed PA consequences; pooled applicable observations."
+    },
+    "offensive-reach": {
+      "status": "available",
+      "value": {
+        "numerator": "50",
+        "denominator": "79"
+      },
+      "gaps": [],
+      "evidence": [],
+      "components": {},
+      "playerPopulationComplete": true,
+      "playerResults": [
+        {
+          "player": "https://baseballontology.org/data/player/430945",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "6",
+              "denominator": "1"
+            },
+            "count": 5
+          },
+          "value": {
+            "numerator": "6",
+            "denominator": "5"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/435079",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 3,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "2",
+              "denominator": "1"
+            },
+            "count": 3
+          },
+          "value": {
+            "numerator": "2",
+            "denominator": "3"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/444482",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "4",
+              "denominator": "1"
+            },
+            "count": 5
+          },
+          "value": {
+            "numerator": "4",
+            "denominator": "5"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/488671",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "5",
+              "denominator": "1"
+            },
+            "count": 5
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/500871",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "4",
+              "denominator": "1"
+            },
+            "count": 5
+          },
+          "value": {
+            "numerator": "4",
+            "denominator": "5"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/518876",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 3,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "1",
+              "denominator": "1"
+            },
+            "count": 3
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "3"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/527038",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "1",
+              "denominator": "1"
+            },
+            "count": 5
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "5"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/543333",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "2",
+              "denominator": "1"
+            },
+            "count": 4
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "2"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/571875",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 1,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "3",
+              "denominator": "1"
+            },
+            "count": 1
+          },
+          "value": {
+            "numerator": "3",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/571976",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 4
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/572233",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "4",
+              "denominator": "1"
+            },
+            "count": 5
+          },
+          "value": {
+            "numerator": "4",
+            "denominator": "5"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/592518",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "3",
+              "denominator": "1"
+            },
+            "count": 4
+          },
+          "value": {
+            "numerator": "3",
+            "denominator": "4"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/594824",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 3,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 3
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/595978",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 3,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 3
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/605113",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "4",
+              "denominator": "1"
+            },
+            "count": 5
+          },
+          "value": {
+            "numerator": "4",
+            "denominator": "5"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/606466",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "6",
+              "denominator": "1"
+            },
+            "count": 5
+          },
+          "value": {
+            "numerator": "6",
+            "denominator": "5"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/614173",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 3,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "2",
+              "denominator": "1"
+            },
+            "count": 3
+          },
+          "value": {
+            "numerator": "2",
+            "denominator": "3"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/614177",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "1",
+              "denominator": "1"
+            },
+            "count": 4
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "4"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/622534",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 1,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/641541",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 1,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/664208",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 1,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/665487",
+          "metricId": "offensive-reach",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "2",
+              "denominator": "1"
+            },
+            "count": 4
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "2"
+          }
+        }
+      ],
+      "playerSummaryGaps": [],
+      "scope": "Complete selected-period attributed PA consequences; pooled applicable observations."
+    },
+    "hidden-help-rate": {
+      "status": "available",
+      "value": {
+        "numerator": "2",
+        "denominator": "51"
+      },
+      "gaps": [],
+      "evidence": [],
+      "components": {},
+      "playerPopulationComplete": true,
+      "playerResults": [
+        {
+          "player": "https://baseballontology.org/data/player/430945",
+          "metricId": "hidden-help-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 2
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/435079",
+          "metricId": "hidden-help-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 3,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 2
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/444482",
+          "metricId": "hidden-help-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 2
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/488671",
+          "metricId": "hidden-help-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 2
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/500871",
+          "metricId": "hidden-help-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 4
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/518876",
+          "metricId": "hidden-help-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 3,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 2
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/527038",
+          "metricId": "hidden-help-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 4
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/543333",
+          "metricId": "hidden-help-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 2
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/571976",
+          "metricId": "hidden-help-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 4
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/572233",
+          "metricId": "hidden-help-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 2
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/592518",
+          "metricId": "hidden-help-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 2
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/594824",
+          "metricId": "hidden-help-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 3,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 3
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/595978",
+          "metricId": "hidden-help-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 3,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 3
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/605113",
+          "metricId": "hidden-help-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "1",
+              "denominator": "1"
+            },
+            "count": 4
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "4"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/606466",
+          "metricId": "hidden-help-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 5,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 2
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/614173",
+          "metricId": "hidden-help-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 3,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/614177",
+          "metricId": "hidden-help-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "1",
+              "denominator": "1"
+            },
+            "count": 4
+          },
+          "value": {
+            "numerator": "1",
+            "denominator": "4"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/622534",
+          "metricId": "hidden-help-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 1,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/641541",
+          "metricId": "hidden-help-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 1,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/664208",
+          "metricId": "hidden-help-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 1,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 1
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        },
+        {
+          "player": "https://baseballontology.org/data/player/665487",
+          "metricId": "hidden-help-rate",
+          "status": "available",
+          "dateScope": {
+            "startDate": "2019-04-01",
+            "endDate": "2019-04-01",
+            "gameSet": "regular_season"
+          },
+          "completeParticipation": true,
+          "plateAppearances": 4,
+          "teamGames": 1,
+          "graphs": [
+            "https://w3id.org/baseball/graph/game/566279"
+          ],
+          "aggregate": {
+            "kind": "mean",
+            "sum": {
+              "numerator": "0",
+              "denominator": "1"
+            },
+            "count": 3
+          },
+          "value": {
+            "numerator": "0",
+            "denominator": "1"
+          }
+        }
+      ],
+      "playerSummaryGaps": [],
+      "scope": "Complete selected-period attributed PA consequences; pooled applicable observations."
+    }
+  },
+  "immediateComparisonStates": 77,
+  "publicDateRangeWithoutScheduleAdmission": "withheld",
+  "livePopulationComplete": false
+}

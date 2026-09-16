@@ -49,7 +49,7 @@ def main():
     # the date's complete MLB schedule is loaded.
     qualification=M.batting_qualification(rows,graphs=[graph],admissions={graph:batting},date_scope=scope,selected_games_complete=True)
     player_results={metric:M.contribution_players(metric,[result],qualification=qualification,date_scope=scope)
-        for metric in ('tfs','rally-kill-rate','rally-kill-severity','opportunity-erosion')}
+        for metric in ('tfs','rally-kill-rate','rally-kill-severity','opportunity-erosion','offensive-reach','hidden-help-rate')}
     assert all(r['playerPopulationComplete'] for r in player_results.values()),player_results
     if game=='566279':
         by_pa={int(p['plateAppearance'].rsplit('/',1)[1]):p for p in result['plateAppearances']}

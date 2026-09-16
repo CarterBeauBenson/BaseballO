@@ -1,0 +1,35 @@
+{
+  "artifactType": "baseballo-authorized-metric-recovery-submission",
+  "phase": "waiting-proof",
+  "reason": "Verified obsolete SQL failure reopened; NiFi will check idle state and queue one current proof",
+  "checkedAtUtc": "2026-09-16T02:29:28.938064Z",
+  "startDate": "2026-08-25",
+  "endDate": "2026-08-25",
+  "resumedFailures": [
+    {
+      "recordedAtUtc": "2026-09-16T02:29:28.938064Z",
+      "priorPlanSha256": "ecaae59ad71dd5bb8d3730b3565b198eea4de3f86b0c492386dbdded5f1a9e3d",
+      "priorPhase": "failed",
+      "priorReason": "Proof reached quarantine; retained evidence requires a focused fix",
+      "priorCheckedAtUtc": "2026-09-15T23:24:42.729208Z",
+      "evidence": {
+        "proofRunId": "96e7a0404d264ec3834a40bb4e9dd5ee",
+        "quarantinedAtUtc": "2026-09-15T23:10:28.1685713Z",
+        "quarantineEvidence": "pipeline\\quarantine\\mlb-game\\566279\\96e7a0404d264ec3834a40bb4e9dd5ee\\failure.json",
+        "quarantineSha256": "af3ccaf2f72482562faefa1304ad9c3176ab41d3bc3435f76786e407f25713b5",
+        "materializeLogSha256": "a5b042868fa886fdd16c394bfd87b6dbecc9ffaf617a15be1b95610d68e694a7",
+        "stageEvidenceSha256": {
+          "rml": "ca1e25115f7db0a58e9a1f6ec30c48daf7868fcac55dfbedab0b9572678678b2",
+          "shacl": "8e57bc13fca00fc0bc3dc23d598baa41f9c99efe5a4526f9f322261403ba6b23",
+          "promote": "07dda728a70807f3cf3f2129dbf816dc4759847e3f03f99dfb6a7b05170171b0",
+          "emit": "dd6fe8d87663a06981f5a7e391a1ec021dec770892f308e345dfeff480ea04e4"
+        },
+        "failureKind": "implementation-changed"
+      }
+    }
+  ],
+  "submittedBy": "resume-metric-source.py --resume-obsolete-sql",
+  "dispatchedByThisCommand": false,
+  "completed": false,
+  "owner": "existing NiFi source batch worker"
+}

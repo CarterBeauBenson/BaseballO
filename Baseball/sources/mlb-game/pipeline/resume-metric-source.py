@@ -10,10 +10,12 @@ from __future__ import annotations
 import argparse
 from contextlib import contextmanager
 from datetime import date, datetime, timezone
+from fractions import Fraction
 import hashlib
 import importlib.util
 import json
 import os
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -31,6 +33,21 @@ ARTIFACT = "baseballo-mlb-game-deferred-recovery"
 
 def now():
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+def event_time(value):
+    """Compare timezone-qualified timestamps without losing .NET's seventh digit.
+
+    Python 3.10's fromisoformat rejects that precision. Keep arbitrary decimal
+    fractions exact instead of rounding or dropping the timestamp check.
+    """
+    if not isinstance(value,str):raise ValueError('Missing recovery event timestamp')
+    match=re.fullmatch(r'(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})(?:\.(\d+))?(Z|[+-]\d{2}:\d{2})',value)
+    if not match:raise ValueError('Unqualified recovery event timestamp')
+    parsed=datetime.fromisoformat(match[1]+match[3].replace('Z','+00:00'))
+    delta=parsed-datetime(1970,1,1,tzinfo=timezone.utc)
+    digits=match[2] or '0'
+    return Fraction(delta.days*86400+delta.seconds)+Fraction(int(digits),10**len(digits))
 
 
 def read(path):
@@ -201,9 +218,7 @@ def completed_obsolete_proofs(state_root, prior_runs):
             completed = cleanup.get('completedAtUtc')
             if not isinstance(completed, str):
                 continue
-            instant = datetime.fromisoformat(completed.replace('Z','+00:00'))
-            if instant.tzinfo is None:
-                continue
+            event_time(completed)
             obsolete.append(dict(proofRunId=path.name, proofCompletedAtUtc=completed, reason=reason,
                 stageEvidenceSha256={name:hashlib.sha256((path/(name+'.json')).read_bytes()).hexdigest()
                                      for name in required}))
@@ -234,17 +249,12 @@ def obsolete_sql_failure(state_root, plan, failures):
     failure_path=state_root/'pipeline/quarantine/mlb-game'/proof_pk/next(iter(failures))
     failure=read(failure_path);run=failure_path.parent.name
     if (failure.get('artifactType')!='baseballo-mlb-game-quarantine'
-            or failure.get('contractVersion')!=1 or failure.get('failedStage')!='materialize'
+            or failure.get('contractVersion')!=1 or failure.get('failedStage') not in {'materialize','materialization'}
             or failure.get('pipelineRunId')!=run or str(failure.get('gamePk'))!=proof_pk
             or run in plan['priorProofRuns']):return None
-    def instant(value):
-        if not isinstance(value,str):raise ValueError('Missing recovery event timestamp')
-        parsed=datetime.fromisoformat(value.replace('Z','+00:00'))
-        if parsed.tzinfo is None:raise ValueError('Unqualified recovery event timestamp')
-        return parsed
     try:
-        dispatched=instant(plan.get('dispatchedAtUtc'))
-        ended=instant(failure.get('quarantinedAtUtc'))
+        dispatched=event_time(plan.get('dispatchedAtUtc'))
+        ended=event_time(failure.get('quarantinedAtUtc'))
         if ended<dispatched:return None
         root=state_root/'pipeline/evidence/mlb-game'/proof_pk
         candidates={p.name for p in root.iterdir() if p.is_dir()}-set(plan['priorProofRuns'])
@@ -259,7 +269,7 @@ def obsolete_sql_failure(state_root, plan, failures):
             if (record.get('artifactType')!='baseballo-mlb-game-stage-result'
                     or record.get('contractVersion')!=1 or record.get('action')!=action
                     or record.get('pipelineRunId')!=run or str(record.get('gamePk'))!=proof_pk):return None
-            completed=instant(record.get('completedAtUtc'))
+            completed=event_time(record.get('completedAtUtc'))
             if not previous<=completed<=ended:return None
             previous=completed
             if action=='shacl' and record.get('conforms') is not True:return None
@@ -442,10 +452,45 @@ def tick(state_root):
         return {"status": "recovery-error", "reason": str(error), "deferMaterialization": True}
 
 
+def resume_obsolete_sql(state_root):
+    """Explicitly reopen only a positively identified obsolete-code failure.
+
+    Preserve the terminal plan and all quarantine evidence. This queues work
+    for the existing NiFi worker; it neither dispatches nor releases a proof.
+    """
+    path=plan_path(state_root)
+    with lock(path.with_suffix('.lock')):
+        plan=read(path)
+        if (plan.get('artifactType')!=ARTIFACT or plan.get('contractVersion')!=1
+                or plan.get('phase')!='failed'):
+            raise ValueError('Only a failed recovery plan can be explicitly resumed')
+        proof_pk=str(read(CONTRACT)['proofGamePk'])
+        failures=set(names(state_root/'pipeline/quarantine/mlb-game'/proof_pk,'*/failure.json'))-set(plan['priorProofFailures'])
+        evidence=obsolete_sql_failure(state_root,plan,failures)
+        if evidence is None:
+            raise ValueError('Failure is not a uniquely attributable obsolete SQL implementation')
+        revision=serving_revision()
+        if any(p['retryImplementationSha256']==revision for p in plan.get('obsoleteSqlProofs',[])):
+            raise ValueError('Current implementation already received an obsolete-SQL proof retry')
+        nifi=NiFi(plan['nifiApi'])
+        nifi.source_processors(plan['sourceGroupId'])
+        nifi.processor(plan['sqlProcessorId'],plan['sqlGroupId'],'Materialize All DSQs','ExecuteStreamCommand')
+        plan.setdefault('resumedFailures',[]).append(dict(recordedAtUtc=now(),
+            priorPlanSha256=hashlib.sha256(path.read_bytes()).hexdigest(),
+            priorPhase=plan['phase'],priorReason=plan.get('reason'),
+            priorCheckedAtUtc=plan.get('checkedAtUtc'),evidence=evidence))
+        plan.update(phase='waiting-proof',awaitSqlIdle=True,checkedAtUtc=now(),
+            reason='Verified obsolete SQL failure reopened; NiFi will check idle state and queue one current proof')
+        save(path,plan)
+        return dict(status='queued',path=str(path),proofRunId=evidence['proofRunId'])
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--state-root", type=Path, required=True)
-    parser.add_argument("--enqueue", action="store_true")
+    mode=parser.add_mutually_exclusive_group()
+    mode.add_argument("--enqueue", action="store_true")
+    mode.add_argument("--resume-obsolete-sql", action="store_true")
     parser.add_argument("--required-build-id")
     parser.add_argument("--source-group-id")
     parser.add_argument("--sql-group-id")
@@ -457,7 +502,9 @@ def main():
                         help="After SQL becomes idle, let the normal proof rebuild serving even if the prior build did not promote")
     args = parser.parse_args()
     state_root = args.state_root.resolve()
-    if args.enqueue:
+    if args.resume_obsolete_sql:
+        print(json.dumps(resume_obsolete_sql(state_root)))
+    elif args.enqueue:
         for field in ("required_build_id", "source_group_id", "sql_group_id", "sql_processor_id", "start_date", "end_date"):
             if not getattr(args, field):
                 parser.error(f"--enqueue requires --{field.replace('_', '-')}")

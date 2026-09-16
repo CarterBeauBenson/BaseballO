@@ -1,0 +1,85 @@
+{
+  "artifactType": "baseballo-automatic-award-review-developer-proof",
+  "gamePk": "824087",
+  "sourceSha256": "249a1df5bb53bc0e5fac2ba16f2204029e7d6325229824523e7fccc85779f237",
+  "rdfSha256": "3f94ed65645812b592d820719e69105e060447ec405999a7a027203b747df27b",
+  "implementationSha256": "6f275ba6a7564697f70f335bc3419e755c8f1697e86774ee381ca28ec4bba064",
+  "sourceShaclPassed": true,
+  "jenaQueryPassed": true,
+  "sqlExactMatch": true,
+  "affectedPlateAppearance": {
+    "status": "available",
+    "value": {
+      "numerator": "1",
+      "denominator": "1"
+    },
+    "gaps": [],
+    "evidence": [
+      "https://baseballontology.org/data/game/824087/pitch/6873c9fd-f246-3cb0-8a43-93fe587a5d94",
+      "https://baseballontology.org/data/game/824087/pitch/9b4bfd2a-13d1-3109-b401-b69b90449fbc",
+      "https://baseballontology.org/data/game/824087/pitch/da386b29-64d2-35f2-912e-2d1426dac52f",
+      "https://baseballontology.org/data/game/824087/process/strike/6e1edbb8-f263-41d9-9613-56400d396d2f"
+    ],
+    "components": {},
+    "graph": "https://w3id.org/baseball/graph/game/824087",
+    "plateAppearance": "https://baseballontology.org/data/game/824087/plate-appearance/32",
+    "player": "https://baseballontology.org/data/player/686555",
+    "twoStrikeEligible": true,
+    "countHistory": [
+      {
+        "countAward": "https://baseballontology.org/data/game/824087/process/strike/6e1edbb8-f263-41d9-9613-56400d396d2f",
+        "awardKind": "strike",
+        "strikesAfter": 1,
+        "terminal": false
+      },
+      {
+        "pitch": "https://baseballontology.org/data/game/824087/pitch/6873c9fd-f246-3cb0-8a43-93fe587a5d94",
+        "strikesAfter": 2,
+        "terminal": false
+      },
+      {
+        "pitch": "https://baseballontology.org/data/game/824087/pitch/9b4bfd2a-13d1-3109-b401-b69b90449fbc",
+        "strikesAfter": 2,
+        "terminal": false
+      },
+      {
+        "pitch": "https://baseballontology.org/data/game/824087/pitch/da386b29-64d2-35f2-912e-2d1426dac52f",
+        "strikesAfter": 2,
+        "terminal": true
+      }
+    ]
+  },
+  "selectedAutomaticAwards": 1,
+  "deliveredPitchesInAffectedPA": 3,
+  "countAdmission": {
+    "artifactType": "baseballo-pitch-count-admission",
+    "authoritativeRdfSha256": "3f94ed65645812b592d820719e69105e060447ec405999a7a027203b747df27b",
+    "contractVersion": 1,
+    "engine": "jena",
+    "gamePk": "824087",
+    "graph": "https://w3id.org/baseball/graph/game/824087",
+    "graphConforms": false,
+    "implementationSha256": "91fbce48d2b3f121d41807c11ad34c82d6a14f06b560d103b1f40181f42a8f7a",
+    "issues": [
+      {
+        "code": "PITCH_COUNT_MAPPING_COVERAGE"
+      }
+    ],
+    "reportSha256": "7cc0efe4e15c2eb4dc68aff6310a93ad551afac2079be67862e1e62852fbfdef",
+    "shapeSha256": "3f5fdacfeab55de51323eba7d4bb07848a6dc0ae55169fd9b316f8137157e904",
+    "sourceCensusSha256": "aba1a350ef82ba87e36087c4960728523e819ebe9ccee6791d3ed670e23099fc",
+    "sourceReconciled": true,
+    "sourceRevision": "20260721_021040",
+    "sourceSha256": "249a1df5bb53bc0e5fac2ba16f2204029e7d6325229824523e7fccc85779f237",
+    "status": "withheld"
+  },
+  "countAdmissionFailingPlayIds": [
+    "2e43cea2-8987-3504-bdea-1d14260ec2ec",
+    "41fa6af0-ca1c-3a9e-a799-53ad322b012b",
+    "42fceb08-17db-3716-83d0-b5c23445239e",
+    "afb3e724-c0c9-3b8e-ad34-13efc7d0c3e4"
+  ],
+  "fullGameCountAdmission": false,
+  "seasonPopulationComplete": false,
+  "livePopulationComplete": false
+}

@@ -222,7 +222,7 @@ class RecoveryTests(unittest.TestCase):
         self.assertTrue(old.is_file())
         self.assertEqual(self.nifi.calls, [("run", "proof")])
 
-    def obsolete_sql(self,run='a'*32,legacy=False):
+    def obsolete_sql(self,run='a'*32,legacy=False,stage='materialization'):
         directory=self.proof_root/run
         for action in ('rml','shacl','promote','emit'):
             recovery.save(directory/(action+'.json'),dict(artifactType='baseballo-mlb-game-stage-result',
@@ -234,7 +234,7 @@ class RecoveryTests(unittest.TestCase):
         (directory/'materialize.log').write_text(json.dumps(output),encoding='utf-16' if legacy else 'utf-8')
         failure=self.failure_root/run/'failure.json'
         recovery.save(failure,dict(artifactType='baseballo-mlb-game-quarantine',contractVersion=1,
-            pipelineRunId=run,gamePk='566279',failedStage='materialize',quarantinedAtUtc=recovery.now()))
+            pipelineRunId=run,gamePk='566279',failedStage=stage,quarantinedAtUtc=recovery.now()))
         return directory,failure
 
     def test_obsolete_sql_failure_queues_full_proof_and_preserves_quarantine(self):
@@ -255,6 +255,51 @@ class RecoveryTests(unittest.TestCase):
     def test_exact_legacy_materializer_error_is_recognized_from_windows_log(self):
         self.step();self.obsolete_sql(legacy=True)
         self.assertEqual(self.step()['status'],'waiting-serving')
+
+    def test_both_historical_and_nifi_stage_names_are_recognized(self):
+        for stage in ('materialize','materialization'):
+            with self.subTest(stage=stage):
+                self.setUp();self.step();self.obsolete_sql(stage=stage)
+                self.assertEqual(self.step()['status'],'waiting-serving')
+
+    def test_windows_timestamp_precision_and_timezones_remain_exact(self):
+        first=recovery.event_time('2026-09-15T14:40:14.4841705Z')
+        self.assertEqual(first,recovery.event_time('2026-09-15T10:40:14.4841705-04:00'))
+        self.assertLess(first,recovery.event_time('2026-09-15T14:40:14.4841706Z'))
+        with self.assertRaisesRegex(ValueError,'Unqualified'):
+            recovery.event_time('2026-09-15T14:40:14.4841705')
+
+    def test_real_windows_stage_timestamp_format_allows_obsolete_code_recovery(self):
+        self.step();directory,failure=self.obsolete_sql(legacy=True)
+        self.plan['dispatchedAtUtc']='2026-09-15T14:39:34.749367Z'
+        for i,action in enumerate(('rml','shacl','promote','emit')):
+            path=directory/(action+'.json')
+            recovery.save(path,{**recovery.read(path),'completedAtUtc':f'2026-09-15T14:40:{i:02}.4841705Z'})
+        recovery.save(failure,{**recovery.read(failure),'quarantinedAtUtc':'2026-09-15T23:10:28.1685713Z'})
+        self.assertEqual(self.step()['status'],'waiting-serving')
+
+    def test_explicit_resume_preserves_failed_plan_and_queues_without_dispatch(self):
+        self.step();directory,failure=self.obsolete_sql(legacy=True)
+        self.plan.update(phase='failed',reason='Proof reached quarantine')
+        recovery.save(self.path,self.plan);before=self.path.read_bytes();quarantine=failure.read_bytes()
+        with patch.object(recovery,'NiFi',return_value=self.nifi):
+            result=recovery.resume_obsolete_sql(self.root)
+        self.assertEqual(result['status'],'queued')
+        saved=recovery.read(self.path)
+        self.assertEqual(saved['phase'],'waiting-proof')
+        self.assertEqual(saved['resumedFailures'][0]['priorPlanSha256'],hashlib.sha256(before).hexdigest())
+        self.assertEqual(failure.read_bytes(),quarantine)
+        self.assertEqual(self.nifi.calls,[('run','proof')])
+        self.plan=saved
+        self.assertEqual(self.step()['status'],'waiting-serving')
+
+    def test_explicit_resume_rejects_unrelated_failure_without_mutating_audit(self):
+        self.step();directory,failure=self.obsolete_sql()
+        (directory/'materialize.log').write_text(json.dumps(dict(status='failed',error='other failure')))
+        self.plan.update(phase='failed');recovery.save(self.path,self.plan);before=self.path.read_bytes()
+        with self.assertRaisesRegex(ValueError,'not a uniquely attributable'):
+            recovery.resume_obsolete_sql(self.root)
+        self.assertEqual(self.path.read_bytes(),before)
 
     def test_one_automatic_obsolete_sql_retry_per_implementation(self):
         self.step();self.obsolete_sql()

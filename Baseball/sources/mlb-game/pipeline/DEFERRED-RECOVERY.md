@@ -74,6 +74,25 @@ implementation revision. It does not release the failed proof or reset the
 source stage's two-attempt retry policy. Repeated failure under the same
 implementation requires a focused fix.
 
+The classifier accepts both historical `materialize` and the actual NiFi
+`materialization` stage name. Evidence ordering preserves the seventh decimal
+digit emitted by Windows/.NET timestamps; parsing or rounding it to Python's
+microsecond resolution must not reject or reorder valid stage evidence.
+
+A plan already marked failed by an older classifier can be reopened with:
+
+```text
+python -B sources/mlb-game/pipeline/resume-metric-source.py
+  --state-root <runtime-state-root> --resume-obsolete-sql
+```
+
+This command validates the exact obsolete-implementation failure and existing
+NiFi processor ownership, retains the prior plan hash and failure in
+`resumedFailures`, and queues `waiting-proof`. It does not dispatch a processor.
+The normal NiFi worker waits for idle processors and owns the retry. A second
+retry for the same implementation, a different error, a missing successful
+stage or an ambiguous run remains rejected. The quarantine is unchanged.
+
 A prerequisite build that never promotes leaves the request in
 `waiting-serving`; an uncertain dispatch without downstream evidence remains
 pending. These are explicit diagnostic states, not permission to erase an

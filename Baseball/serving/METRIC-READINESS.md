@@ -1,7 +1,8 @@
 # Nineteen public metrics: implementation and release status
 
-Fourteen public player producers are implemented conditionally. Five remain
-unfinished. This is not a claim that fourteen live leaderboards are populated:
+Fourteen public player producers are implemented conditionally. The other five
+now have tested numerical player reducers, but their source-to-serving adapters
+remain unfinished. This is not a claim that fourteen live leaderboards are populated:
 each requires complete source/graph, period, eligibility and qualification
 admission. All twenty calculation kernels exist; Role Realization Breadth is
 the backend-only twentieth metric and is not another public card.
@@ -46,9 +47,10 @@ checks cover both that registry and the existing pinned source contract.
 The registration blocker is resolved without a protected catalog or freeze
 change. The [unnecessary approval request was withdrawn](../archive/design-records/mlb-game-metric-profile-registration/disposition.md).
 
-M3/M4 remains a separate draft for four counted-foul cases. A further known
-Q5 case in game 824087 PA 32 is withheld because the PA contains a review;
-the automatic strike is present in the source. Source evidence presence,
+M3/M4 remains a separate draft for four counted-foul cases. The Q5 case in game
+824087 PA 32 is repaired: a later completed affirmed pitch review no longer
+hides the earlier clock strike. Strict RML also handles an absent neighboring
+pitch without failing. Source evidence presence,
 mapping coverage, calculation implementation and live population admission
 are separate states. The remaining five producers must not be described as
 finished or as blocked solely by absent provider evidence.
@@ -72,6 +74,12 @@ and all PA-start boundaries reconcile. The isolated one-game player summaries
 for Contribution, Runner Out Rate, Runner Loss and Opportunity Lost match SQL.
 No season or public date-range schedule is fabricated by this developer proof.
 
+The [extended proof](../benchmarks/metrics/authorized-metric-fixes-2026-09-15/README.md)
+also verifies Offensive Reach and Help Without Advancing through the same
+complete contribution inputs and exact SQL retention. Their positive batting
+population no longer depends on classifying unrelated independent running.
+Empty Games and Contribution Mix still require their separate running census.
+
 The three formerly withheld scores are now retained: PA 12 (balk then walk)
 = 1/4 for the batter; PA 23 (steal then single) = 5/4 for the batter with the
 steal kept separate and the contact beginning at second; PA 40 (fielder's
@@ -89,3 +97,25 @@ kept separate, so complete batting inputs do not falsely certify Empty Games.
 
 The five remaining producers require defensive/review evidence adaptation;
 these new conditional producers do not finish those pipelines.
+
+## Remaining numerical player reducers
+
+`summarize_defensive_players` computes each participating defender's mean over
+distinct complete resolutions. Breadth needs agents; depth additionally needs
+complete supported order. Duplicate superclass representations do not count
+twice, while distinct repeated throws do. `summarize_review_players` computes
+affected-player rates separately by mechanism and keeps eligible never-reviewed
+decisions in the dependence denominator. `summarize_paq21_players` ranks each
+complete season before selecting and averaging the requested PAs. Known
+inapplicability excludes a PA; unknown applicability or a missing applicable
+dimension does not become zero.
+
+These internal reducers require independent source/graph population proofs and
+complete participation including missed team games. They are not connected to
+HTTP evidence submission, do not certify their own source inputs, and do not
+yet populate those five cards. The remaining engineering must supply those
+inputs through source-owned graph admission. Q6's permission to use explicit
+MLB descriptions and Q7's review eligibility policy are already settled; they
+must not be asked again. Any new semantic assumption needed to interpret a
+particular source case must be identified concretely rather than substituted
+with a claim that the provider has no defensive evidence.

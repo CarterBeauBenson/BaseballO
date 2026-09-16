@@ -24,7 +24,7 @@ from rdflib import Graph, Literal
 
 ROOT = Path(__file__).resolve().parents[1]
 METRICS = ROOT / 'sparql/metrics'
-VERSION = '2.0.29'
+VERSION = '2.0.30'
 
 
 class EvidenceError(ValueError):
@@ -1074,6 +1074,167 @@ def summarize_batting_players(metric_id, scores, *, expected_observations,
                            value=exact(total / len(values))))
     return dict(playerPopulationComplete=True,
                 playerResults=sorted(output, key=lambda r: r['player']), playerSummaryGaps=[])
+
+
+def _participant_means(metric_id, observations, *, participation, date_scope):
+    """Internal numerical reducer after an independent event census passes.
+
+    Event membership and actual agency are supplied by the owning graph
+    adapter. Participation includes missed team games; it is never inferred
+    from the scored events. No HTTP route accepts these inputs.
+    """
+    people={p['player']:p for p in _unique(participation,('player',))}
+    missing=dict(unavailable('COMPLETE_PARTICIPATION'),playerPopulationComplete=False,playerResults=[],playerSummaryGaps=['COMPLETE_PARTICIPATION'])
+    if any(r['player'] not in people for r in observations):return missing
+    grouped=defaultdict(list)
+    for row in observations:grouped[row['player']].append(row)
+    output=[]
+    for player,person in sorted(people.items()):
+        if (not re.fullmatch(r'https://baseballontology[.]org/data/player/[0-9]+',player)
+                or person.get('completeParticipation') is not True or person.get('dateScope')!=date_scope):return missing
+        exposure=person.get('teamGameExposure')
+        if not isinstance(exposure,list) or not exposure:return missing
+        exposure=_unique(exposure,('game','team'))
+        games={g['game'] for g in exposure}
+        if len(games)!=len(exposure):raise EvidenceError('Conflicting participant team-game exposure')
+        rows=grouped[player]
+        if any(r['game'] not in games for r in rows):return missing
+        if not rows:continue
+        total=sum((fraction(r['value']) for r in rows),Fraction());count=len(rows)
+        output.append(dict(player=player,metricId=metric_id,status='available',dateScope=dict(date_scope),
+            completeParticipation=True,teamGames=len(exposure),graphs=sorted({r['graph'] for r in rows}),
+            aggregate=dict(kind='mean',sum=exact(total),count=count),value=exact(total/count)))
+    count=sum(p['aggregate']['count'] for p in output)
+    total=sum((fraction(p['aggregate']['sum']) for p in output),Fraction())
+    return dict(available(total/count) if count else unavailable('EMPTY_DENOMINATOR'),
+                playerPopulationComplete=True,playerResults=output,playerSummaryGaps=[])
+
+
+def summarize_defensive_players(metric_id, resolutions, *, expected_observations,
+                               participation, date_scope, population_complete=False):
+    """Accepted participating-defender means over complete intentional acts.
+
+    This reducer cannot certify that a description enumerates every act. The
+    independent source/graph census is mandatory, just as for PA-score means.
+    Repeated performances stay distinct; an agent counts once per resolution.
+    """
+    if metric_id not in {'resolution-depth','defender-breadth'}:raise EvidenceError('Not a defensive metric')
+    missing=dict(unavailable('DEFENSIVE_POPULATION'),playerPopulationComplete=False,playerResults=[],playerSummaryGaps=['DEFENSIVE_POPULATION'])
+    if population_complete is not True:return missing
+    fields=('graph','game','resolution')
+    expected=_unique(expected_observations,fields);actual=_unique(resolutions,fields)
+    if {tuple(r[f] for f in fields) for r in expected}!={tuple(r[f] for f in fields) for r in actual}:return missing
+    observations=[]
+    for row in actual:
+        if row.get('completeResolution') is not True or row.get('dateScope')!=date_scope:return missing
+        acts=row.get('acts')
+        if not isinstance(acts,list) or not acts:return missing
+        acts=_unique(acts,('act',))
+        if any(not a.get('agent') for a in acts):return dict(missing,playerSummaryGaps=['MISSING_DEFENSIVE_AGENT'])
+        agents={a['agent'] for a in acts}
+        value=exact(len(agents))
+        if metric_id=='resolution-depth':
+            if row.get('orderComplete') is not True:return dict(missing,playerSummaryGaps=['DEFENSIVE_ORDER'])
+            result=defensive_depth(acts)
+            if result['status']!='available':return dict(missing,playerSummaryGaps=result['gaps'])
+            value=result['value']
+        observations.extend(dict(graph=row['graph'],game=row['game'],player=p,value=value) for p in sorted(agents))
+    return _participant_means(metric_id,observations,participation=participation,date_scope=date_scope)
+
+
+def summarize_review_players(metric_id, decisions, *, expected_observations,
+                             participation, date_scope, complete_populations):
+    """Affected-player rates; traditional and ball/strike populations stay apart.
+
+    Mechanism, legal eligibility and the affected person must already be
+    established. A challenger is not substituted for the affected person,
+    and review occurrence is not substituted for operative dependence.
+    """
+    if metric_id not in {'adjudication-volatility','review-dependence-rate'}:raise EvidenceError('Not a review metric')
+    mechanisms=policies()['reviewDependenceMechanisms'];groups={}
+    missing=lambda gap:dict(unavailable(gap),playerPopulationComplete=False,playerResults=[],playerSummaryGaps=[gap])
+    if any(r.get('mechanism') not in mechanisms for r in [*decisions,*expected_observations]):
+        return dict(missing('REVIEW_MECHANISM_UNKNOWN'),byMechanism={m:missing('REVIEW_MECHANISM_UNKNOWN') for m in mechanisms})
+    field='review' if metric_id=='adjudication-volatility' else 'outcome'
+    for mechanism in mechanisms:
+        if complete_populations.get(mechanism) is not True:
+            groups[mechanism]=missing('REVIEW_POPULATION');continue
+        fields=('graph','game',field)
+        expected=_unique([r for r in expected_observations if r['mechanism']==mechanism],fields)
+        actual=_unique([r for r in decisions if r['mechanism']==mechanism],fields)
+        if {tuple(r[f] for f in fields) for r in expected}!={tuple(r[f] for f in fields) for r in actual}:
+            groups[mechanism]=missing('REVIEW_POPULATION');continue
+        observations=[];gap=None
+        for row in actual:
+            if row.get('dateScope')!=date_scope:
+                gap='REVIEW_POPULATION';break
+            if metric_id=='adjudication-volatility':
+                if row.get('resolved') is not True or type(row.get('reversed')) is not bool:
+                    gap='OPERATIVE_REVIEW';break
+                value=row['reversed']
+            else:
+                if type(row.get('eligible')) is not bool:
+                    gap='OUTCOME_POPULATION';break
+                if not row['eligible']:continue
+                if type(row.get('reviewDependent')) is not bool:
+                    gap='OPERATIVE_REVIEW';break
+                value=row['reviewDependent']
+            if not row.get('affectedPlayer'):
+                gap='AFFECTED_PLAYER_EVIDENCE';break
+            observations.append(dict(graph=row['graph'],game=row['game'],player=row['affectedPlayer'],value=exact(int(value))))
+        result=missing(gap) if gap else _participant_means(metric_id,observations,participation=participation,date_scope=date_scope)
+        for row in result['playerResults']:row['mechanism']=mechanism
+        groups[mechanism]=result
+    # There is deliberately no pooled score or combined player ranking.
+    complete=all(r['playerPopulationComplete'] for r in groups.values())
+    return dict(status='available' if any(r['status']=='available' for r in groups.values()) else 'unavailable',
+        value=None,gaps=sorted({g for r in groups.values() for g in r.get('gaps',[])}),
+        playerPopulationComplete=complete,playerResults=[],byMechanism=groups,
+        playerSummaryGaps=sorted({g for r in groups.values() for g in r['playerSummaryGaps']}))
+
+
+def summarize_paq21_players(reference_observations, *, expected_reference, selected_observations,
+                           participation, date_scope, complete_reference=False):
+    """Full admitted season references first, then selected-period player means.
+
+    This is the numerical join/reducer, not a source-completeness declaration.
+    Recovery values are the already admitted season-relative Recovery Quality
+    values. Missing applicable dimensions cannot be replaced with zero.
+    """
+    def denied(*gaps):
+        return dict(unavailable(*gaps),playerPopulationComplete=False,playerResults=[],playerSummaryGaps=list(gaps))
+    if complete_reference is not True:return denied('REFERENCE_POPULATION_INCOMPLETE')
+    if date_scope.get('gameSet')!='regular_season':return denied('PAQ_REGULAR_SEASON_SCOPE')
+    fields=('graph','game','plateAppearance','player','season')
+    observations=_unique(reference_observations,fields);expected=_unique(expected_reference,fields)
+    selected=_unique(selected_observations,fields)
+    identity=lambda r:tuple(r[f] for f in fields)
+    if {identity(r) for r in observations}!={identity(r) for r in expected}:return denied('REFERENCE_POPULATION_INCOMPLETE')
+    by_identity={identity(r):r for r in observations}
+    if any(identity(r) not in by_identity for r in selected):return denied('PAQ_SELECTED_PA_COVERAGE')
+    seasons=defaultdict(list)
+    for row in observations:
+        year=_integer(row['season'],'reference season',1876)
+        if not int(date_scope['startDate'][:4])<=year<=int(date_scope['endDate'][:4]):
+            raise EvidenceError('PAQ-2.1 reference season is outside the selected years')
+        seasons[year].append(dict(row,key=_json(identity(row))))
+    ranks={}
+    for entries in seasons.values():
+        ranked=paq21_population(entries,complete_population=True)
+        errors={gap for r in ranked.values() if r['status']!='available' for gap in r['gaps'] if gap!='PAQ21_NOT_APPLICABLE'}
+        if errors:return denied(*sorted(errors))
+        ranks.update(ranked)
+    values=[]
+    for row in selected:
+        rank=ranks[_json(identity(row))]
+        if rank['status']=='available':values.append(dict(graph=row['graph'],game=row['game'],player=row['player'],value=rank['value']))
+    people=_unique(participation,('player',))
+    official={p['player']:_integer(p.get('plateAppearances'),'official PA total') for p in people}
+    if any(row['player'] not in official for row in values):return denied('COMPLETE_PARTICIPATION')
+    values=[r for r in values if official[r['player']]>0]
+    result=_participant_means('paq-2.1',values,participation=people,date_scope=date_scope)
+    for row in result['playerResults']:row['plateAppearances']=official[row['player']]
+    return result
 
 
 def live_result(metric_id, rows, *, graph_count):
@@ -2182,7 +2343,7 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
 
 
 def contribution_players(metric_id, inputs, *, qualification, date_scope):
-    if metric_id not in CONTRIBUTION_METRICS:raise EvidenceError('Not a contribution metric')
+    if metric_id not in CONTRIBUTION_METRICS | {'offensive-reach','hidden-help-rate'}:raise EvidenceError('Not a contribution metric')
     missing=dict(unavailable('COMPLETE_PA_CONTRIBUTIONS'),playerPopulationComplete=False,playerResults=[])
     if not qualification['officialPlateAppearanceCreditVerified']:
         return dict(missing,playerSummaryGaps=['OFFICIAL_PA_POPULATION'])
@@ -2214,6 +2375,15 @@ def contribution_players(metric_id, inputs, *, qualification, date_scope):
             elif metric_id=='opportunity-erosion':value=fraction(pa['score']['components']['erosion'])
             elif metric_id=='rally-kill-rate':value=Fraction(pa['existingRunnerOuts']>0)
             elif metric_id=='rally-kill-severity':value=fraction(pa['existingDestruction'])
+            elif metric_id in {'offensive-reach','hidden-help-rate'}:
+                positive={p['participant'] for p in pa['participants']
+                    if p['creditProgress'] and p['terminal'] in {'safe','scored'} and p['end']>p['start']}
+                if metric_id=='offensive-reach':value=Fraction(len(positive))
+                else:
+                    # Hidden Help's denominator is PAs with no self progress.
+                    # Independent runner activity does not alter this batter census.
+                    if pa['player'] in positive:continue
+                    value=Fraction(bool(positive))
             else:continue
             values.append(value)
         if metric_id=='empty-game-damage':
@@ -2225,6 +2395,7 @@ def contribution_players(metric_id, inputs, *, qualification, date_scope):
             values=[fraction(empty_game_damage([p['score'] for p in game_pas],[],empty=True,complete=True)['value'])
                 for game_pas in by_game.values() if all(fraction(p['score']['components']['progress'])==0 for p in game_pas)]
             if not values:continue
+        if not values:continue
         total=sum(values,Fraction());count=len(values);games=person['teamGameExposure']
         if len({g['game'] for g in games})!=len(games):raise EvidenceError('Conflicting contribution team exposure')
         output.append(dict(player=person['player'],metricId=metric_id,status='available',dateScope=dict(date_scope),
@@ -2403,8 +2574,13 @@ def query_sql(connection, request, scope):
             metric.update(scoring_run_players(rows, graphs=graphs, admissions=run_admissions,
                 date_scope=scope, schedule=schedule, evidence=metric))
         if metric['metricId'] in PROGRESS_METRICS:
-            metric.update(batting_progress_players(metric['metricId'],rows,graphs=graphs,
-                admissions=resolution_admissions,qualification=qualification,date_scope=scope))
+            progress=batting_progress_players(metric['metricId'],rows,graphs=graphs,
+                admissions=resolution_admissions,qualification=qualification,date_scope=scope)
+            if metric['metricId'] in {'offensive-reach','hidden-help-rate'}:
+                attributed=contribution_players(metric['metricId'],contribution_inputs,
+                    qualification=qualification,date_scope=scope)
+                if attributed['playerPopulationComplete']:progress=attributed
+            metric.update(progress)
             if metric['playerPopulationComplete']:
                 metric['coverage']={**metric['coverage'],'populationComplete':True}
     # Admission metadata is separate from scores, retaining exact equality

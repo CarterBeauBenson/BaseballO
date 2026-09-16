@@ -1028,6 +1028,7 @@ def automatic_count_awards(document: dict) -> dict:
     for play in plays:
         events = play.get('playEvents', [])
         indexes = [e.get('index') for e in events]
+        reviews = accounted_runner_count_reviews(play)
         bounds = [(instant(e.get('startTime')), instant(e.get('endTime'))) for e in events]
         ordered = (all(a is not None and b is not None and a <= b for a, b in bounds)
                    and all(a[1] <= b[0] for a, b in zip(bounds, bounds[1:])))
@@ -1053,9 +1054,8 @@ def automatic_count_awards(document: dict) -> dict:
             elif (details.get('violation', {}).get('type') != ('pitcher_pitch_timer' if kind == 'ball' else 'batter_pitch_timer')
                   or details.get('isBall') is not (kind == 'ball') or details.get('isStrike') is not (kind == 'strike')
                   or details.get('isInPlay') is not False): reason = 'CONFLICTING_AUTOMATIC_AWARD'
-            elif (play.get('reviewDetails') or play['about'].get('hasReview') is not False
-                  or any(e.get('reviewDetails') or e.get('details', {}).get('hasReview') is True for e in events)
-                  or details.get('hasReview') is not False): reason = 'UNRESOLVED_COUNT_REVIEW'
+            elif (reviews['issues'] or any(r['overturned'] for r in reviews['events'].values())
+                  or event.get('reviewDetails') or details.get('hasReview') is not False): reason = 'UNRESOLVED_COUNT_REVIEW'
             elif event.get('isSubstitution') is True: reason = 'CONFLICTING_SUBSTITUTION_EVENT'
             elif not ordered: reason = 'UNSUPPORTED_EVENT_TIME_ORDER'
             elif before is None or after is None: reason = 'INVALID_COUNTER'

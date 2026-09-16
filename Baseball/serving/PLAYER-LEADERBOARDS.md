@@ -83,8 +83,15 @@ Contribution Mix additionally requires a complete independent-attempt census.
 It pools exact positive play/channel counts, counts nonpositive running
 attempts separately for qualification, and includes zero-PA runners. Known
 empty entropy denominators yield no score; ambiguous strikeout/running-out
-strategy and unattributed runner outs withhold the population. Six public
-metrics now have conditional player producers; thirteen remain unfinished.
+strategy and unattributed runner outs withhold the population. Fourteen public
+metrics now have conditional player producers; the other five have numerical
+player reducers but unfinished source adapters. The current per-metric status
+is in [METRIC-READINESS.md](METRIC-READINESS.md).
+
+Reach and Help may also consume independently admitted complete contribution
+inputs. A known batting score does not require unrelated running to have been
+classified, so that uncertainty no longer suppresses these two batting means.
+It still matters to Empty Games and Contribution Mix.
 
 Other metric player producers remain unfinished. The isolated browser
 fixtures are UI tests, not live baseball data. A deployed build must pass the

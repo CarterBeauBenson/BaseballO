@@ -23,6 +23,26 @@ def play(game='824088', pa=33):
 
 
 class AutomaticAwardSelection(unittest.TestCase):
+    def test_separate_completed_affirmed_pitch_review_does_not_hide_clock_award(self):
+        raw=(ROOT/'data/raw/samples/2026-07-20/824087.json').read_bytes()
+        p=json.loads(raw)['liveData']['plays']['allPlays'][32]
+        original=copy.deepcopy(p)
+        _,result=selected([p])
+        award,=result['automaticAwards']
+        self.assertEqual(award['playId'],'6e1edbb8-f263-41d9-9613-56400d396d2f')
+        self.assertEqual(award['strikesAfter'],1)
+        self.assertEqual(len(result['pitchReviews']),1)
+        self.assertEqual(p,original)
+        for fault in ('overturned','in-progress','count','award-review'):
+            changed=copy.deepcopy(p)
+            if fault=='overturned':changed['playEvents'][1]['reviewDetails']['isOverturned']=True
+            elif fault=='in-progress':changed['playEvents'][1]['reviewDetails']['inProgress']=True
+            elif fault=='count':changed['playEvents'][1]['count']['strikes']=1
+            else:changed['playEvents'][0]['reviewDetails']=changed['playEvents'][1]['reviewDetails']
+            _,denied=selected([changed])
+            self.assertFalse(denied['automaticAwards'],fault)
+            self.assertIn('UNRESOLVED_COUNT_REVIEW',{r['reason'] for r in denied['withheldAutomaticAwards']})
+
     def test_real_ball_and_strike_are_awards_with_neighbor_pitches(self):
         for p, kind in [(play(),'strike'), (play('823116',76),'ball')]:
             original = copy.deepcopy(p)
@@ -78,6 +98,33 @@ class AutomaticAwardSelection(unittest.TestCase):
 
 
 class AutomaticAwardRml(unittest.TestCase):
+    def test_strict_mapper_handles_absent_neighbors_without_dropping_awards(self):
+        source=ROOT/'data/raw/samples/2026-07-20/824087.json'
+        raw=source.read_bytes();p=json.loads(raw)['liveData']['plays']['allPlays'][32]
+        _,selected_rows=selected([p]);row=selected_rows['automaticAwards'][0]
+        mapping_graph=Graph().parse(ROOT/'sources/mlb-game/mapping/mlb-game.rml.ttl')
+        maps=[m for m in mapping_graph.subjects(RDF.type,URIRef(RR+'TriplesMap')) if '#AutomaticCount' in str(m)]
+        java,mapper=installed_tools()
+        with tempfile.TemporaryDirectory(prefix='baseballo-q5-optional-neighbor-') as directory:
+            workspace=Path(directory);(workspace/'game.json').write_bytes(raw)
+            mapping=materialized_subset(mapping_graph,maps,workspace)
+            # An isolated one-record execution checks both boundary cases.
+            for side in ('nextPitchIri','previousPitchIri',None):
+                with self.subTest(neighbor=side):
+                    item={k:v for k,v in row.items() if k not in ('previousPitchIri','nextPitchIri')}
+                    if side:item[side]='https://baseballontology.org/data/game/824087/pitch/neighbor'
+                    (workspace/'game-context.json').write_text(json.dumps({'_baseballO':{'metricAutomaticAwards':[item]}}),encoding='utf-8')
+                    output=workspace/'award.ttl'
+                    run=subprocess.run([str(java),'-Xmx256m','-jar',str(mapper),'-m',str(mapping),'-o',str(output),
+                        '-s','turtle','-b','https://baseballontology.org/mapping/mlb-direct','--strict'],cwd=workspace,capture_output=True)
+                    self.assertEqual(run.returncode,0,run.stderr.decode(errors='replace'))
+                    g=Graph().parse(output);award=URIRef(row['processIri'])
+                    self.assertIn((award,RDF.type,BASE.StrikeProcess),g)
+                    edges=set(g.subject_objects(BFO.BFO_0000063))
+                    expected=set() if side is None else {(award,URIRef(item[side])) if side=='nextPitchIri' else (URIRef(item[side]),award)}
+                    self.assertEqual(edges,expected)
+        self.assertEqual(source.read_bytes(),raw)
+
     def test_real_one_pa_rml_and_adversarial_source_shacl(self):
         workspace=Path(tempfile.mkdtemp(prefix='baseballo-auto-count-one-pa-'))
         # This fixture has an actual automatic strike and no count review.
