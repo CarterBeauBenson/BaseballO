@@ -1,0 +1,63 @@
+{
+  "artifactType": "baseballo-contribution-input-developer-proof",
+  "gamePk": "823098",
+  "sourceSha256": "d8e4a976ef2af31a4b15557d2c768b7b20b86a064aa7684202e019d5bb885148",
+  "rdfSha256": "99e2cb73dd99d14c1bcebce9d2da2b182db6d9a88a8344170f9ba7f62192ab6d",
+  "implementationSha256": "613dc902a8bae376a1dfbec920eec41701576f6e3bb686205c7a0b79a53abc45",
+  "jenaQueryPassed": true,
+  "sqlExactMatch": true,
+  "completedPlateAppearances": 70,
+  "unresolvedPlateAppearances": 0,
+  "publicDateRangeWithoutScheduleAdmission": "withheld",
+  "livePopulationComplete": false,
+  "fullDeveloperReportSha256": "2dc0af0d032fb160db552ea9ae34ee89ad820d07e11cd09d342e1d349da56714",
+  "focusedTests": 18,
+  "independentDamageComplete": false,
+  "supportedIndependentAdvances": [
+    {
+      "plateAppearance": "https://baseballontology.org/data/game/823098/plate-appearance/45",
+      "episodes": [
+        {
+          "player": "https://baseballontology.org/data/player/677594",
+          "episode": "https://baseballontology.org/data/game/823098/runner-episode/45/0",
+          "act": "https://baseballontology.org/data/game/823098/runner-act/movement/45/0",
+          "start": 1,
+          "end": 2
+        }
+      ]
+    },
+    {
+      "plateAppearance": "https://baseballontology.org/data/game/823098/plate-appearance/7",
+      "episodes": [
+        {
+          "player": "https://baseballontology.org/data/player/686527",
+          "episode": "https://baseballontology.org/data/game/823098/runner-episode/7/0",
+          "act": "https://baseballontology.org/data/game/823098/runner-act/movement/7/0",
+          "start": 1,
+          "end": 2
+        }
+      ]
+    }
+  ],
+  "unresolvedRunningOwnership": [
+    {
+      "plateAppearance": "https://baseballontology.org/data/game/823098/plate-appearance/68",
+      "episodes": [
+        "https://baseballontology.org/data/game/823098/runner-episode/68/0"
+      ]
+    }
+  ],
+  "emptyGameDamage": {
+    "status": "unavailable",
+    "value": null,
+    "gaps": [
+      "COMPLETE_PA_CONTRIBUTIONS"
+    ],
+    "evidence": [],
+    "playerPopulationComplete": false,
+    "playerResults": [],
+    "playerSummaryGaps": [
+      "INDEPENDENT_DAMAGE_COVERAGE"
+    ]
+  }
+}

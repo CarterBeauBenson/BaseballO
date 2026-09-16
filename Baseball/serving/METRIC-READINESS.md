@@ -49,7 +49,7 @@ separate review-mechanism, complete-population or qualification gates.
 | Runner Loss per PA | Implemented conditionally | Same complete eligibility and outcome ownership; exact direct-loss weights retained |
 | Scoring Opportunity Lost | Implemented conditionally | Complete admitted PA boundaries and attributed outs; actual ends and third-out stranding retained |
 | Empty Games | Implemented conditionally | Complete official PAs and positive batting/running channels; retained game count |
-| Empty Game Damage | Implemented conditionally | Complete Empty Game classification and negative PA contributions; this adapter admits only games with no separate independent damaging episodes or interrupted turns |
+| Empty Game Damage | Implemented conditionally | Complete Empty Game classification and negative PA contributions; successful independent steals are assigned to their runner across PAs. Separate independent damaging episodes, unknown running ownership and interrupted turns remain gated |
 | Contribution Mix | Implemented conditionally | Complete positive play/channel inventory and separate running-attempt qualification |
 | Two-Strike Extension Rank | Implemented conditionally | Complete pitch/count and B1 admissions for every reference-season game, plus independent schedules through the cutoff |
 | Longest Defensive Sequence | Implemented; population gated | Complete act/agent/order admission and independent roster proof |
@@ -83,6 +83,21 @@ were explicitly accepted and published in `e4166c1`. M3/M4 is implemented;
 the [real-game proof](../benchmarks/metrics/m3-m4-mappings-2026-09-16/README.md)
 closes all four named omissions and admits the complete 73-PA, 267-pitch
 count history of game 824087. D1 is also implemented with the bounded proof above.
+
+The subsequent Empty Game Damage correction stops treating a fully evidenced
+successful steal as missing damage evidence. Its runner's game is not empty,
+including when the steal occurs during another batter's PA. The batter gets
+no steal credit, and other players' empty-game damage remains calculable.
+Conflicting contact/running attribution is rejected. Unknown movements,
+independent outs and interrupted turns still withhold the affected population.
+Focused SQL tests compare Empty Game Damage against the Empty Games count and
+retain the independent schedule requirement.
+
+[C3's prepared identity review](../proposals/mlb-game-runner-boundary-anchors/README.md)
+addresses non-pitch action, replacement and placed-runner boundaries without
+pitch IDs. It is under review, not an implemented extension or source
+completeness claim. The proposal keeps the existing C1 graph pattern, creates
+no ontology terms, and identifies separate state/time gaps it does not resolve.
 
 The new NiFi-owned review inventory retains PA-level as well as event-level
 records before transient input cleanup. In game 822773, the fifth `MJ`
@@ -154,8 +169,9 @@ balk record is descriptive; the adapter does not convert its text into a new
 causal assertion. Independent damage/positive-running classification is also
 kept separate, so complete batting inputs do not falsely certify Empty Games.
 
-The five remaining producers require defensive/review evidence adaptation;
-these new conditional producers do not finish those pipelines.
+The defensive producers are now connected as described above; their complete
+populations remain gated. The two review producers still require integration
+of their mechanism-specific evidence and complete populations.
 
 ## Remaining numerical player reducers
 
@@ -169,11 +185,11 @@ complete season before selecting and averaging the requested PAs. Known
 inapplicability excludes a PA; unknown applicability or a missing applicable
 dimension does not become zero.
 
-These internal reducers require independent source/graph population proofs and
-complete participation including missed team games. They are not connected to
-HTTP evidence submission, do not certify their own source inputs, and do not
-yet populate those five cards. The remaining engineering must supply those
-inputs through source-owned graph admission. Q6's permission to use explicit
+These reducers require independent source/graph population proofs and complete
+participation including missed team games. They have no HTTP evidence-submission
+path and do not certify their own source inputs. Defensive and PAQ-2.1 SQL
+consumers are implemented; the review integration and complete input
+populations remain unfinished. Q6's permission to use explicit
 MLB descriptions and Q7's review eligibility policy are already settled; they
 must not be asked again. Any new semantic assumption needed to interpret a
 particular source case must be identified concretely rather than substituted

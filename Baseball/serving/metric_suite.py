@@ -24,7 +24,7 @@ from rdflib import Graph, Literal
 
 ROOT = Path(__file__).resolve().parents[1]
 METRICS = ROOT / 'sparql/metrics'
-VERSION = '2.0.33'
+VERSION = '2.0.34'
 
 
 class EvidenceError(ValueError):
@@ -2510,7 +2510,8 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
                 channels=[]
                 if row.get('contactPlay'):channels.append(('contact',row['contactPlay']))
                 if row.get('award') and row.get('awardRule'):channels.append(('award',row['award']))
-                if len(channels)>1:reasons.append('AMBIGUOUS_CONSEQUENCE_ATTRIBUTION')
+                if len(channels)>1 or (channels and row.get('independentStealAct')):
+                    reasons.append('AMBIGUOUS_CONSEQUENCE_ATTRIBUTION')
                 if channels:
                     supports.update(channels);credit=True
                 elif runner==batter and terminal=='out' and result_type.endswith('/StrikeoutProcess'):
@@ -2549,7 +2550,11 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
         if score['status']!='available':
             withheld.append(dict(plateAppearance=pa,gaps=score['gaps']));continue
         score['evidence']=sorted(evidence)
-        if independent or unattributed:independent_coverage=False
+        # These independent entries have an explicit successful terminal state
+        # and no attributed out. They contribute no independent damage, but
+        # their runner's positive contribution still prevents an Empty Game.
+        # Unknown ownership and interrupted turns remain separately withheld.
+        if unattributed:independent_coverage=False
         runner_present=any(r['participant']!=batter and (r.get('attributed') or r['creditOut']
             or (r['start'] in (1,2,3) and r['terminal'] in {'safe','stranded'})) for r in participants)
         runner_on_base=True if runner_present else False if not starts else None
@@ -2585,6 +2590,7 @@ def contribution_players(metric_id, inputs, *, qualification, date_scope):
         return dict(missing,playerSummaryGaps=['RUNNER_ON_BASE_ELIGIBILITY'])
     if metric_id=='empty-game-damage' and any(i.get('independentDamageComplete') is not True for i in inputs):
         return dict(missing,playerSummaryGaps=['INDEPENDENT_DAMAGE_COVERAGE'])
+    running_positive={(p['graph'],p['game'],r['player']) for p in pas for r in p['independentPositive']}
     by_player=defaultdict(list);output=[]
     for pa in pas:by_player[pa['player']].append(pa)
     for person in qualification['participation']:
@@ -2614,11 +2620,14 @@ def contribution_players(metric_id, inputs, *, qualification, date_scope):
         if metric_id=='empty-game-damage':
             by_game=defaultdict(list)
             for pa in observations:by_game[pa['game']].append(pa)
-            # This first adapter admits only exhaustively reconciled games
-            # whose every movement belongs to the accepted PA consequence (or
-            # holds its base). No independent damaging episode is omitted.
+            # Successful independent running belongs to its runner even when
+            # it occurs during someone else's PA. Such a runner's game is not
+            # empty. The admitted independent episodes have no damage; unknown
+            # or damaging episodes cannot reach this branch as complete inputs.
             values=[fraction(empty_game_damage([p['score'] for p in game_pas],[],empty=True,complete=True)['value'])
-                for game_pas in by_game.values() if all(fraction(p['score']['components']['progress'])==0 for p in game_pas)]
+                for game,game_pas in by_game.items()
+                if not any((p['graph'],game,person['player']) in running_positive for p in game_pas)
+                and all(fraction(p['score']['components']['progress'])==0 for p in game_pas)]
             if not values:continue
         if not values:continue
         total=sum(values,Fraction());count=len(values);games=person['teamGameExposure']
