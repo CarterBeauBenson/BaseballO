@@ -1,0 +1,27 @@
+{
+  "artifactType": "baseballo-defensive-admission",
+  "authoritativeRdfSha256": "bf794cdb0c3955e22a37f7ccc62396c74927b6d7e797504ade58d32f8f16f15c",
+  "completePlayCount": 13,
+  "contactPlayCount": 107,
+  "contractVersion": 1,
+  "engine": "jena",
+  "gamePk": "822693",
+  "graph": "https://w3id.org/baseball/graph/game/822693",
+  "graphConforms": true,
+  "implementationSha256": "2476cc8b11a9fecdc5ef3251533921b8f3e226673b6031038835fc2fb744e600",
+  "issues": [
+    {
+      "code": "INCOMPLETE_DEFENSIVE_POPULATION"
+    }
+  ],
+  "orderComplete": false,
+  "populationComplete": false,
+  "reportSha256": "4a53a3befd9bcdb7273ef3d6e47a83be519927771faee49ef0d2a44ee23be2be",
+  "selectedActCount": 20,
+  "shapeSha256": "5c23a48a470dc1def9236c76b5ccb71fc4daec72930d4fac6d4e7f3fa94976d1",
+  "sourceCensusSha256": "2d8740cef21590f0ee2219c52abb75f353fea0a169e24df1573ac6d40a427a2d",
+  "sourceReconciled": true,
+  "sourceRevision": "20260826_013433",
+  "sourceSha256": "c2701c7de786df80013b21b36d74e8c5d6f6b1d0063bfab86d83ce6f5fb5fe02",
+  "status": "withheld"
+}

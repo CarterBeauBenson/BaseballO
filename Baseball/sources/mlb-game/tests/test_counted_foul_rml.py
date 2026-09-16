@@ -27,6 +27,7 @@ class FoulBuntRmlTests(unittest.TestCase):
         d['_baseballO']['runnerHistoryReconciliation']['episodeMembership']=[]
         d['_baseballO']['metricPitchReviews']=[]
         d['_baseballO']['metricAutomaticAwards']=[]
+        d['_baseballO']['defensiveActs']=[]
         (workspace/'game-context.json').write_text(json.dumps(d),encoding='utf-8')
         maps=Graph().parse(ROOT/'sources/mlb-game/mapping/mlb-game.rml.ttl')
         mapping=materialized_subset(maps,list(maps.subjects(RDF.type,URIRef(RR+'TriplesMap'))),workspace)

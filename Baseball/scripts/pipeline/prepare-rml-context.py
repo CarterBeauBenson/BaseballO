@@ -8,6 +8,7 @@ import hashlib
 import importlib.util
 import json
 import re
+import unicodedata
 from datetime import date, datetime
 from collections import defaultdict
 from pathlib import Path
@@ -766,6 +767,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("source", type=Path)
     parser.add_argument("output", type=Path)
     parser.add_argument("--schedule-evidence", type=Path)
+    parser.add_argument("--previous-defensive-evidence", type=Path)
     return parser.parse_args()
 
 
@@ -1454,6 +1456,153 @@ def metric_pitch_context(document: dict) -> dict:
     return evidence
 
 
+def defensive_act_context(document: dict, previous: dict | None = None) -> dict:
+    """D1 particular performances, with witnesses and a separate play census.
+
+    A credit is corroboration, never a stand-alone act. Sequence indices only
+    serialize identity: these narrative patterns assert no strict precedence.
+    """
+    base = 'https://baseballontology.org/'
+    game = base+f"data/game/{document['gamePk']}/"
+    plays = document['liveData']['plays']['allPlays']
+    ids = [e.get('playId') for p in plays for e in p.get('playEvents', []) if e.get('playId')]
+    position = r'(?:pitcher|catcher|first baseman|second baseman|third baseman|shortstop|left fielder|center fielder|right fielder) '
+
+    def normalized(text):
+        return ' '.join(''.join(c for c in unicodedata.normalize('NFKD', text) if not unicodedata.combining(c)).casefold().split()).rstrip('.')
+
+    people = document.get('gameData', {}).get('players', {})
+    rows, inventory = [], []
+    source = document[CONTEXT_KEY]['runnerHistoryReconciliation']
+    for play in plays:
+        pa = str(play['about']['atBatIndex'])
+        events = play.get('playEvents', [])
+        contacts = [e for e in events if e.get('isPitch') is True and e.get('details', {}).get('call', {}).get('code') in {'F','T','L','O','X','D','E'}]
+        terminal = events[-1] if events else None
+        defending = 'home' if play.get('about', {}).get('isTopInning') is True else 'away'
+        roster = document.get('liveData', {}).get('boxscore', {}).get('teams', {}).get(defending, {}).get('players', {})
+        names = defaultdict(set)
+        for key, person in roster.items():
+            identity = person.get('person', {}).get('id')
+            if type(identity) is int and key == 'ID'+str(identity):
+                for name in (person.get('person', {}).get('fullName'), people.get(key, {}).get('fullName')):
+                    if isinstance(name, str): names[normalized(name)].add(str(identity))
+
+        def resolve(mention):
+            name = re.sub('^'+position, '', mention, flags=re.I)
+            matches = names.get(normalized(name), set())
+            return next(iter(matches)) if len(matches) == 1 else None
+
+        description = play.get('result', {}).get('description', '')
+        for event in contacts:
+            pid = event.get('playId')
+            item = dict(atBatIndex=pa, eventIndex=event.get('index'), playId=pid,
+                resolution=game+'process/batted-ball-play/'+str(pid), acts=[],
+                complete=False, orderComplete=False, gaps=[])
+            inventory.append(item)
+            if (source.get('sourceConsistency') != 'consistent' or play['about'].get('isComplete') is not True
+                    or not isinstance(pid, str) or not SAFE_IRI_SEGMENT.fullmatch(pid) or ids.count(pid) != 1
+                    or [e.get('index') for e in events] != list(range(len(events)))):
+                item['gaps'].append('UNRECONCILED_CONTACT_IDENTITY'); continue
+            if (event is not terminal or play.get('reviewDetails') or play['about'].get('hasReview') is not False
+                    or event.get('reviewDetails') or event.get('details', {}).get('hasReview') is not False):
+                item['gaps'].append('UNRESOLVED_DEFENSIVE_DESCRIPTION'); continue
+            associated = [(i,r) for i,r in enumerate(play.get('runners', [])) if r.get('details', {}).get('playIndex') == event['index']]
+            credits = [(i,j,c) for i,r in associated for j,c in enumerate(r.get('credits', []))]
+
+            def witnesses(player, kinds):
+                return [f'/liveData/plays/allPlays/{pa}/runners/{i}/credits/{j}' for i,j,c in credits
+                        if str(c.get('player', {}).get('id')) == player and c.get('credit') in kinds]
+
+            selected = []
+            def select(kind, agent, span, support):
+                selected.append(dict(kind=kind, agent=agent, span=span, creditPointers=support))
+
+            catch = re.fullmatch(r'.+? (?:flies|lines|pops) out(?: (?:sharply|softly))? to ('+position+r'.+?)(?: in foul territory)?\.', description)
+            if catch and play.get('result', {}).get('eventType') == 'field_out':
+                agent = resolve(catch.group(1)); support = witnesses(agent, {'f_putout'}) if agent else []
+                outs = [r for _,r in associated if r.get('movement', {}).get('isOut') is True]
+                conflicting = [c for _,_,c in credits if str(c.get('player', {}).get('id')) != agent or c.get('credit') != 'f_putout']
+                if (agent and support and len(outs) == 1 and not conflicting
+                        and outs[0].get('details', {}).get('runner', {}).get('id') == play.get('matchup', {}).get('batter', {}).get('id')):
+                    select('CatchAttemptAct',agent,[catch.start(),catch.end()],support)
+                    item['complete'] = len(associated) == 1
+            # The explicit "on the throw" makes this a described relay, unlike
+            # a generic groundout A-to-B credit description (possibly a deflection).
+            relay = re.search(r'(?P<runner>[^.]+?) out at (?P<base>2nd|3rd|home) on the throw, (?P<chain>.+)\.$', description)
+            if not selected and relay:
+                mentions = relay.group('chain').split(' to ')
+                agents = [resolve(m) if re.match('^'+position,m) else None for m in mentions]
+                out_base = {'2nd':'2B','3rd':'3B','home':'4B'}[relay.group('base')]
+                outs = [r for _,r in associated if r.get('movement', {}).get('isOut') is True
+                        and r.get('movement', {}).get('outBase') in ({out_base,'HP'} if out_base=='4B' else {out_base})
+                        and normalized(r.get('details', {}).get('runner', {}).get('fullName','')) == normalized(relay.group('runner'))]
+                if (len(agents) >= 2 and all(agents) and len(outs) == 1
+                        and witnesses(agents[0],{'f_fielded_ball'}) and witnesses(agents[-1],{'f_putout'})
+                        and all(witnesses(a,{'f_assist','f_assist_of'}) for a in agents[:-1])):
+                    span=[relay.start(),relay.end()]
+                    select('FieldingAttemptAct',agents[0],span,witnesses(agents[0],{'f_fielded_ball'}))
+                    for index,agent in enumerate(agents):
+                        if index:
+                            select('CatchAttemptAct',agent,span,witnesses(agent,{'f_assist','f_assist_of','f_putout'}))
+                        if index < len(agents)-1:
+                            select('ThrowAct',agent,span,witnesses(agent,{'f_assist','f_assist_of'}))
+                    item['gaps'].append('RELAY_TERMINAL_TOUCH_AND_ORDER_UNRESOLVED')
+            # Admit an explicit ground-ball field/throw/receipt sentence only.
+            ground = re.search(r'('+position+r'.+?) fields (?:the )?(?:ground ball|grounder) and throws to ('+position+r'.+?), who catches the (?:ball|throw)\.', description, re.I)
+            if not selected and ground:
+                first,last = resolve(ground.group(1)),resolve(ground.group(2))
+                if (first and last and first != last and witnesses(first,{'f_fielded_ball','f_assist'})
+                        and witnesses(last,{'f_putout'}) and any(r.get('movement',{}).get('isOut') is True for _,r in associated)):
+                    span=[ground.start(),ground.end()]
+                    select('FieldingAttemptAct',first,span,witnesses(first,{'f_fielded_ball','f_assist'}))
+                    select('ThrowAct',first,span,witnesses(first,{'f_assist'}))
+                    select('CatchAttemptAct',last,span,witnesses(last,{'f_putout'}))
+                    item['gaps'].append('GROUNDOUT_TERMINAL_TOUCH_AND_ORDER_UNRESOLVED')
+            # Intentional tagging needs an explicit named act and out/base witness.
+            # A bare putout, including a relay's last credit, never supplies it.
+            if not selected:
+                tag = re.search(r'('+position+r'.+?) tags (.+?) out at (first|second|third|home)(?: base| plate)?\.',description,re.I)
+                if tag:
+                    agent=resolve(tag.group(1)); base_name={'first':'1B','second':'2B','third':'3B','home':'4B'}[tag.group(3).lower()]
+                    outs=[r for _,r in associated if r.get('movement',{}).get('isOut') is True
+                          and r['movement'].get('outBase') in ({base_name,'HP'} if base_name=='4B' else {base_name})
+                          and normalized(r.get('details',{}).get('runner',{}).get('fullName','')) == normalized(tag.group(2))]
+                    if agent and len(outs)==1 and witnesses(agent,{'f_putout'}):
+                        select('TagAttemptAct',agent,[tag.start(),tag.end()],witnesses(agent,{'f_putout'}))
+            for number,act in enumerate(selected,1):
+                row=dict(actIri=game+f'act/defense/{pid}/{number}',classIri=base+act['kind'],
+                    agentIri=base+'data/player/'+act['agent'],roleIri=base+'data/player/'+act['agent']+'/role/fielder',
+                    playIri=item['resolution'],recordIri=game+'event-record/pitch/'+pid,
+                    catch=act['kind']=='CatchAttemptAct',atBatIndex=pa,playId=pid,performanceIndex=number,
+                    descriptionPointer=f'/liveData/plays/allPlays/{pa}/result/description',
+                    descriptionSpan=act['span'],description=description,creditPointers=act['creditPointers'])
+                rows.append(row);item['acts'].append(row['actIri'])
+            item['orderComplete'] = item['complete'] and len(selected)==1
+            if not item['complete'] and not item['gaps']:item['gaps'].append('INCOMPLETE_DEFENSIVE_PERFORMANCES')
+    # Corrections may retain already aligned performances, never silently
+    # reassign a serialized position to another performance.
+    if previous:
+        if str(previous.get('gamePk')) != str(document['gamePk']):raise ValueError('D1 prior evidence game mismatch')
+        signatures=lambda values:{r['actIri']:(r['classIri'],r['agentIri']) for r in values}
+        old=signatures(previous.get('acts',[]));new=signatures(rows)
+        for iri,signature in old.items():
+            if new.get(iri)!=signature:raise ValueError('D1 correction has ambiguous performance alignment: '+iri)
+        old_by_play=defaultdict(list);new_by_play=defaultdict(list)
+        for r in previous.get('acts',[]):old_by_play[r['playId']].append(r['actIri'])
+        for r in rows:new_by_play[r['playId']].append(r['actIri'])
+        for pid,acts in old_by_play.items():
+            if new_by_play[pid]!=acts:raise ValueError('D1 correction changes an established performance census: '+pid)
+    result=dict(gamePk=str(document['gamePk']),decision='archive/design-records/mlb-game-defensive-acts/review.json',
+        inputSha256=source.get('inputSha256'),sourceRevision=source.get('sourceRevision'),acts=rows,plays=inventory,
+        populationComplete=bool(inventory) and all(r['complete'] for r in inventory),
+        orderComplete=bool(inventory) and all(r['orderComplete'] for r in inventory),
+        precedence=[],identityAlignmentChecked=previous is not None)
+    document[CONTEXT_KEY]['defensiveActs']=rows
+    document[CONTEXT_KEY]['defensiveEvidence']=result
+    return result
+
+
 def main() -> None:
     args = parse_args()
     document = json.loads(args.source.read_text(encoding="utf-8"))
@@ -1922,6 +2071,11 @@ def main() -> None:
             pitch_count += 1
 
     metric_pitch_context(document)
+    previous_defense = None
+    if args.previous_defensive_evidence:
+        previous_manifest = json.loads(args.previous_defensive_evidence.read_text(encoding='utf-8-sig'))
+        previous_defense = previous_manifest.get('defensiveEvidence')
+    defensive_act_context(document, previous_defense)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(
         json.dumps(document, ensure_ascii=False, separators=(",", ":")),

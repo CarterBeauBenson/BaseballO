@@ -27,6 +27,7 @@ execution_context:
   - versioned MLB pitch-type, batted-ball trajectory, and season-segment Reference System IRIs
   - reviewed pitch-type and batted-ball trajectory category IRIs for supported provider tokens
   - reviewed season-phase identity and class for supported MLB game-type codes
+  - accepted D1 separately evidenced defensive performances with persistent Fielder Roles
   - accepted M1 reconciled ordinary foul increments from one strike to two
   - accepted M3 reconciled steal, initial pitching change and completed MJ review prefixes
   - accepted M4 counted foul bunts through the existing strike adjudication pattern

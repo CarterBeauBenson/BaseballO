@@ -32,7 +32,7 @@ ontology_coverage_gaps:
   status: source identity limitation
   source_path: allPlays[*].runners[*].credits[*]
   gap: A fielding credit lacks a stable ID and the ancestor context needed to create distinct FieldingAttemptAct, CatchAttemptAct, ThrowAct, or TagAttemptAct individuals.
-  mapping_action: Map the persistent FielderRole trigger only; do not reconstruct physical or intentional events from a counted result.
+  mapping_action: D1 maps described particular performances with stable contact identity and reconciled credits. Credits alone remain insufficient. Unsupported actions, strict order and complete-play evidence remain explicit census gaps.
 
 - id: foul-count-transition
   status: source and processor limitation

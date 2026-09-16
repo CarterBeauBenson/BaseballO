@@ -187,6 +187,13 @@ switch ($Action) {
             throw "B1 source differs from the mapped revision for game $GamePk."
         }
         $battingAdmissionPath = Join-Path $stageEvidenceRoot 'batting-admission.json'
+        $defensiveAdmissionPath = Join-Path $stageEvidenceRoot 'defensive-admission.json'
+        $defensiveAdmitter = Join-Path $PSScriptRoot 'defensive-admission.py'
+        Invoke-LoggedCommand -FailureMessage "D1 defensive source/graph conformance failed for game $GamePk." -Command {
+            & python $defensiveAdmitter '--input' $inputPath '--rdf' $rdfPath '--game-pk' $GamePk `
+                '--output' $defensiveAdmissionPath '--java' (Get-JavaExecutable) `
+                '--jena-classpath' (Join-Path $script:FusekiHome 'fuseki-server.jar')
+        }
         # Retain both PA- and event-level review observations before transient
         # cleanup. This diagnostic is not a review-population admission gate.
         $reviewInventoryPath = Join-Path $stageEvidenceRoot 'review-inventory.json'
@@ -242,6 +249,8 @@ switch ($Action) {
             conforms = $true
             rmlManifest = $rmlManifestPath
             battingAdmission = $battingAdmissionPath
+            defensiveAdmission = $defensiveAdmissionPath
+            defensiveAdmissionSha256 = (Get-FileHash -LiteralPath $defensiveAdmissionPath -Algorithm SHA256).Hash.ToLowerInvariant()
             reviewInventory = $reviewInventoryPath
             reviewInventorySha256 = (Get-FileHash -LiteralPath $reviewInventoryPath -Algorithm SHA256).Hash.ToLowerInvariant()
             pitchCountAdmission = $pitchCountAdmissionPath
@@ -323,6 +332,12 @@ switch ($Action) {
             $shaclResult = Get-Content -LiteralPath (Join-Path $stageEvidenceRoot 'shacl.json') -Raw | ConvertFrom-Json
             $promotion.battingAdmission = [string]$shaclResult.battingAdmission
             $promotion.battingAdmissionSha256 = [string]$shaclResult.battingAdmissionSha256
+            # Older validated runs can promote without a D1 proof; serving
+            # treats those games as unavailable for defensive means.
+            if ($null -ne $shaclResult.PSObject.Properties['defensiveAdmission']) {
+                $promotion.defensiveAdmission = [string]$shaclResult.defensiveAdmission
+                $promotion.defensiveAdmissionSha256 = [string]$shaclResult.defensiveAdmissionSha256
+            }
             $promotion.pitchCountAdmission = [string]$shaclResult.pitchCountAdmission
             $promotion.pitchCountAdmissionSha256 = [string]$shaclResult.pitchCountAdmissionSha256
             $promotion.scoringRunAdmission = [string]$shaclResult.scoringRunAdmission

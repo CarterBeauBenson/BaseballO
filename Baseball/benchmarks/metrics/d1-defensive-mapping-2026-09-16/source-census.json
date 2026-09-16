@@ -1,0 +1,1728 @@
+{
+  "acts": [
+    {
+      "actIri": "https://baseballontology.org/data/game/822693/act/defense/fd524208-dc38-3e7b-bc19-5ba61643673d/1",
+      "agentIri": "https://baseballontology.org/data/player/686611",
+      "atBatIndex": "1",
+      "catch": true,
+      "classIri": "https://baseballontology.org/CatchAttemptAct",
+      "creditPointers": [
+        "/liveData/plays/allPlays/1/runners/0/credits/0"
+      ],
+      "description": "Cole Carrigg flies out to right fielder Dylan Crews.",
+      "descriptionPointer": "/liveData/plays/allPlays/1/result/description",
+      "descriptionSpan": [
+        0,
+        52
+      ],
+      "performanceIndex": 1,
+      "playId": "fd524208-dc38-3e7b-bc19-5ba61643673d",
+      "playIri": "https://baseballontology.org/data/game/822693/process/batted-ball-play/fd524208-dc38-3e7b-bc19-5ba61643673d",
+      "recordIri": "https://baseballontology.org/data/game/822693/event-record/pitch/fd524208-dc38-3e7b-bc19-5ba61643673d",
+      "roleIri": "https://baseballontology.org/data/player/686611/role/fielder"
+    },
+    {
+      "actIri": "https://baseballontology.org/data/game/822693/act/defense/2a85cc39-fff9-3f5b-8811-1fdeae52e2ec/1",
+      "agentIri": "https://baseballontology.org/data/player/696100",
+      "atBatIndex": "3",
+      "catch": true,
+      "classIri": "https://baseballontology.org/CatchAttemptAct",
+      "creditPointers": [
+        "/liveData/plays/allPlays/3/runners/0/credits/0"
+      ],
+      "description": "CJ Abrams pops out to catcher Hunter Goodman in foul territory.",
+      "descriptionPointer": "/liveData/plays/allPlays/3/result/description",
+      "descriptionSpan": [
+        0,
+        63
+      ],
+      "performanceIndex": 1,
+      "playId": "2a85cc39-fff9-3f5b-8811-1fdeae52e2ec",
+      "playIri": "https://baseballontology.org/data/game/822693/process/batted-ball-play/2a85cc39-fff9-3f5b-8811-1fdeae52e2ec",
+      "recordIri": "https://baseballontology.org/data/game/822693/event-record/pitch/2a85cc39-fff9-3f5b-8811-1fdeae52e2ec",
+      "roleIri": "https://baseballontology.org/data/player/696100/role/fielder"
+    },
+    {
+      "actIri": "https://baseballontology.org/data/game/822693/act/defense/67e86f6c-4e74-3e4b-83a6-1e4ffee2ab6d/1",
+      "agentIri": "https://baseballontology.org/data/player/694249",
+      "atBatIndex": "14",
+      "catch": true,
+      "classIri": "https://baseballontology.org/CatchAttemptAct",
+      "creditPointers": [
+        "/liveData/plays/allPlays/14/runners/0/credits/0"
+      ],
+      "description": "Jacob Young flies out to center fielder Cole Carrigg.",
+      "descriptionPointer": "/liveData/plays/allPlays/14/result/description",
+      "descriptionSpan": [
+        0,
+        53
+      ],
+      "performanceIndex": 1,
+      "playId": "67e86f6c-4e74-3e4b-83a6-1e4ffee2ab6d",
+      "playIri": "https://baseballontology.org/data/game/822693/process/batted-ball-play/67e86f6c-4e74-3e4b-83a6-1e4ffee2ab6d",
+      "recordIri": "https://baseballontology.org/data/game/822693/event-record/pitch/67e86f6c-4e74-3e4b-83a6-1e4ffee2ab6d",
+      "roleIri": "https://baseballontology.org/data/player/694249/role/fielder"
+    },
+    {
+      "actIri": "https://baseballontology.org/data/game/822693/act/defense/47f22a5e-8f48-3601-b122-3072deb76a68/1",
+      "agentIri": "https://baseballontology.org/data/player/664983",
+      "atBatIndex": "20",
+      "catch": true,
+      "classIri": "https://baseballontology.org/CatchAttemptAct",
+      "creditPointers": [
+        "/liveData/plays/allPlays/20/runners/0/credits/0"
+      ],
+      "description": "CJ Abrams flies out to left fielder Jake McCarthy.",
+      "descriptionPointer": "/liveData/plays/allPlays/20/result/description",
+      "descriptionSpan": [
+        0,
+        50
+      ],
+      "performanceIndex": 1,
+      "playId": "47f22a5e-8f48-3601-b122-3072deb76a68",
+      "playIri": "https://baseballontology.org/data/game/822693/process/batted-ball-play/47f22a5e-8f48-3601-b122-3072deb76a68",
+      "recordIri": "https://baseballontology.org/data/game/822693/event-record/pitch/47f22a5e-8f48-3601-b122-3072deb76a68",
+      "roleIri": "https://baseballontology.org/data/player/664983/role/fielder"
+    },
+    {
+      "actIri": "https://baseballontology.org/data/game/822693/act/defense/8420fe64-6f5d-3594-bcd9-9b5885eafbe2/1",
+      "agentIri": "https://baseballontology.org/data/player/694249",
+      "atBatIndex": "22",
+      "catch": true,
+      "classIri": "https://baseballontology.org/CatchAttemptAct",
+      "creditPointers": [
+        "/liveData/plays/allPlays/22/runners/0/credits/0"
+      ],
+      "description": "Dylan Crews lines out to center fielder Cole Carrigg.",
+      "descriptionPointer": "/liveData/plays/allPlays/22/result/description",
+      "descriptionSpan": [
+        0,
+        53
+      ],
+      "performanceIndex": 1,
+      "playId": "8420fe64-6f5d-3594-bcd9-9b5885eafbe2",
+      "playIri": "https://baseballontology.org/data/game/822693/process/batted-ball-play/8420fe64-6f5d-3594-bcd9-9b5885eafbe2",
+      "recordIri": "https://baseballontology.org/data/game/822693/event-record/pitch/8420fe64-6f5d-3594-bcd9-9b5885eafbe2",
+      "roleIri": "https://baseballontology.org/data/player/694249/role/fielder"
+    },
+    {
+      "actIri": "https://baseballontology.org/data/game/822693/act/defense/fdbd273e-8856-3864-9967-04e91ea2fb99/1",
+      "agentIri": "https://baseballontology.org/data/player/696285",
+      "atBatIndex": "26",
+      "catch": false,
+      "classIri": "https://baseballontology.org/FieldingAttemptAct",
+      "creditPointers": [
+        "/liveData/plays/allPlays/26/runners/0/credits/0"
+      ],
+      "description": "Connor Norby doubles (17) on a fly ball to center fielder Jacob Young. Willi Castro scores. Connor Norby out at 3rd on the throw, center fielder Jacob Young to second baseman Jorbit Vivas to catcher Harry Ford to third baseman Brady House.",
+      "descriptionPointer": "/liveData/plays/allPlays/26/result/description",
+      "descriptionSpan": [
+        91,
+        239
+      ],
+      "performanceIndex": 1,
+      "playId": "fdbd273e-8856-3864-9967-04e91ea2fb99",
+      "playIri": "https://baseballontology.org/data/game/822693/process/batted-ball-play/fdbd273e-8856-3864-9967-04e91ea2fb99",
+      "recordIri": "https://baseballontology.org/data/game/822693/event-record/pitch/fdbd273e-8856-3864-9967-04e91ea2fb99",
+      "roleIri": "https://baseballontology.org/data/player/696285/role/fielder"
+    },
+    {
+      "actIri": "https://baseballontology.org/data/game/822693/act/defense/fdbd273e-8856-3864-9967-04e91ea2fb99/2",
+      "agentIri": "https://baseballontology.org/data/player/696285",
+      "atBatIndex": "26",
+      "catch": false,
+      "classIri": "https://baseballontology.org/ThrowAct",
+      "creditPointers": [
+        "/liveData/plays/allPlays/26/runners/3/credits/0",
+        "/liveData/plays/allPlays/26/runners/3/credits/1"
+      ],
+      "description": "Connor Norby doubles (17) on a fly ball to center fielder Jacob Young. Willi Castro scores. Connor Norby out at 3rd on the throw, center fielder Jacob Young to second baseman Jorbit Vivas to catcher Harry Ford to third baseman Brady House.",
+      "descriptionPointer": "/liveData/plays/allPlays/26/result/description",
+      "descriptionSpan": [
+        91,
+        239
+      ],
+      "performanceIndex": 2,
+      "playId": "fdbd273e-8856-3864-9967-04e91ea2fb99",
+      "playIri": "https://baseballontology.org/data/game/822693/process/batted-ball-play/fdbd273e-8856-3864-9967-04e91ea2fb99",
+      "recordIri": "https://baseballontology.org/data/game/822693/event-record/pitch/fdbd273e-8856-3864-9967-04e91ea2fb99",
+      "roleIri": "https://baseballontology.org/data/player/696285/role/fielder"
+    },
+    {
+      "actIri": "https://baseballontology.org/data/game/822693/act/defense/fdbd273e-8856-3864-9967-04e91ea2fb99/3",
+      "agentIri": "https://baseballontology.org/data/player/678391",
+      "atBatIndex": "26",
+      "catch": true,
+      "classIri": "https://baseballontology.org/CatchAttemptAct",
+      "creditPointers": [
+        "/liveData/plays/allPlays/26/runners/3/credits/2"
+      ],
+      "description": "Connor Norby doubles (17) on a fly ball to center fielder Jacob Young. Willi Castro scores. Connor Norby out at 3rd on the throw, center fielder Jacob Young to second baseman Jorbit Vivas to catcher Harry Ford to third baseman Brady House.",
+      "descriptionPointer": "/liveData/plays/allPlays/26/result/description",
+      "descriptionSpan": [
+        91,
+        239
+      ],
+      "performanceIndex": 3,
+      "playId": "fdbd273e-8856-3864-9967-04e91ea2fb99",
+      "playIri": "https://baseballontology.org/data/game/822693/process/batted-ball-play/fdbd273e-8856-3864-9967-04e91ea2fb99",
+      "recordIri": "https://baseballontology.org/data/game/822693/event-record/pitch/fdbd273e-8856-3864-9967-04e91ea2fb99",
+      "roleIri": "https://baseballontology.org/data/player/678391/role/fielder"
+    },
+    {
+      "actIri": "https://baseballontology.org/data/game/822693/act/defense/fdbd273e-8856-3864-9967-04e91ea2fb99/4",
+      "agentIri": "https://baseballontology.org/data/player/678391",
+      "atBatIndex": "26",
+      "catch": false,
+      "classIri": "https://baseballontology.org/ThrowAct",
+      "creditPointers": [
+        "/liveData/plays/allPlays/26/runners/3/credits/2"
+      ],
+      "description": "Connor Norby doubles (17) on a fly ball to center fielder Jacob Young. Willi Castro scores. Connor Norby out at 3rd on the throw, center fielder Jacob Young to second baseman Jorbit Vivas to catcher Harry Ford to third baseman Brady House.",
+      "descriptionPointer": "/liveData/plays/allPlays/26/result/description",
+      "descriptionSpan": [
+        91,
+        239
+      ],
+      "performanceIndex": 4,
+      "playId": "fdbd273e-8856-3864-9967-04e91ea2fb99",
+      "playIri": "https://baseballontology.org/data/game/822693/process/batted-ball-play/fdbd273e-8856-3864-9967-04e91ea2fb99",
+      "recordIri": "https://baseballontology.org/data/game/822693/event-record/pitch/fdbd273e-8856-3864-9967-04e91ea2fb99",
+      "roleIri": "https://baseballontology.org/data/player/678391/role/fielder"
+    },
+    {
+      "actIri": "https://baseballontology.org/data/game/822693/act/defense/fdbd273e-8856-3864-9967-04e91ea2fb99/5",
+      "agentIri": "https://baseballontology.org/data/player/695670",
+      "atBatIndex": "26",
+      "catch": true,
+      "classIri": "https://baseballontology.org/CatchAttemptAct",
+      "creditPointers": [
+        "/liveData/plays/allPlays/26/runners/3/credits/3"
+      ],
+      "description": "Connor Norby doubles (17) on a fly ball to center fielder Jacob Young. Willi Castro scores. Connor Norby out at 3rd on the throw, center fielder Jacob Young to second baseman Jorbit Vivas to catcher Harry Ford to third baseman Brady House.",
+      "descriptionPointer": "/liveData/plays/allPlays/26/result/description",
+      "descriptionSpan": [
+        91,
+        239
+      ],
+      "performanceIndex": 5,
+      "playId": "fdbd273e-8856-3864-9967-04e91ea2fb99",
+      "playIri": "https://baseballontology.org/data/game/822693/process/batted-ball-play/fdbd273e-8856-3864-9967-04e91ea2fb99",
+      "recordIri": "https://baseballontology.org/data/game/822693/event-record/pitch/fdbd273e-8856-3864-9967-04e91ea2fb99",
+      "roleIri": "https://baseballontology.org/data/player/695670/role/fielder"
+    },
+    {
+      "actIri": "https://baseballontology.org/data/game/822693/act/defense/fdbd273e-8856-3864-9967-04e91ea2fb99/6",
+      "agentIri": "https://baseballontology.org/data/player/695670",
+      "atBatIndex": "26",
+      "catch": false,
+      "classIri": "https://baseballontology.org/ThrowAct",
+      "creditPointers": [
+        "/liveData/plays/allPlays/26/runners/3/credits/3"
+      ],
+      "description": "Connor Norby doubles (17) on a fly ball to center fielder Jacob Young. Willi Castro scores. Connor Norby out at 3rd on the throw, center fielder Jacob Young to second baseman Jorbit Vivas to catcher Harry Ford to third baseman Brady House.",
+      "descriptionPointer": "/liveData/plays/allPlays/26/result/description",
+      "descriptionSpan": [
+        91,
+        239
+      ],
+      "performanceIndex": 6,
+      "playId": "fdbd273e-8856-3864-9967-04e91ea2fb99",
+      "playIri": "https://baseballontology.org/data/game/822693/process/batted-ball-play/fdbd273e-8856-3864-9967-04e91ea2fb99",
+      "recordIri": "https://baseballontology.org/data/game/822693/event-record/pitch/fdbd273e-8856-3864-9967-04e91ea2fb99",
+      "roleIri": "https://baseballontology.org/data/player/695670/role/fielder"
+    },
+    {
+      "actIri": "https://baseballontology.org/data/game/822693/act/defense/fdbd273e-8856-3864-9967-04e91ea2fb99/7",
+      "agentIri": "https://baseballontology.org/data/player/691781",
+      "atBatIndex": "26",
+      "catch": true,
+      "classIri": "https://baseballontology.org/CatchAttemptAct",
+      "creditPointers": [
+        "/liveData/plays/allPlays/26/runners/3/credits/4"
+      ],
+      "description": "Connor Norby doubles (17) on a fly ball to center fielder Jacob Young. Willi Castro scores. Connor Norby out at 3rd on the throw, center fielder Jacob Young to second baseman Jorbit Vivas to catcher Harry Ford to third baseman Brady House.",
+      "descriptionPointer": "/liveData/plays/allPlays/26/result/description",
+      "descriptionSpan": [
+        91,
+        239
+      ],
+      "performanceIndex": 7,
+      "playId": "fdbd273e-8856-3864-9967-04e91ea2fb99",
+      "playIri": "https://baseballontology.org/data/game/822693/process/batted-ball-play/fdbd273e-8856-3864-9967-04e91ea2fb99",
+      "recordIri": "https://baseballontology.org/data/game/822693/event-record/pitch/fdbd273e-8856-3864-9967-04e91ea2fb99",
+      "roleIri": "https://baseballontology.org/data/player/691781/role/fielder"
+    },
+    {
+      "actIri": "https://baseballontology.org/data/game/822693/act/defense/602bb428-e82c-31b2-8ce3-ce56dc8d48a1/1",
+      "agentIri": "https://baseballontology.org/data/player/681198",
+      "atBatIndex": "41",
+      "catch": true,
+      "classIri": "https://baseballontology.org/CatchAttemptAct",
+      "creditPointers": [
+        "/liveData/plays/allPlays/41/runners/0/credits/0"
+      ],
+      "description": "Dylan Crews pops out to first baseman TJ Rumfield in foul territory.",
+      "descriptionPointer": "/liveData/plays/allPlays/41/result/description",
+      "descriptionSpan": [
+        0,
+        68
+      ],
+      "performanceIndex": 1,
+      "playId": "602bb428-e82c-31b2-8ce3-ce56dc8d48a1",
+      "playIri": "https://baseballontology.org/data/game/822693/process/batted-ball-play/602bb428-e82c-31b2-8ce3-ce56dc8d48a1",
+      "recordIri": "https://baseballontology.org/data/game/822693/event-record/pitch/602bb428-e82c-31b2-8ce3-ce56dc8d48a1",
+      "roleIri": "https://baseballontology.org/data/player/681198/role/fielder"
+    },
+    {
+      "actIri": "https://baseballontology.org/data/game/822693/act/defense/01372017-eb8f-35d7-b549-dcbef7756ec2/1",
+      "agentIri": "https://baseballontology.org/data/player/691781",
+      "atBatIndex": "45",
+      "catch": true,
+      "classIri": "https://baseballontology.org/CatchAttemptAct",
+      "creditPointers": [
+        "/liveData/plays/allPlays/45/runners/0/credits/0"
+      ],
+      "description": "Mickey Moniak pops out to third baseman Brady House.",
+      "descriptionPointer": "/liveData/plays/allPlays/45/result/description",
+      "descriptionSpan": [
+        0,
+        52
+      ],
+      "performanceIndex": 1,
+      "playId": "01372017-eb8f-35d7-b549-dcbef7756ec2",
+      "playIri": "https://baseballontology.org/data/game/822693/process/batted-ball-play/01372017-eb8f-35d7-b549-dcbef7756ec2",
+      "recordIri": "https://baseballontology.org/data/game/822693/event-record/pitch/01372017-eb8f-35d7-b549-dcbef7756ec2",
+      "roleIri": "https://baseballontology.org/data/player/691781/role/fielder"
+    },
+    {
+      "actIri": "https://baseballontology.org/data/game/822693/act/defense/34a17a69-9eb7-3301-ad5d-a589fad1cc92/1",
+      "agentIri": "https://baseballontology.org/data/player/687597",
+      "atBatIndex": "47",
+      "catch": true,
+      "classIri": "https://baseballontology.org/CatchAttemptAct",
+      "creditPointers": [
+        "/liveData/plays/allPlays/47/runners/0/credits/0"
+      ],
+      "description": "Brady House flies out to right fielder Jordan Beck.",
+      "descriptionPointer": "/liveData/plays/allPlays/47/result/description",
+      "descriptionSpan": [
+        0,
+        51
+      ],
+      "performanceIndex": 1,
+      "playId": "34a17a69-9eb7-3301-ad5d-a589fad1cc92",
+      "playIri": "https://baseballontology.org/data/game/822693/process/batted-ball-play/34a17a69-9eb7-3301-ad5d-a589fad1cc92",
+      "recordIri": "https://baseballontology.org/data/game/822693/event-record/pitch/34a17a69-9eb7-3301-ad5d-a589fad1cc92",
+      "roleIri": "https://baseballontology.org/data/player/687597/role/fielder"
+    },
+    {
+      "actIri": "https://baseballontology.org/data/game/822693/act/defense/69ce5812-d9da-3894-8b9e-f2af67d075cf/1",
+      "agentIri": "https://baseballontology.org/data/player/650489",
+      "atBatIndex": "48",
+      "catch": true,
+      "classIri": "https://baseballontology.org/CatchAttemptAct",
+      "creditPointers": [
+        "/liveData/plays/allPlays/48/runners/0/credits/0"
+      ],
+      "description": "Jorbit Vivas pops out to third baseman Willi Castro in foul territory.",
+      "descriptionPointer": "/liveData/plays/allPlays/48/result/description",
+      "descriptionSpan": [
+        0,
+        70
+      ],
+      "performanceIndex": 1,
+      "playId": "69ce5812-d9da-3894-8b9e-f2af67d075cf",
+      "playIri": "https://baseballontology.org/data/game/822693/process/batted-ball-play/69ce5812-d9da-3894-8b9e-f2af67d075cf",
+      "recordIri": "https://baseballontology.org/data/game/822693/event-record/pitch/69ce5812-d9da-3894-8b9e-f2af67d075cf",
+      "roleIri": "https://baseballontology.org/data/player/650489/role/fielder"
+    },
+    {
+      "actIri": "https://baseballontology.org/data/game/822693/act/defense/b223e966-597d-3bcf-ae2c-aa1ef9e47acb/1",
+      "agentIri": "https://baseballontology.org/data/player/683083",
+      "atBatIndex": "50",
+      "catch": true,
+      "classIri": "https://baseballontology.org/CatchAttemptAct",
+      "creditPointers": [
+        "/liveData/plays/allPlays/50/runners/0/credits/0"
+      ],
+      "description": "Jordan Beck pops out to shortstop Nasim Nu\u00f1ez.",
+      "descriptionPointer": "/liveData/plays/allPlays/50/result/description",
+      "descriptionSpan": [
+        0,
+        46
+      ],
+      "performanceIndex": 1,
+      "playId": "b223e966-597d-3bcf-ae2c-aa1ef9e47acb",
+      "playIri": "https://baseballontology.org/data/game/822693/process/batted-ball-play/b223e966-597d-3bcf-ae2c-aa1ef9e47acb",
+      "recordIri": "https://baseballontology.org/data/game/822693/event-record/pitch/b223e966-597d-3bcf-ae2c-aa1ef9e47acb",
+      "roleIri": "https://baseballontology.org/data/player/683083/role/fielder"
+    },
+    {
+      "actIri": "https://baseballontology.org/data/game/822693/act/defense/b6aac793-37fe-35bf-b182-e4ad1becaf8f/1",
+      "agentIri": "https://baseballontology.org/data/player/664983",
+      "atBatIndex": "62",
+      "catch": true,
+      "classIri": "https://baseballontology.org/CatchAttemptAct",
+      "creditPointers": [
+        "/liveData/plays/allPlays/62/runners/0/credits/0"
+      ],
+      "description": "Andr\u00e9s Chaparro lines out to left fielder Jake McCarthy.",
+      "descriptionPointer": "/liveData/plays/allPlays/62/result/description",
+      "descriptionSpan": [
+        0,
+        56
+      ],
+      "performanceIndex": 1,
+      "playId": "b6aac793-37fe-35bf-b182-e4ad1becaf8f",
+      "playIri": "https://baseballontology.org/data/game/822693/process/batted-ball-play/b6aac793-37fe-35bf-b182-e4ad1becaf8f",
+      "recordIri": "https://baseballontology.org/data/game/822693/event-record/pitch/b6aac793-37fe-35bf-b182-e4ad1becaf8f",
+      "roleIri": "https://baseballontology.org/data/player/664983/role/fielder"
+    },
+    {
+      "actIri": "https://baseballontology.org/data/game/822693/act/defense/81eb7a68-2915-3914-9fff-88fde2980e7f/1",
+      "agentIri": "https://baseballontology.org/data/player/695734",
+      "atBatIndex": "68",
+      "catch": true,
+      "classIri": "https://baseballontology.org/CatchAttemptAct",
+      "creditPointers": [
+        "/liveData/plays/allPlays/68/runners/0/credits/0"
+      ],
+      "description": "Jake McCarthy flies out to right fielder Daylen Lile.",
+      "descriptionPointer": "/liveData/plays/allPlays/68/result/description",
+      "descriptionSpan": [
+        0,
+        53
+      ],
+      "performanceIndex": 1,
+      "playId": "81eb7a68-2915-3914-9fff-88fde2980e7f",
+      "playIri": "https://baseballontology.org/data/game/822693/process/batted-ball-play/81eb7a68-2915-3914-9fff-88fde2980e7f",
+      "recordIri": "https://baseballontology.org/data/game/822693/event-record/pitch/81eb7a68-2915-3914-9fff-88fde2980e7f",
+      "roleIri": "https://baseballontology.org/data/player/695734/role/fielder"
+    },
+    {
+      "actIri": "https://baseballontology.org/data/game/822693/act/defense/cd8002d1-f72c-33f6-b120-2e2100745c57/1",
+      "agentIri": "https://baseballontology.org/data/player/687597",
+      "atBatIndex": "72",
+      "catch": true,
+      "classIri": "https://baseballontology.org/CatchAttemptAct",
+      "creditPointers": [
+        "/liveData/plays/allPlays/72/runners/0/credits/0"
+      ],
+      "description": "Keibert Ruiz flies out to right fielder Jordan Beck.",
+      "descriptionPointer": "/liveData/plays/allPlays/72/result/description",
+      "descriptionSpan": [
+        0,
+        52
+      ],
+      "performanceIndex": 1,
+      "playId": "cd8002d1-f72c-33f6-b120-2e2100745c57",
+      "playIri": "https://baseballontology.org/data/game/822693/process/batted-ball-play/cd8002d1-f72c-33f6-b120-2e2100745c57",
+      "recordIri": "https://baseballontology.org/data/game/822693/event-record/pitch/cd8002d1-f72c-33f6-b120-2e2100745c57",
+      "roleIri": "https://baseballontology.org/data/player/687597/role/fielder"
+    }
+  ],
+  "game": "https://baseballontology.org/data/game/822693",
+  "gamePk": "822693",
+  "issues": [],
+  "orderComplete": false,
+  "plays": [
+    {
+      "acts": [],
+      "atBatIndex": "0",
+      "complete": false,
+      "eventIndex": 6,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "f5ba8b6d-85da-3c3b-b927-9737ef5c1fcf",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/f5ba8b6d-85da-3c3b-b927-9737ef5c1fcf"
+    },
+    {
+      "acts": [
+        "https://baseballontology.org/data/game/822693/act/defense/fd524208-dc38-3e7b-bc19-5ba61643673d/1"
+      ],
+      "atBatIndex": "1",
+      "complete": true,
+      "eventIndex": 4,
+      "gaps": [],
+      "orderComplete": true,
+      "playId": "fd524208-dc38-3e7b-bc19-5ba61643673d",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/fd524208-dc38-3e7b-bc19-5ba61643673d"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "2",
+      "complete": false,
+      "eventIndex": 2,
+      "gaps": [
+        "INCOMPLETE_DEFENSIVE_PERFORMANCES"
+      ],
+      "orderComplete": false,
+      "playId": "7e15b9e5-670f-3f12-abbf-c06434ba4822",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/7e15b9e5-670f-3f12-abbf-c06434ba4822"
+    },
+    {
+      "acts": [
+        "https://baseballontology.org/data/game/822693/act/defense/2a85cc39-fff9-3f5b-8811-1fdeae52e2ec/1"
+      ],
+      "atBatIndex": "3",
+      "complete": true,
+      "eventIndex": 0,
+      "gaps": [],
+      "orderComplete": true,
+      "playId": "2a85cc39-fff9-3f5b-8811-1fdeae52e2ec",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/2a85cc39-fff9-3f5b-8811-1fdeae52e2ec"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "4",
+      "complete": false,
+      "eventIndex": 3,
+      "gaps": [
+        "INCOMPLETE_DEFENSIVE_PERFORMANCES"
+      ],
+      "orderComplete": false,
+      "playId": "73a36e1b-a3a7-30eb-aa36-a57e10d14336",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/73a36e1b-a3a7-30eb-aa36-a57e10d14336"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "5",
+      "complete": false,
+      "eventIndex": 1,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "dbe7a127-415e-3ea2-a2ce-1a614a6f0040",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/dbe7a127-415e-3ea2-a2ce-1a614a6f0040"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "6",
+      "complete": false,
+      "eventIndex": 2,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "c8c78fb1-d045-39e6-86ef-94763d1aca0d",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/c8c78fb1-d045-39e6-86ef-94763d1aca0d"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "6",
+      "complete": false,
+      "eventIndex": 3,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "e8e189f5-93c3-3cc3-88c9-e1c5c4761a3d",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/e8e189f5-93c3-3cc3-88c9-e1c5c4761a3d"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "8",
+      "complete": false,
+      "eventIndex": 3,
+      "gaps": [
+        "INCOMPLETE_DEFENSIVE_PERFORMANCES"
+      ],
+      "orderComplete": false,
+      "playId": "809d65da-b751-309d-8ce2-3d43f227a401",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/809d65da-b751-309d-8ce2-3d43f227a401"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "9",
+      "complete": false,
+      "eventIndex": 1,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "78817f78-3912-31e2-aa61-6b2b4cc3369c",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/78817f78-3912-31e2-aa61-6b2b4cc3369c"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "9",
+      "complete": false,
+      "eventIndex": 2,
+      "gaps": [
+        "INCOMPLETE_DEFENSIVE_PERFORMANCES"
+      ],
+      "orderComplete": false,
+      "playId": "016bed5d-f549-3e5d-9423-48bb64f17735",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/016bed5d-f549-3e5d-9423-48bb64f17735"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "10",
+      "complete": false,
+      "eventIndex": 1,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "ad14cf5d-3558-36f7-8d1a-5e574fa32857",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/ad14cf5d-3558-36f7-8d1a-5e574fa32857"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "10",
+      "complete": false,
+      "eventIndex": 4,
+      "gaps": [
+        "INCOMPLETE_DEFENSIVE_PERFORMANCES"
+      ],
+      "orderComplete": false,
+      "playId": "b199fda3-a1ce-38ba-ac93-0739d34f49d4",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/b199fda3-a1ce-38ba-ac93-0739d34f49d4"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "12",
+      "complete": false,
+      "eventIndex": 1,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "5d9463d4-14b5-3579-beb8-91633baba264",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/5d9463d4-14b5-3579-beb8-91633baba264"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "12",
+      "complete": false,
+      "eventIndex": 2,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "391341c4-e132-32e6-aa83-bad3dcb65341",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/391341c4-e132-32e6-aa83-bad3dcb65341"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "12",
+      "complete": false,
+      "eventIndex": 7,
+      "gaps": [
+        "INCOMPLETE_DEFENSIVE_PERFORMANCES"
+      ],
+      "orderComplete": false,
+      "playId": "710a8b6c-769b-36c4-9d25-643b35a074d2",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/710a8b6c-769b-36c4-9d25-643b35a074d2"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "13",
+      "complete": false,
+      "eventIndex": 3,
+      "gaps": [
+        "INCOMPLETE_DEFENSIVE_PERFORMANCES"
+      ],
+      "orderComplete": false,
+      "playId": "6cdfe822-29bf-3765-8ca4-014e4dfa97b9",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/6cdfe822-29bf-3765-8ca4-014e4dfa97b9"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "14",
+      "complete": false,
+      "eventIndex": 1,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "4ac949ad-6ff8-3528-8300-ff894c0d9969",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/4ac949ad-6ff8-3528-8300-ff894c0d9969"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "14",
+      "complete": false,
+      "eventIndex": 2,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "801a63da-7fe0-3959-9169-349c0ff621d7",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/801a63da-7fe0-3959-9169-349c0ff621d7"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "14",
+      "complete": false,
+      "eventIndex": 4,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "2c2b7ca4-13d7-3d1f-a666-68e018c3f60b",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/2c2b7ca4-13d7-3d1f-a666-68e018c3f60b"
+    },
+    {
+      "acts": [
+        "https://baseballontology.org/data/game/822693/act/defense/67e86f6c-4e74-3e4b-83a6-1e4ffee2ab6d/1"
+      ],
+      "atBatIndex": "14",
+      "complete": true,
+      "eventIndex": 7,
+      "gaps": [],
+      "orderComplete": true,
+      "playId": "67e86f6c-4e74-3e4b-83a6-1e4ffee2ab6d",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/67e86f6c-4e74-3e4b-83a6-1e4ffee2ab6d"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "16",
+      "complete": false,
+      "eventIndex": 4,
+      "gaps": [
+        "INCOMPLETE_DEFENSIVE_PERFORMANCES"
+      ],
+      "orderComplete": false,
+      "playId": "332e73a4-4815-37f5-8c6f-be40184df995",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/332e73a4-4815-37f5-8c6f-be40184df995"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "17",
+      "complete": false,
+      "eventIndex": 0,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "6bda7ad8-8f13-3a1b-ba64-b1bf0ea9febd",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/6bda7ad8-8f13-3a1b-ba64-b1bf0ea9febd"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "18",
+      "complete": false,
+      "eventIndex": 1,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "70c3a268-c6eb-340c-83ec-2e9423be0f3e",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/70c3a268-c6eb-340c-83ec-2e9423be0f3e"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "18",
+      "complete": false,
+      "eventIndex": 4,
+      "gaps": [
+        "INCOMPLETE_DEFENSIVE_PERFORMANCES"
+      ],
+      "orderComplete": false,
+      "playId": "83c2478d-7017-3d6b-bb34-64bc78ddbd75",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/83c2478d-7017-3d6b-bb34-64bc78ddbd75"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "19",
+      "complete": false,
+      "eventIndex": 3,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "b5191f4a-00de-38c3-b1e6-67f5a97ba0e1",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/b5191f4a-00de-38c3-b1e6-67f5a97ba0e1"
+    },
+    {
+      "acts": [
+        "https://baseballontology.org/data/game/822693/act/defense/47f22a5e-8f48-3601-b122-3072deb76a68/1"
+      ],
+      "atBatIndex": "20",
+      "complete": true,
+      "eventIndex": 0,
+      "gaps": [],
+      "orderComplete": true,
+      "playId": "47f22a5e-8f48-3601-b122-3072deb76a68",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/47f22a5e-8f48-3601-b122-3072deb76a68"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "21",
+      "complete": false,
+      "eventIndex": 2,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "8d555843-ffce-3b40-b9a8-07811d308e54",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/8d555843-ffce-3b40-b9a8-07811d308e54"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "21",
+      "complete": false,
+      "eventIndex": 4,
+      "gaps": [
+        "INCOMPLETE_DEFENSIVE_PERFORMANCES"
+      ],
+      "orderComplete": false,
+      "playId": "f54d9e3a-79e4-3090-96fe-d4f2a9e50816",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/f54d9e3a-79e4-3090-96fe-d4f2a9e50816"
+    },
+    {
+      "acts": [
+        "https://baseballontology.org/data/game/822693/act/defense/8420fe64-6f5d-3594-bcd9-9b5885eafbe2/1"
+      ],
+      "atBatIndex": "22",
+      "complete": true,
+      "eventIndex": 1,
+      "gaps": [],
+      "orderComplete": true,
+      "playId": "8420fe64-6f5d-3594-bcd9-9b5885eafbe2",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/8420fe64-6f5d-3594-bcd9-9b5885eafbe2"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "23",
+      "complete": false,
+      "eventIndex": 1,
+      "gaps": [
+        "INCOMPLETE_DEFENSIVE_PERFORMANCES"
+      ],
+      "orderComplete": false,
+      "playId": "64372995-0d52-3360-b510-97dc91281a0a",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/64372995-0d52-3360-b510-97dc91281a0a"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "24",
+      "complete": false,
+      "eventIndex": 0,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "0bcf0459-4fa2-34c3-8d1d-c86428a502a6",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/0bcf0459-4fa2-34c3-8d1d-c86428a502a6"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "24",
+      "complete": false,
+      "eventIndex": 3,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "e1a70679-7f49-347a-815f-19d6f2e1473c",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/e1a70679-7f49-347a-815f-19d6f2e1473c"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "24",
+      "complete": false,
+      "eventIndex": 5,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "44919c92-7763-3012-9f3a-2ddcdfc85c7e",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/44919c92-7763-3012-9f3a-2ddcdfc85c7e"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "25",
+      "complete": false,
+      "eventIndex": 3,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "afb685d7-cb6e-3dc5-948c-35d83f096bbb",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/afb685d7-cb6e-3dc5-948c-35d83f096bbb"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "25",
+      "complete": false,
+      "eventIndex": 5,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "61950cc7-271f-3496-babf-0b4f17a0ed49",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/61950cc7-271f-3496-babf-0b4f17a0ed49"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "25",
+      "complete": false,
+      "eventIndex": 7,
+      "gaps": [
+        "INCOMPLETE_DEFENSIVE_PERFORMANCES"
+      ],
+      "orderComplete": false,
+      "playId": "6ab790ef-dc21-3b28-99bd-e3208c935ab5",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/6ab790ef-dc21-3b28-99bd-e3208c935ab5"
+    },
+    {
+      "acts": [
+        "https://baseballontology.org/data/game/822693/act/defense/fdbd273e-8856-3864-9967-04e91ea2fb99/1",
+        "https://baseballontology.org/data/game/822693/act/defense/fdbd273e-8856-3864-9967-04e91ea2fb99/2",
+        "https://baseballontology.org/data/game/822693/act/defense/fdbd273e-8856-3864-9967-04e91ea2fb99/3",
+        "https://baseballontology.org/data/game/822693/act/defense/fdbd273e-8856-3864-9967-04e91ea2fb99/4",
+        "https://baseballontology.org/data/game/822693/act/defense/fdbd273e-8856-3864-9967-04e91ea2fb99/5",
+        "https://baseballontology.org/data/game/822693/act/defense/fdbd273e-8856-3864-9967-04e91ea2fb99/6",
+        "https://baseballontology.org/data/game/822693/act/defense/fdbd273e-8856-3864-9967-04e91ea2fb99/7"
+      ],
+      "atBatIndex": "26",
+      "complete": false,
+      "eventIndex": 0,
+      "gaps": [
+        "RELAY_TERMINAL_TOUCH_AND_ORDER_UNRESOLVED"
+      ],
+      "orderComplete": false,
+      "playId": "fdbd273e-8856-3864-9967-04e91ea2fb99",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/fdbd273e-8856-3864-9967-04e91ea2fb99"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "27",
+      "complete": false,
+      "eventIndex": 0,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "1422e9fe-a5b5-3fdb-941c-a8d4afdd1929",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/1422e9fe-a5b5-3fdb-941c-a8d4afdd1929"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "27",
+      "complete": false,
+      "eventIndex": 1,
+      "gaps": [
+        "INCOMPLETE_DEFENSIVE_PERFORMANCES"
+      ],
+      "orderComplete": false,
+      "playId": "7cf1c71e-fc0e-32b3-b7af-b2e6084f7380",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/7cf1c71e-fc0e-32b3-b7af-b2e6084f7380"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "28",
+      "complete": false,
+      "eventIndex": 1,
+      "gaps": [
+        "INCOMPLETE_DEFENSIVE_PERFORMANCES"
+      ],
+      "orderComplete": false,
+      "playId": "2ebcf0a4-0b78-3e30-9184-38ae2e46d790",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/2ebcf0a4-0b78-3e30-9184-38ae2e46d790"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "29",
+      "complete": false,
+      "eventIndex": 0,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "b4991dfb-61ac-3c18-a2b3-af425237f742",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/b4991dfb-61ac-3c18-a2b3-af425237f742"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "29",
+      "complete": false,
+      "eventIndex": 2,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "a9ed1a8c-7ff7-355a-be0d-2e8c755d6e11",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/a9ed1a8c-7ff7-355a-be0d-2e8c755d6e11"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "29",
+      "complete": false,
+      "eventIndex": 4,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "fd69f88f-f4d2-39ed-80b7-2f365884434b",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/fd69f88f-f4d2-39ed-80b7-2f365884434b"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "30",
+      "complete": false,
+      "eventIndex": 1,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "a6c7e4bd-5a1b-3a70-8408-b6a8f78f2a02",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/a6c7e4bd-5a1b-3a70-8408-b6a8f78f2a02"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "30",
+      "complete": false,
+      "eventIndex": 4,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "64551ac4-269a-3315-860c-9cc09bc99b50",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/64551ac4-269a-3315-860c-9cc09bc99b50"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "32",
+      "complete": false,
+      "eventIndex": 3,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "d61d4daa-3184-3997-9be1-c262577eb8f8",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/d61d4daa-3184-3997-9be1-c262577eb8f8"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "32",
+      "complete": false,
+      "eventIndex": 5,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "366918e0-f216-3249-9496-9a6670c4f69a",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/366918e0-f216-3249-9496-9a6670c4f69a"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "33",
+      "complete": false,
+      "eventIndex": 2,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "23527ca6-3e96-3432-9a05-dbb371c74b02",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/23527ca6-3e96-3432-9a05-dbb371c74b02"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "33",
+      "complete": false,
+      "eventIndex": 3,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "18f1d3bb-e496-3335-b2f8-dfa157a3b9a7",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/18f1d3bb-e496-3335-b2f8-dfa157a3b9a7"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "33",
+      "complete": false,
+      "eventIndex": 4,
+      "gaps": [
+        "INCOMPLETE_DEFENSIVE_PERFORMANCES"
+      ],
+      "orderComplete": false,
+      "playId": "9b6090d4-752a-3409-b819-119aac9b5ed0",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/9b6090d4-752a-3409-b819-119aac9b5ed0"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "35",
+      "complete": false,
+      "eventIndex": 0,
+      "gaps": [
+        "INCOMPLETE_DEFENSIVE_PERFORMANCES"
+      ],
+      "orderComplete": false,
+      "playId": "9e2af908-3d5b-3bff-a4ee-af0392247b45",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/9e2af908-3d5b-3bff-a4ee-af0392247b45"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "36",
+      "complete": false,
+      "eventIndex": 3,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "1847dcdd-f7e2-3901-a1f5-648ac3aa2f8f",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/1847dcdd-f7e2-3901-a1f5-648ac3aa2f8f"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "37",
+      "complete": false,
+      "eventIndex": 3,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "be8eeb0a-8d31-3fb9-955c-4f32604e3d11",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/be8eeb0a-8d31-3fb9-955c-4f32604e3d11"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "37",
+      "complete": false,
+      "eventIndex": 4,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "2515a9b2-9612-37f3-a2cb-0ea7d059f1c1",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/2515a9b2-9612-37f3-a2cb-0ea7d059f1c1"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "37",
+      "complete": false,
+      "eventIndex": 6,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "56ad3aa7-1d75-3666-8ed5-5f99ca70cc7e",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/56ad3aa7-1d75-3666-8ed5-5f99ca70cc7e"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "38",
+      "complete": false,
+      "eventIndex": 0,
+      "gaps": [
+        "INCOMPLETE_DEFENSIVE_PERFORMANCES"
+      ],
+      "orderComplete": false,
+      "playId": "3863b1dc-7346-3a0c-b9bb-89be9a305e30",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/3863b1dc-7346-3a0c-b9bb-89be9a305e30"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "40",
+      "complete": false,
+      "eventIndex": 8,
+      "gaps": [
+        "INCOMPLETE_DEFENSIVE_PERFORMANCES"
+      ],
+      "orderComplete": false,
+      "playId": "1c82a404-87af-3246-9828-58d343f115e1",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/1c82a404-87af-3246-9828-58d343f115e1"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "41",
+      "complete": false,
+      "eventIndex": 1,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "351f5d08-7b4c-32d5-a63b-4787308d5072",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/351f5d08-7b4c-32d5-a63b-4787308d5072"
+    },
+    {
+      "acts": [
+        "https://baseballontology.org/data/game/822693/act/defense/602bb428-e82c-31b2-8ce3-ce56dc8d48a1/1"
+      ],
+      "atBatIndex": "41",
+      "complete": true,
+      "eventIndex": 3,
+      "gaps": [],
+      "orderComplete": true,
+      "playId": "602bb428-e82c-31b2-8ce3-ce56dc8d48a1",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/602bb428-e82c-31b2-8ce3-ce56dc8d48a1"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "42",
+      "complete": false,
+      "eventIndex": 6,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "8ac8b076-4811-3981-b1ab-dc0018fbcb20",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/8ac8b076-4811-3981-b1ab-dc0018fbcb20"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "42",
+      "complete": false,
+      "eventIndex": 8,
+      "gaps": [
+        "INCOMPLETE_DEFENSIVE_PERFORMANCES"
+      ],
+      "orderComplete": false,
+      "playId": "68a88ec6-5940-3869-bdfe-bbd1c963e997",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/68a88ec6-5940-3869-bdfe-bbd1c963e997"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "43",
+      "complete": false,
+      "eventIndex": 1,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "b7a353df-a3e9-3d36-ab4f-0baca10201d0",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/b7a353df-a3e9-3d36-ab4f-0baca10201d0"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "45",
+      "complete": false,
+      "eventIndex": 0,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "02e6c2e0-9c2d-33dd-be85-cf20edf8868b",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/02e6c2e0-9c2d-33dd-be85-cf20edf8868b"
+    },
+    {
+      "acts": [
+        "https://baseballontology.org/data/game/822693/act/defense/01372017-eb8f-35d7-b549-dcbef7756ec2/1"
+      ],
+      "atBatIndex": "45",
+      "complete": true,
+      "eventIndex": 1,
+      "gaps": [],
+      "orderComplete": true,
+      "playId": "01372017-eb8f-35d7-b549-dcbef7756ec2",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/01372017-eb8f-35d7-b549-dcbef7756ec2"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "46",
+      "complete": false,
+      "eventIndex": 3,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "8d303262-e367-37d6-a90e-8d9850f3067c",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/8d303262-e367-37d6-a90e-8d9850f3067c"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "46",
+      "complete": false,
+      "eventIndex": 4,
+      "gaps": [
+        "INCOMPLETE_DEFENSIVE_PERFORMANCES"
+      ],
+      "orderComplete": false,
+      "playId": "e6cbbe1c-e08b-378d-a606-6914ff68bfb8",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/e6cbbe1c-e08b-378d-a606-6914ff68bfb8"
+    },
+    {
+      "acts": [
+        "https://baseballontology.org/data/game/822693/act/defense/34a17a69-9eb7-3301-ad5d-a589fad1cc92/1"
+      ],
+      "atBatIndex": "47",
+      "complete": true,
+      "eventIndex": 4,
+      "gaps": [],
+      "orderComplete": true,
+      "playId": "34a17a69-9eb7-3301-ad5d-a589fad1cc92",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/34a17a69-9eb7-3301-ad5d-a589fad1cc92"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "48",
+      "complete": false,
+      "eventIndex": 0,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "9944167e-e055-354c-b614-8ffec54d9ac0",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/9944167e-e055-354c-b614-8ffec54d9ac0"
+    },
+    {
+      "acts": [
+        "https://baseballontology.org/data/game/822693/act/defense/69ce5812-d9da-3894-8b9e-f2af67d075cf/1"
+      ],
+      "atBatIndex": "48",
+      "complete": true,
+      "eventIndex": 1,
+      "gaps": [],
+      "orderComplete": true,
+      "playId": "69ce5812-d9da-3894-8b9e-f2af67d075cf",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/69ce5812-d9da-3894-8b9e-f2af67d075cf"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "50",
+      "complete": false,
+      "eventIndex": 1,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "09f7b5df-4eb1-3dc2-ad7c-425c4af0f11a",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/09f7b5df-4eb1-3dc2-ad7c-425c4af0f11a"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "50",
+      "complete": false,
+      "eventIndex": 2,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "2648b4bf-5192-365f-b0d0-f5423b69cc46",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/2648b4bf-5192-365f-b0d0-f5423b69cc46"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "50",
+      "complete": false,
+      "eventIndex": 3,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "d6afa4d9-22a0-35d0-b585-2283e448519b",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/d6afa4d9-22a0-35d0-b585-2283e448519b"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "50",
+      "complete": false,
+      "eventIndex": 4,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "60c90ebc-036b-369c-9b9e-fdbd48e558c2",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/60c90ebc-036b-369c-9b9e-fdbd48e558c2"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "50",
+      "complete": false,
+      "eventIndex": 5,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "ec62bd79-8bfa-3f8b-842a-1870f117ec6d",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/ec62bd79-8bfa-3f8b-842a-1870f117ec6d"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "50",
+      "complete": false,
+      "eventIndex": 6,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "c82fa092-fac3-3fb4-98a5-e723eff3f61e",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/c82fa092-fac3-3fb4-98a5-e723eff3f61e"
+    },
+    {
+      "acts": [
+        "https://baseballontology.org/data/game/822693/act/defense/b223e966-597d-3bcf-ae2c-aa1ef9e47acb/1"
+      ],
+      "atBatIndex": "50",
+      "complete": true,
+      "eventIndex": 7,
+      "gaps": [],
+      "orderComplete": true,
+      "playId": "b223e966-597d-3bcf-ae2c-aa1ef9e47acb",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/b223e966-597d-3bcf-ae2c-aa1ef9e47acb"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "51",
+      "complete": false,
+      "eventIndex": 1,
+      "gaps": [
+        "INCOMPLETE_DEFENSIVE_PERFORMANCES"
+      ],
+      "orderComplete": false,
+      "playId": "6b74f9b8-4870-37a1-bf47-95414a078eb6",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/6b74f9b8-4870-37a1-bf47-95414a078eb6"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "52",
+      "complete": false,
+      "eventIndex": 1,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "4217671e-fc3e-3edd-8725-1e7a2715848f",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/4217671e-fc3e-3edd-8725-1e7a2715848f"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "52",
+      "complete": false,
+      "eventIndex": 2,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "1d2095ce-5ac5-3e21-bb50-cbaab8faa4ef",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/1d2095ce-5ac5-3e21-bb50-cbaab8faa4ef"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "52",
+      "complete": false,
+      "eventIndex": 4,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "1e35d857-5527-36d1-b7df-319efca42d4e",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/1e35d857-5527-36d1-b7df-319efca42d4e"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "52",
+      "complete": false,
+      "eventIndex": 6,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "9bcdb37b-d510-3008-a1b4-a886370e505a",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/9bcdb37b-d510-3008-a1b4-a886370e505a"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "52",
+      "complete": false,
+      "eventIndex": 8,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "9129d1f4-ecea-3953-9d30-c314dbb3520a",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/9129d1f4-ecea-3953-9d30-c314dbb3520a"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "52",
+      "complete": false,
+      "eventIndex": 9,
+      "gaps": [
+        "INCOMPLETE_DEFENSIVE_PERFORMANCES"
+      ],
+      "orderComplete": false,
+      "playId": "47fc86ef-059e-3f5e-8b66-7850b7e7a959",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/47fc86ef-059e-3f5e-8b66-7850b7e7a959"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "53",
+      "complete": false,
+      "eventIndex": 1,
+      "gaps": [
+        "INCOMPLETE_DEFENSIVE_PERFORMANCES"
+      ],
+      "orderComplete": false,
+      "playId": "08200c09-aeda-385e-8596-ea3333a9835e",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/08200c09-aeda-385e-8596-ea3333a9835e"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "55",
+      "complete": false,
+      "eventIndex": 1,
+      "gaps": [
+        "INCOMPLETE_DEFENSIVE_PERFORMANCES"
+      ],
+      "orderComplete": false,
+      "playId": "7b845927-dfa2-3cdd-8ee7-c89dce00ff7e",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/7b845927-dfa2-3cdd-8ee7-c89dce00ff7e"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "56",
+      "complete": false,
+      "eventIndex": 5,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "d342cc51-81f6-3264-bb86-b068dbdb6094",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/d342cc51-81f6-3264-bb86-b068dbdb6094"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "57",
+      "complete": false,
+      "eventIndex": 4,
+      "gaps": [
+        "INCOMPLETE_DEFENSIVE_PERFORMANCES"
+      ],
+      "orderComplete": false,
+      "playId": "6b681a53-5b40-3693-905c-4e4e2f7334f9",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/6b681a53-5b40-3693-905c-4e4e2f7334f9"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "58",
+      "complete": false,
+      "eventIndex": 2,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "736c9483-c6d9-34db-b6da-a3698c75770c",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/736c9483-c6d9-34db-b6da-a3698c75770c"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "58",
+      "complete": false,
+      "eventIndex": 5,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "105e3c25-d29f-3f98-b2cd-d7822b8c23b1",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/105e3c25-d29f-3f98-b2cd-d7822b8c23b1"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "58",
+      "complete": false,
+      "eventIndex": 7,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "0c7d7677-81c4-3713-9878-6043bd0ef594",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/0c7d7677-81c4-3713-9878-6043bd0ef594"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "59",
+      "complete": false,
+      "eventIndex": 0,
+      "gaps": [
+        "INCOMPLETE_DEFENSIVE_PERFORMANCES"
+      ],
+      "orderComplete": false,
+      "playId": "84946105-23b8-3223-a9ea-618cd5b6f3d3",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/84946105-23b8-3223-a9ea-618cd5b6f3d3"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "61",
+      "complete": false,
+      "eventIndex": 4,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "8f94a292-d57e-322d-a10d-1dd176c8d9d6",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/8f94a292-d57e-322d-a10d-1dd176c8d9d6"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "62",
+      "complete": false,
+      "eventIndex": 0,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "e6d2d5c5-49fa-3fe7-8e8b-93dca61bd101",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/e6d2d5c5-49fa-3fe7-8e8b-93dca61bd101"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "62",
+      "complete": false,
+      "eventIndex": 1,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "cb29e1d8-f0af-3f82-a2c3-2873a9597477",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/cb29e1d8-f0af-3f82-a2c3-2873a9597477"
+    },
+    {
+      "acts": [
+        "https://baseballontology.org/data/game/822693/act/defense/b6aac793-37fe-35bf-b182-e4ad1becaf8f/1"
+      ],
+      "atBatIndex": "62",
+      "complete": true,
+      "eventIndex": 2,
+      "gaps": [],
+      "orderComplete": true,
+      "playId": "b6aac793-37fe-35bf-b182-e4ad1becaf8f",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/b6aac793-37fe-35bf-b182-e4ad1becaf8f"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "63",
+      "complete": false,
+      "eventIndex": 0,
+      "gaps": [
+        "INCOMPLETE_DEFENSIVE_PERFORMANCES"
+      ],
+      "orderComplete": false,
+      "playId": "de03b14d-bac4-33d8-bae1-72dc88cb4cb0",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/de03b14d-bac4-33d8-bae1-72dc88cb4cb0"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "65",
+      "complete": false,
+      "eventIndex": 5,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "6a94e86e-3252-347f-b1b6-1345f4417ce4",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/6a94e86e-3252-347f-b1b6-1345f4417ce4"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "65",
+      "complete": false,
+      "eventIndex": 7,
+      "gaps": [
+        "INCOMPLETE_DEFENSIVE_PERFORMANCES"
+      ],
+      "orderComplete": false,
+      "playId": "1ba8a16c-7dfd-39ab-a393-fad7204139c2",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/1ba8a16c-7dfd-39ab-a393-fad7204139c2"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "67",
+      "complete": false,
+      "eventIndex": 0,
+      "gaps": [
+        "INCOMPLETE_DEFENSIVE_PERFORMANCES"
+      ],
+      "orderComplete": false,
+      "playId": "b64e9a6f-fcee-3344-bda7-4ba85e482ed1",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/b64e9a6f-fcee-3344-bda7-4ba85e482ed1"
+    },
+    {
+      "acts": [
+        "https://baseballontology.org/data/game/822693/act/defense/81eb7a68-2915-3914-9fff-88fde2980e7f/1"
+      ],
+      "atBatIndex": "68",
+      "complete": true,
+      "eventIndex": 5,
+      "gaps": [],
+      "orderComplete": true,
+      "playId": "81eb7a68-2915-3914-9fff-88fde2980e7f",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/81eb7a68-2915-3914-9fff-88fde2980e7f"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "69",
+      "complete": false,
+      "eventIndex": 1,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "4af9ef6b-c6bd-338c-bd61-e6804929c508",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/4af9ef6b-c6bd-338c-bd61-e6804929c508"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "69",
+      "complete": false,
+      "eventIndex": 3,
+      "gaps": [
+        "INCOMPLETE_DEFENSIVE_PERFORMANCES"
+      ],
+      "orderComplete": false,
+      "playId": "2787b101-f55a-3989-bf54-9e963f354210",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/2787b101-f55a-3989-bf54-9e963f354210"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "70",
+      "complete": false,
+      "eventIndex": 2,
+      "gaps": [
+        "INCOMPLETE_DEFENSIVE_PERFORMANCES"
+      ],
+      "orderComplete": false,
+      "playId": "00b850b7-05fb-3846-aa68-33927cd8fbce",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/00b850b7-05fb-3846-aa68-33927cd8fbce"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "71",
+      "complete": false,
+      "eventIndex": 2,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "dccbceb0-c6bf-311b-8e60-ce4e4dbc77b1",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/dccbceb0-c6bf-311b-8e60-ce4e4dbc77b1"
+    },
+    {
+      "acts": [],
+      "atBatIndex": "71",
+      "complete": false,
+      "eventIndex": 3,
+      "gaps": [
+        "UNRESOLVED_DEFENSIVE_DESCRIPTION"
+      ],
+      "orderComplete": false,
+      "playId": "f683a50f-92b1-3707-9dee-88f537afd433",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/f683a50f-92b1-3707-9dee-88f537afd433"
+    },
+    {
+      "acts": [
+        "https://baseballontology.org/data/game/822693/act/defense/cd8002d1-f72c-33f6-b120-2e2100745c57/1"
+      ],
+      "atBatIndex": "72",
+      "complete": true,
+      "eventIndex": 2,
+      "gaps": [],
+      "orderComplete": true,
+      "playId": "cd8002d1-f72c-33f6-b120-2e2100745c57",
+      "resolution": "https://baseballontology.org/data/game/822693/process/batted-ball-play/cd8002d1-f72c-33f6-b120-2e2100745c57"
+    }
+  ],
+  "populationComplete": false,
+  "precedence": [],
+  "sourceRevision": "20260826_013433",
+  "sourceSha256": "c2701c7de786df80013b21b36d74e8c5d6f6b1d0063bfab86d83ce6f5fb5fe02",
+  "status": "reconciled"
+}

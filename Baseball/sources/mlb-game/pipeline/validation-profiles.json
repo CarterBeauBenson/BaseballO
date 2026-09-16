@@ -8,6 +8,7 @@
     "shacl/runner-resolution-admission.ttl",
     "shacl/scoring-run-admission.ttl",
     "shacl/pitch-count-admission.ttl",
-    "shacl/runner-boundary-admission.ttl"
+    "shacl/runner-boundary-admission.ttl",
+    "shacl/defensive-admission.ttl"
   ]
 }

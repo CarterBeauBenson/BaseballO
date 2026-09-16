@@ -871,6 +871,17 @@
         "AutomaticCountPriorPitchMap",
         "AutomaticCountNextPitchMap"
       ]
+    },
+    {
+      "id": "69-defensive-performances",
+      "title": "Source-supported defensive performances",
+      "summary": "Distinct described performances have actual agents and their persistent Fielder Roles within a batted-ball play. Catch attempts retain one identity under fielding superclass typing. Narrative serialization does not assert precedence.",
+      "maps": [
+        "DefensiveActMap",
+        "DefensiveCatchFieldingMap",
+        "DefensiveRoleMap",
+        "DefensiveRecordMap"
+      ]
     }
   ]
 }

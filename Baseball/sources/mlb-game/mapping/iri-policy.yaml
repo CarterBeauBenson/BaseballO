@@ -73,6 +73,17 @@ baseball_iri_policy:
         owl:sameAs. Other out/safe reviews in the PA remain distinct. M1 adds
         counted foul coverage without changing the existing strike identities.
 
+    defensive_performance:
+      decision: "archive/design-records/mlb-game-defensive-acts/review.json"
+      template: "{data}game/{gamePk}/act/defense/{playId}/{performanceIndex}"
+      role: "{data}player/{playerId}/role/fielder"
+      rule: >
+        One identity per uninterrupted supported performance. The index is the
+        one-based canonical performance position, never an assist-array index
+        or a temporal-order assertion. Catch and Fielding Attempt typing share
+        one identity. Ambiguous corrections quarantine rather than reassigning
+        existing performance positions. Roles persist across games.
+
     plate_appearance_result:
       template: "{data}game/{gamePk}/plate-appearance/{atBatIndex}/result"
       rule: >

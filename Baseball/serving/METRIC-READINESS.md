@@ -1,10 +1,10 @@
 # Nineteen public metrics: implementation and release status
 
-Fourteen public player producers are implemented conditionally. Of the other
-five, defensive depth/breadth and PAQ with Tie-Breakers now have connected,
-tested SQL consumers, while their defensive source projection/admission remains
-unfinished. The two review player producers still need graph/population
-integration. This is not a claim that fourteen live leaderboards are populated:
+Seventeen public metrics now have connected calculation and SQL serving paths.
+D1's bounded defensive projection, source conformance, promotion provenance
+and materializer are implemented; complete defensive populations and order
+remain unproven. The two review player producers still need graph/population
+integration. Connected paths do not mean seventeen populated leaderboards:
 each requires complete source/graph, period, eligibility and qualification
 admission. All twenty calculation kernels exist; Role Realization Breadth is
 the backend-only twentieth metric and is not another public card.
@@ -52,13 +52,13 @@ separate review-mechanism, complete-population or qualification gates.
 | Empty Game Damage | Implemented conditionally | Complete Empty Game classification and negative PA contributions; this adapter admits only games with no separate independent damaging episodes or interrupted turns |
 | Contribution Mix | Implemented conditionally | Complete positive play/channel inventory and separate running-attempt qualification |
 | Two-Strike Extension Rank | Implemented conditionally | Complete pitch/count and B1 admissions for every reference-season game, plus independent schedules through the cutoff |
-| Longest Defensive Sequence | SQL consumer implemented; source producer unfinished | D1 source projection, complete act/agent/order admission and independent roster proof |
-| Defenders Involved | SQL consumer implemented; source producer unfinished | D1 source projection, complete act/agent admission and independent roster proof; order is a separate gate |
+| Longest Defensive Sequence | Implemented; population gated | Complete act/agent/order admission and independent roster proof |
+| Defenders Involved | Implemented; population gated | Complete act/agent admission and independent roster proof; order is a separate gate |
 | Scoring History Length | Implemented conditionally | Every counted scoring history, source run/roster proof and selected schedule |
 | Run Contributors | Implemented conditionally | Same complete scoring histories with supported contribution ownership |
 | Replay Overturn Rate | Unfinished as a player producer | Pitch-review affected-player extraction and SQL retention implemented; other subjects, mechanisms, complete population and qualification remain |
 | Outcomes Changed by Review | Unfinished | Complete eligible never-reviewed decisions, decision-time legal availability, operative outcomes, affected players and separate mechanisms |
-| PAQ with Tie-Breakers | SQL consumer implemented; defensive source prerequisite unfinished | Admitted contribution, two-strike and defensive inputs; complete separate season references and selected participation |
+| PAQ with Tie-Breakers | Implemented; defensive population gated | Admitted contribution, two-strike and defensive inputs; complete separate season references and selected participation |
 
 The settled meanings, minima, averages, Empty Game count, separate review
 mechanisms and backend-only role handling remain unchanged. No object
@@ -69,15 +69,20 @@ connects the defensive graph inventory and exact player means to SQL, retaining
 independent roster and order gates. PAQ with Tie-Breakers joins exact PA
 identities, ranks Recovery across all eligible season PAs first, then ranks
 the applicable PAQ-2.1 population before taking selected-period player means.
-These consumers have no public evidence-submission path. NiFi does not yet
-produce the defensive admission that would enable their live source population.
+These consumers have no public evidence-submission path. NiFi now produces
+the owning source's hash-bound defensive admission before promotion. The
+[real D1 proof](../benchmarks/metrics/d1-defensive-mapping-2026-09-16/README.md)
+verifies 20 acts and all 107 contact plays through Jena and SQL. Only 13
+simple-catch plays have complete act evidence; the entire game remains
+withheld for defensive player means. Partial evidence cannot shrink a ranking
+denominator or fabricate a supported order.
 
 [D1](../archive/design-records/mlb-game-defensive-acts/README.md) and
 [M3/M4](../archive/design-records/mlb-game-counted-foul-completion/README.md)
 were explicitly accepted and published in `e4166c1`. M3/M4 is implemented;
 the [real-game proof](../benchmarks/metrics/m3-m4-mappings-2026-09-16/README.md)
 closes all four named omissions and admits the complete 73-PA, 267-pitch
-count history of game 824087. D1 source implementation follows.
+count history of game 824087. D1 is also implemented with the bounded proof above.
 
 The new NiFi-owned review inventory retains PA-level as well as event-level
 records before transient input cleanup. In game 822773, the fifth `MJ`
@@ -95,7 +100,7 @@ engine also passes exact equivalence checks for all four rank metrics and a
 
 ## Concrete release gates
 
-The six metric SHACL profiles are registered in the owning module's
+The seven metric SHACL profiles are registered in the owning module's
 operational `pipeline/validation-profiles.json`. Exact ownership and inventory
 checks cover both that registry and the existing pinned source contract.
 The registration blocker is resolved without a protected catalog or freeze
@@ -106,8 +111,8 @@ M3/M4 implementation and its bounded count-admission proof are complete. The Q5 
 hides the earlier clock strike. Strict RML also handles an absent neighboring
 pitch without failing. Source evidence presence,
 mapping coverage, calculation implementation and live population admission
-are separate states. The remaining five producers must not be described as
-finished or as blocked solely by absent provider evidence.
+are separate states. The remaining population gates and two unfinished review integrations must
+not be described as complete or blocked solely by absent provider evidence.
 
 NiFi owns repeatable processing, correction invalidation, promotion and serving
 refresh. No routine corpus acquisition, manual rebuild or healthy-run polling

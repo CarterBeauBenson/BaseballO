@@ -3786,3 +3786,29 @@
   rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "operativeDecisionIri" ; rr:termType rr:IRI ] ] ;
   rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "dispositionIri" ; rr:termType rr:IRI ] ] ;
   rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "pitchIri" ; rr:termType rr:IRI ] ] .
+
+# D1, accepted before implementation in e4166c1. No inferred sequence edges.
+<#DefensiveActSource> a rml:LogicalSource ;
+  rml:source "game-context.json" ; rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$._baseballO.defensiveActs[*]" .
+<#DefensiveCatchSource> a rml:LogicalSource ;
+  rml:source "game-context.json" ; rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$._baseballO.defensiveActs[?(@.catch == true)]" .
+<#DefensiveActMap> a rr:TriplesMap ;
+  rml:logicalSource <#DefensiveActSource> ;
+  rr:subjectMap [ rml:reference "actIri" ; rr:termType rr:IRI ] ;
+  rr:predicateObjectMap [ rr:predicate rdf:type ; rr:objectMap [ rml:reference "classIri" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001833 ; rr:objectMap [ rml:reference "agentIri" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000055 ; rr:objectMap [ rml:reference "roleIri" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000132 ; rr:objectMap [ rml:reference "playIri" ; rr:termType rr:IRI ] ] .
+<#DefensiveCatchFieldingMap> a rr:TriplesMap ;
+  rml:logicalSource <#DefensiveCatchSource> ;
+  rr:subjectMap [ rml:reference "actIri" ; rr:termType rr:IRI ; rr:class base:FieldingAttemptAct ] .
+<#DefensiveRoleMap> a rr:TriplesMap ;
+  rml:logicalSource <#DefensiveActSource> ;
+  rr:subjectMap [ rml:reference "roleIri" ; rr:termType rr:IRI ; rr:class base:FielderRole ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000197 ; rr:objectMap [ rml:reference "agentIri" ; rr:termType rr:IRI ] ] .
+<#DefensiveRecordMap> a rr:TriplesMap ;
+  rml:logicalSource <#DefensiveActSource> ;
+  rr:subjectMap [ rml:reference "recordIri" ; rr:termType rr:IRI ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "actIri" ; rr:termType rr:IRI ] ] .

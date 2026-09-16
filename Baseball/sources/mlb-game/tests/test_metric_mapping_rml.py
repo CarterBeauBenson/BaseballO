@@ -31,6 +31,7 @@ class ActualRmlTests(unittest.TestCase):
         histories=d['_baseballO']['runnerHistoryReconciliation']
         histories['histories']=[]; histories['episodeMembership']=[]
         d['_baseballO']['metricPitchReviews']=[r for r in d['_baseballO']['metricPitchReviews'] if r['atBatIndex']=='36']
+        d['_baseballO']['defensiveActs']=[]
         (workspace/'game-context.json').write_text(json.dumps(d),encoding='utf-8')
         mapping_graph=Graph().parse(ROOT/'sources/mlb-game/mapping/mlb-game.rml.ttl')
         maps=list(mapping_graph.subjects(RDF.type,URIRef(RR+'TriplesMap')))
@@ -67,6 +68,7 @@ class ActualRmlTests(unittest.TestCase):
             reviewOutcome='affirming',reviewOriginalDecision='ball',reviewFinalDecision='ball',reviewPattern='ball_to_ball',
             terminalPitchPlayId=p['playEvents'][-1]['playId'])
         CONTEXT.metric_pitch_context(d)
+        d['_baseballO']['defensiveActs']=[]
         (workspace/'game-context.json').write_text(json.dumps(d),encoding='utf-8')
         duplicate_output=workspace/'duplicate-narrative.ttl'
         duplicate_command=command.copy()

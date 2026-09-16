@@ -1,0 +1,15 @@
+{
+  "artifactType": "baseballo-defensive-input-developer-proof",
+  "gamePk": "822693",
+  "sourceSha256": "c2701c7de786df80013b21b36d74e8c5d6f6b1d0063bfab86d83ce6f5fb5fe02",
+  "rdfSha256": "bf794cdb0c3955e22a37f7ccc62396c74927b6d7e797504ade58d32f8f16f15c",
+  "admissionSha256": "99b79f53301f6a71a1f9ab061504b51da983d7602b43c6b47b8cac37855efc89",
+  "implementationSha256": "ac4511c423f6e607902bf5d842bd4b81f4135426c74c133773815c49a6785d17",
+  "querySha256": "1e1180a7f82fe9869bce771a8dd40cb38327b96c4395eab03b2bf57c6ae472fa",
+  "actsVerified": 20,
+  "contactPlaysVerified": 107,
+  "jenaQueryExactMatch": true,
+  "sqlProofExactMatch": true,
+  "incompletePopulationWithheld": true,
+  "corpusPromotion": "not-performed"
+}

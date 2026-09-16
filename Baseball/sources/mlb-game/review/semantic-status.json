@@ -19,6 +19,7 @@
     "Question 5 automatic Ball/Strike count awards without Pitch Acts was explicitly accepted on 2026-09-15; archive/design-records/automatic-count-awards/review.json records that scope. The unplayed-half dictionary insertion repair preserves the existing source reconciliation contract.",
     "Question 4 separate actual Batter Acts within one PA was explicitly accepted on 2026-09-15; archive/design-records/substituted-batter-participation/review.json records the implementation scope. Official statistical assignment remains separate.",
     "Question 8 supported walk-off termination with counted effects only and no extra erosion was explicitly accepted on 2026-09-15; archive/design-records/walkoff-runner-boundary/review.json records its bounded C1 implementation. Other completeness gates remain.",
-    "M3/M4 counted fouls after the three reconciled prefix kinds and counted foul bunts were explicitly accepted on 2026-09-16 in archive/design-records/mlb-game-counted-foul-completion/review.json. Scoped implementation pins do not ratify the global freeze."
+    "M3/M4 counted fouls after the three reconciled prefix kinds and counted foul bunts were explicitly accepted on 2026-09-16 in archive/design-records/mlb-game-counted-foul-completion/review.json. Scoped implementation pins do not ratify the global freeze.",
+    "D1 particular defensive performance identity and source projection were explicitly accepted on 2026-09-16 in archive/design-records/mlb-game-defensive-acts/review.json. Positive act evidence does not certify whole-play or whole-game completeness."
   ]
 }

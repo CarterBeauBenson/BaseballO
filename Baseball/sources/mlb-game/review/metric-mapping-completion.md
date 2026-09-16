@@ -68,7 +68,7 @@ retained prefix inventory; counter corrections and ambiguous joins withhold
 the added strike. M2's original/operative review mapping is unchanged.
 
 Counted L foul bunts reuse the existing `BuntAct` class and its contact/role
-pattern. The review's prose ?Bunt Attempt Act? refers to that existing term;
+pattern. The review's prose "Bunt Attempt Act" refers to that existing term;
 no `BuntAttemptAct` class or new property is declared. First/second strikes
 do not become strikeouts. A third requires the supported terminal strikeout
 result. SHACL additionally enforces the existing Strike Rule input and field

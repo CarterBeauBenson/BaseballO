@@ -281,6 +281,10 @@ try {
     # join. Generate an isolated execution-only copy that adds ancestor IDs to
     # pitch records. The staged and authoritative raw JSON remain byte-identical.
     $contextArguments = @($contextBuilderPath, $stageInput, $stageContext)
+    $previousRmlManifest = Join-Path $manifestDirectory "game-$gamePk-rml.json"
+    if (Test-Path -LiteralPath $previousRmlManifest -PathType Leaf) {
+        $contextArguments += @('--previous-defensive-evidence', $previousRmlManifest)
+    }
     if ($null -ne $resolvedScheduleEvidencePath) {
         $contextArguments += @('--schedule-evidence', $resolvedScheduleEvidencePath)
     }
@@ -434,6 +438,7 @@ try {
         runnerHistoryVerifierSha256 = (Get-FileHash -LiteralPath $runnerHistoryVerifier -Algorithm SHA256).Hash.ToLowerInvariant()
         batterParticipationEvidence = $batterParticipationEvidence
         metricMappingEvidence = $contextDocument._baseballO.metricMappingEvidence
+        defensiveEvidence = $contextDocument._baseballO.defensiveEvidence
         metricMappingMembershipVerified = $true
         metricMappingVerifierSha256 = (Get-FileHash -LiteralPath $metricMappingVerifier -Algorithm SHA256).Hash.ToLowerInvariant()
         scheduleEvidencePath = $resolvedScheduleEvidencePath
