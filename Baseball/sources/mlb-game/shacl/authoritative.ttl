@@ -906,7 +906,7 @@ shape:JudgmentShape
         sh:message "A judgment must have exactly one decision output."@en
     ] ;
     sh:sparql [
-        sh:message "A judgment's decision must be about its containing process; only a Safe Decision may additionally identify its one destination Base."@en ;
+        sh:message "A judgment's decision must concern its containing process. Additional subjects require the Safe destination or explicit placement contract."@en ;
         sh:select """
           PREFIX base: <https://baseballontology.org/>
           PREFIX bfo: <http://purl.obolibrary.org/obo/>
@@ -915,6 +915,10 @@ shape:JudgmentShape
             $this bfo:BFO_0000132 ?process ; cco:ont00001986 ?decision .
             FILTER (NOT EXISTS { ?decision cco:ont00001808 ?process }
               || EXISTS { ?decision cco:ont00001808 ?other . FILTER (?other != ?process)
+                  FILTER NOT EXISTS {
+                    $this a base:BaseballAdjudicationAct ; cco:ont00001921 <https://baseballontology.org/data/rule/2026/extra-inning-placement> .
+                    FILTER(REGEX(STR($this), "/placement/[0-9]+/(top|bottom)/[0-9]+/judgment$"))
+                  }
                   FILTER NOT EXISTS { $this a base:SafeJudgmentAct . ?process a base:SafeProcess .
                     ?decision a base:SafeDecisionICE . ?other a base:Base . } })
           }
@@ -930,6 +934,9 @@ shape:DecisionShape a sh:NodeShape ;
           sh:or ( [ sh:class base:SafeProcess ] [ sh:class base:Base ] ) ] ;
         sh:property [ sh:path cco:ont00001808 ; sh:qualifiedValueShape [ sh:class base:SafeProcess ] ; sh:qualifiedMinCount 1 ; sh:qualifiedMaxCount 1 ] ;
         sh:property [ sh:path cco:ont00001808 ; sh:qualifiedValueShape [ sh:class base:Base ] ; sh:qualifiedMinCount 1 ; sh:qualifiedMaxCount 1 ] ]
+      [ sh:class base:BaseballDecisionICE ;
+        sh:property [ sh:path [ sh:inversePath cco:ont00001986 ] ;
+          sh:qualifiedValueShape [ sh:node shape:RunnerPlacementJudgmentShape ] ; sh:qualifiedMinCount 1 ; sh:qualifiedMaxCount 1 ] ]
     ) .
 
 shape:AdjudicatedProcessShape
@@ -1464,7 +1471,11 @@ shape:PersonalRunnerProcessShape a sh:NodeShape ;
     sh:property [ sh:path bfo:BFO_0000132 ; sh:qualifiedValueShape [ sh:class base:HalfInning ] ; sh:qualifiedMinCount 1 ; sh:qualifiedMaxCount 1 ] ;
     sh:property [ sh:path bfo:BFO_0000132 ; sh:qualifiedValueShape [ sh:class base:PlateAppearance ] ; sh:qualifiedMaxCount 0 ] ;
     sh:property [ sh:path bfo:BFO_0000199 ; sh:minCount 1 ; sh:maxCount 1 ; sh:class bfo:BFO_0000038 ] ;
-    sh:property [ sh:path bfo:BFO_0000117 ; sh:qualifiedValueShape [ sh:class base:RunnerResolutionEpisode ] ; sh:qualifiedMinCount 1 ] ;
+    sh:property [ sh:path bfo:BFO_0000057 ; sh:minCount 1 ; sh:maxCount 1 ; sh:class cco:ont00001262 ] ;
+    sh:or (
+      [ sh:property [ sh:path bfo:BFO_0000117 ; sh:qualifiedValueShape [ sh:class base:RunnerResolutionEpisode ] ; sh:qualifiedMinCount 1 ] ]
+      [ sh:property [ sh:path bfo:BFO_0000117 ; sh:qualifiedValueShape [ sh:node shape:RunnerPlacementJudgmentShape ] ; sh:qualifiedMinCount 1 ; sh:qualifiedMaxCount 1 ] ]
+    ) ;
     sh:property [ sh:path bfo:BFO_0000199 ; sh:node [
         sh:property [ sh:path bfo:BFO_0000224 ; sh:maxCount 1 ; sh:class base:BaseballEventTemporalInstant ]
     ] ] ;
@@ -1547,6 +1558,49 @@ shape:PersonalRunnerProcessShape a sh:NodeShape ;
           }
         """
     ] .
+# Explicit 2026-09-16 placement decision. It never substitutes for movement.
+shape:RunnerPlacementTargetShape a sh:NodeShape ;
+    sh:targetSubjectsOf cco:ont00001986 ;
+    sh:or (
+      [ sh:not [ sh:pattern "/placement/[0-9]+/(top|bottom)/[0-9]+/judgment$" ] ]
+      [ sh:node shape:RunnerPlacementJudgmentShape ]
+    ) .
+
+shape:RunnerPlacementJudgmentShape a sh:NodeShape ;
+    sh:pattern "^https://baseballontology[.]org/data/game/[0-9]+/placement/[0-9]+/(top|bottom)/[0-9]+/judgment$" ;
+    sh:class base:BaseballAdjudicationAct ;
+    sh:not [ sh:or ( [ sh:class base:RunnerResolutionEpisode ] [ sh:class base:BaserunningAct ] [ sh:class base:SafeJudgmentAct ] ) ] ;
+    sh:property [ sh:path cco:ont00001833 ; sh:maxCount 0 ] ;
+    sh:property [ sh:path bfo:BFO_0000055 ; sh:maxCount 0 ] ;
+    sh:property [ sh:path bfo:BFO_0000132 ; sh:minCount 1 ; sh:maxCount 1 ; sh:class bfo:BFO_0000015 ] ;
+    sh:property [ sh:path cco:ont00001921 ; sh:minCount 1 ; sh:maxCount 1 ; sh:hasValue <https://baseballontology.org/data/rule/2026/extra-inning-placement> ; sh:class base:BaseballRule ] ;
+    sh:property [ sh:path cco:ont00001986 ; sh:minCount 1 ; sh:maxCount 1 ; sh:class base:BaseballDecisionICE ; sh:node [
+      sh:not [ sh:class base:SafeDecisionICE ] ;
+      sh:property [ sh:path cco:ont00001808 ; sh:minCount 3 ; sh:maxCount 3 ]
+    ] ] ;
+    sh:sparql [
+      sh:message "Placement must identify its own personal whole, runner, Half Inning and second base, with a distinct decision and source record."@en ;
+      sh:select """
+        PREFIX base: <https://baseballontology.org/>
+        PREFIX bfo: <http://purl.obolibrary.org/obo/>
+        PREFIX cco: <https://www.commoncoreontologies.org/>
+        SELECT $this WHERE {
+          FILTER NOT EXISTS {
+            $this bfo:BFO_0000132 ?whole ; cco:ont00001986 ?decision .
+            ?whole bfo:BFO_0000117 $this ; bfo:BFO_0000057 ?runner ; bfo:BFO_0000132 ?half .
+            ?runner a cco:ont00001262 . ?half a base:HalfInning .
+            BIND(STRBEFORE(STR($this), "/placement/") AS ?game)
+            FILTER(STRSTARTS(STR(?whole), CONCAT(?game, "/runner-trajectory/")))
+            FILTER(STR($this) = CONCAT(?game, "/placement/", STRAFTER(STR(?half), CONCAT(?game, "/inning/")), "/", STRAFTER(STR(?runner), "https://baseballontology.org/data/player/"), "/judgment"))
+            FILTER(STR(?decision) = CONCAT(STRBEFORE(STR($this), "/judgment"), "/decision"))
+            ?decision cco:ont00001808 ?whole, ?runner, ?base .
+            ?base a base:Base . ?id a cco:ont00000649 ; cco:ont00001916 ?base ; cco:ont00001765 "2B" .
+            ?record a base:BaseballEventRecord ; cco:ont00001808 $this, ?decision .
+          }
+        }
+      """
+    ] .
+
 # M1/M2 accepted 2026-09-15. These source contracts use existing vocabulary.
 # Source membership is checked separately; SHACL checks the represented facts.
 shape:CountedFoulStrikeShape a sh:NodeShape ;

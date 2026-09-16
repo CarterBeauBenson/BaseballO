@@ -60,14 +60,20 @@ class WalkoffRunnerBoundary(unittest.TestCase):
                 elif fault=='later-event':last['playEvents'].append(copy.deepcopy(last['playEvents'][0]))
                 self.assertIsNone(CONTEXT.supported_walkoff_boundary(doc,last))
 
-    def test_walkoff_does_not_bypass_review_or_placed_runner_gaps(self):
+    def test_walkoff_does_not_bypass_review_or_invalid_placement(self):
         doc=json.loads(SOURCE.read_bytes());doc['liveData']['plays']['allPlays'][-1]['about']['hasReview']=True
         result=CONTEXT.personal_runner_histories(json.dumps(doc).encode())
         self.assertEqual(result['halves'][-1]['status'],'withheld')
         self.assertTrue(any(i['code']=='UNRESOLVED_REVIEW_EFFECT' for i in result['halves'][-1]['issues']))
-        result=CONTEXT.personal_runner_histories((ROOT/'data/raw/samples/2026-07-18/823116.json').read_bytes())
+        doc=json.loads((ROOT/'data/raw/samples/2026-07-18/823116.json').read_bytes())
+        last=doc['liveData']['plays']['allPlays'][-1]['about']
+        for play in doc['liveData']['plays']['allPlays']:
+            if (play['about']['inning'],play['about']['halfInning']) != (last['inning'],last['halfInning']):continue
+            for event in play['playEvents']:
+                if event['details'].get('eventType')=='runner_placed':event['base']=3
+        result=CONTEXT.personal_runner_histories(json.dumps(doc).encode())
         self.assertEqual(result['halves'][-1]['status'],'withheld')
-        self.assertTrue(any('runner_placed' in i['code'] for i in result['halves'][-1]['issues']))
+        self.assertTrue(any(i['code']=='UNSUPPORTED_C3_ADMINISTRATIVE_BOUNDARY' for i in result['halves'][-1]['issues']))
 
     def test_real_half_rml_shacl_query_and_sql_preserve_game_boundary(self):
         workspace=Path(tempfile.mkdtemp(prefix='baseballo-walkoff-runner-'))

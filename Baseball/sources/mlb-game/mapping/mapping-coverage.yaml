@@ -12,6 +12,7 @@ execution_context:
   output: game-context.json in the isolated RML work directory
   reserved_key: _baseballO
   includes:
+  - distinct 2026 extra-inning placement adjudication, including zero-movement personal histories; no credited advance or fabricated running episode
   - accepted C3 unique action, replacement and placement anchors for complete personal histories; exact source witnesses and correction checks
   - accepted Q8 reconciled walk-off C1 histories and existing game endpoint for still-active runners
   - pitch atBatIndex

@@ -118,6 +118,14 @@ WHERE {
       ?trajectory a obo:BFO_0000015 ; obo:BFO_0000117 ?episode ;
           obo:BFO_0000057 ?player ; obo:BFO_0000132 ?trajectoryHalf ;
           obo:BFO_0000199 ?trajectoryInterval .
+      # Placement adjudications are parts of the personal whole, but never
+      # movement episodes. Retain every other member, including an unresolved
+      # one, so incomplete coverage cannot silently shorten a run history.
+      FILTER NOT EXISTS {
+        ?episode a base:BaseballAdjudicationAct ;
+          cco:ont00001921 <https://baseballontology.org/data/rule/2026/extra-inning-placement> .
+        FILTER(REGEX(STR(?episode), "/placement/[0-9]+/(top|bottom)/[0-9]+/judgment$"))
+      }
       ?trajectoryHalf a base:HalfInning ; obo:BFO_0000132/obo:BFO_0000132 ?game .
       OPTIONAL {
         ?trajectoryInterval obo:BFO_0000224 ?trajectoryEndInstant .

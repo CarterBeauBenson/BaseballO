@@ -1,0 +1,74 @@
+[
+  {
+    "gamePk": "823585",
+    "sourceSha256": "9bc6c0423abeea6adee187b4299ce70573aff6b8e71e158c7a42118d84139699",
+    "rdfSha256": "7c84f40101a5747a3a9283a4c6d499b701c9f0419a441633b9cba851b1c0d48d",
+    "implementationSha256": "14f2b0f33002a138e11f6f80d19b690b67b9aa9c6f109b5b424b2a69be7ebc0b",
+    "resolvedRuns": 4,
+    "unresolvedRuns": [
+      {
+        "graph": "https://w3id.org/baseball/graph/game/823585",
+        "game": "https://baseballontology.org/data/game/823585",
+        "run": "https://baseballontology.org/data/game/823585/runner-resolution/score/81/0",
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "UNSUPPORTED_RUN_CONTRIBUTOR"
+        ],
+        "trajectories": [
+          "https://baseballontology.org/data/game/823585/runner-trajectory/ee7e7011e9a9932566d449b6bb687d11404a1a843a551991a5d13e766806108e"
+        ]
+      }
+    ],
+    "scope": "Independent contributor-attribution coverage; histories themselves are complete. No source-absence or missing-approval claim."
+  },
+  {
+    "gamePk": "823826",
+    "sourceSha256": "1c2f05b2a5dc3a806a348ff45bed3e1b2d8d1e32c70d7f52509bec6c15d9237e",
+    "rdfSha256": "f00b92b4b55dd479b4bb925aa132710960f4044337fc6ee6881f0ea958db86ac",
+    "implementationSha256": "14f2b0f33002a138e11f6f80d19b690b67b9aa9c6f109b5b424b2a69be7ebc0b",
+    "resolvedRuns": 7,
+    "unresolvedRuns": [
+      {
+        "graph": "https://w3id.org/baseball/graph/game/823826",
+        "game": "https://baseballontology.org/data/game/823826",
+        "run": "https://baseballontology.org/data/game/823826/runner-resolution/score/38/3",
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "UNSUPPORTED_RUN_CONTRIBUTOR"
+        ],
+        "trajectories": [
+          "https://baseballontology.org/data/game/823826/runner-trajectory/8625a2ea5fa12b49effdd9e90cbee23141943ee15bce8657a39c608e813fe6d3"
+        ]
+      },
+      {
+        "graph": "https://w3id.org/baseball/graph/game/823826",
+        "game": "https://baseballontology.org/data/game/823826",
+        "run": "https://baseballontology.org/data/game/823826/runner-resolution/score/73/0",
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "UNSUPPORTED_RUN_CONTRIBUTOR"
+        ],
+        "trajectories": [
+          "https://baseballontology.org/data/game/823826/runner-trajectory/8ce78bd3e204287c108e55a944c0d6d443e7cc275f180372d04093d40122b117"
+        ]
+      },
+      {
+        "graph": "https://w3id.org/baseball/graph/game/823826",
+        "game": "https://baseballontology.org/data/game/823826",
+        "run": "https://baseballontology.org/data/game/823826/runner-resolution/score/78/1",
+        "status": "unavailable",
+        "value": null,
+        "gaps": [
+          "UNSUPPORTED_RUN_CONTRIBUTOR"
+        ],
+        "trajectories": [
+          "https://baseballontology.org/data/game/823826/runner-trajectory/63ff1eb1fb54acfc7d4b4c9a5570ff8cf8bcf30931d049f4d2552ce2fbc0c165"
+        ]
+      }
+    ],
+    "scope": "Independent contributor-attribution coverage; histories themselves are complete. No source-absence or missing-approval claim."
+  }
+]

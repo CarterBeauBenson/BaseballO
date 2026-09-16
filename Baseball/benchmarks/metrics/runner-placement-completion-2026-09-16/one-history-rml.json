@@ -1,0 +1,289 @@
+[
+  {
+    "gamePk": 824233,
+    "form": "action",
+    "triples": 2442,
+    "episodes": 2,
+    "history": {
+      "runnerId": "802415",
+      "inning": "2",
+      "half": "top",
+      "entryAnchor": "f282ff74-cbfc-3c95-9cc9-06978e22e171",
+      "earliestStartBound": "2026-08-25T22:57:27.377Z",
+      "episodes": [
+        {
+          "atBatIndex": "7",
+          "runnerIndex": "0",
+          "resolutionKind": "reach",
+          "runnerId": "802415"
+        },
+        {
+          "atBatIndex": "8",
+          "runnerIndex": "0",
+          "resolutionKind": "out",
+          "runnerId": "802415"
+        }
+      ],
+      "lifetimeKey": "7fce7da9ffc5042bc2c40e94eae82615c85088e5de5bff9817837fc93a8784f3",
+      "terminationAnchor": "action/d9c8510c-a2da-3bc8-b8a2-799b8271921e/caught_stealing_2b/802415",
+      "terminal": "out",
+      "latestEndBound": "2026-08-25T22:59:06.197Z",
+      "terminationWitness": {
+        "atBatIndex": 8,
+        "eventIndex": 3,
+        "sourcePointer": "/liveData/plays/allPlays/8/playEvents/3",
+        "earliestStartBound": "2026-08-25T22:58:52.389Z",
+        "latestEndBound": "2026-08-25T22:59:06.197Z",
+        "form": "action",
+        "runnerId": "802415",
+        "associationId": "d9c8510c-a2da-3bc8-b8a2-799b8271921e",
+        "eventType": "caught_stealing_2b",
+        "runnerPointers": [
+          "/liveData/plays/allPlays/8/runners/0"
+        ],
+        "terminalRecords": 1,
+        "anchor": "action/d9c8510c-a2da-3bc8-b8a2-799b8271921e/caught_stealing_2b/802415"
+      }
+    },
+    "rmlPassed": true,
+    "sourceBoundShaclPassed": true,
+    "scope": "one-lifetime developer fixture; not game population admission"
+  },
+  {
+    "gamePk": 823259,
+    "form": "replacement",
+    "triples": 2253,
+    "episodes": 1,
+    "history": {
+      "runnerId": "664034",
+      "inning": "9",
+      "half": "bottom",
+      "entryAnchor": "03e2fe56-c648-3437-90e0-58fc84e1b21d",
+      "earliestStartBound": "2026-08-26T04:00:05.459Z",
+      "episodes": [
+        {
+          "atBatIndex": "63",
+          "runnerIndex": "0",
+          "resolutionKind": "reach",
+          "runnerId": "664034"
+        }
+      ],
+      "lifetimeKey": "ec76a91ae8fad85a2447ffe4017f37eb771aadfb55c8e95bdad08a8c0d9d045e",
+      "terminationAnchor": "replacement/9/bottom/664034/687749",
+      "terminal": "replaced",
+      "latestEndBound": "2026-08-26T04:01:01.410Z",
+      "terminationWitness": {
+        "atBatIndex": 64,
+        "eventIndex": 0,
+        "sourcePointer": "/liveData/plays/allPlays/64/playEvents/0",
+        "earliestStartBound": "2026-08-26T04:00:37.052Z",
+        "latestEndBound": "2026-08-26T04:01:01.410Z",
+        "form": "replacement",
+        "runnerId": "687749",
+        "outgoingRunnerId": "664034",
+        "base": 1,
+        "anchor": "replacement/9/bottom/664034/687749"
+      }
+    },
+    "rmlPassed": true,
+    "sourceBoundShaclPassed": true,
+    "scope": "one-lifetime developer fixture; not game population admission"
+  },
+  {
+    "gamePk": 823989,
+    "form": "placement",
+    "triples": 2365,
+    "episodes": 2,
+    "history": {
+      "runnerId": "677587",
+      "inning": "10",
+      "half": "top",
+      "entryAnchor": "placement/10/top/677587",
+      "entryWitness": {
+        "atBatIndex": 86,
+        "eventIndex": 1,
+        "sourcePointer": "/liveData/plays/allPlays/86/playEvents/1",
+        "earliestStartBound": "2026-08-26T04:46:32.445Z",
+        "latestEndBound": "2026-08-26T04:46:45.040Z",
+        "form": "placement",
+        "runnerId": "677587",
+        "base": 2,
+        "anchor": "placement/10/top/677587"
+      },
+      "entryAtBatIndex": 86,
+      "earliestStartBound": "2026-08-26T04:46:32.445Z",
+      "episodes": [
+        {
+          "atBatIndex": "86",
+          "runnerIndex": "1",
+          "resolutionKind": "advance",
+          "runnerId": "677587"
+        },
+        {
+          "atBatIndex": "88",
+          "runnerIndex": "3",
+          "resolutionKind": "score",
+          "runnerId": "677587"
+        }
+      ],
+      "placement": {
+        "judgmentIri": "https://baseballontology.org/data/game/823989/placement/10/top/677587/judgment",
+        "decisionIri": "https://baseballontology.org/data/game/823989/placement/10/top/677587/decision",
+        "recordIri": "https://baseballontology.org/data/game/823989/placement/10/top/677587/record",
+        "ruleIri": "https://baseballontology.org/data/rule/2026/extra-inning-placement",
+        "baseIri": "https://baseballontology.org/data/venue/1/artifact/base/2B"
+      },
+      "lifetimeKey": "b01d21e3e11712a7b491a5781fcb4d835ddbeac293c253117d000eb6001ce5c6",
+      "terminationAnchor": "81e669e7-9908-3e8e-8dff-fcef1b349915",
+      "terminal": "score",
+      "latestEndBound": "2026-08-26T04:50:15.800Z"
+    },
+    "rmlPassed": true,
+    "sourceBoundShaclPassed": true,
+    "scope": "one-lifetime developer fixture; not game population admission"
+  },
+  {
+    "gamePk": 823826,
+    "form": "replacement",
+    "triples": 1871,
+    "episodes": 1,
+    "history": {
+      "runnerId": "642201",
+      "inning": "9",
+      "half": "top",
+      "entryAnchor": "replacement/9/top/678011/642201",
+      "entryWitness": {
+        "atBatIndex": 68,
+        "eventIndex": 0,
+        "sourcePointer": "/liveData/plays/allPlays/68/playEvents/0",
+        "earliestStartBound": "2026-08-26T01:13:33.082Z",
+        "latestEndBound": "2026-08-26T01:13:41.696Z",
+        "form": "replacement",
+        "runnerId": "642201",
+        "outgoingRunnerId": "678011",
+        "base": 1,
+        "anchor": "replacement/9/top/678011/642201"
+      },
+      "entryAtBatIndex": 68,
+      "earliestStartBound": "2026-08-26T01:13:33.082Z",
+      "episodes": [
+        {
+          "atBatIndex": "68",
+          "runnerIndex": "0",
+          "resolutionKind": "out",
+          "runnerId": "642201"
+        }
+      ],
+      "lifetimeKey": "3e06d4379df296dbbe0c429f10a6a5a05462a960522cda0f116e4b17aaa3df6d",
+      "terminationAnchor": "action/c0cfa943-62b2-37af-b3ca-e30728f2d8b2/caught_stealing_2b/642201",
+      "terminal": "out",
+      "latestEndBound": "2026-08-26T01:15:36.769Z",
+      "terminationWitness": {
+        "atBatIndex": 68,
+        "eventIndex": 3,
+        "sourcePointer": "/liveData/plays/allPlays/68/playEvents/3",
+        "earliestStartBound": "2026-08-26T01:14:25.169Z",
+        "latestEndBound": "2026-08-26T01:15:36.769Z",
+        "form": "action",
+        "runnerId": "642201",
+        "associationId": "c0cfa943-62b2-37af-b3ca-e30728f2d8b2",
+        "eventType": "caught_stealing_2b",
+        "runnerPointers": [
+          "/liveData/plays/allPlays/68/runners/0"
+        ],
+        "terminalRecords": 1,
+        "anchor": "action/c0cfa943-62b2-37af-b3ca-e30728f2d8b2/caught_stealing_2b/642201"
+      }
+    },
+    "rmlPassed": true,
+    "sourceBoundShaclPassed": true,
+    "scope": "one-lifetime developer fixture; not game population admission"
+  },
+  {
+    "gamePk": 825042,
+    "form": "replacement",
+    "triples": 2328,
+    "episodes": 2,
+    "history": {
+      "runnerId": "699912",
+      "inning": "9",
+      "half": "bottom",
+      "entryAnchor": "replacement/9/bottom/694374/699912",
+      "entryWitness": {
+        "atBatIndex": 69,
+        "eventIndex": 0,
+        "sourcePointer": "/liveData/plays/allPlays/69/playEvents/0",
+        "earliestStartBound": "2026-08-26T04:11:23.309Z",
+        "latestEndBound": "2026-08-26T04:11:39.538Z",
+        "form": "replacement",
+        "runnerId": "699912",
+        "outgoingRunnerId": "694374",
+        "base": 1,
+        "anchor": "replacement/9/bottom/694374/699912"
+      },
+      "entryAtBatIndex": 69,
+      "earliestStartBound": "2026-08-26T04:11:23.309Z",
+      "episodes": [
+        {
+          "atBatIndex": "70",
+          "runnerIndex": "0",
+          "resolutionKind": "advance",
+          "runnerId": "699912"
+        },
+        {
+          "atBatIndex": "70",
+          "runnerIndex": "2",
+          "resolutionKind": "score",
+          "runnerId": "699912"
+        }
+      ],
+      "lifetimeKey": "446841e59dcd811581682e00299b66efce51107f7812426120fdae71a0487686",
+      "terminationAnchor": "88d06342-51c7-3d1d-9fa0-8149e4f9c5db",
+      "terminal": "score",
+      "latestEndBound": "2026-08-26T04:16:20.939Z"
+    },
+    "rmlPassed": true,
+    "sourceBoundShaclPassed": true,
+    "scope": "one-lifetime developer fixture; not game population admission"
+  },
+  {
+    "gamePk": 823585,
+    "form": "placement",
+    "triples": 1867,
+    "episodes": 0,
+    "history": {
+      "runnerId": "666152",
+      "inning": "10",
+      "half": "top",
+      "entryAnchor": "placement/10/top/666152",
+      "entryWitness": {
+        "atBatIndex": 74,
+        "eventIndex": 1,
+        "sourcePointer": "/liveData/plays/allPlays/74/playEvents/1",
+        "earliestStartBound": "2026-08-26T01:53:15.350Z",
+        "latestEndBound": "2026-08-26T01:53:47.950Z",
+        "form": "placement",
+        "runnerId": "666152",
+        "base": 2,
+        "anchor": "placement/10/top/666152"
+      },
+      "entryAtBatIndex": 74,
+      "earliestStartBound": "2026-08-26T01:53:15.350Z",
+      "episodes": [],
+      "placement": {
+        "judgmentIri": "https://baseballontology.org/data/game/823585/placement/10/top/666152/judgment",
+        "decisionIri": "https://baseballontology.org/data/game/823585/placement/10/top/666152/decision",
+        "recordIri": "https://baseballontology.org/data/game/823585/placement/10/top/666152/record",
+        "ruleIri": "https://baseballontology.org/data/rule/2026/extra-inning-placement",
+        "baseIri": "https://baseballontology.org/data/venue/3289/artifact/base/2B"
+      },
+      "lifetimeKey": "2d334455be495a34a7336214856babefcb4f3358b8f840208961d1b3e210642f",
+      "terminationAnchor": "5a6f3f52-941c-3694-84eb-325017a9f7c3",
+      "terminal": "stranded",
+      "latestEndBound": "2026-08-26T02:03:02.261Z"
+    },
+    "rmlPassed": true,
+    "sourceBoundShaclPassed": true,
+    "scope": "one-lifetime developer fixture; not game population admission"
+  }
+]

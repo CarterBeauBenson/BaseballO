@@ -22,8 +22,7 @@ class RunnerTagReviewEffects(unittest.TestCase):
                          'action/c0cfa943-62b2-37af-b3ca-e30728f2d8b2/caught_stealing_2b/642201')
         self.assertEqual(len(runner['episodes']), 1)
         remaining = [h for h in history['halves'] if h['status'] != 'reconciled']
-        self.assertEqual([(h['inning'], h['half']) for h in remaining], [(8, 'top')])
-        self.assertEqual(remaining[0]['issues'][0]['code'], 'CONFLICTING_BASE_OCCUPANCY')
+        self.assertEqual(remaining, [])  # The separate third-out tracker repair closes top 8.
 
     def test_real_upheld_steal_keeps_independent_advance_and_all_scoring_histories(self):
         doc = source(825042); original = copy.deepcopy(doc)

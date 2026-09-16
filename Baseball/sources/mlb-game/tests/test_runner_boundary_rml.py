@@ -16,7 +16,7 @@ from test_rmlmapper_iterator_compatibility import installed_tools, materialized_
 class RunnerBoundaryRml(unittest.TestCase):
     def test_accepted_boundaries_and_upheld_reviews_use_existing_personal_history_rml(self):
         for game,form,person in ((824233,'action',None),(823259,'replacement',None),(823989,'placement',None),
-                                 (823826,'replacement','642201'),(825042,'replacement','699912')):
+                                 (823826,'replacement','642201'),(825042,'replacement','699912'),(823585,'placement','666152')):
             with self.subTest(game=game,form=form):
                 workspace=Path(tempfile.mkdtemp(prefix=f'baseballo-c3-{game}-{form}-'))
                 raw=(ROOT/f'data/raw/samples/2026-08-25/{game}.json').read_bytes()
@@ -27,8 +27,10 @@ class RunnerBoundaryRml(unittest.TestCase):
                 row=next(h for h in history['histories'] if (h.get('entryWitness') or h.get('terminationWitness') or {}).get('form')==form
                          and (person is None or h['runnerId']==person))
                 history['histories']=[row]
+                history['placementAdjudications']=[r for r in history['placementAdjudications'] if r['lifetimeKey']==row['lifetimeKey']]
                 history['episodeMembership']=[r for r in history['episodeMembership'] if r['lifetimeKey']==row['lifetimeKey']]
                 pas={int(r['atBatIndex']) for r in row['episodes']}
+                if row.get('entryAtBatIndex') is not None:pas.add(row['entryAtBatIndex'])
                 d['liveData']['plays']['allPlays']=[p for p in d['liveData']['plays']['allPlays'] if p['atBatIndex'] in pas]
                 for key in ('metricPitchReviews','metricAutomaticAwards'):d['_baseballO'][key]=[]
                 (workspace/'game-context.json').write_text(json.dumps(d),encoding='utf-8')
@@ -44,7 +46,7 @@ class RunnerBoundaryRml(unittest.TestCase):
                 conforms,report,text=validate(g,shacl_graph=Graph().parse(data=A.shape_text(census),format='turtle'))
                 self.assertTrue(conforms,text)
                 whole=URIRef(census['game']+'/runner-trajectory/'+row['lifetimeKey'])
-                self.assertEqual(len(list(g.objects(whole,BFO.BFO_0000117))),len(row['episodes']))
+                self.assertEqual(len(list(g.objects(whole,BFO.BFO_0000117))),len(row['episodes'])+bool(row.get('placement')))
                 self.assertEqual(list(g.objects(whole,BFO.BFO_0000057)),[URIRef(str(BASE)+'data/player/'+row['runnerId'])])
                 report.serialize(destination=workspace/'report.ttl',format='turtle')
                 (workspace/'result.json').write_text(json.dumps(dict(gamePk=game,form=form,triples=len(g),

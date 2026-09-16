@@ -1,0 +1,62 @@
+[
+  {
+    "gamePk": "823585",
+    "inputSha256": "9bc6c0423abeea6adee187b4299ce70573aff6b8e71e158c7a42118d84139699",
+    "mappingSha256": "0525c6bf4b5afe22d7f8ed5ae6ba27fe96831e3a0765c0c3bf5a615539bc1189",
+    "contextBuilderSha256": "d86f26b46a505c71470a9cf1634169834e4dbdf95e1e2deff90959a455c2ac83",
+    "executionContextSha256": "e3c101af4afadc316b03fbcf780a21935e92b60cc01a70567400908aa9008a1e",
+    "outputSha256": "7c84f40101a5747a3a9283a4c6d499b701c9f0419a441633b9cba851b1c0d48d",
+    "shaclStatus": "validated",
+    "shaclShapeSha256": "33b9dc8c63972dc7737ca0c6a92da2c997f54693b35ae2859080c585539f347a",
+    "shaclValidatorSha256": "5d4743c4f0baecce33ae75cac809f3c5d9ab50408abb8f0f3b182391b0cd26d2",
+    "runnerHistoryMembershipVerified": true,
+    "sourceCounts": {
+      "playerParticipants": 52,
+      "plateAppearances": 82,
+      "batterActs": 82,
+      "pitches": 314,
+      "battingActs": 150,
+      "contacts": 120,
+      "runnerRecords": 105,
+      "runnerResolutions": 105,
+      "pitchBallControlFailures": 0,
+      "passedBalls": 0,
+      "wildPitches": 1,
+      "uncaughtThirdStrikes": 0
+    },
+    "personalHistories": 33,
+    "movementEpisodes": 54,
+    "placementAdjudications": 2,
+    "sourcePopulationComplete": true
+  },
+  {
+    "gamePk": "823826",
+    "inputSha256": "1c2f05b2a5dc3a806a348ff45bed3e1b2d8d1e32c70d7f52509bec6c15d9237e",
+    "mappingSha256": "0525c6bf4b5afe22d7f8ed5ae6ba27fe96831e3a0765c0c3bf5a615539bc1189",
+    "contextBuilderSha256": "d86f26b46a505c71470a9cf1634169834e4dbdf95e1e2deff90959a455c2ac83",
+    "executionContextSha256": "2f0a2f3864db32002ee1a9574dd6dbc00968b2eec0fd054605feb12e1eea19ab",
+    "outputSha256": "f00b92b4b55dd479b4bb925aa132710960f4044337fc6ee6881f0ea958db86ac",
+    "shaclStatus": "validated",
+    "shaclShapeSha256": "33b9dc8c63972dc7737ca0c6a92da2c997f54693b35ae2859080c585539f347a",
+    "shaclValidatorSha256": "5d4743c4f0baecce33ae75cac809f3c5d9ab50408abb8f0f3b182391b0cd26d2",
+    "runnerHistoryMembershipVerified": true,
+    "sourceCounts": {
+      "playerParticipants": 52,
+      "plateAppearances": 90,
+      "batterActs": 90,
+      "pitches": 365,
+      "battingActs": 180,
+      "contacts": 136,
+      "runnerRecords": 129,
+      "runnerResolutions": 128,
+      "pitchBallControlFailures": 0,
+      "passedBalls": 2,
+      "wildPitches": 1,
+      "uncaughtThirdStrikes": 1
+    },
+    "personalHistories": 37,
+    "movementEpisodes": 70,
+    "placementAdjudications": 4,
+    "sourcePopulationComplete": true
+  }
+]

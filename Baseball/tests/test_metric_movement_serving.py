@@ -111,7 +111,12 @@ class MovementServing(unittest.TestCase):
             self.assertEqual(sorted(stored, key=M._json), sorted(rows, key=M._json))
             result = M.query_sql(connection, {'metricId': 'tfs'}, {
                 'gameSet': 'regular_season', 'startDate': '2026-08-01', 'endDate': '2026-08-01'})
-            self.assertEqual(result['metric'], direct)
+            self.assertEqual(result['metric']['coverage'], direct['coverage'])
+            self.assertEqual(result['metric']['status'], 'unavailable')
+            self.assertIsNone(result['metric']['value'])
+            # The SQL player result additionally requires complete PA/source
+            # admission; raw evidence diagnostics have a different gap list.
+            self.assertFalse(result['metric']['playerPopulationComplete'])
 
     def test_conflicting_origins_survive_and_do_not_inflate_pair_counts(self):
         dataset = movement_fixture()
@@ -176,6 +181,26 @@ class MovementServing(unittest.TestCase):
         self.assertNotIn('safeDecision', forced)
         self.assertNotIn('destinationBase', forced)
         self.assertEqual(forced['originCode'], '1B')
+
+    def test_placement_adjudication_never_enters_movement_history_rows(self):
+        dataset = movement_fixture()
+        graph = dataset.graph(URIRef(G1))
+        graph.add((EX.half, RDF.type, BASE.HalfInning))
+        before = M.normalize_bindings(bindings(dataset, [G1]), [G1])
+        whole = URIRef('https://baseballontology.org/data/game/101/runner-trajectory/placed')
+        judgment = URIRef('https://baseballontology.org/data/game/101/placement/10/top/1/judgment')
+        for triple in [(whole, RDF.type, BFO.BFO_0000015),
+                       (whole, BFO.BFO_0000117, judgment),
+                       (whole, BFO.BFO_0000057, EX.runner), (whole, BFO.BFO_0000132, EX.half),
+                       (whole, BFO.BFO_0000199, EX.interval),
+                       (judgment, RDF.type, BASE.BaseballAdjudicationAct),
+                       (judgment, CCO.ont00001921, URIRef('https://baseballontology.org/data/rule/2026/extra-inning-placement')),
+                       (EX.half, RDF.type, BASE.HalfInning),
+                       (EX.interval, RDF.type, BFO.BFO_0000038)]:
+            graph.add(triple)
+        after = M.normalize_bindings(bindings(dataset, [G1]), [G1])
+        self.assertEqual({json.dumps(r, sort_keys=True) for r in after},
+                         {json.dumps(r, sort_keys=True) for r in before})
 
     def test_personal_whole_binding_survives_sql_without_admitting_continuity(self):
         dataset = movement_fixture()

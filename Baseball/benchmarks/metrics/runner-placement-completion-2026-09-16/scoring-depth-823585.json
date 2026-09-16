@@ -1,0 +1,320 @@
+{
+  "artifactType": "baseballo-scoring-run-player-developer-proof",
+  "gamePk": "823585",
+  "metrics": [
+    "run-construction-depth"
+  ],
+  "sourceSha256": "9bc6c0423abeea6adee187b4299ce70573aff6b8e71e158c7a42118d84139699",
+  "rdfSha256": "7c84f40101a5747a3a9283a4c6d499b701c9f0419a441633b9cba851b1c0d48d",
+  "implementationSha256": "14f2b0f33002a138e11f6f80d19b690b67b9aa9c6f109b5b424b2a69be7ebc0b",
+  "admission": {
+    "artifactType": "baseballo-scoring-run-admission",
+    "contractVersion": 1,
+    "gamePk": "823585",
+    "graph": "https://w3id.org/baseball/graph/game/823585",
+    "sourceSha256": "9bc6c0423abeea6adee187b4299ce70573aff6b8e71e158c7a42118d84139699",
+    "sourceRevision": "20260826_021119",
+    "authoritativeRdfSha256": "7c84f40101a5747a3a9283a4c6d499b701c9f0419a441633b9cba851b1c0d48d",
+    "implementationSha256": "d290cbed0027459ad360f4f04c75bd6fce2d742be3ca492a0f24514dff4f4bcc",
+    "status": "admitted",
+    "sourceReconciled": true,
+    "graphConforms": true,
+    "issues": [],
+    "sourceCensusSha256": "88b5e2d71e725af9b775671d75436bbc5539252481268e274525fb0577eacdd4",
+    "shapeSha256": "7809bea01ee5cdef61f602a217723aba5595e44251b93dad56493f9f4a2a0d32",
+    "reportSha256": "4a53a3befd9bcdb7273ef3d6e47a83be519927771faee49ef0d2a44ee23be2be",
+    "engine": "jena"
+  },
+  "jenaQueryPassed": true,
+  "observedRuns": 5,
+  "unresolvedRuns": 0,
+  "sqlExactMatch": true,
+  "isolatedOneGamePlayerMeans": {
+    "run-construction-depth": [
+      {
+        "player": "https://baseballontology.org/data/player/596019",
+        "metricId": "run-construction-depth",
+        "status": "available",
+        "dateScope": {
+          "startDate": "2026-08-25",
+          "endDate": "2026-08-25",
+          "gameSet": "regular_season"
+        },
+        "completeParticipation": true,
+        "teamGames": 1,
+        "graphs": [
+          "https://w3id.org/baseball/graph/game/823585"
+        ],
+        "aggregate": {
+          "kind": "mean",
+          "sum": {
+            "numerator": "3",
+            "denominator": "1"
+          },
+          "count": 2
+        },
+        "value": {
+          "numerator": "3",
+          "denominator": "2"
+        }
+      },
+      {
+        "player": "https://baseballontology.org/data/player/661388",
+        "metricId": "run-construction-depth",
+        "status": "available",
+        "dateScope": {
+          "startDate": "2026-08-25",
+          "endDate": "2026-08-25",
+          "gameSet": "regular_season"
+        },
+        "completeParticipation": true,
+        "teamGames": 1,
+        "graphs": [
+          "https://w3id.org/baseball/graph/game/823585"
+        ],
+        "aggregate": {
+          "kind": "mean",
+          "sum": {
+            "numerator": "4",
+            "denominator": "1"
+          },
+          "count": 2
+        },
+        "value": {
+          "numerator": "2",
+          "denominator": "1"
+        }
+      },
+      {
+        "player": "https://baseballontology.org/data/player/673357",
+        "metricId": "run-construction-depth",
+        "status": "available",
+        "dateScope": {
+          "startDate": "2026-08-25",
+          "endDate": "2026-08-25",
+          "gameSet": "regular_season"
+        },
+        "completeParticipation": true,
+        "teamGames": 1,
+        "graphs": [
+          "https://w3id.org/baseball/graph/game/823585"
+        ],
+        "aggregate": {
+          "kind": "mean",
+          "sum": {
+            "numerator": "1",
+            "denominator": "1"
+          },
+          "count": 1
+        },
+        "value": {
+          "numerator": "1",
+          "denominator": "1"
+        }
+      }
+    ]
+  },
+  "publicDateRangeWithoutScheduleAdmission": "withheld",
+  "livePopulationComplete": false,
+  "runs": {
+    "run-construction-depth": [
+      {
+        "status": "available",
+        "value": {
+          "numerator": "2",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/823585/inning/4/top",
+          "https://baseballontology.org/data/game/823585/runner-episode/25/0",
+          "https://baseballontology.org/data/game/823585/runner-episode/28/2",
+          "https://baseballontology.org/data/game/823585/runner-resolution/score/28/2",
+          "https://baseballontology.org/data/game/823585/runner-trajectory/adc35591dd77469fdaac2b2b1254ce462f1690f2768a33c7e71380482844b26a",
+          "https://baseballontology.org/data/game/823585/runner-trajectory/adc35591dd77469fdaac2b2b1254ce462f1690f2768a33c7e71380482844b26a/temporal-interval"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/823585",
+        "game": "https://baseballontology.org/data/game/823585",
+        "trajectory": "https://baseballontology.org/data/game/823585/runner-trajectory/adc35591dd77469fdaac2b2b1254ce462f1690f2768a33c7e71380482844b26a",
+        "runner": "https://baseballontology.org/data/player/661388",
+        "run": "https://baseballontology.org/data/game/823585/runner-resolution/score/28/2",
+        "grain": "run",
+        "completeTrajectory": true,
+        "episodes": [
+          {
+            "episode": "https://baseballontology.org/data/game/823585/runner-episode/25/0",
+            "act": "https://baseballontology.org/data/game/823585/runner-act/movement/25/0",
+            "resolution": "https://baseballontology.org/data/game/823585/runner-resolution/reach/25/0",
+            "start": 0,
+            "end": 2,
+            "changesState": true
+          },
+          {
+            "episode": "https://baseballontology.org/data/game/823585/runner-episode/28/2",
+            "act": "https://baseballontology.org/data/game/823585/runner-act/movement/28/2",
+            "resolution": "https://baseballontology.org/data/game/823585/runner-resolution/score/28/2",
+            "start": 2,
+            "end": 4,
+            "changesState": true
+          }
+        ],
+        "scope": "complete admitted scoring-runner history"
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "1",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/823585/inning/5/bottom",
+          "https://baseballontology.org/data/game/823585/runner-episode/38/0",
+          "https://baseballontology.org/data/game/823585/runner-resolution/score/38/0",
+          "https://baseballontology.org/data/game/823585/runner-trajectory/006ec3715fd1b1a3dd1c4714a81174805f8b4e3a417401ed37c0c1a9d336af7d",
+          "https://baseballontology.org/data/game/823585/runner-trajectory/006ec3715fd1b1a3dd1c4714a81174805f8b4e3a417401ed37c0c1a9d336af7d/temporal-interval"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/823585",
+        "game": "https://baseballontology.org/data/game/823585",
+        "trajectory": "https://baseballontology.org/data/game/823585/runner-trajectory/006ec3715fd1b1a3dd1c4714a81174805f8b4e3a417401ed37c0c1a9d336af7d",
+        "runner": "https://baseballontology.org/data/player/596019",
+        "run": "https://baseballontology.org/data/game/823585/runner-resolution/score/38/0",
+        "grain": "run",
+        "completeTrajectory": true,
+        "episodes": [
+          {
+            "episode": "https://baseballontology.org/data/game/823585/runner-episode/38/0",
+            "act": "https://baseballontology.org/data/game/823585/runner-act/movement/38/0",
+            "resolution": "https://baseballontology.org/data/game/823585/runner-resolution/score/38/0",
+            "start": 0,
+            "end": 4,
+            "changesState": true
+          }
+        ],
+        "scope": "complete admitted scoring-runner history"
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "1",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/823585/inning/6/bottom",
+          "https://baseballontology.org/data/game/823585/runner-episode/44/0",
+          "https://baseballontology.org/data/game/823585/runner-resolution/score/44/0",
+          "https://baseballontology.org/data/game/823585/runner-trajectory/d938e9b0722b275d2397626013f2c6aaa1197a062333bcd679bd55b5402caa48",
+          "https://baseballontology.org/data/game/823585/runner-trajectory/d938e9b0722b275d2397626013f2c6aaa1197a062333bcd679bd55b5402caa48/temporal-interval"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/823585",
+        "game": "https://baseballontology.org/data/game/823585",
+        "trajectory": "https://baseballontology.org/data/game/823585/runner-trajectory/d938e9b0722b275d2397626013f2c6aaa1197a062333bcd679bd55b5402caa48",
+        "runner": "https://baseballontology.org/data/player/673357",
+        "run": "https://baseballontology.org/data/game/823585/runner-resolution/score/44/0",
+        "grain": "run",
+        "completeTrajectory": true,
+        "episodes": [
+          {
+            "episode": "https://baseballontology.org/data/game/823585/runner-episode/44/0",
+            "act": "https://baseballontology.org/data/game/823585/runner-act/movement/44/0",
+            "resolution": "https://baseballontology.org/data/game/823585/runner-resolution/score/44/0",
+            "start": 0,
+            "end": 4,
+            "changesState": true
+          }
+        ],
+        "scope": "complete admitted scoring-runner history"
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "2",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/823585/inning/9/top",
+          "https://baseballontology.org/data/game/823585/runner-episode/63/0",
+          "https://baseballontology.org/data/game/823585/runner-episode/65/1",
+          "https://baseballontology.org/data/game/823585/runner-resolution/score/65/1",
+          "https://baseballontology.org/data/game/823585/runner-trajectory/9627ae344f426a21971ab5bc6ff9c0f1840e53e437446a0c972c7a2807aa0a71",
+          "https://baseballontology.org/data/game/823585/runner-trajectory/9627ae344f426a21971ab5bc6ff9c0f1840e53e437446a0c972c7a2807aa0a71/temporal-interval"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/823585",
+        "game": "https://baseballontology.org/data/game/823585",
+        "trajectory": "https://baseballontology.org/data/game/823585/runner-trajectory/9627ae344f426a21971ab5bc6ff9c0f1840e53e437446a0c972c7a2807aa0a71",
+        "runner": "https://baseballontology.org/data/player/661388",
+        "run": "https://baseballontology.org/data/game/823585/runner-resolution/score/65/1",
+        "grain": "run",
+        "completeTrajectory": true,
+        "episodes": [
+          {
+            "episode": "https://baseballontology.org/data/game/823585/runner-episode/63/0",
+            "act": "https://baseballontology.org/data/game/823585/runner-act/movement/63/0",
+            "resolution": "https://baseballontology.org/data/game/823585/runner-resolution/reach/63/0",
+            "start": 0,
+            "end": 2,
+            "changesState": true
+          },
+          {
+            "episode": "https://baseballontology.org/data/game/823585/runner-episode/65/1",
+            "act": "https://baseballontology.org/data/game/823585/runner-act/movement/65/1",
+            "resolution": "https://baseballontology.org/data/game/823585/runner-resolution/score/65/1",
+            "start": 2,
+            "end": 4,
+            "changesState": true
+          }
+        ],
+        "scope": "complete admitted scoring-runner history"
+      },
+      {
+        "status": "available",
+        "value": {
+          "numerator": "2",
+          "denominator": "1"
+        },
+        "gaps": [],
+        "evidence": [
+          "https://baseballontology.org/data/game/823585/inning/10/bottom",
+          "https://baseballontology.org/data/game/823585/runner-episode/80/0",
+          "https://baseballontology.org/data/game/823585/runner-episode/81/0",
+          "https://baseballontology.org/data/game/823585/runner-resolution/score/81/0",
+          "https://baseballontology.org/data/game/823585/runner-trajectory/ee7e7011e9a9932566d449b6bb687d11404a1a843a551991a5d13e766806108e",
+          "https://baseballontology.org/data/game/823585/runner-trajectory/ee7e7011e9a9932566d449b6bb687d11404a1a843a551991a5d13e766806108e/temporal-interval"
+        ],
+        "components": {},
+        "graph": "https://w3id.org/baseball/graph/game/823585",
+        "game": "https://baseballontology.org/data/game/823585",
+        "trajectory": "https://baseballontology.org/data/game/823585/runner-trajectory/ee7e7011e9a9932566d449b6bb687d11404a1a843a551991a5d13e766806108e",
+        "runner": "https://baseballontology.org/data/player/596019",
+        "run": "https://baseballontology.org/data/game/823585/runner-resolution/score/81/0",
+        "grain": "run",
+        "completeTrajectory": true,
+        "episodes": [
+          {
+            "episode": "https://baseballontology.org/data/game/823585/runner-episode/80/0",
+            "act": "https://baseballontology.org/data/game/823585/runner-act/movement/80/0",
+            "resolution": "https://baseballontology.org/data/game/823585/runner-resolution/advance/80/0",
+            "start": 2,
+            "end": 3,
+            "changesState": true
+          },
+          {
+            "episode": "https://baseballontology.org/data/game/823585/runner-episode/81/0",
+            "act": "https://baseballontology.org/data/game/823585/runner-act/movement/81/0",
+            "resolution": "https://baseballontology.org/data/game/823585/runner-resolution/score/81/0",
+            "start": 3,
+            "end": 4,
+            "changesState": true
+          }
+        ],
+        "scope": "complete admitted scoring-runner history"
+      }
+    ]
+  }
+}

@@ -52,10 +52,12 @@ class RunnerBoundaryAnchors(unittest.TestCase):
         self.assertTrue(all(h['status']=='reconciled' for h in result['halves']))
         other=history(source(823585))
         top=next(h for h in other['halves'] if h['inning']==10 and h['half']=='top')
-        self.assertEqual(top['status'],'withheld')
-        self.assertIn('ZERO_EPISODE_PERSONAL_HISTORY',{i['code'] for i in top['issues']})
-        retained=next(h for h in other['withheldHistories'] if h['inning']==10 and h['half']=='top')
-        self.assertTrue(any(h['runnerId']=='666152' and not h['episodes'] for h in retained['completedCandidates']))
+        self.assertEqual(top['status'],'reconciled')
+        retained=next(h for h in other['histories'] if h['runnerId']=='666152' and h['inning']=='10' and h['half']=='top')
+        self.assertEqual(retained['episodes'],[])
+        self.assertEqual(retained['terminal'],'stranded')
+        self.assertEqual(retained['placement']['judgmentIri'],'https://baseballontology.org/data/game/823585/placement/10/top/666152/judgment')
+        self.assertTrue(all(h['status']=='reconciled' for h in other['halves']))
         ninth=next(h for h in other['halves'] if h['inning']==9 and h['half']=='bottom')
         self.assertEqual(ninth['status'],'reconciled')  # Pickoff uses pre-count, action uses post-count.
 

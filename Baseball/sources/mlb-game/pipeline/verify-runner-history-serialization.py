@@ -19,10 +19,13 @@ def verify(document, graph):
     evidence = document['_baseballO']['runnerHistoryReconciliation']
     expected = {(prefix + row['lifetimeKey'], base + f"runner-episode/{row['atBatIndex']}/{row['runnerIndex']}")
                 for row in evidence['episodeMembership']}
+    placements = {(prefix + row['lifetimeKey'], row['judgmentIri'])
+                  for row in evidence.get('placementAdjudications', [])}
     actual = {(str(s), str(o)) for s, o in graph.subject_objects(BFO.BFO_0000117)
               if str(s).startswith(prefix) and '/' not in str(s)[len(prefix):]}
-    if expected != actual:
-        raise ValueError(f'C1 episode serialization differs: missing={len(expected - actual)}, extra={len(actual - expected)}')
+    expected_parts = expected | placements
+    if expected_parts != actual:
+        raise ValueError(f'C1 part serialization differs: missing={len(expected_parts - actual)}, extra={len(actual - expected_parts)}')
     expected_wholes = {prefix + row['lifetimeKey'] for row in evidence['histories']}
     actual_wholes = {str(s) for s in graph.subjects() if str(s).startswith(prefix) and '/' not in str(s)[len(prefix):]}
     if expected_wholes != actual_wholes:
@@ -35,6 +38,7 @@ def verify(document, graph):
         raise ValueError('C1 game-ending boundary serialization differs from source-selected inventory')
     return dict(gamePk=game, inputSha256=evidence['inputSha256'],
                 personalHistories=len(expected_wholes), episodeMemberships=len(expected),
+                placementAdjudications=len(placements),
                 gameEndedHistories=len(expected_ends),
                 sourceToGraphMembershipVerified=True, semanticConformance='requires-owning-source-SHACL',
                 populationComplete=False)

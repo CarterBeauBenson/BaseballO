@@ -3555,6 +3555,48 @@
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/runner-trajectory/{lifetimeKey}" ; rr:termType rr:IRI ] ;
   rr:predicateObjectMap [ rr:predicate obo:BFO_0000117 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/runner-episode/{atBatIndex}/{runnerIndex}" ; rr:termType rr:IRI ] ] .
 
+# Explicitly accepted distinct placement adjudication, never a running episode.
+<#RunnerPlacementSource> a rml:LogicalSource ; rml:source "game-context.json" ; rml:referenceFormulation ql:JSONPath ; rml:iterator "$._baseballO.runnerHistoryReconciliation.placementAdjudications[*]" .
+
+<#RunnerPlacementJudgmentMap> a rr:TriplesMap ;
+  rml:logicalSource <#RunnerPlacementSource> ;
+  rr:subjectMap [ rml:reference "judgmentIri" ; rr:termType rr:IRI ; rr:class base:BaseballAdjudicationAct ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000132 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/runner-trajectory/{lifetimeKey}" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001921 ; rr:objectMap [ rml:reference "ruleIri" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001986 ; rr:objectMap [ rml:reference "decisionIri" ; rr:termType rr:IRI ] ] .
+
+<#RunnerPlacementMembershipMap> a rr:TriplesMap ;
+  rml:logicalSource <#RunnerPlacementSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/runner-trajectory/{lifetimeKey}" ; rr:termType rr:IRI ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000117 ; rr:objectMap [ rml:reference "judgmentIri" ; rr:termType rr:IRI ] ] .
+
+<#RunnerPlacementDecisionMap> a rr:TriplesMap ;
+  rml:logicalSource <#RunnerPlacementSource> ;
+  rr:subjectMap [ rml:reference "decisionIri" ; rr:termType rr:IRI ; rr:class base:BaseballDecisionICE ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/runner-trajectory/{lifetimeKey}" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rr:template "https://baseballontology.org/data/player/{runnerId}" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "baseIri" ; rr:termType rr:IRI ] ] .
+
+<#RunnerPlacementBaseMap> a rr:TriplesMap ;
+  rml:logicalSource <#RunnerPlacementSource> ;
+  rr:subjectMap [ rml:reference "baseIri" ; rr:termType rr:IRI ; rr:class base:Base ] .
+
+<#RunnerPlacementBaseIdentifierMap> a rr:TriplesMap ;
+  rml:logicalSource <#RunnerPlacementSource> ;
+  rr:subjectMap [ rr:template "{baseIri}/identifier/source-base-code" ; rr:termType rr:IRI ; rr:class cco:ont00000649 ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001916 ; rr:objectMap [ rml:reference "baseIri" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001765 ; rr:objectMap [ rr:constant "2B" ] ] .
+
+<#RunnerPlacementRuleMap> a rr:TriplesMap ;
+  rml:logicalSource <#RunnerPlacementSource> ;
+  rr:subjectMap [ rml:reference "ruleIri" ; rr:termType rr:IRI ; rr:class base:BaseballRule ] .
+
+<#RunnerPlacementRecordMap> a rr:TriplesMap ;
+  rml:logicalSource <#RunnerPlacementSource> ;
+  rr:subjectMap [ rml:reference "recordIri" ; rr:termType rr:IRI ; rr:class base:BaseballEventRecord ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "judgmentIri" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "decisionIri" ; rr:termType rr:IRI ] ] .
+
 <#SafeDecisionDestinationSource> a rml:LogicalSource ; rml:source "game-context.json" ; rml:referenceFormulation ql:JSONPath ; rml:iterator "$.liveData.plays.allPlays[*]._baseballO.safeDecisionDestinations[*]" .
 
 <#RunnerEpisodeMap> a rr:TriplesMap ;

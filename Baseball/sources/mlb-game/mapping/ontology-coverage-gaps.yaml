@@ -70,10 +70,16 @@ ontology_coverage_gaps:
   status: implemented under accepted question 8
   resolution: A completely reconciled walk-off half can terminate at the supported official game endpoint without a third out. Still-active C1 intervals reuse that endpoint; scored histories retain counted outcomes.
   decision: archive/design-records/walkoff-runner-boundary/review.json
-  boundary: Unsupported replacements, zero-episode placed runners, unresolved reviews and other incomplete histories remain withheld; game end adds no out, advance or erosion.
+  boundary: Unsupported replacements, unsupported zero-episode histories, unresolved reviews and other incomplete histories remain withheld; game end adds no out, advance or erosion.
 
 - id: runner-history-nonpitch-boundaries
   status: implemented under accepted C3
   decision: archive/design-records/mlb-game-runner-boundary-anchors/review.json
   resolution: Unique composite anchors identify non-pitch terminal actions, explicit PR replacements and extra-inning placements using the existing personal Process RML pattern. Source witnesses, exact SHACL membership and prior-manifest correction checks preserve separate Persons and existing identities.
-  boundary: Zero-episode lifetimes, ambiguous corrections, collisions, unsupported time/state boundaries and unresolved review effects remain withheld. Administrative base fields create no physical stasis or Safe decision.
+  boundary: Zero-episode lifetimes without the separately accepted placement adjudication, ambiguous corrections, collisions, unsupported time/state boundaries and unresolved review effects remain withheld. Administrative base fields create no physical stasis or Safe decision.
+
+- id: extra-inning-placement-adjudication
+  status: implemented under explicit 2026-09-16 decision
+  decision: archive/design-records/extra-inning-placement-adjudication/review.json
+  resolution: Distinct existing BaseballAdjudicationAct and BaseballDecisionICE begin the personal whole, including a zero-movement placed runner. Exact source SHACL preserves placement evidence without a fabricated running episode or Safe judgment.
+  boundary: The verified rule edition is 2026. No individual adjudicator, physical base stasis, movement or positive metric credit is inferred. Other unsupported empty lifetimes remain withheld.

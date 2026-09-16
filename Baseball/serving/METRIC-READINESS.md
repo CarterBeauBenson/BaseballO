@@ -93,6 +93,19 @@ independent outs and interrupted turns still withhold the affected population.
 Focused SQL tests compare Empty Game Damage against the Empty Games count and
 retain the independent schedule requirement.
 
+The [placement and third-out completion](../benchmarks/metrics/runner-placement-completion-2026-09-16/README.md)
+closes both remaining personal-history fixture cases. All **15/15** August 25
+games now reconcile **415 histories**, preserving all 409 prior selected keys.
+Placement is a distinct adjudication and supplies no movement credit. Both
+full-game source profiles pass Jena; Scoring History Length resolves all
+15 counted runs across games 823585 and 823826 through exact SQL. The same
+proof isolates four **Run Contributors attribution** cases involving excluded
+fielder's choices/errors and independent passed-ball/wild-pitch running; these
+are implementation coverage debt under settled policies, not missing source
+records or a request for semantic approval. The linked audit lists exact PAs.
+
+The following paragraphs retain the earlier checkpoints for comparison.
+
 [C3's accepted identity review](../archive/design-records/mlb-game-runner-boundary-anchors/README.md)
 addresses non-pitch action, replacement and placed-runner boundaries without
 pitch IDs. The user accepted all three C3 questions on September 16 and the
@@ -102,9 +115,9 @@ raises complete source histories to **12 of 15** fixtures, with **404 personal
 histories** and all earlier whole identities preserved. Game 823989 passes
 RML/source SHACL and exact history admission for 40 histories; all 14 scoring
 histories also survive canonical query and exact SQL retention for Scoring
-History Length. Zero-episode placed runners, the two non-pitch review cases,
-the third-out state conflict and separate PA-start states remain explicit
-gaps. No ontology terms or object properties were introduced.
+History Length. At that checkpoint, zero-episode placed runners, the two
+non-pitch review cases, the third-out state conflict and separate PA-start
+states were explicit gaps. No ontology terms or object properties were introduced.
 
 The new NiFi-owned review inventory retains PA-level as well as event-level
 records before transient input cleanup. In game 822773, the fifth `MJ`
@@ -117,11 +130,12 @@ review mechanisms, original-call content or eligible-decision populations.
 The [upheld runner-review follow-up](../benchmarks/metrics/live-refresh-runner-reviews-2026-09-16/README.md)
 accounts for the explicit final effects of both non-pitch tag reviews without
 adding review RDF or assigning a mechanism. Complete personal histories now
-cover **13 of 15** fixtures and **409 histories**, with all prior identities
+covered **13 of 15** fixtures and **409 histories**, with all prior identities
 and episode allocations preserved. Game 825042 proves all nine scoring
 histories through Jena and exact SQL for both Scoring History Length and Run
 Contributors. The zero-episode placed runner and third-out base-state conflict
-remain withheld. Separate PA-boundary and review-population gates are unchanged.
+were still withheld then; the completion above closes both. Separate PA-boundary
+and review-population gates are unchanged.
 
 The same follow-up replaces slow grouped live graph counts with equivalent
 fixed-graph aggregates. All independent graph-pair identity/count checks remain.

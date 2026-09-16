@@ -38,7 +38,9 @@ def shape_text(source):
         whole=source['game']+'/runner-trajectory/'+row['lifetimeKey'];wholes.append(whole)
         interval=whole+'/temporal-interval';person=B.BASE+'data/player/'+row['runnerId']
         half=source['game']+'/inning/'+row['inning']+'/'+row['half']
-        members=[source['game']+'/runner-episode/'+r['atBatIndex']+'/'+r['runnerIndex'] for r in row['episodes']]
+        episodes=[source['game']+'/runner-episode/'+r['atBatIndex']+'/'+r['runnerIndex'] for r in row['episodes']]
+        placement=row.get('placement')
+        members=episodes+([placement['judgmentIri']] if placement else [])
         node(whole,['sh:class obo:BFO_0000015',prop('obo:BFO_0000057',person),
             prop('obo:BFO_0000132',half),prop('obo:BFO_0000199',interval),
             'sh:property [ sh:path obo:BFO_0000117 ; sh:in ('+' '.join(B.iri(m) for m in members)+') ; '
@@ -50,7 +52,24 @@ def shape_text(source):
         node(interval,['sh:class obo:BFO_0000038',
             prop('obo:BFO_0000224',row['gameEndInstantIri']) if row.get('gameEndInstantIri') else
             'sh:property [ sh:path obo:BFO_0000224 ; sh:maxCount 0 ]'])
-        for member in members:node(member,['sh:class base:RunnerResolutionEpisode'])
+        for member in episodes:node(member,['sh:class base:RunnerResolutionEpisode'])
+        if placement:
+            judgment,decision=placement['judgmentIri'],placement['decisionIri']
+            node(judgment,['sh:class base:BaseballAdjudicationAct',prop('obo:BFO_0000132',whole),
+                prop('cco:ont00001921',placement['ruleIri']),prop('cco:ont00001986',decision),
+                'sh:not [ sh:class base:RunnerResolutionEpisode ]',
+                'sh:not [ sh:class base:BaserunningAct ]',
+                'sh:not [ sh:class base:SafeJudgmentAct ]',
+                'sh:property [ sh:path cco:ont00001833 ; sh:maxCount 0 ]',
+                'sh:property [ sh:path obo:BFO_0000055 ; sh:maxCount 0 ]'])
+            targets=[whole,person,placement['baseIri']]
+            node(decision,['sh:class base:BaseballDecisionICE',
+                'sh:not [ sh:class base:SafeDecisionICE ]',
+                'sh:property [ sh:path cco:ont00001808 ; sh:in ('+' '.join(B.iri(t) for t in targets)+') ; sh:minCount 3 ; sh:maxCount 3 ]'])
+            node(placement['baseIri'],['sh:class base:Base'])
+            node(placement['ruleIri'],['sh:class base:BaseballRule'])
+            node(placement['recordIri'],['sh:class base:BaseballEventRecord',
+                'sh:property [ sh:path cco:ont00001808 ; sh:in ('+B.iri(judgment)+' '+B.iri(decision)+') ; sh:minCount 2 ; sh:maxCount 2 ]'])
     members=', '.join(B.iri(v) for v in wholes) or '<urn:baseballo:no-runner-histories>'
     query=B.PREFIXES+'''SELECT $this WHERE {
       ?whole ?p ?o . FILTER(STRSTARTS(STR(?whole), "'''+source['game']+'''/runner-trajectory/"))

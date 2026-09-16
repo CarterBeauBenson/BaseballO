@@ -882,6 +882,20 @@
         "DefensiveRoleMap",
         "DefensiveRecordMap"
       ]
+    },
+    {
+      "id": "70-runner-placement-adjudication",
+      "title": "Distinct extra-inning placement adjudication",
+      "summary": "A placement judgment begins the personal history, including one with no movement. Its decision concerns that whole, runner and second base; it is never a running act, Safe judgment or credited advance.",
+      "maps": [
+        "RunnerPlacementJudgmentMap",
+        "RunnerPlacementMembershipMap",
+        "RunnerPlacementDecisionMap",
+        "RunnerPlacementBaseMap",
+        "RunnerPlacementBaseIdentifierMap",
+        "RunnerPlacementRuleMap",
+        "RunnerPlacementRecordMap"
+      ]
     }
   ]
 }

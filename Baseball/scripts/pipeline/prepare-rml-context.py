@@ -554,7 +554,8 @@ def personal_runner_histories(raw: bytes, previous=None) -> dict:
 
     Only fully reconciled half innings enter this first source selection.
     Unknown review/substitution effects withhold the whole half, not just the
-    inconvenient row. No location, adjudication or strict precedence is minted.
+    inconvenient row. Placement adjudications use the explicit September 16
+    decision; no physical location or strict precedence is minted.
     Temporal values below are event bounds, not claimed exact runner timestamps.
     """
     checker = Path(__file__).resolve().parents[2] / 'sources/mlb-game/pipeline/reconcile-metric-source.py'
@@ -567,7 +568,7 @@ def personal_runner_histories(raw: bytes, previous=None) -> dict:
     source = module.reconcile(raw, str(document['gamePk']))
     result = dict(inputSha256=source['inputSha256'], sourceRevision=source['sourceRevision'],
                   sourceAuthorityDecision='archive/design-records/metric-source-c1-operation-2026-09-14/review.json',
-                  sourceConsistency=source['status'], histories=[], withheldHistories=[], episodeMembership=[], halves=[], boundaryIssues=[],
+                  sourceConsistency=source['status'], histories=[], withheldHistories=[], episodeMembership=[], placementAdjudications=[], halves=[], boundaryIssues=[],
                   graphCoverageVerified=False, metricPopulationAdmitted=False)
     if source['status'] != 'consistent':
         result['sourceIssues'] = source['issues']
@@ -607,7 +608,7 @@ def personal_runner_histories(raw: bytes, previous=None) -> dict:
             problems.append(dict(code=code, atBatIndex=pa))
 
         def finish(item, anchor, terminal, bound):
-            if not item['episodes']:
+            if not item['episodes'] and not item.get('placement'):
                 block('ZERO_EPISODE_PERSONAL_HISTORY', item.get('entryAtBatIndex'))
             # Stable serialization of the reviewed lifetime anchors, not a
             # source revision, PA index or row-position identity for the whole.
@@ -661,6 +662,8 @@ def personal_runner_histories(raw: bytes, previous=None) -> dict:
                 index = event['index']; details = event.get('details', {})
                 kind, event_type = event.get('type'), details.get('eventType')
                 selected = event_rows[index]
+                if outs == 3 and (event.get('isPitch') is True or selected or event_type == 'runner_placed'):
+                    block('EVENT_AFTER_HALF_END', pa)
                 if (event.get('reviewDetails') or details.get('hasReview') is True) and index not in reviews['events']:
                     block('UNRESOLVED_REVIEW_EFFECT', pa)
                 batting_only = (batting_changes_supported and event_type == 'offensive_substitution'
@@ -703,6 +706,13 @@ def personal_runner_histories(raw: bytes, previous=None) -> dict:
                         active[incoming] = dict(runnerId=incoming, inning=str(inning), half=half,
                             entryAnchor=administrative_anchor, entryWitness=administrative,
                             entryAtBatIndex=pa, earliestStartBound=event.get('startTime'), episodes=[], base=base)
+                        if placement and str(document['gameData']['game'].get('season')) == '2026':
+                            root = f"https://baseballontology.org/data/game/{document['gamePk']}/{administrative_anchor}"
+                            active[incoming]['placement'] = dict(
+                                judgmentIri=root + '/judgment', decisionIri=root + '/decision',
+                                recordIri=root + '/record',
+                                ruleIri='https://baseballontology.org/data/rule/2026/extra-inning-placement',
+                                baseIri=f"https://baseballontology.org/data/venue/{document['gameData']['venue']['id']}/artifact/base/2B")
                         last_boundary_end = end
                         administrative_supported = True
                         # C3 does not license physical start stases or a reverse
@@ -796,7 +806,9 @@ def personal_runner_histories(raw: bytes, previous=None) -> dict:
                 if outs > 3:
                     block('TOO_MANY_OUTS', pa)
                 occupied = [item['base'] for item in active.values() if item['base'] is not None]
-                if len(set(occupied)) != len(occupied):
+                # At three reconciled outs these are last observations, not a
+                # live occupancy snapshot. Do not infer missing forced advances.
+                if outs < 3 and len(set(occupied)) != len(occupied):
                     block('CONFLICTING_BASE_OCCUPANCY', pa)
             if play.get('count', {}).get('outs') != outs:
                 block('POST_PA_OUT_COUNT_MISMATCH', pa)
@@ -832,6 +844,9 @@ def personal_runner_histories(raw: bytes, previous=None) -> dict:
         if not problems:
             result['histories'].extend({k: v for k, v in h.items() if k != 'base'} for h in histories)
             result['episodeMembership'].extend(memberships)
+            result['placementAdjudications'].extend(dict(lifetimeKey=h['lifetimeKey'],
+                runnerId=h['runnerId'], inning=h['inning'], half=h['half'], **h['placement'])
+                for h in histories if h.get('placement'))
         else:
             result['withheldHistories'].append(dict(inning=inning, half=half,
                 completedCandidates=[{k:v for k,v in h.items() if k!='base'} for h in histories],
