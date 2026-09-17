@@ -1467,6 +1467,34 @@ def counted_foul_neutral_event(document: dict, play: dict, event: dict, prior: t
                 and movement.get('isOut') is False and movement.get('outNumber') is None
                 and count.get('outs') == events[index-1].get('count', {}).get('outs')):
             return 'reconciled-steal'
+    if (kind == 'offensive_substitution' and event.get('isSubstitution') is True
+            and event.get('position', {}).get('abbreviation') == 'PR'):
+        # Reuse the accepted C3 replacement proof, not an unexamined
+        # substitution label. Its two personal histories already reconcile
+        # the unchanged count, outgoing occupancy and incoming runner. This
+        # does not change the batter, assert a PA-start stasis, or admit a PH.
+        history = document.get(CONTEXT_KEY, {}).get('runnerHistoryReconciliation', {})
+        incoming = str(event.get('player', {}).get('id', ''))
+        outgoing = str(event.get('replacedPlayer', {}).get('id', ''))
+        about = play.get('about', {})
+        anchor = f"replacement/{about.get('inning')}/{about.get('halfInning')}/{outgoing}/{incoming}"
+        ended = [h for h in history.get('histories', [])
+                 if h.get('terminationAnchor') == anchor and h.get('terminal') == 'replaced'
+                 and h.get('runnerId') == outgoing]
+        started = [h for h in history.get('histories', [])
+                   if h.get('entryAnchor') == anchor and h.get('runnerId') == incoming]
+        expected = dict(anchor=anchor, form='replacement', runnerId=incoming,
+            outgoingRunnerId=outgoing, base=event.get('base'),
+            atBatIndex=about.get('atBatIndex'), eventIndex=index,
+            earliestStartBound=event.get('startTime'), latestEndBound=event.get('endTime'))
+        if (history.get('sourceConsistency') == 'consistent' and len(ended) == len(started) == 1
+                and all(ended[0].get('terminationWitness', {}).get(k) == v
+                        and started[0].get('entryWitness', {}).get(k) == v for k,v in expected.items())
+                and incoming != outgoing and incoming.isdigit() and outgoing.isdigit()
+                and str(play.get('matchup', {}).get('batter', {}).get('id')) not in {incoming,outgoing}
+                and not any(r.get('details', {}).get('playIndex') == index for r in play.get('runners', []))
+                and not any(detail.get(k) is True for k in ('isBall','isStrike','isInPlay'))):
+            return 'reconciled-pinch-runner'
     if kind == 'pitching_substitution' and event.get('isSubstitution') is True and prior == (0, 0):
         if (event.get('position', {}).get('abbreviation') != 'P'
                 or any(e.get('isPitch') is True or e.get('details', {}).get('call', {}).get('code') in {'VP','AC','VB'} for e in events[:index])
@@ -1534,6 +1562,15 @@ def metric_pitch_context(document: dict) -> dict:
         pc = play[CONTEXT_KEY]
         indexes = [e.get('index') for e in events]
         reviews = accounted_runner_count_reviews(play)
+        # M1 constrains the prefix ending at the foul. A separately reconciled
+        # terminal field review does not retroactively review earlier pitches.
+        # Retain the strict count-review selector for every earlier event;
+        # C1's broader runner review admission must not admit MO/MA prefixes.
+        field_review = accounted_runner_history_reviews(play).get('accountedFieldReview')
+        if field_review:
+            count_scope = {**play, 'about': {**play['about'], 'hasReview': False}}
+            count_scope.pop('reviewDetails', None)
+            reviews = accounted_runner_count_reviews(count_scope)
         prefix_problem = None
         if source['sourceConsistency'] != 'consistent':
             prefix_problem = 'SOURCE_RECONCILIATION_FAILED'
@@ -1553,10 +1590,12 @@ def metric_pitch_context(document: dict) -> dict:
             start, end = instant(event.get('startTime')), instant(event.get('endTime'))
             if not start or not end or end < start or (previous and (not instant(previous.get('endTime')) or instant(previous['endTime']) > start)):
                 prefix_problem = prefix_problem or 'UNSUPPORTED_EVENT_TIME_ORDER'
+            if field_review and event.get('index') >= field_review['eventIndex']:
+                prefix_problem = prefix_problem or 'FIELD_REVIEW_IN_PREFIX'
             if (event.get('reviewDetails') or details.get('hasReview') is True) and event.get('index') not in reviews['events']:
                 prefix_problem = prefix_problem or 'UNRESOLVED_PREFIX_REVIEW'
             neutral_extension = counted_foul_neutral_event(document, play, event, prior)
-            if (event.get('isSubstitution') is True or 'substitution' in str(details.get('eventType', ''))) and neutral_extension != 'initial-pitching-change':
+            if (event.get('isSubstitution') is True or 'substitution' in str(details.get('eventType', ''))) and neutral_extension not in {'initial-pitching-change','reconciled-pinch-runner'}:
                 prefix_problem = prefix_problem or 'SUBSTITUTION_IN_PREFIX'
             if after is None:
                 prefix_problem = prefix_problem or 'INVALID_COUNTER'

@@ -337,10 +337,13 @@ function scheduleDashboardLoad() {
 
 export function dashboardSummary(payload) {
   const summary = { games: payload.graphCount ?? payload.metrics[0]?.coverage?.games ?? 0,
-    available: 0, partial: 0, unavailable: 0, empty: 0 };
+    available: 0, partial: 0, unavailable: 0, empty: 0, populatedLeaderboards: 0 };
   for (const metric of payload.metrics) {
     const state = resultPresentation({ ...payload, metric }, { unit: '' }).state;
     summary[state]++;
+    if (summary.games && metric.leaderboard?.status === 'available' && metric.leaderboard.rows?.length) {
+      summary.populatedLeaderboards++;
+    }
   }
   return summary;
 }
@@ -493,9 +496,8 @@ async function loadDashboard(event) {
         payload.metrics.some(metric => !expected.has(metric.metricId))) throw new Error('Dashboard response is incomplete.');
     dashboardResult = payload;
     const summary = dashboardSummary(payload);
-    facts(byId('dashboard-summary'), [['Selected games', summary.games], ['Metrics with scoped results', summary.available],
-      ['Metrics with individual results', summary.partial], ['Metrics without a score', summary.unavailable + summary.empty],
-      ['Player leaderboards available', payload.metrics.filter(metric => metric.leaderboard?.status === 'available').length]]);
+    facts(byId('dashboard-summary'), [['Selected games', summary.games],
+      ['Populated player leaderboards', `${summary.populatedLeaderboards} of ${payload.metrics.length}`]]);
     byId('dashboard-dates').textContent = resultDateLabel(payload);
     const coverage = payload.metrics[0].coverage ?? {}, movement = coverage.runnerMovements;
     byId('dashboard-coverage').textContent = `${coverage.observedEntities?.plate_appearance ?? 0} observed plate appearances · ${coverage.observedEntities?.run ?? 0} observed runs` +

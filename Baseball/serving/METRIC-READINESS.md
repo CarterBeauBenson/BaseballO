@@ -1,5 +1,14 @@
 # Nineteen public metrics: implementation and release status
 
+**Count-history follow-up:** the [complete-game repair](../benchmarks/metrics/count-history-completion-2026-09-16/README.md)
+admits all 81 official PAs in game 823585 through source SHACL, B1, count
+validation, canonical Jena extraction and exact SQL. It fixes no-pitch
+intentional walks, the foul-tip-bunt identity lookup, terminal-review prefix
+scope and already reconciled pinch-runner prefixes. Shared request calculations
+preserve exact results; the dashboard now leads with the actual populated
+player-leaderboard count. These proofs do not establish complete live or season
+populations, and the remaining work below is still open.
+
 **Latest diagnostic:** the [shared-blocker repair](../benchmarks/metrics/dashboard-shared-blockers-2026-09-16/README.md)
 separates the now-working SQL service from player rankings. The one available
 review aggregate is not a player leaderboard. It fixes PB/WP running evidence

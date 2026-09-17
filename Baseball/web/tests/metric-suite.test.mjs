@@ -562,8 +562,13 @@ test('dashboard distinguishes scoped zero, individual results, absent scores and
     {status:'unavailable',value:null,runs:[{value:{numerator:'3',denominator:'1'}}]},
     {status:'unavailable',value:null},
   ];
-  assert.deepEqual(dashboardSummary({graphCount:15,metrics}), {games:15,available:1,partial:2,unavailable:1,empty:0});
-  assert.deepEqual(dashboardSummary({graphCount:0,metrics}), {games:0,available:0,partial:0,unavailable:0,empty:4});
+  assert.deepEqual(dashboardSummary({graphCount:15,metrics}), {games:15,available:1,partial:2,unavailable:1,empty:0,populatedLeaderboards:0});
+  assert.deepEqual(dashboardSummary({graphCount:0,metrics}), {games:0,available:0,partial:0,unavailable:0,empty:4,populatedLeaderboards:0});
+  metrics[0].leaderboard={status:'available',rows:[]};
+  assert.equal(dashboardSummary({graphCount:15,metrics}).populatedLeaderboards,0);
+  metrics[0].leaderboard.rows=[{player:'player-1',value:{numerator:'0',denominator:'1'}}];
+  assert.equal(dashboardSummary({graphCount:15,metrics}).populatedLeaderboards,1);
+  assert.equal(dashboardSummary({graphCount:0,metrics}).populatedLeaderboards,0);
 });
 
 test('dashboard executes once through SQL and rejects injected facts before execution', async () => {

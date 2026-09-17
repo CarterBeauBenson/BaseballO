@@ -28,6 +28,26 @@ def fingerprint():
     return B.sha('\n'.join(p.relative_to(ROOT).as_posix()+':'+B.sha(p.read_bytes()) for p in paths).encode())
 
 
+def virtual_intentional_walk(play, season):
+    """Recognize the accepted complete award with zero delivered pitches.
+
+    VB entries serialize the award's ball counter; they are not four actual
+    pitch or automatic-count judgment events. Other empty histories fail.
+    """
+    events=play.get('playEvents',[])
+    return (play.get('result',{}).get('eventType')=='intent_walk'
+        and len(events)==4 and [e.get('index') for e in events]==[0,1,2,3]
+        and all(e.get('isPitch') is False and e.get('type')=='no_pitch'
+            and e.get('details',{}).get('call',{}).get('code')=='VB'
+            and e.get('details',{}).get('isBall') is True
+            and e.get('details',{}).get('isStrike') is False
+            and e.get('count',{}).get('balls')==i
+            and e.get('count',{}).get('strikes')==0
+            and e.get('count',{}).get('outs')==play.get('count',{}).get('outs')
+            for i,e in enumerate(events,1))
+        and bool(CONTEXT.runner_metric_evidence(play,str(play['atBatIndex']),str(season))['awardAdvances']))
+
+
 def census(raw,game_pk):
     game_pk=B.identity(int(game_pk));doc=json.loads(raw);source=B.SOURCE.reconcile(raw,game_pk)
     issues=[dict(code='SOURCE_RECONCILIATION',detail=i) for i in source['issues']]
@@ -43,6 +63,9 @@ def census(raw,game_pk):
         if result_type not in B.RESULTS:errors.append('UNKNOWN_OFFICIAL_PA_RESULT')
         if [e.get('index') for e in play['playEvents']]!=list(range(len(play['playEvents']))):
             errors.append('UNRECONCILED_EVENT_MEMBERSHIP')
+        if virtual_intentional_walk(play,doc['gameData']['game']['season']):
+            pas.append(dict(pa=game+'/plate-appearance/'+pa,events=[],zeroPitchIntentionalWalk=True))
+            continue
         for event in play['playEvents']:
             detail=event.get('details',{});pid=event.get('playId');code=detail.get('call',{}).get('code')
             after=event.get('count',{}).get('strikes')
@@ -105,7 +128,7 @@ def shape_text(source):
         def strike_iri(e):
             # The existing foul-tip individual is already a Strike Process;
             # it must not be mistaken for a second generic strike individual.
-            return source['game']+'/process/'+('foul-tip' if e.get('call')=='T' else 'strike')+'/'+e['playId']
+            return source['game']+'/process/'+('foul-tip' if e.get('call') in {'T','O'} else 'strike')+'/'+e['playId']
         strike_ids=[strike_iri(e) if e['kind']=='pitch' else e['event']
                     for e in pa['events'] if e['strike']]
         award_ids=[e['event'] for e in pa['events'] if e['kind']=='award']
@@ -119,6 +142,8 @@ def shape_text(source):
         node(pa['pa'],['sh:class base:PlateAppearance',
             'sh:sparql [ sh:message "Count event membership differs from the final source" ; sh:select '+Literal(no_extra).n3()+' ]',
             'sh:property [ sh:path [ sh:inversePath obo:BFO_0000132 ] ; sh:qualifiedValueShape [ sh:class base:PitchAct ] ; sh:qualifiedMinCount '+str(len(pitch_ids))+' ; sh:qualifiedMaxCount '+str(len(pitch_ids))+' ]'])
+        if pa.get('zeroPitchIntentionalWalk'):
+            node(pa['pa']+'/result',['sh:class base:WalkProcess',prop('obo:BFO_0000132',B.iri(pa['pa']))])
         for e in pa['events']:
             if e['kind']=='award':
                 a=e['award']
@@ -164,6 +189,7 @@ def prove(*,raw,game_pk,rdf_path,output,java=None,classpath=None):
         sourceRevision=source['sourceRevision'],authoritativeRdfSha256=rdf_sha,implementationSha256=implementation,
         status='withheld',sourceReconciled=source['status']=='reconciled',graphConforms=False,issues=source['issues'],
         sourceCensusSha256=B.sha(output.with_suffix('.source.json').read_bytes()))
+    proof['zeroPitchPlateAppearances']=[p['pa'] for p in source['plateAppearances'] if p.get('zeroPitchIntentionalWalk')]
     if proof['sourceReconciled']:
         shapes=output.with_suffix('.shapes.ttl');shapes.write_text(shape_text(source),encoding='utf-8',newline='\n')
         if java:

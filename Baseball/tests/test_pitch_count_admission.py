@@ -60,8 +60,9 @@ class PitchCountAdmission(unittest.TestCase):
         judgment=URIRef(str(old)+'/judgment');decision=URIRef(str(old)+'/decision')
         g.remove((judgment,RDF.type,BASE.StrikeJudgmentAct));g.add((judgment,RDF.type,BASE.FoulTipJudgmentAct))
         g.remove((decision,RDF.type,BASE.StrikeDecisionICE));g.add((decision,RDF.type,BASE.FoulTipCallICE))
-        e['call']='T'
-        self.assertTrue(validate(g,shacl_graph=A.shape_text(source),shacl_graph_format='turtle',advanced=True)[0])
+        for code in ('T','O'):
+            e['call']=code
+            self.assertTrue(validate(g,shacl_graph=A.shape_text(source),shacl_graph_format='turtle',advanced=True)[0],code)
         self.assertEqual(extract(data)['plateAppearances'][0]['value'],M.exact(2))
 
     def test_automatic_second_strike_is_ordered_but_is_not_a_pitch(self):

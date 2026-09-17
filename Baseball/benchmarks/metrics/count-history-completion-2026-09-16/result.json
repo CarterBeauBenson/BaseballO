@@ -1,0 +1,207 @@
+{
+  "artifactType": "baseballo-recovery-input-developer-proof",
+  "gamePk": "823585",
+  "sourceSha256": "9bc6c0423abeea6adee187b4299ce70573aff6b8e71e158c7a42118d84139699",
+  "rdfSha256": "0e38bc656e99c3c60a4f0c042df97fdea5766a566befac0b04798cc7d910620f",
+  "implementationSha256": "b2afd0b7be02019ad2476c73c9f398dc2f7993aa30e7a86fc6d0285121a9dc12",
+  "sourceAdmission": {
+    "artifactType": "baseballo-pitch-count-admission",
+    "contractVersion": 1,
+    "gamePk": "823585",
+    "graph": "https://w3id.org/baseball/graph/game/823585",
+    "sourceSha256": "9bc6c0423abeea6adee187b4299ce70573aff6b8e71e158c7a42118d84139699",
+    "sourceRevision": "20260826_021119",
+    "authoritativeRdfSha256": "0e38bc656e99c3c60a4f0c042df97fdea5766a566befac0b04798cc7d910620f",
+    "implementationSha256": "e88b1e35dafcedc6d168eb6093f144fcbab683dcecb0e97391bd4b3aa58b1314",
+    "status": "admitted",
+    "sourceReconciled": true,
+    "graphConforms": true,
+    "issues": [],
+    "sourceCensusSha256": "89291c0705c48df778ac7a031e162f383fb981d454b5838727a7cb52ebb2f740",
+    "zeroPitchPlateAppearances": [
+      "https://baseballontology.org/data/game/823585/plate-appearance/79"
+    ],
+    "shapeSha256": "c529d79446809896c20951a0166e9fb1472c23ee26c21b77ba655003f16c3bf2",
+    "reportSha256": "4a53a3befd9bcdb7273ef3d6e47a83be519927771faee49ef0d2a44ee23be2be",
+    "engine": "jena"
+  },
+  "battingAdmission": {
+    "artifactType": "baseballo-batting-admission",
+    "contractVersion": 1,
+    "gamePk": "823585",
+    "graph": "https://w3id.org/baseball/graph/game/823585",
+    "sourceSha256": "9bc6c0423abeea6adee187b4299ce70573aff6b8e71e158c7a42118d84139699",
+    "sourceRevision": "20260826_021119",
+    "authoritativeRdfSha256": "0e38bc656e99c3c60a4f0c042df97fdea5766a566befac0b04798cc7d910620f",
+    "implementationSha256": "676c43536dd4eca650cf8d3436bb97757b817db559af493d60a73a8d81b7b41c",
+    "status": "admitted",
+    "sourceReconciled": true,
+    "graphConforms": true,
+    "issues": [],
+    "selectedPopulationComplete": false,
+    "sourceCensusSha256": "0a03e4549495951c732dea4161b590b27fe412b9e5e6a0cbc69718712e9d0698",
+    "shapeSha256": "830e5b7ca55c190e1d3a6d6d939e77cd78754b0180d0087eabf1315821674e9d",
+    "reportSha256": "4a53a3befd9bcdb7273ef3d6e47a83be519927771faee49ef0d2a44ee23be2be",
+    "engine": "jena"
+  },
+  "jenaQueryPassed": true,
+  "sqlExactMatch": true,
+  "officialPlateAppearances": 81,
+  "twoStrikeEligible": 43,
+  "knownIneligible": 38,
+  "recoveryStepDistribution": {
+    "0": 20,
+    "1": 11,
+    "2": 9,
+    "3": 2,
+    "5": 1
+  },
+  "seasonPopulationComplete": false,
+  "livePopulationComplete": false,
+  "cases": [
+    {
+      "status": "available",
+      "value": {
+        "numerator": "0",
+        "denominator": "1"
+      },
+      "gaps": [],
+      "evidence": [
+        "https://baseballontology.org/data/game/823585/pitch/60fc1a27-3b74-3e65-9364-3648b76a1f23",
+        "https://baseballontology.org/data/game/823585/pitch/6760d110-e99d-3005-b460-6e9b5160ecd4",
+        "https://baseballontology.org/data/game/823585/pitch/6ead1ae3-f14d-39ea-95b9-5bb6ce7528eb",
+        "https://baseballontology.org/data/game/823585/pitch/7fa5575b-2123-31fd-a92f-688d54a14a71",
+        "https://baseballontology.org/data/game/823585/pitch/d78f4c97-c231-3e71-8a68-f46716face14"
+      ],
+      "components": {},
+      "graph": "https://w3id.org/baseball/graph/game/823585",
+      "game": "https://baseballontology.org/data/game/823585",
+      "plateAppearance": "https://baseballontology.org/data/game/823585/plate-appearance/35",
+      "player": "https://baseballontology.org/data/player/694192",
+      "twoStrikeEligible": true,
+      "countHistory": [
+        {
+          "pitch": "https://baseballontology.org/data/game/823585/pitch/d78f4c97-c231-3e71-8a68-f46716face14",
+          "strikesAfter": 0,
+          "terminal": false
+        },
+        {
+          "pitch": "https://baseballontology.org/data/game/823585/pitch/6ead1ae3-f14d-39ea-95b9-5bb6ce7528eb",
+          "strikesAfter": 0,
+          "terminal": false
+        },
+        {
+          "pitch": "https://baseballontology.org/data/game/823585/pitch/60fc1a27-3b74-3e65-9364-3648b76a1f23",
+          "strikesAfter": 1,
+          "terminal": false
+        },
+        {
+          "pitch": "https://baseballontology.org/data/game/823585/pitch/6760d110-e99d-3005-b460-6e9b5160ecd4",
+          "strikesAfter": 2,
+          "terminal": false
+        },
+        {
+          "pitch": "https://baseballontology.org/data/game/823585/pitch/7fa5575b-2123-31fd-a92f-688d54a14a71",
+          "strikesAfter": 3,
+          "terminal": true
+        }
+      ]
+    },
+    {
+      "status": "unavailable",
+      "value": null,
+      "gaps": [
+        "NOT_TWO_STRIKE_ELIGIBLE"
+      ],
+      "evidence": [],
+      "graph": "https://w3id.org/baseball/graph/game/823585",
+      "game": "https://baseballontology.org/data/game/823585",
+      "plateAppearance": "https://baseballontology.org/data/game/823585/plate-appearance/79",
+      "player": "https://baseballontology.org/data/player/701807",
+      "twoStrikeEligible": false,
+      "countHistory": []
+    }
+  ],
+  "terminalFieldReviewPrefix": {
+    "gamePk": "823826",
+    "plateAppearance": "https://baseballontology.org/data/game/823826/plate-appearance/55",
+    "sourceSha256": "1c2f05b2a5dc3a806a348ff45bed3e1b2d8d1e32c70d7f52509bec6c15d9237e",
+    "rdfSha256": "92e99b5af916f6fa8d22922dd770733b860bf5e826ba33114331228e85038449",
+    "fullSourceShaclConforms": true,
+    "focusedCountShaclConforms": true,
+    "jenaQueryPassed": true,
+    "recovery": {
+      "status": "available",
+      "value": {
+        "numerator": "0",
+        "denominator": "1"
+      },
+      "gaps": [],
+      "evidence": [
+        "https://baseballontology.org/data/game/823826/pitch/7a24cd3e-2987-3c18-ba44-6670450ba4f4",
+        "https://baseballontology.org/data/game/823826/pitch/ebefc1e0-d133-3adb-aac9-20ebd0f8d064",
+        "https://baseballontology.org/data/game/823826/pitch/ecb9c37f-6c18-3d20-85f8-eff7b3c0d52b"
+      ],
+      "components": {},
+      "graph": "https://w3id.org/baseball/graph/game/823826",
+      "game": "https://baseballontology.org/data/game/823826",
+      "plateAppearance": "https://baseballontology.org/data/game/823826/plate-appearance/55",
+      "player": "https://baseballontology.org/data/player/672640",
+      "twoStrikeEligible": true,
+      "countHistory": [
+        {
+          "pitch": "https://baseballontology.org/data/game/823826/pitch/ebefc1e0-d133-3adb-aac9-20ebd0f8d064",
+          "strikesAfter": 1,
+          "terminal": false
+        },
+        {
+          "pitch": "https://baseballontology.org/data/game/823826/pitch/7a24cd3e-2987-3c18-ba44-6670450ba4f4",
+          "strikesAfter": 2,
+          "terminal": false
+        },
+        {
+          "pitch": "https://baseballontology.org/data/game/823826/pitch/ecb9c37f-6c18-3d20-85f8-eff7b3c0d52b",
+          "strikesAfter": 2,
+          "terminal": true
+        }
+      ]
+    },
+    "wholeGameCountAdmission": false,
+    "sqlExactMatch": true,
+    "materialization": {
+      "metrics": 20,
+      "evidenceRows": 1810,
+      "exactRoundTrip": true
+    }
+  },
+  "foulTipBuntValidation": {
+    "codes": [
+      "T",
+      "O"
+    ],
+    "expectedIdentity": "process/foul-tip/{playId}",
+    "validation": "focused RDF mutation/equivalence test; no separate whole-game claim"
+  },
+  "sharedEvaluation": {
+    "gamePk": "823826",
+    "normalizedBindings": 1810,
+    "backendMetrics": 20,
+    "standaloneSeconds": 1.3099548000027426,
+    "sharedSeconds": 1.0612529999925755,
+    "allResultsExactlyEqual": true,
+    "scope": "one developer timing comparison; not a production latency guarantee"
+  },
+  "focusedTests": {
+    "test_pitch_count_admission.py": 6,
+    "test_zero_pitch_walk_recovery.py": 4,
+    "test_recovery_players.py": 4,
+    "test_metric_mapping_completion.py": 14,
+    "test_counted_foul_completion.py": 6,
+    "test_c3_count_prefix.py": 2,
+    "test_shared_metric_evidence.py": 3,
+    "test_metric_suite_serving.py": 11,
+    "test_metric_dashboard.py": 4,
+    "web/tests/metric-suite.test.mjs": 43
+  },
+  "focusedTestsPassed": 97
+}

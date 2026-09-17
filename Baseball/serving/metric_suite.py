@@ -9,6 +9,7 @@ logarithms generally have no rational representation.
 from __future__ import annotations
 
 from collections import Counter, defaultdict, deque
+from copy import deepcopy
 from datetime import date, datetime, timezone, timedelta
 from decimal import localcontext
 from fractions import Fraction
@@ -24,7 +25,7 @@ from rdflib import Graph, Literal
 
 ROOT = Path(__file__).resolve().parents[1]
 METRICS = ROOT / 'sparql/metrics'
-VERSION = '2.0.36'
+VERSION = '2.0.37'
 
 
 class EvidenceError(ValueError):
@@ -549,7 +550,7 @@ def recovery_steps(pitches):
     return available(steps, evidence=[p['event'] for p in pitches])
 
 
-def recovery_histories(rows):
+def recovery_histories(rows, *, zero_pitch_pas=()):
     """Count from complete existing graph paths; source admission is separate.
 
     Pitch intervals establish order. Q5 award precedence locates a non-pitch
@@ -557,6 +558,7 @@ def recovery_histories(rows):
     supplies chronology and no provider counter supplies a score.
     """
     pas, events = defaultdict(list), defaultdict(list)
+    zero_pitch_pas=set(zero_pitch_pas)
     for row in rows:
         if row['kind']=='plate_appearance':pas[(row['graph'],row['entity'])].append(row)
         elif row['kind'] in {'pitch_count','automatic_count_award'}:
@@ -573,6 +575,14 @@ def recovery_histories(rows):
             gaps.append(dict(graph=graph,plateAppearance=pa,gap='RECOVERY_BATTER_ASSIGNMENT'));continue
         grouped=defaultdict(list)
         for row in events[(graph,pa)]:grouped[row['entity']].append(row)
+        if (graph,pa) in zero_pitch_pas:
+            types={r.get('paResultType') for r in official}
+            if grouped or types!={'https://baseballontology.org/WalkProcess'}:
+                gaps.append(dict(graph=graph,plateAppearance=pa,gap='ZERO_PITCH_COUNT_CONFLICT'));continue
+            results.append(dict(unavailable('NOT_TWO_STRIKE_ELIGIBLE'),graph=graph,
+                game=next(iter(games)),plateAppearance=pa,player=next(iter(people)),
+                twoStrikeEligible=False,countHistory=[]))
+            continue
         pitches, awards, reason = [], [], None
         for entity, bindings in grouped.items():
             fields=('kind','plateAppearance','record','pitchInterval','pitchStartInstant','pitchEndInstant',
@@ -1382,16 +1392,43 @@ def review_player_evidence(rows):
     return output
 
 
-def live_result(metric_id, rows, *, graph_count):
+class _EvidenceEvaluation:
+    """Reuse pure projections within one immutable query/materialization only."""
+
+    def __init__(self, rows, graph_count):
+        self.rows, self.graph_count = rows, graph_count
+        self._coverage = None
+        self._progress = None
+
+    def check(self, rows, graph_count=None):
+        if rows is not self.rows or (graph_count is not None and graph_count != self.graph_count):
+            raise EvidenceError('Shared evidence escaped its request scope')
+
+    def coverage(self):
+        if self._coverage is None:
+            self._coverage = {'games': self.graph_count, 'evidenceRows': len(self.rows),
+                'observedEntities': {kind: len({(r['graph'], r['entity']) for r in self.rows if r['kind'] == kind})
+                    for kind in ['plate_appearance', 'batted_play', 'run', 'player_game', 'review']},
+                'runnerMovements': movement_coverage(self.rows),
+                'battingParticipation': batting_participation(self.rows),
+                'populationComplete': False}
+        # Each metric annotates its own coverage. Those annotations must not
+        # leak to another card or turn one metric's admission into another's.
+        return deepcopy(self._coverage)
+
+    def progress(self):
+        if self._progress is None:
+            self._progress = batting_progress_evidence(self.rows)
+        return deepcopy(self._progress)
+
+
+def live_result(metric_id, rows, *, graph_count, _evaluation=None):
     entry = next((e for e in catalog()['metrics'] if e['id'] == metric_id), None)
     if entry is None:
         raise EvidenceError('Unknown metric')
-    coverage = {'games': graph_count, 'evidenceRows': len(rows),
-                'observedEntities': {kind: len({(r['graph'], r['entity']) for r in rows if r['kind'] == kind})
-                                     for kind in ['plate_appearance', 'batted_play', 'run', 'player_game', 'review']},
-                'runnerMovements': movement_coverage(rows),
-                'battingParticipation': batting_participation(rows),
-                'populationComplete': False}
+    evaluation = _evaluation or _EvidenceEvaluation(rows, graph_count)
+    evaluation.check(rows, graph_count)
+    coverage = evaluation.coverage()
     if entry['requires']:
         result = unavailable(*entry['requires'], coverage=coverage, metricId=metric_id,
                              scope='selected promoted game graphs', grain=entry['grain'])
@@ -2069,7 +2106,8 @@ def batting_progress_evidence(rows):
     return dict(plateAppearances=completed,unresolvedPlateAppearances=withheld)
 
 
-def batting_progress_players(metric_id, rows, *, graphs, admissions, qualification, date_scope):
+def batting_progress_players(metric_id, rows, *, graphs, admissions, qualification, date_scope,
+                             _evaluation=None):
     if metric_id not in PROGRESS_METRICS:raise EvidenceError('Not a batting-progress metric')
     missing=dict(playerPopulationComplete=False,playerResults=[])
     denied=[g for g in graphs if admissions.get(g,{}).get('status')!='admitted'
@@ -2080,7 +2118,9 @@ def batting_progress_players(metric_id, rows, *, graphs, admissions, qualificati
     if not qualification['teamGameExposureVerified']:reasons.append('COMPLETE_SELECTED_SCHEDULE')
     if reasons:return dict(missing,playerSummaryGaps=reasons)
     if any(r['graph'] not in set(graphs) for r in rows):raise EvidenceError('Progress escaped selected graphs')
-    evidence=batting_progress_evidence(rows)
+    if _evaluation is not None:
+        _evaluation.check(rows, len(graphs))
+    evidence=_evaluation.progress() if _evaluation is not None else batting_progress_evidence(rows)
     if evidence['unresolvedPlateAppearances']:
         return dict(missing,playerSummaryGaps=['COMPLETE_PA_PROGRESS'],progressEvidence=evidence)
     pas=evidence['plateAppearances'];expected=qualification['expectedObservations']
@@ -2188,7 +2228,12 @@ def recovery_game_inputs(rows, *, graph, batting_admission, pitch_count_admissio
                                          date_scope={}, selected_games_complete=False)
     if not qualification['officialPlateAppearanceCreditVerified']:
         return dict(denied, gaps=['OFFICIAL_PA_ADMISSION'])
-    evidence = recovery_histories(rows)
+    zero_pitch_pas=pitch_count_admission.get('zeroPitchPlateAppearances',[])
+    if (not isinstance(zero_pitch_pas,list) or any(not isinstance(p,str) for p in zero_pitch_pas)
+            or len(set(zero_pitch_pas))!=len(zero_pitch_pas)
+            or not set(zero_pitch_pas)<={r['plateAppearance'] for r in qualification['expectedObservations']}):
+        raise EvidenceError('Zero-pitch count admission escaped its official PA census')
+    evidence = recovery_histories(rows,zero_pitch_pas={(graph,pa) for pa in zero_pitch_pas})
     if evidence['unresolvedPlateAppearances']:
         return dict(denied, gaps=sorted({r['gap'] for r in evidence['unresolvedPlateAppearances']}),
                     unresolvedPlateAppearances=evidence['unresolvedPlateAppearances'])
@@ -2739,11 +2784,12 @@ def materialize_game(connection, graph, bindings, *, batting_admission=None, sco
     recovery_inputs=recovery_game_inputs(rows,graph=graph,
         batting_admission=batting_admission or {},pitch_count_admission=pitch_count_admission or {})
     joined_paq21=paq21_game_inputs(contribution_inputs,recovery_inputs,defense)
+    evaluation = _EvidenceEvaluation(rows, 1)
     for row in rows:
         text = _json(row)
         connection.execute('INSERT INTO metric_suite_evidence VALUES (?,?,?)', (graph, _hash(text), text))
     for entry in catalog()['metrics']:
-        result = live_result(entry['id'], rows, graph_count=1)
+        result = live_result(entry['id'], rows, graph_count=1, _evaluation=evaluation)
         if entry['id']=='resolution-depth':result['defensiveInputs']=defense
         if entry['id']=='paq-2.1':result['paq21Inputs']=joined_paq21
         if entry['id']=='tfs':result['contributionInputs']=contribution_inputs
@@ -2766,9 +2812,10 @@ def requested_metric_ids(request):
     return [request['metricId']]
 
 
-def selected_results(request, rows, *, graph_count):
+def selected_results(request, rows, *, graph_count, _evaluation=None):
     ids = requested_metric_ids(request)
-    results = [live_result(metric_id, rows, graph_count=graph_count) for metric_id in ids]
+    evaluation = _evaluation or _EvidenceEvaluation(rows, graph_count)
+    results = [live_result(metric_id, rows, graph_count=graph_count, _evaluation=evaluation) for metric_id in ids]
     return {'metrics': results} if request.get('view') == 'dashboard' else {'metric': results[0]}
 
 
@@ -2833,7 +2880,8 @@ def query_sql(connection, request, scope):
             resolution_admissions[graph] = json.loads(text)
     # Pool distinct resolved reviews; never average per-game percentages. Full
     # cohort metrics remain unavailable until their admission gaps are closed.
-    result = selected_results(request, rows, graph_count=len(graphs))
+    evaluation = _EvidenceEvaluation(rows, len(graphs))
+    result = selected_results(request, rows, graph_count=len(graphs), _evaluation=evaluation)
     schedule = selected_schedule_coverage(connection,scope,graphs)
     qualification = batting_qualification(rows, graphs=graphs, admissions=admissions,
         date_scope=scope, selected_games_complete=schedule['complete'])
@@ -2865,7 +2913,8 @@ def query_sql(connection, request, scope):
                 date_scope=scope, schedule=schedule, evidence=metric))
         if metric['metricId'] in PROGRESS_METRICS:
             progress=batting_progress_players(metric['metricId'],rows,graphs=graphs,
-                admissions=resolution_admissions,qualification=qualification,date_scope=scope)
+                admissions=resolution_admissions,qualification=qualification,date_scope=scope,
+                _evaluation=evaluation)
             if metric['metricId'] in {'offensive-reach','hidden-help-rate'}:
                 attributed=contribution_players(metric['metricId'],contribution_inputs,
                     qualification=qualification,date_scope=scope)

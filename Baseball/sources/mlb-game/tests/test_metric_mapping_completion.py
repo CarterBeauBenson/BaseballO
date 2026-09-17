@@ -39,6 +39,30 @@ def selected(plays, consistent=True):
 
 
 class SourceSelectionTests(unittest.TestCase):
+    def test_terminal_field_review_does_not_hide_an_earlier_counted_foul(self):
+        document = json.loads((ROOT/'data/raw/samples/2026-08-25/823826.json').read_bytes())
+        original = document['liveData']['plays']['allPlays'][55]
+        before = copy.deepcopy(original)
+        _, evidence = selected([original])
+        self.assertEqual([r['eventIndex'] for r in evidence['countedFouls']], [1])
+        self.assertEqual([r['problem'] for r in evidence['prefixInventory']],
+                         [None, None, 'FIELD_REVIEW_IN_PREFIX'])
+        self.assertFalse(evidence['pitchReviews'])
+        self.assertEqual(original, before)
+
+        for fault in ('in-progress', 'unknown-type', 'conflicting-disposition',
+                      'missing-terminal-movement', 'earlier-review', 'overlap', 'count'):
+            p = copy.deepcopy(original)
+            if fault == 'in-progress': p['reviewDetails']['inProgress'] = True
+            elif fault == 'unknown-type': p['reviewDetails']['reviewType'] = 'unknown'
+            elif fault == 'conflicting-disposition': p['reviewDetails']['isOverturned'] = True
+            elif fault == 'missing-terminal-movement': p['runners'] = []
+            elif fault == 'earlier-review': p['playEvents'][0]['details']['hasReview'] = True
+            elif fault == 'overlap': p['playEvents'][0]['endTime'] = p['playEvents'][1]['endTime']
+            elif fault == 'count': p['playEvents'][0]['count']['strikes'] = 0
+            _, evidence = selected([p])
+            self.assertFalse(evidence['countedFouls'], fault)
+
     def test_real_second_strike_and_held_count(self):
         _, e = selected([source_play(1)])
         self.assertEqual([r['eventIndex'] for r in e['countedFouls']], [4])
