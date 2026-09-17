@@ -17,7 +17,8 @@ caches are disposable derived data.
 | `sources/mlb-game/` | Source-owned RML, SHACL and promotion-bound admission proofs |
 | `sparql/metrics/` | Evidence queries, calculation kernels, catalog and accepted metric policies |
 | `serving/metric_suite.py` | Exact calculations, evidence consumers, per-game products and selected-period player summaries |
-| `serving/metric-suite-schema.sql` | Evidence, current proofs, exact results and their hashes |
+| `serving/metric_blocks.py` | Indexed analytical inputs, pooled game summaries, reference-rank retention and input diagnostics |
+| `serving/metric-suite-schema.sql` | Evidence, current proofs, analytical observations, exact results and their hashes |
 | `scripts/pipeline/materialize-serving-layer.py` | Validated graph snapshot, immutable SQL candidate, integrity checks and atomic publication |
 | `scripts/pipeline/serving_release.py` | Committed code capture and matching SQL reader release |
 | `scripts/pipeline/serving_query_cache.py` | Exact SELECT reuse for unchanged promoted graph pairs |
@@ -52,6 +53,44 @@ require the independently complete reference season. Per-game caches cannot
 establish either population. Fractions stay exact until display; entropy
 retains its exact channel counts and explicitly approximate numeric evaluation.
 
+## SQL building blocks and final arithmetic
+
+Version 2.1 projects the existing accepted evidence once during the NiFi build.
+The request reader selects these reusable observations instead of loading raw
+graph bindings and reconstructing movement, scoring and pitch histories:
+
+| SQL product | Grain and purpose |
+| --- | --- |
+| `metric_suite_scope_fact` | Distinct PA, roster, run and contact-play facts needed for participation and census checks |
+| `metric_suite_input_row` | One observation per graph and input family: contribution PA, recovery PA, defensive resolution, PAQ-2.1 PA or progress PA |
+| `metric_suite_input_state` | Each game's projection completeness, unresolved observations and expected row count |
+| `metric_suite_shell` | Compact per-game results and supported scoring/review details, excluding the five large input families |
+| `metric_suite_reference_rank` | Exact ranks for a metric, season and identical admitted reference graph set |
+
+Observation identity, player, game, applicability and exact numerator/denominator
+are SQL columns. Detail JSON preserves the existing reducer inputs and evidence
+traces. This is a physical projection of accepted inputs; it adds no RDF terms.
+The original evidence and full game products remain available for inspection.
+
+The server pools exact counts and fractions across the selected games, then
+calculates player averages and applies the existing participation minimums.
+It sums Empty Games as a count and combines review numerators/denominators
+before division. It never averages game percentages. Individual Offensive Reach
+and Help Without Advancing requests now load the same contribution dependencies
+as their dashboard cards.
+
+NiFi prepares season ranks after all game inputs are stored. The reader still
+checks current source proofs and the independently complete reference schedule.
+A different historical cutoff computes its own ranks from stored observations;
+it cannot reuse the latest population's ranks. Requests do not write caches.
+Reference requests still read projected observation records for membership and
+completeness checks; this change does not claim constant-time season queries.
+
+The internal `_use_blocks=False` reader remains a developer comparison oracle,
+with no HTTP switch. `buildingBlockCoverage` reports per-family projection and
+gap counts for diagnosis. Complete projection is distinct from admitted source,
+complete calendar coverage, qualified participation and a populated leaderboard.
+
 ## Public presentation
 
 There are 19 public metrics and one backend role metric. Cards rank players
@@ -76,6 +115,14 @@ From `Baseball/tests`, run the affected Python component modules with
 `test_serving_materializer`: cold/warm equality, exact large fractions,
 independent proof invalidation, corruption recovery, repeat admission checks,
 current graph checks and preservation of the prior pointer on failure.
+
+`test_metric_blocks` compares every metric response against the evidence reader
+over distinct one- and two-game fixtures. It denies SQL access to raw evidence
+and full game results and fails if request-time graph kernels run. It also
+checks missing/corrupt inputs, cached-rank corruption, historical cutoffs,
+changed reference inputs, independent schedules and both PAQ-2.1 ranking passes.
+`prove_metric_building_blocks.py` provides a bounded read-only comparison on one
+already promoted game; it neither acquires source data nor publishes a build.
 
 From `Baseball/web`, the supported Node 24 runtime runs
 `node --test tests/metric-suite.test.mjs tests/runtime-safety.test.mjs` for

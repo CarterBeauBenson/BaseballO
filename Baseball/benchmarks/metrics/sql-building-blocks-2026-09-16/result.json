@@ -1,0 +1,97 @@
+{
+  "artifactType": "baseballo-metric-building-block-developer-proof",
+  "gamePk": "823585",
+  "promotionManifestSha256": "c9c31e34a204bf494d2a92e3f71541367c47ca202334ea1ba99d29747c789a80",
+  "authoritativeRdfSha256": "4ee1d2dd8bee130f7dd348ee04a3999f6632fb3e41e6355b7d5ae5e3c3842bdd",
+  "implementationSha256": "2d759d67fc39f0a9ca19415e0abf6bfe9546f8243262a90f6f17e245cd1e4bc3",
+  "querySha256": "a55100a52cf0fa67fd62b38da1652699372bc61c61841aa1465ffa177c0519a3",
+  "normalizedBindingsSha256": "7ed417748643d11d143a0c36c8e68b78dcecc0bba58880d96deca2ec5d777c63",
+  "sourceAdmissionStatuses": {
+    "batting_admission": "admitted",
+    "scoring_run_admission": "admitted",
+    "runner_resolution_admission": "withheld",
+    "pitch_count_admission": "withheld",
+    "runner_boundary_admission": "withheld",
+    "defensive_admission": "withheld"
+  },
+  "stored": {
+    "metrics": 20,
+    "evidenceRows": 1568,
+    "exactRoundTrip": true,
+    "buildingBlocksRoundTrip": true
+  },
+  "rowCounts": {
+    "metric_suite_evidence": 1568,
+    "metric_suite_scope_fact": 340,
+    "metric_suite_input_row": 79,
+    "metric_suite_shell": 20
+  },
+  "exactMetricComparisons": 20,
+  "evidenceReaderMs": 676.928,
+  "buildingBlockReaderMs": 48.688,
+  "buildingBlockCoverage": {
+    "contribution": {
+      "games": 1,
+      "completeProjections": 0,
+      "observations": 0,
+      "unresolvedObservations": 0,
+      "withheldGraphs": [
+        "https://w3id.org/baseball/graph/game/823585"
+      ],
+      "gaps": {
+        "COMPLETE_RUNNER_BOUNDARIES": 1,
+        "COMPLETE_RUNNER_RESOLUTION_POPULATION": 1
+      }
+    },
+    "defense": {
+      "games": 1,
+      "completeProjections": 0,
+      "observations": 0,
+      "unresolvedObservations": 0,
+      "withheldGraphs": [
+        "https://w3id.org/baseball/graph/game/823585"
+      ],
+      "gaps": {
+        "DEFENSIVE_POPULATION": 1
+      }
+    },
+    "paq21": {
+      "games": 1,
+      "completeProjections": 0,
+      "observations": 0,
+      "unresolvedObservations": 0,
+      "withheldGraphs": [
+        "https://w3id.org/baseball/graph/game/823585"
+      ],
+      "gaps": {
+        "PAQ21_COMPONENT_ADMISSION": 1
+      }
+    },
+    "progress": {
+      "games": 1,
+      "completeProjections": 0,
+      "observations": 79,
+      "unresolvedObservations": 3,
+      "withheldGraphs": [
+        "https://w3id.org/baseball/graph/game/823585"
+      ],
+      "gaps": {
+        "UNRESOLVED_PROGRESS_ATTRIBUTION": 1
+      }
+    },
+    "recovery": {
+      "games": 1,
+      "completeProjections": 0,
+      "observations": 0,
+      "unresolvedObservations": 0,
+      "withheldGraphs": [
+        "https://w3id.org/baseball/graph/game/823585"
+      ],
+      "gaps": {
+        "PITCH_COUNT_ADMISSION": 1
+      }
+    }
+  },
+  "publicDateRangeWithoutScheduleAdmission": "withheld",
+  "livePopulationComplete": false
+}

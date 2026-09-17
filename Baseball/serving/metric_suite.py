@@ -14,6 +14,7 @@ from datetime import date, datetime, timezone, timedelta
 from decimal import localcontext
 from fractions import Fraction
 import hashlib
+import importlib.util
 import json
 import math
 from pathlib import Path
@@ -25,7 +26,17 @@ from rdflib import Graph, Literal
 
 ROOT = Path(__file__).resolve().parents[1]
 METRICS = ROOT / 'sparql/metrics'
-VERSION = '2.0.38'
+VERSION = '2.1.0'
+_block_spec = importlib.util.spec_from_file_location('baseballo_metric_blocks', ROOT/'serving/metric_blocks.py')
+_blocks = importlib.util.module_from_spec(_block_spec)
+_block_spec.loader.exec_module(_blocks)
+
+
+def _block_api():
+    # This module is also loaded through importlib by independent proof tools,
+    # which need not register it in sys.modules.
+    from types import SimpleNamespace
+    return SimpleNamespace(**globals())
 
 
 class EvidenceError(ValueError):
@@ -45,7 +56,7 @@ def policies():
 
 
 def fingerprint():
-    paths = [Path(__file__), ROOT / 'serving/metric-suite-schema.sql',
+    paths = [Path(__file__), ROOT / 'serving/metric_blocks.py', ROOT / 'serving/metric-suite-schema.sql',
              METRICS / 'metric-catalog.json', METRICS / 'gap-register.json',
              METRICS / 'batch-release-policy.json', METRICS / 'trajectory-origin-policy.json']
     paths.extend(sorted(METRICS.glob('*.rq')))
@@ -82,7 +93,7 @@ def calculation_fingerprint():
     calculation over identical validated inputs. The serving manifest retains
     the broader fingerprint above, as do the build guard and SQL reader.
     """
-    paths = [Path(__file__), ROOT / 'serving/metric-suite-schema.sql',
+    paths = [Path(__file__), ROOT / 'serving/metric_blocks.py', ROOT / 'serving/metric-suite-schema.sql',
              *sorted(METRICS.glob('*.json')), *sorted(METRICS.glob('*.rq'))]
     paths.extend(ROOT / e['authoritativeQuery'] for e in [*catalog()['metrics'], *catalog().get('components', [])])
     return _hash('\n'.join(p.relative_to(ROOT).as_posix() + ':' + hashlib.sha256(p.read_bytes()).hexdigest()
@@ -1331,7 +1342,7 @@ def summarize_review_players(metric_id, decisions, *, expected_observations,
 
 
 def summarize_paq21_players(reference_observations, *, expected_reference, selected_observations,
-                           participation, date_scope, complete_reference=False):
+                           participation, date_scope, complete_reference=False, _season_ranks=None):
     """Full admitted season references first, then selected-period player means.
 
     This is the numerical join/reducer, not a source-completeness declaration.
@@ -1356,8 +1367,9 @@ def summarize_paq21_players(reference_observations, *, expected_reference, selec
             raise EvidenceError('PAQ-2.1 reference season is outside the selected years')
         seasons[year].append(dict(row,key=_json(identity(row))))
     ranks={}
-    for entries in seasons.values():
-        ranked=paq21_population(entries,complete_population=True)
+    for year,entries in seasons.items():
+        ranked=(_season_ranks[year] if _season_ranks is not None else
+                paq21_population(entries,complete_population=True))
         errors={gap for r in ranked.values() if r['status']!='available' for gap in r['gaps'] if gap!='PAQ21_NOT_APPLICABLE'}
         if errors:return denied(*sorted(errors))
         ranks.update(ranked)
@@ -2150,18 +2162,8 @@ def batting_progress_players(metric_id, rows, *, graphs, admissions, qualificati
     for pa in pas:
         if pa['officialResult']:by_player[pa['player']].append(pa)
         for episode in pa['independentPositive']:running[(episode['player'],pa['game'])].add(episode['episode'])
-    kernel_inputs=[]
-    if metric_id=='hidden-help-rate':
-        kernel_inputs=[dict(key=pa['player'],pa=_json([pa['graph'],pa['plateAppearance']]),
-            batterProgress36=int(pa['batterPositive']),otherProgress36=int(bool(pa['otherPositivePlayers'])))
-            for pa in pas if pa['officialResult']]
-    elif metric_id=='empty-game-rate':
-        for player,observations in by_player.items():
-            by_game=defaultdict(list)
-            for pa in observations:by_game[pa['game']].append(pa)
-            kernel_inputs.extend(dict(key=player,game=game,plateAppearances=len(ps),
-                positiveEpisodes=sum(p['reach'] for p in ps)+len(running[(player,game)])) for game,ps in by_game.items())
-    counted={r['key']:r for r in run_kernel(metric_id,kernel_inputs)} if kernel_inputs else {}
+    # These inputs are already adjudicated projection results. Pool exact
+    # counts directly; the canonical SPARQL kernels remain regression oracles.
     for person in people:
         player=person['player'];observations=by_player[player]
         if not person['plateAppearances']:continue
@@ -2173,11 +2175,16 @@ def batting_progress_players(metric_id, rows, *, graphs, admissions, qualificati
             count=len(observations);total=sum(p['reach'] for p in observations)
             aggregate=dict(kind='mean',sum=exact(total),count=count);value=exact(Fraction(total,count))
         elif metric_id=='hidden-help-rate':
-            total=int(counted[player]['numerator']);count=int(counted[player]['denominator'])
+            applicable=[p for p in observations if not p['batterPositive']]
+            total=sum(bool(p['otherPositivePlayers']) for p in applicable);count=len(applicable)
             if not count:continue  # A known empty denominator has no rate.
             aggregate=dict(kind='mean',sum=exact(total),count=count);value=exact(Fraction(total,count))
         else:
-            total=int(counted[player]['numerator']);eligible=int(counted[player]['denominator'])
+            by_game=defaultdict(list)
+            for pa in observations:by_game[pa['game']].append(pa)
+            eligible=len(by_game)
+            total=sum(not any(p['reach'] for p in game_pas) and not running[(player,game)]
+                      for game,game_pas in by_game.items())
             aggregate=dict(kind='count',count=total,eligibleGames=eligible);value=exact(total)
         output.append(dict(player=player,metricId=metric_id,status='available',dateScope=dict(date_scope),
             completeParticipation=True,plateAppearances=person['plateAppearances'],teamGames=len(games),
@@ -2211,8 +2218,11 @@ def contribution_mix_players(evidence, *, qualification, date_scope):
             if item['player'] not in people:raise EvidenceError('Running participant lacks admitted roster exposure')
             running[item['player']].add((pa['graph'],item['episode']))
     inputs=_unique(inputs,('key','play','channel'))
-    counts={row['key']:[int(row[c]) for c in ('self','other','running')]
-            for row in run_kernel('contribution-path-diversity',inputs)} if inputs else {}
+    counts=defaultdict(lambda:[0,0,0])
+    channels={'batter_self':0,'batter_other':1,'runner_self':2}
+    for row in inputs:
+        if row['channel'] not in channels:raise EvidenceError('Unknown admitted contribution channel')
+        counts[row['key']][channels[row['channel']]]+=1
     output=[]
     for player,person in sorted(people.items()):
         if official[player]!=person['plateAppearances']:
@@ -2261,7 +2271,7 @@ def recovery_game_inputs(rows, *, graph, batting_admission, pitch_count_admissio
     return dict(complete=True, plateAppearances=evidence['plateAppearances'], gaps=[])
 
 
-def season_rank_players(connection, *, metric_id, graphs, qualification, date_scope):
+def season_rank_players(connection, *, metric_id, graphs, qualification, date_scope, _use_blocks=True, _write_reference=False):
     """Season-through-cutoff midranks, then selected-period player means.
 
     Every calendar day of the reference season has an independent schedule
@@ -2293,6 +2303,8 @@ def season_rank_players(connection, *, metric_id, graphs, qualification, date_sc
         if not schedule['complete']:
             return denied('REFERENCE_POPULATION_INCOMPLETE', referencePopulations=references)
         observations=[];withheld=[]
+        retained_inputs = (_blocks.read_inputs(_block_api(),connection,'recovery' if recovery else 'contribution',reference_graphs)
+                           if _use_blocks else {})
         for graph in reference_graphs:
             proof_tables=(['metric_suite_count_admission','metric_suite_admission'] if recovery else
                 ['metric_suite_boundary_admission','metric_suite_runner_resolution_admission','metric_suite_admission'])
@@ -2303,9 +2315,12 @@ def season_rank_players(connection, *, metric_id, graphs, qualification, date_sc
                     raise EvidenceError('Metric SQL reference admission checksum mismatch')
                 proof=json.loads(proof_record[0]) if proof_record else {}
                 admitted=admitted and proof.get('status')=='admitted' and proof.get('sourceReconciled') is True and proof.get('graphConforms') is True
-            results=read_results(connection,graph,'recovery-quality' if recovery else 'tfs')
-            if len(results)!=1:raise EvidenceError('Season reference build lacks a game')
-            inputs=results[0].get('recoveryInputs' if recovery else 'contributionInputs',{})
+            if _use_blocks:
+                inputs=retained_inputs[graph]
+            else:
+                results=read_results(connection,graph,'recovery-quality' if recovery else 'tfs')
+                if len(results)!=1:raise EvidenceError('Season reference build lacks a game')
+                inputs=results[0].get('recoveryInputs' if recovery else 'contributionInputs',{})
             if inputs.get('complete') is not True or not admitted:
                 withheld.append(graph);continue
             observations.extend(inputs['plateAppearances'])
@@ -2318,8 +2333,11 @@ def season_rank_players(connection, *, metric_id, graphs, qualification, date_sc
         reference['applicablePlateAppearances']=len(entries)
         if len(entries)==1:
             return denied('REFERENCE_POPULATION_TOO_SMALL',referencePopulations=references)
-        season_ranks=(paq_a_population(entries,complete_population=True) if metric_id=='paq-a' else
-                      percentiles(entries,metric_id=metric_id,complete_population=True))
+        def compute():
+            return (paq_a_population(entries,complete_population=True) if metric_id=='paq-a' else
+                    percentiles(entries,metric_id=metric_id,complete_population=True))
+        season_ranks=(_blocks.reference_ranks(_block_api(),connection,metric_id,year,reference_graphs,compute,
+                      write=_write_reference) if _use_blocks else compute())
         ranks.update(season_ranks)
     identity=lambda r:(r['graph'],r['plateAppearance'],r['player'])
     expected={identity(r) for r in qualification['expectedObservations']}
@@ -2350,9 +2368,9 @@ def season_rank_players(connection, *, metric_id, graphs, qualification, date_sc
                 referencePopulations=references,scope='Season-relative percentiles averaged over applicable selected-period PAs; independent state cohorts for PAQ-A.')
 
 
-def recovery_players(connection, *, graphs, qualification, date_scope):
+def recovery_players(connection, *, graphs, qualification, date_scope, _use_blocks=True):
     return season_rank_players(connection,metric_id='recovery-quality',graphs=graphs,
-        qualification=qualification,date_scope=date_scope)
+        qualification=qualification,date_scope=date_scope,_use_blocks=_use_blocks)
 
 
 def paq21_game_inputs(contribution, recovery, defense):
@@ -2394,7 +2412,7 @@ def paq21_game_inputs(contribution, recovery, defense):
     return dict(complete=True,plateAppearances=observations,gaps=[])
 
 
-def paq21_players(connection, *, graphs, qualification, date_scope):
+def paq21_players(connection, *, graphs, qualification, date_scope, _use_blocks=True, _write_reference=False):
     """Trusted per-game joins -> full season ranks -> selected player means."""
     def denied(*gaps,**details):
         return dict(unavailable(*gaps),playerPopulationComplete=False,playerResults=[],
@@ -2403,7 +2421,7 @@ def paq21_players(connection, *, graphs, qualification, date_scope):
     if not all(qualification.get(k) is True for k in
         ('officialPlateAppearanceCreditVerified','teamGameExposureVerified','selectedGamesComplete')):
         return denied('COMPLETE_BATTING_QUALIFICATION')
-    selected_graphs=set(graphs);references=[];observations=[];selected=[]
+    selected_graphs=set(graphs);references=[];observations=[];selected=[];season_ranks={}
     proof_tables=('metric_suite_boundary_admission','metric_suite_runner_resolution_admission',
                   'metric_suite_admission','metric_suite_count_admission','metric_suite_defensive_admission')
     for year in range(int(date_scope['startDate'][:4]),int(date_scope['endDate'][:4])+1):
@@ -2416,6 +2434,7 @@ def paq21_players(connection, *, graphs, qualification, date_scope):
         references.append(reference)
         if not schedule['complete']:return denied('REFERENCE_POPULATION_INCOMPLETE',referencePopulations=references)
         season=[];withheld=[]
+        retained_inputs = _blocks.read_inputs(_block_api(),connection,'paq21',reference_graphs) if _use_blocks else {}
         for graph in reference_graphs:
             admitted=True
             for table in proof_tables:
@@ -2424,9 +2443,12 @@ def paq21_players(connection, *, graphs, qualification, date_scope):
                 proof=json.loads(record[0]) if record else {}
                 admitted=admitted and all(proof.get(k)==v for k,v in
                     dict(status='admitted',sourceReconciled=True,graphConforms=True).items())
-            retained=read_results(connection,graph,'paq-2.1')
-            if len(retained)!=1:raise EvidenceError('PAQ-2.1 reference build lacks a game')
-            inputs=retained[0].get('paq21Inputs',{})
+            if _use_blocks:
+                inputs=retained_inputs[graph]
+            else:
+                retained=read_results(connection,graph,'paq-2.1')
+                if len(retained)!=1:raise EvidenceError('PAQ-2.1 reference build lacks a game')
+                inputs=retained[0].get('paq21Inputs',{})
             if not admitted or inputs.get('complete') is not True:withheld.append(graph);continue
             if any(row['graph']!=graph for row in inputs['plateAppearances']):
                 raise EvidenceError('PAQ-2.1 reference escaped its game graph')
@@ -2436,7 +2458,9 @@ def paq21_players(connection, *, graphs, qualification, date_scope):
         # defensive applicability restriction is applied.
         eligible=[dict(key=_json([r['graph'],r['plateAppearance']]),score=r['recoveryInput'])
                   for r in season if r['twoStrikeEligible']]
-        recovery_ranks=percentiles(eligible,metric_id='recovery-quality',complete_population=True)
+        compute_recovery=lambda:percentiles(eligible,metric_id='recovery-quality',complete_population=True)
+        recovery_ranks=(_blocks.reference_ranks(_block_api(),connection,'paq21-recovery',year,reference_graphs,
+            compute_recovery,write=_write_reference) if _use_blocks else compute_recovery())
         for row in season:
             if row['twoStrikeEligible']:
                 rank=recovery_ranks[_json([row['graph'],row['plateAppearance']])]
@@ -2444,17 +2468,22 @@ def paq21_players(connection, *, graphs, qualification, date_scope):
                 row['recovery']=rank['value']
         reference['recoveryEligiblePlateAppearances']=len(eligible)
         reference['applicablePlateAppearances']=sum(r['twoStrikeEligible'] and r['defensiveApplicable'] for r in season)
+        if _use_blocks:
+            entries=[dict(r,key=_json(tuple(r[f] for f in ('graph','game','plateAppearance','player','season')))) for r in season]
+            season_ranks[year]=_blocks.reference_ranks(_block_api(),connection,'paq-2.1',year,reference_graphs,
+                lambda:paq21_population(entries,complete_population=True),write=_write_reference)
         observations.extend(season);selected.extend(r for r in season if r['graph'] in selected_graphs)
     identity=lambda r:(r['graph'],r['plateAppearance'],r['player'])
     if {identity(r) for r in selected}!={identity(r) for r in qualification['expectedObservations']}:
         return denied('PAQ_SELECTED_PA_COVERAGE',referencePopulations=references)
     result=summarize_paq21_players(observations,expected_reference=observations,
         selected_observations=selected,participation=qualification['participation'],
-        date_scope=date_scope,complete_reference=True)
+        date_scope=date_scope,complete_reference=True,_season_ranks=season_ranks if _use_blocks else None)
     return dict(result,referencePopulations=references)
 
 
 CONTRIBUTION_METRICS = {'tfs','rally-kill-rate','rally-kill-severity','opportunity-erosion','empty-game-damage'}
+CONTRIBUTION_INPUT_METRICS = CONTRIBUTION_METRICS | {'offensive-reach','hidden-help-rate'}
 
 
 def split_steal_contact_path(members, histories, movements, start):
@@ -2749,6 +2778,8 @@ def store_result(connection, graph, metric_id, key, result):
                        (graph, metric_id, key, result['status'],
                         value['numerator'] if value else None, value['denominator'] if value else None,
                         canonical, _hash(canonical)))
+    if key == 'game-scope':
+        _blocks.store_metric(_block_api(),connection,graph,metric_id,result)
 
 
 def read_results(connection, graph, metric_id):
@@ -2786,6 +2817,7 @@ def game_products(rows, graph, *, batting_admission=None, scoring_run_admission=
         if entry['id'] == 'paq-2.1': result['paq21Inputs'] = joined_paq21
         if entry['id'] == 'tfs': result['contributionInputs'] = contribution_inputs
         if entry['id'] == 'recovery-quality': result['recoveryInputs'] = recovery_inputs
+        if entry['id'] == 'empty-game-rate': result['progressInputs'] = evaluation.progress()
         results[entry['id']] = result
     return results
 
@@ -2835,7 +2867,14 @@ def materialize_game(connection, graph, bindings, *, batting_admission=None, sco
         # proofs do not admit incomplete season percentiles.
         if read_results(connection, graph, entry['id']) != [result]:
             raise EvidenceError('Metric SQL equivalence failed: ' + entry['id'])
-    return {'metrics': len(catalog()['metrics']), 'evidenceRows': len(rows), 'exactRoundTrip': True}
+    _blocks.store_game(_block_api(),connection,graph,rows)
+    _blocks.read_scope(_block_api(),connection,[graph])
+    for metric_id,(family,key,_) in _blocks.INPUTS.items():
+        retained=_blocks.read_inputs(_block_api(),connection,family,[graph])[graph]
+        if retained != products[metric_id][key]:
+            raise EvidenceError('Metric building block equivalence failed: '+family)
+    return {'metrics': len(catalog()['metrics']), 'evidenceRows': len(rows), 'exactRoundTrip': True,
+            'buildingBlocksRoundTrip':True}
 
 
 def requested_metric_ids(request):
@@ -2854,7 +2893,7 @@ def selected_results(request, rows, *, graph_count, _evaluation=None):
     return {'metrics': results} if request.get('view') == 'dashboard' else {'metric': results[0]}
 
 
-def query_sql(connection, request, scope):
+def query_sql(connection, request, scope, *, _use_blocks=True):
     manifest = connection.execute('SELECT version,implementation_sha256 FROM metric_suite_manifest WHERE singleton=1').fetchone()
     if manifest != (VERSION, fingerprint()):
         raise EvidenceError('Serving build is stale for the metric suite')
@@ -2864,15 +2903,23 @@ def query_sql(connection, request, scope):
     parameters = (scope['gameSet'], scope['startDate'], scope['endDate'])
     graphs = [r[0] for r in connection.execute(
         'SELECT graph_iri FROM game_dimension WHERE game_set=? AND official_date BETWEEN ? AND ? ORDER BY graph_iri', parameters)]
-    rows = []
+    rows = _blocks.read_scope(_block_api(),connection,graphs) if _use_blocks else []
     admissions, run_admissions, resolution_admissions = {}, {}, {}
     contribution_inputs=[];defensive_inputs=[]
+    retained_inputs={}
+    if _use_blocks:
+        families=set()
+        if set(metric_ids) & {'resolution-depth','defender-breadth'}:families.add('defense')
+        if set(metric_ids) & CONTRIBUTION_INPUT_METRICS:families.add('contribution')
+        retained_inputs={family:_blocks.read_inputs(_block_api(),connection,family,graphs) for family in families}
     for graph in graphs:
-        for metric_id in metric_ids:
-            if len(read_results(connection, graph, metric_id)) != 1:
-                raise EvidenceError('Metric build lacks a selected game')
+        if not _use_blocks:
+            for metric_id in metric_ids:
+                if len(read_results(connection, graph, metric_id)) != 1:
+                    raise EvidenceError('Metric build lacks a selected game')
         if set(metric_ids) & {'resolution-depth','defender-breadth'}:
-            retained=read_results(connection,graph,'resolution-depth')
+            retained=([dict(defensiveInputs=retained_inputs['defense'][graph])] if _use_blocks else
+                      read_results(connection,graph,'resolution-depth'))
             if len(retained)!=1 or 'defensiveInputs' not in retained[0]:
                 raise EvidenceError('Metric build lacks defensive inputs')
             record=connection.execute('SELECT proof_json,proof_sha256 FROM metric_suite_defensive_admission WHERE graph_iri=?',(graph,)).fetchone()
@@ -2880,8 +2927,9 @@ def query_sql(connection, request, scope):
             proof=json.loads(record[0]) if record else {}
             admitted=all(proof.get(k)==v for k,v in dict(status='admitted',sourceReconciled=True,graphConforms=True).items())
             defensive_inputs.append(retained[0]['defensiveInputs'] if admitted else dict(complete=False))
-        if set(metric_ids) & CONTRIBUTION_METRICS:
-            retained=read_results(connection,graph,'tfs')
+        if set(metric_ids) & CONTRIBUTION_INPUT_METRICS:
+            retained=([dict(contributionInputs=retained_inputs['contribution'][graph])] if _use_blocks else
+                      read_results(connection,graph,'tfs'))
             if len(retained)!=1 or 'contributionInputs' not in retained[0]:
                 raise EvidenceError('Metric build lacks contribution inputs')
             admitted=True
@@ -2891,10 +2939,11 @@ def query_sql(connection, request, scope):
                 proof=json.loads(record[0]) if record else {}
                 admitted=admitted and proof.get('status')=='admitted' and proof.get('sourceReconciled') is True and proof.get('graphConforms') is True
             contribution_inputs.append(retained[0]['contributionInputs'] if admitted else dict(complete=False))
-        for text, digest in connection.execute('SELECT binding_json,binding_sha256 FROM metric_suite_evidence WHERE graph_iri=?', (graph,)):
-            if _hash(text) != digest:
-                raise EvidenceError('Metric SQL evidence checksum mismatch')
-            rows.append(json.loads(text))
+        if not _use_blocks:
+            for text, digest in connection.execute('SELECT binding_json,binding_sha256 FROM metric_suite_evidence WHERE graph_iri=?', (graph,)):
+                if _hash(text) != digest:
+                    raise EvidenceError('Metric SQL evidence checksum mismatch')
+                rows.append(json.loads(text))
         record = connection.execute('SELECT proof_json,proof_sha256 FROM metric_suite_admission WHERE graph_iri=?', (graph,)).fetchone()
         if record:
             text, digest = record
@@ -2916,7 +2965,12 @@ def query_sql(connection, request, scope):
     # Pool distinct resolved reviews; never average per-game percentages. Full
     # cohort metrics remain unavailable until their admission gaps are closed.
     evaluation = _EvidenceEvaluation(rows, len(graphs))
-    result = selected_results(request, rows, graph_count=len(graphs), _evaluation=evaluation)
+    if _use_blocks:
+        result = _blocks.selected_results(_block_api(),connection,request,graphs)
+        if set(metric_ids) & PROGRESS_METRICS:
+            evaluation._progress = _blocks.progress(_block_api(),connection,graphs)
+    else:
+        result = selected_results(request, rows, graph_count=len(graphs), _evaluation=evaluation)
     schedule = selected_schedule_coverage(connection,scope,graphs)
     qualification = batting_qualification(rows, graphs=graphs, admissions=admissions,
         date_scope=scope, selected_games_complete=schedule['complete'])
@@ -2932,15 +2986,15 @@ def query_sql(connection, request, scope):
             if metric['playerPopulationComplete']:
                 metric['coverage']={**metric['coverage'],'populationComplete':True}
         if metric['metricId'] in {'paq-2','paq-a'}:
-            metric.update(season_rank_players(connection,metric_id=metric['metricId'],graphs=graphs,qualification=qualification,date_scope=scope))
+            metric.update(season_rank_players(connection,metric_id=metric['metricId'],graphs=graphs,qualification=qualification,date_scope=scope,_use_blocks=_use_blocks))
             if metric['playerPopulationComplete']:
                 metric['coverage']={**metric['coverage'],'populationComplete':True}
         if metric['metricId']=='paq-2.1':
-            metric.update(paq21_players(connection,graphs=graphs,qualification=qualification,date_scope=scope))
+            metric.update(paq21_players(connection,graphs=graphs,qualification=qualification,date_scope=scope,_use_blocks=_use_blocks))
             if metric['playerPopulationComplete']:
                 metric['coverage']={**metric['coverage'],'populationComplete':True}
         if metric['metricId']=='recovery-quality':
-            metric.update(recovery_players(connection,graphs=graphs,qualification=qualification,date_scope=scope))
+            metric.update(recovery_players(connection,graphs=graphs,qualification=qualification,date_scope=scope,_use_blocks=_use_blocks))
             if metric['playerPopulationComplete']:
                 metric['coverage']={**metric['coverage'],'populationComplete':True}
         if metric['metricId'] in {'run-construction-depth','run-construction-breadth'}:
@@ -2965,4 +3019,30 @@ def query_sql(connection, request, scope):
         'rosteredPlayers':len(qualification['participation']), 'schedule':schedule}
     return {**result,
             'implementationSha256': fingerprint(), 'dateScope': scope,
-            'execution': 'materialized-sql', 'graphCount': len(graphs)}
+            'execution': 'materialized-sql', 'graphCount': len(graphs),
+            'buildingBlockCoverage':_blocks.coverage(_block_api(),connection,graphs) if _use_blocks else {}}
+
+
+def materialize_reference_ranks(connection):
+    """NiFi's final per-season stage; no score or schedule admission is inferred."""
+    output=[]
+    seasons=connection.execute("SELECT season,MAX(official_date) FROM game_dimension WHERE game_set='regular_season' GROUP BY season").fetchall()
+    for year,cutoff in seasons:
+        scope=dict(gameSet='regular_season',startDate=f'{year}-01-01',endDate=cutoff)
+        graphs=[r[0] for r in connection.execute("SELECT graph_iri FROM game_dimension WHERE game_set='regular_season' AND season=? ORDER BY graph_iri",(year,))]
+        rows=_blocks.read_scope(_block_api(),connection,graphs)
+        admissions={}
+        for group in _blocks.batches(graphs):
+            for graph,text,digest in connection.execute('SELECT graph_iri,proof_json,proof_sha256 FROM metric_suite_admission '
+                    f'WHERE graph_iri IN ({_blocks.placeholders(group)})',group):
+                admissions[graph]=_blocks.decode(_block_api(),text,digest)
+        schedule=selected_schedule_coverage(connection,scope,graphs)
+        qualification=batting_qualification(rows,graphs=graphs,admissions=admissions,date_scope=scope,
+            selected_games_complete=schedule['complete'])
+        for metric_id in ('paq-2','paq-a','recovery-quality','paq-2.1'):
+            args=dict(graphs=graphs,qualification=qualification,date_scope=scope,_write_reference=True)
+            result=(paq21_players(connection,**args) if metric_id=='paq-2.1' else
+                    season_rank_players(connection,metric_id=metric_id,**args))
+            output.append(dict(season=year,cutoff=cutoff,metricId=metric_id,
+                populationComplete=result['playerPopulationComplete'],gaps=result['playerSummaryGaps']))
+    return output

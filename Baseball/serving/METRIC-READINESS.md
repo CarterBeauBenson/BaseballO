@@ -24,6 +24,16 @@ materializer now prepares a separate verified receipt for each database before
 publication, with the same complete hash and file-identity checks. This fix
 applies to subsequent NiFi builds; it does not manufacture metric populations.
 
+Metric suite 2.1 moves reusable participation and analytical observations into
+indexed SQL and prepares admitted season ranks during NiFi builds. On one
+already promoted game, the stored-input reader matched all 20 existing metric
+responses exactly and took 48.688 ms versus 676.928 ms for the evidence reader.
+The [bounded proof](../benchmarks/metrics/sql-building-blocks-2026-09-16/README.md)
+records its current withheld admissions. This is reader correctness and timing
+evidence, not a claim that the live dashboard or reference season is complete.
+`buildingBlockCoverage` now distinguishes each input family's projection counts
+and gaps; those diagnostics supplement the player-population report.
+
 ## How to check the actual release
 
 Open `/metrics` for the selected date range. The cards and dashboard summary
@@ -76,6 +86,7 @@ minimums. Review mechanisms remain separate. These are settled decisions.
 
 | Evidence | What it establishes | What it does not establish |
 | --- | --- | --- |
+| [SQL building blocks](../benchmarks/metrics/sql-building-blocks-2026-09-16/README.md) | Exact equality of all 20 responses over one promoted game; indexed projections round-trip and reduce reader work | Full-season performance, current source admission completeness or live leaderboard population |
 | [Count-history completion](../benchmarks/metrics/count-history-completion-2026-09-16/README.md) | All 81 official PAs in game 823585 pass source SHACL, batting/count admission, canonical Jena extraction and exact SQL; virtual intentional walks and reconciled foul/replacement prefixes are handled | Complete live date range or reference season |
 | [Runner placement and third outs](../benchmarks/metrics/runner-placement-completion-2026-09-16/README.md) | All 15 August 25 fixtures reconcile 415 personal histories; two full-game proofs retain all 15 scoring histories in SQL | All contribution ownership or immediate PA-state cases |
 | [Contribution proof](../benchmarks/metrics/contribution-mixed-plays-2026-09-15/result.json) and [progress adapters](../benchmarks/metrics/authorized-metric-fixes-2026-09-15/README.md) | All 79 PA contributions in game 566279 resolve; isolated player means survive SQL | Complete season rankings; two comparison states remain unresolved |

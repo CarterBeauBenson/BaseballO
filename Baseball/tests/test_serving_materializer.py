@@ -665,6 +665,11 @@ class ServingMaterializerTests(unittest.TestCase):
                     tables = [row[0] for row in db.execute("SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'metric_suite_%'")]
                     return {table: db.execute('SELECT * FROM '+table+' ORDER BY 1,2').fetchall() for table in tables}
             self.assertEqual(retained_metric_rows(cold),retained_metric_rows(warm))
+            for build in (cold,warm):
+                self.assertTrue(build['metricSuite']['buildingBlocksRoundTrip'])
+                self.assertEqual({p['metricId'] for p in build['metricReferencePopulations']},
+                    {'paq-2','paq-a','recovery-quality','paq-2.1'})
+                self.assertTrue(all(not p['populationComplete'] for p in build['metricReferencePopulations']))
             # Both releases are verified before their first reader. Publishing
             # another build cannot evict an in-flight older reader's receipt.
             with patch.object(MODULE._reader,'hash_database_stream',side_effect=AssertionError('must be preverified')):

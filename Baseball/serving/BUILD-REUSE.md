@@ -133,7 +133,7 @@ are identical. The broader serving fingerprint, build guard, release pairing
 and SQL reader checks remain in force.
 
 The cached product contains all twenty game-scope calculations and their
-defensive, contribution, recovery and PAQ-2.1 inputs. The candidate still writes
+defensive, contribution, recovery, progress and PAQ-2.1 inputs. The candidate still writes
 current evidence and current proofs, retains normalized exact fractions, and
 checks every result's SQL round trip. Selected-period schedules, qualification
 and season reference populations are evaluated by the reader as before;
@@ -154,3 +154,32 @@ materializer integration test checks that a warm build calls all six admission
 readers again, makes both fresh live graph snapshots, preserves every metric
 SQL row, and never invokes the cached calculation. This is a developer proof,
 not a claim about full-corpus speed or dashboard population readiness.
+
+## Indexed inputs and reference preparation
+
+Each candidate projects cached or newly calculated game products into the
+indexed tables owned by `serving/metric_blocks.py`. Scope facts retain their
+distinct source identities. Each observation retains its exact reducer record,
+checksum and matching scalar SQL columns. The build verifies every input family
+against its calculated product and records `buildingBlocksRoundTrip` per game.
+Missing observations, changed columns, incorrect hashes and incomplete row
+counts fail the reader; they cannot silently shrink a denominator.
+
+After all games are stored, the `metric-reference-ranks` stage prepares admitted
+season ranks for PAQ, Situation-Adjusted PAQ, Two-Strike Extension Rank and PAQ
+with Tie-Breakers. `metricReferencePopulations` in build evidence records each
+metric's cutoff, completeness and gaps. Incomplete populations remain withheld.
+This stage uses the existing independent schedule and source admission checks.
+
+Rank keys include the exact reference graph set. Stored observation changes
+invalidate prepared ranks. Direct changes to raw evidence invalidate that
+game's block manifest; direct changes to canonical game results invalidate the
+corresponding compact result. Immutable publication, database checksums and
+matching code releases remain the production boundary. These database triggers
+also prevent stale projections during focused tests or candidate construction.
+
+The selected-period reader reuses compact inputs and performs the final exact
+math in Python. It no longer reconstructs graph patterns, runs SPARQL kernels,
+or reads whole-game calculation JSON for a normal dashboard request. Historical
+reference populations not prepared by NiFi are ranked from their own stored
+observations, without updating the read-only database.

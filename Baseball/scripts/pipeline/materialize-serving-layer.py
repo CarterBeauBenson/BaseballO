@@ -1363,6 +1363,8 @@ def _build(args: argparse.Namespace, progress: dict[str, Any]) -> dict[str, Any]
                     explore_counts[grain_name] += 1
             if index % 10 == 0:
                 connection.commit()
+        guard.check(completed=len(dimensions),total=len(dimensions),phase='metric-reference-ranks')
+        reference_rank_proofs = _metric_suite.materialize_reference_ranks(connection)
         guard.check(completed=len(dimensions),total=len(dimensions),phase='sql-validation')
         for query_id in sorted(advanced_counts):
             connection.execute(
@@ -1554,11 +1556,13 @@ def _build(args: argparse.Namespace, progress: dict[str, Any]) -> dict[str, Any]
     evidence = {
         "runtimeRelease": runtime_release,
         "metricSuiteSha256": metric_suite_sha256,
+        "metricReferencePopulations": reference_rank_proofs,
         "buildInputHashes":dict(guard.hashes),
         "metricSuite": {"games": len(metric_suite_proofs),
                         "resultCount": sum(p['metrics'] for p in metric_suite_proofs),
                         "evidenceRows": sum(p['evidenceRows'] for p in metric_suite_proofs),
-                        "exactRoundTrip": all(p['exactRoundTrip'] for p in metric_suite_proofs)},
+                        "exactRoundTrip": all(p['exactRoundTrip'] for p in metric_suite_proofs),
+                        "buildingBlocksRoundTrip": all(p['buildingBlocksRoundTrip'] for p in metric_suite_proofs)},
         "artifactType": "baseball-analytical-serving-build-evidence",
         "contractVersion": 5,
         "evidenceSchemaVersion": 2,
