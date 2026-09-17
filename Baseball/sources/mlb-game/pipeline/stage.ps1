@@ -95,6 +95,12 @@ function Invoke-LoggedCommand {
         & $Command *> $stageLogPath
         $exitCode = $LASTEXITCODE
     }
+    catch {
+        # A terminating PowerShell error can otherwise escape the redirected
+        # command stream, leaving only successful preflight lines in quarantine.
+        ($_ | Out-String) | Out-File -LiteralPath $stageLogPath -Append
+        throw
+    }
     finally {
         $ErrorActionPreference = $priorPreference
     }

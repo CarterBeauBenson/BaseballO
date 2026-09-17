@@ -24,6 +24,17 @@ complete source pattern proved the named person is the relevant actor for the
 indexed fact. It does not replace BFO participation or the contextual role
 pattern in the authoritative graph.
 
+Version 3 retains one PA and one outcome fact when the accepted substitution
+model contains several actual Batter Acts. Each act has its own indexed actor,
+PA and game support; SHACL requires the PA's complete participant set to agree
+with those acts and its result/hit projections. These participation joins do
+not assign official statistical PA or hit credit. Batting qualification still
+uses its separate admission proof. No index predicate was added.
+
+Validated v1/v2 outputs remain compatible for existing consumers: their
+single-participant facts have the same identities and values. New builds use
+the stronger v3 support checks. Manifests retain their original contract version.
+
 ## Component catalog
 
 The builder executes the small `CONSTRUCT` queries in [`components/`](components/)

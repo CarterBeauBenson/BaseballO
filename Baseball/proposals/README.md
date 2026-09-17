@@ -25,6 +25,12 @@ their rejection rationale so they cannot be accidentally revived.
 
 ## Active reviews
 
+[T1 clock-conflict isolation](mlb-game-clock-conflict-isolation/README.md) asks
+whether contradictory source clock pairs should withhold their boundary
+measurements and dependent metrics while preserving independently validated
+acts and results. Four current MLB responses reproduce the contradiction.
+This package is under review; no executable timing change has been made.
+
 [D1 defensive-act projection](../archive/design-records/mlb-game-defensive-acts/README.md)
 and [M3/M4 counted-foul completion](../archive/design-records/mlb-game-counted-foul-completion/README.md)
 were explicitly accepted on September 16 and archived. Their implementation

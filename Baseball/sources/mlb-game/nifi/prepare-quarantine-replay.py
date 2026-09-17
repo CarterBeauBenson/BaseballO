@@ -252,6 +252,34 @@ def work_record(candidate: dict[str, str], phase: str, plan_path: Path) -> dict[
     }
 
 
+def unresolved_clock_failure(state_root: Path, candidate: dict[str, str]) -> dict[str, Any] | None:
+    """Do not let a known, unchanged source defect hold the replay proof lane.
+
+    This defers work; it never resolves quarantine or admits a graph. Both the
+    retained source and the current reconciler must match the failed evidence.
+    A source or reconciler correction makes the input eligible for retry again.
+    """
+    source_path = Path(candidate['inputPath'])
+    report_path = (state_root / 'pipeline/evidence/mlb-game' / candidate['gamePk']
+                   / source_path.parent.name / 'metric-source-reconciliation.json')
+    failure_path = source_path.parent / 'failure.json'
+    if not report_path.is_file() or not failure_path.is_file():
+        return None
+    report, failure = read_object(report_path), read_object(failure_path)
+    codes = {row.get('code') for row in report.get('issues', [])}
+    reconciler = Path(__file__).resolve().parents[1] / 'pipeline/reconcile-metric-source.py'
+    if (failure.get('failedStage') == 'shacl'
+            and report.get('artifactType') == 'baseballo-mlb-metric-source-reconciliation'
+            and str(report.get('gamePk')) == candidate['gamePk']
+            and report.get('inputSha256') == candidate['inputSha256']
+            and report.get('reconcilerSha256') == sha256_file(reconciler)
+            and report.get('status') == 'inconsistent'
+            and codes and codes <= {'REVERSED_PLAY_TIMES', 'REVERSED_EVENT_TIMES'}):
+        return dict(**candidate, reason='unchanged-source-clock-conflict',
+                    issueCodes=sorted(codes), evidencePath=str(report_path.resolve()))
+    return None
+
+
 def resolution_record(
     candidate: dict[str, str],
     plan_path: Path,
@@ -268,6 +296,7 @@ def create_plan(state_root: Path, contract_path: Path) -> dict[str, Any]:
     replay = replay_config(contract_path)
     candidates = current_candidates(state_root)
     replay_candidates: dict[str, dict[str, str]] = {}
+    deferred: list[dict[str, Any]] = []
     existing_resolutions: list[tuple[dict[str, str], str, Path]] = []
     for game_pk, candidate in candidates.items():
         exact = promotion_for(state_root, game_pk, candidate["inputSha256"])
@@ -284,11 +313,18 @@ def create_plan(state_root: Path, contract_path: Path) -> dict[str, Any]:
                 (candidate, "superseded-by-later-promotion", later_promotions[-1][1])
             )
             continue
+        clock_failure = unresolved_clock_failure(state_root, candidate)
+        if clock_failure is not None:
+            deferred.append(clock_failure)
+            continue
         replay_candidates[game_pk] = candidate
     proof_pks = [str(item["gamePk"]) for item in replay["proofGames"]]
     missing = [game_pk for game_pk in proof_pks if game_pk not in replay_candidates]
     prior_proof: Path | None = None
     proof_selection_mode = "configured-representative-games"
+    if not replay_candidates:
+        proof_pks = []
+        proof_selection_mode = "no-replay-candidates"
     if missing and replay_candidates:
         prior_proof = prior_certified_proof(state_root, proof_pks)
         if prior_proof is None:
@@ -330,6 +366,7 @@ def create_plan(state_root: Path, contract_path: Path) -> dict[str, Any]:
         },
         "proof": proof,
         "remainder": remainder,
+        "deferred": deferred,
         "existingResolutions": [
             {
                 **candidate,
@@ -345,7 +382,8 @@ def create_plan(state_root: Path, contract_path: Path) -> dict[str, Any]:
         resolution_record(candidate, plan_path, mode, promotion)
         for candidate, mode, promotion in existing_resolutions
     )
-    records.append({"phase": "gate", "planPath": str(plan_path.resolve())})
+    if proof:
+        records.append({"phase": "gate", "planPath": str(plan_path.resolve())})
     return {
         "artifactType": "baseballo-mlb-game-quarantine-replay-submission",
         "contractVersion": 1,
@@ -353,6 +391,7 @@ def create_plan(state_root: Path, contract_path: Path) -> dict[str, Any]:
         "proofCount": len(proof),
         "remainderCount": len(remainder),
         "existingResolutionCount": len(existing_resolutions),
+        "deferredCount": len(deferred),
         "records": records,
     }
 

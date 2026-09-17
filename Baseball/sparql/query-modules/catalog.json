@@ -8,9 +8,9 @@
     "readsGraphLayers": ["indexed-rdf"]
   },
   "semanticContract": {
-    "id": "baseball-query-index-v2",
+    "id": "baseball-query-index-v3",
     "path": "sparql/query-index/semantic-contract.json",
-    "textSha256": "c9960712237307bebe3df60d25b6d03fb7626fddec90e94bdd5bb13d98ae86e1"
+    "textSha256": "a026966466c96d75c7fa058a37fe8467f00f2b243fc2f103ecc1f33bb8fddfc2"
   },
   "fragmentRoot": "sparql/query-modules/fragments",
   "requiredModule": "index-scope",

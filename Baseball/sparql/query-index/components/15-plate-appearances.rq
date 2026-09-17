@@ -8,6 +8,11 @@ CONSTRUCT {
       idx:game ?game ;
       idx:agent ?player ;
       idx:derivedFrom ?batterAct .
+  # Keep each accepted Batter Act's actor attached to that act. The PA is
+  # still one fact when a substitution produces several actual Batter Acts.
+  ?batterAct idx:agent ?player ;
+      idx:plateAppearance ?plateAppearance ;
+      idx:game ?game .
 }
 WHERE {
   VALUES (?sourceGraph ?game) {

@@ -65,6 +65,51 @@ def add_promotion(state: Path, game_pk: str, raw_sha256: str, name: str = "promo
 
 
 class QuarantineReplayTests(unittest.TestCase):
+    def clock_failure(self, state, game_pk='900001'):
+        source = add_quarantine(state, game_pk, 'clock-run')
+        write_json(source.parent / 'failure.json', {'failedStage': 'shacl'})
+        report = state / 'pipeline/evidence/mlb-game' / game_pk / 'clock-run/metric-source-reconciliation.json'
+        write_json(report, dict(artifactType='baseballo-mlb-metric-source-reconciliation',
+            gamePk=game_pk, inputSha256=input_hash(source), status='inconsistent',
+            reconcilerSha256=MODULE.sha256_file(MODULE_ROOT / 'pipeline/reconcile-metric-source.py'),
+            issues=[{'code': 'REVERSED_EVENT_TIMES'}]))
+        return source, report
+
+    def test_clock_conflict_is_retained_without_blocking_other_replay_proofs(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            state = Path(temporary)
+            for game in PROOF_GAMES:
+                add_quarantine(state, game, 'proof-run')
+            source, report = self.clock_failure(state)
+            submission = MODULE.create_plan(state, self.contract(state))
+            plan = MODULE.read_object(Path(submission['planPath']))
+            self.assertEqual(submission['proofCount'], 5)
+            self.assertEqual(submission['deferredCount'], 1)
+            self.assertEqual(submission['remainderCount'], 0)
+            self.assertEqual(plan['deferred'][0]['inputSha256'], input_hash(source))
+            self.assertTrue(source.exists())
+            self.assertFalse((source.parent / 'resolution.json').exists())
+
+    def test_only_clock_failures_produce_no_fake_proof_or_work(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            state = Path(temporary)
+            self.clock_failure(state)
+            submission = MODULE.create_plan(state, self.contract(state))
+            self.assertEqual(submission['deferredCount'], 1)
+            self.assertEqual(submission['records'], [])
+
+    def test_stale_or_unrelated_evidence_cannot_defer_retry(self):
+        for field, value in [('inputSha256', '0' * 64), ('reconcilerSha256', '0' * 64),
+                             ('gamePk', '42'), ('issues', [{'code': 'MISSING_RUNNER_IDENTITY'}])]:
+            with self.subTest(field=field), tempfile.TemporaryDirectory() as temporary:
+                state = Path(temporary)
+                source, report_path = self.clock_failure(state)
+                report = MODULE.read_object(report_path)
+                report[field] = value
+                write_json(report_path, report)
+                candidate = MODULE.current_candidates(state)['900001']
+                self.assertIsNone(MODULE.unresolved_clock_failure(state, candidate))
+
     def contract(self, root: Path) -> Path:
         path = root / "contract.json"
         write_json(

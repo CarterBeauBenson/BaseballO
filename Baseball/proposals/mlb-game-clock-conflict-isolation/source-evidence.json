@@ -1,0 +1,64 @@
+{
+  "artifactType": "baseballo-clock-conflict-review-evidence",
+  "checkedAtDate": "2026-09-17",
+  "sourceEndpointTemplate": "https://statsapi.mlb.com/api/v1.1/game/{gamePk}/feed/live",
+  "liveCheck": "Each reported reversed pair remains present; no source bytes changed.",
+  "games": [
+    {
+      "gamePk": "822753",
+      "inputSha256": "92b2c49109beae6b7dd6396d1502a36b97cdd149f04dcbb375fda4eddf5c8c44",
+      "retainedInput": "pipeline/quarantine/mlb-game/822753/36b80458c7c34fdbbcc0cd2fda371ff7/input.json",
+      "sourceRevision": "20260408_225140",
+      "issues": [
+        {
+          "code": "REVERSED_EVENT_TIMES",
+          "path": "/liveData/plays/allPlays/49/playEvents/7"
+        }
+      ],
+      "reconciliationPath": "pipeline/evidence/mlb-game/822753/36b80458c7c34fdbbcc0cd2fda371ff7/metric-source-reconciliation.json",
+      "reconciliationSha256": "d89bab78c34f541e25fc4a4481d313e000f9dc451e417e6701816beaf821af54"
+    },
+    {
+      "gamePk": "823302",
+      "inputSha256": "a0544efd780cbf96333cc46ed842bcf26120103d7b13edf76a342f0d3e365c50",
+      "retainedInput": "pipeline/quarantine/mlb-game/823302/249e3b4f28ea4a51992fb87364681abb/input.json",
+      "sourceRevision": "20260520_042656",
+      "issues": [
+        {
+          "code": "REVERSED_EVENT_TIMES",
+          "path": "/liveData/plays/allPlays/46/playEvents/0"
+        }
+      ],
+      "reconciliationPath": "pipeline/evidence/mlb-game/823302/249e3b4f28ea4a51992fb87364681abb/metric-source-reconciliation.json",
+      "reconciliationSha256": "d9c36eeb70b4160e9be4dfcb769e38ba910a64c60b404c765c7de5e6b1f2f46f"
+    },
+    {
+      "gamePk": "823532",
+      "inputSha256": "23d12e2faecc58799c4d5a39d5ecfe1530a589b35c3ae1f943f438f9f1265d25",
+      "retainedInput": "pipeline/quarantine/mlb-game/823532/00cfd983350645c19896045fd2bbcd17/input.json",
+      "sourceRevision": "20260620_203216",
+      "issues": [
+        {
+          "code": "REVERSED_EVENT_TIMES",
+          "path": "/liveData/plays/allPlays/7/playEvents/0"
+        }
+      ],
+      "reconciliationPath": "pipeline/evidence/mlb-game/823532/00cfd983350645c19896045fd2bbcd17/metric-source-reconciliation.json",
+      "reconciliationSha256": "bfc951569f36d920c7bd2bb092fb66137f23c29f2d57c9ebc156be6448702c20"
+    },
+    {
+      "gamePk": "823631",
+      "inputSha256": "ea18b6fb3b888a1ed5f05cffb5e92b28ebc71e5997c4fa04ad1e745ba9c07266",
+      "retainedInput": "pipeline/quarantine/mlb-game/823631/b79dd6882ad24e949fa103712c6b5dfe/input.json",
+      "sourceRevision": "20260514_021648",
+      "issues": [
+        {
+          "code": "REVERSED_PLAY_TIMES",
+          "path": "/liveData/plays/allPlays/46/about"
+        }
+      ],
+      "reconciliationPath": "pipeline/evidence/mlb-game/823631/b79dd6882ad24e949fa103712c6b5dfe/metric-source-reconciliation.json",
+      "reconciliationSha256": "43340082d0bd053618053544c9ac5fd9f150081c46245bad1ad262d5469a8a28"
+    }
+  ]
+}

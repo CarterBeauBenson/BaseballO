@@ -944,6 +944,31 @@
     rr:objectMap [ rr:template "https://baseballontology.org/data/player/{details.runner.id}/role/baserunner/stasis" ; rr:termType rr:IRI ]
   ] .
 
+# Existing PA-start occupancy also witnesses the same persistent runner role.
+# No movement, realization, gain-of-role or exact career boundary is inferred.
+<#StartOccupancyBaserunnerRoleMap> a rr:TriplesMap ;
+  rml:logicalSource <#PlateAppearanceStartOccupancySource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/player/{runnerId}/role/baserunner" ; rr:termType rr:IRI ; rr:class base:BaserunnerRole ] ;
+  rr:predicateObjectMap [
+    rr:predicate obo:BFO_0000197 ;
+    rr:objectMap [ rr:template "https://baseballontology.org/data/player/{runnerId}" ; rr:termType rr:IRI ]
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate obo:BFO_0000056 ;
+    rr:objectMap [ rr:template "https://baseballontology.org/data/player/{runnerId}/role/baserunner/stasis" ; rr:termType rr:IRI ]
+  ] .
+
+<#StartOccupancyBaserunnerRoleStasisMap> a rr:TriplesMap ;
+  rml:logicalSource <#PlateAppearanceStartOccupancySource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/player/{runnerId}/role/baserunner/stasis" ; rr:termType rr:IRI ; rr:class cco:ont00000824 ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000057 ; rr:objectMap [ rr:template "https://baseballontology.org/data/player/{runnerId}" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000057 ; rr:objectMap [ rr:template "https://baseballontology.org/data/player/{runnerId}/role/baserunner" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000199 ; rr:objectMap [ rr:template "https://baseballontology.org/data/player/{runnerId}/role/baserunner/stasis/temporal-interval" ; rr:termType rr:IRI ] ] .
+
+<#StartOccupancyBaserunnerRoleStasisIntervalMap> a rr:TriplesMap ;
+  rml:logicalSource <#PlateAppearanceStartOccupancySource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/player/{runnerId}/role/baserunner/stasis/temporal-interval" ; rr:termType rr:IRI ; rr:class obo:BFO_0000038 ] .
+
 <#FielderRoleMap> a rr:TriplesMap ;
   rml:logicalSource <#FieldingCreditSource> ;
   rr:subjectMap [ rr:template "https://baseballontology.org/data/player/{player.id}/role/fielder" ; rr:termType rr:IRI ; rr:class base:FielderRole ] ;

@@ -1,0 +1,82 @@
+{
+  "artifactType": "baseballo-publication-repair-developer-proof",
+  "date": "2026-09-17",
+  "scope": "Focused fixtures and isolated existing failed games; not full-corpus admission or dashboard publication",
+  "unitTestsPassed": 69,
+  "stageExceptionRetentionPassed": true,
+  "mappingSha256": "bed3f052e82a896b8529c67b8e2a5c9746b06eef0788276d70bec48335fb63a4",
+  "queryIndexContractSha256": "a026966466c96d75c7fa058a37fe8467f00f2b243fc2f103ecc1f33bb8fddfc2",
+  "rmlProofs": [
+    {
+      "gamePk": "823682",
+      "inputSha256": "12b223871921362bd0c4ddcde0c80c9567b671886ccd3dd347d9891625c2d0bd",
+      "rdfSha256": "1aa4d555aa91a1e81493752038c55ba392a814d810dece64cfddd3f9818261cf",
+      "rmlPassed": true,
+      "authoritativeShaclConforms": true,
+      "sourceToGraphMembershipVerified": true,
+      "metricPopulationAdmitted": false,
+      "logSha256": "c309e1ab6078a6a4f4f7b09113ce1d112233df55b49fb7b2642f37bca9406b0b"
+    },
+    {
+      "gamePk": "823523",
+      "inputSha256": "43808a5e079e7670b2850407dd911b2284a101d3ac8dd1fb8b4de811f9223c66",
+      "rdfSha256": "cc7fbf4d2e83f5cb75863b8d449d45bac562cd9246bd04d50855c8525567deda",
+      "rmlPassed": true,
+      "authoritativeShaclConforms": true,
+      "sourceToGraphMembershipVerified": true,
+      "metricPopulationAdmitted": false,
+      "logSha256": "250f60519b5c0f2f27817d2f40ca0fe8bb9a2d988263d1253b002ae40ae3ee39"
+    }
+  ],
+  "indexProofs": [
+    {
+      "gamePk": "822800",
+      "sourceRdfSha256": "b56e903cbdfe176854072d89eb50424d194e88c2c0246d2a6067a751072af5da",
+      "indexTriples": 9016,
+      "jenaShaclConforms": true,
+      "equivalence": [
+        {
+          "query": "outcomes-by-player",
+          "rows": 64,
+          "exactMatch": true
+        },
+        {
+          "query": "outcomes-by-season",
+          "rows": 11,
+          "exactMatch": true
+        },
+        {
+          "query": "plate-appearances-by-player-and-season",
+          "rows": 21,
+          "exactMatch": true
+        }
+      ],
+      "shaclProfileSha256": "0613224cd8f5851d7eea6c7e0e0b92fc712d62430e44a78b5f12e14470c08969"
+    },
+    {
+      "gamePk": "822854",
+      "sourceRdfSha256": "0299650f648247fbf95b611dbdc29745815f14df2e90660f27370838dd7d0772",
+      "indexTriples": 9735,
+      "jenaShaclConforms": true,
+      "equivalence": [],
+      "shaclProfileSha256": "0613224cd8f5851d7eea6c7e0e0b92fc712d62430e44a78b5f12e14470c08969"
+    },
+    {
+      "gamePk": "822918",
+      "sourceRdfSha256": "12beaab525b30c4625d5f3870574528a78e648f976c499c4647656893cc547dd",
+      "indexTriples": 7376,
+      "jenaShaclConforms": true,
+      "equivalence": [],
+      "shaclProfileSha256": "0613224cd8f5851d7eea6c7e0e0b92fc712d62430e44a78b5f12e14470c08969"
+    },
+    {
+      "gamePk": "823048",
+      "sourceRdfSha256": "3469e07f7387717e81ac8c0d74e7e866921926a751a18cf8295d943b7783ed8c",
+      "indexTriples": 8650,
+      "jenaShaclConforms": true,
+      "equivalence": [],
+      "shaclProfileSha256": "0613224cd8f5851d7eea6c7e0e0b92fc712d62430e44a78b5f12e14470c08969"
+    }
+  ],
+  "timingPolicy": "Unchanged; five known clock conflicts remain quarantined pending T1 review"
+}

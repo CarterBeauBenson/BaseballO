@@ -627,7 +627,7 @@ class ServingMaterializerTests(unittest.TestCase):
             )
             self.assertEqual(
                 evidence["sourceCorpusIntegrity"]["queryIndexSemanticContractId"],
-                "baseball-query-index-v2",
+                "baseball-query-index-v3",
             )
             self.assertEqual(evidence["sourceCorpusIntegrity"]["validatedPromotionGameCount"], 1)
 

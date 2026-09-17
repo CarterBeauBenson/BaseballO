@@ -1735,7 +1735,7 @@ def validate_query_index_semantic_contract() -> tuple[dict[str, object], str]:
     if (
         contract.get("artifactType") != "baseball-query-index-semantic-contract"
         or contract.get("contractVersion") != 1
-        or contract.get("semanticContractId") != "baseball-query-index-v2"
+        or contract.get("semanticContractId") != "baseball-query-index-v3"
         or contract.get("indexMetadataContractVersion") != "1"
         or contract.get("hashAlgorithm") != "canonical-text-v1"
     ):

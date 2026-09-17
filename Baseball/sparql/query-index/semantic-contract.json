@@ -1,10 +1,10 @@
 {
   "artifactType": "baseball-query-index-semantic-contract",
   "contractVersion": 1,
-  "semanticContractId": "baseball-query-index-v2",
+  "semanticContractId": "baseball-query-index-v3",
   "indexMetadataContractVersion": "1",
   "hashAlgorithm": "canonical-text-v1",
-  "description": "Source-neutral contract for the meaning and required output grains of BaseballO query-index version 1. Script, transport, locking, compiler, and scheduler bytes are implementation provenance and are not semantic compatibility criteria.",
+  "description": "Source-neutral query-index contract. V3 preserves PA and result identity and all actual batting participants under the accepted substituted-batter decision. Actor support is per actual Batter Act; these facts are not official statistical PA credit.",
   "graphContract": {
     "authoritativeGraphPrefix": "https://w3id.org/baseball/graph/game/",
     "indexGraphPrefix": "https://w3id.org/baseball/graph/query-index/game/",
@@ -24,7 +24,7 @@
       },
       {
         "path": "sparql/query-index/components/15-plate-appearances.rq",
-        "textSha256": "9ee9420088b4339ab25ff03fd52d173a8c0065af1543e52ac17a9e28fe9e9e77"
+        "textSha256": "3f5a4834c30af9060eddb7171a026702ba12daa79c82ad8432ef81e149036532"
       },
       {
         "path": "sparql/query-index/components/20-plate-appearance-results.rq",
@@ -70,7 +70,7 @@
     "shaclProfile": {
       "profile": "query-index",
       "path": "shacl/query-index.ttl",
-      "textSha256": "ec6914cbc76290b65fb92ce5b3571fccff8a338adce1d1f7416c8c14ecd05d58"
+      "textSha256": "0613224cd8f5851d7eea6c7e0e0b92fc712d62430e44a78b5f12e14470c08969"
     }
   },
   "factGrains": [
@@ -206,7 +206,10 @@
   "consumerGrains": [
     {
       "id": "game-team-season-v1",
-      "factGrains": ["GameFact", "AssignmentFact"],
+      "factGrains": [
+        "GameFact",
+        "AssignmentFact"
+      ],
       "assignmentTypes": [
         "https://w3id.org/baseball/query-index/HomeTeam",
         "https://w3id.org/baseball/query-index/AwayTeam"

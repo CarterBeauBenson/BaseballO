@@ -112,30 +112,71 @@ shape:PlateAppearanceFactShape
     sh:targetClass idx:PlateAppearanceFact ;
     sh:nodeKind sh:IRI ;
     sh:property shape:GameProperty,
-        shape:AgentProperty,
-        shape:DerivedFromProperty .
+        shape:BattingParticipantsProperty,
+        shape:DerivedFromProperty ;
+    sh:property [ sh:path idx:derivedFrom ; sh:node shape:BatterActSupportShape ] ;
+    sh:sparql [
+        sh:message "PA participants must exactly match its supported Batter Acts, in the same PA and game."@en ;
+        sh:select """
+            PREFIX idx: <https://w3id.org/baseball/query-index/>
+            SELECT $this WHERE {
+              { $this idx:agent ?player .
+                FILTER NOT EXISTS { $this idx:derivedFrom ?act . ?act idx:agent ?player } }
+              UNION
+              { $this idx:derivedFrom ?act ; idx:game ?game .
+                ?act idx:agent ?player ; idx:plateAppearance ?pa ; idx:game ?actGame .
+                FILTER (?pa != $this || ?actGame != ?game || NOT EXISTS { $this idx:agent ?player }) }
+            }
+        """
+    ] .
+
+shape:BattingParticipantsProperty
+    a sh:PropertyShape ;
+    sh:path idx:agent ; sh:minCount 1 ; sh:nodeKind sh:IRI ;
+    sh:message "A PA fact must retain every evidenced actual batting participant; this is not official statistical PA credit."@en .
+
+shape:BatterActSupportShape
+    a sh:NodeShape ; sh:nodeKind sh:IRI ;
+    sh:property shape:AgentProperty, shape:PlateAppearanceProperty, shape:GameProperty .
 
 shape:PlateAppearanceResultFactShape
     a sh:NodeShape ;
     sh:targetClass idx:PlateAppearanceResultFact ;
     sh:nodeKind sh:IRI ;
     sh:property shape:GameProperty,
-        shape:AgentProperty,
+        shape:BattingParticipantsProperty,
         shape:PlateAppearanceProperty,
         shape:OutcomeClassProperty,
         shape:SourceEventTypeProperty,
-        shape:DerivedFromProperty .
+        shape:DerivedFromProperty ;
+    sh:node shape:PaParticipantSetShape .
+
+shape:PaParticipantSetShape
+    a sh:NodeShape ;
+    sh:sparql [
+        sh:message "A PA outcome must retain exactly the participants of its indexed PA, without assigning statistical credit."@en ;
+        sh:select """
+            PREFIX idx: <https://w3id.org/baseball/query-index/>
+            SELECT $this WHERE {
+              $this idx:plateAppearance ?pa .
+              { $this idx:agent ?player . FILTER NOT EXISTS { ?pa idx:agent ?player } }
+              UNION
+              { ?pa idx:agent ?player . FILTER NOT EXISTS { $this idx:agent ?player } }
+            }
+        """
+    ] .
 
 shape:HitFactShape
     a sh:NodeShape ;
     sh:targetClass idx:HitFact ;
     sh:nodeKind sh:IRI ;
     sh:property shape:GameProperty,
-        shape:AgentProperty,
+        shape:BattingParticipantsProperty,
         shape:VenueProperty,
         shape:PlateAppearanceProperty,
         shape:HitTypeProperty,
-        shape:DerivedFromProperty .
+        shape:DerivedFromProperty ;
+    sh:node shape:PaParticipantSetShape .
 
 shape:PitchFactShape
     a sh:NodeShape ;
