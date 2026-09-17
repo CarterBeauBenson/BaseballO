@@ -42,6 +42,15 @@ API -> source-owned RML -> source-owned SHACL -> graph promotion
     -> approved queries -> persistent SQL serving layer -> UI
 ```
 
+That lifecycle does not mean every change starts at API acquisition. Metric,
+SQL, and UI work begins with existing promoted graphs. An authorized addition
+targets its affected facts; a full source rebuild requires explicit scope
+authorization. The [operating policy](../../../AGENTS.md#incremental-work-and-minimal-manual-validation)
+also limits Codex to scoped edits and the smallest useful developer check.
+Ontology/meaning, RML/mapping, and SHACL/conformance remain with their existing
+owners; NiFi runs the applicable stages and retains their results. Do not
+duplicate them with attended command chains or parallel semantic validators.
+
 Bulk and scheduled requests pass through
 `scripts/pipeline/check-source-proof-release.py`. The check is intentionally
 narrow: a source is released when a completed bounded proof exists for the
@@ -106,8 +115,10 @@ powershell -ExecutionPolicy Bypass -File `
   .\Baseball\serving\equivalence\provision.ps1 -Family paq -Start
 ```
 
-`Serving Equivalence -RunOnce` is deliberately manual. Submit it only after
-the relevant immutable serving build exists. The proof starts and stops its
+`Serving Equivalence -RunOnce` is an explicit submission, not a hand-run proof.
+Submit it only when the relevant route needs admission evidence and its
+immutable serving build exists; NiFi executes it asynchronously. Do not repeat
+an unchanged successful proof for unrelated edits. The proof starts and stops its
 own token-protected loopback Explorer child process, so it does not depend on
 or expose candidate routes through the normal desktop UI. A proof failure
 cannot replace an RDF or SQL pointer and cannot stop a source lane.

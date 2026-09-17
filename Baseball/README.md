@@ -181,15 +181,21 @@ root are defined in [`REPOSITORY-LAYOUT.md`](REPOSITORY-LAYOUT.md).
 The replacement NiFi flow owns the seven source runtime lifecycles. A separate
 daily `Repository Evidence` group owns aggregate validation as an asynchronous
 observer; its failure never controls a source lane or changes RDF or serving
-pointers. Developers run only focused checks for the component being changed
-and do not recreate the aggregate workflow as an attended command chain.
+pointers. Developers use the [minimal-check policy](../AGENTS.md#incremental-work-and-minimal-manual-validation):
+diff review for documentation, the smallest useful check for changed behavior,
+then asynchronous NiFi execution. They do not recreate the aggregate workflow
+as an attended command chain or duplicate ontology/RML/SHACL semantics in scripts.
+
+Metric, SQL, and UI changes consume existing promoted RDF. A missing metric
+input is a specific gap, not permission to rerun ingestion. Authorized source
+additions stay targeted; a full RDF rebuild needs explicit authorization.
 
 SPARQL and SHACL over accepted ontology terms are ordinary maintained project
 artifacts. Ontologist approval is required for new ontology terms, axioms,
 identity policies, object properties, or genuinely new modeling assumptions,
 not for every query or conformance-shape revision.
 
-To run only the mapping-specific validation, use the following command:
+For a mapping edit or a specific mapping failure only, the focused validator is:
 
 ```powershell
 python Baseball/sources/mlb-game/mapping/validate_mlb_game_mapping.py `

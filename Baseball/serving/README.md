@@ -166,6 +166,13 @@ analytical definition is correct.
 
 ## Rebuild and backfill
 
+Here, a serving rebuild means regenerating derived SQL from existing promoted
+RDF. It does not mean reacquiring API data, rerunning RML, or replacing source
+graphs. Metric/query/schema changes belong in the serving layer. A specific
+missing graph fact is documented separately and any authorized source addition
+stays targeted. Stale validation evidence alone does not establish a need to
+regenerate RDF. See the [operating policy](../../AGENTS.md#incremental-work-and-minimal-manual-validation).
+
 NiFi owns rebuild and backfill orchestration. A rebuild request enters the
 promotion-driven serving lane only after its declared authoritative/index graph
 pairs have matching promotion evidence. NiFi then invokes the checked-in
@@ -179,7 +186,8 @@ does not replace the NiFi lifecycle or authorize a production backfill.
 Promotion does not create an equivalence claim.
 
 `serving/nifi/provision.ps1` owns incremental authority-event materialization
-and explicit full RDF rebuilds. A submission is not evidence of promotion;
+and explicit full SQL rebuilds from existing authority RDF. It does not rebuild
+the source RDF. A submission is not evidence of promotion;
 terminal evidence and `authority/current.json` determine whether an authority
 serving build became current.
 
@@ -191,7 +199,10 @@ authority-serving group.
 
 ## Family equivalence and admission
 
-The manual `Serving Equivalence` NiFi group is the pre-admission gate. It starts
+The explicitly submitted `Serving Equivalence` NiFi group owns the existing
+pre-admission comparison; Codex does not run it as an attended manual suite.
+Use it for the affected route's admission, not as a new prerequisite for every
+metric or presentation edit. It starts
 a token-protected loopback Explorer child process, sends the same request
 through a forced authoritative path and an isolated candidate-SQL path, then
 requires the exact projected variables, RDF terms,

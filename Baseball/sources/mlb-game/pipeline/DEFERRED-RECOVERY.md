@@ -1,5 +1,23 @@
 # Deferred MLB proof and refresh
 
+## Scope restriction: September 17
+
+This helper runs source proof and full per-game replacement over a date range.
+It is not a targeted RDF-addition mechanism or the entry point for SQL/metric
+changes over the existing graph. Do not enqueue source recovery merely because
+serving code, a calculation, or a validation fingerprint changed. Diagnose the
+affected layer and keep the work there. If targeted source execution is needed,
+implement it within the accepted lifecycle rather than substituting this broad
+replacement path. See the [operating policy](../../../../AGENTS.md#incremental-work-and-minimal-manual-validation).
+
+The user authorized completion of the already running September 17 batch
+`2e0062c6ccff4630840108858425ed4f` after identifying the scope error. That is a
+one-batch exception, not standing authorization for future season refreshes.
+The mechanics below describe the existing implementation and remain relevant
+to explicitly authorized source recovery; they are not a manual checklist.
+
+## Existing recovery mechanics
+
 The user restored the 15-minute `Check Pending Batch Materialization` trigger
 on 2026-09-16 after its temporary shutdown. Its live state is running and the
 source contract sets `batchMaterialization.periodicChecksEnabled` to true.
@@ -19,7 +37,8 @@ the existing `Backfill Schedule Request` for the queued date range. Batch
 completion comes from the normal batch manifest after promotion and SQL
 materialization; submission is never reported as completion.
 
-Queue a bounded request with the configured runtime Python:
+Only for an explicitly authorized source-recovery range, submit with the
+configured runtime Python:
 
 ```text
 python -B sources/mlb-game/pipeline/resume-metric-source.py --enqueue
@@ -39,8 +58,8 @@ work on subsequent ticks. Its durable status is
 root. The batch worker loads the helper on each invocation, so updating this
 helper does not require restarting the source group or the active SQL build.
 
-For a scoring correction that makes an active build obsolete, enqueue with
-`--proof-rebuilds-serving`. This waits for the known SQL processors to become
+`--proof-rebuilds-serving` belongs to an already authorized source recovery,
+not an ordinary scoring correction. It waits for the known SQL processors to become
 idle, then starts the normal proof even if the obsolete build did not promote.
 The proof's existing materialization stage builds and validates the entire
 serving product itself; a prior successful SQL build is not required for that
@@ -63,8 +82,9 @@ tick. The obsolete proof never releases backfill. Missing completion, an
 ambiguous dispatch, failed conformance or quarantine cannot take this path;
 multiple new obsolete completions require attribution instead of a retry.
 
-An independently recorded SQL implementation-change failure has a separate
-recovery path. It requires one new, uniquely attributable quarantined proof,
+Within an existing source-recovery request, an independently recorded SQL
+implementation-change failure has a recovery path. It requires one new,
+uniquely attributable quarantined proof,
 an accepted dispatch, successful RML/SHACL/promotion/event-emission records,
 ordered completion timestamps, and the materializer's terminal
 `implementation-changed` result. The exact prior materializer error

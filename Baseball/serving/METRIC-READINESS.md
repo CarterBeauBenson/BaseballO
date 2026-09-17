@@ -114,18 +114,27 @@ source profiles, attribution policies and participation minima remain enforced.
 
 ## Delivery order
 
-1. Let NiFi finish the already requested current-proof refresh and publish a
-   matching immutable SQL/code release. Reuse unchanged graph queries and
-   calculated game products; do not restart unaffected work.
+On September 17 the user corrected the scope: metric/SQL work must reuse the
+existing graph and source additions must remain targeted. The user subsequently
+allowed the already running batch `2e0062c6ccff4630840108858425ed4f` to finish.
+That exception does not authorize another season RDF rebuild. This record
+describes the instruction, not the batch's live completion status.
+
+1. Let NiFi finish that existing batch and publish its matching immutable
+   SQL/code release. Subsequent metric and SQL work starts from promoted RDF;
+   reuse unchanged graph queries and calculated game products.
 2. Inspect the published dashboard's qualified-player report for the requested
    range and use its exact gap codes to locate remaining owning-source or
    serving-adapter failures.
-3. Complete the review player integrations and remaining defensive, attribution
-   and season-population requirements identified above. Do not admit partial
-   populations by dropping unresolved observations.
+3. Complete integrations and calculations supported by existing RDF. Keep exact
+   graph-input gaps separate from serving defects; implement only authorized,
+   targeted source additions. Do not admit partial populations by dropping
+   unresolved observations or turn their absence into a general rebuild request.
 4. Verify actual named player rows and expanded card details for all 19 metrics.
 
 NiFi owns repeated processing, validation, retries, quarantine and publication.
 The asynchronous Repository Evidence gate is separate from this product check.
+Use the [minimal-check policy](../../AGENTS.md#incremental-work-and-minimal-manual-validation)
+instead of manually repeating the pipeline or creating new readiness gates.
 See [implementation ownership](METRIC-SUITE-IMPLEMENTATION.md) and
 [build reuse](BUILD-REUSE.md) for the engineering boundaries.

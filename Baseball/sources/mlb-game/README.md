@@ -53,10 +53,13 @@ discovered game. A run's submission, promotion, quarantine, cleanup, and
 materialization status must be read from terminal NiFi evidence; this README
 does not track a live batch.
 
-When a source proof must wait for a serving rebuild, the existing periodic
-batch worker can own the dependency sequence through
+For an explicitly authorized source recovery whose proof must wait for a
+serving rebuild, the existing periodic batch worker can own the sequence through
 [deferred proof and refresh recovery](pipeline/DEFERRED-RECOVERY.md). It submits
 the normal proof and bounded backfill only after their prerequisites complete.
+This is not the entry point for metric/SQL changes or targeted RDF additions:
+it replaces complete game graphs. Those tasks must follow the
+[incremental-work policy](../../../AGENTS.md#incremental-work-and-minimal-manual-validation).
 
 Contradictory source clocks follow the accepted [T1 decision](../../archive/design-records/mlb-game-clock-conflict-isolation/README.md).
 When an event or PA has an end earlier than its start, neither boundary clock

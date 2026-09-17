@@ -2,6 +2,14 @@
 
 Run all commands in this document from the `Baseball/` project directory.
 
+This is a component reference, not a manual execution checklist. Follow the
+[minimal-check policy](../../../AGENTS.md#incremental-work-and-minimal-manual-validation).
+NiFi owns repeatable mapping, SHACL, reasoning, validation, benchmarking,
+promotion, SQL builds, and retry. Manual commands below are only for a
+specific changed component or an explicitly requested diagnosis; do not chain
+them into a second pipeline. SQL and metric changes reuse promoted RDF and
+do not authorize source recovery or full game/corpus replacement.
+
 These scripts are pipeline components. NiFi invokes them for source-owned MLB
 API acquisition; developers may also use the direct game importer as a focused
 fallback. Directly imported evidence retains its byte-identical archive. API
@@ -79,7 +87,9 @@ serialized, and exact result-row equivalence is checked before the graph-pair
 commit. A failed index build removes the derived graph but never deletes or
 changes the authoritative graph.
 
-Run the complete offline acceptance check with:
+For an explicitly scoped ingestion diagnosis in an isolated developer store,
+the following diagnostic replaces fixture graphs; it is not a routine SQL or
+metric check:
 
 ```powershell
 .\scripts\pipeline\test-manual-vertical-slice.ps1 -ForceRdfLoad
@@ -92,8 +102,8 @@ stolen bases, and assignments.
 
 ## Corpus query audit
 
-With the eight 2026-08-03 authoritative graphs loaded, verify all 51 canned
-queries against the checked-in row-set baseline:
+The aggregate corpus audit is owned by NiFi. For an explicit diagnosis of
+that audit, its eight-game, 51-query baseline command is:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File `
@@ -107,7 +117,7 @@ the eight corpus graphs, detects empty and duplicate result sets, and records
 order-independent RDF-term-aware hashes under
 [`benchmarks/canned-query-audit/`](../../benchmarks/canned-query-audit/).
 
-Audit the 17 advanced semantic queries independently with:
+The corresponding 17-query advanced audit component is:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File `
@@ -121,8 +131,9 @@ misreported as failed execution.
 
 ## Query-index performance evidence
 
-With the eight corpus graphs and their current indexes loaded, reproduce the
-exact-result corpus benchmark and alternating 20-sample timings with:
+For an explicitly requested query-index benchmark, the component below uses
+eight corpus graphs and alternating 20-sample timings. It is not a release
+prerequisite for unrelated changes:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File `
@@ -275,8 +286,8 @@ triple count, and exact promotion-evidence hash. The shared `Analytical
 Serving` NiFi group consumes only declared authority dependencies. Corrections
 replace the affected graph partition rather than appending a second version.
 
-[`prove-serving-equivalence.py`](prove-serving-equivalence.py) is the manual
-NiFi-owned pre-admission comparison for PAQ, Advanced, Explore, Empty Games,
+[`prove-serving-equivalence.py`](prove-serving-equivalence.py) is the
+NiFi-executed pre-admission comparison for PAQ, Advanced, Explore, Empty Games,
 and Derived families. [`query-serving-candidate.py`](query-serving-candidate.py)
 exposes pending SQL only to that loopback proof route; normal UI admission
 remains controlled by `serving/contract.json`.
@@ -284,3 +295,5 @@ Explore-family proof includes every non-enum filter option used by those
 families, so admitting a result route cannot silently leave its supporting
 option lists on live RDF. Failed same-corpus checks retain both the
 authoritative and candidate SQL fingerprints in their immutable evidence.
+An explicit proof submission is asynchronous; Codex does not run the proof
+script separately or repeat an unchanged successful proof for every edit.

@@ -47,6 +47,14 @@ for remaining work and verified evidence, and the
 component ownership. NiFi owns refreshes and publication; current machine-local
 serving evidence determines what is live.
 
+Metric and query-performance work starts from the existing promoted graph:
+SPARQL supplies analytical inputs, SQL retains derived results, and the UI
+presents them. It does not initiate source reingestion or an RDF rebuild.
+Missing facts are documented separately and any authorized addition stays
+targeted. The [operating policy](AGENTS.md#incremental-work-and-minimal-manual-validation)
+assigns semantics to the ontology, mapping to RML, conformance to SHACL, and
+routine execution and validation to NiFi.
+
 ## What is different from a normal stat table?
 
 | Normal baseball stat table | BaseballO |
@@ -276,6 +284,7 @@ The active implementation is under [`Baseball/`](Baseball/README.md).
 
 The replacement NiFi flow includes a separate daily `Repository Evidence`
 observer for aggregate validation. It records evidence without controlling
-source lanes, RDF promotion, or serving pointers. Local development still uses
-focused component checks rather than reproducing that aggregate workflow as an
-attended command chain.
+source lanes, RDF promotion, or serving pointers. Local development uses only
+the smallest useful check for the edited component; documentation changes need
+diff review only. Codex does not reproduce the aggregate workflow, rerun
+successful checks without a new reason, or monitor a healthy batch continuously.

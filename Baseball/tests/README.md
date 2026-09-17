@@ -3,6 +3,25 @@
 Run project-relative commands in this document from the `Baseball/` project
 directory.
 
+## Choosing a check
+
+This is a test inventory, not a sequence to run before every publication.
+Follow the [minimal-check policy](../../AGENTS.md#incremental-work-and-minimal-manual-validation):
+
+- Documentation: inspect the diff and run `git diff --check` only.
+- Code: choose the smallest existing check for the behavior being changed.
+  Add a regression only when it addresses a substantive defect.
+- SQL or metric logic: compare the affected calculation with its existing
+  SPARQL inputs on a bounded case; leave production execution to NiFi.
+- Recorded pipeline failure: start with NiFi's terminal evidence and the
+  failing component. Do not run a second copy of the full pipeline by hand.
+
+Stop expanding the check set once the relevant check passes unless a new
+change or unresolved failure justifies more. NiFi's `Repository Evidence`
+group owns aggregate validation asynchronously. Ontology, RML, and SHACL
+retain their own responsibilities; tests must not grow a second semantic
+validation system in imperative code.
+
 Repository-level validation remains in
 [`../scripts/validate_repository.py`](../scripts/validate_repository.py). It
 currently parses 106 SPARQL files, checks the RML and 120 generated pattern pages,
@@ -74,7 +93,9 @@ binder. `test_promoted_graph_events.py`,
 authority SQL, and aggregate-evidence boundaries. `test_serving_equivalence.py`
 checks the pre-admission result-signature contract.
 
-With the local stack running, execute the offline end-to-end acceptance test from the project directory:
+The following end-to-end diagnostic writes fixture graphs. Use it only for
+an explicitly scoped ingestion diagnosis in an isolated developer store,
+not as a routine metric/SQL release check:
 
 ```powershell
 .\scripts\pipeline\test-manual-vertical-slice.ps1 -ForceRdfLoad
@@ -85,7 +106,7 @@ source/archive byte identity, RML manifest hashes, source-to-RDF counts, the
 expected named graph, and twelve authoritative/index semantic row families. It
 makes no external data request.
 
-With the eight-game corpus loaded, route safety is exercised separately:
+For changes to reviewed query routing itself, the bounded route diagnostic is:
 
 ```powershell
 .\scripts\pipeline\test-reviewed-query-routing.ps1

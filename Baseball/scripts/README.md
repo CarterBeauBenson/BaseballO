@@ -3,6 +3,12 @@
 Run project-relative commands in this document from the `Baseball/` project
 directory.
 
+These are components for NiFi and focused developer diagnosis, not a manual
+release checklist. Follow the [minimal-check policy](../../AGENTS.md#incremental-work-and-minimal-manual-validation).
+For documentation, review the diff only. For changed code, run the smallest
+useful check and leave routine integration, validation, retry, and publication
+to NiFi. Read existing failure evidence before running anything again.
+
 [`validate_repository.py`](validate_repository.py) checks required paths,
 parses JSON, Turtle, and every registered SPARQL file, verifies local Markdown links and
 Mermaid fences, validates 546 distinct completed-game identities including the
@@ -41,15 +47,11 @@ builder sources. The launcher reuses a matching process and restarts only the
 Explorer Node process when repository code has changed; it does not restart or
 monitor a healthy NiFi instance to refresh the UI.
 
-```powershell
-python scripts/validate_repository.py
-```
-
-When the user reauthorizes Git, the checked-in pre-push hook runs the focused
-semantic gate before publishing. Enable it once in a clone with
-`git config core.hooksPath .githooks` from the Git root. Git and GitHub remain
-disabled until that explicit reauthorization. CI repeats the history-aware
-comparison with full Git history.
+`validate_repository.py` is invoked by NiFi's `Repository Evidence` observer;
+do not run it by hand as a prerequisite for every edit. The installed pre-push
+hook performs its existing semantic-change check during publishing; do not
+duplicate that invocation manually. Git publishing to `dev` is authorized.
+The user removed GitHub validation on September 17; do not restore it.
 
 Mapping-specific validation remains beside the active mapping in [`../sources/mlb-game/mapping/`](../sources/mlb-game/mapping/).
 
@@ -60,7 +62,7 @@ python scripts/generate_rml_mermaid.py
 python scripts/generate_rml_mermaid.py --check
 ```
 
-The check fails for unassigned triples maps, nonexistent manifest references, oversized review patterns, extra output files, or generated files that no longer match the RML and manifest. Repository validation runs this check automatically.
+The check fails for unassigned triples maps, nonexistent manifest references, oversized review patterns, extra output files, or generated files that no longer match the RML and manifest. Repository validation runs this check automatically. Use generation only when its owning RML or pattern manifest changes, not for SQL or presentation edits.
 
 The [`pipeline/`](pipeline/) scripts are versioned components invoked by the
 source-owned NiFi lanes. They run RML, validate generated RDF with source

@@ -12,6 +12,16 @@ NiFi owns acquisition, source validation, promotion, serving builds and retry.
 The graph remains authoritative; SQL, query caches and calculated-product
 caches are disposable derived data.
 
+Metric implementation starts at the existing graph, not at API acquisition.
+Change the affected queries, calculations, SQL products, or presentation and
+let NiFi run their applicable stages. If an input is unsupported, document
+that specific gap and continue supported work; do not initiate a source
+refresh to make every metric complete. Authorized RDF additions stay targeted.
+The [minimal-check policy](../../AGENTS.md#incremental-work-and-minimal-manual-validation)
+limits manual checks to the edited behavior and leaves repeatable validation
+to NiFi. This is an operating rule, not a claim that the current source-recovery
+code already supports targeted additions.
+
 | Component | Responsibility |
 | --- | --- |
 | `sources/mlb-game/` | Source-owned RML, SHACL and promotion-bound admission proofs |
