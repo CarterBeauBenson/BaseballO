@@ -117,7 +117,6 @@ IDX = Namespace("https://w3id.org/baseball/query-index/")
 REQUIRED_PATHS = (
     GIT_ROOT / ".editorconfig",
     GIT_ROOT / ".gitattributes",
-    GIT_ROOT / ".github" / "workflows" / "validate.yml",
     GIT_ROOT / ".github" / "CODEOWNERS",
     GIT_ROOT / ".githooks" / "pre-push",
     GIT_ROOT / "AGENTS.md",
@@ -336,20 +335,6 @@ def validate_layout_boundaries() -> int:
     ]
     if stale_names:
         raise ValueError(f"Active paths retain the retired mlb-direct name: {stale_names}")
-
-    workflow = (GIT_ROOT / ".github" / "workflows" / "validate.yml").read_text(
-        encoding="utf-8"
-    )
-    required_workflow_fragments = (
-        "Baseball/requirements-dev.txt",
-        "cache-dependency-path: Baseball/requirements-dev.txt",
-        "python Baseball/scripts/validate_repository.py",
-        "runs-on: ubuntu-latest",
-        "runs-on: windows-latest",
-    )
-    missing = [value for value in required_workflow_fragments if value not in workflow]
-    if missing:
-        raise ValueError(f"Git-root validation workflow has stale project paths: {missing}")
 
     attributes = (GIT_ROOT / ".gitattributes").read_text(encoding="utf-8")
     required_attribute_fragments = (

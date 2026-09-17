@@ -7,9 +7,11 @@ BaseballO has two explicit roots:
 - `Baseball/` is the project root. All application, ontology, pipeline,
   evidence, and technical documentation paths are relative to it.
 
-GitHub Actions resolves paths from the Git root. Project scripts resolve their
-own project root and may be launched from the Git root with a `Baseball/`
-prefix. Subsystem documentation may use project-relative links but must state
+NiFi's Repository Evidence group owns aggregate validation. The GitHub
+validation workflow was removed at the user's request; pushes and pull requests
+do not run it. Project scripts resolve their own project root and may be launched
+from the Git root with a `Baseball/` prefix. Subsystem documentation may use
+project-relative links but must state
 that command examples begin in the `Baseball/` project directory when they omit
 that prefix.
 

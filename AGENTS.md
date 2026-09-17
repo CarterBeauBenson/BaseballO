@@ -20,6 +20,7 @@
 - Never force-push, rebase published commits, or rewrite remote history without explicit user approval.
 - Fetch `origin/dev` before publishing and stop for genuine conflicts or non-fast-forward divergence.
 - After completing requested changes and any focused developer checks needed for the component being edited, commit all in-scope changes and push them to `origin/dev` automatically. Full repository validation is an asynchronous NiFi-owned gate; do not keep the user turn open waiting for it.
+- The user removed GitHub push/pull-request validation on 2026-09-17 to stop repeated failure notifications. Do not restore the GitHub validation workflow or add required GitHub checks without an explicit request. NiFi's Repository Evidence gate remains enabled.
 - Authenticate through Windows Git Credential Manager. Never request, print, or store a GitHub password or token in the repository.
 
 ## Project guardrails
