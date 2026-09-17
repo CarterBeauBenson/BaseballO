@@ -8,11 +8,21 @@ conditional player producers. The two review player integrations remain
 unfinished. All twenty calculation kernels exist; Role Realization Breadth
 is the backend-only twentieth metric.
 
-The last recorded live check on September 16 returned all 19 cards for August
-25 from SQL, with all 15 scheduled games selected and **zero populated player
-leaderboards**. Subsequent focused fixes are verified below, but a replacement
-NiFi publication and populated qualified-player results have not been established
-by those checks. An HTTP 200 or a completed SQL build does not close that gap.
+The latest live check on September 16 returned HTTP 200 in 16.8 seconds for
+August 25 from SQL, with all 15 scheduled games selected and **zero populated
+player leaderboards**. The new coverage report explicitly returned `ready:false`
+and 19 unavailable player boards. The active SQL build was
+`20260917T001611Z-1122c341fcc2`, paired with code `4828061`; publication of the
+subsequent serving and source fixes has not been established by these checks.
+NiFi's already queued season refresh had advanced to its proof stage. An HTTP
+200 or a completed SQL build does not establish populated player cards.
+
+The initial request after that SQL publication hit HTTP 503; a direct read and
+the subsequent HTTP check succeeded. A newly published 12.3 GB database was
+being checksum-verified inside the first request's 30-second deadline. The
+materializer now prepares a separate verified receipt for each database before
+publication, with the same complete hash and file-identity checks. This fix
+applies to subsequent NiFi builds; it does not manufacture metric populations.
 
 ## How to check the actual release
 

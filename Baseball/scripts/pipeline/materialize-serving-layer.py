@@ -101,6 +101,10 @@ QUALITY_SPEC = SERVING_ROOT / "plate-appearance-quality-v1.json"
 MATERIALIZER = Path(__file__).resolve()
 MAPPING = ROOT / "sources" / "mlb-game" / "mapping" / "mlb-game.rml.ttl"
 VALIDATOR = ROOT / "scripts" / "pipeline" / "query-serving-layer.py"
+_reader_spec = importlib.util.spec_from_file_location('baseballo_serving_verification', VALIDATOR)
+_reader = importlib.util.module_from_spec(_reader_spec)
+_reader_spec.loader.exec_module(_reader)
+_LOADED_MODULE_HASHES[VALIDATOR] = hashlib.sha256(VALIDATOR.read_bytes()).hexdigest()
 GOOD_AT_BAT_QUERY = ROOT / "sparql" / "advanced" / "plate-appearance-fingerprint.rq"
 ADVANCED_CATALOG = ROOT / "sparql" / "advanced" / "advanced-query-catalog.json"
 ADVANCED_REDUCERS = SERVING_ROOT / "advanced-query-reducers.json"
@@ -1536,6 +1540,15 @@ def _build(args: argparse.Namespace, progress: dict[str, Any]) -> dict[str, Any]
         for layer in ("authoritative", "indexed")
     }
     guard.check(completed=len(dimensions),total=len(dimensions),phase='publication-checks')
+    # Verify the immutable file before publication, outside the first HTTP
+    # request's deadline. Reuse the reader's complete hash/identity contract.
+    database_identity = _reader.file_identity(database)
+    database_sha256 = _reader.hash_database_stream(database, database_identity)
+    if _reader.file_identity(database) != database_identity:
+        raise ValueError('Serving database changed after candidate integrity verification')
+    _reader.write_database_verification_cache(
+        _reader.database_verification_cache_path(store_root, database_sha256),
+        database_sha256, database.resolve(), database_identity)
     if runtime_release:
         _serving_release.verify_release(state_root, runtime_release)
     evidence = {
@@ -1553,7 +1566,7 @@ def _build(args: argparse.Namespace, progress: dict[str, Any]) -> dict[str, Any]
         "status": "validated",
         "createdAtUtc": utc_now(),
         "databasePath": str(database.resolve()),
-        "databaseSha256": sha256_file(database),
+        "databaseSha256": database_sha256,
         "corpusFingerprint": corpus_fingerprint,
         "gameCount": len(dimensions),
         "plateAppearanceCount": rows,
@@ -1697,6 +1710,8 @@ def _build(args: argparse.Namespace, progress: dict[str, Any]) -> dict[str, Any]
         # This is deliberately the final filesystem mutation. Any failure before
         # this atomic swap leaves the prior validated pointer active.
         guard.finish('ready-for-promotion')
+        if _reader.file_identity(database) != database_identity:
+            raise ValueError('Serving database changed before publication')
         atomic_json(store_root / "current.json", pointer)
         return {**evidence, "status": "promoted", "promotedAtUtc": promotion_time}
     guard.finish('validated')

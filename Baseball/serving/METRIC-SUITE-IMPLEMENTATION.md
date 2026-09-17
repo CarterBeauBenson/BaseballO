@@ -33,6 +33,12 @@ build. Evidence and proofs are written into the new candidate, all twenty
 metric products round-trip through exact SQL, and final graph/promotion and
 integrity checks still precede publication.
 
+NiFi also prepares the database's checksum-verification receipt before publishing
+the pointer. Readers retain their file-identity checks, but a newly published
+database no longer requires a full file hash during its first HTTP request.
+Each database has its own receipt so concurrent old and new readers do not
+invalidate each other's verification cache.
+
 Calculation reuse has a separate fingerprint from source admission. A producer
 edit with identical validated outputs need not invalidate a calculation. A
 changed proof, evidence binding, game identity or calculation input invalidates

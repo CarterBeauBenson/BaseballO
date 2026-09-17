@@ -665,10 +665,36 @@ class ServingMaterializerTests(unittest.TestCase):
                     tables = [row[0] for row in db.execute("SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'metric_suite_%'")]
                     return {table: db.execute('SELECT * FROM '+table+' ORDER BY 1,2').fetchall() for table in tables}
             self.assertEqual(retained_metric_rows(cold),retained_metric_rows(warm))
+            # Both releases are verified before their first reader. Publishing
+            # another build cannot evict an in-flight older reader's receipt.
+            with patch.object(MODULE._reader,'hash_database_stream',side_effect=AssertionError('must be preverified')):
+                for build in (cold,warm):
+                    database = Path(build['databasePath'])
+                    cache_path = MODULE._reader.database_verification_cache_path(state/'serving',build['databaseSha256'])
+                    self.assertEqual(MODULE._reader.verify_database(database,build['databaseSha256'],cache_path),
+                        MODULE._reader.file_identity(database))
             self.assertEqual(cold['integrity'],warm['integrity'])
             self.assertEqual(cold['sourceCorpusIntegrity'],warm['sourceCorpusIntegrity'])
             self.assertTrue(warm['sourceCorpusIntegrity']['liveGraphStateRechecked'])
             self.assertEqual(json.loads((state/'serving/current.json').read_text())['buildId'],warm['buildId'])
+
+    def test_failed_prepublication_verification_preserves_published_pointer(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            state = Path(temporary)
+            make_promotion(state, '1', B966)
+            pointer = state/'serving/current.json'
+            write_json(pointer, {'buildId':'prior'})
+            before = pointer.read_bytes()
+            def offline_sparql(_endpoint, query, _timeout):
+                if '?rdfGameSet ?venue ?venueLabel' in query: return result([dimension('1')])
+                if 'AS ?sourceCount' in query or 'AS ?indexCount' in query: return result([live_pair('1')])
+                return result([])
+            args = argparse.Namespace(state_root=state,endpoint='offline',timeout=1,max_games=None,no_promote=False)
+            with patch.object(MODULE,'sparql',side_effect=offline_sparql), patch.object(
+                    MODULE,'official_metadata',return_value={'1':{'gameSet':'regular_season'}}), patch.object(
+                    MODULE._reader,'write_database_verification_cache',side_effect=OSError('receipt unavailable')):
+                with self.assertRaisesRegex(OSError,'receipt unavailable'): MODULE.build(args)
+            self.assertEqual(pointer.read_bytes(),before)
 
     def test_implementation_drift_aborts_candidate_and_preserves_pointer(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

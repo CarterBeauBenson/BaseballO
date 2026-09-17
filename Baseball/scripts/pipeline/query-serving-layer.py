@@ -206,6 +206,14 @@ def verify_database(
     return verified
 
 
+def database_verification_cache_path(serving_root: Path, expected: object) -> Path:
+    digest = str(expected).lower()
+    if not SHA256_PATTERN.fullmatch(digest):
+        raise ValueError('Serving pointer has an invalid databaseSha256')
+    # Readers pinned to different builds must not evict each other's receipt.
+    return serving_root / 'database-verifications' / (digest + '.json')
+
+
 def load_object(path: Path) -> dict[str, Any]:
     value = json.loads(path.read_text(encoding="utf-8-sig"))
     if not isinstance(value, dict):
@@ -941,7 +949,7 @@ def query(args: argparse.Namespace, request: dict[str, Any]) -> dict[str, Any]:
     builds = (args.state_root.resolve() / "serving" / "builds").resolve()
     if database.parent != builds or database.suffix != ".sqlite" or not database.is_file():
         raise ValueError("Serving pointer database is outside the immutable build directory")
-    verification_cache = builds.parent / "database-verification-cache.json"
+    verification_cache = database_verification_cache_path(builds.parent, pointer.get('databaseSha256'))
     verified_identity = verify_database(
         database, pointer.get("databaseSha256"), verification_cache
     )

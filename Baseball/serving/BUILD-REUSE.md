@@ -42,6 +42,17 @@ Release directories are retained independently of database retention so an
 active request or rollback never loses its reader. They are small code products,
 not duplicate databases. There is currently no automatic release-directory GC.
 
+The database's full checksum is calculated by NiFi before publication using
+the reader's handle-based file identity checks. NiFi writes a verified receipt
+under `serving/database-verifications/<database-sha256>.json` before swapping
+the pointer and rechecks file identity immediately before that swap. The first
+HTTP request can reuse the receipt instead of streaming the entire database
+within its 30-second worker deadline. Receipts are separate per database so a
+request pinned to an older build cannot evict the newly published verification.
+Missing receipts still require full verification; changed size, timestamps,
+device or inode invalidate them. This preserves the reader's existing integrity
+contract and moves repeatable preparation into the NiFi build.
+
 `test_serving_release` exercises committed subprocess launch, working-copy
 edits, new commits, publication during a request, exact legacy pairing,
 negative-result reuse and corruption rejection. This is engineering coverage;
