@@ -50,7 +50,7 @@ def virtual_intentional_walk(play, season):
 
 def census(raw,game_pk):
     game_pk=B.identity(int(game_pk));doc=json.loads(raw);source=B.SOURCE.reconcile(raw,game_pk)
-    issues=[dict(code='SOURCE_RECONCILIATION',detail=i) for i in source['issues']]
+    issues=[dict(code='SOURCE_RECONCILIATION',detail=i) for i in source['blockingIssues']]
     doc[CONTEXT.CONTEXT_KEY]={'runnerHistoryReconciliation':{'sourceConsistency':'consistent' if not issues else 'inconsistent'}}
     automatic=CONTEXT.automatic_count_awards(doc)
     awards={(r['atBatIndex'],r['playId']):r for r in automatic['automaticAwards']}
@@ -80,6 +80,8 @@ def census(raw,game_pk):
             if not isinstance(pid,str) or not CONTEXT.SAFE_IRI_SEGMENT.fullmatch(pid) or identities[pid]!=1:
                 errors.append('AMBIGUOUS_COUNT_EVENT_ID');continue
             if award:
+                if not award.get('clockOrderSupported', True):
+                    errors.append('UNSUPPORTED_AWARD_ORDER')
                 increment=award['kind']=='strike'
                 selected.append(dict(event=award['processIri'],kind='award',award=award,
                                      strike=bool(increment),strikesAfter=after))

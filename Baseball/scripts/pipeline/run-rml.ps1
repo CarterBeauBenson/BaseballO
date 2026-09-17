@@ -310,7 +310,7 @@ try {
     if ($expectedPlateAppearanceCount -eq 0) {
         throw "Game $gamePk has no canonical plate appearances."
     }
-    if ([string]::IsNullOrWhiteSpace($expectedGameEndTime)) {
+    if ([string]::IsNullOrWhiteSpace($expectedGameEndTime) -and -not $contextDocument._baseballO.gameEndClockConflicted) {
         throw "Game $gamePk has no canonical game-end timestamp."
     }
 
@@ -382,7 +382,9 @@ try {
         throw "RMLMapper produced no RDF for game $gamePk."
     }
 
-    & python $validatorPath $stageOutput $gamePk '--expected-player-participants' $expectedPlayerParticipantCount '--expected-plate-appearances' $expectedPlateAppearanceCount '--expected-batter-acts' $expectedBatterActCount '--expected-pitches' $expectedPitchCount '--expected-batting-acts' $expectedBattingActCount '--expected-contacts' $expectedContactCount '--expected-runner-records' $expectedRunnerRecordCount '--expected-runner-resolutions' $expectedRunnerResolutionCount '--expected-pitch-ball-control-failures' 0 '--expected-passed-balls' $passedBallEventIds.Count '--expected-wild-pitches' $wildPitchEventIds.Count '--expected-uncaught-third-strikes' $expectedUncaughtThirdStrikeCount '--expected-game-end' $expectedGameEndTime
+    $gameEndArguments = @()
+    if (-not [string]::IsNullOrWhiteSpace($expectedGameEndTime)) { $gameEndArguments = @('--expected-game-end', $expectedGameEndTime) }
+    & python $validatorPath $stageOutput $gamePk '--expected-player-participants' $expectedPlayerParticipantCount '--expected-plate-appearances' $expectedPlateAppearanceCount '--expected-batter-acts' $expectedBatterActCount '--expected-pitches' $expectedPitchCount '--expected-batting-acts' $expectedBattingActCount '--expected-contacts' $expectedContactCount '--expected-runner-records' $expectedRunnerRecordCount '--expected-runner-resolutions' $expectedRunnerResolutionCount '--expected-pitch-ball-control-failures' 0 '--expected-passed-balls' $passedBallEventIds.Count '--expected-wild-pitches' $wildPitchEventIds.Count '--expected-uncaught-third-strikes' $expectedUncaughtThirdStrikeCount @gameEndArguments
     if ($LASTEXITCODE -ne 0) {
         throw "Generated RDF validation failed for game $gamePk."
     }
@@ -396,6 +398,19 @@ try {
         if ($LASTEXITCODE -ne 0) {
             throw "Authoritative SHACL validation failed for game $gamePk."
         }
+    }
+
+    # T1 is a source-owned graph gate. NiFi runs it in its SHACL stage;
+    # isolated developer RML checks run the identical gate here.
+    $clockAdmissionPath = Join-Path $manifestDirectory "game-$gamePk-clock-admission.json"
+    if (-not $DeferShaclValidation) {
+        $clockAdmitter = Join-Path $script:RepositoryRoot 'sources\mlb-game\pipeline\clock-admission.py'
+        $clockEngineArguments = @()
+        if ($ShaclEngine -eq 'jena') {
+            $clockEngineArguments = @('--java', $java, '--jena-classpath', (Join-Path $script:FusekiHome 'fuseki-server.jar'))
+        }
+        & python $clockAdmitter '--input' $inputPath '--rdf' $stageOutput '--game-pk' $gamePk '--output' $clockAdmissionPath @clockEngineArguments
+        if ($LASTEXITCODE -ne 0) { throw "T1 clock isolation SHACL failed for game $gamePk." }
     }
 
     $runnerHistoryVerifier = Join-Path $script:RepositoryRoot 'sources\mlb-game\pipeline\verify-runner-history-serialization.py'
@@ -434,6 +449,8 @@ try {
         contextBuilderPath = $contextBuilderPath
         contextBuilderSha256 = (Get-FileHash -LiteralPath $contextBuilderPath -Algorithm SHA256).Hash.ToLowerInvariant()
         executionContextSha256 = $contextHash
+        clockIsolationDecision = 'archive/design-records/mlb-game-clock-conflict-isolation/review.json'
+        clockAdmission = if ($DeferShaclValidation) { $null } else { $clockAdmissionPath }
         runnerHistoryReconciliation = $contextDocument._baseballO.runnerHistoryReconciliation
         runnerHistoryMembershipVerified = $true
         runnerHistoryVerifierSha256 = (Get-FileHash -LiteralPath $runnerHistoryVerifier -Algorithm SHA256).Hash.ToLowerInvariant()

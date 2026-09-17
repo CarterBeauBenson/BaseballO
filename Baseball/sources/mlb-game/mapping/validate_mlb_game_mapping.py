@@ -253,7 +253,7 @@ else:
         '@._baseballO.reviewFinalDecision',
         '@._baseballO.reviewPattern',
         '{_baseballO.reviewChallengerId}',
-        'rml:reference "_baseballO.gameEndTime"',
+        'rml:iterator "$._baseballO.gameEndClocks[*]"',
         'rml:iterator "$._baseballO.seasonPhase"',
         'rml:reference "_baseballO.pitchTypeCategoryIri"',
         'rml:reference "pitchTypeReferenceSystemIri"',

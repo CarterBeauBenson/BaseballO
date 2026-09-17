@@ -1,0 +1,9 @@
+# T1: each source-specific measurement is either preserved exactly or absent as
+# part of a contradictory pair. Existing process/interval identities survive.
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix base: <https://baseballontology.org/> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+@prefix cco: <https://www.commoncoreontologies.org/> .
+
+# __CLOCK_SHAPES__

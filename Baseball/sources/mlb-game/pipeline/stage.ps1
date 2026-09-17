@@ -192,6 +192,14 @@ switch ($Action) {
         if ((Get-FileHash -LiteralPath $inputPath -Algorithm SHA256).Hash.ToLowerInvariant() -ne [string]$manifest.inputSha256) {
             throw "B1 source differs from the mapped revision for game $GamePk."
         }
+        $clockAdmissionPath = Join-Path $stageEvidenceRoot 'clock-admission.json'
+        $clockAdmitter = Join-Path $PSScriptRoot 'clock-admission.py'
+        Invoke-LoggedCommand -FailureMessage "T1 clock source/graph conformance failed for game $GamePk." -Command {
+            & python $clockAdmitter '--input' $inputPath '--rdf' $rdfPath '--game-pk' $GamePk `
+                '--output' $clockAdmissionPath '--java' (Get-JavaExecutable) `
+                '--jena-classpath' (Join-Path $script:FusekiHome 'fuseki-server.jar')
+        }
+        $manifest | Add-Member -NotePropertyName clockAdmission -NotePropertyValue $clockAdmissionPath -Force
         $battingAdmissionPath = Join-Path $stageEvidenceRoot 'batting-admission.json'
         $runnerHistoryAdmissionPath = Join-Path $stageEvidenceRoot 'runner-history-admission.json'
         $runnerHistoryAdmitter = Join-Path $PSScriptRoot 'runner-history-admission.py'
@@ -261,6 +269,8 @@ switch ($Action) {
             shaclProfile = 'authoritative'
             conforms = $true
             rmlManifest = $rmlManifestPath
+            clockAdmission = $clockAdmissionPath
+            clockAdmissionSha256 = (Get-FileHash -LiteralPath $clockAdmissionPath -Algorithm SHA256).Hash.ToLowerInvariant()
             battingAdmission = $battingAdmissionPath
             runnerHistoryAdmission = $runnerHistoryAdmissionPath
             runnerHistoryAdmissionSha256 = (Get-FileHash -LiteralPath $runnerHistoryAdmissionPath -Algorithm SHA256).Hash.ToLowerInvariant()
@@ -345,6 +355,10 @@ switch ($Action) {
                 queryIndexManifestSha256 = (Get-FileHash -LiteralPath $indexManifestPath -Algorithm SHA256).Hash.ToLowerInvariant()
             }
             $shaclResult = Get-Content -LiteralPath (Join-Path $stageEvidenceRoot 'shacl.json') -Raw | ConvertFrom-Json
+            if ($null -ne $shaclResult.PSObject.Properties['clockAdmission']) {
+                $promotion.clockAdmission = [string]$shaclResult.clockAdmission
+                $promotion.clockAdmissionSha256 = [string]$shaclResult.clockAdmissionSha256
+            }
             $promotion.battingAdmission = [string]$shaclResult.battingAdmission
             $promotion.battingAdmissionSha256 = [string]$shaclResult.battingAdmissionSha256
             # Older validated runs can promote without a D1 proof; serving

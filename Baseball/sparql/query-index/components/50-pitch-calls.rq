@@ -75,6 +75,16 @@ WHERE {
     {
       ?semanticEvidence a base:HitByPitchProcess ;
           obo:BFO_0000132 ?plateAppearance .
+      # T1: a missing clock cannot make an earlier pitch look terminal.
+      # Independently evidenced call classifications above remain available.
+      FILTER NOT EXISTS {
+        ?unboundedPitch a base:PitchAct ; obo:BFO_0000132 ?plateAppearance .
+        FILTER NOT EXISTS {
+          ?unboundedPitch obo:BFO_0000199/obo:BFO_0000224 ?knownEndInstant .
+          ?knownTimestamp a base:BaseballTimestampICE ;
+              cco:ont00001916 ?knownEndInstant ; cco:ont00001767 ?knownEnd .
+        }
+      }
       ?pitch obo:BFO_0000199/obo:BFO_0000224 ?pitchEndInstant .
       ?pitchEndTimestamp a base:BaseballTimestampICE ;
           cco:ont00001916 ?pitchEndInstant ;

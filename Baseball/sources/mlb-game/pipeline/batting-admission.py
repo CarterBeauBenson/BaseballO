@@ -75,7 +75,7 @@ def census(raw, game_pk):
         raise ValueError('Invalid game identity')
     doc = json.loads(raw)
     source = SOURCE.reconcile(raw, game_pk)
-    issues = [dict(code='SOURCE_RECONCILIATION', detail=i) for i in source['issues']]
+    issues = [dict(code='SOURCE_RECONCILIATION', detail=i) for i in source['blockingIssues']]
     game = BASE+'data/game/'+game_pk
     roster, members, interrupted = [], [], []
     counts = Counter()

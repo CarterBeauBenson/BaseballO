@@ -84,6 +84,27 @@ OUT_SAFE_REVIEW_TYPES = {
 }
 
 
+def clock_pair(record: dict) -> tuple:
+    """T1: select neither member of a contradictory pair; never repair clocks.
+
+    The original source fields remain untouched. Missing/invalid individual
+    values retain their prior validation behavior; T1 isolates reversed pairs.
+    """
+    start, end = record.get('startTime'), record.get('endTime')
+    try:
+        a = datetime.fromisoformat(start.replace('Z', '+00:00'))
+        b = datetime.fromisoformat(end.replace('Z', '+00:00'))
+        if a.tzinfo and b.tzinfo and b < a:
+            return None, None
+    except (ValueError, AttributeError):
+        pass
+    return start, end
+
+
+def clock_pair_conflicted(record: dict) -> bool:
+    return clock_pair(record) == (None, None) and any(record.get(k) is not None for k in ('startTime', 'endTime'))
+
+
 def batted_runner_resolution_links(play: dict, at_bat_index: str, histories: dict | None = None) -> list[dict[str, str]]:
     """Expose evidenced existing resolution identities for A1 RML parthood.
 
@@ -254,6 +275,7 @@ def supported_walkoff_boundary(document: dict, last_play: dict) -> dict | None:
     if (any(r['details']['playIndex'] != terminal['index'] or r['movement'].get('end') != 'score'
             or r['movement'].get('isOut') is not False for r in scores)
             or not SAFE_IRI_SEGMENT.fullmatch(str(terminal.get('playId') or ''))
+            or clock_pair_conflicted(terminal) or clock_pair_conflicted(about)
             or terminal.get('endTime') != about.get('endTime')):
         return None
     return dict(eventId=terminal['playId'], endTime=about['endTime'],
@@ -560,7 +582,7 @@ def personal_runner_histories(raw: bytes, previous=None) -> dict:
     """
     checker = Path(__file__).resolve().parents[2] / 'sources/mlb-game/pipeline/reconcile-metric-source.py'
     canonical = checker.read_text(encoding='utf-8-sig').replace('\r\n', '\n').replace('\r', '\n').encode()
-    if hashlib.sha256(canonical).hexdigest() != '4b4bd708b1f0a8c9936d2e5c9f42c298840dd65d1a2995892810ddcb9b11dc90':
+    if hashlib.sha256(canonical).hexdigest() != '20ccdcb154db8d3f72625dffc4c88b5fad63756c894ca5c1758923300ae80034':
         raise ValueError('Runner-history source reconciler differs from its reviewed dependency pin')
     spec = importlib.util.spec_from_file_location('runner_source_reconciler', checker)
     module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
@@ -568,7 +590,8 @@ def personal_runner_histories(raw: bytes, previous=None) -> dict:
     source = module.reconcile(raw, str(document['gamePk']))
     result = dict(inputSha256=source['inputSha256'], sourceRevision=source['sourceRevision'],
                   sourceAuthorityDecision='archive/design-records/metric-source-c1-operation-2026-09-14/review.json',
-                  sourceConsistency=source['status'], histories=[], withheldHistories=[], episodeMembership=[], placementAdjudications=[], halves=[], boundaryIssues=[],
+                  sourceConsistency=source['status'], clockConflicts=source['clockConflicts'],
+                  clockDecision=source['clockDecision'], histories=[], withheldHistories=[], episodeMembership=[], placementAdjudications=[], halves=[], boundaryIssues=[],
                   graphCoverageVerified=False, metricPopulationAdmitted=False)
     if source['status'] != 'consistent':
         result['sourceIssues'] = source['issues']
@@ -625,8 +648,11 @@ def personal_runner_histories(raw: bytes, previous=None) -> dict:
 
         for play in plays:
             pa = play['atBatIndex']; about = play['about']; rows = play['runners']
-            pa_start, pa_end = instant(about['startTime']), instant(about['endTime'])
-            if previous_pa_end and pa_start < previous_pa_end:
+            pa_start, pa_end = map(instant, clock_pair(about))
+            if pa_start is None or pa_end is None:
+                block('UNSUPPORTED_PA_CLOCK_PAIR', pa)
+                result['boundaryIssues'].append(dict(code='UNSUPPORTED_PA_CLOCK_PAIR', atBatIndex=pa))
+            if previous_pa_end and pa_start and pa_start < previous_pa_end:
                 # Overlapping PA header bounds defeat a PA-start projection.
                 # C1 uses independently bounded movement events; their order
                 # is checked across PAs below, not inferred from array order.
@@ -678,10 +704,10 @@ def personal_runner_histories(raw: bytes, previous=None) -> dict:
                     incoming = str(event.get('player', {}).get('id', ''))
                     outgoing = str(event.get('replacedPlayer', {}).get('id', ''))
                     base = str(event.get('base')) + 'B'
-                    start, end = instant(event.get('startTime')), instant(event.get('endTime'))
+                    start, end = map(instant, clock_pair(event))
                     following = next((x for x in events[event_position + 1:]
                         if x.get('isPitch') is True or event_rows[x['index']]), None)
-                    next_start = instant((following or {}).get('startTime'))
+                    next_start = instant(clock_pair(following or {})[0])
                     common = (administrative is not None and event.get('type') == 'action'
                         and event.get('isPitch') is False and not selected and incoming in known_people
                         and incoming not in active and base in {'1B', '2B', '3B'}
@@ -690,7 +716,7 @@ def personal_runner_histories(raw: bytes, previous=None) -> dict:
                         and all(type(prior_count.get(k)) is int and event.get('count', {}).get(k) == prior_count[k]
                                 for k in ('balls', 'strikes', 'outs')) and prior_count['outs'] == outs
                         and start is not None and end is not None and next_start is not None
-                        and start <= end <= next_start and end <= pa_end
+                        and pa_end is not None and start <= end <= next_start and end <= pa_end
                         and (last_event_end is None or last_event_end <= start)
                         and (last_boundary_end is None or last_boundary_end <= start))
                     replacement = (common and administrative['form'] == 'replacement'
@@ -737,11 +763,11 @@ def personal_runner_histories(raw: bytes, previous=None) -> dict:
                     block('UNSUPPORTED_EVENT_EFFECT:' + str(event_type or kind), pa)
                 if event_type in independent and not selected:
                     block('MISSING_INDEPENDENT_MOVEMENT', pa)
-                start, end = instant(event.get('startTime')), instant(event.get('endTime'))
+                start, end = map(instant, clock_pair(event))
                 # Neutral administrative observations need no invented instant.
                 # All pitch/movement boundary events require usable time bounds.
                 if event.get('isPitch') is True or selected:
-                    if (not start or not end or start > end or start < pa_start or end > pa_end
+                    if (not start or not end or not pa_start or not pa_end or start > end or start < pa_start or end > pa_end
                             or (last_event_end and start < last_event_end)
                             or (last_boundary_end and start < last_boundary_end)):
                         block('UNSUPPORTED_EVENT_TIME_ORDER', pa)
@@ -1341,14 +1367,14 @@ def batter_participation_context(play: dict, game_pk: str, *, source_consistent:
         # Corroborate the side of every substitution on which actual pitches
         # occurred. These source bounds are not exact Batter Act intervals.
         for change in changes:
-            start, end = instant(change.get('startTime')), instant(change.get('endTime'))
+            start, end = map(instant, clock_pair(change))
             if not start or not end or start > end:
                 raise ValueError(f'PA {pa}: unsupported substitution boundary')
             for event in events:
                 if not (event.get('isPitch') is True or (event.get('type') == 'no_pitch' and
                         (event.get('details', {}).get('isBall') is True or event.get('details', {}).get('isStrike') is True))):
                     continue
-                a, b = instant(event.get('startTime')), instant(event.get('endTime'))
+                a, b = map(instant, clock_pair(event))
                 if not a or not b or a > b or (event['index'] < change['index'] and b > start) or (event['index'] > change['index'] and a < end):
                     raise ValueError(f'PA {pa}: pitch overlaps substitution boundary')
     rows = [dict(atBatIndex=pa, playerId=person,
@@ -1389,9 +1415,13 @@ def automatic_count_awards(document: dict) -> dict:
         events = play.get('playEvents', [])
         indexes = [e.get('index') for e in events]
         reviews = accounted_runner_count_reviews(play)
-        bounds = [(instant(e.get('startTime')), instant(e.get('endTime'))) for e in events]
+        bounds = [tuple(map(instant, clock_pair(e))) for e in events]
         ordered = (all(a is not None and b is not None and a <= b for a, b in bounds)
                    and all(a[1] <= b[0] for a, b in zip(bounds, bounds[1:])))
+        undisputed = [bound for e, bound in zip(events, bounds) if not clock_pair_conflicted(e)]
+        isolated_order = (any(clock_pair_conflicted(e) for e in events)
+            and all(a is not None and b is not None and a <= b for a, b in undisputed)
+            and all(a[1] <= b[0] for a, b in zip(undisputed, undisputed[1:])))
         pa = str(play['about']['atBatIndex'])
         for index, event in enumerate(events):
             details = event.get('details', {})
@@ -1417,14 +1447,14 @@ def automatic_count_awards(document: dict) -> dict:
             elif (reviews['issues'] or any(r['overturned'] for r in reviews['events'].values())
                   or event.get('reviewDetails') or details.get('hasReview') is not False): reason = 'UNRESOLVED_COUNT_REVIEW'
             elif event.get('isSubstitution') is True: reason = 'CONFLICTING_SUBSTITUTION_EVENT'
-            elif not ordered: reason = 'UNSUPPORTED_EVENT_TIME_ORDER'
+            elif not ordered and not isolated_order: reason = 'UNSUPPORTED_EVENT_TIME_ORDER'
             elif before is None or after is None: reason = 'INVALID_COUNTER'
             elif before[0] >= 4 or before[1] >= 3: reason = 'COUNTER_RESET_AFTER_TERMINATION'
             elif after != (before[0] + (kind == 'ball'), before[1] + (kind == 'strike')): reason = 'UNEXPLAINED_COUNTER_TRANSITION'
             if reason:
                 withheld.append(dict(item, reason=reason))
                 continue
-            row = dict(item, kind=kind, processIri=data+f'process/{kind}/{pid}',
+            row = dict(item, kind=kind, clockOrderSupported=ordered, processIri=data+f'process/{kind}/{pid}',
                 judgmentIri=data+f'judgment/{kind}/{pid}', decisionIri=data+f'decision/{kind}/{pid}',
                 processClassIri=base+kind.title()+'Process', judgmentClassIri=base+kind.title()+'JudgmentAct',
                 decisionClassIri=base+kind.title()+'DecisionICE', ruleIri=base+'data/rule/'+kind,
@@ -1434,7 +1464,7 @@ def automatic_count_awards(document: dict) -> dict:
                 recordIdentifierIri=data+'event-record/count-award/'+pid+'/identifier/mlb-play-id',
                 description=details.get('description', ''),
                 ballsBefore=before[0], strikesBefore=before[1], ballsAfter=after[0], strikesAfter=after[1])
-            for name, neighbors in [('previousPitchIri', reversed(events[:index])), ('nextPitchIri', events[index+1:])]:
+            for name, neighbors in ([('previousPitchIri', reversed(events[:index])), ('nextPitchIri', events[index+1:])] if ordered else []):
                 neighbor = next((e for e in neighbors if e.get('isPitch') is True), None)
                 if neighbor and isinstance(neighbor.get('playId'), str) and SAFE_IRI_SEGMENT.fullmatch(neighbor['playId']) and ids.count(neighbor['playId']) == 1:
                     row[name] = data+'pitch/'+neighbor['playId']
@@ -1521,7 +1551,7 @@ def counted_foul_neutral_event(document: dict, play: dict, event: dict, prior: t
 
 
 def metric_pitch_context(document: dict) -> dict:
-    """Accepted M1–M4 source selection; graph semantics belong to RML/SHACL.
+    """Accepted M1-M4 source selection; graph semantics belong to RML/SHACL.
 
     Inspect unfiltered event prefixes. Counters are mapping evidence, not new
     RDF count states. The retained inventory also checks exact serialization.
@@ -1587,8 +1617,8 @@ def metric_pitch_context(document: dict) -> dict:
             details = event.get('details', {})
             code = details.get('call', {}).get('code')
             after = counts(event)
-            start, end = instant(event.get('startTime')), instant(event.get('endTime'))
-            if not start or not end or end < start or (previous and (not instant(previous.get('endTime')) or instant(previous['endTime']) > start)):
+            start, end = map(instant, clock_pair(event))
+            if not start or not end or end < start or (previous and (not instant(clock_pair(previous)[1]) or instant(clock_pair(previous)[1]) > start)):
                 prefix_problem = prefix_problem or 'UNSUPPORTED_EVENT_TIME_ORDER'
             if field_review and event.get('index') >= field_review['eventIndex']:
                 prefix_problem = prefix_problem or 'FIELD_REVIEW_IN_PREFIX'
@@ -1914,7 +1944,9 @@ def main() -> None:
         previous_runner_history = previous_manifest.get('runnerHistoryReconciliation')
     root_context: dict[str, object] = {
         "runnerHistoryReconciliation": personal_runner_histories(args.source.read_bytes(), previous_runner_history),
-        "gameEndTime": final_end_time,
+        "gameEndTime": clock_pair(terminal_baseball_plays[-1]["about"])[1],
+        "gameEndClockConflicted": clock_pair_conflicted(terminal_baseball_plays[-1]["about"]),
+        "gameEndClocks": [] if clock_pair_conflicted(terminal_baseball_plays[-1]["about"]) else [{"value": final_end_time}],
         "pitchTypeReferenceSystemIri": f"{provider_reference_root}/pitch-types",
         "pitchTypeReferenceSystemLabel": (
             f"MLB pitch-type reference system observed {provider_version}"
@@ -2067,6 +2099,7 @@ def main() -> None:
             **runner_episode_evidence(play, at_bat_index),
             **runner_metric_evidence(play, at_bat_index, season),
             "hasPlateAppearanceStructure": has_plate_appearance_structure,
+            "hasPlateAppearanceClocks": has_plate_appearance_structure and not clock_pair_conflicted(about),
             "hasCompletedPlateAppearanceResult": has_completed_plate_appearance_result,
             "hasReview": False,
             "hasReviewStatus": False,
@@ -2283,6 +2316,7 @@ def main() -> None:
                 **batting_context['pitches'][play_id],
                 "pitcherId": pitcher_id,
                 "isBuntAttempt": is_bunt_attempt,
+                "hasClockPair": not clock_pair_conflicted(event),
                 "matchesBuntContactSource": (
                     is_bunt_attempt
                     and event.get("details", {}).get("call", {}).get("code") != "M"

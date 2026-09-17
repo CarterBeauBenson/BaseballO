@@ -57,3 +57,20 @@ When a source proof must wait for a serving rebuild, the existing periodic
 batch worker can own the dependency sequence through
 [deferred proof and refresh recovery](pipeline/DEFERRED-RECOVERY.md). It submits
 the normal proof and bounded backfill only after their prerequisites complete.
+
+Contradictory source clocks follow the accepted [T1 decision](../../archive/design-records/mlb-game-clock-conflict-isolation/README.md).
+When an event or PA has an end earlier than its start, neither boundary clock
+measurement is emitted. The source bytes, conflict values and source paths stay
+in the retained reconciliation evidence. Existing acts, intervals, participants,
+results and independently supported automatic count awards remain available.
+Unsupported automatic-award precedence is omitted. A disputed final PA header
+also cannot supply the game's end measurement.
+
+Reconciliation version 2 retains all diagnostics in `issues`, separates
+`blockingIssues` from `clockConflicts`, and uses `status` for structural source
+consistency. It does not certify complete timing or metric populations. The
+registered `clock-admission` SHACL gate checks both omission and preservation
+before promotion. Runner-history and count admissions retain their own temporal
+dependencies and completeness census; T1 does not admit incomplete leaderboards.
+The quarantine planner retries a retained clock failure when the reconciler
+fingerprint changes. It does not need a new source response or rewritten JSON.

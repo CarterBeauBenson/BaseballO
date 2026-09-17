@@ -31,7 +31,7 @@ def census(raw, game_pk):
     source = B.SOURCE.reconcile(raw, game_pk)
     doc = json.loads(raw)
     game = B.BASE+'data/game/'+game_pk
-    issues = [dict(code='SOURCE_RECONCILIATION', detail=i) for i in source['issues']]
+    issues = [dict(code='SOURCE_RECONCILIATION', detail=i) for i in source['blockingIssues']]
     roster, runs = [], []
     for side in ('away', 'home'):
         team = doc['liveData']['boxscore']['teams'][side]

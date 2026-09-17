@@ -22,7 +22,7 @@ def fingerprint():
 
 def census(raw,game_pk):
     game_pk=B.identity(int(game_pk));doc=json.loads(raw);source=B.SOURCE.reconcile(raw,game_pk)
-    issues=[dict(code='SOURCE_RECONCILIATION',detail=i) for i in source['issues']]
+    issues=[dict(code='SOURCE_RECONCILIATION',detail=i) for i in source['blockingIssues']]
     doc[CONTEXT.CONTEXT_KEY]={'runnerHistoryReconciliation':dict(inputSha256=B.sha(raw),
         sourceRevision=source['sourceRevision'],sourceConsistency='inconsistent' if issues else 'consistent')}
     selected=CONTEXT.defensive_act_context(doc)

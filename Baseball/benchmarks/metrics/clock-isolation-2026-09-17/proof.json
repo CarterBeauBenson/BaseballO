@@ -1,0 +1,468 @@
+{
+  "artifactType": "baseballo-t1-clock-isolation-developer-proof",
+  "contractVersion": 1,
+  "decisionCommit": "bfb874f68776",
+  "decision": "archive/design-records/mlb-game-clock-conflict-isolation/review.json",
+  "games": [
+    {
+      "gamePk": "822753",
+      "inputSha256": "92b2c49109beae6b7dd6396d1502a36b97cdd149f04dcbb375fda4eddf5c8c44",
+      "authoritativeRdfSha256": "05e38c8ec2080ee3dc1cda68ea750714f35c8f25807fe7be98ff57381193e8f5",
+      "tripleCount": 33970,
+      "sourceCounts": {
+        "playerParticipants": 52,
+        "plateAppearances": 73,
+        "batterActs": 73,
+        "pitches": 315,
+        "battingActs": 146,
+        "contacts": 118,
+        "runnerRecords": 109,
+        "runnerResolutions": 109,
+        "pitchBallControlFailures": 0,
+        "passedBalls": 1,
+        "wildPitches": 0,
+        "uncaughtThirdStrikes": 0
+      },
+      "authoritativeShaclConforms": true,
+      "clockAdmission": {
+        "artifactType": "baseballo-clock-admission",
+        "authoritativeRdfSha256": "05e38c8ec2080ee3dc1cda68ea750714f35c8f25807fe7be98ff57381193e8f5",
+        "clockDecision": "archive/design-records/mlb-game-clock-conflict-isolation/review.json",
+        "conflictCount": 1,
+        "contractVersion": 1,
+        "engine": "jena",
+        "expectedMeasurements": 776,
+        "gamePk": "822753",
+        "graphConforms": true,
+        "implementationSha256": "b6acd9d3f1fc8178d0d906e25ae38ca9915ac54b72d25be6bd11079a3e9356e7",
+        "metricPopulationAdmitted": false,
+        "reportSha256": "4a53a3befd9bcdb7273ef3d6e47a83be519927771faee49ef0d2a44ee23be2be",
+        "shapeSha256": "c532e16f191a99f38868324e1ccc86c2f17420ce2041478d0fdc8ad40ee2cbbf",
+        "sourceCensusSha256": "6ce0ed3d9d99959c2f0302034c8dbb02156384a511e4886a04b1a8b64dedcf34",
+        "sourceReconciled": true,
+        "sourceSha256": "92b2c49109beae6b7dd6396d1502a36b97cdd149f04dcbb375fda4eddf5c8c44",
+        "status": "admitted",
+        "withheldMeasurements": 2
+      },
+      "clockConflicts": [
+        {
+          "code": "REVERSED_EVENT_TIMES",
+          "path": "/liveData/plays/allPlays/49/playEvents/7",
+          "startTime": "2026-04-08T21:52:44.346Z",
+          "endTime": "2026-04-08T21:52:35.327Z"
+        }
+      ],
+      "preservedHistories": 23,
+      "withheldHalves": [
+        {
+          "inning": 7,
+          "half": "top",
+          "issues": [
+            {
+              "code": "UNSUPPORTED_EVENT_TIME_ORDER",
+              "atBatIndex": 49
+            }
+          ]
+        }
+      ],
+      "rawBytesUnchanged": true
+    },
+    {
+      "gamePk": "823302",
+      "inputSha256": "a0544efd780cbf96333cc46ed842bcf26120103d7b13edf76a342f0d3e365c50",
+      "authoritativeRdfSha256": "1a6e5582c248dd43da2d08faebeec99e44d85177027296cadfc64cc3a412f5a5",
+      "tripleCount": 30165,
+      "sourceCounts": {
+        "playerParticipants": 51,
+        "plateAppearances": 72,
+        "batterActs": 72,
+        "pitches": 283,
+        "battingActs": 136,
+        "contacts": 100,
+        "runnerRecords": 84,
+        "runnerResolutions": 84,
+        "pitchBallControlFailures": 0,
+        "passedBalls": 0,
+        "wildPitches": 0,
+        "uncaughtThirdStrikes": 0
+      },
+      "authoritativeShaclConforms": true,
+      "clockAdmission": {
+        "artifactType": "baseballo-clock-admission",
+        "authoritativeRdfSha256": "1a6e5582c248dd43da2d08faebeec99e44d85177027296cadfc64cc3a412f5a5",
+        "clockDecision": "archive/design-records/mlb-game-clock-conflict-isolation/review.json",
+        "conflictCount": 1,
+        "contractVersion": 1,
+        "engine": "jena",
+        "expectedMeasurements": 712,
+        "gamePk": "823302",
+        "graphConforms": true,
+        "implementationSha256": "b6acd9d3f1fc8178d0d906e25ae38ca9915ac54b72d25be6bd11079a3e9356e7",
+        "metricPopulationAdmitted": false,
+        "reportSha256": "4a53a3befd9bcdb7273ef3d6e47a83be519927771faee49ef0d2a44ee23be2be",
+        "shapeSha256": "9232de28a90988887706910b187b089f06b17654342b6a24ffd5d8076e3f8511",
+        "sourceCensusSha256": "ec4764b42b665f8884abb993338c083643d38200d8cad44f35720ecb269c25ce",
+        "sourceReconciled": true,
+        "sourceSha256": "a0544efd780cbf96333cc46ed842bcf26120103d7b13edf76a342f0d3e365c50",
+        "status": "admitted",
+        "withheldMeasurements": 0
+      },
+      "clockConflicts": [
+        {
+          "code": "REVERSED_EVENT_TIMES",
+          "path": "/liveData/plays/allPlays/46/playEvents/0",
+          "startTime": "2026-05-20T03:14:49.328Z",
+          "endTime": "2026-05-20T03:14:41.599Z"
+        }
+      ],
+      "preservedHistories": 19,
+      "withheldHalves": [],
+      "rawBytesUnchanged": true
+    },
+    {
+      "gamePk": "823532",
+      "inputSha256": "23d12e2faecc58799c4d5a39d5ecfe1530a589b35c3ae1f943f438f9f1265d25",
+      "authoritativeRdfSha256": "87b8deaac14da32514fb1fa9ba0378a7b1a75eaf1d457c5b8af385b44f4869a2",
+      "tripleCount": 34921,
+      "sourceCounts": {
+        "playerParticipants": 52,
+        "plateAppearances": 86,
+        "batterActs": 86,
+        "pitches": 309,
+        "battingActs": 146,
+        "contacts": 113,
+        "runnerRecords": 120,
+        "runnerResolutions": 120,
+        "pitchBallControlFailures": 0,
+        "passedBalls": 0,
+        "wildPitches": 0,
+        "uncaughtThirdStrikes": 0
+      },
+      "authoritativeShaclConforms": true,
+      "clockAdmission": {
+        "artifactType": "baseballo-clock-admission",
+        "authoritativeRdfSha256": "87b8deaac14da32514fb1fa9ba0378a7b1a75eaf1d457c5b8af385b44f4869a2",
+        "clockDecision": "archive/design-records/mlb-game-clock-conflict-isolation/review.json",
+        "conflictCount": 1,
+        "contractVersion": 1,
+        "engine": "jena",
+        "expectedMeasurements": 792,
+        "gamePk": "823532",
+        "graphConforms": true,
+        "implementationSha256": "b6acd9d3f1fc8178d0d906e25ae38ca9915ac54b72d25be6bd11079a3e9356e7",
+        "metricPopulationAdmitted": false,
+        "reportSha256": "4a53a3befd9bcdb7273ef3d6e47a83be519927771faee49ef0d2a44ee23be2be",
+        "shapeSha256": "d51f92d2b7e4ef22ace1172ae1143c4d3437456a3c803124956963182ac9898e",
+        "sourceCensusSha256": "2a059bc6dbf07aa7805ba67d0f942c7ad67c70ee999f4e38fcac2f4998dcc9aa",
+        "sourceReconciled": true,
+        "sourceSha256": "23d12e2faecc58799c4d5a39d5ecfe1530a589b35c3ae1f943f438f9f1265d25",
+        "status": "admitted",
+        "withheldMeasurements": 0
+      },
+      "clockConflicts": [
+        {
+          "code": "REVERSED_EVENT_TIMES",
+          "path": "/liveData/plays/allPlays/7/playEvents/0",
+          "startTime": "2026-06-20T17:53:18.781Z",
+          "endTime": "2026-06-20T17:53:12.945Z"
+        }
+      ],
+      "preservedHistories": 35,
+      "withheldHalves": [
+        {
+          "inning": 2,
+          "half": "bottom",
+          "issues": [
+            {
+              "code": "UNRESOLVED_REVIEW_EFFECT",
+              "atBatIndex": 14
+            }
+          ]
+        }
+      ],
+      "rawBytesUnchanged": true
+    },
+    {
+      "gamePk": "823631",
+      "inputSha256": "ea18b6fb3b888a1ed5f05cffb5e92b28ebc71e5997c4fa04ad1e745ba9c07266",
+      "authoritativeRdfSha256": "2e8c0d2b532f90262b3f64c7a509eab2a1dab079fcfb5a4e3513c1699cd3df1c",
+      "tripleCount": 34502,
+      "sourceCounts": {
+        "playerParticipants": 52,
+        "plateAppearances": 81,
+        "batterActs": 81,
+        "pitches": 311,
+        "battingActs": 152,
+        "contacts": 123,
+        "runnerRecords": 107,
+        "runnerResolutions": 107,
+        "pitchBallControlFailures": 0,
+        "passedBalls": 0,
+        "wildPitches": 0,
+        "uncaughtThirdStrikes": 0
+      },
+      "authoritativeShaclConforms": true,
+      "clockAdmission": {
+        "artifactType": "baseballo-clock-admission",
+        "authoritativeRdfSha256": "2e8c0d2b532f90262b3f64c7a509eab2a1dab079fcfb5a4e3513c1699cd3df1c",
+        "clockDecision": "archive/design-records/mlb-game-clock-conflict-isolation/review.json",
+        "conflictCount": 1,
+        "contractVersion": 1,
+        "engine": "jena",
+        "expectedMeasurements": 784,
+        "gamePk": "823631",
+        "graphConforms": true,
+        "implementationSha256": "b6acd9d3f1fc8178d0d906e25ae38ca9915ac54b72d25be6bd11079a3e9356e7",
+        "metricPopulationAdmitted": false,
+        "reportSha256": "4a53a3befd9bcdb7273ef3d6e47a83be519927771faee49ef0d2a44ee23be2be",
+        "shapeSha256": "9792582a40cade93a1070475783fcd6d353443ca6c7655b372c9e7bdfb8f9cc8",
+        "sourceCensusSha256": "534a29481d5ac909d31f724ba1879ca5af0d984cc5d5d8fec7d4284005cedc56",
+        "sourceReconciled": true,
+        "sourceSha256": "ea18b6fb3b888a1ed5f05cffb5e92b28ebc71e5997c4fa04ad1e745ba9c07266",
+        "status": "admitted",
+        "withheldMeasurements": 2
+      },
+      "clockConflicts": [
+        {
+          "code": "REVERSED_PLAY_TIMES",
+          "path": "/liveData/plays/allPlays/46/about",
+          "startTime": "2026-05-14T00:53:14.052Z",
+          "endTime": "2026-05-14T00:53:06.455Z"
+        }
+      ],
+      "preservedHistories": 28,
+      "withheldHalves": [
+        {
+          "inning": 6,
+          "half": "top",
+          "issues": [
+            {
+              "code": "UNSUPPORTED_PA_CLOCK_PAIR",
+              "atBatIndex": 46
+            },
+            {
+              "code": "UNSUPPORTED_EVENT_TIME_ORDER",
+              "atBatIndex": 46
+            }
+          ]
+        }
+      ],
+      "rawBytesUnchanged": true
+    },
+    {
+      "gamePk": "823740",
+      "inputSha256": "5e30cb9b555bf0a845b9f66fc9d4d8f0ddd2a3ad93a12688ff1657d2ea23884b",
+      "authoritativeRdfSha256": "b2cd4ba6a29622f39665b1430513d2c2b89470553f76e6160c4125de25c2275f",
+      "tripleCount": 38347,
+      "sourceCounts": {
+        "playerParticipants": 50,
+        "plateAppearances": 84,
+        "batterActs": 84,
+        "pitches": 359,
+        "battingActs": 176,
+        "contacts": 138,
+        "runnerRecords": 118,
+        "runnerResolutions": 118,
+        "pitchBallControlFailures": 0,
+        "passedBalls": 0,
+        "wildPitches": 0,
+        "uncaughtThirdStrikes": 0
+      },
+      "authoritativeShaclConforms": true,
+      "clockAdmission": {
+        "artifactType": "baseballo-clock-admission",
+        "authoritativeRdfSha256": "b2cd4ba6a29622f39665b1430513d2c2b89470553f76e6160c4125de25c2275f",
+        "clockDecision": "archive/design-records/mlb-game-clock-conflict-isolation/review.json",
+        "conflictCount": 1,
+        "contractVersion": 1,
+        "engine": "jena",
+        "expectedMeasurements": 888,
+        "gamePk": "823740",
+        "graphConforms": true,
+        "implementationSha256": "b6acd9d3f1fc8178d0d906e25ae38ca9915ac54b72d25be6bd11079a3e9356e7",
+        "metricPopulationAdmitted": false,
+        "reportSha256": "4a53a3befd9bcdb7273ef3d6e47a83be519927771faee49ef0d2a44ee23be2be",
+        "shapeSha256": "b8a4371e21f0b931976c32afede3b682fb4e183bdb4da24f5c98fb8de7063d84",
+        "sourceCensusSha256": "941cc3269e6b1cc805d795c899fcee7a63e86426d96a15b7d56792197a6e8143",
+        "sourceReconciled": true,
+        "sourceSha256": "5e30cb9b555bf0a845b9f66fc9d4d8f0ddd2a3ad93a12688ff1657d2ea23884b",
+        "status": "admitted",
+        "withheldMeasurements": 0
+      },
+      "clockConflicts": [
+        {
+          "code": "REVERSED_EVENT_TIMES",
+          "path": "/liveData/plays/allPlays/5/playEvents/0",
+          "startTime": "2026-08-30T18:22:52.796Z",
+          "endTime": "2026-08-30T18:22:45.606Z"
+        }
+      ],
+      "preservedHistories": 32,
+      "withheldHalves": [],
+      "rawBytesUnchanged": true
+    }
+  ],
+  "focusedTestsPassed": 74,
+  "queryIndex": {
+    "gamePk": "822753",
+    "engine": "jena",
+    "components": 13,
+    "triples": 8965,
+    "conforms": true
+  },
+  "negativeControl": {
+    "gamePk": "822753",
+    "mutation": "Restore one rejected pitch timestamp measurement",
+    "clockShaclConforms": false
+  },
+  "admissionSnapshots": [
+    {
+      "profile": "runner-history",
+      "proof": {
+        "artifactType": "baseballo-runner-history-admission",
+        "authoritativeRdfSha256": "05e38c8ec2080ee3dc1cda68ea750714f35c8f25807fe7be98ff57381193e8f5",
+        "contractVersion": 1,
+        "engine": "jena",
+        "gamePk": "822753",
+        "graph": "https://w3id.org/baseball/graph/game/822753",
+        "graphConforms": true,
+        "implementationSha256": "46f42fcc652e7f4272db8511ba3e6ecb9f743800386603beffbb84facebdb0d0",
+        "issues": [
+          {
+            "code": "INCOMPLETE_PERSONAL_HISTORIES"
+          }
+        ],
+        "populationComplete": false,
+        "reportSha256": "4a53a3befd9bcdb7273ef3d6e47a83be519927771faee49ef0d2a44ee23be2be",
+        "selectedHistories": 23,
+        "shapeSha256": "69bc5f0d7959de76b1739f7cadde88a898c98e5ae00ca9780bffa02bca3ff558",
+        "sourceCensusSha256": "84a47d3d1b2d24e591b4f7f5f8432463291fb207d978222f203ad9e902f68544",
+        "sourceReconciled": true,
+        "sourceSha256": "92b2c49109beae6b7dd6396d1502a36b97cdd149f04dcbb375fda4eddf5c8c44",
+        "status": "withheld"
+      }
+    },
+    {
+      "profile": "defensive",
+      "proof": {
+        "artifactType": "baseballo-defensive-admission",
+        "authoritativeRdfSha256": "05e38c8ec2080ee3dc1cda68ea750714f35c8f25807fe7be98ff57381193e8f5",
+        "completePlayCount": 12,
+        "contactPlayCount": 118,
+        "contractVersion": 1,
+        "engine": "jena",
+        "gamePk": "822753",
+        "graph": "https://w3id.org/baseball/graph/game/822753",
+        "graphConforms": true,
+        "implementationSha256": "d0fd756783d05730ac01d9203fa484fe1487e766ade6d743d33252187276f2f3",
+        "issues": [
+          {
+            "code": "INCOMPLETE_DEFENSIVE_POPULATION"
+          }
+        ],
+        "orderComplete": false,
+        "populationComplete": false,
+        "reportSha256": "4a53a3befd9bcdb7273ef3d6e47a83be519927771faee49ef0d2a44ee23be2be",
+        "selectedActCount": 12,
+        "shapeSha256": "59c0dc32e9614e2942133f7ee5ae5119e5e626ec2044c0af4b7ea4134df7e9e7",
+        "sourceCensusSha256": "d33ac511fdd0a4c177a4e7a0564c43253796289758f206e6025f9354892232f7",
+        "sourceReconciled": true,
+        "sourceRevision": "20260408_225140",
+        "sourceSha256": "92b2c49109beae6b7dd6396d1502a36b97cdd149f04dcbb375fda4eddf5c8c44",
+        "status": "withheld"
+      }
+    },
+    {
+      "profile": "batting",
+      "proof": {
+        "artifactType": "baseballo-batting-admission",
+        "authoritativeRdfSha256": "05e38c8ec2080ee3dc1cda68ea750714f35c8f25807fe7be98ff57381193e8f5",
+        "contractVersion": 1,
+        "engine": "jena",
+        "gamePk": "822753",
+        "graph": "https://w3id.org/baseball/graph/game/822753",
+        "graphConforms": true,
+        "implementationSha256": "42e5f5c4b7fd1b12d922703283511fe485df55800fe17b2fb627b32e367cf1f7",
+        "issues": [],
+        "reportSha256": "4a53a3befd9bcdb7273ef3d6e47a83be519927771faee49ef0d2a44ee23be2be",
+        "selectedPopulationComplete": false,
+        "shapeSha256": "3c9e5cfdf71d8db2da2c9d7a9b456d0cd8b17072b0ecfb7b8f79b28afb76d1ef",
+        "sourceCensusSha256": "5f4657d9a0b56762e7745b02dc182039cb403be3c8892ca7baa4d90a571db28b",
+        "sourceReconciled": true,
+        "sourceRevision": "20260408_225140",
+        "sourceSha256": "92b2c49109beae6b7dd6396d1502a36b97cdd149f04dcbb375fda4eddf5c8c44",
+        "status": "admitted"
+      }
+    },
+    {
+      "profile": "pitch-count",
+      "proof": {
+        "artifactType": "baseballo-pitch-count-admission",
+        "authoritativeRdfSha256": "05e38c8ec2080ee3dc1cda68ea750714f35c8f25807fe7be98ff57381193e8f5",
+        "contractVersion": 1,
+        "gamePk": "822753",
+        "graph": "https://w3id.org/baseball/graph/game/822753",
+        "graphConforms": false,
+        "implementationSha256": "16859aa61db612ab4a4a475cd28f0a5fa5b736ec4d23d620caec21ecbd21929e",
+        "issues": [
+          {
+            "code": "UNSUPPORTED_PA_TERMINATION",
+            "plateAppearance": "https://baseballontology.org/data/game/822753/plate-appearance/49"
+          },
+          {
+            "code": "UNSUPPORTED_PITCH_ORDER",
+            "plateAppearance": "https://baseballontology.org/data/game/822753/plate-appearance/49"
+          }
+        ],
+        "sourceCensusSha256": "3d31852d15a49c0d23aa26192f058e924d37f840e54d2fcc571c342ac1b6e4b8",
+        "sourceReconciled": false,
+        "sourceRevision": "20260408_225140",
+        "sourceSha256": "92b2c49109beae6b7dd6396d1502a36b97cdd149f04dcbb375fda4eddf5c8c44",
+        "status": "withheld",
+        "zeroPitchPlateAppearances": []
+      }
+    },
+    {
+      "profile": "runner-resolution",
+      "proof": {
+        "artifactType": "baseballo-runner-resolution-admission",
+        "authoritativeRdfSha256": "05e38c8ec2080ee3dc1cda68ea750714f35c8f25807fe7be98ff57381193e8f5",
+        "contractVersion": 1,
+        "engine": "jena",
+        "gamePk": "822753",
+        "graph": "https://w3id.org/baseball/graph/game/822753",
+        "graphConforms": true,
+        "implementationSha256": "aa3d118c4511bbd29ce77ecfda9c06e21bd5107195d077d39571d14183ab1886",
+        "issues": [],
+        "reportSha256": "4a53a3befd9bcdb7273ef3d6e47a83be519927771faee49ef0d2a44ee23be2be",
+        "shapeSha256": "79e07acada0b73a7a3dd3cc0f7981a11e4feefacbdcc820788e2779409366c9e",
+        "sourceCensusSha256": "932e699132b223f07ce0d4fcc28b2ce5eca29f0a83de3ef931c973822811f4fa",
+        "sourceReconciled": true,
+        "sourceRevision": "20260408_225140",
+        "sourceSha256": "92b2c49109beae6b7dd6396d1502a36b97cdd149f04dcbb375fda4eddf5c8c44",
+        "status": "admitted"
+      }
+    },
+    {
+      "profile": "scoring-run",
+      "proof": {
+        "artifactType": "baseballo-scoring-run-admission",
+        "authoritativeRdfSha256": "05e38c8ec2080ee3dc1cda68ea750714f35c8f25807fe7be98ff57381193e8f5",
+        "contractVersion": 1,
+        "engine": "jena",
+        "gamePk": "822753",
+        "graph": "https://w3id.org/baseball/graph/game/822753",
+        "graphConforms": true,
+        "implementationSha256": "03088132d1783d274a08f6a2d2a5ff9858ffd04f519b2a4bfcb9011e7ccf0f9d",
+        "issues": [],
+        "reportSha256": "4a53a3befd9bcdb7273ef3d6e47a83be519927771faee49ef0d2a44ee23be2be",
+        "shapeSha256": "9ca77be80670dffdbb844b2a9044c7fdc6841ca0376e4165aa9c1f08fc3605ce",
+        "sourceCensusSha256": "c8b3b3be7d30a0a8b4ed529bf1ade699cf0ad0dba4fd39c88650d5b0491b2b73",
+        "sourceReconciled": true,
+        "sourceRevision": "20260408_225140",
+        "sourceSha256": "92b2c49109beae6b7dd6396d1502a36b97cdd149f04dcbb375fda4eddf5c8c44",
+        "status": "admitted"
+      }
+    }
+  ]
+}

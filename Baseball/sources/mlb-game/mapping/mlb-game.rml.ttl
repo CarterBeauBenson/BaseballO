@@ -1179,7 +1179,7 @@
 # The context builder selects the final allPlays member because RMLMapper expands
 # the JSONPath [-1:] slice to every play. Walk-off semantics remain a documented edge case.
 <#GameEndTimestampMap> a rr:TriplesMap ;
-  rml:logicalSource <#LastPlaySource> ;
+  rml:logicalSource <#GameEndClockSource> ;
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/timestamp/end" ; rr:termType rr:IRI ; rr:class base:BaseballTimestampICE ] ;
   rr:predicateObjectMap [
     rr:predicate cco:ont00001916 ;
@@ -1191,7 +1191,7 @@
   ] ;
   rr:predicateObjectMap [
     rr:predicate cco:ont00001767 ;
-    rr:objectMap [ rml:reference "_baseballO.gameEndTime" ; rr:datatype xsd:dateTime ]
+    rr:objectMap [ rml:reference "value" ; rr:datatype xsd:dateTime ]
   ] .
 
 <#InningMap> a rr:TriplesMap ;
@@ -1342,7 +1342,7 @@
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{about.atBatIndex}/temporal-instant/start" ; rr:termType rr:IRI ; rr:class base:BaseballEventTemporalInstant ] .
 
 <#PlateAppearanceStartTimestampMap> a rr:TriplesMap ;
-  rml:logicalSource <#PlaySource> ;
+  rml:logicalSource <#PlateAppearanceClockSource> ;
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{about.atBatIndex}/timestamp/start" ; rr:termType rr:IRI ; rr:class base:BaseballTimestampICE ] ;
   rr:predicateObjectMap [
     rr:predicate cco:ont00001916 ;
@@ -1362,7 +1362,7 @@
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{about.atBatIndex}/temporal-instant/end" ; rr:termType rr:IRI ; rr:class base:BaseballEventTemporalInstant ] .
 
 <#PlateAppearanceEndTimestampMap> a rr:TriplesMap ;
-  rml:logicalSource <#PlaySource> ;
+  rml:logicalSource <#PlateAppearanceClockSource> ;
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{about.atBatIndex}/timestamp/end" ; rr:termType rr:IRI ; rr:class base:BaseballTimestampICE ] ;
   rr:predicateObjectMap [
     rr:predicate cco:ont00001916 ;
@@ -1855,7 +1855,7 @@
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/pitch/{playId}/temporal-instant/start" ; rr:termType rr:IRI ; rr:class base:BaseballEventTemporalInstant ] .
 
 <#PitchStartTimestampMap> a rr:TriplesMap ;
-  rml:logicalSource <#PitchSource> ;
+  rml:logicalSource <#PitchClockSource> ;
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/pitch/{playId}/timestamp/start" ; rr:termType rr:IRI ; rr:class base:BaseballTimestampICE ] ;
   rr:predicateObjectMap [
     rr:predicate cco:ont00001916 ;
@@ -1875,7 +1875,7 @@
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/pitch/{playId}/temporal-instant/end" ; rr:termType rr:IRI ; rr:class base:BaseballEventTemporalInstant ] .
 
 <#PitchEndTimestampMap> a rr:TriplesMap ;
-  rml:logicalSource <#PitchSource> ;
+  rml:logicalSource <#PitchClockSource> ;
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/pitch/{playId}/timestamp/end" ; rr:termType rr:IRI ; rr:class base:BaseballTimestampICE ] ;
   rr:predicateObjectMap [
     rr:predicate cco:ont00001916 ;
@@ -3879,3 +3879,21 @@
   rml:logicalSource <#DefensiveActSource> ;
   rr:subjectMap [ rml:reference "recordIri" ; rr:termType rr:IRI ] ;
   rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "actIri" ; rr:termType rr:IRI ] ] .
+
+# T1: select boundary measurements independently of the preserved event.
+<#PlateAppearanceClockSource> a rml:LogicalSource ;
+  rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.liveData.plays.allPlays[?(@._baseballO.hasPlateAppearanceClocks == true)]" .
+
+# T1: select boundary measurements independently of the preserved event.
+<#PitchClockSource> a rml:LogicalSource ;
+  rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.liveData.plays.allPlays[*].playEvents[?(@._baseballO.hasClockPair == true)]" .
+
+# T1: select boundary measurements independently of the preserved event.
+<#GameEndClockSource> a rml:LogicalSource ;
+  rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$._baseballO.gameEndClocks[*]" .

@@ -15,7 +15,9 @@ from pathlib import Path
 import tempfile
 
 
-VERSION = 1
+VERSION = 2
+CLOCK_CONFLICT_CODES = {'REVERSED_PLAY_TIMES', 'REVERSED_EVENT_TIMES'}
+CLOCK_DECISION = 'archive/design-records/mlb-game-clock-conflict-isolation/review.json'
 
 
 def digest(value):
@@ -81,7 +83,7 @@ def reconcile(raw: bytes, game_pk: str):
                 issue('UNSUPPORTED_PLAY_TIME', path + '/about/' + field)
         start, end = timestamp(about.get('startTime')), timestamp(about.get('endTime'))
         if start and end and end < start:
-            issue('REVERSED_PLAY_TIMES', path + '/about')
+            issue('REVERSED_PLAY_TIMES', path + '/about', startTime=about['startTime'], endTime=about['endTime'])
 
         events = play.get('playEvents')
         if not isinstance(events, list):
@@ -104,7 +106,7 @@ def reconcile(raw: bytes, game_pk: str):
             event_path = path + f'/playEvents/{event_position}'
             event_start, event_end = timestamp(event.get('startTime')), timestamp(event.get('endTime'))
             if event_start and event_end and event_end < event_start:
-                issue('REVERSED_EVENT_TIMES', event_path)
+                issue('REVERSED_EVENT_TIMES', event_path, startTime=event['startTime'], endTime=event['endTime'])
             event_rows.append(dict(sourcePosition=event_position, index=event.get('index'),
                 playId=event.get('playId'), type=event.get('type'), isPitch=event.get('isPitch'),
                 eventType=event.get('details', {}).get('eventType'),
@@ -203,10 +205,14 @@ def reconcile(raw: bytes, game_pk: str):
         if not integer(total) or total != line_totals[side]:
             issue('TEAM_RUN_TOTAL_MISMATCH', '/liveData/linescore/teams/' + side, reported=total, inningTotal=line_totals[side])
 
+    clock_conflicts = [i for i in issues if i['code'] in CLOCK_CONFLICT_CODES]
+    blocking_issues = [i for i in issues if i['code'] not in CLOCK_CONFLICT_CODES]
     return dict(artifactType='baseballo-mlb-metric-source-reconciliation', contractVersion=VERSION,
         gamePk=game_pk, inputSha256=digest(raw), sourceRevision=revision,
         reconcilerSha256=digest(Path(__file__).read_bytes()),
-        status='consistent' if not issues else 'inconsistent', issues=issues,
+        status='consistent' if not blocking_issues else 'inconsistent', issues=issues,
+        blockingIssues=blocking_issues, clockConflicts=clock_conflicts, clockDecision=CLOCK_DECISION,
+        clockStatus='conflicted' if clock_conflicts else 'no-reversed-pairs',
         counts=dict(plays=len(plays), events=sum(len(p['events']) for p in inventory),
                     movements=sum(len(p['movements']) for p in inventory)),
         inventory=inventory, sourceHistoryAdmitted=False, graphCoverageVerified=False,
