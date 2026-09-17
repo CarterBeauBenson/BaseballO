@@ -1,0 +1,59 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-clock-conflict-isolation",
+  "title": "T1: isolate contradictory source clocks without inventing timing",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "002b77c6635f8a27ed7d09d9882cd9f7871d9c6f225d56a16d97301f4cafcb03"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "README.md",
+        "sha256": "002b77c6635f8a27ed7d09d9882cd9f7871d9c6f225d56a16d97301f4cafcb03"
+      },
+      {
+        "path": "source-evidence.json",
+        "sha256": "08dd138fced0acbedfbf11666531854c098ccff4b949337bf5cd88e59293d465"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "002b77c6635f8a27ed7d09d9882cd9f7871d9c6f225d56a16d97301f4cafcb03"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "README.md",
+        "sha256": "002b77c6635f8a27ed7d09d9882cd9f7871d9c6f225d56a16d97301f4cafcb03"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-09-17",
+    "rationale": "User explicitly answered \"Approve T1 timestamp fix\" to the named T1 question: omit both contradictory boundary measurements, preserve independently supported plays and results, and withhold only histories or metrics dependent on the unavailable timing. This authorizes the existing RML/context selection and whole-source rejection policy changes described in this package, with no new ontology classes, object properties, or replacement timestamps.",
+    "authorizedArtifacts": [
+      "Baseball/scripts/pipeline/prepare-rml-context.py",
+      "Baseball/sources/mlb-game/mapping/mlb-game.rml.ttl",
+      "Baseball/sources/mlb-game/mapping/validate_mlb_game_mapping.py",
+      "Baseball/sources/mlb-game/review/rml-mermaid-manifest.json",
+      "Baseball/sources/mlb-game/review/semantic-status.json",
+      "Baseball/sources/mlb-game/shacl/authoritative.ttl",
+      "Baseball/sources/mlb-game/pipeline/reconcile-metric-source.py",
+      "Baseball/sources/mlb-game/pipeline/clock-admission.py",
+      "Baseball/sources/mlb-game/shacl/clock-admission.ttl",
+      "Baseball/sources/mlb-game/pipeline/validation-profiles.json",
+      "Baseball/sources/mlb-game/pipeline/stage.ps1",
+      "Baseball/governance/semantic-freeze.json"
+    ]
+  }
+}

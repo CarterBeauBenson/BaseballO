@@ -1,9 +1,10 @@
 # T1: isolate contradictory source clocks
 
-Status: draft for ontologist review. No executable change is authorized by
-this package. No classes or properties are proposed.
+Status: accepted by Carter Beau Benson on September 17, 2026. The explicit
+answer was "Approve T1 timestamp fix." Implementation follows this separately
+published decision. No classes or properties are proposed.
 
-## Decision requested
+## Accepted decision
 
 For an explicitly contradictory start/end pair, withhold both clock values
 as measurements of that interval's boundaries. Preserve the existing Process,
@@ -39,7 +40,7 @@ on September 17, 2026 still returned each contradiction:
 1. Does a contradictory pair license choosing the correct member? No. Both
    boundary measurements are unsupported for this interval; neither is repaired.
 2. Does it erase an independently evidenced walk, double, award or runner out?
-   Proposed answer: no. Preserve supported assertions at their accepted grains.
+   Accepted answer: no. Preserve supported assertions at their accepted grains.
 3. Can source record order substitute for physical temporal precedence? No.
 4. Can missing timing or a withheld history be treated as complete evidence?
    No. Admission remains explicitly incomplete wherever that dependency matters.
