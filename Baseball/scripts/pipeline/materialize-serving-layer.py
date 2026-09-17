@@ -46,6 +46,10 @@ _batting_spec = importlib.util.spec_from_file_location('baseballo_batting_admiss
     ROOT / 'sources/mlb-game/pipeline/batting-admission.py')
 _batting_admission = importlib.util.module_from_spec(_batting_spec)
 _batting_spec.loader.exec_module(_batting_admission)
+_schedule_spec = importlib.util.spec_from_file_location('baseballo_schedule_qualification',
+    ROOT / 'sources/mlb-game/pipeline/schedule-qualification.py')
+_schedule_qualification = importlib.util.module_from_spec(_schedule_spec)
+_schedule_spec.loader.exec_module(_schedule_qualification)
 _run_spec = importlib.util.spec_from_file_location('baseballo_scoring_run_admission',
     ROOT / 'sources/mlb-game/pipeline/scoring-run-admission.py')
 _run_admission = importlib.util.module_from_spec(_run_spec)
@@ -92,7 +96,8 @@ _promotion_inventory = importlib.util.module_from_spec(_promotion_spec)
 _promotion_spec.loader.exec_module(_promotion_inventory)
 _LOADED_MODULE_HASHES = {Path(module.__file__): hashlib.sha256(Path(module.__file__).read_bytes()).hexdigest()
                         for module in (_batting_admission,_run_admission,_resolution_admission,_count_admission,_boundary_admission,_defense_admission,
-                                       _query_cache,_metric_cache,_preflight_queries,_build_guard,_promotion_inventory)}
+                                       _query_cache,_metric_cache,_preflight_queries,_build_guard,_promotion_inventory,
+                                       _schedule_qualification,_schedule_qualification.PARSER)}
 _LOADED_MODULE_HASHES[Path(__file__).resolve()] = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
 SERVING_ROOT = ROOT / "serving"
 SCHEMA = SERVING_ROOT / "schema.sql"
@@ -1070,7 +1075,8 @@ def _build(args: argparse.Namespace, progress: dict[str, Any]) -> dict[str, Any]
     connection = sqlite3.connect(database)
     connection.executescript(schema_bytes.decode("utf-8"))
     _metric_suite.initialize_sql(connection)
-    for day, proof in _batting_admission.schedule_coverage(state_root).items():
+    schedule_coverage = _schedule_qualification.merge_snapshots(state_root,_batting_admission.schedule_coverage(state_root))
+    for day, proof in schedule_coverage.items():
         text = _metric_suite._json(proof)
         connection.execute('INSERT INTO metric_suite_schedule_coverage VALUES (?,?,?)',
                            (day, text, _metric_suite._hash(text)))

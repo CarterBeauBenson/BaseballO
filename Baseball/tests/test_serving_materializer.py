@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import argparse
-from contextlib import ExitStack
+from contextlib import ExitStack, closing
 import hashlib
 import importlib.util
 import json
@@ -682,6 +682,42 @@ class ServingMaterializerTests(unittest.TestCase):
             self.assertEqual(cold['sourceCorpusIntegrity'],warm['sourceCorpusIntegrity'])
             self.assertTrue(warm['sourceCorpusIntegrity']['liveGraphStateRechecked'])
             self.assertEqual(json.loads((state/'serving/current.json').read_text())['buildId'],warm['buildId'])
+
+    def test_repaired_schedule_enters_candidate_without_rewriting_batch_or_reacquiring(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            state=Path(temporary);make_promotion(state,'1',B966)
+            batch_path=state/'pipeline/control/mlb-game/batches'/('a'*32+'.json')
+            write_json(batch_path,dict(artifactType='baseballo-mlb-game-schedule-batch',contractVersion=1,
+                batchId='a'*32,status='pending',createdAtUtc='2026-08-02T00:00:00Z',
+                requestedStartDate='2026-08-01',requestedEndDate='2026-08-01',scheduleSha256='original',
+                games=[dict(gamePk='1',gameType='R',officialDate='2026-08-01')],
+                qualificationCoverage=dict(contractVersion=1,completeResponse=False,days={'2026-08-01':[]})))
+            before=batch_path.read_bytes()
+            raw=json.dumps(dict(totalGames=2,dates=[dict(date='2026-08-01',totalGames=2,games=[
+                dict(gamePk=1,gameType='R',officialDate='2026-08-01',status=dict(abstractGameState='Final')),
+                dict(gamePk=2,gameType='R',officialDate='2026-09-22',status=dict(abstractGameState='Final',detailedState='Postponed'))])])).encode()
+            repaired=MODULE._schedule_qualification.refresh_incomplete_batches(state,fetch=lambda _:raw,
+                now='2026-08-02T01:00:00Z')
+            self.assertEqual(repaired['status'],'refreshed')
+            def offline_sparql(_endpoint,query,_timeout):
+                if '?rdfGameSet ?venue ?venueLabel' in query:return result([dimension('1')])
+                if 'AS ?sourceCount' in query or 'AS ?indexCount' in query:return result([live_pair('1')])
+                return result([])
+            args=argparse.Namespace(state_root=state,endpoint='offline',timeout=1,max_games=None,no_promote=True)
+            with patch.object(MODULE,'sparql',side_effect=offline_sparql),patch.object(
+                    MODULE._schedule_qualification,'acquire',side_effect=AssertionError('SQL builder cannot acquire')):
+                built=MODULE.build(args)
+            with closing(sqlite3.connect(built['databasePath'])) as connection:
+                text,digest=connection.execute('SELECT proof_json,proof_sha256 FROM metric_suite_schedule_coverage').fetchone()
+                proof=json.loads(text)
+                self.assertTrue(proof['completeResponse'])
+                self.assertEqual(proof['provenanceSha256'],Path(repaired['path']).stem)
+                self.assertEqual(digest,MODULE._metric_suite._hash(text))
+                check=MODULE._metric_suite.selected_schedule_coverage(connection,
+                    dict(gameSet='regular_season',startDate='2026-08-01',endDate='2026-08-01'),
+                    ['https://w3id.org/baseball/graph/game/1'])
+                self.assertTrue(check['complete']);self.assertEqual(check['expectedGames'],1)
+            self.assertEqual(batch_path.read_bytes(),before)
 
     def test_failed_prepublication_verification_preserves_published_pointer(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

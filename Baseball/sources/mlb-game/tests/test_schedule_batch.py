@@ -14,6 +14,39 @@ BATCH_ID = "a" * 32
 
 
 class ScheduleBatchTests(unittest.TestCase):
+    def test_postponed_occurrence_keeps_its_schedule_date_when_makeup_is_outside_request(self):
+        payload=self.payload()
+        moved=payload['dates'][0]['games'][0]
+        moved.update(officialDate='2026-09-22',rescheduleDate='2026-09-22T17:05:00Z',
+            status=dict(abstractGameState='Final',detailedState='Postponed'))
+        payload['totalGames']=3
+        for block in payload['dates']:block['totalGames']=len(block['games'])
+        with tempfile.TemporaryDirectory() as temporary:
+            result=self.run_script(Path(temporary),payload)
+            self.assertEqual(result.returncode,0,result.stderr)
+            path=Path(temporary)/'pipeline/control/mlb-game/batches'/f'{BATCH_ID}.json'
+            coverage=json.loads(path.read_bytes())['qualificationCoverage']
+            self.assertTrue(coverage['completeResponse'])
+            self.assertEqual(coverage['responseOccurrences'],coverage['coveredOccurrences'])
+            self.assertNotIn('2026-09-22',coverage['days'])
+            self.assertEqual(coverage['days']['2026-08-31'][0],
+                dict(gamePk='900002',gameType='R',final=False,unplayed=True))
+            self.assertNotIn('900002',[g['gamePk'] for g in json.loads(result.stdout)['games']])
+
+    def test_out_of_range_played_or_unknown_occurrences_are_still_incomplete(self):
+        for state in ('Final','Live','Preview'):
+            with self.subTest(state=state),tempfile.TemporaryDirectory() as temporary:
+                payload=self.payload();payload['totalGames']=3
+                for block in payload['dates']:block['totalGames']=len(block['games'])
+                payload['dates'][0]['games'][0].update(officialDate='2026-09-22',
+                    status=dict(abstractGameState=state))
+                result=self.run_script(Path(temporary),payload)
+                self.assertEqual(result.returncode,0,result.stderr)
+                path=Path(temporary)/'pipeline/control/mlb-game/batches'/f'{BATCH_ID}.json'
+                coverage=json.loads(path.read_bytes())['qualificationCoverage']
+                self.assertFalse(coverage['completeResponse'])
+                self.assertEqual(coverage['issues'][0]['code'],'GAME_DATE_OUTSIDE_REQUEST')
+
     def test_qualification_keeps_nonfinal_games_and_checks_response_totals(self):
         payload = self.payload()
         payload['totalGames'] = 3

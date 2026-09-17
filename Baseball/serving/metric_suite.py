@@ -77,7 +77,8 @@ def fingerprint():
                   ROOT / 'sources/mlb-game/pipeline/contact-continuation-admission.py',
                   ROOT / 'sources/mlb-game/shacl/contact-continuation.ttl',
                   ROOT / 'sources/mlb-game/shacl/batting-admission.ttl',
-                  ROOT / 'sources/mlb-game/nifi/prepare-schedule-batch.py'])
+                  ROOT / 'sources/mlb-game/nifi/prepare-schedule-batch.py',
+                  ROOT / 'sources/mlb-game/pipeline/schedule-qualification.py'])
     paths.extend(ROOT / e['authoritativeQuery'] for e in [*catalog()['metrics'], *catalog().get('components', [])])
     return hashlib.sha256('\n'.join(
         p.relative_to(ROOT).as_posix() + ':' + hashlib.sha256(p.read_bytes()).hexdigest()

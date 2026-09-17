@@ -254,11 +254,17 @@ def qualification_coverage(document, observations, start_date, end_date):
     """
     blocks = document['dates']
     count = sum(len(block['games']) for block in blocks)
-    valid = (type(document.get('totalGames')) is int and document['totalGames'] == count
-             and len({b['date'] for b in blocks}) == len(blocks)
-             and all(start_date <= b['date'] <= end_date
-                     and type(b.get('totalGames')) is int
-                     and b['totalGames'] == len(b['games']) for b in blocks))
+    issues = []
+    if type(document.get('totalGames')) is not int or document['totalGames'] != count:
+        issues.append(dict(code='SCHEDULE_RESPONSE_TOTAL_MISMATCH',reported=document.get('totalGames'),observed=count))
+    if len({b['date'] for b in blocks}) != len(blocks):
+        issues.append(dict(code='DUPLICATE_SCHEDULE_DATE'))
+    for block in blocks:
+        if not start_date <= block['date'] <= end_date:
+            issues.append(dict(code='SCHEDULE_DATE_OUTSIDE_REQUEST',date=block['date']))
+        if type(block.get('totalGames')) is not int or block['totalGames'] != len(block['games']):
+            issues.append(dict(code='SCHEDULE_DATE_TOTAL_MISMATCH',date=block['date'],
+                reported=block.get('totalGames'),observed=len(block['games'])))
     days = {}
     current = date.fromisoformat(start_date)
     end = date.fromisoformat(end_date)
@@ -267,14 +273,22 @@ def qualification_coverage(document, observations, start_date, end_date):
         current += timedelta(days=1)
     for game_pk, records in observations.items():
         for row in records:
-            if row['officialDate'] not in days:
-                valid = False
+            unplayed = str(row['detailedState'] or '').casefold() in {'postponed','cancelled'}
+            # This row describes the unplayed scheduled occurrence. The API
+            # may already give it the later makeup game's officialDate. Keep
+            # it on its returned schedule date, where it is explicitly excluded
+            # from played-game exposure; do not invent a final game in either day.
+            coverage_date = row['scheduledDate'] if unplayed else row['officialDate']
+            if coverage_date not in days:
+                issues.append(dict(code='GAME_DATE_OUTSIDE_REQUEST',gamePk=game_pk,
+                    scheduledDate=row['scheduledDate'],officialDate=row['officialDate']))
                 continue
-            days[row['officialDate']].append(dict(gamePk=game_pk, gameType=row['gameType'],
+            days[coverage_date].append(dict(gamePk=game_pk, gameType=row['gameType'],
                 final=row['abstractState']=='Final' and str(row['detailedState'] or '').casefold()
                     not in {'postponed','cancelled','suspended'},
-                unplayed=str(row['detailedState'] or '').casefold() in {'postponed','cancelled'}))
-    return dict(contractVersion=1, completeResponse=valid, days=days)
+                unplayed=unplayed))
+    return dict(contractVersion=1, completeResponse=not issues, days=days,
+                responseOccurrences=count,coveredOccurrences=sum(map(len,days.values())),issues=issues)
 
 
 def transform(raw: bytes, args: argparse.Namespace) -> dict[str, Any]:

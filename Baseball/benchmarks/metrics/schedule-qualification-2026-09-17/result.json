@@ -1,0 +1,29 @@
+{
+  "artifactType": "baseballo-schedule-qualification-developer-proof",
+  "batchId": "2e0062c6ccff4630840108858425ed4f",
+  "originalBatchSha256": "e76ebbd6cc94b2dd1f02df089aa81d6cb2ea9038618fa64ac78f93afbb404274",
+  "originalSourceSha256": "c7bbae0bf2c0583b1cd3929bc3bb6f82ad3718e018ecf1061c548aef27bec569",
+  "refreshedSourceSha256": "c7bbae0bf2c0583b1cd3929bc3bb6f82ad3718e018ecf1061c548aef27bec569",
+  "implementationSha256": "fc46e4d3df0436851dfd5b0f0170b13c9cc66672a2d3e1fd23672538b0708466",
+  "snapshotSha256": "3da3a2f2abe36e8aa87c7cec340901fe706a9b4fcbf28876d4c419e64a6eade7",
+  "requestedStartDate": "2026-01-01",
+  "requestedEndDate": "2026-09-15",
+  "completeDaysBefore": 0,
+  "completeDaysAfter": 258,
+  "responseOccurrences": 2788,
+  "coveredOccurrences": 2788,
+  "rescheduledGame823543": [
+    {
+      "date": "2026-05-23",
+      "final": false,
+      "gamePk": "823543",
+      "gameType": "R",
+      "unplayed": true
+    }
+  ],
+  "noRepeatedAcquisition": true,
+  "originalBatchUnchanged": true,
+  "gameRequestsEmitted": 0,
+  "runtimeStateChanged": false,
+  "liveDashboardAdmissionAssessed": false
+}

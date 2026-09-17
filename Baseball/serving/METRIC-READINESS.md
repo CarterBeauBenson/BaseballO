@@ -8,7 +8,7 @@ conditional player producers. The two review player integrations remain
 unfinished. All twenty calculation kernels exist; Role Realization Breadth
 is the backend-only twentieth metric.
 
-The latest live check on September 16 returned HTTP 200 in 16.8 seconds for
+The September 16 live check returned HTTP 200 in 16.8 seconds for
 August 25 from SQL, with all 15 scheduled games selected and **zero populated
 player leaderboards**. The new coverage report explicitly returned `ready:false`
 and 19 unavailable player boards. The active SQL build was
@@ -33,6 +33,19 @@ records its current withheld admissions. This is reader correctness and timing
 evidence, not a claim that the live dashboard or reference season is complete.
 `buildingBlockCoverage` now distinguishes each input family's projection counts
 and gaps; those diagnostics supplement the player-population report.
+
+On September 17, NiFi's source proof completed and the season refresh reached
+`waiting-batch`. The August 25 dashboard still returned 0/19 populated boards
+from build `20260917T012319Z-89e828146695` (code `f0f6dbd`), with 15 games and
+8,789 ms reported SQL duration. The next stored-input release was not yet live.
+
+The pending season manifest also exposed an independent calendar defect: one
+explicitly postponed May game carried a September 22 makeup `officialDate`,
+causing all 258 requested dates to be marked incomplete despite reconciled
+response totals. The [schedule correction proof](../benchmarks/metrics/schedule-qualification-2026-09-17/README.md)
+retains all 2,788 occurrences and restores transport completeness. The existing
+NiFi worker now repairs affected coverage using separate immutable snapshots,
+without restarting game mapping. Actual graph and player admissions still apply.
 
 ## How to check the actual release
 
@@ -86,6 +99,7 @@ minimums. Review mechanisms remain separate. These are settled decisions.
 
 | Evidence | What it establishes | What it does not establish |
 | --- | --- | --- |
+| [Schedule qualification](../benchmarks/metrics/schedule-qualification-2026-09-17/README.md) | All 258 requested dates and 2,788 occurrences reconcile with the unchanged response; postponed makeup dates no longer invalidate the range | Complete promoted game set, player inputs or live dashboard population |
 | [SQL building blocks](../benchmarks/metrics/sql-building-blocks-2026-09-16/README.md) | Exact equality of all 20 responses over one promoted game; indexed projections round-trip and reduce reader work | Full-season performance, current source admission completeness or live leaderboard population |
 | [Count-history completion](../benchmarks/metrics/count-history-completion-2026-09-16/README.md) | All 81 official PAs in game 823585 pass source SHACL, batting/count admission, canonical Jena extraction and exact SQL; virtual intentional walks and reconciled foul/replacement prefixes are handled | Complete live date range or reference season |
 | [Runner placement and third outs](../benchmarks/metrics/runner-placement-completion-2026-09-16/README.md) | All 15 August 25 fixtures reconcile 415 personal histories; two full-game proofs retain all 15 scoring histories in SQL | All contribution ownership or immediate PA-state cases |

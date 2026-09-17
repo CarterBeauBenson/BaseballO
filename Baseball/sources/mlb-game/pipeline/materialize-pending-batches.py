@@ -20,6 +20,10 @@ BASEBALL_ROOT = MODULE_ROOT.parents[1]
 INVENTORY_SCRIPT = BASEBALL_ROOT / "scripts" / "pipeline" / "game_promotion_inventory.py"
 MATERIALIZER = BASEBALL_ROOT / "scripts" / "pipeline" / "materialize-serving-layer.py"
 RECOVERY_SCRIPT = MODULE_ROOT / "pipeline" / "resume-metric-source.py"
+_schedule_spec = importlib.util.spec_from_file_location('batch_schedule_qualification',
+    MODULE_ROOT/'pipeline/schedule-qualification.py')
+_schedule_qualification = importlib.util.module_from_spec(_schedule_spec)
+_schedule_spec.loader.exec_module(_schedule_qualification)
 
 
 def parse_args() -> argparse.Namespace:
@@ -88,6 +92,7 @@ def main() -> int:
     if recovery["deferMaterialization"]:
         print(json.dumps({"status": "deferred", "sourceRecovery": recovery}, separators=(",", ":")))
         return 0
+    schedule_refresh = _schedule_qualification.refresh_incomplete_batches(state_root)
     batch_root = state_root / "pipeline" / "control" / "mlb-game" / "batches"
     batch_root.mkdir(parents=True, exist_ok=True)
     pending: list[tuple[datetime, Path, dict[str, Any]]] = []
@@ -101,7 +106,8 @@ def main() -> int:
         if batch.get("status") == "pending":
             pending.append((timestamp(batch.get("createdAtUtc")), path, batch))
     if not pending:
-        print(json.dumps({"status": "idle", "pendingBatchCount": 0}, separators=(",", ":")))
+        print(json.dumps({"status": "idle", "pendingBatchCount": 0,
+                          "scheduleCoverage":schedule_refresh}, separators=(",", ":")))
         return 0
 
     inventory = promotion_inventory(state_root)
@@ -130,7 +136,8 @@ def main() -> int:
     if not ready:
         print(
             json.dumps(
-                {"status": "waiting", "pendingBatchCount": len(pending), "batches": waiting},
+                {"status": "waiting", "pendingBatchCount": len(pending), "batches": waiting,
+                 "scheduleCoverage":schedule_refresh},
                 separators=(",", ":"),
             )
         )
@@ -175,6 +182,7 @@ def main() -> int:
                 "buildId": pointer.get("buildId"),
                 "corpusFingerprint": pointer.get("corpusFingerprint"),
                 "gameCount": pointer.get("gameCount"),
+                "scheduleCoverage":schedule_refresh,
             },
             separators=(",", ":"),
         )

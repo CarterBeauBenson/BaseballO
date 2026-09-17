@@ -53,6 +53,12 @@ require the independently complete reference season. Per-game caches cannot
 establish either population. Fractions stay exact until display; entropy
 retains its exact channel counts and explicitly approximate numeric evaluation.
 
+Calendar transport corrections are owned by the MLB-game batch worker's
+`pipeline/schedule-qualification.py`. It retains hash-addressed snapshots for
+affected incomplete ranges. The builder merges those snapshots with original
+batch provenance; SQL stores the selected snapshot's hash. This calendar-only
+repair does not change source game admission fingerprints or restart mapping.
+
 ## SQL building blocks and final arithmetic
 
 Version 2.1 projects the existing accepted evidence once during the NiFi build.

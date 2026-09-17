@@ -116,3 +116,27 @@ schedule or the normal two-attempt source-stage retry/quarantine policy.
 This automates accepted source recovery. It does not implement missing player
 score adapters, admit a new source, infer defensive acts, or turn a bounded
 metric result into a complete player leaderboard.
+
+## Schedule qualification correction
+
+The batch worker also invokes `schedule-qualification.py` when SQL is idle.
+It repairs at most one retained incomplete schedule range per invocation using
+the existing MLB schedule endpoint. A postponed occurrence can carry its later
+makeup game's `officialDate`; the schedule parser now retains that explicitly
+unplayed occurrence on its returned schedule date. It remains excluded from
+played-game counts. Transport totals and all other completeness checks remain.
+
+The worker selects only incomplete ranges that still own the latest retained
+coverage for a date. It preserves the original batch, game requests and all
+promotions. Successful coverage snapshots live separately under
+`pipeline/control/mlb-game/schedule-coverage/<sha256>.json`, bound to the owning
+batch, source-response hash and parser implementation. The SQL builder merges
+current snapshots by observation time and preserves the snapshot hash in SQL.
+An older successful snapshot cannot mask newer incomplete batch evidence.
+
+The operation is idempotent per batch and implementation. Two failed transport
+attempts stop acquisition for that batch/version; failed response bytes and
+diagnostics remain in source-local quarantine. One quarantined range does not
+prevent correction of unrelated ranges. The worker reports `scheduleCoverage`
+in its normal result. No additional trigger or game refresh is created, and
+the daily acquisition and 15-minute batch-check schedules remain in force.
