@@ -1,0 +1,115 @@
+{
+  "artifactType": "baseballo-focused-metric-completion-proof",
+  "contractVersion": 1,
+  "productionAdmission": false,
+  "games": [
+    {
+      "game": "823585",
+      "sourceSha256": "9bc6c0423abeea6adee187b4299ce70573aff6b8e71e158c7a42118d84139699",
+      "rdfSha256": "3359c4ec0de44f7bd1f453923e94299e87a22735408fe6fab653508a5ccacb78",
+      "shaclStatus": "validated",
+      "repairedPlateAppearances": [
+        47,
+        79
+      ],
+      "progressResolved": 81,
+      "progressUnresolved": [
+        {
+          "graph": "https://w3id.org/baseball/graph/game/823585",
+          "plateAppearance": "https://baseballontology.org/data/game/823585/plate-appearance/81",
+          "gaps": [
+            "UNRESOLVED_PROGRESS_ATTRIBUTION"
+          ]
+        }
+      ],
+      "runs": {
+        "run-construction-depth": {
+          "resolved": 5,
+          "unresolved": []
+        },
+        "run-construction-breadth": {
+          "resolved": 4,
+          "unresolved": [
+            {
+              "graph": "https://w3id.org/baseball/graph/game/823585",
+              "game": "https://baseballontology.org/data/game/823585",
+              "run": "https://baseballontology.org/data/game/823585/runner-resolution/score/81/0",
+              "status": "unavailable",
+              "value": null,
+              "gaps": [
+                "UNSUPPORTED_RUN_CONTRIBUTOR"
+              ],
+              "trajectories": [
+                "https://baseballontology.org/data/game/823585/runner-trajectory/ee7e7011e9a9932566d449b6bb687d11404a1a843a551991a5d13e766806108e"
+              ]
+            }
+          ]
+        }
+      },
+      "sqlExactMatch": true,
+      "playerPopulationComplete": false,
+      "implementationSha256": "d0708c28cec50272903085b08acb9f49358b0b46e8185759cb45d66cbe832e2a"
+    },
+    {
+      "game": "823826",
+      "sourceSha256": "1c2f05b2a5dc3a806a348ff45bed3e1b2d8d1e32c70d7f52509bec6c15d9237e",
+      "rdfSha256": "e00874380322d6d8c1f66962a0735c0e3eee4b87230e48aaa5fad8117f74e1c8",
+      "shaclStatus": "validated",
+      "repairedPlateAppearances": [
+        35,
+        73
+      ],
+      "progressResolved": 87,
+      "progressUnresolved": [
+        {
+          "graph": "https://w3id.org/baseball/graph/game/823826",
+          "plateAppearance": "https://baseballontology.org/data/game/823826/plate-appearance/49",
+          "gaps": [
+            "UNRESOLVED_PROGRESS_ATTRIBUTION"
+          ]
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/823826",
+          "plateAppearance": "https://baseballontology.org/data/game/823826/plate-appearance/78",
+          "gaps": [
+            "UNRESOLVED_PROGRESS_ATTRIBUTION"
+          ]
+        },
+        {
+          "graph": "https://w3id.org/baseball/graph/game/823826",
+          "plateAppearance": "https://baseballontology.org/data/game/823826/plate-appearance/79",
+          "gaps": [
+            "UNRESOLVED_PROGRESS_ATTRIBUTION"
+          ]
+        }
+      ],
+      "runs": {
+        "run-construction-depth": {
+          "resolved": 10,
+          "unresolved": []
+        },
+        "run-construction-breadth": {
+          "resolved": 9,
+          "unresolved": [
+            {
+              "graph": "https://w3id.org/baseball/graph/game/823826",
+              "game": "https://baseballontology.org/data/game/823826",
+              "run": "https://baseballontology.org/data/game/823826/runner-resolution/score/78/1",
+              "status": "unavailable",
+              "value": null,
+              "gaps": [
+                "UNSUPPORTED_RUN_CONTRIBUTOR"
+              ],
+              "trajectories": [
+                "https://baseballontology.org/data/game/823826/runner-trajectory/63ff1eb1fb54acfc7d4b4c9a5570ff8cf8bcf30931d049f4d2552ce2fbc0c165"
+              ]
+            }
+          ]
+        }
+      },
+      "sqlExactMatch": true,
+      "playerPopulationComplete": false,
+      "implementationSha256": "d0708c28cec50272903085b08acb9f49358b0b46e8185759cb45d66cbe832e2a"
+    }
+  ]
+}

@@ -24,7 +24,7 @@ from rdflib import Graph, Literal
 
 ROOT = Path(__file__).resolve().parents[1]
 METRICS = ROOT / 'sparql/metrics'
-VERSION = '2.0.35'
+VERSION = '2.0.36'
 
 
 class EvidenceError(ValueError):
@@ -810,6 +810,7 @@ def normalize_bindings(bindings, graphs):
                       'paStartInstant', 'paEndInstant', 'paStartTimestamp', 'paEndTimestamp', 'paOutCount',
                       'countJudgment', 'countDecision', 'countRule', 'priorPitch', 'nextPitch',
                       'trajectoryEndInstant', 'gameEndTimestamp', 'independentStealAct',
+                      'independentRunningProcess','independentRunningType','independentRunningJudgment','independentRunningDecision',
                       'pitchInterval','pitchStartInstant','pitchEndInstant','pitchStartTimestamp','pitchEndTimestamp',
                       'strikeProcess','strikeJudgment','strikeDecision',
                       'stasis','baseSite','occupiedBase','stasisInterval','stasisFirstInstant','paFirstInstant','enclosingLocation'):
@@ -845,6 +846,24 @@ def _json(value):
 
 def _hash(text):
     return hashlib.sha256(text.encode('utf-8')).hexdigest()
+
+
+INDEPENDENT_RUNNING_FIELDS = ('independentRunningProcess','independentRunningType',
+                              'independentRunningJudgment','independentRunningDecision')
+
+
+def independent_running_act(row):
+    """Accepted running channels tied to this movement, never the PA header."""
+    if row.get('independentStealAct') == row.get('act') and row.get('act'):
+        return row['act']
+    # The accepted PB/WP running policy covers advances from an occupied base.
+    # Its 1B/2B/3B weights do not settle a batter's uncaught-third-strike entry.
+    if (all(row.get(k) for k in (*INDEPENDENT_RUNNING_FIELDS,'record','act'))
+            and segment_origin(row) in (1,2,3)
+            and row['independentRunningType'] in {'https://baseballontology.org/PassedBallProcess',
+                                                 'https://baseballontology.org/WildPitchProcess'}):
+        return row['act']
+    return None
 
 
 def movement_coverage(rows):
@@ -1634,7 +1653,7 @@ def run_construction_evidence(rows, *, metric_id='run-construction-depth'):
                       'trajectoryHalf', 'trajectoryInterval')
             states = {tuple(r.get(f) for f in fields) for r in candidates}
             if metric_id == 'run-construction-breadth':
-                states = {tuple(r.get(f) for f in (*fields, 'plateAppearance','contactPlay','award','awardRule','independentStealAct'))
+                states = {tuple(r.get(f) for f in (*fields, 'plateAppearance','contactPlay','award','awardRule','independentStealAct',*INDEPENDENT_RUNNING_FIELDS))
                           for r in candidates}
             if len(states) != 1:
                 failures[key] = 'CONFLICTING_SEGMENT_STATE'
@@ -1667,8 +1686,16 @@ def run_construction_evidence(rows, *, metric_id='run-construction-depth'):
                     failures[key] = 'UNSUPPORTED_CONTRIBUTION_DIRECTION'
                     break
                 channels = [bool(row.get('contactPlay')), bool(row.get('award') and row.get('awardRule')),
-                            row.get('independentStealAct') == row['act']]
-                if sum(channels) != 1:
+                            independent_running_act(row) is not None]
+                types = pa_types[(key[0],row['plateAppearance'])]
+                # An excluded batter's own entry has no positive batting
+                # contribution, even when it lacks a contact-causation link.
+                # Other runners and independent running still need their own
+                # evidence; an excluded PA does not classify all its movements.
+                excluded_entry=(runner==row.get('batter') and start==0 and len(types)==1
+                                and next(iter(types)) in policies()['batterProgressExcludedResultTypes']
+                                and not channels[2])
+                if sum(channels) != 1 and not (sum(channels)==0 and excluded_entry):
                     failures[key] = 'UNSUPPORTED_RUN_CONTRIBUTOR'
                     break
                 contributor = runner if channels[2] else row.get('batter')
@@ -1676,7 +1703,6 @@ def run_construction_evidence(rows, *, metric_id='run-construction-depth'):
                     failures[key] = 'UNSUPPORTED_RUN_CONTRIBUTOR'
                     break
                 if not channels[2]:
-                    types = pa_types[(key[0],row['plateAppearance'])]
                     if len(types) != 1:
                         failures[key] = 'UNSUPPORTED_BATTING_CREDIT_CLASSIFICATION'
                         break
@@ -1879,7 +1905,7 @@ def contact_progress_path(members, history_rows, movement_rows):
     # contact's convenient rows. Scope is the actual PA, not IRI/array order.
     current = [r for r in observed if r['plateAppearance'] == pa]
     if ({r['episode'] for r in current} != {r['episode'] for r in states}
-            or any(r.get('contactPlay') != contact or r.get('award') or r.get('independentStealAct') for r in current)):
+            or any(r.get('contactPlay') != contact or r.get('award') or independent_running_act(r) for r in current)):
         return missing
     if any(len({r[field] for r in states}) != len(states) for field in ('episode','resolution','act')):
         return missing
@@ -1938,7 +1964,7 @@ def batting_progress_evidence(rows):
     fields=('runner','act','episode','resolution','originDesignation','originBase','originCode',
             'metricOrigin','destinationBase','destinationCode','safeJudgment','safeDecision',
             'hasSafeType','hasOutType','hasRunType','contactPlay','award','awardRule','independentStealAct',
-            'trajectory','trajectoryHalf','trajectoryInterval')
+            'trajectory','trajectoryHalf','trajectoryInterval',*INDEPENDENT_RUNNING_FIELDS)
     for (graph,pa), observations in sorted(pas.items()):
         reasons=[]
         players={r.get('player') for r in observations};games={r.get('game') for r in observations}
@@ -1965,7 +1991,7 @@ def batting_progress_evidence(rows):
             supports=[]
             if row.get('contactPlay'):supports.append(('contact',row['contactPlay']))
             if row.get('award') and row.get('awardRule'):supports.append(('award',row['award']))
-            if row.get('independentStealAct')==row['act']:supports.append(('running',row['act']))
+            if independent_running_act(row):supports.append(('running',row['act']))
             # An out has no positive terminal progress, but it must still join
             # any same-contact continuation so earlier safe progress is not kept.
             positive=False
@@ -2029,7 +2055,7 @@ def batting_progress_evidence(rows):
             positiveChannels=[dict(player=p,play=play,channel=channel) for p,play,channel in sorted(positive_channels)],
             coalescedContactPaths=coalesced,
             evidence=sorted({r[f] for r in movements[(graph,pa)] for f in
-                ('resolution','act','episode','contactPlay','award','awardRule','independentStealAct',
+                ('resolution','act','episode','contactPlay','award','awardRule','independentStealAct',*INDEPENDENT_RUNNING_FIELDS,
                  'trajectory','trajectoryHalf','trajectoryInterval') if r.get(f)})))
     inputs=[]
     for pa in completed:
@@ -2397,10 +2423,10 @@ def split_steal_contact_path(members, histories, movements, start):
         end=(None if row.get('hasOutType')=='true' else 4 if row.get('hasRunType')=='true' else
              int(row['destinationCode'][0]) if row.get('destinationCode') in {'1B','2B','3B'} else None)
         if end is not None and end<=position:return denied
-        if row.get('contactPlay') and not row.get('independentStealAct') and not row.get('award'):
+        if row.get('contactPlay') and not independent_running_act(row) and not row.get('award'):
             if contact is None:contact=row['contactPlay'];contact_start=position
             if row['contactPlay']!=contact:return denied
-        elif (contact is None and row.get('independentStealAct')==row['act'] and not row.get('award')
+        elif (contact is None and independent_running_act(row) and not row.get('award')
                 and row.get('hasSafeType')=='true' and end in (1,2,3)
                 and all(row.get(f) for f in ('safeJudgment','safeDecision','destinationBase'))):
             prefix.append(dict(player=runner,episode=row['episode'],act=row['act'],start=position,end=end))
@@ -2442,7 +2468,7 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
     fields=('runner','act','episode','resolution','originDesignation','originBase','originCode','originRecord',
             'metricOrigin','destinationBase','destinationCode','safeJudgment','safeDecision',
             'hasSafeType','hasOutType','hasRunType','contactPlay','award','awardRule','independentStealAct',
-            'trajectory','trajectoryHalf','trajectoryInterval')
+            'trajectory','trajectoryHalf','trajectoryInterval',*INDEPENDENT_RUNNING_FIELDS)
     for pa,observations in sorted(pas.items()):
         types={r['paResultType'] for r in observations if r.get('recognizedBattingResult') in ('true','1')}
         if not types:continue  # B1 separately verifies interrupted, uncredited turns.
@@ -2491,9 +2517,9 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
                 if flags not in {('true','false','false'),('false','true','false'),('false','false','true')}:
                     reasons.append('UNSUPPORTED_SEGMENT_END')
                 evidence.update(row[f] for f in ('act','resolution','episode','record','originDesignation','originRecord',
-                    'safeJudgment','safeDecision','trajectory','trajectoryInterval','contactPlay','award','awardRule') if row.get(f))
+                    'safeJudgment','safeDecision','trajectory','trajectoryInterval','contactPlay','award','awardRule',*INDEPENDENT_RUNNING_FIELDS) if row.get(f))
             if len(members)>1:
-                if any(r.get('independentStealAct') for r in members):
+                if any(independent_running_act(r) for r in members):
                     path=split_steal_contact_path(members,histories,history_movements,start)
                     if path['status']=='available':
                         independent.extend(path['independentPrefix']);start=path['start'];comparison_starts[runner]=start
@@ -2512,19 +2538,19 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
                 channels=[]
                 if row.get('contactPlay'):channels.append(('contact',row['contactPlay']))
                 if row.get('award') and row.get('awardRule'):channels.append(('award',row['award']))
-                if len(channels)>1 or (channels and row.get('independentStealAct')):
+                if len(channels)>1 or (channels and independent_running_act(row)):
                     reasons.append('AMBIGUOUS_CONSEQUENCE_ATTRIBUTION')
                 if channels:
                     supports.update(channels);credit=True
                 elif runner==batter and terminal=='out' and result_type.endswith('/StrikeoutProcess'):
                     supports.add(('strikeout',pa));credit=True
-                elif runner!=batter and terminal!='out' and end!=start and (row.get('independentStealAct')==row['act'] or complete_award or (excluded and no_actual_outs)):
+                elif runner!=batter and terminal!='out' and end!=start and (independent_running_act(row) or complete_award or (excluded and no_actual_outs)):
                     # Existing outcome values still determine erosion. Complete
                     # award membership proves that an unlinked movement isn't
                     # an omitted forced award; excluded positive batting credit
                     # cannot become unknown just because its owner is irrelevant.
                     boundary_complete=False
-                    if row.get('independentStealAct')==row['act']:
+                    if independent_running_act(row):
                         independent.append(dict(player=runner,episode=row['episode'],act=row['act'],start=start,end=end))
                     else:unattributed.append(row['episode'])
                 elif terminal!='safe' or end!=start:

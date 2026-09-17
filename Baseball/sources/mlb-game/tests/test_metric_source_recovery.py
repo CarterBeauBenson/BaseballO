@@ -456,6 +456,33 @@ class RecoveryTests(unittest.TestCase):
     def test_no_plan_preserves_existing_batch_behavior(self):
         self.assertEqual(recovery.tick(self.root), {"status": "idle", "deferMaterialization": False})
 
+    def test_reference_refresh_queue_is_idempotent_and_cannot_interrupt_current_work(self):
+        recovery.save(self.path,self.plan)
+        first=recovery.queue_refresh(self.root,'2026-01-01','2026-09-01')
+        second=recovery.queue_refresh(self.root,'2026-01-01','2026-09-01')
+        saved=recovery.read(self.path)
+        self.assertEqual(first['status'],'queued');self.assertEqual(second['status'],'already-queued')
+        self.assertEqual(len(saved['pendingRefreshes']),1)
+        self.assertEqual(saved['phase'],self.plan['phase']);self.assertEqual(self.nifi.calls,[])
+
+    def test_completed_batch_archived_before_queued_refresh_uses_existing_full_proof(self):
+        self.plan.update(phase='complete',awaitSqlIdle=False)
+        recovery.save(self.path,self.plan)
+        recovery.queue_refresh(self.root,'2026-01-01','2026-09-01')
+        self.plan=recovery.read(self.path);before=self.path.read_bytes()
+        self.assertEqual(self.step()['status'],'waiting-serving')
+        self.assertEqual(self.plan['startDate'],'2026-01-01')
+        self.assertEqual(Path(self.plan['previousCompletedPlan']['path']).read_bytes(),before)
+        self.assertTrue(self.plan['proofRebuildsServing']);self.assertEqual(self.nifi.calls,[])
+        self.assertEqual(self.step()['status'],'waiting-proof')
+        self.assertEqual(self.nifi.calls,[('run','proof')])
+
+    def test_reference_refresh_rejects_failed_or_invalid_request_without_replacing_plan(self):
+        self.plan['phase']='failed';recovery.save(self.path,self.plan);before=self.path.read_bytes()
+        for start,end in [('2026-01-01','2026-09-01'),('2026-09-01','2026-01-01'),('2999-01-01','2999-01-02')]:
+            with self.assertRaises(ValueError):recovery.queue_refresh(self.root,start,end)
+        self.assertEqual(self.path.read_bytes(),before)
+
     def test_read_failure_defers_dependent_work(self):
         recovery.save(self.path, self.plan)
         with patch.object(recovery.NiFi, "processor", side_effect=OSError("NiFi offline")):

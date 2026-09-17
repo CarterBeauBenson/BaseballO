@@ -39,7 +39,7 @@ ADMINISTRATIVE_EVENT_TYPES = {"game_advisory"}
 BATTED_RUNNER_RESULT_TYPES = {
     "single", "double", "triple", "home_run", "field_out", "force_out",
     "grounded_into_double_play", "double_play", "sac_fly", "sac_bunt",
-    "fielders_choice", "field_error",
+    "fielders_choice", "fielders_choice_out", "field_error",
 }
 PITCH_TYPE_CATEGORY_BY_CODE = {
     "FF": "FourSeamFastballPitchTypeICE",
@@ -910,7 +910,20 @@ def runner_metric_evidence(play: dict, at_bat_index: str, season: str) -> dict[s
     event = matches[0]
     pitches = [e for e in events if e.get("isPitch") is True]
     if result == "intent_walk":
-        if event.get("details", {}).get("eventType") != "intent_walk":
+        # The accepted non-pitch Ball awards can encode an intentional walk
+        # as four VB records rather than one eventType=intent_walk record.
+        # Require the complete counted sequence and its exact terminal join.
+        automatic = (len(events) == 4 and index == 3 and not pitches
+            and [e.get('index') for e in events] == [0, 1, 2, 3]
+            and all(e.get('isPitch') is False and e.get('type') == 'no_pitch'
+                and e.get('details', {}).get('call', {}).get('code') == 'VB'
+                and e.get('details', {}).get('isBall') is True
+                and e.get('details', {}).get('isStrike') is False
+                and e.get('count', {}).get('balls') == n
+                and e.get('count', {}).get('strikes') == 0
+                and e.get('count', {}).get('outs') == play.get('count', {}).get('outs')
+                for n, e in enumerate(events, 1)))
+        if event.get("details", {}).get("eventType") != "intent_walk" and not automatic:
             return products
     elif (not pitches or pitches[-1].get("index") != index
           or (result == "walk" and event.get("count", {}).get("balls") != 4)

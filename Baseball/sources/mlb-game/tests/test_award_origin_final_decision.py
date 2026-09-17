@@ -15,6 +15,26 @@ class FinalSourceDecisionTests(unittest.TestCase):
     def evidence(self, source, index='40', season='2026'):
         return CONTEXT.runner_metric_evidence(source, index, season)
 
+    def test_actual_intentional_walk_four_automatic_balls_keep_award_links(self):
+        source=play('823585',79)
+        selected=self.evidence(source,index='79')['awardAdvances']
+        self.assertEqual(len(selected),1)
+        self.assertEqual(selected[0]['ruleCode'],'5.05(b)(1)')
+        for fault in ('missing-record','wrong-count','actual-pitch','different-outs'):
+            changed=copy.deepcopy(source)
+            if fault=='missing-record':changed['playEvents'].pop(0)
+            elif fault=='wrong-count':changed['playEvents'][1]['count']['balls']=3
+            elif fault=='actual-pitch':changed['playEvents'][1]['isPitch']=True
+            else:changed['playEvents'][1]['count']['outs']=0
+            self.assertEqual(self.evidence(changed,index='79')['awardAdvances'],[],fault)
+
+    def test_fielders_choice_out_reuses_exact_contact_membership(self):
+        source=play('823826',35)
+        selected=CONTEXT.batted_runner_resolution_links(source,'35')
+        self.assertEqual([(r['runnerIndex'],r['resolutionKind']) for r in selected],[('0','out'),('1','reach')])
+        source['runners'][0]['details']['eventType']='caught_stealing_3b'
+        self.assertEqual([r['runnerIndex'] for r in CONTEXT.batted_runner_resolution_links(source,'35')],['1'])
+
     def test_batter_walk_hbp_and_intentional_walk(self):
         for game, index in [('566279', 4), ('823016', 54)]:
             row, = self.evidence(play(game, index))['awardAdvances']

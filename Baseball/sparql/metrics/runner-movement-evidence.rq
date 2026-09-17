@@ -11,6 +11,7 @@ SELECT DISTINCT ?graph ?game ?plateAppearance ?resolution ?act ?runner ?episode
        ?trajectory ?trajectoryHalf ?trajectoryInterval
        ?batter ?metricOrigin ?awardRule
        ?contactPlay ?award ?record ?hasSafeType ?hasOutType ?hasRunType ?independentStealAct
+       ?independentRunningProcess ?independentRunningType ?independentRunningJudgment ?independentRunningDecision
 WHERE {
   GRAPH ?graph {
     ?game a base:BaseballGame .
@@ -71,6 +72,24 @@ WHERE {
     }
     OPTIONAL {
       ?record a base:BaseballEventRecord ; cco:ont00001808 ?resolution, ?act .
+    }
+    # The owning mapping attaches this adjudicated PB/WP classification to
+    # the particular runner record. A PA-level label or a different runner's
+    # record cannot classify this movement. Values still come from its actual
+    # Safe/Run endpoint; this supplies no positive batting credit.
+    OPTIONAL {
+      VALUES (?independentRunningType ?runningJudgmentType ?runningDecisionType) {
+        (base:PassedBallProcess base:PassedBallJudgmentAct base:PassedBallDecisionICE)
+        (base:WildPitchProcess base:WildPitchJudgmentAct base:WildPitchDecisionICE)
+      }
+      ?record a base:BaseballEventRecord ;
+          cco:ont00001808 ?resolution, ?act, ?independentRunningProcess,
+              ?independentRunningJudgment, ?independentRunningDecision .
+      ?independentRunningProcess a ?independentRunningType ;
+          bfo:BFO_0000132 ?plateAppearance ; bfo:BFO_0000117 ?independentRunningJudgment .
+      ?independentRunningJudgment a ?runningJudgmentType ;
+          bfo:BFO_0000132 ?independentRunningProcess ; cco:ont00001986 ?independentRunningDecision .
+      ?independentRunningDecision a ?runningDecisionType ; cco:ont00001808 ?independentRunningProcess .
     }
     OPTIONAL {
       ?batterAct a base:BatterAct ; bfo:BFO_0000132 ?plateAppearance ; bfo:BFO_0000055 ?batterRole .

@@ -336,6 +336,21 @@ def advance(state_root, plan, nifi, release=proof_release):
     """Perform at most one dispatch; caller holds the source-local plan lock."""
     path = plan_path(state_root)
     phase = plan["phase"]
+    if phase == 'complete' and not plan.get('awaitSqlIdle') and plan.get('pendingRefreshes'):
+        # A queued reference-season refresh follows the existing full proof
+        # and backfill lifecycle. Archive completion before replacing a plan;
+        # never overwrite pending/failed work or dispatch two requests per tick.
+        previous=archive_completed_plan(path)
+        request,*remaining=plan['pendingRefreshes']
+        pointer=read(state_root/'serving/current.json')
+        fresh={k:plan[k] for k in ('sourceGroupId','sqlGroupId','sqlProcessorId','nifiApi')}
+        fresh.update(artifactType=ARTIFACT,contractVersion=1,phase='waiting-serving',createdAtUtc=now(),
+            requiredBuildId=pointer['buildId'],proofRebuildsServing=True,
+            startDate=request['startDate'],endDate=request['endDate'],refreshRequest=request,
+            pendingRefreshes=remaining,previousCompletedPlan=previous)
+        plan.clear();plan.update(fresh);save(path,plan)
+        return dict(status='waiting-serving',deferMaterialization=True,
+                    reason='Queued refresh advanced after prior batch completion; NiFi will run the current full proof')
     if phase in ("complete", "failed") and not plan.get("awaitSqlIdle"):
         return {"status": phase, "deferMaterialization": False,
                 "reason": plan.get("reason")}
@@ -539,12 +554,34 @@ def resume_obsolete_sql(state_root):
         return dict(status='queued',path=str(path),proofRunId=evidence['proofRunId'])
 
 
+def queue_refresh(state_root, start_date, end_date):
+    """Append bounded work to the existing source lane; no immediate dispatch."""
+    start=date.fromisoformat(start_date);end=date.fromisoformat(end_date)
+    if start>end or start.year<1876 or end>date.today():raise ValueError('Invalid completed-game refresh range')
+    path=plan_path(state_root)
+    with lock(path.with_suffix('.lock')):
+        plan=read(path)
+        if (plan.get('artifactType')!=ARTIFACT or plan.get('contractVersion')!=1
+                or plan.get('phase') not in {'waiting-serving','waiting-proof','ready-refresh','waiting-batch','complete'}):
+            raise ValueError('A refresh can follow only a valid active or completed source plan')
+        identity=dict(startDate=start.isoformat(),endDate=end.isoformat(),implementationSha256=serving_revision())
+        key=hashlib.sha256(json.dumps(identity,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+        if (plan.get('refreshRequest',{}).get('requestId')==key
+                or any(r.get('requestId')==key for r in plan.get('pendingRefreshes',[]))):
+            return dict(status='already-queued',requestId=key)
+        plan.setdefault('pendingRefreshes',[]).append(dict(identity,requestId=key,queuedAtUtc=now()))
+        save(path,plan)
+        return dict(status='queued',requestId=key,startDate=identity['startDate'],endDate=identity['endDate'],
+                    waitsForCurrentPhase=plan['phase'])
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--state-root", type=Path, required=True)
     mode=parser.add_mutually_exclusive_group()
     mode.add_argument("--enqueue", action="store_true")
     mode.add_argument("--resume-obsolete-sql", action="store_true")
+    mode.add_argument('--queue-refresh',action='store_true',help='Append a bounded refresh after the current source request completes')
     parser.add_argument("--required-build-id")
     parser.add_argument("--source-group-id")
     parser.add_argument("--sql-group-id")
@@ -556,7 +593,10 @@ def main():
                         help="After SQL becomes idle, let the normal proof rebuild serving even if the prior build did not promote")
     args = parser.parse_args()
     state_root = args.state_root.resolve()
-    if args.resume_obsolete_sql:
+    if args.queue_refresh:
+        if not args.start_date or not args.end_date:parser.error('--queue-refresh requires --start-date and --end-date')
+        print(json.dumps(queue_refresh(state_root,args.start_date,args.end_date)))
+    elif args.resume_obsolete_sql:
         print(json.dumps(resume_obsolete_sql(state_root)))
     elif args.enqueue:
         for field in ("required_build_id", "source_group_id", "sql_group_id", "sql_processor_id", "start_date", "end_date"):

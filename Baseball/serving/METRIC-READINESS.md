@@ -1,5 +1,13 @@
 # Nineteen public metrics: implementation and release status
 
+**Latest diagnostic:** the [shared-blocker repair](../benchmarks/metrics/dashboard-shared-blockers-2026-09-16/README.md)
+separates the now-working SQL service from player rankings. The one available
+review aggregate is not a player leaderboard. It fixes PB/WP running evidence
+consumption, fielder's-choice-out contact selection and virtual-ball intentional
+walks, with real RML/Jena/SQL proofs. Current source admissions, complete season
+references and the exact remaining attribution/defensive/review cases are
+listed there. The dashboard is not yet fully populated.
+
 Seventeen public metrics now have connected calculation and SQL serving paths.
 D1's bounded defensive projection, source conformance, promotion provenance
 and materializer are implemented; complete defensive populations and order
