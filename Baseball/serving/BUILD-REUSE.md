@@ -65,12 +65,37 @@ The materializer retains disposable per-game SPARQL SELECT answers in
 validation and atomic pointer promotion. This cache is not an admission proof,
 a source input, a materialized score, or a replacement for authoritative RDF.
 
-A cache identity contains the endpoint, exact query bytes, authoritative and
-query-index graph IRIs, promotion-manifest hash, and both promoted RDF hashes.
+A cache identity contains the endpoint, exact query bytes, and the IRIs and
+promoted RDF hashes of the graphs that query actually reads. An authoritative
+query does not depend on an unread index; an index-only query does not depend
+on unread authoritative RDF. Queries joining both retain both dependencies.
+Variable graph queries retain every graph in their explicit named dataset.
 It is usable only after the normal promotion inventory and live graph-pair
-preflight succeed. Changing a graph pair, its promotion, endpoint, or query
-invalidates that answer. An unrelated game's answers remain reusable. Each
-graph/query slot retains one version.
+preflight succeed. Changing a read graph, endpoint, or query invalidates that
+answer. Reissuing promotion evidence for identical graph contents does not.
+An unrelated game's answers remain reusable. Each graph/query slot retains one
+version; version-1 cache keys receive one cold read after this update.
+
+## Published artifacts and later ingestion attempts
+
+The MLB NiFi lane retains exact RML/index manifests and the derived index
+artifact before reusing per-game staging paths and before publishing a new
+promotion. Copies are content-addressed under each game's promotion evidence;
+identical artifacts are retained once. They contain neither raw API responses
+nor another copy of authoritative RDF. SQL resolves the exact hashes named by
+the promotion marker against these retained artifacts, so a later failed
+attempt or staging cleanup cannot invalidate the published graph's evidence.
+Official date and game type prefer that published manifest when available;
+newer unpromoted metadata cannot replace them. Fixture scoping is unchanged.
+
+Existing markers remain supported. A previously lost manifest is not invented
+or silently certified: only exact matching bytes can be retained. Corrupt copies,
+missing promotion authority, and live graph drift still fail the existing checks.
+This change requires no reingestion or new batch; the owning NiFi stages retain
+artifacts as already scheduled work runs. Existing published SQL releases adopt
+the new reader on their next normal SQL publication.
+
+## Query execution and checkpoints
 
 The parsed query algebra must confine every graph read to that graph pair.
 A variable GRAPH requires an explicit FROM NAMED dataset containing only the

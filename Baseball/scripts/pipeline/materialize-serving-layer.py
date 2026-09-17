@@ -1136,7 +1136,15 @@ def _build(args: argparse.Namespace, progress: dict[str, Any]) -> dict[str, Any]
             graph = lexical(dimension, "graph") or ""
             game = lexical(dimension, "game") or ""
             game_pk = game.rsplit("/", 1)[-1]
-            source_meta = metadata.get(game_pk, {})
+            promotion_record = inventory_by_graph.get(graph)
+            if promotion_record is None or promotion_record["gamePk"] != game_pk:
+                raise ValueError(f"Materialization escaped the validated promotion inventory: {graph}")
+            source_meta = dict(metadata.get(game_pk, {}))
+            # Prefer the published build's metadata to newer, unpromoted inputs.
+            # Fixture membership remains corpus provenance, not a game type.
+            if source_meta.get('gameSet') != 'fixture' and promotion_record.get('officialDate') and promotion_record.get('gameType'):
+                source_meta.update(officialDate=promotion_record['officialDate'],
+                                   gameSet=provenance_game_set(promotion_record['gameType']))
             official_date = source_meta.get("officialDate") or (lexical(dimension, "start") or "")[:10]
             provenance_set = source_meta.get("gameSet")
             rdf_game_set = lexical(dimension, "rdfGameSet")
@@ -1174,9 +1182,6 @@ def _build(args: argparse.Namespace, progress: dict[str, Any]) -> dict[str, Any]
                 dimension_values,
             )
             record_source_row("game_dimension", canonical_row(dimension_values))
-            promotion_record = inventory_by_graph.get(graph)
-            if promotion_record is None or promotion_record["gamePk"] != game_pk:
-                raise ValueError(f"Materialization escaped the validated promotion inventory: {graph}")
             artifact = promotion_record["authoritativeRdfSha256"]
             def scoped_sparql(query,slot):
                 return cache.query(endpoint=args.endpoint,query=query,slot=slot,promotion=promotion_record,

@@ -399,6 +399,49 @@ class ServingMaterializerTests(unittest.TestCase):
                 self.assertEqual(game["authoritativeRdfSha256"], index["sourceRdfSha256"])
                 self.assertEqual(inventory["fingerprint"], promoted_inventory["fingerprint"])
 
+    def test_retained_promotion_survives_failed_replacement_and_staging_cleanup(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            state = Path(temporary)
+            marker = make_promotion(state, '1', B966)
+            rml_path = state / 'pipeline/manifests/game-1-rml.json'
+            rml = json.loads(rml_path.read_text())
+            write_json(rml_path, {**rml, 'officialDate': '2026-08-01', 'gameType': 'R'})
+            promotion = json.loads(marker.read_text())
+            write_json(marker, {**promotion, 'rmlManifestSha256': file_sha(rml_path)})
+            before = MODULE.promotion_inventory(state)
+            retained = MODULE._promotion_inventory.retain_game_artifacts(state, '1')
+            self.assertEqual(MODULE._promotion_inventory.retain_game_artifacts(state, '1'), retained)
+            self.assertEqual(len(retained), 3)
+            # A later attempt changes metadata, then fails and loses its local
+            # files. Published evidence and its fingerprint must remain usable.
+            write_json(rml_path, {**rml, 'officialDate': '2026-09-01', 'gameType': 'S'})
+            (state / 'pipeline/manifests/game-1-query-index.json').write_text('{}')
+            (state / 'pipeline/query-index/game-1.nt').write_bytes(b'failed replacement')
+            self.assertEqual(MODULE.promotion_inventory(state), before)
+            for path in (rml_path, state / 'pipeline/manifests/game-1-query-index.json',
+                         state / 'pipeline/query-index/game-1.nt'):
+                path.unlink()
+            self.assertEqual(MODULE.promotion_inventory(state), before)
+            self.assertEqual(before['games']['1']['officialDate'], '2026-08-01')
+            self.assertEqual(before['games']['1']['gameType'], 'R')
+
+    def test_retained_bytes_do_not_bypass_corruption_or_replace_promotion_authority(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            state = Path(temporary)
+            marker = make_promotion(state, '1', B966)
+            retained = MODULE._promotion_inventory.retain_game_artifacts(state, '1')
+            for name in retained:
+                path = Path(name)
+                raw = path.read_bytes()
+                with self.subTest(path=path.suffix):
+                    path.write_bytes(b'corrupt')
+                    with self.assertRaises(ValueError):
+                        MODULE.promotion_inventory(state)
+                    path.write_bytes(raw)
+            marker.unlink()
+            with self.assertRaisesRegex(ValueError, 'No valid per-game promotion'):
+                MODULE.promotion_inventory(state)
+
     def test_inventory_does_not_admit_staged_rml_when_promoted_index_manifest_changed(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             state = Path(temporary)
@@ -589,7 +632,13 @@ class ServingMaterializerTests(unittest.TestCase):
     def test_build_emits_integrity_evidence_without_equivalence_claim(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             state = Path(temporary)
-            make_promotion(state, "1", B966)
+            marker = make_promotion(state, "1", B966)
+            rml_path = state / 'pipeline/manifests/game-1-rml.json'
+            rml = json.loads(rml_path.read_text())
+            write_json(rml_path, {**rml, 'officialDate': '2026-08-01', 'gameType': 'R'})
+            promotion = json.loads(marker.read_text())
+            write_json(marker, {**promotion, 'rmlManifestSha256': file_sha(rml_path)})
+            MODULE._promotion_inventory.retain_game_artifacts(state, '1')
             def offline_sparql(_endpoint: str, query: str, _timeout: int) -> dict[str, object]:
                 if "?rdfGameSet ?venue ?venueLabel" in query:
                     return result([dimension("1")])
@@ -609,7 +658,7 @@ class ServingMaterializerTests(unittest.TestCase):
                 patch.object(
                     MODULE,
                     "official_metadata",
-                    return_value={"1": {"gameSet": "regular_season"}},
+                    return_value={"1": {"gameSet": "preseason", "officialDate": "2026-09-01"}},
                 ),
             ):
                 evidence = MODULE.build(args)
@@ -630,6 +679,11 @@ class ServingMaterializerTests(unittest.TestCase):
                 "baseball-query-index-v3",
             )
             self.assertEqual(evidence["sourceCorpusIntegrity"]["validatedPromotionGameCount"], 1)
+            database = next((state / 'serving/builds').glob('*.sqlite'))
+            with closing(sqlite3.connect(database)) as connection:
+                self.assertEqual(connection.execute(
+                    'SELECT official_date,game_set FROM game_dimension').fetchall(),
+                    [('2026-08-01', 'regular_season')])
 
     def test_warm_build_reuses_answers_preserves_rows_and_rechecks_live_snapshot(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

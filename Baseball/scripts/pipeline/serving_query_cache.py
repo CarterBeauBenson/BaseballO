@@ -39,16 +39,19 @@ def valid_select(value):
 
 
 @lru_cache(maxsize=256)
-def scoped_query(normalized):
+def query_dependencies(normalized):
+    """Return exactly the permitted named graphs read, or None if unbounded."""
     try:
         with PARSE_LOCK:algebra=prepareQuery(normalized).algebra
-    except Exception:return False
-    if algebra.name!='SelectQuery':return False
+    except Exception:return None
+    if algebra.name!='SelectQuery':return None
     clauses=algebra.get('datasetClause')
     # CompValue.get returns its argument name when absent, unlike plain dict.
     clauses=clauses if isinstance(clauses,list) else []
     explicit_named=bool(clauses) and all('named' in c and str(c['named']) in SCOPE_IRIS for c in clauses)
-    if clauses and not explicit_named:return False
+    if clauses and not explicit_named:return None
+    dependencies=set()
+    named={str(c['named']) for c in clauses}
 
     def visit(value,inside=False):
         if isinstance(value,CompValue):
@@ -59,12 +62,17 @@ def scoped_query(normalized):
                 term=value['term']
                 if not ((isinstance(term,URIRef) and str(term) in SCOPE_IRIS)
                         or (isinstance(term,Variable) and explicit_named)):return False
+                dependencies.update(named if isinstance(term,Variable) else [str(term)])
                 return visit(value['p'],True)
             if value.name=='BGP' and value['triples'] and not inside:return False
             return all(visit(v,inside) for k,v in value.items() if k!='_vars')
         if isinstance(value,(list,tuple)):return all(visit(v,inside) for v in value)
         return True
-    return visit(algebra)
+    return frozenset(dependencies) if visit(algebra) else None
+
+
+def scoped_query(normalized):
+    return query_dependencies(normalized) is not None
 
 
 class ServingQueryCache:
@@ -93,10 +101,19 @@ class ServingQueryCache:
                     and all(c in '0123456789abcdef' for c in promotion[k]) for k in hashes))
         normalized=query.replace('<'+str(graph)+'>','<urn:baseballo:cache:authoritative>')
         normalized=normalized.replace('<'+str(index)+'>','<urn:baseballo:cache:index>')
-        if not self.enabled or not valid or not scoped_query(normalized):
+        dependencies=query_dependencies(normalized) if self.enabled and valid else None
+        if dependencies is None:
             self.count('bypassed');return fetch()
-        identity=sha(canonical(dict(version=1,endpoint=endpoint,query=query,
-            promotion={k:promotion[k] for k in (*hashes,'authoritativeGraph','queryIndexGraph')})))
+        # Promotion evidence is checked by the caller on every build. The pure
+        # SELECT answer depends on graph contents, not the date of that proof
+        # or an index graph the query never reads.
+        graph_versions={}
+        for scope,iri,digest in [('authoritative',graph,'authoritativeRdfSha256'),
+                                 ('index',index,'queryIndexRdfSha256')]:
+            if 'urn:baseballo:cache:'+scope in dependencies:
+                graph_versions[iri]=promotion[digest]
+        identity=sha(canonical(dict(version=2,endpoint=endpoint,query=query,
+                                    graphs=graph_versions)))
         try:
             with closing(sqlite3.connect(self.path,timeout=5)) as db:
                 row=db.execute('SELECT identity_sha256,payload_sha256,payload FROM scoped_answer WHERE graph=? AND slot=?',

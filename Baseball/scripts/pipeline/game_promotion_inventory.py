@@ -5,7 +5,9 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -38,6 +40,49 @@ def json_object(path: Path) -> dict[str, Any]:
     if not isinstance(value, dict):
         raise ValueError(f"Expected JSON object: {path}")
     return value
+
+
+def retained_artifact(state_root: Path, game_pk: str, digest: str, fallback: Path) -> Path:
+    """Prefer immutable published bytes to the lane's reusable staging paths."""
+    required_sha256(digest, 'retained artifact hash')
+    root = state_root / 'pipeline/evidence/nifi/game-promotion' / game_pk / 'artifacts'
+    path = root / (digest + fallback.suffix)
+    return path if path.is_file() else fallback
+
+
+def retain_game_artifacts(state_root: Path, game_pk: str) -> list[str]:
+    """Keep exact build bytes before staging reuse and before publishing.
+
+    These copies confer no authority: readers still require an existing
+    promotion marker with the exact hashes and all existing graph checks.
+    Content addressing reuses identical bytes across retries.
+    """
+    if not re.fullmatch(r'[1-9][0-9]*', game_pk):
+        raise ValueError('Invalid game identity')
+    pipeline = state_root / 'pipeline'
+    saved = []
+    for path in [pipeline / 'manifests' / f'game-{game_pk}-rml.json',
+                 pipeline / 'manifests' / f'game-{game_pk}-query-index.json',
+                 pipeline / 'query-index' / f'game-{game_pk}.nt']:
+        if not path.is_file():
+            continue
+        raw = path.read_bytes()
+        digest = sha256_bytes(raw)
+        target = pipeline / 'evidence/nifi/game-promotion' / game_pk / 'artifacts' / (digest + path.suffix)
+        if target.exists():
+            if sha256_file(target) != digest:
+                raise ValueError('Retained promotion artifact changed')
+        else:
+            target.parent.mkdir(parents=True, exist_ok=True)
+            with tempfile.NamedTemporaryFile('wb', dir=target.parent, delete=False) as stream:
+                temporary = Path(stream.name)
+                stream.write(raw)
+            try:
+                os.replace(temporary, target)
+            finally:
+                temporary.unlink(missing_ok=True)
+        saved.append(str(target))
+    return saved
 
 
 def required_sha256(value: object, label: str) -> str:
@@ -305,12 +350,14 @@ def validated_promotion_record(
         raise ValueError("promotion marker has invalid manifest references") from exc
     if rml_path != expected_rml_path or index_path != expected_index_path:
         raise ValueError("promotion marker references a manifest outside the per-game contract")
-    if not rml_path.is_file() or not index_path.is_file():
-        raise ValueError("promotion marker references a missing build manifest")
     marker_rml_sha256 = required_sha256(marker.get("rmlManifestSha256"), "promotion rmlManifestSha256")
     marker_index_sha256 = required_sha256(
         marker.get("queryIndexManifestSha256"), "promotion queryIndexManifestSha256"
     )
+    rml_path = retained_artifact(state_root, game_pk, marker_rml_sha256, rml_path)
+    index_path = retained_artifact(state_root, game_pk, marker_index_sha256, index_path)
+    if not rml_path.is_file() or not index_path.is_file():
+        raise ValueError("promotion marker references a missing build manifest")
     current_rml_sha256 = sha256_file(rml_path)
     current_index_sha256 = sha256_file(index_path)
     if current_index_sha256 != marker_index_sha256:
@@ -321,7 +368,7 @@ def validated_promotion_record(
     rml_manifest_admission_mode = "exact-promoted-manifest"
     pending_rml_replacement = current_rml_sha256 != marker_rml_sha256
     if pending_rml_replacement:
-        if not is_pending_rml_replacement(state_root, game_pk, rml):
+        if rml_path != expected_rml_path or not is_pending_rml_replacement(state_root, game_pk, rml):
             raise ValueError("promotion RML manifest hash mismatch")
         rml_manifest_admission_mode = "pending-staging-over-current-promotion"
     else:
@@ -367,9 +414,10 @@ def validated_promotion_record(
         manifest_index_artifact = Path(str(index["indexPath"])).resolve()
     except (KeyError, OSError, TypeError, ValueError) as exc:
         raise ValueError("query-index manifest has an invalid local artifact path") from exc
-    if manifest_index_artifact != expected_index_artifact or not expected_index_artifact.is_file():
+    retained_index = retained_artifact(state_root, game_pk, index_rdf_sha256, expected_index_artifact)
+    if manifest_index_artifact != expected_index_artifact or not retained_index.is_file():
         raise ValueError("query-index manifest local artifact is missing or outside its contract")
-    if sha256_file(expected_index_artifact) != index_rdf_sha256:
+    if sha256_file(retained_index) != index_rdf_sha256:
         raise ValueError("query-index local artifact hash mismatch")
     return {
         "gamePk": game_pk,
@@ -392,6 +440,8 @@ def validated_promotion_record(
         "rmlManifestAdmissionMode": rml_manifest_admission_mode,
         "rmlManifestSha256": marker_rml_sha256,
         "queryIndexManifestSha256": marker_index_sha256,
+        **({key: rml[key] for key in ('officialDate', 'gameType') if key in rml}
+           if not pending_rml_replacement else {}),
     }
 
 
@@ -551,3 +601,13 @@ def validate_game_team_season_rows(
             raise ValueError(f"game-team-season preflight does not identify distinct teams: {graph}")
         if len({row["season"] for row in graph_rows}) != 1:
             raise ValueError(f"game-team-season preflight has multiple seasons: {graph}")
+
+
+if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser(description='Retain game build artifacts for the owning NiFi lane')
+    parser.add_argument('--state-root', type=Path, required=True)
+    parser.add_argument('--retain-game-artifacts', required=True)
+    args = parser.parse_args()
+    print(json.dumps({'retainedArtifacts': retain_game_artifacts(
+        args.state_root.resolve(), args.retain_game_artifacts)}))

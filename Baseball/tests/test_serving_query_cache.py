@@ -45,17 +45,42 @@ class CacheTests(unittest.TestCase):
         self.assertEqual(self.fetch.call_count,1)
         self.assertEqual(self.cache.stats,dict(hits=2,misses=1,bypassed=0,discarded=0))
 
-    def test_every_query_and_graph_version_identity_component_invalidates(self):
+    def test_query_endpoint_and_read_graph_changes_invalidate(self):
         self.query()
         for changes in [dict(endpoint='different'),dict(query=QUERY+'\n'),
                         *[dict(promotion={**PROMOTION,key:'a'*64}) for key in
-                          ('promotionManifestSha256','authoritativeRdfSha256','queryIndexRdfSha256')]]:
+                          ('authoritativeRdfSha256',)]]:
             with self.subTest(changes=changes):
                 count=self.fetch.call_count
                 self.query(**changes);self.query(**changes)
                 self.assertEqual(self.fetch.call_count,count+1)
         with closing(sqlite3.connect(self.cache.path)) as db:
             self.assertEqual(db.execute('SELECT COUNT(*) FROM scoped_answer').fetchone()[0],1)
+
+    def test_new_promotion_and_unread_index_do_not_rerun_authoritative_query(self):
+        self.query()
+        self.assertEqual(self.query(promotion={**PROMOTION,
+            'promotionManifestSha256':'a'*64,'queryIndexRdfSha256':'b'*64}),PAYLOAD)
+        self.assertEqual(self.fetch.call_count,1)
+
+    def test_index_only_query_ignores_authoritative_change_but_not_index_change(self):
+        query=QUERY.replace(GRAPH,INDEX)
+        self.query(query=query)
+        self.query(query=query,promotion={**PROMOTION,'authoritativeRdfSha256':'a'*64})
+        self.assertEqual(self.fetch.call_count,1)
+        self.query(query=query,promotion={**PROMOTION,'queryIndexRdfSha256':'b'*64})
+        self.assertEqual(self.fetch.call_count,2)
+
+    def test_queries_reading_both_graphs_depend_on_both_versions(self):
+        queries=[f'SELECT * FROM NAMED <{GRAPH}> FROM NAMED <{INDEX}> WHERE {{ GRAPH ?g {{ ?s ?p ?o }} }}',
+                 f'SELECT * WHERE {{ GRAPH <{GRAPH}> {{ ?s ?p ?o }} OPTIONAL {{ GRAPH <{INDEX}> {{ ?s ?x ?y }} }} }}']
+        for slot,query in enumerate(queries):
+            with self.subTest(query=query):
+                before=self.fetch.call_count
+                self.query(query=query,slot=str(slot))
+                self.query(query=query,slot=str(slot),promotion={**PROMOTION,'queryIndexRdfSha256':'a'*64})
+                self.query(query=query,slot=str(slot),promotion={**PROMOTION,'authoritativeRdfSha256':'b'*64})
+                self.assertEqual(self.fetch.call_count,before+3)
 
     def test_changing_one_game_does_not_invalidate_another(self):
         other={**PROMOTION,'authoritativeGraph':GRAPH+'0','queryIndexGraph':INDEX+'0'}

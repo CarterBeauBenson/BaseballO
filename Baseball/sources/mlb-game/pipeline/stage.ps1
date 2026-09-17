@@ -127,10 +127,19 @@ function Write-StageResult([hashtable] $Values) {
     Write-Output ($result | ConvertTo-Json -Depth 16 -Compress)
 }
 
+function Retain-GameArtifacts {
+    $inventoryScript = Join-Path $repositoryRoot 'scripts\pipeline\game_promotion_inventory.py'
+    Invoke-LoggedCommand -FailureMessage "Could not retain build artifacts for game $GamePk." -Command {
+        & python $inventoryScript '--state-root' $script:StateRoot '--retain-game-artifacts' $GamePk
+    }
+}
+
 switch ($Action) {
     'rml' {
         $inputPath = Resolve-TransientInput
         [void](Read-GameDocument -Path $inputPath)
+        # A later failed attempt must not overwrite a published graph's evidence.
+        Retain-GameArtifacts
         # Preserve the source census before mapping and eventual raw cleanup.
         # Consistency is diagnostic; this never admits new metric graph facts
         # or changes the existing pinned ingester's conformance contract.
@@ -335,6 +344,8 @@ switch ($Action) {
             if (-not (Test-Path -LiteralPath $indexManifestPath -PathType Leaf)) {
                 throw "Query-index manifest is missing for game $GamePk."
             }
+            # Bind the marker to retained bytes, independent of reusable staging.
+            Retain-GameArtifacts
             $promotionRoot = Join-Path $pipelineRoot "evidence\nifi\game-promotion\$GamePk"
             $promotionPath = Join-Path $promotionRoot "$transactionRunId.json"
             $promotion = [ordered]@{
