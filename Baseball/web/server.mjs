@@ -9,7 +9,7 @@ import {
   ANALYTICS_QUERY_FAMILIES,
   compileAnalyticsQuery,
 } from "./query-builder/analytics-query-builder.js";
-import { metricCatalog, validateMetricRequest, validateDashboardRequest, compileMetricEvidenceQuery, metricDisplayTargets, compileMetricDisplayQuery, normalizeMetricDisplayLabels, labelMetricPlayers, playerLeaderboard, publicMetricResult } from './query-builder/metric-suite-query-builder.js';
+import { metricCatalog, validateMetricRequest, validateDashboardRequest, compileMetricEvidenceQuery, metricDisplayTargets, compileMetricDisplayQuery, normalizeMetricDisplayLabels, labelMetricPlayers, playerLeaderboard, publicMetricResult, dashboardReadiness } from './query-builder/metric-suite-query-builder.js';
 import {
   buildPublicDerivedMetricCatalog,
   compileDerivedMetricQuery,
@@ -843,6 +843,8 @@ export function createBaseballServer({
       leaderboard: playerLeaderboard(metric, definitions.get(metric.metricId), result.dateScope) } : metric;
     result = result.metrics ? { ...result, metrics: result.metrics.filter(metric => definitions.has(metric.metricId)).map(ranked) } :
       result.metric ? { ...result, metric: ranked(result.metric) } : result;
+    if (result.metrics) result = {...result,
+      dashboardReadiness:dashboardReadiness(result.metrics, [...definitions.keys()])};
     const subjects = (result.metrics ?? [result.metric]).filter(Boolean).flatMap(metric => [
       ...(metric.consequences ?? []),
       ...(metric.playerResults ?? []).flatMap(row => (row.graphs ?? []).map(graph => ({graph, batter:row.player}))),
@@ -941,7 +943,8 @@ export function createBaseballServer({
         } catch {
           throw new HttpFailure(503, 'serving-not-ready', 'The materialized dashboard is not ready.');
         }
-        const expected = (await metricCatalog()).metrics.map(metric => metric.id);
+        const definitions = new Map((await metricCatalog()).metrics.map(metric => [metric.id, metric]));
+        const expected = [...definitions.keys()];
         const actual = new Set(serving.metrics?.map(metric => metric.metricId));
         if (serving.execution !== 'materialized-sql' || !Number.isInteger(serving.graphCount) || serving.graphCount < 1 ||
             serving.metrics?.length !== expected.length || actual.size !== expected.length || !expected.every(id => actual.has(id))) {
@@ -949,6 +952,9 @@ export function createBaseballServer({
         }
         sendJson(response, 200, { service:'baseballo-explorer',status:'ready',readiness:'materialized-serving',
           graphCount:serving.graphCount,metricsWithScopedResults:serving.metrics.filter(metric=>metric.status==='available').length,
+          dateScope:serving.dateScope,
+          dashboardReadiness:dashboardReadiness(serving.metrics.map(metric => ({...metric,
+            leaderboard:playerLeaderboard(metric, definitions.get(metric.metricId), serving.dateScope)})), expected),
           metricCoverageIsSeparate:true });
         return;
       }

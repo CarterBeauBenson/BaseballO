@@ -2,10 +2,12 @@
 from __future__ import annotations
 
 import argparse
+from contextlib import ExitStack
 import hashlib
 import importlib.util
 import json
 import os
+import sqlite3
 import tempfile
 import unittest
 from pathlib import Path
@@ -641,15 +643,28 @@ class ServingMaterializerTests(unittest.TestCase):
                 return result([])
             args=argparse.Namespace(state_root=state,endpoint='offline',timeout=1,max_games=None,no_promote=False)
             with patch.object(MODULE,'sparql',side_effect=offline_sparql), patch.object(
-                    MODULE,'official_metadata',return_value={'1':{'gameSet':'regular_season'}}):
+                    MODULE,'official_metadata',return_value={'1':{'gameSet':'regular_season'}}), ExitStack() as stack:
+                admissions = [stack.enter_context(patch.object(module, 'promoted_admission',
+                    wraps=module.promoted_admission)) for module in (MODULE._batting_admission,
+                    MODULE._run_admission, MODULE._resolution_admission, MODULE._count_admission,
+                    MODULE._boundary_admission, MODULE._defense_admission)]
                 cold=MODULE.build(args)
                 cold_calls=len(calls);calls.clear()
-                warm=MODULE.build(args)
+                with patch.object(MODULE._metric_suite, 'game_products', side_effect=AssertionError('must reuse')):
+                    warm=MODULE.build(args)
+                self.assertTrue(all(proof.call_count == 2 for proof in admissions))
             self.assertGreater(cold_calls,len(calls))
             self.assertEqual(len(calls),6)  # Two fresh three-query source snapshots.
             self.assertGreater(warm['benchmark']['queryCache']['hits'],50)
             self.assertEqual(warm['benchmark']['queryCache']['misses'],0)
             self.assertEqual(warm['benchmark']['queryCache']['bypassed'],0)
+            self.assertEqual(cold['benchmark']['metricProductCache']['misses'],1)
+            self.assertEqual(warm['benchmark']['metricProductCache'],dict(hits=1,misses=0,bypassed=0,discarded=0))
+            def retained_metric_rows(build):
+                with sqlite3.connect(state/'serving/builds'/(build['buildId']+'.sqlite')) as db:
+                    tables = [row[0] for row in db.execute("SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'metric_suite_%'")]
+                    return {table: db.execute('SELECT * FROM '+table+' ORDER BY 1,2').fetchall() for table in tables}
+            self.assertEqual(retained_metric_rows(cold),retained_metric_rows(warm))
             self.assertEqual(cold['integrity'],warm['integrity'])
             self.assertEqual(cold['sourceCorpusIntegrity'],warm['sourceCorpusIntegrity'])
             self.assertTrue(warm['sourceCorpusIntegrity']['liveGraphStateRechecked'])

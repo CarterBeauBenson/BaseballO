@@ -70,6 +70,10 @@ _cache_spec = importlib.util.spec_from_file_location('baseballo_serving_query_ca
     ROOT / 'scripts/pipeline/serving_query_cache.py')
 _query_cache = importlib.util.module_from_spec(_cache_spec)
 _cache_spec.loader.exec_module(_query_cache)
+_metric_cache_spec = importlib.util.spec_from_file_location('baseballo_serving_metric_cache',
+    ROOT / 'scripts/pipeline/serving_metric_cache.py')
+_metric_cache = importlib.util.module_from_spec(_metric_cache_spec)
+_metric_cache_spec.loader.exec_module(_metric_cache)
 _preflight_spec = importlib.util.spec_from_file_location('baseballo_serving_preflight_queries',
     ROOT / 'scripts/pipeline/serving_preflight_queries.py')
 _preflight_queries = importlib.util.module_from_spec(_preflight_spec)
@@ -88,7 +92,7 @@ _promotion_inventory = importlib.util.module_from_spec(_promotion_spec)
 _promotion_spec.loader.exec_module(_promotion_inventory)
 _LOADED_MODULE_HASHES = {Path(module.__file__): hashlib.sha256(Path(module.__file__).read_bytes()).hexdigest()
                         for module in (_batting_admission,_run_admission,_resolution_admission,_count_admission,_boundary_admission,_defense_admission,
-                                       _query_cache,_preflight_queries,_build_guard,_promotion_inventory)}
+                                       _query_cache,_metric_cache,_preflight_queries,_build_guard,_promotion_inventory)}
 _LOADED_MODULE_HASHES[Path(__file__).resolve()] = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
 SERVING_ROOT = ROOT / "serving"
 SCHEMA = SERVING_ROOT / "schema.sql"
@@ -1039,6 +1043,8 @@ def _build(args: argparse.Namespace, progress: dict[str, Any]) -> dict[str, Any]
     progress['guard']=guard
     guard.check(completed=0,total=None,phase='source-snapshot')
     cache=_query_cache.ServingQueryCache(store_root/'query-cache.sqlite')
+    metric_cache=_metric_cache.MetricProductCache(store_root/'metric-cache.sqlite',
+        _metric_suite.calculation_fingerprint())
     started = time.perf_counter()
     snapshot_started = time.perf_counter()
     initial_snapshot = corpus_snapshot(
@@ -1173,7 +1179,8 @@ def _build(args: argparse.Namespace, progress: dict[str, Any]) -> dict[str, Any]
                 runner_resolution_admission=_resolution_admission.promoted_admission(state_root, promotion_record),
                 pitch_count_admission=_count_admission.promoted_admission(state_root, promotion_record),
                 runner_boundary_admission=_boundary_admission.promoted_admission(state_root, promotion_record),
-                defensive_admission=_defense_admission.promoted_admission(state_root, promotion_record)))
+                defensive_admission=_defense_admission.promoted_admission(state_root, promotion_record),
+                product_cache=metric_cache))
             fingerprint_lines.append(f"{graph}|{official_date}|{game_set}|{artifact}")
             query_started = time.perf_counter()
             try:
@@ -1591,6 +1598,7 @@ def _build(args: argparse.Namespace, progress: dict[str, Any]) -> dict[str, Any]
         },
         "benchmark": {
             "queryCache":dict(cache.stats),
+            "metricProductCache":dict(metric_cache.stats),
             "engine": "sqlite",
             "dsqReadOnlyWorkers": getattr(args, "dsq_workers", 2),
             "initialCorpusSnapshotMs": initial_snapshot_ms,

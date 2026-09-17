@@ -103,3 +103,43 @@ concurrency, source drift, and implementation drift. An offline one-game
 second build reuses all 62 graph queries while making all six fresh preflight
 queries; exact SQL row-preservation hashes match the cold build. This verifies
 rebuild behavior, not live corpus completion or population eligibility.
+
+## Calculated metric product reuse
+
+`serving/metric-cache.sqlite` holds one calculated product per game. The
+materializer first runs all six current `promoted_admission` readers, which
+validate proofs against the current promotion and producer implementations.
+It then normalizes the current graph-query evidence. Only after these steps
+can an exact cache hit skip `metric_suite.game_products`.
+
+The key includes the graph IRI, every normalized evidence binding, all six
+validated admission outputs in full, and a calculation fingerprint covering
+the metric implementation, schema, catalogs, policies and analytical queries.
+Any change invalidates that game's product. Unrelated games remain reusable.
+The source admission producers have a separate responsibility: their code
+hash alone does not invalidate a pure calculation when the validated inputs
+are identical. The broader serving fingerprint, build guard, release pairing
+and SQL reader checks remain in force.
+
+The cached product contains all twenty game-scope calculations and their
+defensive, contribution, recovery and PAQ-2.1 inputs. The candidate still writes
+current evidence and current proofs, retains normalized exact fractions, and
+checks every result's SQL round trip. Selected-period schedules, qualification
+and season reference populations are evaluated by the reader as before;
+game-product reuse cannot admit any of those populations.
+
+Payloads are checksum-verified, compressed and limited to 64 MiB uncompressed.
+Corruption causes recalculation. Cache I/O failure falls back to calculation;
+calculation failures are not cached. One row per graph prevents accumulation
+of superseded versions. Connections close after each operation. Build evidence
+records `benchmark.metricProductCache` hits, misses, bypasses and discards
+separately from the SPARQL cache statistics.
+
+Focused tests in `test_serving_metric_cache`, `test_metric_suite_serving` and
+`test_serving_materializer` prove exact cold/warm equality, invalidation of
+every proof input, evidence and calculation identity, corruption recovery,
+unchanged-game reuse and successful retry after a failed calculation. The
+materializer integration test checks that a warm build calls all six admission
+readers again, makes both fresh live graph snapshots, preserves every metric
+SQL row, and never invokes the cached calculation. This is a developer proof,
+not a claim about full-corpus speed or dashboard population readiness.

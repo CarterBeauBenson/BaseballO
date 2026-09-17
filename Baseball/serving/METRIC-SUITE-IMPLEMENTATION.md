@@ -1,198 +1,78 @@
-# Graph-native metric suite implementation
+# Metric dashboard implementation
 
-**Presentation and SQL verification (2026-09-14):** the demonstration day now
-has all 1,567 observed runner/episode/record bindings and serves TFS, Offensive
-Reach and Adjudication Volatility from SQL. The page shows names, exact values,
-partial-result scope and response dates; rates display as percentages, counts
-as counts. Changing a selection immediately invalidates the displayed result
-and download, and late responses cannot overwrite the new selection.
-The [live captures and inspected screenshots](../benchmarks/metrics/presentation-2026-09-14/README.md)
-record 16 passing Node tests, two source-scope tests and a real desktop/mobile
-browser regression. Scoring kernels, source mappings and eligibility policies
-are unchanged; the remaining metric evidence gaps are not declared closed.
+Current release status and remaining work are maintained in
+[METRIC-READINESS.md](METRIC-READINESS.md). This document describes the active
+implementation. Earlier dated results remain in the immutable
+[metric benchmarks](../benchmarks/metrics/) and Git history.
 
-**Offensive Reach live consequence (2026-09-09):** the real Explorer API now
-returns **4** for the same supported award consequence whose TFS is 25/12.
-Both metrics preserve the same four advances and evidence. The new display
-uses a trajectory count and its own math; whole-PA and population values remain
-gated. See the [contract and HTTP proof](METRIC-SUITE.md#live-offensive-reach-consequence).
-The 22 Python and 11 Node tests passed, along with the generator drift check.
-They cover both metrics' shared rejection behavior, duplicate
-handling, SQL round trips, date scopes and distinct UI units.
+## Data and ownership
 
-**Coverage expansion submitted (2026-09-09):** TFS now includes per-game
-movement coverage in the API, SQL result and Explorer. The live API verifies
-118 jointly supported movements out of 1,567 observed across the 15-game day.
-The existing NiFi lane has received a bounded day-refresh request and the
-required proof refresh; the latter is necessary because the last completed
-proof predates accepted C1 validation. Completion is not claimed. The
-[coverage contract and receipts](METRIC-SUITE.md#per-game-evidence-coverage-and-bounded-refresh)
-record the evidence and pending work. This increment passed 21 Python and ten
-Node tests, including exact per-game reconciliation, separate incomplete
-observations, empty evidence and SQL round trips.
+The accepted lifecycle is API -> RML -> SHACL -> Fuseki -> queries -> SQL -> UI.
+NiFi owns acquisition, source validation, promotion, serving builds and retry.
+The graph remains authoritative; SQL, query caches and calculated-product
+caches are disposable derived data.
 
-**First usable TFS consequence (2026-09-09):** game 823016, PA source index 40
-now returns **25/12 (2.08)** for the positively supported bases-loaded Walk
-consequence through the real Explorer API. The page displays its four advances,
-math and evidence. Complete PA and population TFS remain unavailable. The
-[contract and limits](METRIC-SUITE.md#first-live-award-consequence) and
-[immutable HTTP capture](../benchmarks/metrics/loaded-award-823016-2026-09-09.json)
-record the result. Focused checks passed: 19 Python tests and nine Node tests,
-including missing/conflicting evidence, duplicate handling, exact SQL round
-trip, date selection, request rejection and the API/UI result contract.
+| Component | Responsibility |
+| --- | --- |
+| `sources/mlb-game/` | Source-owned RML, SHACL and promotion-bound admission proofs |
+| `sparql/metrics/` | Evidence queries, calculation kernels, catalog and accepted metric policies |
+| `serving/metric_suite.py` | Exact calculations, evidence consumers, per-game products and selected-period player summaries |
+| `serving/metric-suite-schema.sql` | Evidence, current proofs, exact results and their hashes |
+| `scripts/pipeline/materialize-serving-layer.py` | Validated graph snapshot, immutable SQL candidate, integrity checks and atomic publication |
+| `scripts/pipeline/serving_release.py` | Committed code capture and matching SQL reader release |
+| `scripts/pipeline/serving_query_cache.py` | Exact SELECT reuse for unchanged promoted graph pairs |
+| `scripts/pipeline/serving_metric_cache.py` | Per-game calculation reuse for identical evidence, current validated proofs and calculation code |
+| `web/query-builder/metric-suite-query-builder.js` | Request validation, accepted qualification, exact ranking and dashboard coverage report |
+| `web/server.mjs` and `web/metrics.js` | Read-only API, optional names, automatic top-five cards and expanded details |
 
-**Current end-to-end status (2026-09-09):** all 20 live metric HTTP routes have
-been exercised over the selected 15-game day, including the real Python
-reducer and authoritative fallback. The latest pass fixed a missed browser
-query integration and an empty-scope timeout. The
-[route audit](../benchmarks/metric-suite-route-audit-2026-09-09.json) records
-every result. The [current release review](../proposals/graph-native-metric-suite-batch-review/current-release-review.md)
-accounts for all remaining gap codes and separates settled decisions from
-new modeling/evidence work. This is a complete software/route audit, not a
-claim that the 19 gated metrics have valid live scores or that the asynchronous
-whole-corpus SQL build has completed.
+## Build and read contracts
 
-The user requested the complete software suite with unresolved semantics
-collected for one review. The implementation must return unavailable values
-with reasons when graph evidence cannot support a score. Existing PAQ-1 and
-Empty Game behavior remain separately versioned.
+Every build checks current source proofs, even on cache hits. The metric cache
+skips pure calculation only. It never copies admission authority from an older
+build. Evidence and proofs are written into the new candidate, all twenty
+metric products round-trip through exact SQL, and final graph/promotion and
+integrity checks still precede publication.
 
-Work checklist:
+Calculation reuse has a separate fingerprint from source admission. A producer
+edit with identical validated outputs need not invalidate a calculation. A
+changed proof, evidence binding, game identity or calculation input invalidates
+that game's cached product. The broader serving manifest and immutable code
+release still bind the reader to the entire admitted implementation. See
+[BUILD-REUSE.md](BUILD-REUSE.md) for failure and retention behavior.
 
-- [x] Versioned catalog of 20 metrics and one register of 21 shared requirements.
-- [x] Canonical SPARQL calculation kernels for every specified metric.
-- [x] Exact rational calculation, cohort and aggregate support.
-- [x] Existing-term RDF evidence extraction with explicit admission limits.
-- [x] Rebuildable SQL products, provenance and equivalence checks.
-- [x] Existing serving pipeline and read-only API integration.
-- [x] Explorer metric suite, definitions, evidence and unavailable reasons.
-- [x] Focused calculation, data-boundary, SQL, API and UI-code verification.
-- [x] Consolidated handoff with remaining gaps; no individual approval stops.
+A selected-period query applies complete schedule, source, eligibility and
+player participation requirements. Season-percentile metrics additionally
+require the independently complete reference season. Per-game caches cannot
+establish either population. Fractions stay exact until display; entropy
+retains its exact channel counts and explicitly approximate numeric evaluation.
 
-No new ontology assertions, Mermaid changes, Git operations or source-lane
-topology changes are included in this implementation scope.
+## Public presentation
 
-## Delivered
+There are 19 public metrics and one backend role metric. Cards rank players
+using selected-period averages, except Empty Games, which shows a game count.
+The approved PA and other participation minimums are applied server-side.
+Traditional and ball/strike review mechanisms retain separate populations.
 
-The [calculation contract](METRIC-SUITE.md) documents the formulas, exact
-representation, reducers, graph admission and serving interfaces. The
-[single batch review](../proposals/graph-native-metric-suite-batch-review/README.md)
-collects the remaining questions. No individual gap needs a separate software
-implementation turn just to expose its metric or unavailable reason.
+`dashboardReadiness` accompanies shared dashboard responses and the service
+health check. It counts qualified player boards, complete populations and
+complete-but-empty populations separately. A passing service health check or
+an available scoped aggregate cannot establish that the dashboard is populated.
 
-The local Explorer was refreshed at `http://127.0.0.1:4173/metrics`; its
-catalog, stylesheet, script and read-only API routes are available. Only the
-Explorer Node process was restarted. NiFi and the acquisition schedule were
-left running; the existing NiFi materialize stage will build the new SQL
-products. No manual corpus rebuild or source-proof polling was performed.
+The legacy Explorer's PAQ-1 and Empty Games calculations remain separately
+versioned. Their historical formulas and route-admission status do not define
+the new dashboard metrics.
 
-All 20 arithmetic implementations and generic SQL value persistence are
-tested. **This does not mean all 20 metrics have valid live scores.** AV has
-an existing-evidence adapter scoped to explicitly resolved mapped reviews.
-Complete-population results for the other 19 remain unavailable with named
-prerequisites. TFS and Offensive Reach additionally expose bounded award-consequence
-results described above, without dropping those broader requirements.
+## Focused engineering checks
 
-## Focused validation on 2026-09-08
+From `Baseball/tests`, run the affected Python component modules with
+`python -B -m unittest <module>`. Calculation reuse is covered by
+`test_serving_metric_cache`, `test_metric_suite_serving` and
+`test_serving_materializer`: cold/warm equality, exact large fractions,
+independent proof invalidation, corruption recovery, repeat admission checks,
+current graph checks and preservation of the prior pointer on failure.
 
-100 tests passed across the changed components and directly affected existing
-serving/Explorer behavior:
-
-| Check | Tests |
-| --- | ---: |
-| `tests/test_graph_native_metric_suite.py` | 16 |
-| `tests/test_metric_suite_serving.py` | 8 |
-| `web/tests/metric-suite.test.mjs` | 7 |
-| `tests/test_sparql_source_scopes.py` | 2 |
-| `tests/test_serving_materializer.py` | 21 |
-| `tests/test_serving_layer.py` | 12 |
-| `web/tests/analytics-query-builder.test.mjs` | 34 |
-
-The generator drift check also passed. Changed Python entry points parse.
-The Node tests used `--preserve-symlinks --preserve-symlinks-main` because
-Windows sandbox path resolution otherwise returned EPERM; the tests themselves
-were unchanged for that environment constraint.
-
-The tests include all 20 SPARQL kernels, fifteen accepted TFS scenarios, exact
-ties and large fractions, cohort and unknown handling, defensive cycles,
-entropy components, every metric's SQL round trip, direct RDF-to-SQL review
-rate equivalence, partition replacement, stale/corrupt SQL, API input rejection,
-fallback behavior and existing PAQ-1 routes.
-
-The [immutable live smoke capture](../benchmarks/metric-suite-2026-09-08.json)
-records a read-only check over the latest loaded day, 2026-08-25: 15 promoted
-games and 12,368 evidence rows. TFS returned its expected five shared blockers.
-AV returned exact **13/23**, from 13 overturning dispositions among 23 resolved
-mapped reviews. That population is explicit; it is not a claim of complete
-league-wide review coverage. The live route used authoritative RDF fallback
-because a new NiFi-owned SQL build has not yet been demonstrated.
-
-Browser visual inspection could not run because neither a connected browser
-nor the in-app browser was available. HTTP delivery, accessibility markup,
-safe text rendering, precision display, interaction state and route behavior
-were checked in code. Visual appearance remains unverified.
-
-These are focused developer checks, not a replacement for NiFi's asynchronous
-Repository Evidence gate or the pending one-game semantic proof.
-
-## Follow-up: accepted batch answers
-
-Suite calculation version 2.0.1 incorporates the named September 8 answers.
-The accepted policy is recorded before its engineering consequences in
-`archive/design-records/metric-suite-batch-answers-2026-09-08/`.
-Empty Game Rate now requires at least one PA; CPD uses play/channel identities;
-role breadth filters to the four accepted kinds; and PAQ-2.1 population selection
-distinguishes known inapplicability from missing evidence. Independent damage
-has an exact helper for runner destruction plus surviving-teammate erosion.
-Run-support definitions include the scoring runner's own contributions.
-
-The retained actual-end-state erosion example is tested at -1/4. Additional
-cases cover zero-PA exclusion, repeated beneficiaries, four acts by two agents,
-two run contributors, generic role-parent exclusion and PAQ-2.1 completeness.
-
-Focused follow-up validation passed 38 tests: 23 calculation tests, 8 SQL and
-evidence tests, and 7 Explorer/API tests. The generator drift check passed.
-The earlier 100-test report and immutable live capture above describe the
-initial implementation; they were not rerun or rewritten as this follow-up.
-
-The central gap register now distinguishes accepted meaning from remaining
-graph evidence. Coaching, speed availability, replay research and preliminary
-field selection are documented in the active batch review. Positive running
-weights, speed-based error attribution, interference credit and the PAQ-A
-comparison boundary remain unresolved. No additional live adapter is admitted
-by these calculation changes.
-
-## End-to-end serving closure on September 9
-
-The browser fallback previously compiled only `suite-evidence.rq`, while the
-Python SQL extractor also compiled `runner-movement-evidence.rq`. Both now
-compose the same accepted queries with an explicitly restricted named dataset.
-A cross-runtime regression checks their complete query text for empty, single
-and multiple/duplicate graph selections. Source evidence is still obtained
-from Fuseki; HTTP callers cannot provide facts or admission flags.
-
-An empty date selection exposed a separate Jena timeout: a query with no
-selected graphs could scan the broader dataset before applying its false
-filter. Empty scopes now compile to an expression with no graph pattern,
-verified to return no rows in both RDFLib and the live API. Explorer startup
-now includes the metric query builder in its source fingerprint, so stale
-loaded JavaScript is detected and refreshed by the existing launcher.
-
-Validation passed 11 Python serving tests and 8 Node metric/API tests. The
-live audit exercised all 20 metric routes over 2026-08-25: 15 promoted games
-and 1,567 observed movement pairs. AV returned exact 13/23; the other 19
-returned their declared gaps and null values. The empty-selection check
-returned zero games/evidence rows and no score in 0.742 seconds. The local
-Explorer was refreshed at `http://127.0.0.1:4173/metrics`.
-
-The browser automation runtime failed to start, so a new visual screenshot
-check remains unavailable. HTTP assets, page structure, request behavior and
-the data feeding the coverage display were verified; no visual inspection is
-claimed.
-
-The earlier one-game NiFi proof passed source SHACL and graph-pair promotion.
-Recorded materialization retries rejected a changed metric implementation
-and a changed authoritative graph during older builds. Those consistency
-checks remain intact. Current whole-corpus SQL completion is not claimed;
-NiFi owns its asynchronous execution, retries, quarantine and serving pointer.
-The live route audit explicitly used authoritative RDF fallback.
+From `Baseball/web`, the supported Node 24 runtime runs
+`node --test tests/metric-suite.test.mjs tests/runtime-safety.test.mjs` for
+qualification, dashboard coverage, API delivery and service health behavior.
+NiFi's Repository Evidence observer owns the aggregate repository gate.
+These developer checks do not certify a populated production release.

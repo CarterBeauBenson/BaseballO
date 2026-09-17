@@ -28,6 +28,25 @@ umpire call, replay review, runner movement, and scoring result connected. That
 makes it possible to ask across the whole play instead of relying only on the
 columns chosen when a statistics table was created.
 
+## Metric dashboard
+
+The local dashboard is at `http://127.0.0.1:4173/metrics`. It automatically
+loads the selected date range and shows qualified player rankings, with cards
+that open into details. Values are player averages over that range, except
+Empty Games, which is a game count.
+
+**The dashboard is not yet fully populated.** There are 19 public metrics;
+17 have conditional player producers and two review integrations remain
+unfinished. A passing SQL build or health check does not mean the player
+rankings are available. The dashboard API reports populated cards, complete
+populations and remaining gaps separately.
+
+Use the [current metric readiness table](Baseball/serving/METRIC-READINESS.md)
+for remaining work and verified evidence, and the
+[implementation guide](Baseball/serving/METRIC-SUITE-IMPLEMENTATION.md) for
+component ownership. NiFi owns refreshes and publication; current machine-local
+serving evidence determines what is live.
+
 ## What is different from a normal stat table?
 
 | Normal baseball stat table | BaseballO |
@@ -46,14 +65,16 @@ incapable. The point is that BaseballO makes the connections and baseball
 meanings part of the shared model instead of rebuilding them separately for
 every new analysis.
 
-## A reviewed prototype: Empty Games
+## Legacy Explorer prototype: Empty Games
 
 BaseballO includes an **Empty Games** prototype: games in which a player
 appeared as a batter but recorded no qualifying offensive contribution under
-the current completeness-gated policy. The calculation is still being refined;
-it must not be presented as a final published statistic.
+its original completeness-gated policy. This separately versioned Explorer
+prototype is retained for reproducibility. Its formula is not the new metric
+dashboard's Empty Games definition, which excludes positive credit for
+fielder's choices and errors and displays a game count.
 
-This is not simply "games with zero hits." The current definition checks for:
+This is not simply "games with zero hits." The legacy definition checks for:
 
 - singles, doubles, triples, and home runs;
 - walks;
@@ -170,8 +191,10 @@ The implementation uses Apache NiFi for orchestration, RML to map source
 records, SHACL to check source graph structure, and Apache Jena Fuseki/TDB2 to
 store the authoritative RDF. The current workstation keeps the high-volume RDF
 store on guarded external storage. SQLite holds rebuildable analytical grains;
-only Plate Appearance Quality/Good At Bat is currently admitted to SQL-backed
-Explorer serving, while pending families continue to use authoritative SPARQL.
+the legacy Explorer currently admits only Plate Appearance Quality/Good At Bat
+to SQL-backed serving, while pending Explorer families use authoritative
+SPARQL. The new metric dashboard has its own SQL route and per-metric population
+gates, described in the readiness table above.
 A baseball user does not need to know those technologies to use the Explorer.
 
 ## A possible product end state

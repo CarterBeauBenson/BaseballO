@@ -1,0 +1,2 @@
+# Local browser/runtime diagnostics; preserve the file without publishing it.
+/debug.log

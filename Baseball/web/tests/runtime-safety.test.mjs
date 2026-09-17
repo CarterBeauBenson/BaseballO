@@ -120,6 +120,10 @@ test('readiness requires all metric identities in nonempty materialized serving,
     assert.equal(response.status,200);
     const payload=await response.json();
     assert.equal(payload.metricsWithScopedResults,1);assert.equal(payload.metricCoverageIsSeparate,true);
+    assert.equal(payload.dashboardReadiness.ready,false);
+    assert.equal(payload.dashboardReadiness.expectedLeaderboards,19);
+    assert.equal(payload.dashboardReadiness.populatedLeaderboards,0);
+    assert.equal(payload.dashboardReadiness.unavailableLeaderboards,19);
     assert.equal((await (await fetch(url+'/health/live')).json()).nodeVersion,process.version);
   });
 });

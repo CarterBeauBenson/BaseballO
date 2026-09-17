@@ -3,6 +3,7 @@ import importlib.util
 import json
 from pathlib import Path
 import sqlite3
+import tempfile
 import unittest
 from unittest.mock import patch
 from rdflib import Dataset, Namespace, RDF
@@ -100,6 +101,23 @@ def database():
 
 
 class MetricServing(unittest.TestCase):
+    def test_cached_rdf_products_match_direct_sql_and_do_not_recalculate(self):
+        cache_spec = importlib.util.spec_from_file_location('metric_cache', ROOT/'scripts/pipeline/serving_metric_cache.py')
+        cache_module = importlib.util.module_from_spec(cache_spec); cache_spec.loader.exec_module(cache_module)
+        evidence = bindings(pitch_review_fixture(), [G1])
+        scope = dict(startDate='2026-08-01',endDate='2026-08-01',gameSet='regular_season')
+        with tempfile.TemporaryDirectory() as temporary, database() as conn:
+            M.materialize_game(conn, G1, evidence)
+            expected = M.query_sql(conn, {'view':'dashboard'}, scope)
+            cache = cache_module.MetricProductCache(Path(temporary)/'metric.sqlite', M.calculation_fingerprint())
+            M.materialize_game(conn, G1, evidence, product_cache=cache)
+            with patch.object(M, 'game_products', side_effect=AssertionError('must reuse')):
+                # Normalization removes exact duplicates and input order changes.
+                M.materialize_game(conn, G1, list(reversed(evidence))+evidence, product_cache=cache)
+            self.assertEqual(M.query_sql(conn, {'view':'dashboard'}, scope), expected)
+            self.assertEqual(cache.stats['hits'], 1)
+            self.assertEqual(cache.stats['misses'], 1)
+
     def test_asserted_pitch_reviews_reach_sql_without_inference_or_duplicate_counts(self):
         data = pitch_review_fixture()
         original_bindings = bindings(data, [G1])

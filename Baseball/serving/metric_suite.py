@@ -25,7 +25,7 @@ from rdflib import Graph, Literal
 
 ROOT = Path(__file__).resolve().parents[1]
 METRICS = ROOT / 'sparql/metrics'
-VERSION = '2.0.37'
+VERSION = '2.0.38'
 
 
 class EvidenceError(ValueError):
@@ -71,6 +71,22 @@ def fingerprint():
     return hashlib.sha256('\n'.join(
         p.relative_to(ROOT).as_posix() + ':' + hashlib.sha256(p.read_bytes()).hexdigest()
         for p in paths).encode()).hexdigest()
+
+
+def calculation_fingerprint():
+    """Identity for pure per-game calculations, separate from source admission.
+
+    Source producers still validate current promotion-bound proofs on every
+    build. Their returned inputs, including withholding reasons, enter the
+    product cache key in full. Editing a producer alone cannot change a pure
+    calculation over identical validated inputs. The serving manifest retains
+    the broader fingerprint above, as do the build guard and SQL reader.
+    """
+    paths = [Path(__file__), ROOT / 'serving/metric-suite-schema.sql',
+             *sorted(METRICS.glob('*.json')), *sorted(METRICS.glob('*.rq'))]
+    paths.extend(ROOT / e['authoritativeQuery'] for e in [*catalog()['metrics'], *catalog().get('components', [])])
+    return _hash('\n'.join(p.relative_to(ROOT).as_posix() + ':' + hashlib.sha256(p.read_bytes()).hexdigest()
+                           for p in sorted(set(paths))))
 
 
 def exact(value: Fraction | int):
@@ -2752,9 +2768,31 @@ def read_results(connection, graph, metric_id):
     return results
 
 
+def game_products(rows, graph, *, batting_admission=None, scoring_run_admission=None,
+                  runner_resolution_admission=None, pitch_count_admission=None,
+                  runner_boundary_admission=None, defensive_admission=None):
+    """Pure calculation over normalized evidence and already validated inputs."""
+    defense = defensive_game_inputs(rows, graph=graph, admission=defensive_admission or {})
+    contribution_inputs = contribution_game_inputs(rows, graph=graph, batting_admission=batting_admission or {},
+        runner_resolution_admission=runner_resolution_admission or {}, runner_boundary_admission=runner_boundary_admission or {})
+    recovery_inputs = recovery_game_inputs(rows, graph=graph,
+        batting_admission=batting_admission or {}, pitch_count_admission=pitch_count_admission or {})
+    joined_paq21 = paq21_game_inputs(contribution_inputs, recovery_inputs, defense)
+    evaluation = _EvidenceEvaluation(rows, 1)
+    results = {}
+    for entry in catalog()['metrics']:
+        result = live_result(entry['id'], rows, graph_count=1, _evaluation=evaluation)
+        if entry['id'] == 'resolution-depth': result['defensiveInputs'] = defense
+        if entry['id'] == 'paq-2.1': result['paq21Inputs'] = joined_paq21
+        if entry['id'] == 'tfs': result['contributionInputs'] = contribution_inputs
+        if entry['id'] == 'recovery-quality': result['recoveryInputs'] = recovery_inputs
+        results[entry['id']] = result
+    return results
+
+
 def materialize_game(connection, graph, bindings, *, batting_admission=None, scoring_run_admission=None,
                      runner_resolution_admission=None, pitch_count_admission=None, runner_boundary_admission=None,
-                     defensive_admission=None):
+                     defensive_admission=None, product_cache=None):
     rows = normalize_bindings(bindings, [graph])
     connection.execute('DELETE FROM metric_suite_evidence WHERE graph_iri=?', (graph,))
     connection.execute('DELETE FROM metric_suite_result WHERE graph_iri=?', (graph,))
@@ -2778,23 +2816,20 @@ def materialize_game(connection, graph, bindings, *, batting_admission=None, sco
     defensive_proof_text = _json(defensive_admission or {'status':'withheld'})
     connection.execute('INSERT OR REPLACE INTO metric_suite_defensive_admission VALUES (?,?,?)',
                        (graph, defensive_proof_text, _hash(defensive_proof_text)))
-    defense=defensive_game_inputs(rows,graph=graph,admission=defensive_admission or {})
-    contribution_inputs=contribution_game_inputs(rows,graph=graph,batting_admission=batting_admission or {},
-        runner_resolution_admission=runner_resolution_admission or {},runner_boundary_admission=runner_boundary_admission or {})
-    recovery_inputs=recovery_game_inputs(rows,graph=graph,
-        batting_admission=batting_admission or {},pitch_count_admission=pitch_count_admission or {})
-    joined_paq21=paq21_game_inputs(contribution_inputs,recovery_inputs,defense)
-    evaluation = _EvidenceEvaluation(rows, 1)
+    admissions = dict(batting_admission=batting_admission, scoring_run_admission=scoring_run_admission,
+        runner_resolution_admission=runner_resolution_admission, pitch_count_admission=pitch_count_admission,
+        runner_boundary_admission=runner_boundary_admission, defensive_admission=defensive_admission)
+    def compute():
+        return game_products(rows, graph, **admissions)
+    products = (product_cache.calculate(graph=graph, rows=rows, admissions=admissions, compute=compute)
+                if product_cache is not None else compute())
+    if set(products) != {entry['id'] for entry in catalog()['metrics']}:
+        raise EvidenceError('Metric product inventory mismatch')
     for row in rows:
         text = _json(row)
         connection.execute('INSERT INTO metric_suite_evidence VALUES (?,?,?)', (graph, _hash(text), text))
     for entry in catalog()['metrics']:
-        result = live_result(entry['id'], rows, graph_count=1, _evaluation=evaluation)
-        if entry['id']=='resolution-depth':result['defensiveInputs']=defense
-        if entry['id']=='paq-2.1':result['paq21Inputs']=joined_paq21
-        if entry['id']=='tfs':result['contributionInputs']=contribution_inputs
-        if entry['id']=='recovery-quality':
-            result['recoveryInputs']=recovery_inputs
+        result = products[entry['id']]
         store_result(connection, graph, entry['id'], 'game-scope', result)
         # Verify exact serialized result, not rounded display values. Per-game
         # proofs do not admit incomplete season percentiles.

@@ -8,6 +8,15 @@ engine change possible if columnar workloads demonstrate a benefit.
 
 The analytical fact rows are derived from persistent authoritative RDF. The
 database is operationally persistent but is never a source of truth.
+
+The **19-card metric dashboard** has its own evidence, exact result and
+admission tables in `metric-suite-schema.sql`. Its current status is maintained
+in [METRIC-READINESS.md](METRIC-READINESS.md), with component ownership in
+[METRIC-SUITE-IMPLEMENTATION.md](METRIC-SUITE-IMPLEMENTATION.md). The PAQ-1,
+DSQ and legacy Explorer route-admission rules below describe a separate
+versioned surface. Neither surface's build success establishes complete
+qualified-player results for the other.
+
 `materialize-serving-layer.py`
 queries bounded authoritative game graphs, validates promotion evidence, live
 graph-pair identity, SQLite integrity, foreign keys, and retained binding
@@ -20,7 +29,8 @@ end-to-end SPARQL-to-SQL result equivalence. A failed build leaves the prior
 pointer unchanged.
 
 NiFi builds reuse exact SELECT answers for unchanged validated graph pairs
-and stop at implementation checkpoints when their inputs change. The
+and calculated metric products for identical evidence and current validated
+proofs. They stop at implementation checkpoints when their inputs change. The
 [build reuse contract](BUILD-REUSE.md) describes cache identity, corruption
 recovery, progress evidence, and the unchanged final promotion checks.
 

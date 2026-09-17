@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { createBaseballServer } from '../server.mjs';
-import { metricCatalog, validateMetricRequest, validateDashboardRequest, compileMetricEvidenceQuery, metricDisplayTargets, compileMetricDisplayQuery, normalizeMetricDisplayLabels, labelMetricPlayers, automaticMinimumPA, automaticMinimumObservations, playerLeaderboard, playerSummaryValue, publicMetricResult } from '../query-builder/metric-suite-query-builder.js';
+import { metricCatalog, validateMetricRequest, validateDashboardRequest, compileMetricEvidenceQuery, metricDisplayTargets, compileMetricDisplayQuery, normalizeMetricDisplayLabels, labelMetricPlayers, automaticMinimumPA, automaticMinimumObservations, playerLeaderboard, playerSummaryValue, publicMetricResult, dashboardReadiness } from '../query-builder/metric-suite-query-builder.js';
 import { displayFraction, resultHeadline, movementEvidenceLabel, consequencePresentation, runMetricPresentation, formatMetricValue, resultPresentation, resultDateLabel, selectionFromUrl, displayPlayer, exampleAnswer, dashboardSummary, matchesMetric, metricRanking, dashboardLoadStatus, unresolvedRunRows } from '../metrics.js';
 
 test('unresolved runs keep their identities and explain the actual evidence problem', () => {
@@ -39,6 +39,27 @@ function playerScore(id, numerator, extras = {}) {
     sum:{numerator:String(BigInt(row.value.numerator)*25n),denominator:row.value.denominator}};
   return row;
 }
+
+test('dashboard readiness counts qualified player cards, separating empty populations and aggregate scores', () => {
+  const result = {metricId:'tfs', status:'available', playerPopulationComplete:true, playerResults:[playerScore(1,2)]};
+  const ranked = value => ({...value,leaderboard:playerLeaderboard(value,leaderboardMetric,leaderboardScope)});
+  assert.equal(dashboardReadiness([ranked(result)], ['tfs']).ready, true);
+  const below = dashboardReadiness([ranked({...result,playerResults:[playerScore(1,2,{plateAppearances:1})]})], ['tfs']);
+  assert.equal(below.ready,false); assert.equal(below.completePopulations,1); assert.equal(below.emptyLeaderboards,1);
+  const missing = dashboardReadiness([ranked({...result,playerPopulationComplete:false,playerSummaryGaps:['CURRENT_PROOF_REQUIRED']})], ['tfs','paq-2']);
+  assert.equal(missing.populatedLeaderboards,0); assert.equal(missing.unavailableLeaderboards,2);
+  assert.ok(missing.cards[0].gaps.includes('CURRENT_PROOF_REQUIRED'));
+  assert.ok(missing.cards[1].gaps.includes('MISSING_METRIC_RESULT'));
+  assert.equal(dashboardReadiness([ranked(result),ranked(result)], ['tfs']).ready,false);
+});
+
+test('partly populated review mechanisms cannot report a complete dashboard', () => {
+  const report = dashboardReadiness([{metricId:'review-dependence-rate',leaderboard:{status:'available',rows:[{}],
+    groups:[{mechanism:'traditional-replay',status:'available',rows:[{}]},
+      {mechanism:'ball-strike-review',status:'unavailable',rows:[],gaps:['COMPLETE_PLAYER_SCORES']}]}}], ['review-dependence-rate']);
+  assert.equal(report.populatedLeaderboards,1); assert.equal(report.completePopulations,0);
+  assert.equal(report.ready,false); assert.equal(report.cards[0].mechanisms[1].status,'unavailable');
+});
 
 test('selected-range means use exact sums and counts, never a supplied total or mean of daily means', () => {
   assert.deepEqual(playerSummaryValue({kind:'mean',sum:{numerator:'7',denominator:'3'},count:2},'tfs'),
@@ -192,6 +213,9 @@ test('dashboard applies qualification server-side to trusted player aggregates',
     const response = await fetch(url + '/api/metrics/dashboard', { method: 'POST', body: JSON.stringify({ dateScope: { preset: 'one_day' } }) });
     const body = await response.json(); assert.equal(response.status, 200);
     assert.deepEqual(body.metrics[0].leaderboard.rows.map(row => row.name), ['Player 2']);
+    assert.equal(body.dashboardReadiness.populatedLeaderboards,1);
+    assert.equal(body.dashboardReadiness.expectedLeaderboards,19);
+    assert.equal(body.dashboardReadiness.ready,false);
     const injected = await fetch(url + '/api/metrics/dashboard', { method: 'POST', body: JSON.stringify({ playerResults: [playerScore(1, 999)] }) });
     assert.equal(injected.status, 400);
   });

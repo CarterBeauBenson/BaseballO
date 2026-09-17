@@ -258,7 +258,8 @@ def serving_revision():
     spec=importlib.util.spec_from_file_location('mlb_recovery_metric_fingerprint',path)
     module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
     paths=[BASEBALL_ROOT/'scripts/pipeline'/name for name in
-           ('materialize-serving-layer.py','serving_query_cache.py','serving_preflight_queries.py','serving_build_guard.py','serving_release.py')]
+           ('materialize-serving-layer.py','serving_query_cache.py','serving_metric_cache.py',
+            'serving_preflight_queries.py','serving_build_guard.py','serving_release.py')]
     inputs={str(p.relative_to(BASEBALL_ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
     inputs['metric-suite']=module.fingerprint()
     return hashlib.sha256(json.dumps(inputs,sort_keys=True,separators=(',',':')).encode()).hexdigest()

@@ -143,6 +143,33 @@ export function playerLeaderboard(result, metric, dateScope, mechanism = null) {
     message: rows.length ? `${rows.length} qualified players` : 'No players meet the automatic participation minimum for this period.' };
 }
 
+export function dashboardReadiness(metrics, expectedIds) {
+  // Consume the same qualified boards shown by the UI. Aggregate scores and
+  // successful SQL delivery alone are not evidence of populated player cards.
+  const cards = expectedIds.map(metricId => {
+    const matches = metrics.filter(metric => metric.metricId === metricId);
+    const metric = matches.length === 1 ? matches[0] : null;
+    const board = metric?.leaderboard;
+    const groups = board?.groups ?? [board];
+    const populationComplete = groups.length > 0 && groups.every(group =>
+      ['available', 'empty'].includes(group?.status));
+    const qualifiedRows = board?.status === 'available' ? board.rows?.length ?? 0 : 0;
+    return {metricId, status:qualifiedRows ? 'populated' : populationComplete ? 'no-qualifiers' : 'unavailable',
+      populationComplete, qualifiedRows,
+      gaps:[...new Set([...(metric?.playerSummaryGaps ?? []), ...(board?.gaps ?? []),
+        ...(metric ? [] : [matches.length ? 'DUPLICATE_METRIC_RESULT' : 'MISSING_METRIC_RESULT'])])],
+      ...(board?.groups ? {mechanisms:board.groups.map(group => ({mechanism:group.mechanism,
+        status:group.status, qualifiedRows:group.rows?.length ?? 0, gaps:group.gaps ?? []}))} : {})};
+  });
+  const populatedLeaderboards = cards.filter(card => card.status === 'populated').length;
+  const completePopulations = cards.filter(card => card.populationComplete).length;
+  return {expectedLeaderboards:expectedIds.length, populatedLeaderboards, completePopulations,
+    emptyLeaderboards:cards.filter(card => card.status === 'no-qualifiers').length,
+    unavailableLeaderboards:cards.filter(card => card.status === 'unavailable').length,
+    ready:expectedIds.length > 0 && populatedLeaderboards === expectedIds.length && completePopulations === expectedIds.length,
+    cards};
+}
+
 export function metricDisplayTargets(consequences = []) {
   const targets = new Map();
   for (const row of consequences) {
