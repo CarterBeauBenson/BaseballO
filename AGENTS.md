@@ -26,6 +26,7 @@
 ## Project guardrails
 
 - The user is the ontologist. Do not modify files under `Baseball/ontology/` unless the user explicitly requests an ontology change. Report ontology gaps for the user to decide.
+- Ontology class totals are diagnostic, not a fixed quota or upper limit. Do not reject the user's ontology additions merely because the number of classes changes; validate their modeling and annotations instead.
 - Do not create new object properties. Reuse accepted BFO/CCO relations and model the full supported pattern; when that is insufficient, document the gap. Agreement with a natural-language description does not authorize a new predicate. The user clarified this prohibition on 2026-09-09 after identifying the four runner properties as a misunderstanding. Renaming those relations into an index namespace does not resolve the underlying semantic gap.
 - Use free and open-source infrastructure. The intended pipeline stack is Apache NiFi and Apache Jena Fuseki/TDB2.
 - Never rewrite raw source bytes. Preserve the existing checked-in evidence corpus unchanged. New API responses are transient pipeline inputs: retain their hashes and manifests, remove their raw JSON only after successful graph-pair promotion, and retain failed inputs only for quarantine and retry.

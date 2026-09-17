@@ -205,7 +205,8 @@ class OntologyCurationTests(unittest.TestCase):
 
     def test_current_repository_matches_frozen_debt_exactly(self) -> None:
         summary = CURATION.validate_curation()
-        self.assertEqual(summary.local_class_count, 272)
+        # The ontologist may add classes; their total is diagnostic, not a gate.
+        # validate_curation checks each class against the curation contract.
         self.assertEqual(summary.frozen_debt_count, 3)
         self.assertEqual(summary.local_object_property_count, 0)
         self.assertEqual(summary.local_datatype_property_count, 0)
