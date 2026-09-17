@@ -1,0 +1,79 @@
+{
+  "artifactType": "baseballo-t1-nifi-reingestion-submission",
+  "contractVersion": 1,
+  "implementationCommit": "0c2363a09451",
+  "startedAtUtc": "2026-09-17T16:57:35.011659+00:00",
+  "processorId": "5e89e2f4-01a0-1000-4b06-fcf9b197942f",
+  "processorName": "Proof Request",
+  "requests": [
+    {
+      "gamePk": "822753",
+      "request": {
+        "gamePk": "822753",
+        "materializeMode": "deferred",
+        "scheduleEvidencePath": "none"
+      },
+      "submittedAtUtc": "2026-09-17T16:57:44.462667+00:00",
+      "requestAcknowledged": true,
+      "flowFileGenerated": true,
+      "confirmedAtUtc": "2026-09-17T16:57:51.394616+00:00",
+      "flowFilesOut": 1
+    },
+    {
+      "gamePk": "823302",
+      "request": {
+        "gamePk": "823302",
+        "materializeMode": "deferred",
+        "scheduleEvidencePath": "none"
+      },
+      "submittedAtUtc": "2026-09-17T16:57:51.812479+00:00",
+      "requestAcknowledged": true,
+      "flowFileGenerated": true,
+      "confirmedAtUtc": "2026-09-17T16:57:52.012299+00:00",
+      "flowFilesOut": 2
+    },
+    {
+      "gamePk": "823532",
+      "request": {
+        "gamePk": "823532",
+        "materializeMode": "deferred",
+        "scheduleEvidencePath": "none"
+      },
+      "submittedAtUtc": "2026-09-17T16:57:52.062346+00:00",
+      "requestAcknowledged": true,
+      "flowFileGenerated": true,
+      "confirmedAtUtc": "2026-09-17T16:57:52.327593+00:00",
+      "flowFilesOut": 3
+    },
+    {
+      "gamePk": "823631",
+      "request": {
+        "gamePk": "823631",
+        "materializeMode": "deferred",
+        "scheduleEvidencePath": "none"
+      },
+      "submittedAtUtc": "2026-09-17T16:57:52.795326+00:00",
+      "requestAcknowledged": true,
+      "flowFileGenerated": true,
+      "confirmedAtUtc": "2026-09-17T16:57:52.994124+00:00",
+      "flowFilesOut": 4
+    },
+    {
+      "gamePk": "823740",
+      "request": {
+        "gamePk": "823740",
+        "materializeMode": "deferred",
+        "scheduleEvidencePath": "none"
+      },
+      "submittedAtUtc": "2026-09-17T16:57:53.130937+00:00",
+      "requestAcknowledged": true,
+      "flowFileGenerated": true,
+      "confirmedAtUtc": "2026-09-17T16:57:53.777616+00:00",
+      "flowFilesOut": 5
+    }
+  ],
+  "originalConfigurationRestored": true,
+  "productionPromotionVerified": false,
+  "note": "Five bounded requests use the existing API -> RML -> source SHACL -> graph-pair lane. SQL remains owned by the existing pending batch; no new season batch or quarantine replay plan is created.",
+  "finishedAtUtc": "2026-09-17T16:57:54.614936+00:00"
+}

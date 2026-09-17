@@ -47,3 +47,9 @@ full proof artifacts are in `%TEMP%/baseballo-t1-proof-20260917/`. Those are
 isolated developer evidence, not production promotion markers. NiFi must run
 its normal source validation, graph-pair promotion and batch materialization.
 The aggregate repository gate remains NiFi-owned and asynchronous.
+
+At 16:57 UTC, NiFi acknowledged and generated five bounded re-ingestion
+requests through its existing `Proof Request` processor. Its original
+configuration was restored. `nifi-submission.json` records each receipt; it
+does not claim completed production promotion or dashboard publication.
+The existing batch owns SQL refresh. No new season batch was submitted.
