@@ -17,12 +17,19 @@ DSQ and legacy Explorer route-admission rules below describe a separate
 versioned surface. Neither surface's build success establishes complete
 qualified-player results for the other.
 
-Metric suite 2.1 stores indexed participation and analytical observations for
-the selected-period reader, with exact final arithmetic in the server. NiFi
-also prepares complete season reference ranks. See the
+The required design executes SPARQL and accepted metric calculations in NiFi
+before publication, stores prepared results in SQL, and serves the interface
+through indexed SQL reads and lightweight range aggregation. Graph-query
+timeouts and expensive metric processing must stay off the page-load path.
+
+Metric suite 2.1 currently stores indexed participation and analytical
+observations for the selected-period reader, with final arithmetic and some
+population/rank work still in the server. NiFi prepares game products and
+complete season reference ranks. This is partial implementation, not completion
+of the [required serving design](METRIC-SUITE-IMPLEMENTATION.md#required-serving-design). See the
 [SQL building-block contract](METRIC-SUITE-IMPLEMENTATION.md#sql-building-blocks-and-final-arithmetic)
-for table grains, integrity checks and diagnostic coverage. This removes graph
-reconstruction from dashboard requests without relaxing population admission.
+for table grains, integrity checks and diagnostic coverage. Further request-path
+simplification belongs in SQL serving; it does not require source remapping.
 
 `materialize-serving-layer.py`
 queries bounded authoritative game graphs, validates promotion evidence, live

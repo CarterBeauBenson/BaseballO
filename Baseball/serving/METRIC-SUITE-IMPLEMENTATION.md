@@ -22,6 +22,35 @@ limits manual checks to the edited behavior and leaves repeatable validation
 to NiFi. This is an operating rule, not a claim that the current source-recovery
 code already supports targeted additions.
 
+## Required serving design
+
+Existing RDF -> SPARQL answers and metric calculations during the NiFi build
+-> prepared SQL results -> interface reads.
+
+Keep the authoritative RDF as the stable research record. SPARQL answers the
+analytical questions over that record; NiFi performs graph work and accepted
+metric calculations before publishing the SQL product. SQL must retain usable
+results, not merely move raw graph bindings to a different store and repeat
+the expensive processing when a user opens the page. Selected-range requests
+may filter and aggregate prepared SQL rows and format the response. They must
+not run live SPARQL, reconstruct game histories, repeat pipeline validation,
+or calculate an entire reference-season population. This separation is the
+reason for SQL serving: users should not wait on graph-query timeouts.
+
+The current version 2.1 implementation below only partially fulfills that
+design. It prepares game products and some season ranks, but the reader still
+pools observation records, performs population checks, and calculates ranks
+for historical cutoffs on demand. That remaining work is a serving-layer
+performance gap, not a reason to regenerate RDF. Lightweight SQL aggregation
+over prepared results remains appropriate for selected date ranges.
+
+An unhandled case in an existing MLB field belongs to that source lane's
+mapping-coverage debt. It does not establish a new source, and successful
+ingestion does not establish complete API mapping. Record the exact missing
+facts separately; any authorized correction must stay targeted.
+
+## Current component ownership
+
 | Component | Responsibility |
 | --- | --- |
 | `sources/mlb-game/` | Source-owned RML, SHACL and promotion-bound admission proofs |
@@ -70,6 +99,9 @@ batch provenance; SQL stores the selected snapshot's hash. This calendar-only
 repair does not change source game admission fingerprints or restart mapping.
 
 ## SQL building blocks and final arithmetic
+
+This section describes current code, including the remaining request-time
+work identified above; it is not the definition of the required end state.
 
 Version 2.1 projects the existing accepted evidence once during the NiFi build.
 The request reader selects these reusable observations instead of loading raw

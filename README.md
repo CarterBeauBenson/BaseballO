@@ -48,10 +48,15 @@ component ownership. NiFi owns refreshes and publication; current machine-local
 serving evidence determines what is live.
 
 Metric and query-performance work starts from the existing promoted graph:
-SPARQL supplies analytical inputs, SQL retains derived results, and the UI
-presents them. It does not initiate source reingestion or an RDF rebuild.
-Missing facts are documented separately and any authorized addition stays
-targeted. The [operating policy](AGENTS.md#incremental-work-and-minimal-manual-validation)
+NiFi runs SPARQL and metric calculations ahead of requests, SQL retains their
+prepared results, and the UI reads them with date filters and lightweight SQL
+aggregation. The purpose is to remove expensive graph queries and repeated
+metric processing from page loads. This is the required serving design;
+the [implementation guide](Baseball/serving/METRIC-SUITE-IMPLEMENTATION.md#required-serving-design)
+identifies remaining request-time work. It does not initiate source reingestion
+or an RDF rebuild. Missing facts are documented separately and any authorized
+addition stays targeted. A missed case in an already ingested field is mapping
+coverage debt, not a new source. The [operating policy](AGENTS.md#incremental-work-and-minimal-manual-validation)
 assigns semantics to the ontology, mapping to RML, conformance to SHACL, and
 routine execution and validation to NiFi.
 

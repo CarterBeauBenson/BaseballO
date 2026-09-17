@@ -114,6 +114,14 @@ source profiles, attribution policies and participation minima remain enforced.
 
 ## Delivery order
 
+The required result is prepared SQL answers served quickly to the interface.
+NiFi runs SPARQL and metric calculations over existing RDF before publication.
+The reader still performs observation pooling, population checks, and some
+historical-cutoff ranking; moving expensive work out of requests is a remaining
+serving task. The [implementation guide](METRIC-SUITE-IMPLEMENTATION.md#required-serving-design)
+separates that gap from RDF mapping coverage. Neither storing inputs in SQL
+nor completing a source refresh proves fast dashboard delivery.
+
 On September 17 the user corrected the scope: metric/SQL work must reuse the
 existing graph and source additions must remain targeted. The user subsequently
 allowed the already running batch `2e0062c6ccff4630840108858425ed4f` to finish.
