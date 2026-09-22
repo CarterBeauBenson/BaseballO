@@ -69,6 +69,12 @@ The MLB Game lane executes the unchanged source SHACL profile with Apache Jena
 and permits two validation tasks. Query-index construction also uses Apache
 Jena, but against the validated per-game RDF in an isolated in-memory dataset;
 the checked-in CONSTRUCT queries are unchanged. Only the completed index graph
-is written to the shared dataset, by one promotion task. The existing
+is written to the shared dataset. Two promotion tasks share the existing NiFi
+queue; the existing graph-store write lock serializes writes. `game-lock.ps1`
+excludes simultaneous stages for the same game while allowing different games
+to proceed together. Windows releases the lock handle when a worker exits,
+including after a crash. Before a new promotion, the existing graph-pair
+recovery routine restores an uncommitted pair or completes a marked promotion.
+The existing
 authoritative/index row-equivalence gate still runs for every game before the
 graph-pair transaction commits and cleanup becomes eligible.

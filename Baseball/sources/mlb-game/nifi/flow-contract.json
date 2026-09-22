@@ -35,7 +35,7 @@
     "queryIndex": {
       "engine": "jena",
       "source": "validated-per-game-rdf",
-      "concurrentTasks": 1,
+      "concurrentTasks": 2,
       "constructContract": "unchanged",
       "finalGraphWrite": "serialized"
     }

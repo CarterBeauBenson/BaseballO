@@ -532,7 +532,7 @@ $processors.put = Ensure-Processor -GroupId $groupId -Name 'Write Transient Payl
 }
 $processors.rml = Ensure-StageProcessor -GroupId $groupId -Name 'RML' -Action 'rml' -NeedsInput $true -X 2240 -Y 0
 $processors.shacl = Ensure-StageProcessor -GroupId $groupId -Name 'Source SHACL' -Action 'shacl' -NeedsInput $false -X 2560 -Y 0 -ConcurrentTasks 2
-$processors.promote = Ensure-StageProcessor -GroupId $groupId -Name 'Promote Graph Pair' -Action 'promote' -NeedsInput $true -X 2880 -Y 0
+$processors.promote = Ensure-StageProcessor -GroupId $groupId -Name 'Promote Graph Pair' -Action 'promote' -NeedsInput $true -X 2880 -Y 0 -ConcurrentTasks 2
 $processors.emit = Ensure-StageProcessor -GroupId $groupId -Name 'Emit Promoted Graph Event' -Action 'emit' -NeedsInput $false -X 3200 -Y 0
 $processors.chooseMaterialization = Ensure-Processor -GroupId $groupId -Name 'Choose Materialization Mode' -Type 'org.apache.nifi.processors.standard.RouteOnAttribute' -X 3440 -Y 0 -AutoTerminate @() -Properties @{
     'Routing Strategy' = 'Route to Property name';

@@ -80,6 +80,25 @@ class GraphPairTransactionTests(unittest.TestCase):
             self.assertEqual(manifest["state"], "committed")
             self.assertIsNotNone(store.get(names["authoritative"]))
 
+    def test_recovery_restores_interrupted_game_without_touching_other_game(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            run = "d" * 32
+            names = transaction.graph_names("4")
+            other = transaction.graph_names("5")["authoritative"]
+            before = {
+                names["authoritative"]: b"<urn:a> <urn:p> <urn:old> .\n",
+                names["index"]: b"<urn:i> <urn:p> <urn:old> .\n",
+                other: b"<urn:other> <urn:p> <urn:value> .\n",
+            }
+            store = MemoryStore(before)
+            transaction.prepare(store, root, "4", run)
+            store.put(names["authoritative"], b"<urn:a> <urn:p> <urn:new> .\n")
+            result = transaction.recover(store, root, "4")
+            self.assertEqual(result["restoredRuns"], [run])
+            self.assertEqual(store.graphs, before)
+            self.assertEqual(transaction.recover(store, root, "4")["restoredRuns"], [])
+
 
 if __name__ == "__main__":
     unittest.main()

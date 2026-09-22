@@ -134,6 +134,9 @@ function Retain-GameArtifacts {
     }
 }
 
+. (Join-Path $PSScriptRoot 'game-lock.ps1')
+$gameLock = Enter-MlbGameLock -StateRoot $script:StateRoot -GamePk $GamePk
+try {
 switch ($Action) {
     'rml' {
         $inputPath = Resolve-TransientInput
@@ -318,6 +321,11 @@ switch ($Action) {
         $load = Join-Path $repositoryRoot 'scripts\pipeline\load-game-graph.ps1'
         $index = Join-Path $repositoryRoot 'scripts\pipeline\build-query-index.ps1'
         $prepared = $false
+        # Resume after a process or machine crash before taking a new snapshot.
+        # The game lock excludes another worker from recovering an active run.
+        Invoke-LoggedCommand -FailureMessage "Could not recover interrupted promotion for game $GamePk." -Command {
+            & python $transaction '--state-root' $script:StateRoot '--game-pk' $GamePk '--action' 'recover'
+        }
         try {
             Invoke-LoggedCommand -FailureMessage "Could not prepare graph-pair transaction for game $GamePk." -Command {
                 & python $transaction '--state-root' $script:StateRoot '--game-pk' $GamePk '--run-id' $transactionRunId '--action' 'prepare'
@@ -505,4 +513,8 @@ switch ($Action) {
         Write-AtomicJsonFile -Path $failurePath -Value $failure -Depth 12
         Write-Output ($failure | ConvertTo-Json -Depth 12 -Compress)
     }
+}
+}
+finally {
+    $gameLock.Dispose()
 }

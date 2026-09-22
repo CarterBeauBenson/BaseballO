@@ -234,7 +234,7 @@ class NifiSourceContractTests(unittest.TestCase):
         self.assertEqual(execution["sourceShacl"]["concurrentTasks"], 2)
         self.assertEqual(execution["sourceShacl"]["shapeContract"], "unchanged")
         self.assertEqual(execution["queryIndex"]["engine"], "jena")
-        self.assertEqual(execution["queryIndex"]["concurrentTasks"], 1)
+        self.assertEqual(execution["queryIndex"]["concurrentTasks"], 2)
         self.assertEqual(execution["queryIndex"]["constructContract"], "unchanged")
 
     def test_transactions_use_source_owned_jena_shacl_without_shape_changes(self) -> None:

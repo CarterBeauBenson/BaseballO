@@ -65,10 +65,12 @@ NiFi then runs one serving-layer materialization for the ready batch. A bounded
 proof still materializes immediately.
 
 The MLB Game group uses two Apache Jena workers for its unchanged source SHACL
-profile. Its single promotion worker constructs the unchanged query-index
-SPARQL locally over each validated game graph, then serializes only the final
-graph-store write. This prevents index construction from competing with the
-shared dataset while retaining the graph-pair and per-game equivalence gates.
+profile. Two promotion workers consume the same queue without duplicating
+FlowFiles. Each constructs the unchanged query-index SPARQL locally over its
+validated game graph; graph-store writes retain the existing write lock.
+A source-owned per-game lock keeps stages from modifying the same game's files
+or graph pair concurrently. Promotion recovers an interrupted transaction before
+starting another one. Graph-pair and per-game equivalence checks are unchanged.
 
 ## Provisioning and submission
 
