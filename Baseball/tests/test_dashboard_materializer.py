@@ -102,6 +102,31 @@ class DashboardMaterializer(unittest.TestCase):
         with closing(sqlite3.connect(self.working())) as db:
             self.assertEqual(db.execute('SELECT count(*) FROM dashboard_checkpoint').fetchone()[0],2)
 
+    def test_compatibility_metadata_reuses_old_checkpoints_but_actual_admission_changes_recalculate(self):
+        old=dict(status='withheld',implementationReuse={'recordSha256':'old-record'})
+        new=dict(status='withheld',implementationReuse={'recordSha256':'extended-record'})
+        with patch.object(D.ADMISSION_EVIDENCE,'load',return_value=old):D.build(self.args)
+        with closing(sqlite3.connect(self.working())) as db,db:
+            for dimension in self.snapshot['live']['dimensions']:
+                graph=D.SOURCE.lexical(dimension,'graph');promotion=self.snapshot['inventory']['games'][graph.rsplit('/',1)[-1]]
+                legacy=D.input_identity(promotion,D.dimension_values(dimension,promotion,{}),
+                    {name:old for name in D.ADMISSIONS},D.METRICS.calculation_fingerprint(),legacy=True)
+                db.execute('UPDATE dashboard_checkpoint SET input_sha256=? WHERE graph_iri=?',(legacy,graph))
+        self.fetched.clear()
+        with patch.object(D.ADMISSION_EVIDENCE,'load',return_value=new),patch.object(D.METRICS,'materialize_game',
+                side_effect=AssertionError('Metadata is not a new calculation')):
+            result=D.build(self.args)
+        self.assertEqual((result['changedGames'],result['reusedGames']),(0,2))
+        self.assertEqual(self.fetched,[])
+        with closing(sqlite3.connect(self.working())) as db:
+            for table in D.ADMISSION_TABLES.values():
+                self.assertEqual([json.loads(r[0]) for r in db.execute(f'SELECT proof_json FROM {table}')],[new,new])
+        def change_one(adapter,state,promotion,family):
+            return {**new,'status':'admitted'} if promotion['gamePk']=='101' else new
+        with patch.object(D.ADMISSION_EVIDENCE,'load',side_effect=change_one):result=D.build(self.args)
+        self.assertEqual((result['changedGames'],result['reusedGames']),(1,1))
+        self.assertEqual(self.fetched,['101'])
+
     def test_source_change_preserves_work_but_cannot_publish(self):
         D.build(self.args); old = self.pointer()
         changed = copy.deepcopy(self.snapshot); changed['fingerprint'] = 'changed-during-build'

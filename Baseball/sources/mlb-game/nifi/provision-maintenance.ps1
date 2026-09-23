@@ -8,7 +8,7 @@ $control = Join-Path $script:StateRoot 'pipeline\control\mlb-game'
 [void](New-Item -ItemType Directory -Force -Path $control)
 $config = Join-Path $control 'admission-worker.json'
 @{
-    group='MLB Game'; name='Refresh Admission Evidence'; period='5 min'
+    group='MLB Game'; name='Refresh Admission Evidence'; period='1 min'
     workingDirectory=$repositoryRoot; python=(Get-Command python).Source
     arguments=@('-B',(Join-Path $repositoryRoot 'sources\mlb-game\pipeline\admission-evidence.py'),
         '--state-root',$script:StateRoot,'--java',(Get-JavaExecutable),

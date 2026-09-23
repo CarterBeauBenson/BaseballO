@@ -63,6 +63,17 @@ authorized by either list.
    Q4/Q5 establish actual batting participation; they do not independently
    assign ambiguous official PA credit. Keep that distinction when fixing the
    adapter or recording the exact remaining graph contract gap.
+
+   Follow-through: all four retained manifests contain exactly one actual
+   batter per turn, matching every member in the retained B1 census; every
+   player's independent PA total already reconciles. The checker had rejected
+   substitution records despite this complete single-batter evidence. The
+   source-owned maintenance worker now compares these exact retained source
+   projections and runs the unchanged B1 SHACL over a read-only export of the
+   promoted game. It preserves the original failed proof and publishes a
+   separate adapter-versioned result. Multiple actual batters, unsupported
+   context revisions, mismatched player totals or graph failures remain
+   withheld. This is awaiting its NiFi result, not a live admission claim.
 3. Resolve the independent retained count, runner-boundary and defensive
    failures by their owning stage. The latest day has four admitted count
    proofs and three admitted boundary proofs after compatible reuse. The
@@ -70,6 +81,12 @@ authorized by either list.
    award attribution. Do not equate those issues with absent provider fields.
 4. Complete the two review-player integrations from supported graph inputs;
    then verify named player rows and expanded details for all 19 cards.
+
+The dashboard now updates code-compatibility provenance separately from game
+calculations. Existing checkpoints migrate only when their full old identity
+matches the stored proofs and the same RDF, dimensions and calculation version.
+Changes to outcomes or original proof contents still recalculate the affected
+game. A compatibility-record edit alone does not reprocess the season.
 
 ## Earlier release evidence
 

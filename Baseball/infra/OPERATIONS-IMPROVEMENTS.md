@@ -129,6 +129,26 @@ remaining latest-day PA blockers are now recorded in
 [`METRIC-READINESS.md`](../serving/METRIC-READINESS.md#next-work-from-the-september-23-live-check).
 No later publication incorporating the proof-reuse fixes is claimed here.
 
+The subsequent B1 repair consumes the retained, source-owned participation
+inventory and B1 census for the exact promoted input. Four latest-day games
+were rejected by the older substitution-position heuristic although all
+turns have one recorded actual batter and all independent player totals
+reconcile. Maintenance now runs the unchanged B1 shape for these candidates
+against a bounded read-only export of their existing graph. It retains the
+original withholding and emits a new proof with a separate adapter fingerprint,
+source dependencies, export hash and Jena report. No source response is
+reacquired and no authoritative triple is written. Ambiguous/multiple batters,
+other source discrepancies and graph disagreements remain withheld.
+
+Admission maintenance checks once per minute, with one JVM validation per tick,
+the existing memory guard and single worker. It prioritizes the latest published
+dashboard day before historical games. This does not change daily acquisition
+or the 15-minute batch schedule. Dashboard checkpoints now distinguish changes
+to compatibility provenance from actual proof, RDF and calculation inputs;
+metadata-only updates preserve prepared scores and historical reference ranks.
+Focused checks passed: nine evidence-reader/retained-input checks and seven
+dashboard publication/checkpoint checks. Live new admissions are still pending.
+
 Focused checks covered authority recovery, queued readiness, exited-worker
 reconciliation, exact cache reuse and corruption fallback, SQL-only names,
 historical-rank equivalence, independent SHACL reports with a shared graph,

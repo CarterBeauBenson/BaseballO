@@ -12,6 +12,8 @@ import tempfile
 import os
 import argparse
 from datetime import datetime, timezone
+from types import SimpleNamespace
+import sqlite3
 
 HERE=Path(__file__).resolve().parent
 ROOT=HERE.parents[2]
@@ -36,6 +38,9 @@ def atomic(path,value):
     finally: tmp.unlink(missing_ok=True)
 
 
+RETAINED_BATTING=module(HERE/'retained-batting-evidence.py','retained_batting_evidence')
+
+
 def checked_marker(promotion):
     path=Path(promotion['promotionManifest'])
     if sha(path)!=promotion['promotionManifestSha256']: raise ValueError('Promotion marker changed')
@@ -43,7 +48,8 @@ def checked_marker(promotion):
 
 
 def fingerprint():
-    return hashlib.sha256(Path(__file__).read_bytes()+COMPATIBILITY_PATH.read_bytes()).hexdigest()
+    return hashlib.sha256(Path(__file__).read_bytes()+COMPATIBILITY_PATH.read_bytes()
+        +RETAINED_BATTING.fingerprint().encode()).hexdigest()
 
 
 def code_equivalence(family,previous,current):
@@ -159,6 +165,11 @@ def refreshed(state,promotion,family,implementation):
 
 
 def load(adapter,state,promotion,family):
+    if family=='batting':
+        proof=refreshed(state,promotion,family,RETAINED_BATTING.fingerprint())
+        if proof is not None:
+            checked_marker(promotion)
+            return proof
     proof=refreshed(state,promotion,family,adapter.fingerprint())
     if proof is not None:
         checked_marker(promotion)
@@ -168,7 +179,7 @@ def load(adapter,state,promotion,family):
     return adapter.promoted_admission(state,promotion)
 
 
-def refresh_game(state,promotion,java,classpath):
+def refresh_game(state,promotion,java,classpath,endpoint='http://127.0.0.1:3031/baseball-dev/query'):
     marker=checked_marker(promotion)
     adapters={family:module(HERE/(family+'-admission.py'),'refresh_'+family.replace('-','_')) for family in FIELDS}
     versions={family:adapter.fingerprint() for family,adapter in adapters.items()}
@@ -177,6 +188,15 @@ def refresh_game(state,promotion,java,classpath):
         and refreshed(state,promotion,family,versions[family]) is None]
     result=dict(gamePk=promotion['gamePk'],promotionManifestSha256=promotion['promotionManifestSha256'],
         diagnostics=diagnostics,refreshed=[],rdfChanged=False)
+    if refreshed(state,promotion,'batting',RETAINED_BATTING.fingerprint()) is None:
+        api=SimpleNamespace(**globals())
+        retained=RETAINED_BATTING.source_census(api,state,promotion)
+        if retained is not None:
+            memory=module(ROOT/'scripts/pipeline/process_state.py','retained_batting_memory').available_memory()
+            if memory is not None and memory<1536*1024*1024:
+                return dict(result,status='waiting-for-memory',availableMemoryBytes=memory)
+            proof=RETAINED_BATTING.prove(api,state,promotion,retained,java,classpath,endpoint)
+            return dict(result,status='refreshed',refreshed=['batting'],battingStatus=proof['status'])
     if not pending: return dict(result,status='current')
     manifest_path=retained_manifest(state,marker,promotion['gamePk'])
     if not manifest_path.is_file() or sha(manifest_path)!=marker.get('rmlManifestSha256'):
@@ -209,12 +229,26 @@ def refresh_game(state,promotion,java,classpath):
     return dict(result,status='refreshed')
 
 
-def tick(state,java,classpath,limit=100):
+def latest_dashboard_games(state):
+    """Current viewer work first; this reads only an existing SQL dimension."""
+    pointer=Path(state)/'serving/dashboard-current.json'
+    if not pointer.is_file():return set()
+    database=Path(read(pointer)['databasePath'])
+    if not database.resolve().is_relative_to((Path(state)/'serving/dashboard/builds').resolve()):
+        raise ValueError('Dashboard priority database escaped its owner')
+    with sqlite3.connect(database.as_uri()+'?mode=ro',uri=True) as connection:
+        return {r[0] for r in connection.execute("SELECT game_pk FROM game_dimension WHERE game_set='regular_season' "
+            "AND official_date=(SELECT max(official_date) FROM game_dimension WHERE game_set='regular_season')")}
+
+
+def tick(state,java,classpath,limit=100,endpoint='http://127.0.0.1:3031/baseball-dev/query'):
     control=Path(state)/'pipeline/control/mlb-game/admission-evidence'
     versions={family:module(HERE/(family+'-admission.py'),'version_'+family.replace('-','_')).fingerprint() for family in FIELDS}
     version=hashlib.sha256(json.dumps(versions,sort_keys=True).encode()+fingerprint().encode()).hexdigest()
     outcomes=[]
-    for directory in sorted((Path(state)/'pipeline/evidence/nifi/game-promotion').glob('*')):
+    priority=latest_dashboard_games(state)
+    for directory in sorted((Path(state)/'pipeline/evidence/nifi/game-promotion').glob('*'),
+            key=lambda p:(p.name not in priority,p.name)):
         if not directory.is_dir() or not directory.name.isdigit(): continue
         candidates=[(read(path).get('promotedAtUtc',''),path.name,path) for path in directory.glob('*.json')]
         if not candidates: continue
@@ -239,7 +273,7 @@ def tick(state,java,classpath,limit=100):
                 promotion=dict(gamePk=directory.name,promotionManifest=str(path),promotionManifestSha256=marker_sha,
                     rawSha256=marker['rawSha256'],authoritativeGraph=marker['authoritativeGraph'],
                     authoritativeRdfSha256=manifest['outputSha256'])
-                result.update(refresh_game(state,promotion,java,classpath))
+                result.update(refresh_game(state,promotion,java,classpath,endpoint))
         except (OSError,ValueError,RuntimeError) as error:
             result.update(status='failed',error=str(error))
         atomic(destination,result);outcomes.append(result)
@@ -261,5 +295,6 @@ def tick(state,java,classpath,limit=100):
 if __name__=='__main__':
     parser=argparse.ArgumentParser()
     for key in ('state-root','java','jena-classpath'): parser.add_argument('--'+key,required=True,type=Path)
+    parser.add_argument('--endpoint',default='http://127.0.0.1:3031/baseball-dev/query')
     args=parser.parse_args()
-    print(json.dumps(tick(args.state_root,args.java,args.jena_classpath)))
+    print(json.dumps(tick(args.state_root,args.java,args.jena_classpath,endpoint=args.endpoint)))

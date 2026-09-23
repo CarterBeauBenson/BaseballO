@@ -52,6 +52,9 @@ ADMISSIONS = {
     'runner_boundary_admission': SOURCE._boundary_admission,
     'defensive_admission': SOURCE._defense_admission,
 }
+ADMISSION_TABLES = dict(zip(ADMISSIONS,('metric_suite_admission','metric_suite_run_admission',
+    'metric_suite_runner_resolution_admission','metric_suite_count_admission',
+    'metric_suite_boundary_admission','metric_suite_defensive_admission')))
 
 
 def digest(value):
@@ -126,11 +129,42 @@ def dimension_values(dimension, promotion, metadata):
             *(lex(dimension, key) for key in ('venue','venueLabel','homeTeam','homeTeamLabel','awayTeam','awayTeamLabel')))
 
 
-def input_identity(promotion, dimension, admissions, calculation):
+def input_identity(promotion, dimension, admissions, calculation, *, legacy=False):
     # Index rebuilds and unrelated report changes do not invalidate dashboard
     # facts. Exact RDF bytes, validated admissions and calculation inputs do.
+    if not legacy:
+        admissions={name:{key:value for key,value in proof.items() if key!='implementationReuse'}
+                    for name,proof in admissions.items()}
     return digest(dict(graph=promotion['authoritativeGraph'], rdf=promotion['authoritativeRdfSha256'],
                        dimension=dimension, admissions=admissions, calculation=calculation))
+
+
+def reuse_game(connection, graph, saved, promotion, dimension, admissions, calculation):
+    """Refresh compatibility provenance without repeating unchanged scores.
+
+    Admission outcomes, exact original proof hashes, RDF, dimensions and math
+    remain inputs. Only the independently rechecked code-compatibility receipt
+    is bookkeeping. Recognize old checkpoints against their stored full proof
+    objects, so deploying this distinction does not itself rebuild all games.
+    """
+    if saved is None:return False
+    previous={}
+    for name,table in ADMISSION_TABLES.items():
+        row=connection.execute(f'SELECT proof_json,proof_sha256 FROM {table} WHERE graph_iri=?',(graph,)).fetchone()
+        if row is None:return False
+        if METRICS._hash(row[0])!=row[1]:raise ValueError('Stored dashboard admission changed')
+        previous[name]=json.loads(row[0])
+    identity=input_identity(promotion,dimension,admissions,calculation)
+    if input_identity(promotion,dimension,previous,calculation)!=identity:return False
+    if saved not in {identity,input_identity(promotion,dimension,previous,calculation,legacy=True)}:return False
+    for name,table in ADMISSION_TABLES.items():
+        if previous[name]==admissions[name]:continue
+        text=METRICS._json(admissions[name])
+        connection.execute(f'UPDATE {table} SET proof_json=?,proof_sha256=? WHERE graph_iri=?',
+                           (text,METRICS._hash(text),graph))
+    if saved!=identity:
+        connection.execute('UPDATE dashboard_checkpoint SET input_sha256=? WHERE graph_iri=?',(identity,graph))
+    return True
 
 
 def retain_snapshots(directory, current):
@@ -234,10 +268,11 @@ def build_locked(args, state, serving, work):
             values = dimension_values(dimension, promotion, metadata)
             identity = input_identity(promotion, values, admissions, calculation)
             expected[graph] = identity
-            if saved.get(graph) == identity:
+            if reuse_game(connection,graph,saved.get(graph),promotion,values,admissions,calculation):
                 unchanged += 1; continue
             pending.append(dict(graph=graph, promotion=promotion, dimension=values, identity=identity,
                                 admissions=admissions, previousSeasons=[old_dimensions[graph]] if graph in old_dimensions else []))
+        connection.commit()
         removed = set(old_dimensions) - set(expected)
         with connection:
             dirty_row = connection.execute("SELECT value FROM dashboard_state WHERE name='dirty-seasons'").fetchone()
