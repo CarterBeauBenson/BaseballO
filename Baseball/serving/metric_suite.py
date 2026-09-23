@@ -13,6 +13,7 @@ from copy import deepcopy
 from datetime import date, datetime, timezone, timedelta
 from decimal import localcontext
 from fractions import Fraction
+from functools import lru_cache
 import hashlib
 import importlib.util
 import json
@@ -225,6 +226,21 @@ def trajectory_origin(row, batter):
     return unavailable('SEGMENT_ORIGIN_UNAVAILABLE')
 
 
+@lru_cache(maxsize=4096)
+def _trajectory_kernel_result(kernel_identity, numeric_rows):
+    """Bounded exact arithmetic reuse, without retaining people or evidence.
+
+    The canonical query only groups by consequence and sums these numerical
+    states. Fresh ordinal participants preserve multiplicity. Both the query
+    and its catalog contract enter the key; only immutable scalars leave it.
+    """
+    fields=('start','end','terminal','creditProgress','creditOut','outsBefore','attributedOuts')
+    inputs=[dict(key='consequence',participant=str(index),**dict(zip(fields,row)))
+            for index,row in enumerate(numeric_rows)]
+    result,=run_kernel('tfs',inputs)
+    return tuple(result[k] for k in ('numerator','denominator','progress','destruction','erosion'))
+
+
 def trajectories(participants, outs_before, attributed_outs, *, batter=None, batter_result_type=None):
     """One already coalesced, complete attributed consequence. No raw rows."""
     _integer(outs_before, 'outs before', 0, 2)
@@ -270,9 +286,14 @@ def trajectories(participants, outs_before, attributed_outs, *, batter=None, bat
                            outsBefore=outs_before, attributedOuts=attributed_outs))
     if sum(r['creditOut'] for r in inputs) != attributed_outs:
         raise EvidenceError('Distinct attributed out count disagrees with participant evidence')
-    result, = run_kernel('tfs', inputs)
-    components = {k: exact(Fraction(result[k], 36)) for k in ['progress', 'destruction', 'erosion']}
-    return available(Fraction(result['numerator']) / Fraction(result['denominator']),
+    entry=next(e for e in catalog()['metrics'] if e['id']=='tfs')
+    kernel_identity=_hash(_json(entry)+(ROOT/entry['authoritativeQuery']).read_text(encoding='utf-8'))
+    fields=('start','end','terminal','creditProgress','creditOut','outsBefore','attributedOuts')
+    numeric_rows=tuple(sorted((tuple(row[k] for k in fields) for row in inputs),key=_json))
+    numerator,denominator,progress,destruction,erosion=_trajectory_kernel_result(kernel_identity,numeric_rows)
+    components = {k: exact(Fraction(value, 36)) for k,value in
+                  zip(('progress','destruction','erosion'),(progress,destruction,erosion))}
+    return available(Fraction(numerator) / Fraction(denominator),
                      evidence=evidence, components=components)
 
 

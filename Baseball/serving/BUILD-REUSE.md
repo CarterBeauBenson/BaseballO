@@ -210,6 +210,20 @@ rebuild behavior, not live corpus completion or population eligibility.
 
 ## Calculated metric product reuse
 
+Contribution arithmetic also has a bounded in-process cache of 4,096 exact
+numerical consequences. It runs the unchanged canonical TFS SPARQL kernel on
+a miss. The key includes every numerical input, participant multiplicity,
+and the query/catalog contract; it excludes person and evidence identities.
+All input checks still run before lookup, and each result receives its own
+evidence and fresh fraction/component objects. No admission or source evidence
+is cached this way. A change to the canonical kernel invalidates the entry.
+
+For retained game 823979's 86 PAs, exact results and evidence matched before
+and after this change: 6.574 seconds previously, 3.864 seconds with an empty
+cache and 0.078 seconds with those numerical cases cached. The empty-cache run
+already reused 38 repeated cases. This is a bounded component timing, not a
+projection of full-corpus runtime.
+
 `serving/metric-cache.sqlite` holds one calculated product per game. The
 materializer first runs all six current `promoted_admission` readers, which
 validate proofs against the current promotion and producer implementations.

@@ -2,6 +2,7 @@ import importlib.util
 from fractions import Fraction as F
 from pathlib import Path
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 SPEC = importlib.util.spec_from_file_location('metric_suite', ROOT/'serving/metric_suite.py')
@@ -34,6 +35,37 @@ class MetricCalculations(unittest.TestCase):
                 self.assertEqual(value(result),F(expected[3]))
                 self.assertEqual([M.fraction(result['components'][k]) for k in ['progress','destruction','erosion']],
                                  [F(v) for v in expected[:3]])
+
+    def test_trajectory_cache_preserves_identity_evidence_and_participant_multiplicity(self):
+        M._trajectory_kernel_result.cache_clear()
+        rows=[dict(participant='b',start=0,end=None,terminal='out',creditProgress=False,creditOut=True,evidence=['urn:b']),
+              dict(participant='r',start=3,end=3,terminal='safe',creditProgress=False,creditOut=False,evidence=['urn:r'])]
+        with patch.object(M,'run_kernel',wraps=M.run_kernel) as kernel:
+            first=M.trajectories(rows,1,1)
+            renamed=[dict(r,participant='new-'+r['participant'],evidence=['urn:new:'+r['participant']]) for r in reversed(rows)]
+            second=M.trajectories(renamed,1,1)
+            self.assertEqual(kernel.call_count,1)
+            self.assertEqual(first['value'],second['value']);self.assertEqual(first['components'],second['components'])
+            self.assertEqual(second['evidence'],['urn:new:b','urn:new:r'])
+            first['components']['erosion']['numerator']='bad'
+            self.assertEqual(M.trajectories(renamed,1,1),second)
+            duplicated=[*rows,dict(rows[1],participant='another-runner')]
+            score=M.trajectories(duplicated,1,1)
+            self.assertEqual(value(score),F(-5,4));self.assertEqual(kernel.call_count,2)
+            invalid=[dict(rows[0],creditOut=False),rows[1]]
+            with self.assertRaises(M.EvidenceError):M.trajectories(invalid,1,1)
+            self.assertEqual(kernel.call_count,2)
+        self.assertEqual(M._trajectory_kernel_result.cache_info().maxsize,4096)
+
+    def test_trajectory_cache_does_not_survive_a_changed_kernel_contract(self):
+        M._trajectory_kernel_result.cache_clear()
+        rows=[dict(participant='b',start=0,end=1,terminal='safe',creditProgress=True,creditOut=False)]
+        contract=M.catalog()
+        with patch.object(M,'run_kernel',wraps=M.run_kernel) as kernel:
+            first=M.trajectories(rows,0,0)
+            next(e for e in contract['metrics'] if e['id']=='tfs')['version']='test-new-version'
+            with patch.object(M,'catalog',return_value=contract):second=M.trajectories(rows,0,0)
+            self.assertEqual(first,second);self.assertEqual(kernel.call_count,2)
 
     def test_tfs_unknown_and_inconsistent_outs(self):
         self.assertEqual(M.trajectories([],0,0)['status'],'unavailable')
