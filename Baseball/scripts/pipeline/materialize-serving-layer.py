@@ -82,6 +82,10 @@ _metric_cache_spec = importlib.util.spec_from_file_location('baseballo_serving_m
     ROOT / 'scripts/pipeline/serving_metric_cache.py')
 _metric_cache = importlib.util.module_from_spec(_metric_cache_spec)
 _metric_cache_spec.loader.exec_module(_metric_cache)
+_report_cache_spec = importlib.util.spec_from_file_location('baseballo_serving_report_cache',
+    ROOT / 'scripts/pipeline/serving_report_cache.py')
+_report_cache = importlib.util.module_from_spec(_report_cache_spec)
+_report_cache_spec.loader.exec_module(_report_cache)
 _preflight_spec = importlib.util.spec_from_file_location('baseballo_serving_preflight_queries',
     ROOT / 'scripts/pipeline/serving_preflight_queries.py')
 _preflight_queries = importlib.util.module_from_spec(_preflight_spec)
@@ -100,7 +104,7 @@ _promotion_inventory = importlib.util.module_from_spec(_promotion_spec)
 _promotion_spec.loader.exec_module(_promotion_inventory)
 _LOADED_MODULE_HASHES = {Path(module.__file__): hashlib.sha256(Path(module.__file__).read_bytes()).hexdigest()
                         for module in (_batting_admission,_run_admission,_resolution_admission,_count_admission,_boundary_admission,_defense_admission,
-                                       _query_cache,_metric_cache,_preflight_queries,_build_guard,_promotion_inventory,
+                                       _query_cache,_metric_cache,_report_cache,_preflight_queries,_build_guard,_promotion_inventory,
                                        _schedule_qualification,_schedule_qualification.PARSER,_admission_evidence)}
 _LOADED_MODULE_HASHES[Path(__file__).resolve()] = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
 SERVING_ROOT = ROOT / "serving"
@@ -1058,6 +1062,14 @@ def _build(args: argparse.Namespace, progress: dict[str, Any]) -> dict[str, Any]
     cache=_query_cache.ServingQueryCache(store_root/'query-cache.sqlite')
     metric_cache=_metric_cache.MetricProductCache(store_root/'metric-cache.sqlite',
         _metric_suite.calculation_fingerprint())
+    report_cache=_report_cache.ReportCache(store_root/'report-cache.sqlite')
+    # Only report construction inputs belong to this cache identity. HTTP
+    # readers, source execution and scheduling do not invalidate SQL partitions.
+    report_implementation=sha256_bytes(_metric_suite._json(dict(
+        materializer=loaded_hashes[MATERIALIZER],schema=sha256_bytes(schema_bytes),
+        recorder=loaded_hashes[Path(_report_cache.__file__)],metric=guard.metric_hash,
+        pa=query_source,catalog=catalog,reducers=reducers,dsq=dsq_catalog,
+        advanced=advanced_sources,canned=canned_dsq_sources,explore=explore_sources)).encode())
     started = time.perf_counter()
     snapshot_started = time.perf_counter()
     initial_snapshot = corpus_snapshot(
@@ -1076,7 +1088,7 @@ def _build(args: argparse.Namespace, progress: dict[str, Any]) -> dict[str, Any]
         raise RuntimeError("Authoritative RDF has no materializable games")
     guard.check(completed=0,total=len(dimensions),phase='source-queries')
 
-    connection = sqlite3.connect(database)
+    connection = _report_cache.RecordingConnection(sqlite3.connect(database))
     connection.executescript(schema_bytes.decode("utf-8"))
     _metric_suite.initialize_sql(connection)
     schedule_coverage = _schedule_qualification.merge_snapshots(state_root,_batting_admission.schedule_coverage(state_root))
@@ -1115,10 +1127,13 @@ def _build(args: argparse.Namespace, progress: dict[str, Any]) -> dict[str, Any]
     )
     source_row_hashers = {table: hashlib.sha256() for table in preservation_tables}
     source_row_counts = {table: 0 for table in preservation_tables}
+    partition_source_rows = None
 
     def record_source_row(table: str, row: str) -> None:
         update_row_sequence(source_row_hashers[table], row)
         source_row_counts[table] += 1
+        if partition_source_rows is not None:
+            partition_source_rows.append([table,row])
     insert_columns = [column for _, column in COLUMNS]
     placeholders = ",".join("?" for _ in range(1 + len(COLUMNS) + 2))
     insert_sql = (
@@ -1128,6 +1143,11 @@ def _build(args: argparse.Namespace, progress: dict[str, Any]) -> dict[str, Any]
     candidate_validated = False
     binding_preservation: dict[str, dict[str, Any]] = {}
     try:
+        # Schema belongs to the candidate, not whichever game happens to be
+        # first. Partitions can then be replayed in any source snapshot order.
+        for entry in dsq_entries:
+            create_dsq_table(connection,entry,entry['variables'])
+            dsq_states[entry['id']]['variables']=entry['variables']
         for entry in advanced_entries:
             reducer_mode = "detail" if entry["id"] in reducers["detailQueries"] else "additive"
             connection.execute(
@@ -1181,26 +1201,54 @@ def _build(args: argparse.Namespace, progress: dict[str, Any]) -> dict[str, Any]
                 lexical(dimension, "homeTeamLabel"), lexical(dimension, "awayTeam"),
                 lexical(dimension, "awayTeamLabel"),
             )
+            game_admissions = dict(
+                batting_admission=_admission_evidence.load(_batting_admission,state_root,promotion_record,'batting'),
+                scoring_run_admission=_admission_evidence.load(_run_admission,state_root,promotion_record,'scoring-run'),
+                runner_resolution_admission=_admission_evidence.load(_resolution_admission,state_root,promotion_record,'runner-resolution'),
+                pitch_count_admission=_admission_evidence.load(_count_admission,state_root,promotion_record,'pitch-count'),
+                runner_boundary_admission=_admission_evidence.load(_boundary_admission,state_root,promotion_record,'runner-boundary'),
+                defensive_admission=_admission_evidence.load(_defense_admission,state_root,promotion_record,'defensive'))
+            artifact = promotion_record["authoritativeRdfSha256"]
+            partition_identity=sha256_bytes(_metric_suite._json(dict(
+                implementation=report_implementation,dimension=dimension_values,
+                authoritative=artifact,index=promotion_record['queryIndexRdfSha256'],
+                admissions=game_admissions)).encode())
+            fingerprint_lines.append(f"{graph}|{official_date}|{game_set}|{artifact}")
+            partition=report_cache.load(graph,partition_identity)
+            if partition is not None:
+                report_cache.replay(connection,partition)
+                summary=partition['summary']
+                rows+=summary['rows'];advanced_rows+=summary['advancedRows']
+                for key,value in summary['advancedCounts'].items(): advanced_counts[key]+=value
+                for key,value in summary['exploreCounts'].items(): explore_counts[key]+=value
+                for key,value in summary['advancedVariables'].items():
+                    if advanced_variables.setdefault(key,value)!=value:
+                        raise ValueError('Cached advanced query changed variables: '+key)
+                for key,value in summary['dsq'].items():
+                    state=dsq_states[key]
+                    if state['variables'] is not None and state['variables']!=value['variables']:
+                        raise ValueError('Cached DSQ changed variables: '+key)
+                    state['variables']=value['variables'];state['count']+=value['count']
+                metric_suite_proofs.append(summary['metricProof'])
+                for table,row in partition['sourceRows']: record_source_row(table,row)
+                if index%10==0: connection.commit()
+                continue
+            before=dict(rows=rows,advancedRows=advanced_rows,advancedCounts=dict(advanced_counts),
+                exploreCounts=dict(explore_counts),dsq={key:value['count'] for key,value in dsq_states.items()})
+            connection.commands=[];partition_source_rows=[]
             connection.execute(
                 "INSERT INTO game_dimension VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 dimension_values,
             )
             record_source_row("game_dimension", canonical_row(dimension_values))
-            artifact = promotion_record["authoritativeRdfSha256"]
             def scoped_sparql(query,slot):
                 return cache.query(endpoint=args.endpoint,query=query,slot=slot,promotion=promotion_record,
                     fetch=lambda:sparql(args.endpoint,query,args.timeout))
             metric_evidence = scoped_sparql(_metric_suite.evidence_query([graph]),'metric-suite')
             metric_suite_proofs.append(_metric_suite.materialize_game(
                 connection, graph, metric_evidence['results']['bindings'],
-                batting_admission=_admission_evidence.load(_batting_admission,state_root,promotion_record,'batting'),
-                scoring_run_admission=_admission_evidence.load(_run_admission,state_root,promotion_record,'scoring-run'),
-                runner_resolution_admission=_admission_evidence.load(_resolution_admission,state_root,promotion_record,'runner-resolution'),
-                pitch_count_admission=_admission_evidence.load(_count_admission,state_root,promotion_record,'pitch-count'),
-                runner_boundary_admission=_admission_evidence.load(_boundary_admission,state_root,promotion_record,'runner-boundary'),
-                defensive_admission=_admission_evidence.load(_defense_admission,state_root,promotion_record,'defensive'),
+                **game_admissions,
                 product_cache=metric_cache))
-            fingerprint_lines.append(f"{graph}|{official_date}|{game_set}|{artifact}")
             query_started = time.perf_counter()
             try:
                 payload = restore_scoped_graph_bindings(
@@ -1376,6 +1424,15 @@ def _build(args: argparse.Namespace, progress: dict[str, Any]) -> dict[str, Any]
                         )
                         record_source_row("empty_damage_fact", canonical_row(grain_values))
                     explore_counts[grain_name] += 1
+            commands=connection.commands;connection.commands=None
+            report_cache.store(graph,partition_identity,commands,dict(
+                rows=rows-before['rows'],advancedRows=advanced_rows-before['advancedRows'],
+                advancedCounts={key:value-before['advancedCounts'][key] for key,value in advanced_counts.items()},
+                exploreCounts={key:value-before['exploreCounts'][key] for key,value in explore_counts.items()},
+                advancedVariables=advanced_variables,metricProof=metric_suite_proofs[-1],
+                dsq={key:dict(variables=value['variables'],count=value['count']-before['dsq'][key])
+                    for key,value in dsq_states.items()}),partition_source_rows)
+            partition_source_rows=None
             if index % 10 == 0:
                 connection.commit()
         guard.check(completed=len(dimensions),total=len(dimensions),phase='metric-reference-ranks')
@@ -1631,18 +1688,19 @@ def _build(args: argparse.Namespace, progress: dict[str, Any]) -> dict[str, Any]
         "benchmark": {
             "queryCache":dict(cache.stats),
             "metricProductCache":dict(metric_cache.stats),
+            "reportPartitionCache":dict(report_cache.stats),
             "engine": "sqlite",
             "dsqReadOnlyWorkers": getattr(args, "dsq_workers", 2),
             "initialCorpusSnapshotMs": initial_snapshot_ms,
             "boundedAuthoritativeSparqlTotalMs": round(sum(sparql_durations), 1),
-            "boundedAuthoritativeSparqlMedianPerGameMs": round(statistics.median(sparql_durations), 1),
+            "boundedAuthoritativeSparqlMedianPerGameMs": round(statistics.median(sparql_durations), 1) if sparql_durations else None,
             "sqlSevenDayMedianMs": round(statistics.median(benchmark_times), 3),
             "sqlSevenDayRunsMs": [round(value, 3) for value in benchmark_times],
             "reviewedSparqlByQuery": {
                 query_id: {
                     "calls": len(durations),
                     "totalMs": round(sum(durations), 1),
-                    "medianPerGameMs": round(statistics.median(durations), 1),
+                    "medianPerGameMs": round(statistics.median(durations), 1) if durations else None,
                 }
                 for query_id, durations in sorted(advanced_sparql_durations.items())
             },
@@ -1650,13 +1708,13 @@ def _build(args: argparse.Namespace, progress: dict[str, Any]) -> dict[str, Any]
                 query_id: {
                     "calls": len(durations),
                     "totalMs": round(sum(durations), 1),
-                    "medianPerGameMs": round(statistics.median(durations), 1),
+                    "medianPerGameMs": round(statistics.median(durations), 1) if durations else None,
                 }
                 for query_id, durations in sorted(canned_dsq_sparql_durations.items())
             },
             "exploreSparqlByGrain": {
                 name: {"calls": len(durations), "totalMs": round(sum(durations), 1),
-                       "medianPerGameMs": round(statistics.median(durations), 1)}
+                       "medianPerGameMs": round(statistics.median(durations), 1) if durations else None}
                 for name, durations in sorted(explore_sparql_durations.items())
             },
             "duckdbAvailability": "not-installed",

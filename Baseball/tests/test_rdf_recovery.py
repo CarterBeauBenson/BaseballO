@@ -122,7 +122,7 @@ class RecoveryTests(unittest.TestCase):
         RECOVERY.export(self.root, self.job['jobId'], destination)
         export = destination / ('baseballo-rdf-' + self.job['jobId'])
         (export / 'dataset.nq.gz').write_bytes(b'corrupt')
-        with patch.object(RECOVERY.subprocess, 'run') as run:
+        with patch.object(RECOVERY.subprocess, 'Popen') as run:
             with self.assertRaises((ValueError, OSError)):
                 RECOVERY.stage_restore(export, self.root, Path('java'), Path('jena'))
             run.assert_not_called()

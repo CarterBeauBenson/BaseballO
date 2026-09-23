@@ -188,6 +188,16 @@ class ServingMaterializerTests(unittest.TestCase):
                     MODULE, 'official_metadata', return_value={
                         '1': {'gameSet': 'regular_season', 'officialDate': '2026-08-01'}}):
                 built = MODULE.build(args)
+                # A fresh candidate reuses the completed game partition. Source
+                # inventory checks still run; game query/calculation work must not.
+                with patch.object(MODULE._metric_suite,'materialize_game',side_effect=AssertionError('recalculated')):
+                    resumed = MODULE.build(args)
+            self.assertEqual(resumed['benchmark']['reportPartitionCache']['hits'],1)
+            self.assertIsNone(resumed['benchmark']['boundedAuthoritativeSparqlMedianPerGameMs'])
+            with closing(sqlite3.connect(built['databasePath'])) as first, closing(sqlite3.connect(resumed['databasePath'])) as second:
+                for (table,) in first.execute("SELECT name FROM sqlite_master WHERE type='table' AND name!='serving_build' AND name NOT LIKE 'sqlite_%'"):
+                    self.assertEqual(first.execute('SELECT * FROM "'+table+'"').fetchall(),
+                                     second.execute('SELECT * FROM "'+table+'"').fetchall(),table)
             with closing(sqlite3.connect(built['databasePath'])) as db:
                 self.assertEqual(db.execute('SELECT COUNT(*) FROM batting_result_fact').fetchone()[0], 3)
                 self.assertEqual({r[0] for r in db.execute('SELECT DISTINCT player_iri FROM batting_result_fact')}, set(participants))

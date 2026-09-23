@@ -214,14 +214,22 @@ def stage_restore(export_directory: Path, recovery_root: Path, java: Path, jena:
     stage.mkdir(parents=True, exist_ok=False)
     report = {'artifactType': 'baseballo-rdf-restore-proof', 'scope': 'isolated-rdf-dataset',
               'status': 'loading', 'startedAtUtc': now(), 'jobId': manifest['jobId'], 'archive': actual,
+              'controllerProcessId': os.getpid(),
               'databasePath': str(stage / 'tdb2'), 'promoted': False}
     atomic_json(stage / 'restore.json', report)
     with (stage / 'loader.stdout.log').open('wb') as out, (stage / 'loader.stderr.log').open('wb') as err:
         try:
-            subprocess.run([str(java), '-Xmx1g', '-cp', str(jena), 'tdb2.tdbloader', '--loader=basic',
+            process = subprocess.Popen([str(java), '-Xmx1g', '-cp', str(jena), 'tdb2.tdbloader', '--loader=basic',
                             '--loc=' + str(stage / 'tdb2'), str(archive.resolve())],
-                           stdout=out, stderr=err, check=True, timeout=timeout,
+                           stdout=out, stderr=err,
                            creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+            try:
+                report.update(processId=process.pid, controllerProcessId=os.getpid())
+                atomic_json(stage / 'restore.json', report)
+                if process.wait(timeout=timeout) != 0:
+                    raise RuntimeError('Isolated TDB loader failed; inspect retained loader logs')
+            finally:
+                if process.poll() is None: process.kill(); process.wait()
             if archive_integrity(archive) != actual:
                 raise ValueError('Export changed during restore')
             report.update(status='loaded', finishedAtUtc=now())

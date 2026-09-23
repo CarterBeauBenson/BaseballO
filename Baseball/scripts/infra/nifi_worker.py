@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import urllib.parse
 import urllib.request
+import time
 
 
 def api(method,path,body=None):
@@ -41,7 +42,12 @@ def processor(parent,name,kind,properties,terminate,x,period='0 sec'):
         raise ValueError('Worker is busy; preserve its run and reconcile on the next idle deployment')
     if entity['component']['state']=='RUNNING':
         api('PUT','/processors/'+entity['id']+'/run-status',dict(revision=entity['revision'],state='STOPPED',disconnectedNodeAcknowledged=False))
-        entity=api('GET','/processors/'+entity['id'])
+        deadline=time.monotonic()+5
+        while True:
+            time.sleep(.25)
+            entity=api('GET','/processors/'+entity['id'])
+            if entity['component']['state']=='STOPPED' and not entity['status']['aggregateSnapshot']['activeThreadCount']: break
+            if time.monotonic()>=deadline: raise ValueError('Worker did not become idle for configuration')
     api('PUT','/processors/'+entity['id'],dict(revision=entity['revision'],component=dict(id=entity['id'],config=config)))
     return entity['id']
 

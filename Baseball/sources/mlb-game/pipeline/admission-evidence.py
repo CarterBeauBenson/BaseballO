@@ -41,6 +41,11 @@ def checked_marker(promotion):
     return read(path)
 
 
+def retained_manifest(state,marker,game_pk):
+    inventory=module(ROOT/'scripts/pipeline/game_promotion_inventory.py','admission_retained_artifacts')
+    return inventory.retained_artifact(Path(state),game_pk,marker['rmlManifestSha256'],Path(marker['rmlManifest']))
+
+
 def diagnostic(state,promotion,family,implementation):
     marker=checked_marker(promotion);field=FIELDS[family]
     path=Path(marker.get(field,''))
@@ -101,7 +106,7 @@ def refresh_game(state,promotion,java,classpath):
     result=dict(gamePk=promotion['gamePk'],promotionManifestSha256=promotion['promotionManifestSha256'],
         diagnostics=diagnostics,refreshed=[],rdfChanged=False)
     if not pending: return dict(result,status='current')
-    manifest_path=Path(marker.get('rmlManifest',''))
+    manifest_path=retained_manifest(state,marker,promotion['gamePk'])
     if not manifest_path.is_file() or sha(manifest_path)!=marker.get('rmlManifestSha256'):
         return dict(result,status='retained-manifest-unavailable')
     manifest=read(manifest_path);rdf=Path(manifest.get('outputPath',''))
@@ -135,7 +140,7 @@ def refresh_game(state,promotion,java,classpath):
 def tick(state,java,classpath,limit=100):
     control=Path(state)/'pipeline/control/mlb-game/admission-evidence'
     versions={family:module(HERE/(family+'-admission.py'),'version_'+family.replace('-','_')).fingerprint() for family in FIELDS}
-    version=hashlib.sha256(json.dumps(versions,sort_keys=True).encode()).hexdigest()
+    version=hashlib.sha256(json.dumps(versions,sort_keys=True).encode()+Path(__file__).read_bytes()).hexdigest()
     outcomes=[]
     for directory in sorted((Path(state)/'pipeline/evidence/nifi/game-promotion').glob('*')):
         if not directory.is_dir() or not directory.name.isdigit(): continue
@@ -154,7 +159,7 @@ def tick(state,java,classpath,limit=100):
         try:
             if marker.get('artifactType')!='baseball-nifi-game-promotion' or str(marker.get('gamePk'))!=directory.name:
                 raise ValueError('Unexpected source promotion marker')
-            rml_path=Path(marker.get('rmlManifest',''))
+            rml_path=retained_manifest(state,marker,directory.name)
             if not rml_path.is_file() or sha(rml_path)!=marker.get('rmlManifestSha256'):
                 result.update(status='retained-manifest-unavailable')
             else:

@@ -17,6 +17,15 @@ function Install-WorkloadPriority {
                     revision=$entity.revision;state='STOPPED';disconnectedNodeAcknowledged=$false
                 } | Out-Null
                 $resume += $p.id
+                $deadline = [DateTime]::UtcNow.AddSeconds(5)
+                do {
+                    Start-Sleep -Milliseconds 250
+                    $stopped = Invoke-NiFi GET "/processors/$($p.id)"
+                    if ($stopped.component.state -eq 'STOPPED' -and $stopped.status.aggregateSnapshot.activeThreadCount -eq 0) { break }
+                } while ([DateTime]::UtcNow -lt $deadline)
+                if ($stopped.component.state -ne 'STOPPED' -or $stopped.status.aggregateSnapshot.activeThreadCount -gt 0) {
+                    throw 'Source processor did not become idle for its priority update.'
+                }
             }
         }
         $name = @($selected | Where-Object { $_.component.name -eq 'Name Transient Payload' })[0]
