@@ -125,6 +125,17 @@ decouples an unrelated code edit without renewing evidence or changing source
 semantics. NiFi maintenance reports `implementation-compatible` separately from
 current, stale and missing evidence.
 
+The same record identifies three exact pre-T1 positive-proof implementations:
+batting, scoring-run and runner-resolution. T1 preserved their SHACL contracts
+and replaced the source's all-issues prerequisite with its structural-issues
+subset. A prior admitted proof with a hash-bound reconciled census and no
+issues already passed the stricter prerequisite. Its source checks and graph
+conformance remain usable. The regression verifies the original issue
+predicates, T1's exact clock partition, unchanged census logic otherwise,
+unchanged shapes/validator and (for runner resolution) unchanged context
+function. These entries require an original admitted result and empty census
+issues. They cannot upgrade prior withholding or introduce replacement times.
+
 The September 23 quarantine diagnosis found 30 games eligible for a retry
 under existing fixes. The remaining 13 are covered by the accepted
 [Q5/Q6 source-contract decision](../../archive/design-records/mlb-game-quarantine-boundaries/README.md).

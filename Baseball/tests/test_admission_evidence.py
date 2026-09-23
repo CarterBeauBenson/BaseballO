@@ -15,6 +15,100 @@ E=importlib.util.module_from_spec(spec);spec.loader.exec_module(E)
 
 
 class AdmissionEvidence(unittest.TestCase):
+    def test_prior_admitted_clock_proofs_have_identical_checks_when_source_issues_are_empty(self):
+        record=E.read(E.COMPATIBILITY_PATH)['priorClockIsolation']
+        def old(path):
+            return subprocess.check_output(['git','-C',str(ROOT.parent),'show',
+                record['changeCommit']+'^:Baseball/'+path])
+        def tree(text):return ast.dump(ast.parse(text),include_attributes=False)
+        source='sources/mlb-game/pipeline/reconcile-metric-source.py'
+        before=ast.parse(old(source));after=ast.parse((ROOT/source).read_bytes())
+        definitions={n.name:n for n in after.body if isinstance(n,ast.FunctionDef)}
+        current=definitions['reconcile']
+        # T1 adds an issue partition and diagnostic values, not new issue
+        # predicates. Verify those exact edits before comparing the whole AST.
+        added={
+            'clock_conflicts':"clock_conflicts = [i for i in issues if i['code'] in CLOCK_CONFLICT_CODES]",
+            'blocking_issues':"blocking_issues = [i for i in issues if i['code'] not in CLOCK_CONFLICT_CODES]"}
+        for name,statement in added.items():
+            matches=[n for n in current.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id==name for t in n.targets)]
+            self.assertEqual(len(matches),1)
+            self.assertEqual(ast.dump(matches[0]),ast.dump(ast.parse(statement).body[0]))
+            current.body.remove(matches[0])
+        returned=current.body[-1].value
+        extra={k.arg:k.value for k in returned.keywords if k.arg in {'blockingIssues','clockConflicts','clockDecision','clockStatus'}}
+        expected=ast.parse("dict(blockingIssues=blocking_issues,clockConflicts=clock_conflicts,clockDecision=CLOCK_DECISION,clockStatus='conflicted' if clock_conflicts else 'no-reversed-pairs')").body[0].value
+        self.assertEqual({k:ast.dump(v) for k,v in extra.items()},{k.arg:ast.dump(k.value) for k in expected.keywords})
+        returned.keywords=[k for k in returned.keywords if k.arg not in extra]
+        status=next(k for k in returned.keywords if k.arg=='status')
+        self.assertEqual(ast.dump(status.value),ast.dump(ast.parse("'consistent' if not blocking_issues else 'inconsistent'",mode='eval').body))
+        status.value=ast.parse("'consistent' if not issues else 'inconsistent'",mode='eval').body
+        for node in ast.walk(current):
+            if isinstance(node,ast.Call) and isinstance(node.func,ast.Name) and node.func.id=='issue' and node.args and isinstance(node.args[0],ast.Constant):
+                code=node.args[0].value
+                if code in {'REVERSED_PLAY_TIMES','REVERSED_EVENT_TIMES'}:
+                    variable='about' if code=='REVERSED_PLAY_TIMES' else 'event'
+                    self.assertEqual({k.arg:ast.dump(k.value) for k in node.keywords},
+                        {key:ast.dump(ast.parse(variable+"['"+key+"']",mode='eval').body) for key in ('startTime','endTime')})
+                    node.keywords=[]
+        constants={n.targets[0].id:n for n in after.body if isinstance(n,ast.Assign) and isinstance(n.targets[0],ast.Name)}
+        self.assertEqual(ast.literal_eval(constants['CLOCK_CONFLICT_CODES'].value),{'REVERSED_PLAY_TIMES','REVERSED_EVENT_TIMES'})
+        self.assertEqual(ast.literal_eval(constants['CLOCK_DECISION'].value),'archive/design-records/mlb-game-clock-conflict-isolation/review.json')
+        self.assertEqual(ast.literal_eval(constants['VERSION'].value),2)
+        constants['VERSION'].value=ast.Constant(1)
+        after.body=[n for n in after.body if n not in (constants['CLOCK_CONFLICT_CODES'],constants['CLOCK_DECISION'])]
+        self.assertEqual(ast.dump(before),ast.dump(after))
+
+        class PriorIssueKey(ast.NodeTransformer):
+            def visit_Subscript(self,node):
+                self.generic_visit(node)
+                if isinstance(node.slice,ast.Constant) and node.slice.value=='blockingIssues':node.slice.value='issues'
+                return node
+        for family,entry in record['families'].items():
+            own='sources/mlb-game/pipeline/'+family+'-admission.py'
+            shape='sources/mlb-game/shacl/'+family+'-admission.ttl'
+            support='sources/mlb-game/pipeline/batting-admission.py'
+            validator='scripts/pipeline/validate-shacl.py';context='scripts/pipeline/prepare-rml-context.py'
+            adapter=E.module(ROOT/own,'prior_'+family.replace('-','_'))
+            self.assertEqual(adapter.fingerprint(),entry['currentImplementationSha256'])
+            self.assertEqual(tree(old(own)),ast.dump(PriorIssueKey().visit(ast.parse((ROOT/own).read_bytes()))))
+            for unchanged in (shape,validator):self.assertEqual(old(unchanged),(ROOT/unchanged).read_bytes())
+            paths=([own,shape,source,validator] if family=='batting' else
+                [own,shape,support,source,validator] if family=='scoring-run' else
+                [own,shape,context,support,source,validator])
+            digest=hashlib.sha256('\n'.join(p+':'+hashlib.sha256(old(p)).hexdigest() for p in paths).encode()).hexdigest()
+            self.assertEqual(digest,entry['previousImplementationSha256'])
+            if family=='runner-resolution':
+                definition=lambda raw:next(n for n in ast.parse(raw).body if getattr(n,'name',None)=='nonmovement_strikeout_records')
+                self.assertEqual(ast.dump(definition(old(context))),ast.dump(definition((ROOT/context).read_bytes())))
+
+    def test_prior_clock_reuse_requires_positive_hash_bound_source_census(self):
+        entries=E.read(E.COMPATIBILITY_PATH)['priorClockIsolation']['families']
+        for family,entry in entries.items():
+            with self.subTest(family=family),tempfile.TemporaryDirectory() as temp:
+                state=Path(temp);path=state/'pipeline/evidence/mlb-game/1/run'/f'{family}.json'
+                proof=dict(artifactType='baseballo-'+family+'-admission',contractVersion=1,gamePk='1',
+                    graph='graph',sourceSha256='source',authoritativeRdfSha256='rdf',
+                    implementationSha256=entry['previousImplementationSha256'],status='admitted',
+                    sourceReconciled=True,graphConforms=True,issues=[])
+                for suffix,key in (('.source.json','sourceCensusSha256'),('.shapes.ttl','shapeSha256'),('.report.ttl','reportSha256')):
+                    E.atomic(path.with_suffix(suffix),dict(gamePk='1',sourceSha256='source',status='reconciled',issues=[]))
+                    proof[key]=E.sha(path.with_suffix(suffix))
+                marker=state/'promotion.json';field=E.FIELDS[family]
+                def publish(value):
+                    E.atomic(path,value);E.atomic(marker,{field:str(path),field+'Sha256':E.sha(path)})
+                    return dict(gamePk='1',rawSha256='source',authoritativeGraph='graph',authoritativeRdfSha256='rdf',
+                        promotionManifest=str(marker),promotionManifestSha256=E.sha(marker))
+                promotion=publish(proof)
+                result=E.compatible_proof(state,promotion,family,entry['currentImplementationSha256'])
+                self.assertEqual({key:result[key] for key in proof},proof)
+                self.assertEqual(result['implementationReuse']['kind'],'prior-stricter-clock-check')
+                self.assertIsNone(E.compatible_proof(state,publish({**proof,'status':'withheld'}),family,entry['currentImplementationSha256']))
+                E.atomic(path.with_suffix('.source.json'),dict(gamePk='1',sourceSha256='source',status='withheld',issues=[dict(code='REVERSED_PLAY_TIMES')]))
+                inconsistent={**proof,'sourceCensusSha256':E.sha(path.with_suffix('.source.json'))}
+                with self.assertRaisesRegex(ValueError,'reconciled source census'):
+                    E.compatible_proof(state,publish(inconsistent),family,entry['currentImplementationSha256'])
+
     def test_exact_q5_edit_does_not_change_reused_proof_dependencies(self):
         record=E.read(E.COMPATIBILITY_PATH)
         path=ROOT/record['contextPath']

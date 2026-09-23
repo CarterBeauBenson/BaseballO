@@ -25,6 +25,11 @@ For inspected game 822680 this restores admitted runner-resolution evidence;
 pitch-count and defense remain withheld for their original coverage reasons,
 and runner-boundary remains unresolved. This has not yet established populated
 live player cards. The next automatic dashboard build consumes the correction.
+Exact pre-T1 admitted batting, scoring-run and runner-resolution proofs can
+also be reused when their retained census passes the original stricter
+zero-issue condition. Real game 822682 recovered all three admissions through
+this path. Their original fingerprints and status remain in SQL provenance;
+this is not a new conformance claim for a previously withheld graph.
 
 The September 16 live check returned HTTP 200 in 16.8 seconds for
 August 25 from SQL, with all 15 scheduled games selected and **zero populated

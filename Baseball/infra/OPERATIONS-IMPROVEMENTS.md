@@ -92,6 +92,18 @@ artifacts, preserved withheld outcomes, incremental dashboard behavior and
 historical-rank equality. The existing immutable builds finish with their
 captured versions; the next NiFi tick adopts these changes.
 
+NiFi's next 100-game diagnostic batch showed an older cause too: 79 previously
+admitted batting proofs and 96 previously admitted scoring-run and runner
+resolution proofs predated T1. Their exact producer revisions are now covered
+by positive-only reuse. T1 keeps the same source issue predicates and splits
+clock diagnostics from blocking structural issues; a prior admitted proof
+already had no issues of either kind. The existing graph shapes and validator
+are unchanged for these three families. Reuse requires the original admitted
+proof and its hash-bound, reconciled, zero-issue census. Previous withholding
+is not eligible. Inspected game 822682 now loads all three original admissions
+with separate reuse provenance. Neither source acquisition nor RDF execution
+was needed to recover them.
+
 Focused checks covered authority recovery, queued readiness, exited-worker
 reconciliation, exact cache reuse and corruption fallback, SQL-only names,
 historical-rank equivalence, independent SHACL reports with a shared graph,

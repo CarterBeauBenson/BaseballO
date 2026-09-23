@@ -6,6 +6,24 @@
   "previousContextSha256": "d01b977a9f6d8c715ac65e25af4b1d716fb8ce399cfadf614fd0daf2bef269c4",
   "currentContextSha256": "169fd44a4dee436747d11c9201f8a8d5ea8c772f8c7ea6acaacfddb069d1a464",
   "changedDefinition": "batter_participation_context",
+  "priorClockIsolation": {
+    "changeCommit": "0c2363a09451ccfdace32e017b7cb7819e42da91",
+    "requiresOriginalAdmission": true,
+    "families": {
+      "batting": {
+        "previousImplementationSha256": "676c43536dd4eca650cf8d3436bb97757b817db559af493d60a73a8d81b7b41c",
+        "currentImplementationSha256": "42e5f5c4b7fd1b12d922703283511fe485df55800fe17b2fb627b32e367cf1f7"
+      },
+      "scoring-run": {
+        "previousImplementationSha256": "d290cbed0027459ad360f4f04c75bd6fce2d742be3ca492a0f24514dff4f4bcc",
+        "currentImplementationSha256": "03088132d1783d274a08f6a2d2a5ff9858ffd04f519b2a4bfcb9011e7ccf0f9d"
+      },
+      "runner-resolution": {
+        "previousImplementationSha256": "242481762b475aa93ea653c73b01d4785cb620202aa55c98209289e537538666",
+        "currentImplementationSha256": "e29b19c5f43fe0daa4a1d629bcaa84c343a301dde19bbc09e28307105005baf6"
+      }
+    }
+  },
   "families": {
     "runner-resolution": {
       "contextDefinitions": ["nonmovement_strikeout_records"],
