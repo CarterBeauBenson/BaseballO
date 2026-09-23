@@ -104,6 +104,31 @@ is not eligible. Inspected game 822682 now loads all three original admissions
 with separate reuse provenance. Neither source acquisition nor RDF execution
 was needed to recover them.
 
+The next delivery pass extends positive-only reuse to pre-T1 pitch-count and
+runner-boundary proofs, and pre-Q5 runner-boundary proofs. Earlier successful
+checks excluded the newly handled cases: reversed clocks caused source
+reconciliation failures, and an initial PH without an outgoing ID could not
+supply a successful batting-participation check. T1's clock selection leaves
+undisputed pairs unchanged; Q5 preserves previously successful substitutions.
+The boundary and count SHACL contracts are unchanged. Complete producer
+fingerprints restrict reuse to these exact revisions, with the original
+admitted, zero-issue census and all retained artifact hashes still required.
+Previously withheld proofs remain withheld.
+
+Six focused evidence-reader tests pass. The historical and current producers
+give identical censuses and shapes for the retained 79-PA reference game;
+the new PH case is rejected by the old producer and remains outside positive
+reuse. Read-only checks recover both original admissions for promoted game
+566279 and boundary admissions for September 16 games 823979, 824140 and
+824626. NiFi's existing change detector owns their derived SQL update.
+
+Dashboard build `20260923T165557Z-dashboard-f5ce432061b9` published at 13:55
+Eastern with 2,773 games, including the prepared-label/reference implementation.
+Its live default selection still returned 0/19 populated boards. The exact
+remaining latest-day PA blockers are now recorded in
+[`METRIC-READINESS.md`](../serving/METRIC-READINESS.md#next-work-from-the-september-23-live-check).
+No later publication incorporating the proof-reuse fixes is claimed here.
+
 Focused checks covered authority recovery, queued readiness, exited-worker
 reconciliation, exact cache reuse and corruption fallback, SQL-only names,
 historical-rank equivalence, independent SHACL reports with a shared graph,

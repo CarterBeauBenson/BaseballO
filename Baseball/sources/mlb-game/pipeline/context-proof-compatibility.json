@@ -21,6 +21,24 @@
       "runner-resolution": {
         "previousImplementationSha256": "242481762b475aa93ea653c73b01d4785cb620202aa55c98209289e537538666",
         "currentImplementationSha256": "e29b19c5f43fe0daa4a1d629bcaa84c343a301dde19bbc09e28307105005baf6"
+      },
+      "pitch-count": {
+        "previousImplementationSha256": "e88b1e35dafcedc6d168eb6093f144fcbab683dcecb0e97391bd4b3aa58b1314",
+        "currentImplementationSha256": "386caf8c7108aebed056c696591a25d788535f37eb8c88be9931b52f7c75cd1e"
+      },
+      "runner-boundary": {
+        "previousImplementationSha256": "7ffa76cd2dd3f2ad1379dda12205ebb8c8a200daa10904a916f85434864a044d",
+        "currentImplementationSha256": "931fe5f6a182280b0c709ad97e3f362b73ca0dadd98b1c54dc4664dc104c14d8"
+      }
+    }
+  },
+  "priorPinchHitterIsolation": {
+    "changeCommit": "2c4d69160c23f6b5e3b4017fe5de2cbdb5f758dc",
+    "requiresOriginalAdmission": true,
+    "families": {
+      "runner-boundary": {
+        "previousImplementationSha256": "1d3ff448dd4ab797c44c2952347df16f19f942e887765400ba6c9222bf8c43af",
+        "currentImplementationSha256": "931fe5f6a182280b0c709ad97e3f362b73ca0dadd98b1c54dc4664dc104c14d8"
       }
     }
   },

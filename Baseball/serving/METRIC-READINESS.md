@@ -31,6 +31,48 @@ zero-issue condition. Real game 822682 recovered all three admissions through
 this path. Their original fingerprints and status remain in SQL provenance;
 this is not a new conformance claim for a previously withheld graph.
 
+The 13:55 Eastern publication, `20260923T165557Z-dashboard-f5ce432061b9`,
+contains 2,773 games and the prepared-label/reference implementation. A fresh
+live default request still returned 0/19 populated leaderboards for September
+16. It predates the evidence-reuse fixes; the next NiFi build adopts those
+automatically. Positive-only reuse now also covers exact earlier pitch-count
+and runner-boundary implementations. The original admitted boundary proofs
+for games 823979, 824140 and 824626 load successfully; original withholding in
+the other twelve selected games remains unresolved.
+
+## Next work from the September 23 live check
+
+Use this list with the delivery order below. Operational implementation is
+tracked separately in the linked operations record; no new RDF rebuild is
+authorized by either list.
+
+1. Confirm the next NiFi dashboard publication consumes the proof-reuse fixes
+   and inspect qualified-player rows. The last live result remains 0/19.
+2. Diagnose these four existing B1 failures against retained source censuses
+   and promoted RDF. All eleven other selected games have admitted official
+   PA proofs. These are actual retained withholding reasons, not generic
+   missing-evidence claims:
+
+   | Game | PA index | Event index | Retained issue |
+   | --- | --- | --- | --- |
+   | 823004 | 78 | 7 | `OFFENSIVE_REPLACEMENT_WITHIN_TURN` |
+   | 823655 | 55; 98 | 5; 1 | `OFFENSIVE_REPLACEMENT_WITHIN_TURN` |
+   | 823979 | 69 | 1 | `OFFENSIVE_REPLACEMENT_WITHIN_TURN` |
+   | 824140 | 55 | 0; 3 | `OFFENSIVE_REPLACEMENT_WITHIN_TURN` |
+
+   Q4/Q5 establish actual batting participation; they do not independently
+   assign ambiguous official PA credit. Keep that distinction when fixing the
+   adapter or recording the exact remaining graph contract gap.
+3. Resolve the independent retained count, runner-boundary and defensive
+   failures by their owning stage. The latest day has four admitted count
+   proofs and three admitted boundary proofs after compatible reuse. The
+   remaining boundary issues include PA-start timing, personal histories and
+   award attribution. Do not equate those issues with absent provider fields.
+4. Complete the two review-player integrations from supported graph inputs;
+   then verify named player rows and expanded details for all 19 cards.
+
+## Earlier release evidence
+
 The September 16 live check returned HTTP 200 in 16.8 seconds for
 August 25 from SQL, with all 15 scheduled games selected and **zero populated
 player leaderboards**. The new coverage report explicitly returned `ready:false`
@@ -139,11 +181,11 @@ source profiles, attribution policies and participation minima remain enforced.
 
 The required result is prepared SQL answers served quickly to the interface.
 NiFi runs SPARQL and metric calculations over existing RDF before publication.
-The reader still performs observation pooling, population checks, and some
-historical-cutoff ranking; moving expensive work out of requests is a remaining
-serving task. The [implementation guide](METRIC-SUITE-IMPLEMENTATION.md#required-serving-design)
-separates that gap from RDF mapping coverage. Neither storing inputs in SQL
-nor completing a source refresh proves fast dashboard delivery.
+The dashboard reader performs observation pooling and population checks over
+SQL and selects NiFi-prepared historical ranks. The full report reader retains
+its separate immutable release. The [implementation guide](METRIC-SUITE-IMPLEMENTATION.md#required-serving-design)
+separates serving ownership from RDF mapping coverage. Neither storing inputs
+in SQL nor completing a source refresh proves fast dashboard delivery.
 
 On September 17 the user corrected the scope: metric/SQL work must reuse the
 existing graph and source additions must remain targeted. The user subsequently

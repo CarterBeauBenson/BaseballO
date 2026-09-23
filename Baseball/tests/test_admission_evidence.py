@@ -65,6 +65,8 @@ class AdmissionEvidence(unittest.TestCase):
                 if isinstance(node.slice,ast.Constant) and node.slice.value=='blockingIssues':node.slice.value='issues'
                 return node
         for family,entry in record['families'].items():
+            if family in {'pitch-count','runner-boundary'}:
+                continue  # Context-dependent positive cases are exercised below.
             own='sources/mlb-game/pipeline/'+family+'-admission.py'
             shape='sources/mlb-game/shacl/'+family+'-admission.ttl'
             support='sources/mlb-game/pipeline/batting-admission.py'
@@ -83,8 +85,12 @@ class AdmissionEvidence(unittest.TestCase):
                 self.assertEqual(ast.dump(definition(old(context))),ast.dump(definition((ROOT/context).read_bytes())))
 
     def test_prior_clock_reuse_requires_positive_hash_bound_source_census(self):
-        entries=E.read(E.COMPATIBILITY_PATH)['priorClockIsolation']['families']
-        for family,entry in entries.items():
+        record=E.read(E.COMPATIBILITY_PATH)
+        entries=[(family,entry,kind) for section,kind in
+            [('priorClockIsolation','prior-stricter-clock-check'),
+             ('priorPinchHitterIsolation','prior-stricter-pinch-hitter-check')]
+            for family,entry in record[section]['families'].items()]
+        for family,entry,kind in entries:
             with self.subTest(family=family),tempfile.TemporaryDirectory() as temp:
                 state=Path(temp);path=state/'pipeline/evidence/mlb-game/1/run'/f'{family}.json'
                 proof=dict(artifactType='baseballo-'+family+'-admission',contractVersion=1,gamePk='1',
@@ -102,12 +108,62 @@ class AdmissionEvidence(unittest.TestCase):
                 promotion=publish(proof)
                 result=E.compatible_proof(state,promotion,family,entry['currentImplementationSha256'])
                 self.assertEqual({key:result[key] for key in proof},proof)
-                self.assertEqual(result['implementationReuse']['kind'],'prior-stricter-clock-check')
+                self.assertEqual(result['implementationReuse']['kind'],kind)
+                self.assertIsNone(E.compatible_proof(state,promotion,family,'unknown-next-version'))
+                self.assertIsNone(E.compatible_proof(state,{**promotion,'rawSha256':'different'},family,entry['currentImplementationSha256']))
                 self.assertIsNone(E.compatible_proof(state,publish({**proof,'status':'withheld'}),family,entry['currentImplementationSha256']))
                 E.atomic(path.with_suffix('.source.json'),dict(gamePk='1',sourceSha256='source',status='withheld',issues=[dict(code='REVERSED_PLAY_TIMES')]))
                 inconsistent={**proof,'sourceCensusSha256':E.sha(path.with_suffix('.source.json'))}
                 with self.assertRaisesRegex(ValueError,'reconciled source census'):
                     E.compatible_proof(state,publish(inconsistent),family,entry['currentImplementationSha256'])
+
+    def test_prior_positive_count_and_boundary_checks_preserve_census_and_shapes(self):
+        record=E.read(E.COMPATIBILITY_PATH)
+        raw=(ROOT/'data/raw/game-566279.json').read_bytes()
+        for section,families in [('priorClockIsolation',('pitch-count','runner-boundary')),
+                                 ('priorPinchHitterIsolation',('runner-boundary',))]:
+            change=record[section]
+            for family in families:
+                with self.subTest(section=section,family=family),tempfile.TemporaryDirectory() as temp:
+                    own='sources/mlb-game/pipeline/'+family+'-admission.py'
+                    shape='sources/mlb-game/shacl/'+family+'-admission.ttl'
+                    context='scripts/pipeline/prepare-rml-context.py'
+                    support='sources/mlb-game/pipeline/batting-admission.py'
+                    source='sources/mlb-game/pipeline/reconcile-metric-source.py'
+                    validator='scripts/pipeline/validate-shacl.py'
+                    paths=([own,shape,context,support,source,validator] if family=='runner-boundary' else
+                           [own,shape,support,source,context,validator])
+                    prior_root=Path(temp)/'Baseball'
+                    for relative in paths:
+                        contents=subprocess.check_output(['git','-C',str(ROOT.parent),'show',
+                            change['changeCommit']+'^:Baseball/'+relative])
+                        target=prior_root/relative;target.parent.mkdir(parents=True,exist_ok=True)
+                        target.write_bytes(contents)
+                    before=E.module(prior_root/own,'old_positive_'+family.replace('-','_'))
+                    after=E.module(ROOT/own,'current_positive_'+family.replace('-','_'))
+                    entry=change['families'][family]
+                    self.assertEqual(before.fingerprint(),entry['previousImplementationSha256'])
+                    self.assertEqual(after.fingerprint(),entry['currentImplementationSha256'])
+                    for unchanged in (shape,validator):
+                        self.assertEqual((prior_root/unchanged).read_bytes(),(ROOT/unchanged).read_bytes())
+                    previous=before.census(raw,'566279');current=after.census(raw,'566279')
+                    self.assertEqual(previous['issues'],[])
+                    self.assertEqual(current,previous)
+                    self.assertEqual(after.shape_text(current),before.shape_text(previous))
+                    # The newly handled initial PH case could not supply a
+                    # previous positive check. Existing complete substitutions
+                    # keep their exact participants, even across both edits.
+                    doc=json.loads((ROOT/'data/raw/samples/2026-07-18/824169.json').read_bytes())
+                    play=doc['liveData']['plays']['allPlays'][31]
+                    self.assertEqual(before.CONTEXT.batter_participation_context(play,'824169',source_consistent=True),
+                                     after.CONTEXT.batter_participation_context(play,'824169',source_consistent=True))
+                    play['playEvents']=play['playEvents'][3:]
+                    for index,event in enumerate(play['playEvents']):event['index']=index
+                    play['playEvents'][0].pop('replacedPlayer')
+                    play['playEvents'][0]['count'].update(balls=0,strikes=0)
+                    with self.assertRaises((KeyError,ValueError)):
+                        before.CONTEXT.batter_participation_context(play,'824169',source_consistent=True)
+                    self.assertEqual(len(after.CONTEXT.batter_participation_context(play,'824169',source_consistent=True)['participations']),1)
 
     def test_exact_q5_edit_does_not_change_reused_proof_dependencies(self):
         record=E.read(E.COMPATIBILITY_PATH)

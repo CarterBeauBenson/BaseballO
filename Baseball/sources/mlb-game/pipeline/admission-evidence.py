@@ -65,6 +65,11 @@ def code_equivalence(family,previous,current):
             and current==entry['currentImplementationSha256']):
         return dict(kind='prior-stricter-clock-check',recordSha256=sha(COMPATIBILITY_PATH),
             previousImplementationSha256=previous,currentImplementationSha256=current)
+    entry=record['priorPinchHitterIsolation']['families'].get(family)
+    if (entry and previous==entry['previousImplementationSha256']
+            and current==entry['currentImplementationSha256']):
+        return dict(kind='prior-stricter-pinch-hitter-check',recordSha256=sha(COMPATIBILITY_PATH),
+            previousImplementationSha256=previous,currentImplementationSha256=current)
     return None
 
 
@@ -77,7 +82,8 @@ def compatible_proof(state,promotion,family,implementation):
     proof=read(path)
     reuse=code_equivalence(family,proof.get('implementationSha256'),implementation)
     if reuse is None: return None
-    if reuse['kind']=='prior-stricter-clock-check' and proof.get('status')!='admitted': return None
+    positive_only=reuse['kind'] in {'prior-stricter-clock-check','prior-stricter-pinch-hitter-check'}
+    if positive_only and proof.get('status')!='admitted': return None
     expected=dict(artifactType='baseballo-'+family+'-admission',contractVersion=1,
         gamePk=promotion['gamePk'],sourceSha256=promotion['rawSha256'],
         authoritativeRdfSha256=promotion['authoritativeRdfSha256'],graph=promotion['authoritativeGraph'])
@@ -89,15 +95,15 @@ def compatible_proof(state,promotion,family,implementation):
     for suffix,key in (('.source.json','sourceCensusSha256'),('.shapes.ttl','shapeSha256'),('.report.ttl','reportSha256')):
         if key in proof and sha(path.with_suffix(suffix))!=proof[key]:
             raise ValueError('Retained validation artifact changed: '+key)
-    if reuse['kind']=='prior-stricter-clock-check':
+    if positive_only:
         census=read(path.with_suffix('.source.json'))
-        # Old admitted proofs required every source issue, including reversed
-        # clocks, to be absent. T1 separates clocks without adding an issue
-        # predicate; these exact positive proofs retain the same SHACL contract.
+        # These exact older implementations rejected the newly isolated cases.
+        # Their successful source censuses retain the same SHACL expectations.
+        # Withheld proofs cannot use this implication in the other direction.
         if (census.get('status')!='reconciled' or census.get('issues')!=[]
                 or census.get('sourceSha256')!=promotion['rawSha256']
                 or census.get('gamePk')!=promotion['gamePk']):
-            raise ValueError('Prior clock proof lacks its reconciled source census')
+            raise ValueError('Prior proof lacks its reconciled source census')
     # Keep the original status, issues AND producer fingerprint. This is code
     # reuse provenance, not a newly issued source/SHACL proof.
     return {**proof,'proofSha256':sha(path),'implementationReuse':reuse}
