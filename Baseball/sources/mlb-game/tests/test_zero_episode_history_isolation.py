@@ -13,6 +13,19 @@ spec.loader.exec_module(Q)
 
 
 class HistoryIsolation(unittest.TestCase):
+    def test_existing_graph_export_preserves_literal_terms(self):
+        from rdflib import Graph, Literal, URIRef
+        date = Literal('2026-09-17T00:09:19.347Z', datatype=URIRef('http://www.w3.org/2001/XMLSchema#dateTime'), normalize=False)
+        number = Literal('01', datatype=URIRef('http://www.w3.org/2001/XMLSchema#integer'), normalize=False)
+        original = Graph()
+        for predicate, value in [('date', date), ('number', number)]:
+            original.add((URIRef('urn:original'), URIRef('urn:' + predicate), value))
+        parsed = Q.TX.nt_graph(original.serialize(format='nt', encoding='utf-8'))
+        delta = Graph().parse(data='<urn:history> <urn:episode> <urn:existing-episode> .', format='nt')
+        union = Graph().parse(data=(parsed + delta).serialize(format='nt'), format='nt')
+        self.assertEqual(set(union), set(original) | set(delta))
+        self.assertEqual(set(original) - set(union), set())
+
     def fixture(self, case):
         half = dict(inning=case['inning'], half=case['half'], issues=case['issues'],
             completedCandidates=case['scoringCandidates'] + case['zeroEpisodeCandidates'])

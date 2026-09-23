@@ -14,8 +14,13 @@ import subprocess
 import urllib.request
 import uuid
 
+import rdflib
 from rdflib import BNode, Graph, Literal, URIRef
 from rdflib.compare import isomorphic
+
+# This stage exports an existing graph, not new source values. RDF term
+# identity includes lexical forms; preserve Z, integer spelling, and so on.
+rdflib.NORMALIZE_LITERALS = False
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
