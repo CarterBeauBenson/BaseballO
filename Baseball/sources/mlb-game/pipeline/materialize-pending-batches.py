@@ -10,6 +10,7 @@ import os
 import subprocess
 import sys
 import tempfile
+import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -80,9 +81,40 @@ def promotion_inventory(state_root: Path) -> dict[str, Any]:
     return module.promotion_inventory(state_root)
 
 
+def resume_replay_workers(state_root, request=None):
+    """Finish an explicitly requested deployment after old commands drain."""
+    path = state_root/'pipeline/control/mlb-game/replay-readiness-resume.json'
+    if not path.is_file(): return
+    def http(method, route, body=None):
+        data = json.dumps(body).encode() if body is not None else None
+        req = urllib.request.Request('http://127.0.0.1:8080/nifi-api'+route, data=data,
+            method=method, headers={'Content-Type':'application/json'})
+        with urllib.request.urlopen(req, timeout=15) as response: return json.load(response)
+    request = request or http
+    pending = json_object(path)
+    for processor, name in list(pending.items()):
+        if name not in {'Plan Quarantine Replay', 'Emit Quarantine Remainder Retry'}:
+            raise ValueError('Unexpected deferred replay processor')
+        entity = request('GET', '/processors/'+processor)
+        if entity['component']['name'] != name: raise ValueError('Replay worker identity changed')
+        if entity['component']['state'] == 'RUNNING':
+            del pending[processor]
+        elif entity['status']['aggregateSnapshot']['activeThreadCount'] == 0:
+            request('PUT', '/processors/'+processor+'/run-status', dict(revision=entity['revision'],
+                state='RUNNING',disconnectedNodeAcknowledged=False))
+            del pending[processor]
+    if pending: atomic_json(path, pending)
+    else: path.unlink()
+
+
 def main() -> int:
     args = parse_args()
     state_root = args.state_root.resolve()
+    process_spec = importlib.util.spec_from_file_location('mlb_worker_state', BASEBALL_ROOT/'scripts/pipeline/process_state.py')
+    process_state = importlib.util.module_from_spec(process_spec)
+    process_spec.loader.exec_module(process_state)
+    process_state.reconcile_builds(state_root)
+    resume_replay_workers(state_root)
     recovery_spec = importlib.util.spec_from_file_location("mlb_metric_source_recovery", RECOVERY_SCRIPT)
     if recovery_spec is None or recovery_spec.loader is None:
         raise ValueError("cannot load the MLB source recovery worker")

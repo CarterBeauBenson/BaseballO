@@ -43,6 +43,11 @@ class DashboardMaterializer(unittest.TestCase):
             stats = {}
             def __init__(self,*a): pass
             def query(self,**kw):
+                if kw['slot'] == 'metric-display':
+                    graph = kw['promotion']['authoritativeGraph']
+                    return {'results':{'bindings':[dict(graph=dict(type='uri',value=graph),
+                        entity=dict(type='uri',value='https://baseballontology.org/data/player/1'),
+                        label=dict(type='literal',value='Prepared player'))]}}
                 fetched.append(kw['promotion']['gamePk'])
                 return {'results':{'bindings':[]}}
         self.stack.enter_context(patch.object(D.SOURCE._query_cache,'ServingQueryCache',Cache))
@@ -71,6 +76,8 @@ class DashboardMaterializer(unittest.TestCase):
             result = reader.query(self.args,dict(route='metric-suite',view='dashboard',gameSet='regular_season',dateScope={'preset':'one_day'}))
         self.assertEqual(len(result['metrics']),20)  # Includes the catalog's retained legacy metric.
         self.assertEqual(result['serving']['publication'],'dashboard')
+        self.assertEqual(result['display']['source'],'prepared-sql-labels')
+        self.assertEqual([r['label'] for r in result['display']['labels']], ['Prepared player']*2)
 
     def test_failed_game_rolls_back_and_resume_reuses_committed_games(self):
         materialize = D.METRICS.materialize_game

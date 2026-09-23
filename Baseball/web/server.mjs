@@ -845,6 +845,11 @@ export function createBaseballServer({
       result.metric ? { ...result, metric: ranked(result.metric) } : result;
     if (result.metrics) result = {...result,
       dashboardReadiness:dashboardReadiness(result.metrics, [...definitions.keys()])};
+    if (result.execution === 'materialized-sql') {
+      const display = result.display ?? {source:'identifier-fallback',labels:[]};
+      const named = metric => ranked(labelMetricPlayers(metric, display.labels));
+      return {...result, ...(result.metrics ? {metrics:result.metrics.map(named)} : {metric:named(result.metric)}), display};
+    }
     const subjects = (result.metrics ?? [result.metric]).filter(Boolean).flatMap(metric => [
       ...(metric.consequences ?? []),
       ...(metric.playerResults ?? []).flatMap(row => (row.graphs ?? []).map(graph => ({graph, batter:row.player}))),

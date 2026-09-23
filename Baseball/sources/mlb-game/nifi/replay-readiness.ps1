@@ -4,13 +4,21 @@ function Install-ReplayReadiness {
     $flow = Get-GroupFlow -GroupId $GroupId
     $failure = @($flow.processors | Where-Object { $_.component.name -eq 'Record Quarantine Replay Control Failure' })
     if ($failure.Count -ne 1) { throw 'Replay failure destination is not unique.' }
+    $failureWasRunning = $failure[0].component.state -eq 'RUNNING'
+    if ($failureWasRunning) {
+        $entity = Invoke-NiFi GET "/processors/$($failure[0].id)"
+        Invoke-NiFi PUT "/processors/$($entity.id)/run-status" @{
+            revision=$entity.revision;state='STOPPED';disconnectedNodeAcknowledged=$false
+        } | Out-Null
+    }
+    try {
     foreach ($lane in @(
         @{ Name='Plan'; Worker='Plan Quarantine Replay'; Edge='quarantine replay plan failed'; Y=-1160 },
         @{ Name='Remainder'; Worker='Emit Quarantine Remainder Retry'; Edge='quarantine remainder retry failed'; Y=-1760 }
     )) {
         $names = @($lane.Worker, "Route Quarantine $($lane.Name) Readiness", "Retry Quarantine $($lane.Name) SQL Readiness")
         $resume = @()
-        foreach ($processor in @((Get-GroupFlow $GroupId).processors | Where-Object { $_.component.name -in $names })) {
+        foreach ($processor in @((Get-GroupFlow $GroupId).processors | Where-Object { $_.component.name -in $names[1..2] })) {
             if ($processor.component.state -eq 'RUNNING') {
                 $entity = Invoke-NiFi GET "/processors/$($processor.id)"
                 Invoke-NiFi PUT "/processors/$($processor.id)/run-status" @{
@@ -41,16 +49,33 @@ function Install-ReplayReadiness {
         Ensure-Connection $GroupId "quarantine $($lane.Name) dependency pending" $gate $retry @('pending') | Out-Null
         Ensure-Connection $GroupId "quarantine $($lane.Name) command failed" $gate $failure[0].id @('unmatched') | Out-Null
         $returnId = Ensure-Connection $GroupId "quarantine $($lane.Name) dependency retry" $retry $worker[0].id @('retry')
-        $current = Invoke-NiFi GET "/connections/$returnId"
-        Invoke-NiFi PUT "/connections/$returnId" @{
-            revision=$current.revision; component=@{id=$returnId;backPressureObjectThreshold=0;backPressureDataSizeThreshold='0 B'}
-        } | Out-Null
         Ensure-Connection $GroupId "quarantine $($lane.Name) dependency exhausted" $retry $failure[0].id @('retries_exceeded') | Out-Null
-        if ($Start) { $resume += @($gate,$retry) }
-        foreach ($id in $resume) {
+        if ($Start) { $resume += @($worker[0].id,$gate,$retry) }
+        foreach ($id in @($resume | Select-Object -Unique)) {
             $entity = Invoke-NiFi GET "/processors/$id"
+            if ($entity.component.state -eq 'RUNNING') { continue }
+            if ($entity.status.aggregateSnapshot.activeThreadCount -gt 0) {
+                $pendingPath = Join-Path $script:StateRoot 'pipeline\control\mlb-game\replay-readiness-resume.json'
+                $pending = @{}
+                if (Test-Path -LiteralPath $pendingPath) {
+                    $saved = Get-Content -LiteralPath $pendingPath -Raw | ConvertFrom-Json
+                    foreach ($p in $saved.PSObject.Properties) { $pending[$p.Name] = $p.Value }
+                }
+                $pending[$id] = $entity.component.name
+                $pending | ConvertTo-Json | Set-Content -LiteralPath "$pendingPath.partial" -Encoding UTF8
+                Move-Item -LiteralPath "$pendingPath.partial" -Destination $pendingPath -Force
+                continue
+            }
             Invoke-NiFi PUT "/processors/$id/run-status" @{
                 revision=$entity.revision; state='RUNNING'; disconnectedNodeAcknowledged=$false
+            } | Out-Null
+        }
+    }
+    } finally {
+        if ($failureWasRunning) {
+            $entity = Invoke-NiFi GET "/processors/$($failure[0].id)"
+            Invoke-NiFi PUT "/processors/$($entity.id)/run-status" @{
+                revision=$entity.revision;state='RUNNING';disconnectedNodeAcknowledged=$false
             } | Out-Null
         }
     }

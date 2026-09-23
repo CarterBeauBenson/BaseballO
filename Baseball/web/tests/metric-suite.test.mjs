@@ -448,21 +448,17 @@ test('optional label lookup failure preserves a successful SQL metric response',
   });
 });
 
-test('dashboard and expanded metric ranks receive names from their scored game graphs', async () => {
+test('dashboard and expanded metric ranks receive prepared SQL names with no graph request', async () => {
   const graph='https://w3id.org/baseball/graph/game/824087';
   const row=playerScore(1,0,{metricId:'run-construction-breadth',graphs:[graph],
     aggregate:{kind:'mean',sum:{numerator:'5',denominator:'1'},count:2}});
   const metric={metricId:row.metricId,status:'available',playerPopulationComplete:true,playerResults:[row]};
   for (const dashboard of [true,false]) {
     const result={execution:'materialized-sql',dateScope:leaderboardScope,
+      display:{source:'prepared-sql-labels',labels:[{graph,entity:row.player,label:'Scoring Player'}]},
       ...(dashboard?{metrics:[metric]}:{metric})};
-    await withServer({servingExecutor:async()=>result,fetchImpl:async(_url,options)=>{
-      assert.ok(options.body.get('query').includes(`<${graph}>`));
-      return new Response(JSON.stringify({results:{bindings:[{
-        graph:{type:'uri',value:graph},entity:{type:'uri',value:row.player},
-        label:{type:'literal',value:'Scoring Player'}
-      }]}}));
-    }},async url=>{
+    let graphRequests=0;
+    await withServer({servingExecutor:async()=>result,fetchImpl:async()=>{graphRequests++;throw Error('No graph requests');}},async url=>{
       const response=await fetch(url+'/api/metrics/'+(dashboard?'dashboard':'query'),
         {method:'POST',body:JSON.stringify(dashboard?{}:{metricId:metric.metricId})});
       assert.equal(response.status,200);
@@ -470,6 +466,7 @@ test('dashboard and expanded metric ranks receive names from their scored game g
       const board=(dashboard?body.metrics[0]:body.metric).leaderboard;
       assert.equal(board.status,'available');
       assert.equal(board.rows[0].name,'Scoring Player');
+      assert.equal(graphRequests,0);
       assert.deepEqual(board.rows[0].value,{numerator:'5',denominator:'2'});
     });
   }
@@ -478,7 +475,8 @@ test('dashboard and expanded metric ranks receive names from their scored game g
 
 test('runner boundary labels remain optional and do not manufacture a metric score', async () => {
   const graph = 'https://w3id.org/baseball/graph/game/566279', runner = 'https://baseballontology.org/data/player/444482';
-  const result = { execution:'materialized-sql', metric:{ metricId:'tfs', status:'unavailable', value:null,
+  const result = { execution:'materialized-sql', display:{source:'prepared-sql-labels',labels:[{graph,entity:runner,label:'Test name'}]},
+    metric:{ metricId:'tfs', status:'unavailable', value:null,
     runnerBoundaryStates:[{graph,runner,basePosition:2,completePlateAppearance:false,populationComplete:false}] } };
   let labelQueries = 0;
   await withServer({ servingExecutor:async()=>result, fetchImpl:async(_url, options)=>{
@@ -490,7 +488,7 @@ test('runner boundary labels remain optional and do not manufacture a metric sco
     const response = await fetch(url+'/api/metrics/query',{method:'POST',body:JSON.stringify({metricId:'tfs'})});
     assert.equal(response.status,200);
     const payload = await response.json();
-    assert.equal(labelQueries,1);
+    assert.equal(labelQueries,0);
     assert.equal(displayPlayer(payload.display.labels,graph,runner),'Test name');
     assert.deepEqual(payload.metric.runnerBoundaryStates,result.metric.runnerBoundaryStates);
     assert.equal(payload.metric.status,'unavailable');
@@ -529,7 +527,7 @@ test('API returns SQL results and rejects caller supplied evidence before execut
     assert.equal(response.status, 200);
     const payload = await response.json();
     const { leaderboard, ...scoredMetric } = payload.metric;
-    assert.deepEqual({ ...payload, metric: scoredMetric }, result);
+    assert.deepEqual({ ...payload, metric: scoredMetric }, {...result,display:{source:'identifier-fallback',labels:[]}});
     assert.equal(leaderboard.status, 'unavailable');
     assert.deepEqual(leaderboard.gaps, ['COMPLETE_PLAYER_SCORES']);
     response = await fetch(url + '/api/metrics/query', { method: 'POST', body: JSON.stringify({ metricId: 'tfs', bindings: [] }) });

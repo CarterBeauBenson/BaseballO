@@ -39,6 +39,7 @@ if __name__ == '__main__':
 # adapters. The legacy builder's report queries and build() are never invoked.
 SOURCE = module(ROOT/'scripts/pipeline/materialize-serving-layer.py', 'dashboard_source')
 METRICS = SOURCE._metric_suite
+DISPLAY = module(ROOT/'serving/dashboard_display.py', 'dashboard_display')
 SCHEMA = ROOT/'serving/dashboard-schema.sql'
 POINTER = 'dashboard-current.json'
 ADMISSIONS = {
@@ -101,6 +102,7 @@ def graph_tables(connection):
 
 def remove_game(connection, graph):
     # Keep the dimension until child-row triggers have invalidated its ranks.
+    DISPLAY.remove(connection, graph)
     for table in graph_tables(connection):
         connection.execute(f'DELETE FROM "{table}" WHERE graph_iri=?', (graph,))
     connection.execute('DELETE FROM dashboard_checkpoint WHERE graph_iri=?', (graph,))
@@ -162,7 +164,7 @@ def notification_key(state):
     paths += list((state/'pipeline/control/mlb-game/schedule-coverage').glob('*.json'))
     files = [(str(p.relative_to(state)), p.stat().st_size, p.stat().st_mtime_ns) for p in sorted(paths)]
     return digest(dict(events=files, metrics=METRICS.fingerprint(), builder=SOURCE.sha256_file(Path(__file__)),
-                       schema=SOURCE.sha256_file(SCHEMA))), max((v[2] for v in files), default=0)
+                       display=DISPLAY.fingerprint(), schema=SOURCE.sha256_file(SCHEMA))), max((v[2] for v in files), default=0)
 
 
 def build(args):
@@ -189,7 +191,14 @@ def build_locked(args, state, serving, work):
     progress = dict(artifactType='baseballo-dashboard-build-progress', buildId=build_id, processId=os.getpid(),
                     status='running', phase='source-snapshot', completedGames=0, changedGames=0, reusedGames=0)
     progress_path = work/'progress.json'
+    phase_started = time.perf_counter()
+    durations = {}
     def checkpoint(**values):
+        nonlocal phase_started
+        if values.get('phase',progress['phase']) != progress['phase'] or values.get('status') in {'published','failed','ready-for-promotion','waiting-for-source'}:
+            durations[progress['phase']] = round(durations.get(progress['phase'],0)+time.perf_counter()-phase_started,3)
+            phase_started = time.perf_counter()
+        progress['phaseSeconds'] = dict(durations)
         progress.update(values, updatedAtUtc=datetime.now(timezone.utc).isoformat())
         RELEASE.atomic(progress_path, progress)
     checkpoint()
@@ -205,7 +214,7 @@ def build_locked(args, state, serving, work):
         connection.execute('PRAGMA journal_mode=WAL')
         connection.execute('PRAGMA synchronous=FULL')
         connection.executescript(SCHEMA.read_text(encoding='utf-8'))
-        METRICS.initialize_sql(connection); connection.commit()
+        METRICS.initialize_sql(connection); DISPLAY.initialize(connection); connection.commit()
         calculation = METRICS.calculation_fingerprint()
         cache = SOURCE._query_cache.ServingQueryCache(serving/'query-cache.sqlite')
         products = SOURCE._metric_cache.MetricProductCache(serving/'metric-cache.sqlite', calculation)
@@ -239,6 +248,18 @@ def build_locked(args, state, serving, work):
         for count, (item, bindings) in enumerate(bounded_fetch(pending, fetch, args.workers), 1):
             store_game(connection, item, bindings, products)
             checkpoint(completedGames=unchanged+count)
+        checkpoint(phase='display-labels')
+        saved_labels = dict(connection.execute('SELECT graph_iri,input_sha256 FROM dashboard_display_manifest'))
+        display_version = DISPLAY.fingerprint()
+        for promotion in inventory.values():
+            graph = promotion['authoritativeGraph']
+            if graph not in expected: continue
+            identity = digest([promotion['authoritativeRdfSha256'],display_version])
+            if saved_labels.get(graph) == identity: continue
+            label_query = DISPLAY.query(graph)
+            labels = cache.query(endpoint=args.endpoint, query=label_query, slot='metric-display', promotion=promotion,
+                fetch=lambda: SOURCE.sparql(args.endpoint,label_query,args.timeout))['results']['bindings']
+            DISPLAY.store(connection,graph,identity,labels)
         coverage = SOURCE._schedule_qualification.merge_snapshots(state, SOURCE._batting_admission.schedule_coverage(state))
         coverage_sha = digest(coverage)
         prior_coverage = connection.execute("SELECT value FROM dashboard_state WHERE name='schedule'").fetchone()

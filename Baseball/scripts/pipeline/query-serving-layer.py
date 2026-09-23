@@ -34,6 +34,9 @@ if __name__ == '__main__':
 _metric_spec = importlib.util.spec_from_file_location('baseballo_metric_suite', ROOT / 'serving/metric_suite.py')
 _metric_suite = importlib.util.module_from_spec(_metric_spec)
 _metric_spec.loader.exec_module(_metric_suite)
+_display_spec = importlib.util.spec_from_file_location('baseballo_dashboard_display', ROOT/'serving/dashboard_display.py')
+_display = importlib.util.module_from_spec(_display_spec)
+_display_spec.loader.exec_module(_display)
 GAME_SETS = frozenset(
     {"regular_season", "preseason", "postseason", "exhibition", "all_star"}
 )
@@ -930,7 +933,9 @@ def query_dashboard(args, request, pointer):
         build = connection.execute('SELECT build_id,corpus_fingerprint,input_set_sha256,status FROM dashboard_build').fetchone()
         if build != (pointer.get('buildId'),pointer.get('corpusFingerprint'),pointer.get('inputSetSha256'),'validated'):
             raise ValueError('Dashboard metadata does not match its publication pointer')
-        result = _metric_suite.query_sql(connection,request,resolve_scope(connection,request))
+        scope = resolve_scope(connection,request)
+        result = _metric_suite.query_sql(connection,request,scope)
+        result['display'] = _display.read(connection,scope)
         result['serving'] = dict(buildId=build[0],corpusFingerprint=build[1],publication='dashboard',
                                  durationMs=round((time.perf_counter()-started)*1000,3))
         return result
