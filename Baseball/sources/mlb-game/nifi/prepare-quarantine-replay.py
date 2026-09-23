@@ -10,7 +10,6 @@ import os
 import re
 import sys
 import tempfile
-import time
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -604,24 +603,20 @@ def emit_latest_remainder(state_root: Path, game_pks: list[str] | None = None) -
     }
 
 
-def wait_for_serving_build(state_root: Path, build_id: str, timeout_seconds: float = 21600) -> None:
-    """NiFi defers this replay until the named SQL snapshot has finished reading RDF."""
+def serving_build_ready(state_root: Path, build_id: str) -> bool:
+    """One readiness observation. NiFi retains and penalizes the queued request."""
     if not re.fullmatch(r"[0-9]{8}T[0-9]{6}Z-[0-9a-f]+", build_id):
         raise ValueError("Invalid serving build ID")
     path = state_root / "serving" / "builds" / (build_id + ".progress.json")
-    deadline = time.monotonic() + timeout_seconds
-    while True:
-        progress = read_object(path)
-        if progress.get("buildId") != build_id:
-            raise ValueError("Serving progress does not identify the requested build")
-        status = progress.get("status")
-        if status in {"validated", "ready-for-promotion", "failed", "invalidated"}:
-            return
-        if status != "running":
-            raise ValueError("Unknown serving progress state: " + str(status))
-        if time.monotonic() >= deadline:
-            raise TimeoutError("Serving build is still running; quarantine inputs remain retained")
-        time.sleep(min(30, max(0, deadline - time.monotonic())))
+    progress = read_object(path)
+    if progress.get("buildId") != build_id:
+        raise ValueError("Serving progress does not identify the requested build")
+    status = progress.get("status")
+    if status in {"validated", "ready-for-promotion", "failed", "invalidated", "interrupted"}:
+        return True
+    if status != "running":
+        raise ValueError("Unknown serving progress state: " + str(status))
+    return False
 
 
 def resolve_input(
@@ -740,11 +735,14 @@ def main() -> None:
         if not isinstance(request, dict) or set(request) - {"gamePks", "afterServingBuild"}:
             raise ValueError("Invalid quarantine replay request")
         validate_game_selection(request.get('gamePks'))
+        if request.get('afterServingBuild') and not serving_build_ready(args.state_root, request['afterServingBuild']):
+            # ExecuteStreamCommand sends stdout on its nonzero relationship.
+            # Preserve the exact request for the source-owned retry connection.
+            print(json.dumps(request, separators=(',', ':')))
+            return 75
     if args.action == "plan":
         if args.contract is None:
             raise ValueError("plan requires --contract")
-        if request.get('afterServingBuild'):
-            wait_for_serving_build(args.state_root, request['afterServingBuild'])
         output = create_plan(args.state_root, args.contract, request.get('gamePks'))
     elif args.action == "check-proof":
         if args.plan is None:
@@ -758,11 +756,7 @@ def main() -> None:
         output = emit_latest_proof(args.state_root)
     elif args.action == "emit-latest-remainder":
         game_pks = request.get("gamePks")
-        # Validate the scope before waiting; re-read exact inputs after the wait.
         output = emit_latest_remainder(args.state_root, game_pks)
-        if request.get("afterServingBuild"):
-            wait_for_serving_build(args.state_root, request["afterServingBuild"])
-            output = emit_latest_remainder(args.state_root, game_pks)
     else:
         if (
             args.plan is None
@@ -784,4 +778,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

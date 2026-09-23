@@ -299,22 +299,19 @@ class QuarantineReplayTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     MODULE.emit_latest_remainder(state, invalid)
 
-    def test_replay_waits_for_named_sql_reader_and_times_out_without_emitting(self) -> None:
+    def test_replay_readiness_returns_immediately_and_keeps_named_dependency(self) -> None:
         build_id = '20260923T131519Z-0365dbfc11ac'
         running = dict(buildId=build_id, status='running')
-        for terminal in ('validated', 'ready-for-promotion', 'failed', 'invalidated'):
-            with patch.object(MODULE, 'read_object', side_effect=[running, dict(running, status=terminal)]), \
-                    patch.object(MODULE.time, 'sleep') as sleep:
-                MODULE.wait_for_serving_build(Path('state'), build_id)
-                sleep.assert_called_once()
+        for terminal in ('validated', 'ready-for-promotion', 'failed', 'invalidated', 'interrupted'):
+            with patch.object(MODULE, 'read_object', return_value=dict(running, status=terminal)):
+                self.assertTrue(MODULE.serving_build_ready(Path('state'), build_id))
         with patch.object(MODULE, 'read_object', return_value=running):
-            with self.assertRaises(TimeoutError):
-                MODULE.wait_for_serving_build(Path('state'), build_id, timeout_seconds=0)
+            self.assertFalse(MODULE.serving_build_ready(Path('state'), build_id))
         with self.assertRaises(ValueError):
-            MODULE.wait_for_serving_build(Path('state'), '../outside')
+            MODULE.serving_build_ready(Path('state'), '../outside')
         with patch.object(MODULE, 'read_object', return_value=dict(running, buildId='wrong')):
             with self.assertRaises(ValueError):
-                MODULE.wait_for_serving_build(Path('state'), build_id)
+                MODULE.serving_build_ready(Path('state'), build_id)
 
     def test_resolution_removes_only_game_local_inputs_after_matching_promotion(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

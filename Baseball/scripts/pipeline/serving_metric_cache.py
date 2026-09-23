@@ -12,9 +12,11 @@ import io
 import json
 from pathlib import Path
 import sqlite3
+import time
 import zlib
 
 MAX_BYTES = 64 * 1024 * 1024
+VERSIONS_PER_GAME = 3
 
 
 def canonical(value):
@@ -38,6 +40,12 @@ class MetricProductCache:
                 db.execute('''CREATE TABLE IF NOT EXISTS game_product (
                     graph TEXT PRIMARY KEY, identity_sha256 TEXT NOT NULL,
                     payload_sha256 TEXT NOT NULL, payload BLOB NOT NULL)''')
+                # Keep the old table readable by already-running immutable releases.
+                # Adjacent calculation versions must not evict each other's work.
+                db.execute('''CREATE TABLE IF NOT EXISTS game_product_version (
+                    graph TEXT NOT NULL, identity_sha256 TEXT NOT NULL,
+                    payload_sha256 TEXT NOT NULL, payload BLOB NOT NULL,
+                    touched_ns INTEGER NOT NULL, PRIMARY KEY(graph,identity_sha256))''')
         except (OSError, sqlite3.Error):
             self.enabled = False
 
@@ -50,7 +58,12 @@ class MetricProductCache:
         try:
             with closing(sqlite3.connect(self.path, timeout=5)) as db:
                 row = db.execute('SELECT identity_sha256,payload_sha256,payload '
-                    'FROM game_product WHERE graph=?', (graph,)).fetchone()
+                    'FROM game_product_version WHERE graph=? AND identity_sha256=?',
+                    (graph, identity)).fetchone()
+                if row is None:
+                    row = db.execute('SELECT identity_sha256,payload_sha256,payload '
+                        'FROM game_product WHERE graph=? AND identity_sha256=?',
+                        (graph, identity)).fetchone()
             if row and row[0] == identity:
                 with gzip.GzipFile(fileobj=io.BytesIO(row[2])) as stream:
                     raw = stream.read(MAX_BYTES + 1)
@@ -71,9 +84,12 @@ class MetricProductCache:
         if len(raw) <= MAX_BYTES:
             try:
                 with closing(sqlite3.connect(self.path, timeout=5)) as db, db:
-                    # Retain one product per graph, never every historical version.
-                    db.execute('INSERT OR REPLACE INTO game_product VALUES (?,?,?,?)',
-                        (graph, identity, sha(raw), gzip.compress(raw, compresslevel=1, mtime=0)))
+                    db.execute('INSERT OR REPLACE INTO game_product_version VALUES (?,?,?,?,?)',
+                        (graph, identity, sha(raw), gzip.compress(raw, compresslevel=1, mtime=0),
+                         time.time_ns()))
+                    db.execute('DELETE FROM game_product_version WHERE graph=? AND identity_sha256 NOT IN '
+                        '(SELECT identity_sha256 FROM game_product_version WHERE graph=? '
+                        'ORDER BY touched_ns DESC LIMIT ?)', (graph, graph, VERSIONS_PER_GAME))
             except (OSError, sqlite3.Error):
                 pass  # Recomputable acceleration must not become a build dependency.
         return result

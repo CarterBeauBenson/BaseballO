@@ -54,19 +54,24 @@ class MetricCache(unittest.TestCase):
         self.calculate(graph='urn:game:2')
         self.assertEqual(self.compute.call_count, 4)
 
-    def test_unrelated_game_stays_reusable_and_only_one_version_per_game_remains(self):
+    def test_parallel_versions_coexist_and_history_is_bounded(self):
         self.calculate()
         self.calculate(graph='urn:game:2')
         self.calculate(graph='urn:game:2', rows=[])
         self.calculate()
         self.assertEqual(self.compute.call_count, 3)
+        self.calculate(graph='urn:game:2')
+        self.assertEqual(self.compute.call_count, 3)
+        for version in range(5):
+            self.calculate(graph='urn:game:2', rows=[{'version':version}])
         with sqlite3.connect(self.path) as db:
-            self.assertEqual(db.execute('SELECT count(*) FROM game_product').fetchone()[0], 2)
+            self.assertEqual(db.execute('SELECT graph,count(*) FROM game_product_version GROUP BY graph').fetchall(),
+                             [('urn:game:1', 1), ('urn:game:2', 3)])
 
     def test_corruption_recomputes_and_repairs(self):
         self.calculate()
         with sqlite3.connect(self.path) as db:
-            db.execute("UPDATE game_product SET payload=x'00'")
+            db.execute("UPDATE game_product_version SET payload=x'00'")
         self.calculate()
         self.calculate()
         self.assertEqual(self.compute.call_count, 2)

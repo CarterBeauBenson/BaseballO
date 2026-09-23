@@ -6,6 +6,7 @@ param(
     [switch] $RetryQuarantineProof,
     [switch] $RetryQuarantineRemainder,
     [switch] $StartDaily,
+    [switch] $ReplayReadinessOnly,
     [ValidatePattern('^\d+$')][string] $ProofGamePk = '566279'
 )
 
@@ -353,6 +354,11 @@ function Ensure-FailureStageProcessor([string] $GroupId, [string] $Stage, [int] 
 $rootId = (Invoke-NiFi -Method GET -Path '/flow/process-groups/root').processGroupFlow.id
 $baseballGroupId = Get-OrCreateProcessGroup -ParentId $rootId -Name $script:NiFiRootProcessGroupName -X 100 -Y 100
 $groupId = Get-OrCreateProcessGroup -ParentId $baseballGroupId -Name $script:MlbGameProcessGroupName -X 100 -Y 100
+. (Join-Path $PSScriptRoot 'replay-readiness.ps1')
+if ($ReplayReadinessOnly) {
+    Install-ReplayReadiness -GroupId $groupId -Start
+    return
+}
 Stop-OwnedProcessGroupForReconciliation -GroupId $groupId
 
 foreach ($obsoleteConnection in @(
@@ -667,9 +673,8 @@ Ensure-Connection -GroupId $groupId -Name 'quarantine proof retry emitted' -Sour
 Ensure-Connection -GroupId $groupId -Name 'quarantine proof retry failed' -SourceId $processors.emitQuarantineProofRetry -DestinationId $processors.quarantineReplayControlFailure -Relationships @('nonzero status') | Out-Null
 Ensure-Connection -GroupId $groupId -Name 'quarantine remainder retry requested' -SourceId $processors.quarantineRemainderRetryRequest -DestinationId $processors.emitQuarantineRemainderRetry -Relationships @('success') | Out-Null
 Ensure-Connection -GroupId $groupId -Name 'quarantine remainder retry emitted' -SourceId $processors.emitQuarantineRemainderRetry -DestinationId $processors.splitQuarantinePlan -Relationships @('output stream') | Out-Null
-Ensure-Connection -GroupId $groupId -Name 'quarantine remainder retry failed' -SourceId $processors.emitQuarantineRemainderRetry -DestinationId $processors.quarantineReplayControlFailure -Relationships @('nonzero status') | Out-Null
 Ensure-Connection -GroupId $groupId -Name 'quarantine replay plan emitted' -SourceId $processors.planQuarantineReplay -DestinationId $processors.splitQuarantinePlan -Relationships @('output stream') | Out-Null
-Ensure-Connection -GroupId $groupId -Name 'quarantine replay plan failed' -SourceId $processors.planQuarantineReplay -DestinationId $processors.quarantineReplayControlFailure -Relationships @('nonzero status') | Out-Null
+Install-ReplayReadiness -GroupId $groupId
 Ensure-Connection -GroupId $groupId -Name 'quarantine replay plan split' -SourceId $processors.splitQuarantinePlan -DestinationId $processors.readQuarantineReplayItem -Relationships @('split') | Out-Null
 Ensure-Connection -GroupId $groupId -Name 'quarantine replay plan split failed' -SourceId $processors.splitQuarantinePlan -DestinationId $processors.quarantineReplayControlFailure -Relationships @('failure') | Out-Null
 Ensure-Connection -GroupId $groupId -Name 'quarantine replay item read' -SourceId $processors.readQuarantineReplayItem -DestinationId $processors.routeQuarantineReplayItem -Relationships @('matched') | Out-Null
@@ -787,6 +792,8 @@ $unexpectedProcessors = @($flow.processors | Where-Object { $_.component.name -n
     'Quarantine Replay Request','Plan Quarantine Replay','Split Quarantine Replay Plan','Read Quarantine Replay Item',
     'Quarantine Proof Retry Request','Emit Quarantine Proof Retry',
     'Quarantine Remainder Retry Request','Emit Quarantine Remainder Retry',
+    'Route Quarantine Plan Readiness','Retry Quarantine Plan SQL Readiness',
+    'Route Quarantine Remainder Readiness','Retry Quarantine Remainder SQL Readiness',
     'Route Quarantine Replay Item','Name Quarantine Replay Work','Fetch Quarantine Input','Check Quarantine Replay Proof',
     'Require Quarantine Proof Success','Retry Quarantine Proof Readiness','Emit Quarantine Replay Remainder',
     'Split Quarantine Replay Remainder','Record Quarantine Replay Control Failure',
