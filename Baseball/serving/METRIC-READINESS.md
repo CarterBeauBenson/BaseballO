@@ -154,6 +154,27 @@ Seven of the fifteen games now have complete binary batting-progress inputs;
 twelve PAs across the other eight games remain unresolved. This is component
 evidence pending NiFi publication, not a complete selected-period leaderboard.
 
+Empty Games now evaluates certainty per eligible player-game instead of
+requiring unrelated contribution details to resolve first. A confirmed positive
+makes the game nonempty regardless of other uncertain positives. The reducer
+retains every official PA, bounds each unresolved PA's possible beneficiaries,
+and withholds the whole selected population if any eligible classification can
+still change. A positive in another game cannot settle this game's result.
+An independently supported single-segment batter reach also remains certain
+when only a different runner's attribution is unresolved; path/identity/state
+failures do not retain partial credit. These changes do not complete any
+unresolved contribution magnitude or channel inventory.
+
+Focused checks against retained September 16 SQL and current B1 admissions now
+resolve Empty Game classifications in **13 of 15 games**, including all 19
+eligible players in game 824306 despite its still-unresolved PA 77 progress
+population. Two classifications remain uncertain: player 681508 in game
+822846 (PA 37's other-runner contribution ownership), and player 670770 in
+game 824467 (PA 65's contribution ownership). The default day therefore remains
+withheld as a whole. Twenty focused progress tests cover the new reducer,
+retained denominators, negative cases and SQL equivalence. This is component
+evidence, not live dashboard publication.
+
 ### Specific remaining count and review evidence
 
 The retained pitch-count censuses for 822680, 822763 and 824140 reconcile

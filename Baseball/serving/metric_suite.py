@@ -2203,11 +2203,21 @@ def batting_progress_evidence(rows):
         if types and player not in {r.get('runner') for r in movements[(graph,pa)]}:
             reasons.append('MISSING_BATTER_RESOLUTION')
         if reasons:
-            withheld.append(dict(graph=graph,plateAppearance=pa,gaps=sorted(set(reasons))));continue
+            runner_ids={r.get('runner') for r in movements[(graph,pa)]}
+            # An independently supported, single-segment batter reach stays a
+            # certain positive when only another runner's attribution is unknown.
+            # Do not carry partial credit through a path/identity/state failure.
+            certain_self=(self_positive and set(reasons)=={'UNRESOLVED_PROGRESS_ATTRIBUTION'}
+                          and len({r['resolution'] for r in movements[(graph,pa)] if r.get('runner')==player})==1)
+            withheld.append(dict(graph=graph,game=game,plateAppearance=pa,player=player,officialResult=bool(types),
+                possiblePositivePlayers=sorted({player,*runner_ids}) if None not in runner_ids else None,
+                confirmedPositivePlayers=[player] if certain_self else [],
+                gaps=sorted(set(reasons))));continue
         completed.append(dict(graph=graph,game=game,plateAppearance=pa,player=player,
             officialResult=bool(types),batterPositive=self_positive,otherPositivePlayers=sorted(other),
             independentPositive=independent,
             independentPositiveGaps=sorted(set(independent_positive_gaps)),
+            unresolvedRunningPositivePlayers=sorted({r['runner'] for r in unattributed_positive}),
             independentEpisodes=independent_episodes,independentEpisodeGaps=sorted(set(independent_gaps)),
             positiveChannels=[dict(player=p,play=play,channel=channel) for p,play,channel in sorted(positive_channels)],
             coalescedContactPaths=coalesced,
@@ -2226,6 +2236,60 @@ def batting_progress_evidence(rows):
     return dict(plateAppearances=completed,unresolvedPlateAppearances=withheld)
 
 
+def empty_game_players(evidence, *, qualification, date_scope):
+    """A certain positive settles non-emptiness despite unrelated unknowns.
+
+    Keep every official PA and every eligible player-game. Unknown contributions
+    matter only when they can change that player's classification. This does
+    not complete the underlying progress, running or contribution-mix inputs.
+    """
+    missing=dict(playerPopulationComplete=False,playerResults=[])
+    pas=[*evidence['plateAppearances'],*evidence['unresolvedPlateAppearances']]
+    if any(not all(p.get(k) for k in ('graph','game','player','plateAppearance')) or type(p.get('officialResult')) is not bool for p in pas):
+        return dict(missing,playerSummaryGaps=['COMPLETE_PA_PROGRESS'],progressEvidence=evidence)
+    expected={(p['graph'],p['plateAppearance'],p['player']) for p in qualification['expectedObservations']}
+    actual=[(p['graph'],p['plateAppearance'],p['player']) for p in pas if p['officialResult']]
+    if len(actual)!=len(expected) or set(actual)!=expected:
+        return dict(missing,playerSummaryGaps=['COMPLETE_PA_PROGRESS'],progressEvidence=evidence)
+    positive=set();uncertain=set()
+    for pa in evidence['plateAppearances']:
+        if pa['reach']:positive.add((pa['graph'],pa['game'],pa['player']))
+        positive.update((pa['graph'],pa['game'],r['player']) for r in pa['independentPositive'])
+        if pa.get('independentPositiveGaps') and not pa.get('unresolvedRunningPositivePlayers'):
+            return dict(missing,playerSummaryGaps=['COMPLETE_PA_PROGRESS'],progressEvidence=evidence)
+        uncertain.update((pa['graph'],pa['game'],p) for p in pa.get('unresolvedRunningPositivePlayers',[]))
+    for pa in evidence['unresolvedPlateAppearances']:
+        if pa.get('possiblePositivePlayers') is None:
+            return dict(missing,playerSummaryGaps=['COMPLETE_PA_PROGRESS'],progressEvidence=evidence)
+        positive.update((pa['graph'],pa['game'],p) for p in pa.get('confirmedPositivePlayers',[]))
+        uncertain.update((pa['graph'],pa['game'],p) for p in pa['possiblePositivePlayers'])
+    by_player=defaultdict(list)
+    for pa in pas:
+        if pa['officialResult']:by_player[pa['player']].append(pa)
+    output=[];unresolved=[]
+    for person in qualification['participation']:
+        player=person['player'];observations=by_player[player]
+        if len(observations)!=person['plateAppearances']:
+            return dict(missing,playerSummaryGaps=['COMPLETE_PA_PROGRESS'],progressEvidence=evidence)
+        if not observations:continue
+        games=person['teamGameExposure']
+        if len({g['game'] for g in games})!=len(games):raise EvidenceError('Conflicting progress team exposure')
+        eligible={(p['graph'],p['game'],player) for p in observations}
+        unresolved.extend(dict(graph=g,game=game,player=p) for g,game,p in sorted(eligible & uncertain - positive))
+        count=len(eligible-positive)
+        output.append(dict(player=player,metricId='empty-game-rate',status='available',dateScope=dict(date_scope),
+            completeParticipation=True,plateAppearances=person['plateAppearances'],teamGames=len(games),
+            graphs=sorted({p['graph'] for p in observations}),value=exact(count),
+            aggregate=dict(kind='count',count=count,eligibleGames=len(eligible))))
+    if unresolved:
+        return dict(missing,playerSummaryGaps=['COMPLETE_EMPTY_GAME_CLASSIFICATION'],progressEvidence=evidence,
+                    unresolvedEmptyGames=unresolved)
+    count=sum(p['aggregate']['count'] for p in output);eligible=sum(p['aggregate']['eligibleGames'] for p in output)
+    summary=available(count,components=dict(emptyGames=count,eligibleGames=eligible)) if eligible else unavailable('EMPTY_DENOMINATOR')
+    return dict(summary,playerPopulationComplete=True,playerResults=output,playerSummaryGaps=[],progressEvidence=evidence,
+                scope='Complete selected-period Empty Game classifications; official PA eligibility applied.')
+
+
 def batting_progress_players(metric_id, rows, *, graphs, admissions, qualification, date_scope,
                              _evaluation=None):
     if metric_id not in PROGRESS_METRICS:raise EvidenceError('Not a batting-progress metric')
@@ -2241,6 +2305,8 @@ def batting_progress_players(metric_id, rows, *, graphs, admissions, qualificati
     if _evaluation is not None:
         _evaluation.check(rows, len(graphs))
     evidence=_evaluation.progress() if _evaluation is not None else batting_progress_evidence(rows)
+    if metric_id=='empty-game-rate':
+        return empty_game_players(evidence,qualification=qualification,date_scope=date_scope)
     if evidence['unresolvedPlateAppearances']:
         return dict(missing,playerSummaryGaps=['COMPLETE_PA_PROGRESS'],progressEvidence=evidence)
     pas=evidence['plateAppearances'];expected=qualification['expectedObservations']
@@ -2249,14 +2315,10 @@ def batting_progress_players(metric_id, rows, *, graphs, admissions, qualificati
         return dict(missing,playerSummaryGaps=['COMPLETE_PA_PROGRESS'])
     if metric_id=='contribution-path-diversity':
         return contribution_mix_players(evidence,qualification=qualification,date_scope=date_scope)
-    if metric_id=='empty-game-rate':
-        gaps=sorted({gap for pa in pas for gap in pa.get('independentPositiveGaps',[])})
-        if gaps:return dict(missing,playerSummaryGaps=gaps,progressEvidence=evidence)
     people=qualification['participation'];output=[]
-    by_player=defaultdict(list);running=defaultdict(set)
+    by_player=defaultdict(list)
     for pa in pas:
         if pa['officialResult']:by_player[pa['player']].append(pa)
-        for episode in pa['independentPositive']:running[(episode['player'],pa['game'])].add(episode['episode'])
     # These inputs are already adjudicated projection results. Pool exact
     # counts directly; the canonical SPARQL kernels remain regression oracles.
     for person in people:
@@ -2269,31 +2331,19 @@ def batting_progress_players(metric_id, rows, *, graphs, admissions, qualificati
         if metric_id=='offensive-reach':
             count=len(observations);total=sum(p['reach'] for p in observations)
             aggregate=dict(kind='mean',sum=exact(total),count=count);value=exact(Fraction(total,count))
-        elif metric_id=='hidden-help-rate':
+        else:  # Hidden Help; Empty Games and Contribution Mix have their own reducers.
             applicable=[p for p in observations if not p['batterPositive']]
             total=sum(bool(p['otherPositivePlayers']) for p in applicable);count=len(applicable)
             if not count:continue  # A known empty denominator has no rate.
             aggregate=dict(kind='mean',sum=exact(total),count=count);value=exact(Fraction(total,count))
-        else:
-            by_game=defaultdict(list)
-            for pa in observations:by_game[pa['game']].append(pa)
-            eligible=len(by_game)
-            total=sum(not any(p['reach'] for p in game_pas) and not running[(player,game)]
-                      for game,game_pas in by_game.items())
-            aggregate=dict(kind='count',count=total,eligibleGames=eligible);value=exact(total)
         output.append(dict(player=player,metricId=metric_id,status='available',dateScope=dict(date_scope),
             completeParticipation=True,plateAppearances=person['plateAppearances'],teamGames=len(games),
             graphs=sorted({p['graph'] for p in observations}),aggregate=aggregate,value=value))
     # The headline uses the same pooled applicable population as the player rows.
-    if metric_id=='empty-game-rate':
-        total=sum(p['aggregate']['count'] for p in output);eligible=sum(p['aggregate']['eligibleGames'] for p in output)
-        summary=available(total,components=dict(emptyGames=total,eligibleGames=eligible)) if eligible else unavailable('EMPTY_DENOMINATOR')
-    else:
-        count=sum(p['aggregate']['count'] for p in output);total=sum((fraction(p['aggregate']['sum']) for p in output),Fraction())
-        summary=available(total/count) if count else unavailable('EMPTY_DENOMINATOR')
-    population=('batting progress and independent positive running' if metric_id=='empty-game-rate' else 'batting progress')
+    count=sum(p['aggregate']['count'] for p in output);total=sum((fraction(p['aggregate']['sum']) for p in output),Fraction())
+    summary=available(total/count) if count else unavailable('EMPTY_DENOMINATOR')
     return dict(summary,playerPopulationComplete=True,playerResults=output,playerSummaryGaps=[],
-        progressEvidence=evidence,scope=f'Complete selected-period {population}; official PA eligibility applied.')
+        progressEvidence=evidence,scope='Complete selected-period batting progress; official PA eligibility applied.')
 
 
 def contribution_mix_players(evidence, *, qualification, date_scope):

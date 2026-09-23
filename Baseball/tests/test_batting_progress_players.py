@@ -113,10 +113,14 @@ class ProgressPlayers(unittest.TestCase):
             self.assertEqual(item['independentPositiveGaps'],['UNRESOLVED_RUNNING_EPISODE_ATTRIBUTION'])
             self.assertFalse(any(r['player']==str(P2) for r in item['independentPositive']))
             self.assertTrue(score(data,'hidden-help-rate')['playerPopulationComplete'])
-            for metric in ('empty-game-rate','contribution-path-diversity'):
-                result=score(data,metric)
-                self.assertFalse(result['playerPopulationComplete'])
-                self.assertEqual(result['playerSummaryGaps'],['UNRESOLVED_RUNNING_EPISODE_ATTRIBUTION'])
+            # Both eligible players already have certain positives elsewhere
+            # in this game. Unknown extra credit cannot make either game empty.
+            empty=score(data,'empty-game-rate')
+            self.assertTrue(empty['playerPopulationComplete'])
+            self.assertEqual([p['value'] for p in empty['playerResults']],[M.exact(0),M.exact(0)])
+            mix=score(data,'contribution-path-diversity')
+            self.assertFalse(mix['playerPopulationComplete'])
+            self.assertEqual(mix['playerSummaryGaps'],['UNRESOLVED_RUNNING_EPISODE_ATTRIBUTION'])
             rows=M.normalize_bindings(bindings(data,[G1]),[G1])
             first=M.batting_progress_evidence(rows);second=M.batting_progress_evidence(list(reversed(rows)))
             for result in (first,second):
@@ -160,7 +164,56 @@ class ProgressPlayers(unittest.TestCase):
                 if metric in ('offensive-reach','hidden-help-rate'):
                     self.assertTrue(direct['playerPopulationComplete'])
                     self.assertEqual(direct['progressEvidence']['plateAppearances'][0]['reach'],0)
+                elif metric=='empty-game-rate':self.assertTrue(direct['playerPopulationComplete'])
                 else:self.assertFalse(direct['playerPopulationComplete'])
+
+    def test_empty_classification_keeps_unknown_pas_but_uses_certain_other_positives(self):
+        data=fixture();g=data.graph(G1);pa=str(GAME)+'/plate-appearance/0'
+        g.remove((URIRef(pa+'/contact'),BFO.BFO_0000117,URIRef(pa+'/resolution')))
+        self.assertFalse(score(data,'offensive-reach')['playerPopulationComplete'])
+        empty=score(data,'empty-game-rate')
+        self.assertTrue(empty['playerPopulationComplete'])
+        self.assertEqual([p['plateAppearances'] for p in empty['playerResults']],[3,1])
+        self.assertEqual([p['value'] for p in empty['playerResults']],[M.exact(0),M.exact(0)])
+        self.assertEqual(len(empty['progressEvidence']['unresolvedPlateAppearances']),1)
+        pa=str(GAME)+'/plate-appearance/1'
+        g.remove((URIRef(pa+'/contact'),BFO.BFO_0000117,URIRef(pa+'/runner2')))
+        empty=score(data,'empty-game-rate')
+        self.assertFalse(empty['playerPopulationComplete'])
+        self.assertEqual(empty['playerResults'],[])
+        self.assertEqual([r['player'] for r in empty['unresolvedEmptyGames']],[str(P1)])
+
+    def test_empty_game_certainty_does_not_cross_game_boundaries(self):
+        data=fixture();rows=M.normalize_bindings(bindings(data,[G1]),[G1])
+        evidence=M.batting_progress_evidence(rows)
+        q=M.batting_qualification(rows,graphs=[G1],admissions={G1:PROOF},date_scope=SCOPE,selected_games_complete=True)
+        other_graph='urn:game:other';other_game='urn:game:other:identity';pa='urn:game:other:pa'
+        evidence['unresolvedPlateAppearances'].append(dict(graph=other_graph,game=other_game,plateAppearance=pa,
+            player=str(P1),officialResult=True,possiblePositivePlayers=[str(P1)],gaps=['UNRESOLVED_PROGRESS_ATTRIBUTION']))
+        q['expectedObservations'].append(dict(graph=other_graph,game=other_game,plateAppearance=pa,player=str(P1)))
+        person=next(p for p in q['participation'] if p['player']==str(P1));person['plateAppearances']+=1
+        person['teamGameExposure'].append(dict(game=other_game,team='urn:team'))
+        empty=M.empty_game_players(evidence,qualification=q,date_scope=SCOPE)
+        self.assertFalse(empty['playerPopulationComplete'])
+        self.assertEqual(empty['unresolvedEmptyGames'],[dict(graph=other_graph,game=other_game,player=str(P1))])
+
+    def test_certain_batter_reach_is_not_lost_to_another_runners_unknown_credit(self):
+        data=fixture();g=data.graph(G1);pa=URIRef(str(GAME)+'/plate-appearance/0')
+        rr=URIRef(str(pa)+'/unknown-runner')
+        movement(g,rr,URIRef(str(rr)+'/act'),pa,P2,origin=URIRef(str(GAME)+'/base/1'),destination=URIRef(str(GAME)+'/base/2'))
+        # Leave no other positive batting PA to settle this batter's game.
+        other=str(GAME)+'/plate-appearance/1'
+        g.remove((URIRef(other+'/contact'),BFO.BFO_0000117,URIRef(other+'/runner2')))
+        reach=score(data,'offensive-reach');self.assertFalse(reach['playerPopulationComplete'])
+        empty=score(data,'empty-game-rate');self.assertTrue(empty['playerPopulationComplete'])
+        self.assertEqual([p['value'] for p in empty['playerResults']],[M.exact(0),M.exact(0)])
+        held=next(p for p in empty['progressEvidence']['unresolvedPlateAppearances'] if p['plateAppearance']==str(pa))
+        self.assertEqual(held['confirmedPositivePlayers'],[str(P1)])
+        out=URIRef(str(pa)+'/later-out')
+        movement(g,out,URIRef(str(out)+'/act'),pa,P1,origin=URIRef(str(GAME)+'/base/1'))
+        g.add((out,RDF.type,BASE.OutProcess));g.add((URIRef(str(pa)+'/contact'),BFO.BFO_0000117,out))
+        empty=score(data,'empty-game-rate');self.assertFalse(empty['playerPopulationComplete'])
+        self.assertEqual([r['player'] for r in empty['unresolvedEmptyGames']],[str(P1)])
 
     def test_reviewed_contact_continuation_reaches_all_four_player_producers(self):
         data=continuation_fixture()
