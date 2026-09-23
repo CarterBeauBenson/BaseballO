@@ -57,6 +57,12 @@ rebuild a graph, weaken SHACL or certify an old proof as current. The current
 source refresh limitation is retained-file availability, alongside the original
 per-family source/conformance issues recorded in those proofs.
 
+The live check also exposed a false health failure: SQL returns the backend-only
+twentieth role metric, while the public dashboard has 19 cards. Health reporting
+now selects the same public metrics as the dashboard before checking completeness;
+missing or duplicate public metrics still fail service readiness. It continues
+to report unavailable player populations separately.
+
 Focused checks covered authority recovery, queued readiness, exited-worker
 reconciliation, exact cache reuse and corruption fallback, SQL-only names,
 historical-rank equivalence, independent SHACL reports with a shared graph,

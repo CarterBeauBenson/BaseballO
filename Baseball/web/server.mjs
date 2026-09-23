@@ -950,15 +950,18 @@ export function createBaseballServer({
         }
         const definitions = new Map((await metricCatalog()).metrics.map(metric => [metric.id, metric]));
         const expected = [...definitions.keys()];
-        const actual = new Set(serving.metrics?.map(metric => metric.metricId));
+        // SQL also retains backend-only metrics. Readiness concerns the same
+        // public selection as the dashboard response, not that storage inventory.
+        const metrics = Array.isArray(serving.metrics) ? serving.metrics.filter(metric => definitions.has(metric.metricId)) : [];
+        const actual = new Set(metrics.map(metric => metric.metricId));
         if (serving.execution !== 'materialized-sql' || !Number.isInteger(serving.graphCount) || serving.graphCount < 1 ||
-            serving.metrics?.length !== expected.length || actual.size !== expected.length || !expected.every(id => actual.has(id))) {
+            metrics.length !== expected.length || actual.size !== expected.length || !expected.every(id => actual.has(id))) {
           throw new HttpFailure(503, 'serving-not-ready', 'A complete materialized dashboard selection is not available.');
         }
         sendJson(response, 200, { service:'baseballo-explorer',status:'ready',readiness:'materialized-serving',
-          graphCount:serving.graphCount,metricsWithScopedResults:serving.metrics.filter(metric=>metric.status==='available').length,
+          graphCount:serving.graphCount,metricsWithScopedResults:metrics.filter(metric=>metric.status==='available').length,
           dateScope:serving.dateScope,
-          dashboardReadiness:dashboardReadiness(serving.metrics.map(metric => ({...metric,
+          dashboardReadiness:dashboardReadiness(metrics.map(metric => ({...metric,
             leaderboard:playerLeaderboard(metric, definitions.get(metric.metricId), serving.dateScope)})), expected),
           metricCoverageIsSeparate:true });
         return;

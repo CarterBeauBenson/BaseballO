@@ -112,6 +112,7 @@ test('overload rejects excess work while static pages and liveness remain availa
 test('readiness requires all metric identities in nonempty materialized serving, separately from metric coverage', async()=>{
   const metrics=(await metricCatalog()).metrics.map(metric=>({metricId:metric.id,status:'unavailable'}));
   metrics[0].status='available';
+  metrics.push({metricId:'role-realization-breadth',status:'available'});
   await withServer({servingExecutor:async input=>{
     assert.equal(input.route,'metric-suite');assert.equal(input.view,'dashboard');
     return {execution:'materialized-sql',graphCount:15,metrics};
