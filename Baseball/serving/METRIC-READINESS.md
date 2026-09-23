@@ -118,6 +118,65 @@ steal/PB/WP prefixes, exact history membership and binding-order independence.
 NiFi must still publish these derived calculation changes. Other attribution
 gaps and the two Q7 histories are not resolved by this fix.
 
+The next focused diagnosis closed two more contribution defects in game
+823979. PA 43 has a fielder's-choice result and a runner's two uncredited
+positive segments; PA 54 has successive passed-ball and wild-pitch advances
+before a walk. Both already had complete C1 membership, runner boundaries and
+official PA admission. The reducer now applies its existing single-segment
+rules to their exact multi-segment paths: actual endpoints are retained,
+independent positives remain separate, and unknown attribution does not become
+batter credit. PA 43 scores 0; PA 54 scores 1/4 for the walk. **All 86 official
+PAs in this game now calculate completely** against retained SQL evidence and
+current promotion-bound admissions. This is a component result, not a claim
+that the selected day's other games or the published cards are complete.
+Uncertain immediate comparison states and independent damage coverage remain
+withheld separately. Missing members, branching paths and unsupported outs
+still fail the existing completeness rules.
+
+The 15:42 Eastern dashboard attempt encountered actual new game promotions
+while capturing its snapshot. This overlap now returns `waiting-for-source`
+through the existing one-minute NiFi owner, preserving both the published SQL
+and completed game checkpoints. It does not publish a mixed snapshot or treat
+ordinary concurrent ingestion as a broken metric build.
+
+### Specific remaining count and review evidence
+
+The retained pitch-count censuses for 822680, 822763 and 824140 reconcile
+without source issues. Their Jena reports identify absent counted-foul Strike
+Processes, not missing pitch responses. The exact examples are:
+
+| Game / PA | Pitch ID | Retained mapping-selection reason |
+| --- | --- | --- |
+| 822680 / 63 | `a98ede81-c34b-323d-a4bf-c1979d65bcdb` | `SUBSTITUTION_IN_PREFIX` |
+| 822763 / 21 | `e1662ba6-37c2-3a1a-8f0d-263c00618234` | `UNEXPLAINED_COUNTER_TRANSITION` |
+| 824140 / 0 | `b0dc5b87-ff42-3aab-978a-1f0ca7158498` | `UNEXPLAINED_COUNTER_TRANSITION` |
+| 824140 / 58 | `8959d67e-434d-377b-a830-d61ff751ea7b` | `SUBSTITUTION_IN_PREFIX` |
+
+M3/M4 admits specific positively reconciled prefix cases, not arbitrary
+substitutions or unexplained transitions. These cases need their exact
+retained prefix evidence resolved before a targeted addition; do not suppress
+the SHACL failure, rerun the whole game, or reacquire the season.
+
+September 23 research also narrows the review investigation. MLB's
+[ABS metric documentation](https://baseballsavant.mlb.com/abs-metrics-documentation)
+defines challenge opportunity by a called pitch, the adverse call, remaining
+challenge availability, and exclusions for position-player pitching and
+technical outages. This supports the already accepted decision-time
+eligibility requirement. A final challenge counter or a list of reviewed
+pitches alone does not establish the complete never-reviewed denominator.
+The retained `review-inventory.json` explicitly remains diagnostic, with no
+graph-conformance or metric-population admission; it cannot be silently used
+as one. MLB's [ABS dashboard](https://baseballsavant.mlb.com/abs) distinguishes
+the initiating player from the opponent affected by an overturn. Provider
+challenge rankings therefore cannot directly replace our affected-player
+metric. This research changes no source mapping or metric definition.
+
+The [Statcast CSV documentation](https://baseballsavant.mlb.com/csv-docs)
+defines `hit_location` as the first fielder's position. That is not an ordered
+inventory of all fielding, throwing, catching and tagging acts. These docs do
+not close D1's complete-sequence requirement; broader data availability remains
+a source investigation, not a basis for asserting that no evidence exists.
+
 ## Earlier release evidence
 
 The September 16 live check returned HTTP 200 in 16.8 seconds for

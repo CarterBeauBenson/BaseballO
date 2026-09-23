@@ -168,6 +168,21 @@ class DashboardMaterializer(unittest.TestCase):
         with closing(sqlite3.connect(self.working())) as db:
             self.assertEqual(db.execute('SELECT count(*) FROM dashboard_checkpoint').fetchone()[0],2)
 
+    def test_promotion_during_snapshot_waits_for_next_tick_and_preserves_publication(self):
+        D.build(self.args);old=self.pointer()
+        for phase in ('initial','final'):
+            drift=D.SOURCE.SourceSnapshotChanged('Promotion inventory changed during capture')
+            self.source.side_effect=drift if phase=='initial' else [self.snapshot,drift]
+            result=D.build(self.args)
+            self.assertEqual(result['status'],'waiting-for-source')
+            self.assertNotIn('error',result)
+            self.assertEqual(self.pointer(),old)
+            with closing(sqlite3.connect(self.working())) as db:
+                self.assertEqual(db.execute('SELECT count(*) FROM dashboard_checkpoint').fetchone()[0],2)
+        self.source.side_effect=lambda *args:copy.deepcopy(self.snapshot)
+        self.fetched.clear();result=D.build(self.args)
+        self.assertEqual(result['status'],'published');self.assertEqual(self.fetched,[])
+
     def test_unchanged_tick_exits_without_querying_and_development_cannot_prune_full_store(self):
         D.build(self.args); self.fetched.clear(); self.args.force = False
         with patch.object(D.SOURCE,'corpus_snapshot',side_effect=AssertionError('no graph read')):

@@ -422,6 +422,9 @@ def build_locked(args, state, serving, work):
                         metricProductCache=products.stats, references=references, pointer=pointer)
         RELEASE.atomic(serving/'evidence'/(build_id+'.json'), evidence)
         return evidence
+    except SOURCE.SourceSnapshotChanged as error:
+        checkpoint(status='waiting-for-source',reason=str(error))
+        return progress
     except Exception as error:
         checkpoint(status='failed', error=str(error))
         raise

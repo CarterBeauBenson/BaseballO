@@ -43,6 +43,41 @@ def qualification(result):
 
 
 class ContributionPlayers(unittest.TestCase):
+    def test_multiple_noncontact_advances_preserve_ends_without_batter_credit(self):
+        for mode in ('independent','excluded','award'):
+            rows=fixture(outs=0,runner_base=1,contact=mode=='excluded');pa=rows[0]['entity']
+            rows[0]['paResultType']=BASE+('FieldersChoiceProcess' if mode=='excluded' else 'WalkProcess')
+            batter=rows[-1];batter.update(hasOutType='false',hasSafeType='true',destinationBase=GAME+'/base/1',
+                destinationCode='1B',safeJudgment='batter-safe',safeDecision='batter-decision')
+            if mode!='excluded':batter.update(award=pa+'/result',awardRule='walk-rule')
+            whole=GAME+'/runner-trajectory/runner';interval=whole+'/interval';segments=[]
+            for index in (1,2):
+                step=dict(batter,runner=RUNNER,act=f'act-{index}',episode=f'episode-{index}',
+                    resolution=f'safe-{index}',entity=f'safe-{index}',originDesignation=f'origin-{index}',
+                    originBase=GAME+'/base/'+str(index),originCode=str(index)+'B',
+                    destinationBase=GAME+'/base/'+str(index+1),destinationCode=str(index+1)+'B',
+                    trajectory=whole,trajectoryHalf=GAME+'/half',trajectoryInterval=interval)
+                for key in ('contactPlay','award','awardRule'):step.pop(key,None)
+                if mode=='independent':step.update(independentRunningProcess=f'process-{index}',
+                    independentRunningJudgment=f'judgment-{index}',independentRunningDecision=f'decision-{index}',
+                    independentRunningType=BASE+('PassedBallProcess' if index==1 else 'WildPitchProcess'))
+                segments.append(step);rows.append(step)
+                rows.append(dict(kind='runner_history',graph=G1,game=GAME,entity=whole,trajectory=whole,player=RUNNER,
+                    trajectoryHalf=GAME+'/half',trajectoryInterval=interval,episode=step['episode']))
+            args={'runner_boundary_admission':dict(PROOF,awardAttributionComplete=True)} if mode=='award' else {}
+            result=inputs(rows,**args);self.assertTrue(result['complete'],result)
+            item,=result['plateAppearances'];self.assertEqual(item['score']['value'],M.exact(0 if mode=='excluded' else Fraction(1,4)))
+            runner,=[r for r in item['participants'] if r['participant']==RUNNER]
+            self.assertEqual((runner['start'],runner['end'],runner['creditProgress']),(1,3,False))
+            self.assertIsNone(item['comparisonState'])
+            self.assertEqual(len(item['independentPositive']),2 if mode=='independent' else 0)
+            self.assertEqual(inputs(list(reversed(rows)),**args),result)
+            self.assertFalse(inputs(rows[:-1],**args)['complete'])
+            segments[1]['originCode']='1B'
+            self.assertFalse(inputs(rows,**args)['complete'])  # Branch/duplicate origin.
+            segments[1]['originCode']='2B';segments[1].update(hasSafeType='false',hasOutType='true')
+            self.assertFalse(inputs(rows,**args)['complete'])  # Unknown out ownership stays blocked.
+
     def test_complete_award_inventory_separates_an_unrelated_safe_advance(self):
         rows=fixture(outs=1,runner_base=1,contact=False);pa=rows[0]['entity']
         rows[0]['paResultType']=BASE+'WalkProcess'

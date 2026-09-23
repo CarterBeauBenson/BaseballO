@@ -914,6 +914,10 @@ def development_inventory_subset(
     return subset
 
 
+class SourceSnapshotChanged(RuntimeError):
+    """Concurrent promotion; the next NiFi tick can retry unchanged work."""
+
+
 def corpus_snapshot(
     state_root: Path, endpoint: str, timeout: int, max_games: int | None = None
 ) -> dict[str, Any]:
@@ -934,7 +938,7 @@ def corpus_snapshot(
     inventory_after = promotion_inventory(state_root)
     inventory_after = development_inventory_subset(inventory_after, max_games)
     if inventory_after["fingerprint"] != inventory_before["fingerprint"]:
-        raise RuntimeError("Promotion inventory changed while the live graph-state snapshot was captured")
+        raise SourceSnapshotChanged("Promotion inventory changed while the live graph-state snapshot was captured")
     fingerprint = sha256_bytes(
         f"{inventory_before['fingerprint']}|{live['fingerprint']}".encode("utf-8")
     )

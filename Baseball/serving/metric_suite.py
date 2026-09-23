@@ -1950,13 +1950,29 @@ def contact_progress_path(members, history_rows, movement_rows):
     Base transitions order this analytical traversal; no temporal assertions
     or new episode identities are produced. Independent channels stay separate.
     """
-    missing = dict(status='unavailable', gap='COMPLETE_CONSEQUENCE_COALESCENCE')
     states = [row for row, _ in members]
+    contacts={r.get('contactPlay') for r in states}
+    if len(contacts)!=1 or None in contacts or any(r.get('award') or independent_running_act(r) for r in states):
+        return dict(status='unavailable',gap='COMPLETE_CONSEQUENCE_COALESCENCE')
+    path=runner_progress_path(states,history_rows,movement_rows)
+    if path['status']=='available' and any(r.get('contactPlay') not in contacts or r.get('award') or independent_running_act(r)
+            for r in movement_rows[(states[0]['graph'],path['trajectory'])] if r['plateAppearance']==states[0]['plateAppearance']):
+        return dict(status='unavailable',gap='COMPLETE_CONSEQUENCE_COALESCENCE')
+    return dict(path,contactPlay=next(iter(contacts))) if path['status']=='available' else path
+
+
+def runner_progress_path(states, history_rows, movement_rows):
+    """Exact C1 segment endpoints; attribution is the caller's separate test.
+
+    A unique forward path supplies actual end state. It asserts no temporal
+    relation and cannot, by itself, credit any participant or consequence.
+    """
+    missing = dict(status='unavailable', gap='COMPLETE_CONSEQUENCE_COALESCENCE')
     signatures = {tuple(r.get(f) for f in ('graph','game','plateAppearance','runner',
-                  'contactPlay','trajectory','trajectoryHalf','trajectoryInterval')) for r in states}
+                  'trajectory','trajectoryHalf','trajectoryInterval')) for r in states}
     if len(signatures) != 1 or any(v is None for v in next(iter(signatures))):
         return missing
-    graph, game, pa, runner, contact, whole, half, interval = next(iter(signatures))
+    graph, game, pa, runner, whole, half, interval = next(iter(signatures))
     histories = history_rows.get((graph, whole), [])
     if not histories or {(r['game'],r['player'],r['trajectoryHalf'],r['trajectoryInterval']) for r in histories} != {(game,runner,half,interval)}:
         return missing
@@ -1967,11 +1983,10 @@ def contact_progress_path(members, history_rows, movement_rows):
     if any((r.get('game'),r.get('runner'),r.get('trajectoryHalf'),r.get('trajectoryInterval')) !=
            (game,runner,half,interval) for r in observed):
         return missing
-    # No omitted or independently attributed member may disappear behind the
-    # contact's convenient rows. Scope is the actual PA, not IRI/array order.
+    # No omitted member may disappear behind convenient rows. Scope is the
+    # actual PA, not IRI/array order; the caller checks each channel's support.
     current = [r for r in observed if r['plateAppearance'] == pa]
-    if ({r['episode'] for r in current} != {r['episode'] for r in states}
-            or any(r.get('contactPlay') != contact or r.get('award') or independent_running_act(r) for r in current)):
+    if {r['episode'] for r in current} != {r['episode'] for r in states}:
         return missing
     if any(len({r[field] for r in states}) != len(states) for field in ('episode','resolution','act')):
         return missing
@@ -2007,7 +2022,7 @@ def contact_progress_path(members, history_rows, movement_rows):
     # A unique terminal Out consumes all preceding safe credit. A counted Run
     # or terminal Safe keeps only the original-to-terminal positive indicator.
     return dict(status='available',positive=position is not None and position > start,
-                trajectory=whole,contactPlay=contact,player=runner,start=start,end=position,
+                trajectory=whole,player=runner,start=start,end=position,
                 segments=trace,heldObservations=sorted(held,key=lambda r:r['episode']))
 
 
@@ -2623,7 +2638,23 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
                 evidence.update(row[f] for f in ('act','resolution','episode','record','originDesignation','originRecord',
                     'safeJudgment','safeDecision','trajectory','trajectoryInterval','contactPlay','award','awardRule',*INDEPENDENT_RUNNING_FIELDS) if row.get(f))
             if len(members)>1:
-                if any(independent_running_act(r) for r in members):
+                contact_attributed=True
+                independent_only=(runner!=batter and all(independent_running_act(r) and not r.get('contactPlay')
+                    and not r.get('award') and r.get('hasOutType')=='false' for r in members))
+                uncredited_only=(runner!=batter and (complete_award or (excluded and no_actual_outs))
+                    and all(not r.get('contactPlay') and not r.get('award') and not independent_running_act(r)
+                            and r.get('hasOutType')=='false' for r in members))
+                if independent_only or uncredited_only:
+                    path=runner_progress_path(members,histories,history_movements)
+                    contact_attributed=False
+                    if path['status']=='available':
+                        boundary_complete=False
+                        if independent_only:
+                            by_episode={r['episode']:r for r in members}
+                            independent.extend(dict(player=runner,episode=r['episode'],act=by_episode[r['episode']]['act'],
+                                start=r['start'],end=r['end']) for r in path['segments'] if r['end']>r['start'])
+                        else:unattributed.extend(sorted(r['episode'] for r in members))
+                elif any(independent_running_act(r) for r in members):
                     path=split_steal_contact_path(members,histories,history_movements,start)
                     if path['status']=='available':
                         independent.extend(path['independentPrefix']);start=path['start'];comparison_starts[runner]=start
@@ -2631,7 +2662,8 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
                 if path['status']!='available' or path['start']!=start:
                     reasons.append('COMPLETE_CONSEQUENCE_COALESCENCE');continue
                 end=path['end'];terminal='out' if end is None else 'scored' if end==4 else 'safe'
-                supports.add(('contact',path['contactPlay']));credit=True
+                if contact_attributed:
+                    supports.add(('contact',path['contactPlay']));credit=True
             else:
                 row=members[0];origin=segment_origin(row)
                 if origin!=start or start is None:reasons.append('UNSUPPORTED_IMMEDIATE_ORIGIN')
