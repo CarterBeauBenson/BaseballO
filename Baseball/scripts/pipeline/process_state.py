@@ -6,6 +6,19 @@ from pathlib import Path
 import tempfile
 
 
+def available_memory():
+    if os.name!='nt':
+        try: return os.sysconf('SC_AVPHYS_PAGES')*os.sysconf('SC_PAGE_SIZE')
+        except (ValueError,OSError,AttributeError): return None
+    import ctypes
+    class Memory(ctypes.Structure):
+        _fields_=[('length',ctypes.c_uint32),('load',ctypes.c_uint32),
+            *[(name,ctypes.c_uint64) for name in ('totalPhysical','availablePhysical','totalPage','availablePage',
+                'totalVirtual','availableVirtual','extendedVirtual')]]
+    value=Memory();value.length=ctypes.sizeof(value)
+    return value.availablePhysical if ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(value)) else None
+
+
 def alive(pid):
     if type(pid) is not int or pid <= 0: return None
     if os.name == 'nt':

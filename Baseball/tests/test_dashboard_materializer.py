@@ -35,6 +35,7 @@ class DashboardMaterializer(unittest.TestCase):
             if name == 'corpus_snapshot': self.source = mock; mock.side_effect = lambda *a: copy.deepcopy(self.snapshot)
         for adapter in D.ADMISSIONS.values():
             self.stack.enter_context(patch.object(adapter,'promoted_admission',return_value={'status':'withheld'}))
+        self.stack.enter_context(patch.object(D.ADMISSION_EVIDENCE,'load',return_value={'status':'withheld'}))
         self.stack.enter_context(patch.object(D.SOURCE._batting_admission,'schedule_coverage',return_value={}))
         self.stack.enter_context(patch.object(D.SOURCE._schedule_qualification,'merge_snapshots',return_value={}))
         self.fetched = []

@@ -41,6 +41,7 @@ SOURCE = module(ROOT/'scripts/pipeline/materialize-serving-layer.py', 'dashboard
 METRICS = SOURCE._metric_suite
 DISPLAY = module(ROOT/'serving/dashboard_display.py', 'dashboard_display')
 REFERENCES = module(ROOT/'serving/reference_products.py', 'dashboard_references')
+ADMISSION_EVIDENCE = module(ROOT/'sources/mlb-game/pipeline/admission-evidence.py','dashboard_admission_evidence')
 SCHEMA = ROOT/'serving/dashboard-schema.sql'
 POINTER = 'dashboard-current.json'
 ADMISSIONS = {
@@ -163,6 +164,7 @@ def notification_key(state):
     paths = list((state/'pipeline/evidence/nifi/game-promotion').glob('*/*.json'))
     paths += list((state/'pipeline/control/mlb-game/batches').glob('*.json'))
     paths += list((state/'pipeline/control/mlb-game/schedule-coverage').glob('*.json'))
+    paths += list((state/'pipeline/evidence/mlb-game').glob('*/admission-refresh/*/*.receipt.json'))
     files = [(str(p.relative_to(state)), p.stat().st_size, p.stat().st_mtime_ns) for p in sorted(paths)]
     return digest(dict(events=files, metrics=METRICS.fingerprint(), builder=SOURCE.sha256_file(Path(__file__)),
                        display=DISPLAY.fingerprint(), references=REFERENCES.fingerprint(),
@@ -226,7 +228,8 @@ def build_locked(args, state, serving, work):
         for dimension in dimensions:
             graph = SOURCE.lexical(dimension, 'graph'); pk = graph.rsplit('/',1)[-1]
             promotion = inventory[pk]
-            admissions = {name: adapter.promoted_admission(state, promotion) for name, adapter in ADMISSIONS.items()}
+            admissions = {name: ADMISSION_EVIDENCE.load(adapter,state,promotion,name.removesuffix('_admission').replace('_','-'))
+                          for name, adapter in ADMISSIONS.items()}
             values = dimension_values(dimension, promotion, metadata)
             identity = input_identity(promotion, values, admissions, calculation)
             expected[graph] = identity

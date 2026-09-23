@@ -70,6 +70,10 @@ _defense_spec = importlib.util.spec_from_file_location('baseballo_defensive_admi
     ROOT / 'sources/mlb-game/pipeline/defensive-admission.py')
 _defense_admission = importlib.util.module_from_spec(_defense_spec)
 _defense_spec.loader.exec_module(_defense_admission)
+_admission_evidence_spec = importlib.util.spec_from_file_location('baseballo_admission_evidence',
+    ROOT/'sources/mlb-game/pipeline/admission-evidence.py')
+_admission_evidence = importlib.util.module_from_spec(_admission_evidence_spec)
+_admission_evidence_spec.loader.exec_module(_admission_evidence)
 _cache_spec = importlib.util.spec_from_file_location('baseballo_serving_query_cache',
     ROOT / 'scripts/pipeline/serving_query_cache.py')
 _query_cache = importlib.util.module_from_spec(_cache_spec)
@@ -97,7 +101,7 @@ _promotion_spec.loader.exec_module(_promotion_inventory)
 _LOADED_MODULE_HASHES = {Path(module.__file__): hashlib.sha256(Path(module.__file__).read_bytes()).hexdigest()
                         for module in (_batting_admission,_run_admission,_resolution_admission,_count_admission,_boundary_admission,_defense_admission,
                                        _query_cache,_metric_cache,_preflight_queries,_build_guard,_promotion_inventory,
-                                       _schedule_qualification,_schedule_qualification.PARSER)}
+                                       _schedule_qualification,_schedule_qualification.PARSER,_admission_evidence)}
 _LOADED_MODULE_HASHES[Path(__file__).resolve()] = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
 SERVING_ROOT = ROOT / "serving"
 SCHEMA = SERVING_ROOT / "schema.sql"
@@ -1189,12 +1193,12 @@ def _build(args: argparse.Namespace, progress: dict[str, Any]) -> dict[str, Any]
             metric_evidence = scoped_sparql(_metric_suite.evidence_query([graph]),'metric-suite')
             metric_suite_proofs.append(_metric_suite.materialize_game(
                 connection, graph, metric_evidence['results']['bindings'],
-                batting_admission=_batting_admission.promoted_admission(state_root, promotion_record),
-                scoring_run_admission=_run_admission.promoted_admission(state_root, promotion_record),
-                runner_resolution_admission=_resolution_admission.promoted_admission(state_root, promotion_record),
-                pitch_count_admission=_count_admission.promoted_admission(state_root, promotion_record),
-                runner_boundary_admission=_boundary_admission.promoted_admission(state_root, promotion_record),
-                defensive_admission=_defense_admission.promoted_admission(state_root, promotion_record),
+                batting_admission=_admission_evidence.load(_batting_admission,state_root,promotion_record,'batting'),
+                scoring_run_admission=_admission_evidence.load(_run_admission,state_root,promotion_record,'scoring-run'),
+                runner_resolution_admission=_admission_evidence.load(_resolution_admission,state_root,promotion_record,'runner-resolution'),
+                pitch_count_admission=_admission_evidence.load(_count_admission,state_root,promotion_record,'pitch-count'),
+                runner_boundary_admission=_admission_evidence.load(_boundary_admission,state_root,promotion_record,'runner-boundary'),
+                defensive_admission=_admission_evidence.load(_defense_admission,state_root,promotion_record,'defensive'),
                 product_cache=metric_cache))
             fingerprint_lines.append(f"{graph}|{official_date}|{game_set}|{artifact}")
             query_started = time.perf_counter()

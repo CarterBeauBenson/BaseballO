@@ -7,6 +7,7 @@ param(
     [switch] $RetryQuarantineRemainder,
     [switch] $StartDaily,
     [switch] $ReplayReadinessOnly,
+    [switch] $WorkloadPriorityOnly,
     [ValidatePattern('^\d+$')][string] $ProofGamePk = '566279'
 )
 
@@ -355,6 +356,11 @@ $rootId = (Invoke-NiFi -Method GET -Path '/flow/process-groups/root').processGro
 $baseballGroupId = Get-OrCreateProcessGroup -ParentId $rootId -Name $script:NiFiRootProcessGroupName -X 100 -Y 100
 $groupId = Get-OrCreateProcessGroup -ParentId $baseballGroupId -Name $script:MlbGameProcessGroupName -X 100 -Y 100
 . (Join-Path $PSScriptRoot 'replay-readiness.ps1')
+. (Join-Path $PSScriptRoot 'workload-priority.ps1')
+if ($WorkloadPriorityOnly) {
+    Install-WorkloadPriority -GroupId $groupId
+    return
+}
 if ($ReplayReadinessOnly) {
     Install-ReplayReadiness -GroupId $groupId -Start
     return
@@ -784,6 +790,7 @@ foreach ($stage in @('Schedule Request', 'Schedule Split', 'Proof Release')) {
 Ensure-Connection -GroupId $groupId -Name 'schedule quarantine named' -SourceId $processors.nameScheduleQuarantine -DestinationId $processors.putScheduleQuarantine -Relationships @('success') | Out-Null
 Ensure-Connection -GroupId $groupId -Name 'schedule quarantine write failed' -SourceId $processors.putScheduleQuarantine -DestinationId $processors.scheduleQuarantineFailure -Relationships @('failure') | Out-Null
 
+Install-WorkloadPriority -GroupId $groupId
 $flow = Get-GroupFlow -GroupId $groupId
 $unexpectedProcessors = @($flow.processors | Where-Object { $_.component.name -notin @(
     'Proof Request','Backfill Schedule Request','Read Schedule Request','Daily 05:00 Eastern Schedule',
@@ -810,6 +817,7 @@ $unexpectedProcessors = @($flow.processors | Where-Object { $_.component.name -n
     'Fail Request','Fail Response','Fail Eligibility','Fail Schedule Request','Fail Schedule Split','Fail Materialization Mode','Fail Proof Release',
     'Quarantine','Name Schedule Quarantine','Write Schedule Quarantine','Record Schedule Quarantine Failure',
     'Retry Proof Release Readiness','Repair Selected Query Indexes'
+    'Refresh Admission Evidence Timer','Refresh Admission Evidence','Record Refresh Admission Evidence'
 ) })
 if ($unexpectedProcessors.Count -gt 0) {
     throw "The owned MLB Game process group contains unexpected processors: $(@($unexpectedProcessors.component.name) -join ', ')"
