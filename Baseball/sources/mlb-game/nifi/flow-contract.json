@@ -30,6 +30,8 @@
     "sourceShacl": {
       "engine": "jena",
       "concurrentTasks": 2,
+      "executor": "pipeline/validate-game.py",
+      "dataGraphLoadsPerGame": 1,
       "shapeContract": "unchanged"
     },
     "queryIndex": {

@@ -67,10 +67,30 @@ def verify_release(state, descriptor):
     if not isinstance(expected, dict) or not expected: raise ValueError('Serving release is empty')
     actual={p.relative_to(root).as_posix() for p in root.rglob('*') if p.is_file()}
     if actual!=set(expected): raise ValueError('Serving release file inventory changed')
+    identities={}
+    for name in expected:
+        p=root.joinpath(*safe_relative(name).parts)
+        if p.is_symlink() or not p.resolve().is_relative_to(root.resolve()):
+            raise ValueError('Serving release file escaped its directory: '+name)
+        st=p.stat()
+        identities[name]=[st.st_dev,st.st_ino,st.st_size,st.st_mtime_ns,st.st_ctime_ns]
+    receipt=Path(state)/'serving/release-verification'/(release_id+'.json')
+    identity=dict(manifestSha256=sha(raw),files=identities)
+    try:
+        if read(receipt)==identity: return root
+    except (OSError,ValueError): pass
     for name, digest in expected.items():
         p=root.joinpath(*safe_relative(name).parts)
         if p.is_symlink() or not p.resolve().is_relative_to(root.resolve()) or sha(p.read_bytes())!=digest:
             raise ValueError('Serving release file changed: '+name)
+    # Same local-file receipt policy as immutable serving databases. Replaced,
+    # edited, added or removed files still invalidate the prior verification.
+    for name, before in identities.items():
+        st=(root/name).stat()
+        if [st.st_dev,st.st_ino,st.st_size,st.st_mtime_ns,st.st_ctime_ns]!=before:
+            raise ValueError('Serving release changed while verifying: '+name)
+    try: atomic(receipt,identity)
+    except OSError: pass  # Read-only installations remain correct, just slower.
     return root
 
 

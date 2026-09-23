@@ -40,6 +40,7 @@ if __name__ == '__main__':
 SOURCE = module(ROOT/'scripts/pipeline/materialize-serving-layer.py', 'dashboard_source')
 METRICS = SOURCE._metric_suite
 DISPLAY = module(ROOT/'serving/dashboard_display.py', 'dashboard_display')
+REFERENCES = module(ROOT/'serving/reference_products.py', 'dashboard_references')
 SCHEMA = ROOT/'serving/dashboard-schema.sql'
 POINTER = 'dashboard-current.json'
 ADMISSIONS = {
@@ -164,7 +165,8 @@ def notification_key(state):
     paths += list((state/'pipeline/control/mlb-game/schedule-coverage').glob('*.json'))
     files = [(str(p.relative_to(state)), p.stat().st_size, p.stat().st_mtime_ns) for p in sorted(paths)]
     return digest(dict(events=files, metrics=METRICS.fingerprint(), builder=SOURCE.sha256_file(Path(__file__)),
-                       display=DISPLAY.fingerprint(), schema=SOURCE.sha256_file(SCHEMA))), max((v[2] for v in files), default=0)
+                       display=DISPLAY.fingerprint(), references=REFERENCES.fingerprint(),
+                       schema=SOURCE.sha256_file(SCHEMA))), max((v[2] for v in files), default=0)
 
 
 def build(args):
@@ -273,7 +275,12 @@ def build_locked(args, state, serving, work):
                 connection.execute('INSERT OR REPLACE INTO dashboard_state VALUES (?,?)', ('schedule',coverage_sha))
             dirty.update(json.loads(connection.execute("SELECT value FROM dashboard_state WHERE name='dirty-seasons'").fetchone()[0]))
             checkpoint(phase='reference-ranks', affectedSeasons=sorted(dirty))
-            references = METRICS.materialize_reference_ranks(connection, seasons=dirty)
+            reference_version = REFERENCES.fingerprint()
+            prepared = connection.execute("SELECT value FROM dashboard_state WHERE name='reference-version'").fetchone()
+            if not prepared or prepared[0] != reference_version:
+                dirty.update(r[0] for r in connection.execute('SELECT DISTINCT season FROM game_dimension'))
+            references = REFERENCES.prepare(METRICS,connection,seasons=dirty,checkpoint=checkpoint)
+            connection.execute('INSERT OR REPLACE INTO dashboard_state VALUES (?,?)',('reference-version',reference_version))
             connection.execute('INSERT OR REPLACE INTO dashboard_state VALUES (?,?)', ('dirty-seasons','[]'))
         input_set = digest(dict(games=expected, coverage=coverage_sha, calculation=calculation))
         checkpoint(phase='publication')

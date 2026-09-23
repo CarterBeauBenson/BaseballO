@@ -177,104 +177,38 @@ switch ($Action) {
             throw "RDF or RML manifest is missing for game $GamePk."
         }
         $validator = Join-Path $repositoryRoot 'scripts\pipeline\validate-shacl.py'
-        Invoke-LoggedCommand -FailureMessage "Authoritative SHACL failed for game $GamePk." -Command {
-            & python $validator `
-                '--profile' 'authoritative' `
-                '--data' $rdfPath `
-                '--engine' 'jena' `
-                '--java' (Get-JavaExecutable) `
-                '--jena-classpath' (Join-Path $script:FusekiHome 'fuseki-server.jar') `
-                '--jena-max-heap' '384m'
-        }
         $manifest = Get-Content -LiteralPath $rmlManifestPath -Raw | ConvertFrom-Json
         if ([string]$manifest.gamePk -ne $GamePk) {
             throw "RML manifest game identity differs from $GamePk."
+        }
+        if ([string]::IsNullOrWhiteSpace($InputJson)) { $InputJson = [string]$manifest.inputPath }
+        $inputPath = Resolve-TransientInput
+        if ((Get-FileHash -LiteralPath $inputPath -Algorithm SHA256).Hash.ToLowerInvariant() -ne [string]$manifest.inputSha256) {
+            throw "SHACL source differs from the mapped revision for game $GamePk."
+        }
+        $suite = Join-Path $PSScriptRoot 'validate-game.py'
+        Invoke-LoggedCommand -FailureMessage "Source SHACL failed for game $GamePk." -Command {
+            & python $suite '--input' $inputPath '--rdf' $rdfPath '--game-pk' $GamePk `
+                '--output' $stageEvidenceRoot '--java' (Get-JavaExecutable) `
+                '--jena-classpath' (Join-Path $script:FusekiHome 'fuseki-server.jar')
         }
         $shapePath = Join-Path $repositoryRoot 'sources\mlb-game\shacl\authoritative.ttl'
         $manifest.shaclStatus = 'validated'
         $manifest.shaclValidatedAtUtc = [DateTime]::UtcNow.ToString('o')
         $manifest.shaclShapeSha256 = (Get-FileHash -LiteralPath $shapePath -Algorithm SHA256).Hash.ToLowerInvariant()
         $manifest.shaclValidatorSha256 = (Get-FileHash -LiteralPath $validator -Algorithm SHA256).Hash.ToLowerInvariant()
-        # B1 is a separate qualification proof over this exact source/RDF pair.
-        # Withheld batting qualification does not disable the accepted ingester.
-        if ([string]::IsNullOrWhiteSpace($InputJson)) {
-            $InputJson = [string]$manifest.inputPath
-        }
-        $inputPath = Resolve-TransientInput
-        if ((Get-FileHash -LiteralPath $inputPath -Algorithm SHA256).Hash.ToLowerInvariant() -ne [string]$manifest.inputSha256) {
-            throw "B1 source differs from the mapped revision for game $GamePk."
-        }
+        $manifest | Add-Member -NotePropertyName shaclExecution -NotePropertyValue (Join-Path $stageEvidenceRoot 'shacl-execution.json') -Force
         $clockAdmissionPath = Join-Path $stageEvidenceRoot 'clock-admission.json'
-        $clockAdmitter = Join-Path $PSScriptRoot 'clock-admission.py'
-        Invoke-LoggedCommand -FailureMessage "T1 clock source/graph conformance failed for game $GamePk." -Command {
-            & python $clockAdmitter '--input' $inputPath '--rdf' $rdfPath '--game-pk' $GamePk `
-                '--output' $clockAdmissionPath '--java' (Get-JavaExecutable) `
-                '--jena-classpath' (Join-Path $script:FusekiHome 'fuseki-server.jar')
-        }
-        $manifest | Add-Member -NotePropertyName clockAdmission -NotePropertyValue $clockAdmissionPath -Force
         $battingAdmissionPath = Join-Path $stageEvidenceRoot 'batting-admission.json'
         $runnerHistoryAdmissionPath = Join-Path $stageEvidenceRoot 'runner-history-admission.json'
-        $runnerHistoryAdmitter = Join-Path $PSScriptRoot 'runner-history-admission.py'
-        Invoke-LoggedCommand -FailureMessage "C1/C3 runner history source/graph conformance failed for game $GamePk." -Command {
-            & python $runnerHistoryAdmitter '--input' $inputPath '--rdf' $rdfPath '--game-pk' $GamePk `
-                '--output' $runnerHistoryAdmissionPath '--java' (Get-JavaExecutable) `
-                '--jena-classpath' (Join-Path $script:FusekiHome 'fuseki-server.jar')
-        }
         $defensiveAdmissionPath = Join-Path $stageEvidenceRoot 'defensive-admission.json'
-        $defensiveAdmitter = Join-Path $PSScriptRoot 'defensive-admission.py'
-        Invoke-LoggedCommand -FailureMessage "D1 defensive source/graph conformance failed for game $GamePk." -Command {
-            & python $defensiveAdmitter '--input' $inputPath '--rdf' $rdfPath '--game-pk' $GamePk `
-                '--output' $defensiveAdmissionPath '--java' (Get-JavaExecutable) `
-                '--jena-classpath' (Join-Path $script:FusekiHome 'fuseki-server.jar')
-        }
-        # Retain both PA- and event-level review observations before transient
-        # cleanup. This diagnostic is not a review-population admission gate.
         $reviewInventoryPath = Join-Path $stageEvidenceRoot 'review-inventory.json'
-        $reviewInventory = Join-Path $PSScriptRoot 'review-inventory.py'
-        Invoke-LoggedCommand -FailureMessage "Review source inventory could not execute for game $GamePk." -Command {
-            & python $reviewInventory '--input' $inputPath '--game-pk' $GamePk '--output' $reviewInventoryPath
-        }
         $pitchCountAdmissionPath = Join-Path $stageEvidenceRoot 'pitch-count-admission.json'
-        $pitchCountAdmitter = Join-Path $PSScriptRoot 'pitch-count-admission.py'
-        Invoke-LoggedCommand -FailureMessage "Pitch-count completeness validation could not execute for game $GamePk." -Command {
-            & python $pitchCountAdmitter '--input' $inputPath '--rdf' $rdfPath '--game-pk' $GamePk `
-                '--output' $pitchCountAdmissionPath '--java' (Get-JavaExecutable) `
-                '--jena-classpath' (Join-Path $script:FusekiHome 'fuseki-server.jar')
-        }
         $runnerBoundaryAdmissionPath = Join-Path $stageEvidenceRoot 'runner-boundary-admission.json'
-        $runnerBoundaryAdmitter = Join-Path $PSScriptRoot 'runner-boundary-admission.py'
-        Invoke-LoggedCommand -FailureMessage "Runner boundary SHACL could not execute for game $GamePk." -Command {
-            & python $runnerBoundaryAdmitter '--input' $inputPath '--rdf' $rdfPath '--game-pk' $GamePk `
-                '--output' $runnerBoundaryAdmissionPath '--java' (Get-JavaExecutable) `
-                '--jena-classpath' (Join-Path $script:FusekiHome 'fuseki-server.jar')
-        }
         $runnerResolutionAdmissionPath = Join-Path $stageEvidenceRoot 'runner-resolution-admission.json'
-        $runnerResolutionAdmitter = Join-Path $PSScriptRoot 'runner-resolution-admission.py'
-        Invoke-LoggedCommand -FailureMessage "Runner-resolution census validation could not execute for game $GamePk." -Command {
-            & python $runnerResolutionAdmitter '--input' $inputPath '--rdf' $rdfPath '--game-pk' $GamePk `
-                '--output' $runnerResolutionAdmissionPath '--java' (Get-JavaExecutable) `
-                '--jena-classpath' (Join-Path $script:FusekiHome 'fuseki-server.jar')
-        }
         $scoringRunAdmissionPath = Join-Path $stageEvidenceRoot 'scoring-run-admission.json'
-        $scoringRunAdmitter = Join-Path $PSScriptRoot 'scoring-run-admission.py'
-        Invoke-LoggedCommand -FailureMessage "Counted-run qualification validation could not execute for game $GamePk." -Command {
-            & python $scoringRunAdmitter '--input' $inputPath '--rdf' $rdfPath '--game-pk' $GamePk `
-                '--output' $scoringRunAdmissionPath '--java' (Get-JavaExecutable) `
-                '--jena-classpath' (Join-Path $script:FusekiHome 'fuseki-server.jar')
-        }
         $contactAdmissionPath = Join-Path $stageEvidenceRoot 'contact-continuation-admission.json'
-        $contactAdmitter = Join-Path $PSScriptRoot 'contact-continuation-admission.py'
-        Invoke-LoggedCommand -FailureMessage "B2 contact continuation SHACL failed for game $GamePk." -Command {
-            & python $contactAdmitter '--input' $inputPath '--rdf' $rdfPath '--game-pk' $GamePk `
-                '--output' $contactAdmissionPath '--java' (Get-JavaExecutable) `
-                '--jena-classpath' (Join-Path $script:FusekiHome 'fuseki-server.jar')
-        }
-        $battingAdmitter = Join-Path $PSScriptRoot 'batting-admission.py'
-        Invoke-LoggedCommand -FailureMessage "B1 qualification validation could not execute for game $GamePk." -Command {
-            & python $battingAdmitter '--input' $inputPath '--rdf' $rdfPath '--game-pk' $GamePk `
-                '--output' $battingAdmissionPath '--java' (Get-JavaExecutable) `
-                '--jena-classpath' (Join-Path $script:FusekiHome 'fuseki-server.jar')
-        }
+        $manifest | Add-Member -NotePropertyName clockAdmission -NotePropertyValue $clockAdmissionPath -Force
         Write-AtomicJsonFile -Path $rmlManifestPath -Value $manifest -Depth 16
         Write-StageResult @{
             rdfPath = $rdfPath
