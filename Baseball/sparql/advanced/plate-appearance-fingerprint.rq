@@ -4,7 +4,11 @@ PREFIX fn: <http://www.w3.org/2005/xpath-functions#>
 PREFIX obo: <http://purl.obolibrary.org/obo/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-# One evidence row per plate appearance. Authoritative MLB play-by-play supplies
+# One evidence row per unambiguous batting plate appearance. Actual substituted
+# participation remains in RDF and the metric-suite evidence; it does not license
+# assigning the whole PAQ-1 outcome to every batter. Withhold those legacy scores.
+# A PA with multiple pitchers keeps its score but has no single pitcher attribution.
+# Authoritative MLB play-by-play supplies
 # the outcome, participants, timing, pitch/event counts, and runner resolutions.
 # PAQ-1.0 derives a baseball-style score from outcome, grind, and situational
 # evidence without source-specific enrichment assumptions.
@@ -19,7 +23,9 @@ SELECT ?game ?plateAppearance ?batter ?batterLabel ?pitcher ?pitcherLabel
        ?plateAppearanceQualityVersion ?goodAtBatEvidenceCount ?goodAtBat
 WHERE {
   {
-    SELECT ?graph ?game ?plateAppearance ?batter ?batterLabel ?pitcher ?pitcherLabel
+    SELECT ?graph ?game ?plateAppearance ?batter ?pitcher
+           (MIN(?batterLabelValue) AS ?batterLabel)
+           (MIN(?pitcherLabelValue) AS ?pitcherLabel)
            (SAMPLE(?eventType) AS ?outcome)
            (COALESCE(MAX(?hitFlag), 0) AS ?wasHit)
            (SAMPLE(?hitTypeValue) AS ?hitType)
@@ -49,7 +55,13 @@ WHERE {
         ?batterAct a base:BatterAct ;
             obo:BFO_0000132 ?plateAppearance ;
             obo:BFO_0000057 ?batter .
-        ?batter rdfs:label ?batterLabel .
+        ?batter rdfs:label ?batterLabelValue .
+        FILTER NOT EXISTS {
+          ?otherBatterAct a base:BatterAct ;
+              obo:BFO_0000132 ?plateAppearance ;
+              obo:BFO_0000057 ?otherBatter .
+          FILTER(?otherBatter != ?batter)
+        }
         ?result a base:BaseballInstitutionalProcess, ?outcomeClass ;
             obo:BFO_0000132 ?plateAppearance ;
             obo:BFO_0000117 ?adjudication .
@@ -121,7 +133,13 @@ WHERE {
           ?pitch a base:PitchAct ;
               obo:BFO_0000132 ?plateAppearance ;
               obo:BFO_0000057 ?pitcher .
-          ?pitcher rdfs:label ?pitcherLabel .
+          ?pitcher rdfs:label ?pitcherLabelValue .
+          FILTER NOT EXISTS {
+            ?otherPitch a base:PitchAct ;
+                obo:BFO_0000132 ?plateAppearance ;
+                obo:BFO_0000057 ?otherPitcher .
+            FILTER(?otherPitcher != ?pitcher)
+          }
         }
       }
       FILTER(STRSTARTS(STR(?graph), "https://w3id.org/baseball/graph/game/"))
@@ -149,7 +167,7 @@ WHERE {
         GROUP BY ?graph ?plateAppearance ?eventKind
       }
     }
-    GROUP BY ?graph ?game ?plateAppearance ?batter ?batterLabel ?pitcher ?pitcherLabel
+    GROUP BY ?graph ?game ?plateAppearance ?batter ?pitcher
   }
   BIND(?positiveOutcome + ?productiveOtherRunner AS ?goodAtBatEvidenceCount)
   # PAQ 1.0 keeps the familiar baseball-stat range from .000 to 1.000. The

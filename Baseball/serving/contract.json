@@ -108,7 +108,7 @@
   },
   "grains": {
     "game_dimension": "one row per authoritative game graph",
-    "plate_appearance_fact": "one row per plate appearance with MLB outcome, pitch/event counts, runner resolutions, and PAQ components",
+    "plate_appearance_fact": "one row per unambiguous batting plate appearance with MLB outcome, pitch/event counts, runner resolutions, and legacy PAQ components; shared-batter scores are withheld and shared-pitcher attribution is unbound",
     "advanced_result_fact": "compatibility copy of reviewed advanced-query result rows while existing advanced candidate readers migrate to their dedicated DSQ tables",
     "dsq_query_manifest": "one immutable contract row per materialized DSQ naming its query hash, reducer, projected variables, dedicated table, and binding count",
     "dsq_*": "one dedicated persistent table per approved static DSQ; rows retain exact RDF bindings and authoritative game-graph scope before SQL reduction",

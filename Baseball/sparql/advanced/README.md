@@ -22,7 +22,7 @@ The machine-readable catalog is
 
 | Query | What it exposes | Semantic mode |
 |---|---|---|
-| `plate-appearance-fingerprint.rq` | One PAQ-1.0 row with outcome, bounded grind, situation, component ratings, and a `.000`–`1.000` overall rating | Decision support |
+| `plate-appearance-fingerprint.rq` | One PAQ-1.0 row per unambiguous batting PA, with outcome, grind, situation and a `.000`–`1.000` rating; shared-batter PAs are withheld, and shared-pitcher PAs have no single pitcher attribution | Decision support |
 | `grinder-index.rq` | Transparent PA effort score plus its component counts and duration | Positive evidence |
 | `swing-to-result-funnel.rq` | Pitch-to-swing-to-contact-to-terminal-result conversion by batter | Positive evidence |
 | `whiff-and-take-profiles.rq` | Swings without contact and pitches without swings | Completeness-gated |
