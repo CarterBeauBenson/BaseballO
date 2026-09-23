@@ -78,12 +78,15 @@ dependencies and completeness census; T1 does not admit incomplete leaderboards.
 The quarantine planner retries a retained clock failure when the reconciler
 fingerprint changes. It does not need a new source response or rewritten JSON.
 
-The existing `Quarantine Remainder Retry Request` accepts an optional JSON
+The existing `Quarantine Replay Request` and `Quarantine Remainder Retry Request`
+accept an optional JSON
 payload with `gamePks` (an explicit array of game ID strings) and
 `afterServingBuild` (one existing SQL build ID). NiFi checks that the selected
 games belong to the retained replay plan and that their input hashes still
-match. It waits for that SQL build to finish reading RDF before emitting the
-selected retries. A six-hour timeout, missing progress, or an unknown state
+match. The plan request creates a bounded proof/remainder plan for its selected
+games; the remainder request reuses an existing plan. NiFi waits for the named
+SQL build to finish reading RDF before emitting the selected retries.
+A six-hour timeout, missing progress, or an unknown state
 fails the request without releasing inputs. The ordinary two-attempt stage
 limits, SHACL checks, atomic graph-pair promotion and quarantine retention still
 apply. An empty request preserves the existing remainder-selection behavior.
@@ -91,4 +94,14 @@ apply. An empty request preserves the existing remainder-selection behavior.
 The September 23 quarantine diagnosis found 30 games eligible for a retry
 under existing fixes. The remaining 13 are covered by the accepted
 [Q5/Q6 source-contract decision](../../archive/design-records/mlb-game-quarantine-boundaries/README.md).
-Those source-selection and admission changes are not implemented by the retry.
+Q5 now selects the incoming batter only for an explicit event-zero, 0–0 pinch
+hitter matching the final matchup and having subsequent batting evidence.
+It supplies no outgoing identity, role transition or official statistical
+credit. Q6 keeps the original source census inconsistent when it reports an
+incomplete play or absent inning total. Clock and runner-history SHACL can
+still check independently selected RDF. A numeric run-total disagreement or
+other membership/identity failure remains blocking. The runner-history proof
+can report `promotionAllowed: true` with `status: withheld`,
+`sourceReconciled: false`, and `populationComplete: false`; that permits graph
+promotion while keeping dependent metric populations withheld. All graph
+conformance checks still run before promotion.

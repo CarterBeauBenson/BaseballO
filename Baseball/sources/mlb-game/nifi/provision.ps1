@@ -456,10 +456,10 @@ $processors.emitQuarantineRemainderRetry = Ensure-Processor -GroupId $groupId -N
     'Command Arguments' = $quarantineRemainderRetryArguments; 'Argument Delimiter' = ';'; 'Ignore STDIN' = 'false';
     'Max Attribute Length' = '65536'; 'Output MIME Type' = 'application/json'
 }
-$quarantinePlanArguments = "-B;$quarantineReplayScript;--action;plan;--state-root;$script:StateRoot;--contract;$contractPath"
+$quarantinePlanArguments = "-B;$quarantineReplayScript;--action;plan;--state-root;$script:StateRoot;--contract;$contractPath;--request-stdin"
 $processors.planQuarantineReplay = Ensure-Processor -GroupId $groupId -Name 'Plan Quarantine Replay' -Type 'org.apache.nifi.processors.standard.ExecuteStreamCommand' -X 320 -Y -960 -AutoTerminate @('original') -Properties @{
     'Working Directory' = $repositoryRoot; 'Command Path' = $python; 'Command Arguments Strategy' = 'Command Arguments Property';
-    'Command Arguments' = $quarantinePlanArguments; 'Argument Delimiter' = ';'; 'Ignore STDIN' = 'true';
+    'Command Arguments' = $quarantinePlanArguments; 'Argument Delimiter' = ';'; 'Ignore STDIN' = 'false';
     'Max Attribute Length' = '65536'; 'Output MIME Type' = 'application/json'
 }
 $processors.splitQuarantinePlan = Ensure-Processor -GroupId $groupId -Name 'Split Quarantine Replay Plan' -Type 'org.apache.nifi.processors.standard.SplitJson' -X 640 -Y -960 -AutoTerminate @('original') -Properties @{

@@ -19,11 +19,13 @@ spec = importlib.util.spec_from_file_location('clock_support', HERE / 'batting-a
 B = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(B)
 CONTEXT = B.module(ROOT / 'scripts/pipeline/prepare-rml-context.py', 'clock_context')
+SCOPE = B.module(HERE / 'graph-source-scope.py', 'clock_source_scope')
 SHAPE = HERE.parent / 'shacl/clock-admission.ttl'
 
 
 def fingerprint():
     paths = [Path(__file__), SHAPE, HERE / 'batting-admission.py', HERE / 'reconcile-metric-source.py',
+             HERE / 'graph-source-scope.py',
              ROOT / 'scripts/pipeline/prepare-rml-context.py', ROOT / 'scripts/pipeline/validate-shacl.py']
     return B.sha('\n'.join(p.relative_to(ROOT).as_posix() + ':' + B.sha(p.read_bytes()) for p in paths).encode())
 
@@ -63,6 +65,9 @@ def census(raw, game_pk):
     awards = CONTEXT.automatic_count_awards(doc)['automaticAwards']
     return dict(gamePk=game_pk, game=game, sourceSha256=B.sha(raw), sourceRevision=source['sourceRevision'],
                 sourceReconciled=source['status'] == 'consistent', blockingIssues=source['blockingIssues'],
+                graphBlockingIssues=SCOPE.graph_blocking_issues(source['blockingIssues']),
+                graphSourceReconciled=not SCOPE.graph_blocking_issues(source['blockingIssues']),
+                sourceScopeDecision=SCOPE.DECISION,
                 clockConflicts=source['clockConflicts'], clockDecision=source['clockDecision'],
                 expected=expected, withheld=withheld, processes=processes, awards=awards)
 
@@ -119,6 +124,7 @@ def prove(*, raw, game_pk, rdf_path, output, java=None, classpath=None):
     proof = dict(artifactType='baseballo-clock-admission', contractVersion=1, gamePk=game_pk,
         sourceSha256=source['sourceSha256'], authoritativeRdfSha256=rdf_sha, implementationSha256=implementation,
         sourceReconciled=source['sourceReconciled'], graphConforms=False, status='withheld',
+        graphSourceReconciled=source['graphSourceReconciled'], sourceScopeDecision=source['sourceScopeDecision'],
         conflictCount=len(source['clockConflicts']), withheldMeasurements=len(source['withheld']),
         expectedMeasurements=len(source['expected']), clockDecision=source['clockDecision'],
         metricPopulationAdmitted=False)
@@ -126,7 +132,7 @@ def prove(*, raw, game_pk, rdf_path, output, java=None, classpath=None):
     source_path = output.with_suffix('.source.json')
     B.SOURCE.write_atomic(source_path, source)
     proof['sourceCensusSha256'] = B.sha(source_path.read_bytes())
-    if source['sourceReconciled']:
+    if source['graphSourceReconciled']:
         shapes = output.with_suffix('.shapes.ttl')
         shapes.write_text(shape_text(source), encoding='utf-8', newline='\n')
         if java:
@@ -140,7 +146,7 @@ def prove(*, raw, game_pk, rdf_path, output, java=None, classpath=None):
         report.serialize(destination=report_path, format='turtle')
         proof.update(graphConforms=bool(conforms), shapeSha256=B.sha(shapes.read_bytes()),
                      reportSha256=B.sha(report_path.read_bytes()), engine='jena' if java else 'pyshacl')
-    if proof['sourceReconciled'] and proof['graphConforms']:
+    if proof['graphSourceReconciled'] and proof['graphConforms']:
         proof['status'] = 'admitted'
     if rdf_sha != B.sha(rdf_path.read_bytes()) or implementation != fingerprint():
         raise ValueError('Clock proof inputs changed during validation')

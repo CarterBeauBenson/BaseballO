@@ -4,6 +4,8 @@ import importlib.util
 import json
 from pathlib import Path
 import unittest
+import tempfile
+from unittest.mock import patch
 
 from pyshacl import validate
 from rdflib import Dataset, Graph, Literal, Namespace, RDF, URIRef, XSD
@@ -16,6 +18,52 @@ BASE = Namespace(C.B.BASE)
 OBO = Namespace('http://purl.obolibrary.org/obo/')
 CCO = Namespace('https://www.commoncoreontologies.org/')
 CASES = json.loads((Path(__file__).parent / 'fixtures/clock-conflicts.json').read_text())['cases']
+H = C.B.module(ROOT / 'sources/mlb-game/pipeline/runner-history-admission.py', 'q6_history_test')
+
+
+class IncompleteSourceScopeTests(unittest.TestCase):
+    def incomplete(self):
+        doc = json.loads((ROOT / 'data/raw/samples/2026-07-18/824088.json').read_bytes())
+        doc['liveData']['plays']['allPlays'][-1]['about']['isComplete'] = False
+        return doc
+
+    def test_q6_retains_global_incompleteness_and_blocks_real_disagreements(self):
+        doc = self.incomplete()
+        raw = json.dumps(doc).encode()
+        clock = C.census(raw, '824088'); history = H.census(raw, '824088')
+        for census in (clock, history):
+            self.assertFalse(census['sourceReconciled'])
+            self.assertTrue(census['graphSourceReconciled'])
+        self.assertEqual(clock['blockingIssues'][0]['code'], 'INCOMPLETE_SOURCE_PLAY')
+        self.assertFalse(history['populationComplete'])
+        self.assertEqual(history['history']['histories'], [])
+        issues = [dict(code='INCOMPLETE_SOURCE_PLAY'),
+                  dict(code='INNING_RUN_TOTAL_MISMATCH', reported=None),
+                  dict(code='INNING_RUN_TOTAL_MISMATCH', reported=1),
+                  dict(code='INNING_RUN_TOTAL_MISMATCH'),
+                  dict(code='MOVEMENT_EVENT_MEMBERSHIP_MISMATCH'),
+                  dict(code='UNSUPPORTED_PLAY_TIME')]
+        self.assertEqual(C.SCOPE.graph_blocking_issues(issues), issues[2:])
+        doc['liveData']['plays']['allPlays'][-1]['about']['startTime'] = 'unknown'
+        for census in (C.census(json.dumps(doc).encode(), '824088'), H.census(json.dumps(doc).encode(), '824088')):
+            self.assertFalse(census['graphSourceReconciled'])
+
+    def test_q6_withheld_history_population_can_promote_only_exact_selected_graph(self):
+        raw = json.dumps(self.incomplete()).encode()
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary); rdf = root / 'data.ttl'; output = root / 'proof.json'
+            rdf.write_text('', encoding='utf-8')
+            proof = H.prove(raw=raw, game_pk='824088', rdf_path=rdf, output=output)
+            self.assertTrue(proof['graphConforms'])
+            self.assertTrue(proof['promotionAllowed'])
+            self.assertFalse(proof['sourceReconciled'])
+            self.assertFalse(proof['populationComplete'])
+            self.assertEqual(proof['status'], 'withheld')
+            rdf.write_text('<https://baseballontology.org/data/game/824088/runner-trajectory/invented> a '
+                           '<http://purl.obolibrary.org/obo/BFO_0000015> .', encoding='utf-8')
+            proof = H.prove(raw=raw, game_pk='824088', rdf_path=rdf, output=output)
+            self.assertFalse(proof['graphConforms'])
+            self.assertFalse(proof['promotionAllowed'])
 
 
 class ClockSelectionTests(unittest.TestCase):
@@ -164,6 +212,24 @@ class ClockGraphTests(unittest.TestCase):
         self.assertTrue(self.conforms())
         self.graph.set((URIRef(self.rows[0]['timestamp']), CCO.ont00001767, Literal('2026-09-17T16:00:01Z', datatype=XSD.dateTime)))
         self.assertFalse(self.conforms())
+
+    def test_q6_clock_proof_keeps_completeness_false_and_rejects_missing_measurement(self):
+        self.source.update(expected=self.rows, withheld=[], gamePk='1', sourceSha256='a'*64,
+                           sourceReconciled=False, graphSourceReconciled=True,
+                           sourceScopeDecision=C.SCOPE.DECISION, clockConflicts=[], clockDecision='T1')
+        for row in self.rows: self.add_measurement(row)
+        with tempfile.TemporaryDirectory() as temporary, patch.object(C, 'census', return_value=self.source):
+            root = Path(temporary); rdf = root / 'data.ttl'; output = root / 'proof.json'
+            self.graph.serialize(destination=rdf, format='turtle')
+            proof = C.prove(raw=b'{}', game_pk='1', rdf_path=rdf, output=output)
+            self.assertEqual(proof['status'], 'admitted')
+            self.assertFalse(proof['sourceReconciled'])
+            self.assertFalse(proof['metricPopulationAdmitted'])
+            self.graph.remove((URIRef(self.rows[0]['timestamp']), None, None))
+            self.graph.serialize(destination=rdf, format='turtle')
+            proof = C.prove(raw=b'{}', game_pk='1', rdf_path=rdf, output=output)
+            self.assertFalse(proof['graphConforms'])
+            self.assertEqual(proof['status'], 'withheld')
 
 
 class ClockIndexTests(unittest.TestCase):

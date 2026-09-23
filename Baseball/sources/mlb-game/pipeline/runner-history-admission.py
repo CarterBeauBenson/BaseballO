@@ -11,11 +11,12 @@ HERE=Path(__file__).resolve().parent
 spec=importlib.util.spec_from_file_location('c3_batting_support',HERE/'batting-admission.py')
 B=importlib.util.module_from_spec(spec);spec.loader.exec_module(B)
 CONTEXT=B.module(ROOT/'scripts/pipeline/prepare-rml-context.py','c3_context')
+SCOPE=B.module(HERE/'graph-source-scope.py','c3_source_scope')
 SHAPE=HERE.parent/'shacl/runner-history-admission.ttl'
 
 
 def fingerprint():
-    paths=[Path(__file__),SHAPE,HERE/'batting-admission.py',HERE/'reconcile-metric-source.py',
+    paths=[Path(__file__),SHAPE,HERE/'batting-admission.py',HERE/'reconcile-metric-source.py',HERE/'graph-source-scope.py',
            ROOT/'scripts/pipeline/prepare-rml-context.py',ROOT/'scripts/pipeline/validate-shacl.py']
     return B.sha('\n'.join(p.relative_to(ROOT).as_posix()+':'+B.sha(p.read_bytes()) for p in paths).encode())
 
@@ -24,8 +25,10 @@ def census(raw,game_pk):
     game_pk=B.identity(int(game_pk));doc=json.loads(raw)
     if str(doc['gamePk'])!=game_pk:raise ValueError('Runner-history game identity mismatch')
     history=CONTEXT.personal_runner_histories(raw)
+    blockers=SCOPE.graph_blocking_issues(history.get('sourceIssues',[]))
     return dict(gamePk=game_pk,game=B.BASE+'data/game/'+game_pk,sourceSha256=B.sha(raw),
         sourceReconciled=history['sourceConsistency']=='consistent',history=history,
+        graphSourceReconciled=not blockers,graphBlockingIssues=blockers,sourceScopeDecision=SCOPE.DECISION,
         populationComplete=history['sourceConsistency']=='consistent' and bool(history['halves'])
             and all(h['status']=='reconciled' for h in history['halves']))
 
@@ -88,12 +91,13 @@ def prove(*,raw,game_pk,rdf_path,output,java=None,classpath=None):
         gamePk=source['gamePk'],graph='https://w3id.org/baseball/graph/game/'+source['gamePk'],
         sourceSha256=source['sourceSha256'],authoritativeRdfSha256=rdf_sha,
         implementationSha256=implementation,status='withheld',sourceReconciled=source['sourceReconciled'],
+        graphSourceReconciled=source['graphSourceReconciled'],sourceScopeDecision=source['sourceScopeDecision'],
         graphConforms=False,populationComplete=source['populationComplete'],
         selectedHistories=len(source['history']['histories']),issues=[])
     output.parent.mkdir(parents=True,exist_ok=True)
     source_path=output.with_suffix('.source.json');B.SOURCE.write_atomic(source_path,source)
     proof['sourceCensusSha256']=B.sha(source_path.read_bytes())
-    if proof['sourceReconciled']:
+    if proof['graphSourceReconciled']:
         shapes=output.with_suffix('.shapes.ttl');shapes.write_text(shape_text(source),encoding='utf-8',newline='\n')
         if java:
             validator=B.module(ROOT/'scripts/pipeline/validate-shacl.py','c3_history_shacl')
@@ -106,9 +110,10 @@ def prove(*,raw,game_pk,rdf_path,output,java=None,classpath=None):
         proof.update(graphConforms=bool(conforms),shapeSha256=B.sha(shapes.read_bytes()),
             reportSha256=B.sha(report_path.read_bytes()),engine='jena' if java else 'pyshacl')
         if not conforms:proof['issues'].append(dict(code='SOURCE_GRAPH_CONFORMANCE'))
-    else:proof['issues'].append(dict(code='SOURCE_RECONCILIATION'))
+    if not proof['sourceReconciled']:proof['issues'].append(dict(code='SOURCE_RECONCILIATION'))
     if not proof['populationComplete']:proof['issues'].append(dict(code='INCOMPLETE_PERSONAL_HISTORIES'))
     if proof['sourceReconciled'] and proof['graphConforms'] and proof['populationComplete']:proof['status']='admitted'
+    proof['promotionAllowed']=proof['graphSourceReconciled'] and proof['graphConforms']
     if rdf_sha!=B.sha(rdf_path.read_bytes()) or implementation!=fingerprint():
         raise ValueError('Runner-history admission changed during validation')
     B.SOURCE.write_atomic(output,proof)
@@ -128,5 +133,5 @@ if __name__=='__main__':
     result=prove(raw=raw,game_pk=args.game_pk,rdf_path=args.rdf,output=args.output,java=args.java,classpath=args.jena_classpath)
     if raw!=args.input.read_bytes():raise ValueError('History source changed during validation')
     print(json.dumps(result))
-    if not result['sourceReconciled'] or not result['graphConforms']:
+    if not result['promotionAllowed']:
         raise SystemExit('C1/C3 source/graph SHACL failed; promotion must stop')

@@ -1322,7 +1322,20 @@ def batter_participation_context(play: dict, game_pk: str, *, source_consistent:
         if position != 'PH' or event.get('isSubstitution') is not True or event.get('isPitch') is not False:
             raise ValueError(f'PA {pa}: ambiguous offensive substitution')
         changes.append(event)
-    current = require_numeric(changes[0]['replacedPlayer']['id'], 'replaced batter') if changes else final
+    # Q5: an explicitly identified initial pinch hitter can perform subsequent
+    # batting acts even when the feed omits the outgoing lineup player's ID.
+    # No outgoing identity or earlier act is inferred from that omission.
+    initial = None
+    if changes and changes[0].get('replacedPlayer', {}).get('id') is None:
+        initial = changes[0]
+        count = initial.get('count', {})
+        if (initial is not events[0] or type(initial.get('index')) is not int or initial['index'] != 0
+                or any(type(count.get(key)) is not int or count[key] != 0 for key in ('balls', 'strikes'))
+                or require_numeric(initial.get('player', {}).get('id'), 'initial pinch hitter') != final
+                or initial.get('reviewDetails') or initial.get('details', {}).get('hasReview') is not False):
+            raise ValueError(f'PA {pa}: missing outgoing batter outside Q5 initial substitution')
+    current = (final if initial is not None or not changes else
+               require_numeric(changes[0]['replacedPlayer']['id'], 'replaced batter'))
     assignments, observed, replaced = {}, [], set()
 
     def instant(value):
@@ -1337,6 +1350,8 @@ def batter_participation_context(play: dict, game_pk: str, *, source_consistent:
         if any(type(i) is not int for i in indexes) or indexes != list(range(len(events))):
             raise ValueError(f'PA {pa}: incomplete substitution event membership')
     for event in events:
+        if event is initial:
+            continue
         if event in changes:
             outgoing = require_numeric(event.get('replacedPlayer', {}).get('id'), 'replaced batter')
             incoming = require_numeric(event.get('player', {}).get('id'), 'replacement batter')
@@ -1358,7 +1373,7 @@ def batter_participation_context(play: dict, game_pk: str, *, source_consistent:
     if current != final:
         raise ValueError(f'PA {pa}: substitution chain disagrees with final matchup')
     if final not in observed:
-        if observed:
+        if observed or initial is not None:
             raise ValueError(f'PA {pa}: replacement has no supported batting participation')
         observed.append(final)  # Preserve the existing no-pitch PA pattern.
     if len(observed) > 1:

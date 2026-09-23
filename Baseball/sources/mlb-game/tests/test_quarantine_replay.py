@@ -185,6 +185,17 @@ class QuarantineReplayTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "no prior certified five-game"):
                 MODULE.create_plan(state, self.contract(state))
 
+    def test_scoped_plan_uses_existing_proof_lane_without_replaying_unselected_games(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            state = Path(temporary)
+            for pk in (*PROOF_GAMES, '900001'):
+                add_quarantine(state, pk, 'run')
+            submission = MODULE.create_plan(state, self.contract(state), list(PROOF_GAMES))
+            plan = MODULE.read_object(Path(submission['planPath']))
+            self.assertEqual({r['gamePk'] for r in plan['proof']}, set(PROOF_GAMES))
+            self.assertEqual(plan['remainder'], [])
+            self.assertTrue((state / 'pipeline/quarantine/mlb-game/900001/run/input.json').exists())
+
     def test_remainder_is_blocked_until_all_exact_proof_hashes_are_promoted(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             state = Path(temporary)

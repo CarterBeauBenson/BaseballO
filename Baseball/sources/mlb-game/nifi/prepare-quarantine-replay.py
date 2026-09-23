@@ -294,9 +294,20 @@ def resolution_record(
     return record
 
 
-def create_plan(state_root: Path, contract_path: Path) -> dict[str, Any]:
+def validate_game_selection(game_pks):
+    if game_pks is not None and (not isinstance(game_pks, list) or not game_pks or any(
+        not isinstance(pk, str) or not GAME_PK.fullmatch(pk) for pk in game_pks
+    )):
+        raise ValueError("A scoped retry requires nonempty numeric game IDs")
+    return None if game_pks is None else set(game_pks)
+
+
+def create_plan(state_root: Path, contract_path: Path, game_pks: list[str] | None = None) -> dict[str, Any]:
     replay = replay_config(contract_path)
     candidates = current_candidates(state_root)
+    requested = validate_game_selection(game_pks)
+    if requested is not None:
+        candidates = {pk: value for pk, value in candidates.items() if pk in requested}
     replay_candidates: dict[str, dict[str, str]] = {}
     deferred: list[dict[str, Any]] = []
     existing_resolutions: list[tuple[dict[str, str], str, Path]] = []
@@ -528,11 +539,7 @@ def emit_latest_remainder(state_root: Path, game_pks: list[str] | None = None) -
         state_root.resolve() / "pipeline" / "evidence" / "nifi" / "quarantine-replay"
     )
     candidates = current_candidates(state_root)
-    if game_pks is not None and (not isinstance(game_pks, list) or not game_pks or any(
-        not isinstance(pk, str) or not GAME_PK.fullmatch(pk) for pk in game_pks
-    )):
-        raise ValueError("A scoped retry requires nonempty numeric game IDs")
-    requested = None if game_pks is None else set(game_pks)
+    requested = validate_game_selection(game_pks)
     if requested is not None:
         candidates = {pk: value for pk, value in candidates.items() if pk in requested}
     if not candidates:
@@ -727,10 +734,18 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
+    request = {}
+    if args.action in {'plan', 'emit-latest-remainder'} and args.request_stdin:
+        request = json.load(sys.stdin)
+        if not isinstance(request, dict) or set(request) - {"gamePks", "afterServingBuild"}:
+            raise ValueError("Invalid quarantine replay request")
+        validate_game_selection(request.get('gamePks'))
     if args.action == "plan":
         if args.contract is None:
             raise ValueError("plan requires --contract")
-        output = create_plan(args.state_root, args.contract)
+        if request.get('afterServingBuild'):
+            wait_for_serving_build(args.state_root, request['afterServingBuild'])
+        output = create_plan(args.state_root, args.contract, request.get('gamePks'))
     elif args.action == "check-proof":
         if args.plan is None:
             raise ValueError("check-proof requires --plan")
@@ -742,12 +757,7 @@ def main() -> None:
     elif args.action == "emit-latest-proof":
         output = emit_latest_proof(args.state_root)
     elif args.action == "emit-latest-remainder":
-        request = json.load(sys.stdin) if args.request_stdin else {}
-        if not isinstance(request, dict) or set(request) - {"gamePks", "afterServingBuild"}:
-            raise ValueError("Invalid quarantine remainder request")
         game_pks = request.get("gamePks")
-        if game_pks is not None and not isinstance(game_pks, list):
-            raise ValueError("gamePks must be an array")
         # Validate the scope before waiting; re-read exact inputs after the wait.
         output = emit_latest_remainder(args.state_root, game_pks)
         if request.get("afterServingBuild"):

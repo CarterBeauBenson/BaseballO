@@ -24,6 +24,45 @@ def source_play():
 
 
 class SubstitutedBatters(unittest.TestCase):
+    def initial_unknown_outgoing(self):
+        play = source_play()
+        play['playEvents'] = play['playEvents'][3:]
+        for index, event in enumerate(play['playEvents']):
+            event['index'] = index
+        first = play['playEvents'][0]
+        first.pop('replacedPlayer')
+        first['count'].update(balls=0, strikes=0)
+        return play
+
+    def test_q5_initial_missing_outgoing_id_preserves_only_evidenced_incoming_actor(self):
+        play = self.initial_unknown_outgoing(); original = copy.deepcopy(play)
+        result = CONTEXT.batter_participation_context(play, '824169', source_consistent=True)
+        row, = result['participations']
+        self.assertEqual(row['playerId'], '664774')
+        self.assertTrue(row['actIri'].endswith('/batter-act'))
+        self.assertEqual(len(row['pitchIds']), 4)
+        self.assertEqual({p['batterId'] for p in result['pitches'].values()}, {'664774'})
+        self.assertEqual(play, original)
+
+    def test_q5_does_not_extend_to_ambiguous_or_unevidenced_participation(self):
+        for fault in ('earlier-event', 'nonzero-count', 'missing-count', 'boolean-count',
+                      'wrong-incoming', 'review', 'no-evidence', 'later-missing-outgoing'):
+            with self.subTest(fault=fault):
+                play = self.initial_unknown_outgoing(); first = play['playEvents'][0]
+                if fault == 'earlier-event':
+                    play['playEvents'].insert(0, dict(index=0, isPitch=False, details={}))
+                    for index, event in enumerate(play['playEvents']): event['index'] = index
+                elif fault == 'nonzero-count': first['count']['strikes'] = 1
+                elif fault == 'missing-count': first['count'].pop('balls')
+                elif fault == 'boolean-count': first['count']['balls'] = False
+                elif fault == 'wrong-incoming': first['player']['id'] = 1
+                elif fault == 'review': first['details']['hasReview'] = True
+                elif fault == 'no-evidence': play['playEvents'] = [first]
+                else:
+                    play = source_play(); play['playEvents'][3].pop('replacedPlayer')
+                with self.assertRaises(ValueError):
+                    CONTEXT.batter_participation_context(play, '824169', source_consistent=True)
+
     def test_actual_swings_follow_each_batter_and_input_is_immutable(self):
         play = source_play(); original = copy.deepcopy(play)
         rows = CONTEXT.batter_participation_context(play, '824169', source_consistent=True)
