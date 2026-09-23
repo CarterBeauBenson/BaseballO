@@ -284,8 +284,8 @@ def is_pending_rml_replacement(
     Per-game manifest paths are reused by the ingestion lane. A later replay can
     therefore replace the RML manifest while the previous promoted graph pair and
     its query-index manifest remain current. This admission is intentionally tied
-    to the retained staged input and output bytes; a bare manifest mutation is not
-    enough to qualify.
+    to the retained staged input and output bytes, including an input moved by
+    the owning lane into quarantine; a bare manifest mutation is not enough.
     """
     if rml.get("shaclStatus") not in {"deferred-to-nifi", "validated"}:
         return False
@@ -306,10 +306,31 @@ def is_pending_rml_replacement(
         input_path.parent != expected_input_root
         or not re.fullmatch(rf"game-{re.escape(game_pk)}-[0-9a-fA-F-]+\.json", input_path.name)
         or output_path != expected_output
-        or not input_path.is_file()
         or not output_path.is_file()
     ):
         return False
+    if not input_path.is_file():
+        # Quarantine moves these exact bytes; it does not undo an earlier
+        # promotion. Resolve only this run's recorded source-owned destination.
+        run = input_path.stem[len(f"game-{game_pk}-"):].replace("-", "").lower()
+        if not re.fullmatch(r"[0-9a-f]{32}", run):
+            return False
+        quarantine = state_root / "pipeline" / "quarantine" / "mlb-game" / game_pk / run
+        retained_input = (quarantine / "input.json").resolve()
+        try:
+            failure = json_object(quarantine / "failure.json")
+            if (
+                failure.get("artifactType") != "baseballo-mlb-game-quarantine"
+                or failure.get("contractVersion") != 1
+                or str(failure.get("gamePk", "")) != game_pk
+                or failure.get("pipelineRunId") != run
+                or Path(str(failure.get("retainedInput", ""))).resolve() != retained_input
+                or not retained_input.is_file()
+            ):
+                return False
+        except (OSError, ValueError, TypeError):
+            return False
+        input_path = retained_input
     return sha256_file(input_path) == input_sha256 and sha256_file(output_path) == output_sha256
 
 

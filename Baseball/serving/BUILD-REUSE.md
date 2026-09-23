@@ -95,6 +95,21 @@ This change requires no reingestion or new batch; the owning NiFi stages retain
 artifacts as already scheduled work runs. Existing published SQL releases adopt
 the new reader on their next normal SQL publication.
 
+For legacy promotions whose mutable RML manifest was overwritten by a later
+failed attempt, the existing staged-replacement check also follows that exact
+run's quarantine record. Both the retained input and staged RDF must still match
+their recorded hashes. Moving an input into quarantine does not revoke the
+earlier published graph or certify the failed replacement.
+
+An unrecognized derived-index contract is repaired from the existing authoritative
+graph using `sources/mlb-game/pipeline/repair-query-index.ps1`, run by NiFi for
+explicit game IDs. It runs the existing index builder and its checks, reconciles
+promotion evidence, and preserves metric proofs tied to the same RML artifact.
+On failure it restores only that game's previous index and mutable index files.
+No acquisition, RML transformation, or authoritative graph replacement occurs.
+SQL-only publication can then use the existing DSQ request independently of an
+unfinished acquisition batch.
+
 ## Query execution and checkpoints
 
 The parsed query algebra must confine every graph read to that graph pair.

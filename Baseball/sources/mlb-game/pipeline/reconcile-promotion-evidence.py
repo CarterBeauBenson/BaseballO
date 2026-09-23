@@ -75,7 +75,8 @@ def atomic_json(path: Path, value: dict[str, Any]) -> None:
 def graph_bytes(endpoint: str, graph: str) -> bytes:
     url = endpoint + "?graph=" + urllib.parse.quote(graph, safe="")
     request = urllib.request.Request(url, headers={"Accept": "application/n-triples"})
-    with urllib.request.urlopen(request, timeout=120) as response:
+    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+    with opener.open(request, timeout=120) as response:
         if int(response.status) != 200:
             raise ValueError(f"graph read returned status {response.status}: {graph}")
         return response.read()
@@ -186,8 +187,14 @@ def reconcile_game(state_root: Path, graph_store: str, game_pk: str) -> Path:
     elif not prior_rml_anchor:
         raise ValueError(f"game {game_pk} has neither serialized RDF nor an immutable RML anchor")
 
-    previous_path, _ = max(
-        prior,
+    # An index-only repair preserves source proofs for the exact same RML bytes.
+    anchored_prior = [
+        item for item in prior
+        if item[1].get("rawSha256") == raw_sha
+        and item[1].get("rmlManifestSha256") == current_rml_hash
+    ]
+    previous_path, previous_marker = max(
+        anchored_prior or prior,
         key=lambda item: (INVENTORY.promotion_timestamp(item[1].get("promotedAtUtc")), item[0].name),
     )
     identity_payload = {
@@ -231,8 +238,19 @@ def reconcile_game(state_root: Path, graph_store: str, game_pk: str) -> Path:
             "perGameQueryEquivalenceRequiredBeforeInvocation": True,
         },
     }
+    if anchored_prior:
+        marker.update({
+            key: value for key, value in previous_marker.items()
+            if key.endswith(("Admission", "AdmissionSha256"))
+            or key in {"reviewInventory", "reviewInventorySha256"}
+        })
+    INVENTORY.retain_game_artifacts(state_root, game_pk)
     atomic_json(target, marker)
-    INVENTORY.validated_promotion_record(state_root, target, game_pk, admission)
+    try:
+        INVENTORY.validated_promotion_record(state_root, target, game_pk, admission)
+    except Exception:
+        target.unlink(missing_ok=True)
+        raise
     return target
 
 
@@ -243,7 +261,6 @@ def main() -> int:
         str(reconcile_game(state_root, args.graph_store, str(game_pk)).resolve())
         for game_pk in args.game_pk
     ]
-    inventory = INVENTORY.promotion_inventory(state_root)
     print(
         json.dumps(
             {
@@ -251,8 +268,6 @@ def main() -> int:
                 "contractVersion": 1,
                 "reconciledGames": [str(value) for value in args.game_pk],
                 "evidence": repaired,
-                "inventoryGameCount": inventory["gameCount"],
-                "corpusFingerprint": inventory["fingerprint"],
             },
             separators=(",", ":"),
         )

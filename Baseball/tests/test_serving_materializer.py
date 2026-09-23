@@ -157,6 +157,52 @@ def result(bindings: list[dict[str, object]], variables: list[str] | None = None
 
 
 class ServingMaterializerTests(unittest.TestCase):
+    def test_index_reconciliation_preserves_source_proofs_and_retains_artifacts(self) -> None:
+        spec = importlib.util.spec_from_file_location(
+            "promotion_reconciler",
+            ROOT / "sources/mlb-game/pipeline/reconcile-promotion-evidence.py",
+        )
+        reconciler = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(reconciler)
+        with tempfile.TemporaryDirectory() as directory:
+            state = Path(directory)
+            prior_path = make_promotion(state, "123", semantic_contract=True)
+            prior = json.loads(prior_path.read_text())
+            prior.update({"battingAdmission": "original-proof.json",
+                          "battingAdmissionSha256": digest("original proof"),
+                          "reviewInventory": "original-review.json",
+                          "reviewInventorySha256": digest("original review")})
+            write_json(prior_path, prior)
+            reconciler.INVENTORY.retain_game_artifacts(state, "123")
+            source = ('<https://baseballontology.org/data/game/123> '
+                      '<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> '
+                      '<https://baseballontology.org/BaseballGame> .\n')
+            source += ''.join(f'<urn:s{i}> <urn:p> <urn:o> .\n' for i in range(9))
+            index = ''.join(f'<urn:i{i}> <urn:p> <urn:o> .\n' for i in range(4))
+            artifact = state / "pipeline/query-index/game-123.nt"
+            artifact.write_text(index, encoding="utf-8", newline="\n")
+            manifest_path = state / "pipeline/manifests/game-123-query-index.json"
+            manifest = json.loads(manifest_path.read_text())
+            manifest["indexSha256"] = file_sha(artifact)
+            write_json(manifest_path, manifest)
+            def read_graph(endpoint, graph):
+                return (index if 'query-index' in graph else source).encode()
+            with patch.object(reconciler, "graph_bytes", side_effect=read_graph):
+                repaired = reconciler.reconcile_game(state, "http://unused", "123")
+                marker = json.loads(repaired.read_text())
+                for key in ("battingAdmission", "battingAdmissionSha256", "reviewInventory", "reviewInventorySha256"):
+                    self.assertEqual(marker[key], prior[key])
+                self.assertEqual(marker["rmlManifestSha256"], prior["rmlManifestSha256"])
+                retained = repaired.parent / "artifacts" / (marker["queryIndexManifestSha256"] + ".json")
+                self.assertEqual(retained.read_bytes(), manifest_path.read_bytes())
+                self.assertEqual(repaired, reconciler.reconcile_game(state, "http://unused", "123"))
+                # A rejected candidate must not leave a newer invalid marker.
+                repaired.unlink()
+                with patch.object(reconciler.INVENTORY, "validated_promotion_record", side_effect=ValueError("rejected")):
+                    with self.assertRaisesRegex(ValueError, "rejected"):
+                        reconciler.reconcile_game(state, "http://unused", "123")
+                self.assertFalse(repaired.exists())
+
     def test_checked_in_dsq_surface_matches_catalog_with_display_helpers(self) -> None:
         catalog = json.loads(MODULE.DSQ_MATERIALIZATIONS.read_text(encoding="utf-8"))
         advanced = json.loads(MODULE.ADVANCED_CATALOG.read_text(encoding="utf-8"))
@@ -424,6 +470,52 @@ class ServingMaterializerTests(unittest.TestCase):
             self.assertEqual(MODULE.promotion_inventory(state), before)
             self.assertEqual(before['games']['1']['officialDate'], '2026-08-01')
             self.assertEqual(before['games']['1']['gameType'], 'R')
+
+    def test_quarantined_replacement_preserves_older_promotion_only_with_exact_bytes(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            state = Path(temporary)
+            make_promotion(state, '1', B966)
+            before = MODULE.promotion_inventory(state)
+            run = 'a' * 32
+            source = state / 'pipeline/transient/mlb-game' / f'game-1-{run}.json'
+            output = state / 'pipeline/rdf/game-1.ttl'
+            source.parent.mkdir(parents=True)
+            output.parent.mkdir(parents=True)
+            source.write_bytes(b'replacement input')
+            output.write_bytes(b'replacement RDF')
+            write_json(state / 'pipeline/manifests/game-1-rml.json', {
+                'gamePk': '1', 'graphIri': MODULE.GRAPH_PREFIX + '1',
+                'inputPath': str(source), 'inputSha256': file_sha(source),
+                'outputPath': str(output), 'outputSha256': file_sha(output),
+                'shaclStatus': 'deferred-to-nifi',
+            })
+            quarantine = state / 'pipeline/quarantine/mlb-game/1' / run
+            quarantine.mkdir(parents=True)
+            retained = quarantine / 'input.json'
+            source.rename(retained)
+            failure = dict(artifactType='baseballo-mlb-game-quarantine',
+                           contractVersion=1, gamePk='1', pipelineRunId=run,
+                           failedStage='shacl', retainedInput=str(retained))
+            failure_path = quarantine / 'failure.json'
+            write_json(failure_path, failure)
+            after = MODULE.promotion_inventory(state)
+            self.assertEqual(after['fingerprint'], before['fingerprint'])
+            self.assertEqual(after['games']['1']['authoritativeRdfSha256'],
+                             before['games']['1']['authoritativeRdfSha256'])
+            for field, value in [('gamePk', '2'), ('pipelineRunId', 'b' * 32),
+                                 ('retainedInput', str(state / 'unrelated.json'))]:
+                with self.subTest(field=field):
+                    write_json(failure_path, {**failure, field: value})
+                    with self.assertRaisesRegex(ValueError, 'RML manifest hash mismatch'):
+                        MODULE.promotion_inventory(state)
+            write_json(failure_path, failure)
+            retained.write_bytes(b'changed after quarantine')
+            with self.assertRaisesRegex(ValueError, 'RML manifest hash mismatch'):
+                MODULE.promotion_inventory(state)
+            retained.write_bytes(b'replacement input')
+            output.write_bytes(b'changed staged RDF')
+            with self.assertRaisesRegex(ValueError, 'RML manifest hash mismatch'):
+                MODULE.promotion_inventory(state)
 
     def test_retained_bytes_do_not_bypass_corruption_or_replace_promotion_authority(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

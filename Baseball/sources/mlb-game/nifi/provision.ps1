@@ -802,7 +802,7 @@ $unexpectedProcessors = @($flow.processors | Where-Object { $_.component.name -n
     'Retry Quarantine Resolution','Fail Promotion','Fail Materialization','Fail Cleanup','Fail Quarantine Resolution','Fail Replay Fetch','Fail Quarantine Resolution Choice','Fail Schedule HTTP','Fail Schedule Parse',
     'Fail Request','Fail Response','Fail Eligibility','Fail Schedule Request','Fail Schedule Split','Fail Materialization Mode','Fail Proof Release',
     'Quarantine','Name Schedule Quarantine','Write Schedule Quarantine','Record Schedule Quarantine Failure',
-    'Retry Proof Release Readiness'
+    'Retry Proof Release Readiness','Repair Selected Query Indexes'
 ) })
 if ($unexpectedProcessors.Count -gt 0) {
     throw "The owned MLB Game process group contains unexpected processors: $(@($unexpectedProcessors.component.name) -join ', ')"
@@ -830,7 +830,7 @@ if ($RunProof -or $RunBackfill -or $RunQuarantineReplay -or $RetryQuarantineProo
         $processors.quarantineProofRetryRequest,
         $processors.quarantineRemainderRetryRequest
     )
-    foreach ($summary in @((Get-GroupFlow -GroupId $groupId).processors | Where-Object { $_.id -notin $requestProcessorIds })) {
+    foreach ($summary in @((Get-GroupFlow -GroupId $groupId).processors | Where-Object { $_.id -notin $requestProcessorIds -and $_.component.name -ne 'Repair Selected Query Indexes' })) {
         $entity = Invoke-NiFi -Method GET -Path "/processors/$($summary.id)"
         if ([string]$entity.component.state -ne 'RUNNING') {
             Invoke-NiFi -Method PUT -Path "/processors/$($entity.id)/run-status" -Body @{
