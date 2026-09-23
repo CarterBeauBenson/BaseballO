@@ -27,6 +27,8 @@ The authoritative write is an additive Graph Store POST. A comparison checks
 that the result is exactly the original graph plus the RML delta. Only these
 games' derived query indexes are regenerated. The normal promotion event
 notifies downstream materializers. Their prepared SQL remains the UI input.
+RDFLib literal normalization is disabled during export so timestamp spelling,
+fractional precision and other existing lexical forms stay unchanged.
 
 The ordinary graph-pair transaction retains recovery snapshots until the
 promotion marker is durable. A failed or interrupted uncommitted repair restores

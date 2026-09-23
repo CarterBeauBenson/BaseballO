@@ -105,8 +105,19 @@ history maps, validates the resulting graph with the owning SHACL profiles,
 and adds the missing triples with Graph Store POST. It preserves incomplete
 population statuses and original source-proof identities, with a separate
 graph-revalidation receipt. The existing graph-pair recovery and promotion
-event drive the affected query-index and SQL updates. Runtime completion and
-populated SQL rows still require the worker's terminal evidence.
+event drive the affected query-index and SQL updates.
+
+NiFi completed both additions at 17:05 Eastern on September 23: game 822846
+gained four histories / 26 triples (promotion `c13a55c7232c413ead2f9376401530cd`),
+and game 824467 gained three histories / 23 triples (promotion
+`c01906024ee84e54bbf23e37d7c42410`). Both passed source SHACL and query-index
+equivalence and emitted their normal promotion events. This repairs the two
+missing scoring-history links and five other independently complete histories.
+The zero-episode runners and other unresolved half-innings remain withheld.
+The first attempt exposed timestamp lexical normalization in the export;
+recovery restored the original graph pairs, and the corrected export preserves
+all existing RDF terms exactly. SQL/dashboard publication of these additions
+is still pending; these graph results are not a populated leaderboard claim.
 
 At 15:29 Eastern, NiFi published
 `20260923T175511Z-dashboard-4ca9b33c4b25`. The default September 16 request
