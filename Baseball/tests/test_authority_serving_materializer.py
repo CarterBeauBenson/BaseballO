@@ -6,6 +6,7 @@ import contextlib
 import importlib.util
 import json
 import sqlite3
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -31,6 +32,17 @@ EMITTER = load_module("baseballo_authority_event_emitter_test", EMITTER_PATH)
 
 
 class AuthorityServingMaterializerTests(unittest.TestCase):
+    def test_orphan_file_does_not_lock_and_process_exit_releases_os_lock(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            lock = Path(temporary)/'writer.lock'
+            lock.write_text('{"pid":640,"createdAtUtc":"2026-09-04"}')
+            with MATERIALIZER.exclusive_lock(lock):
+                with self.assertRaises(BlockingIOError):
+                    with MATERIALIZER.exclusive_lock(lock): pass
+            code = "import sys,os;sys.path.insert(0,sys.argv[1]);from process_lock import exclusive\nwith exclusive(sys.argv[2]): os._exit(0)"
+            subprocess.run([sys.executable,'-B','-c',code,str(MATERIALIZER_PATH.parent),str(lock)],check=True)
+            with MATERIALIZER.exclusive_lock(lock): pass
+
     def promotion(self, state: Path, run: str, name: str) -> dict[str, object]:
         path = state / "pipeline" / "evidence" / "mlb-people" / "person-1" / run / "promotion.json"
         path.parent.mkdir(parents=True)

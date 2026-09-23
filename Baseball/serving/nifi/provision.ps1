@@ -53,9 +53,18 @@ function Get-GroupFlow([string] $GroupId) {
 }
 
 function Get-OrCreateProcessGroup([string] $ParentId, [string] $Name, [int] $X, [int] $Y) {
-    $matches = @((Get-GroupFlow $ParentId).processGroups | Where-Object { $_.component.name -eq $Name })
+    $aliases = if ($Name -eq 'Authority SQL') { @('Authority SQL','Analytical Serving') } else { @($Name) }
+    $matches = @((Get-GroupFlow $ParentId).processGroups | Where-Object { $_.component.name -in $aliases })
     if ($matches.Count -gt 1) { throw "More than one NiFi process group is named '$Name'." }
-    if ($matches.Count -eq 1) { return $matches[0].id }
+    if ($matches.Count -eq 1) {
+        if ($matches[0].component.name -ne $Name) {
+            $current = Invoke-NiFi -Method GET -Path "/process-groups/$($matches[0].id)"
+            Invoke-NiFi -Method PUT -Path "/process-groups/$($current.id)" -Body @{
+                revision = @{ version = $current.revision.version }; component = @{ id = $current.id; name = $Name }
+            } | Out-Null
+        }
+        return $matches[0].id
+    }
     return (Invoke-NiFi -Method POST -Path "/process-groups/$ParentId/process-groups" -Body @{
         revision = @{ version = 0 }
         component = @{ name = $Name; position = @{ x = $X; y = $Y }; comments = 'Shared post-promotion analytical work; source lanes do not depend on this group.' }
@@ -83,7 +92,12 @@ function Get-ProcessorType([string] $Type) {
 
 function Ensure-Processor {
     param([string] $GroupId, [string] $Name, [string] $Type, [hashtable] $Properties, [string[]] $AutoTerminate, [int] $X, [int] $Y, [string] $SchedulingPeriod = '0 sec')
-    $matches = @((Get-GroupFlow $GroupId).processors | Where-Object { $_.component.name -eq $Name })
+    $aliases = switch ($Name) {
+        'Full Authority SQL Rebuild Request' { @($Name,'Full Authority RDF Rebuild Request') }
+        'Rebuild Authority SQL From RDF' { @($Name,'Rebuild Authority Serving From RDF') }
+        default { @($Name) }
+    }
+    $matches = @((Get-GroupFlow $GroupId).processors | Where-Object { $_.component.name -in $aliases })
     if ($matches.Count -gt 1) { throw "More than one processor is named '$Name' in Analytical Serving." }
     $processorType = Get-ProcessorType $Type
     $config = @{
@@ -106,6 +120,10 @@ function Ensure-Processor {
 }
 
 function Ensure-Connection([string] $GroupId, [string] $Name, [string] $SourceId, [string] $DestinationId, [string[]] $Relationships) {
+    # The retry return edge must remain drainable when downstream queues fill.
+    # Only tiny control ticks use these connections; source events stay in the durable outbox.
+    $limit = if ($Name -like '*retry loop') { 0 } elseif ($Name -like '*trigger') { 1 } else { 10 }
+    $sizeLimit = if ($Name -like '*retry loop') { '0 B' } else { '10 MB' }
     $matches = @((Get-GroupFlow $GroupId).connections | Where-Object { $_.component.name -eq $Name })
     if ($matches.Count -gt 1) { throw "More than one connection is named '$Name'." }
     if ($matches.Count -eq 1) {
@@ -113,6 +131,11 @@ function Ensure-Connection([string] $GroupId, [string] $Name, [string] $SourceId
         if ($component.source.id -ne $SourceId -or $component.destination.id -ne $DestinationId -or (@($component.selectedRelationships) -join '|') -ne (@($Relationships) -join '|')) {
             throw "Existing connection '$Name' differs from its contract."
         }
+        $current = Invoke-NiFi -Method GET -Path "/connections/$($matches[0].id)"
+        Invoke-NiFi -Method PUT -Path "/connections/$($current.id)" -Body @{
+            revision = @{ version = $current.revision.version }
+            component = @{ id = $current.id; backPressureObjectThreshold = $limit; backPressureDataSizeThreshold = $sizeLimit }
+        } | Out-Null
         return
     }
     Invoke-NiFi -Method POST -Path "/process-groups/$GroupId/connections" -Body @{
@@ -120,8 +143,8 @@ function Ensure-Connection([string] $GroupId, [string] $Name, [string] $SourceId
         component = @{
             name = $Name; source = @{ id = $SourceId; groupId = $GroupId; type = 'PROCESSOR' }
             destination = @{ id = $DestinationId; groupId = $GroupId; type = 'PROCESSOR' }
-            selectedRelationships = $Relationships; flowFileExpiration = '0 sec'; backPressureObjectThreshold = 10
-            backPressureDataSizeThreshold = '10 MB'; loadBalanceStrategy = 'DO_NOT_LOAD_BALANCE'; loadBalanceCompression = 'DO_NOT_COMPRESS'; bends = @()
+            selectedRelationships = $Relationships; flowFileExpiration = '0 sec'; backPressureObjectThreshold = $limit
+            backPressureDataSizeThreshold = $sizeLimit; loadBalanceStrategy = 'DO_NOT_LOAD_BALANCE'; loadBalanceCompression = 'DO_NOT_COMPRESS'; bends = @()
         }
     } | Out-Null
 }
@@ -129,11 +152,11 @@ function Ensure-Connection([string] $GroupId, [string] $Name, [string] $SourceId
 $rootId = (Invoke-NiFi -Method GET -Path '/flow/process-groups/root').processGroupFlow.id
 $baseballId = Get-OrCreateProcessGroup $rootId ([string]$contract.rootProcessGroup) 100 100
 $groupId = Get-OrCreateProcessGroup $baseballId ([string]$contract.processGroup) 100 1500
+$active = @((Get-GroupFlow $groupId).processors | Where-Object { [int]$_.status.aggregateSnapshot.activeThreadCount -gt 0 })
+if ($active.Count) { throw 'Authority SQL has active work; retry reconciliation after it completes.' }
 Stop-Group $groupId
-$flow = Get-GroupFlow $groupId
-if (@($flow.connections | Where-Object { [int64]$_.status.aggregateSnapshot.flowFilesQueued -gt 0 }).Count -gt 0) {
-    throw 'Analytical Serving has queued FlowFiles and cannot be reconciled.'
-}
+# Existing queued control requests retain their connections and identities.
+# Configuration repair changes neither endpoints nor event content.
 
 $incrementalArguments = "-B;$materializer;--state-root;$script:StateRoot;--max-events;$([int]$contract.authorityMaterialization.maximumEventsPerBuild)"
 $fullArguments = "-B;$materializer;--state-root;$script:StateRoot;--full-rebuild"
@@ -142,7 +165,7 @@ $processors.trigger = Ensure-Processor $groupId 'Check Promoted Graph Events' 'o
     'File Size' = '0B'; 'Batch Size' = '1'; 'Data Format' = 'Text'; 'Unique FlowFiles' = 'false'; 'Custom Text' = '{}'
     'Character Set' = 'UTF-8'; 'Mime Type' = 'application/json'
 } @() 0 0 ([string]$contract.authorityMaterialization.checkPeriod)
-$processors.fullTrigger = Ensure-Processor $groupId 'Full Authority RDF Rebuild Request' 'org.apache.nifi.processors.standard.GenerateFlowFile' @{
+$processors.fullTrigger = Ensure-Processor $groupId 'Full Authority SQL Rebuild Request' 'org.apache.nifi.processors.standard.GenerateFlowFile' @{
     'File Size' = '0B'; 'Batch Size' = '1'; 'Data Format' = 'Text'; 'Unique FlowFiles' = 'false'; 'Custom Text' = '{}'
     'Character Set' = 'UTF-8'; 'Mime Type' = 'application/json'
 } @() 0 -240 '365 days'
@@ -151,7 +174,7 @@ $processors.incremental = Ensure-Processor $groupId 'Materialize Pending Authori
     'Command Arguments' = $incrementalArguments; 'Argument Delimiter' = ';'; 'Ignore STDIN' = 'true'
     'Output Destination Attribute' = 'authority.materialization.output'; 'Max Attribute Length' = '65536'; 'Output MIME Type' = 'application/json'
 } @('output stream', 'nonzero status') 320 0
-$processors.full = Ensure-Processor $groupId 'Rebuild Authority Serving From RDF' 'org.apache.nifi.processors.standard.ExecuteStreamCommand' @{
+$processors.full = Ensure-Processor $groupId 'Rebuild Authority SQL From RDF' 'org.apache.nifi.processors.standard.ExecuteStreamCommand' @{
     'Working Directory' = $repositoryRoot; 'Command Path' = $python; 'Command Arguments Strategy' = 'Command Arguments Property'
     'Command Arguments' = $fullArguments; 'Argument Delimiter' = ';'; 'Ignore STDIN' = 'true'
     'Output Destination Attribute' = 'authority.materialization.output'; 'Max Attribute Length' = '65536'; 'Output MIME Type' = 'application/json'
@@ -165,11 +188,11 @@ $processors.fullGate = Ensure-Processor $groupId 'Require Full Rebuild Success' 
 $processors.incrementalRetry = Ensure-Processor $groupId 'Retry Incremental Authority Materialization' 'org.apache.nifi.processors.standard.RetryFlowFile' @{
     'Retry Attribute' = 'retry.authority-materialization'; 'Maximum Retries' = [string]$contract.failurePolicy.maximumRetries
     'Penalize Retries' = 'true'; 'Fail on Nonnumerical Overwrite' = 'true'; 'Reuse Mode' = 'fail'
-} @('failure') 800 260 '1 min'
+} @('failure') 800 260 '0 sec'
 $processors.fullRetry = Ensure-Processor $groupId 'Retry Full Authority Rebuild' 'org.apache.nifi.processors.standard.RetryFlowFile' @{
     'Retry Attribute' = 'retry.authority-full-rebuild'; 'Maximum Retries' = [string]$contract.failurePolicy.maximumRetries
     'Penalize Retries' = 'true'; 'Fail on Nonnumerical Overwrite' = 'true'; 'Reuse Mode' = 'fail'
-} @('failure') 800 460 '1 min'
+} @('failure') 800 460 '0 sec'
 $processors.success = Ensure-Processor $groupId 'Record Authority Materialization Result' 'org.apache.nifi.processors.standard.LogAttribute' @{
     'Log Level' = 'info'; 'Log Payload' = 'false'; 'Attributes to Log Regular Expression' = '^(authority|execution)\..*$'
     'Log FlowFile Properties' = 'true'; 'Output Format' = 'Line per Attribute'; 'Log Prefix' = 'BaseballO authority materialization'; 'Character Set' = 'UTF-8'
@@ -193,7 +216,7 @@ Ensure-Connection $groupId 'incremental retry exhausted' $processors.incremental
 Ensure-Connection $groupId 'full rebuild retry exhausted' $processors.fullRetry $processors.failure @('retries_exceeded')
 
 $expected = @(
-    'Check Promoted Graph Events','Full Authority RDF Rebuild Request','Materialize Pending Authority Events','Rebuild Authority Serving From RDF',
+    'Check Promoted Graph Events','Full Authority SQL Rebuild Request','Materialize Pending Authority Events','Rebuild Authority SQL From RDF',
     'Require Incremental Materialization Success','Require Full Rebuild Success','Retry Incremental Authority Materialization','Retry Full Authority Rebuild',
     'Record Authority Materialization Result','Record Authority Materialization Failure'
 )
@@ -218,7 +241,7 @@ if ($Start -or $RunFullRebuild) {
     if ($RunFullRebuild) {
         $entity = Invoke-NiFi -Method GET -Path "/processors/$($processors.fullTrigger)"
         Invoke-NiFi -Method PUT -Path "/processors/$($entity.id)/run-status" -Body @{ revision = @{ version = $entity.revision.version }; state = 'RUN_ONCE'; disconnectedNodeAcknowledged = $false } | Out-Null
-        Write-Host 'Submitted one asynchronous authority-RDF serving rebuild.'
+        Write-Host 'Submitted one asynchronous authority SQL rebuild from existing RDF.'
     }
     if ($Start) { Write-Host 'Enabled promoted-graph-event authority materialization.' }
 }

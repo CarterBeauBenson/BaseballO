@@ -95,20 +95,9 @@ def atomic_json(path: Path, value: object) -> None:
 
 @contextlib.contextmanager
 def exclusive_lock(path: Path) -> Iterator[None]:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    try:
-        descriptor = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
-    except FileExistsError as exc:
-        raise MaterializationError(f"Authority materialization is already locked: {path}") from exc
-    try:
-        os.write(descriptor, canonical_json({"pid": os.getpid(), "createdAtUtc": utc_now()}).encode("utf-8"))
-        os.close(descriptor)
-        descriptor = -1
-        yield
-    finally:
-        if descriptor >= 0:
-            os.close(descriptor)
-        path.unlink(missing_ok=True)
+    spec = importlib.util.spec_from_file_location('authority_process_lock', Path(__file__).with_name('process_lock.py'))
+    locks = importlib.util.module_from_spec(spec); spec.loader.exec_module(locks)
+    with locks.exclusive(path): yield
 
 
 def sparql(endpoint: str, query: str, timeout: int) -> dict[str, Any]:
@@ -249,7 +238,9 @@ def pending_events(
     receipt_root = state_root / "pipeline" / "evidence" / "serving-authority" / "events"
     event_root = state_root / "pipeline" / "events" / "promoted-graphs"
     values: list[dict[str, Any]] = []
-    for path in sorted(event_root.glob("*/*/*.json")) if event_root.is_dir() else []:
+    # Unrelated source events are not dependencies of authority SQL.
+    paths = sorted(path for source in routes for path in (event_root/source).glob('*/*.json'))
+    for path in paths:
         if (receipt_root / path.name).is_file():
             continue
         event = validate_event(path, state_root, source_contracts)
@@ -457,7 +448,7 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
             "querySpecSetSha256": query_spec_set_sha256(contract),
         }
         if any(pointer.get(key) != value for key, value in expected_hashes.items()):
-            raise MaterializationError("Authority serving contract drift requires a NiFi-owned full RDF rebuild")
+            raise MaterializationError("Authority SQL implementation changed; refresh the affected SQL product from existing RDF")
         prior_database = Path(str(pointer.get("databasePath", ""))).resolve()
         if not prior_database.is_file() or sha256_file(prior_database) != pointer.get("databaseSha256"):
             raise MaterializationError("Current authority serving database is missing or has drifted")
@@ -617,6 +608,8 @@ def main() -> int:
         with exclusive_lock(args.state_root.resolve() / "serving" / "authority" / ".materialize.lock"):
             print(json.dumps(build(args), separators=(",", ":"), ensure_ascii=False))
         return 0
+    except BlockingIOError:
+        print(json.dumps({'status':'already-running','pendingEventsRetained':True})); return 0
     except Exception as exc:
         print(json.dumps({"status": "failed", "error": str(exc)}, separators=(",", ":")))
         return 1

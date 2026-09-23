@@ -2,7 +2,7 @@
   "artifactType": "baseballo-nifi-serving-flow-contract",
   "contractVersion": 1,
   "rootProcessGroup": "BaseballO",
-  "processGroup": "Analytical Serving",
+  "processGroup": "Authority SQL",
   "input": {
     "artifactType": "baseballo-promoted-graph-event",
     "contractVersion": 1,
