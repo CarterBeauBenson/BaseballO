@@ -14,6 +14,14 @@ spec=importlib.util.spec_from_file_location('admission_evidence',ROOT/'sources/m
 E=importlib.util.module_from_spec(spec);spec.loader.exec_module(E)
 
 
+def current_implementation(family, entry):
+    bridge=E.read(E.COMPATIBILITY_PATH)['zeroEpisodeIsolation']['families'].get(family)
+    if bridge:
+        assert entry['currentImplementationSha256']==bridge['previousImplementationSha256']
+        return bridge['currentImplementationSha256']
+    return entry['currentImplementationSha256']
+
+
 class AdmissionEvidence(unittest.TestCase):
     def test_prior_admitted_clock_proofs_have_identical_checks_when_source_issues_are_empty(self):
         record=E.read(E.COMPATIBILITY_PATH)['priorClockIsolation']
@@ -72,7 +80,7 @@ class AdmissionEvidence(unittest.TestCase):
             support='sources/mlb-game/pipeline/batting-admission.py'
             validator='scripts/pipeline/validate-shacl.py';context='scripts/pipeline/prepare-rml-context.py'
             adapter=E.module(ROOT/own,'prior_'+family.replace('-','_'))
-            self.assertEqual(adapter.fingerprint(),entry['currentImplementationSha256'])
+            self.assertEqual(adapter.fingerprint(),current_implementation(family,entry))
             self.assertEqual(tree(old(own)),ast.dump(PriorIssueKey().visit(ast.parse((ROOT/own).read_bytes()))))
             for unchanged in (shape,validator):self.assertEqual(old(unchanged),(ROOT/unchanged).read_bytes())
             paths=([own,shape,source,validator] if family=='batting' else
@@ -143,7 +151,7 @@ class AdmissionEvidence(unittest.TestCase):
                     after=E.module(ROOT/own,'current_positive_'+family.replace('-','_'))
                     entry=change['families'][family]
                     self.assertEqual(before.fingerprint(),entry['previousImplementationSha256'])
-                    self.assertEqual(after.fingerprint(),entry['currentImplementationSha256'])
+                    self.assertEqual(after.fingerprint(),current_implementation(family,entry))
                     for unchanged in (shape,validator):
                         self.assertEqual((prior_root/unchanged).read_bytes(),(ROOT/unchanged).read_bytes())
                     previous=before.census(raw,'566279');current=after.census(raw,'566279')
@@ -170,7 +178,8 @@ class AdmissionEvidence(unittest.TestCase):
         path=ROOT/record['contextPath']
         old=subprocess.check_output(['git','-C',str(ROOT.parent),'show',
             record['changeCommit']+'^:Baseball/'+record['contextPath']])
-        current=path.read_bytes()
+        current=subprocess.check_output(['git','-C',str(ROOT.parent),'show',
+            '400f1ef2fb62:Baseball/'+record['contextPath']])
         self.assertEqual(hashlib.sha256(old).hexdigest(),record['previousContextSha256'])
         self.assertEqual(hashlib.sha256(current).hexdigest(),record['currentContextSha256'])
         before,after=ast.parse(old),ast.parse(current)
@@ -187,7 +196,7 @@ class AdmissionEvidence(unittest.TestCase):
         self.assertNotEqual(ast.dump(old_definitions[changed]),ast.dump(definitions[changed]))
         for family,entry in record['families'].items():
             adapter=E.module(E.HERE/(family+'-admission.py'),'equivalence_'+family.replace('-','_'))
-            self.assertEqual(adapter.fingerprint(),entry['currentImplementationSha256'])
+            self.assertEqual(adapter.fingerprint(),current_implementation(family,entry))
             context_attributes={n.attr for n in ast.walk(ast.parse(Path(adapter.__file__).read_text()))
                 if isinstance(n,ast.Attribute) and isinstance(n.value,ast.Name) and n.value.id=='CONTEXT'}
             self.assertEqual(context_attributes,set(entry['contextDefinitions']))
@@ -208,6 +217,32 @@ class AdmissionEvidence(unittest.TestCase):
                 (record['previousContextSha256'] if p==path else E.sha(p)) for p in paths).encode()).hexdigest()
             self.assertEqual(prior,entry['previousImplementationSha256'])
         self.assertNotIn('runner-boundary',record['families'])
+
+    def test_q7_changes_only_history_selection_and_preserves_unrelated_proof_dependencies(self):
+        record=E.read(E.COMPATIBILITY_PATH)
+        bridge=record['zeroEpisodeIsolation']
+        path=ROOT/record['contextPath']
+        prior=subprocess.check_output(['git','-C',str(ROOT.parent),'show','400f1ef2fb62:Baseball/'+record['contextPath']])
+        current=path.read_bytes()
+        self.assertEqual(hashlib.sha256(prior).hexdigest(),bridge['previousContextSha256'])
+        self.assertEqual(hashlib.sha256(current).hexdigest(),bridge['currentContextSha256'])
+        before,after=ast.parse(prior),ast.parse(current)
+        old=next(n for n in before.body if getattr(n,'name',None)=='personal_runner_histories')
+        changed=next(n for n in after.body if getattr(n,'name',None)=='personal_runner_histories')
+        call=ast.dump(ast.parse('isolate_zero_episode_histories(result)').body[0])
+        self.assertEqual(sum(ast.dump(n)==call for n in changed.body),1)
+        changed.body=[n for n in changed.body if ast.dump(n)!=call]
+        changed.body[0]=copy.deepcopy(old.body[0])  # docstring, not executable behavior
+        after.body=[n for n in after.body if getattr(n,'name',None)!='isolate_zero_episode_histories']
+        self.assertEqual(ast.dump(before),ast.dump(after))
+        for family,entry in bridge['families'].items():
+            adapter=E.module(E.HERE/(family+'-admission.py'),'q7_'+family.replace('-','_'))
+            self.assertEqual(adapter.fingerprint(),entry['currentImplementationSha256'])
+            reuse=E.code_equivalence(family,entry['previousImplementationSha256'],adapter.fingerprint())
+            self.assertEqual(reuse['kind'],'prior-stricter-history-selection' if family=='runner-boundary' else 'unchanged-proof-dependencies')
+            if family in record['families']:
+                old_entry=record['families'][family]
+                self.assertIsNotNone(E.code_equivalence(family,old_entry['previousImplementationSha256'],adapter.fingerprint()))
 
     def test_equivalent_code_reuses_exact_proof_without_changing_its_outcome_or_fingerprint(self):
         record=E.read(E.COMPATIBILITY_PATH)

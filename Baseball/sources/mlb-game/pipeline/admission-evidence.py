@@ -60,10 +60,21 @@ def code_equivalence(family,previous,current):
     original dependency, SHACL template and validator. Unknown changes miss.
     """
     record=read(COMPATIBILITY_PATH)
+    isolation=record.get('zeroEpisodeIsolation',{})
+    bridge=isolation.get('families',{}).get(family)
+    if (bridge and current==bridge['currentImplementationSha256']
+            and sha(ROOT/record['contextPath'])==isolation['currentContextSha256']):
+        prior=bridge['previousImplementationSha256']
+        reused=(dict(kind='prior-stricter-history-selection' if family=='runner-boundary' else 'unchanged-proof-dependencies')
+                if previous==prior else code_equivalence(family,previous,prior))
+        if reused is not None:
+            return dict(reused,recordSha256=sha(COMPATIBILITY_PATH),previousImplementationSha256=previous,
+                currentImplementationSha256=current,viaPreviousImplementationSha256=prior,
+                historyIsolationDecision=isolation['decision'])
     entry=record['families'].get(family)
     if (entry and previous==entry['previousImplementationSha256']
             and current==entry['currentImplementationSha256']
-            and sha(ROOT/record['contextPath'])==record['currentContextSha256']):
+            and sha(ROOT/record['contextPath']) in {record['currentContextSha256'],isolation.get('currentContextSha256')}):
         return dict(kind='unchanged-proof-dependencies',recordSha256=sha(COMPATIBILITY_PATH),
             previousImplementationSha256=previous,currentImplementationSha256=current)
     entry=record['priorClockIsolation']['families'].get(family)
@@ -88,7 +99,7 @@ def compatible_proof(state,promotion,family,implementation):
     proof=read(path)
     reuse=code_equivalence(family,proof.get('implementationSha256'),implementation)
     if reuse is None: return None
-    positive_only=reuse['kind'] in {'prior-stricter-clock-check','prior-stricter-pinch-hitter-check'}
+    positive_only=reuse['kind'] in {'prior-stricter-clock-check','prior-stricter-pinch-hitter-check','prior-stricter-history-selection'}
     if positive_only and proof.get('status')!='admitted': return None
     expected=dict(artifactType='baseballo-'+family+'-admission',contractVersion=1,
         gamePk=promotion['gamePk'],sourceSha256=promotion['rawSha256'],

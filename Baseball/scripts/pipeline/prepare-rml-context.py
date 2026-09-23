@@ -571,10 +571,38 @@ def verify_runner_history_correction(current, previous):
         raise ValueError('C3 prior runner episode allocation no longer aligns; correction requires review')
 
 
+def isolate_zero_episode_histories(result):
+    """Accepted Q7: isolate empty histories without admitting the whole half.
+
+    This also accepts the exact retained reconciliation inventory for the two
+    authorized additions. Existing lifetime identities and bounds are reused.
+    The empty history and all original issues remain in the withheld evidence.
+    """
+    known={h['lifetimeKey'] for h in result['histories']}
+    for half in result['withheldHistories']:
+        if not half['issues'] or {i['code'] for i in half['issues']}!={'ZERO_EPISODE_PERSONAL_HISTORY'}:
+            continue
+        selected=[h for h in half['completedCandidates'] if h['episodes']]
+        for history in selected:
+            if history['lifetimeKey'] in known:continue
+            result['histories'].append(history)
+            result['episodeMembership'].extend(dict(lifetimeKey=history['lifetimeKey'],**episode) for episode in history['episodes'])
+            if history.get('placement'):
+                result['placementAdjudications'].append(dict(lifetimeKey=history['lifetimeKey'],runnerId=history['runnerId'],
+                    inning=history['inning'],half=history['half'],**history['placement']))
+            known.add(history['lifetimeKey'])
+        half['isolatedHistoryKeys']=sorted(h['lifetimeKey'] for h in selected)
+        for census in result['halves']:
+            if (census['inning'],census['half'])==(half['inning'],half['half']):
+                census['personalHistories']=len(selected)
+        result['historyIsolationDecision']='archive/design-records/mlb-game-zero-episode-history-isolation/review.json'
+    return result
+
+
 def personal_runner_histories(raw: bytes, previous=None) -> dict:
     """E1/C1 source reconciliation, independent of mapped-row counts.
 
-    Only fully reconciled half innings enter this first source selection.
+    Reconciled half innings and Q7's independently complete histories enter.
     Unknown review/substitution effects withhold the whole half, not just the
     inconvenient row. Placement adjudications use the explicit September 16
     decision; no physical location or strict precedence is minted.
@@ -877,6 +905,7 @@ def personal_runner_histories(raw: bytes, previous=None) -> dict:
             result['withheldHistories'].append(dict(inning=inning, half=half,
                 completedCandidates=[{k:v for k,v in h.items() if k!='base'} for h in histories],
                 activeCandidates=list(active.values()), issues=problems))
+    isolate_zero_episode_histories(result)
     verify_runner_history_correction(result, previous)
     return result
 

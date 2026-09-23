@@ -99,7 +99,14 @@ Fuseki reports the same restart identity and write counters; see
 The remaining two latest-day run-construction-depth histories are covered by
 the accepted [Q7 decision](../archive/design-records/mlb-game-zero-episode-history-isolation/README.md).
 The user approved it on September 23 after the exact cases were explained.
-Implementation and the two targeted additions remain pending.
+The selection fix and source-owned additive worker are implemented. The worker
+is restricted to the two approved promotions, slices the three unchanged RML
+history maps, validates the resulting graph with the owning SHACL profiles,
+and adds the missing triples with Graph Store POST. It preserves incomplete
+population statuses and original source-proof identities, with a separate
+graph-revalidation receipt. The existing graph-pair recovery and promotion
+event drive the affected query-index and SQL updates. Runtime completion and
+populated SQL rows still require the worker's terminal evidence.
 
 At 15:29 Eastern, NiFi published
 `20260923T175511Z-dashboard-4ca9b33c4b25`. The default September 16 request

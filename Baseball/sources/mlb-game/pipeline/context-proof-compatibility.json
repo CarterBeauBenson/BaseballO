@@ -44,19 +44,52 @@
   },
   "families": {
     "runner-resolution": {
-      "contextDefinitions": ["nonmovement_strikeout_records"],
+      "contextDefinitions": [
+        "nonmovement_strikeout_records"
+      ],
       "previousImplementationSha256": "3bea2ab24cee2ae2c4bae5a47005a9a410542eb051d16477f8387f2f411114d0",
       "currentImplementationSha256": "e29b19c5f43fe0daa4a1d629bcaa84c343a301dde19bbc09e28307105005baf6"
     },
     "pitch-count": {
-      "contextDefinitions": ["CONTEXT_KEY", "SAFE_IRI_SEGMENT", "automatic_count_awards", "runner_metric_evidence"],
+      "contextDefinitions": [
+        "CONTEXT_KEY",
+        "SAFE_IRI_SEGMENT",
+        "automatic_count_awards",
+        "runner_metric_evidence"
+      ],
       "previousImplementationSha256": "214223fdbda44df33bfb6d348ad9a810fdccf38140cc85108bee09d20f698a15",
       "currentImplementationSha256": "386caf8c7108aebed056c696591a25d788535f37eb8c88be9931b52f7c75cd1e"
     },
     "defensive": {
-      "contextDefinitions": ["CONTEXT_KEY", "defensive_act_context"],
+      "contextDefinitions": [
+        "CONTEXT_KEY",
+        "defensive_act_context"
+      ],
       "previousImplementationSha256": "2feffc83d2c8b561109542aa56d2a0a1d8951bacf03a5cf5cb6aa5a2655363e0",
       "currentImplementationSha256": "15244955d229b263ad47d0ad632d3784c2489c2e8fc142c0157a673b94331f3a"
+    }
+  },
+  "zeroEpisodeIsolation": {
+    "decision": "archive/design-records/mlb-game-zero-episode-history-isolation/review.json",
+    "previousContextSha256": "169fd44a4dee436747d11c9201f8a8d5ea8c772f8c7ea6acaacfddb069d1a464",
+    "currentContextSha256": "023b659409d204d3e7cca1eaab5f9563744a6f54a8cac72b8a6c56ac79faba98",
+    "families": {
+      "runner-resolution": {
+        "previousImplementationSha256": "e29b19c5f43fe0daa4a1d629bcaa84c343a301dde19bbc09e28307105005baf6",
+        "currentImplementationSha256": "658ba1c9cf75eb14e05bbe08b87e75d4d6195dbf2a9619c361080a636d57ae3a"
+      },
+      "pitch-count": {
+        "previousImplementationSha256": "386caf8c7108aebed056c696591a25d788535f37eb8c88be9931b52f7c75cd1e",
+        "currentImplementationSha256": "5f4f323463e042308c364be105f4a6e93d6225515985b6667f70ce017cf587ae"
+      },
+      "runner-boundary": {
+        "previousImplementationSha256": "931fe5f6a182280b0c709ad97e3f362b73ca0dadd98b1c54dc4664dc104c14d8",
+        "currentImplementationSha256": "02d18dc89878601e07d1264c7af865c07c945313db3279e51437f5bdc5d8c802"
+      },
+      "defensive": {
+        "previousImplementationSha256": "15244955d229b263ad47d0ad632d3784c2489c2e8fc142c0157a673b94331f3a",
+        "currentImplementationSha256": "72af34c79834439a7ff5e52b2ac7161fe077908a1445cbc804a0dd8a63c27032"
+      }
     }
   }
 }
