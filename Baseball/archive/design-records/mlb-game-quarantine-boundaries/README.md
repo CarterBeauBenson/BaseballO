@@ -1,7 +1,9 @@
 # Q5/Q6: the remaining MLB-game quarantine boundaries
 
-Status: draft for ontologist review, September 23, 2026. No implementation or
-semantic-freeze update is authorized by this document. No new class, object
+Status: accepted by Carter Beau Benson on September 23, 2026. The user
+answered "good do it" immediately after the explicit recommendation to approve
+both Q5 and Q6. This decision authorizes their scoped implementation and
+affected semantic-freeze pin updates, after this decision is published. No new class, object
 property, data property, source endpoint or lifecycle topology is proposed.
 
 Thirty of the 43 unresolved game quarantines can be retried using existing
@@ -20,7 +22,7 @@ crashes while trying to obtain an outgoing batter who need not have performed
 any batting act in this plate appearance. One narrative even says a player
 replaces himself; prose is not a substitute identity source.
 
-Proposed decision Q5: in this exact initial-event case, use the explicitly
+Accepted decision Q5: in this exact initial-event case, use the explicitly
 identified incoming batter for his subsequently evidenced batting acts under
 the existing single-batter pattern. Do not manufacture an outgoing person,
 an earlier batting act, a substitution transition, or a role change. An
@@ -35,7 +37,7 @@ Competency questions:
 
 1. Does the initial substitution alone prove the outgoing player batted? No.
 2. May explicit subsequent pitches identify the incoming player's actual
-   participation despite the missing outgoing ID? Proposed answer: yes, only
+   participation despite the missing outgoing ID? Accepted answer: yes, only
    for the exact initial-event conditions above.
 3. May a narrative name or presumed lineup identity fill the missing ID? No.
 4. Does this admit official PA credit or establish a role transition? No.
@@ -50,7 +52,7 @@ the entire update solely because the aggregate metric-source census was not
 globally consistent. The runner-history admission currently has the same
 whole-source dependency, so changing only the clock gate is insufficient.
 
-Proposed decision Q6: retain those exact source inconsistencies, and allow
+Accepted decision Q6: retain those exact source inconsistencies, and allow
 promotion of independently conforming RDF while withholding dependent
 histories and metric populations. Run the applicable source-owned SHACL over
 the graph, including exact clock values and any asserted runner histories.
@@ -64,7 +66,7 @@ Competency questions:
 
 1. Is a null inning-side total evidence of zero runs? No.
 2. Can a known pitch and its supported clock remain valid when another play
-   is incomplete? Proposed answer: yes, subject to the existing graph contract.
+   is incomplete? Accepted answer: yes, subject to the existing graph contract.
 3. Does passing graph conformance certify complete batting or running
    populations? No. The separate admission remains withheld.
 4. Can a source-to-graph mismatch pass merely because the game is incomplete?

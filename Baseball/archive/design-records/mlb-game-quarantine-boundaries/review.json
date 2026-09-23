@@ -1,0 +1,57 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-quarantine-boundaries",
+  "title": "Q5/Q6: initial pinch hitters and incomplete source censuses",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "cee21fae8ad6c903692f2ebd0a8eeba267813c220a6dbeb0f286d6f267d24fc8"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "README.md",
+        "sha256": "cee21fae8ad6c903692f2ebd0a8eeba267813c220a6dbeb0f286d6f267d24fc8"
+      },
+      {
+        "path": "source-evidence.json",
+        "sha256": "c35845ffae1832a15d9876a8dd050540455a3cf115b71d5b83ecc51d790db881"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "cee21fae8ad6c903692f2ebd0a8eeba267813c220a6dbeb0f286d6f267d24fc8"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "README.md",
+        "sha256": "cee21fae8ad6c903692f2ebd0a8eeba267813c220a6dbeb0f286d6f267d24fc8"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-09-23",
+    "rationale": "User explicitly authorized both named Q5 and Q6 fixes with \"good do it\" after the recommendation and explanation of both: preserve evidenced initial pinch-hitter participation without inventing outgoing identity, and promote independently conforming RDF while retaining incomplete-play/missing-total diagnostics and withholding dependent populations. Only affected quarantined inputs may be replayed; no new ontology terms or object properties.",
+    "authorizedArtifacts": [
+      "Baseball/scripts/pipeline/prepare-rml-context.py",
+      "Baseball/sources/mlb-game/pipeline/clock-admission.py",
+      "Baseball/sources/mlb-game/pipeline/runner-history-admission.py",
+      "Baseball/sources/mlb-game/pipeline/reconcile-metric-source.py",
+      "Baseball/sources/mlb-game/pipeline/validation-profiles.json",
+      "Baseball/sources/mlb-game/shacl/clock-admission.ttl",
+      "Baseball/sources/mlb-game/shacl/runner-history-admission.ttl",
+      "Baseball/sources/mlb-game/review/semantic-status.json",
+      "Baseball/sources/mlb-game/review/rml-mermaid-manifest.json",
+      "Baseball/governance/semantic-freeze.json"
+    ]
+  }
+}

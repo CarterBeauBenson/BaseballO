@@ -89,6 +89,6 @@ limits, SHACL checks, atomic graph-pair promotion and quarantine retention still
 apply. An empty request preserves the existing remainder-selection behavior.
 
 The September 23 quarantine diagnosis found 30 games eligible for a retry
-under existing fixes. The remaining 13 are documented in the draft
-[Q5/Q6 source-contract review](../../proposals/mlb-game-quarantine-boundaries/README.md).
+under existing fixes. The remaining 13 are covered by the accepted
+[Q5/Q6 source-contract decision](../../archive/design-records/mlb-game-quarantine-boundaries/README.md).
 Those source-selection and admission changes are not implemented by the retry.
