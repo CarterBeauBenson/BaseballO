@@ -53,6 +53,11 @@ Missing receipts still require full verification; changed size, timestamps,
 device or inode invalidate them. This preserves the reader's existing integrity
 contract and moves repeatable preparation into the NiFi build.
 
+Immutable code releases also retain per-file identity receipts. The manifest,
+exact inventory and paths are checked on each open; unchanged files reuse their
+verified hashes. A changed file requires hashing again and must still match
+its original manifest. Reader edits do not silently update captured releases.
+
 `test_serving_release` exercises committed subprocess launch, working-copy
 edits, new commits, publication during a request, exact legacy pairing,
 negative-result reuse and corruption rejection. This is engineering coverage;
@@ -150,6 +155,24 @@ invalidated, validated, or ready-for-promotion status. This is diagnostic
 progress, not a completion certificate. `ready-for-promotion` precedes the
 final atomic pointer swap; only the normal pointer and build evidence prove
 promotion. The materializer performs no fallible progress write afterward.
+
+The report builder retains completed game SQL partitions in
+`serving/report-cache.sqlite`. A partition includes parameterized SQL writes,
+ordered source rows and result counts. It is keyed by current admission
+outcomes, authoritative/index hashes, dimensions and construction inputs.
+Tables are created before processing games, so partition reuse is independent
+of game order. A failed game is never checkpointed. After interruption, the
+next NiFi attempt creates a fresh candidate and replays completed partitions;
+the existing candidate-wide integrity and ordered-row checks still run.
+Corrupt/unavailable cache data falls back to the ordinary extraction path.
+Three versions per game are retained; each decompressed partition is limited
+to 128 MiB. Warm builds report cache reuse separately from query timing and
+do not invent SPARQL durations for replayed games.
+
+The shared metric cache likewise retains three calculation versions per game.
+Concurrent immutable report and dashboard releases therefore do not evict
+each other's current product on every game. Legacy cache entries remain
+readable while older running workers finish.
 
 Build evidence contains input hashes and cache hit/miss/bypass/discard counts.
 The final corpus snapshot still performs fresh promotion-inventory and live

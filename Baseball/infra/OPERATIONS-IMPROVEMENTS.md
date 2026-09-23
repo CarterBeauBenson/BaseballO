@@ -32,3 +32,64 @@ usable RAM and had about 1 GiB available during the review.
 
 Changes are deployed incrementally through their NiFi owners. Successful
 component checks are not repeated as a manual aggregate release gate.
+
+## Delivery on September 23
+
+| Work | Implemented and deployed outcome | Runtime boundary |
+| --- | --- | --- |
+| Admission evidence | Source-owned five-minute worker; separate missing/stale/previously-withheld diagnoses; exact-input refresh with independent receipts | Latest inspected 100-game sweep: 92 lacked retained local RDF, eight lacked an exact retained RML manifest; zero refreshed. This does not mean Fuseki graphs are absent |
+| Authority SQL | OS lifetime lock replaces orphan-file locking; owned event folders only; retry edges no longer deadlock under backpressure; group renamed `Authority SQL` | Published 75 source graphs / 1,761 SQL result rows at 12:15 Eastern; queue drained |
+| Waiting and recovery | Pending replay requests return unchanged to penalized NiFi queues; exited-process progress becomes `interrupted`; durable resume for old stopped-but-active replay worker | Existing old waiters remain undisturbed until their named SQL dependency finishes |
+| Dashboard reads | Prepared SQL labels, historical reference ranks, cached immutable-release verification; server no longer issues SPARQL for SQL-result names | Initial dashboard SQL published 2,773 games at 12:55 Eastern; following automatic pass was preparing historical ranks |
+| Derived builds | Shared metric cache retains three versions per game; completed report SQL partitions survive failed candidates and resume in fresh candidates | Active immutable report build retains its old code; next NiFi report attempt adopts partitions without repeating unchanged source work |
+| Workload lanes | Priority 0 current, 10 selected repair, 20 historical; FIFO within each class across existing RML/SHACL/promotion queues | Deployed; existing worker counts retained within workstation memory limits |
+| SHACL execution | One Jena graph load per game; existing profile producers, report artifacts and independent outcomes retained | Published for the next source stage; no source corpus execution was started to test this engineering change |
+| Performance evidence | Per-phase dashboard durations, shared-Jena load/profile timings, query/calculation/report cache counters, memory-aware maintenance | Source refresh defers below 1.5 GiB available RAM; isolated restore requires at least 2 GiB |
+| Recovery | New `RDF Recovery` group, daily consistent backup/export and weekly isolated restore, one stage per timer tick, at most two failed attempts | Enabled; first run correctly reports `waiting-for-serving` while two SQL builds run. No completed new backup/restore claimed |
+| Maintenance | Named independent groups, shared small periodic-worker provisioner, updated runbooks, one-shot `status-stack.ps1 -Operations` | Status reads owner records and queues without starting or validating work |
+
+The read-only dashboard check returned `execution: materialized-sql`, selected
+15 games, and **0/19 populated player leaderboards**. SQL publication and
+operational recovery are real progress; they do not establish complete metric
+admission. Missing/stale proofs and previously withheld source outcomes remain
+separate diagnoses. The evidence worker does not reacquire inputs, rerun RML,
+rebuild a graph, weaken SHACL or certify an old proof as current. The current
+source refresh limitation is retained-file availability, alongside the original
+per-family source/conformance issues recorded in those proofs.
+
+Focused checks covered authority recovery, queued readiness, exited-worker
+reconciliation, exact cache reuse and corruption fallback, SQL-only names,
+historical-rank equivalence, independent SHACL reports with a shared graph,
+and backup/export/restore boundaries. The report checkpoint regression builds
+two fresh candidates, requires reuse without game calculation, compares all
+result tables, and still runs the builder's existing final checks. No aggregate
+repository validation was manually chained; the existing hooks and NiFi gate
+retain their own jobs.
+
+## Recovery storage and operating limits
+
+Fuseki creates a consistent compressed dataset backup in
+`D:\BaseballO\RDF\fuseki\backups`. The worker verifies it and exports to
+`%LOCALAPPDATA%\BaseballO\state\recovery\exports` on C:. Its weekly restore
+uses a fresh UUID directory under `D:\BaseballO\RDF\recovery-proofs\restores`;
+it never opens the live database as a restore destination or swaps a pointer.
+
+The export requires archive size plus 20 GiB free. Restore requires three times
+the uncompressed archive size plus 20 GiB free. Two completed owned exports
+and two isolated restore directories are retained. Original Fuseki archives
+are not pruned by this worker. Existing SQL work has priority; recovery records
+the reason for deferral and returns, with no command sleeping on dependencies.
+An active restore records its child PID so a later tick cannot start a second
+loader after an interrupted controller. Recovery covers the RDF dataset;
+repository, NiFi configuration and SQL products are not included in this archive.
+
+Inspect the owning records once when needed:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File `
+  .\Baseball\scripts\infra\status-stack.ps1 -Operations
+```
+
+The 05:00 Eastern acquisition schedule and existing 15-minute batch checker
+remain enabled. No new source acquisition, RML semantics, ontology terms or
+authoritative RDF rebuild is part of this change set.

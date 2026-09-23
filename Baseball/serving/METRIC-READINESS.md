@@ -8,6 +8,16 @@ conditional player producers. The two review player integrations remain
 unfinished. All twenty calculation kernels exist; Role Realization Breadth
 is the backend-only twentieth metric.
 
+September 23 operational update: the independent dashboard builder published
+`20260923T150540Z-dashboard-50eab993cb66` at 12:55 Eastern with 2,773 games.
+A subsequent live dashboard request selected 15 games from SQL and returned
+**0/19 populated boards**. Publication therefore resolves neither the retained
+admission-evidence gaps nor the unfinished review populations below. The
+following automatic build was preparing the newly implemented player labels
+and historical reference ranks. Authority SQL separately published 1,761 rows
+from 75 source graphs. See the [operational delivery record](../infra/OPERATIONS-IMPROVEMENTS.md)
+for deployed changes and their remaining runtime limits.
+
 The September 16 live check returned HTTP 200 in 16.8 seconds for
 August 25 from SQL, with all 15 scheduled games selected and **zero populated
 player leaderboards**. The new coverage report explicitly returned `ready:false`

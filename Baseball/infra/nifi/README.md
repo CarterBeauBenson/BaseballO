@@ -21,14 +21,16 @@ retries, quarantine, promotion, and provenance path:
 | `mlb-venues` | `MLB Venues` | venue population to per-venue requests |
 | `mlb-transactions` | `MLB Transactions` | date-range request |
 
-Four sibling downstream groups do not own or control any source lane:
+Six sibling downstream groups do not own or control any source lane:
 
 | Downstream group | Responsibility |
 | --- | --- |
-| `Analytical Serving` | Consume immutable promoted-graph events, execute declared authority SPARQL, validate immutable SQLite candidates, and atomically promote the authority pointer |
+| `Authority SQL` | Consume authority-source promoted-graph events, execute declared SPARQL, validate immutable SQLite candidates, and atomically promote the authority pointer |
 | `DSQ SQL Materialization` | Run an explicit full backfill of all 56 approved DSQs into independently named graph-partitioned SQL tables; nightly refresh remains owned by the MLB Game post-promotion batch stage |
+| `Dashboard SQL` | Check for changed promoted games once per minute, checkpoint each game's calculations, and publish prepared dashboard results independently of the report build |
 | `Repository Evidence` | Run the aggregate repository gate daily at 06:30 Eastern and retain immutable stdout, stderr, hashes, and status evidence |
 | `Serving Equivalence` | Run an explicit manual authoritative-versus-candidate-SQL family proof without admitting the route |
+| `RDF Recovery` | Check durable recovery work every 15 minutes; daily consistent backup and separate-drive export, weekly isolated restore, bounded retries and resource limits |
 
 The provisioners reconcile only their named source group and leave sibling
 groups untouched. They do not use or migrate the retired control plane.
@@ -64,13 +66,33 @@ defer SQL work until all games in a schedule batch have current promotions;
 NiFi then runs one serving-layer materialization for the ready batch. A bounded
 proof still materializes immediately.
 
-The MLB Game group uses two Apache Jena workers for its unchanged source SHACL
-profile. Two promotion workers consume the same queue without duplicating
+The MLB Game group uses two Apache Jena workers. Each loads one game's RDF
+once and executes its unchanged SHACL profiles with separate shapes, reports
+and admission outcomes. Two promotion workers consume the same queue without duplicating
 FlowFiles. Each constructs the unchanged query-index SPARQL locally over its
 validated game graph; graph-store writes retain the existing write lock.
 A source-owned per-game lock keeps stages from modifying the same game's files
 or graph pair concurrently. Promotion recovers an interrupted transaction before
 starting another one. Graph-pair and per-game equivalence checks are unchanged.
+
+The source queues prioritize current games (0), explicitly selected repairs
+(10), then historical backfills (20), with FIFO ordering within a priority.
+These are work classes inside the existing source boundary; they do not add
+memory-heavy RML or SHACL workers. The workstation's memory limit makes more
+simultaneous JVMs inappropriate at present.
+
+Quarantine requests waiting on a named SQL build return their unchanged request
+to a penalized NiFi queue. They do not hold a sleeping command process. Older
+already-running waiters finish in place; the existing 15-minute batch worker
+resumes a stopped replay planner once its old thread exits. That same worker
+marks progress interrupted only when its recorded OS process has exited.
+
+`Refresh Admission Evidence` checks up to 100 games every five minutes and
+runs at most one game's SHACL refresh per tick. It distinguishes missing,
+stale and previously withheld evidence. A refresh requires the exact retained
+source bytes and local RDF bytes named by the promotion; missing files are
+reported, never regenerated or replaced. See the
+[operational delivery record](../OPERATIONS-IMPROVEMENTS.md).
 
 ## Provisioning and submission
 
@@ -112,6 +134,10 @@ powershell -ExecutionPolicy Bypass -File `
 powershell -ExecutionPolicy Bypass -File `
   .\Baseball\serving\dsq-nifi\provision.ps1 -RunFullBackfill
 powershell -ExecutionPolicy Bypass -File `
+  .\Baseball\serving\dashboard-nifi\provision.ps1 -Start
+powershell -ExecutionPolicy Bypass -File `
+  .\Baseball\infra\recovery-nifi\provision.ps1
+powershell -ExecutionPolicy Bypass -File `
   .\Baseball\infra\nifi\repository-evidence\provision.ps1 -Start
 powershell -ExecutionPolicy Bypass -File `
   .\Baseball\serving\equivalence\provision.ps1 -Family paq -Start
@@ -129,6 +155,12 @@ This runbook intentionally does not record submission or completion of a
 particular run. Source-local terminal evidence is the authority for promoted,
 cleaned, or quarantined work; serving pointers and their evidence are the
 authority for materialization status.
+
+For a single read-only summary of services, NiFi queues, published SQL products,
+current build progress, admission maintenance and recovery, run
+`Baseball/scripts/infra/status-stack.ps1 -Operations`. This reads existing
+owner records; it does not submit or validate work. Routine healthy runs stay
+asynchronous.
 
 Provisioners require owned processors to be stopped and refuse to replace a
 connection containing queued FlowFiles. The full corpus trigger is therefore

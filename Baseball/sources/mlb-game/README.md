@@ -84,12 +84,28 @@ payload with `gamePks` (an explicit array of game ID strings) and
 `afterServingBuild` (one existing SQL build ID). NiFi checks that the selected
 games belong to the retained replay plan and that their input hashes still
 match. The plan request creates a bounded proof/remainder plan for its selected
-games; the remainder request reuses an existing plan. NiFi waits for the named
-SQL build to finish reading RDF before emitting the selected retries.
-A six-hour timeout, missing progress, or an unknown state
-fails the request without releasing inputs. The ordinary two-attempt stage
+games; the remainder request reuses an existing plan. NiFi retains the request
+in a penalized queue until the named SQL build finishes reading RDF. Each
+readiness check returns immediately; up to 720 checks at 30-second penalties
+provide a bounded wait of approximately six hours or longer under load.
+Missing progress, an unknown state or exhausted retries fail the request
+without releasing inputs. The ordinary two-attempt stage
 limits, SHACL checks, atomic graph-pair promotion and quarantine retention still
 apply. An empty request preserves the existing remainder-selection behavior.
+
+Current, selected repair and historical inputs carry separate queue priorities
+through RML, SHACL and promotion. They share the existing bounded worker pool.
+SHACL loads a game's RDF once into Jena and evaluates each existing profile
+separately, preserving its report and admission outcome. The stage records load
+and profile durations in `shacl-execution.json`.
+
+The source-owned `Refresh Admission Evidence` worker diagnoses missing, stale
+and previously withheld admission evidence independently of serving builds.
+It can refresh through the unchanged producer only when the exact retained
+input and local RDF bytes match the promotion. Retired local files are a
+refresh limitation, not evidence that the authoritative Fuseki graph is
+missing. The worker never reacquires, maps or promotes RDF, and never relabels
+an old fingerprint as current.
 
 The September 23 quarantine diagnosis found 30 games eligible for a retry
 under existing fixes. The remaining 13 are covered by the accepted

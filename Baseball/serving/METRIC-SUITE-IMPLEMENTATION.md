@@ -37,12 +37,13 @@ not run live SPARQL, reconstruct game histories, repeat pipeline validation,
 or calculate an entire reference-season population. This separation is the
 reason for SQL serving: users should not wait on graph-query timeouts.
 
-The current version 2.1 implementation below only partially fulfills that
-design. It prepares game products and some season ranks, but the reader still
-pools observation records, performs population checks, and calculates ranks
-for historical cutoffs on demand. That remaining work is a serving-layer
-performance gap, not a reason to regenerate RDF. Lightweight SQL aggregation
-over prepared results remains appropriate for selected date ranges.
+The dashboard builder now prepares game products, player names and exact
+reference ranks for each historical date cutoff. The dashboard reader selects
+the matching retained population; it never calculates missing ranks on a
+request. The reader still pools projected observations and checks participation
+and population completeness, so selected-range queries are not constant-time.
+These changes take effect through the next dashboard SQL publication. Existing
+in-flight builds keep their captured implementation and finish undisturbed.
 
 An unhandled case in an existing MLB field belongs to that source lane's
 mapping-coverage debt. It does not establish a new source, and successful
@@ -62,16 +63,21 @@ facts separately; any authorized correction must stay targeted.
 | `scripts/pipeline/serving_release.py` | Committed code capture and matching SQL reader release |
 | `scripts/pipeline/serving_query_cache.py` | Exact SELECT reuse for unchanged promoted graph pairs |
 | `scripts/pipeline/serving_metric_cache.py` | Per-game calculation reuse for identical evidence, current validated proofs and calculation code |
+| `scripts/pipeline/serving_report_cache.py` | Completed report-game SQL partitions and ordered source rows for restart reuse |
+| `serving/reference_products.py` | Dashboard reference ranks prepared by NiFi for historical cutoffs |
+| `serving/dashboard_display.py` | Player labels prepared from accepted graph queries into dashboard SQL |
 | `web/query-builder/metric-suite-query-builder.js` | Request validation, accepted qualification, exact ranking and dashboard coverage report |
-| `web/server.mjs` and `web/metrics.js` | Read-only API, optional names, automatic top-five cards and expanded details |
+| `web/server.mjs` and `web/metrics.js` | Read-only API, prepared names, automatic top-five cards and expanded details |
 
 ## Build and read contracts
 
 Every build checks current source proofs, even on cache hits. The metric cache
-skips pure calculation only. It never copies admission authority from an older
-build. Evidence and proofs are written into the new candidate, all twenty
-metric products round-trip through exact SQL, and final graph/promotion and
-integrity checks still precede publication.
+skips pure calculation only. Report partitions additionally reuse completed SQL
+writes after matching current admission outcomes, promoted RDF/index hashes,
+dimensions and construction code. They do not grant admission from an older
+build. A cold game round-trips all twenty metric products through exact SQL;
+reused report writes retain that result. Existing candidate-wide row/hash,
+graph/promotion and integrity checks still precede publication.
 
 NiFi also prepares the database's checksum-verification receipt before publishing
 the pointer. Readers retain their file-identity checks, but a newly published
@@ -114,6 +120,8 @@ graph bindings and reconstructing movement, scoring and pitch histories:
 | `metric_suite_input_state` | Each game's projection completeness, unresolved observations and expected row count |
 | `metric_suite_shell` | Compact per-game results and supported scoring/review details, excluding the five large input families |
 | `metric_suite_reference_rank` | Exact ranks for a metric, season and identical admitted reference graph set |
+| `dashboard_reference` | Compressed exact ranks for each supported historical reference population |
+| `dashboard_display_label` | Prepared unambiguous player labels for SQL-only display |
 
 Observation identity, player, game, applicability and exact numerator/denominator
 are SQL columns. Detail JSON preserves the existing reducer inputs and evidence
@@ -127,12 +135,14 @@ before division. It never averages game percentages. Individual Offensive Reach
 and Help Without Advancing requests now load the same contribution dependencies
 as their dashboard cards.
 
-NiFi prepares season ranks after all game inputs are stored. The reader still
-checks current source proofs and the independently complete reference schedule.
-A different historical cutoff computes its own ranks from stored observations;
-it cannot reuse the latest population's ranks. Requests do not write caches.
-Reference requests still read projected observation records for membership and
-completeness checks; this change does not claim constant-time season queries.
+NiFi prepares dashboard ranks after all game inputs are stored, using the
+unchanged qualification and percentile functions for each regular-season date
+cutoff. A different historical cutoff selects its own retained population;
+it cannot reuse the latest population's ranks. Missing prepared ranks require
+NiFi preparation rather than request-time calculation. Reference requests still
+read projected records for membership and completeness checks. The legacy full
+report reader remains separately versioned; this prepared-reference adapter is
+owned by the dashboard product.
 
 The internal `_use_blocks=False` reader remains a developer comparison oracle,
 with no HTTP switch. `buildingBlockCoverage` reports per-family projection and
