@@ -910,9 +910,39 @@ def query_options(connection: sqlite3.Connection, request: dict[str, Any], build
     return serving_payload(names, rows, sql, build, {"gameSet": game_set}, started, "options")
 
 
+def query_dashboard(args, request, pointer):
+    if pointer.get('contractVersion') != 1:
+        raise ValueError('Unsupported dashboard pointer contract')
+    if (pointer.get('metricSuiteSha256') != _metric_suite.fingerprint()
+            or pointer.get('schemaSha256') != sha(ROOT/'serving/dashboard-schema.sql')):
+        raise ValueError('Dashboard pointer does not match its metric implementation')
+    serving = args.state_root.resolve()/'serving'
+    database = Path(str(pointer.get('databasePath',''))).resolve()
+    if database.parent != (serving/'dashboard/builds').resolve() or database.suffix != '.sqlite' or not database.is_file():
+        raise ValueError('Dashboard database is outside its immutable build directory')
+    identity = verify_database(database, pointer.get('databaseSha256'),
+                               database_verification_cache_path(serving, pointer.get('databaseSha256')))
+    connection = sqlite3.connect(f'file:{database.as_posix()}?mode=ro',uri=True)
+    started = time.perf_counter()
+    try:
+        if file_identity(database) != identity:
+            raise ValueError('Dashboard database changed while it was opened')
+        build = connection.execute('SELECT build_id,corpus_fingerprint,input_set_sha256,status FROM dashboard_build').fetchone()
+        if build != (pointer.get('buildId'),pointer.get('corpusFingerprint'),pointer.get('inputSetSha256'),'validated'):
+            raise ValueError('Dashboard metadata does not match its publication pointer')
+        result = _metric_suite.query_sql(connection,request,resolve_scope(connection,request))
+        result['serving'] = dict(buildId=build[0],corpusFingerprint=build[1],publication='dashboard',
+                                 durationMs=round((time.perf_counter()-started)*1000,3))
+        return result
+    finally: connection.close()
+
+
 def query(args: argparse.Namespace, request: dict[str, Any]) -> dict[str, Any]:
     serving_contract = load_object(CONTRACT)
     require_materialized_route_admission(request, serving_contract)
+    pointer = _serving_release.query_pointer(args.state_root.resolve(), ROOT, request)
+    if request.get('route') == 'metric-suite' and pointer.get('artifactType') == 'baseballo-dashboard-serving-pointer':
+        return query_dashboard(args,request,pointer)
     catalog = load_object(ADVANCED_CATALOG)
     reducers = load_object(ADVANCED_REDUCERS)
     dsq_catalog = load_object(DSQ_MATERIALIZATIONS)
@@ -922,7 +952,6 @@ def query(args: argparse.Namespace, request: dict[str, Any]) -> dict[str, Any]:
     if query_ids != reducer_ids or query_ids != set(reducers.get("ordering", {})):
         raise ValueError("Reviewed SQL reducer coverage is incomplete")
     pointer_path = args.state_root.resolve() / "serving" / "current.json"
-    pointer = _serving_release.query_pointer(args.state_root.resolve(), ROOT)
     if pointer.get("artifactType") != "baseball-analytical-serving-pointer" or pointer.get("contractVersion") != 5:
         raise ValueError("Unsupported serving pointer contract")
     for key, path in (
@@ -1103,10 +1132,11 @@ def main() -> int:
         request = json.load(sys.stdin)
         if not isinstance(request, dict):
             raise ValueError("Serving request must be an object")
-        catalog = load_object(ADVANCED_CATALOG)
         routes = {"explore", "options", "empty-games", "derived", "metric-suite"}
-        if request.get("route") not in routes and request.get("id") not in {entry["id"] for entry in catalog["queries"]}:
-            raise ValueError("Only reviewed Explorer queries are materialized")
+        if request.get("route") not in routes:
+            catalog = load_object(ADVANCED_CATALOG)
+            if request.get("id") not in {entry["id"] for entry in catalog["queries"]}:
+                raise ValueError("Only reviewed Explorer queries are materialized")
         # ASCII-safe JSON prevents the Windows console code page from corrupting
         # UTF-8 names when Node reads this process through a pipe.
         print(json.dumps(query(args, request), separators=(",", ":"), ensure_ascii=True))

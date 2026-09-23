@@ -1,0 +1,24 @@
+{
+  "artifactType": "baseballo-nifi-dashboard-sql-flow-contract",
+  "contractVersion": 1,
+  "rootProcessGroup": "BaseballO",
+  "processGroup": "Dashboard SQL",
+  "materialization": {
+    "processor": "scripts/pipeline/materialize-dashboard.py",
+    "schema": "serving/dashboard-schema.sql",
+    "readOnlyWorkers": 2,
+    "partitioning": "authoritative-game-graph",
+    "checkpoint": "one-transaction-per-game",
+    "publication": "serving/dashboard-current.json",
+    "schedule": "one-minute-change-check-with-one-waiting-flowfile",
+    "dependencies": ["mlb-game promoted graph pairs and existing admission proofs"]
+  },
+  "failurePolicy": {
+    "maximumRetries": 2,
+    "authoritativeRdfUnaffected": true,
+    "queryIndexRdfUnaffected": true,
+    "sourceLanesUnaffected": true,
+    "priorServingPointerUnaffected": true,
+    "uiAdmissionUnaffected": true
+  }
+}

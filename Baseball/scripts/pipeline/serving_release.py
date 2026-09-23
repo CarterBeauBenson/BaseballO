@@ -214,38 +214,51 @@ def state_from_args(argv):
     return args.state_root.resolve()
 
 
-def query_pointer(state, root):
+def query_pointer(state, root, request=None):
     if os.environ.get(POINTER_ENV) and own_descriptor(root):
         pointer=json.loads(os.environ[POINTER_ENV])
         if resolve_pointer_release(state,pointer)!=Path(root).resolve(): raise ValueError('Pinned serving pointer uses another release')
         return pointer
-    return read(Path(state)/'serving/current.json')
+    return read(query_pointer_path(state, request))
+
+
+def query_pointer_path(state, request=None):
+    dashboard=Path(state)/'serving/dashboard-current.json'
+    if isinstance(request,dict) and request.get('route')=='metric-suite' and dashboard.is_file():
+        return dashboard
+    return Path(state)/'serving/current.json'
 
 
 def dispatch(root, argv, *, mode):
     """Return None inside the release; otherwise execute its existing entrypoint."""
     if any(arg in {'-h','--help'} for arg in argv): return None
-    if mode not in {'build','query'}: raise ValueError('Unknown serving release operation')
+    if mode not in {'build','dashboard-build','query'}: raise ValueError('Unknown serving release operation')
     state=state_from_args(argv);root=Path(root).resolve()
     descriptor=own_descriptor(root)
     if descriptor:
         if verify_release(state,descriptor)!=root: raise ValueError('Incorrect serving release root')
         return None
-    if mode=='build':
+    if mode in {'build','dashboard-build'}:
         # Legacy recovery is optional; its failure must not prevent a new
         # fully validated candidate from replacing an unpaired old build.
-        try: preparation=prepare_legacy(root.parent,state)
-        except (OSError,ValueError,subprocess.SubprocessError) as error:
-            preparation={'status':'failed','error':str(error)}
-        atomic(state/'serving/runtime-preparation.json',preparation)
+        if mode=='build':
+            try: preparation=prepare_legacy(root.parent,state)
+            except (OSError,ValueError,subprocess.SubprocessError) as error:
+                preparation={'status':'failed','error':str(error)}
+            atomic(state/'serving/runtime-preparation.json',preparation)
         descriptor=capture(root.parent,state)
         selected=verify_release(state,descriptor)
         if not (selected/'scripts/pipeline/serving_release.py').is_file():
             raise ValueError('Commit the serving release launcher before deploying it')
-        script='materialize-serving-layer.py'
+        script='materialize-dashboard.py' if mode=='dashboard-build' else 'materialize-serving-layer.py'
         pointer=None
     else:
-        pointer=read(state/'serving/current.json')
+        request=None
+        if (state/'serving/dashboard-current.json').is_file():
+            raw=sys.stdin.read()
+            sys.stdin=io.StringIO(raw)
+            request=json.loads(raw)
+        pointer=read(query_pointer_path(state,request))
         selected=resolve_pointer_release(state,pointer)
         if selected is None: return None  # Legacy compatibility retains all original stale-code checks.
         # Import the immutable adapter without executing its launcher. Pin the

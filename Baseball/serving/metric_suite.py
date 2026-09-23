@@ -3024,11 +3024,16 @@ def query_sql(connection, request, scope, *, _use_blocks=True):
             'buildingBlockCoverage':_blocks.coverage(_block_api(),connection,graphs) if _use_blocks else {}}
 
 
-def materialize_reference_ranks(connection):
+def materialize_reference_ranks(connection, seasons=None):
     """NiFi's final per-season stage; no score or schedule admission is inferred."""
     output=[]
-    seasons=connection.execute("SELECT season,MAX(official_date) FROM game_dimension WHERE game_set='regular_season' GROUP BY season").fetchall()
-    for year,cutoff in seasons:
+    season_rows=connection.execute("SELECT season,MAX(official_date) FROM game_dimension WHERE game_set='regular_season' GROUP BY season").fetchall()
+    affected = set(seasons) if seasons is not None else {row[0] for row in season_rows}
+    for year in affected:
+        connection.execute('DELETE FROM metric_suite_reference_rank WHERE season=?',(year,))
+        connection.execute('DELETE FROM metric_suite_reference WHERE season=?',(year,))
+    for year,cutoff in season_rows:
+        if seasons is not None and year not in seasons: continue
         scope=dict(gameSet='regular_season',startDate=f'{year}-01-01',endDate=cutoff)
         graphs=[r[0] for r in connection.execute("SELECT graph_iri FROM game_dimension WHERE game_set='regular_season' AND season=? ORDER BY graph_iri",(year,))]
         rows=_blocks.read_scope(_block_api(),connection,graphs)

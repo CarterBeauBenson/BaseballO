@@ -17,6 +17,35 @@ DSQ and legacy Explorer route-admission rules below describe a separate
 versioned surface. Neither surface's build success establishes complete
 qualified-player results for the other.
 
+The NiFi **Dashboard SQL** group runs `materialize-dashboard.py` independently
+of the full DSQ/Explorer builder. It reads the existing promoted graphs using
+the metric evidence query and existing admission adapters. It commits each game
+to a resumable working database, reuses unchanged SQL partitions, and refreshes
+reference ranks only for affected seasons. Two bounded read workers feed one
+SQL writer. A failed game rolls back its own replacement; completed games survive
+process termination. This job performs no API acquisition, RML, or RDF writes.
+
+The first dashboard-only build prepares its metric tables once, reusing cached
+SPARQL answers where graph content matches. Subsequent runs compare each game's
+RDF hash, dimensions, validated admissions and calculation fingerprint before
+deciding whether to read or calculate it again. Calculation changes invalidate
+affected products; report-only changes do not invalidate game checkpoints.
+
+After the existing final source snapshot check and SQL integrity checks, NiFi
+publishes an immutable database under `serving/dashboard/builds/` and atomically
+replaces `serving/dashboard-current.json`. Dashboard requests use that pointer
+and its paired code release; reports continue using `serving/current.json`.
+The prior dashboard remains available while its replacement is built. Source
+drift retains completed work for the next tick. The working database is never
+served. `--max-games` uses an isolated development workspace and cannot publish.
+
+Provision with `serving/dashboard-nifi/provision.ps1 -Start`. Its one-minute
+tick checks for changed promotion/schedule evidence, waits for 60 seconds of
+quiet, and exits immediately when unchanged. Backpressure permits one queued
+tick; failures use the existing NiFi retry pattern. Runtime progress is in
+`serving/dashboard/progress.json`. Full report builds and source lanes are not
+stopped or reconfigured by this provisioner.
+
 The required design executes SPARQL and accepted metric calculations in NiFi
 before publication, stores prepared results in SQL, and serves the interface
 through indexed SQL reads and lightweight range aggregation. Graph-query

@@ -142,5 +142,16 @@ r.atomic(state/'built.json',dict(code=(root/'serving/value.txt').read_text(),rel
         with patch.dict(os.environ,{'BASEBALLO_STATE_ROOT':str(self.state)}):
             self.assertEqual(R.state_from_args([]),self.state.resolve())
 
+    def test_dashboard_and_reports_select_independent_published_releases(self):
+        first=self.capture();self.pointer(first,'reports')
+        (self.root/'serving/value.txt').write_text('dashboard-code');self.commit();second=self.capture()
+        R.atomic(self.state/'serving/dashboard-current.json',dict(buildId='dashboard',runtimeRelease=second))
+        for route,expected in [('metric-suite',dict(build='dashboard',code='dashboard-code')),
+                               ('explore',dict(build='reports',code='version-one'))]:
+            output=io.StringIO()
+            with patch.object(sys,'stdin',io.StringIO(json.dumps(dict(route=route)))),contextlib.redirect_stdout(output):
+                self.assertEqual(R.dispatch(self.root,['--state-root',str(self.state)],mode='query'),0)
+            self.assertEqual(json.loads(output.getvalue()),expected)
+
 
 if __name__=='__main__':unittest.main()

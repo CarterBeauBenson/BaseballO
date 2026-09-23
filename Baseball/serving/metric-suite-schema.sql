@@ -104,11 +104,20 @@ CREATE TABLE IF NOT EXISTS metric_suite_reference_rank (
   FOREIGN KEY(metric_id,season,graph_set_sha256) REFERENCES metric_suite_reference ON DELETE CASCADE
 ) STRICT;
 CREATE TRIGGER IF NOT EXISTS metric_input_insert_invalidates_ranks AFTER INSERT ON metric_suite_input_row
-BEGIN DELETE FROM metric_suite_reference; DELETE FROM metric_suite_reference_rank; END;
+BEGIN
+DELETE FROM metric_suite_reference WHERE season IN (SELECT season FROM game_dimension WHERE graph_iri=NEW.graph_iri);
+DELETE FROM metric_suite_reference_rank WHERE season IN (SELECT season FROM game_dimension WHERE graph_iri=NEW.graph_iri);
+END;
 CREATE TRIGGER IF NOT EXISTS metric_input_update_invalidates_ranks AFTER UPDATE ON metric_suite_input_row
-BEGIN DELETE FROM metric_suite_reference; DELETE FROM metric_suite_reference_rank; END;
+BEGIN
+DELETE FROM metric_suite_reference WHERE season IN (SELECT season FROM game_dimension WHERE graph_iri IN (OLD.graph_iri,NEW.graph_iri));
+DELETE FROM metric_suite_reference_rank WHERE season IN (SELECT season FROM game_dimension WHERE graph_iri IN (OLD.graph_iri,NEW.graph_iri));
+END;
 CREATE TRIGGER IF NOT EXISTS metric_input_delete_invalidates_ranks AFTER DELETE ON metric_suite_input_row
-BEGIN DELETE FROM metric_suite_reference; DELETE FROM metric_suite_reference_rank; END;
+BEGIN
+DELETE FROM metric_suite_reference WHERE season IN (SELECT season FROM game_dimension WHERE graph_iri=OLD.graph_iri);
+DELETE FROM metric_suite_reference_rank WHERE season IN (SELECT season FROM game_dimension WHERE graph_iri=OLD.graph_iri);
+END;
 -- Direct changes cannot leave apparently current derived inputs behind.
 -- The owning writer refreshes shells and manifests after each full projection.
 CREATE TRIGGER IF NOT EXISTS metric_evidence_insert_invalidates_blocks AFTER INSERT ON metric_suite_evidence
