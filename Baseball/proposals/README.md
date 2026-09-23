@@ -25,6 +25,11 @@ their rejection rationale so they cannot be accidentally revived.
 
 ## Active reviews
 
+[Q5/Q6 quarantine boundaries](mlb-game-quarantine-boundaries/README.md) is a
+draft decision for five initial pinch-hitter records with missing outgoing
+identity and eight incomplete source censuses. It proposes no new terms and
+does not authorize changes to the frozen source contract.
+
 [T1 clock-conflict isolation](../archive/design-records/mlb-game-clock-conflict-isolation/README.md)
 was explicitly accepted on September 17. Contradictory clock pairs withhold
 both boundary measurements and dependent histories or metrics while preserving

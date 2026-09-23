@@ -1,0 +1,260 @@
+{
+  "observedAt": "2026-09-23",
+  "artifactType": "baseballo-quarantine-boundary-evidence",
+  "cases": [
+    {
+      "gamePk": "831432",
+      "runId": "36054c8bb48a486c8ba6f64f56a6c6ef",
+      "inputPath": "quarantine/mlb-game/831432/36054c8bb48a486c8ba6f64f56a6c6ef/input.json",
+      "inputSha256": "81bc54decbd173eba85e4a538d39f4033547b2b7d5d56edc707e177a09a04815",
+      "decision": "Q5",
+      "substitutions": [
+        {
+          "path": "/liveData/plays/allPlays/84/playEvents/0",
+          "atBatIndex": 84,
+          "eventIndex": 0,
+          "count": {
+            "balls": 0,
+            "strikes": 0,
+            "outs": 2
+          },
+          "incomingId": 644433,
+          "matchupBatterId": 644433,
+          "precedingEventCount": 0
+        }
+      ]
+    },
+    {
+      "gamePk": "831445",
+      "runId": "ad69d7e4cbf74df3a2de49c966342287",
+      "inputPath": "quarantine/mlb-game/831445/ad69d7e4cbf74df3a2de49c966342287/input.json",
+      "inputSha256": "569e78016f951a959e9eb1d75727111ae1d43b5893c7879952f93478fded4b3e",
+      "decision": "Q5",
+      "substitutions": [
+        {
+          "path": "/liveData/plays/allPlays/76/playEvents/0",
+          "atBatIndex": 76,
+          "eventIndex": 0,
+          "count": {
+            "balls": 0,
+            "strikes": 0,
+            "outs": 1
+          },
+          "incomingId": 644433,
+          "matchupBatterId": 644433,
+          "precedingEventCount": 0
+        }
+      ]
+    },
+    {
+      "gamePk": "831631",
+      "runId": "268c6ef62b68489bb41bfe73b52e9b90",
+      "inputPath": "quarantine/mlb-game/831631/268c6ef62b68489bb41bfe73b52e9b90/input.json",
+      "inputSha256": "3744522c9ad6d42f68791180cbb70cabe63829fe5c2c2dbeebc465423c5ff284",
+      "decision": "Q5",
+      "substitutions": [
+        {
+          "path": "/liveData/plays/allPlays/46/playEvents/0",
+          "atBatIndex": 46,
+          "eventIndex": 0,
+          "count": {
+            "balls": 0,
+            "strikes": 0,
+            "outs": 0
+          },
+          "incomingId": 801194,
+          "matchupBatterId": 801194,
+          "precedingEventCount": 0
+        }
+      ]
+    },
+    {
+      "gamePk": "831799",
+      "runId": "597ef4744a9e45168372d1e1f5d5a965",
+      "inputPath": "quarantine/mlb-game/831799/597ef4744a9e45168372d1e1f5d5a965/input.json",
+      "inputSha256": "11b161fc1d34d9af92f6f91a1d9e5894b7bc9bc25b785fccf8c938e903f775ee",
+      "decision": "Q5",
+      "substitutions": [
+        {
+          "path": "/liveData/plays/allPlays/62/playEvents/0",
+          "atBatIndex": 62,
+          "eventIndex": 0,
+          "count": {
+            "balls": 0,
+            "strikes": 0,
+            "outs": 1
+          },
+          "incomingId": 642133,
+          "matchupBatterId": 642133,
+          "precedingEventCount": 0
+        }
+      ]
+    },
+    {
+      "gamePk": "831855",
+      "runId": "a7ad1ffe09bd43bb93a8e65802e8321f",
+      "inputPath": "quarantine/mlb-game/831855/a7ad1ffe09bd43bb93a8e65802e8321f/input.json",
+      "inputSha256": "f0d1747178228d0119831127a9ae145149ec80a3d30ec77f1083f0415c895f69",
+      "decision": "Q5",
+      "substitutions": [
+        {
+          "path": "/liveData/plays/allPlays/18/playEvents/0",
+          "atBatIndex": 18,
+          "eventIndex": 0,
+          "count": {
+            "balls": 0,
+            "strikes": 0,
+            "outs": 2
+          },
+          "incomingId": 695670,
+          "matchupBatterId": 695670,
+          "precedingEventCount": 0
+        }
+      ]
+    },
+    {
+      "gamePk": "824295",
+      "runId": "391cf741ff55470ebb512c5463730714",
+      "inputPath": "quarantine/mlb-game/824295/391cf741ff55470ebb512c5463730714/input.json",
+      "inputSha256": "359ddd1e2be0eadc192fecbc26d71de4d1e2a9ce6307a7f06953275af42f9baf",
+      "decision": "Q6",
+      "blockingIssues": [
+        {
+          "code": "INNING_RUN_TOTAL_MISMATCH",
+          "observedScoringRows": 0,
+          "path": "/liveData/linescore/innings/8/away",
+          "reported": null
+        }
+      ],
+      "clockConflictCount": 0
+    },
+    {
+      "gamePk": "824807",
+      "runId": "08ec99587d6348d38ec3604a253be4f7",
+      "inputPath": "quarantine/mlb-game/824807/08ec99587d6348d38ec3604a253be4f7/input.json",
+      "inputSha256": "589e56932af1903abec639cc7112738fff46870b62ac98b2210edbdbdf4090c4",
+      "decision": "Q6",
+      "blockingIssues": [
+        {
+          "code": "INCOMPLETE_SOURCE_PLAY",
+          "path": "/liveData/plays/allPlays/50/about/isComplete"
+        },
+        {
+          "code": "INNING_RUN_TOTAL_MISMATCH",
+          "observedScoringRows": 0,
+          "path": "/liveData/linescore/innings/5/home",
+          "reported": null
+        }
+      ],
+      "clockConflictCount": 0
+    },
+    {
+      "gamePk": "831526",
+      "runId": "92185495140147c6bb63fbad3325b31d",
+      "inputPath": "quarantine/mlb-game/831526/92185495140147c6bb63fbad3325b31d/input.json",
+      "inputSha256": "729c4a2a369ee628de6370e666c87afb7e6e27813963ea0d586db8d7f2c7fec1",
+      "decision": "Q6",
+      "blockingIssues": [
+        {
+          "code": "INCOMPLETE_SOURCE_PLAY",
+          "path": "/liveData/plays/allPlays/51/about/isComplete"
+        },
+        {
+          "code": "INNING_RUN_TOTAL_MISMATCH",
+          "observedScoringRows": 0,
+          "path": "/liveData/linescore/innings/5/home",
+          "reported": null
+        }
+      ],
+      "clockConflictCount": 0
+    },
+    {
+      "gamePk": "831555",
+      "runId": "952848ee042c49ceac2c26e0d31d54cd",
+      "inputPath": "quarantine/mlb-game/831555/952848ee042c49ceac2c26e0d31d54cd/input.json",
+      "inputSha256": "4f13a6fc132ca08807f58697de5c5ca2fff668ab6d1812b0c73371a98603fec7",
+      "decision": "Q6",
+      "blockingIssues": [
+        {
+          "code": "INNING_RUN_TOTAL_MISMATCH",
+          "observedScoringRows": 0,
+          "path": "/liveData/linescore/innings/5/away",
+          "reported": null
+        }
+      ],
+      "clockConflictCount": 0
+    },
+    {
+      "gamePk": "831559",
+      "runId": "674017c3bd8242e08bfd9275ff143547",
+      "inputPath": "quarantine/mlb-game/831559/674017c3bd8242e08bfd9275ff143547/input.json",
+      "inputSha256": "accae819896c9f25937db24b49c3f72d0eb208818df0901fe22815580bd09a12",
+      "decision": "Q6",
+      "blockingIssues": [
+        {
+          "code": "INNING_RUN_TOTAL_MISMATCH",
+          "observedScoringRows": 0,
+          "path": "/liveData/linescore/innings/5/home",
+          "reported": null
+        }
+      ],
+      "clockConflictCount": 0
+    },
+    {
+      "gamePk": "831564",
+      "runId": "b0d8e37ee6be4528b492079fff770ecb",
+      "inputPath": "quarantine/mlb-game/831564/b0d8e37ee6be4528b492079fff770ecb/input.json",
+      "inputSha256": "11e38dfa1b8d1fa37e4b4d7c46fe9982fdff841b64ec06510a436b467643ded1",
+      "decision": "Q6",
+      "blockingIssues": [
+        {
+          "code": "INCOMPLETE_SOURCE_PLAY",
+          "path": "/liveData/plays/allPlays/67/about/isComplete"
+        },
+        {
+          "code": "INNING_RUN_TOTAL_MISMATCH",
+          "observedScoringRows": 0,
+          "path": "/liveData/linescore/innings/7/home",
+          "reported": null
+        }
+      ],
+      "clockConflictCount": 0
+    },
+    {
+      "gamePk": "831629",
+      "runId": "bf5b6692140f4076bfcfaa5507fbf9af",
+      "inputPath": "quarantine/mlb-game/831629/bf5b6692140f4076bfcfaa5507fbf9af/input.json",
+      "inputSha256": "5511cdce86e9af18cb376d0338b4bcf1e8111fae64534967345b1f998cf822cb",
+      "decision": "Q6",
+      "blockingIssues": [
+        {
+          "code": "INCOMPLETE_SOURCE_PLAY",
+          "path": "/liveData/plays/allPlays/44/about/isComplete"
+        },
+        {
+          "code": "INNING_RUN_TOTAL_MISMATCH",
+          "observedScoringRows": 0,
+          "path": "/liveData/linescore/innings/5/home",
+          "reported": null
+        }
+      ],
+      "clockConflictCount": 0
+    },
+    {
+      "gamePk": "831632",
+      "runId": "0d1e24aa14394c638b2a721be26210b2",
+      "inputPath": "quarantine/mlb-game/831632/0d1e24aa14394c638b2a721be26210b2/input.json",
+      "inputSha256": "bb7c9cfe061656ec3c9ab1f51011626a9de7dc439b75ebb1e9823916192f03db",
+      "decision": "Q6",
+      "blockingIssues": [
+        {
+          "code": "INNING_RUN_TOTAL_MISMATCH",
+          "observedScoringRows": 0,
+          "path": "/liveData/linescore/innings/6/away",
+          "reported": null
+        }
+      ],
+      "clockConflictCount": 0
+    }
+  ]
+}

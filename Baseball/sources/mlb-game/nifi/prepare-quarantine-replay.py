@@ -8,7 +8,9 @@ import hashlib
 import json
 import os
 import re
+import sys
 import tempfile
+import time
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -520,12 +522,19 @@ def emit_latest_proof(state_root: Path) -> dict[str, Any]:
     }
 
 
-def emit_latest_remainder(state_root: Path) -> dict[str, Any]:
+def emit_latest_remainder(state_root: Path, game_pks: list[str] | None = None) -> dict[str, Any]:
     """Reissue only unresolved remainder inputs from the latest matching plan."""
     plans_root = (
         state_root.resolve() / "pipeline" / "evidence" / "nifi" / "quarantine-replay"
     )
     candidates = current_candidates(state_root)
+    if game_pks is not None and (not isinstance(game_pks, list) or not game_pks or any(
+        not isinstance(pk, str) or not GAME_PK.fullmatch(pk) for pk in game_pks
+    )):
+        raise ValueError("A scoped retry requires nonempty numeric game IDs")
+    requested = None if game_pks is None else set(game_pks)
+    if requested is not None:
+        candidates = {pk: value for pk, value in candidates.items() if pk in requested}
     if not candidates:
         raise ValueError("No unresolved MLB-game quarantine inputs exist")
     plan_paths = sorted(
@@ -537,7 +546,9 @@ def emit_latest_remainder(state_root: Path) -> dict[str, Any]:
     for plan_path in plan_paths:
         plan, resolved = read_plan(state_root, plan_path)
         remainder = {str(item["gamePk"]): item for item in plan["remainder"]}
-        if any(game_pk in remainder for game_pk in candidates):
+        if (requested is None and any(game_pk in remainder for game_pk in candidates)) or (
+            requested is not None and requested <= remainder.keys()
+        ):
             selected = (plan, resolved)
             break
     if selected is None:
@@ -584,6 +595,26 @@ def emit_latest_remainder(state_root: Path) -> dict[str, Any]:
         "existingResolutionCount": resolution_count,
         "records": records,
     }
+
+
+def wait_for_serving_build(state_root: Path, build_id: str, timeout_seconds: float = 21600) -> None:
+    """NiFi defers this replay until the named SQL snapshot has finished reading RDF."""
+    if not re.fullmatch(r"[0-9]{8}T[0-9]{6}Z-[0-9a-f]+", build_id):
+        raise ValueError("Invalid serving build ID")
+    path = state_root / "serving" / "builds" / (build_id + ".progress.json")
+    deadline = time.monotonic() + timeout_seconds
+    while True:
+        progress = read_object(path)
+        if progress.get("buildId") != build_id:
+            raise ValueError("Serving progress does not identify the requested build")
+        status = progress.get("status")
+        if status in {"validated", "ready-for-promotion", "failed", "invalidated"}:
+            return
+        if status != "running":
+            raise ValueError("Unknown serving progress state: " + str(status))
+        if time.monotonic() >= deadline:
+            raise TimeoutError("Serving build is still running; quarantine inputs remain retained")
+        time.sleep(min(30, max(0, deadline - time.monotonic())))
 
 
 def resolve_input(
@@ -690,6 +721,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--input-sha256")
     parser.add_argument("--resolution-mode", default="replayed-and-promoted")
     parser.add_argument("--promotion-evidence", type=Path)
+    parser.add_argument("--request-stdin", action="store_true")
     return parser.parse_args()
 
 
@@ -710,7 +742,17 @@ def main() -> None:
     elif args.action == "emit-latest-proof":
         output = emit_latest_proof(args.state_root)
     elif args.action == "emit-latest-remainder":
-        output = emit_latest_remainder(args.state_root)
+        request = json.load(sys.stdin) if args.request_stdin else {}
+        if not isinstance(request, dict) or set(request) - {"gamePks", "afterServingBuild"}:
+            raise ValueError("Invalid quarantine remainder request")
+        game_pks = request.get("gamePks")
+        if game_pks is not None and not isinstance(game_pks, list):
+            raise ValueError("gamePks must be an array")
+        # Validate the scope before waiting; re-read exact inputs after the wait.
+        output = emit_latest_remainder(args.state_root, game_pks)
+        if request.get("afterServingBuild"):
+            wait_for_serving_build(args.state_root, request["afterServingBuild"])
+            output = emit_latest_remainder(args.state_root, game_pks)
     else:
         if (
             args.plan is None

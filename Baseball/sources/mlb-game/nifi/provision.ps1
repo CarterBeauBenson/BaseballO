@@ -450,10 +450,10 @@ $processors.emitQuarantineProofRetry = Ensure-Processor -GroupId $groupId -Name 
     'Command Arguments' = $quarantineProofRetryArguments; 'Argument Delimiter' = ';'; 'Ignore STDIN' = 'true';
     'Max Attribute Length' = '65536'; 'Output MIME Type' = 'application/json'
 }
-$quarantineRemainderRetryArguments = "-B;$quarantineReplayScript;--action;emit-latest-remainder;--state-root;$script:StateRoot"
+$quarantineRemainderRetryArguments = "-B;$quarantineReplayScript;--action;emit-latest-remainder;--state-root;$script:StateRoot;--request-stdin"
 $processors.emitQuarantineRemainderRetry = Ensure-Processor -GroupId $groupId -Name 'Emit Quarantine Remainder Retry' -Type 'org.apache.nifi.processors.standard.ExecuteStreamCommand' -X 320 -Y -1560 -AutoTerminate @('original') -Properties @{
     'Working Directory' = $repositoryRoot; 'Command Path' = $python; 'Command Arguments Strategy' = 'Command Arguments Property';
-    'Command Arguments' = $quarantineRemainderRetryArguments; 'Argument Delimiter' = ';'; 'Ignore STDIN' = 'true';
+    'Command Arguments' = $quarantineRemainderRetryArguments; 'Argument Delimiter' = ';'; 'Ignore STDIN' = 'false';
     'Max Attribute Length' = '65536'; 'Output MIME Type' = 'application/json'
 }
 $quarantinePlanArguments = "-B;$quarantineReplayScript;--action;plan;--state-root;$script:StateRoot;--contract;$contractPath"
