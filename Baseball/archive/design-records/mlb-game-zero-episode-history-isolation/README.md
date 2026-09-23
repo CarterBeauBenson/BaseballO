@@ -1,6 +1,8 @@
 # Q7: isolate a pinch runner with no recorded movement
 
-Status: under review. No implementation or ontologist approval is implied.
+Status: accepted by Carter Beau Benson on September 23, 2026. The named Q7
+question and explanation were followed by the user's "Ok fine" approval.
+Implementation and live repair remain pending.
 No new class, object property, data property or identity policy is proposed.
 
 ## Concrete defect and proposed correction
@@ -11,7 +13,7 @@ builder records `ZERO_EPISODE_PERSONAL_HISTORY` for that person and consequently
 withholds every runner's history in that half-inning. Another runner's complete
 scoring history is therefore absent from the promoted RDF in each game.
 
-Approve this bounded correction to the existing MLB-game history selection:
+Accepted bounded correction to the existing MLB-game history selection:
 
 1. Keep the zero-episode person's proposed history withheld. Do not invent a
    movement, realization, stasis, time, or replacement role/act assertion.
@@ -38,7 +40,7 @@ metric must still pass its own complete-input and participation requirements.
 - Does a replacement record establish an actual running episode? No.
 - Does an empty episode list license a fabricated runner history? No.
 - Does that one empty list invalidate another runner's independently reconciled
-  scoring history in the same half-inning? Proposed answer: no, under the
+  scoring history in the same half-inning? Accepted answer: no, under the
   exact isolated-issue condition above.
 - Can a review dispute, unknown movement, or invalid clock be ignored under
   this correction? No; their existing withholding remains.

@@ -97,8 +97,9 @@ Fuseki reports the same restart identity and write counters; see
 [build reuse](BUILD-REUSE.md).
 
 The remaining two latest-day run-construction-depth histories are covered by
-the review-only [Q7 proposal](../proposals/mlb-game-zero-episode-history-isolation/README.md).
-Its named semantic approval is pending. No targeted addition has been executed.
+the accepted [Q7 decision](../archive/design-records/mlb-game-zero-episode-history-isolation/README.md).
+The user approved it on September 23 after the exact cases were explained.
+Implementation and the two targeted additions remain pending.
 
 At 15:29 Eastern, NiFi published
 `20260923T175511Z-dashboard-4ca9b33c4b25`. The default September 16 request

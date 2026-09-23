@@ -1,0 +1,52 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-zero-episode-history-isolation",
+  "title": "Q7: isolate zero-episode runner-history withholding",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "e6210a714566b659c26481e32199f2f3ac388103091063aa5b2597130edf526c"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.json",
+        "sha256": "899c06f0a5532ebec66ab3d54cc3b53cc2a84a5ed4057821f16d16ad6d160a1c"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "e6210a714566b659c26481e32199f2f3ac388103091063aa5b2597130edf526c"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "README.md",
+        "sha256": "e6210a714566b659c26481e32199f2f3ac388103091063aa5b2597130edf526c"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-09-23",
+    "rationale": "The user approved the named Q7 correction with \"Ok fine\" after the explicit approval question and explanation of both retained cases. Isolate only zero-episode pinch-runner withholding; preserve independently reconciled nonempty histories when no other half-inning issue exists. Apply prospectively and repair games 822846 and 824467 by additive RML/SHACL promotion from exact retained evidence. No new ontology vocabulary, fabricated acts or times, API reacquisition, whole-game replacement or corpus replay.",
+    "authorizedArtifacts": [
+      "Baseball/scripts/pipeline/prepare-rml-context.py",
+      "Baseball/sources/mlb-game/pipeline/runner-history-admission.py",
+      "Baseball/sources/mlb-game/pipeline/verify-runner-history-serialization.py",
+      "Baseball/sources/mlb-game/pipeline/targeted-history-addition.py",
+      "Baseball/sources/mlb-game/pipeline/validation-profiles.json",
+      "Baseball/sources/mlb-game/shacl/runner-history-admission.ttl",
+      "Baseball/sources/mlb-game/review/semantic-status.json",
+      "Baseball/sources/mlb-game/review/rml-mermaid-manifest.json",
+      "Baseball/governance/semantic-freeze.json"
+    ]
+  }
+}
