@@ -65,14 +65,18 @@ def prepare(m, connection, seasons=None, checkpoint=None):
             graphs=[r[0] for r in connection.execute("SELECT graph_iri FROM game_dimension "
                 "WHERE game_set='regular_season' AND season=? AND official_date<=? ORDER BY graph_iri",(year,cutoff))]
             api=m._block_api()
-            rows=m._blocks.read_scope(api,connection,graphs)
+            # Qualification rejects a withheld source admission before it
+            # consumes any RDF-derived rows. Preserve that short circuit: a
+            # rejected historical population must not decode every prior game.
+            def rows():
+                yield from m._blocks.read_scope(api,connection,graphs)
             admissions={}
             for group in m._blocks.batches(graphs):
                 for graph,text,digest in connection.execute('SELECT graph_iri,proof_json,proof_sha256 '
                         f'FROM metric_suite_admission WHERE graph_iri IN ({m._blocks.placeholders(group)})',group):
                     admissions[graph]=m._blocks.decode(api,text,digest)
             schedule=m.selected_schedule_coverage(connection,scope,graphs)
-            qualification=m.batting_qualification(rows,graphs=graphs,admissions=admissions,date_scope=scope,
+            qualification=m.batting_qualification(rows(),graphs=graphs,admissions=admissions,date_scope=scope,
                 selected_games_complete=schedule['complete'])
             for metric_id in ('paq-2','paq-a','recovery-quality','paq-2.1'):
                 args=dict(graphs=graphs,qualification=qualification,date_scope=scope,_write_reference=True)

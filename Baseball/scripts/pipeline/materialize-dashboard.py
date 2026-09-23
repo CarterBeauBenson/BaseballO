@@ -167,6 +167,7 @@ def notification_key(state):
     paths += list((state/'pipeline/evidence/mlb-game').glob('*/admission-refresh/*/*.receipt.json'))
     files = [(str(p.relative_to(state)), p.stat().st_size, p.stat().st_mtime_ns) for p in sorted(paths)]
     return digest(dict(events=files, metrics=METRICS.fingerprint(), builder=SOURCE.sha256_file(Path(__file__)),
+                       admissionReader=ADMISSION_EVIDENCE.fingerprint(),
                        display=DISPLAY.fingerprint(), references=REFERENCES.fingerprint(),
                        schema=SOURCE.sha256_file(SCHEMA))), max((v[2] for v in files), default=0)
 

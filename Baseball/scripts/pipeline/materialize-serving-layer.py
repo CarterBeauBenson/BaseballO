@@ -107,6 +107,7 @@ _LOADED_MODULE_HASHES = {Path(module.__file__): hashlib.sha256(Path(module.__fil
                                        _query_cache,_metric_cache,_report_cache,_preflight_queries,_build_guard,_promotion_inventory,
                                        _schedule_qualification,_schedule_qualification.PARSER,_admission_evidence)}
 _LOADED_MODULE_HASHES[Path(__file__).resolve()] = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
+_LOADED_MODULE_HASHES[_admission_evidence.COMPATIBILITY_PATH] = hashlib.sha256(_admission_evidence.COMPATIBILITY_PATH.read_bytes()).hexdigest()
 SERVING_ROOT = ROOT / "serving"
 SCHEMA = SERVING_ROOT / "schema.sql"
 CONTRACT = SERVING_ROOT / "contract.json"

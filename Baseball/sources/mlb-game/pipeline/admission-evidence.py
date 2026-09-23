@@ -15,6 +15,7 @@ from datetime import datetime, timezone
 
 HERE=Path(__file__).resolve().parent
 ROOT=HERE.parents[2]
+COMPATIBILITY_PATH=HERE/'context-proof-compatibility.json'
 FIELDS={'batting':'battingAdmission','scoring-run':'scoringRunAdmission',
     'runner-resolution':'runnerResolutionAdmission','pitch-count':'pitchCountAdmission',
     'runner-boundary':'runnerBoundaryAdmission','defensive':'defensiveAdmission'}
@@ -41,6 +42,52 @@ def checked_marker(promotion):
     return read(path)
 
 
+def fingerprint():
+    return hashlib.sha256(Path(__file__).read_bytes()+COMPATIBILITY_PATH.read_bytes()).hexdigest()
+
+
+def code_equivalence(family,previous,current):
+    """One pinned noninterfering edit, not blanket acceptance of stale proofs.
+
+    The regression compares both exact context revisions and the transitive
+    call dependencies. Complete producer fingerprints include every other
+    original dependency, SHACL template and validator. Unknown changes miss.
+    """
+    record=read(COMPATIBILITY_PATH)
+    entry=record['families'].get(family)
+    if (entry and previous==entry['previousImplementationSha256']
+            and current==entry['currentImplementationSha256']
+            and sha(ROOT/record['contextPath'])==record['currentContextSha256']):
+        return dict(kind='unchanged-proof-dependencies',recordSha256=sha(COMPATIBILITY_PATH),
+            previousImplementationSha256=previous,currentImplementationSha256=current)
+    return None
+
+
+def compatible_proof(state,promotion,family,implementation):
+    marker=checked_marker(promotion);field=FIELDS[family];path=Path(marker.get(field,''))
+    if not path.is_file(): return None
+    if not path.resolve().is_relative_to((Path(state)/'pipeline/evidence/mlb-game'/promotion['gamePk']).resolve()):
+        raise ValueError('Proof escaped its owning source game')
+    if sha(path)!=marker.get(field+'Sha256'): raise ValueError('Retained proof changed')
+    proof=read(path)
+    reuse=code_equivalence(family,proof.get('implementationSha256'),implementation)
+    if reuse is None: return None
+    expected=dict(artifactType='baseballo-'+family+'-admission',contractVersion=1,
+        gamePk=promotion['gamePk'],sourceSha256=promotion['rawSha256'],
+        authoritativeRdfSha256=promotion['authoritativeRdfSha256'],graph=promotion['authoritativeGraph'])
+    if any(proof.get(key)!=value for key,value in expected.items()): return None
+    required=('sourceReconciled','graphConforms','sourceCensusSha256','shapeSha256','reportSha256')
+    if family=='defensive': required+=('populationComplete',)
+    if proof.get('status')=='admitted' and not all(proof.get(key) for key in required):
+        raise ValueError('Admitted proof lacks its retained conformance evidence')
+    for suffix,key in (('.source.json','sourceCensusSha256'),('.shapes.ttl','shapeSha256'),('.report.ttl','reportSha256')):
+        if key in proof and sha(path.with_suffix(suffix))!=proof[key]:
+            raise ValueError('Retained validation artifact changed: '+key)
+    # Keep the original status, issues AND producer fingerprint. This is code
+    # reuse provenance, not a newly issued source/SHACL proof.
+    return {**proof,'proofSha256':sha(path),'implementationReuse':reuse}
+
+
 def retained_manifest(state,marker,game_pk):
     inventory=module(ROOT/'scripts/pipeline/game_promotion_inventory.py','admission_retained_artifacts')
     return inventory.retained_artifact(Path(state),game_pk,marker['rmlManifestSha256'],Path(marker['rmlManifest']))
@@ -57,7 +104,9 @@ def diagnostic(state,promotion,family,implementation):
     same=(proof.get('gamePk')==promotion['gamePk'] and proof.get('sourceSha256')==promotion['rawSha256']
         and proof.get('authoritativeRdfSha256')==promotion['authoritativeRdfSha256'])
     current=proof.get('implementationSha256')==implementation
-    return dict(family=family,evidenceState='promotion-mismatch' if not same else 'current' if current else 'implementation-stale',
+    reuse=compatible_proof(state,promotion,family,implementation) if same and not current else None
+    return dict(family=family,evidenceState='promotion-mismatch' if not same else 'current' if current else
+            'implementation-compatible' if reuse is not None else 'implementation-stale',
         previousStatus=proof.get('status'),previousIssues=proof.get('issues',[]),
         recordedImplementationSha256=proof.get('implementationSha256'),requiredImplementationSha256=implementation)
 
@@ -93,6 +142,8 @@ def load(adapter,state,promotion,family):
     if proof is not None:
         checked_marker(promotion)
         return proof
+    proof=compatible_proof(state,promotion,family,adapter.fingerprint())
+    if proof is not None: return proof
     return adapter.promoted_admission(state,promotion)
 
 
@@ -101,7 +152,7 @@ def refresh_game(state,promotion,java,classpath):
     adapters={family:module(HERE/(family+'-admission.py'),'refresh_'+family.replace('-','_')) for family in FIELDS}
     versions={family:adapter.fingerprint() for family,adapter in adapters.items()}
     diagnostics={family:diagnostic(state,promotion,family,versions[family]) for family in FIELDS}
-    pending=[family for family in FIELDS if diagnostics[family]['evidenceState']!='current'
+    pending=[family for family in FIELDS if diagnostics[family]['evidenceState'] not in {'current','implementation-compatible'}
         and refreshed(state,promotion,family,versions[family]) is None]
     result=dict(gamePk=promotion['gamePk'],promotionManifestSha256=promotion['promotionManifestSha256'],
         diagnostics=diagnostics,refreshed=[],rdfChanged=False)
@@ -140,7 +191,7 @@ def refresh_game(state,promotion,java,classpath):
 def tick(state,java,classpath,limit=100):
     control=Path(state)/'pipeline/control/mlb-game/admission-evidence'
     versions={family:module(HERE/(family+'-admission.py'),'version_'+family.replace('-','_')).fingerprint() for family in FIELDS}
-    version=hashlib.sha256(json.dumps(versions,sort_keys=True).encode()+Path(__file__).read_bytes()).hexdigest()
+    version=hashlib.sha256(json.dumps(versions,sort_keys=True).encode()+fingerprint().encode()).hexdigest()
     outcomes=[]
     for directory in sorted((Path(state)/'pipeline/evidence/nifi/game-promotion').glob('*')):
         if not directory.is_dir() or not directory.name.isdigit(): continue
@@ -176,6 +227,12 @@ def tick(state,java,classpath,limit=100):
     summary=dict(status='processed' if outcomes else 'unchanged',processedGames=len(outcomes),
         refreshedGames=sum(bool(r.get('refreshed')) for r in outcomes),
         outcomes={s:sum(r['status']==s for r in outcomes) for s in sorted({r['status'] for r in outcomes})})
+    summary['proofOutcomes']={}
+    for result in outcomes:
+        for family,diagnosis in result.get('diagnostics',{}).items():
+            counts=summary['proofOutcomes'].setdefault(family,{})
+            key=diagnosis['evidenceState']+':'+str(diagnosis.get('previousStatus','unknown'))
+            counts[key]=counts.get(key,0)+1
     atomic(control/'latest.json',summary)
     return summary
 

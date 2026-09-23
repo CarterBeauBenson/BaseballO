@@ -1,0 +1,26 @@
+{
+  "artifactType": "baseballo-proof-code-equivalence",
+  "contractVersion": 1,
+  "changeCommit": "2c4d69160c23f6b5e3b4017fe5de2cbdb5f758dc",
+  "contextPath": "scripts/pipeline/prepare-rml-context.py",
+  "previousContextSha256": "d01b977a9f6d8c715ac65e25af4b1d716fb8ce399cfadf614fd0daf2bef269c4",
+  "currentContextSha256": "169fd44a4dee436747d11c9201f8a8d5ea8c772f8c7ea6acaacfddb069d1a464",
+  "changedDefinition": "batter_participation_context",
+  "families": {
+    "runner-resolution": {
+      "contextDefinitions": ["nonmovement_strikeout_records"],
+      "previousImplementationSha256": "3bea2ab24cee2ae2c4bae5a47005a9a410542eb051d16477f8387f2f411114d0",
+      "currentImplementationSha256": "e29b19c5f43fe0daa4a1d629bcaa84c343a301dde19bbc09e28307105005baf6"
+    },
+    "pitch-count": {
+      "contextDefinitions": ["CONTEXT_KEY", "SAFE_IRI_SEGMENT", "automatic_count_awards", "runner_metric_evidence"],
+      "previousImplementationSha256": "214223fdbda44df33bfb6d348ad9a810fdccf38140cc85108bee09d20f698a15",
+      "currentImplementationSha256": "386caf8c7108aebed056c696591a25d788535f37eb8c88be9931b52f7c75cd1e"
+    },
+    "defensive": {
+      "contextDefinitions": ["CONTEXT_KEY", "defensive_act_context"],
+      "previousImplementationSha256": "2feffc83d2c8b561109542aa56d2a0a1d8951bacf03a5cf5cb6aa5a2655363e0",
+      "currentImplementationSha256": "15244955d229b263ad47d0ad632d3784c2489c2e8fc142c0157a673b94331f3a"
+    }
+  }
+}

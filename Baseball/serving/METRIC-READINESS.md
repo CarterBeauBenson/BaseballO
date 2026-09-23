@@ -18,6 +18,14 @@ and historical reference ranks. Authority SQL separately published 1,761 rows
 from 75 source graphs. See the [operational delivery record](../infra/OPERATIONS-IMPROVEMENTS.md)
 for deployed changes and their remaining runtime limits.
 
+The subsequent evidence diagnosis separated genuine withholding from unrelated
+Q5 fingerprint drift. Exact code-equivalent reuse is implemented for three
+unchanged proof families, preserving the original status and fingerprint.
+For inspected game 822680 this restores admitted runner-resolution evidence;
+pitch-count and defense remain withheld for their original coverage reasons,
+and runner-boundary remains unresolved. This has not yet established populated
+live player cards. The next automatic dashboard build consumes the correction.
+
 The September 16 live check returned HTTP 200 in 16.8 seconds for
 August 25 from SQL, with all 15 scheduled games selected and **zero populated
 player leaderboards**. The new coverage report explicitly returned `ready:false`

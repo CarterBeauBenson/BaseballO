@@ -29,5 +29,15 @@ class References(unittest.TestCase):
                 with self.assertRaisesRegex(M.EvidenceError,'NiFi preparation'):
                     M.query_sql(db,{'metricId':'recovery-quality'},dict(SEASON_SCOPE,endDate='2026-08-02'))
 
+    def test_withheld_admission_short_circuits_historical_row_decoding(self):
+        with season_database([sample(101,0),sample(102,2)]) as db:
+            text=M._json(dict(status='withheld',issues=[dict(code='ORIGINAL_SOURCE_ISSUE')]))
+            db.execute('UPDATE metric_suite_admission SET proof_json=?,proof_sha256=?',(text,M._hash(text)))
+            with patch.object(M._blocks,'read_scope',side_effect=AssertionError('decoding a rejected population')):
+                results=R.prepare(M,db)
+            self.assertTrue(results)
+            self.assertTrue(all(not r['populationComplete'] and r['gaps']==['COMPLETE_BATTING_QUALIFICATION'] for r in results))
+            self.assertEqual(db.execute('SELECT count(*) FROM dashboard_reference').fetchone()[0],0)
+
 
 if __name__=='__main__':unittest.main()

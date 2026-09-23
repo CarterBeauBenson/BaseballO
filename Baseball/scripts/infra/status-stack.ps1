@@ -70,7 +70,7 @@ if ($Operations) {
                 $record = Get-Content -LiteralPath $path -Raw | ConvertFrom-Json
                 $summary = [ordered]@{}
                 foreach ($name in @('status', 'phase', 'buildId', 'promotedAtUtc', 'gameCount', 'completedGames',
-                        'totalGames', 'sourceGraphCount', 'resultRowCount', 'processedGames', 'refreshedGames', 'outcomes')) {
+                        'totalGames', 'sourceGraphCount', 'resultRowCount', 'processedGames', 'refreshedGames', 'outcomes', 'proofOutcomes')) {
                     if ($null -ne $record.PSObject.Properties[$name]) { $summary[$name] = $record.$name }
                 }
                 $summary | ConvertTo-Json -Depth 4

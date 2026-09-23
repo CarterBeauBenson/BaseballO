@@ -107,6 +107,24 @@ refresh limitation, not evidence that the authoritative Fuseki graph is
 missing. The worker never reacquires, maps or promotes RDF, and never relabels
 an old fingerprint as current.
 
+The Q5 edit changed only `batter_participation_context` in the shared context
+file. Runner-resolution, pitch-count and defensive proof code does not call
+that definition, directly or transitively. Their exact pre/post implementation
+pairs are recorded in `pipeline/context-proof-compatibility.json`. The focused
+regression compares both context revisions, all remaining module code and
+constants, each family's referenced context definitions and transitive calls,
+and its complete producer/SHACL/validator fingerprint.
+
+`admission-evidence.py` can therefore reuse those exact original proofs after
+checking their promotion, graph/source identities and every retained validation
+artifact. The original implementation fingerprint, status and issues remain
+intact, with separate `implementationReuse` provenance. A previously withheld
+proof stays withheld. Unknown code versions are ineligible for this reuse;
+runner-boundary is excluded because it calls the changed definition. This
+decouples an unrelated code edit without renewing evidence or changing source
+semantics. NiFi maintenance reports `implementation-compatible` separately from
+current, stale and missing evidence.
+
 The September 23 quarantine diagnosis found 30 games eligible for a retry
 under existing fixes. The remaining 13 are covered by the accepted
 [Q5/Q6 source-contract decision](../../archive/design-records/mlb-game-quarantine-boundaries/README.md).

@@ -63,6 +63,35 @@ now selects the same public metrics as the dashboard before checking completenes
 missing or duplicate public metrics still fail service readiness. It continues
 to report unavailable player populations separately.
 
+## Follow-through: unrelated proof invalidation
+
+The next diagnosis inspected the latest published day (September 16): batting
+proofs were admitted in 11/15 games, scoring-run proofs in 15/15, and four proof
+families were being replaced by generic missing/stale results. Q5's one-function
+pinch-hitter change invalidated all four through a whole-context-file hash.
+Runner-resolution, pitch-count and defensive producer dependencies are unchanged
+by that edit; runner-boundary dependencies are affected.
+
+The exact unchanged implementation pairs now support reuse with the original
+fingerprint and outcome. This is restricted to the recorded code transition,
+the original promotion and retained artifacts. No source/SHACL proof is
+reissued, no historical outcome is relabeled, and no RDF is changed. The real
+822680 check recovered admitted runner-resolution evidence, preserved
+`PITCH_COUNT_MAPPING_COVERAGE` and `INCOMPLETE_DEFENSIVE_POPULATION` as withheld,
+and continued withholding the affected runner-boundary proof. The dashboard
+change detector now includes admission-reader code and the equivalence record,
+so its next owned build observes the correction without a new source event.
+
+Historical-rank preparation also defers loading projected game rows until the
+existing batting-qualification function actually consumes them. That function
+already rejects withheld source admissions first. This avoids repeatedly
+decoding a rejected season at every date cutoff, with identical population
+decisions and exact ranks. Source admission checks are not duplicated in a new
+precheck. Focused regressions cover the known code equivalence, corrupt/mismatched
+artifacts, preserved withheld outcomes, incremental dashboard behavior and
+historical-rank equality. The existing immutable builds finish with their
+captured versions; the next NiFi tick adopts these changes.
+
 Focused checks covered authority recovery, queued readiness, exited-worker
 reconciliation, exact cache reuse and corruption fallback, SQL-only names,
 historical-rank equivalence, independent SHACL reports with a shared graph,
