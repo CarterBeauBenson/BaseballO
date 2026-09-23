@@ -6,7 +6,11 @@ This directory contains superseded artifacts retained for provenance:
 - [`ontology-v0.2.0.ttl`](ontology-v0.2.0.ttl) is the earlier ontology snapshot.
 - [`design-records/`](design-records/) preserves accepted and rejected review
   packages after they leave the single active proposal catalog.
+- [`operational-history/2026-09-23/`](operational-history/2026-09-23/README.md)
+  preserves superseded roadmaps and status reports from the documentation cleanup.
 
-None of these artifacts is part of the active pipeline. New MLB game work
-should target [`../sources/mlb-game/`](../sources/mlb-game/) and
-[`../ontology/BaseballO.ttl`](../ontology/BaseballO.ttl).
+Archived implementations are outside the active pipeline. Accepted design
+records remain part of the approval and provenance trail referenced by active
+components; their dated runtime statements are not a current work queue.
+New MLB game implementation belongs in [`../sources/mlb-game/`](../sources/mlb-game/).
+Ontology changes remain subject to the user's explicit review.

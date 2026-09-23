@@ -1,7 +1,14 @@
 # Offensive analytics redesign notes
 
-Status: working design notes for review. This document does not change any
-live SPARQL, serving contract, SQL build, UI calculation, or PAQ-1.0 result.
+Status: historical design notes, superseded for the new dashboard. The open
+category names and tentative PAQ-2 formula below describe an earlier design
+stage; they are not current decisions or an implementation queue. PAQ-1.0
+remains separately versioned for reproducibility.
+
+Use the accepted [calculation contract](../serving/METRIC-SUITE.md),
+[PAQ-2 release defaults](../sparql/metrics/paq-2-release-defaults.json),
+[presentation catalog](metric-presentation.json), and
+[current metric readiness](../serving/METRIC-READINESS.md) for ongoing work.
 
 ## Purpose
 

@@ -14,7 +14,8 @@ flowchart LR
     FUSEKI --> QUERY["Approved post-promotion<br/>or batch SPARQL"]
     INDEX --> QUERY
     QUERY --> SQL["Persistent derived<br/>analytical serving"]
-    SQL --> SITE["Explorer interface"]
+    SQL --> DASHBOARD["Metric dashboard"]
+    SQL --> SITE["Legacy Explorer"]
     FUSEKI --> LIVE["Live SPARQL<br/>novel research"]
     LIVE --> SITE
 
@@ -22,7 +23,7 @@ flowchart LR
 
     classDef active fill:#d7f5df,stroke:#24733b,color:#102a18;
     classDef prohibited fill:#fde2e2,stroke:#a33,color:#4a1111;
-    class SOURCE,LANES,STAGE,CTX,RML,SHACL,FUSEKI,INDEX,QUERY,SQL,LIVE,SITE active;
+    class SOURCE,LANES,STAGE,CTX,RML,SHACL,FUSEKI,INDEX,QUERY,SQL,LIVE,SITE,DASHBOARD active;
     class ENRICH prohibited;
 ```
 
@@ -43,7 +44,7 @@ flowchart TB
     ROOT --> TESTS["tests/<br/>offline acceptance path"]
     ROOT --> SPARQL["sparql/<br/>source-scoped queries"]
     ROOT --> SERVING["serving/<br/>rebuildable analytical SQL"]
-    ROOT --> WEB["web/<br/>Explorer"]
+    ROOT --> WEB["web/<br/>Dashboard and Explorer"]
     ROOT --> ARCHIVE["archive/<br/>historical design and<br/>implementation records"]
 
     POLICY -->|"governs"| MLB

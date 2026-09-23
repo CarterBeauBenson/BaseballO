@@ -51,11 +51,13 @@ before publication, stores prepared results in SQL, and serves the interface
 through indexed SQL reads and lightweight range aggregation. Graph-query
 timeouts and expensive metric processing must stay off the page-load path.
 
-Metric suite 2.1 currently stores indexed participation and analytical
-observations for the selected-period reader, with final arithmetic and some
-population/rank work still in the server. NiFi prepares game products and
-complete season reference ranks. This is partial implementation, not completion
-of the [required serving design](METRIC-SUITE-IMPLEMENTATION.md#required-serving-design). See the
+Metric suite 2.1 stores indexed participation and analytical observations,
+prepared game products, player labels and historical season reference ranks.
+NiFi owns expensive graph queries, game calculations and reference preparation.
+The selected-period reader checks population membership and completeness,
+selects prepared ranks and performs lightweight pooled arithmetic in SQL-backed
+code. This implementation does not establish that all 19 player populations
+are complete; use [metric readiness](METRIC-READINESS.md) for that status. See the
 [SQL building-block contract](METRIC-SUITE-IMPLEMENTATION.md#sql-building-blocks-and-final-arithmetic)
 for table grains, integrity checks and diagnostic coverage. Further request-path
 simplification belongs in SQL serving; it does not require source remapping.
@@ -90,17 +92,13 @@ files: the candidate, the prior current build, and the newest remaining
 rollback build. Compact evidence is retained. Use `--retain-builds` to raise
 the limit, never below two.
 
-There is one explicit authority gap before RDF-only rebuildability can be
-claimed: `game_dimension.game_set` currently comes from compact acquisition
-provenance for new runs and checked schedule evidence for the historical corpus
-because the authoritative MLB-game RDF has no accepted game-type
-classification. The materialized baseball facts remain RDF-derived, but
-reconstructing the current regular-season/All-Star partition also requires that
-evidence. Do not infer the partition from team IDs, dates, labels, or absence.
-The MLB-game ontology/RML must model the source-supported distinction after
-ontologist review; fixture membership must remain a separate corpus-provenance
-concern. Until that migration and backfill are complete, the serving contract
-records this dependency instead of claiming complete RDF-only recovery.
+`game_dimension.game_set` uses retained compact acquisition/schedule evidence
+and the accepted RDF season-phase classification. The builders can use the RDF
+classification as a fallback and reject contradictions with provenance; an
+accepted graph pattern already exists. Do not infer the partition from team
+IDs, dates, labels, or absence. Complete historical RDF-only coverage and
+equivalence still need evidence before dropping the provenance dependency.
+Fixture membership remains a separate corpus-provenance concern.
 
 Contract 5 materializes shared grains for every routine Explorer family and
 the complete approved static DSQ surface: 17 reviewed Advanced questions plus
@@ -193,10 +191,10 @@ uses its captured code release; changes to that release make it invalid, while
 working-tree edits do not invalidate the published pair. See
 [immutable serving releases](BUILD-REUSE.md#immutable-code-and-database-releases).
 
-PAQ-1.0 remains available for reproducibility, but its grind and game-context
-designs are under review. The suspected context-query defect and PAQ-2.0
-boundary are documented in
+PAQ-1.0 remains available for reproducibility. Its historical grind and
+game-context concerns are documented in
 [`../web/OFFENSIVE-ANALYTICS-REDESIGN.md`](../web/OFFENSIVE-ANALYTICS-REDESIGN.md).
+The new dashboard follows the settled [metric contracts](METRIC-SUITE.md).
 An immutable build proves which formula ran; it does not prove that a disputed
 analytical definition is correct.
 

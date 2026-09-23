@@ -85,13 +85,14 @@ so UTF-8 labels are never round-tripped through Windows PowerShell's legacy
 text decoding. The preserved 2026-08-04 fixture benchmark captured 6,538 index
 triples from 28,419 authoritative triples. A later historical fixture run
 recorded 30,613 authoritative triples, but neither count is a claim about the
-current 345-map RML. A new matching-corpus benchmark is required before a
-current authoritative/index count is documented. The historical capture has equivalent identities for 21
+current RML. The [generated mapping catalog](../../mermaid/patterns/README.md)
+owns the current inventory. Any new authoritative/index count must identify
+its matching corpus and mapping fingerprint. The historical capture has equivalent identities for 21
 hits, 282 pitches, 185 pitch calls, 134 batting acts, 112 contacts, 113 runner
 resolutions, one stolen base, and seven assignments.
 
-Across the checked-in eight-game 2026-08-03 corpus, the authoritative graph
-contains 246,191 triples and the replaceable query-index graph contains 52,992.
+The historical eight-game 2026-08-03 benchmark recorded 246,191 authoritative
+triples and 52,992 replaceable query-index triples.
 
 Before publication, the compiled graph must conform to
 [`shacl/query-index.ttl`](../../shacl/query-index.ttl). SHACL checks required

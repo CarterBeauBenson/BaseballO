@@ -1,11 +1,13 @@
-# BaseballO Explorer
+# BaseballO dashboard and Explorer
 
-This directory contains the playable, local BaseballO analytics interface. It
-lets a user assemble reviewed questions about batting, pitching, baserunning,
-games, teams, venues, officials, and Plate Appearance Quality
-without writing SPARQL.
+The primary metric dashboard at `/metrics` automatically reads prepared SQL
+for the selected date range and presents 19 public metric cards. Its current
+population and release status is in [metric readiness](../serving/METRIC-READINESS.md).
+The separate legacy Explorer lets a user assemble reviewed questions about
+batting, pitching, baserunning, games, teams, venues and officials without
+writing SPARQL.
 
-The browser never submits arbitrary SPARQL. A loopback-only Node server accepts
+For the legacy Explorer, a loopback-only Node server accepts
 allowlisted component IDs and compiles them through
 [`query-builder/`](query-builder/README.md). The versioned serving adapter is
 consulted first, but its contract currently admits only Plate Appearance
@@ -16,7 +18,9 @@ accepted. A missing or stale admitted build also fails open to the matching
 authoritative query. The browser never queries the disposable index directly.
 The batch materializer may use proven indexed identities while building SQL
 grains, but a populated grain is not itself permission to route a UI family to
-SQL.
+SQL. The browser never submits arbitrary SPARQL. These legacy fallback rules
+do not apply to the dashboard: a dashboard request must use prepared SQL and
+must not trigger graph queries, source recovery or season recalculation.
 
 ## Explorer interaction contract
 
@@ -95,15 +99,14 @@ question -> scoped answer -> player/game/plate-appearance evidence
       \-> Show math -> complete human-readable formula
 ```
 
-The working redesign of the primary offensive categories, the suspected
-game-context-query defect, and the boundary between PAQ-1.0 and a possible
-PAQ-2.0 are recorded in
-[`OFFENSIVE-ANALYTICS-REDESIGN.md`](OFFENSIVE-ANALYTICS-REDESIGN.md). It is a
-review document, not approval to change a live formula or query.
+Historical PAQ-1.0 concerns and early category proposals are retained in
+[`OFFENSIVE-ANALYTICS-REDESIGN.md`](OFFENSIVE-ANALYTICS-REDESIGN.md).
+The new dashboard uses the settled [metric contracts](../serving/METRIC-SUITE.md)
+and current presentation catalog; the old notes do not reopen those decisions.
 
 ## Run locally
 
-All 20 measures now have a shared [presentation system](METRIC-NAMING-REVIEW.md):
+The 19 public measures have a shared [presentation system](METRIC-NAMING-REVIEW.md):
 plain-language names, questions, reading guides, units and six perspectives.
 The display catalog is `metric-presentation.json`. The API combines it with
 the analytical catalog without changing metric IDs, formulas, units used in
@@ -121,17 +124,14 @@ one to open its exact result and evidence without another query. **Back to
 dashboard** returns to the overview. Downloads preserve the complete response;
 changing dates immediately clears cards, details and downloads.
 
-The verified-example link selects August 25, 2026. TFS and Offensive Reach currently expose limited award-play
-results, while Adjudication Volatility covers explicitly resolved mapped
-reviews. The page labels those scopes independently of the full metric grain.
-Run Construction Depth also lists complete individual scoring histories when
-the selected promoted graphs contain reconciled C1 processes. Each card shows
-its episode count and trace; unresolved runs remain visible in coverage.
-The [nine-run proof](../benchmarks/metrics/c1-run-depth-2026-09-14/README.md)
-verifies the adapter and SQL before NiFi promotion.
-The [live dashboard capture](../benchmarks/metrics/dashboard-2026-09-14/README.md)
-shows 15 selected games, two metrics with individual play results, one scoped
-review metric, and 17 without scores. This is not full operation of all metrics.
+The example link selects August 25, 2026; availability depends on the published
+SQL build. The [nine-run proof](../benchmarks/metrics/c1-run-depth-2026-09-14/README.md)
+and [dashboard capture](../benchmarks/metrics/dashboard-2026-09-14/README.md)
+preserve the September 14 implementation evidence, when only limited award,
+review and scoring-history slices were available. They are historical snapshots.
+Use [metric readiness](../serving/METRIC-READINESS.md) for current qualified
+player populations and remaining gaps; a scoped play result is not a populated
+player leaderboard.
 
 Every metric has a **How this metric works** disclosure with a formula and a
 worked hypothetical example. TFS, PAQ-2, contribution diversity and review
@@ -157,7 +157,7 @@ with explicit IDs if labels are unavailable. Conflicting labels are not chosen
 arbitrarily. Annotations remain outside the metric value and evidence admission.
 
 `tests/metrics-browser-smoke.ps1` is a focused Windows check using isolated
-headless Chrome and the running Explorer. It verifies all twenty worked metric
+headless Chrome and the running Explorer. It verifies all nineteen worked metric
 explanations, their isolation from live results, the real example, one shared
 dashboard request, exact card details, request races and desktop/mobile
 presentation. It writes temporary screenshots and the actual dashboard response, and
@@ -297,7 +297,7 @@ Advanced, and Explore grains may be present for backfill and equivalence work,
 but their UI routes remain authoritative until admitted in
 [`../serving/contract.json`](../serving/contract.json).
 
-The current SQL-backed visible slice is Plate Appearance Quality/Good At Bat,
+The legacy Explorer's SQL-backed visible slice is Plate Appearance Quality/Good At Bat,
 including individual plate appearances, player averages, a contextual minimum
 plate-appearance threshold for those averages, and its admitted filter options.
 The threshold is applied to the compact SQL result in the Explorer and defaults

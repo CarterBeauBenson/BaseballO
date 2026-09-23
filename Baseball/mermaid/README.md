@@ -28,26 +28,14 @@ actual emitted graph can be compared.
 8. [Direct game import fallback](08-manual-game-import.md)
 9. [Generated discrete event patterns](patterns/README.md)
 
-## Current structural snapshot
+## Structural inventory and evidence
 
-| Measure | Revised mapping |
-| --- | ---: |
-| Logical sources | 98 |
-| Triples maps | 345 |
-| Referencing-object-map joins | 0 |
-| BaseballO classes used | 145 |
-| Undeclared BaseballO classes | 0 |
-| Review patterns | 60 |
-| Generated pattern pages | 120 |
+The generated [pattern catalog](patterns/README.md) owns the mapping fingerprint,
+triples-map assignment and pattern inventory. This overview deliberately does
+not maintain a second count that can become stale. Fixture counts and validation
+outcomes belong to dated NiFi evidence; historical fixture success does not
+establish that every later mapping revision or live population has passed.
 
-The generated [pattern catalog](patterns/README.md) records the current mapping
-fingerprint and triples-map assignment and is the authority when this summary
-and generated evidence disagree. Event and triple counts for individual
-fixtures belong in generated validation evidence rather than this hand-edited
-index.
-
-The end-to-end pinned RML processor and generated-RDF validator both pass on game 566279.
-The checked-in eight-game 2026-08-03 corpus also passes repository validation.
 Intentional walks follow the complete walk-process pattern. Terminal pickoff
 and caught-stealing outcomes that lack sufficient performer evidence stay in
 the explicit generic terminal-result pattern; the diagrams do not imply a more

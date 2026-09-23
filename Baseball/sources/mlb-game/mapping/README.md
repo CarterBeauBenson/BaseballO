@@ -116,10 +116,18 @@ execution-context, mapping, and output hashes are recorded.
 
 The mapping does not infer physical detail from a counted outcome alone.
 
-- Fielding-credit acts are deferred because credits lack stable ancestor-aware identity.
+- D1 maps separately described fielding, catching, throwing and tagging
+  performances with reconciled credits and persistent Fielder Roles. Credits
+  alone do not establish distinct acts or their order; unsupported performances
+  and incomplete populations remain explicit gaps. See the
+  [implemented contract](../review/defensive-acts.md).
 - Pickoff acts are deferred because a runner record does not identify the pitcher who performed the act.
 - Terminal pickoff and caught-stealing runner outcomes found in the current corpus remain explicit generic terminal-result structures. They are not silently promoted into performer-specific acts when the feed lacks the required agent evidence.
-- Ordinary fouls always produce FoulBallProcess. A distinct StrikeProcess is produced only for the unambiguous count.strikes equals 1 subset; the event-local feed cannot distinguish every second counted foul from an unchanged two-strike count.
+- Ordinary fouls produce FoulBallProcess. M1/M3 also map a distinct
+  StrikeProcess for first-strike fouls and fully reconciled one-to-two count
+  increments; M4 covers counted foul bunts. Prefix counters, identity and
+  participation must reconcile. An ordinary foul at a held two-strike count
+  creates no further StrikeProcess.
 - MLB pitch-code `buntAttemptStatus` semantics and in-play bunt trajectories
   create `BuntAct`; those pitches are excluded from every `SwingAct` source.
   A `sac_bunt` result remains only an institutional sacrifice classification.
@@ -127,8 +135,12 @@ The mapping does not infer physical detail from a counted outcome alone.
   and recognized result evidence separately gate its institutional result,
   judgment, decision, and result record. Administrative pseudo-plays do not
   create plate appearances.
-- Coordinate ICEs and designated batted-ball sites are created when hitData.coordinates exists, but coordX and coordY literals remain deferred pending approved datatype properties.
-- Non-pitch advisory events and measurement values remain deferred.
+- The field-relative `hitData.coordinates` pattern is disabled in the current
+  RML; its `coordX`/`coordY` values and geometry contract remain unresolved.
+  This is separate from venue geographic coordinates.
+- Explicit reconciled timer count awards have an accepted non-pitch pattern.
+  Other unsupported advisory events and measurement fields remain subject to
+  their individual coverage decisions in [the gap inventory](ontology-coverage-gaps.yaml).
 - Runner `movement.end` supports an institutional destination state, not a
   physical `BaseTouchingProcess`.
 - A passed-ball or wild-pitch classification is represented with the official

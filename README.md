@@ -67,10 +67,10 @@ routine execution and validation to NiFi.
 | Stores a prepared result such as `1 hit` | Stores the game events that can be queried to calculate the hit |
 | Has a fixed set of columns | Allows questions across pitches, swings, contact, calls, reviews, runners, teams, venues, and officials |
 | Usually treats a player-team relationship as one field | Represents the role a player had for a team in a specific game |
-| Often requires a custom table or ETL change for a new statistic | Builds new measurements from reviewed event patterns at query time |
+| Often requires a custom table or ETL change for a new statistic | Calculates reviewed measurements from RDF during NiFi builds and prepares SQL results for the dashboard |
 | Can make missing data and zero look the same | Can exclude a game when the required source records are incomplete or unrecognized |
 | Returns an aggregate with its definition hidden in code | Shows the measurement definition and generated query with the result |
-| Uses the summary table as the data being queried | Keeps the complete game representation and treats faster summaries as rebuildable copies |
+| Uses the summary table as the data being queried | Keeps supported game facts in RDF and treats faster summaries as rebuildable copies |
 
 A relational database could reproduce many of these features with enough
 tables, joins, rules, and custom code. The point is not that tables are
@@ -131,12 +131,13 @@ The local read-only Explorer supports:
 - click-to-sort result columns and CSV export; and
 - inspection of the generated query used to produce a result.
 
-PAQ-1.0 is retained for reproducibility, but its game-context input and formula
-are under review. Empty Games, Derived, Simple Explore, and the non-PAQ
-Advanced questions still use authoritative SPARQL and can be slow on the full
+PAQ-1.0 is retained for reproducibility, with its historical design concerns
+recorded separately from the settled new metric contracts. Empty Games, Derived,
+Simple Explore, and the non-PAQ Advanced questions still use authoritative SPARQL and can be slow on the full
 corpus until their SQL routes pass exact equivalence. See the
-[offensive analytics redesign](Baseball/web/OFFENSIVE-ANALYTICS-REDESIGN.md)
-for the current design boundary.
+[historical offensive analytics notes](Baseball/web/OFFENSIVE-ANALYTICS-REDESIGN.md)
+for the legacy concerns and [metric readiness](Baseball/serving/METRIC-READINESS.md)
+for the current dashboard work.
 
 The checked-in evidence corpus contains 546 distinct completed games dated
 July 14 through August 25, 2026, including one separately scoped All-Star Game.
@@ -271,7 +272,8 @@ powershell -ExecutionPolicy Bypass -File Baseball/scripts/infra/launch-explorer.
 
 See the [Explorer guide](Baseball/web/README.md) for more detail.
 The [worked metric examples](Baseball/web/metric-worked-examples.md) explain all
-20 new metrics with hypothetical inputs checked against their calculation code.
+19 public metrics with hypothetical inputs checked against their calculation code.
+The twentieth calculation, role realization breadth, remains backend information.
 
 ## Technical documentation
 

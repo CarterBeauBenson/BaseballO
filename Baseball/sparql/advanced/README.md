@@ -51,9 +51,12 @@ Outcome receives 80%, bounded grind 15%, and situation 5%.
 That paragraph documents the reproducible PAQ-1.0 contract; it is not an
 endorsement of the formula as the next version. The grind calculation can
 credit one pitch through several overlapping counts, and the game-context
-input is suspected to reconstruct starting state incorrectly. The replacement
-design is tracked in
+input is suspected to reconstruct starting state incorrectly. The historical
+diagnosis is retained in
 [`../../web/OFFENSIVE-ANALYTICS-REDESIGN.md`](../../web/OFFENSIVE-ANALYTICS-REDESIGN.md).
+The new dashboard follows the accepted
+[metric suite](../../serving/METRIC-SUITE.md), with availability tracked in
+[metric readiness](../../serving/METRIC-READINESS.md).
 Do not silently relabel PAQ-1.0 results as PAQ-2.0.
 
 The Explorer features this reviewed query as **Plate Appearance Quality** in

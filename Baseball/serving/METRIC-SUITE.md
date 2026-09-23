@@ -1,9 +1,16 @@
 # Graph-native metric suite
 
-This suite implements 20 metric calculations. It is separate from PAQ-1 and
+This suite implements 20 metric calculations: 19 public metrics and backend-only
+Role Realization Breadth. It is separate from PAQ-1 and
 the existing Empty Game Explorer queries. The canonical catalog and shared
 availability requirements are `sparql/metrics/metric-catalog.json` and
 `sparql/metrics/gap-register.json`.
+
+This is the calculation contract, not a live release report. Use
+[metric readiness](METRIC-READINESS.md) for current populations and pending SQL
+publication, and [component ownership](METRIC-SUITE-IMPLEMENTATION.md) for the
+implemented serving path. The dated implementation notes below preserve how
+the contract developed; their early limited-result captures are historical.
 
 ## Calculation contract
 
@@ -97,6 +104,19 @@ Positive running weights are now accepted; speed-based error attribution remains
 
 ## RDF, SQL and API
 
+The current dashboard uses the independent `materialize-dashboard.py` NiFi
+owner and prepared SQL. It selects 19 public metrics from the suite's 20
+calculations; the full report/legacy Explorer builder remains separate.
+See [implementation ownership](METRIC-SUITE-IMPLEMENTATION.md) for current
+tables, population preparation, readers and publication behavior.
+
+### Historical integration notes
+
+The versioned notes below preserve the earlier integration stages. Their
+limited-result captures, old single-builder ownership, SPARQL fallback and
+pending review language are historical. They do not describe the current
+dashboard request path or authorize another source refresh.
+
 Suite 2.0.9 adds **Run Construction Depth** for complete individual scoring
 histories explicitly represented by the accepted C1 personal process. The
 query inventories every member episode independently of movement bindings;
@@ -130,11 +150,10 @@ retains all three reviews and verifies exact SQL/RDF equivalence. The source
 mapping proof and this extraction proof do not establish a player population
 or the complete eligible, never-reviewed decision census.
 
-TFS also exposes the bounded award consequences documented below. Complete PA
-TFS and the other live adapters report their shared gap codes and observed evidence
-coverage. They do not create zero-filled player or PA rankings. The complete
-arithmetic implementations remain available for admitted fixtures while
-those source semantics await the consolidated review.
+At that stage TFS exposed the bounded award consequences documented below;
+broader adapters reported shared gap codes and observed evidence rather than
+zero-filled player or PA rankings. Later accepted integrations are recorded in
+the implementation guide; the remaining populations are in metric readiness.
 
 Suite version 2.0.2 composes that inventory with the accepted
 `sparql/metrics/runner-movement-evidence.rq`, scoped to the same explicit game
@@ -159,19 +178,16 @@ checks and fingerprints. Repeating a game replaces its own partition.
 Selection pools resolved review counts, rather than averaging game rates.
 The schema contains no proposal vocabulary.
 
-The existing `scripts/pipeline/materialize-serving-layer.py`, invoked by the
-MLB-game NiFi materialize stage, owns routine computation. Its immutable build
-and atomic promotion rules still apply. The suite fingerprint is recorded
-in build evidence and the serving pointer. A stale or incomplete build is
-rejected by `query-serving-layer.py`. No new source lane, acquisition schedule
-or topology is introduced. This implementation does not run a manual corpus
-build or wait on healthy asynchronous source proofs.
+The initial integration used `scripts/pipeline/materialize-serving-layer.py`
+for routine computation, with immutable builds, atomic promotion and suite
+fingerprints. The dashboard now has its independent owner described above;
+the full report builder retains its separate release.
 
 The Explorer exposes `/metrics`, `GET /api/metrics/catalog`, and
 `POST /api/metrics/query`. The latter accepts only `metricId`, `gameSet` and
-`dateScope`. It uses validated SQL when available and falls back to scoped
-authoritative SPARQL with the same reducer. The fallback reads existing RDF
-on user request; it never acquires or transforms source payloads. The UI shows
+`dateScope`. The original implementation used validated SQL when available
+and otherwise scoped authoritative SPARQL with the same reducer. Those early
+fallback captures are not evidence of the current dashboard path. The UI shows
 exact values, definitions, coverage, supporting evidence, unavailable reasons
 and downloadable results and gaps. Server-calculated scope/provenance remain
 attached to the result. The existing temporary game-set provenance dependency
@@ -182,14 +198,17 @@ The batch review is [here](../proposals/graph-native-metric-suite-batch-review/R
 ## Shared dashboard selection
 
 Suite 2.0.10 adds `POST /api/metrics/dashboard`, accepting only `gameSet` and
-`dateScope`. It selects all 20 existing metrics over one common evidence read.
-SQL checks each selected game's result for every metric, including checksums,
-then reads the game evidence once. The RDF fallback compiles and executes one
-canonical evidence query and invokes the same existing metric calculations.
-Every result matches an individual query over those bindings. The response
-preserves fractions, scope, coverage, evidence, graph count, implementation
-fingerprint and serving or RDF provenance. Missing or stale SQL still fails
-closed; requiring materialized results still disables fallback.
+`dateScope`. This historical implementation selected all 20 metrics over one
+common evidence read. SQL checked each selected game's result, including
+checksums, then read its evidence once. Its RDF fallback compiled and executed one
+canonical evidence query and invoked the same metric calculations.
+Every result matched an individual query over those bindings. The response
+preserved fractions, scope, coverage, evidence, graph count, implementation
+fingerprint and serving or RDF provenance. Requiring materialized results
+disabled fallback in that version.
+
+The current public dashboard exposes 19 cards and uses prepared SQL. The
+historical fallback path above is superseded for that interface.
 
 This is a read-only view within the existing metric-suite route and admission
 contract. Metric meanings, RML, source SHACL, ontology, source selection and
@@ -202,6 +221,11 @@ is separately checked with complete-run RDF fixtures and exact round trips;
 the live capture used authoritative RDF fallback, not a finished SQL refresh.
 
 ## September 9 accepted policy implementation
+
+The following sections record earlier implementation stages. Pending source
+reconciliation, live RDF fallback and refresh submissions describe those stages,
+not today's work queue. Current metric work starts from existing promoted RDF;
+these historical submissions do not authorize another source refresh.
 
 The [named answers](../archive/design-records/metric-suite-gap-answers-2026-09-09/decision.json)
 are reflected in the executable policy and catalog. `paq_a_population` forms
@@ -241,8 +265,9 @@ establish continuity for the same person with compatible endpoints and all
 events accounted for, provided no replacement, out, score or inning ending
 breaks the trajectory. Separate contribution episodes remain separate. Matching
 identifiers or adjacent rows alone are insufficient. C1/C2 subsequently accept the graph representation and projection described
-below. Source reconciliation remains pending, so the current helpers continue
-to require admitted histories and do not join raw source segments.
+below. Source reconciliation was pending at that stage. The helpers still
+require admitted histories and do not join raw source segments; current
+population status is recorded in metric readiness.
 
 The next evidence extraction increment retains `episode`, `safeJudgment`,
 `safeDecision` and `originRecord` from the canonical movement query through
@@ -275,9 +300,9 @@ credit. The complete-history flag is internal input admission, never a public
 API option or a conclusion drawn from mapped row counts.
 
 The [source contract](../sources/mlb-game/review/runner-continuity-source-contract.md)
-documents the required real-history evidence. No complete-history adapter or
-personal-whole RML source is fabricated from the existing incomplete evidence.
-Live dependent metrics therefore remain gated. C1/C2 themselves are accepted.
+documents the required real-history evidence. The accepted personal-whole RML
+and source reconciliation are implemented; particular incomplete histories
+remain withheld. C1/C2 acceptance does not certify every live population.
 
 ## First live award consequence
 

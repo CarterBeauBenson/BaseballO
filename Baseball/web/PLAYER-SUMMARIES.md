@@ -112,7 +112,9 @@ coverage. SQL counts remain projections of the canonical RDF query, including
 zero-PA roster members and distinct game/team pairs. Missing games or dates
 cannot lower the minimum. See the [real source/graph/SQL proof](../benchmarks/metrics/batting-admission-2026-09-15/README.md).
 
-This closes B1's implementation gate. It does not yet supply complete Offensive
-Reach scores: [B2's contact continuation decision](../proposals/contact-play-continuation-membership/README.md)
-remains open. Public cards therefore still withhold player rankings rather
-than presenting the qualified counts as metric scores.
+This closed B1's implementation gate. The subsequent
+[B2 contact continuation decision](../archive/design-records/contact-play-continuation-membership/README.md)
+is also accepted and implemented. Qualified counts alone are not metric scores:
+complete supported populations are still required for player rankings. See
+[current readiness](../serving/METRIC-READINESS.md) for the remaining inputs and
+publication status.

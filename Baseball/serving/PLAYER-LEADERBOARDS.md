@@ -143,5 +143,7 @@ not the full eligible running population. The card shows the minimum actually
 met. Scores carry `value: null`, `approximateValue`, and exact `channelCounts`;
 both the preview and expanded table support this representation.
 
-Source-proof recovery and corpus refresh remain separate prerequisites
-described in [production readiness](../infra/PRODUCTION-READINESS.md).
+The [current readiness record](METRIC-READINESS.md) separates pending SQL
+publication from exact missing or withheld inputs. Metric work starts from
+existing promoted RDF; source-proof recovery or corpus refresh is not a
+blanket prerequisite for serving or presentation changes.

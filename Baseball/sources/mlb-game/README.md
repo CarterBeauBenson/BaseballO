@@ -1,7 +1,8 @@
 # MLB game source module
 
-This module is the complete source-owned boundary for the MLB Stats API
-`feed/live` game response.
+This module owns the MLB Stats API `feed/live` game response boundary.
+Ownership does not establish that every API field or case is mapped; coverage
+is recorded separately in the source contract and mapping documentation.
 
 - [`schema/`](schema/) records the observed source contract.
 - [`mapping/`](mapping/) contains the only executable RML and source-field IRI
@@ -10,8 +11,8 @@ This module is the complete source-owned boundary for the MLB Stats API
 - [`review/`](review/) owns the reviewed pattern manifest used to generate the
   post-implementation Mermaid regression catalog and the machine-readable
   semantic-status record.
-- [`SEMANTIC-AUDIT.md`](SEMANTIC-AUDIT.md) records the current anti-flattening
-  review and the gates for extending coverage.
+- [`SEMANTIC-AUDIT.md`](SEMANTIC-AUDIT.md) preserves the original anti-flattening
+  review, its accepted resolution and the gates for extending coverage.
 
 NiFi owns acquisition, dependency ordering, isolated execution, validation,
 promotion, retry, and provenance for this module. Integration with other source

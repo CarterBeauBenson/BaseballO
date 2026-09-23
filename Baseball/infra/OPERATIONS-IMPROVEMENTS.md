@@ -23,11 +23,12 @@ identified; stale evidence is not relabeled as current.
 | Recovery | NiFi-owned consistent backup, separate-device export and isolated restore |
 | Maintenance | Clear group names, readable canvas, shared small provisioning helpers and accurate operational status |
 
-Live diagnosis: authority SQL has a September 4 orphaned lock and a saturated
-retry loop; long-lived replay commands sleep while waiting on SQL; old process
-records remain "running"; dashboard proof version mismatches mask earlier
+Initial diagnosis, before these changes: authority SQL had a September 4
+orphaned lock and a saturated retry loop; long-lived replay commands slept
+while waiting on SQL; old process
+records remained "running"; dashboard proof version mismatches masked earlier
 admission outcomes. Historical percentile computation and optional player-name
-SPARQL remain on the HTTP path. The workstation has approximately 11.3 GiB
+SPARQL remained on the HTTP path. The workstation had approximately 11.3 GiB
 usable RAM and had about 1 GiB available during the review.
 
 Changes are deployed incrementally through their NiFi owners. Successful
@@ -35,17 +36,21 @@ component checks are not repeated as a manual aggregate release gate.
 
 ## Delivery on September 23
 
+This is a dated delivery log. [Metric readiness](../serving/METRIC-READINESS.md)
+holds the current dashboard snapshot and next work; the later B1/Q7 completions
+supersede the pending-admission observations below.
+
 | Work | Implemented and deployed outcome | Runtime boundary |
 | --- | --- | --- |
-| Admission evidence | Source-owned five-minute worker; separate missing/stale/previously-withheld diagnoses; exact-input refresh with independent receipts | Latest inspected 100-game sweep: 92 lacked retained local RDF, eight lacked an exact retained RML manifest; zero refreshed. This does not mean Fuseki graphs are absent |
+| Admission evidence | Source-owned one-minute worker; separate missing/stale/previously-withheld diagnoses; exact-input refresh with independent receipts | Initial sweep found unavailable retained artifacts; the later bounded B1 path completed all four latest-day repairs against existing RDF. See metric readiness for publication status |
 | Authority SQL | OS lifetime lock replaces orphan-file locking; owned event folders only; retry edges no longer deadlock under backpressure; group renamed `Authority SQL` | Published 75 source graphs / 1,761 SQL result rows at 12:15 Eastern; queue drained |
 | Waiting and recovery | Pending replay requests return unchanged to penalized NiFi queues; exited-process progress becomes `interrupted`; durable resume for old stopped-but-active replay worker | Existing old waiters remain undisturbed until their named SQL dependency finishes |
-| Dashboard reads | Prepared SQL labels, historical reference ranks, cached immutable-release verification; server no longer issues SPARQL for SQL-result names | Initial dashboard SQL published 2,773 games at 12:55 Eastern; following automatic pass was preparing historical ranks |
+| Dashboard reads | Prepared SQL labels, historical reference ranks, cached immutable-release verification; server no longer issues SPARQL for SQL-result names | Prepared-label/reference implementation published at 13:55 Eastern for 2,773 games; later build status is in metric readiness |
 | Derived builds | Shared metric cache retains three versions per game; completed report SQL partitions survive failed candidates and resume in fresh candidates | Active immutable report build retains its old code; next NiFi report attempt adopts partitions without repeating unchanged source work |
 | Workload lanes | Priority 0 current, 10 selected repair, 20 historical; FIFO within each class across existing RML/SHACL/promotion queues | Deployed; existing worker counts retained within workstation memory limits |
 | SHACL execution | One Jena graph load per game; existing profile producers, report artifacts and independent outcomes retained | Published for the next source stage; no source corpus execution was started to test this engineering change |
 | Performance evidence | Per-phase dashboard durations, shared-Jena load/profile timings, query/calculation/report cache counters, memory-aware maintenance | Source refresh defers below 1.5 GiB available RAM; isolated restore requires at least 2 GiB |
-| Recovery | New `RDF Recovery` group, daily consistent backup/export and weekly isolated restore, one stage per timer tick, at most two failed attempts | Enabled; first run correctly reports `waiting-for-serving` while two SQL builds run. No completed new backup/restore claimed |
+| Recovery | New `RDF Recovery` group, daily consistent backup/export and weekly isolated restore, one stage per timer tick, at most two failed attempts | Enabled; the initial observation was `waiting-for-serving`. This delivery log does not establish a completed full-corpus backup/restore |
 | Maintenance | Named independent groups, shared small periodic-worker provisioner, updated runbooks, one-shot `status-stack.ps1 -Operations` | Status reads owner records and queues without starting or validating work |
 
 The read-only dashboard check returned `execution: materialized-sql`, selected
@@ -149,7 +154,9 @@ or the 15-minute batch schedule. Dashboard checkpoints now distinguish changes
 to compatibility provenance from actual proof, RDF and calculation inputs;
 metadata-only updates preserve prepared scores and historical reference ranks.
 Focused checks passed: nine evidence-reader/retained-input checks and seven
-dashboard publication/checkpoint checks. Live new admissions are still pending.
+dashboard publication/checkpoint checks. NiFi subsequently completed all four
+latest-day B1 repairs. SQL consumption and the separate Q7 history additions
+are tracked in [metric readiness](../serving/METRIC-READINESS.md).
 
 Focused checks covered authority recovery, queued readiness, exited-worker
 reconciliation, exact cache reuse and corruption fallback, SQL-only names,

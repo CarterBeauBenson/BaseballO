@@ -19,8 +19,9 @@ that specific gap and continue supported work; do not initiate a source
 refresh to make every metric complete. Authorized RDF additions stay targeted.
 The [minimal-check policy](../../AGENTS.md#incremental-work-and-minimal-manual-validation)
 limits manual checks to the edited behavior and leaves repeatable validation
-to NiFi. This is an operating rule, not a claim that the current source-recovery
-code already supports targeted additions.
+to NiFi. The source-owned [Q7 history addition worker](../sources/mlb-game/pipeline/TARGETED-HISTORY-ADDITION.md)
+implements the approved targeted addition. The general game recovery path still
+performs whole-game replacement and is not a default prerequisite for metric work.
 
 ## Required serving design
 
@@ -42,8 +43,9 @@ reference ranks for each historical date cutoff. The dashboard reader selects
 the matching retained population; it never calculates missing ranks on a
 request. The reader still pools projected observations and checks participation
 and population completeness, so selected-range queries are not constant-time.
-These changes take effect through the next dashboard SQL publication. Existing
-in-flight builds keep their captured implementation and finish undisturbed.
+Each publication captures its implementation; in-flight builds finish with
+that version. See [metric readiness](METRIC-READINESS.md) for the last observed
+published build and changes still awaiting SQL publication.
 
 An unhandled case in an existing MLB field belongs to that source lane's
 mapping-coverage debt. It does not establish a new source, and successful
@@ -59,7 +61,8 @@ facts separately; any authorized correction must stay targeted.
 | `serving/metric_suite.py` | Exact calculations, evidence consumers, per-game products and selected-period player summaries |
 | `serving/metric_blocks.py` | Indexed analytical inputs, pooled game summaries, reference-rank retention and input diagnostics |
 | `serving/metric-suite-schema.sql` | Evidence, current proofs, analytical observations, exact results and their hashes |
-| `scripts/pipeline/materialize-serving-layer.py` | Validated graph snapshot, immutable SQL candidate, integrity checks and atomic publication |
+| `scripts/pipeline/materialize-dashboard.py` | Dashboard game products, labels, historical reference ranks and independent immutable SQL publication |
+| `scripts/pipeline/materialize-serving-layer.py` | Full report/legacy Explorer SQL, resumable partitions, integrity checks and independent atomic publication |
 | `scripts/pipeline/serving_release.py` | Committed code capture and matching SQL reader release |
 | `scripts/pipeline/serving_query_cache.py` | Exact SELECT reuse for unchanged promoted graph pairs |
 | `scripts/pipeline/serving_metric_cache.py` | Per-game calculation reuse for identical evidence, current validated proofs and calculation code |

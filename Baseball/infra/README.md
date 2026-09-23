@@ -35,18 +35,17 @@ By default, binaries and mutable state live under `%LOCALAPPDATA%\BaseballO`, ou
     |   |-- flow\
     |   `-- secrets\
     |-- pipeline\
-        |-- inbox\
-        |-- staging\
-        |-- transient\
-        |-- raw\
-        |-- manifests\
-        |-- evidence\
-        |-- events\promoted-graphs\
-        |-- work\
-        |-- rdf\
-        `-- quarantine\
+    |   |-- transient\
+    |   |-- manifests\
+    |   |-- evidence\
+    |   |-- events\promoted-graphs\
+    |   |-- work\
+    |   |-- rdf\
+    |   |-- control\
+    |   `-- quarantine\
     `-- serving\
         |-- builds\
+        |-- dashboard\
         |-- authority\
         `-- equivalence\
 ```

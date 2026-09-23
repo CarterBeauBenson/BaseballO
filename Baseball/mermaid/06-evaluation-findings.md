@@ -1,32 +1,32 @@
 # Implemented shape and retained gaps
 
-```mermaid
-flowchart TB
-    CURRENT["processor-proven revised RML"] --> DONE["implemented"]
-    CURRENT --> GAP["retained boundary"]
-    DONE --> D1["distinct act, physical, judgment, decision, call, result, record, time, site, role, and artifact IRIs"]
-    DONE --> D2["pitch and batted-ball physical chains"]
-    DONE --> D3["constitutive adjudication for counted outcomes"]
-    DONE --> D4["game-scoped roles and neutral runner-act paths"]
-    DONE --> D5["foul-tip and strike share one counted individual"]
-    DONE --> D6["sac_bunt maps BuntAct instead of SwingAct"]
-    DONE --> D7["disposable ancestor context replaces incomplete nested joins"]
-    DONE --> D8["replay records preserve distinct decisions, review results, and final outcomes"]
-    DONE --> D9["null runner placeholders remain records while passed-ball, wild-pitch, and uncaught-third-strike patterns stay distinct"]
-    GAP --> G2["fielding credits lack ancestor-aware act identity"]
-    GAP --> G3["ambiguous two-strike foul count"]
-    GAP --> G4["coordinate values lack approved datatype properties"]
-    GAP --> G5["non-pitch advisory action identity and class coverage"]
-    GAP --> G6["non-pitch reviews do not identify the individual base umpire"]
-```
+The [generated catalog](patterns/README.md) describes the current RML maps and
+their exact graph patterns. This overview summarizes those implementations;
+it does not replace source-owned validation or claim complete API coverage.
 
-The prior direct mapping was processor-proven for the tracked completed-game
-sample. The contact-play and resolution/award additions have focused component checks;
-current-hash NiFi proof must supply terminal evidence before those additions
-are described as processor-proven.
-Static validation reports 354 Triples Maps, 103 logical sources, no
-referencing-object joins, and no undeclared BaseballO classes. Generated-RDF
-validation enforces complete ancestor context on all 282 pitches, all 134
-swing/bunt acts, and all 112 contacts; a single terminal game timestamp;
-pitch-motion and contact chains; institutional judgment; shared
-foul-tip/strike identity; fair-result sequencing; and source-record separation.
+| Implemented pattern | Boundary retained |
+| --- | --- |
+| Distinct acts, physical processes, judgments, decisions, calls, results, records, times, sites, roles and artifacts | A counted outcome alone does not establish every physical act |
+| Persistent person-and-role identities; game-scoped home/away team roles | Source evidence still controls realization and temporal boundaries |
+| Bunt acts from supported pitch codes or in-play bunt trajectories | A `sac_bunt` result alone is an institutional classification, not evidence of the physical act |
+| D1 defensive performances with actual agents, persistent Fielder Roles and reconciled credits | Credits alone do not establish separate performances or strict order; complete defensive populations remain conditional |
+| Counted ordinary fouls and foul bunts under M1/M3/M4 | Prefix counts, identity and participation must reconcile; a held two-strike ordinary foul adds no strike |
+| Replay decisions, reviews and operative-outcome evidence | Particular officials, original decisions and complete eligible review populations require their own evidence |
+| Runner episodes, personal histories and supported boundaries | Ambiguous or incomplete histories remain withheld; Q7 isolates the specifically approved zero-episode case |
+| Explicit timer count awards and distinct extra-inning placement adjudication | No physical pitch, movement or positive running credit is inferred from an administrative placement |
+| Institutional passed-ball/wild-pitch classifications and uncaught-third-strike patterns | No physical control failure or safe/out resolution is inferred solely from those labels |
+
+The field-relative hit-coordinate pattern is disabled pending its source and
+modeling decisions. Other advisory events and unhandled cases remain
+field-level coverage debt, not permission to invent a class or an assertion.
+
+See the [mapping boundaries](../sources/mlb-game/mapping/README.md#conservative-source-boundaries),
+[D1 implementation](../sources/mlb-game/review/defensive-acts.md), and
+[Q7 targeted addition](../sources/mlb-game/pipeline/TARGETED-HISTORY-ADDITION.md).
+The [metric readiness record](../serving/METRIC-READINESS.md) separates concrete
+count, runner-boundary, defense and review gaps from fixes awaiting SQL publication.
+
+Historical fixture success belongs to its recorded mapping fingerprint and
+dated evidence. Current counts come from the generated catalog; current runtime
+outcomes come from the owning NiFi stage. Neither successful graph promotion nor
+implemented arithmetic establishes a complete player leaderboard.

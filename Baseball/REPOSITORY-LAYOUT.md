@@ -27,7 +27,7 @@ that prefix.
 | `sparql/` | Single-source, multi-source, and derived integration/query contracts | Ingestion transformations |
 | `shacl/` | Source-neutral derived-layer shapes | Source-authoritative shapes |
 | `serving/` | Rebuildable analytical SQL contract | Authoritative facts |
-| `web/` | Explorer application and allowlisted query builders | Ontology or ingestion semantics |
+| `web/` | Metric dashboard, legacy Explorer and allowlisted query builders | Ontology or ingestion semantics |
 | `infra/` | Versioned NiFi/Fuseki configuration and operational contracts | Pipeline implementation code |
 | `scripts/` | Executable bootstrap, pipeline, reasoning, and validation code | Mutable runtime state |
 | `data/` | Checked-in immutable evidence fixtures only | Future API accumulation or generated RDF |

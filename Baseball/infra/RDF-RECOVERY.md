@@ -1,9 +1,15 @@
 # RDF backup and isolated restore
 
-The recovery component implements explicit stages for NiFi to invoke. It does
-not schedule backups, remove retained data, or replace a live TDB2 directory.
-The off-machine destination, retention policy and recurring NiFi wiring are
-still unset. No full production backup or workstation recovery is claimed.
+The recovery component implements explicit stages invoked by NiFi's `RDF
+Recovery` group. Its owner now schedules daily backup/export and weekly isolated
+restore, with bounded retries and retention. It never replaces the live TDB2
+directory. The configured export is on the workstation's C: drive, separate
+from the D: RDF drive; off-machine recovery remains unconfigured. Enabling this
+owner does not establish that a full production restore has completed.
+
+The [September 23 operating record](OPERATIONS-IMPROVEMENTS.md#recovery-storage-and-operating-limits)
+documents paths, free-space requirements, two-export/two-restore retention and
+deferral while SQL builds are active.
 
 `scripts/pipeline/rdf-recovery.py` uses Fuseki's asynchronous backup API and
 gzip N-Quads output. See the [Fuseki administration protocol](https://jena.apache.org/documentation/fuseki2/fuseki-server-protocol.html).
@@ -65,9 +71,9 @@ Authoritative RDF must remain paired with its retained source and promotion
 evidence before a replacement installation can safely resume ingestion or
 rebuild serving. Git alone does not contain that runtime evidence.
 
-Before declaring disaster recovery operational, choose a destination, RPO/RTO,
-retention and account access; configure the NiFi owner; preserve the required
-runtime evidence and protected configuration; then restore the actual corpus
+Before declaring full disaster recovery operational, choose an off-machine
+destination, RPO/RTO and account access; preserve the required runtime evidence
+and protected configuration; then restore the actual corpus
 and its evidence on an isolated replacement. Credential protection and actual
 off-machine access must be verified there. This component does not silently
 copy secrets or claim that RDF alone restores the whole application.

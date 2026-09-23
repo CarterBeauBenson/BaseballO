@@ -1,204 +1,75 @@
-# Nineteen public metrics: release status
+# Nineteen public metrics: current readiness
 
-This is the current implementation and release checklist. Historical component
-proofs live in `benchmarks/metrics/`; they are not live readiness certificates.
+**The dashboard is not fully populated.** Seventeen public metrics have conditional
+player producers; the two review player integrations remain unfinished. Twenty
+calculation kernels exist, including backend-only Role Realization Breadth.
 
-**The dashboard is not fully populated.** Seventeen public metrics have
-conditional player producers. The two review player integrations remain
-unfinished. All twenty calculation kernels exist; Role Realization Breadth
-is the backend-only twentieth metric.
+## Last verified publication
 
-September 23 operational update: the independent dashboard builder published
-`20260923T150540Z-dashboard-50eab993cb66` at 12:55 Eastern with 2,773 games.
-A subsequent live dashboard request selected 15 games from SQL and returned
-**0/19 populated boards**. Publication therefore resolves neither the retained
-admission-evidence gaps nor the unfinished review populations below. The
-following automatic build was preparing the newly implemented player labels
-and historical reference ranks. Authority SQL separately published 1,761 rows
-from 75 source graphs. See the [operational delivery record](../infra/OPERATIONS-IMPROVEMENTS.md)
-for deployed changes and their remaining runtime limits.
+Read-only check on September 23, 2026, at 17:19 Eastern:
 
-The subsequent evidence diagnosis separated genuine withholding from unrelated
-Q5 fingerprint drift. Exact code-equivalent reuse is implemented for three
-unchanged proof families, preserving the original status and fingerprint.
-For inspected game 822680 this restores admitted runner-resolution evidence;
-pitch-count and defense remain withheld for their original coverage reasons,
-and runner-boundary remains unresolved. This has not yet established populated
-live player cards. The next automatic dashboard build consumes the correction.
-Exact pre-T1 admitted batting, scoring-run and runner-resolution proofs can
-also be reused when their retained census passes the original stricter
-zero-issue condition. Real game 822682 recovered all three admissions through
-this path. Their original fingerprints and status remain in SQL provenance;
-this is not a new conformance claim for a previously withheld graph.
+| Surface | Recorded result |
+| --- | --- |
+| Published dashboard | `20260923T175511Z-dashboard-4ca9b33c4b25`, published at 15:29 Eastern, 2,773 games |
+| Default selection | September 16, 15 regular-season games |
+| Service readiness | HTTP 200, `materialized-serving` |
+| Player leaderboards | **0/19 populated; 0/19 complete populations; dashboard ready=false** |
+| Latest fixes | Implemented and pushed; publication in the dashboard remains pending |
 
-The 13:55 Eastern publication, `20260923T165557Z-dashboard-f5ce432061b9`,
-contains 2,773 games and the prepared-label/reference implementation. A fresh
-live default request still returned 0/19 populated leaderboards for September
-16. It predates the evidence-reuse fixes; the next NiFi build adopts those
-automatically. Positive-only reuse now also covers exact earlier pitch-count
-and runner-boundary implementations. The original admitted boundary proofs
-for games 823979, 824140 and 824626 load successfully; original withholding in
-the other twelve selected games remains unresolved.
+The healthy SQL service and unavailable player populations are separate facts.
+The current pointer is `state/serving/dashboard-current.json`; the independent
+builder records progress in `state/serving/dashboard/progress.json`. Read those
+owner records for a later state. Do not infer publication from a submitted job,
+a source graph count or a successful component test.
+
+## Completed repairs awaiting dashboard publication
+
+- Exact compatible-proof reuse separates unrelated context-code changes from
+  actual proof changes. It retains original statuses and fingerprints; prior
+  withheld proofs are not promoted to admitted by compatibility alone.
+- NiFi refreshed all four latest-day B1 failures (823004, 823655, 823979, 824140)
+  from retained single-batter participation evidence through the unchanged B1
+  SHACL. All 15 selected-day games now have usable official-PA admissions.
+- [Q7](../archive/design-records/mlb-game-zero-episode-history-isolation/README.md)
+  completed at 17:05 Eastern. Game 822846 gained four histories / 26 triples
+  (promotion `c13a55c7232c413ead2f9376401530cd`); game 824467 gained three histories /
+  23 triples (promotion `c01906024ee84e54bbf23e37d7c42410`). Both passed source SHACL
+  and query-index equivalence and emitted promotion events. The two omitted
+  scoring-history links are repaired. Zero-episode runners and other incomplete
+  half-innings stay withheld. The temporary repair timer is stopped.
+- Contribution reduction handles complete multi-segment paths with independent
+  advances kept separate. All 86 official PAs in the retained game 823979
+  component check calculate; exact arithmetic is reused across identical
+  numerical cases without caching player identity or admission decisions.
+- Binary batting progress and per-player Empty Game certainty no longer depend
+  on unrelated unknown running ownership. The retained September 16 component
+  check resolved progress in 7/15 games and Empty Games in 13/15 games. Those
+  component counts precede Q7's graph additions and are not a new live SQL claim.
+- Dashboard SQL retains reusable game products, prepared names and historical
+  reference ranks. Admission-only bookkeeping preserves unchanged calculations;
+  source drift retains committed work for the next NiFi tick.
+
+The complete earlier diagnosis and dated build history are retained in the
+[September 23 history](../archive/operational-history/2026-09-23/METRIC-READINESS.md).
+The [operational delivery record](../infra/OPERATIONS-IMPROVEMENTS.md) describes
+worker ownership; [build reuse](BUILD-REUSE.md) describes invalidation.
 
 ## Next work from the September 23 live check
 
-Use this list with the delivery order below. Operational implementation is
-tracked separately in the linked operations record; no new RDF rebuild is
-authorized by either list.
-
-1. Confirm the next NiFi dashboard publication consumes the proof-reuse fixes
-   and inspect qualified-player rows. The last live result remains 0/19.
-2. Diagnose these four existing B1 failures against retained source censuses
-   and promoted RDF. All eleven other selected games have admitted official
-   PA proofs. These are actual retained withholding reasons, not generic
-   missing-evidence claims:
-
-   | Game | PA index | Event index | Retained issue |
-   | --- | --- | --- | --- |
-   | 823004 | 78 | 7 | `OFFENSIVE_REPLACEMENT_WITHIN_TURN` |
-   | 823655 | 55; 98 | 5; 1 | `OFFENSIVE_REPLACEMENT_WITHIN_TURN` |
-   | 823979 | 69 | 1 | `OFFENSIVE_REPLACEMENT_WITHIN_TURN` |
-   | 824140 | 55 | 0; 3 | `OFFENSIVE_REPLACEMENT_WITHIN_TURN` |
-
-   Q4/Q5 establish actual batting participation; they do not independently
-   assign ambiguous official PA credit. Keep that distinction when fixing the
-   adapter or recording the exact remaining graph contract gap.
-
-   Follow-through: all four retained manifests contain exactly one actual
-   batter per turn, matching every member in the retained B1 census; every
-   player's independent PA total already reconciles. The checker had rejected
-   substitution records despite this complete single-batter evidence. The
-   source-owned maintenance worker now compares these exact retained source
-   projections and runs the unchanged B1 SHACL over a read-only export of the
-   promoted game. It preserves the original failed proof and publishes a
-   separate adapter-versioned result. Multiple actual batters, unsupported
-   context revisions, mismatched player totals or graph failures remain
-   withheld. NiFi has now refreshed and admitted all four games through the
-   unchanged B1 SHACL. All 15 selected-day games therefore have usable official
-   PA admissions. Dashboard publication must still consume those results;
-   admission alone is not a populated leaderboard claim.
-3. Resolve the independent retained count, runner-boundary and defensive
-   failures by their owning stage. The latest day has four admitted count
-   proofs and three admitted boundary proofs after compatible reuse. The
-   remaining boundary issues include PA-start timing, personal histories and
-   award attribution. Do not equate those issues with absent provider fields.
-4. Complete the two review-player integrations from supported graph inputs;
-   then verify named player rows and expanded details for all 19 cards.
-
-The dashboard now updates code-compatibility provenance separately from game
-calculations. Existing checkpoints migrate only when their full old identity
-matches the stored proofs and the same RDF, dimensions and calculation version.
-Changes to outcomes or original proof contents refresh the affected admission
-inputs using the existing calculators and retained SQL evidence. Unchanged
-game kernels and observations are preserved; changed RDF, dimensions or math
-still require game materialization. A compatibility-record edit alone does not
-reprocess the season. The shared live graph check can also be reused while
-Fuseki reports the same restart identity and write counters; see
-[build reuse](BUILD-REUSE.md).
-
-The remaining two latest-day run-construction-depth histories are covered by
-the accepted [Q7 decision](../archive/design-records/mlb-game-zero-episode-history-isolation/README.md).
-The user approved it on September 23 after the exact cases were explained.
-The selection fix and source-owned additive worker are implemented. The worker
-is restricted to the two approved promotions, slices the three unchanged RML
-history maps, validates the resulting graph with the owning SHACL profiles,
-and adds the missing triples with Graph Store POST. It preserves incomplete
-population statuses and original source-proof identities, with a separate
-graph-revalidation receipt. The existing graph-pair recovery and promotion
-event drive the affected query-index and SQL updates.
-
-NiFi completed both additions at 17:05 Eastern on September 23: game 822846
-gained four histories / 26 triples (promotion `c13a55c7232c413ead2f9376401530cd`),
-and game 824467 gained three histories / 23 triples (promotion
-`c01906024ee84e54bbf23e37d7c42410`). Both passed source SHACL and query-index
-equivalence and emitted their normal promotion events. This repairs the two
-missing scoring-history links and five other independently complete histories.
-The zero-episode runners and other unresolved half-innings remain withheld.
-The first attempt exposed timestamp lexical normalization in the export;
-recovery restored the original graph pairs, and the corrected export preserves
-all existing RDF terms exactly. SQL/dashboard publication of these additions
-is still pending; these graph results are not a populated leaderboard claim.
-
-At 15:29 Eastern, NiFi published
-`20260923T175511Z-dashboard-4ca9b33c4b25`. The default September 16 request
-reported 560 ms of SQL execution but still **0/19 populated cards**. This
-immutable release predates the new admission reader and the four B1 repairs.
-Its full source checks took about 18 minutes at startup and 17 minutes at
-publication; the newly deployed write-counter cache addresses repeated scans.
-
-Retained SQL exposed a separate progress-calculation defect in three PAs:
-822926/14, 823332/35 and 824306/49. An admitted independent steal or wild-pitch
-prefix followed by two contact segments was rejected by the progress reducer,
-although the contribution reducer already supports that exact C1 history.
-Progress now delegates that separation to the existing helper. All three
-recorded cases resolve using unchanged retained graph evidence, with reach 2
-and separate runner credit. Fifteen focused tests cover terminal outs,
-steal/PB/WP prefixes, exact history membership and binding-order independence.
-NiFi must still publish these derived calculation changes. Other attribution
-gaps and the two Q7 histories are not resolved by this fix.
-
-The next focused diagnosis closed two more contribution defects in game
-823979. PA 43 has a fielder's-choice result and a runner's two uncredited
-positive segments; PA 54 has successive passed-ball and wild-pitch advances
-before a walk. Both already had complete C1 membership, runner boundaries and
-official PA admission. The reducer now applies its existing single-segment
-rules to their exact multi-segment paths: actual endpoints are retained,
-independent positives remain separate, and unknown attribution does not become
-batter credit. PA 43 scores 0; PA 54 scores 1/4 for the walk. **All 86 official
-PAs in this game now calculate completely** against retained SQL evidence and
-current promotion-bound admissions. This is a component result, not a claim
-that the selected day's other games or the published cards are complete.
-Uncertain immediate comparison states and independent damage coverage remain
-withheld separately. Missing members, branching paths and unsupported outs
-still fail the existing completeness rules.
-
-The 15:42 Eastern dashboard attempt encountered actual new game promotions
-while capturing its snapshot. This overlap now returns `waiting-for-source`
-through the existing one-minute NiFi owner, preserving both the published SQL
-and completed game checkpoints. It does not publish a mixed snapshot or treat
-ordinary concurrent ingestion as a broken metric build.
-
-A further progress repair separates binary batting progress from unknown
-running ownership. An excluded fielder's-choice/error batting contribution is
-zero under the accepted policy. An explicitly attributed positive contact step
-also stays positive across a complete, nonbranching C1 path containing only
-safe/scoring steps, even when another step's ownership is unknown. This does
-not assign the unknown step to the batter, supply a TFS magnitude, or classify
-independent running. Empty Games and Contribution Mix retain their separate
-unknown-running gap. Missing C1 members, branches and outs cannot use this
-projection. Seventeen focused progress tests pass, including SQL equivalence.
-Against the retained September 16 SQL evidence, this resolves seven more PAs:
-822763/49, 823004/49 and /60, 823576/6 and /33, 823979/43, and 824382/20.
-Seven of the fifteen games now have complete binary batting-progress inputs;
-twelve PAs across the other eight games remain unresolved. This is component
-evidence pending NiFi publication, not a complete selected-period leaderboard.
-
-Empty Games now evaluates certainty per eligible player-game instead of
-requiring unrelated contribution details to resolve first. A confirmed positive
-makes the game nonempty regardless of other uncertain positives. The reducer
-retains every official PA, bounds each unresolved PA's possible beneficiaries,
-and withholds the whole selected population if any eligible classification can
-still change. A positive in another game cannot settle this game's result.
-An independently supported single-segment batter reach also remains certain
-when only a different runner's attribution is unresolved; path/identity/state
-failures do not retain partial credit. These changes do not complete any
-unresolved contribution magnitude or channel inventory.
-
-Focused checks against retained September 16 SQL and current B1 admissions now
-resolve Empty Game classifications in **13 of 15 games**, including all 19
-eligible players in game 824306 despite its still-unresolved PA 77 progress
-population. Two classifications remain uncertain: player 681508 in game
-822846 (PA 37's other-runner contribution ownership), and player 670770 in
-game 824467 (PA 65's contribution ownership). The default day therefore remains
-withheld as a whole. Twenty focused progress tests cover the new reducer,
-retained denominators, negative cases and SQL equivalence. This is component
-evidence, not live dashboard publication.
+1. Publish and inspect the SQL results incorporating the completed repairs.
+   Confirm scoring histories and named qualified-player rows in the actual
+   dashboard, rather than treating the old release's gaps as new source failures.
+2. Continue contribution/Empty Game attribution diagnosis. The retained component
+   check left player 681508 in game 822846 (PA 37) and player 670770 in game 824467
+   (PA 65) uncertain. Reassess against the updated promoted graphs before deciding
+   that another source addition is required.
+3. Resolve the precise count and PA-boundary cases and the defensive/review
+   populations below. These independent gaps do not authorize a corpus rebuild.
 
 ### Specific remaining count and review evidence
 
-The retained pitch-count censuses for 822680, 822763 and 824140 reconcile
-without source issues. Their Jena reports identify absent counted-foul Strike
-Processes, not missing pitch responses. The exact examples are:
+These retained pitch-count censuses reconcile without source issues. Their
+Jena reports identify absent counted-foul Strike Processes:
 
 | Game / PA | Pitch ID | Retained mapping-selection reason |
 | --- | --- | --- |
@@ -207,71 +78,21 @@ Processes, not missing pitch responses. The exact examples are:
 | 824140 / 0 | `b0dc5b87-ff42-3aab-978a-1f0ca7158498` | `UNEXPLAINED_COUNTER_TRANSITION` |
 | 824140 / 58 | `8959d67e-434d-377b-a830-d61ff751ea7b` | `SUBSTITUTION_IN_PREFIX` |
 
-M3/M4 admits specific positively reconciled prefix cases, not arbitrary
-substitutions or unexplained transitions. These cases need their exact
-retained prefix evidence resolved before a targeted addition; do not suppress
-the SHACL failure, rerun the whole game, or reacquire the season.
+M3/M4 admits specific positively reconciled prefixes. Resolve these exact cases
+before any targeted addition; an unexplained transition is not covered merely
+by the presence of a foul record. Boundary admissions separately depend on
+supported PA-start states, clocks, replacements and review effects. Q7 does
+not admit whole half-inning boundary populations.
 
-September 23 research also narrows the review investigation. MLB's
-[ABS metric documentation](https://baseballsavant.mlb.com/abs-metrics-documentation)
-defines challenge opportunity by a called pitch, the adverse call, remaining
-challenge availability, and exclusions for position-player pitching and
-technical outages. This supports the already accepted decision-time
-eligibility requirement. A final challenge counter or a list of reviewed
-pitches alone does not establish the complete never-reviewed denominator.
-The retained `review-inventory.json` explicitly remains diagnostic, with no
-graph-conformance or metric-population admission; it cannot be silently used
-as one. MLB's [ABS dashboard](https://baseballsavant.mlb.com/abs) distinguishes
-the initiating player from the opponent affected by an overturn. Provider
-challenge rankings therefore cannot directly replace our affected-player
-metric. This research changes no source mapping or metric definition.
-
-The [Statcast CSV documentation](https://baseballsavant.mlb.com/csv-docs)
-defines `hit_location` as the first fielder's position. That is not an ordered
-inventory of all fielding, throwing, catching and tagging acts. These docs do
-not close D1's complete-sequence requirement; broader data availability remains
-a source investigation, not a basis for asserting that no evidence exists.
-
-## Earlier release evidence
-
-The September 16 live check returned HTTP 200 in 16.8 seconds for
-August 25 from SQL, with all 15 scheduled games selected and **zero populated
-player leaderboards**. The new coverage report explicitly returned `ready:false`
-and 19 unavailable player boards. The active SQL build was
-`20260917T001611Z-1122c341fcc2`, paired with code `4828061`; publication of the
-subsequent serving and source fixes has not been established by these checks.
-NiFi's already queued season refresh had advanced to its proof stage. An HTTP
-200 or a completed SQL build does not establish populated player cards.
-
-The initial request after that SQL publication hit HTTP 503; a direct read and
-the subsequent HTTP check succeeded. A newly published 12.3 GB database was
-being checksum-verified inside the first request's 30-second deadline. The
-materializer now prepares a separate verified receipt for each database before
-publication, with the same complete hash and file-identity checks. This fix
-applies to subsequent NiFi builds; it does not manufacture metric populations.
-
-Metric suite 2.1 moves reusable participation and analytical observations into
-indexed SQL and prepares admitted season ranks during NiFi builds. On one
-already promoted game, the stored-input reader matched all 20 existing metric
-responses exactly and took 48.688 ms versus 676.928 ms for the evidence reader.
-The [bounded proof](../benchmarks/metrics/sql-building-blocks-2026-09-16/README.md)
-records its current withheld admissions. This is reader correctness and timing
-evidence, not a claim that the live dashboard or reference season is complete.
-`buildingBlockCoverage` now distinguishes each input family's projection counts
-and gaps; those diagnostics supplement the player-population report.
-
-On September 17, NiFi's source proof completed and the season refresh reached
-`waiting-batch`. The August 25 dashboard still returned 0/19 populated boards
-from build `20260917T012319Z-89e828146695` (code `f0f6dbd`), with 15 games and
-8,789 ms reported SQL duration. The next stored-input release was not yet live.
-
-The pending season manifest also exposed an independent calendar defect: one
-explicitly postponed May game carried a September 22 makeup `officialDate`,
-causing all 258 requested dates to be marked incomplete despite reconciled
-response totals. The [schedule correction proof](../benchmarks/metrics/schedule-qualification-2026-09-17/README.md)
-retains all 2,788 occurrences and restores transport completeness. The existing
-NiFi worker now repairs affected coverage using separate immutable snapshots,
-without restarting game mapping. Actual graph and player admissions still apply.
+The retained review inventory is diagnostic. It does not establish a complete
+eligible never-reviewed denominator, decision-time challenge availability or
+all affected-player/mechanism populations. September 23 research sources remain
+[MLB ABS metric documentation](https://baseballsavant.mlb.com/abs-metrics-documentation)
+and the [MLB ABS dashboard](https://baseballsavant.mlb.com/abs). The complete
+ordered defensive-act inventory also remains unresolved; the first-fielder
+`hit_location` in the [Statcast documentation](https://baseballsavant.mlb.com/csv-docs)
+does not establish every fielding, throwing, catching and tagging act. These
+are exact graph/population gaps, not claims that the provider has no evidence.
 
 ## How to check the actual release
 
@@ -304,7 +125,7 @@ from missing evidence; it does not justify lowering the minimum.
 | Runner Out Rate | Implemented conditionally | Complete runner-on-base eligibility and attributed existing-runner outs; independent changes cannot be charged to the batter |
 | Runner Loss per PA | Implemented conditionally | Same complete eligibility and outcome ownership; exact direct-loss weights retained |
 | Scoring Opportunity Lost | Implemented conditionally | Complete admitted PA boundaries and attributed outs; actual ends and third-out stranding retained |
-| Empty Games | Implemented conditionally | Complete official PAs and positive batting/running channels; retained game count |
+| Empty Games | Implemented conditionally | Certain classification for every eligible player-game; retain all official PAs and the game count |
 | Empty Game Damage | Implemented conditionally | Complete Empty Game classification and negative PA contributions; successful independent steals are assigned to their runner across PAs. Separate independent damaging episodes, unknown running ownership and interrupted turns remain gated |
 | Contribution Mix | Implemented conditionally | Complete positive play/channel inventory and separate running-attempt qualification |
 | Two-Strike Extension Rank | Implemented conditionally | Complete pitch/count and B1 admissions for every reference-season game, plus independent schedules through the cutoff |
@@ -340,35 +161,20 @@ source profiles, attribution policies and participation minima remain enforced.
 
 ## Delivery order
 
-The required result is prepared SQL answers served quickly to the interface.
-NiFi runs SPARQL and metric calculations over existing RDF before publication.
-The dashboard reader performs observation pooling and population checks over
-SQL and selects NiFi-prepared historical ranks. The full report reader retains
-its separate immutable release. The [implementation guide](METRIC-SUITE-IMPLEMENTATION.md#required-serving-design)
-separates serving ownership from RDF mapping coverage. Neither storing inputs
-in SQL nor completing a source refresh proves fast dashboard delivery.
+The result to deliver is prepared SQL answers served quickly to the interface.
+NiFi owns graph queries, metric calculations, reference preparation, retries
+and publication. The dashboard reads SQL and performs selected-range pooling
+and participation checks; it does not reconstruct graphs on page load.
 
-On September 17 the user corrected the scope: metric/SQL work must reuse the
-existing graph and source additions must remain targeted. The user subsequently
-allowed the already running batch `2e0062c6ccff4630840108858425ed4f` to finish.
-That exception does not authorize another season RDF rebuild. This record
-describes the instruction, not the batch's live completion status.
+1. Consume the completed fixes through the existing SQL owner and inspect the
+   published qualified-player report.
+2. Fix supported analytical defects and document exact remaining graph gaps.
+   Implement only authorized, targeted source additions, preserving other RDF.
+3. Verify actual named-player rows and expanded details for all 19 metrics.
 
-1. Let NiFi finish that existing batch and publish its matching immutable
-   SQL/code release. Subsequent metric and SQL work starts from promoted RDF;
-   reuse unchanged graph queries and calculated game products.
-2. Inspect the published dashboard's qualified-player report for the requested
-   range and use its exact gap codes to locate remaining owning-source or
-   serving-adapter failures.
-3. Complete integrations and calculations supported by existing RDF. Keep exact
-   graph-input gaps separate from serving defects; implement only authorized,
-   targeted source additions. Do not admit partial populations by dropping
-   unresolved observations or turn their absence into a general rebuild request.
-4. Verify actual named player rows and expanded card details for all 19 metrics.
-
-NiFi owns repeated processing, validation, retries, quarantine and publication.
-The asynchronous Repository Evidence gate is separate from this product check.
-Use the [minimal-check policy](../../AGENTS.md#incremental-work-and-minimal-manual-validation)
-instead of manually repeating the pipeline or creating new readiness gates.
-See [implementation ownership](METRIC-SUITE-IMPLEMENTATION.md) and
-[build reuse](BUILD-REUSE.md) for the engineering boundaries.
+The September 17 source-batch permission is historical and does not authorize
+another season rebuild. Neither stale proof fingerprints nor a serving-code
+change justifies reacquisition or RML execution. Use the
+[minimal-check policy](../../AGENTS.md#incremental-work-and-minimal-manual-validation),
+[implementation guide](METRIC-SUITE-IMPLEMENTATION.md) and [roadmap](../ROADMAP.md).
+NiFi's asynchronous Repository Evidence observer is separate from product readiness.

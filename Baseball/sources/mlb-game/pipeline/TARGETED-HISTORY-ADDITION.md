@@ -13,6 +13,13 @@ After completion, timer ticks are no-ops. A failed implementation gets at most
 two attempts; terminal results are under
 `state/pipeline/control/mlb-game/history-addition/`.
 
+The bounded repair completed for games 822846 and 824467 on September 23,
+adding seven supported histories (49 triples). The temporary repair timer was
+then stopped; the accepted context selection remains available to future
+ingestion. Promotion IDs and downstream SQL status are recorded in
+[metric readiness](../../../serving/METRIC-READINESS.md). Completion of these
+two additions is not permission to replace other game graphs.
+
 The component reads the retained reconciliation inventories; it acquires no
 source response and does not rerun the game mapping. It executes only the
 existing PersonalRunnerProcess, PersonalRunnerInterval and
