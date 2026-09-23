@@ -73,7 +73,10 @@ authorized by either list.
    promoted game. It preserves the original failed proof and publishes a
    separate adapter-versioned result. Multiple actual batters, unsupported
    context revisions, mismatched player totals or graph failures remain
-   withheld. This is awaiting its NiFi result, not a live admission claim.
+   withheld. NiFi has now refreshed and admitted all four games through the
+   unchanged B1 SHACL. All 15 selected-day games therefore have usable official
+   PA admissions. Dashboard publication must still consume those results;
+   admission alone is not a populated leaderboard claim.
 3. Resolve the independent retained count, runner-boundary and defensive
    failures by their owning stage. The latest day has four admitted count
    proofs and three admitted boundary proofs after compatible reuse. The
@@ -85,8 +88,17 @@ authorized by either list.
 The dashboard now updates code-compatibility provenance separately from game
 calculations. Existing checkpoints migrate only when their full old identity
 matches the stored proofs and the same RDF, dimensions and calculation version.
-Changes to outcomes or original proof contents still recalculate the affected
-game. A compatibility-record edit alone does not reprocess the season.
+Changes to outcomes or original proof contents refresh the affected admission
+inputs using the existing calculators and retained SQL evidence. Unchanged
+game kernels and observations are preserved; changed RDF, dimensions or math
+still require game materialization. A compatibility-record edit alone does not
+reprocess the season. The shared live graph check can also be reused while
+Fuseki reports the same restart identity and write counters; see
+[build reuse](BUILD-REUSE.md).
+
+The remaining two latest-day run-construction-depth histories are covered by
+the review-only [Q7 proposal](../proposals/mlb-game-zero-episode-history-isolation/README.md).
+Its named semantic approval is pending. No targeted addition has been executed.
 
 ## Earlier release evidence
 

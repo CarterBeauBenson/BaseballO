@@ -39,7 +39,9 @@ class DashboardMaterializer(unittest.TestCase):
         self.stack.enter_context(patch.object(D.SOURCE._batting_admission,'schedule_coverage',return_value={}))
         self.stack.enter_context(patch.object(D.SOURCE._schedule_qualification,'merge_snapshots',return_value={}))
         self.fetched = []
+        self.bindings = {}
         fetched = self.fetched
+        bindings = self.bindings
         class Cache:
             stats = {}
             def __init__(self,*a): pass
@@ -50,7 +52,7 @@ class DashboardMaterializer(unittest.TestCase):
                         entity=dict(type='uri',value='https://baseballontology.org/data/player/1'),
                         label=dict(type='literal',value='Prepared player'))]}}
                 fetched.append(kw['promotion']['gamePk'])
-                return {'results':{'bindings':[]}}
+                return {'results':{'bindings':bindings.get(kw['promotion']['gamePk'],[])}}
         self.stack.enter_context(patch.object(D.SOURCE._query_cache,'ServingQueryCache',Cache))
 
     def pointer(self): return D.RELEASE.read(self.state/'serving/dashboard-current.json')
@@ -125,7 +127,37 @@ class DashboardMaterializer(unittest.TestCase):
             return {**new,'status':'admitted'} if promotion['gamePk']=='101' else new
         with patch.object(D.ADMISSION_EVIDENCE,'load',side_effect=change_one):result=D.build(self.args)
         self.assertEqual((result['changedGames'],result['reusedGames']),(1,1))
-        self.assertEqual(self.fetched,['101'])
+        self.assertEqual(result['admissionUpdatedGames'],1)
+        self.assertEqual(self.fetched,[])
+
+    def test_admission_only_update_matches_full_calculation_without_rewriting_evidence(self):
+        from test_contribution_sql import sample,PROOF
+        graph,bindings=sample(101,'safe');self.bindings['101']=bindings
+        D.build(self.args)
+        self.fetched.clear()
+        with patch.object(D.ADMISSION_EVIDENCE,'load',side_effect=lambda adapter,state,promotion,family:
+                PROOF if promotion['gamePk']=='101' else {'status':'withheld'}),patch.object(
+                D.METRICS,'live_result',side_effect=AssertionError('Unchanged game kernel')):
+            result=D.build(self.args)
+        self.assertEqual(result['admissionUpdatedGames'],1)
+        self.assertEqual(self.fetched,[])
+        with closing(sqlite3.connect(self.working())) as actual,closing(sqlite3.connect(':memory:')) as full:
+            full.executescript(D.SCHEMA.read_text());D.METRICS.initialize_sql(full)
+            dimension=actual.execute('SELECT * FROM game_dimension WHERE graph_iri=?',(graph,)).fetchone()
+            full.execute('INSERT INTO game_dimension VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)',dimension)
+            D.METRICS.materialize_game(full,graph,bindings,**{name:PROOF for name in D.ADMISSIONS})
+            self.assertTrue(D.METRICS.read_results(actual,graph,'tfs')[0]['contributionInputs']['complete'])
+            for table in D.graph_tables(full):
+                self.assertEqual(sorted(actual.execute(f'SELECT * FROM {table} WHERE graph_iri=?',(graph,)).fetchall()),
+                    sorted(full.execute(f'SELECT * FROM {table} WHERE graph_iri=?',(graph,)).fetchall()),table)
+            # A metadata-only refresh of the proof still reuses every score.
+            previous={name:PROOF for name in D.ADMISSIONS}
+            statements=[];actual.set_trace_callback(statements.append)
+            D.refresh_admission_inputs(actual,graph,previous,{name:dict(PROOF,receipt='new') for name in D.ADMISSIONS})
+            self.assertFalse(any('metric_suite_evidence' in s and s.startswith(('INSERT','DELETE','UPDATE')) for s in statements))
+            actual.execute('DELETE FROM metric_suite_evidence WHERE rowid IN (SELECT rowid FROM metric_suite_evidence LIMIT 1)')
+            with self.assertRaisesRegex(ValueError,'incomplete'):
+                D.refresh_admission_inputs(actual,graph,previous,{name:dict(PROOF,status='withheld') for name in D.ADMISSIONS})
 
     def test_source_change_preserves_work_but_cannot_publish(self):
         D.build(self.args); old = self.pointer()

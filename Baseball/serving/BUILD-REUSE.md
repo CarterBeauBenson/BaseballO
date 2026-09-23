@@ -65,6 +65,28 @@ only a successful NiFi candidate and atomic promotion establish live readiness.
 
 ## Query reuse and unchanged validation
 
+The shared report/dashboard corpus snapshot also retains a completed live
+graph check. Reuse requires the same validated promotion inventory, query
+definitions, local Fuseki restart identifier and write-capable endpoint
+counters. Counters are read before and after reuse; in-flight writes, changed
+counters, restarts, unknown endpoints, corrupt cache data or unavailable
+server statistics use the original live graph scan. Read-only requests do
+not invalidate it. This uses Fuseki's documented
+[server statistics](https://jena.apache.org/documentation/fuseki2/fuseki-server-info.html).
+The final publication check still re-reads the promotion inventory and server
+state. No HTTP dashboard request performs this work.
+
+For dashboard games whose RDF, dimensions and calculation version match their
+checkpoint, changed admission proofs refresh only the affected contribution,
+recovery, defense and joined PAQ inputs. The existing calculators consume
+checksum-verified SQL evidence; unchanged game kernels, observations and scope
+facts remain intact. Updated inputs use the existing SQL round-trip checks,
+and affected seasons have their reference products prepared again. Each game
+commits atomically. Evidence, math or dimension changes still use the ordinary
+game materializer. `admissionUpdatedGames` distinguishes these updates from
+fully unchanged games. A focused regression compares every game table against
+a complete calculation and rejects missing retained evidence.
+
 The materializer retains disposable per-game SPARQL SELECT answers in
 `serving/query-cache.sqlite`. NiFi still runs the accepted full candidate
 validation and atomic pointer promotion. This cache is not an admission proof,

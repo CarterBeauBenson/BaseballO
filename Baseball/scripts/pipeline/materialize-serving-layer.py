@@ -102,10 +102,12 @@ if _promotion_spec is None or _promotion_spec.loader is None:
     raise RuntimeError("Cannot load the source-neutral game-promotion inventory module")
 _promotion_inventory = importlib.util.module_from_spec(_promotion_spec)
 _promotion_spec.loader.exec_module(_promotion_inventory)
+_graph_state_cache = _admission_evidence.module(ROOT/'scripts/pipeline/serving_graph_state_cache.py','serving_graph_state_cache')
 _LOADED_MODULE_HASHES = {Path(module.__file__): hashlib.sha256(Path(module.__file__).read_bytes()).hexdigest()
                         for module in (_batting_admission,_run_admission,_resolution_admission,_count_admission,_boundary_admission,_defense_admission,
                                        _query_cache,_metric_cache,_report_cache,_preflight_queries,_build_guard,_promotion_inventory,
                                        _schedule_qualification,_schedule_qualification.PARSER,_admission_evidence)}
+_LOADED_MODULE_HASHES[Path(_graph_state_cache.__file__)] = hashlib.sha256(Path(_graph_state_cache.__file__).read_bytes()).hexdigest()
 _LOADED_MODULE_HASHES[Path(__file__).resolve()] = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
 _LOADED_MODULE_HASHES[_admission_evidence.COMPATIBILITY_PATH] = hashlib.sha256(_admission_evidence.COMPATIBILITY_PATH.read_bytes()).hexdigest()
 _LOADED_MODULE_HASHES[Path(_admission_evidence.RETAINED_BATTING.__file__)] = hashlib.sha256(Path(_admission_evidence.RETAINED_BATTING.__file__).read_bytes()).hexdigest()
@@ -917,7 +919,18 @@ def corpus_snapshot(
 ) -> dict[str, Any]:
     inventory_before = promotion_inventory(state_root)
     inventory_before = development_inventory_subset(inventory_before, max_games)
-    live = live_graph_state(endpoint, timeout, inventory_before)
+    # Query definitions and the exact validated inventory remain cache inputs.
+    # Fuseki's restart identity and all write-capable endpoint counters fence
+    # reuse; unavailable or changing evidence uses the original graph check.
+    import ast
+    definitions={'live_graph_state','adaptive_preflight_query','bounded_query_for_graphs',
+                 'live_source_graph_state_query','live_index_graph_state_query','canonical_binding','lexical'}
+    definition = sha256_bytes(('\n'.join(ast.dump(node) for node in ast.parse(Path(__file__).read_bytes()).body
+        if isinstance(node,ast.FunctionDef) and node.name in definitions)
+        + GAME_DIMENSION_QUERY.read_text(encoding='utf-8')
+        + Path(_preflight_queries.__file__).read_text(encoding='utf-8')).encode())
+    live = _graph_state_cache.snapshot(state_root,endpoint,inventory_before,definition,
+        lambda:live_graph_state(endpoint,timeout,inventory_before),_admission_evidence.atomic)
     inventory_after = promotion_inventory(state_root)
     inventory_after = development_inventory_subset(inventory_after, max_games)
     if inventory_after["fingerprint"] != inventory_before["fingerprint"]:

@@ -155,8 +155,12 @@ def reuse_game(connection, graph, saved, promotion, dimension, admissions, calcu
         if METRICS._hash(row[0])!=row[1]:raise ValueError('Stored dashboard admission changed')
         previous[name]=json.loads(row[0])
     identity=input_identity(promotion,dimension,admissions,calculation)
-    if input_identity(promotion,dimension,previous,calculation)!=identity:return False
-    if saved not in {identity,input_identity(promotion,dimension,previous,calculation,legacy=True)}:return False
+    previous_identity=input_identity(promotion,dimension,previous,calculation)
+    if saved not in {previous_identity,input_identity(promotion,dimension,previous,calculation,legacy=True)}:return False
+    changed=previous_identity!=identity
+    if changed:
+        refresh_admission_inputs(connection,graph,previous,admissions)
+        mark_dirty(connection,{dimension[5]})
     for name,table in ADMISSION_TABLES.items():
         if previous[name]==admissions[name]:continue
         text=METRICS._json(admissions[name])
@@ -164,7 +168,63 @@ def reuse_game(connection, graph, saved, promotion, dimension, admissions, calcu
                            (text,METRICS._hash(text),graph))
     if saved!=identity:
         connection.execute('UPDATE dashboard_checkpoint SET input_sha256=? WHERE graph_iri=?',(identity,graph))
-    return True
+    return 'admissions' if changed else 'unchanged'
+
+
+def mark_dirty(connection, seasons):
+    row=connection.execute("SELECT value FROM dashboard_state WHERE name='dirty-seasons'").fetchone()
+    seasons=set(seasons)|set(json.loads(row[0]) if row else [])
+    connection.execute('INSERT OR REPLACE INTO dashboard_state VALUES (?,?)',
+                       ('dirty-seasons',json.dumps(sorted(seasons))))
+
+
+def refresh_admission_inputs(connection, graph, previous, admissions):
+    """Recalculate only proof-dependent inputs over unchanged retained RDF rows.
+
+    The caller has matched the old checkpoint against the same RDF, dimensions
+    and calculation version. Game-level observations, scope facts and metric
+    kernels have no admission argument; preserve their exact stored results.
+    """
+    def semantic(proof):return {k:v for k,v in proof.items() if k!='implementationReuse'}
+    changed={name for name in ADMISSIONS if semantic(previous[name])!=semantic(admissions[name])}
+    families={}
+    dependencies={
+        'resolution-depth':{'defensive_admission'},
+        'tfs':{'batting_admission','runner_resolution_admission','runner_boundary_admission'},
+        'recovery-quality':{'batting_admission','pitch_count_admission'},
+    }
+    affected={metric for metric,names in dependencies.items() if changed & names}
+    if not affected:return
+    rows=[]
+    for text,sha in connection.execute('SELECT binding_json,binding_sha256 FROM metric_suite_evidence WHERE graph_iri=?',(graph,)):
+        if METRICS._hash(text)!=sha:raise ValueError('Stored dashboard evidence changed')
+        rows.append(json.loads(text))
+    proof=json.loads(connection.execute('SELECT proof_json FROM dashboard_checkpoint WHERE graph_iri=?',(graph,)).fetchone()[0])
+    if len(rows)!=proof['evidenceRows']:raise ValueError('Stored dashboard evidence is incomplete')
+    # Reuse the existing calculators; this path defines no separate metric math.
+    if 'resolution-depth' in affected:
+        families['resolution-depth']=METRICS.defensive_game_inputs(rows,graph=graph,admission=admissions['defensive_admission'])
+    if 'tfs' in affected:
+        families['tfs']=METRICS.contribution_game_inputs(rows,graph=graph,
+            **{name:admissions[name] for name in dependencies['tfs']})
+    if 'recovery-quality' in affected:
+        families['recovery-quality']=METRICS.recovery_game_inputs(rows,graph=graph,
+            **{name:admissions[name] for name in dependencies['recovery-quality']})
+    retained={}
+    for metric in [*dependencies,'paq-2.1']:
+        results=METRICS.read_results(connection,graph,metric)
+        if len(results)!=1:raise ValueError('Stored dashboard game result is incomplete')
+        retained[metric]=results[0]
+    def product(metric):return families.get(metric,retained[metric][METRICS._blocks.INPUTS[metric][1]])
+    families['paq-2.1']=METRICS.paq21_game_inputs(product('tfs'),product('recovery-quality'),product('resolution-depth'))
+    for metric,product in families.items():
+        family,key,_=METRICS._blocks.INPUTS[metric]
+        if retained[metric][key]==product:continue
+        result=dict(retained[metric],**{key:product})
+        METRICS.store_result(connection,graph,metric,'game-scope',result)
+        if METRICS.read_results(connection,graph,metric)!=[result]:raise ValueError('Refreshed dashboard result differs')
+        if METRICS._blocks.read_inputs(METRICS._block_api(),connection,family,[graph])[graph]!=product:
+            raise ValueError('Refreshed dashboard inputs differ')
 
 
 def retain_snapshots(directory, current):
@@ -257,7 +317,7 @@ def build_locked(args, state, serving, work):
         calculation = METRICS.calculation_fingerprint()
         cache = SOURCE._query_cache.ServingQueryCache(serving/'query-cache.sqlite')
         products = SOURCE._metric_cache.MetricProductCache(serving/'metric-cache.sqlite', calculation)
-        pending = []; expected = {}; unchanged = 0
+        pending = []; expected = {}; unchanged = 0; admission_updates = 0
         old_dimensions = dict(connection.execute('SELECT graph_iri,season FROM game_dimension'))
         saved = dict(connection.execute('SELECT graph_iri,input_sha256 FROM dashboard_checkpoint'))
         for dimension in dimensions:
@@ -268,8 +328,12 @@ def build_locked(args, state, serving, work):
             values = dimension_values(dimension, promotion, metadata)
             identity = input_identity(promotion, values, admissions, calculation)
             expected[graph] = identity
-            if reuse_game(connection,graph,saved.get(graph),promotion,values,admissions,calculation):
-                unchanged += 1; continue
+            with connection:
+                reused=reuse_game(connection,graph,saved.get(graph),promotion,values,admissions,calculation)
+            if reused:
+                if reused=='admissions':admission_updates+=1
+                else:unchanged+=1
+                continue
             pending.append(dict(graph=graph, promotion=promotion, dimension=values, identity=identity,
                                 admissions=admissions, previousSeasons=[old_dimensions[graph]] if graph in old_dimensions else []))
         connection.commit()
@@ -280,15 +344,15 @@ def build_locked(args, state, serving, work):
             for graph in removed:
                 dirty.add(old_dimensions[graph]); remove_game(connection, graph)
             connection.execute('INSERT OR REPLACE INTO dashboard_state VALUES (?,?)', ('dirty-seasons', json.dumps(sorted(dirty))))
-        checkpoint(phase='game-products', totalGames=len(expected), changedGames=len(pending),
-                   reusedGames=unchanged, completedGames=unchanged)
+        checkpoint(phase='game-products', totalGames=len(expected), changedGames=len(pending)+admission_updates,
+                   admissionUpdatedGames=admission_updates,reusedGames=unchanged, completedGames=unchanged+admission_updates)
         def fetch(item):
             query = METRICS.evidence_query([item['graph']])
             return cache.query(endpoint=args.endpoint, query=query, slot='metric-suite', promotion=item['promotion'],
                                fetch=lambda: SOURCE.sparql(args.endpoint, query, args.timeout))['results']['bindings']
         for count, (item, bindings) in enumerate(bounded_fetch(pending, fetch, args.workers), 1):
             store_game(connection, item, bindings, products)
-            checkpoint(completedGames=unchanged+count)
+            checkpoint(completedGames=unchanged+admission_updates+count)
         checkpoint(phase='display-labels')
         saved_labels = dict(connection.execute('SELECT graph_iri,input_sha256 FROM dashboard_display_manifest'))
         display_version = DISPLAY.fingerprint()
