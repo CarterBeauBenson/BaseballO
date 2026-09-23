@@ -102,6 +102,66 @@ def continuation_fixture():
 
 
 class ProgressPlayers(unittest.TestCase):
+    def test_known_contact_progress_survives_an_unknown_safe_prefix_or_suffix(self):
+        for unknown in ('first-second','second-third'):
+            data=continuation_fixture();g=data.graph(G1);pa=str(GAME)+'/plate-appearance/0'
+            g.remove((URIRef(pa+'/contact'),BFO.BFO_0000117,URIRef(pa+'/'+unknown)))
+            reach=score(data,'offensive-reach')
+            self.assertTrue(reach['playerPopulationComplete'],reach)
+            item=reach['progressEvidence']['plateAppearances'][0]
+            self.assertEqual(item['reach'],2)
+            self.assertEqual(item['independentPositiveGaps'],['UNRESOLVED_RUNNING_EPISODE_ATTRIBUTION'])
+            self.assertFalse(any(r['player']==str(P2) for r in item['independentPositive']))
+            self.assertTrue(score(data,'hidden-help-rate')['playerPopulationComplete'])
+            for metric in ('empty-game-rate','contribution-path-diversity'):
+                result=score(data,metric)
+                self.assertFalse(result['playerPopulationComplete'])
+                self.assertEqual(result['playerSummaryGaps'],['UNRESOLVED_RUNNING_EPISODE_ATTRIBUTION'])
+            rows=M.normalize_bindings(bindings(data,[G1]),[G1])
+            first=M.batting_progress_evidence(rows);second=M.batting_progress_evidence(list(reversed(rows)))
+            for result in (first,second):
+                for entry in result['plateAppearances']:entry['coalescedContactPaths'].sort(key=lambda r:r['player'])
+            self.assertEqual(first,second)
+
+    def test_unknown_safe_steps_cannot_hide_outs_or_incomplete_paths(self):
+        for change in ('out','missing_member','branch','no_known_positive'):
+            data=continuation_fixture();g=data.graph(G1);pa=str(GAME)+'/plate-appearance/0'
+            contact=URIRef(pa+'/contact');unknown=URIRef(pa+'/second-third')
+            g.remove((contact,BFO.BFO_0000117,unknown))
+            if change=='out':
+                g.remove((unknown,RDF.type,BASE.SafeProcess));g.add((unknown,RDF.type,BASE.OutProcess))
+            elif change=='missing_member':
+                g.remove((URIRef(str(GAME)+'/runner-trajectory/2'),BFO.BFO_0000117,URIRef(str(unknown)+'/episode')))
+            elif change=='branch':
+                rr=URIRef(pa+'/branch')
+                episode,_,_=movement(g,rr,URIRef(str(rr)+'/act'),URIRef(pa),P2,
+                    origin=URIRef(str(GAME)+'/base/1'),destination=URIRef(str(GAME)+'/base/3'))
+                g.add((URIRef(str(GAME)+'/runner-trajectory/2'),BFO.BFO_0000117,episode))
+            else:g.remove((contact,BFO.BFO_0000117,URIRef(pa+'/first-second')))
+            self.assertFalse(score(data,'offensive-reach')['playerPopulationComplete'],change)
+
+    def test_excluded_batting_progress_and_unknown_running_remain_separate_in_sql(self):
+        data=continuation_fixture();g=data.graph(G1);pa=str(GAME)+'/plate-appearance/0'
+        result=URIRef(pa+'/result')
+        g.remove((result,RDF.type,BASE.SingleProcess));g.add((result,RDF.type,BASE.FieldersChoiceProcess))
+        g.remove((URIRef(pa+'/contact'),BFO.BFO_0000117,URIRef(pa+'/second-third')))
+        raw=bindings(data,[G1])
+        with database() as connection:
+            M.materialize_game(connection,G1,raw,batting_admission=PROOF,runner_resolution_admission=PROOF)
+            proof=dict(completeResponse=True,games=[dict(gamePk='101',gameType='R',final=True,unplayed=False)])
+            text=M._json(proof)
+            connection.execute('INSERT INTO metric_suite_schedule_coverage VALUES (?,?,?)',(SCOPE['startDate'],text,M._hash(text)))
+            for metric in M.PROGRESS_METRICS:
+                direct=score(data,metric)
+                stored=M.query_sql(connection,{'metricId':metric},SCOPE)['metric']
+                self.assertEqual(stored['playerResults'],direct['playerResults'])
+                self.assertEqual(stored['playerPopulationComplete'],direct['playerPopulationComplete'])
+                self.assertEqual(stored['playerSummaryGaps'],direct['playerSummaryGaps'])
+                if metric in ('offensive-reach','hidden-help-rate'):
+                    self.assertTrue(direct['playerPopulationComplete'])
+                    self.assertEqual(direct['progressEvidence']['plateAppearances'][0]['reach'],0)
+                else:self.assertFalse(direct['playerPopulationComplete'])
+
     def test_reviewed_contact_continuation_reaches_all_four_player_producers(self):
         data=continuation_fixture()
         reach=score(data,'offensive-reach')

@@ -139,6 +139,21 @@ through the existing one-minute NiFi owner, preserving both the published SQL
 and completed game checkpoints. It does not publish a mixed snapshot or treat
 ordinary concurrent ingestion as a broken metric build.
 
+A further progress repair separates binary batting progress from unknown
+running ownership. An excluded fielder's-choice/error batting contribution is
+zero under the accepted policy. An explicitly attributed positive contact step
+also stays positive across a complete, nonbranching C1 path containing only
+safe/scoring steps, even when another step's ownership is unknown. This does
+not assign the unknown step to the batter, supply a TFS magnitude, or classify
+independent running. Empty Games and Contribution Mix retain their separate
+unknown-running gap. Missing C1 members, branches and outs cannot use this
+projection. Seventeen focused progress tests pass, including SQL equivalence.
+Against the retained September 16 SQL evidence, this resolves seven more PAs:
+822763/49, 823004/49 and /60, 823576/6 and /33, 823979/43, and 824382/20.
+Seven of the fifteen games now have complete binary batting-progress inputs;
+twelve PAs across the other eight games remain unresolved. This is component
+evidence pending NiFi publication, not a complete selected-period leaderboard.
+
 ### Specific remaining count and review evidence
 
 The retained pitch-count censuses for 822680, 822763 and 824140 reconcile

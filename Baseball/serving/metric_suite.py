@@ -2026,6 +2026,29 @@ def runner_progress_path(states, history_rows, movement_rows):
                 segments=trace,heldObservations=sorted(held,key=lambda r:r['episode']))
 
 
+def contact_progress_with_unknown_safe_steps(states, history_rows, movement_rows):
+    """A known contact advance stays positive across an entirely safe C1 path.
+
+    This establishes only the binary batting indicator. It gives no credit for
+    the unknown steps, no contribution magnitude, and no independent-running
+    classification. A terminal out, missing member or conflicting channel
+    prevents this projection.
+    """
+    denied = dict(status='unavailable', gap='UNRESOLVED_PROGRESS_ATTRIBUTION')
+    contacts = {r['contactPlay'] for r in states if r.get('contactPlay')}
+    if (len(contacts) != 1 or not any(not r.get('contactPlay') for r in states)
+            or any(r.get('award') or independent_running_act(r) or r.get('hasOutType') != 'false' for r in states)):
+        return denied
+    path = runner_progress_path(states, history_rows, movement_rows)
+    if path['status'] != 'available':
+        return denied
+    contact_episodes = {r['episode'] for r in states if r.get('contactPlay')}
+    if not any(r['episode'] in contact_episodes and r['end'] > r['start'] for r in path['segments']):
+        return denied
+    return dict(path, contactPlay=next(iter(contacts)), positive=True,
+                unattributedEpisodes=sorted(r['episode'] for r in states if not r.get('contactPlay')))
+
+
 def batting_progress_evidence(rows):
     """Complete supported contributions; population admission is separate.
 
@@ -2057,7 +2080,8 @@ def batting_progress_evidence(rows):
         resolutions=defaultdict(list)
         for row in movements[(graph,pa)]:resolutions[row['resolution']].append(row)
         channels, independent, other = defaultdict(list), [], set()
-        positive_channels=set();independent_episodes=[];independent_gaps=[]
+        positive_channels=set();independent_episodes=[];independent_gaps=[];independent_positive_gaps=[]
+        unattributed_positive=[];contact_paths={}
         unsupported_outs=set();positive_runners=set()
         self_positive=False;coalesced=[]
         for resolution,candidates in resolutions.items():
@@ -2086,21 +2110,38 @@ def batting_progress_evidence(rows):
             if outcome[1]=='true' and not supports:
                 unsupported_outs.add(runner)
                 if runner!=player:independent_gaps.append('UNRESOLVED_RUNNING_EPISODE_ATTRIBUTION')
-            if len(supports)>1 or (positive and len(supports)!=1):
+            if len(supports)>1:
                 reasons.append('UNRESOLVED_PROGRESS_ATTRIBUTION');continue
+            if positive and not supports:
+                unattributed_positive.append(row)
             if supports:
                 channel,support=supports[0]
                 channels[(runner,channel,support)].append((row,positive))
+        for runner in sorted({r['runner'] for r in unattributed_positive}):
+            members=[candidates[0] for candidates in resolutions.values() if candidates[0].get('runner')==runner]
+            path=contact_progress_with_unknown_safe_steps(members,histories,history_movements) if not excluded else None
+            if not excluded and path['status']!='available':
+                reasons.append('UNRESOLVED_PROGRESS_ATTRIBUTION');continue
+            if path is not None:contact_paths[(runner,path['contactPlay'])]=path
+            # Excluded batting credit is exactly zero, and a supported contact
+            # advance is positive regardless of another safe step's ownership.
+            # Neither fact establishes the separate runner channel.
+            independent_positive_gaps.append('UNRESOLVED_RUNNING_EPISODE_ATTRIBUTION')
+            independent_gaps.append('UNRESOLVED_RUNNING_EPISODE_ATTRIBUTION')
         if positive_runners & unsupported_outs:
             reasons.append('COMPLETE_CONSEQUENCE_COALESCENCE')
         for (runner,channel,support), members in channels.items():
+            if excluded and channel!='running':
+                continue  # Excluded batting progress cannot need a path magnitude.
             if channel=='contact' and any(
                     row.get('trajectory') and
                     {r['episode'] for r in histories[(graph,row['trajectory'])]} !=
                     {r.get('episode') for r in history_movements[(graph,row['trajectory'])]}
                     for row,_ in members):
                 reasons.append('COMPLETE_CONSEQUENCE_COALESCENCE');continue
-            if len(members)!=1:
+            if channel=='contact' and (runner,support) in contact_paths:
+                path=contact_paths[(runner,support)];positive=True;coalesced.append(path);row=members[0][0]
+            elif len(members)!=1:
                 path=(contact_progress_path(members,histories,history_movements) if channel=='contact'
                       else dict(status='unavailable'))
                 if channel=='contact' and path['status']!='available':
@@ -2145,6 +2186,7 @@ def batting_progress_evidence(rows):
         completed.append(dict(graph=graph,game=game,plateAppearance=pa,player=player,
             officialResult=bool(types),batterPositive=self_positive,otherPositivePlayers=sorted(other),
             independentPositive=independent,
+            independentPositiveGaps=sorted(set(independent_positive_gaps)),
             independentEpisodes=independent_episodes,independentEpisodeGaps=sorted(set(independent_gaps)),
             positiveChannels=[dict(player=p,play=play,channel=channel) for p,play,channel in sorted(positive_channels)],
             coalescedContactPaths=coalesced,
@@ -2186,6 +2228,9 @@ def batting_progress_players(metric_id, rows, *, graphs, admissions, qualificati
         return dict(missing,playerSummaryGaps=['COMPLETE_PA_PROGRESS'])
     if metric_id=='contribution-path-diversity':
         return contribution_mix_players(evidence,qualification=qualification,date_scope=date_scope)
+    if metric_id=='empty-game-rate':
+        gaps=sorted({gap for pa in pas for gap in pa.get('independentPositiveGaps',[])})
+        if gaps:return dict(missing,playerSummaryGaps=gaps,progressEvidence=evidence)
     people=qualification['participation'];output=[]
     by_player=defaultdict(list);running=defaultdict(set)
     for pa in pas:
@@ -2225,8 +2270,9 @@ def batting_progress_players(metric_id, rows, *, graphs, admissions, qualificati
     else:
         count=sum(p['aggregate']['count'] for p in output);total=sum((fraction(p['aggregate']['sum']) for p in output),Fraction())
         summary=available(total/count) if count else unavailable('EMPTY_DENOMINATOR')
+    population=('batting progress and independent positive running' if metric_id=='empty-game-rate' else 'batting progress')
     return dict(summary,playerPopulationComplete=True,playerResults=output,playerSummaryGaps=[],
-        progressEvidence=evidence,scope='Complete selected-period batting progress and independent positive running; official PA eligibility applied.')
+        progressEvidence=evidence,scope=f'Complete selected-period {population}; official PA eligibility applied.')
 
 
 def contribution_mix_players(evidence, *, qualification, date_scope):
