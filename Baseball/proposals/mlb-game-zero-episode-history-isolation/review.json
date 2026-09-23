@@ -1,0 +1,36 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-zero-episode-history-isolation",
+  "title": "Q7: isolate zero-episode runner-history withholding",
+  "status": "under-review",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "07a4c50761fb9eef2eba4f0dcb0fcf0cf25224da5ad0a3e97ecbc61e55359263"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "source-evidence.json",
+        "sha256": "d80fd5075b5c6fadd1ae21d899c3e7efb8d8d9a171ce8ebcef40026be340d2e2"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "07a4c50761fb9eef2eba4f0dcb0fcf0cf25224da5ad0a3e97ecbc61e55359263"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "README.md",
+        "sha256": "07a4c50761fb9eef2eba4f0dcb0fcf0cf25224da5ad0a3e97ecbc61e55359263"
+      }
+    ]
+  },
+  "ontologistDecision": null
+}

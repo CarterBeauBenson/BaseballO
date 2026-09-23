@@ -1,0 +1,170 @@
+{
+  "artifactType": "baseballo-q7-retained-source-evidence",
+  "cases": [
+    {
+      "gamePk": "822846",
+      "officialDate": "2026-09-16",
+      "inputSha256": "bf271089dbbee804d6cbe633224dfaa944b4756ba4364fbc0474e8f1f532d52d",
+      "promotionManifestSha256": "b8129dccd126ab2bc25176e2c147e4ea62d9951ae9e01861691923ebededee74",
+      "rmlManifestSha256": "c3b4be128606a678a4f9e6c17d2facc2736cf5173c4d7f2cd3a3366376af0c6e",
+      "authoritativeRdfSha256": "81d0ba4ffd5d54dbd3f8154c5287e534412156a33dc74efc27d920c7ea711aba",
+      "inning": 8,
+      "half": "bottom",
+      "issues": [
+        {
+          "code": "ZERO_EPISODE_PERSONAL_HISTORY",
+          "atBatIndex": 70
+        }
+      ],
+      "scoringCandidates": [
+        {
+          "runnerId": "696030",
+          "inning": "8",
+          "half": "bottom",
+          "entryAnchor": "replacement/8/bottom/553869/696030",
+          "entryWitness": {
+            "atBatIndex": 66,
+            "eventIndex": 1,
+            "sourcePointer": "/liveData/plays/allPlays/66/playEvents/1",
+            "earliestStartBound": "2026-09-17T02:38:53.268Z",
+            "latestEndBound": "2026-09-17T02:39:03.270Z",
+            "form": "replacement",
+            "runnerId": "696030",
+            "outgoingRunnerId": "553869",
+            "base": 1,
+            "anchor": "replacement/8/bottom/553869/696030"
+          },
+          "entryAtBatIndex": 66,
+          "earliestStartBound": "2026-09-17T02:38:53.268Z",
+          "episodes": [
+            {
+              "atBatIndex": "66",
+              "runnerIndex": "1",
+              "resolutionKind": "advance",
+              "runnerId": "696030"
+            },
+            {
+              "atBatIndex": "68",
+              "runnerIndex": "1",
+              "resolutionKind": "score",
+              "runnerId": "696030"
+            }
+          ],
+          "lifetimeKey": "8ecc2c82135d0617c9a8a33b93aabb1069f7880789b9448bfa7c6f8c3d1cc3b4",
+          "terminationAnchor": "344faae7-bee6-32fd-9f12-e6660bc1ef8f",
+          "terminal": "score",
+          "latestEndBound": "2026-09-17T02:41:42.682Z"
+        }
+      ],
+      "zeroEpisodeCandidates": [
+        {
+          "runnerId": "670032",
+          "inning": "8",
+          "half": "bottom",
+          "entryAnchor": "replacement/8/bottom/673962/670032",
+          "entryWitness": {
+            "atBatIndex": 70,
+            "eventIndex": 0,
+            "sourcePointer": "/liveData/plays/allPlays/70/playEvents/0",
+            "earliestStartBound": "2026-09-17T02:43:24.238Z",
+            "latestEndBound": "2026-09-17T02:43:47.135Z",
+            "form": "replacement",
+            "runnerId": "670032",
+            "outgoingRunnerId": "673962",
+            "base": 2,
+            "anchor": "replacement/8/bottom/673962/670032"
+          },
+          "entryAtBatIndex": 70,
+          "earliestStartBound": "2026-09-17T02:43:24.238Z",
+          "episodes": [],
+          "lifetimeKey": "444bb2fa0292ff5aee28e43f8e1cd952346c5df10c0ad4437a1ad80f4ec3650a",
+          "terminationAnchor": "58ee57d8-7f3d-3401-85f2-55ed352ee707",
+          "terminal": "stranded",
+          "latestEndBound": "2026-09-17T02:44:15.529Z"
+        }
+      ]
+    },
+    {
+      "gamePk": "824467",
+      "officialDate": "2026-09-16",
+      "inputSha256": "068a02aa5e42910196d645905647e56921e2fdbdbf7da6864cb76e725d509e38",
+      "promotionManifestSha256": "903ed45fc960a0f1d935d26040b706ab3644480623a9bec6fd47fa0d8449aae3",
+      "rmlManifestSha256": "157e1ff080765eb3dd01f46d3e1ba961a9dbb1f1bc918cb5a3025ec492045f8f",
+      "authoritativeRdfSha256": "0e6537d3e59645a53ca1da3092b5997535ffc3f574ad715035768eb4d3019175",
+      "inning": 6,
+      "half": "bottom",
+      "issues": [
+        {
+          "code": "ZERO_EPISODE_PERSONAL_HISTORY",
+          "atBatIndex": 54
+        }
+      ],
+      "scoringCandidates": [
+        {
+          "runnerId": "701398",
+          "inning": "6",
+          "half": "bottom",
+          "entryAnchor": "1bd5ed18-98b6-383b-b75d-a7cc95a6c559",
+          "earliestStartBound": "2026-09-17T00:36:50.267Z",
+          "episodes": [
+            {
+              "atBatIndex": "50",
+              "runnerIndex": "0",
+              "resolutionKind": "reach",
+              "runnerId": "701398"
+            },
+            {
+              "atBatIndex": "51",
+              "runnerIndex": "0",
+              "resolutionKind": "advance",
+              "runnerId": "701398"
+            },
+            {
+              "atBatIndex": "52",
+              "runnerIndex": "1",
+              "resolutionKind": "advance",
+              "runnerId": "701398"
+            },
+            {
+              "atBatIndex": "53",
+              "runnerIndex": "3",
+              "resolutionKind": "score",
+              "runnerId": "701398"
+            }
+          ],
+          "lifetimeKey": "be6cee3a8f95be54010c0c93723572edd57e1eb621b5b783cbd09b5419039218",
+          "terminationAnchor": "0adcc635-d377-332d-a716-82f64c779e56",
+          "terminal": "score",
+          "latestEndBound": "2026-09-17T00:46:31.561Z"
+        }
+      ],
+      "zeroEpisodeCandidates": [
+        {
+          "runnerId": "670770",
+          "inning": "6",
+          "half": "bottom",
+          "entryAnchor": "replacement/6/bottom/682877/670770",
+          "entryWitness": {
+            "atBatIndex": 54,
+            "eventIndex": 0,
+            "sourcePointer": "/liveData/plays/allPlays/54/playEvents/0",
+            "earliestStartBound": "2026-09-17T00:47:08.941Z",
+            "latestEndBound": "2026-09-17T00:47:19.799Z",
+            "form": "replacement",
+            "runnerId": "670770",
+            "outgoingRunnerId": "682877",
+            "base": 1,
+            "anchor": "replacement/6/bottom/682877/670770"
+          },
+          "entryAtBatIndex": 54,
+          "earliestStartBound": "2026-09-17T00:47:08.941Z",
+          "episodes": [],
+          "lifetimeKey": "23a3eea1569f3d765b78a7a39b8fa94d6cf4e06e0a325844454e0f211df251e5",
+          "terminationAnchor": "e7b27e53-b89d-3323-934c-cbb96a4a2890",
+          "terminal": "stranded",
+          "latestEndBound": "2026-09-17T00:52:47.741Z"
+        }
+      ]
+    }
+  ]
+}

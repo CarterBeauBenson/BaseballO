@@ -25,6 +25,12 @@ their rejection rationale so they cannot be accidentally revived.
 
 ## Active reviews
 
+[Q7 zero-episode history isolation](mlb-game-zero-episode-history-isolation/README.md)
+is under review. It would keep an unsupported zero-episode pinch-runner
+history withheld while adding the independently supported histories that were
+suppressed alongside it in two existing games. No new vocabulary or full-game
+replacement is proposed.
+
 [Q5/Q6 quarantine boundaries](../archive/design-records/mlb-game-quarantine-boundaries/README.md)
 was explicitly accepted on September 23. The archived decision covers the
 five initial pinch-hitter records and eight incomplete source censuses,
