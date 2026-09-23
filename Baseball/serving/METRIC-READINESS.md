@@ -100,6 +100,24 @@ The remaining two latest-day run-construction-depth histories are covered by
 the review-only [Q7 proposal](../proposals/mlb-game-zero-episode-history-isolation/README.md).
 Its named semantic approval is pending. No targeted addition has been executed.
 
+At 15:29 Eastern, NiFi published
+`20260923T175511Z-dashboard-4ca9b33c4b25`. The default September 16 request
+reported 560 ms of SQL execution but still **0/19 populated cards**. This
+immutable release predates the new admission reader and the four B1 repairs.
+Its full source checks took about 18 minutes at startup and 17 minutes at
+publication; the newly deployed write-counter cache addresses repeated scans.
+
+Retained SQL exposed a separate progress-calculation defect in three PAs:
+822926/14, 823332/35 and 824306/49. An admitted independent steal or wild-pitch
+prefix followed by two contact segments was rejected by the progress reducer,
+although the contribution reducer already supports that exact C1 history.
+Progress now delegates that separation to the existing helper. All three
+recorded cases resolve using unchanged retained graph evidence, with reach 2
+and separate runner credit. Fifteen focused tests cover terminal outs,
+steal/PB/WP prefixes, exact history membership and binding-order independence.
+NiFi must still publish these derived calculation changes. Other attribution
+gaps and the two Q7 histories are not resolved by this fix.
+
 ## Earlier release evidence
 
 The September 16 live check returned HTTP 200 in 16.8 seconds for

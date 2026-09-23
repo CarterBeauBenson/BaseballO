@@ -111,6 +111,28 @@ class ContributionPlayers(unittest.TestCase):
         self.assertFalse(inputs(rows[:-1])['complete'])
         last['originCode']='3B'
         self.assertFalse(inputs(rows)['complete'])
+        # Three segments: independent 1B->2B, contact 2B->3B->home.
+        # Progress and contribution must separate the same accepted prefix.
+        middle=dict(last,act='middle-act',episode='middle-episode',resolution='middle-safe',entity='middle-safe',
+            originCode='2B',originBase=GAME+'/base/2',hasSafeType='true',hasRunType='false',
+            destinationBase=GAME+'/base/3',destinationCode='3B',safeJudgment='middle-judgment',safeDecision='middle-decision')
+        last['originBase']=GAME+'/base/3'
+        history=dict(rows[-1],episode='middle-episode')
+        rows.extend([middle,history])
+        for mechanism in ('steal','WildPitchProcess','PassedBallProcess'):
+            if mechanism!='steal':
+                first.pop('independentStealAct',None)
+                first.update(independentRunningType=BASE+mechanism,independentRunningProcess='independent-process',
+                    independentRunningJudgment='independent-judgment',independentRunningDecision='independent-decision')
+            for out in (False,True):
+                last.update(hasOutType=str(out).lower(),hasRunType=str(not out).lower())
+                progress=M.batting_progress_evidence(rows)
+                self.assertEqual(progress['unresolvedPlateAppearances'],[],progress)
+                observed,=progress['plateAppearances']
+                self.assertEqual(observed['otherPositivePlayers'],[] if out else [RUNNER])
+                self.assertEqual([r['episode'] for r in observed['independentPositive']],['steal-episode'])
+                self.assertEqual(M.batting_progress_evidence(list(reversed(rows))),progress)
+                self.assertTrue(M.batting_progress_evidence(rows[:-1])['unresolvedPlateAppearances'])
 
     def test_third_out_strands_runner_without_invented_destruction(self):
         result=inputs(fixture())

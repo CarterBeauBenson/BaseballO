@@ -2088,6 +2088,19 @@ def batting_progress_evidence(rows):
             if len(members)!=1:
                 path=(contact_progress_path(members,histories,history_movements) if channel=='contact'
                       else dict(status='unavailable'))
+                if channel=='contact' and path['status']!='available':
+                    # An independently supported steal/PB/WP can precede a
+                    # multi-segment contact consequence in the same PA. C1
+                    # still has to reconcile the whole history. Reuse C2's
+                    # existing separation; the prefix keeps its runner credit.
+                    all_members=[candidates[0] for candidates in resolutions.values()
+                                 if candidates[0].get('runner')==runner]
+                    origins=[segment_origin(r) for r in all_members]
+                    if origins and all(origin is not None for origin in origins):
+                        mixed=split_steal_contact_path(all_members,histories,history_movements,min(origins))
+                        if mixed['status']=='available' and mixed['contactPlay']==support:
+                            path=dict(mixed,positive=mixed['end'] is not None and mixed['end']>mixed['start'],
+                                player=runner,trajectory=all_members[0]['trajectory'])
                 if path['status']!='available':
                     reasons.append('COMPLETE_CONSEQUENCE_COALESCENCE');continue
                 positive=path['positive'];coalesced.append(path)

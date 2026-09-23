@@ -199,6 +199,7 @@ def refresh_admission_inputs(connection, graph, previous, admissions):
     for text,sha in connection.execute('SELECT binding_json,binding_sha256 FROM metric_suite_evidence WHERE graph_iri=?',(graph,)):
         if METRICS._hash(text)!=sha:raise ValueError('Stored dashboard evidence changed')
         rows.append(json.loads(text))
+    rows.sort(key=METRICS._json)  # Preserve normalize_bindings' canonical order.
     proof=json.loads(connection.execute('SELECT proof_json FROM dashboard_checkpoint WHERE graph_iri=?',(graph,)).fetchone()[0])
     if len(rows)!=proof['evidenceRows']:raise ValueError('Stored dashboard evidence is incomplete')
     # Reuse the existing calculators; this path defines no separate metric math.
