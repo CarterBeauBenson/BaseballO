@@ -140,8 +140,10 @@ source dependencies, export hash and Jena report. No source response is
 reacquired and no authoritative triple is written. Ambiguous/multiple batters,
 other source discrepancies and graph disagreements remain withheld.
 
-Admission maintenance checks once per minute, with one JVM validation per tick,
-the existing memory guard and single worker. It prioritizes the latest published
+Admission maintenance checks once per minute, with one JVM validation per tick
+and a single worker. The bounded B1 check retains the 384 MiB Jena heap and
+requires 1 GiB available RAM; the larger raw-input refresh still requires
+1.5 GiB. It prioritizes the latest published
 dashboard day before historical games. This does not change daily acquisition
 or the 15-minute batch schedule. Dashboard checkpoints now distinguish changes
 to compatibility provenance from actual proof, RDF and calculation inputs;

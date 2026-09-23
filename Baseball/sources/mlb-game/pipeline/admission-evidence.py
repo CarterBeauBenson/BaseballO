@@ -193,7 +193,10 @@ def refresh_game(state,promotion,java,classpath,endpoint='http://127.0.0.1:3031/
         retained=RETAINED_BATTING.source_census(api,state,promotion)
         if retained is not None:
             memory=module(ROOT/'scripts/pipeline/process_state.py','retained_batting_memory').available_memory()
-            if memory is not None and memory<1536*1024*1024:
+            # One bounded graph and the existing 384 MiB Jena heap. Retain
+            # over 600 MiB outside that heap rather than applying the larger
+            # multi-profile/raw-input refresh reservation to this stage.
+            if memory is not None and memory<1024*1024*1024:
                 return dict(result,status='waiting-for-memory',availableMemoryBytes=memory)
             proof=RETAINED_BATTING.prove(api,state,promotion,retained,java,classpath,endpoint)
             return dict(result,status='refreshed',refreshed=['batting'],battingStatus=proof['status'])
