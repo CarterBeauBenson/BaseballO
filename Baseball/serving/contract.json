@@ -112,7 +112,7 @@
     "advanced_result_fact": "compatibility copy of reviewed advanced-query result rows while existing advanced candidate readers migrate to their dedicated DSQ tables",
     "dsq_query_manifest": "one immutable contract row per materialized DSQ naming its query hash, reducer, projected variables, dedicated table, and binding count",
     "dsq_*": "one dedicated persistent table per approved static DSQ; rows retain exact RDF bindings and authoritative game-graph scope before SQL reduction",
-    "batting_result_fact": "one reviewed plate-appearance result",
+    "batting_result_fact": "one reviewed plate-appearance result and actual batting participant; event totals count distinct result identities, and participation does not establish official statistical credit",
     "pitch_fact": "one pitch with its final MLB call code",
     "runner_event_fact": "one reviewed runner resolution",
     "assignment_fact": "one game-scoped team or official assignment",

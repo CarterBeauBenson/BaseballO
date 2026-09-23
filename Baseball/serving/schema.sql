@@ -123,7 +123,9 @@ CREATE TABLE batting_result_fact (
     team_iri TEXT NOT NULL,
     team_label TEXT NOT NULL,
     event_type TEXT NOT NULL,
-    PRIMARY KEY (graph_iri, result_iri)
+    -- A shared PA retains every actual batting participant. This association
+    -- does not assign official statistical credit to either participant.
+    PRIMARY KEY (graph_iri, result_iri, player_iri)
 ) STRICT;
 
 CREATE TABLE pitch_fact (

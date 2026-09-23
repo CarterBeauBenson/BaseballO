@@ -157,6 +157,57 @@ def result(bindings: list[dict[str, object]], variables: list[str] | None = None
 
 
 class ServingMaterializerTests(unittest.TestCase):
+    def test_shared_batting_result_survives_sql_build_without_inflating_totals(self):
+        import time
+        with tempfile.TemporaryDirectory() as directory:
+            state = Path(directory)
+            make_promotion(state, '1', B966)
+            graph = 'https://w3id.org/baseball/graph/game/1'
+            participants = ['https://baseballontology.org/data/player/1',
+                            'https://baseballontology.org/data/player/2']
+            batting = []
+            for event, players in [('double', participants), ('strikeout', participants[:1])]:
+                for player in players:
+                    batting.append({name: {'type': 'literal', 'value': value} for name, value in {
+                        'graph': graph, 'result': graph + '/' + event,
+                        'plateAppearance': graph + '/pa/' + event,
+                        'player': player, 'playerLabel': player.rsplit('/', 1)[-1],
+                        'team': 'https://baseballontology.org/data/team/1',
+                        'teamLabel': 'Team', 'eventType': event}.items()})
+            def source(_endpoint, query, _timeout):
+                if '?rdfGameSet ?venue ?venueLabel' in query:
+                    return result([dimension('1')])
+                if 'AS ?sourceCount' in query or 'AS ?indexCount' in query:
+                    return result([live_pair('1')])
+                if '# Indexed result identity and dimensions' in query:
+                    return result(batting)
+                return result([])
+            args = argparse.Namespace(state_root=state, endpoint='offline', timeout=1,
+                                      max_games=None, no_promote=True)
+            with patch.object(MODULE, 'sparql', side_effect=source), patch.object(
+                    MODULE, 'official_metadata', return_value={
+                        '1': {'gameSet': 'regular_season', 'officialDate': '2026-08-01'}}):
+                built = MODULE.build(args)
+            with closing(sqlite3.connect(built['databasePath'])) as db:
+                self.assertEqual(db.execute('SELECT COUNT(*) FROM batting_result_fact').fetchone()[0], 3)
+                self.assertEqual({r[0] for r in db.execute('SELECT DISTINCT player_iri FROM batting_result_fact')}, set(participants))
+                scope = dict(gameSet='regular_season', startDate='2026-08-01', endDate='2026-08-01')
+                build = ('build', 'f'*64, 'validated', 17, 0, 3, 0, 0, 0, 0, 0)
+                metrics = ['plate_appearances', 'hits', 'doubles', 'strikeouts', 'total_bases']
+                for dimensions in (['season'], ['team'], ['player']):
+                    response = MODULE._reader.query_explore(db, dict(route='explore', family='batting',
+                        dimensions=dimensions, metrics=metrics), build, dict(scope), time.perf_counter())
+                    rows = response['results']['bindings']
+                    for row in rows:
+                        self.assertEqual(row['hits']['value'], '1')
+                        self.assertEqual(row['doubles']['value'], '1')
+                        self.assertEqual(row['totalBases']['value'], '2')
+                    if dimensions != ['player']:
+                        self.assertEqual(rows[0]['plateAppearances']['value'], '2')
+                        self.assertEqual(rows[0]['strikeouts']['value'], '1')
+                    else:
+                        self.assertEqual(len(rows), 2)
+
     def test_index_reconciliation_preserves_source_proofs_and_retains_artifacts(self) -> None:
         spec = importlib.util.spec_from_file_location(
             "promotion_reconciler",

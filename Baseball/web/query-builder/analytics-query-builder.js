@@ -142,45 +142,47 @@ const FAMILY_DEFINITIONS = {
       },
       hits: {
         label: "Hits",
-        select: `(SUM(IF(?eventType IN ("single", "double", "triple", "home_run"), 1, 0)) AS ?hits)`,
+        // COUNT ignores expression errors: the nonmatching branch contributes
+        // no result identity, and shared batting participants cannot multiply it.
+        select: `(COUNT(DISTINCT IF(?eventType IN ("single", "double", "triple", "home_run"), ?result, 1/0)) AS ?hits)`,
         sortExpression: "?hits",
       },
       singles: {
         label: "Singles",
-        select: `(SUM(IF(?eventType = "single", 1, 0)) AS ?singles)`,
+        select: `(COUNT(DISTINCT IF(?eventType = "single", ?result, 1/0)) AS ?singles)`,
         sortExpression: "?singles",
       },
       doubles: {
         label: "Doubles",
-        select: `(SUM(IF(?eventType = "double", 1, 0)) AS ?doubles)`,
+        select: `(COUNT(DISTINCT IF(?eventType = "double", ?result, 1/0)) AS ?doubles)`,
         sortExpression: "?doubles",
       },
       triples: {
         label: "Triples",
-        select: `(SUM(IF(?eventType = "triple", 1, 0)) AS ?triples)`,
+        select: `(COUNT(DISTINCT IF(?eventType = "triple", ?result, 1/0)) AS ?triples)`,
         sortExpression: "?triples",
       },
       home_runs: {
         label: "Home runs",
-        select: `(SUM(IF(?eventType = "home_run", 1, 0)) AS ?homeRuns)`,
+        select: `(COUNT(DISTINCT IF(?eventType = "home_run", ?result, 1/0)) AS ?homeRuns)`,
         sortExpression: "?homeRuns",
       },
       walks: {
         label: "Walks",
-        select: `(SUM(IF(?eventType = "walk", 1, 0)) AS ?walks)`,
+        select: `(COUNT(DISTINCT IF(?eventType = "walk", ?result, 1/0)) AS ?walks)`,
         sortExpression: "?walks",
       },
       strikeouts: {
         label: "Strikeouts",
-        select: `(SUM(IF(?eventType = "strikeout", 1, 0)) AS ?strikeouts)`,
+        select: `(COUNT(DISTINCT IF(?eventType = "strikeout", ?result, 1/0)) AS ?strikeouts)`,
         sortExpression: "?strikeouts",
       },
       total_bases: {
         label: "Total bases",
-        select: `(SUM(IF(?eventType = "single", 1,
-                    IF(?eventType = "double", 2,
-                    IF(?eventType = "triple", 3,
-                    IF(?eventType = "home_run", 4, 0))))) AS ?totalBases)`,
+        select: `((COUNT(DISTINCT IF(?eventType = "single", ?result, 1/0)) +
+                    2*COUNT(DISTINCT IF(?eventType = "double", ?result, 1/0)) +
+                    3*COUNT(DISTINCT IF(?eventType = "triple", ?result, 1/0)) +
+                    4*COUNT(DISTINCT IF(?eventType = "home_run", ?result, 1/0))) AS ?totalBases)`,
         sortExpression: "?totalBases",
       },
       games: {

@@ -41,13 +41,13 @@ def fixture(batters=1, pitchers=1):
 
 @unittest.skipUnless(os.environ.get('BASEBALLO_TEST_JENA_CLASSPATH'), 'requires the deployed Jena runtime')
 class LegacyPaqQueryTests(unittest.TestCase):
-    def run_query(self, dataset):
+    def run_query(self, dataset, query=QUERY):
         # Exercise the production engine, including empty grouped results and
         # optional unbound aggregates which RDFLib evaluates differently.
         with tempfile.TemporaryDirectory() as directory:
             work = Path(directory)
             dataset.serialize(work / 'fixture.trig', format='trig')
-            (work / 'query.rq').write_text(QUERY, encoding='utf-8')
+            (work / 'query.rq').write_text(query, encoding='utf-8')
             (work / 'QueryFixture.java').write_text('''
 import org.apache.jena.query.*;
 import org.apache.jena.riot.RDFDataMgr;
@@ -69,6 +69,24 @@ class QueryFixture {
                 capture_output=True, text=True, encoding='utf-8', timeout=60)
             self.assertEqual(result.returncode, 0, result.stderr)
             return json.loads(result.stdout)['results']['bindings']
+
+    def test_batting_aggregate_fallback_counts_shared_results_once(self):
+        source = """
+import {ANALYTICS_QUERY_FAMILIES as F} from './web/query-builder/analytics-query-builder.js';
+console.log(JSON.stringify(Object.entries(F.batting.metrics)
+  .filter(([key]) => key !== 'games').map(([, metric]) => metric.select)));
+"""
+        expressions = json.loads(subprocess.check_output(
+            ['node', '--input-type=module', '--eval', source], cwd=ROOT, text=True))
+        query = 'SELECT ' + ' '.join(expressions) + ''' WHERE {
+          VALUES (?result ?eventType) {
+            (<urn:double> "double") (<urn:double> "double") (<urn:out> "strikeout")
+          }
+        }'''
+        row = self.run_query(Dataset(), query)[0]
+        self.assertEqual({key: int(value['value']) for key, value in row.items()}, {
+            'plateAppearances': 2, 'hits': 1, 'singles': 0, 'doubles': 1,
+            'triples': 0, 'homeRuns': 0, 'walks': 0, 'strikeouts': 1, 'totalBases': 2})
 
     def test_substituted_batters_withhold_legacy_score_without_removing_participation(self):
         dataset, graph = fixture(batters=2)

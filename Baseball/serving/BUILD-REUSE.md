@@ -110,6 +110,14 @@ No acquisition, RML transformation, or authoritative graph replacement occurs.
 SQL-only publication can then use the existing DSQ request independently of an
 unfinished acquisition batch.
 
+The batting-result SQL table retains one row per result and actual batting
+participant, matching the accepted index's substituted-batter support. Team and
+season totals count distinct result identities; weighted total bases use those
+same distinct hit counts. Participation rows do not establish official batting
+credit. The separate metric-suite admission rules still determine qualification.
+The legacy PAQ-1 table withholds ambiguous shared-batter scores independently;
+that limitation must not prevent other SQL tables or dashboard metrics from building.
+
 ## Query execution and checkpoints
 
 The parsed query algebra must confine every graph read to that graph pair.
