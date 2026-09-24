@@ -236,5 +236,25 @@ class DashboardMaterializer(unittest.TestCase):
         with D.writer_lock(lock): pass
         self.assertEqual(lock.stat().st_size,1)
 
+    def test_malformed_or_mismatched_pointer_is_repaired_without_recalculating_games(self):
+        D.build(self.args)
+        self.args.force=False
+        pointer_path=self.state/'serving/dashboard-current.json'
+        for damage in ('truncated-json','wrong-shape','wrong-build-id'):
+            with self.subTest(damage=damage):
+                previous=self.pointer()
+                if damage=='truncated-json':pointer_path.write_text('{"buildId":',encoding='utf-8')
+                elif damage=='wrong-shape':pointer_path.write_text('[]',encoding='utf-8')
+                else:D.RELEASE.atomic(pointer_path,dict(previous,buildId='incorrect-build'))
+                self.fetched.clear()
+                with patch.object(D.METRICS,'materialize_game',side_effect=AssertionError('Retained game work')):
+                    result=D.build(self.args)
+                self.assertEqual(result['status'],'published')
+                self.assertEqual(self.fetched,[])
+                self.assertTrue(result['previousPublicationIssue'])
+                output=D.SOURCE._reader.query(self.args,dict(route='metric-suite',view='dashboard',
+                    gameSet='regular_season',dateScope=dict(preset='one_day')))
+                self.assertEqual(output['graphCount'],2)
+
 
 if __name__ == '__main__': unittest.main()

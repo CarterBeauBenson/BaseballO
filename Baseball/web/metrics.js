@@ -348,12 +348,43 @@ export function dashboardSummary(payload) {
   return summary;
 }
 
+export function metricCardPresentation(payload, metric) {
+  const result = payload?.metric ?? payload?.metrics?.find(row => row.metricId === metric.id);
+  if (!result) return {state:'unloaded',hasPlayers:false,hasResults:false,hasGaps:false,
+    headline:'Not loaded',badge:'Load selected-game results'};
+  const presentation = resultPresentation({...payload, metric:result}, metric);
+  if (presentation.state === 'empty') return {...presentation,hasPlayers:false,hasResults:false,hasGaps:false};
+  const board = result.leaderboard, groups = board?.groups ?? [board];
+  const complete = groups.length > 0 && groups.every(group => ['available','empty'].includes(group?.status));
+  const hasPlayers = board?.status === 'available' && Boolean(board.rows?.length);
+  const state = {...presentation,hasPlayers,hasResults:hasPlayers || ['available','partial'].includes(presentation.state),
+    hasGaps:!complete,noQualifiers:complete && !hasPlayers};
+  if (hasPlayers) return {...state,state:complete ? 'available' : 'partial',
+    badge:complete ? 'Player results available' : 'Some player results available',
+    headline:`${board.rows.length} qualified ${board.groups ? 'player entries' : 'players'}`,
+    message:complete ? 'Qualified player results are ready for this period.' : 'Player results are available for some review mechanisms; others remain incomplete.'};
+  if (complete) return {...state,state:'empty',badge:'No qualifying players',headline:'Participation minimum not met',
+    message:board.message ?? 'No players meet the participation minimum for this period.'};
+  return state;
+}
+
+export function metricVisible(presentation, visibility) {
+  return visibility === 'results' ? presentation.hasResults : visibility === 'gaps' ? presentation.hasGaps : true;
+}
+
 export function dashboardLoadStatus(payload) {
   const games = payload.graphCount ?? payload.metrics?.[0]?.coverage?.games ?? 0;
-  const leaders = payload.metrics?.filter(metric => metric.leaderboard?.status === 'available' && metric.leaderboard.rows?.length).length ?? 0;
   if (!games) return 'No games in this selection. Try another date range.';
-  if (!leaders) return `Game data loaded for ${games} game${games === 1 ? '' : 's'}, but no player leaderboards are available. Complete player scores and participation requirements are still missing. Refreshing will not create those scores.`;
-  return `${leaders} player leaderboard${leaders === 1 ? '' : 's'} loaded. Select a card to see all qualified players and their evidence.`;
+  const cards = (payload.metrics ?? []).map(metric => metricCardPresentation({...payload,metric},{unit:''}));
+  const leaders = cards.filter(card => card.hasPlayers).length;
+  const empty = cards.filter(card => card.noQualifiers).length;
+  const incomplete = cards.filter(card => card.hasGaps).length;
+  const messages = [leaders ? `${leaders} player leaderboard${leaders === 1 ? '' : 's'} loaded.` :
+    `Game data loaded for ${games} game${games === 1 ? '' : 's'}, but no player leaderboards are available.`];
+  if (empty) messages.push(`No players meet the participation minimum for ${empty} leaderboard${empty === 1 ? '' : 's'}.`);
+  if (incomplete) messages.push(`${incomplete} leaderboard${incomplete === 1 ? ' still has' : 's still have'} incomplete player results.`);
+  if (leaders) messages.push('Select a card to see all qualified players and their evidence.');
+  return messages.join(' ');
 }
 
 export function matchesMetric(metric, term, group = 'all') {
@@ -445,12 +476,11 @@ function renderList() {
   const ordered = catalog.groups.flatMap(group => catalog.metrics.filter(metric => metric.presentation.group === group.id));
   const buttons = ordered.filter(m => matchesMetric(m, term, group)).flatMap(metric => {
     const result = dashboardResult?.metrics.find(result => result.metricId === metric.id);
-    const presentation = result ? resultPresentation({ ...dashboardResult, metric: result }, metric) : null;
-    if (visibility === 'results' && !['available', 'partial'].includes(presentation?.state)) return [];
-    if (visibility === 'gaps' && presentation?.state !== 'unavailable' && presentation?.state !== 'partial') return [];
+    const presentation = metricCardPresentation(dashboardResult, metric);
+    if (!metricVisible(presentation, visibility)) return [];
     const button = node('button'); button.type = 'button'; button.dataset.id = metric.id;
-    const hasLeaders = result?.leaderboard?.status === 'available';
-    button.dataset.state = hasLeaders ? 'available' : presentation?.state ?? 'unloaded';
+    const hasLeaders = presentation.hasPlayers;
+    button.dataset.state = presentation.state;
     const category = node('small', catalog.groups.find(group => group.id === metric.presentation.group).label); category.className = 'card-category';
     const question = node('p', metric.presentation.question); question.className = 'card-question';
     button.append(category, node('span', metric.label), question);
@@ -522,7 +552,7 @@ function download(name, payload) {
 function showResult(payload) {
   lastResult = payload;
   const result = payload.metric;
-  const presentation = resultPresentation(payload, selected);
+  const presentation = metricCardPresentation(payload, selected);
   byId('result').dataset.state = presentation.state;
   byId('result-badge').textContent = presentation.badge;
   byId('result-dates').textContent = resultDateLabel(payload);
@@ -530,9 +560,10 @@ function showResult(payload) {
   byId('loaded-dates').textContent = loaded.availableStartDate && loaded.availableEndDate ?
     `Loaded dates: ${loaded.availableStartDate} to ${loaded.availableEndDate}.` : '';
   byId('score-value').textContent = presentation.headline;
-  const single = presentation.state === 'partial' && result.consequences?.length === 1 ? result.consequences[0] : null;
-  const singleRun = result.runs?.length === 1 ? result.runs[0] : null;
-  const displayed = result.value ?? single?.value ?? singleRun?.value;
+  const eventHeadline = !presentation.hasPlayers && !presentation.noQualifiers;
+  const single = eventHeadline && presentation.state === 'partial' && result.consequences?.length === 1 ? result.consequences[0] : null;
+  const singleRun = eventHeadline && result.runs?.length === 1 ? result.runs[0] : null;
+  const displayed = eventHeadline ? result.value ?? single?.value ?? singleRun?.value : null;
   byId('score-exact').textContent = displayed ? `Exact: ${displayed.numerator}/${displayed.denominator}` : '';
   byId('result-subject').textContent = single ?
     `${displayPlayer(payload.display?.labels, single.graph, single.batter)} · Game ${single.graph.split('/').at(-1)} · PA source index ${single.plateAppearance.split('/').at(-1)}` :

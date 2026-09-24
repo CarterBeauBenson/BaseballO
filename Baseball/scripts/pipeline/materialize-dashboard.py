@@ -281,27 +281,30 @@ def build(args):
 def build_locked(args, state, serving, work):
     pointer_path = serving/POINTER
     notification, latest = notification_key(state)
-    old_pointer = RELEASE.read(pointer_path) if pointer_path.is_file() else {}
+    publication_issue = None
+    try:
+        old_pointer = RELEASE.read(pointer_path) if pointer_path.is_file() else {}
+        if not isinstance(old_pointer, dict): raise ValueError('Dashboard pointer is not a JSON object')
+    except (ValueError, UnicodeError) as error:
+        # Preserve the damaged file until a successful atomic publication.
+        # Its bytes are derived metadata, never a reason to repeat ingestion.
+        old_pointer = {}
+        publication_issue = str(error)
     if not args.force and not args.max_games and old_pointer.get('notificationKey') == notification:
-        # Unchanged sources do not prove that the derived publication still
-        # exists. Reuse the reader's cached file verification; a lost/corrupt
-        # snapshot is republished from committed work by the normal build.
-        database = Path(str(old_pointer.get('databasePath', ''))).resolve()
-        if database.parent == (work/'builds').resolve() and database.suffix == '.sqlite':
-            try:
-                expected_sha = old_pointer.get('databaseSha256')
-                SOURCE._reader.verify_database(database, expected_sha,
-                    SOURCE._reader.database_verification_cache_path(serving, expected_sha))
-            except (OSError, ValueError):
-                pass
-            else:
+        # Reuse the reader's existing file and metadata checks without scoring
+        # anything. Valid bytes with a mismatched pointer are not a usable build.
+        try:
+            with SOURCE._reader.dashboard_database(state, old_pointer):
                 return dict(status='unchanged', buildId=old_pointer['buildId'])
+        except (OSError, ValueError, sqlite3.Error) as error:
+            publication_issue = str(error)
     if not args.force and time.time_ns() - latest < args.quiet_seconds * 1_000_000_000:
         return dict(status='waiting-for-source', reason='Recent promotion or schedule update')
     started = time.perf_counter()
     build_id = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')+'-dashboard-'+uuid.uuid4().hex[:12]
     progress = dict(artifactType='baseballo-dashboard-build-progress', buildId=build_id, processId=os.getpid(),
                     status='running', phase='source-snapshot', completedGames=0, changedGames=0, reusedGames=0)
+    if publication_issue: progress['previousPublicationIssue'] = publication_issue
     progress_path = work/'progress.json'
     phase_started = time.perf_counter()
     durations = {}

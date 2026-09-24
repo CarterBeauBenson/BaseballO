@@ -191,15 +191,31 @@ export async function compileMetricDisplayQuery(targets) {
     .replace('# DISPLAY_ROWS', targets.map(t => `(<${t.graph}> <${t.entity}>)`).join('\n'));
 }
 
+export function metricLabelIndex(labels) {
+  const index = new Map();
+  for (const {entity, graph, label} of labels) {
+    if (!index.has(entity)) index.set(entity, new Map());
+    const graphs = index.get(entity);
+    if (!graphs.has(graph)) graphs.set(graph, new Set());
+    graphs.get(graph).add(label);
+  }
+  return index;
+}
+
 export function labelMetricPlayers(metric, labels) {
-  if (!Array.isArray(metric.playerResults)) return metric;
-  return { ...metric, playerResults: metric.playerResults.map(row => {
+  const index = labels instanceof Map ? labels : metricLabelIndex(labels);
+  const named = row => {
     const graphs = new Set(row.graphs ?? (metric.runs ?? []).filter(run => run.runner === row.player).map(run => run.graph));
-    const names = new Set(labels.filter(label => label.entity === row.player && graphs.has(label.graph)).map(label => label.label));
+    const playerNames = index.get(row.player), names = new Set();
+    for (const graph of graphs) for (const name of playerNames?.get(graph) ?? []) names.add(name);
     if (names.size === 1) return { ...row, playerLabel: [...names][0] };
     if (names.size > 1) { const { playerLabel, ...unnamed } = row; return unnamed; }
     return row;
-  }) };
+  };
+  return { ...metric,
+    ...(Array.isArray(metric.playerResults) ? {playerResults:metric.playerResults.map(named)} : {}),
+    ...(metric.byMechanism ? {byMechanism:Object.fromEntries(Object.entries(metric.byMechanism)
+      .map(([id, result]) => [id, labelMetricPlayers(result, index)]))} : {}) };
 }
 
 export function normalizeMetricDisplayLabels(bindings, targets) {

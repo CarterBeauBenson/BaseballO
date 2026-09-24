@@ -4,6 +4,13 @@ The [accepted display and qualification decision](../archive/design-records/metr
 requires names and metric values for the top five qualified players, automatic
 loading on page entry and date changes, and a complete list on card selection.
 
+Cards, result filters and detail headlines distinguish qualified players,
+complete populations with no qualifiers, and incomplete player results.
+A missing aggregate score does not hide a supported player leaderboard.
+Review mechanisms retain their separate availability; one populated mechanism
+does not make the other complete. Prepared graph-scoped names apply to each
+mechanism's player rows as well as ordinary player summaries.
+
 The page loads its restored date selection once after the catalog arrives.
 Range changes immediately invalidate old scores/downloads and cancel requests;
 400 ms of quiet input starts one shared refresh. Invalid or reversed custom

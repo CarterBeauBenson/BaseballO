@@ -5,7 +5,7 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { createBaseballServer } from '../server.mjs';
 import { metricCatalog, validateMetricRequest, validateDashboardRequest, compileMetricEvidenceQuery, metricDisplayTargets, compileMetricDisplayQuery, normalizeMetricDisplayLabels, labelMetricPlayers, automaticMinimumPA, automaticMinimumObservations, playerLeaderboard, playerSummaryValue, publicMetricResult, dashboardReadiness } from '../query-builder/metric-suite-query-builder.js';
-import { displayFraction, resultHeadline, movementEvidenceLabel, consequencePresentation, runMetricPresentation, formatMetricValue, resultPresentation, resultDateLabel, selectionFromUrl, displayPlayer, exampleAnswer, dashboardSummary, matchesMetric, metricRanking, dashboardLoadStatus, unresolvedRunRows } from '../metrics.js';
+import { displayFraction, resultHeadline, movementEvidenceLabel, consequencePresentation, runMetricPresentation, formatMetricValue, resultPresentation, resultDateLabel, selectionFromUrl, displayPlayer, exampleAnswer, dashboardSummary, matchesMetric, metricRanking, dashboardLoadStatus, metricCardPresentation, metricVisible, unresolvedRunRows } from '../metrics.js';
 
 test('unresolved runs keep their identities and explain the actual evidence problem', () => {
   const evidence = { graph: 'https://w3id.org/baseball/graph/game/566279',
@@ -23,7 +23,7 @@ test('unresolved runs keep their identities and explain the actual evidence prob
 test('loaded game evidence does not report that player leaderboards are ready', () => {
   const missing = { graphCount: 14, metrics: [{status:'available',value:{numerator:'1',denominator:'2'}}] };
   assert.match(dashboardLoadStatus(missing), /no player leaderboards are available/);
-  assert.match(dashboardLoadStatus(missing), /Refreshing will not create those scores/);
+  assert.match(dashboardLoadStatus(missing), /incomplete player results/);
   assert.match(dashboardLoadStatus({ graphCount: 0, metrics: [] }), /No games/);
   assert.match(dashboardLoadStatus({ graphCount: 14, metrics: [{leaderboard:{status:'available',rows:[{player:'1'}]}}] }), /^1 player leaderboard loaded/);
   assert.match(dashboardLoadStatus({ graphCount: 14, metrics: [{leaderboard:{status:'available',rows:[]}}] }), /no player leaderboards/);
@@ -31,6 +31,33 @@ test('loaded game evidence does not report that player leaderboards are ready', 
 
 const leaderboardScope = { startDate: '2026-09-01', endDate: '2026-09-07', gameSet: 'regular_season' };
 const leaderboardMetric = { id: 'tfs', higherIs: 'better' };
+
+test('a complete leaderboard with no qualifiers is not reported as missing evidence', () => {
+  const payload={graphCount:7,metrics:[{metricId:'tfs',status:'unavailable',leaderboard:{status:'empty',rows:[]}}]};
+  assert.match(dashboardLoadStatus(payload), /participation minimum/);
+  assert.doesNotMatch(dashboardLoadStatus(payload), /missing|incomplete|Refreshing/);
+});
+
+test('partly populated review mechanisms are identified in the dashboard status', () => {
+  const payload={graphCount:7,metrics:[{leaderboard:{status:'available',rows:[{player:'1'}],groups:[
+    {status:'available',rows:[{player:'1'}]}, {status:'unavailable',rows:[]}]}}]};
+  assert.match(dashboardLoadStatus(payload), /incomplete/);
+});
+
+test('card filters retain player rankings without a pooled score and distinguish complete empty populations', () => {
+  const result={metricId:'tfs',status:'unavailable',leaderboard:{status:'available',rows:[{player:'1'}]}};
+  const card=metricCardPresentation({graphCount:7,metric:result},{id:'tfs'});
+  assert.equal(card.state,'available'); assert.equal(card.hasPlayers,true);
+  assert.match(card.headline,/qualified players/);
+  assert.equal(metricVisible(card,'results'),true); assert.equal(metricVisible(card,'gaps'),false);
+  const empty=metricCardPresentation({graphCount:7,metric:{...result,leaderboard:{status:'empty',rows:[]}}},{id:'tfs'});
+  assert.equal(empty.noQualifiers,true); assert.equal(metricVisible(empty,'gaps'),false);
+  const partial=metricCardPresentation({graphCount:7,metric:{...result,leaderboard:{...result.leaderboard,
+    groups:[result.leaderboard,{status:'unavailable',rows:[]}]}}},{id:'tfs'});
+  assert.equal(partial.state,'partial'); assert.equal(metricVisible(partial,'results'),true);
+  assert.equal(metricVisible(partial,'gaps'),true);
+  assert.equal(metricVisible(metricCardPresentation(null,{id:'tfs'}),'results'),false);
+});
 function playerScore(id, numerator, extras = {}) {
   const row = { player: `https://baseballontology.org/data/player/${id}`, playerLabel: `Player ${id}`,
     metricId: 'tfs', status: 'available', dateScope: leaderboardScope, completeParticipation: true,
@@ -113,6 +140,26 @@ test('player cards use scoped names without letting labels change identities or 
   assert.equal(labelMetricPlayers(metric,[{...label,graph:graph+'2'}]).playerResults[0].playerLabel,'Player 1');
   const ambiguous=labelMetricPlayers(metric,[label,{...label,label:'Conflicting Name'}]);
   assert.equal(ambiguous.playerResults[0].playerLabel,undefined);
+});
+
+test('prepared names reach separate review populations without changing their scores', () => {
+  const graph='https://w3id.org/baseball/graph/game/101';
+  const row=playerScore(1,1,{graphs:[graph]});
+  const source={playerResults:[],byMechanism:{'traditional-replay':{playerResults:[row]}}};
+  const named=labelMetricPlayers(source,[{graph,entity:row.player,label:'Prepared Player'}]);
+  assert.equal(named.byMechanism['traditional-replay'].playerResults[0].playerLabel,'Prepared Player');
+  assert.equal(source.byMechanism['traditional-replay'].playerResults[0].playerLabel,'Player 1');
+  assert.deepEqual(named.byMechanism['traditional-replay'].playerResults[0].aggregate,row.aggregate);
+});
+
+test('naming players does not rescan every selected-game label for every player', () => {
+  let visits=0;
+  const graph='https://w3id.org/baseball/graph/game/101';
+  const players=Array.from({length:100},(_,i)=>playerScore(i+1,1,{graphs:[graph]}));
+  const labels=players.map(row=>({graph,get entity(){visits++;return row.player;},label:'Prepared '+row.player}));
+  const named=labelMetricPlayers({playerResults:players},labels);
+  assert.ok(named.playerResults.every(row=>row.playerLabel==='Prepared '+row.player));
+  assert.ok(visits<=labels.length*2,`Read ${visits} label identities for ${labels.length} labels`);
 });
 
 test('run contributor details are not presented as episode depth', () => {

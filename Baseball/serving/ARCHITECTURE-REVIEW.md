@@ -31,6 +31,25 @@ semantic approval, RML execution or RDF rebuild was introduced. These are code
 and fixture results; live publication and population status remain in
 [metric readiness](METRIC-READINESS.md).
 
+## Second hostile sweep: presentation and publication recovery
+
+This pass found further failures in user-visible status, name resolution and
+derived-publication recovery. The fixes preserve the existing qualification
+rules and metric calculations.
+
+| Finding | Revision |
+| --- | --- |
+| Complete player populations with nobody meeting the minimum were described as missing evidence. | Status now distinguishes no qualifiers from incomplete player results. |
+| The "With results" filter used the aggregate score's status and could hide a qualified player leaderboard. Details could also headline "Unavailable" above valid player rows. | Cards, filters and detail headlines use qualified player availability while retaining independently supported event details. |
+| A review leaderboard with one populated mechanism and another unresolved mechanism was announced without its incomplete coverage. | Status and coverage filtering retain the unresolved mechanism alongside the available players. |
+| Prepared names were applied only to top-level player rows, skipping `byMechanism` review populations. | Names now reach each separate population, preserving graph scope, conflicting-name handling and original score inputs. |
+| Every player rescanned every selected-game label, repeated across metrics. A 100-player/100-label fixture made 10,000 label-identity reads. | One graph-scoped label index is built per response and reused across players, metrics and review populations. |
+| A truncated/non-object publication pointer stopped recovery; a pointer with an incorrect build ID could still return `unchanged` when its database checksum matched. | Builder and reader share the same publication-opening checks. Damaged metadata is recorded as `previousPublicationIssue`, and committed SQL game work is reused to publish a replacement. The old pointer is replaced only after success. |
+
+Checks for this revision: 50 metric-interface tests and 11 dashboard
+materializer/recovery tests passed. No live-data rebuild or production
+population claim is part of these results.
+
 ## Remaining engineering risks
 
 - **Operational independence exceeds code independence.** The dashboard builder

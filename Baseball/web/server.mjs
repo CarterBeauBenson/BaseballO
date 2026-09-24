@@ -9,7 +9,7 @@ import {
   ANALYTICS_QUERY_FAMILIES,
   compileAnalyticsQuery,
 } from "./query-builder/analytics-query-builder.js";
-import { metricCatalog, validateMetricRequest, validateDashboardRequest, labelMetricPlayers, playerLeaderboard, publicMetricResult, dashboardReadiness } from './query-builder/metric-suite-query-builder.js';
+import { metricCatalog, validateMetricRequest, validateDashboardRequest, metricLabelIndex, labelMetricPlayers, playerLeaderboard, publicMetricResult, dashboardReadiness } from './query-builder/metric-suite-query-builder.js';
 import {
   buildPublicDerivedMetricCatalog,
   compileDerivedMetricQuery,
@@ -838,8 +838,9 @@ export function createBaseballServer({
   async function metricDisplay(result) {
     const definitions = new Map((await metricCatalog()).metrics.map(metric => [metric.id, metric]));
     const display = result.display ?? {source:'identifier-fallback',labels:[]};
+    const labels = metricLabelIndex(display.labels);
     const ranked = metric => {
-      const named = labelMetricPlayers(metric, display.labels);
+      const named = labelMetricPlayers(metric, labels);
       return definitions.has(metric.metricId) ? {...publicMetricResult(named),
         leaderboard:playerLeaderboard(named, definitions.get(metric.metricId), result.dateScope)} : named;
     };
