@@ -291,9 +291,10 @@ def build_locked(args, state, serving, work):
         old_pointer = {}
         publication_issue = str(error)
     if not args.force and not args.max_games and old_pointer.get('notificationKey') == notification:
-        # Reuse the reader's existing file and metadata checks without scoring
-        # anything. Valid bytes with a mismatched pointer are not a usable build.
+        # Reuse the launcher's release check and the reader's database checks.
+        # Both halves of the publication must remain readable; no scoring here.
         try:
+            RELEASE.resolve_pointer_release(state, old_pointer)
             with SOURCE._reader.dashboard_database(state, old_pointer):
                 return dict(status='unchanged', buildId=old_pointer['buildId'])
         except (OSError, ValueError, sqlite3.Error) as error:
@@ -427,15 +428,26 @@ def build_locked(args, state, serving, work):
                        inputSetSha256=input_set, metricSuiteSha256=METRICS.fingerprint(), schemaSha256=SOURCE.sha256_file(SCHEMA),
                        runtimeRelease=RELEASE.own_descriptor(ROOT), notificationKey=notification,
                        gameCount=len(expected), promotedAtUtc=datetime.now(timezone.utc).isoformat())
-        if args.max_games or args.no_promote:
-            checkpoint(status='ready-for-promotion', databasePath=str(published))
-        else:
-            RELEASE.atomic(pointer_path,pointer)
-            checkpoint(status='published', databasePath=str(published))
-            retain_snapshots(published.parent,published)
+        # Save the complete candidate evidence before changing the reader's
+        # pointer. A storage failure here must preserve the prior publication.
+        checkpoint(status='ready-for-promotion', databasePath=str(published))
         evidence = dict(progress, durationSeconds=round(time.perf_counter()-started,2), queryCache=cache.stats,
                         metricProductCache=products.stats, references=references, pointer=pointer)
-        RELEASE.atomic(serving/'evidence'/(build_id+'.json'), evidence)
+        evidence_path = serving/'evidence'/(build_id+'.json')
+        RELEASE.atomic(evidence_path, evidence)
+        if args.max_games or args.no_promote: return evidence
+        RELEASE.atomic(pointer_path,pointer)
+        # The atomic pointer is the commit point. Bookkeeping errors cannot
+        # undo it or truthfully turn the already readable build into a failure.
+        warnings = []
+        try: retain_snapshots(published.parent,published)
+        except OSError as error: warnings.append('Snapshot retention: '+str(error))
+        try: checkpoint(status='published', postPublicationWarnings=warnings)
+        except OSError as error: warnings.append('Progress record: '+str(error))
+        evidence.update(progress, durationSeconds=round(time.perf_counter()-started,2))
+        try: RELEASE.atomic(evidence_path, evidence)
+        except OSError as error: warnings.append('Publication evidence status: '+str(error))
+        # NiFi receives these warnings even if local status writes are blocked.
         return evidence
     except SOURCE.SourceSnapshotChanged as error:
         checkpoint(status='waiting-for-source',reason=str(error))

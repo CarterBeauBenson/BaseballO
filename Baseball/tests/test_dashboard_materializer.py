@@ -236,6 +236,57 @@ class DashboardMaterializer(unittest.TestCase):
         with D.writer_lock(lock): pass
         self.assertEqual(lock.stat().st_size,1)
 
+    def test_unusable_paired_release_is_repaired_without_recalculating_games(self):
+        D.build(self.args)
+        self.args.force=False
+        for descriptor in ({'releaseId':'a'*64}, [], {'releaseId':123}):
+            with self.subTest(descriptor=descriptor):
+                previous=self.pointer()
+                D.RELEASE.atomic(self.state/'serving/dashboard-current.json',dict(previous,runtimeRelease=descriptor))
+                self.fetched.clear()
+                with patch.object(D.METRICS,'materialize_game',side_effect=AssertionError('Retained game work')):
+                    result=D.build(self.args)
+                self.assertEqual(result['status'],'published')
+                self.assertEqual((result['changedGames'],result['reusedGames']),(0,2))
+                self.assertEqual(self.fetched,[])
+                self.assertTrue(result['previousPublicationIssue'])
+                self.assertNotEqual(self.pointer()['buildId'],previous['buildId'])
+
+    def test_evidence_write_failure_preserves_previous_publication(self):
+        D.build(self.args)
+        previous=self.pointer()
+        atomic=D.RELEASE.atomic
+        def unavailable_evidence(path,value):
+            if path.parent.name=='evidence':raise OSError('evidence storage unavailable')
+            return atomic(path,value)
+        with patch.object(D.RELEASE,'atomic',side_effect=unavailable_evidence):
+            with self.assertRaisesRegex(OSError,'evidence storage'):D.build(self.args)
+        self.assertEqual(self.pointer(),previous)
+
+    def test_post_publication_io_failures_do_not_report_failed_build(self):
+        D.build(self.args)
+        atomic=D.RELEASE.atomic
+        for failure in ('progress','evidence','retention'):
+            with self.subTest(failure=failure):
+                previous=self.pointer()
+                def unavailable_bookkeeping(path,value):
+                    if value.get('status')=='published' and (
+                            failure=='progress' and path.name=='progress.json' or
+                            failure=='evidence' and path.parent.name=='evidence'):
+                        raise OSError(failure+' storage unavailable')
+                    return atomic(path,value)
+                with ExitStack() as stack:
+                    stack.enter_context(patch.object(D.RELEASE,'atomic',side_effect=unavailable_bookkeeping))
+                    if failure=='retention':
+                        stack.enter_context(patch.object(D,'retain_snapshots',side_effect=OSError('retention unavailable')))
+                    result=D.build(self.args)
+                self.assertEqual(result['status'],'published')
+                self.assertTrue(result['postPublicationWarnings'])
+                self.assertNotEqual(self.pointer()['buildId'],previous['buildId'])
+                saved=D.RELEASE.read(self.state/'serving/evidence'/(result['buildId']+'.json'))
+                self.assertEqual(saved['pointer'],self.pointer())
+                with D.SOURCE._reader.dashboard_database(self.state,self.pointer()):pass
+
     def test_malformed_or_mismatched_pointer_is_repaired_without_recalculating_games(self):
         D.build(self.args)
         self.args.force=False

@@ -50,6 +50,31 @@ Checks for this revision: 50 metric-interface tests and 11 dashboard
 materializer/recovery tests passed. No live-data rebuild or production
 population claim is part of these results.
 
+## Final sweep: publication boundaries and detail scope
+
+The final pass stayed within these changed paths and their immediate release
+dependencies. It reproduced and corrected three remaining failure modes:
+
+- An intact SQL snapshot with a missing or malformed paired runtime release
+  still returned `unchanged`. The builder now reuses the launcher's release
+  verification as well as the reader's database checks. An unusable pairing
+  returns to normal SQL publication with committed game calculations retained.
+- The pointer changed before build evidence was saved, and later progress,
+  evidence-status or retention I/O errors reported the already published build
+  as failed. Complete candidate evidence is now saved before the atomic pointer
+  change. Failures before that commit point preserve the previous publication;
+  bookkeeping errors afterward remain explicit `postPublicationWarnings` in
+  the NiFi result. If the final evidence-status update cannot be saved, the
+  candidate evidence remains intact and the active pointer establishes whether
+  that candidate was published.
+- Detail scope text could describe partial review results as Walk/HBP advances
+  and complete run results as incomplete. It now follows the player board or
+  the actual supported event population.
+
+The new regressions failed before the corrections. The final focused run passed
+51 metric-interface tests and 24 dashboard-materializer/release tests. This
+pass made no ontology or mapping changes and did not run live data processing.
+
 ## Remaining engineering risks
 
 - **Operational independence exceeds code independence.** The dashboard builder

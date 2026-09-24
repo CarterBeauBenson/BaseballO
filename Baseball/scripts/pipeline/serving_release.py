@@ -50,8 +50,10 @@ def safe_relative(value):
 
 
 def verify_release(state, descriptor):
+    if not isinstance(descriptor, dict): raise ValueError('Invalid serving release descriptor')
     release_id=descriptor.get('releaseId', '')
-    if not re.fullmatch('[0-9a-f]{64}', release_id): raise ValueError('Invalid serving release identity')
+    if not isinstance(release_id, str) or not re.fullmatch('[0-9a-f]{64}', release_id):
+        raise ValueError('Invalid serving release identity')
     releases=(Path(state)/'serving/releases').resolve()
     directory=releases/release_id
     if directory.is_symlink() or directory.resolve().parent != releases: raise ValueError('Serving release escaped its directory')

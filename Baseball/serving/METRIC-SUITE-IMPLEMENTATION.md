@@ -87,12 +87,18 @@ the pointer. Readers retain their file-identity checks, but a newly published
 database no longer requires a full file hash during its first HTTP request.
 Each database has its own receipt so concurrent old and new readers do not
 invalidate each other's verification cache.
-The builder and reader share the cached file and publication-metadata checks
-before reporting an unchanged publication or reading scores. A missing or
-corrupt database, malformed pointer or mismatched build identity therefore
-returns to the normal SQL build, which reuses committed game products. Recovery
-records the previous publication issue and replaces the pointer only after
-success. It does not authorize source acquisition or RML execution.
+The builder and reader share the cached file and publication-metadata checks;
+the builder also verifies the paired runtime release before reporting an
+unchanged publication. A missing or corrupt database, malformed pointer,
+mismatched build identity or unusable release pairing therefore returns to the
+normal SQL build, which reuses committed game products. Recovery records the
+previous publication issue. Complete candidate evidence is saved before the
+atomic pointer change, which is the publication commit point. Subsequent
+progress, evidence-status or retention I/O failures are reported to NiFi as
+`postPublicationWarnings`; they cannot undo a readable publication. If the
+final evidence-status write fails, the saved candidate evidence and active
+pointer retain the build's identity and publication state. None of this
+authorizes source acquisition or RML execution.
 
 Calculation reuse has a separate fingerprint from source admission. A producer
 edit with identical validated outputs need not invalidate a calculation. A

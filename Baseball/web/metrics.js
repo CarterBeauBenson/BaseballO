@@ -372,6 +372,14 @@ export function metricVisible(presentation, visibility) {
   return visibility === 'results' ? presentation.hasResults : visibility === 'gaps' ? presentation.hasGaps : true;
 }
 
+export function resultScopeLabel(result, presentation) {
+  if (presentation.hasPlayers || presentation.noQualifiers) return presentation.message;
+  if (result.status === 'available' || result.playerPopulationComplete === true) return result.scope ?? 'Selected evidence population';
+  if (result.runs?.length) return 'Each listed score covers a complete individual run. Coverage of all runs in the selection remains incomplete.';
+  if (result.consequences?.length) return 'These scores cover the shown award advances only. Full plate-appearance and population results remain unavailable.';
+  return result.scope ?? 'Selected evidence population';
+}
+
 export function dashboardLoadStatus(payload) {
   const games = payload.graphCount ?? payload.metrics?.[0]?.coverage?.games ?? 0;
   if (!games) return 'No games in this selection. Try another date range.';
@@ -568,9 +576,7 @@ function showResult(payload) {
   byId('result-subject').textContent = single ?
     `${displayPlayer(payload.display?.labels, single.graph, single.batter)} · Game ${single.graph.split('/').at(-1)} · PA source index ${single.plateAppearance.split('/').at(-1)}` :
     singleRun ? `${displayPlayer(payload.display?.labels, singleRun.graph, singleRun.runner)} · Game ${singleRun.graph.split('/').at(-1)}` : '';
-  byId('result-scope').textContent = result.playerPopulationComplete === true ? result.scope : result.runs?.length ?
-    'Each listed score covers a complete individual run. Coverage of all runs in the selection remains incomplete.' : presentation.state === 'partial' ?
-    'These scores cover the shown Walk/HBP advances only. Full plate-appearance and population results remain unavailable.' : result.scope ?? 'Selected evidence population';
+  byId('result-scope').textContent = resultScopeLabel(result, presentation);
   byId('coverage-details').open = presentation.state === 'empty' || selected.id === 'adjudication-volatility';
   const coverage = result.coverage ?? {};
   renderGameCoverage(coverage.byGame);

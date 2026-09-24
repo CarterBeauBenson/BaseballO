@@ -5,7 +5,7 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { createBaseballServer } from '../server.mjs';
 import { metricCatalog, validateMetricRequest, validateDashboardRequest, compileMetricEvidenceQuery, metricDisplayTargets, compileMetricDisplayQuery, normalizeMetricDisplayLabels, labelMetricPlayers, automaticMinimumPA, automaticMinimumObservations, playerLeaderboard, playerSummaryValue, publicMetricResult, dashboardReadiness } from '../query-builder/metric-suite-query-builder.js';
-import { displayFraction, resultHeadline, movementEvidenceLabel, consequencePresentation, runMetricPresentation, formatMetricValue, resultPresentation, resultDateLabel, selectionFromUrl, displayPlayer, exampleAnswer, dashboardSummary, matchesMetric, metricRanking, dashboardLoadStatus, metricCardPresentation, metricVisible, unresolvedRunRows } from '../metrics.js';
+import { displayFraction, resultHeadline, movementEvidenceLabel, consequencePresentation, runMetricPresentation, formatMetricValue, resultPresentation, resultDateLabel, selectionFromUrl, displayPlayer, exampleAnswer, dashboardSummary, matchesMetric, metricRanking, dashboardLoadStatus, metricCardPresentation, metricVisible, resultScopeLabel, unresolvedRunRows } from '../metrics.js';
 
 test('unresolved runs keep their identities and explain the actual evidence problem', () => {
   const evidence = { graph: 'https://w3id.org/baseball/graph/game/566279',
@@ -42,6 +42,20 @@ test('partly populated review mechanisms are identified in the dashboard status'
   const payload={graphCount:7,metrics:[{leaderboard:{status:'available',rows:[{player:'1'}],groups:[
     {status:'available',rows:[{player:'1'}]}, {status:'unavailable',rows:[]}]}}]};
   assert.match(dashboardLoadStatus(payload), /incomplete/);
+});
+
+test('detail scope distinguishes player reviews, complete runs and limited awards', () => {
+  const review={status:'unavailable',leaderboard:{status:'available',rows:[{player:'1'}],groups:[
+    {status:'available',rows:[{player:'1'}]}, {status:'unavailable',rows:[]}]}};
+  const label=resultScopeLabel(review,metricCardPresentation({graphCount:7,metric:review},{id:'review-dependence'}));
+  assert.match(label,/review mechanisms/); assert.doesNotMatch(label,/Walk|HBP|plate-appearance/);
+  const runs={status:'available',scope:'Complete selected run population',runs:[{value:{numerator:'1',denominator:'1'}}]};
+  assert.equal(resultScopeLabel(runs,resultPresentation({graphCount:7,metric:runs},{unit:'acts'})),runs.scope);
+  const partial={...runs,status:'unavailable'};
+  assert.match(resultScopeLabel(partial,resultPresentation({graphCount:7,metric:partial},{unit:'acts'})),/individual run.*incomplete/);
+  const awards={status:'unavailable',consequences:[{value:{numerator:'1',denominator:'4'}}]};
+  assert.match(resultScopeLabel(awards,resultPresentation({graphCount:7,metric:awards},{unit:'bases'})),/award|Walk/);
+  assert.equal(typeof resultScopeLabel({playerPopulationComplete:true},{state:'available'}),'string');
 });
 
 test('card filters retain player rankings without a pooled score and distinguish complete empty populations', () => {
