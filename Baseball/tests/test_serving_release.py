@@ -76,7 +76,7 @@ class ServingRelease(unittest.TestCase):
         (self.root/'serving/value.txt').write_text('unfinished-calculation')
         (self.pipeline/'query-serving-layer.py').write_text('invalid Python !')
         output=io.StringIO()
-        with contextlib.redirect_stdout(output):code=R.dispatch(self.root,['--state-root',str(self.state)],mode='query')
+        with patch.object(sys,'stdin',io.StringIO('{"route":"explore"}')),contextlib.redirect_stdout(output):code=R.dispatch(self.root,['--state-root',str(self.state)],mode='query')
         self.assertEqual(code,0);self.assertEqual(json.loads(output.getvalue()),dict(build='one',code='version-one'))
         R.verify_release(self.state,release)  # Queries must not add bytecode files.
 
@@ -106,7 +106,7 @@ r.atomic(state/'built.json',dict(code=(root/'serving/value.txt').read_text(),rel
         def promote_after_read(state,pointer):
             root=resolve(state,pointer);self.pointer(second,'two');return root
         output=io.StringIO()
-        with patch.object(R,'resolve_pointer_release',side_effect=promote_after_read),contextlib.redirect_stdout(output):
+        with patch.object(sys,'stdin',io.StringIO('{"route":"explore"}')),patch.object(R,'resolve_pointer_release',side_effect=promote_after_read),contextlib.redirect_stdout(output):
             self.assertEqual(R.dispatch(self.root,['--state-root',str(self.state)],mode='query'),0)
         self.assertEqual(json.loads(output.getvalue()),dict(build='one',code='version-one'))
         self.assertEqual(R.read(self.state/'serving/current.json')['buildId'],'two')
@@ -152,6 +152,13 @@ r.atomic(state/'built.json',dict(code=(root/'serving/value.txt').read_text(),rel
             with patch.object(sys,'stdin',io.StringIO(json.dumps(dict(route=route)))),contextlib.redirect_stdout(output):
                 self.assertEqual(R.dispatch(self.root,['--state-root',str(self.state)],mode='query'),0)
             self.assertEqual(json.loads(output.getvalue()),expected)
+
+    def test_missing_dashboard_never_selects_the_legacy_report_release(self):
+        self.pointer(self.capture(), 'reports')
+        request = dict(route='metric-suite', view='dashboard')
+        with patch.object(sys, 'stdin', io.StringIO(json.dumps(request))):
+            with self.assertRaises(FileNotFoundError):
+                R.dispatch(self.root, ['--state-root', str(self.state)], mode='query')
 
 
 if __name__=='__main__':unittest.main()

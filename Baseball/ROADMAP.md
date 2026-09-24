@@ -59,6 +59,13 @@ the latest results is tracked separately in metric readiness.
 
 ## 2. Keep operation incremental and recoverable
 
+The [September 24 skeptical review](serving/ARCHITECTURE-REVIEW.md) records the
+repaired request-time RDF fallback, cross-product fallback and missing/corrupt
+dashboard publication recovery. Its remaining engineering concerns are shared
+report/dashboard imports and calculation fingerprints that invalidate more
+game work than the changed metric requires. These are engineering boundaries,
+not requests for new source ingestion or semantic review.
+
 - Diagnose recorded source or serving failures from terminal evidence, repair
   their cause and use the owning bounded retry. Do not monitor healthy runs.
 - Tune the existing current/repair/historical queue priorities and bounded

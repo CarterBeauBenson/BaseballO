@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Read-only RDF binding reducer used by the Explorer's authoritative fallback.
+"""Read-only RDF binding reducer for bounded developer comparisons.
 
-HTTP clients cannot supply bindings or declare completeness. The server obtains
-bindings from its configured Fuseki endpoint and passes them through this pipe.
-Recurring extraction and SQL materialization remain owned by NiFi.
+The metrics HTTP routes use prepared SQL and do not invoke this tool. A local
+caller supplies existing SPARQL bindings through stdin; this tool neither
+queries Fuseki nor acquires source data. Recurring extraction and SQL
+materialization remain owned by NiFi.
 """
 import argparse
 import importlib.util

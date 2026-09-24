@@ -87,6 +87,11 @@ the pointer. Readers retain their file-identity checks, but a newly published
 database no longer requires a full file hash during its first HTTP request.
 Each database has its own receipt so concurrent old and new readers do not
 invalidate each other's verification cache.
+The builder uses the same cached verification before reporting an unchanged
+publication. A missing or corrupt published database therefore returns to the
+normal SQL build, which reuses committed game products and replaces only the
+derived publication. This recovery does not authorize source acquisition or
+RML execution.
 
 Calculation reuse has a separate fingerprint from source admission. A producer
 edit with identical validated outputs need not invalidate a calculation. A

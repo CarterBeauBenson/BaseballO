@@ -21,6 +21,10 @@ grains, but a populated grain is not itself permission to route a UI family to
 SQL. The browser never submits arbitrary SPARQL. These legacy fallback rules
 do not apply to the dashboard: a dashboard request must use prepared SQL and
 must not trigger graph queries, source recovery or season recalculation.
+Both `/api/metrics/dashboard` and `/api/metrics/query` enforce this without a
+special client header. Unavailable SQL returns 503 with
+`materialized-serving-unavailable`; it does not select the legacy report or
+invoke the developer RDF reducer. Player labels come from prepared SQL.
 
 ## Explorer interaction contract
 

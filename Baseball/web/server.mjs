@@ -9,7 +9,7 @@ import {
   ANALYTICS_QUERY_FAMILIES,
   compileAnalyticsQuery,
 } from "./query-builder/analytics-query-builder.js";
-import { metricCatalog, validateMetricRequest, validateDashboardRequest, compileMetricEvidenceQuery, metricDisplayTargets, compileMetricDisplayQuery, normalizeMetricDisplayLabels, labelMetricPlayers, playerLeaderboard, publicMetricResult, dashboardReadiness } from './query-builder/metric-suite-query-builder.js';
+import { metricCatalog, validateMetricRequest, validateDashboardRequest, labelMetricPlayers, playerLeaderboard, publicMetricResult, dashboardReadiness } from './query-builder/metric-suite-query-builder.js';
 import {
   buildPublicDerivedMetricCatalog,
   compileDerivedMetricQuery,
@@ -29,7 +29,6 @@ const ADVANCED_QUERY_ROOT = resolve(WEB_ROOT, "..", "sparql", "advanced");
 const ADVANCED_QUERY_CATALOG = resolve(ADVANCED_QUERY_ROOT, "advanced-query-catalog.json");
 const SERVING_QUERY_SCRIPT = resolve(WEB_ROOT, "..", "scripts", "pipeline", "query-serving-layer.py");
 const SERVING_CANDIDATE_QUERY_SCRIPT = resolve(WEB_ROOT, "..", "scripts", "pipeline", "query-serving-candidate.py");
-const METRIC_REDUCER_SCRIPT = resolve(WEB_ROOT, '..', 'scripts', 'pipeline', 'query-metric-suite.py');
 const RAW_SAMPLES_ROOT = resolve(WEB_ROOT, "..", "data", "raw", "samples");
 const RAW_FIXTURE = resolve(WEB_ROOT, "..", "data", "raw", "game-566279.json");
 const LOCAL_STATE_ROOT = process.env.BASEBALLO_STATE_ROOT
@@ -827,7 +826,6 @@ export function createBaseballServer({
   fetchImpl = globalThis.fetch,
   queryEndpoint = process.env.BASEBALLO_FUSEKI_QUERY ?? DEFAULT_QUERY_ENDPOINT,
   servingExecutor = executeServingQuery,
-  metricReducer = (input) => executePythonServingQuery(METRIC_REDUCER_SCRIPT, input),
   candidateServingExecutor = executeCandidateServingQuery,
   equivalenceToken = process.env.BASEBALLO_EQUIVALENCE_TOKEN ?? null,
   requestLimits,
@@ -839,38 +837,17 @@ export function createBaseballServer({
 
   async function metricDisplay(result) {
     const definitions = new Map((await metricCatalog()).metrics.map(metric => [metric.id, metric]));
-    const ranked = metric => definitions.has(metric.metricId) ? { ...publicMetricResult(metric),
-      leaderboard: playerLeaderboard(metric, definitions.get(metric.metricId), result.dateScope) } : metric;
-    result = result.metrics ? { ...result, metrics: result.metrics.filter(metric => definitions.has(metric.metricId)).map(ranked) } :
-      result.metric ? { ...result, metric: ranked(result.metric) } : result;
-    if (result.metrics) result = {...result,
-      dashboardReadiness:dashboardReadiness(result.metrics, [...definitions.keys()])};
-    if (result.execution === 'materialized-sql') {
-      const display = result.display ?? {source:'identifier-fallback',labels:[]};
-      const named = metric => ranked(labelMetricPlayers(metric, display.labels));
-      return {...result, ...(result.metrics ? {metrics:result.metrics.map(named)} : {metric:named(result.metric)}), display};
+    const display = result.display ?? {source:'identifier-fallback',labels:[]};
+    const ranked = metric => {
+      const named = labelMetricPlayers(metric, display.labels);
+      return definitions.has(metric.metricId) ? {...publicMetricResult(named),
+        leaderboard:playerLeaderboard(named, definitions.get(metric.metricId), result.dateScope)} : named;
+    };
+    if (result.metrics) {
+      const metrics = result.metrics.filter(metric => definitions.has(metric.metricId)).map(ranked);
+      return {...result, metrics, display, dashboardReadiness:dashboardReadiness(metrics, [...definitions.keys()])};
     }
-    const subjects = (result.metrics ?? [result.metric]).filter(Boolean).flatMap(metric => [
-      ...(metric.consequences ?? []),
-      ...(metric.playerResults ?? []).flatMap(row => (row.graphs ?? []).map(graph => ({graph, batter:row.player}))),
-      ...(metric.runs ?? []).flatMap(row => (row.contributors ?? []).map(player => ({graph:row.graph, batter:player}))),
-      ...[...(metric.runs ?? []), ...(metric.runnerBoundaryStates ?? [])]
-        .map(row => ({ graph: row.graph, batter: row.runner }))]);
-    if (!subjects.length) return result;
-    // Optional labels cannot invalidate an otherwise valid SQL/RDF result.
-    // These annotations are scoped to its game graphs and never enter scoring.
-    try {
-      const targets = metricDisplayTargets(subjects);
-      const query = await compileMetricDisplayQuery(targets);
-      const { payload } = await executeSparql(query, { fetchImpl, queryEndpoint, timeoutMs: 3000 });
-      const labels = normalizeMetricDisplayLabels(payload.results?.bindings ?? [], targets);
-      const named = metric => ranked(labelMetricPlayers(metric, labels));
-      return { ...result,
-        ...(result.metrics ? {metrics:result.metrics.map(named)} : {metric:named(result.metric)}),
-        display: { source: 'selected-game-rdf-labels', labels } };
-    } catch {
-      return { ...result, display: { source: 'identifier-fallback', labels: [] } };
-    }
+    return {...result, metric:ranked(result.metric), display};
   }
 
   async function gameDateSnapshot() {
@@ -973,20 +950,15 @@ export function createBaseballServer({
       if (request.method === 'POST' && ['/api/metrics/query', '/api/metrics/dashboard'].includes(requestUrl.pathname)) {
         const validate = requestUrl.pathname.endsWith('/dashboard') ? validateDashboardRequest : validateMetricRequest;
         const input = validate(await readJsonBody(request), await metricCatalog());
+        let result;
         try {
-          const result = await executeRouteServing(request, servingExecutor, candidateServingExecutor, equivalenceToken, input);
-          sendJson(response, 200, await metricDisplay(result));
-          return;
+          result = await executeRouteServing(request, servingExecutor, candidateServingExecutor, equivalenceToken, input);
+          if (result?.execution !== 'materialized-sql') throw new Error('Metrics require prepared SQL.');
         } catch {
-          if (rejectMaterializedFallback(request, response)) return;
+          throw new HttpFailure(503, 'materialized-serving-unavailable',
+            'The prepared dashboard is temporarily unavailable. Please try again later.');
         }
-        const scope = await scopedGraphs(input.dateScope, {}, input.gameSet);
-        const query = await compileMetricEvidenceQuery(scope.graphs);
-        const { payload, durationMs } = await executeCachedSparql(query, scope.corpusFingerprint);
-        const result = await metricReducer({ ...(input.view ? { view: input.view } : { metricId: input.metricId }), graphs: scope.graphs,
-          bindings: payload.results.bindings });
-        sendJson(response, 200, await metricDisplay({ ...result, dateScope: scope.dateScope,
-          corpusFingerprint: scope.corpusFingerprint, query, durationMs }));
+        sendJson(response, 200, await metricDisplay(result));
         return;
       }
       if (request.method === "GET" && requestUrl.pathname === "/api/catalog") {
@@ -1494,8 +1466,7 @@ export function createBaseballServer({
 
       sendJson(response, 404, { error: "Not found." });
     } catch (error) {
-      const { status, message } = publicError(error);
-      sendJson(response, status, { error: message });
+      sendError(response, error);
     }
   }, sendError, requestLimits);
   const server = createServer({ headersTimeout: 10_000, requestTimeout: 15_000, connectionsCheckingInterval: 1000,

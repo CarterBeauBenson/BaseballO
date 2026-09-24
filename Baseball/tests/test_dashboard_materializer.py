@@ -206,6 +206,28 @@ class DashboardMaterializer(unittest.TestCase):
             with patch.object(D.METRICS._blocks,'read_scope',side_effect=AssertionError('unaffected season')):
                 self.assertEqual(D.METRICS.materialize_reference_ranks(db,seasons={2024}),[])
 
+    def test_lost_or_corrupt_publication_is_repaired_from_committed_game_work(self):
+        D.build(self.args)
+        self.args.force = False
+        for damage in ('missing', 'corrupt'):
+            with self.subTest(damage=damage):
+                old = self.pointer()
+                database = Path(old['databasePath'])
+                if damage == 'missing':
+                    database.unlink()
+                else:
+                    database.write_bytes(b'corrupted derived publication')
+                self.fetched.clear()
+                with patch.object(D.METRICS, 'materialize_game', side_effect=AssertionError('Game work must be reused')):
+                    result = D.build(self.args)
+                self.assertEqual(result['status'], 'published')
+                self.assertEqual((result['changedGames'], result['reusedGames']), (0, 2))
+                self.assertEqual(self.fetched, [])
+                self.assertNotEqual(self.pointer()['buildId'], old['buildId'])
+                output = D.SOURCE._reader.query(self.args, dict(route='metric-suite', view='dashboard',
+                    gameSet='regular_season', dateScope=dict(preset='one_day')))
+                self.assertEqual(output['graphCount'], 2)
+
     def test_writer_lock_is_exclusive_and_released_after_failure(self):
         lock = self.state/'writer.lock'
         with D.writer_lock(lock):

@@ -325,7 +325,7 @@ test('evidence query is restricted to the exact authoritative graph selection', 
   await assert.rejects(compileMetricEvidenceQuery([graph + '> } SERVICE <https://example.com> { ?s ?p ?o } #']));
 });
 
-test('live fallback and SQL extraction compile identical evidence for every scope', async () => {
+test('developer comparison and SQL extraction compile identical evidence for every scope', async () => {
   const script = `import json,sys\nfrom pathlib import Path\nsys.path.insert(0,str(Path(sys.argv[1])/'serving'))\nimport metric_suite\nprint(json.dumps(metric_suite.evidence_query(json.load(sys.stdin))))`;
   const root = fileURLToPath(new URL('../../', import.meta.url));
   const graph = 'https://w3id.org/baseball/graph/game/101';
@@ -541,18 +541,31 @@ test('API returns SQL results and rejects caller supplied evidence before execut
   });
 });
 
-test('stale SQL falls back to authoritative evidence, and SQL-required requests fail clearly', async () => {
-  let reduced = 0;
-  await withServer({ servingExecutor: async () => { throw new Error('stale'); },
-    fetchImpl: async () => new Response(JSON.stringify({ head: { vars: [] }, results: { bindings: [] } }), { status: 200 }),
-    metricReducer: async input => { reduced++; assert.deepEqual(input.graphs, []); assert.deepEqual(input.bindings, []);
-      return { metric: { status: 'unavailable', value: null, gaps: ['EMPTY_DENOMINATOR'] }, execution: 'authoritative-rdf' }; }
+test('metrics API never replaces unavailable SQL with request-time graph work', async () => {
+  let graphRequests = 0;
+  await withServer({ servingExecutor: async () => { throw Error('SQL unavailable'); },
+    fetchImpl: async () => { graphRequests++; throw Error('No graph fallback'); }
   }, async url => {
-    const options = { method: 'POST', body: JSON.stringify({ metricId: 'adjudication-volatility' }) };
-    const response = await fetch(url + '/api/metrics/query', options);
-    assert.equal(response.status, 200); assert.equal((await response.json()).execution, 'authoritative-rdf');
-    const required = await fetch(url + '/api/metrics/query', { ...options, headers: { 'x-baseballo-require-materialized': 'true' } });
-    assert.equal(required.status, 503); assert.equal(reduced, 1);
+    for (const route of ['query', 'dashboard']) {
+      for (const headers of [{}, {'x-baseballo-require-materialized':'true'}, {'x-baseballo-force-authoritative':'true'}]) {
+        const response = await fetch(url + '/api/metrics/' + route, {method:'POST', headers,
+          body:JSON.stringify(route === 'query' ? {metricId:'tfs'} : {})});
+        assert.equal(response.status, 503);
+        assert.equal((await response.json()).code, 'materialized-serving-unavailable');
+      }
+    }
+    assert.equal(graphRequests, 0);
+  });
+});
+
+test('metrics API rejects non-SQL output without trying a label query', async () => {
+  let graphRequests = 0;
+  await withServer({servingExecutor:async()=>({execution:'authoritative-rdf', metrics:[]}),
+    fetchImpl:async()=>{graphRequests++; throw Error('No labels from RDF');}}, async url=>{
+    const response=await fetch(url+'/api/metrics/dashboard',{method:'POST',body:'{}'});
+    assert.equal(response.status,503);
+    assert.equal((await response.json()).code,'materialized-serving-unavailable');
+    assert.equal(graphRequests,0);
   });
 });
 
@@ -604,32 +617,13 @@ test('dashboard executes once through SQL and rejects injected facts before exec
   });
 });
 
-test('SQL and RDF dashboard responses hide backend roles and retain the input evidence unchanged', async () => {
-  const backend = {metrics:[{metricId:'tfs',status:'unavailable',value:null},
+test('SQL dashboard responses hide backend roles and retain the input evidence unchanged', async () => {
+  const backend = {execution:'materialized-sql',metrics:[{metricId:'tfs',status:'unavailable',value:null},
     {metricId:'role-realization-breadth',status:'available',value:{numerator:'4',denominator:'1'}}]};
-  for (const mode of ['sql','rdf']) {
-    await withServer({servingExecutor:async()=>{if(mode==='rdf')throw Error('stale'); return backend;},
-      fetchImpl:async()=>new Response(JSON.stringify({results:{bindings:[]}})),
-      metricReducer:async()=>backend},async url=>{
-      const response=await fetch(url+'/api/metrics/dashboard',{method:'POST',body:'{}'});
-      assert.equal(response.status,200);
-      assert.deepEqual((await response.json()).metrics.map(metric=>metric.metricId),['tfs']);
-      assert.equal(backend.metrics.length,2);
-    });
-  }
-});
-
-test('dashboard fallback reduces one common RDF selection and respects SQL-required requests', async () => {
-  let reductions=0;
-  await withServer({servingExecutor:async()=>{throw Error('stale');},
-    fetchImpl:async()=>new Response(JSON.stringify({head:{vars:[]},results:{bindings:[]}})),
-    metricReducer:async input=>{reductions++; assert.equal(input.view,'dashboard'); assert.deepEqual(input.graphs,[]);
-      return {metrics:[],execution:'authoritative-rdf'};}
-  },async url=>{
-    const options={method:'POST',body:JSON.stringify({dateScope:{preset:'one_day'}})};
-    const response=await fetch(url+'/api/metrics/dashboard',options);
-    assert.equal(response.status,200); assert.equal((await response.json()).execution,'authoritative-rdf');
-    const required=await fetch(url+'/api/metrics/dashboard',{...options,headers:{'x-baseballo-require-materialized':'true'}});
-    assert.equal(required.status,503); assert.equal(reductions,1);
+  await withServer({servingExecutor:async()=>backend},async url=>{
+    const response=await fetch(url+'/api/metrics/dashboard',{method:'POST',body:'{}'});
+    assert.equal(response.status,200);
+    assert.deepEqual((await response.json()).metrics.map(metric=>metric.metricId),['tfs']);
+    assert.equal(backend.metrics.length,2);
   });
 });

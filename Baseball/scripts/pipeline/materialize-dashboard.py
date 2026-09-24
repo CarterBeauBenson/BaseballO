@@ -283,7 +283,19 @@ def build_locked(args, state, serving, work):
     notification, latest = notification_key(state)
     old_pointer = RELEASE.read(pointer_path) if pointer_path.is_file() else {}
     if not args.force and not args.max_games and old_pointer.get('notificationKey') == notification:
-        return dict(status='unchanged', buildId=old_pointer['buildId'])
+        # Unchanged sources do not prove that the derived publication still
+        # exists. Reuse the reader's cached file verification; a lost/corrupt
+        # snapshot is republished from committed work by the normal build.
+        database = Path(str(old_pointer.get('databasePath', ''))).resolve()
+        if database.parent == (work/'builds').resolve() and database.suffix == '.sqlite':
+            try:
+                expected_sha = old_pointer.get('databaseSha256')
+                SOURCE._reader.verify_database(database, expected_sha,
+                    SOURCE._reader.database_verification_cache_path(serving, expected_sha))
+            except (OSError, ValueError):
+                pass
+            else:
+                return dict(status='unchanged', buildId=old_pointer['buildId'])
     if not args.force and time.time_ns() - latest < args.quiet_seconds * 1_000_000_000:
         return dict(status='waiting-for-source', reason='Recent promotion or schedule update')
     started = time.perf_counter()

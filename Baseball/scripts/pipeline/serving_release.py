@@ -244,7 +244,7 @@ def query_pointer(state, root, request=None):
 
 def query_pointer_path(state, request=None):
     dashboard=Path(state)/'serving/dashboard-current.json'
-    if isinstance(request,dict) and request.get('route')=='metric-suite' and dashboard.is_file():
+    if isinstance(request,dict) and request.get('route')=='metric-suite':
         return dashboard
     return Path(state)/'serving/current.json'
 
@@ -273,11 +273,11 @@ def dispatch(root, argv, *, mode):
         script='materialize-dashboard.py' if mode=='dashboard-build' else 'materialize-serving-layer.py'
         pointer=None
     else:
-        request=None
-        if (state/'serving/dashboard-current.json').is_file():
-            raw=sys.stdin.read()
-            sys.stdin=io.StringIO(raw)
-            request=json.loads(raw)
+        # Select the product from the request even when its publication is
+        # absent. Missing dashboard SQL must not borrow the report database.
+        raw=sys.stdin.read()
+        sys.stdin=io.StringIO(raw)
+        request=json.loads(raw)
         pointer=read(query_pointer_path(state,request))
         selected=resolve_pointer_release(state,pointer)
         if selected is None: return None  # Legacy compatibility retains all original stale-code checks.
