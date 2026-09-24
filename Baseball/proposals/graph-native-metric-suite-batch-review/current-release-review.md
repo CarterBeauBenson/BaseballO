@@ -4,9 +4,11 @@
 existing-vocabulary C1 implementation were subsequently
 [explicitly accepted](../../archive/design-records/metric-source-c1-operation-2026-09-14/user-decision.md).
 The historical draft below is not an outstanding vote on that policy.
-The [production evidence](../../infra/PRODUCTION-READINESS.md#current-game-dates-and-remaining-coverage)
-now distinguishes the current source proof's successful SHACL/promotion from
-its downstream SQL failure, and records the latest September 13 live coverage.
+The [archived production evidence](../../archive/operational-history/2026-09-23/PRODUCTION-READINESS.md#current-game-dates-and-remaining-coverage)
+distinguishes that source proof's successful SHACL/promotion from its downstream
+SQL failure and records the September 13 coverage. Use
+[current readiness](../../serving/METRIC-READINESS.md) for the latest documented
+dashboard state.
 Full operation remains incomplete.
 
 **September 14 scope clarification:** the deliverable is full operation of all

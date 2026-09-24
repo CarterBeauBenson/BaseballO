@@ -27,7 +27,8 @@ payload or depend on the Games lane to discover venues.
 ## Execution contract
 
 NiFi stages an exact API response as `venue.json`, records its SHA-256 and
-requested season, and runs:
+requested season, and invokes the context builder. Paths in this example are
+relative to `Baseball/sources/mlb-venues/`; 2025 is an example request season:
 
 ```powershell
 python mapping/prepare-context.py venue.json venue-context.json `

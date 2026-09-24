@@ -58,6 +58,6 @@ open/closed state.
 
 The source response and derived RML context are transient. NiFi preserves
 request metadata, exact-byte response hash, mapping hash, validation evidence,
-and promoted graph-pair provenance. Failed inputs remain source-local in
-quarantine. Successful raw inputs are removed only after promotion. The lane
+and promoted source-owned authority-graph provenance. Failed inputs remain
+source-local in quarantine. Successful raw inputs are removed only after promotion. The lane
 is detachable and meets other sources only in the authoritative triple store.

@@ -53,7 +53,7 @@ only after complete scores and participation have been admitted. An empty
 qualified population is distinct from unavailable player scores. Current
 individual Walk/HBP and run-history results remain inspectable separately.
 
-## Still blocked
+## Conditional producers and remaining populations
 
 Run Construction Depth and Run Construction Breadth now have live player
 producers. NiFi validates the
@@ -83,20 +83,20 @@ Contribution Mix additionally requires a complete independent-attempt census.
 It pools exact positive play/channel counts, counts nonpositive running
 attempts separately for qualification, and includes zero-PA runners. Known
 empty entropy denominators yield no score; ambiguous strikeout/running-out
-strategy and unattributed runner outs withhold the population. Fourteen public
-metrics now have conditional player producers; the other five have numerical
-player reducers but unfinished source adapters. The current per-metric status
-is in [METRIC-READINESS.md](METRIC-READINESS.md).
+strategy and unattributed runner outs withhold the population. Seventeen public
+metrics have conditional player producers; the two review metrics have
+numerical reducers but unfinished player integrations. The current per-metric
+status is in [METRIC-READINESS.md](METRIC-READINESS.md).
 
 Reach and Help may also consume independently admitted complete contribution
 inputs. A known batting score does not require unrelated running to have been
 classified, so that uncertainty no longer suppresses these two batting means.
 It still matters to Empty Games and Contribution Mix.
 
-Other metric player producers remain unfinished. The isolated browser
-fixtures are UI tests, not live baseball data. A deployed build must pass the
-new admission stage and materialize its proof; an older graph or proof cannot
-be assumed to satisfy this contract.
+The isolated browser fixtures are UI tests, not live baseball data. Each
+deployed build needs applicable population admission. Compatible existing
+proofs may be reused under the owning contract; a serving change or stale
+derived product alone does not require regenerating RDF.
 
 1. Complete player aggregates and their full applicable game/PA/run populations
    must be supplied through the accepted source-to-SQL lifecycle. Partial award

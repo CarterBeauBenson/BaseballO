@@ -5,10 +5,12 @@ matchups; umpire and official-scorer assignments; and mapped game start/end
 timestamps. It describes loaded game graphs only and does not infer standings,
 wins, losses, or schedule completeness that the current mapping does not emit.
 
-The execution-context builder selects the final play timestamp before RML
-execution because the selected processor expands `[-1:]` to every play.
-Fixture validation requires exactly that one terminal value in the RDF graph;
-`game-timeline.rq` therefore reads the mapped boundary directly.
+The execution-context builder selects the last genuine baseball record with
+an end timestamp, excluding administrative records and requiring corroborating
+Final/game-over source state. It does not rely on the processor's ambiguous
+`[-1:]` slicing. T1 withholds contradictory clock pairs instead of inventing a
+replacement time. `game-timeline.rq` reads the available mapped boundaries
+directly; a missing boundary is not inferred from another event.
 
 `games-by-team-and-season` and `umpire-assignments` have exact indexed
 companions for measurement, but their current timings are effectively neutral;

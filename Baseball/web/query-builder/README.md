@@ -1,5 +1,9 @@
 # UI query builders
 
+These compilers serve the legacy Explorer. The metric dashboard reads prepared
+SQL through its separate serving path; dashboard requests do not execute these
+SPARQL builders. See the [web application guide](../README.md).
+
 [`analytics-query-builder.js`](analytics-query-builder.js) is the primary
 allowlisted component catalog and compiler used by the local BaseballO
 Explorer. It supports four query families:

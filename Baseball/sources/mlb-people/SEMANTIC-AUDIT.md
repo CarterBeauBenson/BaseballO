@@ -1,7 +1,9 @@
 # MLB people semantic audit
 
-Status: accepted source contract implemented; bounded NiFi proof required before
-the lane is activated for corpus backfill.
+Status: accepted source contract implemented; the bounded NiFi proof completed
+and the source lane is active. The [module guide](README.md) describes its
+independent population discovery. Current run status and proof applicability
+belong to source-local NiFi evidence.
 
 The implementation follows the accepted people source contract and the
 accepted Mass, laterality, and position-cluster extension packages. Every

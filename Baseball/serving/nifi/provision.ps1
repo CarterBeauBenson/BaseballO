@@ -22,13 +22,13 @@ if (
     [bool]$contract.failurePolicy.sourceLanesUnaffected -ne $true -or
     [bool]$contract.failurePolicy.priorServingPointerUnaffected -ne $true
 ) {
-    throw "Unsupported analytical-serving NiFi contract: $contractPath"
+    throw "Unsupported Authority SQL NiFi contract: $contractPath"
 }
 $materializer = [System.IO.Path]::GetFullPath((Join-Path $repositoryRoot ([string]$contract.authorityMaterialization.processor)))
 $authorityContract = [System.IO.Path]::GetFullPath((Join-Path $repositoryRoot ([string]$contract.authorityMaterialization.contract)))
 foreach ($required in @($materializer, $authorityContract)) {
     if (-not (Test-Path -LiteralPath $required -PathType Leaf)) {
-        throw "Analytical-serving artifact is missing: $required"
+        throw "Authority SQL artifact is missing: $required"
     }
 }
 if (-not (Test-TcpPort -HostName '127.0.0.1' -Port $script:NiFiPort)) {
@@ -81,7 +81,7 @@ function Stop-Group([string] $GroupId) {
         if ($remaining.Count -eq 0) { return }
         Start-Sleep -Milliseconds 500
     } while ([DateTime]::UtcNow -lt $deadline)
-    throw "Analytical Serving did not stop for reconciliation."
+    throw "Authority SQL did not stop for reconciliation."
 }
 
 function Get-ProcessorType([string] $Type) {
@@ -98,7 +98,7 @@ function Ensure-Processor {
         default { @($Name) }
     }
     $matches = @((Get-GroupFlow $GroupId).processors | Where-Object { $_.component.name -in $aliases })
-    if ($matches.Count -gt 1) { throw "More than one processor is named '$Name' in Analytical Serving." }
+    if ($matches.Count -gt 1) { throw "More than one processor is named '$Name' in Authority SQL." }
     $processorType = Get-ProcessorType $Type
     $config = @{
         properties = $Properties; schedulingPeriod = $SchedulingPeriod; schedulingStrategy = 'TIMER_DRIVEN'; executionNode = 'ALL'
@@ -221,7 +221,7 @@ $expected = @(
     'Record Authority Materialization Result','Record Authority Materialization Failure'
 )
 $unexpected = @((Get-GroupFlow $groupId).processors | Where-Object { $_.component.name -notin $expected })
-if ($unexpected.Count -gt 0) { throw "Analytical Serving contains unexpected processors: $(@($unexpected.component.name) -join ', ')" }
+if ($unexpected.Count -gt 0) { throw "Authority SQL contains unexpected processors: $(@($unexpected.component.name) -join ', ')" }
 $invalid = @()
 foreach ($summary in @((Get-GroupFlow $groupId).processors)) {
     $entity = Invoke-NiFi -Method GET -Path "/processors/$($summary.id)"
@@ -229,7 +229,7 @@ foreach ($summary in @((Get-GroupFlow $groupId).processors)) {
         $invalid += "$($entity.component.name): $(@($entity.component.validationErrors) -join '; ')"
     }
 }
-if ($invalid.Count -gt 0) { throw "Analytical Serving has invalid processors:`n$($invalid -join "`n")" }
+if ($invalid.Count -gt 0) { throw "Authority SQL has invalid processors:`n$($invalid -join "`n")" }
 
 if ($Start -or $RunFullRebuild) {
     foreach ($summary in @((Get-GroupFlow $groupId).processors | Where-Object { $_.id -notin @($processors.fullTrigger) })) {
@@ -246,5 +246,5 @@ if ($Start -or $RunFullRebuild) {
     if ($Start) { Write-Host 'Enabled promoted-graph-event authority materialization.' }
 }
 else {
-    Write-Host 'Provisioned Analytical Serving in STOPPED state.'
+    Write-Host 'Provisioned Authority SQL in STOPPED state.'
 }

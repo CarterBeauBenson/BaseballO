@@ -3,7 +3,10 @@
 Implemented September 14 after the user's clarification that all settled
 metrics should be reconsidered as a presentation system. The dashboard now
 uses the labels and explanations in [metric-presentation.json](metric-presentation.json),
-with matching [worked examples](metric-worked-examples.md).
+with matching [worked examples](metric-worked-examples.md). The subsequent
+[selected-period decision](PLAYER-SUMMARIES.md) makes player means the default,
+except Empty Games, which is a count. There are 19 public cards; Role
+Realization Breadth remains backend-only.
 
 The dashboard names should say what is counted or compared. A short label and
 a precise subtitle work better than an ontology term or an unexplained acronym.
@@ -16,16 +19,17 @@ The existing names remain searchable aliases and appear in technical details.
 
 ## Primary label
 
-Replace **Trajectory Fulfillment Score** with **Plate Appearance Contribution**.
+The public label for **Trajectory Fulfillment Score** is **Plate Appearance
+Contribution**; the internal ID remains `tfs`.
 
-Suggested explanation: "Credit for advancing the batter and other runners,
+Display explanation: "Credit for advancing the batter and other runners,
 minus the cost of outs and lost scoring opportunity."
 
 "Trajectory" suggests a physical path or tracked ball flight. "Fulfillment"
 does not explain the signed score, the cost of outs, or opportunity erosion.
 The calculation measures normalized attributed progress and loss. It is not
 expected runs, a probability of scoring, or the fraction of a physical route
-traveled. The internal ID `tfs` can remain unchanged.
+traveled. The presentation does not change the calculation.
 
 "Plate Appearance Impact" is a shorter alternative, but "contribution" is more
 explicit about attributing the result to the batter. "Offensive Contribution
@@ -43,7 +47,7 @@ Score" is broader and could be confused with independent baserunning.
 | Rally Kill Rate | Runner Out Rate | Among PAs starting with runners aboard, the share directly putting an existing runner out. It does not establish that a rally was underway or ended. |
 | Rally Kill Severity | Runner Loss per PA | Weighted direct loss of existing runners per PA starting with runners aboard, including PAs without such a loss. It is not severity conditional on a runner being put out. |
 | Opportunity Erosion | Scoring Opportunity Lost | Remaining opportunity removed by attributed outs. This is the accepted opportunity measure, not an estimated scoring probability. |
-| Empty Game Rate | Empty Game Rate | Keep; define an eligible game and the absence of qualifying positive contribution. It does not mean hitless or scoreless. |
+| Empty Game Rate | Empty Games | Count eligible games with no qualifying positive contribution in the selected period. The backend retains the rate and both counts; the public headline is a game count. It does not mean hitless or scoreless. |
 | Empty Game Damage | Empty Game Damage | Keep; explain the negative contributions counted during an eligible Empty Game. |
 | Contribution Path Diversity | Contribution Mix | Balance across advancing oneself through batting, helping other runners through batting, and independent running. The entropy is not a simple count of contribution types. |
 | Recovery Quality | Two-Strike Extension Rank | Percentile of nonterminal pitches after reaching two strikes. It does not measure whether the batter recovered to get a hit or reach base. |
@@ -53,7 +57,7 @@ Score" is broader and could be confused with independent baserunning.
 | Run Construction Breadth | Run Contributors | Distinct offensive contributors to that run, including the runner when supported. |
 | Adjudication Volatility | Replay Overturn Rate | Overturns divided by explicitly resolved mapped replay reviews. It does not measure variation over time or the accuracy of all calls. |
 | Review Dependence Rate | Outcomes Changed by Review | Review-dependent outcomes over all eligible decisions, including unreviewed ones. Show the review mechanism separately. |
-| Role Realization Breadth | Roles Played | Count Batter, Baserunner, Pitcher and Fielder roles actually realized in that game; not defensive positions or roster eligibility. |
+| Role Realization Breadth | Backend only | Count Batter, Baserunner, Pitcher and Fielder roles actually realized in that game; excluded from the public catalog and dashboard. |
 | PAQ with Process Tie-Breakers | PAQ with Tie-Breakers | Contribution first, then two-strike extension and defensive sequence length, within the accepted applicable population. |
 
 ## Presentation details
@@ -66,13 +70,15 @@ view explains the unit, scope, reference and how to interpret the value.
 
 The catalog's presentation response retains `technicalLabel`,
 `technicalDefinition`, stable metric IDs and every calculation-contract field.
-The checked-in analytical catalog and its serving fingerprint are unchanged.
-The new display units are explanatory labels, not numerical conversions or
-new measurement units. Percentage scaling still applies only to proportions;
-percentiles retain their 0–100 scale, and exact fractions remain downloadable.
+These presentation choices do not change analytical formulas. Serving builds
+track their own implementation fingerprints. Display units explain the
+calculation; the Empty Games count projection is specified separately in
+[Player summaries](PLAYER-SUMMARIES.md). Percentage scaling still applies only
+to proportions; percentiles retain their 0–100 scale, and exact fractions remain downloadable.
 
-- Show the returned result's actual scope next to its value: an individual
-  award play, a complete scoring history, or a stated review population.
+- Show the selected-period player mean (or Empty Games count) on the card.
+  Event details retain their own scope: an individual award play, a complete
+  scoring history, or a stated review population.
 - Keep familiar metric names where they are useful. Removing terminology is
   not a reason to replace every label or invent another set of acronyms.
 - For weighted contribution and loss, explain the normalization in the formula

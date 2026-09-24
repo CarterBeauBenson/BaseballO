@@ -23,13 +23,14 @@ to continue, lack of objection, or implementation speed. Accepted proposals
 move to `archive/design-records/`; rejected proposals remain archived with
 their rejection rationale so they cannot be accidentally revived.
 
-## Active reviews
+## Recent accepted decisions
 
-[Accepted Q7 zero-episode history isolation](../archive/design-records/mlb-game-zero-episode-history-isolation/README.md)
-is under review. It would keep an unsupported zero-episode pinch-runner
-history withheld while adding the independently supported histories that were
-suppressed alongside it in two existing games. No new vocabulary or full-game
-replacement is proposed.
+[Q7 zero-episode history isolation](../archive/design-records/mlb-game-zero-episode-history-isolation/README.md)
+was explicitly accepted on September 23. Its targeted additions completed in
+two existing games: seven supported histories and 49 triples were added while
+unsupported zero-episode pinch-runner histories remained withheld. No new
+vocabulary or full-game replacement was introduced. Derived SQL consumption
+is tracked in [current readiness](../serving/METRIC-READINESS.md).
 
 [Q5/Q6 quarantine boundaries](../archive/design-records/mlb-game-quarantine-boundaries/README.md)
 was explicitly accepted on September 23. The archived decision covers the
@@ -59,14 +60,18 @@ Contribution Mix through either batting or independent running. Confirming a
 called strategy in source evidence remains separate; the earlier equal split
 for genuinely independent simultaneous outs was not accepted.
 
-The [new metric suite batch review](graph-native-metric-suite-batch-review/README.md)
-collects all remaining metric prerequisites in one draft package. The full
-calculation software is separately authorized and implemented; the unresolved
-ontology and graph-admission decisions remain open.
+The [metric suite batch review](graph-native-metric-suite-batch-review/README.md)
+retains the original consolidated research and review inventory. Subsequent
+accepted decisions supersede its older open questions; use
+[current metric readiness](../serving/METRIC-READINESS.md) for the remaining
+implementation and population work. Its draft status grants no additional
+semantic approval.
 
 The accepted source-independent review surface for the next MLB implementation
 pass is archived as
 [`FINAL-MLB-RML-REVIEW.md`](../archive/design-records/FINAL-MLB-RML-REVIEW.md).
+
+## Active reviews
 
 The packages below are all **under review** with a null ontologist decision.
 They are design-only and authorize no ontology, RML, SHACL, acquisition, RDF,

@@ -102,7 +102,10 @@ starting point for later work.
 For an accepted record, `ontologistDecision.authorizedArtifacts` names the
 protected Baseball-root-relative files that a later implementation may change.
 `proposedIris` names the exact new or revised vocabulary in scope. Neither list
-is an invitation to make adjacent cleanup changes.
+is an invitation to expand the accepted semantic scope. These protected-file
+records do not require separate approval for ordinary engineering artifacts
+that implement an already accepted design; see the repository
+[incremental-work policy](../../AGENTS.md#incremental-work-and-minimal-manual-validation).
 
 ### Phase 3: bounded implementation
 
@@ -127,7 +130,8 @@ class, embedding meaning in an ICE, inventing a literal, or weakening a shape.
 Bounded corpus promotion follows the accepted one-game proof. Cross-source
 SPARQL, analytical SQL materialization, and UI exposure follow only after the
 promoted RDF and query equivalence have been reviewed. Derived stores must be
-rebuilt after any authoritative semantic correction.
+refreshed only where an authoritative semantic correction affects their
+inputs. Unrelated RDF and derived products remain intact.
 
 ## Review records are evidence, not self-approval
 

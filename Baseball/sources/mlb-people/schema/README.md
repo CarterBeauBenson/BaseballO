@@ -1,9 +1,11 @@
 # MLB people input contract
 
 The transient provider document is an MLB people response with exactly one
-record in `people` for the current proof and corpus-driven lane. NiFi supplies
-the canonical resource kind (`player` or `person`) and expected provider ID
-from the authoritative-corpus seed.
+record in `people` per detail request. The source-owned connector discovers
+the season's MLB player population independently of the Games lane. NiFi
+supplies the canonical resource kind (`player` or `person`) and expected
+provider ID from that request. Corpus identifiers may supplement bounded
+backfills; they are not a required discovery dependency.
 
 Selected source fields are `id`, `fullName`, `nickName`, `height`, `weight`,
 `birthDate`, `batSide`, `pitchHand`, `primaryPosition`, and `currentTeam.id`.

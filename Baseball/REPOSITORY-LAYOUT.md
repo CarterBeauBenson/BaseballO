@@ -34,7 +34,7 @@ that prefix.
 | [`benchmarks/`](benchmarks/) | Versioned immutable performance and equivalence captures | Runtime databases or relabeled historical measurements |
 | `reasoning/` | Bounded profiles and proof evidence | Authoritative inferred replacement graphs |
 | `mermaid/` | Shared diagrams and generated cross-model review catalogs | Proposal-only designs |
-| `archive/` | Historical, accepted, rejected, or superseded records | Active executable dependencies |
+| `archive/` | Historical, accepted, rejected, or superseded records; accepted decisions remain referenced as approval and provenance | Active implementation code |
 
 ## Rules against layout drift
 

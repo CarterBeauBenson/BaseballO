@@ -5,8 +5,11 @@ This family counts `PitchAct` individuals that precede a
 pitch through their shared event record, plate appearances faced, swings, and
 batted-ball motion processes. Contact queries preserve the sequence from a
 swing or bunt act to contact and then batted-ball motion. Pitch speed, spin,
-break, and launch measurements remain excluded because those measurement
-properties are not yet approved in the ontology mapping.
+break, and launch measurements are outside these queries. Their unresolved
+world-side modeling and source contracts are tracked in the
+[deferred-measurements review](../../proposals/mlb-game-deferred-measurements/README.md);
+a field name or numeric source value alone does not authorize a measurement
+assertion.
 
 ## Execution coverage
 

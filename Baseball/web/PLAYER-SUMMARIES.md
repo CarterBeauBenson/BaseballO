@@ -45,10 +45,12 @@ The public examples apply this same count projection. Backend examples retain
 the rate calculation for regression checks. Public SQL and RDF responses use
 the same projection, and caller-supplied aggregate evidence remains forbidden.
 
-These contracts do not produce missing player populations. Complete source
-evidence and non-batting numerical participation thresholds are still required
-before their leaderboards can be populated. Existing NiFi fingerprint checks
-control materialization after reducer changes; no source freeze is refreshed.
+These contracts do not produce missing player populations. The numerical
+participation thresholds are accepted and implemented in
+[`leaderboard-qualification.json`](leaderboard-qualification.json); each
+leaderboard still needs complete applicable evidence. NiFi rebuilds affected
+derived products after reducer changes without refreshing a source freeze or
+rerunning RML. See [current readiness](../serving/METRIC-READINESS.md).
 
 ## Backend PA-mean reducer and participation inventory
 
@@ -72,19 +74,21 @@ The canonical evidence query now extracts actual PA/Batter Act/realized
 Batter Role/bearer links, including PAs without a resolved bearer. Every live
 result retains `coverage.battingParticipation`: per-player observed PA counts,
 unassigned PAs and ambiguous PAs. These are participation observations, not
-official totals. Both official-credit and team-exposure verification flags
-remain false until owning source contracts can establish them.
+official totals. These observations alone establish neither official-credit
+nor team-exposure verification. The later B1 admission described below supplies those facts for
+eligible builds.
 
 The [real-game proof](../benchmarks/metrics/batting-participation-2026-09-15/README.md)
 checks 77 observations for 20 players through Jena and SQL and compares their
 counts with the immutable boxscore. A separate real interrupted-turn example
 shows why count equality cannot become a general attribution policy.
 
-The PA-mean reducer is implemented and tested, including direct Python output
-through the JavaScript qualification code. **It is not called by a live scoring
-adapter yet:** complete PA scores, official-credit membership and applicable
-team-game exposure remain prerequisites. No qualified real-player leaderboard
-is produced by this change, and no HTTP caller can provide these facts.
+The standalone PA-mean reducer was implemented and tested in Suite 2.0.15,
+including direct Python output through the JavaScript qualification code. That
+initial change did not supply a live player population. Current conditional
+producers are documented in [Player leaderboards](../serving/PLAYER-LEADERBOARDS.md);
+complete scores, official-credit membership and applicable team-game exposure
+remain prerequisites. HTTP callers cannot supply these facts.
 
 Suite 2.0.16 additionally transports existing adjudicated batting-result
 Process/Act/Decision/Record paths and game realization of team-context Player
@@ -94,10 +98,11 @@ a role's mere existence or from adjacent games. The
 finds all 52 source roster pairs, including 32 players with no batting result.
 The basic exposure path therefore exists. Conditional use for qualification
 was accepted in [B1](../archive/design-records/batting-leaderboard-admission/README.md)
-on 2026-09-15. Implementation must still establish its game and population proofs. The new `player_team_game` evidence grain
-is derived SQL/query structure, not an RDF predicate or a public role metric.
+on 2026-09-15. Each build must establish its applicable game and population
+admission, using the B1 implementation described below. The `player_team_game`
+evidence grain is derived SQL/query structure, not an RDF predicate or a public role metric.
 
-Validation: 36 component Node tests and nine serving tests, including exact
+The September 15 implementation checks covered exact
 mean arithmetic, unreduced empty-game counts, SQL round trips, visibility,
 eligibility, and SQL/RDF response projection. Browser verification checks the
 19-card dashboard, selected-period average captions, and count-only Empty

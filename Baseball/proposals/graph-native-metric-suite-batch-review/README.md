@@ -1,5 +1,13 @@
 # One review for the new metric suite
 
+This draft retains the September 9-14 consolidated review and research
+inventory. Later named decisions and implementations supersede its historical
+open questions; they do not amount to acceptance of this whole package. Use
+[current metric readiness](../../serving/METRIC-READINESS.md) and the
+[proposal catalog](../README.md) for remaining work and accepted dispositions.
+The public dashboard has 19 metrics; the twentieth calculation, Role
+Realization Breadth, is backend-only.
+
 The [concrete defensive-source research](defensive-source-research-2026-09-14.md)
 corrects the broad "missing defensive evidence" claim with Retrosheet sequence
 examples, Statcast throwing/receiving products, official ABS eligibility, and
@@ -18,7 +26,7 @@ The [source contract](../../sources/mlb-game/review/runner-continuity-source-con
 identifies the remaining real-history admission gate. The nine policy answers
 and C1/C2 require no repeated vote.
 
-**Current handoff:** [the September 9 release review](current-release-review.md)
+**Historical September 9 handoff:** [the September 9 release review](current-release-review.md)
 accounts for all 21 gap codes in seven shared work packages, separates the
 subsequently answered metric choices from model/evidence work, and records the
 20-route end-to-end audit. Its final award/origin links supersede the older
@@ -82,7 +90,7 @@ none is misreported as a new live graph admission. Its
 gap register. It also identifies why scoring credits cannot substitute for
 actual outcomes or complete act sequences.
 
-## Remaining review and evidence as a single batch
+## Original review and evidence inventory
 
 1. **Trajectory structure:** attribution, continuous-path identity, distinct
    operative outs, and complete participant/outcome coverage. Preserve the

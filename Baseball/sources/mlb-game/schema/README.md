@@ -10,7 +10,11 @@ This package was extracted from [`../../../data/raw/game-566279.json`](../../../
 
 ## Direct-mapping policy
 
-The RML will read the untouched MLB feed directly. No source field is added, flattened, renamed, or copied.
+Raw MLB response bytes remain unchanged. NiFi creates an isolated, disposable
+execution-context copy for RML, preserving source fields and supplying the
+accepted ancestor joins and derived context under the reserved `_baseballO`
+key. That context is not a replacement source authority. See the
+[mapping execution contract](../mapping/README.md).
 
 The canonical detailed play iterator is:
 

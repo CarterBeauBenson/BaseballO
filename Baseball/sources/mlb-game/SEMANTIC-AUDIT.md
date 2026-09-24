@@ -172,7 +172,15 @@ through a new proposal.
     rebuildable from RDF alone. Keep development-fixture membership distinct
     from the type of game in the world.
 
-## Query source-scope enforcement finding
+## Historical query source-scope enforcement finding
+
+The finding below describes the August audit. Source-scope enforcement is now
+implemented in `validate_query_source_scopes`: single-source static queries
+require source graph guards or the exact registered runtime binder, which
+supplies scoped graph bindings. The
+[source-scope regression](../../tests/test_sparql_source_scopes.py) covers that
+boundary. The original diagnosis remains below as audit history, not an open
+request to repeat the repair.
 
 The version 2 source-scope catalog assigns the intended read and write layers
 to all current query roles, but the single-source declaration is not yet
