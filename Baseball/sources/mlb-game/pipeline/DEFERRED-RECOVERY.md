@@ -7,8 +7,11 @@ It is not a targeted RDF-addition mechanism or the entry point for SQL/metric
 changes over the existing graph. Do not enqueue source recovery merely because
 serving code, a calculation, or a validation fingerprint changed. Diagnose the
 affected layer and keep the work there. If targeted source execution is needed,
-implement it within the accepted lifecycle rather than substituting this broad
-replacement path. See the [operating policy](../../../../AGENTS.md#incremental-work-and-minimal-manual-validation).
+use or extend an appropriately scoped component within the accepted lifecycle
+rather than substituting this broad replacement path. The separately approved
+[Q7 worker](TARGETED-HISTORY-ADDITION.md) now implements its bounded history
+addition; it does not turn this recovery helper into an additive operation.
+See the [operating policy](../../../../AGENTS.md#incremental-work-and-minimal-manual-validation).
 
 The user authorized completion of the already running September 17 batch
 `2e0062c6ccff4630840108858425ed4f` after identifying the scope error. That is a
@@ -19,8 +22,8 @@ to explicitly authorized source recovery; they are not a manual checklist.
 ## Existing recovery mechanics
 
 The user restored the 15-minute `Check Pending Batch Materialization` trigger
-on 2026-09-16 after its temporary shutdown. Its live state is running and the
-source contract sets `batchMaterialization.periodicChecksEnabled` to true.
+on 2026-09-16 after its temporary shutdown. The source contract sets
+`batchMaterialization.periodicChecksEnabled` to true.
 Provisioning preserves the explicit setting. Daily 05:00 Eastern acquisition
 remains enabled.
 

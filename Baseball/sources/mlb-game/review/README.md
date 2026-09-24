@@ -9,6 +9,18 @@ This is a post-implementation non-regression contract. New source coverage must
 first be designed in the repository-level proposal catalog; generated diagrams
 do not replace prior ontologist review.
 
-The [M1/M2 implementation record](metric-mapping-completion.md) covers accepted
-counted-foul increments and affirmed pitch reviews, with source-to-RDF
-reconciliation and the bounded proof.
+The implementation records describe accepted increments, not a single current
+runtime snapshot:
+
+- [M1/M2 and M3/M4](metric-mapping-completion.md): counted fouls, foul bunts and
+  affirmed pitch reviews, with source reconciliation and bounded proofs.
+- [D1](defensive-acts.md): supported defensive performances and their remaining
+  population boundaries.
+- [C1/C2 and later history work](runner-continuity-source-contract.md): personal
+  histories, projection and links to accepted termination/replacement handling.
+- [Q7](../pipeline/TARGETED-HISTORY-ADDITION.md): the completed targeted history
+  addition and its independent downstream publication status.
+
+The [initial reconciliation note](metric-reconciliation-implementation.md) is
+historical. Current player populations and remaining work are maintained in
+[metric readiness](../../../serving/METRIC-READINESS.md).

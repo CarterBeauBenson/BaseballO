@@ -57,7 +57,7 @@ RML, raw source, or existing canned-query semantics.
 | Runner participation in a resolution | Runner act/resolution, player participation, run/out/safe judgment | Runner outcomes and runs |
 | Stolen-base resolution | Stolen-base process, stolen-base judgment, runner participation | Stolen bases by player |
 | Event-to-game and event-to-venue traversal | PA/half-inning/inning/game containment and game/field/site/venue chain | Most season and venue groupings |
-| Contextual team or official assignment | Person/team, game-scoped role, realization in game | Team, umpire, scorer filters |
+| Contextual team or official assignment | Bearer, accepted role identity and explicit realization in the selected game | Team, umpire, scorer filters |
 
 The example "player is agent in hit" is implemented only as the operational
 shape `?hit idx:agent ?person`. It is approved for the disposable query index,

@@ -28,9 +28,11 @@ and travel/rest sources receive new sibling modules after their own semantic
 review; they never extend an existing MLB module merely because MLB is the
 provider.
 
-All seven registered modules are active. Each passed its current bounded proof,
-owns an independent 05:00 Eastern trigger, and can be stopped without stopping
-the other six. Submission and completion of a particular corpus run are
+All seven registered modules are active and own independent 05:00 Eastern
+triggers. Their initial bounded proofs established operational admission;
+whether a proof matches the current implementation is checked from retained
+owner evidence. Each module can be stopped without stopping the other six.
+Submission and completion of a particular corpus run are
 runtime facts, not source-contract facts. Use source-local terminal evidence to
 establish promotion, quarantine, and cleanup without continuously polling the
 processors.
@@ -74,8 +76,9 @@ when the module exists and can own the entire boundary.
 
 - [x] Resolve the frozen MLB game semantic blockers and admit the corrected
   pinned executable contract.
-- [ ] Finish useful, non-duplicative `feed/live` coverage using proposal
-  Mermaid and one-game proof before extending RML.
+- [ ] Finish useful, non-duplicative `feed/live` coverage through the accepted
+  source-extension sequence: evidence and selection inventory, Mermaid review,
+  named acceptance, RML implementation, then bounded source-owned proof.
 - [x] Implement the accepted teams/leagues/divisions, people, transactions,
   and venues semantic contracts as separate MLB API modules. Shared provider
   and identifiers do not merge their RML or SHACL.

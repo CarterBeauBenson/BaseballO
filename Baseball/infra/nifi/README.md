@@ -87,11 +87,14 @@ already-running waiters finish in place; the existing 15-minute batch worker
 resumes a stopped replay planner once its old thread exits. That same worker
 marks progress interrupted only when its recorded OS process has exited.
 
-`Refresh Admission Evidence` checks up to 100 games every five minutes and
-runs at most one game's SHACL refresh per tick. It distinguishes missing,
-stale and previously withheld evidence. A refresh requires the exact retained
-source bytes and local RDF bytes named by the promotion; missing files are
-reported, never regenerated or replaced. See the
+`Refresh Admission Evidence` runs once per minute, prioritizes the latest
+published dashboard day, diagnoses up to 100 games and refreshes at most one
+game per tick. It distinguishes missing, stale, implementation-compatible and
+previously withheld evidence. The general refresh requires exact retained
+source/RDF artifacts. The bounded B1 path can instead use the retained
+participation census and a read-only export of the existing promoted graph,
+then run the unchanged owning SHACL. Neither path reacquires inputs, reruns RML
+or changes authoritative RDF. Missing prerequisites remain explicit. See the
 [operational delivery record](../OPERATIONS-IMPROVEMENTS.md).
 
 ## Provisioning and submission

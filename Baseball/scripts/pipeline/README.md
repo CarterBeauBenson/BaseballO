@@ -39,10 +39,15 @@ flowchart LR
     G -->|Yes| I[Rebuildable query-index graph]
     I --> B[Batch-aware SQL materialization]
     G -->|No| X[Source-owned authority or event graph complete]
-    E --> A[Declared post-promotion SPARQL]
-    A --> D[Immutable SQL candidate and atomic pointer]
-    A -->|bounded failure| Q[Source-local quarantine]
+    E --> QUERY[Declared post-promotion SPARQL]
+    QUERY --> D[Immutable SQL candidate and atomic pointer]
+    QUERY -->|bounded failure| Q[Owning downstream retry and failure evidence]
 ```
+
+The game batch stage owns the full report build. `Dashboard SQL` independently
+consumes promoted game changes and checkpoints its prepared products; authority
+SQL has its own promoted-event consumer. A source batch waiting for completion
+does not make those independent SQL owners part of the acquisition lane.
 
 ## Direct fallback import
 
@@ -282,8 +287,8 @@ RDF graph pair is not rolled back.
 Every successful source promotion first invokes
 [`emit-promoted-graph-event.py`](emit-promoted-graph-event.py). Its immutable,
 idempotent outbox record binds the source module, graph, scope, pipeline run,
-triple count, and exact promotion-evidence hash. The shared `Analytical
-Serving` NiFi group consumes only declared authority dependencies. Corrections
+triple count, and exact promotion-evidence hash. The independent `Authority
+SQL` NiFi group consumes only declared authority dependencies. Corrections
 replace the affected graph partition rather than appending a second version.
 
 [`prove-serving-equivalence.py`](prove-serving-equivalence.py) is the

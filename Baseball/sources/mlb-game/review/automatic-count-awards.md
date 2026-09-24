@@ -35,9 +35,11 @@ awards alone do not prove either population complete.
 The [affirmed-review regression](../../../benchmarks/metrics/authorized-metric-fixes-2026-09-15/README.md)
 checks real game 824087 PA 32: automatic strike, affirmed pitched strike, ball,
 single. It contains three delivered pitches and one Recovery extension step.
-The whole game passes canonical source SHACL. Its separate pitch-count census
-still rejects exactly the four unapproved M3/M4 foul mappings; this repair does
-not admit them or declare complete game/season Recovery coverage.
+That proof passes canonical source SHACL; at the time, its separate pitch-count
+census still rejected four foul cases awaiting M3/M4. Those mappings were
+subsequently [accepted and implemented](metric-mapping-completion.md#m3m4-completion-accepted-september-16).
+Neither the old failure nor the award proof establishes current game/season
+Recovery coverage; use [metric readiness](../../../serving/METRIC-READINESS.md).
 
 The source reconciler also preserves absent unplayed halves during its existing
 inning-membership comparison. This fixes a mutating defaultdict lookup; it does

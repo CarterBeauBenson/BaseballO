@@ -32,12 +32,17 @@ admission. A player with no scored runs has no run mean.
 
 This is a conditional live producer, not a declaration that a deployed range
 is complete. Missing C1 histories still withhold the selected population. The
-new proof is required on the next normal source proof/refresh; an old build
-cannot acquire admission merely because the serving code changed.
+proof must be valid for the exact promoted graph and accepted implementation.
+Existing compatible evidence can be reused through the owning admission reader;
+a serving-code change neither grants admission nor requires a source refresh.
 
 Completed, consistently evidenced pitch reviews can reconcile final operative
 effects without inventing an original call. Explicit batter-only replacements
 and intermediate movement rows do not erase existing personal lifetimes.
 Entry and termination identity still require their accepted positive anchors;
-pinch-runner replacements and unresolved event effects remain gated. See the
-[source implementation record](../review/runner-history-effects.md).
+unsupported replacement anchors and unresolved event effects remain gated.
+C3's accepted non-pitch/PR anchors and the separately accepted extra-inning
+placement pattern are implemented; Q7 handles its bounded zero-episode case.
+See the [source implementation record](../review/runner-history-effects.md),
+[C3 decision](../../../archive/design-records/mlb-game-runner-boundary-anchors/README.md),
+and [Q7 addition](TARGETED-HISTORY-ADDITION.md).

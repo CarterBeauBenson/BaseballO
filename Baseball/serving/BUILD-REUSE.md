@@ -224,7 +224,7 @@ cache and 0.078 seconds with those numerical cases cached. The empty-cache run
 already reused 38 repeated cases. This is a bounded component timing, not a
 projection of full-corpus runtime.
 
-`serving/metric-cache.sqlite` holds one calculated product per game. The
+`serving/metric-cache.sqlite` retains up to three calculated versions per game. The
 materializer first runs all six current `promoted_admission` readers, which
 validate proofs against the current promotion and producer implementations.
 It then normalizes the current graph-query evidence. Only after these steps
@@ -248,8 +248,10 @@ game-product reuse cannot admit any of those populations.
 
 Payloads are checksum-verified, compressed and limited to 64 MiB uncompressed.
 Corruption causes recalculation. Cache I/O failure falls back to calculation;
-calculation failures are not cached. One row per graph prevents accumulation
-of superseded versions. Connections close after each operation. Build evidence
+calculation failures are not cached. The versioned table keys rows by graph and
+calculation identity and prunes beyond three versions per game. The old
+single-version table remains readable by older immutable releases; it is not
+the current retention policy. Connections close after each operation. Build evidence
 records `benchmark.metricProductCache` hits, misses, bypasses and discards
 separately from the SPARQL cache statistics.
 
@@ -272,11 +274,14 @@ against its calculated product and records `buildingBlocksRoundTrip` per game.
 Missing observations, changed columns, incorrect hashes and incomplete row
 counts fail the reader; they cannot silently shrink a denominator.
 
-After all games are stored, the `metric-reference-ranks` stage prepares admitted
-season ranks for PAQ, Situation-Adjusted PAQ, Two-Strike Extension Rank and PAQ
-with Tie-Breakers. `metricReferencePopulations` in build evidence records each
-metric's cutoff, completeness and gaps. Incomplete populations remain withheld.
-This stage uses the existing independent schedule and source admission checks.
+After games are stored, NiFi prepares admitted ranks for PAQ,
+Situation-Adjusted PAQ, Two-Strike Extension Rank and PAQ with Tie-Breakers.
+The full report builder prepares the latest cutoff per season in its
+`metric_suite_reference` tables, with `metricReferencePopulations` evidence. The independent dashboard
+builder uses `reference_products.py` to prepare every supported historical
+date cutoff in `dashboard_reference`. It records each cutoff's completeness
+and gaps. Both paths use existing schedule and source admission checks;
+incomplete populations remain withheld.
 
 Rank keys include the exact reference graph set. Stored observation changes
 invalidate prepared ranks. Direct changes to raw evidence invalidate that
@@ -285,8 +290,10 @@ corresponding compact result. Immutable publication, database checksums and
 matching code releases remain the production boundary. These database triggers
 also prevent stale projections during focused tests or candidate construction.
 
-The selected-period reader reuses compact inputs and performs the final exact
-math in Python. It no longer reconstructs graph patterns, runs SPARQL kernels,
-or reads whole-game calculation JSON for a normal dashboard request. Historical
-reference populations not prepared by NiFi are ranked from their own stored
-observations, without updating the read-only database.
+The dashboard reader reuses compact inputs, checks populations and performs
+selected-period aggregation in Python over SQL. It does not reconstruct graph
+patterns, run SPARQL kernels or read whole-game calculation JSON on a normal
+request. Missing prepared ranks raise `Selected reference ranks need NiFi
+preparation`; they do not trigger request-time season ranking. The older full
+report reader's stored-observation ranking fallback is a separate behavior,
+not the dashboard contract.

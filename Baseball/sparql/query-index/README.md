@@ -53,7 +53,7 @@ in filename order and merges their results.
 | `61-contacts.rq` | `idx:ContactFact` | Swing/bunt, CCO Person participant, contact, batted-ball motion, plate appearance/game, field/venue, and any current reviewed trajectory classification |
 | `70-runner-resolutions.rq` | `idx:RunnerResolutionFact` | Source record, runner-resolution process, CCO Person participant, enclosing plate appearance/game, matching safe/out/run judgment, and any supported more-specific event process |
 | `71-stolen-bases.rq` | `idx:StolenBaseFact` | Stolen-base process, CCO Person participant, enclosing plate appearance and game, and stolen-base judgment |
-| `80-game-assignments.rq` | `idx:AssignmentFact` | Game-scoped home-team, away-team, umpire, or official-scorer role and its bearer |
+| `80-game-assignments.rq` | `idx:AssignmentFact` | Home/away team role or persistent umpire/official-scorer role, its bearer and explicit realization in the selected game |
 | `90-labels.rq` | Labels | Labels already asserted in the authoritative per-game graph |
 
 Every fact type requires `idx:derivedFrom` pointers to decisive source-graph

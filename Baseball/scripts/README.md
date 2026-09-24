@@ -5,8 +5,8 @@ directory.
 
 These are components for NiFi and focused developer diagnosis, not a manual
 release checklist. Follow the [minimal-check policy](../../AGENTS.md#incremental-work-and-minimal-manual-validation).
-For documentation, review the diff only. For changed code, run the smallest
-useful check and leave routine integration, validation, retry, and publication
+For documentation, review the diff and run `git diff --check`. For changed code,
+run the smallest useful check and leave routine integration, validation, retry, and publication
 to NiFi. Read existing failure evidence before running anything again.
 
 [`validate_repository.py`](validate_repository.py) checks required paths,
@@ -16,9 +16,11 @@ separately scoped 2026 All-Star Game identity/date contract, runs
 the mapping-specific validators against the fixture and accepted baseline,
 checks challenge versus umpire-review context, executes web tests, and verifies the current query audit, index,
 operational-routing, algebra, and TDB2 evidence artifacts.
-It also meta-validates all three SHACL profiles and proves with negative smoke
+It also meta-validates the three core SHACL profiles and proves with negative smoke
 graphs that incomplete authoritative, index, and reasoning-output structures
 are rejected.
+Source-owned operational profiles have a separate registered inventory; the
+three core profiles are not the complete set of source admission checks.
 It also runs the selective-reasoning tests for slice isolation, positive and
 negative entailments, computational budgets, deterministic output, and CLIF
 translation.

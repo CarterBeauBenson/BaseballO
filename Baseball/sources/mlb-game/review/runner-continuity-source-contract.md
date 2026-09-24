@@ -1,5 +1,15 @@
 # C1/C2 implementation and source admission boundary
 
+## Implementation history and current boundaries
+
+The September 14 selection below was the first implemented subset. Subsequent
+accepted work added [walk-off endings](walkoff-runner-boundary.md),
+[accounted review/replacement effects](runner-history-effects.md),
+[C3 entry/termination anchors](../../../archive/design-records/mlb-game-runner-boundary-anchors/README.md),
+distinct [extra-inning placement adjudication](../../../archive/design-records/extra-inning-placement-adjudication/README.md),
+and [Q7 isolation](../pipeline/TARGETED-HISTORY-ADDITION.md). These implementations
+do not certify every history or PA boundary. Unsupported cases remain withheld.
+
 ## September 14 implementation update
 
 The user explicitly accepted E1's source authority and the C1 extension of
@@ -9,14 +19,14 @@ selecting C1 lifetimes. The existing RML emits the reviewed whole, interval,
 participant, half-inning and episode-membership pattern below. No classes,
 object properties, location assertions or later safe adjudications are added.
 
-The real 566279 fixture selects 18 lifetimes. Unresolved reviews, offensive
+The initial real 566279 fixture selected 18 lifetimes. Unresolved reviews, offensive
 substitutions, missing event anchors, incompatible segment chains and time/out
 conflicts withhold the affected half. Reconciliation starts from the full raw
 source inventory, not emitted rows. It retains separate contribution episodes,
 checks actual post-base observations and preserves stranded runners at the
 third-out boundary. A direct batter out without an evidenced baserunning entry
-does not create a personal runner whole. Partial/walkoff halves remain withheld
-pending supported termination handling.
+does not create a personal runner whole. Partial/walkoff halves were withheld
+at that stage; the later accepted walk-off implementation is linked above.
 
 The lifetime key serializes the supported game/person/entry/termination anchors
 as documented in the existing IRI policy. Event timestamps are evidence bounds;
@@ -27,7 +37,7 @@ NiFi's RML component compares selected episode membership with actual generated
 membership, then relies on the owning source SHACL for graph conformance before
 promotion. The RML manifest retains the input hash, source revision, selected
 lifetimes, withheld-half reasons and serialization verification after cleanup.
-None of this proves a complete season population or supplies the missing
+None of this proves a complete season population or supplies the separate
 defensive/count-state contracts. The older first-unpassed-gate text below is
 historical context; real C1 source selection and mapping are now implemented.
 
@@ -76,16 +86,19 @@ preserve the accepted lifetime's identity across source revisions and retries.
 
 ## First unpassed source gate
 
-No existing source adapter currently produces independently verified complete
+Historical pre-implementation finding, superseded by the accepted source
+selection above. It remains here to explain why mere row adjacency was rejected.
+
+At that stage no source adapter produced independently verified complete
 personal histories, supported entry/termination anchors and the associated
 temporal interval. The checked-in PA 34/35 and 15/16 evidence establishes
 positive post-PA observations but does not establish this history. A complete
 PA flag, adjacent rows, matching endpoints, or counts of mapped rows cannot
 be substituted for the required evidence.
 
-Consequently, no executable RML source for personal wholes is added and no
-real game is claimed to contain a newly admitted C1 whole. The existing RML,
-raw evidence and source acquisition remain intact. This is a source-evidence
+Consequently, that initial stage added no executable RML source for personal
+wholes and claimed no newly admitted C1 whole in a real game. The then-existing
+RML, raw evidence and source acquisition remained intact. This was a source-evidence
 gate, not an outstanding request to approve C1 or C2 again.
 
 The required reconciliation product must bind a particular source revision,

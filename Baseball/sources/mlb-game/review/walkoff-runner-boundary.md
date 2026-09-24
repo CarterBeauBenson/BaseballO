@@ -21,7 +21,9 @@ exact endpoint and episode inventories selected from source. These checks run
 inside the existing NiFi lifecycle before promotion. The source manifest keeps
 the final boundary and terminal kinds after raw input cleanup.
 
-This bounded extension does not resolve placed-runner entry, offensive runner
-substitutions, unresolved review effects, shortened-game termination, or all
-within-PA ordering. Unknown histories stay withheld. Query/SQL retention of
+This bounded extension did not itself resolve placed-runner entry or offensive
+runner substitutions. Later C3 anchors and distinct placement adjudication
+cover their accepted cases; see the [current source inventory](../mapping/ontology-coverage-gaps.yaml).
+Unresolved review effects, unsupported termination and ordering still withhold
+the affected histories. Query/SQL retention of
 individual histories and results does not certify full selected populations.

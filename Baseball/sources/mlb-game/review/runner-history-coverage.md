@@ -37,7 +37,8 @@ The [next focused repair](../../../benchmarks/metrics/runner-records-review-subj
 accounts for a completed, affirmed ordinary foul review when the final event
 explicitly has no in-play, out or runner effect and its counts reconcile.
 This admits C1 history continuity only. It does not extend M1/M2 counted-foul
-or original-review mapping, and M3/M4 remains a separate draft. Pending,
+or original-review mapping. M3/M4 was subsequently accepted and implemented
+separately; see the [counted-foul record](metric-mapping-completion.md#m3m4-completion-accepted-september-16). Pending,
 overturned, terminal, conflicting and movement-bearing reviews stay withheld.
 
 `nonmovement_strikeout_records` now has one implementation in the pinned
@@ -48,4 +49,7 @@ C1 accounts for that source record without adding a second episode, out or
 lifetime entry. The runner-resolution SHACL still forbids that extra act and
 requires the existing uncaught-third-strike structure. Its fingerprint now
 includes the shared context implementation. Automatic-runner and replacement
-identity gaps remain separate and do not disappear when this record reconciles.
+identity are separate contracts: later C3 anchors and placement adjudication
+handle their accepted cases, while unsupported histories remain withheld.
+See the [source coverage inventory](../mapping/ontology-coverage-gaps.yaml) and
+[Q7 targeted addition](../pipeline/TARGETED-HISTORY-ADDITION.md).

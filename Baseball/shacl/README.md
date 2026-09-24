@@ -10,8 +10,9 @@ reasoning.
   is owned by the MLB game source module and validates stable structures produced
   by its RML: games, plate appearances, pitching and batting acts,
   contact and ball-motion chains, baserunning, adjudication, decisions, and
-  record identity separation. It also validates pitch-ball control failures,
-  passed-ball and wild-pitch scoring structures, uncaught-third-strike
+  record identity separation. It forbids inferring a physical pitch-ball
+  control failure from a passed-ball or wild-pitch label, while checking those
+  institutional scoring structures, uncaught-third-strike
   composites, and the non-fabrication boundary for unresolved runner records.
 - [`query-index.ttl`](query-index.ttl) validates the disposable shortcut graph:
   one index resource and game, required fact fields, RDF term kinds, datatypes,
@@ -20,8 +21,14 @@ reasoning.
   provenance envelope of a disposable inferred graph: its authoritative source,
   admitted profile, and complete ruleset fingerprint.
 
+These are the core profiles. MLB-game operational admission profiles are
+registered separately in
+[`validation-profiles.json`](../sources/mlb-game/pipeline/validation-profiles.json),
+including batting, runner, count, defense and clock checks. Each source module
+owns its profiles and their runtime results.
+
 The top-level SHACL directory contains only source-neutral derived-layer
-contracts. Each future source keeps its authoritative profile inside its own
+contracts. Each source keeps its authoritative profiles inside its own
 module. Source profiles must not constrain entities supplied by another source;
 cross-source integrity questions belong in dependency-declared SPARQL or a
 separately reviewed integration contract.
@@ -35,7 +42,12 @@ Validation runs with no entailment. Authoritative shapes check the explicit
 graph before reasoning. Reasoning-output shapes constrain only provenance
 metadata whose meaning remains valid when inferred triples are present.
 
-## Run manually
+## Focused component diagnosis
+
+NiFi owns routine execution. Use a command below only for the affected component
+when diagnosing a recorded failure or checking a substantive change; these are
+alternatives, not a manual pipeline checklist. Retained files may already have
+been cleaned after promotion; use the exact artifact named by the owner evidence.
 
 From the Git repository root:
 
@@ -53,7 +65,9 @@ python Baseball/scripts/pipeline/validate-shacl.py `
   --data <selective-reasoning-build>\published.nt
 ```
 
-The RML runner validates authoritative RDF before publishing it. The index
+The direct RML fallback validates authoritative RDF before returning it.
+In NiFi, RML defers semantic validation to the separate source SHACL stage;
+graph promotion follows its outcome. The index
 builder validates compiled N-Triples before replacing the disposable named
 graph. Dehydration-package
 validation repeats the authoritative and index checks before accepting a

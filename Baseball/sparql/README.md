@@ -35,8 +35,10 @@ These are additive to the cross-cutting hit queries below. The UI-facing
 can compile the same four domains from selected dimensions, metrics, and
 filters.
 
-The complete 51-query audit is recorded in
-[`query-inventory.md`](query-inventory.md). Those canned queries still use the
+The current 51-query inventory is recorded in
+[`query-inventory.md`](query-inventory.md). The preserved original corpus audit
+covered 48 queries; the three later additions have their separate evidence.
+Those canned queries still use the
 authoritative patterns. The implemented acceleration layer and its operational
 shortcut contract are documented in [`query-index/`](query-index/); remaining
 production decisions are tracked in

@@ -42,6 +42,12 @@ the applicable stage contract. Persistent manifests, promotion evidence, the
 authoritative TDB2 graph, the rebuildable indexed graph, and promoted analytical
 databases remain.
 
+That batch dependency belongs to the full report builder. The independent
+`Dashboard SQL` owner checks promoted game changes and prepares its own SQL
+product; it does not wait for a whole acquisition batch to be declared complete.
+Player and schedule completeness still govern which results it can publish.
+See [serving ownership](../../../serving/METRIC-SUITE-IMPLEMENTATION.md).
+
 Quarantine replay is hash-bound and NiFi-owned. The first replay proves the
 five configured representative games before releasing its remainder. Later
 replays verify that immutable proof, then require up to five exact current

@@ -24,11 +24,14 @@ validation system in imperative code.
 
 Repository-level validation remains in
 [`../scripts/validate_repository.py`](../scripts/validate_repository.py). It
-currently parses 106 SPARQL files, checks the RML and 120 generated pattern pages,
-executes the web tests, verifies 51 canned and 17 advanced baselines, and checks
+parses the registered SPARQL files, checks RML and the generated pattern catalog,
+executes web tests, verifies the canned and advanced baselines, and checks
 19 benchmark pairs, 19 reviewed routes, 38 optimized algebra plans, and 38
 direct TDB2 captures. The active mapping provides its source and collision
 validator under [`../sources/mlb-game/mapping/`](../sources/mlb-game/mapping/).
+Use the [source-scope catalog](../sparql/source-scope-catalog.json) and
+[generated pattern inventory](../mermaid/patterns/README.md) for the current
+query and map coverage instead of hand-maintained file counts.
 
 The Explorer suite proves that loaded MLB coverage is returned by the status
 endpoint, the Plate Appearance Quality workflow is visibly featured, and the

@@ -24,5 +24,8 @@ Actual agency is not official statistical PA attribution. The existing B1
 admission independently reconciles official totals and withholds unresolved
 substituted-turn assignments. This change does not duplicate PAs, relax
 qualification, or certify a complete selected player population. It also does
-not yet extend personal runner continuity through offensive replacements or
+not itself extend personal runner continuity through offensive replacements or
 infer affected-player review assignments from a catcher/challenger identity.
+Later accepted [history-effect handling](runner-history-effects.md) and
+[C3 anchors](../../../archive/design-records/mlb-game-runner-boundary-anchors/README.md)
+cover their supported replacement cases independently of batting attribution.

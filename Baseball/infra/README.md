@@ -152,6 +152,7 @@ focused checks, remaining blockers, and rollback procedure.
 The RML, graph-loading, query-index, and serving components are documented in
 the [`scripts/pipeline` runbook](../scripts/pipeline/README.md). The seven
 configured source-owned NiFi lanes, their proof and corpus submission commands,
-the shared Analytical Serving, DSQ SQL Materialization, Repository Evidence,
-and Serving Equivalence groups, and the active 05:00 Eastern schedules are documented in the
+the independent Authority SQL, DSQ SQL Materialization, Dashboard SQL,
+Repository Evidence, Serving Equivalence and RDF Recovery groups, and the
+05:00 Eastern acquisition schedules are documented in the
 [`NiFi runbook`](nifi/README.md).

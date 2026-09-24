@@ -54,16 +54,18 @@ checks all 79 official PAs and 282 pitches in game 566279, through Jena and SQL.
 There are 40 eligible PAs and 39 known ineligible PAs. This is a complete
 one-game input proof, not a complete-season leaderboard.
 
-For game 824087, Q5 withholds automatic strike
+The initial September 15 diagnosis for game 824087 withheld automatic strike
 `6e1edbb8-f263-41d9-9613-56400d396d2f` in PA 32 with
-`UNRESOLVED_COUNT_REVIEW`. The existing selector excludes awards in a PA
-containing a review. The source award is present; its graph admission is
-unfinished. Four additional pitched-strike cases are covered by the separate
-draft M3/M4 proposal. No selector, mapping, ontology or freeze pin was changed
-by this component.
+`UNRESOLVED_COUNT_REVIEW`. The subsequent
+[affirmed-review repair](../review/automatic-count-awards.md) handles that
+supported award without treating every reviewed PA as eligible. M3/M4 was
+separately accepted and implemented on September 16; it is no longer a draft.
+See the [counted-foul implementation](../review/metric-mapping-completion.md#m3m4-completion-accepted-september-16).
+The earlier diagnosis is not a current live failure report. Exact remaining
+count cases and publication status belong in metric readiness.
 
-The new profile and four pre-existing metric profiles are registered in the
-source-owned `pipeline/validation-profiles.json`. The ownership validator
+The profile is registered with the other operational profiles in the
+source-owned [validation catalog](validation-profiles.json). The ownership validator
 retains exact membership and unique ownership across operational profiles and
 the pinned source contract. The protected catalog and freeze remain unchanged.
 The [unnecessary approval request was withdrawn](../../../archive/design-records/mlb-game-metric-profile-registration/disposition.md).

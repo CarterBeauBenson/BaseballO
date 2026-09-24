@@ -18,6 +18,15 @@ The incoming/outgoing roster identities and exact graph/official-PA census
 still have to reconcile. Other prefixes and actual mid-turn substitutions do
 not acquire single-batter admission from this rule.
 
+The later bounded B1 maintenance path handles retained censuses with exactly
+one actual batter per turn and reconciled official totals, including cases
+rejected by the earlier substitution-position heuristic. It checks that census
+against a read-only export of the promoted graph using the unchanged B1 shape,
+preserves the original withholding and records a separate refresh receipt.
+This is not a rule for ambiguous multi-batter credit. See
+[admission maintenance](../../../infra/nifi/README.md#operating-contract) and
+[current readiness](../../../serving/METRIC-READINESS.md).
+
 Source scoring reconciliation uses both the PA header and explicit event
 scoring evidence. A passed-ball score before a later groundout can have a false
 PA-header scoring flag. Every scored runner must then match an explicitly
