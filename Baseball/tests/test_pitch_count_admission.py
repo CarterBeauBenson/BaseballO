@@ -47,6 +47,17 @@ def extract(data):return M.recovery_histories(M.normalize_bindings(bindings(data
 
 
 class PitchCountAdmission(unittest.TestCase):
+    def test_jena_fractional_seconds_preserve_pitch_order(self):
+        data,_=pitch_fixture()
+        rows=M.normalize_bindings(bindings(data,[G1]),[G1])
+        expected=M.recovery_histories(rows)
+        for row in rows:
+            if row['kind']=='pitch_count':
+                row['pitchStart']=row['pitchStart'].replace('00+00:00','00.55+00:00')
+                row['pitchEnd']=row['pitchEnd'].replace('01+00:00','01.5+00:00')
+        self.assertTrue(any('.55+' in r.get('pitchStart','') for r in rows))
+        self.assertEqual(M.recovery_histories(rows),expected)
+
     def test_equivalent_datetime_lexical_forms_and_foul_tip_subclasses(self):
         data,source=pitch_fixture();g=data.graph(G1)
         e=source['plateAppearances'][0]['events'][0]

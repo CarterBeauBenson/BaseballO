@@ -472,10 +472,14 @@ test('complete individual runs display their own depth without implying full pop
 });
 
 test('bookmarked selections validate dates and preserve supported scopes', () => {
+  assert.equal(selectionFromUrl('http://localhost/metrics').preset, 'seven_days');
+  assert.equal(selectionFromUrl('http://localhost/metrics?preset=one_day').preset, 'seven_days');
+  assert.deepEqual(selectionFromUrl('http://localhost/metrics?preset=custom&startDate=2026-09-01&endDate=2026-09-27#tfs'),
+    { preset:'custom',gameSet:'regular_season',startDate:'2026-09-01',endDate:'2026-09-27' });
   assert.deepEqual(selectionFromUrl('http://localhost/metrics?preset=custom&startDate=2026-08-25&endDate=2026-08-25&gameSet=all_star#tfs'),
     { preset:'custom',gameSet:'all_star',startDate:'2026-08-25',endDate:'2026-08-25' });
   for (const dates of ['startDate=2026-02-31&endDate=2026-03-10','startDate=2026-09-01&endDate=2026-08-01','startDate=2026-08-01']) {
-    assert.equal(selectionFromUrl('http://localhost/?preset=custom&'+dates).preset, 'one_day');
+    assert.equal(selectionFromUrl('http://localhost/?preset=custom&'+dates).preset, 'seven_days');
   }
 });
 

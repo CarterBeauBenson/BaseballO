@@ -40,6 +40,17 @@ def project(dataset):
 
 
 class BoundaryServingTests(unittest.TestCase):
+    def test_jena_fractional_seconds_preserve_runner_boundaries(self):
+        dataset=boundary_fixture()
+        rows=M.normalize_bindings(bindings(dataset,[G1]),[G1])
+        expected=M.runner_boundary_states(rows)
+        for row in rows:
+            if row['kind']=='plate_appearance':
+                for field in ('paStart','paEnd'):
+                    row[field]=row[field].replace('00+00:00','00.55+00:00')
+        self.assertTrue(any('.55+' in r.get('paStart','') for r in rows))
+        self.assertEqual(M.runner_boundary_states(rows),expected)
+
     def test_safe_state_is_projected_only_inside_supported_continuity_bounds(self):
         result = project(boundary_fixture())
         state, = result['states']
@@ -61,7 +72,12 @@ class BoundaryServingTests(unittest.TestCase):
             M.materialize_game(connection, G1, source)
             scope = {'gameSet': 'regular_season', 'startDate': '2026-08-01', 'endDate': '2026-08-01'}
             selected = M.query_sql(connection, {'view': 'dashboard'}, scope)
-            self.assertEqual(next(row for row in selected['metrics'] if row['metricId'] == 'tfs'), expected)
+            metric=next(row for row in selected['metrics'] if row['metricId']=='tfs')
+            self.assertEqual(metric['runnerBoundaryStates'],expected['runnerBoundaryStates'])
+            self.assertEqual(metric['coverage'],expected['coverage'])
+            self.assertEqual(metric['status'],'unavailable')
+            self.assertFalse(metric['playerPopulationComplete'])
+            self.assertEqual(metric['playerResults'],[])
 
     def test_no_new_graph_statements_are_created(self):
         dataset = boundary_fixture()

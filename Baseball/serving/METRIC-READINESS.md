@@ -6,16 +6,16 @@ calculation kernels exist, including backend-only Role Realization Breadth.
 
 ## Last verified publication
 
-Read-only check on September 27, 2026, during the 21:06 Eastern status check:
+Read-only selected-range check on September 28, 2026:
 
 | Surface | Recorded result |
 | --- | --- |
-| Published dashboard | `20260927T151414Z-dashboard-5253d4387d46`, published at 11:47 Eastern, 2,773 games |
-| Default selection | September 16, 15 regular-season games |
+| Published dashboard | `20260928T102328Z-dashboard-bad735824e37`, published at 06:49 Eastern, 2,916 games |
+| Requested selection | September 21–27, 89 loaded regular-season games out of 90 expected |
 | Service readiness | HTTP 200, `materialized-serving` |
-| Player leaderboards | **1/19 populated; 1/19 complete populations; dashboard ready=false**. Run Construction Depth has 15 qualified rows; the other 18 cards remain unavailable. |
-| Serving latency | First readiness request exceeded its 20-second client timeout; the next succeeded in 26.03 seconds. This is not acceptable dashboard response time. |
-| Recent-game acquisition | September 17-26 catch-up remained quarantined after the proof retry failed at the Q7 context-builder runtime pin. Existing SQL publication is not evidence of new-game ingestion. |
+| Player leaderboards | **0/19 populated; dashboard ready=false** for this range. The earlier September 16 result of 1/19 is not the current selected-range result. |
+| Serving latency | Selected-range dashboard POST succeeded in 17.3 seconds. This is not acceptable dashboard response time. |
+| Recent-game coverage | 129 of 130 September 17–26 catch-up games are in this SQL publication. Game 823087 is absent. |
 
 The healthy SQL service and unavailable player populations are separate facts.
 The current pointer is `state/serving/dashboard-current.json`; the independent
@@ -25,6 +25,15 @@ a source graph count or a successful component test.
 
 ## Implemented repairs and retained component evidence
 
+- The page defaults to seven days and preserves valid custom date ranges;
+  it no longer offers a latest-day preset or a single-day example as its entry
+  point. The API continues accepting explicit one-day requests for compatibility.
+- The analytical timestamp reader accepts Jena's shortened fractional seconds
+  on Python 3.10. For example, `.55` and `.550` denote the same instant, but the
+  previous parser rejected `.55`. The corrected reader recovers all 73 official
+  PA count histories in retained SQL game 822841 using its existing admissions,
+  including its three admitted zero-pitch walks. This is component evidence,
+  not a claim that selected-period or season-wide leaderboards are populated.
 - Exact compatible-proof reuse separates unrelated context-code changes from
   actual proof changes. It retains original statuses and fingerprints; prior
   withheld proofs are not promoted to admitted by compatibility alone.
@@ -55,12 +64,17 @@ The complete earlier diagnosis and dated build history are retained in the
 The [operational delivery record](../infra/OPERATIONS-IMPROVEMENTS.md) describes
 worker ownership; [build reuse](BUILD-REUSE.md) describes invalidation.
 
-## Next work from the September 27 live check
+## Next work from the September 28 selected-range check
 
-1. Complete the bounded recent-game recovery after correcting the inconsistent
-   Q7 runtime pin described in [the architecture review](ARCHITECTURE-REVIEW.md).
-   Independently diagnose the 26-second prepared-SQL read and inspect the 18
-   unavailable player populations in the actual published results.
+1. Resolve the recorded remaining game 823087 in its existing source owner;
+   do not reacquire or rebuild the corpus for this dashboard request. The
+   selected range currently has 71 admitted batting populations and 18 withheld
+   games. Whole-selection completeness gates suppress all players when one
+   selected game is withheld. A proposal to rank only players with complete
+   full-range records is awaiting the user's decision; it is not implemented
+   or accepted merely by being described here.
+   Independently refresh the affected derived calculations through Dashboard SQL
+   and reduce the 17.3-second prepared-SQL read.
 2. Continue contribution/Empty Game attribution diagnosis. The retained component
    check left player 681508 in game 822846 (PA 37) and player 670770 in game 824467
    (PA 65) uncertain. Reassess against the updated promoted graphs before deciding

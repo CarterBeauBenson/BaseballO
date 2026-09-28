@@ -15,7 +15,6 @@
       <p class="eyebrow">BaseballO analytics</p>
       <h1>Contribution dashboard</h1>
       <p>What did the batter contribute? Who helped build a run? How did the defense and reviews shape the play? Choose a perspective to explore the questions behind each measure.</p>
-      <p><a href="/metrics?gameSet=regular_season&amp;preset=custom&amp;startDate=2026-08-25&amp;endDate=2026-08-25#tfs">Explore the verified bases-loaded walk</a></p>
     </section>
     <section class="dashboard" aria-labelledby="dashboard-title">
       <h2 id="dashboard-title">Player leaderboards</h2>
@@ -23,7 +22,7 @@
       <p class="note">Top five qualified players for the selected period. Batting minimums adjust automatically: 3.1 plate appearances per team game, rounded to the nearest whole PA. Other roles require their own participation minimums.</p>
       <form id="metric-form">
         <label>Games<select id="game-set"><option value="regular_season">Regular season</option><option value="all_star">All-Star</option></select></label>
-        <label>Period<select id="date-preset"><option value="one_day">Latest loaded day</option><option value="seven_days">Last 7 loaded days</option><option value="thirty_days">Last 30 loaded days</option><option value="season_to_date">Latest loaded season</option><option value="custom">Custom dates</option></select></label>
+        <label>Period<select id="date-preset"><option value="seven_days">Last 7 days</option><option value="thirty_days">Last 30 days</option><option value="season_to_date">Latest loaded season</option><option value="custom">Custom dates</option></select></label>
         <label class="custom-date" hidden>From<input type="date" id="start-date"></label>
         <label class="custom-date" hidden>Through<input type="date" id="end-date"></label>
         <button id="load-dashboard" type="submit" disabled>Refresh dashboard</button>

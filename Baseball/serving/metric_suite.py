@@ -44,6 +44,18 @@ class EvidenceError(ValueError):
     pass
 
 
+def graph_datetime(value):
+    """Read RDF timestamp precision consistently on Python 3.10 and newer.
+
+    Jena can serialize .550 seconds as .55. Python 3.10's ISO parser only
+    accepts three or six fractional digits; padding trailing zeros preserves
+    the instant and does not supply missing or replacement timestamps.
+    """
+    value = re.sub(r'\.([0-9]{1,5})(?=Z$|[+-][0-9]{2}:[0-9]{2}$)',
+                   lambda match: '.' + match[1].ljust(6, '0'), value)
+    return datetime.fromisoformat(value.replace('Z', '+00:00'))
+
+
 def catalog():
     return json.loads((METRICS / 'metric-catalog.json').read_text(encoding='utf-8'))
 
@@ -646,8 +658,8 @@ def recovery_histories(rows, *, zero_pitch_pas=()):
                                            'pitchStartTimestamp','pitchEndTimestamp','pitchStart','pitchEnd')):
                 reason='UNSUPPORTED_PITCH_ORDER';break
             try:
-                start=datetime.fromisoformat(row['pitchStart'].replace('Z','+00:00'))
-                end=datetime.fromisoformat(row['pitchEnd'].replace('Z','+00:00'))
+                start=graph_datetime(row['pitchStart'])
+                end=graph_datetime(row['pitchEnd'])
                 if not start.tzinfo or not end.tzinfo or start>end:raise ValueError()
             except (ValueError,AttributeError):reason='UNSUPPORTED_PITCH_ORDER';break
             pitches.append(dict(row,start=start,end=end))
@@ -1566,8 +1578,8 @@ def runner_boundary_states(rows):
             continue
         row = observations[0]
         try:
-            start = datetime.fromisoformat(row['paStart'].replace('Z', '+00:00'))
-            end = datetime.fromisoformat(row['paEnd'].replace('Z', '+00:00'))
+            start = graph_datetime(row['paStart'])
+            end = graph_datetime(row['paEnd'])
         except ValueError:
             continue
         if start.tzinfo is None or end.tzinfo is None or start >= end:
