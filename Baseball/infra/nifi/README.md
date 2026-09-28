@@ -88,7 +88,7 @@ resumes a stopped replay planner once its old thread exits. That same worker
 marks progress interrupted only when its recorded OS process has exited.
 
 `Refresh Admission Evidence` runs once per minute, prioritizes the latest
-published dashboard day, diagnoses up to 100 games and refreshes at most one
+published dashboard seven-day range, diagnoses up to 100 games and refreshes at most one
 game per tick. It distinguishes missing, stale, implementation-compatible and
 previously withheld evidence. The general refresh requires exact retained
 source/RDF artifacts. The bounded B1 path can instead use the retained

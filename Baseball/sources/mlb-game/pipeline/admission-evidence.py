@@ -244,7 +244,7 @@ def refresh_game(state,promotion,java,classpath,endpoint='http://127.0.0.1:3031/
 
 
 def latest_dashboard_games(state):
-    """Current viewer work first; this reads only an existing SQL dimension."""
+    """The viewer's default seven-day range first, using its SQL dimension."""
     pointer=Path(state)/'serving/dashboard-current.json'
     if not pointer.is_file():return set()
     database=Path(read(pointer)['databasePath'])
@@ -252,7 +252,7 @@ def latest_dashboard_games(state):
         raise ValueError('Dashboard priority database escaped its owner')
     with sqlite3.connect(database.as_uri()+'?mode=ro',uri=True) as connection:
         return {r[0] for r in connection.execute("SELECT game_pk FROM game_dimension WHERE game_set='regular_season' "
-            "AND official_date=(SELECT max(official_date) FROM game_dimension WHERE game_set='regular_season')")}
+            "AND official_date>=date((SELECT max(official_date) FROM game_dimension WHERE game_set='regular_season'),'-6 days')")}
 
 
 def tick(state,java,classpath,limit=100,endpoint='http://127.0.0.1:3031/baseball-dev/query'):

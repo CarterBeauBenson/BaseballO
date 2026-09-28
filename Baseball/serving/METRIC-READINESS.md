@@ -142,7 +142,7 @@ count qualified players after the approved participation minimums. The
 - `cards`: each metric's row count, population state and remaining gap codes.
 
 `GET /health/ready` keeps reporting **service** readiness and includes the same
-coverage report for its default one-day selection. A healthy service may have
+coverage report for its default seven-day selection. A healthy service may have
 an unready dashboard. A complete period with no qualifying players is distinct
 from missing evidence; it does not justify lowering the minimum.
 

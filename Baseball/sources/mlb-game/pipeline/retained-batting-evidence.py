@@ -50,9 +50,11 @@ def source_census(evidence,state,promotion):
     manifest_path=evidence.retained_manifest(state,marker,promotion['gamePk'])
     if not manifest_path.is_file() or evidence.sha(manifest_path)!=marker['rmlManifestSha256']:return None
     manifest=evidence.read(manifest_path);compatibility=evidence.read(evidence.COMPATIBILITY_PATH)
+    contexts={compatibility['previousContextSha256'],compatibility['currentContextSha256'],
+              compatibility['zeroEpisodeIsolation']['currentContextSha256']}
     if (manifest.get('inputSha256')!=promotion['rawSha256'] or manifest.get('outputSha256')!=promotion['authoritativeRdfSha256']
             or manifest.get('metricMappingMembershipVerified') is not True
-            or manifest.get('contextBuilderSha256') not in {compatibility['previousContextSha256'],compatibility['currentContextSha256']}):return None
+            or manifest.get('contextBuilderSha256') not in contexts):return None
     # Compare two independently retained source projections. Every turn must
     # have exactly the existing single-Batter-Act identity and the census's
     # player. Multiple actual batters cannot be resolved by matching totals.

@@ -71,6 +71,16 @@ class RetainedBattingEvidence(unittest.TestCase):
                 self.update_manifest(promotion,manifest,change)
                 self.assertIsNone(R.source_census(E,state,promotion))
 
+    def test_q7_context_reaches_the_same_existing_batting_shapes(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);promotion,original,path,manifest=self.fixture(state)
+            self.update_manifest(promotion,manifest,lambda r:r.update(contextBuilderSha256=
+                E.read(E.COMPATIBILITY_PATH)['zeroEpisodeIsolation']['currentContextSha256']))
+            source=R.source_census(E,state,promotion)
+            self.assertIsNotNone(source)
+            self.assertEqual(R.B.shape_text(source),R.B.shape_text(original))
+            self.assertEqual(E.read(path)['status'],'withheld')
+
     def test_unrelated_source_errors_and_changed_retained_artifacts_never_receive_new_admission(self):
         with tempfile.TemporaryDirectory() as temp:
             state=Path(temp);promotion,original,path,manifest=self.fixture(state)
