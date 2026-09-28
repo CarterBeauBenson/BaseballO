@@ -44,10 +44,12 @@ not duplicate databases. There is currently no automatic release-directory GC.
 
 The database's full checksum is calculated by NiFi before publication using
 the reader's handle-based file identity checks. NiFi writes a verified receipt
-under `serving/database-verifications/<database-sha256>.json` before swapping
+under `serving/database-verifications/<database-sha256>-<python-cache-tag>.json` before swapping
 the pointer and rechecks file identity immediately before that swap. The first
-HTTP request can reuse the receipt instead of streaming the entire database
-within its 30-second worker deadline. Receipts are separate per database so a
+HTTP request on the same Python runtime can reuse the receipt instead of streaming
+the entire database within its 30-second worker deadline. A different runtime
+verifies once and retains its own receipt because Windows file identities differ
+between Python versions. Receipts are separate per database and runtime so a
 request pinned to an older build cannot evict the newly published verification.
 Missing receipts still require full verification; changed size, timestamps,
 device or inode invalidate them. This preserves the reader's existing integrity
@@ -86,6 +88,20 @@ commits atomically. Evidence, math or dimension changes still use the ordinary
 game materializer. `admissionUpdatedGames` distinguishes these updates from
 fully unchanged games. A focused regression compares every game table against
 a complete calculation and rejects missing retained evidence.
+
+The September 28 shortened-fraction timestamp fix has one exact old/new
+calculation-fingerprint migration in the dashboard builder. With unchanged RDF,
+dimensions and retained proof inputs, it refreshes contribution, runner-boundary,
+recovery and joined PAQ products through their existing calculators. Unaffected
+game kernels and evidence stay intact. `calculationUpdatedGames` reports these
+updates; unrecognized calculation changes still use the normal materializer.
+
+`player_ranges.py` separately prepares per-player, per-game sufficient statistics
+and completeness flags. Its own fingerprint invalidates only those derived
+partitions. HTTP range selection pools their exact sums and counts, excluding a
+player if any applicable selected-game record is incomplete. It does not repeat
+SPARQL, reconstruct PA histories or average a player's known subset. This does
+not alter admission proofs or relax season-reference requirements.
 
 The materializer retains disposable per-game SPARQL SELECT answers in
 `serving/query-cache.sqlite`. NiFi still runs the accepted full candidate

@@ -93,7 +93,10 @@ export function playerLeaderboard(result, metric, dateScope, mechanism = null) {
     message: 'Player rankings await a defined participation minimum and complete player scores.' };
   // Only the trusted serving adapter can supply these aggregates. Award
   // consequences, individual runs and population-only scores are insufficient.
-  if (result.playerPopulationComplete !== true || !Array.isArray(result.playerResults)) return {
+  const partialCoverage = result.playerRecordsComplete === true &&
+    result.rankingCoverage?.policy === 'complete-player-selected-range-v1' &&
+    Number.isSafeInteger(result.rankingCoverage.excludedPlayers) && result.rankingCoverage.excludedPlayers >= 0;
+  if ((result.playerPopulationComplete !== true && !partialCoverage) || !Array.isArray(result.playerResults)) return {
     ...board, gaps: ['COMPLETE_PLAYER_SCORES'], message: 'Complete player scores are not yet available for this period.' };
   const seen = new Set(), rows = [];
   let belowMinimum = 0;
@@ -139,7 +142,10 @@ export function playerLeaderboard(result, metric, dateScope, mechanism = null) {
   };
   rows.sort((a, b) => (metric.higherIs === 'worse' ? 1 : -1) * compare(a, b) || a.player.localeCompare(b.player));
   rows.forEach((row, index) => { row.rank = index && compare(row, rows[index - 1]) === 0 ? rows[index - 1].rank : index + 1; });
+  const excluded = result.rankingCoverage?.excludedPlayers ?? 0;
   return { ...board, status: rows.length ? 'available' : 'empty', rows, belowMinimum, gaps: [],
+    populationComplete:result.playerPopulationComplete === true, excludedPlayers:excluded,
+    coverageMessage:excluded ? `${excluded} players excluded because their full selected-range record is incomplete. Rankings cover complete records only.` : '',
     message: rows.length ? `${rows.length} qualified players` : 'No players meet the automatic participation minimum for this period.' };
 }
 
@@ -152,7 +158,7 @@ export function dashboardReadiness(metrics, expectedIds) {
     const board = metric?.leaderboard;
     const groups = board?.groups ?? [board];
     const populationComplete = groups.length > 0 && groups.every(group =>
-      ['available', 'empty'].includes(group?.status));
+      ['available', 'empty'].includes(group?.status) && group.populationComplete !== false);
     const qualifiedRows = board?.status === 'available' ? board.rows?.length ?? 0 : 0;
     return {metricId, status:qualifiedRows ? 'populated' : populationComplete ? 'no-qualifiers' : 'unavailable',
       populationComplete, qualifiedRows,

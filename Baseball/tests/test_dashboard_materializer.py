@@ -159,6 +159,42 @@ class DashboardMaterializer(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'incomplete'):
                 D.refresh_admission_inputs(actual,graph,previous,{name:dict(PROOF,status='withheld') for name in D.ADMISSIONS})
 
+    def test_timestamp_only_upgrade_reuses_unaffected_kernels_and_matches_full_calculation(self):
+        from test_contribution_sql import sample,PROOF
+        graph,bindings=sample(101,'safe');self.bindings['101']=bindings
+        old,new=D.TIMESTAMP_CALCULATIONS
+        self.assertEqual(D.METRICS.calculation_fingerprint(),new)
+        def admission(adapter,state,promotion,family):
+            return PROOF if promotion['gamePk']=='101' else {'status':'withheld'}
+        with patch.object(D.ADMISSION_EVIDENCE,'load',side_effect=admission),patch.object(
+                D.METRICS,'calculation_fingerprint',return_value=old):
+            D.build(self.args)
+        # Stand in for the old parser's unresolved timing products, keeping
+        # unrelated result fields and all RDF-derived SQL evidence untouched.
+        with closing(sqlite3.connect(self.working())) as db,db:
+            result,=D.METRICS.read_results(db,graph,'tfs')
+            result['contributionInputs']['complete']=False
+            result['runnerBoundaryStates']=[]
+            result['coverage']['runnerBoundaryProjection']={}
+            D.METRICS.store_result(db,graph,'tfs','game-scope',result)
+        self.fetched.clear()
+        with patch.object(D.ADMISSION_EVIDENCE,'load',side_effect=admission),patch.object(
+                D.METRICS,'live_result',side_effect=AssertionError('Unchanged kernel must be reused')):
+            result=D.build(self.args)
+        self.assertEqual(result['calculationUpdatedGames'],2)
+        self.assertEqual(self.fetched,[])
+        with closing(sqlite3.connect(self.working())) as actual,closing(sqlite3.connect(':memory:')) as full:
+            full.executescript(D.SCHEMA.read_text());D.METRICS.initialize_sql(full)
+            dimension=actual.execute('SELECT * FROM game_dimension WHERE graph_iri=?',(graph,)).fetchone()
+            full.execute('INSERT INTO game_dimension VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)',dimension)
+            D.METRICS.materialize_game(full,graph,bindings,**{name:PROOF for name in D.ADMISSIONS})
+            for table in D.graph_tables(full):
+                self.assertEqual(sorted(actual.execute(f'SELECT * FROM {table} WHERE graph_iri=?',(graph,)).fetchall()),
+                    sorted(full.execute(f'SELECT * FROM {table} WHERE graph_iri=?',(graph,)).fetchall()),table)
+            saved=actual.execute('SELECT input_sha256 FROM dashboard_checkpoint WHERE graph_iri=?',(graph,)).fetchone()[0]
+            self.assertFalse(D.reuse_game(actual,graph,saved,self.snapshot['inventory']['games']['101'],
+                dimension,{name:PROOF for name in D.ADMISSIONS},'unrecognized-calculation'))
+
     def test_source_change_preserves_work_but_cannot_publish(self):
         D.build(self.args); old = self.pointer()
         changed = copy.deepcopy(self.snapshot); changed['fingerprint'] = 'changed-during-build'

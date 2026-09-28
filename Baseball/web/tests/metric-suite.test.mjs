@@ -483,6 +483,21 @@ test('bookmarked selections validate dates and preserve supported scopes', () =>
   }
 });
 
+test('complete full-range players can rank with disclosed league exclusions', () => {
+  const row=playerScore(1,25);
+  const result={playerPopulationComplete:false,playerRecordsComplete:true,playerResults:[row],
+    rankingCoverage:{policy:'complete-player-selected-range-v1',excludedPlayers:3}};
+  const metric={id:'tfs',unit:'trajectory fraction',higherIs:'better'};
+  const board=playerLeaderboard(result,metric,leaderboardScope);
+  assert.equal(board.status,'available');
+  assert.equal(board.populationComplete,false);
+  assert.equal(board.excludedPlayers,3);
+  assert.match(board.coverageMessage,/3 players excluded/);
+  assert.equal(dashboardReadiness([{metricId:'tfs',leaderboard:board}],['tfs']).completePopulations,0);
+  const unsafe={...result,playerResults:[{...row,completeParticipation:false}]};
+  assert.equal(playerLeaderboard(unsafe,metric,leaderboardScope).status,'unavailable');
+});
+
 test('display labels are graph-scoped, optional, and never choose a conflicting name', async () => {
   const graph = 'https://w3id.org/baseball/graph/game/823016', player = 'https://baseballontology.org/data/player/687637';
   const targets = metricDisplayTargets([{ graph, batter:player, movements:[{runner:player}] }]);

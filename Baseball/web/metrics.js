@@ -406,6 +406,7 @@ export function metricRanking(payload, metric) {
   return { rows: board?.status === 'available' ? board.rows.map(row => ({ ...row,
     context: row.qualificationLabel ?? `${row.plateAppearances} PA · minimum ${row.minimumPA} PA` })) : [],
     groups: board?.groups ?? [],
+    coverageMessage: board?.coverageMessage ?? '',
     scope: 'qualified players', order: board?.order ?? '', qualification: board?.qualification?.rule ?? '',
     unit: board?.unit ?? metric.unit, summaryKind: board?.summaryKind ?? (metric.id === 'empty-game-rate' ? 'count' : 'mean'),
     message: !result ? 'Loading player rankings…' : board?.message ?? 'Complete player scores are not yet available for this period.' };
@@ -433,6 +434,7 @@ function rankingPreview(payload, metric) {
   }
   if (!ranking.rows.length) {
     list.append(node('span', ranking.message), node('small', ranking.qualification));
+    if (ranking.coverageMessage) list.append(node('small', ranking.coverageMessage));
     return list;
   }
   const heading = node('span', `Top ${Math.min(5, ranking.rows.length)} · ${ranking.summaryKind === 'count' ? 'count' : 'average'} in selected period`); heading.className = 'ranking-caption';
@@ -447,12 +449,14 @@ function rankingPreview(payload, metric) {
     line.append(node('span', String(row.rank)), person, score); list.append(line);
   }
   list.append(node('small', `${ranking.order} · ${ranking.rows.length} qualified players`));
+  if (ranking.coverageMessage) list.append(node('small', ranking.coverageMessage));
   return list;
 }
 
 function renderRanking(payload, metric) {
   const ranking = metricRanking(payload, metric), target = byId('metric-ranking');
   target.replaceChildren(); target.hidden = false;
+  if (ranking.coverageMessage) target.append(node('p', ranking.coverageMessage));
   if (!ranking.rows.length) {
     target.append(node('h3', 'Player leaderboard'), node('p', ranking.message), node('p', ranking.qualification));
     return;

@@ -65,6 +65,19 @@ a source graph count or a successful component test.
 - Dashboard SQL retains reusable game products, prepared names and historical
   reference ranks. Admission-only bookkeeping preserves unchanged calculations;
   source drift retains committed work for the next NiFi tick.
+- The September 28 complete-player range decision is
+  [accepted](../archive/design-records/player-metric-presentation-2026-09-15/complete-player-ranges-2026-09-28.md).
+  NiFi prepares exact player/game aggregates. A gap excludes the player's
+  entire selected-range record for that metric; it does not shorten their
+  period or average only their known plays. Cards disclose exclusions and
+  retain the automatic participation minimums. Season percentiles still
+  require their complete reference populations. Deployment is pending a new
+  dashboard SQL publication; the dated results above describe the old one.
+- Game 823087 promoted successfully at 11:16 Eastern on September 28 after
+  the expected runner-record count was aligned with the existing RML selection.
+  Its 114 raw rows include one null placeholder that the mapping does not select;
+  the 113 selected records passed the existing checks. NiFi retried only this
+  retained failed input. No mapping, ontology or corpus rebuild was needed.
 
 The complete earlier diagnosis and dated build history are retained in the
 [September 23 history](../archive/operational-history/2026-09-23/METRIC-READINESS.md).
@@ -73,22 +86,12 @@ worker ownership; [build reuse](BUILD-REUSE.md) describes invalidation.
 
 ## Next work from the September 28 selected-range check
 
-1. Resolve the recorded remaining game 823087 in its existing source owner;
-   do not reacquire or rebuild the corpus for this dashboard request. The
-   retained RML output has 113 runner records against 114 expected. PA 34,
-   runner row 1 is Christian Moore's strikeout record with null movement/out
-   fields; another row describes his advance on a catcher throwing error.
-   The context marks the first row `hasRunnerResolution=false`, and no typed
-   record is produced for it. The raw source reconciliation passes. This is
-   the exact mapping/count boundary to resolve, not a SQL connection failure.
-   No retry or source change was made by the selected-range dashboard repair.
-   The selected range currently has 71 admitted batting populations and 18 withheld
-   games. Whole-selection completeness gates suppress all players when one
-   selected game is withheld. A proposal to rank only players with complete
-   full-range records is awaiting the user's decision; it is not implemented
-   or accepted merely by being described here.
-   Independently refresh the affected derived calculations through Dashboard SQL
-   and reduce the 17.3-second prepared-SQL read.
+1. Publish the prepared complete-player range products through Dashboard SQL,
+   include newly promoted game 823087, and verify actual multi-day player
+   leaderboards and request latency. The exact timestamp-parser upgrade now
+   refreshes contribution, boundary, recovery and joined PAQ inputs from retained
+   SQL evidence while preserving unaffected game calculations. Unknown changes
+   still take the ordinary calculation path. This is derived SQL work only.
 2. Continue contribution/Empty Game attribution diagnosis. The retained component
    check left player 681508 in game 822846 (PA 37) and player 670770 in game 824467
    (PA 65) uncertain. Reassess against the updated promoted graphs before deciding
