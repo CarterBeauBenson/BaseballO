@@ -79,7 +79,7 @@
         },
         "contextBuilder": {
           "path": "Baseball/scripts/pipeline/prepare-rml-context.py",
-          "sha256": "169fd44a4dee436747d11c9201f8a8d5ea8c772f8c7ea6acaacfddb069d1a464"
+          "sha256": "023b659409d204d3e7cca1eaab5f9563744a6f54a8cac72b8a6c56ac79faba98"
         },
         "mapping": {
           "path": "Baseball/sources/mlb-game/mapping/mlb-game.rml.ttl",

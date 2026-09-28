@@ -89,16 +89,19 @@ proof then failed before RML at runtime admission, so the catch-up retry also
 expired. The first recovery attempt checked the proof failure without checking
 its runtime prerequisite. Queuing that attempt did not establish ingestion.
 
-The prepared correction sets only the runtime context-builder pin to
+The correction sets only the runtime context-builder pin to
 `023b659409d204d3e7cca1eaab5f9563744a6f54a8cac72b8a6c56ac79faba98`, the already
 recorded protected Q7 hash. The existing module runtime-admission check passed
 with that correction. Automatic approval review rejected its commit because
 explicit trusted approval for the named Q7 runtime update was not established.
-The runtime pin was restored to its prior value pending that authorization;
-no further proof retry was submitted. The approval record, protected set,
-source code, ontology, RML and SHACL remain unchanged. NiFi owns proof execution,
-downstream release and promotion after authorization. Do not use this incident
-to re-run unrelated RDF or introduce another release gate.
+The runtime pin was restored while awaiting authorization. The user's subsequent
+direction to apply the exact correction is recorded in the
+[September 27 runtime-pin decision](../archive/design-records/mlb-game-zero-episode-history-isolation/runtime-pin-decision-2026-09-27.md),
+published in commit `539dc87` before implementation. The correction now matches
+the reviewed Q7 file. The original approval record, protected set, source code,
+ontology, RML and SHACL remain unchanged. NiFi owns the bounded proof execution,
+downstream release and promotion; submitting a retry does not establish success.
+Do not use this incident to re-run unrelated RDF or introduce another release gate.
 
 ## Remaining engineering risks
 
