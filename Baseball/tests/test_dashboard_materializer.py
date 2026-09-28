@@ -204,6 +204,17 @@ class DashboardMaterializer(unittest.TestCase):
         with closing(sqlite3.connect(self.working())) as db:
             self.assertEqual(db.execute('SELECT count(*) FROM dashboard_checkpoint').fetchone()[0],2)
 
+    def test_producer_version_change_during_batch_preserves_previous_publication(self):
+        D.build(self.args);old=self.pointer();version=['original']
+        adapter=D.ADMISSIONS['batting_admission']
+        def input_proof(adapter,state,promotion,family):
+            if promotion['gamePk']=='102':version[0]='changed'
+            return {'status':'withheld'}
+        with patch.object(adapter,'fingerprint',side_effect=lambda:version[0]),patch.object(
+                D.ADMISSION_EVIDENCE,'load',side_effect=input_proof):
+            with self.assertRaisesRegex(ValueError,'producer code changed'):D.build(self.args)
+        self.assertEqual(self.pointer(),old)
+
     def test_promotion_during_snapshot_waits_for_next_tick_and_preserves_publication(self):
         D.build(self.args);old=self.pointer()
         for phase in ('initial','final'):

@@ -149,6 +149,26 @@ def input_identity(promotion, dimension, admissions, calculation, *, legacy=Fals
                        dimension=dimension, admissions=admissions, calculation=calculation))
 
 
+@contextmanager
+def admission_versions():
+    """Hash shared producer code once on each side of the input-reading batch.
+
+    Every game's own proof/artifact checks still execute. NiFi already runs
+    an immutable release; thousands of repeated opens of identical code files
+    add no distinct input. Restore the functions before verifying or returning.
+    """
+    originals=[(adapter,adapter.fingerprint) for adapter in
+               [*ADMISSIONS.values(),ADMISSION_EVIDENCE.RETAINED_BATTING]]
+    versions=[function() for _,function in originals]
+    for (adapter,_),version in zip(originals,versions):
+        adapter.fingerprint=lambda value=version:value
+    try:yield
+    finally:
+        for adapter,function in originals:adapter.fingerprint=function
+    if any(function()!=version for (_,function),version in zip(originals,versions)):
+        raise ValueError('Admission producer code changed during the dashboard input batch')
+
+
 def reuse_game(connection, graph, saved, promotion, dimension, admissions, calculation):
     """Refresh compatibility provenance without repeating unchanged scores.
 
@@ -360,23 +380,26 @@ def build_locked(args, state, serving, work):
         pending = []; expected = {}; unchanged = 0; admission_updates = 0; calculation_updates = 0
         old_dimensions = dict(connection.execute('SELECT graph_iri,season FROM game_dimension'))
         saved = dict(connection.execute('SELECT graph_iri,input_sha256 FROM dashboard_checkpoint'))
-        for dimension in dimensions:
-            graph = SOURCE.lexical(dimension, 'graph'); pk = graph.rsplit('/',1)[-1]
-            promotion = inventory[pk]
-            admissions = {name: ADMISSION_EVIDENCE.load(adapter,state,promotion,name.removesuffix('_admission').replace('_','-'))
-                          for name, adapter in ADMISSIONS.items()}
-            values = dimension_values(dimension, promotion, metadata)
-            identity = input_identity(promotion, values, admissions, calculation)
-            expected[graph] = identity
-            with connection:
-                reused=reuse_game(connection,graph,saved.get(graph),promotion,values,admissions,calculation)
-            if reused:
-                if reused=='admissions':admission_updates+=1
-                elif reused=='calculations':calculation_updates+=1
-                else:unchanged+=1
-                continue
-            pending.append(dict(graph=graph, promotion=promotion, dimension=values, identity=identity,
-                                admissions=admissions, previousSeasons=[old_dimensions[graph]] if graph in old_dimensions else []))
+        checkpoint(phase='input-refresh',totalGames=len(dimensions))
+        with admission_versions():
+            for index,dimension in enumerate(dimensions,1):
+                graph = SOURCE.lexical(dimension, 'graph'); pk = graph.rsplit('/',1)[-1]
+                promotion = inventory[pk]
+                admissions = {name: ADMISSION_EVIDENCE.load(adapter,state,promotion,name.removesuffix('_admission').replace('_','-'))
+                              for name, adapter in ADMISSIONS.items()}
+                values = dimension_values(dimension, promotion, metadata)
+                identity = input_identity(promotion, values, admissions, calculation)
+                expected[graph] = identity
+                with connection:
+                    reused=reuse_game(connection,graph,saved.get(graph),promotion,values,admissions,calculation)
+                if reused:
+                    if reused=='admissions':admission_updates+=1
+                    elif reused=='calculations':calculation_updates+=1
+                    else:unchanged+=1
+                else:
+                    pending.append(dict(graph=graph, promotion=promotion, dimension=values, identity=identity,
+                                        admissions=admissions, previousSeasons=[old_dimensions[graph]] if graph in old_dimensions else []))
+                if index%100==0:checkpoint(inspectedGames=index,completedGames=unchanged+admission_updates+calculation_updates)
         connection.commit()
         removed = set(old_dimensions) - set(expected)
         with connection:

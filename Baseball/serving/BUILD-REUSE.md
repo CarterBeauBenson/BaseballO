@@ -103,6 +103,12 @@ player if any applicable selected-game record is incomplete. It does not repeat
 SPARQL, reconstruct PA histories or average a player's known subset. This does
 not alter admission proofs or relax season-reference requirements.
 
+Dashboard input loading hashes each shared admission producer before and after
+the batch, instead of reopening identical code files for every game. A changed
+producer aborts before publication. Each game's proof, promotion identity and
+retained evidence hashes are still checked individually. Progress distinguishes
+source capture from input refresh so saved calculation work remains visible.
+
 The materializer retains disposable per-game SPARQL SELECT answers in
 `serving/query-cache.sqlite`. NiFi still runs the accepted full candidate
 validation and atomic pointer promotion. This cache is not an admission proof,
