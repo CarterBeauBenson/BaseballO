@@ -75,6 +75,31 @@ The new regressions failed before the corrections. The final focused run passed
 51 metric-interface tests and 24 dashboard-materializer/release tests. This
 pass made no ontology or mapping changes and did not run live data processing.
 
+## September 27 operational finding: inconsistent Q7 runtime admission
+
+Q7 implementation commit `efcd9cb` updated the protected context-builder hash
+to the accepted implementation but left the separate `mlb-game` runtime pin
+at the preceding Q5/Q6 implementation (`2c4d691`). The current context builder
+is byte-identical to the Q7 implementation; this is an incomplete application
+of that existing approval, not a new semantic decision.
+
+The September 27 catch-up request for September 17-26 was quarantined because
+no completed proof matched the current mapping/context. The attempted bounded
+proof then failed before RML at runtime admission, so the catch-up retry also
+expired. The first recovery attempt checked the proof failure without checking
+its runtime prerequisite. Queuing that attempt did not establish ingestion.
+
+The prepared correction sets only the runtime context-builder pin to
+`023b659409d204d3e7cca1eaab5f9563744a6f54a8cac72b8a6c56ac79faba98`, the already
+recorded protected Q7 hash. The existing module runtime-admission check passed
+with that correction. Automatic approval review rejected its commit because
+explicit trusted approval for the named Q7 runtime update was not established.
+The runtime pin was restored to its prior value pending that authorization;
+no further proof retry was submitted. The approval record, protected set,
+source code, ontology, RML and SHACL remain unchanged. NiFi owns proof execution,
+downstream release and promotion after authorization. Do not use this incident
+to re-run unrelated RDF or introduce another release gate.
+
 ## Remaining engineering risks
 
 - **Operational independence exceeds code independence.** The dashboard builder

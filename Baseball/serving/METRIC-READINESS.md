@@ -6,15 +6,16 @@ calculation kernels exist, including backend-only Role Realization Breadth.
 
 ## Last verified publication
 
-Read-only check on September 23, 2026, at 17:19 Eastern:
+Read-only check on September 27, 2026, during the 21:06 Eastern status check:
 
 | Surface | Recorded result |
 | --- | --- |
-| Published dashboard | `20260923T175511Z-dashboard-4ca9b33c4b25`, published at 15:29 Eastern, 2,773 games |
+| Published dashboard | `20260927T151414Z-dashboard-5253d4387d46`, published at 11:47 Eastern, 2,773 games |
 | Default selection | September 16, 15 regular-season games |
 | Service readiness | HTTP 200, `materialized-serving` |
-| Player leaderboards | **0/19 populated; 0/19 complete populations; dashboard ready=false** |
-| Latest fixes | Implemented and pushed; publication in the dashboard remains pending |
+| Player leaderboards | **1/19 populated; 1/19 complete populations; dashboard ready=false**. Run Construction Depth has 15 qualified rows; the other 18 cards remain unavailable. |
+| Serving latency | First readiness request exceeded its 20-second client timeout; the next succeeded in 26.03 seconds. This is not acceptable dashboard response time. |
+| Recent-game acquisition | September 17-26 catch-up remained quarantined after the proof retry failed at the Q7 context-builder runtime pin. Existing SQL publication is not evidence of new-game ingestion. |
 
 The healthy SQL service and unavailable player populations are separate facts.
 The current pointer is `state/serving/dashboard-current.json`; the independent
@@ -22,7 +23,7 @@ builder records progress in `state/serving/dashboard/progress.json`. Read those
 owner records for a later state. Do not infer publication from a submitted job,
 a source graph count or a successful component test.
 
-## Completed repairs awaiting dashboard publication
+## Implemented repairs and retained component evidence
 
 - Exact compatible-proof reuse separates unrelated context-code changes from
   actual proof changes. It retains original statuses and fingerprints; prior
@@ -54,11 +55,12 @@ The complete earlier diagnosis and dated build history are retained in the
 The [operational delivery record](../infra/OPERATIONS-IMPROVEMENTS.md) describes
 worker ownership; [build reuse](BUILD-REUSE.md) describes invalidation.
 
-## Next work from the September 23 live check
+## Next work from the September 27 live check
 
-1. Publish and inspect the SQL results incorporating the completed repairs.
-   Confirm scoring histories and named qualified-player rows in the actual
-   dashboard, rather than treating the old release's gaps as new source failures.
+1. Complete the bounded recent-game recovery after correcting the inconsistent
+   Q7 runtime pin described in [the architecture review](ARCHITECTURE-REVIEW.md).
+   Independently diagnose the 26-second prepared-SQL read and inspect the 18
+   unavailable player populations in the actual published results.
 2. Continue contribution/Empty Game attribution diagnosis. The retained component
    check left player 681508 in game 822846 (PA 37) and player 670770 in game 824467
    (PA 65) uncertain. Reassess against the updated promoted graphs before deciding
