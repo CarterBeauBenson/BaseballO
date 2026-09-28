@@ -17,7 +17,8 @@ class Session:
 
     def __enter__(self):
         self.errors=tempfile.TemporaryFile()
-        self.process=subprocess.Popen([str(self.java),'-Xms64m','-Xmx384m','-cp',str(self.classpath),
+        # One JVM serves both the 384m profiles and the 512m pitch-count profile.
+        self.process=subprocess.Popen([str(self.java),'-Xms64m','-Xmx512m','-cp',str(self.classpath),
             str(Path(__file__).with_name('ShaclSession.java')),self.data_path.as_uri()],
             stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=self.errors)
         self.lines=queue.Queue()
@@ -43,7 +44,7 @@ class Session:
 
     def validate_with_jena(self, *, data_path, shape_path, java, classpath, max_heap):
         if (Path(data_path).resolve()!=self.data_path or Path(java).resolve()!=self.java
-                or Path(classpath).resolve()!=self.classpath or max_heap!='384m'):
+                or Path(classpath).resolve()!=self.classpath or max_heap not in ('384m','512m')):
             raise ValueError('SHACL session inputs differ from the requested validation')
         started=time.perf_counter()
         self.process.stdin.write(base64.b64encode(Path(shape_path).resolve().as_uri().encode())+b'\n')

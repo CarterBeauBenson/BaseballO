@@ -103,6 +103,29 @@ ontology, RML and SHACL remain unchanged. NiFi owns the bounded proof execution,
 downstream release and promotion; submitting a retry does not establish success.
 Do not use this incident to re-run unrelated RDF or introduce another release gate.
 
+The corrected runtime admission exposed two further execution defects in the
+bounded proof. The single-load Jena worker launched with 384 MB and rejected the
+existing pitch-count profile's 512 MB request before validating it. The worker
+now allocates 512 MB and accepts both existing profile settings; graph identity,
+shapes and conformance requirements are unchanged. The source-proof release
+checker also read a reusable staging manifest through an older completed run.
+When the new RML run overwrote that path, the older run could falsely appear
+current. Release now resolves the exact retained manifest hash from that run's
+existing promotion record. The old proof is correctly rejected again.
+
+Before the false release was caught, the September 17–26 schedule had queued
+130 games. Four reached the same SHACL execution error; the remaining 126 were
+preserved while new RML starts were paused. Recovery retries the bounded proof
+first and lets the existing 15-minute batch worker resume the held RML queue
+only after that exact proof completes, restoring its prior parallelism. This
+uses the worker's existing deferred-resume mechanism and source-proof checker;
+it does not dispatch another schedule or replace the historical recovery plan.
+The four affected recent games use the existing scoped quarantine replay lane.
+
+Focused checks cover both heap settings against actual Jena reports, rejection
+of an overwritten proof manifest, retained-manifest reuse, existing recovery
+behavior, and deferred queue resumption only after the requested proof.
+
 ## Remaining engineering risks
 
 - **Operational independence exceeds code independence.** The dashboard builder

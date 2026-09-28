@@ -208,9 +208,13 @@ class RecoveryTests(unittest.TestCase):
         recovery.save(manifest,dict(mappingPath=str(mapping),mappingSha256='older-hash',
             shaclShapePath=str(shape),shaclShapeSha256=hashlib.sha256(shape.read_bytes()).hexdigest(),
             contextBuilderPath=str(context),contextBuilderSha256=hashlib.sha256(context.read_bytes()).hexdigest()))
+        marker=path/'promotion.json'
+        recovery.save(marker,dict(pipelineRunId=run,gamePk='566279',rmlManifest=str(manifest),
+            rmlManifestSha256=hashlib.sha256(manifest.read_bytes()).hexdigest()))
         for action in ('rml','shacl','promote','materialize','cleanup'):
             recovery.save(path/(action+'.json'),dict(action=action,pipelineRunId=run,gamePk='566279',
-                rmlManifest=str(manifest),conforms=True,authoritativeRdfRemainsInGraphStore=True,
+                rmlManifest=str(manifest),promotionEvidence=str(marker),
+                conforms=True,authoritativeRdfRemainsInGraphStore=True,
                 completedAtUtc='2026-09-15T19:00:00Z'))
         return path
 

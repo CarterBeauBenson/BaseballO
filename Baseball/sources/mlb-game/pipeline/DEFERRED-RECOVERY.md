@@ -50,6 +50,14 @@ proof requirements nor the two-attempt policy for failed source stages. The
 September 27 recovery uses this loop for only September 17–26 and leaves the
 separate historical recovery plan intact.
 
+For a paused RML queue awaiting a particular repaired proof, the existing batch
+worker can also retain an entry in `replay-readiness-resume.json` with `name`
+`RML`, its `groupId`, `afterProofRunId`, and prior `concurrentTasks` (one or two).
+The worker reuses the source-proof release checker and resumes only when that
+exact run has completed. It restores the recorded task count before starting
+RML. A missing, failed, stale or different proof leaves the queue held. The
+entry is removed only after resumption; ordinary ticks do not rerun the proof.
+
 Only for an explicitly authorized source-recovery range, submit with the
 configured runtime Python:
 

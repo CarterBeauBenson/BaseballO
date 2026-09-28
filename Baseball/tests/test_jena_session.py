@@ -22,15 +22,19 @@ class JenaSession(unittest.TestCase):
             root=Path(temporary); data=root/'game.ttl'; shape=root/'shape.ttl'
             data.write_text('@prefix ex: <https://example.org/> . ex:a ex:value 1 .')
             with S.Session(data,JAVA,JENA) as session:
-                for minimum in (1,2):
+                for minimum,heap in ((1,'384m'),(2,'512m')):
                     shape.write_text('@prefix sh: <http://www.w3.org/ns/shacl#> . '
                         '@prefix ex: <https://example.org/> . ex:shape a sh:NodeShape; sh:targetNode ex:a; '
                         'sh:property [ sh:path ex:value; sh:minCount '+str(minimum)+' ] .')
-                    args=dict(data_path=data.resolve(),shape_path=shape.resolve(),java=JAVA,classpath=JENA,max_heap='384m')
+                    args=dict(data_path=data.resolve(),shape_path=shape.resolve(),java=JAVA,classpath=JENA,max_heap=heap)
                     actual=session.validate_with_jena(**args); expected=V.validate_with_jena(**args)
                     self.assertEqual(actual[0],minimum==1); self.assertEqual(actual[0],expected[0])
                     self.assertTrue(isomorphic(actual[1],expected[1]))
                 self.assertEqual(session.data_count,1);self.assertEqual(len(session.timings),2)
+                with self.assertRaisesRegex(ValueError,'inputs differ'):
+                    session.validate_with_jena(**{**args,'data_path':root/'other.ttl'})
+                with self.assertRaisesRegex(ValueError,'inputs differ'):
+                    session.validate_with_jena(**{**args,'max_heap':'1g'})
 
 
 if __name__=='__main__':unittest.main()

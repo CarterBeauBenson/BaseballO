@@ -81,8 +81,8 @@ def promotion_inventory(state_root: Path) -> dict[str, Any]:
     return module.promotion_inventory(state_root)
 
 
-def resume_replay_workers(state_root, request=None):
-    """Finish an explicitly requested deployment after old commands drain."""
+def resume_replay_workers(state_root, request=None, proof_release=None):
+    """Finish a requested deployment, including a proof-held RML queue."""
     path = state_root/'pipeline/control/mlb-game/replay-readiness-resume.json'
     if not path.is_file(): return
     def http(method, route, body=None):
@@ -92,14 +92,33 @@ def resume_replay_workers(state_root, request=None):
         with urllib.request.urlopen(req, timeout=15) as response: return json.load(response)
     request = request or http
     pending = json_object(path)
-    for processor, name in list(pending.items()):
-        if name not in {'Plan Quarantine Replay', 'Emit Quarantine Remainder Retry'}:
+    for processor, resume in list(pending.items()):
+        name = resume.get('name') if isinstance(resume, dict) else resume
+        if name not in {'Plan Quarantine Replay', 'Emit Quarantine Remainder Retry', 'RML'}:
             raise ValueError('Unexpected deferred replay processor')
+        if name == 'RML':
+            if (not isinstance(resume, dict) or not resume.get('afterProofRunId')
+                    or not resume.get('groupId') or resume.get('concurrentTasks') not in (1, 2)):
+                raise ValueError('RML resume requires its exact proof and prior worker configuration')
+            if proof_release is None:
+                spec = importlib.util.spec_from_file_location('resume_queue_proof', RECOVERY_SCRIPT)
+                recovery = importlib.util.module_from_spec(spec); spec.loader.exec_module(recovery)
+                proof_release = recovery.proof_release
+            released = proof_release(state_root)
+            if not released or released.get('proofRunId') != resume['afterProofRunId']:
+                continue
         entity = request('GET', '/processors/'+processor)
         if entity['component']['name'] != name: raise ValueError('Replay worker identity changed')
+        if name == 'RML' and (entity['component']['parentGroupId'] != resume['groupId']
+                or entity['component']['type'] != 'org.apache.nifi.processors.standard.ExecuteStreamCommand'):
+            raise ValueError('RML worker ownership changed')
         if entity['component']['state'] == 'RUNNING':
             del pending[processor]
         elif entity['status']['aggregateSnapshot']['activeThreadCount'] == 0:
+            if name == 'RML':
+                entity = request('PUT', '/processors/'+processor, dict(revision=entity['revision'],
+                    component=dict(id=processor, config=dict(
+                        concurrentlySchedulableTaskCount=resume['concurrentTasks']))))
             request('PUT', '/processors/'+processor+'/run-status', dict(revision=entity['revision'],
                 state='RUNNING',disconnectedNodeAcknowledged=False))
             del pending[processor]

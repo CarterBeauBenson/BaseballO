@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.util
 import json
 import sys
 from pathlib import Path
@@ -98,6 +99,29 @@ def evidence_matches(
     if not isinstance(manifest_value, str) or not manifest_value:
         return False, "RML evidence has no manifest", None
     manifest_path = Path(manifest_value)
+    if module == 'mlb-game':
+        # Staging is reused by later attempts. The completed run's promotion
+        # identifies the exact manifest it proved, including its artifact hashes.
+        marker_value = records['promote'].get('promotionEvidence')
+        if not isinstance(marker_value, str) or not marker_value:
+            return False, 'MLB proof has no promotion manifest binding', None
+        try:
+            marker = load_json(Path(marker_value))
+            if (marker.get('pipelineRunId') != run_directory.name
+                    or str(marker.get('gamePk')) != scope
+                    or marker.get('rmlManifest') != manifest_value):
+                return False, 'MLB promotion belongs to different proof inputs', None
+            spec = importlib.util.spec_from_file_location('proof_retained_artifacts',
+                Path(__file__).with_name('game_promotion_inventory.py'))
+            inventory = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(inventory)
+            state_root = run_directory.parents[4]
+            manifest_path = inventory.retained_artifact(state_root, scope,
+                marker.get('rmlManifestSha256'), manifest_path)
+            if not manifest_path.is_file() or sha256(manifest_path) != marker['rmlManifestSha256']:
+                return False, 'MLB proof manifest differs from its promoted revision', None
+        except (OSError, ValueError, KeyError) as exc:
+            return False, str(exc), None
     if not manifest_path.is_file():
         return False, f"RML manifest is missing: {manifest_path}", None
     try:
