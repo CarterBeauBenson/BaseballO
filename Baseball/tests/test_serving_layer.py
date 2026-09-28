@@ -156,6 +156,21 @@ class ServingLayerTests(unittest.TestCase):
                     Path(temporary) / "database-verification-cache.json",
                 )
 
+    def test_windows_runtime_identities_do_not_evict_each_other(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary);database=root/'build.sqlite'
+            database.write_bytes(b'database');expected=MODULE.sha(database)
+            identity=MODULE.file_identity(database)
+            other=(identity[0]+1,*identity[1:4],identity[4]+1)
+            with patch.object(MODULE,'hash_database_stream',return_value=expected) as hasher:
+                for tag,metadata in [('cpython-310',identity),('cpython-313',other),
+                                     ('cpython-310',identity),('cpython-313',other)]:
+                    with patch.object(MODULE.sys.implementation,'cache_tag',tag),\
+                            patch.object(MODULE,'file_identity',return_value=metadata):
+                        cache=MODULE.database_verification_cache_path(root,expected)
+                        self.assertEqual(MODULE.verify_database(database,expected,cache),metadata)
+                self.assertEqual(hasher.call_count,2)
+
     def test_acceptance_gate_covers_every_routine_route_shape(self) -> None:
         family_dimensions = {
             "batting": {"player": {"input": "iri", "hasOptions": True}},

@@ -34,6 +34,13 @@ a source graph count or a successful component test.
   PA count histories in retained SQL game 822841 using its existing admissions,
   including its three admitted zero-pitch walks. This is component evidence,
   not a claim that selected-period or season-wide leaderboards are populated.
+- Database verification receipts are separated by Python runtime as well as
+  immutable database digest. Windows reports different device/ctime values to
+  NiFi's Python 3.10 and Explorer's Python 3.13. Sharing a receipt caused them
+  to invalidate each other and rehash the 8.75 GB dashboard file. Each runtime
+  retains all identity and digest checks; it verifies once and reuses its own
+  receipt while that exact file is unchanged. Dashboard publication also tracks
+  reader-code changes independently of metric calculation fingerprints.
 - Exact compatible-proof reuse separates unrelated context-code changes from
   actual proof changes. It retains original statuses and fingerprints; prior
   withheld proofs are not promoted to admitted by compatibility alone.
@@ -68,7 +75,14 @@ worker ownership; [build reuse](BUILD-REUSE.md) describes invalidation.
 
 1. Resolve the recorded remaining game 823087 in its existing source owner;
    do not reacquire or rebuild the corpus for this dashboard request. The
-   selected range currently has 71 admitted batting populations and 18 withheld
+   retained RML output has 113 runner records against 114 expected. PA 34,
+   runner row 1 is Christian Moore's strikeout record with null movement/out
+   fields; another row describes his advance on a catcher throwing error.
+   The context marks the first row `hasRunnerResolution=false`, and no typed
+   record is produced for it. The raw source reconciliation passes. This is
+   the exact mapping/count boundary to resolve, not a SQL connection failure.
+   No retry or source change was made by the selected-range dashboard repair.
+   The selected range currently has 71 admitted batting populations and 18 withheld
    games. Whole-selection completeness gates suppress all players when one
    selected game is withheld. A proposal to rank only players with complete
    full-range records is awaiting the user's decision; it is not implemented

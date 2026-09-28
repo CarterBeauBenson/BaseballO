@@ -217,8 +217,12 @@ def database_verification_cache_path(serving_root: Path, expected: object) -> Pa
     digest = str(expected).lower()
     if not SHA256_PATTERN.fullmatch(digest):
         raise ValueError('Serving pointer has an invalid databaseSha256')
-    # Readers pinned to different builds must not evict each other's receipt.
-    return serving_root / 'database-verifications' / (digest + '.json')
+    # Readers pinned to different builds or Python runtimes must not evict
+    # each other's receipt. Windows fstat device/ctime representations differ
+    # between the NiFi Python 3.10 and Explorer Python 3.13 runtimes. Retain
+    # every identity check, with an independently verified receipt for each.
+    runtime = sys.implementation.cache_tag
+    return serving_root / 'database-verifications' / (digest + '-' + runtime + '.json')
 
 
 def load_object(path: Path) -> dict[str, Any]:
