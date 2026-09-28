@@ -32,7 +32,7 @@ class NifiContractTests(unittest.TestCase):
             (MODULE_ROOT / "nifi" / "flow-contract.json").read_text(encoding="utf-8")
         )
 
-        self.assertEqual(contract["proofRelease"]["readinessRetryCount"], 60)
+        self.assertEqual(contract["proofRelease"]["readinessRetryCount"], 960)
         self.assertEqual(contract["proofRelease"]["readinessRetryDelay"], "30 sec")
 
     def test_quarantine_replay_proves_five_exact_inputs_before_remainder(self) -> None:

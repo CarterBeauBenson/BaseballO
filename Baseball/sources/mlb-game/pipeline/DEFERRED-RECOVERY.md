@@ -40,6 +40,16 @@ the existing `Backfill Schedule Request` for the queued date range. Batch
 completion comes from the normal batch manifest after promotion and SQL
 materialization; submission is never reported as completion.
 
+The schedule lane also retains a request while its current proof is not yet
+released. Its existing readiness loop allows 960 retries at a 30-second penalty
+(approximately eight hours), then quarantines the schedule request. The previous
+30-minute budget was shorter than the retained September 17 proof, whose SQL
+stage alone took almost two hours, and caused catch-up requests to expire while
+their prerequisite could still be running. This waiting budget changes neither
+proof requirements nor the two-attempt policy for failed source stages. The
+September 27 recovery uses this loop for only September 17–26 and leaves the
+separate historical recovery plan intact.
+
 Only for an explicitly authorized source-recovery range, submit with the
 configured runtime Python:
 

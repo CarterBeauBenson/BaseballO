@@ -43,7 +43,7 @@
     }
   },
   "proofRelease": {
-    "readinessRetryCount": 60,
+    "readinessRetryCount": 960,
     "readinessRetryDelay": "30 sec",
     "exhaustedAction": "source-local-schedule-quarantine"
   },
