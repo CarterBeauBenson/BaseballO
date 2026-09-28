@@ -298,6 +298,18 @@ try {
     }
     $contextHash = (Get-FileHash -LiteralPath $stageContext -Algorithm SHA256).Hash.ToLowerInvariant()
     $contextDocument = Get-Content -LiteralPath $stageContext -Raw | ConvertFrom-Json
+    # Count the rows selected by the existing runner-record logical sources.
+    # A null movement without the reviewed uncaught-third-strike placeholder
+    # flag produces no record in this mapping; it must not quarantine all of
+    # the game's independently mapped facts. Preserve the raw census as well.
+    $sourceRunnerRecordCount = $expectedRunnerRecordCount
+    $expectedRunnerRecordCount = @(foreach ($contextPlay in $contextDocument.liveData.plays.allPlays) {
+        foreach ($contextRunner in @($contextPlay.runners)) {
+            if ($contextRunner.movement.isOut -is [bool] -or
+                ($contextRunner._baseballO.PSObject.Properties.Name -contains 'isUncaughtThirdStrikePlaceholder' -and
+                 $contextRunner._baseballO.isUncaughtThirdStrikePlaceholder -eq $true)) { $contextRunner }
+        }
+    }).Count
     $expectedPlateAppearanceCount = @(
         $contextDocument.liveData.plays.allPlays |
             Where-Object { $_._baseballO.hasPlateAppearanceStructure -eq $true }
@@ -480,6 +492,7 @@ try {
             battingActs = $expectedBattingActCount
             contacts = $expectedContactCount
             runnerRecords = $expectedRunnerRecordCount
+            sourceRunnerRows = $sourceRunnerRecordCount
             runnerResolutions = $expectedRunnerResolutionCount
             pitchBallControlFailures = 0
             passedBalls = $passedBallEventIds.Count
