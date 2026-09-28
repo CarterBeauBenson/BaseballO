@@ -122,6 +122,15 @@ uses the worker's existing deferred-resume mechanism and source-proof checker;
 it does not dispatch another schedule or replace the historical recovery plan.
 The four affected recent games use the existing scoped quarantine replay lane.
 
+At the recovery handoff, proof `3d4f16f8e0ef4c3bb9fc968eb9b4383c`
+completed RML, passed SHACL and promoted its graph pair at 21:39 Eastern.
+NiFi's SQL stage was active; the source queue retained 130 games, including
+the four scoped repairs in replay plan `ddfaad9bfce54e7ab8da2acc295b44ae`.
+The existing 15-minute worker holds RML until that exact proof also completes
+SQL and cleanup. Both dependent readiness loops allow eight hours. These are
+confirmed intermediate results, not a claim that the new games or all nineteen
+metric leaderboards are already published.
+
 Focused checks cover both heap settings against actual Jena reports, rejection
 of an overwritten proof manifest, retained-manifest reuse, existing recovery
 behavior, and deferred queue resumption only after the requested proof.

@@ -47,7 +47,7 @@ class NifiContractTests(unittest.TestCase):
             replay["releasePolicy"],
             "all-five-exact-input-hashes-promoted-before-remainder",
         )
-        self.assertEqual(replay["readinessRetryCount"], 120)
+        self.assertEqual(replay["readinessRetryCount"], 960)
         self.assertEqual(replay["readinessRetryDelay"], "30 sec")
 
         provisioner = (MODULE_ROOT / "nifi" / "provision.ps1").read_text(

@@ -49,6 +49,8 @@ their prerequisite could still be running. This waiting budget changes neither
 proof requirements nor the two-attempt policy for failed source stages. The
 September 27 recovery uses this loop for only September 17–26 and leaves the
 separate historical recovery plan intact.
+Quarantine replay's proof-readiness loop uses the same eight-hour budget so
+scoped repairs held behind the source proof do not expire after one hour.
 
 For a paused RML queue awaiting a particular repaired proof, the existing batch
 worker can also retain an entry in `replay-readiness-resume.json` with `name`

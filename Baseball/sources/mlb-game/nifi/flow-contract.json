@@ -72,7 +72,7 @@
       }
     ],
     "releasePolicy": "all-five-exact-input-hashes-promoted-before-remainder",
-    "readinessRetryCount": 120,
+    "readinessRetryCount": 960,
     "readinessRetryDelay": "30 sec"
   },
   "processorOrder": [
