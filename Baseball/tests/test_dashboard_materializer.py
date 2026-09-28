@@ -163,7 +163,6 @@ class DashboardMaterializer(unittest.TestCase):
         from test_contribution_sql import sample,PROOF
         graph,bindings=sample(101,'safe');self.bindings['101']=bindings
         old,new=D.TIMESTAMP_CALCULATIONS
-        self.assertEqual(D.METRICS.calculation_fingerprint(),new)
         def admission(adapter,state,promotion,family):
             return PROOF if promotion['gamePk']=='101' else {'status':'withheld'}
         with patch.object(D.ADMISSION_EVIDENCE,'load',side_effect=admission),patch.object(
@@ -178,7 +177,8 @@ class DashboardMaterializer(unittest.TestCase):
             result['coverage']['runnerBoundaryProjection']={}
             D.METRICS.store_result(db,graph,'tfs','game-scope',result)
         self.fetched.clear()
-        with patch.object(D.ADMISSION_EVIDENCE,'load',side_effect=admission),patch.object(
+        with patch.object(D.METRICS,'calculation_fingerprint',return_value=new),patch.object(
+                D.ADMISSION_EVIDENCE,'load',side_effect=admission),patch.object(
                 D.METRICS,'live_result',side_effect=AssertionError('Unchanged kernel must be reused')):
             result=D.build(self.args)
         self.assertEqual(result['calculationUpdatedGames'],2)

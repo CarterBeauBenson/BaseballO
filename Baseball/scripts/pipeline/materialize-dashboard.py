@@ -61,7 +61,8 @@ ADMISSION_TABLES = dict(zip(ADMISSIONS,('metric_suite_admission','metric_suite_r
 # only for this exact transition, with the same RDF, dimensions and proof inputs.
 TIMESTAMP_CALCULATIONS = (
     'dccb2f1c60283f97469b7422ed1bd1f929ad326afcb22c33fee655ea027881b4',
-    'a2b64246506a415caad63bcdf6e6c75f718b5df85942537912ac0a6b48987eb3',
+    # Committed release bytes, not the working checkout's CRLF JSON copy.
+    'c96e60528d720d6f245e01f88d0d2f5ded460599f049218948aa789d2f89d79b',
 )
 
 
