@@ -156,6 +156,40 @@ def input_identity(promotion, dimension, admissions, calculation, *, legacy=Fals
 
 
 @contextmanager
+def admission_reads():
+    """Reuse unchanged evidence bytes within one game's admission reads.
+
+    Every caller retains its original hash/identity/conformance checks. Cache
+    misses open and check the file on both sides of the read; hits check its
+    current file identity. Nothing is retained between games or invocations.
+    """
+    originals=ADMISSION_EVIDENCE.sha,ADMISSION_EVIDENCE.read
+    cached={};used=0
+    def identity(stat):
+        return (stat.st_dev,stat.st_ino,stat.st_size,stat.st_mtime_ns,stat.st_ctime_ns)
+    def contents(path):
+        nonlocal used
+        path=Path(path);before=identity(path.stat());entry=cached.get(path)
+        if entry is not None and entry[0]==before:return entry[1:]
+        with path.open('rb') as source:
+            if identity(os.fstat(source.fileno()))!=before:
+                raise ValueError('Admission artifact changed while opening: '+str(path))
+            raw=source.read()
+            if identity(os.fstat(source.fileno()))!=before or identity(path.stat())!=before:
+                raise ValueError('Admission artifact changed while reading: '+str(path))
+        value=(raw,hashlib.sha256(raw).hexdigest())
+        if entry is not None:used-=len(entry[1]);del cached[path]
+        if used+len(raw)<=32*1024*1024 and len(cached)<128:
+            cached[path]=(before,*value);used+=len(raw)
+        return value
+    ADMISSION_EVIDENCE.sha=lambda path:contents(path)[1]
+    # Decode afresh so a caller cannot mutate another reader's JSON object.
+    ADMISSION_EVIDENCE.read=lambda path:json.loads(contents(path)[0].decode('utf-8-sig'))
+    try:yield
+    finally:ADMISSION_EVIDENCE.sha,ADMISSION_EVIDENCE.read=originals
+
+
+@contextmanager
 def admission_versions():
     """Hash shared producer code once on each side of the input-reading batch.
 
@@ -449,9 +483,10 @@ def build_locked(args, state, serving, work):
             for index,dimension in enumerate(dimensions,1):
                 graph = SOURCE.lexical(dimension, 'graph'); pk = graph.rsplit('/',1)[-1]
                 promotion = inventory[pk]
-                admissions = {name: ADMISSION_EVIDENCE.load(adapter,state,promotion,name.removesuffix('_admission').replace('_','-'))
-                              for name, adapter in ADMISSIONS.items()}
-                player_admissions[graph] = ADMISSION_EVIDENCE.PLAYER_PARTICIPATION.load(ADMISSION_EVIDENCE,state,promotion)
+                with admission_reads():
+                    admissions = {name: ADMISSION_EVIDENCE.load(adapter,state,promotion,name.removesuffix('_admission').replace('_','-'))
+                                  for name, adapter in ADMISSIONS.items()}
+                    player_admissions[graph] = ADMISSION_EVIDENCE.PLAYER_PARTICIPATION.load(ADMISSION_EVIDENCE,state,promotion)
                 values = dimension_values(dimension, promotion, metadata)
                 identity = input_identity(promotion, values, admissions, calculation)
                 expected[graph] = identity

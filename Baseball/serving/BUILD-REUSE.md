@@ -48,6 +48,14 @@ version tuple is checked once. Producer fingerprints and the compatibility
 record are rechecked when the batch ends. Every game's distinct receipts,
 promotion identity and validation artifacts still receive their existing checks.
 
+Within one game's input loading, the admission reader shares evidence bytes
+between checksum and JSON reads. Every reuse checks the current file identity,
+size and timestamps; replacement, mutation or deletion invalidates reuse.
+The cache is limited to 32 MiB / 128 files and discarded after that game.
+It creates no persistent receipts and changes no admission outcomes. A focused
+check preserved the full admission outputs for games 822680, 823648 and 823004;
+the regression also exercises replacement, deletion and reader restoration.
+
 The NiFi materializer launcher captures one committed Git revision before
 loading calculation or admission modules. `serving_release.py` writes its
 declared runtime dependencies and byte hashes under

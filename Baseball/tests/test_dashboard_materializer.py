@@ -303,6 +303,34 @@ class DashboardMaterializer(unittest.TestCase):
                 self.assertEqual(original.call_count,2)
             self.assertIs(D.ADMISSION_EVIDENCE.code_equivalence,original)
 
+    def test_admission_reads_reuse_bytes_but_detect_replacement_and_deletion(self):
+        path=self.state/'proof.json';path.write_bytes(b'{"value":1}')
+        original_open=Path.open;opens=[]
+        original_sha,original_read=D.ADMISSION_EVIDENCE.sha,D.ADMISSION_EVIDENCE.read
+        def tracked_open(p,*args,**kwargs):
+            if p==path and args and args[0]=='rb':opens.append(p)
+            return original_open(p,*args,**kwargs)
+        with patch.object(Path,'open',tracked_open),D.admission_reads():
+            before=D.ADMISSION_EVIDENCE.sha(path)
+            value=D.ADMISSION_EVIDENCE.read(path);value['value']=999
+            self.assertEqual(D.ADMISSION_EVIDENCE.read(path),{'value':1})
+            self.assertEqual(len(opens),1)
+            # Atomic replacement with the same size must not reuse old bytes.
+            replacement=self.state/'new.json';replacement.write_bytes(b'{"value":2}')
+            os.replace(replacement,path)
+            self.assertNotEqual(D.ADMISSION_EVIDENCE.sha(path),before)
+            self.assertEqual(D.ADMISSION_EVIDENCE.read(path),{'value':2})
+            self.assertEqual(len(opens),2)
+            path.unlink()
+            with self.assertRaises(FileNotFoundError):D.ADMISSION_EVIDENCE.sha(path)
+        self.assertIs(D.ADMISSION_EVIDENCE.sha,original_sha)
+        self.assertIs(D.ADMISSION_EVIDENCE.read,original_read)
+        path.write_bytes(b'{"value":3}')
+        with self.assertRaisesRegex(ValueError,'interrupted'),D.admission_reads():
+            self.assertEqual(D.ADMISSION_EVIDENCE.read(path),{'value':3})
+            raise ValueError('interrupted')
+        self.assertIs(D.ADMISSION_EVIDENCE.read,original_read)
+
     def test_promotion_during_snapshot_waits_for_next_tick_and_preserves_publication(self):
         D.build(self.args);old=self.pointer()
         for phase in ('initial','final'):
