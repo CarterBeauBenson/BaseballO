@@ -1,6 +1,8 @@
 """W1 retains base provenance and applies unchanged constraints to its delta."""
 import tempfile
 import unittest
+import copy
+import json
 from pathlib import Path
 from rdflib import Graph,Namespace,RDF,URIRef
 from rdflib.compare import isomorphic
@@ -13,6 +15,42 @@ W=importlib.util.module_from_spec(spec);spec.loader.exec_module(W)
 
 
 class TargetedAwardAddition(unittest.TestCase):
+    def test_dependency_selection_excludes_other_runners_and_requires_exact_resolution(self):
+        from test_zero_pitch_walk_prefix import fixture,CONTEXT
+        play,document=fixture();pa=str(play['atBatIndex'])
+        awards=CONTEXT.runner_metric_evidence(play,pa,'2026',document=document)['awardAdvances']
+        unrelated=copy.deepcopy(play['runners'][0]);unrelated['details']['runner']['id']=909090
+        play['runners'].append(unrelated)
+        before=copy.deepcopy(play)
+        selected=W.selected_dependencies(play,pa,awards)
+        expected=CONTEXT.runner_episode_evidence(play,pa)
+        for key in selected:
+            self.assertEqual(selected[key],[r for r in expected[key] if r['runnerIndex']=='0'])
+            self.assertEqual(len(selected[key]),1)
+        self.assertEqual(play,before)
+        mismatched=copy.deepcopy(awards);mismatched[0]['resolutionKind']='out'
+        with self.assertRaisesRegex(ValueError,'do not match'):
+            W.selected_dependencies(play,pa,mismatched)
+
+    def test_execution_slices_only_approved_maps_and_selected_dependency_rows(self):
+        from test_zero_pitch_walk_prefix import fixture,CONTEXT
+        play,document=fixture();pa=str(play['atBatIndex'])
+        awards=CONTEXT.runner_metric_evidence(play,pa,'2026',document=document)['awardAdvances']
+        selected=[dict(awardAdvances=awards,**W.selected_dependencies(play,pa,awards))]
+        raw=json.dumps(dict(gamePk=823585,gameData=dict(venue=dict(id=5325)))).encode()
+        with tempfile.TemporaryDirectory() as temp:
+            context=Path(temp)/'game-context.json';mapping=Path(temp)/'award.rml.ttl'
+            W.execution_inputs(raw,'823585',selected,context,mapping)
+            self.assertEqual(W.read(context)['liveData']['plays']['allPlays'],
+                             [{CONTEXT.CONTEXT_KEY:selected[0]}])
+            graph=Graph().parse(mapping);rr=Namespace('http://www.w3.org/ns/r2rml#')
+            self.assertEqual({str(s).rsplit('#',1)[-1] for s in graph.subjects(RDF.type,rr.TriplesMap)},
+                             set(W.MAPS+W.DEPENDENCY_MAPS))
+            text=mapping.read_text(encoding='utf-8')
+            self.assertNotIn('{$.gamePk}',text)
+            self.assertNotIn('{$.gameData.venue.id}',text)
+            self.assertIn('/venue/5325/artifact/base/{baseCode}',text)
+
     def test_pending_staging_does_not_become_the_base_mapping_provenance(self):
         with tempfile.TemporaryDirectory() as temp:
             prior=Path(temp)/'staging.json';W.atomic(prior,dict(inputSha256='failed-new-source',outputSha256='failed-rdf'))

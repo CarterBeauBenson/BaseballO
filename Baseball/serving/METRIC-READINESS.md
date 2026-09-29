@@ -328,20 +328,26 @@ one award joined to actual terminal index 5. A reconciled replacement witness
 can be used while its zero-episode incoming personal history remains withheld.
 Unknown prefixes, movement, count changes and unreconciled replacements fail.
 
-NiFi's source-owned `Add Approved W1 Awards` worker runs only the seven existing
-award maps and posts missing triples into the existing game graph. It validates
+NiFi's source-owned `Add Approved W1 Awards` worker runs the seven existing
+award maps and four dependency maps accepted in W2, limited to the same selected
+PA/runner/resolution identities. It posts missing triples into the existing game graph. It validates
 the award's existing referents, preserves the base graph, and rebuilds only that
 game's derived query index under the existing recoverable transaction. The
 reviewed game runs first; bounded retained-input inventory then finds other W1
 cases. No API acquisition, pitches, judgments, histories or whole-game RML rerun
 is involved. Exact prior proof versions remain usable with their original
 outcomes, graph/source hashes and validation artifacts. A new promotion requires
-new checks. Eighteen focused selector and admission tests passed. The NiFi attempt stopped
-before any graph mutation: the unchanged award SHACL requires eight dependency
-triples absent from this older graph. The [W2 dependency package](../proposals/mlb-game-w1-award-dependencies/README.md)
-asks to reuse four existing maps for only these W1-selected runner rows. No W2
-execution is authorized yet. The retained response supports the facts; this is
-existing mapping coverage debt, not absent MLB evidence. The failed staging
+new checks. W1's initial attempt identified eight missing dependency triples.
+The [W2 dependency package](../archive/design-records/mlb-game-w1-award-dependencies/README.md)
+was explicitly accepted and pushed separately before implementation. On September
+29 at **14:23 Eastern**, NiFi completed run `072c4ee30da64ee3aa04f9d0ab824798` for
+game 822864 / PA 54 / runner row 0. Both selected-award and scoped authoritative
+SHACL reports conform. It added exactly **23 triples: 15 award facts and eight
+dependencies**, preserving all 27,823 base triples. The resulting graph has
+27,846 triples and its refreshed query index has 7,757. The owning worker emitted
+the promoted-game event for SQL; no subsequent SQL or leaderboard improvement
+is claimed yet. Eight focused worker/selector checks passed. The retained
+response supports the facts; this was mapping coverage debt. The failed staging
 manifest is kept distinct from the original promoted graph/index identities.
 The worker now scopes unchanged authoritative constraints to the selected facts;
 it does not declare unrelated old counted-foul or stasis failures repaired.

@@ -177,13 +177,15 @@ can report `promotionAllowed: true` with `status: withheld`,
 promotion while keeping dependent metric populations withheld. All graph
 conformance checks still run before promotion.
 
-### W1 targeted intentional-walk awards
+### W1/W2 targeted intentional-walk awards
 
 The accepted [W1 decision](../../archive/design-records/mlb-game-zero-pitch-walk-prefix/README.md)
 permits only the existing award selection after verified count-neutral PR or
 mound-visit prefixes before four no-pitch VB records. `pipeline/targeted-award-addition.py`
-slices seven existing award maps, validates the selected award and retained
-referents, and posts only missing triples. The existing graph-pair transaction
+slices seven existing award maps plus the four existing dependency maps accepted
+in [W2](../../archive/design-records/mlb-game-w1-award-dependencies/README.md).
+Dependencies must match the selected PA, runner row, runner and resolution.
+It validates the selected award and its referents and posts only missing triples. The existing graph-pair transaction
 owns rollback; only the affected query index is replaced. The original promotion
 input and later retained selection witness keep separate hashes.
 
@@ -196,3 +198,9 @@ or rewrites retained raw bytes. Positive proof compatibility and unchanged
 independent/player proofs preserve their exact producer versions; new promotions
 cannot inherit an old graph's receipts. This does not resolve unrelated runner,
 defensive or review populations.
+
+The first W1/W2 addition completed September 29 at 14:23 Eastern: game 822864,
+PA 54, runner row 0 received 15 award triples and eight dependency triples.
+The 27,823 existing triples were preserved; the resulting graph has 27,846.
+Both the selected-award and scoped authoritative SHACL reports conform. This
+is one repaired award pattern, not admission of the game's other unresolved PAs.

@@ -425,6 +425,11 @@ publication time remain unchanged. Changed proofs or code produce a new
 publication; a missing or damaged snapshot is repaired from retained SQL work.
 An explicit forced build still publishes normally.
 
+Admission maintenance yields on a memory deferral below its smallest existing
+JVM reservation instead of inspecting dozens more games that cannot run. A
+deferral at the larger reservation can still allow smaller checks to proceed.
+The next NiFi tick retries deferred work; no admission threshold is reduced.
+
 Atomic metadata replacement retries transient Windows access/sharing/lock
 errors for at most six attempts (1.55 seconds of delay). Readers continue to
 see the old complete file until replacement succeeds. Persistent errors still

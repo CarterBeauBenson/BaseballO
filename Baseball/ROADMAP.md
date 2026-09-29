@@ -41,9 +41,9 @@ permission is not a standing rebuild instruction.
 3. Complete supported contribution, progress, Empty Game and scoring-history
    calculations from existing RDF. Keep unknown contribution ownership and
    incomplete populations explicit; do not drop observations to fill a card.
-4. Resolve W2's eight missing dependency triples for the W1 award only after its
-   named approval. W1's source selector is implemented; its first additive
-   promotion is still withheld by the existing award constraint. Resolve the
+4. W2 was explicitly approved and its first W1/W2 addition was promoted on
+   September 29 at 14:23 Eastern. Game 822864 / PA 54 received only the 15 missing
+   award facts and eight approved dependencies; its SQL update is pending. Resolve the
    remaining count, PA-boundary, defensive and review gaps in their
    owners. The [readiness table](serving/METRIC-READINESS.md#remaining-work-by-metric)
    identifies their dependencies and concrete known cases. New ontology/RML

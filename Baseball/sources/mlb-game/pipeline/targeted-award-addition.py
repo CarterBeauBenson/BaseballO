@@ -1,4 +1,4 @@
-"""NiFi's W1 repair: seven existing award maps, additive graph-pair promotion."""
+"""NiFi's W1/W2 repair: existing award/dependency maps, additive promotion."""
 import argparse
 import hashlib
 import importlib.util
@@ -12,9 +12,11 @@ from rdflib.compare import isomorphic
 HERE=Path(__file__).resolve().parent
 ROOT=HERE.parents[2]
 DECISION='archive/design-records/mlb-game-zero-pitch-walk-prefix/review.json'
+DEPENDENCY_DECISION='archive/design-records/mlb-game-w1-award-dependencies/review.json'
 SHAPE=HERE.parent/'shacl/intentional-walk-award-addition.ttl'
 MAPS=('AwardCauseMap','AwardRequirementMap','AwardRequiredByMap','AwardEvidenceRecordMap',
       'AwardRuleEditionMap','AwardRuleIdentifierMap','AwardRuleEditionIdentifierMap')
+DEPENDENCY_MAPS=('RunnerEpisodeMap','RunnerEpisodeAgentMap','RunnerEpisodeRecordMap','SafeDecisionDestinationMap')
 
 def module(path,name):
     spec=importlib.util.spec_from_file_location(name,path)
@@ -24,6 +26,16 @@ A=module(HERE/'targeted-history-addition.py','award_addition_mechanics')
 C=module(HERE/'pitch-count-admission.py','award_count_contract')
 TX,I,J,EVENT=A.TX,A.I,A.J,A.EVENT
 sha,read,atomic=A.sha,A.read,A.atomic
+
+def selected_dependencies(play,pa,awards):
+    """Reuse the accepted selector only at the selected W1 row identities."""
+    identity=lambda row:tuple(row[key] for key in ('atBatIndex','runnerIndex','runnerId','resolutionKind'))
+    wanted={identity(row) for row in awards}
+    existing=C.CONTEXT.runner_episode_evidence(play,pa)
+    selected={key:[row for row in rows if identity(row) in wanted] for key,rows in existing.items()}
+    if {identity(row) for row in selected['runnerEpisodes']}!=wanted:
+        raise ValueError('W2 dependencies do not match the selected W1 runner resolutions')
+    return selected
 
 def select(raw,game_pk):
     if not game_pk.isdecimal():raise ValueError('Invalid W1 game identity')
@@ -39,8 +51,21 @@ def select(raw,game_pk):
         rows=C.CONTEXT.runner_metric_evidence(play,str(play['atBatIndex']),
             str(doc['gameData']['game']['season']),document=doc)['awardAdvances']
         selected.append(dict(atBatIndex=str(play['atBatIndex']),
-            terminalEventIndex=play['playEvents'][-1]['index'],awardAdvances=rows))
+            terminalEventIndex=play['playEvents'][-1]['index'],awardAdvances=rows,
+            **selected_dependencies(play,str(play['atBatIndex']),rows)))
     return selected
+
+def execution_inputs(raw,game_pk,selected,context,mapping):
+    venue=str(json.loads(raw)['gameData']['venue']['id'])
+    if not venue.isdecimal():raise ValueError('W2 source venue identity is invalid')
+    atomic(context,dict(gamePk=int(game_pk),gameData=dict(venue=dict(id=int(venue))),
+        liveData=dict(plays=dict(allPlays=[{C.CONTEXT.CONTEXT_KEY:{key:p[key] for key in
+            ('awardAdvances','runnerEpisodes','safeDecisionDestinations')}} for p in selected]))))
+    A.subset_mapping(game_pk,mapping,MAPS+DEPENDENCY_MAPS)
+    # As with the existing gamePk substitution, resolve the unchanged root
+    # reference from this exact source before running the sliced JSONPath maps.
+    mapping.write_text(mapping.read_text(encoding='utf-8').replace('{$.gameData.venue.id}',venue),
+                       encoding='utf-8',newline='\n')
 
 def shapes(game_pk,selected):
     base=C.B.BASE+'data/game/'+game_pk;text=[];counts=[]
@@ -111,7 +136,7 @@ def revalidate(marker,manifest,rdf,evidence,java,classpath,selected,game_pk,delt
                     raise ValueError('W1 invalidated previously conforming '+field)
                 proof['reportSha256']=sha(target.with_suffix('.report.ttl'))
                 proof['graphConforms']=conforms
-            proof.update(authoritativeRdfSha256=sha(rdf),graphRevalidation=dict(decision=DECISION,
+            proof.update(authoritativeRdfSha256=sha(rdf),graphRevalidation=dict(decision=DECISION,dependencyDecision=DEPENDENCY_DECISION,
                 originalProofSha256=sha(prior),mode='unchanged-source-census',checkedAtUtc=TX.now()))
             # A retained withheld status remains withheld, even if its graph now passes.
             atomic(target,proof);fields[field]=str(target);fields[field+'Sha256']=sha(target)
@@ -137,6 +162,7 @@ def base_manifest(marker,promotion,prior):
 
 def add_game(state,game_pk,witness,java,mapper,classpath):
     if read(ROOT/DECISION)['status']!='accepted':raise ValueError('W1 is not accepted')
+    if read(ROOT/DEPENDENCY_DECISION)['status']!='accepted':raise ValueError('W2 is not accepted')
     source_path=Path(witness['path']);raw=source_path.read_bytes()
     if hashlib.sha256(raw).hexdigest()!=witness['sha256']:raise ValueError('W1 retained source changed')
     selected=select(raw,game_pk)
@@ -144,7 +170,8 @@ def add_game(state,game_pk,witness,java,mapper,classpath):
     store=TX.HttpGraphStore('http://127.0.0.1:3031/baseball-dev/data');TX.recover(store,state,game_pk)
     marker_root=state/'pipeline/evidence/nifi/game-promotion'/game_pk
     marker_path=max(marker_root.glob('*.json'),key=lambda p:(read(p)['promotedAtUtc'],p.name));marker=read(marker_path)
-    if marker.get('targetedAddition',{}).get('decision')==DECISION:
+    if (marker.get('targetedAddition',{}).get('decision')==DECISION
+            and marker['targetedAddition'].get('dependencyDecision')==DEPENDENCY_DECISION):
         EVENT.emit(state,marker_path);return dict(status='already-complete',**marker['targetedAddition'])
     promotion=I.validated_promotion_record(state,marker_path,game_pk,I.query_index_contract_admission())
     I.retain_game_artifacts(state,game_pk)
@@ -152,9 +179,7 @@ def add_game(state,game_pk,witness,java,mapper,classpath):
     manifest=base_manifest(marker,promotion,prior)
     run=uuid.uuid4().hex;evidence=state/'pipeline/evidence/mlb-game'/game_pk/run;evidence.mkdir(parents=True)
     context=evidence/'game-context.json'
-    atomic(context,dict(gamePk=int(game_pk),liveData=dict(plays=dict(allPlays=[
-        {C.CONTEXT.CONTEXT_KEY:dict(awardAdvances=p['awardAdvances'])} for p in selected]))))
-    mapping=evidence/'award.rml.ttl';A.subset_mapping(game_pk,mapping,MAPS)
+    mapping=evidence/'award.rml.ttl';execution_inputs(raw,game_pk,selected,context,mapping)
     delta_path=evidence/'award-addition.ttl'
     A.command([java,'-Xmx512m','-jar',mapper,'-m',mapping,'-o',delta_path,'-s','turtle',
         '-b',manifest['mappingBaseIri'],'--strict'],evidence,evidence/'rml.log')
@@ -172,7 +197,8 @@ def add_game(state,game_pk,witness,java,mapper,classpath):
     inventory=dict(gamePk=game_pk,sourceWitness=witness,basePromotionSha256=sha(marker_path),
         selected=selected,missingTriples=sorted([list(map(lambda term:term.n3(),t)) for t in missing]))
     atomic(evidence/'addition-inventory.json',inventory)
-    addition=dict(decision=DECISION,basePromotionSha256=sha(marker_path),baseRmlManifestSha256=marker['rmlManifestSha256'],
+    addition=dict(decision=DECISION,dependencyDecision=DEPENDENCY_DECISION,
+        basePromotionSha256=sha(marker_path),baseRmlManifestSha256=marker['rmlManifestSha256'],
         baseRdfSha256=promotion['authoritativeRdfSha256'],baseExportSha256=TX.sha_bytes(base_bytes),
         sourceWitness=witness,inventorySha256=sha(evidence/'addition-inventory.json'),
         deltaPath=str(delta_path),deltaSha256=sha(delta_path),effectiveMappingSha256=sha(mapping),
@@ -223,7 +249,8 @@ def tick(state,game_pk,witness,java,mapper,classpath):
 
 def fingerprint():
     return hashlib.sha256(Path(__file__).read_bytes()+SHAPE.read_bytes()+A.MAPPING.read_bytes()
-        +Path(A.__file__).read_bytes()+C.fingerprint().encode()+(ROOT/DECISION).read_bytes()).hexdigest()
+        +Path(A.__file__).read_bytes()+C.fingerprint().encode()+(ROOT/DECISION).read_bytes()
+        +(ROOT/DEPENDENCY_DECISION).read_bytes()).hexdigest()
 
 
 def next_witness(state,limit=50):
