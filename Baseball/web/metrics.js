@@ -355,16 +355,22 @@ export function metricCardPresentation(payload, metric) {
   const presentation = resultPresentation({...payload, metric:result}, metric);
   if (presentation.state === 'empty') return {...presentation,hasPlayers:false,hasResults:false,hasGaps:false};
   const board = result.leaderboard, groups = board?.groups ?? [board];
-  const complete = groups.length > 0 && groups.every(group => ['available','empty'].includes(group?.status));
+  const ranked = groups.length > 0 && groups.every(group => ['available','empty'].includes(group?.status));
+  const complete = ranked && groups.every(group => group.populationComplete !== false);
   const hasPlayers = board?.status === 'available' && Boolean(board.rows?.length);
   const state = {...presentation,hasPlayers,hasResults:hasPlayers || ['available','partial'].includes(presentation.state),
     hasGaps:!complete,noQualifiers:complete && !hasPlayers};
   if (hasPlayers) return {...state,state:complete ? 'available' : 'partial',
     badge:complete ? 'Player results available' : 'Some player results available',
     headline:`${board.rows.length} qualified ${board.groups ? 'player entries' : 'players'}`,
-    message:complete ? 'Qualified player results are ready for this period.' : 'Player results are available for some review mechanisms; others remain incomplete.'};
+    message:complete ? 'Qualified player results are ready for this period.' : board.coverageMessage ||
+      (board.groups ? 'Player results are available for some review mechanisms; others remain incomplete.' :
+        'Rankings cover complete player records. Other players remain excluded for this period.')};
   if (complete) return {...state,state:'empty',badge:'No qualifying players',headline:'Participation minimum not met',
     message:board.message ?? 'No players meet the participation minimum for this period.'};
+  if (ranked) return {...state,state:'unavailable',hasResults:false,badge:'Player coverage incomplete',
+    headline:'No qualifying complete records',message:'No players with complete records meet the participation minimum for this period. ' +
+      (board.coverageMessage || 'Other player records remain incomplete.')};
   return state;
 }
 
@@ -373,7 +379,7 @@ export function metricVisible(presentation, visibility) {
 }
 
 export function resultScopeLabel(result, presentation) {
-  if (presentation.hasPlayers || presentation.noQualifiers) return presentation.message;
+  if (presentation.hasPlayers || presentation.noQualifiers || result.leaderboard?.status === 'empty') return presentation.message;
   if (result.status === 'available' || result.playerPopulationComplete === true) return result.scope ?? 'Selected evidence population';
   if (result.runs?.length) return 'Each listed score covers a complete individual run. Coverage of all runs in the selection remains incomplete.';
   if (result.consequences?.length) return 'These scores cover the shown award advances only. Full plate-appearance and population results remain unavailable.';
@@ -395,6 +401,19 @@ export function dashboardLoadStatus(payload) {
   if (incomplete) messages.push(`${incomplete} leaderboard${incomplete === 1 ? ' still has' : 's still have'} incomplete player results.`);
   if (leaders) messages.push('Select a card to see all qualified players and their evidence.');
   return messages.join(' ');
+}
+
+export function dashboardCoverageLabel(payload) {
+  const coverage = payload.metrics?.[0]?.coverage ?? {}, observed = coverage.observedEntities ?? {};
+  const pieces = [];
+  for (const [key, label] of [['plate_appearance','observed plate appearances'], ['run','observed runs']]) {
+    if (Number.isSafeInteger(observed[key]) && observed[key] >= 0) pieces.push(`${observed[key]} ${label}`);
+  }
+  const participation = payload.participationCoverage;
+  if (Number.isSafeInteger(participation?.verifiedGames) && Number.isSafeInteger(participation?.games)) {
+    pieces.push(`Player participation verified for ${participation.verifiedGames} of ${participation.games} selected games`);
+  }
+  return [...pieces, 'Each leaderboard reports its player exclusions and participation minimums'].join(' · ') + '.';
 }
 
 export function matchesMetric(metric, term, group = 'all') {
@@ -543,10 +562,7 @@ async function loadDashboard(event) {
     facts(byId('dashboard-summary'), [['Selected games', summary.games],
       ['Populated player leaderboards', `${summary.populatedLeaderboards} of ${payload.metrics.length}`]]);
     byId('dashboard-dates').textContent = resultDateLabel(payload);
-    const coverage = payload.metrics[0].coverage ?? {}, movement = coverage.runnerMovements;
-    byId('dashboard-coverage').textContent = `${coverage.observedEntities?.plate_appearance ?? 0} observed plate appearances · ${coverage.observedEntities?.run ?? 0} observed runs` +
-      (movement ? ` · ${movement.withPersonalTrajectoryBinding ?? 0} of ${movement.observedPairs} movement pairs linked to a personal history.` : '.') +
-      ' Coverage of eligible events may still be incomplete.';
+    byId('dashboard-coverage').textContent = dashboardCoverageLabel(payload);
     byId('dashboard-overview').hidden = false; byId('download-dashboard').disabled = false;
     byId('dashboard-status').textContent = dashboardLoadStatus(payload);
     renderList();

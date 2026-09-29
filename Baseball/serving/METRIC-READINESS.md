@@ -16,8 +16,9 @@ Read-only selected-range checks on September 29, 2026:
 | Newly populated cards | Plate Appearance Contribution (20 qualified players), Runner Out Rate (19), Runner Loss per PA (19), Scoring Opportunity Lost (20) |
 | Other populated cards | Offensive Reach (122), Help Without Advancing (122), Empty Games (142), Empty Game Damage (6), Contribution Mix (2), Scoring History Length (163) and Run Contributors (130) |
 | Expanded details | Scoring History Length has 163 named players for September 21-27, with Trea Turner and Jake Bauers among the leaders at an average of 4; 48 incomplete player records are explicitly excluded. The prior publication's full card/detail comparison matched all 163 rows. |
-| Month selection (earlier publication) | August 29-September 27: all 403 expected games; **5/19 populated**, with all game rosters verified |
+| Month selection | August 29-September 27: all 403 expected games; **5/19 populated**, with all game rosters verified. Qualified counts: Offensive Reach 7, Help Without Advancing 7, Empty Games 11, Scoring History Length 144, Run Contributors 69. |
 | Season selection | All 2,429 expected regular-season games now have verified rosters. The live request times out at 30 seconds while reading the newly accessible player products; the reader correction below awaits deployment. This is not a populated-season delivery claim. |
+| Season metric detail | Scoring History Length returns Will Smith at **14/5**, averaging 35 complete scoring histories; the automatic minimum is 33 runs. The full-season detail request completed in 20.54 seconds. This one working metric does not establish the full dashboard. |
 | Recent-game coverage | All 130 September 17-26 catch-up games are in SQL, including 823087 |
 
 The latest weekly API request completed in 10.47 seconds, including first-use
@@ -48,6 +49,10 @@ corrections still require a newer runtime. NiFi started the next build at
 
 ## Implemented repairs and retained component evidence
 
+- Player coverage displays verified game participation without inventing zero
+  PA/run totals when the compact response does not include them. Populated cards
+  with exclusions remain visible under Coverage gaps and explain those exclusions
+  in their detail view. Known zero counts remain zero; missing counts stay absent.
 - Empty Game Damage now isolates unrelated running uncertainty for games with
   independent PA admission and an admitted complete runner population. A focused
   regression retains a player's exact 1/4 damage while another runner's turn is

@@ -5,7 +5,7 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { createBaseballServer } from '../server.mjs';
 import { metricCatalog, validateMetricRequest, validateDashboardRequest, compileMetricEvidenceQuery, metricDisplayTargets, compileMetricDisplayQuery, normalizeMetricDisplayLabels, labelMetricPlayers, automaticMinimumPA, automaticMinimumObservations, playerLeaderboard, playerSummaryValue, publicMetricResult, dashboardReadiness } from '../query-builder/metric-suite-query-builder.js';
-import { displayFraction, resultHeadline, movementEvidenceLabel, consequencePresentation, runMetricPresentation, formatMetricValue, resultPresentation, resultDateLabel, selectionFromUrl, displayPlayer, exampleAnswer, dashboardSummary, matchesMetric, metricRanking, dashboardLoadStatus, metricCardPresentation, metricVisible, resultScopeLabel, unresolvedRunRows } from '../metrics.js';
+import { displayFraction, resultHeadline, movementEvidenceLabel, consequencePresentation, runMetricPresentation, formatMetricValue, resultPresentation, resultDateLabel, selectionFromUrl, displayPlayer, exampleAnswer, dashboardSummary, matchesMetric, metricRanking, dashboardLoadStatus, dashboardCoverageLabel, metricCardPresentation, metricVisible, resultScopeLabel, unresolvedRunRows } from '../metrics.js';
 
 test('unresolved runs keep their identities and explain the actual evidence problem', () => {
   const evidence = { graph: 'https://w3id.org/baseball/graph/game/566279',
@@ -44,6 +44,25 @@ test('partly populated review mechanisms are identified in the dashboard status'
   const payload={graphCount:7,metrics:[{leaderboard:{status:'available',rows:[{player:'1'}],groups:[
     {status:'available',rows:[{player:'1'}]}, {status:'unavailable',rows:[]}]}}]};
   assert.match(dashboardLoadStatus(payload), /incomplete/);
+});
+
+test('prepared player coverage never invents zero event counts or hides excluded players', () => {
+  const metric={id:'tfs'}, result={metricId:'tfs',status:'available',leaderboard:{status:'available',
+    rows:[{player:'1'}],populationComplete:false,excludedPlayers:3,coverageMessage:'3 players excluded.'}};
+  const payload={graphCount:90,participationCoverage:{games:90,verifiedGames:90},metrics:[result]};
+  const label=dashboardCoverageLabel(payload), card=metricCardPresentation(payload,metric);
+  assert.match(label,/verified for 90 of 90/);
+  assert.doesNotMatch(label,/0 observed/);
+  assert.equal(card.hasPlayers,true); assert.equal(card.state,'partial');
+  assert.equal(metricVisible(card,'results'),true); assert.equal(metricVisible(card,'gaps'),true);
+  assert.equal(resultScopeLabel(result,card),'3 players excluded.');
+  assert.match(dashboardLoadStatus(payload),/1 player leaderboard loaded.*incomplete player results/);
+  result.leaderboard={...result.leaderboard,status:'empty',rows:[]};
+  const empty=metricCardPresentation(payload,metric);
+  assert.equal(empty.hasResults,false); assert.equal(empty.hasGaps,true); assert.equal(empty.noQualifiers,false);
+  assert.match(empty.headline,/No qualifying complete records/);
+  result.coverage={observedEntities:{plate_appearance:0,run:0}};
+  assert.match(dashboardCoverageLabel(payload),/0 observed plate appearances · 0 observed runs/);
 });
 
 test('detail scope distinguishes player reviews, complete runs and limited awards', () => {
