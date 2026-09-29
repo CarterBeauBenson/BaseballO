@@ -138,6 +138,18 @@ class PlayerRanges(unittest.TestCase):
             self.assertEqual(by_key[(U+'1',metric)][3],1,metric)
             self.assertEqual(by_key[(U+'2',metric)][3],0,metric)
         self.assertEqual(json.loads(by_key[(U+'1','empty-game-rate')][4]),dict(kind='count',count=0,eligibleGames=1))
+        individual=dict(rosterComplete=True,plateAppearanceInventoryComplete=True,
+            players=[dict(player=U+'1',status='admitted'),dict(player=U+'2',status='withheld')])
+        progress['plateAppearances'][0].update(reach=0,batterPositive=False,positiveChannels=[])
+        for affected,expected_complete in [([U+'2'],1),([U+'1',U+'2'],0)]:
+            progress['unresolvedPlateAppearances'][0]['possiblePositivePlayers']=affected
+            _,records=P.project(M,graph=graph,scope=SCOPE,rows=rows,
+                proofs={'batting':{'status':'withheld'},'run':proof,'resolution':proof,'players':individual},
+                inputs=dict(contribution={'complete':False,'plateAppearances':[]},progress=progress,defense={'complete':False}),
+                runs=runs,run_people={'run2':{U+'2'}})
+            by_key={(r[1],r[2]):r for r in records}
+            self.assertEqual(by_key[(U+'1','empty-game-rate')][3],expected_complete)
+            self.assertEqual(by_key[(U+'2','empty-game-rate')][3],0)
 
     def test_individual_admission_uses_rdf_counts_and_keeps_failed_player_unknown(self):
         rows=[dict(kind='player_team_game',player=U+str(i),graph=G+'1',game='game',team='team',teamRole='role') for i in (1,2,3)]

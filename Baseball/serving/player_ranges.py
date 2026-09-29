@@ -18,6 +18,7 @@ PREPARED = CONTRIBUTION | PROGRESS | RUNS | DEFENSE | {'empty-game-damage'}
 REFERENCES = {'paq-2','paq-a','paq-2.1','recovery-quality'}
 PREVIOUS_VERSION = '4890951c9161d99efdbf52c5364c4ca08bbd4f9cd3e2853127846a728ae1282d'
 PREVIOUS_INDIVIDUAL_VERSION = '38deead69127b00c2383239c1c8abb172ec3b29d1f3ea4e4fbde652cb7d61617'
+PREVIOUS_BOUNDARY_VERSION = 'dbb26a1f1e64c9f38dea522450e509e51de3024d8bbf6e2c9bd4903650821ade'
 
 
 def fingerprint():
@@ -126,7 +127,11 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people):
                 [*progress.get('plateAppearances',[]),*progress.get('unresolvedPlateAppearances',[])]
                 if p.get('officialResult')}
     all_expected={p['plateAppearance'] for p in q['expectedObservations']}
-    progress_census=(set(classified)==all_expected and
+    # Individually rejected batters do not invalidate another batter's PA
+    # census. Their possible running contributions still enter the uncertainty
+    # sets above, including uncertainty affecting an admitted player.
+    qualified_classified={pa:r for pa,r in classified.items() if r['player'] in people}
+    progress_census=(set(qualified_classified)==all_expected and
         all(classified[p]['player']==r['player'] for r in q['expectedObservations'] for p in [r['plateAppearance']]))
     run_values={};run_unknown={}
     observed={r['entity'] for r in rows if r['kind']=='run'}
@@ -219,7 +224,8 @@ def prepare(m, db, checkpoint=None, player_admissions=None):
         if saved.get(graph)==identity:continue
         # The new path changes only games with individual admissions. Preserve
         # all other existing player aggregates byte-for-byte on deployment.
-        if (not individual.get('paBoundaries') and (saved.get(graph)==m._hash(key+PREVIOUS_INDIVIDUAL_VERSION+proof_sha)
+        if (not individual and (saved.get(graph) in
+                {m._hash(key+v+proof_sha) for v in (PREVIOUS_INDIVIDUAL_VERSION,PREVIOUS_BOUNDARY_VERSION)}
                 or (not individual and saved.get(graph)==m._hash(key+PREVIOUS_VERSION)))):
             with db:db.execute('UPDATE dashboard_player_partition SET input_sha256=? WHERE graph_iri=?',(identity,graph))
             continue

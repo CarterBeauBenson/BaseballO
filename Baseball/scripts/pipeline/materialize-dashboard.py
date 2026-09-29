@@ -218,7 +218,8 @@ def reuse_game(connection, graph, saved, promotion, dimension, admissions, calcu
             partition=connection.execute('SELECT input_sha256 FROM dashboard_player_partition WHERE graph_iri=?',(graph,)).fetchone()
             individual=connection.execute('SELECT proof_sha256 FROM dashboard_player_admission WHERE graph_iri=?',(graph,)).fetchone()
             proof_sha=individual[0] if individual else ''
-            for version in (PLAYER_RANGES.fingerprint(),PLAYER_RANGES.PREVIOUS_VERSION,PLAYER_RANGES.PREVIOUS_INDIVIDUAL_VERSION):
+            for version in (PLAYER_RANGES.fingerprint(),PLAYER_RANGES.PREVIOUS_VERSION,
+                            PLAYER_RANGES.PREVIOUS_INDIVIDUAL_VERSION,PLAYER_RANGES.PREVIOUS_BOUNDARY_VERSION):
                 if partition and partition[0]==METRICS._hash(saved+version+proof_sha):
                     connection.execute('UPDATE dashboard_player_partition SET input_sha256=? WHERE graph_iri=?',
                         (METRICS._hash(identity+version+proof_sha),graph))
@@ -313,6 +314,40 @@ def store_game(connection, item, bindings, product_cache=None):
         connection.execute('INSERT OR REPLACE INTO dashboard_state VALUES (?,?)',
                            ('dirty-seasons', json.dumps(sorted(dirty))))
     return proof
+
+
+def publish_snapshot(database, published):
+    """Copy prepared reader products; keep rebuild inputs in the working DB.
+
+    Both source tables below are build-only: readers use the checked scope,
+    input and shell projections plus prepared player/rank products. Omit the
+    tables entirely so an accidental raw-evidence fallback fails explicitly.
+    The writer lock remains held and all working transactions are committed.
+    """
+    excluded={'metric_suite_evidence','metric_suite_result'}
+    with closing(sqlite3.connect(published,uri=True)) as destination:
+        destination.execute('PRAGMA foreign_keys=ON')
+        destination.execute('ATTACH DATABASE ? AS prepared_source',(Path(database).as_uri()+'?mode=ro',))
+        with destination:
+            destination.execute('BEGIN')
+            schema=destination.execute("SELECT type,name,tbl_name,sql FROM prepared_source.sqlite_schema "
+                "WHERE sql IS NOT NULL AND name NOT LIKE 'sqlite_%' ORDER BY type,name").fetchall()
+            tables=sorted(((name,sql) for kind,name,owner,sql in schema if kind=='table' and name not in excluded),
+                key=lambda t:(t[0] not in {'game_dimension','metric_suite_reference'},t[0]))
+            for name,sql in tables:destination.execute(sql)
+            for name,_ in tables:
+                quoted='"'+name.replace('"','""')+'"'
+                destination.execute(f'INSERT INTO main.{quoted} SELECT * FROM prepared_source.{quoted}')
+            for kind,name,owner,sql in schema:
+                if kind=='index' and owner not in excluded:destination.execute(sql)
+            # Mutation triggers belong to the mutable producer. This publication
+            # is always opened mode=ro and is never used as a build checkpoint.
+        if destination.execute('PRAGMA quick_check').fetchone()[0]!='ok' or destination.execute('PRAGMA foreign_key_check').fetchall():
+            raise ValueError('Prepared dashboard snapshot integrity failed')
+        working_bytes=(destination.execute('PRAGMA prepared_source.page_count').fetchone()[0]
+            *destination.execute('PRAGMA prepared_source.page_size').fetchone()[0])
+    return dict(layout='prepared-reader-products-v1',retainedBuildOnlyTables=sorted(excluded),
+        workingBytes=working_bytes,publishedBytes=Path(published).stat().st_size)
 
 
 def notification_key(state):
@@ -495,7 +530,7 @@ def build_locked(args, state, serving, work):
         # The older report builder's retention job cannot touch this product.
         (work/'builds').mkdir(exist_ok=True)
         published = work/'builds'/(build_id+'.sqlite')
-        with closing(sqlite3.connect(published)) as destination: connection.backup(destination)
+        publication=publish_snapshot(database,published)
         sha = SOURCE.sha256_file(published)
         SOURCE._reader.write_database_verification_cache(
             SOURCE._reader.database_verification_cache_path(serving,sha), sha, published, SOURCE._reader.file_identity(published))
@@ -507,7 +542,7 @@ def build_locked(args, state, serving, work):
         # Save the complete candidate evidence before changing the reader's
         # pointer. A storage failure here must preserve the prior publication.
         checkpoint(status='ready-for-promotion', databasePath=str(published))
-        evidence = dict(progress, durationSeconds=round(time.perf_counter()-started,2), queryCache=cache.stats,
+        evidence = dict(progress, durationSeconds=round(time.perf_counter()-started,2), publication=publication, queryCache=cache.stats,
                         metricProductCache=products.stats, references=references, playerRanges=player_ranges, pointer=pointer)
         evidence_path = serving/'evidence'/(build_id+'.json')
         RELEASE.atomic(evidence_path, evidence)

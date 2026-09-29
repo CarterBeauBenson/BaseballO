@@ -2,6 +2,16 @@
 
 ## Immutable code and database releases
 
+Dashboard publication copies the prepared SQL tables into an immutable reader
+snapshot. `metric_suite_evidence` and the duplicated `metric_suite_result` stay
+in the existing working database for incremental repairs; the reader uses their
+prepared scope, input and shell products. They are absent from the snapshot so
+an accidental fallback to raw bindings fails explicitly. All dashboard cards
+and expanded metric responses are checked for equality in the component test.
+The snapshot keeps SQL constraints and indexes; mutable producer triggers remain
+in the working database. Publication records both logical file sizes. No source,
+graph, retained binding or existing working checkpoint is rebuilt or removed.
+
 Independent PA admission reuses the existing C1/C2 constraints with one target
 per PA. Each target still requires every runner history in its half-inning;
 unknown history scope blocks all dependent PAs. A failed start boundary blocks

@@ -35,6 +35,14 @@ a source graph count or a successful component test.
 
 ## Implemented repairs and retained component evidence
 
+- Empty Game and Contribution Mix preparation now compares the official PA
+  census within the independently admitted player population. Another batter's
+  failed B1 check does not block that census. Possible running contributions
+  from unresolved PAs still withhold any player they may affect.
+- Publication excludes retained raw bindings and duplicated game-result blobs
+  from the reader snapshot, preserving them in NiFi's existing working SQL.
+  The component check preserves dashboard and expanded-detail responses.
+
 - Independent C1/C2 checks now isolate a failed PA boundary while preserving
   its entire dependent half-inning history requirement. The SQL player producer
   uses admitted PAs through the existing exact contribution calculator. A focused

@@ -185,6 +185,23 @@ class DashboardMaterializer(unittest.TestCase):
         self.assertEqual((result['changedGames'],result['reusedGames']),(0,2))
         self.assertEqual(result['playerRanges']['preparedGames'],1)
 
+    def test_prepared_snapshot_retains_dashboard_and_detail_results_without_build_inputs(self):
+        from test_contribution_sql import sample,PROOF
+        graph,bindings=sample(101,'safe');self.bindings['101']=bindings
+        with patch.object(D.ADMISSION_EVIDENCE,'load',side_effect=lambda adapter,state,promotion,family:
+                PROOF if promotion['gamePk']=='101' else {'status':'withheld'}):result=D.build(self.args)
+        reader=D.SOURCE._reader;scope=dict(gameSet='regular_season',startDate='2026-08-01',endDate='2026-08-01')
+        with closing(sqlite3.connect(self.working())) as working,closing(sqlite3.connect(self.pointer()['databasePath'])) as published:
+            for table in ('metric_suite_evidence','metric_suite_result'):
+                self.assertGreater(working.execute('SELECT COUNT(*) FROM '+table).fetchone()[0],0)
+                self.assertIsNone(published.execute('SELECT name FROM sqlite_schema WHERE name=?',(table,)).fetchone())
+            for request in [{'view':'dashboard'},*({'metricId':m['id']} for m in D.METRICS.catalog()['metrics'])]:
+                before=reader._range_query.query(D.METRICS,D.PLAYER_RANGES,working,request,scope)
+                after=reader._range_query.query(D.METRICS,D.PLAYER_RANGES,published,request,scope)
+                self.assertEqual(before,after)
+            self.assertEqual(reader._display.read(working,scope,before),reader._display.read(published,scope,after))
+        self.assertLess(result['publication']['publishedBytes'],result['publication']['workingBytes'])
+
     def test_optional_player_calculator_upgrade_preserves_every_game_and_unchanged_player_partition(self):
         from test_contribution_sql import sample,PROOF
         graph,bindings=sample(101,'safe');self.bindings['101']=bindings
