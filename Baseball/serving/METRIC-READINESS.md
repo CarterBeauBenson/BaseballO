@@ -10,7 +10,7 @@ Read-only selected-range checks on September 29, 2026:
 
 | Surface | Recorded result |
 | --- | --- |
-| Published dashboard | `20260929T184347Z-dashboard-4f36229f3fab`, published September 29 at 15:25 Eastern, 2,917 games; paired release from `cd576b8` |
+| Published dashboard | `20260929T192606Z-dashboard-71b422a5da3e`, published September 29 at 16:02 Eastern, 2,917 games; paired release from `1d6a720` |
 | Week selection (prior 11:16 publication) | September 21-27: all 90 expected regular-season games |
 | Week player leaderboards (prior 11:16 publication) | **11/19 populated**, with names, selected-period aggregates, automatic minimums and disclosed exclusions; `ready=false` |
 | Newly populated cards | Plate Appearance Contribution (20 qualified players), Runner Out Rate (19), Runner Loss per PA (19), Scoring Opportunity Lost (20) |
@@ -20,6 +20,7 @@ Read-only selected-range checks on September 29, 2026:
 | Season selection | Prepared SQL covers all 2,429 expected regular-season games and verified rosters. The default full-season HTTP request now succeeds, initially in 8.23 seconds (1.72 seconds in the reader). **2/19 populated**: Empty Games (6 qualified players) and Scoring History Length (1). Loading works; the other 17 cards still lack qualified complete records. |
 | Current detail and custom week checks | Full-season Scoring History Length detail succeeds in 2.60 seconds and matches Will Smith's dashboard value of 14/5. September 21-27 succeeds in 3.06 seconds with **11/19 populated**. |
 | Season leader | Scoring History Length returns Will Smith at **14/5**, averaging 35 complete scoring histories; the automatic minimum is 33 runs. The dashboard and previously checked detail agree. |
+| Latest full-season HTTP check | 4.48 seconds, all 2,429 expected games and verified rosters; **2/19 qualified cards**, `ready=false`. This publication predates the Help and Contribution Mix repairs and R1 additions. |
 | Recent-game coverage | All 130 September 17-26 catch-up games are in SQL, including 823087 |
 
 The prior full-season HTTP check returned 503 after 30 seconds. Its first pass
@@ -90,7 +91,11 @@ do not infer their deployment from these results.
   existing additive transaction. Seven focused regressions pass; a read-only
   selection of the retained 823200 witness supplies 125 episodes and 19
   supported personal histories. NiFi must complete that first game before
-  widening to the remaining 25. Runtime promotion and SQL results remain pending.
+  widening to the remaining 25. NiFi subsequently completed **10/26 games**,
+  adding **11,588 triples**, with no failed terminal records at the check.
+  The first game preserved all 37,640 base triples and added 1,420. The worker
+  remains active; affected SQL publication is pending. These promotion counts
+  do not change the last verified dashboard population reported above.
 
 - Help Without Advancing no longer requires every other runner's contribution
   to be known when its binary answer is already certain. NiFi reuses the same
