@@ -7,7 +7,9 @@ import hashlib
 import json
 import os
 import re
+import sys
 import tempfile
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -22,6 +24,7 @@ QUERY_INDEX_ROUTING = ROOT / "sparql" / "query-index" / "operational-query-routi
 QUERY_INDEX_SEMANTIC_CONTRACT = ROOT / "sparql" / "query-index" / "semantic-contract.json"
 SUPPORTED_QUERY_INDEX_CONTRACT_VERSION = 1
 _FILE_HASHES = {}
+_HASH_CACHE_LIMIT = 65536
 
 
 def sha256_bytes(value: bytes) -> str:
@@ -29,27 +32,55 @@ def sha256_bytes(value: bytes) -> str:
 
 
 def sha256_file(path: Path) -> str:
-    # Initial and final inventory reads often name the same immutable index
-    # artifacts. Retain hashes only for this process and unchanged open-file
-    # identities; each new NiFi invocation starts with an empty cache.
-    def identity(handle):
-        stat=os.fstat(handle.fileno())
+    # Identity checks avoid reopening unchanged artifacts on every inventory
+    # pass. A miss still checks both the open handle and its current pathname.
+    def identity(stat):
         return (stat.st_dev,stat.st_ino,stat.st_size,stat.st_mtime_ns,stat.st_ctime_ns)
     key=str(path.resolve())
+    before=identity(path.stat())
+    cached=_FILE_HASHES.get(key)
+    if cached is not None and cached[0]==before:return cached[1]
     with path.open("rb") as source:
-        before=identity(source)
-        cached=_FILE_HASHES.get(key)
-        if cached is not None and cached[0]==before:
-            value=cached[1]
-        else:
-            digest=hashlib.sha256()
-            for chunk in iter(lambda: source.read(1024 * 1024), b""):
-                digest.update(chunk)
-            value=digest.hexdigest()
-        if identity(source)!=before:raise ValueError('Promotion artifact changed while hashing: '+str(path))
-    if len(_FILE_HASHES)>=16384:_FILE_HASHES.clear()
+        if identity(os.fstat(source.fileno()))!=before:raise ValueError('Promotion artifact changed while opening: '+str(path))
+        digest=hashlib.sha256()
+        for chunk in iter(lambda: source.read(1024 * 1024), b""):
+            digest.update(chunk)
+        value=digest.hexdigest()
+        if identity(os.fstat(source.fileno()))!=before or identity(path.stat())!=before:
+            raise ValueError('Promotion artifact changed while hashing: '+str(path))
+    if key not in _FILE_HASHES and len(_FILE_HASHES)>=_HASH_CACHE_LIMIT:
+        _FILE_HASHES.pop(next(iter(_FILE_HASHES)))
     _FILE_HASHES[key]=(before,value)
     return value
+
+
+@contextmanager
+def artifact_hash_cache(path, atomic):
+    """NiFi retains byte hashes, never admission or graph-validation outcomes.
+
+    File identities are checked by sha256_file on every reuse. An absent,
+    damaged or unwritable cache falls back to the ordinary content reads.
+    """
+    try:
+        if path.stat().st_size<=32*1024*1024:
+            record=json_object(path)
+            if record.get('contractVersion')==1 and record.get('runtime')==sys.implementation.cache_tag:
+                entries=record['files']
+                if not isinstance(entries,dict) or len(entries)>_HASH_CACHE_LIMIT:raise ValueError('Invalid hash cache inventory')
+                loaded={}
+                for name,(identity,digest) in entries.items():
+                    if (not isinstance(name,str) or not Path(name).is_absolute() or len(identity)!=5
+                            or any(type(n) is not int for n in identity)
+                            or not isinstance(digest,str) or not re.fullmatch('[0-9a-f]{64}',digest)):
+                        raise ValueError('Invalid cached artifact identity')
+                    loaded[name]=(tuple(identity),digest)
+                loaded.update(_FILE_HASHES)
+                _FILE_HASHES.clear();_FILE_HASHES.update(list(loaded.items())[-_HASH_CACHE_LIMIT:])
+    except (OSError,ValueError,TypeError,KeyError):pass
+    try:yield
+    finally:
+        try:atomic(path,dict(contractVersion=1,runtime=sys.implementation.cache_tag,files=_FILE_HASHES))
+        except OSError:pass
 
 
 def json_object(path: Path) -> dict[str, Any]:

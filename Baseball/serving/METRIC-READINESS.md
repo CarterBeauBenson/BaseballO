@@ -233,6 +233,17 @@ worker ownership; [build reuse](BUILD-REUSE.md) describes invalidation.
 
 ## Remaining work after the September 29 selected-range check
 
+The 15:00 Eastern live full-season request still timed out after 30 seconds;
+the 14:03 SQL publication remained current. Its replacement was refreshing
+inputs. The source snapshot alone took 597 seconds. A bounded inventory profile
+found most sampled time in file opens, and the in-process hash cache reopened
+even unchanged artifacts, discarded all entries when full, and did not survive
+the next NiFi invocation. The SQL owner now retains those byte hashes with the
+existing file-identity checks and bounded individual eviction. Focused tests
+cover reuse, replacement, deletion, invalid caches and concurrent promotion.
+This is a build-time optimization awaiting deployment, not evidence of a new
+publication, faster live response or additional populated cards.
+
 The admission worker's fallback previously depended on a retired local RDF
 export even when a retained quarantined response and the promoted graph were
 available. Its independent six-profile graph check was reached only as part of

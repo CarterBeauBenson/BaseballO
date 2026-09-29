@@ -2,6 +2,16 @@
 
 ## Immutable code and database releases
 
+The NiFi source-snapshot stage retains artifact byte hashes between invocations
+in a local cache separated by Python runtime. Each reuse checks the file's
+device, identity, size and timestamps; replaced, edited or missing files cannot
+reuse the prior hash. Cache misses also check the open handle and pathname
+around hashing. A missing, damaged or unwritable cache uses normal file reads.
+This retains hashes only: promotion ordering, manifest ownership, source/index
+consistency and the final live graph check still execute. Bounded eviction drops
+one old entry instead of clearing the entire cache. No admission is renewed and
+no graph or SQL value changes through this optimization.
+
 NiFi prepares the default full-season range responses after player and reference
 products are ready. `dashboard_prepared_range` retains the exact result for each
 regular-season year through its latest loaded date. An unchanged input set and

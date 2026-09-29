@@ -921,6 +921,12 @@ class SourceSnapshotChanged(RuntimeError):
 def corpus_snapshot(
     state_root: Path, endpoint: str, timeout: int, max_games: int | None = None
 ) -> dict[str, Any]:
+    cache=state_root/'serving'/('promotion-artifact-hashes-'+sys.implementation.cache_tag+'.json')
+    with _promotion_inventory.artifact_hash_cache(cache,_admission_evidence.atomic):
+        return _corpus_snapshot(state_root,endpoint,timeout,max_games)
+
+
+def _corpus_snapshot(state_root,endpoint,timeout,max_games):
     inventory_before = promotion_inventory(state_root)
     inventory_before = development_inventory_subset(inventory_before, max_games)
     # Query definitions and the exact validated inventory remain cache inputs.

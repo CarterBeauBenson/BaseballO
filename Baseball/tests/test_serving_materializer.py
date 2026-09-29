@@ -157,6 +157,47 @@ def result(bindings: list[dict[str, object]], variables: list[str] | None = None
 
 
 class ServingMaterializerTests(unittest.TestCase):
+    def test_inventory_hashes_survive_restart_without_reopening_unchanged_artifacts(self):
+        inventory=MODULE._promotion_inventory
+        with tempfile.TemporaryDirectory() as temporary,patch.object(inventory,'_FILE_HASHES',{}):
+            state=Path(temporary);path=state/'index.nt';path.write_bytes(b'first')
+            cache=state/'hashes.json';original=Path.open;opened=[]
+            def tracked(p,*args,**kwargs):
+                if p==path:opened.append(p)
+                return original(p,*args,**kwargs)
+            with inventory.artifact_hash_cache(cache,write_json):
+                expected=inventory.sha256_file(path)
+            inventory._FILE_HASHES.clear()  # Next NiFi process.
+            with patch.object(Path,'open',tracked),inventory.artifact_hash_cache(cache,write_json):
+                self.assertEqual(inventory.sha256_file(path),expected)
+                self.assertEqual(opened,[])
+                replacement=state/'replacement.nt';replacement.write_bytes(b'other')
+                os.replace(replacement,path)
+                self.assertEqual(inventory.sha256_file(path),digest('other'))
+                self.assertEqual(opened,[path])
+                path.unlink()
+                with self.assertRaises(FileNotFoundError):inventory.sha256_file(path)
+
+    def test_invalid_hash_receipts_fall_back_and_eviction_keeps_other_entries(self):
+        inventory=MODULE._promotion_inventory
+        with tempfile.TemporaryDirectory() as temporary,patch.object(inventory,'_FILE_HASHES',{}):
+            state=Path(temporary);path=state/'index.nt';path.write_bytes(b'actual')
+            cache=state/'hashes.json'
+            with inventory.artifact_hash_cache(cache,write_json):inventory.sha256_file(path)
+            record=json.loads(cache.read_text());record['runtime']='another-python-runtime'
+            record['files'][str(path.resolve())][1]='0'*64;write_json(cache,record)
+            inventory._FILE_HASHES.clear()
+            with inventory.artifact_hash_cache(cache,write_json):
+                self.assertEqual(inventory.sha256_file(path),digest('actual'))
+            inventory._FILE_HASHES.clear();cache.write_text('{broken')
+            with inventory.artifact_hash_cache(cache,write_json):
+                self.assertEqual(inventory.sha256_file(path),digest('actual'))
+            inventory._FILE_HASHES.clear()
+            with patch.object(inventory,'_HASH_CACHE_LIMIT',2):
+                for name in ('one','two','three'):
+                    artifact=state/name;artifact.write_text(name);inventory.sha256_file(artifact)
+                self.assertEqual(set(inventory._FILE_HASHES),{str((state/n).resolve()) for n in ('two','three')})
+
     def test_shared_batting_result_survives_sql_build_without_inflating_totals(self):
         import time
         with tempfile.TemporaryDirectory() as directory:
