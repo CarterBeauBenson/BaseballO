@@ -20,6 +20,7 @@ PREVIOUS_VERSION = '4890951c9161d99efdbf52c5364c4ca08bbd4f9cd3e2853127846a728ae1
 PREVIOUS_INDIVIDUAL_VERSION = '38deead69127b00c2383239c1c8abb172ec3b29d1f3ea4e4fbde652cb7d61617'
 PREVIOUS_BOUNDARY_VERSION = 'dbb26a1f1e64c9f38dea522450e509e51de3024d8bbf6e2c9bd4903650821ade'
 PREVIOUS_DAMAGE_VERSION = '8412c64bdfcb34b4f464e4f96e2850bedfd6d1846918882314b52658ca91ebb0'
+PREVIOUS_ZERO_PA_VERSION = '498a19c02d51b88a7418616934719d37808ab7c5100c7bfd5cfda29d9ccb0518'
 
 
 def fingerprint():
@@ -184,7 +185,10 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people):
         own=expected[player];own_contrib=[by_pa[p] for p in own if p in by_pa and by_pa[p]['player']==player]
         contrib_ok=person is not None and len(own_contrib)==len(own)
         own_progress=[progress_pa[p] for p in own if p in progress_pa and progress_pa[p]['player']==player]
-        progress_ok=person is not None and admitted(proofs['resolution']) and len(own_progress)==len(own)
+        # Batting progress averages have no observations in a verified zero-PA
+        # game. Unrelated running uncertainty cannot turn that known absence
+        # into a missing batting record. Unknown official PA counts stay blocked.
+        progress_ok=person is not None and (not own or admitted(proofs['resolution'])) and len(own_progress)==len(own)
         empty_known=(person is not None and admitted(proofs['resolution']) and progress_census
                      and (player in positive or player not in uncertain))
         for metric in sorted(PREPARED):
@@ -234,7 +238,7 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people):
 
 
 def prepare(m, db, checkpoint=None, player_admissions=None):
-    initialize(db);version=fingerprint();changed=0
+    initialize(db);version=fingerprint();changed=0;zero_pa_repairs=0
     # The player dashboard serves only these game sets. Exhibition/WBC roster
     # patterns must not participate in, or block, MLB dashboard preparation.
     inventory=db.execute('SELECT g.graph_iri,g.official_date,g.game_set,c.input_sha256 '
@@ -247,12 +251,19 @@ def prepare(m, db, checkpoint=None, player_admissions=None):
         individual_text=m._json(individual);proof_sha=m._hash(individual_text) if individual else ''
         identity=m._hash(key+version+proof_sha)
         if saved.get(graph)==identity:continue
-        # The new path changes only games with individual admissions. Preserve
-        # all other existing player aggregates byte-for-byte on deployment.
-        if (not individual and (saved.get(graph) in
+        # Repair this projection directly from verified SQL participation.
+        # All unchanged calculations and other player aggregates stay intact.
+        if (saved.get(graph)==m._hash(key+PREVIOUS_ZERO_PA_VERSION+proof_sha) or
+                (not individual and (saved.get(graph) in
                 {m._hash(key+v+proof_sha) for v in (PREVIOUS_INDIVIDUAL_VERSION,PREVIOUS_BOUNDARY_VERSION,PREVIOUS_DAMAGE_VERSION)}
-                or (not individual and saved.get(graph)==m._hash(key+PREVIOUS_VERSION)))):
-            with db:db.execute('UPDATE dashboard_player_partition SET input_sha256=? WHERE graph_iri=?',(identity,graph))
+                or saved.get(graph)==m._hash(key+PREVIOUS_VERSION)))):
+            with db:
+                zero_pa_repairs+=db.execute('''UPDATE dashboard_player_metric SET complete=1,aggregate_json=?,reason=NULL
+                    WHERE graph_iri=? AND complete=0 AND metric_id IN ('offensive-reach','hidden-help-rate')
+                    AND player IN (SELECT player FROM dashboard_player_game
+                        WHERE graph_iri=? AND roster_complete=1 AND plate_appearances=0)''',
+                    (m._json(zero()),graph,graph)).rowcount
+                db.execute('UPDATE dashboard_player_partition SET input_sha256=? WHERE graph_iri=?',(identity,graph))
             continue
         rows=m._blocks.read_scope(m._block_api(),db,[graph])
         proofs={}
@@ -294,7 +305,7 @@ def prepare(m, db, checkpoint=None, player_admissions=None):
             db.execute('INSERT OR REPLACE INTO dashboard_player_partition VALUES (?,?)',(graph,identity))
         changed+=1
         if checkpoint and changed%100==0:checkpoint(preparedPlayerGames=changed)
-    return dict(preparedGames=changed,reusedGames=len(inventory)-changed,version=version)
+    return dict(preparedGames=changed,reusedGames=len(inventory)-changed,repairedZeroPARows=zero_pa_repairs,version=version)
 
 
 def query(m, db, request, scope):

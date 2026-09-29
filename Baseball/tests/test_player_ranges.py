@@ -246,6 +246,56 @@ class PlayerRanges(unittest.TestCase):
         individual['plateAppearanceInventoryComplete']=False
         self.assertEqual(P.qualification(M,rows,G+'1',SCOPE,{},individual)['participation'],[])
 
+    def test_zero_pa_batting_averages_do_not_depend_on_other_runners(self):
+        graph=G+'1';game='https://baseballontology.org/data/game/1'
+        rows=[dict(kind='player_team_game',player=U+str(i),graph=graph,game=game,team='team',teamRole='role') for i in (1,2,3)]
+        rows.append(dict(kind='plate_appearance',entity='pa1',graph=graph,game=game,player=U+'1',
+            recognizedBattingResult='true',act='act',paResult='result',paResultType='type',
+            paResultJudgment='judgment',paResultDecision='decision',paResultRecord='record'))
+        individual=dict(rosterComplete=True,plateAppearanceInventoryComplete=True,
+            players=[dict(player=U+str(i),status='withheld' if i==3 else 'admitted') for i in (1,2,3)])
+        participation,records=P.project(M,graph=graph,scope=SCOPE,rows=rows,
+            proofs=dict(batting={},run={},resolution={},players=individual),
+            inputs=dict(contribution={},progress={},defense={}),runs={m:{} for m in P.RUNS},run_people={})
+        self.assertEqual({p[1]:p[3] for p in participation},{U+'1':1,U+'2':0,U+'3':None})
+        by_key={(r[1],r[2]):r for r in records}
+        for metric in ('offensive-reach','hidden-help-rate'):
+            self.assertEqual(by_key[(U+'1',metric)][3],0)
+            self.assertEqual(by_key[(U+'3',metric)][3],0)
+            no_pa=by_key[(U+'2',metric)]
+            self.assertEqual(no_pa[3],1)
+            self.assertEqual(json.loads(no_pa[4]),P.zero())
+        self.assertEqual(by_key[(U+'2','contribution-path-diversity')][3],0)
+
+    def test_zero_pa_migration_preserves_scores_and_repairs_only_known_absences(self):
+        db=self.db()
+        for index in (1,2):
+            db.execute('UPDATE dashboard_player_partition SET input_sha256=? WHERE graph_iri=?',
+                (M._hash('source-'+str(index)+P.PREVIOUS_ZERO_PA_VERSION),G+str(index)))
+        db.execute('UPDATE dashboard_player_game SET plate_appearances=0 WHERE graph_iri=? AND player=?',(G+'1',U+'2'))
+        db.execute('UPDATE dashboard_player_game SET plate_appearances=NULL WHERE player=?',(U+'1',))
+        for metric in ('offensive-reach','hidden-help-rate','tfs'):
+            for player in (U+'1',U+'2'):
+                db.execute('INSERT INTO dashboard_player_metric VALUES (?,?,?,?,?,?)',
+                    (G+'1',player,metric,0,M._json(P.zero()),'COMPLETE_PA_PROGRESS'))
+                db.execute('INSERT INTO dashboard_player_metric VALUES (?,?,?,?,?,?)',
+                    (G+'2',player,metric,1,M._json(dict(kind='mean',sum=M.exact(3),count=4)),None))
+        with patch.object(M._blocks,'read_scope',side_effect=AssertionError('must not reconstruct inputs')), \
+             patch.object(M,'run_kernel',side_effect=AssertionError('must not recalculate games')):
+            migration=P.prepare(M,db)
+        self.assertEqual(migration['preparedGames'],0)
+        self.assertEqual(migration['repairedZeroPARows'],2)
+        for metric in ('offensive-reach','hidden-help-rate'):
+            result=Q.query(M,P,db,dict(metricId=metric),SCOPE)['metric']
+            row,=result['playerResults']
+            self.assertEqual(row['player'],U+'2');self.assertEqual(row['teamGames'],2)
+            self.assertEqual(row['plateAppearances'],4)
+            self.assertEqual(row['aggregate'],dict(kind='mean',sum=M.exact(3),count=4))
+            self.assertEqual(row['value'],M.exact(M.Fraction(3,4)))
+            self.assertEqual(result['rankingCoverage']['excludedPlayers'],1)
+        self.assertEqual(Q.query(M,P,db,dict(metricId='tfs'),SCOPE)['metric']['playerResults'],[])
+        self.assertEqual(P.prepare(M,db)['repairedZeroPARows'],0)
+
     def test_deployment_preserves_unchanged_player_products(self):
         db=self.db()
         for i,version in [(1,P.PREVIOUS_VERSION),(2,P.PREVIOUS_DAMAGE_VERSION)]:

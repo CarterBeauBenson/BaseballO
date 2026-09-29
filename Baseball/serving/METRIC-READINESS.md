@@ -48,6 +48,19 @@ do not infer their deployment from these results.
 
 ## Implemented repairs and retained component evidence
 
+- Full season is now the dashboard default, including invalid or retired URL
+  presets; explicitly selected weeks, months and valid custom ranges remain
+  supported. The served HTML and script match this change. Admission Evidence
+  now orders missing latest-season rosters first, then unverified individual
+  batting checks, then other season work. It uses the same admission constraints.
+- Offensive Reach and Help Without Advancing no longer require runner-resolution
+  evidence for a player with a verified zero-PA game. That game contributes zero
+  observations, while unknown PA counts remain withheld. NiFi migrates only the
+  affected prepared SQL rows when inputs match; no RDF query or game calculation
+  is required. The last published season contains 993 affected records per metric
+  across 31 games (529 distinct players). A read-only impact check found no new
+  complete season batting records from this repair alone: other exclusions remain.
+  This SQL correction awaits normal publication.
 - The four percentile metrics now have NiFi-prepared exact player/game totals
   and counts for each complete historical reference. Range reads combine those
   products without decoding PA histories or recomputing ranks. Focused comparison
@@ -82,7 +95,8 @@ do not infer their deployment from these results.
   calculation and making no RDF query. This is component evidence; live card
   coverage must be read from a subsequent published dashboard.
 
-- The page defaults to seven days and preserves valid custom date ranges;
+- The page defaults to the full latest loaded season and preserves explicitly
+  selected week, month and valid custom date ranges;
   it no longer offers a latest-day preset or a single-day example as its entry
   point. The API continues accepting explicit one-day requests for compatibility.
 - The analytical timestamp reader accepts Jena's shortened fractional seconds
@@ -178,7 +192,8 @@ worker ownership; [build reuse](BUILD-REUSE.md) describes invalidation.
    retain their precise within-turn replacement issues.
 2. The September 29 repair separates existing B1/E1 roster checks and individual
    B1 player checks from whole-game admissions. NiFi's existing Admission Evidence
-   worker prioritizes the remaining 28 roster gaps and the latest week. It reads
+   worker prioritizes missing rosters and unverified individual batting checks
+   across the full latest season, ahead of already checked games. It reads
    retained censuses or quarantined inputs and validates the **existing graph**.
    A later source response retains a distinct validation hash; it never becomes
    the promotion's original input. Original admissions stay unchanged.
@@ -204,6 +219,14 @@ worker ownership; [build reuse](BUILD-REUSE.md) describes invalidation.
    These independent gaps do not authorize a corpus rebuild. Percentile cards
    still need the complete reference season; the sole saved Recovery reference
    has only 34 observations at an early cutoff and cannot rank the full season.
+
+The full-season priority diagnosis of the 11:16 publication found 274 games with
+withheld whole-game B1: 95 already had individual player checks, one had a failed
+PA inventory, and 178 had no individual check in that published SQL. Of those
+178, 108 reported missing or stale B1 proof; the rest include actual graph,
+replacement, result and PA-count issues. These are publication-time counts, not
+a claim that NiFi has not subsequently checked them. The source-owned worker
+continues independently, and prepared SQL catches up at its next publication.
 
 The user's September 29 instruction explicitly prohibits rebuilding the database.
 This repair does not acquire API responses, run RML, replace game graphs, clear
@@ -290,7 +313,7 @@ count qualified players after the approved participation minimums. The
 
 `GET /health/ready` keeps reporting **service** readiness and includes the same
 coverage report for its explicit one-day service probe. The dashboard itself
-defaults to seven days and preserves the user's range. A healthy service may have
+defaults to the full latest loaded season and preserves the user's range. A healthy service may have
 an unready dashboard. A complete period with no qualifying players is distinct
 from missing evidence; it does not justify lowering the minimum.
 

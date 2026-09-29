@@ -15,6 +15,7 @@ from datetime import datetime, timezone
 from types import SimpleNamespace
 import sqlite3
 import time
+from contextlib import closing
 
 HERE=Path(__file__).resolve().parent
 ROOT=HERE.parents[2]
@@ -265,18 +266,31 @@ def refresh_game(state,promotion,java,classpath,endpoint='http://127.0.0.1:3031/
     return dict(result,status='refreshed')
 
 
-def latest_dashboard_games(state):
-    """The viewer's default seven-day range first, using its SQL dimension."""
+def dashboard_game_priorities(state):
+    """Repair missing season qualification before unrelated maintenance.
+
+    SQL identifies the backlog; existing source-owned checks still decide
+    admission. A completed individual check is not retried merely because
+    another player in that game remains withheld.
+    """
     pointer=Path(state)/'serving/dashboard-current.json'
-    if not pointer.is_file():return set()
+    if not pointer.is_file():return {}
     database=Path(read(pointer)['databasePath'])
     if not database.resolve().is_relative_to((Path(state)/'serving/dashboard/builds').resolve()):
         raise ValueError('Dashboard priority database escaped its owner')
-    with sqlite3.connect(database.as_uri()+'?mode=ro',uri=True) as connection:
-        priority={r[0] for r in connection.execute("SELECT game_pk FROM game_dimension WHERE game_set='regular_season' "
-            "AND official_date>=date((SELECT max(official_date) FROM game_dimension WHERE game_set='regular_season'),'-6 days')")}
-        priority.update(r[0] for r in connection.execute("SELECT game_pk FROM game_dimension g LEFT JOIN dashboard_player_game p USING(graph_iri) "
-            "WHERE game_set='regular_season' GROUP BY g.graph_iri HAVING MAX(COALESCE(p.roster_complete,0))=0"))
+    with closing(sqlite3.connect(database.as_uri()+'?mode=ro',uri=True)) as connection:
+        player_version=PLAYER_PARTICIPATION.fingerprint()
+        priority={r[0]:2 for r in connection.execute("SELECT game_pk FROM game_dimension WHERE game_set='regular_season' "
+            "AND season=(SELECT max(season) FROM game_dimension WHERE game_set='regular_season')")}
+        for pk,batting,individual in connection.execute('''SELECT g.game_pk,
+                json_extract(b.proof_json,'$.status'),json_extract(a.proof_json,'$.implementationSha256')
+                FROM game_dimension g LEFT JOIN metric_suite_admission b USING(graph_iri)
+                LEFT JOIN dashboard_player_admission a USING(graph_iri)
+                WHERE g.game_set='regular_season' '''):
+            if pk in priority and batting!='admitted' and individual!=player_version:priority[pk]=1
+        for pk, in connection.execute("SELECT game_pk FROM game_dimension g LEFT JOIN dashboard_player_game p USING(graph_iri) "
+                "WHERE game_set='regular_season' GROUP BY g.graph_iri HAVING MAX(COALESCE(p.roster_complete,0))=0"):
+            if pk in priority:priority[pk]=0
         return priority
 
 
@@ -285,9 +299,9 @@ def tick(state,java,classpath,limit=100,endpoint='http://127.0.0.1:3031/baseball
     versions={family:module(HERE/(family+'-admission.py'),'version_'+family.replace('-','_')).fingerprint() for family in FIELDS}
     version=hashlib.sha256(json.dumps(versions,sort_keys=True).encode()+fingerprint().encode()).hexdigest()
     outcomes=[];started=time.monotonic();refreshed_games=0
-    priority=latest_dashboard_games(state)
+    priority=dashboard_game_priorities(state)
     for directory in sorted((Path(state)/'pipeline/evidence/nifi/game-promotion').glob('*'),
-            key=lambda p:(p.name not in priority,p.name)):
+            key=lambda p:(priority.get(p.name,3),p.name)):
         if not directory.is_dir() or not directory.name.isdigit(): continue
         candidates=[(read(path).get('promotedAtUtc',''),path.name,path) for path in directory.glob('*.json')]
         if not candidates: continue

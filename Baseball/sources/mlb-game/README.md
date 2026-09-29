@@ -108,6 +108,13 @@ refresh limitation, not evidence that the authoritative Fuseki graph is
 missing. The worker never reacquires, maps or promotes RDF, and never relabels
 an old fingerprint as current.
 
+The dashboard defaults to the full latest loaded season. Admission Evidence
+prioritizes that season's missing game rosters, then games whose withheld batting
+admission has no current individual-player check, before other season and older
+work. This changes scheduling only; the existing source and SHACL checks still
+decide which records can be used. Already checked players remain distinct from
+unchecked players even when their whole-game admission is withheld.
+
 The Q5 edit changed only `batter_participation_context` in the shared context
 file. Runner-resolution, pitch-count and defensive proof code does not call
 that definition, directly or transitively. Their exact pre/post implementation

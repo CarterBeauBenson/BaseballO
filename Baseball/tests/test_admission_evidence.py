@@ -7,6 +7,8 @@ from pathlib import Path
 import tempfile
 import unittest
 import subprocess
+import sqlite3
+from contextlib import closing
 from types import SimpleNamespace
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -23,6 +25,29 @@ def current_implementation(family, entry):
 
 
 class AdmissionEvidence(unittest.TestCase):
+    def test_season_priority_repairs_early_missing_qualification_before_recent_checked_games(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);database=state/'serving/dashboard/builds/current.sqlite'
+            database.parent.mkdir(parents=True)
+            with closing(sqlite3.connect(database)) as db, db:
+                db.executescript('''CREATE TABLE game_dimension(graph_iri TEXT,game_pk TEXT,game_set TEXT,season INTEGER);
+                    CREATE TABLE metric_suite_admission(graph_iri TEXT,proof_json TEXT);
+                    CREATE TABLE dashboard_player_admission(graph_iri TEXT,proof_json TEXT);
+                    CREATE TABLE dashboard_player_game(graph_iri TEXT,roster_complete INTEGER);''')
+                for pk,season in [('100',2025),('101',2026),('102',2026),('103',2026),('104',2026)]:
+                    db.execute('INSERT INTO game_dimension VALUES (?,?,?,?)',('g'+pk,pk,'regular_season',season))
+                    db.execute('INSERT INTO metric_suite_admission VALUES (?,?)',('g'+pk,json.dumps(dict(status='withheld'))))
+                    if pk!='104':db.execute('INSERT INTO dashboard_player_game VALUES (?,1)',('g'+pk,))
+                db.execute('INSERT INTO dashboard_player_admission VALUES (?,?)',('g102',json.dumps(
+                    dict(implementationSha256=E.PLAYER_PARTICIPATION.fingerprint()))))
+                db.execute('UPDATE metric_suite_admission SET proof_json=? WHERE graph_iri=?',
+                    (json.dumps(dict(status='admitted')),'g103'))
+            E.atomic(state/'serving/dashboard-current.json',dict(databasePath=str(database)))
+            priority=E.dashboard_game_priorities(state)
+            self.assertEqual(sorted(priority,key=lambda pk:(priority[pk],pk)),['104','101','102','103'])
+            self.assertNotIn('100',priority)
+            self.assertEqual(priority['102'],priority['103'])
+
     def test_prior_admitted_clock_proofs_have_identical_checks_when_source_issues_are_empty(self):
         record=E.read(E.COMPATIBILITY_PATH)['priorClockIsolation']
         def old(path):

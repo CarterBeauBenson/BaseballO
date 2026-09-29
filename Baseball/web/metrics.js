@@ -83,7 +83,7 @@ function renderExamples() {
 export function selectionFromUrl(url) {
   const p = new URL(url).searchParams, preset = p.get('preset'), gameSet = p.get('gameSet');
   const validDate = value => /^\d{4}-\d{2}-\d{2}$/.test(value ?? '') && Number.isFinite(Date.parse(value)) && new Date(value).toISOString().slice(0, 10) === value;
-  const selection = { preset: ['seven_days','thirty_days','season_to_date'].includes(preset) ? preset : 'seven_days',
+  const selection = { preset: ['seven_days','thirty_days','season_to_date'].includes(preset) ? preset : 'season_to_date',
     gameSet: gameSet === 'all_star' ? gameSet : 'regular_season' };
   if (preset === 'custom' && validDate(p.get('startDate')) && validDate(p.get('endDate')) && p.get('startDate') <= p.get('endDate')) {
     Object.assign(selection, { preset, startDate: p.get('startDate'), endDate: p.get('endDate') });

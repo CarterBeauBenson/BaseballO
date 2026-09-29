@@ -142,6 +142,13 @@ metric key supports counting matched games; any unexpected game is still an
 explicit completeness failure, even when the counts match. The same query
 supports expanded single-metric details without changing their period.
 
+Known zero-PA games contribute no observations to Offensive Reach and Help
+Without Advancing. They do not require runner-resolution evidence for those
+batting averages. The player producer repairs matching previous partitions
+directly from verified SQL participation and preserves all other aggregates.
+Unknown PA counts and running metrics keep their own requirements. The migration
+reports `repairedZeroPARows` and does not reread RDF or recalculate game kernels.
+
 The independent player admission refresh validates existing B1/E1 roster and B1
 player constraints against the promoted graph without rerunning RML. Original
 whole-game admissions are retained. Its separate proof is stored in
