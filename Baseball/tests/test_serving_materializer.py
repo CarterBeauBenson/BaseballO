@@ -583,6 +583,7 @@ class ServingMaterializerTests(unittest.TestCase):
             state = Path(temporary)
             marker = make_promotion(state, '1', B966)
             retained = MODULE._promotion_inventory.retain_game_artifacts(state, '1')
+            MODULE.promotion_inventory(state)  # Warm the per-process hash cache.
             for name in retained:
                 path = Path(name)
                 raw = path.read_bytes()
@@ -591,8 +592,21 @@ class ServingMaterializerTests(unittest.TestCase):
                     with self.assertRaises(ValueError):
                         MODULE.promotion_inventory(state)
                     path.write_bytes(raw)
+                    MODULE.promotion_inventory(state)
             marker.unlink()
             with self.assertRaisesRegex(ValueError, 'No valid per-game promotion'):
+                MODULE.promotion_inventory(state)
+
+    def test_replaced_index_with_preserved_size_and_mtime_invalidates_retained_hash(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            state=Path(temporary);make_promotion(state,'1',B966)
+            retained=MODULE._promotion_inventory.retain_game_artifacts(state,'1')
+            MODULE.promotion_inventory(state)
+            path=next(Path(p) for p in retained if Path(p).suffix=='.nt')
+            raw=path.read_bytes();original=path.stat();replacement=path.with_suffix('.replacement')
+            replacement.write_bytes(bytes([raw[0]^1])+raw[1:])
+            os.utime(replacement,ns=(original.st_atime_ns,original.st_mtime_ns));os.replace(replacement,path)
+            with self.assertRaisesRegex(ValueError,'local artifact hash mismatch'):
                 MODULE.promotion_inventory(state)
 
     def test_inventory_does_not_admit_staged_rml_when_promoted_index_manifest_changed(self) -> None:

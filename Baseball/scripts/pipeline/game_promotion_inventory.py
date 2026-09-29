@@ -21,6 +21,7 @@ INDEX_RESOURCE_PREFIX = "https://w3id.org/baseball/query-index-build/game/"
 QUERY_INDEX_ROUTING = ROOT / "sparql" / "query-index" / "operational-query-routing.json"
 QUERY_INDEX_SEMANTIC_CONTRACT = ROOT / "sparql" / "query-index" / "semantic-contract.json"
 SUPPORTED_QUERY_INDEX_CONTRACT_VERSION = 1
+_FILE_HASHES = {}
 
 
 def sha256_bytes(value: bytes) -> str:
@@ -28,11 +29,27 @@ def sha256_bytes(value: bytes) -> str:
 
 
 def sha256_file(path: Path) -> str:
-    digest = hashlib.sha256()
+    # Initial and final inventory reads often name the same immutable index
+    # artifacts. Retain hashes only for this process and unchanged open-file
+    # identities; each new NiFi invocation starts with an empty cache.
+    def identity(handle):
+        stat=os.fstat(handle.fileno())
+        return (stat.st_dev,stat.st_ino,stat.st_size,stat.st_mtime_ns,stat.st_ctime_ns)
+    key=str(path.resolve())
     with path.open("rb") as source:
-        for chunk in iter(lambda: source.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
+        before=identity(source)
+        cached=_FILE_HASHES.get(key)
+        if cached is not None and cached[0]==before:
+            value=cached[1]
+        else:
+            digest=hashlib.sha256()
+            for chunk in iter(lambda: source.read(1024 * 1024), b""):
+                digest.update(chunk)
+            value=digest.hexdigest()
+        if identity(source)!=before:raise ValueError('Promotion artifact changed while hashing: '+str(path))
+    if len(_FILE_HASHES)>=16384:_FILE_HASHES.clear()
+    _FILE_HASHES[key]=(before,value)
+    return value
 
 
 def json_object(path: Path) -> dict[str, Any]:

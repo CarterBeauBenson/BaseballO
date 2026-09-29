@@ -50,6 +50,10 @@ on 0-100 for PAQ, the selected season's eligible regular-season PA reference,
 averages over the selected period except Empty Games as a count, automatic
 batting qualification of 3.1 PA per team game, role-appropriate other minimums,
 separate review mechanisms and backend-only Role Realization Breadth.
+The September 28 decision also permits individually complete player records
+when other players have gaps. Exclude an affected player's entire selected-range
+record and disclose coverage; retain full season-reference requirements and
+the existing participation minima. The range must never shrink silently.
 
 Completed prerequisites include the independent dashboard builder, prepared
 player names and historical ranks, reusable game products, resumable SQL

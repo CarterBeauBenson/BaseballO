@@ -78,6 +78,12 @@ a source graph count or a successful component test.
   Its 114 raw rows include one null placeholder that the mapping does not select;
   the 113 selected records passed the existing checks. NiFi retried only this
   retained failed input. No mapping, ontology or corpus rebuild was needed.
+- The retained B1 repair now recognizes the accepted Q7 context version.
+  Its missing version entry previously prevented matching single-batter
+  censuses from reaching the unchanged B1 SHACL. Games 822760, 823165, 823411
+  and 823733 subsequently passed that validation in NiFi. The remaining
+  default-range candidates are prioritized by the existing maintenance worker;
+  an applicable retained census is not itself a claim of admitted evidence.
 
 The complete earlier diagnosis and dated build history are retained in the
 [September 23 history](../archive/operational-history/2026-09-23/METRIC-READINESS.md).
@@ -99,7 +105,17 @@ worker ownership; [build reuse](BUILD-REUSE.md) describes invalidation.
 3. Resolve the precise count and PA-boundary cases and the defensive/review
    populations below. These independent gaps do not authorize a corpus rebuild.
 
-### Specific remaining count and review evidence
+### Specific remaining batting, count and review evidence
+
+The September 21–27 B1 conformance failures for games 823327 / PA 46,
+823489 / PA 6, 824301 / PA 40, 824302 / PA 17 and 824866 / PA 42 share one
+precise mismatch: the retained source census expects `StrikeoutProcess` for
+`strikeout_double_play`, while the promoted result is typed only as
+`BaseballInstitutionalProcess`. The existing B1 reports reject the result
+membership and affected player's PA count. This is mapping coverage debt;
+there is source evidence. It is not repaired by inventing a statistical PA
+in SQL or typing a composite whole from one of its parts. Other interrupted
+turns in those games remain distinct from official completed PAs.
 
 These retained pitch-count censuses reconcile without source issues. Their
 Jena reports identify absent counted-foul Strike Processes:
@@ -142,7 +158,8 @@ count qualified players after the approved participation minimums. The
 - `cards`: each metric's row count, population state and remaining gap codes.
 
 `GET /health/ready` keeps reporting **service** readiness and includes the same
-coverage report for its default seven-day selection. A healthy service may have
+coverage report for its explicit one-day service probe. The dashboard itself
+defaults to seven days and preserves the user's range. A healthy service may have
 an unready dashboard. A complete period with no qualifying players is distinct
 from missing evidence; it does not justify lowering the minimum.
 

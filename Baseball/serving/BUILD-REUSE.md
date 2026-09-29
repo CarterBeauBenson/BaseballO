@@ -109,6 +109,12 @@ producer aborts before publication. Each game's proof, promotion identity and
 retained evidence hashes are still checked individually. Progress distinguishes
 source capture from input refresh so saved calculation work remains visible.
 
+Promotion inventory also reuses each artifact's hash within the same process
+while its open-file identity, size and timestamps match. Replacements or edits
+require hashing again. The cache is bounded and expires when the NiFi command
+exits; the next invocation verifies the bytes afresh. This avoids rereading
+unchanged index files for both inventory captures and final publication checks.
+
 The materializer retains disposable per-game SPARQL SELECT answers in
 `serving/query-cache.sqlite`. NiFi still runs the accepted full candidate
 validation and atomic pointer promotion. This cache is not an admission proof,
