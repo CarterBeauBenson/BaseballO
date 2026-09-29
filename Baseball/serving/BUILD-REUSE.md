@@ -11,6 +11,10 @@ and expanded metric responses are checked for equality in the component test.
 The snapshot keeps SQL constraints and indexes; mutable producer triggers remain
 in the working database. Publication records both logical file sizes. No source,
 graph, retained binding or existing working checkpoint is rebuilt or removed.
+The SQL integrity scan runs on that prepared snapshot; it is not repeated over
+the much larger working store. Copying enforces the snapshot's SQL constraints,
+while each changed calculation keeps its existing binding/checksum checks.
+Publication progress distinguishes the source check, snapshot copy and digest.
 
 Independent PA admission reuses the existing C1/C2 constraints with one target
 per PA. Each target still requires every runner history in its half-inning;

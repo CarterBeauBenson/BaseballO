@@ -520,11 +520,12 @@ def build_locked(args, state, serving, work):
         input_set = digest(dict(games=expected, coverage=coverage_sha, calculation=calculation,
                                playerAdmissions={g:p['proofSha256'] for g,p in player_admissions.items() if p},
                                playerRanges=PLAYER_RANGES.fingerprint()))
-        checkpoint(phase='publication')
+        checkpoint(phase='publication',publicationStep='source-check')
         if dict(connection.execute('SELECT graph_iri,input_sha256 FROM dashboard_checkpoint')) != expected:
             raise ValueError('Dashboard checkpoints do not match the selected source snapshot')
-        if connection.execute('PRAGMA quick_check').fetchone()[0] != 'ok' or connection.execute('PRAGMA foreign_key_check').fetchall():
-            raise ValueError('Dashboard SQL integrity failed')
+        # The prepared snapshot enforces SQL constraints during copying and
+        # receives the integrity check below. Do not also scan build-only raw
+        # bindings and duplicated results on every small publication update.
         # Existing final source check remains at publication, never on HTTP.
         final_snapshot = SOURCE.corpus_snapshot(state, args.endpoint, args.timeout, args.max_games)
         if final_snapshot['fingerprint'] != snapshot['fingerprint']:
@@ -536,7 +537,9 @@ def build_locked(args, state, serving, work):
         # The older report builder's retention job cannot touch this product.
         (work/'builds').mkdir(exist_ok=True)
         published = work/'builds'/(build_id+'.sqlite')
+        checkpoint(publicationStep='prepared-snapshot')
         publication=publish_snapshot(database,published)
+        checkpoint(publicationStep='snapshot-digest',publication=publication)
         sha = SOURCE.sha256_file(published)
         SOURCE._reader.write_database_verification_cache(
             SOURCE._reader.database_verification_cache_path(serving,sha), sha, published, SOURCE._reader.file_identity(published))
