@@ -2,6 +2,8 @@
 import copy
 import importlib.util
 import unittest
+from unittest.mock import patch
+import tempfile
 from pyshacl import validate
 from rdflib import Graph,Namespace,RDF,URIRef
 from pathlib import Path
@@ -61,6 +63,25 @@ class PaResolution(unittest.TestCase):
         extra=copy.deepcopy(source['resolution']['resolutions'][0]);extra['pa']='urn:unknown-turn'
         source['resolution']['resolutions'].append(extra)
         self.assertEqual(self.outcomes(graph,source),dict.fromkeys(pas,'withheld'))
+
+    def test_later_retained_witness_keeps_its_distinct_source_identity(self):
+        from test_admission_evidence import E
+        raw=(ROOT/'data/raw/game-566279.json').read_bytes()
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp);source_path=root/'retained.json';source_path.write_bytes(raw)
+            proof_path=root/'c2.json';E.atomic(proof_path.with_suffix('.source.json'),P.R.census(raw,'566279'))
+            witness=dict(kind='retained-source-response',path=str(source_path),sha256=E.sha(source_path))
+            proof=dict(sourceSha256=witness['sha256'],retainedSourceEvidence=witness)
+            promotion=dict(gamePk='566279',rawSha256='different-original-input')
+            with patch.object(E,'checked_marker',return_value={}), \
+                 patch.object(E.EXISTING_GRAPH,'load',return_value=proof), \
+                 patch.object(E.EXISTING_GRAPH,'path_for',return_value=proof_path):
+                source,_=P.retained_source(E,root,promotion)
+                self.assertEqual(source['resolution']['sourceSha256'],witness['sha256'])
+                self.assertEqual(source['batting']['sourceSha256'],witness['sha256'])
+                self.assertNotEqual(source['batting']['sourceSha256'],promotion['rawSha256'])
+                source_path.write_bytes(raw+b' ')
+                with self.assertRaisesRegex(ValueError,'witness changed'):P.retained_source(E,root,promotion)
 
 
 if __name__=='__main__':unittest.main()

@@ -262,7 +262,7 @@ def reuse_game(connection, graph, saved, promotion, dimension, admissions, calcu
             for version in (PLAYER_RANGES.fingerprint(),PLAYER_RANGES.PREVIOUS_VERSION,
                             PLAYER_RANGES.PREVIOUS_INDIVIDUAL_VERSION,PLAYER_RANGES.PREVIOUS_BOUNDARY_VERSION,
                             PLAYER_RANGES.PREVIOUS_DAMAGE_VERSION,PLAYER_RANGES.PREVIOUS_ZERO_PA_VERSION,
-                            PLAYER_RANGES.PREVIOUS_RESOLUTION_VERSION):
+                            PLAYER_RANGES.PREVIOUS_RESOLUTION_VERSION,PLAYER_RANGES.PREVIOUS_SCOPED_RESOLUTION_VERSION):
                 if partition and partition[0]==METRICS._hash(saved+version+proof_sha):
                     connection.execute('UPDATE dashboard_player_partition SET input_sha256=? WHERE graph_iri=?',
                         (METRICS._hash(identity+version+proof_sha),graph))

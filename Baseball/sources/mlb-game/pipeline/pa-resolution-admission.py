@@ -26,6 +26,17 @@ def proof_path(evidence,state,promotion):
 
 def retained_source(evidence,state,promotion):
     marker=evidence.checked_marker(promotion)
+    independent=evidence.EXISTING_GRAPH.load(evidence,state,promotion,'runner-resolution',R)
+    if independent is not None:
+        path=evidence.EXISTING_GRAPH.path_for(evidence,state,promotion,'runner-resolution',R)
+        census=path.with_suffix('.source.json');witness=independent['retainedSourceEvidence']
+        raw=Path(witness['path']).read_bytes()
+        if R.B.sha(raw)!=witness['sha256'] or witness['sha256']!=independent['sourceSha256']:
+            raise ValueError('Scoped resolution validation witness changed')
+        # Keep the later witness's identity; it is never called the original
+        # promotion input. Its PA inventory uses the existing B1 census code.
+        return dict(resolution=evidence.read(census),batting=R.B.census(raw,promotion['gamePk'])),[
+            dict(path=str(census),sha256=evidence.sha(census)),witness]
     path=Path(marker.get('runnerResolutionAdmission',''))
     owner=(Path(state)/'pipeline/evidence/mlb-game'/promotion['gamePk']).resolve()
     if not path.is_file():return None
@@ -98,11 +109,14 @@ def load(evidence,state,promotion):
     proof=evidence.read(path)
     expected=dict(artifactType='baseballo-pa-resolution-admission',contractVersion=1,
         gamePk=promotion['gamePk'],graph=promotion['authoritativeGraph'],
-        sourceSha256=promotion['rawSha256'],authoritativeRdfSha256=promotion['authoritativeRdfSha256'],
+        promotionSourceSha256=promotion['rawSha256'],authoritativeRdfSha256=promotion['authoritativeRdfSha256'],
         implementationSha256=fingerprint())
     if any(proof.get(k)!=v for k,v in expected.items()):raise ValueError('Scoped resolution belongs to another input')
     for suffix,key in (('.source.json','sourceCensusSha256'),('.shapes.ttl','shapeSha256'),('.report.ttl','reportSha256')):
         if evidence.sha(path.with_suffix(suffix))!=proof.get(key):raise ValueError('Scoped resolution artifact changed')
+    source=evidence.read(path.with_suffix('.source.json'))
+    if any(source[k].get('sourceSha256')!=proof.get('sourceSha256') or source[k].get('gamePk')!=promotion['gamePk']
+            for k in ('resolution','batting')):raise ValueError('Scoped resolution source identities changed')
     evidence.checked_marker(promotion)
     return dict(proof,proofSha256=record['proofSha256'])
 
@@ -143,7 +157,8 @@ def prove(evidence,state,promotion,retained,java,classpath,endpoint):
     evidence.atomic(output.with_suffix('.source.json'),source)
     report_path=output.with_suffix('.report.ttl');report.serialize(destination=report_path,format='turtle')
     proof=dict(artifactType='baseballo-pa-resolution-admission',contractVersion=1,gamePk=promotion['gamePk'],
-        graph=promotion['authoritativeGraph'],sourceSha256=promotion['rawSha256'],
+        graph=promotion['authoritativeGraph'],promotionSourceSha256=promotion['rawSha256'],
+        sourceSha256=source['resolution']['sourceSha256'],
         authoritativeRdfSha256=promotion['authoritativeRdfSha256'],validationExportSha256=export_sha,
         implementationSha256=version,engine='jena',retainedSourceEvidence=witnesses,
         sourceCensusSha256=evidence.sha(output.with_suffix('.source.json')),shapeSha256=evidence.sha(shapes),

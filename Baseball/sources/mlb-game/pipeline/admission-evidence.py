@@ -307,6 +307,10 @@ def dashboard_game_priorities(state):
                 LEFT JOIN dashboard_player_admission a USING(graph_iri)
                 WHERE g.game_set='regular_season' '''):
             if pk in priority and batting!='admitted' and individual!=player_version:priority[pk]=1
+        for pk, in connection.execute('''SELECT g.game_pk FROM game_dimension g
+                JOIN metric_suite_runner_resolution_admission r USING(graph_iri)
+                WHERE g.game_set='regular_season' AND json_extract(r.proof_json,'$.status')!='admitted' '''):
+            if pk in priority:priority[pk]=1
         for pk, in connection.execute("SELECT game_pk FROM game_dimension g LEFT JOIN dashboard_player_game p USING(graph_iri) "
                 "WHERE game_set='regular_season' GROUP BY g.graph_iri HAVING MAX(COALESCE(p.roster_complete,0))=0"):
             if pk in priority:priority[pk]=0

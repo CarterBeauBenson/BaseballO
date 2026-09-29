@@ -22,6 +22,7 @@ PREVIOUS_BOUNDARY_VERSION = 'dbb26a1f1e64c9f38dea522450e509e51de3024d8bbf6e2c9bd
 PREVIOUS_DAMAGE_VERSION = '8412c64bdfcb34b4f464e4f96e2850bedfd6d1846918882314b52658ca91ebb0'
 PREVIOUS_ZERO_PA_VERSION = '498a19c02d51b88a7418616934719d37808ab7c5100c7bfd5cfda29d9ccb0518'
 PREVIOUS_RESOLUTION_VERSION = 'b47cf2b52df6240514ef87cd795ba953881f4af7a7393f849757bd685a4655eb'
+PREVIOUS_SCOPED_RESOLUTION_VERSION = 'ec4104bc6b33774dd4a5a2d1b6700300c31efb054d49a1fa2a28320fd89c63e6'
 
 
 def fingerprint():
@@ -153,6 +154,7 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people):
         affected=pa.get('possiblePositivePlayers')
         affected=set(roster) if affected is None else set(affected)
         positive.update(pa.get('confirmedPositivePlayers',[]))
+        if pa['plateAppearance'] in resolved:certain_positive.update(pa.get('confirmedPositivePlayers',[]))
         uncertain.update(affected);mix_uncertain.update(affected)
     classified={p['plateAppearance']:p for p in
                 [*progress.get('plateAppearances',[]),*progress.get('unresolvedPlateAppearances',[])]
@@ -258,7 +260,8 @@ def prepare(m, db, checkpoint=None, player_admissions=None):
         individual_text=m._json(individual);proof_sha=m._hash(individual_text) if individual else ''
         identity=m._hash(key+version+proof_sha)
         if saved.get(graph)==identity:continue
-        if not individual.get('paResolutions') and saved.get(graph)==m._hash(key+PREVIOUS_RESOLUTION_VERSION+proof_sha):
+        if not individual.get('paResolutions') and saved.get(graph) in {
+                m._hash(key+v+proof_sha) for v in (PREVIOUS_RESOLUTION_VERSION,PREVIOUS_SCOPED_RESOLUTION_VERSION)}:
             with db:db.execute('UPDATE dashboard_player_partition SET input_sha256=? WHERE graph_iri=?',(identity,graph))
             continue
         # Repair this projection directly from verified SQL participation.

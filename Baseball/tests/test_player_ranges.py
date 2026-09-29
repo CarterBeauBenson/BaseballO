@@ -225,6 +225,17 @@ class PlayerRanges(unittest.TestCase):
                 self.assertEqual(json.loads(isolated[(U+'1','empty-game-rate')][4]),dict(kind='count',count=0,eligibleGames=1))
         individual=dict(rosterComplete=True,plateAppearanceInventoryComplete=True,
             players=[dict(player=U+'1',status='admitted'),dict(player=U+'2',status='withheld')])
+        partial=dict(plateAppearances=[],unresolvedPlateAppearances=[
+            dict(graph=graph,game=game,plateAppearance='pa1',player=U+'1',officialResult=True,
+                 confirmedPositivePlayers=[U+'1'],possiblePositivePlayers=[U+'2'],gaps=['UNRESOLVED_PROGRESS_ATTRIBUTION']),
+            *progress['unresolvedPlateAppearances']])
+        scoped['paResolutions']['plateAppearances'][0]['status']='admitted'
+        _,isolated=P.project(M,graph=graph,scope=SCOPE,rows=rows,
+            proofs=dict(batting=proof,run=proof,resolution={},players=scoped),
+            inputs=dict(contribution={},progress=partial,defense={}),runs=runs,run_people={'run2':{U+'2'}})
+        isolated={(r[1],r[2]):r for r in isolated}
+        self.assertEqual(isolated[(U+'1','empty-game-rate')][3],1)
+        self.assertEqual(isolated[(U+'1','offensive-reach')][3],0)
         progress['plateAppearances'][0].update(reach=0,batterPositive=False,positiveChannels=[])
         for affected,expected_complete in [([U+'2'],1),([U+'1',U+'2'],0)]:
             progress['unresolvedPlateAppearances'][0]['possiblePositivePlayers']=affected
@@ -299,9 +310,9 @@ class PlayerRanges(unittest.TestCase):
 
     def test_resolution_extension_reuses_unchanged_player_partitions(self):
         db=self.db()
-        for i in (1,2):
+        for i,v in ((1,P.PREVIOUS_RESOLUTION_VERSION),(2,P.PREVIOUS_SCOPED_RESOLUTION_VERSION)):
             db.execute('UPDATE dashboard_player_partition SET input_sha256=? WHERE graph_iri=?',
-                (M._hash('source-'+str(i)+P.PREVIOUS_RESOLUTION_VERSION),G+str(i)))
+                (M._hash('source-'+str(i)+v),G+str(i)))
         with patch.object(M._blocks,'read_scope',side_effect=AssertionError('no unchanged projection')):
             result=P.prepare(M,db)
         self.assertEqual((result['preparedGames'],result['reusedGames']),(0,2))

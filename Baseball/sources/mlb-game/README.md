@@ -115,7 +115,9 @@ as current.
 When a whole-game runner-resolution check fails, the same worker can apply its
 existing membership, participant and endpoint constraints to individual PAs.
 `pa-resolution-admission.py` reuses the retained source census and the existing
-promoted graph. The registered `pa-resolution-admission.ttl` changes the target
+promoted graph. A retained later response can use the existing graph-validation
+census; its validation source hash stays distinct from the original promotion
+input. The registered `pa-resolution-admission.ttl` changes the target
 scope only. Unknown source-wide issues still block every PA; a bad PA cannot
 admit its own progress. These receipts supplement the unchanged whole-game
 proof and do not assert completeness of attribution, history order or TFS.
@@ -125,7 +127,8 @@ Unchanged game calculations and player partitions remain reusable.
 
 The dashboard defaults to the full latest loaded season. Admission Evidence
 prioritizes that season's missing game rosters, then games whose withheld batting
-admission has no current individual-player check, before other season and older
+admission has no current individual-player check and failed runner-resolution
+populations, before other season and older
 work. This changes scheduling only; the existing source and SHACL checks still
 decide which records can be used. Already checked players remain distinct from
 unchecked players even when their whole-game admission is withheld.

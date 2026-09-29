@@ -32,6 +32,7 @@ class AdmissionEvidence(unittest.TestCase):
             with closing(sqlite3.connect(database)) as db, db:
                 db.executescript('''CREATE TABLE game_dimension(graph_iri TEXT,game_pk TEXT,game_set TEXT,season INTEGER);
                     CREATE TABLE metric_suite_admission(graph_iri TEXT,proof_json TEXT);
+                    CREATE TABLE metric_suite_runner_resolution_admission(graph_iri TEXT,proof_json TEXT);
                     CREATE TABLE dashboard_player_admission(graph_iri TEXT,proof_json TEXT);
                     CREATE TABLE dashboard_player_game(graph_iri TEXT,roster_complete INTEGER);''')
                 for pk,season in [('100',2025),('101',2026),('102',2026),('103',2026),('104',2026)]:
@@ -47,6 +48,11 @@ class AdmissionEvidence(unittest.TestCase):
             self.assertEqual(sorted(priority,key=lambda pk:(priority[pk],pk)),['104','101','102','103'])
             self.assertNotIn('100',priority)
             self.assertEqual(priority['102'],priority['103'])
+            with closing(sqlite3.connect(database)) as db, db:
+                db.execute('INSERT INTO metric_suite_runner_resolution_admission VALUES (?,?)',
+                    ('g103',json.dumps(dict(status='withheld'))))
+            priority=E.dashboard_game_priorities(state)
+            self.assertEqual(sorted(priority,key=lambda pk:(priority[pk],pk)),['104','101','103','102'])
 
     def test_prior_admitted_clock_proofs_have_identical_checks_when_source_issues_are_empty(self):
         record=E.read(E.COMPATIBILITY_PATH)['priorClockIsolation']
