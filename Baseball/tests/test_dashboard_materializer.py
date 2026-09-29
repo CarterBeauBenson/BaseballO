@@ -3,6 +3,7 @@ from contextlib import ExitStack, closing
 import copy
 import importlib.util
 import json
+import os
 from pathlib import Path
 import sqlite3
 import tempfile
@@ -57,6 +58,19 @@ class DashboardMaterializer(unittest.TestCase):
 
     def pointer(self): return D.RELEASE.read(self.state/'serving/dashboard-current.json')
     def working(self): return next((self.state/'serving/dashboard').glob('working-*.sqlite'))
+
+    def test_continuing_admission_refreshes_trigger_updates_without_starving_publication(self):
+        promotion=self.state/'pipeline/evidence/nifi/game-promotion/101/promotion.json'
+        promotion.parent.mkdir(parents=True);promotion.write_text('{}')
+        os.utime(promotion,ns=(1700000000000000000,1700000000000000000))
+        receipt=self.state/'pipeline/evidence/mlb-game/101/admission-refresh/version/batting.receipt.json'
+        receipt.parent.mkdir(parents=True);receipt.write_text('{}')
+        first,latest=D.notification_key(self.state)
+        self.assertEqual(latest,promotion.stat().st_mtime_ns)
+        receipt.write_text('{"refreshed":true}')
+        second,latest=D.notification_key(self.state)
+        self.assertNotEqual(first,second)
+        self.assertEqual(latest,promotion.stat().st_mtime_ns)
 
     def test_reuses_sql_and_replaces_only_changed_game_with_real_metric_roundtrip(self):
         first = D.build(self.args)

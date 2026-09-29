@@ -294,6 +294,12 @@ not a claim about full-corpus speed or dashboard population readiness.
 
 ## Indexed inputs and reference preparation
 
+Dashboard update notifications include admission refresh receipts, but the
+brief pre-build quiet window considers only RDF promotion and independent
+schedule events. A receipt produced every minute must not keep resetting a
+one-minute wait. Refreshed admissions still invalidate their affected game
+inputs; the existing final source-snapshot check still protects publication.
+
 Each candidate projects cached or newly calculated game products into the
 indexed tables owned by `serving/metric_blocks.py`. Scope facts retain their
 distinct source identities. Each observation retains its exact reducer record,

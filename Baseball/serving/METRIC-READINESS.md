@@ -97,6 +97,11 @@ a source graph count or a successful component test.
   both club and national-team exposures had aborted the first full preparation
   at game 831427. Exhibition RDF and its existing derived game products are
   retained; those games do not participate in this dashboard's player products.
+- The dashboard's pre-build quiet window no longer waits for admission
+  maintenance to stop. Minute-by-minute retained B1 receipts had continually
+  reset its 60-second timer after the failed build. Receipts still trigger input
+  refreshes; only RDF promotion and independent schedule events reset that
+  short wait. Publication keeps its existing final source check.
 
 The complete earlier diagnosis and dated build history are retained in the
 [September 23 history](../archive/operational-history/2026-09-23/METRIC-READINESS.md).

@@ -298,9 +298,11 @@ def store_game(connection, item, bindings, product_cache=None):
 
 def notification_key(state):
     """Cheap event check only; changed inputs still undergo the existing snapshot."""
-    paths = list((state/'pipeline/evidence/nifi/game-promotion').glob('*/*.json'))
-    paths += list((state/'pipeline/control/mlb-game/batches').glob('*.json'))
-    paths += list((state/'pipeline/control/mlb-game/schedule-coverage').glob('*.json'))
+    # Continuous admission maintenance is an update signal, not graph churn.
+    # Including it in the quiet window can postpone publication indefinitely.
+    source_paths = list((state/'pipeline/evidence/nifi/game-promotion').glob('*/*.json'))
+    source_paths += list((state/'pipeline/control/mlb-game/schedule-coverage').glob('*.json'))
+    paths = source_paths + list((state/'pipeline/control/mlb-game/batches').glob('*.json'))
     paths += list((state/'pipeline/evidence/mlb-game').glob('*/admission-refresh/*/*.receipt.json'))
     files = [(str(p.relative_to(state)), p.stat().st_size, p.stat().st_mtime_ns) for p in sorted(paths)]
     return digest(dict(events=files, metrics=METRICS.fingerprint(), builder=SOURCE.sha256_file(Path(__file__)),
@@ -308,7 +310,7 @@ def notification_key(state):
                        playerRanges=PLAYER_RANGES.fingerprint(),
                        admissionReader=ADMISSION_EVIDENCE.fingerprint(),
                        display=DISPLAY.fingerprint(), references=REFERENCES.fingerprint(),
-                       schema=SOURCE.sha256_file(SCHEMA))), max((v[2] for v in files), default=0)
+                       schema=SOURCE.sha256_file(SCHEMA))), max((p.stat().st_mtime_ns for p in source_paths), default=0)
 
 
 def build(args):
