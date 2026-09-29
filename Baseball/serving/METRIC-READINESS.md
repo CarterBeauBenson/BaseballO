@@ -289,7 +289,7 @@ facts and reviewed under the existing RML/identity rules.
 
 ### Specific remaining batting, count and review evidence
 
-The September 21â€“27 B1 conformance failures for games 823327 / PA 46,
+The September 21-27 B1 conformance failures for games 823327 / PA 46,
 823489 / PA 6, 824301 / PA 40, 824302 / PA 17 and 824866 / PA 42 share one
 precise mismatch: the retained source census expects `StrikeoutProcess` for
 `strikeout_double_play`, while the promoted result is typed only as
@@ -315,19 +315,24 @@ by the presence of a foul record. Boundary admissions separately depend on
 supported PA-start states, clocks, replacements and review effects. Q7 does
 not admit whole half-inning boundary populations.
 
-Game 822864 / PA 54 exposes a separate exact intentional-walk selection gap.
-The retained response has a pinch-runner replacement at index 0 and a mound
-visit at index 1, both at 0-0, followed by four explicit non-pitch VB records
-at indexes 2-5 and the batter's first-base award joined to index 5. Both
-`virtual_intentional_walk` and the mapping context's `runner_metric_evidence`
-currently require exactly four total events indexed 0-3. Relaxing only the
-count validator cannot establish the missing award-attribution graph pattern.
-Any repair must cover that mapping selection and its targeted additive
-execution; it must not fabricate four pitches or four umpire acts. No mapping
-or RDF change for this case was made by the September 29 serving fixes.
-The bounded [W1 selection package](../archive/design-records/mlb-game-zero-pitch-walk-prefix/README.md)
-was explicitly accepted on September 29 for the existing award pattern and
-additive execution scope. Its implementation follows the separate decision commit.
+The [W1 selection package](../archive/design-records/mlb-game-zero-pitch-walk-prefix/README.md)
+was explicitly accepted and pushed on September 29 before implementation.
+The shared selector now accepts a verified count-neutral pinch-runner replacement
+or mound visit before the four VB records. Game 822864 / PA 54 selects the batter's
+one award joined to actual terminal index 5. A reconciled replacement witness
+can be used while its zero-episode incoming personal history remains withheld.
+Unknown prefixes, movement, count changes and unreconciled replacements fail.
+
+NiFi's source-owned `Add Approved W1 Awards` worker runs only the seven existing
+award maps and posts missing triples into the existing game graph. It validates
+the award's existing referents, preserves the base graph, and rebuilds only that
+game's derived query index under the existing recoverable transaction. The
+reviewed game runs first; bounded retained-input inventory then finds other W1
+cases. No API acquisition, pitches, judgments, histories or whole-game RML rerun
+is involved. Exact prior proof versions remain usable with their original
+outcomes, graph/source hashes and validation artifacts. A new promotion requires
+new checks. Eighteen focused selector and admission tests pass; runtime promotion
+and subsequent SQL population must still be verified from owning receipts.
 
 The retained review inventory is diagnostic. It does not establish a complete
 eligible never-reviewed denominator, decision-time challenge availability or

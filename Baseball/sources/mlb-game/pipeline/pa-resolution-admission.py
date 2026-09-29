@@ -28,7 +28,7 @@ def retained_source(evidence,state,promotion):
     marker=evidence.checked_marker(promotion)
     independent=evidence.EXISTING_GRAPH.load(evidence,state,promotion,'runner-resolution',R)
     if independent is not None:
-        path=evidence.EXISTING_GRAPH.path_for(evidence,state,promotion,'runner-resolution',R)
+        path=evidence.refresh_path(state,promotion,'c2',independent['implementationSha256'])
         census=path.with_suffix('.source.json');witness=independent['retainedSourceEvidence']
         raw=Path(witness['path']).read_bytes()
         if R.B.sha(raw)!=witness['sha256'] or witness['sha256']!=independent['sourceSha256']:
@@ -102,6 +102,10 @@ def outcome(members,report):
 
 def load(evidence,state,promotion):
     path=proof_path(evidence,state,promotion);receipt=path.with_suffix('.receipt.json')
+    version=fingerprint()
+    for prior in evidence.prior_versions('c2pa',version):
+        if receipt.is_file():break
+        path=evidence.refresh_path(state,promotion,'c2pa',prior);receipt=path.with_suffix('.receipt.json');version=prior
     if not receipt.is_file():return None
     record=evidence.read(receipt)
     if record.get('promotionManifestSha256')!=promotion['promotionManifestSha256'] or record.get('proofSha256')!=evidence.sha(path):
@@ -110,7 +114,7 @@ def load(evidence,state,promotion):
     expected=dict(artifactType='baseballo-pa-resolution-admission',contractVersion=1,
         gamePk=promotion['gamePk'],graph=promotion['authoritativeGraph'],
         promotionSourceSha256=promotion['rawSha256'],authoritativeRdfSha256=promotion['authoritativeRdfSha256'],
-        implementationSha256=fingerprint())
+        implementationSha256=version)
     if any(proof.get(k)!=v for k,v in expected.items()):raise ValueError('Scoped resolution belongs to another input')
     for suffix,key in (('.source.json','sourceCensusSha256'),('.shapes.ttl','shapeSha256'),('.report.ttl','reportSha256')):
         if evidence.sha(path.with_suffix(suffix))!=proof.get(key):raise ValueError('Scoped resolution artifact changed')

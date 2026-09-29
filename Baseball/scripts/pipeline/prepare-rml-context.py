@@ -910,7 +910,80 @@ def personal_runner_histories(raw: bytes, previous=None) -> dict:
     return result
 
 
-def runner_metric_evidence(play: dict, at_bat_index: str, season: str) -> dict[str, list[dict]]:
+def zero_episode_replacement_witness(document: dict, play: dict, event: dict) -> bool:
+    """Read a reconciled C3 replacement even when the incoming runner never moves.
+
+    Q7 retains these witnesses while withholding the zero-episode Process.
+    W1 uses only the witnessed replacement; it admits no personal history.
+    """
+    history = document.get(CONTEXT_KEY, {}).get('runnerHistoryReconciliation', {})
+    about = play.get('about', {})
+    incoming = str(event.get('player', {}).get('id', ''))
+    outgoing = str(event.get('replacedPlayer', {}).get('id', ''))
+    if (history.get('sourceConsistency') != 'consistent' or event.get('isSubstitution') is not True
+            or event.get('position', {}).get('abbreviation') != 'PR'
+            or not incoming.isdigit() or not outgoing.isdigit() or incoming == outgoing
+            or str(play.get('matchup', {}).get('batter', {}).get('id')) in {incoming, outgoing}):
+        return False
+    anchor = f"replacement/{about.get('inning')}/{about.get('halfInning')}/{outgoing}/{incoming}"
+    expected = dict(anchor=anchor, form='replacement', runnerId=incoming, outgoingRunnerId=outgoing,
+        base=event.get('base'), atBatIndex=about.get('atBatIndex'), eventIndex=event.get('index'),
+        earliestStartBound=event.get('startTime'), latestEndBound=event.get('endTime'))
+    matches = lambda row: all(row.get(k) == v for k, v in expected.items())
+    ended = [h for h in history.get('histories', []) if h.get('runnerId') == outgoing
+             and h.get('terminal') == 'replaced' and h.get('terminationAnchor') == anchor
+             and matches(h.get('terminationWitness', {}))]
+    started = [h for half in history.get('withheldHistories', [])
+               if half.get('inning') == about.get('inning') and half.get('half') == about.get('halfInning')
+               and half.get('issues') and all(i.get('code') == 'ZERO_EPISODE_PERSONAL_HISTORY' for i in half['issues'])
+               for h in half.get('completedCandidates', [])
+               if h.get('runnerId') == incoming and h.get('entryAnchor') == anchor
+               and h.get('episodes') == [] and matches(h.get('entryWitness', {}))]
+    anchors = [w for w in history.get('boundaryAnchorCensus', []) if w.get('anchor') == anchor]
+    return len(ended) == len(started) == len(anchors) == 1 and matches(anchors[0])
+
+
+def zero_pitch_walk_terminal(play: dict, document: dict | None = None) -> int | None:
+    """W1's four VB counters, with only the reviewed count-neutral prefix.
+
+    Return the terminal source index, never a Pitch or judgment identity.
+    C3 remains the owner of pinch-runner replacement reconciliation.
+    """
+    events = play.get('playEvents', [])
+    if (play.get('result', {}).get('eventType') != 'intent_walk' or len(events) < 4
+            or any(type(e.get('index')) is not int for e in events)
+            or [e['index'] for e in events] != list(range(len(events)))):
+        return None
+    if not all(e.get('isPitch') is False and e.get('type') == 'no_pitch'
+            and e.get('details', {}).get('call', {}).get('code') == 'VB'
+            and e.get('details', {}).get('isBall') is True
+            and e.get('details', {}).get('isStrike') is False
+            and e.get('count', {}).get('balls') == n
+            and e.get('count', {}).get('strikes') == 0
+            and e.get('count', {}).get('outs') == play.get('count', {}).get('outs')
+            for n, e in enumerate(events[-4:], 1)):
+        return None
+    for event in events[:-4]:
+        detail = event.get('details', {})
+        if (event.get('type') != 'action' or event.get('isPitch') is not False
+                or event.get('count', {}).get('balls') != 0
+                or event.get('count', {}).get('strikes') != 0
+                or event.get('count', {}).get('outs') != play.get('count', {}).get('outs')
+                or detail.get('isOut') is not False or detail.get('isScoringPlay') is not False
+                or detail.get('hasReview') is not False or event.get('reviewDetails')
+                or any(detail.get(k) is True for k in ('isBall', 'isStrike', 'isInPlay'))
+                or any(r.get('details', {}).get('playIndex') == event['index'] for r in play.get('runners', []))):
+            return None
+        if detail.get('eventType') == 'mound_visit' and event.get('isSubstitution') is not True:
+            continue
+        if (detail.get('eventType') != 'offensive_substitution' or document is None
+                or (counted_foul_neutral_event(document, play, event, (0, 0)) != 'reconciled-pinch-runner'
+                    and not zero_episode_replacement_witness(document, play, event))):
+            return None
+    return events[-1]['index']
+
+
+def runner_metric_evidence(play: dict, at_bat_index: str, season: str, *, document: dict | None = None) -> dict[str, list[dict]]:
     """Select source rows for the user's final award/origin graph contracts.
 
     Start is a source designation, never persistence evidence. The force flag
@@ -968,16 +1041,7 @@ def runner_metric_evidence(play: dict, at_bat_index: str, season: str) -> dict[s
         # The accepted non-pitch Ball awards can encode an intentional walk
         # as four VB records rather than one eventType=intent_walk record.
         # Require the complete counted sequence and its exact terminal join.
-        automatic = (len(events) == 4 and index == 3 and not pitches
-            and [e.get('index') for e in events] == [0, 1, 2, 3]
-            and all(e.get('isPitch') is False and e.get('type') == 'no_pitch'
-                and e.get('details', {}).get('call', {}).get('code') == 'VB'
-                and e.get('details', {}).get('isBall') is True
-                and e.get('details', {}).get('isStrike') is False
-                and e.get('count', {}).get('balls') == n
-                and e.get('count', {}).get('strikes') == 0
-                and e.get('count', {}).get('outs') == play.get('count', {}).get('outs')
-                for n, e in enumerate(events, 1)))
+        automatic = zero_pitch_walk_terminal(play, document) == index
         if event.get("details", {}).get("eventType") != "intent_walk" and not automatic:
             return products
     elif (not pitches or pitches[-1].get("index") != index
@@ -2141,7 +2205,7 @@ def main() -> None:
             "startBaseOccupancies": start_base_occupancies,
             "battedRunnerResolutions": batted_runner_resolution_links(play, at_bat_index, root_context['runnerHistoryReconciliation']),
             **runner_episode_evidence(play, at_bat_index),
-            **runner_metric_evidence(play, at_bat_index, season),
+            **runner_metric_evidence(play, at_bat_index, season, document=document),
             "hasPlateAppearanceStructure": has_plate_appearance_structure,
             "hasPlateAppearanceClocks": has_plate_appearance_structure and not clock_pair_conflicted(about),
             "hasCompletedPlateAppearanceResult": has_completed_plate_appearance_result,

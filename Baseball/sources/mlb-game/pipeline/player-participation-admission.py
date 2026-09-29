@@ -184,9 +184,10 @@ def retained_source(evidence,state,promotion):
 def load(evidence,state,promotion):
     path=proof_path(evidence,state,promotion);receipt=path.with_suffix('.receipt.json')
     version=fingerprint()
-    if not receipt.is_file():
-        path=evidence.refresh_path(state,promotion,'players',PREVIOUS_IMPLEMENTATION)
-        receipt=path.with_suffix('.receipt.json');version=PREVIOUS_IMPLEMENTATION
+    for prior in [*evidence.prior_versions('players',version),PREVIOUS_IMPLEMENTATION]:
+        if receipt.is_file():break
+        path=evidence.refresh_path(state,promotion,'players',prior)
+        receipt=path.with_suffix('.receipt.json');version=prior
     if not receipt.is_file():return None
     record=evidence.read(receipt)
     if record.get('promotionManifestSha256')!=promotion['promotionManifestSha256'] or record.get('proofSha256')!=evidence.sha(path):

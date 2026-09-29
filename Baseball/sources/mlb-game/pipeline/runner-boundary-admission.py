@@ -40,6 +40,7 @@ def census(raw, game_pk):
     if str(doc['gamePk']) != game_pk:
         raise ValueError('Boundary source game identity mismatch')
     history = CONTEXT.personal_runner_histories(raw)
+    doc[CONTEXT.CONTEXT_KEY] = {'runnerHistoryReconciliation': history}
     game = B.BASE+'data/game/'+game_pk
     issues = [dict(code='SOURCE_RECONCILIATION', detail=i) for i in history.get('sourceIssues', [])]
     issues += [dict(code='INCOMPLETE_PERSONAL_HISTORIES', detail=h) for h in history['halves'] if h['status']!='reconciled']
@@ -53,7 +54,7 @@ def census(raw, game_pk):
             active, outs, half = {}, 0, current
         pa = str(play['atBatIndex'])
         if play.get('result',{}).get('eventType') in {'walk','intent_walk','hit_by_pitch'}:
-            selected=CONTEXT.runner_metric_evidence(play,pa,str(doc['gameData']['game']['season']))['awardAdvances']
+            selected=CONTEXT.runner_metric_evidence(play,pa,str(doc['gameData']['game']['season']),document=doc)['awardAdvances']
             # Check the accepted award selector's coverage independently of
             # the emitted graph. A missing forced-advance mapping is not an
             # independently caused movement merely because its edge is absent.

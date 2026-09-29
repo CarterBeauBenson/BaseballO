@@ -42,6 +42,23 @@ class ExistingGraphAdmissions(unittest.TestCase):
                 self.assertEqual(marker.read_bytes(),original)
                 with self.assertRaisesRegex(ValueError,'another input'):
                     X.load(E,state,dict(promotion,rawSha256='different-original'),'batting',B)
+                # A pinned W1 compatibility bridge retains the original check,
+                # including a negative result, without rewriting its producer.
+                entry=E.read(E.COMPATIBILITY_PATH)['intentionalWalkPrefix']['independentProofs']['batting']
+                old_path=E.refresh_path(state,promotion,'b1',entry['previousImplementationSha256'])
+                current_path=X.path_for(E,state,promotion,'batting',B)
+                old=dict(E.read(current_path),implementationSha256=entry['previousImplementationSha256'],
+                    sourceProducerSha256=entry['previousSourceProducerSha256'])
+                for suffix in ('.source.json','.shapes.ttl','.report.ttl'):
+                    old_path.parent.mkdir(parents=True,exist_ok=True)
+                    old_path.with_suffix(suffix).write_bytes(current_path.with_suffix(suffix).read_bytes())
+                E.atomic(old_path,old);X.commit(E,promotion,[(old_path,'batting',old['status'])])
+                current_path.with_suffix('.receipt.json').unlink()
+                reused=X.load(E,state,promotion,'batting',B)
+                self.assertEqual({k:reused[k] for k in old},old)
+                self.assertIsNone(X.load(E,state,dict(promotion,promotionManifestSha256='new-promotion'),'batting',B))
+                old_path.with_suffix('.report.ttl').write_text('corrupted',encoding='utf-8')
+                with self.assertRaisesRegex(ValueError,'artifact changed'):X.load(E,state,promotion,'batting',B)
 
 
 if __name__=='__main__':unittest.main()

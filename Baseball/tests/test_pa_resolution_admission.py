@@ -71,11 +71,11 @@ class PaResolution(unittest.TestCase):
             root=Path(temp);source_path=root/'retained.json';source_path.write_bytes(raw)
             proof_path=root/'c2.json';E.atomic(proof_path.with_suffix('.source.json'),P.R.census(raw,'566279'))
             witness=dict(kind='retained-source-response',path=str(source_path),sha256=E.sha(source_path))
-            proof=dict(sourceSha256=witness['sha256'],retainedSourceEvidence=witness)
+            proof=dict(sourceSha256=witness['sha256'],retainedSourceEvidence=witness,implementationSha256='prior-independent')
             promotion=dict(gamePk='566279',rawSha256='different-original-input')
             with patch.object(E,'checked_marker',return_value={}), \
                  patch.object(E.EXISTING_GRAPH,'load',return_value=proof), \
-                 patch.object(E.EXISTING_GRAPH,'path_for',return_value=proof_path):
+                 patch.object(E,'refresh_path',return_value=proof_path):
                 source,_=P.retained_source(E,root,promotion)
                 self.assertEqual(source['resolution']['sourceSha256'],witness['sha256'])
                 self.assertEqual(source['batting']['sourceSha256'],witness['sha256'])

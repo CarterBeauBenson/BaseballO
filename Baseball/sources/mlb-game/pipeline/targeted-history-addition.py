@@ -69,14 +69,14 @@ def select_history(manifest, case):
     return history, delta
 
 
-def subset_mapping(game_pk, destination):
+def subset_mapping(game_pk, destination, maps=MAPS):
     """Slice existing map descriptions without authoring new predicates."""
     full = Graph().parse(MAPPING, format='turtle')
     selected = Graph()
     logical_source = URIRef('http://semweb.mmlab.be/ns/rml#logicalSource')
     for prefix, namespace in full.namespaces():
         selected.bind(prefix, namespace)
-    for name in MAPS:
+    for name in maps:
         matches = [s for s in set(full.subjects()) if str(s).endswith('#' + name)]
         if len(matches) != 1:
             raise ValueError('Existing RML map is not unique: ' + name)

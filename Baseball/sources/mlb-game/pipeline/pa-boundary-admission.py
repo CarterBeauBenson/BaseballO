@@ -101,10 +101,13 @@ def prove(evidence,state,promotion,rdf,session,java,classpath,raw_witness=None):
 
 def verify(evidence,state,promotion,proof):
     if not proof:return
-    path=evidence.refresh_path(state,promotion,'pa',fingerprint())
+    version=proof.get('implementationSha256')
+    if version not in [fingerprint(),*evidence.prior_versions('pa',fingerprint())]:
+        raise ValueError('PA boundary producer is not compatible')
+    path=evidence.refresh_path(state,promotion,'pa',version)
     if (Path(proof.get('path','')).resolve()!=path.resolve()
             or proof.get('proofSha256')!=evidence.sha(path)
-            or proof.get('implementationSha256')!=fingerprint()):
+            or proof.get('implementationSha256')!=version):
         raise ValueError('PA boundary admission changed')
     stored=evidence.read(path)
     if stored!={k:v for k,v in proof.items() if k not in {'path','proofSha256'}}:

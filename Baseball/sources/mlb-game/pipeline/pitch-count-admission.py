@@ -28,30 +28,25 @@ def fingerprint():
     return B.sha('\n'.join(p.relative_to(ROOT).as_posix()+':'+B.sha(p.read_bytes()) for p in paths).encode())
 
 
-def virtual_intentional_walk(play, season):
+def virtual_intentional_walk(play, season, document=None):
     """Recognize the accepted complete award with zero delivered pitches.
 
     VB entries serialize the award's ball counter; they are not four actual
     pitch or automatic-count judgment events. Other empty histories fail.
     """
-    events=play.get('playEvents',[])
-    return (play.get('result',{}).get('eventType')=='intent_walk'
-        and len(events)==4 and [e.get('index') for e in events]==[0,1,2,3]
-        and all(e.get('isPitch') is False and e.get('type')=='no_pitch'
-            and e.get('details',{}).get('call',{}).get('code')=='VB'
-            and e.get('details',{}).get('isBall') is True
-            and e.get('details',{}).get('isStrike') is False
-            and e.get('count',{}).get('balls')==i
-            and e.get('count',{}).get('strikes')==0
-            and e.get('count',{}).get('outs')==play.get('count',{}).get('outs')
-            for i,e in enumerate(events,1))
-        and bool(CONTEXT.runner_metric_evidence(play,str(play['atBatIndex']),str(season))['awardAdvances']))
+    return (CONTEXT.zero_pitch_walk_terminal(play,document) is not None
+        and bool(CONTEXT.runner_metric_evidence(play,str(play['atBatIndex']),str(season),
+                    document=document)['awardAdvances']))
 
 
 def census(raw,game_pk):
     game_pk=B.identity(int(game_pk));doc=json.loads(raw);source=B.SOURCE.reconcile(raw,game_pk)
     issues=[dict(code='SOURCE_RECONCILIATION',detail=i) for i in source['blockingIssues']]
     doc[CONTEXT.CONTEXT_KEY]={'runnerHistoryReconciliation':{'sourceConsistency':'consistent' if not issues else 'inconsistent'}}
+    if any(p.get('result',{}).get('eventType')=='intent_walk' and len(p.get('playEvents',[]))>4
+            and any(e.get('position',{}).get('abbreviation')=='PR' for e in p['playEvents'][:-4])
+            for p in doc['liveData']['plays']['allPlays']):
+        doc[CONTEXT.CONTEXT_KEY]['runnerHistoryReconciliation']=CONTEXT.personal_runner_histories(raw)
     automatic=CONTEXT.automatic_count_awards(doc)
     awards={(r['atBatIndex'],r['playId']):r for r in automatic['automaticAwards']}
     game=B.BASE+'data/game/'+game_pk;pas=[]
@@ -63,7 +58,7 @@ def census(raw,game_pk):
         if result_type not in B.RESULTS:errors.append('UNKNOWN_OFFICIAL_PA_RESULT')
         if [e.get('index') for e in play['playEvents']]!=list(range(len(play['playEvents']))):
             errors.append('UNRECONCILED_EVENT_MEMBERSHIP')
-        if virtual_intentional_walk(play,doc['gameData']['game']['season']):
+        if virtual_intentional_walk(play,doc['gameData']['game']['season'],doc):
             pas.append(dict(pa=game+'/plate-appearance/'+pa,events=[],zeroPitchIntentionalWalk=True))
             continue
         for event in play['playEvents']:

@@ -17,14 +17,38 @@ E=importlib.util.module_from_spec(spec);spec.loader.exec_module(E)
 
 
 def current_implementation(family, entry):
-    bridge=E.read(E.COMPATIBILITY_PATH)['zeroEpisodeIsolation']['families'].get(family)
-    if bridge:
-        assert entry['currentImplementationSha256']==bridge['previousImplementationSha256']
-        return bridge['currentImplementationSha256']
-    return entry['currentImplementationSha256']
+    version=entry['currentImplementationSha256'];record=E.read(E.COMPATIBILITY_PATH)
+    for name in ('zeroEpisodeIsolation','intentionalWalkPrefix'):
+        bridge=record[name]['families'].get(family)
+        if bridge and version==bridge['previousImplementationSha256']:version=bridge['currentImplementationSha256']
+    return version
 
 
 class AdmissionEvidence(unittest.TestCase):
+    def test_w1_pins_preserve_unrelated_context_definitions_and_exact_prior_versions(self):
+        record=E.read(E.COMPATIBILITY_PATH);walk=record['intentionalWalkPrefix']
+        before=subprocess.check_output(['git','-C',str(ROOT.parent),'show',
+            walk['baselineCommit']+':Baseball/'+record['contextPath']])
+        after=(ROOT/record['contextPath']).read_bytes()
+        self.assertEqual(hashlib.sha256(before).hexdigest(),walk['previousContextSha256'])
+        self.assertEqual(hashlib.sha256(after).hexdigest(),walk['currentContextSha256'])
+        excluded={'zero_episode_replacement_witness','zero_pitch_walk_terminal','runner_metric_evidence','main'}
+        def unchanged(raw):
+            tree=ast.parse(raw);tree.body=[n for n in tree.body if getattr(n,'name',None) not in excluded]
+            return ast.dump(tree)
+        self.assertEqual(unchanged(before),unchanged(after))
+        for family,entry in walk['families'].items():
+            adapter=E.module(E.HERE/(family+'-admission.py'),'w1_'+family.replace('-','_'))
+            self.assertEqual(adapter.fingerprint(),entry['currentImplementationSha256'])
+            independent=walk['independentProofs'][family]
+            self.assertEqual(E.EXISTING_GRAPH.fingerprint(E,adapter),independent['currentImplementationSha256'])
+            self.assertEqual(independent['previousSourceProducerSha256'],entry['previousImplementationSha256'])
+        for kind,adapter in [('players',E.PLAYER_PARTICIPATION),('pa',E.PLAYER_PARTICIPATION.PA),('c2pa',E.PA_RESOLUTION)]:
+            entry=walk['derivedProofs'][kind]
+            self.assertEqual(adapter.fingerprint(),entry['currentImplementationSha256'])
+            self.assertEqual(E.prior_versions(kind,adapter.fingerprint()),entry['previousImplementationSha256s'])
+            self.assertEqual(E.prior_versions(kind,'unknown'),[])
+
     def test_season_priority_repairs_early_missing_qualification_before_recent_checked_games(self):
         with tempfile.TemporaryDirectory() as temp:
             state=Path(temp);database=state/'serving/dashboard/builds/current.sqlite'
@@ -228,7 +252,9 @@ class AdmissionEvidence(unittest.TestCase):
         for family,entry in record['families'].items():
             adapter=E.module(E.HERE/(family+'-admission.py'),'equivalence_'+family.replace('-','_'))
             self.assertEqual(adapter.fingerprint(),current_implementation(family,entry))
-            context_attributes={n.attr for n in ast.walk(ast.parse(Path(adapter.__file__).read_text()))
+            baseline=subprocess.check_output(['git','-C',str(ROOT.parent),'show',
+                record['intentionalWalkPrefix']['baselineCommit']+':Baseball/sources/mlb-game/pipeline/'+family+'-admission.py'])
+            context_attributes={n.attr for n in ast.walk(ast.parse(baseline))
                 if isinstance(n,ast.Attribute) and isinstance(n.value,ast.Name) and n.value.id=='CONTEXT'}
             self.assertEqual(context_attributes,set(entry['contextDefinitions']))
             visited=set();pending=list(context_attributes & definitions.keys())
@@ -245,7 +271,8 @@ class AdmissionEvidence(unittest.TestCase):
             paths=([Path(adapter.__file__),adapter.SHAPE,path,*common] if family=='runner-resolution' else
                 [Path(adapter.__file__),adapter.SHAPE,*common[:2],path,common[2]])
             prior=hashlib.sha256('\n'.join(p.relative_to(ROOT).as_posix()+':'+
-                (record['previousContextSha256'] if p==path else E.sha(p)) for p in paths).encode()).hexdigest()
+                (record['previousContextSha256'] if p==path else hashlib.sha256(baseline).hexdigest()
+                 if p==Path(adapter.__file__) else E.sha(p)) for p in paths).encode()).hexdigest()
             self.assertEqual(prior,entry['previousImplementationSha256'])
         self.assertNotIn('runner-boundary',record['families'])
 
@@ -254,7 +281,8 @@ class AdmissionEvidence(unittest.TestCase):
         bridge=record['zeroEpisodeIsolation']
         path=ROOT/record['contextPath']
         prior=subprocess.check_output(['git','-C',str(ROOT.parent),'show','400f1ef2fb62:Baseball/'+record['contextPath']])
-        current=path.read_bytes()
+        current=subprocess.check_output(['git','-C',str(ROOT.parent),'show',
+            record['intentionalWalkPrefix']['baselineCommit']+':Baseball/'+record['contextPath']])
         self.assertEqual(hashlib.sha256(prior).hexdigest(),bridge['previousContextSha256'])
         self.assertEqual(hashlib.sha256(current).hexdigest(),bridge['currentContextSha256'])
         before,after=ast.parse(prior),ast.parse(current)
@@ -268,9 +296,10 @@ class AdmissionEvidence(unittest.TestCase):
         self.assertEqual(ast.dump(before),ast.dump(after))
         for family,entry in bridge['families'].items():
             adapter=E.module(E.HERE/(family+'-admission.py'),'q7_'+family.replace('-','_'))
-            self.assertEqual(adapter.fingerprint(),entry['currentImplementationSha256'])
+            self.assertEqual(adapter.fingerprint(),current_implementation(family,entry))
             reuse=E.code_equivalence(family,entry['previousImplementationSha256'],adapter.fingerprint())
-            self.assertEqual(reuse['kind'],'prior-stricter-history-selection' if family=='runner-boundary' else 'unchanged-proof-dependencies')
+            self.assertEqual(reuse['kind'],'prior-stricter-history-selection' if family=='runner-boundary' else
+                'prior-stricter-walk-selection' if family=='pitch-count' else 'unchanged-proof-dependencies')
             if family in record['families']:
                 old_entry=record['families'][family]
                 self.assertIsNotNone(E.code_equivalence(family,old_entry['previousImplementationSha256'],adapter.fingerprint()))

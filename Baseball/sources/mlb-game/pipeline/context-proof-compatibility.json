@@ -91,5 +91,89 @@
         "currentImplementationSha256": "72af34c79834439a7ff5e52b2ac7161fe077908a1445cbc804a0dd8a63c27032"
       }
     }
+  },
+  "intentionalWalkPrefix": {
+    "decision": "archive/design-records/mlb-game-zero-pitch-walk-prefix/review.json",
+    "baselineCommit": "81c89284e948",
+    "previousContextSha256": "023b659409d204d3e7cca1eaab5f9563744a6f54a8cac72b8a6c56ac79faba98",
+    "currentContextSha256": "8e6c45265fc011293570f65f9b252fe9574192c24dce80b21042111e0266d52c",
+    "families": {
+      "batting": {
+        "previousImplementationSha256": "42e5f5c4b7fd1b12d922703283511fe485df55800fe17b2fb627b32e367cf1f7",
+        "currentImplementationSha256": "42e5f5c4b7fd1b12d922703283511fe485df55800fe17b2fb627b32e367cf1f7"
+      },
+      "scoring-run": {
+        "previousImplementationSha256": "03088132d1783d274a08f6a2d2a5ff9858ffd04f519b2a4bfcb9011e7ccf0f9d",
+        "currentImplementationSha256": "03088132d1783d274a08f6a2d2a5ff9858ffd04f519b2a4bfcb9011e7ccf0f9d"
+      },
+      "runner-resolution": {
+        "previousImplementationSha256": "658ba1c9cf75eb14e05bbe08b87e75d4d6195dbf2a9619c361080a636d57ae3a",
+        "currentImplementationSha256": "6a7d47ec9dffcb89fdd0883426515f55cb9a4b53d14c54c3ba7ebeeeca8deb10"
+      },
+      "pitch-count": {
+        "previousImplementationSha256": "5f4f323463e042308c364be105f4a6e93d6225515985b6667f70ce017cf587ae",
+        "currentImplementationSha256": "d4841482490672d0fb9d1a0fe59123849ce1202443b4fcba12ba1d2b82953490"
+      },
+      "runner-boundary": {
+        "previousImplementationSha256": "02d18dc89878601e07d1264c7af865c07c945313db3279e51437f5bdc5d8c802",
+        "currentImplementationSha256": "33a010bf5645cc5804b8c6bc786de4f037edcb135ba8039e27925acbc4931094"
+      },
+      "defensive": {
+        "previousImplementationSha256": "72af34c79834439a7ff5e52b2ac7161fe077908a1445cbc804a0dd8a63c27032",
+        "currentImplementationSha256": "4e4e253d8e04ccc662ed03a006817915b3ffc9ea4d21eaf7721af5e8c352b3cd"
+      }
+    },
+    "independentProofs": {
+      "batting": {
+        "previousImplementationSha256": "6eef67245fd40b95baf1b7e0e1e5375d7f7b7d1eb86d2aebe50859accb0b4f26",
+        "previousSourceProducerSha256": "42e5f5c4b7fd1b12d922703283511fe485df55800fe17b2fb627b32e367cf1f7",
+        "currentImplementationSha256": "624dd669413e7b7a2f320a84153b735fc6f6188e49b318c174b0005a30f5a602"
+      },
+      "scoring-run": {
+        "previousImplementationSha256": "8db89e9879a0d794b8590f2ec8c4525b063b08650d01e6ced3e0c2dfaf75944c",
+        "previousSourceProducerSha256": "03088132d1783d274a08f6a2d2a5ff9858ffd04f519b2a4bfcb9011e7ccf0f9d",
+        "currentImplementationSha256": "ef9db6913cb1f0e120325b08751290e285e25034d70a4933aad6cfd57e961311"
+      },
+      "runner-resolution": {
+        "previousImplementationSha256": "3054fe607b7a1a83f6b416fe59fbebc7a009c115bd3d523280d6fe07280671a6",
+        "previousSourceProducerSha256": "658ba1c9cf75eb14e05bbe08b87e75d4d6195dbf2a9619c361080a636d57ae3a",
+        "currentImplementationSha256": "0e447e80992e022f34c93f1229b9aee0cff91382847f7fd558d1bf33027d8c21"
+      },
+      "pitch-count": {
+        "previousImplementationSha256": "9234103b03dd8ae53ceb98b2fc975dd210d4fe5d39b0608548b64b75bcf65b93",
+        "previousSourceProducerSha256": "5f4f323463e042308c364be105f4a6e93d6225515985b6667f70ce017cf587ae",
+        "currentImplementationSha256": "695d13b1e71a29ad6454867ff3970d956bf55a878c1db469684e728e8bfc237b"
+      },
+      "runner-boundary": {
+        "previousImplementationSha256": "d004d9b6498c535bff2ce59782763389c9b4d2f0afb3419040c2bd6ff37e7315",
+        "previousSourceProducerSha256": "02d18dc89878601e07d1264c7af865c07c945313db3279e51437f5bdc5d8c802",
+        "currentImplementationSha256": "6ac8d11d5408bec1bc558f9d021a7d8ae874fda77df7485a1713683e99d5ba30"
+      },
+      "defensive": {
+        "previousImplementationSha256": "a037ab33e634196efc76be043291534525b5547e237b49fd9975d203d09d02a1",
+        "previousSourceProducerSha256": "72af34c79834439a7ff5e52b2ac7161fe077908a1445cbc804a0dd8a63c27032",
+        "currentImplementationSha256": "f313bc3f6de86b6df1c30db3c4a85f68a55c91a54cc376f37612ce4ae9a7f4fe"
+      }
+    },
+    "derivedProofs": {
+      "players": {
+        "previousImplementationSha256s": [
+          "50aa783f28c5846f60be79dadb25ab5bf9d906bfcfa4572f3f1cf2ebfed9f08e"
+        ],
+        "currentImplementationSha256": "f6c6ab2040b1cf3a497e1445c314e15e35824dc64ce8ec666ac6a4cd463d0094"
+      },
+      "pa": {
+        "previousImplementationSha256s": [
+          "2b5ec76b132a89331c77b48f168d37a66872d3b9f52420a4dedc76a838748651"
+        ],
+        "currentImplementationSha256": "28ae860bd0d01aedf5545469ba19c8cc9e8c039d7b6298d7cb834af1ae16c6a2"
+      },
+      "c2pa": {
+        "previousImplementationSha256s": [
+          "d822838c45cbfc45e37cee31d40c22d4c5d50e75a82383bdca67bb5a998a46b2"
+        ],
+        "currentImplementationSha256": "222abe1d2c719f4e6abe93c56ebbce27b325c77b9299e8f87e78bd7a86ab9dfd"
+      }
+    }
   }
 }

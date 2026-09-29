@@ -1,0 +1,28 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix base: <https://baseballontology.org/> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+@prefix cco: <https://www.commoncoreontologies.org/> .
+
+# W1 checks only the selected award and its existing referents. It does not
+# certify missing runner episodes, whole-game counts or histories.
+[] a sh:NodeShape ; sh:targetNode <__RESULT__> ; sh:class base:WalkProcess ;
+  sh:property [ sh:path obo:BFO_0000132 ; sh:hasValue <__PA__> ] ;
+  sh:property [ sh:path cco:ont00001803 ; sh:hasValue <__ACT__> ] .
+[] a sh:NodeShape ; sh:targetNode <__ACT__> ; sh:class base:BaserunningAct ;
+  sh:property [ sh:path obo:BFO_0000132 ; sh:hasValue <__PA__> ] ;
+  sh:property [ sh:path obo:BFO_0000057 ; sh:hasValue <__PLAYER__> ] ;
+  sh:property [ sh:path cco:ont00001807 ; sh:hasValue <__RULE__> ] .
+[] a sh:NodeShape ; sh:targetNode <__RULE__> ;
+  sh:and ( [ sh:class base:BaseballRule ] [ sh:class cco:ont00001324 ] ) ;
+  sh:property [ sh:path cco:ont00001974 ; sh:hasValue <__ACT__> ] ;
+  sh:property [ sh:path obo:BFO_0000176 ; sh:hasValue <__EDITION__> ] .
+[] a sh:NodeShape ; sh:targetNode <__RECORD__> ; sh:class base:BaseballEventRecord ;
+  sh:property [ sh:path cco:ont00001808 ; sh:hasValue <__RESULT__> ] ;
+  sh:property [ sh:path cco:ont00001808 ; sh:hasValue <__RULE__> ] .
+[] a sh:NodeShape ; sh:targetNode <__EDITION__> ; sh:class cco:ont00000965 .
+[] a sh:NodeShape ; sh:targetNode <__RULE_IDENTIFIER__> ; sh:class cco:ont00000649 ;
+  sh:property [ sh:path cco:ont00001916 ; sh:hasValue <__RULE__> ] ;
+  sh:property [ sh:path cco:ont00001765 ; sh:hasValue __RULE_CODE__ ] .
+[] a sh:NodeShape ; sh:targetNode <__EDITION_IDENTIFIER__> ; sh:class cco:ont00000649 ;
+  sh:property [ sh:path cco:ont00001916 ; sh:hasValue <__EDITION__> ] ;
+  sh:property [ sh:path cco:ont00001765 ; sh:hasValue __EDITION_LABEL__ ] .

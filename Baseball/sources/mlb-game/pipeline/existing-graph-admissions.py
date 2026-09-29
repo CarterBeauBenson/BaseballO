@@ -20,7 +20,15 @@ def path_for(evidence,state,promotion,family,adapter):
 
 def load(evidence,state,promotion,family,adapter):
     path=path_for(evidence,state,promotion,family,adapter);receipt=path.with_suffix('.receipt.json')
-    if not receipt.is_file():return None
+    version=fingerprint(evidence,adapter);producer=adapter.fingerprint()
+    if not receipt.is_file():
+        walk=evidence.read(evidence.COMPATIBILITY_PATH).get('intentionalWalkPrefix',{})
+        entry=walk.get('independentProofs',{}).get(family,{})
+        if (entry.get('currentImplementationSha256')!=version
+                or evidence.sha(evidence.ROOT/'scripts/pipeline/prepare-rml-context.py')!=walk.get('currentContextSha256')):return None
+        version=entry['previousImplementationSha256'];producer=entry['previousSourceProducerSha256']
+        path=evidence.refresh_path(state,promotion,SHORT[family],version);receipt=path.with_suffix('.receipt.json')
+        if not receipt.is_file():return None
     record=evidence.read(receipt)
     if record.get('promotionManifestSha256')!=promotion['promotionManifestSha256'] or record.get('proofSha256')!=evidence.sha(path):
         raise ValueError('Existing graph admission receipt changed')
@@ -28,7 +36,7 @@ def load(evidence,state,promotion,family,adapter):
     expected=dict(artifactType='baseballo-'+family+'-admission',contractVersion=1,
         gamePk=promotion['gamePk'],graph=promotion['authoritativeGraph'],
         authoritativeRdfSha256=promotion['authoritativeRdfSha256'],promotionSourceSha256=promotion['rawSha256'],
-        implementationSha256=fingerprint(evidence,adapter),sourceProducerSha256=adapter.fingerprint())
+        implementationSha256=version,sourceProducerSha256=producer)
     if any(proof.get(k)!=v for k,v in expected.items()):raise ValueError('Existing graph admission belongs to another input')
     for suffix,key in (('.source.json','sourceCensusSha256'),('.shapes.ttl','shapeSha256'),('.report.ttl','reportSha256')):
         if key in proof and evidence.sha(path.with_suffix(suffix))!=proof[key]:

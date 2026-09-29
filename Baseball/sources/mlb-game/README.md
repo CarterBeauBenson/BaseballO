@@ -176,3 +176,23 @@ can report `promotionAllowed: true` with `status: withheld`,
 `sourceReconciled: false`, and `populationComplete: false`; that permits graph
 promotion while keeping dependent metric populations withheld. All graph
 conformance checks still run before promotion.
+
+### W1 targeted intentional-walk awards
+
+The accepted [W1 decision](../../archive/design-records/mlb-game-zero-pitch-walk-prefix/README.md)
+permits only the existing award selection after verified count-neutral PR or
+mound-visit prefixes before four no-pitch VB records. `pipeline/targeted-award-addition.py`
+slices seven existing award maps, validates the selected award and retained
+referents, and posts only missing triples. The existing graph-pair transaction
+owns rollback; only the affected query index is replaced. The original promotion
+input and later retained selection witness keep separate hashes.
+
+`nifi/provision-award-addition.ps1` installs the source-owned one-minute worker.
+It runs the reviewed game 822864 first, then scans retained inputs in bounded
+batches, with at most one game mutation per tick and two attempts per implementation.
+Evidence is under `pipeline/control/mlb-game/award-addition/` and the ordinary
+per-game evidence/promotion directories. The worker never acquires API inputs
+or rewrites retained raw bytes. Positive proof compatibility and unchanged
+independent/player proofs preserve their exact producer versions; new promotions
+cannot inherit an old graph's receipts. This does not resolve unrelated runner,
+defensive or review populations.

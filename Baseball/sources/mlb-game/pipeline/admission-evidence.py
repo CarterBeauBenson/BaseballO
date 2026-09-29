@@ -67,10 +67,23 @@ def code_equivalence(family,previous,current):
     original dependency, SHACL template and validator. Unknown changes miss.
     """
     record=read(COMPATIBILITY_PATH)
+    walk=record.get('intentionalWalkPrefix',{})
+    bridge=walk.get('families',{}).get(family)
+    if (bridge and bridge['previousImplementationSha256']!=current and current==bridge['currentImplementationSha256']
+            and sha(ROOT/record['contextPath'])==walk['currentContextSha256']):
+        prior=bridge['previousImplementationSha256']
+        reused=(dict(kind='prior-stricter-walk-selection' if family in {'pitch-count','runner-boundary'}
+                     else 'unchanged-proof-dependencies') if previous==prior
+                else code_equivalence(family,previous,prior))
+        if reused is not None:
+            if family in {'pitch-count','runner-boundary'} and reused['kind']=='unchanged-proof-dependencies':
+                reused=dict(reused,kind='prior-stricter-walk-selection')
+            return dict(reused,recordSha256=sha(COMPATIBILITY_PATH),previousImplementationSha256=previous,
+                currentImplementationSha256=current,walkSelectionDecision=walk['decision'])
     isolation=record.get('zeroEpisodeIsolation',{})
     bridge=isolation.get('families',{}).get(family)
     if (bridge and current==bridge['currentImplementationSha256']
-            and sha(ROOT/record['contextPath'])==isolation['currentContextSha256']):
+            and sha(ROOT/record['contextPath']) in {isolation['currentContextSha256'],walk.get('currentContextSha256')}):
         prior=bridge['previousImplementationSha256']
         reused=(dict(kind='prior-stricter-history-selection' if family=='runner-boundary' else 'unchanged-proof-dependencies')
                 if previous==prior else code_equivalence(family,previous,prior))
@@ -81,7 +94,7 @@ def code_equivalence(family,previous,current):
     entry=record['families'].get(family)
     if (entry and previous==entry['previousImplementationSha256']
             and current==entry['currentImplementationSha256']
-            and sha(ROOT/record['contextPath']) in {record['currentContextSha256'],isolation.get('currentContextSha256')}):
+            and sha(ROOT/record['contextPath']) in {record['currentContextSha256'],isolation.get('currentContextSha256'),walk.get('currentContextSha256')}):
         return dict(kind='unchanged-proof-dependencies',recordSha256=sha(COMPATIBILITY_PATH),
             previousImplementationSha256=previous,currentImplementationSha256=current)
     entry=record['priorClockIsolation']['families'].get(family)
@@ -97,6 +110,20 @@ def code_equivalence(family,previous,current):
     return None
 
 
+def prior_versions(kind,current):
+    """Exact retained proofs whose existing checks W1 does not invalidate.
+
+    Keep their original producer and outcomes. A new promotion gets new paths
+    and must be checked again; this is never approval of W1's missing facts.
+    """
+    record=read(COMPATIBILITY_PATH);walk=record.get('intentionalWalkPrefix',{})
+    entry=walk.get('derivedProofs',{}).get(kind,{})
+    if (entry.get('currentImplementationSha256')==current
+            and sha(ROOT/record['contextPath'])==walk.get('currentContextSha256')):
+        return entry['previousImplementationSha256s']
+    return []
+
+
 def compatible_proof(state,promotion,family,implementation):
     marker=checked_marker(promotion);field=FIELDS[family];path=Path(marker.get(field,''))
     if not path.is_file(): return None
@@ -106,7 +133,7 @@ def compatible_proof(state,promotion,family,implementation):
     proof=read(path)
     reuse=code_equivalence(family,proof.get('implementationSha256'),implementation)
     if reuse is None: return None
-    positive_only=reuse['kind'] in {'prior-stricter-clock-check','prior-stricter-pinch-hitter-check','prior-stricter-history-selection'}
+    positive_only=reuse['kind'] in {'prior-stricter-clock-check','prior-stricter-pinch-hitter-check','prior-stricter-history-selection','prior-stricter-walk-selection'}
     if positive_only and proof.get('status')!='admitted': return None
     expected=dict(artifactType='baseballo-'+family+'-admission',contractVersion=1,
         gamePk=promotion['gamePk'],sourceSha256=promotion['rawSha256'],
@@ -196,6 +223,14 @@ def load(adapter,state,promotion,family):
     if proof is not None:
         checked_marker(promotion)
         return select(proof)
+    bridge=read(COMPATIBILITY_PATH).get('intentionalWalkPrefix',{}).get('families',{}).get(family,{})
+    prior=bridge.get('previousImplementationSha256')
+    reuse=code_equivalence(family,prior,adapter.fingerprint()) if prior and prior!=adapter.fingerprint() else None
+    if reuse:
+        proof=refreshed(state,promotion,family,prior)
+        if proof is not None and (reuse['kind']=='unchanged-proof-dependencies' or proof.get('status')=='admitted'):
+            checked_marker(promotion)
+            return select(dict(proof,implementationReuse=reuse))
     proof=compatible_proof(state,promotion,family,adapter.fingerprint())
     if proof is not None: return select(proof)
     return select(adapter.promoted_admission(state,promotion))
@@ -222,7 +257,8 @@ def refresh_game(state,promotion,java,classpath,endpoint='http://127.0.0.1:3031/
     boundary=load(adapters['runner-boundary'],state,promotion,'runner-boundary')
     individual=PLAYER_PARTICIPATION.load(api,state,promotion)
     if ((batting.get('status')!='admitted' or boundary.get('status')!='admitted')
-            and (individual is None or individual.get('implementationSha256')!=PLAYER_PARTICIPATION.fingerprint())):
+            and (individual is None or individual.get('implementationSha256') not in
+                 [PLAYER_PARTICIPATION.fingerprint(),*prior_versions('players',PLAYER_PARTICIPATION.fingerprint())])):
         retained=PLAYER_PARTICIPATION.retained_source(api,state,promotion)
         if retained is not None:
             memory=module(ROOT/'scripts/pipeline/process_state.py','participation_memory').available_memory()
@@ -299,6 +335,7 @@ def dashboard_game_priorities(state):
         raise ValueError('Dashboard priority database escaped its owner')
     with closing(sqlite3.connect(database.as_uri()+'?mode=ro',uri=True)) as connection:
         player_version=PLAYER_PARTICIPATION.fingerprint()
+        player_versions={player_version,*prior_versions('players',player_version)}
         priority={r[0]:2 for r in connection.execute("SELECT game_pk FROM game_dimension WHERE game_set='regular_season' "
             "AND season=(SELECT max(season) FROM game_dimension WHERE game_set='regular_season')")}
         for pk,batting,individual in connection.execute('''SELECT g.game_pk,
@@ -306,7 +343,7 @@ def dashboard_game_priorities(state):
                 FROM game_dimension g LEFT JOIN metric_suite_admission b USING(graph_iri)
                 LEFT JOIN dashboard_player_admission a USING(graph_iri)
                 WHERE g.game_set='regular_season' '''):
-            if pk in priority and batting!='admitted' and individual!=player_version:priority[pk]=1
+            if pk in priority and batting!='admitted' and individual not in player_versions:priority[pk]=1
         for pk, in connection.execute('''SELECT g.game_pk FROM game_dimension g
                 JOIN metric_suite_runner_resolution_admission r USING(graph_iri)
                 WHERE g.game_set='regular_season' AND json_extract(r.proof_json,'$.status')!='admitted' '''):

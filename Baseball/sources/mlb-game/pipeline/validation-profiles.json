@@ -14,6 +14,7 @@
     "shacl/pa-resolution-admission.ttl",
     "shacl/defensive-admission.ttl",
     "shacl/runner-history-admission.ttl",
-    "shacl/clock-admission.ttl"
+    "shacl/clock-admission.ttl",
+    "shacl/intentional-walk-award-addition.ttl"
   ]
 }
