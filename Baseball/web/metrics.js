@@ -389,6 +389,8 @@ export function dashboardLoadStatus(payload) {
   const incomplete = cards.filter(card => card.hasGaps).length;
   const messages = [leaders ? `${leaders} player leaderboard${leaders === 1 ? '' : 's'} loaded.` :
     `Game data loaded for ${games} game${games === 1 ? '' : 's'}, but no player leaderboards are available.`];
+  const unverified = payload.participationCoverage?.unverifiedGames?.length ?? 0;
+  if (unverified) messages.push(`Player participation is not yet verified for ${unverified} of these games. The full selected range is retained; incomplete games are not dropped from averages.`);
   if (empty) messages.push(`No players meet the participation minimum for ${empty} leaderboard${empty === 1 ? '' : 's'}.`);
   if (incomplete) messages.push(`${incomplete} leaderboard${incomplete === 1 ? ' still has' : 's still have'} incomplete player results.`);
   if (leaders) messages.push('Select a card to see all qualified players and their evidence.');

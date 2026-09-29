@@ -37,11 +37,19 @@ def query(m, products, db, request, scope):
     version=products.fingerprint()
     if any(saved.get(g)!=m._hash(key+version) for g,key in expected.items()):
         raise m.EvidenceError('Selected player products need NiFi preparation')
+    missing_rosters=[dict(graph=graph,gamePk=graph.rsplit('/',1)[-1],date=day)
+        for graph,day in db.execute('SELECT g.graph_iri,g.official_date FROM game_dimension g '
+            'LEFT JOIN dashboard_player_game p USING(graph_iri) '
+            'WHERE g.game_set=? AND g.official_date BETWEEN ? AND ? GROUP BY g.graph_iri '
+            'HAVING MAX(COALESCE(p.roster_complete,0))=0 ORDER BY g.official_date,g.graph_iri',params)]
+    participation_coverage=dict(games=len(graphs),verifiedGames=len(graphs)-len(missing_rosters),
+                                unverifiedGames=missing_rosters)
     people=defaultdict(lambda:dict(pa=0,paKnown=True,games=set(),graphs=set(),roster=True))
     roster_graphs=set()
-    for graph,player,pa,roster in db.execute('SELECT p.graph_iri,p.player,p.plate_appearances,p.roster_complete '
+    participation=() if missing_rosters else db.execute('SELECT p.graph_iri,p.player,p.plate_appearances,p.roster_complete '
             'FROM dashboard_player_game p JOIN game_dimension g USING(graph_iri) '
-            'WHERE g.game_set=? AND g.official_date BETWEEN ? AND ?',params):
+            'WHERE g.game_set=? AND g.official_date BETWEEN ? AND ?',params)
+    for graph,player,pa,roster in participation:
         p=people[player];p['pa']+=pa or 0;p['paKnown'] &= pa is not None
         if roster:roster_graphs.add(graph)
         p['games'].add(graph);p['graphs'].add(graph);p['roster'] &= bool(roster)
@@ -112,5 +120,5 @@ def query(m, products, db, request, scope):
             result=m.available(total/count) if count else m.unavailable('EMPTY_DENOMINATOR')
         metrics.append(dict(result,**base))
     return dict(execution='materialized-sql',implementationSha256=m.fingerprint(),dateScope=scope,
-        graphCount=len(graphs),schedule=schedule,
+        graphCount=len(graphs),schedule=schedule,participationCoverage=participation_coverage,
         **({'metrics':metrics} if request.get('view')=='dashboard' else {'metric':metrics[0]}))

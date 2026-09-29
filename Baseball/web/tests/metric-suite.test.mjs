@@ -24,6 +24,8 @@ test('loaded game evidence does not report that player leaderboards are ready', 
   const missing = { graphCount: 14, metrics: [{status:'available',value:{numerator:'1',denominator:'2'}}] };
   assert.match(dashboardLoadStatus(missing), /no player leaderboards are available/);
   assert.match(dashboardLoadStatus(missing), /incomplete player results/);
+  assert.match(dashboardLoadStatus({...missing,participationCoverage:{unverifiedGames:[{},{}]}}),
+    /not yet verified for 2 of these games.*full selected range is retained/);
   assert.match(dashboardLoadStatus({ graphCount: 0, metrics: [] }), /No games/);
   assert.match(dashboardLoadStatus({ graphCount: 14, metrics: [{leaderboard:{status:'available',rows:[{player:'1'}]}}] }), /^1 player leaderboard loaded/);
   assert.match(dashboardLoadStatus({ graphCount: 14, metrics: [{leaderboard:{status:'available',rows:[]}}] }), /no player leaderboards/);

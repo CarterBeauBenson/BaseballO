@@ -91,7 +91,18 @@ class PlayerRanges(unittest.TestCase):
                 db.execute('INSERT INTO dashboard_player_metric VALUES (?,?,?,?,?,?)',
                     (graph,player,'tfs',1,M._json(dict(kind='mean',sum=M.exact(3),count=4)),None))
         request={'metricId':'tfs'}
-        self.assertEqual(Q.query(M,P,db,request,SCOPE),P.query(M,db,request,SCOPE))
+        result=Q.query(M,P,db,request,SCOPE)
+        coverage=result.pop('participationCoverage')
+        self.assertEqual(coverage,dict(games=2,verifiedGames=2,unverifiedGames=[]))
+        self.assertEqual(result,P.query(M,db,request,SCOPE))
+
+    def test_incomplete_roster_is_reported_without_shortening_selected_range(self):
+        db=self.db();db.execute('DELETE FROM dashboard_player_game WHERE graph_iri=?',(G+'2',))
+        result=Q.query(M,P,db,{'metricId':'tfs'},SCOPE)
+        self.assertEqual(result['dateScope'],SCOPE)
+        self.assertEqual(result['participationCoverage'],dict(games=2,verifiedGames=1,
+            unverifiedGames=[dict(graph=G+'2',gamePk='2',date='2026-09-02')]))
+        self.assertEqual(result['metric']['playerSummaryGaps'],['COMPLETE_PARTICIPATION'])
 
     def test_unselected_exhibition_products_do_not_block_dashboard_preparation(self):
         db=self.db()
