@@ -74,6 +74,11 @@ do not infer their deployment from these results.
   limited to W1's intentional walks; it did not authorize these ordinary runner
   rows. K1's compound strikeout case remains a separate decision. SQL repairs
   over supported facts continue independently.
+  The implemented source-owned R1 worker now reuses 27 unchanged maps and the
+  existing additive transaction. Seven focused regressions pass; a read-only
+  selection of the retained 823200 witness supplies 125 episodes and 19
+  supported personal histories. NiFi must complete that first game before
+  widening to the remaining 25. Runtime promotion and SQL results remain pending.
 
 - Help Without Advancing no longer requires every other runner's contribution
   to be known when its binary answer is already certain. NiFi reuses the same

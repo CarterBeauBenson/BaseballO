@@ -1,0 +1,13 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix base: <https://baseballontology.org/> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+@prefix cco: <https://www.commoncoreontologies.org/> .
+
+# These referents must already exist: R1's selected maps do not create them.
+[] a sh:NodeShape ; sh:targetNode <__ACT__> ; sh:class base:BaserunningAct ;
+  sh:property [ sh:path obo:BFO_0000132 ; sh:hasValue <__PA__> ] ;
+  sh:property [ sh:path obo:BFO_0000057 ; sh:hasValue <__PLAYER__> ] .
+[] a sh:NodeShape ; sh:targetNode <__RESOLUTION__> ; sh:class base:__OUTCOME__ ;
+  sh:property [ sh:path obo:BFO_0000132 ; sh:hasValue <__PA__> ] ;
+  sh:property [ sh:path obo:BFO_0000062 ; sh:hasValue <__ACT__> ] .
+[] a sh:NodeShape ; sh:targetNode <__PLAYER__> ; sh:class cco:ont00001262 .
