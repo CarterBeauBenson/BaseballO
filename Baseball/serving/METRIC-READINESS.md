@@ -60,6 +60,17 @@ do not infer their deployment from these results.
   unchanged-partition reuse and incremental SQL publication without game
   recalculation. Runtime coverage must be read from NiFi's subsequent receipts
   and SQL publication; component checks are not populated-card counts.
+  September 29 runtime receipts now admit 459 PAs across games 823712, 823805,
+  824613, 823332, 823448 and 823087, leaving one failed PA in each game withheld.
+  These are source-owned checks over unchanged RDF, awaiting the subsequent
+  SQL player publication. Other games remain wholly withheld. For example,
+  a read of game 822864's PA 0 confirmed its promoted Baserunning Act lacks
+  the required agent assertion and its Runner Resolution Episode is absent.
+  Its resolution has an existing runner participant; that does not supply the
+  full admitted pattern. W1's PA 54 award repair alone would not supply these
+  other missing facts. Game 824807 separately retains source reconciliation
+  failures. Repeating SQL preparation cannot add either missing RDF assertions
+  or missing source evidence, and none of these receipts certify all 19 cards.
 - The September 29 11:56 Eastern publication (`20260929T151652Z-dashboard-fa3a211216a7`)
   still has **1/19** populated season cards. Its full-season HTTP request succeeds
   but took 29.19 seconds (26.22 in the adapter). That build reused all 2,917 game

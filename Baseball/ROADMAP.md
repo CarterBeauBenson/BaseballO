@@ -32,10 +32,12 @@ permission is not a standing rebuild instruction.
    existing database and RDF. The four retained retries for 822848, 822854,
    822936 and 823338 are complete and published; do not repeat them.
 2. Inspect published selected-period player rows and exact gaps. September 21-27
-   now has **7/19 named, qualified leaderboards**, including matching expanded
-   details. The month has 5/19 populated cards and no roster gaps; the season
-   still has 28 roster gaps in its last verified publication. The previously missing game 823087 and
-   prepared player names are already published.
+   has **11/19 named, qualified leaderboards** in its last verified publication.
+   The month has 5/19 populated cards and no roster gaps. The full season has
+   all 2,429 expected games and verified rosters, but only **1/19 populated
+   cards**. The previously missing game 823087 and prepared player names are
+   already published. Use the dated readiness record for deployment evidence;
+   recovered admissions are not populated leaderboard counts.
 3. Complete supported contribution, progress, Empty Game and scoring-history
    calculations from existing RDF. Keep unknown contribution ownership and
    incomplete populations explicit; do not drop observations to fill a card.
