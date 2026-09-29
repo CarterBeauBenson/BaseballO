@@ -79,15 +79,20 @@ def query(m, products, db, request, scope):
                 'FROM dashboard_player_metric p JOIN game_dimension g USING(graph_iri) '
                 'WHERE p.metric_id=? AND g.game_set=? AND g.official_date BETWEEN ? AND ?', (metric,*params)):
             seen[player].add(graph)
-            if not complete:blocked[player].add(reason or 'INCOMPLETE_PLAYER_RECORD')
-            else:grouped[player].append(json.loads(text))
+            if not complete:
+                blocked[player].add(reason or 'INCOMPLETE_PLAYER_RECORD')
+                grouped.pop(player,None)
+            elif player in people and not blocked[player]:
+                # Keep compact SQL text until the whole selected-range record
+                # is known complete. One failed game excludes all its values.
+                grouped[player].append(text)
         output=[];exclusions=Counter();complete_people=0
         for player,person in people.items():
             if not person['roster'] or seen[player]!=person['graphs']:
                 blocked[player].add('COMPLETE_PARTICIPATION')
             if blocked[player]:
                 exclusions.update(blocked[player]);continue
-            complete_people+=1;parts=grouped[player]
+            complete_people+=1;parts=[json.loads(text) for text in grouped.pop(player,())]
             if metric=='empty-game-rate':
                 aggregate=dict(kind='count',count=sum(p['count'] for p in parts),eligibleGames=sum(p['eligibleGames'] for p in parts))
                 if not aggregate['eligibleGames']:continue

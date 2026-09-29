@@ -130,6 +130,13 @@ all season histories. Missing selected references remain unavailable. Range
 participation coverage is read from prepared SQL and reports the exact affected
 games; a missing roster does not silently shorten the user's selection.
 
+The player reader defers aggregate JSON decoding until a player's entire selected
+range passes its existing completeness checks. A failed game discards that
+player's buffered values; missing metric rows also prevent decoding. SQL still
+supplies the full selected range and all exclusion reasons. Exact fractions,
+zero-observation records, qualification and pooled results are unchanged. This
+reader-only change requires no new SQL products or RDF work.
+
 The independent player admission refresh validates existing B1/E1 roster and B1
 player constraints against the promoted graph without rerunning RML. Original
 whole-game admissions are retained. Its separate proof is stored in

@@ -104,6 +104,41 @@ class PlayerRanges(unittest.TestCase):
             unverifiedGames=[dict(graph=G+'2',gamePk='2',date='2026-09-02')]))
         self.assertEqual(result['metric']['playerSummaryGaps'],['COMPLETE_PARTICIPATION'])
 
+    def test_reader_decodes_only_whole_range_complete_players(self):
+        db=self.db()
+        # Player 1 fails after an otherwise usable game. Player 2 is complete,
+        # player 3 lacks a metric row, and player 4 has known zero observations.
+        for graph in (G+'1',G+'2'):
+            for player in (U+'3',U+'4'):
+                db.execute('INSERT INTO dashboard_player_game VALUES (?,?,?,?,?)',(graph,player,'team',0,1))
+        for metric in sorted(P.PREPARED):
+            def aggregate(count):
+                if metric=='empty-game-rate':return dict(kind='count',count=count,eligibleGames=count)
+                if metric=='contribution-path-diversity':return dict(kind='channel_entropy',channelCounts=[count,2*count,0])
+                return dict(kind='mean',sum=M.exact(M.Fraction(count,3)),count=count,independentRunningEpisodes=count)
+            for graph in (G+'1',G+'2'):
+                for player in (U+'1',U+'2',U+'3',U+'4'):
+                    if player==U+'3' and graph==G+'2':continue
+                    complete=not(player==U+'1' and graph==G+'2')
+                    db.execute('INSERT INTO dashboard_player_metric VALUES (?,?,?,?,?,?)',
+                        (graph,player,metric,int(complete),M._json(aggregate(0 if player==U+'4' else int(graph[-1]))),
+                         None if complete else 'MISSING_PA'))
+            request={'metricId':metric}
+            expected=P.query(M,db,request,SCOPE)
+            aggregate_decodes=[];loads=json.loads
+            def tracked_loads(text,*args,**kwargs):
+                value=loads(text,*args,**kwargs)
+                if isinstance(value,dict) and value.get('kind') in ('mean','count','channel_entropy'):
+                    aggregate_decodes.append(value)
+                return value
+            with patch.object(Q.json,'loads',side_effect=tracked_loads):
+                actual=Q.query(M,P,db,request,SCOPE)
+            actual.pop('participationCoverage')
+            self.assertEqual(actual,expected,metric)
+            self.assertEqual(len(aggregate_decodes),4,metric)
+            self.assertEqual(actual['metric']['rankingCoverage']['completePlayers'],2,metric)
+            self.assertEqual(actual['metric']['rankingCoverage']['excludedPlayers'],2,metric)
+
     def test_unselected_exhibition_products_do_not_block_dashboard_preparation(self):
         db=self.db()
         db.execute('INSERT INTO game_dimension VALUES (?,?,?)',(G+'3','2026-09-02','exhibition'))
