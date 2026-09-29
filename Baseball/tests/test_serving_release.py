@@ -87,6 +87,47 @@ class ServingRelease(unittest.TestCase):
         self.assertNotEqual(first,second)
         self.assertEqual((R.verify_release(self.state,first)/'serving/value.txt').read_text(),'version-one')
 
+    def test_reader_deploy_keeps_database_and_pending_input_signal(self):
+        builder='''from contextlib import contextmanager
+from types import SimpleNamespace
+@contextmanager
+def writer_lock(path): yield
+@contextmanager
+def database(state,pointer):
+ if pointer.get('invalid'): raise ValueError('Invalid published database')
+ yield
+SOURCE=SimpleNamespace(_reader=SimpleNamespace(dashboard_database=database))
+'''
+        (self.pipeline/'materialize-dashboard.py').write_text(builder,newline='\n')
+        self.commit();first=self.capture()
+        path=self.state/'serving/dashboard-current.json'
+        pointer=dict(buildId='sql-one',databaseSha256='unchanged',notificationKey='pending-old-inputs',
+                     runtimeRelease=first,promotedAtUtc='original-data-publication')
+        R.atomic(path,pointer)
+        (self.pipeline/'query-serving-layer.py').write_text(QUERY+'\n# reader fix\n',newline='\n')
+        self.commit();second=self.capture();root=R.verify_release(self.state,second)
+        self.assertTrue(R.refresh_dashboard_reader(self.state,root,second))
+        updated=R.read(path)
+        self.assertEqual(updated['runtimeRelease'],second)
+        self.assertEqual(updated['dataRuntimeRelease'],first)
+        for key in ('buildId','databaseSha256','notificationKey','promotedAtUtc'):
+            self.assertEqual(updated[key],pointer[key])
+        self.assertFalse(R.refresh_dashboard_reader(self.state,root,second))
+        R.atomic(path,dict(pointer,invalid=True))
+        with self.assertRaisesRegex(ValueError,'Invalid published database'):
+            R.refresh_dashboard_reader(self.state,root,second)
+        self.assertEqual(R.read(path),dict(pointer,invalid=True))
+
+    def test_reader_compatibility_rejects_any_producer_or_schema_change(self):
+        previous={'files':{'serving/player_ranges.py':'old','serving/dashboard-schema.sql':'schema',
+                           'scripts/pipeline/query-serving-layer.py':'reader-one'}}
+        current={'files':dict(previous['files'],**{'scripts/pipeline/query-serving-layer.py':'reader-two',
+                                                  'serving/player_range_query.py':'new-reader'})}
+        self.assertTrue(R.dashboard_reader_compatible(previous,current))
+        for name in ('serving/player_ranges.py','serving/dashboard-schema.sql'):
+            changed={'files':dict(current['files'],**{name:'changed'})}
+            self.assertFalse(R.dashboard_reader_compatible(previous,changed))
+
     def test_build_guard_uses_snapshot_and_still_rejects_snapshot_corruption(self):
         release=self.capture();root=R.verify_release(self.state,release);p=root/'serving/value.txt'
         guard=G.BuildInputGuard(paths={'runtime':p},metric_fingerprint=lambda:R.sha(p.read_bytes()),

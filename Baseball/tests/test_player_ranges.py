@@ -4,11 +4,14 @@ import json
 from pathlib import Path
 import sqlite3
 import unittest
+from unittest.mock import patch
 
 from test_metric_suite_serving import M
 
 spec=importlib.util.spec_from_file_location('player_ranges',M.ROOT/'serving/player_ranges.py')
 P=importlib.util.module_from_spec(spec);spec.loader.exec_module(P)
+spec=importlib.util.spec_from_file_location('player_range_query',M.ROOT/'serving/player_range_query.py')
+Q=importlib.util.module_from_spec(spec);spec.loader.exec_module(Q)
 G='https://w3id.org/baseball/graph/game/'
 U='https://baseballontology.org/data/player/'
 SCOPE=dict(gameSet='regular_season',startDate='2026-09-01',endDate='2026-09-02')
@@ -66,6 +69,29 @@ class PlayerRanges(unittest.TestCase):
         result=P.query(M,db,{'metricId':'tfs'},SCOPE)['metric']
         self.assertFalse(result['playerRecordsComplete'])
         self.assertEqual(result['playerSummaryGaps'],['COMPLETE_PARTICIPATION'])
+
+    def test_unrelated_early_reference_does_not_reconstruct_selected_season(self):
+        db=self.db()
+        db.execute('CREATE TABLE dashboard_reference(metric_id TEXT,season INTEGER,graph_set_sha256 TEXT)')
+        db.execute('INSERT INTO dashboard_reference VALUES (?,?,?)',
+                   ('recovery-quality',2026,M._hash(M._json([G+'1']))))
+        with patch.object(M,'query_sql',side_effect=AssertionError('must not decode game inputs')):
+            result=Q.query(M,P,db,{'metricId':'recovery-quality'},SCOPE)['metric']
+        self.assertEqual(result['playerSummaryGaps'],['SEASON_REFERENCE_UNAVAILABLE'])
+        self.assertEqual(result['playerResults'],[])
+        db.execute('INSERT INTO dashboard_reference VALUES (?,?,?)',
+                   ('recovery-quality',2026,M._hash(M._json([G+'1',G+'2']))))
+        self.assertTrue(Q.reference_available(M,db,'recovery-quality',SCOPE))
+        self.assertFalse(Q.reference_available(M,db,'paq-2',SCOPE))
+
+    def test_reader_keeps_exact_producer_partition_and_pooling_contract(self):
+        db=self.db()
+        for graph in (G+'1',G+'2'):
+            for player in (U+'1',U+'2'):
+                db.execute('INSERT INTO dashboard_player_metric VALUES (?,?,?,?,?,?)',
+                    (graph,player,'tfs',1,M._json(dict(kind='mean',sum=M.exact(3),count=4)),None))
+        request={'metricId':'tfs'}
+        self.assertEqual(Q.query(M,P,db,request,SCOPE),P.query(M,db,request,SCOPE))
 
     def test_unselected_exhibition_products_do_not_block_dashboard_preparation(self):
         db=self.db()

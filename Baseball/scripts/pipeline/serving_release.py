@@ -262,6 +262,44 @@ def query_pointer_path(state, request=None):
     return Path(state)/'serving/current.json'
 
 
+def dashboard_reader_compatible(previous, current):
+    """Reader-only deployment never certifies different SQL producer bytes."""
+    readers={'scripts/pipeline/query-serving-layer.py',
+             'scripts/pipeline/serving_release.py', 'serving/player_range_query.py'}
+    data=lambda record:{k:v for k,v in record['files'].items() if k not in readers}
+    return data(previous)==data(current)
+
+
+def refresh_dashboard_reader(state, selected, descriptor):
+    """NiFi may replace a compatible reader without copying the immutable SQL.
+
+    Keep the data publication identity and update signal intact. Pending source
+    or admission changes still go through the ordinary incremental builder.
+    """
+    pointer_path=Path(state)/'serving/dashboard-current.json'
+    if not pointer_path.is_file(): return False
+    spec=importlib.util.spec_from_file_location('dashboard_reader_deployment',
+        selected/'scripts/pipeline/materialize-dashboard.py')
+    builder=importlib.util.module_from_spec(spec);spec.loader.exec_module(builder)
+    try:
+        with builder.writer_lock(Path(state)/'serving/dashboard/writer.lock'):
+            pointer=read(pointer_path)
+            if pointer.get('runtimeRelease')==descriptor:return False
+            previous=resolve_pointer_release(state,pointer)
+            if previous is None:return False
+            if not dashboard_reader_compatible(read(previous.parent/'release.json'),read(selected.parent/'release.json')):
+                return False
+            with builder.SOURCE._reader.dashboard_database(Path(state),pointer):
+                pass
+            updated=dict(pointer, runtimeRelease=descriptor,
+                dataRuntimeRelease=pointer.get('dataRuntimeRelease',pointer['runtimeRelease']),
+                readerUpdatedAtUtc=time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()))
+            atomic(pointer_path,updated)
+            return True
+    except BlockingIOError:
+        return False  # The active owner will finish; the next tick can deploy.
+
+
 def dispatch(root, argv, *, mode):
     """Return None inside the release; otherwise execute its existing entrypoint."""
     if any(arg in {'-h','--help'} for arg in argv): return None
@@ -281,6 +319,8 @@ def dispatch(root, argv, *, mode):
             atomic(state/'serving/runtime-preparation.json',preparation)
         descriptor=capture(root.parent,state)
         selected=verify_release(state,descriptor)
+        if mode=='dashboard-build' and not any(a.split('=')[0] in {'--max-games','--no-promote'} for a in argv):
+            refresh_dashboard_reader(state,selected,descriptor)
         if not (selected/'scripts/pipeline/serving_release.py').is_file():
             raise ValueError('Commit the serving release launcher before deploying it')
         script='materialize-dashboard.py' if mode=='dashboard-build' else 'materialize-serving-layer.py'

@@ -44,6 +44,9 @@ _reference_spec.loader.exec_module(_references)
 _player_spec = importlib.util.spec_from_file_location('baseballo_player_ranges', ROOT/'serving/player_ranges.py')
 _player_ranges = importlib.util.module_from_spec(_player_spec)
 _player_spec.loader.exec_module(_player_ranges)
+_range_query_spec = importlib.util.spec_from_file_location('baseballo_player_range_query', ROOT/'serving/player_range_query.py')
+_range_query = importlib.util.module_from_spec(_range_query_spec)
+_range_query_spec.loader.exec_module(_range_query)
 GAME_SETS = frozenset(
     {"regular_season", "preseason", "postseason", "exhibition", "all_star"}
 )
@@ -954,7 +957,7 @@ def query_dashboard(args, request, pointer):
     with dashboard_database(args.state_root, pointer) as (connection, build):
         scope = resolve_scope(connection,request)
         with _references.prepared_ranks(_metric_suite,connection):
-            result = _player_ranges.query(_metric_suite,connection,request,scope)
+            result = _range_query.query(_metric_suite,_player_ranges,connection,request,scope)
         result['display'] = _display.read(connection,scope,result)
         result['serving'] = dict(buildId=build[0],corpusFingerprint=build[1],publication='dashboard',
                                  durationMs=round((time.perf_counter()-started)*1000,3))
