@@ -544,3 +544,10 @@ games in which the candidate appears. Multiple-team candidates use the largest
 team total, never less than their evidenced game exposure. This conservative
 threshold cannot be reduced by switching teams. No SPARQL, scoring, source
 refresh or SQL rebuild is performed by this display qualification step.
+
+Contribution Mix bounds an unresolved running attempt to its batter and actual
+runners when the existing resolution census is admitted. NiFi reads retained
+SQL evidence only for affected player projections; it neither reruns unchanged
+game kernels nor queries RDF for this repair. Missing runner identity retains
+the whole-roster exclusion. The exact prior projection version can reuse
+unaffected products; already current partitions skip the candidate scan.

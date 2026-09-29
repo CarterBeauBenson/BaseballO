@@ -64,6 +64,18 @@ do not infer their deployment from these results.
 
 ## Implemented repairs and retained component evidence
 
+- Contribution Mix no longer excludes every player because one completed PA
+  has an unresolved running episode. With an admitted full resolution census,
+  uncertainty stays with that PA's batter and actual runners. Unknown identities
+  retain the whole-roster fallback, and the affected people's channel counts
+  remain withheld. Existing SQL contains 1,247 games with this broad exclusion.
+  A read-only calculation for game 822679 repairs 52 player/game records,
+  including Francisco Lindor's exact channel counts **[3, 1, 1]** and one
+  independent running episode. This is a component result pending NiFi's next
+  player projection, not a full-season qualification claim. Four focused
+  regressions preserve affected-player exclusions, admission requirements,
+  existing Help behavior and unchanged-partition reuse.
+
 - The [R1 review](../archive/design-records/mlb-game-runner-pattern-completion/README.md)
   identifies 26 games and 2,023 candidate PAs whose existing SQL diagnostics
   show missing runner-pattern facts. Each game has a retained source input,

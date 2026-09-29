@@ -19,6 +19,47 @@ SCOPE=dict(gameSet='regular_season',startDate='2026-09-01',endDate='2026-09-02')
 
 
 class PlayerRanges(unittest.TestCase):
+    def test_running_channel_gap_does_not_exclude_unrelated_players(self):
+        graph=G+'1';game='https://baseballontology.org/data/game/1'
+        proof=dict(status='admitted',sourceReconciled=True,graphConforms=True)
+        rows=[];pas=[]
+        for i in (1,2,3):
+            player=U+str(i);pa='pa'+str(i)
+            rows.extend([dict(kind='player_team_game',player=player,graph=graph,game=game,team='team',teamRole='role'),
+                dict(kind='plate_appearance',entity=pa,graph=graph,game=game,player=player,act='act'+str(i),
+                    recognizedBattingResult='true',paResult='result'+str(i),paResultType='type',paResultJudgment='judgment',
+                    paResultDecision='decision',paResultRecord='record')])
+            pas.append(dict(graph=graph,game=game,plateAppearance=pa,player=player,officialResult=True,
+                reach=1,batterPositive=True,otherPositivePlayers=[],independentPositive=[],independentEpisodes=[],
+                independentEpisodeGaps=['UNRESOLVED_RUNNING_EPISODE_ATTRIBUTION'] if i==1 else [],
+                positiveChannels=[dict(player=player,play=pa,channel='batter_self')]))
+        rows.append(dict(kind='runner_movement',graph=graph,game=game,plateAppearance='pa1',runner=U+'2'))
+        progress=dict(plateAppearances=pas,unresolvedPlateAppearances=[])
+        bounded=P.channel_gap_players(rows,progress)
+        self.assertEqual(bounded,{'pa1':[U+'1',U+'2']})
+        for bounds,admission,expected in (({},proof,0),(bounded,proof,1),(bounded,{},0)):
+            _,records=P.project(M,graph=graph,scope=SCOPE,rows=rows,
+                proofs=dict(batting=proof,run={},resolution=admission),
+                inputs=dict(contribution={},progress=progress,defense={},channelGapPlayers=bounds),
+                runs={metric:{} for metric in P.RUNS},run_people={})
+            mixed={r[1]:r for r in records if r[2]=='contribution-path-diversity'}
+            self.assertEqual(mixed[U+'3'][3],expected)
+            self.assertEqual(mixed[U+'1'][3],0)
+            self.assertEqual(mixed[U+'2'][3],0)
+            self.assertEqual(json.loads(mixed[U+'3'][4]),dict(kind='channel_entropy',channelCounts=[1,0,0],independentRunningEpisodes=0))
+        rows[-1].pop('runner')
+        self.assertEqual(P.channel_gap_players(rows,progress),{})
+
+    def test_channel_upgrade_reuses_unaffected_player_products(self):
+        db=self.db()
+        for i in (1,2):
+            db.execute('UPDATE dashboard_player_partition SET input_sha256=? WHERE graph_iri=?',
+                (M._hash('source-'+str(i)+P.PREVIOUS_CHANNEL_VERSION),G+str(i)))
+        with patch.object(M._blocks,'read_scope',side_effect=AssertionError('no unchanged projection')):
+            self.assertEqual(P.prepare(M,db)['preparedGames'],0)
+        self.assertEqual(dict(db.execute('SELECT * FROM dashboard_player_partition')),
+                         {G+str(i):M._hash('source-'+str(i)+P.fingerprint()) for i in (1,2)})
+
     def test_binary_help_keeps_exact_denominator_despite_unrelated_unknown_progress(self):
         from test_batting_progress_players import fixture, bindings, G1, GAME, P1, PROOF
         rows=M.normalize_bindings(bindings(fixture(),[G1]),[G1])
