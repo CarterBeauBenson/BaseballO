@@ -172,8 +172,11 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people):
 
 def prepare(m, db, checkpoint=None):
     initialize(db);version=fingerprint();changed=0
+    # The player dashboard serves only these game sets. Exhibition/WBC roster
+    # patterns must not participate in, or block, MLB dashboard preparation.
     inventory=db.execute('SELECT g.graph_iri,g.official_date,g.game_set,c.input_sha256 '
-        'FROM game_dimension g JOIN dashboard_checkpoint c USING(graph_iri) ORDER BY g.graph_iri').fetchall()
+        "FROM game_dimension g JOIN dashboard_checkpoint c USING(graph_iri) "
+        "WHERE g.game_set IN ('regular_season','all_star') ORDER BY g.graph_iri").fetchall()
     saved=dict(db.execute('SELECT graph_iri,input_sha256 FROM dashboard_player_partition'))
     for graph,day,game_set,key in inventory:
         identity=m._hash(key+version)

@@ -92,6 +92,11 @@ a source graph count or a successful component test.
   attaches names to player records using their selected game graphs, withholding
   conflicting names and avoiding repeated per-game labels in season responses.
   This repair requires the next Dashboard SQL publication.
+- Player-range preparation is restricted to the dashboard's selectable
+  regular-season and All-Star game sets. An unrelated exhibition roster with
+  both club and national-team exposures had aborted the first full preparation
+  at game 831427. Exhibition RDF and its existing derived game products are
+  retained; those games do not participate in this dashboard's player products.
 
 The complete earlier diagnosis and dated build history are retained in the
 [September 23 history](../archive/operational-history/2026-09-23/METRIC-READINESS.md).

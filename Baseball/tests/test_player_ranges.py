@@ -67,6 +67,15 @@ class PlayerRanges(unittest.TestCase):
         self.assertFalse(result['playerRecordsComplete'])
         self.assertEqual(result['playerSummaryGaps'],['COMPLETE_PARTICIPATION'])
 
+    def test_unselected_exhibition_products_do_not_block_dashboard_preparation(self):
+        db=self.db()
+        db.execute('INSERT INTO game_dimension VALUES (?,?,?)',(G+'3','2026-09-02','exhibition'))
+        db.execute('INSERT INTO dashboard_checkpoint VALUES (?,?)',(G+'3','unrelated-exhibition'))
+        # No source tables for that unrelated game: attempting to project it
+        # would fail. The two dashboard game partitions are already prepared.
+        result=P.prepare(M,db)
+        self.assertEqual((result['preparedGames'],result['reusedGames']),(0,2))
+
     def test_run_and_empty_game_gaps_are_scoped_to_the_affected_player(self):
         graph=G+'1';game='https://baseballontology.org/data/game/1'
         proof=dict(status='admitted',sourceReconciled=True,graphConforms=True)
