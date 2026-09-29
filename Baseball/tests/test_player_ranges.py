@@ -111,10 +111,15 @@ class PlayerRanges(unittest.TestCase):
     def test_covering_index_reads_only_complete_player_aggregates(self):
         self.check_complete_player_reads(covered=True)
 
-    def check_complete_player_reads(self, *, covered):
+    def test_player_index_reads_only_complete_player_aggregates(self):
+        self.check_complete_player_reads(covered=True,player_index=True)
+
+    def check_complete_player_reads(self, *, covered, player_index=False):
         db=self.db()
         if covered:db.execute('CREATE INDEX dashboard_player_metric_coverage '
             'ON dashboard_player_metric(graph_iri,metric_id,player,complete,reason)')
+        if player_index:db.execute('CREATE INDEX dashboard_player_metric_by_player '
+            'ON dashboard_player_metric(metric_id,player,graph_iri)')
         # Player 1 fails after an otherwise usable game. Player 2 is complete,
         # player 3 lacks a metric row, and player 4 has known zero observations.
         for graph in (G+'1',G+'2'):
@@ -124,7 +129,9 @@ class PlayerRanges(unittest.TestCase):
         for metric in sorted(P.PREPARED):
             def aggregate(count):
                 if metric=='empty-game-rate':return dict(kind='count',count=count,eligibleGames=count)
-                if metric=='contribution-path-diversity':return dict(kind='channel_entropy',channelCounts=[count,2*count,0])
+                if metric=='contribution-path-diversity':return dict(kind='channel_entropy',channelCounts=[count,2*count,0],
+                                                                   independentRunningEpisodes=count)
+                if not count:return P.zero()
                 return dict(kind='mean',sum=M.exact(M.Fraction(count,3)),count=count,independentRunningEpisodes=count)
             for graph in (G+'1',G+'2'):
                 for player in (U+'1',U+'2',U+'3',U+'4'):
@@ -145,7 +152,7 @@ class PlayerRanges(unittest.TestCase):
                 actual=Q.query(M,P,db,request,SCOPE)
             actual.pop('participationCoverage')
             self.assertEqual(actual,expected,metric)
-            self.assertEqual(len(aggregate_decodes),4,metric)
+            self.assertEqual(len(aggregate_decodes),2 if covered else 4,metric)
             self.assertEqual(actual['metric']['rankingCoverage']['completePlayers'],2,metric)
             self.assertEqual(actual['metric']['rankingCoverage']['excludedPlayers'],2,metric)
             expected_metrics.append(expected['metric'])
@@ -154,12 +161,33 @@ class PlayerRanges(unittest.TestCase):
             dashboard=Q.query(M,P,db,{'view':'dashboard'},SCOPE)
         db.set_trace_callback(None)
         self.assertEqual(dashboard['metrics'],expected_metrics)
-        self.assertEqual(sum('JOIN dashboard_player_metric ' in sql for sql in statements),2 if covered else 1)
+        self.assertEqual(sum('JOIN dashboard_player_metric ' in sql for sql in statements),2 if covered and not player_index else 1)
         if covered:
             aggregate_reads=[s for s in statements if 'SELECT p.metric_id,p.player,p.aggregate_json' in s]
             self.assertEqual(len(aggregate_reads),1)
             self.assertNotIn("'"+U+'1'+"'",aggregate_reads[0])
             self.assertNotIn("'"+U+'3'+"'",aggregate_reads[0])
+            if player_index:
+                plan=' '.join(row[3] for row in db.execute('EXPLAIN QUERY PLAN '+aggregate_reads[0]))
+                self.assertIn('dashboard_player_metric_by_player (metric_id=? AND player=?)',plan)
+
+    def test_empty_payload_filter_preserves_zero_scores_and_independent_running_exposure(self):
+        db=self.db()
+        db.execute('CREATE INDEX dashboard_player_metric_coverage '
+            'ON dashboard_player_metric(graph_iri,metric_id,player,complete,reason)')
+        for metric,parts in {
+            'tfs':[dict(kind='mean',sum=M.exact(0),count=4),dict(kind='mean',sum=M.exact(2),count=2)],
+            'empty-game-rate':[dict(kind='count',count=0,eligibleGames=1),dict(kind='count',count=1,eligibleGames=1)],
+            'contribution-path-diversity':[
+                dict(kind='channel_entropy',channelCounts=[0,0,0],independentRunningEpisodes=3),
+                dict(kind='channel_entropy',channelCounts=[1,1,0],independentRunningEpisodes=1)],
+        }.items():
+            for graph,part in zip((G+'1',G+'2'),parts):
+                db.execute('INSERT INTO dashboard_player_metric VALUES (?,?,?,?,?,?)',
+                           (graph,U+'1',metric,1,M._json(part),None))
+            request={'metricId':metric};actual=Q.query(M,P,db,request,SCOPE)
+            actual.pop('participationCoverage')
+            self.assertEqual(actual,P.query(M,db,request,SCOPE),metric)
 
     def test_reader_rejects_equal_counts_with_different_game_membership(self):
         db=self.db()

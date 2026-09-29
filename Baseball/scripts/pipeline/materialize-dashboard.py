@@ -487,7 +487,14 @@ def build_locked(args, state, serving, work):
         connection.execute('PRAGMA journal_mode=WAL')
         connection.execute('PRAGMA synchronous=FULL')
         connection.executescript(SCHEMA.read_text(encoding='utf-8'))
-        METRICS.initialize_sql(connection); DISPLAY.initialize(connection); PLAYER_RANGES.initialize(connection); connection.commit()
+        METRICS.initialize_sql(connection); DISPLAY.initialize(connection); PLAYER_RANGES.initialize(connection)
+        # Physical reader index only: existing player/game calculations and
+        # their producer fingerprint remain unchanged.
+        connection.execute('CREATE INDEX IF NOT EXISTS dashboard_player_metric_by_player '
+                           'ON dashboard_player_metric(metric_id,player,graph_iri)')
+        connection.execute('CREATE INDEX IF NOT EXISTS dashboard_player_metric_coverage '
+                           'ON dashboard_player_metric(graph_iri,metric_id,player,complete,reason)')
+        connection.commit()
         calculation = METRICS.calculation_fingerprint()
         cache = SOURCE._query_cache.ServingQueryCache(serving/'query-cache.sqlite')
         products = SOURCE._metric_cache.MetricProductCache(serving/'metric-cache.sqlite', calculation)

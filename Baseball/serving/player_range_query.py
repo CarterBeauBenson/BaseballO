@@ -13,6 +13,16 @@ import json
 from pathlib import Path
 
 
+# Exact additive identities emitted by the existing player producer. Coverage
+# still includes these games; only transporting/decoding their empty payloads
+# is unnecessary. A zero score with a nonzero denominator is never omitted.
+EMPTY_AGGREGATES=tuple(json.dumps(value,sort_keys=True,separators=(',',':')) for value in (
+    dict(kind='mean',sum={'numerator':'0','denominator':'1'},count=0),
+    dict(kind='count',count=0,eligibleGames=0),
+    dict(kind='channel_entropy',channelCounts=[0,0,0],independentRunningEpisodes=0),
+))
+
+
 def prepared_version(products):
     return hashlib.sha256(Path(__file__).read_bytes()+products.fingerprint().encode()).hexdigest()
 
@@ -163,11 +173,17 @@ def player_records(db, metrics, params, people):
                   for player,person in people.items()
                   if person['roster'] and not blocked[player] and seen[player]==len(person['graphs'])]
         if eligible:
-            rows=db.execute('SELECT p.metric_id,p.player,p.aggregate_json FROM game_dimension g '
-                'CROSS JOIN dashboard_player_metric p INDEXED BY sqlite_autoindex_dashboard_player_metric_1 '
-                'ON p.graph_iri=g.graph_iri WHERE g.game_set=? AND g.official_date BETWEEN ? AND ? '
-                "AND (p.metric_id,p.player) IN (SELECT json_extract(value,'$[0]'),json_extract(value,'$[1]') FROM json_each(?))",
-                (*params,json.dumps(eligible,separators=(',',':'))))
+            indexed=db.execute("SELECT 1 FROM sqlite_schema WHERE type='index' AND name='dashboard_player_metric_by_player'").fetchone()
+            # Let SQLite seek the eligible metric/player pairs when that index
+            # exists. Older snapshots retain the bounded game-first scan.
+            source=('dashboard_player_metric p JOIN game_dimension g ON p.graph_iri=g.graph_iri' if indexed else
+                'game_dimension g CROSS JOIN dashboard_player_metric p INDEXED BY sqlite_autoindex_dashboard_player_metric_1 '
+                'ON p.graph_iri=g.graph_iri')
+            rows=db.execute('SELECT p.metric_id,p.player,p.aggregate_json FROM '+source+
+                ' WHERE g.game_set=? AND g.official_date BETWEEN ? AND ? '
+                "AND (p.metric_id,p.player) IN (SELECT json_extract(value,'$[0]'),json_extract(value,'$[1]') FROM json_each(?)) "
+                'AND p.aggregate_json NOT IN (?,?,?)',
+                (*params,json.dumps(eligible,separators=(',',':')),*EMPTY_AGGREGATES))
             for metric,player,text in rows:products[metric][0][player].append(text)
     return products
 

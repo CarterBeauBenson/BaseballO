@@ -482,6 +482,12 @@ The reader snapshot also adds an index covering the range-completeness scan.
 The reader first checks the entire range, then fetches aggregate JSON only for
 complete player records. Older snapshots retain the prior reader path until
 NiFi publishes the index; neither path shortens the range or changes values.
+The working database now receives that coverage index too, so NiFi's season
+preparation uses the same compact read. A separate metric/player/game index
+allows SQLite to seek eligible player records directly. Exact empty aggregate
+payloads need not cross into Python, but their games remain in the coverage
+check. Zero-valued observations, eligible games and independent running exposure
+are retained. These physical indexes do not invalidate player calculations.
 
 The web layer reads only small prepared player/team/game rows from the same
 immutable, worker-verified dashboard snapshot for participation minimums. It
