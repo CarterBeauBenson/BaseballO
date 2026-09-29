@@ -4,6 +4,7 @@ Reuse the accepted population and ranking functions; only their storage and
 execution time change. This module is independent of per-game calculations.
 """
 from contextlib import contextmanager
+from fractions import Fraction
 import gzip
 import io
 import json
@@ -20,6 +21,55 @@ def initialize(connection):
         metric_id TEXT NOT NULL, season INTEGER NOT NULL, graph_set_sha256 TEXT NOT NULL,
         row_count INTEGER NOT NULL, payload_sha256 TEXT NOT NULL, payload BLOB NOT NULL,
         PRIMARY KEY(metric_id,season,graph_set_sha256))''')
+    connection.execute('''CREATE TABLE IF NOT EXISTS dashboard_reference_players (
+        metric_id TEXT NOT NULL, season INTEGER NOT NULL, graph_set_sha256 TEXT NOT NULL,
+        payload_sha256 TEXT NOT NULL, payload BLOB NOT NULL,
+        PRIMARY KEY(metric_id,season,graph_set_sha256))''')
+
+
+def prepare_players(m, db, metric, year, graphs, qualification, result):
+    """Retain exact game/player aggregates only after the existing reducer passes.
+
+    Qualification supplies official PA credit and team exposure, including
+    missed games. The established percentile functions supply the scores.
+    This product changes neither admission nor the reference population.
+    """
+    # A one-observation PAQ-A cohort has no percentile, even though its
+    # reference census is complete. Retain that existing failure per game:
+    # a selected range outside the cohort can still use other ranked PAs.
+    small_cohort=metric=='paq-a' and result['playerSummaryGaps']==['EMPTY_DENOMINATOR']
+    if result['playerPopulationComplete'] is not True and not small_cohort:return
+    games=dict(db.execute('SELECT game_iri,graph_iri FROM game_dimension'))
+    grouped={graph:{} for graph in graphs}
+    for person in qualification['participation']:
+        for exposure in person['teamGameExposure']:
+            grouped[games[exposure['game']]][person['player']]=dict(pa=0,count=0,sum=Fraction(),gaps=[])
+    for row in qualification['expectedObservations']:
+        grouped[row['graph']][row['player']]['pa']+=1
+    family='paq21' if metric=='paq-2.1' else 'recovery' if metric=='recovery-quality' else 'contribution'
+    inputs=m._blocks.read_inputs(m._block_api(),db,family,graphs)
+    def missing_ranks():raise m.EvidenceError('Reference ranks were not prepared')
+    ranks=m._blocks.reference_ranks(m._block_api(),db,metric,year,graphs,missing_ranks)
+    for graph in graphs:
+        for row in inputs[graph]['plateAppearances']:
+            if metric=='recovery-quality' and not row['twoStrikeEligible']:continue
+            key=m._json([row['graph'],row['game'],row['plateAppearance'],row['player'],year]) \
+                if metric=='paq-2.1' else m._json([row['graph'],row['plateAppearance']])
+            rank=ranks[key]
+            if metric=='paq-2.1' and rank['status']!='available' and rank['gaps']==['PAQ21_NOT_APPLICABLE']:continue
+            person=grouped[graph][row['player']]
+            if small_cohort and rank['status']!='available' and rank['gaps']==['EMPTY_DENOMINATOR']:
+                person['gaps']=['EMPTY_DENOMINATOR'];continue
+            if rank['status']!='available':raise m.EvidenceError('Incomplete reference player product')
+            person['count']+=1;person['sum']+=m.fraction(rank['value'])
+    for people in grouped.values():
+        for person in people.values():person['sum']=m.exact(person['sum'])
+    product=dict(games=grouped,reference=result['referencePopulations'][0])
+    raw=m._json(product).encode('utf-8')
+    if len(raw)>256*1024*1024:raise m.EvidenceError('Reference player product exceeds its read limit')
+    key=(metric,year,m._hash(m._json(sorted(graphs))))
+    db.execute('INSERT INTO dashboard_reference_players VALUES (?,?,?,?,?)',
+        (*key,hashlib.sha256(raw).hexdigest(),gzip.compress(raw,compresslevel=1,mtime=0)))
 
 
 @contextmanager
@@ -56,7 +106,9 @@ def prepare(m, connection, seasons=None, checkpoint=None):
     dates=connection.execute("SELECT DISTINCT season,official_date FROM game_dimension "
         "WHERE game_set='regular_season' ORDER BY season,official_date").fetchall()
     affected=set(seasons) if seasons is not None else {r[0] for r in dates}
-    for year in affected: connection.execute('DELETE FROM dashboard_reference WHERE season=?',(year,))
+    for year in affected:
+        connection.execute('DELETE FROM dashboard_reference WHERE season=?',(year,))
+        connection.execute('DELETE FROM dashboard_reference_players WHERE season=?',(year,))
     output=[]
     with prepared_ranks(m,connection):
         for year,cutoff in dates:
@@ -82,6 +134,7 @@ def prepare(m, connection, seasons=None, checkpoint=None):
                 args=dict(graphs=graphs,qualification=qualification,date_scope=scope,_write_reference=True)
                 result=(m.paq21_players(connection,**args) if metric_id=='paq-2.1' else
                     m.season_rank_players(connection,metric_id=metric_id,**args))
+                prepare_players(m,connection,metric_id,year,graphs,qualification,result)
                 output.append(dict(season=year,cutoff=cutoff,metricId=metric_id,
                     populationComplete=result['playerPopulationComplete'],gaps=result['playerSummaryGaps']))
             if checkpoint: checkpoint(referenceCutoff=cutoff,referenceSeasons=sorted(affected))

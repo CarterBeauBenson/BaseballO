@@ -10,27 +10,26 @@ Read-only selected-range checks on September 29, 2026:
 
 | Surface | Recorded result |
 | --- | --- |
-| Published dashboard | `20260929T135443Z-dashboard-82e1a7dfa8e9`, published September 29 at 10:35 Eastern, 2,917 games; runtime from `dab0c60` |
+| Published dashboard | `20260929T143536Z-dashboard-07a62db6ff3d`, published September 29 at 11:16 Eastern, 2,917 games; producer from `de840d4`, reader from `dcbab56` |
 | Week selection | September 21-27: all 90 expected regular-season games |
 | Week player leaderboards | **11/19 populated**, with names, selected-period aggregates, automatic minimums and disclosed exclusions; `ready=false` |
 | Newly populated cards | Plate Appearance Contribution (20 qualified players), Runner Out Rate (19), Runner Loss per PA (19), Scoring Opportunity Lost (20) |
-| Other populated cards | Offensive Reach (122), Help Without Advancing (122), Empty Games (142), Empty Game Damage (6), Contribution Mix (2), Scoring History Length (163) and Run Contributors (130) |
+| Other populated cards | Offensive Reach (122), Help Without Advancing (122), Empty Games (142), Empty Game Damage (58, up from 6), Contribution Mix (2), Scoring History Length (163) and Run Contributors (130) |
 | Expanded details | Scoring History Length has 163 named players for September 21-27, with Trea Turner and Jake Bauers among the leaders at an average of 4; 48 incomplete player records are explicitly excluded. The prior publication's full card/detail comparison matched all 163 rows. |
-| Month selection | August 29-September 27: all 403 expected games; **5/19 populated**, with all game rosters verified. Qualified counts: Offensive Reach 7, Help Without Advancing 7, Empty Games 11, Scoring History Length 144, Run Contributors 69. |
-| Season selection | All 2,429 expected regular-season games now have verified rosters. The live request times out at 30 seconds while reading the newly accessible player products; the reader correction below awaits deployment. This is not a populated-season delivery claim. |
-| Season metric detail | Scoring History Length returns Will Smith at **14/5**, averaging 35 complete scoring histories; the automatic minimum is 33 runs. The full-season detail request completed in 20.54 seconds. This one working metric does not establish the full dashboard. |
+| Month selection (last checked on prior publication) | August 29-September 27: all 403 expected games; **5/19 populated**, with all game rosters verified. Qualified counts: Offensive Reach 7, Help Without Advancing 7, Empty Games 11, Scoring History Length 144, Run Contributors 69. |
+| Season selection | The live dashboard now returns successfully for all 2,429 expected regular-season games and verified rosters. **1/19 populated**: only Scoring History Length has a qualifying complete record. Loading is repaired; full-season metric coverage is still incomplete. |
+| Season leader | Scoring History Length returns Will Smith at **14/5**, averaging 35 complete scoring histories; the automatic minimum is 33 runs. The dashboard and previously checked detail agree. |
 | Recent-game coverage | All 130 September 17-26 catch-up games are in SQL, including 823087 |
 
-The latest weekly API request completed in 10.47 seconds, including first-use
-verification of the new database (4.88 seconds inside the serving adapter).
-Season profiling identified repeated player-product scans and decoding of
-records later excluded for incompleteness. The candidate reader groups requested
-metrics into one game-first traversal through the existing primary index and
-decodes only complete records. A direct read of this same published database
-completed in 14.92 seconds, with the same player-record counts; focused tests
-preserve exact results, exclusions and missing-game detection across all 13
-prepared types. This is reader component evidence, not live API deployment.
-The selected period and automatic minimums remain unchanged.
+The latest weekly request spent 0.93 seconds inside the serving adapter. The
+full-season API returned in 25.98 seconds on first use and 21.03 seconds on the
+subsequent measurement (18.35 seconds inside the adapter). It no longer hits the
+30-second request limit, but season loading is still too slow for the intended
+instant interface. The deployed reader groups requested metrics into one
+game-first traversal through the existing primary index and decodes only complete
+records. Focused tests preserve exact results, exclusions and missing-game
+detection across all 13 prepared types. The selected period and automatic
+minimums remain unchanged.
 
 The healthy SQL service and unavailable player populations are separate facts.
 The current pointer is `state/serving/dashboard-current.json`; the independent
@@ -38,17 +37,23 @@ builder records progress in `state/serving/dashboard/progress.json`. Read those
 owner records for a later state. Do not infer publication from a submitted job,
 a source graph count or a successful component test.
 
-That publication reused 2,912 games and updated five games' admission-dependent
-products without recalculating unchanged game kernels. The seven previously
+That publication reused all 2,917 game calculations and refreshed the affected
+player products. The seven previously
 unverified rosters (824295, 823648, 823682, 823523, 824807, 823589 and 823668)
 are now verified in published SQL. Several player/PA checks still fail; a complete
-roster does not admit those players' metric records. Independent PA admission
-and the compact snapshot are live. The later per-player damage and reader
-corrections still require a newer runtime. NiFi started the next build at
-10:35 Eastern; do not infer its results from the preceding publication or tests.
+roster does not admit those players' metric records. Independent PA admission,
+the compact snapshot, per-player damage isolation and the grouped reader are
+live. Later reference-product changes still require their own NiFi publication;
+do not infer their deployment from these results.
 
 ## Implemented repairs and retained component evidence
 
+- The four percentile metrics now have NiFi-prepared exact player/game totals
+  and counts for each complete historical reference. Range reads combine those
+  products without decoding PA histories or recomputing ranks. Focused comparison
+  against the existing reducers covers all four metrics, selected start dates,
+  cutoffs and known ineligible observations. This does not admit missing reference
+  populations; the new SQL product still awaits its normal NiFi publication.
 - Player coverage displays verified game participation without inventing zero
   PA/run totals when the compact response does not include them. Populated cards
   with exclusions remain visible under Coverage gaps and explain those exclusions
@@ -58,7 +63,7 @@ corrections still require a newer runtime. NiFi started the next build at
   regression retains a player's exact 1/4 damage while another runner's turn is
   unresolved; an own interrupted turn, unknown runner or missing census still
   withholds it. Unchanged game calculations and unaffected player products are
-  reused. This is component evidence pending NiFi publication.
+  reused. The published weekly leaderboard now has 58 qualified players.
 - Publication checks SQL integrity on the prepared reader snapshot once,
   avoiding a second full scan of the larger working store. Progress records
   distinguish the final source check, snapshot copy and digest.

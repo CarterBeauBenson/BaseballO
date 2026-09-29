@@ -6,22 +6,79 @@ them. The immutable player/game calculation module is unchanged.
 """
 from collections import Counter, defaultdict
 from fractions import Fraction
+import gzip
+import hashlib
+import io
 import json
 
 
-def reference_available(m, db, metric, scope):
+def reference_products(m, db, metric, scope):
     if scope['gameSet'] != 'regular_season':
-        return False
+        return []
+    if not db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='dashboard_reference_players'").fetchone():
+        return []
+    products=[]
     for year in range(int(scope['startDate'][:4]), int(scope['endDate'][:4])+1):
         cutoff=min(scope['endDate'], f'{year}-12-31')
         graphs=[r[0] for r in db.execute(
             "SELECT graph_iri FROM game_dimension WHERE game_set='regular_season' "
             'AND official_date BETWEEN ? AND ? ORDER BY graph_iri', (f'{year}-01-01',cutoff))]
         key=m._hash(m._json(graphs))
-        if not db.execute('SELECT 1 FROM dashboard_reference WHERE metric_id=? AND season=? '
-                          'AND graph_set_sha256=?', (metric,year,key)).fetchone():
-            return False
-    return True
+        row=db.execute('SELECT payload_sha256,payload FROM dashboard_reference_players WHERE metric_id=? AND season=? '
+                       'AND graph_set_sha256=?', (metric,year,key)).fetchone()
+        if not row:return []
+        products.append((year,cutoff,graphs,row))
+    return products
+
+
+def reference_available(m, db, metric, scope):
+    return bool(reference_products(m,db,metric,scope))
+
+
+def reference_players(m, db, metric, scope, selected_graphs):
+    """Pool prepared reference-relative game totals, without PA reconstruction."""
+    products=reference_products(m,db,metric,scope)
+    def denied(gap,**details):
+        return dict(m.unavailable(gap),playerPopulationComplete=False,playerRecordsComplete=False,
+                    playerResults=[],playerSummaryGaps=[gap],**details)
+    if not products:return denied('SEASON_REFERENCE_UNAVAILABLE')
+    people=defaultdict(lambda:dict(pa=0,games=0,count=0,total=Fraction(),graphs=set()))
+    references=[];seen=set();selected=set(selected_graphs);gaps=set()
+    for year,cutoff,graphs,(digest,compressed) in products:
+        reference_scope=dict(gameSet='regular_season',startDate=f'{year}-01-01',endDate=cutoff)
+        schedule=m.selected_schedule_coverage(db,reference_scope,graphs)
+        if not schedule['complete']:return denied('REFERENCE_POPULATION_INCOMPLETE')
+        with gzip.GzipFile(fileobj=io.BytesIO(compressed)) as stream:raw=stream.read(256*1024*1024+1)
+        if len(raw)>256*1024*1024 or hashlib.sha256(raw).hexdigest()!=digest:
+            raise m.EvidenceError('Prepared reference player checksum mismatch')
+        product=json.loads(raw)
+        if set(product['games'])!=set(graphs):raise m.EvidenceError('Prepared reference game census mismatch')
+        references.append(dict(product['reference'],dateScope=reference_scope,schedule=schedule))
+        for graph in selected.intersection(graphs):
+            seen.add(graph)
+            for player,row in product['games'][graph].items():
+                gaps.update(row['gaps'])
+                person=people[player];person['pa']+=row['pa'];person['games']+=1
+                person['count']+=row['count'];person['total']+=m.fraction(row['sum'])
+                if row['count']:person['graphs'].add(graph)
+    if seen!=selected:raise m.EvidenceError('Selected games escaped the prepared reference')
+    if gaps:return denied(sorted(gaps)[0],referencePopulations=references)
+    output=[]
+    for player,person in sorted(people.items()):
+        count=person['count'];total=person['total']
+        if not count or not person['pa']:continue
+        summary=m.available(total/count)
+        if metric!='paq-2.1':summary['components']=dict(count=count,total=m.exact(total))
+        output.append(dict(summary,player=player,metricId=metric,dateScope=dict(scope),
+            completeParticipation=True,plateAppearances=person['pa'],teamGames=person['games'],
+            graphs=sorted(person['graphs']),aggregate=dict(kind='mean',sum=m.exact(total),count=count)))
+    count=sum(p['aggregate']['count'] for p in output)
+    total=sum((m.fraction(p['aggregate']['sum']) for p in output),Fraction())
+    summary=m.available(total/count) if count else m.unavailable('EMPTY_DENOMINATOR')
+    if count and metric!='paq-2.1':summary['components']=dict(count=count,total=m.exact(total))
+    return dict(summary,playerPopulationComplete=True,playerRecordsComplete=True,
+        playerResults=output,playerSummaryGaps=[],referencePopulations=references,
+        scope='Season-relative percentiles averaged over applicable selected-period PAs; independent state cohorts for PAQ-A.')
 
 
 def player_records(db, metrics, params, people):
@@ -92,16 +149,16 @@ def query(m, products, db, request, scope):
         base=dict(metricId=metric,grain='player',coverage=dict(games=len(graphs),populationComplete=False),
             playerPopulationComplete=False,playerRecordsComplete=False,playerResults=[],
             scope='Complete player records across the entire selected range; excluded records are disclosed.')
-        if metric not in products.PREPARED:
-            # Preserve the established reference producer when a prepared
-            # reference exists. Never substitute a percentile of complete cases.
-            if metric in products.REFERENCES and reference_available(m, db, metric, scope):
-                metrics.append(m.query_sql(db,{'metricId':metric},scope)['metric']);continue
-            gap='SEASON_REFERENCE_UNAVAILABLE' if metric in products.REFERENCES else 'REVIEW_PLAYER_POPULATION' if 'review' in metric or metric=='adjudication-volatility' else 'ROLE_REALIZATION_POPULATION'
-            metrics.append(dict(m.unavailable(gap),**base,playerSummaryGaps=[gap]));continue
         if not schedule['complete']:
             metrics.append(dict(m.unavailable('COMPLETE_SELECTED_SCHEDULE'),**base,
                 playerSummaryGaps=['COMPLETE_SELECTED_SCHEDULE'],schedule=schedule));continue
+        if metric in products.REFERENCES:
+            result=reference_players(m,db,metric,scope,graphs)
+            base['coverage']['populationComplete']=result['playerPopulationComplete']
+            base.update(result);metrics.append(base);continue
+        if metric not in products.PREPARED:
+            gap='REVIEW_PLAYER_POPULATION' if 'review' in metric or metric=='adjudication-volatility' else 'ROLE_REALIZATION_POPULATION'
+            metrics.append(dict(m.unavailable(gap),**base,playerSummaryGaps=[gap]));continue
         if roster_graphs!=set(graphs):
             metrics.append(dict(m.unavailable('COMPLETE_PARTICIPATION'),**base,
                 playerSummaryGaps=['COMPLETE_PARTICIPATION']));continue

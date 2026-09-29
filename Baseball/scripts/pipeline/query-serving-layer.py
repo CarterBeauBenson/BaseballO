@@ -38,9 +38,6 @@ _metric_spec.loader.exec_module(_metric_suite)
 _display_spec = importlib.util.spec_from_file_location('baseballo_dashboard_display', ROOT/'serving/dashboard_display.py')
 _display = importlib.util.module_from_spec(_display_spec)
 _display_spec.loader.exec_module(_display)
-_reference_spec = importlib.util.spec_from_file_location('baseballo_reference_products', ROOT/'serving/reference_products.py')
-_references = importlib.util.module_from_spec(_reference_spec)
-_reference_spec.loader.exec_module(_references)
 _player_spec = importlib.util.spec_from_file_location('baseballo_player_ranges', ROOT/'serving/player_ranges.py')
 _player_ranges = importlib.util.module_from_spec(_player_spec)
 _player_spec.loader.exec_module(_player_ranges)
@@ -956,8 +953,7 @@ def query_dashboard(args, request, pointer):
     started = time.perf_counter()
     with dashboard_database(args.state_root, pointer) as (connection, build):
         scope = resolve_scope(connection,request)
-        with _references.prepared_ranks(_metric_suite,connection):
-            result = _range_query.query(_metric_suite,_player_ranges,connection,request,scope)
+        result = _range_query.query(_metric_suite,_player_ranges,connection,request,scope)
         result['display'] = _display.read(connection,scope,result)
         result['serving'] = dict(buildId=build[0],corpusFingerprint=build[1],publication='dashboard',
                                  durationMs=round((time.perf_counter()-started)*1000,3))

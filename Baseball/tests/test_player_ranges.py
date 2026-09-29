@@ -81,7 +81,8 @@ class PlayerRanges(unittest.TestCase):
         self.assertEqual(result['playerResults'],[])
         db.execute('INSERT INTO dashboard_reference VALUES (?,?,?)',
                    ('recovery-quality',2026,M._hash(M._json([G+'1',G+'2']))))
-        self.assertTrue(Q.reference_available(M,db,'recovery-quality',SCOPE))
+        # Ranks alone cannot authorize request-time player reconstruction.
+        self.assertFalse(Q.reference_available(M,db,'recovery-quality',SCOPE))
         self.assertFalse(Q.reference_available(M,db,'paq-2',SCOPE))
 
     def test_reader_keeps_exact_producer_partition_and_pooling_contract(self):

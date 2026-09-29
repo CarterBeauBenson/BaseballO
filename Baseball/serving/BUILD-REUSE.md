@@ -418,9 +418,13 @@ Situation-Adjusted PAQ, Two-Strike Extension Rank and PAQ with Tie-Breakers.
 The full report builder prepares the latest cutoff per season in its
 `metric_suite_reference` tables, with `metricReferencePopulations` evidence. The independent dashboard
 builder uses `reference_products.py` to prepare every supported historical
-date cutoff in `dashboard_reference`. It records each cutoff's completeness
-and gaps. Both paths use existing schedule and source admission checks;
-incomplete populations remain withheld.
+date cutoff in `dashboard_reference`. After the existing population reducer
+passes, it also saves exact player/game totals, eligible counts, official PA
+counts and team-game exposure in `dashboard_reference_players`. These compressed
+products retain the full reference graph set, including games with no eligible
+observations. Both paths use existing schedule and source admission checks;
+incomplete populations remain withheld. A rank table without its prepared player
+product cannot trigger request-time reconstruction.
 
 Rank keys include the exact reference graph set. Stored observation changes
 invalidate prepared ranks. Direct changes to raw evidence invalidate that
@@ -429,13 +433,16 @@ corresponding compact result. Immutable publication, database checksums and
 matching code releases remain the production boundary. These database triggers
 also prevent stale projections during focused tests or candidate construction.
 
-The dashboard reader reuses compact inputs, checks populations and performs
-selected-period aggregation in Python over SQL. It does not reconstruct graph
-patterns, run SPARQL kernels or read whole-game calculation JSON on a normal
-request. Missing prepared ranks raise `Selected reference ranks need NiFi
-preparation`; they do not trigger request-time season ranking. The older full
-report reader's stored-observation ranking fallback is a separate behavior,
-not the dashboard contract.
+The dashboard reader combines prepared player/game totals over the selected
+period. For the four percentile metrics it selects the exact season-through-
+cutoff reference product, checks its checksum and independent schedule, and
+pools its saved fractions. It does not decode PA inputs, reconstruct graph
+patterns, run SPARQL kernels or rank a season on a request. Known ineligible
+observations stay out of the denominator; missing reference products remain
+unavailable. The older full report reader's stored-observation ranking fallback
+is a separate behavior, not the dashboard contract. Changing the independent
+reference producer refreshes those SQL products through NiFi without rerunning
+unchanged game calculations or modifying RDF.
 
 The web layer reads only small prepared player/team/game rows from the same
 immutable, worker-verified dashboard snapshot for participation minimums. It
