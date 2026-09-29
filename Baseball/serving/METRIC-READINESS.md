@@ -233,6 +233,19 @@ worker ownership; [build reuse](BUILD-REUSE.md) describes invalidation.
 
 ## Remaining work after the September 29 selected-range check
 
+The admission worker's fallback previously depended on a retired local RDF
+export even when a retained quarantined response and the promoted graph were
+available. Its independent six-profile graph check was reached only as part of
+the individual batting check. These are now separate execution paths: the
+existing profiles can read the existing graph without repeating the batting
+check, acquisition, RML or promotion. A September 29 diagnosis found 38 deferred
+games with retained raw witnesses; this is a repair-candidate count, not 38
+admissions. A spot check confirmed unchecked count/boundary/defense profiles in
+822753 and 823302, while 822918 already had explicit withheld independent checks
+that must not be retried as missing evidence. Focused regressions preserve
+withheld outcomes, the separate source identities and the final promotion check.
+NiFi owns execution and SQL consumes its receipts on the next update.
+
 1. The four retained September 17 retries for 822848, 822854, 822936 and 823338
    completed and are in the 05:35 publication. Do not queue them again. All four
    have admitted run censuses; 822936 also has admitted B1. The other three

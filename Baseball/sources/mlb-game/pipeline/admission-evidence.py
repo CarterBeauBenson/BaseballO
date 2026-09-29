@@ -15,6 +15,7 @@ from datetime import datetime, timezone
 from types import SimpleNamespace
 import sqlite3
 import time
+import urllib.request
 from contextlib import closing
 
 HERE=Path(__file__).resolve().parent
@@ -243,6 +244,52 @@ def player_admission(state,promotion):
     return dict(individual or {},paResolutions=resolution) if resolution else individual
 
 
+def retained_raw_witness(state,promotion):
+    """A retained response is an independent witness, never a new acquisition."""
+    paths=sorted((Path(state)/'pipeline/quarantine/mlb-game'/promotion['gamePk']).glob('*/input.json'))
+    candidates=[dict(kind='retained-source-response',path=str(path),sha256=sha(path)) for path in paths]
+    return min(candidates,key=lambda row:(row['sha256']!=promotion['rawSha256'],row['path'])) if candidates else None
+
+
+def refresh_existing_graph(state,promotion,witness,java,classpath,endpoint):
+    """Run the existing six profiles without requiring a retired RDF export.
+
+    The independent-check producer retains its unchanged fingerprints and
+    source/graph provenance. Original proofs are not edited or upgraded.
+    """
+    inventory=module(ROOT/'scripts/pipeline/game_promotion_inventory.py','independent_refresh_inventory')
+    marker_path=Path(promotion['promotionManifest'])
+    def current():
+        latest=max(marker_path.parent.glob('*.json'),key=lambda p:(read(p).get('promotedAtUtc',''),p.name))
+        if latest!=marker_path or sha(latest)!=promotion['promotionManifestSha256']:
+            raise ValueError('Promotion changed during existing-graph refresh')
+        record=inventory.validated_promotion_record(Path(state),latest,promotion['gamePk'],inventory.query_index_contract_admission())
+        if any(record[k]!=promotion[k] for k in ('rawSha256','authoritativeRdfSha256','authoritativeGraph','authoritativeTripleCount')):
+            raise ValueError('Existing-graph refresh belongs to another promotion')
+        return record
+    record=current()
+    query='CONSTRUCT { ?s ?p ?o } WHERE { GRAPH <'+record['authoritativeGraph']+'> { ?s ?p ?o } }'
+    request=urllib.request.Request(endpoint,data=query.encode(),headers={
+        'Content-Type':'application/sparql-query','Accept':'text/turtle'})
+    jena=module(ROOT/'scripts/pipeline/jena_session.py','independent_refresh_jena')
+    api=SimpleNamespace(**globals())
+    with tempfile.TemporaryDirectory(prefix='admission-existing-graph-') as temporary:
+        rdf=Path(temporary)/'graph.ttl'
+        with urllib.request.urlopen(request,timeout=120) as response,rdf.open('wb') as stream:
+            size=0
+            while chunk:=response.read(1024*1024):
+                size+=len(chunk)
+                if size>128*1024*1024:raise ValueError('Single-game admission graph exceeds its read bound')
+                stream.write(chunk)
+        with jena.Session(rdf,java,classpath) as session:
+            if session.data_count!=record['authoritativeTripleCount']:
+                raise ValueError('Existing graph count differs from its promotion')
+            results=EXISTING_GRAPH.validate(api,state,promotion,witness,rdf,session,java,classpath)
+    current()
+    EXISTING_GRAPH.commit(api,promotion,results)
+    return results
+
+
 def refresh_game(state,promotion,java,classpath,endpoint='http://127.0.0.1:3031/baseball-dev/query'):
     marker=checked_marker(promotion)
     adapters={family:module(HERE/(family+'-admission.py'),'refresh_'+family.replace('-','_')) for family in FIELDS}
@@ -289,6 +336,21 @@ def refresh_game(state,promotion,java,classpath,endpoint='http://127.0.0.1:3031/
             proof=PA_RESOLUTION.prove(api,state,promotion,retained,java,classpath,endpoint)
             return dict(result,status='refreshed',refreshed=['pa-runner-resolution'],
                 admittedResolutionPAs=sum(p['status']=='admitted' for p in proof['plateAppearances']))
+    # Independently checking the other profiles must not depend on whether a
+    # player's batting check happened to need a raw witness. A completed check
+    # (including a withheld one) needs no retry for the same graph and producer.
+    unchecked=[family for family,adapter in adapters.items()
+        if load(adapter,state,promotion,family).get('status')!='admitted'
+        and EXISTING_GRAPH.load(api,state,promotion,family,adapter) is None]
+    if not unchecked:return dict(result,status='current')
+    witness=retained_raw_witness(state,promotion)
+    if witness is not None:
+        memory=module(ROOT/'scripts/pipeline/process_state.py','independent_refresh_memory').available_memory()
+        if memory is not None and memory<1024*1024*1024:
+            return dict(result,status='waiting-for-memory',availableMemoryBytes=memory)
+        checked=refresh_existing_graph(state,promotion,witness,java,classpath,endpoint)
+        return dict(result,status='refreshed',refreshed=[family for _,family,_ in checked],
+            existingGraphOutcomes={family:status for _,family,status in checked})
     if not pending: return dict(result,status='current')
     manifest_path=retained_manifest(state,marker,promotion['gamePk'])
     if not manifest_path.is_file() or sha(manifest_path)!=marker.get('rmlManifestSha256'):

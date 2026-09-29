@@ -8,7 +8,8 @@ import tempfile
 import unittest
 import subprocess
 import sqlite3
-from contextlib import closing
+import io
+from contextlib import closing,nullcontext
 from types import SimpleNamespace
 from unittest.mock import patch,Mock
 
@@ -26,6 +27,61 @@ def current_implementation(family, entry):
 
 
 class AdmissionEvidence(unittest.TestCase):
+    def test_retained_raw_refresh_does_not_require_retired_local_rdf_or_another_batting_check(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);source=state/'pipeline/quarantine/mlb-game/1/run/input.json'
+            E.atomic(source,dict(gamePk=1))
+            promotion=dict(gamePk='1',rawSha256='older-promotion-source',promotionManifestSha256='promotion')
+            original=E.module
+            def module(path,name):
+                return SimpleNamespace(available_memory=lambda:2*1024**3) if Path(path).name=='process_state.py' else original(path,name)
+            with patch.object(E,'module',side_effect=module),patch.object(E,'checked_marker',return_value={}), \
+                 patch.object(E,'diagnostic',return_value={'evidenceState':'implementation-stale'}), \
+                 patch.object(E,'refreshed',return_value=None),patch.object(E,'load',side_effect=lambda a,s,p,f:
+                    {'status':'withheld' if f=='pitch-count' else 'admitted'}), \
+                 patch.object(E.PLAYER_PARTICIPATION,'load',return_value={}), \
+                 patch.object(E.RETAINED_BATTING,'load',return_value={}), \
+                 patch.object(E.EXISTING_GRAPH,'load',return_value=None), \
+                 patch.object(E,'retained_manifest',side_effect=AssertionError('Retired export is not required')), \
+                 patch.object(E,'refresh_existing_graph',return_value=[(Path('proof'),'pitch-count','admitted')]) as refresh:
+                result=E.refresh_game(state,promotion,Path('java'),Path('classpath'))
+            self.assertEqual(result['existingGraphOutcomes'],{'pitch-count':'admitted'})
+            witness=refresh.call_args.args[2]
+            self.assertEqual(witness,dict(kind='retained-source-response',path=str(source),sha256=E.sha(source)))
+            self.assertNotEqual(witness['sha256'],promotion['rawSha256'])
+
+    def test_existing_graph_refresh_keeps_withholding_and_commits_only_after_final_promotion_check(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);marker=state/'promotions/one.json'
+            E.atomic(marker,dict(promotedAtUtc='2026-09-29T00:00:00Z'))
+            promotion=dict(gamePk='1',promotionManifest=str(marker),promotionManifestSha256=E.sha(marker),
+                rawSha256='original-source',authoritativeRdfSha256='promoted-rdf',
+                authoritativeGraph='https://w3id.org/baseball/graph/game/1',authoritativeTripleCount=2)
+            inventory=SimpleNamespace(query_index_contract_admission=lambda:{},
+                validated_promotion_record=Mock(return_value=promotion))
+            jena=SimpleNamespace(Session=lambda *args:nullcontext(SimpleNamespace(data_count=2)))
+            modules={'game_promotion_inventory.py':inventory,'jena_session.py':jena}
+            outcomes=[(Path('proof'),'pitch-count','withheld')]
+            with patch.object(E,'module',side_effect=lambda p,n:modules[Path(p).name]), \
+                 patch.object(E.urllib.request,'urlopen',side_effect=lambda *a,**kw:io.BytesIO(b'export')) as request, \
+                 patch.object(E.EXISTING_GRAPH,'validate',return_value=outcomes) as validate, \
+                 patch.object(E.EXISTING_GRAPH,'commit') as commit:
+                result=E.refresh_existing_graph(state,promotion,{'path':'retained'},Path('java'),Path('jar'),
+                                                'http://127.0.0.1:3031/baseball-dev/query')
+                self.assertEqual(result,outcomes)
+                self.assertEqual(commit.call_args.args[-1],outcomes)
+                self.assertEqual(inventory.validated_promotion_record.call_count,2)
+                self.assertTrue(request.call_args.args[0].data.startswith(b'CONSTRUCT'))
+                commit.reset_mock()
+                def changed(*args):
+                    E.atomic(marker,dict(promotedAtUtc='2026-09-29T01:00:00Z'))
+                    return outcomes
+                validate.side_effect=changed
+                with self.assertRaisesRegex(ValueError,'Promotion changed'):
+                    E.refresh_existing_graph(state,promotion,{'path':'retained'},Path('java'),Path('jar'),
+                                             'http://127.0.0.1:3031/baseball-dev/query')
+                commit.assert_not_called()
+
     def test_memory_deferral_yields_but_smaller_checks_and_later_retry_can_progress(self):
         with tempfile.TemporaryDirectory() as temp:
             state=Path(temp)

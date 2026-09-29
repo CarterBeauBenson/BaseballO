@@ -102,8 +102,14 @@ and profile durations in `shacl-execution.json`.
 
 The source-owned `Refresh Admission Evidence` worker diagnoses missing, stale
 and previously withheld admission evidence independently of serving builds.
-The general producer refresh requires the exact retained input and local RDF
-bytes. Independent player checks and the single-batter B1 repair instead use
+The original producer refresh requires exact retained input and local RDF
+bytes. When a retained quarantined response is available, the worker instead
+can run the six existing admission profiles against the promoted Fuseki graph,
+independently of whether the batting check already finished. The existing
+profile producer retains the validation response's hash separately from the
+promotion input, and commits receipts only after a final promotion check.
+Completed checks, including withheld outcomes, are reused for their exact
+promotion and producer. Independent player checks and the single-batter B1 repair use
 hash-bound retained censuses and read the existing promoted graph. The latter
 also supports the known pre-T1 context: its reconciled census and exact
 single-batter membership must still pass the unchanged B1 SHACL. Completed
