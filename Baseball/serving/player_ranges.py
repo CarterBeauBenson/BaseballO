@@ -19,6 +19,7 @@ REFERENCES = {'paq-2','paq-a','paq-2.1','recovery-quality'}
 PREVIOUS_VERSION = '4890951c9161d99efdbf52c5364c4ca08bbd4f9cd3e2853127846a728ae1282d'
 PREVIOUS_INDIVIDUAL_VERSION = '38deead69127b00c2383239c1c8abb172ec3b29d1f3ea4e4fbde652cb7d61617'
 PREVIOUS_BOUNDARY_VERSION = 'dbb26a1f1e64c9f38dea522450e509e51de3024d8bbf6e2c9bd4903650821ade'
+PREVIOUS_DAMAGE_VERSION = '8412c64bdfcb34b4f464e4f96e2850bedfd6d1846918882314b52658ca91ebb0'
 
 
 def fingerprint():
@@ -57,6 +58,28 @@ def zero():
 
 def mean(m, values):
     return dict(kind='mean',sum=m.exact(sum(values,Fraction())),count=len(values))
+
+
+def zero_independent_damage_players(rows, contribution, resolution):
+    """Isolate uncertainty using the admitted complete runner population.
+
+    A completed contribution already accounts for every out and establishes
+    that its separate running episodes caused no damage. An unresolved PA or
+    interrupted turn blocks every runner it could affect, not the whole roster.
+    This certifies only zero independent damage; it never scores unknown acts.
+    """
+    if not admitted(resolution):return set()
+    roster={r['player'] for r in rows if r['kind']=='player_team_game' and r.get('player')}
+    completed={r['plateAppearance']:r for r in contribution.get('plateAppearances',[])}
+    uncertain=set()
+    for row in rows:
+        if row['kind'] not in {'runner_movement','runner_location'}:continue
+        runner=row.get('runner');pa=row.get('plateAppearance')
+        if not runner or runner not in roster or not pa:return set()
+        result=completed.get(pa)
+        if result is None or result.get('unattributedNonbattingEpisodes'):
+            uncertain.add(runner)
+    return roster-uncertain
 
 
 def qualification(m,rows,graph,scope,batting,individual):
@@ -198,7 +221,9 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people):
                                    independentRunningEpisodes=len(episodes[player]))
                 elif metric=='empty-game-damage':
                     complete=not own or (empty_known and player in positive)
-                    if own and empty_known and player not in positive and contrib_ok and contrib.get('independentDamageComplete') is True:
+                    damage_known=(contrib.get('independentDamageComplete') is True
+                                  or player in contrib.get('zeroIndependentDamagePlayers',[]))
+                    if own and empty_known and player not in positive and contrib_ok and damage_known:
                         score=m.empty_game_damage([r['score'] for r in own_contrib],[],empty=True,complete=True)
                         complete=score['status']=='available'
                         if complete:aggregate=mean(m,[m.fraction(score['value'])])
@@ -225,7 +250,7 @@ def prepare(m, db, checkpoint=None, player_admissions=None):
         # The new path changes only games with individual admissions. Preserve
         # all other existing player aggregates byte-for-byte on deployment.
         if (not individual and (saved.get(graph) in
-                {m._hash(key+v+proof_sha) for v in (PREVIOUS_INDIVIDUAL_VERSION,PREVIOUS_BOUNDARY_VERSION)}
+                {m._hash(key+v+proof_sha) for v in (PREVIOUS_INDIVIDUAL_VERSION,PREVIOUS_BOUNDARY_VERSION,PREVIOUS_DAMAGE_VERSION)}
                 or (not individual and saved.get(graph)==m._hash(key+PREVIOUS_VERSION)))):
             with db:db.execute('UPDATE dashboard_player_partition SET input_sha256=? WHERE graph_iri=?',(identity,graph))
             continue
@@ -246,6 +271,8 @@ def prepare(m, db, checkpoint=None, player_admissions=None):
             evidence.sort(key=m._json)
             inputs['contribution']=m.contribution_game_inputs(evidence,graph=graph,batting_admission=proofs['batting'],
                 runner_resolution_admission=proofs['resolution'],runner_boundary_admission=proofs['boundary'],player_admission=individual)
+            inputs['contribution']['zeroIndependentDamagePlayers']=sorted(
+                zero_independent_damage_players(evidence,inputs['contribution'],proofs['resolution']))
         runs={metric:m.read_results(db,graph,metric)[0] for metric in RUNS}
         unresolved={r['run'] for result in runs.values() for r in result.get('unresolvedRuns',[])}
         run_people=defaultdict(set)

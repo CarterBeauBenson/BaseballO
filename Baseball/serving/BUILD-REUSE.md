@@ -30,6 +30,14 @@ unresolved. The default game calculator is unchanged. Its exact compatible
 version transition preserves existing game results and unchanged player
 partitions; it triggers neither RDF extraction nor a database rebuild.
 
+Empty Game Damage can also retain an independently complete player when another
+runner's play is unresolved. The admitted C2 runner census bounds the affected
+players. Completed PA contributions already certify no separate damaging running
+episode; unresolved turns and unattributed episodes exclude their possible runners.
+Missing runner identity or census withholds this isolation. This does not score
+independent outs or repair their missing attribution. Full selected-range player
+completeness and the original whole-game proof outcomes are preserved.
+
 Admission maintenance processes games serially for up to 45 seconds or ten
 expensive refreshes per scheduled invocation, finishing its current game before
 yielding. It retains the one-minute NiFi schedule, one JVM at a time, and the

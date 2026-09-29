@@ -151,6 +151,33 @@ class PlayerRanges(unittest.TestCase):
             self.assertEqual(by_key[(U+'1','empty-game-rate')][3],expected_complete)
             self.assertEqual(by_key[(U+'2','empty-game-rate')][3],0)
 
+        # Another runner's unresolved turn cannot make the first player's
+        # known negative PA contribution disappear from Empty Game Damage.
+        progress['unresolvedPlateAppearances'][0]['possiblePositivePlayers']=[U+'2']
+        contribution=dict(complete=False,independentDamageComplete=False,plateAppearances=[
+            dict(graph=graph,game=game,plateAppearance='pa1',player=U+'1',runnerOnBase=False,
+                independentPositive=[],unattributedNonbattingEpisodes=[],participants=[],
+                existingRunnerOuts=0,existingDestruction=M.exact(0),
+                score=M.available(M.Fraction(-1,4),components=dict(progress=M.exact(0),erosion=M.exact(0))))])
+        movements=[dict(kind='runner_movement',runner=U+'1',plateAppearance='pa1'),
+                   dict(kind='runner_movement',runner=U+'2',plateAppearance='pa2')]
+        for change,expected_complete in [('other-runner',1),('own-interruption',0),('unknown-runner',0),('no-census',0)]:
+            evidence=rows+movements
+            if change=='own-interruption':evidence+=[dict(kind='runner_movement',runner=U+'1',plateAppearance='interrupted')]
+            if change=='unknown-runner':evidence+=[dict(kind='runner_movement',plateAppearance='interrupted')]
+            contribution['zeroIndependentDamagePlayers']=sorted(P.zero_independent_damage_players(
+                evidence,contribution,{} if change=='no-census' else proof))
+            _,records=P.project(M,graph=graph,scope=SCOPE,rows=rows,
+                proofs={'batting':{'status':'withheld'},'run':proof,'resolution':proof,'players':individual},
+                inputs=dict(contribution=contribution,progress=progress,defense={'complete':False}),
+                runs=runs,run_people={'run2':{U+'2'}})
+            by_key={(r[1],r[2]):r for r in records}
+            damage=by_key[(U+'1','empty-game-damage')]
+            self.assertEqual(damage[3],expected_complete,change)
+            if expected_complete:
+                self.assertEqual(json.loads(damage[4]),dict(kind='mean',sum=M.exact(M.Fraction(1,4)),count=1))
+            self.assertEqual(by_key[(U+'2','empty-game-damage')][3],0)
+
     def test_individual_admission_uses_rdf_counts_and_keeps_failed_player_unknown(self):
         rows=[dict(kind='player_team_game',player=U+str(i),graph=G+'1',game='game',team='team',teamRole='role') for i in (1,2,3)]
         rows.append(dict(kind='plate_appearance',entity='pa1',graph=G+'1',game='game',player=U+'1',
@@ -166,8 +193,9 @@ class PlayerRanges(unittest.TestCase):
 
     def test_deployment_preserves_unchanged_player_products(self):
         db=self.db()
-        for i in (1,2):db.execute('UPDATE dashboard_player_partition SET input_sha256=? WHERE graph_iri=?',
-            (M._hash('source-'+str(i)+P.PREVIOUS_VERSION),G+str(i)))
+        for i,version in [(1,P.PREVIOUS_VERSION),(2,P.PREVIOUS_DAMAGE_VERSION)]:
+            db.execute('UPDATE dashboard_player_partition SET input_sha256=? WHERE graph_iri=?',
+                (M._hash('source-'+str(i)+version),G+str(i)))
         with patch.object(M._blocks,'read_scope',side_effect=AssertionError('must reuse existing products')):
             self.assertEqual(P.prepare(M,db)['preparedGames'],0)
         self.assertEqual(Q.query(M,P,db,{'metricId':'tfs'},SCOPE)['graphCount'],2)
