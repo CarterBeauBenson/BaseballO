@@ -198,7 +198,8 @@ def admission_versions():
     add no distinct input. Restore the functions before verifying or returning.
     """
     originals=[(adapter,adapter.fingerprint) for adapter in
-               [*ADMISSIONS.values(),ADMISSION_EVIDENCE.RETAINED_BATTING,ADMISSION_EVIDENCE.PLAYER_PARTICIPATION]]
+               [*ADMISSIONS.values(),ADMISSION_EVIDENCE.RETAINED_BATTING,ADMISSION_EVIDENCE.PLAYER_PARTICIPATION,
+                ADMISSION_EVIDENCE.PA_RESOLUTION]]
     versions=[function() for _,function in originals]
     equivalence=ADMISSION_EVIDENCE.code_equivalence
     compatibility=ADMISSION_EVIDENCE.sha(ADMISSION_EVIDENCE.COMPATIBILITY_PATH)
@@ -260,7 +261,8 @@ def reuse_game(connection, graph, saved, promotion, dimension, admissions, calcu
             proof_sha=individual[0] if individual else ''
             for version in (PLAYER_RANGES.fingerprint(),PLAYER_RANGES.PREVIOUS_VERSION,
                             PLAYER_RANGES.PREVIOUS_INDIVIDUAL_VERSION,PLAYER_RANGES.PREVIOUS_BOUNDARY_VERSION,
-                            PLAYER_RANGES.PREVIOUS_DAMAGE_VERSION):
+                            PLAYER_RANGES.PREVIOUS_DAMAGE_VERSION,PLAYER_RANGES.PREVIOUS_ZERO_PA_VERSION,
+                            PLAYER_RANGES.PREVIOUS_RESOLUTION_VERSION):
                 if partition and partition[0]==METRICS._hash(saved+version+proof_sha):
                     connection.execute('UPDATE dashboard_player_partition SET input_sha256=? WHERE graph_iri=?',
                         (METRICS._hash(identity+version+proof_sha),graph))
@@ -499,7 +501,7 @@ def build_locked(args, state, serving, work):
                 with admission_reads():
                     admissions = {name: ADMISSION_EVIDENCE.load(adapter,state,promotion,name.removesuffix('_admission').replace('_','-'))
                                   for name, adapter in ADMISSIONS.items()}
-                    player_admissions[graph] = ADMISSION_EVIDENCE.PLAYER_PARTICIPATION.load(ADMISSION_EVIDENCE,state,promotion)
+                    player_admissions[graph] = ADMISSION_EVIDENCE.player_admission(state,promotion)
                 values = dimension_values(dimension, promotion, metadata)
                 identity = input_identity(promotion, values, admissions, calculation)
                 expected[graph] = identity
@@ -567,7 +569,9 @@ def build_locked(args, state, serving, work):
         checkpoint(phase='player-ranges')
         player_ranges = PLAYER_RANGES.prepare(METRICS,connection,checkpoint=checkpoint,player_admissions=player_admissions)
         input_set = digest(dict(games=expected, coverage=coverage_sha, calculation=calculation,
-                               playerAdmissions={g:p['proofSha256'] for g,p in player_admissions.items() if p},
+                               playerAdmissions={g:dict(players=p.get('proofSha256'),
+                                   resolutions=(p.get('paResolutions') or {}).get('proofSha256'))
+                                   for g,p in player_admissions.items() if p},
                                playerRanges=PLAYER_RANGES.fingerprint()))
         checkpoint(phase='publication',publicationStep='source-check')
         if dict(connection.execute('SELECT graph_iri,input_sha256 FROM dashboard_checkpoint')) != expected:

@@ -1,0 +1,23 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# Existing runner-resolution membership, outcomes, participants and endpoints,
+# scoped to a single PA. This does not establish attribution or history order.
+<__SHAPE__> a sh:NodeShape ; sh:targetNode <__GAME__> ;
+  sh:sparql [ sh:message "PA runner-resolution population differs from the source" ;
+    sh:select """__PREFIXES__
+SELECT $this WHERE {
+  { __MISSING__ }
+  UNION {
+    ?resolution a base:RunnerResolutionProcess ; obo:BFO_0000132+ <__PA__> .
+    FILTER(?resolution NOT IN (__RESOLUTIONS__))
+  }
+  UNION {
+    ?resolution a base:RunnerResolutionProcess ; obo:BFO_0000132 <__PA__> ; obo:BFO_0000062 ?act .
+    <__PA__> a base:PlateAppearance ; obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 $this .
+    ?act a base:BaserunningAct ; cco:ont00001833 ?player .
+    FILTER(CONCAT(STR(?resolution), "|", STR(?act), "|", STR(?player), "|", STR(<__PA__>)) NOT IN (__IDENTITIES__))
+  }
+  UNION { FILTER NOT EXISTS {
+    <__PA__> a base:PlateAppearance ; obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 $this .
+  } }
+} """ ] .

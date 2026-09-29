@@ -112,6 +112,17 @@ are not evidence that the authoritative Fuseki graph is missing. The worker
 never reacquires, maps or promotes RDF, and never relabels an old fingerprint
 as current.
 
+When a whole-game runner-resolution check fails, the same worker can apply its
+existing membership, participant and endpoint constraints to individual PAs.
+`pa-resolution-admission.py` reuses the retained source census and the existing
+promoted graph. The registered `pa-resolution-admission.ttl` changes the target
+scope only. Unknown source-wide issues still block every PA; a bad PA cannot
+admit its own progress. These receipts supplement the unchanged whole-game
+proof and do not assert completeness of attribution, history order or TFS.
+The SQL player projection can use an admitted PA's existing batting-progress
+result and a certain positive contribution for Empty Game classification.
+Unchanged game calculations and player partitions remain reusable.
+
 The dashboard defaults to the full latest loaded season. Admission Evidence
 prioritizes that season's missing game rosters, then games whose withheld batting
 admission has no current individual-player check, before other season and older

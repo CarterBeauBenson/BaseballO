@@ -11,6 +11,7 @@
     "shacl/pitch-count-admission.ttl",
     "shacl/runner-boundary-admission.ttl",
     "shacl/pa-boundary-admission.ttl",
+    "shacl/pa-resolution-admission.ttl",
     "shacl/defensive-admission.ttl",
     "shacl/runner-history-admission.ttl",
     "shacl/clock-admission.ttl"

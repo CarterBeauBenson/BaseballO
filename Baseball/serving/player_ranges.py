@@ -21,6 +21,7 @@ PREVIOUS_INDIVIDUAL_VERSION = '38deead69127b00c2383239c1c8abb172ec3b29d1f3ea4e4f
 PREVIOUS_BOUNDARY_VERSION = 'dbb26a1f1e64c9f38dea522450e509e51de3024d8bbf6e2c9bd4903650821ade'
 PREVIOUS_DAMAGE_VERSION = '8412c64bdfcb34b4f464e4f96e2850bedfd6d1846918882314b52658ca91ebb0'
 PREVIOUS_ZERO_PA_VERSION = '498a19c02d51b88a7418616934719d37808ab7c5100c7bfd5cfda29d9ccb0518'
+PREVIOUS_RESOLUTION_VERSION = 'b47cf2b52df6240514ef87cd795ba953881f4af7a7393f849757bd685a4655eb'
 
 
 def fingerprint():
@@ -129,10 +130,16 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people):
     contrib=inputs['contribution'];progress=inputs['progress'];defense=inputs['defense']
     by_pa={p['plateAppearance']:p for p in contrib.get('plateAppearances',[])}
     progress_pa={p['plateAppearance']:p for p in progress.get('plateAppearances',[]) if p['officialResult']}
+    resolved={p['plateAppearance'] for p in (individual.get('paResolutions') or {}).get('plateAppearances',[])
+              if p['status']=='admitted'}
+    certain_positive=set()
     positive=set();uncertain=set();mix_uncertain=set();channels=defaultdict(set);episodes=defaultdict(set)
     for pa in progress.get('plateAppearances',[]):
         if pa['reach']:positive.add(pa['player'])
         positive.update(r['player'] for r in pa['independentPositive'])
+        if pa['plateAppearance'] in resolved:
+            if pa['reach']:certain_positive.add(pa['player'])
+            certain_positive.update(r['player'] for r in pa['independentPositive'])
         uncertain.update(pa.get('unresolvedRunningPositivePlayers',[]))
         if pa.get('independentPositiveGaps') and not pa.get('unresolvedRunningPositivePlayers'):
             uncertain.update(roster)
@@ -188,9 +195,9 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people):
         # Batting progress averages have no observations in a verified zero-PA
         # game. Unrelated running uncertainty cannot turn that known absence
         # into a missing batting record. Unknown official PA counts stay blocked.
-        progress_ok=person is not None and (not own or admitted(proofs['resolution'])) and len(own_progress)==len(own)
-        empty_known=(person is not None and admitted(proofs['resolution']) and progress_census
-                     and (player in positive or player not in uncertain))
+        progress_ok=person is not None and (admitted(proofs['resolution']) or own<=resolved) and len(own_progress)==len(own)
+        empty_known=(person is not None and (player in certain_positive or
+                     (admitted(proofs['resolution']) and progress_census and (player in positive or player not in uncertain))))
         for metric in sorted(PREPARED):
             complete=False;aggregate=zero();reason='OFFICIAL_PA_POPULATION'
             if metric in RUNS:
@@ -251,6 +258,9 @@ def prepare(m, db, checkpoint=None, player_admissions=None):
         individual_text=m._json(individual);proof_sha=m._hash(individual_text) if individual else ''
         identity=m._hash(key+version+proof_sha)
         if saved.get(graph)==identity:continue
+        if not individual.get('paResolutions') and saved.get(graph)==m._hash(key+PREVIOUS_RESOLUTION_VERSION+proof_sha):
+            with db:db.execute('UPDATE dashboard_player_partition SET input_sha256=? WHERE graph_iri=?',(identity,graph))
+            continue
         # Repair this projection directly from verified SQL participation.
         # All unchanged calculations and other player aggregates stay intact.
         if (saved.get(graph)==m._hash(key+PREVIOUS_ZERO_PA_VERSION+proof_sha) or

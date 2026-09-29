@@ -206,6 +206,23 @@ class PlayerRanges(unittest.TestCase):
             self.assertEqual(by_key[(U+'1',metric)][3],1,metric)
             self.assertEqual(by_key[(U+'2',metric)][3],0,metric)
         self.assertEqual(json.loads(by_key[(U+'1','empty-game-rate')][4]),dict(kind='count',count=0,eligibleGames=1))
+        # A complete resolution census for one PA supports its exact batting
+        # indicator and certain non-emptiness, not the unrelated PA or TFS.
+        scoped=dict(paResolutions=dict(plateAppearances=[
+            dict(plateAppearance='pa1',status='admitted'),dict(plateAppearance='pa2',status='withheld')]))
+        for admitted_pa in (True,False):
+            scoped['paResolutions']['plateAppearances'][0]['status']='admitted' if admitted_pa else 'withheld'
+            _,isolated=P.project(M,graph=graph,scope=SCOPE,rows=rows,
+                proofs=dict(batting=proof,run=proof,resolution={},players=scoped),
+                inputs=dict(contribution={},progress=progress,defense={}),runs=runs,run_people={'run2':{U+'2'}})
+            isolated={(r[1],r[2]):r for r in isolated}
+            for metric in ('offensive-reach','hidden-help-rate','empty-game-rate','empty-game-damage'):
+                self.assertEqual(isolated[(U+'1',metric)][3],int(admitted_pa),metric)
+                self.assertEqual(isolated[(U+'2',metric)][3],0,metric)
+            self.assertEqual(isolated[(U+'1','tfs')][3],0)
+            if admitted_pa:
+                self.assertEqual(json.loads(isolated[(U+'1','offensive-reach')][4]),P.mean(M,[M.Fraction(1)]))
+                self.assertEqual(json.loads(isolated[(U+'1','empty-game-rate')][4]),dict(kind='count',count=0,eligibleGames=1))
         individual=dict(rosterComplete=True,plateAppearanceInventoryComplete=True,
             players=[dict(player=U+'1',status='admitted'),dict(player=U+'2',status='withheld')])
         progress['plateAppearances'][0].update(reach=0,batterPositive=False,positiveChannels=[])
@@ -279,6 +296,17 @@ class PlayerRanges(unittest.TestCase):
             self.assertEqual(no_pa[3],1)
             self.assertEqual(json.loads(no_pa[4]),P.zero())
         self.assertEqual(by_key[(U+'2','contribution-path-diversity')][3],0)
+
+    def test_resolution_extension_reuses_unchanged_player_partitions(self):
+        db=self.db()
+        for i in (1,2):
+            db.execute('UPDATE dashboard_player_partition SET input_sha256=? WHERE graph_iri=?',
+                (M._hash('source-'+str(i)+P.PREVIOUS_RESOLUTION_VERSION),G+str(i)))
+        with patch.object(M._blocks,'read_scope',side_effect=AssertionError('no unchanged projection')):
+            result=P.prepare(M,db)
+        self.assertEqual((result['preparedGames'],result['reusedGames']),(0,2))
+        self.assertEqual(dict(db.execute('SELECT * FROM dashboard_player_partition')),
+            {G+str(i):M._hash('source-'+str(i)+P.fingerprint()) for i in (1,2)})
 
     def test_zero_pa_migration_preserves_scores_and_repairs_only_known_absences(self):
         db=self.db()

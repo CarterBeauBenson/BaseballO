@@ -38,6 +38,7 @@ class DashboardMaterializer(unittest.TestCase):
             self.stack.enter_context(patch.object(adapter,'promoted_admission',return_value={'status':'withheld'}))
         self.stack.enter_context(patch.object(D.ADMISSION_EVIDENCE,'load',return_value={'status':'withheld'}))
         self.stack.enter_context(patch.object(D.ADMISSION_EVIDENCE.PLAYER_PARTICIPATION,'load',return_value=None))
+        self.stack.enter_context(patch.object(D.ADMISSION_EVIDENCE.PA_RESOLUTION,'load',return_value=None))
         self.stack.enter_context(patch.object(D.SOURCE._batting_admission,'schedule_coverage',return_value={}))
         self.stack.enter_context(patch.object(D.SOURCE._schedule_qualification,'merge_snapshots',return_value={}))
         self.fetched = []
@@ -184,6 +185,16 @@ class DashboardMaterializer(unittest.TestCase):
         self.assertEqual(self.fetched,[])
         self.assertEqual((result['changedGames'],result['reusedGames']),(0,2))
         self.assertEqual(result['playerRanges']['preparedGames'],1)
+        scoped=dict(plateAppearances=[],proofSha256='scoped-resolutions')
+        with patch.object(D.ADMISSION_EVIDENCE.PLAYER_PARTICIPATION,'load',side_effect=lambda evidence,state,promotion:
+                proof if promotion['gamePk']=='101' else None), \
+             patch.object(D.ADMISSION_EVIDENCE.PA_RESOLUTION,'load',side_effect=lambda evidence,state,promotion:
+                scoped if promotion['gamePk']=='101' else None), \
+             patch.object(D.METRICS,'materialize_game',side_effect=AssertionError('must reuse game calculations')):
+            updated=D.build(self.args)
+        self.assertEqual((updated['changedGames'],updated['reusedGames']),(0,2))
+        self.assertEqual(updated['playerRanges']['preparedGames'],1)
+        self.assertEqual(self.fetched,[])
 
     def test_prepared_snapshot_retains_dashboard_and_detail_results_without_build_inputs(self):
         from test_contribution_sql import sample,PROOF

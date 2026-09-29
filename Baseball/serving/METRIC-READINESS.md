@@ -48,6 +48,18 @@ do not infer their deployment from these results.
 
 ## Implemented repairs and retained component evidence
 
+- The existing runner-resolution checks can now isolate individual PAs when a
+  game's full census fails graph conformance. NiFi reads matching retained
+  censuses and the existing game graph; the source-owned SHACL still checks
+  every resolution, participant, outcome and endpoint in each admitted PA.
+  The player projection uses this only for supported batting-progress averages
+  and certain non-empty classification (including ineligibility for Empty Game
+  Damage). Unknown PAs, TFS inputs and complete contribution channels remain
+  separately constrained. Focused checks cover wrong runners, unexpected
+  resolutions, empty/missing PAs, unknown source issues, exact player values,
+  unchanged-partition reuse and incremental SQL publication without game
+  recalculation. Runtime coverage must be read from NiFi's subsequent receipts
+  and SQL publication; component checks are not populated-card counts.
 - The September 29 11:56 Eastern publication (`20260929T151652Z-dashboard-fa3a211216a7`)
   still has **1/19** populated season cards. Its full-season HTTP request succeeds
   but took 29.19 seconds (26.22 in the adapter). That build reused all 2,917 game

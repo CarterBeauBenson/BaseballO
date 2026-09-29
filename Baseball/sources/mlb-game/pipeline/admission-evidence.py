@@ -43,6 +43,7 @@ def atomic(path,value):
 RETAINED_BATTING=module(HERE/'retained-batting-evidence.py','retained_batting_evidence')
 PLAYER_PARTICIPATION=module(HERE/'player-participation-admission.py','player_participation_evidence')
 EXISTING_GRAPH=module(HERE/'existing-graph-admissions.py','existing_graph_admissions')
+PA_RESOLUTION=module(HERE/'pa-resolution-admission.py','pa_resolution_evidence')
 
 
 def checked_marker(promotion):
@@ -54,6 +55,7 @@ def checked_marker(promotion):
 def fingerprint():
     return hashlib.sha256(Path(__file__).read_bytes()+COMPATIBILITY_PATH.read_bytes()
         +RETAINED_BATTING.fingerprint().encode()+PLAYER_PARTICIPATION.fingerprint().encode()
+        +PA_RESOLUTION.fingerprint().encode()
         +(HERE/'existing-graph-admissions.py').read_bytes()).hexdigest()
 
 
@@ -199,6 +201,13 @@ def load(adapter,state,promotion,family):
     return select(adapter.promoted_admission(state,promotion))
 
 
+def player_admission(state,promotion):
+    api=SimpleNamespace(**globals())
+    individual=PLAYER_PARTICIPATION.load(api,state,promotion)
+    resolution=PA_RESOLUTION.load(api,state,promotion)
+    return dict(individual or {},paResolutions=resolution) if resolution else individual
+
+
 def refresh_game(state,promotion,java,classpath,endpoint='http://127.0.0.1:3031/baseball-dev/query'):
     marker=checked_marker(promotion)
     adapters={family:module(HERE/(family+'-admission.py'),'refresh_'+family.replace('-','_')) for family in FIELDS}
@@ -234,6 +243,16 @@ def refresh_game(state,promotion,java,classpath,endpoint='http://127.0.0.1:3031/
                 return dict(result,status='waiting-for-memory',availableMemoryBytes=memory)
             proof=RETAINED_BATTING.prove(api,state,promotion,retained,java,classpath,endpoint)
             return dict(result,status='refreshed',refreshed=['batting'],battingStatus=proof['status'])
+    resolution=load(adapters['runner-resolution'],state,promotion,'runner-resolution')
+    if resolution.get('status')!='admitted' and PA_RESOLUTION.load(api,state,promotion) is None:
+        retained=PA_RESOLUTION.retained_source(api,state,promotion)
+        if retained is not None:
+            memory=module(ROOT/'scripts/pipeline/process_state.py','pa_resolution_memory').available_memory()
+            if memory is not None and memory<1024*1024*1024:
+                return dict(result,status='waiting-for-memory',availableMemoryBytes=memory)
+            proof=PA_RESOLUTION.prove(api,state,promotion,retained,java,classpath,endpoint)
+            return dict(result,status='refreshed',refreshed=['pa-runner-resolution'],
+                admittedResolutionPAs=sum(p['status']=='admitted' for p in proof['plateAppearances']))
     if not pending: return dict(result,status='current')
     manifest_path=retained_manifest(state,marker,promotion['gamePk'])
     if not manifest_path.is_file() or sha(manifest_path)!=marker.get('rmlManifestSha256'):
