@@ -371,6 +371,43 @@ class DashboardMaterializer(unittest.TestCase):
         with closing(sqlite3.connect(self.working())) as db:
             self.assertEqual(db.execute('SELECT count(*) FROM dashboard_checkpoint').fetchone()[0],2)
 
+    def test_new_receipt_with_identical_inputs_retains_publication_then_changed_inputs_publish(self):
+        D.build(self.args); old=self.pointer(); self.args.force=False
+        self.fetched.clear(); self.source.reset_mock()
+        with patch.object(D,'notification_key',return_value=('new-receipt',0)), \
+             patch.object(D,'publish_snapshot',side_effect=AssertionError('Identical SQL must not be copied')):
+            result=D.build(self.args)
+        self.assertEqual(result['status'],'unchanged')
+        self.assertEqual(result['publicationBuildId'],old['buildId'])
+        self.assertEqual(self.source.call_count,2)  # Initial and final source checks still run.
+        self.assertEqual(self.fetched,[])
+        self.assertEqual(self.pointer(),dict(old,notificationKey='new-receipt'))
+        # A further receipt with an actual proof change must still publish.
+        with patch.object(D,'notification_key',return_value=('changed-proof',0)), \
+             patch.object(D.ADMISSION_EVIDENCE,'load',return_value={'status':'withheld','reason':'new evidence'}):
+            result=D.build(self.args)
+        self.assertEqual(result['status'],'published')
+        self.assertNotEqual(self.pointer()['buildId'],old['buildId'])
+        self.assertEqual(self.fetched,[])
+
+    def test_new_receipt_cannot_reuse_damaged_publication(self):
+        D.build(self.args); old=self.pointer(); self.args.force=False
+        Path(old['databasePath']).write_bytes(b'damaged snapshot')
+        with patch.object(D,'notification_key',return_value=('new-receipt',0)):
+            result=D.build(self.args)
+        self.assertEqual(result['status'],'published')
+        self.assertNotEqual(self.pointer()['buildId'],old['buildId'])
+        with D.SOURCE._reader.dashboard_database(self.state,self.pointer()):pass
+
+    def test_reader_only_update_does_not_skip_new_prepared_products(self):
+        D.build(self.args); old=self.pointer(); self.args.force=False
+        D.RELEASE.atomic(self.state/'serving/dashboard-current.json',
+                         dict(old,dataRuntimeRelease={'releaseId':'previous-producer'}))
+        with patch.object(D,'notification_key',return_value=('new-reader-products',0)):
+            result=D.build(self.args)
+        self.assertEqual(result['status'],'published')
+        self.assertNotEqual(self.pointer()['buildId'],old['buildId'])
+
     def test_rank_invalidation_is_limited_to_changed_season(self):
         D.build(self.args)
         with closing(sqlite3.connect(self.working())) as db, db:

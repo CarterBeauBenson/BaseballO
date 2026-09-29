@@ -416,6 +416,15 @@ schedule events. A receipt produced every minute must not keep resetting a
 one-minute wait. Refreshed admissions still invalidate their affected game
 inputs; the existing final source-snapshot check still protects publication.
 
+After a changed notification, the dashboard builder still inspects the inputs
+and performs its final source check. When the resulting input set, source
+snapshot and exact runtime release match the current readable publication, it
+retains that publication and acknowledges the notification. It does not copy,
+index and checksum identical SQL again. The build ID, database hash and original
+publication time remain unchanged. Changed proofs or code produce a new
+publication; a missing or damaged snapshot is repaired from retained SQL work.
+An explicit forced build still publishes normally.
+
 Atomic metadata replacement retries transient Windows access/sharing/lock
 errors for at most six attempts (1.55 seconds of delay). Readers continue to
 see the old complete file until replacement succeeds. Persistent errors still

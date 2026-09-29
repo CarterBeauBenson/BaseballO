@@ -468,7 +468,7 @@ def build_locked(args, state, serving, work):
     durations = {}
     def checkpoint(**values):
         nonlocal phase_started
-        if values.get('phase',progress['phase']) != progress['phase'] or values.get('status') in {'published','failed','ready-for-promotion','waiting-for-source'}:
+        if values.get('phase',progress['phase']) != progress['phase'] or values.get('status') in {'published','unchanged','failed','ready-for-promotion','waiting-for-source'}:
             durations[progress['phase']] = round(durations.get(progress['phase'],0)+time.perf_counter()-phase_started,3)
             phase_started = time.perf_counter()
         progress['phaseSeconds'] = dict(durations)
@@ -588,6 +588,27 @@ def build_locked(args, state, serving, work):
         if final_snapshot['fingerprint'] != snapshot['fingerprint']:
             checkpoint(status='waiting-for-source', reason='Source changed; committed games retained for the next NiFi tick')
             return progress
+        release = RELEASE.own_descriptor(ROOT)
+        if (not args.force and not args.max_games and not args.no_promote and not publication_issue
+                and old_pointer.get('inputSetSha256') == input_set
+                and old_pointer.get('corpusFingerprint') == snapshot['fingerprint']
+                and old_pointer.get('runtimeRelease') == release
+                and old_pointer.get('dataRuntimeRelease',old_pointer.get('runtimeRelease')) == release):
+            # A new receipt is a reason to inspect inputs, not to copy identical
+            # reader products. Keep the original publication identity and time.
+            # Exact data/reader release equality also covers reference and
+            # display changes outside the game-calculation input set. Attaching
+            # a new reader alone does not certify its prepared SQL products.
+            try:
+                RELEASE.resolve_pointer_release(state, old_pointer)
+                with SOURCE._reader.dashboard_database(state, old_pointer): pass
+            except (OSError, ValueError, sqlite3.Error) as error:
+                checkpoint(previousPublicationIssue=str(error))
+            else:
+                checkpoint(status='unchanged', publicationStep='retained-publication',
+                           publicationBuildId=old_pointer['buildId'])
+                RELEASE.atomic(pointer_path, dict(old_pointer, notificationKey=notification))
+                return progress
         with connection:
             connection.execute('INSERT OR REPLACE INTO dashboard_build VALUES (1,?,?,?,?)',
                                (build_id,snapshot['fingerprint'],input_set,'validated'))
@@ -603,7 +624,7 @@ def build_locked(args, state, serving, work):
         pointer = dict(artifactType='baseballo-dashboard-serving-pointer', contractVersion=1, buildId=build_id,
                        databasePath=str(published), databaseSha256=sha, corpusFingerprint=snapshot['fingerprint'],
                        inputSetSha256=input_set, metricSuiteSha256=METRICS.fingerprint(), schemaSha256=SOURCE.sha256_file(SCHEMA),
-                       runtimeRelease=RELEASE.own_descriptor(ROOT), notificationKey=notification,
+                       runtimeRelease=release, notificationKey=notification,
                        gameCount=len(expected), promotedAtUtc=datetime.now(timezone.utc).isoformat())
         # Save the complete candidate evidence before changing the reader's
         # pointer. A storage failure here must preserve the prior publication.
