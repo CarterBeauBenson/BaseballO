@@ -357,15 +357,21 @@ def store_game(connection, item, bindings, product_cache=None):
     return proof
 
 
-def publish_snapshot(database, published):
+READER_EXCLUDED_TABLES=frozenset({
+    'metric_suite_evidence','metric_suite_result','metric_suite_scope_fact',
+    'metric_suite_block_manifest','metric_suite_input_row','metric_suite_input_state',
+    'metric_suite_shell','metric_suite_reference_rank','metric_suite_reference','dashboard_reference'})
+
+
+def publish_snapshot(database, published, checkpoint=None):
     """Copy prepared reader products; keep rebuild inputs in the working DB.
 
-    Both source tables below are build-only: readers use the checked scope,
-    input and shell projections plus prepared player/rank products. Omit the
-    tables entirely so an accidental raw-evidence fallback fails explicitly.
+    The dashboard now reads prepared player/game and reference-player products.
+    Intermediate observations, game kernels and PA ranks belong to the builder.
+    Omit those tables so an accidental calculation fallback fails explicitly.
     The writer lock remains held and all working transactions are committed.
     """
-    excluded={'metric_suite_evidence','metric_suite_result'}
+    excluded=READER_EXCLUDED_TABLES
     with closing(sqlite3.connect(published,uri=True)) as destination:
         destination.execute('PRAGMA foreign_keys=ON')
         destination.execute('ATTACH DATABASE ? AS prepared_source',(Path(database).as_uri()+'?mode=ro',))
@@ -377,17 +383,24 @@ def publish_snapshot(database, published):
                 key=lambda t:(t[0] not in {'game_dimension','metric_suite_reference'},t[0]))
             for name,sql in tables:destination.execute(sql)
             for name,_ in tables:
+                if checkpoint:checkpoint(publicationStep='copy-table',publicationTable=name)
                 quoted='"'+name.replace('"','""')+'"'
                 destination.execute(f'INSERT INTO main.{quoted} SELECT * FROM prepared_source.{quoted}')
+            if checkpoint:checkpoint(publicationStep='copy-indexes',publicationTable=None)
             for kind,name,owner,sql in schema:
                 if kind=='index' and owner not in excluded:destination.execute(sql)
+            # Cover the first-pass range completeness scan without visiting
+            # aggregate JSON pages for players who will be excluded anyway.
+            destination.execute('CREATE INDEX IF NOT EXISTS dashboard_player_metric_coverage '
+                'ON dashboard_player_metric(graph_iri,metric_id,player,complete,reason)')
             # Mutation triggers belong to the mutable producer. This publication
             # is always opened mode=ro and is never used as a build checkpoint.
+        if checkpoint:checkpoint(publicationStep='snapshot-integrity')
         if destination.execute('PRAGMA quick_check').fetchone()[0]!='ok' or destination.execute('PRAGMA foreign_key_check').fetchall():
             raise ValueError('Prepared dashboard snapshot integrity failed')
         working_bytes=(destination.execute('PRAGMA prepared_source.page_count').fetchone()[0]
             *destination.execute('PRAGMA prepared_source.page_size').fetchone()[0])
-    return dict(layout='prepared-reader-products-v1',retainedBuildOnlyTables=sorted(excluded),
+    return dict(layout='prepared-reader-products-v2',retainedBuildOnlyTables=sorted(excluded),
         workingBytes=working_bytes,publishedBytes=Path(published).stat().st_size)
 
 
@@ -574,7 +587,7 @@ def build_locked(args, state, serving, work):
         (work/'builds').mkdir(exist_ok=True)
         published = work/'builds'/(build_id+'.sqlite')
         checkpoint(publicationStep='prepared-snapshot')
-        publication=publish_snapshot(database,published)
+        publication=publish_snapshot(database,published,checkpoint)
         checkpoint(publicationStep='snapshot-digest',publication=publication)
         sha = SOURCE.sha256_file(published)
         SOURCE._reader.write_database_verification_cache(

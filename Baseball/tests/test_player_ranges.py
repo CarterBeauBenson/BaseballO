@@ -106,7 +106,15 @@ class PlayerRanges(unittest.TestCase):
         self.assertEqual(result['metric']['playerSummaryGaps'],['COMPLETE_PARTICIPATION'])
 
     def test_reader_decodes_only_whole_range_complete_players(self):
+        self.check_complete_player_reads(covered=False)
+
+    def test_covering_index_reads_only_complete_player_aggregates(self):
+        self.check_complete_player_reads(covered=True)
+
+    def check_complete_player_reads(self, *, covered):
         db=self.db()
+        if covered:db.execute('CREATE INDEX dashboard_player_metric_coverage '
+            'ON dashboard_player_metric(graph_iri,metric_id,player,complete,reason)')
         # Player 1 fails after an otherwise usable game. Player 2 is complete,
         # player 3 lacks a metric row, and player 4 has known zero observations.
         for graph in (G+'1',G+'2'):
@@ -146,7 +154,12 @@ class PlayerRanges(unittest.TestCase):
             dashboard=Q.query(M,P,db,{'view':'dashboard'},SCOPE)
         db.set_trace_callback(None)
         self.assertEqual(dashboard['metrics'],expected_metrics)
-        self.assertEqual(sum('JOIN dashboard_player_metric ' in sql for sql in statements),1)
+        self.assertEqual(sum('JOIN dashboard_player_metric ' in sql for sql in statements),2 if covered else 1)
+        if covered:
+            aggregate_reads=[s for s in statements if 'SELECT p.metric_id,p.player,p.aggregate_json' in s]
+            self.assertEqual(len(aggregate_reads),1)
+            self.assertNotIn("'"+U+'1'+"'",aggregate_reads[0])
+            self.assertNotIn("'"+U+'3'+"'",aggregate_reads[0])
 
     def test_reader_rejects_equal_counts_with_different_game_membership(self):
         db=self.db()

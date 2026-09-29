@@ -90,8 +90,11 @@ def player_records(db, metrics, params, people):
     products={metric:(defaultdict(list),defaultdict(set),Counter()) for metric in metrics}
     if not products:return products
     marks=','.join('?' for _ in products)
-    index='sqlite_autoindex_dashboard_player_metric_1' if len(products)>1 else 'dashboard_player_metric_selection'
-    rows=db.execute('SELECT p.metric_id,p.graph_iri,p.player,p.complete,p.aggregate_json,p.reason '
+    covered=db.execute("SELECT 1 FROM sqlite_master WHERE type='index' AND name='dashboard_player_metric_coverage'").fetchone()
+    index='dashboard_player_metric_coverage' if covered else \
+        'sqlite_autoindex_dashboard_player_metric_1' if len(products)>1 else 'dashboard_player_metric_selection'
+    aggregate='NULL' if covered else 'p.aggregate_json'
+    rows=db.execute(f'SELECT p.metric_id,p.graph_iri,p.player,p.complete,{aggregate},p.reason '
         f'FROM game_dimension g CROSS JOIN dashboard_player_metric p INDEXED BY {index} ON p.graph_iri=g.graph_iri '
         f'WHERE g.game_set=? AND g.official_date BETWEEN ? AND ? AND p.metric_id IN ({marks})',
         (*params,*products))
@@ -106,7 +109,23 @@ def player_records(db, metrics, params, people):
         else:blocked[player].add('COMPLETE_PARTICIPATION')
         if not complete:blocked[player].add(reason or 'INCOMPLETE_PLAYER_RECORD')
         if blocked[player]:grouped.pop(player,None)
-        else:grouped[player].append(text)
+        elif not covered:grouped[player].append(text)
+    if covered:
+        # Fetch aggregates only after the entire selected range passes. Chunk
+        # bound parameters for SQLite builds with the older 999-variable limit.
+        eligible=[(metric,player) for metric,(_,blocked,seen) in products.items()
+                  for player,person in people.items()
+                  if person['roster'] and not blocked[player] and seen[player]==len(person['graphs'])]
+        for offset in range(0,len(eligible),400):
+            batch=eligible[offset:offset+400]
+            values=','.join('(?,?)' for _ in batch)
+            rows=db.execute(f'WITH eligible(metric_id,player) AS (VALUES {values}) '
+                'SELECT p.metric_id,p.player,p.aggregate_json FROM eligible e CROSS JOIN game_dimension g '
+                'CROSS JOIN dashboard_player_metric p INDEXED BY sqlite_autoindex_dashboard_player_metric_1 '
+                'ON p.graph_iri=g.graph_iri AND p.player=e.player AND p.metric_id=e.metric_id '
+                'WHERE g.game_set=? AND g.official_date BETWEEN ? AND ?',
+                (*[value for pair in batch for value in pair],*params))
+            for metric,player,text in rows:products[metric][0][player].append(text)
     return products
 
 

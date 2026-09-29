@@ -451,6 +451,19 @@ is a separate behavior, not the dashboard contract. Changing the independent
 reference producer refreshes those SQL products through NiFi without rerunning
 unchanged game calculations or modifying RDF.
 
+Dashboard publication copies only the reader's products and provenance. Raw
+bindings, intermediate observation rows, game-result shells and per-PA rank
+tables remain in the working SQL database; they are not copied and scanned
+again in every immutable reader snapshot. Prepared reference-player products
+remain available. The publication retains its existing SQL integrity and
+foreign-key checks and reports the table-copy, index and integrity phases.
+The focused roundtrip compares every metric's dashboard and detail results
+before and after this projection. No RDF or game calculation changes.
+The reader snapshot also adds an index covering the range-completeness scan.
+The reader first checks the entire range, then fetches aggregate JSON only for
+complete player records. Older snapshots retain the prior reader path until
+NiFi publishes the index; neither path shortens the range or changes values.
+
 The web layer reads only small prepared player/team/game rows from the same
 immutable, worker-verified dashboard snapshot for participation minimums. It
 counts each represented team's full selected-period schedule, not merely the

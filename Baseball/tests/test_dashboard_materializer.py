@@ -196,9 +196,11 @@ class DashboardMaterializer(unittest.TestCase):
                 PROOF if promotion['gamePk']=='101' else {'status':'withheld'}):result=D.build(self.args)
         reader=D.SOURCE._reader;scope=dict(gameSet='regular_season',startDate='2026-08-01',endDate='2026-08-01')
         with closing(sqlite3.connect(self.working())) as working,closing(sqlite3.connect(self.pointer()['databasePath'])) as published:
-            for table in ('metric_suite_evidence','metric_suite_result'):
-                self.assertGreater(working.execute('SELECT COUNT(*) FROM '+table).fetchone()[0],0)
+            for table in D.READER_EXCLUDED_TABLES:
+                self.assertIsNotNone(working.execute('SELECT name FROM sqlite_schema WHERE name=?',(table,)).fetchone())
                 self.assertIsNone(published.execute('SELECT name FROM sqlite_schema WHERE name=?',(table,)).fetchone())
+            self.assertGreater(working.execute('SELECT COUNT(*) FROM metric_suite_evidence').fetchone()[0],0)
+            self.assertIsNotNone(published.execute("SELECT name FROM sqlite_schema WHERE name='dashboard_reference_players'").fetchone())
             for request in [{'view':'dashboard'},*({'metricId':m['id']} for m in D.METRICS.catalog()['metrics'])]:
                 before=reader._range_query.query(D.METRICS,D.PLAYER_RANGES,working,request,scope)
                 after=reader._range_query.query(D.METRICS,D.PLAYER_RANGES,published,request,scope)

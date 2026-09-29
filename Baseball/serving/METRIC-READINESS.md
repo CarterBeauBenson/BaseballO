@@ -48,6 +48,16 @@ do not infer their deployment from these results.
 
 ## Implemented repairs and retained component evidence
 
+- The September 29 11:56 Eastern publication (`20260929T151652Z-dashboard-fa3a211216a7`)
+  still has **1/19** populated season cards. Its full-season HTTP request succeeds
+  but took 29.19 seconds (26.22 in the adapter). That build reused all 2,917 game
+  calculations and prepared 228 player partitions; it predates the fixes below.
+  Publication alone consumed 17.4 minutes. The next reader snapshot now omits
+  intermediate calculation tables retained in the working database and adds a
+  covering completeness index. Aggregate JSON is read only for complete range
+  records. Four focused comparisons preserve values, exclusions, all metric
+  detail responses and compatibility with older snapshots. These publication
+  and reader changes await NiFi deployment; no live speedup is claimed yet.
 - The single-batter B1 repair now recognizes the exact pre-T1 context version.
   A September 29 census found 133 season games with replacement-only failures
   produced by that version. The omitted version previously prevented their
