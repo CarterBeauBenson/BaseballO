@@ -289,7 +289,7 @@ facts and reviewed under the existing RML/identity rules.
 
 ### Specific remaining batting, count and review evidence
 
-The September 21–27 B1 conformance failures for games 823327 / PA 46,
+The September 21â€“27 B1 conformance failures for games 823327 / PA 46,
 823489 / PA 6, 824301 / PA 40, 824302 / PA 17 and 824866 / PA 42 share one
 precise mismatch: the retained source census expects `StrikeoutProcess` for
 `strikeout_double_play`, while the promoted result is typed only as
@@ -325,9 +325,9 @@ count validator cannot establish the missing award-attribution graph pattern.
 Any repair must cover that mapping selection and its targeted additive
 execution; it must not fabricate four pitches or four umpire acts. No mapping
 or RDF change for this case was made by the September 29 serving fixes.
-The bounded [W1 selection package](../proposals/mlb-game-zero-pitch-walk-prefix/README.md)
-is prepared for ontologist review with the existing award pattern and additive
-execution scope; it has no recorded approval.
+The bounded [W1 selection package](../archive/design-records/mlb-game-zero-pitch-walk-prefix/README.md)
+was explicitly accepted on September 29 for the existing award pattern and
+additive execution scope. Its implementation follows the separate decision commit.
 
 The retained review inventory is diagnostic. It does not establish a complete
 eligible never-reviewed denominator, decision-time challenge availability or

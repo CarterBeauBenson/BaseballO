@@ -25,6 +25,11 @@ their rejection rationale so they cannot be accidentally revived.
 
 ## Recent accepted decisions
 
+[W1 intentional-walk prefixes](../archive/design-records/mlb-game-zero-pitch-walk-prefix/README.md)
+was explicitly accepted on September 29. The shared selector and targeted
+addition of existing award facts are authorized; implementation and runtime
+results remain separate from this decision. No new vocabulary or rebuild is authorized.
+
 [Q7 zero-episode history isolation](../archive/design-records/mlb-game-zero-episode-history-isolation/README.md)
 was explicitly accepted on September 23. Its targeted additions completed in
 two existing games: seven supported histories and 49 triples were added while
@@ -96,7 +101,6 @@ review; that package's null decision does not undo the archived partial decision
 
 | Review boundary | Mermaid | Questions |
 | --- | --- | --- |
-| [W1 zero-pitch intentional-walk prefixes](mlb-game-zero-pitch-walk-prefix/README.md) | [existing pattern](mlb-game-zero-pitch-walk-prefix/source-independent-mermaid.md) | [bounded selection decision](mlb-game-zero-pitch-walk-prefix/README.md#decision-requested) |
 | [Deferred MLB-game measurements](mlb-game-deferred-measurements/README.md) | [shape](mlb-game-deferred-measurements/source-independent-mermaid.md) | [decisions](mlb-game-deferred-measurements/competency-questions.md) |
 | [Batter-consequence attribution for TFS and PAQ-2](mlb-game-batter-consequence-attribution/README.md), with [resolution/award links accepted separately](../archive/design-records/mlb-game-resolution-award-links/README.md) | [shape](mlb-game-batter-consequence-attribution/source-independent-mermaid.md) | [decisions](mlb-game-batter-consequence-attribution/competency-questions.md) |
 

@@ -1,23 +1,23 @@
 # W1: intentional walks after an unchanged-count prefix
 
-**Under review. No implementation or semantic approval is recorded.**
+**Accepted by Carter Beau Benson on September 29, 2026. Implementation follows this separately published decision.**
 
 The current selector requires exactly four events for a zero-pitch intentional
 walk. It therefore omits the accepted walk-to-running attribution when a
 non-pitch mound visit or pinch-runner replacement precedes the four VB counter
 records. This is coverage debt in the existing MLB-game source lane.
 
-## Decision requested
+## Accepted decision
 
 Admit the same existing intentional-walk award pattern when the four VB records
 are preceded only by the precisely constrained events below. Repair affected
 existing graphs by additive execution of the existing award maps. Preserve all
 unrelated triples and derive affected SQL products through their NiFi owners.
 No database rebuild, API reacquisition, new object property, class or identity
-policy is requested. Approval would cover this selection rule and its ordinary
+policy is requested. Approval covers this selection rule and its ordinary
 engineering consequences, not arbitrary administrative prefixes.
 
-## Competency questions and proposed answers
+## Accepted competency-question answers
 
 1. Does a count-neutral mound visit or independently reconciled pinch-runner
    replacement turn an intentional walk into four delivered pitches? No.
@@ -30,7 +30,7 @@ engineering consequences, not arbitrary administrative prefixes.
    history or a review's effect? No. Their independent requirements remain.
 
 The world-side pattern is the user's accepted
-[runner-award final decision](../../archive/design-records/runner-award-origin-final-decision/user-decision.md),
+[runner-award final decision](../runner-award-origin-final-decision/user-decision.md),
 shown in [the diagram](source-independent-mermaid.md). W1 requests review of
 the additional source selection, not a different account of the award.
 
@@ -93,7 +93,7 @@ Changing only the former cannot supply the omitted award attribution.
 - Retain all existing award-attribution conditions for the batter and any
   forced runners. No new event-specific directive is created.
 
-## Bounded implementation after acceptance
+## Authorized bounded implementation
 
 Use one shared selection routine for context construction and the count census
 so they cannot disagree about this sequence. Keep the existing award RML maps:
@@ -111,7 +111,7 @@ only affected query indexes, source admissions and derived SQL products after
 promotion. Unknown identities or unrelated graph failures stay unresolved.
 
 Reuse the additive promotion mechanics without reusing Q7's two-game semantic
-authorization. W1 needs its own recorded acceptance before executable changes.
+authorization. W1 has its own recorded acceptance; executable changes follow publication of this decision.
 Previously admitted, unchanged count proofs may be reused only with exact
 producer compatibility; prior failed proofs must actually pass their new checks.
 
