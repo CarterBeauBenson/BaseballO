@@ -136,6 +136,11 @@ player's buffered values; missing metric rows also prevent decoding. SQL still
 supplies the full selected range and all exclusion reasons. Exact fractions,
 zero-observation records, qualification and pooled results are unchanged. This
 reader-only change requires no new SQL products or RDF work.
+Dashboard reads fetch the requested player metrics together in game order,
+avoiding a separate season scan for each card. The existing unique game/player/
+metric key supports counting matched games; any unexpected game is still an
+explicit completeness failure, even when the counts match. The same query
+supports expanded single-metric details without changing their period.
 
 The independent player admission refresh validates existing B1/E1 roster and B1
 player constraints against the promoted graph without rerunning RML. Original

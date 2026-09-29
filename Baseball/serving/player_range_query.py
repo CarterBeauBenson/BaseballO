@@ -24,6 +24,35 @@ def reference_available(m, db, metric, scope):
     return True
 
 
+def player_records(db, metrics, params, people):
+    """Read requested products together, keeping exact range exclusions.
+
+    Game-first traversal keeps each game's adjacent rows together instead of
+    revisiting the season's pages separately for every dashboard card.
+    """
+    products={metric:(defaultdict(list),defaultdict(set),Counter()) for metric in metrics}
+    if not products:return products
+    marks=','.join('?' for _ in products)
+    index='sqlite_autoindex_dashboard_player_metric_1' if len(products)>1 else 'dashboard_player_metric_selection'
+    rows=db.execute('SELECT p.metric_id,p.graph_iri,p.player,p.complete,p.aggregate_json,p.reason '
+        f'FROM game_dimension g CROSS JOIN dashboard_player_metric p INDEXED BY {index} ON p.graph_iri=g.graph_iri '
+        f'WHERE g.game_set=? AND g.official_date BETWEEN ? AND ? AND p.metric_id IN ({marks})',
+        (*params,*products))
+    for metric,graph,player,complete,text,reason in rows:
+        person=people.get(player)
+        if person is None:continue
+        grouped,blocked,seen=products[metric]
+        # The primary key makes each metric/player/game unique. Count matching
+        # games and reject any unexpected game without keeping millions of
+        # duplicate graph strings in per-metric sets.
+        if graph in person['graphs']:seen[player]+=1
+        else:blocked[player].add('COMPLETE_PARTICIPATION')
+        if not complete:blocked[player].add(reason or 'INCOMPLETE_PLAYER_RECORD')
+        if blocked[player]:grouped.pop(player,None)
+        else:grouped[player].append(text)
+    return products
+
+
 def query(m, products, db, request, scope):
     """Read small player/game products; never reconstruct graph or PA history."""
     ids=m.requested_metric_ids(request);params=(scope['gameSet'],scope['startDate'],scope['endDate'])
@@ -55,6 +84,8 @@ def query(m, products, db, request, scope):
         p=people[player];p['pa']+=pa or 0;p['paKnown'] &= pa is not None
         if roster:roster_graphs.add(graph)
         p['games'].add(graph);p['graphs'].add(graph);p['roster'] &= bool(roster)
+    prepared=player_records(db,[metric for metric in ids if metric in products.PREPARED],params,people) \
+        if schedule['complete'] and roster_graphs==set(graphs) else {}
     metrics=[]
     for metric in ids:
         entry=next(e for e in m.catalog()['metrics'] if e['id']==metric)
@@ -74,21 +105,10 @@ def query(m, products, db, request, scope):
         if roster_graphs!=set(graphs):
             metrics.append(dict(m.unavailable('COMPLETE_PARTICIPATION'),**base,
                 playerSummaryGaps=['COMPLETE_PARTICIPATION']));continue
-        grouped=defaultdict(list);blocked=defaultdict(set);seen=defaultdict(set)
-        for graph,player,complete,text,reason in db.execute('SELECT p.graph_iri,p.player,p.complete,p.aggregate_json,p.reason '
-                'FROM dashboard_player_metric p JOIN game_dimension g USING(graph_iri) '
-                'WHERE p.metric_id=? AND g.game_set=? AND g.official_date BETWEEN ? AND ?', (metric,*params)):
-            seen[player].add(graph)
-            if not complete:
-                blocked[player].add(reason or 'INCOMPLETE_PLAYER_RECORD')
-                grouped.pop(player,None)
-            elif player in people and not blocked[player]:
-                # Keep compact SQL text until the whole selected-range record
-                # is known complete. One failed game excludes all its values.
-                grouped[player].append(text)
+        grouped,blocked,seen=prepared[metric]
         output=[];exclusions=Counter();complete_people=0
         for player,person in people.items():
-            if not person['roster'] or seen[player]!=person['graphs']:
+            if not person['roster'] or seen[player]!=len(person['graphs']):
                 blocked[player].add('COMPLETE_PARTICIPATION')
             if blocked[player]:
                 exclusions.update(blocked[player]);continue

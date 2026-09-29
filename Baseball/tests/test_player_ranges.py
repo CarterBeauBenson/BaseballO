@@ -111,6 +111,7 @@ class PlayerRanges(unittest.TestCase):
         for graph in (G+'1',G+'2'):
             for player in (U+'3',U+'4'):
                 db.execute('INSERT INTO dashboard_player_game VALUES (?,?,?,?,?)',(graph,player,'team',0,1))
+        expected_metrics=[]
         for metric in sorted(P.PREPARED):
             def aggregate(count):
                 if metric=='empty-game-rate':return dict(kind='count',count=count,eligibleGames=count)
@@ -138,6 +139,24 @@ class PlayerRanges(unittest.TestCase):
             self.assertEqual(len(aggregate_decodes),4,metric)
             self.assertEqual(actual['metric']['rankingCoverage']['completePlayers'],2,metric)
             self.assertEqual(actual['metric']['rankingCoverage']['excludedPlayers'],2,metric)
+            expected_metrics.append(expected['metric'])
+        statements=[];db.set_trace_callback(statements.append)
+        with patch.object(M,'requested_metric_ids',return_value=sorted(P.PREPARED)):
+            dashboard=Q.query(M,P,db,{'view':'dashboard'},SCOPE)
+        db.set_trace_callback(None)
+        self.assertEqual(dashboard['metrics'],expected_metrics)
+        self.assertEqual(sum('JOIN dashboard_player_metric ' in sql for sql in statements),1)
+
+    def test_reader_rejects_equal_counts_with_different_game_membership(self):
+        db=self.db()
+        db.execute('DELETE FROM dashboard_player_game WHERE graph_iri=? AND player=?',(G+'2',U+'1'))
+        db.execute('INSERT INTO dashboard_player_metric VALUES (?,?,?,?,?,?)',
+                   (G+'2',U+'1','tfs',1,M._json(P.mean(M,[M.Fraction(10)])),None))
+        actual=Q.query(M,P,db,{'metricId':'tfs'},SCOPE)
+        actual.pop('participationCoverage')
+        self.assertEqual(actual,P.query(M,db,{'metricId':'tfs'},SCOPE))
+        self.assertEqual(actual['metric']['playerResults'],[])
+        self.assertEqual(actual['metric']['rankingCoverage']['completePlayers'],0)
 
     def test_unselected_exhibition_products_do_not_block_dashboard_preparation(self):
         db=self.db()
