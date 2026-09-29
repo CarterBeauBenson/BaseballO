@@ -96,6 +96,7 @@ review; that package's null decision does not undo the archived partial decision
 
 | Review boundary | Mermaid | Questions |
 | --- | --- | --- |
+| [W1 zero-pitch intentional-walk prefixes](mlb-game-zero-pitch-walk-prefix/README.md) | [existing pattern](mlb-game-zero-pitch-walk-prefix/source-independent-mermaid.md) | [bounded selection decision](mlb-game-zero-pitch-walk-prefix/README.md#decision-requested) |
 | [Deferred MLB-game measurements](mlb-game-deferred-measurements/README.md) | [shape](mlb-game-deferred-measurements/source-independent-mermaid.md) | [decisions](mlb-game-deferred-measurements/competency-questions.md) |
 | [Batter-consequence attribution for TFS and PAQ-2](mlb-game-batter-consequence-attribution/README.md), with [resolution/award links accepted separately](../archive/design-records/mlb-game-resolution-award-links/README.md) | [shape](mlb-game-batter-consequence-attribution/source-independent-mermaid.md) | [decisions](mlb-game-batter-consequence-attribution/competency-questions.md) |
 

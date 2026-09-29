@@ -10,22 +10,21 @@ Read-only selected-range checks on September 29, 2026:
 
 | Surface | Recorded result |
 | --- | --- |
-| Published dashboard | `20260929T124736Z-dashboard-9c0b8fa89ebb`, published September 29 at 09:17 Eastern, 2,917 games; runtime from `cc879e4` |
+| Published dashboard | `20260929T131736Z-dashboard-e062a0c81421`, published September 29 at 09:54 Eastern, 2,917 games; runtime from `fbf14b9` |
 | Week selection | September 21-27: all 90 expected regular-season games |
 | Week player leaderboards | **7/19 populated**, with names, selected-period aggregates, automatic minimums and disclosed exclusions; `ready=false` |
 | Populated cards | Offensive Reach, Help Without Advancing, Empty Games, Empty Game Damage, Contribution Mix, Scoring History Length and Run Contributors |
-| Qualified weekly players | Respectively 83, 83, 102, 5, 2, 163 and 130 after full-team selected-period minimums |
+| Qualified weekly players | Respectively 89, 89, 102, 5, 2, 163 and 130 after full-team selected-period minimums |
 | Expanded details | Scoring History Length has 163 named players for September 21-27, with Trea Turner and Jake Bauers among the leaders at an average of 4; 48 incomplete player records are explicitly excluded. The prior publication's full card/detail comparison matched all 163 rows. |
-| Month selection | August 29-September 27: all 403 expected games; **5/19 populated**, with all game rosters verified |
-| Season selection | HTTP 200 for January 1-September 27, all 2,429 expected regular-season games; 0/19 populated and **28** games lack usable participation proofs. The corrected reader is live and no longer enters the unrelated-reference fallback. |
+| Month selection (earlier publication) | August 29-September 27: all 403 expected games; **5/19 populated**, with all game rosters verified |
+| Season selection | HTTP 200 for January 1-September 27, all 2,429 expected regular-season games; 0/19 populated and **7** games lack usable participation proofs in this publication, down from 28. The corrected reader is live and no longer enters the unrelated-reference fallback. |
 | Recent-game coverage | All 130 September 17-26 catch-up games are in SQL, including 823087 |
 
-The previous publication's local warm dashboard requests completed in 4.49 seconds for the week, 1.58
-seconds for the month and 5.79 seconds for the season. The first request against
-the new database took 19.39 seconds, including that Python runtime's initial
-immutable-file verification. These are measured responses, not an instant-response
-or all-19 delivery claim. The served UI asset includes the participation-gap
-message and preserves the full selected period.
+The latest measured requests completed in 5.47 seconds for the week and 15.92
+seconds for the season's first request against the new database, including
+initial immutable-file verification. These are measured responses, not an
+instant-response or all-19 delivery claim. The served UI asset includes the
+participation-gap message and preserves the full selected period.
 
 The healthy SQL service and unavailable player populations are separate facts.
 The current pointer is `state/serving/dashboard-current.json`; the independent
@@ -33,23 +32,27 @@ builder records progress in `state/serving/dashboard/progress.json`. Read those
 owner records for a later state. Do not infer publication from a submitted job,
 a source graph count or a successful component test.
 
-The September 29 follow-up HTTP check still returned 7/19 weekly cards and
-0/19 season cards with 28 unverified season rosters from that publication.
-Requests took 17.12 seconds for the week (including initial verification) and
-1.53 seconds for the season. New repairs were not yet in its captured runtime.
-At the last owner-record check, the next build had finished all 2,917 games:
-21 admission-dependent updates, 2,896 reused games and zero calculation-version
-updates, and was publishing. The newer PA admission/compact snapshot changes
-will be captured by a subsequent scheduled build; do not claim their live
-leaderboard coverage from the older pointer.
-
-Separately, NiFi's current independent-admission receipts verified 64 rosters
-and admitted 2,977 PA boundaries, retaining 1,891 withheld boundaries. These
-are validation results against existing RDF, not graph additions or published
-player counts. The maintained queue continues under its existing NiFi owner.
+That publication reused 2,896 games and updated 21 games' admission-dependent
+products without recalculating unchanged game kernels. All seven remaining
+rosters (824295, 823648, 823682, 823523, 824807, 823589 and 823668) now have
+independent receipts with `rosterComplete=true`. Several player/PA checks still
+fail; a complete roster does not admit those players' metric records. These
+receipts await a subsequent SQL publication. The newer independent PA,
+compact-snapshot and per-player damage changes are also not in the published
+runtime above. NiFi started the next build at 09:54 Eastern; do not infer its
+results from the preceding publication or component checks.
 
 ## Implemented repairs and retained component evidence
 
+- Empty Game Damage now isolates unrelated running uncertainty for games with
+  independent PA admission and an admitted complete runner population. A focused
+  regression retains a player's exact 1/4 damage while another runner's turn is
+  unresolved; an own interrupted turn, unknown runner or missing census still
+  withholds it. Unchanged game calculations and unaffected player products are
+  reused. This is component evidence pending NiFi publication.
+- Publication checks SQL integrity on the prepared reader snapshot once,
+  avoiding a second full scan of the larger working store. Progress records
+  distinguish the final source check, snapshot copy and digest.
 - Empty Game and Contribution Mix preparation now compares the official PA
   census within the independently admitted player population. Another batter's
   failed B1 check does not block that census. Possible running contributions
@@ -232,6 +235,20 @@ before any targeted addition; an unexplained transition is not covered merely
 by the presence of a foul record. Boundary admissions separately depend on
 supported PA-start states, clocks, replacements and review effects. Q7 does
 not admit whole half-inning boundary populations.
+
+Game 822864 / PA 54 exposes a separate exact intentional-walk selection gap.
+The retained response has a pinch-runner replacement at index 0 and a mound
+visit at index 1, both at 0-0, followed by four explicit non-pitch VB records
+at indexes 2-5 and the batter's first-base award joined to index 5. Both
+`virtual_intentional_walk` and the mapping context's `runner_metric_evidence`
+currently require exactly four total events indexed 0-3. Relaxing only the
+count validator cannot establish the missing award-attribution graph pattern.
+Any repair must cover that mapping selection and its targeted additive
+execution; it must not fabricate four pitches or four umpire acts. No mapping
+or RDF change for this case was made by the September 29 serving fixes.
+The bounded [W1 selection package](../proposals/mlb-game-zero-pitch-walk-prefix/README.md)
+is prepared for ontologist review with the existing award pattern and additive
+execution scope; it has no recorded approval.
 
 The retained review inventory is diagnostic. It does not establish a complete
 eligible never-reviewed denominator, decision-time challenge availability or

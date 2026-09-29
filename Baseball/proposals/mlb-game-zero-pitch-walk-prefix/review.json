@@ -1,0 +1,36 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-zero-pitch-walk-prefix",
+  "title": "W1 zero-pitch intentional walks after a reconciled count-neutral prefix",
+  "status": "under-review",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "d0fa75cc5106c21f1ba81eb71efa145c8038d27e7b03b4014be9564324c8bf08"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "README.md",
+        "sha256": "d0fa75cc5106c21f1ba81eb71efa145c8038d27e7b03b4014be9564324c8bf08"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "d0fa75cc5106c21f1ba81eb71efa145c8038d27e7b03b4014be9564324c8bf08"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "ce6e05c2d54fdec7df5e5b59f1cebc31f1176a59538161b497dd11132b0306b6"
+      }
+    ]
+  },
+  "ontologistDecision": null
+}
