@@ -2,6 +2,25 @@
 
 ## Immutable code and database releases
 
+Help Without Advancing prepares its own binary eligibility and answer when an
+otherwise unresolved PA has a complete B1 and runner-resolution census. It
+reuses the existing progress reducer with every segment and history member of
+the batter, then the batter plus each other runner. A known batter positive
+excludes that PA from Help's denominator; a known teammate positive settles
+Help only when the batter's own progress is known to be zero. Unknown batter
+progress or only unknown teammate progress remains withheld. Certain positive
+contributions also settle non-emptiness, without completing reach, contribution
+amounts, channel diversity or independent-running credit.
+
+NiFi reads the retained SQL evidence only for affected player partitions. The
+preceding exact player version migrates partitions with no admissible unresolved
+progress by retaining their values. Source admissions, whole-game calculations,
+RDF and RML remain unchanged. Qualification still applies to the whole selected
+range. The September 29 read-only repair of game 823580 / PA 55 supplies Daulton
+Varsho's missing Help observation: his season result is 14 successful eligible
+PAs / 368 eligible PAs = 7/184, with all 526 official PAs accounted for. This is
+a checked repair result, pending NiFi publication, not a live-card claim.
+
 The NiFi source-snapshot stage retains artifact byte hashes between invocations
 in a local cache separated by Python runtime. Each reuse checks the file's
 device, identity, size and timestamps; replaced, edited or missing files cannot

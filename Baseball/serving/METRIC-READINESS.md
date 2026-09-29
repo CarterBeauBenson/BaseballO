@@ -64,6 +64,20 @@ do not infer their deployment from these results.
 
 ## Implemented repairs and retained component evidence
 
+- Help Without Advancing no longer requires every other runner's contribution
+  to be known when its binary answer is already certain. NiFi reuses the same
+  progress reducer on complete per-runner segments, retaining B1 and full/scoped
+  PA resolution admission. Known batter progress excludes that PA from Help's
+  denominator; known teammate help with a known nonadvancing batter supplies a
+  positive observation. Unknown eligibility remains withheld. This also permits
+  certain non-empty classifications while leaving reach and TFS incomplete.
+  The retained SQL case 823580 / PA 55 now gives Daulton Varsho a complete season
+  Help average of **7/184** (14/368), with 526 official PAs and no missing Help
+  games. Four focused checks cover the exact denominator, unresolved negatives,
+  admission rejection, unchanged-partition reuse and publication round trips.
+  The new player projection awaits NiFi; it does not yet change the live count
+  of two qualified season cards. No source acquisition or RDF change is needed.
+
 - The existing runner-resolution checks can now isolate individual PAs when a
   game's full census fails graph conformance. NiFi reads matching retained
   censuses and the existing game graph; the source-owned SHACL still checks

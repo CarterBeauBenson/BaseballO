@@ -23,6 +23,7 @@ PREVIOUS_DAMAGE_VERSION = '8412c64bdfcb34b4f464e4f96e2850bedfd6d1846918882314b52
 PREVIOUS_ZERO_PA_VERSION = '498a19c02d51b88a7418616934719d37808ab7c5100c7bfd5cfda29d9ccb0518'
 PREVIOUS_RESOLUTION_VERSION = 'b47cf2b52df6240514ef87cd795ba953881f4af7a7393f849757bd685a4655eb'
 PREVIOUS_SCOPED_RESOLUTION_VERSION = 'ec4104bc6b33774dd4a5a2d1b6700300c31efb054d49a1fa2a28320fd89c63e6'
+PREVIOUS_HELP_VERSION = 'e0f455baeae669e3cb5f99e0e26e3b7c0ff885e4208b7f2282d7ab4ff8500275'
 
 
 def fingerprint():
@@ -113,6 +114,48 @@ def qualification(m,rows,graph,scope,batting,individual):
             teamGameExposure=[dict(game=g,team=t) for g,t in sorted(exposures[p])]) for p in sorted(valid)])
 
 
+def binary_help_inputs(m, rows, progress):
+    """Resolve only Help's eligibility and yes/no answer, using the same reducer.
+
+    Keep every segment and history member of each selected runner. Other
+    runners cannot change a known batter positive (ineligible), or a known
+    positive teammate contribution when the batter's own progress is zero.
+    The caller still requires the full PA resolution census and B1 membership.
+    No complete reach, contribution amount or running channel is asserted.
+    """
+    turns=defaultdict(list);movements=defaultdict(list);histories=defaultdict(list)
+    current=defaultdict(set)
+    for row in rows:
+        if row['kind']=='plate_appearance':turns[row['entity']].append(row)
+        elif row['kind']=='runner_movement':
+            movements[row.get('runner')].append(row)
+            current[row['plateAppearance']].add(row.get('runner'))
+        elif row['kind']=='runner_history':histories[row['player']].append(row)
+    output={}
+    for item in progress.get('unresolvedPlateAppearances',[]):
+        if not item.get('officialResult') or not item.get('player'):continue
+        pa,player=item['plateAppearance'],item['player']
+        def selected(people):
+            evidence=[*turns[pa],*(r for p in people for r in movements[p]),
+                      *(r for p in people for r in histories[p])]
+            result=m.batting_progress_evidence(evidence)
+            return next((r for r in result['plateAppearances'] if r['plateAppearance']==pa),None)
+        own=selected({player})
+        if own is None:continue
+        if own['batterPositive']:
+            output[pa]=dict(player=player,eligible=False,positive=True)
+            continue
+        complete=True;helped=False
+        for runner in sorted(current[pa]-{player},key=lambda p:p or ''):
+            other=selected({player,runner}) if runner else None
+            if other is not None and runner in other['otherPositivePlayers']:
+                helped=True;break
+            if other is None:complete=False
+        if helped or complete:
+            output[pa]=dict(player=player,eligible=True,value=int(helped),positive=helped)
+    return output
+
+
 def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people):
     """Project complete player records from already calculated game inputs."""
     game=next((r['game'] for r in rows),None)
@@ -133,6 +176,7 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people):
     progress_pa={p['plateAppearance']:p for p in progress.get('plateAppearances',[]) if p['officialResult']}
     resolved={p['plateAppearance'] for p in (individual.get('paResolutions') or {}).get('plateAppearances',[])
               if p['status']=='admitted'}
+    help_inputs=inputs.get('binaryHelp',{})
     certain_positive=set()
     positive=set();uncertain=set();mix_uncertain=set();channels=defaultdict(set);episodes=defaultdict(set)
     for pa in progress.get('plateAppearances',[]):
@@ -156,6 +200,9 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people):
         positive.update(pa.get('confirmedPositivePlayers',[]))
         if pa['plateAppearance'] in resolved:certain_positive.update(pa.get('confirmedPositivePlayers',[]))
         uncertain.update(affected);mix_uncertain.update(affected)
+    for pa,item in help_inputs.items():
+        if item['positive'] and (admitted(proofs['resolution']) or pa in resolved):
+            positive.add(item['player']);certain_positive.add(item['player'])
     classified={p['plateAppearance']:p for p in
                 [*progress.get('plateAppearances',[]),*progress.get('unresolvedPlateAppearances',[])]
                 if p.get('officialResult')}
@@ -198,6 +245,10 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people):
         # game. Unrelated running uncertainty cannot turn that known absence
         # into a missing batting record. Unknown official PA counts stay blocked.
         progress_ok=person is not None and (admitted(proofs['resolution']) or own<=resolved) and len(own_progress)==len(own)
+        own_help={p['plateAppearance']:dict(eligible=not p['batterPositive'],value=int(bool(p['otherPositivePlayers'])))
+                  for p in own_progress}
+        own_help.update({pa:item for pa,item in help_inputs.items() if pa in own and item['player']==player})
+        help_ok=person is not None and (admitted(proofs['resolution']) or own<=resolved) and set(own_help)==own
         empty_known=(person is not None and (player in certain_positive or
                      (admitted(proofs['resolution']) and progress_census and (player in positive or player not in uncertain))))
         for metric in sorted(PREPARED):
@@ -220,8 +271,10 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people):
                         aggregate=next((r['aggregate'] for r in scored.get('playerResults',[]) if r['player']==player),zero())
                 elif metric in {'offensive-reach','hidden-help-rate'}:
                     complete=progress_ok;reason='COMPLETE_PA_PROGRESS'
-                    selected=own_progress if metric=='offensive-reach' else [p for p in own_progress if not p['batterPositive']]
-                    aggregate=mean(m,[Fraction(p['reach'] if metric=='offensive-reach' else bool(p['otherPositivePlayers'])) for p in selected])
+                    if metric=='offensive-reach':aggregate=mean(m,[Fraction(p['reach']) for p in own_progress])
+                    else:
+                        complete=help_ok
+                        aggregate=mean(m,[Fraction(p['value']) for p in own_help.values() if p['eligible']])
                 elif metric=='empty-game-rate':
                     complete=empty_known or not own;reason='COMPLETE_EMPTY_GAME_CLASSIFICATION'
                     aggregate=dict(kind='count',count=int(bool(own) and player not in positive),eligibleGames=int(bool(own)))
@@ -260,6 +313,16 @@ def prepare(m, db, checkpoint=None, player_admissions=None):
         individual_text=m._json(individual);proof_sha=m._hash(individual_text) if individual else ''
         identity=m._hash(key+version+proof_sha)
         if saved.get(graph)==identity:continue
+        if saved.get(graph)==m._hash(key+PREVIOUS_HELP_VERSION+proof_sha):
+            row=db.execute("SELECT state_json,state_sha256 FROM metric_suite_input_state WHERE graph_iri=? AND family='progress'",(graph,)).fetchone()
+            state=m._blocks.decode(m._block_api(),*row) if row else {}
+            unresolved=state.get('unresolvedPlateAppearances',[])
+            resolution=db.execute('SELECT proof_json,proof_sha256 FROM metric_suite_runner_resolution_admission WHERE graph_iri=?',(graph,)).fetchone() if unresolved else None
+            resolution=m._blocks.decode(m._block_api(),*resolution) if resolution else {}
+            scoped={p['plateAppearance'] for p in (individual.get('paResolutions') or {}).get('plateAppearances',[]) if p['status']=='admitted'}
+            if row and not any(p.get('officialResult') and (admitted(resolution) or p['plateAppearance'] in scoped) for p in unresolved):
+                with db:db.execute('UPDATE dashboard_player_partition SET input_sha256=? WHERE graph_iri=?',(identity,graph))
+                continue
         if not individual.get('paResolutions') and saved.get(graph) in {
                 m._hash(key+v+proof_sha) for v in (PREVIOUS_RESOLUTION_VERSION,PREVIOUS_SCOPED_RESOLUTION_VERSION)}:
             with db:db.execute('UPDATE dashboard_player_partition SET input_sha256=? WHERE graph_iri=?',(identity,graph))
@@ -287,12 +350,19 @@ def prepare(m, db, checkpoint=None, player_admissions=None):
             proofs[kind]=m._blocks.decode(m._block_api(),*row) if row else {}
         proofs['players']=individual
         inputs={f:m._blocks.read_inputs(m._block_api(),db,f,[graph])[graph] for f in ('contribution','progress','defense')}
-        if individual.get('paBoundaries') and not inputs['contribution'].get('complete'):
+        resolved={p['plateAppearance'] for p in (individual.get('paResolutions') or {}).get('plateAppearances',[]) if p['status']=='admitted'}
+        help_progress=dict(unresolvedPlateAppearances=[p for p in inputs['progress'].get('unresolvedPlateAppearances',[])
+            if admitted(proofs['resolution']) or p['plateAppearance'] in resolved])
+        needs_contribution=individual.get('paBoundaries') and not inputs['contribution'].get('complete')
+        if needs_contribution or help_progress['unresolvedPlateAppearances']:
             evidence=[m._blocks.decode(m._block_api(),text,sha) for text,sha in db.execute(
                 'SELECT binding_json,binding_sha256 FROM metric_suite_evidence WHERE graph_iri=?',(graph,))]
             saved_proof=json.loads(db.execute('SELECT proof_json FROM dashboard_checkpoint WHERE graph_iri=?',(graph,)).fetchone()[0])
             if len(evidence)!=saved_proof['evidenceRows']:raise m.EvidenceError('Stored dashboard evidence is incomplete')
             evidence.sort(key=m._json)
+            if help_progress['unresolvedPlateAppearances']:
+                inputs['binaryHelp']=binary_help_inputs(m,evidence,help_progress)
+        if needs_contribution:
             inputs['contribution']=m.contribution_game_inputs(evidence,graph=graph,batting_admission=proofs['batting'],
                 runner_resolution_admission=proofs['resolution'],runner_boundary_admission=proofs['boundary'],player_admission=individual)
             inputs['contribution']['zeroIndependentDamagePlayers']=sorted(

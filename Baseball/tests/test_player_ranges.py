@@ -1,5 +1,6 @@
 """Full-range completeness, isolated exclusions and exact pooled aggregates."""
 import importlib.util
+import copy
 import json
 from pathlib import Path
 import sqlite3
@@ -18,6 +19,47 @@ SCOPE=dict(gameSet='regular_season',startDate='2026-09-01',endDate='2026-09-02')
 
 
 class PlayerRanges(unittest.TestCase):
+    def test_binary_help_keeps_exact_denominator_despite_unrelated_unknown_progress(self):
+        from test_batting_progress_players import fixture, bindings, G1, GAME, P1, PROOF
+        rows=M.normalize_bindings(bindings(fixture(),[G1]),[G1])
+        pa0=str(GAME)+'/plate-appearance/0';pa1=str(GAME)+'/plate-appearance/1'
+        for pa in (pa0,pa1):
+            known=next(r for r in rows if r['kind']=='runner_movement' and r['plateAppearance']==pa)
+            unknown=dict(known,runner=U+'3',act=pa+'/unknown-act',episode=pa+'/unknown-episode',
+                entity=pa+'/unknown-result',resolution=pa+'/unknown-result',metricOrigin='1',originCode='1B',
+                hasOutType='false',hasSafeType='true',hasRunType='false',destinationCode='2B')
+            unknown.pop('contactPlay',None);rows.append(unknown)
+        progress=M.batting_progress_evidence(rows)
+        self.assertEqual({r['plateAppearance'] for r in progress['unresolvedPlateAppearances']},{pa0,pa1})
+        binary=P.binary_help_inputs(M,rows,progress)
+        self.assertEqual(binary[pa0],dict(player=str(P1),eligible=False,positive=True))
+        self.assertEqual(binary[pa1],dict(player=str(P1),eligible=True,value=1,positive=True))
+        for resolution,expected in ((PROOF,1),({},0)):
+            _,records=P.project(M,graph=str(G1),scope=SCOPE,rows=rows,
+                proofs=dict(batting=PROOF,run={},resolution=resolution),
+                inputs=dict(contribution={},progress=progress,defense={},binaryHelp=binary),
+                runs={metric:{} for metric in P.RUNS},run_people={})
+            by_key={(r[1],r[2]):r for r in records}
+            help_row=by_key[(str(P1),'hidden-help-rate')]
+            self.assertEqual(help_row[3],expected)
+            self.assertEqual(json.loads(help_row[4]),P.mean(M,[M.Fraction(1),M.Fraction(0)]))
+            self.assertEqual(by_key[(str(P1),'offensive-reach')][3],0)
+            self.assertEqual(by_key[(str(P1),'tfs')][3],0)
+            self.assertEqual(by_key[(str(P1),'empty-game-rate')][3],expected)
+        # If every other advance lacks attribution, Help is still unknown.
+        unknown=copy.deepcopy(rows)
+        for row in unknown:
+            if row['kind']=='runner_movement' and row['plateAppearance']==pa1 and row.get('runner')!=str(P1):
+                row.pop('contactPlay',None)
+        self.assertNotIn(pa1,P.binary_help_inputs(M,unknown,M.batting_progress_evidence(unknown)))
+        # An unknown batter's own progress cannot establish Help eligibility.
+        unknown=copy.deepcopy(rows)
+        for row in unknown:
+            if row['kind']=='runner_movement' and row['plateAppearance']==pa1 and row.get('runner')==str(P1):
+                row.update(hasOutType='false',hasSafeType='true',destinationCode='1B')
+                row.pop('contactPlay',None)
+        self.assertNotIn(pa1,P.binary_help_inputs(M,unknown,M.batting_progress_evidence(unknown)))
+
     def db(self):
         db=sqlite3.connect(':memory:');self.addCleanup(db.close)
         db.executescript('''CREATE TABLE game_dimension(graph_iri TEXT PRIMARY KEY,official_date TEXT,game_set TEXT);
@@ -33,6 +75,29 @@ class PlayerRanges(unittest.TestCase):
             for player in (U+'1',U+'2'):
                 db.execute('INSERT INTO dashboard_player_game VALUES (?,?,?,?,?)',(graph,player,'team',4,1))
         return db
+
+    def test_binary_help_upgrade_reuses_unaffected_sql_partitions(self):
+        db=self.db()
+        db.execute('CREATE TABLE metric_suite_input_state(graph_iri TEXT,family TEXT,state_json TEXT,state_sha256 TEXT)')
+        db.execute('CREATE TABLE metric_suite_runner_resolution_admission(graph_iri TEXT,proof_json TEXT,proof_sha256 TEXT)')
+        for i in (1,2):
+            graph=G+str(i)
+            db.execute('UPDATE dashboard_player_partition SET input_sha256=? WHERE graph_iri=?',
+                       (M._hash('source-'+str(i)+P.PREVIOUS_HELP_VERSION),graph))
+            state=M._json(dict(unresolvedPlateAppearances=[] if i==1 else [
+                dict(plateAppearance='pa',player=U+'1',officialResult=True)]))
+            db.execute('INSERT INTO metric_suite_input_state VALUES (?,?,?,?)',(graph,'progress',state,M._hash(state)))
+            proof=M._json(dict(status='withheld'))
+            db.execute('INSERT INTO metric_suite_runner_resolution_admission VALUES (?,?,?)',(graph,proof,M._hash(proof)))
+            db.execute('INSERT INTO dashboard_player_metric VALUES (?,?,?,?,?,?)',
+                       (graph,U+'1','hidden-help-rate',int(i==1),M._json(P.zero()),None if i==1 else 'COMPLETE_PA_PROGRESS'))
+        before=db.execute('SELECT * FROM dashboard_player_metric').fetchall()
+        with patch.object(M._blocks,'read_scope',side_effect=AssertionError('must reuse unaffected products')):
+            result=P.prepare(M,db)
+        self.assertEqual((result['preparedGames'],result['reusedGames']),(0,2))
+        self.assertEqual(before,db.execute('SELECT * FROM dashboard_player_metric').fetchall())
+        self.assertEqual(dict(db.execute('SELECT * FROM dashboard_player_partition')),
+                         {G+str(i):M._hash('source-'+str(i)+P.fingerprint()) for i in (1,2)})
 
     def test_one_incomplete_game_excludes_whole_player_not_the_other_player(self):
         db=self.db()
