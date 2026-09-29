@@ -102,6 +102,10 @@ a source graph count or a successful component test.
   reset its 60-second timer after the failed build. Receipts still trigger input
   refreshes; only RDF promotion and independent schedule events reset that
   short wait. Publication keeps its existing final source check.
+- NiFi recorded a transient Windows access denial replacing `progress.json`
+  on the next attempt. Atomic serving metadata writes now retry short-lived
+  sharing errors while preserving the previous complete file. Persistent
+  failures still stop the operation. The diagnostic file watcher was stopped.
 
 The complete earlier diagnosis and dated build history are retained in the
 [September 23 history](../archive/operational-history/2026-09-23/METRIC-READINESS.md).

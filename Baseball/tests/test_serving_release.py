@@ -29,6 +29,33 @@ def main():
 '''
 
 
+class AtomicPublication(unittest.TestCase):
+    def test_transient_windows_reader_preserves_old_pointer_until_replacement(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/'current.json';R.atomic(path,{'build':'old'})
+            replace=R.os.replace;calls=[]
+            def sharing_then_replace(source,target):
+                calls.append(target)
+                self.assertEqual(R.read(path),{'build':'old'})
+                if len(calls)==1:
+                    error=PermissionError('brief reader');error.winerror=5;raise error
+                return replace(source,target)
+            with patch.object(R.os,'replace',side_effect=sharing_then_replace),patch.object(R.time,'sleep'):
+                R.atomic(path,{'build':'new'})
+            self.assertEqual(R.read(path),{'build':'new'})
+            self.assertEqual(len(calls),2)
+
+    def test_persistent_sharing_failure_is_bounded_and_keeps_old_pointer(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/'current.json';R.atomic(path,{'build':'old'})
+            error=PermissionError('persistent reader');error.winerror=32
+            with patch.object(R.os,'replace',side_effect=error) as replace,patch.object(R.time,'sleep'):
+                with self.assertRaises(PermissionError):R.atomic(path,{'build':'new'})
+            self.assertEqual(replace.call_count,6)
+            self.assertEqual(R.read(path),{'build':'old'})
+            self.assertEqual(list(Path(directory).iterdir()),[path])
+
+
 class ServingRelease(unittest.TestCase):
     def setUp(self):
         self.tmp=tempfile.TemporaryDirectory(prefix='baseballo-release-test-')

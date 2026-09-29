@@ -18,6 +18,7 @@ import stat
 import subprocess
 import sys
 import tempfile
+import time
 import zipfile
 
 SCOPES = ('Baseball/scripts/pipeline', 'Baseball/serving', 'Baseball/sparql',
@@ -34,7 +35,17 @@ def atomic(path, value):
     path.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.NamedTemporaryFile('wb', dir=path.parent, delete=False) as f:
         f.write(encoded(value)); f.flush(); os.fsync(f.fileno()); temporary=Path(f.name)
-    try: os.replace(temporary, path)
+    try:
+        for attempt in range(6):
+            try:
+                os.replace(temporary, path)
+                break
+            except OSError as error:
+                # Windows readers and scanners can briefly deny replacement.
+                # Keep the old complete file; never fall back to in-place writes.
+                if getattr(error,'winerror',None) not in {5,32,33} or attempt==5:
+                    raise
+                time.sleep(0.05*2**attempt)
     finally: temporary.unlink(missing_ok=True)
 
 

@@ -300,6 +300,12 @@ schedule events. A receipt produced every minute must not keep resetting a
 one-minute wait. Refreshed admissions still invalidate their affected game
 inputs; the existing final source-snapshot check still protects publication.
 
+Atomic metadata replacement retries transient Windows access/sharing/lock
+errors for at most six attempts (1.55 seconds of delay). Readers continue to
+see the old complete file until replacement succeeds. Persistent errors still
+fail; the writer never substitutes an in-place partial update. This covers
+status-file readers as well as publication pointers.
+
 Each candidate projects cached or newly calculated game products into the
 indexed tables owned by `serving/metric_blocks.py`. Scope facts retain their
 distinct source identities. Each observation retains its exact reducer record,
