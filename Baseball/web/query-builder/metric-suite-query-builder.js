@@ -79,7 +79,7 @@ export function playerLeaderboard(result, metric, dateScope, mechanism = null) {
   const policyId = metric.id === 'review-dependence-rate' ?
     (mechanism === 'traditional-replay' ? 'traditional-review-dependence' : 'ball-strike-review-dependence') : participationPolicies.metrics[metric.id];
   const policy = participationPolicies.policies[policyId];
-  const paRule = '3.1 PA per team game in the selected range, rounded to the nearest whole PA.';
+  const paRule = '3.1 PA per team game in the selected range, rounded to the nearest whole PA. Use the full team schedule; for multiple teams, use the largest team total or the player’s evidenced game exposure, whichever is greater.';
   const participationRule = policy ? `At least ${policy.floor} ${policy.unit}, or one per ${policy.teamGamesDivisor} team game${policy.teamGamesDivisor === 1 ? '' : 's'} in the selected range, whichever is greater; round upward.` : '';
   const qualification = {status:batting || policy ? 'defined' : 'pending',
     kind:either ? 'either_batting_or_running' : batting ? 'plate_appearances' : 'role_participation', policyId:policyId ?? 'batting',
@@ -114,8 +114,11 @@ export function playerLeaderboard(result, metric, dateScope, mechanism = null) {
         !(channelSummary || value)) return { ...board, gaps: ['PLAYER_SCORE_COVERAGE'],
       message: 'Player scores or participation evidence are incomplete for this period.' };
     seen.add(row.player);
-    const minimumPA = batting || either ? automaticMinimumPA(row.teamGames) : null;
-    const minimumObservations = policy ? automaticMinimumObservations(policyId, row.teamGames) : null;
+    const qualificationGames = row.qualificationTeamGames ?? row.teamGames;
+    if (!Number.isSafeInteger(qualificationGames) || qualificationGames < row.teamGames)
+      return {...board, gaps:['PLAYER_SCORE_COVERAGE'], message:'The selected team schedule is incomplete.'};
+    const minimumPA = batting || either ? automaticMinimumPA(qualificationGames) : null;
+    const minimumObservations = policy ? automaticMinimumObservations(policyId, qualificationGames) : null;
     const participationCount = either ? row.independentRunningEpisodes : row.aggregate.count;
     const battingQualified = (batting || either) && row.plateAppearances >= minimumPA;
     const observationsQualified = policy && participationCount >= minimumObservations;
@@ -123,7 +126,8 @@ export function playerLeaderboard(result, metric, dateScope, mechanism = null) {
         ((batting && !battingQualified) || (policy && !observationsQualified))) { belowMinimum++; continue; }
     rows.push({ player: row.player, name: row.playerLabel?.trim() || `Player #${row.player.split('/').at(-1)}`,
       value, ...(channelSummary ? {approximateValue:channelSummary.approximateValue, channelCounts:channelSummary.channelCounts} : {}),
-      observationCount: channelSummary?.count ?? row.aggregate.count, plateAppearances: row.plateAppearances, teamGames: row.teamGames, minimumPA,
+      observationCount: channelSummary?.count ?? row.aggregate.count, plateAppearances: row.plateAppearances,
+      teamGames: qualificationGames, observedTeamGames: row.teamGames, minimumPA,
       ...(either ? {independentRunningEpisodes:row.independentRunningEpisodes,
         qualifiedThrough:[battingQualified ? 'batting' : '', observationsQualified ? 'running' : ''].filter(Boolean)} : {}),
       minimumObservations, minimumObservationUnit:policy?.unit,

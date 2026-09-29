@@ -1,5 +1,6 @@
 import { createServer } from "node:http";
 import { createHash } from "node:crypto";
+import { selectedTeamMinimums } from './metric-team-qualification.mjs';
 import { HttpFailure, boundedRequestHandler, runJsonCommand, requestSignal, boundedResponseJson } from './runtime-safety.mjs';
 import { readFile, readdir } from "node:fs/promises";
 import { dirname, extname, resolve, sep } from "node:path";
@@ -836,6 +837,7 @@ export function createBaseballServer({
   let gameDateIndexCache;
 
   async function metricDisplay(result) {
+    result = selectedTeamMinimums(result, LOCAL_STATE_ROOT);
     const definitions = new Map((await metricCatalog()).metrics.map(metric => [metric.id, metric]));
     const display = result.display ?? {source:'identifier-fallback',labels:[]};
     const labels = metricLabelIndex(display.labels);

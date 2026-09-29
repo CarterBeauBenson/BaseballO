@@ -337,3 +337,11 @@ request. Missing prepared ranks raise `Selected reference ranks need NiFi
 preparation`; they do not trigger request-time season ranking. The older full
 report reader's stored-observation ranking fallback is a separate behavior,
 not the dashboard contract.
+
+The web layer reads only small prepared player/team/game rows from the same
+immutable, worker-verified dashboard snapshot for participation minimums. It
+counts each represented team's full selected-period schedule, not merely the
+games in which the candidate appears. Multiple-team candidates use the largest
+team total, never less than their evidenced game exposure. This conservative
+threshold cannot be reduced by switching teams. No SPARQL, scoring, source
+refresh or SQL rebuild is performed by this display qualification step.
