@@ -1,8 +1,9 @@
 # R1: finish existing runner patterns in 26 affected games
 
-Under review. No execution or semantic approval is recorded.
+Accepted by Carter Beau Benson on September 29, 2026: **Approve R1 targeted addition**.
+The decision authorizes the bounded addition below; execution results are separate.
 
-## Requested decision
+## Accepted decision
 
 Authorize a targeted, additive completion of the already accepted runner
 episode, endpoint and personal-history patterns in the 26 games listed in

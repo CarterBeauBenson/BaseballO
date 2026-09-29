@@ -64,12 +64,13 @@ do not infer their deployment from these results.
 
 ## Implemented repairs and retained component evidence
 
-- The [R1 review](../proposals/mlb-game-runner-pattern-completion/README.md)
+- The [R1 review](../archive/design-records/mlb-game-runner-pattern-completion/README.md)
   identifies 26 games and 2,023 candidate PAs whose existing SQL diagnostics
   show missing runner-pattern facts. Each game has a retained source input,
   pinned in the review inventory. R1 requests only absent facts from unchanged,
-  already accepted runner mappings, with the existing RDF preserved. It is
-  **under review**, not an executed repair or a new population count. W2 was
+  already accepted runner mappings, with the existing RDF preserved. The user explicitly
+  accepted R1 on September 29; this is not yet an executed repair or a new
+  population count. W2 was
   limited to W1's intentional walks; it did not authorize these ordinary runner
   rows. K1's compound strikeout case remains a separate decision. SQL repairs
   over supported facts continue independently.

@@ -25,6 +25,11 @@ their rejection rationale so they cannot be accidentally revived.
 
 ## Recent accepted decisions
 
+[R1 existing runner-pattern completion](../archive/design-records/mlb-game-runner-pattern-completion/README.md)
+was explicitly accepted on September 29 for additive completion in 26 identified
+games using retained inputs and unchanged mappings. No new vocabulary, API
+acquisition or graph replacement is authorized. Execution results remain separate.
+
 [W1 intentional-walk prefixes](../archive/design-records/mlb-game-zero-pitch-walk-prefix/README.md)
 was explicitly accepted on September 29. The shared selector and targeted
 addition of existing award facts are authorized; implementation and runtime
@@ -101,7 +106,6 @@ review; that package's null decision does not undo the archived partial decision
 
 | Review boundary | Mermaid | Questions |
 | --- | --- | --- |
-| [R1: existing runner-pattern completion](mlb-game-runner-pattern-completion/README.md) | [shape](mlb-game-runner-pattern-completion/source-independent-mermaid.md) | [targeted addition in 26 games; unchanged mappings](mlb-game-runner-pattern-completion/README.md#requested-decision) |
 | [K1: strikeout double-play result](mlb-game-strikeout-double-play/README.md) | [shape](mlb-game-strikeout-double-play/source-independent-mermaid.md) | [decision and exact five-game scope](mlb-game-strikeout-double-play/README.md#proposed-decision) |
 | [Deferred MLB-game measurements](mlb-game-deferred-measurements/README.md) | [shape](mlb-game-deferred-measurements/source-independent-mermaid.md) | [decisions](mlb-game-deferred-measurements/competency-questions.md) |
 | [Batter-consequence attribution for TFS and PAQ-2](mlb-game-batter-consequence-attribution/README.md), with [resolution/award links accepted separately](../archive/design-records/mlb-game-resolution-award-links/README.md) | [shape](mlb-game-batter-consequence-attribution/source-independent-mermaid.md) | [decisions](mlb-game-batter-consequence-attribution/competency-questions.md) |

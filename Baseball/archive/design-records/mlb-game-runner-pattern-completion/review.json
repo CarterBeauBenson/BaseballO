@@ -1,0 +1,53 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-runner-pattern-completion",
+  "title": "R1 additive completion of existing runner patterns in 26 games",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "a003c60ba93bd80ccd44e2843a04a9867521445480673ede911637d180f5b2b8"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "README.md",
+        "sha256": "a003c60ba93bd80ccd44e2843a04a9867521445480673ede911637d180f5b2b8"
+      },
+      {
+        "path": "candidate-inventory.json",
+        "sha256": "2e0c73ae1255c42ba65fe524177e1734e056f5edd1e28d6503c6feeef9363c09"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "a003c60ba93bd80ccd44e2843a04a9867521445480673ede911637d180f5b2b8"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "399f2877f7cf33f7f5e062e0dd23414a23e8db96743ed61e171cc5a665b939ba"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-09-29",
+    "rationale": "The user explicitly answered \"Approve R1 targeted addition\" for the 26-game retained-input inventory. Add only missing supported runner-pattern facts using unchanged accepted mappings and selectors, preserving all existing RDF. No new ontology terms, object properties, identity policy, source reacquisition, or rebuild. Engineering includes existing dependency maps, scoped unchanged SHACL, additive transactions and affected derived-product refresh.",
+    "authorizedArtifacts": [
+      "Baseball/sources/mlb-game/pipeline/targeted-runner-addition.py",
+      "Baseball/sources/mlb-game/pipeline/targeted-runner-addition.ps1",
+      "Baseball/sources/mlb-game/pipeline/targeted-award-addition.py",
+      "Baseball/sources/mlb-game/pipeline/validation-profiles.json",
+      "Baseball/sources/mlb-game/shacl/runner-pattern-addition.ttl",
+      "Baseball/sources/mlb-game/nifi/provision-runner-addition.ps1"
+    ]
+  }
+}
