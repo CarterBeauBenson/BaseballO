@@ -43,6 +43,26 @@ def qualification(result):
 
 
 class ContributionPlayers(unittest.TestCase):
+    def test_independent_pa_admission_preserves_scores_without_admitting_the_whole_game(self):
+        rows=fixture();first=rows[0]['entity'];second=first.rsplit('/',1)[0]+'/1'
+        more=[{k:v.replace(first,second).replace(BATTER,BASE+'data/player/3') for k,v in row.items()} for row in rows]
+        expected=inputs(rows)['plateAppearances']
+        individual=dict(rosterComplete=True,plateAppearanceInventoryComplete=True,
+            players=[dict(player=BATTER,status='admitted'),dict(player=BASE+'data/player/3',status='withheld')],
+            paBoundaries=dict(plateAppearances=[dict(plateAppearance=first,status='admitted'),
+                dict(plateAppearance=second,status='withheld')]))
+        args=dict(batting_admission={'status':'withheld'},runner_boundary_admission={'status':'withheld'},player_admission=individual)
+        result=inputs(rows+more,**args)
+        self.assertEqual(result['plateAppearances'],expected)
+        self.assertFalse(result['complete']);self.assertFalse(result['independentDamageComplete'])
+        self.assertEqual(result['unresolvedPlateAppearances'],[dict(plateAppearance=second,
+            gaps=['OFFICIAL_PA_POPULATION','COMPLETE_RUNNER_BOUNDARIES'])])
+        self.assertEqual(inputs(rows+more,**args,runner_resolution_admission={'status':'withheld'})['plateAppearances'],[])
+        # Without the optional individual proof, the established full-game
+        # entry point retains precisely its earlier behavior.
+        self.assertEqual(inputs(rows,batting_admission={'status':'withheld'}),dict(complete=False,
+            plateAppearances=[],unresolvedPlateAppearances=[],gaps=['OFFICIAL_PA_POPULATION']))
+
     def test_multiple_noncontact_advances_preserve_ends_without_batter_credit(self):
         for mode in ('independent','excluded','award'):
             rows=fixture(outs=0,runner_base=1,contact=mode=='excluded');pa=rows[0]['entity']

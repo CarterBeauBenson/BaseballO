@@ -35,6 +35,13 @@ a source graph count or a successful component test.
 
 ## Implemented repairs and retained component evidence
 
+- Independent C1/C2 checks now isolate a failed PA boundary while preserving
+  its entire dependent half-inning history requirement. The SQL player producer
+  uses admitted PAs through the existing exact contribution calculator. A focused
+  regression recovers a player contribution while preserving every stored game
+  calculation and making no RDF query. This is component evidence; live card
+  coverage must be read from a subsequent published dashboard.
+
 - The page defaults to seven days and preserves valid custom date ranges;
   it no longer offers a latest-day preset or a single-day example as its entry
   point. The API continues accepting explicit one-day requests for compatibility.

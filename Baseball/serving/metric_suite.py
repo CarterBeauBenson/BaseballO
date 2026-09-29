@@ -2685,7 +2685,8 @@ def split_steal_contact_path(members, histories, movements, start):
     return dict(status='available',start=contact_start,end=position,contactPlay=contact,independentPrefix=prefix)
 
 
-def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolution_admission, runner_boundary_admission):
+def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolution_admission, runner_boundary_admission,
+                             player_admission=None):
     """C2 plus B2 for complete attributed PA contributions.
 
     Admission certifies the existing full history and PA-start population,
@@ -2701,7 +2702,13 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
             ('COMPLETE_RUNNER_BOUNDARIES',runner_boundary_admission))
     denied=[gap for gap,proof in proofs if proof.get('status')!='admitted'
             or proof.get('sourceReconciled') is not True or proof.get('graphConforms') is not True]
-    if denied:return dict(missing,gaps=denied)
+    individual=player_admission or {}
+    valid_players={p['player'] for p in individual.get('players',[]) if p['status']=='admitted'}
+    if not individual.get('rosterComplete') or not individual.get('plateAppearanceInventoryComplete'):valid_players=set()
+    valid_boundaries={p['plateAppearance'] for p in (individual.get('paBoundaries') or {}).get('plateAppearances',[])
+                      if p['status']=='admitted'}
+    if denied and (not individual or 'COMPLETE_RUNNER_RESOLUTION_POPULATION' in denied):
+        return dict(missing,gaps=denied)
     if any(r['graph']!=graph for r in rows):raise EvidenceError('Contribution escaped its admitted graph')
     pas,locations,movements,histories,history_movements=(defaultdict(list) for _ in range(5))
     for row in rows:
@@ -2721,6 +2728,13 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
         types={r['paResultType'] for r in observations if r.get('recognizedBattingResult') in ('true','1')}
         if not types:continue  # B1 separately verifies interrupted, uncredited turns.
         reasons=[]
+        if ('OFFICIAL_PA_POPULATION' in denied and
+                any(r.get('player') not in valid_players for r in observations)):
+            reasons.append('OFFICIAL_PA_POPULATION')
+        if 'COMPLETE_RUNNER_BOUNDARIES' in denied and pa not in valid_boundaries:
+            reasons.append('COMPLETE_RUNNER_BOUNDARIES')
+        if reasons:
+            withheld.append(dict(plateAppearance=pa,gaps=reasons));continue
         signatures={tuple(r.get(f) for f in ('game','player','paHalf','paInterval','paStartInstant','paOutsBefore')) for r in observations}
         if len(types)!=1 or len(signatures)!=1 or any(v is None for v in next(iter(signatures))):
             withheld.append(dict(plateAppearance=pa,gaps=['AMBIGUOUS_PA_BOUNDARY']));continue
@@ -2756,7 +2770,7 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
         participants=[];supports=set();comparison_starts=dict(starts)
         no_actual_outs=all(r.get('hasOutType')=='false' for members in by_runner.values() for r in members)
         complete_award=(result_type in {'https://baseballontology.org/WalkProcess','https://baseballontology.org/HitByPitchProcess'}
-                        and runner_boundary_admission.get('awardAttributionComplete') is True)
+                        and (runner_boundary_admission.get('awardAttributionComplete') is True or pa in valid_boundaries))
         for runner,members in sorted(by_runner.items()):
             start=0 if runner==batter else starts.get(runner)
             terminal,end,credit=None,None,False
@@ -2860,9 +2874,9 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
             independentPositive=independent,unattributedNonbattingEpisodes=unattributed,
             existingRunnerOuts=len(existing),existingDestruction=exact(sum((Fraction(1,4-r['start']) for r in existing),Fraction())),
             participants=participants,score=score))
-    return dict(complete=bool(pas) and not withheld,plateAppearances=completed,
-        independentDamageComplete=independent_coverage and bool(pas) and not withheld and len(completed)==len(pas),
-        unresolvedPlateAppearances=withheld,gaps=['COMPLETE_PA_CONTRIBUTIONS'] if withheld else [])
+    return dict(complete=bool(pas) and not withheld and not denied,plateAppearances=completed,
+        independentDamageComplete=independent_coverage and bool(pas) and not withheld and not denied and len(completed)==len(pas),
+        unresolvedPlateAppearances=withheld,gaps=sorted(set(denied+(['COMPLETE_PA_CONTRIBUTIONS'] if withheld else []))))
 
 
 def contribution_players(metric_id, inputs, *, qualification, date_scope):

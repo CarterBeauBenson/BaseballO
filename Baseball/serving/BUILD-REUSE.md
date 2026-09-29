@@ -2,6 +2,25 @@
 
 ## Immutable code and database releases
 
+Independent PA admission reuses the existing C1/C2 constraints with one target
+per PA. Each target still requires every runner history in its half-inning;
+unknown history scope blocks all dependent PAs. A failed start boundary blocks
+that PA. Original whole-game proof outcomes remain unchanged. The player proof
+retains the separate boundary proof and checksums for its census, shapes and
+report. Earlier identical roster/player checks remain usable during rollout.
+
+The player projector invokes the existing contribution calculator only for
+affected games, using retained SQL evidence and these independent admissions.
+It excludes a player's entire selected-range record if any required PA remains
+unresolved. The default game calculator is unchanged. Its exact compatible
+version transition preserves existing game results and unchanged player
+partitions; it triggers neither RDF extraction nor a database rebuild.
+
+Admission maintenance processes games serially for up to 45 seconds or ten
+expensive refreshes per scheduled invocation, finishing its current game before
+yielding. It retains the one-minute NiFi schedule, one JVM at a time, and the
+existing memory reservation. Source acquisition schedules are unchanged.
+
 The NiFi materializer launcher captures one committed Git revision before
 loading calculation or admission modules. `serving_release.py` writes its
 declared runtime dependencies and byte hashes under

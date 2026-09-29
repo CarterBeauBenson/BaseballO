@@ -1,0 +1,55 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# Existing C1/C2 constraints scoped to one PA and its complete half-inning
+# histories. Targeting changes; the accepted world-side patterns do not.
+<__SHAPE__> a sh:NodeShape ; sh:targetNode <__GAME__> ;
+  sh:sparql [ sh:message "PA boundary or dependent half-inning history differs" ;
+    sh:select """__PREFIXES__
+SELECT $this WHERE {
+  { __MISSING__ }
+  UNION {
+    ?award a ?type ; obo:BFO_0000132 <__PA__> ; cco:ont00001803 ?act .
+    FILTER(?type IN (base:WalkProcess, base:HitByPitchProcess))
+    ?act a base:BaserunningAct .
+    OPTIONAL { ?rule a base:BaseballRule ; cco:ont00001974 ?act }
+    FILTER(!BOUND(?rule) || CONCAT(STR(?award), "|", STR(?act), "|", STR(?rule)) NOT IN (__AWARDS__))
+  }
+  UNION {
+    ?stasis a base:PlateAppearanceStartBaserunnerAtBaseStasis ; obo:BFO_0000132 <__PA__> .
+    FILTER(?stasis NOT IN (__STASES__))
+  }
+  UNION {
+    ?whole a obo:BFO_0000015 ; obo:BFO_0000057 ?player ; obo:BFO_0000132 <__HALF__> .
+    ?player a cco:ont00001262 . BIND(<__HALF__> AS ?half)
+    FILTER(CONTAINS(STR(?whole), "/runner-trajectory/"))
+    FILTER(CONCAT(STR(?whole), "|", STR(?player), "|", STR(?half)) NOT IN (__WHOLES__))
+  }
+  UNION {
+    ?resolution a base:OutProcess, base:RunnerResolutionProcess ; obo:BFO_0000132+ <__HALF__> .
+    FILTER NOT EXISTS {
+      ?resolution obo:BFO_0000117 ?judgment .
+      ?judgment a base:OutJudgmentAct ; cco:ont00001986 ?decision .
+      ?decision a base:OutDecisionICE ; cco:ont00001808 ?resolution .
+    }
+  }
+  UNION {
+    BIND(<__PA__> AS ?pa)
+    ?pa a base:PlateAppearance ; obo:BFO_0000132 <__HALF__> .
+    ?count a base:PlateAppearanceStartOutCountICE ; cco:ont00001808 ?pa ; cco:ont00001773 ?outs .
+    FILTER(CONCAT(STR(?pa), "|", STR(?outs)) NOT IN (__OUT_COUNTS__))
+  }
+  UNION {
+    BIND(<__PA__> AS ?pa)
+    ?stasis a base:PlateAppearanceStartBaserunnerAtBaseStasis ; obo:BFO_0000132 ?pa ;
+      obo:BFO_0000057 ?player ; cco:ont00001918 ?site .
+    ?player a cco:ont00001262 .
+    FILTER(CONCAT(STR(?pa), "|", STR(?stasis), "|", STR(?player), "|", STR(?site)) NOT IN (__OCCUPANTS__))
+  }
+  UNION {
+    ?whole a obo:BFO_0000015 ; obo:BFO_0000132 <__HALF__> ; obo:BFO_0000117 ?episode .
+    FILTER(CONTAINS(STR(?whole), "/runner-trajectory/"))
+    FILTER(CONCAT(STR(?whole), "|", STR(?episode)) NOT IN (__MEMBERSHIPS__))
+  }
+  UNION { FILTER NOT EXISTS { <__PA__> a base:PlateAppearance ; obo:BFO_0000132 <__HALF__> .
+    <__HALF__> a base:HalfInning ; obo:BFO_0000132/obo:BFO_0000132 $this . } }
+} """ ] .

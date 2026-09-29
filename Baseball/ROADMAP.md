@@ -27,7 +27,7 @@ permission is not a standing rebuild instruction.
 
 ## 1. Populate the nineteen dashboard cards
 
-1. Apply the independent roster/player admission repair through the existing
+1. Apply the independent roster/player and PA-boundary admission repairs through the existing
    NiFi evidence worker and affected SQL player projections. Preserve the
    existing database and RDF. The four retained retries for 822848, 822854,
    822936 and 823338 are complete and published; do not repeat them.

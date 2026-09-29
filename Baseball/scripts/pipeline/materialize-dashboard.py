@@ -64,6 +64,10 @@ TIMESTAMP_CALCULATIONS = (
     # Committed release bytes, not the working checkout's CRLF JSON copy.
     'c96e60528d720d6f245e01f88d0d2f5ded460599f049218948aa789d2f89d79b',
 )
+# Only the optional independently admitted PA entry point changed. Existing
+# default game calculations are identical and must not rerun on deployment.
+PLAYER_CALCULATIONS = (TIMESTAMP_CALCULATIONS[1],
+    '46c59a0a572d58e69234dc3a832942a008ea3d00c15c0b0b051c7445d43a3e06')
 
 
 def digest(value):
@@ -189,11 +193,15 @@ def reuse_game(connection, graph, saved, promotion, dimension, admissions, calcu
     previous_identity=input_identity(promotion,dimension,previous,calculation)
     timestamp_update=False
     if saved not in {previous_identity,input_identity(promotion,dimension,previous,calculation,legacy=True)}:
-        old,new=TIMESTAMP_CALCULATIONS
-        if calculation!=new or saved not in {
-                input_identity(promotion,dimension,previous,old),
-                input_identity(promotion,dimension,previous,old,legacy=True)}:return False
-        timestamp_update=True
+        compatible=[]
+        if calculation in {TIMESTAMP_CALCULATIONS[1],PLAYER_CALCULATIONS[1]}:
+            compatible.append((TIMESTAMP_CALCULATIONS[0],True))
+        if calculation==PLAYER_CALCULATIONS[1]:compatible.append((PLAYER_CALCULATIONS[0],False))
+        matched=next((timestamp for old,timestamp in compatible if saved in {
+            input_identity(promotion,dimension,previous,old),
+            input_identity(promotion,dimension,previous,old,legacy=True)}),None)
+        if matched is None:return False
+        timestamp_update=matched
     changed=previous_identity!=identity
     if changed or timestamp_update:
         refresh_admission_inputs(connection,graph,previous,admissions,timestamp_update=timestamp_update)
@@ -204,6 +212,17 @@ def reuse_game(connection, graph, saved, promotion, dimension, admissions, calcu
         connection.execute(f'UPDATE {table} SET proof_json=?,proof_sha256=? WHERE graph_iri=?',
                            (text,METRICS._hash(text),graph))
     if saved!=identity:
+        # Carry a verified player partition across a no-op game-version change.
+        # Its own producer/proof identities still determine whether it needs work.
+        if not changed and not timestamp_update:
+            partition=connection.execute('SELECT input_sha256 FROM dashboard_player_partition WHERE graph_iri=?',(graph,)).fetchone()
+            individual=connection.execute('SELECT proof_sha256 FROM dashboard_player_admission WHERE graph_iri=?',(graph,)).fetchone()
+            proof_sha=individual[0] if individual else ''
+            for version in (PLAYER_RANGES.fingerprint(),PLAYER_RANGES.PREVIOUS_VERSION,PLAYER_RANGES.PREVIOUS_INDIVIDUAL_VERSION):
+                if partition and partition[0]==METRICS._hash(saved+version+proof_sha):
+                    connection.execute('UPDATE dashboard_player_partition SET input_sha256=? WHERE graph_iri=?',
+                        (METRICS._hash(identity+version+proof_sha),graph))
+                    break
         connection.execute('UPDATE dashboard_checkpoint SET input_sha256=? WHERE graph_iri=?',(identity,graph))
     return 'calculations' if timestamp_update else 'admissions' if changed else 'unchanged'
 

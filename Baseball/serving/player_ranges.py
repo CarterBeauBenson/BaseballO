@@ -17,6 +17,7 @@ DEFENSE = {'resolution-depth','defender-breadth'}
 PREPARED = CONTRIBUTION | PROGRESS | RUNS | DEFENSE | {'empty-game-damage'}
 REFERENCES = {'paq-2','paq-a','paq-2.1','recovery-quality'}
 PREVIOUS_VERSION = '4890951c9161d99efdbf52c5364c4ca08bbd4f9cd3e2853127846a728ae1282d'
+PREVIOUS_INDIVIDUAL_VERSION = '38deead69127b00c2383239c1c8abb172ec3b29d1f3ea4e4fbde652cb7d61617'
 
 
 def fingerprint():
@@ -218,17 +219,27 @@ def prepare(m, db, checkpoint=None, player_admissions=None):
         if saved.get(graph)==identity:continue
         # The new path changes only games with individual admissions. Preserve
         # all other existing player aggregates byte-for-byte on deployment.
-        if not individual and saved.get(graph)==m._hash(key+PREVIOUS_VERSION):
+        if (not individual.get('paBoundaries') and (saved.get(graph)==m._hash(key+PREVIOUS_INDIVIDUAL_VERSION+proof_sha)
+                or (not individual and saved.get(graph)==m._hash(key+PREVIOUS_VERSION)))):
             with db:db.execute('UPDATE dashboard_player_partition SET input_sha256=? WHERE graph_iri=?',(identity,graph))
             continue
         rows=m._blocks.read_scope(m._block_api(),db,[graph])
         proofs={}
         for kind,table in [('batting','metric_suite_admission'),('run','metric_suite_run_admission'),
-                           ('resolution','metric_suite_runner_resolution_admission')]:
+                           ('resolution','metric_suite_runner_resolution_admission'),
+                           ('boundary','metric_suite_boundary_admission')]:
             row=db.execute(f'SELECT proof_json,proof_sha256 FROM {table} WHERE graph_iri=?',(graph,)).fetchone()
             proofs[kind]=m._blocks.decode(m._block_api(),*row) if row else {}
         proofs['players']=individual
         inputs={f:m._blocks.read_inputs(m._block_api(),db,f,[graph])[graph] for f in ('contribution','progress','defense')}
+        if individual.get('paBoundaries') and not inputs['contribution'].get('complete'):
+            evidence=[m._blocks.decode(m._block_api(),text,sha) for text,sha in db.execute(
+                'SELECT binding_json,binding_sha256 FROM metric_suite_evidence WHERE graph_iri=?',(graph,))]
+            saved_proof=json.loads(db.execute('SELECT proof_json FROM dashboard_checkpoint WHERE graph_iri=?',(graph,)).fetchone()[0])
+            if len(evidence)!=saved_proof['evidenceRows']:raise m.EvidenceError('Stored dashboard evidence is incomplete')
+            evidence.sort(key=m._json)
+            inputs['contribution']=m.contribution_game_inputs(evidence,graph=graph,batting_admission=proofs['batting'],
+                runner_resolution_admission=proofs['resolution'],runner_boundary_admission=proofs['boundary'],player_admission=individual)
         runs={metric:m.read_results(db,graph,metric)[0] for metric in RUNS}
         unresolved={r['run'] for result in runs.values() for r in result.get('unresolvedRuns',[])}
         run_people=defaultdict(set)

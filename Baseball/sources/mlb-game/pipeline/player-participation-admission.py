@@ -15,15 +15,19 @@ HERE=Path(__file__).resolve().parent
 ROOT=HERE.parents[2]
 spec=importlib.util.spec_from_file_location('individual_b1_contract',HERE/'batting-admission.py')
 B=importlib.util.module_from_spec(spec);spec.loader.exec_module(B)
+PA=B.module(HERE/'pa-boundary-admission.py','individual_pa_boundary')
 SHAPE=HERE.parent/'shacl/player-participation-admission.ttl'
 SH=Namespace('http://www.w3.org/ns/shacl#')
 ROSTER=URIRef('urn:baseballo:validation:player-participation:roster')
 INVENTORY=URIRef('urn:baseballo:validation:player-participation:inventory')
+# The prior version has identical roster/player checks, but no PA boundaries.
+# Preserve those results during the incremental boundary-admission rollout.
+PREVIOUS_IMPLEMENTATION='b0ac0af0b8cea1673fdb7bc4bfd1df624b387e7004b5aa495fcbebb81185b769'
 
 
 def fingerprint():
     return B.sha(Path(__file__).read_bytes()+SHAPE.read_bytes()+B.fingerprint().encode()
-        +(HERE/'existing-graph-admissions.py').read_bytes())
+        +(HERE/'existing-graph-admissions.py').read_bytes()+PA.fingerprint().encode())
 
 
 def node(name,target,queries):
@@ -179,6 +183,10 @@ def retained_source(evidence,state,promotion):
 
 def load(evidence,state,promotion):
     path=proof_path(evidence,state,promotion);receipt=path.with_suffix('.receipt.json')
+    version=fingerprint()
+    if not receipt.is_file():
+        path=evidence.refresh_path(state,promotion,'players',PREVIOUS_IMPLEMENTATION)
+        receipt=path.with_suffix('.receipt.json');version=PREVIOUS_IMPLEMENTATION
     if not receipt.is_file():return None
     record=evidence.read(receipt)
     if record.get('promotionManifestSha256')!=promotion['promotionManifestSha256'] or record.get('proofSha256')!=evidence.sha(path):
@@ -186,10 +194,11 @@ def load(evidence,state,promotion):
     proof=evidence.read(path)
     expected=dict(artifactType='baseballo-player-participation-admission',contractVersion=1,
         gamePk=promotion['gamePk'],graph=promotion['authoritativeGraph'],
-        authoritativeRdfSha256=promotion['authoritativeRdfSha256'],implementationSha256=fingerprint())
+        authoritativeRdfSha256=promotion['authoritativeRdfSha256'],implementationSha256=version)
     if any(proof.get(k)!=v for k,v in expected.items()):raise ValueError('Player participation belongs to another graph')
     for suffix,key in (('.source.json','sourceCensusSha256'),('.shapes.ttl','shapeSha256'),('.report.ttl','reportSha256')):
         if evidence.sha(path.with_suffix(suffix))!=proof.get(key):raise ValueError('Player participation artifact changed')
+    PA.verify(evidence,state,promotion,proof.get('paBoundaries'))
     evidence.checked_marker(promotion)
     return dict(proof,proofSha256=record['proofSha256'])
 
@@ -224,6 +233,8 @@ def prove(evidence,state,promotion,retained,java,classpath,endpoint):
         with session_module.Session(rdf,java,classpath) as session:
             if session.data_count!=record['authoritativeTripleCount']:raise ValueError('Participation graph count changed')
             _,report,_=session.validate_with_jena(data_path=rdf,shape_path=shapes,java=java,classpath=classpath,max_heap='384m')
+            boundaries=PA.prove(evidence,state,promotion,rdf,session,java,classpath,
+                raw_witness=witness if witness['kind']=='retained-source-response' else None)
             other=(evidence.EXISTING_GRAPH.validate(evidence,state,promotion,witness,rdf,session,java,classpath)
                 if witness['kind']=='retained-source-response' else [])
         export_sha=evidence.sha(rdf)
@@ -240,7 +251,7 @@ def prove(evidence,state,promotion,retained,java,classpath,endpoint):
         validationSourceSha256=source['sourceSha256'],validationExportSha256=export_sha,
         implementationSha256=implementation,engine='jena',retainedSourceEvidence=witness,
         sourceCensusSha256=evidence.sha(output.with_suffix('.source.json')),
-        shapeSha256=evidence.sha(shapes),reportSha256=evidence.sha(report_path),**result)
+        shapeSha256=evidence.sha(shapes),reportSha256=evidence.sha(report_path),paBoundaries=boundaries,**result)
     evidence.atomic(output,proof)
     evidence.atomic(output.with_suffix('.receipt.json'),dict(artifactType='baseballo-admission-evidence-refresh',
         promotionManifestSha256=promotion['promotionManifestSha256'],proofSha256=evidence.sha(output),rdfChanged=False))

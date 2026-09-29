@@ -162,7 +162,7 @@ class PlayerRanges(unittest.TestCase):
 
     def test_individual_proof_updates_only_affected_projection_and_retains_provenance(self):
         db=self.db();proof=dict(rosterComplete=True,plateAppearanceInventoryComplete=True,players=[])
-        for table in ('metric_suite_admission','metric_suite_run_admission','metric_suite_runner_resolution_admission'):
+        for table in ('metric_suite_admission','metric_suite_run_admission','metric_suite_runner_resolution_admission','metric_suite_boundary_admission'):
             db.execute(f'CREATE TABLE {table}(graph_iri TEXT,proof_json TEXT,proof_sha256 TEXT)')
         db.execute('CREATE TABLE metric_suite_evidence(graph_iri TEXT,binding_json TEXT,binding_sha256 TEXT)')
         movement=M._json(dict(kind='runner_movement',resolution='run',runner=U+'1'))

@@ -14,6 +14,7 @@ import argparse
 from datetime import datetime, timezone
 from types import SimpleNamespace
 import sqlite3
+import time
 
 HERE=Path(__file__).resolve().parent
 ROOT=HERE.parents[2]
@@ -208,7 +209,10 @@ def refresh_game(state,promotion,java,classpath,endpoint='http://127.0.0.1:3031/
         diagnostics=diagnostics,refreshed=[],rdfChanged=False)
     api=SimpleNamespace(**globals())
     batting=load(adapters['batting'],state,promotion,'batting')
-    if batting.get('status')!='admitted' and PLAYER_PARTICIPATION.load(api,state,promotion) is None:
+    boundary=load(adapters['runner-boundary'],state,promotion,'runner-boundary')
+    individual=PLAYER_PARTICIPATION.load(api,state,promotion)
+    if ((batting.get('status')!='admitted' or boundary.get('status')!='admitted')
+            and (individual is None or individual.get('implementationSha256')!=PLAYER_PARTICIPATION.fingerprint())):
         retained=PLAYER_PARTICIPATION.retained_source(api,state,promotion)
         if retained is not None:
             memory=module(ROOT/'scripts/pipeline/process_state.py','participation_memory').available_memory()
@@ -280,7 +284,7 @@ def tick(state,java,classpath,limit=100,endpoint='http://127.0.0.1:3031/baseball
     control=Path(state)/'pipeline/control/mlb-game/admission-evidence'
     versions={family:module(HERE/(family+'-admission.py'),'version_'+family.replace('-','_')).fingerprint() for family in FIELDS}
     version=hashlib.sha256(json.dumps(versions,sort_keys=True).encode()+fingerprint().encode()).hexdigest()
-    outcomes=[]
+    outcomes=[];started=time.monotonic();refreshed_games=0
     priority=latest_dashboard_games(state)
     for directory in sorted((Path(state)/'pipeline/evidence/nifi/game-promotion').glob('*'),
             key=lambda p:(p.name not in priority,p.name)):
@@ -307,8 +311,10 @@ def tick(state,java,classpath,limit=100,endpoint='http://127.0.0.1:3031/baseball
         except (OSError,ValueError,RuntimeError) as error:
             result.update(status='failed',error=str(error))
         atomic(destination,result);outcomes.append(result)
-        # Bound JVM work to one game, while inexpensive diagnostics can advance.
-        if result.get('refreshed') or result.get('status')=='failed' or len(outcomes)>=limit: break
+        # Serial, bounded games share the existing one-minute owner schedule.
+        # Finish the current game, then yield; no parallel JVM/heap accumulation.
+        refreshed_games+=bool(result.get('refreshed'))
+        if result.get('status')=='failed' or refreshed_games>=10 or time.monotonic()-started>=45 or len(outcomes)>=limit: break
     summary=dict(status='processed' if outcomes else 'unchanged',processedGames=len(outcomes),
         refreshedGames=sum(bool(r.get('refreshed')) for r in outcomes),
         outcomes={s:sum(r['status']==s for r in outcomes) for s in sorted({r['status'] for r in outcomes})})

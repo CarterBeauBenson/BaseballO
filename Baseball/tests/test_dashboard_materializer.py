@@ -185,6 +185,35 @@ class DashboardMaterializer(unittest.TestCase):
         self.assertEqual((result['changedGames'],result['reusedGames']),(0,2))
         self.assertEqual(result['playerRanges']['preparedGames'],1)
 
+    def test_optional_player_calculator_upgrade_preserves_every_game_and_unchanged_player_partition(self):
+        from test_contribution_sql import sample,PROOF
+        graph,bindings=sample(101,'safe');self.bindings['101']=bindings
+        self.stack.enter_context(patch.object(D.ADMISSION_EVIDENCE,'load',side_effect=lambda adapter,state,promotion,family:
+            PROOF if family=='runner-resolution' else {'status':'withheld'}))
+        old,new=D.PLAYER_CALCULATIONS
+        with patch.object(D.METRICS,'calculation_fingerprint',return_value=old):D.build(self.args)
+        self.fetched.clear()
+        with patch.object(D.METRICS,'calculation_fingerprint',return_value=new),patch.object(
+                D.METRICS,'materialize_game',side_effect=AssertionError('no game calculation')):
+            unchanged=D.build(self.args)
+        self.assertEqual(unchanged['changedGames'],0)
+        self.assertEqual(unchanged['playerRanges']['preparedGames'],0)
+        proof=dict(rosterComplete=True,plateAppearanceInventoryComplete=True,
+            players=[dict(player='https://baseballontology.org/data/player/1',status='admitted')],proofSha256='individual',
+            paBoundaries=dict(plateAppearances=[dict(plateAppearance='https://baseballontology.org/data/game/101/plate-appearance/0',status='admitted')]))
+        with patch.object(D.METRICS,'calculation_fingerprint',return_value=new),patch.object(
+                D.ADMISSION_EVIDENCE.PLAYER_PARTICIPATION,'load',side_effect=lambda evidence,state,promotion:
+                proof if promotion['gamePk']=='101' else None),patch.object(D.METRICS,'materialize_game',
+                side_effect=AssertionError('individual proof must not recalculate games')):
+            changed=D.build(self.args)
+        self.assertEqual(changed['changedGames'],0)
+        self.assertEqual(changed['playerRanges']['preparedGames'],1)
+        self.assertEqual(self.fetched,[])
+        with closing(sqlite3.connect(self.working())) as db:
+            complete,aggregate=db.execute("SELECT complete,aggregate_json FROM dashboard_player_metric WHERE graph_iri=? AND metric_id='tfs'",(graph,)).fetchone()
+            self.assertEqual(complete,1)
+            self.assertEqual(json.loads(aggregate),dict(kind='mean',count=1,sum=D.METRICS.exact(D.METRICS.Fraction(1,4))))
+
     def test_timestamp_only_upgrade_reuses_unaffected_kernels_and_matches_full_calculation(self):
         from test_contribution_sql import sample,PROOF
         graph,bindings=sample(101,'safe');self.bindings['101']=bindings
