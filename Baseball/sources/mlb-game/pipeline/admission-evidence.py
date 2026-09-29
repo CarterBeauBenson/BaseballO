@@ -388,6 +388,13 @@ def tick(state,java,classpath,limit=100,endpoint='http://127.0.0.1:3031/baseball
         # Serial, bounded games share the existing one-minute owner schedule.
         # Finish the current game, then yield; no parallel JVM/heap accumulation.
         refreshed_games+=bool(result.get('refreshed'))
+        # Below the smallest existing JVM reservation, inspecting another game
+        # cannot start validation. Yield to NiFi instead of repeatedly loading
+        # and hashing dozens of games only to defer them all. The larger
+        # raw-input refresh reservation can still defer while a smaller check
+        # later in the queue makes progress.
+        if (result.get('status')=='waiting-for-memory'
+                and result.get('availableMemoryBytes',1024*1024*1024)<1024*1024*1024):break
         if result.get('status')=='failed' or refreshed_games>=10 or time.monotonic()-started>=45 or len(outcomes)>=limit: break
     summary=dict(status='processed' if outcomes else 'unchanged',processedGames=len(outcomes),
         refreshedGames=sum(bool(r.get('refreshed')) for r in outcomes),

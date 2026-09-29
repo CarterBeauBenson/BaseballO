@@ -10,6 +10,7 @@ import subprocess
 import sqlite3
 from contextlib import closing
 from types import SimpleNamespace
+from unittest.mock import patch,Mock
 
 ROOT=Path(__file__).resolve().parents[1]
 spec=importlib.util.spec_from_file_location('admission_evidence',ROOT/'sources/mlb-game/pipeline/admission-evidence.py')
@@ -25,6 +26,33 @@ def current_implementation(family, entry):
 
 
 class AdmissionEvidence(unittest.TestCase):
+    def test_memory_deferral_yields_but_smaller_checks_and_later_retry_can_progress(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp)
+            for pk in ('1','2'):
+                E.atomic(state/'pipeline/evidence/nifi/game-promotion'/pk/'promotion.json',
+                         dict(artifactType='baseball-nifi-game-promotion',gamePk=pk,promotedAtUtc='2026-09-29'))
+            original=E.module
+            inventory=SimpleNamespace(query_index_contract_admission=lambda:{},
+                validated_promotion_record=lambda state,path,pk,admission:dict(gamePk=pk))
+            def module(path,name):
+                return inventory if Path(path).name=='game_promotion_inventory.py' else original(path,name)
+            refresh=Mock()
+            with patch.object(E,'module',side_effect=module),patch.object(E,'dashboard_game_priorities',return_value={}), \
+                 patch.object(E,'refresh_game',refresh):
+                refresh.return_value=dict(status='waiting-for-memory',availableMemoryBytes=900*1024*1024)
+                result=E.tick(state,Path('java'),Path('classpath'))
+                self.assertEqual(result['processedGames'],1)
+                self.assertEqual(refresh.call_count,1)
+                # A 1.2 GiB reserve only blocks the larger operation. Keep the
+                # bounded scan so a following smaller validation can proceed.
+                refresh.reset_mock();refresh.side_effect=[
+                    dict(status='waiting-for-memory',availableMemoryBytes=1200*1024*1024),
+                    dict(status='refreshed',refreshed=['player-participation'])]
+                result=E.tick(state,Path('java'),Path('classpath'))
+                self.assertEqual((result['processedGames'],result['refreshedGames']),(2,1))
+                self.assertEqual(refresh.call_args_list[0].args[1]['gamePk'],'1')
+
     def test_w1_pins_preserve_unrelated_context_definitions_and_exact_prior_versions(self):
         record=E.read(E.COMPATIBILITY_PATH);walk=record['intentionalWalkPrefix']
         before=subprocess.check_output(['git','-C',str(ROOT.parent),'show',
