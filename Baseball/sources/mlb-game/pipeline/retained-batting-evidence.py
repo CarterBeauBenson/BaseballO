@@ -23,10 +23,24 @@ def module(path,name):
 
 
 B=module(HERE/'batting-admission.py','retained_b1_contract')
+# T1's predecessor emitted the same participation inventory, but rejected
+# reversed clocks before mapping. Only its reconciled retained censuses qualify;
+# the existing single-batter comparison and current B1 SHACL still run.
+PRE_T1_CONTEXT='d8e4fcbbb7072d1300f190bf2e483db78a3da9b1b8545837acddb83d9e5797b2'
+PREVIOUS_IMPLEMENTATION='4702e9fbc9ec5aa68e0a7b8805ad216fcbe6d47d7cb437afa1bd248c349c9a1c'
 
 
 def fingerprint():
     return hashlib.sha256(Path(__file__).read_bytes()+B.fingerprint().encode()).hexdigest()
+
+
+def load(evidence,state,promotion):
+    # This extension admits an additional retained producer to the same check.
+    # It does not invalidate completed checks from the previous narrower repair.
+    for version in (fingerprint(),PREVIOUS_IMPLEMENTATION):
+        proof=evidence.refreshed(state,promotion,'batting',version)
+        if proof is not None:return proof
+    return None
 
 
 def source_census(evidence,state,promotion):
@@ -50,7 +64,7 @@ def source_census(evidence,state,promotion):
     manifest_path=evidence.retained_manifest(state,marker,promotion['gamePk'])
     if not manifest_path.is_file() or evidence.sha(manifest_path)!=marker['rmlManifestSha256']:return None
     manifest=evidence.read(manifest_path);compatibility=evidence.read(evidence.COMPATIBILITY_PATH)
-    contexts={compatibility['previousContextSha256'],compatibility['currentContextSha256'],
+    contexts={PRE_T1_CONTEXT,compatibility['previousContextSha256'],compatibility['currentContextSha256'],
               compatibility['zeroEpisodeIsolation']['currentContextSha256']}
     if (manifest.get('inputSha256')!=promotion['rawSha256'] or manifest.get('outputSha256')!=promotion['authoritativeRdfSha256']
             or manifest.get('metricMappingMembershipVerified') is not True

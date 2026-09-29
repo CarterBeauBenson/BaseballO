@@ -186,7 +186,7 @@ def load(adapter,state,promotion,family):
     # A failed later witness cannot suppress a separately valid original proof.
     def select(proof):return proof if proof.get('status')=='admitted' else independent or proof
     if family=='batting':
-        proof=refreshed(state,promotion,family,RETAINED_BATTING.fingerprint())
+        proof=RETAINED_BATTING.load(SimpleNamespace(**globals()),state,promotion)
         if proof is not None:
             checked_marker(promotion)
             return select(proof)
@@ -222,7 +222,7 @@ def refresh_game(state,promotion,java,classpath,endpoint='http://127.0.0.1:3031/
             proof=PLAYER_PARTICIPATION.prove(api,state,promotion,retained,java,classpath,endpoint)
             return dict(result,status='partial-refreshed',refreshed=['player-participation'],
                 rosterComplete=proof['rosterComplete'],admittedPlayers=sum(p['status']=='admitted' for p in proof['players']))
-    if refreshed(state,promotion,'batting',RETAINED_BATTING.fingerprint()) is None:
+    if RETAINED_BATTING.load(api,state,promotion) is None:
         api=SimpleNamespace(**globals())
         retained=RETAINED_BATTING.source_census(api,state,promotion)
         if retained is not None:

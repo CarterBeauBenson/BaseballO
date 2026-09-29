@@ -48,6 +48,15 @@ do not infer their deployment from these results.
 
 ## Implemented repairs and retained component evidence
 
+- The single-batter B1 repair now recognizes the exact pre-T1 context version.
+  A September 29 census found 133 season games with replacement-only failures
+  produced by that version. The omitted version previously prevented their
+  retained evidence from reaching the existing graph/SHACL check. This is a
+  repair candidate count, not 133 admissions or populated cards. Earlier
+  completed repairs remain readable with their original status and fingerprint.
+  Six focused checks pass, including the historical participation-code
+  comparison, unchanged B1 shapes and rejection of conflicting evidence.
+  NiFi owns the bounded checks and subsequent SQL publication.
 - Full season is now the dashboard default, including invalid or retired URL
   presets; explicitly selected weeks, months and valid custom ranges remain
   supported. The served HTML and script match this change. Admission Evidence

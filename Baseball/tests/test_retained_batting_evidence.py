@@ -4,6 +4,9 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+import subprocess
+import ast
+from unittest.mock import patch
 
 ROOT=Path(__file__).resolve().parents[1]
 spec=importlib.util.spec_from_file_location('retained_batting_test',ROOT/'sources/mlb-game/pipeline/admission-evidence.py')
@@ -80,6 +83,41 @@ class RetainedBattingEvidence(unittest.TestCase):
             self.assertIsNotNone(source)
             self.assertEqual(R.B.shape_text(source),R.B.shape_text(original))
             self.assertEqual(E.read(path)['status'],'withheld')
+
+    def test_pre_t1_participation_inventory_reaches_unchanged_b1_check(self):
+        decision=E.read(E.COMPATIBILITY_PATH)['priorClockIsolation']['changeCommit']
+        relative='Baseball/scripts/pipeline/prepare-rml-context.py'
+        before=subprocess.check_output(['git','-C',str(ROOT.parent),'show',decision+'^:'+relative])
+        after=subprocess.check_output(['git','-C',str(ROOT.parent),'show',decision+':'+relative])
+        self.assertEqual(R.hashlib.sha256(before).hexdigest(),R.PRE_T1_CONTEXT)
+        function=lambda raw:next(n for n in ast.parse(raw).body if getattr(n,'name',None)=='batter_participation_context')
+        old,new=function(before),function(after)
+        # T1 only changes reading the two clock pairs. Both earlier checks
+        # already reject missing/reversed times; output identities are identical.
+        pairs={
+            "map(instant, clock_pair(change))":"instant(change.get('startTime')), instant(change.get('endTime'))",
+            "map(instant, clock_pair(event))":"instant(event.get('startTime')), instant(event.get('endTime'))"}
+        class PreviousClocks(ast.NodeTransformer):
+            def visit_Call(self,node):
+                self.generic_visit(node)
+                for current,previous in pairs.items():
+                    if ast.dump(node)==ast.dump(ast.parse(current,mode='eval').body):
+                        return ast.parse(previous,mode='eval').body
+                return node
+        self.assertEqual(ast.dump(old),ast.dump(PreviousClocks().visit(new)))
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);promotion,original,path,manifest=self.fixture(state)
+            self.update_manifest(promotion,manifest,lambda r:r.update(contextBuilderSha256=R.PRE_T1_CONTEXT))
+            source=R.source_census(E,state,promotion)
+            self.assertEqual(R.B.shape_text(source),R.B.shape_text(original))
+            self.assertEqual(E.read(path)['status'],'withheld')
+
+    def test_existing_repairs_keep_their_original_fingerprint_and_status(self):
+        for status in ('admitted','withheld'):
+            proof=dict(status=status,implementationSha256=R.PREVIOUS_IMPLEMENTATION)
+            with patch.object(E,'refreshed',side_effect=[None,proof]) as read:
+                self.assertIs(R.load(E,'state',{}),proof)
+            self.assertEqual(read.call_args_list[-1].args[-1],R.PREVIOUS_IMPLEMENTATION)
 
     def test_unrelated_source_errors_and_changed_retained_artifacts_never_receive_new_admission(self):
         with tempfile.TemporaryDirectory() as temp:

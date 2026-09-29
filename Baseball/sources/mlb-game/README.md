@@ -102,11 +102,15 @@ and profile durations in `shacl-execution.json`.
 
 The source-owned `Refresh Admission Evidence` worker diagnoses missing, stale
 and previously withheld admission evidence independently of serving builds.
-It can refresh through the unchanged producer only when the exact retained
-input and local RDF bytes match the promotion. Retired local files are a
-refresh limitation, not evidence that the authoritative Fuseki graph is
-missing. The worker never reacquires, maps or promotes RDF, and never relabels
-an old fingerprint as current.
+The general producer refresh requires the exact retained input and local RDF
+bytes. Independent player checks and the single-batter B1 repair instead use
+hash-bound retained censuses and read the existing promoted graph. The latter
+also supports the known pre-T1 context: its reconciled census and exact
+single-batter membership must still pass the unchanged B1 SHACL. Completed
+repairs keep their original fingerprints and statuses. Retired temporary files
+are not evidence that the authoritative Fuseki graph is missing. The worker
+never reacquires, maps or promotes RDF, and never relabels an old fingerprint
+as current.
 
 The dashboard defaults to the full latest loaded season. Admission Evidence
 prioritizes that season's missing game rosters, then games whose withheld batting
