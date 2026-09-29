@@ -244,7 +244,18 @@ admissions. A spot check confirmed unchecked count/boundary/defense profiles in
 822753 and 823302, while 822918 already had explicit withheld independent checks
 that must not be retried as missing evidence. Focused regressions preserve
 withheld outcomes, the separate source identities and the final promotion check.
-NiFi owns execution and SQL consumes its receipts on the next update.
+NiFi exercised this path for 822753 at 14:44 Eastern: count, boundary and defense
+remain explicitly withheld by their existing constraints. The retired export
+no longer prevents that diagnosis; it did not supply missing facts. SQL consumes
+the resulting receipts on its next update.
+
+The same worker also prematurely treated a successful single stage as completion
+of the entire game. A `refreshed` result now continues on the next bounded tick,
+allowing batting, independent profile and individual-PA checks to finish in
+dependency order. Completed checks are reused. The two-failure retry allowance
+counts actual failures rather than memory deferrals or successful stages, and
+resets for a newer promotion. Focused regressions exercise the complete handoff,
+final quiescence, memory deferral and retry limits without running ingestion.
 
 1. The four retained September 17 retries for 822848, 822854, 822936 and 823338
    completed and are in the 05:35 publication. Do not queue them again. All four

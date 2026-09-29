@@ -27,6 +27,56 @@ def current_implementation(family, entry):
 
 
 class AdmissionEvidence(unittest.TestCase):
+    def test_successful_stages_continue_until_remaining_checks_are_finished(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp)
+            E.atomic(state/'pipeline/evidence/nifi/game-promotion/1/promotion.json',
+                     dict(artifactType='baseball-nifi-game-promotion',gamePk='1',promotedAtUtc='2026-09-29'))
+            inventory=SimpleNamespace(query_index_contract_admission=lambda:{},
+                validated_promotion_record=lambda *args:dict(gamePk='1'))
+            def module(path,name):
+                return inventory if Path(path).name=='game_promotion_inventory.py' else SimpleNamespace(fingerprint=lambda:'producer')
+            stages=[dict(status='partial-refreshed',refreshed=['player-participation']),
+                dict(status='refreshed',refreshed=['batting']),
+                dict(status='refreshed',refreshed=['runner-resolution','pitch-count']),
+                dict(status='refreshed',refreshed=['pa-runner-resolution']),dict(status='current')]
+            with patch.object(E,'module',side_effect=module),patch.object(E,'fingerprint',return_value='worker'), \
+                 patch.object(E,'dashboard_game_priorities',return_value={}),patch.object(E,'refresh_game',side_effect=stages) as refresh:
+                for _ in stages:
+                    self.assertEqual(E.tick(state,Path('java'),Path('classpath'))['processedGames'],1)
+                self.assertEqual(E.tick(state,Path('java'),Path('classpath'))['processedGames'],0)
+                self.assertEqual(refresh.call_count,len(stages))
+
+    def test_retry_allowance_counts_failures_and_restarts_for_new_promotion(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);marker=state/'pipeline/evidence/nifi/game-promotion/1/promotion.json'
+            E.atomic(marker,dict(artifactType='baseball-nifi-game-promotion',gamePk='1',promotedAtUtc='2026-09-29'))
+            inventory=SimpleNamespace(query_index_contract_admission=lambda:{},
+                validated_promotion_record=lambda *args:dict(gamePk='1'))
+            def module(path,name):
+                return inventory if Path(path).name=='game_promotion_inventory.py' else SimpleNamespace(fingerprint=lambda:'producer')
+            control=state/'pipeline/control/mlb-game/admission-evidence/1.json'
+            with patch.object(E,'module',side_effect=module),patch.object(E,'fingerprint',return_value='worker'), \
+                 patch.object(E,'dashboard_game_priorities',return_value={}),patch.object(E,'refresh_game') as refresh:
+                refresh.return_value=dict(status='waiting-for-memory',availableMemoryBytes=900*1024**2)
+                for _ in range(3):E.tick(state,Path('java'),Path('classpath'))
+                refresh.side_effect=ValueError('validation interrupted')
+                for count in (1,2):
+                    self.assertEqual(E.tick(state,Path('java'),Path('classpath'))['processedGames'],1)
+                    self.assertEqual(E.read(control)['failureAttempts'],count)
+                    if count==1:
+                        refresh.side_effect=None
+                        E.tick(state,Path('java'),Path('classpath'))
+                        self.assertEqual(E.read(control)['failureAttempts'],1)
+                        refresh.side_effect=ValueError('validation interrupted')
+                self.assertEqual(E.tick(state,Path('java'),Path('classpath'))['processedGames'],0)
+                self.assertEqual(refresh.call_count,6)
+                E.atomic(marker,dict(artifactType='baseball-nifi-game-promotion',gamePk='1',promotedAtUtc='2026-09-30'))
+                refresh.side_effect=None;refresh.return_value=dict(status='current')
+                self.assertEqual(E.tick(state,Path('java'),Path('classpath'))['processedGames'],1)
+                result=E.read(control)
+                self.assertEqual((result['attempts'],result['failureAttempts']),(1,0))
+
     def test_retained_raw_refresh_does_not_require_retired_local_rdf_or_another_batting_check(self):
         with tempfile.TemporaryDirectory() as temp:
             state=Path(temp);source=state/'pipeline/quarantine/mlb-game/1/run/input.json'

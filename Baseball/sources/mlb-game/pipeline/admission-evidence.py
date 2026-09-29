@@ -430,22 +430,28 @@ def tick(state,java,classpath,limit=100,endpoint='http://127.0.0.1:3031/baseball
         path=max(candidates)[2];marker=read(path);marker_sha=sha(path)
         destination=control/(directory.name+'.json')
         previous=read(destination) if destination.is_file() else {}
-        if (previous.get('promotionManifestSha256')==marker_sha and previous.get('implementationSetSha256')==version
-                and previous.get('status') not in {'waiting-for-memory','failed','partial-refreshed'}):
+        same_input=(previous.get('promotionManifestSha256')==marker_sha
+                    and previous.get('implementationSetSha256')==version)
+        # A successful stage can supply the next stage's retained census.
+        # Revisit it on the next bounded tick; only current/unavailable results
+        # finish this input. The stage loaders reuse already completed checks.
+        if same_input and previous.get('status') not in {'waiting-for-memory','failed','partial-refreshed','refreshed'}:
             continue
-        if previous.get('status')=='failed' and previous.get('implementationSetSha256')==version and previous.get('attempts',0)>=2:
+        failures=previous.get('failureAttempts',previous.get('attempts',0) if previous.get('status')=='failed' else 0) if same_input else 0
+        if failures>=2:
             continue
         result=dict(gamePk=directory.name,promotionManifestSha256=marker_sha,implementationSetSha256=version,
             checkedAtUtc=datetime.now(timezone.utc).isoformat(),rdfChanged=False,
-            attempts=(previous.get('attempts',0) if previous.get('implementationSetSha256')==version else 0)+1)
+            attempts=(previous.get('attempts',0) if same_input else 0)+1,failureAttempts=failures)
         try:
             if marker.get('artifactType')!='baseball-nifi-game-promotion' or str(marker.get('gamePk'))!=directory.name:
                 raise ValueError('Unexpected source promotion marker')
             inventory=module(ROOT/'scripts/pipeline/game_promotion_inventory.py','admission_inventory')
             promotion=inventory.validated_promotion_record(Path(state),path,directory.name,inventory.query_index_contract_admission())
             result.update(refresh_game(state,promotion,java,classpath,endpoint))
+            if result['status']!='waiting-for-memory':result['failureAttempts']=0
         except (OSError,ValueError,RuntimeError) as error:
-            result.update(status='failed',error=str(error))
+            result.update(status='failed',error=str(error),failureAttempts=failures+1)
         atomic(destination,result);outcomes.append(result)
         # Serial, bounded games share the existing one-minute owner schedule.
         # Finish the current game, then yield; no parallel JVM/heap accumulation.
