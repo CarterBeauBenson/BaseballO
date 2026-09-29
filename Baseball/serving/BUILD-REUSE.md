@@ -31,6 +31,11 @@ expensive refreshes per scheduled invocation, finishing its current game before
 yielding. It retains the one-minute NiFi schedule, one JVM at a time, and the
 existing memory reservation. Source acquisition schedules are unchanged.
 
+Within one immutable dashboard input batch, each shared code-compatibility
+version tuple is checked once. Producer fingerprints and the compatibility
+record are rechecked when the batch ends. Every game's distinct receipts,
+promotion identity and validation artifacts still receive their existing checks.
+
 The NiFi materializer launcher captures one committed Git revision before
 loading calculation or admission modules. `serving_release.py` writes its
 declared runtime dependencies and byte hashes under

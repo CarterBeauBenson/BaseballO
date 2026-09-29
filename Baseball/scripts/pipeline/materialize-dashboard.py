@@ -11,6 +11,7 @@ from collections import deque
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager, closing
 from datetime import datetime, timezone
+from functools import lru_cache
 import hashlib
 import importlib.util
 import json
@@ -165,12 +166,17 @@ def admission_versions():
     originals=[(adapter,adapter.fingerprint) for adapter in
                [*ADMISSIONS.values(),ADMISSION_EVIDENCE.RETAINED_BATTING,ADMISSION_EVIDENCE.PLAYER_PARTICIPATION]]
     versions=[function() for _,function in originals]
+    equivalence=ADMISSION_EVIDENCE.code_equivalence
+    compatibility=ADMISSION_EVIDENCE.sha(ADMISSION_EVIDENCE.COMPATIBILITY_PATH)
+    ADMISSION_EVIDENCE.code_equivalence=lru_cache(maxsize=None)(equivalence)
     for (adapter,_),version in zip(originals,versions):
         adapter.fingerprint=lambda value=version:value
     try:yield
     finally:
         for adapter,function in originals:adapter.fingerprint=function
-    if any(function()!=version for (_,function),version in zip(originals,versions)):
+        ADMISSION_EVIDENCE.code_equivalence=equivalence
+    if (any(function()!=version for (_,function),version in zip(originals,versions))
+            or ADMISSION_EVIDENCE.sha(ADMISSION_EVIDENCE.COMPATIBILITY_PATH)!=compatibility):
         raise ValueError('Admission producer code changed during the dashboard input batch')
 
 

@@ -188,6 +188,10 @@ class DashboardMaterializer(unittest.TestCase):
     def test_prepared_snapshot_retains_dashboard_and_detail_results_without_build_inputs(self):
         from test_contribution_sql import sample,PROOF
         graph,bindings=sample(101,'safe');self.bindings['101']=bindings
+        self.snapshot['live']['dimensions']=self.snapshot['live']['dimensions'][:1]
+        self.snapshot['inventory']['games'].pop('102')
+        self.stack.enter_context(patch.object(D.SOURCE._schedule_qualification,'merge_snapshots',return_value={
+            '2026-08-01':dict(completeResponse=True,games=[dict(gamePk='101',gameType='R',final=True,unplayed=False)])}))
         with patch.object(D.ADMISSION_EVIDENCE,'load',side_effect=lambda adapter,state,promotion,family:
                 PROOF if promotion['gamePk']=='101' else {'status':'withheld'}):result=D.build(self.args)
         reader=D.SOURCE._reader;scope=dict(gameSet='regular_season',startDate='2026-08-01',endDate='2026-08-01')
@@ -199,6 +203,9 @@ class DashboardMaterializer(unittest.TestCase):
                 before=reader._range_query.query(D.METRICS,D.PLAYER_RANGES,working,request,scope)
                 after=reader._range_query.query(D.METRICS,D.PLAYER_RANGES,published,request,scope)
                 self.assertEqual(before,after)
+                if request.get('metricId')=='tfs':
+                    self.assertEqual(len(after['metric']['playerResults']),1)
+                    self.assertEqual(after['metric']['playerResults'][0]['value'],D.METRICS.exact(D.METRICS.Fraction(1,4)))
             self.assertEqual(reader._display.read(working,scope,before),reader._display.read(published,scope,after))
         self.assertLess(result['publication']['publishedBytes'],result['publication']['workingBytes'])
 
@@ -286,6 +293,15 @@ class DashboardMaterializer(unittest.TestCase):
                 D.ADMISSION_EVIDENCE,'load',side_effect=input_proof):
             with self.assertRaisesRegex(ValueError,'producer code changed'):D.build(self.args)
         self.assertEqual(self.pointer(),old)
+
+    def test_shared_code_equivalence_is_checked_once_per_version_tuple_not_per_game(self):
+        with patch.object(D.ADMISSION_EVIDENCE,'code_equivalence',return_value={'kind':'same-checks'}) as original:
+            with D.admission_versions():
+                self.assertEqual(D.ADMISSION_EVIDENCE.code_equivalence('batting','old','new'),{'kind':'same-checks'})
+                D.ADMISSION_EVIDENCE.code_equivalence('batting','old','new')
+                D.ADMISSION_EVIDENCE.code_equivalence('batting','different','new')
+                self.assertEqual(original.call_count,2)
+            self.assertIs(D.ADMISSION_EVIDENCE.code_equivalence,original)
 
     def test_promotion_during_snapshot_waits_for_next_tick_and_preserves_publication(self):
         D.build(self.args);old=self.pointer()
