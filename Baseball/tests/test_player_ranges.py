@@ -168,8 +168,9 @@ class PlayerRanges(unittest.TestCase):
             self.assertNotIn("'"+U+'1'+"'",aggregate_reads[0])
             self.assertNotIn("'"+U+'3'+"'",aggregate_reads[0])
             if player_index:
-                plan=' '.join(row[3] for row in db.execute('EXPLAIN QUERY PLAN '+aggregate_reads[0]))
-                self.assertIn('dashboard_player_metric_by_player (metric_id=? AND player=?)',plan)
+                plan=[row[3] for row in db.execute('EXPLAIN QUERY PLAN '+aggregate_reads[0])]
+                self.assertIn('dashboard_player_metric_by_player (metric_id=? AND player=?)',plan[0])
+                self.assertTrue(any('SEARCH g ' in step for step in plan[1:]), plan)
 
     def test_empty_payload_filter_preserves_zero_scores_and_independent_running_exposure(self):
         db=self.db()

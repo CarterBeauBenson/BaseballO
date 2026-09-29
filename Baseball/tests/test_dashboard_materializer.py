@@ -222,6 +222,24 @@ class DashboardMaterializer(unittest.TestCase):
             self.assertEqual(reader._display.read(working,scope,before),reader._display.read(published,scope,after))
         self.assertLess(result['publication']['publishedBytes'],result['publication']['workingBytes'])
 
+    def test_snapshot_integrity_is_scoped_to_published_tables(self):
+        D.build(self.args)
+        # Deliberately damage an excluded intermediate table in this fixture.
+        # An unqualified quick_check would scan it through prepared_source.
+        with closing(sqlite3.connect(self.working())) as working, working:
+            working.execute('PRAGMA ignore_check_constraints=ON')
+            working.execute('INSERT INTO metric_suite_evidence VALUES (?,?,?)',
+                            (self.graphs[0], 'fixture', 'not json'))
+        snapshot = self.state/'prepared-only.sqlite'
+        D.publish_snapshot(self.working(), snapshot)
+        with closing(sqlite3.connect(snapshot)) as published:
+            self.assertEqual(published.execute('PRAGMA main.quick_check').fetchall(), [('ok',)])
+            self.assertIsNone(published.execute(
+                "SELECT name FROM sqlite_schema WHERE name='metric_suite_evidence'").fetchone())
+            # Copied reader tables still enforce their own constraints.
+            with self.assertRaises(sqlite3.IntegrityError):
+                published.execute("UPDATE dashboard_checkpoint SET proof_json='not json'")
+
     def test_optional_player_calculator_upgrade_preserves_every_game_and_unchanged_player_partition(self):
         from test_contribution_sql import sample,PROOF
         graph,bindings=sample(101,'safe');self.bindings['101']=bindings

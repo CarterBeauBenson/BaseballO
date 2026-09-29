@@ -398,7 +398,9 @@ def publish_snapshot(database, published, checkpoint=None):
             # Mutation triggers belong to the mutable producer. This publication
             # is always opened mode=ro and is never used as a build checkpoint.
         if checkpoint:checkpoint(publicationStep='snapshot-integrity')
-        if destination.execute('PRAGMA quick_check').fetchone()[0]!='ok' or destination.execute('PRAGMA foreign_key_check').fetchall():
+        # Unqualified quick_check also scans the attached working database,
+        # including the large intermediate tables deliberately omitted above.
+        if destination.execute('PRAGMA main.quick_check').fetchone()[0]!='ok' or destination.execute('PRAGMA main.foreign_key_check').fetchall():
             raise ValueError('Prepared dashboard snapshot integrity failed')
         working_bytes=(destination.execute('PRAGMA prepared_source.page_count').fetchone()[0]
             *destination.execute('PRAGMA prepared_source.page_size').fetchone()[0])

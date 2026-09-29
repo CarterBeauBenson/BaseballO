@@ -174,9 +174,12 @@ def player_records(db, metrics, params, people):
                   if person['roster'] and not blocked[player] and seen[player]==len(person['graphs'])]
         if eligible:
             indexed=db.execute("SELECT 1 FROM sqlite_schema WHERE type='index' AND name='dashboard_player_metric_by_player'").fetchone()
-            # Let SQLite seek the eligible metric/player pairs when that index
-            # exists. Older snapshots retain the bounded game-first scan.
-            source=('dashboard_player_metric p JOIN game_dimension g ON p.graph_iri=g.graph_iri' if indexed else
+            # Keep eligible pairs outermost: the production SQLite planner
+            # otherwise crosses every game with every eligible pair, even
+            # when the player index is present. Older snapshots keep their
+            # bounded game-first scan.
+            source=('dashboard_player_metric p INDEXED BY dashboard_player_metric_by_player '
+                'CROSS JOIN game_dimension g ON p.graph_iri=g.graph_iri' if indexed else
                 'game_dimension g CROSS JOIN dashboard_player_metric p INDEXED BY sqlite_autoindex_dashboard_player_metric_1 '
                 'ON p.graph_iri=g.graph_iri')
             rows=db.execute('SELECT p.metric_id,p.player,p.aggregate_json FROM '+source+

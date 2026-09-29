@@ -31,8 +31,12 @@ and expanded metric responses are checked for equality in the component test.
 The snapshot keeps SQL constraints and indexes; mutable producer triggers remain
 in the working database. Publication records both logical file sizes. No source,
 graph, retained binding or existing working checkpoint is rebuilt or removed.
-The SQL integrity scan runs on that prepared snapshot; it is not repeated over
-the much larger working store. Copying enforces the snapshot's SQL constraints,
+The SQL integrity scan explicitly names `main.quick_check` and
+`main.foreign_key_check`. Unqualified `quick_check` also inspects the attached
+working database; that was extending publication by scanning the large excluded
+intermediate tables. The component regression keeps an invalid CHECK value in
+an excluded fixture table and verifies that the reader's own constraints still
+hold. Copying enforces the snapshot's SQL constraints,
 while each changed calculation keeps its existing binding/checksum checks.
 Publication progress distinguishes the source check, snapshot copy and digest.
 
@@ -161,6 +165,16 @@ avoiding a separate season scan for each card. The existing unique game/player/
 metric key supports counting matched games; any unexpected game is still an
 explicit completeness failure, even when the counts match. The same query
 supports expanded single-metric details without changing their period.
+
+After checking completeness, indexed aggregate reads explicitly traverse
+eligible metric/player pairs before joining their games. `CROSS JOIN` and the
+player index prevent the production SQLite planner from placing every game
+outside all eligible pairs. On September 29 the incorrect plan made 7,773
+eligible pairs participate in probes across 2,429 games and pushed custom-season
+requests past the HTTP deadline. The corrected aggregate scan read the same
+10,055 rows in 8.66 seconds in the live SQL diagnostic; the three focused
+comparisons also pass using the dashboard's actual Python/SQLite runtime.
+Default season responses continue to use NiFi's prepared range table.
 
 Known zero-PA games contribute no observations to Offensive Reach and Help
 Without Advancing. They do not require runner-resolution evidence for those
