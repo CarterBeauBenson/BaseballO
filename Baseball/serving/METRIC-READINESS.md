@@ -10,7 +10,7 @@ Read-only selected-range checks on September 29, 2026:
 
 | Surface | Recorded result |
 | --- | --- |
-| Published dashboard | `20260929T090041Z-dashboard-9618e1d2b1cb`, published September 29 at 05:35 Eastern, 2,917 games; runtime from `cc879e4` |
+| Published dashboard | `20260929T124736Z-dashboard-9c0b8fa89ebb`, published September 29 at 09:17 Eastern, 2,917 games; runtime from `cc879e4` |
 | Week selection | September 21-27: all 90 expected regular-season games |
 | Week player leaderboards | **7/19 populated**, with names, selected-period aggregates, automatic minimums and disclosed exclusions; `ready=false` |
 | Populated cards | Offensive Reach, Help Without Advancing, Empty Games, Empty Game Damage, Contribution Mix, Scoring History Length and Run Contributors |
@@ -32,6 +32,21 @@ The current pointer is `state/serving/dashboard-current.json`; the independent
 builder records progress in `state/serving/dashboard/progress.json`. Read those
 owner records for a later state. Do not infer publication from a submitted job,
 a source graph count or a successful component test.
+
+The September 29 follow-up HTTP check still returned 7/19 weekly cards and
+0/19 season cards with 28 unverified season rosters from that publication.
+Requests took 17.12 seconds for the week (including initial verification) and
+1.53 seconds for the season. New repairs were not yet in its captured runtime.
+At the last owner-record check, the next build had finished all 2,917 games:
+21 admission-dependent updates, 2,896 reused games and zero calculation-version
+updates, and was publishing. The newer PA admission/compact snapshot changes
+will be captured by a subsequent scheduled build; do not claim their live
+leaderboard coverage from the older pointer.
+
+Separately, NiFi's current independent-admission receipts verified 64 rosters
+and admitted 2,977 PA boundaries, retaining 1,891 withheld boundaries. These
+are validation results against existing RDF, not graph additions or published
+player counts. The maintained queue continues under its existing NiFi owner.
 
 ## Implemented repairs and retained component evidence
 
