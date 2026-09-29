@@ -142,6 +142,13 @@ worker ownership; [build reuse](BUILD-REUSE.md) describes invalidation.
    53 rostered players. Its receipt initially exceeded Windows MAX_PATH; the
    output filename is now shortened. This is component evidence, not a claim
    that all 28 games or a new selected-season leaderboard have published.
+   For retained raw witnesses, that same bounded graph read also runs the six
+   unchanged source admission profiles in one Jena session. Each records the
+   original graph/input identity separately from the validation export and
+   response. The existing-graph B1 check for 822864 is admitted; its run and
+   runner-resolution checks fail graph conformance, and its count/boundary
+   checks still identify actual gaps (including PA 54's nonpitch count event).
+   Missing old proof files and absent current graph facts are distinct outcomes.
 3. Continue contribution/Empty Game attribution diagnosis. The retained component
    check left player 681508 in game 822846 (PA 37) and player 670770 in game 824467
    (PA 65) uncertain. Reassess the updated promoted facts before proposing another

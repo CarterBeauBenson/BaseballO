@@ -84,6 +84,14 @@ partition and the publication input set. Metric values still come from retained
 RDF query bindings. Deployment migrates unchanged player partition identities
 without recalculating their rows. A new or changed individual proof recalculates
 that game's player projections, leaving game kernels and evidence untouched.
+When a retained raw response is available, the same bounded graph export can
+also run the unchanged six source admission profiles in one Jena session.
+Receipts bind the current promotion and are committed only after its final
+identity/count check. Proofs retain `sourceSha256` for the validation response,
+`promotionSourceSha256` for the original ingest and `validationExportSha256`
+separately from the original RDF hash. Passing checks feed the existing
+admission-only refresh path; failed checks remain withheld. No source/RDF
+identity is rewritten to make a later response look like the original input.
 
 `test_serving_release` exercises committed subprocess launch, working-copy
 edits, new commits, publication during a request, exact legacy pairing,

@@ -40,6 +40,7 @@ def atomic(path,value):
 
 RETAINED_BATTING=module(HERE/'retained-batting-evidence.py','retained_batting_evidence')
 PLAYER_PARTICIPATION=module(HERE/'player-participation-admission.py','player_participation_evidence')
+EXISTING_GRAPH=module(HERE/'existing-graph-admissions.py','existing_graph_admissions')
 
 
 def checked_marker(promotion):
@@ -50,7 +51,8 @@ def checked_marker(promotion):
 
 def fingerprint():
     return hashlib.sha256(Path(__file__).read_bytes()+COMPATIBILITY_PATH.read_bytes()
-        +RETAINED_BATTING.fingerprint().encode()+PLAYER_PARTICIPATION.fingerprint().encode()).hexdigest()
+        +RETAINED_BATTING.fingerprint().encode()+PLAYER_PARTICIPATION.fingerprint().encode()
+        +(HERE/'existing-graph-admissions.py').read_bytes()).hexdigest()
 
 
 def code_equivalence(family,previous,current):
@@ -177,18 +179,22 @@ def refreshed(state,promotion,family,implementation):
 
 
 def load(adapter,state,promotion,family):
+    independent=EXISTING_GRAPH.load(SimpleNamespace(**globals()),state,promotion,family,adapter)
+    if independent is not None and independent.get('status')=='admitted':return independent
+    # A failed later witness cannot suppress a separately valid original proof.
+    def select(proof):return proof if proof.get('status')=='admitted' else independent or proof
     if family=='batting':
         proof=refreshed(state,promotion,family,RETAINED_BATTING.fingerprint())
         if proof is not None:
             checked_marker(promotion)
-            return proof
+            return select(proof)
     proof=refreshed(state,promotion,family,adapter.fingerprint())
     if proof is not None:
         checked_marker(promotion)
-        return proof
+        return select(proof)
     proof=compatible_proof(state,promotion,family,adapter.fingerprint())
-    if proof is not None: return proof
-    return adapter.promoted_admission(state,promotion)
+    if proof is not None: return select(proof)
+    return select(adapter.promoted_admission(state,promotion))
 
 
 def refresh_game(state,promotion,java,classpath,endpoint='http://127.0.0.1:3031/baseball-dev/query'):

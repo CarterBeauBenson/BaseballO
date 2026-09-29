@@ -22,7 +22,8 @@ INVENTORY=URIRef('urn:baseballo:validation:player-participation:inventory')
 
 
 def fingerprint():
-    return B.sha(Path(__file__).read_bytes()+SHAPE.read_bytes()+B.fingerprint().encode())
+    return B.sha(Path(__file__).read_bytes()+SHAPE.read_bytes()+B.fingerprint().encode()
+        +(HERE/'existing-graph-admissions.py').read_bytes())
 
 
 def node(name,target,queries):
@@ -223,10 +224,13 @@ def prove(evidence,state,promotion,retained,java,classpath,endpoint):
         with session_module.Session(rdf,java,classpath) as session:
             if session.data_count!=record['authoritativeTripleCount']:raise ValueError('Participation graph count changed')
             _,report,_=session.validate_with_jena(data_path=rdf,shape_path=shapes,java=java,classpath=classpath,max_heap='384m')
+            other=(evidence.EXISTING_GRAPH.validate(evidence,state,promotion,witness,rdf,session,java,classpath)
+                if witness['kind']=='retained-source-response' else [])
         export_sha=evidence.sha(rdf)
     current()
     if fingerprint()!=implementation or evidence.sha(Path(witness['path']))!=witness['sha256']:
         raise ValueError('Participation inputs changed during validation')
+    evidence.EXISTING_GRAPH.commit(evidence,promotion,other)
     evidence.atomic(output.with_suffix('.source.json'),source)
     report_path=output.with_suffix('.report.ttl');report.serialize(destination=report_path,format='turtle')
     result=outcome(source,report)
