@@ -139,5 +139,46 @@ class PlayerRanges(unittest.TestCase):
             self.assertEqual(by_key[(U+'2',metric)][3],0,metric)
         self.assertEqual(json.loads(by_key[(U+'1','empty-game-rate')][4]),dict(kind='count',count=0,eligibleGames=1))
 
+    def test_individual_admission_uses_rdf_counts_and_keeps_failed_player_unknown(self):
+        rows=[dict(kind='player_team_game',player=U+str(i),graph=G+'1',game='game',team='team',teamRole='role') for i in (1,2,3)]
+        rows.append(dict(kind='plate_appearance',entity='pa1',graph=G+'1',game='game',player=U+'1',
+            recognizedBattingResult='true',act='act',paResult='result',paResultType='type',
+            paResultJudgment='judgment',paResultDecision='decision',paResultRecord='record'))
+        individual=dict(rosterComplete=True,plateAppearanceInventoryComplete=True,
+            players=[dict(player=U+str(i),status='withheld' if i==2 else 'admitted',officialPA=999) for i in (1,2,3)])
+        result=P.qualification(M,rows,G+'1',SCOPE,dict(status='withheld'),individual)
+        self.assertEqual({p['player']:p['plateAppearances'] for p in result['participation']},{U+'1':1,U+'3':0})
+        self.assertEqual(result['expectedObservations'],[dict(graph=G+'1',plateAppearance='pa1',player=U+'1')])
+        individual['plateAppearanceInventoryComplete']=False
+        self.assertEqual(P.qualification(M,rows,G+'1',SCOPE,{},individual)['participation'],[])
+
+    def test_deployment_preserves_unchanged_player_products(self):
+        db=self.db()
+        for i in (1,2):db.execute('UPDATE dashboard_player_partition SET input_sha256=? WHERE graph_iri=?',
+            (M._hash('source-'+str(i)+P.PREVIOUS_VERSION),G+str(i)))
+        with patch.object(M._blocks,'read_scope',side_effect=AssertionError('must reuse existing products')):
+            self.assertEqual(P.prepare(M,db)['preparedGames'],0)
+        self.assertEqual(Q.query(M,P,db,{'metricId':'tfs'},SCOPE)['graphCount'],2)
+
+    def test_individual_proof_updates_only_affected_projection_and_retains_provenance(self):
+        db=self.db();proof=dict(rosterComplete=True,plateAppearanceInventoryComplete=True,players=[])
+        for table in ('metric_suite_admission','metric_suite_run_admission','metric_suite_runner_resolution_admission'):
+            db.execute(f'CREATE TABLE {table}(graph_iri TEXT,proof_json TEXT,proof_sha256 TEXT)')
+        db.execute('CREATE TABLE metric_suite_evidence(graph_iri TEXT,binding_json TEXT,binding_sha256 TEXT)')
+        movement=M._json(dict(kind='runner_movement',resolution='run',runner=U+'1'))
+        db.execute('INSERT INTO metric_suite_evidence VALUES (?,?,?)',(G+'1',movement,M._hash(movement)))
+        with patch.object(M._blocks,'read_scope',return_value=[]), \
+             patch.object(M._blocks,'read_inputs',return_value={G+'1':{}}), \
+             patch.object(M,'read_results',return_value=[dict(unresolvedRuns=[dict(run='run')])]), \
+             patch.object(P,'project',return_value=([],[])) as project:
+            result=P.prepare(M,db,player_admissions={G+'1':proof})
+        self.assertEqual(result['preparedGames'],1)
+        self.assertEqual(project.call_count,1)
+        text,digest=db.execute('SELECT proof_json,proof_sha256 FROM dashboard_player_admission').fetchone()
+        self.assertEqual(json.loads(text),proof)
+        self.assertEqual(digest,M._hash(text))
+        # The reader accepts this exact prepared partition without rebuilding it.
+        Q.query(M,P,db,{'metricId':'tfs'},SCOPE)
+
 
 if __name__=='__main__':unittest.main()

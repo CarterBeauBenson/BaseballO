@@ -16,6 +16,7 @@ RUNS = {'run-construction-depth','run-construction-breadth'}
 DEFENSE = {'resolution-depth','defender-breadth'}
 PREPARED = CONTRIBUTION | PROGRESS | RUNS | DEFENSE | {'empty-game-damage'}
 REFERENCES = {'paq-2','paq-a','paq-2.1','recovery-quality'}
+PREVIOUS_VERSION = '4890951c9161d99efdbf52c5364c4ca08bbd4f9cd3e2853127846a728ae1282d'
 
 
 def fingerprint():
@@ -26,6 +27,9 @@ def initialize(db):
     db.executescript('''
       CREATE TABLE IF NOT EXISTS dashboard_player_partition (
         graph_iri TEXT PRIMARY KEY REFERENCES game_dimension(graph_iri), input_sha256 TEXT NOT NULL);
+      CREATE TABLE IF NOT EXISTS dashboard_player_admission (
+        graph_iri TEXT PRIMARY KEY REFERENCES game_dimension(graph_iri),
+        proof_json TEXT NOT NULL, proof_sha256 TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS dashboard_player_game (
         graph_iri TEXT NOT NULL REFERENCES game_dimension(graph_iri), player TEXT NOT NULL,
         team TEXT NOT NULL, plate_appearances INTEGER, roster_complete INTEGER NOT NULL,
@@ -53,6 +57,34 @@ def mean(m, values):
     return dict(kind='mean',sum=m.exact(sum(values,Fraction())),count=len(values))
 
 
+def qualification(m,rows,graph,scope,batting,individual):
+    if admitted(batting):
+        return m.batting_qualification(rows,graphs=[graph],admissions={graph:batting},
+            date_scope=scope,selected_games_complete=True)
+    # SHACL admits players individually; counts and membership still come from
+    # RDF bindings. A source boxscore count is never a serving value.
+    valid={p['player'] for p in individual.get('players',[]) if p['status']=='admitted'}
+    if not individual.get('rosterComplete') or not individual.get('plateAppearanceInventoryComplete'):
+        valid=set()
+    members={};exposures=defaultdict(set)
+    for row in rows:
+        if row.get('player') not in valid:continue
+        if row['kind']=='player_team_game':exposures[row['player']].add((row['game'],row['team']))
+        if row['kind']=='plate_appearance' and row.get('recognizedBattingResult') in ('true','1'):
+            if not all(row.get(k) for k in ('player','act','paResult','paResultType','paResultJudgment','paResultDecision','paResultRecord')):
+                raise m.EvidenceError('Individually admitted PA lacks RDF result bindings')
+            value=dict(graph=graph,plateAppearance=row['entity'],player=row['player'])
+            if row['entity'] in members and members[row['entity']]!=value:
+                raise m.EvidenceError('Individually admitted PA has conflicting ownership')
+            members[row['entity']]=value
+    if set(exposures)!=valid:raise m.EvidenceError('Individually admitted player lacks RDF participation')
+    counts=Counter(r['player'] for r in members.values())
+    return dict(officialPlateAppearanceCreditVerified=bool(valid),teamGameExposureVerified=bool(valid),
+        selectedGamesComplete=True,expectedObservations=sorted(members.values(),key=m._json),
+        participation=[dict(player=p,plateAppearances=counts[p],completeParticipation=True,dateScope=scope,
+            teamGameExposure=[dict(game=g,team=t) for g,t in sorted(exposures[p])]) for p in sorted(valid)])
+
+
 def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people):
     """Project complete player records from already calculated game inputs."""
     game=next((r['game'] for r in rows),None)
@@ -62,9 +94,9 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people):
             roster[r['player']].add(r['team'])
     if any(len(t)!=1 for t in roster.values()):
         raise m.EvidenceError('Player has conflicting game-team exposure')
-    roster_ok=bool(roster) and (admitted(proofs['batting']) or admitted(proofs['run']))
-    q=m.batting_qualification(rows,graphs=[graph],admissions={graph:proofs['batting']},
-        date_scope=scope,selected_games_complete=True)
+    individual=proofs.get('players',{})
+    roster_ok=bool(roster) and (admitted(proofs['batting']) or admitted(proofs['run']) or individual.get('rosterComplete') is True)
+    q=qualification(m,rows,graph,scope,proofs['batting'],individual)
     people={p['player']:p for p in q['participation']}
     expected=defaultdict(set)
     for p in q['expectedObservations']:expected[p['player']].add(p['plateAppearance'])
@@ -170,7 +202,7 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people):
     return participation,records
 
 
-def prepare(m, db, checkpoint=None):
+def prepare(m, db, checkpoint=None, player_admissions=None):
     initialize(db);version=fingerprint();changed=0
     # The player dashboard serves only these game sets. Exhibition/WBC roster
     # patterns must not participate in, or block, MLB dashboard preparation.
@@ -178,15 +210,24 @@ def prepare(m, db, checkpoint=None):
         "FROM game_dimension g JOIN dashboard_checkpoint c USING(graph_iri) "
         "WHERE g.game_set IN ('regular_season','all_star') ORDER BY g.graph_iri").fetchall()
     saved=dict(db.execute('SELECT graph_iri,input_sha256 FROM dashboard_player_partition'))
+    player_admissions=player_admissions or {}
     for graph,day,game_set,key in inventory:
-        identity=m._hash(key+version)
+        individual=player_admissions.get(graph) or {}
+        individual_text=m._json(individual);proof_sha=m._hash(individual_text) if individual else ''
+        identity=m._hash(key+version+proof_sha)
         if saved.get(graph)==identity:continue
+        # The new path changes only games with individual admissions. Preserve
+        # all other existing player aggregates byte-for-byte on deployment.
+        if not individual and saved.get(graph)==m._hash(key+PREVIOUS_VERSION):
+            with db:db.execute('UPDATE dashboard_player_partition SET input_sha256=? WHERE graph_iri=?',(identity,graph))
+            continue
         rows=m._blocks.read_scope(m._block_api(),db,[graph])
         proofs={}
         for kind,table in [('batting','metric_suite_admission'),('run','metric_suite_run_admission'),
                            ('resolution','metric_suite_runner_resolution_admission')]:
             row=db.execute(f'SELECT proof_json,proof_sha256 FROM {table} WHERE graph_iri=?',(graph,)).fetchone()
             proofs[kind]=m._blocks.decode(m._block_api(),*row) if row else {}
+        proofs['players']=individual
         inputs={f:m._blocks.read_inputs(m._block_api(),db,f,[graph])[graph] for f in ('contribution','progress','defense')}
         runs={metric:m.read_results(db,graph,metric)[0] for metric in RUNS}
         unresolved={r['run'] for result in runs.values() for r in result.get('unresolvedRuns',[])}
@@ -200,6 +241,8 @@ def prepare(m, db, checkpoint=None):
         people,records=project(m,graph=graph,scope=dict(gameSet=game_set,startDate=day,endDate=day),
             rows=rows,proofs=proofs,inputs=inputs,runs=runs,run_people=run_people)
         with db:
+            db.execute('DELETE FROM dashboard_player_admission WHERE graph_iri=?',(graph,))
+            if individual:db.execute('INSERT INTO dashboard_player_admission VALUES (?,?,?)',(graph,individual_text,proof_sha))
             for table in ('dashboard_player_game','dashboard_player_metric'):
                 db.execute(f'DELETE FROM {table} WHERE graph_iri=?',(graph,))
             db.executemany('INSERT INTO dashboard_player_game VALUES (?,?,?,?,?)',people)
@@ -221,7 +264,9 @@ def query(m, db, request, scope):
     saved=dict(db.execute('SELECT p.graph_iri,p.input_sha256 FROM dashboard_player_partition p '
         'JOIN game_dimension g USING(graph_iri) WHERE g.game_set=? AND g.official_date BETWEEN ? AND ?',params))
     version=fingerprint()
-    if any(saved.get(g)!=m._hash(key+version) for g,key in expected.items()):
+    individual=dict(db.execute('SELECT a.graph_iri,a.proof_sha256 FROM dashboard_player_admission a '
+        'JOIN game_dimension g USING(graph_iri) WHERE g.game_set=? AND g.official_date BETWEEN ? AND ?',params))
+    if any(saved.get(g)!=m._hash(key+version+individual.get(g,'')) for g,key in expected.items()):
         raise m.EvidenceError('Selected player products need NiFi preparation')
     people=defaultdict(lambda:dict(pa=0,paKnown=True,games=set(),graphs=set(),roster=True))
     roster_graphs=set()

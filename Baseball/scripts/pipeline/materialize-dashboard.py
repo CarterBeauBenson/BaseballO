@@ -117,7 +117,7 @@ def graph_tables(connection):
 def remove_game(connection, graph):
     # Keep the dimension until child-row triggers have invalidated its ranks.
     DISPLAY.remove(connection, graph)
-    for table in ('dashboard_player_metric','dashboard_player_game','dashboard_player_partition'):
+    for table in ('dashboard_player_metric','dashboard_player_game','dashboard_player_admission','dashboard_player_partition'):
         connection.execute(f'DELETE FROM {table} WHERE graph_iri=?',(graph,))
     for table in graph_tables(connection):
         connection.execute(f'DELETE FROM "{table}" WHERE graph_iri=?', (graph,))
@@ -159,7 +159,7 @@ def admission_versions():
     add no distinct input. Restore the functions before verifying or returning.
     """
     originals=[(adapter,adapter.fingerprint) for adapter in
-               [*ADMISSIONS.values(),ADMISSION_EVIDENCE.RETAINED_BATTING]]
+               [*ADMISSIONS.values(),ADMISSION_EVIDENCE.RETAINED_BATTING,ADMISSION_EVIDENCE.PLAYER_PARTICIPATION]]
     versions=[function() for _,function in originals]
     for (adapter,_),version in zip(originals,versions):
         adapter.fingerprint=lambda value=version:value
@@ -380,7 +380,7 @@ def build_locked(args, state, serving, work):
         calculation = METRICS.calculation_fingerprint()
         cache = SOURCE._query_cache.ServingQueryCache(serving/'query-cache.sqlite')
         products = SOURCE._metric_cache.MetricProductCache(serving/'metric-cache.sqlite', calculation)
-        pending = []; expected = {}; unchanged = 0; admission_updates = 0; calculation_updates = 0
+        pending = []; expected = {}; unchanged = 0; admission_updates = 0; calculation_updates = 0; player_admissions = {}
         old_dimensions = dict(connection.execute('SELECT graph_iri,season FROM game_dimension'))
         saved = dict(connection.execute('SELECT graph_iri,input_sha256 FROM dashboard_checkpoint'))
         checkpoint(phase='input-refresh',totalGames=len(dimensions))
@@ -390,6 +390,7 @@ def build_locked(args, state, serving, work):
                 promotion = inventory[pk]
                 admissions = {name: ADMISSION_EVIDENCE.load(adapter,state,promotion,name.removesuffix('_admission').replace('_','-'))
                               for name, adapter in ADMISSIONS.items()}
+                player_admissions[graph] = ADMISSION_EVIDENCE.PLAYER_PARTICIPATION.load(ADMISSION_EVIDENCE,state,promotion)
                 values = dimension_values(dimension, promotion, metadata)
                 identity = input_identity(promotion, values, admissions, calculation)
                 expected[graph] = identity
@@ -455,8 +456,9 @@ def build_locked(args, state, serving, work):
             connection.execute('INSERT OR REPLACE INTO dashboard_state VALUES (?,?)',('reference-version',reference_version))
             connection.execute('INSERT OR REPLACE INTO dashboard_state VALUES (?,?)', ('dirty-seasons','[]'))
         checkpoint(phase='player-ranges')
-        player_ranges = PLAYER_RANGES.prepare(METRICS,connection,checkpoint=checkpoint)
+        player_ranges = PLAYER_RANGES.prepare(METRICS,connection,checkpoint=checkpoint,player_admissions=player_admissions)
         input_set = digest(dict(games=expected, coverage=coverage_sha, calculation=calculation,
+                               playerAdmissions={g:p['proofSha256'] for g,p in player_admissions.items() if p},
                                playerRanges=PLAYER_RANGES.fingerprint()))
         checkpoint(phase='publication')
         if dict(connection.execute('SELECT graph_iri,input_sha256 FROM dashboard_checkpoint')) != expected:

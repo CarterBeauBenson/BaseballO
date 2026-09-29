@@ -37,6 +37,7 @@ class DashboardMaterializer(unittest.TestCase):
         for adapter in D.ADMISSIONS.values():
             self.stack.enter_context(patch.object(adapter,'promoted_admission',return_value={'status':'withheld'}))
         self.stack.enter_context(patch.object(D.ADMISSION_EVIDENCE,'load',return_value={'status':'withheld'}))
+        self.stack.enter_context(patch.object(D.ADMISSION_EVIDENCE.PLAYER_PARTICIPATION,'load',return_value=None))
         self.stack.enter_context(patch.object(D.SOURCE._batting_admission,'schedule_coverage',return_value={}))
         self.stack.enter_context(patch.object(D.SOURCE._schedule_qualification,'merge_snapshots',return_value={}))
         self.fetched = []
@@ -172,6 +173,17 @@ class DashboardMaterializer(unittest.TestCase):
             actual.execute('DELETE FROM metric_suite_evidence WHERE rowid IN (SELECT rowid FROM metric_suite_evidence LIMIT 1)')
             with self.assertRaisesRegex(ValueError,'incomplete'):
                 D.refresh_admission_inputs(actual,graph,previous,{name:dict(PROOF,status='withheld') for name in D.ADMISSIONS})
+
+    def test_player_proof_refresh_preserves_existing_rdf_rows_and_game_calculations(self):
+        D.build(self.args);self.fetched.clear()
+        proof=dict(rosterComplete=True,plateAppearanceInventoryComplete=True,players=[],proofSha256='individual')
+        with patch.object(D.ADMISSION_EVIDENCE.PLAYER_PARTICIPATION,'load',side_effect=lambda evidence,state,promotion:
+                proof if promotion['gamePk']=='101' else None), \
+             patch.object(D.METRICS,'materialize_game',side_effect=AssertionError('must reuse game calculations')):
+            result=D.build(self.args)
+        self.assertEqual(self.fetched,[])
+        self.assertEqual((result['changedGames'],result['reusedGames']),(0,2))
+        self.assertEqual(result['playerRanges']['preparedGames'],1)
 
     def test_timestamp_only_upgrade_reuses_unaffected_kernels_and_matches_full_calculation(self):
         from test_contribution_sql import sample,PROOF

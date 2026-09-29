@@ -27,13 +27,14 @@ permission is not a standing rebuild instruction.
 
 ## 1. Populate the nineteen dashboard cards
 
-1. Finish the bounded retained retries for the four month-blocking games
-   822848, 822854, 822936 and 823338 through their existing quarantine owner.
-   Dashboard SQL then refreshes only their affected derived products.
+1. Apply the independent roster/player admission repair through the existing
+   NiFi evidence worker and affected SQL player projections. Preserve the
+   existing database and RDF. The four retained retries for 822848, 822854,
+   822936 and 823338 are complete and published; do not repeat them.
 2. Inspect published selected-period player rows and exact gaps. September 21-27
    now has **7/19 named, qualified leaderboards**, including matching expanded
-   details. The month has four participation-proof gaps and the season has 32;
-   neither broader range is complete. The previously missing game 823087 and
+   details. The month has 5/19 populated cards and no roster gaps; the season
+   still has 28 roster gaps in its last verified publication. The previously missing game 823087 and
    prepared player names are already published.
 3. Complete supported contribution, progress, Empty Game and scoring-history
    calculations from existing RDF. Keep unknown contribution ownership and

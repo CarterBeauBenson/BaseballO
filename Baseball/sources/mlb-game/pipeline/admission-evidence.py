@@ -39,6 +39,7 @@ def atomic(path,value):
 
 
 RETAINED_BATTING=module(HERE/'retained-batting-evidence.py','retained_batting_evidence')
+PLAYER_PARTICIPATION=module(HERE/'player-participation-admission.py','player_participation_evidence')
 
 
 def checked_marker(promotion):
@@ -49,7 +50,7 @@ def checked_marker(promotion):
 
 def fingerprint():
     return hashlib.sha256(Path(__file__).read_bytes()+COMPATIBILITY_PATH.read_bytes()
-        +RETAINED_BATTING.fingerprint().encode()).hexdigest()
+        +RETAINED_BATTING.fingerprint().encode()+PLAYER_PARTICIPATION.fingerprint().encode()).hexdigest()
 
 
 def code_equivalence(family,previous,current):
@@ -199,6 +200,17 @@ def refresh_game(state,promotion,java,classpath,endpoint='http://127.0.0.1:3031/
         and refreshed(state,promotion,family,versions[family]) is None]
     result=dict(gamePk=promotion['gamePk'],promotionManifestSha256=promotion['promotionManifestSha256'],
         diagnostics=diagnostics,refreshed=[],rdfChanged=False)
+    api=SimpleNamespace(**globals())
+    batting=load(adapters['batting'],state,promotion,'batting')
+    if batting.get('status')!='admitted' and PLAYER_PARTICIPATION.load(api,state,promotion) is None:
+        retained=PLAYER_PARTICIPATION.retained_source(api,state,promotion)
+        if retained is not None:
+            memory=module(ROOT/'scripts/pipeline/process_state.py','participation_memory').available_memory()
+            if memory is not None and memory<1024*1024*1024:
+                return dict(result,status='waiting-for-memory',availableMemoryBytes=memory)
+            proof=PLAYER_PARTICIPATION.prove(api,state,promotion,retained,java,classpath,endpoint)
+            return dict(result,status='partial-refreshed',refreshed=['player-participation'],
+                rosterComplete=proof['rosterComplete'],admittedPlayers=sum(p['status']=='admitted' for p in proof['players']))
     if refreshed(state,promotion,'batting',RETAINED_BATTING.fingerprint()) is None:
         api=SimpleNamespace(**globals())
         retained=RETAINED_BATTING.source_census(api,state,promotion)
@@ -251,8 +263,11 @@ def latest_dashboard_games(state):
     if not database.resolve().is_relative_to((Path(state)/'serving/dashboard/builds').resolve()):
         raise ValueError('Dashboard priority database escaped its owner')
     with sqlite3.connect(database.as_uri()+'?mode=ro',uri=True) as connection:
-        return {r[0] for r in connection.execute("SELECT game_pk FROM game_dimension WHERE game_set='regular_season' "
+        priority={r[0] for r in connection.execute("SELECT game_pk FROM game_dimension WHERE game_set='regular_season' "
             "AND official_date>=date((SELECT max(official_date) FROM game_dimension WHERE game_set='regular_season'),'-6 days')")}
+        priority.update(r[0] for r in connection.execute("SELECT game_pk FROM game_dimension g LEFT JOIN dashboard_player_game p USING(graph_iri) "
+            "WHERE game_set='regular_season' GROUP BY g.graph_iri HAVING MAX(COALESCE(p.roster_complete,0))=0"))
+        return priority
 
 
 def tick(state,java,classpath,limit=100,endpoint='http://127.0.0.1:3031/baseball-dev/query'):
@@ -270,29 +285,24 @@ def tick(state,java,classpath,limit=100,endpoint='http://127.0.0.1:3031/baseball
         destination=control/(directory.name+'.json')
         previous=read(destination) if destination.is_file() else {}
         if (previous.get('promotionManifestSha256')==marker_sha and previous.get('implementationSetSha256')==version
-                and previous.get('status') not in {'waiting-for-memory','failed'}):
+                and previous.get('status') not in {'waiting-for-memory','failed','partial-refreshed'}):
             continue
         if previous.get('status')=='failed' and previous.get('implementationSetSha256')==version and previous.get('attempts',0)>=2:
             continue
         result=dict(gamePk=directory.name,promotionManifestSha256=marker_sha,implementationSetSha256=version,
-            checkedAtUtc=datetime.now(timezone.utc).isoformat(),rdfChanged=False,attempts=previous.get('attempts',0)+1)
+            checkedAtUtc=datetime.now(timezone.utc).isoformat(),rdfChanged=False,
+            attempts=(previous.get('attempts',0) if previous.get('implementationSetSha256')==version else 0)+1)
         try:
             if marker.get('artifactType')!='baseball-nifi-game-promotion' or str(marker.get('gamePk'))!=directory.name:
                 raise ValueError('Unexpected source promotion marker')
-            rml_path=retained_manifest(state,marker,directory.name)
-            if not rml_path.is_file() or sha(rml_path)!=marker.get('rmlManifestSha256'):
-                result.update(status='retained-manifest-unavailable')
-            else:
-                manifest=read(rml_path)
-                promotion=dict(gamePk=directory.name,promotionManifest=str(path),promotionManifestSha256=marker_sha,
-                    rawSha256=marker['rawSha256'],authoritativeGraph=marker['authoritativeGraph'],
-                    authoritativeRdfSha256=manifest['outputSha256'])
-                result.update(refresh_game(state,promotion,java,classpath,endpoint))
+            inventory=module(ROOT/'scripts/pipeline/game_promotion_inventory.py','admission_inventory')
+            promotion=inventory.validated_promotion_record(Path(state),path,directory.name,inventory.query_index_contract_admission())
+            result.update(refresh_game(state,promotion,java,classpath,endpoint))
         except (OSError,ValueError,RuntimeError) as error:
             result.update(status='failed',error=str(error))
         atomic(destination,result);outcomes.append(result)
         # Bound JVM work to one game, while inexpensive diagnostics can advance.
-        if result.get('refreshed') or len(outcomes)>=limit: break
+        if result.get('refreshed') or result.get('status')=='failed' or len(outcomes)>=limit: break
     summary=dict(status='processed' if outcomes else 'unchanged',processedGames=len(outcomes),
         refreshedGames=sum(bool(r.get('refreshed')) for r in outcomes),
         outcomes={s:sum(r['status']==s for r in outcomes) for s in sorted({r['status'] for r in outcomes})})

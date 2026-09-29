@@ -76,6 +76,15 @@ all season histories. Missing selected references remain unavailable. Range
 participation coverage is read from prepared SQL and reports the exact affected
 games; a missing roster does not silently shorten the user's selection.
 
+The independent player admission refresh validates existing B1/E1 roster and B1
+player constraints against the promoted graph without rerunning RML. Original
+whole-game admissions are retained. Its separate proof is stored in
+`dashboard_player_admission`; its digest participates only in that game's player
+partition and the publication input set. Metric values still come from retained
+RDF query bindings. Deployment migrates unchanged player partition identities
+without recalculating their rows. A new or changed individual proof recalculates
+that game's player projections, leaving game kernels and evidence untouched.
+
 `test_serving_release` exercises committed subprocess launch, working-copy
 edits, new commits, publication during a request, exact legacy pairing,
 negative-result reuse and corruption rejection. This is engineering coverage;

@@ -35,7 +35,9 @@ def query(m, products, db, request, scope):
     saved=dict(db.execute('SELECT p.graph_iri,p.input_sha256 FROM dashboard_player_partition p '
         'JOIN game_dimension g USING(graph_iri) WHERE g.game_set=? AND g.official_date BETWEEN ? AND ?',params))
     version=products.fingerprint()
-    if any(saved.get(g)!=m._hash(key+version) for g,key in expected.items()):
+    individual=dict(db.execute('SELECT a.graph_iri,a.proof_sha256 FROM dashboard_player_admission a '
+        'JOIN game_dimension g USING(graph_iri) WHERE g.game_set=? AND g.official_date BETWEEN ? AND ?',params))
+    if any(saved.get(g)!=m._hash(key+version+individual.get(g,'')) for g,key in expected.items()):
         raise m.EvidenceError('Selected player products need NiFi preparation')
     missing_rosters=[dict(graph=graph,gamePk=graph.rsplit('/',1)[-1],date=day)
         for graph,day in db.execute('SELECT g.graph_iri,g.official_date FROM game_dimension g '

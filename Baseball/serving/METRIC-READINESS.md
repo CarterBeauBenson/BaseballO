@@ -10,17 +10,17 @@ Read-only selected-range checks on September 29, 2026:
 
 | Surface | Recorded result |
 | --- | --- |
-| Published dashboard | `20260929T034913Z-dashboard-2f625d6fb6d4`, published September 29 at 00:22 Eastern, 2,917 games; compatible reader `8dee2d1` deployed at 00:22:34 |
+| Published dashboard | `20260929T090041Z-dashboard-9618e1d2b1cb`, published September 29 at 05:35 Eastern, 2,917 games; runtime from `cc879e4` |
 | Week selection | September 21-27: all 90 expected regular-season games |
 | Week player leaderboards | **7/19 populated**, with names, selected-period aggregates, automatic minimums and disclosed exclusions; `ready=false` |
 | Populated cards | Offensive Reach, Help Without Advancing, Empty Games, Empty Game Damage, Contribution Mix, Scoring History Length and Run Contributors |
 | Qualified weekly players | Respectively 83, 83, 102, 5, 2, 163 and 130 after full-team selected-period minimums |
 | Expanded details | Scoring History Length has 163 named players for September 21-27, with Trea Turner and Jake Bauers among the leaders at an average of 4; 48 incomplete player records are explicitly excluded. The prior publication's full card/detail comparison matched all 163 rows. |
-| Month selection | August 29-September 27: all 403 expected games; 0/19 populated because four games lack usable participation proofs |
-| Season selection | HTTP 200 for January 1-September 27, all 2,429 expected regular-season games; 0/19 populated and 32 games lack usable participation proofs. The corrected reader is live and no longer enters the unrelated-reference fallback. |
+| Month selection | August 29-September 27: all 403 expected games; **5/19 populated**, with all game rosters verified |
+| Season selection | HTTP 200 for January 1-September 27, all 2,429 expected regular-season games; 0/19 populated and **28** games lack usable participation proofs. The corrected reader is live and no longer enters the unrelated-reference fallback. |
 | Recent-game coverage | All 130 September 17-26 catch-up games are in SQL, including 823087 |
 
-Local warm dashboard requests completed in 4.49 seconds for the week, 1.58
+The previous publication's local warm dashboard requests completed in 4.49 seconds for the week, 1.58
 seconds for the month and 5.79 seconds for the season. The first request against
 the new database took 19.39 seconds, including that Python runtime's initial
 immutable-file verification. These are measured responses, not an instant-response
@@ -125,19 +125,23 @@ worker ownership; [build reuse](BUILD-REUSE.md) describes invalidation.
 
 ## Remaining work after the September 29 selected-range check
 
-1. Complete the four retained September 17 retries for 822848 (September 6),
-   822854 (September 1), 822936 (August 29) and 823338 (September 4) through the
-   existing NiFi quarantine owner. Their older promoted graphs have no usable
-   B1/run participation proofs; their later retained inputs belong to failed
-   attempts, not to the existing promotions. Do not relabel those proofs or
-   drop the games from the selected period. This is the outstanding authorized
-   batch's bounded retry, not a new corpus ingestion request.
-   The existing `Quarantine Remainder Retry Request` received exactly those four
-   IDs after the 00:22 SQL publication; NiFi queued all four retained payloads.
-   This is submission evidence, not a claim that promotion or new rankings passed.
-2. Read the resulting source admissions and let Dashboard SQL update affected
-   products. Then check month and season player populations. The season has
-   32 unverified participation games; resolving four is not season completion.
+1. The four retained September 17 retries for 822848, 822854, 822936 and 823338
+   completed and are in the 05:35 publication. Do not queue them again. All four
+   have admitted run censuses; 822936 also has admitted B1. The other three
+   retain their precise within-turn replacement issues.
+2. The September 29 repair separates existing B1/E1 roster checks and individual
+   B1 player checks from whole-game admissions. NiFi's existing Admission Evidence
+   worker prioritizes the remaining 28 roster gaps and the latest week. It reads
+   retained censuses or quarantined inputs and validates the **existing graph**.
+   A later source response retains a distinct validation hash; it never becomes
+   the promotion's original input. Original admissions stay unchanged.
+   Dashboard SQL updates only affected player projections; unchanged game
+   evidence, kernels and player aggregates are reused. A focused integration
+   regression rejects any attempt to re-extract RDF or rerun game calculations.
+   The first runtime check for 822864 verified its roster, PA inventory and all
+   53 rostered players. Its receipt initially exceeded Windows MAX_PATH; the
+   output filename is now shortened. This is component evidence, not a claim
+   that all 28 games or a new selected-season leaderboard have published.
 3. Continue contribution/Empty Game attribution diagnosis. The retained component
    check left player 681508 in game 822846 (PA 37) and player 670770 in game 824467
    (PA 65) uncertain. Reassess the updated promoted facts before proposing another
@@ -146,6 +150,23 @@ worker ownership; [build reuse](BUILD-REUSE.md) describes invalidation.
    These independent gaps do not authorize a corpus rebuild. Percentile cards
    still need the complete reference season; the sole saved Recovery reference
    has only 34 observations at an early cutoff and cannot rank the full season.
+
+The user's September 29 instruction explicitly prohibits rebuilding the database.
+This repair does not acquire API responses, run RML, replace game graphs, clear
+SQL or recalculate unchanged games. The existing SQL owner updates the retained
+working database and publishes its normal immutable snapshot. Updating a derived
+player record does not authorize a source rebuild.
+
+Individual batting admission does not certify another metric's missing facts.
+Contribution still needs the affected runner boundaries and ownership; defensive
+averages need the full relevant act/agent population, and depth also needs order.
+The existing D1 contract admits selected performances, not all performances on
+every contact play. Review player rates still need a reconciled mechanism,
+affected-player census and (for dependence) eligible unreviewed outcomes. The
+retained diagnostic review inventory is not that graph contract. These gaps
+cannot be closed by converting unknowns to zero or by using a smaller percentile
+reference. Any required RDF addition must be separately scoped to the missing
+facts and reviewed under the existing RML/identity rules.
 
 ### Specific remaining batting, count and review evidence
 

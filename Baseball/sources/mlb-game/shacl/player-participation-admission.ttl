@@ -1,0 +1,8 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# The accepted B1/E1 roster and B1 PA constraints, with independent targets.
+# A failed player's constraints do not certify that player or invalidate a
+# different player's passing constraints. No assertions enter domain RDF.
+# __ROSTER_SHAPE__
+# __INVENTORY_SHAPE__
+# __PLAYER_SHAPES__
