@@ -6,16 +6,26 @@ calculation kernels exist, including backend-only Role Realization Breadth.
 
 ## Last verified publication
 
-Read-only selected-range check on September 28, 2026:
+Read-only selected-range checks on September 29, 2026:
 
 | Surface | Recorded result |
 | --- | --- |
-| Published dashboard | `20260928T102328Z-dashboard-bad735824e37`, published at 06:49 Eastern, 2,916 games |
-| Requested selection | September 21–27, 89 loaded regular-season games out of 90 expected |
-| Service readiness | HTTP 200, `materialized-serving` |
-| Player leaderboards | **0/19 populated; dashboard ready=false** for this range. The earlier September 16 result of 1/19 is not the current selected-range result. |
-| Serving latency | Selected-range dashboard POST succeeded in 17.3 seconds. This is not acceptable dashboard response time. |
-| Recent-game coverage | 129 of 130 September 17–26 catch-up games are in this SQL publication. Game 823087 is absent. |
+| Published dashboard | `20260929T034913Z-dashboard-2f625d6fb6d4`, published September 29 at 00:22 Eastern, 2,917 games; compatible reader `8dee2d1` deployed at 00:22:34 |
+| Week selection | September 21-27: all 90 expected regular-season games |
+| Week player leaderboards | **7/19 populated**, with names, selected-period aggregates, automatic minimums and disclosed exclusions; `ready=false` |
+| Populated cards | Offensive Reach, Help Without Advancing, Empty Games, Empty Game Damage, Contribution Mix, Scoring History Length and Run Contributors |
+| Qualified weekly players | Respectively 83, 83, 102, 5, 2, 163 and 130 after full-team selected-period minimums |
+| Expanded details | Scoring History Length has 163 named players for September 21-27, with Trea Turner and Jake Bauers among the leaders at an average of 4; 48 incomplete player records are explicitly excluded. The prior publication's full card/detail comparison matched all 163 rows. |
+| Month selection | August 29-September 27: all 403 expected games; 0/19 populated because four games lack usable participation proofs |
+| Season selection | HTTP 200 for January 1-September 27, all 2,429 expected regular-season games; 0/19 populated and 32 games lack usable participation proofs. The corrected reader is live and no longer enters the unrelated-reference fallback. |
+| Recent-game coverage | All 130 September 17-26 catch-up games are in SQL, including 823087 |
+
+Local warm dashboard requests completed in 4.49 seconds for the week, 1.58
+seconds for the month and 5.79 seconds for the season. The first request against
+the new database took 19.39 seconds, including that Python runtime's initial
+immutable-file verification. These are measured responses, not an instant-response
+or all-19 delivery claim. The served UI asset includes the participation-gap
+message and preserves the full selected period.
 
 The healthy SQL service and unavailable player populations are separate facts.
 The current pointer is `state/serving/dashboard-current.json`; the independent
@@ -71,8 +81,9 @@ a source graph count or a successful component test.
   entire selected-range record for that metric; it does not shorten their
   period or average only their known plays. Cards disclose exclusions and
   retain the automatic participation minimums. Season percentiles still
-  require their complete reference populations. Deployment is pending a new
-  dashboard SQL publication; the dated results above describe the old one.
+  require their complete reference populations. The published SQL now includes
+  these products; the dated results above distinguish the available week from
+  the blocked month and season.
 - Game 823087 promoted successfully at 11:16 Eastern on September 28 after
   the expected runner-record count was aligned with the existing RML selection.
   Its 114 raw rows include one null placeholder that the mapping does not select;
@@ -91,7 +102,7 @@ a source graph count or a successful component test.
   names in game 822756. NiFi refreshes only the display product. The reader
   attaches names to player records using their selected game graphs, withholding
   conflicting names and avoiding repeated per-game labels in season responses.
-  This repair requires the next Dashboard SQL publication.
+  The published release above includes the corrected names.
 - Player-range preparation is restricted to the dashboard's selectable
   regular-season and All-Star game sets. An unrelated exhibition roster with
   both club and national-team exposures had aborted the first full preparation
@@ -112,20 +123,29 @@ The complete earlier diagnosis and dated build history are retained in the
 The [operational delivery record](../infra/OPERATIONS-IMPROVEMENTS.md) describes
 worker ownership; [build reuse](BUILD-REUSE.md) describes invalidation.
 
-## Next work from the September 28 selected-range check
+## Remaining work after the September 29 selected-range check
 
-1. Publish the prepared complete-player range products through Dashboard SQL,
-   include newly promoted game 823087, and verify actual multi-day player
-   leaderboards and request latency. The exact timestamp-parser upgrade now
-   refreshes contribution, boundary, recovery and joined PAQ inputs from retained
-   SQL evidence while preserving unaffected game calculations. Unknown changes
-   still take the ordinary calculation path. This is derived SQL work only.
-2. Continue contribution/Empty Game attribution diagnosis. The retained component
+1. Complete the four retained September 17 retries for 822848 (September 6),
+   822854 (September 1), 822936 (August 29) and 823338 (September 4) through the
+   existing NiFi quarantine owner. Their older promoted graphs have no usable
+   B1/run participation proofs; their later retained inputs belong to failed
+   attempts, not to the existing promotions. Do not relabel those proofs or
+   drop the games from the selected period. This is the outstanding authorized
+   batch's bounded retry, not a new corpus ingestion request.
+   The existing `Quarantine Remainder Retry Request` received exactly those four
+   IDs after the 00:22 SQL publication; NiFi queued all four retained payloads.
+   This is submission evidence, not a claim that promotion or new rankings passed.
+2. Read the resulting source admissions and let Dashboard SQL update affected
+   products. Then check month and season player populations. The season has
+   32 unverified participation games; resolving four is not season completion.
+3. Continue contribution/Empty Game attribution diagnosis. The retained component
    check left player 681508 in game 822846 (PA 37) and player 670770 in game 824467
-   (PA 65) uncertain. Reassess against the updated promoted graphs before deciding
-   that another source addition is required.
-3. Resolve the precise count and PA-boundary cases and the defensive/review
-   populations below. These independent gaps do not authorize a corpus rebuild.
+   (PA 65) uncertain. Reassess the updated promoted facts before proposing another
+   source addition.
+4. Resolve the count, PA-boundary, defensive and review populations below.
+   These independent gaps do not authorize a corpus rebuild. Percentile cards
+   still need the complete reference season; the sole saved Recovery reference
+   has only 34 observations at an early cutoff and cannot rank the full season.
 
 ### Specific remaining batting, count and review evidence
 

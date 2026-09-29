@@ -60,6 +60,22 @@ exact inventory and paths are checked on each open; unchanged files reuse their
 verified hashes. A changed file requires hashing again and must still match
 its original manifest. Reader edits do not silently update captured releases.
 
+The Dashboard SQL launcher can publish a new reader against the same immutable
+database when every captured producer, schema, source and query dependency is
+byte-identical. Only the query adapter, its separate `player_range_query.py`
+reader and the release launcher may differ. It takes the dashboard writer lock
+and applies the existing database checks before swapping the runtime descriptor.
+`dataRuntimeRelease` retains the original producer; `readerUpdatedAtUtc` records
+the reader deployment. The database hash, build ID, data publication time and
+pending input notification remain intact. This avoids copying or recalculating
+SQL for a reader correction without suppressing queued source/admission updates.
+
+Range reads require the exact season and graph-set key for a saved reference.
+The existence of an unrelated earlier-cutoff reference cannot trigger a scan of
+all season histories. Missing selected references remain unavailable. Range
+participation coverage is read from prepared SQL and reports the exact affected
+games; a missing roster does not silently shorten the user's selection.
+
 `test_serving_release` exercises committed subprocess launch, working-copy
 edits, new commits, publication during a request, exact legacy pairing,
 negative-result reuse and corruption rejection. This is engineering coverage;

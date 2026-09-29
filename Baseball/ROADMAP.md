@@ -27,12 +27,14 @@ permission is not a standing rebuild instruction.
 
 ## 1. Populate the nineteen dashboard cards
 
-1. Consume the completed admission repairs and Q7 additions through the existing
-   `Dashboard SQL` owner. Publish a matching immutable SQL/code release while
-   preserving the previous pointer and completed game work on failure.
-2. Inspect the published selected-period player rows and each card's exact gaps.
-   Separate a fix awaiting SQL publication from an unresolved graph fact or
-   calculation. The last checked release still has 0/19 populated cards.
+1. Finish the bounded retained retries for the four month-blocking games
+   822848, 822854, 822936 and 823338 through their existing quarantine owner.
+   Dashboard SQL then refreshes only their affected derived products.
+2. Inspect published selected-period player rows and exact gaps. September 21-27
+   now has **7/19 named, qualified leaderboards**, including matching expanded
+   details. The month has four participation-proof gaps and the season has 32;
+   neither broader range is complete. The previously missing game 823087 and
+   prepared player names are already published.
 3. Complete supported contribution, progress, Empty Game and scoring-history
    calculations from existing RDF. Keep unknown contribution ownership and
    incomplete populations explicit; do not drop observations to fill a card.
