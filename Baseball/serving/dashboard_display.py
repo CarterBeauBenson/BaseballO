@@ -27,7 +27,8 @@ def query(graph):
     if not re.fullmatch(r'https://w3id.org/baseball/graph/game/[0-9]+', graph):
         raise ValueError('Invalid display graph')
     return QUERY.read_text(encoding='utf-8').replace('# DATASET', f'FROM NAMED <{graph}>').replace(
-        '# DISPLAY_ROWS', f'(<{graph}> UNDEF)').replace('FILTER(isLiteral(?label))',
+        'VALUES (?graph ?entity)', 'VALUES ?graph').replace(
+        '# DISPLAY_ROWS', f'<{graph}>').replace('FILTER(isLiteral(?label))',
         'FILTER(isLiteral(?label)) FILTER(STRSTARTS(STR(?entity), "https://baseballontology.org/data/player/"))')
 
 
@@ -51,8 +52,28 @@ def remove(connection, graph):
         connection.execute(f'DELETE FROM {table} WHERE graph_iri=?',(graph,))
 
 
-def read(connection, scope):
-    return dict(source='prepared-sql-labels', labels=[dict(graph=g,entity=e,label=n)
-        for g,e,n in connection.execute('SELECT l.graph_iri,l.entity,l.label FROM dashboard_display_label l '
-            'JOIN game_dimension g USING(graph_iri) WHERE g.game_set=? AND g.official_date BETWEEN ? AND ? '
-            'ORDER BY l.graph_iri,l.entity', (scope['gameSet'],scope['startDate'],scope['endDate']))])
+def read(connection, scope, result):
+    # Resolve names against each returned player's actual selected graphs.
+    # Emit a name on the player record, not the same name once per season game.
+    records=[]
+    def collect(metric):
+        records.extend(metric.get('playerResults', []))
+        for group in metric.get('byMechanism', {}).values(): collect(group)
+    for metric in result.get('metrics', [result.get('metric', {})]): collect(metric)
+    targets={}
+    for record in records:
+        targets.setdefault(record['player'],set()).update(record.get('graphs', []))
+    names={player:set() for player in targets}
+    if targets:
+        for graph,player,label in connection.execute(
+                'SELECT l.graph_iri,l.entity,l.label FROM dashboard_display_label l '
+                'JOIN game_dimension g USING(graph_iri) WHERE g.game_set=? AND g.official_date BETWEEN ? AND ?',
+                (scope['gameSet'],scope['startDate'],scope['endDate'])):
+            if graph in targets.get(player, ()):
+                names[player].add(label)
+    resolved={player:next(iter(labels)) for player,labels in names.items() if len(labels)==1}
+    for record in records:
+        record.pop('playerLabel',None)
+        if record['player'] in resolved: record['playerLabel']=resolved[record['player']]
+    return dict(source='prepared-sql-player-labels',labels=[],namedPlayers=len(resolved),
+                conflictingPlayers=sum(len(labels)>1 for labels in names.values()))

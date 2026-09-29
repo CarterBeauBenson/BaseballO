@@ -79,8 +79,8 @@ class DashboardMaterializer(unittest.TestCase):
             result = reader.query(self.args,dict(route='metric-suite',view='dashboard',gameSet='regular_season',dateScope={'preset':'one_day'}))
         self.assertEqual(len(result['metrics']),20)  # Includes the catalog's retained legacy metric.
         self.assertEqual(result['serving']['publication'],'dashboard')
-        self.assertEqual(result['display']['source'],'prepared-sql-labels')
-        self.assertEqual([r['label'] for r in result['display']['labels']], ['Prepared player']*2)
+        self.assertEqual(result['display']['source'],'prepared-sql-player-labels')
+        self.assertEqual(result['display']['labels'], [])  # No returned players in this withheld fixture.
 
     def test_failed_game_rolls_back_and_resume_reuses_committed_games(self):
         materialize = D.METRICS.materialize_game

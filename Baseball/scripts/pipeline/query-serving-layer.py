@@ -955,7 +955,7 @@ def query_dashboard(args, request, pointer):
         scope = resolve_scope(connection,request)
         with _references.prepared_ranks(_metric_suite,connection):
             result = _player_ranges.query(_metric_suite,connection,request,scope)
-        result['display'] = _display.read(connection,scope)
+        result['display'] = _display.read(connection,scope,result)
         result['serving'] = dict(buildId=build[0],corpusFingerprint=build[1],publication='dashboard',
                                  durationMs=round((time.perf_counter()-started)*1000,3))
         return result

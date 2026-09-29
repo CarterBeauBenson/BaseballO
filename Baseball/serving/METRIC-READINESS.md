@@ -80,10 +80,18 @@ a source graph count or a successful component test.
   retained failed input. No mapping, ontology or corpus rebuild was needed.
 - The retained B1 repair now recognizes the accepted Q7 context version.
   Its missing version entry previously prevented matching single-batter
-  censuses from reaching the unchanged B1 SHACL. Games 822760, 823165, 823411
-  and 823733 subsequently passed that validation in NiFi. The remaining
-  default-range candidates are prioritized by the existing maintenance worker;
-  an applicable retained census is not itself a claim of admitted evidence.
+  censuses from reaching the unchanged B1 SHACL. All ten recent matching games
+  subsequently passed that validation in NiFi: 822760, 823165, 823411, 823733,
+  824059, 824223, 824543, 824709, 824787 and 824948. Their source-owned admission
+  records report `battingStatus=admitted`. Other failed censuses remain withheld;
+  an applicable context version alone never establishes admission.
+- Player-name extraction now binds only the selected graph in `VALUES` and
+  discovers players from its label triples. The previous `(graph, UNDEF)`
+  form returned zero names in deployed Jena; the corrected query returned 52
+  names in game 822756. NiFi refreshes only the display product. The reader
+  attaches names to player records using their selected game graphs, withholding
+  conflicting names and avoiding repeated per-game labels in season responses.
+  This repair requires the next Dashboard SQL publication.
 
 The complete earlier diagnosis and dated build history are retained in the
 [September 23 history](../archive/operational-history/2026-09-23/METRIC-READINESS.md).
