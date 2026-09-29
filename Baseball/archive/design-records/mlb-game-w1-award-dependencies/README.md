@@ -1,6 +1,6 @@
 # W2: complete only the existing runner pattern required by W1
 
-Draft for ontologist review. W1 remains accepted; this is a narrower dependency repair for its selected award rows, not a new meaning or a game rebuild.
+Accepted by Carter Beau Benson on September 29, 2026: **Approve W2 targeted dependencies**. This completes only the existing dependency pattern for W1-selected award rows.
 
 ## Concrete failure
 
@@ -8,13 +8,13 @@ NiFi executed W1's seven existing award maps for retained game 822864 / PA 54 / 
 
 The original W1 package explicitly limited execution to seven award maps. It did not include these four already existing dependency maps. That omission in the proposed repair scope is ours; this is not missing MLB evidence.
 
-## Requested decision
+## Accepted decision
 
 Permit the owning W1 worker to add the minimum missing dependency facts for W1-selected runner rows using existing `RunnerEpisodeMap`, `RunnerEpisodeAgentMap`, `RunnerEpisodeRecordMap` and `SafeDecisionDestinationMap`, in addition to W1's seven award maps. Reuse `runner_episode_evidence` unchanged and require an exact PA/runner/resolution identity match with the W1 award selection. No other PA or runner is selected by this approval.
 
 For the reviewed PA 54 example this is eight dependency triples: four episode type/part relations, one existing `has agent` assertion, two source-record aboutness relations, and one Safe Decision aboutness relation to the existing first-base artifact. No new class, object property, identity rule, start-state stasis, personal running history, pitch or umpire act is requested. Any further missing referent remains withheld rather than broadening the repair.
 
-## Competency questions and answers for review
+## Accepted competency-question answers
 
 - Is the batter's already evidenced Baserunning Act part of the already accepted Runner Resolution Episode pattern with its actual Safe Process? Yes, using the current row-scoped identity policy.
 - Does the existing source runner identity support that act's existing `has agent` assertion? Yes; do not infer a different or unnamed runner.

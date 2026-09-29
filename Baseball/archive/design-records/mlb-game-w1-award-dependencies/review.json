@@ -1,0 +1,46 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-w1-award-dependencies",
+  "title": "W2 existing dependencies for selected W1 awards",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "a1850de37561fcb55a88f7ca05b4aec6b2feec3dff88423f532fd6c1e739035b"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "README.md",
+        "sha256": "a1850de37561fcb55a88f7ca05b4aec6b2feec3dff88423f532fd6c1e739035b"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "a1850de37561fcb55a88f7ca05b4aec6b2feec3dff88423f532fd6c1e739035b"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "03d678216805c63b007c99268fcc56e9e852933a40e65eb0dc0cdbd68f39a096"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-09-29",
+    "rationale": "The user explicitly answered \"Approve W2 targeted dependencies\" to the named eight-triple repair. Reuse four existing dependency mappings only for W1-selected PA/runner/resolution identities. No new terms, identity policies, unrelated graph additions or rebuild.",
+    "authorizedArtifacts": [
+      "Baseball/sources/mlb-game/pipeline/targeted-award-addition.py",
+      "Baseball/sources/mlb-game/shacl/intentional-walk-award-addition.ttl",
+      "Baseball/sources/mlb-game/pipeline/validation-profiles.json"
+    ]
+  }
+}
