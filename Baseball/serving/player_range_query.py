@@ -10,6 +10,36 @@ import gzip
 import hashlib
 import io
 import json
+from pathlib import Path
+
+
+def prepared_version(products):
+    return hashlib.sha256(Path(__file__).read_bytes()+products.fingerprint().encode()).hexdigest()
+
+
+def prepare_seasons(m, products, db, input_set):
+    """NiFi prepares the default season ranges once per changed publication."""
+    with db:
+        db.execute('CREATE TABLE IF NOT EXISTS dashboard_prepared_range ('
+            'game_set TEXT NOT NULL,start_date TEXT NOT NULL,end_date TEXT NOT NULL,'
+            'input_set_sha256 TEXT NOT NULL,query_sha256 TEXT NOT NULL,payload TEXT NOT NULL,'
+            'PRIMARY KEY(game_set,start_date,end_date))')
+    version=prepared_version(products);count=0
+    seasons=db.execute("SELECT season,MAX(official_date) FROM game_dimension WHERE game_set='regular_season' "
+                       'GROUP BY season ORDER BY season').fetchall()
+    for season,end in seasons:
+        start=f'{season}-01-01';key=('regular_season',start,end)
+        saved=db.execute('SELECT input_set_sha256,query_sha256 FROM dashboard_prepared_range '
+                         'WHERE game_set=? AND start_date=? AND end_date=?',key).fetchone()
+        if saved==(input_set,version):continue
+        scope=dict(gameSet=key[0],startDate=start,endDate=end)
+        result=query(m,products,db,dict(view='dashboard'),scope,use_prepared=False)
+        with db:
+            db.execute('DELETE FROM dashboard_prepared_range WHERE game_set=? AND start_date=?',key[:2])
+            db.execute('INSERT INTO dashboard_prepared_range VALUES (?,?,?,?,?,?)',
+                       (*key,input_set,version,json.dumps(result,separators=(',',':'))))
+        count+=1
+    return count
 
 
 def reference_products(m, db, metric, scope):
@@ -93,8 +123,24 @@ def player_records(db, metrics, params, people):
     covered=db.execute("SELECT 1 FROM sqlite_master WHERE type='index' AND name='dashboard_player_metric_coverage'").fetchone()
     index='dashboard_player_metric_coverage' if covered else \
         'sqlite_autoindex_dashboard_player_metric_1' if len(products)>1 else 'dashboard_player_metric_selection'
-    aggregate='NULL' if covered else 'p.aggregate_json'
-    rows=db.execute(f'SELECT p.metric_id,p.graph_iri,p.player,p.complete,{aggregate},p.reason '
+    if covered:
+        # Reduce coverage inside SQLite instead of transporting millions of
+        # repeated game/player strings through Python. The roster join also
+        # rejects equal row counts with the wrong game membership.
+        rows=db.execute(f'SELECT p.metric_id,p.player,COUNT(r.player),MAX(r.player IS NULL),'
+            "json_group_array(DISTINCT CASE WHEN p.complete=0 THEN COALESCE(p.reason,'INCOMPLETE_PLAYER_RECORD') END) "
+            f'FROM game_dimension g CROSS JOIN dashboard_player_metric p INDEXED BY {index} ON p.graph_iri=g.graph_iri '
+            'LEFT JOIN dashboard_player_game r ON r.graph_iri=p.graph_iri AND r.player=p.player '
+            f'WHERE g.game_set=? AND g.official_date BETWEEN ? AND ? AND p.metric_id IN ({marks}) '
+            'GROUP BY p.metric_id,p.player',(*params,*products))
+        for metric,player,count,unexpected,reasons in rows:
+            if player not in people:continue
+            _,blocked,seen=products[metric];seen[player]=count
+            blocked[player].update(reason for reason in json.loads(reasons) if reason is not None)
+            if unexpected:blocked[player].add('COMPLETE_PARTICIPATION')
+        rows=()
+    else:
+        rows=db.execute(f'SELECT p.metric_id,p.graph_iri,p.player,p.complete,p.aggregate_json,p.reason '
         f'FROM game_dimension g CROSS JOIN dashboard_player_metric p INDEXED BY {index} ON p.graph_iri=g.graph_iri '
         f'WHERE g.game_set=? AND g.official_date BETWEEN ? AND ? AND p.metric_id IN ({marks})',
         (*params,*products))
@@ -111,27 +157,36 @@ def player_records(db, metrics, params, people):
         if blocked[player]:grouped.pop(player,None)
         elif not covered:grouped[player].append(text)
     if covered:
-        # Fetch aggregates only after the entire selected range passes. Chunk
-        # bound parameters for SQLite builds with the older 999-variable limit.
+        # Scan by game after range completeness is known. Crossing eligible
+        # players with every season game caused millions of empty index probes.
         eligible=[(metric,player) for metric,(_,blocked,seen) in products.items()
                   for player,person in people.items()
                   if person['roster'] and not blocked[player] and seen[player]==len(person['graphs'])]
-        for offset in range(0,len(eligible),400):
-            batch=eligible[offset:offset+400]
-            values=','.join('(?,?)' for _ in batch)
-            rows=db.execute(f'WITH eligible(metric_id,player) AS (VALUES {values}) '
-                'SELECT p.metric_id,p.player,p.aggregate_json FROM eligible e CROSS JOIN game_dimension g '
+        if eligible:
+            rows=db.execute('SELECT p.metric_id,p.player,p.aggregate_json FROM game_dimension g '
                 'CROSS JOIN dashboard_player_metric p INDEXED BY sqlite_autoindex_dashboard_player_metric_1 '
-                'ON p.graph_iri=g.graph_iri AND p.player=e.player AND p.metric_id=e.metric_id '
-                'WHERE g.game_set=? AND g.official_date BETWEEN ? AND ?',
-                (*[value for pair in batch for value in pair],*params))
+                'ON p.graph_iri=g.graph_iri WHERE g.game_set=? AND g.official_date BETWEEN ? AND ? '
+                "AND (p.metric_id,p.player) IN (SELECT json_extract(value,'$[0]'),json_extract(value,'$[1]') FROM json_each(?))",
+                (*params,json.dumps(eligible,separators=(',',':'))))
             for metric,player,text in rows:products[metric][0][player].append(text)
     return products
 
 
-def query(m, products, db, request, scope):
+def query(m, products, db, request, scope, *, use_prepared=True):
     """Read small player/game products; never reconstruct graph or PA history."""
     ids=m.requested_metric_ids(request);params=(scope['gameSet'],scope['startDate'],scope['endDate'])
+    if use_prepared and db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='dashboard_prepared_range'").fetchone():
+        row=db.execute('SELECT payload FROM dashboard_prepared_range WHERE game_set=? AND start_date=? AND end_date=? '
+            'AND query_sha256=? AND input_set_sha256=(SELECT input_set_sha256 FROM dashboard_build)',
+            (*params,prepared_version(products))).fetchone()
+        if row:
+            result=json.loads(row[0]);metrics={r['metricId']:r for r in result.pop('metrics')}
+            if set(ids)<=metrics.keys():
+                result['dateScope']=dict(scope)
+                for metric in metrics.values():
+                    for person in metric.get('playerResults',[]):person['dateScope']=dict(scope)
+                result.update({'metrics':[metrics[i] for i in ids]} if request.get('view')=='dashboard' else {'metric':metrics[ids[0]]})
+                return result
     graphs=[r[0] for r in db.execute('SELECT graph_iri FROM game_dimension WHERE game_set=? '
                                    'AND official_date BETWEEN ? AND ? ORDER BY graph_iri',params)]
     schedule=m.selected_schedule_coverage(db,scope,graphs)

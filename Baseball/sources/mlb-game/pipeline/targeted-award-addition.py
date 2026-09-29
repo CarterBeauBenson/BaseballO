@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 import urllib.request
 import uuid
-from rdflib import Graph, Literal
+from rdflib import Graph, Literal, Namespace, RDF
 from rdflib.compare import isomorphic
 
 HERE=Path(__file__).resolve().parent
@@ -60,7 +60,25 @@ def shapes(game_pk,selected):
     text.append(C.shape_text(dict(game=base,plateAppearances=counts)))
     return '\n'.join(text)
 
-def revalidate(marker,manifest,rdf,evidence,java,classpath,selected,game_pk):
+def authoritative_scope(data,focus):
+    """Retarget unchanged source constraints to the addition's exact nodes.
+
+    Constraints still query the full base-plus-delta graph and require all
+    dependent facts. Unrelated old conformance debt is not declared repaired.
+    """
+    shapes=Graph().parse(HERE.parent/'shacl/authoritative.ttl');sh=Namespace('http://www.w3.org/ns/shacl#')
+    for predicate in (sh.targetClass,sh.targetSubjectsOf,sh.targetObjectsOf,sh.targetNode):
+        for shape,_,value in list(shapes.triples((None,predicate,None))):
+            if predicate==sh.targetClass:targets=set(data.subjects(RDF.type,value))
+            elif predicate==sh.targetSubjectsOf:targets=set(data.subjects(value,None))
+            elif predicate==sh.targetObjectsOf:targets=set(data.objects(None,value))
+            else:targets={value}
+            shapes.remove((shape,predicate,value))
+            for target in targets & focus:shapes.add((shape,sh.targetNode,target))
+    return shapes
+
+
+def revalidate(marker,manifest,rdf,evidence,java,classpath,selected,game_pk,delta):
     """Preserve original source outcomes; check affected facts before promotion."""
     fields={};shape=evidence/'w1.shapes.ttl';shape.write_text(shapes(game_pk,selected),encoding='utf-8',newline='\n')
     with J.Session(rdf,java,classpath) as session:
@@ -69,8 +87,10 @@ def revalidate(marker,manifest,rdf,evidence,java,classpath,selected,game_pk):
                 java=java,classpath=classpath,max_heap='384m')
             graph.serialize(destination=report,format='turtle');return conforms
         if not check(shape,evidence/'w1.report.ttl'):raise ValueError('W1 selected award or existing referent failed SHACL')
-        if not check(HERE.parent/'shacl/authoritative.ttl',evidence/'authoritative.report.ttl'):
-            raise ValueError('W1 addition failed authoritative SHACL')
+        scoped=evidence/'authoritative-scoped.shapes.ttl'
+        authoritative_scope(Graph().parse(rdf),set(delta.subjects())|set(delta.objects())).serialize(destination=scoped,format='turtle')
+        if not check(scoped,evidence/'authoritative.report.ttl'):
+            raise ValueError('W1 affected facts failed unchanged authoritative SHACL')
         for field,value in marker.items():
             if not field.endswith('Admission'):continue
             prior=Path(value)
@@ -97,6 +117,24 @@ def revalidate(marker,manifest,rdf,evidence,java,classpath,selected,game_pk):
             atomic(target,proof);fields[field]=str(target);fields[field+'Sha256']=sha(target)
     return fields
 
+def base_manifest(marker,promotion,prior):
+    """Keep failed staging separate from the validated promoted graph identity.
+
+    Older promotions predate immutable manifest retention. The ordinary
+    inventory validates that case from its exact promoted index and recorded
+    source-RDF hash. Keep the unavailable original manifest explicit.
+    """
+    if sha(prior)==marker['rmlManifestSha256']:return read(prior)
+    if promotion['rmlManifestAdmissionMode']!='pending-staging-over-current-promotion':
+        raise ValueError('W1 base mapping manifest changed')
+    return dict(gamePk=marker['gamePk'],graphIri=promotion['authoritativeGraph'],
+        inputSha256=promotion['rawSha256'],outputSha256=promotion['authoritativeRdfSha256'],
+        mappingBaseIri='https://baseballontology.org/mapping/mlb-direct',
+        baseMappingManifestAvailability='unavailable-prior-staging-reuse',
+        basePromotionManifest=promotion['promotionManifest'],
+        basePromotionManifestSha256=promotion['promotionManifestSha256'])
+
+
 def add_game(state,game_pk,witness,java,mapper,classpath):
     if read(ROOT/DECISION)['status']!='accepted':raise ValueError('W1 is not accepted')
     source_path=Path(witness['path']);raw=source_path.read_bytes()
@@ -111,8 +149,8 @@ def add_game(state,game_pk,witness,java,mapper,classpath):
     promotion=I.validated_promotion_record(state,marker_path,game_pk,I.query_index_contract_admission())
     I.retain_game_artifacts(state,game_pk)
     prior=I.retained_artifact(state,game_pk,marker['rmlManifestSha256'],Path(marker['rmlManifest']))
-    if sha(prior)!=marker['rmlManifestSha256']:raise ValueError('W1 base mapping manifest changed')
-    manifest=read(prior);run=uuid.uuid4().hex;evidence=state/'pipeline/evidence/mlb-game'/game_pk/run;evidence.mkdir(parents=True)
+    manifest=base_manifest(marker,promotion,prior)
+    run=uuid.uuid4().hex;evidence=state/'pipeline/evidence/mlb-game'/game_pk/run;evidence.mkdir(parents=True)
     context=evidence/'game-context.json'
     atomic(context,dict(gamePk=int(game_pk),liveData=dict(plays=dict(allPlays=[
         {C.CONTEXT.CONTEXT_KEY:dict(awardAdvances=p['awardAdvances'])} for p in selected]))))
@@ -124,17 +162,17 @@ def add_game(state,game_pk,witness,java,mapper,classpath):
     if base_bytes is None:raise ValueError('W1 base graph is missing')
     base=TX.nt_graph(base_bytes)
     if len(base)!=marker['authoritativeTripleCount']:raise ValueError('W1 base graph changed')
-    prior_rdf=Path(manifest['outputPath'])
+    prior_rdf=Path(manifest.get('outputPath',''))
     if prior_rdf.is_file() and sha(prior_rdf)==manifest['outputSha256'] and not isomorphic(base,Graph().parse(prior_rdf)):
         raise ValueError('W1 live graph differs from retained promoted RDF')
     missing=delta-base
     if not len(missing):return dict(status='already-present',rdfChanged=False,selected=selected)
     combined=base+delta;rdf=evidence/'authoritative-with-addition.nt';combined.serialize(destination=rdf,format='nt')
-    fields=revalidate(marker,manifest,rdf,evidence,java,classpath,selected,game_pk)
+    fields=revalidate(marker,manifest,rdf,evidence,java,classpath,selected,game_pk,missing)
     inventory=dict(gamePk=game_pk,sourceWitness=witness,basePromotionSha256=sha(marker_path),
         selected=selected,missingTriples=sorted([list(map(lambda term:term.n3(),t)) for t in missing]))
     atomic(evidence/'addition-inventory.json',inventory)
-    addition=dict(decision=DECISION,basePromotionSha256=sha(marker_path),baseRmlManifestSha256=sha(prior),
+    addition=dict(decision=DECISION,basePromotionSha256=sha(marker_path),baseRmlManifestSha256=marker['rmlManifestSha256'],
         baseRdfSha256=promotion['authoritativeRdfSha256'],baseExportSha256=TX.sha_bytes(base_bytes),
         sourceWitness=witness,inventorySha256=sha(evidence/'addition-inventory.json'),
         deltaPath=str(delta_path),deltaSha256=sha(delta_path),effectiveMappingSha256=sha(mapping),
@@ -154,8 +192,10 @@ def add_game(state,game_pk,witness,java,mapper,classpath):
         A.command(['powershell.exe','-NoProfile','-ExecutionPolicy','Bypass','-File',ROOT/'scripts/pipeline/build-query-index.ps1',
             '-GamePk',game_pk,'-SourceRdfFile',rdf,'-SourceRdfSha256',sha(rdf)],ROOT,evidence/'query-index.log')
         updated=dict(manifest,artifactType='baseballo-rml-targeted-addition-manifest',mappingExecution='retained-base-plus-targeted-delta',
-            baseRmlManifest=str(prior),targetedAddition=addition,outputPath=str(rdf),outputSha256=sha(rdf),
-            serialization='ntriples',shaclValidatedAtUtc=TX.now(),completedAtUtc=TX.now())
+            targetedAddition=addition,outputPath=str(rdf),outputSha256=sha(rdf),
+            serialization='ntriples',shaclStatus='validated',shaclValidatedAtUtc=TX.now(),completedAtUtc=TX.now())
+        updated['shaclValidationScope']='selected-w1-awards-and-retained-admissions'
+        if sha(prior)==marker['rmlManifestSha256']:updated['baseRmlManifest']=str(prior)
         atomic(Path(marker['rmlManifest']),updated);index=read(Path(marker['queryIndexManifest']));I.retain_game_artifacts(state,game_pk)
         next_marker=dict(marker,pipelineRunId=run,transactionRunId=run,promotedAtUtc=TX.now(),authoritativeTripleCount=len(combined),
             queryIndexTripleCount=index['indexTripleCount'],rmlManifestSha256=sha(Path(marker['rmlManifest'])),

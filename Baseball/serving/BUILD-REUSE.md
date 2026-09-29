@@ -2,6 +2,16 @@
 
 ## Immutable code and database releases
 
+NiFi prepares the default full-season range responses after player and reference
+products are ready. `dashboard_prepared_range` retains the exact result for each
+regular-season year through its latest loaded date. An unchanged input set and
+range-reader/player version reuse the result. Publication copies that small
+SQL table alongside the prepared player products. Dashboard and metric detail
+reads use it only for an exact date range, code version and published input-set
+match; other ranges continue to aggregate prepared player/game rows. No graph
+query, PA reconstruction, source acquisition or changed eligibility occurs on
+that path. Unavailable metrics remain unavailable in the prepared response.
+
 Dashboard publication copies the prepared SQL tables into an immutable reader
 snapshot. `metric_suite_evidence` and the duplicated `metric_suite_result` stay
 in the existing working database for incremental repairs; the reader uses their

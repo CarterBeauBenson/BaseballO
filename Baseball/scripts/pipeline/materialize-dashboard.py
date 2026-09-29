@@ -417,6 +417,7 @@ def notification_key(state):
     files = [(str(p.relative_to(state)), p.stat().st_size, p.stat().st_mtime_ns) for p in sorted(paths)]
     return digest(dict(events=files, metrics=METRICS.fingerprint(), builder=SOURCE.sha256_file(Path(__file__)),
                        reader=SOURCE.sha256_file(Path(SOURCE._reader.__file__)),
+                       playerRangeQuery=SOURCE.sha256_file(Path(SOURCE._reader._range_query.__file__)),
                        playerRanges=PLAYER_RANGES.fingerprint(),
                        admissionReader=ADMISSION_EVIDENCE.fingerprint(),
                        display=DISPLAY.fingerprint(), references=REFERENCES.fingerprint(),
@@ -573,6 +574,9 @@ def build_locked(args, state, serving, work):
                                    resolutions=(p.get('paResolutions') or {}).get('proofSha256'))
                                    for g,p in player_admissions.items() if p},
                                playerRanges=PLAYER_RANGES.fingerprint()))
+        checkpoint(phase='season-ranges')
+        prepared_seasons=SOURCE._reader._range_query.prepare_seasons(METRICS,PLAYER_RANGES,connection,input_set)
+        checkpoint(preparedSeasonRanges=prepared_seasons)
         checkpoint(phase='publication',publicationStep='source-check')
         if dict(connection.execute('SELECT graph_iri,input_sha256 FROM dashboard_checkpoint')) != expected:
             raise ValueError('Dashboard checkpoints do not match the selected source snapshot')

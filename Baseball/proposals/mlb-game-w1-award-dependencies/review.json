@@ -1,0 +1,36 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-w1-award-dependencies",
+  "title": "W2 existing dependencies for selected W1 awards",
+  "status": "draft",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "1f877464cc5db9c444ec56d76f8863ad214b1988c057d62a30a3d48634bd512c"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "README.md",
+        "sha256": "1f877464cc5db9c444ec56d76f8863ad214b1988c057d62a30a3d48634bd512c"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "1f877464cc5db9c444ec56d76f8863ad214b1988c057d62a30a3d48634bd512c"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "03d678216805c63b007c99268fcc56e9e852933a40e65eb0dc0cdbd68f39a096"
+      }
+    ]
+  },
+  "ontologistDecision": null
+}

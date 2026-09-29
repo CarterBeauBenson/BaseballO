@@ -163,6 +163,8 @@ class PlayerRanges(unittest.TestCase):
 
     def test_reader_rejects_equal_counts_with_different_game_membership(self):
         db=self.db()
+        db.execute('CREATE INDEX dashboard_player_metric_coverage '
+            'ON dashboard_player_metric(graph_iri,metric_id,player,complete,reason)')
         db.execute('DELETE FROM dashboard_player_game WHERE graph_iri=? AND player=?',(G+'2',U+'1'))
         db.execute('INSERT INTO dashboard_player_metric VALUES (?,?,?,?,?,?)',
                    (G+'2',U+'1','tfs',1,M._json(P.mean(M,[M.Fraction(10)])),None))
@@ -171,6 +173,29 @@ class PlayerRanges(unittest.TestCase):
         self.assertEqual(actual,P.query(M,db,{'metricId':'tfs'},SCOPE))
         self.assertEqual(actual['metric']['playerResults'],[])
         self.assertEqual(actual['metric']['rankingCoverage']['completePlayers'],0)
+
+    def test_nifi_prepared_season_serves_dashboard_and_detail_without_range_scan(self):
+        db=self.db();db.execute('ALTER TABLE game_dimension ADD COLUMN season INTEGER DEFAULT 2026')
+        db.execute("UPDATE game_dimension SET official_date=replace(official_date,'2026-09','2026-01')")
+        db.execute("UPDATE metric_suite_schedule_coverage SET official_date=replace(official_date,'2026-09','2026-01')")
+        db.execute('CREATE TABLE dashboard_build(input_set_sha256 TEXT)')
+        db.execute("INSERT INTO dashboard_build VALUES ('inputs-one')")
+        for graph in (G+'1',G+'2'):
+            for player in (U+'1',U+'2'):
+                db.execute('INSERT INTO dashboard_player_metric VALUES (?,?,?,?,?,?)',
+                    (graph,player,'tfs',1,M._json(dict(kind='mean',sum=M.exact(3),count=4)),None))
+        scope=dict(SCOPE,startDate='2026-01-01',endDate='2026-01-02')
+        expected=Q.query(M,P,db,dict(view='dashboard'),scope)
+        self.assertEqual(Q.prepare_seasons(M,P,db,'inputs-one'),1)
+        with patch.object(Q,'player_records',side_effect=AssertionError('request-time range scan')):
+            self.assertEqual(Q.query(M,P,db,dict(view='dashboard'),scope),expected)
+            detail=Q.query(M,P,db,dict(metricId='tfs'),scope)
+            self.assertEqual(detail['metric'],next(r for r in expected['metrics'] if r['metricId']=='tfs'))
+            self.assertEqual(Q.prepare_seasons(M,P,db,'inputs-one'),0)
+        db.execute("UPDATE dashboard_build SET input_set_sha256='different-publication'")
+        with patch.object(Q,'player_records',wraps=Q.player_records) as scan:
+            self.assertEqual(Q.query(M,P,db,dict(view='dashboard'),scope),expected)
+            self.assertTrue(scan.called)
 
     def test_unselected_exhibition_products_do_not_block_dashboard_preparation(self):
         db=self.db()

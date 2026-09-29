@@ -176,3 +176,5 @@ unratified; an existing executable artifact is not itself evidence that its
 pattern was accepted.
 
 The [M1/M2 metric mapping extension](../archive/design-records/mlb-game-metric-mapping-completion/README.md) was accepted on 2026-09-15. Its other inventory gaps remain unresolved.
+
+- [W2: W1 award dependencies](mlb-game-w1-award-dependencies/README.md) ? eight missing instance facts from four existing maps, limited to W1-selected rows; awaiting decision.

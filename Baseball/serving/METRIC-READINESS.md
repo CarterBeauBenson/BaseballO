@@ -10,26 +10,31 @@ Read-only selected-range checks on September 29, 2026:
 
 | Surface | Recorded result |
 | --- | --- |
-| Published dashboard | `20260929T143536Z-dashboard-07a62db6ff3d`, published September 29 at 11:16 Eastern, 2,917 games; producer from `de840d4`, reader from `dcbab56` |
-| Week selection | September 21-27: all 90 expected regular-season games |
-| Week player leaderboards | **11/19 populated**, with names, selected-period aggregates, automatic minimums and disclosed exclusions; `ready=false` |
+| Published dashboard | `20260929T164121Z-dashboard-b84c0a745086`, published September 29 at 13:19 Eastern, 2,917 games; data producer from `3718d43`, paired reader from `81c8928` |
+| Week selection (prior 11:16 publication) | September 21-27: all 90 expected regular-season games |
+| Week player leaderboards (prior 11:16 publication) | **11/19 populated**, with names, selected-period aggregates, automatic minimums and disclosed exclusions; `ready=false` |
 | Newly populated cards | Plate Appearance Contribution (20 qualified players), Runner Out Rate (19), Runner Loss per PA (19), Scoring Opportunity Lost (20) |
 | Other populated cards | Offensive Reach (122), Help Without Advancing (122), Empty Games (142), Empty Game Damage (58, up from 6), Contribution Mix (2), Scoring History Length (163) and Run Contributors (130) |
 | Expanded details | Scoring History Length has 163 named players for September 21-27, with Trea Turner and Jake Bauers among the leaders at an average of 4; 48 incomplete player records are explicitly excluded. The prior publication's full card/detail comparison matched all 163 rows. |
 | Month selection (last checked on prior publication) | August 29-September 27: all 403 expected games; **5/19 populated**, with all game rosters verified. Qualified counts: Offensive Reach 7, Help Without Advancing 7, Empty Games 11, Scoring History Length 144, Run Contributors 69. |
-| Season selection | The live dashboard now returns successfully for all 2,429 expected regular-season games and verified rosters. **1/19 populated**: only Scoring History Length has a qualifying complete record. Loading is repaired; full-season metric coverage is still incomplete. |
+| Season selection | Prepared SQL covers all 2,429 expected regular-season games and verified rosters. Applying the unchanged UI qualification to its full-range reader result yields **2/19 populated**: Empty Games (6 qualified players) and Scoring History Length (1). The public HTTP request still times out at 30 seconds; do not call loading fixed. |
 | Season leader | Scoring History Length returns Will Smith at **14/5**, averaging 35 complete scoring histories; the automatic minimum is 33 runs. The dashboard and previously checked detail agree. |
 | Recent-game coverage | All 130 September 17-26 catch-up games are in SQL, including 823087 |
 
-The latest weekly request spent 0.93 seconds inside the serving adapter. The
-full-season API returned in 25.98 seconds on first use and 21.03 seconds on the
-subsequent measurement (18.35 seconds inside the adapter). It no longer hits the
-30-second request limit, but season loading is still too slow for the intended
-instant interface. The deployed reader groups requested metrics into one
-game-first traversal through the existing primary index and decodes only complete
-records. Focused tests preserve exact results, exclusions and missing-game
-detection across all 13 prepared types. The selected period and automatic
-minimums remain unchanged.
+The latest full-season HTTP check returned 503 after 30 seconds. The prepared
+snapshot is intact; the range reader still does too much work. Its first pass
+visited 1,656,447 metric rows, and its second pass read 523,359 aggregates,
+including many zero-observation records. A player-by-all-games join amplified
+that cost. The corrected range reader reduces coverage in SQL and uses one
+membership-filtered aggregate scan. More importantly, NiFi now prepares each
+season's default complete-range response before publication. Matching dashboard
+and expanded-detail requests read that prepared result; arbitrary ranges retain
+exact range aggregation. The cache is bound to the publication's input set and
+exact reader/player code. It never fills unavailable metrics or alters minimums.
+Focused checks preserve every metric's results and missing-game exclusions,
+exercise dashboard/detail reuse without a range scan, reject stale publication
+reuse, and preserve incremental game calculations. This change is awaiting the
+next NiFi publication; no live response-time improvement is claimed yet.
 
 The healthy SQL service and unavailable player populations are separate facts.
 The current pointer is `state/serving/dashboard-current.json`; the independent
@@ -62,8 +67,8 @@ do not infer their deployment from these results.
   and SQL publication; component checks are not populated-card counts.
   September 29 runtime receipts now admit 459 PAs across games 823712, 823805,
   824613, 823332, 823448 and 823087, leaving one failed PA in each game withheld.
-  These are source-owned checks over unchanged RDF, awaiting the subsequent
-  SQL player publication. Other games remain wholly withheld. For example,
+  These are source-owned checks over unchanged RDF. The 13:19 SQL publication
+  includes the earlier scoped receipts; the season still has only two qualified cards. Other games remain wholly withheld. For example,
   a read of game 822864's PA 0 confirmed its promoted Baserunning Act lacks
   the required agent assertion and its Runner Resolution Episode is absent.
   Its resolution has an existing runner participant; that does not supply the
@@ -331,8 +336,15 @@ reviewed game runs first; bounded retained-input inventory then finds other W1
 cases. No API acquisition, pitches, judgments, histories or whole-game RML rerun
 is involved. Exact prior proof versions remain usable with their original
 outcomes, graph/source hashes and validation artifacts. A new promotion requires
-new checks. Eighteen focused selector and admission tests pass; runtime promotion
-and subsequent SQL population must still be verified from owning receipts.
+new checks. Eighteen focused selector and admission tests passed. The NiFi attempt stopped
+before any graph mutation: the unchanged award SHACL requires eight dependency
+triples absent from this older graph. The [W2 dependency package](../proposals/mlb-game-w1-award-dependencies/README.md)
+asks to reuse four existing maps for only these W1-selected runner rows. No W2
+execution is authorized yet. The retained response supports the facts; this is
+existing mapping coverage debt, not absent MLB evidence. The failed staging
+manifest is kept distinct from the original promoted graph/index identities.
+The worker now scopes unchanged authoritative constraints to the selected facts;
+it does not declare unrelated old counted-foul or stasis failures repaired.
 
 The retained review inventory is diagnostic. It does not establish a complete
 eligible never-reviewed denominator, decision-time challenge availability or

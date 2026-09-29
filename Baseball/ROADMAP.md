@@ -34,14 +34,17 @@ permission is not a standing rebuild instruction.
 2. Inspect published selected-period player rows and exact gaps. September 21-27
    has **11/19 named, qualified leaderboards** in its last verified publication.
    The month has 5/19 populated cards and no roster gaps. The full season has
-   all 2,429 expected games and verified rosters, but only **1/19 populated
+   all 2,429 expected games and verified rosters, but only **2/19 populated
    cards**. The previously missing game 823087 and prepared player names are
    already published. Use the dated readiness record for deployment evidence;
    recovered admissions are not populated leaderboard counts.
 3. Complete supported contribution, progress, Empty Game and scoring-history
    calculations from existing RDF. Keep unknown contribution ownership and
    incomplete populations explicit; do not drop observations to fill a card.
-4. Resolve the remaining count, PA-boundary, defensive and review gaps in their
+4. Resolve W2's eight missing dependency triples for the W1 award only after its
+   named approval. W1's source selector is implemented; its first additive
+   promotion is still withheld by the existing award constraint. Resolve the
+   remaining count, PA-boundary, defensive and review gaps in their
    owners. The [readiness table](serving/METRIC-READINESS.md#remaining-work-by-metric)
    identifies their dependencies and concrete known cases. New ontology/RML
    semantics still require the named user decision.
