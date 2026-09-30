@@ -62,12 +62,11 @@ class ParticipantSummaries(unittest.TestCase):
         self.assertEqual(result['playerResults'][1]['value'],M.exact(5))
         self.assertEqual(self.defense('defender-breadth',rows)['playerResults'][1]['value'],M.exact(2))
 
-    def test_breadth_does_not_require_order_but_depth_does(self):
+    def test_act_count_and_breadth_do_not_require_strict_order(self):
         rows=defensive();rows[0]['orderComplete']=False
         self.assertTrue(self.defense('defender-breadth',rows)['playerPopulationComplete'])
-        self.assertEqual(self.defense('resolution-depth',rows)['playerSummaryGaps'],['DEFENSIVE_ORDER'])
-        rows[0]['orderComplete']=True;rows[0]['acts'][-1]['next']=['field']
-        self.assertEqual(self.defense('resolution-depth',rows)['playerSummaryGaps'],['CYCLIC_DEFENSIVE_ORDER'])
+        for act in rows[0]['acts']:act['next']=[]
+        self.assertEqual(self.defense('resolution-depth',rows)['playerResults'][1]['value'],M.exact(4))
 
     def test_missing_census_or_participation_never_produces_partial_player_means(self):
         self.assertFalse(self.defense('resolution-depth',complete=False)['playerPopulationComplete'])

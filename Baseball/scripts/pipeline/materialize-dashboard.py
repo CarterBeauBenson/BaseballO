@@ -72,6 +72,7 @@ PLAYER_CALCULATIONS = (TIMESTAMP_CALCULATIONS[1],
 # Q3/Q4 change only compound double-play inputs. Other game calculations and
 # player partitions retain their existing evidence and exact stored results.
 SHARED_OUT_CALCULATIONS = (PLAYER_CALCULATIONS[1], '98fe6a74abb52e6eb0dc7c3ffc71310509e4e7073b4c6efb06570d0e4c6cc79b')
+ACT_COUNT_CALCULATIONS = (SHARED_OUT_CALCULATIONS[1], '542a6133d48d645d4e9685c000a2cc27cb30b4bd64f90640849178a621af4574')
 
 
 def digest(value):
@@ -235,17 +236,19 @@ def reuse_game(connection, graph, saved, promotion, dimension, admissions, calcu
         previous[name]=json.loads(row[0])
     identity=input_identity(promotion,dimension,admissions,calculation)
     previous_identity=input_identity(promotion,dimension,previous,calculation)
-    timestamp_update=False
+    timestamp_update=False;act_count_update=False
     if saved not in {previous_identity,input_identity(promotion,dimension,previous,calculation,legacy=True)}:
         compatible=[]
-        if calculation==SHARED_OUT_CALCULATIONS[1]:
+        if calculation==ACT_COUNT_CALCULATIONS[1]:
+            compatible.append((ACT_COUNT_CALCULATIONS[0],False))
+        if calculation in {SHARED_OUT_CALCULATIONS[1],ACT_COUNT_CALCULATIONS[1]}:
             compound=connection.execute("""SELECT 1 FROM metric_suite_scope_fact
                 WHERE graph_iri=? AND kind='plate_appearance'
                 AND json_extract(record_json,'$.paResultType')='https://baseballontology.org/DoublePlayProcess'
                 LIMIT 1""",(graph,)).fetchone()
-            if compound:return False  # Only these games need the richer RDF bindings.
-            compatible.extend(((SHARED_OUT_CALCULATIONS[0],False),(PLAYER_CALCULATIONS[0],False),
-                               (TIMESTAMP_CALCULATIONS[0],True)))
+            if not compound:
+                compatible.extend(((SHARED_OUT_CALCULATIONS[0],False),(PLAYER_CALCULATIONS[0],False),
+                                   (TIMESTAMP_CALCULATIONS[0],True)))
         if calculation in {TIMESTAMP_CALCULATIONS[1],PLAYER_CALCULATIONS[1]}:
             compatible.append((TIMESTAMP_CALCULATIONS[0],True))
         if calculation==PLAYER_CALCULATIONS[1]:compatible.append((PLAYER_CALCULATIONS[0],False))
@@ -254,9 +257,11 @@ def reuse_game(connection, graph, saved, promotion, dimension, admissions, calcu
             input_identity(promotion,dimension,previous,old,legacy=True)}),None)
         if matched is None:return False
         timestamp_update=matched
+        act_count_update=calculation==ACT_COUNT_CALCULATIONS[1]
     changed=previous_identity!=identity
-    if changed or timestamp_update:
-        refresh_admission_inputs(connection,graph,previous,admissions,timestamp_update=timestamp_update)
+    if changed or timestamp_update or act_count_update:
+        refresh_admission_inputs(connection,graph,previous,admissions,
+            timestamp_update=timestamp_update,act_count_update=act_count_update)
         mark_dirty(connection,{dimension[5]})
     for name,table in ADMISSION_TABLES.items():
         if previous[name]==admissions[name]:continue
@@ -266,7 +271,7 @@ def reuse_game(connection, graph, saved, promotion, dimension, admissions, calcu
     if saved!=identity:
         # Carry a verified player partition across a no-op game-version change.
         # Its own producer/proof identities still determine whether it needs work.
-        if not changed and not timestamp_update:
+        if not changed and not timestamp_update and not act_count_update:
             partition=connection.execute('SELECT input_sha256 FROM dashboard_player_partition WHERE graph_iri=?',(graph,)).fetchone()
             individual=connection.execute('SELECT proof_sha256 FROM dashboard_player_admission WHERE graph_iri=?',(graph,)).fetchone()
             proof_sha=individual[0] if individual else ''
@@ -280,7 +285,7 @@ def reuse_game(connection, graph, saved, promotion, dimension, admissions, calcu
                         (METRICS._hash(identity+version+proof_sha),graph))
                     break
         connection.execute('UPDATE dashboard_checkpoint SET input_sha256=? WHERE graph_iri=?',(identity,graph))
-    return 'calculations' if timestamp_update else 'admissions' if changed else 'unchanged'
+    return 'calculations' if timestamp_update or act_count_update else 'admissions' if changed else 'unchanged'
 
 
 def mark_dirty(connection, seasons):
@@ -290,7 +295,7 @@ def mark_dirty(connection, seasons):
                        ('dirty-seasons',json.dumps(sorted(seasons))))
 
 
-def refresh_admission_inputs(connection, graph, previous, admissions, *, timestamp_update=False):
+def refresh_admission_inputs(connection, graph, previous, admissions, *, timestamp_update=False,act_count_update=False):
     """Recalculate only proof-dependent inputs over unchanged retained RDF rows.
 
     The caller has matched the old checkpoint against the same RDF, dimensions
@@ -307,6 +312,7 @@ def refresh_admission_inputs(connection, graph, previous, admissions, *, timesta
     }
     affected={metric for metric,names in dependencies.items() if changed & names}
     if timestamp_update:affected.update({'tfs','recovery-quality'})
+    if act_count_update:affected.add('resolution-depth')
     if not affected:return
     rows=[]
     for text,sha in connection.execute('SELECT binding_json,binding_sha256 FROM metric_suite_evidence WHERE graph_iri=?',(graph,)):
@@ -334,6 +340,8 @@ def refresh_admission_inputs(connection, graph, previous, admissions, *, timesta
     for metric,product in families.items():
         family,key,_=METRICS._blocks.INPUTS[metric]
         result=dict(retained[metric],**{key:product})
+        if act_count_update and metric in {'resolution-depth','paq-2.1'}:
+            result=dict(METRICS.live_result(metric,rows,graph_count=1),**{key:product})
         if timestamp_update and metric=='tfs':
             boundaries=METRICS.runner_boundary_states(rows)
             result['runnerBoundaryStates']=boundaries['states']

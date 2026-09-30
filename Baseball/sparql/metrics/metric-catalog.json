@@ -423,12 +423,12 @@
     },
     {
       "id": "resolution-depth",
-      "label": "Defensive Resolution Depth",
+      "label": "Defensive Acts",
       "version": "2.0.0",
       "grain": "batted_play",
       "higherIs": "descriptive",
       "unit": "acts",
-      "userDefinition": "Longest precedence path measured in intentional defensive acts; a single act has depth one.",
+      "userDefinition": "Distinct supported defensive acts in a complete play; overlapping acts count separately and a catch also typed as fielding counts once.",
       "semanticMode": "completeness-gated",
       "authoritativeQuery": "sparql/serving/metric-kernels/resolution-depth.rq",
       "executionMode": "admitted-binding-kernel",
@@ -436,8 +436,7 @@
       "completenessProfileVersion": "pending-batch-review",
       "contributionProfileVersion": "2026-09-08",
       "requires": [
-        "DEFENSIVE_ACTS",
-        "DEFENSIVE_ORDER"
+        "DEFENSIVE_ACTS"
       ],
       "implementationStatus": "implemented",
       "liveAdapter": "blocked-by-gap-register",

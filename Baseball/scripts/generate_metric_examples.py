@@ -111,9 +111,9 @@ def build():
         'Two extra nonterminal pitches', 'Post-pitch strike counts are 0, 1, 2, 2, 2, 3. The pitch reaching two strikes and the terminal pitch are excluded from the extra-pitch count. Assume the complete illustrative two-strike population has counts 0, 2 and 4.',
         '2 extra pitches; the middle of counts 0, 2, 4 has percentile 50.',
         M.percentiles([dict(key=k, score=s) for k, s in [('A', 0), ('B', 2), ('C', 4)]], metric_id='recovery-quality', complete_population=True)['B'], 50)
-    defense = [dict(act=a, next=n, agent=p) for a, n, p in [('field', 'throw', 'A'), ('throw', 'catch', 'A'), ('catch', 'tag', 'B'), ('tag', None, 'B')]]
-    add('resolution-depth', 'Number of intentional acts on the longest supported precedence path.',
-        'Field, throw, catch, tag', 'Assume four distinct intentional acts with supported order: field → throw → catch → tag. Depth counts acts; a single act would have depth one.', '4 acts along the path = depth 4', calc('resolution-depth', defense), 4)
+    defense = [dict(act=a, next=n, agent=p) for a, n, p in [('field', 'throw', 'A'), ('throw', 'catch', 'A'), ('catch', None, 'B'), ('tag', None, 'B')]]
+    add('resolution-depth', 'Number of distinct supported defensive acts in the complete play.',
+        'Field, throw, catch, tag', 'Assume four distinct supported acts: field, throw, catch and tag. All four count even when the catch and tag overlap. Classifying the same catch as fielding does not add a fifth act.', '4 distinct acts = 4', calc('resolution-depth', defense), 4)
     add('defender-breadth', 'Count distinct defensive agents in the supported resolution structure.',
         'Four acts by two defenders', 'Defender A fields and throws. Defender B catches and tags. Repeated acts by the same player do not add another defender.', 'Distinct defenders {A, B} = 2',
         calc('defender-breadth', [dict(act=r['act'], agent=r['agent']) for r in defense]), 2)
@@ -138,7 +138,7 @@ def build():
         calc('role-realization-breadth', [dict(act=a, roleType='https://baseballontology.org/' + r) for a, r in [('PA1', 'BatterRole'), ('PA2', 'BatterRole'), ('run', 'BaserunnerRole')]]), 2)
     lexicographic = [dict(key=k, score=s, recovery=r, depth=d, twoStrikeEligible=True, defensiveApplicable=True)
                      for k, s, r, d in [('A', '-3/4', 100, 20), ('B', '3/2', 0, 1), ('C', '3/2', 0, 2)]]
-    add('paq-2.1', 'Rank TFS first, Recovery Quality second, and Resolution Depth third; convert that ordering to a percentile.',
+    add('paq-2.1', 'Rank TFS first, Recovery Quality second, and Defensive Acts third; convert that ordering to a percentile.',
         'Process quality breaks a TFS tie', 'Assume all three PAs are eligible: A has (−3/4, 100, 20), B has (3/2, 0, 1), and C has (3/2, 0, 2). A ranks last despite stronger process scores. C beats B only at the third comparison.',
         'Order A < B < C; B receives percentile 50.',
         M.paq21_population(lexicographic, complete_population=True)['B'], 50)

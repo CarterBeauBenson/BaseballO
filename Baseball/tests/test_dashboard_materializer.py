@@ -287,6 +287,32 @@ class DashboardMaterializer(unittest.TestCase):
         self.assertEqual(result['changedGames'],0)
         self.assertEqual(self.fetched,[])
 
+    def test_act_count_upgrade_uses_retained_sql_and_preserves_unrelated_results(self):
+        from test_defensive_serving import defense_fixture,bindings,G1,PROOF,EX,BFO
+        data=defense_fixture();data.graph(G1).remove((EX.catch,BFO.BFO_0000063,EX.tag))
+        self.bindings['101']=bindings(data,[G1]);old,new=D.ACT_COUNT_CALCULATIONS
+        self.stack.enter_context(patch.object(D.ADMISSION_EVIDENCE,'load',side_effect=lambda adapter,state,promotion,family:
+            dict(PROOF,orderComplete=False) if family=='defensive' else {'status':'withheld'}))
+        with patch.object(D.METRICS,'calculation_fingerprint',return_value=old):D.build(self.args)
+        with closing(sqlite3.connect(self.working())) as db:
+            before={m['id']:D.METRICS.read_results(db,G1,m['id']) for m in D.METRICS.catalog()['metrics']}
+        self.fetched.clear();live=D.METRICS.live_result;called=[]
+        def affected(metric,*args,**kwargs):
+            self.assertIn(metric,{'resolution-depth','paq-2.1'});called.append(metric)
+            return live(metric,*args,**kwargs)
+        with patch.object(D.METRICS,'calculation_fingerprint',return_value=new),patch.object(
+                D.METRICS,'live_result',side_effect=affected),patch.object(
+                D.METRICS,'materialize_game',side_effect=AssertionError('No graph queries or full game recalculation')):
+            result=D.build(self.args)
+        self.assertEqual(result['calculationUpdatedGames'],2);self.assertEqual(self.fetched,[])
+        self.assertCountEqual(called,['resolution-depth','paq-2.1']*2)
+        with closing(sqlite3.connect(self.working())) as db:
+            for metric,rows in before.items():
+                if metric not in {'resolution-depth','paq-2.1'}:self.assertEqual(D.METRICS.read_results(db,G1,metric),rows)
+            result,=D.METRICS.read_results(db,G1,'resolution-depth')
+            self.assertTrue(result['defensiveInputs']['complete'])
+            self.assertEqual(sorted(len(r['acts']) for r in result['defensiveInputs']['resolutions']),[1,4])
+
     def test_timestamp_only_upgrade_reuses_unaffected_kernels_and_matches_full_calculation(self):
         from test_contribution_sql import sample,PROOF
         graph,bindings=sample(101,'safe');self.bindings['101']=bindings

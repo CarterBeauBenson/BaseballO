@@ -413,12 +413,12 @@
       ]
     },
     "resolution-depth": {
-      "formula": "Number of intentional acts on the longest supported precedence path.",
+      "formula": "Number of distinct supported defensive acts in the complete play.",
       "cases": [
         {
           "title": "Field, throw, catch, tag",
-          "explanation": "Assume four distinct intentional acts with supported order: field → throw → catch → tag. Depth counts acts; a single act would have depth one.",
-          "equation": "4 acts along the path = depth 4",
+          "explanation": "Assume four distinct supported acts: field, throw, catch and tag. All four count even when the catch and tag overlap. Classifying the same catch as fielding does not add a fifth act.",
+          "equation": "4 distinct acts = 4",
           "result": {
             "status": "available",
             "value": {
@@ -575,7 +575,7 @@
       ]
     },
     "paq-2.1": {
-      "formula": "Rank Plate Appearance Contribution first, Two-Strike Extension Rank second, and Resolution Depth third; convert that ordering to a percentile.",
+      "formula": "Rank Plate Appearance Contribution first, Two-Strike Extension Rank second, and Defensive Acts third; convert that ordering to a percentile.",
       "cases": [
         {
           "title": "Process quality breaks a Plate Appearance Contribution tie",

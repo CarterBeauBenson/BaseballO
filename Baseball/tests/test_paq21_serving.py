@@ -53,12 +53,12 @@ class Paq21Serving(unittest.TestCase):
         broken=copy.deepcopy(components);broken[2]['resolutions'][0]['plateAppearance']='other'
         self.assertEqual(M.paq21_game_inputs(*broken)['gaps'],['PAQ21_DEFENSIVE_PA_SCOPE'])
 
-    def test_known_absence_is_not_zero_and_ambiguous_depth_is_not_a_maximum(self):
+    def test_known_absence_is_not_zero_and_ambiguous_resolution_is_not_a_maximum(self):
         components=joined(self.pa(),4);components[2]['resolutions']=[]
         result=M.paq21_game_inputs(*components);row,=result['plateAppearances']
         self.assertTrue(result['complete']);self.assertFalse(row['defensiveApplicable']);self.assertNotIn('depth',row)
         components=joined(self.pa(),4);components[2]['resolutions'][0]['orderComplete']=False
-        self.assertEqual(M.paq21_game_inputs(*components)['gaps'],['DEFENSIVE_ORDER'])
+        self.assertEqual(M.paq21_game_inputs(*components)['plateAppearances'][0]['depth'],4)
         components=joined(self.pa(),4);other=copy.deepcopy(components[2]['resolutions'][0]);other['resolution']='second'
         components[2]['resolutions'].append(other)
         self.assertEqual(M.paq21_game_inputs(*components)['gaps'],['PAQ21_DEFENSIVE_PA_SCOPE'])

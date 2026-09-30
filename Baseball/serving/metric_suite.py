@@ -770,32 +770,13 @@ def recovery_histories(rows, *, zero_pitch_pas=()):
 
 
 def defensive_depth(acts):
-    """Longest directed path counted in intentional acts, not edges."""
+    """Accepted distinct act count; the legacy function/id stays compatible."""
     acts = _unique(acts, ('act',))
     if not acts:
         return unavailable('MISSING_DEFENSIVE_ACTS')
     nodes = {a['act'] for a in acts}
-    nexts, indegree, depth = {}, dict.fromkeys(nodes, 0), dict.fromkeys(nodes, 1)
-    for act in acts:
-        if not act.get('agent'):
-            return unavailable('MISSING_DEFENSIVE_AGENT')
-        nexts[act['act']] = set(act.get('next', []))
-        if not nexts[act['act']] <= nodes:
-            return unavailable('INCOMPLETE_DEFENSIVE_PATH')
-        for target in nexts[act['act']]:
-            indegree[target] += 1
-    queue = deque(n for n in nodes if indegree[n] == 0)
-    visited = 0
-    while queue:
-        node = queue.popleft(); visited += 1
-        for target in nexts[node]:
-            depth[target] = max(depth[target], depth[node] + 1)
-            indegree[target] -= 1
-            if indegree[target] == 0:
-                queue.append(target)
-    if visited != len(nodes):
-        return unavailable('CYCLIC_DEFENSIVE_ORDER')
-    return available(max(depth.values()), evidence=nodes,
+    if any(not a.get('agent') for a in acts):return unavailable('MISSING_DEFENSIVE_AGENT')
+    return available(len(nodes), evidence=nodes,
                      components={'defenderBreadth': len({a['agent'] for a in acts})})
 
 
@@ -1303,7 +1284,6 @@ def summarize_defensive_players(metric_id, resolutions, *, expected_observations
         agents={a['agent'] for a in acts}
         value=exact(len(agents))
         if metric_id=='resolution-depth':
-            if row.get('orderComplete') is not True:return dict(missing,playerSummaryGaps=['DEFENSIVE_ORDER'])
             result=defensive_depth(acts)
             if result['status']!='available':return dict(missing,playerSummaryGaps=result['gaps'])
             value=result['value']
@@ -1315,8 +1295,8 @@ def defensive_game_inputs(rows, *, graph, admission):
     """Project Q6 acts only after the owning source's complete graph proof.
 
     Source-derived counters never supply the values. Missing acts, agents,
-    roles, outside successors and conflicting scopes remain visible. Breadth
-    and depth retain independent order requirements.
+    roles and conflicting scopes remain visible. Temporal order is retained
+    as source metadata; it is not an admission condition for counting acts.
     """
     denied = dict(complete=False, orderComplete=False, resolutions=[], gaps=['DEFENSIVE_POPULATION'])
     if any(admission.get(k) != v for k,v in
@@ -1349,13 +1329,11 @@ def defensive_game_inputs(rows, *, graph, admission):
             selected.append(dict(act=act,agent=next(iter(agents)),next=sorted(successors)))
         if problem:
             gaps.append(dict(resolution=resolution,gap=problem));continue
-        ordered=defensive_depth(selected)
-        order_complete=admission.get('orderComplete') is True and ordered['status']=='available'
+        order_complete=admission.get('orderComplete') is True
         resolutions.append(dict(graph=graph,game=next(iter(games)),resolution=resolution,
             plateAppearance=pa,
             acts=selected,completeResolution=True,orderComplete=order_complete,
-            orderGaps=ordered['gaps'] if ordered['status']!='available' else
-                [] if order_complete else ['DEFENSIVE_ORDER']))
+            orderGaps=[] if order_complete else ['DEFENSIVE_ORDER']))
     return dict(complete=not gaps,orderComplete=not gaps and all(r['orderComplete'] for r in resolutions),
         graph=graph,resolutions=resolutions,gaps=gaps)
 
@@ -2632,9 +2610,8 @@ def paq21_game_inputs(contribution, recovery, defense):
         if r['twoStrikeEligible'] and matches:
             if len(matches)!=1:return denied('PAQ21_DEFENSIVE_PA_SCOPE')
             match,=matches
-            if match.get('orderComplete') is not True:return denied('DEFENSIVE_ORDER')
             depth=defensive_depth(match['acts'])
-            if depth['status']!='available':return denied('DEFENSIVE_ORDER')
+            if depth['status']!='available':return denied(*depth['gaps'])
             item['depth']=int(fraction(depth['value']))
         observations.append(item)
     return dict(complete=True,plateAppearances=observations,gaps=[])

@@ -32,6 +32,9 @@
   },
   "referenceCutoff": "eligible-completed-plate-appearances-through-reporting-cutoff",
   "defensiveDepthUnit": "intentional-act-nodes",
+  "defensiveReduction": "distinct-supported-acts-in-complete-play",
+  "defensiveOverlappingActsCountSeparately": true,
+  "defensiveActCountDecision": "../../archive/design-records/defensive-act-count-2026-09-30/README.md",
   "runSupportIncludesScoringRunner": true,
   "countedRoleTypes": [
     "https://baseballontology.org/BatterRole",

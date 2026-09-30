@@ -426,12 +426,12 @@
     {
       "id": "DEFENSIVE_ORDER",
       "title": "Order defensive resolution acts",
-      "question": "Use supported order among distinct performances. Repeated throws are distinct, superclass typing is not another act, and complete depth needs the complete supported sequence.",
-      "direction": "Use supported order among distinct performances. Repeated throws are distinct, superclass typing is not another act, and complete depth needs the complete supported sequence.",
-      "status": "open",
-      "disposition": "accepted-policy-source-implementation-pending",
+      "question": "Does the defensive metric require strict temporal precedence?",
+      "direction": "No. Count distinct supported acts in the complete play, including overlapping acts; repeated performances remain distinct and superclass typing is not another act.",
+      "status": "resolved",
+      "disposition": "superseded-by-accepted-act-count",
       "owner": "engineering",
-      "implementationBehavior": "The numerical player reducer applies longest supported directed path per complete resolution, rejects cycles and missing order, and preserves separate repeated performances. Complete source-owned act/order graph production remains unfinished; no description or credit list is automatically certified as a complete sequence.",
+      "implementationBehavior": "Defensive Acts and PAQ-2.1 count distinct supported acts without a strict-precedence requirement. Source-owned act completeness remains required under DEFENSIVE_ACTS. Temporal assertions remain governed by their source SHACL; counting does not invent or alter them.",
       "researchAssessment": {
         "assessedOn": "2026-09-08",
         "report": "proposals/graph-native-metric-suite-batch-review/web-gap-assessment.md",
@@ -445,6 +445,7 @@
         "livePrerequisiteClosed": false
       },
       "decisionRecords": [
+        "archive/design-records/defensive-act-count-2026-09-30/README.md",
         "archive/design-records/metric-completion-decisions-2026-09-15/decision.json"
       ]
     },

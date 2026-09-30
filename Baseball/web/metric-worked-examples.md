@@ -266,25 +266,25 @@ Post-pitch strike counts are 0, 1, 2, 2, 2, 3. The pitch reaching two strikes an
 
 2 extra pitches; the middle of counts 0, 2, 4 has percentile 50.
 
-## Longest Defensive Sequence
+## Defensive Acts
 
-How many intentional actions formed the longest defensive sequence?
+How many distinct defensive actions made up the play?
 
-The number of intentional defensive acts along the longest supported ordered path in a batted-ball play.
+The number of distinct supported fielding, throwing, catching and tagging acts in a complete batted-ball play.
 
-One act has length one. Count the longest path, not every act in parallel branches. Longer does not by itself mean better defense or greater difficulty.
+Count overlapping acts separately and each repeated performance once. A catch also classified as fielding is still one act. More acts do not by themselves mean better defense or greater difficulty.
 
-Number of intentional acts on the longest supported precedence path.
+Number of distinct supported defensive acts in the complete play.
 
 Reported as: acts; per batted-ball play.
 
-Technical reference: Defensive Resolution Depth (`resolution-depth`). [Calculation kernel](../sparql/serving/metric-kernels/resolution-depth.rq).
+Technical reference: Defensive Acts (`resolution-depth`). [Calculation kernel](../sparql/serving/metric-kernels/resolution-depth.rq).
 
 ### Field, throw, catch, tag
 
-Assume four distinct intentional acts with supported order: field → throw → catch → tag. Depth counts acts; a single act would have depth one.
+Assume four distinct supported acts: field, throw, catch and tag. All four count even when the catch and tag overlap. Classifying the same catch as fielding does not add a fifth act.
 
-4 acts along the path = depth 4
+4 distinct acts = 4
 
 ## Defenders Involved
 
@@ -416,11 +416,11 @@ Distinct realized kinds {Batter, Baserunner} = 2
 
 How are equal contributions separated?
 
-Rank contribution first, then use two-strike extension and defensive sequence length to break remaining ties.
+Rank contribution first, then use two-strike extension and defensive act count to break remaining ties.
 
 The measures are compared in order, not added together. A later measure cannot overcome a difference in an earlier one. This rank uses its own applicable population.
 
-Rank Plate Appearance Contribution first, Two-Strike Extension Rank second, and Resolution Depth third; convert that ordering to a percentile.
+Rank Plate Appearance Contribution first, Two-Strike Extension Rank second, and Defensive Acts third; convert that ordering to a percentile.
 
 Reported as: percentile · 0–100; per applicable plate appearance.
 

@@ -134,12 +134,14 @@ class MetricCalculations(unittest.TestCase):
         ranks=M.percentiles([dict(key='a',score=0),dict(key='b',score=2)],metric_id='recovery-quality',complete_population=True)
         self.assertEqual(value(ranks['b']),100)
 
-    def test_defensive_graph_paths_agents_and_cycles(self):
+    def test_defensive_acts_count_overlap_and_deduplicate_same_performance(self):
         rows=[dict(act='field',next='throw',agent='a'),dict(act='throw',next='catch',agent='a'),dict(act='catch',next=None,agent='b')]
         self.assertEqual(value(self.calc('resolution-depth',rows)),3)
         self.assertEqual(value(self.calc('defender-breadth',[dict(act=r['act'],agent=r['agent']) for r in rows])),2)
-        rows[-1]['next']='field'
-        self.assertEqual(self.calc('resolution-depth',rows)['gaps'],['CYCLIC_DEFENSIVE_ORDER'])
+        rows[-1]['next']=None
+        rows.append(dict(act='tag',next=None,agent='b'))
+        rows.append(dict(rows[-1]))
+        self.assertEqual(value(self.calc('resolution-depth',rows)),4)
         self.assertEqual(value(M.defensive_depth([dict(act='catch',agent='a',next=[])])),1)
 
     def test_run_construction_and_roles(self):

@@ -61,7 +61,7 @@
       "playerSummary":"Average of the player's eligible individual PA percentiles, preserving applicability exclusions.",
       "label":"PAQ with Tie-Breakers","group":"batting",
       "question":"How are equal contributions separated?",
-      "summary":"Rank contribution first, then use two-strike extension and defensive sequence length to break remaining ties.",
+      "summary":"Rank contribution first, then use two-strike extension and defensive act count to break remaining ties.",
       "unitLabel":"percentile · 0–100","scopeLabel":"per applicable plate appearance",
       "reading":"The measures are compared in order, not added together. A later measure cannot overcome a difference in an earlier one. This rank uses its own applicable population.",
       "reference":"Eligible plate appearances with applicable two-strike and defensive dimensions. Missing applicable evidence prevents a complete comparison."
@@ -152,12 +152,12 @@
       "reference":"The player's supported role realizations in one complete game."
     },
     "resolution-depth": {
-      "playerSummary":"Average depth of defensive resolutions in which the player actually acted; this describes participation, not individual skill.",
-      "label":"Longest Defensive Sequence","group":"defense",
-      "question":"How many intentional actions formed the longest defensive sequence?",
-      "summary":"The number of intentional defensive acts along the longest supported ordered path in a batted-ball play.",
+      "playerSummary":"Average defensive act count in complete plays in which the player acted; this describes participation, not individual skill.",
+      "label":"Defensive Acts","group":"defense",
+      "question":"How many distinct defensive actions made up the play?",
+      "summary":"The number of distinct supported fielding, throwing, catching and tagging acts in a complete batted-ball play.",
       "unitLabel":"acts","scopeLabel":"per batted-ball play",
-      "reading":"One act has length one. Count the longest path, not every act in parallel branches. Longer does not by itself mean better defense or greater difficulty.",
+      "reading":"Count overlapping acts separately and each repeated performance once. A catch also classified as fielding is still one act. More acts do not by themselves mean better defense or greater difficulty.",
       "reference":"The complete supported defensive act structure for the play."
     },
     "defender-breadth": {

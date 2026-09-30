@@ -82,15 +82,13 @@ class DefensiveServing(unittest.TestCase):
             self.assertFalse(result['playerPopulationComplete'],fault)
             self.assertEqual(result['playerResults'],[],fault)
 
-    def test_order_admission_is_independent_of_agent_breadth(self):
+    def test_order_admission_is_independent_of_act_count_and_agent_breadth(self):
         source=rows(defense_fixture())
         self.assertTrue(summary(source,'defender-breadth',proof=dict(PROOF,orderComplete=False))['playerPopulationComplete'])
-        self.assertEqual(summary(source,proof=dict(PROOF,orderComplete=False))['playerSummaryGaps'],['DEFENSIVE_ORDER'])
-        for successor in (EX.field,EX.outside):
-            data=defense_fixture();data.graph(G1).add((EX.tag,BFO.BFO_0000063,successor))
-            source=rows(data)
-            self.assertTrue(summary(source,'defender-breadth')['playerPopulationComplete'])
-            self.assertFalse(summary(source)['playerPopulationComplete'])
+        self.assertTrue(summary(source,proof=dict(PROOF,orderComplete=False))['playerPopulationComplete'])
+        data=defense_fixture();data.graph(G1).remove((None,BFO.BFO_0000063,None))
+        source=rows(data)
+        self.assertEqual(summary(source,proof=dict(PROOF,orderComplete=False))['playerResults'][1]['value'],M.exact(4))
 
     def test_census_schedule_and_independent_roster_admission_required(self):
         source=rows(defense_fixture())
