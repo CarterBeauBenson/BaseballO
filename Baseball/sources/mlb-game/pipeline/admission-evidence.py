@@ -70,10 +70,21 @@ def code_equivalence(family,previous,current):
     """
     record=read(COMPATIBILITY_PATH)
     compound=record.get('compoundResultRepair',{})
+    groundout=record.get('defensiveGroundoutRepair',{})
     context=sha(ROOT/record['contextPath'])
+    bridge=groundout.get('families',{}).get(family)
+    if (bridge and current==bridge['currentImplementationSha256'] and previous!=current
+            and context==groundout.get('currentContextSha256')):
+        prior=bridge['previousImplementationSha256']
+        reused=(dict(kind='unchanged-proof-dependencies') if previous==prior
+                else code_equivalence(family,previous,prior))
+        if reused is not None:
+            if family=='defensive':reused=dict(reused,kind='prior-stricter-defensive-selection')
+            return dict(reused,recordSha256=sha(COMPATIBILITY_PATH),previousImplementationSha256=previous,
+                currentImplementationSha256=current,defensiveSelectionDecision=groundout['decision'])
     bridge=compound.get('families',{}).get(family)
     if (bridge and current==bridge['currentImplementationSha256'] and previous!=current
-            and context==compound.get('currentContextSha256')):
+            and context in {compound.get('currentContextSha256'),groundout.get('currentContextSha256')}):
         prior=bridge['previousImplementationSha256']
         if current!=prior:
             reused=(dict(kind='prior-stricter-compound-result' if family=='batting' else 'unchanged-proof-dependencies')
@@ -83,7 +94,7 @@ def code_equivalence(family,previous,current):
                 if family=='batting':reused=dict(reused,kind='prior-stricter-compound-result')
                 return dict(reused,recordSha256=sha(COMPATIBILITY_PATH),previousImplementationSha256=previous,
                     currentImplementationSha256=current,compoundResultDecision=compound['decision'])
-    context_matches=lambda *values: context in set(values)|{compound.get('currentContextSha256')}
+    context_matches=lambda *values: context in set(values)|{compound.get('currentContextSha256'),groundout.get('currentContextSha256')}
     walk=record.get('intentionalWalkPrefix',{})
     bridge=walk.get('families',{}).get(family)
     if (bridge and bridge['previousImplementationSha256']!=current and current==bridge['currentImplementationSha256']
@@ -133,7 +144,12 @@ def prior_versions(kind,current):
     Keep their original producer and outcomes. A new promotion gets new paths
     and must be checked again; this is never approval of W1's missing facts.
     """
-    record=read(COMPATIBILITY_PATH);walk=record.get('compoundResultRepair',{})
+    record=read(COMPATIBILITY_PATH);walk=record.get('defensiveGroundoutRepair',{})
+    entry=walk.get('derivedProofs',{}).get(kind,{})
+    if (entry.get('currentImplementationSha256')==current
+            and sha(ROOT/record['contextPath'])==walk.get('currentContextSha256')):
+        return entry['previousImplementationSha256s']
+    walk=record.get('compoundResultRepair',{})
     entry=walk.get('derivedProofs',{}).get(kind,{})
     if (entry.get('currentImplementationSha256')==current
             and sha(ROOT/record['contextPath'])==walk.get('currentContextSha256')):
@@ -155,7 +171,7 @@ def compatible_proof(state,promotion,family,implementation):
     proof=read(path)
     reuse=code_equivalence(family,proof.get('implementationSha256'),implementation)
     if reuse is None: return None
-    positive_only=reuse['kind'] in {'prior-stricter-clock-check','prior-stricter-pinch-hitter-check','prior-stricter-history-selection','prior-stricter-walk-selection','prior-stricter-compound-result'}
+    positive_only=reuse['kind'] in {'prior-stricter-clock-check','prior-stricter-pinch-hitter-check','prior-stricter-history-selection','prior-stricter-walk-selection','prior-stricter-compound-result','prior-stricter-defensive-selection'}
     if positive_only and proof.get('status')!='admitted': return None
     expected=dict(artifactType='baseballo-'+family+'-admission',contractVersion=1,
         gamePk=promotion['gamePk'],sourceSha256=promotion['rawSha256'],

@@ -22,7 +22,10 @@ def source(evidence,state,promotion,family,adapter):
     if family=='batting' and version!=adapter.fingerprint():return None
     if any(proof.get(k)!=v for k,v in dict(gamePk=promotion['gamePk'],sourceSha256=promotion['rawSha256'],
             authoritativeRdfSha256=promotion['authoritativeRdfSha256'],graph=promotion['authoritativeGraph']).items()):return None
-    if version!=adapter.fingerprint() and evidence.code_equivalence(family,version,adapter.fingerprint()) is None:return None
+    if version!=adapter.fingerprint():
+        reuse=evidence.code_equivalence(family,version,adapter.fingerprint())
+        if reuse is None:return None
+        if reuse['kind']=='prior-stricter-defensive-selection' and proof.get('status')!='admitted':return None
     path=path.with_suffix('.source.json')
     if not path.is_file() or evidence.sha(path)!=proof.get('sourceCensusSha256'):raise ValueError('Retained source census changed')
     census=evidence.read(path)

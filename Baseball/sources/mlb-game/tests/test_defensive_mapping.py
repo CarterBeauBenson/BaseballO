@@ -44,10 +44,20 @@ class DefensiveMappingTests(unittest.TestCase):
         self.assertTrue(row['catch']);self.assertTrue(e['populationComplete'])
         self.assertTrue(row['creditPointers']);self.assertFalse(e['precedence'])
 
-    def test_generic_groundout_and_sole_putout_do_not_invent_acts(self):
-        for pa in (2,8):
-            e=CONTEXT.defensive_act_context(document(pa))
-            self.assertFalse(e['acts']);self.assertFalse(e['populationComplete'])
+    def test_accepted_named_groundout_and_unassisted_credit_are_distinct(self):
+        e=CONTEXT.defensive_act_context(document(2))
+        self.assertEqual([r['classIri'].split('/')[-1] for r in e['acts']],
+            ['FieldingAttemptAct','ThrowAct','CatchAttemptAct'])
+        self.assertEqual([r['agentIri'].split('/')[-1] for r in e['acts']],['683083','683083','694673'])
+        self.assertFalse(e['populationComplete']);self.assertFalse(e['precedence'])
+        self.assertFalse(CONTEXT.defensive_act_context(document(8))['acts'])
+        for fault in ('extra-credit','wrong-base','wrong-runner','bare-credit'):
+            d=document(2);p=d['liveData']['plays']['allPlays'][0]
+            if fault=='extra-credit':p['runners'][-1]['credits'].append(dict(player=dict(id=1),credit='f_assist'))
+            if fault=='wrong-base':p['runners'][-1]['movement']['outBase']='2B'
+            if fault=='wrong-runner':p['runners'][-1]['details']['runner']['id']=1
+            if fault=='bare-credit':p['result']['description']='Groundout.'
+            self.assertFalse(CONTEXT.defensive_act_context(d)['acts'],fault)
 
     def test_real_relay_preserves_performances_without_tag_or_order(self):
         d=document(26);e=CONTEXT.defensive_act_context(d)
@@ -92,7 +102,7 @@ class DefensiveMappingTests(unittest.TestCase):
 
     def test_whole_game_census_does_not_drop_unselected_contacts(self):
         e=A.census(RAW,'822693')
-        self.assertEqual(len(e['plays']),107);self.assertEqual(len(e['acts']),20)
+        self.assertEqual(len(e['plays']),107);self.assertEqual(len(e['acts']),59)
         self.assertEqual(sum(p['complete'] for p in e['plays']),13)
         self.assertFalse(e['populationComplete']);self.assertFalse(e['orderComplete'])
 
@@ -124,7 +134,7 @@ class DefensiveMappingTests(unittest.TestCase):
             promotion=dict(promotionManifest=str(marker),promotionManifestSha256=A.B.sha(marker.read_bytes()),gamePk='822693',
                 rawSha256=proof['sourceSha256'],authoritativeRdfSha256=proof['authoritativeRdfSha256'],authoritativeGraph=proof['graph'])
             retained=A.promoted_admission(root,promotion)
-            self.assertEqual(retained['status'],'withheld');self.assertEqual(retained['selectedActCount'],20)
+            self.assertEqual(retained['status'],'withheld');self.assertEqual(retained['selectedActCount'],59)
             for key in ('rawSha256','authoritativeRdfSha256','authoritativeGraph'):
                 self.assertEqual(A.promoted_admission(root,dict(promotion,**{key:'changed'}))['issues'][0]['code'],'DEFENSIVE_PROOF_MISSING_OR_STALE')
             output.with_suffix('.source.json').write_text('{}')

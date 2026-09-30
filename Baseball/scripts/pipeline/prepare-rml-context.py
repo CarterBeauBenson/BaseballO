@@ -1973,8 +1973,8 @@ def defensive_act_context(document: dict, previous: dict | None = None) -> dict:
                         and outs[0].get('details', {}).get('runner', {}).get('id') == play.get('matchup', {}).get('batter', {}).get('id')):
                     select('CatchAttemptAct',agent,[catch.start(),catch.end()],support)
                     item['complete'] = len(associated) == 1
-            # The explicit "on the throw" makes this a described relay, unlike
-            # a generic groundout A-to-B credit description (possibly a deflection).
+            # The explicit "on the throw" supplies a described relay. Credits
+            # corroborate the participants; they do not create extra throws.
             relay = re.search(r'(?P<runner>[^.]+?) out at (?P<base>2nd|3rd|home) on the throw, (?P<chain>.+)\.$', description)
             if not selected and relay:
                 mentions = relay.group('chain').split(' to ')
@@ -1994,8 +1994,22 @@ def defensive_act_context(document: dict, previous: dict | None = None) -> dict:
                         if index < len(agents)-1:
                             select('ThrowAct',agent,span,witnesses(agent,{'f_assist','f_assist_of'}))
                     item['gaps'].append('RELAY_TERMINAL_TOUCH_AND_ORDER_UNRESOLVED')
-            # Admit an explicit ground-ball field/throw/receipt sentence only.
+            # D1 also accepts the provider's compact named groundout sentence
+            # (822693 PA 2), with exactly the described assist and first-base
+            # putout. Bare credits, extra deflectors and unassisted outs do not
+            # satisfy that pattern. Terminal touch and timing remain unresolved.
             ground = re.search(r'('+position+r'.+?) fields (?:the )?(?:ground ball|grounder) and throws to ('+position+r'.+?), who catches the (?:ball|throw)\.', description, re.I)
+            compact = re.fullmatch(r'.+? grounds out(?: (?:sharply|softly))?, ('+position+r'.+?) to ('+position+r'.+?)\.',description,re.I)
+            if not ground and compact and play.get('result',{}).get('eventType')=='field_out':
+                first,last=resolve(compact.group(1)),resolve(compact.group(2))
+                outs=[r for _,r in associated if r.get('movement',{}).get('isOut') is True]
+                allowed={(first,'f_assist'),(last,'f_putout')}
+                if (first and last and first!=last and len(outs)==1
+                        and outs[0].get('details',{}).get('runner',{}).get('id')==play.get('matchup',{}).get('batter',{}).get('id')
+                        and outs[0].get('movement',{}).get('outBase')=='1B'
+                        and witnesses(first,{'f_assist'}) and witnesses(last,{'f_putout'})
+                        and all((str(c.get('player',{}).get('id')),c.get('credit')) in allowed for _,_,c in credits)):
+                    ground=compact
             if not selected and ground:
                 first,last = resolve(ground.group(1)),resolve(ground.group(2))
                 if (first and last and first != last and witnesses(first,{'f_fielded_ball','f_assist'})

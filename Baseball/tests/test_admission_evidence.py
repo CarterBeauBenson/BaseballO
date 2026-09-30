@@ -174,14 +174,24 @@ class AdmissionEvidence(unittest.TestCase):
             tree=ast.parse(raw);tree.body=[n for n in tree.body if getattr(n,'name',None) not in excluded]
             return ast.dump(tree)
         self.assertEqual(unchanged(before),unchanged(after))
-        current=compound or walk
+        groundout=record.get('defensiveGroundoutRepair')
+        current=groundout or compound or walk
         if compound:
-            now=(ROOT/record['contextPath']).read_bytes()
+            now=(subprocess.check_output(['git','-C',str(ROOT.parent),'show',
+                groundout['baselineCommit']+':Baseball/'+record['contextPath']]) if groundout
+                else (ROOT/record['contextPath']).read_bytes())
             self.assertEqual(hashlib.sha256(now).hexdigest(),compound['currentContextSha256'])
             def unaffected(raw):
                 tree=ast.parse(raw);tree.body=[n for n in tree.body if getattr(n,'name',None) not in {'compound_double_play_parts','main'}]
                 return ast.dump(tree)
             self.assertEqual(unaffected(after),unaffected(now))
+        if groundout:
+            latest=(ROOT/record['contextPath']).read_bytes()
+            self.assertEqual(hashlib.sha256(latest).hexdigest(),groundout['currentContextSha256'])
+            def nondefensive(raw):
+                tree=ast.parse(raw);tree.body=[n for n in tree.body if getattr(n,'name',None)!='defensive_act_context']
+                return ast.dump(tree)
+            self.assertEqual(nondefensive(now),nondefensive(latest))
         for family,entry in walk['families'].items():
             adapter=E.module(E.HERE/(family+'-admission.py'),'w1_'+family.replace('-','_'))
             self.assertEqual(adapter.fingerprint(),current['families'][family]['currentImplementationSha256'])
