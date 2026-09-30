@@ -6,6 +6,39 @@ calculation kernels exist, including backend-only Role Realization Breadth.
 
 ## Last verified publication
 
+September 30, 10:27 Eastern: the full-season HTTP response has **5/19 populated
+cards**, with all 2,429 regular-season games present. Qualified players:
+Offensive Reach 1, Help Without Advancing 5, Empty Games 30, Scoring History
+Length 17, Run Contributors 1. There are no complete league populations yet.
+The published build is `20260929T231614Z-dashboard-ad4d4593c34f`; this live
+response predates the new repairs below. The earlier September 29 checks in
+the table are historical, not the current population count.
+
+Published engineering repairs on September 30:
+
+- Retained source censuses can drive the owning SHACL checks against existing
+  promoted RDF after raw inputs and local exports are retired. Neither graph
+  rebuilding nor source reacquisition is part of this refresh. Windows sidecar
+  paths use one digest of both input identities to remain below MAX_PATH.
+- **Defensive Acts** counts distinct supported acts, including overlap, and
+  supplies PAQ-2.1's third comparison. The SQL migration recalculates these
+  products from stored bindings while preserving unrelated game results.
+- The accepted D1 named groundout pattern is implemented. NiFi completed its
+  first additive repair, game 822693, with 208 new triples and no removed
+  triples. The complete defensive population remains unresolved.
+- Individually admitted PA runner resolutions now support that PA's
+  contribution even when another resolution in the game is unresolved. The
+  player projection updates affected SQL partitions without graph queries.
+
+The two review integrations remain source-contract work. Rechecked against
+[MLB's ABS definitions](https://baseballsavant.mlb.com/abs-metrics-documentation)
+on September 30: legal challenge opportunities depend on an adverse called
+pitch, available challenges and operational ABS, excluding position-player
+pitching. Final counters alone cannot establish availability at every prior
+decision. Existing pitch-subject extraction is therefore insufficient to admit
+the complete separate review denominators; it is not evidence that the MLB
+provider lacks those facts. Keep source and RDF coverage debt explicit.
+
 Read-only selected-range checks on September 29, 2026:
 
 | Surface | Recorded result |
@@ -504,8 +537,8 @@ from missing evidence; it does not justify lowering the minimum.
 | Empty Game Damage | Implemented conditionally | Complete Empty Game classification and negative PA contributions; successful independent steals are assigned to their runner across PAs. Separate independent damaging episodes, unknown running ownership and interrupted turns remain gated |
 | Contribution Mix | Implemented conditionally | Complete positive play/channel inventory and separate running-attempt qualification |
 | Two-Strike Extension Rank | Implemented conditionally | Complete pitch/count and B1 admissions for every reference-season game, plus independent schedules through the cutoff |
-| Longest Defensive Sequence | Implemented; population gated | Complete act/agent/order admission and independent roster proof |
-| Defenders Involved | Implemented; population gated | Complete act/agent admission and independent roster proof; order is a separate gate |
+| Defensive Acts | Implemented; population gated | Complete act/agent admission and independent roster proof; overlapping distinct acts count separately |
+| Defenders Involved | Implemented; population gated | Complete act/agent admission and independent roster proof |
 | Scoring History Length | Implemented conditionally | Every counted scoring history, source run/roster proof and selected schedule |
 | Run Contributors | Implemented conditionally | Same complete scoring histories with supported contribution ownership |
 | Replay Overturn Rate | Unfinished as a player producer | Pitch-review affected-player extraction and SQL retention implemented; other subjects, mechanisms, complete population and qualification remain |

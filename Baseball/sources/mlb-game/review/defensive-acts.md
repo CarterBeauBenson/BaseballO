@@ -30,6 +30,23 @@ That conservative branch requires resolution before it can replace the prior
 graph. It does not renumber old acts or invent a correction identity policy.
 
 See the [bounded source/RDF/query/SQL proof](../../../benchmarks/metrics/d1-defensive-mapping-2026-09-16/README.md)
-for evidence and the still-unresolved complete populations. Explicit ground
-field/throw/receipt and tag grammar have synthetic positive/negative tests;
-they are not claimed as additional real-feed observations in the proof game.
+for the original evidence and its incomplete populations. The September 30
+repair implements the already accepted compact named groundout pattern with
+matched assist, first-base putout and batter identity. The unchanged 822693
+fixture selects 59 acts across all 107 contact plays; 13 plays have complete
+act evidence. Extra credits, a different out base and an unmatched runner
+exclude the compact pattern. Unreported terminal touches remain unresolved.
+
+NiFi's source-owned `Complete Approved D1 Defensive Acts` worker uses only the
+four existing defensive maps over retained responses. Its first game, 822693,
+completed on September 30 at 10:25 Eastern: 208 missing triples were added,
+preserving all 31,703 prior triples. No source was reacquired. The existing
+selected-act and authoritative SHACL checks ran before additive promotion;
+unrelated admission expectations remained unchanged. Later inputs use the same
+bounded, memory-aware worker, with failures retained for its limited retry.
+
+The [September 30 metric decision](../../../archive/design-records/defensive-act-count-2026-09-30/README.md)
+replaces strict sequence depth with distinct supported act count, displayed
+as **Defensive Acts**. Overlapping acts count separately. Complete act evidence
+is still required; the metric change does not assert temporal precedence or
+complete the unresolved contact plays.

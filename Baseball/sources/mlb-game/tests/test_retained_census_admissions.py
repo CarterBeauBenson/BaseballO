@@ -11,6 +11,16 @@ C=E.RETAINED_CENSUS
 
 
 class RetainedCensusAdmissions(unittest.TestCase):
+    def test_default_windows_root_keeps_all_sidecars_within_path_limit(self):
+        state=Path('C:/Users/carte/AppData/Local/BaseballO/state')
+        promotion=dict(gamePk='823332',promotionManifestSha256='a'*64)
+        with patch.object(C,'fingerprint',return_value='b'*64):
+            path=C.path_for(E,state,promotion,'runner-resolution',B)
+            for suffix in ('.source.json','.receipt.json','.shapes.ttl','.report.ttl'):
+                self.assertLess(len(str(path.with_suffix(suffix))),260)
+            changed=C.path_for(E,state,dict(promotion,promotionManifestSha256='c'*64),'runner-resolution',B)
+            self.assertNotEqual(path,changed)
+
     def test_existing_source_and_current_shacl_preserve_missing_facts_and_source_failures(self):
         for mode in ('valid','missing-fact','source-unresolved'):
             with self.subTest(mode=mode),tempfile.TemporaryDirectory() as directory:

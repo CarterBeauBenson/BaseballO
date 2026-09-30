@@ -40,7 +40,10 @@ def source(evidence,state,promotion,family,adapter):
 
 
 def path_for(evidence,state,promotion,family,adapter):
-    return evidence.refresh_path(state,promotion,'retained-'+family,fingerprint(evidence,adapter))
+    # One full digest binds both identities. Concatenating two 64-character
+    # hashes made the runner-resolution sidecar exceed Windows MAX_PATH.
+    key=evidence.hashlib.sha256((promotion['promotionManifestSha256']+fingerprint(evidence,adapter)).encode()).hexdigest()
+    return Path(state)/'pipeline/evidence/mlb-game'/promotion['gamePk']/'admission-refresh'/('census-'+key)/(family+'.json')
 
 
 def load(evidence,state,promotion,family,adapter):
