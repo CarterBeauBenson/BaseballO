@@ -195,6 +195,9 @@ class AdmissionEvidence(unittest.TestCase):
         for family,entry in walk['families'].items():
             adapter=E.module(E.HERE/(family+'-admission.py'),'w1_'+family.replace('-','_'))
             self.assertEqual(adapter.fingerprint(),current['families'][family]['currentImplementationSha256'])
+            clock=record['priorClockIsolation']['families'].get(family)
+            if clock:
+                self.assertIsNotNone(E.code_equivalence(family,clock['previousImplementationSha256'],adapter.fingerprint()))
             independent=current['independentProofs'][family]
             self.assertEqual(E.EXISTING_GRAPH.fingerprint(E,adapter),independent['currentImplementationSha256'])
             self.assertEqual(walk['independentProofs'][family]['previousSourceProducerSha256'],entry['previousImplementationSha256'])

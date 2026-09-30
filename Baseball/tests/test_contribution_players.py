@@ -89,6 +89,13 @@ class ContributionPlayers(unittest.TestCase):
         self.assertEqual(result['unresolvedPlateAppearances'],[dict(plateAppearance=second,
             gaps=['OFFICIAL_PA_POPULATION','COMPLETE_RUNNER_BOUNDARIES'])])
         self.assertEqual(inputs(rows+more,**args,runner_resolution_admission={'status':'withheld'})['plateAppearances'],[])
+        individual['paResolutions']=dict(plateAppearances=[dict(plateAppearance=first,status='admitted'),
+            dict(plateAppearance=second,status='withheld')])
+        partial=inputs(rows+more,**args,runner_resolution_admission={'status':'withheld'})
+        self.assertEqual(partial['plateAppearances'],expected)
+        self.assertFalse(partial['complete']);self.assertFalse(partial['independentDamageComplete'])
+        self.assertEqual(partial['unresolvedPlateAppearances'],[dict(plateAppearance=second,
+            gaps=['OFFICIAL_PA_POPULATION','COMPLETE_RUNNER_BOUNDARIES','COMPLETE_RUNNER_RESOLUTION_POPULATION'])])
         # Without the optional individual proof, the established full-game
         # entry point retains precisely its earlier behavior.
         self.assertEqual(inputs(rows,batting_admission={'status':'withheld'}),dict(complete=False,

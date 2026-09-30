@@ -74,6 +74,7 @@ def code_equivalence(family,previous,current):
     context=sha(ROOT/record['contextPath'])
     bridge=groundout.get('families',{}).get(family)
     if (bridge and current==bridge['currentImplementationSha256'] and previous!=current
+            and current!=bridge['previousImplementationSha256']
             and context==groundout.get('currentContextSha256')):
         prior=bridge['previousImplementationSha256']
         reused=(dict(kind='unchanged-proof-dependencies') if previous==prior

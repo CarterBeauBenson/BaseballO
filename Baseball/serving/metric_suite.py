@@ -2754,7 +2754,9 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
     if not individual.get('rosterComplete') or not individual.get('plateAppearanceInventoryComplete'):valid_players=set()
     valid_boundaries={p['plateAppearance'] for p in (individual.get('paBoundaries') or {}).get('plateAppearances',[])
                       if p['status']=='admitted'}
-    if denied and (not individual or 'COMPLETE_RUNNER_RESOLUTION_POPULATION' in denied):
+    valid_resolutions={p['plateAppearance'] for p in (individual.get('paResolutions') or {}).get('plateAppearances',[])
+                       if p['status']=='admitted'}
+    if denied and (not individual or ('COMPLETE_RUNNER_RESOLUTION_POPULATION' in denied and not valid_resolutions)):
         return dict(missing,gaps=denied)
     if any(r['graph']!=graph for r in rows):raise EvidenceError('Contribution escaped its admitted graph')
     pas,locations,movements,histories,history_movements=(defaultdict(list) for _ in range(5))
@@ -2780,6 +2782,8 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
             reasons.append('OFFICIAL_PA_POPULATION')
         if 'COMPLETE_RUNNER_BOUNDARIES' in denied and pa not in valid_boundaries:
             reasons.append('COMPLETE_RUNNER_BOUNDARIES')
+        if 'COMPLETE_RUNNER_RESOLUTION_POPULATION' in denied and pa not in valid_resolutions:
+            reasons.append('COMPLETE_RUNNER_RESOLUTION_POPULATION')
         if reasons:
             withheld.append(dict(plateAppearance=pa,gaps=reasons));continue
         signatures={tuple(r.get(f) for f in ('game','player','paHalf','paInterval','paStartInstant','paOutsBefore')) for r in observations}

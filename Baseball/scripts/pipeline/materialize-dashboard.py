@@ -73,6 +73,7 @@ PLAYER_CALCULATIONS = (TIMESTAMP_CALCULATIONS[1],
 # player partitions retain their existing evidence and exact stored results.
 SHARED_OUT_CALCULATIONS = (PLAYER_CALCULATIONS[1], '98fe6a74abb52e6eb0dc7c3ffc71310509e4e7073b4c6efb06570d0e4c6cc79b')
 ACT_COUNT_CALCULATIONS = (SHARED_OUT_CALCULATIONS[1], '542a6133d48d645d4e9685c000a2cc27cb30b4bd64f90640849178a621af4574')
+SCOPED_PA_CALCULATIONS = (ACT_COUNT_CALCULATIONS[1], '385aa5ba8560e6ce86930e3602781902aca05a8f1302d0e072bc49f4c87d9d38')
 
 
 def digest(value):
@@ -239,9 +240,11 @@ def reuse_game(connection, graph, saved, promotion, dimension, admissions, calcu
     timestamp_update=False;act_count_update=False
     if saved not in {previous_identity,input_identity(promotion,dimension,previous,calculation,legacy=True)}:
         compatible=[]
-        if calculation==ACT_COUNT_CALCULATIONS[1]:
+        if calculation==SCOPED_PA_CALCULATIONS[1]:
+            compatible.append((SCOPED_PA_CALCULATIONS[0],False))
+        if calculation in {ACT_COUNT_CALCULATIONS[1],SCOPED_PA_CALCULATIONS[1]}:
             compatible.append((ACT_COUNT_CALCULATIONS[0],False))
-        if calculation in {SHARED_OUT_CALCULATIONS[1],ACT_COUNT_CALCULATIONS[1]}:
+        if calculation in {SHARED_OUT_CALCULATIONS[1],ACT_COUNT_CALCULATIONS[1],SCOPED_PA_CALCULATIONS[1]}:
             compound=connection.execute("""SELECT 1 FROM metric_suite_scope_fact
                 WHERE graph_iri=? AND kind='plate_appearance'
                 AND json_extract(record_json,'$.paResultType')='https://baseballontology.org/DoublePlayProcess'
@@ -252,12 +255,13 @@ def reuse_game(connection, graph, saved, promotion, dimension, admissions, calcu
         if calculation in {TIMESTAMP_CALCULATIONS[1],PLAYER_CALCULATIONS[1]}:
             compatible.append((TIMESTAMP_CALCULATIONS[0],True))
         if calculation==PLAYER_CALCULATIONS[1]:compatible.append((PLAYER_CALCULATIONS[0],False))
-        matched=next((timestamp for old,timestamp in compatible if saved in {
+        matched=next(((old,timestamp) for old,timestamp in compatible if saved in {
             input_identity(promotion,dimension,previous,old),
             input_identity(promotion,dimension,previous,old,legacy=True)}),None)
         if matched is None:return False
-        timestamp_update=matched
-        act_count_update=calculation==ACT_COUNT_CALCULATIONS[1]
+        timestamp_update=matched[1]
+        act_count_update=(calculation in {ACT_COUNT_CALCULATIONS[1],SCOPED_PA_CALCULATIONS[1]}
+                          and matched[0]!=ACT_COUNT_CALCULATIONS[1])
     changed=previous_identity!=identity
     if changed or timestamp_update or act_count_update:
         refresh_admission_inputs(connection,graph,previous,admissions,
@@ -279,7 +283,7 @@ def reuse_game(connection, graph, saved, promotion, dimension, admissions, calcu
                             PLAYER_RANGES.PREVIOUS_INDIVIDUAL_VERSION,PLAYER_RANGES.PREVIOUS_BOUNDARY_VERSION,
                             PLAYER_RANGES.PREVIOUS_DAMAGE_VERSION,PLAYER_RANGES.PREVIOUS_ZERO_PA_VERSION,
                             PLAYER_RANGES.PREVIOUS_RESOLUTION_VERSION,PLAYER_RANGES.PREVIOUS_SCOPED_RESOLUTION_VERSION,
-                            PLAYER_RANGES.PREVIOUS_SHARED_OUT_VERSION):
+                            PLAYER_RANGES.PREVIOUS_SHARED_OUT_VERSION,PLAYER_RANGES.PREVIOUS_PA_CONTRIBUTION_VERSION):
                 if partition and partition[0]==METRICS._hash(saved+version+proof_sha):
                     connection.execute('UPDATE dashboard_player_partition SET input_sha256=? WHERE graph_iri=?',
                         (METRICS._hash(identity+version+proof_sha),graph))

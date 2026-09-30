@@ -26,6 +26,7 @@ PREVIOUS_SCOPED_RESOLUTION_VERSION = 'ec4104bc6b33774dd4a5a2d1b6700300c31efb054d
 PREVIOUS_HELP_VERSION = 'e0f455baeae669e3cb5f99e0e26e3b7c0ff885e4208b7f2282d7ab4ff8500275'
 PREVIOUS_CHANNEL_VERSION = '7397a2cc83659359efe7a99dee4f6eafc9c7b86ae9a7fa620c20677c4474021b'
 PREVIOUS_SHARED_OUT_VERSION = 'cf63597341de4a503f8f8002c5e421ae755d555d49f00dd8593966532894d13a'
+PREVIOUS_PA_CONTRIBUTION_VERSION = '9a1f3425fd08919dcf0730dcb6466eae61534b4eeb1e8fa9f5076e04c0067273'
 
 
 def fingerprint():
@@ -348,6 +349,13 @@ def prepare(m, db, checkpoint=None, player_admissions=None):
         identity=m._hash(key+version+proof_sha)
         if saved.get(graph)==identity:continue
         channel_upgrade=graph in channel_candidates
+        if saved.get(graph)==m._hash(key+PREVIOUS_PA_CONTRIBUTION_VERSION+proof_sha):
+            scoped=any(p['status']=='admitted' for p in (individual.get('paResolutions') or {}).get('plateAppearances',[]))
+            resolution=db.execute('SELECT proof_json,proof_sha256 FROM metric_suite_runner_resolution_admission WHERE graph_iri=?',
+                (graph,)).fetchone() if scoped else None
+            if not scoped or (resolution and admitted(m._blocks.decode(m._block_api(),*resolution))):
+                with db:db.execute('UPDATE dashboard_player_partition SET input_sha256=? WHERE graph_iri=?',(identity,graph))
+                continue
         if not channel_upgrade and saved.get(graph)==m._hash(key+PREVIOUS_SHARED_OUT_VERSION+proof_sha):
             # The checkpoint key changes for repaired compound games. With
             # unchanged inputs, earlier products have no shared-out scores.

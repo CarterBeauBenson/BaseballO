@@ -313,6 +313,16 @@ class DashboardMaterializer(unittest.TestCase):
             self.assertTrue(result['defensiveInputs']['complete'])
             self.assertEqual(sorted(len(r['acts']) for r in result['defensiveInputs']['resolutions']),[1,4])
 
+    def test_scoped_player_only_upgrade_preserves_all_game_calculations(self):
+        old,new=D.SCOPED_PA_CALCULATIONS
+        with patch.object(D.METRICS,'calculation_fingerprint',return_value=old):D.build(self.args)
+        self.fetched.clear()
+        with patch.object(D.METRICS,'calculation_fingerprint',return_value=new),patch.object(
+                D.METRICS,'live_result',side_effect=AssertionError('no unchanged game calculations')):
+            result=D.build(self.args)
+        self.assertEqual(result['changedGames'],0);self.assertEqual(result['calculationUpdatedGames'],0)
+        self.assertEqual(self.fetched,[])
+
     def test_timestamp_only_upgrade_reuses_unaffected_kernels_and_matches_full_calculation(self):
         from test_contribution_sql import sample,PROOF
         graph,bindings=sample(101,'safe');self.bindings['101']=bindings

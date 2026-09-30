@@ -479,6 +479,14 @@ class PlayerRanges(unittest.TestCase):
         self.assertEqual(dict(db.execute('SELECT * FROM dashboard_player_partition')),
             {G+str(i):M._hash('source-'+str(i)+P.fingerprint()) for i in (1,2)})
 
+    def test_scoped_contribution_upgrade_reuses_players_without_changed_pa_admissions(self):
+        db=self.db()
+        for i in (1,2):
+            db.execute('UPDATE dashboard_player_partition SET input_sha256=? WHERE graph_iri=?',
+                (M._hash('source-'+str(i)+P.PREVIOUS_PA_CONTRIBUTION_VERSION),G+str(i)))
+        with patch.object(M._blocks,'read_scope',side_effect=AssertionError('no unchanged projection')):
+            self.assertEqual(P.prepare(M,db)['preparedGames'],0)
+
     def test_zero_pa_migration_preserves_scores_and_repairs_only_known_absences(self):
         db=self.db()
         for index in (1,2):
