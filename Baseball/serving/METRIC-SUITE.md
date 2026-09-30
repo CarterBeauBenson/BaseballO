@@ -41,14 +41,14 @@ uses integer cross multiplication for percentile comparisons.
 | Empty Game Damage | Sum of the magnitudes of negative PA and admitted independent episode scores in an Empty Game. |
 | Contribution Path Diversity | Three-channel normalized Shannon entropy counting each positive play once per channel, plus exact counts and breadth. |
 | Recovery Quality | Midrank of nonterminal pitches after the first two-strike state, within the admitted two-strike reference cohort. |
-| Defensive Resolution Depth | Longest path in the admitted defensive precedence DAG, counting intentional acts. |
+| Defensive Acts | Distinct supported acts in a complete defensive play, including overlapping acts. |
 | Defender Breadth | Distinct agents in that defensive structure. |
 | Run Construction Depth | Distinct state-changing episodes on the admitted scoring trajectory. |
 | Run Construction Breadth | Distinct offensive players supporting that trajectory, including the scoring runner. |
 | Adjudication Volatility | Reversed / explicitly resolved reviews in the declared mapped population. |
 | Review Dependence Rate | Review-dependent operative outcomes / eligible operative outcomes. |
 | Role Realization Breadth | Batter, Baserunner, Pitcher and Fielder kinds actually realized in the game; generic parents excluded. |
-| PAQ-2.1 | Exact lexicographic percentile of TFS, Recovery Quality, then defensive depth, within the applicable population. |
+| PAQ-2.1 | Exact lexicographic percentile of TFS, Recovery Quality, then defensive act count, within the applicable population. |
 
 For ordinal state `s` and safe terminal state `e`, retained progress is
 `(e-s)/(4-s)` when positive and credited. Direct destruction is `1/(4-s)`.
@@ -82,9 +82,9 @@ values only for the admitted Empty Game population.
 
 CPD retains exact rational channel proportions and the expression
 `-sum(p*ln(p))/ln(3)`. Its logarithmic value is explicitly approximate;
-it is not presented as an exact rational. Defensive longest paths and entropy
-use reducers on the canonical SPARQL rows because SPARQL 1.1 has no portable
-longest-path or logarithm operator.
+it is not presented as an exact rational. Entropy uses a reducer on canonical
+SPARQL rows because SPARQL 1.1 has no portable logarithm operator. Defensive
+Acts counts distinct act individuals; superclass typing does not add an act.
 
 Empty denominators, incomplete aggregates, incomplete cohorts, conflicting
 identities, cyclic paths and missing outcomes never become zero. Exact

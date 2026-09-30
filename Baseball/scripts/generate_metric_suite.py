@@ -52,7 +52,7 @@ DEFINITIONS = [
     ('role-realization-breadth', 'Role Realization Breadth', 'role-realization-breadth', 'player_game', 'descriptive', 'role types',
      'Distinct Batter, Baserunner, Pitcher and Fielder role kinds actually realized in the player-game, without counting generic parent roles again.', ['DEFENSIVE_ACTS', 'ROLE_POPULATION']),
     ('paq-2.1', 'PAQ with Process Tie-Breakers', 'paq-2-1', 'plate_appearance', 'better', 'percentile',
-     'Lexicographic percentile: TFS, then Recovery Quality, then Resolution Depth; only PAs with applicable recovery and defensive resolution enter this reference population.', ['TFS', 'EXACT_PITCH_COUNTS', 'DEFENSIVE_ACTS', 'DEFENSIVE_ORDER', 'REFERENCE_POPULATION', 'PAQ21_ELIGIBILITY']),
+     'Lexicographic percentile: TFS, then Recovery Quality, then distinct Defensive Acts; only PAs with applicable recovery and defensive resolution enter this reference population.', ['TFS', 'EXACT_PITCH_COUNTS', 'DEFENSIVE_ACTS', 'REFERENCE_POPULATION', 'PAQ21_ELIGIBILITY']),
 ]
 
 

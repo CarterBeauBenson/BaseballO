@@ -323,6 +323,21 @@ class DashboardMaterializer(unittest.TestCase):
         self.assertEqual(result['changedGames'],0);self.assertEqual(result['calculationUpdatedGames'],0)
         self.assertEqual(self.fetched,[])
 
+    def test_paq_catalog_upgrade_removes_obsolete_order_gap_without_recalculation(self):
+        old,new=D.PAQ_CATALOG_CALCULATIONS
+        with patch.object(D.METRICS,'calculation_fingerprint',return_value=old):D.build(self.args)
+        with closing(sqlite3.connect(self.working())) as db,db:
+            before,=D.METRICS.read_results(db,self.graphs[0],'paq-2.1')
+            legacy=copy.deepcopy(before);legacy['gaps'].append('DEFENSIVE_ORDER')
+            D.METRICS.store_result(db,self.graphs[0],'paq-2.1','game-scope',legacy)
+        self.fetched.clear()
+        with patch.object(D.METRICS,'calculation_fingerprint',return_value=new),patch.object(
+                D.METRICS,'live_result',side_effect=AssertionError('catalog correction needs no scoring')):
+            result=D.build(self.args)
+        self.assertEqual(result['changedGames'],0);self.assertEqual(self.fetched,[])
+        with closing(sqlite3.connect(self.working())) as db:
+            self.assertEqual(D.METRICS.read_results(db,self.graphs[0],'paq-2.1'),[before])
+
     def test_timestamp_only_upgrade_reuses_unaffected_kernels_and_matches_full_calculation(self):
         from test_contribution_sql import sample,PROOF
         graph,bindings=sample(101,'safe');self.bindings['101']=bindings

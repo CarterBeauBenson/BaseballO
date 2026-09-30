@@ -51,7 +51,7 @@ Score" is broader and could be confused with independent baserunning.
 | Empty Game Damage | Empty Game Damage | Keep; explain the negative contributions counted during an eligible Empty Game. |
 | Contribution Path Diversity | Contribution Mix | Balance across advancing oneself through batting, helping other runners through batting, and independent running. The entropy is not a simple count of contribution types. |
 | Recovery Quality | Two-Strike Extension Rank | Percentile of nonterminal pitches after reaching two strikes. It does not measure whether the batter recovered to get a hit or reach base. |
-| Defensive Resolution Depth | Longest Defensive Sequence | Length of the longest supported sequence of intentional defensive acts, not all defensive acts added together. |
+| Defensive Resolution Depth (retained API ID) | Defensive Acts | Distinct supported acts in a complete play, including overlapping acts, under the September 30 decision. |
 | Defender Breadth | Defenders Involved | Distinct supported defensive agents, not fielding positions or credited touches. |
 | Run Construction Depth | Scoring History Length | Count of state-changing episodes in one complete scoring history. Episodes are not necessarily separate pitches or PAs; held-base observations add nothing. |
 | Run Construction Breadth | Run Contributors | Distinct offensive contributors to that run, including the runner when supported. |

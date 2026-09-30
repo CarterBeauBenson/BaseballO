@@ -656,7 +656,7 @@
       "grain": "plate_appearance",
       "higherIs": "better",
       "unit": "percentile",
-      "userDefinition": "Lexicographic percentile: TFS, then Recovery Quality, then Resolution Depth; only PAs with applicable recovery and defensive resolution enter this reference population.",
+      "userDefinition": "Lexicographic percentile: TFS, then Recovery Quality, then distinct Defensive Acts; only PAs with applicable recovery and defensive resolution enter this reference population.",
       "semanticMode": "completeness-gated",
       "authoritativeQuery": "sparql/serving/metric-kernels/paq-2-1.rq",
       "executionMode": "admitted-binding-kernel",
@@ -667,7 +667,6 @@
         "TFS",
         "EXACT_PITCH_COUNTS",
         "DEFENSIVE_ACTS",
-        "DEFENSIVE_ORDER",
         "REFERENCE_POPULATION",
         "PAQ21_ELIGIBILITY"
       ],

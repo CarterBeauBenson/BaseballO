@@ -74,6 +74,7 @@ PLAYER_CALCULATIONS = (TIMESTAMP_CALCULATIONS[1],
 SHARED_OUT_CALCULATIONS = (PLAYER_CALCULATIONS[1], '98fe6a74abb52e6eb0dc7c3ffc71310509e4e7073b4c6efb06570d0e4c6cc79b')
 ACT_COUNT_CALCULATIONS = (SHARED_OUT_CALCULATIONS[1], '542a6133d48d645d4e9685c000a2cc27cb30b4bd64f90640849178a621af4574')
 SCOPED_PA_CALCULATIONS = (ACT_COUNT_CALCULATIONS[1], '385aa5ba8560e6ce86930e3602781902aca05a8f1302d0e072bc49f4c87d9d38')
+PAQ_CATALOG_CALCULATIONS = (SCOPED_PA_CALCULATIONS[1], '10fc6c16e069b23b3b8fdb7cd1f1f33c9b0ab033d84d0be311f378ce36e3f3e9')
 
 
 def digest(value):
@@ -237,14 +238,16 @@ def reuse_game(connection, graph, saved, promotion, dimension, admissions, calcu
         previous[name]=json.loads(row[0])
     identity=input_identity(promotion,dimension,admissions,calculation)
     previous_identity=input_identity(promotion,dimension,previous,calculation)
-    timestamp_update=False;act_count_update=False
+    timestamp_update=False;act_count_update=False;catalog_update=False
     if saved not in {previous_identity,input_identity(promotion,dimension,previous,calculation,legacy=True)}:
         compatible=[]
-        if calculation==SCOPED_PA_CALCULATIONS[1]:
+        if calculation==PAQ_CATALOG_CALCULATIONS[1]:
+            compatible.append((PAQ_CATALOG_CALCULATIONS[0],False))
+        if calculation in {SCOPED_PA_CALCULATIONS[1],PAQ_CATALOG_CALCULATIONS[1]}:
             compatible.append((SCOPED_PA_CALCULATIONS[0],False))
-        if calculation in {ACT_COUNT_CALCULATIONS[1],SCOPED_PA_CALCULATIONS[1]}:
+        if calculation in {ACT_COUNT_CALCULATIONS[1],SCOPED_PA_CALCULATIONS[1],PAQ_CATALOG_CALCULATIONS[1]}:
             compatible.append((ACT_COUNT_CALCULATIONS[0],False))
-        if calculation in {SHARED_OUT_CALCULATIONS[1],ACT_COUNT_CALCULATIONS[1],SCOPED_PA_CALCULATIONS[1]}:
+        if calculation in {SHARED_OUT_CALCULATIONS[1],ACT_COUNT_CALCULATIONS[1],SCOPED_PA_CALCULATIONS[1],PAQ_CATALOG_CALCULATIONS[1]}:
             compound=connection.execute("""SELECT 1 FROM metric_suite_scope_fact
                 WHERE graph_iri=? AND kind='plate_appearance'
                 AND json_extract(record_json,'$.paResultType')='https://baseballontology.org/DoublePlayProcess'
@@ -260,13 +263,22 @@ def reuse_game(connection, graph, saved, promotion, dimension, admissions, calcu
             input_identity(promotion,dimension,previous,old,legacy=True)}),None)
         if matched is None:return False
         timestamp_update=matched[1]
-        act_count_update=(calculation in {ACT_COUNT_CALCULATIONS[1],SCOPED_PA_CALCULATIONS[1]}
-                          and matched[0]!=ACT_COUNT_CALCULATIONS[1])
+        act_count_update=(calculation in {ACT_COUNT_CALCULATIONS[1],SCOPED_PA_CALCULATIONS[1],PAQ_CATALOG_CALCULATIONS[1]}
+                          and matched[0] not in {ACT_COUNT_CALCULATIONS[1],SCOPED_PA_CALCULATIONS[1]})
+        catalog_update=calculation==PAQ_CATALOG_CALCULATIONS[1]
     changed=previous_identity!=identity
     if changed or timestamp_update or act_count_update:
         refresh_admission_inputs(connection,graph,previous,admissions,
             timestamp_update=timestamp_update,act_count_update=act_count_update)
         mark_dirty(connection,{dimension[5]})
+    if catalog_update:
+        # This catalog correction removes one obsolete prerequisite, without
+        # changing scores or evidence. Preserve the already prepared PAQ input.
+        result,=METRICS.read_results(connection,graph,'paq-2.1')
+        if 'DEFENSIVE_ORDER' in result.get('gaps',[]):
+            result['gaps']=[gap for gap in result['gaps'] if gap!='DEFENSIVE_ORDER']
+            METRICS.store_result(connection,graph,'paq-2.1','game-scope',result)
+            mark_dirty(connection,{dimension[5]})
     for name,table in ADMISSION_TABLES.items():
         if previous[name]==admissions[name]:continue
         text=METRICS._json(admissions[name])
