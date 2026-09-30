@@ -45,6 +45,7 @@ RETAINED_BATTING=module(HERE/'retained-batting-evidence.py','retained_batting_ev
 PLAYER_PARTICIPATION=module(HERE/'player-participation-admission.py','player_participation_evidence')
 EXISTING_GRAPH=module(HERE/'existing-graph-admissions.py','existing_graph_admissions')
 PA_RESOLUTION=module(HERE/'pa-resolution-admission.py','pa_resolution_evidence')
+RETAINED_CENSUS=module(HERE/'retained-census-admissions.py','retained_census_admissions')
 
 
 def checked_marker(promotion):
@@ -57,7 +58,7 @@ def fingerprint():
     return hashlib.sha256(Path(__file__).read_bytes()+COMPATIBILITY_PATH.read_bytes()
         +RETAINED_BATTING.fingerprint().encode()+PLAYER_PARTICIPATION.fingerprint().encode()
         +PA_RESOLUTION.fingerprint().encode()
-        +(HERE/'existing-graph-admissions.py').read_bytes()).hexdigest()
+        +(HERE/'existing-graph-admissions.py').read_bytes()+(HERE/'retained-census-admissions.py').read_bytes()).hexdigest()
 
 
 def code_equivalence(family,previous,current):
@@ -235,6 +236,8 @@ def refreshed(state,promotion,family,implementation):
 
 def load(adapter,state,promotion,family):
     independent=EXISTING_GRAPH.load(SimpleNamespace(**globals()),state,promotion,family,adapter)
+    retained=RETAINED_CENSUS.load(SimpleNamespace(**globals()),state,promotion,family,adapter)
+    if retained is not None and (independent is None or independent.get('status')!='admitted'):independent=retained
     if independent is not None and independent.get('status')=='admitted':return independent
     # A failed later witness cannot suppress a separately valid original proof.
     def select(proof):return proof if proof.get('status')=='admitted' else independent or proof
@@ -307,7 +310,9 @@ def refresh_existing_graph(state,promotion,witness,java,classpath,endpoint):
         with jena.Session(rdf,java,classpath) as session:
             if session.data_count!=record['authoritativeTripleCount']:
                 raise ValueError('Existing graph count differs from its promotion')
-            results=EXISTING_GRAPH.validate(api,state,promotion,witness,rdf,session,java,classpath)
+            validator=RETAINED_CENSUS if witness.get('kind')=='retained-census-set' else EXISTING_GRAPH
+            payload=witness['families'] if validator is RETAINED_CENSUS else witness
+            results=validator.validate(api,state,promotion,payload,rdf,session,java,classpath)
     current()
     EXISTING_GRAPH.commit(api,promotion,results)
     return results
@@ -365,9 +370,14 @@ def refresh_game(state,promotion,java,classpath,endpoint='http://127.0.0.1:3031/
     # (including a withheld one) needs no retry for the same graph and producer.
     unchecked=[family for family,adapter in adapters.items()
         if load(adapter,state,promotion,family).get('status')!='admitted'
-        and EXISTING_GRAPH.load(api,state,promotion,family,adapter) is None]
+        and EXISTING_GRAPH.load(api,state,promotion,family,adapter) is None
+        and RETAINED_CENSUS.load(api,state,promotion,family,adapter) is None]
     if not unchecked:return dict(result,status='current')
     witness=retained_raw_witness(state,promotion)
+    if witness is None:
+        censuses={family:value for family in unchecked
+                  if (value:=RETAINED_CENSUS.source(api,state,promotion,family,adapters[family])) is not None}
+        if censuses:witness=dict(kind='retained-census-set',families=censuses)
     if witness is not None:
         memory=module(ROOT/'scripts/pipeline/process_state.py','independent_refresh_memory').available_memory()
         if memory is not None and memory<1024*1024*1024:
