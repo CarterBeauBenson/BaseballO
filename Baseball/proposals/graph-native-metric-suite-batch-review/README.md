@@ -8,6 +8,12 @@ open questions; they do not amount to acceptance of this whole package. Use
 The public dashboard has 19 metrics; the twentieth calculation, Role
 Realization Breadth, is backend-only.
 
+The [September 30 questions](remaining-questions-2026-09-30.md) separate four
+specific remaining scope/evidence/allocation choices from already authorized
+engineering across every recorded blocker family. The user's
+[narrow RML repair approval](../../archive/design-records/metric-repair-scope-2026-09-30/README.md)
+is recorded separately; recommendations in the questions are not answers.
+
 The [concrete defensive-source research](defensive-source-research-2026-09-14.md)
 corrects the broad "missing defensive evidence" claim with Retrosheet sequence
 examples, Statcast throwing/receiving products, official ABS eligibility, and
