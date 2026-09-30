@@ -182,7 +182,8 @@
         "PlateAppearanceResultJudgmentMap",
         "PlateAppearanceResultDecisionMap",
         "PlateAppearanceResultRecordMap",
-        "PlateAppearanceResultRecordAdjudicationMap"
+        "PlateAppearanceResultRecordAdjudicationMap",
+        "CompoundDoublePlayMap"
       ]
     },
     {

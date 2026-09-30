@@ -403,7 +403,12 @@ its two existing Out Processes as process parts. The 823327 / PA 46 graph
 already contains both out identities. K1 requests only the five named source
 responses and selected additive RML facts because those raw inputs are retired.
 The September 30 narrow-repair approval and targeted-acquisition answer authorize
-implementation. No K1 assertion or admission change is live at this decision.
+implementation. The K1 selector, one-map RML delta, existing-referent SHACL,
+five-game NiFi worker and corrected B1 Double Play expectation are implemented.
+Four focused scope/identity checks and two retained-proof compatibility checks
+pass. Unrelated completed evidence retains its original outcomes and producer
+identities. Live graph additions and subsequent dashboard population are separate
+delivery steps; these checks alone do not populate a card.
 
 These retained pitch-count censuses reconcile without source issues. Their
 Jena reports identify absent counted-foul Strike Processes:

@@ -5,10 +5,10 @@
   "ratified": false,
   "bootstrapBaseCommit": "cb16a8e6f3d487f3542b91907cde3f47ff0a0978",
   "hashCanonicalization": "utf-8-sig decode; CRLF and CR to LF; UTF-8 encode without BOM",
-  "protectedSetSha256": "fdea30d18b75f507238a047b099e758c09869d823530250164714c77a469de8e",
+  "protectedSetSha256": "ef2b22570378fab1cfe3b15baefbfbcc73f1a77d95d7d5a8ca132723a2ef82b7",
   "changeDecision": {
-    "path": "Baseball/archive/design-records/mlb-game-zero-pitch-walk-prefix/review.json",
-    "sha256": "31036dd698a390317b535239dc580f9f9684e7c98ce7b4e0f0dbd4ea795eccc4"
+    "path": "Baseball/archive/design-records/mlb-game-strikeout-double-play/review.json",
+    "sha256": "a34e6bd9de3dc89728e01870104d72fdb8a900cd7fb374f391f1d0aed20a3803"
   },
   "protectedArtifacts": {
     "Baseball/governance/ontology-curation-debt.json": "2d5a4206339244641dd629eb48d86d13d98c02e47b5b5755b010861c0570e283",
@@ -25,7 +25,7 @@
     "Baseball/reasoning/profiles/event-structure.json": "0769a71727733adc7553b18d51d2a21d91d15b0c86103ed19c494b78865653c0",
     "Baseball/reasoning/profiles/participation.json": "da2d44f7fee92659ce982603d912d2ae7822730ca7b9ef4dd05ce4cfebb03a6c",
     "Baseball/reasoning/reviewed-samples.json": "1527914430536f55812047abe25e4ba88d03afd15a045065e8e8f07d296e8e78",
-    "Baseball/scripts/pipeline/prepare-rml-context.py": "8e6c45265fc011293570f65f9b252fe9574192c24dce80b21042111e0266d52c",
+    "Baseball/scripts/pipeline/prepare-rml-context.py": "8055e9ae2c2cb6f16e384a17eafee9e41b7392ca2f003af9581f7f89ea2d0929",
     "Baseball/scripts/reasoning/evaluate-reviewed-samples.py": "c34675e4d7e4fe5b42b66859106f3f1c46f885e101c0666be2566939c71a46a6",
     "Baseball/scripts/reasoning/generate-fixture-proof-baseline.py": "f5a7939602403fb105900b19a610d3d9ec1e439e271109b4242195053800afdc",
     "Baseball/scripts/reasoning/prove-selective-reasoning.py": "c777a99842b18ddeef7047735e62db5e7769e79a419671b9a509b2de97f00af4",
@@ -40,10 +40,10 @@
     "Baseball/sources/mlb-game/mapping/event-type-registry.yaml": "cc0f90f3e977eb15b453fd52256ed9eb91dee2717f5cb902c3de4ffbde2f12bd",
     "Baseball/sources/mlb-game/mapping/iri-policy.yaml": "721d6b17998d88034df7382047aae605c77120fc66c69527a8fded6289e55dd8",
     "Baseball/sources/mlb-game/mapping/mapping-coverage.yaml": "ad01b3d4ddf6cc31ca69861685520e13f45685d1d99877e5ee6ecf317c87edae",
-    "Baseball/sources/mlb-game/mapping/mlb-game.rml.ttl": "b89377d634df094aef78de708e811ac44b66284dbbc0ba86bb21cde578077127",
+    "Baseball/sources/mlb-game/mapping/mlb-game.rml.ttl": "89fae0584eead88666541bd9f84897d45347f7ef9f863ecbfaff003daa8dccf1",
     "Baseball/sources/mlb-game/mapping/ontology-coverage-gaps.yaml": "c5d32b31d2bad9421b0dcf1dc553f0a45c80197c2a62c9dbc338f1fd57564e7f",
     "Baseball/sources/mlb-game/mapping/validate_mlb_game_mapping.py": "585199cd0fda0898f9d8f094e5dcd659f3c8066bb0181c1644e7c7e4077cfbf7",
-    "Baseball/sources/mlb-game/review/rml-mermaid-manifest.json": "5c3266e337b13f5b963d2b65136a29bd63daa942234c0a84a56631c9618676d4",
+    "Baseball/sources/mlb-game/review/rml-mermaid-manifest.json": "99a716d1a60ec4358d491dbe7cc92634808f1d70472a6716e59e738535554ea1",
     "Baseball/sources/mlb-game/review/semantic-status.json": "8e959ff58217c76c6739e6baae93de4c117dd87ac4abcbdb8573fb5cd14dcac1",
     "Baseball/sources/mlb-leagues/mapping/iri-policy.yaml": "9c36d490dcec38dbb7b946ba4f41f5d37aa4d831e5d5c987a424582b19f12694",
     "Baseball/sources/mlb-leagues/mapping/mlb-leagues.rml.ttl": "29447c7e421525b0267c22e7e72e560a1905ac35af841b595f0b2c5e1cc78385",
@@ -79,11 +79,11 @@
         },
         "contextBuilder": {
           "path": "Baseball/scripts/pipeline/prepare-rml-context.py",
-          "sha256": "8e6c45265fc011293570f65f9b252fe9574192c24dce80b21042111e0266d52c"
+          "sha256": "8055e9ae2c2cb6f16e384a17eafee9e41b7392ca2f003af9581f7f89ea2d0929"
         },
         "mapping": {
           "path": "Baseball/sources/mlb-game/mapping/mlb-game.rml.ttl",
-          "sha256": "b89377d634df094aef78de708e811ac44b66284dbbc0ba86bb21cde578077127"
+          "sha256": "89fae0584eead88666541bd9f84897d45347f7ef9f863ecbfaff003daa8dccf1"
         }
       }
     },

@@ -16,6 +16,7 @@
     "shacl/runner-history-admission.ttl",
     "shacl/clock-admission.ttl",
     "shacl/intentional-walk-award-addition.ttl",
-    "shacl/runner-pattern-addition.ttl"
+    "shacl/runner-pattern-addition.ttl",
+    "shacl/compound-result-addition.ttl"
   ]
 }

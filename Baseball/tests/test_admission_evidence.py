@@ -163,7 +163,10 @@ class AdmissionEvidence(unittest.TestCase):
         record=E.read(E.COMPATIBILITY_PATH);walk=record['intentionalWalkPrefix']
         before=subprocess.check_output(['git','-C',str(ROOT.parent),'show',
             walk['baselineCommit']+':Baseball/'+record['contextPath']])
-        after=(ROOT/record['contextPath']).read_bytes()
+        compound=record.get('compoundResultRepair')
+        after=(subprocess.check_output(['git','-C',str(ROOT.parent),'show',
+            compound['baselineCommit']+':Baseball/'+record['contextPath']]) if compound
+            else (ROOT/record['contextPath']).read_bytes())
         self.assertEqual(hashlib.sha256(before).hexdigest(),walk['previousContextSha256'])
         self.assertEqual(hashlib.sha256(after).hexdigest(),walk['currentContextSha256'])
         excluded={'zero_episode_replacement_witness','zero_pitch_walk_terminal','runner_metric_evidence','main'}
@@ -171,14 +174,22 @@ class AdmissionEvidence(unittest.TestCase):
             tree=ast.parse(raw);tree.body=[n for n in tree.body if getattr(n,'name',None) not in excluded]
             return ast.dump(tree)
         self.assertEqual(unchanged(before),unchanged(after))
+        current=compound or walk
+        if compound:
+            now=(ROOT/record['contextPath']).read_bytes()
+            self.assertEqual(hashlib.sha256(now).hexdigest(),compound['currentContextSha256'])
+            def unaffected(raw):
+                tree=ast.parse(raw);tree.body=[n for n in tree.body if getattr(n,'name',None) not in {'compound_double_play_parts','main'}]
+                return ast.dump(tree)
+            self.assertEqual(unaffected(after),unaffected(now))
         for family,entry in walk['families'].items():
             adapter=E.module(E.HERE/(family+'-admission.py'),'w1_'+family.replace('-','_'))
-            self.assertEqual(adapter.fingerprint(),entry['currentImplementationSha256'])
-            independent=walk['independentProofs'][family]
+            self.assertEqual(adapter.fingerprint(),current['families'][family]['currentImplementationSha256'])
+            independent=current['independentProofs'][family]
             self.assertEqual(E.EXISTING_GRAPH.fingerprint(E,adapter),independent['currentImplementationSha256'])
-            self.assertEqual(independent['previousSourceProducerSha256'],entry['previousImplementationSha256'])
+            self.assertEqual(walk['independentProofs'][family]['previousSourceProducerSha256'],entry['previousImplementationSha256'])
         for kind,adapter in [('players',E.PLAYER_PARTICIPATION),('pa',E.PLAYER_PARTICIPATION.PA),('c2pa',E.PA_RESOLUTION)]:
-            entry=walk['derivedProofs'][kind]
+            entry=current['derivedProofs'][kind]
             self.assertEqual(adapter.fingerprint(),entry['currentImplementationSha256'])
             self.assertEqual(E.prior_versions(kind,adapter.fingerprint()),entry['previousImplementationSha256s'])
             self.assertEqual(E.prior_versions(kind,'unknown'),[])

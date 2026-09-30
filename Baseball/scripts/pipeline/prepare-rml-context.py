@@ -246,6 +246,59 @@ def runner_episode_evidence(play: dict, at_bat_index: str) -> dict[str, list[dic
     return products
 
 
+def compound_double_play_parts(play: dict) -> list[dict]:
+    """K1: reconcile the compound whole with two existing counted outs.
+
+    This selects existing result/out identities, never a Strikeout constituent
+    or a strategy. The explicit joined narrative and terminal event corroborate
+    one continuous play; matching array indexes alone are insufficient.
+    """
+    about, result = play.get('about', {}), play.get('result', {})
+    events, runners = play.get('playEvents', []), play.get('runners', [])
+    if (result.get('eventType') != 'strikeout_double_play' or about.get('isComplete') is not True
+            or about.get('hasReview') is not False or play.get('reviewDetails') or not events):
+        return []
+    terminal = events[-1]
+    before, after = terminal.get('count', {}).get('outs'), play.get('count', {}).get('outs')
+    if (terminal.get('isPitch') is not True or terminal.get('type') != 'pitch'
+            or not SAFE_IRI_SEGMENT.fullmatch(str(terminal.get('playId') or ''))
+            or terminal.get('count', {}).get('strikes') != 3
+            or play.get('count', {}).get('strikes') != 3
+            or terminal.get('details', {}).get('isInPlay') is not False
+            or terminal.get('details', {}).get('isStrike') is not True
+            or type(before) is not int or before not in (0, 1) or after != before + 2
+            or any(e.get('reviewDetails') or e.get('details', {}).get('hasReview') is True for e in events)):
+        return []
+    outs = [(i, row) for i, row in enumerate(runners) if row.get('movement', {}).get('isOut') is True]
+    batter = play.get('matchup', {}).get('batter', {})
+    if len(outs) != 2 or len({r.get('details', {}).get('runner', {}).get('id') for _, r in outs}) != 2:
+        return []
+    if any(r.get('details', {}).get('playIndex') != terminal.get('index')
+           or r.get('details', {}).get('isScoringEvent') is not False
+           or r.get('movement', {}).get('end') is not None for _, r in outs):
+        return []
+    numbers = [r['movement'].get('outNumber') for _, r in outs]
+    if any(type(n) is not int for n in numbers) or sorted(numbers) != [before + 1, before + 2]:
+        return []
+    batting = [r for _, r in outs if r.get('details', {}).get('runner', {}).get('id') == batter.get('id')]
+    running = [r for _, r in outs if r.get('details', {}).get('runner', {}).get('id') != batter.get('id')]
+    if (len(batting) != 1 or batting[0]['movement'].get('start') is not None
+            or running[0]['movement'].get('start') not in {'1B', '2B', '3B'}):
+        return []
+    other = running[0]['details']['runner']
+    names = [batter.get('fullName'), other.get('fullName')]
+    if not all(isinstance(n, str) and n.strip() for n in names):
+        return []
+    # Bound the accepted selector to explicit K-and-caught-stealing wording.
+    narrative = re.escape(names[0]) + r' strikes out (?:swinging|looking) and ' + re.escape(names[1]) + r' caught stealing (?:2nd|3rd|home)(?:[, .]|$)'
+    if not re.match(narrative, result.get('description', ''), flags=re.I):
+        return []
+    if running[0]['details'].get('eventType') not in {'caught_stealing_2b', 'caught_stealing_3b', 'caught_stealing_home'}:
+        return []
+    return [dict(atBatIndex=str(play['atBatIndex']), runnerIndex=str(i),
+                 runnerId=str(r['details']['runner']['id'])) for i, r in outs]
+
+
 def supported_walkoff_boundary(document: dict, last_play: dict) -> dict | None:
     """Q8 source boundary only; the caller still reconciles the entire half."""
     plays = document['liveData']['plays']['allPlays']
@@ -2472,6 +2525,7 @@ def main() -> None:
             pitch_count += 1
 
     metric_pitch_context(document)
+    root_context['compoundDoublePlayParts'] = [part for play in plays for part in compound_double_play_parts(play)]
     previous_defense = None
     if args.previous_defensive_evidence:
         previous_manifest = json.loads(args.previous_defensive_evidence.read_text(encoding='utf-8-sig'))

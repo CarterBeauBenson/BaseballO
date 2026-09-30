@@ -22,13 +22,20 @@ def load(evidence,state,promotion,family,adapter):
     path=path_for(evidence,state,promotion,family,adapter);receipt=path.with_suffix('.receipt.json')
     version=fingerprint(evidence,adapter);producer=adapter.fingerprint()
     if not receipt.is_file():
-        walk=evidence.read(evidence.COMPATIBILITY_PATH).get('intentionalWalkPrefix',{})
-        entry=walk.get('independentProofs',{}).get(family,{})
-        if (entry.get('currentImplementationSha256')!=version
-                or evidence.sha(evidence.ROOT/'scripts/pipeline/prepare-rml-context.py')!=walk.get('currentContextSha256')):return None
-        version=entry['previousImplementationSha256'];producer=entry['previousSourceProducerSha256']
-        path=evidence.refresh_path(state,promotion,SHORT[family],version);receipt=path.with_suffix('.receipt.json')
-        if not receipt.is_file():return None
+        compatibility=evidence.read(evidence.COMPATIBILITY_PATH)
+        context=evidence.sha(evidence.ROOT/'scripts/pipeline/prepare-rml-context.py')
+        candidates=[]
+        for name in ('compoundResultRepair','intentionalWalkPrefix'):
+            repair=compatibility.get(name,{})
+            entry=repair.get('independentProofs',{}).get(family,{})
+            if entry.get('currentImplementationSha256')==version and context==repair.get('currentContextSha256'):
+                candidates.extend(entry.get('previous',[]) or [entry])
+        for entry in candidates:
+            candidate=evidence.refresh_path(state,promotion,SHORT[family],entry['previousImplementationSha256'])
+            if candidate.with_suffix('.receipt.json').is_file():
+                version=entry['previousImplementationSha256'];producer=entry['previousSourceProducerSha256']
+                path=candidate;receipt=path.with_suffix('.receipt.json');break
+        else:return None
     record=evidence.read(receipt)
     if record.get('promotionManifestSha256')!=promotion['promotionManifestSha256'] or record.get('proofSha256')!=evidence.sha(path):
         raise ValueError('Existing graph admission receipt changed')

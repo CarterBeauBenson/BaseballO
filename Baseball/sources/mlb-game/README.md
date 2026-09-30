@@ -4,6 +4,15 @@ This module owns the MLB Stats API `feed/live` game response boundary.
 Ownership does not establish that every API field or case is mapped; coverage
 is recorded separately in the source contract and mapping documentation.
 
+The accepted [K1 repair](../../archive/design-records/mlb-game-strikeout-double-play/README.md)
+uses `nifi/provision-compound-addition.ps1` to run the existing additive
+transaction for five named games. Its worker acquires only a needed named
+response, retains separate source provenance, selects the compound result and
+its two existing outs, and adds only absent triples. The first game must pass
+before the other four are selected. The ordinary admission owner then checks
+the affected promoted graph against the retained witness; SQL remains RDF-fed.
+No whole-game RML replay or corpus replacement is part of this repair.
+
 - [`schema/`](schema/) records the observed source contract.
 - [`mapping/`](mapping/) contains the only executable RML and source-field IRI
   policy for this source.

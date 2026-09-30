@@ -210,7 +210,7 @@ def add_game(state,game_pk,witness,java,mapper,classpath,*,repair=None):
         deltaPath=str(delta_path),deltaSha256=sha(delta_path),effectiveMappingSha256=sha(mapping),
         executionContextSha256=sha(context),contextBuilderSha256=sha(ROOT/'scripts/pipeline/prepare-rml-context.py'),
         addedTriples=len(missing),baseTripleCount=len(base),resultingTripleCount=len(combined),
-        mutation='additive-graph-store-post',acquiredInputs=0)
+        mutation='additive-graph-store-post',acquiredInputs=int(witness.get('kind')=='targeted-reacquisition'))
     if sha(source_path)!=witness['sha256']:raise ValueError('W1 source changed before promotion')
     latest=max(marker_root.glob('*.json'),key=lambda p:(read(p)['promotedAtUtc'],p.name))
     if latest!=marker_path or sha(marker_path)!=addition['basePromotionSha256']:raise ValueError('W1 promotion changed')

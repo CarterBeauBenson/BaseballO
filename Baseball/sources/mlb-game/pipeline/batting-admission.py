@@ -29,7 +29,7 @@ RESULTS = {
     'force_out': 'ForceOutProcess', 'grounded_into_double_play': 'GroundedIntoDoublePlayProcess',
     'double_play': 'DoublePlayProcess', 'sac_fly': 'SacrificeFlyProcess',
     'sac_bunt': 'SacrificeBuntProcess', 'strikeout': 'StrikeoutProcess',
-    'strikeout_double_play': 'StrikeoutProcess', 'walk': 'WalkProcess',
+    'strikeout_double_play': 'DoublePlayProcess', 'walk': 'WalkProcess',
     'intent_walk': 'WalkProcess', 'hit_by_pitch': 'HitByPitchProcess',
     'fielders_choice': 'FieldersChoiceProcess', 'fielders_choice_out': 'FieldersChoiceProcess',
     'field_error': 'ErrorProcess', 'catcher_interf': 'InterferenceProcess',

@@ -23,6 +23,18 @@
   rml:referenceFormulation ql:JSONPath ;
   rml:iterator "$.liveData.plays.allPlays[*]._baseballO.batterParticipations[*]" .
 
+# K1: existing compound result and its two reconciled existing out identities.
+<#CompoundDoublePlaySource> a rml:LogicalSource ;
+  rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$._baseballO.compoundDoublePlayParts[*]" .
+
+<#CompoundDoublePlayMap> a rr:TriplesMap ;
+  rml:logicalSource <#CompoundDoublePlaySource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{atBatIndex}/result" ; rr:termType rr:IRI ; rr:class base:DoublePlayProcess ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001777 ;
+    rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/runner-resolution/out/{atBatIndex}/{runnerIndex}" ; rr:termType rr:IRI ] ] .
+
 <#RootSource> a rml:LogicalSource ;
   rml:source "game.json" ;
   rml:referenceFormulation ql:JSONPath ;

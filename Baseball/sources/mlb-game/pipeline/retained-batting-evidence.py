@@ -37,7 +37,7 @@ def fingerprint():
 def load(evidence,state,promotion):
     # This extension admits an additional retained producer to the same check.
     # It does not invalidate completed checks from the previous narrower repair.
-    for version in (fingerprint(),PREVIOUS_IMPLEMENTATION):
+    for version in (fingerprint(),PREVIOUS_IMPLEMENTATION,*evidence.prior_versions('retained-batting',fingerprint())):
         proof=evidence.refreshed(state,promotion,'batting',version)
         if proof is not None:return proof
     return None
