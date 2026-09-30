@@ -1,6 +1,8 @@
 # K1: complete the existing compound double-play result
 
-Status: under review; no implementation is authorized by this package yet.
+Status: accepted on September 30, 2026, through the user's narrow RML repair
+authorization and explicit yes to the targeted reacquisition question naming
+these five games. See [the exact decisions](../metric-repair-scope-2026-09-30/answers.md).
 No new class, object property, data property or entity identity is proposed.
 
 ## Proposed decision
@@ -109,4 +111,4 @@ checks. A successful addition is not evidence that all 19 metrics are populated.
 
 See the [source-independent shape](source-independent-mermaid.md). This
 package changes RML source selection and asserted compound-result structure;
-the named-review requirement in [AGENTS.md](../../../AGENTS.md) applies.
+the recorded approval precedes implementation under [AGENTS.md](../../../../AGENTS.md).

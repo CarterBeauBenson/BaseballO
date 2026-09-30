@@ -27,3 +27,6 @@ evidence and allocation decisions. Their recommendations are not user answers.
 The [consolidated questions](../../../proposals/graph-native-metric-suite-batch-review/remaining-questions-2026-09-30.md)
 map every recorded blocker family to either an unanswered decision or authorized
 engineering. Previously accepted metric choices remain in force.
+
+The user subsequently accepted all four questions and clarified that temporal
+regions may overlap. See [the exact answers and implementation scope](answers.md).

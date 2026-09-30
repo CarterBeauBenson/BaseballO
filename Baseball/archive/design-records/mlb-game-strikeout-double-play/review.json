@@ -1,0 +1,53 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-strikeout-double-play",
+  "title": "K1 existing compound double-play result for five strikeout double plays",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "6162eb8f66a7df378c92d3ad59742c544d1cb1f7db58de245a7590c2adb7bb9d"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "README.md",
+        "sha256": "6162eb8f66a7df378c92d3ad59742c544d1cb1f7db58de245a7590c2adb7bb9d"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "6162eb8f66a7df378c92d3ad59742c544d1cb1f7db58de245a7590c2adb7bb9d"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "72adeee4d57c3afe50b7a6c90495ce23f4bca6203f9aafde2ac1306bb0b38fd9"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-09-30",
+    "rationale": "The user explicitly approved narrow RML fixes without a full rebuild, then answered Yes to the targeted response acquisition question naming K1 and its five games. The existing Double Play result and two existing Out Process parts reuse accepted meanings and identities. Exact answers and the separate overlapping-boundary, strategy-evidence and shared-erosion decisions are recorded in ../metric-repair-scope-2026-09-30/answers.md. No new vocabulary, whole-game replacement or corpus rebuild.",
+    "authorizedArtifacts": [
+      "Baseball/scripts/pipeline/prepare-rml-context.py",
+      "Baseball/sources/mlb-game/mapping/mlb-game.rml.ttl",
+      "Baseball/sources/mlb-game/mapping/mapping-coverage.yaml",
+      "Baseball/sources/mlb-game/review/rml-mermaid-manifest.json",
+      "Baseball/sources/mlb-game/review/semantic-status.json",
+      "Baseball/sources/mlb-game/pipeline/batting-admission.py",
+      "Baseball/sources/mlb-game/pipeline/targeted-compound-addition.py",
+      "Baseball/sources/mlb-game/pipeline/targeted-compound-addition.ps1",
+      "Baseball/sources/mlb-game/shacl/compound-result-addition.ttl",
+      "Baseball/sources/mlb-game/pipeline/validation-profiles.json"
+    ]
+  }
+}

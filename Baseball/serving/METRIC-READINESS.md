@@ -397,12 +397,13 @@ there is source evidence. It is not repaired by inventing a statistical PA
 in SQL or typing a composite whole from one of its parts. Other interrupted
 turns in those games remain distinct from official completed PAs.
 
-The prepared [K1 review](../proposals/mlb-game-strikeout-double-play/README.md)
+The accepted [K1 repair](../archive/design-records/mlb-game-strikeout-double-play/README.md)
 proposes the existing Double Play classification of the combined result with
 its two existing Out Processes as process parts. The 823327 / PA 46 graph
 already contains both out identities. K1 requests only the five named source
 responses and selected additive RML facts because those raw inputs are retired.
-It is awaiting a named decision; no K1 assertion or admission change is live.
+The September 30 narrow-repair approval and targeted-acquisition answer authorize
+implementation. No K1 assertion or admission change is live at this decision.
 
 These retained pitch-count censuses reconcile without source issues. Their
 Jena reports identify absent counted-foul Strike Processes:

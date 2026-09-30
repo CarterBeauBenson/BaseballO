@@ -1,8 +1,10 @@
 # Remaining metric questions, September 30, 2026
 
-Status: questions prepared; answers pending. Recommendations below are not
-accepted decisions. The user's separate [narrow RML repair authorization](../../archive/design-records/metric-repair-scope-2026-09-30/README.md)
-is effective now. This document changes no executable artifact or semantic pin.
+Status: all four accepted on September 30, with the clarification that temporal
+regions may overlap. The [exact answers](../../archive/design-records/metric-repair-scope-2026-09-30/answers.md)
+are recorded separately before implementation. The question text below preserves
+what was asked. The [narrow RML repair authorization](../../archive/design-records/metric-repair-scope-2026-09-30/README.md)
+also remains effective. This document changes no executable artifact or semantic pin.
 
 The season diagnostics report overlapping failures and missing/stale checks,
 not one unanswered semantic question per code. Existing decisions already
@@ -20,7 +22,7 @@ required. This is not a claim that every recorded failure has been diagnosed.
    824866. Each new response keeps its own hash and is checked against the
    existing identities; only the selected affected facts enter RML. No season
    reacquisition or whole-game graph replacement. **Recommendation: yes.**
-   The [K1 package](../mlb-game-strikeout-double-play/README.md) contains the
+   The [K1 package](../../archive/design-records/mlb-game-strikeout-double-play/README.md) contains the
    exact PAs and proposed three-triple compound-result correction. This
    question concerns missing input acquisition, not repeat approval of ordinary
    narrow RML repairs.
