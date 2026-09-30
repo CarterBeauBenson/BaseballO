@@ -69,6 +69,9 @@ TIMESTAMP_CALCULATIONS = (
 # default game calculations are identical and must not rerun on deployment.
 PLAYER_CALCULATIONS = (TIMESTAMP_CALCULATIONS[1],
     '46c59a0a572d58e69234dc3a832942a008ea3d00c15c0b0b051c7445d43a3e06')
+# Q3/Q4 change only compound double-play inputs. Other game calculations and
+# player partitions retain their existing evidence and exact stored results.
+SHARED_OUT_CALCULATIONS = (PLAYER_CALCULATIONS[1], '98fe6a74abb52e6eb0dc7c3ffc71310509e4e7073b4c6efb06570d0e4c6cc79b')
 
 
 def digest(value):
@@ -235,6 +238,14 @@ def reuse_game(connection, graph, saved, promotion, dimension, admissions, calcu
     timestamp_update=False
     if saved not in {previous_identity,input_identity(promotion,dimension,previous,calculation,legacy=True)}:
         compatible=[]
+        if calculation==SHARED_OUT_CALCULATIONS[1]:
+            compound=connection.execute("""SELECT 1 FROM metric_suite_scope_fact
+                WHERE graph_iri=? AND kind='plate_appearance'
+                AND json_extract(record_json,'$.paResultType')='https://baseballontology.org/DoublePlayProcess'
+                LIMIT 1""",(graph,)).fetchone()
+            if compound:return False  # Only these games need the richer RDF bindings.
+            compatible.extend(((SHARED_OUT_CALCULATIONS[0],False),(PLAYER_CALCULATIONS[0],False),
+                               (TIMESTAMP_CALCULATIONS[0],True)))
         if calculation in {TIMESTAMP_CALCULATIONS[1],PLAYER_CALCULATIONS[1]}:
             compatible.append((TIMESTAMP_CALCULATIONS[0],True))
         if calculation==PLAYER_CALCULATIONS[1]:compatible.append((PLAYER_CALCULATIONS[0],False))
@@ -262,7 +273,8 @@ def reuse_game(connection, graph, saved, promotion, dimension, admissions, calcu
             for version in (PLAYER_RANGES.fingerprint(),PLAYER_RANGES.PREVIOUS_VERSION,
                             PLAYER_RANGES.PREVIOUS_INDIVIDUAL_VERSION,PLAYER_RANGES.PREVIOUS_BOUNDARY_VERSION,
                             PLAYER_RANGES.PREVIOUS_DAMAGE_VERSION,PLAYER_RANGES.PREVIOUS_ZERO_PA_VERSION,
-                            PLAYER_RANGES.PREVIOUS_RESOLUTION_VERSION,PLAYER_RANGES.PREVIOUS_SCOPED_RESOLUTION_VERSION):
+                            PLAYER_RANGES.PREVIOUS_RESOLUTION_VERSION,PLAYER_RANGES.PREVIOUS_SCOPED_RESOLUTION_VERSION,
+                            PLAYER_RANGES.PREVIOUS_SHARED_OUT_VERSION):
                 if partition and partition[0]==METRICS._hash(saved+version+proof_sha):
                     connection.execute('UPDATE dashboard_player_partition SET input_sha256=? WHERE graph_iri=?',
                         (METRICS._hash(identity+version+proof_sha),graph))

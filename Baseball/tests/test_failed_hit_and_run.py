@@ -26,6 +26,26 @@ def score(rows=None, **options):
 
 
 class FailedHitAndRun(unittest.TestCase):
+    def test_independent_shared_outs_allocate_erosion_once_at_actual_end(self):
+        rows=participants();before=deepcopy(rows)
+        result=M.independent_shared_out_scores(rows,1,batter='b',runner='r',confirmed=True,
+            confirmation_evidence=['urn:confirmed:independent'],complete=True)
+        self.assertEqual(M.fraction(result['value']),Fraction(-3,4))
+        running,=result['independentRunningScores']
+        self.assertEqual(M.fraction(running['damage']['value']),Fraction(5,6))
+        self.assertEqual(M.fraction(M.empty_game_damage([], [running['score']],empty=True,complete=True)['value']),Fraction(5,6))
+        self.assertEqual(M.fraction(result['components']['erosion'])+
+                         M.fraction(running['damage']['components']['erosion']),1)
+        self.assertEqual(rows,before)
+        rows[2].update(terminal='scored',end=4)
+        result=M.independent_shared_out_scores(rows,1,batter='b',runner='r',confirmed=True,
+            confirmation_evidence=['urn:confirmed:independent'],complete=True)
+        self.assertEqual(M.fraction(result['value']),Fraction(-1,4))
+        self.assertEqual(M.fraction(result['independentRunningScores'][0]['damage']['value']),Fraction(1,3))
+        for options in ({'confirmed':False},{'complete':False},{'confirmation_evidence':[]}):
+            args=dict(batter='b',runner='r',confirmed=True,complete=True,confirmation_evidence=['urn:e'])
+            self.assertEqual(M.independent_shared_out_scores(rows,1,**(args|options))['status'],'unavailable')
+
     def test_batter_bears_both_outs_and_existing_third_out_erosion_once(self):
         rows = participants()
         original = deepcopy(rows)

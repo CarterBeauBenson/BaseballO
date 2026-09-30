@@ -253,13 +253,18 @@ def _trajectory_kernel_result(kernel_identity, numeric_rows):
     return tuple(result[k] for k in ('numerator','denominator','progress','destruction','erosion'))
 
 
-def trajectories(participants, outs_before, attributed_outs, *, batter=None, batter_result_type=None):
+def trajectories(participants, outs_before, attributed_outs, *, batter=None, batter_result_type=None, actual_outs=None):
     """One already coalesced, complete attributed consequence. No raw rows."""
     _integer(outs_before, 'outs before', 0, 2)
     _integer(attributed_outs, 'attributed outs', 0, 3 - outs_before)
     rows = _unique(participants, ('participant',))
     if not rows:
         return unavailable('MISSING_PARTICIPANTS')
+    if actual_outs is None:actual_outs=attributed_outs
+    else:
+        _integer(actual_outs, 'actual consequence outs', attributed_outs, 3-outs_before)
+        if actual_outs!=sum(r.get('terminal')=='out' for r in rows):
+            raise EvidenceError('Actual outs require the complete distinct out population')
     exclude_progress = (batter_result_type is not None and
                         batter_result_type in policies()['batterProgressExcludedResultTypes'])
     inputs, evidence = [], []
@@ -281,7 +286,7 @@ def trajectories(participants, outs_before, attributed_outs, *, batter=None, bat
             _integer(end, 'terminal base', 1, 3)
         elif outcome == 'scored' and end != 4:
             raise EvidenceError('A scored path must terminate at SCORE')
-        if outcome == 'stranded' and outs_before + attributed_outs != 3:
+        if outcome == 'stranded' and outs_before + actual_outs != 3:
             raise EvidenceError('Stranding requires an evidenced inning-ending consequence')
         progress = _boolean(row.get('creditProgress'), 'progress attribution')
         # Owning MLB result contract maps InterferenceProcess only from
@@ -348,6 +353,69 @@ def failed_hit_and_run_scores(participants, outs_before, *, batter, runner,
     score['evidence'] = sorted(set(score['evidence']) | set(confirmation_evidence))
     return dict(score, batter=batter, runner=runner, attributedOuts=2,
                 attribution='confirmed-failed-hit-and-run', independentRunningScores=[])
+
+
+def independent_shared_out_scores(participants, outs_before, *, batter, runner,
+                                  confirmed=False, confirmation_evidence=(), complete=False):
+    """Q4: one complete common end state, erosion apportioned by owned outs.
+
+    The existing kernel is linear in attributed outs. Supplying each channel's
+    out count therefore partitions the total erosion exactly, without imposing
+    an order on simultaneous outs or crediting the other channel's destruction.
+    """
+    _boolean(confirmed,'independent steal confirmation');_boolean(complete,'consequence completeness')
+    if not confirmed or not confirmation_evidence:return unavailable('INDEPENDENT_STEAL_UNCONFIRMED')
+    if not complete:return unavailable('ATTRIBUTED_CONSEQUENCE_INCOMPLETE')
+    if (not isinstance(confirmation_evidence,(list,tuple)) or
+            any(not isinstance(x,str) or not x.strip() for x in confirmation_evidence)):
+        raise EvidenceError('Confirmation requires admitted evidence identities')
+    rows=_unique(participants,('participant',));by_person={r['participant']:r for r in rows}
+    if not {batter,runner}<=by_person.keys():return unavailable('MISSING_PARTICIPANTS')
+    if (batter==runner or by_person[batter].get('start')!=0 or by_person[runner].get('start') not in (1,2,3)
+            or {r['participant'] for r in rows if r.get('terminal')=='out'}!={batter,runner}):
+        raise EvidenceError('Shared allocation requires the two distinct, attributed outs')
+    results=[]
+    for owner in (batter,runner):
+        score=trajectories([dict(r,creditProgress=False,creditOut=r['participant']==owner) for r in rows],
+                          outs_before,1,actual_outs=2)
+        if score['status']!='available':return score
+        score['evidence']=sorted(set(score['evidence'])|set(confirmation_evidence));results.append(score)
+    batting,running=results
+    damage=available(-fraction(running['value']),evidence=running['evidence'],
+        components={k:running['components'][k] for k in ('destruction','erosion')})
+    return dict(batting,attribution='confirmed-independent-shared-outs',attributedOuts=1,
+                independentRunningScores=[dict(player=runner,damage=damage,score=running)])
+
+
+def compound_out_confirmation(observations, members, batter):
+    """Read explicit strategy text already in the adjudicated RDF record.
+
+    Neither a steal act nor a strikeout/caught-stealing pair establishes the
+    strategy. Require the same compound whole's two Out Process parts, exact
+    movement participants, and an unambiguous affirmative final description.
+    """
+    denied=dict(status='unavailable')
+    parts={r.get('compoundOut') for r in observations if r.get('compoundOut')}
+    outs=[r for rows in members.values() for r in rows if r.get('hasOutType')=='true']
+    if (len(parts)!=2 or len(outs)!=2 or {r['resolution'] for r in outs}!=parts
+            or any(len(rows)!=1 for rows in members.values())
+            or any(r.get('contactPlay') or r.get('award') for r in outs)):
+        return denied
+    other=[r for r in outs if r['runner']!=batter]
+    if len(other)!=1 or sum(r['runner']==batter for r in outs)!=1 or not independent_running_act(other[0]):return denied
+    descriptions={(r.get('paResultRecord'),r.get('compoundDescription')) for r in observations
+                  if r.get('compoundDescription')}
+    if len(descriptions)!=1:return denied
+    record,description=next(iter(descriptions))
+    if not record:return denied
+    text=description.lower().replace('\u2011','-').replace('\u2010','-')
+    if re.search(r'\b(?:not|no|unconfirmed|possible|possibly|perhaps|attempted to signal)\b',text):return denied
+    hit_run=bool(re.search(r'\b(?:on|during|failed) (?:a |the )?hit[ -]and[ -]run\b',text))
+    independent=bool(re.search(r'\b(?:on|during) (?:a |the )?(?:straight|independent) steal\b',text))
+    if hit_run==independent:return denied
+    if hit_run and 'strikes out swinging' not in text:return denied
+    return dict(status='available',kind='hit-and-run' if hit_run else 'independent',runner=other[0]['runner'],
+                evidence=sorted(parts|{record}|{r['act'] for r in outs}))
 
 
 def percentiles(entries, *, metric_id='paq-2', complete_population=False):
@@ -870,7 +938,7 @@ def normalize_bindings(bindings, graphs):
             raise EvidenceError('Evidence escaped its graph scope or lacks a referent')
         for field in ('graph', 'game', 'entity', 'player', 'act', 'roleType', 'reviewRecord',
                       'playerTeamRole', 'team', 'teamRole', 'paResult', 'paResultType',
-                      'paResultJudgment', 'paResultDecision', 'paResultRecord',
+                      'paResultJudgment', 'paResultDecision', 'paResultRecord', 'compoundOut',
                       'original', 'operative', 'disposition', 'plateAppearance', 'resolution',
                       'reviewPA', 'reviewPitch', 'reviewMotion', 'reviewBatterAct', 'affectedPlayer',
                       'defensiveAct', 'defensiveActType', 'defensiveAgent', 'defensiveRole', 'defensiveNext',
@@ -891,6 +959,8 @@ def normalize_bindings(bindings, graphs):
             if field in binding and (binding[field].get('type') != 'literal'
                     or binding[field].get('datatype') != 'http://www.w3.org/2001/XMLSchema#dateTime'):
                 raise EvidenceError('PA boundary requires an explicit dateTime value: ' + field)
+        if 'compoundDescription' in binding and binding['compoundDescription'].get('type')!='literal':
+            raise EvidenceError('Compound description must be the retained RDF literal')
         if row.get('kind') not in {'plate_appearance', 'batted_play', 'run', 'player_game', 'player_team_game', 'review', 'runner_movement', 'runner_history', 'automatic_count_award', 'pitch_count', 'runner_location'}:
             raise EvidenceError('Unknown evidence grain')
         if row['kind'] == 'automatic_count_award' and (row.get('countAwardKind') not in {'ball', 'strike'} or
@@ -2767,6 +2837,8 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
             by_runner[row['runner']].append(row)
         if batter not in by_runner:reasons.append('MISSING_BATTER_RESOLUTION')
         if set(by_runner)-{batter}-set(starts):reasons.append('UNSUPPORTED_WITHIN_PA_ENTRY')
+        allocation=(compound_out_confirmation(observations,by_runner,batter)
+                    if result_type.endswith('/DoublePlayProcess') else dict(status='unavailable'))
         participants=[];supports=set();comparison_starts=dict(starts)
         no_actual_outs=all(r.get('hasOutType')=='false' for members in by_runner.values() for r in members)
         complete_award=(result_type in {'https://baseballontology.org/WalkProcess','https://baseballontology.org/HitByPitchProcess'}
@@ -2821,6 +2893,9 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
                     reasons.append('AMBIGUOUS_CONSEQUENCE_ATTRIBUTION')
                 if channels:
                     supports.update(channels);credit=True
+                elif allocation['status']=='available' and terminal=='out':
+                    supports.add(('compound',pa))
+                    credit=runner==batter or allocation['kind']=='hit-and-run'
                 elif runner==batter and terminal=='out' and result_type.endswith('/StrikeoutProcess'):
                     supports.add(('strikeout',pa));credit=True
                 elif runner!=batter and terminal!='out' and end!=start and (independent_running_act(row) or complete_award or (excluded and no_actual_outs)):
@@ -2841,7 +2916,7 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
         if len(supports)!=1:reasons.append('MIXED_CONSEQUENCE_BOUNDARY')
         actual_outs=sum(r['terminal']=='out' for r in participants)
         attributed_outs=sum(r['creditOut'] for r in participants)
-        if actual_outs!=attributed_outs:reasons.append('UNRESOLVED_OUT_OWNERSHIP')
+        if actual_outs!=attributed_outs and allocation['status']!='available':reasons.append('UNRESOLVED_OUT_OWNERSHIP')
         if outs_before+actual_outs>3:reasons.append('CONFLICTING_OUT_COUNT')
         # C2's projection uses the independently admitted complete history.
         # No later movement, new stasis, Safe decision or exact end instant is minted.
@@ -2853,10 +2928,16 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
         if reasons:
             withheld.append(dict(plateAppearance=pa,gaps=sorted(set(reasons))));continue
         participants.sort(key=lambda r:r['participant'])
-        score=trajectories(participants,outs_before,attributed_outs)
+        if allocation['status']=='available':
+            calculate=failed_hit_and_run_scores if allocation['kind']=='hit-and-run' else independent_shared_out_scores
+            score=calculate(participants,outs_before,batter=batter,runner=allocation['runner'],
+                confirmed=True,confirmation_evidence=allocation['evidence'],complete=True)
+        else:score=trajectories(participants,outs_before,attributed_outs)
         if score['status']!='available':
             withheld.append(dict(plateAppearance=pa,gaps=score['gaps']));continue
-        score['evidence']=sorted(evidence)
+        score['evidence']=sorted(evidence|set(score['evidence']))
+        for running in score.get('independentRunningScores',[]):
+            for key in ('score','damage'):running[key]['evidence']=list(score['evidence'])
         # These independent entries have an explicit successful terminal state
         # and no attributed out. They contribute no independent damage, but
         # their runner's positive contribution still prevents an Empty Game.
@@ -2872,6 +2953,7 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
                 outs=outs_before,evidence=sorted(evidence)) if boundary_complete else None),
             boundaryGaps=[] if boundary_complete else ['IMMEDIATE_CONSEQUENCE_STATE_UNRESOLVED'],
             independentPositive=independent,unattributedNonbattingEpisodes=unattributed,
+            **(dict(independentRunningScores=score['independentRunningScores']) if allocation['status']=='available' else {}),
             existingRunnerOuts=len(existing),existingDestruction=exact(sum((Fraction(1,4-r['start']) for r in existing),Fraction())),
             participants=participants,score=score))
     return dict(complete=bool(pas) and not withheld and not denied,plateAppearances=completed,
@@ -2931,7 +3013,9 @@ def contribution_players(metric_id, inputs, *, qualification, date_scope):
             # it occurs during someone else's PA. Such a runner's game is not
             # empty. The admitted independent episodes have no damage; unknown
             # or damaging episodes cannot reach this branch as complete inputs.
-            values=[fraction(empty_game_damage([p['score'] for p in game_pas],[],empty=True,complete=True)['value'])
+            values=[fraction(empty_game_damage([p['score'] for p in game_pas],
+                [r['score'] for p in pas if p['game']==game for r in p.get('independentRunningScores',[])
+                 if r['player']==person['player']],empty=True,complete=True)['value'])
                 for game,game_pas in by_game.items()
                 if not any((p['graph'],game,person['player']) in running_positive for p in game_pas)
                 and all(fraction(p['score']['components']['progress'])==0 for p in game_pas)]

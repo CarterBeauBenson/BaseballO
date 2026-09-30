@@ -25,6 +25,7 @@ PREVIOUS_RESOLUTION_VERSION = 'b47cf2b52df6240514ef87cd795ba953881f4af7a7393f849
 PREVIOUS_SCOPED_RESOLUTION_VERSION = 'ec4104bc6b33774dd4a5a2d1b6700300c31efb054d49a1fa2a28320fd89c63e6'
 PREVIOUS_HELP_VERSION = 'e0f455baeae669e3cb5f99e0e26e3b7c0ff885e4208b7f2282d7ab4ff8500275'
 PREVIOUS_CHANNEL_VERSION = '7397a2cc83659359efe7a99dee4f6eafc9c7b86ae9a7fa620c20677c4474021b'
+PREVIOUS_SHARED_OUT_VERSION = 'cf63597341de4a503f8f8002c5e421ae755d555d49f00dd8593966532894d13a'
 
 
 def fingerprint():
@@ -68,8 +69,8 @@ def mean(m, values):
 def zero_independent_damage_players(rows, contribution, resolution):
     """Isolate uncertainty using the admitted complete runner population.
 
-    A completed contribution already accounts for every out and establishes
-    that its separate running episodes caused no damage. An unresolved PA or
+    A completed contribution accounts for every out; any separately retained
+    nonzero running damage is excluded from this zero-only set. An unresolved PA or
     interrupted turn blocks every runner it could affect, not the whole roster.
     This certifies only zero independent damage; it never scores unknown acts.
     """
@@ -77,6 +78,9 @@ def zero_independent_damage_players(rows, contribution, resolution):
     roster={r['player'] for r in rows if r['kind']=='player_team_game' and r.get('player')}
     completed={r['plateAppearance']:r for r in contribution.get('plateAppearances',[])}
     uncertain=set()
+    # Nonzero, known independent damage is retained on its own channel. It
+    # cannot be advertised as zero merely because its containing PA resolved.
+    uncertain.update(r['player'] for p in completed.values() for r in p.get('independentRunningScores',[]))
     for row in rows:
         if row['kind'] not in {'runner_movement','runner_location'}:continue
         runner=row.get('runner');pa=row.get('plateAppearance')
@@ -306,7 +310,9 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people):
                     damage_known=(contrib.get('independentDamageComplete') is True
                                   or player in contrib.get('zeroIndependentDamagePlayers',[]))
                     if own and empty_known and player not in positive and contrib_ok and damage_known:
-                        score=m.empty_game_damage([r['score'] for r in own_contrib],[],empty=True,complete=True)
+                        running=[r['score'] for pa in contrib.get('plateAppearances',[])
+                                 for r in pa.get('independentRunningScores',[]) if r['player']==player]
+                        score=m.empty_game_damage([r['score'] for r in own_contrib],running,empty=True,complete=True)
                         complete=score['status']=='available'
                         if complete:aggregate=mean(m,[m.fraction(score['value'])])
                     reason='INDEPENDENT_DAMAGE_COVERAGE'
@@ -342,6 +348,11 @@ def prepare(m, db, checkpoint=None, player_admissions=None):
         identity=m._hash(key+version+proof_sha)
         if saved.get(graph)==identity:continue
         channel_upgrade=graph in channel_candidates
+        if not channel_upgrade and saved.get(graph)==m._hash(key+PREVIOUS_SHARED_OUT_VERSION+proof_sha):
+            # The checkpoint key changes for repaired compound games. With
+            # unchanged inputs, earlier products have no shared-out scores.
+            with db:db.execute('UPDATE dashboard_player_partition SET input_sha256=? WHERE graph_iri=?',(identity,graph))
+            continue
         if not channel_upgrade and saved.get(graph)==m._hash(key+PREVIOUS_CHANNEL_VERSION+proof_sha):
             with db:db.execute('UPDATE dashboard_player_partition SET input_sha256=? WHERE graph_iri=?',(identity,graph))
             continue

@@ -1,23 +1,24 @@
 {
-  "version": 5,
+  "version": 6,
   "scope": "Graph-native metric suite. Named user decisions are recorded separately from remaining ontology, identity, evidence and completeness requirements.",
   "reviewPackage": "proposals/graph-native-metric-suite-batch-review",
   "gaps": [
     {
       "id": "ATTRIBUTION",
       "title": "Attribute offensive consequences",
-      "question": "Confirmed failed hit-and-run runner-out damage belongs to the batter. Implement source admission for confirming the called strategy; other shared independent-out allocation remains unaccepted. Catcher-interference exclusion and B2 are accepted; speed-conditioned error credit is optional and deferred.",
-      "direction": "Apply both confirmed failed hit-and-run outs to the batter with existing destruction and erosion formulas and no duplicate running damage. A swinging strikeout plus caught stealing alone does not confirm the strategy. Complete source/graph attribution coverage remains required.",
+      "question": "The September 30 decisions settle explicit final-description hit-and-run confirmation and proportional erosion for verified independent shared outs. Complete source/graph coverage remains engineering work; speed-conditioned error credit remains optional and deferred.",
+      "direction": "Read the existing adjudicated RDF description and same-play Out Process parts. Confirmed failed hit-and-run charges both outs to the batter; confirmed independent outs allocate erosion proportionally to their out counts. Do not infer strategy from K/CS alone or silence.",
       "status": "open",
-      "disposition": "confirmed-hit-and-run-policy-resolved-source-admission-open",
-      "owner": "ontologist-for-shared-out-allocation; engineering-for-accepted-mappings",
-      "implementationBehavior": "The reference game now has 79/79 graph-derived PA contribution scores and complete isolated player means. A verified independent steal prefix is separated from contact, full award membership excludes unrelated advances from the batter score, and excluded no-out FC/error positives no longer block zero contributions. Immediate comparison states remain separately gated (77/79 in this graph); unknown timing and independent running classification are not supplied by a known batting score.",
+      "disposition": "policy-resolved-evidence-coverage-open",
+      "owner": "engineering-for-accepted-coverage",
+      "implementationBehavior": "The SQL build reads the existing RDF description and compound out membership. Accepted explicit strategy wording selects exact batter/runner scores; unrelated games retain their existing SQL products. Unknown strategy or incomplete participants remain unavailable.",
       "decisionRecords": [
         "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
         "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json",
         "archive/design-records/runner-award-origin-final-decision/review.json",
         "archive/design-records/metric-completion-decisions-2026-09-15/decision.json",
-        "archive/design-records/metric-completion-decisions-2026-09-15/followup-decision.json"
+        "archive/design-records/metric-completion-decisions-2026-09-15/followup-decision.json",
+        "archive/design-records/metric-repair-scope-2026-09-30/answers.md"
       ],
       "researchAssessment": {
         "assessedOn": "2026-09-08",
@@ -48,12 +49,12 @@
     {
       "id": "BOUNDARY_STATE",
       "title": "Locate runners at the relevant boundaries",
-      "question": "C1/C2 and walk-off evaluation at the supported game-ending boundary are accepted. Add no erosion merely because the game ends. Full boundary reconciliation and unresolved shared-out attribution remain separate dependencies.",
-      "direction": "C1/C2 and walk-off evaluation at the supported game-ending boundary are accepted. Add no erosion merely because the game ends. Full boundary reconciliation and unresolved shared-out attribution remain separate dependencies.",
+      "question": "Overlapping temporal regions and shared-out allocation are settled. Finish independently reconciled boundary and trajectory coverage; do not invent clock precision or strict precedence.",
+      "direction": "Preserve overlapping PA header clocks and their diagnostics. A complete independently reconciled half history can support the game-state boundary; unresolved history or a contradictory interval still blocks it. Apply the accepted shared-play erosion allocation.",
       "status": "open",
-      "disposition": "confirmed-hit-and-run-policy-resolved-other-boundary-work-open",
-      "owner": "engineering; shared-out-policy-awaiting-user",
-      "implementationBehavior": "The reference game now has 79/79 graph-derived PA contribution scores and complete isolated player means. A verified independent steal prefix is separated from contact, full award membership excludes unrelated advances from the batter score, and excluded no-out FC/error positives no longer block zero contributions. Immediate comparison states remain separately gated (77/79 in this graph); unknown timing and independent running classification are not supplied by a known batting score.",
+      "disposition": "policy-resolved-evidence-coverage-open",
+      "owner": "engineering-for-accepted-coverage",
+      "implementationBehavior": "PA boundary admission no longer rejects a complete history solely because adjacent PA header intervals overlap. NiFi retries only older PAs whose source blocker is that overlap, retaining all other graph and history requirements.",
       "decisionRecords": [
         "archive/design-records/metric-suite-batch-answers-2026-09-08/decision.json",
         "archive/design-records/metric-suite-batch-answers-2026-09-08/clarifications.json",
@@ -61,7 +62,8 @@
         "archive/design-records/metric-suite-gap-answers-2026-09-09/decision.json",
         "archive/design-records/runner-continuity-boundary-projection/review.json",
         "archive/design-records/metric-completion-decisions-2026-09-15/decision.json",
-        "archive/design-records/metric-completion-decisions-2026-09-15/followup-decision.json"
+        "archive/design-records/metric-completion-decisions-2026-09-15/followup-decision.json",
+        "archive/design-records/metric-repair-scope-2026-09-30/answers.md"
       ],
       "researchAssessment": {
         "assessedOn": "2026-09-08",

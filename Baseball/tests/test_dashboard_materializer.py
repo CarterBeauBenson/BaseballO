@@ -269,6 +269,24 @@ class DashboardMaterializer(unittest.TestCase):
             self.assertEqual(complete,1)
             self.assertEqual(json.loads(aggregate),dict(kind='mean',count=1,sum=D.METRICS.exact(D.METRICS.Fraction(1,4))))
 
+    def test_shared_out_upgrade_refreshes_only_games_with_compound_results(self):
+        from test_contribution_sql import sample
+        graph,bindings=sample(101,'safe');self.bindings['101']=bindings
+        for row in bindings:
+            if row.get('paResultType'):row['paResultType']['value']='https://baseballontology.org/DoublePlayProcess'
+        old,new=D.SHARED_OUT_CALCULATIONS
+        with patch.object(D.METRICS,'calculation_fingerprint',return_value=old):D.build(self.args)
+        self.fetched.clear()
+        with patch.object(D.METRICS,'calculation_fingerprint',return_value=new):result=D.build(self.args)
+        self.assertEqual(result['changedGames'],1)
+        self.assertEqual(self.fetched,['101'])
+        self.fetched.clear()
+        with patch.object(D.METRICS,'calculation_fingerprint',return_value=new),patch.object(
+                D.METRICS,'materialize_game',side_effect=AssertionError('must reuse completed repair')):
+            result=D.build(self.args)
+        self.assertEqual(result['changedGames'],0)
+        self.assertEqual(self.fetched,[])
+
     def test_timestamp_only_upgrade_reuses_unaffected_kernels_and_matches_full_calculation(self):
         from test_contribution_sql import sample,PROOF
         graph,bindings=sample(101,'safe');self.bindings['101']=bindings

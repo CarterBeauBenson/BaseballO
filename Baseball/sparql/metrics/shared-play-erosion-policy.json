@@ -6,11 +6,13 @@
   "status": "accepted-policy-only",
   "erosionBoundary": "evidenced-actual-shared-play-end",
   "independentProgressReceivesBatterCredit": false,
-  "erosionOuts": "distinct-batter-attributed-outs-only",
+  "erosionOuts": "distinct-outs-attributed-to-each-channel",
   "scoredParticipantReceivesErosion": false,
   "requiresCompleteRelevantEvidence": true,
-  "requiresNonInningEndingPlay": true,
-  "requiresNoIndependentOuts": true,
+  "requiresNonInningEndingPlay": false,
+  "requiresNoIndependentOuts": false,
   "decision": "../../archive/design-records/tfs-shared-play-erosion/decision.json",
-  "boundary": "No order is inferred among overlapping events. Source index equality does not establish an admitted common boundary. Unresolved inning-ending, independent-out, walk-off, replay and completeness cases remain unscored when material."
+  "boundary": "Overlapping temporal regions need not be ordered. Source index equality does not establish a common consequence. Independently reconciled complete outcomes and channel ownership are required. Confirmed failed hit-and-run charges both outs to the batter; confirmed independent outs allocate erosion proportionally, once. Actual inning-ending state strands surviving runners; a scored runner has no erosion.",
+  "allocation": "one-common-actual-end-state; total-erosion-shared-proportionally-to-channel-outs",
+  "followupDecision": "../../archive/design-records/metric-repair-scope-2026-09-30/answers.md"
 }

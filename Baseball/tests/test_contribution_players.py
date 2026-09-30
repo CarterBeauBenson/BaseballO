@@ -43,6 +43,37 @@ def qualification(result):
 
 
 class ContributionPlayers(unittest.TestCase):
+    def test_compound_strategy_comes_from_rdf_record_and_preserves_separate_damage(self):
+        rows=fixture(outs=1,runner_base=1);pa=rows[0]['entity'];batter_out=rows[-1]
+        result=rows[0];result.update(paResultType=BASE+'DoublePlayProcess',paResultRecord=pa+'/result-record',
+            compoundOut=batter_out['resolution'],compoundDescription='Batter strikes out swinging and Runner caught stealing 2nd on a hit-and-run.')
+        runner=dict(batter_out,runner=RUNNER,act=pa+'/runner-act',episode=pa+'/runner-episode',
+            resolution=pa+'/runner-out',entity=pa+'/runner-out',metricOrigin='1',
+            originDesignation=pa+'/origin',originBase=GAME+'/base/1',originCode='1B',originRecord=pa+'/origin-record',
+            independentStealAct=pa+'/runner-act')
+        rows.extend([runner,dict(result,compoundOut=runner['resolution'])])
+        third=BASE+'data/player/3';rows.append(dict(rows[1],runner=third,occupiedBaseCode='3B',occupiedBase=GAME+'/base/3',
+            stasis=pa+'/third-stasis',entity=pa+'/third-stasis',baseSite=GAME+'/site/3',stasisInterval=pa+'/third-stasis/interval'))
+        item,=inputs(rows)['plateAppearances']
+        self.assertEqual(M.fraction(item['score']['value']),Fraction(-19,12))
+        self.assertEqual(item['independentRunningScores'],[])
+        self.assertEqual(item['existingRunnerOuts'],1)
+        for row in rows:
+            if row['kind']=='plate_appearance':row['compoundDescription']=row['compoundDescription'].replace('hit-and-run','straight steal')
+        item,=inputs(rows)['plateAppearances']
+        self.assertEqual(M.fraction(item['score']['value']),Fraction(-3,4))
+        self.assertEqual(M.fraction(item['independentRunningScores'][0]['damage']['value']),Fraction(5,6))
+        self.assertEqual(item['existingRunnerOuts'],0)
+        connection=__import__('sqlite3').connect(':memory:');self.addCleanup(connection.close)
+        M.initialize_sql(connection);M.store_result(connection,G1,'tfs',pa,item['score'])
+        self.assertEqual(M.read_results(connection,G1,'tfs'),[item['score']])
+        for row in rows:
+            if row['kind']=='plate_appearance':row['compoundDescription']='Batter strikes out swinging and Runner caught stealing 2nd.'
+        self.assertEqual(inputs(rows)['plateAppearances'],[])
+        for row in rows:
+            if row['kind']=='plate_appearance':row['compoundDescription']='Batter strikes out swinging and Runner caught stealing 2nd, not on a hit-and-run.'
+        self.assertEqual(inputs(rows)['plateAppearances'],[])
+
     def test_independent_pa_admission_preserves_scores_without_admitting_the_whole_game(self):
         rows=fixture();first=rows[0]['entity'];second=first.rsplit('/',1)[0]+'/1'
         more=[{k:v.replace(first,second).replace(BATTER,BASE+'data/player/3') for k,v in row.items()} for row in rows]

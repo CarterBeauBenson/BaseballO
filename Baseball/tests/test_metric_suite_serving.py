@@ -175,6 +175,24 @@ class MetricServing(unittest.TestCase):
                 self.assertEqual(result['status'],'unavailable')
                 self.assertEqual(set(result['gaps']),set(entry['requires']))
 
+    def test_compound_query_reads_existing_result_description_and_same_pa_outs(self):
+        data=fixture(decisions=())
+        data.graph(G1).parse(data=PREFIX.replace('<urn:test:>','<urn:test:101:>')+'''
+ex:result a base:BaseballInstitutionalProcess, base:DoublePlayProcess ; obo:BFO_0000132 ex:pa ;
+  cco:ont00001777 ex:out1, ex:out2, ex:otherOut .
+ex:judgment a base:BaseballAdjudicationAct ; obo:BFO_0000132 ex:result ; cco:ont00001986 ex:decision .
+ex:decision a base:BaseballDecisionICE ; cco:ont00001808 ex:result .
+ex:record a base:BaseballEventRecord ; cco:ont00001808 ex:result, ex:judgment, ex:decision ;
+  cco:ont00001765 "Explicit final description" .
+ex:out1 a base:OutProcess ; obo:BFO_0000132 ex:pa .
+ex:out2 a base:OutProcess ; obo:BFO_0000132 ex:pa .
+ex:otherOut a base:OutProcess ; obo:BFO_0000132 ex:otherPA .
+''',format='turtle')
+        rows=M.normalize_bindings(bindings(data,[G1]),[G1])
+        compound=[r for r in rows if r.get('compoundOut')]
+        self.assertEqual({r['compoundOut'] for r in compound},{'urn:test:101:out1','urn:test:101:out2'})
+        self.assertEqual({r['compoundDescription'] for r in compound},{'Explicit final description'})
+
     def test_query_does_not_leak_other_graphs_or_allow_injection(self):
         data=fixture()
         data.graph(G2).parse(data=PREFIX+'ex:other a base:BaseballGame . ex:pa a base:PlateAppearance ; obo:BFO_0000132 ex:x . ex:x obo:BFO_0000132 ex:y . ex:y obo:BFO_0000132 ex:other .',format='turtle')

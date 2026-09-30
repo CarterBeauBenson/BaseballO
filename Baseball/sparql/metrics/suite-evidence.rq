@@ -8,6 +8,7 @@ PREFIX obo: <http://purl.obolibrary.org/obo/>
 SELECT DISTINCT ?graph ?game ?kind ?entity ?player ?act ?roleType
                 ?playerTeamRole ?team ?teamRole
                 ?paResult ?paResultType ?paResultJudgment ?paResultDecision ?paResultRecord ?recognizedBattingResult ?batterProgressExcluded
+                ?compoundOut ?compoundDescription
                 ?reviewRecord ?original ?operative ?disposition ?decision
                 ?reviewPA ?reviewPitch ?reviewMotion ?reviewBatterAct ?affectedPlayer
                 ?defensiveAct ?defensiveActType ?defensiveAgent ?defensiveRole ?defensiveNext
@@ -37,6 +38,11 @@ WHERE {
         ?paResultDecision a base:BaseballDecisionICE ; cco:ont00001808 ?paResult .
         ?paResultRecord a base:BaseballEventRecord ;
             cco:ont00001808 ?paResult, ?paResultJudgment, ?paResultDecision .
+        OPTIONAL {
+          ?paResult a base:DoublePlayProcess ; cco:ont00001777 ?compoundOut .
+          ?compoundOut a base:OutProcess ; obo:BFO_0000132 ?entity .
+          ?paResultRecord cco:ont00001765 ?compoundDescription .
+        }
         # B1 classification over existing result types. This becomes official
         # qualification ONLY when the separate source/RDF proof is admitted.
         BIND(?paResultType IN (

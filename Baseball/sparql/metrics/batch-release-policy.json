@@ -42,17 +42,21 @@
   "paq21RequiresTwoStrikeEligibility": true,
   "paq21RequiresApplicableDefensiveResolution": true,
   "unknownEligibilityIsNotInapplicable": true,
-  "boundary": "Policies apply only to admitted facts. C1 personal Processes and C2 verified-history boundary projection are accepted using existing relations only. Independently verified source history, temporal boundaries, operative outcomes and complete population evidence remain required. No new object properties or ontology classes are introduced. Error-speed credit remains deferred; catcher-interference positive batter credit is excluded. Confirmed failed hit-and-run runner-out damage belongs to the batter without duplicate running damage. Strategy confirmation remains separately required; the earlier equal split for genuinely independent simultaneous outs was not accepted.",
+  "boundary": "Policies apply only to admitted facts. C1 personal Processes and C2 verified-history boundary projection are accepted using existing relations only. Independently verified source history, temporal boundaries, operative outcomes and complete population evidence remain required. No new object properties or ontology classes are introduced. Error-speed credit remains deferred; catcher-interference positive batter credit is excluded. Confirmed failed hit-and-run runner-out damage belongs to the batter without duplicate running damage. Strategy confirmation remains separately required. Explicit final MLB descriptions reconciled with participants and events can confirm hit-and-run. Verified independent outs sharing one complete consequence allocate erosion in proportion to each channel's distinct outs, without ordering overlapping regions.",
   "completionDecision": "../../archive/design-records/metric-completion-decisions-2026-09-15/decision.json",
   "catcherInterferencePositiveBatterCredit": false,
   "catcherInterferenceAlonePreventsEmptyGame": false,
-  "batterProgressExcludedResultTypes": ["https://baseballontology.org/ErrorProcess", "https://baseballontology.org/FieldersChoiceProcess", "https://baseballontology.org/InterferenceProcess"],
+  "batterProgressExcludedResultTypes": [
+    "https://baseballontology.org/ErrorProcess",
+    "https://baseballontology.org/FieldersChoiceProcess",
+    "https://baseballontology.org/InterferenceProcess"
+  ],
   "automaticCountAwardCountsAsPitch": false,
   "automaticSecondStrikeEstablishesTwoStrikeCount": true,
   "reviewEligibilityBoundary": "legal-initiation-at-decision-time",
   "reviewEligibilityEitherSide": true,
   "additionalErosionMerelyForWalkoff": false,
-  "sharedIndependentOutAllocation": "earlier-equal-split-not-accepted",
+  "sharedIndependentOutAllocation": "proportional-to-distinct-channel-attributed-outs",
   "confirmedFailedHitAndRunRunnerOutResponsibility": "batter",
   "confirmedFailedHitAndRunDuplicateRunnerDamage": false,
   "hitAndRunConfirmationFromStrikeoutCaughtStealingAlone": false,
@@ -81,5 +85,7 @@
   "continuityRequiresSeparateExplicitSourceLink": false,
   "continuityPreservesSeparateContributionEpisodes": true,
   "continuityMissingEvidenceBehavior": "unavailable",
-  "continuityGraphDecision": "../../archive/design-records/runner-continuity-boundary-projection/review.json"
+  "continuityGraphDecision": "../../archive/design-records/runner-continuity-boundary-projection/review.json",
+  "hitAndRunConfirmation": "explicit-final-mlb-description-reconciled-with-participants-and-events",
+  "repairDecision": "../../archive/design-records/metric-repair-scope-2026-09-30/answers.md"
 }
