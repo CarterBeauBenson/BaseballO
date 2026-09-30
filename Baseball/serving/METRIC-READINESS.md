@@ -6,13 +6,22 @@ calculation kernels exist, including backend-only Role Realization Breadth.
 
 ## Last verified publication
 
-September 30, 10:27 Eastern: the full-season HTTP response has **5/19 populated
-cards**, with all 2,429 regular-season games present. Qualified players:
-Offensive Reach 1, Help Without Advancing 5, Empty Games 30, Scoring History
-Length 17, Run Contributors 1. There are no complete league populations yet.
-The published build is `20260929T231614Z-dashboard-ad4d4593c34f`; this live
-response predates the new repairs below. The earlier September 29 checks in
-the table are historical, not the current population count.
+September 30, latest full-season HTTP check: **4/19 populated cards**, with all
+2,429 regular-season games and their rosters present. Qualified players:
+Help Without Advancing 4, Empty Games 23, Scoring History Length 17 and Run
+Contributors 1. There are no complete league populations yet. The published
+build is `20260930T132608Z-dashboard-df2d3cf08485`, using source commit `97d3e89`.
+
+This is down from the 10:27 Eastern check's five cards. The earlier build
+`20260929T231614Z-dashboard-ad4d4593c34f` had one qualified Offensive Reach
+player, 678662. The new snapshot excludes that player because the K1 games
+824301 and 824302 lacked refreshed individual PA checks at its input capture.
+824301's current check already admits that player. In 824302, the newer repair
+response had a different roster from the originally ingested source, so using
+it as the whole roster witness excluded every player. The repair below restores
+the original retained census as the witness, projecting only K1's accepted
+compound-result expectation and rerunning existing SHACL. Publication of that
+repair is still pending. The September 29 table is historical.
 
 Published engineering repairs on September 30:
 
@@ -29,6 +38,15 @@ Published engineering repairs on September 30:
 - Individually admitted PA runner resolutions now support that PA's
   contribution even when another resolution in the game is unresolved. The
   player projection updates affected SQL partitions without graph queries.
+- K1 player checks now retain the original source roster and official PA
+  census, with an explicitly recorded projection of the accepted compound
+  result type. They do not substitute a later response's roster. Successful
+  prior checks remain reusable; failed later-response roster checks receive
+  a bounded refresh, prioritized before general runner-resolution maintenance.
+- NiFi's [counted-foul repair](../sources/mlb-game/review/counted-foul-repair-2026-09-30.md)
+  is enabled. It selects exact missing second-foul strikes from retained
+  terminal reports and uses only five existing maps, starting with game 822678.
+  Its focused RMLMapper test passed; deployment is not a live completion claim.
 
 The two review integrations remain source-contract work. Rechecked against
 [MLB's ABS definitions](https://baseballsavant.mlb.com/abs-metrics-documentation)

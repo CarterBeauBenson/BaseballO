@@ -202,7 +202,7 @@ class AdmissionEvidence(unittest.TestCase):
             self.assertEqual(E.EXISTING_GRAPH.fingerprint(E,adapter),independent['currentImplementationSha256'])
             self.assertEqual(walk['independentProofs'][family]['previousSourceProducerSha256'],entry['previousImplementationSha256'])
         for kind,adapter in [('players',E.PLAYER_PARTICIPATION),('pa',E.PLAYER_PARTICIPATION.PA),('c2pa',E.PA_RESOLUTION)]:
-            entry=current['derivedProofs'][kind]
+            entry=record.get('retainedCompoundExpectations',{}).get('derivedProofs',{}).get(kind,current['derivedProofs'][kind])
             self.assertEqual(adapter.fingerprint(),entry['currentImplementationSha256'])
             self.assertEqual(E.prior_versions(kind,adapter.fingerprint()),entry['previousImplementationSha256s'])
             self.assertEqual(E.prior_versions(kind,'unknown'),[])

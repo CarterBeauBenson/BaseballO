@@ -34,7 +34,7 @@ permission is not a standing rebuild instruction.
 2. Inspect published selected-period player rows and exact gaps. September 21-27
    has **11/19 named, qualified leaderboards** in its last verified publication.
    The month has 5/19 populated cards and no roster gaps. The full season has
-   all 2,429 expected games and verified rosters, but only **5/19 populated
+   all 2,429 expected games and verified rosters, but only **4/19 populated
    cards**. The previously missing game 823087 and prepared player names are
    already published. Use the dated readiness record for deployment evidence;
    recovered admissions are not populated leaderboard counts.

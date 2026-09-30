@@ -4,6 +4,7 @@ This is validation provenance, never an alternative source of metric values.
 Original whole-game admissions remain unchanged. Each player must pass all
 applicable B1 membership, result, assignment and count constraints.
 """
+import copy
 import importlib.util
 import json
 from pathlib import Path
@@ -151,6 +152,37 @@ def proof_path(evidence,state,promotion):
     return evidence.refresh_path(state,promotion,'players',fingerprint())
 
 
+def compound_expectations(source):
+    """Apply accepted K1 to retained provider codes, keeping the source census.
+
+    The original roster, PA identities and totals are not replaced by another
+    response. This derives a validation expectation, never a domain triple or
+    a claim that the original census was produced by the current code.
+    """
+    selected=[r for r in source.get('members',[]) if r.get('eventType')=='strikeout_double_play'
+              and r.get('resultType')!=B.BASE+'DoublePlayProcess']
+    if not selected:return source
+    decision='archive/design-records/mlb-game-strikeout-double-play/review.json'
+    if json.loads((ROOT/decision).read_text(encoding='utf-8'))['status']!='accepted':
+        raise ValueError('Compound expectation requires accepted K1')
+    if any(r.get('resultType')!=B.BASE+'StrikeoutProcess' for r in selected):
+        raise ValueError('Unexpected retained compound result type')
+    projected=copy.deepcopy(source)
+    projected['expectationProjection']=dict(decision=decision,kind='accepted-compound-result-classification',
+        plateAppearances=[r['pa'] for r in selected],originalProducerSha256=source.get('implementationSha256'))
+    for row in projected['members']:
+        if row.get('eventType')=='strikeout_double_play':row['resultType']=B.BASE+'DoublePlayProcess'
+    return projected
+
+
+def needs_compound_refresh(proof):
+    # Older independent-response checks can reject the original graph's roster.
+    # Retry only that failed source-selection route; retain successful checks.
+    return bool(proof and proof.get('implementationSha256')!=fingerprint()
+        and proof.get('rosterComplete') is False
+        and proof.get('retainedSourceEvidence',{}).get('kind')=='retained-source-response')
+
+
 def retained_source(evidence,state,promotion):
     """Use a retained census, or a retained failed input as a separate witness.
 
@@ -173,11 +205,8 @@ def retained_source(evidence,state,promotion):
             version=proof.get('implementationSha256')
             if version==B.fingerprint() or evidence.code_equivalence('batting',version,B.fingerprint()) is not None:
                 source=evidence.read(source_path)
-                # K1 changes the expected whole's classification. Its old
-                # census cannot be presented as a current source expectation.
-                if not any(row.get('eventType')=='strikeout_double_play'
-                        and row.get('resultType')!=B.BASE+'DoublePlayProcess' for row in source.get('members',[])):
-                    return source,dict(kind='retained-b1-census',path=str(source_path),sha256=evidence.sha(source_path))
+                projected=compound_expectations(source)
+                return projected,dict(kind='retained-b1-census',path=str(source_path),sha256=evidence.sha(source_path))
     candidates=sorted((Path(state)/'pipeline/quarantine/mlb-game'/promotion['gamePk']).glob('*/input.json'))
     if not candidates:return None
     # Prefer original bytes; otherwise retain the later response's distinct hash.

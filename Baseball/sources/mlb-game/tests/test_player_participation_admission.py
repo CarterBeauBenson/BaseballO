@@ -32,6 +32,21 @@ class PlayerParticipation(unittest.TestCase):
         self.assertEqual([p['status'] for p in result['players']],['withheld','admitted'])
         self.assertEqual(result['players'][0]['issues'],[dict(code='PLAYER_GRAPH_CONFORMANCE')])
 
+    def test_k1_retained_expectation_preserves_roster_and_requires_actual_compound_graph(self):
+        source,graph=fixture();row=source['members'][0];pa=row['pa']
+        row.update(eventType='strikeout_double_play',resultType=str(BASE.StrikeoutProcess))
+        projected=P.compound_expectations(source)
+        self.assertEqual(source['members'][0]['resultType'],str(BASE.StrikeoutProcess))
+        self.assertEqual(projected['roster'],source['roster'])
+        self.assertEqual(projected['members'][0]['resultType'],str(BASE.DoublePlayProcess))
+        self.assertEqual(projected['expectationProjection']['plateAppearances'],[pa])
+        self.assertEqual(self.check(projected,graph)['players'][0]['status'],'withheld')
+        graph.remove((URIRef(pa+'/result'),RDF.type,BASE.WalkProcess))
+        graph.add((URIRef(pa+'/result'),RDF.type,BASE.DoublePlayProcess))
+        result=self.check(projected,graph)
+        self.assertTrue(result['rosterComplete'])
+        self.assertTrue(all(p['status']=='admitted' for p in result['players']))
+
     def test_unexpected_turn_or_missing_roster_cannot_be_dropped(self):
         source,graph=fixture();extra=URIRef(source['game']+'/plate-appearance/extra')
         graph.add((extra,RDF.type,BASE.PlateAppearance))

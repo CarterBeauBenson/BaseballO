@@ -535,5 +535,22 @@
         ]
       }
     }
+  },
+  "retainedCompoundExpectations": {
+    "decision": "archive/design-records/mlb-game-strikeout-double-play/review.json",
+    "currentContextSha256": "48f1f0daa2cfde9b899a5dad6bcf68f9eb7bcb9a1189715f2e3a2c7e9e432d5d",
+    "basis": "Unchanged player SHACL; accepted K1 expectation over the original retained source census. Preserve prior checked outcomes and separately retry failed later-response rosters.",
+    "derivedProofs": {
+      "players": {
+        "currentImplementationSha256": "df540b869db8c02ab3b9d58317de8fcb227c8223e0418378b53768deea48cbfd",
+        "previousImplementationSha256s": [
+          "ff3ee02cf238f48d6831fd5b60a3bee763694791d7eb9cd68432cf75e6935da9",
+          "e275ed04756c05c8fb8abed9662722ea98ab5b84601a982deba90964078943b0",
+          "eec79277b51bd8ee75abadd782b9d595e7cdde37c5305e15fef5c7162d4226e4",
+          "50aa783f28c5846f60be79dadb25ab5bf9d906bfcfa4572f3f1cf2ebfed9f08e",
+          "f6c6ab2040b1cf3a497e1445c314e15e35824dc64ce8ec666ac6a4cd463d0094"
+        ]
+      }
+    }
   }
 }

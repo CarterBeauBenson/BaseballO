@@ -145,7 +145,13 @@ def prior_versions(kind,current):
     Keep their original producer and outcomes. A new promotion gets new paths
     and must be checked again; this is never approval of W1's missing facts.
     """
-    record=read(COMPATIBILITY_PATH);walk=record.get('defensiveGroundoutRepair',{})
+    record=read(COMPATIBILITY_PATH)
+    selection=record.get('retainedCompoundExpectations',{})
+    entry=selection.get('derivedProofs',{}).get(kind,{})
+    if (entry.get('currentImplementationSha256')==current
+            and sha(ROOT/record['contextPath'])==selection.get('currentContextSha256')):
+        return entry['previousImplementationSha256s']
+    walk=record.get('defensiveGroundoutRepair',{})
     entry=walk.get('derivedProofs',{}).get(kind,{})
     if (entry.get('currentImplementationSha256')==current
             and sha(ROOT/record['contextPath'])==walk.get('currentContextSha256')):
@@ -351,7 +357,8 @@ def refresh_game(state,promotion,java,classpath,endpoint='http://127.0.0.1:3031/
     if ((batting.get('status')!='admitted' or boundary.get('status')!='admitted')
             and (individual is None or individual.get('implementationSha256') not in
                  [PLAYER_PARTICIPATION.fingerprint(),*prior_versions('players',PLAYER_PARTICIPATION.fingerprint())]
-                 or PLAYER_PARTICIPATION.PA.needs_overlap_refresh((individual or {}).get('paBoundaries')))):
+                 or PLAYER_PARTICIPATION.PA.needs_overlap_refresh((individual or {}).get('paBoundaries'))
+                 or PLAYER_PARTICIPATION.needs_compound_refresh(individual))):
         retained=PLAYER_PARTICIPATION.retained_source(api,state,promotion)
         if retained is not None:
             memory=module(ROOT/'scripts/pipeline/process_state.py','participation_memory').available_memory()
@@ -449,7 +456,7 @@ def dashboard_game_priorities(state):
     with closing(sqlite3.connect(database.as_uri()+'?mode=ro',uri=True)) as connection:
         player_version=PLAYER_PARTICIPATION.fingerprint()
         player_versions={player_version,*prior_versions('players',player_version)}
-        priority={r[0]:2 for r in connection.execute("SELECT game_pk FROM game_dimension WHERE game_set='regular_season' "
+        priority={r[0]:3 for r in connection.execute("SELECT game_pk FROM game_dimension WHERE game_set='regular_season' "
             "AND season=(SELECT max(season) FROM game_dimension WHERE game_set='regular_season')")}
         for pk,batting,individual in connection.execute('''SELECT g.game_pk,
                 json_extract(b.proof_json,'$.status'),json_extract(a.proof_json,'$.implementationSha256')
@@ -460,7 +467,7 @@ def dashboard_game_priorities(state):
         for pk, in connection.execute('''SELECT g.game_pk FROM game_dimension g
                 JOIN metric_suite_runner_resolution_admission r USING(graph_iri)
                 WHERE g.game_set='regular_season' AND json_extract(r.proof_json,'$.status')!='admitted' '''):
-            if pk in priority:priority[pk]=1
+            if pk in priority:priority[pk]=min(priority[pk],2)
         for pk, in connection.execute("SELECT game_pk FROM game_dimension g LEFT JOIN dashboard_player_game p USING(graph_iri) "
                 "WHERE game_set='regular_season' GROUP BY g.graph_iri HAVING MAX(COALESCE(p.roster_complete,0))=0"):
             if pk in priority:priority[pk]=0
