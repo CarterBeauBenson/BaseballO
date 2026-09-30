@@ -8,10 +8,20 @@ spec=importlib.util.spec_from_file_location('pa_boundary_contract',HERE/'runner-
 B=importlib.util.module_from_spec(spec);spec.loader.exec_module(B)
 SHAPE=HERE.parent/'shacl/pa-boundary-admission.ttl'
 BASE=Namespace(B.B.BASE);OBO=Namespace('http://purl.obolibrary.org/obo/');SH=Namespace('http://www.w3.org/ns/shacl#')
+OVERLAP_DECISION='archive/design-records/metric-repair-scope-2026-09-30/answers.md'
 
 
 def fingerprint():
     return B.B.sha(Path(__file__).read_bytes()+SHAPE.read_bytes()+B.fingerprint().encode())
+
+
+def needs_overlap_refresh(proof):
+    """Only retry older PAs whose sole source blocker is header overlap."""
+    if not proof or proof.get('implementationSha256')==fingerprint():return False
+    return any(p.get('status')=='withheld' and p.get('issues') and all(
+        i.get('code')=='UNSUPPORTED_PA_START_BOUNDARY'
+        and i.get('detail',{}).get('code')=='AMBIGUOUS_PA_TIME_ORDER'
+        for i in p['issues']) for p in proof.get('plateAppearances',[]))
 
 
 def retained_source(evidence,state,promotion):
@@ -37,6 +47,12 @@ def source_issues(source,pa,half):
             expected=source['game']+'/inning/'+str(detail.get('inning'))+'/'+str(detail.get('half'))
             if detail.get('inning') is None or detail.get('half') is None or expected==half:issues.append(issue)
         elif code in {'UNSUPPORTED_PA_START_BOUNDARY','INCOMPLETE_AWARD_ATTRIBUTION','UNRESOLVED_NONAWARD_MOVEMENT'}:
+            # Q2: overlapping PA regions do not require disjoint endpoints.
+            # All independently reconciled half histories, transitions, outs,
+            # reviews, substitutions and graph constraints remain mandatory.
+            # An unresolved half still contributes its own blocking issue above.
+            if code=='UNSUPPORTED_PA_START_BOUNDARY' and detail.get('code')=='AMBIGUOUS_PA_TIME_ORDER':
+                continue
             index=detail.get('atBatIndex') if code=='UNSUPPORTED_PA_START_BOUNDARY' else issue.get('atBatIndex')
             if index is None or source['game']+'/plate-appearance/'+str(index)==pa:issues.append(issue)
         else:issues.append(issue)  # Unknown scope is never silently localized.
@@ -49,6 +65,10 @@ def shape_text(source,halves):
         pa=boundary['pa'];half=halves.get(pa)
         issues=source_issues(source,pa,half) if half else [dict(code='PA_HALF_MEMBERSHIP')]
         member=dict(plateAppearance=pa,status='withheld' if issues else 'pending',issues=issues)
+        overlap=[i for i in source.get('issues',[]) if i.get('code')=='UNSUPPORTED_PA_START_BOUNDARY'
+            and i.get('detail',{}).get('code')=='AMBIGUOUS_PA_TIME_ORDER'
+            and source['game']+'/plate-appearance/'+str(i['detail'].get('atBatIndex'))==pa]
+        if overlap:member.update(boundaryEvidenceDecision=OVERLAP_DECISION,clockOverlaps=overlap)
         members.append(member)
         if issues:continue
         selected=dict(source,boundaries=[boundary],

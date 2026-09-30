@@ -21,6 +21,17 @@ def fixture():
 
 
 class CompoundAddition(unittest.TestCase):
+    def test_called_strike_wording_and_completed_earlier_pitch_review(self):
+        play=fixture()['liveData']['plays']['allPlays'][22]
+        expected=K.C.compound_double_play_parts(play)
+        play['result']['description']=play['result']['description'].replace('strikes out swinging','called out on strikes')
+        event=play['playEvents'][0]
+        event['details']['hasReview']=True
+        event['reviewDetails']=dict(inProgress=False,isOverturned=False,reviewType='MJ')
+        self.assertEqual(K.C.compound_double_play_parts(play),expected)
+        event['reviewDetails']['inProgress']=True
+        self.assertEqual(K.C.compound_double_play_parts(play),[])
+
     def test_real_source_selects_exact_existing_parts_and_b1_whole(self):
         doc=fixture();play=doc['liveData']['plays']['allPlays'][22];before=copy.deepcopy(play)
         parts=K.C.compound_double_play_parts(play)

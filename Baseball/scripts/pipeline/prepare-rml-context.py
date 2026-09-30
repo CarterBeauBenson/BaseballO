@@ -267,7 +267,8 @@ def compound_double_play_parts(play: dict) -> list[dict]:
             or terminal.get('details', {}).get('isInPlay') is not False
             or terminal.get('details', {}).get('isStrike') is not True
             or type(before) is not int or before not in (0, 1) or after != before + 2
-            or any(e.get('reviewDetails') or e.get('details', {}).get('hasReview') is True for e in events)):
+            or terminal.get('reviewDetails') or terminal.get('details', {}).get('hasReview') is not False
+            or accounted_runner_count_reviews(play)['issues']):
         return []
     outs = [(i, row) for i, row in enumerate(runners) if row.get('movement', {}).get('isOut') is True]
     batter = play.get('matchup', {}).get('batter', {})
@@ -290,7 +291,8 @@ def compound_double_play_parts(play: dict) -> list[dict]:
     if not all(isinstance(n, str) and n.strip() for n in names):
         return []
     # Bound the accepted selector to explicit K-and-caught-stealing wording.
-    narrative = re.escape(names[0]) + r' strikes out (?:swinging|looking) and ' + re.escape(names[1]) + r' caught stealing (?:2nd|3rd|home)(?:[, .]|$)'
+    narrative = (re.escape(names[0]) + r' (?:strikes out (?:swinging|looking)|called out on strikes) and '
+                 + re.escape(names[1]) + r' caught stealing (?:2nd|3rd|home)(?:[, .]|$)')
     if not re.match(narrative, result.get('description', ''), flags=re.I):
         return []
     if running[0]['details'].get('eventType') not in {'caught_stealing_2b', 'caught_stealing_3b', 'caught_stealing_home'}:

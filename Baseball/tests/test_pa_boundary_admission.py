@@ -60,5 +60,21 @@ class PaBoundary(unittest.TestCase):
         graph.add((extra,BFO.BFO_0000132,URIRef(first)))
         self.assertEqual(self.outcomes(graph,source,halves),{first:False,second:True})
 
+    def test_overlapping_regions_preserve_complete_logical_boundary_but_not_unknown_history(self):
+        graph,source,halves=self.population();first,second=halves
+        overlap=dict(code='UNSUPPORTED_PA_START_BOUNDARY',detail=dict(code='AMBIGUOUS_PA_TIME_ORDER',
+            atBatIndex=0,previousEndBound='2026-08-30T19:11:51.804+00:00',startBound='2026-08-30T19:11:48.815Z'))
+        source['issues']=[overlap];before=copy.deepcopy(source)
+        self.assertEqual(self.outcomes(graph,source,halves),{first:True,second:True})
+        self.assertEqual(source,before)
+        _,members=P.shape_text(source,halves)
+        self.assertEqual(members[0]['clockOverlaps'],[overlap])
+        self.assertEqual(members[0]['boundaryEvidenceDecision'],P.OVERLAP_DECISION)
+        source['issues'].append(dict(code='INCOMPLETE_PERSONAL_HISTORIES',detail=dict(inning=1,half='top',
+            issues=[dict(code='UNRESOLVED_REVIEW_EFFECT')])))
+        self.assertEqual(self.outcomes(graph,source,halves),{first:False,second:False})
+        source['issues']=[dict(code='UNSUPPORTED_PA_START_BOUNDARY',detail=dict(code='UNSUPPORTED_PA_CLOCK_PAIR',atBatIndex=0))]
+        self.assertEqual(self.outcomes(graph,source,halves),{first:False,second:True})
+
 
 if __name__=='__main__':unittest.main()

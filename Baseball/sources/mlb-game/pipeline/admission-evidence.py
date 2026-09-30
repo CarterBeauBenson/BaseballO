@@ -76,7 +76,8 @@ def code_equivalence(family,previous,current):
         prior=bridge['previousImplementationSha256']
         if current!=prior:
             reused=(dict(kind='prior-stricter-compound-result' if family=='batting' else 'unchanged-proof-dependencies')
-                    if previous==prior else code_equivalence(family,previous,prior))
+                    if previous in {prior,*bridge.get('previousImplementationSha256s',[])}
+                    else code_equivalence(family,previous,prior))
             if reused is not None:
                 if family=='batting':reused=dict(reused,kind='prior-stricter-compound-result')
                 return dict(reused,recordSha256=sha(COMPATIBILITY_PATH),previousImplementationSha256=previous,
@@ -327,7 +328,8 @@ def refresh_game(state,promotion,java,classpath,endpoint='http://127.0.0.1:3031/
     individual=PLAYER_PARTICIPATION.load(api,state,promotion)
     if ((batting.get('status')!='admitted' or boundary.get('status')!='admitted')
             and (individual is None or individual.get('implementationSha256') not in
-                 [PLAYER_PARTICIPATION.fingerprint(),*prior_versions('players',PLAYER_PARTICIPATION.fingerprint())])):
+                 [PLAYER_PARTICIPATION.fingerprint(),*prior_versions('players',PLAYER_PARTICIPATION.fingerprint())]
+                 or PLAYER_PARTICIPATION.PA.needs_overlap_refresh((individual or {}).get('paBoundaries')))):
         retained=PLAYER_PARTICIPATION.retained_source(api,state,promotion)
         if retained is not None:
             memory=module(ROOT/'scripts/pipeline/process_state.py','participation_memory').available_memory()

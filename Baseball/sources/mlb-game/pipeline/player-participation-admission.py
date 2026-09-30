@@ -172,7 +172,12 @@ def retained_source(evidence,state,promotion):
                 raise ValueError('Retained participation census changed')
             version=proof.get('implementationSha256')
             if version==B.fingerprint() or evidence.code_equivalence('batting',version,B.fingerprint()) is not None:
-                return evidence.read(source_path),dict(kind='retained-b1-census',path=str(source_path),sha256=evidence.sha(source_path))
+                source=evidence.read(source_path)
+                # K1 changes the expected whole's classification. Its old
+                # census cannot be presented as a current source expectation.
+                if not any(row.get('eventType')=='strikeout_double_play'
+                        and row.get('resultType')!=B.BASE+'DoublePlayProcess' for row in source.get('members',[])):
+                    return source,dict(kind='retained-b1-census',path=str(source_path),sha256=evidence.sha(source_path))
     candidates=sorted((Path(state)/'pipeline/quarantine/mlb-game'/promotion['gamePk']).glob('*/input.json'))
     if not candidates:return None
     # Prefer original bytes; otherwise retain the later response's distinct hash.
