@@ -1,7 +1,9 @@
 {
-  "version": 2,
+  "version": 3,
   "decision": "archive/design-records/metric-completion-decisions-2026-09-15/decision.json",
   "followupDecision": "archive/design-records/metric-completion-decisions-2026-09-15/followup-decision.json",
+  "countDecision": "archive/design-records/count-leaderboard-minimums-2026-10-01/README.md",
+  "countMetrics": ["empty-game-rate"],
   "eitherBattingOrRunning": ["contribution-path-diversity"],
   "policies": {
     "independent-running": {"floor": 3, "teamGamesDivisor": 10, "unit": "running episodes"},

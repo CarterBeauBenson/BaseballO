@@ -34,7 +34,7 @@ permission is not a standing rebuild instruction.
 2. Inspect published selected-period player rows and exact gaps. September 21-27
    has **11/19 named, qualified leaderboards** in its last verified publication.
    The month has 5/19 populated cards and no roster gaps. The full season has
-   all 2,429 expected games and verified rosters, but only **4/19 populated
+   all 2,429 expected games and verified rosters, but only **5/19 populated
    cards**. The previously missing game 823087 and prepared player names are
    already published. Use the dated readiness record for deployment evidence;
    recovered admissions are not populated leaderboard counts.
@@ -55,8 +55,9 @@ permission is not a standing rebuild instruction.
 
 Settled decisions remain settled: exact fractions internally, percentile display
 on 0-100 for PAQ, the selected season's eligible regular-season PA reference,
-averages over the selected period except Empty Games as a count, automatic
-batting qualification of 3.1 PA per team game, role-appropriate other minimums,
+averages over the selected period except Empty Games as a count with no
+appearance minimum, automatic batting qualification for rates and averages
+of 3.1 PA per team game, role-appropriate other minimums,
 separate review mechanisms and backend-only Role Realization Breadth.
 The September 28 decision also permits individually complete player records
 when other players have gaps. Exclude an affected player's entire selected-range

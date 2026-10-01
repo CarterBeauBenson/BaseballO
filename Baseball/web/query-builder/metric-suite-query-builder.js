@@ -12,7 +12,7 @@ export function automaticMinimumObservations(policyId, teamGames) {
 
 const BATTING_LEADERBOARDS = new Set(['tfs', 'paq-2', 'paq-a', 'offensive-reach',
   'hidden-help-rate', 'rally-kill-rate', 'rally-kill-severity', 'opportunity-erosion',
-  'empty-game-rate', 'empty-game-damage', 'recovery-quality', 'paq-2.1']);
+  'empty-game-damage', 'recovery-quality', 'paq-2.1']);
 
 export function automaticMinimumPA(teamGames) {
   if (!Number.isSafeInteger(teamGames) || teamGames < 1) throw new RangeError('Complete team-game exposure is required.');
@@ -74,22 +74,25 @@ export function playerLeaderboard(result, metric, dateScope, mechanism = null) {
       gaps:[...new Set(groups.flatMap(group => group.gaps ?? []))],
       message:rows.length ? `${rows.length} qualified player entries across separate review mechanisms` : 'No qualified review leaderboard is available for this period.'};
   }
-  const batting = BATTING_LEADERBOARDS.has(metric.id);
-  const either = participationPolicies.eitherBattingOrRunning.includes(metric.id);
-  const policyId = metric.id === 'review-dependence-rate' ?
+  const count = participationPolicies.countMetrics.includes(metric.id);
+  const batting = !count && BATTING_LEADERBOARDS.has(metric.id);
+  const either = !count && participationPolicies.eitherBattingOrRunning.includes(metric.id);
+  const policyId = count ? null : metric.id === 'review-dependence-rate' ?
     (mechanism === 'traditional-replay' ? 'traditional-review-dependence' : 'ball-strike-review-dependence') : participationPolicies.metrics[metric.id];
   const policy = participationPolicies.policies[policyId];
   const paRule = '3.1 PA per team game in the selected range, rounded to the nearest whole PA. Use the full team schedule; for multiple teams, use the largest team total or the player’s evidenced game exposure, whichever is greater.';
   const participationRule = policy ? `At least ${policy.floor} ${policy.unit}, or one per ${policy.teamGamesDivisor} team game${policy.teamGamesDivisor === 1 ? '' : 's'} in the selected range, whichever is greater; round upward.` : '';
-  const qualification = {status:batting || policy ? 'defined' : 'pending',
-    kind:either ? 'either_batting_or_running' : batting ? 'plate_appearances' : 'role_participation', policyId:policyId ?? 'batting',
-    rule:either ? `Meet either the batting minimum (${paRule}) or the running minimum (${participationRule})` :
+  const qualification = {status:count || batting || policy ? 'defined' : 'pending',
+    kind:count ? 'count' : either ? 'either_batting_or_running' : batting ? 'plate_appearances' : 'role_participation',
+    policyId:count ? 'no-appearance-minimum' : policyId ?? 'batting',
+    rule:count ? 'All players with an eligible game and a complete selected-period count. No appearance minimum.' :
+      either ? `Meet either the batting minimum (${paRule}) or the running minimum (${participationRule})` :
       [batting ? paRule : '', participationRule].filter(Boolean).join(' ')};
   const board = { status: 'unavailable', rows: [], qualification,
     summaryKind: metric.id === 'empty-game-rate' ? 'count' : 'mean',
     unit: metric.id === 'empty-game-rate' ? 'games' : metric.unit,
     order: metric.higherIs === 'worse' ? 'Lowest scores first' : 'Highest scores first' };
-  if (!batting && !policy) return { ...board, gaps: ['ROLE_QUALIFICATION'],
+  if (!count && !batting && !policy) return { ...board, gaps: ['ROLE_QUALIFICATION'],
     message: 'Player rankings await a defined participation minimum and complete player scores.' };
   // Only the trusted serving adapter can supply these aggregates. Award
   // consequences, individual runs and population-only scores are insufficient.
@@ -114,7 +117,7 @@ export function playerLeaderboard(result, metric, dateScope, mechanism = null) {
         !(channelSummary || value)) return { ...board, gaps: ['PLAYER_SCORE_COVERAGE'],
       message: 'Player scores or participation evidence are incomplete for this period.' };
     seen.add(row.player);
-    const qualificationGames = row.qualificationTeamGames ?? row.teamGames;
+    const qualificationGames = count ? row.teamGames : row.qualificationTeamGames ?? row.teamGames;
     if (!Number.isSafeInteger(qualificationGames) || qualificationGames < row.teamGames)
       return {...board, gaps:['PLAYER_SCORE_COVERAGE'], message:'The selected team schedule is incomplete.'};
     const minimumPA = batting || either ? automaticMinimumPA(qualificationGames) : null;
@@ -132,7 +135,8 @@ export function playerLeaderboard(result, metric, dateScope, mechanism = null) {
         qualifiedThrough:[battingQualified ? 'batting' : '', observationsQualified ? 'running' : ''].filter(Boolean)} : {}),
       minimumObservations, minimumObservationUnit:policy?.unit,
       observationUnit:channelSummary ? 'positive channel occurrences' : policy?.unit,
-      qualificationLabel:either ? [battingQualified ? `${row.plateAppearances} PA · minimum ${minimumPA} PA` : '',
+      qualificationLabel:count ? `${row.aggregate.eligibleGames} eligible games · no appearance minimum` :
+        either ? [battingQualified ? `${row.plateAppearances} PA · minimum ${minimumPA} PA` : '',
         observationsQualified ? `${participationCount} ${policy.unit} · minimum ${minimumObservations}` : ''].filter(Boolean).join('; ') :
         [batting ? `${row.plateAppearances} PA · minimum ${minimumPA} PA` : '',
         policy ? `${participationCount} ${policy.unit} · minimum ${minimumObservations}` : ''].filter(Boolean).join('; ') });
@@ -150,7 +154,8 @@ export function playerLeaderboard(result, metric, dateScope, mechanism = null) {
   return { ...board, status: rows.length ? 'available' : 'empty', rows, belowMinimum, gaps: [],
     populationComplete:result.playerPopulationComplete === true, excludedPlayers:excluded,
     coverageMessage:excluded ? `${excluded} players excluded because their full selected-range record is incomplete. Rankings cover complete records only.` : '',
-    message: rows.length ? `${rows.length} qualified players` : 'No players meet the automatic participation minimum for this period.' };
+    message: count ? (rows.length ? `${rows.length} players · no appearance minimum` : 'No complete eligible player counts are available for this period.') :
+      rows.length ? `${rows.length} qualified players` : 'No players meet the automatic participation minimum for this period.' };
 }
 
 export function dashboardReadiness(metrics, expectedIds) {

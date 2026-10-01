@@ -149,6 +149,27 @@ test('Empty Games uses the retained count rather than the reduced rate numerator
   assert.equal(playerSummaryValue({kind:'count',count:5,eligibleGames:4},metric.id),null);
 });
 
+test('Empty Games includes low-appearance and zero totals without lowering rate minimums', () => {
+  const metric={id:'empty-game-rate',higherIs:'worse',unit:'games'};
+  const rows=[0,1].map((count,i)=>playerScore(i+1,count,{metricId:metric.id,
+    plateAppearances:1,teamGames:1,qualificationTeamGames:162,aggregate:{kind:'count',count,eligibleGames:1}}));
+  const result={metricId:metric.id,playerPopulationComplete:true,playerResults:rows};
+  const board=playerLeaderboard(result,metric,leaderboardScope);
+  assert.equal(board.rows.length,2); assert.equal(board.belowMinimum,0);
+  assert.deepEqual(board.rows.map(r=>r.value.numerator),['0','1']);
+  assert.ok(board.rows.every(r=>r.minimumPA===null && r.minimumObservations===null));
+  assert.equal(board.qualification.kind,'count'); assert.match(board.qualification.rule,/No appearance minimum/);
+  assert.match(board.rows[0].qualificationLabel,/1 eligible games.*no appearance minimum/);
+  assert.equal(metricCardPresentation({graphCount:1,metric:{...result,leaderboard:board}},metric).headline,'2 players');
+  const empty=playerLeaderboard({...result,playerResults:[]},metric,leaderboardScope);
+  const payload={graphCount:1,metrics:[{...result,leaderboard:empty}]};
+  assert.doesNotMatch(dashboardLoadStatus(payload),/participation minimum/);
+  assert.match(dashboardLoadStatus(payload),/No eligible player counts/);
+  const rate=playerLeaderboard({playerPopulationComplete:true,playerResults:[playerScore(1,1,
+    {plateAppearances:1,teamGames:1,qualificationTeamGames:162})]},leaderboardMetric,leaderboardScope);
+  assert.equal(rate.rows.length,0); assert.equal(rate.belowMinimum,1);
+});
+
 test('complete scoring-run player means qualify by runs without invented PA totals', () => {
   const metric={id:'run-construction-depth',higherIs:'descriptive',unit:'episodes'};
   const row=(id,sum,count)=>playerScore(id,0,{metricId:metric.id,plateAppearances:undefined,

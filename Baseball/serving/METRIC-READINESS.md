@@ -6,7 +6,22 @@ calculation kernels exist, including backend-only Role Realization Breadth.
 
 ## Last verified publication
 
-September 30, latest full-season HTTP check: **4/19 populated cards**, with all
+October 1: the full-season HTTP response from
+`20260930T154519Z-dashboard-4fd8591d352a` has **5/19 populated cards**, restoring
+Offensive Reach after the roster fix. All 2,429 regular-season games remain
+present. Before today's presentation correction, Empty Games displayed 31
+players although SQL contains 266 complete eligible player counts. The
+[October 1 decision](../archive/design-records/count-leaderboard-minimums-2026-10-01/README.md)
+removes appearance minimums from counts, including zero totals; rates and
+averages retain their minimums. Dashboard cards and details share that rule.
+
+The low population of rate leaderboards is primarily a coverage problem:
+134 players already have at least 502 recorded PA, but 133 have one or more
+incomplete Offensive Reach game records. Across all players, 476 have a
+progress-evidence exclusion and 258 have an official-PA exclusion; these sets
+overlap. These are missing-data exclusions, not failures to reach the PA minimum.
+
+Historical September 30 check: **4/19 populated cards**, with all
 2,429 regular-season games and their rosters present. Qualified players:
 Help Without Advancing 4, Empty Games 23, Scoring History Length 17 and Run
 Contributors 1. There are no complete league populations yet. The published
@@ -564,7 +579,8 @@ from missing evidence; it does not justify lowering the minimum.
 | PAQ with Tie-Breakers | Implemented; defensive population gated | Admitted contribution, two-strike and defensive inputs; complete separate season references and selected participation |
 
 The approved display remains a selected-period player average, except Empty
-Games, which is a game count. Batting qualification is 3.1 PA per team game,
+Games, which is a game count with no appearance minimum. Rate and average
+batting qualification is 3.1 PA per team game,
 rounded to the nearest whole PA; other metrics use the accepted participation
 minimums. Review mechanisms remain separate. These are settled decisions.
 

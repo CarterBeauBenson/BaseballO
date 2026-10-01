@@ -124,7 +124,7 @@
       "summary":"The number of games in the selected timespan with at least one plate appearance and no qualifying positive offensive contribution.",
       "unitLabel":"games","scopeLabel":"selected-period count",
       "reading":"Higher means more Empty Games. An Empty Game is not simply a hitless or scoreless game. Games with no plate appearance are excluded from the count.",
-      "reference":"The player's complete eligible games with at least one plate appearance."
+      "reference":"The player's complete eligible games with at least one plate appearance. Every supported player count is included, with no season appearance minimum."
     },
     "empty-game-damage": {
       "label":"Empty Game Damage","group":"profile",

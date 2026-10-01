@@ -362,10 +362,13 @@ export function metricCardPresentation(payload, metric) {
     hasGaps:!complete,noQualifiers:complete && !hasPlayers};
   if (hasPlayers) return {...state,state:complete ? 'available' : 'partial',
     badge:complete ? 'Player results available' : 'Some player results available',
-    headline:`${board.rows.length} qualified ${board.groups ? 'player entries' : 'players'}`,
-    message:complete ? 'Qualified player results are ready for this period.' : board.coverageMessage ||
+    headline:`${board.rows.length} ${board.summaryKind === 'count' ? '' : 'qualified '}${board.groups ? 'player entries' : 'players'}`,
+    message:complete ? (board.summaryKind === 'count' ? 'Player counts are ready for this period. No appearance minimum.' : 'Qualified player results are ready for this period.') : board.coverageMessage ||
       (board.groups ? 'Player results are available for some review mechanisms; others remain incomplete.' :
         'Rankings cover complete player records. Other players remain excluded for this period.')};
+  if (board?.summaryKind === 'count' && ranked) return {...state,state:complete ? 'empty' : 'unavailable',
+    hasResults:false,badge:complete ? 'No eligible counts' : 'Player coverage incomplete',headline:'No complete player counts',
+    message:board.message + (board.coverageMessage ? ' ' + board.coverageMessage : '')};
   if (complete) return {...state,state:'empty',badge:'No qualifying players',headline:'Participation minimum not met',
     message:board.message ?? 'No players meet the participation minimum for this period.'};
   if (ranked) return {...state,state:'unavailable',hasResults:false,badge:'Player coverage incomplete',
@@ -391,15 +394,17 @@ export function dashboardLoadStatus(payload) {
   if (!games) return 'No games in this selection. Try another date range.';
   const cards = (payload.metrics ?? []).map(metric => metricCardPresentation({...payload,metric},{unit:''}));
   const leaders = cards.filter(card => card.hasPlayers).length;
-  const empty = cards.filter(card => card.noQualifiers).length;
+  const empty = cards.filter((card,index) => card.noQualifiers && payload.metrics[index].leaderboard?.summaryKind !== 'count').length;
+  const emptyCounts = cards.filter((card,index) => card.noQualifiers && payload.metrics[index].leaderboard?.summaryKind === 'count').length;
   const incomplete = cards.filter(card => card.hasGaps).length;
   const messages = [leaders ? `${leaders} player leaderboard${leaders === 1 ? '' : 's'} loaded.` :
     `Game data loaded for ${games} game${games === 1 ? '' : 's'}, but no player leaderboards are available.`];
   const unverified = payload.participationCoverage?.unverifiedGames?.length ?? 0;
   if (unverified) messages.push(`Player participation is not yet verified for ${unverified} of these games. The full selected range is retained; incomplete games are not dropped from averages.`);
   if (empty) messages.push(`No players meet the participation minimum for ${empty} leaderboard${empty === 1 ? '' : 's'}.`);
+  if (emptyCounts) messages.push(`No eligible player counts are available for ${emptyCounts} count leaderboard${emptyCounts === 1 ? '' : 's'}.`);
   if (incomplete) messages.push(`${incomplete} leaderboard${incomplete === 1 ? ' still has' : 's still have'} incomplete player results.`);
-  if (leaders) messages.push('Select a card to see all qualified players and their evidence.');
+  if (leaders) messages.push('Select a card to see all listed players and their evidence.');
   return messages.join(' ');
 }
 
@@ -413,7 +418,7 @@ export function dashboardCoverageLabel(payload) {
   if (Number.isSafeInteger(participation?.verifiedGames) && Number.isSafeInteger(participation?.games)) {
     pieces.push(`Player participation verified for ${participation.verifiedGames} of ${participation.games} selected games`);
   }
-  return [...pieces, 'Each leaderboard reports its player exclusions and participation minimums'].join(' · ') + '.';
+  return [...pieces, 'Each leaderboard reports missing-data exclusions; rates and averages also apply participation minimums'].join(' · ') + '.';
 }
 
 export function matchesMetric(metric, term, group = 'all') {
@@ -428,7 +433,7 @@ export function metricRanking(payload, metric) {
     context: row.qualificationLabel ?? `${row.plateAppearances} PA · minimum ${row.minimumPA} PA` })) : [],
     groups: board?.groups ?? [],
     coverageMessage: board?.coverageMessage ?? '',
-    scope: 'qualified players', order: board?.order ?? '', qualification: board?.qualification?.rule ?? '',
+    scope: board?.summaryKind === 'count' ? 'players' : 'qualified players', order: board?.order ?? '', qualification: board?.qualification?.rule ?? '',
     unit: board?.unit ?? metric.unit, summaryKind: board?.summaryKind ?? (metric.id === 'empty-game-rate' ? 'count' : 'mean'),
     message: !result ? 'Loading player rankings…' : board?.message ?? 'Complete player scores are not yet available for this period.' };
 }
@@ -469,7 +474,7 @@ function rankingPreview(payload, metric) {
     score.title = display.title;
     line.append(node('span', String(row.rank)), person, score); list.append(line);
   }
-  list.append(node('small', `${ranking.order} · ${ranking.rows.length} qualified players`));
+  list.append(node('small', `${ranking.order} · ${ranking.rows.length} ${ranking.scope}`));
   if (ranking.coverageMessage) list.append(node('small', ranking.coverageMessage));
   return list;
 }
@@ -488,7 +493,7 @@ function renderRanking(payload, metric) {
     target.append(node('p', `${group.label}: ${group.message} ${group.qualification?.rule ?? ''}`));
   }
   const table = node('table'), head = node('thead'), header = node('tr'), body = node('tbody');
-  for (const label of ['Rank', 'Player / participation minimum', `${ranking.summaryKind === 'count' ? 'Count' : 'Average'} · ${metric.presentation.unitLabel}`,
+  for (const label of ['Rank', ranking.summaryKind === 'count' ? 'Player / eligible games' : 'Player / participation minimum', `${ranking.summaryKind === 'count' ? 'Count' : 'Average'} · ${metric.presentation.unitLabel}`,
     metric.id === 'contribution-path-diversity' ? 'Exact channel counts' : 'Exact value']) {
     const cell = node('th', label); cell.scope = 'col'; header.append(cell);
   }
