@@ -11,6 +11,19 @@ qualification, Offensive Reach, Help Without Advancing, Empty Games,
 contribution and run construction. Defensive completion is not a prerequisite
 for these independent offensive results.
 
+The player projection also spread an ambiguous batter's uncertainty across the
+entire game roster. It now keeps that uncertainty with all candidate batters and
+runners identified by the retained RDF query rows. It assigns no batting credit;
+missing participant bindings retain the previous fallback, and Empty Game
+classification still requires the admitted runner census and the player's
+official PA participation. A read-only comparison of 20 affected regular-season
+games resolves 81 wrongly withheld Empty Game records, sufficient to complete
+20 additional season player counts in that captured working snapshot. These are
+calculated improvements, not yet verified live counts. NiFi updates the affected
+player products from stored SQL evidence and reuses unaffected game products.
+Four focused checks cover participant isolation, missing evidence, incremental
+reuse, and exclusion of a genuinely incomplete selected-range player record.
+
 One admission handoff defect is repaired: individual player checks previously
 reused the original B1 source census even after the retained-batting stage had
 reconciled its substitution errors. Where another player's graph failure still

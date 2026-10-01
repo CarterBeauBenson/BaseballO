@@ -27,6 +27,7 @@ PREVIOUS_HELP_VERSION = 'e0f455baeae669e3cb5f99e0e26e3b7c0ff885e4208b7f2282d7ab4
 PREVIOUS_CHANNEL_VERSION = '7397a2cc83659359efe7a99dee4f6eafc9c7b86ae9a7fa620c20677c4474021b'
 PREVIOUS_SHARED_OUT_VERSION = 'cf63597341de4a503f8f8002c5e421ae755d555d49f00dd8593966532894d13a'
 PREVIOUS_PA_CONTRIBUTION_VERSION = '9a1f3425fd08919dcf0730dcb6466eae61534b4eeb1e8fa9f5076e04c0067273'
+PREVIOUS_AMBIGUOUS_PROGRESS_VERSION = 'ab2fac95e7153c1c3ddc19595463ccb1c283c722b6a7e28e66a711d76fa7ed4c'
 
 
 def fingerprint():
@@ -177,6 +178,25 @@ def channel_gap_players(rows, progress):
             and pa.get('player') and runners[pa['plateAppearance']] and None not in runners[pa['plateAppearance']]}
 
 
+def ambiguous_progress_players(rows, progress):
+    """Keep unknown batting credit with every observed candidate and runner.
+
+    The retained RDF can identify the participants even when it cannot choose
+    the credited batter. This supplies no attribution or score. Missing actor
+    bindings retain the whole-roster fallback; the caller still requires the
+    admitted resolution census before declaring an Empty Game.
+    """
+    turns={p['plateAppearance'] for p in progress.get('unresolvedPlateAppearances',[])
+           if p.get('gaps')==['AMBIGUOUS_BATTING_CONTRIBUTOR'] and p.get('possiblePositivePlayers') is None}
+    actors=defaultdict(set);batters=set();movements=set()
+    for row in rows:
+        if row['kind']=='plate_appearance' and row['entity'] in turns:
+            pa=row['entity'];actors[pa].add(row.get('player'));batters.add(pa)
+        elif row['kind']=='runner_movement' and row['plateAppearance'] in turns:
+            pa=row['plateAppearance'];actors[pa].add(row.get('runner'));movements.add(pa)
+    return {pa:sorted(actors[pa]) for pa in batters & movements if actors[pa] and None not in actors[pa]}
+
+
 def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people):
     """Project complete player records from already calculated game inputs."""
     game=next((r['game'] for r in rows),None)
@@ -217,7 +237,9 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people):
             mix_uncertain.update(inputs.get('channelGapPlayers',{}).get(pa['plateAppearance'],roster))
     for pa in progress.get('unresolvedPlateAppearances',[]):
         affected=pa.get('possiblePositivePlayers')
-        affected=set(roster) if affected is None else set(affected)
+        if affected is None:
+            affected=inputs.get('ambiguousProgressPlayers',{}).get(pa['plateAppearance'],roster)
+        affected=set(affected)
         positive.update(pa.get('confirmedPositivePlayers',[]))
         if pa['plateAppearance'] in resolved:certain_positive.update(pa.get('confirmedPositivePlayers',[]))
         uncertain.update(affected);mix_uncertain.update(affected)
@@ -331,10 +353,13 @@ def prepare(m, db, checkpoint=None, player_admissions=None):
         "WHERE g.game_set IN ('regular_season','all_star') ORDER BY g.graph_iri").fetchall()
     saved=dict(db.execute('SELECT graph_iri,input_sha256 FROM dashboard_player_partition'))
     player_admissions=player_admissions or {}
-    channel_candidates=set()
+    channel_candidates=set();ambiguity_candidates=set()
     tables={r[0] for r in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
     pending=[graph for graph,_,_,key in inventory if saved.get(graph)!=m._hash(key+version+
              (m._hash(m._json(player_admissions[graph])) if player_admissions.get(graph) else ''))]
+    if 'metric_suite_input_state' in tables:
+        ambiguity_candidates={r[0] for r in db.execute("SELECT graph_iri FROM metric_suite_input_state "
+            "WHERE family='progress' AND state_json LIKE '%AMBIGUOUS_BATTING_CONTRIBUTOR%'")}
     if {'metric_suite_input_row','metric_suite_runner_resolution_admission'}<=tables:
         for offset in range(0,len(pending),400):
             group=pending[offset:offset+400];marks=','.join('?' for _ in group)
@@ -348,8 +373,12 @@ def prepare(m, db, checkpoint=None, player_admissions=None):
         individual_text=m._json(individual);proof_sha=m._hash(individual_text) if individual else ''
         identity=m._hash(key+version+proof_sha)
         if saved.get(graph)==identity:continue
-        channel_upgrade=graph in channel_candidates
-        if saved.get(graph)==m._hash(key+PREVIOUS_PA_CONTRIBUTION_VERSION+proof_sha):
+        ambiguity_upgrade=graph in ambiguity_candidates
+        if not ambiguity_upgrade and saved.get(graph)==m._hash(key+PREVIOUS_AMBIGUOUS_PROGRESS_VERSION+proof_sha):
+            with db:db.execute('UPDATE dashboard_player_partition SET input_sha256=? WHERE graph_iri=?',(identity,graph))
+            continue
+        channel_upgrade=graph in channel_candidates or ambiguity_upgrade
+        if not ambiguity_upgrade and saved.get(graph)==m._hash(key+PREVIOUS_PA_CONTRIBUTION_VERSION+proof_sha):
             scoped=any(p['status']=='admitted' for p in (individual.get('paResolutions') or {}).get('plateAppearances',[]))
             resolution=db.execute('SELECT proof_json,proof_sha256 FROM metric_suite_runner_resolution_admission WHERE graph_iri=?',
                 (graph,)).fetchone() if scoped else None
@@ -406,7 +435,9 @@ def prepare(m, db, checkpoint=None, player_admissions=None):
             if admitted(proofs['resolution']) or p['plateAppearance'] in resolved])
         needs_contribution=individual.get('paBoundaries') and not inputs['contribution'].get('complete')
         needs_channels=admitted(proofs['resolution']) and any(p.get('independentEpisodeGaps') for p in inputs['progress'].get('plateAppearances',[]))
-        if needs_contribution or needs_channels or help_progress['unresolvedPlateAppearances']:
+        needs_ambiguity=any(p.get('gaps')==['AMBIGUOUS_BATTING_CONTRIBUTOR']
+                            for p in inputs['progress'].get('unresolvedPlateAppearances',[]))
+        if needs_contribution or needs_channels or needs_ambiguity or help_progress['unresolvedPlateAppearances']:
             evidence=[m._blocks.decode(m._block_api(),text,sha) for text,sha in db.execute(
                 'SELECT binding_json,binding_sha256 FROM metric_suite_evidence WHERE graph_iri=?',(graph,))]
             saved_proof=json.loads(db.execute('SELECT proof_json FROM dashboard_checkpoint WHERE graph_iri=?',(graph,)).fetchone()[0])
@@ -416,6 +447,8 @@ def prepare(m, db, checkpoint=None, player_admissions=None):
                 inputs['binaryHelp']=binary_help_inputs(m,evidence,help_progress)
             if needs_channels:
                 inputs['channelGapPlayers']=channel_gap_players(evidence,inputs['progress'])
+            if needs_ambiguity:
+                inputs['ambiguousProgressPlayers']=ambiguous_progress_players(evidence,inputs['progress'])
         if needs_contribution:
             inputs['contribution']=m.contribution_game_inputs(evidence,graph=graph,batting_admission=proofs['batting'],
                 runner_resolution_admission=proofs['resolution'],runner_boundary_admission=proofs['boundary'],player_admission=individual)
