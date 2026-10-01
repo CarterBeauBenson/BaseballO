@@ -38,6 +38,16 @@ def fingerprint():
     return hashlib.sha256(Path(__file__).read_bytes()+C.fingerprint().encode()+W.fingerprint().encode()).hexdigest()
 
 
+def case_sha(case):
+    return hashlib.sha256(json.dumps(case,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+
+
+def finished_attempt(previous,case,version):
+    return (previous.get('implementationSha256')==version
+        and previous.get('caseSha256')==case_sha(case)
+        and (previous.get('status') in SUCCESS or previous.get('attempts',0)>=2))
+
+
 def next_case(state,limit=25):
     control=state/'pipeline/control/mlb-game/foul-addition';path=control/'inventory.json'
     inventory=W.read(path) if path.is_file() else dict(games={})
@@ -48,16 +58,12 @@ def next_case(state,limit=25):
         if not directory.is_dir() or not directory.name.isdecimal():continue
         pk=directory.name
         previous=W.read(control/(pk+'.json')) if (control/(pk+'.json')).is_file() else {}
-        if previous.get('status') in SUCCESS:continue
-        if previous.get('implementationSha256')==version and previous.get('attempts',0)>=2:
-            if pk=='822678':return None
-            continue
         paths=list(directory.glob('*.json'))
         if not paths:continue
         marker_path=max(paths,key=lambda p:(W.read(p)['promotedAtUtc'],p.name));marker=W.read(marker_path)
         identity=[W.sha(marker_path),version];cached=inventory['games'].get(pk,{})
         if cached.get('identity')==identity:
-            if cached.get('status')=='selected':return cached['case']
+            if cached.get('status')=='selected' and not finished_attempt(previous,cached['case'],version):return cached['case']
             continue
         record=dict(identity=identity,status='not-applicable');inspected+=1
         proof_path=Path(marker.get('pitchCountAdmission',''))
@@ -76,7 +82,7 @@ def next_case(state,limit=25):
                     record.update(status='selected',case=case)
         inventory['games'][pk]=record
         W.atomic(path,inventory)
-        if record['status']=='selected':return record['case']
+        if record['status']=='selected' and not finished_attempt(previous,record['case'],version):return record['case']
         if inspected>=limit:break
     return None
 
@@ -178,10 +184,9 @@ def finish(state,game_pk,witness,java,classpath):
 def tick(state,case,java,mapper,classpath):
     pk=case['gamePk'];control=state/'pipeline/control/mlb-game/foul-addition'/(pk+'.json')
     previous=W.read(control) if control.is_file() else {};version=fingerprint()
-    if previous.get('status') in SUCCESS:return previous
-    if previous.get('implementationSha256')==version and previous.get('attempts',0)>=2:return previous
-    result=dict(gamePk=pk,case=case,checkedAtUtc=W.TX.now(),implementationSha256=version,
-        attempts=previous.get('attempts',0)+1 if previous.get('implementationSha256')==version else 1)
+    if finished_attempt(previous,case,version):return previous
+    result=dict(gamePk=pk,case=case,caseSha256=case_sha(case),checkedAtUtc=W.TX.now(),implementationSha256=version,
+        attempts=previous.get('attempts',0)+1 if previous.get('implementationSha256')==version and previous.get('caseSha256')==case_sha(case) else 1)
     try:
         witness=acquire(state,case)
         result.update(W.add_game(state,pk,witness,java,mapper,classpath,repair=dict(decisions=dict(decision=DECISION),

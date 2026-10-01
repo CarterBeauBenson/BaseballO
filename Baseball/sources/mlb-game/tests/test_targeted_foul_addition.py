@@ -6,6 +6,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 from rdflib import Graph, RDF, URIRef
 
 ROOT=Path(__file__).resolve().parents[3]
@@ -46,6 +47,40 @@ class FoulAddition(unittest.TestCase):
             changed=json.loads(raw);changed['liveData']['plays']['allPlays'][37]['playEvents'][3]['startTime']='2026-07-20T00:00:00Z'
             with self.assertRaisesRegex(ValueError,'source is unresolved|outcome changed'):
                 F.select(json.dumps(changed).encode(),'824087',case)
+
+    def test_exhausted_first_game_does_not_hide_later_recorded_repairs(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);control=state/'pipeline/control/mlb-game/foul-addition'
+            version=F.fingerprint()
+            for pk in ('822678','999999'):
+                F.W.atomic(state/'pipeline/evidence/nifi/game-promotion'/pk/'promotion.json',
+                           dict(promotedAtUtc='2026-10-01T00:00:00Z'))
+            F.W.atomic(control/'822678.json',dict(status='failed',attempts=2,implementationSha256=version))
+            marker=state/'pipeline/evidence/nifi/game-promotion/999999/promotion.json'
+            case=dict(gamePk='999999',selected=[dict(atBatIndex='1',playId='recorded-foul')])
+            F.W.atomic(control/'inventory.json',dict(games={'999999':dict(
+                identity=[F.W.sha(marker),version],status='selected',case=case)}))
+            self.assertEqual(F.next_case(state),case)
+
+    def test_new_scope_can_follow_success_and_unchanged_failures_stop_at_two(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);case=dict(gamePk='1',selected=[dict(playId='later-foul')])
+            control=state/'pipeline/control/mlb-game/foul-addition/1.json'
+            F.W.atomic(control,dict(status='complete',implementationSha256=F.fingerprint(),
+                caseSha256=F.case_sha(dict(gamePk='1',selected=[]))))
+            with patch.object(F,'acquire',side_effect=ValueError('bounded-source-failure')) as acquire:
+                self.assertEqual(F.tick(state,case,None,None,None)['attempts'],1)
+                self.assertEqual(F.tick(state,case,None,None,None)['attempts'],2)
+                self.assertEqual(F.tick(state,case,None,None,None)['attempts'],2)
+                self.assertEqual(acquire.call_count,2)
+            for pk in ('1','2'):
+                F.W.atomic(state/'pipeline/evidence/nifi/game-promotion'/pk/'promotion.json',dict(promotedAtUtc='now'))
+            marker=lambda pk:state/'pipeline/evidence/nifi/game-promotion'/pk/'promotion.json'
+            later=dict(gamePk='2',selected=[dict(playId='independent-foul')])
+            F.W.atomic(control.parent/'inventory.json',dict(games={pk:dict(
+                identity=[F.W.sha(marker(pk)),F.fingerprint()],status='selected',case=value)
+                for pk,value in [('1',case),('2',later)]}))
+            self.assertEqual(F.next_case(state),later)
 
 
 if __name__=='__main__':unittest.main()

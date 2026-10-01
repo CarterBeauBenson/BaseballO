@@ -177,7 +177,9 @@ def add_game(state,game_pk,witness,java,mapper,classpath,*,repair=None):
     store=TX.HttpGraphStore('http://127.0.0.1:3031/baseball-dev/data');TX.recover(store,state,game_pk)
     marker_root=state/'pipeline/evidence/nifi/game-promotion'/game_pk
     marker_path=max(marker_root.glob('*.json'),key=lambda p:(read(p)['promotedAtUtc'],p.name));marker=read(marker_path)
-    if all(marker.get('targetedAddition',{}).get(key)==value for key,value in decisions.items()):
+    selection_sha=hashlib.sha256(json.dumps(selected,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+    if (all(marker.get('targetedAddition',{}).get(key)==value for key,value in decisions.items())
+            and marker.get('targetedAddition',{}).get('selectionSha256')==selection_sha):
         EVENT.emit(state,marker_path);return dict(status='already-complete',**marker['targetedAddition'])
     promotion=I.validated_promotion_record(state,marker_path,game_pk,I.query_index_contract_admission())
     I.retain_game_artifacts(state,game_pk)
@@ -203,7 +205,7 @@ def add_game(state,game_pk,witness,java,mapper,classpath,*,repair=None):
     inventory=dict(gamePk=game_pk,sourceWitness=witness,basePromotionSha256=sha(marker_path),
         selected=selected,missingTriples=sorted([list(map(lambda term:term.n3(),t)) for t in missing]))
     atomic(evidence/'addition-inventory.json',inventory)
-    addition=dict(**decisions,
+    addition=dict(**decisions,selectionSha256=selection_sha,
         basePromotionSha256=sha(marker_path),baseRmlManifestSha256=marker['rmlManifestSha256'],
         baseRdfSha256=promotion['authoritativeRdfSha256'],baseExportSha256=TX.sha_bytes(base_bytes),
         sourceWitness=witness,inventorySha256=sha(evidence/'addition-inventory.json'),

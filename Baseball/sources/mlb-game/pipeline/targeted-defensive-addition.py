@@ -83,16 +83,14 @@ def next_witness(state,limit=25):
         record=dict(identity=identity,sha256=hashlib.sha256(raw).hexdigest(),gamePk=pk,status='not-applicable')
         if pk.isdecimal() and (state/'pipeline/evidence/nifi/game-promotion'/pk).is_dir():
             checkpoint=control/(pk+'.json');previous=W.read(checkpoint) if checkpoint.is_file() else {}
-            if previous.get('status') in SUCCESS:record['status']='complete'
-            elif previous.get('implementationSha256')==version and previous.get('attempts',0)>=2:record['status']='retry-exhausted'
+            if previous.get('status') in SUCCESS and previous.get('implementationSha256')==version and previous.get('sourceSha256')==record['sha256']:record['status']='complete'
+            elif previous.get('implementationSha256')==version and previous.get('sourceSha256')==record['sha256'] and previous.get('attempts',0)>=2:record['status']='retry-exhausted'
             else:
                 try:
                     selected=select(raw,pk)
                     if selected:record.update(status='selected',actCount=len(selected['acts']))
                 except (KeyError,ValueError,TypeError) as error:record.update(status='unresolved-source',error=str(error))
         inventory['inputs'][str(source)]=record;inspected+=1
-        if pk=='822693' and record['status'] not in {'selected','complete'}:
-            W.atomic(path,inventory);return None  # The owning one-game check must succeed first.
         if record['status']=='selected':
             W.atomic(path,inventory)
             return dict(kind='retained-response',gamePk=pk,path=str(source),sha256=record['sha256'])
@@ -103,10 +101,10 @@ def next_witness(state,limit=25):
 def tick(state,witness,java,mapper,classpath):
     pk=witness['gamePk'];control=state/'pipeline/control/mlb-game/defensive-addition'/(pk+'.json')
     previous=W.read(control) if control.is_file() else {};version=fingerprint()
-    if previous.get('status') in SUCCESS:return previous
-    if previous.get('implementationSha256')==version and previous.get('attempts',0)>=2:return previous
-    result=dict(gamePk=pk,implementationSha256=version,checkedAtUtc=W.TX.now(),
-        attempts=previous.get('attempts',0)+1 if previous.get('implementationSha256')==version else 1)
+    if previous.get('status') in SUCCESS and previous.get('implementationSha256')==version and previous.get('sourceSha256')==witness['sha256']:return previous
+    if previous.get('implementationSha256')==version and previous.get('sourceSha256')==witness['sha256'] and previous.get('attempts',0)>=2:return previous
+    result=dict(gamePk=pk,implementationSha256=version,sourceSha256=witness['sha256'],checkedAtUtc=W.TX.now(),
+        attempts=previous.get('attempts',0)+1 if previous.get('implementationSha256')==version and previous.get('sourceSha256')==witness['sha256'] else 1)
     try:result.update(W.add_game(state,pk,witness,java,mapper,classpath,repair=dict(
         decisions=dict(decision=DECISION),select=select,execution_inputs=execution_inputs,
         revalidate=revalidate,validation_scope='selected-d1-acts-current-census-and-retained-unrelated-admissions')))

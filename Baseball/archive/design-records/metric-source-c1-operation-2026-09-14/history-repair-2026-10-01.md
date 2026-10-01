@@ -1,5 +1,9 @@
 # H2: targeted runner-history selection repair
 
+**Superseded for activation by the [combined H3 repair](../../../sources/mlb-game/review/rml-selection-repair-2026-10-01.md).**
+The three H2 patches below remain historical preparation records; do not apply
+them separately or treat them as active changes. H3 includes their five games.
+
 Prepared under the [accepted narrow repair scope](../metric-repair-scope-2026-09-30/README.md)
 and [overlapping temporal-region decision](../metric-repair-scope-2026-09-30/answers.md).
 The user requested this repair after the October 1 RML audit. This document

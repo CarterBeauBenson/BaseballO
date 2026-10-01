@@ -1,5 +1,9 @@
 # Counted-foul prefix coverage repair
 
+**Superseded for activation by the [combined H3 repair](../../../sources/mlb-game/review/rml-selection-repair-2026-10-01.md).**
+H3 includes these four omissions and their regression fixture. Do not apply
+the earlier held patch separately.
+
 **Prepared and tested; publication blocked.** Automatic approval review rejected
 the commit on October 1 because it did not recognize explicit authorization for
 this semantic-freeze update. The specific approval request is pending. The

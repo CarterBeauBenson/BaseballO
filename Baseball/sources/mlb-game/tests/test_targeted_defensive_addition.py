@@ -49,8 +49,33 @@ class DefensiveAddition(unittest.TestCase):
             control=state/'pipeline/control/mlb-game/defensive-addition/822693.json'
             D.W.atomic(control,dict(status='failed',implementationSha256=D.fingerprint(),attempts=1))
             self.assertEqual(D.next_witness(state),first)
-            D.W.atomic(control,dict(status='complete'))
+            D.W.atomic(control,dict(status='complete',implementationSha256=D.fingerprint(),sourceSha256=first['sha256']))
             self.assertIsNone(D.next_witness(state))
+
+    def test_new_selection_version_revisits_old_success_without_blocking_other_games(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);(state/'pipeline/evidence/nifi/game-promotion/822693').mkdir(parents=True)
+            control=state/'pipeline/control/mlb-game/defensive-addition/822693.json'
+            D.W.atomic(control,dict(status='complete',implementationSha256='old-version'))
+            witness=D.next_witness(state)
+            self.assertEqual(witness['gamePk'],'822693')
+            with patch.object(D.W,'add_game',return_value=dict(status='already-present',rdfChanged=False)) as add:
+                result=D.tick(state,witness,None,None,None)
+                add.assert_called_once();self.assertEqual(result['status'],'already-present')
+            self.assertIsNone(D.next_witness(state))
+
+    def test_failed_first_fixture_does_not_block_an_independent_witness(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);repo=state/'repo'
+            for pk in ('822693','999999'):
+                (state/'pipeline/evidence/nifi/game-promotion'/pk).mkdir(parents=True)
+                source=repo/'data/raw/samples/2026-08-25'/(pk+'.json')
+                D.W.atomic(source,dict(gamePk=int(pk)))
+            control=state/'pipeline/control/mlb-game/defensive-addition/822693.json'
+            D.W.atomic(control,dict(status='failed',implementationSha256=D.fingerprint(),attempts=2,
+                sourceSha256=D.W.sha(repo/'data/raw/samples/2026-08-25/822693.json')))
+            with patch.object(D,'ROOT',repo),patch.object(D,'select',return_value=dict(acts=[{}])):
+                self.assertEqual(D.next_witness(state)['gamePk'],'999999')
 
 
 if __name__=='__main__':unittest.main()

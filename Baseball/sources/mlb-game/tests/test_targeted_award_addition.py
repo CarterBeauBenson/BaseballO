@@ -1,6 +1,8 @@
 """W1 retains base provenance and applies unchanged constraints to its delta."""
 import tempfile
 import unittest
+from unittest.mock import patch
+import hashlib
 import copy
 import json
 from pathlib import Path
@@ -83,6 +85,30 @@ class TargetedAwardAddition(unittest.TestCase):
         ok,report,_=validate(data,shacl_graph=scoped,advanced=True)
         self.assertFalse(ok)
         self.assertIn(URIRef('https://w3id.org/baseball/shacl/AwardCausedAdvanceShape'),set(report.objects(None,sh.sourceShape)))
+
+    def test_prior_decision_completion_requires_the_same_selected_facts(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);source=state/'input.json';source.write_bytes(b'{}')
+            witness=dict(path=str(source),sha256=W.sha(source))
+            selected=[dict(atBatIndex='7',awardAdvances=[dict(runnerIndex='0')])]
+            decisions=dict(decision=W.DECISION)
+            repair=dict(decisions=decisions,select=lambda raw,pk:selected)
+            marker=state/'pipeline/evidence/nifi/game-promotion/1/prior.json'
+            value=dict(promotedAtUtc='2026-10-01T00:00:00Z',targetedAddition=decisions)
+            W.atomic(marker,value)
+            with patch.object(W.TX,'HttpGraphStore'),patch.object(W.TX,'recover'), \
+                    patch.object(W.EVENT,'emit') as emit, \
+                    patch.object(W.I,'validated_promotion_record',side_effect=RuntimeError('continue-current-selection')) as validate:
+                with self.assertRaisesRegex(RuntimeError,'continue-current-selection'):
+                    W.add_game(state,'1',witness,None,None,None,repair=repair)
+                emit.assert_not_called();validate.assert_called_once()
+                digest=hashlib.sha256(json.dumps(selected,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+                value['targetedAddition']=dict(decisions,selectionSha256=digest);W.atomic(marker,value)
+                self.assertEqual(W.add_game(state,'1',witness,None,None,None,repair=repair)['status'],'already-complete')
+                emit.assert_called_once()
+                selected[0]['awardAdvances'].append(dict(runnerIndex='1'))
+                with self.assertRaisesRegex(RuntimeError,'continue-current-selection'):
+                    W.add_game(state,'1',witness,None,None,None,repair=repair)
 
 
 if __name__=='__main__':unittest.main()
