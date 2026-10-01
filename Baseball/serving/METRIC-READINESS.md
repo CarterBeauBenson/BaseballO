@@ -7,13 +7,18 @@ calculation kernels exist, including backend-only Role Realization Breadth.
 ## Last verified publication
 
 October 1: the full-season HTTP response from
-`20260930T154519Z-dashboard-4fd8591d352a` has **5/19 populated cards**, restoring
+`20260930T162149Z-dashboard-5d417d3bf58b` has **5/19 populated cards**, restoring
 Offensive Reach after the roster fix. All 2,429 regular-season games remain
 present. Before today's presentation correction, Empty Games displayed 31
 players although SQL contains 266 complete eligible player counts. The
 [October 1 decision](../archive/design-records/count-leaderboard-minimums-2026-10-01/README.md)
 removes appearance minimums from counts, including zero totals; rates and
 averages retain their minimums. Dashboard cards and details share that rule.
+After web deployment, both live endpoints return the same **266 Empty Games
+players**, with `belowMinimum=0` and no PA or observation minimum. The remaining
+446 incomplete player records are disclosed separately; 774 additional rostered
+players have no eligible game observations, leaving 266 complete applicable
+counts from the 1,486-player roster population.
 
 The low population of rate leaderboards is primarily a coverage problem:
 134 players already have at least 502 recorded PA, but 133 have one or more
