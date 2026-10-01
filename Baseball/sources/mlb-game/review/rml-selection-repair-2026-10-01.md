@@ -1,9 +1,10 @@
 # H3: combined repair of existing MLB game selection
 
-**Prepared and tested; context activation and its scoped freeze update are
-pending named acceptance.** This supersedes the separate H2 and counted-foul
-prefix patches. Apply only the [combined patch](rml-selection-repair-2026-10-01.patch),
-after recording the user's acceptance separately. It is not active mapping code.
+**Accepted by the user on October 1; activation pending.** The
+[separate approval record](../../../archive/design-records/metric-source-c1-operation-2026-09-14/h3-approval-2026-10-01.md)
+records acceptance of this repair and its scoped pins before implementation.
+This supersedes the separate H2 and counted-foul prefix patches. Apply only the
+[combined patch](rml-selection-repair-2026-10-01.patch).
 
 The user asked for a stage-wide repair, not another isolated fix. The
 [September 30 narrow-repair authorization](../../../archive/design-records/metric-repair-scope-2026-09-30/answers.md)
@@ -113,7 +114,7 @@ scope/source and implementation;
 the shared additive transaction compares a deterministic selection hash before
 returning `already-complete`. Their six focused regressions pass.
 
-## Focused developer evidence and remaining approval
+## Focused developer evidence and approval
 
 - 37 history/category tests pass, including source contradictions and the new
   defensive description cases.
@@ -131,10 +132,10 @@ coverage must be checked from their actual outputs before calling this done.
 
 AGENTS.md says: "Never refresh a semantic freeze, curation-debt baseline, or
 admitted semantic fingerprint unless the user explicitly accepts the named
-review package in the current conversation." H3 therefore needs acceptance of
-this combined repair and its scoped context/compatibility pins. The global
-freeze remains unratified. The context changes from
+review package in the current conversation." The user's explicit H3 acceptance
+is recorded separately above and includes these context/compatibility pins.
+The global freeze remains unratified. The context changes from
 `48f1f0daa2cfde9b899a5dad6bcf68f9eb7bcb9a1189715f2e3a2c7e9e432d5d` to
 `7d90c64f64e03c920578bf40100677c1534a791792cf49a08b2426fe7c9141d6`;
-unrelated protected hashes remain unchanged. This document records preparation,
-not acceptance on the user's behalf.
+unrelated protected hashes remain unchanged. The approval record precedes the
+implementation; it does not assert that execution or SQL population succeeded.
