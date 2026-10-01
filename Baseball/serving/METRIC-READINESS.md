@@ -26,6 +26,38 @@ incomplete Offensive Reach game records. Across all players, 476 have a
 progress-evidence exclusion and 258 have an official-PA exclusion; these sets
 overlap. These are missing-data exclusions, not failures to reach the PA minimum.
 
+October 1 coverage diagnosis of the same published full-season SQL:
+
+| Whole-game check | Admitted | Withheld or stale |
+| --- | ---: | ---: |
+| Official batting population | 2,281 | 148 |
+| Runner resolutions | 2,421 | 8 |
+| Pitch/count history | 413 | 2,016 |
+| Runner boundaries | 506 | 1,923 |
+| Scoring runs | 2,427 | 2 |
+| Complete defensive population | 0 | 2,429 |
+
+These are separate requirements, not one global resolved-game flag. In
+particular, 1,540 boundary results and 2,391 defensive results report missing
+or stale proofs; that does not establish absent MLB source evidence. Individual
+PA/player checks can still support results where a whole-game check is withheld.
+Offensive Reach's progress exclusions affect 1,227 regular-season games. The
+stored diagnostics concentrate on unresolved contribution attribution and
+incomplete same-play runner paths, rather than inadequate player participation.
+A bounded 253-record RDF diagnostic found ordinary hit/award links missing
+alongside error, balk and independent-advance cases; it was not a census and
+must not be extrapolated into population totals or used as metric input.
+
+The D1 additive worker crashed on legacy promotions without a previous
+`defensiveAdmission` field. Commit `f821361` repairs that bookkeeping while
+retaining current-census SHACL and every unrelated admission check. NiFi
+subsequently completed games 822864 and 822918, adding 202 and 240 triples
+respectively. These additions are not a claim of complete defensive populations
+or newly published SQL results. The separate [counted-foul prefix fix](../archive/design-records/mlb-game-counted-foul-completion/prefix-repair-2026-10-01.md)
+selects all four recorded missing strikes in the first blocked game, 822678,
+and passes its focused checks, but its publication is pending the specific
+hash-update approval requested after automatic approval review rejected it.
+
 Historical September 30 check: **4/19 populated cards**, with all
 2,429 regular-season games and their rosters present. Qualified players:
 Help Without Advancing 4, Empty Games 23, Scoring History Length 17 and Run
