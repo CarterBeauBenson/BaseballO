@@ -61,7 +61,7 @@ def fingerprint():
         +(HERE/'existing-graph-admissions.py').read_bytes()+(HERE/'retained-census-admissions.py').read_bytes()).hexdigest()
 
 
-def code_equivalence(family,previous,current):
+def code_equivalence(family,previous,current,*,_context=None):
     """Pinned compatible edits, not blanket acceptance of stale proofs.
 
     The regression compares both exact context revisions and the transitive
@@ -71,14 +71,27 @@ def code_equivalence(family,previous,current):
     record=read(COMPATIBILITY_PATH)
     compound=record.get('compoundResultRepair',{})
     groundout=record.get('defensiveGroundoutRepair',{})
-    context=sha(ROOT/record['contextPath'])
+    context=_context or sha(ROOT/record['contextPath'])
+    history=record.get('historySelectionRepair',{})
+    bridge=history.get('families',{}).get(family)
+    if (bridge and context==history.get('currentContextSha256')
+            and current==bridge['currentImplementationSha256']):
+        prior=bridge['previousImplementationSha256']
+        reused=(dict(kind=bridge['reuseKind']) if previous==prior else
+            code_equivalence(family,previous,prior,_context=history['previousContextSha256']))
+        if reused is not None:
+            if bridge['reuseKind']!='unchanged-proof-dependencies' and reused['kind']=='unchanged-proof-dependencies':
+                reused=dict(reused,kind=bridge['reuseKind'])
+            return dict(reused,recordSha256=sha(COMPATIBILITY_PATH),
+                previousImplementationSha256=previous,currentImplementationSha256=current,
+                historySelectionRecord=history['implementationRecord'])
     bridge=groundout.get('families',{}).get(family)
     if (bridge and current==bridge['currentImplementationSha256'] and previous!=current
             and current!=bridge['previousImplementationSha256']
             and context==groundout.get('currentContextSha256')):
         prior=bridge['previousImplementationSha256']
         reused=(dict(kind='unchanged-proof-dependencies') if previous==prior
-                else code_equivalence(family,previous,prior))
+                else code_equivalence(family,previous,prior,_context=context))
         if reused is not None:
             if family=='defensive':reused=dict(reused,kind='prior-stricter-defensive-selection')
             return dict(reused,recordSha256=sha(COMPATIBILITY_PATH),previousImplementationSha256=previous,
@@ -90,7 +103,7 @@ def code_equivalence(family,previous,current):
         if current!=prior:
             reused=(dict(kind='prior-stricter-compound-result' if family=='batting' else 'unchanged-proof-dependencies')
                     if previous in {prior,*bridge.get('previousImplementationSha256s',[])}
-                    else code_equivalence(family,previous,prior))
+                    else code_equivalence(family,previous,prior,_context=context))
             if reused is not None:
                 if family=='batting':reused=dict(reused,kind='prior-stricter-compound-result')
                 return dict(reused,recordSha256=sha(COMPATIBILITY_PATH),previousImplementationSha256=previous,
@@ -103,7 +116,7 @@ def code_equivalence(family,previous,current):
         prior=bridge['previousImplementationSha256']
         reused=(dict(kind='prior-stricter-walk-selection' if family in {'pitch-count','runner-boundary'}
                      else 'unchanged-proof-dependencies') if previous==prior
-                else code_equivalence(family,previous,prior))
+                else code_equivalence(family,previous,prior,_context=context))
         if reused is not None:
             if family in {'pitch-count','runner-boundary'} and reused['kind']=='unchanged-proof-dependencies':
                 reused=dict(reused,kind='prior-stricter-walk-selection')
@@ -115,7 +128,7 @@ def code_equivalence(family,previous,current):
             and context_matches(isolation['currentContextSha256'],walk.get('currentContextSha256'))):
         prior=bridge['previousImplementationSha256']
         reused=(dict(kind='prior-stricter-history-selection' if family=='runner-boundary' else 'unchanged-proof-dependencies')
-                if previous==prior else code_equivalence(family,previous,prior))
+                if previous==prior else code_equivalence(family,previous,prior,_context=context))
         if reused is not None:
             return dict(reused,recordSha256=sha(COMPATIBILITY_PATH),previousImplementationSha256=previous,
                 currentImplementationSha256=current,viaPreviousImplementationSha256=prior,
@@ -146,6 +159,11 @@ def prior_versions(kind,current):
     and must be checked again; this is never approval of W1's missing facts.
     """
     record=read(COMPATIBILITY_PATH)
+    history=record.get('historySelectionRepair',{})
+    entry=history.get('derivedProofs',{}).get(kind,{})
+    if (entry.get('currentImplementationSha256')==current
+            and sha(ROOT/record['contextPath'])==history.get('currentContextSha256')):
+        return entry['previousImplementationSha256s']
     selection=record.get('retainedCompoundExpectations',{})
     entry=selection.get('derivedProofs',{}).get(kind,{})
     if (entry.get('currentImplementationSha256')==current

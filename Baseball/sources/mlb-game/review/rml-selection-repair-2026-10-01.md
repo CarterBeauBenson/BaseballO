@@ -1,10 +1,11 @@
 # H3: combined repair of existing MLB game selection
 
-**Accepted by the user on October 1; activation pending.** The
+**Accepted by the user and activated on October 1.** The
 [separate approval record](../../../archive/design-records/metric-source-c1-operation-2026-09-14/h3-approval-2026-10-01.md)
 records acceptance of this repair and its scoped pins before implementation.
-This supersedes the separate H2 and counted-foul prefix patches. Apply only the
-[combined patch](rml-selection-repair-2026-10-01.patch).
+This supersedes the separate H2 and counted-foul prefix patches. The
+[combined patch](rml-selection-repair-2026-10-01.patch) is now applied and remains
+as the exact accepted preparation record; do not apply it again.
 
 The user asked for a stage-wide repair, not another isolated fix. The
 [September 30 narrow-repair authorization](../../../archive/design-records/metric-repair-scope-2026-09-30/answers.md)
@@ -115,6 +116,13 @@ the shared additive transaction compares a deterministic selection hash before
 returning `already-complete`. Their six focused regressions pass.
 
 ## Focused developer evidence and approval
+
+Activation: acceptance was published first in `3e55b5e`; the exact patch was
+then applied. The installed worker's five scope/dependency/cleanup tests and
+four counted-foul-prefix tests pass. The existing NiFi history, foul and
+defensive workers are running and valid. Their scheduled ticks own the repair
+queue; no synchronous corpus job was started. This activation record is not a
+claim that all queued additions or SQL publication have finished.
 
 - 37 history/category tests pass, including source contradictions and the new
   defensive description cases.

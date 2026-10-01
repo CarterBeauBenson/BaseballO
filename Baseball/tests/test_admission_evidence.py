@@ -216,7 +216,8 @@ class AdmissionEvidence(unittest.TestCase):
             return ast.dump(tree)
         self.assertEqual(unchanged(before),unchanged(after))
         groundout=record.get('defensiveGroundoutRepair')
-        current=groundout or compound or walk
+        history=record.get('historySelectionRepair')
+        current=history or groundout or compound or walk
         if compound:
             now=(subprocess.check_output(['git','-C',str(ROOT.parent),'show',
                 groundout['baselineCommit']+':Baseball/'+record['contextPath']]) if groundout
@@ -227,12 +228,27 @@ class AdmissionEvidence(unittest.TestCase):
                 return ast.dump(tree)
             self.assertEqual(unaffected(after),unaffected(now))
         if groundout:
-            latest=(ROOT/record['contextPath']).read_bytes()
+            latest=(subprocess.check_output(['git','-C',str(ROOT.parent),'show',
+                history['baselineCommit']+':Baseball/'+record['contextPath']]) if history
+                else (ROOT/record['contextPath']).read_bytes())
             self.assertEqual(hashlib.sha256(latest).hexdigest(),groundout['currentContextSha256'])
             def nondefensive(raw):
                 tree=ast.parse(raw);tree.body=[n for n in tree.body if getattr(n,'name',None)!='defensive_act_context']
                 return ast.dump(tree)
             self.assertEqual(nondefensive(now),nondefensive(latest))
+        if history:
+            updated=(ROOT/record['contextPath']).read_bytes()
+            self.assertEqual(hashlib.sha256(updated).hexdigest(),history['currentContextSha256'])
+            self.assertEqual(hashlib.sha256(latest).hexdigest(),history['previousContextSha256'])
+            changed={'accounted_runner_history_reviews','completed_pickoff_review',
+                     'nonmovement_strikeout_records','reconciled_action_pitch_overlap','personal_runner_histories',
+                     'unchanged_runner_tag_review','completed_field_review_dispositions','completed_nonterminal_field_review',
+                     'completed_independent_review','reconciled_pitch_counter_order','reconciled_pa_boundary_order',
+                     'defensive_act_context','runner_state_neutral_event','counted_foul_running_prefix','counted_foul_neutral_event','metric_pitch_context'}
+            def nonhistory(raw):
+                tree=ast.parse(raw);tree.body=[n for n in tree.body if getattr(n,'name',None) not in changed]
+                return ast.dump(tree)
+            self.assertEqual(nonhistory(latest),nonhistory(updated))
         for family,entry in walk['families'].items():
             adapter=E.module(E.HERE/(family+'-admission.py'),'w1_'+family.replace('-','_'))
             self.assertEqual(adapter.fingerprint(),current['families'][family]['currentImplementationSha256'])
@@ -243,7 +259,8 @@ class AdmissionEvidence(unittest.TestCase):
             self.assertEqual(E.EXISTING_GRAPH.fingerprint(E,adapter),independent['currentImplementationSha256'])
             self.assertEqual(walk['independentProofs'][family]['previousSourceProducerSha256'],entry['previousImplementationSha256'])
         for kind,adapter in [('players',E.PLAYER_PARTICIPATION),('pa',E.PLAYER_PARTICIPATION.PA),('c2pa',E.PA_RESOLUTION)]:
-            entry=record.get('retainedCompoundExpectations',{}).get('derivedProofs',{}).get(kind,current['derivedProofs'][kind])
+            entry=(history['derivedProofs'][kind] if history else
+                record.get('retainedCompoundExpectations',{}).get('derivedProofs',{}).get(kind,current['derivedProofs'][kind]))
             self.assertEqual(adapter.fingerprint(),entry['currentImplementationSha256'])
             self.assertEqual(E.prior_versions(kind,adapter.fingerprint()),entry['previousImplementationSha256s'])
             self.assertEqual(E.prior_versions(kind,'unknown'),[])

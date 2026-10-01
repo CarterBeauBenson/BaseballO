@@ -418,9 +418,9 @@ def unchanged_runner_tag_review(play: dict, position: int) -> dict | None:
             or event.get('type') != 'action' or event.get('isPitch') is not False
             or event.get('isSubstitution') is True or details.get('hasReview') is not True
             or not isinstance(review, dict) or review.get('inProgress') is not False
-            or review.get('isOverturned') is not False or review.get('reviewType') != 'MA'
+            or type(review.get('isOverturned')) is not bool or review.get('reviewType') not in {'MA','NA'}
             or not match or match.group('review_type').lower() != 'tag play'
-            or (match.group('status') or '').lower() not in {'confirmed', 'upheld'}
+            or not completed_field_review_dispositions(review, description)
             or details.get('isScoringPlay') is not False
             or any(details.get(k) is True for k in ('isBall', 'isStrike', 'isInPlay'))):
         return None
@@ -446,35 +446,146 @@ def unchanged_runner_tag_review(play: dict, position: int) -> dict | None:
     outcome_text = (r' caught stealing ' if out else r' steals(?: \(\d+\))? ') + ordinal + r' base[.,]'
     if not re.match(re.escape(name) + outcome_text, description[match.end():].strip()):
         return None
-    return dict(kind='unchanged-runner-tag-review', runnerId=str(runner['id']), overturned=False,
+    return dict(kind='unchanged-runner-tag-review', runnerId=str(runner['id']), overturned=review['isOverturned'],
                 scope='final runner-history effects only; no original decision or mechanism assigned')
 
 
-def accounted_runner_history_reviews(play: dict) -> dict:
-    """Account for the final effects of a bounded completed field review.
+def completed_field_review_dispositions(review, description):
+    """Match every completed provider disposition to its explicit narrative.
 
-    E1 admits the reconciled final feed, not an inferred original decision or
-    affected-player assignment. Count-award selection keeps its stricter
-    pitch-review contract. C1 still checks every final movement, out and base.
+    Provider codes select final source records only. They mint no review kind,
+    original call, affected player or eligible challenge opportunity in RDF.
     """
+    codes = {
+        'tag play': {'MA', 'NA'}, 'play at 1st': {'MF', 'NF'},
+        'force play': {'MC', 'NC'}, 'catch or drop': {'MD', 'ND'},
+        'trap play': {'MT', 'NT'}, 'home run': {'MH', 'NH'},
+        'hit by pitch': {'MI', 'NI'}, 'shift violation': {'MW', 'NW'},
+        'rules check': {'MQ', 'NQ'}, 'tag-up play': {'MU', 'NU'},
+        'touching a base': {'MB', 'NB'}, 'catcher interference': {'MV', 'NV'},
+        'fair or foul in outfield': {'MO', 'NO'}, 'timing play': {'MM', 'NM'},
+        'home-plate collision': {'MP', 'NP'}, 'stadium boundary call': {'MS', 'NS'},
+        'slide interference': {'ME', 'NE'}, 'fan interference': {'MN', 'NN'},
+        'passing runners': {'MR','NR'}, 'runner placement': {'MY','NY'},
+        'grounds rule': {'MG','NG'}, 'record keeping': {'MK','NK'},
+    }
+    pending = [review]
+    while pending:
+        item = pending.pop(0)
+        match = REVIEW_DESCRIPTION.search(description)
+        if (not isinstance(item, dict) or item.get('inProgress') is not False
+                or type(item.get('isOverturned')) is not bool or not match
+                or item.get('reviewType') not in codes.get(match.group('review_type').lower(), set())
+                or not match.group('status')
+                or (match.group('status').lower() == 'overturned') != item['isOverturned']):
+            return False
+        extra = item.get('additionalReviews', [])
+        if not isinstance(extra, list): return False
+        pending[0:0] = extra
+        description = description[match.end():].lstrip()
+    return not REVIEW_DESCRIPTION.search(description)
+
+
+def completed_nonterminal_field_review(play, position):
+    """A final ordinary counter transition does not imply an original call."""
+    events = play.get('playEvents', [])
+    if not 0 <= position < len(events)-1: return None
+    event = events[position]; detail = event.get('details', {})
+    review = event.get('reviewDetails')
+    allowed = {'MO': {'F'}, 'NO': {'F'}, 'NH': {'F'}, 'MH': {'F'},
+               'MN': {'F'}, 'NN': {'F'}, 'MI': {'B','*B','F','L','T'},
+               'NI': {'B','*B','F','L','T'}, 'MV': {'B','*B','F'}, 'NV': {'B','*B','F'}}
+    code = detail.get('call',{}).get('code')
+    before = events[position-1].get('count', {}) if position else dict(balls=0,strikes=0,outs=event.get('count',{}).get('outs'))
+    after = event.get('count',{})
+    if (play.get('about',{}).get('isComplete') is True and event.get('type') == 'pickoff'
+            and event.get('isPitch') is False and detail.get('isOut') is False
+            and detail.get('hasReview') is True and isinstance(review,dict)
+            and review.get('reviewType') in {'MA','NA'} and review.get('inProgress') is False
+            and type(review.get('isOverturned')) is bool and not review.get('additionalReviews')
+            and not any(r.get('details',{}).get('playIndex') == event.get('index') for r in play.get('runners',[]))
+            and SAFE_IRI_SEGMENT.fullmatch(str(event.get('playId') or ''))
+            and sum(e.get('playId') == event.get('playId') for e in events) == 1
+            and all(type(before.get(k)) is int and 0 <= before[k] <= n and before[k] == after.get(k)
+                    for k,n in (('balls',3),('strikes',2),('outs',2)))):
+        return dict(kind='completed-no-movement-pickoff-review',overturned=review['isOverturned'],
+                    scope='no final runner/count effect; no original call or Safe judgment inferred')
+    if (play.get('about',{}).get('isComplete') is not True or not isinstance(review,dict)
+            or review.get('inProgress') is not False or type(review.get('isOverturned')) is not bool
+            or not isinstance(review.get('additionalReviews',[]),list)
+            or any(not isinstance(v,dict) or v.get('reviewType') not in {'MK','NK'}
+                   or v.get('inProgress') is not False or type(v.get('isOverturned')) is not bool
+                   or v.get('additionalReviews') for v in review.get('additionalReviews',[]))
+            or code not in allowed.get(review.get('reviewType'),set())
+            or detail.get('hasReview') is not True or event.get('isPitch') is not True
+            or detail.get('isInPlay') is not False or detail.get('isOut') is not False
+            or not SAFE_IRI_SEGMENT.fullmatch(str(event.get('playId') or ''))
+            or sum(e.get('playId') == event.get('playId') for e in events) != 1
+            or any(r.get('details',{}).get('playIndex') == event.get('index') for r in play.get('runners',[]))
+            or any(type(c.get(k)) is not int or not 0 <= c[k] <= limit
+                   for c in (before,after) for k,limit in (('balls',3),('strikes',2),('outs',2)))):
+        return None
+    ball = code in {'B','*B'}
+    expected = (before['balls'] + int(ball),
+                before['strikes'] if ball else min(2,before['strikes']+1) if code == 'F' else before['strikes']+1)
+    if (expected != (after['balls'],after['strikes']) or before['outs'] != after['outs']
+            or detail.get('isBall') is not ball or detail.get('isStrike') is not (not ball)):
+        return None
+    return dict(kind='completed-field-count',playId=event['playId'],overturned=review['isOverturned'],
+                scope='final operative count only; original call and review RDF not inferred')
+
+
+def completed_independent_review(play, position):
+    """Reconcile reviewed multi-runner effects without assigning review subjects."""
+    events = play.get('playEvents',[])
+    if not 0 < position < len(events)-1 or play.get('about',{}).get('isComplete') is not True:return None
+    event = events[position]; detail = event.get('details',{})
+    review = event.get('reviewDetails'); before = events[position-1].get('count',{})
+    if detail.get('hasReview') is not True or not completed_field_review_dispositions(review,detail.get('description','')):
+        return None
+    rows = [r for r in play.get('runners',[]) if r.get('details',{}).get('playIndex') == event.get('index')]
+    # Preserve the stricter existing single-steal/tag witness and its negative cases.
+    if (len(rows) == 1 and detail.get('eventType') in {'stolen_base_2b','stolen_base_3b','caught_stealing_2b','caught_stealing_3b'}
+            and review.get('reviewType') in {'MA','NA'} and not review.get('additionalReviews')):return None
+    if not counted_foul_running_prefix(None,play,event,(before.get('balls'),before.get('strikes')),check_review=False):
+        return None
+    description = detail['description']
+    while (match := REVIEW_DESCRIPTION.search(description)):
+        description = description[match.end():].lstrip()
+    for row in rows:
+        movement = row['movement']; name = row['details'].get('runner',{}).get('fullName')
+        base = movement.get('outBase') if movement['isOut'] else movement.get('end')
+        ordinal = {'1B':'1st','2B':'2nd','3B':'3rd','4B':'home','score':'home'}.get(base)
+        if not name or not ordinal or movement.get('start') != movement.get('originBase'):return None
+        if movement['isOut']:
+            pattern = (re.escape(name) + r' (?:caught stealing |out at |picked off and caught stealing )' + ordinal
+                       + r'\b|picks off ' + re.escape(name) + r' at ' + ordinal + r'\b')
+        elif base == 'score':pattern = re.escape(name) + r' scores\b'
+        else:pattern = re.escape(name) + r' (?:to |steals(?: \(\d+\))? )' + ordinal + r'\b'
+        if not re.search(pattern,description):return None
+    if len(rows)==1 and detail.get('isOut') is not rows[0]['movement']['isOut']:return None
+    return dict(kind='completed-independent-review',overturned=review['isOverturned'],
+                scope='final runner effects only; original call and affected player not inferred')
+
+
+def accounted_runner_history_reviews(play: dict) -> dict:
+    """Select the reconciled final effect; review identity remains independent."""
     review = play.get('reviewDetails')
-    match = REVIEW_DESCRIPTION.search(play.get('result', {}).get('description', ''))
     events = play.get('playEvents', [])
     terminal = events[-1] if events else {}
     details = terminal.get('details', {})
-    field_type = {'tag play': 'MA', 'play at 1st': 'MF'}
-    label = match.group('review_type').lower() if match else None
-    disposition = match.group('status') if match else None
-    terminal_rows = [r for r in play.get('runners', [])
-                     if r.get('details', {}).get('playIndex') == terminal.get('index')]
+    nonmovements = nonmovement_strikeout_records(play, check_review=False)
+    terminal_rows = [r for i, r in enumerate(play.get('runners', []))
+                     if r.get('details', {}).get('playIndex') == terminal.get('index') and i not in nonmovements]
+    # A completed field review can finish as an ordinary hit/out, HBP,
+    # interference or pickoff. Its final label need not name the reviewed call.
+    final_effect = ((terminal.get('isPitch') is True
+        and details.get('call', {}).get('code') in {'X','D','E','H','B','*B','C','S','W','T','F','L','M','O'})
+        or (terminal.get('isPitch') is False and terminal.get('type') == 'pickoff'))
     supported = (play.get('about', {}).get('hasReview') is True
         and play['about'].get('isComplete') is True
-        and isinstance(review, dict) and review.get('inProgress') is False
-        and type(review.get('isOverturned')) is bool and label in field_type
-        and review.get('reviewType') == field_type[label] and disposition is not None
-        and (REVIEW_STATUS_BY_NARRATIVE[disposition.lower()] == 'overturned') == review['isOverturned']
-        and terminal.get('isPitch') is True and details.get('isInPlay') is True
-        and SAFE_IRI_SEGMENT.fullmatch(str(terminal.get('playId') or ''))
+        and completed_field_review_dispositions(review, play.get('result', {}).get('description', ''))
+        and final_effect and SAFE_IRI_SEGMENT.fullmatch(str(terminal.get('playId') or ''))
         and not terminal.get('reviewDetails') and details.get('hasReview') is False
         and bool(terminal_rows)
         and all(type(r.get('movement', {}).get('isOut')) is bool
@@ -509,7 +620,9 @@ def accounted_runner_history_reviews(play: dict) -> dict:
             and after['balls'] == before['balls'] and after['strikes'] == min(2, before['strikes']+1)
             and type(before.get('outs')) is int and 0 <= before['outs'] < 3
             and after.get('outs') == before['outs'])
-        runner_tag = unchanged_runner_tag_review(play, position)
+        runner_tag = (unchanged_runner_tag_review(play, position) or completed_pickoff_review(play, position)
+                      or completed_nonterminal_field_review(play, position)
+                      or completed_independent_review(play, position))
         if unchanged_foul or runner_tag:
             accounted[event['index']] = runner_tag or dict(playId=event['playId'], kind='unchanged-foul',
                 overturned=False, scope='final runner-history effects only')
@@ -527,7 +640,49 @@ def accounted_runner_history_reviews(play: dict) -> dict:
     return result
 
 
-def nonmovement_strikeout_records(play):
+def completed_pickoff_review(play, position):
+    """Account for an explicit final pickoff out without inferring its old call."""
+    events = play.get('playEvents', [])
+    if position == 0 or position >= len(events)-1:
+        return None
+    event = events[position]; detail = event.get('details', {})
+    review = event.get('reviewDetails', {})
+    match = REVIEW_DESCRIPTION.search(detail.get('description', ''))
+    base = {'pickoff_1b': '1B', 'pickoff_2b': '2B', 'pickoff_3b': '3B'}.get(detail.get('eventType'))
+    rows = [r for r in play.get('runners', []) if r.get('details', {}).get('playIndex') == event.get('index')]
+    if (not base or len(rows) != 1 or not match or match.group('review_type').lower() != 'tag play'
+            or not match.group('status') or review.get('inProgress') is not False
+            or type(review.get('isOverturned')) is not bool or review.get('reviewType') != 'MA'
+            or (match.group('status').lower() == 'overturned') != review['isOverturned']
+            or play.get('about', {}).get('isComplete') is not True
+            or event.get('type') != 'action' or event.get('isPitch') is not False
+            or detail.get('hasReview') is not True or detail.get('isOut') is not True
+            or detail.get('isScoringPlay') is not False or event.get('isSubstitution') is True):
+        return None
+    row = rows[0]; move = row.get('movement', {}); person = row.get('details', {}).get('runner', {})
+    before = events[position-1].get('count', {}); after = event.get('count', {})
+    attempts = [e for e in events[:position] if e.get('playId') == event.get('actionPlayId')
+                and e.get('type') == 'pickoff' and e.get('isPitch') is False]
+    if (len(attempts) != 1 or not SAFE_IRI_SEGMENT.fullmatch(str(event.get('actionPlayId') or ''))
+            or type(person.get('id')) is not int or person['id'] <= 0 or not person.get('fullName')
+            or event.get('player', {}).get('id') != person['id']
+            or row.get('details', {}).get('eventType') != detail.get('eventType')
+            or row['details'].get('isScoringEvent') is not False
+            or move != dict(originBase=base, start=base, end=None, outBase=base,
+                           isOut=True, outNumber=after.get('outs'))
+            or any(type(before.get(k)) is not int or not 0 <= before[k] <= limit
+                   or type(after.get(k)) is not int for k, limit in (('balls', 3), ('strikes', 2), ('outs', 2)))
+            or any(before[k] != after[k] for k in ('balls', 'strikes'))
+            or after['outs'] != before['outs'] + 1
+            or not re.search(r' picks off ' + re.escape(person['fullName']) + r' at '
+                             + {'1B': '1st', '2B': '2nd', '3B': '3rd'}[base] + r'\b',
+                             detail['description'][match.end():])):
+        return None
+    return dict(kind='completed-pickoff-review', runnerId=str(person['id']),
+                overturned=review['isOverturned'], scope='final runner-history effects only')
+
+
+def nonmovement_strikeout_records(play, *, check_review=True):
     """Recognize an empty K record beside an explicit safe WP/PB movement.
 
     The complete positive companion and post-state establish the boundary;
@@ -536,7 +691,9 @@ def nonmovement_strikeout_records(play):
     """
     if (play.get('result', {}).get('eventType') != 'strikeout'
             or play['result'].get('isOut') is not False or play.get('count', {}).get('strikes') != 3
-            or play.get('about', {}).get('hasReview') is not False):
+            or (check_review and (play.get('about', {}).get('hasReview') is not False
+                                  or play.get('reviewDetails'))
+                and accounted_runner_history_reviews(play)['issues'])):
         return {}
     batter = play.get('matchup', {}).get('batter', {}).get('id')
     if type(batter) is not int or batter <= 0 or play['matchup'].get('postOnFirst', {}).get('id') != batter:
@@ -654,6 +811,117 @@ def isolate_zero_episode_histories(result):
     return result
 
 
+def reconciled_action_pitch_overlap(play, earlier, following):
+    """A PB/WP effect and the next counted pitch can have overlapping bounds.
+
+    Their source association and changed counter establish distinct events;
+    the caller independently reconciles all runner, out and post-base effects.
+    This does not assert precedence or adjust either observed interval.
+    """
+    events = play.get('playEvents', [])
+    if earlier is None or not any(e is earlier for e in events):
+        return False
+    detail = earlier.get('details', {}); after_detail = following.get('details', {})
+    before = earlier.get('count', {}); after = following.get('count', {})
+    association = earlier.get('actionPlayId')
+    anchors = [e for e in events if e.get('playId') == association and e.get('isPitch') is True]
+    call = after_detail.get('call', {}).get('code')
+    ball = call in {'B', '*B'}; strike = call in {'C', 'S', 'W'}
+    return (earlier.get('type') == 'action' and earlier.get('isPitch') is False
+        and detail.get('eventType') in {'passed_ball', 'wild_pitch'}
+        and detail.get('hasReview') is False and not earlier.get('reviewDetails')
+        and len(anchors) == 1 and SAFE_IRI_SEGMENT.fullmatch(str(association or '')) is not None
+        and anchors[0].get('count') == before
+        and any(r.get('details', {}).get('playIndex') == earlier.get('index') for r in play.get('runners', []))
+        and following.get('isPitch') is True and (ball or strike)
+        and SAFE_IRI_SEGMENT.fullmatch(str(following.get('playId') or '')) is not None
+        and following['playId'] != association
+        and after_detail.get('isBall') is ball and after_detail.get('isStrike') is strike
+        and after_detail.get('isInPlay') is False and after_detail.get('isOut') is False
+        and not any(r.get('details', {}).get('playIndex') == following.get('index') for r in play.get('runners', []))
+        and all(type(before.get(k)) is int and 0 <= before[k] <= limit
+                and type(after.get(k)) is int for k, limit in (('balls', 2), ('strikes', 1), ('outs', 2)))
+        and after['balls'] == before['balls'] + int(ball)
+        and after['strikes'] == before['strikes'] + int(strike)
+        and after['outs'] == before['outs'])
+
+
+def reconciled_pitch_counter_order(play, earlier, following):
+    """Source pitch ordinals and counters, never array position or clock repair."""
+    events = play.get('playEvents', [])
+    if (earlier is None or not any(e is earlier for e in events) or not any(e is following for e in events)
+            or following.get('isPitch') is not True):return False
+    before = earlier.get('count',{}); after = following.get('count',{})
+    if earlier.get('isPitch') is True:
+        prior_pitch = earlier
+    else:
+        if not counted_foul_running_prefix(None,play,earlier,(before.get('balls'),before.get('strikes'))):return False
+        candidates = [e for e in events if e.get('isPitch') is True and e.get('index',-1) < earlier.get('index',-1)]
+        prior_pitch = candidates[-1] if candidates else None
+    ordinal = prior_pitch.get('pitchNumber') if prior_pitch else 0
+    if (type(ordinal) is not int or following.get('pitchNumber') != ordinal+1
+            or type(following.get('pitchNumber')) is not int
+            or any(not SAFE_IRI_SEGMENT.fullmatch(str(e.get('playId') or '')) for e in [following]+([prior_pitch] if prior_pitch else []))
+            or (prior_pitch and prior_pitch['playId']==following['playId'])
+            or any(type(before.get(k)) is not int or not 0 <= before[k] <= n
+                   or type(after.get(k)) is not int for k,n in (('balls',3),('strikes',2),('outs',2)))):
+        return False
+    code = following.get('details',{}).get('call',{}).get('code')
+    if code in {'B','*B'}:expected = before['balls']+1,before['strikes']
+    elif code in {'C','S','W','M','T','O','L'}:expected = before['balls'],before['strikes']+1
+    elif code=='F':expected = before['balls'],min(2,before['strikes']+1)
+    elif code in {'X','D','E'}:expected = before['balls'],before['strikes']
+    else:return False
+    return expected == (after['balls'],after['strikes']) and before['outs'] == after['outs']
+
+
+def reconciled_pa_boundary_order(previous, current, earlier, following):
+    """Completed outcome and the next batter/count can reconcile overlapping PAs."""
+    if previous is None or earlier is None:return False
+    prior_events = previous.get('playEvents',[]); events = current.get('playEvents',[])
+    pitches = [e for e in events if e.get('isPitch') is True]
+    rows = [r for r in previous.get('runners',[]) if r.get('details',{}).get('playIndex') == earlier.get('index')]
+    if (not prior_events or earlier is not prior_events[-1] or not pitches or following is not pitches[0]
+            or following.get('pitchNumber') != 1 or previous.get('about',{}).get('isComplete') is not True
+            or current.get('about',{}).get('isComplete') is not True
+            or previous.get('about',{}).get('inning') != current.get('about',{}).get('inning')
+            or previous.get('about',{}).get('halfInning') != current.get('about',{}).get('halfInning')
+            or not rows or any(type(r.get('movement',{}).get('isOut')) is not bool for r in rows)
+            or any(not SAFE_IRI_SEGMENT.fullmatch(str(e.get('playId') or '')) for e in (earlier,following))
+            or earlier['playId'] == following['playId']
+            or type(previous.get('count',{}).get('outs')) is not int
+            or previous['count']['outs'] >= 3 or following.get('count',{}).get('outs') != previous['count']['outs']):
+        return False
+    # A real terminal runner out can leave the same batter at the plate.
+    terminal_runner_out = (earlier.get('type') == 'pickoff' and any(r['movement']['isOut'] for r in rows))
+    if not terminal_runner_out and previous.get('matchup',{}).get('batter',{}).get('id') == current.get('matchup',{}).get('batter',{}).get('id'):
+        return False
+    code = following.get('details',{}).get('call',{}).get('code')
+    expected = (1,0) if code in {'B','*B'} else (0,1) if code in {'C','S','W','M','T','O','L','F'} else (0,0) if code in {'X','D','E'} else None
+    return expected is not None and expected == (following.get('count',{}).get('balls'),following.get('count',{}).get('strikes'))
+
+
+def runner_state_neutral_event(play, event, before):
+    """Ignore count/movement-free administration, never its potential semantics."""
+    detail = event.get('details', {})
+    kind = detail.get('eventType')
+    if (kind not in {'game_advisory', 'ejection', 'injury', 'umpire_substitution', 'pitcher_switch', 'error'}
+            or event.get('type') != 'action' or event.get('isPitch') is not False
+            or event.get('isSubstitution') is True or event.get('reviewDetails')
+            or any(detail.get(k) is not False for k in ('isOut','isScoringPlay','hasReview'))
+            or any(detail.get(k) is True for k in ('isBall','isStrike','isInPlay'))
+            or any(type(before.get(k)) is not int or event.get('count',{}).get(k) != before[k]
+                   for k in ('balls','strikes','outs'))
+            or any(r.get('details',{}).get('playIndex') == event.get('index') for r in play.get('runners',[]))):
+        return False
+    if kind == 'error':
+        related = [e for e in play.get('playEvents',[]) if e.get('playId') == event.get('actionPlayId')]
+        return (len(related) == 1 and related[0].get('isPitch') is True
+            and related[0].get('details',{}).get('call',{}).get('code') == 'F'
+            and detail.get('description','').startswith('Dropped foul pop error by '))
+    return event.get('isBaseRunningPlay') is not True
+
+
 def personal_runner_histories(raw: bytes, previous=None) -> dict:
     """E1/C1 source reconciliation, independent of mapped-row counts.
 
@@ -702,13 +970,18 @@ def personal_runner_histories(raw: bytes, previous=None) -> dict:
     independent = {'balk', 'wild_pitch', 'passed_ball', 'stolen_base_2b', 'stolen_base_3b',
                    'stolen_base_home', 'caught_stealing_2b', 'caught_stealing_3b',
                    'caught_stealing_home', 'pickoff_1b', 'pickoff_2b', 'pickoff_3b',
-                   'defensive_indiff', 'pickoff_error_1b', 'pickoff_error_2b', 'pickoff_error_3b'}
+                   'defensive_indiff', 'pickoff_error_1b', 'pickoff_error_2b', 'pickoff_error_3b',
+                   'pickoff_caught_stealing_2b', 'pickoff_caught_stealing_3b', 'pickoff_caught_stealing_home',
+                   'forced_balk', 'other_out', 'other_advance'}
     for (inning, half), plays in groups.items():
         active, histories, memberships, problems = {}, [], [], []
         outs = 0
         previous_pa_end = None
+        previous_play = None
         last_event_end = None
+        last_timed_event = None
         last_boundary_end = None
+        boundary_overlap_event = None
 
         def block(code, pa=None):
             problems.append(dict(code=code, atBatIndex=pa))
@@ -799,7 +1072,10 @@ def personal_runner_histories(raw: bytes, previous=None) -> dict:
                         and all(type(prior_count.get(k)) is int and event.get('count', {}).get(k) == prior_count[k]
                                 for k in ('balls', 'strikes', 'outs')) and prior_count['outs'] == outs
                         and start is not None and end is not None and next_start is not None
-                        and pa_end is not None and start <= end <= next_start and end <= pa_end
+                        and pa_end is not None and start <= end and end <= pa_end
+                        and (end <= next_start or (start <= next_start and following.get('isPitch') is True
+                             and following.get('pitchNumber') == 1 and not any(e.get('isPitch') is True for e in events[:event_position])
+                             and SAFE_IRI_SEGMENT.fullmatch(str(following.get('playId') or ''))))
                         and (last_event_end is None or last_event_end <= start)
                         and (last_boundary_end is None or last_boundary_end <= start))
                     replacement = (common and administrative['form'] == 'replacement'
@@ -823,6 +1099,7 @@ def personal_runner_histories(raw: bytes, previous=None) -> dict:
                                 ruleIri='https://baseballontology.org/data/rule/2026/extra-inning-placement',
                                 baseIri=f"https://baseballontology.org/data/venue/{document['gameData']['venue']['id']}/artifact/base/2B")
                         last_boundary_end = end
+                        boundary_overlap_event = following if next_start < end else None
                         administrative_supported = True
                         # C3 does not license physical start stases or a reverse
                         # metric projection from an administrative base field.
@@ -841,6 +1118,7 @@ def personal_runner_histories(raw: bytes, previous=None) -> dict:
                 supported = (event.get('isPitch') is True or kind in {'pickoff', 'stepoff', 'no_pitch'}
                              or event_type in neutral or event_type in independent
                              or batting_only or delay_only or administrative_supported
+                             or runner_state_neutral_event(play, event, prior_count)
                              or (event_type == 'game_advisory' and details.get('description') in advisories))
                 if not supported:
                     block('UNSUPPORTED_EVENT_EFFECT:' + str(event_type or kind), pa)
@@ -850,12 +1128,16 @@ def personal_runner_histories(raw: bytes, previous=None) -> dict:
                 # Neutral administrative observations need no invented instant.
                 # All pitch/movement boundary events require usable time bounds.
                 if event.get('isPitch') is True or selected:
-                    if (not start or not end or not pa_start or not pa_end or start > end or start < pa_start or end > pa_end
-                            or (last_event_end and start < last_event_end)
-                            or (last_boundary_end and start < last_boundary_end)):
+                    if (not start or not end or not pa_start or not pa_end or start > end or (event.get('isPitch') is True and (start < pa_start or end > pa_end))
+                            or (last_event_end and start < last_event_end
+                                and not (reconciled_action_pitch_overlap(play, last_timed_event, event)
+                                         or reconciled_pitch_counter_order(play, last_timed_event, event)
+                                         or reconciled_pa_boundary_order(previous_play, play, last_timed_event, event)))
+                            or (last_boundary_end and start < last_boundary_end and event is not boundary_overlap_event)):
                         block('UNSUPPORTED_EVENT_TIME_ORDER', pa)
                     if end:
                         last_event_end = end
+                    last_timed_event = event
                     if kind != 'action' and event.get('count', {}).get('outs') != outs:
                         block('PRE_EVENT_OUT_COUNT_MISMATCH', pa)
                 event_anchor = str(event.get('playId') or '')
@@ -927,6 +1209,7 @@ def personal_runner_histories(raw: bytes, previous=None) -> dict:
                     block('POST_BASE_RECONCILIATION_FAILED', pa)
             if outs == 3 and play is not plays[-1]:
                 block('EVENT_AFTER_HALF_END', pa)
+            previous_play = play
         last_play = plays[-1]
         boundary = supported_walkoff_boundary(document, last_play) if outs != 3 else None
         if boundary:
@@ -951,6 +1234,13 @@ def personal_runner_histories(raw: bytes, previous=None) -> dict:
         if boundary and not problems:
             result['halves'][-1]['gameEndingBoundary'] = boundary
         if not problems:
+            pa_ids = {p['atBatIndex'] for p in plays}
+            reconciled = [i for i in result['boundaryIssues']
+                          if i.get('code') == 'AMBIGUOUS_PA_TIME_ORDER' and i.get('atBatIndex') in pa_ids]
+            if reconciled:
+                result.setdefault('reconciledPaHeaderOverlaps',[]).extend(reconciled)
+                result['boundaryIssues'] = [i for i in result['boundaryIssues'] if i not in reconciled]
+                result['temporalOverlapDecision'] = 'archive/design-records/metric-repair-scope-2026-09-30/answers.md'
             result['histories'].extend({k: v for k, v in h.items() if k != 'base'} for h in histories)
             result['episodeMembership'].extend(memberships)
             result['placementAdjudications'].extend(dict(lifetimeKey=h['lifetimeKey'],
@@ -1637,17 +1927,108 @@ def automatic_count_awards(document: dict) -> dict:
                 automaticAwardDecision='archive/design-records/automatic-count-awards/review.json')
 
 
+def counted_foul_running_prefix(document, play, event, prior, *, check_review=True):
+    """Reconcile an unchanged batting count independently of running credit."""
+    detail = event.get('details',{}); events = play.get('playEvents',[])
+    position = next((i for i,e in enumerate(events) if e is event), -1)
+    kind = detail.get('eventType'); after = event.get('count',{})
+    kinds = {'wild_pitch','passed_ball','balk','forced_balk','defensive_indiff',
+             'stolen_base_2b','stolen_base_3b','stolen_base_home','caught_stealing_2b',
+             'caught_stealing_3b','caught_stealing_home','pickoff_1b','pickoff_2b','pickoff_3b',
+             'pickoff_error_1b','pickoff_error_2b','pickoff_error_3b',
+             'pickoff_caught_stealing_2b','pickoff_caught_stealing_3b','pickoff_caught_stealing_home',
+             'other_out','other_advance'}
+    if (position <= 0 or kind not in kinds or event.get('type') != 'action'
+            or event.get('isPitch') is not False or event.get('isBaseRunningPlay') is not True
+            or event.get('isSubstitution') is True
+            or prior != (after.get('balls'),after.get('strikes'))
+            or any(detail.get(k) is True for k in ('isBall','isStrike','isInPlay'))):
+        return None
+    before = events[position-1].get('count',{})
+    rows = [(i,r) for i,r in enumerate(play.get('runners',[])) if r.get('details',{}).get('playIndex') == event.get('index')]
+    known = {int(r['runnerIndex']) for r in runner_episode_evidence(play,str(play['atBatIndex']))['runnerEpisodes']}
+    if (not rows or any(i not in known or type(r['details'].get('isScoringEvent')) is not bool for i,r in rows)
+            or any((r['details']['isScoringEvent'] is True) != (r['movement'].get('end') == 'score') for _,r in rows)
+            or type(before.get('outs')) is not int or type(after.get('outs')) is not int
+            or not 0 <= before['outs'] <= after['outs'] < 3
+            or before.get('balls') != after['balls'] or before.get('strikes') != after['strikes']):
+        return None
+    movements = [(r['details']['runner']['id'],r['movement'].get('start'),r['movement'].get('end'),r['movement'].get('isOut')) for _,r in rows]
+    if len(set(movements)) != len(movements): return None
+    numbers = [r['movement'].get('outNumber') for _,r in rows if r['movement'].get('isOut') is True]
+    if any(type(n) is not int for n in numbers) or sorted(numbers) != list(range(before['outs']+1,after['outs']+1)):
+        return None
+    if detail.get('isOut') is True and not numbers:return None
+    if kind.startswith(('stolen_base_','caught_stealing_','pickoff_')):
+        if event.get('player',{}).get('id') not in {r['details']['runner']['id'] for _,r in rows}:return None
+    if check_review and (event.get('reviewDetails') or detail.get('hasReview') is True):
+        if event.get('index') not in accounted_runner_history_reviews(play)['events']:return None
+    if not SAFE_IRI_SEGMENT.fullmatch(str(event.get('actionPlayId') or '')):return None
+    if sum(e.get('playId') == event['actionPlayId'] for e in events[:position]) != 1:return None
+    return 'reconciled-running-count'
+
+
 def counted_foul_neutral_event(document: dict, play: dict, event: dict, prior: tuple | None) -> str | None:
     """M3's bounded, positively reconciled non-pitch count-neutral records."""
     detail = event.get('details', {})
     count = event.get('count', {})
+    events = play.get('playEvents', [])
+    position = next((i for i,e in enumerate(events) if e is event), -1)
+    before = events[position-1].get('count',{}) if position > 0 else dict(balls=0,strikes=0,outs=count.get('outs'))
+    if prior == (before.get('balls'),before.get('strikes')) and runner_state_neutral_event(play,event,before):
+        return 'reconciled-administration'
+    running = counted_foul_running_prefix(document,play,event,prior)
+    if running:return running
     if (event.get('isPitch') is not False or prior != (count.get('balls'), count.get('strikes'))
-            or detail.get('isOut') is not False or detail.get('hasReview') is not False
+            or detail.get('hasReview') is not False
             or detail.get('isScoringPlay') is not False or event.get('reviewDetails')):
         return None
     kind = detail.get('eventType')
     events = play.get('playEvents', [])
     index = event.get('index')
+    if kind in {'pickoff_1b','pickoff_2b','pickoff_3b'}:
+        rows = [r for r in play.get('runners', []) if r.get('details', {}).get('playIndex') == index]
+        attempt = [e for e in events[:index] if e.get('playId') == event.get('actionPlayId')
+                   and e.get('type') == 'pickoff' and e.get('isPitch') is False]
+        if len(rows) == len(attempt) == 1 and index:
+            row = rows[0]; movement = row.get('movement', {}); rd = row.get('details', {})
+            base = kind.rsplit('_',1)[1].upper(); previous_outs = events[index-1].get('count', {}).get('outs')
+            if (detail.get('isOut') is True and event.get('isSubstitution') is not True
+                    and event.get('isBaseRunningPlay') is True and rd.get('eventType') == kind
+                    and type(event.get('player', {}).get('id')) is int
+                    and rd.get('runner', {}).get('id') == event['player']['id']
+                    and rd.get('isScoringEvent') is False and movement.get('start') == base
+                    and movement.get('outBase') == base and movement.get('end') is None
+                    and movement.get('isOut') is True and type(previous_outs) is int
+                    and movement.get('outNumber') == count.get('outs') == previous_outs+1
+                    and count['outs'] < 3):
+                return 'reconciled-pickoff-out'
+        return None
+    if detail.get('isOut') is not False:return None
+    if kind in {'offensive_substitution','defensive_switch','defensive_substitution'} and event.get('isSubstitution') is True:
+        # Q4/Q5 already reconcile actual incoming participation. A fielding
+        # switch or pre-pitch PH does not change an operative ball/strike count.
+        prefix = events[:index]
+        before_pitch = prior == (0,0) and not any(e.get('isPitch') is True
+            or e.get('details', {}).get('call', {}).get('code') in {'VP','AC','VB'} for e in prefix)
+        offense = 'away' if play.get('about', {}).get('isTopInning') is True else 'home'
+        side = offense if kind == 'offensive_substitution' else ('home' if offense == 'away' else 'away')
+        roster = document.get('liveData', {}).get('boxscore', {}).get('teams', {}).get(side, {}).get('players', {})
+        incoming = event.get('player', {}).get('id'); outgoing = event.get('replacedPlayer', {}).get('id')
+        position = event.get('position', {}).get('abbreviation')
+        rostered = type(incoming) is int and 'ID'+str(incoming) in roster
+        neutral = (not any(r.get('details', {}).get('playIndex') == index for r in play.get('runners', []))
+            and not any(detail.get(k) is True for k in ('isBall','isStrike','isInPlay'))
+            and (not prefix or count.get('outs') == prefix[-1].get('count', {}).get('outs')))
+        if before_pitch and rostered and neutral:
+            if kind in {'defensive_switch','defensive_substitution'} and position in {'P','C','1B','2B','3B','SS','LF','CF','RF'}:
+                return 'initial-defensive-switch'
+            pitches = [e for e in events[index+1:] if e.get('isPitch') is True]
+            if (position == 'PH' and outgoing != incoming and (outgoing is None or 'ID'+str(outgoing) in roster)
+                    and incoming == play.get('matchup', {}).get('batter', {}).get('id') and pitches
+                    and all(str(e.get(CONTEXT_KEY, {}).get('batterId')) == str(incoming) for e in pitches)
+                    and sum(e.get('details', {}).get('eventType') == kind for e in events) == 1):
+                return 'initial-pinch-hitter'
     if kind in {'stolen_base_2b', 'stolen_base_3b'} and event.get('isSubstitution') is not True:
         rows = [r for r in play.get('runners', []) if r.get('details', {}).get('playIndex') == index]
         if len(rows) != 1 or not index:
@@ -1691,7 +2072,8 @@ def counted_foul_neutral_event(document: dict, play: dict, event: dict, prior: t
     if kind == 'pitching_substitution' and event.get('isSubstitution') is True and prior == (0, 0):
         if (event.get('position', {}).get('abbreviation') != 'P'
                 or any(e.get('isPitch') is True or e.get('details', {}).get('call', {}).get('code') in {'VP','AC','VB'} for e in events[:index])
-                or any(e.get('details', {}).get('eventType') == 'offensive_substitution' for e in events)
+                or any(e.get('details', {}).get('eventType') == 'offensive_substitution'
+                    and counted_foul_neutral_event(document,play,e,(0,0)) != 'initial-pinch-hitter' for e in events)
                 or sum(e.get('details', {}).get('eventType') == kind for e in events) != 1):
             return None
         team = 'home' if play.get('about', {}).get('isTopInning') is True else 'away'
@@ -1754,16 +2136,8 @@ def metric_pitch_context(document: dict) -> dict:
         pitches = [e for e in events if e.get('isPitch') is True]
         pc = play[CONTEXT_KEY]
         indexes = [e.get('index') for e in events]
-        reviews = accounted_runner_count_reviews(play)
-        # M1 constrains the prefix ending at the foul. A separately reconciled
-        # terminal field review does not retroactively review earlier pitches.
-        # Retain the strict count-review selector for every earlier event;
-        # C1's broader runner review admission must not admit MO/MA prefixes.
-        field_review = accounted_runner_history_reviews(play).get('accountedFieldReview')
-        if field_review:
-            count_scope = {**play, 'about': {**play['about'], 'hasReview': False}}
-            count_scope.pop('reviewDetails', None)
-            reviews = accounted_runner_count_reviews(count_scope)
+        reviews = accounted_runner_history_reviews(play)
+        field_review = reviews.get('accountedFieldReview')
         prefix_problem = None
         if source['sourceConsistency'] != 'consistent':
             prefix_problem = 'SOURCE_RECONCILIATION_FAILED'
@@ -1774,21 +2148,31 @@ def metric_pitch_context(document: dict) -> dict:
         elif reviews['issues']:
             prefix_problem = 'UNRESOLVED_PA_REVIEW'
         previous = None
+        previous_extension = None
+        previous_pitch_end = None
         prior = (0, 0)
         has_batting_substitution = any(e.get('details', {}).get('eventType') == 'offensive_substitution' for e in events)
         for event in events:
             details = event.get('details', {})
             code = details.get('call', {}).get('code')
             after = counts(event)
+            neutral_extension = counted_foul_neutral_event(document, play, event, prior)
             start, end = map(instant, clock_pair(event))
-            if not start or not end or end < start or (previous and (not instant(clock_pair(previous)[1]) or instant(clock_pair(previous)[1]) > start)):
+            # Reconciled count-neutral records can overlap their surrounding
+            # temporal regions (September 30). Actual pitches still need their
+            # observed order; no clocks or BFO precedence assertions are changed.
+            overlap = previous and instant(clock_pair(previous)[1]) and start and instant(clock_pair(previous)[1]) > start
+            initial_changes = {'initial-pitching-change','initial-pinch-hitter','initial-defensive-switch',
+                               'reconciled-administration','reconciled-running-count','reconciled-pinch-runner'}
+            if (not start or not end or end < start or (overlap and not ({neutral_extension,previous_extension} & initial_changes))
+                    or (event.get('isPitch') is True and previous_pitch_end and start and previous_pitch_end > start)):
                 prefix_problem = prefix_problem or 'UNSUPPORTED_EVENT_TIME_ORDER'
+            if event.get('isPitch') is True:previous_pitch_end = end
             if field_review and event.get('index') >= field_review['eventIndex']:
                 prefix_problem = prefix_problem or 'FIELD_REVIEW_IN_PREFIX'
             if (event.get('reviewDetails') or details.get('hasReview') is True) and event.get('index') not in reviews['events']:
                 prefix_problem = prefix_problem or 'UNRESOLVED_PREFIX_REVIEW'
-            neutral_extension = counted_foul_neutral_event(document, play, event, prior)
-            if (event.get('isSubstitution') is True or 'substitution' in str(details.get('eventType', ''))) and neutral_extension not in {'initial-pitching-change','reconciled-pinch-runner'}:
+            if (event.get('isSubstitution') is True or 'substitution' in str(details.get('eventType', ''))) and neutral_extension not in {'initial-pitching-change','reconciled-pinch-runner','initial-pinch-hitter','initial-defensive-switch','reconciled-administration'}:
                 prefix_problem = prefix_problem or 'SUBSTITUTION_IN_PREFIX'
             if after is None:
                 prefix_problem = prefix_problem or 'INVALID_COUNTER'
@@ -1815,7 +2199,7 @@ def metric_pitch_context(document: dict) -> dict:
                 accountedExtension=neutral_extension or ('operative-pitch-review' if event.get('index') in reviews['events'] else None),
                 problem=prefix_problem))
             if event.get('isPitch') is not True:
-                previous, prior = event, after
+                previous, prior, previous_extension = event, after, neutral_extension
                 continue
             pid = event.get('playId')
             ec = event[CONTEXT_KEY]
@@ -1835,7 +2219,8 @@ def metric_pitch_context(document: dict) -> dict:
                     ec['isSecondCountedFoul'] = True
                     evidence['countedFouls'].append(item)
                 else:
-                    evidence['withheldFouls'].append(dict(item, reason=prefix_problem or 'NO_SECOND_STRIKE_INCREMENT'))
+                    evidence['withheldFouls'].append(dict(item, reason=('NO_SECOND_STRIKE_INCREMENT'
+                        if prior is not None and prior[1] == after[1] else prefix_problem or 'NO_SECOND_STRIKE_INCREMENT')))
             if code == 'L':
                 item = dict(atBatIndex=pa, playId=pid, eventIndex=event.get('index'), kind='foul-bunt')
                 third = after is not None and after[1] == 3
@@ -1896,7 +2281,7 @@ def metric_pitch_context(document: dict) -> dict:
                                reusesPlayReview=legacy)
                     rows.append(row)
                     evidence['pitchReviews'].append(row.copy())
-            previous, prior = event, after
+            previous, prior, previous_extension = event, after, neutral_extension
     root['metricPitchReviews'] = rows
     root['metricMappingEvidence'] = evidence
     return evidence
@@ -1940,6 +2325,16 @@ def defensive_act_context(document: dict, previous: dict | None = None) -> dict:
             return next(iter(matches)) if len(matches) == 1 else None
 
         description = play.get('result', {}).get('description', '')
+        description_offset = 0
+        reviewed_final = False
+        if play.get('reviewDetails') or play['about'].get('hasReview') is True:
+            reviewed = accounted_runner_history_reviews(play)
+            reviewed_final = not reviewed['issues'] and bool(reviewed.get('accountedFieldReview'))
+            if reviewed_final:
+                while (review_match := REVIEW_DESCRIPTION.search(description)):
+                    remaining = description[review_match.end():]
+                    description_offset += review_match.end() + len(remaining) - len(remaining.lstrip())
+                    description = remaining.lstrip()
         for event in contacts:
             pid = event.get('playId')
             item = dict(atBatIndex=pa, eventIndex=event.get('index'), playId=pid,
@@ -1950,7 +2345,7 @@ def defensive_act_context(document: dict, previous: dict | None = None) -> dict:
                     or not isinstance(pid, str) or not SAFE_IRI_SEGMENT.fullmatch(pid) or ids.count(pid) != 1
                     or [e.get('index') for e in events] != list(range(len(events)))):
                 item['gaps'].append('UNRECONCILED_CONTACT_IDENTITY'); continue
-            if (event is not terminal or play.get('reviewDetails') or play['about'].get('hasReview') is not False
+            if (event is not terminal or ((play.get('reviewDetails') or play['about'].get('hasReview') is not False) and not reviewed_final)
                     or event.get('reviewDetails') or event.get('details', {}).get('hasReview') is not False):
                 item['gaps'].append('UNRESOLVED_DEFENSIVE_DESCRIPTION'); continue
             associated = [(i,r) for i,r in enumerate(play.get('runners', [])) if r.get('details', {}).get('playIndex') == event['index']]
@@ -1962,9 +2357,9 @@ def defensive_act_context(document: dict, previous: dict | None = None) -> dict:
 
             selected = []
             def select(kind, agent, span, support):
-                selected.append(dict(kind=kind, agent=agent, span=span, creditPointers=support))
+                selected.append(dict(kind=kind, agent=agent, span=[n+description_offset for n in span], creditPointers=support))
 
-            catch = re.fullmatch(r'.+? (?:flies|lines|pops) out(?: (?:sharply|softly))? to ('+position+r'.+?)(?: in foul territory)?\.', description)
+            catch = re.match(r'.+? (?:flies|lines|pops) out(?: (?:sharply|softly))? to ('+position+r'.+?)(?: in foul territory)?\.', description)
             if catch and play.get('result', {}).get('eventType') == 'field_out':
                 agent = resolve(catch.group(1)); support = witnesses(agent, {'f_putout'}) if agent else []
                 outs = [r for _,r in associated if r.get('movement', {}).get('isOut') is True]
@@ -1972,7 +2367,7 @@ def defensive_act_context(document: dict, previous: dict | None = None) -> dict:
                 if (agent and support and len(outs) == 1 and not conflicting
                         and outs[0].get('details', {}).get('runner', {}).get('id') == play.get('matchup', {}).get('batter', {}).get('id')):
                     select('CatchAttemptAct',agent,[catch.start(),catch.end()],support)
-                    item['complete'] = len(associated) == 1
+                    item['complete'] = len(associated) == 1 and catch.end() == len(description)
             # The explicit "on the throw" supplies a described relay. Credits
             # corroborate the participants; they do not create extra throws.
             relay = re.search(r'(?P<runner>[^.]+?) out at (?P<base>2nd|3rd|home) on the throw, (?P<chain>.+)\.$', description)
@@ -1999,7 +2394,7 @@ def defensive_act_context(document: dict, previous: dict | None = None) -> dict:
             # putout. Bare credits, extra deflectors and unassisted outs do not
             # satisfy that pattern. Terminal touch and timing remain unresolved.
             ground = re.search(r'('+position+r'.+?) fields (?:the )?(?:ground ball|grounder) and throws to ('+position+r'.+?), who catches the (?:ball|throw)\.', description, re.I)
-            compact = re.fullmatch(r'.+? grounds out(?: (?:sharply|softly))?, ('+position+r'.+?) to ('+position+r'.+?)\.',description,re.I)
+            compact = re.match(r'.+? grounds out(?: (?:sharply|softly))?, ('+position+r'.+?) to ('+position+r'.+?)\.',description,re.I)
             if not ground and compact and play.get('result',{}).get('eventType')=='field_out':
                 first,last=resolve(compact.group(1)),resolve(compact.group(2))
                 outs=[r for _,r in associated if r.get('movement',{}).get('isOut') is True]
@@ -2036,7 +2431,7 @@ def defensive_act_context(document: dict, previous: dict | None = None) -> dict:
                     playIri=item['resolution'],recordIri=game+'event-record/pitch/'+pid,
                     catch=act['kind']=='CatchAttemptAct',atBatIndex=pa,playId=pid,performanceIndex=number,
                     descriptionPointer=f'/liveData/plays/allPlays/{pa}/result/description',
-                    descriptionSpan=act['span'],description=description,creditPointers=act['creditPointers'])
+                    descriptionSpan=act['span'],description=play['result']['description'],creditPointers=act['creditPointers'])
                 rows.append(row);item['acts'].append(row['actIri'])
             item['orderComplete'] = item['complete'] and len(selected)==1
             if not item['complete'] and not item['gaps']:item['gaps'].append('INCOMPLETE_DEFENSIVE_PERFORMANCES')

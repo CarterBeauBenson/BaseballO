@@ -29,6 +29,7 @@ PACKAGE = ROOT / Path(DECISION).parent
 MAPPING = HERE.parent / 'mapping/mlb-game.rml.ttl'
 MAPS = ('PersonalRunnerProcessMap', 'PersonalRunnerIntervalMap', 'PersonalRunnerMembershipMap')
 COMPLETION = HERE / 'history-completion-candidates.json'
+SELECTION = HERE / 'history-selection-candidates.json'
 SUCCESS = {'complete', 'already-complete'}
 
 
@@ -50,11 +51,16 @@ read = TX.read
 atomic = TX.atomic_json
 
 
-def select_history(manifest, case):
+def select_history(manifest, case, raw=None):
     original = manifest['runnerHistoryReconciliation']
     if original['inputSha256'] != case['inputSha256'] or original['sourceConsistency'] != 'consistent':
         raise ValueError('Q7 retained history belongs to another or inconsistent input')
-    history = H.CONTEXT.isolate_zero_episode_histories(copy.deepcopy(original))
+    if case.get('selectionRepair') in {'H2','H3'}:
+        if raw is None or hashlib.sha256(raw).hexdigest() != case.get('sourceSha256',case['inputSha256']):
+            raise ValueError('History repair requires the exact inventoried response')
+        history = H.CONTEXT.personal_runner_histories(raw, previous=original)
+    else:
+        history = H.CONTEXT.isolate_zero_episode_histories(copy.deepcopy(original))
     previous = {h['lifetimeKey'] for h in original['histories']}
     selected = [h for h in history['histories'] if h['lifetimeKey'] not in previous]
     halves = {(int(h['inning']), h['half']) for h in case.get('halves', [case])}
@@ -62,16 +68,25 @@ def select_history(manifest, case):
         raise ValueError('Q7 addition differs from the approved half-inning scope')
     if 'selectedHistoryKeys' in case and {h['lifetimeKey'] for h in selected} != set(case['selectedHistoryKeys']):
         raise ValueError('Q7 completion differs from the inventoried histories')
-    if any(h.get('placement') or h.get('gameEndInstantIri') for h in selected):
+    if case.get('selectionRepair') != 'H3' and any(h.get('placement') or h.get('gameEndInstantIri') for h in selected):
         raise ValueError('Q7 named repairs require only the three personal-history maps')
     for expected in case.get('scoringCandidates', []):
         if expected not in selected:
             raise ValueError('Q7 approved scoring history changed')
     keys = {h['lifetimeKey'] for h in selected}
-    delta = dict(inputSha256=original['inputSha256'], histories=selected,
+    delta = dict(inputSha256=history['inputSha256'], histories=selected,
         episodeMembership=[e for e in history['episodeMembership'] if e['lifetimeKey'] in keys],
-        placementAdjudications=[])
+        placementAdjudications=[r for r in history.get('placementAdjudications',[]) if r['lifetimeKey'] in keys])
     return history, delta
+
+
+def history_maps(delta_context):
+    maps=list(MAPS)
+    if delta_context['placementAdjudications']:
+        maps.extend('RunnerPlacement'+name+'Map' for name in ('Judgment','Membership','Decision','Base','BaseIdentifier','Rule','Record'))
+    if any(h.get('gameEndInstantIri') for h in delta_context['histories']):
+        maps.append('PersonalRunnerGameEndIntervalMap')
+    return tuple(maps)
 
 
 def subset_mapping(game_pk, destination, maps=MAPS):
@@ -118,6 +133,14 @@ def retain_source_binding(proof, marker, field):
     if proof.get('sourceSha256') == marker['rawSha256']:
         return
     receipt = proof.get('sourceRevalidation', proof.get('graphRevalidation', {}))
+    if (field in {'runnerHistoryAdmission','runnerResolutionAdmission'}
+            and receipt.get('decision') == 'archive/design-records/metric-source-c1-operation-2026-09-14/review.json'
+            and receipt.get('mode') == 'current-history-source-census'
+            and receipt.get('promotionSourceSha256') == marker['rawSha256']
+            and receipt.get('sourceSha256') == proof.get('sourceSha256')
+            and receipt.get('originalProofSha256')):
+        proof['sourceRevalidation'] = dict(receipt)
+        return
     if (field != 'defensiveAdmission'
             or receipt.get('decision') != 'archive/design-records/mlb-game-defensive-acts/review.json'
             or receipt.get('mode') != 'current-defensive-source-census'
@@ -127,7 +150,7 @@ def retain_source_binding(proof, marker, field):
     proof['sourceRevalidation'] = dict(receipt)
 
 
-def revalidate(marker, manifest, history, rdf, evidence, java, classpath, delta=None):
+def revalidate(marker, manifest, history, rdf, evidence, java, classpath, delta=None, source_raw=None):
     """Recheck retained source contracts; never rerun acquisition or source mapping.
 
     Unchanged censuses keep their original producer identity. A separate receipt
@@ -161,6 +184,10 @@ def revalidate(marker, manifest, history, rdf, evidence, java, classpath, delta=
             retain_source_binding(proof, marker, field)
             if proof['authoritativeRdfSha256'] != manifest['outputSha256']:
                 raise ValueError('Retained admission does not describe the approved base')
+            if source_raw is not None and field in {'runnerHistoryAdmission', 'runnerResolutionAdmission'}:
+                # These source censuses actually change in H2. Generate them
+                # anew below; never stamp the old withheld result as current.
+                continue
             target = evidence / prior.name
             for suffix, key in (('.source.json', 'sourceCensusSha256'),
                                 ('.shapes.ttl', 'shapeSha256'), ('.report.ttl', 'reportSha256')):
@@ -198,7 +225,95 @@ def revalidate(marker, manifest, history, rdf, evidence, java, classpath, delta=
             atomic(target, proof)
             output_fields[field] = str(target)
             output_fields[field + 'Sha256'] = sha(target)
+    if source_raw is not None:
+        resolution = module(HERE / 'runner-resolution-admission.py', 'h2_resolution')
+        for field, adapter, filename in (('runnerHistoryAdmission', H, 'runner-history-admission.json'),
+                                        ('runnerResolutionAdmission', resolution, 'runner-resolution-admission.json')):
+            output = evidence / filename
+            proof = adapter.prove(raw=source_raw, game_pk=marker['gamePk'], rdf_path=rdf,
+                                  output=output, java=java, classpath=classpath)
+            if not proof.get('graphConforms'):
+                raise ValueError('H2 current source census failed graph conformance: ' + field)
+            if proof.get('sourceSha256') != marker['rawSha256']:
+                proof['sourceRevalidation'] = dict(
+                    decision='archive/design-records/metric-source-c1-operation-2026-09-14/review.json',
+                    mode='current-history-source-census',promotionSourceSha256=marker['rawSha256'],
+                    sourceSha256=proof['sourceSha256'],originalProofSha256=marker[field+'Sha256'])
+                atomic(output,proof)
+            output_fields[field] = str(output)
+            output_fields[field + 'Sha256'] = sha(output)
     return output_fields
+
+
+def acquire_selection_source(state, case):
+    """Use only inventoried responses; copy immutable samples before execution."""
+    inventory = read(SELECTION)
+    if sha(ROOT / 'scripts/pipeline/prepare-rml-context.py') != inventory['contextBuilderSha256']:
+        raise ValueError('H2 context differs from the prepared repair')
+    game_pk = case['gamePk']
+    directory = state / 'pipeline/quarantine/mlb-game' / game_pk / 'targeted-h2'
+    source = directory / 'input.json'; receipt = directory / 'acquisition.json'
+    if receipt.is_file():
+        witness = read(receipt)
+        if not source.is_file() or sha(source) != witness['sha256'] or witness['sha256'] != case.get('sourceSha256',case['inputSha256']):
+            raise ValueError('H2 retained response differs from its receipt')
+        return witness
+    directory.mkdir(parents=True, exist_ok=True)
+    url = f'https://statsapi.mlb.com/api/v1.1/game/{game_pk}/feed/live'
+    if not source.is_file() and case.get('retainedSource'):
+        retained=(ROOT/case['retainedSource']).resolve()
+        if not retained.is_relative_to((ROOT/'data/raw').resolve()):
+            raise ValueError('History repair witness escapes immutable source samples')
+        if sha(retained) != case['sourceSha256']:
+            raise ValueError('History repair retained source changed')
+        source.write_bytes(retained.read_bytes())
+    if not source.is_file():
+        with urllib.request.urlopen(urllib.request.Request(url, headers={'Accept': 'application/json'}), timeout=60) as response:
+            raw = response.read()
+        source.write_bytes(raw)
+    # Keep a changed response quarantined with its true hash. Do not retry by
+    # overwriting it or reinterpret its rows against the old episode identities.
+    witness = dict(kind='retained-response-copy' if case.get('retainedSource') else 'targeted-reacquisition', gamePk=game_pk, path=str(source), sha256=sha(source),
+        url=url, acquiredAtUtc=TX.now(), scopeDecision=inventory['scopeDecision'],
+        implementationRecord=inventory['implementationRecord'])
+    atomic(receipt, witness)
+    if witness['sha256'] != case.get('sourceSha256',case['inputSha256']) or str(read(source).get('gamePk')) != game_pk:
+        raise ValueError('H2 response differs from the original hash-bound input; retained for diagnosis')
+    return witness
+
+
+def finish_selection(state,case,promoted,java,classpath):
+    """Resume post-promotion evidence/cleanup after interruption without another add."""
+    marker=read(promoted);witness=marker.get('targetedAddition',{}).get('sourceWitness')
+    if not witness:
+        EVENT.emit(state,promoted);return
+    game_pk=case['gamePk'];source=Path(witness['path'])
+    owned=state/'pipeline/quarantine/mlb-game'/game_pk/'targeted-h2/input.json'
+    if source.resolve()!=owned.resolve():raise ValueError('History repair cleanup escapes its owned input')
+    evidence=state/'pipeline/evidence/mlb-game'/game_pk/marker['pipelineRunId']
+    cleanup=evidence/'cleanup.json'
+    if cleanup.is_file():
+        receipt=read(cleanup)
+        if receipt.get('sourceWitness')!=witness or receipt.get('promotionEvidence')!=str(promoted):
+            raise ValueError('History repair retirement receipt changed')
+        if source.is_file():
+            if sha(source)!=witness['sha256']:raise ValueError('History repair cleanup input changed')
+            source.unlink()
+        receipt.update(rawRetiredAfterPromotion=True)
+        atomic(cleanup,receipt)
+        EVENT.emit(state,promoted);return
+    if not source.is_file() or sha(source)!=witness['sha256']:
+        raise ValueError('History repair source missing or changed before successful retirement')
+    if case.get('selectionRepair')=='H3':
+        admission=module(HERE/'admission-evidence.py','history_evidence_refresh')
+        promotion=I.validated_promotion_record(state,promoted,game_pk,I.query_index_contract_admission())
+        admission.refresh_existing_graph(state,promotion,witness,java,classpath,'http://127.0.0.1:3031/baseball-dev/query')
+    # Write the receipt before deletion so an interruption cannot lose cleanup provenance.
+    receipt=dict(sourceWitness=witness,retirementAuthorizedAtUtc=TX.now(),promotionEvidence=str(promoted))
+    atomic(cleanup,receipt)
+    source.unlink()
+    atomic(cleanup,dict(receipt,rawRetiredAfterPromotion=True,completedAtUtc=TX.now()))
+    EVENT.emit(state,promoted)
 
 
 def add_game(state, game_pk, java, mapper, classpath):
@@ -207,32 +322,37 @@ def add_game(state, game_pk, java, mapper, classpath):
     case = next((c for c in cases() if c['gamePk'] == game_pk), None)
     if case is None:
         raise ValueError('Game is outside the approved Q7 additions')
+    decision = ('archive/design-records/metric-source-c1-operation-2026-09-14/review.json'
+                if case.get('selectionRepair') in {'H2','H3'} else DECISION)
+    if read(ROOT / decision)['status'] != 'accepted':
+        raise ValueError('Personal-history contract is not accepted')
     store = TX.HttpGraphStore('http://127.0.0.1:3031/baseball-dev/data')
     TX.recover(store, state, game_pk)
     marker_root = state / 'pipeline/evidence/nifi/game-promotion' / game_pk
     marker_path = max(marker_root.glob('*.json'), key=lambda p: (read(p)['promotedAtUtc'], p.name))
     marker = read(marker_path)
-    if marker.get('targetedAddition', {}).get('decision') == DECISION:
-        EVENT.emit(state, marker_path)
+    if (marker.get('targetedAddition', {}).get('decision') == decision
+            and (not case.get('selectedHistoryKeys') or marker['targetedAddition'].get('selectedHistoryKeys') == case['selectedHistoryKeys'])):
+        finish_selection(state,case,marker_path,java,classpath)
         return dict(status='already-complete', promotionEvidence=str(marker_path), **marker['targetedAddition'])
-    if sha(marker_path) != case['promotionManifestSha256']:
-        raise ValueError('Q7 base promotion changed; preserve it and diagnose before retrying')
     I.validated_promotion_record(state, marker_path, game_pk, I.query_index_contract_admission())
     I.retain_game_artifacts(state, game_pk)
-    prior_path = I.retained_artifact(state, game_pk, case['rmlManifestSha256'], Path(marker['rmlManifest']))
-    if sha(prior_path) != case['rmlManifestSha256']:
+    # The approved scope is the exact selected histories, not an obsolete base
+    # snapshot. Preserve a later valid promotion and reconcile against its census.
+    prior_path = I.retained_artifact(state, game_pk, marker['rmlManifestSha256'], Path(marker['rmlManifest']))
+    if sha(prior_path) != marker['rmlManifestSha256']:
         raise ValueError('Q7 retained mapping manifest changed')
     manifest = read(prior_path)
-    if manifest['outputSha256'] != case['authoritativeRdfSha256']:
-        raise ValueError('Q7 retained graph identity changed')
-    history, delta_context = select_history(manifest, case)
+    witness = acquire_selection_source(state, case) if case.get('selectionRepair') in {'H2','H3'} else None
+    raw = Path(witness['path']).read_bytes() if witness else None
+    history, delta_context = select_history(manifest, case, raw)
     run = uuid.uuid4().hex
     evidence = state / 'pipeline/evidence/mlb-game' / game_pk / run
     evidence.mkdir(parents=True)
     context = evidence / 'game-context.json'
     atomic(context, dict(gamePk=int(game_pk), _baseballO=dict(runnerHistoryReconciliation=delta_context)))
     mapping = evidence / 'history.rml.ttl'
-    subset_mapping(game_pk, mapping)
+    subset_mapping(game_pk,mapping,history_maps(delta_context))
     delta_path = evidence / 'history-addition.ttl'
     command([java, '-Xmx512m', '-jar', mapper, '-m', mapping, '-o', delta_path,
         '-s', 'turtle', '-b', manifest['mappingBaseIri'], '--strict'], evidence, evidence / 'rml.log')
@@ -254,8 +374,9 @@ def add_game(state, game_pk, java, mapper, classpath):
     combined.serialize(destination=rdf, format='nt')
     V.verify(dict(gamePk=int(game_pk), _baseballO=dict(runnerHistoryReconciliation=history)), combined)
     proof_fields = revalidate(marker, manifest, history, rdf, evidence, java, classpath,
-                              delta=delta if 'selectedHistoryKeys' in case else None)
-    addition = dict(decision=DECISION, basePromotionSha256=sha(marker_path),
+                              delta=delta if 'selectedHistoryKeys' in case else None, source_raw=raw)
+    addition = dict(decision=decision, basePromotionSha256=sha(marker_path),
+        inventoriedBasePromotionSha256=case['promotionManifestSha256'],
         baseRmlManifestSha256=sha(prior_path), baseRdfSha256=manifest['outputSha256'],
         baseExportSha256=TX.sha_bytes(base_bytes),
         deltaPath=str(delta_path), deltaSha256=sha(delta_path),
@@ -263,11 +384,17 @@ def add_game(state, game_pk, java, mapper, classpath):
         contextBuilderSha256=sha(ROOT / 'scripts/pipeline/prepare-rml-context.py'),
         addedHistories=len(delta_context['histories']), addedTriples=len(combined) - len(base),
         baseTripleCount=len(base), resultingTripleCount=len(combined),
-        mutation='additive-graph-store-post', acquiredInputs=0)
+        mutation='additive-graph-store-post', acquiredInputs=int(witness is not None and witness['kind']=='targeted-reacquisition'))
     if 'selectedHistoryKeys' in case:
-        addition.update(scopeDecision=read(COMPLETION)['scopeDecision'],
-                        repairInventorySha256=sha(COMPLETION), selectedHistoryKeys=case['selectedHistoryKeys'])
+        inventory = SELECTION if witness else COMPLETION
+        addition.update(scopeDecision=read(inventory)['scopeDecision'],
+                        repairInventorySha256=sha(inventory), selectedHistoryKeys=case['selectedHistoryKeys'])
+    if witness:
+        addition.update(selectionRepair=case['selectionRepair'], sourceWitness=witness)
     promoted = marker_root / (run + '.json')
+    latest = max(marker_root.glob('*.json'), key=lambda p: (read(p)['promotedAtUtc'], p.name))
+    if latest != marker_path or sha(marker_path) != addition['basePromotionSha256']:
+        raise ValueError('History repair promotion changed during preparation')
     TX.prepare(store, state, game_pk, run)
     try:
         # Reuse source-game locking and the existing recovery snapshots. No
@@ -306,7 +433,7 @@ def add_game(state, game_pk, java, mapper, classpath):
         if not promoted.is_file():
             TX.restore(store, state, game_pk, run, 'targeted-history-addition-failed')
         raise
-    EVENT.emit(state, promoted)
+    finish_selection(state,case,promoted,java,classpath)
     return dict(status='complete', promotionEvidence=str(promoted), **addition)
 
 
@@ -314,7 +441,8 @@ def tick(state, game_pk, java, mapper, classpath):
     control = state / 'pipeline/control/mlb-game/history-addition' / (game_pk + '.json')
     version = fingerprint()
     previous = read(control) if control.exists() else {}
-    if previous.get('status') in SUCCESS:
+    case=next(c for c in cases() if c['gamePk']==game_pk)
+    if previous.get('status') in SUCCESS and (not case.get('selectionRepair') or previous.get('selectedHistoryKeys')==case.get('selectedHistoryKeys')):
         return previous
     if previous.get('implementationSha256') == version and previous.get('attempts', 0) >= 2:
         return previous
@@ -329,11 +457,13 @@ def tick(state, game_pk, java, mapper, classpath):
 
 
 def cases():
-    return read(PACKAGE / 'source-evidence.json')['cases'] + read(COMPLETION)['cases']
+    selection = [dict(case, selectionRepair=case.get('selectionRepair','H2')) for case in read(SELECTION)['cases']] if SELECTION.is_file() else []
+    return selection + read(PACKAGE / 'source-evidence.json')['cases'] + read(COMPLETION)['cases']
 
 
 def fingerprint():
     return hashlib.sha256(Path(__file__).read_bytes() + COMPLETION.read_bytes() +
+        (SELECTION.read_bytes() if SELECTION.is_file() else b'') +
         (ROOT / 'scripts/pipeline/prepare-rml-context.py').read_bytes()).hexdigest()
 
 
@@ -342,7 +472,7 @@ def next_case(state):
     for case in cases():
         path = state / 'pipeline/control/mlb-game/history-addition' / (case['gamePk'] + '.json')
         previous = read(path) if path.is_file() else {}
-        if previous.get('status') in SUCCESS:
+        if previous.get('status') in SUCCESS and (not case.get('selectionRepair') or previous.get('selectedHistoryKeys')==case.get('selectedHistoryKeys')):
             continue
         if previous.get('implementationSha256') == version and previous.get('attempts', 0) >= 2:
             continue

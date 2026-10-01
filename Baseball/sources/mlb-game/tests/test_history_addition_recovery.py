@@ -1,0 +1,81 @@
+"""Repair scope, dependency slicing and crash-safe input retirement."""
+import importlib.util
+import tempfile
+import unittest
+from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import patch
+from rdflib import Graph,RDF,URIRef
+ROOT=Path(__file__).resolve().parents[3]
+spec=importlib.util.spec_from_file_location('history_repair',ROOT/'sources/mlb-game/pipeline/targeted-history-addition.py')
+H=importlib.util.module_from_spec(spec);spec.loader.exec_module(H)
+
+class HistoryAdditionRecovery(unittest.TestCase):
+    def test_old_game_completion_does_not_skip_a_different_history_selection(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);case=dict(gamePk='1',selectionRepair='H3',selectedHistoryKeys=['new-history'])
+            control=state/'pipeline/control/mlb-game/history-addition/1.json'
+            H.atomic(control,dict(status='complete',selectedHistoryKeys=['old-history']))
+            with patch.object(H,'cases',return_value=[case]),patch.object(H,'fingerprint',return_value='current'), \
+                    patch.object(H,'add_game',return_value=dict(status='complete',selectedHistoryKeys=['new-history'])) as add:
+                self.assertEqual(H.next_case(state),'1')
+                self.assertEqual(H.tick(state,'1',None,None,None)['status'],'complete')
+                add.assert_called_once()
+                self.assertIsNone(H.next_case(state))
+                H.tick(state,'1',None,None,None);add.assert_called_once()
+
+    def test_only_existing_placement_and_game_end_dependencies_are_sliced(self):
+        delta=dict(histories=[dict(gameEndInstantIri='urn:end')],placementAdjudications=[{}])
+        names=H.history_maps(delta)
+        with tempfile.TemporaryDirectory() as temp:
+            mapping=Path(temp)/'delta.ttl';H.subset_mapping('1',mapping,names)
+            graph=Graph().parse(mapping)
+            self.assertEqual({str(s).rsplit('#',1)[1] for s in graph.subjects(RDF.type,
+                URIRef('http://www.w3.org/ns/r2rml#TriplesMap'))},set(names))
+        self.assertEqual(len(names),11)
+        self.assertEqual(H.history_maps(dict(histories=[{}],placementAdjudications=[])),H.MAPS)
+
+    def test_different_source_requires_explicit_original_binding(self):
+        proof=dict(sourceSha256='new',sourceRevalidation=dict(
+            decision='archive/design-records/metric-source-c1-operation-2026-09-14/review.json',
+            mode='current-history-source-census',promotionSourceSha256='old',sourceSha256='new',originalProofSha256='prior'))
+        H.retain_source_binding(proof,dict(rawSha256='old'),'runnerHistoryAdmission')
+        self.assertEqual(proof['sourceSha256'],'new')
+        with self.assertRaisesRegex(ValueError,'unbound source'):
+            H.retain_source_binding(proof,dict(rawSha256='unrelated'),'runnerHistoryAdmission')
+
+    def test_retirement_recovers_after_delete_without_readding_or_rechecking_graph(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);source=state/'pipeline/quarantine/mlb-game/1/targeted-h2/input.json'
+            H.atomic(source,dict(gamePk=1));witness=dict(path=str(source),sha256=H.sha(source))
+            marker=state/'promotion.json'
+            H.atomic(marker,dict(pipelineRunId='run',targetedAddition=dict(sourceWitness=witness)))
+            case=dict(gamePk='1',selectionRepair='H3')
+            refresh=SimpleNamespace(refresh_existing_graph=lambda *a:None)
+            original_atomic=H.atomic
+            def interrupt_after_delete(path,value):
+                if path.name=='cleanup.json' and value.get('rawRetiredAfterPromotion'):raise RuntimeError('interrupted after delete')
+                original_atomic(path,value)
+            with patch.object(H,'module',return_value=refresh) as module, \
+                    patch.object(H.I,'validated_promotion_record',return_value={}), \
+                    patch.object(H.I,'query_index_contract_admission',return_value={}), \
+                    patch.object(H.EVENT,'emit') as emit:
+                with patch.object(H,'atomic',side_effect=interrupt_after_delete):
+                    with self.assertRaisesRegex(RuntimeError,'interrupted after delete'):
+                        H.finish_selection(state,case,marker,None,None)
+                self.assertFalse(source.exists());emit.assert_not_called()
+                H.finish_selection(state,case,marker,None,None)
+                self.assertEqual(module.call_count,1);emit.assert_called_once()
+                receipt=H.read(state/'pipeline/evidence/mlb-game/1/run/cleanup.json')
+                self.assertTrue(receipt['rawRetiredAfterPromotion'])
+
+    def test_retirement_never_deletes_a_checked_in_witness(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);source=state/'immutable.json';source.write_bytes(b'{}')
+            marker=state/'promotion.json';H.atomic(marker,dict(targetedAddition=dict(
+                sourceWitness=dict(path=str(source),sha256=H.sha(source)))))
+            with self.assertRaisesRegex(ValueError,'escapes its owned input'):
+                H.finish_selection(state,dict(gamePk='1'),marker,None,None)
+            self.assertTrue(source.is_file())
+
+if __name__=='__main__':unittest.main()

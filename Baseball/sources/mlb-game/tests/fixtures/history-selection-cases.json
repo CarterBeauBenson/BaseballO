@@ -1,0 +1,2659 @@
+{
+  "kind": "derived-test-projection-not-ingest-input",
+  "cases": [
+    {
+      "gamePk": "849842",
+      "inputSha256": "5493a47579a150d7254b136a495f032958fd289dcf84ac80060cc5dd87dd8599",
+      "play": {
+        "result": {
+          "type": "atBat",
+          "event": "Lineout",
+          "eventType": "field_out",
+          "description": "Xander Bogaerts lines out, second baseman Nico Hoerner to first baseman Michael Busch.",
+          "rbi": 0,
+          "awayScore": 1,
+          "homeScore": 4,
+          "isOut": true
+        },
+        "about": {
+          "atBatIndex": 48,
+          "halfInning": "bottom",
+          "isTopInning": false,
+          "inning": 6,
+          "startTime": "2026-10-01T04:02:27.140Z",
+          "endTime": "2026-10-01T04:05:25.830Z",
+          "isComplete": true,
+          "isScoringPlay": false,
+          "hasReview": false,
+          "hasOut": true,
+          "captivatingIndex": 0
+        },
+        "count": {
+          "balls": 3,
+          "strikes": 2,
+          "outs": 2
+        },
+        "matchup": {
+          "batter": {
+            "id": 593428,
+            "fullName": "Xander Bogaerts",
+            "link": "/api/v1/people/593428"
+          },
+          "batSide": {
+            "code": "R",
+            "description": "Right"
+          },
+          "pitcher": {
+            "id": 656849,
+            "fullName": "David Peterson",
+            "link": "/api/v1/people/656849"
+          },
+          "pitchHand": {
+            "code": "L",
+            "description": "Left"
+          },
+          "batterHotColdZones": [],
+          "pitcherHotColdZones": [],
+          "splits": {
+            "batter": "vs_LHP",
+            "pitcher": "vs_RHB",
+            "menOnBase": "Empty"
+          }
+        },
+        "pitchIndex": [
+          0,
+          2,
+          3,
+          4,
+          5,
+          6,
+          8
+        ],
+        "actionIndex": [
+          7
+        ],
+        "runnerIndex": [
+          0,
+          1
+        ],
+        "runners": [
+          {
+            "movement": {
+              "originBase": "1B",
+              "start": "1B",
+              "end": null,
+              "outBase": "2B",
+              "isOut": true,
+              "outNumber": 1
+            },
+            "details": {
+              "event": "Pickoff Caught Stealing 2B",
+              "eventType": "pickoff_caught_stealing_2b",
+              "movementReason": "r_pickoff_caught_stealing_2b",
+              "runner": {
+                "id": 701538,
+                "fullName": "Jackson Merrill",
+                "link": "/api/v1/people/701538"
+              },
+              "responsiblePitcher": null,
+              "isScoringEvent": false,
+              "rbi": false,
+              "earned": false,
+              "teamUnearned": false,
+              "playIndex": 7
+            },
+            "credits": [
+              {
+                "player": {
+                  "id": 656849,
+                  "link": "/api/v1/people/656849"
+                },
+                "position": {
+                  "code": "1",
+                  "name": "Pitcher",
+                  "type": "Pitcher",
+                  "abbreviation": "P"
+                },
+                "credit": "f_assist"
+              },
+              {
+                "player": {
+                  "id": 683737,
+                  "link": "/api/v1/people/683737"
+                },
+                "position": {
+                  "code": "3",
+                  "name": "First Base",
+                  "type": "Infielder",
+                  "abbreviation": "1B"
+                },
+                "credit": "f_assist"
+              },
+              {
+                "player": {
+                  "id": 663538,
+                  "link": "/api/v1/people/663538"
+                },
+                "position": {
+                  "code": "4",
+                  "name": "Second Base",
+                  "type": "Infielder",
+                  "abbreviation": "2B"
+                },
+                "credit": "f_assist"
+              },
+              {
+                "player": {
+                  "id": 683737,
+                  "link": "/api/v1/people/683737"
+                },
+                "position": {
+                  "code": "3",
+                  "name": "First Base",
+                  "type": "Infielder",
+                  "abbreviation": "1B"
+                },
+                "credit": "f_putout"
+              }
+            ]
+          },
+          {
+            "movement": {
+              "originBase": null,
+              "start": null,
+              "end": null,
+              "outBase": "1B",
+              "isOut": true,
+              "outNumber": 2
+            },
+            "details": {
+              "event": "Lineout",
+              "eventType": "field_out",
+              "movementReason": null,
+              "runner": {
+                "id": 593428,
+                "fullName": "Xander Bogaerts",
+                "link": "/api/v1/people/593428"
+              },
+              "responsiblePitcher": null,
+              "isScoringEvent": false,
+              "rbi": false,
+              "earned": false,
+              "teamUnearned": false,
+              "playIndex": 8
+            },
+            "credits": [
+              {
+                "player": {
+                  "id": 663538,
+                  "link": "/api/v1/people/663538"
+                },
+                "position": {
+                  "code": "4",
+                  "name": "Second Base",
+                  "type": "Infielder",
+                  "abbreviation": "2B"
+                },
+                "credit": "f_assist"
+              },
+              {
+                "player": {
+                  "id": 683737,
+                  "link": "/api/v1/people/683737"
+                },
+                "position": {
+                  "code": "3",
+                  "name": "First Base",
+                  "type": "Infielder",
+                  "abbreviation": "1B"
+                },
+                "credit": "f_putout"
+              }
+            ]
+          }
+        ],
+        "playEvents": [
+          {
+            "details": {
+              "call": {
+                "code": "B",
+                "description": "Ball"
+              },
+              "description": "Ball",
+              "code": "B",
+              "ballColor": "rgba(39, 161, 39, 1.0)",
+              "trailColor": "rgba(0, 0, 254, 1.0)",
+              "isInPlay": false,
+              "isStrike": false,
+              "isBall": true,
+              "type": {
+                "code": "SL",
+                "description": "Slider"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 1,
+              "strikes": 0,
+              "outs": 0
+            },
+            "index": 0,
+            "playId": "5e4e3e42-0bdf-398e-b4dc-2167db1886d9",
+            "pitchNumber": 1,
+            "startTime": "2026-10-01T04:02:36.361Z",
+            "endTime": "2026-10-01T04:02:40.275Z",
+            "isPitch": true,
+            "type": "pitch"
+          },
+          {
+            "details": {
+              "description": "Batter Timeout.",
+              "event": "Batter Timeout",
+              "eventType": "batter_timeout",
+              "awayScore": 1,
+              "homeScore": 4,
+              "isScoringPlay": false,
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 1,
+              "strikes": 0,
+              "outs": 0
+            },
+            "index": 1,
+            "startTime": "2026-10-01T04:02:59.045Z",
+            "endTime": "2026-10-01T04:03:11.245Z",
+            "isPitch": false,
+            "type": "action",
+            "player": {
+              "id": 593428,
+              "link": "/api/v1/people/593428"
+            }
+          },
+          {
+            "details": {
+              "call": {
+                "code": "B",
+                "description": "Ball"
+              },
+              "description": "Ball",
+              "code": "B",
+              "ballColor": "rgba(39, 161, 39, 1.0)",
+              "trailColor": "rgba(50, 0, 221, 1.0)",
+              "isInPlay": false,
+              "isStrike": false,
+              "isBall": true,
+              "type": {
+                "code": "SI",
+                "description": "Sinker"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 2,
+              "strikes": 0,
+              "outs": 0
+            },
+            "index": 2,
+            "playId": "bd677330-2cc0-3067-bf5f-fc0f3e5f405d",
+            "pitchNumber": 2,
+            "startTime": "2026-10-01T04:03:11.245Z",
+            "endTime": "2026-10-01T04:03:15.128Z",
+            "isPitch": true,
+            "type": "pitch"
+          },
+          {
+            "details": {
+              "call": {
+                "code": "C",
+                "description": "Called Strike"
+              },
+              "description": "Called Strike",
+              "code": "C",
+              "ballColor": "rgba(170, 21, 11, 1.0)",
+              "trailColor": "rgba(50, 0, 221, 1.0)",
+              "isInPlay": false,
+              "isStrike": true,
+              "isBall": false,
+              "type": {
+                "code": "SI",
+                "description": "Sinker"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 2,
+              "strikes": 1,
+              "outs": 0
+            },
+            "index": 3,
+            "playId": "549e60b6-ae72-3303-8dc3-c6c4af0fa446",
+            "pitchNumber": 3,
+            "startTime": "2026-10-01T04:03:31.723Z",
+            "endTime": "2026-10-01T04:03:35.577Z",
+            "isPitch": true,
+            "type": "pitch"
+          },
+          {
+            "details": {
+              "call": {
+                "code": "*B",
+                "description": "Ball In Dirt"
+              },
+              "description": "Ball In Dirt",
+              "code": "*B",
+              "ballColor": "rgba(39, 161, 39, 1.0)",
+              "trailColor": "rgba(50, 0, 221, 1.0)",
+              "isInPlay": false,
+              "isStrike": false,
+              "isBall": true,
+              "type": {
+                "code": "SI",
+                "description": "Sinker"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 3,
+              "strikes": 1,
+              "outs": 0
+            },
+            "index": 4,
+            "playId": "7b8e09e5-6314-39e4-83ac-cd3aaac0c52e",
+            "pitchNumber": 4,
+            "startTime": "2026-10-01T04:03:54.007Z",
+            "endTime": "2026-10-01T04:03:58.072Z",
+            "isPitch": true,
+            "type": "pitch"
+          },
+          {
+            "details": {
+              "call": {
+                "code": "C",
+                "description": "Called Strike"
+              },
+              "description": "Called Strike",
+              "code": "C",
+              "ballColor": "rgba(170, 21, 11, 1.0)",
+              "trailColor": "rgba(50, 0, 221, 1.0)",
+              "isInPlay": false,
+              "isStrike": true,
+              "isBall": false,
+              "type": {
+                "code": "SI",
+                "description": "Sinker"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 3,
+              "strikes": 2,
+              "outs": 0
+            },
+            "index": 5,
+            "playId": "83eadc8b-37e1-3d56-8d32-d7394d3ef83e",
+            "pitchNumber": 5,
+            "startTime": "2026-10-01T04:04:17.601Z",
+            "endTime": "2026-10-01T04:04:21.439Z",
+            "isPitch": true,
+            "type": "pitch"
+          },
+          {
+            "details": {
+              "description": "Pickoff Attempt 1B",
+              "code": "1",
+              "isOut": false,
+              "hasReview": false,
+              "fromCatcher": false,
+              "disengagementNum": 1
+            },
+            "count": {
+              "balls": 3,
+              "strikes": 2,
+              "outs": 0
+            },
+            "index": 6,
+            "playId": "9734fcd9-c18d-3a8e-9eaf-0f724af09ed4",
+            "startTime": "2026-10-01T04:04:38.632Z",
+            "endTime": "2026-10-01T04:04:45.582Z",
+            "isPitch": false,
+            "type": "pickoff"
+          },
+          {
+            "details": {
+              "description": "With Xander Bogaerts batting, Jackson Merrill picked off and caught stealing 2nd base, first baseman Michael Busch.",
+              "event": "Pickoff Caught Stealing 2B",
+              "eventType": "pickoff_caught_stealing_2b",
+              "awayScore": 1,
+              "homeScore": 4,
+              "isScoringPlay": false,
+              "isOut": true,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 3,
+              "strikes": 2,
+              "outs": 1
+            },
+            "index": 7,
+            "actionPlayId": "9734fcd9-c18d-3a8e-9eaf-0f724af09ed4",
+            "startTime": "2026-10-01T04:05:09.967Z",
+            "endTime": "2026-10-01T04:05:16.410Z",
+            "isPitch": false,
+            "isBaseRunningPlay": true,
+            "type": "action",
+            "player": {
+              "id": 701538,
+              "link": "/api/v1/people/701538"
+            }
+          },
+          {
+            "details": {
+              "call": {
+                "code": "X",
+                "description": "In play, out(s)"
+              },
+              "description": "In play, out(s)",
+              "code": "X",
+              "ballColor": "rgba(26, 86, 190, 1.0)",
+              "trailColor": "rgba(50, 0, 221, 1.0)",
+              "isInPlay": true,
+              "isStrike": false,
+              "isBall": false,
+              "type": {
+                "code": "SI",
+                "description": "Sinker"
+              },
+              "isOut": true,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 3,
+              "strikes": 2,
+              "outs": 1
+            },
+            "index": 8,
+            "playId": "5310abbf-90ce-3bec-ab60-b7a33692df8c",
+            "pitchNumber": 6,
+            "startTime": "2026-10-01T04:05:16.410Z",
+            "endTime": "2026-10-01T04:05:25.830Z",
+            "isPitch": true,
+            "type": "pitch"
+          }
+        ],
+        "playEndTime": "2026-10-01T04:05:25.830Z",
+        "atBatIndex": 48
+      }
+    },
+    {
+      "gamePk": "849848",
+      "inputSha256": "ca3fbe4ff8088db6911269f8f7a3b922005d584dd97a8c0645f6574ad7c2c491",
+      "play": {
+        "result": {
+          "type": "atBat",
+          "event": "Home Run",
+          "eventType": "home_run",
+          "description": "Umpire reviewed (home run), call on the field was upheld: Willson Contreras homers (1) on a fly ball to right center field.",
+          "rbi": 1,
+          "awayScore": 1,
+          "homeScore": 2,
+          "isOut": false
+        },
+        "about": {
+          "atBatIndex": 41,
+          "halfInning": "top",
+          "isTopInning": true,
+          "inning": 6,
+          "startTime": "2026-10-01T01:53:11.246Z",
+          "endTime": "2026-10-01T01:55:32.544Z",
+          "isComplete": true,
+          "isScoringPlay": true,
+          "hasReview": true,
+          "hasOut": false,
+          "captivatingIndex": 38
+        },
+        "count": {
+          "balls": 3,
+          "strikes": 2,
+          "outs": 2
+        },
+        "matchup": {
+          "batter": {
+            "id": 575929,
+            "fullName": "Willson Contreras",
+            "link": "/api/v1/people/575929"
+          },
+          "batSide": {
+            "code": "R",
+            "description": "Right"
+          },
+          "pitcher": {
+            "id": 608331,
+            "fullName": "Max Fried",
+            "link": "/api/v1/people/608331"
+          },
+          "pitchHand": {
+            "code": "L",
+            "description": "Left"
+          },
+          "batterHotColdZones": [],
+          "pitcherHotColdZones": [],
+          "splits": {
+            "batter": "vs_LHP",
+            "pitcher": "vs_RHB",
+            "menOnBase": "Empty"
+          }
+        },
+        "pitchIndex": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "actionIndex": [],
+        "runnerIndex": [
+          0
+        ],
+        "runners": [
+          {
+            "movement": {
+              "originBase": null,
+              "start": null,
+              "end": "score",
+              "outBase": null,
+              "isOut": false,
+              "outNumber": null
+            },
+            "details": {
+              "event": "Home Run",
+              "eventType": "home_run",
+              "movementReason": null,
+              "runner": {
+                "id": 575929,
+                "fullName": "Willson Contreras",
+                "link": "/api/v1/people/575929"
+              },
+              "responsiblePitcher": {
+                "id": 608331,
+                "link": "/api/v1/people/608331"
+              },
+              "isScoringEvent": true,
+              "rbi": true,
+              "earned": true,
+              "teamUnearned": false,
+              "playIndex": 5
+            },
+            "credits": []
+          }
+        ],
+        "playEvents": [
+          {
+            "details": {
+              "call": {
+                "code": "B",
+                "description": "Ball"
+              },
+              "description": "Ball",
+              "code": "B",
+              "ballColor": "rgba(39, 161, 39, 1.0)",
+              "trailColor": "rgba(50, 50, 50, 1.0)",
+              "isInPlay": false,
+              "isStrike": false,
+              "isBall": true,
+              "type": {
+                "code": "ST",
+                "description": "Sweeper"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 1,
+              "strikes": 0,
+              "outs": 2
+            },
+            "index": 0,
+            "playId": "89c03cb6-d4f2-36e0-b373-b2ad4ccd929f",
+            "pitchNumber": 1,
+            "startTime": "2026-10-01T01:53:13.682Z",
+            "endTime": "2026-10-01T01:53:17.283Z",
+            "isPitch": true,
+            "type": "pitch"
+          },
+          {
+            "details": {
+              "call": {
+                "code": "B",
+                "description": "Ball"
+              },
+              "description": "Ball",
+              "code": "B",
+              "ballColor": "rgba(39, 161, 39, 1.0)",
+              "trailColor": "rgba(50, 50, 50, 1.0)",
+              "isInPlay": false,
+              "isStrike": false,
+              "isBall": true,
+              "type": {
+                "code": "ST",
+                "description": "Sweeper"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 2,
+              "strikes": 0,
+              "outs": 2
+            },
+            "index": 1,
+            "playId": "0dc9a3f4-55ac-30ff-8b0d-2967731e6221",
+            "pitchNumber": 2,
+            "startTime": "2026-10-01T01:53:36.231Z",
+            "endTime": "2026-10-01T01:53:40.110Z",
+            "isPitch": true,
+            "type": "pitch"
+          },
+          {
+            "details": {
+              "call": {
+                "code": "C",
+                "description": "Called Strike"
+              },
+              "description": "Called Strike",
+              "code": "C",
+              "ballColor": "rgba(170, 21, 11, 1.0)",
+              "trailColor": "rgba(188, 0, 33, 1.0)",
+              "isInPlay": false,
+              "isStrike": true,
+              "isBall": false,
+              "type": {
+                "code": "FF",
+                "description": "Four-Seam Fastball"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 2,
+              "strikes": 1,
+              "outs": 2
+            },
+            "index": 2,
+            "playId": "852c873c-9546-3680-b635-2cbd1b20ca45",
+            "pitchNumber": 3,
+            "startTime": "2026-10-01T01:53:55.306Z",
+            "endTime": "2026-10-01T01:53:59.145Z",
+            "isPitch": true,
+            "type": "pitch"
+          },
+          {
+            "details": {
+              "call": {
+                "code": "B",
+                "description": "Ball"
+              },
+              "description": "Ball",
+              "code": "B",
+              "ballColor": "rgba(39, 161, 39, 1.0)",
+              "trailColor": "rgba(188, 0, 33, 1.0)",
+              "isInPlay": false,
+              "isStrike": false,
+              "isBall": true,
+              "type": {
+                "code": "FF",
+                "description": "Four-Seam Fastball"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 3,
+              "strikes": 1,
+              "outs": 2
+            },
+            "index": 3,
+            "playId": "25b031cc-7f12-311b-a39c-b0f634d12079",
+            "pitchNumber": 4,
+            "startTime": "2026-10-01T01:54:12.526Z",
+            "endTime": "2026-10-01T01:54:16.392Z",
+            "isPitch": true,
+            "type": "pitch"
+          },
+          {
+            "details": {
+              "call": {
+                "code": "F",
+                "description": "Foul"
+              },
+              "description": "Foul",
+              "code": "F",
+              "ballColor": "rgba(170, 21, 11, 1.0)",
+              "trailColor": "rgba(188, 0, 33, 1.0)",
+              "isInPlay": false,
+              "isStrike": true,
+              "isBall": false,
+              "type": {
+                "code": "FF",
+                "description": "Four-Seam Fastball"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 3,
+              "strikes": 2,
+              "outs": 2
+            },
+            "index": 4,
+            "playId": "7e40b952-22af-32ca-b74b-0de176278ac1",
+            "pitchNumber": 5,
+            "startTime": "2026-10-01T01:54:32.121Z",
+            "endTime": "2026-10-01T01:54:35.380Z",
+            "isPitch": true,
+            "type": "pitch"
+          },
+          {
+            "details": {
+              "call": {
+                "code": "E",
+                "description": "In play, run(s)"
+              },
+              "description": "In play, run(s)",
+              "code": "E",
+              "ballColor": "rgba(26, 86, 190, 1.0)",
+              "trailColor": "rgba(188, 0, 33, 1.0)",
+              "isInPlay": true,
+              "isStrike": false,
+              "isBall": false,
+              "type": {
+                "code": "FF",
+                "description": "Four-Seam Fastball"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 3,
+              "strikes": 2,
+              "outs": 2
+            },
+            "index": 5,
+            "playId": "875a5995-950d-31b4-9f42-293471dbd411",
+            "pitchNumber": 6,
+            "startTime": "2026-10-01T01:54:59.209Z",
+            "endTime": "2026-10-01T01:55:32.544Z",
+            "isPitch": true,
+            "type": "pitch"
+          }
+        ],
+        "reviewDetails": {
+          "isOverturned": false,
+          "inProgress": false,
+          "reviewType": "NH"
+        },
+        "playEndTime": "2026-10-01T01:55:32.544Z",
+        "atBatIndex": 41
+      }
+    },
+    {
+      "gamePk": "849848",
+      "inputSha256": "ca3fbe4ff8088db6911269f8f7a3b922005d584dd97a8c0645f6574ad7c2c491",
+      "play": {
+        "result": {
+          "type": "atBat",
+          "event": "Strikeout",
+          "eventType": "strikeout",
+          "description": "Yankees challenged (play at 1st), call on the field was overturned: Spencer Jones strikes out swinging. Spencer Jones to 1st. Wild pitch by pitcher Garrett Crochet.",
+          "rbi": 0,
+          "awayScore": 1,
+          "homeScore": 2,
+          "isOut": false
+        },
+        "about": {
+          "atBatIndex": 43,
+          "halfInning": "bottom",
+          "isTopInning": false,
+          "inning": 6,
+          "startTime": "2026-10-01T02:00:28.874Z",
+          "endTime": "2026-10-01T02:01:50.835Z",
+          "isComplete": true,
+          "isScoringPlay": false,
+          "hasReview": true,
+          "hasOut": false,
+          "captivatingIndex": 14
+        },
+        "count": {
+          "balls": 2,
+          "strikes": 3,
+          "outs": 0
+        },
+        "matchup": {
+          "batter": {
+            "id": 682987,
+            "fullName": "Spencer Jones",
+            "link": "/api/v1/people/682987"
+          },
+          "batSide": {
+            "code": "L",
+            "description": "Left"
+          },
+          "pitcher": {
+            "id": 676979,
+            "fullName": "Garrett Crochet",
+            "link": "/api/v1/people/676979"
+          },
+          "pitchHand": {
+            "code": "L",
+            "description": "Left"
+          },
+          "postOnFirst": {
+            "id": 682987,
+            "fullName": "Spencer Jones",
+            "link": "/api/v1/people/682987"
+          },
+          "batterHotColdZones": [],
+          "pitcherHotColdZones": [],
+          "splits": {
+            "batter": "vs_LHP",
+            "pitcher": "vs_LHB",
+            "menOnBase": "Men_On"
+          }
+        },
+        "pitchIndex": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "actionIndex": [
+          0
+        ],
+        "runnerIndex": [
+          0,
+          1
+        ],
+        "runners": [
+          {
+            "movement": {
+              "originBase": null,
+              "start": null,
+              "end": null,
+              "outBase": null,
+              "isOut": null,
+              "outNumber": null
+            },
+            "details": {
+              "event": "Strikeout",
+              "eventType": "strikeout",
+              "movementReason": null,
+              "runner": {
+                "id": 682987,
+                "fullName": "Spencer Jones",
+                "link": "/api/v1/people/682987"
+              },
+              "responsiblePitcher": null,
+              "isScoringEvent": false,
+              "rbi": false,
+              "earned": false,
+              "teamUnearned": false,
+              "playIndex": 5
+            }
+          },
+          {
+            "movement": {
+              "originBase": null,
+              "start": null,
+              "end": "1B",
+              "outBase": null,
+              "isOut": false,
+              "outNumber": null
+            },
+            "details": {
+              "event": "Wild Pitch",
+              "eventType": "wild_pitch",
+              "movementReason": "r_adv_play",
+              "runner": {
+                "id": 682987,
+                "fullName": "Spencer Jones",
+                "link": "/api/v1/people/682987"
+              },
+              "responsiblePitcher": null,
+              "isScoringEvent": false,
+              "rbi": false,
+              "earned": false,
+              "teamUnearned": false,
+              "playIndex": 5
+            },
+            "credits": []
+          }
+        ],
+        "playEvents": [
+          {
+            "details": {
+              "description": "Pitching Change: Garrett Crochet replaces Erik Miller.",
+              "event": "Pitching Substitution",
+              "eventType": "pitching_substitution",
+              "awayScore": 1,
+              "homeScore": 2,
+              "isScoringPlay": false,
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 0,
+              "strikes": 0,
+              "outs": 0
+            },
+            "index": 0,
+            "startTime": "2026-10-01T01:58:31.420Z",
+            "endTime": "2026-10-01T02:00:31.233Z",
+            "isPitch": false,
+            "isSubstitution": true,
+            "type": "action",
+            "player": {
+              "id": 676979,
+              "link": "/api/v1/people/676979"
+            },
+            "position": {
+              "code": "1",
+              "name": "Pitcher",
+              "type": "Pitcher",
+              "abbreviation": "P"
+            }
+          },
+          {
+            "details": {
+              "call": {
+                "code": "B",
+                "description": "Ball"
+              },
+              "description": "Ball",
+              "code": "B",
+              "ballColor": "rgba(39, 161, 39, 1.0)",
+              "trailColor": "rgba(50, 0, 221, 1.0)",
+              "isInPlay": false,
+              "isStrike": false,
+              "isBall": true,
+              "type": {
+                "code": "SI",
+                "description": "Sinker"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 1,
+              "strikes": 0,
+              "outs": 0
+            },
+            "index": 1,
+            "playId": "89c8042a-b519-3fea-bbd3-0aae10054d91",
+            "pitchNumber": 1,
+            "startTime": "2026-10-01T02:00:31.233Z",
+            "endTime": "2026-10-01T02:00:35.179Z",
+            "isPitch": true,
+            "type": "pitch"
+          },
+          {
+            "details": {
+              "call": {
+                "code": "C",
+                "description": "Called Strike"
+              },
+              "description": "Called Strike",
+              "code": "C",
+              "ballColor": "rgba(170, 21, 11, 1.0)",
+              "trailColor": "rgba(50, 0, 221, 1.0)",
+              "isInPlay": false,
+              "isStrike": true,
+              "isBall": false,
+              "type": {
+                "code": "SI",
+                "description": "Sinker"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 1,
+              "strikes": 1,
+              "outs": 0
+            },
+            "index": 2,
+            "playId": "c48f693e-44b3-34c8-9c9f-205b83d42b3c",
+            "pitchNumber": 2,
+            "startTime": "2026-10-01T02:00:47.290Z",
+            "endTime": "2026-10-01T02:00:51.138Z",
+            "isPitch": true,
+            "type": "pitch"
+          },
+          {
+            "details": {
+              "call": {
+                "code": "S",
+                "description": "Swinging Strike"
+              },
+              "description": "Swinging Strike",
+              "code": "S",
+              "ballColor": "rgba(170, 21, 11, 1.0)",
+              "trailColor": "rgba(152, 0, 101, 1.0)",
+              "isInPlay": false,
+              "isStrike": true,
+              "isBall": false,
+              "type": {
+                "code": "FC",
+                "description": "Cutter"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 1,
+              "strikes": 2,
+              "outs": 0
+            },
+            "index": 3,
+            "playId": "05fd15da-6eb4-3f27-b83e-132e51f38596",
+            "pitchNumber": 3,
+            "startTime": "2026-10-01T02:01:02.742Z",
+            "endTime": "2026-10-01T02:01:06.491Z",
+            "isPitch": true,
+            "type": "pitch"
+          },
+          {
+            "details": {
+              "call": {
+                "code": "B",
+                "description": "Ball"
+              },
+              "description": "Ball",
+              "code": "B",
+              "ballColor": "rgba(39, 161, 39, 1.0)",
+              "trailColor": "rgba(50, 50, 50, 1.0)",
+              "isInPlay": false,
+              "isStrike": false,
+              "isBall": true,
+              "type": {
+                "code": "ST",
+                "description": "Sweeper"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 2,
+              "strikes": 2,
+              "outs": 0
+            },
+            "index": 4,
+            "playId": "3b3c1aa9-5ca4-3102-922a-558abf0a290a",
+            "pitchNumber": 4,
+            "startTime": "2026-10-01T02:01:21.118Z",
+            "endTime": "2026-10-01T02:01:25.045Z",
+            "isPitch": true,
+            "type": "pitch"
+          },
+          {
+            "details": {
+              "call": {
+                "code": "S",
+                "description": "Swinging Strike"
+              },
+              "description": "Swinging Strike",
+              "code": "S",
+              "ballColor": "rgba(170, 21, 11, 1.0)",
+              "trailColor": "rgba(50, 50, 50, 1.0)",
+              "isInPlay": false,
+              "isStrike": true,
+              "isBall": false,
+              "type": {
+                "code": "ST",
+                "description": "Sweeper"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 2,
+              "strikes": 3,
+              "outs": 0
+            },
+            "index": 5,
+            "playId": "4c421eb7-559f-3bc4-82df-bb56b757f341",
+            "pitchNumber": 5,
+            "startTime": "2026-10-01T02:01:42.845Z",
+            "endTime": "2026-10-01T02:01:50.835Z",
+            "isPitch": true,
+            "type": "pitch"
+          }
+        ],
+        "reviewDetails": {
+          "isOverturned": true,
+          "inProgress": false,
+          "reviewType": "MF",
+          "challengeTeamId": 147
+        },
+        "playEndTime": "2026-10-01T02:01:50.835Z",
+        "atBatIndex": 43
+      }
+    },
+    {
+      "gamePk": "849843",
+      "inputSha256": "3878284bc9b33b74d51467a381913c16ce7727d6ec2b57316cd356556302ef66",
+      "play": {
+        "result": {
+          "type": "atBat",
+          "event": "Strikeout",
+          "eventType": "strikeout",
+          "description": "Austin Hays strikes out swinging.",
+          "rbi": 0,
+          "awayScore": 0,
+          "homeScore": 7,
+          "isOut": true
+        },
+        "about": {
+          "atBatIndex": 41,
+          "halfInning": "bottom",
+          "isTopInning": false,
+          "inning": 5,
+          "startTime": "2026-09-30T03:34:59.412Z",
+          "endTime": "2026-09-30T03:37:16.487Z",
+          "isComplete": true,
+          "isScoringPlay": false,
+          "hasReview": false,
+          "hasOut": true,
+          "captivatingIndex": 14
+        },
+        "count": {
+          "balls": 2,
+          "strikes": 3,
+          "outs": 3
+        },
+        "matchup": {
+          "batter": {
+            "id": 669720,
+            "fullName": "Austin Hays",
+            "link": "/api/v1/people/669720"
+          },
+          "batSide": {
+            "code": "R",
+            "description": "Right"
+          },
+          "pitcher": {
+            "id": 669020,
+            "fullName": "Ryan Rolison",
+            "link": "/api/v1/people/669020"
+          },
+          "pitchHand": {
+            "code": "L",
+            "description": "Left"
+          },
+          "batterHotColdZones": [],
+          "pitcherHotColdZones": [],
+          "splits": {
+            "batter": "vs_LHP",
+            "pitcher": "vs_RHB",
+            "menOnBase": "Empty"
+          }
+        },
+        "pitchIndex": [
+          0,
+          3,
+          4,
+          5,
+          6
+        ],
+        "actionIndex": [
+          1
+        ],
+        "runnerIndex": [
+          0,
+          1,
+          2
+        ],
+        "runners": [
+          {
+            "movement": {
+              "originBase": "3B",
+              "start": "3B",
+              "end": "score",
+              "outBase": null,
+              "isOut": false,
+              "outNumber": null
+            },
+            "details": {
+              "event": "Passed Ball",
+              "eventType": "passed_ball",
+              "movementReason": "r_adv_play",
+              "runner": {
+                "id": 664034,
+                "fullName": "Ty France",
+                "link": "/api/v1/people/664034"
+              },
+              "responsiblePitcher": {
+                "id": 665871,
+                "link": "/api/v1/people/665871"
+              },
+              "isScoringEvent": true,
+              "rbi": false,
+              "earned": false,
+              "teamUnearned": true,
+              "playIndex": 1
+            },
+            "credits": []
+          },
+          {
+            "movement": {
+              "originBase": "1B",
+              "start": "1B",
+              "end": "2B",
+              "outBase": null,
+              "isOut": false,
+              "outNumber": null
+            },
+            "details": {
+              "event": "Passed Ball",
+              "eventType": "passed_ball",
+              "movementReason": "r_adv_play",
+              "runner": {
+                "id": 701538,
+                "fullName": "Jackson Merrill",
+                "link": "/api/v1/people/701538"
+              },
+              "responsiblePitcher": null,
+              "isScoringEvent": false,
+              "rbi": false,
+              "earned": false,
+              "teamUnearned": false,
+              "playIndex": 1
+            },
+            "credits": []
+          },
+          {
+            "movement": {
+              "originBase": null,
+              "start": null,
+              "end": null,
+              "outBase": "1B",
+              "isOut": true,
+              "outNumber": 3
+            },
+            "details": {
+              "event": "Strikeout",
+              "eventType": "strikeout",
+              "movementReason": null,
+              "runner": {
+                "id": 669720,
+                "fullName": "Austin Hays",
+                "link": "/api/v1/people/669720"
+              },
+              "responsiblePitcher": null,
+              "isScoringEvent": false,
+              "rbi": false,
+              "earned": false,
+              "teamUnearned": false,
+              "playIndex": 6
+            },
+            "credits": [
+              {
+                "player": {
+                  "id": 608348,
+                  "link": "/api/v1/people/608348"
+                },
+                "position": {
+                  "code": "2",
+                  "name": "Catcher",
+                  "type": "Catcher",
+                  "abbreviation": "C"
+                },
+                "credit": "f_putout"
+              }
+            ]
+          }
+        ],
+        "playEvents": [
+          {
+            "details": {
+              "call": {
+                "code": "B",
+                "description": "Ball"
+              },
+              "description": "Ball",
+              "code": "B",
+              "ballColor": "rgba(39, 161, 39, 1.0)",
+              "trailColor": "rgba(188, 0, 33, 1.0)",
+              "isInPlay": false,
+              "isStrike": false,
+              "isBall": true,
+              "type": {
+                "code": "FF",
+                "description": "Four-Seam Fastball"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 1,
+              "strikes": 0,
+              "outs": 2
+            },
+            "index": 0,
+            "playId": "692577ac-34c9-39e2-ab86-d0f52ada0cfd",
+            "pitchNumber": 1,
+            "startTime": "2026-09-30T03:35:06.189Z",
+            "endTime": "2026-09-30T03:35:14.569Z",
+            "isPitch": true,
+            "type": "pitch"
+          },
+          {
+            "details": {
+              "description": "Passed ball by catcher Carson Kelly. Ty France scores. Jackson Merrill to 2nd.",
+              "event": "Passed Ball",
+              "eventType": "passed_ball",
+              "awayScore": 0,
+              "homeScore": 7,
+              "isScoringPlay": true,
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 1,
+              "strikes": 0,
+              "outs": 2
+            },
+            "index": 1,
+            "actionPlayId": "692577ac-34c9-39e2-ab86-d0f52ada0cfd",
+            "startTime": "2026-09-30T03:36:00.652Z",
+            "endTime": "2026-09-30T03:36:13.380Z",
+            "isPitch": false,
+            "isBaseRunningPlay": true,
+            "type": "action",
+            "player": {
+              "id": 664034,
+              "link": "/api/v1/people/664034"
+            }
+          },
+          {
+            "details": {
+              "description": "Mound Visit.",
+              "event": "Mound Visit",
+              "eventType": "mound_visit",
+              "awayScore": 0,
+              "homeScore": 7,
+              "isScoringPlay": false,
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 1,
+              "strikes": 0,
+              "outs": 2
+            },
+            "index": 2,
+            "startTime": "2026-09-30T03:36:12.507Z",
+            "endTime": "2026-09-30T03:36:12.508Z",
+            "isPitch": false,
+            "type": "action"
+          },
+          {
+            "details": {
+              "call": {
+                "code": "C",
+                "description": "Called Strike"
+              },
+              "description": "Called Strike",
+              "code": "C",
+              "ballColor": "rgba(170, 21, 11, 1.0)",
+              "trailColor": "rgba(0, 34, 255, 1.0)",
+              "isInPlay": false,
+              "isStrike": true,
+              "isBall": false,
+              "type": {
+                "code": "CU",
+                "description": "Curveball"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 1,
+              "strikes": 1,
+              "outs": 2
+            },
+            "index": 3,
+            "playId": "b61c6d78-b4d2-390f-af61-bef2f4ebfd84",
+            "pitchNumber": 2,
+            "startTime": "2026-09-30T03:36:12.509Z",
+            "endTime": "2026-09-30T03:36:15.509Z",
+            "isPitch": true,
+            "type": "pitch"
+          },
+          {
+            "details": {
+              "call": {
+                "code": "B",
+                "description": "Ball"
+              },
+              "description": "Ball",
+              "code": "B",
+              "ballColor": "rgba(39, 161, 39, 1.0)",
+              "trailColor": "rgba(188, 0, 33, 1.0)",
+              "isInPlay": false,
+              "isStrike": false,
+              "isBall": true,
+              "type": {
+                "code": "FF",
+                "description": "Four-Seam Fastball"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 2,
+              "strikes": 1,
+              "outs": 2
+            },
+            "index": 4,
+            "playId": "e44b7c00-a6e5-34e8-8e1e-0d66b552bb2f",
+            "pitchNumber": 3,
+            "startTime": "2026-09-30T03:36:30.759Z",
+            "endTime": "2026-09-30T03:36:35.048Z",
+            "isPitch": true,
+            "type": "pitch"
+          },
+          {
+            "details": {
+              "call": {
+                "code": "C",
+                "description": "Called Strike"
+              },
+              "description": "Called Strike",
+              "code": "C",
+              "ballColor": "rgba(170, 21, 11, 1.0)",
+              "trailColor": "rgba(0, 34, 255, 1.0)",
+              "isInPlay": false,
+              "isStrike": true,
+              "isBall": false,
+              "type": {
+                "code": "CU",
+                "description": "Curveball"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 2,
+              "strikes": 2,
+              "outs": 2
+            },
+            "index": 5,
+            "playId": "dc80faa3-c36e-37d2-b08d-8e6bf6b72b42",
+            "pitchNumber": 4,
+            "startTime": "2026-09-30T03:36:52.413Z",
+            "endTime": "2026-09-30T03:36:56.260Z",
+            "isPitch": true,
+            "type": "pitch"
+          },
+          {
+            "details": {
+              "call": {
+                "code": "S",
+                "description": "Swinging Strike"
+              },
+              "description": "Swinging Strike",
+              "code": "S",
+              "ballColor": "rgba(170, 21, 11, 1.0)",
+              "trailColor": "rgba(188, 0, 33, 1.0)",
+              "isInPlay": false,
+              "isStrike": true,
+              "isBall": false,
+              "type": {
+                "code": "FF",
+                "description": "Four-Seam Fastball"
+              },
+              "isOut": true,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 2,
+              "strikes": 3,
+              "outs": 2
+            },
+            "index": 6,
+            "playId": "7527015e-237a-3719-a188-254781fed791",
+            "pitchNumber": 5,
+            "startTime": "2026-09-30T03:37:11.700Z",
+            "endTime": "2026-09-30T03:37:16.487Z",
+            "isPitch": true,
+            "type": "pitch"
+          }
+        ],
+        "playEndTime": "2026-09-30T03:37:16.487Z",
+        "atBatIndex": 41
+      }
+    },
+    {
+      "gamePk": "849843",
+      "inputSha256": "3878284bc9b33b74d51467a381913c16ce7727d6ec2b57316cd356556302ef66",
+      "play": {
+        "result": {
+          "type": "atBat",
+          "event": "Single",
+          "eventType": "single",
+          "description": "Ty France singles on a ground ball to center fielder Pete Crow-Armstrong.",
+          "rbi": 0,
+          "awayScore": 0,
+          "homeScore": 8,
+          "isOut": false
+        },
+        "about": {
+          "atBatIndex": 56,
+          "halfInning": "bottom",
+          "isTopInning": false,
+          "inning": 7,
+          "startTime": "2026-09-30T04:17:58.508Z",
+          "endTime": "2026-09-30T04:20:50.845Z",
+          "isComplete": true,
+          "isScoringPlay": false,
+          "hasReview": false,
+          "hasOut": true,
+          "captivatingIndex": 33
+        },
+        "count": {
+          "balls": 2,
+          "strikes": 2,
+          "outs": 2
+        },
+        "matchup": {
+          "batter": {
+            "id": 664034,
+            "fullName": "Ty France",
+            "link": "/api/v1/people/664034"
+          },
+          "batSide": {
+            "code": "R",
+            "description": "Right"
+          },
+          "pitcher": {
+            "id": 650644,
+            "fullName": "Aaron Civale",
+            "link": "/api/v1/people/650644"
+          },
+          "pitchHand": {
+            "code": "R",
+            "description": "Right"
+          },
+          "postOnFirst": {
+            "id": 664034,
+            "fullName": "Ty France",
+            "link": "/api/v1/people/664034"
+          },
+          "batterHotColdZones": [],
+          "pitcherHotColdZones": [],
+          "splits": {
+            "batter": "vs_RHP",
+            "pitcher": "vs_RHB",
+            "menOnBase": "Men_On"
+          }
+        },
+        "pitchIndex": [
+          0,
+          1,
+          3,
+          4,
+          5,
+          6
+        ],
+        "actionIndex": [
+          2
+        ],
+        "runnerIndex": [
+          0,
+          1
+        ],
+        "runners": [
+          {
+            "movement": {
+              "originBase": "1B",
+              "start": "1B",
+              "end": null,
+              "outBase": "1B",
+              "isOut": true,
+              "outNumber": 2
+            },
+            "details": {
+              "event": "Pickoff 1B",
+              "eventType": "pickoff_1b",
+              "movementReason": "r_pickoff_1b",
+              "runner": {
+                "id": 687957,
+                "fullName": "Dustin Harris",
+                "link": "/api/v1/people/687957"
+              },
+              "responsiblePitcher": null,
+              "isScoringEvent": false,
+              "rbi": false,
+              "earned": false,
+              "teamUnearned": false,
+              "playIndex": 2
+            },
+            "credits": [
+              {
+                "player": {
+                  "id": 650644,
+                  "link": "/api/v1/people/650644"
+                },
+                "position": {
+                  "code": "1",
+                  "name": "Pitcher",
+                  "type": "Pitcher",
+                  "abbreviation": "P"
+                },
+                "credit": "f_assist"
+              },
+              {
+                "player": {
+                  "id": 683737,
+                  "link": "/api/v1/people/683737"
+                },
+                "position": {
+                  "code": "3",
+                  "name": "First Base",
+                  "type": "Infielder",
+                  "abbreviation": "1B"
+                },
+                "credit": "f_putout"
+              }
+            ]
+          },
+          {
+            "movement": {
+              "originBase": null,
+              "start": null,
+              "end": "1B",
+              "outBase": null,
+              "isOut": false,
+              "outNumber": null
+            },
+            "details": {
+              "event": "Single",
+              "eventType": "single",
+              "movementReason": null,
+              "runner": {
+                "id": 664034,
+                "fullName": "Ty France",
+                "link": "/api/v1/people/664034"
+              },
+              "responsiblePitcher": null,
+              "isScoringEvent": false,
+              "rbi": false,
+              "earned": false,
+              "teamUnearned": false,
+              "playIndex": 6
+            },
+            "credits": [
+              {
+                "player": {
+                  "id": 691718,
+                  "link": "/api/v1/people/691718"
+                },
+                "position": {
+                  "code": "8",
+                  "name": "Outfielder",
+                  "type": "Outfielder",
+                  "abbreviation": "CF"
+                },
+                "credit": "f_fielded_ball"
+              }
+            ]
+          }
+        ],
+        "playEvents": [
+          {
+            "details": {
+              "call": {
+                "code": "B",
+                "description": "Ball"
+              },
+              "description": "Ball",
+              "code": "B",
+              "ballColor": "rgba(39, 161, 39, 1.0)",
+              "trailColor": "rgba(152, 0, 101, 1.0)",
+              "isInPlay": false,
+              "isStrike": false,
+              "isBall": true,
+              "type": {
+                "code": "FC",
+                "description": "Cutter"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 1,
+              "strikes": 0,
+              "outs": 1
+            },
+            "index": 0,
+            "playId": "b3000d7d-3e32-38f4-b087-1aac5c4b7b6d",
+            "pitchNumber": 1,
+            "startTime": "2026-09-30T04:17:58.508Z",
+            "endTime": "2026-09-30T04:18:02.409Z",
+            "isPitch": true,
+            "type": "pitch"
+          },
+          {
+            "details": {
+              "description": "Pickoff Attempt 1B",
+              "code": "1",
+              "isOut": false,
+              "hasReview": false,
+              "fromCatcher": false,
+              "disengagementNum": 1
+            },
+            "count": {
+              "balls": 1,
+              "strikes": 0,
+              "outs": 1
+            },
+            "index": 1,
+            "playId": "0f962a6a-1994-3211-aa2c-e30a43275971",
+            "startTime": "2026-09-30T04:18:14.996Z",
+            "endTime": "2026-09-30T04:18:19.361Z",
+            "isPitch": false,
+            "type": "pickoff"
+          },
+          {
+            "details": {
+              "description": "Cubs challenged (tag play), call on the field was overturned: pitcher Aaron Civale picks off Dustin Harris at 1st on throw to first baseman Michael Busch.",
+              "event": "Pickoff 1B",
+              "eventType": "pickoff_1b",
+              "awayScore": 0,
+              "homeScore": 8,
+              "isScoringPlay": false,
+              "isOut": true,
+              "hasReview": true
+            },
+            "count": {
+              "balls": 1,
+              "strikes": 0,
+              "outs": 2
+            },
+            "index": 2,
+            "actionPlayId": "0f962a6a-1994-3211-aa2c-e30a43275971",
+            "startTime": "2026-09-30T04:19:36.670Z",
+            "endTime": "2026-09-30T04:19:42.935Z",
+            "isPitch": false,
+            "isBaseRunningPlay": true,
+            "type": "action",
+            "player": {
+              "id": 687957,
+              "link": "/api/v1/people/687957"
+            },
+            "reviewDetails": {
+              "isOverturned": true,
+              "inProgress": false,
+              "reviewType": "MA",
+              "challengeTeamId": 112
+            }
+          },
+          {
+            "details": {
+              "call": {
+                "code": "B",
+                "description": "Ball"
+              },
+              "description": "Ball",
+              "code": "B",
+              "ballColor": "rgba(39, 161, 39, 1.0)",
+              "trailColor": "rgba(0, 34, 255, 1.0)",
+              "isInPlay": false,
+              "isStrike": false,
+              "isBall": true,
+              "type": {
+                "code": "CU",
+                "description": "Curveball"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 2,
+              "strikes": 0,
+              "outs": 2
+            },
+            "index": 3,
+            "playId": "607e1e78-e93e-3a7a-bc4a-886b7a1f489d",
+            "pitchNumber": 2,
+            "startTime": "2026-09-30T04:19:42.935Z",
+            "endTime": "2026-09-30T04:19:47.278Z",
+            "isPitch": true,
+            "type": "pitch"
+          },
+          {
+            "details": {
+              "call": {
+                "code": "F",
+                "description": "Foul"
+              },
+              "description": "Foul",
+              "code": "F",
+              "ballColor": "rgba(170, 21, 11, 1.0)",
+              "trailColor": "rgba(50, 0, 221, 1.0)",
+              "isInPlay": false,
+              "isStrike": true,
+              "isBall": false,
+              "type": {
+                "code": "SI",
+                "description": "Sinker"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 2,
+              "strikes": 1,
+              "outs": 2
+            },
+            "index": 4,
+            "playId": "2d5b490b-267b-3355-9ce8-6f7cc7854777",
+            "pitchNumber": 3,
+            "startTime": "2026-09-30T04:20:00.244Z",
+            "endTime": "2026-09-30T04:20:04.098Z",
+            "isPitch": true,
+            "type": "pitch"
+          },
+          {
+            "details": {
+              "call": {
+                "code": "S",
+                "description": "Swinging Strike"
+              },
+              "description": "Swinging Strike",
+              "code": "S",
+              "ballColor": "rgba(170, 21, 11, 1.0)",
+              "trailColor": "rgba(152, 0, 101, 1.0)",
+              "isInPlay": false,
+              "isStrike": true,
+              "isBall": false,
+              "type": {
+                "code": "FC",
+                "description": "Cutter"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 2,
+              "strikes": 2,
+              "outs": 2
+            },
+            "index": 5,
+            "playId": "d22ae27e-803c-3ae6-ba12-a73f0aadfdfd",
+            "pitchNumber": 4,
+            "startTime": "2026-09-30T04:20:19.786Z",
+            "endTime": "2026-09-30T04:20:23.458Z",
+            "isPitch": true,
+            "type": "pitch"
+          },
+          {
+            "details": {
+              "call": {
+                "code": "D",
+                "description": "In play, no out"
+              },
+              "description": "In play, no out",
+              "code": "D",
+              "ballColor": "rgba(26, 86, 190, 1.0)",
+              "trailColor": "rgba(152, 0, 101, 1.0)",
+              "isInPlay": true,
+              "isStrike": false,
+              "isBall": false,
+              "type": {
+                "code": "FC",
+                "description": "Cutter"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 2,
+              "strikes": 2,
+              "outs": 2
+            },
+            "index": 6,
+            "playId": "d5575eb1-ee44-34e4-8e94-6f54d06e7277",
+            "pitchNumber": 5,
+            "startTime": "2026-09-30T04:20:38.422Z",
+            "endTime": "2026-09-30T04:20:50.845Z",
+            "isPitch": true,
+            "type": "pitch"
+          }
+        ],
+        "playEndTime": "2026-09-30T04:20:50.845Z",
+        "atBatIndex": 56
+      }
+    },
+    {
+      "gamePk": "849845",
+      "inputSha256": "ec45c3cf02a30410fc8ef9aa6146bc7b4a001dfd6ef2ba48d5c88d2862fc8ba2",
+      "play": {
+        "result": {
+          "type": "atBat",
+          "event": "Hit By Pitch",
+          "eventType": "hit_by_pitch",
+          "description": "Braves challenged (hit by pitch), call on the field was upheld: Ozzie Albies hit by pitch. Michael Harris II to 2nd.",
+          "rbi": 0,
+          "awayScore": 3,
+          "homeScore": 2,
+          "isOut": false
+        },
+        "about": {
+          "atBatIndex": 64,
+          "halfInning": "bottom",
+          "isTopInning": false,
+          "inning": 8,
+          "startTime": "2026-09-29T20:29:35.232Z",
+          "endTime": "2026-09-29T20:32:42.396Z",
+          "isComplete": true,
+          "isScoringPlay": false,
+          "hasReview": true,
+          "hasOut": false,
+          "captivatingIndex": 11
+        },
+        "count": {
+          "balls": 4,
+          "strikes": 2,
+          "outs": 2
+        },
+        "matchup": {
+          "batter": {
+            "id": 645277,
+            "fullName": "Ozzie Albies",
+            "link": "/api/v1/people/645277"
+          },
+          "batSide": {
+            "code": "L",
+            "description": "Left"
+          },
+          "pitcher": {
+            "id": 661395,
+            "fullName": "Jhoan Duran",
+            "link": "/api/v1/people/661395"
+          },
+          "pitchHand": {
+            "code": "R",
+            "description": "Right"
+          },
+          "postOnFirst": {
+            "id": 645277,
+            "fullName": "Ozzie Albies",
+            "link": "/api/v1/people/645277"
+          },
+          "postOnSecond": {
+            "id": 671739,
+            "fullName": "Michael Harris II",
+            "link": "/api/v1/people/671739"
+          },
+          "batterHotColdZones": [],
+          "pitcherHotColdZones": [],
+          "splits": {
+            "batter": "vs_RHP",
+            "pitcher": "vs_LHB",
+            "menOnBase": "RISP"
+          }
+        },
+        "pitchIndex": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          7
+        ],
+        "actionIndex": [],
+        "runnerIndex": [
+          0,
+          1
+        ],
+        "runners": [
+          {
+            "movement": {
+              "originBase": "1B",
+              "start": "1B",
+              "end": "2B",
+              "outBase": null,
+              "isOut": false,
+              "outNumber": null
+            },
+            "details": {
+              "event": "Hit By Pitch",
+              "eventType": "hit_by_pitch",
+              "movementReason": "r_adv_force",
+              "runner": {
+                "id": 671739,
+                "fullName": "Michael Harris II",
+                "link": "/api/v1/people/671739"
+              },
+              "responsiblePitcher": null,
+              "isScoringEvent": false,
+              "rbi": false,
+              "earned": false,
+              "teamUnearned": false,
+              "playIndex": 7
+            },
+            "credits": []
+          },
+          {
+            "movement": {
+              "originBase": null,
+              "start": null,
+              "end": "1B",
+              "outBase": null,
+              "isOut": false,
+              "outNumber": null
+            },
+            "details": {
+              "event": "Hit By Pitch",
+              "eventType": "hit_by_pitch",
+              "movementReason": null,
+              "runner": {
+                "id": 645277,
+                "fullName": "Ozzie Albies",
+                "link": "/api/v1/people/645277"
+              },
+              "responsiblePitcher": null,
+              "isScoringEvent": false,
+              "rbi": false,
+              "earned": false,
+              "teamUnearned": false,
+              "playIndex": 7
+            },
+            "credits": []
+          }
+        ],
+        "playEvents": [
+          {
+            "details": {
+              "call": {
+                "code": "C",
+                "description": "Called Strike"
+              },
+              "description": "Called Strike",
+              "code": "C",
+              "ballColor": "rgba(170, 21, 11, 1.0)",
+              "trailColor": "rgba(153, 171, 0, 1.0)",
+              "isInPlay": false,
+              "isStrike": true,
+              "isBall": false,
+              "type": {
+                "code": "KC",
+                "description": "Knuckle Curve"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 0,
+              "strikes": 1,
+              "outs": 2
+            },
+            "index": 0,
+            "playId": "58a05ed2-802f-3592-988c-620980bddf34",
+            "pitchNumber": 1,
+            "startTime": "2026-09-29T20:30:13.328Z",
+            "endTime": "2026-09-29T20:30:17.215Z",
+            "isPitch": true,
+            "type": "pitch"
+          },
+          {
+            "details": {
+              "call": {
+                "code": "B",
+                "description": "Ball"
+              },
+              "description": "Ball",
+              "code": "B",
+              "ballColor": "rgba(39, 161, 39, 1.0)",
+              "trailColor": "rgba(188, 0, 33, 1.0)",
+              "isInPlay": false,
+              "isStrike": false,
+              "isBall": true,
+              "type": {
+                "code": "FF",
+                "description": "Four-Seam Fastball"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 1,
+              "strikes": 1,
+              "outs": 2
+            },
+            "index": 1,
+            "playId": "fd7c5b23-c5cc-3411-b8f0-0db6501688ca",
+            "pitchNumber": 2,
+            "startTime": "2026-09-29T20:30:35.381Z",
+            "endTime": "2026-09-29T20:30:39.443Z",
+            "isPitch": true,
+            "type": "pitch"
+          },
+          {
+            "details": {
+              "call": {
+                "code": "B",
+                "description": "Ball"
+              },
+              "description": "Ball",
+              "code": "B",
+              "ballColor": "rgba(39, 161, 39, 1.0)",
+              "trailColor": "rgba(188, 0, 33, 1.0)",
+              "isInPlay": false,
+              "isStrike": false,
+              "isBall": true,
+              "type": {
+                "code": "FF",
+                "description": "Four-Seam Fastball"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 2,
+              "strikes": 1,
+              "outs": 2
+            },
+            "index": 2,
+            "playId": "5606627e-d1ab-3385-92d4-fd88d31b6ca6",
+            "pitchNumber": 3,
+            "startTime": "2026-09-29T20:30:55.310Z",
+            "endTime": "2026-09-29T20:30:59.480Z",
+            "isPitch": true,
+            "type": "pitch"
+          },
+          {
+            "details": {
+              "call": {
+                "code": "F",
+                "description": "Foul"
+              },
+              "description": "Foul",
+              "code": "F",
+              "ballColor": "rgba(170, 21, 11, 1.0)",
+              "trailColor": "rgba(119, 0, 152, 1.0)",
+              "isInPlay": false,
+              "isStrike": true,
+              "isBall": false,
+              "type": {
+                "code": "FS",
+                "description": "Splitter"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 2,
+              "strikes": 2,
+              "outs": 2
+            },
+            "index": 3,
+            "playId": "4548b184-750f-31eb-83c7-489016fb05aa",
+            "pitchNumber": 4,
+            "startTime": "2026-09-29T20:31:24.509Z",
+            "endTime": "2026-09-29T20:31:28.193Z",
+            "isPitch": true,
+            "type": "pitch"
+          },
+          {
+            "details": {
+              "call": {
+                "code": "B",
+                "description": "Ball"
+              },
+              "description": "Ball",
+              "code": "B",
+              "ballColor": "rgba(39, 161, 39, 1.0)",
+              "trailColor": "rgba(188, 0, 33, 1.0)",
+              "isInPlay": false,
+              "isStrike": false,
+              "isBall": true,
+              "type": {
+                "code": "FF",
+                "description": "Four-Seam Fastball"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 3,
+              "strikes": 2,
+              "outs": 2
+            },
+            "index": 4,
+            "playId": "0b418697-097d-337a-9d81-2f57f5ab6210",
+            "pitchNumber": 5,
+            "startTime": "2026-09-29T20:31:48.588Z",
+            "endTime": "2026-09-29T20:31:52.518Z",
+            "isPitch": true,
+            "type": "pitch"
+          },
+          {
+            "details": {
+              "description": "Pitcher Step Off",
+              "code": "PSO",
+              "isOut": false,
+              "hasReview": false,
+              "fromCatcher": false,
+              "disengagementNum": 1
+            },
+            "count": {
+              "balls": 3,
+              "strikes": 2,
+              "outs": 2
+            },
+            "index": 5,
+            "playId": "f79f0720-9608-4f85-8a2a-4ec26a16c7e3",
+            "startTime": "2026-09-29T20:32:10.421Z",
+            "endTime": "2026-09-29T20:32:15.421Z",
+            "isPitch": false,
+            "type": "stepoff"
+          },
+          {
+            "details": {
+              "description": "Batter Timeout.",
+              "event": "Batter Timeout",
+              "eventType": "batter_timeout",
+              "awayScore": 3,
+              "homeScore": 2,
+              "isScoringPlay": false,
+              "isOut": false,
+              "hasReview": false,
+              "disengagementNum": 1
+            },
+            "count": {
+              "balls": 3,
+              "strikes": 2,
+              "outs": 2
+            },
+            "index": 6,
+            "startTime": "2026-09-29T20:32:35.875Z",
+            "endTime": "2026-09-29T20:32:35.876Z",
+            "isPitch": false,
+            "type": "action",
+            "player": {
+              "id": 645277,
+              "link": "/api/v1/people/645277"
+            }
+          },
+          {
+            "details": {
+              "call": {
+                "code": "H",
+                "description": "Hit By Pitch"
+              },
+              "description": "Hit By Pitch",
+              "code": "H",
+              "ballColor": "rgba(39, 161, 39, 1.0)",
+              "trailColor": "rgba(153, 171, 0, 1.0)",
+              "isInPlay": false,
+              "isStrike": false,
+              "isBall": true,
+              "type": {
+                "code": "KC",
+                "description": "Knuckle Curve"
+              },
+              "isOut": false,
+              "hasReview": false,
+              "runnerGoing": true
+            },
+            "count": {
+              "balls": 4,
+              "strikes": 2,
+              "outs": 2
+            },
+            "index": 7,
+            "playId": "5c3c6696-bd87-36c0-bc60-0951b1d58936",
+            "pitchNumber": 6,
+            "startTime": "2026-09-29T20:32:35.877Z",
+            "endTime": "2026-09-29T20:32:42.396Z",
+            "isPitch": true,
+            "type": "pitch"
+          }
+        ],
+        "reviewDetails": {
+          "isOverturned": false,
+          "inProgress": false,
+          "reviewType": "MI",
+          "challengeTeamId": 144
+        },
+        "playEndTime": "2026-09-29T20:32:42.396Z",
+        "atBatIndex": 64
+      }
+    },
+    {
+      "gamePk": "849849",
+      "inputSha256": "70e585df58a4cbc926699f0ca29e68fc92aedf04fd04a9f5f1697607193bbecc",
+      "play": {
+        "result": {
+          "type": "atBat",
+          "event": "Groundout",
+          "eventType": "field_out",
+          "description": "White Sox challenged (shift violation), call on the field was upheld: Sam Antonacci grounds out, second baseman Jose Altuve to first baseman Christian Walker.",
+          "rbi": 0,
+          "awayScore": 4,
+          "homeScore": 0,
+          "isOut": true
+        },
+        "about": {
+          "atBatIndex": 29,
+          "halfInning": "top",
+          "isTopInning": true,
+          "inning": 4,
+          "startTime": "2026-09-29T22:14:35.155Z",
+          "endTime": "2026-09-29T22:16:41.479Z",
+          "isComplete": true,
+          "isScoringPlay": false,
+          "hasReview": true,
+          "hasOut": true,
+          "captivatingIndex": 0
+        },
+        "count": {
+          "balls": 1,
+          "strikes": 2,
+          "outs": 1
+        },
+        "matchup": {
+          "batter": {
+            "id": 803011,
+            "fullName": "Sam Antonacci",
+            "link": "/api/v1/people/803011"
+          },
+          "batSide": {
+            "code": "L",
+            "description": "Left"
+          },
+          "pitcher": {
+            "id": 699044,
+            "fullName": "Miguel Ullola",
+            "link": "/api/v1/people/699044"
+          },
+          "pitchHand": {
+            "code": "R",
+            "description": "Right"
+          },
+          "batterHotColdZones": [],
+          "pitcherHotColdZones": [],
+          "splits": {
+            "batter": "vs_RHP",
+            "pitcher": "vs_LHB",
+            "menOnBase": "Empty"
+          }
+        },
+        "pitchIndex": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "actionIndex": [],
+        "runnerIndex": [
+          0
+        ],
+        "runners": [
+          {
+            "movement": {
+              "originBase": null,
+              "start": null,
+              "end": null,
+              "outBase": "1B",
+              "isOut": true,
+              "outNumber": 1
+            },
+            "details": {
+              "event": "Groundout",
+              "eventType": "field_out",
+              "movementReason": null,
+              "runner": {
+                "id": 803011,
+                "fullName": "Sam Antonacci",
+                "link": "/api/v1/people/803011"
+              },
+              "responsiblePitcher": null,
+              "isScoringEvent": false,
+              "rbi": false,
+              "earned": false,
+              "teamUnearned": false,
+              "playIndex": 4
+            },
+            "credits": [
+              {
+                "player": {
+                  "id": 514888,
+                  "link": "/api/v1/people/514888"
+                },
+                "position": {
+                  "code": "4",
+                  "name": "Second Base",
+                  "type": "Infielder",
+                  "abbreviation": "2B"
+                },
+                "credit": "f_assist"
+              },
+              {
+                "player": {
+                  "id": 572233,
+                  "link": "/api/v1/people/572233"
+                },
+                "position": {
+                  "code": "3",
+                  "name": "First Base",
+                  "type": "Infielder",
+                  "abbreviation": "1B"
+                },
+                "credit": "f_putout"
+              }
+            ]
+          }
+        ],
+        "playEvents": [
+          {
+            "details": {
+              "call": {
+                "code": "F",
+                "description": "Foul"
+              },
+              "description": "Foul",
+              "code": "F",
+              "ballColor": "rgba(170, 21, 11, 1.0)",
+              "trailColor": "rgba(0, 0, 254, 1.0)",
+              "isInPlay": false,
+              "isStrike": true,
+              "isBall": false,
+              "type": {
+                "code": "SL",
+                "description": "Slider"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 0,
+              "strikes": 1,
+              "outs": 0
+            },
+            "index": 0,
+            "playId": "eaed62c8-5ea4-33ce-8b5a-730971a0afcf",
+            "pitchNumber": 1,
+            "startTime": "2026-09-29T22:14:52.992Z",
+            "endTime": "2026-09-29T22:14:58.973Z",
+            "isPitch": true,
+            "type": "pitch"
+          },
+          {
+            "details": {
+              "call": {
+                "code": "B",
+                "description": "Ball"
+              },
+              "description": "Ball",
+              "code": "B",
+              "ballColor": "rgba(39, 161, 39, 1.0)",
+              "trailColor": "rgba(152, 0, 101, 1.0)",
+              "isInPlay": false,
+              "isStrike": false,
+              "isBall": true,
+              "type": {
+                "code": "FC",
+                "description": "Cutter"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 1,
+              "strikes": 1,
+              "outs": 0
+            },
+            "index": 1,
+            "playId": "3e1a8dc7-b397-3eb0-83b7-ca4b875a65a7",
+            "pitchNumber": 2,
+            "startTime": "2026-09-29T22:15:18.077Z",
+            "endTime": "2026-09-29T22:15:21.918Z",
+            "isPitch": true,
+            "type": "pitch"
+          },
+          {
+            "details": {
+              "call": {
+                "code": "C",
+                "description": "Called Strike"
+              },
+              "description": "Called Strike",
+              "code": "C",
+              "ballColor": "rgba(170, 21, 11, 1.0)",
+              "trailColor": "rgba(188, 0, 33, 1.0)",
+              "isInPlay": false,
+              "isStrike": true,
+              "isBall": false,
+              "type": {
+                "code": "FF",
+                "description": "Four-Seam Fastball"
+              },
+              "isOut": false,
+              "hasReview": true
+            },
+            "count": {
+              "balls": 1,
+              "strikes": 2,
+              "outs": 0
+            },
+            "index": 2,
+            "playId": "0984e402-7990-3c98-8e20-382b5ee21f3d",
+            "pitchNumber": 3,
+            "startTime": "2026-09-29T22:15:35.521Z",
+            "endTime": "2026-09-29T22:15:39.504Z",
+            "isPitch": true,
+            "type": "pitch",
+            "reviewDetails": {
+              "isOverturned": true,
+              "inProgress": false,
+              "reviewType": "MJ",
+              "challengeTeamId": 117,
+              "player": {
+                "id": 673237,
+                "fullName": "Yainer Diaz",
+                "link": "/api/v1/people/673237"
+              }
+            }
+          },
+          {
+            "details": {
+              "call": {
+                "code": "F",
+                "description": "Foul"
+              },
+              "description": "Foul",
+              "code": "F",
+              "ballColor": "rgba(170, 21, 11, 1.0)",
+              "trailColor": "rgba(152, 0, 101, 1.0)",
+              "isInPlay": false,
+              "isStrike": true,
+              "isBall": false,
+              "type": {
+                "code": "FC",
+                "description": "Cutter"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 1,
+              "strikes": 2,
+              "outs": 0
+            },
+            "index": 3,
+            "playId": "7c992090-628d-3ec8-8eaf-4c538c2c69e7",
+            "pitchNumber": 4,
+            "startTime": "2026-09-29T22:16:10.845Z",
+            "endTime": "2026-09-29T22:16:14.258Z",
+            "isPitch": true,
+            "type": "pitch"
+          },
+          {
+            "details": {
+              "call": {
+                "code": "X",
+                "description": "In play, out(s)"
+              },
+              "description": "In play, out(s)",
+              "code": "X",
+              "ballColor": "rgba(26, 86, 190, 1.0)",
+              "trailColor": "rgba(188, 0, 33, 1.0)",
+              "isInPlay": true,
+              "isStrike": false,
+              "isBall": false,
+              "type": {
+                "code": "FF",
+                "description": "Four-Seam Fastball"
+              },
+              "isOut": true,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 1,
+              "strikes": 2,
+              "outs": 0
+            },
+            "index": 4,
+            "playId": "0242a4c4-6b0b-3a96-897c-c2f23da5d7aa",
+            "pitchNumber": 5,
+            "startTime": "2026-09-29T22:16:33.528Z",
+            "endTime": "2026-09-29T22:16:41.479Z",
+            "isPitch": true,
+            "type": "pitch"
+          }
+        ],
+        "reviewDetails": {
+          "isOverturned": false,
+          "inProgress": false,
+          "reviewType": "MW",
+          "challengeTeamId": 145
+        },
+        "playEndTime": "2026-09-29T22:16:41.479Z",
+        "atBatIndex": 29
+      }
+    }
+  ]
+}

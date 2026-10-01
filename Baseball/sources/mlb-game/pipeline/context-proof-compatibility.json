@@ -552,5 +552,227 @@
         ]
       }
     }
+  },
+  "historySelectionRepair": {
+    "previousContextSha256": "48f1f0daa2cfde9b899a5dad6bcf68f9eb7bcb9a1189715f2e3a2c7e9e432d5d",
+    "currentContextSha256": "7d90c64f64e03c920578bf40100677c1534a791792cf49a08b2426fe7c9141d6",
+    "implementationRecord": "sources/mlb-game/review/rml-selection-repair-2026-10-01.md",
+    "families": {
+      "batting": {
+        "previousImplementationSha256": "9698a0dd9bbd495dfe36cfc937cd3280e30c88a3fa1e6f9bd50ad24eeeee1358",
+        "currentImplementationSha256": "9698a0dd9bbd495dfe36cfc937cd3280e30c88a3fa1e6f9bd50ad24eeeee1358",
+        "reuseKind": "unchanged-proof-dependencies"
+      },
+      "scoring-run": {
+        "previousImplementationSha256": "727b5e760bdfdf2a7189f979f9018279383ed058f9b43e57d4dcbe43db6b283e",
+        "currentImplementationSha256": "727b5e760bdfdf2a7189f979f9018279383ed058f9b43e57d4dcbe43db6b283e",
+        "reuseKind": "unchanged-proof-dependencies"
+      },
+      "runner-resolution": {
+        "previousImplementationSha256": "ec5cfc714ac81b6b7e4f3d4977f7d3f0985324e3d87e849a174b7185c478b51a",
+        "currentImplementationSha256": "930dcd1cc5724002fb68bee080475b899f180ceae4b82b7dce0eb63697e0f43e",
+        "reuseKind": "prior-stricter-history-selection"
+      },
+      "pitch-count": {
+        "previousImplementationSha256": "ab704fa73f6b4d873bd1f70d463e87ea3c765b788a6fc98c7ba244449bd86361",
+        "currentImplementationSha256": "cbbc502cb0066c527fb5a3c892f6b6f7c080da15f6d54a5f5f341adb29eb3111",
+        "reuseKind": "prior-stricter-history-selection"
+      },
+      "runner-boundary": {
+        "previousImplementationSha256": "299dee5f97d0bd7075e28ddd5fe0a0b205a384c27eae87acd1d2e2a1dba236b8",
+        "currentImplementationSha256": "d603c7044a15b9f2f9621b7c1a9fc5e029be7886b374abbc50c1d57f57d3c4ca",
+        "reuseKind": "prior-stricter-history-selection"
+      },
+      "defensive": {
+        "previousImplementationSha256": "a0db11aeb4e7afdfed01f1754d9d4d9a18782c97794a33d27c9b44eb9a0f59a1",
+        "currentImplementationSha256": "634cb03fe4b6f3bbeffc0444c51501f63059f0927674ce3d989e6febe4d94a3b",
+        "reuseKind": "prior-stricter-defensive-selection"
+      }
+    },
+    "derivedProofs": {
+      "players": {
+        "currentImplementationSha256": "ea53cf17db11939b03f52047923fc322462b9090cc37827faf3fadf2f6b3e43d",
+        "previousImplementationSha256s": [
+          "df540b869db8c02ab3b9d58317de8fcb227c8223e0418378b53768deea48cbfd",
+          "ff3ee02cf238f48d6831fd5b60a3bee763694791d7eb9cd68432cf75e6935da9",
+          "e275ed04756c05c8fb8abed9662722ea98ab5b84601a982deba90964078943b0",
+          "eec79277b51bd8ee75abadd782b9d595e7cdde37c5305e15fef5c7162d4226e4",
+          "50aa783f28c5846f60be79dadb25ab5bf9d906bfcfa4572f3f1cf2ebfed9f08e",
+          "f6c6ab2040b1cf3a497e1445c314e15e35824dc64ce8ec666ac6a4cd463d0094"
+        ]
+      },
+      "pa": {
+        "currentImplementationSha256": "84d73443f688a138975799102170d17af88e28583116fdc52837946112313544",
+        "previousImplementationSha256s": [
+          "28ac65202e48dfec58cab9807d3e101cf744b75f08031fd12c00a91e7bc39d90",
+          "4394aa6c44721748f27bb373c3c8ed5c0f119dc8df4c9a201bed18abbd86c3de",
+          "d20f35699a24ec5009e473902a6d3a690b8b93114584e3d69735ff3702aa9fe5",
+          "28ae860bd0d01aedf5545469ba19c8cc9e8c039d7b6298d7cb834af1ae16c6a2",
+          "2b5ec76b132a89331c77b48f168d37a66872d3b9f52420a4dedc76a838748651"
+        ]
+      },
+      "c2pa": {
+        "currentImplementationSha256": "760645e6912352f524e9b49129cba75b6043525f757b4f30660a5b5cb13d8b48",
+        "previousImplementationSha256s": [
+          "9d4a2a9e97e051374ab0bee7faf95e3c8d1c6951c1c517be40c789f431f12116",
+          "45d11a02b9baeb6ef83b34941c8f3cece2160cbb1607402b28e5d6f5b885f4d2",
+          "b4b34a14c10a12b4b318cd213b83b5e7ad540525d14f050a03e8eb63061bc017",
+          "222abe1d2c719f4e6abe93c56ebbce27b325c77b9299e8f87e78bd7a86ab9dfd",
+          "d822838c45cbfc45e37cee31d40c22d4c5d50e75a82383bdca67bb5a998a46b2"
+        ]
+      },
+      "retained-batting": {
+        "currentImplementationSha256": "34c2054b180b256103fbeaa4537fc44738407923d906d61ca027d2b4a6ed4b69",
+        "previousImplementationSha256s": [
+          "34c2054b180b256103fbeaa4537fc44738407923d906d61ca027d2b4a6ed4b69",
+          "6cd6b3b9f3e1dff50c1444cf99b22d8572ad653dad820e8f8dae402ef551a070"
+        ]
+      }
+    },
+    "independentProofs": {
+      "batting": {
+        "currentImplementationSha256": "caeb38e15e8b03e777afa53d61ccfba18a6a886e44b644a84f246c4d4ef28a9b",
+        "previous": [
+          {
+            "previousImplementationSha256": "cf4f9e70ef93d7fc9c0c61f0c2e2602b8c7e435a6ac4b183342cd8ce428806d2",
+            "previousSourceProducerSha256": "9698a0dd9bbd495dfe36cfc937cd3280e30c88a3fa1e6f9bd50ad24eeeee1358"
+          },
+          {
+            "previousImplementationSha256": "963e007d100869cafa11bc9facfee73a1c9727c9ce9469bffd5e367d20624806",
+            "previousSourceProducerSha256": "9698a0dd9bbd495dfe36cfc937cd3280e30c88a3fa1e6f9bd50ad24eeeee1358"
+          },
+          {
+            "previousImplementationSha256": "624dd669413e7b7a2f320a84153b735fc6f6188e49b318c174b0005a30f5a602",
+            "previousSourceProducerSha256": "42e5f5c4b7fd1b12d922703283511fe485df55800fe17b2fb627b32e367cf1f7"
+          },
+          {
+            "previousImplementationSha256": "6eef67245fd40b95baf1b7e0e1e5375d7f7b7d1eb86d2aebe50859accb0b4f26",
+            "previousSourceProducerSha256": "42e5f5c4b7fd1b12d922703283511fe485df55800fe17b2fb627b32e367cf1f7"
+          }
+        ]
+      },
+      "scoring-run": {
+        "currentImplementationSha256": "8bc23112b64162234eaf49bed39f594bc3a91bcb83f957b891d3af1489cecb74",
+        "previous": [
+          {
+            "previousImplementationSha256": "e4d11ce210273b993b1f87f83ff95727ad989c20e8fc84c373ccb8840434a987",
+            "previousSourceProducerSha256": "727b5e760bdfdf2a7189f979f9018279383ed058f9b43e57d4dcbe43db6b283e"
+          },
+          {
+            "previousImplementationSha256": "565d79a40d04380c8a45433cf00d942ca93e84d2feb63f499d698b6a335cefa1",
+            "previousSourceProducerSha256": "727b5e760bdfdf2a7189f979f9018279383ed058f9b43e57d4dcbe43db6b283e"
+          },
+          {
+            "previousImplementationSha256": "ef9db6913cb1f0e120325b08751290e285e25034d70a4933aad6cfd57e961311",
+            "previousSourceProducerSha256": "03088132d1783d274a08f6a2d2a5ff9858ffd04f519b2a4bfcb9011e7ccf0f9d"
+          },
+          {
+            "previousImplementationSha256": "8db89e9879a0d794b8590f2ec8c4525b063b08650d01e6ced3e0c2dfaf75944c",
+            "previousSourceProducerSha256": "03088132d1783d274a08f6a2d2a5ff9858ffd04f519b2a4bfcb9011e7ccf0f9d"
+          }
+        ]
+      },
+      "runner-resolution": {
+        "currentImplementationSha256": "d7b1fcc7e555d059e17ed2a0bea3dbad58ea0e219aed40a0ab15d16132898796",
+        "previous": [
+          {
+            "previousImplementationSha256": "da045258bd19144759d29ebdc032bf874d05dd76c86161aa19da7ca0313f0c26",
+            "previousSourceProducerSha256": "ec5cfc714ac81b6b7e4f3d4977f7d3f0985324e3d87e849a174b7185c478b51a"
+          },
+          {
+            "previousImplementationSha256": "7c2f3f28a9769499d8185037fa0a9139bfcddd171574e8ce9b16b8e453e078ac",
+            "previousSourceProducerSha256": "cde002c6048b62918e59c4fe793dbc839d51f12a5763947dfccba120036a6ffa"
+          },
+          {
+            "previousImplementationSha256": "699bcfe3bd9f34c3675a8154522389df361ea932574668c9de5f9186c948e181",
+            "previousSourceProducerSha256": "a6de12ee62eb669b644f7d57b04ef30d88145622f19df32f9bb3e515b62fbe9a"
+          },
+          {
+            "previousImplementationSha256": "0e447e80992e022f34c93f1229b9aee0cff91382847f7fd558d1bf33027d8c21",
+            "previousSourceProducerSha256": "6a7d47ec9dffcb89fdd0883426515f55cb9a4b53d14c54c3ba7ebeeeca8deb10"
+          },
+          {
+            "previousImplementationSha256": "3054fe607b7a1a83f6b416fe59fbebc7a009c115bd3d523280d6fe07280671a6",
+            "previousSourceProducerSha256": "658ba1c9cf75eb14e05bbe08b87e75d4d6195dbf2a9619c361080a636d57ae3a"
+          }
+        ]
+      },
+      "pitch-count": {
+        "currentImplementationSha256": "2f6ea1414da0ddb81e5e7957d6a0e12beef8fd3ffe6c162a40e78cbfff4385a5",
+        "previous": [
+          {
+            "previousImplementationSha256": "68d52cfa94866246fb3c02e4e8e10a0b49cf54235ed8ef6fcfe082b1a9b90121",
+            "previousSourceProducerSha256": "ab704fa73f6b4d873bd1f70d463e87ea3c765b788a6fc98c7ba244449bd86361"
+          },
+          {
+            "previousImplementationSha256": "65bd3a199720cd0688716032e3f8c8e3d94047d46115a494837bc5991e7e12ce",
+            "previousSourceProducerSha256": "03f5d91d7c5ecbc042a8f1c607e112d9548b2342e602c263c74cdba92458acf5"
+          },
+          {
+            "previousImplementationSha256": "10efe1a6d8f841cd541edce85c92dd118a11cc0d6560ffe10fd43453e4b0f26f",
+            "previousSourceProducerSha256": "792dd07987c6a53b0889f5392c052a3a9aa3421c1743cf4f26a6ac4599cda1f1"
+          },
+          {
+            "previousImplementationSha256": "695d13b1e71a29ad6454867ff3970d956bf55a878c1db469684e728e8bfc237b",
+            "previousSourceProducerSha256": "d4841482490672d0fb9d1a0fe59123849ce1202443b4fcba12ba1d2b82953490"
+          },
+          {
+            "previousImplementationSha256": "9234103b03dd8ae53ceb98b2fc975dd210d4fe5d39b0608548b64b75bcf65b93",
+            "previousSourceProducerSha256": "5f4f323463e042308c364be105f4a6e93d6225515985b6667f70ce017cf587ae"
+          }
+        ]
+      },
+      "runner-boundary": {
+        "currentImplementationSha256": "8785a9e7ca3948cefd175d521c813ccfba3f6467b101fe3de46633aace5f5854",
+        "previous": [
+          {
+            "previousImplementationSha256": "f2edd1c5cad43f83c99338db25844c28ffb61f8db887d31fd0e2962d4794f980",
+            "previousSourceProducerSha256": "299dee5f97d0bd7075e28ddd5fe0a0b205a384c27eae87acd1d2e2a1dba236b8"
+          },
+          {
+            "previousImplementationSha256": "8789ae2a01f4b7b8022ce68bfd236bb4ef16f86666129affd05cb347b50faa9a",
+            "previousSourceProducerSha256": "043782f45ef1a55fc88b5c15e4f9be88db5121f196d36854fef9adc689de8776"
+          },
+          {
+            "previousImplementationSha256": "ea328302863d354aefc2ba29d88c0a9b590e1d22dab476cbc1c073a4a5494527",
+            "previousSourceProducerSha256": "4582bd96662f4679b673c5d276c8810cf56ca2a3c37f4ce47a2615f1e455be7b"
+          },
+          {
+            "previousImplementationSha256": "6ac8d11d5408bec1bc558f9d021a7d8ae874fda77df7485a1713683e99d5ba30",
+            "previousSourceProducerSha256": "33a010bf5645cc5804b8c6bc786de4f037edcb135ba8039e27925acbc4931094"
+          },
+          {
+            "previousImplementationSha256": "d004d9b6498c535bff2ce59782763389c9b4d2f0afb3419040c2bd6ff37e7315",
+            "previousSourceProducerSha256": "02d18dc89878601e07d1264c7af865c07c945313db3279e51437f5bdc5d8c802"
+          }
+        ]
+      },
+      "defensive": {
+        "currentImplementationSha256": "1203fa99ec0a4b70c0dcb40e165cb959771b86bbf60d46e76b1245c95d67f4f4",
+        "previous": [
+          {
+            "previousImplementationSha256": "5baa163a568771a36d9597069afd754ba2ca042ecff1f550e79944e80434a955",
+            "previousSourceProducerSha256": "a0db11aeb4e7afdfed01f1754d9d4d9a18782c97794a33d27c9b44eb9a0f59a1"
+          },
+          {
+            "previousImplementationSha256": "4eb0d1c8cb4dd5bab5c98a2c9002738f5fc435652c6c3c77bd4315fefe1528ab",
+            "previousSourceProducerSha256": "018441d1706622c5ea4bcda5700abfa3741ab690e697548b59a72c564346a1fe"
+          },
+          {
+            "previousImplementationSha256": "4f0355fe4efaa0c4e9f1f8a1b4d0553c1e73a8844cee693ecb3c78da8733312b",
+            "previousSourceProducerSha256": "7da7877b59db73b1c1678c71ecf525fd67b61095d5a44a369bdcb5e18f166188"
+          },
+          {
+            "previousImplementationSha256": "f313bc3f6de86b6df1c30db3c4a85f68a55c91a54cc376f37612ce4ae9a7f4fe",
+            "previousSourceProducerSha256": "4e4e253d8e04ccc662ed03a006817915b3ffc9ea4d21eaf7721af5e8c352b3cd"
+          },
+          {
+            "previousImplementationSha256": "a037ab33e634196efc76be043291534525b5547e237b49fd9975d203d09d02a1",
+            "previousSourceProducerSha256": "72af34c79834439a7ff5e52b2ac7161fe077908a1445cbc804a0dd8a63c27032"
+          }
+        ]
+      }
+    },
+    "baselineCommit": "86a4711b0f30300ee2d988a701f550645b027686"
   }
 }

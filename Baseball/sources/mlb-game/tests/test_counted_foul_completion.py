@@ -81,7 +81,7 @@ class CountedFoulCompletionTests(unittest.TestCase):
 
     def test_held_count_and_ambiguous_order_stay_withheld(self):
         for pa,index in [(37,3),(64,2),(65,2)]:
-            evidence=self.selected(pa,lambda p,d: p['playEvents'][index].update(startTime=p['playEvents'][index-1]['startTime']))
+            evidence=self.selected(pa,lambda p,d: p['playEvents'][index].update(startTime=next(e['startTime'] for e in reversed(p['playEvents'][:index]) if e.get('isPitch') is True)))
             self.assertFalse(evidence['countedFouls'])
         evidence=self.selected(64)
         self.assertTrue(any(r['eventIndex']==4 and r['reason']=='NO_SECOND_STRIKE_INCREMENT' for r in evidence['withheldFouls']))
