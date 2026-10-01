@@ -31,12 +31,20 @@ RDF hash, dimensions, validated admissions and calculation fingerprint before
 deciding whether to read or calculate it again. Calculation changes invalidate
 affected products; report-only changes do not invalidate game checkpoints.
 
-After the existing final source snapshot check and SQL integrity checks, NiFi
+The builder captures a validated promotion inventory. Each graph read holds the
+existing source-owned game lock and verifies its captured promotion before and
+after reading; unfinished graph transactions are deferred. Unchanged SQL remains
+bound to its original RDF and proof hashes. Subsequent promotions cannot
+invalidate unrelated completed products: the next NiFi tick catches them up.
+The publication records its captured source time and policy.
+
+After preparing that captured inventory and checking SQL integrity, NiFi
 publishes an immutable database under `serving/dashboard/builds/` and atomically
 replaces `serving/dashboard-current.json`. Dashboard requests use that pointer
 and its paired code release; reports continue using `serving/current.json`.
-The prior dashboard remains available while its replacement is built. Source
-drift retains completed work for the next tick. The working database is never
+The prior dashboard remains available while its replacement is built. A game
+that changes before its own read retains completed work for the next tick; a
+later change does not prevent publishing the captured result. The working database is never
 served. `--max-games` uses an isolated development workspace and cannot publish.
 
 Provision with `serving/dashboard-nifi/provision.ps1 -Start`. Its one-minute

@@ -34,6 +34,18 @@ must still be verified separately from those six calculated results.
 
 ## Last verified publication
 
+October 1 publication diagnosis: NiFi's 14:42 UTC and 15:14 UTC builds completed
+all 2,917 stored game products and their season products, but both refused
+publication because later graph promotions changed the global corpus hash.
+The second build had 55 admission updates and five calculation updates. Thus
+the old live pointer did not establish that these repairs had failed. The SQL
+builder now fences each new graph read with the existing game writer lock,
+rejects changed promotions and unfinished transactions at that read, and
+publishes the validated captured inventory. Later promotions trigger the next
+incremental update. No source validation, eligibility rule or metric completeness
+requirement is removed. Five focused checks cover source drift, crash recovery,
+incremental SQL reuse and mutual exclusion with the actual Windows NiFi lock.
+
 October 1: the full-season HTTP response from
 `20260930T162149Z-dashboard-5d417d3bf58b` has **5/19 populated cards**, restoring
 Offensive Reach after the roster fix. All 2,429 regular-season games remain
@@ -409,7 +421,8 @@ do not infer their deployment from these results.
   maintenance to stop. Minute-by-minute retained B1 receipts had continually
   reset its 60-second timer after the failed build. Receipts still trigger input
   refreshes; only RDF promotion and independent schedule events reset that
-  short wait. Publication keeps its existing final source check.
+  short wait. The October 1 repair above replaces the final global source-change
+  veto with per-game read locks and captured-version publication.
 - NiFi recorded a transient Windows access denial replacing `progress.json`
   on the next attempt. Atomic serving metadata writes now retry short-lived
   sharing errors while preserving the previous complete file. Persistent

@@ -120,6 +120,38 @@ def bounded_fetch(items, fetch, workers):
             if next_item is not None: pending.append((next_item, executor.submit(fetch, next_item)))
 
 
+def query_game_snapshot(state,promotion,fetch):
+    """Read one captured promotion while excluding its source-owned writer.
+
+    Windows' existing NiFi FileShare.None game lock excludes a writer for the
+    lifetime of this read handle, including a cached answer. Do not query an
+    uncommitted graph or label a newer game with the captured version's hash.
+    Other games can continue ingesting and already read products stay usable.
+    """
+    pk=promotion['gamePk']
+    if not isinstance(pk,str) or not pk.isdecimal():raise ValueError('Invalid snapshot game')
+    owner=Path(state)/'pipeline/evidence/nifi/game-promotion'/pk
+    marker=Path(promotion['promotionManifest'])
+    if marker.resolve().parent!=owner.resolve():raise ValueError('Snapshot promotion escaped its owner')
+    lock=Path(state)/'pipeline/work/mlb-game-locks'/(pk+'.lock')
+    lock.parent.mkdir(parents=True,exist_ok=True)
+    try:handle=lock.open('a+b')
+    except OSError as error:
+        raise SOURCE.SourceSnapshotChanged('Game writer is active: '+pk) from error
+    with handle:
+        def current():
+            latest=max(owner.glob('*.json'),key=lambda p:(RELEASE.read(p).get('promotedAtUtc',''),p.name))
+            if latest.resolve()!=marker.resolve() or SOURCE.sha256_file(marker)!=promotion['promotionManifestSha256']:
+                raise SOURCE.SourceSnapshotChanged('Captured game changed before its SQL read: '+pk)
+            transactions=Path(state)/'pipeline/work/graph-pair-transactions'/pk
+            if any(RELEASE.read(p).get('state')=='prepared' for p in transactions.glob('*/transaction.json')):
+                raise SOURCE.SourceSnapshotChanged('Game has an unfinished graph transaction: '+pk)
+        current()
+        result=fetch()
+        current()
+        return result
+
+
 def graph_tables(connection):
     names = [r[0] for r in connection.execute("SELECT name FROM sqlite_master WHERE type='table'")]
     return [name for name in names if name.startswith('metric_suite_')
@@ -544,6 +576,8 @@ def build_locked(args, state, serving, work):
     connection = None
     try:
         snapshot = SOURCE.corpus_snapshot(state, args.endpoint, args.timeout, args.max_games)
+        checkpoint(sourceSnapshotCapturedAtUtc=datetime.now(timezone.utc).isoformat(),
+                   sourceSnapshotPolicy='captured-promotions-with-game-read-locks')
         metadata = SOURCE.official_metadata(state)
         inventory = snapshot['inventory']['games']
         dimensions = snapshot['live']['dimensions']
@@ -603,8 +637,9 @@ def build_locked(args, state, serving, work):
                    reusedGames=unchanged, completedGames=completed)
         def fetch(item):
             query = METRICS.evidence_query([item['graph']])
-            return cache.query(endpoint=args.endpoint, query=query, slot='metric-suite', promotion=item['promotion'],
-                               fetch=lambda: SOURCE.sparql(args.endpoint, query, args.timeout))['results']['bindings']
+            return query_game_snapshot(state,item['promotion'],lambda:cache.query(endpoint=args.endpoint,
+                query=query,slot='metric-suite-snapshot-v1',promotion=item['promotion'],
+                fetch=lambda: SOURCE.sparql(args.endpoint, query, args.timeout)))['results']['bindings']
         for count, (item, bindings) in enumerate(bounded_fetch(pending, fetch, args.workers), 1):
             store_game(connection, item, bindings, products)
             checkpoint(completedGames=completed+count)
@@ -617,8 +652,9 @@ def build_locked(args, state, serving, work):
             identity = digest([promotion['authoritativeRdfSha256'],display_version])
             if saved_labels.get(graph) == identity: continue
             label_query = DISPLAY.query(graph)
-            labels = cache.query(endpoint=args.endpoint, query=label_query, slot='metric-display', promotion=promotion,
-                fetch=lambda: SOURCE.sparql(args.endpoint,label_query,args.timeout))['results']['bindings']
+            labels = query_game_snapshot(state,promotion,lambda:cache.query(endpoint=args.endpoint,
+                query=label_query,slot='metric-display-snapshot-v1',promotion=promotion,
+                fetch=lambda: SOURCE.sparql(args.endpoint,label_query,args.timeout)))['results']['bindings']
             DISPLAY.store(connection,graph,identity,labels)
         coverage = SOURCE._schedule_qualification.merge_snapshots(state, SOURCE._batting_admission.schedule_coverage(state))
         coverage_sha = digest(coverage)
@@ -656,11 +692,11 @@ def build_locked(args, state, serving, work):
         # The prepared snapshot enforces SQL constraints during copying and
         # receives the integrity check below. Do not also scan build-only raw
         # bindings and duplicated results on every small publication update.
-        # Existing final source check remains at publication, never on HTTP.
-        final_snapshot = SOURCE.corpus_snapshot(state, args.endpoint, args.timeout, args.max_games)
-        if final_snapshot['fingerprint'] != snapshot['fingerprint']:
-            checkpoint(status='waiting-for-source', reason='Source changed; committed games retained for the next NiFi tick')
-            return progress
+        # Every fetched game was fenced against its captured promotion while
+        # holding the existing source writer lock. Reused SQL is already bound
+        # to those exact inputs. Publish this consistent captured inventory;
+        # subsequent promotions trigger the next incremental NiFi build instead
+        # of starving publication by invalidating unrelated completed products.
         release = RELEASE.own_descriptor(ROOT)
         if (not args.force and not args.max_games and not args.no_promote and not publication_issue
                 and old_pointer.get('inputSetSha256') == input_set
@@ -698,6 +734,8 @@ def build_locked(args, state, serving, work):
                        databasePath=str(published), databaseSha256=sha, corpusFingerprint=snapshot['fingerprint'],
                        inputSetSha256=input_set, metricSuiteSha256=METRICS.fingerprint(), schemaSha256=SOURCE.sha256_file(SCHEMA),
                        runtimeRelease=release, notificationKey=notification,
+                       sourceSnapshotCapturedAtUtc=progress['sourceSnapshotCapturedAtUtc'],
+                       sourceSnapshotPolicy=progress['sourceSnapshotPolicy'],
                        gameCount=len(expected), promotedAtUtc=datetime.now(timezone.utc).isoformat())
         # Save the complete candidate evidence before changing the reader's
         # pointer. A storage failure here must preserve the prior publication.

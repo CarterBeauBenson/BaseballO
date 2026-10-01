@@ -26,7 +26,10 @@ class DashboardMaterializer(unittest.TestCase):
         self.snapshot = dict(fingerprint='corpus-one', inventory=dict(games={}), live=dict(dimensions=[]))
         for graph in self.graphs:
             pk = graph.rsplit('/',1)[1]
-            self.snapshot['inventory']['games'][pk] = dict(gamePk=pk,authoritativeGraph=graph,authoritativeRdfSha256='a'*64)
+            marker=self.state/'pipeline/evidence/nifi/game-promotion'/pk/'promotion.json'
+            D.RELEASE.atomic(marker,dict(gamePk=pk,promotedAtUtc='2026-08-01T12:00:00Z'))
+            self.snapshot['inventory']['games'][pk] = dict(gamePk=pk,authoritativeGraph=graph,authoritativeRdfSha256='a'*64,
+                promotionManifest=str(marker),promotionManifestSha256=D.SOURCE.sha256_file(marker))
             values = dict(graph=graph,game='https://baseballontology.org/data/game/'+pk,
                           start='2026-08-01T12:00:00Z',rdfGameSet='regular_season')
             self.snapshot['live']['dimensions'].append({key:dict(value=value) for key,value in values.items()})
@@ -49,7 +52,7 @@ class DashboardMaterializer(unittest.TestCase):
             stats = {}
             def __init__(self,*a): pass
             def query(self,**kw):
-                if kw['slot'] == 'metric-display':
+                if kw['slot'].startswith('metric-display'):
                     graph = kw['promotion']['authoritativeGraph']
                     return {'results':{'bindings':[dict(graph=dict(type='uri',value=graph),
                         entity=dict(type='uri',value='https://baseballontology.org/data/player/1'),
@@ -399,14 +402,51 @@ class DashboardMaterializer(unittest.TestCase):
             self.assertFalse(D.reuse_game(actual,graph,saved,self.snapshot['inventory']['games']['101'],
                 dimension,{name:PROOF for name in D.ADMISSIONS},'unrecognized-calculation'))
 
-    def test_source_change_preserves_work_but_cannot_publish(self):
+    def test_later_source_changes_do_not_starve_a_completed_snapshot(self):
         D.build(self.args); old = self.pointer()
         changed = copy.deepcopy(self.snapshot); changed['fingerprint'] = 'changed-during-build'
         self.source.side_effect = [self.snapshot,changed]
         result = D.build(self.args)
-        self.assertEqual(result['status'],'waiting-for-source'); self.assertEqual(self.pointer(),old)
+        self.assertEqual(result['status'],'published')
+        self.assertEqual(self.pointer()['corpusFingerprint'],self.snapshot['fingerprint'])
+        self.assertEqual(self.pointer()['sourceSnapshotPolicy'],'captured-promotions-with-game-read-locks')
+        self.assertNotEqual(self.pointer()['buildId'],old['buildId'])
         with closing(sqlite3.connect(self.working())) as db:
             self.assertEqual(db.execute('SELECT count(*) FROM dashboard_checkpoint').fetchone()[0],2)
+
+    def test_game_snapshot_rejects_changed_or_uncommitted_graph_before_querying(self):
+        promotion=self.snapshot['inventory']['games']['101'];fetch=unittest.mock.Mock(return_value='answer')
+        self.assertEqual(D.query_game_snapshot(self.state,promotion,fetch),'answer')
+        transaction=self.state/'pipeline/work/graph-pair-transactions/101/run/transaction.json'
+        D.RELEASE.atomic(transaction,dict(state='prepared'))
+        with self.assertRaisesRegex(D.SOURCE.SourceSnapshotChanged,'unfinished graph transaction'):
+            D.query_game_snapshot(self.state,promotion,fetch)
+        D.RELEASE.atomic(transaction,dict(state='committed'))
+        marker=Path(promotion['promotionManifest']).with_name('later.json')
+        D.RELEASE.atomic(marker,dict(promotedAtUtc='2026-08-02T00:00:00Z'))
+        with self.assertRaisesRegex(D.SOURCE.SourceSnapshotChanged,'Captured game changed'):
+            D.query_game_snapshot(self.state,promotion,fetch)
+        self.assertEqual(fetch.call_count,1)
+
+    @unittest.skipUnless(os.name=='nt','Windows source-owner lock')
+    def test_game_snapshot_lock_excludes_the_existing_nifi_writer(self):
+        import subprocess
+        lock_test=D.module(ROOT/'sources/mlb-game/tests/test_game_lock.py','snapshot_lock_test')
+        promotion=self.snapshot['inventory']['games']['101']
+        def read():
+            blocked=subprocess.run(lock_test.command(self.state,'101'),capture_output=True,text=True,timeout=15)
+            self.assertNotEqual(blocked.returncode,0)
+            self.assertIn('Timed out waiting',blocked.stderr)
+        D.query_game_snapshot(self.state,promotion,read)
+        writer=subprocess.Popen(lock_test.command(self.state,'101',hold=True),stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
+        try:
+            self.assertEqual(writer.stdout.readline().strip(),'locked')
+            with self.assertRaisesRegex(D.SOURCE.SourceSnapshotChanged,'Game writer is active'):
+                D.query_game_snapshot(self.state,promotion,lambda:self.fail('must not read an active writer'))
+        finally:
+            writer.communicate(input='\n',timeout=10)
+        self.assertEqual(D.query_game_snapshot(self.state,promotion,lambda:'resumed'),'resumed')
 
     def test_producer_version_change_during_batch_preserves_previous_publication(self):
         D.build(self.args);old=self.pointer();version=['original']
@@ -458,7 +498,7 @@ class DashboardMaterializer(unittest.TestCase):
 
     def test_promotion_during_snapshot_waits_for_next_tick_and_preserves_publication(self):
         D.build(self.args);old=self.pointer()
-        for phase in ('initial','final'):
+        for phase in ('initial',):
             drift=D.SOURCE.SourceSnapshotChanged('Promotion inventory changed during capture')
             self.source.side_effect=drift if phase=='initial' else [self.snapshot,drift]
             result=D.build(self.args)
