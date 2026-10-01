@@ -54,7 +54,29 @@ source SHACL, refreshes affected evidence and the game query index, and emits
 the ordinary promotion event for SQL. No whole-game replacement or rebuild.
 Unrelated previously withheld products remain withheld.
 
+The [execution patch](../../../sources/mlb-game/review/history-selection-execution-2026-10-01.patch)
+contains the bounded five-game inventory, existing-worker changes, regression
+fixture/tests and exact proof compatibility. It rejects all 15 tested changes
+to source hashes, selected history keys and half-inning scope. The existing
+compatibility regression passes: unrelated context definitions stay identical,
+all six exact producer transitions resolve, and unknown fingerprints fail.
+Neither this patch nor the context patch is active code while approval is pending.
+
 The required publication update is limited to the context-builder hashes in
 `governance/semantic-freeze.json` and exact retained-proof compatibility
 records. The global freeze remains unratified. Previously checked outcomes
 keep their provenance and are not relabeled as newly validated results.
+The [prepared pin patch](../../../sources/mlb-game/review/history-selection-pin-2026-10-01.patch)
+changes the context from
+`48f1f0daa2cfde9b899a5dad6bcf68f9eb7bcb9a1189715f2e3a2c7e9e432d5d` to
+`148afacfc4b5667c044b1e109d0c1386c358f0965421fa2e690fe462cb49b0c4`,
+updates its containing set digest, and cites the existing accepted E1/C1 decision.
+All three patches pass `git apply --check` together against `86a4711`.
+
+## Independently completed queue repair
+
+Commit `156cadb` preserves D1's independently recorded source identity through
+later additive repairs. The formerly failed game 822789 was retried by NiFi
+and completed on October 1 at 18:45 UTC: two histories and 13 triples added,
+with its 36,977 existing triples preserved. This is a completed graph repair;
+it does not assert that H2's five games have been repaired or SQL republished.

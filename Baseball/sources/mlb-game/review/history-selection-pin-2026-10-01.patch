@@ -1,0 +1,34 @@
+--- a/Baseball/governance/semantic-freeze.json
++++ b/Baseball/governance/semantic-freeze.json
+@@ -5,10 +5,10 @@
+   "ratified": false,
+   "bootstrapBaseCommit": "cb16a8e6f3d487f3542b91907cde3f47ff0a0978",
+   "hashCanonicalization": "utf-8-sig decode; CRLF and CR to LF; UTF-8 encode without BOM",
+-  "protectedSetSha256": "b2e31b7205aa6ea2412f0dc2440097b67e46253b6bb8cbce2a3a5c17094f9d9a",
++  "protectedSetSha256": "b4b00476f9081007c556d228c56ad8ca927f4860ffecc779f7f40f90edd5a7a7",
+   "changeDecision": {
+-    "path": "Baseball/archive/design-records/mlb-game-defensive-acts/review.json",
+-    "sha256": "07bad08b91eb37538e1a9415f2e1f328fcf1d29f5d074a1d3026a0f66871d394"
++    "path": "Baseball/archive/design-records/metric-source-c1-operation-2026-09-14/review.json",
++    "sha256": "fd70f5d25a8fac26ca370e61294cb7e67862d1256f97cbea63df1a12732ec090"
+   },
+   "protectedArtifacts": {
+     "Baseball/governance/ontology-curation-debt.json": "2d5a4206339244641dd629eb48d86d13d98c02e47b5b5755b010861c0570e283",
+@@ -25,7 +25,7 @@
+     "Baseball/reasoning/profiles/event-structure.json": "0769a71727733adc7553b18d51d2a21d91d15b0c86103ed19c494b78865653c0",
+     "Baseball/reasoning/profiles/participation.json": "da2d44f7fee92659ce982603d912d2ae7822730ca7b9ef4dd05ce4cfebb03a6c",
+     "Baseball/reasoning/reviewed-samples.json": "1527914430536f55812047abe25e4ba88d03afd15a045065e8e8f07d296e8e78",
+-    "Baseball/scripts/pipeline/prepare-rml-context.py": "48f1f0daa2cfde9b899a5dad6bcf68f9eb7bcb9a1189715f2e3a2c7e9e432d5d",
++    "Baseball/scripts/pipeline/prepare-rml-context.py": "148afacfc4b5667c044b1e109d0c1386c358f0965421fa2e690fe462cb49b0c4",
+     "Baseball/scripts/reasoning/evaluate-reviewed-samples.py": "c34675e4d7e4fe5b42b66859106f3f1c46f885e101c0666be2566939c71a46a6",
+     "Baseball/scripts/reasoning/generate-fixture-proof-baseline.py": "f5a7939602403fb105900b19a610d3d9ec1e439e271109b4242195053800afdc",
+     "Baseball/scripts/reasoning/prove-selective-reasoning.py": "c777a99842b18ddeef7047735e62db5e7769e79a419671b9a509b2de97f00af4",
+@@ -79,7 +79,7 @@
+         },
+         "contextBuilder": {
+           "path": "Baseball/scripts/pipeline/prepare-rml-context.py",
+-          "sha256": "48f1f0daa2cfde9b899a5dad6bcf68f9eb7bcb9a1189715f2e3a2c7e9e432d5d"
++          "sha256": "148afacfc4b5667c044b1e109d0c1386c358f0965421fa2e690fe462cb49b0c4"
+         },
+         "mapping": {
+           "path": "Baseball/sources/mlb-game/mapping/mlb-game.rml.ttl",

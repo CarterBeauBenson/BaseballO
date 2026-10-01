@@ -1,0 +1,3419 @@
+--- a/Baseball/sources/mlb-game/pipeline/targeted-history-addition.py
++++ b/Baseball/sources/mlb-game/pipeline/targeted-history-addition.py
+@@ -29,6 +29,7 @@
+ MAPPING = HERE.parent / 'mapping/mlb-game.rml.ttl'
+ MAPS = ('PersonalRunnerProcessMap', 'PersonalRunnerIntervalMap', 'PersonalRunnerMembershipMap')
+ COMPLETION = HERE / 'history-completion-candidates.json'
++SELECTION = HERE / 'history-selection-candidates.json'
+ SUCCESS = {'complete', 'already-complete'}
+ 
+ 
+@@ -50,11 +51,16 @@
+ atomic = TX.atomic_json
+ 
+ 
+-def select_history(manifest, case):
++def select_history(manifest, case, raw=None):
+     original = manifest['runnerHistoryReconciliation']
+     if original['inputSha256'] != case['inputSha256'] or original['sourceConsistency'] != 'consistent':
+         raise ValueError('Q7 retained history belongs to another or inconsistent input')
+-    history = H.CONTEXT.isolate_zero_episode_histories(copy.deepcopy(original))
++    if case.get('selectionRepair') == 'H2':
++        if raw is None or hashlib.sha256(raw).hexdigest() != case['inputSha256']:
++            raise ValueError('H2 requires the exact original response')
++        history = H.CONTEXT.personal_runner_histories(raw, previous=original)
++    else:
++        history = H.CONTEXT.isolate_zero_episode_histories(copy.deepcopy(original))
+     previous = {h['lifetimeKey'] for h in original['histories']}
+     selected = [h for h in history['histories'] if h['lifetimeKey'] not in previous]
+     halves = {(int(h['inning']), h['half']) for h in case.get('halves', [case])}
+@@ -127,7 +133,7 @@
+     proof['sourceRevalidation'] = dict(receipt)
+ 
+ 
+-def revalidate(marker, manifest, history, rdf, evidence, java, classpath, delta=None):
++def revalidate(marker, manifest, history, rdf, evidence, java, classpath, delta=None, source_raw=None):
+     """Recheck retained source contracts; never rerun acquisition or source mapping.
+ 
+     Unchanged censuses keep their original producer identity. A separate receipt
+@@ -161,6 +167,10 @@
+             retain_source_binding(proof, marker, field)
+             if proof['authoritativeRdfSha256'] != manifest['outputSha256']:
+                 raise ValueError('Retained admission does not describe the approved base')
++            if source_raw is not None and field in {'runnerHistoryAdmission', 'runnerResolutionAdmission'}:
++                # These source censuses actually change in H2. Generate them
++                # anew below; never stamp the old withheld result as current.
++                continue
+             target = evidence / prior.name
+             for suffix, key in (('.source.json', 'sourceCensusSha256'),
+                                 ('.shapes.ttl', 'shapeSha256'), ('.report.ttl', 'reportSha256')):
+@@ -198,7 +208,48 @@
+             atomic(target, proof)
+             output_fields[field] = str(target)
+             output_fields[field + 'Sha256'] = sha(target)
++    if source_raw is not None:
++        resolution = module(HERE / 'runner-resolution-admission.py', 'h2_resolution')
++        for field, adapter, filename in (('runnerHistoryAdmission', H, 'runner-history-admission.json'),
++                                        ('runnerResolutionAdmission', resolution, 'runner-resolution-admission.json')):
++            output = evidence / filename
++            proof = adapter.prove(raw=source_raw, game_pk=marker['gamePk'], rdf_path=rdf,
++                                  output=output, java=java, classpath=classpath)
++            if not proof.get('graphConforms'):
++                raise ValueError('H2 current source census failed graph conformance: ' + field)
++            output_fields[field] = str(output)
++            output_fields[field + 'Sha256'] = sha(output)
+     return output_fields
++
++
++def acquire_selection_source(state, case):
++    """NiFi acquisition is limited to the exact five hash-bound H2 cases."""
++    inventory = read(SELECTION)
++    if sha(ROOT / 'scripts/pipeline/prepare-rml-context.py') != inventory['contextBuilderSha256']:
++        raise ValueError('H2 context differs from the prepared repair')
++    game_pk = case['gamePk']
++    directory = state / 'pipeline/quarantine/mlb-game' / game_pk / 'targeted-h2'
++    source = directory / 'input.json'; receipt = directory / 'acquisition.json'
++    if receipt.is_file():
++        witness = read(receipt)
++        if not source.is_file() or sha(source) != witness['sha256'] or witness['sha256'] != case['inputSha256']:
++            raise ValueError('H2 retained response differs from its receipt')
++        return witness
++    directory.mkdir(parents=True, exist_ok=True)
++    url = f'https://statsapi.mlb.com/api/v1.1/game/{game_pk}/feed/live'
++    if not source.is_file():
++        with urllib.request.urlopen(urllib.request.Request(url, headers={'Accept': 'application/json'}), timeout=60) as response:
++            raw = response.read()
++        source.write_bytes(raw)
++    # Keep a changed response quarantined with its true hash. Do not retry by
++    # overwriting it or reinterpret its rows against the old episode identities.
++    witness = dict(kind='targeted-reacquisition', gamePk=game_pk, path=str(source), sha256=sha(source),
++        url=url, acquiredAtUtc=TX.now(), scopeDecision=inventory['scopeDecision'],
++        implementationRecord=inventory['implementationRecord'])
++    atomic(receipt, witness)
++    if witness['sha256'] != case['inputSha256'] or str(read(source).get('gamePk')) != game_pk:
++        raise ValueError('H2 response differs from the original hash-bound input; retained for diagnosis')
++    return witness
+ 
+ 
+ def add_game(state, game_pk, java, mapper, classpath):
+@@ -207,12 +258,16 @@
+     case = next((c for c in cases() if c['gamePk'] == game_pk), None)
+     if case is None:
+         raise ValueError('Game is outside the approved Q7 additions')
++    decision = ('archive/design-records/metric-source-c1-operation-2026-09-14/review.json'
++                if case.get('selectionRepair') == 'H2' else DECISION)
++    if read(ROOT / decision)['status'] != 'accepted':
++        raise ValueError('Personal-history contract is not accepted')
+     store = TX.HttpGraphStore('http://127.0.0.1:3031/baseball-dev/data')
+     TX.recover(store, state, game_pk)
+     marker_root = state / 'pipeline/evidence/nifi/game-promotion' / game_pk
+     marker_path = max(marker_root.glob('*.json'), key=lambda p: (read(p)['promotedAtUtc'], p.name))
+     marker = read(marker_path)
+-    if marker.get('targetedAddition', {}).get('decision') == DECISION:
++    if marker.get('targetedAddition', {}).get('decision') == decision:
+         EVENT.emit(state, marker_path)
+         return dict(status='already-complete', promotionEvidence=str(marker_path), **marker['targetedAddition'])
+     if sha(marker_path) != case['promotionManifestSha256']:
+@@ -225,7 +280,9 @@
+     manifest = read(prior_path)
+     if manifest['outputSha256'] != case['authoritativeRdfSha256']:
+         raise ValueError('Q7 retained graph identity changed')
+-    history, delta_context = select_history(manifest, case)
++    witness = acquire_selection_source(state, case) if case.get('selectionRepair') == 'H2' else None
++    raw = Path(witness['path']).read_bytes() if witness else None
++    history, delta_context = select_history(manifest, case, raw)
+     run = uuid.uuid4().hex
+     evidence = state / 'pipeline/evidence/mlb-game' / game_pk / run
+     evidence.mkdir(parents=True)
+@@ -254,8 +311,8 @@
+     combined.serialize(destination=rdf, format='nt')
+     V.verify(dict(gamePk=int(game_pk), _baseballO=dict(runnerHistoryReconciliation=history)), combined)
+     proof_fields = revalidate(marker, manifest, history, rdf, evidence, java, classpath,
+-                              delta=delta if 'selectedHistoryKeys' in case else None)
+-    addition = dict(decision=DECISION, basePromotionSha256=sha(marker_path),
++                              delta=delta if 'selectedHistoryKeys' in case else None, source_raw=raw)
++    addition = dict(decision=decision, basePromotionSha256=sha(marker_path),
+         baseRmlManifestSha256=sha(prior_path), baseRdfSha256=manifest['outputSha256'],
+         baseExportSha256=TX.sha_bytes(base_bytes),
+         deltaPath=str(delta_path), deltaSha256=sha(delta_path),
+@@ -263,10 +320,13 @@
+         contextBuilderSha256=sha(ROOT / 'scripts/pipeline/prepare-rml-context.py'),
+         addedHistories=len(delta_context['histories']), addedTriples=len(combined) - len(base),
+         baseTripleCount=len(base), resultingTripleCount=len(combined),
+-        mutation='additive-graph-store-post', acquiredInputs=0)
++        mutation='additive-graph-store-post', acquiredInputs=int(witness is not None))
+     if 'selectedHistoryKeys' in case:
+-        addition.update(scopeDecision=read(COMPLETION)['scopeDecision'],
+-                        repairInventorySha256=sha(COMPLETION), selectedHistoryKeys=case['selectedHistoryKeys'])
++        inventory = SELECTION if witness else COMPLETION
++        addition.update(scopeDecision=read(inventory)['scopeDecision'],
++                        repairInventorySha256=sha(inventory), selectedHistoryKeys=case['selectedHistoryKeys'])
++    if witness:
++        addition.update(selectionRepair='H2', sourceWitness=witness)
+     promoted = marker_root / (run + '.json')
+     TX.prepare(store, state, game_pk, run)
+     try:
+@@ -307,6 +367,13 @@
+             TX.restore(store, state, game_pk, run, 'targeted-history-addition-failed')
+         raise
+     EVENT.emit(state, promoted)
++    if witness:
++        source_path = Path(witness['path'])
++        if sha(source_path) != witness['sha256']:
++            raise ValueError('H2 source changed before successful-input retirement')
++        source_path.unlink()
++        atomic(evidence / 'cleanup.json', dict(sourceWitness=witness,
++            completedAtUtc=TX.now(), rawRetiredAfterPromotion=True, promotionEvidence=str(promoted)))
+     return dict(status='complete', promotionEvidence=str(promoted), **addition)
+ 
+ 
+@@ -329,11 +396,13 @@
+ 
+ 
+ def cases():
+-    return read(PACKAGE / 'source-evidence.json')['cases'] + read(COMPLETION)['cases']
++    selection = [dict(case, selectionRepair='H2') for case in read(SELECTION)['cases']] if SELECTION.is_file() else []
++    return selection + read(PACKAGE / 'source-evidence.json')['cases'] + read(COMPLETION)['cases']
+ 
+ 
+ def fingerprint():
+     return hashlib.sha256(Path(__file__).read_bytes() + COMPLETION.read_bytes() +
++        (SELECTION.read_bytes() if SELECTION.is_file() else b'') +
+         (ROOT / 'scripts/pipeline/prepare-rml-context.py').read_bytes()).hexdigest()
+ 
+ 
+--- /dev/null
++++ b/Baseball/sources/mlb-game/pipeline/history-selection-candidates.json
+@@ -0,0 +1,116 @@
++{
++  "artifactType": "baseballo-targeted-history-repair-inventory",
++  "scopeDecision": "archive/design-records/metric-repair-scope-2026-09-30/README.md",
++  "implementationRecord": "archive/design-records/metric-source-c1-operation-2026-09-14/history-repair-2026-10-01.md",
++  "contextBuilderSha256": "148afacfc4b5667c044b1e109d0c1386c358f0965421fa2e690fe462cb49b0c4",
++  "cases": [
++    {
++      "gamePk": "849842",
++      "inputSha256": "5493a47579a150d7254b136a495f032958fd289dcf84ac80060cc5dd87dd8599",
++      "promotionManifestSha256": "2b6866f64f4dfd46ae21d60cdee70f8e314611cc16f24e13396fd2f7ef4069fb",
++      "rmlManifestSha256": "a0179460b6ce694188266a4d5179edab1b0da3da88e3efdcb34f82fe8c8999aa",
++      "authoritativeRdfSha256": "53dd1aa23c0e40748b67020f1d1a90638a2fd229f8aa455468603f685d16bd85",
++      "selectedHistoryKeys": [
++        "2a0bde48ada74897510ad5077034bba86d13563c54f35a68d17e7854b761fee6"
++      ],
++      "halves": [
++        {
++          "inning": 6,
++          "half": "bottom"
++        }
++      ],
++      "selectedHistories": 1
++    },
++    {
++      "gamePk": "849848",
++      "inputSha256": "ca3fbe4ff8088db6911269f8f7a3b922005d584dd97a8c0645f6574ad7c2c491",
++      "promotionManifestSha256": "edc9c135c7f77b62315bfb7c3ce068832997dec287fc8c33cadf513ddab19a1c",
++      "rmlManifestSha256": "e6e2f25639ba872ede5aee13edce6adbf1c4dbd03b411f6fa7de9fdcfbb682d3",
++      "authoritativeRdfSha256": "a8e7e22453e9f129d0162a913f377007cd9191936f519552a347169bfdc6394b",
++      "selectedHistoryKeys": [
++        "0cc5b8f0647f1169f2bd362c1c4463d3352a2a83c1677099c7c999d20054b9b5",
++        "1bb3e96425c9887c6494e70d5d5e746a2e383794619b019e7c1ec5a44683f6d4",
++        "4a86f73dc4c3dc153701f03662dc00177d1d488991c07dbc83502a93870c39be",
++        "57d6e92b1c744990c3380b5a05d38d8db1e8572c2f9367971033b7aa72a91abf",
++        "6b1a69e8892c76634c662ae6153e78c5f61a6203e3e3da093501c5b961fba36a",
++        "846518a95fcd86da91f6d506eb4a5cc865ea4ed4607f98a499976f70d08ab9d4",
++        "909e8342110ee7d1c1e139c6f57363874d19e63b99f7490651a8a84e70254d02",
++        "ec755e17c4986291ec6281f5d2d5b4fb2e2c5db5ba9666c9820fb107544eb1ab"
++      ],
++      "halves": [
++        {
++          "inning": 6,
++          "half": "bottom"
++        },
++        {
++          "inning": 6,
++          "half": "top"
++        }
++      ],
++      "selectedHistories": 8
++    },
++    {
++      "gamePk": "849843",
++      "inputSha256": "3878284bc9b33b74d51467a381913c16ce7727d6ec2b57316cd356556302ef66",
++      "promotionManifestSha256": "c1e211080461947cf47987158c8cf0c2c31e35dd57b5e28e95c7582cf238d71b",
++      "rmlManifestSha256": "a14502387793f06b71a49e2cb3843f7e41c10b3c8e6eba6517bc0a465c479335",
++      "authoritativeRdfSha256": "96fdc0a8dee902605641c6ea0ab721699d5331d3ba1cd9c24551017e94a7ca34",
++      "selectedHistoryKeys": [
++        "09e32157176e038e3b184bf46a5f6b1c8f09e220775f23f5c4470157344003a7",
++        "4cad5ba30f263ac2d543a3b1e92aebc545580d16e66550609e778e03d5e2d44a",
++        "4fab33468b02031ebaf1020acd2802422eef02d2e6853eb8ee0c47498b7a0e93",
++        "5713efbab21ba2521ab269e2ee0e26b6047ddaa180b9743b22e9fc7635df168a",
++        "b990000490f6a5118911ed6b6b623d2d1ab9d188e1b66ae624a5484879905a77",
++        "c119bf665160766cffeb4c90b2c692f28291ce80a25c543ea730b9cf93577058",
++        "fbca9f46f38aa3ac09f17ed127f7d55784f2d3688b6cd975f1ece3e10cc0ed44"
++      ],
++      "halves": [
++        {
++          "inning": 5,
++          "half": "bottom"
++        },
++        {
++          "inning": 7,
++          "half": "bottom"
++        }
++      ],
++      "selectedHistories": 7
++    },
++    {
++      "gamePk": "849845",
++      "inputSha256": "ec45c3cf02a30410fc8ef9aa6146bc7b4a001dfd6ef2ba48d5c88d2862fc8ba2",
++      "promotionManifestSha256": "7a9863fb91aeaeb1e88376627a4f819dfcb2b3c12327bb58e37cda57bdefb8de",
++      "rmlManifestSha256": "d91010b88fd253da95900c968da696515ec002da73fb74f41770bf5121441168",
++      "authoritativeRdfSha256": "5554a693074deb2374d65f956fbf076346f995a63809ab5b6f022fcc762e1324",
++      "selectedHistoryKeys": [
++        "4cbf5ab2d4d571d7aa26f6cde81e9c9cb77201deef820fa3d6bed5fa1dbc5740",
++        "5e5fa8e852049cda2f4e6e89685857acfeaf091b714cc1fa4d8032a767389a71",
++        "c18d551e90152680a62360ea7fc1f585efe327160c0aa9d55bc7f462582aadd5"
++      ],
++      "halves": [
++        {
++          "inning": 8,
++          "half": "bottom"
++        }
++      ],
++      "selectedHistories": 3
++    },
++    {
++      "gamePk": "849849",
++      "inputSha256": "70e585df58a4cbc926699f0ca29e68fc92aedf04fd04a9f5f1697607193bbecc",
++      "promotionManifestSha256": "c01d0029ab8f299434616870592351dceefdc9ba646c53677c483526aff6ab63",
++      "rmlManifestSha256": "538f62c0c3224fd4e32eb9dad135f7bfd6d556cae4cc2f18a842e12e03841d50",
++      "authoritativeRdfSha256": "6c935daae1843d4a4eaf11fc2edb0f4bca3db966125e8cab101d34587fb640a1",
++      "selectedHistoryKeys": [
++        "46093cb4a74e24be7feb3f5d3e577dc4af2db83dc11acacccd6dedac2c58b6b3"
++      ],
++      "halves": [
++        {
++          "inning": 4,
++          "half": "top"
++        }
++      ],
++      "selectedHistories": 1
++    }
++  ]
++}
+--- a/Baseball/sources/mlb-game/pipeline/admission-evidence.py
++++ b/Baseball/sources/mlb-game/pipeline/admission-evidence.py
+@@ -61,7 +61,7 @@
+         +(HERE/'existing-graph-admissions.py').read_bytes()+(HERE/'retained-census-admissions.py').read_bytes()).hexdigest()
+ 
+ 
+-def code_equivalence(family,previous,current):
++def code_equivalence(family,previous,current,*,_context=None):
+     """Pinned compatible edits, not blanket acceptance of stale proofs.
+ 
+     The regression compares both exact context revisions and the transitive
+@@ -71,14 +71,27 @@
+     record=read(COMPATIBILITY_PATH)
+     compound=record.get('compoundResultRepair',{})
+     groundout=record.get('defensiveGroundoutRepair',{})
+-    context=sha(ROOT/record['contextPath'])
++    context=_context or sha(ROOT/record['contextPath'])
++    history=record.get('historySelectionRepair',{})
++    bridge=history.get('families',{}).get(family)
++    if (bridge and context==history.get('currentContextSha256')
++            and current==bridge['currentImplementationSha256']):
++        prior=bridge['previousImplementationSha256']
++        reused=(dict(kind=bridge['reuseKind']) if previous==prior else
++            code_equivalence(family,previous,prior,_context=history['previousContextSha256']))
++        if reused is not None:
++            if bridge['reuseKind']!='unchanged-proof-dependencies' and reused['kind']=='unchanged-proof-dependencies':
++                reused=dict(reused,kind=bridge['reuseKind'])
++            return dict(reused,recordSha256=sha(COMPATIBILITY_PATH),
++                previousImplementationSha256=previous,currentImplementationSha256=current,
++                historySelectionRecord=history['implementationRecord'])
+     bridge=groundout.get('families',{}).get(family)
+     if (bridge and current==bridge['currentImplementationSha256'] and previous!=current
+             and current!=bridge['previousImplementationSha256']
+             and context==groundout.get('currentContextSha256')):
+         prior=bridge['previousImplementationSha256']
+         reused=(dict(kind='unchanged-proof-dependencies') if previous==prior
+-                else code_equivalence(family,previous,prior))
++                else code_equivalence(family,previous,prior,_context=context))
+         if reused is not None:
+             if family=='defensive':reused=dict(reused,kind='prior-stricter-defensive-selection')
+             return dict(reused,recordSha256=sha(COMPATIBILITY_PATH),previousImplementationSha256=previous,
+@@ -90,7 +103,7 @@
+         if current!=prior:
+             reused=(dict(kind='prior-stricter-compound-result' if family=='batting' else 'unchanged-proof-dependencies')
+                     if previous in {prior,*bridge.get('previousImplementationSha256s',[])}
+-                    else code_equivalence(family,previous,prior))
++                    else code_equivalence(family,previous,prior,_context=context))
+             if reused is not None:
+                 if family=='batting':reused=dict(reused,kind='prior-stricter-compound-result')
+                 return dict(reused,recordSha256=sha(COMPATIBILITY_PATH),previousImplementationSha256=previous,
+@@ -103,7 +116,7 @@
+         prior=bridge['previousImplementationSha256']
+         reused=(dict(kind='prior-stricter-walk-selection' if family in {'pitch-count','runner-boundary'}
+                      else 'unchanged-proof-dependencies') if previous==prior
+-                else code_equivalence(family,previous,prior))
++                else code_equivalence(family,previous,prior,_context=context))
+         if reused is not None:
+             if family in {'pitch-count','runner-boundary'} and reused['kind']=='unchanged-proof-dependencies':
+                 reused=dict(reused,kind='prior-stricter-walk-selection')
+@@ -115,7 +128,7 @@
+             and context_matches(isolation['currentContextSha256'],walk.get('currentContextSha256'))):
+         prior=bridge['previousImplementationSha256']
+         reused=(dict(kind='prior-stricter-history-selection' if family=='runner-boundary' else 'unchanged-proof-dependencies')
+-                if previous==prior else code_equivalence(family,previous,prior))
++                if previous==prior else code_equivalence(family,previous,prior,_context=context))
+         if reused is not None:
+             return dict(reused,recordSha256=sha(COMPATIBILITY_PATH),previousImplementationSha256=previous,
+                 currentImplementationSha256=current,viaPreviousImplementationSha256=prior,
+@@ -146,6 +159,11 @@
+     and must be checked again; this is never approval of W1's missing facts.
+     """
+     record=read(COMPATIBILITY_PATH)
++    history=record.get('historySelectionRepair',{})
++    entry=history.get('derivedProofs',{}).get(kind,{})
++    if (entry.get('currentImplementationSha256')==current
++            and sha(ROOT/record['contextPath'])==history.get('currentContextSha256')):
++        return entry['previousImplementationSha256s']
+     selection=record.get('retainedCompoundExpectations',{})
+     entry=selection.get('derivedProofs',{}).get(kind,{})
+     if (entry.get('currentImplementationSha256')==current
+--- a/Baseball/sources/mlb-game/pipeline/existing-graph-admissions.py
++++ b/Baseball/sources/mlb-game/pipeline/existing-graph-admissions.py
+@@ -25,7 +25,7 @@
+         compatibility=evidence.read(evidence.COMPATIBILITY_PATH)
+         context=evidence.sha(evidence.ROOT/'scripts/pipeline/prepare-rml-context.py')
+         candidates=[]
+-        for name in ('defensiveGroundoutRepair','compoundResultRepair','intentionalWalkPrefix'):
++        for name in ('historySelectionRepair','defensiveGroundoutRepair','compoundResultRepair','intentionalWalkPrefix'):
+             repair=compatibility.get(name,{})
+             entry=repair.get('independentProofs',{}).get(family,{})
+             if entry.get('currentImplementationSha256')==version and context==repair.get('currentContextSha256'):
+--- a/Baseball/sources/mlb-game/pipeline/context-proof-compatibility.json
++++ b/Baseball/sources/mlb-game/pipeline/context-proof-compatibility.json
+@@ -552,5 +552,227 @@
+         ]
+       }
+     }
++  },
++  "historySelectionRepair": {
++    "previousContextSha256": "48f1f0daa2cfde9b899a5dad6bcf68f9eb7bcb9a1189715f2e3a2c7e9e432d5d",
++    "currentContextSha256": "148afacfc4b5667c044b1e109d0c1386c358f0965421fa2e690fe462cb49b0c4",
++    "implementationRecord": "archive/design-records/metric-source-c1-operation-2026-09-14/history-repair-2026-10-01.md",
++    "families": {
++      "batting": {
++        "previousImplementationSha256": "9698a0dd9bbd495dfe36cfc937cd3280e30c88a3fa1e6f9bd50ad24eeeee1358",
++        "currentImplementationSha256": "9698a0dd9bbd495dfe36cfc937cd3280e30c88a3fa1e6f9bd50ad24eeeee1358",
++        "reuseKind": "unchanged-proof-dependencies"
++      },
++      "scoring-run": {
++        "previousImplementationSha256": "727b5e760bdfdf2a7189f979f9018279383ed058f9b43e57d4dcbe43db6b283e",
++        "currentImplementationSha256": "727b5e760bdfdf2a7189f979f9018279383ed058f9b43e57d4dcbe43db6b283e",
++        "reuseKind": "unchanged-proof-dependencies"
++      },
++      "runner-resolution": {
++        "previousImplementationSha256": "ec5cfc714ac81b6b7e4f3d4977f7d3f0985324e3d87e849a174b7185c478b51a",
++        "currentImplementationSha256": "1aa854079f28b27f34053aa6a3e714dbe3583ef7ca39ffb5a386d5a655b15009",
++        "reuseKind": "prior-stricter-history-selection"
++      },
++      "pitch-count": {
++        "previousImplementationSha256": "ab704fa73f6b4d873bd1f70d463e87ea3c765b788a6fc98c7ba244449bd86361",
++        "currentImplementationSha256": "652ec664b539ad68d04f0de9cd7d0c10450b2158882a45457e25eea67fc172f4",
++        "reuseKind": "prior-stricter-history-selection"
++      },
++      "runner-boundary": {
++        "previousImplementationSha256": "299dee5f97d0bd7075e28ddd5fe0a0b205a384c27eae87acd1d2e2a1dba236b8",
++        "currentImplementationSha256": "9c4b4cc3fc1767b1fa9776b73336d50b9a7da7c07d48f1b55799090786b100b9",
++        "reuseKind": "prior-stricter-history-selection"
++      },
++      "defensive": {
++        "previousImplementationSha256": "a0db11aeb4e7afdfed01f1754d9d4d9a18782c97794a33d27c9b44eb9a0f59a1",
++        "currentImplementationSha256": "3f1bc6481fcfa3587c2ac37a8d065dd1ab1ed6c76034631de3f21449156a290e",
++        "reuseKind": "unchanged-proof-dependencies"
++      }
++    },
++    "derivedProofs": {
++      "players": {
++        "currentImplementationSha256": "9d8ffd862fa5e4e0849218570c74a8e60b54f319ed24b3fed73a0e37a3979547",
++        "previousImplementationSha256s": [
++          "df540b869db8c02ab3b9d58317de8fcb227c8223e0418378b53768deea48cbfd",
++          "ff3ee02cf238f48d6831fd5b60a3bee763694791d7eb9cd68432cf75e6935da9",
++          "e275ed04756c05c8fb8abed9662722ea98ab5b84601a982deba90964078943b0",
++          "eec79277b51bd8ee75abadd782b9d595e7cdde37c5305e15fef5c7162d4226e4",
++          "50aa783f28c5846f60be79dadb25ab5bf9d906bfcfa4572f3f1cf2ebfed9f08e",
++          "f6c6ab2040b1cf3a497e1445c314e15e35824dc64ce8ec666ac6a4cd463d0094"
++        ]
++      },
++      "pa": {
++        "currentImplementationSha256": "2996ba1c244d21deb3c78614bc6ce0cd8d3e27f546674ede73ceb867c2e15582",
++        "previousImplementationSha256s": [
++          "28ac65202e48dfec58cab9807d3e101cf744b75f08031fd12c00a91e7bc39d90",
++          "4394aa6c44721748f27bb373c3c8ed5c0f119dc8df4c9a201bed18abbd86c3de",
++          "d20f35699a24ec5009e473902a6d3a690b8b93114584e3d69735ff3702aa9fe5",
++          "28ae860bd0d01aedf5545469ba19c8cc9e8c039d7b6298d7cb834af1ae16c6a2",
++          "2b5ec76b132a89331c77b48f168d37a66872d3b9f52420a4dedc76a838748651"
++        ]
++      },
++      "c2pa": {
++        "currentImplementationSha256": "4f56fb56d78cfc9426cf19ebc7694a65816083a8c057f98a66554792cf36f543",
++        "previousImplementationSha256s": [
++          "9d4a2a9e97e051374ab0bee7faf95e3c8d1c6951c1c517be40c789f431f12116",
++          "45d11a02b9baeb6ef83b34941c8f3cece2160cbb1607402b28e5d6f5b885f4d2",
++          "b4b34a14c10a12b4b318cd213b83b5e7ad540525d14f050a03e8eb63061bc017",
++          "222abe1d2c719f4e6abe93c56ebbce27b325c77b9299e8f87e78bd7a86ab9dfd",
++          "d822838c45cbfc45e37cee31d40c22d4c5d50e75a82383bdca67bb5a998a46b2"
++        ]
++      },
++      "retained-batting": {
++        "currentImplementationSha256": "34c2054b180b256103fbeaa4537fc44738407923d906d61ca027d2b4a6ed4b69",
++        "previousImplementationSha256s": [
++          "34c2054b180b256103fbeaa4537fc44738407923d906d61ca027d2b4a6ed4b69",
++          "6cd6b3b9f3e1dff50c1444cf99b22d8572ad653dad820e8f8dae402ef551a070"
++        ]
++      }
++    },
++    "independentProofs": {
++      "batting": {
++        "currentImplementationSha256": "caeb38e15e8b03e777afa53d61ccfba18a6a886e44b644a84f246c4d4ef28a9b",
++        "previous": [
++          {
++            "previousImplementationSha256": "cf4f9e70ef93d7fc9c0c61f0c2e2602b8c7e435a6ac4b183342cd8ce428806d2",
++            "previousSourceProducerSha256": "9698a0dd9bbd495dfe36cfc937cd3280e30c88a3fa1e6f9bd50ad24eeeee1358"
++          },
++          {
++            "previousImplementationSha256": "963e007d100869cafa11bc9facfee73a1c9727c9ce9469bffd5e367d20624806",
++            "previousSourceProducerSha256": "9698a0dd9bbd495dfe36cfc937cd3280e30c88a3fa1e6f9bd50ad24eeeee1358"
++          },
++          {
++            "previousImplementationSha256": "624dd669413e7b7a2f320a84153b735fc6f6188e49b318c174b0005a30f5a602",
++            "previousSourceProducerSha256": "42e5f5c4b7fd1b12d922703283511fe485df55800fe17b2fb627b32e367cf1f7"
++          },
++          {
++            "previousImplementationSha256": "6eef67245fd40b95baf1b7e0e1e5375d7f7b7d1eb86d2aebe50859accb0b4f26",
++            "previousSourceProducerSha256": "42e5f5c4b7fd1b12d922703283511fe485df55800fe17b2fb627b32e367cf1f7"
++          }
++        ]
++      },
++      "scoring-run": {
++        "currentImplementationSha256": "8bc23112b64162234eaf49bed39f594bc3a91bcb83f957b891d3af1489cecb74",
++        "previous": [
++          {
++            "previousImplementationSha256": "e4d11ce210273b993b1f87f83ff95727ad989c20e8fc84c373ccb8840434a987",
++            "previousSourceProducerSha256": "727b5e760bdfdf2a7189f979f9018279383ed058f9b43e57d4dcbe43db6b283e"
++          },
++          {
++            "previousImplementationSha256": "565d79a40d04380c8a45433cf00d942ca93e84d2feb63f499d698b6a335cefa1",
++            "previousSourceProducerSha256": "727b5e760bdfdf2a7189f979f9018279383ed058f9b43e57d4dcbe43db6b283e"
++          },
++          {
++            "previousImplementationSha256": "ef9db6913cb1f0e120325b08751290e285e25034d70a4933aad6cfd57e961311",
++            "previousSourceProducerSha256": "03088132d1783d274a08f6a2d2a5ff9858ffd04f519b2a4bfcb9011e7ccf0f9d"
++          },
++          {
++            "previousImplementationSha256": "8db89e9879a0d794b8590f2ec8c4525b063b08650d01e6ced3e0c2dfaf75944c",
++            "previousSourceProducerSha256": "03088132d1783d274a08f6a2d2a5ff9858ffd04f519b2a4bfcb9011e7ccf0f9d"
++          }
++        ]
++      },
++      "runner-resolution": {
++        "currentImplementationSha256": "c442fd2b405d1aaad8e4234bac6a05b6ef9c62cbb698a9d34edcd8143c28981a",
++        "previous": [
++          {
++            "previousImplementationSha256": "da045258bd19144759d29ebdc032bf874d05dd76c86161aa19da7ca0313f0c26",
++            "previousSourceProducerSha256": "ec5cfc714ac81b6b7e4f3d4977f7d3f0985324e3d87e849a174b7185c478b51a"
++          },
++          {
++            "previousImplementationSha256": "7c2f3f28a9769499d8185037fa0a9139bfcddd171574e8ce9b16b8e453e078ac",
++            "previousSourceProducerSha256": "cde002c6048b62918e59c4fe793dbc839d51f12a5763947dfccba120036a6ffa"
++          },
++          {
++            "previousImplementationSha256": "699bcfe3bd9f34c3675a8154522389df361ea932574668c9de5f9186c948e181",
++            "previousSourceProducerSha256": "a6de12ee62eb669b644f7d57b04ef30d88145622f19df32f9bb3e515b62fbe9a"
++          },
++          {
++            "previousImplementationSha256": "0e447e80992e022f34c93f1229b9aee0cff91382847f7fd558d1bf33027d8c21",
++            "previousSourceProducerSha256": "6a7d47ec9dffcb89fdd0883426515f55cb9a4b53d14c54c3ba7ebeeeca8deb10"
++          },
++          {
++            "previousImplementationSha256": "3054fe607b7a1a83f6b416fe59fbebc7a009c115bd3d523280d6fe07280671a6",
++            "previousSourceProducerSha256": "658ba1c9cf75eb14e05bbe08b87e75d4d6195dbf2a9619c361080a636d57ae3a"
++          }
++        ]
++      },
++      "pitch-count": {
++        "currentImplementationSha256": "7287fd5c493ce3db21de795b0faa6cc937613625d0afc6072fe952b599a72157",
++        "previous": [
++          {
++            "previousImplementationSha256": "68d52cfa94866246fb3c02e4e8e10a0b49cf54235ed8ef6fcfe082b1a9b90121",
++            "previousSourceProducerSha256": "ab704fa73f6b4d873bd1f70d463e87ea3c765b788a6fc98c7ba244449bd86361"
++          },
++          {
++            "previousImplementationSha256": "65bd3a199720cd0688716032e3f8c8e3d94047d46115a494837bc5991e7e12ce",
++            "previousSourceProducerSha256": "03f5d91d7c5ecbc042a8f1c607e112d9548b2342e602c263c74cdba92458acf5"
++          },
++          {
++            "previousImplementationSha256": "10efe1a6d8f841cd541edce85c92dd118a11cc0d6560ffe10fd43453e4b0f26f",
++            "previousSourceProducerSha256": "792dd07987c6a53b0889f5392c052a3a9aa3421c1743cf4f26a6ac4599cda1f1"
++          },
++          {
++            "previousImplementationSha256": "695d13b1e71a29ad6454867ff3970d956bf55a878c1db469684e728e8bfc237b",
++            "previousSourceProducerSha256": "d4841482490672d0fb9d1a0fe59123849ce1202443b4fcba12ba1d2b82953490"
++          },
++          {
++            "previousImplementationSha256": "9234103b03dd8ae53ceb98b2fc975dd210d4fe5d39b0608548b64b75bcf65b93",
++            "previousSourceProducerSha256": "5f4f323463e042308c364be105f4a6e93d6225515985b6667f70ce017cf587ae"
++          }
++        ]
++      },
++      "runner-boundary": {
++        "currentImplementationSha256": "fac7ef083bb519014c9fe8875fd1b69ed32a121ec573bbd3627d9a70d9ec305b",
++        "previous": [
++          {
++            "previousImplementationSha256": "f2edd1c5cad43f83c99338db25844c28ffb61f8db887d31fd0e2962d4794f980",
++            "previousSourceProducerSha256": "299dee5f97d0bd7075e28ddd5fe0a0b205a384c27eae87acd1d2e2a1dba236b8"
++          },
++          {
++            "previousImplementationSha256": "8789ae2a01f4b7b8022ce68bfd236bb4ef16f86666129affd05cb347b50faa9a",
++            "previousSourceProducerSha256": "043782f45ef1a55fc88b5c15e4f9be88db5121f196d36854fef9adc689de8776"
++          },
++          {
++            "previousImplementationSha256": "ea328302863d354aefc2ba29d88c0a9b590e1d22dab476cbc1c073a4a5494527",
++            "previousSourceProducerSha256": "4582bd96662f4679b673c5d276c8810cf56ca2a3c37f4ce47a2615f1e455be7b"
++          },
++          {
++            "previousImplementationSha256": "6ac8d11d5408bec1bc558f9d021a7d8ae874fda77df7485a1713683e99d5ba30",
++            "previousSourceProducerSha256": "33a010bf5645cc5804b8c6bc786de4f037edcb135ba8039e27925acbc4931094"
++          },
++          {
++            "previousImplementationSha256": "d004d9b6498c535bff2ce59782763389c9b4d2f0afb3419040c2bd6ff37e7315",
++            "previousSourceProducerSha256": "02d18dc89878601e07d1264c7af865c07c945313db3279e51437f5bdc5d8c802"
++          }
++        ]
++      },
++      "defensive": {
++        "currentImplementationSha256": "5003e6a678c336372fb810e2004056977db49685cde9dd1dbcd21149e26c7c7d",
++        "previous": [
++          {
++            "previousImplementationSha256": "5baa163a568771a36d9597069afd754ba2ca042ecff1f550e79944e80434a955",
++            "previousSourceProducerSha256": "a0db11aeb4e7afdfed01f1754d9d4d9a18782c97794a33d27c9b44eb9a0f59a1"
++          },
++          {
++            "previousImplementationSha256": "4eb0d1c8cb4dd5bab5c98a2c9002738f5fc435652c6c3c77bd4315fefe1528ab",
++            "previousSourceProducerSha256": "018441d1706622c5ea4bcda5700abfa3741ab690e697548b59a72c564346a1fe"
++          },
++          {
++            "previousImplementationSha256": "4f0355fe4efaa0c4e9f1f8a1b4d0553c1e73a8844cee693ecb3c78da8733312b",
++            "previousSourceProducerSha256": "7da7877b59db73b1c1678c71ecf525fd67b61095d5a44a369bdcb5e18f166188"
++          },
++          {
++            "previousImplementationSha256": "f313bc3f6de86b6df1c30db3c4a85f68a55c91a54cc376f37612ce4ae9a7f4fe",
++            "previousSourceProducerSha256": "4e4e253d8e04ccc662ed03a006817915b3ffc9ea4d21eaf7721af5e8c352b3cd"
++          },
++          {
++            "previousImplementationSha256": "a037ab33e634196efc76be043291534525b5547e237b49fd9975d203d09d02a1",
++            "previousSourceProducerSha256": "72af34c79834439a7ff5e52b2ac7161fe077908a1445cbc804a0dd8a63c27032"
++          }
++        ]
++      }
++    },
++    "baselineCommit": "86a4711b0f30300ee2d988a701f550645b027686"
+   }
+ }
+--- /dev/null
++++ b/Baseball/sources/mlb-game/tests/test_history_selection_repair.py
+@@ -0,0 +1,82 @@
++"""Regression cases from the five exact September 29/30 source responses."""
++import copy
++import json
++import unittest
++from pathlib import Path
++
++from test_runner_structural_patterns import CONTEXT
++
++CASES = json.loads((Path(__file__).parent/'fixtures/history-selection-cases.json').read_text())['cases']
++
++
++def play(game, pa):
++    return copy.deepcopy(next(c['play'] for c in CASES
++        if c['gamePk'] == str(game) and c['play']['atBatIndex'] == pa))
++
++
++class HistorySelectionRepair(unittest.TestCase):
++    def test_final_reviews_keep_original_call_and_pitch_review_separate(self):
++        for game, pa in [(849848,41), (849848,43), (849843,56), (849845,64), (849849,29)]:
++            with self.subTest(game=game, pa=pa):
++                p = play(game, pa); before = copy.deepcopy(p)
++                result = CONTEXT.accounted_runner_history_reviews(p)
++                self.assertEqual(result['issues'], [])
++                self.assertEqual(p, before)
++                self.assertNotIn('originalDecision', result.get('accountedFieldReview', {}))
++                self.assertTrue(CONTEXT.accounted_runner_count_reviews(p)['issues'])
++        # The earlier ABS review remains accounted independently of the final shift review.
++        self.assertEqual(CONTEXT.accounted_runner_history_reviews(play(849849,29))['events'][2]['kind'], 'strike')
++
++    def test_unknown_pending_or_conflicting_terminal_review_remains_withheld(self):
++        for game, pa in [(849848,41), (849848,43), (849845,64), (849849,29)]:
++            for fault in ('pending','mechanism','disposition','narrative','identity','movement'):
++                with self.subTest(game=game, fault=fault):
++                    p = play(game,pa)
++                    if fault == 'pending': p['reviewDetails']['inProgress'] = True
++                    elif fault == 'mechanism': p['reviewDetails']['reviewType'] = 'UNKNOWN'
++                    elif fault == 'disposition': p['reviewDetails']['isOverturned'] = not p['reviewDetails']['isOverturned']
++                    elif fault == 'narrative': p['result']['description'] = 'Review result unknown.'
++                    elif fault == 'identity': p['playEvents'][-1].pop('playId')
++                    else: p['runners'][-1]['movement']['isOut'] = None
++                    self.assertTrue(CONTEXT.accounted_runner_history_reviews(p)['issues'])
++
++    def test_reviewed_uncaught_third_strike_keeps_one_real_movement(self):
++        p = play(849848,43)
++        self.assertEqual(CONTEXT.nonmovement_strikeout_records(p), {0:1})
++        self.assertEqual(len(CONTEXT.runner_episode_evidence(p,'43')['runnerEpisodes']), 1)
++        for fault in ('pending','safe-companion','post-state','null-record'):
++            q = copy.deepcopy(p)
++            if fault == 'pending': q['reviewDetails']['inProgress'] = True
++            elif fault == 'safe-companion': q['runners'][1]['movement']['end'] = '2B'
++            elif fault == 'post-state': q['matchup'].pop('postOnFirst')
++            else: q['runners'][0]['movement']['isOut'] = False
++            self.assertEqual(CONTEXT.nonmovement_strikeout_records(q), {}, fault)
++
++    def test_pickoff_requires_association_person_count_and_final_out(self):
++        p = play(849843,56)
++        self.assertTrue(CONTEXT.completed_pickoff_review(p,2)['overturned'])
++        for fault in ('association','person','count','out','text','pending'):
++            q = copy.deepcopy(p); event = q['playEvents'][2]
++            if fault == 'association': event['actionPlayId'] = 'unmatched'
++            elif fault == 'person': event['player']['id'] += 1
++            elif fault == 'count': event['count']['outs'] += 1
++            elif fault == 'out': q['runners'][0]['movement']['isOut'] = False
++            elif fault == 'text': event['details']['description'] = event['details']['description'].replace('Dustin Harris','Different Person')
++            else: event['reviewDetails']['inProgress'] = True
++            self.assertIsNone(CONTEXT.completed_pickoff_review(q,2), fault)
++
++    def test_overlapping_passed_ball_needs_independent_association_and_count(self):
++        p = play(849843,41); earlier, following = p['playEvents'][1], p['playEvents'][3]
++        self.assertLess(following['startTime'], earlier['endTime'])
++        self.assertTrue(CONTEXT.reconciled_action_pitch_overlap(p,earlier,following))
++        for fault in ('association','count','unknown-call','runner-effect','another-pa'):
++            q = copy.deepcopy(p); a,b = q['playEvents'][1],q['playEvents'][3]
++            if fault == 'association': a['actionPlayId'] = 'unmatched'
++            elif fault == 'count': b['count']['strikes'] = 2
++            elif fault == 'unknown-call': b['details']['call']['code'] = 'unknown'
++            elif fault == 'runner-effect': q['runners'][0]['details']['playIndex'] = b['index']
++            else: a = copy.deepcopy(a)
++            self.assertFalse(CONTEXT.reconciled_action_pitch_overlap(q,a,b), fault)
++
++
++if __name__ == '__main__': unittest.main()
+--- /dev/null
++++ b/Baseball/sources/mlb-game/tests/fixtures/history-selection-cases.json
+@@ -0,0 +1,2659 @@
++{
++  "kind": "derived-test-projection-not-ingest-input",
++  "cases": [
++    {
++      "gamePk": "849842",
++      "inputSha256": "5493a47579a150d7254b136a495f032958fd289dcf84ac80060cc5dd87dd8599",
++      "play": {
++        "result": {
++          "type": "atBat",
++          "event": "Lineout",
++          "eventType": "field_out",
++          "description": "Xander Bogaerts lines out, second baseman Nico Hoerner to first baseman Michael Busch.",
++          "rbi": 0,
++          "awayScore": 1,
++          "homeScore": 4,
++          "isOut": true
++        },
++        "about": {
++          "atBatIndex": 48,
++          "halfInning": "bottom",
++          "isTopInning": false,
++          "inning": 6,
++          "startTime": "2026-10-01T04:02:27.140Z",
++          "endTime": "2026-10-01T04:05:25.830Z",
++          "isComplete": true,
++          "isScoringPlay": false,
++          "hasReview": false,
++          "hasOut": true,
++          "captivatingIndex": 0
++        },
++        "count": {
++          "balls": 3,
++          "strikes": 2,
++          "outs": 2
++        },
++        "matchup": {
++          "batter": {
++            "id": 593428,
++            "fullName": "Xander Bogaerts",
++            "link": "/api/v1/people/593428"
++          },
++          "batSide": {
++            "code": "R",
++            "description": "Right"
++          },
++          "pitcher": {
++            "id": 656849,
++            "fullName": "David Peterson",
++            "link": "/api/v1/people/656849"
++          },
++          "pitchHand": {
++            "code": "L",
++            "description": "Left"
++          },
++          "batterHotColdZones": [],
++          "pitcherHotColdZones": [],
++          "splits": {
++            "batter": "vs_LHP",
++            "pitcher": "vs_RHB",
++            "menOnBase": "Empty"
++          }
++        },
++        "pitchIndex": [
++          0,
++          2,
++          3,
++          4,
++          5,
++          6,
++          8
++        ],
++        "actionIndex": [
++          7
++        ],
++        "runnerIndex": [
++          0,
++          1
++        ],
++        "runners": [
++          {
++            "movement": {
++              "originBase": "1B",
++              "start": "1B",
++              "end": null,
++              "outBase": "2B",
++              "isOut": true,
++              "outNumber": 1
++            },
++            "details": {
++              "event": "Pickoff Caught Stealing 2B",
++              "eventType": "pickoff_caught_stealing_2b",
++              "movementReason": "r_pickoff_caught_stealing_2b",
++              "runner": {
++                "id": 701538,
++                "fullName": "Jackson Merrill",
++                "link": "/api/v1/people/701538"
++              },
++              "responsiblePitcher": null,
++              "isScoringEvent": false,
++              "rbi": false,
++              "earned": false,
++              "teamUnearned": false,
++              "playIndex": 7
++            },
++            "credits": [
++              {
++                "player": {
++                  "id": 656849,
++                  "link": "/api/v1/people/656849"
++                },
++                "position": {
++                  "code": "1",
++                  "name": "Pitcher",
++                  "type": "Pitcher",
++                  "abbreviation": "P"
++                },
++                "credit": "f_assist"
++              },
++              {
++                "player": {
++                  "id": 683737,
++                  "link": "/api/v1/people/683737"
++                },
++                "position": {
++                  "code": "3",
++                  "name": "First Base",
++                  "type": "Infielder",
++                  "abbreviation": "1B"
++                },
++                "credit": "f_assist"
++              },
++              {
++                "player": {
++                  "id": 663538,
++                  "link": "/api/v1/people/663538"
++                },
++                "position": {
++                  "code": "4",
++                  "name": "Second Base",
++                  "type": "Infielder",
++                  "abbreviation": "2B"
++                },
++                "credit": "f_assist"
++              },
++              {
++                "player": {
++                  "id": 683737,
++                  "link": "/api/v1/people/683737"
++                },
++                "position": {
++                  "code": "3",
++                  "name": "First Base",
++                  "type": "Infielder",
++                  "abbreviation": "1B"
++                },
++                "credit": "f_putout"
++              }
++            ]
++          },
++          {
++            "movement": {
++              "originBase": null,
++              "start": null,
++              "end": null,
++              "outBase": "1B",
++              "isOut": true,
++              "outNumber": 2
++            },
++            "details": {
++              "event": "Lineout",
++              "eventType": "field_out",
++              "movementReason": null,
++              "runner": {
++                "id": 593428,
++                "fullName": "Xander Bogaerts",
++                "link": "/api/v1/people/593428"
++              },
++              "responsiblePitcher": null,
++              "isScoringEvent": false,
++              "rbi": false,
++              "earned": false,
++              "teamUnearned": false,
++              "playIndex": 8
++            },
++            "credits": [
++              {
++                "player": {
++                  "id": 663538,
++                  "link": "/api/v1/people/663538"
++                },
++                "position": {
++                  "code": "4",
++                  "name": "Second Base",
++                  "type": "Infielder",
++                  "abbreviation": "2B"
++                },
++                "credit": "f_assist"
++              },
++              {
++                "player": {
++                  "id": 683737,
++                  "link": "/api/v1/people/683737"
++                },
++                "position": {
++                  "code": "3",
++                  "name": "First Base",
++                  "type": "Infielder",
++                  "abbreviation": "1B"
++                },
++                "credit": "f_putout"
++              }
++            ]
++          }
++        ],
++        "playEvents": [
++          {
++            "details": {
++              "call": {
++                "code": "B",
++                "description": "Ball"
++              },
++              "description": "Ball",
++              "code": "B",
++              "ballColor": "rgba(39, 161, 39, 1.0)",
++              "trailColor": "rgba(0, 0, 254, 1.0)",
++              "isInPlay": false,
++              "isStrike": false,
++              "isBall": true,
++              "type": {
++                "code": "SL",
++                "description": "Slider"
++              },
++              "isOut": false,
++              "hasReview": false
++            },
++            "count": {
++              "balls": 1,
++              "strikes": 0,
++              "outs": 0
++            },
++            "index": 0,
++            "playId": "5e4e3e42-0bdf-398e-b4dc-2167db1886d9",
++            "pitchNumber": 1,
++            "startTime": "2026-10-01T04:02:36.361Z",
++            "endTime": "2026-10-01T04:02:40.275Z",
++            "isPitch": true,
++            "type": "pitch"
++          },
++          {
++            "details": {
++              "description": "Batter Timeout.",
++              "event": "Batter Timeout",
++              "eventType": "batter_timeout",
++              "awayScore": 1,
++              "homeScore": 4,
++              "isScoringPlay": false,
++              "isOut": false,
++              "hasReview": false
++            },
++            "count": {
++              "balls": 1,
++              "strikes": 0,
++              "outs": 0
++            },
++            "index": 1,
++            "startTime": "2026-10-01T04:02:59.045Z",
++            "endTime": "2026-10-01T04:03:11.245Z",
++            "isPitch": false,
++            "type": "action",
++            "player": {
++              "id": 593428,
++              "link": "/api/v1/people/593428"
++            }
++          },
++          {
++            "details": {
++              "call": {
++                "code": "B",
++                "description": "Ball"
++              },
++              "description": "Ball",
++              "code": "B",
++              "ballColor": "rgba(39, 161, 39, 1.0)",
++              "trailColor": "rgba(50, 0, 221, 1.0)",
++              "isInPlay": false,
++              "isStrike": false,
++              "isBall": true,
++              "type": {
++                "code": "SI",
++                "description": "Sinker"
++              },
++              "isOut": false,
++              "hasReview": false
++            },
++            "count": {
++              "balls": 2,
++              "strikes": 0,
++              "outs": 0
++            },
++            "index": 2,
++            "playId": "bd677330-2cc0-3067-bf5f-fc0f3e5f405d",
++            "pitchNumber": 2,
++            "startTime": "2026-10-01T04:03:11.245Z",
++            "endTime": "2026-10-01T04:03:15.128Z",
++            "isPitch": true,
++            "type": "pitch"
++          },
++          {
++            "details": {
++              "call": {
++                "code": "C",
++                "description": "Called Strike"
++              },
++              "description": "Called Strike",
++              "code": "C",
++              "ballColor": "rgba(170, 21, 11, 1.0)",
++              "trailColor": "rgba(50, 0, 221, 1.0)",
++              "isInPlay": false,
++              "isStrike": true,
++              "isBall": false,
++              "type": {
++                "code": "SI",
++                "description": "Sinker"
++              },
++              "isOut": false,
++              "hasReview": false
++            },
++            "count": {
++              "balls": 2,
++              "strikes": 1,
++              "outs": 0
++            },
++            "index": 3,
++            "playId": "549e60b6-ae72-3303-8dc3-c6c4af0fa446",
++            "pitchNumber": 3,
++            "startTime": "2026-10-01T04:03:31.723Z",
++            "endTime": "2026-10-01T04:03:35.577Z",
++            "isPitch": true,
++            "type": "pitch"
++          },
++          {
++            "details": {
++              "call": {
++                "code": "*B",
++                "description": "Ball In Dirt"
++              },
++              "description": "Ball In Dirt",
++              "code": "*B",
++              "ballColor": "rgba(39, 161, 39, 1.0)",
++              "trailColor": "rgba(50, 0, 221, 1.0)",
++              "isInPlay": false,
++              "isStrike": false,
++              "isBall": true,
++              "type": {
++                "code": "SI",
++                "description": "Sinker"
++              },
++              "isOut": false,
++              "hasReview": false
++            },
++            "count": {
++              "balls": 3,
++              "strikes": 1,
++              "outs": 0
++            },
++            "index": 4,
++            "playId": "7b8e09e5-6314-39e4-83ac-cd3aaac0c52e",
++            "pitchNumber": 4,
++            "startTime": "2026-10-01T04:03:54.007Z",
++            "endTime": "2026-10-01T04:03:58.072Z",
++            "isPitch": true,
++            "type": "pitch"
++          },
++          {
++            "details": {
++              "call": {
++                "code": "C",
++                "description": "Called Strike"
++              },
++              "description": "Called Strike",
++              "code": "C",
++              "ballColor": "rgba(170, 21, 11, 1.0)",
++              "trailColor": "rgba(50, 0, 221, 1.0)",
++              "isInPlay": false,
++              "isStrike": true,
++              "isBall": false,
++              "type": {
++                "code": "SI",
++                "description": "Sinker"
++              },
++              "isOut": false,
++              "hasReview": false
++            },
++            "count": {
++              "balls": 3,
++              "strikes": 2,
++              "outs": 0
++            },
++            "index": 5,
++            "playId": "83eadc8b-37e1-3d56-8d32-d7394d3ef83e",
++            "pitchNumber": 5,
++            "startTime": "2026-10-01T04:04:17.601Z",
++            "endTime": "2026-10-01T04:04:21.439Z",
++            "isPitch": true,
++            "type": "pitch"
++          },
++          {
++            "details": {
++              "description": "Pickoff Attempt 1B",
++              "code": "1",
++              "isOut": false,
++              "hasReview": false,
++              "fromCatcher": false,
++              "disengagementNum": 1
++            },
++            "count": {
++              "balls": 3,
++              "strikes": 2,
++              "outs": 0
++            },
++            "index": 6,
++            "playId": "9734fcd9-c18d-3a8e-9eaf-0f724af09ed4",
++            "startTime": "2026-10-01T04:04:38.632Z",
++            "endTime": "2026-10-01T04:04:45.582Z",
++            "isPitch": false,
++            "type": "pickoff"
++          },
++          {
++            "details": {
++              "description": "With Xander Bogaerts batting, Jackson Merrill picked off and caught stealing 2nd base, first baseman Michael Busch.",
++              "event": "Pickoff Caught Stealing 2B",
++              "eventType": "pickoff_caught_stealing_2b",
++              "awayScore": 1,
++              "homeScore": 4,
++              "isScoringPlay": false,
++              "isOut": true,
++              "hasReview": false
++            },
++            "count": {
++              "balls": 3,
++              "strikes": 2,
++              "outs": 1
++            },
++            "index": 7,
++            "actionPlayId": "9734fcd9-c18d-3a8e-9eaf-0f724af09ed4",
++            "startTime": "2026-10-01T04:05:09.967Z",
++            "endTime": "2026-10-01T04:05:16.410Z",
++            "isPitch": false,
++            "isBaseRunningPlay": true,
++            "type": "action",
++            "player": {
++              "id": 701538,
++              "link": "/api/v1/people/701538"
++            }
++          },
++          {
++            "details": {
++              "call": {
++                "code": "X",
++                "description": "In play, out(s)"
++              },
++              "description": "In play, out(s)",
++              "code": "X",
++              "ballColor": "rgba(26, 86, 190, 1.0)",
++              "trailColor": "rgba(50, 0, 221, 1.0)",
++              "isInPlay": true,
++              "isStrike": false,
++              "isBall": false,
++              "type": {
++                "code": "SI",
++                "description": "Sinker"
++              },
++              "isOut": true,
++              "hasReview": false
++            },
++            "count": {
++              "balls": 3,
++              "strikes": 2,
++              "outs": 1
++            },
++            "index": 8,
++            "playId": "5310abbf-90ce-3bec-ab60-b7a33692df8c",
++            "pitchNumber": 6,
++            "startTime": "2026-10-01T04:05:16.410Z",
++            "endTime": "2026-10-01T04:05:25.830Z",
++            "isPitch": true,
++            "type": "pitch"
++          }
++        ],
++        "playEndTime": "2026-10-01T04:05:25.830Z",
++        "atBatIndex": 48
++      }
++    },
++    {
++      "gamePk": "849848",
++      "inputSha256": "ca3fbe4ff8088db6911269f8f7a3b922005d584dd97a8c0645f6574ad7c2c491",
++      "play": {
++        "result": {
++          "type": "atBat",
++          "event": "Home Run",
++          "eventType": "home_run",
++          "description": "Umpire reviewed (home run), call on the field was upheld: Willson Contreras homers (1) on a fly ball to right center field.",
++          "rbi": 1,
++          "awayScore": 1,
++          "homeScore": 2,
++          "isOut": false
++        },
++        "about": {
++          "atBatIndex": 41,
++          "halfInning": "top",
++          "isTopInning": true,
++          "inning": 6,
++          "startTime": "2026-10-01T01:53:11.246Z",
++          "endTime": "2026-10-01T01:55:32.544Z",
++          "isComplete": true,
++          "isScoringPlay": true,
++          "hasReview": true,
++          "hasOut": false,
++          "captivatingIndex": 38
++        },
++        "count": {
++          "balls": 3,
++          "strikes": 2,
++          "outs": 2
++        },
++        "matchup": {
++          "batter": {
++            "id": 575929,
++            "fullName": "Willson Contreras",
++            "link": "/api/v1/people/575929"
++          },
++          "batSide": {
++            "code": "R",
++            "description": "Right"
++          },
++          "pitcher": {
++            "id": 608331,
++            "fullName": "Max Fried",
++            "link": "/api/v1/people/608331"
++          },
++          "pitchHand": {
++            "code": "L",
++            "description": "Left"
++          },
++          "batterHotColdZones": [],
++          "pitcherHotColdZones": [],
++          "splits": {
++            "batter": "vs_LHP",
++            "pitcher": "vs_RHB",
++            "menOnBase": "Empty"
++          }
++        },
++        "pitchIndex": [
++          0,
++          1,
++          2,
++          3,
++          4,
++          5
++        ],
++        "actionIndex": [],
++        "runnerIndex": [
++          0
++        ],
++        "runners": [
++          {
++            "movement": {
++              "originBase": null,
++              "start": null,
++              "end": "score",
++              "outBase": null,
++              "isOut": false,
++              "outNumber": null
++            },
++            "details": {
++              "event": "Home Run",
++              "eventType": "home_run",
++              "movementReason": null,
++              "runner": {
++                "id": 575929,
++                "fullName": "Willson Contreras",
++                "link": "/api/v1/people/575929"
++              },
++              "responsiblePitcher": {
++                "id": 608331,
++                "link": "/api/v1/people/608331"
++              },
++              "isScoringEvent": true,
++              "rbi": true,
++              "earned": true,
++              "teamUnearned": false,
++              "playIndex": 5
++            },
++            "credits": []
++          }
++        ],
++        "playEvents": [
++          {
++            "details": {
++              "call": {
++                "code": "B",
++                "description": "Ball"
++              },
++              "description": "Ball",
++              "code": "B",
++              "ballColor": "rgba(39, 161, 39, 1.0)",
++              "trailColor": "rgba(50, 50, 50, 1.0)",
++              "isInPlay": false,
++              "isStrike": false,
++              "isBall": true,
++              "type": {
++                "code": "ST",
++                "description": "Sweeper"
++              },
++              "isOut": false,
++              "hasReview": false
++            },
++            "count": {
++              "balls": 1,
++              "strikes": 0,
++              "outs": 2
++            },
++            "index": 0,
++            "playId": "89c03cb6-d4f2-36e0-b373-b2ad4ccd929f",
++            "pitchNumber": 1,
++            "startTime": "2026-10-01T01:53:13.682Z",
++            "endTime": "2026-10-01T01:53:17.283Z",
++            "isPitch": true,
++            "type": "pitch"
++          },
++          {
++            "details": {
++              "call": {
++                "code": "B",
++                "description": "Ball"
++              },
++              "description": "Ball",
++              "code": "B",
++              "ballColor": "rgba(39, 161, 39, 1.0)",
++              "trailColor": "rgba(50, 50, 50, 1.0)",
++              "isInPlay": false,
++              "isStrike": false,
++              "isBall": true,
++              "type": {
++                "code": "ST",
++                "description": "Sweeper"
++              },
++              "isOut": false,
++              "hasReview": false
++            },
++            "count": {
++              "balls": 2,
++              "strikes": 0,
++              "outs": 2
++            },
++            "index": 1,
++            "playId": "0dc9a3f4-55ac-30ff-8b0d-2967731e6221",
++            "pitchNumber": 2,
++            "startTime": "2026-10-01T01:53:36.231Z",
++            "endTime": "2026-10-01T01:53:40.110Z",
++            "isPitch": true,
++            "type": "pitch"
++          },
++          {
++            "details": {
++              "call": {
++                "code": "C",
++                "description": "Called Strike"
++              },
++              "description": "Called Strike",
++              "code": "C",
++              "ballColor": "rgba(170, 21, 11, 1.0)",
++              "trailColor": "rgba(188, 0, 33, 1.0)",
++              "isInPlay": false,
++              "isStrike": true,
++              "isBall": false,
++              "type": {
++                "code": "FF",
++                "description": "Four-Seam Fastball"
++              },
++              "isOut": false,
++              "hasReview": false
++            },
++            "count": {
++              "balls": 2,
++              "strikes": 1,
++              "outs": 2
++            },
++            "index": 2,
++            "playId": "852c873c-9546-3680-b635-2cbd1b20ca45",
++            "pitchNumber": 3,
++            "startTime": "2026-10-01T01:53:55.306Z",
++            "endTime": "2026-10-01T01:53:59.145Z",
++            "isPitch": true,
++            "type": "pitch"
++          },
++          {
++            "details": {
++              "call": {
++                "code": "B",
++                "description": "Ball"
++              },
++              "description": "Ball",
++              "code": "B",
++              "ballColor": "rgba(39, 161, 39, 1.0)",
++              "trailColor": "rgba(188, 0, 33, 1.0)",
++              "isInPlay": false,
++              "isStrike": false,
++              "isBall": true,
++              "type": {
++                "code": "FF",
++                "description": "Four-Seam Fastball"
++              },
++              "isOut": false,
++              "hasReview": false
++            },
++            "count": {
++              "balls": 3,
++              "strikes": 1,
++              "outs": 2
++            },
++            "index": 3,
++            "playId": "25b031cc-7f12-311b-a39c-b0f634d12079",
++            "pitchNumber": 4,
++            "startTime": "2026-10-01T01:54:12.526Z",
++            "endTime": "2026-10-01T01:54:16.392Z",
++            "isPitch": true,
++            "type": "pitch"
++          },
++          {
++            "details": {
++              "call": {
++                "code": "F",
++                "description": "Foul"
++              },
++              "description": "Foul",
++              "code": "F",
++              "ballColor": "rgba(170, 21, 11, 1.0)",
++              "trailColor": "rgba(188, 0, 33, 1.0)",
++              "isInPlay": false,
++              "isStrike": true,
++              "isBall": false,
++              "type": {
++                "code": "FF",
++                "description": "Four-Seam Fastball"
++              },
++              "isOut": false,
++              "hasReview": false
++            },
++            "count": {
++              "balls": 3,
++              "strikes": 2,
++              "outs": 2
++            },
++            "index": 4,
++            "playId": "7e40b952-22af-32ca-b74b-0de176278ac1",
++            "pitchNumber": 5,
++            "startTime": "2026-10-01T01:54:32.121Z",
++            "endTime": "2026-10-01T01:54:35.380Z",
++            "isPitch": true,
++            "type": "pitch"
++          },
++          {
++            "details": {
++              "call": {
++                "code": "E",
++                "description": "In play, run(s)"
++              },
++              "description": "In play, run(s)",
++              "code": "E",
++              "ballColor": "rgba(26, 86, 190, 1.0)",
++              "trailColor": "rgba(188, 0, 33, 1.0)",
++              "isInPlay": true,
++              "isStrike": false,
++              "isBall": false,
++              "type": {
++                "code": "FF",
++                "description": "Four-Seam Fastball"
++              },
++              "isOut": false,
++              "hasReview": false
++            },
++            "count": {
++              "balls": 3,
++              "strikes": 2,
++              "outs": 2
++            },
++            "index": 5,
++            "playId": "875a5995-950d-31b4-9f42-293471dbd411",
++            "pitchNumber": 6,
++            "startTime": "2026-10-01T01:54:59.209Z",
++            "endTime": "2026-10-01T01:55:32.544Z",
++            "isPitch": true,
++            "type": "pitch"
++          }
++        ],
++        "reviewDetails": {
++          "isOverturned": false,
++          "inProgress": false,
++          "reviewType": "NH"
++        },
++        "playEndTime": "2026-10-01T01:55:32.544Z",
++        "atBatIndex": 41
++      }
++    },
++    {
++      "gamePk": "849848",
++      "inputSha256": "ca3fbe4ff8088db6911269f8f7a3b922005d584dd97a8c0645f6574ad7c2c491",
++      "play": {
++        "result": {
++          "type": "atBat",
++          "event": "Strikeout",
++          "eventType": "strikeout",
++          "description": "Yankees challenged (play at 1st), call on the field was overturned: Spencer Jones strikes out swinging. Spencer Jones to 1st. Wild pitch by pitcher Garrett Crochet.",
++          "rbi": 0,
++          "awayScore": 1,
++          "homeScore": 2,
++          "isOut": false
++        },
++        "about": {
++          "atBatIndex": 43,
++          "halfInning": "bottom",
++          "isTopInning": false,
++          "inning": 6,
++          "startTime": "2026-10-01T02:00:28.874Z",
++          "endTime": "2026-10-01T02:01:50.835Z",
++          "isComplete": true,
++          "isScoringPlay": false,
++          "hasReview": true,
++          "hasOut": false,
++          "captivatingIndex": 14
++        },
++        "count": {
++          "balls": 2,
++          "strikes": 3,
++          "outs": 0
++        },
++        "matchup": {
++          "batter": {
++            "id": 682987,
++            "fullName": "Spencer Jones",
++            "link": "/api/v1/people/682987"
++          },
++          "batSide": {
++            "code": "L",
++            "description": "Left"
++          },
++          "pitcher": {
++            "id": 676979,
++            "fullName": "Garrett Crochet",
++            "link": "/api/v1/people/676979"
++          },
++          "pitchHand": {
++            "code": "L",
++            "description": "Left"
++          },
++          "postOnFirst": {
++            "id": 682987,
++            "fullName": "Spencer Jones",
++            "link": "/api/v1/people/682987"
++          },
++          "batterHotColdZones": [],
++          "pitcherHotColdZones": [],
++          "splits": {
++            "batter": "vs_LHP",
++            "pitcher": "vs_LHB",
++            "menOnBase": "Men_On"
++          }
++        },
++        "pitchIndex": [
++          1,
++          2,
++          3,
++          4,
++          5
++        ],
++        "actionIndex": [
++          0
++        ],
++        "runnerIndex": [
++          0,
++          1
++        ],
++        "runners": [
++          {
++            "movement": {
++              "originBase": null,
++              "start": null,
++              "end": null,
++              "outBase": null,
++              "isOut": null,
++              "outNumber": null
++            },
++            "details": {
++              "event": "Strikeout",
++              "eventType": "strikeout",
++              "movementReason": null,
++              "runner": {
++                "id": 682987,
++                "fullName": "Spencer Jones",
++                "link": "/api/v1/people/682987"
++              },
++              "responsiblePitcher": null,
++              "isScoringEvent": false,
++              "rbi": false,
++              "earned": false,
++              "teamUnearned": false,
++              "playIndex": 5
++            }
++          },
++          {
++            "movement": {
++              "originBase": null,
++              "start": null,
++              "end": "1B",
++              "outBase": null,
++              "isOut": false,
++              "outNumber": null
++            },
++            "details": {
++              "event": "Wild Pitch",
++              "eventType": "wild_pitch",
++              "movementReason": "r_adv_play",
++              "runner": {
++                "id": 682987,
++                "fullName": "Spencer Jones",
++                "link": "/api/v1/people/682987"
++              },
++              "responsiblePitcher": null,
++              "isScoringEvent": false,
++              "rbi": false,
++              "earned": false,
++              "teamUnearned": false,
++              "playIndex": 5
++            },
++            "credits": []
++          }
++        ],
++        "playEvents": [
++          {
++            "details": {
++              "description": "Pitching Change: Garrett Crochet replaces Erik Miller.",
++              "event": "Pitching Substitution",
++              "eventType": "pitching_substitution",
++              "awayScore": 1,
++              "homeScore": 2,
++              "isScoringPlay": false,
++              "isOut": false,
++              "hasReview": false
++            },
++            "count": {
++              "balls": 0,
++              "strikes": 0,
++              "outs": 0
++            },
++            "index": 0,
++            "startTime": "2026-10-01T01:58:31.420Z",
++            "endTime": "2026-10-01T02:00:31.233Z",
++            "isPitch": false,
++            "isSubstitution": true,
++            "type": "action",
++            "player": {
++              "id": 676979,
++              "link": "/api/v1/people/676979"
++            },
++            "position": {
++              "code": "1",
++              "name": "Pitcher",
++              "type": "Pitcher",
++              "abbreviation": "P"
++            }
++          },
++          {
++            "details": {
++              "call": {
++                "code": "B",
++                "description": "Ball"
++              },
++              "description": "Ball",
++              "code": "B",
++              "ballColor": "rgba(39, 161, 39, 1.0)",
++              "trailColor": "rgba(50, 0, 221, 1.0)",
++              "isInPlay": false,
++              "isStrike": false,
++              "isBall": true,
++              "type": {
++                "code": "SI",
++                "description": "Sinker"
++              },
++              "isOut": false,
++              "hasReview": false
++            },
++            "count": {
++              "balls": 1,
++              "strikes": 0,
++              "outs": 0
++            },
++            "index": 1,
++            "playId": "89c8042a-b519-3fea-bbd3-0aae10054d91",
++            "pitchNumber": 1,
++            "startTime": "2026-10-01T02:00:31.233Z",
++            "endTime": "2026-10-01T02:00:35.179Z",
++            "isPitch": true,
++            "type": "pitch"
++          },
++          {
++            "details": {
++              "call": {
++                "code": "C",
++                "description": "Called Strike"
++              },
++              "description": "Called Strike",
++              "code": "C",
++              "ballColor": "rgba(170, 21, 11, 1.0)",
++              "trailColor": "rgba(50, 0, 221, 1.0)",
++              "isInPlay": false,
++              "isStrike": true,
++              "isBall": false,
++              "type": {
++                "code": "SI",
++                "description": "Sinker"
++              },
++              "isOut": false,
++              "hasReview": false
++            },
++            "count": {
++              "balls": 1,
++              "strikes": 1,
++              "outs": 0
++            },
++            "index": 2,
++            "playId": "c48f693e-44b3-34c8-9c9f-205b83d42b3c",
++            "pitchNumber": 2,
++            "startTime": "2026-10-01T02:00:47.290Z",
++            "endTime": "2026-10-01T02:00:51.138Z",
++            "isPitch": true,
++            "type": "pitch"
++          },
++          {
++            "details": {
++              "call": {
++                "code": "S",
++                "description": "Swinging Strike"
++              },
++              "description": "Swinging Strike",
++              "code": "S",
++              "ballColor": "rgba(170, 21, 11, 1.0)",
++              "trailColor": "rgba(152, 0, 101, 1.0)",
++              "isInPlay": false,
++              "isStrike": true,
++              "isBall": false,
++              "type": {
++                "code": "FC",
++                "description": "Cutter"
++              },
++              "isOut": false,
++              "hasReview": false
++            },
++            "count": {
++              "balls": 1,
++              "strikes": 2,
++              "outs": 0
++            },
++            "index": 3,
++            "playId": "05fd15da-6eb4-3f27-b83e-132e51f38596",
++            "pitchNumber": 3,
++            "startTime": "2026-10-01T02:01:02.742Z",
++            "endTime": "2026-10-01T02:01:06.491Z",
++            "isPitch": true,
++            "type": "pitch"
++          },
++          {
++            "details": {
++              "call": {
++                "code": "B",
++                "description": "Ball"
++              },
++              "description": "Ball",
++              "code": "B",
++              "ballColor": "rgba(39, 161, 39, 1.0)",
++              "trailColor": "rgba(50, 50, 50, 1.0)",
++              "isInPlay": false,
++              "isStrike": false,
++              "isBall": true,
++              "type": {
++                "code": "ST",
++                "description": "Sweeper"
++              },
++              "isOut": false,
++              "hasReview": false
++            },
++            "count": {
++              "balls": 2,
++              "strikes": 2,
++              "outs": 0
++            },
++            "index": 4,
++            "playId": "3b3c1aa9-5ca4-3102-922a-558abf0a290a",
++            "pitchNumber": 4,
++            "startTime": "2026-10-01T02:01:21.118Z",
++            "endTime": "2026-10-01T02:01:25.045Z",
++            "isPitch": true,
++            "type": "pitch"
++          },
++          {
++            "details": {
++              "call": {
++                "code": "S",
++                "description": "Swinging Strike"
++              },
++              "description": "Swinging Strike",
++              "code": "S",
++              "ballColor": "rgba(170, 21, 11, 1.0)",
++              "trailColor": "rgba(50, 50, 50, 1.0)",
++              "isInPlay": false,
++              "isStrike": true,
++              "isBall": false,
++              "type": {
++                "code": "ST",
++                "description": "Sweeper"
++              },
++              "isOut": false,
++              "hasReview": false
++            },
++            "count": {
++              "balls": 2,
++              "strikes": 3,
++              "outs": 0
++            },
++            "index": 5,
++            "playId": "4c421eb7-559f-3bc4-82df-bb56b757f341",
++            "pitchNumber": 5,
++            "startTime": "2026-10-01T02:01:42.845Z",
++            "endTime": "2026-10-01T02:01:50.835Z",
++            "isPitch": true,
++            "type": "pitch"
++          }
++        ],
++        "reviewDetails": {
++          "isOverturned": true,
++          "inProgress": false,
++          "reviewType": "MF",
++          "challengeTeamId": 147
++        },
++        "playEndTime": "2026-10-01T02:01:50.835Z",
++        "atBatIndex": 43
++      }
++    },
++    {
++      "gamePk": "849843",
++      "inputSha256": "3878284bc9b33b74d51467a381913c16ce7727d6ec2b57316cd356556302ef66",
++      "play": {
++        "result": {
++          "type": "atBat",
++          "event": "Strikeout",
++          "eventType": "strikeout",
++          "description": "Austin Hays strikes out swinging.",
++          "rbi": 0,
++          "awayScore": 0,
++          "homeScore": 7,
++          "isOut": true
++        },
++        "about": {
++          "atBatIndex": 41,
++          "halfInning": "bottom",
++          "isTopInning": false,
++          "inning": 5,
++          "startTime": "2026-09-30T03:34:59.412Z",
++          "endTime": "2026-09-30T03:37:16.487Z",
++          "isComplete": true,
++          "isScoringPlay": false,
++          "hasReview": false,
++          "hasOut": true,
++          "captivatingIndex": 14
++        },
++        "count": {
++          "balls": 2,
++          "strikes": 3,
++          "outs": 3
++        },
++        "matchup": {
++          "batter": {
++            "id": 669720,
++            "fullName": "Austin Hays",
++            "link": "/api/v1/people/669720"
++          },
++          "batSide": {
++            "code": "R",
++            "description": "Right"
++          },
++          "pitcher": {
++            "id": 669020,
++            "fullName": "Ryan Rolison",
++            "link": "/api/v1/people/669020"
++          },
++          "pitchHand": {
++            "code": "L",
++            "description": "Left"
++          },
++          "batterHotColdZones": [],
++          "pitcherHotColdZones": [],
++          "splits": {
++            "batter": "vs_LHP",
++            "pitcher": "vs_RHB",
++            "menOnBase": "Empty"
++          }
++        },
++        "pitchIndex": [
++          0,
++          3,
++          4,
++          5,
++          6
++        ],
++        "actionIndex": [
++          1
++        ],
++        "runnerIndex": [
++          0,
++          1,
++          2
++        ],
++        "runners": [
++          {
++            "movement": {
++              "originBase": "3B",
++              "start": "3B",
++              "end": "score",
++              "outBase": null,
++              "isOut": false,
++              "outNumber": null
++            },
++            "details": {
++              "event": "Passed Ball",
++              "eventType": "passed_ball",
++              "movementReason": "r_adv_play",
++              "runner": {
++                "id": 664034,
++                "fullName": "Ty France",
++                "link": "/api/v1/people/664034"
++              },
++              "responsiblePitcher": {
++                "id": 665871,
++                "link": "/api/v1/people/665871"
++              },
++              "isScoringEvent": true,
++              "rbi": false,
++              "earned": false,
++              "teamUnearned": true,
++              "playIndex": 1
++            },
++            "credits": []
++          },
++          {
++            "movement": {
++              "originBase": "1B",
++              "start": "1B",
++              "end": "2B",
++              "outBase": null,
++              "isOut": false,
++              "outNumber": null
++            },
++            "details": {
++              "event": "Passed Ball",
++              "eventType": "passed_ball",
++              "movementReason": "r_adv_play",
++              "runner": {
++                "id": 701538,
++                "fullName": "Jackson Merrill",
++                "link": "/api/v1/people/701538"
++              },
++              "responsiblePitcher": null,
++              "isScoringEvent": false,
++              "rbi": false,
++              "earned": false,
++              "teamUnearned": false,
++              "playIndex": 1
++            },
++            "credits": []
++          },
++          {
++            "movement": {
++              "originBase": null,
++              "start": null,
++              "end": null,
++              "outBase": "1B",
++              "isOut": true,
++              "outNumber": 3
++            },
++            "details": {
++              "event": "Strikeout",
++              "eventType": "strikeout",
++              "movementReason": null,
++              "runner": {
++                "id": 669720,
++                "fullName": "Austin Hays",
++                "link": "/api/v1/people/669720"
++              },
++              "responsiblePitcher": null,
++              "isScoringEvent": false,
++              "rbi": false,
++              "earned": false,
++              "teamUnearned": false,
++              "playIndex": 6
++            },
++            "credits": [
++              {
++                "player": {
++                  "id": 608348,
++                  "link": "/api/v1/people/608348"
++                },
++                "position": {
++                  "code": "2",
++                  "name": "Catcher",
++                  "type": "Catcher",
++                  "abbreviation": "C"
++                },
++                "credit": "f_putout"
++              }
++            ]
++          }
++        ],
++        "playEvents": [
++          {
++            "details": {
++              "call": {
++                "code": "B",
++                "description": "Ball"
++              },
++              "description": "Ball",
++              "code": "B",
++              "ballColor": "rgba(39, 161, 39, 1.0)",
++              "trailColor": "rgba(188, 0, 33, 1.0)",
++              "isInPlay": false,
++              "isStrike": false,
++              "isBall": true,
++              "type": {
++                "code": "FF",
++                "description": "Four-Seam Fastball"
++              },
++              "isOut": false,
++              "hasReview": false
++            },
++            "count": {
++              "balls": 1,
++              "strikes": 0,
++              "outs": 2
++            },
++            "index": 0,
++            "playId": "692577ac-34c9-39e2-ab86-d0f52ada0cfd",
++            "pitchNumber": 1,
++            "startTime": "2026-09-30T03:35:06.189Z",
++            "endTime": "2026-09-30T03:35:14.569Z",
++            "isPitch": true,
++            "type": "pitch"
++          },
++          {
++            "details": {
++              "description": "Passed ball by catcher Carson Kelly. Ty France scores. Jackson Merrill to 2nd.",
++              "event": "Passed Ball",
++              "eventType": "passed_ball",
++              "awayScore": 0,
++              "homeScore": 7,
++              "isScoringPlay": true,
++              "isOut": false,
++              "hasReview": false
++            },
++            "count": {
++              "balls": 1,
++              "strikes": 0,
++              "outs": 2
++            },
++            "index": 1,
++            "actionPlayId": "692577ac-34c9-39e2-ab86-d0f52ada0cfd",
++            "startTime": "2026-09-30T03:36:00.652Z",
++            "endTime": "2026-09-30T03:36:13.380Z",
++            "isPitch": false,
++            "isBaseRunningPlay": true,
++            "type": "action",
++            "player": {
++              "id": 664034,
++              "link": "/api/v1/people/664034"
++            }
++          },
++          {
++            "details": {
++              "description": "Mound Visit.",
++              "event": "Mound Visit",
++              "eventType": "mound_visit",
++              "awayScore": 0,
++              "homeScore": 7,
++              "isScoringPlay": false,
++              "isOut": false,
++              "hasReview": false
++            },
++            "count": {
++              "balls": 1,
++              "strikes": 0,
++              "outs": 2
++            },
++            "index": 2,
++            "startTime": "2026-09-30T03:36:12.507Z",
++            "endTime": "2026-09-30T03:36:12.508Z",
++            "isPitch": false,
++            "type": "action"
++          },
++          {
++            "details": {
++              "call": {
++                "code": "C",
++                "description": "Called Strike"
++              },
++              "description": "Called Strike",
++              "code": "C",
++              "ballColor": "rgba(170, 21, 11, 1.0)",
++              "trailColor": "rgba(0, 34, 255, 1.0)",
++              "isInPlay": false,
++              "isStrike": true,
++              "isBall": false,
++              "type": {
++                "code": "CU",
++                "description": "Curveball"
++              },
++              "isOut": false,
++              "hasReview": false
++            },
++            "count": {
++              "balls": 1,
++              "strikes": 1,
++              "outs": 2
++            },
++            "index": 3,
++            "playId": "b61c6d78-b4d2-390f-af61-bef2f4ebfd84",
++            "pitchNumber": 2,
++            "startTime": "2026-09-30T03:36:12.509Z",
++            "endTime": "2026-09-30T03:36:15.509Z",
++            "isPitch": true,
++            "type": "pitch"
++          },
++          {
++            "details": {
++              "call": {
++                "code": "B",
++                "description": "Ball"
++              },
++              "description": "Ball",
++              "code": "B",
++              "ballColor": "rgba(39, 161, 39, 1.0)",
++              "trailColor": "rgba(188, 0, 33, 1.0)",
++              "isInPlay": false,
++              "isStrike": false,
++              "isBall": true,
++              "type": {
++                "code": "FF",
++                "description": "Four-Seam Fastball"
++              },
++              "isOut": false,
++              "hasReview": false
++            },
++            "count": {
++              "balls": 2,
++              "strikes": 1,
++              "outs": 2
++            },
++            "index": 4,
++            "playId": "e44b7c00-a6e5-34e8-8e1e-0d66b552bb2f",
++            "pitchNumber": 3,
++            "startTime": "2026-09-30T03:36:30.759Z",
++            "endTime": "2026-09-30T03:36:35.048Z",
++            "isPitch": true,
++            "type": "pitch"
++          },
++          {
++            "details": {
++              "call": {
++                "code": "C",
++                "description": "Called Strike"
++              },
++              "description": "Called Strike",
++              "code": "C",
++              "ballColor": "rgba(170, 21, 11, 1.0)",
++              "trailColor": "rgba(0, 34, 255, 1.0)",
++              "isInPlay": false,
++              "isStrike": true,
++              "isBall": false,
++              "type": {
++                "code": "CU",
++                "description": "Curveball"
++              },
++              "isOut": false,
++              "hasReview": false
++            },
++            "count": {
++              "balls": 2,
++              "strikes": 2,
++              "outs": 2
++            },
++            "index": 5,
++            "playId": "dc80faa3-c36e-37d2-b08d-8e6bf6b72b42",
++            "pitchNumber": 4,
++            "startTime": "2026-09-30T03:36:52.413Z",
++            "endTime": "2026-09-30T03:36:56.260Z",
++            "isPitch": true,
++            "type": "pitch"
++          },
++          {
++            "details": {
++              "call": {
++                "code": "S",
++                "description": "Swinging Strike"
++              },
++              "description": "Swinging Strike",
++              "code": "S",
++              "ballColor": "rgba(170, 21, 11, 1.0)",
++              "trailColor": "rgba(188, 0, 33, 1.0)",
++              "isInPlay": false,
++              "isStrike": true,
++              "isBall": false,
++              "type": {
++                "code": "FF",
++                "description": "Four-Seam Fastball"
++              },
++              "isOut": true,
++              "hasReview": false
++            },
++            "count": {
++              "balls": 2,
++              "strikes": 3,
++              "outs": 2
++            },
++            "index": 6,
++            "playId": "7527015e-237a-3719-a188-254781fed791",
++            "pitchNumber": 5,
++            "startTime": "2026-09-30T03:37:11.700Z",
++            "endTime": "2026-09-30T03:37:16.487Z",
++            "isPitch": true,
++            "type": "pitch"
++          }
++        ],
++        "playEndTime": "2026-09-30T03:37:16.487Z",
++        "atBatIndex": 41
++      }
++    },
++    {
++      "gamePk": "849843",
++      "inputSha256": "3878284bc9b33b74d51467a381913c16ce7727d6ec2b57316cd356556302ef66",
++      "play": {
++        "result": {
++          "type": "atBat",
++          "event": "Single",
++          "eventType": "single",
++          "description": "Ty France singles on a ground ball to center fielder Pete Crow-Armstrong.",
++          "rbi": 0,
++          "awayScore": 0,
++          "homeScore": 8,
++          "isOut": false
++        },
++        "about": {
++          "atBatIndex": 56,
++          "halfInning": "bottom",
++          "isTopInning": false,
++          "inning": 7,
++          "startTime": "2026-09-30T04:17:58.508Z",
++          "endTime": "2026-09-30T04:20:50.845Z",
++          "isComplete": true,
++          "isScoringPlay": false,
++          "hasReview": false,
++          "hasOut": true,
++          "captivatingIndex": 33
++        },
++        "count": {
++          "balls": 2,
++          "strikes": 2,
++          "outs": 2
++        },
++        "matchup": {
++          "batter": {
++            "id": 664034,
++            "fullName": "Ty France",
++            "link": "/api/v1/people/664034"
++          },
++          "batSide": {
++            "code": "R",
++            "description": "Right"
++          },
++          "pitcher": {
++            "id": 650644,
++            "fullName": "Aaron Civale",
++            "link": "/api/v1/people/650644"
++          },
++          "pitchHand": {
++            "code": "R",
++            "description": "Right"
++          },
++          "postOnFirst": {
++            "id": 664034,
++            "fullName": "Ty France",
++            "link": "/api/v1/people/664034"
++          },
++          "batterHotColdZones": [],
++          "pitcherHotColdZones": [],
++          "splits": {
++            "batter": "vs_RHP",
++            "pitcher": "vs_RHB",
++            "menOnBase": "Men_On"
++          }
++        },
++        "pitchIndex": [
++          0,
++          1,
++          3,
++          4,
++          5,
++          6
++        ],
++        "actionIndex": [
++          2
++        ],
++        "runnerIndex": [
++          0,
++          1
++        ],
++        "runners": [
++          {
++            "movement": {
++              "originBase": "1B",
++              "start": "1B",
++              "end": null,
++              "outBase": "1B",
++              "isOut": true,
++              "outNumber": 2
++            },
++            "details": {
++              "event": "Pickoff 1B",
++              "eventType": "pickoff_1b",
++              "movementReason": "r_pickoff_1b",
++              "runner": {
++                "id": 687957,
++                "fullName": "Dustin Harris",
++                "link": "/api/v1/people/687957"
++              },
++              "responsiblePitcher": null,
++              "isScoringEvent": false,
++              "rbi": false,
++              "earned": false,
++              "teamUnearned": false,
++              "playIndex": 2
++            },
++            "credits": [
++              {
++                "player": {
++                  "id": 650644,
++                  "link": "/api/v1/people/650644"
++                },
++                "position": {
++                  "code": "1",
++                  "name": "Pitcher",
++                  "type": "Pitcher",
++                  "abbreviation": "P"
++                },
++                "credit": "f_assist"
++              },
++              {
++                "player": {
++                  "id": 683737,
++                  "link": "/api/v1/people/683737"
++                },
++                "position": {
++                  "code": "3",
++                  "name": "First Base",
++                  "type": "Infielder",
++                  "abbreviation": "1B"
++                },
++                "credit": "f_putout"
++              }
++            ]
++          },
++          {
++            "movement": {
++              "originBase": null,
++              "start": null,
++              "end": "1B",
++              "outBase": null,
++              "isOut": false,
++              "outNumber": null
++            },
++            "details": {
++              "event": "Single",
++              "eventType": "single",
++              "movementReason": null,
++              "runner": {
++                "id": 664034,
++                "fullName": "Ty France",
++                "link": "/api/v1/people/664034"
++              },
++              "responsiblePitcher": null,
++              "isScoringEvent": false,
++              "rbi": false,
++              "earned": false,
++              "teamUnearned": false,
++              "playIndex": 6
++            },
++            "credits": [
++              {
++                "player": {
++                  "id": 691718,
++                  "link": "/api/v1/people/691718"
++                },
++                "position": {
++                  "code": "8",
++                  "name": "Outfielder",
++                  "type": "Outfielder",
++                  "abbreviation": "CF"
++                },
++                "credit": "f_fielded_ball"
++              }
++            ]
++          }
++        ],
++        "playEvents": [
++          {
++            "details": {
++              "call": {
++                "code": "B",
++                "description": "Ball"
++              },
++              "description": "Ball",
++              "code": "B",
++              "ballColor": "rgba(39, 161, 39, 1.0)",
++              "trailColor": "rgba(152, 0, 101, 1.0)",
++              "isInPlay": false,
++              "isStrike": false,
++              "isBall": true,
++              "type": {
++                "code": "FC",
++                "description": "Cutter"
++              },
++              "isOut": false,
++              "hasReview": false
++            },
++            "count": {
++              "balls": 1,
++              "strikes": 0,
++              "outs": 1
++            },
++            "index": 0,
++            "playId": "b3000d7d-3e32-38f4-b087-1aac5c4b7b6d",
++            "pitchNumber": 1,
++            "startTime": "2026-09-30T04:17:58.508Z",
++            "endTime": "2026-09-30T04:18:02.409Z",
++            "isPitch": true,
++            "type": "pitch"
++          },
++          {
++            "details": {
++              "description": "Pickoff Attempt 1B",
++              "code": "1",
++              "isOut": false,
++              "hasReview": false,
++              "fromCatcher": false,
++              "disengagementNum": 1
++            },
++            "count": {
++              "balls": 1,
++              "strikes": 0,
++              "outs": 1
++            },
++            "index": 1,
++            "playId": "0f962a6a-1994-3211-aa2c-e30a43275971",
++            "startTime": "2026-09-30T04:18:14.996Z",
++            "endTime": "2026-09-30T04:18:19.361Z",
++            "isPitch": false,
++            "type": "pickoff"
++          },
++          {
++            "details": {
++              "description": "Cubs challenged (tag play), call on the field was overturned: pitcher Aaron Civale picks off Dustin Harris at 1st on throw to first baseman Michael Busch.",
++              "event": "Pickoff 1B",
++              "eventType": "pickoff_1b",
++              "awayScore": 0,
++              "homeScore": 8,
++              "isScoringPlay": false,
++              "isOut": true,
++              "hasReview": true
++            },
++            "count": {
++              "balls": 1,
++              "strikes": 0,
++              "outs": 2
++            },
++            "index": 2,
++            "actionPlayId": "0f962a6a-1994-3211-aa2c-e30a43275971",
++            "startTime": "2026-09-30T04:19:36.670Z",
++            "endTime": "2026-09-30T04:19:42.935Z",
++            "isPitch": false,
++            "isBaseRunningPlay": true,
++            "type": "action",
++            "player": {
++              "id": 687957,
++              "link": "/api/v1/people/687957"
++            },
++            "reviewDetails": {
++              "isOverturned": true,
++              "inProgress": false,
++              "reviewType": "MA",
++              "challengeTeamId": 112
++            }
++          },
++          {
++            "details": {
++              "call": {
++                "code": "B",
++                "description": "Ball"
++              },
++              "description": "Ball",
++              "code": "B",
++              "ballColor": "rgba(39, 161, 39, 1.0)",
++              "trailColor": "rgba(0, 34, 255, 1.0)",
++              "isInPlay": false,
++              "isStrike": false,
++              "isBall": true,
++              "type": {
++                "code": "CU",
++                "description": "Curveball"
++              },
++              "isOut": false,
++              "hasReview": false
++            },
++            "count": {
++              "balls": 2,
++              "strikes": 0,
++              "outs": 2
++            },
++            "index": 3,
++            "playId": "607e1e78-e93e-3a7a-bc4a-886b7a1f489d",
++            "pitchNumber": 2,
++            "startTime": "2026-09-30T04:19:42.935Z",
++            "endTime": "2026-09-30T04:19:47.278Z",
++            "isPitch": true,
++            "type": "pitch"
++          },
++          {
++            "details": {
++              "call": {
++                "code": "F",
++                "description": "Foul"
++              },
++              "description": "Foul",
++              "code": "F",
++              "ballColor": "rgba(170, 21, 11, 1.0)",
++              "trailColor": "rgba(50, 0, 221, 1.0)",
++              "isInPlay": false,
++              "isStrike": true,
++              "isBall": false,
++              "type": {
++                "code": "SI",
++                "description": "Sinker"
++              },
++              "isOut": false,
++              "hasReview": false
++            },
++            "count": {
++              "balls": 2,
++              "strikes": 1,
++              "outs": 2
++            },
++            "index": 4,
++            "playId": "2d5b490b-267b-3355-9ce8-6f7cc7854777",
++            "pitchNumber": 3,
++            "startTime": "2026-09-30T04:20:00.244Z",
++            "endTime": "2026-09-30T04:20:04.098Z",
++            "isPitch": true,
++            "type": "pitch"
++          },
++          {
++            "details": {
++              "call": {
++                "code": "S",
++                "description": "Swinging Strike"
++              },
++              "description": "Swinging Strike",
++              "code": "S",
++              "ballColor": "rgba(170, 21, 11, 1.0)",
++              "trailColor": "rgba(152, 0, 101, 1.0)",
++              "isInPlay": false,
++              "isStrike": true,
++              "isBall": false,
++              "type": {
++                "code": "FC",
++                "description": "Cutter"
++              },
++              "isOut": false,
++              "hasReview": false
++            },
++            "count": {
++              "balls": 2,
++              "strikes": 2,
++              "outs": 2
++            },
++            "index": 5,
++            "playId": "d22ae27e-803c-3ae6-ba12-a73f0aadfdfd",
++            "pitchNumber": 4,
++            "startTime": "2026-09-30T04:20:19.786Z",
++            "endTime": "2026-09-30T04:20:23.458Z",
++            "isPitch": true,
++            "type": "pitch"
++          },
++          {
++            "details": {
++              "call": {
++                "code": "D",
++                "description": "In play, no out"
++              },
++              "description": "In play, no out",
++              "code": "D",
++              "ballColor": "rgba(26, 86, 190, 1.0)",
++              "trailColor": "rgba(152, 0, 101, 1.0)",
++              "isInPlay": true,
++              "isStrike": false,
++              "isBall": false,
++              "type": {
++                "code": "FC",
++                "description": "Cutter"
++              },
++              "isOut": false,
++              "hasReview": false
++            },
++            "count": {
++              "balls": 2,
++              "strikes": 2,
++              "outs": 2
++            },
++            "index": 6,
++            "playId": "d5575eb1-ee44-34e4-8e94-6f54d06e7277",
++            "pitchNumber": 5,
++            "startTime": "2026-09-30T04:20:38.422Z",
++            "endTime": "2026-09-30T04:20:50.845Z",
++            "isPitch": true,
++            "type": "pitch"
++          }
++        ],
++        "playEndTime": "2026-09-30T04:20:50.845Z",
++        "atBatIndex": 56
++      }
++    },
++    {
++      "gamePk": "849845",
++      "inputSha256": "ec45c3cf02a30410fc8ef9aa6146bc7b4a001dfd6ef2ba48d5c88d2862fc8ba2",
++      "play": {
++        "result": {
++          "type": "atBat",
++          "event": "Hit By Pitch",
++          "eventType": "hit_by_pitch",
++          "description": "Braves challenged (hit by pitch), call on the field was upheld: Ozzie Albies hit by pitch. Michael Harris II to 2nd.",
++          "rbi": 0,
++          "awayScore": 3,
++          "homeScore": 2,
++          "isOut": false
++        },
++        "about": {
++          "atBatIndex": 64,
++          "halfInning": "bottom",
++          "isTopInning": false,
++          "inning": 8,
++          "startTime": "2026-09-29T20:29:35.232Z",
++          "endTime": "2026-09-29T20:32:42.396Z",
++          "isComplete": true,
++          "isScoringPlay": false,
++          "hasReview": true,
++          "hasOut": false,
++          "captivatingIndex": 11
++        },
++        "count": {
++          "balls": 4,
++          "strikes": 2,
++          "outs": 2
++        },
++        "matchup": {
++          "batter": {
++            "id": 645277,
++            "fullName": "Ozzie Albies",
++            "link": "/api/v1/people/645277"
++          },
++          "batSide": {
++            "code": "L",
++            "description": "Left"
++          },
++          "pitcher": {
++            "id": 661395,
++            "fullName": "Jhoan Duran",
++            "link": "/api/v1/people/661395"
++          },
++          "pitchHand": {
++            "code": "R",
++            "description": "Right"
++          },
++          "postOnFirst": {
++            "id": 645277,
++            "fullName": "Ozzie Albies",
++            "link": "/api/v1/people/645277"
++          },
++          "postOnSecond": {
++            "id": 671739,
++            "fullName": "Michael Harris II",
++            "link": "/api/v1/people/671739"
++          },
++          "batterHotColdZones": [],
++          "pitcherHotColdZones": [],
++          "splits": {
++            "batter": "vs_RHP",
++            "pitcher": "vs_LHB",
++            "menOnBase": "RISP"
++          }
++        },
++        "pitchIndex": [
++          0,
++          1,
++          2,
++          3,
++          4,
++          5,
++          7
++        ],
++        "actionIndex": [],
++        "runnerIndex": [
++          0,
++          1
++        ],
++        "runners": [
++          {
++            "movement": {
++              "originBase": "1B",
++              "start": "1B",
++              "end": "2B",
++              "outBase": null,
++              "isOut": false,
++              "outNumber": null
++            },
++            "details": {
++              "event": "Hit By Pitch",
++              "eventType": "hit_by_pitch",
++              "movementReason": "r_adv_force",
++              "runner": {
++                "id": 671739,
++                "fullName": "Michael Harris II",
++                "link": "/api/v1/people/671739"
++              },
++              "responsiblePitcher": null,
++              "isScoringEvent": false,
++              "rbi": false,
++              "earned": false,
++              "teamUnearned": false,
++              "playIndex": 7
++            },
++            "credits": []
++          },
++          {
++            "movement": {
++              "originBase": null,
++              "start": null,
++              "end": "1B",
++              "outBase": null,
++              "isOut": false,
++              "outNumber": null
++            },
++            "details": {
++              "event": "Hit By Pitch",
++              "eventType": "hit_by_pitch",
++              "movementReason": null,
++              "runner": {
++                "id": 645277,
++                "fullName": "Ozzie Albies",
++                "link": "/api/v1/people/645277"
++              },
++              "responsiblePitcher": null,
++              "isScoringEvent": false,
++              "rbi": false,
++              "earned": false,
++              "teamUnearned": false,
++              "playIndex": 7
++            },
++            "credits": []
++          }
++        ],
++        "playEvents": [
++          {
++            "details": {
++              "call": {
++                "code": "C",
++                "description": "Called Strike"
++              },
++              "description": "Called Strike",
++              "code": "C",
++              "ballColor": "rgba(170, 21, 11, 1.0)",
++              "trailColor": "rgba(153, 171, 0, 1.0)",
++              "isInPlay": false,
++              "isStrike": true,
++              "isBall": false,
++              "type": {
++                "code": "KC",
++                "description": "Knuckle Curve"
++              },
++              "isOut": false,
++              "hasReview": false
++            },
++            "count": {
++              "balls": 0,
++              "strikes": 1,
++              "outs": 2
++            },
++            "index": 0,
++            "playId": "58a05ed2-802f-3592-988c-620980bddf34",
++            "pitchNumber": 1,
++            "startTime": "2026-09-29T20:30:13.328Z",
++            "endTime": "2026-09-29T20:30:17.215Z",
++            "isPitch": true,
++            "type": "pitch"
++          },
++          {
++            "details": {
++              "call": {
++                "code": "B",
++                "description": "Ball"
++              },
++              "description": "Ball",
++              "code": "B",
++              "ballColor": "rgba(39, 161, 39, 1.0)",
++              "trailColor": "rgba(188, 0, 33, 1.0)",
++              "isInPlay": false,
++              "isStrike": false,
++              "isBall": true,
++              "type": {
++                "code": "FF",
++                "description": "Four-Seam Fastball"
++              },
++              "isOut": false,
++              "hasReview": false
++            },
++            "count": {
++              "balls": 1,
++              "strikes": 1,
++              "outs": 2
++            },
++            "index": 1,
++            "playId": "fd7c5b23-c5cc-3411-b8f0-0db6501688ca",
++            "pitchNumber": 2,
++            "startTime": "2026-09-29T20:30:35.381Z",
++            "endTime": "2026-09-29T20:30:39.443Z",
++            "isPitch": true,
++            "type": "pitch"
++          },
++          {
++            "details": {
++              "call": {
++                "code": "B",
++                "description": "Ball"
++              },
++              "description": "Ball",
++              "code": "B",
++              "ballColor": "rgba(39, 161, 39, 1.0)",
++              "trailColor": "rgba(188, 0, 33, 1.0)",
++              "isInPlay": false,
++              "isStrike": false,
++              "isBall": true,
++              "type": {
++                "code": "FF",
++                "description": "Four-Seam Fastball"
++              },
++              "isOut": false,
++              "hasReview": false
++            },
++            "count": {
++              "balls": 2,
++              "strikes": 1,
++              "outs": 2
++            },
++            "index": 2,
++            "playId": "5606627e-d1ab-3385-92d4-fd88d31b6ca6",
++            "pitchNumber": 3,
++            "startTime": "2026-09-29T20:30:55.310Z",
++            "endTime": "2026-09-29T20:30:59.480Z",
++            "isPitch": true,
++            "type": "pitch"
++          },
++          {
++            "details": {
++              "call": {
++                "code": "F",
++                "description": "Foul"
++              },
++              "description": "Foul",
++              "code": "F",
++              "ballColor": "rgba(170, 21, 11, 1.0)",
++              "trailColor": "rgba(119, 0, 152, 1.0)",
++              "isInPlay": false,
++              "isStrike": true,
++              "isBall": false,
++              "type": {
++                "code": "FS",
++                "description": "Splitter"
++              },
++              "isOut": false,
++              "hasReview": false
++            },
++            "count": {
++              "balls": 2,
++              "strikes": 2,
++              "outs": 2
++            },
++            "index": 3,
++            "playId": "4548b184-750f-31eb-83c7-489016fb05aa",
++            "pitchNumber": 4,
++            "startTime": "2026-09-29T20:31:24.509Z",
++            "endTime": "2026-09-29T20:31:28.193Z",
++            "isPitch": true,
++            "type": "pitch"
++          },
++          {
++            "details": {
++              "call": {
++                "code": "B",
++                "description": "Ball"
++              },
++              "description": "Ball",
++              "code": "B",
++              "ballColor": "rgba(39, 161, 39, 1.0)",
++              "trailColor": "rgba(188, 0, 33, 1.0)",
++              "isInPlay": false,
++              "isStrike": false,
++              "isBall": true,
++              "type": {
++                "code": "FF",
++                "description": "Four-Seam Fastball"
++              },
++              "isOut": false,
++              "hasReview": false
++            },
++            "count": {
++              "balls": 3,
++              "strikes": 2,
++              "outs": 2
++            },
++            "index": 4,
++            "playId": "0b418697-097d-337a-9d81-2f57f5ab6210",
++            "pitchNumber": 5,
++            "startTime": "2026-09-29T20:31:48.588Z",
++            "endTime": "2026-09-29T20:31:52.518Z",
++            "isPitch": true,
++            "type": "pitch"
++          },
++          {
++            "details": {
++              "description": "Pitcher Step Off",
++              "code": "PSO",
++              "isOut": false,
++              "hasReview": false,
++              "fromCatcher": false,
++              "disengagementNum": 1
++            },
++            "count": {
++              "balls": 3,
++              "strikes": 2,
++              "outs": 2
++            },
++            "index": 5,
++            "playId": "f79f0720-9608-4f85-8a2a-4ec26a16c7e3",
++            "startTime": "2026-09-29T20:32:10.421Z",
++            "endTime": "2026-09-29T20:32:15.421Z",
++            "isPitch": false,
++            "type": "stepoff"
++          },
++          {
++            "details": {
++              "description": "Batter Timeout.",
++              "event": "Batter Timeout",
++              "eventType": "batter_timeout",
++              "awayScore": 3,
++              "homeScore": 2,
++              "isScoringPlay": false,
++              "isOut": false,
++              "hasReview": false,
++              "disengagementNum": 1
++            },
++            "count": {
++              "balls": 3,
++              "strikes": 2,
++              "outs": 2
++            },
++            "index": 6,
++            "startTime": "2026-09-29T20:32:35.875Z",
++            "endTime": "2026-09-29T20:32:35.876Z",
++            "isPitch": false,
++            "type": "action",
++            "player": {
++              "id": 645277,
++              "link": "/api/v1/people/645277"
++            }
++          },
++          {
++            "details": {
++              "call": {
++                "code": "H",
++                "description": "Hit By Pitch"
++              },
++              "description": "Hit By Pitch",
++              "code": "H",
++              "ballColor": "rgba(39, 161, 39, 1.0)",
++              "trailColor": "rgba(153, 171, 0, 1.0)",
++              "isInPlay": false,
++              "isStrike": false,
++              "isBall": true,
++              "type": {
++                "code": "KC",
++                "description": "Knuckle Curve"
++              },
++              "isOut": false,
++              "hasReview": false,
++              "runnerGoing": true
++            },
++            "count": {
++              "balls": 4,
++              "strikes": 2,
++              "outs": 2
++            },
++            "index": 7,
++            "playId": "5c3c6696-bd87-36c0-bc60-0951b1d58936",
++            "pitchNumber": 6,
++            "startTime": "2026-09-29T20:32:35.877Z",
++            "endTime": "2026-09-29T20:32:42.396Z",
++            "isPitch": true,
++            "type": "pitch"
++          }
++        ],
++        "reviewDetails": {
++          "isOverturned": false,
++          "inProgress": false,
++          "reviewType": "MI",
++          "challengeTeamId": 144
++        },
++        "playEndTime": "2026-09-29T20:32:42.396Z",
++        "atBatIndex": 64
++      }
++    },
++    {
++      "gamePk": "849849",
++      "inputSha256": "70e585df58a4cbc926699f0ca29e68fc92aedf04fd04a9f5f1697607193bbecc",
++      "play": {
++        "result": {
++          "type": "atBat",
++          "event": "Groundout",
++          "eventType": "field_out",
++          "description": "White Sox challenged (shift violation), call on the field was upheld: Sam Antonacci grounds out, second baseman Jose Altuve to first baseman Christian Walker.",
++          "rbi": 0,
++          "awayScore": 4,
++          "homeScore": 0,
++          "isOut": true
++        },
++        "about": {
++          "atBatIndex": 29,
++          "halfInning": "top",
++          "isTopInning": true,
++          "inning": 4,
++          "startTime": "2026-09-29T22:14:35.155Z",
++          "endTime": "2026-09-29T22:16:41.479Z",
++          "isComplete": true,
++          "isScoringPlay": false,
++          "hasReview": true,
++          "hasOut": true,
++          "captivatingIndex": 0
++        },
++        "count": {
++          "balls": 1,
++          "strikes": 2,
++          "outs": 1
++        },
++        "matchup": {
++          "batter": {
++            "id": 803011,
++            "fullName": "Sam Antonacci",
++            "link": "/api/v1/people/803011"
++          },
++          "batSide": {
++            "code": "L",
++            "description": "Left"
++          },
++          "pitcher": {
++            "id": 699044,
++            "fullName": "Miguel Ullola",
++            "link": "/api/v1/people/699044"
++          },
++          "pitchHand": {
++            "code": "R",
++            "description": "Right"
++          },
++          "batterHotColdZones": [],
++          "pitcherHotColdZones": [],
++          "splits": {
++            "batter": "vs_RHP",
++            "pitcher": "vs_LHB",
++            "menOnBase": "Empty"
++          }
++        },
++        "pitchIndex": [
++          0,
++          1,
++          2,
++          3,
++          4
++        ],
++        "actionIndex": [],
++        "runnerIndex": [
++          0
++        ],
++        "runners": [
++          {
++            "movement": {
++              "originBase": null,
++              "start": null,
++              "end": null,
++              "outBase": "1B",
++              "isOut": true,
++              "outNumber": 1
++            },
++            "details": {
++              "event": "Groundout",
++              "eventType": "field_out",
++              "movementReason": null,
++              "runner": {
++                "id": 803011,
++                "fullName": "Sam Antonacci",
++                "link": "/api/v1/people/803011"
++              },
++              "responsiblePitcher": null,
++              "isScoringEvent": false,
++              "rbi": false,
++              "earned": false,
++              "teamUnearned": false,
++              "playIndex": 4
++            },
++            "credits": [
++              {
++                "player": {
++                  "id": 514888,
++                  "link": "/api/v1/people/514888"
++                },
++                "position": {
++                  "code": "4",
++                  "name": "Second Base",
++                  "type": "Infielder",
++                  "abbreviation": "2B"
++                },
++                "credit": "f_assist"
++              },
++              {
++                "player": {
++                  "id": 572233,
++                  "link": "/api/v1/people/572233"
++                },
++                "position": {
++                  "code": "3",
++                  "name": "First Base",
++                  "type": "Infielder",
++                  "abbreviation": "1B"
++                },
++                "credit": "f_putout"
++              }
++            ]
++          }
++        ],
++        "playEvents": [
++          {
++            "details": {
++              "call": {
++                "code": "F",
++                "description": "Foul"
++              },
++              "description": "Foul",
++              "code": "F",
++              "ballColor": "rgba(170, 21, 11, 1.0)",
++              "trailColor": "rgba(0, 0, 254, 1.0)",
++              "isInPlay": false,
++              "isStrike": true,
++              "isBall": false,
++              "type": {
++                "code": "SL",
++                "description": "Slider"
++              },
++              "isOut": false,
++              "hasReview": false
++            },
++            "count": {
++              "balls": 0,
++              "strikes": 1,
++              "outs": 0
++            },
++            "index": 0,
++            "playId": "eaed62c8-5ea4-33ce-8b5a-730971a0afcf",
++            "pitchNumber": 1,
++            "startTime": "2026-09-29T22:14:52.992Z",
++            "endTime": "2026-09-29T22:14:58.973Z",
++            "isPitch": true,
++            "type": "pitch"
++          },
++          {
++            "details": {
++              "call": {
++                "code": "B",
++                "description": "Ball"
++              },
++              "description": "Ball",
++              "code": "B",
++              "ballColor": "rgba(39, 161, 39, 1.0)",
++              "trailColor": "rgba(152, 0, 101, 1.0)",
++              "isInPlay": false,
++              "isStrike": false,
++              "isBall": true,
++              "type": {
++                "code": "FC",
++                "description": "Cutter"
++              },
++              "isOut": false,
++              "hasReview": false
++            },
++            "count": {
++              "balls": 1,
++              "strikes": 1,
++              "outs": 0
++            },
++            "index": 1,
++            "playId": "3e1a8dc7-b397-3eb0-83b7-ca4b875a65a7",
++            "pitchNumber": 2,
++            "startTime": "2026-09-29T22:15:18.077Z",
++            "endTime": "2026-09-29T22:15:21.918Z",
++            "isPitch": true,
++            "type": "pitch"
++          },
++          {
++            "details": {
++              "call": {
++                "code": "C",
++                "description": "Called Strike"
++              },
++              "description": "Called Strike",
++              "code": "C",
++              "ballColor": "rgba(170, 21, 11, 1.0)",
++              "trailColor": "rgba(188, 0, 33, 1.0)",
++              "isInPlay": false,
++              "isStrike": true,
++              "isBall": false,
++              "type": {
++                "code": "FF",
++                "description": "Four-Seam Fastball"
++              },
++              "isOut": false,
++              "hasReview": true
++            },
++            "count": {
++              "balls": 1,
++              "strikes": 2,
++              "outs": 0
++            },
++            "index": 2,
++            "playId": "0984e402-7990-3c98-8e20-382b5ee21f3d",
++            "pitchNumber": 3,
++            "startTime": "2026-09-29T22:15:35.521Z",
++            "endTime": "2026-09-29T22:15:39.504Z",
++            "isPitch": true,
++            "type": "pitch",
++            "reviewDetails": {
++              "isOverturned": true,
++              "inProgress": false,
++              "reviewType": "MJ",
++              "challengeTeamId": 117,
++              "player": {
++                "id": 673237,
++                "fullName": "Yainer Diaz",
++                "link": "/api/v1/people/673237"
++              }
++            }
++          },
++          {
++            "details": {
++              "call": {
++                "code": "F",
++                "description": "Foul"
++              },
++              "description": "Foul",
++              "code": "F",
++              "ballColor": "rgba(170, 21, 11, 1.0)",
++              "trailColor": "rgba(152, 0, 101, 1.0)",
++              "isInPlay": false,
++              "isStrike": true,
++              "isBall": false,
++              "type": {
++                "code": "FC",
++                "description": "Cutter"
++              },
++              "isOut": false,
++              "hasReview": false
++            },
++            "count": {
++              "balls": 1,
++              "strikes": 2,
++              "outs": 0
++            },
++            "index": 3,
++            "playId": "7c992090-628d-3ec8-8eaf-4c538c2c69e7",
++            "pitchNumber": 4,
++            "startTime": "2026-09-29T22:16:10.845Z",
++            "endTime": "2026-09-29T22:16:14.258Z",
++            "isPitch": true,
++            "type": "pitch"
++          },
++          {
++            "details": {
++              "call": {
++                "code": "X",
++                "description": "In play, out(s)"
++              },
++              "description": "In play, out(s)",
++              "code": "X",
++              "ballColor": "rgba(26, 86, 190, 1.0)",
++              "trailColor": "rgba(188, 0, 33, 1.0)",
++              "isInPlay": true,
++              "isStrike": false,
++              "isBall": false,
++              "type": {
++                "code": "FF",
++                "description": "Four-Seam Fastball"
++              },
++              "isOut": true,
++              "hasReview": false
++            },
++            "count": {
++              "balls": 1,
++              "strikes": 2,
++              "outs": 0
++            },
++            "index": 4,
++            "playId": "0242a4c4-6b0b-3a96-897c-c2f23da5d7aa",
++            "pitchNumber": 5,
++            "startTime": "2026-09-29T22:16:33.528Z",
++            "endTime": "2026-09-29T22:16:41.479Z",
++            "isPitch": true,
++            "type": "pitch"
++          }
++        ],
++        "reviewDetails": {
++          "isOverturned": false,
++          "inProgress": false,
++          "reviewType": "MW",
++          "challengeTeamId": 145
++        },
++        "playEndTime": "2026-09-29T22:16:41.479Z",
++        "atBatIndex": 29
++      }
++    }
++  ]
++}
+--- a/Baseball/tests/test_admission_evidence.py
++++ b/Baseball/tests/test_admission_evidence.py
+@@ -216,7 +216,8 @@
+             return ast.dump(tree)
+         self.assertEqual(unchanged(before),unchanged(after))
+         groundout=record.get('defensiveGroundoutRepair')
+-        current=groundout or compound or walk
++        history=record.get('historySelectionRepair')
++        current=history or groundout or compound or walk
+         if compound:
+             now=(subprocess.check_output(['git','-C',str(ROOT.parent),'show',
+                 groundout['baselineCommit']+':Baseball/'+record['contextPath']]) if groundout
+@@ -227,12 +228,24 @@
+                 return ast.dump(tree)
+             self.assertEqual(unaffected(after),unaffected(now))
+         if groundout:
+-            latest=(ROOT/record['contextPath']).read_bytes()
++            latest=(subprocess.check_output(['git','-C',str(ROOT.parent),'show',
++                history['baselineCommit']+':Baseball/'+record['contextPath']]) if history
++                else (ROOT/record['contextPath']).read_bytes())
+             self.assertEqual(hashlib.sha256(latest).hexdigest(),groundout['currentContextSha256'])
+             def nondefensive(raw):
+                 tree=ast.parse(raw);tree.body=[n for n in tree.body if getattr(n,'name',None)!='defensive_act_context']
+                 return ast.dump(tree)
+             self.assertEqual(nondefensive(now),nondefensive(latest))
++        if history:
++            updated=(ROOT/record['contextPath']).read_bytes()
++            self.assertEqual(hashlib.sha256(updated).hexdigest(),history['currentContextSha256'])
++            self.assertEqual(hashlib.sha256(latest).hexdigest(),history['previousContextSha256'])
++            changed={'accounted_runner_history_reviews','completed_pickoff_review',
++                     'nonmovement_strikeout_records','reconciled_action_pitch_overlap','personal_runner_histories'}
++            def nonhistory(raw):
++                tree=ast.parse(raw);tree.body=[n for n in tree.body if getattr(n,'name',None) not in changed]
++                return ast.dump(tree)
++            self.assertEqual(nonhistory(latest),nonhistory(updated))
+         for family,entry in walk['families'].items():
+             adapter=E.module(E.HERE/(family+'-admission.py'),'w1_'+family.replace('-','_'))
+             self.assertEqual(adapter.fingerprint(),current['families'][family]['currentImplementationSha256'])
+@@ -243,7 +256,8 @@
+             self.assertEqual(E.EXISTING_GRAPH.fingerprint(E,adapter),independent['currentImplementationSha256'])
+             self.assertEqual(walk['independentProofs'][family]['previousSourceProducerSha256'],entry['previousImplementationSha256'])
+         for kind,adapter in [('players',E.PLAYER_PARTICIPATION),('pa',E.PLAYER_PARTICIPATION.PA),('c2pa',E.PA_RESOLUTION)]:
+-            entry=record.get('retainedCompoundExpectations',{}).get('derivedProofs',{}).get(kind,current['derivedProofs'][kind])
++            entry=(history['derivedProofs'][kind] if history else
++                record.get('retainedCompoundExpectations',{}).get('derivedProofs',{}).get(kind,current['derivedProofs'][kind]))
+             self.assertEqual(adapter.fingerprint(),entry['currentImplementationSha256'])
+             self.assertEqual(E.prior_versions(kind,adapter.fingerprint()),entry['previousImplementationSha256s'])
+             self.assertEqual(E.prior_versions(kind,'unknown'),[])
