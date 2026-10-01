@@ -199,6 +199,38 @@ class DashboardMaterializer(unittest.TestCase):
         self.assertEqual(updated['playerRanges']['preparedGames'],1)
         self.assertEqual(self.fetched,[])
 
+    def test_roster_checks_completed_during_build_are_included_before_publication(self):
+        from collections import Counter
+        from test_contribution_sql import sample,PROOF
+        for pk in ('101','102'):self.bindings[pk]=sample(int(pk),'safe')[1]
+        reads=Counter()
+        def load(adapter,state,promotion,family):
+            key=(promotion['gamePk'],family);reads[key]+=1
+            return PROOF if reads[key]>1 else {'status':'withheld'}
+        with patch.object(D.ADMISSION_EVIDENCE,'load',side_effect=load):result=D.build(self.args)
+        self.assertEqual(result['status'],'published')
+        self.assertEqual(result['lateRosterAdmissionGames'],self.graphs)
+        self.assertCountEqual(self.fetched,['101','102'])
+        with closing(sqlite3.connect(self.working())) as db:
+            self.assertEqual(D.default_roster_gaps(db),[])
+            for graph in self.graphs:
+                self.assertTrue(D.METRICS.read_results(db,graph,'tfs')[0]['contributionInputs']['complete'])
+
+    def test_pending_rosters_preserve_usable_publication_and_ready_checks_resume(self):
+        from test_contribution_sql import sample,PROOF
+        for pk in ('101','102'):self.bindings[pk]=sample(int(pk),'safe')[1]
+        with patch.object(D.ADMISSION_EVIDENCE,'load',return_value=PROOF):D.build(self.args)
+        previous=self.pointer();self.fetched.clear()
+        pending=D.build(self.args)
+        self.assertEqual(pending['status'],'waiting-for-source')
+        self.assertEqual(pending['pendingRosterGames'],self.graphs)
+        self.assertEqual(self.pointer(),previous)
+        self.assertEqual(self.fetched,[])
+        with patch.object(D.ADMISSION_EVIDENCE,'load',return_value=PROOF):ready=D.build(self.args)
+        self.assertEqual(ready['status'],'published')
+        self.assertNotEqual(self.pointer()['buildId'],previous['buildId'])
+        self.assertEqual(self.fetched,[])
+
     def test_prepared_snapshot_retains_dashboard_and_detail_results_without_build_inputs(self):
         from test_contribution_sql import sample,PROOF
         graph,bindings=sample(101,'safe');self.bindings['101']=bindings

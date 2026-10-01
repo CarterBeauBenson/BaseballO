@@ -47,6 +47,18 @@ must still be verified separately from those six calculated results.
 
 ## Last verified publication
 
+The October 1 16:34 UTC publication (`20261001T160907Z-dashboard-b3619893bfc3`)
+confirmed that the corpus-change publication starvation was repaired. Its HTTP
+check exposed a separate timing defect: games 823589 and 823648 had been read
+before their post-addition roster checks finished, making all 19 cards
+unavailable through `COMPLETE_PARTICIPATION`. Both current roster checks already
+pass. The builder now rereads only initially missing roster admissions before
+preparing player products and preserves an existing roster-complete publication
+if a candidate would suppress the dashboard for that reason. This does not
+admit missing evidence or rerun ingestion. Four focused checks cover late
+admission arrival, retention and resume, captured-source publication and
+independent player-proof updates.
+
 October 1 publication diagnosis: NiFi's 14:42 UTC and 15:14 UTC builds completed
 all 2,917 stored game products and their season products, but both refused
 publication because later graph promotions changed the global corpus hash.

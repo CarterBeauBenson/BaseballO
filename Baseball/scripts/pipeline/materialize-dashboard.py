@@ -455,6 +455,38 @@ def store_game(connection, item, bindings, product_cache=None):
     return proof
 
 
+def refresh_pending_rosters(connection,state,items,calculation,expected,player_admissions):
+    """Pick up checks completed after this game's first input read.
+
+    A targeted graph addition and its independent roster check finish at
+    different times. Reread only those missing checks against the same captured
+    promotion; ordinary incremental reuse updates their dependent SQL products.
+    """
+    updated=[]
+    with admission_versions():
+        for item in items:
+            graph=item['graph'];promotion=item['promotion']
+            with admission_reads():
+                admissions={name:ADMISSION_EVIDENCE.load(adapter,state,promotion,
+                    name.removesuffix('_admission').replace('_','-')) for name,adapter in ADMISSIONS.items()}
+                individual=ADMISSION_EVIDENCE.player_admission(state,promotion)
+            identity=input_identity(promotion,item['dimension'],admissions,calculation)
+            if identity==expected[graph] and individual==player_admissions[graph]:continue
+            with connection:
+                if not reuse_game(connection,graph,expected[graph],promotion,item['dimension'],admissions,calculation):
+                    raise ValueError('Captured roster refresh does not match the stored game: '+graph)
+            expected[graph]=identity;player_admissions[graph]=individual;updated.append(graph)
+    return updated
+
+
+def default_roster_gaps(connection):
+    """Read the same roster coverage used by the prepared default season."""
+    return [r[0] for r in connection.execute("SELECT g.graph_iri FROM game_dimension g "
+        "LEFT JOIN dashboard_player_game p USING(graph_iri) WHERE g.game_set='regular_season' "
+        "AND g.season=(SELECT MAX(season) FROM game_dimension WHERE game_set='regular_season') "
+        'GROUP BY g.graph_iri HAVING MAX(COALESCE(p.roster_complete,0))=0 ORDER BY g.graph_iri')]
+
+
 READER_EXCLUDED_TABLES=frozenset({
     'metric_suite_evidence','metric_suite_result','metric_suite_scope_fact',
     'metric_suite_block_manifest','metric_suite_input_row','metric_suite_input_state',
@@ -599,6 +631,7 @@ def build_locked(args, state, serving, work):
         cache = SOURCE._query_cache.ServingQueryCache(serving/'query-cache.sqlite')
         products = SOURCE._metric_cache.MetricProductCache(serving/'metric-cache.sqlite', calculation)
         pending = []; expected = {}; unchanged = 0; admission_updates = 0; calculation_updates = 0; player_admissions = {}
+        pending_rosters=[]
         old_dimensions = dict(connection.execute('SELECT graph_iri,season FROM game_dimension'))
         saved = dict(connection.execute('SELECT graph_iri,input_sha256 FROM dashboard_checkpoint'))
         checkpoint(phase='input-refresh',totalGames=len(dimensions))
@@ -611,6 +644,10 @@ def build_locked(args, state, serving, work):
                                   for name, adapter in ADMISSIONS.items()}
                     player_admissions[graph] = ADMISSION_EVIDENCE.player_admission(state,promotion)
                 values = dimension_values(dimension, promotion, metadata)
+                if (values[6]=='regular_season' and not any(PLAYER_RANGES.admitted(admissions[name])
+                        for name in ('batting_admission','scoring_run_admission'))
+                        and not (player_admissions[graph] or {}).get('rosterComplete')):
+                    pending_rosters.append(dict(graph=graph,promotion=promotion,dimension=values))
                 identity = input_identity(promotion, values, admissions, calculation)
                 expected[graph] = identity
                 with connection:
@@ -643,6 +680,9 @@ def build_locked(args, state, serving, work):
         for count, (item, bindings) in enumerate(bounded_fetch(pending, fetch, args.workers), 1):
             store_game(connection, item, bindings, products)
             checkpoint(completedGames=completed+count)
+        if pending_rosters:
+            refreshed_rosters=refresh_pending_rosters(connection,state,pending_rosters,calculation,expected,player_admissions)
+            checkpoint(lateRosterAdmissionGames=refreshed_rosters)
         checkpoint(phase='display-labels')
         saved_labels = dict(connection.execute('SELECT graph_iri,input_sha256 FROM dashboard_display_manifest'))
         display_version = DISPLAY.fingerprint()
@@ -689,6 +729,14 @@ def build_locked(args, state, serving, work):
         checkpoint(phase='publication',publicationStep='source-check')
         if dict(connection.execute('SELECT graph_iri,input_sha256 FROM dashboard_checkpoint')) != expected:
             raise ValueError('Dashboard checkpoints do not match the selected source snapshot')
+        missing_rosters=default_roster_gaps(connection)
+        if missing_rosters and old_pointer and not publication_issue:
+            with SOURCE._reader.dashboard_database(state,old_pointer) as (previous,_):
+                prior_rosters_complete=not default_roster_gaps(previous)
+            if prior_rosters_complete:
+                checkpoint(status='waiting-for-source',reason='Captured game roster checks are pending',
+                           pendingRosterGames=missing_rosters,publicationBuildId=old_pointer['buildId'])
+                return progress
         # The prepared snapshot enforces SQL constraints during copying and
         # receives the integrity check below. Do not also scan build-only raw
         # bindings and duplicated results on every small publication update.

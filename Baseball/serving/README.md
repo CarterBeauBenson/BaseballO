@@ -38,6 +38,13 @@ bound to its original RDF and proof hashes. Subsequent promotions cannot
 invalidate unrelated completed products: the next NiFi tick catches them up.
 The publication records its captured source time and policy.
 
+If a newly added graph is awaiting its independent roster check, the dashboard
+builder rereads that game's checks after fetching changed game products. It
+updates the affected prepared SQL products against the same captured promotion.
+A default-season candidate with unverified rosters cannot replace a publication
+whose rosters are complete: the existing reader would suppress every card.
+NiFi retains the candidate's incremental work and retries after the checks finish.
+
 After preparing that captured inventory and checking SQL integrity, NiFi
 publishes an immutable database under `serving/dashboard/builds/` and atomically
 replaces `serving/dashboard-current.json`. Dashboard requests use that pointer
