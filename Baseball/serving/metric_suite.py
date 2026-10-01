@@ -1794,18 +1794,23 @@ def run_construction_evidence(rows, *, metric_id='run-construction-depth'):
             candidates = observed[episode]
             # Optional paths may have duplicates; conflicting or missing state
             # facts must remain visible instead of selecting the first value.
-            fields = ('game', 'runner', 'act', 'resolution', 'batter', 'metricOrigin',
+            fields = ('game', 'runner', 'act', 'resolution',
                       'originDesignation', 'originBase', 'originCode', 'hasSafeType',
                       'hasOutType', 'hasRunType', 'destinationBase', 'destinationCode',
                       'trajectoryHalf', 'trajectoryInterval')
             states = {tuple(r.get(f) for f in fields) for r in candidates}
             if metric_id == 'run-construction-breadth':
-                states = {tuple(r.get(f) for f in (*fields, 'plateAppearance','contactPlay','award','awardRule','independentStealAct',*INDEPENDENT_RUNNING_FIELDS))
+                states = {tuple(r.get(f) for f in (*fields, 'batter','metricOrigin','plateAppearance','contactPlay','award','awardRule','independentStealAct',*INDEPENDENT_RUNNING_FIELDS))
                           for r in candidates}
             if len(states) != 1:
                 failures[key] = 'CONFLICTING_SEGMENT_STATE'
                 break
-            row = candidates[0]
+            # Several actual batters can share a substituted PA. Their OPTIONAL
+            # query bindings do not create different runner states. Depth needs
+            # the explicit segment origin or the runner's own batter binding,
+            # not attribution of batting credit. Breadth retains that requirement.
+            row = (next((r for r in candidates if segment_origin(r) is not None),candidates[0])
+                   if metric_id == 'run-construction-depth' else candidates[0])
             if (row.get('game') != game or row.get('runner') != runner or row.get('trajectoryHalf') != half
                     or row.get('trajectoryInterval') != interval or row.get('metricOrigin') not in {'0', '1', '2', '3'}
                     or row.get('hasOutType') != 'false'):

@@ -338,6 +338,31 @@ class DashboardMaterializer(unittest.TestCase):
         with closing(sqlite3.connect(self.working())) as db:
             self.assertEqual(D.METRICS.read_results(db,self.graphs[0],'paq-2.1'),[before])
 
+    def test_run_depth_upgrade_reuses_sql_and_preserves_other_metrics(self):
+        from test_run_construction_serving import run_fixture,bindings,G1
+        self.bindings['101']=bindings(run_fixture(),[G1])
+        old,new=D.RUN_DEPTH_CALCULATIONS
+        with patch.object(D.METRICS,'calculation_fingerprint',return_value=old):D.build(self.args)
+        with closing(sqlite3.connect(self.working())) as db,db:
+            before,=D.METRICS.read_results(db,G1,'run-construction-depth')
+            legacy=copy.deepcopy(before);run,=legacy['runs'];legacy['runs']=[]
+            legacy['unresolvedRuns']=[dict(graph=G1,game=run['game'],run=run['run'],
+                status='unavailable',value=None,gaps=['CONFLICTING_SEGMENT_STATE'],trajectories=[run['trajectory']])]
+            D.METRICS.store_result(db,G1,'run-construction-depth','game-scope',legacy)
+            other={metric:D.METRICS.read_results(db,G1,metric) for metric, in db.execute(
+                "SELECT DISTINCT metric_id FROM metric_suite_result WHERE graph_iri=? AND metric_id!='run-construction-depth'",(G1,))}
+        self.fetched.clear();calculate=D.METRICS.live_result
+        def depth_only(metric,*args,**kwargs):
+            self.assertEqual(metric,'run-construction-depth')
+            return calculate(metric,*args,**kwargs)
+        with patch.object(D.METRICS,'calculation_fingerprint',return_value=new),patch.object(
+                D.METRICS,'live_result',side_effect=depth_only):result=D.build(self.args)
+        self.assertEqual(result['changedGames'],1);self.assertEqual(result['calculationUpdatedGames'],1)
+        self.assertEqual(self.fetched,[])
+        with closing(sqlite3.connect(self.working())) as db:
+            self.assertEqual(D.METRICS.read_results(db,G1,'run-construction-depth'),[before])
+            for metric,values in other.items():self.assertEqual(D.METRICS.read_results(db,G1,metric),values)
+
     def test_timestamp_only_upgrade_reuses_unaffected_kernels_and_matches_full_calculation(self):
         from test_contribution_sql import sample,PROOF
         graph,bindings=sample(101,'safe');self.bindings['101']=bindings

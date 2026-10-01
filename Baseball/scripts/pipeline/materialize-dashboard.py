@@ -75,6 +75,7 @@ SHARED_OUT_CALCULATIONS = (PLAYER_CALCULATIONS[1], '98fe6a74abb52e6eb0dc7c3ffc71
 ACT_COUNT_CALCULATIONS = (SHARED_OUT_CALCULATIONS[1], '542a6133d48d645d4e9685c000a2cc27cb30b4bd64f90640849178a621af4574')
 SCOPED_PA_CALCULATIONS = (ACT_COUNT_CALCULATIONS[1], '385aa5ba8560e6ce86930e3602781902aca05a8f1302d0e072bc49f4c87d9d38')
 PAQ_CATALOG_CALCULATIONS = (SCOPED_PA_CALCULATIONS[1], '10fc6c16e069b23b3b8fdb7cd1f1f33c9b0ab033d84d0be311f378ce36e3f3e9')
+RUN_DEPTH_CALCULATIONS = (PAQ_CATALOG_CALCULATIONS[1], 'a97a7871f7704362049017cd0b0fc33e49d6064c89164a9060bdb4c04b2f95b5')
 
 
 def digest(value):
@@ -238,9 +239,11 @@ def reuse_game(connection, graph, saved, promotion, dimension, admissions, calcu
         previous[name]=json.loads(row[0])
     identity=input_identity(promotion,dimension,admissions,calculation)
     previous_identity=input_identity(promotion,dimension,previous,calculation)
-    timestamp_update=False;act_count_update=False;catalog_update=False
+    timestamp_update=False;act_count_update=False;catalog_update=False;depth_update=False
     if saved not in {previous_identity,input_identity(promotion,dimension,previous,calculation,legacy=True)}:
         compatible=[]
+        if calculation==RUN_DEPTH_CALCULATIONS[1]:
+            compatible.append((RUN_DEPTH_CALCULATIONS[0],False))
         if calculation==PAQ_CATALOG_CALCULATIONS[1]:
             compatible.append((PAQ_CATALOG_CALCULATIONS[0],False))
         if calculation in {SCOPED_PA_CALCULATIONS[1],PAQ_CATALOG_CALCULATIONS[1]}:
@@ -266,6 +269,7 @@ def reuse_game(connection, graph, saved, promotion, dimension, admissions, calcu
         act_count_update=(calculation in {ACT_COUNT_CALCULATIONS[1],SCOPED_PA_CALCULATIONS[1],PAQ_CATALOG_CALCULATIONS[1]}
                           and matched[0] not in {ACT_COUNT_CALCULATIONS[1],SCOPED_PA_CALCULATIONS[1]})
         catalog_update=calculation==PAQ_CATALOG_CALCULATIONS[1]
+        depth_update=calculation==RUN_DEPTH_CALCULATIONS[1]
     changed=previous_identity!=identity
     if changed or timestamp_update or act_count_update:
         refresh_admission_inputs(connection,graph,previous,admissions,
@@ -279,6 +283,8 @@ def reuse_game(connection, graph, saved, promotion, dimension, admissions, calcu
             result['gaps']=[gap for gap in result['gaps'] if gap!='DEFENSIVE_ORDER']
             METRICS.store_result(connection,graph,'paq-2.1','game-scope',result)
             mark_dirty(connection,{dimension[5]})
+    depth_changed=depth_update and refresh_run_depth(connection,graph)
+    if depth_changed:mark_dirty(connection,{dimension[5]})
     for name,table in ADMISSION_TABLES.items():
         if previous[name]==admissions[name]:continue
         text=METRICS._json(admissions[name])
@@ -287,7 +293,7 @@ def reuse_game(connection, graph, saved, promotion, dimension, admissions, calcu
     if saved!=identity:
         # Carry a verified player partition across a no-op game-version change.
         # Its own producer/proof identities still determine whether it needs work.
-        if not changed and not timestamp_update and not act_count_update:
+        if not changed and not timestamp_update and not act_count_update and not depth_changed:
             partition=connection.execute('SELECT input_sha256 FROM dashboard_player_partition WHERE graph_iri=?',(graph,)).fetchone()
             individual=connection.execute('SELECT proof_sha256 FROM dashboard_player_admission WHERE graph_iri=?',(graph,)).fetchone()
             proof_sha=individual[0] if individual else ''
@@ -301,7 +307,29 @@ def reuse_game(connection, graph, saved, promotion, dimension, admissions, calcu
                         (METRICS._hash(identity+version+proof_sha),graph))
                     break
         connection.execute('UPDATE dashboard_checkpoint SET input_sha256=? WHERE graph_iri=?',(identity,graph))
-    return 'calculations' if timestamp_update or act_count_update else 'admissions' if changed else 'unchanged'
+    return 'calculations' if timestamp_update or act_count_update or depth_changed else 'admissions' if changed else 'unchanged'
+
+
+def refresh_run_depth(connection,graph):
+    """Recalculate only the old duplicate-batter failures from retained SQL.
+
+    Other metrics, successful run histories and unaffected games retain their
+    results. This upgrade requires neither SPARQL nor an RDF/source refresh.
+    """
+    previous,=METRICS.read_results(connection,graph,'run-construction-depth')
+    if not any('CONFLICTING_SEGMENT_STATE' in r.get('gaps',[]) for r in previous.get('unresolvedRuns',[])):
+        return False
+    rows=[]
+    for text,sha in connection.execute('SELECT binding_json,binding_sha256 FROM metric_suite_evidence WHERE graph_iri=?',(graph,)):
+        if METRICS._hash(text)!=sha:raise ValueError('Stored dashboard evidence changed')
+        rows.append(json.loads(text))
+    proof=json.loads(connection.execute('SELECT proof_json FROM dashboard_checkpoint WHERE graph_iri=?',(graph,)).fetchone()[0])
+    if len(rows)!=proof['evidenceRows']:raise ValueError('Stored dashboard evidence is incomplete')
+    rows.sort(key=METRICS._json)
+    result=METRICS.live_result('run-construction-depth',rows,graph_count=1)
+    if result==previous:return False
+    METRICS.store_result(connection,graph,'run-construction-depth','game-scope',result)
+    return True
 
 
 def mark_dirty(connection, seasons):

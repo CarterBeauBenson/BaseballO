@@ -41,6 +41,24 @@ def score(dataset):
 
 
 class RunConstructionServing(unittest.TestCase):
+    def test_substituted_batter_bindings_do_not_change_runner_history_depth(self):
+        dataset=run_fixture();graph=dataset.graph(G1)
+        for pa in (EX.pa0,EX.pa1):
+            act=URIRef(str(pa)+'/other-batter');role=EX.otherBatterRole
+            for triple in ((act,RDF.type,BASE.BatterAct),(act,BFO.BFO_0000132,pa),
+                           (act,BFO.BFO_0000055,role),(role,RDF.type,BASE.BatterRole),
+                           (role,BFO.BFO_0000197,EX.otherBatter)):
+                graph.add(triple)
+        rows=M.normalize_bindings(bindings(dataset,[G1]),[G1])
+        variants=[r for r in rows if r.get('resolution')==str(EX.resolution0)]
+        self.assertEqual({r.get('metricOrigin') for r in variants},{None,'0'})
+        run,=M.run_construction_evidence(rows)['runs']
+        self.assertEqual(run['value'],M.exact(3))
+        # This says nothing about which batter earned contribution credit.
+        breadth=M.run_construction_evidence(rows,metric_id='run-construction-breadth')
+        self.assertEqual(breadth['runs'],[])
+        self.assertEqual(breadth['unresolvedRuns'][0]['gaps'],['CONFLICTING_SEGMENT_STATE'])
+
     def test_full_run_depth_reaches_sql_without_claiming_population_completeness(self):
         dataset = run_fixture(); source = bindings(dataset, [G1]); result = score(dataset)
         run, = result['runs']

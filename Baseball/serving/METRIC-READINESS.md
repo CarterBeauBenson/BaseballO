@@ -22,6 +22,16 @@ those games. It retains unrelated failures and reuses completed checks. This
 changes neither RDF nor RML; the 18 are repair candidates, not a claim of newly
 published or fully qualified season players.
 
+Scoring History Length also confused multiple batter bindings in a substituted
+PA with conflicting runner states. Depth now uses the supported runner origin
+and endpoint, independently of batter attribution; Run Contributors retains its
+attribution requirement. Read-only recalculation of the affected stored SQL
+evidence resolves all six such scoring histories in games 823632, 823927,
+824374 and 824642 (depths 4, 4, 4, 4, 4 and 2). NiFi's incremental SQL upgrade
+recalculates only the affected depth results, then their player/range products.
+It preserves other metrics and does not query or rebuild RDF. Live publication
+must still be verified separately from those six calculated results.
+
 ## Last verified publication
 
 October 1: the full-season HTTP response from
