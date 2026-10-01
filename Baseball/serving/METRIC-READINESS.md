@@ -4,6 +4,24 @@
 player producers; the two review player integrations remain unfinished. Twenty
 calculation kernels exist, including backend-only Role Realization Breadth.
 
+## Current priority: offense
+
+The user narrowed active work to offense on October 1. Prioritize batting
+qualification, Offensive Reach, Help Without Advancing, Empty Games,
+contribution and run construction. Defensive completion is not a prerequisite
+for these independent offensive results.
+
+One admission handoff defect is repaired: individual player checks previously
+reused the original B1 source census even after the retained-batting stage had
+reconciled its substitution errors. Where another player's graph failure still
+withheld the whole game, those stale source errors continued excluding hitters.
+The published snapshot has 18 such player-game exclusions with otherwise clean
+individual graph checks. NiFi now feeds the existing reconciled census into
+the unchanged player SHACL, records the source/proof hashes, and prioritizes
+those games. It retains unrelated failures and reuses completed checks. This
+changes neither RDF nor RML; the 18 are repair candidates, not a claim of newly
+published or fully qualified season players.
+
 ## Last verified publication
 
 October 1: the full-season HTTP response from

@@ -27,6 +27,47 @@ def current_implementation(family, entry):
 
 
 class AdmissionEvidence(unittest.TestCase):
+    def test_corrected_batting_census_reaches_player_check_without_admitting_graph_failures(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);promotion=dict(gamePk='566279',promotionManifestSha256='promotion')
+            source=E.PLAYER_PARTICIPATION.B.census((ROOT/'data/raw/game-566279.json').read_bytes(),'566279')
+            path=E.refresh_path(state,promotion,'batting','repair').with_suffix('.source.json')
+            E.atomic(path,source)
+            proof=dict(status='withheld',graphConforms=False,implementationSha256='repair',
+                sourceCensusSha256=E.sha(path),proofSha256='checked-repair')
+            player=source['members'][0]['player']
+            individual=dict(players=[dict(player=player,status='withheld',issues=[
+                dict(code='OFFENSIVE_REPLACEMENT_WITHIN_TURN',atBatIndex=0)])],
+                retainedSourceEvidence=dict(sha256='original'))
+            with patch.object(E.RETAINED_BATTING,'load',return_value=proof):
+                corrected,witness=E.corrected_player_source(E,state,promotion,individual)
+                self.assertEqual(corrected,source)
+                self.assertEqual(witness['battingRepairProofSha256'],'checked-repair')
+                self.assertEqual(E.PLAYER_PARTICIPATION.shape_text(corrected),
+                                 E.PLAYER_PARTICIPATION.shape_text(source))
+                # A real graph failure is still evaluated by the same player
+                # SHACL report; correction only removes the old source issue.
+                report=E.PLAYER_PARTICIPATION.Graph()
+                report.add((E.PLAYER_PARTICIPATION.URIRef('urn:result'),
+                    E.PLAYER_PARTICIPATION.SH.sourceShape,E.PLAYER_PARTICIPATION.URIRef(
+                    'urn:baseballo:validation:player-participation:'+player.rsplit('/',1)[-1])))
+                result=E.PLAYER_PARTICIPATION.outcome(corrected,report)
+                rejected=next(p for p in result['players'] if p['player']==player)
+                self.assertEqual(rejected['issues'],[dict(code='PLAYER_GRAPH_CONFORMANCE')])
+                individual['retainedSourceEvidence']=witness
+                self.assertIsNone(E.corrected_player_source(E,state,promotion,individual))
+                path.write_text('{}',encoding='utf-8')
+                with self.assertRaisesRegex(ValueError,'census changed'):
+                    E.corrected_player_source(E,state,promotion,individual)
+
+    def test_player_correction_needs_an_existing_reconciled_source(self):
+        individual=dict(players=[dict(issues=[dict(code='OFFENSIVE_REPLACEMENT_WITHIN_TURN')])])
+        with patch.object(E.RETAINED_BATTING,'load',return_value=None) as load:
+            self.assertIsNone(E.corrected_player_source(E,'state',{},individual))
+            self.assertEqual(load.call_count,1)
+            self.assertIsNone(E.corrected_player_source(E,'state',{},dict(players=[])))
+            self.assertEqual(load.call_count,1)
+
     def test_successful_stages_continue_until_remaining_checks_are_finished(self):
         with tempfile.TemporaryDirectory() as temp:
             state=Path(temp)
@@ -235,6 +276,11 @@ class AdmissionEvidence(unittest.TestCase):
                     ('g103',json.dumps(dict(status='withheld'))))
             priority=E.dashboard_game_priorities(state)
             self.assertEqual(sorted(priority,key=lambda pk:(priority[pk],pk)),['104','101','103','102'])
+            with closing(sqlite3.connect(database)) as db, db:
+                db.execute('UPDATE dashboard_player_admission SET proof_json=? WHERE graph_iri=?',
+                    (json.dumps(dict(implementationSha256=E.PLAYER_PARTICIPATION.fingerprint(),
+                        players=[dict(issues=[dict(code='OFFENSIVE_REPLACEMENT_WITHIN_TURN')])])),'g102'))
+            self.assertEqual(E.dashboard_game_priorities(state)['102'],1)
 
     def test_prior_admitted_clock_proofs_have_identical_checks_when_source_issues_are_empty(self):
         record=E.read(E.COMPATIBILITY_PATH)['priorClockIsolation']

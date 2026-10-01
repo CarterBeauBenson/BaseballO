@@ -341,6 +341,30 @@ def refresh_existing_graph(state,promotion,witness,java,classpath,endpoint):
     return results
 
 
+def corrected_player_source(api,state,promotion,individual):
+    """Feed an already reconciled B1 census into the existing player check.
+
+    A whole-game B1 graph failure can coexist with a resolved source issue for
+    one player. Reuse that source reconciliation, not the whole-game admission
+    outcome. The unchanged player SHACL still decides each player's result.
+    """
+    if not individual or not any(i.get('code')=='OFFENSIVE_REPLACEMENT_WITHIN_TURN'
+            for person in individual.get('players',[]) for i in person.get('issues',[])):
+        return None
+    proof=RETAINED_BATTING.load(api,state,promotion)
+    if proof is None:return None
+    source_path=refresh_path(state,promotion,'batting',proof['implementationSha256']).with_suffix('.source.json')
+    source_sha=sha(source_path)
+    if source_sha!=proof.get('sourceCensusSha256'):
+        raise ValueError('Reconciled batting census changed before player validation')
+    if individual.get('retainedSourceEvidence',{}).get('sha256')==source_sha:
+        return None  # This exact source has already reached the player check.
+    source=read(source_path)
+    return PLAYER_PARTICIPATION.compound_expectations(source),dict(
+        kind='retained-b1-census',path=str(source_path),sha256=source_sha,
+        battingRepairProofSha256=proof['proofSha256'])
+
+
 def refresh_game(state,promotion,java,classpath,endpoint='http://127.0.0.1:3031/baseball-dev/query'):
     marker=checked_marker(promotion)
     adapters={family:module(HERE/(family+'-admission.py'),'refresh_'+family.replace('-','_')) for family in FIELDS}
@@ -354,12 +378,15 @@ def refresh_game(state,promotion,java,classpath,endpoint='http://127.0.0.1:3031/
     batting=load(adapters['batting'],state,promotion,'batting')
     boundary=load(adapters['runner-boundary'],state,promotion,'runner-boundary')
     individual=PLAYER_PARTICIPATION.load(api,state,promotion)
+    corrected=(corrected_player_source(api,state,promotion,individual)
+               if batting.get('status')!='admitted' else None)
     if ((batting.get('status')!='admitted' or boundary.get('status')!='admitted')
             and (individual is None or individual.get('implementationSha256') not in
                  [PLAYER_PARTICIPATION.fingerprint(),*prior_versions('players',PLAYER_PARTICIPATION.fingerprint())]
                  or PLAYER_PARTICIPATION.PA.needs_overlap_refresh((individual or {}).get('paBoundaries'))
-                 or PLAYER_PARTICIPATION.needs_compound_refresh(individual))):
-        retained=PLAYER_PARTICIPATION.retained_source(api,state,promotion)
+                 or PLAYER_PARTICIPATION.needs_compound_refresh(individual)
+                 or corrected is not None)):
+        retained=corrected or PLAYER_PARTICIPATION.retained_source(api,state,promotion)
         if retained is not None:
             memory=module(ROOT/'scripts/pipeline/process_state.py','participation_memory').available_memory()
             if memory is not None and memory<1024*1024*1024:
@@ -458,12 +485,13 @@ def dashboard_game_priorities(state):
         player_versions={player_version,*prior_versions('players',player_version)}
         priority={r[0]:3 for r in connection.execute("SELECT game_pk FROM game_dimension WHERE game_set='regular_season' "
             "AND season=(SELECT max(season) FROM game_dimension WHERE game_set='regular_season')")}
-        for pk,batting,individual in connection.execute('''SELECT g.game_pk,
-                json_extract(b.proof_json,'$.status'),json_extract(a.proof_json,'$.implementationSha256')
+        for pk,batting,individual,substitution in connection.execute('''SELECT g.game_pk,
+                json_extract(b.proof_json,'$.status'),json_extract(a.proof_json,'$.implementationSha256'),
+                instr(a.proof_json,'OFFENSIVE_REPLACEMENT_WITHIN_TURN')>0
                 FROM game_dimension g LEFT JOIN metric_suite_admission b USING(graph_iri)
                 LEFT JOIN dashboard_player_admission a USING(graph_iri)
                 WHERE g.game_set='regular_season' '''):
-            if pk in priority and batting!='admitted' and individual not in player_versions:priority[pk]=1
+            if pk in priority and batting!='admitted' and (individual not in player_versions or substitution):priority[pk]=1
         for pk, in connection.execute('''SELECT g.game_pk FROM game_dimension g
                 JOIN metric_suite_runner_resolution_admission r USING(graph_iri)
                 WHERE g.game_set='regular_season' AND json_extract(r.proof_json,'$.status')!='admitted' '''):
