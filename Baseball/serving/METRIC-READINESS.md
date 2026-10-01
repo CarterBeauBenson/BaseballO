@@ -58,6 +58,12 @@ if a candidate would suppress the dashboard for that reason. This does not
 admit missing evidence or rerun ingestion. Four focused checks cover late
 admission arrival, retention and resume, captured-source publication and
 independent player-proof updates.
+The retained `20260930T162149Z-dashboard-5d417d3bf58b` snapshot was restored after
+checking its immutable database and paired reader. The follow-up live HTTP
+request again returns all 2,429 verified rosters and five populated cards:
+Offensive Reach 1, Help Without Advancing 5, Empty Games 266, Scoring History
+Length 17 and Run Contributors 1. The newer incremental build continues;
+restoring service does not close the remaining metric coverage gaps.
 
 October 1 publication diagnosis: NiFi's 14:42 UTC and 15:14 UTC builds completed
 all 2,917 stored game products and their season products, but both refused

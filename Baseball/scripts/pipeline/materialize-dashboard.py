@@ -44,6 +44,7 @@ DISPLAY = module(ROOT/'serving/dashboard_display.py', 'dashboard_display')
 REFERENCES = module(ROOT/'serving/reference_products.py', 'dashboard_references')
 PLAYER_RANGES = module(ROOT/'serving/player_ranges.py', 'dashboard_player_ranges')
 ADMISSION_EVIDENCE = module(ROOT/'sources/mlb-game/pipeline/admission-evidence.py','dashboard_admission_evidence')
+ADMISSION_HASHES = module(ROOT/'scripts/pipeline/game_promotion_inventory.py','dashboard_admission_hashes')
 SCHEMA = ROOT/'serving/dashboard-schema.sql'
 POINTER = 'dashboard-current.json'
 ADMISSIONS = {
@@ -200,7 +201,8 @@ def admission_reads():
 
     Every caller retains its original hash/identity/conformance checks. Cache
     misses open and check the file on both sides of the read; hits check its
-    current file identity. Nothing is retained between games or invocations.
+    current file identity. JSON bytes remain local to this context. Immutable
+    SHACL artifact hashes use the existing persistent file-identity cache.
     """
     originals=ADMISSION_EVIDENCE.sha,ADMISSION_EVIDENCE.read
     cached={};used=0
@@ -221,7 +223,11 @@ def admission_reads():
         if used+len(raw)<=32*1024*1024 and len(cached)<128:
             cached[path]=(before,*value);used+=len(raw)
         return value
-    ADMISSION_EVIDENCE.sha=lambda path:contents(path)[1]
+    # SHACL reports and shapes are immutable evidence files, never JSON reads.
+    # Reuse the inventory's existing identity-checked hash cache across builds;
+    # every original proof still compares its expected digest with that result.
+    ADMISSION_EVIDENCE.sha=lambda path: (ADMISSION_HASHES.sha256_file(Path(path))
+        if Path(path).suffix=='.ttl' else contents(path)[1])
     # Decode afresh so a caller cannot mutate another reader's JSON object.
     ADMISSION_EVIDENCE.read=lambda path:json.loads(contents(path)[0].decode('utf-8-sig'))
     try:yield
@@ -561,7 +567,8 @@ def build(args):
         # A bounded developer build must not remove full-corpus checkpoints.
         work = work/'development'/str(args.max_games)
         work.mkdir(parents=True, exist_ok=True)
-    with writer_lock(work/'writer.lock'):
+    with writer_lock(work/'writer.lock'), ADMISSION_HASHES.artifact_hash_cache(
+            work/('admission-artifact-hashes-'+sys.implementation.cache_tag+'.json'),RELEASE.atomic):
         return build_locked(args, state, serving, work)
 
 
@@ -731,7 +738,12 @@ def build_locked(args, state, serving, work):
             raise ValueError('Dashboard checkpoints do not match the selected source snapshot')
         missing_rosters=default_roster_gaps(connection)
         if missing_rosters and old_pointer and not publication_issue:
-            with SOURCE._reader.dashboard_database(state,old_pointer) as (previous,_):
+            # A prior usable publication can legitimately use an older metric
+            # implementation. Validate it with its own paired reader.
+            prior_root=RELEASE.resolve_pointer_release(state,old_pointer)
+            prior_reader=(module(prior_root/'scripts/pipeline/query-serving-layer.py','prior_dashboard_reader')
+                          if prior_root else SOURCE._reader)
+            with prior_reader.dashboard_database(state,old_pointer) as (previous,_):
                 prior_rosters_complete=not default_roster_gaps(previous)
             if prior_rosters_complete:
                 checkpoint(status='waiting-for-source',reason='Captured game roster checks are pending',

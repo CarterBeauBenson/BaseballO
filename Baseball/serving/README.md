@@ -44,6 +44,11 @@ updates the affected prepared SQL products against the same captured promotion.
 A default-season candidate with unverified rosters cannot replace a publication
 whose rosters are complete: the existing reader would suppress every card.
 NiFi retains the candidate's incremental work and retries after the checks finish.
+The roster check uses the prior publication's paired reader, allowing a usable
+older calculation release to remain live during an incremental upgrade. For
+unchanged SHACL reports and shapes, admission reads reuse the inventory's
+existing file-identity hash cache; changed or missing artifacts still invalidate
+their proofs. JSON proof contents continue to be read and verified normally.
 
 After preparing that captured inventory and checking SQL integrity, NiFi
 publishes an immutable database under `serving/dashboard/builds/` and atomically

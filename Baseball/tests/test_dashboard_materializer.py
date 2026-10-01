@@ -500,6 +500,26 @@ class DashboardMaterializer(unittest.TestCase):
                 self.assertEqual(original.call_count,2)
             self.assertIs(D.ADMISSION_EVIDENCE.code_equivalence,original)
 
+    def test_admission_report_hashes_survive_restart_but_detect_changed_evidence(self):
+        path=self.state/'proof.report.ttl';path.write_bytes(b'<a> <b> <c> .')
+        cache=self.state/'hashes.json';original_open=Path.open;opens=[]
+        def tracked(p,*args,**kwargs):
+            if p==path and args and args[0]=='rb':opens.append(p)
+            return original_open(p,*args,**kwargs)
+        with patch.object(Path,'open',tracked):
+            with D.ADMISSION_HASHES.artifact_hash_cache(cache,D.RELEASE.atomic),D.admission_reads():
+                first=D.ADMISSION_EVIDENCE.sha(path)
+            D.ADMISSION_HASHES._FILE_HASHES.clear()
+            with D.ADMISSION_HASHES.artifact_hash_cache(cache,D.RELEASE.atomic),D.admission_reads():
+                self.assertEqual(D.ADMISSION_EVIDENCE.sha(path),first)
+                self.assertEqual(len(opens),1)
+                replacement=self.state/'changed.ttl';replacement.write_bytes(b'<a> <b> <d> .')
+                os.replace(replacement,path)
+                self.assertNotEqual(D.ADMISSION_EVIDENCE.sha(path),first)
+                self.assertEqual(len(opens),2)
+                path.unlink()
+                with self.assertRaises(FileNotFoundError):D.ADMISSION_EVIDENCE.sha(path)
+
     def test_admission_reads_reuse_bytes_but_detect_replacement_and_deletion(self):
         path=self.state/'proof.json';path.write_bytes(b'{"value":1}')
         original_open=Path.open;opens=[]
