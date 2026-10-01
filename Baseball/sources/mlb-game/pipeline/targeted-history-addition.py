@@ -157,7 +157,7 @@ def revalidate(marker, manifest, history, rdf, evidence, java, classpath, delta=
     records this graph revalidation. Previously withheld populations stay so.
     """
     output_fields = {}
-    with J.Session(rdf, java, classpath) as session:
+    with J.Session(rdf, java, classpath, max_heap='384m') as session:
         def validate(shape, report):
             conforms, graph, _ = session.validate_with_jena(data_path=rdf, shape_path=shape,
                 java=java, classpath=classpath, max_heap='384m')
@@ -354,7 +354,7 @@ def add_game(state, game_pk, java, mapper, classpath):
     mapping = evidence / 'history.rml.ttl'
     subset_mapping(game_pk,mapping,history_maps(delta_context))
     delta_path = evidence / 'history-addition.ttl'
-    command([java, '-Xmx512m', '-jar', mapper, '-m', mapping, '-o', delta_path,
+    command([java, '-Xmx256m', '-jar', mapper, '-m', mapping, '-o', delta_path,
         '-s', 'turtle', '-b', manifest['mappingBaseIri'], '--strict'], evidence, evidence / 'rml.log')
     delta = Graph().parse(delta_path, format='turtle')
     V.verify(json.loads(context.read_text()), delta)

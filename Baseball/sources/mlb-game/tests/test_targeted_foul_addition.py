@@ -6,7 +6,8 @@ import subprocess
 import sys
 import tempfile
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, Mock
+from types import SimpleNamespace
 from rdflib import Graph, RDF, URIRef
 
 ROOT=Path(__file__).resolve().parents[3]
@@ -37,7 +38,7 @@ class FoulAddition(unittest.TestCase):
             self.assertEqual({str(m).rsplit('#',1)[1] for m in maps.subjects(RDF.type,
                 URIRef('http://www.w3.org/ns/r2rml#TriplesMap'))},set(F.MAPS))
             java,mapper=installed_tools();output=path/'delta.ttl'
-            run=subprocess.run([str(java),'-Xmx512m','-jar',str(mapper),'-m',str(mapping),'-o',str(output),
+            run=subprocess.run([str(java),'-Xmx256m','-jar',str(mapper),'-m',str(mapping),'-o',str(output),
                 '-s','turtle','-b','https://baseballontology.org/mapping/mlb-direct','--strict'],cwd=path,capture_output=True)
             self.assertEqual(run.returncode,0,run.stderr.decode(errors='replace'))
             graph=Graph().parse(output)
@@ -81,6 +82,46 @@ class FoulAddition(unittest.TestCase):
                 identity=[F.W.sha(marker(pk)),F.fingerprint()],status='selected',case=value)
                 for pk,value in [('1',case),('2',later)]}))
             self.assertEqual(F.next_case(state),later)
+
+    def test_promoted_case_resumes_finalization_when_missing_foul_report_is_gone(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);case=dict(gamePk='1',selected=[dict(playId='foul')])
+            control=state/'pipeline/control/mlb-game/foul-addition/1.json'
+            F.W.atomic(state/'pipeline/evidence/nifi/game-promotion/1/promoted.json',dict(promotedAtUtc='now'))
+            witness=dict(path='retired-owned-input',sha256='source',kind='targeted-reacquisition')
+            F.W.atomic(control,dict(status='failed',case=case,caseSha256=F.case_sha(case),attempts=1,
+                implementationSha256=F.fingerprint(),additionComplete=True,additionStatus='complete',sourceWitness=witness))
+            self.assertEqual(F.next_case(state),case)
+            with patch.object(F,'acquire') as acquire,patch.object(F.W,'add_game') as add, \
+                    patch.object(F,'finish',return_value={'pitch-count':'admitted'}) as finish:
+                result=F.tick(state,case,None,None,None)
+                acquire.assert_not_called();add.assert_not_called();finish.assert_called_once()
+                self.assertEqual(result['status'],'complete')
+                self.assertIsNone(F.next_case(state))
+
+    def test_retirement_can_finish_after_interruption_after_delete(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);source=state/'pipeline/quarantine/mlb-game/1/targeted-foul/input.json'
+            F.W.atomic(source,dict(gamePk=1))
+            witness=dict(path=str(source),sha256=F.W.sha(source),kind='targeted-reacquisition')
+            marker=state/'pipeline/evidence/nifi/game-promotion/1/promoted.json'
+            F.W.atomic(marker,dict(gamePk='1',promotedAtUtc='now'))
+            refresh=Mock(return_value=[('1','pitch-count','admitted')])
+            original=F.W.atomic
+            def interrupt(path,value):
+                if path.name=='retirement.json' and value.get('rawRetiredAfterPromotion'):raise RuntimeError('interrupted')
+                original(path,value)
+            with patch.object(F.W,'module',return_value=SimpleNamespace(refresh_existing_graph=refresh)), \
+                    patch.object(F.W.I,'validated_promotion_record',return_value={}), \
+                    patch.object(F.W.I,'query_index_contract_admission',return_value={}):
+                with patch.object(F.W,'atomic',side_effect=interrupt):
+                    with self.assertRaisesRegex(RuntimeError,'interrupted'):F.finish(state,'1',witness,None,None)
+                self.assertFalse(source.exists())
+                self.assertEqual(F.finish(state,'1',witness,None,None),{'pitch-count':'admitted'})
+                refresh.assert_called_once()
+                self.assertTrue(F.W.read(source.with_name('retirement.json'))['rawRetiredAfterPromotion'])
+                bad=dict(witness,sha256='unrelated')
+                with self.assertRaisesRegex(ValueError,'receipt does not bind'):F.finish(state,'1',bad,None,None)
 
 
 if __name__=='__main__':unittest.main()

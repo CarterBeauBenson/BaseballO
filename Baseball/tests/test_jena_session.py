@@ -21,7 +21,7 @@ class JenaSession(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             root=Path(temporary); data=root/'game.ttl'; shape=root/'shape.ttl'
             data.write_text('@prefix ex: <https://example.org/> . ex:a ex:value 1 .')
-            with S.Session(data,JAVA,JENA) as session:
+            with S.Session(data,JAVA,JENA,max_heap='384m') as session:
                 for minimum,heap in ((1,'384m'),(2,'512m')):
                     shape.write_text('@prefix sh: <http://www.w3.org/ns/shacl#> . '
                         '@prefix ex: <https://example.org/> . ex:shape a sh:NodeShape; sh:targetNode ex:a; '

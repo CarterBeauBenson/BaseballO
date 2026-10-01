@@ -4,9 +4,12 @@ This is a diagnostic report, not a semantic decision, executable inventory or pr
 
 Coverage: 2,404 current staging manifests; 60,405 selected histories; 2,429 regular-season SQL games.
 
-The combined candidate has 209 inventoried games and 752 missing histories. It is not active.
+The combined repair has 209 inventoried games and 752 missing histories. The
+user accepted H3 and it was activated in `9b4d192`. The counts below describe
+the pre-repair snapshot; they are not a live count of remaining failures. See
+the [H3 review and execution notes](rml-selection-repair-2026-10-01.md).
 
-Held patch SHA-256: `c90b77d00bf84db10de6f104ff8951ec2c963f204a8ead50d3a8a776659b89c8`.
+Accepted patch SHA-256: `c90b77d00bf84db10de6f104ff8951ec2c963f204a8ead50d3a8a776659b89c8`.
 
 | Recorded family | Games | Example games |
 | --- | ---: | --- |

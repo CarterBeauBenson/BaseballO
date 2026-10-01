@@ -108,7 +108,7 @@ def revalidate(marker,manifest,rdf,evidence,java,classpath,selected,game_pk,delt
     """Preserve original source outcomes; check affected facts before promotion."""
     decisions=decisions or dict(decision=DECISION,dependencyDecision=DEPENDENCY_DECISION)
     fields={};shape=evidence/'addition.shapes.ttl';shape.write_text(shape_text(game_pk,selected),encoding='utf-8',newline='\n')
-    with J.Session(rdf,java,classpath) as session:
+    with J.Session(rdf,java,classpath,max_heap='384m') as session:
         def check(path,report):
             conforms,graph,_=session.validate_with_jena(data_path=rdf,shape_path=path,
                 java=java,classpath=classpath,max_heap='384m')
@@ -189,7 +189,7 @@ def add_game(state,game_pk,witness,java,mapper,classpath,*,repair=None):
     context=evidence/'game-context.json'
     mapping=evidence/'addition.rml.ttl';repair['execution_inputs'](raw,game_pk,selected,context,mapping)
     delta_path=evidence/'addition.ttl'
-    A.command([java,'-Xmx512m','-jar',mapper,'-m',mapping,'-o',delta_path,'-s','turtle',
+    A.command([java,'-Xmx256m','-jar',mapper,'-m',mapping,'-o',delta_path,'-s','turtle',
         '-b',manifest['mappingBaseIri'],'--strict'],evidence,evidence/'rml.log')
     delta=Graph().parse(delta_path);base_bytes=store.get(marker['authoritativeGraph'])
     if base_bytes is None:raise ValueError('W1 base graph is missing')

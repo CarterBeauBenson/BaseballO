@@ -10,15 +10,17 @@ from rdflib import Graph
 
 
 class Session:
-    def __init__(self, data_path, java, classpath, timeout=300):
+    def __init__(self, data_path, java, classpath, timeout=300, max_heap='512m'):
+        if max_heap not in ('384m','512m'):
+            raise ValueError('Unsupported Jena session heap')
         self.data_path=Path(data_path).resolve(); self.java=Path(java).resolve()
         self.classpath=Path(classpath).resolve(); self.timeout=timeout; self.process=None
-        self.timings=[]
+        self.timings=[]; self.max_heap=max_heap
 
     def __enter__(self):
         self.errors=tempfile.TemporaryFile()
-        # One JVM serves both the 384m profiles and the 512m pitch-count profile.
-        self.process=subprocess.Popen([str(self.java),'-Xms64m','-Xmx512m','-cp',str(self.classpath),
+        # Ordinary sessions serve all profiles; small additions request 384m.
+        self.process=subprocess.Popen([str(self.java),'-Xms64m','-Xmx'+self.max_heap,'-cp',str(self.classpath),
             str(Path(__file__).with_name('ShaclSession.java')),self.data_path.as_uri()],
             stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=self.errors)
         self.lines=queue.Queue()

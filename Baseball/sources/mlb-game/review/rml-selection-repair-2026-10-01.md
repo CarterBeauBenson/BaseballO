@@ -117,6 +117,40 @@ returning `already-complete`. Their six focused regressions pass.
 
 ## Focused developer evidence and approval
 
+### Second operational pass
+
+The October 1 follow-up found that the foul and defensive workers were
+silently deferring below 1.5 GiB of available memory while the history worker
+continued independently. Small additions now use a 256 MiB mapper and a
+384 MiB retained-graph SHACL session; these stages run sequentially. The three
+repair workers share one exclusive, crash-released memory slot and require
+1 GiB free before starting. NiFi logs explicit memory/slot deferrals and owns
+the next attempt. No source SHACL or validation requirement was removed.
+Existing real RML and Jena report-equivalence checks pass at these heap sizes;
+the resource-slot regression verifies exclusion and release after failure.
+
+The foul worker also retains a pending case after promotion until evidence
+refresh and cleanup finish. Previously, promotion could remove the missing
+class report and hide an interrupted cleanup from the queue. It now records
+the completed addition before finalization and persists refresh outcomes
+before deleting its owned input. Recovery tests cover an interruption after
+deletion, unchanged bounded retries, and rejecting a mismatched receipt.
+
+Recorded live results after the resource repair:
+
+- Game 822678: all four selected foul strikes added, 56 triples; the refreshed
+  pitch-count admission is `admitted`. Runner-boundary and defensive admissions
+  remain `withheld`; that outcome was not changed by the count repair.
+- Game 822693: 32 missing defensive triples added through the existing D1 maps.
+- The SQL publication from 21:17 UTC covers all 2,429 regular-season games and
+  has complete participation coverage. It captured its inputs at 21:01 UTC,
+  before these additions. Its dashboard still has five populated cards out of
+  19; later promotion events belong to subsequent incremental SQL builds.
+
+These fixes alter execution and recovery, not the accepted context, mappings,
+ontology, scoped semantic pins or qualification criteria. They do not close
+the explicitly documented source conflicts or all season coverage debt.
+
 Activation: acceptance was published first in `3e55b5e`; the exact patch was
 then applied. The installed worker's five scope/dependency/cleanup tests and
 four counted-foul-prefix tests pass. The existing NiFi history, foul and

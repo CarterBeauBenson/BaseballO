@@ -62,6 +62,13 @@ def next_case(state,limit=25):
         if not paths:continue
         marker_path=max(paths,key=lambda p:(W.read(p)['promotedAtUtc'],p.name));marker=W.read(marker_path)
         identity=[W.sha(marker_path),version];cached=inventory['games'].get(pk,{})
+        # A successful graph write may remove the missing-class report before
+        # evidence refresh/cleanup finishes. Resume that exact recorded case.
+        pending=previous.get('case')
+        if (previous.get('status') in {'running','finalizing','failed'} and pending
+                and not finished_attempt(previous,pending,version)):
+            inventory['games'][pk]=dict(identity=identity,status='selected',case=pending)
+            W.atomic(path,inventory);return pending
         if cached.get('identity')==identity:
             if cached.get('status')=='selected' and not finished_attempt(previous,cached['case'],version):return cached['case']
             continue
@@ -166,19 +173,41 @@ def revalidate(*args):
 def finish(state,game_pk,witness,java,classpath):
     # Reuse the admission owner's existing stage. Preserve the new response's
     # census before retiring only this repair's successfully promoted input.
+    source=Path(witness['path']);retirement=None
+    if witness['kind']=='targeted-reacquisition':
+        owned=state/'pipeline/quarantine/mlb-game'/game_pk/'targeted-foul/input.json'
+        if source.resolve()!=owned.resolve():raise ValueError('Source retirement escapes this repair input')
+        retirement=source.with_name('retirement.json')
+        if retirement.is_file():
+            receipt=W.read(retirement)
+            marker=Path(receipt.get('promotionEvidence',''))
+            if (receipt.get('sourceSha256')!=witness['sha256']
+                    or not marker.is_file() or W.sha(marker)!=receipt.get('promotionManifestSha256')
+                    or str(W.read(marker).get('gamePk'))!=game_pk
+                    or 'admissionOutcomes' not in receipt):
+                raise ValueError('Source retirement receipt does not bind the completed repair')
+            if source.is_file():
+                if W.sha(source)!=witness['sha256']:raise ValueError('Source retirement input changed')
+                source.unlink()
+            W.atomic(retirement,dict(receipt,rawRetiredAfterPromotion=True))
+            return receipt['admissionOutcomes']
+    if not source.is_file() or W.sha(source)!=witness['sha256']:
+        raise ValueError('Repair input changed before admission refresh')
     E=W.module(HERE/'admission-evidence.py','foul_admission_owner')
     directory=state/'pipeline/evidence/nifi/game-promotion'/game_pk
     marker=max(directory.glob('*.json'),key=lambda p:(W.read(p)['promotedAtUtc'],p.name))
     promotion=W.I.validated_promotion_record(state,marker,game_pk,W.I.query_index_contract_admission())
     results=E.refresh_existing_graph(state,promotion,witness,java,classpath,'http://127.0.0.1:3031/baseball-dev/query')
-    if witness['kind']=='targeted-reacquisition':
-        source=Path(witness['path']);owned=state/'pipeline/quarantine/mlb-game'/game_pk/'targeted-foul/input.json'
-        if source.resolve()!=owned.resolve() or W.sha(source)!=witness['sha256']:
+    outcomes={family:status for _,family,status in results}
+    if retirement:
+        if W.sha(source)!=witness['sha256']:
             raise ValueError('Source retirement differs from this repair input')
-        W.atomic(source.with_name('retirement.json'),dict(sourceSha256=witness['sha256'],
-            promotionManifestSha256=W.sha(marker),retiredAtUtc=W.TX.now()))
+        receipt=dict(sourceSha256=witness['sha256'],promotionEvidence=str(marker),
+            promotionManifestSha256=W.sha(marker),retirementAuthorizedAtUtc=W.TX.now(),admissionOutcomes=outcomes)
+        W.atomic(retirement,receipt)
         source.unlink()
-    return {family:status for _,family,status in results}
+        W.atomic(retirement,dict(receipt,rawRetiredAfterPromotion=True,retiredAtUtc=W.TX.now()))
+    return outcomes
 
 
 def tick(state,case,java,mapper,classpath):
@@ -188,11 +217,19 @@ def tick(state,case,java,mapper,classpath):
     result=dict(gamePk=pk,case=case,caseSha256=case_sha(case),checkedAtUtc=W.TX.now(),implementationSha256=version,
         attempts=previous.get('attempts',0)+1 if previous.get('implementationSha256')==version and previous.get('caseSha256')==case_sha(case) else 1)
     try:
-        witness=acquire(state,case)
-        result.update(W.add_game(state,pk,witness,java,mapper,classpath,repair=dict(decisions=dict(decision=DECISION),
-            select=lambda raw,game:select(raw,game,case),execution_inputs=execution_inputs,revalidate=revalidate,
-            validation_scope='selected-counted-foul-pas-and-retained-admissions')))
-        if result['status'] in SUCCESS:result['admissionOutcomes']=finish(state,pk,witness,java,classpath)
+        if previous.get('additionComplete') and previous.get('caseSha256')==case_sha(case):
+            result={**previous,**result};witness=previous['sourceWitness']
+        else:
+            witness=acquire(state,case)
+            result.update(status='running',sourceWitness=witness);W.atomic(control,result)
+            result.update(W.add_game(state,pk,witness,java,mapper,classpath,repair=dict(decisions=dict(decision=DECISION),
+                select=lambda raw,game:select(raw,game,case),execution_inputs=execution_inputs,revalidate=revalidate,
+                validation_scope='selected-counted-foul-pas-and-retained-admissions')))
+            result.update(additionStatus=result['status'],additionComplete=result['status'] in SUCCESS)
+        if result.get('additionComplete'):
+            result['status']='finalizing';W.atomic(control,result)
+            result['admissionOutcomes']=finish(state,pk,witness,java,classpath)
+            result['status']=result['additionStatus']
     except Exception as error:result.update(status='failed',error=str(error))
     W.atomic(control,result);return result
 
