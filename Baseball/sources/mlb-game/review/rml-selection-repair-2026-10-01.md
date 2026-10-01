@@ -15,7 +15,7 @@ corpus rebuild.
 
 ## Scope and evidence
 
-The [audit snapshot](rml-selection-audit-2026-10-01.json) includes every reported
+The [audit snapshot](rml-selection-audit-2026-10-01.md) includes every reported
 failure family in 2,404 regular-season staging manifests, containing 60,405
 selected personal histories. These are diagnostic staging records, not a fresh
 assertion of promoted-graph completeness. SQL contains 2,429 regular-season
