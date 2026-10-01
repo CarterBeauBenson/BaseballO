@@ -64,7 +64,7 @@ Future MLB-game fields still require reviewed proposals. Other MLB APIs and
 Statcast remain detachable source modules with their own Mermaid, RML, SHACL,
 and NiFi lanes; no later source may broaden this module implicitly.
 
-The bounded proof passed and the source-owned 05:00 Eastern trigger is enabled.
+The source-owned 05:00 Eastern trigger is enabled.
 Schedule runs materialize SQL once per completed batch rather than once per
 discovered game. A run's submission, promotion, quarantine, cleanup, and
 materialization status must be read from terminal NiFi evidence; this README
