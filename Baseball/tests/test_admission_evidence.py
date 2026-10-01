@@ -27,6 +27,19 @@ def current_implementation(family, entry):
 
 
 class AdmissionEvidence(unittest.TestCase):
+    def test_retained_sample_is_available_without_acquisition_and_exact_input_wins(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);sample=state/'immutable/42.json';E.atomic(sample,dict(gamePk=42))
+            other=state/'pipeline/quarantine/mlb-game/42/repair/input.json';E.atomic(other,dict(gamePk=42,newer=True))
+            promotion=dict(gamePk='42',rawSha256=E.sha(sample))
+            with patch.object(E,'retained_sample_paths',return_value={'42':[sample]}):
+                witness=E.retained_raw_witness(state,promotion)
+                self.assertEqual(witness['path'],str(sample))
+                self.assertEqual(witness['sha256'],promotion['rawSha256'])
+                other.unlink()
+                self.assertEqual(E.retained_raw_witness(state,promotion),witness)
+            self.assertTrue(sample.is_file())
+
     def test_corrected_batting_census_reaches_player_check_without_admitting_graph_failures(self):
         with tempfile.TemporaryDirectory() as temp:
             state=Path(temp);promotion=dict(gamePk='566279',promotionManifestSha256='promotion')

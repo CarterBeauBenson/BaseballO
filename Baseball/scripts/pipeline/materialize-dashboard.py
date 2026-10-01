@@ -153,6 +153,34 @@ def query_game_snapshot(state,promotion,fetch):
         return result
 
 
+def refresh_changed_game(state,item,*,endpoint,timeout,metadata,calculation,fetch):
+    """Recapture only a changed game, including its proofs and display rows.
+
+    The same source writer fence protects all reads. A new promotion never
+    inherits the old promotion's dimensions, admissions or calculation hash.
+    """
+    pk=item['promotion']['gamePk']
+    owner=Path(state)/'pipeline/evidence/nifi/game-promotion'/pk
+    for attempt in range(2):
+        marker=max(owner.glob('*.json'),key=lambda p:(RELEASE.read(p).get('promotedAtUtc',''),p.name))
+        promotion=SOURCE.validated_promotion_record(state,marker,pk,SOURCE.query_index_contract_admission())
+        if promotion['authoritativeGraph']!=item['graph']:raise ValueError('Refreshed game graph identity changed')
+        def read():
+            live=SOURCE.live_graph_state(endpoint,timeout,dict(games={pk:promotion}))
+            if len(live['dimensions'])!=1:raise ValueError('Refreshed game lacks one complete dimension')
+            with admission_versions(),admission_reads():
+                admissions={name:ADMISSION_EVIDENCE.load(adapter,state,promotion,name.removesuffix('_admission').replace('_','-'))
+                            for name,adapter in ADMISSIONS.items()}
+                player=ADMISSION_EVIDENCE.player_admission(state,promotion)
+            values=dimension_values(live['dimensions'][0],promotion,metadata)
+            updated=dict(item,promotion=promotion,dimension=values,admissions=admissions,
+                         identity=input_identity(promotion,values,admissions,calculation))
+            return updated,fetch(updated),player
+        try:return query_game_snapshot(state,promotion,read)
+        except SOURCE.SourceSnapshotChanged:
+            if attempt:raise
+
+
 def graph_tables(connection):
     names = [r[0] for r in connection.execute("SELECT name FROM sqlite_master WHERE type='table'")]
     return [name for name in names if name.startswith('metric_suite_')
@@ -679,30 +707,62 @@ def build_locked(args, state, serving, work):
         checkpoint(phase='game-products', totalGames=len(expected), changedGames=len(pending)+admission_updates+calculation_updates,
                    admissionUpdatedGames=admission_updates,calculationUpdatedGames=calculation_updates,
                    reusedGames=unchanged, completedGames=completed)
-        def fetch(item):
-            query = METRICS.evidence_query([item['graph']])
-            return query_game_snapshot(state,item['promotion'],lambda:cache.query(endpoint=args.endpoint,
+        display_version=DISPLAY.fingerprint()
+        recaptured={}
+        captured_fingerprint=snapshot['fingerprint']
+        def answers(item):
+            query=METRICS.evidence_query([item['graph']])
+            bindings=cache.query(endpoint=args.endpoint,
                 query=query,slot='metric-suite-snapshot-v1',promotion=item['promotion'],
-                fetch=lambda: SOURCE.sparql(args.endpoint, query, args.timeout)))['results']['bindings']
-        for count, (item, bindings) in enumerate(bounded_fetch(pending, fetch, args.workers), 1):
-            store_game(connection, item, bindings, products)
+                fetch=lambda: SOURCE.sparql(args.endpoint,query,args.timeout))['results']['bindings']
+            query=DISPLAY.query(item['graph'])
+            labels=cache.query(endpoint=args.endpoint,query=query,slot='metric-display-snapshot-v1',promotion=item['promotion'],
+                fetch=lambda:SOURCE.sparql(args.endpoint,query,args.timeout))['results']['bindings']
+            return bindings,labels
+        def fetch(item):
+            try:return query_game_snapshot(state,item['promotion'],lambda:answers(item))
+            except SOURCE.SourceSnapshotChanged as error:return error
+        def store_answers(item,payload):
+            bindings,labels=payload
+            store_game(connection,item,bindings,products)
+            DISPLAY.store(connection,item['graph'],digest([item['promotion']['authoritativeRdfSha256'],display_version]),labels)
+        def recapture(item):
+            updated,payload,player=refresh_changed_game(state,item,endpoint=args.endpoint,timeout=args.timeout,
+                metadata=metadata,calculation=calculation,fetch=answers)
+            graph=updated['graph'];promotion=updated['promotion'];pk=promotion['gamePk']
+            inventory[pk]=promotion;expected[graph]=updated['identity'];player_admissions[graph]=player
+            recaptured[pk]=promotion['promotionManifestSha256']
+            snapshot['fingerprint']=digest(dict(capturedCorpus=captured_fingerprint,recapturedPromotions=recaptured))
+            for roster in pending_rosters:
+                if roster['graph']==graph:roster.update(promotion=promotion,dimension=updated['dimension'])
+            store_answers(updated,payload)
+            checkpoint(recapturedGames=sorted(recaptured))
+        deferred=[]
+        for count, (item, payload) in enumerate(bounded_fetch(pending, fetch, args.workers), 1):
+            if isinstance(payload,SOURCE.SourceSnapshotChanged):deferred.append(item);continue
+            store_answers(item,payload)
             checkpoint(completedGames=completed+count)
-        if pending_rosters:
-            refreshed_rosters=refresh_pending_rosters(connection,state,pending_rosters,calculation,expected,player_admissions)
-            checkpoint(lateRosterAdmissionGames=refreshed_rosters)
+        # Finish independent game reads before revisiting an active writer.
+        for item in deferred:recapture(item)
+        checkpoint(completedGames=len(expected))
         checkpoint(phase='display-labels')
         saved_labels = dict(connection.execute('SELECT graph_iri,input_sha256 FROM dashboard_display_manifest'))
-        display_version = DISPLAY.fingerprint()
-        for promotion in inventory.values():
+        for promotion in list(inventory.values()):
             graph = promotion['authoritativeGraph']
             if graph not in expected: continue
             identity = digest([promotion['authoritativeRdfSha256'],display_version])
             if saved_labels.get(graph) == identity: continue
             label_query = DISPLAY.query(graph)
-            labels = query_game_snapshot(state,promotion,lambda:cache.query(endpoint=args.endpoint,
-                query=label_query,slot='metric-display-snapshot-v1',promotion=promotion,
-                fetch=lambda: SOURCE.sparql(args.endpoint,label_query,args.timeout)))['results']['bindings']
-            DISPLAY.store(connection,graph,identity,labels)
+            try:
+                labels = query_game_snapshot(state,promotion,lambda:cache.query(endpoint=args.endpoint,
+                    query=label_query,slot='metric-display-snapshot-v1',promotion=promotion,
+                    fetch=lambda: SOURCE.sparql(args.endpoint,label_query,args.timeout)))['results']['bindings']
+                DISPLAY.store(connection,graph,identity,labels)
+            except SOURCE.SourceSnapshotChanged:
+                recapture(dict(graph=graph,promotion=promotion,previousSeasons=[old_dimensions[graph]] if graph in old_dimensions else []))
+        if pending_rosters:
+            refreshed_rosters=refresh_pending_rosters(connection,state,pending_rosters,calculation,expected,player_admissions)
+            checkpoint(lateRosterAdmissionGames=refreshed_rosters)
         coverage = SOURCE._schedule_qualification.merge_snapshots(state, SOURCE._batting_admission.schedule_coverage(state))
         coverage_sha = digest(coverage)
         prior_coverage = connection.execute("SELECT value FROM dashboard_state WHERE name='schedule'").fetchone()
@@ -796,6 +856,7 @@ def build_locked(args, state, serving, work):
                        runtimeRelease=release, notificationKey=notification,
                        sourceSnapshotCapturedAtUtc=progress['sourceSnapshotCapturedAtUtc'],
                        sourceSnapshotPolicy=progress['sourceSnapshotPolicy'],
+                       recapturedPromotions=recaptured,
                        gameCount=len(expected), promotedAtUtc=datetime.now(timezone.utc).isoformat())
         # Save the complete candidate evidence before changing the reader's
         # pointer. A storage failure here must preserve the prior publication.

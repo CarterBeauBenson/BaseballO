@@ -45,7 +45,7 @@ def case_sha(case):
 def finished_attempt(previous,case,version):
     return (previous.get('implementationSha256')==version
         and previous.get('caseSha256')==case_sha(case)
-        and (previous.get('status') in SUCCESS or previous.get('attempts',0)>=2))
+        and (previous.get('status') in SUCCESS | {'partial'} or previous.get('attempts',0)>=2))
 
 
 def next_case(state,limit=25):
@@ -141,16 +141,31 @@ def select(raw,game_pk,case):
         subprocess.run([sys.executable,str(ROOT/'scripts/pipeline/prepare-rml-context.py'),str(source),str(output)],
             check=True,capture_output=True,timeout=120)
         document=W.read(output)
-    selected=[]
+    selected=[];blocked=[];seen=set()
+    reasons={(r['atBatIndex'],r['playId']):r['reason'] for r in
+        document['_baseballO']['metricMappingEvidence']['withheldFouls']}
     for play in document['liveData']['plays']['allPlays']:
+        members=[];unsupported=[]
         for event in play['playEvents']:
-            if (str(play['atBatIndex']),event.get('playId')) not in wanted:continue
+            key=(str(play['atBatIndex']),event.get('playId'))
+            if key not in wanted:continue
+            seen.add(key);members.append(event)
             if event.get('_baseballO',{}).get('isSecondCountedFoul') is not True:
-                raise ValueError('Existing counted-foul mapping does not select '+event['playId'])
-            selected.append(event)
-    if len(selected)!=len(wanted):raise ValueError('Selected mapping input membership changed')
-    pas={pa for pa,pid in wanted}
+                unsupported.append(dict(atBatIndex=key[0],playId=key[1],
+                    reason=reasons.get(key,'EXISTING_MAPPING_NOT_SELECTED')))
+        # The existing count SHACL checks a complete PA. Keep that boundary;
+        # a different PA's unsupported prefix must not block this PA's repair.
+        if unsupported:
+            failures={r['playId']:r for r in unsupported}
+            blocked.extend(failures.get(e['playId'],dict(atBatIndex=str(play['atBatIndex']),
+                playId=e['playId'],reason='UNRESOLVED_FOUL_IN_SAME_PA')) for e in members)
+        else:selected.extend(members)
+    if seen!=wanted:raise ValueError('Selected mapping input membership changed')
+    if not selected:raise ValueError('Existing counted-foul mapping does not select the remaining PAs: '+json.dumps(blocked))
+    selected_ids={e['playId'] for e in selected}
+    pas={pa for pa,pid in wanted if pid in selected_ids}
     return dict(gamePk=game_pk,venue=str(document['gameData']['venue']['id']),events=selected,
+        unresolvedFouls=blocked,
         source=dict(current,plateAppearances=[pa for pa in current['plateAppearances'] if pa['pa'].rsplit('/',1)[1] in pas]))
 
 
@@ -170,11 +185,11 @@ def revalidate(*args):
     return W.revalidate(*args,shape_text=shapes,decisions=dict(decision=DECISION))
 
 
-def finish(state,game_pk,witness,java,classpath):
+def finish(state,game_pk,witness,java,classpath,*,retire=True):
     # Reuse the admission owner's existing stage. Preserve the new response's
     # census before retiring only this repair's successfully promoted input.
     source=Path(witness['path']);retirement=None
-    if witness['kind']=='targeted-reacquisition':
+    if retire and witness['kind']=='targeted-reacquisition':
         owned=state/'pipeline/quarantine/mlb-game'/game_pk/'targeted-foul/input.json'
         if source.resolve()!=owned.resolve():raise ValueError('Source retirement escapes this repair input')
         retirement=source.with_name('retirement.json')
@@ -222,14 +237,19 @@ def tick(state,case,java,mapper,classpath):
         else:
             witness=acquire(state,case)
             result.update(status='running',sourceWitness=witness);W.atomic(control,result)
+            def selection(raw,game):
+                selected=select(raw,game,case)
+                result['unresolvedFouls']=selected['unresolvedFouls']
+                return selected
             result.update(W.add_game(state,pk,witness,java,mapper,classpath,repair=dict(decisions=dict(decision=DECISION),
-                select=lambda raw,game:select(raw,game,case),execution_inputs=execution_inputs,revalidate=revalidate,
+                select=selection,execution_inputs=execution_inputs,revalidate=revalidate,
                 validation_scope='selected-counted-foul-pas-and-retained-admissions')))
             result.update(additionStatus=result['status'],additionComplete=result['status'] in SUCCESS)
         if result.get('additionComplete'):
             result['status']='finalizing';W.atomic(control,result)
-            result['admissionOutcomes']=finish(state,pk,witness,java,classpath)
-            result['status']=result['additionStatus']
+            unresolved=bool(result.get('unresolvedFouls'))
+            result['admissionOutcomes']=finish(state,pk,witness,java,classpath,retire=not unresolved)
+            result['status']='partial' if unresolved else result['additionStatus']
     except Exception as error:result.update(status='failed',error=str(error))
     W.atomic(control,result);return result
 

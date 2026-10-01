@@ -151,6 +151,61 @@ These fixes alter execution and recovery, not the accepted context, mappings,
 ontology, scoped semantic pins or qualification criteria. They do not close
 the explicitly documented source conflicts or all season coverage debt.
 
+### Follow-through on the remaining queue and SQL publication
+
+The next operational pass found 1,923 regular-season games with
+`COMPLETE_RUNNER_BOUNDARIES` in the working SQL contribution inputs. This is a
+recorded dependency count, not a claim that all 1,923 need new RDF. The fixed
+209-game list alone cannot finish that backlog.
+
+After its fixed cases, the same NiFi history worker now discovers additional
+cases from retained promotion manifests that record withheld histories or
+boundary issues. Each tick inspects at most 25 new manifests and prepares at
+most one source response. It persists a game-specific repair request before
+any acquisition, prefers retained responses (including immutable repository
+samples), and uses the September 30 authorization only when that named game's
+retained input is unavailable. The unchanged H3 context reconciles the current
+response against existing history identities and episode membership. The
+worker records exact missing keys and half innings before using its existing
+additive RML/SHACL transaction. A conflict is retained as failed evidence.
+
+If the unchanged selector finds no missing histories, the worker runs the
+existing graph evidence refresh instead of executing RML. Its response remains
+retained; a validation outcome does not pretend an RDF addition occurred.
+Successful additions retain the existing receipt-before-deletion cleanup.
+This is execution of the accepted narrow repair, not a new semantic selection,
+ontology change, season acquisition request or database rebuild. The context
+and semantic pins remain unchanged.
+
+Evidence refresh previously searched only quarantine inputs and missed
+immutable game samples already in the repository. It now considers both and
+prefers a response matching the original promotion hash. It preserves the
+separate source identity when a different retained response is used.
+
+The foul worker now isolates complete PA repair scopes. In game 822682, PA 49
+is selected by the accepted mapping, while PAs 50 and 58 remain excluded with
+`SUBSTITUTION_IN_PREFIX` (a zero-episode pinch-runner case and a designated
+hitter switch). The two excluded PAs no longer block PA 49. Partial completion
+records the remaining pitches and keeps the acquired input; the unchanged
+whole-game admission still determines whether pitch-count coverage is complete.
+
+The SQL build at 22:08 UTC stopped with `Captured game changed before its SQL
+read: 822682`, after retaining 2,898 game checkpoints. The builder now finishes
+independent reads, recaptures only a changed game with its current promotion,
+dimensions and admissions, and reads its metric facts and display labels under
+the same existing writer lock. It records the recaptured promotion hashes in
+the publication fingerprint. Active or uncommitted writes remain fenced out.
+This avoids restarting the corpus pass merely because one repair finished
+between input capture and the game's read.
+
+Focused regressions cover discovery and identity conflicts, interrupted
+acquisition receipts, partial foul repair without input retirement, retained
+sample reuse, and SQL publication through both metric-read and label-read
+races. The real 822682 selector yields only PA 49 and preserves both exclusions.
+These are implementation checks. The last published dashboard still has five
+populated cards out of 19; the recorded SQL run above did not publish a new
+snapshot. NiFi owns the remaining additions and the next SQL publication.
+
 Activation: acceptance was published first in `3e55b5e`; the exact patch was
 then applied. The installed worker's five scope/dependency/cleanup tests and
 four counted-foul-prefix tests pass. The existing NiFi history, foul and

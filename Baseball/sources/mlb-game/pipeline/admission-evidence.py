@@ -17,6 +17,7 @@ import sqlite3
 import time
 import urllib.request
 from contextlib import closing
+from functools import lru_cache
 
 HERE=Path(__file__).resolve().parent
 ROOT=HERE.parents[2]
@@ -311,9 +312,18 @@ def player_admission(state,promotion):
     return dict(individual or {},paResolutions=resolution) if resolution else individual
 
 
+@lru_cache(maxsize=1)
+def retained_sample_paths():
+    result={}
+    for path in sorted((ROOT/'data/raw').rglob('*.json')):
+        if path.stem.isdecimal():result.setdefault(path.stem,[]).append(path)
+    return result
+
+
 def retained_raw_witness(state,promotion):
     """A retained response is an independent witness, never a new acquisition."""
-    paths=sorted((Path(state)/'pipeline/quarantine/mlb-game'/promotion['gamePk']).glob('*/input.json'))
+    paths=[*sorted((Path(state)/'pipeline/quarantine/mlb-game'/promotion['gamePk']).glob('*/input.json')),
+           *retained_sample_paths().get(promotion['gamePk'],[])]
     candidates=[dict(kind='retained-source-response',path=str(path),sha256=sha(path)) for path in paths]
     return min(candidates,key=lambda row:(row['sha256']!=promotion['rawSha256'],row['path'])) if candidates else None
 

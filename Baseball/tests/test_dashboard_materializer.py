@@ -446,6 +446,49 @@ class DashboardMaterializer(unittest.TestCase):
         with closing(sqlite3.connect(self.working())) as db:
             self.assertEqual(db.execute('SELECT count(*) FROM dashboard_checkpoint').fetchone()[0],2)
 
+    def test_changed_game_is_recaptured_without_restarting_other_games(self):
+        original=self.snapshot['inventory']['games']['101']
+        latest=Path(original['promotionManifest']).with_name('later.json')
+        D.RELEASE.atomic(latest,dict(gamePk='101',promotedAtUtc='2026-08-01T13:00:00Z'))
+        changed=dict(original,promotionManifest=str(latest),promotionManifestSha256=D.SOURCE.sha256_file(latest),
+                     authoritativeRdfSha256='b'*64)
+        dimension=copy.deepcopy(self.snapshot['live']['dimensions'][0])
+        dimension['venueLabel']=dict(type='literal',value='Refreshed venue')
+        with patch.object(D.SOURCE,'validated_promotion_record',return_value=changed) as validation, \
+                patch.object(D.SOURCE,'query_index_contract_admission',return_value={}), \
+                patch.object(D.SOURCE,'live_graph_state',return_value=dict(dimensions=[dimension])) as live:
+            result=D.build(self.args)
+        self.assertEqual(result['status'],'published')
+        self.assertEqual(result['recapturedGames'],['101'])
+        self.assertCountEqual(self.fetched,['101','102'])
+        self.assertEqual(self.source.call_count,1)
+        validation.assert_called_once();live.assert_called_once()
+        self.assertEqual(self.pointer()['recapturedPromotions'],{'101':changed['promotionManifestSha256']})
+        self.assertNotEqual(self.pointer()['corpusFingerprint'],self.snapshot['fingerprint'])
+        with closing(sqlite3.connect(self.working())) as db:
+            self.assertEqual(db.execute('select venue_label from game_dimension where game_pk=?',('101',)).fetchone(),('Refreshed venue',))
+            actual=db.execute('select input_sha256 from dashboard_checkpoint where graph_iri=?',(self.graphs[0],)).fetchone()[0]
+            self.assertEqual(actual,D.input_identity(changed,D.dimension_values(dimension,changed,{}),
+                {name:dict(status='withheld') for name in D.ADMISSIONS},D.METRICS.calculation_fingerprint()))
+
+    def test_display_race_refreshes_game_facts_and_labels_together(self):
+        D.build(self.args);self.fetched.clear()
+        original=self.snapshot['inventory']['games']['101']
+        latest=Path(original['promotionManifest']).with_name('later.json')
+        D.RELEASE.atomic(latest,dict(gamePk='101',promotedAtUtc='2026-08-01T13:00:00Z'))
+        changed=dict(original,promotionManifest=str(latest),promotionManifestSha256=D.SOURCE.sha256_file(latest),
+                     authoritativeRdfSha256='b'*64)
+        with patch.object(D.DISPLAY,'fingerprint',return_value='changed-display'), \
+                patch.object(D.SOURCE,'validated_promotion_record',return_value=changed), \
+                patch.object(D.SOURCE,'query_index_contract_admission',return_value={}), \
+                patch.object(D.SOURCE,'live_graph_state',return_value=dict(dimensions=[self.snapshot['live']['dimensions'][0]])):
+            result=D.build(self.args)
+        self.assertEqual(result['status'],'published')
+        self.assertEqual(self.fetched,['101'])
+        self.assertEqual(result['recapturedGames'],['101'])
+        with closing(sqlite3.connect(self.working())) as db:
+            identity=db.execute('select input_sha256 from dashboard_display_manifest where graph_iri=?',(self.graphs[0],)).fetchone()[0]
+            self.assertEqual(identity,D.digest(['b'*64,'changed-display']))
     def test_game_snapshot_rejects_changed_or_uncommitted_graph_before_querying(self):
         promotion=self.snapshot['inventory']['games']['101'];fetch=unittest.mock.Mock(return_value='answer')
         self.assertEqual(D.query_game_snapshot(self.state,promotion,fetch),'answer')

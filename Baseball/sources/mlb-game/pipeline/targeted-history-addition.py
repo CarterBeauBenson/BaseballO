@@ -11,6 +11,7 @@ import importlib.util
 import json
 from pathlib import Path
 import subprocess
+from types import SimpleNamespace
 import urllib.request
 import uuid
 
@@ -30,7 +31,7 @@ MAPPING = HERE.parent / 'mapping/mlb-game.rml.ttl'
 MAPS = ('PersonalRunnerProcessMap', 'PersonalRunnerIntervalMap', 'PersonalRunnerMembershipMap')
 COMPLETION = HERE / 'history-completion-candidates.json'
 SELECTION = HERE / 'history-selection-candidates.json'
-SUCCESS = {'complete', 'already-complete'}
+SUCCESS = {'complete', 'already-complete', 'evidence-refreshed'}
 
 
 def module(path, name):
@@ -46,6 +47,7 @@ H = module(HERE / 'runner-history-admission.py', 'q7_history')
 V = module(HERE / 'verify-runner-history-serialization.py', 'q7_serialization')
 J = module(ROOT / 'scripts/pipeline/jena_session.py', 'q7_jena')
 EVENT = module(ROOT / 'scripts/pipeline/emit-promoted-graph-event.py', 'q7_event')
+DISCOVERY = module(HERE / 'history-repair-discovery.py', 'history_repair_discovery')
 sha = I.sha256_file
 read = TX.read
 atomic = TX.atomic_json
@@ -251,6 +253,16 @@ def acquire_selection_source(state, case):
     if sha(ROOT / 'scripts/pipeline/prepare-rml-context.py') != inventory['contextBuilderSha256']:
         raise ValueError('H2 context differs from the prepared repair')
     game_pk = case['gamePk']
+    if case.get('discovered'):
+        witness=case['sourceWitness'];source=Path(witness['path'])
+        owner=(state/'pipeline/quarantine/mlb-game'/game_pk).resolve()
+        if (source.name!='input.json' or source.parent.parent.resolve()!=owner
+                or not source.parent.name.startswith('targeted-history-')
+                or not source.is_file() or sha(source)!=case['sourceSha256']
+                or witness['sha256']!=case['sourceSha256']
+                or sha(Path(case['repairRequest']))!=case['repairRequestSha256']):
+            raise ValueError('Discovered history witness differs from its recorded scope')
+        return witness
     directory = state / 'pipeline/quarantine/mlb-game' / game_pk / 'targeted-h2'
     source = directory / 'input.json'; receipt = directory / 'acquisition.json'
     if receipt.is_file():
@@ -288,7 +300,11 @@ def finish_selection(state,case,promoted,java,classpath):
     if not witness:
         EVENT.emit(state,promoted);return
     game_pk=case['gamePk'];source=Path(witness['path'])
-    owned=state/'pipeline/quarantine/mlb-game'/game_pk/'targeted-h2/input.json'
+    owned=(Path(case['sourceWitness']['path']) if case.get('discovered') else
+           state/'pipeline/quarantine/mlb-game'/game_pk/'targeted-h2/input.json')
+    owner=(state/'pipeline/quarantine/mlb-game'/game_pk).resolve()
+    if owned.name!='input.json' or owned.parent.parent.resolve()!=owner:
+        raise ValueError('History repair cleanup escapes its source game')
     if source.resolve()!=owned.resolve():raise ValueError('History repair cleanup escapes its owned input')
     evidence=state/'pipeline/evidence/mlb-game'/game_pk/marker['pipelineRunId']
     cleanup=evidence/'cleanup.json'
@@ -319,7 +335,7 @@ def finish_selection(state,case,promoted,java,classpath):
 def add_game(state, game_pk, java, mapper, classpath):
     if read(ROOT / DECISION)['status'] != 'accepted':
         raise ValueError('Q7 decision is not accepted')
-    case = next((c for c in cases() if c['gamePk'] == game_pk), None)
+    case = next((c for c in cases(state) if c['gamePk'] == game_pk), None)
     if case is None:
         raise ValueError('Game is outside the approved Q7 additions')
     decision = ('archive/design-records/metric-source-c1-operation-2026-09-14/review.json'
@@ -332,7 +348,7 @@ def add_game(state, game_pk, java, mapper, classpath):
     marker_path = max(marker_root.glob('*.json'), key=lambda p: (read(p)['promotedAtUtc'], p.name))
     marker = read(marker_path)
     if (marker.get('targetedAddition', {}).get('decision') == decision
-            and (not case.get('selectedHistoryKeys') or marker['targetedAddition'].get('selectedHistoryKeys') == case['selectedHistoryKeys'])):
+            and ('selectedHistoryKeys' not in case or marker['targetedAddition'].get('selectedHistoryKeys') == case['selectedHistoryKeys'])):
         finish_selection(state,case,marker_path,java,classpath)
         return dict(status='already-complete', promotionEvidence=str(marker_path), **marker['targetedAddition'])
     I.validated_promotion_record(state, marker_path, game_pk, I.query_index_contract_admission())
@@ -345,6 +361,16 @@ def add_game(state, game_pk, java, mapper, classpath):
     manifest = read(prior_path)
     witness = acquire_selection_source(state, case) if case.get('selectionRepair') in {'H2','H3'} else None
     raw = Path(witness['path']).read_bytes() if witness else None
+    if case.get('discovered') and not case['selectedHistoryKeys']:
+        # The current selector found no missing histories. Recheck the existing
+        # graph through its owner; do not manufacture a delta or remap the game.
+        admission=module(HERE/'admission-evidence.py','discovered_history_evidence')
+        promotion=I.validated_promotion_record(state,marker_path,game_pk,I.query_index_contract_admission())
+        outcomes=admission.refresh_existing_graph(state,promotion,witness,java,classpath,
+            'http://127.0.0.1:3031/baseball-dev/query')
+        EVENT.emit(state,marker_path)
+        return dict(status='evidence-refreshed',rdfChanged=False,addedHistories=0,selectedHistoryKeys=[],
+            sourceWitness=witness,admissionOutcomes={family:status for _,family,status in outcomes})
     history, delta_context = select_history(manifest, case, raw)
     run = uuid.uuid4().hex
     evidence = state / 'pipeline/evidence/mlb-game' / game_pk / run
@@ -391,6 +417,8 @@ def add_game(state, game_pk, java, mapper, classpath):
                         repairInventorySha256=sha(inventory), selectedHistoryKeys=case['selectedHistoryKeys'])
     if witness:
         addition.update(selectionRepair=case['selectionRepair'], sourceWitness=witness)
+    if case.get('discovered'):
+        addition.update(repairRequest=case['repairRequest'],repairRequestSha256=case['repairRequestSha256'])
     promoted = marker_root / (run + '.json')
     latest = max(marker_root.glob('*.json'), key=lambda p: (read(p)['promotedAtUtc'], p.name))
     if latest != marker_path or sha(marker_path) != addition['basePromotionSha256']:
@@ -441,7 +469,7 @@ def tick(state, game_pk, java, mapper, classpath):
     control = state / 'pipeline/control/mlb-game/history-addition' / (game_pk + '.json')
     version = fingerprint()
     previous = read(control) if control.exists() else {}
-    case=next(c for c in cases() if c['gamePk']==game_pk)
+    case=next(c for c in cases(state) if c['gamePk']==game_pk)
     if previous.get('status') in SUCCESS and (not case.get('selectionRepair') or previous.get('selectedHistoryKeys')==case.get('selectedHistoryKeys')):
         return previous
     if previous.get('implementationSha256') == version and previous.get('attempts', 0) >= 2:
@@ -456,20 +484,22 @@ def tick(state, game_pk, java, mapper, classpath):
     return result
 
 
-def cases():
+def cases(state=None):
     selection = [dict(case, selectionRepair=case.get('selectionRepair','H2')) for case in read(SELECTION)['cases']] if SELECTION.is_file() else []
-    return selection + read(PACKAGE / 'source-evidence.json')['cases'] + read(COMPLETION)['cases']
+    fixed=selection + read(PACKAGE / 'source-evidence.json')['cases'] + read(COMPLETION)['cases']
+    return fixed + (DISCOVERY.cases(SimpleNamespace(**globals()),state) if state is not None else [])
 
 
 def fingerprint():
     return hashlib.sha256(Path(__file__).read_bytes() + COMPLETION.read_bytes() +
         (SELECTION.read_bytes() if SELECTION.is_file() else b'') +
-        (ROOT / 'scripts/pipeline/prepare-rml-context.py').read_bytes()).hexdigest()
+        (ROOT / 'scripts/pipeline/prepare-rml-context.py').read_bytes() +
+        (HERE/'history-repair-discovery.py').read_bytes()).hexdigest()
 
 
 def next_case(state):
     version = fingerprint()
-    for case in cases():
+    for case in cases(state):
         path = state / 'pipeline/control/mlb-game/history-addition' / (case['gamePk'] + '.json')
         previous = read(path) if path.is_file() else {}
         if previous.get('status') in SUCCESS and (not case.get('selectionRepair') or previous.get('selectedHistoryKeys')==case.get('selectedHistoryKeys')):
@@ -477,7 +507,7 @@ def next_case(state):
         if previous.get('implementationSha256') == version and previous.get('attempts', 0) >= 2:
             continue
         return case['gamePk']
-    return None
+    return DISCOVERY.discover(SimpleNamespace(**globals()),state,{c['gamePk'] for c in cases()})
 
 
 if __name__ == '__main__':

@@ -18,6 +18,41 @@ from test_rmlmapper_iterator_compatibility import installed_tools
 
 
 class FoulAddition(unittest.TestCase):
+    def test_one_unsupported_pa_does_not_block_a_supported_pa_or_retire_its_input(self):
+        raw=(ROOT/'data/raw/samples/2026-07-20/824087.json').read_bytes()
+        source=F.C.census(raw,'824087')
+        selected=[]
+        for pa in source['plateAppearances']:
+            for event in pa['events']:
+                if event.get('call')=='F' and event.get('strike') and event.get('strikesAfter')==2:
+                    selected.append(dict(atBatIndex=pa['pa'].rsplit('/',1)[1],playId=event['playId']))
+                    break
+            if len(selected)==2:break
+        bad=selected[1];good=selected[0]
+        document=dict(gameData=dict(venue=dict(id=1)),_baseballO=dict(metricMappingEvidence=dict(
+            withheldFouls=[dict(bad,reason='SUBSTITUTION_IN_PREFIX')])),liveData=dict(plays=dict(allPlays=[
+                dict(atBatIndex=int(row['atBatIndex']),playEvents=[dict(playId=row['playId'],
+                    _baseballO=dict(isSecondCountedFoul=row==good))]) for row in selected])))
+        def context(args,**kwargs):F.W.atomic(Path(args[-1]),document)
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);census=state/'source.json';F.W.atomic(census,source)
+            case=dict(gamePk='824087',selected=selected,sourceCensus=str(census),sourceCensusSha256=F.W.sha(census))
+            with patch.object(F.subprocess,'run',side_effect=context):
+                delta=F.select(raw,'824087',case)
+            self.assertEqual([e['playId'] for e in delta['events']],[good['playId']])
+            self.assertEqual([p['pa'].rsplit('/',1)[1] for p in delta['source']['plateAppearances']],[good['atBatIndex']])
+            self.assertEqual(delta['unresolvedFouls'],[dict(bad,reason='SUBSTITUTION_IN_PREFIX')])
+            witness=dict(kind='targeted-reacquisition',path=str(state/'input.json'))
+            def add(*args,repair):
+                repair['select'](raw,'824087');return dict(status='complete',addedTriples=14)
+            with patch.object(F,'select',return_value=delta),patch.object(F,'acquire',return_value=witness), \
+                    patch.object(F.W,'add_game',side_effect=add),patch.object(F,'finish',return_value={}) as finish:
+                result=F.tick(state,case,None,None,None)
+                self.assertEqual(result['status'],'partial')
+                self.assertFalse(finish.call_args.kwargs['retire'])
+                F.tick(state,case,None,None,None)
+                finish.assert_called_once()
+
     def test_real_mapping_is_limited_to_recorded_missing_foul(self):
         raw=(ROOT/'data/raw/samples/2026-07-20/824087.json').read_bytes()
         source=F.C.census(raw,'824087');pa=next(p for p in source['plateAppearances'] if p['pa'].endswith('/37'))
