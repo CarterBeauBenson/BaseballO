@@ -1,0 +1,183 @@
+--- a/Baseball/scripts/pipeline/prepare-rml-context.py
++++ b/Baseball/scripts/pipeline/prepare-rml-context.py
+@@ -462,18 +462,32 @@
+     events = play.get('playEvents', [])
+     terminal = events[-1] if events else {}
+     details = terminal.get('details', {})
+-    field_type = {'tag play': 'MA', 'play at 1st': 'MF'}
++    field_type = {'tag play': 'MA', 'play at 1st': 'MF', 'home run': 'NH',
++                  'hit by pitch': 'MI', 'shift violation': 'MW'}
+     label = match.group('review_type').lower() if match else None
+     disposition = match.group('status') if match else None
+-    terminal_rows = [r for r in play.get('runners', [])
+-                     if r.get('details', {}).get('playIndex') == terminal.get('index')]
++    # Final runner effects use the accepted E1 final-feed authority. Review
++    # mechanism/original-call RDF remains under its separate mapping contract.
++    empty_records = nonmovement_strikeout_records(play, check_review=False)
++    terminal_rows = [r for i, r in enumerate(play.get('runners', []))
++                     if r.get('details', {}).get('playIndex') == terminal.get('index')
++                     and i not in empty_records]
++    result_type = play.get('result', {}).get('eventType')
++    final_effect = (details.get('isInPlay') is True
++        or (label == 'hit by pitch' and result_type == 'hit_by_pitch'
++            and details.get('call', {}).get('code') == 'H')
++        or (label == 'play at 1st' and result_type == 'strikeout' and bool(empty_records)))
++    if label == 'home run':
++        final_effect = (final_effect and result_type == 'home_run'
++            and all(r.get('movement', {}).get('end') == 'score'
++                    and r.get('details', {}).get('isScoringEvent') is True for r in terminal_rows))
+     supported = (play.get('about', {}).get('hasReview') is True
+         and play['about'].get('isComplete') is True
+         and isinstance(review, dict) and review.get('inProgress') is False
+         and type(review.get('isOverturned')) is bool and label in field_type
+         and review.get('reviewType') == field_type[label] and disposition is not None
+         and (REVIEW_STATUS_BY_NARRATIVE[disposition.lower()] == 'overturned') == review['isOverturned']
+-        and terminal.get('isPitch') is True and details.get('isInPlay') is True
++        and terminal.get('isPitch') is True and final_effect
+         and SAFE_IRI_SEGMENT.fullmatch(str(terminal.get('playId') or ''))
+         and not terminal.get('reviewDetails') and details.get('hasReview') is False
+         and bool(terminal_rows)
+@@ -509,7 +523,7 @@
+             and after['balls'] == before['balls'] and after['strikes'] == min(2, before['strikes']+1)
+             and type(before.get('outs')) is int and 0 <= before['outs'] < 3
+             and after.get('outs') == before['outs'])
+-        runner_tag = unchanged_runner_tag_review(play, position)
++        runner_tag = unchanged_runner_tag_review(play, position) or completed_pickoff_review(play, position)
+         if unchanged_foul or runner_tag:
+             accounted[event['index']] = runner_tag or dict(playId=event['playId'], kind='unchanged-foul',
+                 overturned=False, scope='final runner-history effects only')
+@@ -527,7 +541,49 @@
+     return result
+ 
+ 
+-def nonmovement_strikeout_records(play):
++def completed_pickoff_review(play, position):
++    """Account for an explicit final pickoff out without inferring its old call."""
++    events = play.get('playEvents', [])
++    if position == 0 or position >= len(events)-1:
++        return None
++    event = events[position]; detail = event.get('details', {})
++    review = event.get('reviewDetails', {})
++    match = REVIEW_DESCRIPTION.search(detail.get('description', ''))
++    base = {'pickoff_1b': '1B', 'pickoff_2b': '2B', 'pickoff_3b': '3B'}.get(detail.get('eventType'))
++    rows = [r for r in play.get('runners', []) if r.get('details', {}).get('playIndex') == event.get('index')]
++    if (not base or len(rows) != 1 or not match or match.group('review_type').lower() != 'tag play'
++            or not match.group('status') or review.get('inProgress') is not False
++            or type(review.get('isOverturned')) is not bool or review.get('reviewType') != 'MA'
++            or (match.group('status').lower() == 'overturned') != review['isOverturned']
++            or play.get('about', {}).get('isComplete') is not True
++            or event.get('type') != 'action' or event.get('isPitch') is not False
++            or detail.get('hasReview') is not True or detail.get('isOut') is not True
++            or detail.get('isScoringPlay') is not False or event.get('isSubstitution') is True):
++        return None
++    row = rows[0]; move = row.get('movement', {}); person = row.get('details', {}).get('runner', {})
++    before = events[position-1].get('count', {}); after = event.get('count', {})
++    attempts = [e for e in events[:position] if e.get('playId') == event.get('actionPlayId')
++                and e.get('type') == 'pickoff' and e.get('isPitch') is False]
++    if (len(attempts) != 1 or not SAFE_IRI_SEGMENT.fullmatch(str(event.get('actionPlayId') or ''))
++            or type(person.get('id')) is not int or person['id'] <= 0 or not person.get('fullName')
++            or event.get('player', {}).get('id') != person['id']
++            or row.get('details', {}).get('eventType') != detail.get('eventType')
++            or row['details'].get('isScoringEvent') is not False
++            or move != dict(originBase=base, start=base, end=None, outBase=base,
++                           isOut=True, outNumber=after.get('outs'))
++            or any(type(before.get(k)) is not int or not 0 <= before[k] <= limit
++                   or type(after.get(k)) is not int for k, limit in (('balls', 3), ('strikes', 2), ('outs', 2)))
++            or any(before[k] != after[k] for k in ('balls', 'strikes'))
++            or after['outs'] != before['outs'] + 1
++            or not re.search(r' picks off ' + re.escape(person['fullName']) + r' at '
++                             + {'1B': '1st', '2B': '2nd', '3B': '3rd'}[base] + r'\b',
++                             detail['description'][match.end():])):
++        return None
++    return dict(kind='completed-pickoff-review', runnerId=str(person['id']),
++                overturned=review['isOverturned'], scope='final runner-history effects only')
++
++
++def nonmovement_strikeout_records(play, *, check_review=True):
+     """Recognize an empty K record beside an explicit safe WP/PB movement.
+ 
+     The complete positive companion and post-state establish the boundary;
+@@ -536,7 +592,9 @@
+     """
+     if (play.get('result', {}).get('eventType') != 'strikeout'
+             or play['result'].get('isOut') is not False or play.get('count', {}).get('strikes') != 3
+-            or play.get('about', {}).get('hasReview') is not False):
++            or (check_review and (play.get('about', {}).get('hasReview') is not False
++                                  or play.get('reviewDetails'))
++                and accounted_runner_history_reviews(play)['issues'])):
+         return {}
+     batter = play.get('matchup', {}).get('batter', {}).get('id')
+     if type(batter) is not int or batter <= 0 or play['matchup'].get('postOnFirst', {}).get('id') != batter:
+@@ -654,6 +712,41 @@
+     return result
+ 
+ 
++def reconciled_action_pitch_overlap(play, earlier, following):
++    """A PB/WP effect and the next counted pitch can have overlapping bounds.
++
++    Their source association and changed counter establish distinct events;
++    the caller independently reconciles all runner, out and post-base effects.
++    This does not assert precedence or adjust either observed interval.
++    """
++    events = play.get('playEvents', [])
++    if earlier is None or not any(e is earlier for e in events):
++        return False
++    detail = earlier.get('details', {}); after_detail = following.get('details', {})
++    before = earlier.get('count', {}); after = following.get('count', {})
++    association = earlier.get('actionPlayId')
++    anchors = [e for e in events if e.get('playId') == association and e.get('isPitch') is True]
++    call = after_detail.get('call', {}).get('code')
++    ball = call in {'B', '*B'}; strike = call in {'C', 'S', 'W'}
++    return (earlier.get('type') == 'action' and earlier.get('isPitch') is False
++        and detail.get('eventType') in {'passed_ball', 'wild_pitch'}
++        and detail.get('hasReview') is False and not earlier.get('reviewDetails')
++        and len(anchors) == 1 and SAFE_IRI_SEGMENT.fullmatch(str(association or '')) is not None
++        and anchors[0].get('count') == before
++        and any(r.get('details', {}).get('playIndex') == earlier.get('index') for r in play.get('runners', []))
++        and following.get('isPitch') is True and (ball or strike)
++        and SAFE_IRI_SEGMENT.fullmatch(str(following.get('playId') or '')) is not None
++        and following['playId'] != association
++        and after_detail.get('isBall') is ball and after_detail.get('isStrike') is strike
++        and after_detail.get('isInPlay') is False and after_detail.get('isOut') is False
++        and not any(r.get('details', {}).get('playIndex') == following.get('index') for r in play.get('runners', []))
++        and all(type(before.get(k)) is int and 0 <= before[k] <= limit
++                and type(after.get(k)) is int for k, limit in (('balls', 2), ('strikes', 1), ('outs', 2)))
++        and after['balls'] == before['balls'] + int(ball)
++        and after['strikes'] == before['strikes'] + int(strike)
++        and after['outs'] == before['outs'])
++
++
+ def personal_runner_histories(raw: bytes, previous=None) -> dict:
+     """E1/C1 source reconciliation, independent of mapped-row counts.
+ 
+@@ -702,12 +795,14 @@
+     independent = {'balk', 'wild_pitch', 'passed_ball', 'stolen_base_2b', 'stolen_base_3b',
+                    'stolen_base_home', 'caught_stealing_2b', 'caught_stealing_3b',
+                    'caught_stealing_home', 'pickoff_1b', 'pickoff_2b', 'pickoff_3b',
+-                   'defensive_indiff', 'pickoff_error_1b', 'pickoff_error_2b', 'pickoff_error_3b'}
++                   'defensive_indiff', 'pickoff_error_1b', 'pickoff_error_2b', 'pickoff_error_3b',
++                   'pickoff_caught_stealing_2b', 'pickoff_caught_stealing_3b', 'pickoff_caught_stealing_home'}
+     for (inning, half), plays in groups.items():
+         active, histories, memberships, problems = {}, [], [], []
+         outs = 0
+         previous_pa_end = None
+         last_event_end = None
++        last_timed_event = None
+         last_boundary_end = None
+ 
+         def block(code, pa=None):
+@@ -851,11 +946,13 @@
+                 # All pitch/movement boundary events require usable time bounds.
+                 if event.get('isPitch') is True or selected:
+                     if (not start or not end or not pa_start or not pa_end or start > end or start < pa_start or end > pa_end
+-                            or (last_event_end and start < last_event_end)
++                            or (last_event_end and start < last_event_end
++                                and not reconciled_action_pitch_overlap(play, last_timed_event, event))
+                             or (last_boundary_end and start < last_boundary_end)):
+                         block('UNSUPPORTED_EVENT_TIME_ORDER', pa)
+                     if end:
+                         last_event_end = end
++                    last_timed_event = event
+                     if kind != 'action' and event.get('count', {}).get('outs') != outs:
+                         block('PRE_EVENT_OUT_COUNT_MISMATCH', pa)
+                 event_anchor = str(event.get('playId') or '')
