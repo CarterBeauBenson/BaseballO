@@ -40,11 +40,18 @@ provider reason as nominal evidence. It does not assert that the provider
 reason is a world-side weather cause. Parser failures preserve the original
 response bytes for bounded retry or quarantine.
 
-A schedule request that arrives while the current mapping and SHACL still need
-a bounded proof remains inside the NiFi lane. NiFi retries the proof-release
-readiness check every 30 seconds for up to 30 minutes, releases the request as
-soon as the proof completes, and uses source-local schedule quarantine only if
-that readiness window is exhausted.
+Schedule requests go directly from `Prepare Schedule Batch` to
+`Acquire MLB Schedule`. The user removed the prior completed-sample prerequisite
+on [October 1](../../archive/design-records/mlb-game-acquisition-gate-removal-2026-10-01/README.md).
+Each acquired game still passes through its existing RML, source SHACL and
+promotion stages. HTTP failures retain their bounded retry and quarantine
+routes. The daily trigger remains 05:00 America/New_York.
+
+For an existing installation, run `nifi/remove-acquisition-gate.py` to migrate
+only these acquisition connections. It preserves queued schedule requests by
+redirecting their existing queues to acquisition. Run it once more after any
+recovered queue drains to remove the remaining stopped gate processors. It
+does not stop source mapping, SHACL, promotion, SQL or repair workers.
 
 The module is operationally active and its current pinned contract is
 semantically `approved`. NiFi runs it asynchronously and applies the

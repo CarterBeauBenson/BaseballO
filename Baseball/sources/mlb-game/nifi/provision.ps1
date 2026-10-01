@@ -44,14 +44,6 @@ if ($batchChecksEnabled -isnot [bool]) {
 if ([string]$schedule.dailyCron -ne '0 0 5 * * ?' -or [string]$schedule.timeZone -ne 'America/New_York') {
     throw 'MLB Game daily acquisition must run at 05:00 America/New_York.'
 }
-$proofReleasePolicy = $contract.proofRelease
-if (
-    [int]$proofReleasePolicy.readinessRetryCount -ne 60 -or
-    [string]$proofReleasePolicy.readinessRetryDelay -ne '30 sec' -or
-    [string]$proofReleasePolicy.exhaustedAction -ne 'source-local-schedule-quarantine'
-) {
-    throw 'MLB Game proof release must wait up to 30 minutes and then quarantine locally.'
-}
 $failurePolicy = $contract.failurePolicy
 $maximumAttemptsPerStage = [int]$failurePolicy.maximumAttemptsPerStage
 if ($maximumAttemptsPerStage -ne 2) {
@@ -73,10 +65,9 @@ if (
 $stageScript = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\pipeline\stage.ps1'))
 $scheduleParser = [System.IO.Path]::GetFullPath((Join-Path $repositoryRoot "sources\mlb-game\$([string]$schedule.parser)"))
 $batchMaterializer = [System.IO.Path]::GetFullPath((Join-Path $repositoryRoot "sources\mlb-game\$([string]$contract.batchMaterialization.processor)"))
-$proofReleaseScript = [System.IO.Path]::GetFullPath((Join-Path $repositoryRoot 'scripts\pipeline\check-source-proof-release.py'))
 $quarantineReplayScript = [System.IO.Path]::GetFullPath((Join-Path $repositoryRoot "sources\mlb-game\$([string]$quarantineReplayPolicy.planner)"))
 $eventEmitter = [System.IO.Path]::GetFullPath((Join-Path $repositoryRoot ([string]$eventContract.emitter)))
-foreach ($required in @($stageScript, $scheduleParser, $batchMaterializer, $proofReleaseScript, $quarantineReplayScript, $eventEmitter)) {
+foreach ($required in @($stageScript, $scheduleParser, $batchMaterializer, $quarantineReplayScript, $eventEmitter)) {
     if (-not (Test-Path -LiteralPath $required -PathType Leaf)) {
         throw "MLB Game NiFi executable is missing: $required"
     }
@@ -423,12 +414,6 @@ $processors.prepareSchedule = Ensure-Processor -GroupId $groupId -Name 'Prepare 
     'Delete Attributes Expression' = ''; 'Store State' = 'Do not store state'; 'Stateful Variables Initial Value' = '';
     'Cache Value Lookup Cache Size' = '100'; 'batch.id' = "`${uuid:replace('-', '')}"
 }
-$proofReleaseArguments = "-B;$proofReleaseScript;--state-root;$script:StateRoot;--contract;$contractPath"
-$processors.proofRelease = Ensure-Processor -GroupId $groupId -Name 'Check Proof Release' -Type 'org.apache.nifi.processors.standard.ExecuteStreamCommand' -X 800 -Y -580 -AutoTerminate @('output stream', 'nonzero status') -Properties @{
-    'Working Directory' = $repositoryRoot; 'Command Path' = $python; 'Command Arguments Strategy' = 'Command Arguments Property';
-    'Command Arguments' = $proofReleaseArguments; 'Argument Delimiter' = ';'; 'Ignore STDIN' = 'true';
-    'Output Destination Attribute' = 'proof.release.output'; 'Max Attribute Length' = '65536'; 'Output MIME Type' = 'application/json'
-}
 $processors.scheduleHttp = Ensure-Processor -GroupId $groupId -Name 'Acquire MLB Schedule' -Type 'org.apache.nifi.processors.standard.InvokeHTTP' -X 960 -Y -420 -AutoTerminate @('Original') -Properties @{
     'HTTP Method' = 'GET'; 'HTTP URL' = [string]$schedule.url;
     'HTTP/2 Disabled' = 'False'; 'Connection Timeout' = '15 secs'; 'Socket Read Timeout' = '120 secs';
@@ -604,7 +589,6 @@ $exitGates = [ordered]@{
     'Materialization' = Ensure-ExitGate $groupId 'Materialization' 3680 150
     'Cleanup' = Ensure-ExitGate $groupId 'Cleanup' 4000 150
     'Batch Materialization' = Ensure-ExitGate $groupId 'Batch Materialization' 3440 -520
-    'Proof Release' = Ensure-ExitGate $groupId 'Proof Release' 1040 -580
     'Quarantine Proof' = Ensure-ExitGate $groupId 'Quarantine Proof' 1920 -1080
     'Quarantine Resolution' = Ensure-ExitGate $groupId 'Quarantine Resolution' 4640 160
 }
@@ -644,8 +628,7 @@ foreach ($entry in $stageProcessors.GetEnumerator()) {
     $failureProcessors[$entry.Key] = Ensure-FailureStageProcessor -GroupId $groupId -Stage $entry.Key -X $retryX -Y 560
     $retryX += 320
 }
-$processors.proofReleaseWait = Ensure-RetryProcessor -GroupId $groupId -Stage 'Proof Release Readiness' -X 1040 -Y -820 -MaximumRetries ([int]$proofReleasePolicy.readinessRetryCount)
-foreach ($stage in @('Request', 'Response', 'Eligibility', 'Schedule Request', 'Schedule Split', 'Materialization Mode', 'Proof Release')) {
+foreach ($stage in @('Request', 'Response', 'Eligibility', 'Schedule Request', 'Schedule Split', 'Materialization Mode')) {
     $failureProcessors[$stage] = Ensure-FailureStageProcessor -GroupId $groupId -Stage $stage -X $retryX -Y 560
     $retryX += 240
 }
@@ -696,7 +679,6 @@ Ensure-Connection -GroupId $groupId -Name 'quarantine proof command to exit gate
 Ensure-Connection -GroupId $groupId -Name 'quarantine proof awaiting completion' -SourceId $exitGates['Quarantine Proof'] -DestinationId $processors.quarantineProofWait -Relationships @('unmatched') | Out-Null
 Ensure-Connection -GroupId $groupId -Name 'quarantine proof readiness retry' -SourceId $processors.quarantineProofWait -DestinationId $processors.checkQuarantineProof -Relationships @('retry') | Out-Null
 Ensure-Connection -GroupId $groupId -Name 'quarantine proof readiness exhausted' -SourceId $processors.quarantineProofWait -DestinationId $processors.quarantineReplayControlFailure -Relationships @('retries_exceeded') | Out-Null
-Ensure-Connection -GroupId $groupId -Name 'quarantine proof releases remainder' -SourceId $exitGates['Quarantine Proof'] -DestinationId $processors.emitQuarantineRemainder -Relationships @('passed') | Out-Null
 Ensure-Connection -GroupId $groupId -Name 'quarantine remainder emitted' -SourceId $processors.emitQuarantineRemainder -DestinationId $processors.splitQuarantineRemainder -Relationships @('output stream') | Out-Null
 Ensure-Connection -GroupId $groupId -Name 'quarantine remainder emission failed' -SourceId $processors.emitQuarantineRemainder -DestinationId $processors.quarantineReplayControlFailure -Relationships @('nonzero status') | Out-Null
 Ensure-Connection -GroupId $groupId -Name 'quarantine remainder split' -SourceId $processors.splitQuarantineRemainder -DestinationId $processors.readQuarantineReplayItem -Relationships @('split') | Out-Null
@@ -705,9 +687,7 @@ Ensure-Connection -GroupId $groupId -Name '01 backfill to schedule reader' -Sour
 Ensure-Connection -GroupId $groupId -Name '01 schedule request parsed' -SourceId $processors.readScheduleRequest -DestinationId $processors.prepareSchedule -Relationships @('matched') | Out-Null
 Ensure-Connection -GroupId $groupId -Name '01 daily schedule to preparation' -SourceId $processors.dailyRequest -DestinationId $processors.prepareDailySchedule -Relationships @('success') | Out-Null
 Ensure-Connection -GroupId $groupId -Name '01 daily schedule prepared' -SourceId $processors.prepareDailySchedule -DestinationId $processors.prepareSchedule -Relationships @('success') | Out-Null
-Ensure-Connection -GroupId $groupId -Name '01 schedule batch to proof release' -SourceId $processors.prepareSchedule -DestinationId $processors.proofRelease -Relationships @('success') | Out-Null
-Ensure-Connection -GroupId $groupId -Name '01 proof release command to exit gate' -SourceId $processors.proofRelease -DestinationId $exitGates['Proof Release'] -Relationships @('original') | Out-Null
-Ensure-Connection -GroupId $groupId -Name '01 released schedule to acquisition' -SourceId $exitGates['Proof Release'] -DestinationId $processors.scheduleHttp -Relationships @('passed') | Out-Null
+Ensure-Connection -GroupId $groupId -Name '01 schedule batch to acquisition' -SourceId $processors.prepareSchedule -DestinationId $processors.scheduleHttp -Relationships @('success') | Out-Null
 Ensure-Connection -GroupId $groupId -Name '01 schedule response to final-game preparation' -SourceId $processors.scheduleHttp -DestinationId $processors.prepareScheduleRequests -Relationships @('Response') | Out-Null
 Ensure-Connection -GroupId $groupId -Name '01 final-game requests to splitter' -SourceId $processors.prepareScheduleRequests -DestinationId $processors.splitSchedule -Relationships @('output stream') | Out-Null
 Ensure-Connection -GroupId $groupId -Name '01 final-game request to reader' -SourceId $processors.splitSchedule -DestinationId $processors.readRequest -Relationships @('split') | Out-Null
@@ -778,13 +758,10 @@ Ensure-Connection -GroupId $groupId -Name 'schedule split failure' -SourceId $pr
 Ensure-Connection -GroupId $groupId -Name 'response parse failure' -SourceId $processors.readResponse -DestinationId $failureProcessors['Response'] -Relationships @('failure', 'unmatched') | Out-Null
 Ensure-Connection -GroupId $groupId -Name 'nonfinal response' -SourceId $processors.requireFinal -DestinationId $failureProcessors['Eligibility'] -Relationships @('unmatched') | Out-Null
 Ensure-Connection -GroupId $groupId -Name 'unknown materialization mode' -SourceId $processors.chooseMaterialization -DestinationId $failureProcessors['Materialization Mode'] -Relationships @('unmatched') | Out-Null
-Ensure-Connection -GroupId $groupId -Name 'proof release awaiting current proof' -SourceId $exitGates['Proof Release'] -DestinationId $processors.proofReleaseWait -Relationships @('unmatched') | Out-Null
-Ensure-Connection -GroupId $groupId -Name 'proof release readiness retry' -SourceId $processors.proofReleaseWait -DestinationId $processors.proofRelease -Relationships @('retry') | Out-Null
-Ensure-Connection -GroupId $groupId -Name 'proof release readiness exhausted' -SourceId $processors.proofReleaseWait -DestinationId $failureProcessors['Proof Release'] -Relationships @('retries_exceeded') | Out-Null
 foreach ($stage in @('Request', 'Response', 'Eligibility', 'Materialization Mode')) {
     Ensure-Connection -GroupId $groupId -Name "fail $stage to quarantine" -SourceId $failureProcessors[$stage] -DestinationId $processors.quarantine -Relationships @('success') | Out-Null
 }
-foreach ($stage in @('Schedule Request', 'Schedule Split', 'Proof Release')) {
+foreach ($stage in @('Schedule Request', 'Schedule Split')) {
     Ensure-Connection -GroupId $groupId -Name "fail $stage to schedule quarantine" -SourceId $failureProcessors[$stage] -DestinationId $processors.nameScheduleQuarantine -Relationships @('success') | Out-Null
 }
 Ensure-Connection -GroupId $groupId -Name 'schedule quarantine named' -SourceId $processors.nameScheduleQuarantine -DestinationId $processors.putScheduleQuarantine -Relationships @('success') | Out-Null
@@ -795,7 +772,6 @@ $flow = Get-GroupFlow -GroupId $groupId
 $unexpectedProcessors = @($flow.processors | Where-Object { $_.component.name -notin @(
     'Proof Request','Backfill Schedule Request','Read Schedule Request','Daily 05:00 Eastern Schedule',
     'Prepare Daily Schedule Request','Prepare Schedule Batch','Acquire MLB Schedule','Prepare Final Game Requests',
-    'Check Proof Release','Require Proof Release Success',
     'Quarantine Replay Request','Plan Quarantine Replay','Split Quarantine Replay Plan','Read Quarantine Replay Item',
     'Quarantine Proof Retry Request','Emit Quarantine Proof Retry',
     'Quarantine Remainder Retry Request','Emit Quarantine Remainder Retry',
@@ -814,9 +790,9 @@ $unexpectedProcessors = @($flow.processors | Where-Object { $_.component.name -n
     'Record Success','Retry HTTP','Retry Write Payload','Retry RML','Retry SHACL','Retry Promotion','Retry Promoted Graph Event','Retry Materialization',
     'Retry Cleanup','Retry Schedule HTTP','Retry Schedule Parse','Fail HTTP','Fail Write Payload','Fail RML','Fail SHACL','Fail Promoted Graph Event',
     'Retry Quarantine Resolution','Fail Promotion','Fail Materialization','Fail Cleanup','Fail Quarantine Resolution','Fail Replay Fetch','Fail Quarantine Resolution Choice','Fail Schedule HTTP','Fail Schedule Parse',
-    'Fail Request','Fail Response','Fail Eligibility','Fail Schedule Request','Fail Schedule Split','Fail Materialization Mode','Fail Proof Release',
+    'Fail Request','Fail Response','Fail Eligibility','Fail Schedule Request','Fail Schedule Split','Fail Materialization Mode',
     'Quarantine','Name Schedule Quarantine','Write Schedule Quarantine','Record Schedule Quarantine Failure',
-    'Retry Proof Release Readiness','Repair Selected Query Indexes'
+    'Repair Selected Query Indexes'
     'Refresh Admission Evidence Timer','Refresh Admission Evidence','Record Refresh Admission Evidence'
 ) })
 if ($unexpectedProcessors.Count -gt 0) {

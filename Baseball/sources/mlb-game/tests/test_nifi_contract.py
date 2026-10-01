@@ -27,13 +27,18 @@ class NifiContractTests(unittest.TestCase):
         )
         self.assertIn("-MaximumRetries $maximumRetriesPerStage", provisioner)
 
-    def test_proof_readiness_polling_remains_separate(self) -> None:
+    def test_acquisition_does_not_require_a_completed_sample_game(self) -> None:
         contract = json.loads(
             (MODULE_ROOT / "nifi" / "flow-contract.json").read_text(encoding="utf-8")
         )
 
-        self.assertEqual(contract["proofRelease"]["readinessRetryCount"], 960)
-        self.assertEqual(contract["proofRelease"]["readinessRetryDelay"], "30 sec")
+        self.assertFalse(contract['scheduleDiscovery']['requiresCompletedProof'])
+        self.assertNotIn('proofRelease', contract)
+        provisioner = (MODULE_ROOT / 'nifi/provision.ps1').read_text(encoding='utf-8-sig')
+        self.assertIn("-Name '01 schedule batch to acquisition' -SourceId $processors.prepareSchedule -DestinationId $processors.scheduleHttp", provisioner)
+        self.assertNotIn('check-source-proof-release.py', provisioner)
+        self.assertIn("'09 RML passed to SHACL'", provisioner)
+        self.assertIn("'11 SHACL passed to promotion'", provisioner)
 
     def test_quarantine_replay_proves_five_exact_inputs_before_remainder(self) -> None:
         contract = json.loads(

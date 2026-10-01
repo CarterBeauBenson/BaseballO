@@ -15,7 +15,9 @@
       "requestKind": "backfill"
     },
     "parser": "nifi/prepare-schedule-batch.py",
-    "recordsJsonPath": "$.games[*]"
+    "recordsJsonPath": "$.games[*]",
+    "requiresCompletedProof": false,
+    "acquisitionDecision": "archive/design-records/mlb-game-acquisition-gate-removal-2026-10-01/README.md"
   },
   "batchMaterialization": {
     "processor": "pipeline/materialize-pending-batches.py",
@@ -41,11 +43,6 @@
       "constructContract": "unchanged",
       "finalGraphWrite": "serialized"
     }
-  },
-  "proofRelease": {
-    "readinessRetryCount": 960,
-    "readinessRetryDelay": "30 sec",
-    "exhaustedAction": "source-local-schedule-quarantine"
   },
   "quarantineReplay": {
     "planner": "nifi/prepare-quarantine-replay.py",

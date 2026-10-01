@@ -253,7 +253,7 @@ class NifiSourceContractTests(unittest.TestCase):
         self.assertIn("'--jena-max-heap', $shaclJenaMaxHeap", stage)
         self.assertIn("shaclEngine = $shaclEngine", stage)
 
-    def test_bulk_and_daily_requests_are_proof_gated(self) -> None:
+    def test_reference_proof_gates_are_separate_from_mlb_game_acquisition(self) -> None:
         checker = ROOT / "scripts" / "pipeline" / "check-source-proof-release.py"
         self.assertTrue(checker.is_file())
         common = (ROOT / "scripts" / "infra" / "provision-nifi-source.ps1").read_text(
@@ -262,10 +262,13 @@ class NifiSourceContractTests(unittest.TestCase):
         game = (ROOT / "sources" / "mlb-game" / "nifi" / "provision.ps1").read_text(
             encoding="utf-8"
         )
-        for text in (common, game):
-            self.assertIn("check-source-proof-release.py", text)
-            self.assertIn("Check Proof Release", text)
-            self.assertIn("'Proof Release'", text)
+        self.assertIn("check-source-proof-release.py", common)
+        self.assertIn("Check Proof Release", common)
+        self.assertIn("'Proof Release'", common)
+        self.assertNotIn("check-source-proof-release.py", game)
+        self.assertIn("'01 schedule batch to acquisition'", game)
+        self.assertIn("'09 RML passed to SHACL'", game)
+        self.assertIn("'11 SHACL passed to promotion'", game)
 
         starter = (ROOT / "scripts" / "infra" / "start-nifi.ps1").read_text(
             encoding="utf-8"
