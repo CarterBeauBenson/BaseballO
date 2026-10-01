@@ -107,6 +107,26 @@ def command(args, cwd, log):
         raise RuntimeError('Stage failed; see ' + str(log))
 
 
+def retain_source_binding(proof, marker, field):
+    """Keep D1's separately evidenced source attached through later additions.
+
+    The caller first verifies the exact proof hash in the current promotion.
+    A targeted defensive census can use a different retained response from
+    the game's original ingest. Its original receipt binds both identities;
+    neither hash is rewritten to pretend the responses were identical.
+    """
+    if proof.get('sourceSha256') == marker['rawSha256']:
+        return
+    receipt = proof.get('sourceRevalidation', proof.get('graphRevalidation', {}))
+    if (field != 'defensiveAdmission'
+            or receipt.get('decision') != 'archive/design-records/mlb-game-defensive-acts/review.json'
+            or receipt.get('mode') != 'current-defensive-source-census'
+            or receipt.get('promotionSourceSha256') != marker['rawSha256']
+            or not receipt.get('originalProofSha256')):
+        raise ValueError('Retained admission belongs to an unbound source: ' + field)
+    proof['sourceRevalidation'] = dict(receipt)
+
+
 def revalidate(marker, manifest, history, rdf, evidence, java, classpath, delta=None):
     """Recheck retained source contracts; never rerun acquisition or source mapping.
 
@@ -138,8 +158,8 @@ def revalidate(marker, manifest, history, rdf, evidence, java, classpath, delta=
             if sha(prior) != marker[field + 'Sha256']:
                 raise ValueError('Retained admission changed: ' + field)
             proof = read(prior)
-            if (proof['sourceSha256'] != marker['rawSha256']
-                    or proof['authoritativeRdfSha256'] != manifest['outputSha256']):
+            retain_source_binding(proof, marker, field)
+            if proof['authoritativeRdfSha256'] != manifest['outputSha256']:
                 raise ValueError('Retained admission does not describe the approved base')
             target = evidence / prior.name
             for suffix, key in (('.source.json', 'sourceCensusSha256'),

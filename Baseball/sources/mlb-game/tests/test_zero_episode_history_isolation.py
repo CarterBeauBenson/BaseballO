@@ -14,6 +14,24 @@ spec.loader.exec_module(Q)
 
 
 class HistoryIsolation(unittest.TestCase):
+    def test_defensive_source_receipt_survives_multiple_additions(self):
+        marker = dict(rawSha256='original-input')
+        receipt = dict(decision='archive/design-records/mlb-game-defensive-acts/review.json',
+            mode='current-defensive-source-census', promotionSourceSha256='original-input',
+            originalProofSha256='original-proof')
+        proof = dict(sourceSha256='separate-retained-input', graphRevalidation=receipt)
+        Q.retain_source_binding(proof, marker, 'defensiveAdmission')
+        proof['graphRevalidation'] = dict(mode='unchanged-source-census')
+        Q.retain_source_binding(proof, marker, 'defensiveAdmission')
+        self.assertEqual(proof['sourceSha256'], 'separate-retained-input')
+        self.assertEqual(proof['sourceRevalidation'], receipt)
+        for changed, field in ((dict(receipt, promotionSourceSha256='another-game'), 'defensiveAdmission'),
+                               (dict(receipt, decision='unknown'), 'defensiveAdmission'),
+                               (receipt, 'runnerHistoryAdmission')):
+            with self.assertRaisesRegex(ValueError, 'unbound source'):
+                Q.retain_source_binding(dict(sourceSha256='separate-retained-input',
+                    graphRevalidation=changed), marker, field)
+
     def test_existing_graph_export_preserves_literal_terms(self):
         from rdflib import Graph, Literal, URIRef
         date = Literal('2026-09-17T00:09:19.347Z', datatype=URIRef('http://www.w3.org/2001/XMLSchema#dateTime'), normalize=False)

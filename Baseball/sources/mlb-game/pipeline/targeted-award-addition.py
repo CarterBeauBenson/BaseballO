@@ -123,8 +123,8 @@ def revalidate(marker,manifest,rdf,evidence,java,classpath,selected,game_pk,delt
             prior=Path(value)
             if sha(prior)!=marker[field+'Sha256']:raise ValueError('W1 retained admission changed')
             proof=read(prior)
-            if (proof.get('sourceSha256')!=marker['rawSha256']
-                    or proof.get('authoritativeRdfSha256')!=manifest['outputSha256']):
+            A.retain_source_binding(proof,marker,field)
+            if proof.get('authoritativeRdfSha256')!=manifest['outputSha256']:
                 raise ValueError('W1 retained proof belongs to another graph')
             target=evidence/prior.name
             for suffix,key in (('.source.json','sourceCensusSha256'),('.shapes.ttl','shapeSha256'),('.report.ttl','reportSha256')):
