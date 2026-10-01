@@ -895,7 +895,9 @@ def main():
     parser.add_argument('--endpoint',default='http://127.0.0.1:3031/baseball-dev/query')
     parser.add_argument('--timeout',type=int,default=120)
     parser.add_argument('--workers',type=int,choices=(1,2),default=2)
-    parser.add_argument('--quiet-seconds',type=int,default=60)
+    # Per-game locks and recapture handle ongoing promotions. A global quiet
+    # window starves SQL while the independent repair lanes keep progressing.
+    parser.add_argument('--quiet-seconds',type=int,default=0)
     parser.add_argument('--max-games',type=int)
     parser.add_argument('--no-promote',action='store_true')
     parser.add_argument('--force',action='store_true')

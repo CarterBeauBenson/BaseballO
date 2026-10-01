@@ -198,6 +198,12 @@ the publication fingerprint. Active or uncommitted writes remain fenced out.
 This avoids restarting the corpus pass merely because one repair finished
 between input capture and the game's read.
 
+NiFi then recorded repeated `Recent promotion or schedule update` deferrals:
+the default 60-second global quiet window was continually reset by successful
+repairs. The dashboard defaults to no global quiet window; its existing
+per-game locks and current-promotion checks still protect every graph read.
+An explicitly requested `--quiet-seconds` remains available.
+
 Focused regressions cover discovery and identity conflicts, interrupted
 acquisition receipts, partial foul repair without input retirement, retained
 sample reuse, and SQL publication through both metric-read and label-read
