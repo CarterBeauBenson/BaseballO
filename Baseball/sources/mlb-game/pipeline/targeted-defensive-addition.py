@@ -37,10 +37,15 @@ def revalidate(marker,manifest,rdf,evidence,java,classpath,selected,game_pk,delt
     # The old incomplete defensive census intentionally lacks these acts.
     # Replace only that census with the current, independently sourced D1
     # census; all unrelated admission reports retain their exact expectations.
-    original_proof=Path(marker['defensiveAdmission'])
-    if W.sha(original_proof)!=marker['defensiveAdmissionSha256']:raise ValueError('Retained D1 proof changed')
-    if W.read(original_proof)['status']=='admitted' and not selected['populationComplete']:
-        raise ValueError('D1 addition would regress a complete admitted population')
+    proof_path=marker.get('defensiveAdmission');proof_hash=marker.get('defensiveAdmissionSha256')
+    if bool(proof_path)!=bool(proof_hash):raise ValueError('Retained D1 proof reference is incomplete')
+    if proof_path:
+        original_proof=Path(proof_path)
+        if W.sha(original_proof)!=proof_hash:raise ValueError('Retained D1 proof changed')
+        if W.read(original_proof)['status']=='admitted' and not selected['populationComplete']:
+            raise ValueError('D1 addition would regress a complete admitted population')
+    # Legacy promotions predate D1's census. Absence is not a failed proof:
+    # the selected current census and unchanged SHACL below still have to pass.
     prior={k:v for k,v in marker.items() if k not in {'defensiveAdmission','defensiveAdmissionSha256'}}
     fields=W.revalidate(prior,manifest,rdf,evidence,java,classpath,selected,game_pk,delta,
         shape_text=shapes,decisions=dict(decision=DECISION))
