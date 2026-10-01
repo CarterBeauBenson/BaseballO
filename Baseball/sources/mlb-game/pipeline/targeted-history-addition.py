@@ -292,8 +292,7 @@ def add_game(state, game_pk, java, mapper, classpath):
 
 def tick(state, game_pk, java, mapper, classpath):
     control = state / 'pipeline/control/mlb-game/history-addition' / (game_pk + '.json')
-    version = hashlib.sha256(Path(__file__).read_bytes() +
-        (ROOT / 'scripts/pipeline/prepare-rml-context.py').read_bytes()).hexdigest()
+    version = fingerprint()
     previous = read(control) if control.exists() else {}
     if previous.get('status') in SUCCESS:
         return previous
@@ -313,9 +312,13 @@ def cases():
     return read(PACKAGE / 'source-evidence.json')['cases'] + read(COMPLETION)['cases']
 
 
-def next_case(state):
-    version = hashlib.sha256(Path(__file__).read_bytes() +
+def fingerprint():
+    return hashlib.sha256(Path(__file__).read_bytes() + COMPLETION.read_bytes() +
         (ROOT / 'scripts/pipeline/prepare-rml-context.py').read_bytes()).hexdigest()
+
+
+def next_case(state):
+    version = fingerprint()
     for case in cases():
         path = state / 'pipeline/control/mlb-game/history-addition' / (case['gamePk'] + '.json')
         previous = read(path) if path.is_file() else {}

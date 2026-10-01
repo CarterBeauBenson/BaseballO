@@ -11,6 +11,17 @@ qualification, Offensive Reach, Help Without Advancing, Empty Games,
 contribution and run construction. Defensive completion is not a prerequisite
 for these independent offensive results.
 
+The existing Q7 repair now covers 78 specifically inventoried additional games,
+with 190 complete nonempty runner histories recoverable from retained source
+reconciliation. This uses the September 30 narrow repair authorization and
+three unchanged RML maps; it changes no ontology, mapping selector or semantic
+freeze and acquires no source responses. The [worker and exact scope](../sources/mlb-game/pipeline/TARGETED-HISTORY-ADDITION.md)
+preserve the unresolved empty histories and incomplete halves. NiFi completed
+the first game, 822680, at 17:06 UTC on October 1: one history and six missing
+triples. That is a verified graph addition, not yet a published season metric
+improvement. The remaining inventory executes asynchronously in the existing
+MLB Game group.
+
 The player projection also spread an ambiguous batter's uncertainty across the
 entire game roster. It now keeps that uncertainty with all candidate batters and
 runners identified by the retained RDF query rows. It assigns no batting credit;
@@ -64,6 +75,10 @@ request again returns all 2,429 verified rosters and five populated cards:
 Offensive Reach 1, Help Without Advancing 5, Empty Games 266, Scoring History
 Length 17 and Run Contributors 1. The newer incremental build continues;
 restoring service does not close the remaining metric coverage gaps.
+The older in-flight `504cd7e` build published at 17:03 UTC with the same race
+in different games, 823682 and 823668, before it contained the roster handoff
+repair. Its pointer was likewise restored to the verified September 30 build.
+The next build contains the repaired handoff and publication retention logic.
 
 October 1 publication diagnosis: NiFi's 14:42 UTC and 15:14 UTC builds completed
 all 2,917 stored game products and their season products, but both refused
