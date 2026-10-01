@@ -5,7 +5,10 @@ $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot '..\..\..\scripts\infra\common.ps1')
 . (Join-Path $PSScriptRoot 'game-lock.ps1')
 $mapper = Get-RMLMapperJar
-foreach ($gamePk in @('822846', '824467')) {
+$selection = & python -B (Join-Path $PSScriptRoot 'targeted-history-addition.py') --state-root $script:StateRoot --next
+if ($LASTEXITCODE -ne 0) { throw 'Q7 repair inventory failed.' }
+$gamePk = $selection | ConvertFrom-Json
+if ($null -ne $gamePk) {
     $lock = Enter-MlbGameLock -StateRoot $script:StateRoot -GamePk $gamePk -TimeoutSeconds 60
     try {
         & python -B (Join-Path $PSScriptRoot 'targeted-history-addition.py') --state-root $script:StateRoot `

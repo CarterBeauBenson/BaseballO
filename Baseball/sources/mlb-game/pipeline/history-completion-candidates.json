@@ -1,0 +1,1539 @@
+{
+  "artifactType": "baseballo-targeted-history-repair-inventory",
+  "scopeDecision": "archive/design-records/metric-repair-scope-2026-09-30/README.md",
+  "patternDecision": "archive/design-records/mlb-game-zero-episode-history-isolation/review.json",
+  "cases": [
+    {
+      "gamePk": "822680",
+      "inputSha256": "83cca63a5b269b4986a5b17116b0e8fd87a6640ec7a0bd1c7d7678b5cfe3dca7",
+      "promotionManifestSha256": "d15635bb9891b5431d2221a40904a7367d21f7ec31349c75503b873a3f0c2920",
+      "rmlManifestSha256": "f5cbac6113ad34af66cd764133563a676d33e128af5f75fa25b49dbfd8e37a1a",
+      "authoritativeRdfSha256": "7e2df6053e0b8cdd34c5ead9772c13648bacd9c0e3a249d345fba9792b9c3ffc",
+      "selectedHistoryKeys": [
+        "271a4e94539fbf0b6c4a97d792baaafa8085f5b3cd178ca59247a0928dde3cda"
+      ],
+      "halves": [
+        {
+          "inning": "8",
+          "half": "bottom"
+        }
+      ],
+      "selectedHistories": 1,
+      "selectedEpisodes": 1
+    },
+    {
+      "gamePk": "822682",
+      "inputSha256": "27b8f4934f6be8d038e0b08ba26eccbaec0cf1b2cbdc0fb4407f76a32e157eda",
+      "promotionManifestSha256": "18088893d42f596070dd4fede378e64df1b6ae42a9f49be76311e3b5777ff2ea",
+      "rmlManifestSha256": "fbae779ff2c2d6d49163ca07d5ca976d29fef9f7be938c818585da759d89de31",
+      "authoritativeRdfSha256": "ffe74550cd5a8fd64753b0ef6d6ef282c543306fe7ab2fae05f551a78cf7969c",
+      "selectedHistoryKeys": [
+        "0d267486350ed7c2f338e3c72c28fe756b04ae9a837d2c151d5f15d4f5ce03de",
+        "1846f12a390b4ea73e0480c8d12c8f6a625d619f27a727be31553b53dbfaafdf",
+        "51ad20edfa051d9aaa74259ea58d09d68f0b2871e70e2a1964f59471f70653a2",
+        "693062dd89a8be2370675fc620251f710cb09c70c97c53b2192bfac0b0fcad59",
+        "7d29ac494a9e5b3c3dabca9c36b922d2147edbd1c1a848d836b9be965328ca7f"
+      ],
+      "halves": [
+        {
+          "inning": "6",
+          "half": "bottom"
+        }
+      ],
+      "selectedHistories": 5,
+      "selectedEpisodes": 12
+    },
+    {
+      "gamePk": "822685",
+      "inputSha256": "4826c5f2b7b2192b259d50d54b933062ae8e4cd84d06657108ee53c339350ce8",
+      "promotionManifestSha256": "fa0e58a7eb9fe83c2441a1736bde5b84ea23fe15986532cce0a8bd6ea07d3320",
+      "rmlManifestSha256": "1c621d8e89dd385e7f83b61295893e96339eb014937f9ad0e641909a7a699cd4",
+      "authoritativeRdfSha256": "48c080949aac70c5592aa9c0460ed96976c83a57c79024a9ecfd082cceb49969",
+      "selectedHistoryKeys": [
+        "74f8045f11cc6a7f4f2866931983cd7117023827b5f5f7be3e1c6846d0f16106"
+      ],
+      "halves": [
+        {
+          "inning": "8",
+          "half": "bottom"
+        }
+      ],
+      "selectedHistories": 1,
+      "selectedEpisodes": 1
+    },
+    {
+      "gamePk": "822688",
+      "inputSha256": "b9c1d3e614359d9cc00927af319edd7998e5ec5fcd0c1514a26fbec5d96ca13b",
+      "promotionManifestSha256": "6666fa59abfe0d9e1722f5ea588fcae47721aac5ab8bf4f53d3ba4a67eef0278",
+      "rmlManifestSha256": "c8b67d5157e39c3d4775b62318151fb97e60fcea064336996a90b551a0751784",
+      "authoritativeRdfSha256": "3f4bb6907242cb35c31954615ce14a47990003e1b6f41b64423a3812b50e052b",
+      "selectedHistoryKeys": [
+        "41f1372612cf6407939ee43f6013931b81ff2deda30abace918c54c2923957e1",
+        "6f89e660df43a81ba32ce30a52aaab054d174bfc5bb016678793a61a98593a7f",
+        "a2f67b87a7fdcce583cfb0f8cdb6941749c3c4bb7f75aa932cacf047183e15fc"
+      ],
+      "halves": [
+        {
+          "inning": "7",
+          "half": "bottom"
+        }
+      ],
+      "selectedHistories": 3,
+      "selectedEpisodes": 7
+    },
+    {
+      "gamePk": "822706",
+      "inputSha256": "256aadb60b7535870fc47e6d55df3f4cbed11cc304725400243b9fe4fe2bf261",
+      "promotionManifestSha256": "14d38bc9ad6786d8dd56f37e57d64faa7565bd68a99ef52e2da1e75c41ecf185",
+      "rmlManifestSha256": "b182e0c34f1ca4e8b7c384b078f3d9929d9714d1b93ecd1d4c6a8b23e960151e",
+      "authoritativeRdfSha256": "c5d3eabc22f4f52b60190d05e99d27f91ffd60b65e2b1cf824b05d54020548fd",
+      "selectedHistoryKeys": [
+        "2e812edcc7c3fd392ea3fd77d4ad16c55e1d7e3cc652dd6736c05443a77d1ce1",
+        "4b7b1fb0e4cd3285812a1634f2dc014eeea007c77d1e970e73506bd53ca4647a",
+        "591d8945d147b6756796d22545c6eed8c73c7b8a3f5ee840a8b22792c9c05f8d",
+        "93a534ce94a4211a1065750210dde3444e7111a88fc7c164adefad3875a4d178",
+        "a85d26165002d0a896170003e99c642ea82a23c42b9c7747466e1675bbb10dd9",
+        "ba69db46a6fc4d6ec17932dcc1b5800e5db85396e707c278b641ec5a80695b37"
+      ],
+      "halves": [
+        {
+          "inning": "9",
+          "half": "top"
+        }
+      ],
+      "selectedHistories": 6,
+      "selectedEpisodes": 17
+    },
+    {
+      "gamePk": "822715",
+      "inputSha256": "81155a6a22ba03cc4b6b708ac0a72d58d7f7eb69a939016426bd300a28650c1f",
+      "promotionManifestSha256": "5f670db45d5ce1bc53ec00441a86e50ccb010270f4508026e065fa3c46ef131a",
+      "rmlManifestSha256": "12fe0238637f0cbc6b6c45ffacb8b106068a4e98630506f1086ba5b61931c932",
+      "authoritativeRdfSha256": "8c392e6eb9822cb3f65a56898a358b4ddf5fa8ef928c62e260dc1e014786afd2",
+      "selectedHistoryKeys": [
+        "21000c77d476c40687d22d2ec2cd1a5897c0cfc6f9ba7a493fdfe7dc7dbe31ba",
+        "4006556699a78e373cd1050a0f36f9f79bd50baf64b1fc73f87ac016cd6a86b6"
+      ],
+      "halves": [
+        {
+          "inning": "6",
+          "half": "bottom"
+        }
+      ],
+      "selectedHistories": 2,
+      "selectedEpisodes": 3
+    },
+    {
+      "gamePk": "822728",
+      "inputSha256": "7295ec99cbdcf38d5caac409b53400dc0fb917fc576abe8e4fa901b8f30b68f5",
+      "promotionManifestSha256": "e11fbe058063a829a05100bbf052a1e2a8ea861533087152b43fd1273e596485",
+      "rmlManifestSha256": "2bd270cf505387c37e538bfba1fec2ac7446079d3e9a57ba71abf6e80a4f519a",
+      "authoritativeRdfSha256": "6bff4e10724f2c6b6ea5fcf842d3e3a83663fc253ec4db10ee348f9ccfdc9772",
+      "selectedHistoryKeys": [
+        "257e4532374c282c210843dfc1664b173feb16c992facad299417311ee4e43a4"
+      ],
+      "halves": [
+        {
+          "inning": "8",
+          "half": "bottom"
+        }
+      ],
+      "selectedHistories": 1,
+      "selectedEpisodes": 1
+    },
+    {
+      "gamePk": "822730",
+      "inputSha256": "457b6e581bf51a7155afd9dc25817e025eede33c250f57b4eae8557645e41cd5",
+      "promotionManifestSha256": "f44429648e953be202df3e53cee2b270d442fd79cc89374c61bcbdb2daccc0d1",
+      "rmlManifestSha256": "6ebb49f0b17326f863274fef3466818419c10fba6808de7e63a7ff87f0f9023a",
+      "authoritativeRdfSha256": "bdd8084905fb34218806bddd74f4caa1734d7deff807aa3e0c31cf6b9fcbf917",
+      "selectedHistoryKeys": [
+        "78ca740e9acd34ed386b3de6846765c30533d9efc8fc40c5b7544fcf52392ddc"
+      ],
+      "halves": [
+        {
+          "inning": "8",
+          "half": "bottom"
+        }
+      ],
+      "selectedHistories": 1,
+      "selectedEpisodes": 1
+    },
+    {
+      "gamePk": "822732",
+      "inputSha256": "bfe6353ff18c54e68fd83517e34e3a661b8c0415d76bee2d25dd7f9f908073d0",
+      "promotionManifestSha256": "17b446de59d86781ec898e787550c5f46227570af88a14b4c5b2d0aa5fb0b290",
+      "rmlManifestSha256": "1dda90cdfb55129b5ece2cdfb8c9b1fde6f6ae273a7a8a82435206ba8d44d67e",
+      "authoritativeRdfSha256": "48c7a51c4a4230bb766e510b073ff81fc0c1cf399d414d1ae1d53fd8bd16a5aa",
+      "selectedHistoryKeys": [
+        "016fb6f119b02caff2de56307f9157f3d2e5ccbf2429b713bc8e27cf35527348",
+        "312d641396bf9f9954f39e98848e5057bfb208e0b224b1a325085f5d95690e3a",
+        "5ae43466c528323208fbf1475e1ee190ea06916c143ee4d1ad7a0f7f2069341a",
+        "9841e2304a0d50a90942cfafe7212a096b6c3393c85744c11884f5b0b4fd0108"
+      ],
+      "halves": [
+        {
+          "inning": "8",
+          "half": "top"
+        }
+      ],
+      "selectedHistories": 4,
+      "selectedEpisodes": 8
+    },
+    {
+      "gamePk": "822754",
+      "inputSha256": "0d21087f15113b495984e28e03dded771e05c73bf8827a504a0c81c9b0d1a94c",
+      "promotionManifestSha256": "4f3490d3d5e872691357a7d413b36426857b5c5cbdeddacde3391b65041a6123",
+      "rmlManifestSha256": "5b73ee66923f3f14f166f6a59531cb08fa14614c633d59349e9b3cfc8e160023",
+      "authoritativeRdfSha256": "8b32b1a826e0fc013966c5ad3655a525be3aa00f9c03d125466df54b79123deb",
+      "selectedHistoryKeys": [
+        "505786ca1d4c2572388f0b366ef48d6a9595fc84c286c6ad5afe0346f6e124a0",
+        "5887c1c9d12ee81b83c2b60c2f306bafad1d0c8cbca405bc25e6ed4e88cd9d5e",
+        "9780736b1f4eb62f1e493ed8de204bdf31771a8bf05cd71147bad00631115965"
+      ],
+      "halves": [
+        {
+          "inning": "6",
+          "half": "top"
+        }
+      ],
+      "selectedHistories": 3,
+      "selectedEpisodes": 6
+    },
+    {
+      "gamePk": "822764",
+      "inputSha256": "81f2e208fd8e750115a1769887bbff620d60bdef9018cd9ba98594d3f4db487a",
+      "promotionManifestSha256": "62315d69d67554e99d0f697cc5febb0cd2c79782d71b498278234c721c2278e4",
+      "rmlManifestSha256": "a87d76a4a445607754d46bf6fc9313540009aedcf3b2b14a297b212cd33cae96",
+      "authoritativeRdfSha256": "fe91d701bfef750db428eeed4c520143fee148170e4e9bc009bd3621c711c2be",
+      "selectedHistoryKeys": [
+        "1d56e7e633d68995b64ef73695acf3094d72a4affd27cbe0247116eac09d01ef",
+        "70510f562f8121c922416f4c2c19688202a02ae9bf74e8b590b8cef47cca58db",
+        "72e24a26c05e6d55ffc871c3b1ac4a66b07dbab1fa1d553c9ddbea8e77b99512",
+        "8a06aba7fbe5eaa2e7d8c841232ee71d7d1a25b489e3d6840d50db0079e34fff",
+        "d8744c71873424ba1fd469b3282d24fa8e95f6d7ccbc77f96b3ff3b04cd8df6b"
+      ],
+      "halves": [
+        {
+          "inning": "8",
+          "half": "bottom"
+        }
+      ],
+      "selectedHistories": 5,
+      "selectedEpisodes": 15
+    },
+    {
+      "gamePk": "822775",
+      "inputSha256": "19a6a7e4bcdc867a4891716ef1823fbd8d1c25d1c12b91dd70cab00571414542",
+      "promotionManifestSha256": "64f511bc26c36943873a98d8ec7218e8fef1d5232534a1ace3d625e6d3cac92f",
+      "rmlManifestSha256": "c922b4797a09f5e3ba12b87c239fb3d7ce48d9fb96d120e1f9b27e519a1ea586",
+      "authoritativeRdfSha256": "d2160599bf937aa3b948a79eaabc8dc9729a3ce5ac96770d541cb808e51a72e7",
+      "selectedHistoryKeys": [
+        "4ea032ce419dafb8550271ee67168366d7e65832dc8765a95f79c284810a5793",
+        "625c8b84e72024aa43df05f257b00c17d70f0fb0f279d2d1e76e3ea99e1d5626",
+        "6a432c8993384b9070e771e74ff298893633aeee7a3b4818643b0b8b7522bc5e",
+        "b137b4aa0dc312baa10c775077b1621ee8a984f843b2381ce4ba0aa575ae704f"
+      ],
+      "halves": [
+        {
+          "inning": "6",
+          "half": "bottom"
+        },
+        {
+          "inning": "8",
+          "half": "top"
+        }
+      ],
+      "selectedHistories": 4,
+      "selectedEpisodes": 6
+    },
+    {
+      "gamePk": "822789",
+      "inputSha256": "467c88f4fdc5faceff020d0f9c2b03ae22ba495fff83959b46b96c6b3bc3ff97",
+      "promotionManifestSha256": "4ad2608be6a2c12cefb4680984010f2477c81f120086cf34a9eb24d0e88b8f54",
+      "rmlManifestSha256": "34837bf2a2f94d133d5171a6bf420033521b50c026586a4ac3793b1fd2d9637f",
+      "authoritativeRdfSha256": "bee71a1794b9363d3831e92e5f6ac6a01054086d9272d708d018833b1604bf25",
+      "selectedHistoryKeys": [
+        "4a27fbf4020c367d2b4fe03d01c306921b6b62c9f584129a509e9363e938ee89",
+        "d1aa26f890664c63934ba7357650b9ebbb5e5d5dcddccf58b0d836698cca3152"
+      ],
+      "halves": [
+        {
+          "inning": "8",
+          "half": "top"
+        }
+      ],
+      "selectedHistories": 2,
+      "selectedEpisodes": 3
+    },
+    {
+      "gamePk": "822792",
+      "inputSha256": "c158eb068c81f959ce4926f80197270dd4a86476d763a09fdacdab5b93a1a1cb",
+      "promotionManifestSha256": "139b0863dcdfb61df588c15ecc4f8b1453f4111c238c8fe69c67afe816446240",
+      "rmlManifestSha256": "abbe59104138fcdec5b191d9f93273e2fddd9cae4cac84c1b558c6a2a6345ae6",
+      "authoritativeRdfSha256": "b48033ad07ea0338ad389df96941bf65c5001e1ec4b184b91ffd448533a8c06c",
+      "selectedHistoryKeys": [
+        "20b05e3a6be0309213c92cd152fc86f45022397f60769d841734bea420c58a0e",
+        "508e75017ea6a8eec54abb37e95b0cb96d9248ae586ad87da834b9f2dd3ce76e"
+      ],
+      "halves": [
+        {
+          "inning": "8",
+          "half": "top"
+        }
+      ],
+      "selectedHistories": 2,
+      "selectedEpisodes": 2
+    },
+    {
+      "gamePk": "822803",
+      "inputSha256": "0035632a4e5b0053b530d6ae1bf4d359a6799e2f03bc10fe1d304654094228f2",
+      "promotionManifestSha256": "38662989404cfa8031b4c9597b1bddb82bbcfba8749331a2e2b86fa91d6e411a",
+      "rmlManifestSha256": "d6b646256852f33cac307f15abf7fec4e2443f6be35ba33b4dbe84a269e66046",
+      "authoritativeRdfSha256": "fa8430c88b625086f335bf2888cb153323b3f4434dcd78dc53ebf31ba28d6cbf",
+      "selectedHistoryKeys": [
+        "1a167dfb2819b952da48f7846a85268ab6453e1995b44c2afd223d38a1495a9e",
+        "5e5a90c62dcc445461c7fc39e7e8cc481ce45db07afe8482dc771c37a284a264",
+        "f98ad89cb285fb26357b3ce3198897dd8495ffa0b47ccaf4387bdea630ae098b"
+      ],
+      "halves": [
+        {
+          "inning": "6",
+          "half": "top"
+        }
+      ],
+      "selectedHistories": 3,
+      "selectedEpisodes": 7
+    },
+    {
+      "gamePk": "822813",
+      "inputSha256": "b5579e8a3abafcdfec4bc692ce940b92fa3feac4609894a5d8c8449d49bdc77a",
+      "promotionManifestSha256": "e2ac124f0d3bf5d29d07ff33ccb21404ec630a4c90b0222120db9ce32b81ec67",
+      "rmlManifestSha256": "33458630160166c3715197a374ee1f69608935ce0da14553e09997af541a3cc7",
+      "authoritativeRdfSha256": "5b251ed505a74c4a1faeb482acd39e39bf57498f31e321c72398c378814de4db",
+      "selectedHistoryKeys": [
+        "0a463ab3a2e136c61af4d31c516af3493f17cb9eaa6444047c2926db18eb4a88",
+        "a805889b35d5adab7f68540f3bc1a853de20215c6676e66fc46e042907c19947"
+      ],
+      "halves": [
+        {
+          "inning": "5",
+          "half": "bottom"
+        }
+      ],
+      "selectedHistories": 2,
+      "selectedEpisodes": 3
+    },
+    {
+      "gamePk": "822826",
+      "inputSha256": "d7aa9eb2d61917ce597a33da0f92e2f6e5c2e8fe8144314cdb32f4524c024fe3",
+      "promotionManifestSha256": "3ae653f6c7280f120ee24b84607e20367ab1673ee259e1d78429a2f5efbb9b9a",
+      "rmlManifestSha256": "ef77d4ba7787516e93ff14f46fab68b8f77e5430c4552aac84f13380c0ad7e18",
+      "authoritativeRdfSha256": "16abb75e63c49c1f0609dfcb90f066e48ddbb798ba24ebe49e993d6eabdb5c6f",
+      "selectedHistoryKeys": [
+        "03d2150b5512b354952f0eeace5d8b9b479478f5909d57f7f6ce1f3743862db9",
+        "324443a2c23d99fc5399d94ff30a6097e9cb722444bdb15d2d81912358859f61",
+        "3c45c7fd714a7106a422d70aba8369bbeb7e7da8c2b3178909519f91cdd43e41",
+        "d2bcc0aedee4489f671f5cdc920d8bdb3998c3f675c6525ecd5ac6745690bc40"
+      ],
+      "halves": [
+        {
+          "inning": "9",
+          "half": "top"
+        }
+      ],
+      "selectedHistories": 4,
+      "selectedEpisodes": 7
+    },
+    {
+      "gamePk": "822835",
+      "inputSha256": "1fdbc5849216f802e0083b829157a2ff5c9c4a0c1b344950a60859dfb8a31153",
+      "promotionManifestSha256": "95d7039334b8c4a894e622afe5d5129c3e174b02ea344e32e9afd30b8922913a",
+      "rmlManifestSha256": "0effa1cc2e6d65f8925e1e082957b09b81262a692e3b6ad9c91d0ffe1d351136",
+      "authoritativeRdfSha256": "0918045f5dcda8cf63e24cd3516fca8fcacc0f25259373d01e2b720a9c4eb95d",
+      "selectedHistoryKeys": [
+        "0301467ca5973b3a6ca66a01dfea09d7df5f13772dffddfa1c6089e30202e64a"
+      ],
+      "halves": [
+        {
+          "inning": "8",
+          "half": "bottom"
+        }
+      ],
+      "selectedHistories": 1,
+      "selectedEpisodes": 1
+    },
+    {
+      "gamePk": "822886",
+      "inputSha256": "bda13d76eb184671664ce9f183b713f80b51877207a231e404d76a850a4fb341",
+      "promotionManifestSha256": "bec4bf0847a20cd3582b979cd1f2f026eeeb9b28f5166f626e676601482967a4",
+      "rmlManifestSha256": "2b64f669b0592269feaca3694784b20905c16f8c2b6dce6fe43facc900fe991c",
+      "authoritativeRdfSha256": "f8284df6b29efeb7ff925b453c455efd0563686d24438f4148d62d58e6fd4569",
+      "selectedHistoryKeys": [
+        "a30b6a8be1c3f54217b0029ed256bf9b32c46b97033209cbdcfcf3bb530058a7",
+        "c0cdf8e034cc8c2f92087d131d916fcd740f46e9a6bd42e2e68d5823c7ce001e"
+      ],
+      "halves": [
+        {
+          "inning": "8",
+          "half": "top"
+        }
+      ],
+      "selectedHistories": 2,
+      "selectedEpisodes": 2
+    },
+    {
+      "gamePk": "822892",
+      "inputSha256": "2374fc50480e14cc1d86998d98c3c9a8fda20a7972262c165eff1e2e9250812e",
+      "promotionManifestSha256": "930579aa99fe43bcd3e428abb420ef600f78bec6159abf2e20b704d85b1c0ddc",
+      "rmlManifestSha256": "6d2c9ef2933e09032df6d3f0334aa999ce6abaaf57a14702063f05e6871d044b",
+      "authoritativeRdfSha256": "8c8713b18558f6a165cec7f5a04d3a0af5bb00680e00609ccf5ade7e5a1d6fc6",
+      "selectedHistoryKeys": [
+        "049714535e0bea15da06e08266f0ce7e5efebe0dd1420a441f87f2dc070ad2c6",
+        "d0581fe160357af22cd7df3848e85ea11aa710fa893d6c711fb4867d8046f374"
+      ],
+      "halves": [
+        {
+          "inning": "9",
+          "half": "top"
+        }
+      ],
+      "selectedHistories": 2,
+      "selectedEpisodes": 3
+    },
+    {
+      "gamePk": "822893",
+      "inputSha256": "b78db3a0bc18722203f3474eb5509828e74d39ddbf049801e27eef9979dc8efa",
+      "promotionManifestSha256": "29b1285c7a390af1b4ef5fcdbd50dc3de39bcf0f8abba792e98c19c022a60f6e",
+      "rmlManifestSha256": "48b54f59ef2b8492e8b767edd75f29b049b0e9d4a65ccf30c3e3ee3937df6129",
+      "authoritativeRdfSha256": "fe53f23cdec18e8f8237bf04252e17ffe38191d1c300fde7856ed95e0438409a",
+      "selectedHistoryKeys": [
+        "265f6579ec0daf911d8ff859a86fe1dd9b149f87baa535710ca88561d345cfb2",
+        "2c2c9bad000e9546563ed05cf86abe30077eefa76d427b6696ca029aa6803588",
+        "6e958cd14492b03fb4aad951a38702fad3ca6673157ff89942a0d8d58d3813df",
+        "7b3eca16e56bb549da49d619c72f45362ed0c092c1b8e70fa6e5cd26a8332099",
+        "961b5410d6b5c3724d40c2242595eaefc65e303a1da6b7697e34359eb99f1984",
+        "c24dd11490a6c86519cea0d1a62812a47f0e0f0af02e8e8494744de795431506"
+      ],
+      "halves": [
+        {
+          "inning": "7",
+          "half": "top"
+        }
+      ],
+      "selectedHistories": 6,
+      "selectedEpisodes": 18
+    },
+    {
+      "gamePk": "822903",
+      "inputSha256": "aaa8936c0b0a03db423081dce258ea8e5467533eba029224a3e9df0f2845b2d9",
+      "promotionManifestSha256": "b2203f4bf788f6fadb620aa54169450ebd00bbc2125250fa04ba68e4fd8b14d6",
+      "rmlManifestSha256": "a0ce9a113b3a6f37bd59746f29c7b8f366f8a4c4688254b530655cc70ae4a3d9",
+      "authoritativeRdfSha256": "aa25065453c1315d9b74a93d1a35841814ad697ab81966676ca86c6d9a7f5df1",
+      "selectedHistoryKeys": [
+        "3bea9ebfba3d861b8de527e495e9205141b2766460825455b08f78668a93d833"
+      ],
+      "halves": [
+        {
+          "inning": "6",
+          "half": "bottom"
+        }
+      ],
+      "selectedHistories": 1,
+      "selectedEpisodes": 1
+    },
+    {
+      "gamePk": "822907",
+      "inputSha256": "de248937a168932a7ff028ce1697b953a499368e596cd9407645673a0bb1db7a",
+      "promotionManifestSha256": "16be6993555dfc65c2a9a864ae4cb6b9f57ebce5be92930b966bae54091d349e",
+      "rmlManifestSha256": "6b97a55165e5bf78f61fa2717d219f05f56c66d13e7d89061e06573dc2f4d904",
+      "authoritativeRdfSha256": "c4256e30c0f98de52073f77fcf8cdbe1281a781db1537386e384ec6d5f4fb296",
+      "selectedHistoryKeys": [
+        "0772e4f416ed75537cf288cefd4cf6e5b19695ecd3eb277893231b82321e83ac",
+        "463f88259fd5c16eaee8f33e5a3df545ade99b96dc16e9169eda4d45de875f59",
+        "4b922cf58e8d4f7e1f06b826e9b5a2ff404259c645d56e304359cd5f1ef371cd",
+        "a411b7e90e954761be46f7feffc70487f48643da031589b347499bb9f31b919e",
+        "fa3062a33ca6288fa8eb16f614816344554dc621dcb45dff696e8c211760a5b1"
+      ],
+      "halves": [
+        {
+          "inning": "5",
+          "half": "bottom"
+        }
+      ],
+      "selectedHistories": 5,
+      "selectedEpisodes": 14
+    },
+    {
+      "gamePk": "822920",
+      "inputSha256": "ed46c0003214562b0ec77210e95201646551d0a65d6cce64000fc815cd6d8c9b",
+      "promotionManifestSha256": "f280d7ddfffd643e4d80bc892e90bc82c67b2f1b8f32b1bf70ff8ca9ff9bd21a",
+      "rmlManifestSha256": "0709e9717fe58b94f6cae7f729570af62c787bac119c68a62c2ac1176245cf7c",
+      "authoritativeRdfSha256": "09e7179835bafe4974ef7e80c34e04bf72a3c7c740edda2ffa966752cf9503e3",
+      "selectedHistoryKeys": [
+        "80654e7837451c291d7638257e1abdea31cf01913238fee4e4cdbd52727024c8",
+        "daefa161b8456096e8b5c71bc5ebb9b2a94ca866944c50554e2a83850d4fdf85",
+        "f4ae5e3fa9908c9423db25d4be225254793be8e411b3714b5ddc05634f3ead3f"
+      ],
+      "halves": [
+        {
+          "inning": "9",
+          "half": "bottom"
+        }
+      ],
+      "selectedHistories": 3,
+      "selectedEpisodes": 6
+    },
+    {
+      "gamePk": "822925",
+      "inputSha256": "35a3316ab1eecd68750fa50cb622d1b059af090973d32c3e6278f123e60d8bfd",
+      "promotionManifestSha256": "6997458a420880368071f8069023bc0b31b5b61724d420204152b2d5879b4f1b",
+      "rmlManifestSha256": "f82b7910b5a746a0b86817585369258ab958b44304209d0f535e40076b7fc63b",
+      "authoritativeRdfSha256": "31a454caca808a8e4684c01db81fdd50e98d163297077d38846e6b43de8a421a",
+      "selectedHistoryKeys": [
+        "4ba1f287ebd5435a2f92e574da462cbb5d48e07c38b186a2364f150c929a690c",
+        "773dc5fe8f427bb78a6748cf9f23d9c4e971cca24eaeca772ae0748432897659"
+      ],
+      "halves": [
+        {
+          "inning": "7",
+          "half": "bottom"
+        }
+      ],
+      "selectedHistories": 2,
+      "selectedEpisodes": 3
+    },
+    {
+      "gamePk": "822939",
+      "inputSha256": "e6ae288783b23725d9b70ffb4802a11b2cc026d82343f3c2a7e4ad2deda601ab",
+      "promotionManifestSha256": "23d29cdb5bbbe0f436c5d4fcdfc39273bea8419e7986e5d1015343aba9d21da4",
+      "rmlManifestSha256": "a3fe43652db675256bafc0f7da6e2afc7b12da30fdf3db7b83e53cc9279bc365",
+      "authoritativeRdfSha256": "04233e419f57cb177fbce68011c460594dd134a20082b698d318b66251a369b1",
+      "selectedHistoryKeys": [
+        "91df5ca3b56a7d4ef976063eeea16ffc7281220361fd691e20978bb70cdc0fc6"
+      ],
+      "halves": [
+        {
+          "inning": "9",
+          "half": "top"
+        }
+      ],
+      "selectedHistories": 1,
+      "selectedEpisodes": 1
+    },
+    {
+      "gamePk": "822974",
+      "inputSha256": "b5c83a39f4cd7a7c9598be301d9c6b9a5618183e402735fb278feb92cc168e63",
+      "promotionManifestSha256": "9fb463f7461d8ce8a4c2304c0eabf7f97f29f038e340e330976dae2b67bd4ebb",
+      "rmlManifestSha256": "4dee07c64cfccecf6d2e4752f8eede943a49e50da63474598e2e5012f2788f68",
+      "authoritativeRdfSha256": "d73f13c0bb364de2b8a7a25dffe6ba3fadd2efdf3d6be56e436d625deea4fa9b",
+      "selectedHistoryKeys": [
+        "13c3870e11c8d339d6d0797e86eff316e0c664a5cb0daf5623b048190245b952",
+        "1cdb2bc4dc012cc05142f4a9aefb05720c993ef7392739fbfeeb9309b8773545",
+        "788a1de27f97fda5817f1a86917361f67e235a4c4485849e542ab4e917b9a09a",
+        "935ac94d352d17f483ff17d533098d77aec50a838c05bc16022c14eeddf0ffb2",
+        "a5098f376761ce0f46ca82fd9e7796ebd6d5d8179e1a77cb5c75c12e47938039",
+        "a940e1d0e105149bcd42fa2178d48d13f6aa075106b139f90747e31d436bab91",
+        "ac7f066325431dc06f67beab194b9084311a04dc83e14f97681fba3d36bd7cb0"
+      ],
+      "halves": [
+        {
+          "inning": "4",
+          "half": "bottom"
+        },
+        {
+          "inning": "8",
+          "half": "top"
+        }
+      ],
+      "selectedHistories": 7,
+      "selectedEpisodes": 14
+    },
+    {
+      "gamePk": "822978",
+      "inputSha256": "ed3c2350fcace9749a6bf64a902110e3114e68961305b791b14802a0818d5e12",
+      "promotionManifestSha256": "16fefe0fbc43c4245e18d418e853c610ea5e2600baf28870805b6d6fbe752781",
+      "rmlManifestSha256": "deb97ea0d34675986ff018e06790ea4a9963344fb345721b263a1b557213c598",
+      "authoritativeRdfSha256": "edd38ad2a55bc36306703d6ee602280b7d94e11480ecbfb9c0ea62ceaa63e646",
+      "selectedHistoryKeys": [
+        "32c906a616d586587d9ea99f2c7c8b8ee71b0e82482750c2b1098fdd4ef45366",
+        "6563202c731f926206e5aabe6018af98a2497ef1f7988f2d41c7dcbcd87106fc"
+      ],
+      "halves": [
+        {
+          "inning": "6",
+          "half": "bottom"
+        }
+      ],
+      "selectedHistories": 2,
+      "selectedEpisodes": 3
+    },
+    {
+      "gamePk": "823022",
+      "inputSha256": "32828fa9a3ae51973aa0e9ee8face7256db16a5359114a020efadd13bfa81ed2",
+      "promotionManifestSha256": "3786e9dd57f633e352910038d926231b06b2ef44ddd5a678ab01b0f661e0f2c9",
+      "rmlManifestSha256": "a4ed21a965680de93b6125b1a252978742f218105b1a636f5838c6de1102dc33",
+      "authoritativeRdfSha256": "477b03dd8ef5fb5e99dfa8ec2a3d9bff6ba841bd3a566acb562da1996cb0581f",
+      "selectedHistoryKeys": [
+        "da80913c729769a87a5450c87bf1e21aec33198f185d2673248732c4bea2e6d9"
+      ],
+      "halves": [
+        {
+          "inning": "9",
+          "half": "bottom"
+        }
+      ],
+      "selectedHistories": 1,
+      "selectedEpisodes": 1
+    },
+    {
+      "gamePk": "823024",
+      "inputSha256": "b7cbe74bb805607930d1ce5d344c8789dc6dd641964ec5eb05cbbd52f76ceba7",
+      "promotionManifestSha256": "9ae32db5f99c7948874d73d1585432e6300b21e57f3e9a7ec64c20efa2bbb17d",
+      "rmlManifestSha256": "1a543cf41b3ad6d4db2ba2076ec88b537821e308ba86d045b11e75fc2df78ad3",
+      "authoritativeRdfSha256": "8a142fd76ddfe07eb9c280ff0143ec6c6f34993e204f8af553b1c6a2ccdeeed1",
+      "selectedHistoryKeys": [
+        "6c9f493a9d4fd32502d7875496a56b574910e76ae1c096d55e45b7600ccae68b"
+      ],
+      "halves": [
+        {
+          "inning": "8",
+          "half": "top"
+        }
+      ],
+      "selectedHistories": 1,
+      "selectedEpisodes": 1
+    },
+    {
+      "gamePk": "823043",
+      "inputSha256": "af8d9021a68516a5682d675ac5060c16ea366fcd3df76183cde89c31f3d9a142",
+      "promotionManifestSha256": "75645f7af43b903a645318c22061a003276cbb71a81b23186f9bef025398ce63",
+      "rmlManifestSha256": "28e417930ee8b1b9fa2a857eb6d78afe6bc0d48c37733d6d9cc9c1b19aa3498c",
+      "authoritativeRdfSha256": "00f0688575af4d43383d0956d1e3a5f29fa5603e905c4a8c48bee668dcaaae36",
+      "selectedHistoryKeys": [
+        "20c2502782323644c2d79855110d426d0d05f0c81886f7c00be30ffab88e0c3f",
+        "4fa89ef5556791cd61959756fe17e77a8a9bfaccc2cdb0cc210c29ca57b2564a",
+        "876360dc97bdf335ee80c2607d3a0c25db5d842652dad0ad4910f680f41d95f9",
+        "fe64f03a44d80cb4f7e43b583e9fa142c460faed3a63cec7f6e7e55a580916ba"
+      ],
+      "halves": [
+        {
+          "inning": "9",
+          "half": "bottom"
+        }
+      ],
+      "selectedHistories": 4,
+      "selectedEpisodes": 10
+    },
+    {
+      "gamePk": "823045",
+      "inputSha256": "be81d3415161287e439ac116859a66316c32c7e1d7f634192e625bf80990d845",
+      "promotionManifestSha256": "3547bc9d8bd17e9188e34c8a35691a19d732368d796538c9b8016f34d336cbe0",
+      "rmlManifestSha256": "bbefe7583c939dfd791bfa8b359eaf4926d6b8fb234cdf9657452b591628ccd5",
+      "authoritativeRdfSha256": "6720642add0c2b8d87b2ae72235116cd48c46a37e04afd29c450b15b4f209553",
+      "selectedHistoryKeys": [
+        "8d4075087e1d56fc8f67657c3cf9580bdce1d1af2b1a23725aa6aa1e9ad108bd"
+      ],
+      "halves": [
+        {
+          "inning": "9",
+          "half": "top"
+        }
+      ],
+      "selectedHistories": 1,
+      "selectedEpisodes": 1
+    },
+    {
+      "gamePk": "823064",
+      "inputSha256": "f269d70117c690c2bfc289763ca86b2b4ac08bcc9226cef539eb7299f6f8ef03",
+      "promotionManifestSha256": "7984cba5b2b562b9c6fc4344930270f8ef44f825e1a4824438f52f883efffc24",
+      "rmlManifestSha256": "a355df624f5eb3656c09de72d5eaab703d5a439ae08378b6e6d857182cb41707",
+      "authoritativeRdfSha256": "371b1004635b06aa777f509376cabb4a34046e864b87929293a0446cec22f06a",
+      "selectedHistoryKeys": [
+        "1669a205137f220036fe63b6d3303eb073db49707a632e2e6305b52596a9bbe6",
+        "21fef1fc058be57337c53c52fd4e7ff8518da7797d37624f53a372b6d819d030",
+        "7280708c04ce10a463618190558713b550a112811f7ab51e565d7f114dc53f06"
+      ],
+      "halves": [
+        {
+          "inning": "7",
+          "half": "top"
+        }
+      ],
+      "selectedHistories": 3,
+      "selectedEpisodes": 6
+    },
+    {
+      "gamePk": "823080",
+      "inputSha256": "52476e68f7fa62a50a7e4bd0596887ea133c327193ad4dcf5899cfaed44e3950",
+      "promotionManifestSha256": "20196f37d74dba7ce4c24da4b151b87f57d21b7f9e8b98ed5dc70946ab21377f",
+      "rmlManifestSha256": "9fc6427a7000d308f98a1c96cd5dbb8351ec816a3ee0639846fb6d4707e1278b",
+      "authoritativeRdfSha256": "ae9b10eb3693e3ada69b6e814f5f986fc39fb93601cf2cda22a1f2cdeed73c4d",
+      "selectedHistoryKeys": [
+        "8da0899af01504e2000b8f507af9d9aae16845d520945fb1345b58284882ea40",
+        "c0eab76731a8a43b5eb23af926e0f92c5ef9191812af440adcee936ef5638695"
+      ],
+      "halves": [
+        {
+          "inning": "7",
+          "half": "top"
+        }
+      ],
+      "selectedHistories": 2,
+      "selectedEpisodes": 3
+    },
+    {
+      "gamePk": "823101",
+      "inputSha256": "459839de55097c46b4141fcc3165c3dd0f51f270d583770400cfbee2f8e9e404",
+      "promotionManifestSha256": "8088943e1c12dab79b288cfa8352966056a7772fa74b1e2471dc01e90c84f8e6",
+      "rmlManifestSha256": "e4373d69cacfb6b2fa126a2807a82b3508d6c9a35c0c4b846c3a4e70da9ad765",
+      "authoritativeRdfSha256": "285cf37327049aa9bb434746d12a05bfda2f8ca6af8e4105fb16060e3bf0b77c",
+      "selectedHistoryKeys": [
+        "f22ce5e3ce77bd6f261ed9bd873b7785aae41419b8efb247a396b586ff137967"
+      ],
+      "halves": [
+        {
+          "inning": "8",
+          "half": "bottom"
+        }
+      ],
+      "selectedHistories": 1,
+      "selectedEpisodes": 1
+    },
+    {
+      "gamePk": "823109",
+      "inputSha256": "f5c876378d0d3d3e6675759ac20ab1676e14275c54495aa016f73f6da4fc70e0",
+      "promotionManifestSha256": "9a570f6ce6cbcf3779893655f62cae75ca72420ed951da57c7bcd1a0480c4091",
+      "rmlManifestSha256": "50bf92c4f8eaf9a6e04ae2c675936d26d3492092a7d6d3404bb269e539a1f094",
+      "authoritativeRdfSha256": "c986f6c66688512dcc44a8373cb3956026534cf356a5f08c4140468fc9c6b731",
+      "selectedHistoryKeys": [
+        "30463a14b8299707dcb90a6824e0ad5ef661fac116d532c4dbde1a86bf7c2169",
+        "4cd37fb603b7285ff37e82957e822ec06d0d064d69e14d20061971dab6d406a9"
+      ],
+      "halves": [
+        {
+          "inning": "8",
+          "half": "bottom"
+        }
+      ],
+      "selectedHistories": 2,
+      "selectedEpisodes": 4
+    },
+    {
+      "gamePk": "823120",
+      "inputSha256": "c42d5cfed36a2018aa61214447de54364ca7baf11d7b86dde05a5797f8e18436",
+      "promotionManifestSha256": "88fc9d2a13511e5241c8c45445438e5035d2f273fdd6ac5436acc66ed8967b26",
+      "rmlManifestSha256": "a8fc167a155b8b5ac274294221e4e22f3d21a6fb5e06bdd6040e613cc6530c7d",
+      "authoritativeRdfSha256": "3a8460fd7230ba14d337923157596e34ffe0103a46a887aadb8c9189e5b23e12",
+      "selectedHistoryKeys": [
+        "baeccd7bae8ad1a75929adc2b6972aa203dfb64cd253ce322457d1b2c8bf92f6"
+      ],
+      "halves": [
+        {
+          "inning": "8",
+          "half": "top"
+        }
+      ],
+      "selectedHistories": 1,
+      "selectedEpisodes": 1
+    },
+    {
+      "gamePk": "823146",
+      "inputSha256": "c65fe8b55546dcef698fd7372f7064a655e33d9a17e0a155ae6f35ec24dd02db",
+      "promotionManifestSha256": "c9b3c7e9dff0827d0058956d20de44c169393fac40ba2ab3ddac10c194db0a5b",
+      "rmlManifestSha256": "78c98ee0b944bc80b0887a6b1baeecb000d9a3e4397171aa9d23480c7e5b0608",
+      "authoritativeRdfSha256": "7f42c2446af071b42034f3a42188c9413b47e06069a434c2b0f686ee7204c461",
+      "selectedHistoryKeys": [
+        "3b3757788070bb0925359969f0e360c93e07e70cf953639662f7d29ae314368e"
+      ],
+      "halves": [
+        {
+          "inning": "8",
+          "half": "bottom"
+        }
+      ],
+      "selectedHistories": 1,
+      "selectedEpisodes": 1
+    },
+    {
+      "gamePk": "823155",
+      "inputSha256": "20e933805a00e035bb28d606266ba4424de09f4848148c79a08e6db79f7b4c7c",
+      "promotionManifestSha256": "be189020efc1dbcb6eb94fc775681b7204ab2a4214a7d340b6a42aa16836736d",
+      "rmlManifestSha256": "2428272f25bb91507ed399b7171ce4850c6bdc8cec9cb17db50686f4f16d97ab",
+      "authoritativeRdfSha256": "bcbc00c7372990fd97bbf66cb4d5ec731611c161ad3aa7ef4d6460756a0b0ff9",
+      "selectedHistoryKeys": [
+        "69cba0aba0b9f8dadb41771a99fa91e1ba3472284aa5cca1d5437bcca7578bc9",
+        "9dc7e03662ac1b2b0ba767bb2cd02ead83c0dc69363812808513bddcbb16b5ef",
+        "d80eecee81131817b3a101c89a123f22bacbecc8094a0ba97240212e7452eebb"
+      ],
+      "halves": [
+        {
+          "inning": "4",
+          "half": "top"
+        }
+      ],
+      "selectedHistories": 3,
+      "selectedEpisodes": 9
+    },
+    {
+      "gamePk": "823218",
+      "inputSha256": "e30580ce5398d38c1f13e9b77edf80d14d2e16fc1d5920e026a350a4c2961394",
+      "promotionManifestSha256": "fd0e34b82bcdfdb7f17d76750401e566ae662edd42b3676937529e25fd410ed1",
+      "rmlManifestSha256": "603a6c893df3b968ec449c5def3850ac9606aba4ecaafe31d5ba7cfbf8bac002",
+      "authoritativeRdfSha256": "ef447ac80cc5e525092023f6f7c3bd67249cff0bdbe841da05b6e0ac626c8bee",
+      "selectedHistoryKeys": [
+        "6e088d8193043386a4dcce94e96b6a5a014403b289107ddd433b0c83ae048174",
+        "8553c511b60944fd0760a11b1735e2cce2f9a8e71c25e3c5b61938b5d6923224",
+        "b36d23db0add219b7f3d7ee5b6f7e5a26d1b5321b088388ed7f03ba6a2eb214f",
+        "b784a11a78bff266e8218d8ccc54b68cd1e00a7361153aa2e5b3d77194fe79e5",
+        "c8b6d7b010490a872e9248a507db787741ac44a33d66df1af8631b4ed6341713"
+      ],
+      "halves": [
+        {
+          "inning": "9",
+          "half": "top"
+        }
+      ],
+      "selectedHistories": 5,
+      "selectedEpisodes": 10
+    },
+    {
+      "gamePk": "823270",
+      "inputSha256": "94c1e8695bbc1d4c62b5f54ba85a613e040b4f25199314872279bdd09c27c11f",
+      "promotionManifestSha256": "57d584233df3b532c75022a9f9ec84f59811dbc71542ecb216d293aae6c08a36",
+      "rmlManifestSha256": "19de1d00fe898fb7672ea80532567ee14b8afb5cf6493a8338dcd880e15cb33b",
+      "authoritativeRdfSha256": "21a003dc74cceefed304f11e9c0ed7b622feb31852aacdbcb198f4b5bac6ec8b",
+      "selectedHistoryKeys": [
+        "0584e6a0f593e07632dfc6bab0c2195bfcab2bdebc351d17eebe15db4ff230ba",
+        "5bb22de88294c2d150435e9f0a397044fd38a3dc528c8ffde59bb4af43e7c6e5",
+        "affceffcfee42e200b6a2ef32f9a83128c54114d8f99760d08eb6be9efba9b8d",
+        "b5a9874fb427fcb86b7779e599b5f3a9850feeb85fc8502fa35aa665f1b56e3d",
+        "ed633fe66ae3b6f2477a26d02bde37784c1a3409490dd0fa2ed692ddaf7f01d2"
+      ],
+      "halves": [
+        {
+          "inning": "5",
+          "half": "bottom"
+        },
+        {
+          "inning": "9",
+          "half": "top"
+        }
+      ],
+      "selectedHistories": 5,
+      "selectedEpisodes": 11
+    },
+    {
+      "gamePk": "823271",
+      "inputSha256": "8cd7dd8f57f1059bf9f4c76817c0386c87861403bcbdce768b82c633e806d29c",
+      "promotionManifestSha256": "ee96c05e77d332a5003c48fdda0457c7ed9eff3ef68631fe80d1a4a9747b9ccc",
+      "rmlManifestSha256": "4e415e6cefcf74c73e229203fe33d93db70354bd2ed30b1f0a3434ba5c94a520",
+      "authoritativeRdfSha256": "a670e4433418f527c2d680cde61c711c0103c648749f88a740b0ee67df814849",
+      "selectedHistoryKeys": [
+        "f967d2c2c32d456ae167c6c6100ce2a1e5474bfe09e5be48ac66e0e02b0a3fcd"
+      ],
+      "halves": [
+        {
+          "inning": "9",
+          "half": "bottom"
+        }
+      ],
+      "selectedHistories": 1,
+      "selectedEpisodes": 1
+    },
+    {
+      "gamePk": "823276",
+      "inputSha256": "3e12644451a009f4ad82be7e1af06b07fe43c1f52d5a94720d74c750cc94e8e7",
+      "promotionManifestSha256": "558f04c70360a0635d9319e1df4b701e8ddac3505c0f3bba3938a6b94b236b7c",
+      "rmlManifestSha256": "8218c486231eedaa25f2d93ccaecec0721ca1a778bf009131bb087a959d6e746",
+      "authoritativeRdfSha256": "49b719017b54c3c0e7a12d51a971bff8e1b42cb6c59188a995ed6e1a286ad2ab",
+      "selectedHistoryKeys": [
+        "9ed44123d415c19c84976af09f99a7572247a4dae1b55ebdfeb41be638066fe2",
+        "a4014d5c6706603fbc1e73b6dd71442e6d4fca1ad81aae1a38431202f6977109",
+        "c40663d7e06d8fb7d1f5cee7b6e9957699b68db2e60376580ffa106565d3bd7e",
+        "d6557291c5d74d4251cebe5567e0de8842a0091855f763ff491ad1edfa66a6a5"
+      ],
+      "halves": [
+        {
+          "inning": "8",
+          "half": "bottom"
+        }
+      ],
+      "selectedHistories": 4,
+      "selectedEpisodes": 7
+    },
+    {
+      "gamePk": "823285",
+      "inputSha256": "0bc8064bbbc75733203bd8a201e6eb0b62bf759fb00ad2e1a73efeb916fac9be",
+      "promotionManifestSha256": "c87391ead17b299509ad7884d3ad724582476ff6d110d8ea18c5870520c8ef71",
+      "rmlManifestSha256": "c4c1359c4441959d98c2c853bcd520da57177a98fa206cf2db2fc5e58a1aa0e4",
+      "authoritativeRdfSha256": "633ba383810547e054b229bf82e7b273dc947bb604ab0c4aa82004cd9a7b3762",
+      "selectedHistoryKeys": [
+        "6f181d52ce5c65f13b5e612d8be7df2b9efc17fae2f8585739f264f0632440c0"
+      ],
+      "halves": [
+        {
+          "inning": "6",
+          "half": "bottom"
+        }
+      ],
+      "selectedHistories": 1,
+      "selectedEpisodes": 1
+    },
+    {
+      "gamePk": "823290",
+      "inputSha256": "a908bde47a21c0c8cc300af20aca6e1158efc3e90b3611555f15702248c93e66",
+      "promotionManifestSha256": "87e9ec31560984f3b698c8696cef6f7d30f9008129f38bfc1bab093bfa2c9103",
+      "rmlManifestSha256": "004af1f49f07ba957def5ca1649eabaae5109958eae2307c6076148ef50d7739",
+      "authoritativeRdfSha256": "4be973d5562e376518729495242f0375133d449c9da8a36558b0b81f2a5dd717",
+      "selectedHistoryKeys": [
+        "15499a778fda78751719d9562f6b7d5c085c15283c172d5afd472ac25e11f523",
+        "7acd6b4b1a94abc00537f9f207771605640d15248a8c79f0ff1ec4921abeaef0",
+        "ff150e3057129c085950c89de1711ddba2cfd8ce5d7d1219eb66c9071101025c"
+      ],
+      "halves": [
+        {
+          "inning": "6",
+          "half": "bottom"
+        }
+      ],
+      "selectedHistories": 3,
+      "selectedEpisodes": 5
+    },
+    {
+      "gamePk": "823294",
+      "inputSha256": "9d8739c253c50f60bcbcd5c10151ac37f4f8050637e78acf3411ff9f984536c6",
+      "promotionManifestSha256": "da085d8cb7a7e75d823248bf0dbfcbae36192b0f1f4292494a916c22a69394f0",
+      "rmlManifestSha256": "41d7363101a0e25c477e1bf7d533364a11b5cc9c69f759de7639eb93f80a29e1",
+      "authoritativeRdfSha256": "28f5cbfdcadd265b1c0c0eccc821e24eb140521b369c5bca4a3150885fbb17c5",
+      "selectedHistoryKeys": [
+        "5d6a71d2b68806f51c034501a82e6f0e2f5b9868ccb5e298bf7980370761b95c",
+        "b1e8379b5445bfcf83376f192ec5a9106b974cdf21ccab74fc907ba6161e281d",
+        "bded1b14a213ffddcc94672e8391f772244b4364d02d3818e34ad03b44029615"
+      ],
+      "halves": [
+        {
+          "inning": "8",
+          "half": "bottom"
+        }
+      ],
+      "selectedHistories": 3,
+      "selectedEpisodes": 4
+    },
+    {
+      "gamePk": "823304",
+      "inputSha256": "d5856b7eb22c5756cefd35e3f4621227cb78318523822f37e40605be246d3919",
+      "promotionManifestSha256": "73c47be9d431a3866245f1903d75dc339221df7835476b5feb6ce27ee2e1ede9",
+      "rmlManifestSha256": "476732cb4965229cda41379c8fd3ec0ce32905841c43b1cfb354d76ce6aa0c42",
+      "authoritativeRdfSha256": "d182aa3253adc82670c5099f16f8f275b84c1de25091f9bc1b6a8e4be33cbf16",
+      "selectedHistoryKeys": [
+        "037867a370d76b0a95e6254640038c84f25c5051c8fe9399aed3575f38a191a4",
+        "bad6ab41248c72fec36924a1fee87eb3a50af700dd1b33d0e1db9e82a798cb56"
+      ],
+      "halves": [
+        {
+          "inning": "8",
+          "half": "top"
+        }
+      ],
+      "selectedHistories": 2,
+      "selectedEpisodes": 4
+    },
+    {
+      "gamePk": "823319",
+      "inputSha256": "4b59ceb50f75c72f4b04988f42285679aebfb98d99055f6e3d26bb4509c3ac3b",
+      "promotionManifestSha256": "074be7791af8a68d61507a16b52957f6801fdcdd1ac78a7cff980665d85cf05c",
+      "rmlManifestSha256": "1ef341a67104884cf1cdaac659ce4f8c976a0e4ad0eb026a6b90a6845139729f",
+      "authoritativeRdfSha256": "8a4210a9f2bc270b21331bb386e3d542f7bd638b3aa919bbe8fc4ab9c1d918c8",
+      "selectedHistoryKeys": [
+        "da03c57faa778b5bdcb576d4491946fe335a3cbaa760e983cfa4a3e03d63cad3",
+        "fd9e8a40f68e78fb5a04be701f30c3808498f16c372ab0f4509edf7554fc3f80"
+      ],
+      "halves": [
+        {
+          "inning": "6",
+          "half": "top"
+        },
+        {
+          "inning": "9",
+          "half": "bottom"
+        }
+      ],
+      "selectedHistories": 2,
+      "selectedEpisodes": 2
+    },
+    {
+      "gamePk": "823323",
+      "inputSha256": "61628868b634523df9935c22562f9800d9db9359d08daa3d56864a2df3698b79",
+      "promotionManifestSha256": "277769b9fb82381f4b0b80f77c2104ebe27c7cfd43ca19561ea35f0467ca4bf1",
+      "rmlManifestSha256": "e7bdb7c46a3d6fe840f6564b7e40f3329b7f33dfabba1d2b8533bfc807626719",
+      "authoritativeRdfSha256": "6c4d9b36353a85277d53ea871cc4b91dabacfe273a5e56783433fe487e5889d1",
+      "selectedHistoryKeys": [
+        "f0e888e5badda3f85a652424accccfa55e747f532b65f3910c3ce1613d8eb4b9"
+      ],
+      "halves": [
+        {
+          "inning": "8",
+          "half": "bottom"
+        }
+      ],
+      "selectedHistories": 1,
+      "selectedEpisodes": 1
+    },
+    {
+      "gamePk": "823332",
+      "inputSha256": "ffa333d107402bade2ae8111fbdfbf8a9b4500162f8f88c67494dc2b86ae25f2",
+      "promotionManifestSha256": "601dc511aa30a348023db118bcbd24bdd271705d8f255da2ccc918dbcdaa44dc",
+      "rmlManifestSha256": "36084bce4cbe6f72857c8404ac8ad0a541e64cfb498b63a655e7f087d17530b2",
+      "authoritativeRdfSha256": "c7710f403d98a32406319f24bd7a9663747cf002cc4ee7864fd59320f7c3f790",
+      "selectedHistoryKeys": [
+        "212f2e9590ae1dc39a797a1c155b903a32518558824a0211b4fa2c4b9c3908f8",
+        "dfa8cd940b6b3a255cef420b3fcbfde0b3fda9f262355a73a3336df76f271dda"
+      ],
+      "halves": [
+        {
+          "inning": "8",
+          "half": "bottom"
+        }
+      ],
+      "selectedHistories": 2,
+      "selectedEpisodes": 3
+    },
+    {
+      "gamePk": "823346",
+      "inputSha256": "133f21b1f0c10c246c005da4b0fab74f241af2221d21359fe7b57ed3bade6c6f",
+      "promotionManifestSha256": "769cc5bca86f79077616f26c8d598b359e01510527904e5272bc3cf176937fa2",
+      "rmlManifestSha256": "ed3d47d852f2fe8a0fe5cfac77daac7e32bdc9e8e92c7b86ad48a5474a99786c",
+      "authoritativeRdfSha256": "051744282527d4ffafe23eaacfc6d239b4b6bd611915758e2a5a6eaa52a1121e",
+      "selectedHistoryKeys": [
+        "07c48f0dc5bbbc2133e668627fd3c498cbd85fe963111dd4c5b8a29ac7bdf259",
+        "dcf137cb214e33dd69d2698bc9c89f230ad63241a826ee62e25333c4a1bfe712",
+        "f74b869ca8fecd7624fc6d7661b2ed4c0441bdffb85839d3f2873e9b42e674e5"
+      ],
+      "halves": [
+        {
+          "inning": "7",
+          "half": "bottom"
+        }
+      ],
+      "selectedHistories": 3,
+      "selectedEpisodes": 8
+    },
+    {
+      "gamePk": "823347",
+      "inputSha256": "5b07ab4408af1520fcb60597c0bea5db47c90ef66f2626ccc73199bb5452cf0b",
+      "promotionManifestSha256": "7e571b949ac597537a0371491dae5f382f2bc67c0a90cd139ba3882bd1900b2e",
+      "rmlManifestSha256": "7b246c5fed902201b68e836ed7c9bca69b2145abd703ad9d09dcf08667360bfa",
+      "authoritativeRdfSha256": "1241d4e2e4930c1b7f0b711e87ad808db842e4853c46f2fdaf3744234f04a6a3",
+      "selectedHistoryKeys": [
+        "0a605ed850251ca8dc3ad591feaa3d441fda511efcce2ae049fb2ed9e189a7fd",
+        "408b81e61ce3d7eee7a8897f013286b097cacf0d04e063a4400846e4b795b5eb"
+      ],
+      "halves": [
+        {
+          "inning": "3",
+          "half": "top"
+        }
+      ],
+      "selectedHistories": 2,
+      "selectedEpisodes": 3
+    },
+    {
+      "gamePk": "823365",
+      "inputSha256": "1005fe361d0553adb2dd5f430e535b85d6d5ff8ff959b399e5f3f447ad03016e",
+      "promotionManifestSha256": "5360f5dc7643c72ff9367dc46ec8af3abaffdaf0b14ee78d7ce441e2a12ad349",
+      "rmlManifestSha256": "ebbe1a62c2152ee4bffc2154a635be154295b883ac47b8ca364ec922b1c3bb14",
+      "authoritativeRdfSha256": "3bd84ce90cbd92dff6a8ab1a52f11e1a1aa7ad9a4859fb5c44a028054801717d",
+      "selectedHistoryKeys": [
+        "3df3438ab321af7dffe13c0b1eb45b67c81dc436639d1d890dbda1cb7d2d9a4c",
+        "8aec0d3d88625d0f4e76ebacbc460a32d7dcb80a02e2db2bd70421ed6bd31b2d",
+        "c15fe6fd4e2d82f0fdd3899f758718c08c69010d56df59dc057bf8109ed965fa"
+      ],
+      "halves": [
+        {
+          "inning": "8",
+          "half": "bottom"
+        }
+      ],
+      "selectedHistories": 3,
+      "selectedEpisodes": 3
+    },
+    {
+      "gamePk": "823389",
+      "inputSha256": "3de093218bdbca3f7e2cb03a2a8a43f78ce132241471687fa0afc1fe69f1e0cc",
+      "promotionManifestSha256": "a6a5e6da7d2ae69691aa68b8090d06af35dd441f74846ee991546e1b342f2d66",
+      "rmlManifestSha256": "432fc6587a9ed9faa9c462381c961cd7390f607d488554d20da374e020fb7bb7",
+      "authoritativeRdfSha256": "bd320b3d3e3d90c25d23a5bf239fe165cb718a4b6eca7f4ea413bd932bfeabd8",
+      "selectedHistoryKeys": [
+        "3b695fd214fc3205b4f8a770fa922b5f4aa6ac7ca6354664ae60d86efdb8d1a0"
+      ],
+      "halves": [
+        {
+          "inning": "7",
+          "half": "bottom"
+        }
+      ],
+      "selectedHistories": 1,
+      "selectedEpisodes": 1
+    },
+    {
+      "gamePk": "823394",
+      "inputSha256": "82f9fa204675f81cf4b7cc2141860814dc6fd661c456399b34a340a4a776d030",
+      "promotionManifestSha256": "ebffaee11df5546d1ac6001d981b8990ae87b9643e94126054b47e0589dda77e",
+      "rmlManifestSha256": "d8830c80a20a4af31a39ba2ea77462d63541faef13bf4cac4c9f958eadff19f3",
+      "authoritativeRdfSha256": "2da26f2b96d96d2b9a1e1f3191ed274df363d3e12431a2c255fad2a882b1d739",
+      "selectedHistoryKeys": [
+        "45d9185b7a9a0b1c0359166d66d4212673e945d868578d8f8570a4769a2b0a81"
+      ],
+      "halves": [
+        {
+          "inning": "9",
+          "half": "top"
+        }
+      ],
+      "selectedHistories": 1,
+      "selectedEpisodes": 1
+    },
+    {
+      "gamePk": "823414",
+      "inputSha256": "09c7fc674e876545981c89038b751ebd26d10737c8cf25e3dbb83b87fcd0e422",
+      "promotionManifestSha256": "5f868e9193f5b222183bb6fc57f68b5b94cee163cb1abebf2251fd5387201ae7",
+      "rmlManifestSha256": "e0f4e3fab2d2dc37b08e3410adcbd5ff42fab03cdfda99c7a3804d7f4bc9e577",
+      "authoritativeRdfSha256": "b91a0b27c829d1823a1f449dd31086ec6f85b6d5605e75df2aa862d7c8dba5fc",
+      "selectedHistoryKeys": [
+        "4c767ea817a0f14ac8a2e30e934ac63bf13e75cd83029c6c066d27b13a1a1654",
+        "f1cc56671e686faae803f0e1ca7fed4a0c5ae9d0d9feaddd3b7675be14e5c657"
+      ],
+      "halves": [
+        {
+          "inning": "8",
+          "half": "bottom"
+        }
+      ],
+      "selectedHistories": 2,
+      "selectedEpisodes": 2
+    },
+    {
+      "gamePk": "823429",
+      "inputSha256": "e4b2ddc060a38091cf7323e6b66810c8f40eafb15f02c73dec057ed005b6e7ee",
+      "promotionManifestSha256": "626e7936a4a21c984817fde92559e0fdce716f3c556e885163b462e8aa3176cf",
+      "rmlManifestSha256": "8a2b6e23af0cb35ed77cab14320989d6ae5b0a56c2d59c00b9e0381c0689a4f3",
+      "authoritativeRdfSha256": "9b5b4635f836914dfd858c13ffb8ceb1e11e416468c7a48ba5d4eeb0c68a55bd",
+      "selectedHistoryKeys": [
+        "aee13e879fa4f257a0ee05d5a2dda34fe11a4d9b578ec33f4f0ec63fc3f9e94a"
+      ],
+      "halves": [
+        {
+          "inning": "8",
+          "half": "top"
+        }
+      ],
+      "selectedHistories": 1,
+      "selectedEpisodes": 1
+    },
+    {
+      "gamePk": "823449",
+      "inputSha256": "3adb0f69323aba57382e421436547f88e7394aa83f2ad37cfca5b7bd9ef22731",
+      "promotionManifestSha256": "3d4cdc3dd6b9b4dc3249226a379c4b40dcc0c55ce11a4bfc39e8df203dcbb47b",
+      "rmlManifestSha256": "f59d43600aaf6c6ca238b89bf9935bb2cacd7503076e3755fb6d99d9fe51e78c",
+      "authoritativeRdfSha256": "5c6a0c13572dc86869cccafc2a7505d2e5c6145b27430559322f635b66a66196",
+      "selectedHistoryKeys": [
+        "9a64383ff9079e33e63061cc9c05c03c1c1a55e2538779f26506d273b9359236",
+        "e3d2b9dc1dfb042a7436700324071eb548df2e583ea3087e11fc3ddac49c61f1"
+      ],
+      "halves": [
+        {
+          "inning": "7",
+          "half": "bottom"
+        }
+      ],
+      "selectedHistories": 2,
+      "selectedEpisodes": 3
+    },
+    {
+      "gamePk": "823465",
+      "inputSha256": "4022515542765e10e479833cd88116700afaa626ce3ed80de1b882b399cd6e54",
+      "promotionManifestSha256": "ad1af1d680b160f6eae5264246e4a82cfc01a6769f11df3570cc09aa079da2ea",
+      "rmlManifestSha256": "9093470a1ae900184ad7652aafc7f1bb9bcf1a9e198b12f8fdf72266fada7926",
+      "authoritativeRdfSha256": "7d77002246e6d1b7024585c7ee97e09dc3c250dd17ac8f023fc5dd22f03f9aa2",
+      "selectedHistoryKeys": [
+        "037e14b3a00e0b7b3b407c25c985d7f33648a3a00a8ca965b28f05b452155f85",
+        "74f21a3f1b6caf2b3c2e815ae963caec528f4e23b977598b5fd96e64e7dc207c",
+        "8d2cd6b2aea1757906d4795b85ef025d82028470dc94980f9f929d08d9910228"
+      ],
+      "halves": [
+        {
+          "inning": "8",
+          "half": "top"
+        }
+      ],
+      "selectedHistories": 3,
+      "selectedEpisodes": 6
+    },
+    {
+      "gamePk": "823470",
+      "inputSha256": "a950a9a885ea960f280bc8d97723f2e214de9e4e34dda7e08d02171ececdfd18",
+      "promotionManifestSha256": "dfba11b474b3115581e1bb42e4c6bc83c26b1387f6b6c535667d409c19d804b6",
+      "rmlManifestSha256": "a8f19db0457a3b53480642f23351dc30d27c57eab76ad37b382a946d1498e524",
+      "authoritativeRdfSha256": "17b0513b82a80203f0ca6833696921fa09c4e2adee753311493558a702437ff2",
+      "selectedHistoryKeys": [
+        "05ec8923507d03af683d1e575a39209cb69216719a2e2cf365a4a7e4cfee223b",
+        "1f910180a6790c574a789389d5a4cfacf64095d292a773114668b38466538b61",
+        "3594c5807c17e560021edcdbed8964d9924225352820a5cb30d12d75b8e8d86d"
+      ],
+      "halves": [
+        {
+          "inning": "9",
+          "half": "top"
+        }
+      ],
+      "selectedHistories": 3,
+      "selectedEpisodes": 6
+    },
+    {
+      "gamePk": "823485",
+      "inputSha256": "a61e67e2c8bcc7198b0250120261270012ef145b659c38706817f894144da335",
+      "promotionManifestSha256": "00c7c57cdf2c3db759f2c5bc06b3f6027d26ce858e084d3cd698f2def5cce310",
+      "rmlManifestSha256": "ae0f83996e793384c061d075fd0cdb1619076c047b3aee2b84e6c2680a62454b",
+      "authoritativeRdfSha256": "fa40191026bc581485202f95ad6cf1794cff583aeaea49631d20c7edaeff6e58",
+      "selectedHistoryKeys": [
+        "5db59b0a3b25046b6919c760454eb1fa639fb5f10b8863df94afc1bd51b160f4"
+      ],
+      "halves": [
+        {
+          "inning": "8",
+          "half": "top"
+        }
+      ],
+      "selectedHistories": 1,
+      "selectedEpisodes": 1
+    },
+    {
+      "gamePk": "823507",
+      "inputSha256": "1790be5013e7b4c35ab0c0426ddb6a3f52720c97553eb93ca591bb7e8404aeda",
+      "promotionManifestSha256": "5bb5c9ee7542b00e0d621a49d7a058773d00be004ed59be058aaa5dd49223789",
+      "rmlManifestSha256": "da514a582c31ce9d5fe5a199e910f2883118389b1ff29b4b1d716dcc9747ed3a",
+      "authoritativeRdfSha256": "36cbde5422c2fa827352b9b80f5a8fb0522fad691d75586bd69ce907f3b709b8",
+      "selectedHistoryKeys": [
+        "0608b75c6fd74280d47b8970979a2a0f21094b77a6bec1b6031e9b8393d7be79",
+        "516e3e5c575542e2f2e4339992979970b2b008fee2610d0205ddc952bbc47ebb"
+      ],
+      "halves": [
+        {
+          "inning": "8",
+          "half": "top"
+        }
+      ],
+      "selectedHistories": 2,
+      "selectedEpisodes": 3
+    },
+    {
+      "gamePk": "823514",
+      "inputSha256": "f1f8fd96f43b79ec105603f0def19974798bf4a7b2889039642fc58a71e585c7",
+      "promotionManifestSha256": "02998a171d17219318079ac871c2daf02b95f910c3616bdc7ceed46bfd160b36",
+      "rmlManifestSha256": "a942bfb68a0290d299cef9026a77e3c673029145b51521d1600f6aedb4ef00ce",
+      "authoritativeRdfSha256": "e7e11e63ddff22de64a127544649ed27dd0038449f4f7838ed98f4ce753c6891",
+      "selectedHistoryKeys": [
+        "1a31560dbbf92c58e35dab9f7243d44d68848686338ac251b4f5434007dcff64",
+        "be99392fe3e4fd84afe7f4b9bc41127c249288a276ed574471ac7ab438bd44d7"
+      ],
+      "halves": [
+        {
+          "inning": "9",
+          "half": "top"
+        }
+      ],
+      "selectedHistories": 2,
+      "selectedEpisodes": 4
+    },
+    {
+      "gamePk": "823516",
+      "inputSha256": "768e0276fccb6be9070dfc6af849f2cf87b8f32f1887db53531f22827774fd81",
+      "promotionManifestSha256": "90e5b0acd3b6c077606897bc26daf2b0ec144565850e7a8fb72d0ad77c93cf43",
+      "rmlManifestSha256": "d2741816857303daa45f884e58ff688fcd63c1e8ba0531f8a96ad304e02e8bc4",
+      "authoritativeRdfSha256": "23681b197f5fc575aec924700a4d71a9855ef0473c0e100ac353259b269a0501",
+      "selectedHistoryKeys": [
+        "36d673e92455715c24cda3d5a8690b290fcb521dcc7c13da529c9635e1ffc5cd",
+        "96a3b3291094d721bf52a6905b1b4cfc4ad638c59ecf234adfb233ee43077315"
+      ],
+      "halves": [
+        {
+          "inning": "8",
+          "half": "bottom"
+        }
+      ],
+      "selectedHistories": 2,
+      "selectedEpisodes": 3
+    },
+    {
+      "gamePk": "823524",
+      "inputSha256": "b1245bffc64e9026f916012bbeb12d3d1b7b3e0cfa9938a77cdd3268d9769c45",
+      "promotionManifestSha256": "4489c6ca7a46364124adc6dc66c1c4c23559af6b670c1e796feb75a44ac3ecec",
+      "rmlManifestSha256": "b1bd4a8bd4c20650d9c01ce17c3337702f882a9ee09608d58865dc5ab17fa0c3",
+      "authoritativeRdfSha256": "f8e99a9a6707d3d162620661ce6cd82999edd977090df94791ad9080a231540d",
+      "selectedHistoryKeys": [
+        "3de066c71d7f9f65b9bdda20d09dc6a92a37a672e6d2ff7443029d019e70a5c0",
+        "b521b4b87b63d35220df0290c796b2a748ecaf62d6e810994a1ffc029f440822",
+        "cb0a5d1e6f51a0fa4e296fab7b6962d8f650b64b6a0cac81ee875092265751a3"
+      ],
+      "halves": [
+        {
+          "inning": "8",
+          "half": "bottom"
+        }
+      ],
+      "selectedHistories": 3,
+      "selectedEpisodes": 5
+    },
+    {
+      "gamePk": "823546",
+      "inputSha256": "0d9cacb5a369622e913ee9984d3c4fdc930d2db63c9181cac345ce0f68b1c375",
+      "promotionManifestSha256": "be2b283902f5ec815c1933d3d0cc7963ef5f5020913650f6f4491fd6a2353ade",
+      "rmlManifestSha256": "99645b6ea2a6f878ed8bdc5f2249f444bc6dbf559919108ed5d180c81a09e8a0",
+      "authoritativeRdfSha256": "860ebaf4801fee37158a3a1b39110304dc9f953f02df076dce7714f6074b051d",
+      "selectedHistoryKeys": [
+        "3d1fc5fe8b4f229522cdf6547f08aad4fec83731320316601eb2783507ce55b2",
+        "5444f3821aeaae8542720390a8e285bf24cacef25a1754153186510a12d16b54"
+      ],
+      "halves": [
+        {
+          "inning": "7",
+          "half": "top"
+        }
+      ],
+      "selectedHistories": 2,
+      "selectedEpisodes": 3
+    },
+    {
+      "gamePk": "823564",
+      "inputSha256": "84df22e98ee03e24edbf769bb3553ac5d76fb9db5d666b204d7bec525d40f7cf",
+      "promotionManifestSha256": "bbad8affa3595c09027fa3340abe8709a81bcbd524cfe6ee6c05c7fab8da4320",
+      "rmlManifestSha256": "70e5ff09ad28665639f18effe074f6fe5384345f592eb484e32a9b685f572c30",
+      "authoritativeRdfSha256": "ace55f667f415b4ce787b4ee3f4363fc08960f58056809f0ffea3a3094ed7468",
+      "selectedHistoryKeys": [
+        "3da6dfc89308912000f46cf611b2fc20fae199103ada5ef9c4d9cc463a088555"
+      ],
+      "halves": [
+        {
+          "inning": "6",
+          "half": "top"
+        }
+      ],
+      "selectedHistories": 1,
+      "selectedEpisodes": 1
+    },
+    {
+      "gamePk": "823590",
+      "inputSha256": "29dd40d467df36c3e5b3918013676762f529aec519ecfe6e6cc6b2386b8323b0",
+      "promotionManifestSha256": "7295bbe4e44a47388dece233db6a36b702c087bdd40bddef3c4549b0348cabee",
+      "rmlManifestSha256": "1dec70f81e173ade413e14120e8b503cd6506ec9e2d54c7c65ffc0b38cf91c72",
+      "authoritativeRdfSha256": "e518dce9eac030eb5860daee8d85f42d9575b4a7f85c3961459f78429dd9574f",
+      "selectedHistoryKeys": [
+        "1c214428b68063d40cdb4b9df2d617d382a3ff93455177e5d678a72ed4ba3ed0",
+        "bc983135831cdf6450f6eaf105685ce61d384dd4c7579c5b059a3a3e7f7706a4",
+        "fcf001f8596e8a87dec61164d1b3ee2ba607a9950916a9b579cf507a8ef1c461"
+      ],
+      "halves": [
+        {
+          "inning": "7",
+          "half": "top"
+        }
+      ],
+      "selectedHistories": 3,
+      "selectedEpisodes": 6
+    },
+    {
+      "gamePk": "823592",
+      "inputSha256": "1cf3995fe2651fcd892a4c2b34f09d8f0e8a7c17fce71b4fbdf6932c27ab058c",
+      "promotionManifestSha256": "7f48f5c701902251c1395e6dbf619519f9bd887d4ded6f434fc0dcd850c0d3ff",
+      "rmlManifestSha256": "a9978ccc18052b184d3cff33fef00a62438f23298924e7cb932aae167f513a15",
+      "authoritativeRdfSha256": "fd3e5a3ef207415d7bf86e9d9a8fe8f0a7e4914e7b5e11487db16d0fb42cf342",
+      "selectedHistoryKeys": [
+        "053241315efc073f44abd23ca79cda9db3bbbe14f60670f481326416cdbf1b40",
+        "64f7acb68630eb1979df264f4f0568eaf1ad2999a7580b76e7c72fe40982cbbd"
+      ],
+      "halves": [
+        {
+          "inning": "9",
+          "half": "bottom"
+        }
+      ],
+      "selectedHistories": 2,
+      "selectedEpisodes": 3
+    },
+    {
+      "gamePk": "823626",
+      "inputSha256": "9ea5f70c9f3f89e9cd40e6edca7d35eb2586b0f804dcf78772f37e24b64e2e90",
+      "promotionManifestSha256": "25b447d1a124b2436970f477a2075fe579cb2a4488787cd259d35278650d5471",
+      "rmlManifestSha256": "d13b3c319b04b4a34599b612d5e0ec95ce5b34001a93d7933da05b90d832dbac",
+      "authoritativeRdfSha256": "80ef480c892f730f3ec5fa0dc8c644751f54841958417f2aac334a2369e43d36",
+      "selectedHistoryKeys": [
+        "863284e4d25896c2c0c5d24f7a4effa1e4a35e7c5d950d763b0e33900a2afa59"
+      ],
+      "halves": [
+        {
+          "inning": "7",
+          "half": "top"
+        }
+      ],
+      "selectedHistories": 1,
+      "selectedEpisodes": 1
+    },
+    {
+      "gamePk": "823635",
+      "inputSha256": "6ad88b9cbc7382f83504fd89af80f00cdc4dd324b7bcb39a59d2f7bba63b469e",
+      "promotionManifestSha256": "a4d21b0229c755e953432fe9d44becbc55f7c5cffdcad5bb173d0d5e18d13d98",
+      "rmlManifestSha256": "553f72fc5dd69f41a5a3fd676cb99167b35821a0954938eda1c29987615a01fb",
+      "authoritativeRdfSha256": "b4c9a10db153cd4153893bd76de41ebb963b471317a6c31b1cf25b6a565c3ff3",
+      "selectedHistoryKeys": [
+        "5dbedd02ba2cf458c101dbcbe9d2e6d5caef8663e6fbd901a8f49c1a49006c26",
+        "7569e0b322c9901134e2b0d7a5826ca40ce02f6febe32685ae8fefa42fd2d39f",
+        "bae83b3692e844306adb22f0cd1ffbc6bd59de8a4547908505137a3e7a445ab5"
+      ],
+      "halves": [
+        {
+          "inning": "7",
+          "half": "top"
+        }
+      ],
+      "selectedHistories": 3,
+      "selectedEpisodes": 5
+    },
+    {
+      "gamePk": "823641",
+      "inputSha256": "3559864e7e7d9e2861014db337a862aa83281411095e84102fc2964872b642f2",
+      "promotionManifestSha256": "b9995ac7eaac704d82b5b0022d40f42af8ea6e1ee950c7a0844051e8eef65703",
+      "rmlManifestSha256": "760f742b9f2e2c0dff1d7b7f8cdcd3bcdfd59730acb95a4b497cb7657cbcd68e",
+      "authoritativeRdfSha256": "4b1319e54380e206f3992256300614498a9c6cfec5a634cba6f021c1fea9c53e",
+      "selectedHistoryKeys": [
+        "1066791c74284eebea173b5f6fdfad43ba7aaf1663608eec533cfcf65c465287"
+      ],
+      "halves": [
+        {
+          "inning": "9",
+          "half": "top"
+        }
+      ],
+      "selectedHistories": 1,
+      "selectedEpisodes": 1
+    },
+    {
+      "gamePk": "823671",
+      "inputSha256": "2ecaf190383bd62b312ea70e62b73613b69abf4b21e9e80505a7a60704b9705f",
+      "promotionManifestSha256": "06a6fef0554341df98c70294214404865baf95b98f64632421818c68527f36c7",
+      "rmlManifestSha256": "95236de864f79ff3a69ed43508a07ead62f6f2036e980a52065af2ec70ae35f4",
+      "authoritativeRdfSha256": "3d934f2560a5d57e712a0eee6599a63eba4021604bd346d446bf2925af834ab7",
+      "selectedHistoryKeys": [
+        "2fbf72fdc7a152ad5ead811b9a42d90f7aae420c17cafa7c49a78c20883c5370"
+      ],
+      "halves": [
+        {
+          "inning": "8",
+          "half": "top"
+        }
+      ],
+      "selectedHistories": 1,
+      "selectedEpisodes": 1
+    },
+    {
+      "gamePk": "823805",
+      "inputSha256": "964f9b900965e6aa6f013c8d96eebcfafdd9187899ebdb2fd3c8575c654bb512",
+      "promotionManifestSha256": "0e50450b5645a53477cffad35a0eb090f3d75901f7a7cf4dc7b6a45e407ee587",
+      "rmlManifestSha256": "41cc6cb7c6a12fc7382ebaeb78465ddf1787800adefb60c25f7b93b7f980ee0e",
+      "authoritativeRdfSha256": "fb02156c1fb31c5f579af908f93a90611ae4ff33ed41302921ddacfe7ec3322e",
+      "selectedHistoryKeys": [
+        "03aba75e95c87e62ca7a7ecdda5361f0181977fbfbc1a83cfd8db44a8804b695",
+        "ae6316ea49f7de240ffd393b90ef521ea65be94ba4f0e3ffa5b126bb5483f8dc",
+        "c88bfa8b1fdde1601accd50a0cafd0a1d432fee733d78ffdd1c896f98139fcc1",
+        "d085966d0881eeac9eb295319d67ee595c9b9a858b26993701eb27e4b36ae7b3"
+      ],
+      "halves": [
+        {
+          "inning": "9",
+          "half": "top"
+        }
+      ],
+      "selectedHistories": 4,
+      "selectedEpisodes": 7
+    },
+    {
+      "gamePk": "823911",
+      "inputSha256": "a16030f124cab3ddd10c5d9456513761535c74d6632ce505e859b22a026da56c",
+      "promotionManifestSha256": "e72fce3c62ff536954e8c9daffc5dc4c9f3dd07897b6343c1e35d6458e612285",
+      "rmlManifestSha256": "a6a109e08704ae39c782411bb3208e6d9c832ba7c3ddc34e3e00f5e428afc963",
+      "authoritativeRdfSha256": "804d1bfbd64e35c1b1ee283299cf771072620010412dc4e68b8590863b7c14fb",
+      "selectedHistoryKeys": [
+        "064afd66b362d78ab0e9021667ae0a5d84eef2b20093653df4cc145c0d295b90",
+        "0c016082e64c9961974662c85028792019925a6ca1783092f289ce473f444850",
+        "ff8520aada8bed6c171793c5c3650e6554a77b66eb0bf38a03901363614a5f92"
+      ],
+      "halves": [
+        {
+          "inning": "8",
+          "half": "top"
+        }
+      ],
+      "selectedHistories": 3,
+      "selectedEpisodes": 4
+    },
+    {
+      "gamePk": "824027",
+      "inputSha256": "0afd3ffa0c80ca1e38ac987067dd30d82352d6c98adf41265a9a969e15cc8952",
+      "promotionManifestSha256": "fe145d6b476463f44b459dd278799db8c7a75d8dfd531cbd9f7d77944ef1a4e5",
+      "rmlManifestSha256": "6388e9102da6f0deb6b0dba7a584ebc2aae6f09a49cd2dcd71b3b4cb3872b645",
+      "authoritativeRdfSha256": "38d491551bf4a1756bffe409e57bc5c4e5b1039a3281c59b8717bab41ba370e7",
+      "selectedHistoryKeys": [
+        "32dc72c2b8f5b5d1edbd521509a32457578a9f99161534912f7c8224a4a6e48d",
+        "4d90ee41f45b44399ba2726794b417ce3d44f103a7718a5d7c3683acf813daea",
+        "75b9c69f29a1c5589a54828296502fc71405943d4442c937abf78b62a59f6df2",
+        "88db1bdca3a1f095b55a15669a3423f432169c8ddf090c0401b208c78a2bc781"
+      ],
+      "halves": [
+        {
+          "inning": "8",
+          "half": "bottom"
+        }
+      ],
+      "selectedHistories": 4,
+      "selectedEpisodes": 8
+    },
+    {
+      "gamePk": "824613",
+      "inputSha256": "d23e7dff21a0aa0a7031529a188d2b9b222a904d2101c8f686e8ff69873c58b6",
+      "promotionManifestSha256": "b3d23cf77368d89798eeac34fdec5eda95240dc4016310f51a71574799ef4bfc",
+      "rmlManifestSha256": "b81cab2aefaeba1a0ca558687da1fdba70a256a26b25817b9c70278ddff64b41",
+      "authoritativeRdfSha256": "05702a4b0e7bde476ebbabe5a7600f6720a1acc99cd6abbc7b07d6c6f4c25482",
+      "selectedHistoryKeys": [
+        "5e25a4034554060fd006879ddd03043a21d5283f91e9d53c91b50e0d772d815e",
+        "cd038b15c28e06472d5db24c7be2fc9843d01ddaa7c98273981de7d372a26506",
+        "f5f98f7006d4f4b53cafd79650e10de5652e87bbc8336b294cb59d38b9cffbe5"
+      ],
+      "halves": [
+        {
+          "inning": "7",
+          "half": "bottom"
+        }
+      ],
+      "selectedHistories": 3,
+      "selectedEpisodes": 6
+    },
+    {
+      "gamePk": "824769",
+      "inputSha256": "57002033e7731c991bb61694b886c3eea8fadae21960cbdb95ddc1447d33fbd8",
+      "promotionManifestSha256": "42f2bc814e09deaa74386706228322e5ca0fd59265e82945f874581ef0364dbe",
+      "rmlManifestSha256": "384fc7b44c1c704f7b1106762b238edd8fb73cd34a2049bacde960aefc5b7078",
+      "authoritativeRdfSha256": "6f39b930eb7bf39ee2b9de85528a20f1c10092f2e080810e129720d178502f16",
+      "selectedHistoryKeys": [
+        "62b54b2bb49b762d86eed1b0719b16046a05c96ca27e269c07ca37603b53129b"
+      ],
+      "halves": [
+        {
+          "inning": "8",
+          "half": "bottom"
+        }
+      ],
+      "selectedHistories": 1,
+      "selectedEpisodes": 1
+    }
+  ]
+}

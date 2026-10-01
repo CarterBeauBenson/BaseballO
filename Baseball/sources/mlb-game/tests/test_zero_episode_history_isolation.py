@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[3]
 spec = importlib.util.spec_from_file_location('q7_addition', ROOT / 'sources/mlb-game/pipeline/targeted-history-addition.py')
@@ -58,6 +59,30 @@ class HistoryIsolation(unittest.TestCase):
         history['withheldHistories'][0]['completedCandidates'][0]['inning'] = '1'
         with self.assertRaisesRegex(ValueError, 'scope'):
             Q.select_history(dict(runnerHistoryReconciliation=history), case)
+
+    def test_completion_inventory_keeps_exact_histories_and_rejects_scope_drift(self):
+        original = Q.read(Q.PACKAGE / 'source-evidence.json')['cases'][0]
+        history = self.fixture(original)
+        case = dict(inputSha256=original['inputSha256'],
+            halves=[dict(inning=original['inning'], half=original['half'])],
+            selectedHistoryKeys=[h['lifetimeKey'] for h in original['scoringCandidates']])
+        updated, delta = Q.select_history(dict(runnerHistoryReconciliation=history), case)
+        self.assertEqual(delta['histories'], original['scoringCandidates'])
+        self.assertEqual(updated['halves'][0]['status'], 'withheld')
+        for changed in (dict(case, selectedHistoryKeys=[]),
+                        dict(case, halves=[dict(inning=1, half='top')]),
+                        dict(case, inputSha256='different-source')):
+            with self.assertRaises(ValueError):
+                Q.select_history(dict(runnerHistoryReconciliation=history), changed)
+
+    def test_next_case_skips_completed_repairs_and_stays_inside_inventory(self):
+        with tempfile.TemporaryDirectory() as temporary, patch.object(Q, 'cases', return_value=[
+                dict(gamePk='822846'), dict(gamePk='822680')]):
+            state = Path(temporary)
+            Q.atomic(state / 'pipeline/control/mlb-game/history-addition/822846.json', dict(status='complete'))
+            self.assertEqual(Q.next_case(state), '822680')
+            Q.atomic(state / 'pipeline/control/mlb-game/history-addition/822680.json', dict(status='already-complete'))
+            self.assertIsNone(Q.next_case(state))
 
     def test_existing_rml_maps_serialize_only_selected_histories(self):
         from rdflib import Graph, URIRef

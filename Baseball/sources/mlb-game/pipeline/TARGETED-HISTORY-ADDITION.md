@@ -13,12 +13,30 @@ After completion, timer ticks are no-ops. A failed implementation gets at most
 two attempts; terminal results are under
 `state/pipeline/control/mlb-game/history-addition/`.
 
-The bounded repair completed for games 822846 and 824467 on September 23,
+The initial bounded repair completed for games 822846 and 824467 on September 23,
 adding seven supported histories (49 triples). The temporary repair timer was
 then stopped; the accepted context selection remains available to future
 ingestion. Promotion IDs and downstream SQL status are recorded in
 [metric readiness](../../../serving/METRIC-READINESS.md). Completion of these
 two additions is not permission to replace other game graphs.
+
+On October 1, the existing [September 30 narrow repair authorization](../../../archive/design-records/metric-repair-scope-2026-09-30/README.md)
+was applied to 78 additional games in `history-completion-candidates.json`.
+Their retained, hash-bound reconciliation inventories contain 190 complete
+nonempty histories omitted before Q7's selector was implemented. The inventory
+pins each existing promotion, source, manifest, half and selected history key.
+The same three unchanged maps add those histories; no API acquisition or full
+game mapping is involved. The empty histories and incomplete halves remain
+withheld. Newer or conflicting base promotions stop the affected repair.
+
+The existing worker now processes one pending inventoried game per tick, with
+the normal game lock and two attempts per implementation. Its one-minute timer
+does not alter the daily acquisition schedule. Completed games are no-ops.
+For this completion inventory, unchanged authoritative shapes target the added
+histories and their dependencies in the full union graph. All retained shapes
+are rechecked: the updated exact history census must pass, previously passing
+contracts must stay passing, and unrelated withheld contracts retain their
+source status. NiFi owns publication and the downstream SQL refresh.
 
 The component reads the retained reconciliation inventories; it acquires no
 source response and does not rerun the game mapping. It executes only the

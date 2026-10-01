@@ -8,7 +8,7 @@ $control = Join-Path $script:StateRoot 'pipeline\control\mlb-game'
 [void](New-Item -ItemType Directory -Force -Path $control)
 $config = Join-Path $control 'history-addition-worker.json'
 @{
-    group='MLB Game'; name='Add Approved Q7 Histories'; period='5 min'
+    group='MLB Game'; name='Add Approved Q7 Histories'; period='1 min'
     workingDirectory=$repositoryRoot; python=(Get-Command powershell.exe).Source
     arguments=@('-NoProfile','-ExecutionPolicy','Bypass','-File',
         (Join-Path $repositoryRoot 'sources\mlb-game\pipeline\targeted-history-addition.ps1'))

@@ -28,6 +28,8 @@ DECISION = 'archive/design-records/mlb-game-zero-episode-history-isolation/revie
 PACKAGE = ROOT / Path(DECISION).parent
 MAPPING = HERE.parent / 'mapping/mlb-game.rml.ttl'
 MAPS = ('PersonalRunnerProcessMap', 'PersonalRunnerIntervalMap', 'PersonalRunnerMembershipMap')
+COMPLETION = HERE / 'history-completion-candidates.json'
+SUCCESS = {'complete', 'already-complete'}
 
 
 def module(path, name):
@@ -55,11 +57,14 @@ def select_history(manifest, case):
     history = H.CONTEXT.isolate_zero_episode_histories(copy.deepcopy(original))
     previous = {h['lifetimeKey'] for h in original['histories']}
     selected = [h for h in history['histories'] if h['lifetimeKey'] not in previous]
-    if not selected or any((int(h['inning']), h['half']) != (case['inning'], case['half']) for h in selected):
+    halves = {(int(h['inning']), h['half']) for h in case.get('halves', [case])}
+    if not selected or any((int(h['inning']), h['half']) not in halves for h in selected):
         raise ValueError('Q7 addition differs from the approved half-inning scope')
+    if 'selectedHistoryKeys' in case and {h['lifetimeKey'] for h in selected} != set(case['selectedHistoryKeys']):
+        raise ValueError('Q7 completion differs from the inventoried histories')
     if any(h.get('placement') or h.get('gameEndInstantIri') for h in selected):
         raise ValueError('Q7 named repairs require only the three personal-history maps')
-    for expected in case['scoringCandidates']:
+    for expected in case.get('scoringCandidates', []):
         if expected not in selected:
             raise ValueError('Q7 approved scoring history changed')
     keys = {h['lifetimeKey'] for h in selected}
@@ -102,7 +107,7 @@ def command(args, cwd, log):
         raise RuntimeError('Stage failed; see ' + str(log))
 
 
-def revalidate(marker, manifest, history, rdf, evidence, java, classpath):
+def revalidate(marker, manifest, history, rdf, evidence, java, classpath, delta=None):
     """Recheck retained source contracts; never rerun acquisition or source mapping.
 
     Unchanged censuses keep their original producer identity. A separate receipt
@@ -117,6 +122,13 @@ def revalidate(marker, manifest, history, rdf, evidence, java, classpath):
             return conforms
 
         shape = HERE.parent / 'shacl/authoritative.ttl'
+        if delta is not None:
+            # Reuse the existing additive worker's target scoping. The shapes
+            # still query the complete base plus addition, including dependencies.
+            addition = module(HERE / 'targeted-award-addition.py', 'q7_scoped_shapes')
+            shape = evidence / 'authoritative-scoped.shapes.ttl'
+            addition.authoritative_scope(Graph().parse(rdf), set(delta.subjects()) | set(delta.objects())).serialize(
+                destination=shape, format='turtle')
         if not validate(shape, evidence / 'authoritative.report.ttl'):
             raise ValueError('Q7 resulting graph failed the existing authoritative SHACL')
         for field, value in marker.items():
@@ -150,8 +162,9 @@ def revalidate(marker, manifest, history, rdf, evidence, java, classpath):
                     shapeSha256=sha(target.with_suffix('.shapes.ttl')))
             if 'shapeSha256' in proof:
                 conforms = validate(target.with_suffix('.shapes.ttl'), target.with_suffix('.report.ttl'))
-                if not conforms:
+                if not conforms and (field == 'runnerHistoryAdmission' or proof.get('graphConforms') is True):
                     raise ValueError('Q7 changed an existing admitted graph contract: ' + field)
+                proof['graphConforms'] = conforms
                 proof['reportSha256'] = sha(target.with_suffix('.report.ttl'))
             proof.update(authoritativeRdfSha256=sha(rdf),
                 graphRevalidation=dict(decision=DECISION, originalProofSha256=sha(prior),
@@ -171,7 +184,7 @@ def revalidate(marker, manifest, history, rdf, evidence, java, classpath):
 def add_game(state, game_pk, java, mapper, classpath):
     if read(ROOT / DECISION)['status'] != 'accepted':
         raise ValueError('Q7 decision is not accepted')
-    case = next((c for c in read(PACKAGE / 'source-evidence.json')['cases'] if c['gamePk'] == game_pk), None)
+    case = next((c for c in cases() if c['gamePk'] == game_pk), None)
     if case is None:
         raise ValueError('Game is outside the approved Q7 additions')
     store = TX.HttpGraphStore('http://127.0.0.1:3031/baseball-dev/data')
@@ -220,7 +233,8 @@ def add_game(state, game_pk, java, mapper, classpath):
     rdf = evidence / 'authoritative-with-addition.nt'
     combined.serialize(destination=rdf, format='nt')
     V.verify(dict(gamePk=int(game_pk), _baseballO=dict(runnerHistoryReconciliation=history)), combined)
-    proof_fields = revalidate(marker, manifest, history, rdf, evidence, java, classpath)
+    proof_fields = revalidate(marker, manifest, history, rdf, evidence, java, classpath,
+                              delta=delta if 'selectedHistoryKeys' in case else None)
     addition = dict(decision=DECISION, basePromotionSha256=sha(marker_path),
         baseRmlManifestSha256=sha(prior_path), baseRdfSha256=manifest['outputSha256'],
         baseExportSha256=TX.sha_bytes(base_bytes),
@@ -230,6 +244,9 @@ def add_game(state, game_pk, java, mapper, classpath):
         addedHistories=len(delta_context['histories']), addedTriples=len(combined) - len(base),
         baseTripleCount=len(base), resultingTripleCount=len(combined),
         mutation='additive-graph-store-post', acquiredInputs=0)
+    if 'selectedHistoryKeys' in case:
+        addition.update(scopeDecision=read(COMPLETION)['scopeDecision'],
+                        repairInventorySha256=sha(COMPLETION), selectedHistoryKeys=case['selectedHistoryKeys'])
     promoted = marker_root / (run + '.json')
     TX.prepare(store, state, game_pk, run)
     try:
@@ -278,7 +295,7 @@ def tick(state, game_pk, java, mapper, classpath):
     version = hashlib.sha256(Path(__file__).read_bytes() +
         (ROOT / 'scripts/pipeline/prepare-rml-context.py').read_bytes()).hexdigest()
     previous = read(control) if control.exists() else {}
-    if previous.get('status') in {'complete', 'already-complete'}:
+    if previous.get('status') in SUCCESS:
         return previous
     if previous.get('implementationSha256') == version and previous.get('attempts', 0) >= 2:
         return previous
@@ -292,12 +309,37 @@ def tick(state, game_pk, java, mapper, classpath):
     return result
 
 
+def cases():
+    return read(PACKAGE / 'source-evidence.json')['cases'] + read(COMPLETION)['cases']
+
+
+def next_case(state):
+    version = hashlib.sha256(Path(__file__).read_bytes() +
+        (ROOT / 'scripts/pipeline/prepare-rml-context.py').read_bytes()).hexdigest()
+    for case in cases():
+        path = state / 'pipeline/control/mlb-game/history-addition' / (case['gamePk'] + '.json')
+        previous = read(path) if path.is_file() else {}
+        if previous.get('status') in SUCCESS:
+            continue
+        if previous.get('implementationSha256') == version and previous.get('attempts', 0) >= 2:
+            continue
+        return case['gamePk']
+    return None
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
-    for name in ('state-root', 'java', 'mapper', 'jena-classpath'):
-        parser.add_argument('--' + name, type=Path, required=True)
-    parser.add_argument('--game-pk', choices=('822846', '824467'), required=True)
+    parser.add_argument('--state-root', type=Path, required=True)
+    parser.add_argument('--next', action='store_true')
+    for name in ('java', 'mapper', 'jena-classpath'):
+        parser.add_argument('--' + name, type=Path)
+    parser.add_argument('--game-pk')
     args = parser.parse_args()
+    if args.next:
+        print(json.dumps(next_case(args.state_root)))
+        raise SystemExit(0)
+    if not all((args.java, args.mapper, args.jena_classpath, args.game_pk)):
+        parser.error('Execution requires game, Java, mapper and Jena classpath')
     result = tick(args.state_root, args.game_pk, args.java, args.mapper, args.jena_classpath)
     print(json.dumps(result))
     raise SystemExit(result['status'] == 'failed')
