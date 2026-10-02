@@ -33,7 +33,12 @@
         "sha256": "420e722f26371c1ab47130c2bf2aef017bf5caa903ed309e29d6961098adeb51"
       }
     ],
-    "sourceIndependentMermaid": []
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "ca7ae687faf41a21a93cd90b54156cc7f029703400f09b5ea13a688a1ea8fd25"
+      }
+    ]
   },
   "ontologistDecision": null
 }
