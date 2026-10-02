@@ -25,6 +25,11 @@ their rejection rationale so they cannot be accidentally revived.
 
 ## Recent accepted decisions
 
+[F4 counted-foul prefix repair](../archive/design-records/mlb-game-counted-foul-prefix-repair/README.md)
+was explicitly accepted on October 1, including its scoped context-pin update.
+It reuses accepted replacement witnesses and existing foul-strike maps for the
+three identified strikes in 822682 and 822688. Runtime results remain separate.
+
 [The September 30 answers](../archive/design-records/metric-repair-scope-2026-09-30/answers.md)
 accept targeted reacquisition, independently supported boundaries despite
 overlapping temporal regions, explicit reconciled hit-and-run descriptions,
@@ -89,11 +94,6 @@ pass is archived as
 [`FINAL-MLB-RML-REVIEW.md`](../archive/design-records/FINAL-MLB-RML-REVIEW.md).
 
 ## Active reviews
-
-**[F4 counted-foul prefix repair](mlb-game-counted-foul-prefix-repair/README.md)**
-is prepared for the three remaining substitution-prefix selections in games
-822682 and 822688. It reuses accepted patterns; activation needs the named
-context-pin update. The candidate generated the expected 42 triples offline.
 
 The packages below are all **under review** with a null ontologist decision.
 They are design-only and authorize no ontology, RML, SHACL, acquisition, RDF,

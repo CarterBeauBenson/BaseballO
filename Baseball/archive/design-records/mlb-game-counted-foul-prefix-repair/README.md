@@ -1,10 +1,10 @@
 # F4: finish the counted-foul substitution repair
 
-**Prepared and checked; activation is pending the scoped context-pin decision.**
-The user requested repair of the three named remaining foul selections on
-October 1. Their meanings and graph patterns are already accepted. This package
-does not reinterpret that request as permission to refresh a protected semantic
-fingerprint: AGENTS.md separately reserves that action for named acceptance.
+**Accepted by the user on October 1, 2026; implementation follows this decision.**
+The user answered **"Approve"** to the explicit request for F4's tested
+three-strike repair and scoped context-hash update. This records that named
+acceptance before implementation. The reviewed package was published on `dev`
+at `6eb1f45`; the exact patch and candidate hashes below remain unchanged.
 
 The [patch](selection.patch) repairs one existing source-selection function:
 
@@ -44,13 +44,13 @@ The field selection inventory is unchanged: event type, position, substitution,
 participants, base, counters, timestamps, review/scoring flags and runner rows
 are already supplied by the MLB game lane. This repairs coverage of those fields;
 it acquires no new field or source. The existing accepted
-[M3/M4 graph design](../../archive/design-records/mlb-game-counted-foul-completion/README.md)
-and [Q7 isolation](../../archive/design-records/mlb-game-zero-episode-history-isolation/README.md)
+[M3/M4 graph design](../mlb-game-counted-foul-completion/README.md)
+and [Q7 isolation](../mlb-game-zero-episode-history-isolation/README.md)
 remain authoritative. No new Mermaid shape is required.
 
 ## Exact activation scope
 
-Accept F4's patch and the scoped context-pin update:
+The acceptance covers F4's patch and this scoped context-pin update:
 
 - Old context SHA-256:
   `7d90c64f64e03c920578bf40100677c1534a791792cf49a08b2426fe7c9141d6`.
@@ -77,11 +77,11 @@ promoted PA49 merely to repair PA50/58.
 This is a source-selection fix, not a claim that the dashboard or every source
 conflict is resolved. No live RDF was changed by the offline candidate check.
 
-Reproduce the focused candidate check from the repository root while the pinned
-retained inputs remain available:
+The original focused check requires the pre-implementation context and the
+pinned retained inputs. From this decision commit, before applying the patch:
 
 ```powershell
-python -B Baseball/proposals/mlb-game-counted-foul-prefix-repair/check.py
+python -B Baseball/archive/design-records/mlb-game-counted-foul-prefix-repair/check.py
 ```
 
 The check applies only the candidate patch to a disposable copy, runs the
