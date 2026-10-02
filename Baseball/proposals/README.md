@@ -23,6 +23,13 @@ to continue, lack of objection, or implementation speed. Accepted proposals
 move to `archive/design-records/`; rejected proposals remain archived with
 their rejection rationale so they cannot be accidentally revived.
 
+## Pending repair activation
+
+[F5/D2 foul and defensive selection repair](mlb-game-foul-defense-selection-repair/README.md)
+has a tested patch for the October 2 recorded failures. Its exact protected
+context-pin update is under review. The independent 822861 source-census repair
+is already implemented in `47c6a48`; live promotion remains NiFi-owned.
+
 ## Recent accepted decisions
 
 [F4 counted-foul prefix repair](../archive/design-records/mlb-game-counted-foul-prefix-repair/README.md)

@@ -27,6 +27,13 @@ permission is not a standing rebuild instruction.
 
 ## 1. Populate the nineteen dashboard cards
 
+The October 2 RML repair snapshot is covered by
+[F5/D2](proposals/mlb-game-foul-defense-selection-repair/README.md): a prepared,
+tested context repair for 14 foul-selector failures and 14 defensive census
+failures, awaiting its exact protected-pin acceptance. The separate 822861
+foul worker source-census fix is published in `47c6a48`. Keep NiFi promotion
+and SQL delivery separate from offline repair checks.
+
 1. Apply the independent roster/player and PA-boundary admission repairs through the existing
    NiFi evidence worker and affected SQL player projections. Preserve the
    existing database and RDF. The four retained retries for 822848, 822854,
