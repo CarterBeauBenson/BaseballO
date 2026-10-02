@@ -27,7 +27,7 @@ their rejection rationale so they cannot be accidentally revived.
 
 [F5/D2 foul and defensive selection repair](../archive/design-records/mlb-game-foul-defense-selection-repair/README.md)
 was accepted on October 2, including its exact scoped context-pin update.
-Implementation and live promotion follow this separate decision.
+The exact context repair is active; NiFi owns targeted validation and promotion.
 
 [F4 counted-foul prefix repair](../archive/design-records/mlb-game-counted-foul-prefix-repair/README.md)
 was explicitly accepted on October 1, including its scoped context-pin update.

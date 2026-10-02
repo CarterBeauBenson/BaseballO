@@ -457,7 +457,7 @@ def completed_field_review_dispositions(review, description):
     original call, affected player or eligible challenge opportunity in RDF.
     """
     codes = {
-        'tag play': {'MA', 'NA'}, 'play at 1st': {'MF', 'NF'},
+        'tag play': {'MA', 'NA'}, 'pitch result': {'MJ', 'NJ'}, 'play at 1st': {'MF', 'NF'},
         'force play': {'MC', 'NC'}, 'catch or drop': {'MD', 'ND'},
         'trap play': {'MT', 'NT'}, 'home run': {'MH', 'NH'},
         'hit by pitch': {'MI', 'NI'}, 'shift violation': {'MW', 'NW'},
@@ -494,7 +494,7 @@ def completed_nonterminal_field_review(play, position):
     review = event.get('reviewDetails')
     allowed = {'MO': {'F'}, 'NO': {'F'}, 'NH': {'F'}, 'MH': {'F'},
                'MN': {'F'}, 'NN': {'F'}, 'MI': {'B','*B','F','L','T'},
-               'NI': {'B','*B','F','L','T'}, 'MV': {'B','*B','F'}, 'NV': {'B','*B','F'}}
+               'NI': {'B','*B','F','L','T'}, 'MV': {'B','*B','F','T'}, 'NV': {'B','*B','F','T'}}
     code = detail.get('call',{}).get('code')
     before = events[position-1].get('count', {}) if position else dict(balls=0,strikes=0,outs=event.get('count',{}).get('outs'))
     after = event.get('count',{})
@@ -905,7 +905,7 @@ def runner_state_neutral_event(play, event, before):
     """Ignore count/movement-free administration, never its potential semantics."""
     detail = event.get('details', {})
     kind = detail.get('eventType')
-    if (kind not in {'game_advisory', 'ejection', 'injury', 'umpire_substitution', 'pitcher_switch', 'error'}
+    if (kind not in {'game_advisory', 'ejection', 'injury', 'umpire_substitution', 'pitcher_switch', 'error', 'mound_visit', 'batter_timeout'}
             or event.get('type') != 'action' or event.get('isPitch') is not False
             or event.get('isSubstitution') is True or event.get('reviewDetails')
             or any(detail.get(k) is not False for k in ('isOut','isScoringPlay','hasReview'))
@@ -2005,6 +2005,25 @@ def counted_foul_neutral_event(document: dict, play: dict, event: dict, prior: t
                 return 'reconciled-pickoff-out'
         return None
     if detail.get('isOut') is not False:return None
+    if kind == 'runner_placed' and prior == (0,0):
+        # Reuse C1's explicit adjudicative placement and exact boundary witness.
+        # Placement changes occupancy, but leaves the batter's count unchanged.
+        history = document.get(CONTEXT_KEY, {}).get('runnerHistoryReconciliation', {})
+        about = play.get('about', {}); runner = str(event.get('player', {}).get('id', ''))
+        anchor = f"placement/{about.get('inning')}/{about.get('halfInning')}/{runner}"
+        expected = dict(anchor=anchor, form='placement', runnerId=runner, base=2,
+            atBatIndex=about.get('atBatIndex'), eventIndex=index,
+            earliestStartBound=event.get('startTime'), latestEndBound=event.get('endTime'))
+        witnesses = [w for w in history.get('boundaryAnchorCensus', []) if w.get('anchor') == anchor]
+        judgments = [j for j in history.get('placementAdjudications', []) if j.get('runnerId') == runner
+            and str(j.get('inning')) == str(about.get('inning')) and j.get('half') == about.get('halfInning')]
+        if (history.get('sourceConsistency') == 'consistent' and len(witnesses) == len(judgments) == 1
+                and all(witnesses[0].get(k) == v for k,v in expected.items()) and event.get('base') == 2
+                and count.get('outs') == 0 and event.get('isSubstitution') is not True
+                and not any(e.get('isPitch') is True for e in events[:index])
+                and not any(r.get('details', {}).get('playIndex') == index for r in play.get('runners', []))
+                and not any(detail.get(k) is True for k in ('isBall','isStrike','isInPlay'))):
+            return 'reconciled-administration'
     if kind in {'offensive_substitution','defensive_switch','defensive_substitution'} and event.get('isSubstitution') is True:
         # Q4/Q5 already reconcile actual incoming participation. A fielding
         # switch or pre-pitch PH does not change an operative ball/strike count.
@@ -2020,15 +2039,19 @@ def counted_foul_neutral_event(document: dict, play: dict, event: dict, prior: t
         neutral = (not any(r.get('details', {}).get('playIndex') == index for r in play.get('runners', []))
             and not any(detail.get(k) is True for k in ('isBall','isStrike','isInPlay'))
             and (not prefix or count.get('outs') == prefix[-1].get('count', {}).get('outs')))
-        if before_pitch and rostered and neutral:
-            if kind in {'defensive_switch','defensive_substitution'} and position in {'P','C','1B','2B','3B','SS','LF','CF','RF','DH'}:
+        if rostered and neutral:
+            if before_pitch and kind in {'defensive_switch','defensive_substitution'} and position in {'P','C','1B','2B','3B','SS','LF','CF','RF','DH'}:
                 return 'initial-defensive-switch'
             pitches = [e for e in events[index+1:] if e.get('isPitch') is True]
             if (position == 'PH' and outgoing != incoming and (outgoing is None or 'ID'+str(outgoing) in roster)
                     and incoming == play.get('matchup', {}).get('batter', {}).get('id') and pitches
                     and all(str(e.get(CONTEXT_KEY, {}).get('batterId')) == str(incoming) for e in pitches)
-                    and sum(e.get('details', {}).get('eventType') == kind for e in events) == 1):
-                return 'initial-pinch-hitter'
+                    and sum(e.get('details', {}).get('eventType') == 'offensive_substitution'
+                            and e.get('position', {}).get('abbreviation') == 'PH' for e in events) == 1):
+                prior_pitches = [e for e in prefix if e.get('isPitch') is True]
+                if before_pitch or (prior_pitches and outgoing is not None
+                        and str(prior_pitches[-1].get(CONTEXT_KEY, {}).get('batterId')) == str(outgoing)):
+                    return 'initial-pinch-hitter' if before_pitch else 'reconciled-pinch-hitter'
     if kind in {'stolen_base_2b', 'stolen_base_3b'} and event.get('isSubstitution') is not True:
         rows = [r for r in play.get('runners', []) if r.get('details', {}).get('playIndex') == index]
         if len(rows) != 1 or not index:
@@ -2078,8 +2101,6 @@ def counted_foul_neutral_event(document: dict, play: dict, event: dict, prior: t
     if kind == 'pitching_substitution' and event.get('isSubstitution') is True and prior == (0, 0):
         if (event.get('position', {}).get('abbreviation') != 'P'
                 or any(e.get('isPitch') is True or e.get('details', {}).get('call', {}).get('code') in {'VP','AC','VB'} for e in events[:index])
-                or any(e.get('details', {}).get('eventType') == 'offensive_substitution'
-                    and counted_foul_neutral_event(document,play,e,(0,0)) != 'initial-pinch-hitter' for e in events)
                 or sum(e.get('details', {}).get('eventType') == kind for e in events) != 1):
             return None
         team = 'home' if play.get('about', {}).get('isTopInning') is True else 'away'
@@ -2090,13 +2111,28 @@ def counted_foul_neutral_event(document: dict, play: dict, event: dict, prior: t
         names = {pid: people.get('ID'+str(pid), {}).get('fullName') for pid in pitchers}
         # Some feeds identify the outgoing pitcher only in the final narrative.
         # Require an exact unique pair of rostered people, never a fuzzy name.
+        description = detail.get('description', '')
+        # Suffix punctuation belongs to the person's name. A batting-order
+        # suffix also leaves the pitch count unchanged.
+        ordinary = re.sub(r', batting (?:1st|2nd|3rd|[4-9]th)\.$', '.', description).rstrip('.')
         pairs = [(a,b) for a in pitchers for b in pitchers if a != b and names[a] and names[b]
-                 and detail.get('description') == f'Pitching Change: {names[a]} replaces {names[b]}.']
+                 and ordinary == f'Pitching Change: {names[a]} replaces {names[b]}'.rstrip('.')]
+        leaving = event.get('replacedPlayer', {}).get('id')
+        players = roster.get('players', {})
+        outgoing_name = people.get('ID'+str(leaving), {}).get('fullName')
+        lineup = bool(incoming in pitchers and names.get(incoming) and outgoing_name
+            and 'ID'+str(leaving) in players and re.fullmatch(
+                r'Pitcher '+re.escape(names[incoming])+r' enters the batting order, batting (?:1st|2nd|3rd|[4-9]th), '
+                r'(?:pitcher|catcher|first baseman|second baseman|third baseman|shortstop|left fielder|center fielder|right fielder|designated hitter) '
+                +re.escape(outgoing_name)+r' leaves the game\.', description))
         subsequent = [e for e in events[index+1:] if e.get('isPitch') is True]
-        if (len(pairs) == 1 and pairs[0][0] == incoming and subsequent
+        if (((len(pairs) == 1 and pairs[0][0] == incoming) or lineup) and subsequent
                 and play.get('matchup', {}).get('pitcher', {}).get('id') == incoming
                 and all(str(e.get(CONTEXT_KEY, {}).get('pitcherId')) == str(incoming) for e in subsequent)
-                and (event.get('replacedPlayer') is None or event['replacedPlayer'].get('id') == pairs[0][1])):
+                and not any(r.get('details', {}).get('playIndex') == index for r in play.get('runners', []))
+                and not any(detail.get(k) is True for k in ('isBall','isStrike','isInPlay'))
+                and count.get('outs') == before.get('outs')
+                and (lineup or event.get('replacedPlayer') is None or event['replacedPlayer'].get('id') == pairs[0][1])):
             return 'initial-pitching-change'
     return None
 
@@ -2169,7 +2205,7 @@ def metric_pitch_context(document: dict) -> dict:
             # observed order; no clocks or BFO precedence assertions are changed.
             overlap = previous and instant(clock_pair(previous)[1]) and start and instant(clock_pair(previous)[1]) > start
             initial_changes = {'initial-pitching-change','initial-pinch-hitter','initial-defensive-switch',
-                               'reconciled-administration','reconciled-running-count','reconciled-pinch-runner'}
+                               'reconciled-administration','reconciled-running-count','reconciled-pinch-runner','reconciled-pinch-hitter'}
             if (not start or not end or end < start or (overlap and not ({neutral_extension,previous_extension} & initial_changes))
                     or (event.get('isPitch') is True and previous_pitch_end and start and previous_pitch_end > start)):
                 prefix_problem = prefix_problem or 'UNSUPPORTED_EVENT_TIME_ORDER'
@@ -2178,7 +2214,7 @@ def metric_pitch_context(document: dict) -> dict:
                 prefix_problem = prefix_problem or 'FIELD_REVIEW_IN_PREFIX'
             if (event.get('reviewDetails') or details.get('hasReview') is True) and event.get('index') not in reviews['events']:
                 prefix_problem = prefix_problem or 'UNRESOLVED_PREFIX_REVIEW'
-            if (event.get('isSubstitution') is True or 'substitution' in str(details.get('eventType', ''))) and neutral_extension not in {'initial-pitching-change','reconciled-pinch-runner','initial-pinch-hitter','initial-defensive-switch','reconciled-administration'}:
+            if (event.get('isSubstitution') is True or 'substitution' in str(details.get('eventType', ''))) and neutral_extension not in {'initial-pitching-change','reconciled-pinch-runner','initial-pinch-hitter','reconciled-pinch-hitter','initial-defensive-switch','reconciled-administration'}:
                 prefix_problem = prefix_problem or 'SUBSTITUTION_IN_PREFIX'
             if after is None:
                 prefix_problem = prefix_problem or 'INVALID_COUNTER'
@@ -2193,7 +2229,7 @@ def metric_pitch_context(document: dict) -> dict:
                     elif code in {'X', 'D', 'E', 'H'}: expected = prior
                     else: expected = None
                 else:
-                    neutral = bool(neutral_extension) or details.get('eventType') in {'batter_timeout', 'mound_visit', 'defensive_switch'} or event.get('type') in {'pickoff', 'stepoff', 'no_pitch'}
+                    neutral = bool(neutral_extension) or event.get('type') in {'pickoff', 'stepoff', 'no_pitch'}
                     if (pa, event.get('playId')) in automatic_ids:
                         expected = (balls + (code == 'VP'), strikes + (code == 'AC'))
                     else:
@@ -2318,12 +2354,16 @@ def defensive_act_context(document: dict, previous: dict | None = None) -> dict:
         terminal = events[-1] if events else None
         defending = 'home' if play.get('about', {}).get('isTopInning') is True else 'away'
         roster = document.get('liveData', {}).get('boxscore', {}).get('teams', {}).get(defending, {}).get('players', {})
-        names = defaultdict(set)
+        names = defaultdict(set); spellings = set()
         for key, person in roster.items():
             identity = person.get('person', {}).get('id')
             if type(identity) is int and key == 'ID'+str(identity):
                 for name in (person.get('person', {}).get('fullName'), people.get(key, {}).get('fullName')):
-                    if isinstance(name, str): names[normalized(name)].add(str(identity))
+                    if isinstance(name, str):
+                        names[normalized(name)].add(str(identity))
+                        spellings.update([name.rstrip('.'), ''.join(c for c in unicodedata.normalize('NFKD', name)
+                            if not unicodedata.combining(c)).rstrip('.')])
+        named_fielder = position + r'(?:' + '|'.join(re.escape(n) + r'\.?' for n in sorted(spellings,key=lambda n:(-len(n),n))) + ')'
 
         def resolve(mention):
             name = re.sub('^'+position, '', mention, flags=re.I)
@@ -2365,7 +2405,7 @@ def defensive_act_context(document: dict, previous: dict | None = None) -> dict:
             def select(kind, agent, span, support):
                 selected.append(dict(kind=kind, agent=agent, span=[n+description_offset for n in span], creditPointers=support))
 
-            catch = re.match(r'.+? (?:flies|lines|pops) out(?: (?:sharply|softly))? to ('+position+r'.+?)(?: in foul territory)?\.', description)
+            catch = re.match(r'.+? (?:flies|lines|pops) out(?: (?:sharply|softly))? to ('+named_fielder+r')(?: in foul territory)?\.', description, re.I)
             if catch and play.get('result', {}).get('eventType') == 'field_out':
                 agent = resolve(catch.group(1)); support = witnesses(agent, {'f_putout'}) if agent else []
                 outs = [r for _,r in associated if r.get('movement', {}).get('isOut') is True]
@@ -2400,7 +2440,7 @@ def defensive_act_context(document: dict, previous: dict | None = None) -> dict:
             # putout. Bare credits, extra deflectors and unassisted outs do not
             # satisfy that pattern. Terminal touch and timing remain unresolved.
             ground = re.search(r'('+position+r'.+?) fields (?:the )?(?:ground ball|grounder) and throws to ('+position+r'.+?), who catches the (?:ball|throw)\.', description, re.I)
-            compact = re.match(r'.+? grounds out(?: (?:sharply|softly))?, ('+position+r'.+?) to ('+position+r'.+?)\.',description,re.I)
+            compact = re.match(r'.+? grounds out(?: (?:sharply|softly))?, ('+named_fielder+r') to ('+named_fielder+r')\.',description,re.I)
             if not ground and compact and play.get('result',{}).get('eventType')=='field_out':
                 first,last=resolve(compact.group(1)),resolve(compact.group(2))
                 outs=[r for _,r in associated if r.get('movement',{}).get('isOut') is True]

@@ -25,7 +25,7 @@ def load(evidence,state,promotion,family,adapter):
         compatibility=evidence.read(evidence.COMPATIBILITY_PATH)
         context=evidence.sha(evidence.ROOT/'scripts/pipeline/prepare-rml-context.py')
         candidates=[]
-        for name in ('foulPrefixRepair','historySelectionRepair','defensiveGroundoutRepair','compoundResultRepair','intentionalWalkPrefix'):
+        for name in ('foulDefenseSelectionRepair','foulPrefixRepair','historySelectionRepair','defensiveGroundoutRepair','compoundResultRepair','intentionalWalkPrefix'):
             repair=compatibility.get(name,{})
             entry=repair.get('independentProofs',{}).get(family,{})
             if entry.get('currentImplementationSha256')==version and context==repair.get('currentContextSha256'):
@@ -33,6 +33,10 @@ def load(evidence,state,promotion,family,adapter):
         for entry in candidates:
             candidate=evidence.refresh_path(state,promotion,SHORT[family],entry['previousImplementationSha256'])
             if candidate.with_suffix('.receipt.json').is_file():
+                # Expanded selection cannot reuse an older negative result as
+                # the answer to the newly supported source case.
+                if entry.get('requiresOriginalAdmission') and evidence.read(candidate).get('status')!='admitted':
+                    continue
                 version=entry['previousImplementationSha256'];producer=entry['previousSourceProducerSha256']
                 path=candidate;receipt=path.with_suffix('.receipt.json');break
         else:return None
