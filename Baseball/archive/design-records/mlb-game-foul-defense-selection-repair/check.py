@@ -19,7 +19,7 @@ from unittest.mock import patch
 from rdflib import Graph, Namespace, RDF, URIRef
 
 PACKAGE = Path(__file__).resolve().parent
-ROOT = PACKAGE.parents[1]
+ROOT = next(p for p in PACKAGE.parents if (p / 'scripts/pipeline/prepare-rml-context.py').is_file())
 ACTIVE = ROOT / 'scripts/pipeline/prepare-rml-context.py'
 EVIDENCE = json.loads((PACKAGE / 'evidence.json').read_bytes())
 WORKSPACE = tempfile.TemporaryDirectory(prefix='f5-d2-check-')

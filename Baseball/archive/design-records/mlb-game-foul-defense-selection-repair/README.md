@@ -1,6 +1,10 @@
 # F5/D2: repair the recorded foul and defensive selection failures
 
-**Prepared for review; the protected context remains unchanged.**
+**Accepted by the user on October 2, 2026; implementation follows this decision.**
+
+The user answered **"Okay, look for other issues in the RML and fix them"**
+to the explicit F5/D2 and scoped context-pin approval request. This records that
+acceptance before implementation; the exact reviewed patch remains unchanged.
 
 The October 2 failure snapshot contains 15 foul additions and 14 defensive
 additions. One defensive failure appeared after the previous 28-failure report.
@@ -9,8 +13,8 @@ These are failed repair jobs, not 29 games lacking all RDF.
 This [patch](selection.patch) repairs existing source selection. It changes no
 ontology term, object property, identity policy, RML triple map or SHACL shape.
 It preserves the graph and uses the existing NiFi lanes to add missing facts.
-The user has authorized narrow repairs; activation additionally needs acceptance
-of the exact protected context pin below.
+The user accepted the exact protected context pin below and requested a further
+RML audit. Newly discovered semantic changes remain separately scoped.
 
 ## Recorded causes and corrections
 
@@ -81,12 +85,12 @@ After NiFi promotes a repair it may retire transient source bytes, so this
 pre-implementation check is not a permanent production gate.
 
 ```powershell
-python -B Baseball/proposals/mlb-game-foul-defense-selection-repair/check.py
+python -B Baseball/archive/design-records/mlb-game-foul-defense-selection-repair/check.py
 ```
 
 ## Exact activation scope
 
-Accept **F5/D2 and its scoped context-pin update**:
+The acceptance covers **F5/D2 and its scoped context-pin update**:
 
 - Previous context SHA-256:
   `86f6f6ad62eec5795b6bc464a0040c210e8be4bb83e94e65b765b943eb3cc00e`.

@@ -28,9 +28,9 @@ permission is not a standing rebuild instruction.
 ## 1. Populate the nineteen dashboard cards
 
 The October 2 RML repair snapshot is covered by
-[F5/D2](proposals/mlb-game-foul-defense-selection-repair/README.md): a prepared,
+[F5/D2](archive/design-records/mlb-game-foul-defense-selection-repair/README.md): a prepared,
 tested context repair for 14 foul-selector failures and 14 defensive census
-failures, awaiting its exact protected-pin acceptance. The separate 822861
+failures, accepted on October 2 with its exact protected-pin update. The separate 822861
 foul worker source-census fix is published in `47c6a48`. Keep NiFi promotion
 and SQL delivery separate from offline repair checks.
 

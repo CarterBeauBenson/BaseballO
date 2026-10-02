@@ -1,0 +1,57 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-foul-defense-selection-repair",
+  "title": "F5/D2 recorded foul and defensive selection repair with scoped context pin",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "71ee749e72569addbc42a0c8ffecb1ea5df3537e8895aac5397581ce1d4d265d"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "evidence.json",
+        "sha256": "5fab3e5bbac339b7742745835c6420e2317d2042f581c679aee4c3b2f25fe9f9"
+      },
+      {
+        "path": "selection.patch",
+        "sha256": "ec1b3059410f28aa32e3f7c32c009a4e7dd1ce60e4ab24c7d9ae5ca1242fde21"
+      },
+      {
+        "path": "check.py",
+        "sha256": "f572c4e6fa0e50d1e198bf1b7965bffdd80d84a25d0eb49cae187e388f693ffe"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "71ee749e72569addbc42a0c8ffecb1ea5df3537e8895aac5397581ce1d4d265d"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "f2d7e8dc18b7bb82baf72b6866315265fe333c7b39221e78964dd45a3810ee4e"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-10-02",
+    "rationale": "The user answered \"Okay, look for other issues in the RML and fix them\" immediately after the explicit request to approve F5/D2 and its scoped context-pin update. Record that acceptance before applying the exact reviewed patch. Reuse accepted graph patterns, preserve existing RDF and proof provenance, and perform no rebuild or ontology change. The additional audit does not broaden this exact context pin.",
+    "authorizedArtifacts": [
+      "Baseball/scripts/pipeline/prepare-rml-context.py",
+      "Baseball/governance/semantic-freeze.json",
+      "Baseball/sources/mlb-game/pipeline/history-selection-candidates.json",
+      "Baseball/sources/mlb-game/pipeline/context-proof-compatibility.json",
+      "Baseball/sources/mlb-game/pipeline/admission-evidence.py",
+      "Baseball/sources/mlb-game/pipeline/existing-graph-admissions.py"
+    ]
+  }
+}
