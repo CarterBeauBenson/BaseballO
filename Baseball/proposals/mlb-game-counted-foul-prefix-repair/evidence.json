@@ -1,0 +1,46 @@
+{
+  "artifactType": "baseballo-f4-selection-check",
+  "status": "candidate-verified-not-activated",
+  "baselineCommit": "6621e34",
+  "baselineContextSha256": "7d90c64f64e03c920578bf40100677c1534a791792cf49a08b2426fe7c9141d6",
+  "candidateContextSha256": "86f6f6ad62eec5795b6bc464a0040c210e8be4bb83e94e65b765b943eb3cc00e",
+  "patchSha256": "7ff564597eeb8546f3ecd810ee2273060d1cbb8f53da03d7b823de27c82b76c1",
+  "cases": [
+    {
+      "gamePk": "822682",
+      "sourceSha256": "243c7e7ed4d65b5c0dc3708eae57dfe2ba7d9edcd1a210305d84074ab9328caf",
+      "selected": [
+        {
+          "atBatIndex": 50,
+          "playId": "839f74ce-afdd-33dd-af88-490a45bcd322"
+        },
+        {
+          "atBatIndex": 58,
+          "playId": "c2e8b154-4bd4-3c13-b6c4-e20702e8e3de"
+        }
+      ]
+    },
+    {
+      "gamePk": "822688",
+      "sourceSha256": "a9c8d646ab48e1ec980254e49efd057cd2e1532392ad0e65b2521f97cd6e6fb3",
+      "selected": [
+        {
+          "atBatIndex": 53,
+          "playId": "32fa7d8b-6fc0-3079-93cd-187d2fb6f991"
+        }
+      ]
+    }
+  ],
+  "checks": {
+    "missingStrikesBefore": 3,
+    "missingStrikesSelectedAfter": 3,
+    "candidateTriples": 42,
+    "liveTriplesPromotedByThisCheck": 0,
+    "mutatedInvalidPrefixCasesRejected": 39,
+    "unrelatedContextDefinitions": "unchanged",
+    "zeroEpisodePersonalHistories": "remain withheld",
+    "c3ExistingPrefixAndApprovedOverlapTests": 3,
+    "w1IntentionalWalkTests": 4
+  },
+  "execution": "Offline candidate context and five unchanged existing mappings; NiFi source SHACL and live additive promotion have not run for this candidate."
+}

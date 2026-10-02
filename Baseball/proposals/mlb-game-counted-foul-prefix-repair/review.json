@@ -1,0 +1,39 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-counted-foul-prefix-repair",
+  "title": "F4 counted-foul prefix repair and scoped context pin",
+  "status": "under-review",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "420e722f26371c1ab47130c2bf2aef017bf5caa903ed309e29d6961098adeb51"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "evidence.json",
+        "sha256": "2a740d6e71780a5f7b944cc3f120533ad97060113abad070bf29dd45e705d96f"
+      },
+      {
+        "path": "selection.patch",
+        "sha256": "7ff564597eeb8546f3ecd810ee2273060d1cbb8f53da03d7b823de27c82b76c1"
+      },
+      {
+        "path": "check.py",
+        "sha256": "5502a67d9e8f34c714218d2e87b99b12eb39a489f1dab5775afb42f99acc3496"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "420e722f26371c1ab47130c2bf2aef017bf5caa903ed309e29d6961098adeb51"
+      }
+    ],
+    "sourceIndependentMermaid": []
+  },
+  "ontologistDecision": null
+}

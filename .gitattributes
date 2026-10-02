@@ -17,6 +17,7 @@
 *.rq text eol=lf
 *.sql text eol=lf
 *.txt text eol=lf
+*.patch text eol=lf
 
 # API evidence is byte-preserved source material, not normalizable text.
 Baseball/data/raw/** -text -eol

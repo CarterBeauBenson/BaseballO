@@ -38,6 +38,7 @@ class C3CountPrefix(unittest.TestCase):
         elif fault == 'review': event['details']['hasReview'] = True
         elif fault == 'movement': play['runners'][0]['details']['playIndex'] = 0
         elif fault == 'overlap': play['playEvents'][1]['startTime'] = event['startTime']
+        elif fault == 'pitch-overlap': play['playEvents'][2]['startTime'] = play['playEvents'][1]['startTime']
         return CONTEXT.metric_pitch_context(document)
 
     def test_real_supported_replacement_retains_the_complete_foul_prefix(self):
@@ -48,8 +49,13 @@ class C3CountPrefix(unittest.TestCase):
 
     def test_incomplete_c3_or_changed_count_and_batter_cannot_supply_a_prefix(self):
         for fault in ('missing-history','withheld','duplicate','incoming','outgoing','base','time',
-                      'batter','pinch-hitter','count','review','movement','overlap'):
+                      'batter','pinch-hitter','count','review','movement','pitch-overlap'):
             self.assertFalse(self.select(fault)['countedFouls'], fault)
+
+    def test_reconciled_replacement_can_overlap_the_first_pitch_under_h3(self):
+        evidence = self.select('overlap')
+        self.assertEqual([r['eventIndex'] for r in evidence['countedFouls']], [4])
+        self.assertTrue(all(r['problem'] is None for r in evidence['prefixInventory']))
 
 
 if __name__ == '__main__':
