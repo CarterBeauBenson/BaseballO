@@ -13,6 +13,7 @@ HERE=Path(__file__).resolve().parent
 ROOT=HERE.parents[2]
 DECISION='archive/design-records/mlb-game-zero-pitch-walk-prefix/review.json'
 DEPENDENCY_DECISION='archive/design-records/mlb-game-w1-award-dependencies/review.json'
+RECOVERY=HERE/'award-input-recovery.json'
 SHAPE=HERE.parent/'shacl/intentional-walk-award-addition.ttl'
 MAPS=('AwardCauseMap','AwardRequirementMap','AwardRequiredByMap','AwardEvidenceRecordMap',
       'AwardRuleEditionMap','AwardRuleIdentifierMap','AwardRuleEditionIdentifierMap')
@@ -243,22 +244,103 @@ def add_game(state,game_pk,witness,java,mapper,classpath,*,repair=None):
     EVENT.emit(state,promoted)
     return dict(status='complete',promotionEvidence=str(promoted),**addition)
 
+def finished_attempt(previous,version,source_sha):
+    return (previous.get('implementationSha256')==version and previous.get('sourceSha256')==source_sha
+        and (previous.get('status') in {'complete','already-complete','already-present','not-applicable'}
+             or previous.get('attempts',0)>=2))
+
+
+def recovery_witness(state):
+    """NiFi resumes only the named input-retirement failures, never a corpus."""
+    request=read(RECOVERY);request_sha=sha(RECOVERY);version=fingerprint()
+    for case in request['cases']:
+        pk=case['gamePk'];control=state/'pipeline/control/mlb-game/award-addition'/(pk+'.json')
+        previous=read(control) if control.is_file() else {}
+        if previous.get('additionComplete'):
+            retire_recovery_input(state,previous)
+            if previous.get('status')=='failed':
+                previous.update(status='complete');previous.pop('error',None);atomic(control,previous)
+            continue
+        if previous.get('status')!='failed':continue
+        if (previous.get('sourceWitness',{}).get('recoveryRequestSha256')==request_sha
+                and previous.get('status') in {'complete','already-complete','already-present','not-applicable'}):continue
+        if finished_attempt(previous,version,previous.get('sourceSha256')):continue
+        # The existing owner's receipt identifies the retired input and
+        # successful promotion. Reacquisition keeps a distinct response hash.
+        cleanup=read(state/'pipeline/evidence/mlb-game'/pk/case['retiringPromotionRunId']/'cleanup.json')
+        if (cleanup.get('rawRetiredAfterPromotion') is not True
+                or cleanup.get('sourceWitness',{}).get('sha256')!=case['retiredSourceSha256']):
+            raise ValueError('Award recovery does not match the recorded retired input')
+        directory=state/'pipeline/quarantine/mlb-game'/pk/'targeted-award'
+        source=directory/'input.json';manifest=directory/'acquisition.json'
+        if manifest.is_file():
+            witness=read(manifest)
+            if witness.get('recoveryRequestSha256')!=request_sha or sha(source)!=witness['sha256']:
+                raise ValueError('Award recovery input changed')
+            return witness
+        url=f'https://statsapi.mlb.com/api/v1.1/game/{pk}/feed/live'
+        if source.is_file():raw=source.read_bytes()  # interrupted manifest write
+        else:
+            with urllib.request.urlopen(urllib.request.Request(url,headers={'Accept':'application/json'}),timeout=60) as response:
+                raw=response.read()
+        if str(json.loads(raw).get('gamePk'))!=pk:raise ValueError('Award recovery game identity differs')
+        directory.mkdir(parents=True,exist_ok=True)
+        if not source.is_file():
+            pending=source.with_suffix('.pending');pending.write_bytes(raw);pending.replace(source)
+        witness=dict(gamePk=pk,path=str(source),sha256=hashlib.sha256(raw).hexdigest(),
+            kind='targeted-reacquisition',scopeDecision=request['scopeDecision'],url=url,
+            recoveryRequestSha256=request_sha,retiredSourceSha256=case['retiredSourceSha256'],acquiredAtUtc=TX.now())
+        atomic(manifest,witness);return witness
+    return None
+
+
+def retire_recovery_input(state,result):
+    witness=result.get('sourceWitness',{})
+    if not witness.get('recoveryRequestSha256') or not result.get('promotionEvidence'):return
+    source=Path(witness['path']);owned=state/'pipeline/quarantine/mlb-game'/result['gamePk']/'targeted-award/input.json'
+    if source.resolve()!=owned.resolve():raise ValueError('Award retirement escapes its owned input')
+    promoted=Path(result['promotionEvidence']);marker=read(promoted)
+    if (str(marker.get('gamePk'))!=result['gamePk']
+            or marker.get('targetedAddition',{}).get('sourceWitness')!=witness):
+        raise ValueError('Award retirement does not match its successful promotion')
+    path=source.with_name('retirement.json')
+    identity=dict(sourceSha256=witness['sha256'],promotionEvidence=str(promoted),promotionManifestSha256=sha(promoted))
+    if path.is_file():
+        if any(read(path).get(k)!=v for k,v in identity.items()):raise ValueError('Award retirement receipt changed')
+    elif not source.is_file():raise ValueError('Award recovery input vanished before retirement')
+    atomic(path,dict(identity,rawRetiredAfterPromotion=False))
+    if source.is_file():
+        if sha(source)!=witness['sha256']:raise ValueError('Award retirement input changed')
+        source.unlink()
+    atomic(path,dict(identity,rawRetiredAfterPromotion=True,retiredAtUtc=TX.now()))
+
+
 def tick(state,game_pk,witness,java,mapper,classpath):
     control=state/'pipeline/control/mlb-game/award-addition'/(game_pk+'.json')
     version=fingerprint()
     previous=read(control) if control.is_file() else {}
-    if previous.get('status') in {'complete','already-complete','already-present','not-applicable'}:return previous
-    if previous.get('implementationSha256')==version and previous.get('attempts',0)>=2:return previous
-    result=dict(gamePk=game_pk,implementationSha256=version,checkedAtUtc=TX.now(),
-        attempts=previous.get('attempts',0)+1 if previous.get('implementationSha256')==version else 1)
-    try:result.update(add_game(state,game_pk,witness,java,mapper,classpath))
+    owned=state/'pipeline/quarantine/mlb-game'/game_pk/'targeted-award/input.json'
+    if Path(witness['path']).resolve()==owned.resolve():
+        acquired=read(owned.with_name('acquisition.json'))
+        if acquired['sha256']!=witness['sha256']:raise ValueError('Award recovery witness changed')
+        witness=acquired
+    if finished_attempt(previous,version,witness['sha256']):return previous
+    same=(previous.get('implementationSha256')==version and previous.get('sourceSha256')==witness['sha256'])
+    result=dict(gamePk=game_pk,implementationSha256=version,sourceSha256=witness['sha256'],
+        sourceWitness=witness,checkedAtUtc=TX.now(),attempts=previous.get('attempts',0)+1 if same else 1)
+    try:
+        result.update(add_game(state,game_pk,witness,java,mapper,classpath))
+        if result['status']=='complete' and witness.get('recoveryRequestSha256'):
+            result['additionComplete']=True
+            atomic(control,result)  # a cleanup interruption must not repeat mapping
+            retire_recovery_input(state,result)
     except Exception as error:result.update(status='failed',error=str(error))
     atomic(control,result);return result
 
 def fingerprint():
     return hashlib.sha256(Path(__file__).read_bytes()+SHAPE.read_bytes()+A.MAPPING.read_bytes()
         +Path(A.__file__).read_bytes()+C.fingerprint().encode()+(ROOT/DECISION).read_bytes()
-        +(ROOT/DEPENDENCY_DECISION).read_bytes()).hexdigest()
+        +(ROOT/DEPENDENCY_DECISION).read_bytes()+RECOVERY.read_bytes()).hexdigest()
 
 
 def next_witness(state,limit=50):
@@ -272,16 +354,24 @@ def next_witness(state,limit=50):
         if witness.is_file():
             return dict(gamePk='822864',path=str(witness),sha256='24adfc15c105909a4e09faedeb268cab6e58e5c3b630f1b7637af60f77c57b1e')
         raise ValueError('The approved W1 fixture is unavailable')
+    recovery=recovery_witness(state)
+    if recovery:return recovery
     inventory_path=control/'inventory.json'
     inventory=read(inventory_path) if inventory_path.is_file() else dict(inputs={})
     version=fingerprint();inspected=0
     paths=sorted((state/'pipeline/quarantine/mlb-game').glob('*/*/input.json'))
     paths+=sorted((ROOT/'data/raw').rglob('*.json'))
     for path in paths:
-        metadata=[path.stat().st_size,path.stat().st_mtime_ns,version]
+        # A successfully promoted owner can retire a transient input after
+        # directory enumeration. Continue the bounded inventory in that case.
+        try:stat=path.stat()
+        except FileNotFoundError:continue
+        metadata=[stat.st_size,stat.st_mtime_ns,version]
         previous=inventory['inputs'].get(str(path),{})
         if previous.get('identity')==metadata:continue
-        raw=path.read_bytes();digest=hashlib.sha256(raw).hexdigest();doc=json.loads(raw)
+        try:raw=path.read_bytes()
+        except FileNotFoundError:continue
+        digest=hashlib.sha256(raw).hexdigest();doc=json.loads(raw)
         if not isinstance(doc,dict):doc={}
         pk=str(doc.get('gamePk',''))
         record=dict(identity=metadata,sha256=digest,gamePk=pk,status='not-applicable')
@@ -289,7 +379,7 @@ def next_witness(state,limit=50):
             if p.get('result',{}).get('eventType')=='intent_walk' and len(p.get('playEvents',[]))>4]
         if pk.isdecimal() and possible and (state/'pipeline/evidence/nifi/game-promotion'/pk).is_dir():
             result=read(control/(pk+'.json')) if (control/(pk+'.json')).is_file() else {}
-            if result.get('status') in {'complete','already-complete','already-present'}:
+            if finished_attempt(result,version,digest) and result.get('status') in {'complete','already-complete','already-present','not-applicable'}:
                 record['status']='complete'
             else:
                 try:
@@ -298,7 +388,7 @@ def next_witness(state,limit=50):
                 except (KeyError,TypeError,ValueError) as error:record.update(status='withheld',error=str(error))
                 if record['status']=='selected':
                     # Keep pending until tick writes a durable result.
-                    if result.get('implementationSha256')!=version or result.get('attempts',0)<2:
+                    if not finished_attempt(result,version,digest):
                         atomic(inventory_path,inventory)
                         return dict(gamePk=pk,path=str(path),sha256=digest)
                     record.update(status='failed',error=result.get('error'))

@@ -5,6 +5,7 @@ from unittest.mock import patch
 import hashlib
 import copy
 import json
+import io
 from pathlib import Path
 from rdflib import Graph,Namespace,RDF,URIRef
 from rdflib.compare import isomorphic
@@ -14,6 +15,76 @@ from test_award_origin_final_decision import ROOT
 import importlib.util
 spec=importlib.util.spec_from_file_location('w1_worker',ROOT/'sources/mlb-game/pipeline/targeted-award-addition.py')
 W=importlib.util.module_from_spec(spec);spec.loader.exec_module(W)
+
+
+class AwardRetryIdentity(unittest.TestCase):
+    def test_named_recovery_preserves_new_bytes_and_resumes_cleanup_without_mapping_again(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            state=Path(temporary);request=state/'recovery.json';raw=b'{"gamePk":42,"revision":"new"}'
+            W.atomic(request,dict(scopeDecision='archive/design-records/metric-repair-scope-2026-09-30/answers.md',
+                cases=[dict(gamePk='42',retiredSourceSha256='retired',retiringPromotionRunId='prior')]))
+            W.atomic(state/'pipeline/evidence/mlb-game/42/prior/cleanup.json',
+                dict(rawRetiredAfterPromotion=True,sourceWitness=dict(sha256='retired')))
+            control=state/'pipeline/control/mlb-game/award-addition/42.json';W.atomic(control,dict(status='failed'))
+            with patch.object(W,'RECOVERY',request),patch.object(W,'fingerprint',return_value='worker'), \
+                    patch.object(W.urllib.request,'urlopen',return_value=io.BytesIO(raw)) as fetch:
+                witness=W.recovery_witness(state)
+                self.assertEqual(Path(witness['path']).read_bytes(),raw)
+                self.assertEqual(witness['retiredSourceSha256'],'retired')
+                self.assertEqual(W.recovery_witness(state),witness)
+                self.assertEqual(fetch.call_count,1)
+                def promoted(*args):
+                    marker=state/'pipeline/evidence/nifi/game-promotion/42/repaired.json'
+                    W.atomic(marker,dict(gamePk='42',targetedAddition=dict(sourceWitness=witness)))
+                    return dict(status='complete',promotionEvidence=str(marker))
+                with patch.object(W,'add_game',side_effect=promoted) as add:
+                    with patch.object(W,'retire_recovery_input',side_effect=OSError('cleanup interrupted')):
+                        result=W.tick(state,'42',witness,None,None,None)
+                    self.assertTrue(result['additionComplete']);self.assertEqual(result['status'],'failed')
+                    self.assertIsNone(W.recovery_witness(state))
+                    self.assertEqual(add.call_count,1)
+                self.assertEqual(W.read(control)['status'],'complete')
+                self.assertFalse(Path(witness['path']).exists())
+                self.assertTrue(W.read(Path(witness['path']).with_name('retirement.json'))['rawRetiredAfterPromotion'])
+                self.assertEqual(fetch.call_count,1)
+
+    def test_success_and_retry_limits_belong_to_exact_source_and_implementation(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            state=Path(temporary);witness=dict(path=str(state/'input.json'),sha256='first')
+            with patch.object(W,'fingerprint',return_value='one') as version, \
+                    patch.object(W,'add_game',return_value=dict(status='complete')) as add:
+                W.tick(state,'42',witness,None,None,None)
+                W.tick(state,'42',witness,None,None,None)
+                self.assertEqual(add.call_count,1)
+                other=dict(witness,sha256='second')
+                self.assertEqual(W.tick(state,'42',other,None,None,None)['attempts'],1)
+                version.return_value='two'
+                self.assertEqual(W.tick(state,'42',other,None,None,None)['attempts'],1)
+                self.assertEqual(add.call_count,3)
+                add.side_effect=ValueError('recorded failure')
+                failed=dict(witness,sha256='third')
+                for count in (1,2):
+                    self.assertEqual(W.tick(state,'42',failed,None,None,None)['attempts'],count)
+                W.tick(state,'42',failed,None,None,None)
+                self.assertEqual(add.call_count,5)
+                result=W.tick(state,'42',dict(witness,sha256='fourth'),None,None,None)
+                self.assertEqual(result['attempts'],1)
+                self.assertEqual(result['sourceWitness']['sha256'],'fourth')
+
+    def test_retired_input_does_not_hide_a_new_witness_after_an_older_success(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            state=Path(temporary);control=state/'pipeline/control/mlb-game/award-addition'
+            W.atomic(control/'822864.json',dict(status='complete'))
+            W.atomic(control/'42.json',dict(status='complete',implementationSha256='one',sourceSha256='older'))
+            retired=state/'retired/input.json';current=state/'current/input.json'
+            W.atomic(current,dict(gamePk=42,liveData=dict(plays=dict(allPlays=[
+                dict(result=dict(eventType='intent_walk'),playEvents=[{}]*5)]))))
+            (state/'pipeline/evidence/nifi/game-promotion/42').mkdir(parents=True)
+            with patch.object(W,'fingerprint',return_value='one'),patch.object(Path,'glob',return_value=iter([retired,current])), \
+                    patch.object(Path,'rglob',return_value=iter([])),patch.object(W,'select',return_value=[dict(atBatIndex='1')]):
+                witness=W.next_witness(state)
+            self.assertEqual(witness['path'],str(current))
+            self.assertEqual(witness['sha256'],W.sha(current))
 
 
 class TargetedAwardAddition(unittest.TestCase):

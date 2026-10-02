@@ -1,0 +1,11 @@
+{
+  "scopeDecision": "archive/design-records/metric-repair-scope-2026-09-30/answers.md",
+  "cases": [
+    {
+      "gamePk": "822748",
+      "retiredSourceSha256": "3acb83ef14076bfc997a11c602ef476a8fe15f58d732a5b7cf307e8b00f3d7da",
+      "retiringPromotionRunId": "332cb2eeb66541b399a8f4bcf178a03f",
+      "reason": "The award worker selected this input while the history worker held the game lock, then history promotion retired it before the award worker acquired the lock. Resume only the unchanged W1/W2 addition."
+    }
+  ]
+}

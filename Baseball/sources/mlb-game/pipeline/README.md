@@ -8,6 +8,14 @@ dependency order, bounded retries, quarantine routing, and provenance.
 
 `rml -> shacl -> promote -> materialize -> cleanup`
 
+Additive award, runner, compound, foul, defensive and history repair workers
+share the existing resource lease around selection and execution, then take
+their source-game lock. This prevents another repair from retiring a selected
+input while its consumer waits. Award retry limits bind the exact source hash
+and implementation. The one-game `award-input-recovery.json` resumes a recorded
+retirement race through this same owner; it does not trigger full-game mapping.
+See the [October 2 audit](../review/rml-audit-2026-10-02.md).
+
 Before invoking the unchanged RML, the `rml` action now calls
 `reconcile-metric-source.py`. It retains a source-revision/input-hash-bound
 inventory in the run's `metric-source-reconciliation.json`, with its path,
