@@ -25,7 +25,7 @@ def load(evidence,state,promotion,family,adapter):
         compatibility=evidence.read(evidence.COMPATIBILITY_PATH)
         context=evidence.sha(evidence.ROOT/'scripts/pipeline/prepare-rml-context.py')
         candidates=[]
-        for name in ('historySelectionRepair','defensiveGroundoutRepair','compoundResultRepair','intentionalWalkPrefix'):
+        for name in ('foulPrefixRepair','historySelectionRepair','defensiveGroundoutRepair','compoundResultRepair','intentionalWalkPrefix'):
             repair=compatibility.get(name,{})
             entry=repair.get('independentProofs',{}).get(family,{})
             if entry.get('currentImplementationSha256')==version and context==repair.get('currentContextSha256'):

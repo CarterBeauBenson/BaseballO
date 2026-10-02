@@ -57,6 +57,41 @@ class C3CountPrefix(unittest.TestCase):
         self.assertEqual([r['eventIndex'] for r in evidence['countedFouls']], [4])
         self.assertTrue(all(r['problem'] is None for r in evidence['prefixInventory']))
 
+    def test_f4_reuses_zero_episode_witness_without_admitting_a_history(self):
+        document = copy.deepcopy(self.context)
+        play = document['liveData']['plays']['allPlays'][35]
+        document['liveData']['plays']['allPlays'] = [play]
+        event = play['playEvents'][0]
+        history = document['_baseballO']['runnerHistoryReconciliation']
+        anchor = f"replacement/{play['about']['inning']}/{play['about']['halfInning']}/{event['replacedPlayer']['id']}/{event['player']['id']}"
+        incoming = next(h for h in history['histories'] if h.get('entryAnchor') == anchor)
+        history['histories'].remove(incoming)
+        incoming['episodes'] = []
+        history['withheldHistories'].append(dict(inning=play['about']['inning'],
+            half=play['about']['halfInning'], issues=[dict(code='ZERO_EPISODE_PERSONAL_HISTORY')],
+            completedCandidates=[incoming]))
+        before = copy.deepcopy(history)
+        evidence = CONTEXT.metric_pitch_context(document)
+        self.assertEqual([r['eventIndex'] for r in evidence['countedFouls']], [4])
+        self.assertEqual(history, before)
+        history['boundaryAnchorCensus'] *= 2
+        self.assertFalse(CONTEXT.metric_pitch_context(document)['countedFouls'])
+
+    def test_f4_rostered_initial_dh_switch_is_count_neutral(self):
+        document = copy.deepcopy(self.context)
+        play = document['liveData']['plays']['allPlays'][35]
+        document['liveData']['plays']['allPlays'] = [play]
+        event = play['playEvents'][0]
+        side = 'home' if play['about']['isTopInning'] else 'away'
+        roster = document['liveData']['boxscore']['teams'][side]['players']
+        event['player']['id'] = next(iter(roster.values()))['person']['id']
+        event['position']['abbreviation'] = 'DH'
+        event['details']['eventType'] = 'defensive_switch'
+        evidence = CONTEXT.metric_pitch_context(document)
+        self.assertEqual([r['eventIndex'] for r in evidence['countedFouls']], [4])
+        roster.clear()
+        self.assertFalse(CONTEXT.metric_pitch_context(document)['countedFouls'])
+
 
 if __name__ == '__main__':
     unittest.main()

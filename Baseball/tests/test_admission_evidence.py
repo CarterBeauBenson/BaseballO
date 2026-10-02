@@ -230,7 +230,8 @@ class AdmissionEvidence(unittest.TestCase):
         self.assertEqual(unchanged(before),unchanged(after))
         groundout=record.get('defensiveGroundoutRepair')
         history=record.get('historySelectionRepair')
-        current=history or groundout or compound or walk
+        foul=record.get('foulPrefixRepair')
+        current=foul or history or groundout or compound or walk
         if compound:
             now=(subprocess.check_output(['git','-C',str(ROOT.parent),'show',
                 groundout['baselineCommit']+':Baseball/'+record['contextPath']]) if groundout
@@ -250,7 +251,9 @@ class AdmissionEvidence(unittest.TestCase):
                 return ast.dump(tree)
             self.assertEqual(nondefensive(now),nondefensive(latest))
         if history:
-            updated=(ROOT/record['contextPath']).read_bytes()
+            updated=(subprocess.check_output(['git','-C',str(ROOT.parent),'show',
+                foul['baselineCommit']+':Baseball/'+record['contextPath']]) if foul
+                else (ROOT/record['contextPath']).read_bytes())
             self.assertEqual(hashlib.sha256(updated).hexdigest(),history['currentContextSha256'])
             self.assertEqual(hashlib.sha256(latest).hexdigest(),history['previousContextSha256'])
             changed={'accounted_runner_history_reviews','completed_pickoff_review',
@@ -262,6 +265,19 @@ class AdmissionEvidence(unittest.TestCase):
                 tree=ast.parse(raw);tree.body=[n for n in tree.body if getattr(n,'name',None) not in changed]
                 return ast.dump(tree)
             self.assertEqual(nonhistory(latest),nonhistory(updated))
+        if foul:
+            active=(ROOT/record['contextPath']).read_bytes()
+            self.assertEqual(hashlib.sha256(updated).hexdigest(),foul['previousContextSha256'])
+            self.assertEqual(hashlib.sha256(active).hexdigest(),foul['currentContextSha256'])
+            def nonfoul(raw):
+                tree=ast.parse(raw);tree.body=[n for n in tree.body if getattr(n,'name',None)!='counted_foul_neutral_event']
+                return ast.dump(tree)
+            self.assertEqual(nonfoul(updated),nonfoul(active))
+            for family,entry in foul['families'].items():
+                reuse=E.code_equivalence(family,entry['previousImplementationSha256'],entry['currentImplementationSha256'])
+                self.assertEqual(reuse['kind'],'unchanged-admission-census')
+                self.assertIsNone(E.code_equivalence(family,'unknown',entry['currentImplementationSha256']))
+                self.assertIsNone(E.code_equivalence(family,entry['previousImplementationSha256'],'unknown'))
         for family,entry in walk['families'].items():
             adapter=E.module(E.HERE/(family+'-admission.py'),'w1_'+family.replace('-','_'))
             self.assertEqual(adapter.fingerprint(),current['families'][family]['currentImplementationSha256'])
@@ -272,7 +288,7 @@ class AdmissionEvidence(unittest.TestCase):
             self.assertEqual(E.EXISTING_GRAPH.fingerprint(E,adapter),independent['currentImplementationSha256'])
             self.assertEqual(walk['independentProofs'][family]['previousSourceProducerSha256'],entry['previousImplementationSha256'])
         for kind,adapter in [('players',E.PLAYER_PARTICIPATION),('pa',E.PLAYER_PARTICIPATION.PA),('c2pa',E.PA_RESOLUTION)]:
-            entry=(history['derivedProofs'][kind] if history else
+            entry=(foul['derivedProofs'][kind] if foul else history['derivedProofs'][kind] if history else
                 record.get('retainedCompoundExpectations',{}).get('derivedProofs',{}).get(kind,current['derivedProofs'][kind]))
             self.assertEqual(adapter.fingerprint(),entry['currentImplementationSha256'])
             self.assertEqual(E.prior_versions(kind,adapter.fingerprint()),entry['previousImplementationSha256s'])

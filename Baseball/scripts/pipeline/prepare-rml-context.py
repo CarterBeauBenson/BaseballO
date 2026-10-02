@@ -2021,7 +2021,7 @@ def counted_foul_neutral_event(document: dict, play: dict, event: dict, prior: t
             and not any(detail.get(k) is True for k in ('isBall','isStrike','isInPlay'))
             and (not prefix or count.get('outs') == prefix[-1].get('count', {}).get('outs')))
         if before_pitch and rostered and neutral:
-            if kind in {'defensive_switch','defensive_substitution'} and position in {'P','C','1B','2B','3B','SS','LF','CF','RF'}:
+            if kind in {'defensive_switch','defensive_substitution'} and position in {'P','C','1B','2B','3B','SS','LF','CF','RF','DH'}:
                 return 'initial-defensive-switch'
             pitches = [e for e in events[index+1:] if e.get('isPitch') is True]
             if (position == 'PH' and outgoing != incoming and (outgoing is None or 'ID'+str(outgoing) in roster)
@@ -2043,10 +2043,16 @@ def counted_foul_neutral_event(document: dict, play: dict, event: dict, prior: t
             return 'reconciled-steal'
     if (kind == 'offensive_substitution' and event.get('isSubstitution') is True
             and event.get('position', {}).get('abbreviation') == 'PR'):
-        # Reuse the accepted C3 replacement proof, not an unexamined
-        # substitution label. Its two personal histories already reconcile
-        # the unchanged count, outgoing occupancy and incoming runner. This
-        # does not change the batter, assert a PA-start stasis, or admit a PH.
+        # C3 also retains the replacement witness when Q7 withholds the
+        # incoming runner's zero-episode history. Reuse that witness, as W1
+        # already does, without inventing a movement Process.
+        if (zero_episode_replacement_witness(document, play, event)
+                and not any(r.get('details', {}).get('playIndex') == index for r in play.get('runners', []))
+                and not any(detail.get(k) is True for k in ('isBall','isStrike','isInPlay'))
+                and count.get('outs') == before.get('outs')):
+            return 'reconciled-pinch-runner'
+        # Otherwise require both accepted personal histories and their exact
+        # shared replacement witness. Neither path changes the batter.
         history = document.get(CONTEXT_KEY, {}).get('runnerHistoryReconciliation', {})
         incoming = str(event.get('player', {}).get('id', ''))
         outgoing = str(event.get('replacedPlayer', {}).get('id', ''))

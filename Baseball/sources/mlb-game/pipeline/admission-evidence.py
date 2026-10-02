@@ -73,6 +73,17 @@ def code_equivalence(family,previous,current,*,_context=None):
     compound=record.get('compoundResultRepair',{})
     groundout=record.get('defensiveGroundoutRepair',{})
     context=_context or sha(ROOT/record['contextPath'])
+    foul=record.get('foulPrefixRepair',{})
+    bridge=foul.get('families',{}).get(family)
+    if (bridge and context==foul.get('currentContextSha256')
+            and current==bridge['currentImplementationSha256']):
+        prior=bridge['previousImplementationSha256']
+        reused=(dict(kind='unchanged-admission-census') if previous==prior else
+            code_equivalence(family,previous,prior,_context=foul['previousContextSha256']))
+        if reused is not None:
+            return dict(reused,recordSha256=sha(COMPATIBILITY_PATH),
+                previousImplementationSha256=previous,currentImplementationSha256=current,
+                foulPrefixDecision=foul['decision'])
     history=record.get('historySelectionRepair',{})
     bridge=history.get('families',{}).get(family)
     if (bridge and context==history.get('currentContextSha256')
@@ -160,6 +171,11 @@ def prior_versions(kind,current):
     and must be checked again; this is never approval of W1's missing facts.
     """
     record=read(COMPATIBILITY_PATH)
+    foul=record.get('foulPrefixRepair',{})
+    entry=foul.get('derivedProofs',{}).get(kind,{})
+    if (entry.get('currentImplementationSha256')==current
+            and sha(ROOT/record['contextPath'])==foul.get('currentContextSha256')):
+        return entry['previousImplementationSha256s']
     history=record.get('historySelectionRepair',{})
     entry=history.get('derivedProofs',{}).get(kind,{})
     if (entry.get('currentImplementationSha256')==current
@@ -297,7 +313,7 @@ def load(adapter,state,promotion,family):
     reuse=code_equivalence(family,prior,adapter.fingerprint()) if prior and prior!=adapter.fingerprint() else None
     if reuse:
         proof=refreshed(state,promotion,family,prior)
-        if proof is not None and (reuse['kind']=='unchanged-proof-dependencies' or proof.get('status')=='admitted'):
+        if proof is not None and (reuse['kind'] in {'unchanged-proof-dependencies','unchanged-admission-census'} or proof.get('status')=='admitted'):
             checked_marker(promotion)
             return select(dict(proof,implementationReuse=reuse))
     proof=compatible_proof(state,promotion,family,adapter.fingerprint())
