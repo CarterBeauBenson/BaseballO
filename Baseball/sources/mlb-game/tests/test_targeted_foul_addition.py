@@ -84,6 +84,24 @@ class FoulAddition(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'source is unresolved|outcome changed'):
                 F.select(json.dumps(changed).encode(),'824087',case)
 
+    def test_other_pitch_clock_revision_preserves_promoted_census(self):
+        raw=(ROOT/'data/raw/samples/2026-07-20/824087.json').read_bytes()
+        source=F.C.census(raw,'824087')
+        pa=next(p for p in source['plateAppearances'] if p['pa'].endswith('/37'))
+        foul=next(e for e in pa['events'] if e.get('call')=='F' and e['strike'] and e['strikesAfter']==2)
+        other=next(e for e in pa['events'] if e['playId']!=foul['playId'])
+        # The retained promoted census can have an earlier end for another
+        # pitch; source selection adds only the unchanged, identified foul.
+        from datetime import datetime,timedelta
+        other['end']=(datetime.fromisoformat(other['end'].replace('Z','+00:00'))-timedelta(milliseconds=1)).isoformat().replace('+00:00','Z')
+        with tempfile.TemporaryDirectory() as temp:
+            path=Path(temp)/'source.json';F.W.atomic(path,source)
+            case=dict(gamePk='824087',sourceCensus=str(path),sourceCensusSha256=F.W.sha(path),
+                selected=[dict(atBatIndex='37',playId=foul['playId'])])
+            selected=F.select(raw,'824087',case)
+            self.assertEqual(selected['source']['plateAppearances'],[pa])
+            self.assertEqual([e['playId'] for e in selected['events']],[foul['playId']])
+
     def test_exhausted_first_game_does_not_hide_later_recorded_repairs(self):
         with tempfile.TemporaryDirectory() as temp:
             state=Path(temp);control=state/'pipeline/control/mlb-game/foul-addition'

@@ -166,7 +166,10 @@ def select(raw,game_pk,case):
     pas={pa for pa,pid in wanted if pid in selected_ids}
     return dict(gamePk=game_pk,venue=str(document['gameData']['venue']['id']),events=selected,
         unresolvedFouls=blocked,
-        source=dict(current,plateAppearances=[pa for pa in current['plateAppearances'] if pa['pa'].rsplit('/',1)[1] in pas]))
+        # The graph retains the promoted response's other pitches. The exact
+        # selected rows matched that census above; a different retained
+        # response must not rewrite unrelated clock expectations for the PA.
+        source=dict(old,plateAppearances=[pa for pa in old['plateAppearances'] if pa['pa'].rsplit('/',1)[1] in pas]))
 
 
 def execution_inputs(raw,game_pk,selected,context,mapping):
