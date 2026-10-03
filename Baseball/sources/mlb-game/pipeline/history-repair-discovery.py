@@ -34,7 +34,9 @@ def conflict_details(owner,raw,original,current):
         for key,row in old.items() if key not in new or any(row.get(f)!=new[key].get(f) for f in fields)]
     issues=[dict(inning=half['inning'],half=half['half'],issues=half['issues'])
         for half in current.get('withheldHistories',[])]
-    indexes={int(i['atBatIndex']) for half in issues for i in half['issues'] if 'atBatIndex' in i}
+    indexes={int(i['atBatIndex']) for half in issues for i in half['issues']
+        if type(i.get('atBatIndex')) is int or
+        (isinstance(i.get('atBatIndex'),str) and i['atBatIndex'].isdecimal())}
     document=owner.json.loads(raw)
     plays=[dict(atBatIndex=p['atBatIndex'],description=p.get('result',{}).get('description'),
         postBases={k:v for k,v in p.get('matchup',{}).items() if k.startswith('postOn')},
@@ -106,9 +108,28 @@ def source(owner,state,promotion,request_path):
 
 def fingerprint(owner):
     """Inspection depends on selection, not reporting or the execution queue."""
+    proof_inputs=('admission-evidence.py','runner-boundary-admission.py','batting-admission.py',
+        'reconcile-metric-source.py',
+        'existing-graph-admissions.py','retained-census-admissions.py','context-proof-compatibility.json')
     return owner.hashlib.sha256(inspect.getsource(inspect_record).encode()+
+        inspect.getsource(boundary_admission).encode()+
         inspect.getsource(owner.select_history).encode()+
+        b''.join((owner.HERE/name).read_bytes() for name in proof_inputs)+
+        (owner.ROOT/'scripts/pipeline/validate-shacl.py').read_bytes()+
+        (owner.HERE.parent/'shacl/runner-boundary-admission.ttl').read_bytes()+
         (owner.ROOT/'scripts/pipeline/prepare-rml-context.py').read_bytes()).hexdigest()
+
+
+def boundary_admission(owner,state,marker_path):
+    """Reuse the owning full-history/boundary proof, never infer coverage."""
+    evidence=owner.module(owner.HERE/'admission-evidence.py','history_discovery_admission')
+    adapter=evidence.module(owner.HERE/'runner-boundary-admission.py','history_discovery_boundary')
+    promotion=owner.I.validated_promotion_record(state,marker_path,marker_path.parent.name,
+        owner.I.query_index_contract_admission())
+    proof=evidence.load(adapter,state,promotion,'runner-boundary')
+    if proof.get('status')!='admitted':return None
+    return dict(proofSha256=proof['proofSha256'],implementationSha256=proof['implementationSha256'],
+        **({'implementationReuse':proof['implementationReuse']} if proof.get('implementationReuse') else {}))
 
 
 def inspect_record(owner,state,marker_path,contract,previous):
@@ -116,6 +137,13 @@ def inspect_record(owner,state,marker_path,contract,previous):
     marker=owner.read(marker_path);pk=marker_path.parent.name
     record=dict(identity=[owner.sha(marker_path),fingerprint(owner)],
         checkedAtUtc=owner.TX.now(),status='not-applicable')
+    proof=boundary_admission(owner,state,marker_path)
+    if proof is not None:
+        if previous.get('status')=='selected' and previous.get('case'):
+            # Preserve the exact selected job so interrupted finalization or
+            # transient-input cleanup can finish through its original owner.
+            return {**previous,**record,'status':'selected','boundaryAdmission':proof}
+        return dict(record,reason='existing-boundary-admission',boundaryAdmission=proof)
     manifest_path=owner.I.retained_artifact(state,pk,marker['rmlManifestSha256'],Path(marker['rmlManifest']))
     if not manifest_path.is_file() or owner.sha(manifest_path)!=marker['rmlManifestSha256']:
         return dict(record,status='retained-manifest-unavailable')

@@ -365,8 +365,11 @@ def validate_layout_boundaries() -> int:
 def validate_json() -> int:
     files = list(ROOT.rglob("*.json"))
     for path in files:
-        with path.open(encoding="utf-8") as stream:
-            json.load(stream)
+        try:
+            with path.open(encoding="utf-8-sig") as stream:
+                json.load(stream)
+        except (UnicodeError, json.JSONDecodeError) as error:
+            raise ValueError(f"Invalid JSON in {path.relative_to(ROOT)}: {error}") from error
     return len(files)
 
 

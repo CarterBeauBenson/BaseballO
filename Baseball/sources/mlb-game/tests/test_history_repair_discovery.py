@@ -12,6 +12,45 @@ D=H.DISCOVERY
 
 
 class HistoryRepairDiscovery(unittest.TestCase):
+    def setUp(self):
+        self.boundary_loader=D.boundary_admission
+        version=D.fingerprint(SimpleNamespace(**vars(H)))
+        fingerprint=patch.object(D,'fingerprint',return_value=version)
+        fingerprint.start();self.addCleanup(fingerprint.stop)
+        self.admission=patch.object(D,'boundary_admission',return_value=None)
+        self.admission.start();self.addCleanup(self.admission.stop)
+
+    def test_boundary_shortcut_requires_owning_admission_and_preserves_provenance(self):
+        api=SimpleNamespace(**vars(H));marker=Path('promotions/42/marker.json')
+        proof=dict(status='withheld',proofSha256='proof',implementationSha256='original')
+        evidence=SimpleNamespace(module=lambda *a:None,load=lambda *a:proof)
+        api.module=lambda *a:evidence
+        with patch.object(H.I,'validated_promotion_record',return_value={}), \
+                patch.object(H.I,'query_index_contract_admission',return_value={}):
+            self.assertIsNone(self.boundary_loader(api,Path('state'),marker))
+            proof.update(status='admitted',implementationReuse={'kind':'prior-stricter-history-selection'})
+            admitted=self.boundary_loader(api,Path('state'),marker)
+            self.assertEqual(admitted,{k:v for k,v in proof.items() if k!='status'})
+
+    def test_admitted_boundaries_skip_source_and_missing_legacy_manifest(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);_,_,manifest,_,_=self.setup_case(state)
+            marker=state/'pipeline/evidence/nifi/game-promotion/824087/marker.json'
+            proof=dict(proofSha256='retained-proof',implementationSha256='original-producer')
+            manifest.unlink()
+            with patch.object(D,'boundary_admission',return_value=proof),patch.object(D,'source') as source:
+                record=D.inspect_record(SimpleNamespace(**vars(H)),state,marker,H.read(H.SELECTION),{})
+            self.assertEqual(record['status'],'not-applicable')
+            self.assertEqual(record['boundaryAdmission'],proof)
+            self.assertEqual(record['reason'],'existing-boundary-admission')
+            source.assert_not_called()
+            self.assertFalse(D.inventory_path(state).parent.joinpath('824087').exists())
+            previous=dict(status='selected',case={'gamePk':'824087','repairRequestSha256':'original'})
+            with patch.object(D,'boundary_admission',return_value=proof):
+                resumed=D.inspect_record(SimpleNamespace(**vars(H)),state,marker,H.read(H.SELECTION),previous)
+            self.assertEqual(resumed['status'],'selected')
+            self.assertEqual(resumed['case'],previous['case'])
+
     def test_metadata_inspection_advances_without_source_work_and_prioritizes_unseen(self):
         with tempfile.TemporaryDirectory() as temp:
             state=Path(temp);_,_,manifest,promotion,_=self.setup_case(state)
@@ -207,7 +246,8 @@ class HistoryRepairDiscovery(unittest.TestCase):
             runners=[dict(movement=dict(end='1B'))])])))).encode()
         old=dict(inputSha256='original',histories=[dict(lifetimeKey='prior',runnerId='1')])
         current=dict(inputSha256='different',histories=[],withheldHistories=[dict(inning=6,half='bottom',
-            issues=[dict(code='POST_BASE_RECONCILIATION_FAILED',atBatIndex=53)])])
+            issues=[dict(code='POST_BASE_RECONCILIATION_FAILED',atBatIndex=53),
+                    dict(code='UNSUPPORTED_HALF_TERMINATION',atBatIndex=None)])])
         details=D.conflict_details(SimpleNamespace(**vars(H)),raw,old,current)
         self.assertEqual(details['priorInputSha256'],'original')
         self.assertEqual(details['currentInputSha256'],'different')

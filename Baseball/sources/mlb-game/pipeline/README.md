@@ -28,7 +28,10 @@ Recorded defensive failures receive priority over successful-input rechecks,
 with the same exact-source retry limit. History discovery keeps a separate
 request for each approved selector and reuses the original acquisition only
 when its remaining scope and hashes match. RML context and manifest readers
-explicitly decode UTF-8. See the [October 3 audit](../review/rml-audit-2026-10-03.md)
+explicitly decode UTF-8. Discovery reuses the owning current or explicitly
+compatible admitted boundary proof before opening another source request;
+withheld and stale proofs cannot take that shortcut. Existing selected jobs
+retain their original finalization and cleanup. See the [October 3 audit](../review/rml-audit-2026-10-03.md)
 for the recorded failures and focused regressions.
 
 Before invoking the unchanged RML, the `rml` action now calls
