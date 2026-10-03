@@ -39,7 +39,8 @@ def foul_source_excerpt(state,pk,record):
         raise ValueError('Diagnostic source differs from the repair witness')
     document=json.loads(raw)
     if str(document['gamePk'])!=pk:raise ValueError('Diagnostic source belongs to another game')
-    indexes=sorted({int(r['atBatIndex']) for r in record['unresolvedFouls']})[:5]
+    selected=record.get('unresolvedFouls') or record.get('case',{}).get('selected',[])
+    indexes=sorted({int(r['atBatIndex']) for r in selected})[:5]
     return [dict(atBatIndex=p['atBatIndex'],description=p.get('result',{}).get('description'),
         events=[{key:e[key] for key in ('index','playId','type','isPitch','details','count','reviewDetails')
                  if key in e} for e in p.get('playEvents',[])])
@@ -59,7 +60,8 @@ def observe(state,owner):
               'repairRequest','repairRequestSha256','unresolvedFouls','diagnostics')
         item=dict(kind=kind,gamePk=pk,evidence=str(path),
             **{key:record[key] for key in keys if key in record})
-        if kind=='foul-addition' and record.get('unresolvedFouls') and record.get('sourceWitness'):
+        if (kind=='foul-addition' and record.get('sourceWitness')
+                and (record.get('unresolvedFouls') or record.get('case',{}).get('selected'))):
             try:item['sourcePlays']=foul_source_excerpt(state,pk,record)
             except (KeyError,OSError,ValueError) as error:item['diagnosticError']=str(error)
         issues.append(item)

@@ -79,6 +79,8 @@ class RepairStatus(unittest.TestCase):
             record=dict(sourceWitness=dict(path=str(source),sha256=S.digest(source)),
                 unresolvedFouls=[dict(atBatIndex='20')])
             self.assertEqual(S.foul_source_excerpt(state,'1',record)[0]['events'][0]['type'],'no_pitch')
+            record['case']=dict(selected=record.pop('unresolvedFouls'))
+            self.assertEqual(S.foul_source_excerpt(state,'1',record)[0]['atBatIndex'],20)
             source.write_text('{}')
             with self.assertRaisesRegex(ValueError,'differs from the repair witness'):
                 S.foul_source_excerpt(state,'1',record)
