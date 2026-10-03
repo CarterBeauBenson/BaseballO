@@ -240,3 +240,38 @@ tick with two attempts per implementation. Terminal evidence is under
 `pipeline/control/mlb-game/runner-addition/`; promotion events refresh affected
 query indexes and SQL. Submission and component tests do not establish metric
 population. Unsupported timing, attribution, defense and review remain separate.
+
+### Automatic repair observations
+
+The existing `Add Approved Q7 Histories` NiFi worker publishes
+`pipeline/control/mlb-game/repair-status.json` under the runtime state root
+after each one-minute tick, including ticks deferred for memory. Its compact
+summary is also recorded by the existing NiFi logger. `checkedAtUtc` identifies
+the observation time; a stopped worker leaves an old report, not a current
+health claim.
+
+The report reads the six targeted repair queues, admission-maintenance
+checkpoints, history-discovery inventory and game RML quarantines. It counts
+uninspected promoted games and inspections bound to an older promotion or
+implementation separately. Selected history jobs must match the worker's own
+request/source/selection completion rule. Partial repairs, unavailable evidence,
+unresolved sources, pending work and unreadable checkpoints keep
+`recordedWorkClear` false even when the failed-execution count is zero. This is
+a report of recorded work over promoted games, not certification of every API
+field or proof of metric completeness.
+
+History discovery now retains the same context census that failed its existing
+identity guard, along with both input hashes, affected history identities,
+the context's original issues and up to five relevant source plays. Partial
+foul repairs include their unresolved PA IDs and hash-checked event/count
+excerpts. These diagnostics preserve the original error and explain it;
+they do not choose between contradictory source assertions.
+
+Existing source owners continue bounded discovery and retries. The observer
+only writes its report: it does not acquire inputs, execute RML, query RDF,
+change another checkpoint, or gate promotion/SQL. It runs after releasing the
+repair lease and cannot hold a mapping slot. Reporting-code changes are outside
+the history execution fingerprint. No new NiFi lane, schedule or validation
+gate was introduced. Identity/source conflicts still require aligned evidence
+or an accepted correction; an unchanged failed input is not refetched every
+minute. Deployment uses the existing `nifi/provision-history-addition.ps1`.

@@ -131,9 +131,29 @@ class HistoryRepairDiscovery(unittest.TestCase):
                 failure=D.inventory(api,state)['games']['824087']
                 self.assertEqual(failure['status'],'failed')
                 self.assertIn('identity no longer aligns',failure['error'])
+                self.assertEqual(failure['sourceWitness'],witness)
+                self.assertEqual(failure['diagnostics']['changedHistories'][0]['previous']['terminationAnchor'],'conflict')
+                self.assertNotEqual(failure['diagnostics']['changedHistories'][0]['current']['terminationAnchor'],'conflict')
+                self.assertTrue(Path(failure['repairRequest']).is_file())
                 self.assertIsNone(D.discover(api,state,set()))
                 source.assert_called_once()
             self.assertEqual(Path(witness['path']).read_bytes(),raw)
+
+    def test_conflict_evidence_reports_the_actual_base_disagreement_without_repairing_it(self):
+        raw=H.json.dumps(dict(liveData=dict(plays=dict(allPlays=[dict(atBatIndex=53,
+            result=dict(description='Runner to second'),matchup=dict(postOnSecond=dict(id=1)),
+            runners=[dict(movement=dict(end='1B'))])])))).encode()
+        old=dict(inputSha256='original',histories=[dict(lifetimeKey='prior',runnerId='1')])
+        current=dict(inputSha256='different',histories=[],withheldHistories=[dict(inning=6,half='bottom',
+            issues=[dict(code='POST_BASE_RECONCILIATION_FAILED',atBatIndex=53)])])
+        details=D.conflict_details(SimpleNamespace(**vars(H)),raw,old,current)
+        self.assertEqual(details['priorInputSha256'],'original')
+        self.assertEqual(details['currentInputSha256'],'different')
+        self.assertIsNone(details['changedHistories'][0]['current'])
+        play=details['sourcePlays'][0]
+        self.assertEqual(play['runners'][0]['movement']['end'],'1B')
+        self.assertEqual(play['postBases']['postOnSecond']['id'],1)
+        self.assertEqual(current['histories'],[])
 
 
 if __name__=='__main__':unittest.main()

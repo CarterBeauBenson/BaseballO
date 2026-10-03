@@ -23,6 +23,31 @@ def cases(owner,state):
     return [r['case'] for r in inventory(owner,state)['games'].values() if r.get('status')=='selected']
 
 
+def conflict_details(owner,raw,original,current):
+    """Explain the existing context's refusal; make no new admission decision."""
+    old={h['lifetimeKey']:h for h in original.get('histories',[])}
+    new={h['lifetimeKey']:h for h in current.get('histories',[])}
+    fields=('runnerId','inning','half','entryAnchor','terminationAnchor','terminal')
+    changed=[dict(lifetimeKey=key,previous={f:row.get(f) for f in fields},
+        current={f:new[key].get(f) for f in fields} if key in new else None)
+        for key,row in old.items() if key not in new or any(row.get(f)!=new[key].get(f) for f in fields)]
+    issues=[dict(inning=half['inning'],half=half['half'],issues=half['issues'])
+        for half in current.get('withheldHistories',[])]
+    indexes={int(i['atBatIndex']) for half in issues for i in half['issues'] if 'atBatIndex' in i}
+    document=owner.json.loads(raw)
+    plays=[dict(atBatIndex=p['atBatIndex'],description=p.get('result',{}).get('description'),
+        postBases={k:v for k,v in p.get('matchup',{}).items() if k.startswith('postOn')},
+        runners=p.get('runners',[])) for p in document['liveData']['plays']['allPlays']
+        if p['atBatIndex'] in sorted(indexes)[:5]]
+    return dict(kind='retained-history-conflict',priorInputSha256=original.get('inputSha256'),
+        currentInputSha256=current.get('inputSha256'),priorSourceRevision=original.get('sourceRevision'),
+        currentSourceRevision=current.get('sourceRevision'),changedHistories=changed,
+        sourceConsistency=current.get('sourceConsistency'),sourceIssues=current.get('sourceIssues',[]),
+        withheldHalves=issues,boundaryIssues=current.get('boundaryIssues',[]),
+        sourcePlays=plays,omittedSourcePlayCount=max(0,len(indexes)-len(plays)),
+        nextAction='Reconcile the retained source with existing identities before retrying; preserve promoted RDF.')
+
+
 def source(owner,state,promotion,request_path):
     """The persisted request identifies the one game before any acquisition."""
     request=owner.read(request_path);pk=promotion['gamePk']
@@ -89,7 +114,7 @@ def discover(owner,state,excluded,limit=25):
         marker_path=max(markers,key=lambda p:(owner.read(p)['promotedAtUtc'],p.name))
         marker=owner.read(marker_path);identity=[owner.sha(marker_path),version]
         if data['games'].get(pk,{}).get('identity')==identity:continue
-        inspected+=1;attempted_source=False
+        inspected+=1;attempted_source=False;history=None;original=None;raw=None
         record=dict(identity=identity,checkedAtUtc=owner.TX.now(),status='not-applicable')
         data['games'][pk]=record
         try:
@@ -112,8 +137,13 @@ def discover(owner,state,excluded,limit=25):
                     elif owner.read(request_path)!=request:raise ValueError('Recorded history repair request changed')
                     attempted_source=True
                     witness=source(owner,state,promotion,request_path)
+                    record.update(sourceWitness=witness,repairRequest=str(request_path),
+                        repairRequestSha256=owner.sha(request_path))
                     raw=Path(witness['path']).read_bytes()
-                    history=owner.H.CONTEXT.personal_runner_histories(raw,previous=original)
+                    # Keep the returned census so the same accepted identity
+                    # guard can explain a refusal without rerunning context.
+                    history=owner.H.CONTEXT.personal_runner_histories(raw)
+                    owner.H.CONTEXT.verify_runner_history_correction(history,original)
                     previous={h['lifetimeKey'] for h in original['histories']}
                     selected=[h for h in history['histories'] if h['lifetimeKey'] not in previous]
                     case=dict(gamePk=pk,selectionRepair='H3',discovered=True,inputSha256=original['inputSha256'],
@@ -127,6 +157,9 @@ def discover(owner,state,excluded,limit=25):
                     return pk
         except Exception as error:
             record.update(status='failed',error=str(error))
+            if history is not None:
+                try:record['diagnostics']=conflict_details(owner,raw,original,history)
+                except Exception as diagnostic_error:record['diagnosticError']=str(diagnostic_error)
             # Preserve source and terminal evidence. An unrelated game still
             # gets its next bounded tick; never reacquire this failed input.
         owner.atomic(inventory_path(state),data)
