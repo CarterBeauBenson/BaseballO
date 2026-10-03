@@ -275,6 +275,13 @@ Inspection fingerprints cover the selector and accepted context, so reporting
 or execution-queue edits do not invalidate the inspection census. An identical
 selected request is retained even after its successful input cleanup.
 
+When a retained response fails the existing history-identity check, discovery
+may make one separately recorded acquisition for that named game under the
+accepted September 30 scope. It keeps the conflicting input and diagnosis,
+records the recovery request before acquisition, and applies the unchanged
+identity check to the new bytes. A still-conflicting fresh response remains
+blocked; it is not overwritten or fetched every tick.
+
 An ambiguous roster still blocks player-participation admission. Its exact
 producer, promotion and source witness are recorded under `familyFailures` in
 the existing admission checkpoint; independent admission families continue.

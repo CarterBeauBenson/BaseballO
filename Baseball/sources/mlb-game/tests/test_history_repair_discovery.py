@@ -154,7 +154,7 @@ class HistoryRepairDiscovery(unittest.TestCase):
                 Path(witness['path']).write_bytes(b'{}')
                 with self.assertRaisesRegex(ValueError,'recorded scope'):H.acquire_selection_source(state,case)
 
-    def test_identity_conflict_is_retained_and_not_reacquired_each_tick(self):
+    def test_identity_conflict_gets_one_distinct_recovery_attempt_then_stays_blocked(self):
         with tempfile.TemporaryDirectory() as temp:
             state=Path(temp);raw,removed,manifest,promotion,witness=self.setup_case(state)
             broken=H.read(manifest);broken['runnerHistoryReconciliation']['histories'][0]['terminationAnchor']='conflict'
@@ -176,8 +176,30 @@ class HistoryRepairDiscovery(unittest.TestCase):
                 self.assertNotEqual(failure['diagnostics']['changedHistories'][0]['current']['terminationAnchor'],'conflict')
                 self.assertTrue(Path(failure['repairRequest']).is_file())
                 self.assertIsNone(D.discover(api,state,set()))
-                source.assert_called_once()
+                recovery=D.inventory(api,state)['games']['824087']
+                self.assertEqual(recovery['sourceRecovery']['conflictedWitness'],witness)
+                self.assertNotEqual(recovery['repairRequest'],failure['repairRequest'])
+                self.assertEqual(H.read(Path(recovery['repairRequest']))['recoverRetainedSourceSha256'],witness['sha256'])
+                self.assertIsNone(D.discover(api,state,set()))
+                self.assertEqual(source.call_count,2)
             self.assertEqual(Path(witness['path']).read_bytes(),raw)
+
+    def test_recovery_fetch_preserves_conflicted_source_and_recovers_its_own_receipt(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);api=SimpleNamespace(**vars(H))
+            promotion=dict(gamePk='42',promotionManifestSha256='a'*64)
+            request=D.inventory_path(state).parent/'42/recovery.json'
+            H.atomic(request,dict(promotion,recoverRetainedSourceSha256='b'*64))
+            old=state/'pipeline/quarantine/mlb-game/42'/('targeted-history-'+'a'*16)/'input.json'
+            old.parent.mkdir(parents=True);old.write_bytes(b'conflicted original bytes')
+            api.module=lambda *a:SimpleNamespace(retained_raw_witness=lambda *a:self.fail('must not recopy the conflict'))
+            with patch.object(D.urllib.request,'urlopen',return_value=io.BytesIO(b'{"gamePk":42}')) as fetch:
+                witness=D.source(api,state,promotion,request)
+                self.assertEqual(D.source(api,state,promotion,request),witness)
+                fetch.assert_called_once()
+            self.assertEqual(witness['kind'],'targeted-reacquisition')
+            self.assertNotEqual(Path(witness['path']),old)
+            self.assertEqual(old.read_bytes(),b'conflicted original bytes')
 
     def test_conflict_evidence_reports_the_actual_base_disagreement_without_repairing_it(self):
         raw=H.json.dumps(dict(liveData=dict(plays=dict(allPlays=[dict(atBatIndex=53,

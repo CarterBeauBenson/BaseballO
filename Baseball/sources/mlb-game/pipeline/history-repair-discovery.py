@@ -54,7 +54,12 @@ def source(owner,state,promotion,request_path):
     request=owner.read(request_path);pk=promotion['gamePk']
     if request.get('gamePk')!=pk or request.get('promotionManifestSha256')!=promotion['promotionManifestSha256']:
         raise ValueError('History acquisition request belongs to another game or promotion')
-    directory=state/'pipeline/quarantine/mlb-game'/pk/('targeted-history-'+promotion['promotionManifestSha256'][:16])
+    recovery=request.get('recoverRetainedSourceSha256')
+    if recovery and (not isinstance(recovery,str) or len(recovery)!=64
+            or any(c not in '0123456789abcdef' for c in recovery)):
+        raise ValueError('History recovery requires an exact source hash')
+    suffix=('-recovery-'+recovery[:12]) if recovery else ''
+    directory=state/'pipeline/quarantine/mlb-game'/pk/('targeted-history-'+promotion['promotionManifestSha256'][:16]+suffix)
     path=directory/'input.json';receipt=directory/'acquisition.json';intent=directory/'acquisition-intent.json'
     if receipt.is_file():
         witness=owner.read(receipt)
@@ -74,7 +79,7 @@ def source(owner,state,promotion,request_path):
             raise ValueError('Retained history acquisition belongs to a different repair scope')
         return witness
     evidence=owner.module(owner.HERE/'admission-evidence.py','history_discovery_evidence')
-    retained=evidence.retained_raw_witness(state,promotion)
+    retained=None if recovery else evidence.retained_raw_witness(state,promotion)
     url=f'https://statsapi.mlb.com/api/v1.1/game/{pk}/feed/live'
     origin=(owner.read(intent) if intent.is_file() else dict(
         kind='retained-response-copy' if retained else 'targeted-reacquisition',
@@ -127,6 +132,13 @@ def inspect_record(owner,state,marker_path,contract,previous):
     if not request_path.is_file():owner.atomic(request_path,request)
     elif owner.read(request_path)!=request:raise ValueError('Recorded history repair request changed')
     request_sha=owner.sha(request_path)
+    # A source-recovery attempt keeps the same semantic scope and original
+    # request. Do not replace it with the conflicted retained witness again.
+    if previous.get('sourceRecovery') and previous.get('repairRequest'):
+        retry=Path(previous['repairRequest'])
+        if (retry.is_file() and owner.sha(retry)==previous.get('repairRequestSha256')
+                and {k:v for k,v in owner.read(retry).items() if k!='recoverRetainedSourceSha256'}==request):
+            return {**previous,'identity':record['identity'],'checkedAtUtc':record['checkedAtUtc']}
     # Reinspection of metadata must not recreate an already selected request,
     # whose transient source may have been retired after successful promotion.
     if (previous.get('status')=='selected'
@@ -170,15 +182,22 @@ def discover(owner,state,excluded,limit=25):
     """Prepare one queued source; inspection is also called independently."""
     inspect_promotions(owner,state,excluded,limit)
     data=inventory(owner,state)
+    def recoverable(record):
+        return (record.get('status')=='failed' and not record.get('sourceRecovery')
+            and record.get('diagnostics',{}).get('kind')=='retained-history-conflict'
+            and record.get('sourceWitness',{}).get('kind')=='retained-response-copy')
     pending=sorted(((pk,r) for pk,r in data['games'].items()
-        if pk not in excluded and r.get('status')=='awaiting-source'),
-        key=lambda item:(item[1]['queuedAtUtc'],item[0]))
+        if pk not in excluded and (r.get('status')=='awaiting-source' or recoverable(r))),
+        key=lambda item:(not recoverable(item[1]),item[1].get('queuedAtUtc',item[1]['checkedAtUtc']),item[0]))
     version=fingerprint(owner)
     for pk,record in pending:
-        if record['identity'][1]!=version:continue
+        if record['identity'][1]!=version and not recoverable(record):continue
         history=None;original=None;raw=None
         try:
-            marker_path=Path(record['promotionManifest'])
+            marker_path=Path(record.get('promotionManifest',''))
+            if not marker_path.is_file():
+                markers=list((state/'pipeline/evidence/nifi/game-promotion'/pk).glob('*.json'))
+                marker_path=next(p for p in markers if owner.sha(p)==record['identity'][0])
             latest=max(marker_path.parent.glob('*.json'),key=lambda p:(owner.read(p)['promotedAtUtc'],p.name))
             if latest!=marker_path or owner.sha(marker_path)!=record['identity'][0]:
                 continue  # The next metadata pass selects the new promotion.
@@ -189,8 +208,25 @@ def discover(owner,state,excluded,limit=25):
             manifest=owner.read(manifest_path);original=manifest['runnerHistoryReconciliation']
             request_path=Path(record['repairRequest'])
             if owner.sha(request_path)!=record['repairRequestSha256']:raise ValueError('Recorded history repair request changed')
+            if recoverable(record):
+                prior_request=request_path
+                request=dict(owner.read(prior_request),recoverRetainedSourceSha256=record['sourceWitness']['sha256'])
+                key=owner.hashlib.sha256(owner.json.dumps(request,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+                request_path=prior_request.parent/(key+'.json')
+                if not request_path.is_file():owner.atomic(request_path,request)
+                elif owner.read(request_path)!=request:raise ValueError('History recovery request changed')
+                record.update(sourceRecovery=dict(originalRequest=str(prior_request),
+                    originalRequestSha256=record['repairRequestSha256'],conflictedWitness=record['sourceWitness'],
+                    reason=record['error'],diagnostics=record['diagnostics']),
+                    repairRequest=str(request_path),repairRequestSha256=owner.sha(request_path),
+                    identity=[record['identity'][0],version],status='awaiting-source',
+                    queuedAtUtc=owner.TX.now(),promotionManifest=str(marker_path))
+                recovery_path=request_path.with_suffix('.recovery.json')
+                if not recovery_path.is_file():owner.atomic(recovery_path,record['sourceRecovery'])
+                elif owner.read(recovery_path)!=record['sourceRecovery']:raise ValueError('History recovery evidence changed')
+                owner.atomic(inventory_path(state),data)  # Named scope precedes the one new acquisition.
             witness=source(owner,state,promotion,request_path)
-            record.update(sourceWitness=witness)
+            record.update(sourceWitness=witness,identity=[record['identity'][0],version])
             raw=Path(witness['path']).read_bytes()
             history=owner.H.CONTEXT.personal_runner_histories(raw)
             owner.H.CONTEXT.verify_runner_history_correction(history,original)
@@ -202,7 +238,8 @@ def discover(owner,state,excluded,limit=25):
                 halves=[dict(inning=i,half=h) for i,h in sorted({(int(h['inning']),h['half']) for h in selected})],
                 repairRequest=str(request_path),repairRequestSha256=owner.sha(request_path))
             if selected:owner.select_history(manifest,case,raw)
-            record.update(status='selected',case=case)
+            record.update(status='selected',case=case,checkedAtUtc=owner.TX.now())
+            for key in ('error','diagnostics','diagnosticError'):record.pop(key,None)
             owner.atomic(inventory_path(state),data)
             return pk
         except Exception as error:
