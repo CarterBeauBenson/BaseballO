@@ -1,0 +1,44 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-prepitch-batter-chain",
+  "title": "F7 counted foul after a pre-pitch batter replacement chain",
+  "status": "under-review",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "98be831a49a7ccc8531f0825579b95f4299b5a8427f7edb02ab9b6c8010df019"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "evidence.json",
+        "sha256": "528adc236984e3c73abe2da25e3227381dedf2c82a325172cdd65dd62a8075f1"
+      },
+      {
+        "path": "selection.patch",
+        "sha256": "0bda80f47d42284be1860fccaef1ebf5cdc5f629c7ba782840ef19bea395b446"
+      },
+      {
+        "path": "check.py",
+        "sha256": "ce44c68cb3ef6290e75560a8573e89e864527ce6856114c03ab34748fdc1be7f"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "98be831a49a7ccc8531f0825579b95f4299b5a8427f7edb02ab9b6c8010df019"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "abe316fd8a4111e05266951b11cdb67cb44ec13dca6409508460db7f62cdd98a"
+      }
+    ]
+  },
+  "ontologistDecision": null
+}

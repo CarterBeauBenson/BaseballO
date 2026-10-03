@@ -17,10 +17,17 @@ MAPS=('DefensiveActMap','DefensiveCatchFieldingMap','DefensiveRoleMap','Defensiv
 SUCCESS={'complete','already-complete','already-present','not-applicable'}
 
 
+class UnresolvedSource(ValueError):
+    def __init__(self,source):
+        super().__init__('D1 source membership is unresolved')
+        self.issues=source.get('issues',[])
+        self.revision=source.get('sourceRevision')
+
+
 def select(raw,game_pk):
     if W.read(ROOT/DECISION)['status']!='accepted':raise ValueError('D1 is not accepted')
     source=D.census(raw,game_pk)
-    if source['status']!='reconciled':raise ValueError('D1 source membership is unresolved')
+    if source['status']!='reconciled':raise UnresolvedSource(source)
     return source if source['acts'] else None
 
 
@@ -84,8 +91,10 @@ def next_witness(state,limit=25):
         if previous.get('status')!='failed' or previous.get('sourceSha256')!=cached.get('sha256'):continue
         if previous.get('implementationSha256')==version and previous.get('attempts',0)>=2:continue
         retries.append(Path(source))
+    diagnostics=[Path(source) for source,cached in inventory['inputs'].items()
+        if cached.get('status')=='unresolved-source' and 'sourceIssues' not in cached]
     fixture=ROOT/'data/raw/samples/2026-08-25/822693.json'
-    paths=[*sorted(retries),fixture,*sorted((state/'pipeline/quarantine/mlb-game').glob('*/*/input.json')),
+    paths=[*sorted(retries),*sorted(diagnostics),fixture,*sorted((state/'pipeline/quarantine/mlb-game').glob('*/*/input.json')),
            *sorted((ROOT/'data/raw').rglob('*.json'))]
     inspected=0;seen=set()
     for source in paths:
@@ -96,7 +105,7 @@ def next_witness(state,limit=25):
         cached=inventory['inputs'].get(str(source),{})
         promoted=state/'pipeline/evidence/nifi/game-promotion';prior_pk=cached.get('gamePk','')
         identity=[metadata.st_size,metadata.st_mtime_ns,version,bool(prior_pk.isdecimal() and (promoted/prior_pk).is_dir())]
-        if cached.get('identity')==identity and cached.get('status')!='selected':continue
+        if cached.get('identity')==identity and cached.get('status')!='selected' and source not in diagnostics:continue
         try:raw=source.read_bytes()
         except FileNotFoundError:continue
         try:doc=json.loads(raw)
@@ -117,7 +126,10 @@ def next_witness(state,limit=25):
                 try:
                     selected=select(raw,pk)
                     if selected:record.update(status='selected',actCount=len(selected['acts']))
-                except (KeyError,ValueError,TypeError) as error:record.update(status='unresolved-source',error=str(error))
+                except (KeyError,ValueError,TypeError) as error:
+                    record.update(status='unresolved-source',error=str(error),sourceIssues=getattr(error,'issues',[]))
+                    if isinstance(error,UnresolvedSource):
+                        record.update(sourceRevision=error.revision)
         inventory['inputs'][str(source)]=record;inspected+=1
         if record['status']=='selected':
             W.atomic(path,inventory)

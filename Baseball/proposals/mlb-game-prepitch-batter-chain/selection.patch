@@ -1,0 +1,60 @@
+--- a/Baseball/scripts/pipeline/prepare-rml-context.py
++++ b/Baseball/scripts/pipeline/prepare-rml-context.py
+@@ -1979,6 +1979,47 @@
+     return 'reconciled-running-count'
+ 
+ 
++def counted_foul_initial_batter_chain(document, play):
++    """Reconcile a rostered replacement chain completed before any pitch."""
++    events=play.get('playEvents',[])
++    pitches=[e for e in events if e.get('isPitch') is True]
++    if not pitches:return set()
++    first=next(i for i,e in enumerate(events) if e is pitches[0]);prefix=events[:first]
++    ph=[e for e in prefix if e.get('details',{}).get('eventType')=='offensive_substitution'
++        and e.get('position',{}).get('abbreviation')=='PH']
++    all_ph=[e for e in events if e.get('details',{}).get('eventType')=='offensive_substitution'
++        and e.get('position',{}).get('abbreviation')=='PH']
++    if len(ph)<2 or len(ph)!=len(all_ph):return set()
++    outs=prefix[0].get('count',{}).get('outs')
++    allowed={'offensive_substitution','pitching_substitution','mound_visit'}
++    if (type(outs) is not int or not 0<=outs<3
++            or any(e.get('index')!=i or e.get('type')!='action' or e.get('isPitch') is not False
++                or e.get('details',{}).get('eventType') not in allowed
++                or e.get('count')!={'balls':0,'strikes':0,'outs':outs}
++                or e.get('reviewDetails')
++                or any(e.get('details',{}).get(k) is not False for k in ('hasReview','isScoringPlay','isOut'))
++                or any(e.get('details',{}).get(k) is True for k in ('isBall','isStrike','isInPlay'))
++                for i,e in enumerate(prefix))
++            or any(r.get('details',{}).get('playIndex') in range(first) for r in play.get('runners',[]))):
++        return set()
++    if any(e.get('details',{}).get('eventType')=='offensive_substitution' and e not in ph for e in prefix):
++        return set()
++    side='away' if play.get('about',{}).get('isTopInning') is True else 'home'
++    roster=document.get('liveData',{}).get('boxscore',{}).get('teams',{}).get(side,{}).get('players',{})
++    previous=ph[0].get('replacedPlayer',{}).get('id');seen={previous}
++    if type(previous) is not int or 'ID'+str(previous) not in roster:return set()
++    for event in ph:
++        incoming=event.get('player',{}).get('id')
++        if (event.get('isSubstitution') is not True or event.get('replacedPlayer',{}).get('id')!=previous
++                or type(incoming) is not int or incoming in seen or 'ID'+str(incoming) not in roster):
++            return set()
++        seen.add(incoming);previous=incoming
++    if (previous!=play.get('matchup',{}).get('batter',{}).get('id')
++            or any(str(e.get(CONTEXT_KEY,{}).get('batterId'))!=str(previous) for e in pitches)):
++        return set()
++    return {e['index'] for e in ph}
++
++
+ def counted_foul_neutral_event(document: dict, play: dict, event: dict, prior: tuple | None) -> str | None:
+     """M3's bounded, positively reconciled non-pitch count-neutral records."""
+     detail = event.get('details', {})
+@@ -2053,6 +2094,9 @@
+         if rostered and neutral:
+             if before_pitch and kind in {'defensive_switch','defensive_substitution'} and position in {'P','C','1B','2B','3B','SS','LF','CF','RF','DH'}:
+                 return 'initial-defensive-switch'
++            if (before_pitch and kind == 'offensive_substitution' and position == 'PH'
++                    and index in counted_foul_initial_batter_chain(document,play)):
++                return 'initial-pinch-hitter'
+             pitches = [e for e in events[index+1:] if e.get('isPitch') is True]
+             if (position == 'PH' and outgoing != incoming and (outgoing is None or 'ID'+str(outgoing) in roster)
+                     and incoming == play.get('matchup', {}).get('batter', {}).get('id') and pitches

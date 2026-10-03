@@ -15,7 +15,7 @@ from urllib.parse import unquote
 
 import yaml
 from pyshacl import validate as validate_shacl
-from rdflib import Graph, Namespace, RDF, URIRef
+from rdflib import Graph, Literal, Namespace, RDF, URIRef
 from rdflib.plugins.sparql import prepareQuery
 
 
@@ -685,7 +685,18 @@ def validate_review_context() -> None:
 def validate_turtle() -> int:
     files = list(ROOT.rglob("*.ttl"))
     for path in files:
-        Graph().parse(path, format="turtle")
+        source = path.read_text(encoding="utf-8-sig")
+        # This source-owned SHACL template substitutes serialized literals at
+        # runtime. Parse its syntax with literal parameters, not bare tokens.
+        if path.relative_to(ROOT).as_posix() == "sources/mlb-game/shacl/intentional-walk-award-addition.ttl":
+            for token in ("__RULE_CODE__", "__EDITION_LABEL__"):
+                if token not in source:
+                    raise ValueError(f"Turtle template parameter missing in {path}: {token}")
+                source = source.replace(token, Literal("syntax-check parameter").n3())
+        try:
+            Graph().parse(data=source, format="turtle", publicID=path.resolve().as_uri())
+        except Exception as error:
+            raise ValueError(f"Invalid Turtle in {path.relative_to(ROOT)}: {error}") from error
     return len(files)
 
 

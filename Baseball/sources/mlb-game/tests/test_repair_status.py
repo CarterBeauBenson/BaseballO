@@ -52,12 +52,16 @@ class RepairStatus(unittest.TestCase):
             write(control/'history-discovery/inventory.json',dict(games={
                 '2':dict(status='selected',case=dict(repairRequestSha256='current')),
                 '3':dict(status='retained-history-census-unavailable')}))
-            write(control/'defensive-addition/inventory.json',dict(inputs={'input':dict(status='unresolved-source',gamePk='4')}))
+            source_issue=dict(code='SOURCE_RECONCILIATION',detail='ambiguous source')
+            write(control/'defensive-addition/inventory.json',dict(inputs={'input':dict(status='unresolved-source',
+                gamePk='4',sha256='source',sourceIssues=[source_issue])}))
             report=S.observe(state,self.owner())
             self.assertFalse(report['recordedWorkClear']);self.assertEqual(report['status'],'attention-required')
             self.assertEqual(report['historyDiscovery']['selectedPending'],['2'])
             self.assertEqual(report['coverageLimits']['unavailableHistoryEvidence'],['3'])
             self.assertEqual(report['coverageLimits']['unresolvedDefensiveSources'],['4'])
+            self.assertEqual(report['coverageLimits']['defensiveSourceEvidence'],[
+                dict(sourcePath='input',gamePk='4',sha256='source',sourceIssues=[source_issue])])
             self.assertEqual(report['issues'][0]['unresolvedFouls'][0]['reason'],'UNEXPLAINED_COUNTER_TRANSITION')
             self.assertEqual(next(i for i in report['issues'] if i['gamePk']=='5')['familyFailures']
                 ['player-participation']['error'],'A complete unambiguous roster is required')

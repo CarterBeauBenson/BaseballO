@@ -12,6 +12,45 @@ spec=importlib.util.spec_from_file_location('history_repair',ROOT/'sources/mlb-g
 H=importlib.util.module_from_spec(spec);spec.loader.exec_module(H)
 
 class HistoryAdditionRecovery(unittest.TestCase):
+    def test_unrelated_existing_source_rejection_stays_withheld_without_blocking_history(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);prior=state/'prior.json';evidence=state/'repair';evidence.mkdir()
+            old=dict(status='withheld',sourceReconciled=False,graphConforms=False,
+                authoritativeRdfSha256='base',sourceSha256='source',
+                issues=[dict(code='UNRESOLVED_RUNNER_BOUNDARY',atBatIndex='4',runnerIndex=0)])
+            H.atomic(prior,old)
+            marker=dict(gamePk='1',rawSha256='source',runnerResolutionAdmission=str(prior),
+                runnerResolutionAdmissionSha256=H.sha(prior))
+            history_proof=dict(status='withheld',sourceReconciled=True,graphConforms=True,sourceSha256='source')
+            current=dict(old);selected=[dict(episodes=[dict(atBatIndex='12',runnerIndex=0)])]
+            def prove(value):
+                def run(**kwargs):H.atomic(kwargs['output'],value);return dict(value)
+                return run
+            session=SimpleNamespace(validate_with_jena=lambda **kwargs:(True,Graph(),None))
+            from contextlib import nullcontext
+            with patch.object(H.J,'Session',return_value=nullcontext(session)), \
+                    patch.object(H.H,'prove',side_effect=prove(history_proof)), \
+                    patch.object(H,'module',return_value=SimpleNamespace(prove=prove(current))):
+                fields=H.revalidate(marker,dict(outputSha256='base'),{},state/'graph.ttl',
+                    evidence,None,None,source_raw=b'source',selected_histories=selected)
+                saved=H.read(Path(fields['runnerResolutionAdmission']))
+                self.assertEqual(saved['status'],'withheld')
+                self.assertFalse(saved['sourceReconciled']);self.assertFalse(saved['graphConforms'])
+                self.assertEqual(saved['issues'],old['issues'])
+                self.assertEqual(saved['partialRepairIsolation']['originalProofSha256'],H.sha(prior))
+                self.assertEqual(saved['partialRepairIsolation']['selectedPlateAppearances'],['12'])
+                for faults in ([dict(code='UNRESOLVED_RUNNER_BOUNDARY',atBatIndex='12',runnerIndex=0)],
+                               [dict(code='SOURCE_RECONCILIATION')],
+                               [dict(code='NEW_SOURCE_ISSUE',atBatIndex='4')]):
+                    current['issues']=faults
+                    with self.assertRaisesRegex(ValueError,'runnerResolutionAdmission'):
+                        H.revalidate(marker,dict(outputSha256='base'),{},state/'graph.ttl',
+                            evidence,None,None,source_raw=b'source',selected_histories=selected)
+                current.update(old,sourceReconciled=True)
+                with self.assertRaisesRegex(ValueError,'runnerResolutionAdmission'):
+                    H.revalidate(marker,dict(outputSha256='base'),{},state/'graph.ttl',
+                        evidence,None,None,source_raw=b'source',selected_histories=selected)
+
     def test_new_request_with_same_history_keys_requires_its_own_completion(self):
         with tempfile.TemporaryDirectory() as temp:
             state=Path(temp);case=dict(gamePk='1',selectionRepair='H3',discovered=True,selectedHistoryKeys=[],

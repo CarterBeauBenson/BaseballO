@@ -133,7 +133,10 @@ def observe(state,owner):
         if status in {'running','finalizing'} or status.startswith('waiting-'))
     awaiting_source=sorted(pk for pk,r in discovery.items() if r.get('status')=='awaiting-source')
     pending=len(uninspected)+len(stale)+len(selected_pending)+len(fixed_pending)+len(awaiting_source)+active
-    coverage=dict(unresolvedDefensiveSources=unresolved,unavailableHistoryEvidence=unavailable)
+    coverage=dict(unresolvedDefensiveSources=unresolved,unavailableHistoryEvidence=unavailable,
+        defensiveSourceEvidence=[dict(sourcePath=path,**{key:row[key] for key in
+            ('gamePk','sha256','error','sourceIssues','sourceRevision') if key in row})
+            for path,row in sorted(defensive.get('inputs',{}).items()) if row.get('status')=='unresolved-source'])
     attention=bool(issues or errors or unresolved or unavailable or quarantine_pending or missing_promotion)
     return dict(artifactType='baseballo-mlb-game-repair-status',checkedAtUtc=owner.TX.now(),
         status='attention-required' if attention else 'inspection-in-progress' if pending else

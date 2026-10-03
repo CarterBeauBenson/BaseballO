@@ -13,6 +13,29 @@ D=importlib.util.module_from_spec(spec);spec.loader.exec_module(D)
 
 
 class DefensiveAddition(unittest.TestCase):
+    def test_unresolved_source_diagnostics_precede_success_without_admitting_input(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);repo=state/'repo';control=state/'pipeline/control/mlb-game/defensive-addition'
+            successful=repo/'data/raw/samples/2026-08-25/822693.json';failed=repo/'data/raw/999999.json'
+            for source in (successful,failed):
+                D.W.atomic(source,dict(gamePk=int(source.stem)))
+                (state/'pipeline/evidence/nifi/game-promotion'/source.stem).mkdir(parents=True)
+            D.W.atomic(repo/D.DECISION,dict(status='accepted'))
+            metadata=failed.stat()
+            D.W.atomic(control/'inventory.json',dict(inputs={str(failed):dict(status='unresolved-source',
+                gamePk='999999',identity=[metadata.st_size,metadata.st_mtime_ns,'current',True])}))
+            census=dict(status='unresolved',sourceRevision='revision',issues=[dict(code='SOURCE_RECONCILIATION',
+                detail=dict(atBatIndex=4,code='SOURCE_CONFLICT'))])
+            with patch.object(D,'ROOT',repo),patch.object(D,'fingerprint',return_value='current'), \
+                    patch.object(D.D,'census',return_value=census) as inspect_source:
+                self.assertIsNone(D.next_witness(state,limit=1))
+                inspect_source.assert_called_once_with(failed.read_bytes(),'999999')
+            record=D.W.read(control/'inventory.json')['inputs'][str(failed)]
+            self.assertEqual(record['status'],'unresolved-source')
+            self.assertEqual(record['sourceIssues'],census['issues'])
+            self.assertEqual(record['sourceRevision'],'revision')
+            self.assertEqual(record['sha256'],D.W.sha(failed))
+
     def test_bounded_drain_runs_serially_and_stops_at_memory_or_failure(self):
         with tempfile.TemporaryDirectory() as temp:
             state=Path(temp);witness=dict(gamePk='1',path='source',sha256='source')

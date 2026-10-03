@@ -163,7 +163,18 @@ def retain_source_binding(proof, marker, field):
     proof['sourceRevalidation'] = dict(receipt)
 
 
-def revalidate(marker, manifest, history, rdf, evidence, java, classpath, delta=None, source_raw=None):
+def unchanged_unrelated_resolution_issues(previous, current, selected_histories):
+    """Route an existing source rejection without turning it into an admission."""
+    selected_pas={str(e['atBatIndex']) for h in selected_histories or [] for e in h.get('episodes',[])}
+    issues=current.get('issues',[])
+    return bool(selected_pas and previous.get('status')==current.get('status')=='withheld'
+        and previous.get('sourceReconciled') is False and current.get('sourceReconciled') is False
+        and issues and previous.get('issues')==issues
+        and all(i.get('atBatIndex') is not None and str(i['atBatIndex']) not in selected_pas for i in issues))
+
+
+def revalidate(marker, manifest, history, rdf, evidence, java, classpath, delta=None, source_raw=None,
+               selected_histories=None):
     """Recheck retained source contracts; never rerun acquisition or source mapping.
 
     Unchanged censuses keep their original producer identity. A separate receipt
@@ -246,7 +257,19 @@ def revalidate(marker, manifest, history, rdf, evidence, java, classpath, delta=
             proof = adapter.prove(raw=source_raw, game_pk=marker['gamePk'], rdf_path=rdf,
                                   output=output, java=java, classpath=classpath)
             if not proof.get('graphConforms'):
-                raise ValueError('H2 current source census failed graph conformance: ' + field)
+                prior=Path(marker.get(field,''))
+                if (field!='runnerResolutionAdmission' or not prior.is_file()
+                        or sha(prior)!=marker.get(field+'Sha256')
+                        or not unchanged_unrelated_resolution_issues(read(prior),proof,selected_histories)):
+                    raise ValueError('H2 current source census failed graph conformance: ' + field)
+                # Authoritative and selected-history SHACL passed above. This
+                # unchanged source rejection is outside that selected scope;
+                # keep the full runner-resolution population withheld.
+                proof['partialRepairIsolation']=dict(originalProofSha256=sha(prior),
+                    selectedPlateAppearances=sorted({str(e['atBatIndex'])
+                        for h in selected_histories for e in h['episodes']}),
+                    reason='unchanged-source-issues-outside-selected-histories')
+                atomic(output,proof)
             if proof.get('sourceSha256') != marker['rawSha256']:
                 proof['sourceRevalidation'] = dict(
                     decision='archive/design-records/metric-source-c1-operation-2026-09-14/review.json',
@@ -423,7 +446,8 @@ def add_game(state, game_pk, java, mapper, classpath):
     rdf = evidence / 'authoritative-with-addition.nt'
     combined.serialize(destination=rdf, format='nt')
     proof_fields = revalidate(marker, manifest, history, rdf, evidence, java, classpath,
-                              delta=delta if 'selectedHistoryKeys' in case else None, source_raw=raw)
+                              delta=delta if 'selectedHistoryKeys' in case else None, source_raw=raw,
+                              selected_histories=delta_context['histories'])
     addition = dict(decision=decision, basePromotionSha256=sha(marker_path),
         inventoriedBasePromotionSha256=case['promotionManifestSha256'],
         baseRmlManifestSha256=sha(prior_path), baseRdfSha256=manifest['outputSha256'],
