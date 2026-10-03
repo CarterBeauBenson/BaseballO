@@ -73,19 +73,20 @@ def code_equivalence(family,previous,current,*,_context=None):
     compound=record.get('compoundResultRepair',{})
     groundout=record.get('defensiveGroundoutRepair',{})
     context=_context or sha(ROOT/record['contextPath'])
-    selection=record.get('foulDefenseSelectionRepair',{})
-    bridge=selection.get('families',{}).get(family)
-    if (bridge and context==selection.get('currentContextSha256')
-            and current==bridge['currentImplementationSha256']):
-        prior=bridge['previousImplementationSha256']
-        reused=(dict(kind=bridge['reuseKind']) if previous==prior else
-            code_equivalence(family,previous,prior,_context=selection['previousContextSha256']))
-        if reused is not None:
-            if bridge['reuseKind']!='unchanged-proof-dependencies' and reused['kind'] in {'unchanged-proof-dependencies','unchanged-admission-census'}:
-                reused=dict(reused,kind=bridge['reuseKind'])
-            return dict(reused,recordSha256=sha(COMPATIBILITY_PATH),
-                previousImplementationSha256=previous,currentImplementationSha256=current,
-                selectionRepairDecision=selection['decision'])
+    for repair_name in ('errorCountPrefixRepair','foulDefenseSelectionRepair'):
+        selection=record.get(repair_name,{})
+        bridge=selection.get('families',{}).get(family)
+        if (bridge and context==selection.get('currentContextSha256')
+                and current==bridge['currentImplementationSha256']):
+            prior=bridge['previousImplementationSha256']
+            reused=(dict(kind=bridge['reuseKind']) if previous==prior else
+                code_equivalence(family,previous,prior,_context=selection['previousContextSha256']))
+            if reused is not None:
+                if bridge['reuseKind']!='unchanged-proof-dependencies' and reused['kind'] in {'unchanged-proof-dependencies','unchanged-admission-census'}:
+                    reused=dict(reused,kind=bridge['reuseKind'])
+                return dict(reused,recordSha256=sha(COMPATIBILITY_PATH),
+                    previousImplementationSha256=previous,currentImplementationSha256=current,
+                    selectionRepairDecision=selection['decision'])
     foul=record.get('foulPrefixRepair',{})
     bridge=foul.get('families',{}).get(family)
     if (bridge and context==foul.get('currentContextSha256')
@@ -184,11 +185,12 @@ def prior_versions(kind,current):
     and must be checked again; this is never approval of W1's missing facts.
     """
     record=read(COMPATIBILITY_PATH)
-    selection=record.get('foulDefenseSelectionRepair',{})
-    entry=selection.get('derivedProofs',{}).get(kind,{})
-    if (entry.get('currentImplementationSha256')==current
-            and sha(ROOT/record['contextPath'])==selection.get('currentContextSha256')):
-        return entry['previousImplementationSha256s']
+    for repair_name in ('errorCountPrefixRepair','foulDefenseSelectionRepair'):
+        selection=record.get(repair_name,{})
+        entry=selection.get('derivedProofs',{}).get(kind,{})
+        if (entry.get('currentImplementationSha256')==current
+                and sha(ROOT/record['contextPath'])==selection.get('currentContextSha256')):
+            return entry['previousImplementationSha256s']
     foul=record.get('foulPrefixRepair',{})
     entry=foul.get('derivedProofs',{}).get(kind,{})
     if (entry.get('currentImplementationSha256')==current

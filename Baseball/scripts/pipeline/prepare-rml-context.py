@@ -1937,7 +1937,7 @@ def counted_foul_running_prefix(document, play, event, prior, *, check_review=Tr
              'caught_stealing_3b','caught_stealing_home','pickoff_1b','pickoff_2b','pickoff_3b',
              'pickoff_error_1b','pickoff_error_2b','pickoff_error_3b',
              'pickoff_caught_stealing_2b','pickoff_caught_stealing_3b','pickoff_caught_stealing_home',
-             'other_out','other_advance'}
+             'other_out','other_advance','error'}
     if (position <= 0 or kind not in kinds or event.get('type') != 'action'
             or event.get('isPitch') is not False or event.get('isBaseRunningPlay') is not True
             or event.get('isSubstitution') is True
@@ -1946,6 +1946,17 @@ def counted_foul_running_prefix(document, play, event, prior, *, check_review=Tr
         return None
     before = events[position-1].get('count',{})
     rows = [(i,r) for i,r in enumerate(play.get('runners',[])) if r.get('details',{}).get('playIndex') == event.get('index')]
+    if kind == 'error':
+        # A supported independent error advance can leave the batting count
+        # unchanged. It supplies no batting credit and no new running fact.
+        if (len(rows) != 1 or type(event.get('player',{}).get('id')) is not int
+                or rows[0][1].get('details',{}).get('eventType') != 'error'
+                or rows[0][1]['details'].get('runner',{}).get('id') != event['player']['id']
+                or rows[0][1].get('movement',{}).get('isOut') is not False
+                or rows[0][1]['movement'].get('start') not in {'1B','2B','3B'}
+                or rows[0][1]['movement'].get('end') not in {'1B','2B','3B'}
+                or rows[0][1]['movement']['end'] <= rows[0][1]['movement']['start']):
+            return None
     known = {int(r['runnerIndex']) for r in runner_episode_evidence(play,str(play['atBatIndex']))['runnerEpisodes']}
     if (not rows or any(i not in known or type(r['details'].get('isScoringEvent')) is not bool for i,r in rows)
             or any((r['details']['isScoringEvent'] is True) != (r['movement'].get('end') == 'score') for _,r in rows)
