@@ -7,6 +7,34 @@ import unittest
 ROOT=Path(__file__).resolve().parents[3]
 
 class RepairBudget(unittest.TestCase):
+    def test_admission_maintenance_holds_the_same_lease_as_targeted_repairs(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp);lane=root/'sources/mlb-game/pipeline';lane.mkdir(parents=True)
+            for name in ('refresh-admission-evidence.ps1','repair-budget.ps1'):
+                (lane/name).write_bytes((ROOT/'sources/mlb-game/pipeline'/name).read_bytes())
+            common=root/'scripts/infra/common.ps1';common.parent.mkdir(parents=True)
+            common.write_text("$script:StateRoot=$env:TEST_REPAIR_STATE\n$script:FusekiHome=$script:StateRoot\n"
+                "function Get-JavaExecutable {'java'}\n",encoding='utf-8')
+            script=root/'check.ps1'
+            script.write_text(r'''param($Wrapper,$State)
+$ErrorActionPreference='Stop'
+$env:TEST_REPAIR_STATE=$State
+function Get-CimInstance { [pscustomobject]@{FreePhysicalMemory=1200*1024} }
+function python {
+    $path=Join-Path $State 'pipeline\work\mlb-game-locks\targeted-repair-budget.lock'
+    try {
+        $handle=[IO.File]::Open($path,[IO.FileMode]::Open,[IO.FileAccess]::ReadWrite,[IO.FileShare]::None)
+    } catch [IO.IOException] { $global:LASTEXITCODE=0; 'lease-held'; return }
+    $handle.Dispose();throw 'maintenance wrote without the repair lease'
+}
+$result=& $Wrapper
+if ($result -ne 'lease-held') {throw 'maintenance did not invoke its worker'}
+''',encoding='utf-8')
+            result=subprocess.run(['powershell.exe','-NoProfile','-ExecutionPolicy','Bypass','-File',
+                str(script),str(lane/'refresh-admission-evidence.ps1'),str(root/'state')],
+                capture_output=True,text=True,timeout=15)
+            self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+
     def test_exclusive_slot_memory_deferral_and_exception_release(self):
         helper=ROOT/'sources/mlb-game/pipeline/repair-budget.ps1'
         with tempfile.TemporaryDirectory() as temp:

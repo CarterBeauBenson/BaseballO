@@ -564,14 +564,56 @@ def dashboard_game_priorities(state):
         return priority
 
 
+def preserve_interrupted_refresh(state,promotion,previous):
+    """Retain a damaged receipt/proof set before the owner validates anew.
+
+    Only the recorded receipt mismatch for this promotion enters recovery.
+    Nothing here admits a proof or changes source bytes, semantic pins or RDF.
+    The NiFi wrapper holds the same lease as targeted repair evidence writers.
+    """
+    if (previous.get('error')!='Existing graph admission receipt changed'
+            or previous.get('promotionManifestSha256')!=promotion['promotionManifestSha256']):
+        return []
+    owner=(Path(state)/'pipeline/evidence/mlb-game'/promotion['gamePk']/'admission-refresh').resolve()
+    recovered=[]
+    for directory in sorted(owner.glob(promotion['promotionManifestSha256']+'-*')):
+        if not directory.is_dir() or directory.resolve().parent!=owner:
+            raise ValueError('Interrupted admission evidence escapes its game')
+        mismatches=[]
+        for receipt in directory.glob('*.receipt.json'):
+            proof=receipt.with_name(receipt.name.replace('.receipt.json','.json'))
+            record=read(receipt);actual=sha(proof) if proof.is_file() else None
+            if (record.get('promotionManifestSha256')!=promotion['promotionManifestSha256']
+                    or record.get('proofSha256')!=actual):
+                mismatches.append(dict(receipt=receipt.name,expectedProofSha256=record.get('proofSha256'),
+                                       actualProofSha256=actual))
+        if not mismatches:continue
+        files={p.name:sha(p) for p in directory.iterdir() if p.is_file()}
+        identity=hashlib.sha256(json.dumps(dict(directory=directory.name,files=files),sort_keys=True).encode()).hexdigest()
+        destination=owner/'interrupted'/identity
+        if not destination.resolve().is_relative_to(owner) or destination.exists():
+            raise ValueError('Interrupted admission archive already exists or escapes its owner')
+        # Write the recovery intent first. The directory rename preserves all
+        # original bytes atomically, including the mismatched receipt itself.
+        atomic(destination.with_suffix('.json'),dict(originalDirectory=str(directory),
+            preservedDirectory=str(destination),promotionManifestSha256=promotion['promotionManifestSha256'],
+            files=files,mismatches=mismatches,rdfChanged=False))
+        directory.rename(destination)
+        recovered.append(str(destination))
+    return recovered
+
+
 def tick(state,java,classpath,limit=100,endpoint='http://127.0.0.1:3031/baseball-dev/query'):
     control=Path(state)/'pipeline/control/mlb-game/admission-evidence'
     versions={family:module(HERE/(family+'-admission.py'),'version_'+family.replace('-','_')).fingerprint() for family in FIELDS}
     version=hashlib.sha256(json.dumps(versions,sort_keys=True).encode()+fingerprint().encode()).hexdigest()
     outcomes=[];started=time.monotonic();refreshed_games=0
     priority=dashboard_game_priorities(state)
+    # A previous failure gets its bounded retry before successful maintenance
+    # is revisited after an engineering fingerprint change.
+    failed={p.stem for p in control.glob('*.json') if read(p).get('status')=='failed'}
     for directory in sorted((Path(state)/'pipeline/evidence/nifi/game-promotion').glob('*'),
-            key=lambda p:(priority.get(p.name,3),p.name)):
+            key=lambda p:(p.name not in failed,priority.get(p.name,3),p.name)):
         if not directory.is_dir() or not directory.name.isdigit(): continue
         candidates=[(read(path).get('promotedAtUtc',''),path.name,path) for path in directory.glob('*.json')]
         if not candidates: continue
@@ -596,6 +638,8 @@ def tick(state,java,classpath,limit=100,endpoint='http://127.0.0.1:3031/baseball
                 raise ValueError('Unexpected source promotion marker')
             inventory=module(ROOT/'scripts/pipeline/game_promotion_inventory.py','admission_inventory')
             promotion=inventory.validated_promotion_record(Path(state),path,directory.name,inventory.query_index_contract_admission())
+            preserved=preserve_interrupted_refresh(state,promotion,previous)
+            if preserved:result['preservedInterruptedEvidence']=preserved
             result.update(refresh_game(state,promotion,java,classpath,endpoint))
             if result['status']!='waiting-for-memory':result['failureAttempts']=0
         except (OSError,ValueError,RuntimeError) as error:

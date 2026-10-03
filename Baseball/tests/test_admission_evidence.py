@@ -27,6 +27,34 @@ def current_implementation(family, entry):
 
 
 class AdmissionEvidence(unittest.TestCase):
+    def test_interrupted_refresh_is_preserved_before_regeneration_and_never_admitted(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);promotion=dict(gamePk='1',promotionManifestSha256='promotion')
+            proof=E.refresh_path(state,promotion,'m3','producer')
+            E.atomic(proof,dict(status='admitted',unwrapped=True))
+            E.atomic(proof.with_suffix('.receipt.json'),dict(promotionManifestSha256='promotion',
+                proofSha256='previous-completed-proof'))
+            E.atomic(proof.with_suffix('.source.json'),dict(sourceSha256='original-input'))
+            before={p.name:p.read_bytes() for p in proof.parent.iterdir()}
+            failure=dict(promotionManifestSha256='promotion',error='Existing graph admission receipt changed')
+            self.assertEqual(E.preserve_interrupted_refresh(state,promotion,dict(failure,error='another failure')),[])
+            self.assertEqual(E.preserve_interrupted_refresh(state,promotion,dict(failure,promotionManifestSha256='other')),[])
+            preserved=E.preserve_interrupted_refresh(state,promotion,failure)
+            self.assertEqual(len(preserved),1)
+            archive=Path(preserved[0])
+            self.assertEqual({p.name:p.read_bytes() for p in archive.iterdir()},before)
+            record=E.read(archive.with_suffix('.json'))
+            self.assertFalse(record['rdfChanged'])
+            self.assertEqual(record['files'],{p.name:E.sha(p) for p in archive.iterdir()})
+            self.assertIsNone(E.refreshed(state,promotion,'m3','producer'))
+            self.assertEqual(E.preserve_interrupted_refresh(state,promotion,failure),[])
+            # A newly validated set is left intact, even if the old terminal
+            # failure remains after an interruption in control-file writing.
+            E.atomic(proof,dict(status='withheld'))
+            E.atomic(proof.with_suffix('.receipt.json'),dict(promotionManifestSha256='promotion',proofSha256=E.sha(proof)))
+            self.assertEqual(E.preserve_interrupted_refresh(state,promotion,failure),[])
+            self.assertEqual(E.read(proof)['status'],'withheld')
+
     def test_retained_sample_is_available_without_acquisition_and_exact_input_wins(self):
         with tempfile.TemporaryDirectory() as temp:
             state=Path(temp);sample=state/'immutable/42.json';E.atomic(sample,dict(gamePk=42))

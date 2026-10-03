@@ -9,10 +9,9 @@ $control = Join-Path $script:StateRoot 'pipeline\control\mlb-game'
 $config = Join-Path $control 'admission-worker.json'
 @{
     group='MLB Game'; name='Refresh Admission Evidence'; period='1 min'
-    workingDirectory=$repositoryRoot; python=(Get-Command python).Source
-    arguments=@('-B',(Join-Path $repositoryRoot 'sources\mlb-game\pipeline\admission-evidence.py'),
-        '--state-root',$script:StateRoot,'--java',(Get-JavaExecutable),
-        '--jena-classpath',(Join-Path $script:FusekiHome 'fuseki-server.jar'))
+    workingDirectory=$repositoryRoot; python=(Get-Command powershell.exe).Source
+    arguments=@('-NoProfile','-ExecutionPolicy','Bypass','-File',
+        (Join-Path $repositoryRoot 'sources\mlb-game\pipeline\refresh-admission-evidence.ps1'))
 } | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $config -Encoding UTF8
 & python (Join-Path $repositoryRoot 'scripts\infra\nifi_worker.py') --config $config
 if ($LASTEXITCODE -ne 0) { throw 'Admission evidence worker deployment failed.' }
