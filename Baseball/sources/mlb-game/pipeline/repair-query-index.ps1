@@ -24,14 +24,14 @@ try {
             $work = Join-Path $runRoot $gamePk
             [void](New-Item -ItemType Directory -Path $work -Force)
             $rmlPath = Join-Path $pipeline "manifests\game-$gamePk-rml.json"
-            $rml = Get-Content -LiteralPath $rmlPath -Raw | ConvertFrom-Json
+            $rml = Get-Content -LiteralPath $rmlPath -Raw -Encoding UTF8 | ConvertFrom-Json
             $rmlSha = (Get-FileHash -LiteralPath $rmlPath -Algorithm SHA256).Hash.ToLowerInvariant()
             $sourceGraph = "https://w3id.org/baseball/graph/game/$gamePk"
             if ([string]$rml.gamePk -ne $gamePk -or $rml.graphIri -ne $sourceGraph -or $rml.shaclStatus -ne 'validated') {
                 throw "Game $gamePk has no validated authoritative RML manifest."
             }
             $anchors = @(Get-ChildItem (Join-Path $pipeline "evidence\nifi\game-promotion\$gamePk") -Filter '*.json' | ForEach-Object {
-                $marker = Get-Content -LiteralPath $_.FullName -Raw | ConvertFrom-Json
+                $marker = Get-Content -LiteralPath $_.FullName -Raw -Encoding UTF8 | ConvertFrom-Json
                 if ($marker.rmlManifestSha256 -eq $rmlSha -and $marker.rawSha256 -eq $rml.inputSha256) { $marker }
             })
             if ($anchors.Count -eq 0) { throw "Game $gamePk has no immutable promotion anchor for this RDF." }

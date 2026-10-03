@@ -12,6 +12,47 @@ D=H.DISCOVERY
 
 
 class HistoryRepairDiscovery(unittest.TestCase):
+    def test_new_selector_has_its_own_request_and_reuses_original_acquisition(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);raw,removed,manifest,promotion,_=self.setup_case(state)
+            api=SimpleNamespace(**vars(H));pk=promotion['gamePk'];digest=promotion['promotionManifestSha256']
+            original=H.read(manifest)['runnerHistoryReconciliation']
+            request=dict(gamePk=pk,promotionManifestSha256=digest,rmlManifestSha256=H.sha(manifest),
+                contextBuilderSha256='previous-approved-selector',scopeDecision=D.SCOPE,
+                historyFailures=[dict(inning=r['inning'],half=r['half'],issues=r['issues'])
+                    for r in original['withheldHistories']],boundaryIssues=original.get('boundaryIssues',[]))
+            legacy=D.inventory_path(state).parent/pk/(digest+'.json');H.atomic(legacy,request)
+            source=state/'pipeline/quarantine/mlb-game'/pk/('targeted-history-'+digest[:16])/'input.json'
+            source.parent.mkdir(parents=True);source.write_bytes(raw)
+            witness=dict(gamePk=pk,path=str(source),sha256=H.sha(source),kind='retained-response-copy',
+                acquisitionRequest=str(legacy),acquisitionRequestSha256=H.sha(legacy))
+            receipt=source.with_name('acquisition.json');H.atomic(receipt,witness)
+            H.atomic(D.inventory_path(state),dict(games={pk:dict(status='failed',identity=[digest,'old-worker'],
+                error='Recorded history repair request changed')}))
+            prior_request=legacy.read_bytes();prior_receipt=receipt.read_bytes()
+            with patch.object(H.I,'retained_artifact',return_value=manifest), \
+                    patch.object(H.I,'validated_promotion_record',return_value=promotion), \
+                    patch.object(D.urllib.request,'urlopen') as fetch:
+                self.assertEqual(D.discover(api,state,set()),pk)
+                case=D.cases(api,state)[0];current=Path(case['repairRequest'])
+                self.assertNotEqual(current,legacy)
+                self.assertEqual(H.read(current)['contextBuilderSha256'],H.read(H.SELECTION)['contextBuilderSha256'])
+                self.assertEqual(case['sourceWitness'],witness)
+                self.assertEqual(H.acquire_selection_source(state,case),witness)
+                self.assertEqual(case['selectedHistoryKeys'],[removed['lifetimeKey']])
+                self.assertEqual(legacy.read_bytes(),prior_request)
+                self.assertEqual(receipt.read_bytes(),prior_receipt)
+                self.assertEqual(source.read_bytes(),raw)
+                fetch.assert_not_called()
+                changed=H.read(current);changed['boundaryIssues']=[dict(code='different-scope')]
+                H.atomic(current,changed)
+                with self.assertRaisesRegex(ValueError,'different repair scope'):
+                    D.source(api,state,promotion,current)
+                # A modified original request cannot be used as acquisition evidence.
+                H.atomic(legacy,dict(request,scopeDecision='changed'))
+                with self.assertRaisesRegex(ValueError,'acquisition receipt'):
+                    D.source(api,state,promotion,current)
+
     def test_one_named_request_precedes_acquisition_and_receipt_recovers_without_refetch(self):
         with tempfile.TemporaryDirectory() as temp:
             state=Path(temp);api=SimpleNamespace(**vars(H))

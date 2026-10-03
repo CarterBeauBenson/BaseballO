@@ -70,10 +70,23 @@ def fingerprint():
 def next_witness(state,limit=25):
     control=state/'pipeline/control/mlb-game/defensive-addition';path=control/'inventory.json'
     inventory=W.read(path) if path.is_file() else dict(inputs={})
+    version=fingerprint();retries=[];checkpoints={}
+    # Fix recorded failures before rechecking successful inputs after a code
+    # update. The ordinary exact-source two-attempt limit still applies.
+    for source,cached in inventory['inputs'].items():
+        pk=cached.get('gamePk','')
+        if cached.get('status') not in {'selected','retry-exhausted'} or not pk.isdecimal():continue
+        if pk not in checkpoints:
+            checkpoint=control/(pk+'.json')
+            checkpoints[pk]=W.read(checkpoint) if checkpoint.is_file() else {}
+        previous=checkpoints[pk]
+        if previous.get('status')!='failed' or previous.get('sourceSha256')!=cached.get('sha256'):continue
+        if previous.get('implementationSha256')==version and previous.get('attempts',0)>=2:continue
+        retries.append(Path(source))
     fixture=ROOT/'data/raw/samples/2026-08-25/822693.json'
-    paths=[fixture,*sorted((state/'pipeline/quarantine/mlb-game').glob('*/*/input.json')),
+    paths=[*sorted(retries),fixture,*sorted((state/'pipeline/quarantine/mlb-game').glob('*/*/input.json')),
            *sorted((ROOT/'data/raw').rglob('*.json'))]
-    version=fingerprint();inspected=0;seen=set()
+    inspected=0;seen=set()
     for source in paths:
         if source in seen:continue
         seen.add(source)
@@ -117,7 +130,7 @@ def tick(state,witness,java,mapper,classpath):
     previous=W.read(control) if control.is_file() else {};version=fingerprint()
     if previous.get('status') in SUCCESS and previous.get('implementationSha256')==version and previous.get('sourceSha256')==witness['sha256']:return previous
     if previous.get('implementationSha256')==version and previous.get('sourceSha256')==witness['sha256'] and previous.get('attempts',0)>=2:return previous
-    result=dict(gamePk=pk,implementationSha256=version,sourceSha256=witness['sha256'],checkedAtUtc=W.TX.now(),
+    result=dict(gamePk=pk,implementationSha256=version,sourceSha256=witness['sha256'],sourceWitness=witness,checkedAtUtc=W.TX.now(),
         attempts=previous.get('attempts',0)+1 if previous.get('implementationSha256')==version and previous.get('sourceSha256')==witness['sha256'] else 1)
     try:result.update(W.add_game(state,pk,witness,java,mapper,classpath,repair=dict(
         decisions=dict(decision=DECISION),select=select,execution_inputs=execution_inputs,

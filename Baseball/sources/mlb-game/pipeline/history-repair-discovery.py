@@ -26,14 +26,26 @@ def cases(owner,state):
 def source(owner,state,promotion,request_path):
     """The persisted request identifies the one game before any acquisition."""
     request=owner.read(request_path);pk=promotion['gamePk']
+    if request.get('gamePk')!=pk or request.get('promotionManifestSha256')!=promotion['promotionManifestSha256']:
+        raise ValueError('History acquisition request belongs to another game or promotion')
     directory=state/'pipeline/quarantine/mlb-game'/pk/('targeted-history-'+promotion['promotionManifestSha256'][:16])
     path=directory/'input.json';receipt=directory/'acquisition.json';intent=directory/'acquisition-intent.json'
     if receipt.is_file():
         witness=owner.read(receipt)
+        # A new approved selector needs a new repair request, not new source
+        # bytes. Keep the acquisition's original request and hash unchanged.
+        acquired_request=Path(witness.get('acquisitionRequest',''))
+        request_root=(inventory_path(state).parent/pk).resolve()
         if (witness.get('gamePk')!=pk or witness.get('path')!=str(path)
-                or witness.get('acquisitionRequestSha256')!=owner.sha(request_path)
+                or acquired_request.resolve().parent!=request_root
+                or not acquired_request.is_file()
+                or owner.sha(acquired_request)!=witness.get('acquisitionRequestSha256')
                 or not path.is_file() or owner.sha(path)!=witness['sha256']):
             raise ValueError('Discovered history input differs from its acquisition receipt')
+        original_request=owner.read(acquired_request)
+        scope=lambda value:{k:v for k,v in value.items() if k!='contextBuilderSha256'}
+        if scope(original_request)!=scope(request):
+            raise ValueError('Retained history acquisition belongs to a different repair scope')
         return witness
     evidence=owner.module(owner.HERE/'admission-evidence.py','history_discovery_evidence')
     retained=evidence.retained_raw_witness(state,promotion)
@@ -48,8 +60,6 @@ def source(owner,state,promotion,request_path):
         if owner.hashlib.sha256(raw).hexdigest()!=retained['sha256']:
             raise ValueError('Retained history response changed before its copy')
     else:
-        if request.get('gamePk')!=pk or request.get('promotionManifestSha256')!=promotion['promotionManifestSha256']:
-            raise ValueError('History acquisition request belongs to another game or promotion')
         with urllib.request.urlopen(urllib.request.Request(url,headers={'Accept':'application/json'}),timeout=60) as response:
             raw=response.read()
     if str(owner.json.loads(raw).get('gamePk'))!=pk:raise ValueError('History source game identity differs')
@@ -69,7 +79,9 @@ def discover(owner,state,excluded,limit=25):
     contract=owner.read(owner.SELECTION)
     if owner.sha(owner.ROOT/'scripts/pipeline/prepare-rml-context.py')!=contract['contextBuilderSha256']:
         raise ValueError('History discovery context differs from accepted H3')
-    for directory in sorted((state/'pipeline/evidence/nifi/game-promotion').glob('*')):
+    directories=sorted((state/'pipeline/evidence/nifi/game-promotion').glob('*'),
+        key=lambda p:(data['games'].get(p.name,{}).get('status')!='failed',p.name))
+    for directory in directories:
         pk=directory.name
         if not directory.is_dir() or not pk.isdecimal() or pk in excluded:continue
         markers=list(directory.glob('*.json'))
@@ -90,11 +102,12 @@ def discover(owner,state,excluded,limit=25):
                 elif (original.get('sourceConsistency')=='consistent'
                         and (original.get('withheldHistories') or original.get('boundaryIssues'))):
                     promotion=owner.I.validated_promotion_record(state,marker_path,pk,owner.I.query_index_contract_admission())
-                    request_path=inventory_path(state).parent/pk/(identity[0]+'.json')
                     request=dict(gamePk=pk,promotionManifestSha256=identity[0],rmlManifestSha256=marker['rmlManifestSha256'],
                         contextBuilderSha256=contract['contextBuilderSha256'],scopeDecision=SCOPE,
                         historyFailures=[dict(inning=r['inning'],half=r['half'],issues=r['issues'])
                             for r in original.get('withheldHistories',[])],boundaryIssues=original.get('boundaryIssues',[]))
+                    request_key=owner.hashlib.sha256(owner.json.dumps(request,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+                    request_path=inventory_path(state).parent/pk/(request_key+'.json')
                     if not request_path.is_file():owner.atomic(request_path,request)
                     elif owner.read(request_path)!=request:raise ValueError('Recorded history repair request changed')
                     attempted_source=True

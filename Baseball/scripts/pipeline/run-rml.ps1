@@ -20,7 +20,7 @@ if (-not (Test-Path -LiteralPath $inputPath -PathType Leaf)) {
     throw "Input game JSON was not found: $inputPath"
 }
 
-$gameDocument = Get-Content -LiteralPath $inputPath -Raw | ConvertFrom-Json
+$gameDocument = Get-Content -LiteralPath $inputPath -Raw -Encoding UTF8 | ConvertFrom-Json
 $gamePk = [string]$gameDocument.gamePk
 if ([string]::IsNullOrWhiteSpace($gamePk)) {
     throw 'Input JSON has no gamePk.'
@@ -70,7 +70,7 @@ if (-not [string]::IsNullOrWhiteSpace($ScheduleEvidencePath) -and $ScheduleEvide
     if (-not (Test-Path -LiteralPath $resolvedScheduleEvidencePath -PathType Leaf)) {
         throw "Schedule evidence does not exist: $resolvedScheduleEvidencePath"
     }
-    $scheduleEvidenceDocument = Get-Content -LiteralPath $resolvedScheduleEvidencePath -Raw | ConvertFrom-Json
+    $scheduleEvidenceDocument = Get-Content -LiteralPath $resolvedScheduleEvidencePath -Raw -Encoding UTF8 | ConvertFrom-Json
     if ([string]$scheduleEvidenceDocument.gamePk -ne $gamePk) {
         throw "Schedule evidence gamePk does not match game $gamePk."
     }
@@ -227,7 +227,7 @@ try {
         throw "RML execution-context generation produced no file for game $gamePk."
     }
     $contextHash = (Get-FileHash -LiteralPath $stageContext -Algorithm SHA256).Hash.ToLowerInvariant()
-    $contextDocument = Get-Content -LiteralPath $stageContext -Raw | ConvertFrom-Json
+    $contextDocument = Get-Content -LiteralPath $stageContext -Raw -Encoding UTF8 | ConvertFrom-Json
     $classificationCounts = Get-MlbMappedClassificationCounts -ContextDocument $contextDocument
     # Count the rows selected by the existing runner-record logical sources.
     # A null movement without the reviewed uncaught-third-strike placeholder
@@ -261,7 +261,7 @@ try {
     # The reusable mapping marks guarded root identifiers explicitly; materialize only
     # the isolated mapping copy so nested records retain deterministic game-scoped
     # IRIs without adding helper fields to the authoritative MLB JSON.
-    $mappingText = Get-Content -LiteralPath $mappingPath -Raw
+    $mappingText = Get-Content -LiteralPath $mappingPath -Raw -Encoding UTF8
     $gamePkReferenceCount = ([regex]::Matches($mappingText, [regex]::Escape($gamePkTemplateReference))).Count
     $venueReferenceCount = ([regex]::Matches($mappingText, [regex]::Escape($venueTemplateReference))).Count
     $awayTeamReferenceCount = ([regex]::Matches($mappingText, [regex]::Escape($awayTeamTemplateReference))).Count

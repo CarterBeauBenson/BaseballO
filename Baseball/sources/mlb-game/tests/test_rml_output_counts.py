@@ -15,6 +15,40 @@ from test_rmlmapper_iterator_compatibility import installed_tools
 
 
 class RmlOutputCounts(unittest.TestCase):
+    def test_utf8_context_and_raw_reads_preserve_names_in_retained_evidence(self):
+        sample=json.loads((ROOT/'data/raw/samples/2026-08-25/822693.json').read_bytes())
+        description=next(p['result']['description'] for p in sample['liveData']['plays']['allPlays']
+                         if '\u00f1' in p['result']['description'])
+        value=dict(gamePk=822693,gameData=dict(status=dict(abstractGameState='Final')),
+            _baseballO=dict(defensiveEvidence=dict(description=description)))
+        harness=(ROOT/'scripts/pipeline/run-rml.ps1').read_text(encoding='utf-8')
+        reads='\n'.join(line.strip() for line in harness.splitlines()
+                        if '= Get-Content ' in line and ' -Raw' in line)
+        stage=(ROOT/'sources/mlb-game/pipeline/stage.ps1').read_text(encoding='utf-8')
+        function=stage[stage.index('function Read-GameDocument'):stage.index('function Ensure-GameClassificationProvenance')]
+        with tempfile.TemporaryDirectory() as temp:
+            work=Path(temp);source=work/'input.json';output=work/'roundtrip.json';script=work/'read.ps1'
+            raw=json.dumps(value,ensure_ascii=False).encode('utf-8');source.write_bytes(raw)
+            script.write_text('''param($inputPath, $outputPath)
+Set-StrictMode -Version Latest
+$ErrorActionPreference = 'Stop'
+$GamePk = '822693'
+$stageContext = $inputPath
+$resolvedScheduleEvidencePath = $inputPath
+$mappingPath = $inputPath
+'''+reads+'\n'+function+'''
+$result = @{raw=$gameDocument; context=$contextDocument; schedule=$scheduleEvidenceDocument;
+    mapping=($mappingText | ConvertFrom-Json); stage=(Read-GameDocument -Path $inputPath)}
+[IO.File]::WriteAllText($outputPath, ($result | ConvertTo-Json -Depth 30), [Text.UTF8Encoding]::new($false))
+''',encoding='utf-8')
+            result=subprocess.run(['powershell.exe','-NoProfile','-ExecutionPolicy','Bypass','-File',
+                str(script),str(source),str(output)],capture_output=True,text=True,timeout=30)
+            self.assertEqual(result.returncode,0,result.stderr)
+            observed=json.loads(output.read_bytes())
+            for kind in ('raw','context','schedule','mapping','stage'):
+                self.assertEqual(observed[kind],value,kind)
+            self.assertEqual(source.read_bytes(),raw)
+
     def test_sparse_event_indexes_and_shared_runner_classification_match_real_rml(self):
         source=ROOT/'data/raw/samples/2026-08-25/822693.json'
         doc=json.loads(source.read_bytes())

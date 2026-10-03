@@ -13,6 +13,24 @@ D=importlib.util.module_from_spec(spec);spec.loader.exec_module(D)
 
 
 class DefensiveAddition(unittest.TestCase):
+    def test_recorded_failure_precedes_old_success_and_keeps_its_retry_limit(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);repo=state/'repo';control=state/'pipeline/control/mlb-game/defensive-addition'
+            successful=repo/'data/raw/samples/2026-08-25/822693.json';failed=repo/'data/raw/999999.json'
+            for source in (successful,failed):
+                D.W.atomic(source,dict(gamePk=int(source.stem)))
+                (state/'pipeline/evidence/nifi/game-promotion'/source.stem).mkdir(parents=True)
+            D.W.atomic(control/'822693.json',dict(status='complete',implementationSha256='older'))
+            failure=dict(status='failed',implementationSha256='older',attempts=2,sourceSha256=D.W.sha(failed))
+            D.W.atomic(control/'999999.json',failure)
+            D.W.atomic(control/'inventory.json',dict(inputs={str(failed):dict(status='retry-exhausted',
+                gamePk='999999',sha256=D.W.sha(failed),identity=['old'])}))
+            with patch.object(D,'ROOT',repo),patch.object(D,'fingerprint',return_value='current'), \
+                    patch.object(D,'select',return_value=dict(acts=[{}])):
+                self.assertEqual(D.next_witness(state,limit=1)['gamePk'],'999999')
+                D.W.atomic(control/'999999.json',dict(failure,implementationSha256='current'))
+                self.assertEqual(D.next_witness(state,limit=1)['gamePk'],'822693')
+
     def test_legacy_promotion_gets_current_proof_without_skipping_validation(self):
         with tempfile.TemporaryDirectory() as temp:
             evidence=Path(temp);marker=dict(rawSha256='original-source')

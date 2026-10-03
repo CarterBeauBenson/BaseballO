@@ -43,7 +43,7 @@ function Resolve-TransientInput {
 
 function Read-GameDocument([string] $Path) {
     try {
-        $document = Get-Content -LiteralPath $Path -Raw | ConvertFrom-Json
+        $document = Get-Content -LiteralPath $Path -Raw -Encoding UTF8 | ConvertFrom-Json
     }
     catch {
         throw "MLB-game payload is not valid JSON: $($_.Exception.Message)"
@@ -151,7 +151,7 @@ switch ($Action) {
         Invoke-LoggedCommand -FailureMessage "Metric source inventory could not be retained for game $GamePk." -Command {
             & python $metricReconciler '--input' $inputPath '--game-pk' $GamePk '--output' $metricSourcePath
         }
-        $metricSource = Get-Content -LiteralPath $metricSourcePath -Raw | ConvertFrom-Json
+        $metricSource = Get-Content -LiteralPath $metricSourcePath -Raw -Encoding UTF8 | ConvertFrom-Json
         if ([string]$metricSource.inputSha256 -ne (Get-FileHash -LiteralPath $inputPath -Algorithm SHA256).Hash.ToLowerInvariant()) {
             throw "Source changed during metric reconciliation for game $GamePk."
         }
@@ -177,7 +177,7 @@ switch ($Action) {
             throw "RDF or RML manifest is missing for game $GamePk."
         }
         $validator = Join-Path $repositoryRoot 'scripts\pipeline\validate-shacl.py'
-        $manifest = Get-Content -LiteralPath $rmlManifestPath -Raw | ConvertFrom-Json
+        $manifest = Get-Content -LiteralPath $rmlManifestPath -Raw -Encoding UTF8 | ConvertFrom-Json
         if ([string]$manifest.gamePk -ne $GamePk) {
             throw "RML manifest game identity differs from $GamePk."
         }
@@ -243,7 +243,7 @@ switch ($Action) {
         if (-not (Test-Path -LiteralPath $rdfPath -PathType Leaf)) {
             throw "Validated RDF is missing for game $GamePk."
         }
-        $rmlManifest = Get-Content -LiteralPath $rmlManifestPath -Raw | ConvertFrom-Json
+        $rmlManifest = Get-Content -LiteralPath $rmlManifestPath -Raw -Encoding UTF8 | ConvertFrom-Json
         if ([string]$rmlManifest.shaclStatus -ne 'validated') {
             throw "Game $GamePk has not passed authoritative SHACL."
         }
@@ -307,7 +307,7 @@ switch ($Action) {
                 queryIndexManifest = $indexManifestPath
                 queryIndexManifestSha256 = (Get-FileHash -LiteralPath $indexManifestPath -Algorithm SHA256).Hash.ToLowerInvariant()
             }
-            $shaclResult = Get-Content -LiteralPath (Join-Path $stageEvidenceRoot 'shacl.json') -Raw | ConvertFrom-Json
+            $shaclResult = Get-Content -LiteralPath (Join-Path $stageEvidenceRoot 'shacl.json') -Raw -Encoding UTF8 | ConvertFrom-Json
             if ($null -ne $shaclResult.PSObject.Properties['clockAdmission']) {
                 $promotion.clockAdmission = [string]$shaclResult.clockAdmission
                 $promotion.clockAdmissionSha256 = [string]$shaclResult.clockAdmissionSha256
@@ -370,7 +370,7 @@ switch ($Action) {
         if (-not (Test-Path -LiteralPath $promoteResultPath -PathType Leaf)) {
             throw "Promotion-stage evidence is missing for game $GamePk."
         }
-        $promoteResult = Get-Content -LiteralPath $promoteResultPath -Raw | ConvertFrom-Json
+        $promoteResult = Get-Content -LiteralPath $promoteResultPath -Raw -Encoding UTF8 | ConvertFrom-Json
         $promotionPath = [string]$promoteResult.promotionEvidence
         if (-not (Test-Path -LiteralPath $promotionPath -PathType Leaf)) {
             throw "Immutable promotion evidence is missing for game $GamePk."
@@ -380,7 +380,7 @@ switch ($Action) {
         Invoke-LoggedCommand -FailureMessage "Promoted-graph event emission failed for game $GamePk." -Command {
             & python $emitter '--state-root' $script:StateRoot '--promotion-evidence' $promotionPath '--result-json' $resultPath
         }
-        $emission = Get-Content -LiteralPath $resultPath -Raw | ConvertFrom-Json
+        $emission = Get-Content -LiteralPath $resultPath -Raw -Encoding UTF8 | ConvertFrom-Json
         if ([string]$emission.status -notin @('created', 'already-present')) {
             throw "Promoted-graph event was not durably emitted for game $GamePk."
         }
@@ -399,7 +399,7 @@ switch ($Action) {
         if (-not (Test-Path -LiteralPath $pointerPath -PathType Leaf)) {
             throw 'Serving materialization produced no promoted pointer.'
         }
-        $pointer = Get-Content -LiteralPath $pointerPath -Raw | ConvertFrom-Json
+        $pointer = Get-Content -LiteralPath $pointerPath -Raw -Encoding UTF8 | ConvertFrom-Json
         Write-StageResult @{
             servingPointer = $pointerPath
             databasePath = [string]$pointer.databasePath
