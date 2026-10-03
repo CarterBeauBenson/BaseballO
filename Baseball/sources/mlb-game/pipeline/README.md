@@ -16,6 +16,14 @@ and implementation. The one-game `award-input-recovery.json` resumes a recorded
 retirement race through this same owner; it does not trigger full-game mapping.
 See the [October 2 audit](../review/rml-audit-2026-10-02.md).
 
+The RML harness counts pitch classifications from the identifiers selected in
+its reviewed execution context, keeping multiple runner rows for one pitch
+from inflating the count. Targeted completion compares the current selected
+RML output with the existing graph; empty output cannot count as completion.
+Award and defensive input inventories reconsider previously unpromoted games
+when their promotion appears and retain malformed-input diagnostics without
+blocking independent candidates.
+
 Before invoking the unchanged RML, the `rml` action now calls
 `reconcile-metric-source.py`. It retains a source-revision/input-hash-bound
 inventory in the run's `metric-source-reconciliation.json`, with its path,

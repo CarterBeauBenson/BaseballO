@@ -75,13 +75,27 @@ def next_witness(state,limit=25):
            *sorted((ROOT/'data/raw').rglob('*.json'))]
     version=fingerprint();inspected=0;seen=set()
     for source in paths:
-        if source in seen or not source.is_file():continue
-        seen.add(source);identity=[source.stat().st_size,source.stat().st_mtime_ns,version]
+        if source in seen:continue
+        seen.add(source)
+        try:metadata=source.stat()
+        except FileNotFoundError:continue
         cached=inventory['inputs'].get(str(source),{})
+        promoted=state/'pipeline/evidence/nifi/game-promotion';prior_pk=cached.get('gamePk','')
+        identity=[metadata.st_size,metadata.st_mtime_ns,version,bool(prior_pk.isdecimal() and (promoted/prior_pk).is_dir())]
         if cached.get('identity')==identity and cached.get('status')!='selected':continue
-        raw=source.read_bytes();doc=json.loads(raw);pk=str(doc.get('gamePk','')) if isinstance(doc,dict) else ''
+        try:raw=source.read_bytes()
+        except FileNotFoundError:continue
+        try:doc=json.loads(raw)
+        except (ValueError,UnicodeError) as error:
+            inventory['inputs'][str(source)]=dict(identity=identity,sha256=hashlib.sha256(raw).hexdigest(),
+                gamePk='',status='invalid-input',error=str(error))
+            inspected+=1
+            if inspected>=limit:break
+            continue
+        pk=str(doc.get('gamePk','')) if isinstance(doc,dict) else ''
+        identity[-1]=bool(pk.isdecimal() and (promoted/pk).is_dir())
         record=dict(identity=identity,sha256=hashlib.sha256(raw).hexdigest(),gamePk=pk,status='not-applicable')
-        if pk.isdecimal() and (state/'pipeline/evidence/nifi/game-promotion'/pk).is_dir():
+        if identity[-1]:
             checkpoint=control/(pk+'.json');previous=W.read(checkpoint) if checkpoint.is_file() else {}
             if previous.get('status') in SUCCESS and previous.get('implementationSha256')==version and previous.get('sourceSha256')==record['sha256']:record['status']='complete'
             elif previous.get('implementationSha256')==version and previous.get('sourceSha256')==record['sha256'] and previous.get('attempts',0)>=2:record['status']='retry-exhausted'

@@ -1,7 +1,7 @@
 """W1 retains base provenance and applies unchanged constraints to its delta."""
 import tempfile
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 import hashlib
 import copy
 import json
@@ -45,7 +45,10 @@ class AwardRetryIdentity(unittest.TestCase):
                     self.assertEqual(add.call_count,1)
                 self.assertEqual(W.read(control)['status'],'complete')
                 self.assertFalse(Path(witness['path']).exists())
-                self.assertTrue(W.read(Path(witness['path']).with_name('retirement.json'))['rawRetiredAfterPromotion'])
+                receipt=Path(witness['path']).with_name('retirement.json');completed=receipt.read_bytes()
+                self.assertTrue(W.read(receipt)['rawRetiredAfterPromotion'])
+                self.assertIsNone(W.recovery_witness(state))
+                self.assertEqual(receipt.read_bytes(),completed)
                 self.assertEqual(fetch.call_count,1)
 
     def test_success_and_retry_limits_belong_to_exact_source_and_implementation(self):
@@ -157,7 +160,7 @@ class TargetedAwardAddition(unittest.TestCase):
         self.assertFalse(ok)
         self.assertIn(URIRef('https://w3id.org/baseball/shacl/AwardCausedAdvanceShape'),set(report.objects(None,sh.sourceShape)))
 
-    def test_prior_decision_completion_requires_the_same_selected_facts(self):
+    def test_prior_selection_receipt_does_not_bypass_current_promotion_validation(self):
         with tempfile.TemporaryDirectory() as temp:
             state=Path(temp);source=state/'input.json';source.write_bytes(b'{}')
             witness=dict(path=str(source),sha256=W.sha(source))
@@ -175,11 +178,55 @@ class TargetedAwardAddition(unittest.TestCase):
                 emit.assert_not_called();validate.assert_called_once()
                 digest=hashlib.sha256(json.dumps(selected,sort_keys=True,separators=(',',':')).encode()).hexdigest()
                 value['targetedAddition']=dict(decisions,selectionSha256=digest);W.atomic(marker,value)
-                self.assertEqual(W.add_game(state,'1',witness,None,None,None,repair=repair)['status'],'already-complete')
-                emit.assert_called_once()
+                with self.assertRaisesRegex(RuntimeError,'continue-current-selection'):
+                    W.add_game(state,'1',witness,None,None,None,repair=repair)
+                emit.assert_not_called()
                 selected[0]['awardAdvances'].append(dict(runnerIndex='1'))
                 with self.assertRaisesRegex(RuntimeError,'continue-current-selection'):
                     W.add_game(state,'1',witness,None,None,None,repair=repair)
+
+
+class AdditionOutputCompletion(unittest.TestCase):
+    def test_empty_output_is_failure_and_same_selection_still_checks_current_triples(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);source=state/'input.json';source.write_bytes(b'{}')
+            witness=dict(path=str(source),sha256=W.sha(source))
+            selected=[dict(atBatIndex='7')];decisions=dict(decision=W.DECISION)
+            digest=hashlib.sha256(json.dumps(selected,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+            marker=state/'pipeline/evidence/nifi/game-promotion/1/prior.json'
+            value=dict(gamePk='1',promotedAtUtc='2026-10-01T00:00:00Z',authoritativeGraph='urn:game',
+                authoritativeTripleCount=1,rmlManifest=str(state/'prior.json'),rmlManifestSha256='prior',
+                targetedAddition=dict(decisions,selectionSha256=digest,sourceWitness=witness))
+            W.atomic(marker,value)
+            base=Graph().parse(data='<urn:one> <urn:p> <urn:o> .',format='turtle')
+            outputs=[Graph(),base,base+Graph().parse(data='<urn:two> <urn:p> <urn:o> .',format='turtle')]
+            check=Mock(side_effect=RuntimeError('missing-triple-reaches-selected-shacl'))
+            repair=dict(decisions=decisions,select=lambda raw,pk:selected,
+                execution_inputs=Mock(),revalidate=check)
+            def render(args,*unused):outputs[0].serialize(destination=args[args.index('-o')+1],format='turtle')
+            with patch.object(W.TX,'HttpGraphStore') as store,patch.object(W.TX,'recover'), \
+                    patch.object(W.EVENT,'emit') as emit,patch.object(W.I,'retain_game_artifacts'), \
+                    patch.object(W.I,'validated_promotion_record',return_value={}), \
+                    patch.object(W.I,'retained_artifact',return_value=state/'prior.json'), \
+                    patch.object(W,'base_manifest',return_value=dict(mappingBaseIri='urn:mapping',outputSha256='base')), \
+                    patch.object(W.A,'command',side_effect=render),patch.object(W.TX,'prepare') as prepare:
+                store.return_value.get.return_value=base.serialize(format='nt',encoding='utf-8')
+                with self.assertRaisesRegex(ValueError,'produced no triples'):
+                    W.add_game(state,'1',witness,None,None,None,repair=repair)
+                emit.assert_not_called();check.assert_not_called()
+                outputs.pop(0)
+                result=W.add_game(state,'1',witness,None,None,None,repair=repair)
+                self.assertEqual(result['status'],'already-complete')
+                self.assertEqual(result['promotionEvidence'],str(marker));emit.assert_called_once()
+                # Same facts in a newer response do not inherit the old receipt's source.
+                source.write_bytes(b'{"revision":2}');new_witness=dict(witness,sha256=W.sha(source))
+                result=W.add_game(state,'1',new_witness,None,None,None,repair=repair)
+                self.assertEqual(result['status'],'already-present')
+                self.assertNotIn('sourceWitness',result)
+                outputs.pop(0)
+                with self.assertRaisesRegex(RuntimeError,'missing-triple-reaches-selected-shacl'):
+                    W.add_game(state,'1',new_witness,None,None,None,repair=repair)
+                check.assert_called_once();prepare.assert_not_called()
 
 
 if __name__=='__main__':unittest.main()

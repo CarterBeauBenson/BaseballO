@@ -179,9 +179,6 @@ def add_game(state,game_pk,witness,java,mapper,classpath,*,repair=None):
     marker_root=state/'pipeline/evidence/nifi/game-promotion'/game_pk
     marker_path=max(marker_root.glob('*.json'),key=lambda p:(read(p)['promotedAtUtc'],p.name));marker=read(marker_path)
     selection_sha=hashlib.sha256(json.dumps(selected,sort_keys=True,separators=(',',':')).encode()).hexdigest()
-    if (all(marker.get('targetedAddition',{}).get(key)==value for key,value in decisions.items())
-            and marker.get('targetedAddition',{}).get('selectionSha256')==selection_sha):
-        EVENT.emit(state,marker_path);return dict(status='already-complete',**marker['targetedAddition'])
     promotion=I.validated_promotion_record(state,marker_path,game_pk,I.query_index_contract_admission())
     I.retain_game_artifacts(state,game_pk)
     prior=I.retained_artifact(state,game_pk,marker['rmlManifestSha256'],Path(marker['rmlManifest']))
@@ -192,7 +189,9 @@ def add_game(state,game_pk,witness,java,mapper,classpath,*,repair=None):
     delta_path=evidence/'addition.ttl'
     A.command([java,'-Xmx256m','-jar',mapper,'-m',mapping,'-o',delta_path,'-s','turtle',
         '-b',manifest['mappingBaseIri'],'--strict'],evidence,evidence/'rml.log')
-    delta=Graph().parse(delta_path);base_bytes=store.get(marker['authoritativeGraph'])
+    delta=Graph().parse(delta_path)
+    if not len(delta):raise ValueError('Selected RML addition produced no triples')
+    base_bytes=store.get(marker['authoritativeGraph'])
     if base_bytes is None:raise ValueError('W1 base graph is missing')
     base=TX.nt_graph(base_bytes)
     if len(base)!=marker['authoritativeTripleCount']:raise ValueError('W1 base graph changed')
@@ -200,7 +199,16 @@ def add_game(state,game_pk,witness,java,mapper,classpath,*,repair=None):
     if prior_rdf.is_file() and sha(prior_rdf)==manifest['outputSha256'] and not isomorphic(base,Graph().parse(prior_rdf)):
         raise ValueError('W1 live graph differs from retained promoted RDF')
     missing=delta-base
-    if not len(missing):return dict(status='already-present',rdfChanged=False,selected=selected)
+    if not len(missing):
+        # A matching source selection is not a receipt for the current mapping.
+        # Confirm its actual triples against the current promoted graph before
+        # resuming event delivery, without another graph write or transaction.
+        EVENT.emit(state,marker_path)
+        if (all(marker.get('targetedAddition',{}).get(key)==value for key,value in decisions.items())
+                and marker.get('targetedAddition',{}).get('selectionSha256')==selection_sha
+                and marker['targetedAddition'].get('sourceWitness')==witness):
+            return dict(status='already-complete',promotionEvidence=str(marker_path),**marker['targetedAddition'])
+        return dict(status='already-present',rdfChanged=False,selected=selected)
     combined=base+delta;rdf=evidence/'authoritative-with-addition.nt';combined.serialize(destination=rdf,format='nt')
     fields=repair['revalidate'](marker,manifest,rdf,evidence,java,classpath,selected,game_pk,missing)
     inventory=dict(gamePk=game_pk,sourceWitness=witness,basePromotionSha256=sha(marker_path),
@@ -306,7 +314,9 @@ def retire_recovery_input(state,result):
     path=source.with_name('retirement.json')
     identity=dict(sourceSha256=witness['sha256'],promotionEvidence=str(promoted),promotionManifestSha256=sha(promoted))
     if path.is_file():
-        if any(read(path).get(k)!=v for k,v in identity.items()):raise ValueError('Award retirement receipt changed')
+        receipt=read(path)
+        if any(receipt.get(k)!=v for k,v in identity.items()):raise ValueError('Award retirement receipt changed')
+        if receipt.get('rawRetiredAfterPromotion') is True and not source.exists():return
     elif not source.is_file():raise ValueError('Award recovery input vanished before retirement')
     atomic(path,dict(identity,rawRetiredAfterPromotion=False))
     if source.is_file():
@@ -330,7 +340,7 @@ def tick(state,game_pk,witness,java,mapper,classpath):
         sourceWitness=witness,checkedAtUtc=TX.now(),attempts=previous.get('attempts',0)+1 if same else 1)
     try:
         result.update(add_game(state,game_pk,witness,java,mapper,classpath))
-        if result['status']=='complete' and witness.get('recoveryRequestSha256'):
+        if result['status'] in {'complete','already-complete'} and witness.get('recoveryRequestSha256'):
             result['additionComplete']=True
             atomic(control,result)  # a cleanup interruption must not repeat mapping
             retire_recovery_input(state,result)
@@ -366,18 +376,27 @@ def next_witness(state,limit=50):
         # directory enumeration. Continue the bounded inventory in that case.
         try:stat=path.stat()
         except FileNotFoundError:continue
-        metadata=[stat.st_size,stat.st_mtime_ns,version]
         previous=inventory['inputs'].get(str(path),{})
+        promoted=state/'pipeline/evidence/nifi/game-promotion'
+        prior_pk=previous.get('gamePk','')
+        metadata=[stat.st_size,stat.st_mtime_ns,version,bool(prior_pk.isdecimal() and (promoted/prior_pk).is_dir())]
         if previous.get('identity')==metadata:continue
         try:raw=path.read_bytes()
         except FileNotFoundError:continue
-        digest=hashlib.sha256(raw).hexdigest();doc=json.loads(raw)
+        digest=hashlib.sha256(raw).hexdigest()
+        try:doc=json.loads(raw)
+        except (ValueError,UnicodeError) as error:
+            inventory['inputs'][str(path)]=dict(identity=metadata,sha256=digest,gamePk='',status='invalid-input',error=str(error))
+            inspected+=1
+            if inspected>=limit:break
+            continue
         if not isinstance(doc,dict):doc={}
         pk=str(doc.get('gamePk',''))
+        metadata[-1]=bool(pk.isdecimal() and (promoted/pk).is_dir())
         record=dict(identity=metadata,sha256=digest,gamePk=pk,status='not-applicable')
         possible=[p for p in doc.get('liveData',{}).get('plays',{}).get('allPlays',[])
             if p.get('result',{}).get('eventType')=='intent_walk' and len(p.get('playEvents',[]))>4]
-        if pk.isdecimal() and possible and (state/'pipeline/evidence/nifi/game-promotion'/pk).is_dir():
+        if possible and metadata[-1]:
             result=read(control/(pk+'.json')) if (control/(pk+'.json')).is_file() else {}
             if finished_attempt(result,version,digest) and result.get('status') in {'complete','already-complete','already-present','not-applicable'}:
                 record['status']='complete'

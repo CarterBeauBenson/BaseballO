@@ -9,6 +9,7 @@ param(
 )
 
 . (Join-Path $PSScriptRoot '..\infra\common.ps1')
+. (Join-Path $PSScriptRoot 'rml-output-counts.ps1')
 Initialize-LocalLayout
 
 if ([string]::IsNullOrWhiteSpace($InputJson)) {
@@ -98,83 +99,12 @@ $expectedBattingActCount = 0
 $expectedContactCount = 0
 $expectedRunnerRecordCount = 0
 $expectedRunnerResolutionCount = 0
-$passedBallEventIds = [System.Collections.Generic.HashSet[string]]::new()
-$wildPitchEventIds = [System.Collections.Generic.HashSet[string]]::new()
-$expectedUncaughtThirdStrikeCount = 0
 foreach ($play in @($gameDocument.liveData.plays.allPlays)) {
     $expectedRunnerRecordCount += @($play.runners).Count
-    $hasNullBatterStrikeout = $false
-    $safeBatterClassificationTypes = [System.Collections.Generic.HashSet[string]]::new()
-    $playResultEventType = if ($play.result.PSObject.Properties.Name -contains 'eventType') {
-        [string]$play.result.eventType
-    }
-    else {
-        ''
-    }
     foreach ($runner in @($play.runners)) {
         if ($runner.movement.isOut -is [bool]) {
             $expectedRunnerResolutionCount++
         }
-        $runnerEventType = if ($runner.details.PSObject.Properties.Name -contains 'eventType') {
-            [string]$runner.details.eventType
-        }
-        else {
-            ''
-        }
-        if ($runnerEventType -in @('passed_ball', 'wild_pitch')) {
-            $playIndex = [int]$runner.details.playIndex
-            $classificationEvent = @($play.playEvents)[$playIndex]
-            $classificationPlayId = ''
-            if ($classificationEvent.PSObject.Properties.Name -contains 'playId') {
-                $classificationPlayId = [string]$classificationEvent.playId
-            }
-            if ($classificationEvent.isPitch -ne $true -or [string]::IsNullOrWhiteSpace($classificationPlayId)) {
-                $classificationPitchEvent = @(
-                    $play.playEvents |
-                        Where-Object {
-                            $_.isPitch -eq $true -and
-                            $_.index -le $playIndex -and
-                            $_.PSObject.Properties.Name -contains 'playId' -and
-                            -not [string]::IsNullOrWhiteSpace([string]$_.playId)
-                        } |
-                        Select-Object -Last 1
-                )
-                if ($classificationPitchEvent.Count -gt 0) {
-                    $classificationPlayId = [string]$classificationPitchEvent[0].playId
-                }
-            }
-            if ([string]::IsNullOrWhiteSpace($classificationPlayId)) {
-                throw "Game $gamePk play $($play.about.atBatIndex) has a $runnerEventType row without a source playId."
-            }
-            if ($runnerEventType -eq 'passed_ball') {
-                [void]$passedBallEventIds.Add($classificationPlayId)
-            }
-            else {
-                [void]$wildPitchEventIds.Add($classificationPlayId)
-            }
-        }
-        if (
-            $runnerEventType -eq 'strikeout' -and
-            [string]$runner.details.runner.id -eq [string]$play.matchup.batter.id -and
-            $null -eq $runner.movement.isOut
-        ) {
-            $hasNullBatterStrikeout = $true
-        }
-        if (
-            $runnerEventType -in @('passed_ball', 'wild_pitch') -and
-            [string]$runner.details.runner.id -eq [string]$play.matchup.batter.id -and
-            $runner.movement.isOut -eq $false -and
-            [string]$runner.movement.end -eq '1B'
-        ) {
-            [void]$safeBatterClassificationTypes.Add($runnerEventType)
-        }
-    }
-    if (
-        $playResultEventType -eq 'strikeout' -and
-        $hasNullBatterStrikeout -and
-        $safeBatterClassificationTypes.Count -eq 1
-    ) {
-        $expectedUncaughtThirdStrikeCount++
     }
     foreach ($event in @($play.playEvents)) {
         if ($event.isPitch -eq $true) {
@@ -298,6 +228,7 @@ try {
     }
     $contextHash = (Get-FileHash -LiteralPath $stageContext -Algorithm SHA256).Hash.ToLowerInvariant()
     $contextDocument = Get-Content -LiteralPath $stageContext -Raw | ConvertFrom-Json
+    $classificationCounts = Get-MlbMappedClassificationCounts -ContextDocument $contextDocument
     # Count the rows selected by the existing runner-record logical sources.
     # A null movement without the reviewed uncaught-third-strike placeholder
     # flag produces no record in this mapping; it must not quarantine all of
@@ -396,7 +327,7 @@ try {
 
     $gameEndArguments = @()
     if (-not [string]::IsNullOrWhiteSpace($expectedGameEndTime)) { $gameEndArguments = @('--expected-game-end', $expectedGameEndTime) }
-    & python $validatorPath $stageOutput $gamePk '--expected-player-participants' $expectedPlayerParticipantCount '--expected-plate-appearances' $expectedPlateAppearanceCount '--expected-batter-acts' $expectedBatterActCount '--expected-pitches' $expectedPitchCount '--expected-batting-acts' $expectedBattingActCount '--expected-contacts' $expectedContactCount '--expected-runner-records' $expectedRunnerRecordCount '--expected-runner-resolutions' $expectedRunnerResolutionCount '--expected-pitch-ball-control-failures' 0 '--expected-passed-balls' $passedBallEventIds.Count '--expected-wild-pitches' $wildPitchEventIds.Count '--expected-uncaught-third-strikes' $expectedUncaughtThirdStrikeCount @gameEndArguments
+    & python $validatorPath $stageOutput $gamePk '--expected-player-participants' $expectedPlayerParticipantCount '--expected-plate-appearances' $expectedPlateAppearanceCount '--expected-batter-acts' $expectedBatterActCount '--expected-pitches' $expectedPitchCount '--expected-batting-acts' $expectedBattingActCount '--expected-contacts' $expectedContactCount '--expected-runner-records' $expectedRunnerRecordCount '--expected-runner-resolutions' $expectedRunnerResolutionCount '--expected-pitch-ball-control-failures' 0 '--expected-passed-balls' $classificationCounts.passedBalls '--expected-wild-pitches' $classificationCounts.wildPitches '--expected-uncaught-third-strikes' $classificationCounts.uncaughtThirdStrikes @gameEndArguments
     if ($LASTEXITCODE -ne 0) {
         throw "Generated RDF validation failed for game $gamePk."
     }
@@ -437,12 +368,12 @@ try {
         throw "Metric mapping serialization differs from its source inventory for game $gamePk."
     }
 
-    Copy-Item -LiteralPath $stageOutput -Destination $outputPath -Force
-    $outputHash = (Get-FileHash -LiteralPath $outputPath -Algorithm SHA256).Hash.ToLowerInvariant()
     $inputHashAfter = (Get-FileHash -LiteralPath $inputPath -Algorithm SHA256).Hash.ToLowerInvariant()
     if ($inputHashAfter -ne $inputHashBefore) {
         throw 'The authoritative input JSON changed during RML execution.'
     }
+    Copy-Item -LiteralPath $stageOutput -Destination $outputPath -Force
+    $outputHash = (Get-FileHash -LiteralPath $outputPath -Algorithm SHA256).Hash.ToLowerInvariant()
 
     $manifestPath = Join-Path $manifestDirectory "game-$gamePk-rml.json"
     [PSCustomObject]@{
@@ -495,9 +426,9 @@ try {
             sourceRunnerRows = $sourceRunnerRecordCount
             runnerResolutions = $expectedRunnerResolutionCount
             pitchBallControlFailures = 0
-            passedBalls = $passedBallEventIds.Count
-            wildPitches = $wildPitchEventIds.Count
-            uncaughtThirdStrikes = $expectedUncaughtThirdStrikeCount
+            passedBalls = $classificationCounts.passedBalls
+            wildPitches = $classificationCounts.wildPitches
+            uncaughtThirdStrikes = $classificationCounts.uncaughtThirdStrikes
         }
         outputPath = $outputPath
         outputSha256 = $outputHash
