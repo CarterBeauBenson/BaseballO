@@ -52,8 +52,15 @@ def next_case(state,limit=25):
     control=state/'pipeline/control/mlb-game/foul-addition';path=control/'inventory.json'
     inventory=W.read(path) if path.is_file() else dict(games={})
     version=fingerprint();inspected=0
+    unfinished=set()
+    for checkpoint in control.glob('*.json'):
+        if not checkpoint.stem.isdecimal():continue
+        previous=W.read(checkpoint);pending=previous.get('case')
+        if (previous.get('status') in {'running','finalizing','failed'} and pending
+                and not finished_attempt(previous,pending,version)):
+            unfinished.add(checkpoint.stem)
     directories=sorted((state/'pipeline/evidence/nifi/game-promotion').glob('*'),
-        key=lambda p:(p.name!='822678',p.name))
+        key=lambda p:(p.name not in unfinished,p.name!='822678',p.name))
     for directory in directories:
         if not directory.is_dir() or not directory.name.isdecimal():continue
         pk=directory.name

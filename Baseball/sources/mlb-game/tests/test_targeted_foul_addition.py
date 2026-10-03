@@ -102,6 +102,17 @@ class FoulAddition(unittest.TestCase):
             self.assertEqual(selected['source']['plateAppearances'],[pa])
             self.assertEqual([e['playId'] for e in selected['events']],[foul['playId']])
 
+    def test_fixed_failure_precedes_bounded_rescan_after_version_change(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);control=state/'pipeline/control/mlb-game/foul-addition'
+            for pk in ('822678','823172'):
+                F.W.atomic(state/'pipeline/evidence/nifi/game-promotion'/pk/'promotion.json',
+                           dict(promotedAtUtc='2026-10-03T00:00:00Z'))
+            case=dict(gamePk='823172',selected=[dict(atBatIndex='20',playId='recorded-foul')])
+            F.W.atomic(control/'823172.json',dict(status='failed',attempts=2,case=case,
+                caseSha256=F.case_sha(case),implementationSha256='previous-selector'))
+            self.assertEqual(F.next_case(state,limit=1),case)
+
     def test_exhausted_first_game_does_not_hide_later_recorded_repairs(self):
         with tempfile.TemporaryDirectory() as temp:
             state=Path(temp);control=state/'pipeline/control/mlb-game/foul-addition'
