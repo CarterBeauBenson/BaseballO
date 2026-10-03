@@ -11,6 +11,65 @@ spec=importlib.util.spec_from_file_location('history_repair',ROOT/'sources/mlb-g
 H=importlib.util.module_from_spec(spec);spec.loader.exec_module(H)
 
 class HistoryAdditionRecovery(unittest.TestCase):
+    def test_named_selection_survives_a_later_manifest_without_expanding_its_scope(self):
+        raw=b'current response';digest=H.hashlib.sha256(raw).hexdigest()
+        rows=[dict(lifetimeKey=key,inning=1,half='top') for key in ('selected','unrelated')]
+        history=dict(inputSha256=digest,sourceConsistency='consistent',histories=rows,
+            episodeMembership=[],placementAdjudications=[])
+        case=dict(gamePk='1',selectionRepair='H3',inputSha256='original-response',sourceSha256=digest,
+            selectedHistoryKeys=['selected'],halves=[dict(inning=1,half='top')])
+        with patch.object(H.H.CONTEXT,'personal_runner_histories',return_value=history):
+            _,delta=H.select_history(dict(runnerHistoryReconciliation=history),case,raw)
+            self.assertEqual([r['lifetimeKey'] for r in delta['histories']],['selected'])
+            with self.assertRaisesRegex(ValueError,'inventoried histories'):
+                H.select_history(dict(runnerHistoryReconciliation=history),dict(case,selectedHistoryKeys=['missing']),raw)
+            with self.assertRaisesRegex(ValueError,'half-inning scope'):
+                H.select_history(dict(runnerHistoryReconciliation=history),dict(case,halves=[dict(inning=2,half='top')]),raw)
+            with self.assertRaisesRegex(ValueError,'another or inconsistent input'):
+                H.select_history(dict(runnerHistoryReconciliation=dict(history,inputSha256='unrelated')),case,raw)
+
+    def test_completion_receipt_does_not_skip_promotion_validation_or_retire_input(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);marker=state/'pipeline/evidence/nifi/game-promotion/1/prior.json'
+            H.atomic(marker,dict(promotedAtUtc='2026-10-01',targetedAddition=dict(decision=H.DECISION)))
+            with patch.object(H,'cases',return_value=[dict(gamePk='1')]), \
+                    patch.object(H.TX,'HttpGraphStore'),patch.object(H.TX,'recover'), \
+                    patch.object(H.I,'validated_promotion_record',side_effect=ValueError('invalid promotion')), \
+                    patch.object(H.I,'query_index_contract_admission',return_value={}), \
+                    patch.object(H,'finish_selection') as finish:
+                with self.assertRaisesRegex(ValueError,'invalid promotion'):
+                    H.add_game(state,'1',None,None,None)
+                finish.assert_not_called()
+
+    def test_existing_named_history_is_an_idempotent_completion_but_empty_rml_is_not(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);marker=state/'pipeline/evidence/nifi/game-promotion/1/prior.json'
+            manifest=state/'mapping.json';H.atomic(manifest,dict(mappingBaseIri='urn:mapping',outputPath=str(state/'retired.ttl'),outputSha256='old'))
+            H.atomic(marker,dict(gamePk='1',promotedAtUtc='2026-10-01',authoritativeGraph='urn:game',
+                authoritativeTripleCount=1,rmlManifest=str(manifest),rmlManifestSha256=H.sha(manifest),
+                targetedAddition=dict(decision='another-additive-repair')))
+            case=dict(gamePk='1',selectedHistoryKeys=['selected'],promotionManifestSha256='older')
+            history=dict(histories=[dict(lifetimeKey='selected')],placementAdjudications=[])
+            base=Graph().parse(data='<urn:one> <urn:p> <urn:o> .',format='turtle');outputs=[Graph(),base]
+            def render(args,*unused):outputs[0].serialize(destination=args[args.index('-o')+1],format='turtle')
+            with patch.object(H,'cases',return_value=[case]),patch.object(H.TX,'HttpGraphStore') as store, \
+                    patch.object(H.TX,'recover'),patch.object(H.I,'validated_promotion_record',return_value={}), \
+                    patch.object(H.I,'query_index_contract_admission',return_value={}), \
+                    patch.object(H.I,'retain_game_artifacts'),patch.object(H.I,'retained_artifact',return_value=manifest), \
+                    patch.object(H,'select_history',return_value=(history,history)),patch.object(H,'subset_mapping'), \
+                    patch.object(H,'command',side_effect=render),patch.object(H.V,'verify'), \
+                    patch.object(H.TX,'prepare') as prepare,patch.object(H.EVENT,'emit') as emit:
+                store.return_value.get.return_value=base.serialize(format='nt',encoding='utf-8')
+                with self.assertRaisesRegex(ValueError,'produced no triples'):
+                    H.add_game(state,'1',None,None,None)
+                emit.assert_not_called()
+                outputs.pop(0)
+                result=H.add_game(state,'1',None,None,None)
+                self.assertEqual(result['status'],'already-present')
+                self.assertFalse(result['rdfChanged']);self.assertEqual(result['addedTriples'],0)
+                self.assertEqual(result['selectedHistoryKeys'],['selected'])
+                self.assertIn(result['status'],H.SUCCESS);prepare.assert_not_called();emit.assert_called_once()
+
     def test_old_game_completion_does_not_skip_a_different_history_selection(self):
         with tempfile.TemporaryDirectory() as temp:
             state=Path(temp);case=dict(gamePk='1',selectionRepair='H3',selectedHistoryKeys=['new-history'])

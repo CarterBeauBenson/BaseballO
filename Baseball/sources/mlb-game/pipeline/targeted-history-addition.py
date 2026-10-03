@@ -31,7 +31,7 @@ MAPPING = HERE.parent / 'mapping/mlb-game.rml.ttl'
 MAPS = ('PersonalRunnerProcessMap', 'PersonalRunnerIntervalMap', 'PersonalRunnerMembershipMap')
 COMPLETION = HERE / 'history-completion-candidates.json'
 SELECTION = HERE / 'history-selection-candidates.json'
-SUCCESS = {'complete', 'already-complete', 'evidence-refreshed'}
+SUCCESS = {'complete', 'already-complete', 'already-present', 'evidence-refreshed'}
 
 
 def module(path, name):
@@ -55,7 +55,8 @@ atomic = TX.atomic_json
 
 def select_history(manifest, case, raw=None):
     original = manifest['runnerHistoryReconciliation']
-    if original['inputSha256'] != case['inputSha256'] or original['sourceConsistency'] != 'consistent':
+    inputs={case['inputSha256'],case.get('sourceSha256',case['inputSha256'])}
+    if original['inputSha256'] not in inputs or original['sourceConsistency'] != 'consistent':
         raise ValueError('Q7 retained history belongs to another or inconsistent input')
     if case.get('selectionRepair') in {'H2','H3'}:
         if raw is None or hashlib.sha256(raw).hexdigest() != case.get('sourceSha256',case['inputSha256']):
@@ -64,12 +65,19 @@ def select_history(manifest, case, raw=None):
     else:
         history = H.CONTEXT.isolate_zero_episode_histories(copy.deepcopy(original))
     previous = {h['lifetimeKey'] for h in original['histories']}
-    selected = [h for h in history['histories'] if h['lifetimeKey'] not in previous]
+    # A later additive promotion may already contain some of this exact named
+    # selection. Retain its scope and compare mapped triples with the live base
+    # below; membership in a newer manifest is not a mapping failure.
+    if 'selectedHistoryKeys' in case:
+        named=set(case['selectedHistoryKeys'])
+        selected=[h for h in history['histories'] if h['lifetimeKey'] in named]
+    else:
+        selected=[h for h in history['histories'] if h['lifetimeKey'] not in previous]
     halves = {(int(h['inning']), h['half']) for h in case.get('halves', [case])}
-    if not selected or any((int(h['inning']), h['half']) not in halves for h in selected):
-        raise ValueError('Q7 addition differs from the approved half-inning scope')
     if 'selectedHistoryKeys' in case and {h['lifetimeKey'] for h in selected} != set(case['selectedHistoryKeys']):
         raise ValueError('Q7 completion differs from the inventoried histories')
+    if not selected or any((int(h['inning']), h['half']) not in halves for h in selected):
+        raise ValueError('Q7 addition differs from the approved half-inning scope')
     if case.get('selectionRepair') != 'H3' and any(h.get('placement') or h.get('gameEndInstantIri') for h in selected):
         raise ValueError('Q7 named repairs require only the three personal-history maps')
     for expected in case.get('scoringCandidates', []):
@@ -347,11 +355,13 @@ def add_game(state, game_pk, java, mapper, classpath):
     marker_root = state / 'pipeline/evidence/nifi/game-promotion' / game_pk
     marker_path = max(marker_root.glob('*.json'), key=lambda p: (read(p)['promotedAtUtc'], p.name))
     marker = read(marker_path)
+    I.validated_promotion_record(state, marker_path, game_pk, I.query_index_contract_admission())
     if (marker.get('targetedAddition', {}).get('decision') == decision
-            and ('selectedHistoryKeys' not in case or marker['targetedAddition'].get('selectedHistoryKeys') == case['selectedHistoryKeys'])):
+            and ('selectedHistoryKeys' not in case or marker['targetedAddition'].get('selectedHistoryKeys') == case['selectedHistoryKeys'])
+            and (not case.get('selectionRepair') or marker['targetedAddition'].get('sourceWitness',{}).get('sha256')
+                 ==case.get('sourceSha256',case['inputSha256']))):
         finish_selection(state,case,marker_path,java,classpath)
         return dict(status='already-complete', promotionEvidence=str(marker_path), **marker['targetedAddition'])
-    I.validated_promotion_record(state, marker_path, game_pk, I.query_index_contract_admission())
     I.retain_game_artifacts(state, game_pk)
     # The approved scope is the exact selected histories, not an obsolete base
     # snapshot. Preserve a later valid promotion and reconcile against its census.
@@ -383,7 +393,9 @@ def add_game(state, game_pk, java, mapper, classpath):
     command([java, '-Xmx256m', '-jar', mapper, '-m', mapping, '-o', delta_path,
         '-s', 'turtle', '-b', manifest['mappingBaseIri'], '--strict'], evidence, evidence / 'rml.log')
     delta = Graph().parse(delta_path, format='turtle')
-    V.verify(json.loads(context.read_text()), delta)
+    V.verify(read(context), delta)
+    if not delta:
+        raise ValueError('History RML selection produced no triples')
     base_bytes = store.get(marker['authoritativeGraph'])
     if base_bytes is None:
         raise ValueError('Q7 base graph is missing')
@@ -394,11 +406,13 @@ def add_game(state, game_pk, java, mapper, classpath):
     if prior_rdf.is_file() and sha(prior_rdf) == manifest['outputSha256'] and not isomorphic(base, Graph().parse(prior_rdf)):
         raise ValueError('Q7 live graph differs from its retained promoted RDF')
     combined = base + delta
+    V.verify(dict(gamePk=int(game_pk), _baseballO=dict(runnerHistoryReconciliation=history)), combined)
     if len(combined) == len(base):
-        raise ValueError('Q7 base marker does not match an already-added history')
+        EVENT.emit(state,marker_path)
+        return dict(status='already-present',promotionEvidence=str(marker_path),rdfChanged=False,
+            addedHistories=0,addedTriples=0,selectedHistoryKeys=sorted(h['lifetimeKey'] for h in delta_context['histories']))
     rdf = evidence / 'authoritative-with-addition.nt'
     combined.serialize(destination=rdf, format='nt')
-    V.verify(dict(gamePk=int(game_pk), _baseballO=dict(runnerHistoryReconciliation=history)), combined)
     proof_fields = revalidate(marker, manifest, history, rdf, evidence, java, classpath,
                               delta=delta if 'selectedHistoryKeys' in case else None, source_raw=raw)
     addition = dict(decision=decision, basePromotionSha256=sha(marker_path),
