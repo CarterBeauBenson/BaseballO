@@ -25,9 +25,9 @@ their rejection rationale so they cannot be accidentally revived.
 
 ## Recent accepted decisions
 
-[F6 error-count prefix](mlb-game-error-count-prefix/README.md) is under review
-for 823172's remaining counted foul. Its focused candidate check passes; the
-active context and protected pin remain unchanged pending named approval.
+[F6 error-count prefix](../archive/design-records/mlb-game-error-count-prefix/README.md)
+was accepted on October 3, including its scoped context-pin update, for
+823172's remaining counted foul. NiFi owns its targeted additive repair.
 
 [F5/D2 foul and defensive selection repair](../archive/design-records/mlb-game-foul-defense-selection-repair/README.md)
 was accepted on October 2, including its exact scoped context-pin update.

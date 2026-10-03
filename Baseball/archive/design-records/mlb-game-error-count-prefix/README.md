@@ -1,6 +1,9 @@
 # F6: counted foul after an independent error advance
 
-**Draft; the active context and its protected pin remain unchanged.**
+**Accepted October 3, 2026, including the scoped context-pin update.**
+
+The user answered "aaprove" to the named F6 approval request. This decision
+is recorded and published before activating the prepared patch.
 
 Game **823172**, plate appearance 20, records a no-pitch event followed by an
 interference error. Ivan Herrera advances from first to second. The batter's
@@ -8,7 +11,7 @@ count remains one ball and no strikes; later pitches reach three balls and one
 strike before the selected foul adds the second strike. The missing strike is
 `67aeb1a0-e793-3313-b02d-4132d7a338a5`.
 
-The proposed [patch](selection.patch) extends the existing reconciled-running
+The accepted [patch](selection.patch) extends the existing reconciled-running
 prefix selector to this error case. It requires one identified runner with a
 matching error movement and forward, safe base advance; unchanged balls and
 strikes; reconciled outs; an exact preceding action link; no pitch/substitution
@@ -24,7 +27,7 @@ the selected missing facts and their existing dependencies.
 ## Competency question and field selection
 
 Should an independently reconciled runner error with an unchanged batting
-count prevent a later ordinary foul from becoming the second strike? Proposed
+count prevent a later ordinary foul from becoming the second strike? Accepted
 answer: **no**, when the requirements above all hold.
 
 | Existing MLB field | Use |
@@ -43,8 +46,8 @@ counts, runners, movement, outs, review, action links and event kinds.
 
 ## Activation scope
 
-Approval must name **F6 and its scoped context-pin update**. Record and publish
-that decision before activation. Change only the prepared context patch and
+The user approved **F6 and its scoped context-pin update**. Publish this
+decision before activation. Change only the prepared context patch and
 its corresponding freeze, runtime/inventory references and exact proof
 compatibility. Preserve original proof hashes and outcomes; no stale or
 withheld proof becomes an admission merely because a fingerprint changed.

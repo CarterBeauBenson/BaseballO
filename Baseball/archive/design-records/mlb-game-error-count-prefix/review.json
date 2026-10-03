@@ -1,0 +1,57 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-error-count-prefix",
+  "title": "F6 counted foul after a reconciled independent error advance",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "06c739ac67a463a08b195e3aef26428b53a3fd5a785b80067a5c656a5f5af07b"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "evidence.json",
+        "sha256": "34af02e064993135a6de86afb18beab41ed48ecff08c882ea511e51e8a5cc9c5"
+      },
+      {
+        "path": "selection.patch",
+        "sha256": "b95c16802275d042e00eb649635120e3250fac9be0fd6ace878d0c7673d7aae2"
+      },
+      {
+        "path": "check.py",
+        "sha256": "a0d2b6794df3fd2e8ca75b95bd2c66bd2d17173cd3739392d112240c442e0bf0"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "06c739ac67a463a08b195e3aef26428b53a3fd5a785b80067a5c656a5f5af07b"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "abe316fd8a4111e05266951b11cdb67cb44ec13dca6409508460db7f62cdd98a"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-10-03",
+    "rationale": "The user answered \"aaprove\" to the explicit request to approve F6 and its scoped context-pin update. Apply the exact reviewed selection patch and corresponding pins and proof compatibility; preserve original proof outcomes and unrelated RDF. No ontology changes, object properties, whole-game replacement or corpus rebuild.",
+    "authorizedArtifacts": [
+      "Baseball/scripts/pipeline/prepare-rml-context.py",
+      "Baseball/governance/semantic-freeze.json",
+      "Baseball/sources/mlb-game/pipeline/history-selection-candidates.json",
+      "Baseball/sources/mlb-game/pipeline/context-proof-compatibility.json",
+      "Baseball/sources/mlb-game/pipeline/admission-evidence.py",
+      "Baseball/sources/mlb-game/pipeline/existing-graph-admissions.py"
+    ]
+  }
+}
