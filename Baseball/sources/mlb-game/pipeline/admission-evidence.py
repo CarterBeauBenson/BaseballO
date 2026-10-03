@@ -362,6 +362,21 @@ def retained_raw_witness(state,promotion):
     return min(candidates,key=lambda row:(row['sha256']!=promotion['rawSha256'],row['path'])) if candidates else None
 
 
+def existing_graph_refresh_needed(state,promotion):
+    """Use the existing proof loaders before reserving another graph/JVM.
+
+    This is the same skip condition as EXISTING_GRAPH.validate; current
+    conclusive negative results stay negative and need no repeated execution.
+    """
+    api=SimpleNamespace(**globals())
+    for family in EXISTING_GRAPH.SHORT:
+        adapter=module(HERE/(family+'-admission.py'),'pending_'+family.replace('-','_'))
+        if (load(adapter,state,promotion,family).get('status')!='admitted'
+                and EXISTING_GRAPH.load(api,state,promotion,family,adapter) is None):
+            return True
+    return False
+
+
 def refresh_existing_graph(state,promotion,witness,java,classpath,endpoint):
     """Run the existing six profiles without requiring a retired RDF export.
 
@@ -379,6 +394,10 @@ def refresh_existing_graph(state,promotion,witness,java,classpath,endpoint):
             raise ValueError('Existing-graph refresh belongs to another promotion')
         return record
     record=current()
+    if witness.get('kind')!='retained-census-set':
+        if sha(Path(witness['path']))!=witness['sha256']:
+            raise ValueError('Retained source response changed')
+        if not existing_graph_refresh_needed(state,promotion):return []
     query='CONSTRUCT { ?s ?p ?o } WHERE { GRAPH <'+record['authoritativeGraph']+'> { ?s ?p ?o } }'
     request=urllib.request.Request(endpoint,data=query.encode(),headers={
         'Content-Type':'application/sparql-query','Accept':'text/turtle'})

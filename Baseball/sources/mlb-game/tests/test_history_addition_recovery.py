@@ -1,6 +1,7 @@
 """Repair scope, dependency slicing and crash-safe input retirement."""
 import importlib.util
 import tempfile
+import subprocess
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
@@ -11,6 +12,66 @@ spec=importlib.util.spec_from_file_location('history_repair',ROOT/'sources/mlb-g
 H=importlib.util.module_from_spec(spec);spec.loader.exec_module(H)
 
 class HistoryAdditionRecovery(unittest.TestCase):
+    def test_new_request_with_same_history_keys_requires_its_own_completion(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);case=dict(gamePk='1',selectionRepair='H3',discovered=True,selectedHistoryKeys=[],
+                repairRequest='request.json',repairRequestSha256='new-request',sourceSha256='source')
+            control=state/'pipeline/control/mlb-game/history-addition/1.json'
+            H.atomic(control,dict(status='evidence-refreshed',selectedHistoryKeys=[],implementationSha256='worker',
+                repairRequestSha256='old-request',sourceSha256='source',attempts=2))
+            with patch.object(H,'cases',return_value=[case]),patch.object(H,'fingerprint',return_value='worker'), \
+                    patch.object(H.DISCOVERY,'discover',return_value=None), \
+                    patch.object(H,'add_game',return_value=dict(status='evidence-refreshed',selectedHistoryKeys=[])) as add:
+                self.assertEqual(H.next_case(state),'1')
+                result=H.tick(state,'1',None,None,None)
+                self.assertEqual(result['attempts'],1);self.assertEqual(result['repairRequestSha256'],'new-request')
+                self.assertIsNone(H.next_case(state));H.tick(state,'1',None,None,None);add.assert_called_once()
+                case['sourceSha256']='different-source'
+                self.assertEqual(H.next_case(state),'1')
+
+    def test_memory_deferrals_do_not_exhaust_retries_or_starve_other_cases(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);cases=[dict(gamePk='1'),dict(gamePk='2')]
+            def execute(state,pk,*args):
+                return dict(status='waiting-for-memory' if pk=='1' else 'complete')
+            with patch.object(H,'cases',return_value=cases),patch.object(H,'fingerprint',return_value='worker'), \
+                    patch.object(H.DISCOVERY,'discover',return_value=None),patch.object(H,'add_game',side_effect=execute) as add:
+                summary=H.drain(state,None,None,None)
+                self.assertEqual(summary['outcomes'],{'complete':1,'waiting-for-memory':1})
+                self.assertEqual(H.read(state/'pipeline/control/mlb-game/history-addition/1.json')['attempts'],0)
+                self.assertEqual(add.call_count,2)
+                H.drain(state,None,None,None)
+                self.assertEqual(add.call_count,3)
+
+    def test_python_drain_lock_excludes_the_existing_powershell_game_lock(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);path=state/'pipeline/work/mlb-game-locks/1.lock'
+            script=state/'lock.ps1'
+            script.write_text('''param($Helper,$State)
+$ErrorActionPreference='Stop'
+. $Helper
+try {$handle=Enter-MlbGameLock -StateRoot $State -GamePk '1' -TimeoutSeconds 1}
+catch {if ($_.Exception.Message -like 'Timed out waiting*') {exit 0}; throw}
+$handle.Dispose();throw 'Game lock overlapped the Python writer'
+''',encoding='utf-8')
+            with H.LOCK.exclusive(path):
+                result=subprocess.run(['powershell.exe','-NoProfile','-ExecutionPolicy','Bypass','-File',
+                    str(script),str(H.HERE/'game-lock.ps1'),str(state)],capture_output=True,text=True,timeout=10)
+            self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+
+    def test_heavy_history_execution_keeps_full_memory_reserve(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);marker=state/'pipeline/evidence/nifi/game-promotion/1/prior.json'
+            H.atomic(marker,dict(promotedAtUtc='now'))
+            with patch.object(H,'cases',return_value=[dict(gamePk='1')]), \
+                    patch.object(H.TX,'HttpGraphStore'),patch.object(H.TX,'recover'), \
+                    patch.object(H.I,'validated_promotion_record',return_value={}), \
+                    patch.object(H.I,'query_index_contract_admission',return_value={}), \
+                    patch.object(H.MEMORY,'available_memory',return_value=512*1024**2), \
+                    patch.object(H,'command') as command:
+                result=H.add_game(state,'1',None,None,None)
+                self.assertEqual(result['status'],'waiting-for-memory');command.assert_not_called()
+
     def test_named_selection_survives_a_later_manifest_without_expanding_its_scope(self):
         raw=b'current response';digest=H.hashlib.sha256(raw).hexdigest()
         rows=[dict(lifetimeKey=key,inning=1,half='top') for key in ('selected','unrelated')]
@@ -58,7 +119,8 @@ class HistoryAdditionRecovery(unittest.TestCase):
                     patch.object(H.I,'retain_game_artifacts'),patch.object(H.I,'retained_artifact',return_value=manifest), \
                     patch.object(H,'select_history',return_value=(history,history)),patch.object(H,'subset_mapping'), \
                     patch.object(H,'command',side_effect=render),patch.object(H.V,'verify'), \
-                    patch.object(H.TX,'prepare') as prepare,patch.object(H.EVENT,'emit') as emit:
+                    patch.object(H.TX,'prepare') as prepare,patch.object(H.EVENT,'emit') as emit, \
+                    patch.object(H.MEMORY,'available_memory',return_value=2*1024**3):
                 store.return_value.get.return_value=base.serialize(format='nt',encoding='utf-8')
                 with self.assertRaisesRegex(ValueError,'produced no triples'):
                     H.add_game(state,'1',None,None,None)

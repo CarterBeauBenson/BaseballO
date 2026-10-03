@@ -13,6 +13,19 @@ D=importlib.util.module_from_spec(spec);spec.loader.exec_module(D)
 
 
 class DefensiveAddition(unittest.TestCase):
+    def test_bounded_drain_runs_serially_and_stops_at_memory_or_failure(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);witness=dict(gamePk='1',path='source',sha256='source')
+            with patch.object(D,'next_witness',return_value=witness), \
+                    patch.object(D,'tick',return_value=dict(status='complete')) as tick, \
+                    patch.object(D.W.A.MEMORY,'available_memory',side_effect=[2*1024**3,512*1024**2]):
+                result=D.drain(state,None,None,None)
+                self.assertEqual(result['outcomes'],{'complete':1,'waiting-for-memory':1});tick.assert_called_once()
+            with patch.object(D,'next_witness',return_value=witness), \
+                    patch.object(D,'tick',return_value=dict(status='failed')) as tick, \
+                    patch.object(D.W.A.MEMORY,'available_memory',return_value=2*1024**3):
+                self.assertEqual(D.drain(state,None,None,None)['outcomes'],{'failed':1});tick.assert_called_once()
+
     def test_recorded_failure_precedes_old_success_and_keeps_its_retry_limit(self):
         with tempfile.TemporaryDirectory() as temp:
             state=Path(temp);repo=state/'repo';control=state/'pipeline/control/mlb-game/defensive-addition'

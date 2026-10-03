@@ -34,6 +34,10 @@ try {
     $arguments = @(
         '-Xms256m',
         '-Xmx1g',
+        # Return spare heap to the laptop so NiFi's bounded workers can run.
+        '-XX:MinHeapFreeRatio=20',
+        '-XX:MaxHeapFreeRatio=40',
+        '-XX:G1PeriodicGCInterval=60000',
         '-jar',
         "`"$jar`"",
         '--localhost',

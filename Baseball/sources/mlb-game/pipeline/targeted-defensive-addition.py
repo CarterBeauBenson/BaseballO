@@ -3,6 +3,7 @@ import argparse
 import copy
 import hashlib
 import json
+import time
 from pathlib import Path
 import importlib.util
 
@@ -139,12 +140,38 @@ def tick(state,witness,java,mapper,classpath):
     W.atomic(control,result);return result
 
 
+def drain(state,java,mapper,classpath,limit=3,seconds=45):
+    """Serial bounded retries under the existing shared repair lease."""
+    started=time.monotonic();outcomes=[]
+    for _ in range(limit):
+        available=W.A.MEMORY.available_memory()
+        if available is not None and available<1024*1024*1024:
+            outcomes.append(dict(status='waiting-for-memory'));break
+        witness=next_witness(state)
+        if witness is None:break
+        try:
+            with W.A.LOCK.exclusive(state/'pipeline/work/mlb-game-locks'/(witness['gamePk']+'.lock')):
+                result=tick(state,witness,java,mapper,classpath)
+        except (BlockingIOError,PermissionError):
+            result=dict(status='waiting-for-game')
+        outcomes.append(result)
+        if result['status'] in {'failed','waiting-for-game'} or time.monotonic()-started>=seconds:break
+    summary=dict(status='processed' if outcomes else 'unchanged',processedGames=len(outcomes),
+        outcomes={status:sum(r['status']==status for r in outcomes) for status in sorted({r['status'] for r in outcomes})})
+    W.atomic(state/'pipeline/control/mlb-game/defensive-addition/latest.json',summary)
+    return summary
+
+
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--state-root',type=Path,required=True);parser.add_argument('--next',action='store_true')
+    parser.add_argument('--drain',action='store_true')
     for key in ('java','mapper','jena-classpath'):parser.add_argument('--'+key,type=Path)
     parser.add_argument('--source',type=Path);parser.add_argument('--game-pk');parser.add_argument('--source-sha256');args=parser.parse_args()
     if args.next:print(json.dumps(next_witness(args.state_root)));raise SystemExit(0)
+    if args.drain:
+        if not all((args.java,args.mapper,args.jena_classpath)):parser.error('Execution tools required')
+        print(json.dumps(drain(args.state_root,args.java,args.mapper,args.jena_classpath)));raise SystemExit(0)
     if not all((args.java,args.mapper,args.jena_classpath,args.source,args.game_pk,args.source_sha256)):parser.error('Execution arguments required')
     witness=dict(kind='retained-response',gamePk=args.game_pk,path=str(args.source),sha256=args.source_sha256)
     result=tick(args.state_root,witness,args.java,args.mapper,args.jena_classpath)

@@ -3,6 +3,7 @@ function Invoke-MlbRepairBudget {
         [Parameter(Mandatory = $true)][string] $StateRoot,
         [Parameter(Mandatory = $true)][string] $Worker,
         [Parameter(Mandatory = $true)][scriptblock] $Action,
+        [ValidateRange(0, 2147483647)][long] $RequiredMemoryBytes = 1GB,
         [ValidateRange(0, 60)][int] $TimeoutSeconds = 60
     )
 
@@ -30,9 +31,9 @@ function Invoke-MlbRepairBudget {
         # Mapping (256 MiB) exits before the retained-graph SHACL session
         # (384 MiB) starts. Reserve room for Python and JVM native memory too.
         $available = [long](Get-CimInstance Win32_OperatingSystem).FreePhysicalMemory * 1024
-        if ($available -lt 1024MB) {
+        if ($available -lt $RequiredMemoryBytes) {
             @{status='deferred'; reason='waiting-for-memory'; worker=$Worker;
-                availableMemoryBytes=$available; requiredMemoryBytes=1GB} | ConvertTo-Json -Compress
+                availableMemoryBytes=$available; requiredMemoryBytes=$RequiredMemoryBytes} | ConvertTo-Json -Compress
             return
         }
         & $Action

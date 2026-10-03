@@ -194,11 +194,14 @@ class AdmissionEvidence(unittest.TestCase):
             jena=SimpleNamespace(Session=lambda *args:nullcontext(SimpleNamespace(data_count=2)))
             modules={'game_promotion_inventory.py':inventory,'jena_session.py':jena}
             outcomes=[(Path('proof'),'pitch-count','withheld')]
+            source=state/'source.json';source.write_bytes(b'original source')
+            witness=dict(path=str(source),sha256=E.sha(source))
             with patch.object(E,'module',side_effect=lambda p,n:modules[Path(p).name]), \
+                 patch.object(E,'existing_graph_refresh_needed',return_value=True), \
                  patch.object(E.urllib.request,'urlopen',side_effect=lambda *a,**kw:io.BytesIO(b'export')) as request, \
                  patch.object(E.EXISTING_GRAPH,'validate',return_value=outcomes) as validate, \
                  patch.object(E.EXISTING_GRAPH,'commit') as commit:
-                result=E.refresh_existing_graph(state,promotion,{'path':'retained'},Path('java'),Path('jar'),
+                result=E.refresh_existing_graph(state,promotion,witness,Path('java'),Path('jar'),
                                                 'http://127.0.0.1:3031/baseball-dev/query')
                 self.assertEqual(result,outcomes)
                 self.assertEqual(commit.call_args.args[-1],outcomes)
@@ -210,9 +213,26 @@ class AdmissionEvidence(unittest.TestCase):
                     return outcomes
                 validate.side_effect=changed
                 with self.assertRaisesRegex(ValueError,'Promotion changed'):
-                    E.refresh_existing_graph(state,promotion,{'path':'retained'},Path('java'),Path('jar'),
+                    E.refresh_existing_graph(state,promotion,witness,Path('java'),Path('jar'),
                                              'http://127.0.0.1:3031/baseball-dev/query')
                 commit.assert_not_called()
+
+    def test_current_admissions_reuse_verified_proofs_without_export_or_jvm(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);marker=state/'promotions/one.json';E.atomic(marker,dict(promotedAtUtc='now'))
+            source=state/'source.json';source.write_bytes(b'original')
+            promotion=dict(gamePk='1',promotionManifest=str(marker),promotionManifestSha256=E.sha(marker),
+                rawSha256='original',authoritativeRdfSha256='rdf',authoritativeGraph='urn:game',authoritativeTripleCount=1)
+            inventory=SimpleNamespace(query_index_contract_admission=lambda:{},validated_promotion_record=lambda *args:promotion)
+            witness=dict(path=str(source),sha256=E.sha(source))
+            with patch.object(E,'module',return_value=inventory),patch.object(E,'load',return_value=dict(status='withheld')), \
+                    patch.object(E.EXISTING_GRAPH,'load',return_value=dict(status='withheld')) as load, \
+                    patch.object(E.urllib.request,'urlopen',side_effect=AssertionError('no export')):
+                self.assertEqual(E.refresh_existing_graph(state,promotion,witness,None,None,'endpoint'),[])
+                self.assertEqual(load.call_count,len(E.EXISTING_GRAPH.SHORT))
+                source.write_bytes(b'changed')
+                with self.assertRaisesRegex(ValueError,'response changed'):
+                    E.refresh_existing_graph(state,promotion,witness,None,None,'endpoint')
 
     def test_memory_deferral_yields_but_smaller_checks_and_later_retry_can_progress(self):
         with tempfile.TemporaryDirectory() as temp:

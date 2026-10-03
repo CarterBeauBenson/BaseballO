@@ -11,6 +11,7 @@ import importlib.util
 import json
 from pathlib import Path
 import subprocess
+import time
 from types import SimpleNamespace
 import urllib.request
 import uuid
@@ -48,6 +49,8 @@ V = module(HERE / 'verify-runner-history-serialization.py', 'q7_serialization')
 J = module(ROOT / 'scripts/pipeline/jena_session.py', 'q7_jena')
 EVENT = module(ROOT / 'scripts/pipeline/emit-promoted-graph-event.py', 'q7_event')
 DISCOVERY = module(HERE / 'history-repair-discovery.py', 'history_repair_discovery')
+MEMORY = module(ROOT / 'scripts/pipeline/process_state.py', 'history_memory')
+LOCK = module(ROOT / 'scripts/pipeline/process_lock.py', 'history_lock')
 sha = I.sha256_file
 read = TX.read
 atomic = TX.atomic_json
@@ -355,7 +358,15 @@ def add_game(state, game_pk, java, mapper, classpath):
     marker_root = state / 'pipeline/evidence/nifi/game-promotion' / game_pk
     marker_path = max(marker_root.glob('*.json'), key=lambda p: (read(p)['promotedAtUtc'], p.name))
     marker = read(marker_path)
-    I.validated_promotion_record(state, marker_path, game_pk, I.query_index_contract_admission())
+    promotion=I.validated_promotion_record(state, marker_path, game_pk, I.query_index_contract_admission())
+    admission=None
+    evidence_only=case.get('discovered') and not case['selectedHistoryKeys']
+    if evidence_only:
+        admission=module(HERE/'admission-evidence.py','discovered_history_evidence')
+    needs_memory=not evidence_only or admission.existing_graph_refresh_needed(state,promotion)
+    available=MEMORY.available_memory()
+    if needs_memory and available is not None and available<1024*1024*1024:
+        return dict(status='waiting-for-memory',availableMemoryBytes=available,rdfChanged=False)
     if (marker.get('targetedAddition', {}).get('decision') == decision
             and ('selectedHistoryKeys' not in case or marker['targetedAddition'].get('selectedHistoryKeys') == case['selectedHistoryKeys'])
             and (not case.get('selectionRepair') or marker['targetedAddition'].get('sourceWitness',{}).get('sha256')
@@ -374,8 +385,6 @@ def add_game(state, game_pk, java, mapper, classpath):
     if case.get('discovered') and not case['selectedHistoryKeys']:
         # The current selector found no missing histories. Recheck the existing
         # graph through its owner; do not manufacture a delta or remap the game.
-        admission=module(HERE/'admission-evidence.py','discovered_history_evidence')
-        promotion=I.validated_promotion_record(state,marker_path,game_pk,I.query_index_contract_admission())
         outcomes=admission.refresh_existing_graph(state,promotion,witness,java,classpath,
             'http://127.0.0.1:3031/baseball-dev/query')
         EVENT.emit(state,marker_path)
@@ -479,21 +488,39 @@ def add_game(state, game_pk, java, mapper, classpath):
     return dict(status='complete', promotionEvidence=str(promoted), **addition)
 
 
+def completed_case(previous,case):
+    if previous.get('status') not in SUCCESS:return False
+    if case.get('selectionRepair') and previous.get('selectedHistoryKeys')!=case.get('selectedHistoryKeys'):return False
+    return not case.get('discovered') or (previous.get('repairRequestSha256')==case['repairRequestSha256']
+        and previous.get('sourceSha256')==case['sourceSha256'])
+
+
+def same_attempt(previous,case,version):
+    return (previous.get('implementationSha256')==version
+        and (not case.get('discovered') or (previous.get('repairRequestSha256')==case['repairRequestSha256']
+             and previous.get('sourceSha256')==case['sourceSha256'])))
+
+
 def tick(state, game_pk, java, mapper, classpath):
     control = state / 'pipeline/control/mlb-game/history-addition' / (game_pk + '.json')
     version = fingerprint()
     previous = read(control) if control.exists() else {}
     case=next(c for c in cases(state) if c['gamePk']==game_pk)
-    if previous.get('status') in SUCCESS and (not case.get('selectionRepair') or previous.get('selectedHistoryKeys')==case.get('selectedHistoryKeys')):
+    if completed_case(previous,case):
         return previous
-    if previous.get('implementationSha256') == version and previous.get('attempts', 0) >= 2:
+    same=same_attempt(previous,case,version)
+    if same and previous.get('attempts', 0) >= 2:
         return previous
     result = dict(gamePk=game_pk, implementationSha256=version, checkedAtUtc=TX.now(),
-        attempts=previous.get('attempts', 0) + 1 if previous.get('implementationSha256') == version else 1)
+        attempts=previous.get('attempts', 0) + 1 if same else 1)
+    if case.get('discovered'):
+        result.update(repairRequest=case['repairRequest'],repairRequestSha256=case['repairRequestSha256'],
+                      sourceSha256=case['sourceSha256'])
     try:
         result.update(add_game(state, game_pk, java, mapper, classpath))
     except Exception as error:
         result.update(status='failed', error=str(error))
+    if result['status']=='waiting-for-memory':result['attempts']-=1
     atomic(control, result)
     return result
 
@@ -511,29 +538,56 @@ def fingerprint():
         (HERE/'history-repair-discovery.py').read_bytes()).hexdigest()
 
 
-def next_case(state):
+def next_case(state,skip=()):
     version = fingerprint()
     for case in cases(state):
+        if case['gamePk'] in skip:continue
         path = state / 'pipeline/control/mlb-game/history-addition' / (case['gamePk'] + '.json')
         previous = read(path) if path.is_file() else {}
-        if previous.get('status') in SUCCESS and (not case.get('selectionRepair') or previous.get('selectedHistoryKeys')==case.get('selectedHistoryKeys')):
+        if completed_case(previous,case):
             continue
-        if previous.get('implementationSha256') == version and previous.get('attempts', 0) >= 2:
+        if same_attempt(previous,case,version) and previous.get('attempts', 0) >= 2:
             continue
         return case['gamePk']
-    return DISCOVERY.discover(SimpleNamespace(**globals()),state,{c['gamePk'] for c in cases()})
+    return DISCOVERY.discover(SimpleNamespace(**globals()),state,{c['gamePk'] for c in cases()}|set(skip))
+
+
+def drain(state,java,mapper,classpath,limit=10,seconds=45):
+    """One serial, bounded NiFi tick; no waiting loop and no concurrent JVMs."""
+    started=time.monotonic();outcomes=[];deferred=set()
+    for _ in range(limit):
+        pk=next_case(state,deferred)
+        if pk is None:break
+        try:
+            with LOCK.exclusive(state/'pipeline/work/mlb-game-locks'/(pk+'.lock')):
+                result=tick(state,pk,java,mapper,classpath)
+        except (BlockingIOError,PermissionError):
+            result=dict(gamePk=pk,status='waiting-for-game')
+        outcomes.append(result)
+        if result['status'] in {'waiting-for-memory','waiting-for-game'}:deferred.add(pk)
+        if time.monotonic()-started>=seconds:break
+    summary=dict(status='processed' if outcomes else 'unchanged',processedGames=len(outcomes),
+        outcomes={status:sum(r['status']==status for r in outcomes) for status in sorted({r['status'] for r in outcomes})})
+    atomic(state/'pipeline/control/mlb-game/history-addition/latest.json',summary)
+    return summary
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--state-root', type=Path, required=True)
     parser.add_argument('--next', action='store_true')
+    parser.add_argument('--drain', action='store_true')
     for name in ('java', 'mapper', 'jena-classpath'):
         parser.add_argument('--' + name, type=Path)
     parser.add_argument('--game-pk')
     args = parser.parse_args()
     if args.next:
         print(json.dumps(next_case(args.state_root)))
+        raise SystemExit(0)
+    if args.drain:
+        if not all((args.java,args.mapper,args.jena_classpath)):
+            parser.error('Drain requires Java, mapper and Jena classpath')
+        print(json.dumps(drain(args.state_root,args.java,args.mapper,args.jena_classpath)))
         raise SystemExit(0)
     if not all((args.java, args.mapper, args.jena_classpath, args.game_pk)):
         parser.error('Execution requires game, Java, mapper and Jena classpath')
