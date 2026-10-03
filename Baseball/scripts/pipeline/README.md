@@ -65,7 +65,8 @@ no active NiFi manual inbox. The fallback still supports `-ForceRdfLoad` and
 stages a byte-identical JSON copy. It then creates an isolated execution-context
 copy containing the ancestor IDs needed by nested pitch records, materializes
 guarded root-identifier markers only in its temporary mapping, invokes the
-pinned mapper in strict mode, and validates complete source-to-RDF coverage.
+pinned mapper in strict mode, and checks counts for the mapped selections.
+These checks do not establish that every source field or case is mapped.
 Direct fallback execution requires the generated graph to conform to the
 authoritative SHACL profile before it leaves staging. The NiFi path records the
 RML output as deferred, then a separate validation processor reruns the RDF
@@ -77,6 +78,12 @@ imperative Python graph review. The context is disposable and never replaces
 the raw archive. The manifest
 records source, context-builder, execution-context, source-mapping,
 effective-mapping, and output hashes.
+
+The other source modules use `run-source-rml.ps1`. It verifies that both staged
+context and staged mapping match their recorded hashes. A failed run retains
+its mapping, context, partial RDF and full mapper log under the owning module's
+`pipeline/quarantine/<module>/rml/<run>/` state directory; successful staging is
+removed. NiFi's source quarantine stage separately retains the original inputs.
 
 `load-game-graph.ps1` parses the Turtle again before using Graph Store Protocol
 `PUT`. Repeating the load replaces the same graph rather than appending

@@ -36,9 +36,12 @@ if (-not (Test-Path -LiteralPath $mappingPath -PathType Leaf)) {
 
 $contextHashBefore = (Get-FileHash -LiteralPath $contextPath -Algorithm SHA256).Hash.ToLowerInvariant()
 $mappingHash = (Get-FileHash -LiteralPath $mappingPath -Algorithm SHA256).Hash.ToLowerInvariant()
-$workRoot = Join-Path $script:StateRoot "pipeline\work\$ModuleId"
+$workRoot = [System.IO.Path]::GetFullPath((Join-Path $script:StateRoot "pipeline\work\$ModuleId"))
 [void](New-Item -ItemType Directory -Force -Path $workRoot)
-$stage = Join-Path $workRoot ([Guid]::NewGuid().ToString('N'))
+$stage = [System.IO.Path]::GetFullPath((Join-Path $workRoot ([Guid]::NewGuid().ToString('N'))))
+if (-not $stage.StartsWith($workRoot + [System.IO.Path]::DirectorySeparatorChar, [System.StringComparison]::OrdinalIgnoreCase)) {
+    throw 'RML staging path escaped its source owner.'
+}
 [void](New-Item -ItemType Directory -Path $stage)
 $stageContext = Join-Path $stage $MappingContextName
 $stageMapping = Join-Path $stage (Split-Path -Leaf $mappingPath)
@@ -55,6 +58,9 @@ try {
     Copy-Item -LiteralPath $mappingPath -Destination $stageMapping
     if ((Get-FileHash -LiteralPath $stageContext -Algorithm SHA256).Hash.ToLowerInvariant() -ne $contextHashBefore) {
         throw "The staged $ModuleId context is not byte-identical to its validated input."
+    }
+    if ((Get-FileHash -LiteralPath $stageMapping -Algorithm SHA256).Hash.ToLowerInvariant() -ne $mappingHash) {
+        throw "The staged $ModuleId mapping changed before RML execution."
     }
 
     $java = Get-JavaExecutable
@@ -99,6 +105,21 @@ try {
     }
     Write-AtomicJsonFile -Path $manifestPath -Value $manifest -Depth 12
     Write-Output ($manifest | ConvertTo-Json -Depth 12 -Compress)
+}
+catch {
+    # Keep the actual failed mapping, context, output and complete mapper log.
+    # The owning source lane retains its original raw inputs separately.
+    $quarantineRoot = [System.IO.Path]::GetFullPath((Join-Path $script:StateRoot "pipeline\quarantine\$ModuleId\rml"))
+    $quarantine = [System.IO.Path]::GetFullPath((Join-Path $quarantineRoot (Split-Path -Leaf $stage)))
+    if (-not $quarantine.StartsWith($quarantineRoot + [System.IO.Path]::DirectorySeparatorChar, [System.StringComparison]::OrdinalIgnoreCase)) {
+        throw 'RML quarantine path escaped its source owner.'
+    }
+    if (Test-Path -LiteralPath $stage -PathType Container) {
+        [void](New-Item -ItemType Directory -Force -Path $quarantineRoot)
+        Move-Item -LiteralPath $stage -Destination $quarantine
+        Write-Warning "Failed $ModuleId RML execution retained at $quarantine"
+    }
+    throw
 }
 finally {
     if (Test-Path -LiteralPath $stage -PathType Container) {
