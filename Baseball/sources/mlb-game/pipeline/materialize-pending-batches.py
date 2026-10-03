@@ -81,6 +81,25 @@ def promotion_inventory(state_root: Path) -> dict[str, Any]:
     return module.promotion_inventory(state_root)
 
 
+def maintain_serving_storage(state_root):
+    """Run the existing retention policy before another build needs space.
+
+    Promotion-only cleanup never runs when candidates repeatedly fail. Keep
+    the current reader's database and newest rollback candidates; leave the
+    separately owned dashboard, RDF, source inputs and evidence untouched.
+    """
+    store=state_root/'serving';pointer=store/'current.json'
+    if not pointer.is_file() or len(list((store/'builds').glob('*.sqlite')))<=3:return
+    current=Path(json_object(pointer)['databasePath']).resolve()
+    if current.parent!=(store/'builds').resolve() or not current.is_file():
+        raise ValueError('Retention requires the existing current serving database')
+    spec=importlib.util.spec_from_file_location('batch_storage_owner',MATERIALIZER)
+    owner=importlib.util.module_from_spec(spec);spec.loader.exec_module(owner)
+    result=owner.enforce_build_retention(store,current,3)
+    atomic_json(store/'build-retention.json',dict(result,checkedAtUtc=datetime.now(timezone.utc).isoformat()))
+    return result
+
+
 def resume_replay_workers(state_root, request=None, proof_release=None):
     """Finish a requested deployment, including a proof-held RML queue."""
     path = state_root/'pipeline/control/mlb-game/replay-readiness-resume.json'
@@ -194,6 +213,7 @@ def main() -> int:
         )
         return 0
 
+    maintain_serving_storage(state_root)
     result = subprocess.run(
         [
             sys.executable,

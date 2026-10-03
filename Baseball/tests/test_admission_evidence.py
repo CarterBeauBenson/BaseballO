@@ -27,6 +27,42 @@ def current_implementation(family, entry):
 
 
 class AdmissionEvidence(unittest.TestCase):
+    def test_ambiguous_roster_does_not_starve_independent_families_or_become_admitted(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);promotion=dict(gamePk='1',promotionManifestSha256='promotion')
+            witness=dict(kind='retained-b1-census',path='retained-source',sha256='source')
+            retained=({},witness);original=E.module
+            def module(path,name):
+                return SimpleNamespace(available_memory=lambda:2*1024**3) if Path(path).name=='process_state.py' else original(path,name)
+            with patch.object(E,'module',side_effect=module),patch.object(E,'checked_marker',return_value={}), \
+                 patch.object(E,'diagnostic',return_value={'evidenceState':'current'}), \
+                 patch.object(E,'load',side_effect=lambda a,s,p,f:dict(status='withheld' if f in {'batting','pitch-count'} else 'admitted')), \
+                 patch.object(E.PLAYER_PARTICIPATION,'load',return_value=None), \
+                 patch.object(E.PLAYER_PARTICIPATION,'retained_source',return_value=retained), \
+                 patch.object(E.PLAYER_PARTICIPATION,'prove',side_effect=ValueError('A complete unambiguous roster is required')) as prove, \
+                 patch.object(E.RETAINED_BATTING,'load',return_value={}), \
+                 patch.object(E.EXISTING_GRAPH,'load',side_effect=lambda a,s,p,f,adapter:None if f=='pitch-count' else {}), \
+                 patch.object(E.RETAINED_CENSUS,'load',return_value=None), \
+                 patch.object(E,'retained_raw_witness',return_value=witness), \
+                 patch.object(E,'refresh_existing_graph',return_value=[(Path('proof'),'pitch-count','admitted')]) as refresh:
+                result=E.refresh_game(state,promotion,None,None)
+                self.assertEqual(result['existingGraphOutcomes'],{'pitch-count':'admitted'})
+                self.assertEqual(result['refreshed'],['pitch-count'])
+                failure=result['familyFailures']['player-participation']
+                self.assertEqual(failure['sourceWitness'],witness)
+                self.assertNotIn('admitted',failure.values())
+                E.atomic(state/'pipeline/control/mlb-game/admission-evidence/1.json',result)
+                with patch.object(E.EXISTING_GRAPH,'load',return_value={}):
+                    again=E.refresh_game(state,promotion,None,None)
+                self.assertEqual(again['status'],'partial')
+                self.assertEqual(again['familyFailures'],result['familyFailures'])
+                prove.assert_called_once();refresh.assert_called_once()
+                witness['sha256']='new-source'
+                prove.side_effect=ValueError('Graph receipt changed')
+                with self.assertRaisesRegex(ValueError,'Graph receipt changed'):
+                    E.refresh_game(state,promotion,None,None)
+                self.assertEqual(prove.call_count,2)
+
     def test_interrupted_refresh_is_preserved_before_regeneration_and_never_admitted(self):
         with tempfile.TemporaryDirectory() as temp:
             state=Path(temp);promotion=dict(gamePk='1',promotionManifestSha256='promotion')

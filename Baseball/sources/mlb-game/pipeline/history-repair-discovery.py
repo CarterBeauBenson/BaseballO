@@ -5,6 +5,7 @@ base identities, and let the unchanged context select the missing histories.
 This is queue construction, not another semantic validator or game remapper.
 """
 from pathlib import Path
+import inspect
 import urllib.request
 
 SCOPE='archive/design-records/metric-repair-scope-2026-09-30/answers.md'
@@ -98,63 +99,112 @@ def source(owner,state,promotion,request_path):
     return witness
 
 
-def discover(owner,state,excluded,limit=25):
-    """Inspect at most 25 receipts and prepare at most one source per tick."""
-    data=inventory(owner,state);version=owner.fingerprint();inspected=0
+def fingerprint(owner):
+    """Inspection depends on selection, not reporting or the execution queue."""
+    return owner.hashlib.sha256(inspect.getsource(inspect_record).encode()+
+        inspect.getsource(owner.select_history).encode()+
+        (owner.ROOT/'scripts/pipeline/prepare-rml-context.py').read_bytes()).hexdigest()
+
+
+def inspect_record(owner,state,marker_path,contract,previous):
+    """Read retained metadata and name the repair; never prepare source/RDF."""
+    marker=owner.read(marker_path);pk=marker_path.parent.name
+    record=dict(identity=[owner.sha(marker_path),fingerprint(owner)],
+        checkedAtUtc=owner.TX.now(),status='not-applicable')
+    manifest_path=owner.I.retained_artifact(state,pk,marker['rmlManifestSha256'],Path(marker['rmlManifest']))
+    if not manifest_path.is_file() or owner.sha(manifest_path)!=marker['rmlManifestSha256']:
+        return dict(record,status='retained-manifest-unavailable')
+    original=owner.read(manifest_path).get('runnerHistoryReconciliation')
+    if not original:return dict(record,status='retained-history-census-unavailable')
+    if not (original.get('sourceConsistency')=='consistent'
+            and (original.get('withheldHistories') or original.get('boundaryIssues'))):return record
+    request=dict(gamePk=pk,promotionManifestSha256=record['identity'][0],
+        rmlManifestSha256=marker['rmlManifestSha256'],contextBuilderSha256=contract['contextBuilderSha256'],
+        scopeDecision=SCOPE,historyFailures=[dict(inning=r['inning'],half=r['half'],issues=r['issues'])
+            for r in original.get('withheldHistories',[])],boundaryIssues=original.get('boundaryIssues',[]))
+    request_key=owner.hashlib.sha256(owner.json.dumps(request,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+    request_path=inventory_path(state).parent/pk/(request_key+'.json')
+    if not request_path.is_file():owner.atomic(request_path,request)
+    elif owner.read(request_path)!=request:raise ValueError('Recorded history repair request changed')
+    request_sha=owner.sha(request_path)
+    # Reinspection of metadata must not recreate an already selected request,
+    # whose transient source may have been retired after successful promotion.
+    if (previous.get('status')=='selected'
+            and previous.get('case',{}).get('repairRequestSha256')==request_sha):
+        return {**previous,**record,'status':'selected'}
+    if (previous.get('status')=='failed' and previous.get('repairRequestSha256')==request_sha
+            and previous.get('diagnostics',{}).get('kind')=='retained-history-conflict'):
+        return {**previous,**record,'status':'failed'}
+    return dict(record,status='awaiting-source',promotionManifest=str(marker_path),
+        repairRequest=str(request_path),repairRequestSha256=request_sha,
+        queuedAtUtc=previous.get('queuedAtUtc',owner.TX.now()))
+
+
+def inspect_promotions(owner,state,excluded,limit=100):
+    """Bounded metadata progress even while selected jobs wait for execution."""
+    data=inventory(owner,state);version=fingerprint(owner);inspected=0
     contract=owner.read(owner.SELECTION)
     if owner.sha(owner.ROOT/'scripts/pipeline/prepare-rml-context.py')!=contract['contextBuilderSha256']:
         raise ValueError('History discovery context differs from accepted H3')
     directories=sorted((state/'pipeline/evidence/nifi/game-promotion').glob('*'),
-        key=lambda p:(data['games'].get(p.name,{}).get('status')!='failed',p.name))
+        key=lambda p:(p.name in data['games'],p.name))
     for directory in directories:
         pk=directory.name
         if not directory.is_dir() or not pk.isdecimal() or pk in excluded:continue
         markers=list(directory.glob('*.json'))
         if not markers:continue
         marker_path=max(markers,key=lambda p:(owner.read(p)['promotedAtUtc'],p.name))
-        marker=owner.read(marker_path);identity=[owner.sha(marker_path),version]
+        identity=[owner.sha(marker_path),version]
         if data['games'].get(pk,{}).get('identity')==identity:continue
-        inspected+=1;attempted_source=False;history=None;original=None;raw=None
-        record=dict(identity=identity,checkedAtUtc=owner.TX.now(),status='not-applicable')
-        data['games'][pk]=record
+        inspected+=1
         try:
+            data['games'][pk]=inspect_record(owner,state,marker_path,contract,data['games'].get(pk,{}))
+        except Exception as error:
+            data['games'][pk]=dict(identity=identity,checkedAtUtc=owner.TX.now(),status='failed',error=str(error))
+        if inspected>=limit:break
+    if inspected:owner.atomic(inventory_path(state),data)
+    return dict(inspectedGames=inspected,awaitingSource=sum(r.get('status')=='awaiting-source' for r in data['games'].values()))
+
+
+def discover(owner,state,excluded,limit=25):
+    """Prepare one queued source; inspection is also called independently."""
+    inspect_promotions(owner,state,excluded,limit)
+    data=inventory(owner,state)
+    pending=sorted(((pk,r) for pk,r in data['games'].items()
+        if pk not in excluded and r.get('status')=='awaiting-source'),
+        key=lambda item:(item[1]['queuedAtUtc'],item[0]))
+    version=fingerprint(owner)
+    for pk,record in pending:
+        if record['identity'][1]!=version:continue
+        history=None;original=None;raw=None
+        try:
+            marker_path=Path(record['promotionManifest'])
+            latest=max(marker_path.parent.glob('*.json'),key=lambda p:(owner.read(p)['promotedAtUtc'],p.name))
+            if latest!=marker_path or owner.sha(marker_path)!=record['identity'][0]:
+                continue  # The next metadata pass selects the new promotion.
+            marker=owner.read(marker_path)
+            promotion=owner.I.validated_promotion_record(state,marker_path,pk,owner.I.query_index_contract_admission())
             manifest_path=owner.I.retained_artifact(state,pk,marker['rmlManifestSha256'],Path(marker['rmlManifest']))
-            if not manifest_path.is_file() or owner.sha(manifest_path)!=marker['rmlManifestSha256']:
-                record['status']='retained-manifest-unavailable'
-            else:
-                manifest=owner.read(manifest_path);original=manifest.get('runnerHistoryReconciliation')
-                if not original:record['status']='retained-history-census-unavailable'
-                elif (original.get('sourceConsistency')=='consistent'
-                        and (original.get('withheldHistories') or original.get('boundaryIssues'))):
-                    promotion=owner.I.validated_promotion_record(state,marker_path,pk,owner.I.query_index_contract_admission())
-                    request=dict(gamePk=pk,promotionManifestSha256=identity[0],rmlManifestSha256=marker['rmlManifestSha256'],
-                        contextBuilderSha256=contract['contextBuilderSha256'],scopeDecision=SCOPE,
-                        historyFailures=[dict(inning=r['inning'],half=r['half'],issues=r['issues'])
-                            for r in original.get('withheldHistories',[])],boundaryIssues=original.get('boundaryIssues',[]))
-                    request_key=owner.hashlib.sha256(owner.json.dumps(request,sort_keys=True,separators=(',',':')).encode()).hexdigest()
-                    request_path=inventory_path(state).parent/pk/(request_key+'.json')
-                    if not request_path.is_file():owner.atomic(request_path,request)
-                    elif owner.read(request_path)!=request:raise ValueError('Recorded history repair request changed')
-                    attempted_source=True
-                    witness=source(owner,state,promotion,request_path)
-                    record.update(sourceWitness=witness,repairRequest=str(request_path),
-                        repairRequestSha256=owner.sha(request_path))
-                    raw=Path(witness['path']).read_bytes()
-                    # Keep the returned census so the same accepted identity
-                    # guard can explain a refusal without rerunning context.
-                    history=owner.H.CONTEXT.personal_runner_histories(raw)
-                    owner.H.CONTEXT.verify_runner_history_correction(history,original)
-                    previous={h['lifetimeKey'] for h in original['histories']}
-                    selected=[h for h in history['histories'] if h['lifetimeKey'] not in previous]
-                    case=dict(gamePk=pk,selectionRepair='H3',discovered=True,inputSha256=original['inputSha256'],
-                        sourceSha256=witness['sha256'],sourceWitness=witness,promotionManifestSha256=identity[0],
-                        selectedHistoryKeys=sorted(h['lifetimeKey'] for h in selected),
-                        halves=[dict(inning=i,half=h) for i,h in sorted({(int(h['inning']),h['half']) for h in selected})],
-                        repairRequest=str(request_path),repairRequestSha256=owner.sha(request_path))
-                    if selected:owner.select_history(manifest,case,raw)
-                    record.update(status='selected',case=case)
-                    owner.atomic(inventory_path(state),data)
-                    return pk
+            if owner.sha(manifest_path)!=marker['rmlManifestSha256']:raise ValueError('Retained history manifest changed')
+            manifest=owner.read(manifest_path);original=manifest['runnerHistoryReconciliation']
+            request_path=Path(record['repairRequest'])
+            if owner.sha(request_path)!=record['repairRequestSha256']:raise ValueError('Recorded history repair request changed')
+            witness=source(owner,state,promotion,request_path)
+            record.update(sourceWitness=witness)
+            raw=Path(witness['path']).read_bytes()
+            history=owner.H.CONTEXT.personal_runner_histories(raw)
+            owner.H.CONTEXT.verify_runner_history_correction(history,original)
+            previous={h['lifetimeKey'] for h in original['histories']}
+            selected=[h for h in history['histories'] if h['lifetimeKey'] not in previous]
+            case=dict(gamePk=pk,selectionRepair='H3',discovered=True,inputSha256=original['inputSha256'],
+                sourceSha256=witness['sha256'],sourceWitness=witness,promotionManifestSha256=record['identity'][0],
+                selectedHistoryKeys=sorted(h['lifetimeKey'] for h in selected),
+                halves=[dict(inning=i,half=h) for i,h in sorted({(int(h['inning']),h['half']) for h in selected})],
+                repairRequest=str(request_path),repairRequestSha256=owner.sha(request_path))
+            if selected:owner.select_history(manifest,case,raw)
+            record.update(status='selected',case=case)
+            owner.atomic(inventory_path(state),data)
+            return pk
         except Exception as error:
             record.update(status='failed',error=str(error))
             if history is not None:
@@ -163,6 +213,15 @@ def discover(owner,state,excluded,limit=25):
             # Preserve source and terminal evidence. An unrelated game still
             # gets its next bounded tick; never reacquire this failed input.
         owner.atomic(inventory_path(state),data)
-        if attempted_source:return None
-        if inspected>=limit:break
+        return None
     return None
+
+
+if __name__=='__main__':
+    import argparse
+    import importlib.util
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--state-root',type=Path,required=True);args=parser.parse_args()
+    spec=importlib.util.spec_from_file_location('history_inspection_owner',Path(__file__).with_name('targeted-history-addition.py'))
+    owner=importlib.util.module_from_spec(spec);spec.loader.exec_module(owner)
+    print(owner.json.dumps(inspect_promotions(owner,args.state_root,{c['gamePk'] for c in owner.cases()})))

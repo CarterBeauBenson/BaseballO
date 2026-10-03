@@ -17,7 +17,7 @@ def write(path,value):
 
 class RepairStatus(unittest.TestCase):
     def owner(self):
-        return SimpleNamespace(cases=lambda:[],fingerprint=lambda:'worker',
+        return SimpleNamespace(cases=lambda:[],DISCOVERY=SimpleNamespace(fingerprint=lambda owner:'worker'),
             completed_case=lambda p,c:p.get('status')=='complete' and
                 p.get('repairRequestSha256')==c.get('repairRequestSha256'),
             TX=SimpleNamespace(now=lambda:'now'),atomic=write)
@@ -33,6 +33,10 @@ class RepairStatus(unittest.TestCase):
             inventory=state/'pipeline/control/mlb-game/history-discovery/inventory.json'
             write(inventory,dict(games={'1':dict(status='not-applicable',identity=[S.digest(marker),'worker'])}))
             self.assertTrue(S.observe(state,self.owner())['recordedWorkClear'])
+            write(inventory,dict(games={'1':dict(status='awaiting-source',identity=[S.digest(marker),'worker'])}))
+            report=S.observe(state,self.owner())
+            self.assertFalse(report['recordedWorkClear'])
+            self.assertEqual(report['historyDiscovery']['awaitingSource'],['1'])
             write(marker,dict(promotedAtUtc='2026-10-03T01:00:00Z'))
             report=S.observe(state,self.owner())
             self.assertFalse(report['recordedWorkClear'])
@@ -43,6 +47,8 @@ class RepairStatus(unittest.TestCase):
             state=Path(temp);control=state/'pipeline/control/mlb-game'
             write(control/'foul-addition/1.json',dict(status='partial',unresolvedFouls=[dict(reason='UNEXPLAINED_COUNTER_TRANSITION')]))
             write(control/'history-addition/2.json',dict(status='complete',repairRequestSha256='old'))
+            write(control/'admission-evidence/5.json',dict(status='current',familyFailures={
+                'player-participation':dict(error='A complete unambiguous roster is required')}))
             write(control/'history-discovery/inventory.json',dict(games={
                 '2':dict(status='selected',case=dict(repairRequestSha256='current')),
                 '3':dict(status='retained-history-census-unavailable')}))
@@ -53,6 +59,8 @@ class RepairStatus(unittest.TestCase):
             self.assertEqual(report['coverageLimits']['unavailableHistoryEvidence'],['3'])
             self.assertEqual(report['coverageLimits']['unresolvedDefensiveSources'],['4'])
             self.assertEqual(report['issues'][0]['unresolvedFouls'][0]['reason'],'UNEXPLAINED_COUNTER_TRANSITION')
+            self.assertEqual(next(i for i in report['issues'] if i['gamePk']=='5')['familyFailures']
+                ['player-participation']['error'],'A complete unambiguous roster is required')
 
     def test_reports_corruption_and_only_supersedes_quarantine_after_later_promotion(self):
         with tempfile.TemporaryDirectory() as temp:

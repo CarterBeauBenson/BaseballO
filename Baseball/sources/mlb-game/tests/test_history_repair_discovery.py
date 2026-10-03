@@ -12,6 +12,46 @@ D=H.DISCOVERY
 
 
 class HistoryRepairDiscovery(unittest.TestCase):
+    def test_metadata_inspection_advances_without_source_work_and_prioritizes_unseen(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);_,_,manifest,promotion,_=self.setup_case(state)
+            first=state/'pipeline/evidence/nifi/game-promotion/824087/marker.json'
+            second=first.parent.parent/'824088/marker.json'
+            H.atomic(second,dict(H.read(first),gamePk='824088'))
+            H.atomic(D.inventory_path(state),dict(games={'824087':dict(status='selected',identity=['old','worker'])}))
+            api=SimpleNamespace(**vars(H))
+            with patch.object(H.I,'retained_artifact',return_value=manifest), \
+                    patch.object(D,'source') as source,patch.object(H,'select_history') as select:
+                # The fingerprint follows the real selector; source preparation
+                # is the separate operation that must not run during inspection.
+                with patch.object(D,'fingerprint',return_value='inspection'):
+                    result=D.inspect_promotions(api,state,set(),limit=1)
+                self.assertEqual(result['inspectedGames'],1)
+                rows=D.inventory(api,state)['games']
+                self.assertEqual(rows['824087']['identity'],['old','worker'])
+                self.assertEqual(rows['824088']['status'],'awaiting-source')
+                self.assertTrue(Path(rows['824088']['repairRequest']).is_file())
+                source.assert_not_called();select.assert_not_called()
+
+    def test_worker_and_diagnostic_changes_do_not_reacquire_completed_request(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);_,_,manifest,promotion,witness=self.setup_case(state)
+            api=SimpleNamespace(**vars(H));before=D.fingerprint(api)
+            api.fingerprint=lambda:'different-execution-worker'
+            with patch.object(D,'conflict_details',side_effect=AssertionError('not selection')):
+                self.assertEqual(D.fingerprint(api),before)
+            with patch.object(H.I,'retained_artifact',return_value=manifest), \
+                    patch.object(H.I,'validated_promotion_record',return_value=promotion), \
+                    patch.object(D,'source',return_value=witness) as source:
+                D.discover(api,state,set());case=D.cases(api,state)[0]
+                Path(witness['path']).unlink()  # Successful source retirement.
+                inventory=D.inventory(api,state)
+                inventory['games']['824087']['identity'][1]='previous-inspection'
+                H.atomic(D.inventory_path(state),inventory)
+                self.assertIsNone(D.discover(api,state,set()))
+                self.assertEqual(D.cases(api,state)[0],case)
+                source.assert_called_once()
+
     def test_new_selector_has_its_own_request_and_reuses_original_acquisition(self):
         with tempfile.TemporaryDirectory() as temp:
             state=Path(temp);raw,removed,manifest,promotion,_=self.setup_case(state)

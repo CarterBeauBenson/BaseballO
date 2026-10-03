@@ -57,7 +57,7 @@ def observe(state,owner):
 
     def issue(kind,pk,record,path):
         keys=('status','error','checkedAtUtc','attempts','failureAttempts','sourceWitness',
-              'repairRequest','repairRequestSha256','unresolvedFouls','diagnostics')
+              'repairRequest','repairRequestSha256','unresolvedFouls','diagnostics','familyFailures')
         item=dict(kind=kind,gamePk=pk,evidence=str(path),
             **{key:record[key] for key in keys if key in record})
         if (kind=='foul-addition' and record.get('sourceWitness')
@@ -73,13 +73,14 @@ def observe(state,owner):
             row=load(path)
             if not isinstance(row,dict):continue
             rows[path.stem]=row
-            if row.get('status') in {'failed','partial','retry-exhausted'}:issue(kind,path.stem,row,path)
+            if row.get('status') in {'failed','partial','retry-exhausted'} or row.get('familyFailures'):
+                issue(kind,path.stem,row,path)
         records[kind]=rows
         queues[kind]=dict(Counter(row.get('status','missing-status') for row in rows.values()))
 
     inventory_path=control/'history-discovery/inventory.json'
     discovery=(load(inventory_path,{}) if inventory_path.is_file() else {}).get('games',{})
-    fixed={case['gamePk'] for case in owner.cases()};version=owner.fingerprint()
+    fixed={case['gamePk'] for case in owner.cases()};version=owner.DISCOVERY.fingerprint(owner)
     latest={};uninspected=[];stale=[];eligible=0;missing_promotion=[]
     for directory in (state/'pipeline/evidence/nifi/game-promotion').glob('*'):
         if not directory.is_dir() or not directory.name.isdecimal():continue
@@ -130,7 +131,8 @@ def observe(state,owner):
 
     active=sum(n for counts in queues.values() for status,n in counts.items()
         if status in {'running','finalizing'} or status.startswith('waiting-'))
-    pending=len(uninspected)+len(stale)+len(selected_pending)+len(fixed_pending)+active
+    awaiting_source=sorted(pk for pk,r in discovery.items() if r.get('status')=='awaiting-source')
+    pending=len(uninspected)+len(stale)+len(selected_pending)+len(fixed_pending)+len(awaiting_source)+active
     coverage=dict(unresolvedDefensiveSources=unresolved,unavailableHistoryEvidence=unavailable)
     attention=bool(issues or errors or unresolved or unavailable or quarantine_pending or missing_promotion)
     return dict(artifactType='baseballo-mlb-game-repair-status',checkedAtUtc=owner.TX.now(),
@@ -140,6 +142,7 @@ def observe(state,owner):
         historyDiscovery=dict(eligiblePromotedGames=eligible,inspectionImplementationSha256=version,
             statuses=dict(Counter(r.get('status','missing-status') for r in discovery.values())),
             uninspectedGames=sorted(uninspected),outdatedInspections=sorted(stale),
+            awaitingSource=awaiting_source,
             selectedCompleted=selected_complete,selectedPending=sorted(selected_pending),fixedPending=fixed_pending),
         coverageLimits=coverage,issues=issues,observationErrors=errors,
         promotionDirectoriesWithoutMarker=missing_promotion,

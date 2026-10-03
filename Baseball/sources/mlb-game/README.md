@@ -267,6 +267,24 @@ foul repairs include their unresolved PA IDs and hash-checked event/count
 excerpts. These diagnostics preserve the original error and explain it;
 they do not choose between contradictory source assertions.
 
+Before draining repairs, the same worker now inspects up to 100 retained
+promotion receipts, prioritizing games it has never inspected. This metadata
+pass only writes named repair requests; source preparation and additive mapping
+remain separate bounded steps. `awaitingSource` is pending work, not completion.
+Inspection fingerprints cover the selector and accepted context, so reporting
+or execution-queue edits do not invalidate the inspection census. An identical
+selected request is retained even after its successful input cleanup.
+
+An ambiguous roster still blocks player-participation admission. Its exact
+producer, promotion and source witness are recorded under `familyFailures` in
+the existing admission checkpoint; independent admission families continue.
+The observer includes those failures even if other families are current.
+
+The pending-batch SQL owner also applies its existing three-build retention
+policy before launching another build. Retention therefore continues when
+publication fails. It protects current report SQL and the newest candidates,
+and leaves the dashboard's separate storage and all source/RDF evidence alone.
+
 Existing source owners continue bounded discovery and retries. The observer
 only writes its report: it does not acquire inputs, execute RML, query RDF,
 change another checkpoint, or gate promotion/SQL. It runs after releasing the

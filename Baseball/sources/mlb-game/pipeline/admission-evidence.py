@@ -469,12 +469,27 @@ def refresh_game(state,promotion,java,classpath,endpoint='http://127.0.0.1:3031/
                  or corrected is not None)):
         retained=corrected or PLAYER_PARTICIPATION.retained_source(api,state,promotion)
         if retained is not None:
-            memory=module(ROOT/'scripts/pipeline/process_state.py','participation_memory').available_memory()
-            if memory is not None and memory<1024*1024*1024:
-                return dict(result,status='waiting-for-memory',availableMemoryBytes=memory)
-            proof=PLAYER_PARTICIPATION.prove(api,state,promotion,retained,java,classpath,endpoint)
-            return dict(result,status='partial-refreshed',refreshed=['player-participation'],
-                rosterComplete=proof['rosterComplete'],admittedPlayers=sum(p['status']=='admitted' for p in proof['players']))
+            checkpoint=Path(state)/'pipeline/control/mlb-game/admission-evidence'/(promotion['gamePk']+'.json')
+            prior=read(checkpoint) if checkpoint.is_file() else {}
+            failure=prior.get('familyFailures',{}).get('player-participation',{})
+            identity=dict(promotionManifestSha256=promotion['promotionManifestSha256'],
+                implementationSha256=PLAYER_PARTICIPATION.fingerprint(),sourceWitness=retained[1])
+            roster_error='A complete unambiguous roster is required'
+            if not (failure.get('error')==roster_error and all(failure.get(k)==v for k,v in identity.items())):
+                memory=module(ROOT/'scripts/pipeline/process_state.py','participation_memory').available_memory()
+                if memory is not None and memory<1024*1024*1024:
+                    return dict(result,status='waiting-for-memory',availableMemoryBytes=memory)
+                try:
+                    proof=PLAYER_PARTICIPATION.prove(api,state,promotion,retained,java,classpath,endpoint)
+                except ValueError as error:
+                    if str(error)!=roster_error:raise
+                    failure=dict(identity,error=str(error),checkedAtUtc=datetime.now(timezone.utc).isoformat())
+                else:
+                    return dict(result,status='partial-refreshed',refreshed=['player-participation'],
+                        rosterComplete=proof['rosterComplete'],admittedPlayers=sum(p['status']=='admitted' for p in proof['players']))
+            # Preserve the owner's refusal, bound to its exact inputs. It is
+            # not an admission proof and cannot suppress independent families.
+            result['familyFailures']={'player-participation':failure}
     if RETAINED_BATTING.load(api,state,promotion) is None:
         api=SimpleNamespace(**globals())
         retained=RETAINED_BATTING.source_census(api,state,promotion)
@@ -504,7 +519,7 @@ def refresh_game(state,promotion,java,classpath,endpoint='http://127.0.0.1:3031/
         if load(adapter,state,promotion,family).get('status')!='admitted'
         and EXISTING_GRAPH.load(api,state,promotion,family,adapter) is None
         and RETAINED_CENSUS.load(api,state,promotion,family,adapter) is None]
-    if not unchecked:return dict(result,status='current')
+    if not unchecked:return dict(result,status='partial' if result.get('familyFailures') else 'current')
     witness=retained_raw_witness(state,promotion)
     if witness is None:
         censuses={family:value for family in unchecked
@@ -517,7 +532,7 @@ def refresh_game(state,promotion,java,classpath,endpoint='http://127.0.0.1:3031/
         checked=refresh_existing_graph(state,promotion,witness,java,classpath,endpoint)
         return dict(result,status='refreshed',refreshed=[family for _,family,_ in checked],
             existingGraphOutcomes={family:status for _,family,status in checked})
-    if not pending: return dict(result,status='current')
+    if not pending: return dict(result,status='partial' if result.get('familyFailures') else 'current')
     manifest_path=retained_manifest(state,marker,promotion['gamePk'])
     if not manifest_path.is_file() or sha(manifest_path)!=marker.get('rmlManifestSha256'):
         return dict(result,status='retained-manifest-unavailable')
