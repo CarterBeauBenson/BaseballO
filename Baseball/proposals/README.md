@@ -107,6 +107,13 @@ pass is archived as
 
 ## Active reviews
 
+**[W3 final award selection](mlb-game-final-award-selection/README.md)** proposes
+five additive award repairs: two completed-review hit-by-pitches and three
+intentional walks after earlier events or pitches. Its disposable candidate
+check passes all five exact selections and contradictory variants, preserving
+physical pitches and excluding earlier steals from walk attribution. The
+active context and RDF remain unchanged pending the named W3 decision.
+
 The packages below are all **under review** with a null ontologist decision.
 They are design-only and authorize no ontology, RML, SHACL, acquisition, RDF,
 SQL, or UI change. Each link keeps one answerable modeling boundary visible;

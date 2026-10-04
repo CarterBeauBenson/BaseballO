@@ -1,0 +1,97 @@
+{
+  "proposal": "W3",
+  "previousContextSha256": "6c4829ed57028bc635e71487c7489f5c3473e427bbcc1d7ddafb0c2ab3be3e96",
+  "candidateContextSha256": "98546d4a5347f16e729d490b9571498b9bc16f52c39f6a7eb179b04833ef2760",
+  "cases": [
+    {
+      "gamePk": "822972",
+      "atBatIndex": 14,
+      "runnerIndex": 0,
+      "runnerId": 663743,
+      "terminalEventIndex": 0,
+      "result": "hit_by_pitch",
+      "physicalPitchIds": [
+        "d9567a5e-786b-3fe7-a8fb-3e316fed1afd"
+      ],
+      "sourceWitness": {
+        "path": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\quarantine\\mlb-game\\822972\\targeted-history-c35dbe10fb0b11f6\\input.json",
+        "sha256": "8953d86425997a8f5ec4b6fcd5dc02828bc1fbfe3d6450a2e0766f1981dc9a8b"
+      },
+      "review": {
+        "isOverturned": true,
+        "inProgress": false,
+        "reviewType": "MI",
+        "challengeTeamId": 139
+      }
+    },
+    {
+      "gamePk": "823052",
+      "atBatIndex": 54,
+      "runnerIndex": 0,
+      "runnerId": 592626,
+      "terminalEventIndex": 0,
+      "result": "hit_by_pitch",
+      "physicalPitchIds": [
+        "d0ed0921-bf05-310b-a7d4-f58dc744abad"
+      ],
+      "sourceWitness": {
+        "path": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\quarantine\\mlb-game\\823052\\targeted-history-79d75aae7fc260c8\\input.json",
+        "sha256": "a8fee947494bd2770c670769ae8066ed47c3de29bbc7ad18b6dd1bf7713948f6"
+      },
+      "review": {
+        "isOverturned": false,
+        "inProgress": false,
+        "reviewType": "MI",
+        "challengeTeamId": 138
+      }
+    },
+    {
+      "gamePk": "823523",
+      "atBatIndex": 34,
+      "runnerIndex": 0,
+      "runnerId": 605141,
+      "terminalEventIndex": 3,
+      "result": "intent_walk",
+      "physicalPitchIds": [
+        "520cc9fe-dddb-3712-b8a9-86c36c47398a",
+        "f67c93eb-86ab-342b-8178-a78bf690e1f2",
+        "9e885be0-7066-38f2-95e4-b0d46c68c443"
+      ],
+      "sourceWitness": {
+        "path": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\quarantine\\mlb-game\\823523\\targeted-history-9a9398bdc2aaf192\\input.json",
+        "sha256": "43808a5e079e7670b2850407dd911b2284a101d3ac8dd1fb8b4de811f9223c66"
+      },
+      "review": null
+    },
+    {
+      "gamePk": "823048",
+      "atBatIndex": 52,
+      "runnerIndex": 2,
+      "runnerId": 663457,
+      "terminalEventIndex": 8,
+      "result": "intent_walk",
+      "physicalPitchIds": [
+        "730e8da5-ce5e-300c-97f4-465b3a82b096"
+      ],
+      "sourceWitness": {
+        "path": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\quarantine\\mlb-game\\823048\\targeted-history-43ef2456e47002ac\\input.json",
+        "sha256": "72ed4c3ffde59d1c0837f3111bb55ea580952cf3a2053405a69f9446b6478733"
+      },
+      "review": null
+    },
+    {
+      "gamePk": "823350",
+      "atBatIndex": 98,
+      "runnerIndex": 0,
+      "runnerId": 668804,
+      "terminalEventIndex": 5,
+      "result": "intent_walk",
+      "physicalPitchIds": [],
+      "sourceWitness": {
+        "path": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\quarantine\\mlb-game\\823350\\targeted-history-a5487e4625a3fafa\\input.json",
+        "sha256": "bd78a921eec99ef87419554f182b88313882714f9d20d77d89295a52987d27c9"
+      },
+      "review": null
+    }
+  ]
+}
