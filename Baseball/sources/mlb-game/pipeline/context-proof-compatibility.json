@@ -1916,7 +1916,7 @@
         ]
       },
       "pitch-count": {
-        "currentImplementationSha256": "85f80cfbe6e8ec74f363d66b248380178338e979d38bfe41397c0067e5056b68",
+        "currentImplementationSha256": "23664fabd2cc21079e14925b81fcea2fb63e571ad4e33be3632926868d2f6761",
         "previous": [
           {
             "previousImplementationSha256": "3f61665f406c2a68e6dde42d56441c5e1e6b605f560cc0ed334559b900dd27f4",
@@ -1962,6 +1962,11 @@
             "previousImplementationSha256": "9234103b03dd8ae53ceb98b2fc975dd210d4fe5d39b0608548b64b75bcf65b93",
             "previousSourceProducerSha256": "5f4f323463e042308c364be105f4a6e93d6225515985b6667f70ce017cf587ae",
             "requiresOriginalAdmission": true
+          },
+          {
+            "previousImplementationSha256": "85f80cfbe6e8ec74f363d66b248380178338e979d38bfe41397c0067e5056b68",
+            "previousSourceProducerSha256": "2e918fc636b327689c1a2425326d54169b1b072190fb67af41cc0e6599eb8347",
+            "requiresOriginalAdmission": false
           }
         ]
       },
@@ -2066,5 +2071,12 @@
         ]
       }
     }
+  },
+  "missingCountResultHandling": {
+    "baselineCommit": "6f4dea9",
+    "previousImplementationSha256": "2e918fc636b327689c1a2425326d54169b1b072190fb67af41cc0e6599eb8347",
+    "currentImplementationSha256": "c0a18d381f5269fbaffb208c0de30ccc79ec02a7f0f4490cf67b653395b2b98e",
+    "contextSha256": "6c4829ed57028bc635e71487c7489f5c3473e427bbcc1d7ddafb0c2ab3be3e96",
+    "reason": "Only missing result/eventType access changes: record existing UNKNOWN_OFFICIAL_PA_RESULT withholding instead of raising KeyError. Every previously produced census is unchanged; previous crashes have no proof to reuse."
   }
 }

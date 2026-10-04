@@ -52,7 +52,7 @@ def census(raw,game_pk):
     game=B.BASE+'data/game/'+game_pk;pas=[]
     identities=Counter(e.get('playId') for p in doc['liveData']['plays']['allPlays'] for e in p['playEvents'] if e.get('playId'))
     for play in doc['liveData']['plays']['allPlays']:
-        pa=str(play['atBatIndex']);result_type=play['result']['eventType']
+        pa=str(play['atBatIndex']);result_type=play.get('result',{}).get('eventType')
         if result_type in B.INTERRUPTIONS:continue  # No official PA; B1 separately reconciles this exclusion.
         errors=[];selected=[];strikes=0;previous_end=None
         if result_type not in B.RESULTS:errors.append('UNKNOWN_OFFICIAL_PA_RESULT')

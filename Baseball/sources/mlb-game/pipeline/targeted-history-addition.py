@@ -562,10 +562,15 @@ def cases(state=None):
 
 
 def fingerprint():
+    # Failed evidence-only retries depend on admission code as well as the
+    # mapper. Completed cases remain completed; this never requests a remap.
+    evidence_code=b''.join(p.read_bytes() for p in sorted(HERE.glob('*-admission.py')))
     return hashlib.sha256(Path(__file__).read_bytes() + COMPLETION.read_bytes() +
         (SELECTION.read_bytes() if SELECTION.is_file() else b'') +
         (ROOT / 'scripts/pipeline/prepare-rml-context.py').read_bytes() +
-        (HERE/'history-repair-discovery.py').read_bytes()).hexdigest()
+        (HERE/'history-repair-discovery.py').read_bytes() + evidence_code +
+        (HERE/'admission-evidence.py').read_bytes() +
+        (HERE/'existing-graph-admissions.py').read_bytes()).hexdigest()
 
 
 def next_case(state,skip=()):

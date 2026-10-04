@@ -73,6 +73,16 @@ def code_equivalence(family,previous,current,*,_context=None):
     compound=record.get('compoundResultRepair',{})
     groundout=record.get('defensiveGroundoutRepair',{})
     context=_context or sha(ROOT/record['contextPath'])
+    missing_result=record.get('missingCountResultHandling',{})
+    if (family=='pitch-count' and current==missing_result.get('currentImplementationSha256')
+            and context==missing_result.get('contextSha256')):
+        prior=missing_result['previousImplementationSha256']
+        reused=(dict(kind='unchanged-admission-census') if previous==prior else
+            code_equivalence(family,previous,prior,_context=context))
+        if reused is not None:
+            return dict(reused,recordSha256=sha(COMPATIBILITY_PATH),
+                previousImplementationSha256=previous,currentImplementationSha256=current,
+                compatibilityReason='missing result now records existing unknown-result rejection')
     for repair_name in ('prePitchBatterChain','errorCountPrefixRepair','foulDefenseSelectionRepair'):
         selection=record.get(repair_name,{})
         bridge=selection.get('families',{}).get(family)

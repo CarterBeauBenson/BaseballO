@@ -47,6 +47,16 @@ def extract(data):return M.recovery_histories(M.normalize_bindings(bindings(data
 
 
 class PitchCountAdmission(unittest.TestCase):
+    def test_missing_result_is_withheld_instead_of_crashing_the_evidence_refresh(self):
+        doc=json.loads((M.ROOT/'data/raw/game-566279.json').read_bytes())
+        play=doc['liveData']['plays']['allPlays'][-1]
+        play['result'].pop('eventType')
+        play['about']['isComplete']=False
+        census=A.census(json.dumps(doc).encode(),'566279')
+        self.assertEqual(census['status'],'withheld')
+        self.assertIn(dict(code='UNKNOWN_OFFICIAL_PA_RESULT',
+            plateAppearance=A.B.BASE+'data/game/566279/plate-appearance/'+str(play['atBatIndex'])),census['issues'])
+
     def test_jena_fractional_seconds_preserve_pitch_order(self):
         data,_=pitch_fixture()
         rows=M.normalize_bindings(bindings(data,[G1]),[G1])

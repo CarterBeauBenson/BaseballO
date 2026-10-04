@@ -12,6 +12,15 @@ spec=importlib.util.spec_from_file_location('history_repair',ROOT/'sources/mlb-g
 H=importlib.util.module_from_spec(spec);spec.loader.exec_module(H)
 
 class HistoryAdditionRecovery(unittest.TestCase):
+    def test_admission_fix_reopens_failed_retry_without_reopening_completed_case(self):
+        before=H.fingerprint();original=Path.read_bytes
+        dependency=H.HERE/'pitch-count-admission.py'
+        def changed(p):return original(p)+(b'\n# admission repair\n' if p==dependency else b'')
+        with patch.object(Path,'read_bytes',changed):after=H.fingerprint()
+        self.assertNotEqual(before,after)
+        self.assertFalse(H.same_attempt(dict(status='failed',implementationSha256=before,attempts=2),{},after))
+        self.assertTrue(H.completed_case(dict(status='complete',implementationSha256=before),{}))
+
     def test_unrelated_existing_source_rejection_stays_withheld_without_blocking_history(self):
         with tempfile.TemporaryDirectory() as temp:
             state=Path(temp);prior=state/'prior.json';evidence=state/'repair';evidence.mkdir()

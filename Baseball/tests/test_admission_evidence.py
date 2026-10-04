@@ -416,7 +416,9 @@ class AdmissionEvidence(unittest.TestCase):
                 self.assertIsNone(E.code_equivalence(family,'unknown',entry['currentImplementationSha256']))
         for family,entry in walk['families'].items():
             adapter=E.module(E.HERE/(family+'-admission.py'),'w1_'+family.replace('-','_'))
-            self.assertEqual(adapter.fingerprint(),current['families'][family]['currentImplementationSha256'])
+            expected=(record['missingCountResultHandling'] if family=='pitch-count' and
+                'missingCountResultHandling' in record else current['families'][family])
+            self.assertEqual(adapter.fingerprint(),expected['currentImplementationSha256'])
             clock=record['priorClockIsolation']['families'].get(family)
             if clock:
                 self.assertIsNotNone(E.code_equivalence(family,clock['previousImplementationSha256'],adapter.fingerprint()))
@@ -429,6 +431,22 @@ class AdmissionEvidence(unittest.TestCase):
             self.assertEqual(adapter.fingerprint(),entry['currentImplementationSha256'])
             self.assertEqual(E.prior_versions(kind,adapter.fingerprint()),entry['previousImplementationSha256s'])
             self.assertEqual(E.prior_versions(kind,'unknown'),[])
+
+    def test_missing_count_result_fix_preserves_every_previously_produced_census(self):
+        repair=E.read(E.COMPATIBILITY_PATH)['missingCountResultHandling']
+        path=E.HERE/'pitch-count-admission.py'
+        before=subprocess.check_output(['git','-C',str(ROOT.parent),'show',
+            repair['baselineCommit']+':Baseball/sources/mlb-game/pipeline/pitch-count-admission.py'])
+        self.assertEqual(before.replace(b"result_type=play['result']['eventType']",
+            b"result_type=play.get('result',{}).get('eventType')"),path.read_bytes())
+        adapter=E.module(path,'missing_result_equivalence')
+        original=Path.read_bytes
+        def previous(p):return before if p.resolve()==path.resolve() else original(p)
+        with patch.object(Path,'read_bytes',previous):
+            self.assertEqual(adapter.fingerprint(),repair['previousImplementationSha256'])
+        self.assertEqual(adapter.fingerprint(),repair['currentImplementationSha256'])
+        self.assertIsNotNone(E.code_equivalence('pitch-count',repair['previousImplementationSha256'],adapter.fingerprint()))
+        self.assertIsNone(E.code_equivalence('pitch-count','unknown',adapter.fingerprint()))
 
     def test_expanded_selection_does_not_reuse_an_older_negative_independent_proof(self):
         record=E.read(E.COMPATIBILITY_PATH)['prePitchBatterChain']
