@@ -3,6 +3,7 @@
   "contractVersion": 1,
   "moduleId": "mlb-game",
   "profiles": [
+    "shacl/pitcher-participation.ttl",
     "shacl/batting-admission.ttl",
     "shacl/player-participation-admission.ttl",
     "shacl/contact-continuation.ttl",

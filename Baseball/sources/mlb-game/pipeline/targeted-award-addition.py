@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 import urllib.request
 import uuid
-from rdflib import Graph, Literal, Namespace, RDF
+from rdflib import Graph, Literal, Namespace, RDF, URIRef
 from rdflib.compare import isomorphic
 
 HERE=Path(__file__).resolve().parent
@@ -177,6 +177,21 @@ def base_manifest(marker,promotion,prior):
         basePromotionManifestSha256=promotion['promotionManifestSha256'])
 
 
+def apply_delta(store,graph,missing,removed):
+    """Default additions stay POSTs; an explicitly scoped correction is atomic."""
+    if len(removed):
+        named=URIRef(graph).n3()
+        old=removed.serialize(format='nt');new=missing.serialize(format='nt')
+        update=f'WITH {named} DELETE {{ {old} }} INSERT {{ {new} }} WHERE {{ {old} }}'
+        request=urllib.request.Request('http://127.0.0.1:3031/baseball-dev/update',data=update.encode(),
+            method='POST',headers={'Content-Type':'application/sparql-update'})
+    else:
+        request=urllib.request.Request(store._url(graph),data=missing.serialize(format='nt',encoding='utf-8'),
+            method='POST',headers={'Content-Type':'application/n-triples'})
+    with urllib.request.urlopen(request,timeout=120) as response:
+        if response.status not in (200,201,204):raise RuntimeError('Targeted graph mutation failed')
+
+
 def add_game(state,game_pk,witness,java,mapper,classpath,*,repair=None):
     """Share the existing additive transaction; selection stays source-specific."""
     repair=repair or dict(decisions=dict(decision=DECISION,dependencyDecision=DEPENDENCY_DECISION,selectionDecision=FINAL_AWARD_DECISION),
@@ -212,8 +227,9 @@ def add_game(state,game_pk,witness,java,mapper,classpath,*,repair=None):
     prior_rdf=Path(manifest.get('outputPath',''))
     if prior_rdf.is_file() and sha(prior_rdf)==manifest['outputSha256'] and not isomorphic(base,Graph().parse(prior_rdf)):
         raise ValueError('W1 live graph differs from retained promoted RDF')
+    removed=repair['removals'](base,delta,game_pk,selected) if 'removals' in repair else Graph()
     missing=delta-base
-    if not len(missing):
+    if not len(missing) and not len(removed):
         # A matching source selection is not a receipt for the current mapping.
         # Confirm its actual triples against the current promoted graph before
         # resuming event delivery, without another graph write or transaction.
@@ -223,10 +239,11 @@ def add_game(state,game_pk,witness,java,mapper,classpath,*,repair=None):
                 and marker['targetedAddition'].get('sourceWitness')==witness):
             return dict(status='already-complete',promotionEvidence=str(marker_path),**marker['targetedAddition'])
         return dict(status='already-present',rdfChanged=False,selected=selected)
-    combined=base+delta;rdf=evidence/'authoritative-with-addition.nt';combined.serialize(destination=rdf,format='nt')
+    combined=(base-removed)+delta;rdf=evidence/'authoritative-with-addition.nt';combined.serialize(destination=rdf,format='nt')
     fields=repair['revalidate'](marker,manifest,rdf,evidence,java,classpath,selected,game_pk,missing)
     inventory=dict(gamePk=game_pk,sourceWitness=witness,basePromotionSha256=sha(marker_path),
-        selected=selected,missingTriples=sorted([list(map(lambda term:term.n3(),t)) for t in missing]))
+        selected=selected,missingTriples=sorted([list(map(lambda term:term.n3(),t)) for t in missing]),
+        removedTriples=sorted([list(map(lambda term:term.n3(),t)) for t in removed]))
     atomic(evidence/'addition-inventory.json',inventory)
     addition=dict(**decisions,selectionSha256=selection_sha,
         basePromotionSha256=sha(marker_path),baseRmlManifestSha256=marker['rmlManifestSha256'],
@@ -234,21 +251,20 @@ def add_game(state,game_pk,witness,java,mapper,classpath,*,repair=None):
         sourceWitness=witness,inventorySha256=sha(evidence/'addition-inventory.json'),
         deltaPath=str(delta_path),deltaSha256=sha(delta_path),effectiveMappingSha256=sha(mapping),
         executionContextSha256=sha(context),contextBuilderSha256=sha(ROOT/'scripts/pipeline/prepare-rml-context.py'),
-        addedTriples=len(missing),baseTripleCount=len(base),resultingTripleCount=len(combined),
-        mutation='additive-graph-store-post',acquiredInputs=int(witness.get('kind')=='targeted-reacquisition'))
+        addedTriples=len(missing),removedTriples=len(removed),baseTripleCount=len(base),resultingTripleCount=len(combined),
+        mutation='targeted-sparql-delete-insert' if len(removed) else 'additive-graph-store-post',
+        acquiredInputs=int(witness.get('kind')=='targeted-reacquisition'))
     if sha(source_path)!=witness['sha256']:raise ValueError('W1 source changed before promotion')
     latest=max(marker_root.glob('*.json'),key=lambda p:(read(p)['promotedAtUtc'],p.name))
     if latest!=marker_path or sha(marker_path)!=addition['basePromotionSha256']:raise ValueError('W1 promotion changed')
     promoted=marker_root/(run+'.json');TX.prepare(store,state,game_pk,run)
     try:
-        request=urllib.request.Request(store._url(marker['authoritativeGraph']),data=missing.serialize(format='nt',encoding='utf-8'),
-            method='POST',headers={'Content-Type':'application/n-triples'})
-        with urllib.request.urlopen(request,timeout=120) as response:
-            if response.status not in (200,201,204):raise RuntimeError('W1 graph addition failed')
-        if not isomorphic(TX.nt_graph(store.get(marker['authoritativeGraph'])),combined):raise ValueError('W1 did not preserve the exact base plus delta')
+        apply_delta(store,marker['authoritativeGraph'],missing,removed)
+        if not isomorphic(TX.nt_graph(store.get(marker['authoritativeGraph'])),combined):raise ValueError('Targeted mutation differs from the exact validated result')
         A.command(['powershell.exe','-NoProfile','-ExecutionPolicy','Bypass','-File',ROOT/'scripts/pipeline/build-query-index.ps1',
             '-GamePk',game_pk,'-SourceRdfFile',rdf,'-SourceRdfSha256',sha(rdf)],ROOT,evidence/'query-index.log')
-        updated=dict(manifest,artifactType='baseballo-rml-targeted-addition-manifest',mappingExecution='retained-base-plus-targeted-delta',
+        updated=dict(manifest,artifactType='baseballo-rml-targeted-addition-manifest',
+            mappingExecution='retained-base-with-scoped-correction' if len(removed) else 'retained-base-plus-targeted-delta',
             targetedAddition=addition,outputPath=str(rdf),outputSha256=sha(rdf),
             serialization='ntriples',shaclStatus='validated',shaclValidatedAtUtc=TX.now(),completedAtUtc=TX.now())
         updated['shaclValidationScope']=repair['validation_scope']

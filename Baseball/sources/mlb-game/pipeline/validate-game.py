@@ -25,6 +25,8 @@ def validate(args):
             shape_path=HERE.parent/'shacl/authoritative.ttl',java=args.java,classpath=args.jena_classpath,max_heap='384m')
         report.serialize(destination=args.output/'authoritative.report.ttl',format='turtle')
         if not conforms: raise ValueError('Authoritative SHACL failed')
+        pitcher=module(HERE/'pitcher-participation.py','mlb_actual_pitcher')
+        pitcher.validate(raw,args.game_pk,args.rdf,args.output,session,args.java,args.jena_classpath)
         for name in ('clock','runner-history','defensive','pitch-count','runner-boundary',
                      'runner-resolution','scoring-run','contact-continuation','batting'):
             producer=module(HERE/(name+'-admission.py'),'mlb_suite_'+name.replace('-','_'))

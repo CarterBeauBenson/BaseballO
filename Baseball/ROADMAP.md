@@ -35,8 +35,10 @@ current repair scopes and superseded history proofs; two old Transactions
 promotion failures also completed without remapping. The new
 [F8 foul-selector](archive/design-records/mlb-game-foul-substitution-review-completion/README.md)
 and [P1 pitching-participation](archive/design-records/mlb-game-actual-pitcher-participation/README.md)
-packages were explicitly accepted together on October 4; implement them after
-publishing the separate decision record. Remaining history comparisons stay with NiFi;
+packages were accepted together on October 4 and implemented after the separate
+acceptance commit `9b41838`. P1 has promoted its exact two removals and three
+additions in 823420. F8 is active in the existing foul lane; the repair plan
+records completed versus queued games. Remaining history comparisons stay with NiFi;
 the plan distinguishes actual defects from source/modeling exclusions. Continue
 independent metric work over valid RDF.
 

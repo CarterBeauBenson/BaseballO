@@ -142,7 +142,8 @@
         "BatterRoleStasisIntervalMap",
         "PitcherRoleMap",
         "PitcherRoleStasisMap",
-        "PitcherRoleStasisIntervalMap"
+        "PitcherRoleStasisIntervalMap",
+        "PlateAppearancePitcherParticipantMap"
       ]
     },
     {

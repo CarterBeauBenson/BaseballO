@@ -23,6 +23,17 @@
   rml:referenceFormulation ql:JSONPath ;
   rml:iterator "$.liveData.plays.allPlays[*]._baseballO.batterParticipations[*]" .
 
+# P1: actual pitching participation, independent of official PA assignment.
+<#PitcherParticipationSource> a rml:LogicalSource ;
+  rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$.liveData.plays.allPlays[*]._baseballO.pitcherParticipations[*]" .
+
+<#PitcherRoleBearerSource> a rml:LogicalSource ;
+  rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ;
+  rml:iterator "$._baseballO.pitcherRoleBearers[*]" .
+
 # K1: existing compound result and its two reconciled existing out identities.
 <#CompoundDoublePlaySource> a rml:LogicalSource ;
   rml:source "game-context.json" ;
@@ -933,15 +944,15 @@
   ] .
 
 <#PitcherRoleMap> a rr:TriplesMap ;
-  rml:logicalSource <#PlaySource> ;
-  rr:subjectMap [ rr:template "https://baseballontology.org/data/player/{matchup.pitcher.id}/role/pitcher" ; rr:termType rr:IRI ; rr:class base:PitcherRole ] ;
+  rml:logicalSource <#PitcherRoleBearerSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/player/{playerId}/role/pitcher" ; rr:termType rr:IRI ; rr:class base:PitcherRole ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000197 ;
-    rr:objectMap [ rr:template "https://baseballontology.org/data/player/{matchup.pitcher.id}" ; rr:termType rr:IRI ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/player/{playerId}" ; rr:termType rr:IRI ]
   ] ;
   rr:predicateObjectMap [
     rr:predicate obo:BFO_0000056 ;
-    rr:objectMap [ rr:template "https://baseballontology.org/data/player/{matchup.pitcher.id}/role/pitcher/stasis" ; rr:termType rr:IRI ]
+    rr:objectMap [ rr:template "https://baseballontology.org/data/player/{playerId}/role/pitcher/stasis" ; rr:termType rr:IRI ]
   ] .
 
 <#BaserunnerRoleMap> a rr:TriplesMap ;
@@ -1017,15 +1028,15 @@
   rr:subjectMap [ rr:template "https://baseballontology.org/data/player/{playerId}/role/batter/stasis/temporal-interval" ; rr:termType rr:IRI ; rr:class obo:BFO_0000038 ] .
 
 <#PitcherRoleStasisMap> a rr:TriplesMap ;
-  rml:logicalSource <#PlaySource> ;
-  rr:subjectMap [ rr:template "https://baseballontology.org/data/player/{matchup.pitcher.id}/role/pitcher/stasis" ; rr:termType rr:IRI ; rr:class cco:ont00000824 ] ;
-  rr:predicateObjectMap [ rr:predicate obo:BFO_0000057 ; rr:objectMap [ rr:template "https://baseballontology.org/data/player/{matchup.pitcher.id}" ; rr:termType rr:IRI ] ] ;
-  rr:predicateObjectMap [ rr:predicate obo:BFO_0000057 ; rr:objectMap [ rr:template "https://baseballontology.org/data/player/{matchup.pitcher.id}/role/pitcher" ; rr:termType rr:IRI ] ] ;
-  rr:predicateObjectMap [ rr:predicate obo:BFO_0000199 ; rr:objectMap [ rr:template "https://baseballontology.org/data/player/{matchup.pitcher.id}/role/pitcher/stasis/temporal-interval" ; rr:termType rr:IRI ] ] .
+  rml:logicalSource <#PitcherRoleBearerSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/player/{playerId}/role/pitcher/stasis" ; rr:termType rr:IRI ; rr:class cco:ont00000824 ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000057 ; rr:objectMap [ rr:template "https://baseballontology.org/data/player/{playerId}" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000057 ; rr:objectMap [ rr:template "https://baseballontology.org/data/player/{playerId}/role/pitcher" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000199 ; rr:objectMap [ rr:template "https://baseballontology.org/data/player/{playerId}/role/pitcher/stasis/temporal-interval" ; rr:termType rr:IRI ] ] .
 
 <#PitcherRoleStasisIntervalMap> a rr:TriplesMap ;
-  rml:logicalSource <#PlaySource> ;
-  rr:subjectMap [ rr:template "https://baseballontology.org/data/player/{matchup.pitcher.id}/role/pitcher/stasis/temporal-interval" ; rr:termType rr:IRI ; rr:class obo:BFO_0000038 ] .
+  rml:logicalSource <#PitcherRoleBearerSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/player/{playerId}/role/pitcher/stasis/temporal-interval" ; rr:termType rr:IRI ; rr:class obo:BFO_0000038 ] .
 
 <#BaserunnerRoleStasisMap> a rr:TriplesMap ;
   rml:logicalSource <#RunnerSource> ;
@@ -1253,6 +1264,13 @@
     rr:predicate obo:BFO_0000199 ;
     rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{about.atBatIndex}/temporal-interval" ; rr:termType rr:IRI ]
   ] .
+
+# P1 keeps actual earlier pitchers as PA participants without changing the result's official assignment.
+<#PlateAppearancePitcherParticipantMap> a rr:TriplesMap ;
+  rml:logicalSource <#PitcherParticipationSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{atBatIndex}" ; rr:termType rr:IRI ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000057 ;
+    rr:objectMap [ rr:template "https://baseballontology.org/data/player/{playerId}" ; rr:termType rr:IRI ] ] .
 
 <#PlateAppearanceStartOutCountMap> a rr:TriplesMap ;
   rml:logicalSource <#ContextPlaySource> ;

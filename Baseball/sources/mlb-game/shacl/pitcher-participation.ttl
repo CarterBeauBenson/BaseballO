@@ -1,0 +1,17 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+@prefix base: <https://baseballontology.org/> .
+@prefix cco: <https://www.commoncoreontologies.org/> .
+
+<__PITCH__/actual-pitcher-shape> a sh:NodeShape ; sh:targetNode <__PITCH__> ;
+  sh:class base:PitchAct ;
+  sh:property [ sh:path obo:BFO_0000057 ; sh:hasValue <__PLAYER__> ;
+    sh:qualifiedValueShape [ sh:class cco:ont00001262 ] ;
+    sh:qualifiedMinCount 1 ; sh:qualifiedMaxCount 1 ] ;
+  sh:property [ sh:path obo:BFO_0000055 ; sh:hasValue <__PLAYER__/role/pitcher> ; sh:minCount 1 ; sh:maxCount 1 ] ;
+  sh:property [ sh:path obo:BFO_0000132 ; sh:hasValue <__PA__> ] .
+<__PLAYER__/role/pitcher/actual-pitcher-shape> a sh:NodeShape ;
+  sh:targetNode <__PLAYER__/role/pitcher> ; sh:class base:PitcherRole ;
+  sh:property [ sh:path obo:BFO_0000197 ; sh:hasValue <__PLAYER__> ; sh:minCount 1 ; sh:maxCount 1 ] .
+<__PITCH__/actual-pa-participant-shape> a sh:NodeShape ; sh:targetNode <__PA__> ;
+  sh:property [ sh:path obo:BFO_0000057 ; sh:hasValue <__PLAYER__> ] .
