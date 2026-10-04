@@ -54,8 +54,10 @@ identified six further defects. Their [implementation checkpoint](sources/mlb-ga
 records the corrected placement check, shared terminal-clock selection, Q6/D1
 isolation, staged execution dependencies, narrower history inspection identity,
 and portable recurrence tests. NiFi has promoted 1,128 supported defensive
-triples across all five Q6 games. The one-game clock correction is prepared;
-its activation and terminal outcome are recorded in that checkpoint.
+triples across all five Q6 games. The one-game clock correction also promoted
+at 18:00:50 UTC, replacing exactly one timestamp and preserving unrelated RDF.
+All six diagnosed repairs are complete; the broader history work and separate
+source/modeling questions remain tracked in the plan.
 Continue independent metric work over valid RDF.
 
 The October 2 RML repair snapshot is covered by

@@ -17,7 +17,9 @@ class DefensiveRmlTests(unittest.TestCase):
     def test_q6_real_relay_rml_and_exact_source_shacl(self):
         temporary=tempfile.TemporaryDirectory(prefix='baseballo-d1-one-pa-')
         self.addCleanup(temporary.cleanup);workspace=Path(temporary.name)
-        doc=json.loads(RAW);doc['liveData']['plays']['allPlays'][-1]['about']['isComplete']=False
+        doc=json.loads(RAW);doc['gamePk']=9822693
+        if 'pk' in doc['gameData']['game']:doc['gameData']['game']['pk']=doc['gamePk']
+        doc['liveData']['plays']['allPlays'][-1]['about']['isComplete']=False
         (workspace/'game.json').write_text(json.dumps(doc),encoding='utf-8')
         subprocess.run([sys.executable,str(ROOT/'scripts/pipeline/prepare-rml-context.py'),
             str(workspace/'game.json'),str(workspace/'complete.json')],check=True,capture_output=True)
@@ -25,7 +27,7 @@ class DefensiveRmlTests(unittest.TestCase):
         d['liveData']['plays']['allPlays']=[d['liveData']['plays']['allPlays'][26]]
         for key in ('histories','episodeMembership'):d['_baseballO']['runnerHistoryReconciliation'][key]=[]
         for key in ('metricPitchReviews','metricAutomaticAwards'):d['_baseballO'][key]=[]
-        source=CONTEXT.defensive_act_context(d);source['game']=BASE+'data/game/822693'
+        source=CONTEXT.defensive_act_context(d);source['game']=BASE+'data/game/'+str(d['gamePk'])
         self.assertFalse(source['populationComplete'])
         self.assertNotEqual(d['_baseballO']['runnerHistoryReconciliation']['sourceConsistency'],'consistent')
         (workspace/'game-context.json').write_text(json.dumps(d),encoding='utf-8')
@@ -45,7 +47,7 @@ class DefensiveRmlTests(unittest.TestCase):
         self.assertFalse([(a,b) for a in acts for b in g.objects(a,BFO.BFO_0000063)])
         self.assertEqual(len({p for a in acts for p in g.objects(a,CCO.ont00001833)}),4)
         report.serialize(destination=workspace/'report.ttl',format='turtle')
-        (workspace/'result.json').write_text(json.dumps(dict(scope='one-PA developer proof, no promotion',gamePk='822693',
+        (workspace/'result.json').write_text(json.dumps(dict(scope='one-PA developer proof, no promotion',gamePk=str(d['gamePk']),
             atBatIndex=26,triples=len(g),acts=7,agents=4,rmlPassed=True,sourceBoundShaclPassed=True,
             populationComplete=False,strictOrderAsserted=False),indent=2)+'\n',encoding='utf-8')
 
