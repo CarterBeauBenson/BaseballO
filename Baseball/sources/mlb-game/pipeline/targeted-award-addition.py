@@ -1,4 +1,4 @@
-"""NiFi's W1/W2 repair: existing award/dependency maps, additive promotion."""
+"""NiFi's W1/W2/W3 repairs: existing award/dependency maps, additive promotion."""
 import argparse
 import hashlib
 import importlib.util
@@ -13,6 +13,8 @@ HERE=Path(__file__).resolve().parent
 ROOT=HERE.parents[2]
 DECISION='archive/design-records/mlb-game-zero-pitch-walk-prefix/review.json'
 DEPENDENCY_DECISION='archive/design-records/mlb-game-w1-award-dependencies/review.json'
+FINAL_AWARD_DECISION='archive/design-records/mlb-game-final-award-selection/review.json'
+FINAL_AWARD_CASES=ROOT/'archive/design-records/mlb-game-final-award-selection/evidence.json'
 RECOVERY=HERE/'award-input-recovery.json'
 SHAPE=HERE.parent/'shacl/intentional-walk-award-addition.ttl'
 MAPS=('AwardCauseMap','AwardRequirementMap','AwardRequiredByMap','AwardEvidenceRecordMap',
@@ -45,15 +47,26 @@ def select(raw,game_pk):
     source=C.B.SOURCE.reconcile(raw,game_pk)
     if source['blockingIssues']:raise ValueError('W1 source census is not reconciled')
     doc[C.CONTEXT.CONTEXT_KEY]={'runnerHistoryReconciliation':C.CONTEXT.personal_runner_histories(raw)}
+    named={str(c['atBatIndex']):c for c in read(FINAL_AWARD_CASES)['cases']
+        if c['gamePk']==game_pk and c['sourceWitness']['sha256']==hashlib.sha256(raw).hexdigest()}
     selected=[]
     for play in doc['liveData']['plays']['allPlays']:
-        if len(play.get('playEvents',[]))<=4:continue
-        if not C.virtual_intentional_walk(play,doc['gameData']['game']['season'],doc):continue
-        rows=C.CONTEXT.runner_metric_evidence(play,str(play['atBatIndex']),
+        pa=str(play['atBatIndex']);case=named.get(pa)
+        if not case and (len(play.get('playEvents',[]))<=4
+                or not C.virtual_intentional_walk(play,doc['gameData']['game']['season'],doc)):continue
+        rows=C.CONTEXT.runner_metric_evidence(play,pa,
             str(doc['gameData']['game']['season']),document=doc)['awardAdvances']
-        selected.append(dict(atBatIndex=str(play['atBatIndex']),
+        if case and ([(r['runnerIndex'],r['runnerId']) for r in rows]
+                !=[(str(case['runnerIndex']),str(case['runnerId']))]
+                or play['result']['eventType']!=case['result']
+                or play['playEvents'][-1]['index']!=case['terminalEventIndex']):
+            raise ValueError('W3 selection differs from its named final award')
+        item=dict(atBatIndex=pa,
             terminalEventIndex=play['playEvents'][-1]['index'],awardAdvances=rows,
-            **selected_dependencies(play,str(play['atBatIndex']),rows)))
+            **selected_dependencies(play,pa,rows))
+        if case:item.update(selectionDecision=FINAL_AWARD_DECISION,
+            resultClass=C.B.RESULTS[case['result']])
+        selected.append(item)
     return selected
 
 def execution_inputs(raw,game_pk,selected,context,mapping):
@@ -72,10 +85,11 @@ def shapes(game_pk,selected):
     base=C.B.BASE+'data/game/'+game_pk;text=[];counts=[]
     for item in selected:
         pa=base+'/plate-appearance/'+item['atBatIndex']
-        counts.append(dict(pa=pa,events=[],zeroPitchIntentionalWalk=True))
+        if item.get('selectionDecision')!=FINAL_AWARD_DECISION:
+            counts.append(dict(pa=pa,events=[],zeroPitchIntentionalWalk=True))
         for row in item['awardAdvances']:
             suffix=item['atBatIndex']+'/'+row['runnerIndex']
-            values=dict(RESULT=pa+'/result',PA=pa,ACT=base+'/runner-act/movement/'+suffix,
+            values=dict(RESULT=pa+'/result',RESULT_CLASS=item.get('resultClass','WalkProcess'),PA=pa,ACT=base+'/runner-act/movement/'+suffix,
                 PLAYER=C.B.BASE+'data/player/'+row['runnerId'],RULE=row['ruleIri'],EDITION=row['ruleEditionIri'],
                 RECORD=base+'/runner-record/'+suffix,RULE_IDENTIFIER=row['ruleIdentifierIri'],
                 EDITION_IDENTIFIER=row['ruleEditionIdentifierIri'],RULE_CODE=Literal(row['ruleCode']).n3(),
@@ -107,7 +121,7 @@ def authoritative_scope(data,focus):
 def revalidate(marker,manifest,rdf,evidence,java,classpath,selected,game_pk,delta,
                *, shape_text=shapes, decisions=None):
     """Preserve original source outcomes; check affected facts before promotion."""
-    decisions=decisions or dict(decision=DECISION,dependencyDecision=DEPENDENCY_DECISION)
+    decisions=decisions or dict(decision=DECISION,dependencyDecision=DEPENDENCY_DECISION,selectionDecision=FINAL_AWARD_DECISION)
     fields={};shape=evidence/'addition.shapes.ttl';shape.write_text(shape_text(game_pk,selected),encoding='utf-8',newline='\n')
     with J.Session(rdf,java,classpath,max_heap='384m') as session:
         def check(path,report):
@@ -165,9 +179,9 @@ def base_manifest(marker,promotion,prior):
 
 def add_game(state,game_pk,witness,java,mapper,classpath,*,repair=None):
     """Share the existing additive transaction; selection stays source-specific."""
-    repair=repair or dict(decisions=dict(decision=DECISION,dependencyDecision=DEPENDENCY_DECISION),
+    repair=repair or dict(decisions=dict(decision=DECISION,dependencyDecision=DEPENDENCY_DECISION,selectionDecision=FINAL_AWARD_DECISION),
         select=select,execution_inputs=execution_inputs,revalidate=revalidate,
-        validation_scope='selected-w1-awards-and-retained-admissions')
+        validation_scope='selected-approved-awards-and-retained-admissions')
     decisions=repair['decisions']
     for decision in decisions.values():
         if read(ROOT/decision)['status']!='accepted':raise ValueError('Targeted addition is not accepted: '+decision)
@@ -350,12 +364,35 @@ def tick(state,game_pk,witness,java,mapper,classpath):
 def fingerprint():
     return hashlib.sha256(Path(__file__).read_bytes()+SHAPE.read_bytes()+A.MAPPING.read_bytes()
         +Path(A.__file__).read_bytes()+C.fingerprint().encode()+(ROOT/DECISION).read_bytes()
-        +(ROOT/DEPENDENCY_DECISION).read_bytes()+RECOVERY.read_bytes()).hexdigest()
+        +(ROOT/DEPENDENCY_DECISION).read_bytes()+(ROOT/FINAL_AWARD_DECISION).read_bytes()
+        +FINAL_AWARD_CASES.read_bytes()+RECOVERY.read_bytes()).hexdigest()
+
+
+def final_award_witness(state):
+    """Only W3's five retained responses; no acquisition or widened inventory."""
+    version=fingerprint()
+    for case in read(FINAL_AWARD_CASES)['cases']:
+        pk=case['gamePk'];witness=case['sourceWitness']
+        if not (state/'pipeline/evidence/nifi/game-promotion'/pk).is_dir():continue
+        control=state/'pipeline/control/mlb-game/award-addition'/(pk+'.json')
+        previous=read(control) if control.is_file() else {}
+        if finished_attempt(previous,version,witness['sha256']):continue
+        source=Path(witness['path'])
+        if not source.is_file() or sha(source)!=witness['sha256']:
+            # Preserve a missing retained witness as a case failure; never
+            # fetch replacement bytes or prevent the other cases from running.
+            atomic(control,dict(gamePk=pk,status='failed',error='W3 exact retained response unavailable',
+                implementationSha256=version,sourceSha256=witness['sha256'],attempts=2,checkedAtUtc=TX.now()))
+            continue
+        return dict(gamePk=pk,**witness)
+    return None
 
 
 def next_witness(state,limit=50):
     """Bounded retained-input inventory; run the reviewed fixture first."""
     control=state/'pipeline/control/mlb-game/award-addition'
+    final_award=final_award_witness(state)
+    if final_award:return final_award
     fixture=control/'822864.json'
     witness=state/'pipeline/quarantine/mlb-game/822864/3011ddc6cb194b2ea53ec644bfcc5d4e/input.json'
     if not fixture.is_file() or read(fixture).get('status') not in {'complete','already-complete','already-present'}:

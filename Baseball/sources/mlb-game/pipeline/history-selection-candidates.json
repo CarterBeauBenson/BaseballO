@@ -2,7 +2,7 @@
   "artifactType": "baseballo-targeted-history-repair-inventory",
   "scopeDecision": "archive/design-records/metric-repair-scope-2026-09-30/README.md",
   "implementationRecord": "sources/mlb-game/review/rml-selection-repair-2026-10-01.md",
-  "contextBuilderSha256": "6c4829ed57028bc635e71487c7489f5c3473e427bbcc1d7ddafb0c2ab3be3e96",
+  "contextBuilderSha256": "98546d4a5347f16e729d490b9571498b9bc16f52c39f6a7eb179b04833ef2760",
   "cases": [
     {
       "gamePk": "849842",

@@ -61,12 +61,25 @@ def census(raw,game_pk):
         if virtual_intentional_walk(play,doc['gameData']['game']['season'],doc):
             pas.append(dict(pa=game+'/plate-appearance/'+pa,events=[],zeroPitchIntentionalWalk=True))
             continue
+        final_award=(CONTEXT.intentional_walk_award_terminal(play) is not None
+            and bool(CONTEXT.runner_metric_evidence(play,pa,str(doc['gameData']['game']['season']),
+                document=doc)['awardAdvances']))
+        counter_indexes=set()
+        if final_award:
+            for event in reversed(play['playEvents']):
+                if event.get('details',{}).get('call',{}).get('code')!='VB':break
+                counter_indexes.add(event['index'])
         for event in play['playEvents']:
             detail=event.get('details',{});pid=event.get('playId');code=detail.get('call',{}).get('code')
             after=event.get('count',{}).get('strikes')
             if type(after) is not int or not 0<=after<=3:
                 errors.append('INVALID_STRIKE_COUNT');continue
             award=awards.get((pa,pid))
+            if event['index'] in counter_indexes:
+                # W3's provider counters complete the final walk; retain all
+                # earlier physical pitches and independently evidenced awards.
+                if after!=strikes:errors.append('UNEXPLAINED_STRIKE_TRANSITION')
+                continue
             if event.get('isPitch') is not True and not award:
                 if after!=strikes or detail.get('isBall') is True or detail.get('isStrike') is True:
                     errors.append('UNMAPPED_NONPITCH_COUNT_EVENT')
@@ -99,18 +112,22 @@ def census(raw,game_pk):
                     balls=event.get('count',{}).get('balls')))
             if strikes>=3 or after!=strikes+increment:errors.append('UNEXPLAINED_STRIKE_TRANSITION')
             strikes=after
-        if not selected:errors.append('EMPTY_COUNT_HISTORY')
-        else:
+        if not selected and not final_award:errors.append('EMPTY_COUNT_HISTORY')
+        elif selected:
             last=selected[-1];call=last.get('call')
             terminal=(strikes==3 and result_type in {'strikeout','strikeout_double_play'}
-                or result_type in {'walk','intent_walk'} and (last.get('balls')==4 or last.get('award',{}).get('ballsAfter')==4)
+                or result_type in {'walk','intent_walk'} and (final_award or last.get('balls')==4 or last.get('award',{}).get('ballsAfter')==4)
                 or result_type=='hit_by_pitch' and call=='H'
                 or result_type not in {'strikeout','strikeout_double_play','walk','intent_walk','hit_by_pitch','catcher_interf'} and call in {'X','D','E'})
             if not terminal:errors.append('UNSUPPORTED_PA_TERMINATION')
             for first,second in zip(selected,selected[1:]):
                 if first['kind']==second['kind']=='award':errors.append('UNORDERED_ADJACENT_AWARDS')
         for error in sorted(set(errors)):issues.append(dict(code=error,plateAppearance=game+'/plate-appearance/'+pa))
-        pas.append(dict(pa=game+'/plate-appearance/'+pa,events=selected))
+        row=dict(pa=game+'/plate-appearance/'+pa,events=selected)
+        if final_award:
+            row['intentionalWalkAward']=True
+            if not selected:row['zeroPitchIntentionalWalk']=True
+        pas.append(row)
     return dict(gamePk=game_pk,game=game,sourceSha256=B.sha(raw),sourceRevision=source['sourceRevision'],
                 status='withheld' if issues else 'reconciled',issues=issues,plateAppearances=pas,
                 withheldAutomaticAwards=automatic['withheldAutomaticAwards'])
@@ -139,7 +156,7 @@ def shape_text(source):
         node(pa['pa'],['sh:class base:PlateAppearance',
             'sh:sparql [ sh:message "Count event membership differs from the final source" ; sh:select '+Literal(no_extra).n3()+' ]',
             'sh:property [ sh:path [ sh:inversePath obo:BFO_0000132 ] ; sh:qualifiedValueShape [ sh:class base:PitchAct ] ; sh:qualifiedMinCount '+str(len(pitch_ids))+' ; sh:qualifiedMaxCount '+str(len(pitch_ids))+' ]'])
-        if pa.get('zeroPitchIntentionalWalk'):
+        if pa.get('zeroPitchIntentionalWalk') or pa.get('intentionalWalkAward'):
             node(pa['pa']+'/result',['sh:class base:WalkProcess',prop('obo:BFO_0000132',B.iri(pa['pa']))])
         for e in pa['events']:
             if e['kind']=='award':

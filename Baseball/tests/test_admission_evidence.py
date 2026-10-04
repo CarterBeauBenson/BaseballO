@@ -318,7 +318,8 @@ class AdmissionEvidence(unittest.TestCase):
         selection=record.get('foulDefenseSelectionRepair')
         error_prefix=record.get('errorCountPrefixRepair')
         batter_chain=record.get('prePitchBatterChain')
-        current=batter_chain or error_prefix or selection or foul or history or groundout or compound or walk
+        final_award=record.get('finalAwardSelection')
+        current=final_award or batter_chain or error_prefix or selection or foul or history or groundout or compound or walk
         if compound:
             now=(subprocess.check_output(['git','-C',str(ROOT.parent),'show',
                 groundout['baselineCommit']+':Baseball/'+record['contextPath']]) if groundout
@@ -403,7 +404,9 @@ class AdmissionEvidence(unittest.TestCase):
                 self.assertIsNone(E.code_equivalence(family,'unknown',entry['currentImplementationSha256']))
                 self.assertIsNone(E.code_equivalence(family,entry['previousImplementationSha256'],'unknown'))
         if batter_chain:
-            updated=(ROOT/record['contextPath']).read_bytes()
+            updated=(subprocess.check_output(['git','-C',str(ROOT.parent),'show',
+                final_award['baselineCommit']+':Baseball/'+record['contextPath']]) if final_award
+                else (ROOT/record['contextPath']).read_bytes())
             self.assertEqual(hashlib.sha256(live).hexdigest(),batter_chain['previousContextSha256'])
             self.assertEqual(hashlib.sha256(updated).hexdigest(),batter_chain['currentContextSha256'])
             def outside_batter_chain(raw):
@@ -412,11 +415,21 @@ class AdmissionEvidence(unittest.TestCase):
                 return ast.dump(tree)
             self.assertEqual(outside_batter_chain(live),outside_batter_chain(updated))
             for family,entry in batter_chain['families'].items():
-                self.assertIsNotNone(E.code_equivalence(family,entry['previousImplementationSha256'],entry['currentImplementationSha256']))
+                self.assertIsNotNone(E.code_equivalence(family,entry['previousImplementationSha256'],entry['currentImplementationSha256'],
+                    _context=batter_chain['currentContextSha256']))
                 self.assertIsNone(E.code_equivalence(family,'unknown',entry['currentImplementationSha256']))
+        if final_award:
+            active=(ROOT/record['contextPath']).read_bytes()
+            self.assertEqual(hashlib.sha256(updated).hexdigest(),final_award['previousContextSha256'])
+            self.assertEqual(hashlib.sha256(active).hexdigest(),final_award['currentContextSha256'])
+            def outside_final_award(raw):
+                tree=ast.parse(raw);tree.body=[n for n in tree.body if getattr(n,'name',None) not in
+                    {'intentional_walk_award_terminal','runner_metric_evidence'}]
+                return ast.dump(tree)
+            self.assertEqual(outside_final_award(updated),outside_final_award(active))
         for family,entry in walk['families'].items():
             adapter=E.module(E.HERE/(family+'-admission.py'),'w1_'+family.replace('-','_'))
-            expected=(record['missingCountResultHandling'] if family=='pitch-count' and
+            expected=(record['missingCountResultHandling'] if not final_award and family=='pitch-count' and
                 'missingCountResultHandling' in record else current['families'][family])
             self.assertEqual(adapter.fingerprint(),expected['currentImplementationSha256'])
             clock=record['priorClockIsolation']['families'].get(family)
@@ -426,27 +439,35 @@ class AdmissionEvidence(unittest.TestCase):
             self.assertEqual(E.EXISTING_GRAPH.fingerprint(E,adapter),independent['currentImplementationSha256'])
             self.assertEqual(walk['independentProofs'][family]['previousSourceProducerSha256'],entry['previousImplementationSha256'])
         for kind,adapter in [('players',E.PLAYER_PARTICIPATION),('pa',E.PLAYER_PARTICIPATION.PA),('c2pa',E.PA_RESOLUTION)]:
-            entry=(batter_chain['derivedProofs'][kind] if batter_chain else error_prefix['derivedProofs'][kind] if error_prefix else selection['derivedProofs'][kind] if selection else foul['derivedProofs'][kind] if foul else history['derivedProofs'][kind] if history else
+            entry=(final_award['derivedProofs'][kind] if final_award else batter_chain['derivedProofs'][kind] if batter_chain else error_prefix['derivedProofs'][kind] if error_prefix else selection['derivedProofs'][kind] if selection else foul['derivedProofs'][kind] if foul else history['derivedProofs'][kind] if history else
                 record.get('retainedCompoundExpectations',{}).get('derivedProofs',{}).get(kind,current['derivedProofs'][kind]))
             self.assertEqual(adapter.fingerprint(),entry['currentImplementationSha256'])
             self.assertEqual(E.prior_versions(kind,adapter.fingerprint()),entry['previousImplementationSha256s'])
             self.assertEqual(E.prior_versions(kind,'unknown'),[])
 
     def test_missing_count_result_fix_preserves_every_previously_produced_census(self):
-        repair=E.read(E.COMPATIBILITY_PATH)['missingCountResultHandling']
+        record=E.read(E.COMPATIBILITY_PATH);repair=record['missingCountResultHandling']
         path=E.HERE/'pitch-count-admission.py'
+        context=ROOT/record['contextPath'];successor=record.get('finalAwardSelection')
+        after=(subprocess.check_output(['git','-C',str(ROOT.parent),'show',
+            successor['baselineCommit']+':Baseball/sources/mlb-game/pipeline/pitch-count-admission.py'])
+            if successor else path.read_bytes())
+        prior_context=(subprocess.check_output(['git','-C',str(ROOT.parent),'show',
+            successor['baselineCommit']+':Baseball/'+record['contextPath']]) if successor else context.read_bytes())
         before=subprocess.check_output(['git','-C',str(ROOT.parent),'show',
             repair['baselineCommit']+':Baseball/sources/mlb-game/pipeline/pitch-count-admission.py'])
         self.assertEqual(before.replace(b"result_type=play['result']['eventType']",
-            b"result_type=play.get('result',{}).get('eventType')"),path.read_bytes())
+            b"result_type=play.get('result',{}).get('eventType')"),after)
         adapter=E.module(path,'missing_result_equivalence')
         original=Path.read_bytes
-        def previous(p):return before if p.resolve()==path.resolve() else original(p)
+        def previous(p):return before if p.resolve()==path.resolve() else prior_context if p.resolve()==context.resolve() else original(p)
         with patch.object(Path,'read_bytes',previous):
             self.assertEqual(adapter.fingerprint(),repair['previousImplementationSha256'])
-        self.assertEqual(adapter.fingerprint(),repair['currentImplementationSha256'])
-        self.assertIsNotNone(E.code_equivalence('pitch-count',repair['previousImplementationSha256'],adapter.fingerprint()))
-        self.assertIsNone(E.code_equivalence('pitch-count','unknown',adapter.fingerprint()))
+        def current(p):return after if p.resolve()==path.resolve() else prior_context if p.resolve()==context.resolve() else original(p)
+        with patch.object(Path,'read_bytes',current):
+            self.assertEqual(adapter.fingerprint(),repair['currentImplementationSha256'])
+        self.assertIsNotNone(E.code_equivalence('pitch-count',repair['previousImplementationSha256'],repair['currentImplementationSha256'],_context=repair['contextSha256']))
+        self.assertIsNone(E.code_equivalence('pitch-count','unknown',repair['currentImplementationSha256'],_context=repair['contextSha256']))
 
     def test_expanded_selection_does_not_reuse_an_older_negative_independent_proof(self):
         record=E.read(E.COMPATIBILITY_PATH)['prePitchBatterChain']

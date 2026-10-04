@@ -1328,6 +1328,47 @@ def zero_pitch_walk_terminal(play: dict, document: dict | None = None) -> int | 
     return events[-1]['index']
 
 
+def intentional_walk_award_terminal(play: dict) -> int | None:
+    """W3 final award counters; this does not classify the PA as zero-pitch.
+
+    Earlier events retain their own admission and causal attribution. Only
+    the final award's counter suffix and boundary are selected here.
+    """
+    events = play.get('playEvents', [])
+    if (play.get('result', {}).get('eventType') != 'intent_walk'
+            or play.get('about', {}).get('isComplete') is not True or not events
+            or any(type(e.get('index')) is not int for e in events)
+            or [e['index'] for e in events] != list(range(len(events)))):
+        return None
+    first = len(events)
+    while first and events[first-1].get('details', {}).get('call', {}).get('code') == 'VB':
+        first -= 1
+    if not 1 <= len(events)-first <= 4:
+        return None
+    final = play.get('count', {})
+    before = events[first-1].get('count', {}) if first else dict(balls=0, strikes=0, outs=final.get('outs'))
+    if (any(type(before.get(k)) is not int or not 0 <= before[k] <= n
+            for k, n in (('balls', 3), ('strikes', 2), ('outs', 2)))
+            or any(type(final.get(k)) is not int for k in ('balls', 'strikes', 'outs'))
+            or final != dict(balls=4, strikes=before['strikes'], outs=before['outs'])
+            or len(events)-first != 4-before['balls']):
+        return None
+    for offset, event in enumerate(events[first:], 1):
+        detail = event.get('details', {})
+        count = event.get('count', {})
+        if (event.get('isPitch') is not False or event.get('type') != 'no_pitch'
+                or event.get('isSubstitution') is True or event.get('reviewDetails')
+                or detail.get('isBall') is not True or detail.get('isStrike') is not False
+                or detail.get('isInPlay') is not False or detail.get('isOut') is not False
+                or detail.get('hasReview') is not False or detail.get('isScoringPlay') is True
+                or any(type(count.get(k)) is not int for k in ('balls', 'strikes', 'outs'))
+                or count != dict(balls=before['balls']+offset, strikes=before['strikes'], outs=before['outs'])
+                or (event is not events[-1] and any(r.get('details', {}).get('playIndex') == event['index']
+                        for r in play.get('runners', [])))):
+            return None
+    return events[-1]['index']
+
+
 def runner_metric_evidence(play: dict, at_bat_index: str, season: str, *, document: dict | None = None) -> dict[str, list[dict]]:
     """Select source rows for the user's final award/origin graph contracts.
 
@@ -1361,8 +1402,14 @@ def runner_metric_evidence(play: dict, at_bat_index: str, season: str, *, docume
         return products
     has_review = (play.get('about', {}).get('hasReview') is True or play.get('reviewDetails')
                   or any(e.get('reviewDetails') or e.get('details', {}).get('hasReview') is True for e in events))
-    if has_review and accounted_runner_count_reviews(play)['issues']:
-        return products
+    if has_review:
+        reviews = accounted_runner_count_reviews(play)
+        if reviews['issues'] and result == 'hit_by_pitch':
+            final_review = accounted_runner_history_reviews(play)
+            if final_review.get('accountedFieldReview') and not final_review['issues']:
+                reviews = final_review
+        if reviews['issues']:
+            return products
     batter = str(play.get("matchup", {}).get("batter", {}).get("id"))
     award_types = {"walk", "intent_walk"} if result in {"walk", "intent_walk"} else {"hit_by_pitch"}
     batter_rows = [(i, r) for i, r in enumerate(rows)
@@ -1386,7 +1433,8 @@ def runner_metric_evidence(play: dict, at_bat_index: str, season: str, *, docume
         # The accepted non-pitch Ball awards can encode an intentional walk
         # as four VB records rather than one eventType=intent_walk record.
         # Require the complete counted sequence and its exact terminal join.
-        automatic = zero_pitch_walk_terminal(play, document) == index
+        automatic = (zero_pitch_walk_terminal(play, document) == index
+                     or intentional_walk_award_terminal(play) == index)
         if event.get("details", {}).get("eventType") != "intent_walk" and not automatic:
             return products
     elif (not pitches or pitches[-1].get("index") != index

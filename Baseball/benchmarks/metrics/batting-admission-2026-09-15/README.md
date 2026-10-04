@@ -30,7 +30,7 @@ source SHACL stage before promotion; proof artifacts survive raw cleanup.
 Materialization imports only hash-bound proof provenance, while counts and
 exposure come from RDF. Missing or stale proofs withhold qualification.
 
-The separate [B2 proposal](../../../proposals/contact-play-continuation-membership/README.md)
+The separate [B2 decision](../../../archive/design-records/contact-play-continuation-membership/README.md)
 documents a concrete contact-continuation mapping gap that prevents the first
 complete Offensive Reach player population. It is not implemented here.
 
