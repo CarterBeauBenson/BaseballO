@@ -22,6 +22,20 @@ H = C.B.module(ROOT / 'sources/mlb-game/pipeline/runner-history-admission.py', '
 
 
 class IncompleteSourceScopeTests(unittest.TestCase):
+    def test_terminal_pitch_survives_an_advisory_label_and_pure_advisory_is_ignored(self):
+        doc=self.incomplete();last=doc['liveData']['plays']['allPlays'][-1]
+        last['result'].update(eventType='game_advisory',description='Status Change - Delayed: Rain')
+        self.assertTrue(any(e.get('isPitch') is True for e in last['playEvents']))
+        source=C.census(json.dumps(doc).encode(),'824088')
+        end=next(r for r in source['expected'] if r['process']==source['game'] and r['side']=='end')
+        self.assertEqual(end['value'],last['about']['endTime'])
+        advisory=copy.deepcopy(last);advisory['playEvents']=[];advisory['runners']=[]
+        advisory['about']['endTime']='2099-01-01T00:00:00Z'
+        doc['liveData']['plays']['allPlays'].append(advisory)
+        self.assertIs(C.CONTEXT.terminal_baseball_play(doc),last)
+        last['about'].pop('endTime')
+        with self.assertRaisesRegex(ValueError,'Last baseball play'):C.CONTEXT.terminal_baseball_play(doc)
+
     def incomplete(self):
         doc = json.loads((ROOT / 'data/raw/samples/2026-07-18/824088.json').read_bytes())
         doc['liveData']['plays']['allPlays'][-1]['about']['isComplete'] = False

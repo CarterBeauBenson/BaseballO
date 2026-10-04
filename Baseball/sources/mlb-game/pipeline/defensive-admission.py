@@ -11,11 +11,12 @@ HERE=Path(__file__).resolve().parent
 spec=importlib.util.spec_from_file_location('d1_batting_support',HERE/'batting-admission.py')
 B=importlib.util.module_from_spec(spec);spec.loader.exec_module(B)
 CONTEXT=B.module(ROOT/'scripts/pipeline/prepare-rml-context.py','d1_context')
+SCOPE=B.module(HERE/'graph-source-scope.py','d1_graph_scope')
 SHAPE=HERE.parent/'shacl/defensive-admission.ttl'
 
 
 def fingerprint():
-    paths=[Path(__file__),SHAPE,HERE/'batting-admission.py',HERE/'reconcile-metric-source.py',
+    paths=[Path(__file__),SHAPE,HERE/'batting-admission.py',HERE/'reconcile-metric-source.py',HERE/'graph-source-scope.py',
            ROOT/'scripts/pipeline/prepare-rml-context.py',ROOT/'scripts/pipeline/validate-shacl.py']
     return B.sha('\n'.join(p.relative_to(ROOT).as_posix()+':'+B.sha(p.read_bytes()) for p in paths).encode())
 
@@ -24,10 +25,12 @@ def census(raw,game_pk):
     game_pk=B.identity(int(game_pk));doc=json.loads(raw);source=B.SOURCE.reconcile(raw,game_pk)
     issues=[dict(code='SOURCE_RECONCILIATION',detail=i) for i in source['blockingIssues']]
     doc[CONTEXT.CONTEXT_KEY]={'runnerHistoryReconciliation':dict(inputSha256=B.sha(raw),
-        sourceRevision=source['sourceRevision'],sourceConsistency='inconsistent' if issues else 'consistent')}
+        sourceRevision=source['sourceRevision'],sourceConsistency='inconsistent' if issues else 'consistent',
+        sourceIssues=source['blockingIssues'])}
     selected=CONTEXT.defensive_act_context(doc)
     return dict(gamePk=game_pk,game=B.BASE+'data/game/'+game_pk,sourceSha256=B.sha(raw),
         sourceRevision=source['sourceRevision'],status='withheld' if issues else 'reconciled',issues=issues,
+        graphSourceReconciled=not SCOPE.graph_blocking_issues(source['blockingIssues']),
         **{k:selected[k] for k in ('acts','plays','precedence','populationComplete','orderComplete')})
 
 
@@ -70,6 +73,7 @@ def prove(*, raw, game_pk, rdf_path, output, java=None, classpath=None):
         sourceSha256=source['sourceSha256'], sourceRevision=source['sourceRevision'],
         authoritativeRdfSha256=rdf_sha, implementationSha256=implementation,
         status='withheld', sourceReconciled=source['status']=='reconciled', graphConforms=False,
+        graphSourceReconciled=source.get('graphSourceReconciled',source['status']=='reconciled'),
         issues=source['issues'], populationComplete=source['populationComplete'],
         orderComplete=source['orderComplete'], selectedActCount=len(source['acts']),
         contactPlayCount=len(source['plays']),completePlayCount=sum(p['complete'] for p in source['plays']))
@@ -77,7 +81,7 @@ def prove(*, raw, game_pk, rdf_path, output, java=None, classpath=None):
     source_path = output.with_suffix('.source.json')
     B.SOURCE.write_atomic(source_path, source)
     proof['sourceCensusSha256'] = B.sha(source_path.read_bytes())
-    if proof['sourceReconciled']:
+    if proof['graphSourceReconciled']:
         shapes = output.with_suffix('.shapes.ttl')
         shapes.write_text(shape_text(source), encoding='utf-8', newline='\n')
         if java:
@@ -153,5 +157,5 @@ if __name__ == '__main__':
     if raw != args.input.read_bytes():
         raise ValueError('Defensive proof source changed during validation')
     print(json.dumps(result))
-    if result['sourceReconciled'] and not result['graphConforms']:
+    if result.get('graphSourceReconciled',result['sourceReconciled']) and not result['graphConforms']:
         raise SystemExit('D1 selected-act SHACL failed; promotion must stop')

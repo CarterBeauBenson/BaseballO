@@ -3759,5 +3759,178 @@
         ]
       }
     }
+  },
+  "q6NormalIngestion": {
+    "baselineCommit": "3faea5b",
+    "decision": "archive/design-records/mlb-game-quarantine-boundaries/review.json",
+    "previousRepair": "normalIngestionPlacement",
+    "previousContextSha256": "9735918b9c03806f74fcfc2ce64abd25e30ec5c769e5bc5130035db3c8de6045",
+    "currentContextSha256": "e3bf6ebedca0f6dcd80727d8250eb7d1d58076e0dd85f100df21fb7cbf0242b0",
+    "rationale": "Shared terminal-clock selection and Q6 defensive isolation. Other admission census functions and dependencies unchanged. Defensive old negative results cannot cover newly selected independent acts.",
+    "families": {
+      "batting": {
+        "previousImplementationSha256": "9698a0dd9bbd495dfe36cfc937cd3280e30c88a3fa1e6f9bd50ad24eeeee1358",
+        "currentImplementationSha256": "9698a0dd9bbd495dfe36cfc937cd3280e30c88a3fa1e6f9bd50ad24eeeee1358",
+        "reuseKind": "unchanged-proof-dependencies"
+      },
+      "scoring-run": {
+        "previousImplementationSha256": "727b5e760bdfdf2a7189f979f9018279383ed058f9b43e57d4dcbe43db6b283e",
+        "currentImplementationSha256": "727b5e760bdfdf2a7189f979f9018279383ed058f9b43e57d4dcbe43db6b283e",
+        "reuseKind": "unchanged-proof-dependencies"
+      },
+      "runner-resolution": {
+        "previousImplementationSha256": "4d8641de2cb47d6674e87c5e58a0d2555738978d67ea64176453103f879361e7",
+        "currentImplementationSha256": "235f22e4ee02c04f4ae74ac9e01bff52f2584a0e3a8594f872aeca5b03bc1aee",
+        "reuseKind": "unchanged-proof-dependencies"
+      },
+      "pitch-count": {
+        "previousImplementationSha256": "b4120876b6abc883f1f1c7deae49bde330ef1413c702de319c02b2238da055e1",
+        "currentImplementationSha256": "c4166591152ce3abd04c5f985c606fb23f1dbfc7c0cfdecbfa2d27c1f1908478",
+        "reuseKind": "unchanged-proof-dependencies"
+      },
+      "runner-boundary": {
+        "previousImplementationSha256": "581c5090d1f2de4a51055df461b6a7e183b3bdd41ad406d87f2814b1a4e69501",
+        "currentImplementationSha256": "345911935cae18ca0dec8cbf878e346e562e9fcdfe254507e319efb33c6c33f8",
+        "reuseKind": "unchanged-proof-dependencies"
+      },
+      "defensive": {
+        "previousImplementationSha256": "1b7c7f39957e45f3980b7de8849bc941082e35cb2d9aedfb4dc23a16177b8c87",
+        "currentImplementationSha256": "625acf1b7061c91bdb45baae4d61d6bd7437c86e94ff8caf3248ff91bc26aa61",
+        "reuseKind": "prior-stricter-defensive-selection"
+      }
+    },
+    "independentProofs": {
+      "batting": {
+        "currentImplementationSha256": "2d126b4df793bfd534fb95fbd5805e85b9ab14dcd3fb0773f220c0a2cb859990",
+        "requiresOriginalAdmission": false,
+        "previous": [
+          {
+            "previousImplementationSha256": "0b0f062001f9ffff4ea018f9a30c23382df18d773da21915e920e353be670bee",
+            "previousSourceProducerSha256": "9698a0dd9bbd495dfe36cfc937cd3280e30c88a3fa1e6f9bd50ad24eeeee1358",
+            "requiresOriginalAdmission": false
+          }
+        ]
+      },
+      "scoring-run": {
+        "currentImplementationSha256": "b2f44718a50eb8b565d0b01d8d589d2e661a7503cb27a554be5377b7dbf766c6",
+        "requiresOriginalAdmission": false,
+        "previous": [
+          {
+            "previousImplementationSha256": "ab5fc12b805fcbb7b74012c1b748f9440595aae6685e53158ea328f618fa5a9b",
+            "previousSourceProducerSha256": "727b5e760bdfdf2a7189f979f9018279383ed058f9b43e57d4dcbe43db6b283e",
+            "requiresOriginalAdmission": false
+          }
+        ]
+      },
+      "runner-resolution": {
+        "currentImplementationSha256": "e2a81f32570efbaad4356348be23d673baf351e9d7680d79cf5c93429ede97df",
+        "requiresOriginalAdmission": false,
+        "previous": [
+          {
+            "previousImplementationSha256": "ae08fc220859c0ebbffda8ce8be1c234717a45065a384cbe5b15db6ec4ff151c",
+            "previousSourceProducerSha256": "4d8641de2cb47d6674e87c5e58a0d2555738978d67ea64176453103f879361e7",
+            "requiresOriginalAdmission": false
+          }
+        ]
+      },
+      "pitch-count": {
+        "currentImplementationSha256": "57e809443a2c7081c5e9149316f0e73c927386200747da3683ff29d48dc494f8",
+        "requiresOriginalAdmission": false,
+        "previous": [
+          {
+            "previousImplementationSha256": "20cf02373d116f28a1493959836d53bde61bfed6826f003a075fd996a7a736cc",
+            "previousSourceProducerSha256": "b4120876b6abc883f1f1c7deae49bde330ef1413c702de319c02b2238da055e1",
+            "requiresOriginalAdmission": false
+          }
+        ]
+      },
+      "runner-boundary": {
+        "currentImplementationSha256": "45cabe3dca0424b212684861da2e977adbcb7b3307096664c198fd258bcd1a36",
+        "requiresOriginalAdmission": false,
+        "previous": [
+          {
+            "previousImplementationSha256": "eb0db4768ef15a9563fbf4753d5be74d9c7e84935936734fa8c087def0c05742",
+            "previousSourceProducerSha256": "581c5090d1f2de4a51055df461b6a7e183b3bdd41ad406d87f2814b1a4e69501",
+            "requiresOriginalAdmission": false
+          }
+        ]
+      },
+      "defensive": {
+        "currentImplementationSha256": "6b68dc6b153df95059091403d2757c9b7345918e211fc2f58ad95174b222eb19",
+        "requiresOriginalAdmission": true,
+        "previous": [
+          {
+            "previousImplementationSha256": "6ad0b5c38db9f5eb0e9ef38451809dfc5f4915c08150cfc160c4cc6bedab5a85",
+            "previousSourceProducerSha256": "1b7c7f39957e45f3980b7de8849bc941082e35cb2d9aedfb4dc23a16177b8c87",
+            "requiresOriginalAdmission": true
+          }
+        ]
+      }
+    },
+    "derivedProofs": {
+      "players": {
+        "currentImplementationSha256": "fe9cfe7f2defc663fc065fb567bee78c15d5e3a2be41e4e156b6107f8a6c2bc7",
+        "previousImplementationSha256s": [
+          "e4f1dca7cc98bda644809cbc6ca39ac4d5201ef16253afb0605abd2396e3c1d3",
+          "eb0b1235f409be7ada5d7363f21b1f93d6442ee3b3bca55eeed3fcd39157a1db",
+          "d6dc3c4e7ccec61482df5fea7076aeab341aa6bcede3cf090cbb5d497b752234",
+          "8d1c41bf3f91c83ad45b968c2597630699257980a73eb0dbd81332dec36d02a6",
+          "af37a2c0e325d82303bd98b5b3a4a7853a1832de4194ec40f7644f338ac9697b",
+          "f1ee38368f44ad5d5543a6d6022af4d49f2952b3e8721582efd48698b92a72b8",
+          "0591aa9fc37c993b542defee9b7a006f643e6126dbf8c514c1b4af0f48e5605f",
+          "9630ad5d1891142d65c081a0ce0844871127d41583fa4c8a3e5a9ec844c1cb37",
+          "3bdba40753642a7d6e5e4a30630d465fcc57c74c1d6a59c8b1e425291b021051",
+          "ea53cf17db11939b03f52047923fc322462b9090cc37827faf3fadf2f6b3e43d",
+          "df540b869db8c02ab3b9d58317de8fcb227c8223e0418378b53768deea48cbfd",
+          "ff3ee02cf238f48d6831fd5b60a3bee763694791d7eb9cd68432cf75e6935da9",
+          "e275ed04756c05c8fb8abed9662722ea98ab5b84601a982deba90964078943b0",
+          "eec79277b51bd8ee75abadd782b9d595e7cdde37c5305e15fef5c7162d4226e4",
+          "50aa783f28c5846f60be79dadb25ab5bf9d906bfcfa4572f3f1cf2ebfed9f08e",
+          "f6c6ab2040b1cf3a497e1445c314e15e35824dc64ce8ec666ac6a4cd463d0094"
+        ]
+      },
+      "pa": {
+        "currentImplementationSha256": "e3bfc417a834bf1df788f81eb772da9ed32615b285369d550262e4f4915941a5",
+        "previousImplementationSha256s": [
+          "0307e78e35666d96b8623fce676aabb0d523191b4193b4f9dcd1de28e8516785",
+          "313d39b781b4f18dd1143cf2157e32046ee9db60bb6a39f7800042a85d602357",
+          "35b9acd9dad4814acd432930d0afab6433591855abe75c46d0df4d674a31c146",
+          "cd674a03f35fce820f3ec2f4bb40d7d3c2e2b951c898cc975a36f70d0263b128",
+          "ffbf4f7c0487ad1636c8bfae3032c11f63738b9592ea2e492c649cebd0cfdf84",
+          "ca9e059a256a0d23ee937391bffd3076170a64f88b5ab065740e6734803039e2",
+          "233815f267bb8f92a2bcd006aa74e9d0f1bb3c06c6698bff37ecdc68b687a06a",
+          "5dc50818a5a9f24c8f3b45c7c2d7c2d72eaee7a390a686cef89cc46d4c33e596",
+          "78836179c8fef71636dd00b083f3331e377aad47f97a0e419c51f080acdcffa4",
+          "84d73443f688a138975799102170d17af88e28583116fdc52837946112313544",
+          "28ac65202e48dfec58cab9807d3e101cf744b75f08031fd12c00a91e7bc39d90",
+          "4394aa6c44721748f27bb373c3c8ed5c0f119dc8df4c9a201bed18abbd86c3de",
+          "d20f35699a24ec5009e473902a6d3a690b8b93114584e3d69735ff3702aa9fe5",
+          "28ae860bd0d01aedf5545469ba19c8cc9e8c039d7b6298d7cb834af1ae16c6a2",
+          "2b5ec76b132a89331c77b48f168d37a66872d3b9f52420a4dedc76a838748651"
+        ]
+      },
+      "c2pa": {
+        "currentImplementationSha256": "8d6574431c668f364034968add055f2f75b1d4d738e255b0fe774450a77db613",
+        "previousImplementationSha256s": [
+          "cb7c68b231953cf952312ee01b9992e18e52d20c5206d3fef2e96d9e1495290b",
+          "486940618d1113dcad7abed1ba69e3f227a8b4732aa1e616430ef76882015e0d",
+          "f77458ac4b83e39bdf1b808e9309eb498930cae8baae70d07fe894a2bd8a6c64",
+          "643c6be7e3e418b8c37fd426a6e4cf057cf095de6f0db6c5e4b02727e75000e5",
+          "8d2f06fe1833518b604b53fb503b4d45d183c2f8287dbe95cc03a969816a0ce2",
+          "b1ec414982dcda31c901bf948ec155ec0aebf6f38c726b8c5ac3016597c66dff",
+          "7c2ff771c158481f9daac5451d31794ebc23211024aa1fa25af5ece6e471b2e8",
+          "1c688300c7047a3c21b059e0ac482cba60a4c96921156ce73b3ac09e92baf274",
+          "f00f92f37fc910945d9ceeec354612f951ec27e2e68371bd97a4fd5d70632a13",
+          "0c25baae1fcfe564f2aa6aa75c6add9a537193cc3b12a2a091ef11866c15e3fd",
+          "12b19cae660f2cadaa4344410b881a0cae507bdc6dbf93b1012d7b53714e61c1",
+          "760645e6912352f524e9b49129cba75b6043525f757b4f30660a5b5cb13d8b48",
+          "9d4a2a9e97e051374ab0bee7faf95e3c8d1c6951c1c517be40c789f431f12116",
+          "45d11a02b9baeb6ef83b34941c8f3cece2160cbb1607402b28e5d6f5b885f4d2",
+          "b4b34a14c10a12b4b318cd213b83b5e7ad540525d14f050a03e8eb63061bc017",
+          "222abe1d2c719f4e6abe93c56ebbce27b325c77b9299e8f87e78bd7a86ab9dfd",
+          "d822838c45cbfc45e37cee31d40c22d4c5d50e75a82383bdca67bb5a998a46b2"
+        ]
+      }
+    }
   }
 }

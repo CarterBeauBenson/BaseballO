@@ -50,12 +50,12 @@ The [normal-ingestion follow-through](sources/mlb-game/review/rml-audit-2026-10-
 verifies the recent repairs through production RML with different game identities
 and removes an administrative-placement-to-physical-occupancy inference from
 the shared context builder. The [further diagnosis](sources/mlb-game/review/rml-audit-2026-10-03.md#further-diagnosis-october-4)
-adds six open plan items: align the stale automatic-runner check; fix 831629's
-game-end clock preceding its last pitch; isolate supported D1 acts from Q6
-completeness limits; bind game RML execution to its exact code snapshot; stop
-unrelated changes reopening history inspection; and make recurrence tests
-independent of retired runtime inputs. Execute in that order while existing
-history work continues. These are diagnosed next steps, not completed repairs.
+identified six further defects. Their [implementation checkpoint](sources/mlb-game/review/rml-audit-2026-10-03.md#six-item-repair-implementation-october-4)
+records the corrected placement check, shared terminal-clock selection, Q6/D1
+isolation, staged execution dependencies, narrower history inspection identity,
+and portable recurrence tests. NiFi has promoted 1,128 supported defensive
+triples across all five Q6 games. The one-game clock correction is prepared;
+its activation and terminal outcome are recorded in that checkpoint.
 Continue independent metric work over valid RDF.
 
 The October 2 RML repair snapshot is covered by

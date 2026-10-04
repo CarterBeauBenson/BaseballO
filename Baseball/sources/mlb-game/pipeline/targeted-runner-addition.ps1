@@ -6,10 +6,16 @@ $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'game-lock.ps1')
 . (Join-Path $PSScriptRoot 'repair-budget.ps1')
 Invoke-MlbRepairBudget -StateRoot $script:StateRoot -Worker 'targeted-runner-addition' -Action {
-    $worker = Join-Path $PSScriptRoot 'targeted-pitcher-correction.py'
+    $worker = Join-Path $PSScriptRoot 'targeted-clock-correction.py'
     $selection = & python -B $worker --state-root $script:StateRoot --next
-    if ($LASTEXITCODE -ne 0) { throw 'P1 retained-input inventory failed.' }
+    if ($LASTEXITCODE -ne 0) { throw 'Clock retained-input inventory failed.' }
     $candidate = $selection | ConvertFrom-Json
+    if ($null -eq $candidate) {
+        $worker = Join-Path $PSScriptRoot 'targeted-pitcher-correction.py'
+        $selection = & python -B $worker --state-root $script:StateRoot --next
+        if ($LASTEXITCODE -ne 0) { throw 'P1 retained-input inventory failed.' }
+        $candidate = $selection | ConvertFrom-Json
+    }
     if ($null -eq $candidate) {
         $worker = Join-Path $PSScriptRoot 'targeted-runner-addition.py'
         $selection = & python -B $worker --state-root $script:StateRoot --next

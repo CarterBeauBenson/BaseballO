@@ -96,14 +96,18 @@ class NormalIngestionRepairs(unittest.TestCase):
         def outside_main(code):
             tree=ast.parse(code);tree.body=[n for n in tree.body if getattr(n,'name',None)!='main']
             return ast.dump(tree)
-        self.assertEqual(outside_main(before),outside_main(CONTEXT.read_bytes()))
+        completed=subprocess.check_output(['git','-C',str(ROOT.parent),'show',
+            record['q6NormalIngestion']['baselineCommit']+':Baseball/scripts/pipeline/prepare-rml-context.py'])
+        self.assertEqual(outside_main(before),outside_main(completed))
         self.assertEqual(hashlib.sha256(before).hexdigest(),bridge['previousContextSha256'])
+        self.assertEqual(hashlib.sha256(completed).hexdigest(),bridge['currentContextSha256'])
+        bridge=record['q6NormalIngestion']
         self.assertEqual(E.sha(CONTEXT),bridge['currentContextSha256'])
         for family,item in bridge['families'].items():
             adapter=E.module(E.HERE/(family+'-admission.py'),'normal_proof_'+family.replace('-','_'))
             self.assertEqual(adapter.fingerprint(),item['currentImplementationSha256'])
             reuse=E.code_equivalence(family,item['previousImplementationSha256'],adapter.fingerprint())
-            self.assertEqual(reuse['kind'],'unchanged-proof-dependencies')
+            self.assertEqual(reuse['kind'],item['reuseKind'])
             entry=bridge['independentProofs'][family]
             self.assertEqual(entry['currentImplementationSha256'],E.EXISTING_GRAPH.fingerprint(E,adapter))
             self.assertEqual(entry['previous'][0]['previousSourceProducerSha256'],item['previousImplementationSha256'])

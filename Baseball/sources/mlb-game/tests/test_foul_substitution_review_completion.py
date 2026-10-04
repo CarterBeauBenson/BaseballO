@@ -1,4 +1,4 @@
-"""F8 regression against the active selector and exact retained witnesses."""
+"""F8 portable witnesses and synthetic substitution/review controls."""
 import contextlib
 import copy
 from functools import lru_cache
@@ -28,10 +28,11 @@ SOURCES={};CONTEXTS={}
 
 @lru_cache(maxsize=1)
 def load_retained_cases():
-    # Only historical witness tests need the temporary NiFi inputs. Code/proof
-    # compatibility must remain testable after successful input cleanup.
+    # Existing checked-in sources only; no runtime quarantine dependency.
     for case in EVIDENCE['cases']:
-        raw=Path(case['sourceWitness']['path']).read_bytes()
+        files=list((ROOT/'data/raw/samples').glob('*/'+case['gamePk']+'.json'))
+        if not files:continue  # Other historical executions remain archived evidence.
+        raw=files[0].read_bytes()
         assert sha(raw)==case['sourceWitness']['sha256']
         SOURCES[case['gamePk']]=raw
         with tempfile.TemporaryDirectory(prefix='f8-context-') as directory:
@@ -40,8 +41,28 @@ def load_retained_cases():
             CONTEXTS[case['gamePk']]=json.loads(output.read_bytes())
 
 
+
 def play(document,index):
     return next(p for p in document['liveData']['plays']['allPlays'] if p['atBatIndex']==index)
+
+
+def lineup_case():
+    doc=copy.deepcopy(CONTEXTS['823420']);pa=play(doc,38)
+    pa['playEvents']=pa['playEvents'][2:]
+    # Preserve a preceding neutral count observation for the outs control.
+    pa['playEvents'].insert(0,dict(isPitch=False,details=dict(eventType='mound_visit'),
+        count=dict(balls=0,strikes=0,outs=pa['playEvents'][0]['count']['outs'])))
+    for i,event in enumerate(pa['playEvents']):event['index']=i
+    pa['runners']=[]
+    event=pa['playEvents'][1];event['count'].update(balls=0,strikes=0)
+    side='home' if pa['about']['isTopInning'] else 'away'
+    roster=doc['liveData']['boxscore']['teams'][side]
+    leaving=next(p['person']['id'] for p in roster['players'].values() if p['person']['id'] not in roster['pitchers'])
+    incoming=event['player']['id'];people=doc['gameData']['players']
+    event['replacedPlayer']={'id':leaving};event['battingOrder']='900'
+    event['details']['description']=(event['details']['description'].rstrip('.')+
+        ', batting 9th, replacing shortstop '+people['ID'+str(leaving)]['fullName']+'.')
+    return doc,pa,event
 
 
 class FoulSelection(unittest.TestCase):
@@ -67,10 +88,11 @@ class FoulSelection(unittest.TestCase):
                 self.assertTrue(all(v['requiresOriginalAdmission'] for v in original['previous']))
         self.assertIsNone(evidence.code_equivalence('pitch-count','unrecognized',bridge['families']['pitch-count']['currentImplementationSha256']))
 
-    def test_eight_fouls_pass_existing_owner_with_unchanged_source_census(self):
+    def test_checked_in_fouls_pass_existing_owner_with_unchanged_source_census(self):
         total=0
         for row in EVIDENCE['cases']:
             pk=row['gamePk']
+            if pk not in SOURCES:continue
             def context_run(command,**kwargs):
                 self.assertEqual(Path(command[1]),ACTIVE)
                 Path(command[3]).write_text(json.dumps(CONTEXTS[pk]),encoding='utf-8')
@@ -80,16 +102,17 @@ class FoulSelection(unittest.TestCase):
                 self.assertFalse(result['unresolvedFouls'])
                 self.assertEqual({e['playId'] for e in result['events']},{e['playId'] for e in row['case']['selected']})
                 total+=len(result['events'])
-        self.assertEqual(total,8)
+        self.assertEqual(total,4)
 
     def test_lineup_replacement_does_not_supply_pitcher_identity(self):
+        doc,pa,event=lineup_case()
+        self.assertIsNotNone(NEW.counted_foul_neutral_event(doc,pa,event,(0,0)))
         for fault in ('batting-slot','lineup-person','incoming','outgoing','count','outs','movement'):
-            doc=copy.deepcopy(CONTEXTS['823452']);pa=play(doc,65)
-            event=next(e for e in pa['playEvents'] if e.get('details',{}).get('eventType')=='pitching_substitution')
-            if fault=='batting-slot':event['battingOrder']='900'
+            doc,pa,event=lineup_case()
+            if fault=='batting-slot':event['battingOrder']='100'
             elif fault=='lineup-person':event['replacedPlayer']['id']=999999999
             elif fault=='incoming':event['player']['id']=999999999
-            elif fault=='outgoing':event['details']['description']=event['details']['description'].replace('William Kempner','Unknown Pitcher')
+            elif fault=='outgoing':event['details']['description']=event['details']['description'].replace(' replaces ', ' replaces Unknown ')
             elif fault=='count':event['count']['balls']+=1
             elif fault=='outs':event['count']['outs']+=1
             else:pa['runners'].append(dict(details=dict(playIndex=event['index'])))
@@ -109,7 +132,9 @@ class FoulSelection(unittest.TestCase):
 
     def test_linked_reviews_require_each_completed_disposition_and_unique_association(self):
         for fault in ('pending-pitch','pending-tag','association','duplicate','contradictory-tag'):
-            pa=copy.deepcopy(play(CONTEXTS['823396'],80));pitch=pa['playEvents'][1];tag=pa['playEvents'][2]
+            pa=json.loads((ROOT/'sources/mlb-game/tests/fixtures/linked-review-play.json').read_bytes())['play']
+            self.assertFalse(NEW.accounted_runner_history_reviews(pa)['issues'])
+            pitch=pa['playEvents'][1];tag=pa['playEvents'][2]
             if fault=='pending-pitch':pitch['reviewDetails']['inProgress']=True
             elif fault=='pending-tag':tag['reviewDetails']['inProgress']=True
             elif fault=='association':tag['actionPlayId']='unmatched'

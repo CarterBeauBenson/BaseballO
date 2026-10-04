@@ -12,6 +12,18 @@ D=H.DISCOVERY
 
 
 class HistoryRepairDiscovery(unittest.TestCase):
+    def test_history_dependency_signature_ignores_only_unrelated_assembly(self):
+        raw=(H.ROOT/'scripts/pipeline/prepare-rml-context.py').read_text()
+        before=D.history_context_bytes(raw)
+        self.assertEqual(before,D.history_context_bytes(raw.replace('def main() -> None:',
+            'def main() -> None:\n    unused_assembly_change = True')))
+        self.assertEqual(before,D.history_context_bytes(raw.replace('def terminal_baseball_play(document: dict) -> dict:',
+            'def terminal_baseball_play(document: dict) -> dict:\n    unused_clock_change = True')))
+        self.assertNotEqual(before,D.history_context_bytes(raw.replace('def personal_runner_histories(raw: bytes, previous=None) -> dict:',
+            'def personal_runner_histories(raw: bytes, previous=None) -> dict:\n    changed_history = True')))
+        self.assertNotEqual(before,D.history_context_bytes(raw.replace('def runner_boundary_anchors(document):',
+            'def runner_boundary_anchors(document):\n    changed_dependency = True')))
+
     def test_named_legacy_gap_queues_only_existing_graph_evidence_without_inventing_census(self):
         with tempfile.TemporaryDirectory() as temp:
             state=Path(temp);_,_,manifest,promotion,witness=self.setup_case(state)

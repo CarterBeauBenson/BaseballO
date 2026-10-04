@@ -136,10 +136,10 @@ def command(args, cwd, log):
 
 
 def retain_source_binding(proof, marker, field):
-    """Keep D1's separately evidenced source attached through later additions.
+    """Keep separately evidenced D1/clock sources attached through later additions.
 
     The caller first verifies the exact proof hash in the current promotion.
-    A targeted defensive census can use a different retained response from
+    A targeted census can use a different retained response from
     the game's original ingest. Its original receipt binds both identities;
     neither hash is rewritten to pretend the responses were identical.
     """
@@ -154,13 +154,15 @@ def retain_source_binding(proof, marker, field):
             and receipt.get('originalProofSha256')):
         proof['sourceRevalidation'] = dict(receipt)
         return
-    if (field != 'defensiveAdmission'
-            or receipt.get('decision') != 'archive/design-records/mlb-game-defensive-acts/review.json'
-            or receipt.get('mode') != 'current-defensive-source-census'
+    bindings={'defensiveAdmission':('archive/design-records/mlb-game-defensive-acts/review.json','current-defensive-source-census'),
+              'clockAdmission':('archive/design-records/mlb-game-quarantine-boundaries/review.json','current-clock-source-census')}
+    binding=bindings.get(field)
+    if (binding is None
+            or (receipt.get('decision'),receipt.get('mode')) != binding
             or receipt.get('promotionSourceSha256') != marker['rawSha256']):
         raise ValueError('Retained admission belongs to an unbound source: ' + field)
     if not receipt.get('originalProofSha256'):
-        # The first D1 proof has no predecessor. Its owning promotion binds
+        # The first proof can have no predecessor. Its owning promotion binds
         # the separately retained input; preserve that actual first proof as
         # the origin for subsequent additions instead of requiring a fiction.
         addition=marker.get('targetedAddition',{});witness=addition.get('sourceWitness',{})
@@ -173,7 +175,7 @@ def retain_source_binding(proof, marker, field):
                 or read(prior)!=proof):
             raise ValueError('Retained admission belongs to an unbound source: ' + field)
         receipt=dict(receipt,originalProofSha256=sha(prior),
-            originalProofKind='first-defensive-admission',sourceWitness=witness)
+            originalProofKind='first-defensive-admission' if field=='defensiveAdmission' else 'first-clock-admission',sourceWitness=witness)
     proof['sourceRevalidation'] = dict(receipt)
 
 

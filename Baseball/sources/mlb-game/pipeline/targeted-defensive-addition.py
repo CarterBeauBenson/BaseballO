@@ -27,7 +27,7 @@ class UnresolvedSource(ValueError):
 def select(raw,game_pk):
     if W.read(ROOT/DECISION)['status']!='accepted':raise ValueError('D1 is not accepted')
     source=D.census(raw,game_pk)
-    if source['status']!='reconciled':raise UnresolvedSource(source)
+    if not source.get('graphSourceReconciled',source['status']=='reconciled'):raise UnresolvedSource(source)
     return source if source['acts'] else None
 
 
@@ -92,7 +92,8 @@ def next_witness(state,limit=25):
         if previous.get('implementationSha256')==version and previous.get('attempts',0)>=2:continue
         retries.append(Path(source))
     diagnostics=[Path(source) for source,cached in inventory['inputs'].items()
-        if cached.get('status')=='unresolved-source' and 'sourceIssues' not in cached]
+        if cached.get('status')=='unresolved-source' and
+        ('sourceIssues' not in cached or cached.get('identity',[None,None,None])[2]!=version)]
     fixture=ROOT/'data/raw/samples/2026-08-25/822693.json'
     paths=[*sorted(retries),*sorted(diagnostics),fixture,*sorted((state/'pipeline/quarantine/mlb-game').glob('*/*/input.json')),
            *sorted((ROOT/'data/raw').rglob('*.json'))]

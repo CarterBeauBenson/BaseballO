@@ -49,12 +49,8 @@ def census(raw, game_pk):
 
     plays = doc['liveData']['plays']['allPlays']
     boundary(game, 'start', doc.get('gameData', {}).get('gameInfo', {}).get('firstPitch'))
-    terminal = [p for p in plays if p.get('result', {}).get('eventType') not in CONTEXT.ADMINISTRATIVE_EVENT_TYPES
-                and (p.get('playEvents') or p.get('runners') or p.get('about', {}).get('isComplete') is True)
-                and isinstance(p.get('about', {}).get('endTime'), str)]
-    if not terminal:
-        raise ValueError('No terminal baseball event for clock census')
-    boundary(game, 'end', terminal[-1]['about']['endTime'], CONTEXT.clock_pair_conflicted(terminal[-1]['about']))
+    terminal = CONTEXT.terminal_baseball_play(doc)
+    boundary(game, 'end', terminal['about']['endTime'], CONTEXT.clock_pair_conflicted(terminal['about']))
     for play in plays:
         if CONTEXT.play_has_plate_appearance_structure(play):
             pair(play['about'], game + '/plate-appearance/' + str(play['about']['atBatIndex']), 'PlateAppearance')

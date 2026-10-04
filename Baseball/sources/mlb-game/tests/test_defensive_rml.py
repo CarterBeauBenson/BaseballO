@@ -14,9 +14,11 @@ from test_rmlmapper_iterator_compatibility import installed_tools, materialized_
 
 
 class DefensiveRmlTests(unittest.TestCase):
-    def test_real_relay_rml_and_exact_source_shacl(self):
-        workspace=Path(tempfile.mkdtemp(prefix='baseballo-d1-one-pa-'))
-        (workspace/'game.json').write_bytes(RAW)
+    def test_q6_real_relay_rml_and_exact_source_shacl(self):
+        temporary=tempfile.TemporaryDirectory(prefix='baseballo-d1-one-pa-')
+        self.addCleanup(temporary.cleanup);workspace=Path(temporary.name)
+        doc=json.loads(RAW);doc['liveData']['plays']['allPlays'][-1]['about']['isComplete']=False
+        (workspace/'game.json').write_text(json.dumps(doc),encoding='utf-8')
         subprocess.run([sys.executable,str(ROOT/'scripts/pipeline/prepare-rml-context.py'),
             str(workspace/'game.json'),str(workspace/'complete.json')],check=True,capture_output=True)
         d=json.loads((workspace/'complete.json').read_bytes())
@@ -24,6 +26,8 @@ class DefensiveRmlTests(unittest.TestCase):
         for key in ('histories','episodeMembership'):d['_baseballO']['runnerHistoryReconciliation'][key]=[]
         for key in ('metricPitchReviews','metricAutomaticAwards'):d['_baseballO'][key]=[]
         source=CONTEXT.defensive_act_context(d);source['game']=BASE+'data/game/822693'
+        self.assertFalse(source['populationComplete'])
+        self.assertNotEqual(d['_baseballO']['runnerHistoryReconciliation']['sourceConsistency'],'consistent')
         (workspace/'game-context.json').write_text(json.dumps(d),encoding='utf-8')
         maps=Graph().parse(ROOT/'sources/mlb-game/mapping/mlb-game.rml.ttl')
         mapping=materialized_subset(maps,list(maps.subjects(RDF.type,URIRef(RR+'TriplesMap'))),workspace)
@@ -44,7 +48,6 @@ class DefensiveRmlTests(unittest.TestCase):
         (workspace/'result.json').write_text(json.dumps(dict(scope='one-PA developer proof, no promotion',gamePk='822693',
             atBatIndex=26,triples=len(g),acts=7,agents=4,rmlPassed=True,sourceBoundShaclPassed=True,
             populationComplete=False,strictOrderAsserted=False),indent=2)+'\n',encoding='utf-8')
-        print('D1 one-PA proof:',workspace)
 
 
 if __name__=='__main__':unittest.main()

@@ -91,7 +91,9 @@ class AdministrativeBoundaryOverlap(unittest.TestCase):
         for family,item in bridge['families'].items():
             adapter=E.module(E.HERE/(family+'-admission.py'),'overlap_test_'+family.replace('-','_'))
             self.assertEqual(adapter.fingerprint(),current['families'][family]['currentImplementationSha256'])
-            reuse=E.code_equivalence(family,item['previousImplementationSha256'],adapter.fingerprint())
+            reuse=E.code_equivalence(family,item['previousImplementationSha256'],item['currentImplementationSha256'],
+                _context=bridge['currentContextSha256'])
+            self.assertIsNotNone(E.code_equivalence(family,item['previousImplementationSha256'],adapter.fingerprint()))
             self.assertEqual(reuse['kind'],item['reuseKind'])
             self.assertEqual(reuse['previousImplementationSha256'],item['previousImplementationSha256'])
             self.assertIsNone(E.code_equivalence(family,'unknown',adapter.fingerprint()))

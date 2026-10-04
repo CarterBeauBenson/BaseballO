@@ -62,6 +62,13 @@ def fingerprint():
         +(HERE/'existing-graph-admissions.py').read_bytes()+(HERE/'retained-census-admissions.py').read_bytes()).hexdigest()
 
 
+def selection_repairs(record):
+    legacy={'foulPitcherCompletion','runnerReviewCompletion','finalAwardSelection',
+        'prePitchBatterChain','errorCountPrefixRepair','foulDefenseSelectionRepair'}
+    return [entry for name,entry in reversed(list(record.items())) if isinstance(entry,dict)
+        and (name in legacy or entry.get('previousRepair'))]
+
+
 def code_equivalence(family,previous,current,*,_context=None):
     """Pinned compatible edits, not blanket acceptance of stale proofs.
 
@@ -83,8 +90,7 @@ def code_equivalence(family,previous,current,*,_context=None):
             return dict(reused,recordSha256=sha(COMPATIBILITY_PATH),
                 previousImplementationSha256=previous,currentImplementationSha256=current,
                 compatibilityReason='missing result now records existing unknown-result rejection')
-    for repair_name in ('normalIngestionPlacement','administrativeBoundaryOverlap','foulPitcherCompletion','runnerReviewCompletion','finalAwardSelection','prePitchBatterChain','errorCountPrefixRepair','foulDefenseSelectionRepair'):
-        selection=record.get(repair_name,{})
+    for selection in selection_repairs(record):
         bridge=selection.get('families',{}).get(family)
         if (bridge and context==selection.get('currentContextSha256')
                 and current==bridge['currentImplementationSha256']):
@@ -195,8 +201,7 @@ def prior_versions(kind,current):
     and must be checked again; this is never approval of W1's missing facts.
     """
     record=read(COMPATIBILITY_PATH)
-    for repair_name in ('normalIngestionPlacement','administrativeBoundaryOverlap','foulPitcherCompletion','runnerReviewCompletion','finalAwardSelection','prePitchBatterChain','errorCountPrefixRepair','foulDefenseSelectionRepair'):
-        selection=record.get(repair_name,{})
+    for selection in selection_repairs(record):
         entry=selection.get('derivedProofs',{}).get(kind,{})
         if (entry.get('currentImplementationSha256')==current
                 and sha(ROOT/record['contextPath'])==selection.get('currentContextSha256')):

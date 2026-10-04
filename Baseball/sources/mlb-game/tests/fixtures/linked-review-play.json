@@ -1,0 +1,371 @@
+{
+  "fixtureKind": "reduced-unit-witness",
+  "sourceSha256": "dcf9d2665573663bc4a16c7083dba9c87f21d5ec92401dd564e45a5835077c3a",
+  "play": {
+    "result": {
+      "type": "atBat",
+      "event": "Hit By Pitch",
+      "eventType": "hit_by_pitch",
+      "description": "Ryan O'Hearn hit by pitch.",
+      "rbi": 0,
+      "awayScore": 7,
+      "homeScore": 6,
+      "isOut": false
+    },
+    "about": {
+      "atBatIndex": 80,
+      "halfInning": "bottom",
+      "isTopInning": false,
+      "inning": 9,
+      "startTime": "2026-04-16T19:36:30.898Z",
+      "endTime": "2026-04-16T19:41:28.281Z",
+      "isComplete": true,
+      "isScoringPlay": false,
+      "hasReview": false,
+      "hasOut": false,
+      "captivatingIndex": 11
+    },
+    "count": {
+      "balls": 3,
+      "strikes": 2,
+      "outs": 0
+    },
+    "matchup": {
+      "batter": {
+        "id": 656811,
+        "fullName": "Ryan O'Hearn",
+        "link": "/api/v1/people/656811"
+      },
+      "batSide": {
+        "code": "L",
+        "description": "Left"
+      },
+      "pitcher": {
+        "id": 690925,
+        "fullName": "Clayton Beeter",
+        "link": "/api/v1/people/690925"
+      },
+      "pitchHand": {
+        "code": "R",
+        "description": "Right"
+      },
+      "postOnFirst": {
+        "id": 656811,
+        "fullName": "Ryan O'Hearn",
+        "link": "/api/v1/people/656811"
+      },
+      "postOnSecond": {
+        "id": 663968,
+        "fullName": "Jake Mangum",
+        "link": "/api/v1/people/663968"
+      },
+      "batterHotColdZones": [],
+      "pitcherHotColdZones": [],
+      "splits": {
+        "batter": "vs_RHP",
+        "pitcher": "vs_LHB",
+        "menOnBase": "RISP"
+      }
+    },
+    "runners": [
+      {
+        "movement": {
+          "originBase": "1B",
+          "start": "1B",
+          "end": "2B",
+          "outBase": null,
+          "isOut": false,
+          "outNumber": null
+        },
+        "details": {
+          "event": "Stolen Base 2B",
+          "eventType": "stolen_base_2b",
+          "movementReason": "r_stolen_base_2b",
+          "runner": {
+            "id": 663968,
+            "fullName": "Jake Mangum",
+            "link": "/api/v1/people/663968"
+          },
+          "responsiblePitcher": null,
+          "isScoringEvent": false,
+          "rbi": false,
+          "earned": false,
+          "teamUnearned": false,
+          "playIndex": 2
+        },
+        "credits": []
+      },
+      {
+        "movement": {
+          "originBase": null,
+          "start": null,
+          "end": "1B",
+          "outBase": null,
+          "isOut": false,
+          "outNumber": null
+        },
+        "details": {
+          "event": "Hit By Pitch",
+          "eventType": "hit_by_pitch",
+          "movementReason": null,
+          "runner": {
+            "id": 656811,
+            "fullName": "Ryan O'Hearn",
+            "link": "/api/v1/people/656811"
+          },
+          "responsiblePitcher": null,
+          "isScoringEvent": false,
+          "rbi": false,
+          "earned": false,
+          "teamUnearned": false,
+          "playIndex": 7
+        },
+        "credits": []
+      }
+    ],
+    "playEvents": [
+      {
+        "details": {
+          "description": "Offensive Substitution: Pinch-hitter Ryan O'Hearn replaces Nick Gonzales.",
+          "event": "Offensive Substitution",
+          "eventType": "offensive_substitution",
+          "awayScore": 7,
+          "homeScore": 6,
+          "isScoringPlay": false,
+          "isOut": false,
+          "hasReview": false
+        },
+        "count": {
+          "balls": 0,
+          "strikes": 0,
+          "outs": 0
+        },
+        "index": 0,
+        "startTime": "2026-04-16T19:36:12.044Z",
+        "endTime": "2026-04-16T19:36:32.807Z",
+        "isPitch": false,
+        "isSubstitution": true,
+        "type": "action",
+        "player": {
+          "id": 656811,
+          "link": "/api/v1/people/656811"
+        },
+        "position": {
+          "code": "11",
+          "name": "Pinch Hitter",
+          "type": "Hitter",
+          "abbreviation": "PH"
+        },
+        "battingOrder": "201",
+        "replacedPlayer": {
+          "id": 693304,
+          "link": "/api/v1/people/693304"
+        }
+      },
+      {
+        "details": {
+          "call": {
+            "code": "C",
+            "description": "Called Strike"
+          },
+          "description": "Called Strike",
+          "isInPlay": false,
+          "isStrike": true,
+          "isBall": false,
+          "isOut": false,
+          "hasReview": true,
+          "runnerGoing": true
+        },
+        "count": {
+          "balls": 0,
+          "strikes": 1,
+          "outs": 0
+        },
+        "index": 1,
+        "playId": "f2ddc57e-efcb-3575-b075-c6bddf912514",
+        "pitchNumber": 1,
+        "startTime": "2026-04-16T19:36:32.807Z",
+        "endTime": "2026-04-16T19:36:54.882Z",
+        "isPitch": true,
+        "type": "pitch",
+        "reviewDetails": {
+          "isOverturned": true,
+          "inProgress": false,
+          "reviewType": "MJ",
+          "challengeTeamId": 120,
+          "player": {
+            "id": 690925,
+            "fullName": "Clayton Beeter",
+            "link": "/api/v1/people/690925"
+          }
+        }
+      },
+      {
+        "details": {
+          "description": "Nationals challenged (tag play), call on the field was upheld: Clayton Beeter challenged (pitch result), call on the field was overturned: Jake Mangum steals (2) 2nd base.",
+          "event": "Stolen Base 2B",
+          "eventType": "stolen_base_2b",
+          "awayScore": 7,
+          "homeScore": 6,
+          "isScoringPlay": false,
+          "isOut": false,
+          "hasReview": true
+        },
+        "count": {
+          "balls": 0,
+          "strikes": 1,
+          "outs": 0
+        },
+        "index": 2,
+        "actionPlayId": "f2ddc57e-efcb-3575-b075-c6bddf912514",
+        "startTime": "2026-04-16T19:36:54.882Z",
+        "endTime": "2026-04-16T19:39:53.716Z",
+        "isPitch": false,
+        "isBaseRunningPlay": true,
+        "type": "action",
+        "player": {
+          "id": 663968,
+          "link": "/api/v1/people/663968"
+        },
+        "reviewDetails": {
+          "isOverturned": false,
+          "inProgress": false,
+          "reviewType": "MA",
+          "challengeTeamId": 120
+        }
+      },
+      {
+        "details": {
+          "call": {
+            "code": "B",
+            "description": "Ball"
+          },
+          "description": "Ball",
+          "isInPlay": false,
+          "isStrike": false,
+          "isBall": true,
+          "isOut": false,
+          "hasReview": false
+        },
+        "count": {
+          "balls": 1,
+          "strikes": 1,
+          "outs": 0
+        },
+        "index": 3,
+        "playId": "c27ad4a7-2f32-39bc-84f3-35effc906add",
+        "pitchNumber": 2,
+        "startTime": "2026-04-16T19:39:53.716Z",
+        "endTime": "2026-04-16T19:39:57.516Z",
+        "isPitch": true,
+        "type": "pitch"
+      },
+      {
+        "details": {
+          "call": {
+            "code": "F",
+            "description": "Foul"
+          },
+          "description": "Foul",
+          "isInPlay": false,
+          "isStrike": true,
+          "isBall": false,
+          "isOut": false,
+          "hasReview": false
+        },
+        "count": {
+          "balls": 1,
+          "strikes": 2,
+          "outs": 0
+        },
+        "index": 4,
+        "playId": "58861a44-3c8d-321e-9cd6-946c3857de81",
+        "pitchNumber": 3,
+        "startTime": "2026-04-16T19:40:11.369Z",
+        "endTime": "2026-04-16T19:40:15.080Z",
+        "isPitch": true,
+        "type": "pitch"
+      },
+      {
+        "details": {
+          "call": {
+            "code": "B",
+            "description": "Ball"
+          },
+          "description": "Ball",
+          "isInPlay": false,
+          "isStrike": false,
+          "isBall": true,
+          "isOut": false,
+          "hasReview": false
+        },
+        "count": {
+          "balls": 2,
+          "strikes": 2,
+          "outs": 0
+        },
+        "index": 5,
+        "playId": "575b950b-afa4-3cca-8386-8a4b48305db1",
+        "pitchNumber": 4,
+        "startTime": "2026-04-16T19:40:33.088Z",
+        "endTime": "2026-04-16T19:40:38.580Z",
+        "isPitch": true,
+        "type": "pitch"
+      },
+      {
+        "details": {
+          "call": {
+            "code": "F",
+            "description": "Foul"
+          },
+          "description": "Foul",
+          "isInPlay": false,
+          "isStrike": true,
+          "isBall": false,
+          "isOut": false,
+          "hasReview": false
+        },
+        "count": {
+          "balls": 2,
+          "strikes": 2,
+          "outs": 0
+        },
+        "index": 6,
+        "playId": "6e18e6ec-c671-396e-9b33-0496833d1ef1",
+        "pitchNumber": 5,
+        "startTime": "2026-04-16T19:40:53.683Z",
+        "endTime": "2026-04-16T19:40:58.397Z",
+        "isPitch": true,
+        "type": "pitch"
+      },
+      {
+        "details": {
+          "call": {
+            "code": "H",
+            "description": "Hit By Pitch"
+          },
+          "description": "Hit By Pitch",
+          "isInPlay": false,
+          "isStrike": false,
+          "isBall": true,
+          "isOut": false,
+          "hasReview": false
+        },
+        "count": {
+          "balls": 3,
+          "strikes": 2,
+          "outs": 0
+        },
+        "index": 7,
+        "playId": "ec6c3ea5-03cb-3979-ba08-0d2f751f30a6",
+        "pitchNumber": 6,
+        "startTime": "2026-04-16T19:41:22.461Z",
+        "endTime": "2026-04-16T19:41:28.281Z",
+        "isPitch": true,
+        "type": "pitch"
+      }
+    ],
+    "playEndTime": "2026-04-16T19:41:28.281Z",
+    "atBatIndex": 80
+  }
+}

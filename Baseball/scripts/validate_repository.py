@@ -672,14 +672,14 @@ def validate_review_context() -> None:
             extra_inning_starts.setdefault(key, play["_baseballO"])
     for half, runner_id in (("top", "681715"), ("bottom", "694192")):
         occupancies = extra_inning_starts[(10, half)]["startBaseOccupancies"]
-        if not any(
-            occupancy.get("baseCode") == "2B"
-            and occupancy.get("runnerId") == runner_id
-            for occupancy in occupancies
-        ):
+        if occupancies:
             raise ValueError(
-                f"Automatic runner start-state regression in game 823766 ({half})"
+                f"Administrative placement incorrectly supplies physical occupancy in 823766 ({half})"
             )
+        histories = document['_baseballO']['runnerHistoryReconciliation']
+        if not any(h['runnerId']==runner_id and h['inning']=='10' and h['half']==half
+                for h in histories['histories']):
+            raise ValueError(f"Supported automatic-runner history missing in 823766 ({half})")
 
 
 def validate_turtle() -> int:
@@ -2472,6 +2472,13 @@ def main() -> None:
     yaml_count = validate_yaml()
     raw_schedule_count, raw_game_count, final_schedule_entries = validate_raw_corpus()
     validate_review_context()
+    # Bounded production-RML witnesses, independent of retired runtime inputs.
+    for pattern in ('test_normal_ingestion_repairs.py','test_foul_substitution_review_completion.py',
+                    'test_clock_correction.py','test_defensive_rml.py'):
+        subprocess.run([sys.executable,'-B','-m','unittest','discover','-s',
+            str(ROOT/'sources/mlb-game/tests'),'-p',pattern],cwd=ROOT,check=True)
+    subprocess.run([sys.executable,'-B','-m','unittest','discover','-s',
+        str(ROOT/'tests'),'-p','test_source_rml_recovery.py'],cwd=ROOT,check=True)
     turtle_count = validate_turtle()
     shacl_shape_count = validate_shacl_profiles()
     sparql_count = validate_sparql()

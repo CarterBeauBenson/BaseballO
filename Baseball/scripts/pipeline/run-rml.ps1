@@ -10,6 +10,7 @@ param(
 
 . (Join-Path $PSScriptRoot '..\infra\common.ps1')
 . (Join-Path $PSScriptRoot 'rml-output-counts.ps1')
+. (Join-Path $PSScriptRoot 'rml-execution-snapshot.ps1')
 Initialize-LocalLayout
 
 if ([string]::IsNullOrWhiteSpace($InputJson)) {
@@ -171,7 +172,6 @@ $java = Get-JavaExecutable
 $mapper = Get-RMLMapperJar
 $mappingBaseIri = 'https://baseballontology.org/mapping/mlb-direct'
 $inputHashBefore = (Get-FileHash -LiteralPath $inputPath -Algorithm SHA256).Hash.ToLowerInvariant()
-$mappingHash = (Get-FileHash -LiteralPath $mappingPath -Algorithm SHA256).Hash.ToLowerInvariant()
 $stage = Join-Path $workDirectory ("rml-$gamePk-" + [Guid]::NewGuid().ToString('N'))
 if (-not ([System.IO.Path]::GetFullPath($stage)).StartsWith(
     [System.IO.Path]::GetFullPath($workDirectory) + [System.IO.Path]::DirectorySeparatorChar,
@@ -190,6 +190,10 @@ $officialScorerTemplateReference = '{$.gameData.officialScorer.id}'
 $homePlateUmpireTemplateReference = '{$.homePlateUmpire.id}'
 
 try {
+    $executionSnapshot = New-MlbRmlExecutionSnapshot -RepositoryRoot $script:RepositoryRoot -Stage $stage
+    $mappingSnapshot = $executionSnapshot['sources/mlb-game/mapping/mlb-game.rml.ttl']
+    $contextSnapshot = $executionSnapshot['scripts/pipeline/prepare-rml-context.py']
+    $mappingHash = $mappingSnapshot.sha256
     & python $semanticAdmissionValidatorPath '--runtime-admission' 'mlb-game'
     if ($LASTEXITCODE -ne 0) {
         throw "The MLB game semantic artifacts do not match their frozen runtime admission."
@@ -199,6 +203,7 @@ try {
     if ($LASTEXITCODE -ne 0) {
         throw "Direct mapping preflight validation failed for game $gamePk."
     }
+    Assert-MlbRmlExecutionSnapshot -Snapshot $executionSnapshot
 
     Copy-Item -LiteralPath $inputPath -Destination $stageInput
     $stagedInputHash = (Get-FileHash -LiteralPath $stageInput -Algorithm SHA256).Hash.ToLowerInvariant()
@@ -210,7 +215,7 @@ try {
     # ancestors and does not expand parent array references as a multi-value
     # join. Generate an isolated execution-only copy that adds ancestor IDs to
     # pitch records. The staged and authoritative raw JSON remain byte-identical.
-    $contextArguments = @($contextBuilderPath, $stageInput, $stageContext)
+    $contextArguments = @($contextSnapshot.stagedPath, $stageInput, $stageContext)
     $previousRmlManifest = Join-Path $manifestDirectory "game-$gamePk-rml.json"
     if (Test-Path -LiteralPath $previousRmlManifest -PathType Leaf) {
         $contextArguments += @('--previous-defensive-evidence', $previousRmlManifest)
@@ -261,7 +266,7 @@ try {
     # The reusable mapping marks guarded root identifiers explicitly; materialize only
     # the isolated mapping copy so nested records retain deterministic game-scoped
     # IRIs without adding helper fields to the authoritative MLB JSON.
-    $mappingText = Get-Content -LiteralPath $mappingPath -Raw -Encoding UTF8
+    $mappingText = Get-Content -LiteralPath $mappingSnapshot.stagedPath -Raw -Encoding UTF8
     $gamePkReferenceCount = ([regex]::Matches($mappingText, [regex]::Escape($gamePkTemplateReference))).Count
     $venueReferenceCount = ([regex]::Matches($mappingText, [regex]::Escape($venueTemplateReference))).Count
     $awayTeamReferenceCount = ([regex]::Matches($mappingText, [regex]::Escape($awayTeamTemplateReference))).Count
@@ -372,6 +377,7 @@ try {
     if ($inputHashAfter -ne $inputHashBefore) {
         throw 'The authoritative input JSON changed during RML execution.'
     }
+    Assert-MlbRmlExecutionSnapshot -Snapshot $executionSnapshot
     Copy-Item -LiteralPath $stageOutput -Destination $outputPath -Force
     $outputHash = (Get-FileHash -LiteralPath $outputPath -Algorithm SHA256).Hash.ToLowerInvariant()
 
@@ -386,11 +392,14 @@ try {
         mappingPath = $mappingPath
         mappingSha256 = $mappingHash
         semanticFreezePath = $semanticFreezePath
-        semanticFreezeSha256 = (Get-FileHash -LiteralPath $semanticFreezePath -Algorithm SHA256).Hash.ToLowerInvariant()
+        semanticFreezeSha256 = $executionSnapshot['governance/semantic-freeze.json'].sha256
         semanticAdmission = 'mlb-game:frozen-known-debt'
         effectiveMappingSha256 = $effectiveMappingHash
         contextBuilderPath = $contextBuilderPath
-        contextBuilderSha256 = (Get-FileHash -LiteralPath $contextBuilderPath -Algorithm SHA256).Hash.ToLowerInvariant()
+        contextBuilderSha256 = $contextSnapshot.sha256
+        executionImplementation = @($executionSnapshot.GetEnumerator() | ForEach-Object {
+            [pscustomobject]@{ path=$_.Key; sha256=$_.Value.sha256 }
+        })
         executionContextSha256 = $contextHash
         clockIsolationDecision = 'archive/design-records/mlb-game-clock-conflict-isolation/review.json'
         clockAdmission = if ($DeferShaclValidation) { $null } else { $clockAdmissionPath }

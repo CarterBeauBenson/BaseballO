@@ -1,0 +1,15 @@
+{
+  "enabled": false,
+  "decision": "archive/design-records/mlb-game-quarantine-boundaries/review.json",
+  "implementationRecord": "sources/mlb-game/review/rml-audit-2026-10-03.md#further-diagnosis-october-4",
+  "cases": [
+    {
+      "gamePk": "831629",
+      "path": "pipeline/quarantine/mlb-game/831629/bf5b6692140f4076bfcfaa5507fbf9af/input.json",
+      "sha256": "5511cdce86e9af18cb376d0338b4bcf1e8111fae64534967345b1f998cf822cb",
+      "previousGameEnd": "2026-03-07T19:39:59.113Z",
+      "terminalAtBatIndex": 44,
+      "gameEnd": "2026-03-07T19:40:45.340Z"
+    }
+  ]
+}

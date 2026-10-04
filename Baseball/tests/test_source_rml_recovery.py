@@ -10,6 +10,44 @@ ROOT=Path(__file__).resolve().parents[1]
 
 
 class SourceRmlRecovery(unittest.TestCase):
+    def test_game_implementation_snapshot_detects_edits_to_code_and_each_dependency(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary);script=root/'snapshot-test.ps1'
+            script.write_text(r'''
+param($Project,$TestRoot)
+$ErrorActionPreference='Stop'
+. (Join-Path $Project 'scripts/pipeline/rml-execution-snapshot.ps1')
+$repo=Join-Path $TestRoot 'repo'
+$paths=@('scripts/pipeline/prepare-rml-context.py',
+    'sources/mlb-game/pipeline/reconcile-metric-source.py',
+    'sources/mlb-game/pipeline/graph-source-scope.py',
+    'sources/mlb-game/mapping/mlb-game.rml.ttl','governance/semantic-freeze.json')
+foreach ($relative in $paths) {
+    $path=Join-Path $repo $relative
+    [void](New-Item -ItemType Directory -Force -Path (Split-Path -Parent $path))
+    [IO.File]::WriteAllText($path,'original')
+}
+$snapshot=New-MlbRmlExecutionSnapshot -RepositoryRoot $repo -Stage (Join-Path $TestRoot 'stage')
+Assert-MlbRmlExecutionSnapshot -Snapshot $snapshot
+foreach ($entry in $snapshot.GetEnumerator()) {
+    foreach ($path in @($entry.Value.path,$entry.Value.stagedPath)) {
+        [IO.File]::WriteAllText($path,'changed')
+        $rejected=$false
+        try { Assert-MlbRmlExecutionSnapshot -Snapshot $snapshot }
+        catch { $rejected=$_.Exception.Message.StartsWith('RML implementation changed during execution:') }
+        if (-not $rejected) { throw "Missed implementation race: $path" }
+        [IO.File]::WriteAllText($path,'original')
+    }
+}
+Assert-MlbRmlExecutionSnapshot -Snapshot $snapshot
+$parseErrors=$null;$tokens=$null
+[void][Management.Automation.Language.Parser]::ParseFile((Join-Path $Project 'scripts/pipeline/run-rml.ps1'),[ref]$tokens,[ref]$parseErrors)
+if ($parseErrors.Count) { throw ($parseErrors | Out-String) }
+''',encoding='utf-8')
+            result=subprocess.run(['powershell.exe','-NoProfile','-ExecutionPolicy','Bypass','-File',str(script),str(ROOT),str(root)],
+                capture_output=True,text=True,timeout=30)
+            self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+
     def test_failed_execution_retains_evidence_and_never_replaces_previous_output(self):
         for mode in ('mapper-failure','context-change','mapping-change','success'):
             with self.subTest(mode=mode),tempfile.TemporaryDirectory() as temp:

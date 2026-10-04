@@ -1850,6 +1850,21 @@ def play_has_plate_appearance_structure(play: dict[str, object]) -> bool:
     )
 
 
+def terminal_baseball_play(document: dict) -> dict:
+    """Last evidenced baseball play, including a PA carrying an advisory.
+
+    A pure administrative record cannot supply the game's physical end.
+    Preserve the existing recorded boundary; do not manufacture a timestamp.
+    """
+    candidates = [p for p in document['liveData']['plays']['allPlays']
+        if (p.get('result', {}).get('eventType') not in ADMINISTRATIVE_EVENT_TYPES
+            or play_has_plate_appearance_structure(p))
+        and (p.get('playEvents') or p.get('runners') or p.get('about', {}).get('isComplete') is True)]
+    if not candidates or not isinstance(candidates[-1].get('about', {}).get('endTime'), str):
+        raise ValueError('Last baseball play has no recorded endTime')
+    return candidates[-1]
+
+
 def annotate_officials(document: dict[str, object]) -> int:
     """Add mapping guards without fabricating absent official names."""
     officials = (
@@ -2598,6 +2613,12 @@ def defensive_act_context(document: dict, previous: dict | None = None) -> dict:
     people = document.get('gameData', {}).get('players', {})
     rows, inventory = [], []
     source = document[CONTEXT_KEY]['runnerHistoryReconciliation']
+    scope_path = Path(__file__).resolve().parents[2] / 'sources/mlb-game/pipeline/graph-source-scope.py'
+    spec = importlib.util.spec_from_file_location('defensive_graph_scope', scope_path)
+    scope = importlib.util.module_from_spec(spec); spec.loader.exec_module(scope)
+    source_complete = source.get('sourceConsistency') == 'consistent'
+    issues = source.get('sourceIssues', [])
+    graph_source_reconciled = source_complete or (bool(issues) and not scope.graph_blocking_issues(issues))
     for play in plays:
         pa = str(play['about']['atBatIndex'])
         events = play.get('playEvents', [])
@@ -2638,7 +2659,7 @@ def defensive_act_context(document: dict, previous: dict | None = None) -> dict:
                 resolution=game+'process/batted-ball-play/'+str(pid), acts=[],
                 complete=False, orderComplete=False, gaps=[])
             inventory.append(item)
-            if (source.get('sourceConsistency') != 'consistent' or play['about'].get('isComplete') is not True
+            if (not graph_source_reconciled or play['about'].get('isComplete') is not True
                     or not isinstance(pid, str) or not SAFE_IRI_SEGMENT.fullmatch(pid) or ids.count(pid) != 1
                     or [e.get('index') for e in events] != list(range(len(events)))):
                 item['gaps'].append('UNRECONCILED_CONTACT_IDENTITY'); continue
@@ -2747,8 +2768,8 @@ def defensive_act_context(document: dict, previous: dict | None = None) -> dict:
             if new_by_play[pid]!=acts:raise ValueError('D1 correction changes an established performance census: '+pid)
     result=dict(gamePk=str(document['gamePk']),decision='archive/design-records/mlb-game-defensive-acts/review.json',
         inputSha256=source.get('inputSha256'),sourceRevision=source.get('sourceRevision'),acts=rows,plays=inventory,
-        populationComplete=bool(inventory) and all(r['complete'] for r in inventory),
-        orderComplete=bool(inventory) and all(r['orderComplete'] for r in inventory),
+        populationComplete=source_complete and bool(inventory) and all(r['complete'] for r in inventory),
+        orderComplete=source_complete and bool(inventory) and all(r['orderComplete'] for r in inventory),
         precedence=[],identityAlignmentChecked=previous is not None)
     document[CONTEXT_KEY]['defensiveActs']=rows
     document[CONTEXT_KEY]['defensiveEvidence']=result
@@ -2778,20 +2799,8 @@ def main() -> None:
     )
     if not final_corroborated:
         raise ValueError("Game end is not corroborated by final/game-over source state")
-    terminal_baseball_plays = [
-        play
-        for play in plays
-        if play.get("result", {}).get("eventType") not in ADMINISTRATIVE_EVENT_TYPES
-        and (
-            play.get("playEvents")
-            or play.get("runners")
-            or play.get("about", {}).get("isComplete") is True
-        )
-        and isinstance(play.get("about", {}).get("endTime"), str)
-    ]
-    if not terminal_baseball_plays:
-        raise ValueError("Final game has no terminal baseball event with an endTime")
-    final_end_time = terminal_baseball_plays[-1].get("about", {}).get("endTime")
+    terminal_play = terminal_baseball_play(document)
+    final_end_time = terminal_play['about']['endTime']
     if not isinstance(final_end_time, str) or not final_end_time.strip():
         raise ValueError("Final play has no about.endTime")
     game_pk = require_numeric(document.get("gamePk"), "Root gamePk")
@@ -2813,9 +2822,9 @@ def main() -> None:
         previous_runner_history = previous_manifest.get('runnerHistoryReconciliation')
     root_context: dict[str, object] = {
         "runnerHistoryReconciliation": personal_runner_histories(args.source.read_bytes(), previous_runner_history),
-        "gameEndTime": clock_pair(terminal_baseball_plays[-1]["about"])[1],
-        "gameEndClockConflicted": clock_pair_conflicted(terminal_baseball_plays[-1]["about"]),
-        "gameEndClocks": [] if clock_pair_conflicted(terminal_baseball_plays[-1]["about"]) else [{"value": final_end_time}],
+        "gameEndTime": clock_pair(terminal_play["about"])[1],
+        "gameEndClockConflicted": clock_pair_conflicted(terminal_play["about"]),
+        "gameEndClocks": [] if clock_pair_conflicted(terminal_play["about"]) else [{"value": final_end_time}],
         "pitchTypeReferenceSystemIri": f"{provider_reference_root}/pitch-types",
         "pitchTypeReferenceSystemLabel": (
             f"MLB pitch-type reference system observed {provider_version}"

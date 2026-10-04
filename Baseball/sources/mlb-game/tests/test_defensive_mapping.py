@@ -37,6 +37,28 @@ def hand_graph(source):
 
 
 class DefensiveMappingTests(unittest.TestCase):
+    def test_q6_missing_totals_keep_supported_acts_but_not_complete_population(self):
+        for issue in (dict(code='INCOMPLETE_SOURCE_PLAY'),dict(code='INNING_RUN_TOTAL_MISMATCH',reported=None)):
+            d=document(1);d['_baseballO']['runnerHistoryReconciliation'].update(
+                sourceConsistency='inconsistent',sourceIssues=[issue])
+            selected=CONTEXT.defensive_act_context(d)
+            self.assertEqual(len(selected['acts']),1)
+            self.assertFalse(selected['populationComplete'])
+        for issue in (dict(code='INNING_RUN_TOTAL_MISMATCH',reported=1),dict(code='MOVEMENT_EVENT_MEMBERSHIP_MISMATCH')):
+            d=document(1);d['_baseballO']['runnerHistoryReconciliation'].update(
+                sourceConsistency='inconsistent',sourceIssues=[issue])
+            self.assertFalse(CONTEXT.defensive_act_context(d)['acts'])
+
+    def test_q6_partial_source_still_runs_graph_conformance_and_keeps_status_withheld(self):
+        d=json.loads(RAW);d['liveData']['plays']['allPlays'][-1]['about']['isComplete']=False
+        raw=json.dumps(d).encode();source=A.census(raw,'822693')
+        self.assertTrue(source['graphSourceReconciled']);self.assertEqual(source['status'],'withheld')
+        with tempfile.TemporaryDirectory() as directory:
+            rdf=Path(directory)/'game.ttl';hand_graph(source).serialize(destination=rdf,format='turtle')
+            proof=A.prove(raw=raw,game_pk='822693',rdf_path=rdf,output=Path(directory)/'proof.json')
+            self.assertTrue(proof['graphConforms']);self.assertFalse(proof['sourceReconciled'])
+            self.assertEqual(proof['status'],'withheld');self.assertFalse(proof['populationComplete'])
+
     def test_named_catch_has_one_identity_and_persistent_role(self):
         e=CONTEXT.defensive_act_context(document(1));row,=e['acts']
         self.assertEqual(row['agentIri'],BASE+'data/player/686611')

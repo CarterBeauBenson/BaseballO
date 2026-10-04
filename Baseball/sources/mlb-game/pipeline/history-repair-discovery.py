@@ -5,6 +5,7 @@ base identities, and let the unchanged context select the missing histories.
 This is queue construction, not another semantic validator or game remapper.
 """
 from pathlib import Path
+import ast
 import inspect
 import re
 import urllib.request
@@ -109,11 +110,23 @@ def source(owner,state,promotion,request_path):
     return witness
 
 
+def history_context_bytes(raw):
+    """Exclude only assembly/defense/terminal-clock code unused by histories.
+
+    Keep all other definitions, constants and imports conservatively pinned.
+    This does not change semantic admission or any evidence producer hash.
+    """
+    tree=ast.parse(raw)
+    excluded={'main','defensive_act_context','terminal_baseball_play'}
+    tree.body=[node for node in tree.body if getattr(node,'name',None) not in excluded]
+    return ast.dump(tree,include_attributes=False).encode()
+
+
 def fingerprint(owner):
     """Inspection depends on selection, not reporting or the execution queue."""
     proof_inputs=('admission-evidence.py','runner-boundary-admission.py','batting-admission.py',
         'reconcile-metric-source.py',
-        'existing-graph-admissions.py','retained-census-admissions.py','context-proof-compatibility.json')
+        'existing-graph-admissions.py','retained-census-admissions.py')
     return owner.hashlib.sha256(inspect.getsource(inspect_record).encode()+
         inspect.getsource(missing_graph_histories).encode()+
         inspect.getsource(retained_history_admission).encode()+
@@ -123,7 +136,7 @@ def fingerprint(owner):
         b''.join((owner.HERE/name).read_bytes() for name in proof_inputs)+
         (owner.ROOT/'scripts/pipeline/validate-shacl.py').read_bytes()+
         (owner.HERE.parent/'shacl/runner-boundary-admission.ttl').read_bytes()+
-        (owner.ROOT/'scripts/pipeline/prepare-rml-context.py').read_bytes()).hexdigest()
+        history_context_bytes((owner.ROOT/'scripts/pipeline/prepare-rml-context.py').read_bytes())).hexdigest()
 
 
 def missing_graph_histories(owner,promotion,histories):
