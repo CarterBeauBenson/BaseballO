@@ -1,0 +1,165 @@
+{
+  "gamePk": "823420",
+  "atBatIndex": 38,
+  "sourceWitness": {
+    "kind": "retained-response",
+    "gamePk": "823420",
+    "path": "C:\\Users\\carte\\OneDrive\\Desktop\\BaseballO\\Baseball\\data\\raw\\samples\\2026-08-21\\823420.json",
+    "sha256": "1e41c37e8f9215b2ce6ad04984b96b2fa02237fa8fa3a7cbf1af7797584173ef"
+  },
+  "play": {
+    "matchup": {
+      "batter": {
+        "id": 607208,
+        "fullName": "Trea Turner",
+        "link": "/api/v1/people/607208"
+      },
+      "batSide": {
+        "code": "R",
+        "description": "Right"
+      },
+      "pitcher": {
+        "id": 657571,
+        "fullName": "Caleb Ferguson",
+        "link": "/api/v1/people/657571"
+      },
+      "pitchHand": {
+        "code": "L",
+        "description": "Left"
+      },
+      "postOnFirst": {
+        "id": 607208,
+        "fullName": "Trea Turner",
+        "link": "/api/v1/people/607208"
+      },
+      "batterHotColdZones": [],
+      "pitcherHotColdZones": [],
+      "splits": {
+        "batter": "vs_LHP",
+        "pitcher": "vs_RHB",
+        "menOnBase": "Men_On"
+      }
+    },
+    "events": [
+      {
+        "index": 0,
+        "playId": "c02215cb-347f-32c0-9d72-8a4efe1d80c7",
+        "isPitch": true,
+        "details": {
+          "call": {
+            "code": "B",
+            "description": "Ball"
+          },
+          "description": "Ball",
+          "code": "B",
+          "ballColor": "rgba(39, 161, 39, 1.0)",
+          "trailColor": "rgba(188, 0, 33, 1.0)",
+          "isInPlay": false,
+          "isStrike": false,
+          "isBall": true,
+          "type": {
+            "code": "FF",
+            "description": "Four-Seam Fastball"
+          },
+          "isOut": false,
+          "hasReview": false
+        },
+        "count": {
+          "balls": 1,
+          "strikes": 0,
+          "outs": 0
+        }
+      },
+      {
+        "index": 1,
+        "isPitch": false,
+        "player": {
+          "id": 607208,
+          "link": "/api/v1/people/607208"
+        },
+        "details": {
+          "description": "Injury Delay.",
+          "event": "Game Advisory",
+          "eventType": "game_advisory",
+          "awayScore": 2,
+          "homeScore": 3,
+          "isScoringPlay": false,
+          "isOut": false,
+          "hasReview": false
+        },
+        "count": {
+          "balls": 1,
+          "strikes": 0,
+          "outs": 0
+        }
+      },
+      {
+        "index": 2,
+        "isPitch": false,
+        "player": {
+          "id": 657571,
+          "link": "/api/v1/people/657571"
+        },
+        "position": {
+          "code": "1",
+          "name": "Pitcher",
+          "type": "Pitcher",
+          "abbreviation": "P"
+        },
+        "details": {
+          "description": "Pitching Change: Caleb Ferguson replaces Hunter Dobbins.",
+          "event": "Pitching Substitution",
+          "eventType": "pitching_substitution",
+          "awayScore": 2,
+          "homeScore": 3,
+          "isScoringPlay": false,
+          "isOut": false,
+          "hasReview": false
+        },
+        "count": {
+          "balls": 1,
+          "strikes": 0,
+          "outs": 0
+        }
+      },
+      {
+        "index": 3,
+        "playId": "9c7bb5be-5849-34a1-bd1f-48a344298252",
+        "isPitch": true,
+        "details": {
+          "call": {
+            "code": "B",
+            "description": "Ball"
+          },
+          "description": "Ball",
+          "code": "B",
+          "ballColor": "rgba(39, 161, 39, 1.0)",
+          "trailColor": "rgba(50, 0, 221, 1.0)",
+          "isInPlay": false,
+          "isStrike": false,
+          "isBall": true,
+          "type": {
+            "code": "SI",
+            "description": "Sinker"
+          },
+          "isOut": false,
+          "hasReview": false
+        },
+        "count": {
+          "balls": 2,
+          "strikes": 0,
+          "outs": 0
+        }
+      }
+    ]
+  },
+  "observedAtDate": "2026-10-04",
+  "graph": "https://w3id.org/baseball/graph/game/823420",
+  "correction": {
+    "remove": 2,
+    "add": 3,
+    "outgoingPitcher": "690928",
+    "incomingPitcher": "657571",
+    "earlierPitch": "c02215cb-347f-32c0-9d72-8a4efe1d80c7"
+  }
+}

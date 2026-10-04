@@ -30,6 +30,11 @@ selects eight missing strikes in seven games through the existing additive owner
 Its candidate passes the focused retained-source check; active mappings and
 context pins are unchanged pending named acceptance.
 
+Pending review: [P1 actual pitching participation](mlb-game-actual-pitcher-participation/README.md)
+corrects per-pitch attribution across an explicit mid-PA replacement. The
+verified live case in 823420 needs two wrong relations removed and three
+supported relations added. Its graph correction is a review-only preview.
+
 [H4 runner-review completion](../archive/design-records/mlb-game-runner-review-completion/README.md)
 was accepted on October 4, including its scoped context-pin update. It repairs
 two completed-review selections and authorizes eight missing histories and

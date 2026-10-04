@@ -1,0 +1,35 @@
+# REVIEW ONLY. NiFi must own source binding, locking, RML, SHACL and promotion.
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX base: <https://baseballontology.org/>
+WITH <https://w3id.org/baseball/graph/game/823420>
+DELETE {
+  <https://baseballontology.org/data/game/823420/pitch/c02215cb-347f-32c0-9d72-8a4efe1d80c7>
+    obo:BFO_0000057 <https://baseballontology.org/data/player/657571> ;
+    obo:BFO_0000055 <https://baseballontology.org/data/player/657571/role/pitcher> .
+}
+INSERT {
+  <https://baseballontology.org/data/game/823420/pitch/c02215cb-347f-32c0-9d72-8a4efe1d80c7>
+    obo:BFO_0000057 <https://baseballontology.org/data/player/690928> ;
+    obo:BFO_0000055 <https://baseballontology.org/data/player/690928/role/pitcher> .
+  <https://baseballontology.org/data/game/823420/plate-appearance/38>
+    obo:BFO_0000057 <https://baseballontology.org/data/player/690928> .
+}
+WHERE {
+  <https://baseballontology.org/data/game/823420/pitch/c02215cb-347f-32c0-9d72-8a4efe1d80c7>
+    a base:PitchAct ;
+    obo:BFO_0000132 <https://baseballontology.org/data/game/823420/plate-appearance/38> ;
+    obo:BFO_0000057 <https://baseballontology.org/data/player/657571> ;
+    obo:BFO_0000055 <https://baseballontology.org/data/player/657571/role/pitcher> .
+  <https://baseballontology.org/data/player/690928/role/pitcher>
+    a base:PitcherRole ; obo:BFO_0000197 <https://baseballontology.org/data/player/690928> .
+  FILTER NOT EXISTS {
+    <https://baseballontology.org/data/game/823420/pitch/c02215cb-347f-32c0-9d72-8a4efe1d80c7> obo:BFO_0000055 ?otherRole .
+    FILTER (?otherRole != <https://baseballontology.org/data/player/657571/role/pitcher>)
+  }
+  FILTER NOT EXISTS {
+    <https://baseballontology.org/data/game/823420/pitch/c02215cb-347f-32c0-9d72-8a4efe1d80c7> obo:BFO_0000057 ?otherParticipant .
+    FILTER (?otherParticipant NOT IN (
+      <https://baseballontology.org/data/player/657571>,
+      <https://baseballontology.org/data/game/823420/artifact/baseball/c02215cb-347f-32c0-9d72-8a4efe1d80c7>))
+  }
+}
