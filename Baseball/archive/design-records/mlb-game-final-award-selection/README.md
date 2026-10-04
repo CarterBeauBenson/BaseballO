@@ -1,10 +1,10 @@
 # W3: final walk and hit-by-pitch award selection
 
-**Under review. No active mapping, semantic pin or RDF changes are authorized by this package.**
+**Accepted by Carter Beau Benson on October 3, 2026. This decision is published before activation.**
 
 Five retained plate appearances have a complete final award and an unambiguous
 batter advance to first, but the selector omits their existing award pattern.
-W3 proposes the bounded source-selection repair below and additive execution
+W3 authorizes the bounded source-selection repair below and additive execution
 for those five PAs. It introduces no classes, properties or identity policies.
 
 | Game / PA | Final award | Selection gap |
@@ -32,7 +32,7 @@ Hit-by-pitch calls are reviewable.
 The proposed attribution still depends on the retained final source evidence;
 these rules alone do not establish any particular award.
 
-## Competency questions and proposed answers
+## Accepted competency-question answers
 
 1. Can a reconciled final hit-by-pitch award use the existing award pattern
    after a completed review? **Yes.** Reuse the accepted final-field-review
@@ -56,7 +56,7 @@ these rules alone do not establish any particular award.
 
 The accepted world-side pattern is shown in the
 [source-independent diagram](source-independent-mermaid.md), reusing the
-[final award decision](../../archive/design-records/runner-award-origin-final-decision/user-decision.md).
+[final award decision](../runner-award-origin-final-decision/user-decision.md).
 
 ## Field selection inventory
 
@@ -90,7 +90,7 @@ scoring play. Its nonterminal records have no runner rows. Contradictory
 indexes, counts, review evidence, flags or runner joins withhold selection.
 
 Earlier events need not belong to W1's zero-pitch prefix whitelist to support
-this final award. This is the proposed semantic boundary: independently
+this final award. This is the accepted semantic boundary: independently
 evidenced final attribution is not a certificate of complete earlier history.
 The existing zero-pitch helper is unchanged by the prepared context patch.
 The count owner must retain physical pitches and real count judgments when
@@ -111,6 +111,8 @@ admissions and derived SQL through their existing owners. No whole-game RML,
 whole-game replacement, API reacquisition or season rebuild is included.
 823350 has separate history conflicts; W3 does not resolve those conflicts.
 
-The requested decision is **W3 final-award selection and its scoped context
-pin update**, with the five additive repairs above. Nothing is approved by
-this draft's creation or by its checks passing.
+The user accepted **W3 final-award selection and its scoped context pin
+update**, with the five additive repairs above, by replying "Approve and fix
+the runner history" to the pending W3 request and status explanation. This
+also directs continued runner-history repair within already accepted patterns;
+it does not silently replace C3/Q7 identity or persistence decisions.

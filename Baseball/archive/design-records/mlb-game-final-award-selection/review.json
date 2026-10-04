@@ -1,0 +1,63 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-final-award-selection",
+  "title": "W3 final walk and hit-by-pitch award selection",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "90396af14dcf10e4d2d7806f0287e4500ce393df3a12b323ea2e5f84284f6df6"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "README.md",
+        "sha256": "90396af14dcf10e4d2d7806f0287e4500ce393df3a12b323ea2e5f84284f6df6"
+      },
+      {
+        "path": "evidence.json",
+        "sha256": "7e1961a13f3440c39e0685eb5281fdab3aabd137eae3b5bc542238c0751c003b"
+      },
+      {
+        "path": "selection.patch",
+        "sha256": "0f37f68137d3dfd6e18b8a8a04c4a7e701b35e524b6a13afcf6cd7047a92fe07"
+      },
+      {
+        "path": "check.py",
+        "sha256": "7df32c68e0e2d3677da73974dc5b633d2a1b9d2e04fd185a2142dafc906d4202"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "90396af14dcf10e4d2d7806f0287e4500ce393df3a12b323ea2e5f84284f6df6"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "25ee122c783a8158bf23185ad9f8be17353b4ab7d65a38975a5c15e554b5384a"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-10-03",
+    "rationale": "The user replied \"Approve and fix the runner history\" to the pending named W3 final-award selection and scoped context-pin request. Implement the exact five additive award repairs and continue independent runner-history fixes within accepted patterns. Preserve unrelated RDF; no new classes, object properties, API reacquisition, graph replacement or database rebuild.",
+    "authorizedArtifacts": [
+      "Baseball/scripts/pipeline/prepare-rml-context.py",
+      "Baseball/sources/mlb-game/pipeline/targeted-award-addition.py",
+      "Baseball/sources/mlb-game/pipeline/pitch-count-admission.py",
+      "Baseball/sources/mlb-game/pipeline/validation-profiles.json",
+      "Baseball/sources/mlb-game/shacl/intentional-walk-award-addition.ttl",
+      "Baseball/sources/mlb-game/review/semantic-status.json",
+      "Baseball/sources/mlb-game/review/rml-mermaid-manifest.json",
+      "Baseball/governance/semantic-freeze.json"
+    ]
+  }
+}

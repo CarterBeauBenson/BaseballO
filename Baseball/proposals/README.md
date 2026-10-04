@@ -25,6 +25,12 @@ their rejection rationale so they cannot be accidentally revived.
 
 ## Recent accepted decisions
 
+[W3 final award selection](../archive/design-records/mlb-game-final-award-selection/README.md)
+was accepted on October 3: two reviewed hit-by-pitches and three intentional
+walks receive only their missing existing award/dependency facts. Activation
+follows this separately published decision; physical pitches and earlier
+independent running remain separate.
+
 [F7 pre-pitch batter replacement chain](../archive/design-records/mlb-game-prepitch-batter-chain/README.md)
 was accepted on October 3, including its scoped context-pin update. It addresses
 823312's counted foul using the existing strike pattern and additive owner.
@@ -107,12 +113,6 @@ pass is archived as
 
 ## Active reviews
 
-**[W3 final award selection](mlb-game-final-award-selection/README.md)** proposes
-five additive award repairs: two completed-review hit-by-pitches and three
-intentional walks after earlier events or pitches. Its disposable candidate
-check passes all five exact selections and contradictory variants, preserving
-physical pitches and excluding earlier steals from walk attribution. The
-active context and RDF remain unchanged pending the named W3 decision.
 
 The packages below are all **under review** with a null ontologist decision.
 They are design-only and authorize no ontology, RML, SHACL, acquisition, RDF,
