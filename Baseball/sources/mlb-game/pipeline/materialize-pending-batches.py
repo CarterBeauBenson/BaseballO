@@ -255,6 +255,7 @@ def materialize_pending(state_root) -> int:
             "3",
         ],
         stdin=subprocess.DEVNULL,
+        env=dict(os.environ,BASEBALLO_SERVING_BUDGET_HELD='1'),
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         text=True,

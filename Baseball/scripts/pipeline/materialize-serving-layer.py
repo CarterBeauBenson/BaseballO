@@ -31,6 +31,13 @@ _release_spec = importlib.util.spec_from_file_location('baseballo_serving_releas
 _serving_release = importlib.util.module_from_spec(_release_spec)
 _release_spec.loader.exec_module(_serving_release)
 if __name__ == '__main__':
+    # Direct source-lane/report invocations share the same resource policy as
+    # the dashboard and pending-batch owner, before immutable build dispatch.
+    if (not _serving_release.own_descriptor(ROOT) and os.environ.get('BASEBALLO_SERVING_BUDGET_HELD')!='1'
+            and not any(arg in {'-h','--help'} for arg in sys.argv[1:])):
+        _budget_spec=importlib.util.spec_from_file_location('report_launch_budget',ROOT/'scripts/infra/serving-budget.py')
+        _budget=importlib.util.module_from_spec(_budget_spec);_budget_spec.loader.exec_module(_budget)
+        raise SystemExit(_budget.main(['--kind','report',*sys.argv[1:]]))
     try:
         _release_exit = _serving_release.dispatch(ROOT, sys.argv[1:], mode='build')
     except Exception as error:

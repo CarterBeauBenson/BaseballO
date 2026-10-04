@@ -28,16 +28,46 @@ class ServingBudget(unittest.TestCase):
             self.assertEqual(json.loads(result.stdout),dict(status='deferred',reason='existing-serving-worker'))
             self.assertFalse((state/'serving/dashboard/progress.json').exists())
 
-    def test_shared_lease_dashboard_priority_and_exception_release(self):
+    def test_shared_lease_without_dashboard_priority_and_exception_release(self):
         with tempfile.TemporaryDirectory() as temp, patch.object(B.PROCESS,'available_memory',return_value=2*1024**3):
             state=Path(temp);lock=state/'pipeline/work/mlb-game-locks/targeted-repair-budget.lock'
             with B.LOCK.exclusive(lock), B.reserve(state,'dashboard') as reason:
                 self.assertEqual(reason,'heavy-worker-busy')
-            with B.reserve(state,'report') as reason:self.assertEqual(reason,'waiting-dashboard')
+            with B.reserve(state,'report') as reason:self.assertIsNone(reason)
             with self.assertRaisesRegex(RuntimeError,'worker failed'):
                 with B.reserve(state,'dashboard') as reason:
                     self.assertIsNone(reason);raise RuntimeError('worker failed')
             with B.reserve(state,'report') as reason:self.assertIsNone(reason)
+
+    def test_requested_upstream_phase_defers_both_builds_then_releases_once(self):
+        with tempfile.TemporaryDirectory() as temp, patch.object(B.PROCESS,'available_memory',return_value=2*1024**3):
+            state=Path(temp);control=state/'pipeline/control/mlb-game';control.mkdir(parents=True)
+            request=control/'repair-priority.json';report=control/'repair-status.json'
+            request.write_text(json.dumps(dict(enabled=True,requestedAtUtc='2026-10-04T23:00:00Z')))
+            for kind in ('dashboard','report'):
+                with B.reserve(state,kind) as reason:self.assertEqual(reason,'upstream-repairs-first')
+            # A clear report predating this request cannot release the phase.
+            report.write_text(json.dumps(dict(recordedWorkClear=True,checkedAtUtc='2026-10-04T22:00:00Z')))
+            with B.reserve(state,'dashboard') as reason:self.assertEqual(reason,'upstream-repairs-first')
+            report.write_text(json.dumps(dict(recordedWorkClear=False,checkedAtUtc='2026-10-04T23:01:00Z')))
+            with B.reserve(state,'report') as reason:self.assertEqual(reason,'upstream-repairs-first')
+            report.write_text(json.dumps(dict(recordedWorkClear=True,checkedAtUtc='2026-10-04T23:02:00Z')))
+            with B.reserve(state,'report') as reason:self.assertIsNone(reason)
+            self.assertFalse(json.loads(request.read_text())['enabled'])
+            report.write_text(json.dumps(dict(recordedWorkClear=False,checkedAtUtc='2026-10-05T00:00:00Z')))
+            with B.reserve(state,'dashboard') as reason:self.assertIsNone(reason)
+
+    def test_canonical_build_entrypoints_honor_upstream_phase_before_dispatch(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);control=state/'pipeline/control/mlb-game';control.mkdir(parents=True)
+            (control/'repair-priority.json').write_text(json.dumps(dict(enabled=True,requestedAtUtc='2026-10-04T23:00:00Z')))
+            env=dict(os.environ);env.pop('BASEBALLO_SERVING_BUDGET_HELD',None)
+            for script in ('materialize-dashboard.py','materialize-serving-layer.py'):
+                result=subprocess.run([sys.executable,'-B',str(ROOT/'scripts/pipeline'/script),
+                    '--state-root',str(state)],env=env,capture_output=True,text=True,timeout=15)
+                self.assertEqual(result.returncode,0,result.stderr)
+                self.assertEqual(json.loads(result.stdout),dict(status='deferred',reason='upstream-repairs-first'))
+            self.assertFalse((state/'serving/releases').exists())
 
     def test_existing_worker_and_memory_limit_preserve_progress(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -50,9 +80,9 @@ class ServingBudget(unittest.TestCase):
             progress.write_text(json.dumps(dict(status='published')))
             with patch.object(B.PROCESS,'available_memory',return_value=500*1024**2):
                 with B.reserve(state,'dashboard') as reason:self.assertEqual(reason,'waiting-for-memory')
-            # A stopped dashboard timer must not leave a permanent priority lock.
+            # Even an unexpired ticket from old code cannot favor SQL.
             ticket=state/'serving/dashboard-budget-request.json'
-            ticket.write_text(json.dumps(dict(expiresAt=time.time()-1)))
+            ticket.write_text(json.dumps(dict(expiresAt=time.time()+120)))
             with patch.object(B.PROCESS,'available_memory',return_value=2*1024**3):
                 with B.reserve(state,'report') as reason:self.assertIsNone(reason)
 

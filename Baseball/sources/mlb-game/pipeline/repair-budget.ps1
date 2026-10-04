@@ -44,15 +44,8 @@ function Invoke-MlbRepairBudget {
         [ValidateRange(0, 60)][int] $TimeoutSeconds = 0
     )
 
-    # Give serving work priority without keeping idle PowerShells in a wait loop.
-    $ticket = Join-Path $StateRoot 'serving\dashboard-budget-request.json'
-    if (Test-Path -LiteralPath $ticket -PathType Leaf) {
-        $request = Get-Content -LiteralPath $ticket -Raw | ConvertFrom-Json
-        if ([double]$request.expiresAt -gt [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()) {
-            @{status='deferred'; reason='waiting-dashboard'; worker=$Worker} | ConvertTo-Json -Compress
-            return
-        }
-    }
+    # A queued SQL build has no priority over upstream repairs. A worker that
+    # is already running still owns its memory until it exits.
     $progressFiles = @(Get-ChildItem -LiteralPath (Join-Path $StateRoot 'serving\builds') -Filter '*.progress.json' -ErrorAction SilentlyContinue)
     $dashboardProgress = Join-Path $StateRoot 'serving\dashboard\progress.json'
     if (Test-Path -LiteralPath $dashboardProgress -PathType Leaf) { $progressFiles += Get-Item -LiteralPath $dashboardProgress }

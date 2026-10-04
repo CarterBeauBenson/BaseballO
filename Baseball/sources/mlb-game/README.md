@@ -14,6 +14,15 @@ and historical repair results remain intact; exclusion never means a failed
 case was repaired. Repair status separates retained games from active games.
 No RML mappings, ontology terms, or graph rebuilds change with this policy.
 
+The user's October 4 recovery order is API → RML → SHACL → Fuseki → SQL → UI.
+Queued dashboard builds have no resource priority over source repairs. During
+this recovery, `pipeline/control/mlb-game/repair-priority.json` in runtime state
+holds new dashboard/report builds. NiFi releases that temporary hold once its
+existing repair-status observer records the active backlog clear. This does
+not create a permanent all-games prerequisite for later serving builds.
+The shared heavy-worker lock and memory reserve remain in effect, and the UI
+continues reading its last published SQL snapshot throughout the repair phase.
+
 Start with the [current RML repair plan](review/rml-audit-2026-10-03.md#current-repair-plan-and-scope)
 and its [October 4 closure](review/rml-audit-2026-10-03.md#six-item-repair-implementation-october-4)
 for diagnosed failures, implemented generic fixes and targeted historical

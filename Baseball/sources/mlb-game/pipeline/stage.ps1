@@ -395,6 +395,15 @@ switch ($Action) {
         Invoke-LoggedCommand -FailureMessage "Serving materialization failed after game $GamePk." -Command {
             & python $materializer '--state-root' $script:StateRoot '--retain-builds' '3'
         }
+        $outcome = $null
+        try { $outcome = Get-Content -LiteralPath $stageLogPath -Tail 1 | ConvertFrom-Json }
+        catch { } # Successful builds may end with an ordinary log line.
+        if ($null -ne $outcome -and $null -ne $outcome.PSObject.Properties['status'] -and $outcome.status -eq 'deferred') {
+            # Independent NiFi SQL workers will resume later from promoted RDF.
+            # Do not attribute the old published pointer to this deferred job.
+            Write-StageResult @{ materializationDeferred = $true; reason = [string]$outcome.reason }
+            break
+        }
         $pointerPath = Join-Path $script:StateRoot 'serving\current.json'
         if (-not (Test-Path -LiteralPath $pointerPath -PathType Leaf)) {
             throw 'Serving materialization produced no promoted pointer.'
