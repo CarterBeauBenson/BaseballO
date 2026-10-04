@@ -183,7 +183,8 @@ It validates the selected award and its referents and posts only missing triples
 owns rollback; only the affected query index is replaced. The original promotion
 input and later retained selection witness keep separate hashes.
 
-`nifi/provision-award-addition.ps1` installs the source-owned one-minute worker.
+`nifi/provision-award-addition.ps1` installs the source-owned worker with its
+completed-scope timer stopped. Use `-Start` when submitting new authorized work.
 It runs the reviewed game 822864 first, then scans retained inputs in bounded
 batches, with at most one game mutation per tick and two attempts per implementation.
 Evidence is under `pipeline/control/mlb-game/award-addition/` and the ordinary
@@ -198,7 +199,9 @@ defensive or review populations.
 The separately accepted [R1 addition](../../archive/design-records/mlb-game-runner-pattern-completion/README.md)
 completes existing runner patterns in its exact 26-game retained-input inventory.
 `nifi/provision-runner-addition.ps1` installs `Add Approved R1 Runner Patterns`
-under this source. The worker slices 27 unchanged maps for selected episodes,
+under this source, with its completed-scope timer stopped unless `-Start` is
+specified. K1's compound-repair provisioner uses the same on-demand default.
+The worker slices 27 unchanged maps for selected episodes,
 endpoints, supported personal histories, placement and attribution dependencies.
 It shares W1's additive graph transaction, preserves all base triples, and uses
 the unchanged source-owned PA, history and affected authoritative constraints.

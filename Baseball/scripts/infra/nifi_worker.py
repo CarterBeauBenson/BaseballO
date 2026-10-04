@@ -82,8 +82,9 @@ def install(config):
     connection(owner,name+' recorded',command,logger,'original')
     for identifier in (logger,command,trigger):
         entity=api('GET','/processors/'+identifier)
-        api('PUT','/processors/'+identifier+'/run-status',dict(revision=entity['revision'],state='RUNNING',disconnectedNodeAcknowledged=False))
-    return dict(groupId=owner,workerId=command,status='enabled')
+        state='STOPPED' if identifier==trigger and not config.get('timerEnabled',True) else 'RUNNING'
+        api('PUT','/processors/'+identifier+'/run-status',dict(revision=entity['revision'],state=state,disconnectedNodeAcknowledged=False))
+    return dict(groupId=owner,workerId=command,status='enabled' if config.get('timerEnabled',True) else 'on-demand')
 
 
 if __name__=='__main__':

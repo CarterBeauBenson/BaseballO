@@ -25,6 +25,13 @@ reference ranks only for affected seasons. Two bounded read workers feed one
 SQL writer. A failed game rolls back its own replacement; completed games survive
 process termination. This job performs no API acquisition, RML, or RDF writes.
 
+On the local laptop, NiFi's launch budget serializes new dashboard, report and
+targeted-repair workers through the existing resource lease. Dashboard requests
+have priority; a request expires after two minutes unless its timer renews it.
+Busy or memory-constrained jobs return immediately for a later NiFi tick.
+Already-running builds finish normally, source acquisition remains enabled,
+and serving continues to read the last published SQL throughout.
+
 The first dashboard-only build prepares its metric tables once, reusing cached
 SPARQL answers where graph content matches. Subsequent runs compare each game's
 RDF hash, dimensions, validated admissions and calculation fingerprint before

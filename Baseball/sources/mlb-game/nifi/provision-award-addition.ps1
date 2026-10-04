@@ -1,5 +1,5 @@
 [CmdletBinding()]
-param()
+param([switch] $Start)
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $repositoryRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..\..')).Path
@@ -9,6 +9,7 @@ $control = Join-Path $script:StateRoot 'pipeline\control\mlb-game'
 $config = Join-Path $control 'award-addition-worker.json'
 @{
     group='MLB Game'; name='Add Approved W1 Awards'; period='1 min'
+    timerEnabled=[bool]$Start
     workingDirectory=$repositoryRoot; python=(Get-Command powershell.exe).Source
     arguments=@('-NoProfile','-ExecutionPolicy','Bypass','-File',
         (Join-Path $repositoryRoot 'sources\mlb-game\pipeline\targeted-award-addition.ps1'))

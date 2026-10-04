@@ -196,7 +196,8 @@ if (@($flow.connections | Where-Object { [int64]$_.status.aggregateSnapshot.flow
     throw 'Dashboard SQL has queued FlowFiles and cannot be reconciled.'
 }
 
-$arguments = "-B;$materializer;--state-root;$script:StateRoot;--workers;$([int]$contract.materialization.readOnlyWorkers)"
+$budget = Join-Path $repositoryRoot 'scripts\infra\serving-budget.py'
+$arguments = "-B;$budget;--kind;dashboard;--state-root;$script:StateRoot;--workers;$([int]$contract.materialization.readOnlyWorkers)"
 $processors = @{}
 $processors.trigger = Ensure-Processor $groupId 'Dashboard Update Check' 'org.apache.nifi.processors.standard.GenerateFlowFile' @{
     'File Size' = '0B'; 'Batch Size' = '1'; 'Data Format' = 'Text'; 'Unique FlowFiles' = 'false'; 'Custom Text' = '{}'

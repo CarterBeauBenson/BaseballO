@@ -41,9 +41,30 @@ function Invoke-MlbRepairBudget {
         [Parameter(Mandatory = $true)][string] $Worker,
         [Parameter(Mandatory = $true)][scriptblock] $Action,
         [ValidateRange(0, 2147483647)][long] $RequiredMemoryBytes = 1GB,
-        [ValidateRange(0, 60)][int] $TimeoutSeconds = 60
+        [ValidateRange(0, 60)][int] $TimeoutSeconds = 0
     )
 
+    # Give serving work priority without keeping idle PowerShells in a wait loop.
+    $ticket = Join-Path $StateRoot 'serving\dashboard-budget-request.json'
+    if (Test-Path -LiteralPath $ticket -PathType Leaf) {
+        $request = Get-Content -LiteralPath $ticket -Raw | ConvertFrom-Json
+        if ([double]$request.expiresAt -gt [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()) {
+            @{status='deferred'; reason='waiting-dashboard'; worker=$Worker} | ConvertTo-Json -Compress
+            return
+        }
+    }
+    $progressFiles = @(Get-ChildItem -LiteralPath (Join-Path $StateRoot 'serving\builds') -Filter '*.progress.json' -ErrorAction SilentlyContinue)
+    $dashboardProgress = Join-Path $StateRoot 'serving\dashboard\progress.json'
+    if (Test-Path -LiteralPath $dashboardProgress -PathType Leaf) { $progressFiles += Get-Item -LiteralPath $dashboardProgress }
+    foreach ($file in $progressFiles) {
+        $progress = Get-Content -LiteralPath $file.FullName -Raw | ConvertFrom-Json
+        if ($progress.status -ne 'running') { continue }
+        if ($null -ne $progress.PSObject.Properties['processId'] -and
+                $null -ne (Get-Process -Id $progress.processId -ErrorAction SilentlyContinue)) {
+            @{status='deferred'; reason='serving-worker-active'; worker=$Worker} | ConvertTo-Json -Compress
+            return
+        }
+    }
     # These small additive jobs share one memory slot. NiFi still owns their
     # independent schedules and retries; the OS releases this handle on a crash.
     $root = Join-Path $StateRoot 'pipeline\work\mlb-game-locks'

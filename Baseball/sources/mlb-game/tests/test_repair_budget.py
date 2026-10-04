@@ -7,6 +7,30 @@ import unittest
 ROOT=Path(__file__).resolve().parents[3]
 
 class RepairBudget(unittest.TestCase):
+    def test_serving_priority_defers_without_launching_or_reclaiming(self):
+        helper=ROOT/'sources/mlb-game/pipeline/repair-budget.ps1'
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);script=state/'check.ps1'
+            script.write_text(r'''param($Helper,$State)
+$ErrorActionPreference='Stop'
+. $Helper
+function Get-CimInstance {throw 'must defer before memory work'}
+$serving=Join-Path $State 'serving'
+[void](New-Item -ItemType Directory -Force -Path $serving)
+$ticket=Join-Path $serving 'dashboard-budget-request.json'
+@{expiresAt=[DateTimeOffset]::UtcNow.ToUnixTimeSeconds()+120} | ConvertTo-Json | Set-Content $ticket
+$result=Invoke-MlbRepairBudget -StateRoot $State -Worker 'test' -Action {throw 'must not run'}
+if (($result | ConvertFrom-Json).reason -ne 'waiting-dashboard') {throw 'dashboard priority ignored'}
+Remove-Item -LiteralPath $ticket
+$builds=Join-Path $serving 'builds';[void](New-Item -ItemType Directory -Force -Path $builds)
+@{status='running';processId=$PID} | ConvertTo-Json | Set-Content (Join-Path $builds 'active.progress.json')
+$result=Invoke-MlbRepairBudget -StateRoot $State -Worker 'test' -Action {throw 'must not run'}
+if (($result | ConvertFrom-Json).reason -ne 'serving-worker-active') {throw 'active SQL worker ignored'}
+''',encoding='utf-8')
+            result=subprocess.run(['powershell.exe','-NoProfile','-ExecutionPolicy','Bypass','-File',
+                str(script),str(helper),str(state)],capture_output=True,text=True,timeout=15)
+            self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+
     def test_reclaims_owned_cache_before_rechecking_full_memory_reserve(self):
         helper=ROOT/'sources/mlb-game/pipeline/repair-budget.ps1'
         with tempfile.TemporaryDirectory() as temp:

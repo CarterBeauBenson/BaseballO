@@ -33,6 +33,12 @@ def module(path, name):
 
 RELEASE = module(ROOT/'scripts/pipeline/serving_release.py', 'dashboard_release')
 if __name__ == '__main__':
+    # Existing NiFi commands gain the launch budget without interrupting a
+    # running immutable release or waiting to reconfigure a busy processor.
+    if (not RELEASE.own_descriptor(ROOT) and os.environ.get('BASEBALLO_SERVING_BUDGET_HELD')!='1'
+            and not any(arg in {'-h','--help'} for arg in sys.argv[1:])):
+        budget=module(ROOT/'scripts/infra/serving-budget.py','dashboard_launch_budget')
+        raise SystemExit(budget.main(['--kind','dashboard',*sys.argv[1:]]))
     result = RELEASE.dispatch(ROOT, sys.argv[1:], mode='dashboard-build')
     if result is not None: raise SystemExit(result)
 

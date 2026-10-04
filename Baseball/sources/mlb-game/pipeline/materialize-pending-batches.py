@@ -25,6 +25,10 @@ _schedule_spec = importlib.util.spec_from_file_location('batch_schedule_qualific
     MODULE_ROOT/'pipeline/schedule-qualification.py')
 _schedule_qualification = importlib.util.module_from_spec(_schedule_spec)
 _schedule_spec.loader.exec_module(_schedule_qualification)
+_budget_spec = importlib.util.spec_from_file_location('batch_serving_budget',
+    BASEBALL_ROOT/'scripts/infra/serving-budget.py')
+_budget = importlib.util.module_from_spec(_budget_spec)
+_budget_spec.loader.exec_module(_budget)
 
 
 def parse_args() -> argparse.Namespace:
@@ -148,6 +152,14 @@ def resume_replay_workers(state_root, request=None, proof_release=None):
 def main() -> int:
     args = parse_args()
     state_root = args.state_root.resolve()
+    with _budget.reserve(state_root,'report') as reason:
+        if reason:
+            print(json.dumps({'status':'waiting-serving','reason':reason}))
+            return 0
+        return materialize_pending(state_root)
+
+
+def materialize_pending(state_root) -> int:
     process_spec = importlib.util.spec_from_file_location('mlb_worker_state', BASEBALL_ROOT/'scripts/pipeline/process_state.py')
     process_state = importlib.util.module_from_spec(process_spec)
     process_spec.loader.exec_module(process_state)

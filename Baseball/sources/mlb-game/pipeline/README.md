@@ -12,13 +12,21 @@ game work stage quarantines after two total failed attempts.
 Targeted award, runner, compound, foul, defensive and history repair workers
 share the existing resource lease around selection and execution, then take
 their source-game lock. This prevents another repair from retiring a selected
-input while its consumer waits. Award retry limits bind the exact source hash
+input while its consumer waits. New dashboard and report builds share this
+resource lease; running builds finish normally, and new repairs defer while a
+serving build is active. A busy lease returns immediately instead of keeping
+waiting PowerShell processes alive for a minute. Award retry limits bind the exact source hash
 and implementation. The one-game `award-input-recovery.json` resumes a recorded
 retirement race through this same owner; it does not trigger full-game mapping.
 See the [October 2 audit](../review/rml-audit-2026-10-02.md). The existing runner
 owner also executes the explicitly inventoried P1 participation and game-end
 clock corrections. Those corrections remove only their named erroneous triples
 and add their verified replacements; they do not replace whole games.
+
+The completed W1, R1 and K1 fixed-scope workers are now on demand: their
+provisioners leave the timer stopped unless invoked with `-Start` for new
+authorized work. Queued requests can drain through the enabled worker.
+Normal ingestion retains the repaired generic mappings and its daily schedule.
 
 The RML harness counts pitch classifications from the identifiers selected in
 its reviewed execution context, keeping multiple runner rows for one pitch
