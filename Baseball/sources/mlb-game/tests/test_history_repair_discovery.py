@@ -50,8 +50,11 @@ class HistoryRepairDiscovery(unittest.TestCase):
                 acquire.assert_not_called()
 
     def setUp(self):
-        self.boundary_loader=D.boundary_admission
         version=D.fingerprint(SimpleNamespace(**vars(H)))
+        self.graph_inventory=D.missing_graph_histories
+        graph=patch.object(D,'missing_graph_histories',return_value=[])
+        self.missing=graph.start();self.addCleanup(graph.stop)
+        self.boundary_loader=D.boundary_admission
         fingerprint=patch.object(D,'fingerprint',return_value=version)
         fingerprint.start();self.addCleanup(fingerprint.stop)
         self.admission=patch.object(D,'boundary_admission',return_value=None)
@@ -278,6 +281,34 @@ class HistoryRepairDiscovery(unittest.TestCase):
                 source.assert_called_once()
                 Path(witness['path']).write_bytes(b'{}')
                 with self.assertRaisesRegex(ValueError,'recorded scope'):H.acquire_selection_source(state,case)
+
+    def test_manifest_membership_cannot_hide_an_absent_promoted_history(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);raw,removed,manifest,promotion,witness=self.setup_case(state)
+            value=H.read(manifest);existing=value['runnerHistoryReconciliation']['histories'][0]
+            self.missing.return_value=[existing['lifetimeKey']]
+            api=SimpleNamespace(**vars(H))
+            with patch.object(H.I,'retained_artifact',return_value=manifest), \
+                    patch.object(H.I,'validated_promotion_record',return_value=promotion), \
+                    patch.object(D,'source',return_value=witness):
+                self.assertEqual(D.discover(api,state,set()),promotion['gamePk'])
+            case=D.cases(api,state)[0]
+            self.assertEqual(set(case['selectedHistoryKeys']),{removed['lifetimeKey'],existing['lifetimeKey']})
+            self.assertEqual(case['graphHistoryInspection']['absentHistoryKeys'],[existing['lifetimeKey']])
+            _,delta=H.select_history(value,case,raw)
+            self.assertEqual({h['lifetimeKey'] for h in delta['histories']},set(case['selectedHistoryKeys']))
+            self.assertEqual(H.read(manifest),value)
+
+    def test_graph_inventory_is_read_only_and_bound_to_exact_named_subjects(self):
+        key='a'*64;uri='https://baseballontology.org/data/game/42/runner-trajectory/'+key
+        response=H.json.dumps({'results':{'bindings':[{'whole':{'type':'uri','value':uri}}]}}).encode()
+        promotion=dict(gamePk='42',authoritativeGraph='https://w3id.org/baseball/graph/game/42')
+        with patch.object(D.urllib.request,'urlopen',return_value=io.BytesIO(response)) as call:
+            self.assertEqual(self.graph_inventory(SimpleNamespace(**vars(H)),promotion,[dict(lifetimeKey=key)]),[key])
+            query=call.call_args.args[0].data.decode()
+            self.assertTrue(query.startswith('SELECT'));self.assertIn('<'+uri+'>',query)
+        with self.assertRaisesRegex(ValueError,'escapes'):
+            self.graph_inventory(H,dict(promotion,authoritativeGraph='urn:other'),[dict(lifetimeKey=key)])
 
     def test_identity_conflict_gets_one_distinct_recovery_attempt_then_stays_blocked(self):
         with tempfile.TemporaryDirectory() as temp:

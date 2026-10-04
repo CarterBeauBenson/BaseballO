@@ -49,9 +49,10 @@ the source join and was stopped; production Jena supplied the recorded proof.
 The live MLB endpoint still returned reversed clock pairs for games 822753,
 823302, 823532 and 823631. During this repair the running batch recorded another
 case in 823740. The existing source gate correctly rejects these responses.
-[T1](../../../proposals/mlb-game-clock-conflict-isolation/README.md) proposes a
+[T1](../../../archive/design-records/mlb-game-clock-conflict-isolation/README.md) proposed a
 bounded way to preserve independently valid evidence without inventing timing.
-It remains under review; no timing selection or source-admission rule changed.
+It was under review at this snapshot and has since been accepted; this dated
+repair itself changed no timing selection or source-admission rule.
 
 NiFi owns the subsequent replay, promotion and SQL/dashboard publication.
 These developer results do not claim that replay or publication is complete.

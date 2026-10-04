@@ -6,6 +6,7 @@ This is queue construction, not another semantic validator or game remapper.
 """
 from pathlib import Path
 import inspect
+import re
 import urllib.request
 
 SCOPE='archive/design-records/metric-repair-scope-2026-09-30/answers.md'
@@ -114,6 +115,7 @@ def fingerprint(owner):
         'reconcile-metric-source.py',
         'existing-graph-admissions.py','retained-census-admissions.py','context-proof-compatibility.json')
     return owner.hashlib.sha256(inspect.getsource(inspect_record).encode()+
+        inspect.getsource(missing_graph_histories).encode()+
         inspect.getsource(retained_history_admission).encode()+
         inspect.getsource(boundary_admission).encode()+
         inspect.getsource(owner.select_history).encode()+
@@ -122,6 +124,31 @@ def fingerprint(owner):
         (owner.ROOT/'scripts/pipeline/validate-shacl.py').read_bytes()+
         (owner.HERE.parent/'shacl/runner-boundary-admission.ttl').read_bytes()+
         (owner.ROOT/'scripts/pipeline/prepare-rml-context.py').read_bytes()).hexdigest()
+
+
+def missing_graph_histories(owner,promotion,histories):
+    """Inventory absent named subjects; source selection and SHACL own meaning.
+
+    A source census is not evidence of an executed mapping. This bounded query
+    only discovers absent subjects; the existing worker maps their accepted
+    patterns and checks the resulting graph through its owning SHACL.
+    """
+    pk=promotion['gamePk'];graph=promotion['authoritativeGraph']
+    if not pk.isdecimal() or graph!='https://w3id.org/baseball/graph/game/'+pk:
+        raise ValueError('History graph inventory escapes its source game')
+    keys={h['lifetimeKey'] for h in histories}
+    if any(not re.fullmatch('[0-9a-f]{64}',key) for key in keys):
+        raise ValueError('History graph inventory has an invalid identity')
+    if not keys:return []
+    base='https://baseballontology.org/data/game/'+pk+'/runner-trajectory/'
+    query='SELECT ?whole WHERE { VALUES ?whole { '+ ' '.join('<'+base+k+'>' for k in sorted(keys))+' } '
+    query+='FILTER NOT EXISTS { GRAPH <'+graph+'> { ?whole ?predicate ?object } } }'
+    request=urllib.request.Request('http://127.0.0.1:3031/baseball-dev/query',data=query.encode(),
+        headers={'Content-Type':'application/sparql-query','Accept':'application/sparql-results+json'})
+    with urllib.request.urlopen(request,timeout=45) as response:rows=owner.json.load(response)['results']['bindings']
+    absent={row['whole']['value'] for row in rows}
+    if not absent<={base+k for k in keys}:raise ValueError('History graph inventory returned another scope')
+    return sorted(iri[len(base):] for iri in absent)
 
 
 def retained_history_admission(owner,state,marker_path,marker):
@@ -192,8 +219,7 @@ def inspect_record(owner,state,marker_path,contract,previous):
     original=owner.read(manifest_path).get('runnerHistoryReconciliation')
     legacy=not original and pk in contract.get('legacyEvidenceGames',[])
     if not original and not legacy:return dict(record,status='retained-history-census-unavailable')
-    if not legacy and not (original.get('sourceConsistency')=='consistent'
-            and (original.get('withheldHistories') or original.get('boundaryIssues'))):return record
+    if not legacy and original.get('sourceConsistency')!='consistent':return record
     request=dict(gamePk=pk,promotionManifestSha256=record['identity'][0],
         rmlManifestSha256=marker['rmlManifestSha256'],contextBuilderSha256=contract['contextBuilderSha256'],
         scopeDecision=SCOPE,historyFailures=[dict(inning=r['inning'],half=r['half'],issues=r['issues'])
@@ -214,7 +240,8 @@ def inspect_record(owner,state,marker_path,contract,previous):
     # Reinspection of metadata must not recreate an already selected request,
     # whose transient source may have been retired after successful promotion.
     if (previous.get('status')=='selected'
-            and previous.get('case',{}).get('repairRequestSha256')==request_sha):
+            and previous.get('case',{}).get('repairRequestSha256')==request_sha
+            and (previous['case'].get('legacyHistoryEvidence') or previous['case'].get('graphHistoryInspection'))):
         return {**previous,**record,'status':'selected'}
     if (previous.get('status')=='failed' and previous.get('repairRequestSha256')==request_sha
             and previous.get('diagnostics',{}).get('kind')=='retained-history-conflict'):
@@ -311,13 +338,16 @@ def discover(owner,state,excluded,limit=25):
                 history=owner.H.CONTEXT.personal_runner_histories(raw)
                 owner.H.CONTEXT.verify_runner_history_correction(history,original)
                 previous={h['lifetimeKey'] for h in original['histories']}
-                selected=[h for h in history['histories'] if h['lifetimeKey'] not in previous]
+                absent=missing_graph_histories(owner,promotion,history['histories'])
+                selected=[h for h in history['histories'] if h['lifetimeKey'] not in previous or h['lifetimeKey'] in absent]
             case=dict(gamePk=pk,selectionRepair='H3',discovered=True,inputSha256=promotion['rawSha256'] if legacy else original['inputSha256'],
                 sourceSha256=witness['sha256'],sourceWitness=witness,promotionManifestSha256=record['identity'][0],
                 selectedHistoryKeys=sorted(h['lifetimeKey'] for h in selected),
                 halves=[dict(inning=i,half=h) for i,h in sorted({(int(h['inning']),h['half']) for h in selected})],
                 repairRequest=str(request_path),repairRequestSha256=owner.sha(request_path))
             if legacy:case['legacyHistoryEvidence']=True
+            else:case['graphHistoryInspection']=dict(promotionManifestSha256=record['identity'][0],
+                absentHistoryKeys=absent,inspectedHistoryKeys=sorted(h['lifetimeKey'] for h in history['histories']))
             if selected:owner.select_history(manifest,case,raw)
             record.update(status='selected',case=case,checkedAtUtc=owner.TX.now())
             for key in ('error','diagnostics','diagnosticError'):record.pop(key,None)
