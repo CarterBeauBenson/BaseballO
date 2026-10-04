@@ -8,6 +8,7 @@ import copy
 import hashlib
 import importlib.util
 import json
+import re
 from pathlib import Path
 from rdflib import Graph, Literal, URIRef, XSD
 
@@ -39,14 +40,25 @@ def select(raw,game_pk):
 
 def execution_inputs(raw,game_pk,selected,context,mapping):
     row=next(r for r in selected['expected'] if r['process']==selected['game'] and r['side']=='end')
-    W.atomic(context,dict(gamePk=int(game_pk),_baseballO=dict(gameEndClocks=[dict(value=row['value'])])))
+    W.atomic(context,dict(gamePk=int(game_pk),_baseballO=dict(gameEndClocks=[dict(value=compact_fraction(row['value']))])))
     W.A.subset_mapping(game_pk,mapping,('GameEndTimestampMap',))
+
+def compact_fraction(value):
+    """Match TDB2's fractional-second lexical form without changing the instant.
+
+    Keep the original source value in the census. The clock SHACL compares
+    dateTime values; the transaction compares the exact stored RDF terms.
+    """
+    def compact(match):
+        digits=match.group(1).rstrip('0')
+        return '.'+digits if digits else ''
+    return re.sub(r'\.(\d+)(?=Z$|[+-]\d\d:\d\d$)',compact,value)
 
 def removals(base,delta,game_pk,selected):
     case=case_for(game_pk);subject=URIRef(selected['game']+'/timestamp/end')
     predicate=URIRef('https://www.commoncoreontologies.org/ont00001767')
     old=(subject,predicate,Literal(case['previousGameEnd'],datatype=XSD.dateTime,normalize=False))
-    new=(subject,predicate,Literal(case['gameEnd'],datatype=XSD.dateTime,normalize=False))
+    new=(subject,predicate,Literal(compact_fraction(case['gameEnd']),datatype=XSD.dateTime,normalize=False))
     allowed=Graph();allowed.add(new)
     if len(delta-base-allowed) or new not in delta:raise ValueError('Clock RML delta exceeds its scope')
     existing=set(base.objects(subject,predicate))

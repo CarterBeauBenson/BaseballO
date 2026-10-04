@@ -260,7 +260,14 @@ def add_game(state,game_pk,witness,java,mapper,classpath,*,repair=None):
     promoted=marker_root/(run+'.json');TX.prepare(store,state,game_pk,run)
     try:
         apply_delta(store,marker['authoritativeGraph'],missing,removed)
-        if not isomorphic(TX.nt_graph(store.get(marker['authoritativeGraph'])),combined):raise ValueError('Targeted mutation differs from the exact validated result')
+        observed=TX.nt_graph(store.get(marker['authoritativeGraph']))
+        if not isomorphic(observed,combined):
+            difference=dict(expectedCount=len(combined),observedCount=len(observed),
+                missingCount=len(combined-observed),unexpectedCount=len(observed-combined),
+                missingSample=[list(map(lambda term:term.n3(),t)) for t in list(combined-observed)[:5]],
+                unexpectedSample=[list(map(lambda term:term.n3(),t)) for t in list(observed-combined)[:5]])
+            atomic(evidence/'mutation-difference.json',difference)
+            raise ValueError('Targeted mutation differs from the exact validated result: '+str(evidence/'mutation-difference.json'))
         A.command(['powershell.exe','-NoProfile','-ExecutionPolicy','Bypass','-File',ROOT/'scripts/pipeline/build-query-index.ps1',
             '-GamePk',game_pk,'-SourceRdfFile',rdf,'-SourceRdfSha256',sha(rdf)],ROOT,evidence/'query-index.log')
         updated=dict(manifest,artifactType='baseballo-rml-targeted-addition-manifest',
