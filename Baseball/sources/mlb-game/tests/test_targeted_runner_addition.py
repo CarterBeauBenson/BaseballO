@@ -14,6 +14,38 @@ R=importlib.util.module_from_spec(spec);spec.loader.exec_module(R)
 
 
 class TargetedRunnerAddition(unittest.TestCase):
+    def test_legacy_history_recovery_adds_only_accepted_boundary_dependencies(self):
+        case=R.approved_case('831445')
+        state=Path.home()/'AppData/Local/BaseballO/state'
+        witness=state/case['retainedInputs'][0]['path']
+        if not witness.is_file():self.skipTest('Retained runtime witness has been retired')
+        raw=witness.read_bytes();selected=R.select(raw,'831445')
+        self.assertEqual(selected['boundaryCensus']['status'],'reconciled')
+        self.assertEqual(len(selected['history']['histories']),32)
+        plays=selected['context']['liveData']['plays']['allPlays']
+        self.assertEqual(len(plays),82)
+        self.assertEqual(sum(len(p['_baseballO']['startBaseOccupancies']) for p in plays),51)
+        actual={(str(p['about']['atBatIndex']),r['runnerId'],r['baseCode'])
+            for p in plays for r in p['_baseballO']['startBaseOccupancies']}
+        expected={(b['pa'].rsplit('/',1)[-1],r['player'].rsplit('/',1)[-1],r['base'])
+            for b in selected['boundaryCensus']['boundaries'] for r in b['occupants']}
+        self.assertEqual(actual,expected)
+        self.assertEqual(len(selected['history']['episodeMembership']),
+            sum(len(h['episodes']) for h in selected['history']['histories']))
+        Graph().parse(data=R.shapes('831445',selected),format='turtle')
+        with tempfile.TemporaryDirectory() as directory:
+            context=Path(directory)/'game-context.json';mapping=Path(directory)/'addition.ttl'
+            R.execution_inputs(raw,'831445',selected,context,mapping)
+            rr=Namespace('http://www.w3.org/ns/r2rml#');graph=Graph().parse(mapping)
+            self.assertEqual({str(s).rsplit('#',1)[-1] for s in graph.subjects(RDF.type,rr.TriplesMap)},
+                set(R.MAPS+R.BOUNDARY_MAPS))
+            self.assertNotIn(URIRef('https://baseballontology.org/BaserunningAct'),set(graph.objects(None,rr['class'])))
+            self.assertNotIn(URIRef('https://baseballontology.org/SafeProcess'),set(graph.objects(None,rr['class'])))
+        with patch.object(R.B,'census',return_value=dict(status='withheld')):
+            with self.assertRaisesRegex(ValueError,'boundary source remains unresolved'):R.select(raw,'831445')
+        with self.assertRaisesRegex(ValueError,'retained R1 witnesses'):R.select(raw+b' ','831445')
+        self.assertEqual(raw,witness.read_bytes())
+
     def test_scope_keeps_complete_dependencies_and_slices_unchanged_maps(self):
         raw=(ROOT/'data/raw/game-566279.json').read_bytes()
         case=dict(gamePk='566279',plateAppearances=['23'],retainedInputs=[dict(sha256=hashlib.sha256(raw).hexdigest())])

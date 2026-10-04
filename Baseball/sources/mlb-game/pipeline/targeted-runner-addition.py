@@ -1,8 +1,11 @@
-"""NiFi's approved R1 addition: unchanged runner maps over 26 retained inputs."""
+"""NiFi's targeted runner additions over explicitly inventoried retained inputs."""
 import argparse
 import hashlib
 import json
 from pathlib import Path
+import subprocess
+import sys
+import tempfile
 from rdflib import Graph, Namespace, URIRef
 
 HERE=Path(__file__).resolve().parent
@@ -12,9 +15,11 @@ W=importlib.util.module_from_spec(spec);spec.loader.exec_module(W)
 ROOT=W.ROOT
 DECISION='archive/design-records/mlb-game-runner-pattern-completion/review.json'
 INVENTORY=ROOT/Path(DECISION).parent/'candidate-inventory.json'
+RECOVERY=HERE/'runner-history-recovery.json'
 SHAPE=HERE.parent/'shacl/runner-pattern-addition.ttl'
 P=W.module(HERE/'pa-resolution-admission.py','r1_resolution_shapes')
 H=W.A.H
+B=W.module(HERE/'runner-boundary-admission.py','r1_boundary_shapes')
 CONTEXT=W.C.CONTEXT
 MAPS=W.DEPENDENCY_MAPS+('SafeDestinationIdentifierMap','SegmentOriginDesignationMap',
     'SegmentOriginBaseMap','SegmentOriginBaseIdentifierMap','BattedBallRunnerResolutionContainmentMap',
@@ -22,14 +27,39 @@ MAPS=W.DEPENDENCY_MAPS+('SafeDestinationIdentifierMap','SegmentOriginDesignation
     'PersonalRunnerGameEndIntervalMap','RunnerPlacementJudgmentMap','RunnerPlacementMembershipMap',
     'RunnerPlacementDecisionMap','RunnerPlacementBaseMap','RunnerPlacementBaseIdentifierMap',
     'RunnerPlacementRuleMap','RunnerPlacementRecordMap')+W.MAPS
+BOUNDARY_MAPS=('PlateAppearanceStartOutCountMap','PlateAppearanceStartRunnerParticipantMap',
+    'BaserunnerAtBaseStasisMap','BaserunnerAtBaseStasisIntervalMap',
+    'PlateAppearanceStartRunnerLocationMap','PlateAppearanceStartBaseArtifactMap',
+    'PlateAppearanceStartBaseIdentifierMap','PlateAppearanceStartBaseSiteMap')
 SUCCESS={'complete','already-complete','already-present'}
+
+
+def repair_cases():
+    # The later execution request does not amend R1's archived 26-game decision.
+    return W.read(INVENTORY)['games']+W.read(RECOVERY)['games']
 
 
 def approved_case(game_pk):
     if W.read(ROOT/DECISION)['status']!='accepted':raise ValueError('R1 is not accepted')
-    case=next((g for g in W.read(INVENTORY)['games'] if g['gamePk']==game_pk),None)
+    case=next((g for g in repair_cases() if g['gamePk']==game_pk),None)
     if case is None:raise ValueError('Game is outside the approved R1 inventory')
     return case
+
+
+def prepared_boundaries(raw):
+    """Use the unchanged context owner, then discard all unselected products."""
+    with tempfile.TemporaryDirectory(prefix='baseballo-runner-context-') as directory:
+        source=Path(directory)/'input.json';output=Path(directory)/'context.json'
+        source.write_bytes(raw)
+        completed=subprocess.run([sys.executable,'-B',str(B.CONTEXT_PATH),str(source),str(output)],
+            capture_output=True,text=True,encoding='utf-8',timeout=120)
+        if completed.returncode:
+            raise ValueError('Runner boundary context failed: '+completed.stderr[-4000:])
+        document=W.read(output)
+    return {str(play['atBatIndex']):dict(about=dict(atBatIndex=play['about']['atBatIndex']),
+        **{CONTEXT.CONTEXT_KEY:{key:play[CONTEXT.CONTEXT_KEY][key]
+            for key in ('outsBefore','startBaseOccupancies')}})
+        for play in document['liveData']['plays']['allPlays']}
 
 
 def select(raw,game_pk):
@@ -43,6 +73,13 @@ def select(raw,game_pk):
     history=CONTEXT.personal_runner_histories(raw)
     doc[CONTEXT.CONTEXT_KEY]={'runnerHistoryReconciliation':history}
     selected_pas=set(case['plateAppearances'])
+    boundaries=None;prepared={}
+    if case.get('includeBoundaryStates'):
+        boundaries=B.census(raw,game_pk)
+        if boundaries['status']!='reconciled':raise ValueError('Runner boundary source remains unresolved')
+        if selected_pas!={str(p['atBatIndex']) for p in doc['liveData']['plays']['allPlays']}:
+            raise ValueError('Complete boundary recovery requires the exact inventoried PA census')
+        prepared=prepared_boundaries(raw)
     # Complete histories are existing dependencies of the selected episodes.
     # Retain every member; never turn a truncated history into a complete one.
     history_keys={r['lifetimeKey'] for r in history['episodeMembership'] if r['atBatIndex'] in selected_pas}
@@ -57,24 +94,29 @@ def select(raw,game_pk):
         products['battedRunnerResolutions']=CONTEXT.batted_runner_resolution_links(play,pa,history)
         products={key:[r for r in rows if pa in selected_pas or (pa,r['runnerIndex']) in dependencies]
                   for key,rows in products.items()}
-        if products['runnerEpisodes']:
-            episodes.extend(products['runnerEpisodes']);plays.append({CONTEXT.CONTEXT_KEY:products})
+        if products['runnerEpisodes'] or pa in prepared:
+            item=prepared.get(pa,{CONTEXT.CONTEXT_KEY:{}})
+            item[CONTEXT.CONTEXT_KEY].update(products)
+            episodes.extend(products['runnerEpisodes']);plays.append(item)
     keys={(r['atBatIndex'],r['runnerIndex']) for r in episodes}
     if not dependencies<=keys:raise ValueError('R1 history dependency has no selected existing episode')
     if not episodes:raise ValueError('R1 has no supported runner rows')
     retained_history=dict(history,histories=histories,episodeMembership=membership,
         placementAdjudications=[r for r in history['placementAdjudications'] if r['lifetimeKey'] in history_keys])
-    return dict(context=dict(gamePk=int(game_pk),gameData=dict(venue=doc['gameData']['venue']),
+    result=dict(context=dict(gamePk=int(game_pk),gameData=dict(venue=doc['gameData']['venue']),
         liveData=dict(plays=dict(allPlays=plays)),
         **{CONTEXT.CONTEXT_KEY:dict(runnerHistoryReconciliation=retained_history)}),
         episodes=episodes,resolutionCensus=P.R.census(raw,game_pk),history=retained_history)
+    if boundaries is not None:
+        result.update(boundaryCensus=boundaries,executionRequest=RECOVERY.relative_to(ROOT).as_posix())
+    return result
 
 
 def execution_inputs(raw,game_pk,selected,context,mapping):
     venue=str(selected['context']['gameData']['venue']['id'])
     if not venue.isdecimal():raise ValueError('R1 venue identity is invalid')
     W.atomic(context,selected['context'])
-    W.A.subset_mapping(game_pk,mapping,MAPS)
+    W.A.subset_mapping(game_pk,mapping,MAPS+(BOUNDARY_MAPS if 'boundaryCensus' in selected else ()))
     mapping.write_text(mapping.read_text(encoding='utf-8').replace('{$.gameData.venue.id}',venue),
                        encoding='utf-8',newline='\n')
 
@@ -102,6 +144,7 @@ def shapes(game_pk,selected):
     history_shapes=Graph().parse(data=H.shape_text(dict(game=game,history=selected['history'])),format='turtle')
     history_shapes.remove((None,Namespace('http://www.w3.org/ns/shacl#').targetNode,URIRef(game)))
     parts.append(history_shapes.serialize(format='turtle'))
+    if 'boundaryCensus' in selected:parts.append(B.shape_text(selected['boundaryCensus']))
     return '\n'.join(parts)
 
 
@@ -111,7 +154,8 @@ def revalidate(*args):
 
 def fingerprint():
     return hashlib.sha256(Path(__file__).read_bytes()+SHAPE.read_bytes()+W.fingerprint().encode()
-        +P.fingerprint().encode()+H.fingerprint().encode()+(ROOT/DECISION).read_bytes()+INVENTORY.read_bytes()).hexdigest()
+        +P.fingerprint().encode()+H.fingerprint().encode()+B.fingerprint().encode()
+        +(ROOT/DECISION).read_bytes()+INVENTORY.read_bytes()+RECOVERY.read_bytes()).hexdigest()
 
 
 def tick(state,game_pk,witness,java,mapper,classpath):
@@ -132,7 +176,7 @@ def tick(state,game_pk,witness,java,mapper,classpath):
 
 def next_witness(state):
     version=fingerprint();control=state/'pipeline/control/mlb-game/runner-addition'
-    cases=sorted(W.read(INVENTORY)['games'],key=lambda g:(g['gamePk']!='823200',g['gamePk']))
+    cases=sorted(repair_cases(),key=lambda g:(g['gamePk']!='823200',g['gamePk']))
     for index,case in enumerate(cases):
         approved_case(case['gamePk'])
         path=control/(case['gamePk']+'.json');previous=W.read(path) if path.is_file() else {}
