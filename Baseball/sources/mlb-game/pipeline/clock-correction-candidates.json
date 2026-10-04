@@ -1,5 +1,5 @@
 {
-  "enabled": false,
+  "enabled": true,
   "decision": "archive/design-records/mlb-game-quarantine-boundaries/review.json",
   "implementationRecord": "sources/mlb-game/review/rml-audit-2026-10-03.md#further-diagnosis-october-4",
   "cases": [
