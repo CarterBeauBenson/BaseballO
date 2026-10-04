@@ -21,7 +21,7 @@
   },
   "gameSets": {
     "default": "regular_season",
-    "uiSelectable": ["regular_season", "preseason", "postseason", "exhibition", "all_star"],
+    "uiSelectable": ["regular_season", "postseason", "all_star"],
     "mlbGameTypeMapping": {
       "R": "regular_season",
       "S": "preseason",

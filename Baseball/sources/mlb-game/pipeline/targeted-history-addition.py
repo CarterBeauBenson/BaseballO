@@ -45,6 +45,7 @@ def module(path, name):
 
 TX = module(ROOT / 'scripts/pipeline/graph-pair-transaction.py', 'q7_transaction')
 I = module(ROOT / 'scripts/pipeline/game_promotion_inventory.py', 'q7_inventory')
+SCOPE = module(HERE / 'work_scope.py', 'mlb_repair_work_scope')
 H = module(HERE / 'runner-history-admission.py', 'q7_history')
 V = module(HERE / 'verify-runner-history-serialization.py', 'q7_serialization')
 J = module(ROOT / 'scripts/pipeline/jena_session.py', 'q7_jena')
@@ -618,6 +619,7 @@ def same_attempt(previous,case,version):
 
 
 def tick(state, game_pk, java, mapper, classpath):
+    if not SCOPE.active(state,game_pk):return dict(gamePk=game_pk,status='outside-active-scope')
     control = state / 'pipeline/control/mlb-game/history-addition' / (game_pk + '.json')
     version = fingerprint()
     previous = read(control) if control.exists() else {}
@@ -663,6 +665,7 @@ def fingerprint():
 
 
 def next_case(state,skip=()):
+    skip = set(skip) | set(SCOPE.excluded_games(state))
     version = fingerprint()
     for case in cases(state):
         if case['gamePk'] in skip:continue

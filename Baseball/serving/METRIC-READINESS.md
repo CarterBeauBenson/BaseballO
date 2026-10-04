@@ -4,6 +4,12 @@
 player producers; the two review player integrations remain unfinished. Twenty
 calculation kernels exist, including backend-only Role Realization Breadth.
 
+The October 4 scope decision retires spring training, exhibitions and WBC work.
+New serving builds select the remaining MLB games from existing promoted RDF;
+the 486 retained spring/exhibition games no longer enter build dependencies.
+Their data and historical diagnoses remain stored. This scope reduction does
+not establish completeness for the remaining metric populations.
+
 ## Current priority: offense
 
 The user narrowed active work to offense on October 1. Prioritize batting

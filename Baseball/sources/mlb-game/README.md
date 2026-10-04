@@ -4,6 +4,16 @@ This module owns the MLB Stats API `feed/live` game response boundary.
 Ownership does not establish that every API field or case is mapped; coverage
 is recorded separately in the source contract and mapping documentation.
 
+On October 4, 2026, the user retired spring training and the World Baseball
+Classic from active work. [`pipeline/work_scope.py`](pipeline/work_scope.py)
+excludes spring-training games (`S`), exhibitions (`E`, including preseason
+and WBC warmups), and WBC/qualifier leagues 160/159. `W` remains World Series.
+The daily MLB schedule, repair selectors, quarantine replay, admission
+maintenance, and new SQL builds use this scope. Existing RDF, raw evidence,
+and historical repair results remain intact; exclusion never means a failed
+case was repaired. Repair status separates retained games from active games.
+No RML mappings, ontology terms, or graph rebuilds change with this policy.
+
 Start with the [current RML repair plan](review/rml-audit-2026-10-03.md#current-repair-plan-and-scope)
 and its [October 4 closure](review/rml-audit-2026-10-03.md#six-item-repair-implementation-october-4)
 for diagnosed failures, implemented generic fixes and targeted historical

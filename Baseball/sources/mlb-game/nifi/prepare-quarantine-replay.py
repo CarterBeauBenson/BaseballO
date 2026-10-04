@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.util
 import json
 import os
 import re
@@ -18,6 +19,8 @@ from typing import Any
 
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
 GAME_PK = re.compile(r"^\d+$")
+_scope_spec = importlib.util.spec_from_file_location('replay_work_scope', Path(__file__).resolve().parents[1]/'pipeline/work_scope.py')
+SCOPE = importlib.util.module_from_spec(_scope_spec); _scope_spec.loader.exec_module(SCOPE)
 
 
 def sha256_file(path: Path) -> str:
@@ -88,6 +91,7 @@ def validate_input(path: Path, quarantine_root: Path, expected_game_pk: str) -> 
 
 
 def current_candidates(state_root: Path) -> dict[str, dict[str, str]]:
+    excluded = SCOPE.excluded_games(state_root)
     quarantine_root = state_root.resolve() / "pipeline" / "quarantine" / "mlb-game"
     candidates: dict[str, tuple[int, dict[str, str]]] = {}
     if not quarantine_root.exists():
@@ -97,7 +101,10 @@ def current_candidates(state_root: Path) -> dict[str, dict[str, str]]:
         game_pk = relative.parts[0]
         if not GAME_PK.fullmatch(game_pk):
             continue
-        validate_input(path, quarantine_root, game_pk)
+        if game_pk in excluded:
+            continue
+        if SCOPE.exclusion_reason(validate_input(path, quarantine_root, game_pk)):
+            continue
         candidate = {
             "gamePk": game_pk,
             "inputPath": str(path.resolve()),
@@ -330,7 +337,9 @@ def create_plan(state_root: Path, contract_path: Path, game_pks: list[str] | Non
             deferred.append(clock_failure)
             continue
         replay_candidates[game_pk] = candidate
-    proof_pks = [str(item["gamePk"]) for item in replay["proofGames"]]
+    configured_proof_pks = [str(item["gamePk"]) for item in replay["proofGames"]]
+    excluded = SCOPE.excluded_games(state_root)
+    proof_pks = [pk for pk in configured_proof_pks if pk not in excluded]
     missing = [game_pk for game_pk in proof_pks if game_pk not in replay_candidates]
     prior_proof: Path | None = None
     proof_selection_mode = "configured-representative-games"
@@ -338,7 +347,8 @@ def create_plan(state_root: Path, contract_path: Path, game_pks: list[str] | Non
         proof_pks = []
         proof_selection_mode = "no-replay-candidates"
     if missing and replay_candidates:
-        prior_proof = prior_certified_proof(state_root, proof_pks)
+        prior_proof = (prior_certified_proof(state_root, proof_pks)
+                       or prior_certified_proof(state_root, configured_proof_pks))
         if prior_proof is None:
             raise ValueError(
                 "Representative quarantine proof inputs are missing and no prior certified "

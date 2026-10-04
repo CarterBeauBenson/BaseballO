@@ -82,7 +82,8 @@ def promotion_inventory(state_root: Path) -> dict[str, Any]:
         raise ValueError("cannot load the game promotion inventory")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    return module.promotion_inventory(state_root)
+    return module.promotion_inventory(state_root,
+        excluded_game_pks=_schedule_qualification.PARSER.SCOPE.excluded_games(state_root))
 
 
 def maintain_serving_storage(state_root):
@@ -189,6 +190,7 @@ def materialize_pending(state_root) -> int:
     batch_root = state_root / "pipeline" / "control" / "mlb-game" / "batches"
     batch_root.mkdir(parents=True, exist_ok=True)
     pending: list[tuple[datetime, Path, dict[str, Any]]] = []
+    excluded = _schedule_qualification.PARSER.SCOPE.excluded_games(state_root)
     for path in sorted(batch_root.glob("*.json")):
         batch = json_object(path)
         if (
@@ -197,6 +199,9 @@ def materialize_pending(state_root) -> int:
         ):
             raise ValueError(f"unsupported game batch manifest: {path}")
         if batch.get("status") == "pending":
+            expected = {str(pk) for pk in batch.get('expectedGamePks', [])}
+            if expected and expected <= set(excluded):
+                continue  # Retain the old batch; it no longer requests work.
             pending.append((timestamp(batch.get("createdAtUtc")), path, batch))
     if not pending:
         print(json.dumps({"status": "idle", "pendingBatchCount": 0,
@@ -211,6 +216,8 @@ def materialize_pending(state_root) -> int:
         missing: list[str] = []
         stale: list[str] = []
         for game_pk in batch.get("expectedGamePks", []):
+            if str(game_pk) in excluded:
+                continue
             record = games.get(str(game_pk))
             if record is None:
                 missing.append(str(game_pk))

@@ -49,6 +49,9 @@ def foul_source_excerpt(state,pk,record):
 
 def observe(state,owner,runner_owner=None,current_history_proof=None,current_history_validation=None):
     control=state/'pipeline/control/mlb-game';issues=[];errors=[];queues={};records={}
+    spec=importlib.util.spec_from_file_location('status_work_scope',HERE/'work_scope.py')
+    scope=importlib.util.module_from_spec(spec);spec.loader.exec_module(scope)
+    excluded=scope.excluded_games(state);archived_promoted=[];archived_issues=0
 
     def load(path,default=None):
         try:return read(path)
@@ -72,6 +75,9 @@ def observe(state,owner,runner_owner=None,current_history_proof=None,current_his
             if not path.stem.isdecimal():continue
             row=load(path)
             if not isinstance(row,dict):continue
+            if path.stem in excluded:
+                archived_issues+=bool(row.get('status') in {'failed','partial','retry-exhausted'} or row.get('familyFailures'))
+                continue
             rows[path.stem]=row
             if row.get('status') in {'failed','partial','retry-exhausted'} or row.get('familyFailures'):
                 issue(kind,path.stem,row,path)
@@ -80,10 +86,13 @@ def observe(state,owner,runner_owner=None,current_history_proof=None,current_his
 
     inventory_path=control/'history-discovery/inventory.json'
     discovery=(load(inventory_path,{}) if inventory_path.is_file() else {}).get('games',{})
+    discovery={pk:row for pk,row in discovery.items() if pk not in excluded}
     fixed={case['gamePk'] for case in owner.cases()};version=owner.DISCOVERY.fingerprint(owner)
     latest={};uninspected=[];stale=[];eligible=0;missing_promotion=[]
     for directory in (state/'pipeline/evidence/nifi/game-promotion').glob('*'):
         if not directory.is_dir() or not directory.name.isdecimal():continue
+        if directory.name in excluded:
+            archived_promoted.append(directory.name);continue
         candidates=[]
         for path in directory.glob('*.json'):
             marker=load(path)
@@ -109,12 +118,13 @@ def observe(state,owner,runner_owner=None,current_history_proof=None,current_his
         if owner.completed_case(previous,case):selected_complete+=1
         else:selected_pending.append(pk)
     fixed_pending=sorted({case['gamePk'] for case in owner.cases()
-        if not owner.completed_case(records['history-addition'].get(case['gamePk'],{}),case)})
+        if case['gamePk'] not in excluded and not owner.completed_case(records['history-addition'].get(case['gamePk'],{}),case)})
     runner_pending=sorted({case['gamePk'] for case in runner_owner.repair_cases()
-        if not runner_owner.completed_case(records['runner-addition'].get(case['gamePk'],{}),case)}) if runner_owner else []
+        if case['gamePk'] not in excluded and not runner_owner.completed_case(records['runner-addition'].get(case['gamePk'],{}),case)}) if runner_owner else []
 
     defensive_path=control/'defensive-addition/inventory.json'
     defensive=load(defensive_path,{}) if defensive_path.is_file() else {}
+    defensive=dict(defensive,inputs={p:r for p,r in defensive.get('inputs',{}).items() if r.get('gamePk') not in excluded})
     unresolved=sorted({row['gamePk'] for row in defensive.get('inputs',{}).values()
         if row.get('status')=='unresolved-source'})
     unavailable=sorted(pk for pk,row in discovery.items() if row.get('status','').startswith('retained-')
@@ -124,6 +134,7 @@ def observe(state,owner,runner_owner=None,current_history_proof=None,current_his
         match=re.fullmatch(r'game-(\d+)-(\d{8}T\d{6}Z)',directory.name)
         if not directory.is_dir() or not match:continue
         pk,when=match.groups()
+        if pk in excluded:continue
         failed=datetime.strptime(when,'%Y%m%dT%H%M%SZ').replace(tzinfo=timezone.utc)
         try:later=pk in latest and timestamp(latest[pk]['promotedAtUtc'])>failed
         except ValueError as error:
@@ -176,6 +187,10 @@ def observe(state,owner,runner_owner=None,current_history_proof=None,current_his
         status='attention-required' if attention else 'inspection-in-progress' if pending else
             'recorded-work-clear' if latest else 'no-promotion-evidence',
         recordedWorkClear=bool(latest) and not attention and pending==0,promotedGames=len(latest),queues=queues,
+        retainedPromotedGames=len(latest)+len(archived_promoted),
+        excludedFromActiveWork=dict(policy=scope.POLICY,promotedGames=len(archived_promoted),
+            reasons=dict(Counter(excluded[pk] for pk in archived_promoted)),
+            unresolvedCheckpointsPreserved=archived_issues),
         historyDiscovery=dict(eligiblePromotedGames=eligible,inspectionImplementationSha256=version,
             statuses=dict(Counter(r.get('status','missing-status') for r in discovery.values())),
             uninspectedGames=sorted(uninspected),outdatedInspections=sorted(stale),

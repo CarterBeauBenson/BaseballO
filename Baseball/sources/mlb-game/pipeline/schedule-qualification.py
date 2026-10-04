@@ -124,6 +124,9 @@ def publish(state, value):
 def refresh_incomplete_batches(state, *, fetch=acquire, now=None):
     """One idempotent repair per tick; two transport attempts per implementation."""
     owners=batches(state); by_id={b['batchId']:b for b in owners}; latest={}
+    excluded=PARSER.SCOPE.excluded_games(state)
+    owners=[b for b in owners if not b.get('games') or
+            any(str(g['gamePk']) not in excluded for g in b['games'])]
     for batch in owners:
         for day in batch['qualificationCoverage']['days']:latest[day]=batch
     retained=snapshots(state,by_id)

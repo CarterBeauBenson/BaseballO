@@ -76,6 +76,7 @@ def fingerprint():
 
 
 def next_witness(state,limit=25):
+    excluded=W.A.SCOPE.excluded_games(state)
     control=state/'pipeline/control/mlb-game/defensive-addition';path=control/'inventory.json'
     inventory=W.read(path) if path.is_file() else dict(inputs={})
     version=fingerprint();retries=[];checkpoints={}
@@ -101,6 +102,8 @@ def next_witness(state,limit=25):
     for source in paths:
         if source in seen:continue
         seen.add(source)
+        cached=inventory['inputs'].get(str(source),{})
+        if cached.get('gamePk') in excluded or source.parent.parent.name in excluded:continue
         try:metadata=source.stat()
         except FileNotFoundError:continue
         cached=inventory['inputs'].get(str(source),{})
@@ -117,6 +120,7 @@ def next_witness(state,limit=25):
             if inspected>=limit:break
             continue
         pk=str(doc.get('gamePk','')) if isinstance(doc,dict) else ''
+        if pk in excluded or (isinstance(doc,dict) and W.A.SCOPE.exclusion_reason(doc)):continue
         identity[-1]=bool(pk.isdecimal() and (promoted/pk).is_dir())
         record=dict(identity=identity,sha256=hashlib.sha256(raw).hexdigest(),gamePk=pk,status='not-applicable')
         if identity[-1]:
@@ -140,6 +144,7 @@ def next_witness(state,limit=25):
 
 
 def tick(state,witness,java,mapper,classpath):
+    if not W.A.SCOPE.active(state,witness['gamePk']):return dict(gamePk=witness['gamePk'],status='outside-active-scope')
     pk=witness['gamePk'];control=state/'pipeline/control/mlb-game/defensive-addition'/(pk+'.json')
     previous=W.read(control) if control.is_file() else {};version=fingerprint()
     if previous.get('status') in SUCCESS and previous.get('implementationSha256')==version and previous.get('sourceSha256')==witness['sha256']:return previous

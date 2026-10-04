@@ -50,6 +50,7 @@ _schedule_spec = importlib.util.spec_from_file_location('baseballo_schedule_qual
     ROOT / 'sources/mlb-game/pipeline/schedule-qualification.py')
 _schedule_qualification = importlib.util.module_from_spec(_schedule_spec)
 _schedule_spec.loader.exec_module(_schedule_qualification)
+_work_scope = _schedule_qualification.PARSER.SCOPE
 _run_spec = importlib.util.spec_from_file_location('baseballo_scoring_run_admission',
     ROOT / 'sources/mlb-game/pipeline/scoring-run-admission.py')
 _run_admission = importlib.util.module_from_spec(_run_spec)
@@ -692,7 +693,9 @@ def json_object(path: Path) -> dict[str, Any]:
 query_index_contract_admission = _promotion_inventory.query_index_contract_admission
 resolve_query_index_manifest_admission = _promotion_inventory.resolve_query_index_manifest_admission
 validated_promotion_record = _promotion_inventory.validated_promotion_record
-promotion_inventory = _promotion_inventory.promotion_inventory
+def promotion_inventory(state_root):
+    return _promotion_inventory.promotion_inventory(state_root,
+        excluded_game_pks=_work_scope.excluded_games(state_root))
 
 
 def graph_batches(

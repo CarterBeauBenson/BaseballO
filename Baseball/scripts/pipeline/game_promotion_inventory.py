@@ -514,16 +514,19 @@ def validated_promotion_record(
     }
 
 
-def promotion_inventory(state_root: Path) -> dict[str, Any]:
+def promotion_inventory(state_root: Path, *, excluded_game_pks=()) -> dict[str, Any]:
     promotion_root = state_root / "pipeline" / "evidence" / "nifi" / "game-promotion"
     admission = query_index_contract_admission()
     games: dict[str, dict[str, Any]] = {}
     superseded_count = 0
     invalid_games: list[str] = []
+    excluded = set(excluded_game_pks)
     for game_directory in sorted(
         (path for path in promotion_root.glob("*") if path.is_dir() and path.name.isdigit()),
         key=lambda path: int(path.name),
     ):
+        if game_directory.name in excluded:
+            continue
         candidates: list[tuple[datetime, str, Path]] = []
         errors: list[str] = []
         for marker_path in sorted(game_directory.glob("*.json")):

@@ -266,6 +266,7 @@ def inspect_record(owner,state,marker_path,contract,previous):
 
 def inspect_promotions(owner,state,excluded,limit=100):
     """Bounded metadata progress even while selected jobs wait for execution."""
+    excluded = set(excluded) | set(owner.SCOPE.excluded_games(state))
     data=inventory(owner,state);version=fingerprint(owner);inspected=0
     contract=owner.read(owner.SELECTION)
     if owner.sha(owner.ROOT/'scripts/pipeline/prepare-rml-context.py')!=contract['contextBuilderSha256']:
@@ -292,6 +293,7 @@ def inspect_promotions(owner,state,excluded,limit=100):
 
 def discover(owner,state,excluded,limit=25):
     """Prepare one queued source; inspection is also called independently."""
+    excluded = set(excluded) | set(owner.SCOPE.excluded_games(state))
     inspect_promotions(owner,state,excluded,limit)
     data=inventory(owner,state)
     def recoverable(record):

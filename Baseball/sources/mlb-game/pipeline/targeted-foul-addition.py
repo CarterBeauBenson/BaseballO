@@ -49,6 +49,7 @@ def finished_attempt(previous,case,version):
 
 
 def next_case(state,limit=25):
+    excluded=W.A.SCOPE.excluded_games(state)
     control=state/'pipeline/control/mlb-game/foul-addition';path=control/'inventory.json'
     inventory=W.read(path) if path.is_file() else dict(games={})
     version=fingerprint();inspected=0
@@ -64,6 +65,7 @@ def next_case(state,limit=25):
     for directory in directories:
         if not directory.is_dir() or not directory.name.isdecimal():continue
         pk=directory.name
+        if pk in excluded:continue
         previous=W.read(control/(pk+'.json')) if (control/(pk+'.json')).is_file() else {}
         paths=list(directory.glob('*.json'))
         if not paths:continue
@@ -236,6 +238,7 @@ def finish(state,game_pk,witness,java,classpath,*,retire=True):
 
 
 def tick(state,case,java,mapper,classpath):
+    if not W.A.SCOPE.active(state,case['gamePk']):return dict(gamePk=case['gamePk'],status='outside-active-scope')
     pk=case['gamePk'];control=state/'pipeline/control/mlb-game/foul-addition'/(pk+'.json')
     previous=W.read(control) if control.is_file() else {};version=fingerprint()
     if finished_attempt(previous,case,version):return previous

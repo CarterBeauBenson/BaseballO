@@ -100,6 +100,7 @@ def fingerprint():
 def next_game(state):
     version=fingerprint()
     for number,game_pk in enumerate(CASES):
+        if not W.A.SCOPE.active(state,game_pk):continue
         approved(game_pk)
         path=state/'pipeline/control/mlb-game/compound-addition'/(game_pk+'.json')
         previous=W.read(path) if path.is_file() else {}
@@ -112,6 +113,7 @@ def next_game(state):
 
 
 def tick(state,game_pk,java,mapper,classpath):
+    if not W.A.SCOPE.active(state,game_pk):return dict(gamePk=game_pk,status='outside-active-scope')
     approved(game_pk)
     control=state/'pipeline/control/mlb-game/compound-addition'/(game_pk+'.json')
     previous=W.read(control) if control.is_file() else {};version=fingerprint()

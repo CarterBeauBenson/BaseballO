@@ -513,11 +513,17 @@ $processors.http = Ensure-Processor -GroupId $groupId -Name 'Acquire MLB Game' -
 $processors.readResponse = Ensure-Processor -GroupId $groupId -Name 'Read MLB Response' -Type 'org.apache.nifi.processors.standard.EvaluateJsonPath' -X 960 -Y 0 -AutoTerminate @() -Properties @{
     'Destination' = 'flowfile-attribute'; 'Return Type' = 'auto-detect'; 'Path Not Found Behavior' = 'warn';
     'Null Value Representation' = 'empty string'; 'Max String Length' = '20 MB';
-    'payload.game.pk' = '$.gamePk'; 'payload.state' = '$.gameData.status.abstractGameState'
+    'payload.game.pk' = '$.gamePk'; 'payload.state' = '$.gameData.status.abstractGameState';
+    'payload.game.type' = '$.gameData.game.type';
+    'payload.home.league' = '$.gameData.teams.home.league.id';
+    'payload.away.league' = '$.gameData.teams.away.league.id'
 }
-$processors.requireFinal = Ensure-Processor -GroupId $groupId -Name 'Require Final Game' -Type 'org.apache.nifi.processors.standard.RouteOnAttribute' -X 1280 -Y 0 -AutoTerminate @() -Properties @{
+# Retired competitions stop before transient input, RML or SHACL work.
+$inactiveGame = '${payload.game.type:matches(''S|E''):or(${payload.home.league:matches(''159|160'')}):or(${payload.away.league:matches(''159|160'')})}'
+$processors.requireFinal = Ensure-Processor -GroupId $groupId -Name 'Require Final Game' -Type 'org.apache.nifi.processors.standard.RouteOnAttribute' -X 1280 -Y 0 -AutoTerminate @('inactive') -Properties @{
     'Routing Strategy' = 'Route to Property name';
-    'final' = '${payload.game.pk:equals(${game.pk}):and(${payload.state:equals(''Final'')})}'
+    'inactive' = $inactiveGame;
+    'final' = '${payload.game.pk:equals(${game.pk}):and(${payload.state:equals(''Final'')}):and(${payload.game.type:matches(''S|E''):not()}):and(${payload.home.league:matches(''159|160''):not()}):and(${payload.away.league:matches(''159|160''):not()})}'
 }
 $processors.namePayload = Ensure-Processor -GroupId $groupId -Name 'Name Transient Payload' -Type 'org.apache.nifi.processors.attributes.UpdateAttribute' -X 1600 -Y 0 -AutoTerminate @() -Properties @{
     'Delete Attributes Expression' = ''; 'Store State' = 'Do not store state'; 'Stateful Variables Initial Value' = '';

@@ -81,6 +81,7 @@ def fingerprint():
 
 def next_witness(state):
     case=W.read(EVIDENCE);pk=case['gamePk']
+    if not W.A.SCOPE.active(state,pk):return None
     path=state/'pipeline/control/mlb-game/pitcher-correction'/(pk+'.json')
     previous=W.read(path) if path.is_file() else {}
     if previous.get('status') in SUCCESS:return None
@@ -90,6 +91,7 @@ def next_witness(state):
 
 
 def tick(state,game_pk,witness,java,mapper,classpath):
+    if not W.A.SCOPE.active(state,game_pk):return dict(gamePk=game_pk,status='outside-active-scope')
     control=state/'pipeline/control/mlb-game/pitcher-correction'/(game_pk+'.json')
     version=fingerprint();previous=W.read(control) if control.is_file() else {}
     if previous.get('status') in SUCCESS:return previous

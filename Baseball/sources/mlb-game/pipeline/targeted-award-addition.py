@@ -299,6 +299,7 @@ def recovery_witness(state):
     """NiFi resumes only the named input-retirement failures, never a corpus."""
     request=read(RECOVERY);request_sha=sha(RECOVERY);version=fingerprint()
     for case in request['cases']:
+        if not A.SCOPE.active(state,case['gamePk']):continue
         pk=case['gamePk'];control=state/'pipeline/control/mlb-game/award-addition'/(pk+'.json')
         previous=read(control) if control.is_file() else {}
         if previous.get('additionComplete'):
@@ -363,6 +364,7 @@ def retire_recovery_input(state,result):
 
 
 def tick(state,game_pk,witness,java,mapper,classpath):
+    if not A.SCOPE.active(state,game_pk):return dict(gamePk=game_pk,status='outside-active-scope')
     control=state/'pipeline/control/mlb-game/award-addition'/(game_pk+'.json')
     version=fingerprint()
     previous=read(control) if control.is_file() else {}
@@ -395,6 +397,7 @@ def final_award_witness(state):
     """Only W3's five retained responses; no acquisition or widened inventory."""
     version=fingerprint()
     for case in read(FINAL_AWARD_CASES)['cases']:
+        if not A.SCOPE.active(state,case['gamePk']):continue
         pk=case['gamePk'];witness=case['sourceWitness']
         if not (state/'pipeline/evidence/nifi/game-promotion'/pk).is_dir():continue
         control=state/'pipeline/control/mlb-game/award-addition'/(pk+'.json')
@@ -413,6 +416,7 @@ def final_award_witness(state):
 
 def next_witness(state,limit=50):
     """Bounded retained-input inventory; run the reviewed fixture first."""
+    excluded=A.SCOPE.excluded_games(state)
     control=state/'pipeline/control/mlb-game/award-addition'
     final_award=final_award_witness(state)
     if final_award:return final_award
@@ -437,6 +441,7 @@ def next_witness(state,limit=50):
         try:stat=path.stat()
         except FileNotFoundError:continue
         previous=inventory['inputs'].get(str(path),{})
+        if previous.get('gamePk') in excluded or path.parent.parent.name in excluded:continue
         promoted=state/'pipeline/evidence/nifi/game-promotion'
         prior_pk=previous.get('gamePk','')
         metadata=[stat.st_size,stat.st_mtime_ns,version,bool(prior_pk.isdecimal() and (promoted/prior_pk).is_dir())]
@@ -452,6 +457,7 @@ def next_witness(state,limit=50):
             continue
         if not isinstance(doc,dict):doc={}
         pk=str(doc.get('gamePk',''))
+        if pk in excluded or A.SCOPE.exclusion_reason(doc):continue
         metadata[-1]=bool(pk.isdecimal() and (promoted/pk).is_dir())
         record=dict(identity=metadata,sha256=digest,gamePk=pk,status='not-applicable')
         possible=[p for p in doc.get('liveData',{}).get('plays',{}).get('allPlays',[])

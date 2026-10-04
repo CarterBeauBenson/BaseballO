@@ -578,14 +578,19 @@ def publish_snapshot(database, published, checkpoint=None):
 
 def notification_key(state):
     """Cheap event check only; changed inputs still undergo the existing snapshot."""
+    excluded=SOURCE._work_scope.excluded_games(state)
     # Continuous admission maintenance is an update signal, not graph churn.
     # Including it in the quiet window can postpone publication indefinitely.
     source_paths = list((state/'pipeline/evidence/nifi/game-promotion').glob('*/*.json'))
     source_paths += list((state/'pipeline/control/mlb-game/schedule-coverage').glob('*.json'))
     paths = source_paths + list((state/'pipeline/control/mlb-game/batches').glob('*.json'))
     paths += list((state/'pipeline/evidence/mlb-game').glob('*/admission-refresh/*/*.receipt.json'))
+    source_paths=[p for p in source_paths if p.parent.name not in excluded]
+    paths=[p for p in paths if p.parent.name not in excluded
+           and not (p.name.endswith('.receipt.json') and p.parents[2].name in excluded)]
     files = [(str(p.relative_to(state)), p.stat().st_size, p.stat().st_mtime_ns) for p in sorted(paths)]
-    return digest(dict(events=files, metrics=METRICS.fingerprint(), builder=SOURCE.sha256_file(Path(__file__)),
+    return digest(dict(events=files, workScope=SOURCE.sha256_file(Path(SOURCE._work_scope.__file__)),
+                       metrics=METRICS.fingerprint(), builder=SOURCE.sha256_file(Path(__file__)),
                        reader=SOURCE.sha256_file(Path(SOURCE._reader.__file__)),
                        playerRangeQuery=SOURCE.sha256_file(Path(SOURCE._reader._range_query.__file__)),
                        playerRanges=PLAYER_RANGES.fingerprint(),

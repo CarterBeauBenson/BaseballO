@@ -181,6 +181,7 @@ def fingerprint():
 
 
 def tick(state,game_pk,witness,java,mapper,classpath):
+    if not W.A.SCOPE.active(state,game_pk):return dict(gamePk=game_pk,status='outside-active-scope')
     case=approved_case(game_pk)
     control=state/'pipeline/control/mlb-game/runner-addition'/(game_pk+'.json')
     version=fingerprint();previous=W.read(control) if control.is_file() else {}
@@ -201,6 +202,7 @@ def next_witness(state):
     version=fingerprint();control=state/'pipeline/control/mlb-game/runner-addition'
     cases=sorted(repair_cases(),key=lambda g:(g['gamePk']!='823200',g['gamePk']))
     for index,case in enumerate(cases):
+        if not W.A.SCOPE.active(state,case['gamePk']):continue
         approved_case(case['gamePk'])
         path=control/(case['gamePk']+'.json');previous=W.read(path) if path.is_file() else {}
         if completed_case(previous,case):continue

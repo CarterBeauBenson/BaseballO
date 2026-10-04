@@ -91,6 +91,7 @@ def next_witness(state):
     inventory=W.read(INVENTORY)
     if not inventory.get('enabled'):return None
     for case in inventory['cases']:
+        if not W.A.SCOPE.active(state,case['gamePk']):continue
         pk=case['gamePk'];control=state/'pipeline/control/mlb-game/clock-correction'/(pk+'.json')
         previous=W.read(control) if control.is_file() else {}
         if previous.get('status') in SUCCESS:continue
@@ -98,6 +99,7 @@ def next_witness(state):
         return dict(gamePk=pk,path=str(state/case['path']),sha256=case['sha256'])
 
 def tick(state,game_pk,witness,java,mapper,classpath):
+    if not W.A.SCOPE.active(state,game_pk):return dict(gamePk=game_pk,status='outside-active-scope')
     control=state/'pipeline/control/mlb-game/clock-correction'/(game_pk+'.json')
     previous=W.read(control) if control.is_file() else {};version=fingerprint()
     if previous.get('status') in SUCCESS:return previous

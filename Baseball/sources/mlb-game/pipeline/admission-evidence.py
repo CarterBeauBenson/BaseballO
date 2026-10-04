@@ -655,6 +655,7 @@ def preserve_interrupted_refresh(state,promotion,previous):
 
 
 def tick(state,java,classpath,limit=100,endpoint='http://127.0.0.1:3031/baseball-dev/query'):
+    excluded=module(HERE/'work_scope.py','admission_work_scope').excluded_games(state)
     control=Path(state)/'pipeline/control/mlb-game/admission-evidence'
     versions={family:module(HERE/(family+'-admission.py'),'version_'+family.replace('-','_')).fingerprint() for family in FIELDS}
     version=hashlib.sha256(json.dumps(versions,sort_keys=True).encode()+fingerprint().encode()).hexdigest()
@@ -665,7 +666,7 @@ def tick(state,java,classpath,limit=100,endpoint='http://127.0.0.1:3031/baseball
     failed={p.stem for p in control.glob('*.json') if read(p).get('status')=='failed'}
     for directory in sorted((Path(state)/'pipeline/evidence/nifi/game-promotion').glob('*'),
             key=lambda p:(p.name not in failed,priority.get(p.name,3),p.name)):
-        if not directory.is_dir() or not directory.name.isdigit(): continue
+        if not directory.is_dir() or not directory.name.isdigit() or directory.name in excluded: continue
         candidates=[(read(path).get('promotedAtUtc',''),path.name,path) for path in directory.glob('*.json')]
         if not candidates: continue
         path=max(candidates)[2];marker=read(path);marker_sha=sha(path)

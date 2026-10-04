@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.util
 import json
 import os
 import re
@@ -22,6 +23,8 @@ from typing import Any
 BATCH_ID = re.compile(r"^[0-9a-f]{32}$")
 POSITIVE_ID = re.compile(r"^[1-9][0-9]*$")
 REQUEST_KINDS = {"backfill", "daily"}
+_scope_spec = importlib.util.spec_from_file_location('schedule_work_scope', Path(__file__).resolve().parents[1]/'pipeline/work_scope.py')
+SCOPE = importlib.util.module_from_spec(_scope_spec); _scope_spec.loader.exec_module(SCOPE)
 
 
 def parse_args() -> argparse.Namespace:
@@ -141,6 +144,7 @@ def schedule_observations(document: dict[str, Any]) -> dict[str, list[dict[str, 
                     "scheduledDate": scheduled_date,
                     "officialDate": official_date,
                     "gameType": game_type,
+                    **({'excludedReason': SCOPE.exclusion_reason(record)} if SCOPE.exclusion_reason(record) else {}),
                     "gameDate": str(record["gameDate"]) if record.get("gameDate") else None,
                     "abstractState": state,
                     "detailedState": detailed_state,
@@ -180,6 +184,8 @@ def completed_games(
             continue
         completed.sort(key=lambda row: (str(row["scheduledDate"]), str(row["gameDate"] or "")))
         final = completed[-1]
+        if final.get('excludedReason') or SCOPE.exclusion_reason(final):
+            continue
         row: dict[str, str] = {
             "gamePk": game_pk,
             "scheduleDate": str(final["scheduledDate"]),
@@ -345,6 +351,11 @@ def transform(raw: bytes, args: argparse.Namespace) -> dict[str, Any]:
             }
             for row in games
         ],
+        "workScope": SCOPE.POLICY,
+        "excludedGames": [dict(gamePk=pk, gameType=rows[-1]['gameType'],
+            reason=rows[-1].get('excludedReason') or SCOPE.exclusion_reason(rows[-1]))
+            for pk, rows in sorted(observations.items())
+            if rows[-1].get('excludedReason') or SCOPE.exclusion_reason(rows[-1])],
     }
     if manifest_path.is_file():
         prior = json.loads(manifest_path.read_text(encoding="utf-8-sig"))
