@@ -30,8 +30,14 @@ permission is not a standing rebuild instruction.
 The active [RML repair plan](sources/mlb-game/review/rml-audit-2026-10-03.md#current-repair-plan-and-scope)
 was expanded on October 4 to cover H4, all recorded failure groups, remaining
 history work, stale evidence, and a bounded review of all seven source modules.
-H4 is explicitly accepted; the plan distinguishes implementation, live promotion
-and source/modeling exclusions. Continue independent metric work over valid RDF.
+Both H4 additions are promoted (110 triples total). The observer now distinguishes
+current repair scopes and superseded history proofs; two old Transactions
+promotion failures also completed without remapping. The new
+[F8 foul-selector](proposals/mlb-game-foul-substitution-review-completion/README.md)
+and [P1 pitching-participation](proposals/mlb-game-actual-pitcher-participation/README.md)
+packages await named review. Remaining history comparisons stay with NiFi;
+the plan distinguishes actual defects from source/modeling exclusions. Continue
+independent metric work over valid RDF.
 
 The October 2 RML repair snapshot is covered by
 [F5/D2](archive/design-records/mlb-game-foul-defense-selection-repair/README.md): the
