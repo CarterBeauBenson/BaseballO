@@ -823,11 +823,12 @@ def validate_sparql() -> int:
 def validate_query_contract() -> None:
     query_files = list(SPARQL_ROOT.rglob("*.rq")) + list(QUERY_BUILDERS)
     prohibited = (
-        ("removed participant predicate", "cco:ont00001833"),
         ("outcome-specific runner identity path", "runner-act/advance"),
         ("outcome-specific runner identity path", "runner-act/score"),
         ("outcome-specific runner identity path", "runner-act/out"),
     )
+    # cco:ont00001833 is the accepted CCO "has agent" relation. Source SHACL
+    # owns its permitted subjects; it is not a globally prohibited predicate.
     for path in query_files:
         text = path.read_text(encoding="utf-8")
         for description, fragment in prohibited:
