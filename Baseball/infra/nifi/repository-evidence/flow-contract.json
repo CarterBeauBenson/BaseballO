@@ -8,7 +8,9 @@
     "schedule": "0 30 6 * * ?",
     "timeZone": "America/New_York",
     "manualTrigger": "run-once",
-    "timeoutSeconds": 3600
+    "timeoutSeconds": 3600,
+    "repositoryStatePolicy": "defer-uncommitted-or-changing-worktree",
+    "deferralIsAdmission": false
   },
   "failurePolicy": {
     "maximumRetries": 2,

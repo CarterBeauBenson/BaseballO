@@ -56,6 +56,22 @@ def acquire_lock(path: Path) -> int:
     return descriptor
 
 
+def repository_state() -> dict[str, Any]:
+    """Do not present a developer's intermediate edits as a commit result."""
+    def git(*args: str) -> bytes:
+        completed = subprocess.run(
+            ['git', '-C', str(ROOT), *args], capture_output=True, check=False,
+            timeout=30,
+        )
+        if completed.returncode:
+            raise ObserverError('Repository observer could not read Git state')
+        return completed.stdout
+    return {
+        'commit': git('rev-parse', '--verify', 'HEAD').decode('ascii').strip(),
+        'dirty': bool(git('status', '--porcelain=v1', '-z', '--untracked-files=normal')),
+    }
+
+
 def record_validation(
     state_root: Path,
     *,
@@ -77,23 +93,31 @@ def record_validation(
     evidence_path = evidence_root / f"{build_id}.json"
     start_clock = time.perf_counter()
     try:
-        try:
-            completed = subprocess.run(
-                [python, str(validator)],
-                cwd=ROOT,
-                capture_output=True,
-                timeout=timeout_seconds,
-                check=False,
-            )
-            stdout = completed.stdout
-            stderr = completed.stderr
-            exit_code = int(completed.returncode)
-            error = None
-        except subprocess.TimeoutExpired as exc:
-            stdout = exc.stdout or b""
-            stderr = exc.stderr or b""
-            exit_code = 124
-            error = f"Aggregate repository validation exceeded {timeout_seconds} seconds"
+        before = repository_state()
+        validator_sha = sha256_file(validator)
+        stdout, stderr, exit_code, error = b'', b'', None, None
+        deferred = 'uncommitted-repository-changes' if before['dirty'] else None
+        after = before
+        if not deferred:
+            try:
+                completed = subprocess.run(
+                    [python, str(validator)],
+                    cwd=ROOT,
+                    capture_output=True,
+                    timeout=timeout_seconds,
+                    check=False,
+                )
+                stdout = completed.stdout
+                stderr = completed.stderr
+                exit_code = int(completed.returncode)
+            except subprocess.TimeoutExpired as exc:
+                stdout = exc.stdout or b""
+                stderr = exc.stderr or b""
+                exit_code = 124
+                error = f"Aggregate repository validation exceeded {timeout_seconds} seconds"
+            after = repository_state()
+            if after != before or not validator.is_file() or sha256_file(validator) != validator_sha:
+                deferred = 'repository-changed-during-validation'
         atomic_bytes(stdout_path, stdout)
         atomic_bytes(stderr_path, stderr)
         completed_at = dt.datetime.now(dt.timezone.utc)
@@ -101,13 +125,16 @@ def record_validation(
             "artifactType": "baseballo-repository-validation-evidence",
             "contractVersion": 1,
             "runId": build_id,
-            "status": "passed" if exit_code == 0 else "failed",
+            "status": "deferred" if deferred else "passed" if exit_code == 0 else "failed",
             "startedAtUtc": started.isoformat().replace("+00:00", "Z"),
             "completedAtUtc": completed_at.isoformat().replace("+00:00", "Z"),
             "durationMilliseconds": round((time.perf_counter() - start_clock) * 1000, 3),
             "exitCode": exit_code,
+            "validationAttempted": exit_code is not None,
+            "repositoryBefore": before,
+            "repositoryAfter": after,
             "validatorPath": str(validator),
-            "validatorSha256": sha256_file(validator),
+            "validatorSha256": validator_sha,
             "stdoutPath": str(stdout_path.resolve()),
             "stdoutSha256": sha256_bytes(stdout),
             "stdoutBytes": len(stdout),
@@ -119,9 +146,14 @@ def record_validation(
         }
         if error:
             evidence["error"] = error
+        if deferred:
+            evidence['deferredReason'] = deferred
+            evidence['retryPolicy'] = 'existing scheduled or manual NiFi observer after edits are committed'
         atomic_json(evidence_path, evidence)
         evidence["evidencePath"] = str(evidence_path.resolve())
-        return evidence, exit_code
+        # The observer successfully recorded a deferral; it has not certified
+        # the repository. Preserve any attempted validator exit code above.
+        return evidence, 0 if deferred else exit_code
     finally:
         os.close(descriptor)
         lock_path.unlink(missing_ok=True)

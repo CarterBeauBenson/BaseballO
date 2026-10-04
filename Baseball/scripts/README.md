@@ -93,6 +93,11 @@ a route.
 aggregate repository gate. It writes immutable JSON plus separately hashed
 stdout and stderr logs. The `Repository Evidence` process group schedules it;
 Codex does not reproduce that recurring workflow manually.
+It records `deferred` while the Git working tree has uncommitted changes. If
+the commit or working tree changes during validation, it preserves the logs
+and actual validator exit code but does not certify a pass or failure for that
+commit. The existing scheduled/manual trigger retries after publication.
+Stable committed failures still fail; a deferral never admits source data.
 
 The clean NiFi runtime is provisioned per source module. Seven detachable
 process groups own Games, Teams, Leagues, Divisions, People, Venues, and

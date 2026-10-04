@@ -7,6 +7,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -18,6 +19,12 @@ SPEC.loader.exec_module(OBSERVER)
 
 
 class RepositoryValidationObserverTests(unittest.TestCase):
+    def setUp(self):
+        self.clean_state = {'commit': 'a' * 40, 'dirty': False}
+        self.state_patch = patch.object(OBSERVER, 'repository_state', return_value=self.clean_state)
+        self.state_mock = self.state_patch.start()
+        self.addCleanup(self.state_patch.stop)
+
     def run_fixture(self, exit_code: int) -> tuple[dict, int, Path]:
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
@@ -50,6 +57,29 @@ class RepositoryValidationObserverTests(unittest.TestCase):
         self.assertFalse(
             (root / "state" / "pipeline" / "locks" / "repository-validation.lock").exists()
         )
+
+    def test_unfinished_edits_defer_without_starting_validation(self) -> None:
+        self.state_mock.return_value = {**self.clean_state, 'dirty': True}
+        evidence, exit_code, _ = self.run_fixture(7)
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(evidence['status'], 'deferred')
+        self.assertFalse(evidence['validationAttempted'])
+        self.assertIsNone(evidence['exitCode'])
+        self.assertEqual(Path(evidence['stdoutPath']).read_bytes(), b'')
+        self.assertEqual(evidence['deferredReason'], 'uncommitted-repository-changes')
+
+    def test_edits_or_commit_during_run_preserve_logs_but_do_not_certify(self) -> None:
+        for observed in ({**self.clean_state, 'dirty': True}, {'commit': 'b' * 40, 'dirty': False}):
+            for result in (0, 7):
+                with self.subTest(observed=observed, result=result):
+                    self.state_mock.side_effect = [self.clean_state, observed]
+                    evidence, exit_code, _ = self.run_fixture(result)
+                    self.assertEqual(exit_code, 0)
+                    self.assertEqual(evidence['status'], 'deferred')
+                    self.assertTrue(evidence['validationAttempted'])
+                    self.assertEqual(evidence['exitCode'], result)
+                    self.assertIn(b'fixture output', Path(evidence['stdoutPath']).read_bytes())
+                    self.assertEqual(evidence['repositoryAfter'], observed)
 
 
 if __name__ == "__main__":
