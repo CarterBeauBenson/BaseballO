@@ -44,6 +44,14 @@
     "disposition": "accepted",
     "decidedBy": "Carter Beau Benson",
     "decidedAt": "2026-10-03",
-    "rationale": "The user replied \"approve and fix the next problems\" to the pending F7 repair and named-approval explanation. Accepts the prepared F7 selector and its scoped context-pin update, with additive NiFi execution and no new vocabulary or rebuild."
+    "rationale": "The user replied \"approve and fix the next problems\" to the pending F7 repair and named-approval explanation. Accepts the prepared F7 selector and its scoped context-pin update, with additive NiFi execution and no new vocabulary or rebuild.",
+    "authorizedArtifacts": [
+      "Baseball/scripts/pipeline/prepare-rml-context.py",
+      "Baseball/governance/semantic-freeze.json",
+      "Baseball/sources/mlb-game/pipeline/history-selection-candidates.json",
+      "Baseball/sources/mlb-game/pipeline/context-proof-compatibility.json",
+      "Baseball/sources/mlb-game/pipeline/admission-evidence.py",
+      "Baseball/sources/mlb-game/pipeline/existing-graph-admissions.py"
+    ]
   }
 }
