@@ -319,7 +319,8 @@ class AdmissionEvidence(unittest.TestCase):
         error_prefix=record.get('errorCountPrefixRepair')
         batter_chain=record.get('prePitchBatterChain')
         final_award=record.get('finalAwardSelection')
-        current=final_award or batter_chain or error_prefix or selection or foul or history or groundout or compound or walk
+        runner_review=record.get('runnerReviewCompletion')
+        current=runner_review or final_award or batter_chain or error_prefix or selection or foul or history or groundout or compound or walk
         if compound:
             now=(subprocess.check_output(['git','-C',str(ROOT.parent),'show',
                 groundout['baselineCommit']+':Baseball/'+record['contextPath']]) if groundout
@@ -419,7 +420,9 @@ class AdmissionEvidence(unittest.TestCase):
                     _context=batter_chain['currentContextSha256']))
                 self.assertIsNone(E.code_equivalence(family,'unknown',entry['currentImplementationSha256']))
         if final_award:
-            active=(ROOT/record['contextPath']).read_bytes()
+            active=(subprocess.check_output(['git','-C',str(ROOT.parent),'show',
+                runner_review['baselineCommit']+':Baseball/'+record['contextPath']]) if runner_review
+                else (ROOT/record['contextPath']).read_bytes())
             self.assertEqual(hashlib.sha256(updated).hexdigest(),final_award['previousContextSha256'])
             self.assertEqual(hashlib.sha256(active).hexdigest(),final_award['currentContextSha256'])
             def outside_final_award(raw):
@@ -427,6 +430,16 @@ class AdmissionEvidence(unittest.TestCase):
                     {'intentional_walk_award_terminal','runner_metric_evidence'}]
                 return ast.dump(tree)
             self.assertEqual(outside_final_award(updated),outside_final_award(active))
+        if runner_review:
+            current_context=(ROOT/record['contextPath']).read_bytes()
+            self.assertEqual(hashlib.sha256(active).hexdigest(),runner_review['previousContextSha256'])
+            self.assertEqual(hashlib.sha256(current_context).hexdigest(),runner_review['currentContextSha256'])
+            changed={'completed_nonterminal_field_review','catcher_pickoff_boundary_kind',
+                     'accounted_runner_history_reviews','runner_boundary_anchors'}
+            def outside_runner_review(raw):
+                tree=ast.parse(raw);tree.body=[n for n in tree.body if getattr(n,'name',None) not in changed]
+                return ast.dump(tree)
+            self.assertEqual(outside_runner_review(active),outside_runner_review(current_context))
         for family,entry in walk['families'].items():
             adapter=E.module(E.HERE/(family+'-admission.py'),'w1_'+family.replace('-','_'))
             expected=(record['missingCountResultHandling'] if not final_award and family=='pitch-count' and
@@ -439,7 +452,7 @@ class AdmissionEvidence(unittest.TestCase):
             self.assertEqual(E.EXISTING_GRAPH.fingerprint(E,adapter),independent['currentImplementationSha256'])
             self.assertEqual(walk['independentProofs'][family]['previousSourceProducerSha256'],entry['previousImplementationSha256'])
         for kind,adapter in [('players',E.PLAYER_PARTICIPATION),('pa',E.PLAYER_PARTICIPATION.PA),('c2pa',E.PA_RESOLUTION)]:
-            entry=(final_award['derivedProofs'][kind] if final_award else batter_chain['derivedProofs'][kind] if batter_chain else error_prefix['derivedProofs'][kind] if error_prefix else selection['derivedProofs'][kind] if selection else foul['derivedProofs'][kind] if foul else history['derivedProofs'][kind] if history else
+            entry=(runner_review['derivedProofs'][kind] if runner_review else final_award['derivedProofs'][kind] if final_award else batter_chain['derivedProofs'][kind] if batter_chain else error_prefix['derivedProofs'][kind] if error_prefix else selection['derivedProofs'][kind] if selection else foul['derivedProofs'][kind] if foul else history['derivedProofs'][kind] if history else
                 record.get('retainedCompoundExpectations',{}).get('derivedProofs',{}).get(kind,current['derivedProofs'][kind]))
             self.assertEqual(adapter.fingerprint(),entry['currentImplementationSha256'])
             self.assertEqual(E.prior_versions(kind,adapter.fingerprint()),entry['previousImplementationSha256s'])

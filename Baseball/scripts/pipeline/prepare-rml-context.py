@@ -493,8 +493,8 @@ def completed_nonterminal_field_review(play, position):
     event = events[position]; detail = event.get('details', {})
     review = event.get('reviewDetails')
     allowed = {'MO': {'F'}, 'NO': {'F'}, 'NH': {'F'}, 'MH': {'F'},
-               'MN': {'F'}, 'NN': {'F'}, 'MI': {'B','*B','F','L','T'},
-               'NI': {'B','*B','F','L','T'}, 'MV': {'B','*B','F','T'}, 'NV': {'B','*B','F','T'}}
+               'MN': {'F'}, 'NN': {'F'}, 'MI': {'B','*B','F','L','T','O'},
+               'NI': {'B','*B','F','L','T','O'}, 'MV': {'B','*B','F','T'}, 'NV': {'B','*B','F','T'}}
     code = detail.get('call',{}).get('code')
     before = events[position-1].get('count', {}) if position else dict(balls=0,strikes=0,outs=event.get('count',{}).get('outs'))
     after = event.get('count',{})
@@ -568,6 +568,35 @@ def completed_independent_review(play, position):
                 scope='final runner effects only; original call and affected player not inferred')
 
 
+def catcher_pickoff_boundary_kind(play, event):
+    """Reuse C3's association/type/runner token for an evidenced catcher pickoff."""
+    events=play.get('playEvents',[]);detail=event.get('details',{})
+    kind=play.get('result',{}).get('eventType');base={
+        'pickoff_1b':'1B','pickoff_2b':'2B','pickoff_3b':'3B'}.get(kind)
+    if (not events or event is not events[-1] or base is None
+            or play.get('about',{}).get('isComplete') is not True
+            or event.get('type')!='pickoff' or event.get('isPitch') is not False
+            or event.get('playId') or not SAFE_IRI_SEGMENT.fullmatch(str(event.get('actionPlayId') or ''))
+            or detail.get('code')!=base[0] or detail.get('fromCatcher') is not True
+            or detail.get('isOut') is not True or detail.get('hasReview') is not False
+            or event.get('reviewDetails') or play.get('result',{}).get('isOut') is not True):return None
+    prior=[e for e in events[:-1] if e.get('playId')==event['actionPlayId'] and e.get('isPitch') is True]
+    rows=[r for r in play.get('runners',[]) if r.get('details',{}).get('playIndex')==event.get('index')]
+    before=event.get('count',{});after=play.get('count',{})
+    if (len(prior)!=1 or prior[0].get('count')!=before or len(rows)!=1
+            or any(type(before.get(k)) is not int or not 0<=before[k]<=limit
+                   for k,limit in (('balls',3),('strikes',2),('outs',2)))
+            or any(after.get(k)!=before[k] for k in ('balls','strikes'))
+            or after.get('outs')!=before['outs']+1):return None
+    row=rows[0];movement=row.get('movement',{});details=row.get('details',{})
+    if (any(movement.get(k)!=base for k in ('originBase','start','outBase'))
+            or movement.get('isOut') is not True or movement.get('end') is not None
+            or movement.get('outNumber')!=after['outs'] or details.get('eventType')!=kind
+            or details.get('isScoringEvent') is not False
+            or not str(details.get('runner',{}).get('id','')).isdigit()):return None
+    return kind
+
+
 def accounted_runner_history_reviews(play: dict) -> dict:
     """Select the reconciled final effect; review identity remains independent."""
     review = play.get('reviewDetails')
@@ -585,7 +614,8 @@ def accounted_runner_history_reviews(play: dict) -> dict:
     supported = (play.get('about', {}).get('hasReview') is True
         and play['about'].get('isComplete') is True
         and completed_field_review_dispositions(review, play.get('result', {}).get('description', ''))
-        and final_effect and SAFE_IRI_SEGMENT.fullmatch(str(terminal.get('playId') or ''))
+        and final_effect and (SAFE_IRI_SEGMENT.fullmatch(str(terminal.get('playId') or ''))
+            or catcher_pickoff_boundary_kind(play,terminal))
         and not terminal.get('reviewDetails') and details.get('hasReview') is False
         and bool(terminal_rows)
         and all(type(r.get('movement', {}).get('isOut')) is bool
@@ -635,8 +665,10 @@ def accounted_runner_history_reviews(play: dict) -> dict:
     result = accounted_runner_count_reviews(count_scope)
     result['events'].update(accounted)
     if supported:
-        result['accountedFieldReview'] = dict(eventIndex=terminal['index'], playId=terminal['playId'],
+        result['accountedFieldReview'] = dict(eventIndex=terminal['index'],
             reviewType=review['reviewType'], overturned=review['isOverturned'])
+        if terminal.get('playId'):result['accountedFieldReview']['playId']=terminal['playId']
+        else:result['accountedFieldReview']['boundaryAssociationId']=terminal['actionPlayId']
     return result
 
 
@@ -746,7 +778,10 @@ def runner_boundary_anchors(document):
             # A stable pitch ID retains the existing serialization. C3 is a
             # fallback only for a positively identified non-pitch action.
             association = str(event.get('actionPlayId') or '')
-            if (event.get('playId') or event.get('isPitch') is not False or event.get('type') != 'action'
+            catcher_kind = catcher_pickoff_boundary_kind(play,event)
+            if catcher_kind:kind=catcher_kind
+            if (event.get('playId') or event.get('isPitch') is not False
+                    or (event.get('type') != 'action' and not catcher_kind)
                     or not SAFE_IRI_SEGMENT.fullmatch(association)
                     or not isinstance(kind, str) or not SAFE_IRI_SEGMENT.fullmatch(kind)):
                 continue

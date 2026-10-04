@@ -15,6 +15,20 @@ R=importlib.util.module_from_spec(spec);spec.loader.exec_module(R)
 
 
 class TargetedRunnerAddition(unittest.TestCase):
+    def test_h4_pickoff_uses_new_scope_instead_of_completed_original_r1_case(self):
+        case=R.approved_case('823523')
+        self.assertEqual(case['selectedHistories'],2)
+        self.assertTrue(case['includeBoundaryStates'])
+        self.assertIn('executionRequest',case)
+        self.assertFalse(R.completed_case(dict(status='complete'),case))
+        witness=Path.home()/'AppData/Local/BaseballO/state'/case['retainedInputs'][0]['path']
+        if not witness.is_file():self.skipTest('Retained runtime witness has been retired')
+        selected=R.select(witness.read_bytes(),'823523')
+        self.assertEqual({h['lifetimeKey'] for h in selected['history']['histories']},set(case['selectedHistoryKeys']))
+        self.assertEqual(len(selected['history']['histories']),2)
+        self.assertEqual(selected['boundaryCensus']['status'],'reconciled')
+        Graph().parse(data=R.shapes('823523',selected),format='turtle')
+
     def test_named_placement_histories_do_not_require_a_fictional_movement(self):
         state=Path.home()/'AppData/Local/BaseballO/state'
         for pk in ('823023','823350'):
@@ -46,7 +60,7 @@ class TargetedRunnerAddition(unittest.TestCase):
         if not witness.is_file():self.skipTest('Retained runtime witness has been retired')
         selected=R.select(witness.read_bytes(),'823200')
         self.assertEqual({h['lifetimeKey'] for h in selected['history']['histories']},set(case['selectedHistoryKeys']))
-        self.assertEqual(len(selected['history']['histories']),12)
+        self.assertEqual(len(selected['history']['histories']),6)  # H4's new, exact scope.
         Graph().parse(data=R.shapes('823200',selected),format='turtle')
 
     def test_other_legacy_games_keep_reconciled_histories_without_claiming_boundaries(self):

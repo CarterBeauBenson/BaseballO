@@ -2,7 +2,7 @@
   "artifactType": "baseballo-targeted-runner-history-execution-request",
   "requestedAt": "2026-10-03",
   "userInstruction": "Approve and fix the runner history",
-  "scope": "Add the exact missing accepted runner patterns in the named retained inputs. Only 831445 and 823048 include fully reconciled PA-start boundaries. Preserve all existing RDF.",
+  "scope": "Add exact missing accepted runner patterns in the named retained inputs. Only 831445, 823048 and H4 game 823523 include fully reconciled PA-start boundaries. H4 selects six new histories in 823200 and two in 823523. Preserve all existing RDF.",
   "semanticPatternDecision": "archive/design-records/mlb-game-runner-pattern-completion/review.json",
   "games": [
     {
@@ -565,48 +565,33 @@
     },
     {
       "gamePk": "823200",
-      "includeBoundaryStates": false,
       "plateAppearances": [
-        "10",
-        "13",
-        "14",
-        "24",
-        "43",
-        "44",
-        "45",
-        "77",
-        "78",
-        "79",
-        "80",
-        "81",
-        "82"
+        "69",
+        "70",
+        "71",
+        "72",
+        "73",
+        "74",
+        "75",
+        "76"
       ],
       "selectedHistoryKeys": [
-        "06167ad7828e89c546c30753fc742c7200f4fea361199ce18d1920832d32ceaa",
-        "0c13a2fe3ab6f8b2cba2c28a13e618b5312d062d0ffda4afc8ec69b8576f84b1",
-        "1a2cf86d3d1688192dbe7cd93f72a671d40c30b330c2996b6b7726aadb488973",
-        "27aeba477c41a20508dff6d159fe2e3ef91ecd1fdde3a86eec76c5fa16fe38ff",
-        "297a2ec3f995da94a99890be6ef9404b3d8fada837cfe85c4e972cbd15dc6b46",
-        "36b958d6101bd9311a54ecdf99ed03e11e08aa1dae48a408d9c66d7d73fc27d5",
-        "375dfee745aeeaaa5a1ba451a3ce505b22b713b46db66b499602ba9bc35f8edf",
-        "7382d00d10503ccf5fb61485619e5a3d38e7d07f11700c5c8a6731868b41e04a",
-        "8e75e475f98f3e89c9d054d37a13e3de341bd98dda760ed1dc1262ccd9ffc318",
-        "ad5d4d0da96f4ec7229b27013d925a7e07f9f056aa627ecf6fef8ac33956ad0d",
-        "b70c390456af5992d08d30acaa8b94e1a9177e82c133b46cb935379075b90f0f",
-        "c972830ffa94e4c9ba3c9ddc2836452d4f9e2d4df392e2aae95cb5b0f0359bd6"
+        "0041b5d9f4979b72cbf3792e4e00422e0f5bd56ae51e02de77d9fa69c019df23",
+        "0b0cbd482a0a3809c788c0019f5c60f8955ee83a6217b252d573d3c296ba4f37",
+        "30b2d78d0eb303a5f75e2b5b152c1866f461380f5691b1ff5eef19134f92895a",
+        "458da46c92ccee9689e40a98d9c607ee5d6ba0a3751bbd801de2f9f42021f925",
+        "9bc4c7ea16660c5d31e9c267b1327444646387fc39a1947440917552a3997318",
+        "ad62d6ca18e3501447f6cd927d32824b869563016174b22192c425e57f7ae794"
       ],
+      "selectedHistories": 6,
+      "includeBoundaryStates": false,
+      "selectionDecision": "archive/design-records/mlb-game-runner-review-completion/review.json",
       "retainedInputs": [
         {
-          "path": "pipeline/quarantine/mlb-game/823200/targeted-history-d23a7140676b8860/input.json",
+          "path": "pipeline/quarantine/mlb-game/823200/targeted-history-52064c0040c8634b/input.json",
           "sha256": "97f53a796936c84aa36a52b58edbaba538e367adf5df43ae30d4b5dfbd5cae84"
         }
-      ],
-      "basis": {
-        "sourceCensusPath": "pipeline/evidence/mlb-game/823200/admission-refresh/d23a7140676b8860232be54865106c0e72cfbd2c3cad2da4dd2500a87e08211f-0f6cc93e5d1437e967fc6bbb074b7a45b5c36865c9b1f57a82881d0be98c3b37/b2.source.json",
-        "sourceCensusSha256": "ee2af6153b8ed152f0ca58e1b22688c676f9a2019811ee432c83fdfa828f5183",
-        "existingHistories": 19,
-        "unmatchedExistingHistories": 0
-      }
+      ]
     },
     {
       "gamePk": "823350",
@@ -925,6 +910,103 @@
           "sha256": "72ed4c3ffde59d1c0837f3111bb55ea580952cf3a2053405a69f9446b6478733"
         }
       ]
+    },
+    {
+      "gamePk": "823523",
+      "plateAppearances": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+        "29",
+        "30",
+        "31",
+        "32",
+        "33",
+        "34",
+        "35",
+        "36",
+        "37",
+        "38",
+        "39",
+        "40",
+        "41",
+        "42",
+        "43",
+        "44",
+        "45",
+        "46",
+        "47",
+        "48",
+        "49",
+        "50",
+        "51",
+        "52",
+        "53",
+        "54",
+        "55",
+        "56",
+        "57",
+        "58",
+        "59",
+        "60",
+        "61",
+        "62",
+        "63",
+        "64",
+        "65",
+        "66",
+        "67",
+        "68",
+        "69",
+        "70",
+        "71",
+        "72",
+        "73",
+        "74",
+        "75"
+      ],
+      "selectedHistoryKeys": [
+        "66df3785bf4cb9f77b1123e9e1b8c83640d22f25e5d8d1d45a8a557576eb2c91",
+        "800a92b31a6dceace2ef8bb8dfaa1f9b952ebc4d176e15725d9bee1b884561f0"
+      ],
+      "selectedHistories": 2,
+      "includeBoundaryStates": true,
+      "selectionDecision": "archive/design-records/mlb-game-runner-review-completion/review.json",
+      "retainedInputs": [
+        {
+          "path": "pipeline/quarantine/mlb-game/823523/targeted-history-9f50daefff0a7c2c/input.json",
+          "sha256": "43808a5e079e7670b2850407dd911b2284a101d3ac8dd1fb8b4de811f9223c66"
+        }
+      ]
     }
+  ],
+  "selectionDecisions": [
+    "archive/design-records/mlb-game-runner-review-completion/review.json"
   ]
 }
