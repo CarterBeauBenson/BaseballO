@@ -114,6 +114,7 @@ def fingerprint(owner):
         'reconcile-metric-source.py',
         'existing-graph-admissions.py','retained-census-admissions.py','context-proof-compatibility.json')
     return owner.hashlib.sha256(inspect.getsource(inspect_record).encode()+
+        inspect.getsource(retained_history_admission).encode()+
         inspect.getsource(boundary_admission).encode()+
         inspect.getsource(owner.select_history).encode()+
         owner.json.dumps(owner.read(owner.SELECTION).get('legacyEvidenceGames',[])).encode()+
@@ -121,6 +122,39 @@ def fingerprint(owner):
         (owner.ROOT/'scripts/pipeline/validate-shacl.py').read_bytes()+
         (owner.HERE.parent/'shacl/runner-boundary-admission.ttl').read_bytes()+
         (owner.ROOT/'scripts/pipeline/prepare-rml-context.py').read_bytes()).hexdigest()
+
+
+def retained_history_admission(owner,state,marker_path,marker):
+    """A complete retained history proof does not need another source repair.
+
+    This is queue bookkeeping over the exact promoted RDF, not admission under
+    a new implementation. Preserve the original producer and leave boundary
+    admission to its own owner. Named targeted repairs remain separate jobs.
+    """
+    field='runnerHistoryAdmission'
+    if not marker.get(field):return None
+    path=Path(marker[field])
+    if not path.is_file() or owner.sha(path)!=marker.get(field+'Sha256'):
+        raise ValueError('Retained history admission changed')
+    proof=owner.read(path)
+    if not (proof.get('status')=='admitted' and all(proof.get(k) is True
+            for k in ('sourceReconciled','graphConforms','populationComplete'))):return None
+    promotion=owner.I.validated_promotion_record(state,marker_path,marker_path.parent.name,
+        owner.I.query_index_contract_admission())
+    if (proof.get('artifactType')!='baseballo-runner-history-admission'
+            or proof.get('contractVersion')!=1 or proof.get('gamePk')!=promotion['gamePk']
+            or proof.get('graph')!=promotion['authoritativeGraph']
+            or proof.get('authoritativeRdfSha256')!=promotion['authoritativeRdfSha256']):
+        raise ValueError('Retained history admission belongs to another graph')
+    owner.retain_source_binding(proof,marker,field)
+    for suffix,key in (('.source.json','sourceCensusSha256'),
+            ('.shapes.ttl','shapeSha256'),('.report.ttl','reportSha256')):
+        artifact=path.with_suffix(suffix)
+        if not artifact.is_file() or owner.sha(artifact)!=proof.get(key):
+            raise ValueError('Retained history admission artifact changed: '+key)
+    return dict(proofSha256=marker[field+'Sha256'],
+        implementationSha256=proof['implementationSha256'],
+        authoritativeRdfSha256=proof['authoritativeRdfSha256'])
 
 
 def boundary_admission(owner,state,marker_path):
@@ -140,6 +174,11 @@ def inspect_record(owner,state,marker_path,contract,previous):
     marker=owner.read(marker_path);pk=marker_path.parent.name
     record=dict(identity=[owner.sha(marker_path),fingerprint(owner)],
         checkedAtUtc=owner.TX.now(),status='not-applicable')
+    history_proof=retained_history_admission(owner,state,marker_path,marker)
+    if history_proof is not None:
+        if previous.get('status')=='selected' and previous.get('case'):
+            return {**previous,**record,'status':'selected','retainedHistoryAdmission':history_proof}
+        return dict(record,reason='existing-complete-history',retainedHistoryAdmission=history_proof)
     proof=boundary_admission(owner,state,marker_path)
     if proof is not None:
         if previous.get('status')=='selected' and previous.get('case'):

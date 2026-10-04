@@ -69,6 +69,55 @@ class HistoryRepairDiscovery(unittest.TestCase):
             admitted=self.boundary_loader(api,Path('state'),marker)
             self.assertEqual(admitted,{k:v for k,v in proof.items() if k!='status'})
 
+    def test_complete_history_does_not_reacquire_for_unresolved_boundaries(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);_,_,_,promotion,witness=self.setup_case(state)
+            marker=state/'pipeline/evidence/nifi/game-promotion/824087/marker.json'
+            admission=state/'runner-history-admission.json'
+            promotion.update(authoritativeGraph='https://w3id.org/baseball/graph/game/824087',
+                authoritativeRdfSha256='promoted-rdf')
+            proof=dict(artifactType='baseballo-runner-history-admission',contractVersion=1,
+                gamePk=promotion['gamePk'],graph=promotion['authoritativeGraph'],
+                authoritativeRdfSha256=promotion['authoritativeRdfSha256'],
+                sourceSha256=witness['sha256'],implementationSha256='retained-original-producer',
+                status='admitted',sourceReconciled=True,graphConforms=True,populationComplete=True)
+            for suffix,key in (('.source.json','sourceCensusSha256'),
+                    ('.shapes.ttl','shapeSha256'),('.report.ttl','reportSha256')):
+                artifact=admission.with_suffix(suffix);artifact.write_text('retained evidence')
+                proof[key]=H.sha(artifact)
+            H.atomic(admission,proof)
+            value=dict(H.read(marker),rawSha256=witness['sha256'],runnerHistoryAdmission=str(admission),
+                runnerHistoryAdmissionSha256=H.sha(admission))
+            H.atomic(marker,value)
+            prior_bytes=admission.read_bytes();api=SimpleNamespace(**vars(H))
+            with patch.object(H.I,'validated_promotion_record',return_value=promotion), \
+                    patch.object(D,'boundary_admission') as boundary,patch.object(D,'source') as source:
+                record=D.inspect_record(api,state,marker,H.read(H.SELECTION),{})
+                self.assertEqual(record['reason'],'existing-complete-history')
+                self.assertEqual(record['retainedHistoryAdmission']['implementationSha256'],
+                    'retained-original-producer')
+                self.assertNotIn('boundaryAdmission',record)
+                previous=dict(status='selected',case={'gamePk':'824087','repairRequestSha256':'original'})
+                resumed=D.inspect_record(api,state,marker,H.read(H.SELECTION),previous)
+                self.assertEqual(resumed['status'],'selected');self.assertEqual(resumed['case'],previous['case'])
+                source.assert_not_called();boundary.assert_not_called()
+                self.assertEqual(admission.read_bytes(),prior_bytes)
+                for change,message in (({'authoritativeRdfSha256':'other'},'another graph'),
+                        ({'sourceSha256':'unbound'},'unbound source'),
+                        ({'reportSha256':'changed'},'artifact changed')):
+                    with self.subTest(change=change):
+                        H.atomic(admission,{**proof,**change});value['runnerHistoryAdmissionSha256']=H.sha(admission)
+                        with self.assertRaisesRegex(ValueError,message):
+                            D.retained_history_admission(api,state,marker,value)
+                H.atomic(admission,proof)
+                with self.assertRaisesRegex(ValueError,'admission changed'):
+                    D.retained_history_admission(api,state,marker,value)
+                for change in ({'status':'withheld'},{'populationComplete':False},
+                        {'graphConforms':False},{'sourceReconciled':False}):
+                    with self.subTest(change=change):
+                        H.atomic(admission,{**proof,**change});value['runnerHistoryAdmissionSha256']=H.sha(admission)
+                        self.assertIsNone(D.retained_history_admission(api,state,marker,value))
+
     def test_admitted_boundaries_skip_source_and_missing_legacy_manifest(self):
         with tempfile.TemporaryDirectory() as temp:
             state=Path(temp);_,_,manifest,_,_=self.setup_case(state)
