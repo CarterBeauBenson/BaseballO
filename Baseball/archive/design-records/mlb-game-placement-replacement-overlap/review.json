@@ -1,0 +1,45 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-placement-replacement-overlap",
+  "title": "O1 targeted placement/replacement overlap repair",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "f74bfe870f2705c0754167ba393b46f5b339d2e08db3fde4f5b2ba777bd00d1b"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "README.md",
+        "sha256": "f74bfe870f2705c0754167ba393b46f5b339d2e08db3fde4f5b2ba777bd00d1b"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "field-selection-inventory.md",
+        "sha256": "8d33137c5c367f39180197fc7b10e01eb5d3462c541b92cba6c45a9d15888863"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "626a713474a1d4ee05c75ae038efdf502d92ec16b30d283a666cafc3e128a7f6"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-10-04",
+    "rationale": "The user explicitly answered: Approve O1 targeted repair and review record. Apply the prepared placement-to-pinch-runner overlap repair in 823350, five missing histories and existing dependencies; record required reviewed-pattern references and update only the context hash. Existing C3 meanings and timestamps are preserved, no ontology terms or object properties, no full rebuild.",
+    "authorizedArtifacts": [
+      "Baseball/scripts/pipeline/prepare-rml-context.py",
+      "Baseball/governance/semantic-freeze.json"
+    ]
+  }
+}
