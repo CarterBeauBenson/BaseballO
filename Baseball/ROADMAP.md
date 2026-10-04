@@ -49,7 +49,13 @@ distinguishes that execution backlog from the documented source/modeling limits.
 The [normal-ingestion follow-through](sources/mlb-game/review/rml-audit-2026-10-03.md#normal-ingestion-follow-through-october-4)
 verifies the recent repairs through production RML with different game identities
 and removes an administrative-placement-to-physical-occupancy inference from
-the shared context builder. Future games receive these fixes through ordinary ingestion.
+the shared context builder. The [further diagnosis](sources/mlb-game/review/rml-audit-2026-10-03.md#further-diagnosis-october-4)
+adds six open plan items: align the stale automatic-runner check; fix 831629's
+game-end clock preceding its last pitch; isolate supported D1 acts from Q6
+completeness limits; bind game RML execution to its exact code snapshot; stop
+unrelated changes reopening history inspection; and make recurrence tests
+independent of retired runtime inputs. Execute in that order while existing
+history work continues. These are diagnosed next steps, not completed repairs.
 Continue independent metric work over valid RDF.
 
 The October 2 RML repair snapshot is covered by
