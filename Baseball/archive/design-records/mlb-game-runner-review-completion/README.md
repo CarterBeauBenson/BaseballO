@@ -1,6 +1,6 @@
 # H4: complete two supported runner-review selections
 
-**Review-only candidate. The active context and RDF are unchanged.**
+**Accepted by Carter Beau Benson on October 4, 2026: "Approve H4". This decision is recorded before activation.**
 
 Two retained games still lose supported histories because the selector rejects
 their final reviewed source records. This repairs source selection within the
@@ -18,7 +18,7 @@ episode allocations must remain unchanged. The second game's boundary source
 then fully reconciles; its existing boundary maps may add missing supported
 PA-start facts after the owning SHACL passes.
 
-## Decisions requested
+## Accepted decision
 
 Approve H4's two selection repairs and only their affected context fingerprints
 in the existing semantic freeze/runtime pins. Execute additive repairs for the
@@ -41,7 +41,7 @@ existing NiFi owners. No API reacquisition, whole-game replacement or rebuild.
   incomplete-source limits remain unchanged.
 
 The source-independent structure is the accepted
-[C3 mapping contract](../../archive/design-records/mlb-game-runner-boundary-anchors/mapping-contract.md)
-and [H3 review contract](../../sources/mlb-game/review/rml-selection-repair-2026-10-01.md).
+[C3 mapping contract](../mlb-game-runner-boundary-anchors/mapping-contract.md)
+and [H3 review contract](../../../sources/mlb-game/review/rml-selection-repair-2026-10-01.md).
 `selection.patch` is the exact candidate change; `check.py` tests it in a
 temporary module. It does not activate the candidate or write live RDF.

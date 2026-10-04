@@ -25,6 +25,11 @@ their rejection rationale so they cannot be accidentally revived.
 
 ## Recent accepted decisions
 
+[H4 runner-review completion](../archive/design-records/mlb-game-runner-review-completion/README.md)
+was accepted on October 4, including its scoped context-pin update. It repairs
+two completed-review selections and authorizes eight missing histories and
+supported boundary dependencies through existing additive NiFi owners.
+
 [W3 final award selection](../archive/design-records/mlb-game-final-award-selection/README.md)
 was accepted on October 3: two reviewed hit-by-pitches and three intentional
 walks receive only their missing existing award/dependency facts. Activation
@@ -112,13 +117,6 @@ pass is archived as
 [`FINAL-MLB-RML-REVIEW.md`](../archive/design-records/FINAL-MLB-RML-REVIEW.md).
 
 ## Active reviews
-
-[H4 runner-review completion](mlb-game-runner-review-completion/README.md)
-is a review-only repair for a completed HBP review ending in a foul-tip strike
-and a reviewed catcher pickoff with a C3 association anchor. Its two retained
-cases recover eight missing histories using accepted terms and identities.
-The active context and semantic pins remain unchanged pending named acceptance.
-
 
 The packages below are all **under review** with a null ontologist decision.
 They are design-only and authorize no ontology, RML, SHACL, acquisition, RDF,

@@ -1,0 +1,59 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-runner-review-completion",
+  "title": "H4 completed runner reviews and C3 catcher-pickoff selection",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "a7f5433d1c35ed4bc50e7533403189d421d94e786148a1090a53d5aa036420c7"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "README.md",
+        "sha256": "a7f5433d1c35ed4bc50e7533403189d421d94e786148a1090a53d5aa036420c7"
+      },
+      {
+        "path": "evidence.json",
+        "sha256": "9c31c728311ffff433f450f6ff2870572320487a8eaa7f4d9d6d72f52781ddbf"
+      },
+      {
+        "path": "selection.patch",
+        "sha256": "ad925ef8ea093b8db31e0d57810bb9fff17956aad02882a1acb50969b755f478"
+      },
+      {
+        "path": "check.py",
+        "sha256": "add0477c67b878b4f409325c37e1b04f81ccd7f99cec99c28966094a6383e746"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "a7f5433d1c35ed4bc50e7533403189d421d94e786148a1090a53d5aa036420c7"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "99887e9efd3b2fffe707ccc4071fcf52f6bab8ac5dde215e0f2e58c4613d2018"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-10-04",
+    "rationale": "The user explicitly said \"Approve H4\". Activate the exact completed foul-tip/HBP review and catcher-pickoff selection repairs, update only affected context fingerprints, and add the eight missing histories and supported dependencies/boundary facts through existing NiFi owners. Preserve unrelated RDF; no new vocabulary, source acquisition or rebuild.",
+    "authorizedArtifacts": [
+      "Baseball/scripts/pipeline/prepare-rml-context.py",
+      "Baseball/sources/mlb-game/review/semantic-status.json",
+      "Baseball/sources/mlb-game/review/rml-mermaid-manifest.json",
+      "Baseball/governance/semantic-freeze.json"
+    ]
+  }
+}
