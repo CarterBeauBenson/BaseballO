@@ -134,10 +134,14 @@ def observe(state,owner):
     awaiting_source=sorted(pk for pk,r in discovery.items() if r.get('status')=='awaiting-source')
     pending=len(uninspected)+len(stale)+len(selected_pending)+len(fixed_pending)+len(awaiting_source)+active
     coverage=dict(unresolvedDefensiveSources=unresolved,unavailableHistoryEvidence=unavailable,
+        legacyHistoryEvidenceUnresolved=[dict(gamePk=pk,**records['history-addition'][pk]['historyEvidence'])
+            for pk,row in sorted(discovery.items()) if row.get('case',{}).get('legacyHistoryEvidence')
+            and records['history-addition'].get(pk,{}).get('historyEvidence',{}).get('status')=='withheld'],
         defensiveSourceEvidence=[dict(sourcePath=path,**{key:row[key] for key in
             ('gamePk','sha256','error','sourceIssues','sourceRevision') if key in row})
             for path,row in sorted(defensive.get('inputs',{}).items()) if row.get('status')=='unresolved-source'])
-    attention=bool(issues or errors or unresolved or unavailable or quarantine_pending or missing_promotion)
+    attention=bool(issues or errors or unresolved or unavailable or coverage['legacyHistoryEvidenceUnresolved']
+        or quarantine_pending or missing_promotion)
     return dict(artifactType='baseballo-mlb-game-repair-status',checkedAtUtc=owner.TX.now(),
         status='attention-required' if attention else 'inspection-in-progress' if pending else
             'recorded-work-clear' if latest else 'no-promotion-evidence',

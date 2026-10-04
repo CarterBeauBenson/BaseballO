@@ -808,31 +808,8 @@ def validate_shacl_profiles() -> int:
 
 def validate_sparql() -> int:
     files = list(SPARQL_ROOT.rglob("*.rq"))
-    component_files = list((SPARQL_ROOT / "query-index" / "components").glob("*.rq"))
-    benchmark_files = list((SPARQL_ROOT / "query-index" / "benchmarks" / "indexed").glob("*.rq"))
-    advanced_files = list(ADVANCED_QUERY_ROOT.glob("*.rq"))
-    serving_files = list((SPARQL_ROOT / "serving").glob("*.rq"))
-    canned_files = [
-        path for path in files
-        if path not in component_files
-        and path not in benchmark_files
-        and path not in advanced_files
-        and path not in serving_files
-    ]
-    if (
-        len(canned_files) != 51
-        or len(component_files) != 13
-        or len(benchmark_files) != 19
-        or len(advanced_files) != 17
-        or len(serving_files) != 6
-    ):
-        raise ValueError(
-            "Expected 51 canned SPARQL queries, 13 query-index components, "
-            "19 indexed benchmark companions, 17 advanced semantic queries, "
-            "and six serving materialization queries; "
-            f"found {len(canned_files)}, {len(component_files)}, "
-            f"{len(benchmark_files)}, {len(advanced_files)}, and {len(serving_files)}"
-        )
+    # validate_query_source_scopes owns exact inventory and source ownership.
+    # Syntax checking must include every query without a second, stale quota.
     for path in files:
         try:
             prepareQuery(path.read_text(encoding="utf-8"))

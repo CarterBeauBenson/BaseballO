@@ -82,6 +82,40 @@ class PaResolution(unittest.TestCase):
                 self.assertNotEqual(source['batting']['sourceSha256'],promotion['rawSha256'])
                 source_path.write_bytes(raw+b' ')
                 with self.assertRaisesRegex(ValueError,'witness changed'):P.retained_source(E,root,promotion)
+                alternate=root/'another-retained-copy.json';alternate.write_bytes(raw)
+                source_path.unlink()
+                recovered=dict(kind='retained-source-response',path=str(alternate),sha256=E.sha(alternate))
+                with patch.object(E,'retained_raw_witness',return_value=recovered):
+                    source,witnesses=P.retained_source(E,root,promotion)
+                    self.assertEqual(witnesses[1]['path'],str(alternate))
+                    self.assertEqual(witnesses[1]['originalWitness'],witness)
+
+    def test_retired_raw_uses_exact_retained_batting_census_or_stays_unavailable(self):
+        from test_admission_evidence import E
+        _,source,_=self.fixture()
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);paths={name:state/(name+'.json') for name in ('c2','b1')}
+            for name,key in (('c2','resolution'),('b1','batting')):
+                E.atomic(paths[name].with_suffix('.source.json'),source[key])
+            resolution=dict(sourceSha256='source',implementationSha256='c2',
+                retainedSourceEvidence=dict(path=str(state/'retired.json'),sha256='source'))
+            batting=dict(sourceSha256='source',implementationSha256='b1',
+                sourceCensusSha256=E.sha(paths['b1'].with_suffix('.source.json')))
+            def load(evidence,state,promotion,family,adapter):
+                return resolution if family=='runner-resolution' else batting
+            with patch.object(E,'checked_marker',return_value={}), \
+                 patch.object(E,'retained_raw_witness',return_value=None), \
+                 patch.object(E.EXISTING_GRAPH,'load',side_effect=load), \
+                 patch.object(E,'refresh_path',side_effect=lambda state,promotion,kind,version:paths[kind]):
+                retained,witnesses=P.retained_source(E,state,dict(gamePk='1'))
+                self.assertEqual(retained,source)
+                self.assertTrue(all(Path(w['path']).is_file() for w in witnesses))
+                batting['sourceSha256']='another-response'
+                self.assertIsNone(P.retained_source(E,state,dict(gamePk='1')))
+                batting['sourceSha256']='source'
+                E.atomic(paths['b1'].with_suffix('.source.json'),{})
+                with self.assertRaisesRegex(ValueError,'census changed'):
+                    P.retained_source(E,state,dict(gamePk='1'))
 
 
 if __name__=='__main__':unittest.main()

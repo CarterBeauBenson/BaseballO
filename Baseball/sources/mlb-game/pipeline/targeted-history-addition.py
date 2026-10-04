@@ -410,9 +410,15 @@ def add_game(state, game_pk, java, mapper, classpath):
         # graph through its owner; do not manufacture a delta or remap the game.
         outcomes=admission.refresh_existing_graph(state,promotion,witness,java,classpath,
             'http://127.0.0.1:3031/baseball-dev/query')
+        history_evidence={}
+        if case.get('legacyHistoryEvidence'):
+            adapter=admission.module(HERE/'runner-boundary-admission.py','legacy_history_boundary')
+            proof=admission.load(adapter,state,promotion,'runner-boundary')
+            history_evidence['historyEvidence']={k:proof[k] for k in
+                ('status','issues','proofSha256','implementationSha256') if k in proof}
         EVENT.emit(state,marker_path)
         return dict(status='evidence-refreshed',rdfChanged=False,addedHistories=0,selectedHistoryKeys=[],
-            sourceWitness=witness,admissionOutcomes={family:status for _,family,status in outcomes})
+            sourceWitness=witness,admissionOutcomes={family:status for _,family,status in outcomes},**history_evidence)
     history, delta_context = select_history(manifest, case, raw)
     run = uuid.uuid4().hex
     evidence = state / 'pipeline/evidence/mlb-game' / game_pk / run

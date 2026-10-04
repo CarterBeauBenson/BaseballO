@@ -12,6 +12,43 @@ D=H.DISCOVERY
 
 
 class HistoryRepairDiscovery(unittest.TestCase):
+    def test_named_legacy_gap_queues_only_existing_graph_evidence_without_inventing_census(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);_,_,manifest,promotion,witness=self.setup_case(state)
+            H.atomic(manifest,{})
+            marker=state/'pipeline/evidence/nifi/game-promotion/824087/marker.json'
+            value=H.read(marker);value['rmlManifestSha256']=H.sha(manifest);H.atomic(marker,value)
+            promotion['promotionManifestSha256']=H.sha(marker)
+            contract=H.read(H.SELECTION);contract['legacyEvidenceGames']=['824087']
+            api=SimpleNamespace(**vars(H));api.SELECTION=state/'selection.json';H.atomic(api.SELECTION,contract)
+            with patch.object(H.I,'retained_artifact',return_value=manifest), \
+                    patch.object(H.I,'validated_promotion_record',return_value=promotion), \
+                    patch.object(D,'source',return_value=witness), \
+                    patch.object(H.H.CONTEXT,'personal_runner_histories') as history, \
+                    patch.object(H,'select_history') as select:
+                self.assertEqual(D.discover(api,state,set()),'824087')
+                case=D.cases(api,state)[0]
+                self.assertTrue(case['legacyHistoryEvidence'])
+                self.assertEqual(case['selectedHistoryKeys'],[])
+                self.assertEqual(case['inputSha256'],promotion['rawSha256'])
+                self.assertTrue(H.read(Path(case['repairRequest']))['legacyHistoryEvidence'])
+                self.assertEqual(H.read(manifest),{})
+                history.assert_not_called();select.assert_not_called()
+                contract['legacyEvidenceGames']=[]
+                record=D.inspect_record(api,state,marker,contract,{})
+                self.assertEqual(record['status'],'retained-history-census-unavailable')
+
+    def test_legacy_evidence_without_retained_source_never_acquires_api_input(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);request=state/'request.json'
+            promotion=dict(gamePk='822864',promotionManifestSha256='promotion')
+            H.atomic(request,dict(gamePk='822864',promotionManifestSha256='promotion',legacyHistoryEvidence=True))
+            api=SimpleNamespace(**vars(H));api.module=lambda *a:SimpleNamespace(retained_raw_witness=lambda *a:None)
+            with patch.object(D.urllib.request,'urlopen') as acquire:
+                with self.assertRaisesRegex(FileNotFoundError,'no retained source witness'):
+                    D.source(api,state,promotion,request)
+                acquire.assert_not_called()
+
     def setUp(self):
         self.boundary_loader=D.boundary_admission
         version=D.fingerprint(SimpleNamespace(**vars(H)))

@@ -317,7 +317,8 @@ class AdmissionEvidence(unittest.TestCase):
         foul=record.get('foulPrefixRepair')
         selection=record.get('foulDefenseSelectionRepair')
         error_prefix=record.get('errorCountPrefixRepair')
-        current=error_prefix or selection or foul or history or groundout or compound or walk
+        batter_chain=record.get('prePitchBatterChain')
+        current=batter_chain or error_prefix or selection or foul or history or groundout or compound or walk
         if compound:
             now=(subprocess.check_output(['git','-C',str(ROOT.parent),'show',
                 groundout['baselineCommit']+':Baseball/'+record['contextPath']]) if groundout
@@ -386,7 +387,9 @@ class AdmissionEvidence(unittest.TestCase):
                 self.assertIsNone(E.code_equivalence(family,'unknown',entry['currentImplementationSha256']))
                 self.assertIsNone(E.code_equivalence(family,entry['previousImplementationSha256'],'unknown'))
         if error_prefix:
-            live=(ROOT/record['contextPath']).read_bytes()
+            live=(subprocess.check_output(['git','-C',str(ROOT.parent),'show',
+                batter_chain['baselineCommit']+':Baseball/'+record['contextPath']]) if batter_chain
+                else (ROOT/record['contextPath']).read_bytes())
             self.assertEqual(hashlib.sha256(candidate).hexdigest(),error_prefix['previousContextSha256'])
             self.assertEqual(hashlib.sha256(live).hexdigest(),error_prefix['currentContextSha256'])
             def outside_error_prefix(raw):
@@ -394,10 +397,23 @@ class AdmissionEvidence(unittest.TestCase):
                 return ast.dump(tree)
             self.assertEqual(outside_error_prefix(candidate),outside_error_prefix(live))
             for family,entry in error_prefix['families'].items():
-                reuse=E.code_equivalence(family,entry['previousImplementationSha256'],entry['currentImplementationSha256'])
+                reuse=E.code_equivalence(family,entry['previousImplementationSha256'],entry['currentImplementationSha256'],
+                    _context=error_prefix['currentContextSha256'])
                 self.assertEqual(reuse['kind'],entry['reuseKind'])
                 self.assertIsNone(E.code_equivalence(family,'unknown',entry['currentImplementationSha256']))
                 self.assertIsNone(E.code_equivalence(family,entry['previousImplementationSha256'],'unknown'))
+        if batter_chain:
+            updated=(ROOT/record['contextPath']).read_bytes()
+            self.assertEqual(hashlib.sha256(live).hexdigest(),batter_chain['previousContextSha256'])
+            self.assertEqual(hashlib.sha256(updated).hexdigest(),batter_chain['currentContextSha256'])
+            def outside_batter_chain(raw):
+                tree=ast.parse(raw);tree.body=[n for n in tree.body if getattr(n,'name',None) not in
+                    {'counted_foul_initial_batter_chain','counted_foul_neutral_event'}]
+                return ast.dump(tree)
+            self.assertEqual(outside_batter_chain(live),outside_batter_chain(updated))
+            for family,entry in batter_chain['families'].items():
+                self.assertIsNotNone(E.code_equivalence(family,entry['previousImplementationSha256'],entry['currentImplementationSha256']))
+                self.assertIsNone(E.code_equivalence(family,'unknown',entry['currentImplementationSha256']))
         for family,entry in walk['families'].items():
             adapter=E.module(E.HERE/(family+'-admission.py'),'w1_'+family.replace('-','_'))
             self.assertEqual(adapter.fingerprint(),current['families'][family]['currentImplementationSha256'])
@@ -408,14 +424,14 @@ class AdmissionEvidence(unittest.TestCase):
             self.assertEqual(E.EXISTING_GRAPH.fingerprint(E,adapter),independent['currentImplementationSha256'])
             self.assertEqual(walk['independentProofs'][family]['previousSourceProducerSha256'],entry['previousImplementationSha256'])
         for kind,adapter in [('players',E.PLAYER_PARTICIPATION),('pa',E.PLAYER_PARTICIPATION.PA),('c2pa',E.PA_RESOLUTION)]:
-            entry=(error_prefix['derivedProofs'][kind] if error_prefix else selection['derivedProofs'][kind] if selection else foul['derivedProofs'][kind] if foul else history['derivedProofs'][kind] if history else
+            entry=(batter_chain['derivedProofs'][kind] if batter_chain else error_prefix['derivedProofs'][kind] if error_prefix else selection['derivedProofs'][kind] if selection else foul['derivedProofs'][kind] if foul else history['derivedProofs'][kind] if history else
                 record.get('retainedCompoundExpectations',{}).get('derivedProofs',{}).get(kind,current['derivedProofs'][kind]))
             self.assertEqual(adapter.fingerprint(),entry['currentImplementationSha256'])
             self.assertEqual(E.prior_versions(kind,adapter.fingerprint()),entry['previousImplementationSha256s'])
             self.assertEqual(E.prior_versions(kind,'unknown'),[])
 
     def test_expanded_selection_does_not_reuse_an_older_negative_independent_proof(self):
-        record=E.read(E.COMPATIBILITY_PATH)['errorCountPrefixRepair']
+        record=E.read(E.COMPATIBILITY_PATH)['prePitchBatterChain']
         with tempfile.TemporaryDirectory() as temporary:
             state=Path(temporary);promotion=dict(gamePk='1',promotionManifestSha256='retained')
             for family in ('runner-resolution','pitch-count','runner-boundary','defensive'):

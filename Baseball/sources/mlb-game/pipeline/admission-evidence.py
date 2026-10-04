@@ -73,7 +73,7 @@ def code_equivalence(family,previous,current,*,_context=None):
     compound=record.get('compoundResultRepair',{})
     groundout=record.get('defensiveGroundoutRepair',{})
     context=_context or sha(ROOT/record['contextPath'])
-    for repair_name in ('errorCountPrefixRepair','foulDefenseSelectionRepair'):
+    for repair_name in ('prePitchBatterChain','errorCountPrefixRepair','foulDefenseSelectionRepair'):
         selection=record.get(repair_name,{})
         bridge=selection.get('families',{}).get(family)
         if (bridge and context==selection.get('currentContextSha256')
@@ -185,7 +185,7 @@ def prior_versions(kind,current):
     and must be checked again; this is never approval of W1's missing facts.
     """
     record=read(COMPATIBILITY_PATH)
-    for repair_name in ('errorCountPrefixRepair','foulDefenseSelectionRepair'):
+    for repair_name in ('prePitchBatterChain','errorCountPrefixRepair','foulDefenseSelectionRepair'):
         selection=record.get(repair_name,{})
         entry=selection.get('derivedProofs',{}).get(kind,{})
         if (entry.get('currentImplementationSha256')==current

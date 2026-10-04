@@ -82,6 +82,8 @@ def source(owner,state,promotion,request_path):
         return witness
     evidence=owner.module(owner.HERE/'admission-evidence.py','history_discovery_evidence')
     retained=None if recovery else evidence.retained_raw_witness(state,promotion)
+    if request.get('legacyHistoryEvidence') and retained is None:
+        raise FileNotFoundError('Legacy history evidence recovery has no retained source witness')
     url=f'https://statsapi.mlb.com/api/v1.1/game/{pk}/feed/live'
     origin=(owner.read(intent) if intent.is_file() else dict(
         kind='retained-response-copy' if retained else 'targeted-reacquisition',
@@ -114,6 +116,7 @@ def fingerprint(owner):
     return owner.hashlib.sha256(inspect.getsource(inspect_record).encode()+
         inspect.getsource(boundary_admission).encode()+
         inspect.getsource(owner.select_history).encode()+
+        owner.json.dumps(owner.read(owner.SELECTION).get('legacyEvidenceGames',[])).encode()+
         b''.join((owner.HERE/name).read_bytes() for name in proof_inputs)+
         (owner.ROOT/'scripts/pipeline/validate-shacl.py').read_bytes()+
         (owner.HERE.parent/'shacl/runner-boundary-admission.ttl').read_bytes()+
@@ -148,13 +151,15 @@ def inspect_record(owner,state,marker_path,contract,previous):
     if not manifest_path.is_file() or owner.sha(manifest_path)!=marker['rmlManifestSha256']:
         return dict(record,status='retained-manifest-unavailable')
     original=owner.read(manifest_path).get('runnerHistoryReconciliation')
-    if not original:return dict(record,status='retained-history-census-unavailable')
-    if not (original.get('sourceConsistency')=='consistent'
+    legacy=not original and pk in contract.get('legacyEvidenceGames',[])
+    if not original and not legacy:return dict(record,status='retained-history-census-unavailable')
+    if not legacy and not (original.get('sourceConsistency')=='consistent'
             and (original.get('withheldHistories') or original.get('boundaryIssues'))):return record
     request=dict(gamePk=pk,promotionManifestSha256=record['identity'][0],
         rmlManifestSha256=marker['rmlManifestSha256'],contextBuilderSha256=contract['contextBuilderSha256'],
         scopeDecision=SCOPE,historyFailures=[dict(inning=r['inning'],half=r['half'],issues=r['issues'])
-            for r in original.get('withheldHistories',[])],boundaryIssues=original.get('boundaryIssues',[]))
+            for r in (original or {}).get('withheldHistories',[])],boundaryIssues=(original or {}).get('boundaryIssues',[]))
+    if legacy:request['legacyHistoryEvidence']=True
     request_key=owner.hashlib.sha256(owner.json.dumps(request,sort_keys=True,separators=(',',':')).encode()).hexdigest()
     request_path=inventory_path(state).parent/pk/(request_key+'.json')
     if not request_path.is_file():owner.atomic(request_path,request)
@@ -187,7 +192,7 @@ def inspect_promotions(owner,state,excluded,limit=100):
     if owner.sha(owner.ROOT/'scripts/pipeline/prepare-rml-context.py')!=contract['contextBuilderSha256']:
         raise ValueError('History discovery context differs from accepted H3')
     directories=sorted((state/'pipeline/evidence/nifi/game-promotion').glob('*'),
-        key=lambda p:(p.name in data['games'],p.name))
+        key=lambda p:(p.name not in contract.get('legacyEvidenceGames',[]),p.name in data['games'],p.name))
     for directory in directories:
         pk=directory.name
         if not directory.is_dir() or not pk.isdecimal() or pk in excluded:continue
@@ -214,9 +219,11 @@ def discover(owner,state,excluded,limit=25):
         return (record.get('status')=='failed' and not record.get('sourceRecovery')
             and record.get('diagnostics',{}).get('kind')=='retained-history-conflict'
             and record.get('sourceWitness',{}).get('kind')=='retained-response-copy')
+    legacy_games=set(owner.read(owner.SELECTION).get('legacyEvidenceGames',[]))
     pending=sorted(((pk,r) for pk,r in data['games'].items()
         if pk not in excluded and (r.get('status')=='awaiting-source' or recoverable(r))),
-        key=lambda item:(not recoverable(item[1]),item[1].get('queuedAtUtc',item[1]['checkedAtUtc']),item[0]))
+        key=lambda item:(not recoverable(item[1]),item[0] not in legacy_games,
+            item[1].get('queuedAtUtc',item[1]['checkedAtUtc']),item[0]))
     version=fingerprint(owner)
     for pk,record in pending:
         if record['identity'][1]!=version and not recoverable(record):continue
@@ -233,9 +240,12 @@ def discover(owner,state,excluded,limit=25):
             promotion=owner.I.validated_promotion_record(state,marker_path,pk,owner.I.query_index_contract_admission())
             manifest_path=owner.I.retained_artifact(state,pk,marker['rmlManifestSha256'],Path(marker['rmlManifest']))
             if owner.sha(manifest_path)!=marker['rmlManifestSha256']:raise ValueError('Retained history manifest changed')
-            manifest=owner.read(manifest_path);original=manifest['runnerHistoryReconciliation']
+            manifest=owner.read(manifest_path);original=manifest.get('runnerHistoryReconciliation')
             request_path=Path(record['repairRequest'])
             if owner.sha(request_path)!=record['repairRequestSha256']:raise ValueError('Recorded history repair request changed')
+            legacy=owner.read(request_path).get('legacyHistoryEvidence') is True
+            if legacy and (original or pk not in legacy_games):
+                raise ValueError('Legacy evidence request differs from its named missing-census scope')
             if recoverable(record):
                 prior_request=request_path
                 request=dict(owner.read(prior_request),recoverRetainedSourceSha256=record['sourceWitness']['sha256'])
@@ -256,15 +266,19 @@ def discover(owner,state,excluded,limit=25):
             witness=source(owner,state,promotion,request_path)
             record.update(sourceWitness=witness,identity=[record['identity'][0],version])
             raw=Path(witness['path']).read_bytes()
-            history=owner.H.CONTEXT.personal_runner_histories(raw)
-            owner.H.CONTEXT.verify_runner_history_correction(history,original)
-            previous={h['lifetimeKey'] for h in original['histories']}
-            selected=[h for h in history['histories'] if h['lifetimeKey'] not in previous]
-            case=dict(gamePk=pk,selectionRepair='H3',discovered=True,inputSha256=original['inputSha256'],
+            if legacy:
+                selected=[]  # Evidence-only: no old census, no RML selection.
+            else:
+                history=owner.H.CONTEXT.personal_runner_histories(raw)
+                owner.H.CONTEXT.verify_runner_history_correction(history,original)
+                previous={h['lifetimeKey'] for h in original['histories']}
+                selected=[h for h in history['histories'] if h['lifetimeKey'] not in previous]
+            case=dict(gamePk=pk,selectionRepair='H3',discovered=True,inputSha256=promotion['rawSha256'] if legacy else original['inputSha256'],
                 sourceSha256=witness['sha256'],sourceWitness=witness,promotionManifestSha256=record['identity'][0],
                 selectedHistoryKeys=sorted(h['lifetimeKey'] for h in selected),
                 halves=[dict(inning=i,half=h) for i,h in sorted({(int(h['inning']),h['half']) for h in selected})],
                 repairRequest=str(request_path),repairRequestSha256=owner.sha(request_path))
+            if legacy:case['legacyHistoryEvidence']=True
             if selected:owner.select_history(manifest,case,raw)
             record.update(status='selected',case=case,checkedAtUtc=owner.TX.now())
             for key in ('error','diagnostics','diagnosticError'):record.pop(key,None)

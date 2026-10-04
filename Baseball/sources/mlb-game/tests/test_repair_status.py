@@ -47,19 +47,24 @@ class RepairStatus(unittest.TestCase):
             state=Path(temp);control=state/'pipeline/control/mlb-game'
             write(control/'foul-addition/1.json',dict(status='partial',unresolvedFouls=[dict(reason='UNEXPLAINED_COUNTER_TRANSITION')]))
             write(control/'history-addition/2.json',dict(status='complete',repairRequestSha256='old'))
+            write(control/'history-addition/6.json',dict(status='evidence-refreshed',
+                historyEvidence=dict(status='withheld',issues=[dict(code='SOURCE_GRAPH_CONFORMANCE')],proofSha256='proof')))
             write(control/'admission-evidence/5.json',dict(status='current',familyFailures={
                 'player-participation':dict(error='A complete unambiguous roster is required')}))
             write(control/'history-discovery/inventory.json',dict(games={
                 '2':dict(status='selected',case=dict(repairRequestSha256='current')),
+                '6':dict(status='selected',case=dict(legacyHistoryEvidence=True)),
                 '3':dict(status='retained-history-census-unavailable')}))
             source_issue=dict(code='SOURCE_RECONCILIATION',detail='ambiguous source')
             write(control/'defensive-addition/inventory.json',dict(inputs={'input':dict(status='unresolved-source',
                 gamePk='4',sha256='source',sourceIssues=[source_issue])}))
             report=S.observe(state,self.owner())
             self.assertFalse(report['recordedWorkClear']);self.assertEqual(report['status'],'attention-required')
-            self.assertEqual(report['historyDiscovery']['selectedPending'],['2'])
+            self.assertEqual(report['historyDiscovery']['selectedPending'],['2','6'])
             self.assertEqual(report['coverageLimits']['unavailableHistoryEvidence'],['3'])
             self.assertEqual(report['coverageLimits']['unresolvedDefensiveSources'],['4'])
+            self.assertEqual(report['coverageLimits']['legacyHistoryEvidenceUnresolved'],[
+                dict(gamePk='6',status='withheld',issues=[dict(code='SOURCE_GRAPH_CONFORMANCE')],proofSha256='proof')])
             self.assertEqual(report['coverageLimits']['defensiveSourceEvidence'],[
                 dict(sourcePath='input',gamePk='4',sha256='source',sourceIssues=[source_issue])])
             self.assertEqual(report['issues'][0]['unresolvedFouls'][0]['reason'],'UNEXPLAINED_COUNTER_TRANSITION')

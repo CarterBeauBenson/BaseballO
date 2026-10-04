@@ -111,6 +111,32 @@ $handle.Dispose();throw 'Game lock overlapped the Python writer'
                 result=H.add_game(state,'1',None,None,None)
                 self.assertEqual(result['status'],'waiting-for-memory');command.assert_not_called()
 
+    def test_legacy_evidence_refresh_keeps_withheld_result_and_never_maps_or_promotes(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);marker=state/'pipeline/evidence/nifi/game-promotion/1/prior.json'
+            manifest=state/'mapping.json';H.atomic(manifest,{})
+            H.atomic(marker,dict(gamePk='1',promotedAtUtc='now',rmlManifest=str(manifest),rmlManifestSha256=H.sha(manifest)))
+            source=state/'input.json';source.write_bytes(b'original bytes')
+            case=dict(gamePk='1',discovered=True,selectionRepair='H3',selectedHistoryKeys=[],legacyHistoryEvidence=True)
+            witness=dict(path=str(source),sha256=H.sha(source))
+            proof=dict(status='withheld',issues=[dict(code='SOURCE_GRAPH_CONFORMANCE')],proofSha256='proof')
+            admission=SimpleNamespace(existing_graph_refresh_needed=lambda *a:True,
+                refresh_existing_graph=lambda *a:[],module=lambda *a:None,load=lambda *a:proof)
+            with patch.object(H,'cases',return_value=[case]),patch.object(H,'module',return_value=admission), \
+                    patch.object(H.TX,'HttpGraphStore'),patch.object(H.TX,'recover'), \
+                    patch.object(H.I,'validated_promotion_record',return_value={}), \
+                    patch.object(H.I,'query_index_contract_admission',return_value={}), \
+                    patch.object(H.I,'retain_game_artifacts'),patch.object(H.I,'retained_artifact',return_value=manifest), \
+                    patch.object(H.MEMORY,'available_memory',return_value=2*1024**3), \
+                    patch.object(H,'acquire_selection_source',return_value=witness), \
+                    patch.object(H,'command') as mapping,patch.object(H.TX,'prepare') as promotion, \
+                    patch.object(H.EVENT,'emit'):
+                result=H.add_game(state,'1',None,None,None)
+            self.assertEqual(result['historyEvidence'],proof)
+            self.assertEqual(result['status'],'evidence-refreshed');self.assertFalse(result['rdfChanged'])
+            self.assertEqual(source.read_bytes(),b'original bytes');self.assertEqual(H.read(manifest),{})
+            mapping.assert_not_called();promotion.assert_not_called()
+
     def test_named_selection_survives_a_later_manifest_without_expanding_its_scope(self):
         raw=b'current response';digest=H.hashlib.sha256(raw).hexdigest()
         rows=[dict(lifetimeKey=key,inning=1,half='top') for key in ('selected','unrelated')]

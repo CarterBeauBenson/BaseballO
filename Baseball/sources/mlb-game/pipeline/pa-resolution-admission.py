@@ -30,6 +30,26 @@ def retained_source(evidence,state,promotion):
     if independent is not None:
         path=evidence.refresh_path(state,promotion,'c2',independent['implementationSha256'])
         census=path.with_suffix('.source.json');witness=independent['retainedSourceEvidence']
+        if not Path(witness['path']).is_file():
+            retained=evidence.retained_raw_witness(state,dict(promotion,rawSha256=independent['sourceSha256']))
+            if retained and retained['sha256']==independent['sourceSha256']:
+                witness=dict(retained,originalWitness=witness)
+        if not Path(witness['path']).is_file():
+            # Successful promotion retires transient JSON. The independent
+            # B1 check already retained the same response's PA census; reuse
+            # its verified artifact instead of requiring those raw bytes.
+            batting=evidence.EXISTING_GRAPH.load(evidence,state,promotion,'batting',R.B)
+            if batting is None or batting.get('sourceSha256')!=independent['sourceSha256']:
+                return None
+            batting_path=evidence.refresh_path(state,promotion,'b1',batting['implementationSha256']).with_suffix('.source.json')
+            if evidence.sha(batting_path)!=batting.get('sourceCensusSha256'):
+                raise ValueError('Retained independent batting census changed')
+            source=evidence.read(batting_path)
+            if source.get('sourceSha256')!=independent['sourceSha256'] or source.get('gamePk')!=promotion['gamePk']:
+                raise ValueError('Retained independent batting census belongs to another source')
+            return dict(resolution=evidence.read(census),batting=source),[
+                dict(path=str(census),sha256=evidence.sha(census)),
+                dict(path=str(batting_path),sha256=evidence.sha(batting_path))]
         raw=Path(witness['path']).read_bytes()
         if R.B.sha(raw)!=witness['sha256'] or witness['sha256']!=independent['sourceSha256']:
             raise ValueError('Scoped resolution validation witness changed')
