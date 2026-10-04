@@ -1,16 +1,16 @@
 {
-  "$schema": "../../governance/proposal-review.schema.json",
+  "$schema": "../../../governance/proposal-review.schema.json",
   "artifactType": "baseballo-semantic-proposal-review",
   "schemaVersion": 1,
   "proposalId": "mlb-game-prepitch-batter-chain",
   "title": "F7 counted foul after a pre-pitch batter replacement chain",
-  "status": "under-review",
+  "status": "accepted",
   "proposedIris": [],
   "artifacts": {
     "competencyQuestions": [
       {
         "path": "README.md",
-        "sha256": "98be831a49a7ccc8531f0825579b95f4299b5a8427f7edb02ab9b6c8010df019"
+        "sha256": "fc875ad32e0e4a5c799991368282545631ff55fd483c98669ee0006739f6bae7"
       }
     ],
     "sourceEvidence": [
@@ -30,7 +30,7 @@
     "fieldSelectionInventory": [
       {
         "path": "README.md",
-        "sha256": "98be831a49a7ccc8531f0825579b95f4299b5a8427f7edb02ab9b6c8010df019"
+        "sha256": "fc875ad32e0e4a5c799991368282545631ff55fd483c98669ee0006739f6bae7"
       }
     ],
     "sourceIndependentMermaid": [
@@ -40,5 +40,10 @@
       }
     ]
   },
-  "ontologistDecision": null
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-10-03",
+    "rationale": "The user replied \"approve and fix the next problems\" to the pending F7 repair and named-approval explanation. Accepts the prepared F7 selector and its scoped context-pin update, with additive NiFi execution and no new vocabulary or rebuild."
+  }
 }

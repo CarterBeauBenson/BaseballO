@@ -1,6 +1,6 @@
 # F7: counted foul after a pre-pitch batter replacement chain
 
-**Under review. The active context and its protected pin are unchanged.**
+**Accepted by Carter Beau Benson on October 3, 2026. Acceptance is recorded before activation.**
 
 Game **823312**, PA **73**, names Gavin Sheets replacing Miguel Andujar, a
 mound visit and pitching change, then Ramon Laureano replacing Sheets. Every
@@ -39,8 +39,9 @@ disposable candidate module, without running RML or modifying live RDF.
 
 ## Activation scope
 
-Approval must name **F7 and its scoped context-pin update**. Record and publish
-acceptance before activation. Apply only the prepared selector patch and its
+The user approved **F7 and its scoped context-pin update** by replying
+"approve and fix the next problems" to the explicit pending F7 request. Publish
+this acceptance before activation. Apply only the prepared selector patch and its
 corresponding freeze, inventory and exact proof-compatibility references.
 Preserve original proof hashes and statuses; no stale rejection becomes an
 admission. NiFi may add only the selected missing foul and its accepted

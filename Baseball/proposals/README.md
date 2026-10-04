@@ -23,15 +23,11 @@ to continue, lack of objection, or implementation speed. Accepted proposals
 move to `archive/design-records/`; rejected proposals remain archived with
 their rejection rationale so they cannot be accidentally revived.
 
-## Under review
-
-[F7 pre-pitch batter replacement chain](mlb-game-prepitch-batter-chain/README.md)
-addresses game 823312's counted foul after two explicitly linked pinch hitters
-at 0-0 before the first pitch. The candidate and rejection cases pass their
-focused check. Its context selection and scoped pin update await named approval;
-the active context is unchanged.
-
 ## Recent accepted decisions
+
+[F7 pre-pitch batter replacement chain](../archive/design-records/mlb-game-prepitch-batter-chain/README.md)
+was accepted on October 3, including its scoped context-pin update. It addresses
+823312's counted foul using the existing strike pattern and additive owner.
 
 [F6 error-count prefix](../archive/design-records/mlb-game-error-count-prefix/README.md)
 was accepted on October 3, including its scoped context-pin update, for
