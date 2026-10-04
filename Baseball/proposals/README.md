@@ -25,6 +25,11 @@ their rejection rationale so they cannot be accidentally revived.
 
 ## Recent accepted decisions
 
+Pending review: [F8 counted-foul substitutions and paired reviews](mlb-game-foul-substitution-review-completion/README.md)
+selects eight missing strikes in seven games through the existing additive owner.
+Its candidate passes the focused retained-source check; active mappings and
+context pins are unchanged pending named acceptance.
+
 [H4 runner-review completion](../archive/design-records/mlb-game-runner-review-completion/README.md)
 was accepted on October 4, including its scoped context-pin update. It repairs
 two completed-review selections and authorizes eight missing histories and

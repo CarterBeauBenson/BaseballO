@@ -1,0 +1,48 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-foul-substitution-review-completion",
+  "title": "F8 counted-foul substitution and paired-review selection",
+  "status": "under-review",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "bd97a23abf841bd18d7d4cd6f0776877f5aa44241eb7e71f73d75046034e9ef2"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "README.md",
+        "sha256": "bd97a23abf841bd18d7d4cd6f0776877f5aa44241eb7e71f73d75046034e9ef2"
+      },
+      {
+        "path": "evidence.json",
+        "sha256": "9943e437cc50dde574ebd0008cc4c8996f65d02d854e70981c6fbb77bc4044d0"
+      },
+      {
+        "path": "selection.patch",
+        "sha256": "15723c5bb2f764df4dfb726ce108c923081801da9108724e8459e20259d9bb22"
+      },
+      {
+        "path": "check.py",
+        "sha256": "b9e7ee4ae21699d19b8b3d347ac3f01bb68d0ac6663a6c73d0d436caf5431a68"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "bd97a23abf841bd18d7d4cd6f0776877f5aa44241eb7e71f73d75046034e9ef2"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "0fd47e73665ae14801d568bcdab8019ae911a3573a85be7ea3fd1b83c27c7d73"
+      }
+    ]
+  },
+  "ontologistDecision": null
+}

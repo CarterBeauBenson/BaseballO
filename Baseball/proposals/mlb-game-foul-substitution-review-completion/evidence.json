@@ -1,0 +1,184 @@
+{
+  "previousContextSha256": "990ee98708b07d915ccd8035443303b52d9153172fd53b7312b34242917d7583",
+  "candidateContextSha256": "90f6742428ca6c52fb8f73ac368dacb7df680d80d56ff2c8497156ccda7a944c",
+  "cases": [
+    {
+      "gamePk": "823355",
+      "sourceWitness": {
+        "kind": "retained-response",
+        "gamePk": "823355",
+        "path": "C:\\Users\\carte\\OneDrive\\Desktop\\BaseballO\\Baseball\\data\\raw\\samples\\2026-07-25\\823355.json",
+        "sha256": "28d1e32d475646b59908573ebf4ac2f22a4d9d101d90c1e6d7f217e568471751"
+      },
+      "case": {
+        "gamePk": "823355",
+        "selected": [
+          {
+            "atBatIndex": "75",
+            "playId": "fb0e5837-48cf-3dd1-95fd-7dcd48f1d6eb"
+          }
+        ],
+        "sourceCensus": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\evidence\\mlb-game\\823355\\63eeb409b2154dcf8e5fd7cccc4c3b03\\pitch-count-admission.source.json",
+        "sourceCensusSha256": "d9fdadf6c086a9936fe3751b9bc6851876c2ec03d90f9496e2ee40f55c97f41d",
+        "report": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\evidence\\mlb-game\\823355\\63eeb409b2154dcf8e5fd7cccc4c3b03\\pitch-count-admission.report.ttl",
+        "reportSha256": "b3a52037c9e705cd7cdf31e2dce0c28db36e83bef9bee99982cfb5d94e98bf7e",
+        "promotionManifestSha256": "6907b6926a2ee9db3e30dbde9476fc46837dea247f5c9d195e68254c514af0fd",
+        "acquisitionDecision": "archive/design-records/metric-repair-scope-2026-09-30/answers.md"
+      }
+    },
+    {
+      "gamePk": "823396",
+      "sourceWitness": {
+        "kind": "retained-response",
+        "gamePk": "823396",
+        "path": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\quarantine\\mlb-game\\823396\\targeted-history-09fd57052a66ec1d\\input.json",
+        "sha256": "dcf9d2665573663bc4a16c7083dba9c87f21d5ec92401dd564e45a5835077c3a"
+      },
+      "case": {
+        "gamePk": "823396",
+        "selected": [
+          {
+            "atBatIndex": "80",
+            "playId": "58861a44-3c8d-321e-9cd6-946c3857de81"
+          }
+        ],
+        "sourceCensus": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\evidence\\mlb-game\\823396\\775f41dc26344c7fb9ced59605b46597\\pitch-count-admission.source.json",
+        "sourceCensusSha256": "e466e76e5677f4f98eec252bfcf270ae70f8c2caaa79958db1d3d20f19846c81",
+        "report": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\evidence\\mlb-game\\823396\\775f41dc26344c7fb9ced59605b46597\\pitch-count-admission.report.ttl",
+        "reportSha256": "01c226a64772567abac157a31e4e30db73b847f1d650f674391bb5b220f80fb9",
+        "promotionManifestSha256": "c46cff0497e78f17e2b2b9ef95e326ea18cde08a6953b4740068320c7d15159e",
+        "acquisitionDecision": "archive/design-records/metric-repair-scope-2026-09-30/answers.md"
+      }
+    },
+    {
+      "gamePk": "823400",
+      "sourceWitness": {
+        "kind": "retained-response",
+        "gamePk": "823400",
+        "path": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\quarantine\\mlb-game\\823400\\targeted-history-1b8089e37cf59453\\input.json",
+        "sha256": "c77697771b2c34673ff69dc8079b8eef06510fb2ed6ef7c54cffdb1ca805c4a3"
+      },
+      "case": {
+        "gamePk": "823400",
+        "selected": [
+          {
+            "atBatIndex": "78",
+            "playId": "921641df-298b-38ae-bd29-a5d295fd9629"
+          }
+        ],
+        "sourceCensus": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\evidence\\mlb-game\\823400\\96f32cd441e44bd68835c10c82f3bb73\\pitch-count-admission.source.json",
+        "sourceCensusSha256": "46b96dea974a2bac3a4a0d6a8d0490bc57669bc5e42a7392ef90835271161f87",
+        "report": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\evidence\\mlb-game\\823400\\96f32cd441e44bd68835c10c82f3bb73\\pitch-count-admission.report.ttl",
+        "reportSha256": "11702b4fb5ab512e1b7876412c2b54c1866b478190713718e0d5cebbb288c134",
+        "promotionManifestSha256": "43d5ee8e4998a633ed148d6f3a32e16bd6861fd6c077f94baf310f0e623aa6cd",
+        "acquisitionDecision": "archive/design-records/metric-repair-scope-2026-09-30/answers.md"
+      }
+    },
+    {
+      "gamePk": "823420",
+      "sourceWitness": {
+        "kind": "retained-response",
+        "gamePk": "823420",
+        "path": "C:\\Users\\carte\\OneDrive\\Desktop\\BaseballO\\Baseball\\data\\raw\\samples\\2026-08-21\\823420.json",
+        "sha256": "1e41c37e8f9215b2ce6ad04984b96b2fa02237fa8fa3a7cbf1af7797584173ef"
+      },
+      "case": {
+        "gamePk": "823420",
+        "selected": [
+          {
+            "atBatIndex": "38",
+            "playId": "05d3372d-0e0b-3daa-aa59-cd1baeca55da"
+          }
+        ],
+        "sourceCensus": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\evidence\\mlb-game\\823420\\2842a543758c4068a9df287dde14de45\\pitch-count-admission.source.json",
+        "sourceCensusSha256": "c7216990be1e1a20cfff2066255d535d0baf9798e43ece5d4546953d5b39ceb9",
+        "report": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\evidence\\mlb-game\\823420\\2842a543758c4068a9df287dde14de45\\pitch-count-admission.report.ttl",
+        "reportSha256": "0ab7b9803897f026c4f22cacee3265065656a44a290c87dd583f755799a569b1",
+        "promotionManifestSha256": "a9ec76f723a52eb38aa83f576913cb804a3d5024ba8d094c20710673d0e522f7",
+        "acquisitionDecision": "archive/design-records/metric-repair-scope-2026-09-30/answers.md"
+      }
+    },
+    {
+      "gamePk": "823429",
+      "sourceWitness": {
+        "kind": "retained-response",
+        "gamePk": "823429",
+        "path": "C:\\Users\\carte\\OneDrive\\Desktop\\BaseballO\\Baseball\\data\\raw\\samples\\2026-08-05\\823429.json",
+        "sha256": "3435516d89385244059e0e5801214b295a4c4d9b97beea93b5339c476e8ddc64"
+      },
+      "case": {
+        "gamePk": "823429",
+        "selected": [
+          {
+            "atBatIndex": "80",
+            "playId": "7a32a996-c9e3-3748-a679-4b6354f40827"
+          },
+          {
+            "atBatIndex": "93",
+            "playId": "bd890d17-d9f3-32f7-a457-b1a3e816f22f"
+          }
+        ],
+        "sourceCensus": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\evidence\\mlb-game\\823429\\9aa4fd7cd74f48cabe338a2a2fb7d370\\pitch-count-admission.source.json",
+        "sourceCensusSha256": "d836d86f0634fdcbe32cd4e36d4dfe16e8aa5ce3b9dab3f00914bdf6d41bfb86",
+        "report": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\evidence\\mlb-game\\823429\\9aa4fd7cd74f48cabe338a2a2fb7d370\\pitch-count-admission.report.ttl",
+        "reportSha256": "fe5054f3928b96025c632257d47546cb33653e1120e5807f47bff2d2a7d38a63",
+        "promotionManifestSha256": "781b7f7259f264681f69c8c6f342a119373ae950086c54db0dae13cbaa0e4bf6",
+        "acquisitionDecision": "archive/design-records/metric-repair-scope-2026-09-30/answers.md"
+      }
+    },
+    {
+      "gamePk": "823452",
+      "sourceWitness": {
+        "kind": "targeted-reacquisition",
+        "gamePk": "823452",
+        "path": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\quarantine\\mlb-game\\823452\\targeted-foul\\input.json",
+        "sha256": "3abc7ebaf8b939a6c18638fe306cb0906daae12d070bb29db77e8d5579a6c247",
+        "url": "https://statsapi.mlb.com/api/v1.1/game/823452/feed/live",
+        "acquisitionDecision": "archive/design-records/metric-repair-scope-2026-09-30/answers.md",
+        "acquiredAtUtc": "2026-10-04T10:55:41.536476Z"
+      },
+      "case": {
+        "gamePk": "823452",
+        "selected": [
+          {
+            "atBatIndex": "65",
+            "playId": "36015d38-d23c-36d2-8166-ed4028e5218f"
+          }
+        ],
+        "sourceCensus": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\evidence\\mlb-game\\823452\\290812b4b5d2475bb19db9069695b300\\pitch-count-admission.source.json",
+        "sourceCensusSha256": "4408065d803170fdf6b664b8bed0c7cd90ce1fd16b47c36a4e98e8956ee60d6a",
+        "report": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\evidence\\mlb-game\\823452\\290812b4b5d2475bb19db9069695b300\\pitch-count-admission.report.ttl",
+        "reportSha256": "093937c6a942a167e94c200fec0fd3c7e351b7fda8c44c1791f91e247d58076a",
+        "promotionManifestSha256": "97a71f04f6131562eb0e721fd6527bfc16b5ed6e02a5db2d2640dedc02a7d023",
+        "acquisitionDecision": "archive/design-records/metric-repair-scope-2026-09-30/answers.md"
+      }
+    },
+    {
+      "gamePk": "823465",
+      "sourceWitness": {
+        "kind": "targeted-reacquisition",
+        "gamePk": "823465",
+        "path": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\quarantine\\mlb-game\\823465\\targeted-foul\\input.json",
+        "sha256": "42dbc471ca0c8770f8e8a3a9b582461013b8f06209c8d95f2ac96afb05f25a8c",
+        "url": "https://statsapi.mlb.com/api/v1.1/game/823465/feed/live",
+        "acquisitionDecision": "archive/design-records/metric-repair-scope-2026-09-30/answers.md",
+        "acquiredAtUtc": "2026-10-04T12:13:26.008276Z"
+      },
+      "case": {
+        "gamePk": "823465",
+        "selected": [
+          {
+            "atBatIndex": "67",
+            "playId": "c2ae14c9-a000-36c0-b612-2dc72d538283"
+          }
+        ],
+        "sourceCensus": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\evidence\\mlb-game\\823465\\599dc55f37e74299b80f103059921241\\pitch-count-admission.source.json",
+        "sourceCensusSha256": "4d98e099a313f09da9ed755407cd5d1ac3b9909dccc6ac212f07a6779acff158",
+        "report": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\evidence\\mlb-game\\823465\\599dc55f37e74299b80f103059921241\\pitch-count-admission.report.ttl",
+        "reportSha256": "d883a1fbd0f703fe4742e0e480fa29e46b6528c2bdeef63e62eb11fdfa018770",
+        "promotionManifestSha256": "5371d7ef31bdfa66eb5ac9cb3fbc49fa432215fd3e1664a8e0b7c8de54b32da7",
+        "acquisitionDecision": "archive/design-records/metric-repair-scope-2026-09-30/answers.md"
+      }
+    }
+  ]
+}

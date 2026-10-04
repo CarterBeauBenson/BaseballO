@@ -88,6 +88,29 @@ class RepairStatus(unittest.TestCase):
             self.assertFalse(summary['recordedWorkClear'])
             self.assertEqual(p.read_text(),'{')
 
+    def test_current_runner_scope_and_withheld_proof_survive_discovery_refresh(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);control=state/'pipeline/control/mlb-game'
+            marker=state/'pipeline/evidence/nifi/game-promotion/1/marker.json'
+            write(marker,dict(promotedAtUtc='2026-10-04T00:00:00Z'))
+            write(control/'history-discovery/inventory.json',dict(games={
+                '1':dict(status='not-applicable',identity=[S.digest(marker),'worker'])}))
+            runner=SimpleNamespace(repair_cases=lambda:[dict(gamePk='1',scope='new')],
+                completed_case=lambda p,c:p.get('status')=='complete' and p.get('scope')==c['scope'])
+            write(control/'runner-addition/1.json',dict(status='complete',scope='old'))
+            report=S.observe(state,self.owner(),runner)
+            self.assertEqual(report['runnerRepair']['pendingCurrentScope'],['1'])
+            self.assertFalse(report['recordedWorkClear'])
+            write(control/'runner-addition/1.json',dict(status='complete',scope='new'))
+            proof=dict(status='withheld',proofSha256='original')
+            write(control/'history-addition/1.json',dict(status='evidence-refreshed',historyEvidence=proof))
+            report=S.observe(state,self.owner(),runner)
+            self.assertEqual(report['runnerRepair']['pendingCurrentScope'],[])
+            self.assertEqual(report['coverageLimits']['legacyHistoryEvidenceUnresolved'],[dict(gamePk='1',**proof)])
+            self.assertEqual(report['status'],'attention-required')
+            write(control/'history-addition/1.json',dict(status='evidence-refreshed',historyEvidence=dict(status='complete')))
+            self.assertTrue(S.observe(state,self.owner(),runner)['recordedWorkClear'])
+
     def test_foul_diagnostics_preserve_event_counts_and_require_the_exact_witness(self):
         with tempfile.TemporaryDirectory() as temp:
             state=Path(temp);source=state/'pipeline/quarantine/mlb-game/1/repair/input.json'

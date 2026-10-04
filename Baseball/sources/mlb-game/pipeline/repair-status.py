@@ -47,7 +47,7 @@ def foul_source_excerpt(state,pk,record):
         for p in document['liveData']['plays']['allPlays'] if p['atBatIndex'] in indexes]
 
 
-def observe(state,owner):
+def observe(state,owner,runner_owner=None):
     control=state/'pipeline/control/mlb-game';issues=[];errors=[];queues={};records={}
 
     def load(path,default=None):
@@ -110,6 +110,8 @@ def observe(state,owner):
         else:selected_pending.append(pk)
     fixed_pending=sorted({case['gamePk'] for case in owner.cases()
         if not owner.completed_case(records['history-addition'].get(case['gamePk'],{}),case)})
+    runner_pending=sorted({case['gamePk'] for case in runner_owner.repair_cases()
+        if not runner_owner.completed_case(records['runner-addition'].get(case['gamePk'],{}),case)}) if runner_owner else []
 
     defensive_path=control/'defensive-addition/inventory.json'
     defensive=load(defensive_path,{}) if defensive_path.is_file() else {}
@@ -132,11 +134,13 @@ def observe(state,owner):
     active=sum(n for counts in queues.values() for status,n in counts.items()
         if status in {'running','finalizing'} or status.startswith('waiting-'))
     awaiting_source=sorted(pk for pk,r in discovery.items() if r.get('status')=='awaiting-source')
-    pending=len(uninspected)+len(stale)+len(selected_pending)+len(fixed_pending)+len(awaiting_source)+active
+    pending=len(uninspected)+len(stale)+len(selected_pending)+len(fixed_pending)+len(runner_pending)+len(awaiting_source)+active
     coverage=dict(unresolvedDefensiveSources=unresolved,unavailableHistoryEvidence=unavailable,
-        legacyHistoryEvidenceUnresolved=[dict(gamePk=pk,**records['history-addition'][pk]['historyEvidence'])
-            for pk,row in sorted(discovery.items()) if row.get('case',{}).get('legacyHistoryEvidence')
-            and records['history-addition'].get(pk,{}).get('historyEvidence',{}).get('status')=='withheld'],
+        # Discovery is a mutable inspection cache, not the disposition of an
+        # already recorded proof. Keep withheld evidence until its owner updates it.
+        legacyHistoryEvidenceUnresolved=[dict(gamePk=pk,**row['historyEvidence'])
+            for pk,row in sorted(records['history-addition'].items())
+            if row.get('historyEvidence',{}).get('status')=='withheld'],
         defensiveSourceEvidence=[dict(sourcePath=path,**{key:row[key] for key in
             ('gamePk','sha256','error','sourceIssues','sourceRevision') if key in row})
             for path,row in sorted(defensive.get('inputs',{}).items()) if row.get('status')=='unresolved-source'])
@@ -151,6 +155,7 @@ def observe(state,owner):
             uninspectedGames=sorted(uninspected),outdatedInspections=sorted(stale),
             awaitingSource=awaiting_source,
             selectedCompleted=selected_complete,selectedPending=sorted(selected_pending),fixedPending=fixed_pending),
+        runnerRepair=dict(pendingCurrentScope=runner_pending),
         coverageLimits=coverage,issues=issues,observationErrors=errors,
         promotionDirectoriesWithoutMarker=missing_promotion,
         rmlQuarantine=dict(historicalWithLaterPromotion=quarantine_superseded,
@@ -159,7 +164,9 @@ def observe(state,owner):
 
 
 def publish(state,owner):
-    report=observe(state,owner)
+    spec=importlib.util.spec_from_file_location('repair_status_runner',HERE/'targeted-runner-addition.py')
+    runner=importlib.util.module_from_spec(spec);spec.loader.exec_module(runner)
+    report=observe(state,owner,runner)
     path=state/'pipeline/control/mlb-game/repair-status.json';owner.atomic(path,report)
     discovery=report['historyDiscovery']
     return dict(status=report['status'],recordedWorkClear=report['recordedWorkClear'],report=str(path),
