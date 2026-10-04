@@ -98,7 +98,11 @@ def select(raw,game_pk):
     history_keys={r['lifetimeKey'] for r in history['episodeMembership'] if r['atBatIndex'] in selected_pas}
     if 'selectedHistoryKeys' in case:
         named=set(case['selectedHistoryKeys'])
-        if not named<=history_keys:raise ValueError('Named history recovery differs from the retained selection')
+        # Accepted extra-inning placement is a distinct adjudication and can
+        # support a history with no movement. Q7's empty PR histories remain
+        # excluded by the unchanged context owner.
+        supported=history_keys|{r['lifetimeKey'] for r in history['placementAdjudications']}
+        if not named<=supported:raise ValueError('Named history recovery differs from the retained selection')
         history_keys=named
     histories=[h for h in history['histories'] if h['lifetimeKey'] in history_keys]
     membership=[r for r in history['episodeMembership'] if r['lifetimeKey'] in history_keys]
@@ -117,9 +121,10 @@ def select(raw,game_pk):
             episodes.extend(products['runnerEpisodes']);plays.append(item)
     keys={(r['atBatIndex'],r['runnerIndex']) for r in episodes}
     if not dependencies<=keys:raise ValueError('R1 history dependency has no selected existing episode')
-    if not episodes:raise ValueError('R1 has no supported runner rows')
     retained_history=dict(history,histories=histories,episodeMembership=membership,
         placementAdjudications=[r for r in history['placementAdjudications'] if r['lifetimeKey'] in history_keys])
+    if not episodes and not retained_history['placementAdjudications']:
+        raise ValueError('R1 has no supported runner rows or placement adjudications')
     result=dict(context=dict(gamePk=int(game_pk),gameData=dict(venue=doc['gameData']['venue']),
         liveData=dict(plays=dict(allPlays=plays)),
         **{CONTEXT.CONTEXT_KEY:dict(runnerHistoryReconciliation=retained_history)}),

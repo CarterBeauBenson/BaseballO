@@ -1,6 +1,7 @@
 """R1 scope and existing-referent regressions; no live graph mutation."""
 import hashlib
 import importlib.util
+import copy
 import tempfile
 import unittest
 from pathlib import Path
@@ -14,6 +15,26 @@ R=importlib.util.module_from_spec(spec);spec.loader.exec_module(R)
 
 
 class TargetedRunnerAddition(unittest.TestCase):
+    def test_named_placement_histories_do_not_require_a_fictional_movement(self):
+        state=Path.home()/'AppData/Local/BaseballO/state'
+        for pk in ('823023','823350'):
+            with self.subTest(game=pk):
+                case=R.approved_case(pk);witness=state/case['retainedInputs'][0]['path']
+                if not witness.is_file():self.skipTest('Retained runtime witness has been retired')
+                raw=witness.read_bytes();selected=R.select(raw,pk)
+                self.assertEqual(selected['episodes'],[])
+                self.assertEqual(selected['history']['episodeMembership'],[])
+                self.assertEqual(len(selected['history']['placementAdjudications']),1)
+                self.assertEqual({h['lifetimeKey'] for h in selected['history']['histories']},
+                    set(case['selectedHistoryKeys']))
+                self.assertEqual(selected['context']['liveData']['plays']['allPlays'],[])
+                Graph().parse(data=R.shapes(pk,selected),format='turtle')
+                unsupported=copy.deepcopy(R.CONTEXT.personal_runner_histories(raw))
+                unsupported['placementAdjudications']=[]
+                with patch.object(R.CONTEXT,'personal_runner_histories',return_value=unsupported):
+                    with self.assertRaisesRegex(ValueError,'Named history recovery differs'):
+                        R.select(raw,pk)
+
     def test_newly_named_histories_reopen_only_the_changed_completed_scope(self):
         case=R.approved_case('823200')
         self.assertFalse(R.completed_case(dict(status='complete'),case))
