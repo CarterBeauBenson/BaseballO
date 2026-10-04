@@ -157,9 +157,23 @@ def retain_source_binding(proof, marker, field):
     if (field != 'defensiveAdmission'
             or receipt.get('decision') != 'archive/design-records/mlb-game-defensive-acts/review.json'
             or receipt.get('mode') != 'current-defensive-source-census'
-            or receipt.get('promotionSourceSha256') != marker['rawSha256']
-            or not receipt.get('originalProofSha256')):
+            or receipt.get('promotionSourceSha256') != marker['rawSha256']):
         raise ValueError('Retained admission belongs to an unbound source: ' + field)
+    if not receipt.get('originalProofSha256'):
+        # The first D1 proof has no predecessor. Its owning promotion binds
+        # the separately retained input; preserve that actual first proof as
+        # the origin for subsequent additions instead of requiring a fiction.
+        addition=marker.get('targetedAddition',{});witness=addition.get('sourceWitness',{})
+        prior=Path(marker.get(field,''))
+        if (addition.get('decision')!=receipt['decision']
+                or proof.get('gamePk')!=marker.get('gamePk') or not proof.get('gamePk')
+                or witness.get('gamePk')!=marker['gamePk']
+                or witness.get('sha256')!=proof.get('sourceSha256')
+                or not prior.is_file() or sha(prior)!=marker.get(field+'Sha256')
+                or read(prior)!=proof):
+            raise ValueError('Retained admission belongs to an unbound source: ' + field)
+        receipt=dict(receipt,originalProofSha256=sha(prior),
+            originalProofKind='first-defensive-admission',sourceWitness=witness)
     proof['sourceRevalidation'] = dict(receipt)
 
 

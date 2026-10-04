@@ -14,6 +14,31 @@ spec.loader.exec_module(Q)
 
 
 class HistoryIsolation(unittest.TestCase):
+    def test_first_defensive_proof_uses_its_actual_promotion_source_binding(self):
+        decision='archive/design-records/mlb-game-defensive-acts/review.json'
+        original=dict(gamePk='831445',sourceSha256='separate-input',status='withheld',
+            graphRevalidation=dict(decision=decision,mode='current-defensive-source-census',
+                promotionSourceSha256='original-input',originalProofSha256=None))
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/'defensive-admission.json';Q.atomic(path,original)
+            marker=dict(gamePk='831445',rawSha256='original-input',defensiveAdmission=str(path),
+                defensiveAdmissionSha256=Q.sha(path),targetedAddition=dict(decision=decision,
+                    sourceWitness=dict(gamePk='831445',sha256='separate-input')))
+            proof=copy.deepcopy(original)
+            Q.retain_source_binding(proof,marker,'defensiveAdmission')
+            self.assertEqual(proof['sourceRevalidation']['originalProofSha256'],Q.sha(path))
+            self.assertEqual(proof['status'],'withheld')
+            self.assertEqual(proof['sourceSha256'],'separate-input')
+            self.assertEqual(Q.read(path),original)
+            # Later additions keep the first proof binding even though their
+            # own promotion is for a different selected product.
+            Q.retain_source_binding(proof,dict(marker,targetedAddition={}), 'defensiveAdmission')
+            bad=copy.deepcopy(marker);bad['targetedAddition']['sourceWitness']['sha256']='other'
+            for changed in (bad,dict(marker,defensiveAdmissionSha256='other'),
+                            dict(marker,targetedAddition={}),dict(marker,gamePk='other')):
+                with self.assertRaisesRegex(ValueError,'unbound source'):
+                    Q.retain_source_binding(copy.deepcopy(original),changed,'defensiveAdmission')
+
     def test_defensive_source_receipt_survives_multiple_additions(self):
         marker = dict(rawSha256='original-input')
         receipt = dict(decision='archive/design-records/mlb-game-defensive-acts/review.json',
