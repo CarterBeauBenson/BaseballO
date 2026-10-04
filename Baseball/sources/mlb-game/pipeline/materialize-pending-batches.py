@@ -151,7 +151,18 @@ def main() -> int:
     process_spec = importlib.util.spec_from_file_location('mlb_worker_state', BASEBALL_ROOT/'scripts/pipeline/process_state.py')
     process_state = importlib.util.module_from_spec(process_spec)
     process_spec.loader.exec_module(process_state)
-    process_state.reconcile_builds(state_root)
+    builds = process_state.reconcile_builds(state_root)
+    # An external SQL process can survive a NiFi restart. Its durable progress
+    # and OS liveness, rather than a new processor's zero thread count, own the
+    # in-flight build. Leave the pending batches for a later tick.
+    active_reports = [build for build in builds
+                      if build['status'] == 'running'
+                      and Path(build['path']).parent == state_root / 'serving' / 'builds']
+    if active_reports:
+        print(json.dumps({'status': 'waiting-serving',
+                          'reason': 'Existing report SQL worker is still running',
+                          'activeBuilds': [Path(build['path']).name for build in active_reports]}))
+        return 0
     resume_replay_workers(state_root)
     recovery_spec = importlib.util.spec_from_file_location("mlb_metric_source_recovery", RECOVERY_SCRIPT)
     if recovery_spec is None or recovery_spec.loader is None:

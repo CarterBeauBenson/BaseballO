@@ -3,10 +3,14 @@ from __future__ import annotations
 import json
 import importlib.util
 import re
+import io
+import os
 import tempfile
 import unittest
+from contextlib import redirect_stdout
 from pathlib import Path
 from types import SimpleNamespace
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -31,6 +35,29 @@ class NifiSourceContractTests(unittest.TestCase):
         module = self.modules[module_id]
         contract_path = ROOT / module["nifiContract"]
         return json.loads(contract_path.read_text(encoding="utf-8")), contract_path
+
+    def test_pending_batch_preserves_report_worker_surviving_nifi_restart(self):
+        spec = importlib.util.spec_from_file_location(
+            'pending_batch_restart', ROOT / 'sources/mlb-game/pipeline/materialize-pending-batches.py')
+        owner = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(owner)
+        with tempfile.TemporaryDirectory() as directory:
+            state = Path(directory).resolve()
+            progress = state / 'serving/builds/surviving.progress.json'
+            progress.parent.mkdir(parents=True)
+            original = json.dumps({'status': 'running', 'processId': os.getpid()})
+            progress.write_text(original, encoding='utf-8')
+            output = io.StringIO()
+            with patch.object(owner, 'parse_args', return_value=SimpleNamespace(state_root=state)), \
+                    patch.object(owner, 'resume_replay_workers') as replay, \
+                    patch.object(owner, 'promotion_inventory') as inventory, \
+                    patch.object(owner.subprocess, 'run') as launch, redirect_stdout(output):
+                self.assertEqual(owner.main(), 0)
+            self.assertEqual(json.loads(output.getvalue())['status'], 'waiting-serving')
+            self.assertEqual(progress.read_text(encoding='utf-8'), original)
+            replay.assert_not_called()
+            inventory.assert_not_called()
+            launch.assert_not_called()
 
     def test_each_reference_module_owns_one_distinct_process_group(self) -> None:
         groups: list[str] = []

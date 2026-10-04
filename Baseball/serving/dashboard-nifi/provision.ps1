@@ -144,6 +144,10 @@ function Ensure-Connection {
         [string] $DestinationId,
         [string[]] $Relationships
     )
+    # Coalesce new timer requests, but leave room for results and retries to
+    # circulate. One item on every internal edge deadlocks the retry cycle:
+    # NiFi checks all outgoing queues before scheduling a processor.
+    $queueLimit = if ($Name -eq 'dashboard update trigger') { 1 } else { 10 }
     $matches = @((Get-GroupFlow $GroupId).connections | Where-Object { $_.component.name -eq $Name })
     if ($matches.Count -gt 1) { throw "More than one connection is named '$Name'." }
     if ($matches.Count -eq 1) {
@@ -155,6 +159,13 @@ function Ensure-Connection {
         ) {
             throw "Existing connection '$Name' differs from its contract."
         }
+        if ([int64]$component.backPressureObjectThreshold -ne $queueLimit) {
+            $current = Invoke-NiFi -Method GET -Path "/connections/$($matches[0].id)"
+            Invoke-NiFi -Method PUT -Path "/connections/$($current.id)" -Body @{
+                revision = @{ version = $current.revision.version }
+                component = @{ id = $current.id; backPressureObjectThreshold = $queueLimit }
+            } | Out-Null
+        }
         return
     }
     Invoke-NiFi -Method POST -Path "/process-groups/$GroupId/connections" -Body @{
@@ -165,7 +176,7 @@ function Ensure-Connection {
             destination = @{ id = $DestinationId; groupId = $GroupId; type = 'PROCESSOR' }
             selectedRelationships = $Relationships
             flowFileExpiration = '0 sec'
-            backPressureObjectThreshold = 1
+            backPressureObjectThreshold = $queueLimit
             backPressureDataSizeThreshold = '1 MB'
             loadBalanceStrategy = 'DO_NOT_LOAD_BALANCE'
             loadBalanceCompression = 'DO_NOT_COMPRESS'

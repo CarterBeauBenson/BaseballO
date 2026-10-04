@@ -60,9 +60,12 @@ later change does not prevent publishing the captured result. The working databa
 served. `--max-games` uses an isolated development workspace and cannot publish.
 
 Provision with `serving/dashboard-nifi/provision.ps1 -Start`. Its one-minute
-tick checks for changed promotion/schedule evidence, waits for 60 seconds of
-quiet, and exits immediately when unchanged. Backpressure permits one queued
-tick; failures use the existing NiFi retry pattern. Runtime progress is in
+tick checks for changed promotion/schedule evidence and exits immediately when
+unchanged. Per-game locks and recapture allow progress during ongoing repairs;
+the default does not require a global quiet period. The timer connection permits
+one waiting tick. Internal result/retry connections permit ten items so a queued
+result cannot deadlock the retry cycle through one-item backpressure on every
+edge. Failures retain the existing bounded retry policy. Runtime progress is in
 `serving/dashboard/progress.json`. Full report builds and source lanes are not
 stopped or reconfigured by this provisioner.
 

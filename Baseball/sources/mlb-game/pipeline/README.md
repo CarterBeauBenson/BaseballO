@@ -85,6 +85,12 @@ product; it does not wait for a whole acquisition batch to be declared complete.
 Player and schedule completeness still govern which results it can publish.
 See [serving ownership](../../../serving/METRIC-SUITE-IMPLEMENTATION.md).
 
+An external report worker can survive a NiFi restart. The batch scheduler checks
+its durable progress through the existing OS-liveness reconciler and defers
+another report build while that worker remains running. Pending batch requests
+remain available for a later tick; a zero NiFi thread count alone does not mean
+the external SQL build has stopped.
+
 Quarantine replay is hash-bound and NiFi-owned. The first replay proves the
 five configured representative games before releasing its remainder. Later
 replays verify that immutable proof, then require up to five exact current
