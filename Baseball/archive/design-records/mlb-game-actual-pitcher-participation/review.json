@@ -1,0 +1,56 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-actual-pitcher-participation",
+  "title": "P1 actual pitching participation across a PA replacement",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "5c30bb0c830d47f27c83db1fb769ff340b1cbdf201540fd63ae036ac87c360be"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "README.md",
+        "sha256": "5c30bb0c830d47f27c83db1fb769ff340b1cbdf201540fd63ae036ac87c360be"
+      },
+      {
+        "path": "evidence.json",
+        "sha256": "3f14b52ad9badb23dd962e1663dd81e5b1856baa6d62a7f87c8356d4ad4a873f"
+      },
+      {
+        "path": "correction-preview.rq",
+        "sha256": "647d369a80ed22e07c8792a72a0e0b60306ca3a19cb3aee7fe8e0f111e19ebc4"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "5c30bb0c830d47f27c83db1fb769ff340b1cbdf201540fd63ae036ac87c360be"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "4404b1e9e81ee34c9df16bc919cf48328dfa7c1965afc35195a8bccd38b8e3f9"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-10-04",
+    "rationale": "The user explicitly said \"I approve both\" in response to the named F8 and P1 approval questions. Accept P1 per-pitch actual pitching participation, persistent role dependencies and PA participation. Correct only the two wrong assertions and three supported additions inventoried in 823420; preserve all other RDF. No ontology terms or corpus rebuild.",
+    "authorizedArtifacts": [
+      "Baseball/scripts/pipeline/prepare-rml-context.py",
+      "Baseball/sources/mlb-game/review/semantic-status.json",
+      "Baseball/sources/mlb-game/review/rml-mermaid-manifest.json",
+      "Baseball/governance/semantic-freeze.json",
+      "Baseball/sources/mlb-game/mapping/mlb-game.rml.ttl"
+    ]
+  }
+}

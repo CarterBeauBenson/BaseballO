@@ -25,12 +25,12 @@ their rejection rationale so they cannot be accidentally revived.
 
 ## Recent accepted decisions
 
-Pending review: [F8 counted-foul substitutions and paired reviews](mlb-game-foul-substitution-review-completion/README.md)
+Accepted October 4: [F8 counted-foul substitutions and paired reviews](../archive/design-records/mlb-game-foul-substitution-review-completion/README.md)
 selects eight missing strikes in seven games through the existing additive owner.
 Its candidate passes the focused retained-source check; active mappings and
-context pins are unchanged pending named acceptance.
+context pins remain unchanged until implementation after this published decision.
 
-Pending review: [P1 actual pitching participation](mlb-game-actual-pitcher-participation/README.md)
+Accepted October 4: [P1 actual pitching participation](../archive/design-records/mlb-game-actual-pitcher-participation/README.md)
 corrects per-pitch attribution across an explicit mid-PA replacement. The
 verified live case in 823420 needs two wrong relations removed and three
 supported relations added. Its graph correction is a review-only preview.

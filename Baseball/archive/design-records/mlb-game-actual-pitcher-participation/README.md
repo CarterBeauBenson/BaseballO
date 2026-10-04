@@ -1,6 +1,6 @@
 # P1: actual pitching participation during a plate appearance
 
-Status: **under review, not active**. No new ontology terms or object properties.
+Status: **accepted on October 4, 2026; implementation follows separately**. No new ontology terms or object properties.
 
 ## Decision requested
 

@@ -33,9 +33,10 @@ history work, stale evidence, and a bounded review of all seven source modules.
 Both H4 additions are promoted (110 triples total). The observer now distinguishes
 current repair scopes and superseded history proofs; two old Transactions
 promotion failures also completed without remapping. The new
-[F8 foul-selector](proposals/mlb-game-foul-substitution-review-completion/README.md)
-and [P1 pitching-participation](proposals/mlb-game-actual-pitcher-participation/README.md)
-packages await named review. Remaining history comparisons stay with NiFi;
+[F8 foul-selector](archive/design-records/mlb-game-foul-substitution-review-completion/README.md)
+and [P1 pitching-participation](archive/design-records/mlb-game-actual-pitcher-participation/README.md)
+packages were explicitly accepted together on October 4; implement them after
+publishing the separate decision record. Remaining history comparisons stay with NiFi;
 the plan distinguishes actual defects from source/modeling exclusions. Continue
 independent metric work over valid RDF.
 

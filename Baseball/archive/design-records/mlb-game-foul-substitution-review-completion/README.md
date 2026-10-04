@@ -1,10 +1,10 @@
 # F8: finish counted-foul substitution and paired-review selection
 
-Status: **under review, not active**. No new classes or object properties.
+Status: **accepted on October 4, 2026; implementation follows separately**. No new classes or object properties.
 
 ## Decision requested
 
-Accept the enclosed context-selection patch and its scoped context fingerprint
+The user accepted the enclosed context-selection patch and its scoped context fingerprint
 updates. Use the existing counted-foul NiFi owner and unchanged five strike maps
 to add the **eight missing second-foul strikes in seven games** listed below.
 Preserve retained raw bytes, existing graph facts and all unrelated games.
@@ -37,7 +37,7 @@ The accepted pattern is shown in
 
 ## Focused result and execution
 
-`python Baseball/proposals/mlb-game-foul-substitution-review-completion/check.py`
+`python Baseball/archive/design-records/mlb-game-foul-substitution-review-completion/check.py`
 passes four grouped regression checks: all eight exact selections through the
 existing foul worker, contradictory lineup/pitcher evidence, mid-PA count and
 pitch ordering, and incomplete/contradictory/unjoined reviews. The check runs the

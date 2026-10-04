@@ -1,22 +1,22 @@
 {
-  "$schema": "../../governance/proposal-review.schema.json",
+  "$schema": "../../../governance/proposal-review.schema.json",
   "artifactType": "baseballo-semantic-proposal-review",
   "schemaVersion": 1,
   "proposalId": "mlb-game-foul-substitution-review-completion",
   "title": "F8 counted-foul substitution and paired-review selection",
-  "status": "under-review",
+  "status": "accepted",
   "proposedIris": [],
   "artifacts": {
     "competencyQuestions": [
       {
         "path": "README.md",
-        "sha256": "bd97a23abf841bd18d7d4cd6f0776877f5aa44241eb7e71f73d75046034e9ef2"
+        "sha256": "c545368f61a3bee4b145912d95ca4c0cfbb16b1bc8c83228e3f00fcf864d7bfa"
       }
     ],
     "sourceEvidence": [
       {
         "path": "README.md",
-        "sha256": "bd97a23abf841bd18d7d4cd6f0776877f5aa44241eb7e71f73d75046034e9ef2"
+        "sha256": "c545368f61a3bee4b145912d95ca4c0cfbb16b1bc8c83228e3f00fcf864d7bfa"
       },
       {
         "path": "evidence.json",
@@ -34,7 +34,7 @@
     "fieldSelectionInventory": [
       {
         "path": "README.md",
-        "sha256": "bd97a23abf841bd18d7d4cd6f0776877f5aa44241eb7e71f73d75046034e9ef2"
+        "sha256": "c545368f61a3bee4b145912d95ca4c0cfbb16b1bc8c83228e3f00fcf864d7bfa"
       }
     ],
     "sourceIndependentMermaid": [
@@ -44,5 +44,16 @@
       }
     ]
   },
-  "ontologistDecision": null
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-10-04",
+    "rationale": "The user explicitly said \"I approve both\" in response to the named F8 and P1 approval questions. Accept F8 selector completion, scoped context pins, and the eight missing foul strikes in seven games through existing additive NiFi stages; preserve unrelated RDF.",
+    "authorizedArtifacts": [
+      "Baseball/scripts/pipeline/prepare-rml-context.py",
+      "Baseball/sources/mlb-game/review/semantic-status.json",
+      "Baseball/sources/mlb-game/review/rml-mermaid-manifest.json",
+      "Baseball/governance/semantic-freeze.json"
+    ]
+  }
 }
