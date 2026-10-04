@@ -47,7 +47,7 @@ def foul_source_excerpt(state,pk,record):
         for p in document['liveData']['plays']['allPlays'] if p['atBatIndex'] in indexes]
 
 
-def observe(state,owner,runner_owner=None,current_history_proof=None):
+def observe(state,owner,runner_owner=None,current_history_proof=None,current_history_validation=None):
     control=state/'pipeline/control/mlb-game';issues=[];errors=[];queues={};records={}
 
     def load(path,default=None):
@@ -135,7 +135,7 @@ def observe(state,owner,runner_owner=None,current_history_proof=None):
         if status in {'running','finalizing'} or status.startswith('waiting-'))
     awaiting_source=sorted(pk for pk,r in discovery.items() if r.get('status')=='awaiting-source')
     pending=len(uninspected)+len(stale)+len(selected_pending)+len(fixed_pending)+len(runner_pending)+len(awaiting_source)+active
-    history_unresolved=[];history_superseded=[]
+    history_unresolved=[];history_superseded=[];history_validated=[]
     for pk,row in sorted(records['history-addition'].items()):
         if row.get('historyEvidence',{}).get('status')!='withheld':continue
         original=dict(gamePk=pk,**row['historyEvidence'])
@@ -149,9 +149,23 @@ def observe(state,owner,runner_owner=None,current_history_proof=None):
         if proof:
             history_superseded.append(dict(previous=original,currentAdmission=proof,
                 promotionManifestSha256=latest[pk]['sha256']))
-        else:history_unresolved.append(original)
+        else:
+            validation=None
+            if current_history_validation and pk in latest:
+                try:validation=current_history_validation(Path(latest[pk]['path']),row)
+                except (OSError,ValueError,KeyError) as error:
+                    errors.append(dict(path=latest[pk]['path'],error=str(error)))
+            # Exact-history SHACL owns supported graph conformance. A failed
+            # full PA-boundary proof cannot stand in for that different check.
+            # Keep population and boundary limits visible without asking NiFi
+            # to recreate intentionally unsupported facts.
+            if validation and validation.get('promotionAllowed') is True:
+                history_validated.append(dict(gamePk=pk,historyValidation=validation,
+                    boundaryEvidence=original))
+            else:history_unresolved.append(dict(original,**({'historyValidation':validation} if validation else {})))
     coverage=dict(unresolvedDefensiveSources=unresolved,unavailableHistoryEvidence=unavailable,
         legacyHistoryEvidenceUnresolved=history_unresolved,
+        validatedLegacyHistories=history_validated,
         supersededHistoryEvidence=history_superseded,
         defensiveSourceEvidence=[dict(sourcePath=path,**{key:row[key] for key in
             ('gamePk','sha256','error','sourceIssues','sourceRevision') if key in row})
@@ -179,7 +193,8 @@ def publish(state,owner):
     spec=importlib.util.spec_from_file_location('repair_status_runner',HERE/'targeted-runner-addition.py')
     runner=importlib.util.module_from_spec(spec);spec.loader.exec_module(runner)
     report=observe(state,owner,runner,
-        current_history_proof=lambda marker:owner.DISCOVERY.boundary_admission(owner,state,marker))
+        current_history_proof=lambda marker:owner.DISCOVERY.boundary_admission(owner,state,marker),
+        current_history_validation=lambda marker,row:owner.legacy_history_validation(state,marker,row))
     path=state/'pipeline/control/mlb-game/repair-status.json';owner.atomic(path,report)
     discovery=report['historyDiscovery']
     return dict(status=report['status'],recordedWorkClear=report['recordedWorkClear'],report=str(path),

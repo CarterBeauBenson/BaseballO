@@ -11,6 +11,7 @@ import importlib.util
 import json
 from pathlib import Path
 import subprocess
+import tempfile
 import time
 from types import SimpleNamespace
 import urllib.request
@@ -54,6 +55,71 @@ LOCK = module(ROOT / 'scripts/pipeline/process_lock.py', 'history_lock')
 sha = I.sha256_file
 read = TX.read
 atomic = TX.atomic_json
+
+
+def legacy_history_validation(state, marker_path, previous):
+    """Read the history owner's result independently of PA-boundary coverage."""
+    record=previous.get('historyValidation')
+    if not record:return None
+    if (record.get('promotionManifestSha256')!=sha(marker_path)
+            or record.get('implementationSha256')!=H.fingerprint()):return None
+    output=Path(record['proof'])
+    if sha(output)!=record['proofSha256']:
+        raise ValueError('Legacy history validation proof changed')
+    proof=read(output)
+    promotion=I.validated_promotion_record(state,marker_path,previous['gamePk'],I.query_index_contract_admission())
+    if any(proof.get(k)!=v for k,v in dict(artifactType='baseballo-runner-history-admission',contractVersion=1,gamePk=promotion['gamePk'],
+            graph=promotion['authoritativeGraph'],authoritativeRdfSha256=promotion['authoritativeRdfSha256'],
+            implementationSha256=record['implementationSha256']).items()):
+        raise ValueError('Legacy history validation belongs to another graph')
+    for suffix,key in (('.source.json','sourceCensusSha256'),('.shapes.ttl','shapeSha256'),('.report.ttl','reportSha256')):
+        if key in proof and sha(output.with_suffix(suffix))!=proof[key]:
+            raise ValueError('Legacy history validation artifact changed: '+key)
+    source=read(output.with_suffix('.source.json'))
+    if source['sourceSha256']!=proof['sourceSha256'] or source['gamePk']!=promotion['gamePk']:
+        raise ValueError('Legacy history validation source changed')
+    return dict(record,status=proof['status'],graphConforms=proof['graphConforms'],
+        promotionAllowed=proof['promotionAllowed'],populationComplete=proof['populationComplete'],
+        selectedHistories=proof['selectedHistories'],issues=proof['issues'],
+        sourceIssues=source['history'].get('sourceIssues',[]),
+        boundaryIssues=source['history'].get('boundaryIssues',[]),
+        withheldHalves=[{k:h[k] for k in ('inning','half','issues')} for h in source['history'].get('withheldHistories',[])])
+
+
+def validate_legacy_history(state,promotion,witness,java,classpath):
+    """Run the existing exact-history SHACL on one promoted graph; no RML."""
+    marker_path=Path(promotion['promotionManifest']);version=H.fingerprint()
+    source=Path(witness['path']);raw=source.read_bytes()
+    if hashlib.sha256(raw).hexdigest()!=witness['sha256']:
+        raise ValueError('Legacy history source witness changed')
+    output=state/'pipeline/evidence/mlb-game'/promotion['gamePk']/uuid.uuid4().hex/'runner-history-admission.json'
+    query='CONSTRUCT { ?s ?p ?o } WHERE { GRAPH <'+promotion['authoritativeGraph']+'> { ?s ?p ?o } }'
+    request=urllib.request.Request('http://127.0.0.1:3031/baseball-dev/query',data=query.encode(),
+        headers={'Content-Type':'application/sparql-query','Accept':'text/turtle'})
+    with tempfile.TemporaryDirectory(prefix='legacy-history-') as temporary:
+        rdf=Path(temporary)/'graph.ttl'
+        with urllib.request.urlopen(request,timeout=120) as response,rdf.open('wb') as stream:
+            size=0
+            while chunk:=response.read(1024*1024):
+                size+=len(chunk)
+                if size>128*1024*1024:raise ValueError('Legacy history graph exceeds its read bound')
+                stream.write(chunk)
+        with J.Session(rdf,java,classpath) as session:
+            if session.data_count!=promotion['authoritativeTripleCount']:
+                raise ValueError('Legacy history graph differs from its promotion')
+            original=H.B.module
+            H.B.module=lambda path,name:session if Path(path).name=='validate-shacl.py' else original(path,name)
+            try:proof=H.prove(raw=raw,game_pk=promotion['gamePk'],rdf_path=rdf,output=output,java=java,classpath=classpath)
+            finally:H.B.module=original
+    latest=max(marker_path.parent.glob('*.json'),key=lambda p:(read(p)['promotedAtUtc'],p.name))
+    if (latest!=marker_path or sha(latest)!=promotion['promotionManifestSha256']
+            or version!=H.fingerprint() or sha(source)!=witness['sha256']):
+        raise ValueError('Legacy history validation inputs changed')
+    proof.update(validationExportSha256=proof['authoritativeRdfSha256'],
+        authoritativeRdfSha256=promotion['authoritativeRdfSha256'],retainedSourceEvidence=witness)
+    atomic(output,proof)
+    return dict(proof=str(output),proofSha256=sha(output),implementationSha256=version,
+        promotionManifestSha256=promotion['promotionManifestSha256'],rdfChanged=False)
 
 
 def select_history(manifest, case, raw=None):
@@ -402,7 +468,7 @@ def add_game(state, game_pk, java, mapper, classpath):
     evidence_only=case.get('discovered') and not case['selectedHistoryKeys']
     if evidence_only:
         admission=module(HERE/'admission-evidence.py','discovered_history_evidence')
-    needs_memory=not evidence_only or admission.existing_graph_refresh_needed(state,promotion)
+    needs_memory=not evidence_only or case.get('legacyHistoryEvidence') or admission.existing_graph_refresh_needed(state,promotion)
     available=MEMORY.available_memory()
     if needs_memory and available is not None and available<1024*1024*1024:
         return dict(status='waiting-for-memory',availableMemoryBytes=available,rdfChanged=False)
@@ -432,6 +498,8 @@ def add_game(state, game_pk, java, mapper, classpath):
             proof=admission.load(adapter,state,promotion,'runner-boundary')
             history_evidence['historyEvidence']={k:proof[k] for k in
                 ('status','issues','proofSha256','implementationSha256') if k in proof}
+            if proof['status']!='admitted':
+                history_evidence['historyValidation']=validate_legacy_history(state,promotion,witness,java,classpath)
         EVENT.emit(state,marker_path)
         return dict(status='evidence-refreshed',rdfChanged=False,addedHistories=0,selectedHistoryKeys=[],
             sourceWitness=witness,admissionOutcomes={family:status for _,family,status in outcomes},**history_evidence)
@@ -536,6 +604,8 @@ def add_game(state, game_pk, java, mapper, classpath):
 
 def completed_case(previous,case):
     if previous.get('status') not in SUCCESS:return False
+    if (case.get('legacyHistoryEvidence') and previous.get('historyEvidence',{}).get('status')=='withheld'
+            and previous.get('historyValidation',{}).get('implementationSha256')!=H.fingerprint()):return False
     if case.get('selectionRepair') and previous.get('selectedHistoryKeys')!=case.get('selectedHistoryKeys'):return False
     return not case.get('discovered') or (previous.get('repairRequestSha256')==case['repairRequestSha256']
         and previous.get('sourceSha256')==case['sourceSha256'])
@@ -559,6 +629,9 @@ def tick(state, game_pk, java, mapper, classpath):
         return previous
     result = dict(gamePk=game_pk, implementationSha256=version, checkedAtUtc=TX.now(),
         attempts=previous.get('attempts', 0) + 1 if same else 1)
+    if case.get('legacyHistoryEvidence'):
+        # A resource wait or failed refresh must not erase known coverage debt.
+        result.update({key:previous[key] for key in ('historyEvidence','historyValidation') if key in previous})
     if case.get('discovered'):
         result.update(repairRequest=case['repairRequest'],repairRequestSha256=case['repairRequestSha256'],
                       sourceSha256=case['sourceSha256'])

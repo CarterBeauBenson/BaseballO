@@ -38,6 +38,14 @@ withheld and stale proofs cannot take that shortcut. Existing selected jobs
 retain their original finalization and cleanup. See the [October 3 audit](../review/rml-audit-2026-10-03.md)
 for the recorded failures and focused regressions.
 
+Legacy jobs with withheld PA-boundary evidence also run the existing exact
+runner-history SHACL against their promoted graph and retained source. The
+repair observer reports supported-history conformance separately from complete
+history populations and PA-start coverage. It preserves the original boundary
+diagnostics, source limitations and proof hashes; a conforming supported graph
+does not make an incomplete population eligible. This is a bounded read-only
+check in the existing history worker, without RML, acquisition or graph writes.
+
 The shared RML runner snapshots the mapping and its execution dependencies,
 executes those copies, and checks for changes before publishing its manifest.
 Normal context assembly and clock admission share the terminal selector; D1

@@ -12,6 +12,51 @@ spec=importlib.util.spec_from_file_location('history_repair',ROOT/'sources/mlb-g
 H=importlib.util.module_from_spec(spec);spec.loader.exec_module(H)
 
 class HistoryAdditionRecovery(unittest.TestCase):
+    def test_legacy_completion_requires_its_own_history_check_only_for_withheld_boundaries(self):
+        case=dict(legacyHistoryEvidence=True)
+        previous=dict(status='evidence-refreshed',historyEvidence=dict(status='withheld'))
+        self.assertFalse(H.completed_case(previous,case))
+        previous['historyValidation']=dict(implementationSha256=H.H.fingerprint())
+        self.assertTrue(H.completed_case(previous,case))
+        previous['historyValidation']['implementationSha256']='obsolete'
+        self.assertFalse(H.completed_case(previous,case))
+        previous['historyEvidence']['status']='admitted'
+        self.assertTrue(H.completed_case(previous,case))
+        self.assertTrue(H.completed_case(dict(status='complete'),{}))
+
+    def test_legacy_resource_wait_preserves_original_diagnostics(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);case=dict(gamePk='1',legacyHistoryEvidence=True)
+            control=state/'pipeline/control/mlb-game/history-addition/1.json'
+            previous=dict(status='evidence-refreshed',historyEvidence=dict(status='withheld',proofSha256='original'))
+            H.atomic(control,previous)
+            with patch.object(H,'cases',return_value=[case]), \
+                    patch.object(H,'add_game',return_value=dict(status='waiting-for-memory')):
+                result=H.tick(state,'1',None,None,None)
+            self.assertEqual(result['historyEvidence'],previous['historyEvidence'])
+            self.assertEqual(result['attempts'],0)
+
+    def test_legacy_evidence_is_bound_to_its_graph_and_unchanged_artifacts(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);marker=state/'marker.json';H.atomic(marker,dict(promotedAtUtc='now'))
+            output=state/'history.json';source=output.with_suffix('.source.json')
+            H.atomic(source,dict(gamePk='1',sourceSha256='source',history={}))
+            proof=dict(artifactType='baseballo-runner-history-admission',contractVersion=1,gamePk='1',graph='urn:graph',
+                authoritativeRdfSha256='rdf',implementationSha256=H.H.fingerprint(),sourceSha256='source',
+                status='withheld',graphConforms=False,promotionAllowed=False,populationComplete=False,
+                selectedHistories=0,issues=[],sourceCensusSha256=H.sha(source))
+            H.atomic(output,proof)
+            row=dict(gamePk='1',historyValidation=dict(proof=str(output),proofSha256=H.sha(output),
+                implementationSha256=H.H.fingerprint(),promotionManifestSha256=H.sha(marker)))
+            promotion=dict(gamePk='1',authoritativeGraph='urn:graph',authoritativeRdfSha256='rdf')
+            with patch.object(H.I,'validated_promotion_record',return_value=promotion):
+                self.assertFalse(H.legacy_history_validation(state,marker,row)['promotionAllowed'])
+                source.write_text('{}')
+                with self.assertRaisesRegex(ValueError,'artifact changed'):
+                    H.legacy_history_validation(state,marker,row)
+                H.atomic(marker,dict(promotedAtUtc='later'))
+                self.assertIsNone(H.legacy_history_validation(state,marker,row))
+
     def test_admission_fix_reopens_failed_retry_without_reopening_completed_case(self):
         before=H.fingerprint();original=Path.read_bytes
         dependency=H.HERE/'pitch-count-admission.py'
@@ -138,10 +183,13 @@ $handle.Dispose();throw 'Game lock overlapped the Python writer'
                     patch.object(H.I,'retain_game_artifacts'),patch.object(H.I,'retained_artifact',return_value=manifest), \
                     patch.object(H.MEMORY,'available_memory',return_value=2*1024**3), \
                     patch.object(H,'acquire_selection_source',return_value=witness), \
+                    patch.object(H,'validate_legacy_history',return_value=dict(proofSha256='history-proof')) as history_validation, \
                     patch.object(H,'command') as mapping,patch.object(H.TX,'prepare') as promotion, \
                     patch.object(H.EVENT,'emit'):
                 result=H.add_game(state,'1',None,None,None)
             self.assertEqual(result['historyEvidence'],proof)
+            self.assertEqual(result['historyValidation']['proofSha256'],'history-proof')
+            history_validation.assert_called_once()
             self.assertEqual(result['status'],'evidence-refreshed');self.assertFalse(result['rdfChanged'])
             self.assertEqual(source.read_bytes(),b'original bytes');self.assertEqual(H.read(manifest),{})
             mapping.assert_not_called();promotion.assert_not_called()

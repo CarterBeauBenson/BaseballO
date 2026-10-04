@@ -138,5 +138,27 @@ class RepairStatus(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'differs from the repair witness'):
                 S.foul_source_excerpt(state,'1',record)
 
+    def test_history_conformance_does_not_claim_complete_boundary_or_population(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);control=state/'pipeline/control/mlb-game'
+            marker=state/'pipeline/evidence/nifi/game-promotion/1/marker.json'
+            write(marker,dict(promotedAtUtc='2026-10-04T00:00:00Z'))
+            write(control/'history-discovery/inventory.json',dict(games={
+                '1':dict(status='not-applicable',identity=[S.digest(marker),'worker'])}))
+            boundary=dict(status='withheld',issues=[dict(code='UNSUPPORTED_PA_START_BOUNDARY')])
+            write(control/'history-addition/1.json',dict(gamePk='1',status='evidence-refreshed',historyEvidence=boundary))
+            history=dict(status='withheld',populationComplete=False,graphConforms=True,promotionAllowed=True,
+                issues=[dict(code='INCOMPLETE_PERSONAL_HISTORIES')])
+            report=S.observe(state,self.owner(),current_history_validation=lambda *args:history)
+            self.assertEqual(report['coverageLimits']['legacyHistoryEvidenceUnresolved'],[])
+            row=report['coverageLimits']['validatedLegacyHistories'][0]
+            self.assertEqual(row['boundaryEvidence']['issues'],boundary['issues'])
+            self.assertFalse(row['historyValidation']['populationComplete'])
+            history.update(graphConforms=False,promotionAllowed=False)
+            report=S.observe(state,self.owner(),current_history_validation=lambda *args:history)
+            self.assertEqual(report['coverageLimits']['validatedLegacyHistories'],[])
+            self.assertEqual(len(report['coverageLimits']['legacyHistoryEvidenceUnresolved']),1)
+            self.assertEqual(report['status'],'attention-required')
+
 
 if __name__=='__main__':unittest.main()
