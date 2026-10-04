@@ -6,8 +6,10 @@ the Git root. Start with the [roadmap](ROADMAP.md) for next work and
 
 The current delivery priority is the **19-card metric dashboard** at
 `http://127.0.0.1:4173/metrics`. It loads the selected range automatically,
-shows each metric's top five qualified players and opens expanded details.
-Values are selected-period player averages, except Empty Games as a game count.
+defaults to the full latest loaded season, shows up to five player leaders per
+metric and opens expanded details. Values are selected-period player averages,
+except Empty Games as a game count. Participation minimums apply to rates and
+averages; Empty Games has no appearance minimum.
 Role Realization Breadth is backend-only. The interface is implemented, but
 complete live player populations remain unfinished; a healthy SQL service is
 not a populated dashboard.
@@ -75,9 +77,10 @@ remain separately versioned; their formulas do not define the new metrics.
 - The checked-in evidence corpus contains 546 completed games from July 14 to
   August 25, 2026, including a separately scoped All-Star Game. It is distinct
   from live ingestion and the original eight-game query baseline.
-- Admission repair, Q7 additions and remaining metric gaps are recorded in
-  [metric readiness](serving/METRIC-READINESS.md). Successful source proofs and
-  component examples are not live leaderboard certificates.
+- The [RML repair plan](sources/mlb-game/review/rml-audit-2026-10-03.md#current-repair-plan-and-scope)
+  records diagnosed mapping work and its closure.
+  [Metric readiness](serving/METRIC-READINESS.md) tracks remaining dashboard gaps.
+  Successful source proofs and component examples are not live leaderboard certificates.
 - Selective reasoning remains bounded to an explicitly anchored plate appearance
   and writes a disposable inferred graph; see [reasoning](reasoning/README.md).
 
@@ -88,7 +91,7 @@ remain separately versioned; their formulas do not define the new metrics.
 | [ontology/](ontology/) | Authoritative vocabulary, axioms and pinned dependencies; changes belong to the ontologist |
 | [governance/](governance/) | Semantic freeze, curation debt and review controls |
 | [sources/](sources/) | Detachable source contracts, RML, source SHACL and NiFi components |
-| [mappings/policies/](mappings/policies/) | Source-neutral modeling policies |
+| [mappings/](mappings/README.md) | Source-neutral modeling policies |
 | [proposals/](proposals/) | Single active semantic/source review catalog |
 | [mermaid/](mermaid/) | Visual review and generated mapping catalog |
 | [sparql/](sparql/) | Source-scoped queries, metric kernels and reviewed query-index components |

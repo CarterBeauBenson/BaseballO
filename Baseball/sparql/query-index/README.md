@@ -69,8 +69,10 @@ With loopback Fuseki running and an authoritative game graph loaded:
 .\scripts\pipeline\test-query-index.ps1 -GamePk 566279 -SkipBuild
 ```
 
-The builder performs all `CONSTRUCT` requests into a temporary directory,
-merges and validates them locally, and replaces the target named graph with one
+The builder stages the `CONSTRUCT` results and validates the merged graph.
+With a validated source RDF file, the NiFi game lane executes the same components
+in an isolated local Jena dataset; the endpoint-backed developer path remains
+available. The builder replaces the target named graph with one
 Graph Store Protocol `PUT`. If generation or loading fails, it removes the
 derived target graph so an old index cannot masquerade as current. Before a
 build is recorded as current, the builder also runs the complete semantic
@@ -125,10 +127,12 @@ GROUP BY ?season ?venue ?player ?playerLabel
 ```
 
 Canonical canned queries remain reviewable against authoritative graphs. The
-routine Explorer is served from rebuildable SQLite grains; its nightly
-materializer uses current index facts for hit/result, pitch, game, and
-assignment identities where equivalence is already proven, while joining
-authoritative context that index contract 1 intentionally omits. The separate
+legacy Explorer admits only PAQ-1/Good At Bat and its options to SQLite under
+the [serving contract](../../serving/contract.json); other families retain
+authoritative SPARQL routes. Its materializer uses proven index identities
+while joining authoritative context absent from the index. The metric dashboard
+has a separate SQL-only route and publication owner; see
+[serving ownership](../../serving/METRIC-SUITE-IMPLEMENTATION.md). The separate
 reviewed operational runner can also select indexed companions without changing
 either source:
 

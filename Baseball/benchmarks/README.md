@@ -19,6 +19,9 @@ whether current runtime routing may rely on it.
   local SQL serving build. Its local graph scope and implementation boundary
   are stated explicitly; it is neither the checked-in raw-corpus baseline nor
   proof of the current materializer.
+- [`metrics/`](metrics/) preserves dated metric and dashboard captures. These
+  document their original scope, not current leaderboard availability; use
+  [metric readiness](../serving/METRIC-READINESS.md) for the delivery record.
 
 Runtime databases, full logs, and disposable generated artifacts stay under
 the local state root. Compact evidence may be promoted here only with its exact

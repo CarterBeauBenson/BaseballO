@@ -53,12 +53,12 @@ Ontology/meaning, RML/mapping, and SHACL/conformance remain with their existing
 owners; NiFi runs the applicable stages and retains their results. Do not
 duplicate them with attended command chains or parallel semantic validators.
 
-Bulk and scheduled requests pass through
-`scripts/pipeline/check-source-proof-release.py`. The check is intentionally
-narrow: a source is released when a completed bounded proof exists for the
-current mapping and SHACL hashes. It does not make ontology decisions or
-constrain ordinary NiFi flow design. Proof requests bypass that release check
-so a changed source can establish a new proof.
+The six reference/transaction lanes release bulk and scheduled acquisition
+through `scripts/pipeline/check-source-proof-release.py` after a completed
+bounded proof for their current mapping and SHACL hashes. Proof requests bypass
+that check. The MLB Game schedule lane goes directly to acquisition following
+the [October 1 gate removal](../../archive/design-records/mlb-game-acquisition-gate-removal-2026-10-01/README.md);
+its per-game RML, SHACL, promotion, retry and quarantine stages still apply.
 
 For games, schedule discovery stores only a compact expected-game manifest.
 Each final game is mapped, validated, and promoted independently. Corpus runs
@@ -82,15 +82,17 @@ memory-heavy RML or SHACL workers. The workstation's memory limit makes more
 simultaneous JVMs inappropriate at present.
 
 Quarantine requests waiting on a named SQL build return their unchanged request
-to a penalized NiFi queue. They do not hold a sleeping command process. Older
-already-running waiters finish in place; the existing 15-minute batch worker
-resumes a stopped replay planner once its old thread exits. That same worker
-marks progress interrupted only when its recorded OS process has exited.
+to a penalized NiFi queue. They do not hold a sleeping command process. The
+existing batch worker marks progress interrupted only when its recorded OS
+process has exited. Whole-game replay remains a separately scoped
+[recovery operation](../../sources/mlb-game/pipeline/DEFERRED-RECOVERY.md).
 
 `Refresh Admission Evidence` runs once per minute, prioritizes the latest
-published dashboard seven-day range, diagnoses up to 100 games and refreshes at most one
-game per tick. It distinguishes missing, stale, implementation-compatible and
-previously withheld evidence. The general refresh requires exact retained
+loaded regular season in the published dashboard SQL, diagnoses up to 100 games
+and refreshes at most one game per tick. Within that season it prioritizes
+missing rosters, unchecked batting participation and withheld runner resolutions.
+It distinguishes missing, stale, implementation-compatible and previously
+withheld evidence. The general refresh requires exact retained
 source/RDF artifacts. The bounded B1 path can instead use the retained
 participation census and a read-only export of the existing promoted graph,
 then run the unchanged owning SHACL. Neither path reacquires inputs, reruns RML
@@ -112,7 +114,14 @@ Each module's `nifi/provision.ps1` accepts the same operating switches:
 - `-StartDaily`: start the lane and enable its 05:00 Eastern trigger;
 - `-RunBackfill`: start the lane and submit its corpus request once.
 
-Example:
+For an explicitly scoped one-game proof, from the repository root:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File `
+  .\Baseball\sources\mlb-game\nifi\provision.ps1 -RunProof -ProofGamePk 566279
+```
+
+For an authorized corpus submission:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File `

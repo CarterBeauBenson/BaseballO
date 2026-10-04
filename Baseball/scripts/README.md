@@ -9,23 +9,12 @@ For documentation, review the diff and run `git diff --check`. For changed code,
 run the smallest useful check and leave routine integration, validation, retry, and publication
 to NiFi. Read existing failure evidence before running anything again.
 
-[`validate_repository.py`](validate_repository.py) checks required paths,
-parses JSON, Turtle, and every registered SPARQL file, verifies local Markdown links and
-Mermaid fences, validates 546 distinct completed-game identities including the
-separately scoped 2026 All-Star Game identity/date contract, runs
-the mapping-specific validators against the fixture and accepted baseline,
-checks challenge versus umpire-review context, executes web tests, and verifies the current query audit, index,
-operational-routing, algebra, and TDB2 evidence artifacts.
-It also meta-validates the three core SHACL profiles and proves with negative smoke
-graphs that incomplete authoritative, index, and reasoning-output structures
-are rejected.
-Source-owned operational profiles have a separate registered inventory; the
-three core profiles are not the complete set of source admission checks.
-It also runs the selective-reasoning tests for slice isolation, positive and
-negative entailments, computational budgets, deterministic output, and CLIF
-translation.
+[`validate_repository.py`](validate_repository.py) is the aggregate gate run by
+NiFi's Repository Evidence observer. Its executable registry and the
+[test guide](../tests/README.md) own the component inventory; this directory
+index does not duplicate that changing list.
 
-Before those integration checks, the repository validator now runs two
+The repository validator includes two
 fail-closed curation controls:
 
 - [`validate_ontology_curation.py`](validate_ontology_curation.py) enforces the
@@ -66,28 +55,12 @@ python scripts/generate_rml_mermaid.py --check
 
 The check fails for unassigned triples maps, nonexistent manifest references, oversized review patterns, extra output files, or generated files that no longer match the RML and manifest. Repository validation runs this check automatically. Use generation only when its owning RML or pattern manifest changes, not for SQL or presentation edits.
 
-The [`pipeline/`](pipeline/) scripts are versioned components invoked by the
-source-owned NiFi lanes. They run RML, validate generated RDF with source
-SHACL, promote complete named graphs, build the Game query index, materialize
-approved SQL grains, audit 51 canned and 17 advanced queries, benchmark 19
-reviewed pairs, and enforce 16 indexed plus three authoritative routes. The
-direct game importer is a developer fallback; there is no active NiFi manual
-inbox. External API responses are staged transiently and removed after the
-owning promotion and cleanup gates.
-
-`pipeline/verify-explorer-serving.py` is the fail-closed black-box suite used
-when admitting Explorer families to SQL. It probes every routine family and
-sends `X-BaseballO-Require-Materialized: true`, so the current contract is
-expected to reject families that have not yet passed equivalence. A future
-full-family acceptance run must retain one consistent SQL build ID, corpus
-fingerprint, coverage tuple, row count, and duration per probe.
-
-`pipeline/prove-serving-equivalence.py` closes the pre-admission gap. NiFi
-uses its isolated `query-serving-candidate.py` adapter to compare pending SQL
-with a forced authoritative Explorer response before any route status is
-changed. The comparison requires exact RDF terms, rows, ordering, corpus
-fingerprint, and one immutable SQL build. It records evidence but cannot admit
-a route.
+The [pipeline component guide](pipeline/README.md) covers RML execution,
+source SHACL, graph loading, query indexes, SQL materialization, query routing
+and equivalence. Source-specific stages and targeted repairs remain in their
+own [source modules](../sources/README.md). The
+[NiFi runbook](../infra/nifi/README.md) owns provisioning and submission; the
+[serving guide](../serving/README.md) owns SQL publication and route admission.
 
 `pipeline/record-repository-validation.py` is the NiFi-owned wrapper around the
 aggregate repository gate. It writes immutable JSON plus separately hashed
@@ -99,18 +72,8 @@ and actual validator exit code but does not certify a pass or failure for that
 commit. The existing scheduled/manual trigger retries after publication.
 Stable committed failures still fail; a deferral never admits source data.
 
-The clean NiFi runtime is provisioned per source module. Seven detachable
-process groups own Games, Teams, Leagues, Divisions, People, Venues, and
-Transactions. Each has independent acquisition, RML, source SHACL,
-authoritative promotion, cleanup, retry, quarantine, and provenance. The Game
-lane additionally owns atomic authoritative/index graph-pair promotion and
-batch-aware SQL materialization. The shared source-stage dispatcher is
-[`pipeline/process-source-stage.ps1`](pipeline/process-source-stage.ps1);
-NiFi owns its scheduling and dependency order.
-
-The aggregate repository-validation stage is a separate asynchronous observer.
-It does not control, pause, or promote any source lane, authoritative graph, or
-serving pointer. Do not invoke retired configurators or reconstruct the deleted
+The aggregate observer does not control, pause or promote source lanes,
+authoritative graphs or serving pointers. Do not reconstruct the retired global
 control plane around it.
 
 [`infra/migrate-rdf-storage.ps1`](infra/migrate-rdf-storage.ps1) performs the

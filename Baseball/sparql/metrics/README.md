@@ -39,7 +39,9 @@ acquisition, RML execution or a season-wide calculation.
 
 PAQ-1.0 remains a separately versioned legacy metric. Do not relabel its scores
 as PAQ-2. The public dashboard defaults to selected-period averages, except
-Empty Games as a count, and applies the accepted automatic participation minima.
+Empty Games as a count. The accepted automatic participation minima apply to
+averages and rates; Empty Games has no appearance minimum. Source and population
+completeness remain separate requirements.
 
 ## Accepted policies
 

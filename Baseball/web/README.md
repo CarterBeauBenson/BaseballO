@@ -117,10 +117,15 @@ the analytical catalog without changing metric IDs, formulas, units used in
 calculations or eligibility. Technical names remain searchable and visible
 in the detail disclosure. The generated worked guide uses the same labels.
 
-The contribution dashboard is `/metrics`. It starts with the latest loaded
-day selected and stores the metric, game set and dates in the URL. It loads
-the 19 public metrics automatically on entry and after valid range changes.
-Qualified player cards show the top five; selecting a card opens the full list.
+The contribution dashboard is `/metrics`. It defaults to the full latest loaded
+season and stores the metric, game set and dates in the URL. It loads the 19
+public metrics automatically on entry and after valid range changes. Player
+cards show up to five leaders; selecting a card opens the full list. Values
+are selected-period player averages, except Empty Games as a game count.
+Automatic participation minimums apply to averages and rates, with
+role-appropriate criteria; Empty Games has no appearance minimum. See the
+[player leaderboard contract](../serving/PLAYER-LEADERBOARDS.md) for qualification
+and the separate source/population completeness requirements.
 Role Realization Breadth remains a backend measure. The summary
 counts selected games, metrics with scoped results, metrics with individual
 results, and metrics without scores. Search or filter the cards, then select
@@ -128,8 +133,7 @@ one to open its exact result and evidence without another query. **Back to
 dashboard** returns to the overview. Downloads preserve the complete response;
 changing dates immediately clears cards, details and downloads.
 
-The example link selects August 25, 2026; availability depends on the published
-SQL build. The [nine-run proof](../benchmarks/metrics/c1-run-depth-2026-09-14/README.md)
+The dated [nine-run proof](../benchmarks/metrics/c1-run-depth-2026-09-14/README.md)
 and [dashboard capture](../benchmarks/metrics/dashboard-2026-09-14/README.md)
 preserve the September 14 implementation evidence, when only limited award,
 review and scoring-history slices were available. They are historical snapshots.
@@ -149,16 +153,13 @@ answers. Run it with `--check` to verify both generated artifacts.
 Selection changes hide the old result and disable its download immediately.
 Aborted or late requests cannot replace the current status. Dates printed on
 the result come from its response. Exact fractions survive downloads; display
-rates use percentages and trajectory counts use integer formatting. A single
-supported play shows its own score and player prominently; multiple plays are
-listed individually without an invented aggregate. Coverage, loaded dates and
-technical records remain available in disclosures.
+rates use percentages and counts use integer formatting. Player summaries
+cover the selected range, with individual evidence available in details.
+Coverage, loaded dates and technical records remain available in disclosures.
 
-Optional player labels come from `sparql/options/metric-display-labels.rq`, restricted
-to the result's existing game graphs and player IRIs. The server allows three
-seconds for this annotation lookup, then keeps the successful metric result
-with explicit IDs if labels are unavailable. Conflicting labels are not chosen
-arbitrarily. Annotations remain outside the metric value and evidence admission.
+Player labels are prepared in SQL during the NiFi build. Dashboard requests do
+not perform a separate SPARQL annotation lookup; label availability is separate
+from metric values and evidence admission.
 
 `tests/metrics-browser-smoke.ps1` is a focused Windows check using isolated
 headless Chrome and the running Explorer. It verifies all nineteen worked metric
@@ -180,7 +181,7 @@ Explorer. When server or query-builder code changes, its startup fingerprint
 causes the launcher to restart only the stale Node process before opening the
 browser.
 
-Start Fuseki first, then launch the explorer from the repository root:
+For server development without the desktop launcher, run from the repository root:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File Baseball/scripts/infra/start-fuseki.ps1
@@ -191,7 +192,9 @@ npm start
 Open <http://127.0.0.1:4173/>. The interface reports whether Fuseki is connected
 and how many authoritative game graphs are loaded.
 
-Run the web checks with:
+For a change affecting the web application, select the relevant check from
+[tests](../tests/README.md). The web package exposes these commands; they are
+not a documentation-edit or whole-repository release checklist:
 
 ```powershell
 Set-Location Baseball/web
@@ -199,7 +202,7 @@ npm test
 npm run check
 ```
 
-## Current capabilities
+## Legacy Explorer capabilities
 
 - batting, pitching, baserunning, and game/assignment question families;
 - a shared official-game-date scope resolved from a compact, short-lived

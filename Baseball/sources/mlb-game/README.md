@@ -4,14 +4,12 @@ This module owns the MLB Stats API `feed/live` game response boundary.
 Ownership does not establish that every API field or case is mapped; coverage
 is recorded separately in the source contract and mapping documentation.
 
-The accepted [K1 repair](../../archive/design-records/mlb-game-strikeout-double-play/README.md)
-uses `nifi/provision-compound-addition.ps1` to run the existing additive
-transaction for five named games. Its worker acquires only a needed named
-response, retains separate source provenance, selects the compound result and
-its two existing outs, and adds only absent triples. The first game must pass
-before the other four are selected. The ordinary admission owner then checks
-the affected promoted graph against the retained witness; SQL remains RDF-fed.
-No whole-game RML replay or corpus replacement is part of this repair.
+Start with the [current RML repair plan](review/rml-audit-2026-10-03.md#current-repair-plan-and-scope)
+and its [October 4 closure](review/rml-audit-2026-10-03.md#six-item-repair-implementation-october-4)
+for diagnosed failures, implemented generic fixes and targeted historical
+corrections. This README describes the module contract. Submission and repair
+counts do not establish complete dashboard populations; those belong in
+[metric readiness](../../serving/METRIC-READINESS.md).
 
 - [`schema/`](schema/) records the observed source contract.
 - [`mapping/`](mapping/) contains the only executable RML and source-field IRI
@@ -60,9 +58,10 @@ source-owned SHACL profile before promotion.
 gate; [`SEMANTIC-AUDIT.md`](SEMANTIC-AUDIT.md) preserves the original audit and
 records how the accepted 2026-08-31 migrations resolved it.
 
-Future MLB-game fields still require reviewed proposals. Other MLB APIs and
-Statcast remain detachable source modules with their own Mermaid, RML, SHACL,
-and NiFi lanes; no later source may broaden this module implicitly.
+New MLB-game semantic assertions still require review. Missed cases within an
+accepted field are coverage debt in this lane. The other active MLB APIs have
+[separate source modules](../README.md); future sources such as Statcast require
+their own accepted boundary. No other source may broaden this module implicitly.
 
 The source-owned 05:00 Eastern trigger is enabled.
 Schedule runs materialize SQL once per completed batch rather than once per
@@ -155,49 +154,22 @@ work. This changes scheduling only; the existing source and SHACL checks still
 decide which records can be used. Already checked players remain distinct from
 unchecked players even when their whole-game admission is withheld.
 
-The Q5 edit changed only `batter_participation_context` in the shared context
-file. Runner-resolution, pitch-count and defensive proof code does not call
-that definition, directly or transitively. Their exact pre/post implementation
-pairs are recorded in `pipeline/context-proof-compatibility.json`. The focused
-regression compares both context revisions, all remaining module code and
-constants, each family's referenced context definitions and transitive calls,
-and its complete producer/SHACL/validator fingerprint.
+Independent admission proofs can be reused only through the exact recorded
+implementation-compatibility chain in `pipeline/context-proof-compatibility.json`.
+Reuse checks promotion, source/graph identity and retained validation artifacts;
+the original fingerprint, issues and status remain intact, with separate
+`implementationReuse` provenance. Unknown implementations are not compatible,
+and a withheld proof never becomes admitted merely because code changed.
 
-`admission-evidence.py` can therefore reuse those exact original proofs after
-checking their promotion, graph/source identities and every retained validation
-artifact. The original implementation fingerprint, status and issues remain
-intact, with separate `implementationReuse` provenance. A previously withheld
-proof stays withheld. Unknown code versions are ineligible for this reuse;
-runner-boundary is excluded because it calls the changed definition. This
-decouples an unrelated code edit without renewing evidence or changing source
-semantics. NiFi maintenance reports `implementation-compatible` separately from
-current, stale and missing evidence.
-
-The same record identifies three exact pre-T1 positive-proof implementations:
-batting, scoring-run and runner-resolution. T1 preserved their SHACL contracts
-and replaced the source's all-issues prerequisite with its structural-issues
-subset. A prior admitted proof with a hash-bound reconciled census and no
-issues already passed the stricter prerequisite. Its source checks and graph
-conformance remain usable. The regression verifies the original issue
-predicates, T1's exact clock partition, unchanged census logic otherwise,
-unchanged shapes/validator and (for runner resolution) unchanged context
-function. These entries require an original admitted result and empty census
-issues. They cannot upgrade prior withholding or introduce replacement times.
-
-The September 23 quarantine diagnosis found 30 games eligible for a retry
-under existing fixes. The remaining 13 are covered by the accepted
-[Q5/Q6 source-contract decision](../../archive/design-records/mlb-game-quarantine-boundaries/README.md).
-Q5 now selects the incoming batter only for an explicit event-zero, 0–0 pinch
-hitter matching the final matchup and having subsequent batting evidence.
-It supplies no outgoing identity, role transition or official statistical
-credit. Q6 keeps the original source census inconsistent when it reports an
-incomplete play or absent inning total. Clock and runner-history SHACL can
-still check independently selected RDF. A numeric run-total disagreement or
-other membership/identity failure remains blocking. The runner-history proof
-can report `promotionAllowed: true` with `status: withheld`,
-`sourceReconciled: false`, and `populationComplete: false`; that permits graph
-promotion while keeping dependent metric populations withheld. All graph
-conformance checks still run before promotion.
+The accepted [Q5/Q6 decision](../../archive/design-records/mlb-game-quarantine-boundaries/README.md)
+separates source completeness from independently checkable graph facts. Q5
+selects an incoming batter only with the accepted replacement and actual
+participation evidence; it does not invent the outgoing identity or statistical
+credit. Under Q6's two named incomplete-source cases, clock, runner-history and
+supported defensive-act SHACL can still check selected RDF. Missing source
+totals keep complete metric populations withheld. Conflicting numeric totals,
+identity failures and unsupported acts remain blocking. A graph-conforming
+partial repair is not a complete population certificate.
 
 ### W1/W2 targeted intentional-walk awards
 
@@ -215,17 +187,13 @@ input and later retained selection witness keep separate hashes.
 It runs the reviewed game 822864 first, then scans retained inputs in bounded
 batches, with at most one game mutation per tick and two attempts per implementation.
 Evidence is under `pipeline/control/mlb-game/award-addition/` and the ordinary
-per-game evidence/promotion directories. The worker never acquires API inputs
-or rewrites retained raw bytes. Positive proof compatibility and unchanged
+per-game evidence/promotion directories. Ordinary repairs use retained inputs;
+the separately bounded one-game recovery inventory handles the recorded input
+retirement race described in the [pipeline guide](pipeline/README.md). Raw
+source bytes remain unchanged. Positive proof compatibility and unchanged
 independent/player proofs preserve their exact producer versions; new promotions
 cannot inherit an old graph's receipts. This does not resolve unrelated runner,
 defensive or review populations.
-
-The first W1/W2 addition completed September 29 at 14:23 Eastern: game 822864,
-PA 54, runner row 0 received 15 award triples and eight dependency triples.
-The 27,823 existing triples were preserved; the resulting graph has 27,846.
-Both the selected-award and scoped authoritative SHACL reports conform. This
-is one repaired award pattern, not admission of the game's other unresolved PAs.
 
 The separately accepted [R1 addition](../../archive/design-records/mlb-game-runner-pattern-completion/README.md)
 completes existing runner patterns in its exact 26-game retained-input inventory.
@@ -250,7 +218,7 @@ summary is also recorded by the existing NiFi logger. `checkedAtUtc` identifies
 the observation time; a stopped worker leaves an old report, not a current
 health claim.
 
-The report reads the six targeted repair queues, admission-maintenance
+The report reads its registered targeted repair queues, admission-maintenance
 checkpoints, history-discovery inventory and game RML quarantines. It counts
 uninspected promoted games and inspections bound to an older promotion or
 implementation separately. Selected history jobs must match the worker's own
@@ -271,8 +239,10 @@ Before draining repairs, the same worker now inspects up to 100 retained
 promotion receipts, prioritizing games it has never inspected. This metadata
 pass only writes named repair requests; source preparation and additive mapping
 remain separate bounded steps. `awaitingSource` is pending work, not completion.
-Inspection fingerprints cover the selector and accepted context, so reporting
-or execution-queue edits do not invalidate the inspection census. An identical
+Inspection fingerprints cover the history selector and its relevant context
+definitions, constants and imports. Unrelated main assembly, defensive selection,
+terminal-clock selection, reporting and compatibility bookkeeping do not
+invalidate that census; a relevant helper change still does. An identical
 selected request is retained even after its successful input cleanup.
 
 When a retained response fails the existing history-identity check, discovery
@@ -286,11 +256,6 @@ An ambiguous roster still blocks player-participation admission. Its exact
 producer, promotion and source witness are recorded under `familyFailures` in
 the existing admission checkpoint; independent admission families continue.
 The observer includes those failures even if other families are current.
-
-The pending-batch SQL owner also applies its existing three-build retention
-policy before launching another build. Retention therefore continues when
-publication fails. It protects current report SQL and the newest candidates,
-and leaves the dashboard's separate storage and all source/RDF evidence alone.
 
 Existing source owners continue bounded discovery and retries. The observer
 only writes its report: it does not acquire inputs, execute RML, query RDF,

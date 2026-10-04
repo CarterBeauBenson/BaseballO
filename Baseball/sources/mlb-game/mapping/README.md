@@ -1,8 +1,9 @@
 # MLB game feed to BaseballO RML
 
 This package maps an untouched completed MLB feed/live JSON document to RDF.
-An isolated execution-context copy supplies ancestor identifiers that the
-selected RML processor cannot resolve from nested JSONPath records.
+An isolated execution-context copy supplies ancestor identifiers, reconciled
+source joins and the accepted selection guards used by the RML processor.
+It never rewrites the original response.
 
 ## Active mapping
 
@@ -92,8 +93,17 @@ The temporary mapping also materializes safe root identifiers:
 When an optional adjudicator is absent, the harness removes only the
 marker-bearing participant and role assertions from the temporary mapping.
 Judgment, decision, and counted-process individuals remain. The checked-in
-mapping and authoritative source are unchanged. Source, context-builder,
-execution-context, mapping, and output hashes are recorded.
+mapping and authoritative source are unchanged. The runner snapshots the mapping,
+context builder, reconciler, graph-source scope and semantic freeze before
+execution, then checks both original and staged dependencies before publication.
+The manifest records the executed hashes, execution context and RDF output.
+See the [execution repair record](../review/rml-audit-2026-10-03.md#six-item-repair-implementation-october-4).
+
+The shared terminal selector includes a genuine PA with an advisory result
+label but excludes pure administrative records. Missing terminal time fails
+instead of selecting an earlier play. Contradictory boundary pairs follow the
+accepted T1 omission rule. These guards apply to future ingestion as well as
+the separately scoped historical repair.
 
 ## Identity
 
@@ -176,7 +186,7 @@ completed-game preconditions, identifiers, structural runner identities, and
 legacy composite collisions. The NiFi execution harness runs the pinned
 RMLMapper and the generated-RDF validator,
 which requires persistent role IRIs and matching bearers, complete accepted-player participation, complete ancestor context on every pitch, swing/bunt act, and
-contact; one corroborated game-end timestamp; supported physical chains; adjudication structure;
+contact; the corroborated game-end timestamp when available; supported physical chains; adjudication structure;
 shared foul-tip/strike identity; and event-record separation.
 The resulting Turtle must then conform to the separate
 [`authoritative SHACL profile`](../shacl/authoritative.ttl) before it is

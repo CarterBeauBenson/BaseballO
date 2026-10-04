@@ -23,108 +23,34 @@ to continue, lack of objection, or implementation speed. Accepted proposals
 move to `archive/design-records/`; rejected proposals remain archived with
 their rejection rationale so they cannot be accidentally revived.
 
-## Recent accepted decisions
+## Accepted decisions and implementation status
 
-Accepted October 4: [F8 counted-foul substitutions and paired reviews](../archive/design-records/mlb-game-foul-substitution-review-completion/README.md)
-selects eight missing strikes in seven games through the existing additive owner.
-Its candidate passes the focused retained-source check; active mappings and
-context pins remain unchanged until implementation after this published decision.
+Accepted and rejected packages live in the
+[design-record archive](../archive/design-records/README.md). Their READMEs
+record the scope and evidence at the time of review; they are not live work
+queues. The [MLB game repair plan](../sources/mlb-game/review/rml-audit-2026-10-03.md#current-repair-plan-and-scope)
+and its [October 4 closure](../sources/mlb-game/review/rml-audit-2026-10-03.md#six-item-repair-implementation-october-4)
+track implementation and targeted promotions. Use
+[metric readiness](../serving/METRIC-READINESS.md) for downstream populations.
 
-Accepted October 4: [P1 actual pitching participation](../archive/design-records/mlb-game-actual-pitcher-participation/README.md)
-corrects per-pitch attribution across an explicit mid-PA replacement. The
-verified live case in 823420 needs two wrong relations removed and three
-supported relations added. Its graph correction is a review-only preview.
+Recent accepted packages include:
 
-[H4 runner-review completion](../archive/design-records/mlb-game-runner-review-completion/README.md)
-was accepted on October 4, including its scoped context-pin update. It repairs
-two completed-review selections and authorizes eight missing histories and
-supported boundary dependencies through existing additive NiFi owners.
-
-[W3 final award selection](../archive/design-records/mlb-game-final-award-selection/README.md)
-was accepted on October 3: two reviewed hit-by-pitches and three intentional
-walks receive only their missing existing award/dependency facts. Activation
-follows this separately published decision; physical pitches and earlier
-independent running remain separate.
-
-[F7 pre-pitch batter replacement chain](../archive/design-records/mlb-game-prepitch-batter-chain/README.md)
-was accepted on October 3, including its scoped context-pin update. It addresses
-823312's counted foul using the existing strike pattern and additive owner.
-
-[F6 error-count prefix](../archive/design-records/mlb-game-error-count-prefix/README.md)
-was accepted on October 3, including its scoped context-pin update, for
-823172's remaining counted foul. NiFi owns its targeted additive repair.
-
-[F5/D2 foul and defensive selection repair](../archive/design-records/mlb-game-foul-defense-selection-repair/README.md)
-was accepted on October 2, including its exact scoped context-pin update.
-The exact context repair is active; NiFi owns targeted validation and promotion.
-
-[F4 counted-foul prefix repair](../archive/design-records/mlb-game-counted-foul-prefix-repair/README.md)
-was explicitly accepted on October 1, including its scoped context-pin update.
-It reuses accepted replacement witnesses and existing foul-strike maps for the
-three identified strikes in 822682 and 822688. Runtime results remain separate.
-
-[The September 30 answers](../archive/design-records/metric-repair-scope-2026-09-30/answers.md)
-accept targeted reacquisition, independently supported boundaries despite
-overlapping temporal regions, explicit reconciled hit-and-run descriptions,
-and proportional shared-out erosion. They supplement the user's narrow RML
-repair approval. [K1's five-game compound-result repair](../archive/design-records/mlb-game-strikeout-double-play/README.md)
-is archived as accepted; implementation and population results remain separate.
-
-[R1 existing runner-pattern completion](../archive/design-records/mlb-game-runner-pattern-completion/README.md)
-was explicitly accepted on September 29 for additive completion in 26 identified
-games using retained inputs and unchanged mappings. No new vocabulary, API
-acquisition or graph replacement is authorized. Execution results remain separate.
-
-[W1 intentional-walk prefixes](../archive/design-records/mlb-game-zero-pitch-walk-prefix/README.md)
-was explicitly accepted on September 29. The shared selector and targeted
-addition of existing award facts are authorized; implementation and runtime
-results remain separate from this decision. No new vocabulary or rebuild is authorized.
-
-[Q7 zero-episode history isolation](../archive/design-records/mlb-game-zero-episode-history-isolation/README.md)
-was explicitly accepted on September 23. Its targeted additions completed in
-two existing games: seven supported histories and 49 triples were added while
-unsupported zero-episode pinch-runner histories remained withheld. No new
-vocabulary or full-game replacement was introduced. Derived SQL consumption
-is tracked in [current readiness](../serving/METRIC-READINESS.md).
-
-[Q5/Q6 quarantine boundaries](../archive/design-records/mlb-game-quarantine-boundaries/README.md)
-was explicitly accepted on September 23. The archived decision covers the
-five initial pinch-hitter records and eight incomplete source censuses,
-with no new terms and no admission of incomplete metric populations.
-
-[T1 clock-conflict isolation](../archive/design-records/mlb-game-clock-conflict-isolation/README.md)
-was explicitly accepted on September 17. Contradictory clock pairs withhold
-both boundary measurements and dependent histories or metrics while preserving
-independently validated acts and results. No replacement timestamps or new
-ontology terms are authorized.
-
-[D1 defensive-act projection](../archive/design-records/mlb-game-defensive-acts/README.md)
-and [M3/M4 counted-foul completion](../archive/design-records/mlb-game-counted-foul-completion/README.md)
-were explicitly accepted on September 16 and archived. Their implementation
-uses existing terms and creates no object properties. Source and population
-proofs remain required before live metric admission.
-
-The [September 15 completion answers](../archive/design-records/metric-completion-decisions-2026-09-15/user-decision.md)
-accept B2 contact continuations, catcher-interference exclusion, separate
-substituted Batter Acts, automatic ball/strike awards, supported defensive
-action evidence, time-specific review eligibility, walk-off boundaries and
-the exact leaderboard minima. The subsequent
-[two-choice follow-up](../archive/design-records/metric-completion-decisions-2026-09-15/followup-user-decision.md)
-assigns confirmed failed hit-and-run damage to the batter and qualifies
-Contribution Mix through either batting or independent running. Confirming a
-called strategy in source evidence remains separate; the earlier equal split
-for genuinely independent simultaneous outs was not accepted.
+| Decision | Accepted scope |
+| --- | --- |
+| [F8](../archive/design-records/mlb-game-foul-substitution-review-completion/README.md) | Counted-foul substitutions and paired reviews |
+| [P1](../archive/design-records/mlb-game-actual-pitcher-participation/README.md) | Actual pitching participation across a replacement |
+| [H4](../archive/design-records/mlb-game-runner-review-completion/README.md) | Runner-review completion |
+| [O1](../archive/design-records/mlb-game-placement-replacement-overlap/README.md) | Supported placement-to-pinch-runner history overlap |
+| [W3](../archive/design-records/mlb-game-final-award-selection/README.md) | Final award selection |
+| [F7](../archive/design-records/mlb-game-prepitch-batter-chain/README.md) | Pre-pitch batter replacement chain |
+| [F6](../archive/design-records/mlb-game-error-count-prefix/README.md) | Error-count prefix |
+| [F5/D2](../archive/design-records/mlb-game-foul-defense-selection-repair/README.md) | Foul and defensive selection repair |
 
 The [metric suite batch review](graph-native-metric-suite-batch-review/README.md)
-retains the original consolidated research and review inventory. Subsequent
-accepted decisions supersede its older open questions; use
-[current metric readiness](../serving/METRIC-READINESS.md) for the remaining
-implementation and population work. Its draft status grants no additional
-semantic approval.
-
-The accepted source-independent review surface for the next MLB implementation
-pass is archived as
-[`FINAL-MLB-RML-REVIEW.md`](../archive/design-records/FINAL-MLB-RML-REVIEW.md).
+retains the original research inventory. Subsequent accepted decisions
+supersede its older open questions; its draft status grants no additional
+semantic approval. The accepted source-independent MLB review remains in
+[FINAL-MLB-RML-REVIEW.md](../archive/design-records/FINAL-MLB-RML-REVIEW.md).
 
 ## Active reviews
 
@@ -224,7 +150,3 @@ Generated Mermaid from finished RML is a regression artifact, not a substitute
 for pre-implementation review. The current semantic baseline is frozen and
 unratified; an existing executable artifact is not itself evidence that its
 pattern was accepted.
-
-The [M1/M2 metric mapping extension](../archive/design-records/mlb-game-metric-mapping-completion/README.md) was accepted on 2026-09-15. Its other inventory gaps remain unresolved.
-
-- [W2: W1 award dependencies](../archive/design-records/mlb-game-w1-award-dependencies/README.md) - accepted September 29; four existing dependency maps limited to W1-selected rows.

@@ -17,11 +17,14 @@ responses are transient: NiFi preserves exact bytes through the owning
 promotion and cleanup gates, retains compact hashes and evidence, then removes
 the raw JSON.
 
-The accepted games, organizations, people, venues, and transactions lanes are
-independent NiFi process groups. NiFi owns discovery, dependency order,
+The seven [source modules](../../sources/README.md) have independent NiFi
+process groups for Games, Teams, Leagues, Divisions, People, Venues and
+Transactions. NiFi owns discovery, dependency order,
 mapping, validation, promotion, retry, quarantine, cleanup, and provenance.
-Bulk and daily acquisition is released only after the lane has a completed
-proof for its current RML and SHACL hashes. Provision or submit a lane through
+Reference/transaction acquisition uses the current bounded-proof release
+check. The MLB Game schedule lane goes directly to acquisition under the
+accepted October 1 gate removal; per-game RML and SHACL still apply.
+Provision or submit a lane through
 its source-owned `sources/<source-id>/nifi/provision.ps1`; the exact switches
 and current process-group inventory are in the
 [NiFi runbook](../../infra/nifi/README.md).
@@ -76,14 +79,20 @@ NiFi validation stage owns semantic graph admission: it runs the authoritative
 SHACL profile and does not duplicate those competency-question answers in an
 imperative Python graph review. The context is disposable and never replaces
 the raw archive. The manifest
-records source, context-builder, execution-context, source-mapping,
-effective-mapping, and output hashes.
+records source, executed implementation, execution-context, source-mapping,
+effective-mapping and output hashes. Mapping, context, reconciler, graph-source
+scope and freeze are staged before execution; both originals and snapshots
+must remain unchanged before publication.
 
 The other source modules use `run-source-rml.ps1`. It verifies that both staged
 context and staged mapping match their recorded hashes. A failed run retains
 its mapping, context, partial RDF and full mapper log under the owning module's
 `pipeline/quarantine/<module>/rml/<run>/` state directory; successful staging is
 removed. NiFi's source quarantine stage separately retains the original inputs.
+
+The following loader replaces a whole graph and is not the targeted repair
+entry point. Authorized additions/corrections use the [source-owned workers](../../sources/mlb-game/pipeline/README.md)
+and preserve unrelated triples.
 
 `load-game-graph.ps1` parses the Turtle again before using Graph Store Protocol
 `PUT`. Repeating the load replaces the same graph rather than appending
@@ -123,11 +132,12 @@ powershell -ExecutionPolicy Bypass -File `
   -VerifyBaseline
 ```
 
-Run the same command without `-VerifyBaseline` only when intentionally
-regenerating the reviewed baseline. The audit explicitly scopes every query to
-the eight corpus graphs, detects empty and duplicate result sets, and records
-order-independent RDF-term-aware hashes under
-[`benchmarks/canned-query-audit/`](../../benchmarks/canned-query-audit/).
+Checked-in benchmark captures are immutable. A new run needs a distinct capture
+and its own scope; do not overwrite the reviewed baseline to make verification
+pass. The audit scopes queries to the eight corpus graphs and records
+order-independent RDF-term-aware hashes. See the
+[benchmark evidence contract](../../benchmarks/README.md) and
+[canned audit](../../benchmarks/canned-query-audit/README.md).
 
 The corresponding 17-query advanced audit component is:
 
@@ -219,54 +229,13 @@ Offline negative regressions prove that changed package bytes are rejected and
 that malformed `CONSTRUCT` input removes the stale index without damaging the
 authoritative graph.
 
-## Clean NiFi MLB-game lane
+## NiFi operation
 
-The replacement flow is source-owned rather than assembled from shared global
-configurators. Start the local NiFi runtime, provision the stopped group, and
-optionally submit exactly one proof from the repository root:
-
-```powershell
-.\Baseball\scripts\infra\start-nifi.ps1
-.\Baseball\sources\mlb-game\nifi\provision.ps1
-.\Baseball\sources\mlb-game\nifi\provision.ps1 -RunProof -ProofGamePk 566279
-```
-
-The process group implements this visible order for each final game:
-
-```text
-MLB Games API -> transient JSON -> RML -> source SHACL
-  -> atomic authoritative/index graph-pair promotion
-  -> approved SPARQL materialization -> SQLite -> cleanup
-```
-
-Schedule discovery and the 05:00 Eastern trigger are part of this same source
-group. A schedule response is reduced to a compact batch manifest plus final
-game requests; raw API responses remain transient. NiFi owns dependency order,
-three-attempt stage retries, source-local quarantine, and provenance. The
-source component
-[`stage.ps1`](../../sources/mlb-game/pipeline/stage.ps1) invokes the accepted
-mapping, current SHACL profile, graph-pair transaction, query-index builder, and
-serving materializer. The direct importer remains a developer fallback and is
-not the routine workflow.
-
-Successful runs delete the API JSON and redundant serialized Turtle only after
-the source-owned promotion and cleanup contract is satisfied. Corpus game runs
-record deferred materialization work in a compact batch manifest; the
-pending-batch processor promotes one SQL build after every expected game has a
-current graph pair. Failed runs retain the payload under
-`%LOCALAPPDATA%\BaseballO\state\pipeline\quarantine\mlb-game`.
-Stage and promotion evidence remains under the corresponding `evidence`
-tree. Inspect that evidence after completion or failure; do not continuously
-watch an ordinary run.
-
-## External acquisition schedule
-
-Every active MLB source group owns its `0 0 5 * * ?` trigger, interpreted in
-America/New_York. The game group discovers completed games from the schedule
-endpoint. People and venues discover their populations before issuing
-per-record detail requests. Teams, leagues, divisions, and transactions retain
-their separate endpoint-specific connectors. Stopping or rebuilding one group
-does not stop an unrelated source.
+The [NiFi runbook](../../infra/nifi/README.md) owns runtime provisioning,
+asynchronous proof/corpus submission, source schedules and downstream groups.
+The [MLB Game pipeline guide](../../sources/mlb-game/pipeline/README.md) owns
+stage order, resource leases, two-attempt stage limits, promotion, cleanup and
+quarantine behavior. Do not copy those instructions into a second scheduler.
 
 ## Analytical serving
 

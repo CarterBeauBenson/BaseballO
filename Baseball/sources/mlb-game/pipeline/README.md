@@ -2,19 +2,23 @@
 
 This directory owns the source-specific executable stages used by the clean
 NiFi `MLB Game` process group. NiFi supplies the scheduling, FlowFile
-dependency order, bounded retries, quarantine routing, and provenance.
+dependency order, bounded retries, quarantine routing, and provenance. Each
+game work stage quarantines after two total failed attempts.
 
 `stage.ps1` exposes the accepted per-game lifecycle as separate actions:
 
 `rml -> shacl -> promote -> materialize -> cleanup`
 
-Additive award, runner, compound, foul, defensive and history repair workers
+Targeted award, runner, compound, foul, defensive and history repair workers
 share the existing resource lease around selection and execution, then take
 their source-game lock. This prevents another repair from retiring a selected
 input while its consumer waits. Award retry limits bind the exact source hash
 and implementation. The one-game `award-input-recovery.json` resumes a recorded
 retirement race through this same owner; it does not trigger full-game mapping.
-See the [October 2 audit](../review/rml-audit-2026-10-02.md).
+See the [October 2 audit](../review/rml-audit-2026-10-02.md). The existing runner
+owner also executes the explicitly inventoried P1 participation and game-end
+clock corrections. Those corrections remove only their named erroneous triples
+and add their verified replacements; they do not replace whole games.
 
 The RML harness counts pitch classifications from the identifiers selected in
 its reviewed execution context, keeping multiple runner rows for one pitch
@@ -34,7 +38,14 @@ withheld and stale proofs cannot take that shortcut. Existing selected jobs
 retain their original finalization and cleanup. See the [October 3 audit](../review/rml-audit-2026-10-03.md)
 for the recorded failures and focused regressions.
 
-Before invoking the unchanged RML, the `rml` action now calls
+The shared RML runner snapshots the mapping and its execution dependencies,
+executes those copies, and checks for changes before publishing its manifest.
+Normal context assembly and clock admission share the terminal selector; D1
+uses the accepted Q6 distinction between supported acts and complete populations.
+The [October 4 repair record](../review/rml-audit-2026-10-03.md#six-item-repair-implementation-october-4)
+records these generic changes and their focused recurrence checks.
+
+Before invoking the RML, the `rml` action calls
 `reconcile-metric-source.py`. It retains a source-revision/input-hash-bound
 inventory in the run's `metric-source-reconciliation.json`, with its path,
 digest and consistency result in the stage evidence. The inventory survives

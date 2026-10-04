@@ -72,23 +72,16 @@ Future modules are not represented by empty directories, reserved graph names,
 or placeholder NiFi groups. Their operational names enter the registry only
 when the module exists and can own the entire boundary.
 
-## Ordered source roadmap
+## Continuing source work
 
-- [x] Resolve the frozen MLB game semantic blockers and admit the corrected
-  pinned executable contract.
-- [ ] Finish useful, non-duplicative `feed/live` coverage through the accepted
-  source-extension sequence: evidence and selection inventory, Mermaid review,
-  named acceptance, RML implementation, then bounded source-owned proof.
-- [x] Implement the accepted teams/leagues/divisions, people, transactions,
-  and venues semantic contracts as separate MLB API modules. Shared provider
-  and identifiers do not merge their RML or SHACL.
-- [x] Operationally admit each reviewed MLB lane only after its bounded proof
-  passed. A later corpus request remains asynchronous and does not alter the
-  proof decision.
-- [ ] Restart Statcast as a new module from a fresh field inventory and
-  ontologist-approved world-side Mermaid. Do not reuse rejected Statcast RML,
-  SHACL, graph, or source-schema classes.
-- [ ] Add weather and travel/rest/circadian sources as independent modules only
-  after their own evidence and semantic review.
-- [ ] Add multi-source SPARQL only after its required source graphs can be
-  validated, promoted, disconnected, and rebuilt independently.
+The [project roadmap](../ROADMAP.md) owns the work order. The
+[MLB game repair plan](mlb-game/review/rml-audit-2026-10-03.md#current-repair-plan-and-scope)
+tracks diagnosed coverage debt and targeted repairs; the
+[proposal catalog](../proposals/README.md) tracks unresolved semantic decisions.
+A completed bounded proof does not establish full endpoint coverage.
+
+Future Statcast, weather and travel/rest work requires its own field inventory,
+source boundary and accepted world-side model. Rejected Statcast mappings and
+source-schema classes are not a starting point for a new module. Multi-source
+queries declare their independently promoted dependencies in the
+[SPARQL scope catalog](../sparql/source-scope-catalog.json).

@@ -26,6 +26,7 @@ The library is organized by the mapped domain rather than by one statistic:
 | [`baserunning/`](baserunning/) | Runs, runner event types, stolen bases, outs, and safe/out/run resolution totals |
 | [`games/`](games/) | Games by season/venue/team, home-away splits, matchups, umpires, official scorers, and timelines |
 | [`options/`](options/) | Discovery queries that populate UI select boxes from loaded values |
+| [`metrics/`](metrics/) | Accepted metric policies and graph evidence for NiFi-prepared dashboard results |
 | [`advanced/`](advanced/) | Seventeen event-chain analytics with explicit positive, completeness-gated, integrity-audit, and decision-support semantics |
 | [`query-index/`](query-index/) | Reviewable `CONSTRUCT` components for the disposable per-game shortcut graph |
 | [`query-modules/`](query-modules/) | Separate hash-pinned catalogs for additive event DSQs over indexed RDF and reusable identity/attribute grains over promoted authority RDF |
@@ -96,9 +97,10 @@ classes directly, so they do not depend on OWL subclass inference. They count
 the result once rather than also counting its source record, judgment, or
 decision.
 
-The source season field is not currently emitted as RDF. `?season` is therefore
-derived with `YEAR` from the mapped first-pitch timestamp. This is an explicit
-query-layer convention, not a stored statistic.
+These legacy hit queries derive `?season` with `YEAR` from the mapped
+first-pitch timestamp. That query convention does not mean season evidence is
+absent from current RDF: the MLB game mapping also has accepted Season and
+Season Phase patterns.
 
 ### Restricting a query
 
@@ -134,7 +136,10 @@ rather than raw SPARQL.
 
 ## Empty Games prototype
 
-[`empty-games-prototype.rq`](empty-games-prototype.rq) is an executable review query, not yet the final product definition. It uses `BatterAct` for offensive participation and recognizes reviewed contribution process patterns, including:
+[`empty-games-prototype.rq`](empty-games-prototype.rq) preserves the separately
+versioned legacy Explorer definition. It is not the new dashboard definition.
+It uses `BatterAct` for offensive participation and recognizes reviewed
+contribution process patterns, including:
 
 - single, double, triple, home run, or walk;
 - sacrifice fly or fielder's choice;
@@ -147,9 +152,8 @@ depend on MLB provider tokens. Set-based exclusions preserve the same negative
 definition without repeating each absence test for every batter act.
 
 Runner acts and resolutions are now explicitly linked to their enclosing plate
-appearance through execution-only structural context. The contribution policy
-still remains incomplete, so output must be treated as candidates for review,
-not a published statistic. The local Explorer exposes the same
+appearance through execution-only structural context. This prototype retains
+its original policy for reproducibility. The local Explorer exposes the same
 completeness-gated evidence through its authoritative route. Candidate SQL
 grains can be built for equivalence work, but the Empty Games route is not
 admitted to SQL by the current serving contract. The Explorer
@@ -159,7 +163,9 @@ pitchers the batter faced, or individual empty player-games. The pitcher view
 does not claim that the empty result occurred in that specific matchup; its
 limitation is displayed in the interface and result metadata.
 
-The project owner is needed before promotion from reviewed prototype to a final
-product definition to approve the contribution policy: productive outs,
-reach-on-error, hit-by-pitch, fielder's choice, sacrifice types, steals/caught
-stealing, pinch runners, and any minimum offensive-participation threshold.
+The dashboard uses the settled [metric-suite contract](../serving/METRIC-SUITE.md)
+and [player leaderboard rules](../serving/PLAYER-LEADERBOARDS.md). Its Empty Games
+value is a count without an appearance minimum; errors and fielder's choices
+do not receive positive credit. Historical questions in the prototype do not
+reopen those decisions. Population gaps are tracked in
+[metric readiness](../serving/METRIC-READINESS.md).

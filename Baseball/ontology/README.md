@@ -2,6 +2,13 @@
 
 [`BaseballO.ttl`](BaseballO.ttl) is the active project ontology. It contains the annotated class vocabulary and named-class taxonomy. Its natural-language definitions, labels, comments, examples, and taxonomic `rdfs:subClassOf` assertions can be shared without the optional logical restrictions.
 
+## Version history
+
+The notes below describe changes at the named versions, not a complete current
+mapping contract. For actual per-person Batter Acts across substitutions and
+other later mapping decisions, use the [MLB game mapping guide](../sources/mlb-game/mapping/README.md)
+and its accepted review records.
+
 Version `0.6.0` implements the accepted Final MLB authority and transaction
 review. It adds nineteen reviewed classes for Major League free agency,
 grounded roster-status declarations and their decision ICEs, player-side and
@@ -89,14 +96,15 @@ Unresolved modeling belongs in the single repository-level
 terms are not imported, used by executable RML, admitted to reasoning, or
 loaded into authoritative RDF. After ontologist acceptance, named-class
 taxonomy and annotations go in `BaseballO.ttl`, while reviewed restrictions go
-in `BaseballO-axioms-overlay.ttl`. New object properties require explicit
-approval.
+in `BaseballO-axioms-overlay.ttl`. New object properties are prohibited by the
+[repository guardrails](../../AGENTS.md#project-guardrails).
 
 Run `python Baseball/scripts/validate_ontology_overlay.py` from the Git
 repository root to verify that the base contains no optional restrictions, the
 overlay introduces no named vocabulary, every referenced class and object
 property occurs in the repository, and cardinality axioms do not use transitive
-properties. The full `python Baseball/scripts/validate_repository.py` check
-includes this validation.
+properties. NiFi's Repository Evidence observer includes this check in aggregate
+validation. Documentation-only edits require diff review and `git diff --check`,
+not ontology or repository validation.
 
 The earlier `0.2.0` snapshot is preserved in [`../archive/ontology-v0.2.0.ttl`](../archive/ontology-v0.2.0.ttl). Do not modify the active ontology merely to make a mapping convenient; unresolved MLB game coverage belongs in that source module's [`ontology-coverage-gaps.yaml`](../sources/mlb-game/mapping/ontology-coverage-gaps.yaml).

@@ -13,3 +13,12 @@ The `MLB Divisions` NiFi group passed its bounded proof, has an enabled 05:00
 Eastern trigger, promotes its own authority graph, and remains operationally
 independent of the Teams and Leagues groups. Current run status belongs to
 source-local terminal NiFi evidence, not this module contract.
+
+## Input contract
+
+The connector accepts a strict UTF-8 object with a non-empty `divisions`
+array. Selected values are root `id/name`, optional `league.id/name`, and the
+existing MLB `sport.id` guard. Other response fields remain unmapped.
+
+The execution context is `divisions-context.json`. Invalid selected values are
+quarantined before RML; successful raw and context bytes remain transient.

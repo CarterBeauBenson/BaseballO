@@ -2,8 +2,8 @@
 
 BaseballO reasons over one explicitly selected plate appearance at a time. It
 does not expose a full-game or corpus reasoning mode. Authoritative RML graphs
-remain immutable; every result is a disposable inferred graph with a build
-manifest and a reproducible ruleset fingerprint.
+are not modified by reasoning; every result is a disposable inferred graph
+with a build manifest and a reproducible ruleset fingerprint.
 
 Three small profiles are available:
 

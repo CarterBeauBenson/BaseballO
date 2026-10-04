@@ -5,9 +5,12 @@ Executable RML is source-owned. The active MLB game mapping is in
 source family owns its mapping inside its sibling module under `sources/`;
 none adds files to a shared direct-mapping directory.
 
-[`policies/`](policies/) contains only source-neutral realist modeling patterns
-that source modules may reuse. Source-field IRI templates and processor
-constraints belong to the module that owns those fields.
+[`policies/modeling-choices.yaml`](policies/modeling-choices.yaml) records the
+normative source-neutral modeling patterns that source modules may reuse.
+Source-field IRI templates and processor constraints belong to the owning
+module, such as the [MLB game IRI policy](../sources/mlb-game/mapping/iri-policy.yaml).
+A conflict with an accepted policy requires a modeling decision, not an
+implementation workaround.
 
 The former enriched Stage 1 prototype is retained under [`../archive/stage1-preprocessing-prototype/`](../archive/stage1-preprocessing-prototype/) for history only. It is not part of the active pipeline.
 
