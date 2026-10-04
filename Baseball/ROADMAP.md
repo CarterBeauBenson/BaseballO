@@ -46,6 +46,10 @@ its remaining comparisons and refreshed metadata inspections continue in NiFi.
 The plan remains open until those requests have terminal dispositions. The
 [latest checkpoint](sources/mlb-game/review/rml-audit-2026-10-03.md#full-plan-continuation-checkpoint-october-4-1604-utc)
 distinguishes that execution backlog from the documented source/modeling limits.
+The [normal-ingestion follow-through](sources/mlb-game/review/rml-audit-2026-10-03.md#normal-ingestion-follow-through-october-4)
+verifies the recent repairs through production RML with different game identities
+and removes an administrative-placement-to-physical-occupancy inference from
+the shared context builder. Future games receive these fixes through ordinary ingestion.
 Continue independent metric work over valid RDF.
 
 The October 2 RML repair snapshot is covered by

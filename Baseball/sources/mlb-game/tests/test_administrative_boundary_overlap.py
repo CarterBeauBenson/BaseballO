@@ -80,22 +80,27 @@ class AdministrativeBoundaryOverlap(unittest.TestCase):
     def test_only_history_selection_changed_and_proof_reuse_preserves_producers(self):
         def outside(raw):
             tree=ast.parse(raw);tree.body=[n for n in tree.body if getattr(n,'name',None)!='personal_runner_histories'];return ast.dump(tree)
-        self.assertEqual(outside(old),outside(ACTIVE.read_bytes()))
-        bridge=E.read(E.COMPATIBILITY_PATH)['administrativeBoundaryOverlap']
-        self.assertEqual(bridge['currentContextSha256'],E.sha(ACTIVE))
+        record=E.read(E.COMPATIBILITY_PATH)
+        bridge=record['administrativeBoundaryOverlap']
+        successor=record['normalIngestionPlacement']
+        completed=subprocess.check_output(['git','-C',str(ROOT.parent),'show',
+            successor['baselineCommit']+':Baseball/scripts/pipeline/prepare-rml-context.py'])
+        self.assertEqual(outside(old),outside(completed))
+        self.assertEqual(bridge['currentContextSha256'],hashlib.sha256(completed).hexdigest())
+        current=next(v for v in record.values() if isinstance(v,dict) and v.get('currentContextSha256')==E.sha(ACTIVE))
         for family,item in bridge['families'].items():
             adapter=E.module(E.HERE/(family+'-admission.py'),'overlap_test_'+family.replace('-','_'))
-            self.assertEqual(adapter.fingerprint(),item['currentImplementationSha256'])
+            self.assertEqual(adapter.fingerprint(),current['families'][family]['currentImplementationSha256'])
             reuse=E.code_equivalence(family,item['previousImplementationSha256'],adapter.fingerprint())
             self.assertEqual(reuse['kind'],item['reuseKind'])
             self.assertEqual(reuse['previousImplementationSha256'],item['previousImplementationSha256'])
             self.assertIsNone(E.code_equivalence(family,'unknown',adapter.fingerprint()))
             entry=bridge['independentProofs'][family]
-            self.assertEqual(entry['currentImplementationSha256'],E.EXISTING_GRAPH.fingerprint(E,adapter))
+            self.assertEqual(current['independentProofs'][family]['currentImplementationSha256'],E.EXISTING_GRAPH.fingerprint(E,adapter))
             if family in ('runner-boundary','runner-resolution','pitch-count'):
                 self.assertTrue(entry['requiresOriginalAdmission'])
                 self.assertTrue(all(i['requiresOriginalAdmission'] for i in entry['previous']))
         for kind,adapter in [('players',E.PLAYER_PARTICIPATION),('pa',E.PLAYER_PARTICIPATION.PA),('c2pa',E.PA_RESOLUTION)]:
-            self.assertEqual(E.prior_versions(kind,adapter.fingerprint()),bridge['derivedProofs'][kind]['previousImplementationSha256s'])
+            self.assertEqual(E.prior_versions(kind,adapter.fingerprint()),current['derivedProofs'][kind]['previousImplementationSha256s'])
 
 if __name__=='__main__':unittest.main()

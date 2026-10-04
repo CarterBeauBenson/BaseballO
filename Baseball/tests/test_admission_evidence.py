@@ -322,7 +322,8 @@ class AdmissionEvidence(unittest.TestCase):
         final_award=record.get('finalAwardSelection')
         runner_review=record.get('runnerReviewCompletion')
         foul_pitcher=record.get('foulPitcherCompletion')
-        current=record.get('administrativeBoundaryOverlap') or foul_pitcher or runner_review or final_award or batter_chain or error_prefix or selection or foul or history or groundout or compound or walk
+        current=next(v for v in record.values() if isinstance(v,dict)
+            and v.get('currentContextSha256')==E.sha(ROOT/record['contextPath']))
         if compound:
             now=(subprocess.check_output(['git','-C',str(ROOT.parent),'show',
                 groundout['baselineCommit']+':Baseball/'+record['contextPath']]) if groundout

@@ -2930,26 +2930,9 @@ def main() -> None:
             current_half_inning = half_inning
             outs_after_previous_play = 0
             runners_after_previous_play = {}
-            for event in play.get("playEvents", []):
-                if event.get("details", {}).get("eventType") != "runner_placed":
-                    continue
-                base_number = require_numeric(
-                    event.get("base"),
-                    f"Play {at_bat_index} runner_placed base",
-                )
-                if base_number not in {"1", "2", "3"}:
-                    raise ValueError(
-                        f"Play {at_bat_index} runner_placed has unsupported base {base_number}"
-                    )
-                runner_id = require_numeric(
-                    event.get("player", {}).get("id"),
-                    f"Play {at_bat_index} runner_placed player.id",
-                )
-                if base_number in runners_after_previous_play:
-                    raise ValueError(
-                        f"Play {at_bat_index} places multiple runners on base {base_number}"
-                    )
-                runners_after_previous_play[base_number] = runner_id
+            # A placement's base is an administrative destination, not an
+            # observation of physical occupancy at the start of this PA.
+            # Its adjudication and history come from personal_runner_histories.
 
         start_base_occupancies = [
             {
