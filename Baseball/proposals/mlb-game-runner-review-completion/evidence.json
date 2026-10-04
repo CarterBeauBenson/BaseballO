@@ -1,0 +1,36 @@
+{
+  "previousContextSha256": "98546d4a5347f16e729d490b9571498b9bc16f52c39f6a7eb179b04833ef2760",
+  "candidateContextSha256": "990ee98708b07d915ccd8035443303b52d9153172fd53b7312b34242917d7583",
+  "cases": [
+    {
+      "gamePk": "823200",
+      "atBatIndex": 76,
+      "sourceWitness": {
+        "path": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\quarantine\\mlb-game\\823200\\targeted-history-52064c0040c8634b\\input.json",
+        "sha256": "97f53a796936c84aa36a52b58edbaba538e367adf5df43ae30d4b5dfbd5cae84"
+      },
+      "candidateHalf": {
+        "inning": 9,
+        "half": "top",
+        "status": "reconciled",
+        "issues": [],
+        "personalHistories": 6
+      }
+    },
+    {
+      "gamePk": "823523",
+      "atBatIndex": 72,
+      "sourceWitness": {
+        "path": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\quarantine\\mlb-game\\823523\\targeted-history-9f50daefff0a7c2c\\input.json",
+        "sha256": "43808a5e079e7670b2850407dd911b2284a101d3ac8dd1fb8b4de811f9223c66"
+      },
+      "candidateHalf": {
+        "inning": 9,
+        "half": "top",
+        "status": "reconciled",
+        "issues": [],
+        "personalHistories": 2
+      }
+    }
+  ]
+}
