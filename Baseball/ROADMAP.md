@@ -37,10 +37,16 @@ promotion failures also completed without remapping. The new
 and [P1 pitching-participation](archive/design-records/mlb-game-actual-pitcher-participation/README.md)
 packages were accepted together on October 4 and implemented after the separate
 acceptance commit `9b41838`. P1 has promoted its exact two removals and three
-additions in 823420. F8 is active in the existing foul lane; the repair plan
-records completed versus queued games. Remaining history comparisons stay with NiFi;
-the plan distinguishes actual defects from source/modeling exclusions. Continue
-independent metric work over valid RDF.
+additions in 823420. All seven F8 jobs are promoted. The full-plan continuation also repaired
+822694's missing award and histories (19 triples), and the explicitly approved
+[O1 overlap repair](archive/design-records/mlb-game-placement-replacement-overlap/README.md)
+added 45 missing triples in 823350. The bounded review accounts for all 547 maps
+across seven modules. History discovery now checks actual absent graph subjects;
+its remaining comparisons and refreshed metadata inspections continue in NiFi.
+The plan remains open until those requests have terminal dispositions. The
+[latest checkpoint](sources/mlb-game/review/rml-audit-2026-10-03.md#full-plan-continuation-checkpoint-october-4-1604-utc)
+distinguishes that execution backlog from the documented source/modeling limits.
+Continue independent metric work over valid RDF.
 
 The October 2 RML repair snapshot is covered by
 [F5/D2](archive/design-records/mlb-game-foul-defense-selection-repair/README.md): the
