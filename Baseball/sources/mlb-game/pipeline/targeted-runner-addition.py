@@ -36,7 +36,20 @@ SUCCESS={'complete','already-complete','already-present'}
 
 def repair_cases():
     # The later execution request does not amend R1's archived 26-game decision.
-    return W.read(INVENTORY)['games']+W.read(RECOVERY)['games']
+    cases={g['gamePk']:g for g in W.read(INVENTORY)['games']}
+    cases.update({g['gamePk']:dict(g,executionRequest=RECOVERY.relative_to(ROOT).as_posix())
+        for g in W.read(RECOVERY)['games']})
+    return list(cases.values())
+
+
+def scope_sha(case):
+    return hashlib.sha256(json.dumps(case,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+
+
+def completed_case(previous,case):
+    return previous.get('status') in SUCCESS and (
+        previous.get('executionScopeSha256')==scope_sha(case)
+        or ('executionRequest' not in case and 'executionScopeSha256' not in previous))
 
 
 def approved_case(game_pk):
@@ -83,6 +96,10 @@ def select(raw,game_pk):
     # Complete histories are existing dependencies of the selected episodes.
     # Retain every member; never turn a truncated history into a complete one.
     history_keys={r['lifetimeKey'] for r in history['episodeMembership'] if r['atBatIndex'] in selected_pas}
+    if 'selectedHistoryKeys' in case:
+        named=set(case['selectedHistoryKeys'])
+        if not named<=history_keys:raise ValueError('Named history recovery differs from the retained selection')
+        history_keys=named
     histories=[h for h in history['histories'] if h['lifetimeKey'] in history_keys]
     membership=[r for r in history['episodeMembership'] if r['lifetimeKey'] in history_keys]
     dependencies={(r['atBatIndex'],r['runnerIndex']) for r in membership}
@@ -107,8 +124,8 @@ def select(raw,game_pk):
         liveData=dict(plays=dict(allPlays=plays)),
         **{CONTEXT.CONTEXT_KEY:dict(runnerHistoryReconciliation=retained_history)}),
         episodes=episodes,resolutionCensus=P.R.census(raw,game_pk),history=retained_history)
-    if boundaries is not None:
-        result.update(boundaryCensus=boundaries,executionRequest=RECOVERY.relative_to(ROOT).as_posix())
+    if boundaries is not None:result['boundaryCensus']=boundaries
+    if 'executionRequest' in case:result['executionRequest']=case['executionRequest']
     return result
 
 
@@ -159,12 +176,13 @@ def fingerprint():
 
 
 def tick(state,game_pk,witness,java,mapper,classpath):
-    approved_case(game_pk)
+    case=approved_case(game_pk)
     control=state/'pipeline/control/mlb-game/runner-addition'/(game_pk+'.json')
     version=fingerprint();previous=W.read(control) if control.is_file() else {}
-    if previous.get('status') in SUCCESS:return previous
+    if completed_case(previous,case):return previous
     if previous.get('implementationSha256')==version and previous.get('attempts',0)>=2:return previous
     result=dict(gamePk=game_pk,implementationSha256=version,checkedAtUtc=W.TX.now(),
+        executionScopeSha256=scope_sha(case),
         attempts=previous.get('attempts',0)+1 if previous.get('implementationSha256')==version else 1)
     try:
         result.update(W.add_game(state,game_pk,witness,java,mapper,classpath,repair=dict(
@@ -180,9 +198,9 @@ def next_witness(state):
     for index,case in enumerate(cases):
         approved_case(case['gamePk'])
         path=control/(case['gamePk']+'.json');previous=W.read(path) if path.is_file() else {}
-        if previous.get('status') in SUCCESS:continue
+        if completed_case(previous,case):continue
         if previous.get('implementationSha256')==version and previous.get('attempts',0)>=2:
-            if index==0:return None  # Reviewed first game must pass before widening.
+            if index==0 and 'executionRequest' not in case:return None  # Original R1 first-game gate.
             continue
         for witness in case['retainedInputs']:
             source=(state/witness['path']).resolve()

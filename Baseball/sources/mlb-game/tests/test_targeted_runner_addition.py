@@ -14,6 +14,35 @@ R=importlib.util.module_from_spec(spec);spec.loader.exec_module(R)
 
 
 class TargetedRunnerAddition(unittest.TestCase):
+    def test_newly_named_histories_reopen_only_the_changed_completed_scope(self):
+        case=R.approved_case('823200')
+        self.assertFalse(R.completed_case(dict(status='complete'),case))
+        receipt=dict(status='complete',executionScopeSha256=R.scope_sha(case),implementationSha256='older')
+        self.assertTrue(R.completed_case(receipt,case))
+        self.assertFalse(R.completed_case(receipt,dict(case,selectedHistoryKeys=case['selectedHistoryKeys'][:-1])))
+        self.assertTrue(R.completed_case(dict(status='complete'),dict(gamePk='822864')))
+        witness=Path.home()/'AppData/Local/BaseballO/state'/case['retainedInputs'][0]['path']
+        if not witness.is_file():self.skipTest('Retained runtime witness has been retired')
+        selected=R.select(witness.read_bytes(),'823200')
+        self.assertEqual({h['lifetimeKey'] for h in selected['history']['histories']},set(case['selectedHistoryKeys']))
+        self.assertEqual(len(selected['history']['histories']),12)
+        Graph().parse(data=R.shapes('823200',selected),format='turtle')
+
+    def test_other_legacy_games_keep_reconciled_histories_without_claiming_boundaries(self):
+        state=Path.home()/'AppData/Local/BaseballO/state'
+        for pk in ('831631','831799','831855'):
+            with self.subTest(game=pk):
+                case=R.approved_case(pk);witness=state/case['retainedInputs'][0]['path']
+                if not witness.is_file():continue  # NiFi may retire successful runtime inputs.
+                raw=witness.read_bytes();selected=R.select(raw,pk)
+                self.assertTrue(selected['history']['histories'])
+                self.assertTrue(all(h['status']=='reconciled' for h in selected['history']['halves']))
+                self.assertTrue(selected['history']['boundaryIssues'])
+                self.assertNotIn('boundaryCensus',selected)
+                self.assertTrue(all('startBaseOccupancies' not in p['_baseballO']
+                    for p in selected['context']['liveData']['plays']['allPlays']))
+                Graph().parse(data=R.shapes(pk,selected),format='turtle')
+
     def test_legacy_history_recovery_adds_only_accepted_boundary_dependencies(self):
         case=R.approved_case('831445')
         state=Path.home()/'AppData/Local/BaseballO/state'
@@ -96,7 +125,7 @@ class TargetedRunnerAddition(unittest.TestCase):
             state=Path(directory);inventory=state/'inventory.json';R.W.atomic(inventory,dict(games=cases))
             (state/'fixture.json').write_text('{}');(state/'other.json').write_text('{}')
             control=state/'pipeline/control/mlb-game/runner-addition/823200.json'
-            with patch.object(R,'INVENTORY',inventory),patch.object(R,'approved_case'),patch.object(R,'fingerprint',return_value='v'):
+            with patch.object(R,'repair_cases',return_value=cases),patch.object(R,'approved_case'),patch.object(R,'fingerprint',return_value='v'):
                 self.assertEqual(R.next_witness(state)['gamePk'],'823200')
                 R.W.atomic(control,dict(status='failed',attempts=2,implementationSha256='v'))
                 self.assertIsNone(R.next_witness(state))

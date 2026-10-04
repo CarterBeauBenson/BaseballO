@@ -2,7 +2,7 @@
   "artifactType": "baseballo-targeted-runner-history-execution-request",
   "requestedAt": "2026-10-03",
   "userInstruction": "Approve and fix the runner history",
-  "scope": "Add the missing accepted runner episodes, personal histories and reconciled PA-start boundaries in 831445 using unchanged mappings and retained source bytes. Preserve all existing RDF.",
+  "scope": "Add missing accepted runner episodes and personal histories in four named legacy games and 57 exact missing histories in 17 earlier repairs, using unchanged mappings and retained source bytes. Only 831445 includes fully reconciled PA-start boundaries. Preserve all existing RDF.",
   "semanticPatternDecision": "archive/design-records/mlb-game-runner-pattern-completion/review.json",
   "games": [
     {
@@ -98,6 +98,744 @@
           "sha256": "569e78016f951a959e9eb1d75727111ae1d43b5893c7879952f93478fded4b3e"
         }
       ]
+    },
+    {
+      "gamePk": "831631",
+      "includeBoundaryStates": false,
+      "plateAppearances": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+        "29",
+        "30",
+        "31",
+        "32",
+        "33",
+        "34",
+        "35",
+        "36",
+        "37",
+        "38",
+        "39",
+        "40",
+        "41",
+        "42",
+        "43",
+        "44",
+        "45",
+        "46",
+        "47",
+        "48",
+        "49",
+        "50",
+        "51",
+        "52",
+        "53",
+        "54",
+        "55",
+        "56",
+        "57",
+        "58",
+        "59",
+        "60",
+        "61",
+        "62",
+        "63",
+        "64",
+        "65",
+        "66",
+        "67",
+        "68",
+        "69",
+        "70",
+        "71",
+        "72",
+        "73",
+        "74",
+        "75",
+        "76"
+      ],
+      "retainedInputs": [
+        {
+          "path": "pipeline/quarantine/mlb-game/831631/targeted-history-81d2e64e6ad719a1/input.json",
+          "sha256": "3744522c9ad6d42f68791180cbb70cabe63829fe5c2c2dbeebc465423c5ff284"
+        }
+      ]
+    },
+    {
+      "gamePk": "831799",
+      "includeBoundaryStates": false,
+      "plateAppearances": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+        "29",
+        "30",
+        "31",
+        "32",
+        "33",
+        "34",
+        "35",
+        "36",
+        "37",
+        "38",
+        "39",
+        "40",
+        "41",
+        "42",
+        "43",
+        "44",
+        "45",
+        "46",
+        "47",
+        "48",
+        "49",
+        "50",
+        "51",
+        "52",
+        "53",
+        "54",
+        "55",
+        "56",
+        "57",
+        "58",
+        "59",
+        "60",
+        "61",
+        "62",
+        "63",
+        "64",
+        "65",
+        "66",
+        "67",
+        "68",
+        "69",
+        "70",
+        "71",
+        "72",
+        "73",
+        "74",
+        "75",
+        "76",
+        "77",
+        "78",
+        "79",
+        "80",
+        "81",
+        "82"
+      ],
+      "retainedInputs": [
+        {
+          "path": "pipeline/quarantine/mlb-game/831799/targeted-history-f0d4a9cc1ae4a8fa/input.json",
+          "sha256": "11b161fc1d34d9af92f6f91a1d9e5894b7bc9bc25b785fccf8c938e903f775ee"
+        }
+      ]
+    },
+    {
+      "gamePk": "831855",
+      "includeBoundaryStates": false,
+      "plateAppearances": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+        "29",
+        "30",
+        "31",
+        "32",
+        "33",
+        "34",
+        "35",
+        "36",
+        "37",
+        "38",
+        "39",
+        "40",
+        "41",
+        "42",
+        "43",
+        "44",
+        "45",
+        "46",
+        "47",
+        "48",
+        "49",
+        "50",
+        "51",
+        "52",
+        "53",
+        "54",
+        "55",
+        "56",
+        "57",
+        "58",
+        "59",
+        "60",
+        "61",
+        "62",
+        "63",
+        "64",
+        "65",
+        "66",
+        "67",
+        "68",
+        "69",
+        "70",
+        "71",
+        "72",
+        "73",
+        "74",
+        "75",
+        "76",
+        "77",
+        "78",
+        "79"
+      ],
+      "retainedInputs": [
+        {
+          "path": "pipeline/quarantine/mlb-game/831855/targeted-history-08b86606fbac5504/input.json",
+          "sha256": "f0d1747178228d0119831127a9ae145149ec80a3d30ec77f1083f0415c895f69"
+        }
+      ]
+    },
+    {
+      "gamePk": "822972",
+      "includeBoundaryStates": false,
+      "plateAppearances": [
+        "14",
+        "15",
+        "16"
+      ],
+      "selectedHistoryKeys": [
+        "1cefbee3c971b16504b150d9693d030067f8b04c8bac7d451ca4ab21bd9e9f1c",
+        "399dc2e82feac44955e2d1aec5a035951a64ab6bae4d7b5b90636057d3d13572",
+        "cd6522c974cf11229fdb25c997803598e54a3e9f0515c970fb3252ebaa9c73ff"
+      ],
+      "retainedInputs": [
+        {
+          "path": "pipeline/quarantine/mlb-game/822972/targeted-history-3c6fe82f8e79a426/input.json",
+          "sha256": "8953d86425997a8f5ec4b6fcd5dc02828bc1fbfe3d6450a2e0766f1981dc9a8b"
+        }
+      ],
+      "basis": {
+        "sourceCensusPath": "pipeline/evidence/mlb-game/822972/admission-refresh/3c6fe82f8e79a4260036030004f94cd1d24006e499e741b0eb61354d70d3d4fa-0f6cc93e5d1437e967fc6bbb074b7a45b5c36865c9b1f57a82881d0be98c3b37/b2.source.json",
+        "sourceCensusSha256": "f7f5ac01bc5632d7543e3fa25076d677b0e36ed497594651f74969e5dc03e8b5",
+        "existingHistories": 18,
+        "unmatchedExistingHistories": 0
+      }
+    },
+    {
+      "gamePk": "822991",
+      "includeBoundaryStates": false,
+      "plateAppearances": [
+        "49",
+        "50",
+        "53",
+        "54"
+      ],
+      "selectedHistoryKeys": [
+        "350b5dac2a6dd3e7cfa538532e228a5fb3912980148b66c01037237fd500155e",
+        "9ebb18b3c0fb162f62a6e7d6534e251673dbaaf1c3c5450398481d5f9ccc30b9",
+        "e57567ad412543243d2dcd2e94fecb4291ed1429de258c043d6e8fc01aad679d"
+      ],
+      "retainedInputs": [
+        {
+          "path": "pipeline/quarantine/mlb-game/822991/targeted-history-aa81732b02711c91/input.json",
+          "sha256": "dc1896fe06c3db1790f99e65f142b30dd3c8cda4f9936f06fbcf40177b99ebed"
+        }
+      ],
+      "basis": {
+        "sourceCensusPath": "pipeline/evidence/mlb-game/822991/admission-refresh/aa81732b02711c91509c1e610d39ada1c2723a8fb715a0f95d933a004f5e042b-0f6cc93e5d1437e967fc6bbb074b7a45b5c36865c9b1f57a82881d0be98c3b37/b2.source.json",
+        "sourceCensusSha256": "acbc9c2cf1129e472796488380e317c6b56cd746018ab9165734515ccb46d67e",
+        "existingHistories": 20,
+        "unmatchedExistingHistories": 0
+      }
+    },
+    {
+      "gamePk": "823023",
+      "includeBoundaryStates": false,
+      "plateAppearances": [],
+      "selectedHistoryKeys": [
+        "110eb5a2478dfdbcf60661c9dd9ab1f297651235d4ca6f2f06c7275dd6666869"
+      ],
+      "retainedInputs": [
+        {
+          "path": "pipeline/quarantine/mlb-game/823023/targeted-history-01e02583166a22ab/input.json",
+          "sha256": "6e742482e6618161401c85d5dfebc96022d2b362e7fb150105e8821466d3e992"
+        }
+      ],
+      "basis": {
+        "sourceCensusPath": "pipeline/evidence/mlb-game/823023/admission-refresh/01e02583166a22ab70ee0dd253f790677ea6bab8f81f73d9766050b1cc1dedeb-0f6cc93e5d1437e967fc6bbb074b7a45b5c36865c9b1f57a82881d0be98c3b37/b2.source.json",
+        "sourceCensusSha256": "e0a7abb071c090c920fd6dded01c1f0c6fe3aa23495ecf1cf536391dc01981d5",
+        "existingHistories": 31,
+        "unmatchedExistingHistories": 0
+      }
+    },
+    {
+      "gamePk": "823028",
+      "includeBoundaryStates": false,
+      "plateAppearances": [
+        "61",
+        "62",
+        "63"
+      ],
+      "selectedHistoryKeys": [
+        "2459ee01023fc673d89262b82610ba5c718b17fb1cd6c48d90eaba0ae2d81f43",
+        "46ec814833019604de102342f38964ec9ef2fd300ddf7bb97c9f4e1333647367",
+        "bf7a7f19c96c1499b00389595b107101156aa97889c1da4c3767a369847b5396"
+      ],
+      "retainedInputs": [
+        {
+          "path": "pipeline/quarantine/mlb-game/823028/targeted-history-53d43d5b8190ab82/input.json",
+          "sha256": "6b6c3d642de7572373f1792c83efdafa84e7fcb5ab6ab999986477346c975dda"
+        }
+      ],
+      "basis": {
+        "sourceCensusPath": "pipeline/evidence/mlb-game/823028/admission-refresh/53d43d5b8190ab82b21990bda2ab978526ade5929f9d6fd82de4e0020113d8e4-0f6cc93e5d1437e967fc6bbb074b7a45b5c36865c9b1f57a82881d0be98c3b37/b2.source.json",
+        "sourceCensusSha256": "491ee0f4105ce8fa3e18430ea2eea64ff2263a9b987faa86d2908233c7fbb0b5",
+        "existingHistories": 28,
+        "unmatchedExistingHistories": 0
+      }
+    },
+    {
+      "gamePk": "823052",
+      "includeBoundaryStates": false,
+      "plateAppearances": [
+        "52",
+        "53",
+        "54",
+        "55"
+      ],
+      "selectedHistoryKeys": [
+        "133359574e7a89a78afae058b2ce022da9e7d2f3ad4bb4035cf691276217ce46",
+        "2b0549ece20ff4231ff4ae0cec0f7a29c324e7e0bf69d8e02473150115b6e89a"
+      ],
+      "retainedInputs": [
+        {
+          "path": "pipeline/quarantine/mlb-game/823052/targeted-history-e3114219647167e1/input.json",
+          "sha256": "a8fee947494bd2770c670769ae8066ed47c3de29bbc7ad18b6dd1bf7713948f6"
+        }
+      ],
+      "basis": {
+        "sourceCensusPath": "pipeline/evidence/mlb-game/823052/admission-refresh/e3114219647167e16b68be7969fed26ca9598412762194e16d2341b3d439ea9b-0f6cc93e5d1437e967fc6bbb074b7a45b5c36865c9b1f57a82881d0be98c3b37/b2.source.json",
+        "sourceCensusSha256": "a341d85fcdf8694c27fce757eb2fd7b5e9fb6c5401ab6aa1d0051de965bc2958",
+        "existingHistories": 29,
+        "unmatchedExistingHistories": 0
+      }
+    },
+    {
+      "gamePk": "823070",
+      "includeBoundaryStates": false,
+      "plateAppearances": [
+        "29",
+        "30",
+        "31",
+        "32",
+        "33",
+        "80",
+        "81"
+      ],
+      "selectedHistoryKeys": [
+        "0c62e53ac6cb19b1911e1e13788ccaf0211ec86646e6595054471574b85cd234",
+        "684ec2b7ef38d81d0081058dc9eba8b80c947ea52c5449a55dfd42d263b7d1da",
+        "98357a9c5c1d51cf73e3912ce5a48f73c5e0a0284b8fc14ced096d5d02207812",
+        "afa839eea5be5b6c3081a217bf20c9585e927948bf190492d37cf580a1fe790f",
+        "c57c7b680bfdd530f608c8dfd4eeb9511f539532de2b28786a7a701740c687ca"
+      ],
+      "retainedInputs": [
+        {
+          "path": "pipeline/quarantine/mlb-game/823070/targeted-history-8d7bca3d2700d2b8/input.json",
+          "sha256": "566e0e05c6c9f315f0256ceb0f9ff6d269e7257048f38106c41205924ca39afb"
+        }
+      ],
+      "basis": {
+        "sourceCensusPath": "pipeline/evidence/mlb-game/823070/admission-refresh/8d7bca3d2700d2b8a75e6ae1347f3688826d977267826a96f02b4a9668fca659-0f6cc93e5d1437e967fc6bbb074b7a45b5c36865c9b1f57a82881d0be98c3b37/b2.source.json",
+        "sourceCensusSha256": "68f4622cb83491ffab1eeab2422eee467ae26a76846199ed90304030b862bb08",
+        "existingHistories": 38,
+        "unmatchedExistingHistories": 0
+      }
+    },
+    {
+      "gamePk": "823116",
+      "includeBoundaryStates": false,
+      "plateAppearances": [
+        "50",
+        "51",
+        "53",
+        "54",
+        "55",
+        "58"
+      ],
+      "selectedHistoryKeys": [
+        "110cfe95347ac0e9cd93a1c0769798858bbe5d406910a6c6b82de644c7ba5b4e",
+        "79d1ca07649ab7e3d608850254c3da698ed668c26f7604a2941880dd38a01321",
+        "a119e22d70055c7e5086a35df36ffdcf47d9a74acbd769104980ded3504b7de9",
+        "a6ad8ec6f9f76d402683e6b75820ec02b2cd1ed5b7f0455f1c06f6e7265e5cd2",
+        "d4283106d153d6fe9890a5941762f143617d40afcb890dc3a7393f92db7f680d"
+      ],
+      "retainedInputs": [
+        {
+          "path": "pipeline/quarantine/mlb-game/823116/targeted-history-58c64e8500f5229d/input.json",
+          "sha256": "c553e1a924372e0c35a6c9e27b9ff4a5e524a681fcd7b12c8b88e99002f5387a"
+        }
+      ],
+      "basis": {
+        "sourceCensusPath": "pipeline/evidence/mlb-game/823116/admission-refresh/58c64e8500f5229d587263a829ab3ec0e743a0508fa5d883dc1703e534f339db-0f6cc93e5d1437e967fc6bbb074b7a45b5c36865c9b1f57a82881d0be98c3b37/b2.source.json",
+        "sourceCensusSha256": "de57fe66b3ab6a75961b46bd78f39759885729971f47e7f09d9cf34669e6978c",
+        "existingHistories": 18,
+        "unmatchedExistingHistories": 0
+      }
+    },
+    {
+      "gamePk": "823200",
+      "includeBoundaryStates": false,
+      "plateAppearances": [
+        "10",
+        "13",
+        "14",
+        "24",
+        "43",
+        "44",
+        "45",
+        "77",
+        "78",
+        "79",
+        "80",
+        "81",
+        "82"
+      ],
+      "selectedHistoryKeys": [
+        "06167ad7828e89c546c30753fc742c7200f4fea361199ce18d1920832d32ceaa",
+        "0c13a2fe3ab6f8b2cba2c28a13e618b5312d062d0ffda4afc8ec69b8576f84b1",
+        "1a2cf86d3d1688192dbe7cd93f72a671d40c30b330c2996b6b7726aadb488973",
+        "27aeba477c41a20508dff6d159fe2e3ef91ecd1fdde3a86eec76c5fa16fe38ff",
+        "297a2ec3f995da94a99890be6ef9404b3d8fada837cfe85c4e972cbd15dc6b46",
+        "36b958d6101bd9311a54ecdf99ed03e11e08aa1dae48a408d9c66d7d73fc27d5",
+        "375dfee745aeeaaa5a1ba451a3ce505b22b713b46db66b499602ba9bc35f8edf",
+        "7382d00d10503ccf5fb61485619e5a3d38e7d07f11700c5c8a6731868b41e04a",
+        "8e75e475f98f3e89c9d054d37a13e3de341bd98dda760ed1dc1262ccd9ffc318",
+        "ad5d4d0da96f4ec7229b27013d925a7e07f9f056aa627ecf6fef8ac33956ad0d",
+        "b70c390456af5992d08d30acaa8b94e1a9177e82c133b46cb935379075b90f0f",
+        "c972830ffa94e4c9ba3c9ddc2836452d4f9e2d4df392e2aae95cb5b0f0359bd6"
+      ],
+      "retainedInputs": [
+        {
+          "path": "pipeline/quarantine/mlb-game/823200/targeted-history-d23a7140676b8860/input.json",
+          "sha256": "97f53a796936c84aa36a52b58edbaba538e367adf5df43ae30d4b5dfbd5cae84"
+        }
+      ],
+      "basis": {
+        "sourceCensusPath": "pipeline/evidence/mlb-game/823200/admission-refresh/d23a7140676b8860232be54865106c0e72cfbd2c3cad2da4dd2500a87e08211f-0f6cc93e5d1437e967fc6bbb074b7a45b5c36865c9b1f57a82881d0be98c3b37/b2.source.json",
+        "sourceCensusSha256": "ee2af6153b8ed152f0ca58e1b22688c676f9a2019811ee432c83fdfa828f5183",
+        "existingHistories": 19,
+        "unmatchedExistingHistories": 0
+      }
+    },
+    {
+      "gamePk": "823350",
+      "includeBoundaryStates": false,
+      "plateAppearances": [],
+      "selectedHistoryKeys": [
+        "e259dee29af58f4c04086eb37fe3ea631acde7cba7e702f4149ac96e2353c31b"
+      ],
+      "retainedInputs": [
+        {
+          "path": "pipeline/quarantine/mlb-game/823350/targeted-history-0d041317b46dc075/input.json",
+          "sha256": "bd78a921eec99ef87419554f182b88313882714f9d20d77d89295a52987d27c9"
+        }
+      ],
+      "basis": {
+        "sourceCensusPath": "pipeline/evidence/mlb-game/823350/admission-refresh/0d041317b46dc0755bb6f18136ec627d1b8331a4ae76ed81823523ff4c97ce71-0f6cc93e5d1437e967fc6bbb074b7a45b5c36865c9b1f57a82881d0be98c3b37/b2.source.json",
+        "sourceCensusSha256": "75701fcc6feab3611f6ea4c241d421539ce23cb130d2de8b7b30ca25f8131d7f",
+        "existingHistories": 46,
+        "unmatchedExistingHistories": 0
+      }
+    },
+    {
+      "gamePk": "823375",
+      "includeBoundaryStates": false,
+      "plateAppearances": [
+        "43",
+        "44",
+        "80",
+        "81",
+        "83"
+      ],
+      "selectedHistoryKeys": [
+        "7ca5284c2ad2bf1c55a9d67e773c1ea6696d8c0a67ee2a01eb9b3f4792ae999b",
+        "cac563cb5d3e24b9e74b8492df7c0145ca8987fc3a17dee33aff42c62f98cee8",
+        "e86eb02ddcc80745d2cf5077ff68405dd6ed89f2c353cdb682010f996c33af6b"
+      ],
+      "retainedInputs": [
+        {
+          "path": "pipeline/quarantine/mlb-game/823375/targeted-history-456dbb9d0d7c2c27/input.json",
+          "sha256": "f9287a96d7c1e73591fee87440f86dc4dbc8c21dafe046b31f14606d12b88b12"
+        }
+      ],
+      "basis": {
+        "sourceCensusPath": "pipeline/evidence/mlb-game/823375/admission-refresh/456dbb9d0d7c2c27ca58d6f9acf98372467abbb1e7449f1f93569ce5395bba27-0f6cc93e5d1437e967fc6bbb074b7a45b5c36865c9b1f57a82881d0be98c3b37/b2.source.json",
+        "sourceCensusSha256": "db711a30f32d4648e79ac413cfdd35fac9791fc40ec870e178057c5bc1309665",
+        "existingHistories": 37,
+        "unmatchedExistingHistories": 0
+      }
+    },
+    {
+      "gamePk": "823385",
+      "includeBoundaryStates": false,
+      "plateAppearances": [
+        "19",
+        "20"
+      ],
+      "selectedHistoryKeys": [
+        "5e2ea40e0a453b988b40f1933b82c2a7b40d053a63b8a6b694e059de9f433d39",
+        "998f173b728974b5c8f83c63bdcce553bfa586cb4795f64929c503b593194d99"
+      ],
+      "retainedInputs": [
+        {
+          "path": "pipeline/quarantine/mlb-game/823385/targeted-history-274b5b9815cfb039/input.json",
+          "sha256": "23435fbc156acc16d2a3afcd0cb42a6879c7caa68020dfb1fe93bcc874b41ef7"
+        }
+      ],
+      "basis": {
+        "sourceCensusPath": "pipeline/evidence/mlb-game/823385/admission-refresh/274b5b9815cfb039919a784e08b611e54462e2205dd7993333a458e3a698b7b0-0f6cc93e5d1437e967fc6bbb074b7a45b5c36865c9b1f57a82881d0be98c3b37/b2.source.json",
+        "sourceCensusSha256": "7030ff49c9d432d2fc7880c6968c4053f84334d672c45678c3bcd4d404e6328e",
+        "existingHistories": 20,
+        "unmatchedExistingHistories": 0
+      }
+    },
+    {
+      "gamePk": "823398",
+      "includeBoundaryStates": false,
+      "plateAppearances": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "65"
+      ],
+      "selectedHistoryKeys": [
+        "067a0c5a3163441f019f0a5661082b8a047a3a974c62cab145ffcd638d5cc8d3",
+        "0e38ade51d3cc9e7de3c9ba46751eab91caac10cf98f904c47c4ea3b14109570",
+        "17bcf5bfb3cbdf62c154fc45b264c4454b3b887243dd345f0c486720af35c689",
+        "5602fc08cb95d233e45d84c0a13363e992105eb85bb3b7d358754c412f0af9d1",
+        "8e29af26363beb01ec736705ccf42f1fce4c9072aa60c0f606bd02537ff2c114",
+        "dec6c7d83364e79f9474bec99647861dd09e4f4bce5ae3902f16c514ce6e75f4"
+      ],
+      "retainedInputs": [
+        {
+          "path": "pipeline/quarantine/mlb-game/823398/targeted-history-e04bb6468a4030f0/input.json",
+          "sha256": "f2fa618a7489518e2c396ad51f2fee29f7d3d9af4e621367d0cadbf508cec12c"
+        }
+      ],
+      "basis": {
+        "sourceCensusPath": "pipeline/evidence/mlb-game/823398/admission-refresh/e04bb6468a4030f0ead3cb9116e62ac1a042beeafcb184de0c4ab2b6e857a13d-0f6cc93e5d1437e967fc6bbb074b7a45b5c36865c9b1f57a82881d0be98c3b37/b2.source.json",
+        "sourceCensusSha256": "8768c6c6ba1079bc56a61e9cc83bcd16f8bad09bb470940bc53a89ca00b86d61",
+        "existingHistories": 23,
+        "unmatchedExistingHistories": 0
+      }
+    },
+    {
+      "gamePk": "823471",
+      "includeBoundaryStates": false,
+      "plateAppearances": [
+        "47",
+        "49",
+        "51",
+        "52",
+        "83"
+      ],
+      "selectedHistoryKeys": [
+        "71dd1a01a94e98df96875e84bb21995b215797415684a4a09244566453a44a0e",
+        "73c2cf4abb6bf78310565fceac882c5187dac278cf4c0a920c94b3ef83844775",
+        "a6ddbd4d99af6b48addd68822feca1abd7a8427cbec952590c91f46d73d670d7",
+        "e02ebafe09fb4decae99a5c8645be6cc187bbd9f0d4da13eb1b8ce65f823e4a7",
+        "fd601254aa7e4ae319ab21f9b388dc50a8c2f379ebf2955d76dd4d88f6b88af4"
+      ],
+      "retainedInputs": [
+        {
+          "path": "pipeline/quarantine/mlb-game/823471/targeted-history-6459269fe19a0c52/input.json",
+          "sha256": "6eb458cc4dea32a7c43f011bda7236521fe5459966a180c027d37d3bd0588936"
+        }
+      ],
+      "basis": {
+        "sourceCensusPath": "pipeline/evidence/mlb-game/823471/admission-refresh/6459269fe19a0c5214822e31f272a7ca49973ac10cfc31275e55576e43aacbc8-0f6cc93e5d1437e967fc6bbb074b7a45b5c36865c9b1f57a82881d0be98c3b37/b2.source.json",
+        "sourceCensusSha256": "d1758e10ffb06251d703351c7c9131bac0a0f8b66cf3e3348f6ca1e359c612e6",
+        "existingHistories": 32,
+        "unmatchedExistingHistories": 0
+      }
+    },
+    {
+      "gamePk": "823589",
+      "includeBoundaryStates": false,
+      "plateAppearances": [
+        "51",
+        "52"
+      ],
+      "selectedHistoryKeys": [
+        "e2ba3f268cbeb092f7f631dc7fe629367cde16d25a5b1e7facf16eef25fff54e"
+      ],
+      "retainedInputs": [
+        {
+          "path": "pipeline/quarantine/mlb-game/823589/targeted-history-915b1fa702bfbd89/input.json",
+          "sha256": "f32665daee4228b63919b073e41900ff1790d03430611b5b7d4f1afcbdb5efb8"
+        }
+      ],
+      "basis": {
+        "sourceCensusPath": "pipeline/evidence/mlb-game/823589/admission-refresh/915b1fa702bfbd89dd19a6cfd4d54361f36d14b6dc88f3b88f50e34cb920b470-0f6cc93e5d1437e967fc6bbb074b7a45b5c36865c9b1f57a82881d0be98c3b37/b2.source.json",
+        "sourceCensusSha256": "7a2a02c9fbdf19baf1a842ca2e974a4f96727ee6b764a4a68b83cd0fdc09e327",
+        "existingHistories": 21,
+        "unmatchedExistingHistories": 0
+      }
+    },
+    {
+      "gamePk": "823648",
+      "includeBoundaryStates": false,
+      "plateAppearances": [
+        "25",
+        "26"
+      ],
+      "selectedHistoryKeys": [
+        "1c93ec25c1736ee4a8cd8b81ecbc797203bc23aa0694a202b42ae4b52b33c030"
+      ],
+      "retainedInputs": [
+        {
+          "path": "pipeline/quarantine/mlb-game/823648/targeted-history-357246ea33da0ad0/input.json",
+          "sha256": "7af2641c3b98f8abba683cde7d54e31f5732a50f0875e78fec9163876357c470"
+        }
+      ],
+      "basis": {
+        "sourceCensusPath": "pipeline/evidence/mlb-game/823648/admission-refresh/357246ea33da0ad0e91b80ff8b4ea5e24619ecc701005cf6e7d5689f23470194-0f6cc93e5d1437e967fc6bbb074b7a45b5c36865c9b1f57a82881d0be98c3b37/b2.source.json",
+        "sourceCensusSha256": "3c83f11d93dfbdb982ac2183b951707cc5d99d2e04e80bd390e61fbc0d1f20df",
+        "existingHistories": 28,
+        "unmatchedExistingHistories": 0
+      }
+    },
+    {
+      "gamePk": "823668",
+      "includeBoundaryStates": false,
+      "plateAppearances": [
+        "0",
+        "3"
+      ],
+      "selectedHistoryKeys": [
+        "24aebd04fe2d1d6efc345a6b7b795fbf2fd72b58e7c83bc572a7eced743f53a4",
+        "2eff866891cf62ad3902e53263c6f5dfb3f24e524f4e2fc188a7a78a02794349"
+      ],
+      "retainedInputs": [
+        {
+          "path": "pipeline/quarantine/mlb-game/823668/targeted-history-a1e0984b245dcb5b/input.json",
+          "sha256": "efc61c7293b9aaf9a951d7bee62e471304c6d0364a27667947981bc63fb5c145"
+        }
+      ],
+      "basis": {
+        "sourceCensusPath": "pipeline/evidence/mlb-game/823668/admission-refresh/a1e0984b245dcb5b5c2e34ddb2f4b5d1ba964dc12334acd22ee084c808bcade1-0f6cc93e5d1437e967fc6bbb074b7a45b5c36865c9b1f57a82881d0be98c3b37/b2.source.json",
+        "sourceCensusSha256": "499d1bf962655b16eb672f4a34355846b606043fb6bde48fef95027bb81a20c8",
+        "existingHistories": 26,
+        "unmatchedExistingHistories": 0
+      }
+    },
+    {
+      "gamePk": "823682",
+      "includeBoundaryStates": false,
+      "plateAppearances": [
+        "2",
+        "3"
+      ],
+      "selectedHistoryKeys": [
+        "33f0ca29dfeea333a48398913c998d3e587215b5e8d1a5c3dfb48a79d772686b",
+        "6c29f9075baf61a6d4f2ac9a82b2312f38e65aae6d63e1ce2c1e488887110209"
+      ],
+      "retainedInputs": [
+        {
+          "path": "pipeline/quarantine/mlb-game/823682/targeted-history-cc741de9d84ac669/input.json",
+          "sha256": "12b223871921362bd0c4ddcde0c80c9567b671886ccd3dd347d9891625c2d0bd"
+        }
+      ],
+      "basis": {
+        "sourceCensusPath": "pipeline/evidence/mlb-game/823682/admission-refresh/cc741de9d84ac669040d831704b8c89df073e8274ba6763347e08790d0c6229f-0f6cc93e5d1437e967fc6bbb074b7a45b5c36865c9b1f57a82881d0be98c3b37/b2.source.json",
+        "sourceCensusSha256": "a296156934335bbef06d3e47974bb488c8a1af03223dc4682a0524eeee757010",
+        "existingHistories": 26,
+        "unmatchedExistingHistories": 0
+      }
     }
   ]
 }
