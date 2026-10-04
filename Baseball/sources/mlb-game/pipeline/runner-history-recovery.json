@@ -2,7 +2,7 @@
   "artifactType": "baseballo-targeted-runner-history-execution-request",
   "requestedAt": "2026-10-03",
   "userInstruction": "Approve and fix the runner history",
-  "scope": "Add exact missing accepted runner patterns in the named retained inputs. Only 831445, 823048 and H4 game 823523 include fully reconciled PA-start boundaries. H4 selects six new histories in 823200 and two in 823523. Preserve all existing RDF.",
+  "scope": "Add exact missing accepted runner patterns in the named retained inputs. Only 831445, 823048 and H4 game 823523 include fully reconciled PA-start boundaries. H4 selects six new histories in 823200 and two in 823523. Preserve all existing RDF. Full-plan continuation adds only PA 38 award/dependency facts in 822694 from its retained response; no history remap in that scope.",
   "semanticPatternDecision": "archive/design-records/mlb-game-runner-pattern-completion/review.json",
   "games": [
     {
@@ -1004,6 +1004,21 @@
           "sha256": "43808a5e079e7670b2850407dd911b2284a101d3ac8dd1fb8b4de811f9223c66"
         }
       ]
+    },
+    {
+      "gamePk": "822694",
+      "plateAppearances": [
+        "38"
+      ],
+      "selectedHistoryKeys": [],
+      "retainedInputs": [
+        {
+          "path": "pipeline/quarantine/mlb-game/822694/targeted-history-28a43ffb6aa09f45/input.json",
+          "sha256": "25e389fbb11b45146181d5ebef24aa7264562cf7a089114a6d19d27e9ebdba3a"
+        }
+      ],
+      "reason": "Full RML plan: retained current boundary SHACL reports the accepted final intentional-walk award missing at PA 38. Reuse unchanged award and runner dependency maps; histories are owned by graph-bound discovery.",
+      "executionAuthorization": "User: I told you to do the entire plan (2026-10-04); existing accepted W3 final-award selection, no new source interpretation."
     }
   ],
   "selectionDecisions": [

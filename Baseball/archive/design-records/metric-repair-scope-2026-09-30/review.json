@@ -1,0 +1,35 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "metric-repair-scope-2026-09-30",
+  "title": "Previously accepted targeted repair and overlapping temporal-region decisions",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "answers.md",
+        "sha256": "52e3758dde66fffe79fe13285eeb6bbcf35129c502771254f999ec640326250b"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "README.md",
+        "sha256": "96f8746d3a2d8c654a6f63ee220d895cc907c90decd09afa92d29d1caef5f205"
+      }
+    ],
+    "fieldSelectionInventory": [],
+    "sourceIndependentMermaid": []
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-09-30",
+    "rationale": "Machine-readable record of the existing published answers.md and README.md, not a new approval. The user explicitly approved narrow RML repairs and answered the temporal-boundary question: Yes, and we should make the boundaries more fuzzy. Temp regions can overlap. Apply reconciled identities, substitutions, counts and movements independently of overlapping clock endpoints; array order alone remains insufficient. Preserve existing graph patterns, identities, timestamps and unrelated RDF. No new ontology terms or full rebuild.",
+    "authorizedArtifacts": [
+      "Baseball/scripts/pipeline/prepare-rml-context.py",
+      "Baseball/governance/semantic-freeze.json"
+    ]
+  }
+}
