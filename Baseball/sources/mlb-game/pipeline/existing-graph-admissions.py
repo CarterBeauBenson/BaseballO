@@ -25,11 +25,19 @@ def load(evidence,state,promotion,family,adapter):
         compatibility=evidence.read(evidence.COMPATIBILITY_PATH)
         context=evidence.sha(evidence.ROOT/'scripts/pipeline/prepare-rml-context.py')
         candidates=[]
-        for name in ('foulPitcherCompletion','runnerReviewCompletion','finalAwardSelection','prePitchBatterChain','errorCountPrefixRepair','foulDefenseSelectionRepair','foulPrefixRepair','historySelectionRepair','defensiveGroundoutRepair','compoundResultRepair','intentionalWalkPrefix'):
+        for name in ('administrativeBoundaryOverlap','foulPitcherCompletion','runnerReviewCompletion','finalAwardSelection','prePitchBatterChain','errorCountPrefixRepair','foulDefenseSelectionRepair','foulPrefixRepair','historySelectionRepair','defensiveGroundoutRepair','compoundResultRepair','intentionalWalkPrefix'):
             repair=compatibility.get(name,{})
             entry=repair.get('independentProofs',{}).get(family,{})
             if entry.get('currentImplementationSha256')==version and context==repair.get('currentContextSha256'):
                 candidates.extend(entry.get('previous',[]) or [entry])
+                parent=repair.get('previousRepair')
+                while parent:
+                    inherited=compatibility[parent]
+                    older=inherited.get('independentProofs',{}).get(family,{})
+                    candidates.extend(dict(item,requiresOriginalAdmission=(
+                        entry.get('requiresOriginalAdmission',False) or item.get('requiresOriginalAdmission',False)))
+                        for item in older.get('previous',[]))
+                    parent=inherited.get('previousRepair')
         for entry in candidates:
             candidate=evidence.refresh_path(state,promotion,SHORT[family],entry['previousImplementationSha256'])
             if candidate.with_suffix('.receipt.json').is_file():

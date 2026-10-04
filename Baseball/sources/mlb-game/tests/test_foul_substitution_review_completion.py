@@ -41,7 +41,8 @@ def play(document,index):
 class FoulSelection(unittest.TestCase):
     def test_previous_proofs_keep_their_producer_and_changed_selections_require_admission(self):
         evidence=OWNER.W.module(OWNER.HERE/'admission-evidence.py','f8_compatibility')
-        bridge=evidence.read(evidence.COMPATIBILITY_PATH)['foulPitcherCompletion']
+        record=evidence.read(evidence.COMPATIBILITY_PATH)
+        bridge=record.get('administrativeBoundaryOverlap',record['foulPitcherCompletion'])
         self.assertEqual(bridge['currentContextSha256'],sha(ACTIVE.read_bytes()))
         for family,item in bridge['families'].items():
             adapter=evidence.module(OWNER.HERE/(family+'-admission.py'),'f8_'+family.replace('-','_'))

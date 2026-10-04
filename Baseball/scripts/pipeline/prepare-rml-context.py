@@ -1124,6 +1124,20 @@ def personal_runner_histories(raw: bytes, previous=None) -> dict:
                     following = next((x for x in events[event_position + 1:]
                         if x.get('isPitch') is True or event_rows[x['index']]), None)
                     next_start = instant(clock_pair(following or {})[0])
+                    # The accepted September 30 overlap policy uses the named
+                    # replacement and subsequent movement, not array position
+                    # or separated clock endpoints, to reconcile this boundary.
+                    placed = active.get(outgoing, {})
+                    placement_replacement_overlap = (
+                        administrative is not None and administrative['form'] == 'replacement'
+                        and placed.get('entryWitness', {}).get('form') == 'placement'
+                        and placed.get('base') == base and last_event_end is None
+                        and start is not None and last_boundary_end is not None
+                        and instant(placed.get('earliestStartBound')) is not None
+                        and instant(placed['earliestStartBound']) <= start < last_boundary_end
+                        and any(str(r.get('details', {}).get('runner', {}).get('id')) == incoming
+                            and r.get('movement', {}).get('start') == base
+                            and r.get('details', {}).get('playIndex', -1) > index for r in rows))
                     common = (administrative is not None and event.get('type') == 'action'
                         and event.get('isPitch') is False and not selected and incoming in known_people
                         and incoming not in active and base in {'1B', '2B', '3B'}
@@ -1137,7 +1151,8 @@ def personal_runner_histories(raw: bytes, previous=None) -> dict:
                              and following.get('pitchNumber') == 1 and not any(e.get('isPitch') is True for e in events[:event_position])
                              and SAFE_IRI_SEGMENT.fullmatch(str(following.get('playId') or ''))))
                         and (last_event_end is None or last_event_end <= start)
-                        and (last_boundary_end is None or last_boundary_end <= start))
+                        and (last_boundary_end is None or last_boundary_end <= start
+                             or placement_replacement_overlap))
                     replacement = (common and administrative['form'] == 'replacement'
                         and event.get('isSubstitution') is True and outgoing != incoming
                         and outgoing in known_people and outgoing in active and active[outgoing]['base'] == base)
@@ -1147,6 +1162,13 @@ def personal_runner_histories(raw: bytes, previous=None) -> dict:
                         and base == '2B' and prior_count['balls'] == prior_count['strikes'] == 0)
                     if replacement or placement:
                         if replacement:
+                            if placement_replacement_overlap:
+                                result.setdefault('reconciledAdministrativeOverlaps', []).append(dict(
+                                    atBatIndex=pa, placementAnchor=placed['entryAnchor'],
+                                    replacementAnchor=administrative_anchor,
+                                    placementEndBound=last_boundary_end.isoformat(),
+                                    replacementStartBound=event['startTime']))
+                                result['temporalOverlapDecision'] = 'archive/design-records/metric-repair-scope-2026-09-30/answers.md'
                             finish(active.pop(outgoing), administrative_anchor, 'replaced', event.get('endTime'))
                         active[incoming] = dict(runnerId=incoming, inning=str(inning), half=half,
                             entryAnchor=administrative_anchor, entryWitness=administrative,

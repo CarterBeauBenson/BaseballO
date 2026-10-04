@@ -83,7 +83,7 @@ def code_equivalence(family,previous,current,*,_context=None):
             return dict(reused,recordSha256=sha(COMPATIBILITY_PATH),
                 previousImplementationSha256=previous,currentImplementationSha256=current,
                 compatibilityReason='missing result now records existing unknown-result rejection')
-    for repair_name in ('foulPitcherCompletion','runnerReviewCompletion','finalAwardSelection','prePitchBatterChain','errorCountPrefixRepair','foulDefenseSelectionRepair'):
+    for repair_name in ('administrativeBoundaryOverlap','foulPitcherCompletion','runnerReviewCompletion','finalAwardSelection','prePitchBatterChain','errorCountPrefixRepair','foulDefenseSelectionRepair'):
         selection=record.get(repair_name,{})
         bridge=selection.get('families',{}).get(family)
         if (bridge and context==selection.get('currentContextSha256')
@@ -195,7 +195,7 @@ def prior_versions(kind,current):
     and must be checked again; this is never approval of W1's missing facts.
     """
     record=read(COMPATIBILITY_PATH)
-    for repair_name in ('foulPitcherCompletion','runnerReviewCompletion','finalAwardSelection','prePitchBatterChain','errorCountPrefixRepair','foulDefenseSelectionRepair'):
+    for repair_name in ('administrativeBoundaryOverlap','foulPitcherCompletion','runnerReviewCompletion','finalAwardSelection','prePitchBatterChain','errorCountPrefixRepair','foulDefenseSelectionRepair'):
         selection=record.get(repair_name,{})
         entry=selection.get('derivedProofs',{}).get(kind,{})
         if (entry.get('currentImplementationSha256')==current

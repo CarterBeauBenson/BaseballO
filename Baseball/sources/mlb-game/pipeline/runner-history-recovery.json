@@ -596,13 +596,26 @@
     {
       "gamePk": "823350",
       "includeBoundaryStates": false,
-      "plateAppearances": [],
+      "plateAppearances": [
+        "85",
+        "87",
+        "88"
+      ],
       "selectedHistoryKeys": [
-        "e259dee29af58f4c04086eb37fe3ea631acde7cba7e702f4149ac96e2353c31b"
+        "1474517273265e9b0e5973dab40ac77abd4ab184467b62334b046b3e0f1579ba",
+        "29cc372d0021a80c315a1fe301d2618919646d175e99071cf86d440d2656765c",
+        "aa92a5265b161f15b319ca9c20963cd88bc53037bee06d6e1d5c38fc9b8d6c4c",
+        "bf7de4cea36097a4eac158c5439f2743d13772445bd88fc07efbf0c9a3d3a475",
+        "e259dee29af58f4c04086eb37fe3ea631acde7cba7e702f4149ac96e2353c31b",
+        "fbe65045e872b3673ab8eecb49c2f128509ef4605c42128ab9f683fd7714a790"
       ],
       "retainedInputs": [
         {
           "path": "pipeline/quarantine/mlb-game/823350/targeted-history-0d041317b46dc075/input.json",
+          "sha256": "bd78a921eec99ef87419554f182b88313882714f9d20d77d89295a52987d27c9"
+        },
+        {
+          "path": "pipeline/quarantine/mlb-game/823350/5f2f763039f7424a94e82f5233c35304/input.json",
           "sha256": "bd78a921eec99ef87419554f182b88313882714f9d20d77d89295a52987d27c9"
         }
       ],
@@ -611,7 +624,9 @@
         "sourceCensusSha256": "75701fcc6feab3611f6ea4c241d421539ce23cb130d2de8b7b30ca25f8131d7f",
         "existingHistories": 46,
         "unmatchedExistingHistories": 0
-      }
+      },
+      "selectionDecision": "archive/design-records/mlb-game-placement-replacement-overlap/review.json",
+      "reason": "Apply the accepted temporal-overlap decision to the explicit extra-inning placement/replacement chain at PA 85; add five missing tenth-top histories and their existing dependencies. Preserve the earlier placement-only repair, Q7 exclusions and C3 physical-location limit."
     },
     {
       "gamePk": "823375",

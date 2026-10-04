@@ -19,11 +19,12 @@ E=importlib.util.module_from_spec(spec);spec.loader.exec_module(E)
 
 
 def current_implementation(family, entry):
-    version=entry['currentImplementationSha256'];record=E.read(E.COMPATIBILITY_PATH)
-    for name in ('zeroEpisodeIsolation','intentionalWalkPrefix'):
-        bridge=record[name]['families'].get(family)
-        if bridge and version==bridge['previousImplementationSha256']:version=bridge['currentImplementationSha256']
-    return version
+    record=E.read(E.COMPATIBILITY_PATH);context=E.sha(ROOT/record['contextPath'])
+    for repair in record.values():
+        if isinstance(repair,dict) and repair.get('currentContextSha256')==context:
+            bridge=repair.get('families',{}).get(family)
+            if bridge:return bridge['currentImplementationSha256']
+    return entry['currentImplementationSha256']
 
 
 class AdmissionEvidence(unittest.TestCase):
@@ -320,7 +321,8 @@ class AdmissionEvidence(unittest.TestCase):
         batter_chain=record.get('prePitchBatterChain')
         final_award=record.get('finalAwardSelection')
         runner_review=record.get('runnerReviewCompletion')
-        current=runner_review or final_award or batter_chain or error_prefix or selection or foul or history or groundout or compound or walk
+        foul_pitcher=record.get('foulPitcherCompletion')
+        current=record.get('administrativeBoundaryOverlap') or foul_pitcher or runner_review or final_award or batter_chain or error_prefix or selection or foul or history or groundout or compound or walk
         if compound:
             now=(subprocess.check_output(['git','-C',str(ROOT.parent),'show',
                 groundout['baselineCommit']+':Baseball/'+record['contextPath']]) if groundout
@@ -431,7 +433,9 @@ class AdmissionEvidence(unittest.TestCase):
                 return ast.dump(tree)
             self.assertEqual(outside_final_award(updated),outside_final_award(active))
         if runner_review:
-            current_context=(ROOT/record['contextPath']).read_bytes()
+            current_context=(subprocess.check_output(['git','-C',str(ROOT.parent),'show',
+                foul_pitcher['baselineCommit']+':Baseball/'+record['contextPath']]) if foul_pitcher
+                else (ROOT/record['contextPath']).read_bytes())
             self.assertEqual(hashlib.sha256(active).hexdigest(),runner_review['previousContextSha256'])
             self.assertEqual(hashlib.sha256(current_context).hexdigest(),runner_review['currentContextSha256'])
             changed={'completed_nonterminal_field_review','catcher_pickoff_boundary_kind',
@@ -452,8 +456,7 @@ class AdmissionEvidence(unittest.TestCase):
             self.assertEqual(E.EXISTING_GRAPH.fingerprint(E,adapter),independent['currentImplementationSha256'])
             self.assertEqual(walk['independentProofs'][family]['previousSourceProducerSha256'],entry['previousImplementationSha256'])
         for kind,adapter in [('players',E.PLAYER_PARTICIPATION),('pa',E.PLAYER_PARTICIPATION.PA),('c2pa',E.PA_RESOLUTION)]:
-            entry=(runner_review['derivedProofs'][kind] if runner_review else final_award['derivedProofs'][kind] if final_award else batter_chain['derivedProofs'][kind] if batter_chain else error_prefix['derivedProofs'][kind] if error_prefix else selection['derivedProofs'][kind] if selection else foul['derivedProofs'][kind] if foul else history['derivedProofs'][kind] if history else
-                record.get('retainedCompoundExpectations',{}).get('derivedProofs',{}).get(kind,current['derivedProofs'][kind]))
+            entry=current['derivedProofs'][kind]
             self.assertEqual(adapter.fingerprint(),entry['currentImplementationSha256'])
             self.assertEqual(E.prior_versions(kind,adapter.fingerprint()),entry['previousImplementationSha256s'])
             self.assertEqual(E.prior_versions(kind,'unknown'),[])
@@ -587,7 +590,8 @@ class AdmissionEvidence(unittest.TestCase):
             validator='scripts/pipeline/validate-shacl.py';context='scripts/pipeline/prepare-rml-context.py'
             adapter=E.module(ROOT/own,'prior_'+family.replace('-','_'))
             self.assertEqual(adapter.fingerprint(),current_implementation(family,entry))
-            self.assertEqual(tree(old(own)),ast.dump(PriorIssueKey().visit(ast.parse((ROOT/own).read_bytes()))))
+            historical=subprocess.check_output(['git','-C',str(ROOT.parent),'show',record['changeCommit']+':Baseball/'+own])
+            self.assertEqual(tree(old(own)),ast.dump(PriorIssueKey().visit(ast.parse(historical))))
             for unchanged in (shape,validator):self.assertEqual(old(unchanged),(ROOT/unchanged).read_bytes())
             paths=([own,shape,source,validator] if family=='batting' else
                 [own,shape,support,source,validator] if family=='scoring-run' else
@@ -596,7 +600,7 @@ class AdmissionEvidence(unittest.TestCase):
             self.assertEqual(digest,entry['previousImplementationSha256'])
             if family=='runner-resolution':
                 definition=lambda raw:next(n for n in ast.parse(raw).body if getattr(n,'name',None)=='nonmovement_strikeout_records')
-                self.assertEqual(ast.dump(definition(old(context))),ast.dump(definition((ROOT/context).read_bytes())))
+                self.assertEqual(ast.dump(definition(old(context))),ast.dump(definition(subprocess.check_output(['git','-C',str(ROOT.parent),'show',record['changeCommit']+':Baseball/'+context]))))
 
     def test_prior_clock_reuse_requires_positive_hash_bound_source_census(self):
         record=E.read(E.COMPATIBILITY_PATH)
@@ -723,7 +727,8 @@ class AdmissionEvidence(unittest.TestCase):
                 [Path(adapter.__file__),adapter.SHAPE,*common[:2],path,common[2]])
             prior=hashlib.sha256('\n'.join(p.relative_to(ROOT).as_posix()+':'+
                 (record['previousContextSha256'] if p==path else hashlib.sha256(baseline).hexdigest()
-                 if p==Path(adapter.__file__) else E.sha(p)) for p in paths).encode()).hexdigest()
+                 if p==Path(adapter.__file__) else hashlib.sha256(subprocess.check_output(
+                     ['git','-C',str(ROOT.parent),'show',record['changeCommit']+'^:Baseball/'+p.relative_to(ROOT).as_posix()])).hexdigest()) for p in paths).encode()).hexdigest()
             self.assertEqual(prior,entry['previousImplementationSha256'])
         self.assertNotIn('runner-boundary',record['families'])
 
@@ -748,15 +753,22 @@ class AdmissionEvidence(unittest.TestCase):
         for family,entry in bridge['families'].items():
             adapter=E.module(E.HERE/(family+'-admission.py'),'q7_'+family.replace('-','_'))
             self.assertEqual(adapter.fingerprint(),current_implementation(family,entry))
-            reuse=E.code_equivalence(family,entry['previousImplementationSha256'],adapter.fingerprint())
-            self.assertEqual(reuse['kind'],'prior-stricter-history-selection' if family=='runner-boundary' else
-                'prior-stricter-walk-selection' if family=='pitch-count' else 'unchanged-proof-dependencies')
+            reuse=E.code_equivalence(family,entry['previousImplementationSha256'],entry['currentImplementationSha256'],
+                _context=bridge['currentContextSha256'])
+            self.assertEqual(reuse['kind'],'prior-stricter-history-selection' if family=='runner-boundary' else 'unchanged-proof-dependencies')
+            self.assertIsNotNone(E.code_equivalence(family,entry['previousImplementationSha256'],adapter.fingerprint()))
             if family in record['families']:
                 old_entry=record['families'][family]
                 self.assertIsNotNone(E.code_equivalence(family,old_entry['previousImplementationSha256'],adapter.fingerprint()))
 
     def test_equivalent_code_reuses_exact_proof_without_changing_its_outcome_or_fingerprint(self):
         record=E.read(E.COMPATIBILITY_PATH)
+        # Exercise this historical equivalence at its exact context revision.
+        # New selections must not make historical negative proofs current.
+        original_sha=E.sha
+        context=patch.object(E,'sha',side_effect=lambda p:record['currentContextSha256']
+            if Path(p)==ROOT/record['contextPath'] else original_sha(p))
+        context.start();self.addCleanup(context.stop)
         for family,status in [('runner-resolution','admitted'),('pitch-count','withheld'),('defensive','withheld')]:
             with self.subTest(family=family),tempfile.TemporaryDirectory() as temp:
                 state=Path(temp);path=state/'pipeline/evidence/mlb-game/1/run'/f'{family}.json'
