@@ -81,6 +81,12 @@ These are work classes inside the existing source boundary; they do not add
 memory-heavy RML or SHACL workers. The workstation's memory limit makes more
 simultaneous JVMs inappropriate at present.
 
+Both SQL launchers allow up to 45 seconds for the shared heavy-worker lease to
+be released, then defer to NiFi's next tick. This bounded handoff prevents a
+minute timer from repeatedly colliding with a short admission sweep. It grants
+neither SQL owner priority, preserves the existing memory reserve and requested
+upstream-repair phase, and never interrupts the current owner.
+
 Quarantine requests waiting on a named SQL build return their unchanged request
 to a penalized NiFi queue. They do not hold a sleeping command process. The
 existing batch worker marks progress interrupted only when its recorded OS

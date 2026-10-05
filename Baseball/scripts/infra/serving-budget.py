@@ -12,6 +12,7 @@ import re
 from pathlib import Path
 import subprocess
 import sys
+import time
 from datetime import datetime, timezone
 
 ROOT=Path(__file__).resolve().parents[2]
@@ -63,13 +64,23 @@ def upstream_repair_priority(state):
 
 
 @contextmanager
-def reserve(state,kind):
+def reserve(state,kind,*,wait_seconds=0):
     state=Path(state).resolve()
     # Reuse the existing repair lease so there is no second resource queue.
     with ExitStack() as stack:
-        try:stack.enter_context(LOCK.exclusive(state/'pipeline/work/mlb-game-locks/targeted-repair-budget.lock'))
-        except (BlockingIOError,PermissionError):
-            yield 'heavy-worker-busy';return
+        # NiFi's minute timers can otherwise collide with the same short
+        # admission sweep forever. Both SQL owners use the same bounded
+        # handoff window, without tickets, priority or concurrent heavy work.
+        deadline=time.monotonic()+wait_seconds
+        while True:
+            try:
+                stack.enter_context(LOCK.exclusive(state/'pipeline/work/mlb-game-locks/targeted-repair-budget.lock'))
+                break
+            except (BlockingIOError,PermissionError):
+                remaining=deadline-time.monotonic()
+                if remaining<=0:
+                    yield 'heavy-worker-busy';return
+                time.sleep(min(0.25,remaining))
         if upstream_repair_priority(state):
             yield 'upstream-repairs-first';return
         # Older workers may have started before this launch budget was deployed.
@@ -86,7 +97,7 @@ def main(argv=None):
     parser.add_argument('--state-root',type=Path,default=Path(os.environ.get('BASEBALLO_STATE_ROOT') or Path(os.environ.get('LOCALAPPDATA','.'))/'BaseballO/state'))
     parser.add_argument('--kind',choices=('dashboard','report'),required=True)
     args,remaining=parser.parse_known_args(argv)
-    with reserve(args.state_root,args.kind) as reason:
+    with reserve(args.state_root,args.kind,wait_seconds=45) as reason:
         if reason:
             print(json.dumps(dict(status='deferred',reason=reason)));return 0
         script='materialize-dashboard.py' if args.kind=='dashboard' else 'materialize-serving-layer.py'

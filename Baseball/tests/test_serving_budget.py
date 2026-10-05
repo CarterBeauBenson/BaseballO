@@ -1,5 +1,6 @@
 """Resource contention defers work without killing workers or losing requests."""
 import importlib.util
+from contextlib import contextmanager
 import json
 import os
 from pathlib import Path
@@ -16,6 +17,24 @@ B=importlib.util.module_from_spec(spec);spec.loader.exec_module(B)
 
 
 class ServingBudget(unittest.TestCase):
+    def test_short_contention_hands_off_and_persistent_contention_stays_bounded(self):
+        with tempfile.TemporaryDirectory() as temp, patch.object(B.PROCESS,'available_memory',return_value=2*1024**3):
+            attempts=[];clock=[0.0]
+            @contextmanager
+            def briefly_busy(path):
+                attempts.append(path)
+                if len(attempts)<3:raise BlockingIOError('admission sweep still owns slot')
+                yield
+            with patch.object(B.LOCK,'exclusive',briefly_busy),patch.object(B.time,'monotonic',side_effect=lambda:clock[0]),\
+                    patch.object(B.time,'sleep',side_effect=lambda seconds:clock.__setitem__(0,clock[0]+seconds)):
+                with B.reserve(Path(temp),'dashboard',wait_seconds=15) as reason:self.assertIsNone(reason)
+            self.assertEqual(len(attempts),3);self.assertEqual(clock[0],0.5)
+            with patch.object(B.LOCK,'exclusive',side_effect=PermissionError('shared Windows handle')),\
+                    patch.object(B.time,'monotonic',side_effect=lambda:clock[0]),\
+                    patch.object(B.time,'sleep',side_effect=lambda seconds:clock.__setitem__(0,clock[0]+seconds)):
+                with B.reserve(Path(temp),'report',wait_seconds=1) as reason:self.assertEqual(reason,'heavy-worker-busy')
+            self.assertEqual(clock[0],1.5)
+
     def test_existing_nifi_dashboard_entrypoint_defers_before_loading_a_build(self):
         with tempfile.TemporaryDirectory() as temp:
             state=Path(temp);progress=state/'serving/builds/prior.progress.json'

@@ -514,6 +514,15 @@ products yet spent about 241 seconds on snapshot capture and 543 seconds on
 input refresh. Improve the identified owning component, not the broad topology.
 This performance work must not delay a correct partial publication.
 
+At 13:26 UTC on October 5, NiFi's recorded SQL outcomes repeatedly reported
+`heavy-worker-busy`; the last dashboard remained the 11:14 UTC publication
+while admission sweeps continued. The shared budget now allows both SQL owners
+up to 45 seconds to acquire a released slot before deferring to the next tick.
+This avoids repeatedly missing a short gap between synchronized minute timers.
+It adds no priority ticket, extra heavy worker, or schedule change; the existing
+upstream-phase and memory rules remain. Focused contention, phase and memory
+checks pass. A newer publication must still establish delivery.
+
 Use the existing compatible reader/SQL publication pairing and atomic pointer.
 A failed candidate leaves the previous usable publication intact. Existing
 retry evidence or a focused recovery test must demonstrate this; do not disrupt
