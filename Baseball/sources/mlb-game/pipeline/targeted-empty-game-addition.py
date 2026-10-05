@@ -53,8 +53,16 @@ def outstanding(state,case):
     with closing(sqlite3.connect(database.as_uri()+'?mode=ro&immutable=1',uri=True)) as connection:
         proof=connection.execute('SELECT proof_json FROM dashboard_player_admission WHERE graph_iri=?',
             (case['graph'],)).fetchone()
-        if not proof:return None
-        if E.PLAYER_PARTICIPATION.needs_compound_refresh(json.loads(proof[0])):return None
+        counts=dict(connection.execute('SELECT player,plate_appearances FROM dashboard_player_game WHERE graph_iri=?',
+            (case['graph'],)).fetchall())
+        unknown={p['player'] for p in case['excludedPlayerGames'] if counts.get(p['player']) is None}
+        # Complete whole-game B1 admission needs no individual-player proof.
+        # Only selected players with unknown PA counts need the newer reader.
+        if unknown:
+            if not proof:return None
+            individual=json.loads(proof[0])
+            individual=dict(individual,players=[p for p in individual.get('players',[]) if p.get('player') in unknown])
+            if E.PLAYER_PARTICIPATION.needs_compound_refresh(individual):return None
         rows=connection.execute("SELECT player,complete FROM dashboard_player_metric WHERE graph_iri=? AND metric_id='empty-game-rate'",
             (case['graph'],)).fetchall()
     current=dict(rows)

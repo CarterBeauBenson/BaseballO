@@ -1,5 +1,6 @@
 """EG1 scope and BK1 joins without network or graph mutation."""
 import copy
+from contextlib import closing
 import ast
 import hashlib
 import importlib.util
@@ -7,6 +8,7 @@ import json
 from pathlib import Path
 import tempfile
 import subprocess
+import sqlite3
 import unittest
 from unittest.mock import patch
 from rdflib import Graph, RDF, Namespace
@@ -36,6 +38,21 @@ class EmptyGameAddition(unittest.TestCase):
         for mutate in mutations:
             play=copy.deepcopy(self.play);mutate(play)
             self.assertEqual(E.BK.C.balk_runner_evidence(play,'12'),[])
+
+    def test_whole_game_pa_admission_needs_no_redundant_individual_proof(self):
+        with tempfile.TemporaryDirectory() as directory:
+            state=Path(directory);database=state/'published.sqlite';player='urn:player'
+            with closing(sqlite3.connect(database)) as db,db:
+                db.executescript('CREATE TABLE dashboard_player_admission(graph_iri,proof_json);'
+                    'CREATE TABLE dashboard_player_game(graph_iri,player,plate_appearances);'
+                    'CREATE TABLE dashboard_player_metric(graph_iri,player,metric_id,complete);')
+                db.execute('INSERT INTO dashboard_player_game VALUES (?,?,?)',('urn:graph',player,4))
+                db.execute('INSERT INTO dashboard_player_metric VALUES (?,?,?,?)',('urn:graph',player,'empty-game-rate',0))
+            E.W.atomic(state/'serving/dashboard-current.json',dict(buildId='20261006T000000Z-fixture',databasePath=str(database)))
+            case=dict(graph='urn:graph',excludedPlayerGames=[dict(player=player)])
+            self.assertEqual(E.outstanding(state,case),[player])
+            with closing(sqlite3.connect(database)) as db,db:db.execute('UPDATE dashboard_player_game SET plate_appearances=NULL')
+            self.assertIsNone(E.outstanding(state,case))
 
     def test_shared_balk_identity_keeps_both_runners_and_final_batting_result(self):
         play=copy.deepcopy(self.play)
