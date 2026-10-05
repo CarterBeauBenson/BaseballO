@@ -29,6 +29,7 @@ def shapes(game_pk,rows):
             JUDGMENT=game+'/judgment/balk/'+action,DECISION=game+'/decision/balk/'+action,
             ACT=game+'/runner-act/movement/'+suffix,PA=game+'/plate-appearance/'+row['atBatIndex'],
             RESOLUTION=game+'/runner-resolution/'+row['resolutionKind']+'/'+suffix,
+            RESOLUTION_CLASS='RunProcess' if row['resolutionKind']=='score' else 'SafeProcess',
             PLAYER='https://baseballontology.org/data/player/'+row['runnerId'])
         text=SHAPE.read_text(encoding='utf-8')
         for key,value in values.items():text=text.replace('__'+key+'__',value)

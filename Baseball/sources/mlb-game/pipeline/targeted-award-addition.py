@@ -119,7 +119,7 @@ def authoritative_scope(data,focus):
 
 
 def revalidate(marker,manifest,rdf,evidence,java,classpath,selected,game_pk,delta,
-               *, shape_text=shapes, decisions=None):
+               *, shape_text=shapes, decisions=None, project_census=None):
     """Preserve original source outcomes; check affected facts before promotion."""
     decisions=decisions or dict(decision=DECISION,dependencyDecision=DEPENDENCY_DECISION,selectionDecision=FINAL_AWARD_DECISION)
     fields={};shape=evidence/'addition.shapes.ttl';shape.write_text(shape_text(game_pk,selected),encoding='utf-8',newline='\n')
@@ -147,14 +147,38 @@ def revalidate(marker,manifest,rdf,evidence,java,classpath,selected,game_pk,delt
                     source=prior.with_suffix(suffix)
                     if sha(source)!=proof[key]:raise ValueError('W1 retained validation artifact changed')
                     target.with_suffix(suffix).write_bytes(source.read_bytes())
+            projection=None
+            if project_census is not None and 'sourceCensusSha256' in proof and 'shapeSha256' in proof:
+                projection=project_census(field,read(target.with_suffix('.source.json')),selected)
+                if projection is not None:
+                    # An accepted addition changes an exact selected census.
+                    # Preserve its original source/producer/outcome and name
+                    # the additional witness; SHACL checks the new exact set.
+                    source,shape_text_updated,provenance=projection
+                    provenance=dict(provenance,originalSourceCensusSha256=proof['sourceCensusSha256'],
+                        originalShapeSha256=proof['shapeSha256'])
+                    counts={}
+                    if field=='runnerHistoryAdmission':
+                        counts['selectedHistories']=len(source['history']['histories'])
+                    elif field=='contactContinuationAdmission':
+                        counts={key:sum(p['status']==status for p in source['plays'])
+                            for key,status in (('admittedPlays','admitted'),('withheldPlays','withheld'))}
+                    provenance['originalCounts']={key:proof.get(key) for key in counts}
+                    proof.update(counts)
+                    source['targetedSourceProjection']=provenance
+                    atomic(target.with_suffix('.source.json'),source)
+                    target.with_suffix('.shapes.ttl').write_text(shape_text_updated,encoding='utf-8',newline='\n')
+                    proof.update(sourceCensusSha256=sha(target.with_suffix('.source.json')),
+                        shapeSha256=sha(target.with_suffix('.shapes.ttl')),
+                        targetedSourceProjection=provenance)
             if 'shapeSha256' in proof:
                 conforms=check(target.with_suffix('.shapes.ttl'),target.with_suffix('.report.ttl'))
-                if proof.get('graphConforms') is True and not conforms:
+                if proof.get('graphConforms',proof.get('conforms')) is True and not conforms:
                     raise ValueError('W1 invalidated previously conforming '+field)
                 proof['reportSha256']=sha(target.with_suffix('.report.ttl'))
                 proof['graphConforms']=conforms
             proof.update(authoritativeRdfSha256=sha(rdf),graphRevalidation=dict(**decisions,
-                originalProofSha256=sha(prior),mode='unchanged-source-census',checkedAtUtc=TX.now()))
+                originalProofSha256=sha(prior),mode='selected-additive-census' if projection is not None else 'unchanged-source-census',checkedAtUtc=TX.now()))
             # A retained withheld status remains withheld, even if its graph now passes.
             atomic(target,proof);fields[field]=str(target);fields[field+'Sha256']=sha(target)
     return fields

@@ -19,7 +19,7 @@
             cco:ont00001921 <https://baseballontology.org/data/rule/balk> ; cco:ont00001986 <__DECISION__> .
           <__DECISION__> a base:BaseballDecisionICE ; cco:ont00001808 <__PROCESS__> .
           <__ACT__> a base:BaserunningAct ; bfo:BFO_0000132 <__PA__> ; bfo:BFO_0000057 <__PLAYER__> .
-          <__RESOLUTION__> a base:SafeProcess ; bfo:BFO_0000062 <__ACT__> ; bfo:BFO_0000132 <__PA__> .
+          <__RESOLUTION__> a base:__RESOLUTION_CLASS__ ; bfo:BFO_0000062 <__ACT__> ; bfo:BFO_0000132 <__PA__> .
           FILTER (<__PROCESS__> != <__PA__/result>)
         }}
       """ ] .

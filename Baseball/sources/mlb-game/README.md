@@ -250,6 +250,15 @@ Its timer checks every 20 seconds so it can use the short gap between SQL
 builds. The existing shared lease and memory check still allow only one heavy
 worker, and each repair invocation handles one game.
 
+When a selected addition extends an exact contact or runner-history census,
+EG1 retains the original obligations and adds only the newly selected facts
+from the unchanged source selector. The receipt records both source witnesses,
+the original census/shape hashes and counts, and the projection implementation.
+Existing SHACL checks the resulting exact set. Original admission outcomes and
+population-completeness claims remain unchanged; a partial history stays
+partial. Balk checks use the existing `RunProcess` for a scoring resolution
+and `SafeProcess` for a safe base advance.
+
 ### Automatic repair observations
 
 The existing `Add Approved Q7 Histories` NiFi worker publishes

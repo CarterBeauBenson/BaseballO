@@ -11,7 +11,8 @@ import subprocess
 import sqlite3
 import unittest
 from unittest.mock import patch
-from rdflib import Graph, RDF, Namespace
+from rdflib import Graph, RDF, Namespace, URIRef
+from pyshacl import validate
 
 ROOT=Path(__file__).resolve().parents[3]
 spec=importlib.util.spec_from_file_location('eg1_test',ROOT/'sources/mlb-game/pipeline/targeted-empty-game-addition.py')
@@ -63,6 +64,62 @@ class EmptyGameAddition(unittest.TestCase):
         self.assertEqual(len(rows),2);self.assertEqual(len({r['actionId'] for r in rows}),1)
         self.assertEqual(play['result'],self.play['result'])
         Graph().parse(data=E.BK.shapes('566279',rows),format='turtle')
+
+    def test_scoring_balk_uses_existing_run_process_and_rejects_wrong_result_type(self):
+        row=dict(atBatIndex='37',runnerIndex='0',runnerId='702332',resolutionKind='score',actionId='fixture-balk')
+        game='https://baseballontology.org/data/game/822846'
+        iri=lambda suffix:URIRef(game+suffix)
+        b=Namespace('https://baseballontology.org/');o=Namespace('http://purl.obolibrary.org/obo/')
+        c=Namespace('https://www.commoncoreontologies.org/')
+        record,act,resolution,pa,process,judgment,decision=map(iri,('/runner-record/37/0',
+            '/runner-act/movement/37/0','/runner-resolution/score/37/0','/plate-appearance/37',
+            '/process/balk/fixture-balk','/judgment/balk/fixture-balk','/decision/balk/fixture-balk'))
+        rule=b['data/rule/balk'];data=Graph()
+        triples=[(record,RDF.type,b.BaseballEventRecord),
+            *[(record,c.ont00001808,node) for node in (act,resolution,process,judgment,decision)],
+            (act,RDF.type,b.BaserunningAct),(act,o.BFO_0000132,pa),(act,o.BFO_0000057,b['data/player/702332']),
+            (resolution,RDF.type,b.RunProcess),(resolution,o.BFO_0000062,act),(resolution,o.BFO_0000132,pa),
+            (process,RDF.type,b.BalkProcess),(process,o.BFO_0000132,pa),(process,o.BFO_0000117,judgment),
+            (process,c.ont00001920,rule),(rule,RDF.type,b.BalkRule),
+            (judgment,RDF.type,b.UmpireJudgmentAct),(judgment,o.BFO_0000132,process),
+            (judgment,c.ont00001921,rule),(judgment,c.ont00001986,decision),
+            (decision,RDF.type,b.BaseballDecisionICE),(decision,c.ont00001808,process)]
+        for triple in triples:data.add(triple)
+        shapes=Graph().parse(data=E.BK.shapes('822846',[row]),format='turtle')
+        self.assertTrue(validate(data,shacl_graph=shapes)[0])
+        data.remove((resolution,RDF.type,b.RunProcess));data.add((resolution,RDF.type,b.SafeProcess))
+        self.assertFalse(validate(data,shacl_graph=shapes)[0])
+
+    def test_selected_census_addition_preserves_old_source_and_does_not_expand_scope(self):
+        raw=self.raw;game='https://baseballontology.org/data/game/566279'
+        full=E.R.H.census(raw,'566279');old=copy.deepcopy(full)
+        selected_histories=full['history']['histories'][:2]
+        selected_keys={h['lifetimeKey'] for h in selected_histories}
+        old['history']['histories']=full['history']['histories'][2:3]
+        old_keys={h['lifetimeKey'] for h in old['history']['histories']}
+        old['history']['episodeMembership']=[r for r in old['history']['episodeMembership'] if r['lifetimeKey'] in old_keys]
+        old['history']['placementAdjudications']=[];old['populationComplete']=False
+        selected=dict(sourceWitness=dict(path='retained-input.json',sha256=hashlib.sha256(raw).hexdigest()),
+            history=dict(histories=selected_histories,
+                episodeMembership=[r for r in full['history']['episodeMembership'] if r['lifetimeKey'] in selected_keys],
+                placementAdjudications=[]))
+        updated,shape,provenance=E.project_census('runnerHistoryAdmission',old,selected)
+        self.assertEqual({h['lifetimeKey'] for h in updated['history']['histories']},old_keys|selected_keys)
+        self.assertEqual(len(old['history']['histories']),1);self.assertFalse(updated['populationComplete'])
+        self.assertEqual(updated['sourceSha256'],old['sourceSha256'])
+        self.assertEqual(provenance['addedHistoryKeys'],sorted(selected_keys))
+        Graph().parse(data=shape,format='turtle')
+        old_contact=dict(gamePk='566279',sourceSha256='original',plays=[
+            dict(atBatIndex='12',playId='contact',status='withheld',links=[],memberships=[])])
+        link=dict(atBatIndex='12',runnerIndex='0',resolutionKind='advance',playId='contact')
+        selected.update(plateAppearances=['12'],contactCensus=dict(plays=[dict(old_contact['plays'][0],
+            status='admitted',links=[link])]))
+        updated,shape,provenance=E.project_census('contactContinuationAdmission',old_contact,selected)
+        self.assertEqual(updated['plays'][0]['links'],[link]);self.assertEqual(updated['sourceSha256'],'original')
+        Graph().parse(data=shape,format='turtle')
+        selected['contactCensus']['plays'][0]['links']=[]
+        with self.assertRaisesRegex(ValueError,'remove an existing source obligation'):
+            E.project_census('contactContinuationAdmission',updated,selected)
 
     def test_balk_context_preserves_existing_censuses_and_proof_identities(self):
         prior=subprocess.check_output(['git','show','8f1835b:Baseball/scripts/pipeline/prepare-rml-context.py'])

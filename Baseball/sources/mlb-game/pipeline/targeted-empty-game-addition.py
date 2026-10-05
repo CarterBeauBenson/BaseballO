@@ -1,5 +1,6 @@
 """NiFi-owned EG1/BK1: bounded missing facts for still-excluded player-games."""
 import argparse
+import copy
 from contextlib import closing
 import hashlib
 import importlib.util
@@ -18,6 +19,7 @@ W=R.W;ROOT=R.ROOT;C=R.CONTEXT
 BK=W.module(HERE/'balk-runner-attribution.py','eg1_balk')
 E=W.module(HERE/'admission-evidence.py','eg1_evidence')
 K=W.module(HERE/'targeted-compound-addition.py','eg1_compound')
+CONTACT=W.module(HERE/'contact-continuation-admission.py','eg1_contact')
 DECISION='archive/design-records/mlb-game-empty-game-completion/review.json'
 BALK_DECISION='archive/design-records/mlb-game-balk-runner-attribution/review.json'
 INVENTORY=ROOT/Path(DECISION).parent/'candidate-inventory.json'
@@ -122,7 +124,8 @@ def select(raw,game_pk,players):
     selected['context']['liveData']['plays']['allPlays']=list(scoped.values())
     parts=[p for p in document[C.CONTEXT_KEY].get('compoundDoublePlayParts',[]) if p['atBatIndex'] in pas]
     selected['context'][C.CONTEXT_KEY]['compoundDoublePlayParts']=parts
-    selected.update(balks=balks,plateAppearances=sorted(pas),unresolved=unsupported,players=players)
+    selected.update(balks=balks,plateAppearances=sorted(pas),unresolved=unsupported,players=players,
+        contactCensus=CONTACT.census(raw,game_pk))
     return selected
 
 
@@ -146,8 +149,55 @@ def shapes(game_pk,selected):
     return '\n'.join(parts)
 
 
+def project_census(field,source,selected):
+    """Extend only the exact accepted selection; keep every old obligation.
+
+    A later source may support additional histories beyond EG1's selected
+    dependencies. Those are not mapped, added to the check or called complete.
+    An overlapping history retains its original constraints; the addition's
+    own SHACL also checks the selected source, so conflicts still fail.
+    """
+    updated=copy.deepcopy(source)
+    provenance=dict(decision=DECISION,sourceWitness=selected['sourceWitness'],
+        projectionImplementationSha256=W.sha(Path(__file__)))
+    if field=='runnerHistoryAdmission':
+        previous={h['lifetimeKey'] for h in source['history']['histories']}
+        additions=[h for h in selected['history']['histories'] if h['lifetimeKey'] not in previous]
+        if not additions:return None
+        keys={h['lifetimeKey'] for h in additions}
+        updated['history']['histories'].extend(copy.deepcopy(additions))
+        for name in ('episodeMembership','placementAdjudications'):
+            updated['history'].setdefault(name,[]).extend(copy.deepcopy([
+                r for r in selected['history'].get(name,[]) if r['lifetimeKey'] in keys]))
+        provenance['addedHistoryKeys']=sorted(keys)
+        return updated,R.H.shape_text(updated),provenance
+    if field=='contactContinuationAdmission':
+        selected_pas=set(selected['plateAppearances'])
+        current={p['atBatIndex']:p for p in selected['contactCensus']['plays'] if p['atBatIndex'] in selected_pas}
+        changed=[]
+        for number,old in enumerate(source['plays']):
+            new=current.get(old['atBatIndex'])
+            if new is None or old==new:continue
+            # An addition must retain all previous links and memberships.
+            # Its current source census, not this projection, selects new ones.
+            if any(any(r not in new.get(key,[]) for r in old.get(key,[])) for key in ('links','memberships')):
+                raise ValueError('EG1 contact census would remove an existing source obligation')
+            if old.get('playId')!=new.get('playId'):
+                raise ValueError('EG1 contact census would change an existing contact identity')
+            updated['plays'][number]=copy.deepcopy(new);changed.append(old['atBatIndex'])
+        previous_pas={p['atBatIndex'] for p in source['plays']}
+        for pa,new in current.items():
+            if pa not in previous_pas:
+                updated['plays'].append(copy.deepcopy(new));changed.append(pa)
+        if not changed:return None
+        provenance['updatedContactPlateAppearances']=sorted(changed)
+        return updated,CONTACT.shape_text(updated),provenance
+    return None
+
+
 def revalidate(*args):
-    return W.revalidate(*args,shape_text=shapes,decisions=dict(decision=DECISION,balkDecision=BALK_DECISION))
+    return W.revalidate(*args,shape_text=shapes,decisions=dict(decision=DECISION,balkDecision=BALK_DECISION),
+        project_census=project_census)
 
 
 def acquire(state,game_pk):
@@ -236,6 +286,7 @@ def tick(state,game_pk,java,mapper,classpath):
             if selected is None or selected.get('noSupportedAddition'):
                 result.update(status='no-supported-addition',selected=selected,sourceWitness=witness)
             else:
+                selected['sourceWitness']=witness
                 result.update(W.add_game(state,game_pk,witness,java,mapper,classpath,repair=dict(
                     decisions=dict(decision=DECISION,balkDecision=BALK_DECISION),select=lambda raw,pk:selected,
                     execution_inputs=execution_inputs,revalidate=revalidate,

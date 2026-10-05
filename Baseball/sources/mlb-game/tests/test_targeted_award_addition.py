@@ -83,7 +83,10 @@ class AwardRetryIdentity(unittest.TestCase):
             W.atomic(current,dict(gamePk=42,liveData=dict(plays=dict(allPlays=[
                 dict(result=dict(eventType='intent_walk'),playEvents=[{}]*5)]))))
             (state/'pipeline/evidence/nifi/game-promotion/42').mkdir(parents=True)
-            with patch.object(W,'fingerprint',return_value='one'),patch.object(Path,'glob',return_value=iter([retired,current])), \
+            original_glob=Path.glob
+            def source_glob(path,pattern):
+                return iter([retired,current]) if pattern=='*/*/input.json' else original_glob(path,pattern)
+            with patch.object(W,'fingerprint',return_value='one'),patch.object(Path,'glob',source_glob), \
                     patch.object(Path,'rglob',return_value=iter([])),patch.object(W,'select',return_value=[dict(atBatIndex='1')]):
                 witness=W.next_witness(state)
             self.assertEqual(witness['path'],str(current))
@@ -184,6 +187,41 @@ class TargetedAwardAddition(unittest.TestCase):
                 selected[0]['awardAdvances'].append(dict(runnerIndex='1'))
                 with self.assertRaisesRegex(RuntimeError,'continue-current-selection'):
                     W.add_game(state,'1',witness,None,None,None,repair=repair)
+
+
+class AdditionCensusRevalidation(unittest.TestCase):
+    def test_projection_retains_source_outcome_and_still_rejects_failed_conformance(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp);prior=root/'prior/contact.json';evidence=root/'new';evidence.mkdir()
+            rdf=root/'combined.ttl';rdf.write_text('<urn:a> <urn:p> <urn:b> .')
+            source=dict(sourceSha256='original',plays=[dict(status='withheld')])
+            W.atomic(prior.with_suffix('.source.json'),source)
+            prior.with_suffix('.shapes.ttl').write_text('')
+            Graph().serialize(destination=prior.with_suffix('.report.ttl'),format='turtle')
+            proof=dict(sourceSha256='original',authoritativeRdfSha256='base',
+                implementationSha256='original-producer',status='validated',conforms=True,
+                admittedPlays=0,withheldPlays=1)
+            for suffix,key in (('.source.json','sourceCensusSha256'),('.shapes.ttl','shapeSha256'),('.report.ttl','reportSha256')):
+                proof[key]=W.sha(prior.with_suffix(suffix))
+            W.atomic(prior,proof)
+            marker=dict(rawSha256='original',contactContinuationAdmission=str(prior),contactContinuationAdmissionSha256=W.sha(prior))
+            project=Mock(return_value=(dict(source,plays=[dict(status='admitted')]),'',dict(sourceWitness=dict(sha256='additional'))))
+            for conforms in (True,False):
+                with patch.object(W.J,'Session') as session:
+                    session.return_value.__enter__.return_value.validate_with_jena.side_effect=[
+                        (True,Graph(),None),(True,Graph(),None),(conforms,Graph(),None)]
+                    invoke=lambda:W.revalidate(marker,dict(outputSha256='base'),rdf,evidence,None,None,
+                        {},'1',Graph(),shape_text=lambda *args:'',project_census=project)
+                    if not conforms:
+                        with self.assertRaisesRegex(ValueError,'invalidated previously conforming'):invoke()
+                        continue
+                    result=W.read(Path(invoke()['contactContinuationAdmission']))
+                    for key in ('sourceSha256','implementationSha256','status','conforms'):
+                        self.assertEqual(result[key],proof[key])
+                    self.assertEqual((result['admittedPlays'],result['withheldPlays']),(1,0))
+                    self.assertEqual(result['targetedSourceProjection']['originalCounts'],dict(admittedPlays=0,withheldPlays=1))
+                    self.assertEqual(result['targetedSourceProjection']['originalSourceCensusSha256'],proof['sourceCensusSha256'])
+                    self.assertEqual(result['graphRevalidation']['mode'],'selected-additive-census')
 
 
 class AdditionOutputCompletion(unittest.TestCase):

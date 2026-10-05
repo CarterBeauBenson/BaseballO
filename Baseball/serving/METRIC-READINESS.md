@@ -10,7 +10,30 @@ the 486 retained spring/exhibition games no longer enter build dependencies.
 Their data and historical diagnoses remain stored. This scope reduction does
 not establish completeness for the remaining metric populations.
 
-## Latest measured publication: October 5, 09:52 Eastern
+## Latest measured SQL publication: October 5, 14:51 Eastern
+
+Build `20261005T183635Z-dashboard-ad0e68d2b94c` published at 18:51:43 UTC.
+Empty Games has **640 unresolved regular-season player-games**, down from 676
+in the preceding measurement: 377 lack complete classification, 99 lack
+established offensive eligibility, and 164 lack the needed official PA evidence.
+These overlap across 404 players and 422 games. They are player-game exclusions,
+not a count of eligible players. Game 822679, player 683146, now has a complete
+SQL Empty Games count of one after the balk repair.
+
+The EG1 worker has processed 25 games: eight additions, thirteen selections
+already present, one resolved by the reader, and three failed. The additions
+total 75 triples and remove none. Already-present selections still require
+metric-level diagnosis; they do not certify all required attribution facts.
+
+The three recorded failures are repaired in code: scoring balks use the
+existing `RunProcess`; selected contact additions extend their old exact
+census; selected runner-history additions extend their old exact census
+without claiming that the remaining histories are complete. Seven focused
+Empty Games tests and ten shared additive-repair tests pass. NiFi's existing
+bounded retry must still validate/promote these three games and publish any
+resulting SQL changes. The full population remains unfinished.
+
+## Earlier October 5 measurements
 
 Build `20261005T132720Z-dashboard-17f4e3356233` published at 13:52:17 UTC,
 paired with SQL code `e773235`. The full-season HTTP response still has **5/19
