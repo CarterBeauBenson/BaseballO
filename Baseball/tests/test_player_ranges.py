@@ -323,16 +323,15 @@ class PlayerRanges(unittest.TestCase):
             dashboard=Q.query(M,P,db,{'view':'dashboard'},SCOPE)
         db.set_trace_callback(None)
         self.assertEqual(dashboard['metrics'],expected_metrics)
-        self.assertEqual(sum('JOIN dashboard_player_metric ' in sql for sql in statements),2 if covered and not player_index else 1)
+        self.assertEqual(sum('JOIN dashboard_player_metric ' in sql for sql in statements),2 if covered else 1)
         if covered:
             aggregate_reads=[s for s in statements if 'SELECT p.metric_id,p.player,p.aggregate_json' in s]
             self.assertEqual(len(aggregate_reads),1)
             self.assertNotIn("'"+U+'1'+"'",aggregate_reads[0])
             self.assertNotIn("'"+U+'3'+"'",aggregate_reads[0])
-            if player_index:
-                plan=[row[3] for row in db.execute('EXPLAIN QUERY PLAN '+aggregate_reads[0])]
-                self.assertIn('dashboard_player_metric_by_player (metric_id=? AND player=?)',plan[0])
-                self.assertTrue(any('SEARCH g ' in step for step in plan[1:]), plan)
+            plan=[row[3] for row in db.execute('EXPLAIN QUERY PLAN '+aggregate_reads[0])]
+            self.assertIn('SEARCH p USING INTEGER PRIMARY KEY (rowid=?)',plan)
+            self.assertTrue(any('COVERING INDEX dashboard_player_metric_coverage' in step for step in plan),plan)
 
     def test_empty_payload_filter_preserves_zero_scores_and_independent_running_exposure(self):
         db=self.db()

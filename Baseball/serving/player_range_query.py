@@ -173,18 +173,14 @@ def player_records(db, metrics, params, people):
                   for player,person in people.items()
                   if person['roster'] and not blocked[player] and seen[player]==len(person['graphs'])]
         if eligible:
-            indexed=db.execute("SELECT 1 FROM sqlite_schema WHERE type='index' AND name='dashboard_player_metric_by_player'").fetchone()
-            # Keep eligible pairs outermost: the production SQLite planner
-            # otherwise crosses every game with every eligible pair, even
-            # when the player index is present. Older snapshots keep their
-            # bounded game-first scan.
-            source=('dashboard_player_metric p INDEXED BY dashboard_player_metric_by_player '
-                'CROSS JOIN game_dimension g ON p.graph_iri=g.graph_iri' if indexed else
-                'game_dimension g CROSS JOIN dashboard_player_metric p INDEXED BY sqlite_autoindex_dashboard_player_metric_1 '
-                'ON p.graph_iri=g.graph_iri')
-            rows=db.execute('SELECT p.metric_id,p.player,p.aggregate_json FROM '+source+
-                ' WHERE g.game_set=? AND g.official_date BETWEEN ? AND ? '
-                "AND (p.metric_id,p.player) IN (SELECT json_extract(value,'$[0]'),json_extract(value,'$[1]') FROM json_each(?)) "
+            # Select row identities from the covering index before touching
+            # aggregate pages. A player-first table lookup reads that player's
+            # whole season before applying a short requested date range.
+            rows=db.execute('SELECT p.metric_id,p.player,p.aggregate_json FROM dashboard_player_metric p '
+                'WHERE p.rowid IN (SELECT c.rowid FROM game_dimension g '
+                'CROSS JOIN dashboard_player_metric c INDEXED BY dashboard_player_metric_coverage '
+                'ON c.graph_iri=g.graph_iri WHERE g.game_set=? AND g.official_date BETWEEN ? AND ? '
+                "AND (c.metric_id,c.player) IN (SELECT json_extract(value,'$[0]'),json_extract(value,'$[1]') FROM json_each(?))) "
                 'AND p.aggregate_json NOT IN (?,?,?)',
                 (*params,json.dumps(eligible,separators=(',',':')),*EMPTY_AGGREGATES))
             for metric,player,text in rows:products[metric][0][player].append(text)
