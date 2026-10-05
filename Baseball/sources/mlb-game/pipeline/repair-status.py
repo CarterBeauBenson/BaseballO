@@ -14,7 +14,7 @@ import re
 
 HERE=Path(__file__).resolve().parent
 QUEUES=('defensive-addition','history-addition','foul-addition','award-addition',
-        'runner-addition','compound-addition','admission-evidence')
+        'runner-addition','compound-addition','empty-game-addition','admission-evidence')
 
 
 def read(path):
@@ -47,7 +47,7 @@ def foul_source_excerpt(state,pk,record):
         for p in document['liveData']['plays']['allPlays'] if p['atBatIndex'] in indexes]
 
 
-def observe(state,owner,runner_owner=None,current_history_proof=None,current_history_validation=None):
+def observe(state,owner,runner_owner=None,current_history_proof=None,current_history_validation=None,empty_game_cases=()):
     control=state/'pipeline/control/mlb-game';issues=[];errors=[];queues={};records={}
     spec=importlib.util.spec_from_file_location('status_work_scope',HERE/'work_scope.py')
     scope=importlib.util.module_from_spec(spec);spec.loader.exec_module(scope)
@@ -60,7 +60,7 @@ def observe(state,owner,runner_owner=None,current_history_proof=None,current_his
 
     def issue(kind,pk,record,path):
         keys=('status','error','checkedAtUtc','attempts','failureAttempts','sourceWitness',
-              'repairRequest','repairRequestSha256','unresolvedFouls','diagnostics','familyFailures')
+              'repairRequest','repairRequestSha256','unresolvedFouls','diagnostics','familyFailures','unresolved','selected')
         item=dict(kind=kind,gamePk=pk,evidence=str(path),
             **{key:record[key] for key in keys if key in record})
         if (kind=='foul-addition' and record.get('sourceWitness')
@@ -79,7 +79,8 @@ def observe(state,owner,runner_owner=None,current_history_proof=None,current_his
                 archived_issues+=bool(row.get('status') in {'failed','partial','retry-exhausted'} or row.get('familyFailures'))
                 continue
             rows[path.stem]=row
-            if row.get('status') in {'failed','partial','retry-exhausted'} or row.get('familyFailures'):
+            if (row.get('status') in {'failed','partial','retry-exhausted','no-supported-addition'}
+                    or row.get('familyFailures') or (kind=='empty-game-addition' and row.get('unresolved'))):
                 issue(kind,path.stem,row,path)
         records[kind]=rows
         queues[kind]=dict(Counter(row.get('status','missing-status') for row in rows.values()))
@@ -121,6 +122,9 @@ def observe(state,owner,runner_owner=None,current_history_proof=None,current_his
         if case['gamePk'] not in excluded and not owner.completed_case(records['history-addition'].get(case['gamePk'],{}),case)})
     runner_pending=sorted({case['gamePk'] for case in runner_owner.repair_cases()
         if case['gamePk'] not in excluded and not runner_owner.completed_case(records['runner-addition'].get(case['gamePk'],{}),case)}) if runner_owner else []
+    empty_pending=sorted(case['gamePk'] for case in empty_game_cases if case['gamePk'] not in excluded
+        and records['empty-game-addition'].get(case['gamePk'],{}).get('status') not in
+            {'complete','already-complete','already-present','resolved-by-reader','no-supported-addition'})
 
     defensive_path=control/'defensive-addition/inventory.json'
     defensive=load(defensive_path,{}) if defensive_path.is_file() else {}
@@ -145,7 +149,7 @@ def observe(state,owner,runner_owner=None,current_history_proof=None,current_his
     active=sum(n for counts in queues.values() for status,n in counts.items()
         if status in {'running','finalizing'} or status.startswith('waiting-'))
     awaiting_source=sorted(pk for pk,r in discovery.items() if r.get('status')=='awaiting-source')
-    pending=len(uninspected)+len(stale)+len(selected_pending)+len(fixed_pending)+len(runner_pending)+len(awaiting_source)+active
+    pending=len(uninspected)+len(stale)+len(selected_pending)+len(fixed_pending)+len(runner_pending)+len(empty_pending)+len(awaiting_source)+active
     history_unresolved=[];history_superseded=[];history_validated=[]
     for pk,row in sorted(records['history-addition'].items()):
         if row.get('historyEvidence',{}).get('status')!='withheld':continue
@@ -197,6 +201,7 @@ def observe(state,owner,runner_owner=None,current_history_proof=None,current_his
             awaitingSource=awaiting_source,
             selectedCompleted=selected_complete,selectedPending=sorted(selected_pending),fixedPending=fixed_pending),
         runnerRepair=dict(pendingCurrentScope=runner_pending),
+        emptyGameRepair=dict(pendingCurrentScope=empty_pending),
         coverageLimits=coverage,issues=issues,observationErrors=errors,
         promotionDirectoriesWithoutMarker=missing_promotion,
         rmlQuarantine=dict(historicalWithLaterPromotion=quarantine_superseded,
@@ -208,6 +213,7 @@ def publish(state,owner):
     spec=importlib.util.spec_from_file_location('repair_status_runner',HERE/'targeted-runner-addition.py')
     runner=importlib.util.module_from_spec(spec);spec.loader.exec_module(runner)
     report=observe(state,owner,runner,
+        empty_game_cases=read(HERE.parents[2]/'archive/design-records/mlb-game-empty-game-completion/candidate-inventory.json')['games'],
         current_history_proof=lambda marker:owner.DISCOVERY.boundary_admission(owner,state,marker),
         current_history_validation=lambda marker,row:owner.legacy_history_validation(state,marker,row))
     path=state/'pipeline/control/mlb-game/repair-status.json';owner.atomic(path,report)

@@ -236,6 +236,17 @@ tick with two attempts per implementation. Terminal evidence is under
 query indexes and SQL. Submission and component tests do not establish metric
 population. Unsupported timing, attribution, defense and review remain separate.
 
+The same worker now prioritizes accepted EG1 Empty Games completion, including
+BK1 separately recorded balks. Its bounded inventory contains 455 games;
+`pipeline/targeted-empty-game-addition.py` rechecks current published exclusions
+and skips reader-resolved cases before acquiring or mapping anything. Retained
+inputs come first; missing inputs may be acquired only for the approved games.
+It adds missing selected PA/runner facts and their complete existing dependencies,
+uses source SHACL, and emits the existing graph-promotion event. Terminal results
+and unresolved selections live in `pipeline/control/mlb-game/empty-game-addition/`
+and appear in the existing repair observer. A successful addition does not itself
+mean that the corresponding full-season player total has reached SQL or the UI.
+
 ### Automatic repair observations
 
 The existing `Add Approved Q7 Histories` NiFi worker publishes

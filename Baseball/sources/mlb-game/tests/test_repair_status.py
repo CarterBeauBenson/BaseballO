@@ -16,6 +16,19 @@ def write(path,value):
 
 
 class RepairStatus(unittest.TestCase):
+    def test_empty_game_candidates_remain_visible_until_handled(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);cases=[dict(gamePk='1'),dict(gamePk='2')]
+            record=state/'pipeline/control/mlb-game/empty-game-addition/1.json'
+            write(record,dict(status='resolved-by-reader'))
+            report=S.observe(state,self.owner(),empty_game_cases=cases)
+            self.assertEqual(report['emptyGameRepair']['pendingCurrentScope'],['2'])
+            write(record.with_name('2.json'),dict(status='no-supported-addition',selected={'unresolved':['fixture']}))
+            report=S.observe(state,self.owner(),empty_game_cases=cases)
+            self.assertEqual(report['emptyGameRepair']['pendingCurrentScope'],[])
+            self.assertFalse(report['recordedWorkClear'])
+            self.assertEqual(report['issues'][0]['kind'],'empty-game-addition')
+
     def owner(self):
         return SimpleNamespace(cases=lambda:[],DISCOVERY=SimpleNamespace(fingerprint=lambda owner:'worker'),
             completed_case=lambda p,c:p.get('status')=='complete' and
