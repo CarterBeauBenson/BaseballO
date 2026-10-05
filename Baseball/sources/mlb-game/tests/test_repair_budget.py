@@ -37,6 +37,19 @@ foreach ($pending in @('uninspectedGames','outdatedInspections','awaitingSource'
     ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $report
 $result=Invoke-MlbRepairBudget -StateRoot $State -Worker 'admission-evidence' -Action {'maintenance-ran'}
 if ($result -ne 'maintenance-ran') {throw 'maintenance stayed blocked after histories cleared'}
+# Once all recorded repairs clear, maintenance must leave a slot for SQL to
+# release the temporary phase instead of winning every timer interval.
+@{enabled=$true;requestedAtUtc='2026-10-04T23:00:00.1234567Z'} | ConvertTo-Json | Set-Content -LiteralPath $priority
+@{recordedWorkClear=$true;checkedAtUtc='2026-10-04T23:01:00Z';historyDiscovery=@{}} |
+    ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $report
+foreach ($worker in @('admission-evidence','targeted-defensive-addition','targeted-foul-addition')) {
+    $result=Invoke-MlbRepairBudget -StateRoot $State -Worker $worker -Action {throw 'maintenance starved serving handoff'}
+    if (($result | ConvertFrom-Json).reason -ne 'upstream-complete-serving-handoff') {throw 'handoff did not yield'}
+}
+@{recordedWorkClear=$true;checkedAtUtc='2026-10-04T22:00:00Z';historyDiscovery=@{}} |
+    ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $report
+$result=Invoke-MlbRepairBudget -StateRoot $State -Worker 'admission-evidence' -Action {'maintenance-ran'}
+if ($result -ne 'maintenance-ran') {throw 'stale report suppressed maintenance'}
 # Once the temporary recovery phase ends, new source work stays independent.
 @{enabled=$false} | ConvertTo-Json | Set-Content -LiteralPath $priority
 @{historyDiscovery=@{awaitingSource=@('2')}} | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $report

@@ -61,6 +61,14 @@ function Invoke-MlbRepairBudget {
                         $value = $report.historyDiscovery.PSObject.Properties[$field]
                         if ($null -ne $value -and @($value.Value).Count -gt 0) { $historyPending = $true; break }
                     }
+                    $clear = $report.PSObject.Properties['recordedWorkClear']
+                    if ($null -ne $clear -and $clear.Value -eq $true -and
+                            [DateTimeOffset]$report.checkedAtUtc -ge [DateTimeOffset]$priority.requestedAtUtc) {
+                        # Yield this one handoff. The SQL owner clears enabled
+                        # under the shared lease; subsequent source work is independent.
+                        @{status='deferred'; reason='upstream-complete-serving-handoff'; worker=$Worker} | ConvertTo-Json -Compress
+                        return
+                    }
                 }
                 if ($historyPending) {
                     @{status='deferred'; reason='pending-history-repairs'; worker=$Worker} | ConvertTo-Json -Compress

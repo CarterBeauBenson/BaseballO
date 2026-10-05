@@ -6,6 +6,9 @@ its routine sweep. `admission-evidence-queue.py` owns that scheduling decision;
 producer fingerprints. The existing shared memory lease and two-failure retry
 limit apply, and retired spring-training/WBC games are excluded. Queue-order
 changes therefore do not invalidate completed runner-history inspections.
+When NiFi records the requested upstream repair phase clear, maintenance yields
+the shared slot once so the SQL owner can release that phase. Subsequent source
+work and serving again compete normally; this is not a permanent corpus gate.
 
 This directory owns the source-specific executable stages used by the clean
 NiFi `MLB Game` process group. NiFi supplies the scheduling, FlowFile
