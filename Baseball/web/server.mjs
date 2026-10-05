@@ -10,7 +10,7 @@ import {
   ANALYTICS_QUERY_FAMILIES,
   compileAnalyticsQuery,
 } from "./query-builder/analytics-query-builder.js";
-import { metricCatalog, validateMetricRequest, validateDashboardRequest, metricLabelIndex, labelMetricPlayers, playerLeaderboard, publicMetricResult, dashboardReadiness } from './query-builder/metric-suite-query-builder.js';
+import { metricCatalog, validateMetricRequest, validateDashboardRequest, metricLabelIndex, labelMetricPlayers, playerLeaderboard, publicMetricResult, dashboardMetricResult, dashboardReadiness } from './query-builder/metric-suite-query-builder.js';
 import {
   buildPublicDerivedMetricCatalog,
   compileDerivedMetricQuery,
@@ -847,7 +847,7 @@ export function createBaseballServer({
         leaderboard:playerLeaderboard(named, definitions.get(metric.metricId), result.dateScope)} : named;
     };
     if (result.metrics) {
-      const metrics = result.metrics.filter(metric => definitions.has(metric.metricId)).map(ranked);
+      const metrics = result.metrics.filter(metric => definitions.has(metric.metricId)).map(ranked).map(dashboardMetricResult);
       return {...result, metrics, display, dashboardReadiness:dashboardReadiness(metrics, [...definitions.keys()])};
     }
     return {...result, metric:ranked(result.metric), display};

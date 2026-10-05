@@ -131,7 +131,9 @@ counts selected games, metrics with scoped results, metrics with individual
 results, and metrics without scores. Search or filter the cards, then select
 one to open its exact result and evidence without another query. **Back to
 dashboard** returns to the overview. Downloads preserve the complete response;
-changing dates immediately clears cards, details and downloads.
+the overview omits repeated per-player graph lists after resolving names and
+rankings. The individual metric endpoint retains those detailed memberships.
+Changing dates immediately clears cards, details and downloads.
 
 The dated [nine-run proof](../benchmarks/metrics/c1-run-depth-2026-09-14/README.md)
 and [dashboard capture](../benchmarks/metrics/dashboard-2026-09-14/README.md)

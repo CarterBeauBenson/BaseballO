@@ -586,14 +586,18 @@ test('dashboard and expanded metric ranks receive prepared SQL names with no gra
         {method:'POST',body:JSON.stringify(dashboard?{}:{metricId:metric.metricId})});
       assert.equal(response.status,200);
       const body=await response.json();
-      const board=(dashboard?body.metrics[0]:body.metric).leaderboard;
+      const displayed=dashboard?body.metrics[0]:body.metric;
+      const board=displayed.leaderboard;
       assert.equal(board.status,'available');
       assert.equal(board.rows[0].name,'Scoring Player');
       assert.equal(graphRequests,0);
       assert.deepEqual(board.rows[0].value,{numerator:'5',denominator:'2'});
+      assert.deepEqual(displayed.playerResults[0].aggregate,row.aggregate);
+      assert.deepEqual(displayed.playerResults[0].graphs,dashboard?undefined:[graph]);
     });
   }
   assert.equal(row.playerLabel,'Player 1');
+  assert.deepEqual(row.graphs,[graph]);
 });
 
 test('runner boundary labels remain optional and do not manufacture a metric score', async () => {

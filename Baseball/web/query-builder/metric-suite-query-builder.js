@@ -58,6 +58,16 @@ export function publicMetricResult(result) {
     {...result,status:'unavailable',value:null,gaps:[...(result.gaps ?? []),'OFFENSIVE_ELIGIBILITY']};
 }
 
+export function dashboardMetricResult(result) {
+  // Names, qualification and ranking have already consumed graph membership.
+  // The overview retains exact aggregates and full leaderboards; repeated
+  // per-player graph lists remain available from the individual metric route.
+  return {...result,
+    ...(result.playerResults ? {playerResults:result.playerResults.map(({graphs, ...row}) => row)} : {}),
+    ...(result.byMechanism ? {byMechanism:Object.fromEntries(Object.entries(result.byMechanism)
+      .map(([key, group]) => [key, dashboardMetricResult(group)]))} : {})};
+}
+
 export function playerLeaderboard(result, metric, dateScope, mechanism = null) {
   if (['adjudication-volatility', 'review-dependence-rate'].includes(metric.id) && mechanism === null) {
     // Distinct denominator populations and qualifications; never pool reviews.

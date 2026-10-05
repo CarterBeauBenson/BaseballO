@@ -581,6 +581,13 @@ first measured read. A later warm label read took 169 ms. Keep first-load and
 warm results separate when deciding the next optimization; the 2-second warm
 HTTP target is not yet established.
 
+The overview HTTP response now omits repeated per-player graph membership
+lists after using them to resolve names, qualification and rankings. It keeps
+the exact aggregates, all ranked players and separate review mechanisms. The
+individual metric endpoint retains the detailed memberships. The focused
+HTTP regression confirms identical names, ranks and exact values, with the
+original serving result unchanged; live size/timing verification is pending.
+
 #### M9.4. Finish the dashboard's user flow
 
 Owner: `web/metrics.js` and the existing metric presentation/qualification
