@@ -44,6 +44,32 @@ function Invoke-MlbRepairBudget {
         [ValidateRange(0, 60)][int] $TimeoutSeconds = 0
     )
 
+    # During the requested upstream-repair phase, recurring rechecks must not
+    # repeatedly win the slot ahead of unfinished Q7 work. Use the existing
+    # observer's queue; do not run another inspection or alter its evidence.
+    if ($Worker -in @('admission-evidence', 'targeted-defensive-addition', 'targeted-foul-addition')) {
+        $control = Join-Path $StateRoot 'pipeline\control\mlb-game'
+        $priorityPath = Join-Path $control 'repair-priority.json'
+        if (Test-Path -LiteralPath $priorityPath -PathType Leaf) {
+            $priority = Get-Content -LiteralPath $priorityPath -Raw -Encoding UTF8 | ConvertFrom-Json
+            if ($priority.enabled -eq $true) {
+                $reportPath = Join-Path $control 'repair-status.json'
+                $historyPending = -not (Test-Path -LiteralPath $reportPath -PathType Leaf)
+                if (-not $historyPending) {
+                    $report = Get-Content -LiteralPath $reportPath -Raw -Encoding UTF8 | ConvertFrom-Json
+                    foreach ($field in @('uninspectedGames', 'outdatedInspections', 'awaitingSource', 'selectedPending', 'fixedPending')) {
+                        $value = $report.historyDiscovery.PSObject.Properties[$field]
+                        if ($null -ne $value -and @($value.Value).Count -gt 0) { $historyPending = $true; break }
+                    }
+                }
+                if ($historyPending) {
+                    @{status='deferred'; reason='pending-history-repairs'; worker=$Worker} | ConvertTo-Json -Compress
+                    return
+                }
+            }
+        }
+    }
+
     # A queued SQL build has no priority over upstream repairs. A worker that
     # is already running still owns its memory until it exits.
     $progressFiles = @(Get-ChildItem -LiteralPath (Join-Path $StateRoot 'serving\builds') -Filter '*.progress.json' -ErrorAction SilentlyContinue)

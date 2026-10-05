@@ -22,6 +22,11 @@ existing repair-status observer records the active backlog clear. This does
 not create a permanent all-games prerequisite for later serving builds.
 The shared heavy-worker lock and memory reserve remain in effect, and the UI
 continues reading its last published SQL snapshot throughout the repair phase.
+Within that temporary phase, unfinished history discovery and repairs take the
+slot before recurring defense, foul and admission rechecks. Those workers resume
+as soon as the history queue clears, then SQL resumes when the observer clears
+the remaining upstream backlog. This prevents fixed one-minute timers from
+continually starving history work without starting parallel JVMs.
 
 Start with the [current RML repair plan](review/rml-audit-2026-10-03.md#current-repair-plan-and-scope)
 and its [October 4 closure](review/rml-audit-2026-10-03.md#six-item-repair-implementation-october-4)

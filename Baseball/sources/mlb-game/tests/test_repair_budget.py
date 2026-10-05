@@ -7,6 +7,46 @@ import unittest
 ROOT=Path(__file__).resolve().parents[3]
 
 class RepairBudget(unittest.TestCase):
+    def test_rechecks_yield_to_pending_histories_and_resume_when_history_queue_clears(self):
+        helper=ROOT/'sources/mlb-game/pipeline/repair-budget.ps1'
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);script=state/'check.ps1'
+            script.write_text(r'''param($Helper,$State)
+Set-StrictMode -Version Latest
+$ErrorActionPreference='Stop'
+. $Helper
+function Get-CimInstance { [pscustomobject]@{FreePhysicalMemory=1200*1024} }
+$control=Join-Path $State 'pipeline\control\mlb-game'
+[void](New-Item -ItemType Directory -Force -Path $control)
+$priority=Join-Path $control 'repair-priority.json'
+$report=Join-Path $control 'repair-status.json'
+@{enabled=$true} | ConvertTo-Json | Set-Content -LiteralPath $priority
+foreach ($worker in @('admission-evidence','targeted-defensive-addition','targeted-foul-addition')) {
+    $result=Invoke-MlbRepairBudget -StateRoot $State -Worker $worker -Action {throw 'missing report must yield to history owner'}
+    if (($result | ConvertFrom-Json).reason -ne 'pending-history-repairs') {throw 'maintenance did not yield'}
+}
+foreach ($pending in @('uninspectedGames','outdatedInspections','awaitingSource','selectedPending','fixedPending')) {
+    @{historyDiscovery=@{$pending=@('1')}} | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $report
+    $result=Invoke-MlbRepairBudget -StateRoot $State -Worker 'admission-evidence' -Action {throw 'recheck starved pending history'}
+    if (($result | ConvertFrom-Json).reason -ne 'pending-history-repairs') {throw 'unfinished history work was ignored'}
+    $result=Invoke-MlbRepairBudget -StateRoot $State -Worker 'targeted-history-addition' -Action {'history-ran'}
+    if ($result -ne 'history-ran') {throw 'history could not acquire the shared slot'}
+}
+# Finishing the history queue releases other upstream work before SQL resumes.
+@{historyDiscovery=@{uninspectedGames=@();outdatedInspections=@();awaitingSource=@();selectedPending=@();fixedPending=@()}} |
+    ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $report
+$result=Invoke-MlbRepairBudget -StateRoot $State -Worker 'admission-evidence' -Action {'maintenance-ran'}
+if ($result -ne 'maintenance-ran') {throw 'maintenance stayed blocked after histories cleared'}
+# Once the temporary recovery phase ends, new source work stays independent.
+@{enabled=$false} | ConvertTo-Json | Set-Content -LiteralPath $priority
+@{historyDiscovery=@{awaitingSource=@('2')}} | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $report
+$result=Invoke-MlbRepairBudget -StateRoot $State -Worker 'targeted-defensive-addition' -Action {'independent-ran'}
+if ($result -ne 'independent-ran') {throw 'temporary priority became a permanent dependency'}
+''',encoding='utf-8')
+            result=subprocess.run(['powershell.exe','-NoProfile','-ExecutionPolicy','Bypass','-File',
+                str(script),str(helper),str(state)],capture_output=True,text=True,timeout=15)
+            self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+
     def test_only_running_sql_defers_repairs_not_a_dashboard_priority_ticket(self):
         helper=ROOT/'sources/mlb-game/pipeline/repair-budget.ps1'
         with tempfile.TemporaryDirectory() as temp:
