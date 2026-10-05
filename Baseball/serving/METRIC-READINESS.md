@@ -10,6 +10,45 @@ the 486 retained spring/exhibition games no longer enter build dependencies.
 Their data and historical diagnoses remain stored. This scope reduction does
 not establish completeness for the remaining metric populations.
 
+## October 4, 22:46 Eastern: upstream handoff and live SQL
+
+NiFi's repair observer reports `recordedWorkClear=true`: all 754 selected
+history cases are complete, with no outstanding inspections, recorded repair
+issues or active RML quarantines. This closes the recorded authorized repair
+backlog; it does not establish complete populations for all nineteen metrics.
+Existing successful SHACL results remain usable. Changed facts receive their
+own source-owned validation; there is no blanket RDF rebuild or SHACL rerun.
+
+Two execution defects delayed the next SQL publication. Admission maintenance
+now resumes its old deferred checks before the routine sweep, using unchanged
+evidence producers. The serving launch budget also accepts PowerShell's
+seven-digit fractional timestamps on the installed Python 3.10 runtime.
+Its existing release condition remains a fresh, clear NiFi repair report.
+
+The published dashboard is still `20261004T225057Z-dashboard-04f2bc7b7e80`,
+published at 19:05 Eastern, with 2,444 active games. Its full-season HTTP response
+contains all 2,429 regular-season games and verified rosters, but **0/19 cards**
+because its schedule evidence is incomplete. NiFi produced the repaired
+schedule snapshot at 19:10, after that publication. The next incremental SQL
+publication must import that snapshot and the later game evidence; the check
+must not be bypassed or the old publication described as current.
+
+A separate September 16–27 HTTP check covers 159 games with a complete schedule
+and all 159 rosters. It returns **11/19 populated cards**, including 119 Offensive
+Reach players, 140 Help Without Advancing players, 396 Empty Games counts,
+246 Scoring History Length players and 170 Run Contributors players. Player
+names and range-dependent participation minimums are present. Empty Games has
+no appearance minimum and includes zero counts; its detail endpoint also works.
+These are selected-range results, not full-season completion. Eight cards still
+lack season reference products, defensive populations or review-player
+integration. Custom-range preparation took 22.4 seconds in this check, so
+instant arbitrary-range response is not established either.
+
+Next: NiFi publishes prepared SQL from the existing RDF and current evidence,
+then verify the default full season and its detail results against that build.
+Browser automation was unavailable during this check; HTTP verification does
+not substitute for a completed visual interaction check.
+
 ## Current priority: offense
 
 The user narrowed active work to offense on October 1. Prioritize batting
@@ -62,7 +101,7 @@ recalculates only the affected depth results, then their player/range products.
 It preserves other metrics and does not query or rebuild RDF. Live publication
 must still be verified separately from those six calculated results.
 
-## Last verified publication
+## Earlier publication history (October 1 and September 30)
 
 The October 1 16:34 UTC publication (`20261001T160907Z-dashboard-b3619893bfc3`)
 confirmed that the corpus-change publication starvation was repaired. Its HTTP

@@ -43,7 +43,7 @@ class ServingBudget(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp, patch.object(B.PROCESS,'available_memory',return_value=2*1024**3):
             state=Path(temp);control=state/'pipeline/control/mlb-game';control.mkdir(parents=True)
             request=control/'repair-priority.json';report=control/'repair-status.json'
-            request.write_text(json.dumps(dict(enabled=True,requestedAtUtc='2026-10-04T23:00:00Z')))
+            request.write_text(json.dumps(dict(enabled=True,requestedAtUtc='2026-10-04T23:00:00.3055604Z')))
             for kind in ('dashboard','report'):
                 with B.reserve(state,kind) as reason:self.assertEqual(reason,'upstream-repairs-first')
             # A clear report predating this request cannot release the phase.

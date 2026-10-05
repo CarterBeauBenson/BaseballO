@@ -8,6 +8,7 @@ from contextlib import contextmanager, ExitStack
 import importlib.util
 import json
 import os
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -25,6 +26,17 @@ LOCK=module('process_lock')
 PROCESS=module('process_state')
 
 
+def control_timestamp(value):
+    # PowerShell writes seven fractional digits; Python 3.10 accepts only
+    # three or six. These scheduler timestamps compare at microsecond precision.
+    text = re.sub(r'\.(\d+)(?=Z|[+-]\d{2}:\d{2}$)',
+                  lambda match: '.'+match[1][:6].ljust(6, '0'), value)
+    result = datetime.fromisoformat(text.replace('Z', '+00:00'))
+    if result.tzinfo is None:
+        raise ValueError('Repair control timestamp requires a time zone')
+    return result
+
+
 def upstream_repair_priority(state):
     """Honor the temporary repair phase using NiFi's existing status report.
 
@@ -40,8 +52,8 @@ def upstream_repair_priority(state):
     if not report_path.is_file():return True
     report=json.loads(report_path.read_text(encoding='utf-8-sig'))
     if report.get('recordedWorkClear') is not True:return True
-    checked=datetime.fromisoformat(report['checkedAtUtc'].replace('Z','+00:00'))
-    requested=datetime.fromisoformat(request['requestedAtUtc'].replace('Z','+00:00'))
+    checked=control_timestamp(report['checkedAtUtc'])
+    requested=control_timestamp(request['requestedAtUtc'])
     if checked<requested:return True
     request.update(enabled=False,releasedAtUtc=datetime.now(timezone.utc).isoformat(),
         releaseReason='NiFi recorded upstream repair work clear',repairStatusCheckedAtUtc=report['checkedAtUtc'])
