@@ -84,6 +84,25 @@ class RetainedBattingEvidence(unittest.TestCase):
             self.assertEqual(R.B.shape_text(source),R.B.shape_text(original))
             self.assertEqual(E.read(path)['status'],'withheld')
 
+    def test_post_t1_census_reaches_current_shapes_but_changed_compound_types_do_not(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);promotion,original,path,manifest=self.fixture(state)
+            proof=E.read(path)
+            proof['implementationSha256']=E.read(E.COMPATIBILITY_PATH)['priorClockIsolation']['families']['batting']['currentImplementationSha256']
+            def save():
+                E.atomic(path,proof)
+                marker_path=Path(promotion['promotionManifest']);marker=E.read(marker_path)
+                marker['battingAdmissionSha256']=E.sha(path);E.atomic(marker_path,marker)
+                promotion['promotionManifestSha256']=E.sha(marker_path)
+            save()
+            source=R.source_census(E,state,promotion)
+            self.assertIsNotNone(source)
+            self.assertEqual(R.B.shape_text(source),R.B.shape_text(original))
+            census_path=path.with_suffix('.source.json');census=E.read(census_path)
+            census['members'][0].update(eventType='strikeout_double_play',resultType=R.B.BASE+'StrikeoutProcess')
+            E.atomic(census_path,census);proof['sourceCensusSha256']=E.sha(census_path);save()
+            self.assertIsNone(R.source_census(E,state,promotion))
+
     def test_pre_t1_participation_inventory_reaches_unchanged_b1_check(self):
         decision=E.read(E.COMPATIBILITY_PATH)['priorClockIsolation']['changeCommit']
         relative='Baseball/scripts/pipeline/prepare-rml-context.py'

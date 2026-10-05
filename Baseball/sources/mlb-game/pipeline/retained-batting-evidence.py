@@ -28,6 +28,7 @@ B=module(HERE/'batting-admission.py','retained_b1_contract')
 # the existing single-batter comparison and current B1 SHACL still run.
 PRE_T1_CONTEXT='d8e4fcbbb7072d1300f190bf2e483db78a3da9b1b8545837acddb83d9e5797b2'
 PREVIOUS_IMPLEMENTATION='4702e9fbc9ec5aa68e0a7b8805ad216fcbe6d47d7cb437afa1bd248c349c9a1c'
+PREVIOUS_SELECTION='34c2054b180b256103fbeaa4537fc44738407923d906d61ca027d2b4a6ed4b69'
 
 
 def fingerprint():
@@ -37,7 +38,9 @@ def fingerprint():
 def load(evidence,state,promotion):
     # This extension admits an additional retained producer to the same check.
     # It does not invalidate completed checks from the previous narrower repair.
-    for version in (fingerprint(),PREVIOUS_IMPLEMENTATION,*evidence.prior_versions('retained-batting',fingerprint())):
+    for version in (fingerprint(),PREVIOUS_IMPLEMENTATION,PREVIOUS_SELECTION,
+                    *evidence.prior_versions('retained-batting',PREVIOUS_SELECTION),
+                    *evidence.prior_versions('retained-batting',fingerprint())):
         proof=evidence.refreshed(state,promotion,'batting',version)
         if proof is not None:return proof
     return None
@@ -50,7 +53,12 @@ def source_census(evidence,state,promotion):
     if not path.is_file() or not path.resolve().is_relative_to(owner):return None
     if evidence.sha(path)!=marker.get('battingAdmissionSha256'):raise ValueError('Retained B1 proof changed')
     proof=evidence.read(path)
-    supported={B.fingerprint(),evidence.read(evidence.COMPATIBILITY_PATH)['priorClockIsolation']['families']['batting']['previousImplementationSha256']}
+    clock=evidence.read(evidence.COMPATIBILITY_PATH)['priorClockIsolation']['families']['batting']
+    # The post-T1 census is the retained version in the season's promotions.
+    # Later K1 changed one result classification, not single-batter identity.
+    # Reuse its source observations only when every result still agrees with
+    # the current B1 contract; the current graph is independently checked below.
+    supported={B.fingerprint(),clock['previousImplementationSha256'],clock['currentImplementationSha256']}
     expected=dict(artifactType='baseballo-batting-admission',contractVersion=1,status='withheld',
         gamePk=promotion['gamePk'],sourceSha256=promotion['rawSha256'],
         authoritativeRdfSha256=promotion['authoritativeRdfSha256'],graph=promotion['authoritativeGraph'])
@@ -61,6 +69,8 @@ def source_census(evidence,state,promotion):
     census=evidence.read(census_path)
     if (census.get('sourceConsistency')!='consistent' or census.get('issues')!=proof['issues']
             or census.get('sourceSha256')!=promotion['rawSha256'] or census.get('gamePk')!=promotion['gamePk']):return None
+    if any(row.get('resultType')!=(B.BASE+B.RESULTS[row['eventType']] if row.get('eventType') in B.RESULTS else None)
+           for row in census.get('members',[])):return None
     manifest_path=evidence.retained_manifest(state,marker,promotion['gamePk'])
     if not manifest_path.is_file() or evidence.sha(manifest_path)!=marker['rmlManifestSha256']:return None
     manifest=evidence.read(manifest_path);compatibility=evidence.read(evidence.COMPATIBILITY_PATH)
