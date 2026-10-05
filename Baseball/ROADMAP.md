@@ -27,7 +27,7 @@ permission is not a standing rebuild instruction.
 
 ## 1. Complete the nineteen metrics: execution plan
 
-Updated October 4, 2026, after the 23:30 Eastern SQL publication
+Updated October 5, 2026. The measured starting publication remains
 `20261005T031625Z-dashboard-5c27e45118a5` (October 5 at 03:30 UTC).
 This section supersedes the older metric work lists and pending-publication
 statements in the historical readiness notes. It is the single continuation
@@ -139,6 +139,20 @@ refresh only their affected SQL partitions. Complete this item when all 1,160
 records have the correct supported counts or an established inapplicable status.
 Any unresolved blocker keeps this item open and identifies the exact next action.
 
+October 5 execution: the admission queue now prioritizes the fifteen missing
+individual proofs before routine maintenance, with bounded attempts. The
+retained single-batter adapter now recognizes the post-T1 producer actually
+used by season promotions. It still requires complete single-batter membership,
+reconciled totals and unchanged B1 SHACL. Source censuses for 822760 and 824921
+now reach that existing check; this is not yet a claim of new runtime admissions.
+
+An additional concrete case is 822701, PA 69: `other_out` records a different
+runner's third out at home, with a 2-0 count and no ball in play. The batter's
+turn is interrupted, not a completed official PA. The current interruption
+whitelist omits this provider code. Apply the existing B1 interrupted-turn
+criteria, retaining every structural and boxscore check; do not count the turn
+or use this observation to admit other `other_out` outcomes indiscriminately.
+
 ### M2. Complete progress, Empty Games and contribution channels
 
 After M1, address the independent progress exclusions: Offensive Reach currently
@@ -161,6 +175,14 @@ that the game was not empty; establishing that no qualifying positive occurred
 requires the complete applicable census. No-PA games are ineligible for the count.
 Publish the four independent products as each completes; they do not need
 season percentiles or complete defensive populations.
+
+October 5 diagnosis: game 822679, PA 65 has a first-to-second runner movement
+whose record says `Balk`, without structured balk attribution. The RML selector
+only handles a final PA result of `balk`; the checked-in game 566279, PA 12
+independently demonstrates a balk before a later walk. The concrete
+[BK1 proposal](proposals/mlb-game-balk-runner-attribution/README.md) requests
+the narrow event/runner selection and additive repair. Its named approval is
+pending. Do not substitute literal matching in SPARQL or SQL for that pattern.
 
 ### M3. Complete PA contribution, runner loss and damage
 
@@ -185,6 +207,16 @@ per PA and Scoring Opportunity Lost. Finish Empty Game Damage after M2 supplies
 classification, including every applicable independent negative running episode
 once. Its current 4,917 damage exclusions across 1,464 games need exact underlying
 causes, not one blanket damage flag.
+
+October 5 diagnosis also separates outdated source expectations from missing
+RDF. `pa-boundary-admission.py:prove` always prefers the promotion's original
+boundary census to an available later source witness. In 824218, the individual
+proof retains the old PA 5 review failure while the newer whole-game boundary
+check does not. Reconcile this evidence handoff using the current, hash-bound
+source census and unchanged PA SHACL. Preserve original provenance and successful
+checks; do not rebuild runner histories merely because that reader used an older
+census. Remaining replacement and zero-episode failures still need their own
+actual source/graph diagnosis.
 
 ### M4. Finish both scoring-history metrics
 
@@ -285,13 +317,19 @@ source module as a shortcut.
 | Two-Strike Extension Rank (`recovery-quality`) | M1 and M5 |
 | PAQ with Tie-Breakers (`paq-2.1`) | M1, M3, M5 and M6; retain its separate applicability population |
 
-Current SQL contains only one early-cutoff recovery player reference and no
-full-season reference product for these four cards. `reference_products.prepare`
-currently begins from whole-game batting admission. Check whether complete
-individually admitted PA censuses can establish the same full reference without
-requiring irrelevant whole-game findings to pass. Only use that route when every
-eligible PA and its ownership reconcile; never shrink the reference to passing
-players or games.
+The measured publication contains only one early-cutoff recovery player
+reference and no full-season reference product for these four cards. The October
+5 implementation accepts a complete set of individual B1 admissions: all players,
+the full PA inventory and an exact match to the RDF roster. It prepares the
+affected contribution/recovery inputs from retained RDF query results in SQL,
+without rewriting the whole-game proof. Count, boundary, resolution and defense
+requirements remain independent. Individual proof changes refresh the affected
+season references; input changes refresh the affected player partition.
+
+This path still needs NiFi publication and complete family inputs. Published
+game 824302 currently has the complete individual batting census and admitted
+boundaries despite a withheld whole-game batting proof. Other games must satisfy
+the same requirements; the reference never shrinks to passing players or games.
 
 Once each family is complete, NiFi calculates its exact ranks and prepares the
 matching player aggregates for the reporting cutoff. Preserve ties, PAQ-A's

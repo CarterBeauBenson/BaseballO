@@ -1058,16 +1058,29 @@ def batting_participation(rows):
                 teamGameExposureVerified=False)
 
 
-def batting_qualification(rows, *, graphs, admissions, date_scope, selected_games_complete=False):
+def complete_batting_admission(proof, individual=None):
+    if (proof.get('status') == 'admitted' and proof.get('sourceReconciled') is True
+            and proof.get('graphConforms') is True):
+        return True
+    individual = individual or {}
+    people = individual.get('players', [])
+    return (individual.get('rosterComplete') is True
+        and individual.get('plateAppearanceInventoryComplete') is True and bool(people)
+        and len({p['player'] for p in people}) == len(people)
+        and all(p.get('status') == 'admitted' for p in people))
+
+
+def batting_qualification(rows, *, graphs, admissions, date_scope, selected_games_complete=False,
+                          player_admissions=None):
     """Project B1-admitted RDF counts; source expectations never enter here.
 
     Per-game admission and selected-game coverage are independent. A loaded
     subset cannot supply the denominator of a wider selected-period ranking.
     """
     graph_set = set(graphs)
-    denied = sorted(g for g in graph_set if admissions.get(g, {}).get('status') != 'admitted'
-                    or admissions[g].get('sourceReconciled') is not True
-                    or admissions[g].get('graphConforms') is not True)
+    player_admissions = player_admissions or {}
+    denied = sorted(g for g in graph_set
+                    if not complete_batting_admission(admissions.get(g, {}), player_admissions.get(g)))
     result = dict(officialPlateAppearanceCreditVerified=False, teamGameExposureVerified=False,
                   selectedGamesComplete=selected_games_complete is True,
                   admittedGames=len(graph_set)-len(denied), withheldGraphs=denied,
@@ -1076,6 +1089,8 @@ def batting_qualification(rows, *, graphs, admissions, date_scope, selected_game
         return result
     people, members = defaultdict(set), {}
     observed_graphs = set()
+    roster_members = defaultdict(set)
+    pa_players = defaultdict(set)
     for row in rows:
         if row['graph'] not in graph_set:
             raise EvidenceError('Batting qualification escaped selected graphs')
@@ -1084,6 +1099,7 @@ def batting_qualification(rows, *, graphs, admissions, date_scope, selected_game
                 raise EvidenceError('Admitted batting exposure has incomplete RDF bindings')
             people[row['player']].add((row['game'], row['team']))
             observed_graphs.add(row['graph'])
+            roster_members[row['graph']].add(row['player'])
         if row['kind'] == 'plate_appearance' and row.get('recognizedBattingResult') in ('true','1'):
             if not all(row.get(f) for f in ('player','act','paResult','paResultType',
                                            'paResultJudgment','paResultDecision','paResultRecord')):
@@ -1093,8 +1109,14 @@ def batting_qualification(rows, *, graphs, admissions, date_scope, selected_game
             if key in members and members[key] != value:
                 raise EvidenceError('Admitted PA has conflicting player assignment')
             members[key] = value
+            pa_players[row['graph']].add(row['player'])
     if observed_graphs != graph_set or any(m['player'] not in people for m in members.values()):
         raise EvidenceError('Admitted qualification is missing game/player evidence')
+    for graph in graph_set:
+        if not complete_batting_admission(admissions.get(graph, {})):
+            expected_players = {p['player'] for p in player_admissions[graph]['players']}
+            if roster_members[graph] != expected_players or not pa_players[graph] <= expected_players:
+                raise EvidenceError('Individual batting admission differs from the complete RDF roster')
     counts = defaultdict(int)
     for member in members.values():
         counts[member['player']] += 1
@@ -2451,7 +2473,7 @@ def contribution_mix_players(evidence, *, qualification, date_scope):
         progressEvidence=evidence,scope='Complete selected-period positive play/channel counts; batting or independent-running qualification applies.')
 
 
-def recovery_game_inputs(rows, *, graph, batting_admission, pitch_count_admission):
+def recovery_game_inputs(rows, *, graph, batting_admission, pitch_count_admission, player_admission=None):
     """Admit the exact official PA census, including known ineligible PAs.
 
     The source-side proof certifies complete counts and termination. Values
@@ -2462,7 +2484,7 @@ def recovery_game_inputs(rows, *, graph, batting_admission, pitch_count_admissio
            [('status','admitted'),('sourceReconciled',True),('graphConforms',True)]):
         return denied
     qualification = batting_qualification(rows, graphs=[graph], admissions={graph:batting_admission},
-                                         date_scope={}, selected_games_complete=False)
+        date_scope={}, selected_games_complete=False, player_admissions={graph:player_admission or {}})
     if not qualification['officialPlateAppearanceCreditVerified']:
         return dict(denied, gaps=['OFFICIAL_PA_ADMISSION'])
     zero_pitch_pas=pitch_count_admission.get('zeroPitchPlateAppearances',[])
@@ -2482,7 +2504,8 @@ def recovery_game_inputs(rows, *, graph, batting_admission, pitch_count_admissio
     return dict(complete=True, plateAppearances=evidence['plateAppearances'], gaps=[])
 
 
-def season_rank_players(connection, *, metric_id, graphs, qualification, date_scope, _use_blocks=True, _write_reference=False):
+def season_rank_players(connection, *, metric_id, graphs, qualification, date_scope, _use_blocks=True,
+                        _write_reference=False, player_admissions=None):
     """Season-through-cutoff midranks, then selected-period player means.
 
     Every calendar day of the reference season has an independent schedule
@@ -2525,7 +2548,8 @@ def season_rank_players(connection, *, metric_id, graphs, qualification, date_sc
                 if proof_record and _hash(proof_record[0])!=proof_record[1]:
                     raise EvidenceError('Metric SQL reference admission checksum mismatch')
                 proof=json.loads(proof_record[0]) if proof_record else {}
-                admitted=admitted and proof.get('status')=='admitted' and proof.get('sourceReconciled') is True and proof.get('graphConforms') is True
+                admitted=admitted and complete_batting_admission(proof,
+                    (player_admissions or {}).get(graph) if table=='metric_suite_admission' else None)
             if _use_blocks:
                 inputs=retained_inputs[graph]
             else:
@@ -2622,7 +2646,8 @@ def paq21_game_inputs(contribution, recovery, defense):
     return dict(complete=True,plateAppearances=observations,gaps=[])
 
 
-def paq21_players(connection, *, graphs, qualification, date_scope, _use_blocks=True, _write_reference=False):
+def paq21_players(connection, *, graphs, qualification, date_scope, _use_blocks=True,
+                  _write_reference=False, player_admissions=None):
     """Trusted per-game joins -> full season ranks -> selected player means."""
     def denied(*gaps,**details):
         return dict(unavailable(*gaps),playerPopulationComplete=False,playerResults=[],
@@ -2651,8 +2676,8 @@ def paq21_players(connection, *, graphs, qualification, date_scope, _use_blocks=
                 record=connection.execute(f'SELECT proof_json,proof_sha256 FROM {table} WHERE graph_iri=?',(graph,)).fetchone()
                 if record and _hash(record[0])!=record[1]:raise EvidenceError('Metric SQL PAQ-2.1 admission checksum mismatch')
                 proof=json.loads(record[0]) if record else {}
-                admitted=admitted and all(proof.get(k)==v for k,v in
-                    dict(status='admitted',sourceReconciled=True,graphConforms=True).items())
+                admitted=admitted and complete_batting_admission(proof,
+                    (player_admissions or {}).get(graph) if table=='metric_suite_admission' else None)
             if _use_blocks:
                 inputs=retained_inputs[graph]
             else:
@@ -2755,6 +2780,10 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
     denied=[gap for gap,proof in proofs if proof.get('status')!='admitted'
             or proof.get('sourceReconciled') is not True or proof.get('graphConforms') is not True]
     individual=player_admission or {}
+    if ('OFFICIAL_PA_POPULATION' in denied and complete_batting_admission(batting_admission, individual)
+            and batting_qualification(rows, graphs=[graph], admissions={graph:batting_admission},
+                date_scope={}, player_admissions={graph:individual})['officialPlateAppearanceCreditVerified']):
+        denied.remove('OFFICIAL_PA_POPULATION')
     valid_players={p['player'] for p in individual.get('players',[]) if p['status']=='admitted'}
     if not individual.get('rosterComplete') or not individual.get('plateAppearanceInventoryComplete'):valid_players=set()
     valid_boundaries={p['plateAppearance'] for p in (individual.get('paBoundaries') or {}).get('plateAppearances',[])

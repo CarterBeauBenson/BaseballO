@@ -83,6 +83,9 @@ ACT_COUNT_CALCULATIONS = (SHARED_OUT_CALCULATIONS[1], '542a6133d48d645d4e9685c00
 SCOPED_PA_CALCULATIONS = (ACT_COUNT_CALCULATIONS[1], '385aa5ba8560e6ce86930e3602781902aca05a8f1302d0e072bc49f4c87d9d38')
 PAQ_CATALOG_CALCULATIONS = (SCOPED_PA_CALCULATIONS[1], '10fc6c16e069b23b3b8fdb7cd1f1f33c9b0ab033d84d0be311f378ce36e3f3e9')
 RUN_DEPTH_CALCULATIONS = (PAQ_CATALOG_CALCULATIONS[1], 'a97a7871f7704362049017cd0b0fc33e49d6064c89164a9060bdb4c04b2f95b5')
+# The new optional individual-B1 route is used during reference preparation.
+# Unchanged whole-game inputs still produce exactly the same game products.
+INDIVIDUAL_REFERENCE_CALCULATIONS = (RUN_DEPTH_CALCULATIONS[1], '5f14bb675ca6c2aff0bf4bc60febb457c7b2de6a0509d61f1d8868ddb1d999fe')
 
 
 def digest(value):
@@ -314,6 +317,8 @@ def reuse_game(connection, graph, saved, promotion, dimension, admissions, calcu
     timestamp_update=False;act_count_update=False;catalog_update=False;depth_update=False
     if saved not in {previous_identity,input_identity(promotion,dimension,previous,calculation,legacy=True)}:
         compatible=[]
+        if calculation==INDIVIDUAL_REFERENCE_CALCULATIONS[1]:
+            compatible.append((INDIVIDUAL_REFERENCE_CALCULATIONS[0],False))
         if calculation==RUN_DEPTH_CALCULATIONS[1]:
             compatible.append((RUN_DEPTH_CALCULATIONS[0],False))
         if calculation==PAQ_CATALOG_CALCULATIONS[1]:
@@ -786,12 +791,19 @@ def build_locked(args, state, serving, work):
                     connection.execute('INSERT INTO metric_suite_schedule_coverage VALUES (?,?,?)', (day,text,METRICS._hash(text)))
                 connection.execute('INSERT OR REPLACE INTO dashboard_state VALUES (?,?)', ('schedule',coverage_sha))
             dirty.update(json.loads(connection.execute("SELECT value FROM dashboard_state WHERE name='dirty-seasons'").fetchone()[0]))
+            # Individual B1 proofs can complete a season reference without
+            # changing a whole-game admission or its graph checkpoint.
+            saved_players=dict(connection.execute('SELECT graph_iri,proof_sha256 FROM dashboard_player_admission'))
+            dirty.update(year for graph,year in connection.execute('SELECT graph_iri,season FROM game_dimension')
+                if saved_players.get(graph,'') != (METRICS._hash(METRICS._json(player_admissions[graph]))
+                    if player_admissions.get(graph) else ''))
             checkpoint(phase='reference-ranks', affectedSeasons=sorted(dirty))
             reference_version = REFERENCES.fingerprint()
             prepared = connection.execute("SELECT value FROM dashboard_state WHERE name='reference-version'").fetchone()
             if not prepared or prepared[0] != reference_version:
                 dirty.update(r[0] for r in connection.execute('SELECT DISTINCT season FROM game_dimension'))
-            references = REFERENCES.prepare(METRICS,connection,seasons=dirty,checkpoint=checkpoint)
+            references = REFERENCES.prepare(METRICS,connection,seasons=dirty,checkpoint=checkpoint,
+                player_admissions=player_admissions)
             connection.execute('INSERT OR REPLACE INTO dashboard_state VALUES (?,?)',('reference-version',reference_version))
             connection.execute('INSERT OR REPLACE INTO dashboard_state VALUES (?,?)', ('dirty-seasons','[]'))
         checkpoint(phase='player-ranges')

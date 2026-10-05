@@ -1,4 +1,5 @@
 import importlib.util
+import copy
 from contextlib import ExitStack
 from pathlib import Path
 import unittest
@@ -13,6 +14,12 @@ R=importlib.util.module_from_spec(spec);spec.loader.exec_module(R)
 
 
 class References(unittest.TestCase):
+    def individual(self,db,graph):
+        rows=M._blocks.read_scope(M._block_api(),db,[graph])
+        return dict(rosterComplete=True,plateAppearanceInventoryComplete=True,
+            players=[dict(player=p,status='admitted') for p in sorted(
+                {r['player'] for r in rows if r['kind']=='player_team_game'})])
+
     def complete_database(self):
         db=prepared([sample(101,0),sample(102,2),sample(103,4)])
         self.addCleanup(db.close)
@@ -130,6 +137,89 @@ class References(unittest.TestCase):
             self.assertTrue(results)
             self.assertTrue(all(not r['populationComplete'] and r['gaps']==['COMPLETE_BATTING_QUALIFICATION'] for r in results))
             self.assertEqual(db.execute('SELECT count(*) FROM dashboard_reference').fetchone()[0],0)
+
+    def test_complete_individual_batting_population_preserves_all_four_reference_results(self):
+        db=self.complete_database()
+        graphs=[r[0] for r in db.execute('SELECT graph_iri FROM game_dimension ORDER BY graph_iri')]
+        metrics=('paq-2','paq-a','recovery-quality','paq-2.1')
+        expected={metric:M.query_sql(db,{'metricId':metric},SEASON_SCOPE,_use_blocks=False)['metric'] for metric in metrics}
+        graph=graphs[0];individual=self.individual(db,graph)
+        text=M._json(dict(status='withheld',issues=[dict(code='ORIGINAL_WHOLE_GAME_FAILURE')]))
+        db.execute('UPDATE metric_suite_admission SET proof_json=?,proof_sha256=? WHERE graph_iri=?',(text,M._hash(text),graph))
+        R.prepare(M,db,player_admissions={graph:individual})
+        selected=[r[0] for r in db.execute('SELECT graph_iri FROM game_dimension WHERE official_date BETWEEN ? AND ?',
+            (SEASON_SCOPE['startDate'],SEASON_SCOPE['endDate']))]
+        for metric,wanted in expected.items():
+            self.assert_same_player_scores(Q.reference_players(M,db,metric,SEASON_SCOPE,selected),wanted)
+        # An individual census is not a fabricated replacement whole-game proof.
+        self.assertEqual(db.execute('SELECT proof_json FROM metric_suite_admission WHERE graph_iri=?',(graph,)).fetchone()[0],text)
+
+    def test_individual_reference_requires_every_player_inventory_and_exact_rdf_roster(self):
+        for fault in ('player','inventory','roster','missing'):
+            with self.subTest(fault=fault):
+                db=self.complete_database();graph=db.execute('SELECT graph_iri FROM game_dimension LIMIT 1').fetchone()[0]
+                individual=self.individual(db,graph)
+                if fault=='player':individual['players'][0]['status']='withheld'
+                elif fault=='inventory':individual['plateAppearanceInventoryComplete']=False
+                elif fault=='roster':individual['rosterComplete']=False
+                else:individual={}
+                text=M._json(dict(status='withheld'))
+                db.execute('UPDATE metric_suite_admission SET proof_json=?,proof_sha256=? WHERE graph_iri=?',(text,M._hash(text),graph))
+                results=R.prepare(M,db,player_admissions={graph:individual})
+                self.assertTrue(all(not r['populationComplete'] for r in results))
+        db=self.complete_database();graph=db.execute('SELECT graph_iri FROM game_dimension LIMIT 1').fetchone()[0]
+        individual=self.individual(db,graph)
+        individual['players'].append(dict(player='urn:absent-player',status='admitted'))
+        rows=M._blocks.read_scope(M._block_api(),db,[graph])
+        with self.assertRaisesRegex(M.EvidenceError,'complete RDF roster'):
+            M.batting_qualification(rows,graphs=[graph],admissions={},date_scope=SEASON_SCOPE,
+                player_admissions={graph:individual})
+
+    def test_recovery_inputs_recover_from_retained_sql_without_replacing_count_requirements(self):
+        with season_database([sample(101,0),sample(102,2),sample(103,4)]) as db:
+            graph=db.execute('SELECT graph_iri FROM game_dimension ORDER BY graph_iri LIMIT 1').fetchone()[0]
+            expected=M.query_sql(db,{'metricId':'recovery-quality'},SEASON_SCOPE,_use_blocks=False)['metric']
+            individual=self.individual(db,graph)
+            original,=M.read_results(db,graph,'recovery-quality')
+            broken=copy.deepcopy(original)
+            broken['recoveryInputs']=dict(complete=False,plateAppearances=[],gaps=['OFFICIAL_PA_ADMISSION'])
+            M.store_result(db,graph,'recovery-quality','game-scope',broken)
+            text=M._json(dict(status='withheld'))
+            db.execute('UPDATE metric_suite_admission SET proof_json=?,proof_sha256=? WHERE graph_iri=?',(text,M._hash(text),graph))
+            R.prepare(M,db,player_admissions={graph:individual})
+            recovered,=M.read_results(db,graph,'recovery-quality')
+            self.assertEqual(recovered['recoveryInputs'],original['recoveryInputs'])
+            graphs=[r[0] for r in db.execute('SELECT graph_iri FROM game_dimension WHERE official_date BETWEEN ? AND ?',
+                (SEASON_SCOPE['startDate'],SEASON_SCOPE['endDate']))]
+            self.assert_same_player_scores(Q.reference_players(M,db,'recovery-quality',SEASON_SCOPE,graphs),expected)
+            db.execute('UPDATE metric_suite_count_admission SET proof_json=?,proof_sha256=? WHERE graph_iri=?',(text,M._hash(text),graph))
+            R.prepare(M,db,player_admissions={graph:individual})
+            self.assertFalse(Q.reference_available(M,db,'recovery-quality',SEASON_SCOPE))
+
+    def test_contribution_input_refresh_invalidates_only_its_player_partition(self):
+        from test_contribution_sql import database,SCOPE
+        with database() as db:
+            graph=db.execute('SELECT graph_iri FROM game_dimension ORDER BY graph_iri LIMIT 1').fetchone()[0]
+            individual=self.individual(db,graph)
+            original,=M.read_results(db,graph,'tfs')
+            expected=M.query_sql(db,{'metricId':'paq-2'},SCOPE,_use_blocks=False)['metric']
+            broken=copy.deepcopy(original)
+            broken['contributionInputs']=dict(complete=False,plateAppearances=[],gaps=['OFFICIAL_PA_POPULATION'])
+            M.store_result(db,graph,'tfs','game-scope',broken)
+            text=M._json(dict(status='withheld'))
+            db.execute('UPDATE metric_suite_admission SET proof_json=?,proof_sha256=? WHERE graph_iri=?',(text,M._hash(text),graph))
+            db.execute('CREATE TABLE dashboard_player_partition(graph_iri TEXT PRIMARY KEY,input_sha256 TEXT)')
+            db.executemany('INSERT INTO dashboard_player_partition VALUES (?,?)',[(graph,'old'),('other','unchanged')])
+            R.prepare(M,db,player_admissions={graph:individual})
+            recovered,=M.read_results(db,graph,'tfs')
+            self.assertEqual(recovered['contributionInputs'],original['contributionInputs'])
+            self.assertEqual(db.execute('SELECT * FROM dashboard_player_partition').fetchall(),[('other','unchanged')])
+            graphs=[r[0] for r in db.execute('SELECT graph_iri FROM game_dimension WHERE official_date BETWEEN ? AND ?',
+                (SCOPE['startDate'],SCOPE['endDate']))]
+            self.assert_same_player_scores(Q.reference_players(M,db,'paq-2',SCOPE,graphs),expected)
+            db.execute('UPDATE metric_suite_boundary_admission SET proof_json=?,proof_sha256=? WHERE graph_iri=?',(text,M._hash(text),graph))
+            R.prepare(M,db,player_admissions={graph:individual})
+            self.assertFalse(Q.reference_available(M,db,'paq-2',SCOPE))
 
 
 if __name__=='__main__':unittest.main()

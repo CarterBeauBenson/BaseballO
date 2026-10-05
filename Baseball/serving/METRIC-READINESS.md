@@ -54,6 +54,43 @@ dependencies and nineteen-card completion criteria are now in the
 Older dated entries below preserve previous observations and implementation
 history; they are not current retry instructions or current population counts.
 
+## October 5 execution, awaiting a new SQL publication
+
+The admission queue now prioritizes the fifteen games missing individual player
+proofs, with bounded retries. The retained single-batter adapter accepts the
+post-T1 census producer used by the season's promotions, while retaining exact
+source/manifest identities, result-type compatibility and current B1 SHACL.
+The diagnosed censuses for games 822760 and 824921 can reach that check. Neither
+this code repair nor a submitted check is a newly admitted population.
+
+The SQL reference builder now supports complete individual B1 populations when
+a whole-game batting check is withheld. All rostered players and the complete
+PA inventory must pass, and their identities must match the RDF roster. The
+affected contribution/recovery inputs are prepared from retained RDF bindings
+in SQL. Count, boundary, resolution and defense requirements remain mandatory.
+The published snapshot contains one immediate candidate, 824302; this change
+alone does not complete the season reference. Existing game calculations are
+reused across deployment, and changed reference inputs invalidate only their
+affected player partitions.
+
+The selected-date query now applies the date restriction through the existing
+coverage index before loading player aggregates. A direct September 16-27 SQL
+comparison returned identical results for 159 games in 1.46 seconds versus
+7.23 seconds for the warmed prior query; the earlier cold read took 23.29 seconds.
+These are direct SQL-reader measurements, not a new live HTTP or browser claim.
+
+The concrete [BK1 mapping review](../proposals/mlb-game-balk-runner-attribution/README.md)
+addresses separately recorded balk advances. It remains pending named approval.
+Other recorded work includes the interrupted-turn `other_out` admission case
+and the stale per-PA boundary-census handoff described in the
+[active plan](../ROADMAP.md). Those are open, not fixed by the reference change.
+
+At the 04:25 UTC runtime check, the existing legacy report SQL job still held
+the shared memory slot, so admission maintenance and Dashboard SQL deferred.
+It was advancing, not failed. No parallel heavy worker or RDF rebuild was
+started to bypass that limit. NiFi owns the queued checks and next publication;
+the five-card baseline above remains the last verified dashboard outcome.
+
 ## Historical October 4, 22:46 Eastern handoff check
 
 NiFi's repair observer reports `recordedWorkClear=true`: all 754 selected

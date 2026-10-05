@@ -101,11 +101,61 @@ def prepared_ranks(m, connection):
     finally: m._blocks.reference_ranks=original
 
 
-def prepare(m, connection, seasons=None, checkpoint=None):
+def prepare_individual_inputs(m, connection, player_admissions, seasons):
+    """Complete game inputs from a full set of existing individual B1 checks.
+
+    Read only retained RDF bindings in SQL. This cannot manufacture a source
+    admission or relax count, boundary, resolution or defensive requirements.
+    """
+    player_partitions=connection.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='dashboard_player_partition'").fetchone()
+    for graph, individual in player_admissions.items():
+        if not m.complete_batting_admission({}, individual):continue
+        game=connection.execute('SELECT season,game_set FROM game_dimension WHERE graph_iri=?',(graph,)).fetchone()
+        if not game or game[0] not in seasons or game[1]!='regular_season':continue
+        proofs={}
+        for family,table in [('batting','metric_suite_admission'),('count','metric_suite_count_admission'),
+                             ('boundary','metric_suite_boundary_admission'),('resolution','metric_suite_runner_resolution_admission')]:
+            row=connection.execute(f'SELECT proof_json,proof_sha256 FROM {table} WHERE graph_iri=?',(graph,)).fetchone()
+            proofs[family]=m._blocks.decode(m._block_api(),*row) if row else {}
+        if m.complete_batting_admission(proofs['batting']):continue
+        inputs={family:m._blocks.read_inputs(m._block_api(),connection,family,[graph])[graph]
+                for family in ('contribution','recovery')}
+        recover=(not inputs['recovery'].get('complete') and m.complete_batting_admission(proofs['count']))
+        contribute=(not inputs['contribution'].get('complete') and
+                    all(m.complete_batting_admission(proofs[f]) for f in ('boundary','resolution')))
+        if not (recover or contribute):continue
+        rows=[m._blocks.decode(m._block_api(),text,digest) for text,digest in connection.execute(
+            'SELECT binding_json,binding_sha256 FROM metric_suite_evidence WHERE graph_iri=?',(graph,))]
+        retained,=m.read_results(connection,graph,'tfs')
+        if len(rows)!=retained['coverage']['evidenceRows']:
+            raise m.EvidenceError('Stored reference evidence is incomplete')
+        rows.sort(key=m._json)
+        if recover:
+            inputs['recovery']=m.recovery_game_inputs(rows,graph=graph,batting_admission=proofs['batting'],
+                pitch_count_admission=proofs['count'],player_admission=individual)
+        if contribute:
+            inputs['contribution']=m.contribution_game_inputs(rows,graph=graph,batting_admission=proofs['batting'],
+                runner_boundary_admission=proofs['boundary'],runner_resolution_admission=proofs['resolution'],
+                player_admission=individual)
+        defense=m._blocks.read_inputs(m._block_api(),connection,'defense',[graph])[graph]
+        inputs['paq21']=m.paq21_game_inputs(inputs['contribution'],inputs['recovery'],defense)
+        for metric,family,key in [('tfs','contribution','contributionInputs'),
+                ('recovery-quality','recovery','recoveryInputs'),('paq-2.1','paq21','paq21Inputs')]:
+            result,=m.read_results(connection,graph,metric)
+            if result[key]!=inputs[family]:
+                result[key]=inputs[family]
+                m.store_result(connection,graph,metric,'game-scope',result)
+                if player_partitions:
+                    connection.execute('DELETE FROM dashboard_player_partition WHERE graph_iri=?',(graph,))
+
+
+def prepare(m, connection, seasons=None, checkpoint=None, player_admissions=None):
     initialize(connection)
+    player_admissions=player_admissions or {}
     dates=connection.execute("SELECT DISTINCT season,official_date FROM game_dimension "
         "WHERE game_set='regular_season' ORDER BY season,official_date").fetchall()
     affected=set(seasons) if seasons is not None else {r[0] for r in dates}
+    prepare_individual_inputs(m,connection,player_admissions,affected)
     for year in affected:
         connection.execute('DELETE FROM dashboard_reference WHERE season=?',(year,))
         connection.execute('DELETE FROM dashboard_reference_players WHERE season=?',(year,))
@@ -129,9 +179,10 @@ def prepare(m, connection, seasons=None, checkpoint=None):
                     admissions[graph]=m._blocks.decode(api,text,digest)
             schedule=m.selected_schedule_coverage(connection,scope,graphs)
             qualification=m.batting_qualification(rows(),graphs=graphs,admissions=admissions,date_scope=scope,
-                selected_games_complete=schedule['complete'])
+                selected_games_complete=schedule['complete'],player_admissions=player_admissions)
             for metric_id in ('paq-2','paq-a','recovery-quality','paq-2.1'):
-                args=dict(graphs=graphs,qualification=qualification,date_scope=scope,_write_reference=True)
+                args=dict(graphs=graphs,qualification=qualification,date_scope=scope,_write_reference=True,
+                    player_admissions=player_admissions)
                 result=(m.paq21_players(connection,**args) if metric_id=='paq-2.1' else
                     m.season_rank_players(connection,metric_id=metric_id,**args))
                 prepare_players(m,connection,metric_id,year,graphs,qualification,result)

@@ -47,6 +47,17 @@ Each publication captures its implementation; in-flight builds finish with
 that version. See [metric readiness](METRIC-READINESS.md) for the last observed
 published build and changes still awaiting SQL publication.
 
+Season references can use a complete set of individual B1 player admissions
+when the whole-game batting check is withheld. Every rostered player, the
+full PA inventory and the exact RDF roster must reconcile; a subset of passing
+players cannot define the reference. NiFi repairs the affected contribution,
+recovery and joined reference inputs from retained RDF query results in SQL.
+The original whole-game proof remains unchanged. Count, runner-boundary,
+runner-resolution and defensive requirements retain their separate scope.
+An individual-proof change invalidates the affected season's reference product,
+and a changed game input invalidates its player partition. HTTP still reads
+prepared results only.
+
 An unhandled case in an existing MLB field belongs to that source lane's
 mapping-coverage debt. It does not establish a new source, and successful
 ingestion does not establish complete API mapping. Record the exact missing

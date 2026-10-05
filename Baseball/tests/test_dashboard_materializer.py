@@ -188,6 +188,7 @@ class DashboardMaterializer(unittest.TestCase):
         self.assertEqual(self.fetched,[])
         self.assertEqual((result['changedGames'],result['reusedGames']),(0,2))
         self.assertEqual(result['playerRanges']['preparedGames'],1)
+        self.assertEqual(result['affectedSeasons'],[2026])
         scoped=dict(plateAppearances=[],proofSha256='scoped-resolutions')
         with patch.object(D.ADMISSION_EVIDENCE.PLAYER_PARTICIPATION,'load',side_effect=lambda evidence,state,promotion:
                 proof if promotion['gamePk']=='101' else None), \
@@ -197,6 +198,7 @@ class DashboardMaterializer(unittest.TestCase):
             updated=D.build(self.args)
         self.assertEqual((updated['changedGames'],updated['reusedGames']),(0,2))
         self.assertEqual(updated['playerRanges']['preparedGames'],1)
+        self.assertEqual(updated['affectedSeasons'],[2026])
         self.assertEqual(self.fetched,[])
 
     def test_roster_checks_completed_during_build_are_included_before_publication(self):
@@ -356,6 +358,17 @@ class DashboardMaterializer(unittest.TestCase):
                 D.METRICS,'live_result',side_effect=AssertionError('no unchanged game calculations')):
             result=D.build(self.args)
         self.assertEqual(result['changedGames'],0);self.assertEqual(result['calculationUpdatedGames'],0)
+        self.assertEqual(self.fetched,[])
+
+    def test_individual_reference_upgrade_preserves_unchanged_game_calculations(self):
+        old,new=D.INDIVIDUAL_REFERENCE_CALCULATIONS
+        self.assertEqual(D.METRICS.calculation_fingerprint(),new)
+        with patch.object(D.METRICS,'calculation_fingerprint',return_value=old):D.build(self.args)
+        self.fetched.clear()
+        with patch.object(D.METRICS,'materialize_game',side_effect=AssertionError('no game rebuild')):
+            result=D.build(self.args)
+        self.assertEqual(result['changedGames'],0)
+        self.assertEqual(result['calculationUpdatedGames'],0)
         self.assertEqual(self.fetched,[])
 
     def test_paq_catalog_upgrade_removes_obsolete_order_gap_without_recalculation(self):
