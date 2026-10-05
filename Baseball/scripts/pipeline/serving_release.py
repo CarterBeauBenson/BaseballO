@@ -19,6 +19,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import uuid
 import zipfile
 
 SCOPES = ('Baseball/scripts/pipeline', 'Baseball/serving', 'Baseball/sparql',
@@ -33,9 +34,14 @@ def read(path): return json.loads(Path(path).read_text(encoding='utf-8-sig'))
 
 def atomic(path, value):
     path.parent.mkdir(parents=True, exist_ok=True)
-    with tempfile.NamedTemporaryFile('wb', dir=path.parent, delete=False) as f:
-        f.write(encoded(value)); f.flush(); os.fsync(f.fileno()); temporary=Path(f.name)
+    # Python's Windows tempfile path can retry PermissionError until TMP_MAX
+    # when os.access reports a directory writable despite its effective ACL.
+    # One exclusive UUID path fails promptly; replace still stays atomic.
+    temporary=path.with_name('.'+path.name+'.'+uuid.uuid4().hex+'.tmp');created=False
     try:
+        with temporary.open('xb') as f:
+            created=True
+            f.write(encoded(value)); f.flush(); os.fsync(f.fileno())
         for attempt in range(6):
             try:
                 os.replace(temporary, path)
@@ -46,7 +52,8 @@ def atomic(path, value):
                 if getattr(error,'winerror',None) not in {5,32,33} or attempt==5:
                     raise
                 time.sleep(0.05*2**attempt)
-    finally: temporary.unlink(missing_ok=True)
+    finally:
+        if created: temporary.unlink(missing_ok=True)
 
 
 def git(repo, *args):
@@ -76,6 +83,7 @@ def verify_release(state, descriptor):
             or sha(encoded(record))!=release_id or record.get('sourceCommit')!=descriptor.get('sourceCommit')):
         raise ValueError('Serving release identity does not match manifest')
     root=directory/'Baseball'
+    resolved_root=root.resolve()
     expected=record['files']
     if not isinstance(expected, dict) or not expected: raise ValueError('Serving release is empty')
     actual={p.relative_to(root).as_posix() for p in root.rglob('*') if p.is_file()}
@@ -83,7 +91,7 @@ def verify_release(state, descriptor):
     identities={}
     for name in expected:
         p=root.joinpath(*safe_relative(name).parts)
-        if p.is_symlink() or not p.resolve().is_relative_to(root.resolve()):
+        if p.is_symlink() or not p.resolve().is_relative_to(resolved_root):
             raise ValueError('Serving release file escaped its directory: '+name)
         st=p.stat()
         identities[name]=[st.st_dev,st.st_ino,st.st_size,st.st_mtime_ns,st.st_ctime_ns]
@@ -94,7 +102,7 @@ def verify_release(state, descriptor):
     except (OSError,ValueError): pass
     for name, digest in expected.items():
         p=root.joinpath(*safe_relative(name).parts)
-        if p.is_symlink() or not p.resolve().is_relative_to(root.resolve()) or sha(p.read_bytes())!=digest:
+        if p.is_symlink() or not p.resolve().is_relative_to(resolved_root) or sha(p.read_bytes())!=digest:
             raise ValueError('Serving release file changed: '+name)
     # Same local-file receipt policy as immutable serving databases. Replaced,
     # edited, added or removed files still invalidate the prior verification.

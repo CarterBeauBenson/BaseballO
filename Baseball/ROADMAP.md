@@ -520,6 +520,15 @@ retry evidence or a focused recovery test must demonstrate this; do not disrupt
 the live store to manufacture a failure. Record the build and code version
 actually serving the page. A pushed commit or submitted job is not deployment.
 
+October 5 execution found a Windows read-only failure in the serving release
+receipt writer: `NamedTemporaryFile` could retry a denied creation indefinitely
+when the directory access probe disagreed with its effective ACL. An exclusive
+UUID-named temporary file now fails once, retaining atomic replacement and the
+previous publication. The optional verification receipt can then fall back to
+ordinary read-only verification as intended. Four focused failure/integrity
+checks pass; the same local release verification returned in 424 ms after the
+fix. This is an operational repair, not a metric-population improvement.
+
 #### M9.3. Make the HTTP reader serve the selected range correctly
 
 Owners: `serving/player_range_query.py`,
@@ -545,6 +554,13 @@ opening, SQL, decoding and serialization. Engineering target: at most 2 seconds
 for warm data responses and 5 seconds for a first load on this host. Record the
 actual timings and fix the measured bottleneck; do not call a timeout increase
 or a fast cached example the solution.
+
+The October 5 full-season HTTP measurement was 4.27 seconds for a 5.52 MB
+response; the adapter reported 1.52 seconds. A direct prepared-range profile
+spent 36 ms reading the range and 1.15 seconds resolving player labels on its
+first measured read. A later warm label read took 169 ms. Keep first-load and
+warm results separate when deciding the next optimization; the 2-second warm
+HTTP target is not yet established.
 
 #### M9.4. Finish the dashboard's user flow
 

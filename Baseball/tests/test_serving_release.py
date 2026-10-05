@@ -30,6 +30,21 @@ def main():
 
 
 class AtomicPublication(unittest.TestCase):
+    def test_denied_temporary_creation_fails_once_and_preserves_publication(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/'current.json';R.atomic(path,{'build':'old'})
+            original_open=Path.open;attempts=[]
+            def denied_temporary(candidate,mode='r',*args,**kwargs):
+                if mode=='xb':
+                    attempts.append(candidate)
+                    raise PermissionError('Effective directory ACL denies creation')
+                return original_open(candidate,mode,*args,**kwargs)
+            with patch.object(Path,'open',denied_temporary):
+                with self.assertRaises(PermissionError):R.atomic(path,{'build':'new'})
+            self.assertEqual(len(attempts),1)
+            self.assertEqual(R.read(path),{'build':'old'})
+            self.assertEqual(list(Path(directory).iterdir()),[path])
+
     def test_transient_windows_reader_preserves_old_pointer_until_replacement(self):
         with tempfile.TemporaryDirectory() as directory:
             path=Path(directory)/'current.json';R.atomic(path,{'build':'old'})
