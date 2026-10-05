@@ -1,5 +1,12 @@
 # MLB Game pipeline components
 
+`Refresh Admission Evidence` resumes one deferred or interrupted check before
+its routine sweep. `admission-evidence-queue.py` owns that scheduling decision;
+`admission-evidence.py` continues to own the unchanged validation, receipts and
+producer fingerprints. The existing shared memory lease and two-failure retry
+limit apply, and retired spring-training/WBC games are excluded. Queue-order
+changes therefore do not invalidate completed runner-history inspections.
+
 This directory owns the source-specific executable stages used by the clean
 NiFi `MLB Game` process group. NiFi supplies the scheduling, FlowFile
 dependency order, bounded retries, quarantine routing, and provenance. Each
