@@ -1,7 +1,10 @@
 # MLB Game pipeline components
 
-`Refresh Admission Evidence` resumes one deferred or interrupted check before
-its routine sweep. `admission-evidence-queue.py` owns that scheduling decision;
+`Refresh Admission Evidence` prioritizes missing player admissions reported by
+the published dashboard, then deferred or interrupted checks, before its routine
+sweep. A tick starts at most ten checks and stops starting checks after 45 seconds;
+each check retains its existing timeout. Current terminal checks are not repeated
+while SQL awaits its next publication. `admission-evidence-queue.py` owns this scheduling;
 `admission-evidence.py` continues to own the unchanged validation, receipts and
 producer fingerprints. The existing shared memory lease and two-failure retry
 limit apply, and retired spring-training/WBC games are excluded. Queue-order
