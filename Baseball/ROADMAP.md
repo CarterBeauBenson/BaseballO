@@ -262,6 +262,16 @@ still fails its PA inventory and incomplete-turn checks. NiFi must publish the
 new scoped result before those 52 records count as delivered. Successful older
 proofs are preserved, and only affected negatives are selected for this retry.
 
+The subsequent 824807 diagnosis identified its extra expected PA as a pure
+administrative advisory. RML's hash-bound source inventory already selects
+50 PAs and 50 Batter Acts; the older batting census incorrectly expected 51.
+The player-check handoff now reuses that accepted selection only when the
+remaining entire participation inventory agrees exactly. It retains the
+advisory and resolved diagnostics separately, leaves genuine batting within
+an advisory intact, and still runs unchanged B1 SHACL. The read-only source
+check selects the existing 50 PAs; NiFi must check and publish the new outcome.
+No RML rerun, source reacquisition or RDF change is involved.
+
 ### M2. Complete progress, Empty Games and contribution channels
 
 After M1, address the independent progress exclusions: Offensive Reach currently

@@ -25,7 +25,9 @@ INVENTORY=URIRef('urn:baseballo:validation:player-participation:inventory')
 # Preserve those results during the incremental boundary-admission rollout.
 PREVIOUS_IMPLEMENTATION='b0ac0af0b8cea1673fdb7bc4bfd1df624b387e7004b5aa495fcbebb81185b769'
 PREVIOUS_RUN_SCOPE_IMPLEMENTATION='fe9cfe7f2defc663fc065fb567bee78c15d5e3a2be41e4e156b6107f8a6c2bc7'
+PREVIOUS_ADMINISTRATIVE_IMPLEMENTATION='9503a9efedaae32a7234d9635d511af30c0f06824376029fe99a4f302d243bfa'
 RUN_TOTAL_ISSUES={'INNING_RUN_TOTAL_MISMATCH','TEAM_RUN_TOTAL_MISMATCH'}
+ADMINISTRATIVE_DECISION='archive/design-records/mlb-game-edge-case-recovery/review.json'
 
 
 def fingerprint():
@@ -191,8 +193,45 @@ def needs_compound_refresh(proof):
     if not proof or proof.get('implementationSha256')==fingerprint():return False
     return ((proof.get('rosterComplete') is False
         and proof.get('retainedSourceEvidence',{}).get('kind')=='retained-source-response')
-        or any(i.get('code')=='SOURCE_RECONCILIATION' and i.get('detail',{}).get('code') in RUN_TOTAL_ISSUES
+        or any((i.get('code')=='SOURCE_RECONCILIATION' and i.get('detail',{}).get('code') in RUN_TOTAL_ISSUES)
+               or (i.get('code')=='UNRESOLVED_COMPLETED_RESULT' and i.get('eventType')=='game_advisory')
                for p in proof.get('players',[]) for i in p.get('issues',[])))
+
+
+def administrative_expectations(source,manifest):
+    """Reuse RML's accepted non-PA selection, then let unchanged B1 SHACL check.
+
+    A game_advisory can contain actual batting. Only the original mapping's
+    complete participation inventory can distinguish the pure advisory here;
+    the provider label, a missing result, or matching totals alone cannot.
+    """
+    if (manifest.get('inputSha256')!=source['sourceSha256']
+            or manifest.get('metricMappingMembershipVerified') is not True):return source
+    acts=manifest.get('batterParticipationEvidence',[])
+    actual={(str(r['atBatIndex']),B.BASE+'data/player/'+r['playerId'],r['actIri']) for r in acts}
+    indices={r[0] for r in actual}
+    removed=[r for r in source['members'] if r.get('eventType')=='game_advisory'
+             and r.get('resultType') is None and str(r['atBatIndex']) not in indices]
+    if not removed:return source
+    dropped={r['pa'] for r in removed};remaining=[r for r in source['members'] if r['pa'] not in dropped]
+    expected={(str(r['atBatIndex']),r['player'],r['pa']+'/batter-act') for r in remaining}
+    counts=manifest.get('sourceCounts',{})
+    if (len(actual)!=len(acts) or actual!=expected or len(expected)!=len(remaining)
+            or counts.get('plateAppearances')!=len(remaining) or counts.get('batterActs')!=len(acts)):
+        return source
+    dropped_indices={r['atBatIndex'] for r in removed}
+    paths={'/liveData/plays/allPlays/'+str(i)+'/about/isComplete' for i in dropped_indices}
+    def obsolete(issue):
+        return ((issue.get('code')=='UNRESOLVED_COMPLETED_RESULT' and issue.get('eventType')=='game_advisory'
+                 and issue.get('atBatIndex') in dropped_indices)
+                or (issue.get('code')=='SOURCE_RECONCILIATION'
+                    and issue.get('detail',{}).get('code')=='INCOMPLETE_SOURCE_PLAY'
+                    and issue['detail'].get('path') in paths))
+    projected=copy.deepcopy(source)
+    projected.update(members=remaining,issues=[i for i in source.get('issues',[]) if not obsolete(i)],
+        administrativeRecords=removed,administrativeDecision=ADMINISTRATIVE_DECISION,
+        resolvedAdministrativeIssues=[i for i in source.get('issues',[]) if obsolete(i)])
+    return projected
 
 
 def retained_source(evidence,state,promotion):
@@ -218,7 +257,17 @@ def retained_source(evidence,state,promotion):
             if version==B.fingerprint() or evidence.code_equivalence('batting',version,B.fingerprint()) is not None:
                 source=evidence.read(source_path)
                 projected=compound_expectations(source)
-                return projected,dict(kind='retained-b1-census',path=str(source_path),sha256=evidence.sha(source_path))
+                witness=dict(kind='retained-b1-census',path=str(source_path),sha256=evidence.sha(source_path))
+                if any(r.get('eventType')=='game_advisory' for r in projected['members']):
+                    manifest_path=evidence.retained_manifest(state,marker,promotion['gamePk'])
+                    if manifest_path.is_file() and evidence.sha(manifest_path)==marker['rmlManifestSha256']:
+                        manifest=evidence.read(manifest_path)
+                        if manifest.get('outputSha256')==promotion['authoritativeRdfSha256']:
+                            projected=administrative_expectations(projected,manifest)
+                            if projected.get('administrativeRecords'):
+                                witness.update(rmlManifestSha256=marker['rmlManifestSha256'],
+                                    administrativeDecision=ADMINISTRATIVE_DECISION)
+                return projected,witness
     candidates=sorted((Path(state)/'pipeline/quarantine/mlb-game'/promotion['gamePk']).glob('*/input.json'))
     if not candidates:return None
     # Prefer original bytes; otherwise retain the later response's distinct hash.

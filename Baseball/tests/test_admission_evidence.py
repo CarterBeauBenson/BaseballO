@@ -28,6 +28,39 @@ def current_implementation(family, entry):
 
 
 class AdmissionEvidence(unittest.TestCase):
+    def test_administrative_pa_expectations_reuse_complete_mapping_selection(self):
+        owner=E.PLAYER_PARTICIPATION;base=owner.B.BASE
+        actual=dict(atBatIndex=0,player=base+'data/player/1',pa=base+'data/game/1/plate-appearance/0',
+                    eventType='single',resultType=base+'SingleProcess')
+        advisory=dict(actual,atBatIndex=1,pa=base+'data/game/1/plate-appearance/1',eventType='game_advisory',resultType=None)
+        old_issues=[dict(code='UNRESOLVED_COMPLETED_RESULT',atBatIndex=1,eventType='game_advisory'),
+                    dict(code='SOURCE_RECONCILIATION',detail=dict(code='INCOMPLETE_SOURCE_PLAY',
+                         path='/liveData/plays/allPlays/1/about/isComplete'))]
+        other=dict(code='SOURCE_RECONCILIATION',detail=dict(code='INCOMPLETE_SOURCE_PLAY',
+                   path='/liveData/plays/allPlays/0/about/isComplete'))
+        source=dict(sourceSha256='original',members=[actual,advisory],issues=[*old_issues,other])
+        original=copy.deepcopy(source)
+        manifest=dict(inputSha256='original',metricMappingMembershipVerified=True,
+            sourceCounts=dict(plateAppearances=1,batterActs=1),
+            batterParticipationEvidence=[dict(atBatIndex='0',playerId='1',actIri=actual['pa']+'/batter-act')])
+        projected=owner.administrative_expectations(source,manifest)
+        self.assertEqual(projected['members'],[actual]);self.assertEqual(projected['issues'],[other])
+        self.assertEqual(projected['administrativeRecords'],[advisory])
+        self.assertEqual(projected['resolvedAdministrativeIssues'],old_issues)
+        self.assertEqual(source,original)
+        # An advisory carrying real batting, incomplete mapping evidence, or
+        # another source's selection cannot erase an unresolved actual turn.
+        for changed in [dict(manifest,inputSha256='different'),dict(manifest,metricMappingMembershipVerified=False),
+                        dict(manifest,sourceCounts=dict(plateAppearances=2,batterActs=1)),
+                        dict(manifest,batterParticipationEvidence=[]),
+                        dict(manifest,batterParticipationEvidence=[*manifest['batterParticipationEvidence'],
+                             dict(atBatIndex='1',playerId='1',actIri=advisory['pa']+'/batter-act')])]:
+            self.assertEqual(owner.administrative_expectations(source,changed),source)
+        old=dict(implementationSha256=owner.PREVIOUS_ADMINISTRATIVE_IMPLEMENTATION,
+                 players=[dict(status='withheld',issues=old_issues)])
+        self.assertIn(old['implementationSha256'],E.prior_versions('players',owner.fingerprint()))
+        self.assertTrue(owner.needs_compound_refresh(old))
+
     def test_player_pa_checks_are_independent_of_run_total_reconciliation(self):
         owner=E.PLAYER_PARTICIPATION
         source=owner.B.census((ROOT/'data/raw/game-566279.json').read_bytes(),'566279')

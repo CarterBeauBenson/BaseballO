@@ -201,10 +201,10 @@ def prior_versions(kind,current):
     and must be checked again; this is never approval of W1's missing facts.
     """
     if kind=='players' and current==PLAYER_PARTICIPATION.fingerprint():
-        # Only the interpretation of unrelated run-total diagnostics changed.
-        # Keep original B1 graph reports; the owner retries affected negatives.
+        # Keep original B1 graph reports; only affected run-total/advisory
+        # negatives and stale boundary expectations require a new owner check.
         previous=PLAYER_PARTICIPATION.PREVIOUS_RUN_SCOPE_IMPLEMENTATION
-        return [previous,*prior_versions(kind,previous)]
+        return [PLAYER_PARTICIPATION.PREVIOUS_ADMINISTRATIVE_IMPLEMENTATION,previous,*prior_versions(kind,previous)]
     if kind=='pa' and current==PLAYER_PARTICIPATION.PA.fingerprint():
         previous=PLAYER_PARTICIPATION.PA.PREVIOUS_SOURCE_SELECTION
         return [previous,*prior_versions(kind,previous)]

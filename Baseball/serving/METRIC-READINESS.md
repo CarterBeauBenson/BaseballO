@@ -35,7 +35,7 @@ The independent PA checker also no longer treats inning/team run-total
 diagnostics as failed batting counts. It retains those diagnostics for the
 scoring-run owner and still requires every applicable B1 SHACL result. Existing
 report evidence supports correcting 52 player records in 824295; 824807 remains
-withheld for its separate PA inventory/incomplete-turn failures. Two focused
+withheld in that publication for its PA inventory/incomplete-turn failures. Two focused
 scope/retry checks pass. This is pending NiFi execution/publication, not another
 increase in the measured counts above.
 
@@ -45,6 +45,13 @@ graph before falling back to original promotion evidence. A recorded example,
 census. The source handoff and bounded negative-result retry are repaired;
 the seventh-inning replacement/history issues remain, and NiFi must run the
 unchanged PA SHACL before any resulting contribution rows can publish.
+
+The 824807 inventory failure has now been traced to an administrative advisory
+that RML correctly excluded but the old batting census counted as a PA. The
+player checker reuses the original, hash-bound mapping selection: 50 PAs,
+rather than 51. Only the exact advisory discrepancy is resolved, with original
+records retained and unchanged player SHACL still required. This is another
+pending scoped check, not a published increase in player coverage.
 
 ## Historical publication: October 4, 23:30 Eastern
 
