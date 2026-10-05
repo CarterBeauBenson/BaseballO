@@ -398,12 +398,16 @@ class DashboardMaterializer(unittest.TestCase):
             self.assertEqual(held['confirmedPositivePlayers'],[str(P2)])
             held['confirmedPositivePlayers']=[]
             D.METRICS.store_result(db,G1,'empty-game-rate','game-scope',legacy)
+            for graph,key in db.execute('SELECT graph_iri,input_sha256 FROM dashboard_checkpoint').fetchall():
+                db.execute('UPDATE dashboard_player_partition SET input_sha256=? WHERE graph_iri=?',
+                    (D.METRICS._hash(key+D.PLAYER_RANGES.PREVIOUS_EMPTY_CACHE_VERSION),graph))
             other=db.execute("SELECT metric_id,result_json FROM metric_suite_result WHERE graph_iri=? AND metric_id!='empty-game-rate' ORDER BY metric_id",(G1,)).fetchall()
         self.fetched.clear()
         with patch.object(D.METRICS,'materialize_game',side_effect=AssertionError('no game rebuild')),patch.object(
                 D.METRICS,'live_result',side_effect=AssertionError('unrelated metrics must stay prepared')):
             result=D.build(self.args)
         self.assertEqual(result['calculationUpdatedGames'],1);self.assertEqual(self.fetched,[])
+        self.assertEqual(result['playerRanges']['preparedGames'],1)
         with closing(sqlite3.connect(self.working())) as db:
             self.assertEqual(D.METRICS.read_results(db,G1,'empty-game-rate'),[expected])
             self.assertEqual(db.execute("SELECT metric_id,result_json FROM metric_suite_result WHERE graph_iri=? AND metric_id!='empty-game-rate' ORDER BY metric_id",(G1,)).fetchall(),other)
