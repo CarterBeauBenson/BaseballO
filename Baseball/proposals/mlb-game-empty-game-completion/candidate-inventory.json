@@ -1,0 +1,5543 @@
+{
+  "artifactType": "baseballo-empty-game-completion-candidate-inventory",
+  "schemaVersion": 1,
+  "capturedOn": "2026-10-05",
+  "publicationId": "20261005T141801Z-dashboard-b67ca16201fc",
+  "metricId": "empty-game-rate",
+  "gameSet": "regular_season",
+  "candidateGames": 455,
+  "candidatePlayerGames": 700,
+  "scope": "Diagnose only these existing excluded player-games; repair only exact source-supported, already accepted patterns. This is not admission or proof of repairability.",
+  "games": [
+    {
+      "gamePk": "822679",
+      "graph": "https://w3id.org/baseball/graph/game/822679",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/683146",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822688",
+      "graph": "https://w3id.org/baseball/graph/game/822688",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/691788",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822700",
+      "graph": "https://w3id.org/baseball/graph/game/822700",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/691781",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822701",
+      "graph": "https://w3id.org/baseball/graph/game/822701",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/694673",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822702",
+      "graph": "https://w3id.org/baseball/graph/game/822702",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/543807",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822709",
+      "graph": "https://w3id.org/baseball/graph/game/822709",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/678391",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822714",
+      "graph": "https://w3id.org/baseball/graph/game/822714",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/682848",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/686611",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822715",
+      "graph": "https://w3id.org/baseball/graph/game/822715",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/678391",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822717",
+      "graph": "https://w3id.org/baseball/graph/game/822717",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/607208",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822724",
+      "graph": "https://w3id.org/baseball/graph/game/822724",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/696285",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822725",
+      "graph": "https://w3id.org/baseball/graph/game/822725",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/686452",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822729",
+      "graph": "https://w3id.org/baseball/graph/game/822729",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/609280",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/664034",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822735",
+      "graph": "https://w3id.org/baseball/graph/game/822735",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/671277",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822738",
+      "graph": "https://w3id.org/baseball/graph/game/822738",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/624413",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822747",
+      "graph": "https://w3id.org/baseball/graph/game/822747",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/677588",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822748",
+      "graph": "https://w3id.org/baseball/graph/game/822748",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/573262",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/621566",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/641680",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/643289",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/645277",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/660670",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/660688",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/663586",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/671277",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/671739",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/677588",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/678391",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/678554",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/682928",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/686894",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/686948",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/691781",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/695578",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/695734",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/696285",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822751",
+      "graph": "https://w3id.org/baseball/graph/game/822751",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/678554",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/682928",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/691781",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822769",
+      "graph": "https://w3id.org/baseball/graph/game/822769",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/641487",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822774",
+      "graph": "https://w3id.org/baseball/graph/game/822774",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/502671",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822780",
+      "graph": "https://w3id.org/baseball/graph/game/822780",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/678882",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822784",
+      "graph": "https://w3id.org/baseball/graph/game/822784",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/670764",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822788",
+      "graph": "https://w3id.org/baseball/graph/game/822788",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/680700",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822789",
+      "graph": "https://w3id.org/baseball/graph/game/822789",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/545341",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822793",
+      "graph": "https://w3id.org/baseball/graph/game/822793",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/664702",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822800",
+      "graph": "https://w3id.org/baseball/graph/game/822800",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/665161",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/694728",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822804",
+      "graph": "https://w3id.org/baseball/graph/game/822804",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/665489",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822809",
+      "graph": "https://w3id.org/baseball/graph/game/822809",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/623168",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/681393",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/689414",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822824",
+      "graph": "https://w3id.org/baseball/graph/game/822824",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/608070",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822834",
+      "graph": "https://w3id.org/baseball/graph/game/822834",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/672386",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822835",
+      "graph": "https://w3id.org/baseball/graph/game/822835",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/665489",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/676914",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822846",
+      "graph": "https://w3id.org/baseball/graph/game/822846",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/681508",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822854",
+      "graph": "https://w3id.org/baseball/graph/game/822854",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/683021",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/695720",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822856",
+      "graph": "https://w3id.org/baseball/graph/game/822856",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/683227",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822857",
+      "graph": "https://w3id.org/baseball/graph/game/822857",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/592626",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822864",
+      "graph": "https://w3id.org/baseball/graph/game/822864",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/694497",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822868",
+      "graph": "https://w3id.org/baseball/graph/game/822868",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/607043",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822877",
+      "graph": "https://w3id.org/baseball/graph/game/822877",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/694203",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822894",
+      "graph": "https://w3id.org/baseball/graph/game/822894",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/679845",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822901",
+      "graph": "https://w3id.org/baseball/graph/game/822901",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/669394",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822907",
+      "graph": "https://w3id.org/baseball/graph/game/822907",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/673962",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822911",
+      "graph": "https://w3id.org/baseball/graph/game/822911",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/643376",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822918",
+      "graph": "https://w3id.org/baseball/graph/game/822918",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/641487",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822933",
+      "graph": "https://w3id.org/baseball/graph/game/822933",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/691406",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822934",
+      "graph": "https://w3id.org/baseball/graph/game/822934",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/802415",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822942",
+      "graph": "https://w3id.org/baseball/graph/game/822942",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/665750",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/669236",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822945",
+      "graph": "https://w3id.org/baseball/graph/game/822945",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/666018",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822946",
+      "graph": "https://w3id.org/baseball/graph/game/822946",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/691406",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822947",
+      "graph": "https://w3id.org/baseball/graph/game/822947",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/810938",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822948",
+      "graph": "https://w3id.org/baseball/graph/game/822948",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/682657",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822949",
+      "graph": "https://w3id.org/baseball/graph/game/822949",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/656775",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822956",
+      "graph": "https://w3id.org/baseball/graph/game/822956",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/502671",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822957",
+      "graph": "https://w3id.org/baseball/graph/game/822957",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/502671",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822959",
+      "graph": "https://w3id.org/baseball/graph/game/822959",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/545121",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822970",
+      "graph": "https://w3id.org/baseball/graph/game/822970",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/655316",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822972",
+      "graph": "https://w3id.org/baseball/graph/game/822972",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/655316",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822981",
+      "graph": "https://w3id.org/baseball/graph/game/822981",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/676356",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822983",
+      "graph": "https://w3id.org/baseball/graph/game/822983",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/665923",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822988",
+      "graph": "https://w3id.org/baseball/graph/game/822988",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/656305",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/663743",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/666018",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822996",
+      "graph": "https://w3id.org/baseball/graph/game/822996",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/642708",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822997",
+      "graph": "https://w3id.org/baseball/graph/game/822997",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/641355",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822998",
+      "graph": "https://w3id.org/baseball/graph/game/822998",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/669224",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "822999",
+      "graph": "https://w3id.org/baseball/graph/game/822999",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/663743",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/665804",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823003",
+      "graph": "https://w3id.org/baseball/graph/game/823003",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/691002",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/696285",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823006",
+      "graph": "https://w3id.org/baseball/graph/game/823006",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/805811",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823011",
+      "graph": "https://w3id.org/baseball/graph/game/823011",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/691023",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823014",
+      "graph": "https://w3id.org/baseball/graph/game/823014",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/665750",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823021",
+      "graph": "https://w3id.org/baseball/graph/game/823021",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/693409",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823028",
+      "graph": "https://w3id.org/baseball/graph/game/823028",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/624431",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/695490",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/701398",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823032",
+      "graph": "https://w3id.org/baseball/graph/game/823032",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/686217",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823034",
+      "graph": "https://w3id.org/baseball/graph/game/823034",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/701675",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823048",
+      "graph": "https://w3id.org/baseball/graph/game/823048",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/663457",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823058",
+      "graph": "https://w3id.org/baseball/graph/game/823058",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/701675",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823072",
+      "graph": "https://w3id.org/baseball/graph/game/823072",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/691026",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823078",
+      "graph": "https://w3id.org/baseball/graph/game/823078",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/682626",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823082",
+      "graph": "https://w3id.org/baseball/graph/game/823082",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/641584",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823085",
+      "graph": "https://w3id.org/baseball/graph/game/823085",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/666139",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823087",
+      "graph": "https://w3id.org/baseball/graph/game/823087",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/685133",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823088",
+      "graph": "https://w3id.org/baseball/graph/game/823088",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/608369",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/621493",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/670032",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/679822",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823092",
+      "graph": "https://w3id.org/baseball/graph/game/823092",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/642215",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823096",
+      "graph": "https://w3id.org/baseball/graph/game/823096",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/621550",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823099",
+      "graph": "https://w3id.org/baseball/graph/game/823099",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/660844",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823103",
+      "graph": "https://w3id.org/baseball/graph/game/823103",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/680977",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823109",
+      "graph": "https://w3id.org/baseball/graph/game/823109",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/605170",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/608701",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823127",
+      "graph": "https://w3id.org/baseball/graph/game/823127",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/608701",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/656582",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823132",
+      "graph": "https://w3id.org/baseball/graph/game/823132",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/672515",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823134",
+      "graph": "https://w3id.org/baseball/graph/game/823134",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/691011",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823136",
+      "graph": "https://w3id.org/baseball/graph/game/823136",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/682668",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823149",
+      "graph": "https://w3id.org/baseball/graph/game/823149",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/680869",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823150",
+      "graph": "https://w3id.org/baseball/graph/game/823150",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/660844",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/669394",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823156",
+      "graph": "https://w3id.org/baseball/graph/game/823156",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/543877",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823168",
+      "graph": "https://w3id.org/baseball/graph/game/823168",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/665019",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823169",
+      "graph": "https://w3id.org/baseball/graph/game/823169",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/665019",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823180",
+      "graph": "https://w3id.org/baseball/graph/game/823180",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/687529",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823185",
+      "graph": "https://w3id.org/baseball/graph/game/823185",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/650489",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823194",
+      "graph": "https://w3id.org/baseball/graph/game/823194",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/642350",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823196",
+      "graph": "https://w3id.org/baseball/graph/game/823196",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/671218",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/701852",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823197",
+      "graph": "https://w3id.org/baseball/graph/game/823197",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/691740",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823207",
+      "graph": "https://w3id.org/baseball/graph/game/823207",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/621566",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823208",
+      "graph": "https://w3id.org/baseball/graph/game/823208",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/669127",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/671732",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823211",
+      "graph": "https://w3id.org/baseball/graph/game/823211",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/646240",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823221",
+      "graph": "https://w3id.org/baseball/graph/game/823221",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/805811",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823225",
+      "graph": "https://w3id.org/baseball/graph/game/823225",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/656811",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823243",
+      "graph": "https://w3id.org/baseball/graph/game/823243",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/646240",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823245",
+      "graph": "https://w3id.org/baseball/graph/game/823245",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/545121",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823247",
+      "graph": "https://w3id.org/baseball/graph/game/823247",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/592518",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823256",
+      "graph": "https://w3id.org/baseball/graph/game/823256",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/671218",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823258",
+      "graph": "https://w3id.org/baseball/graph/game/823258",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/669134",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823274",
+      "graph": "https://w3id.org/baseball/graph/game/823274",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/672386",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/701538",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823285",
+      "graph": "https://w3id.org/baseball/graph/game/823285",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/518692",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823289",
+      "graph": "https://w3id.org/baseball/graph/game/823289",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/694362",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823290",
+      "graph": "https://w3id.org/baseball/graph/game/823290",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/609280",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/664034",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823291",
+      "graph": "https://w3id.org/baseball/graph/game/823291",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/805999",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823301",
+      "graph": "https://w3id.org/baseball/graph/game/823301",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/518692",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823304",
+      "graph": "https://w3id.org/baseball/graph/game/823304",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/650968",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823313",
+      "graph": "https://w3id.org/baseball/graph/game/823313",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/593428",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823317",
+      "graph": "https://w3id.org/baseball/graph/game/823317",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/681198",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823318",
+      "graph": "https://w3id.org/baseball/graph/game/823318",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/630105",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823322",
+      "graph": "https://w3id.org/baseball/graph/game/823322",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/666023",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823326",
+      "graph": "https://w3id.org/baseball/graph/game/823326",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/687462",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823328",
+      "graph": "https://w3id.org/baseball/graph/game/823328",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/668804",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823331",
+      "graph": "https://w3id.org/baseball/graph/game/823331",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/672580",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823341",
+      "graph": "https://w3id.org/baseball/graph/game/823341",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/701678",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823342",
+      "graph": "https://w3id.org/baseball/graph/game/823342",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/680664",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823349",
+      "graph": "https://w3id.org/baseball/graph/game/823349",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/668804",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/682848",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/694378",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823350",
+      "graph": "https://w3id.org/baseball/graph/game/823350",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/682988",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823353",
+      "graph": "https://w3id.org/baseball/graph/game/823353",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/678489",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823365",
+      "graph": "https://w3id.org/baseball/graph/game/823365",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/668227",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823368",
+      "graph": "https://w3id.org/baseball/graph/game/823368",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/687462",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823369",
+      "graph": "https://w3id.org/baseball/graph/game/823369",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/669065",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823373",
+      "graph": "https://w3id.org/baseball/graph/game/823373",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/656484",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823380",
+      "graph": "https://w3id.org/baseball/graph/game/823380",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/542303",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/804606",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823382",
+      "graph": "https://w3id.org/baseball/graph/game/823382",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/694377",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823385",
+      "graph": "https://w3id.org/baseball/graph/game/823385",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/691720",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823394",
+      "graph": "https://w3id.org/baseball/graph/game/823394",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/663968",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/670764",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823396",
+      "graph": "https://w3id.org/baseball/graph/game/823396",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/656811",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/671277",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823398",
+      "graph": "https://w3id.org/baseball/graph/game/823398",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/663968",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/677588",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/696285",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823399",
+      "graph": "https://w3id.org/baseball/graph/game/823399",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/686452",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823412",
+      "graph": "https://w3id.org/baseball/graph/game/823412",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/806198",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823413",
+      "graph": "https://w3id.org/baseball/graph/game/823413",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/670541",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823426",
+      "graph": "https://w3id.org/baseball/graph/game/823426",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/624641",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823433",
+      "graph": "https://w3id.org/baseball/graph/game/823433",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/592663",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/641857",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/669224",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/676609",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823434",
+      "graph": "https://w3id.org/baseball/graph/game/823434",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/641857",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823448",
+      "graph": "https://w3id.org/baseball/graph/game/823448",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/666182",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/669016",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/670097",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/676724",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/683146",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/687282",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823449",
+      "graph": "https://w3id.org/baseball/graph/game/823449",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/669004",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823450",
+      "graph": "https://w3id.org/baseball/graph/game/823450",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/596117",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/656941",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823461",
+      "graph": "https://w3id.org/baseball/graph/game/823461",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/666969",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823470",
+      "graph": "https://w3id.org/baseball/graph/game/823470",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/641680",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823475",
+      "graph": "https://w3id.org/baseball/graph/game/823475",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/664761",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823507",
+      "graph": "https://w3id.org/baseball/graph/game/823507",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/665862",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823512",
+      "graph": "https://w3id.org/baseball/graph/game/823512",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/663728",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823513",
+      "graph": "https://w3id.org/baseball/graph/game/823513",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/642086",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823515",
+      "graph": "https://w3id.org/baseball/graph/game/823515",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/643289",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/673490",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823516",
+      "graph": "https://w3id.org/baseball/graph/game/823516",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/645305",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823517",
+      "graph": "https://w3id.org/baseball/graph/game/823517",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/676475",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823525",
+      "graph": "https://w3id.org/baseball/graph/game/823525",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/665019",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823530",
+      "graph": "https://w3id.org/baseball/graph/game/823530",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/645305",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823531",
+      "graph": "https://w3id.org/baseball/graph/game/823531",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/668709",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823533",
+      "graph": "https://w3id.org/baseball/graph/game/823533",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/665862",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/678577",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/683011",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823534",
+      "graph": "https://w3id.org/baseball/graph/game/823534",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/668709",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823542",
+      "graph": "https://w3id.org/baseball/graph/game/823542",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/665862",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823550",
+      "graph": "https://w3id.org/baseball/graph/game/823550",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/691176",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823551",
+      "graph": "https://w3id.org/baseball/graph/game/823551",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/641857",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823556",
+      "graph": "https://w3id.org/baseball/graph/game/823556",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/686555",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823559",
+      "graph": "https://w3id.org/baseball/graph/game/823559",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/516782",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823565",
+      "graph": "https://w3id.org/baseball/graph/game/823565",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/643446",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/667670",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/671732",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823568",
+      "graph": "https://w3id.org/baseball/graph/game/823568",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/689414",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823573",
+      "graph": "https://w3id.org/baseball/graph/game/823573",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/805999",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823587",
+      "graph": "https://w3id.org/baseball/graph/game/823587",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/543760",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823595",
+      "graph": "https://w3id.org/baseball/graph/game/823595",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/672640",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823599",
+      "graph": "https://w3id.org/baseball/graph/game/823599",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/690976",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823600",
+      "graph": "https://w3id.org/baseball/graph/game/823600",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/663656",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823609",
+      "graph": "https://w3id.org/baseball/graph/game/823609",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/687282",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823614",
+      "graph": "https://w3id.org/baseball/graph/game/823614",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/683737",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823615",
+      "graph": "https://w3id.org/baseball/graph/game/823615",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/676724",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823623",
+      "graph": "https://w3id.org/baseball/graph/game/823623",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/620443",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823627",
+      "graph": "https://w3id.org/baseball/graph/game/823627",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/669004",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823630",
+      "graph": "https://w3id.org/baseball/graph/game/823630",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/656716",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/668670",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823632",
+      "graph": "https://w3id.org/baseball/graph/game/823632",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/596103",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/620443",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/682626",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823635",
+      "graph": "https://w3id.org/baseball/graph/game/823635",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/687597",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823642",
+      "graph": "https://w3id.org/baseball/graph/game/823642",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/593871",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823646",
+      "graph": "https://w3id.org/baseball/graph/game/823646",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/571448",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823653",
+      "graph": "https://w3id.org/baseball/graph/game/823653",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/608369",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823658",
+      "graph": "https://w3id.org/baseball/graph/game/823658",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/680777",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823660",
+      "graph": "https://w3id.org/baseball/graph/game/823660",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/650402",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823662",
+      "graph": "https://w3id.org/baseball/graph/game/823662",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/695657",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823664",
+      "graph": "https://w3id.org/baseball/graph/game/823664",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/663616",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/680777",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823671",
+      "graph": "https://w3id.org/baseball/graph/game/823671",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/607208",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/702222",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823675",
+      "graph": "https://w3id.org/baseball/graph/game/823675",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/641933",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823678",
+      "graph": "https://w3id.org/baseball/graph/game/823678",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/621439",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823680",
+      "graph": "https://w3id.org/baseball/graph/game/823680",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/703607",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823682",
+      "graph": "https://w3id.org/baseball/graph/game/823682",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/663616",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823685",
+      "graph": "https://w3id.org/baseball/graph/game/823685",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/666176",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823688",
+      "graph": "https://w3id.org/baseball/graph/game/823688",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/605170",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823691",
+      "graph": "https://w3id.org/baseball/graph/game/823691",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/668952",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823694",
+      "graph": "https://w3id.org/baseball/graph/game/823694",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/605170",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823699",
+      "graph": "https://w3id.org/baseball/graph/game/823699",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/664728",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823701",
+      "graph": "https://w3id.org/baseball/graph/game/823701",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/807747",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823705",
+      "graph": "https://w3id.org/baseball/graph/game/823705",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/605170",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/680777",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823712",
+      "graph": "https://w3id.org/baseball/graph/game/823712",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/605137",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/668885",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/669364",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/672640",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/681393",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/681715",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/689414",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/691788",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823721",
+      "graph": "https://w3id.org/baseball/graph/game/823721",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/677956",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823723",
+      "graph": "https://w3id.org/baseball/graph/game/823723",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/665966",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823724",
+      "graph": "https://w3id.org/baseball/graph/game/823724",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/668904",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823734",
+      "graph": "https://w3id.org/baseball/graph/game/823734",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/694192",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823738",
+      "graph": "https://w3id.org/baseball/graph/game/823738",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/665804",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823770",
+      "graph": "https://w3id.org/baseball/graph/game/823770",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/668930",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823771",
+      "graph": "https://w3id.org/baseball/graph/game/823771",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/806198",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823780",
+      "graph": "https://w3id.org/baseball/graph/game/823780",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/669477",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823789",
+      "graph": "https://w3id.org/baseball/graph/game/823789",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/694192",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823792",
+      "graph": "https://w3id.org/baseball/graph/game/823792",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/676609",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823794",
+      "graph": "https://w3id.org/baseball/graph/game/823794",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/665862",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/669224",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823797",
+      "graph": "https://w3id.org/baseball/graph/game/823797",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/686217",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823803",
+      "graph": "https://w3id.org/baseball/graph/game/823803",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/596142",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823805",
+      "graph": "https://w3id.org/baseball/graph/game/823805",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/641343",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/650859",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/663368",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/669003",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/686217",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/686894",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823806",
+      "graph": "https://w3id.org/baseball/graph/game/823806",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/656775",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823808",
+      "graph": "https://w3id.org/baseball/graph/game/823808",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/686217",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/696285",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823817",
+      "graph": "https://w3id.org/baseball/graph/game/823817",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/690976",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823822",
+      "graph": "https://w3id.org/baseball/graph/game/823822",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/807713",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823827",
+      "graph": "https://w3id.org/baseball/graph/game/823827",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/683083",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/694673",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/696285",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823832",
+      "graph": "https://w3id.org/baseball/graph/game/823832",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/691594",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823834",
+      "graph": "https://w3id.org/baseball/graph/game/823834",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/694208",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823836",
+      "graph": "https://w3id.org/baseball/graph/game/823836",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/691594",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823837",
+      "graph": "https://w3id.org/baseball/graph/game/823837",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/669065",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823846",
+      "graph": "https://w3id.org/baseball/graph/game/823846",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/645302",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823848",
+      "graph": "https://w3id.org/baseball/graph/game/823848",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/702284",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823855",
+      "graph": "https://w3id.org/baseball/graph/game/823855",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/694371",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823857",
+      "graph": "https://w3id.org/baseball/graph/game/823857",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/683748",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823859",
+      "graph": "https://w3id.org/baseball/graph/game/823859",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/681393",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823860",
+      "graph": "https://w3id.org/baseball/graph/game/823860",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/669065",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823865",
+      "graph": "https://w3id.org/baseball/graph/game/823865",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/805300",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823873",
+      "graph": "https://w3id.org/baseball/graph/game/823873",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/681297",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823883",
+      "graph": "https://w3id.org/baseball/graph/game/823883",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/666152",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/681715",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/688363",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823892",
+      "graph": "https://w3id.org/baseball/graph/game/823892",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/664983",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823894",
+      "graph": "https://w3id.org/baseball/graph/game/823894",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/518692",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823895",
+      "graph": "https://w3id.org/baseball/graph/game/823895",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/500743",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/669242",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823896",
+      "graph": "https://w3id.org/baseball/graph/game/823896",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/678545",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823899",
+      "graph": "https://w3id.org/baseball/graph/game/823899",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/500743",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823901",
+      "graph": "https://w3id.org/baseball/graph/game/823901",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/518692",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823911",
+      "graph": "https://w3id.org/baseball/graph/game/823911",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/669743",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/676439",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/804668",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823917",
+      "graph": "https://w3id.org/baseball/graph/game/823917",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/518692",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823921",
+      "graph": "https://w3id.org/baseball/graph/game/823921",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/677594",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823922",
+      "graph": "https://w3id.org/baseball/graph/game/823922",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/571970",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823925",
+      "graph": "https://w3id.org/baseball/graph/game/823925",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/666971",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823927",
+      "graph": "https://w3id.org/baseball/graph/game/823927",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/678489",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/814439",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823936",
+      "graph": "https://w3id.org/baseball/graph/game/823936",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/621493",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823948",
+      "graph": "https://w3id.org/baseball/graph/game/823948",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/690924",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823954",
+      "graph": "https://w3id.org/baseball/graph/game/823954",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/808975",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823965",
+      "graph": "https://w3id.org/baseball/graph/game/823965",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/690976",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823966",
+      "graph": "https://w3id.org/baseball/graph/game/823966",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/608369",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823978",
+      "graph": "https://w3id.org/baseball/graph/game/823978",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/680777",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823986",
+      "graph": "https://w3id.org/baseball/graph/game/823986",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/545361",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/624428",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823988",
+      "graph": "https://w3id.org/baseball/graph/game/823988",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/687093",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "823998",
+      "graph": "https://w3id.org/baseball/graph/game/823998",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/642350",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824001",
+      "graph": "https://w3id.org/baseball/graph/game/824001",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/670623",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/828599",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824018",
+      "graph": "https://w3id.org/baseball/graph/game/824018",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/672724",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824023",
+      "graph": "https://w3id.org/baseball/graph/game/824023",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/665861",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/681351",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824025",
+      "graph": "https://w3id.org/baseball/graph/game/824025",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/642350",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824027",
+      "graph": "https://w3id.org/baseball/graph/game/824027",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/624428",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/663611",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/694514",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824031",
+      "graph": "https://w3id.org/baseball/graph/game/824031",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/687093",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824041",
+      "graph": "https://w3id.org/baseball/graph/game/824041",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/660162",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824042",
+      "graph": "https://w3id.org/baseball/graph/game/824042",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/683146",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824045",
+      "graph": "https://w3id.org/baseball/graph/game/824045",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/624428",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/660162",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/666176",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/694384",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824046",
+      "graph": "https://w3id.org/baseball/graph/game/824046",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/676391",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824051",
+      "graph": "https://w3id.org/baseball/graph/game/824051",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/600869",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/624428",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/624585",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824054",
+      "graph": "https://w3id.org/baseball/graph/game/824054",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/666176",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/702284",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824070",
+      "graph": "https://w3id.org/baseball/graph/game/824070",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/683357",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824072",
+      "graph": "https://w3id.org/baseball/graph/game/824072",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/693307",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824075",
+      "graph": "https://w3id.org/baseball/graph/game/824075",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/521692",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824084",
+      "graph": "https://w3id.org/baseball/graph/game/824084",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/702176",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824095",
+      "graph": "https://w3id.org/baseball/graph/game/824095",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/691023",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824105",
+      "graph": "https://w3id.org/baseball/graph/game/824105",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/543309",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/672580",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824109",
+      "graph": "https://w3id.org/baseball/graph/game/824109",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/640902",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824111",
+      "graph": "https://w3id.org/baseball/graph/game/824111",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/575929",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824112",
+      "graph": "https://w3id.org/baseball/graph/game/824112",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/681508",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824126",
+      "graph": "https://w3id.org/baseball/graph/game/824126",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/521692",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824127",
+      "graph": "https://w3id.org/baseball/graph/game/824127",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/521692",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824133",
+      "graph": "https://w3id.org/baseball/graph/game/824133",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/663616",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824134",
+      "graph": "https://w3id.org/baseball/graph/game/824134",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/677951",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824147",
+      "graph": "https://w3id.org/baseball/graph/game/824147",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/514888",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824152",
+      "graph": "https://w3id.org/baseball/graph/game/824152",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/669384",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824155",
+      "graph": "https://w3id.org/baseball/graph/game/824155",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/694203",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824158",
+      "graph": "https://w3id.org/baseball/graph/game/824158",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/665161",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824165",
+      "graph": "https://w3id.org/baseball/graph/game/824165",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/514888",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/669364",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824169",
+      "graph": "https://w3id.org/baseball/graph/game/824169",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/572233",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/664774",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824172",
+      "graph": "https://w3id.org/baseball/graph/game/824172",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/670541",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824181",
+      "graph": "https://w3id.org/baseball/graph/game/824181",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/650402",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/701678",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824191",
+      "graph": "https://w3id.org/baseball/graph/game/824191",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/543877",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824192",
+      "graph": "https://w3id.org/baseball/graph/game/824192",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/670541",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824193",
+      "graph": "https://w3id.org/baseball/graph/game/824193",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/679822",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824204",
+      "graph": "https://w3id.org/baseball/graph/game/824204",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/670623",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824210",
+      "graph": "https://w3id.org/baseball/graph/game/824210",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/514888",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824216",
+      "graph": "https://w3id.org/baseball/graph/game/824216",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/701358",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824217",
+      "graph": "https://w3id.org/baseball/graph/game/824217",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/690291",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824228",
+      "graph": "https://w3id.org/baseball/graph/game/824228",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/703601",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824237",
+      "graph": "https://w3id.org/baseball/graph/game/824237",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/803011",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824249",
+      "graph": "https://w3id.org/baseball/graph/game/824249",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/656941",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824253",
+      "graph": "https://w3id.org/baseball/graph/game/824253",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/680869",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824255",
+      "graph": "https://w3id.org/baseball/graph/game/824255",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/694728",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824266",
+      "graph": "https://w3id.org/baseball/graph/game/824266",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/656716",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824273",
+      "graph": "https://w3id.org/baseball/graph/game/824273",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/701678",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824280",
+      "graph": "https://w3id.org/baseball/graph/game/824280",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/656716",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824295",
+      "graph": "https://w3id.org/baseball/graph/game/824295",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/445276",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/592773",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/595879",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/602104",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/623454",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/640448",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/646241",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/650402",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/650968",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/656427",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/656716",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/657756",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/663330",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/663554",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/663837",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/663947",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/664285",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/665877",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/666277",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/668670",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/668941",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/669160",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/669357",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/669373",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/669461",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/669467",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/671056",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/672456",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/676428",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/676475",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/676617",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/676684",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/677865",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/678009",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/679529",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/681481",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/681517",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/682985",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/686780",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/687363",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/688297",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/690993",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/691023",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/691026",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/693307",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/694335",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/695336",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/700241",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/700669",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/701675",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/802139",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/805808",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824304",
+      "graph": "https://w3id.org/baseball/graph/game/824304",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/642215",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824309",
+      "graph": "https://w3id.org/baseball/graph/game/824309",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/687859",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824310",
+      "graph": "https://w3id.org/baseball/graph/game/824310",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/691023",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824311",
+      "graph": "https://w3id.org/baseball/graph/game/824311",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/691023",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824314",
+      "graph": "https://w3id.org/baseball/graph/game/824314",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/687597",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824330",
+      "graph": "https://w3id.org/baseball/graph/game/824330",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/666397",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824340",
+      "graph": "https://w3id.org/baseball/graph/game/824340",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/680776",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824341",
+      "graph": "https://w3id.org/baseball/graph/game/824341",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/665966",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824343",
+      "graph": "https://w3id.org/baseball/graph/game/824343",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/682997",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824345",
+      "graph": "https://w3id.org/baseball/graph/game/824345",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/687462",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824347",
+      "graph": "https://w3id.org/baseball/graph/game/824347",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/699393",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824353",
+      "graph": "https://w3id.org/baseball/graph/game/824353",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/691720",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824361",
+      "graph": "https://w3id.org/baseball/graph/game/824361",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/668901",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824374",
+      "graph": "https://w3id.org/baseball/graph/game/824374",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/676694",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/694728",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824379",
+      "graph": "https://w3id.org/baseball/graph/game/824379",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/666397",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824385",
+      "graph": "https://w3id.org/baseball/graph/game/824385",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/701678",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824392",
+      "graph": "https://w3id.org/baseball/graph/game/824392",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/694197",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824396",
+      "graph": "https://w3id.org/baseball/graph/game/824396",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/683953",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824402",
+      "graph": "https://w3id.org/baseball/graph/game/824402",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/596019",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/666182",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824403",
+      "graph": "https://w3id.org/baseball/graph/game/824403",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/663993",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824408",
+      "graph": "https://w3id.org/baseball/graph/game/824408",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/605170",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/668952",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824411",
+      "graph": "https://w3id.org/baseball/graph/game/824411",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/680757",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/683953",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824415",
+      "graph": "https://w3id.org/baseball/graph/game/824415",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/681807",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824427",
+      "graph": "https://w3id.org/baseball/graph/game/824427",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/682987",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824429",
+      "graph": "https://w3id.org/baseball/graph/game/824429",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/680757",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/700250",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824439",
+      "graph": "https://w3id.org/baseball/graph/game/824439",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/701398",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824444",
+      "graph": "https://w3id.org/baseball/graph/game/824444",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/681807",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824449",
+      "graph": "https://w3id.org/baseball/graph/game/824449",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/666310",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824466",
+      "graph": "https://w3id.org/baseball/graph/game/824466",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/553993",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824467",
+      "graph": "https://w3id.org/baseball/graph/game/824467",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/670770",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824469",
+      "graph": "https://w3id.org/baseball/graph/game/824469",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/596142",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824470",
+      "graph": "https://w3id.org/baseball/graph/game/824470",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/665487",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824472",
+      "graph": "https://w3id.org/baseball/graph/game/824472",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/666023",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/680574",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824477",
+      "graph": "https://w3id.org/baseball/graph/game/824477",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/663647",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824481",
+      "graph": "https://w3id.org/baseball/graph/game/824481",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/663886",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824482",
+      "graph": "https://w3id.org/baseball/graph/game/824482",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/668709",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824495",
+      "graph": "https://w3id.org/baseball/graph/game/824495",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/670770",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824504",
+      "graph": "https://w3id.org/baseball/graph/game/824504",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/663993",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824507",
+      "graph": "https://w3id.org/baseball/graph/game/824507",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/663993",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824509",
+      "graph": "https://w3id.org/baseball/graph/game/824509",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/682622",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824523",
+      "graph": "https://w3id.org/baseball/graph/game/824523",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/663993",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824525",
+      "graph": "https://w3id.org/baseball/graph/game/824525",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/663993",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824530",
+      "graph": "https://w3id.org/baseball/graph/game/824530",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/701398",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824533",
+      "graph": "https://w3id.org/baseball/graph/game/824533",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/624585",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824538",
+      "graph": "https://w3id.org/baseball/graph/game/824538",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/701350",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824544",
+      "graph": "https://w3id.org/baseball/graph/game/824544",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/678246",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824547",
+      "graph": "https://w3id.org/baseball/graph/game/824547",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/595879",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824554",
+      "graph": "https://w3id.org/baseball/graph/game/824554",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/807712",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824563",
+      "graph": "https://w3id.org/baseball/graph/game/824563",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/663886",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/699302",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824564",
+      "graph": "https://w3id.org/baseball/graph/game/824564",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/682668",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824565",
+      "graph": "https://w3id.org/baseball/graph/game/824565",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/545341",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824569",
+      "graph": "https://w3id.org/baseball/graph/game/824569",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/665862",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824572",
+      "graph": "https://w3id.org/baseball/graph/game/824572",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/543877",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824574",
+      "graph": "https://w3id.org/baseball/graph/game/824574",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/805367",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824576",
+      "graph": "https://w3id.org/baseball/graph/game/824576",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/666126",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824581",
+      "graph": "https://w3id.org/baseball/graph/game/824581",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/671976",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824583",
+      "graph": "https://w3id.org/baseball/graph/game/824583",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/695731",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824584",
+      "graph": "https://w3id.org/baseball/graph/game/824584",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/803011",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824591",
+      "graph": "https://w3id.org/baseball/graph/game/824591",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/656537",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824597",
+      "graph": "https://w3id.org/baseball/graph/game/824597",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/545341",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/606115",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/671976",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824598",
+      "graph": "https://w3id.org/baseball/graph/game/824598",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/605170",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824599",
+      "graph": "https://w3id.org/baseball/graph/game/824599",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/682668",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824600",
+      "graph": "https://w3id.org/baseball/graph/game/824600",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/664023",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824601",
+      "graph": "https://w3id.org/baseball/graph/game/824601",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/691718",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824606",
+      "graph": "https://w3id.org/baseball/graph/game/824606",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/545341",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824611",
+      "graph": "https://w3id.org/baseball/graph/game/824611",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/686452",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824613",
+      "graph": "https://w3id.org/baseball/graph/game/824613",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/643217",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/665953",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/671976",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/678391",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/682928",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/686452",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824619",
+      "graph": "https://w3id.org/baseball/graph/game/824619",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/643217",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/700337",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824621",
+      "graph": "https://w3id.org/baseball/graph/game/824621",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/664702",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/671976",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824622",
+      "graph": "https://w3id.org/baseball/graph/game/824622",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/664770",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/682668",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824628",
+      "graph": "https://w3id.org/baseball/graph/game/824628",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/624424",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824635",
+      "graph": "https://w3id.org/baseball/graph/game/824635",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/686217",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824640",
+      "graph": "https://w3id.org/baseball/graph/game/824640",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/608324",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/624424",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/695657",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824642",
+      "graph": "https://w3id.org/baseball/graph/game/824642",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/621020",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/701649",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824643",
+      "graph": "https://w3id.org/baseball/graph/game/824643",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/701675",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824650",
+      "graph": "https://w3id.org/baseball/graph/game/824650",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/663538",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824655",
+      "graph": "https://w3id.org/baseball/graph/game/824655",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/608348",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824656",
+      "graph": "https://w3id.org/baseball/graph/game/824656",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/676369",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824664",
+      "graph": "https://w3id.org/baseball/graph/game/824664",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/608348",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/664770",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/683737",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824674",
+      "graph": "https://w3id.org/baseball/graph/game/824674",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/670541",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/701305",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824678",
+      "graph": "https://w3id.org/baseball/graph/game/824678",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/592885",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824679",
+      "graph": "https://w3id.org/baseball/graph/game/824679",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/621020",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824693",
+      "graph": "https://w3id.org/baseball/graph/game/824693",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/543760",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824699",
+      "graph": "https://w3id.org/baseball/graph/game/824699",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/624424",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824700",
+      "graph": "https://w3id.org/baseball/graph/game/824700",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/608348",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824703",
+      "graph": "https://w3id.org/baseball/graph/game/824703",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/664023",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824728",
+      "graph": "https://w3id.org/baseball/graph/game/824728",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/657136",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/686668",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824729",
+      "graph": "https://w3id.org/baseball/graph/game/824729",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/657136",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824738",
+      "graph": "https://w3id.org/baseball/graph/game/824738",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/810938",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824744",
+      "graph": "https://w3id.org/baseball/graph/game/824744",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/680474",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/700250",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824747",
+      "graph": "https://w3id.org/baseball/graph/game/824747",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/677800",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/681987",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824762",
+      "graph": "https://w3id.org/baseball/graph/game/824762",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/680776",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824765",
+      "graph": "https://w3id.org/baseball/graph/game/824765",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/668723",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824769",
+      "graph": "https://w3id.org/baseball/graph/game/824769",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/694728",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/807799",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824773",
+      "graph": "https://w3id.org/baseball/graph/game/824773",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/680776",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824774",
+      "graph": "https://w3id.org/baseball/graph/game/824774",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/702332",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824778",
+      "graph": "https://w3id.org/baseball/graph/game/824778",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/650402",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824786",
+      "graph": "https://w3id.org/baseball/graph/game/824786",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/657656",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824787",
+      "graph": "https://w3id.org/baseball/graph/game/824787",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/703520",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824795",
+      "graph": "https://w3id.org/baseball/graph/game/824795",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/677942",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824799",
+      "graph": "https://w3id.org/baseball/graph/game/824799",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/656775",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824801",
+      "graph": "https://w3id.org/baseball/graph/game/824801",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/641857",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/671277",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824804",
+      "graph": "https://w3id.org/baseball/graph/game/824804",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/669236",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824807",
+      "graph": "https://w3id.org/baseball/graph/game/824807",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/544150",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/547180",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/552640",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/554430",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/592663",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/596117",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/605400",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/607208",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/621237",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/621493",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/624413",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/624641",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/641835",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/641933",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/650559",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/650911",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/650968",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/656537",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/656941",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/661395",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/663767",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/664761",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/664991",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/665750",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/666200",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/666974",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/668670",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/669016",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/669236",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/669358",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/669432",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/670329",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/677020",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/679775",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/680694",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/680742",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/681082",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/681297",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/682274",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/683002",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/687064",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/687282",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/687637",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/687952",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/689147",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/689296",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/691723",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/691725",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/702222",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/702616",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824810",
+      "graph": "https://w3id.org/baseball/graph/game/824810",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/691723",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824812",
+      "graph": "https://w3id.org/baseball/graph/game/824812",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/641933",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/683002",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824819",
+      "graph": "https://w3id.org/baseball/graph/game/824819",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/621493",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824829",
+      "graph": "https://w3id.org/baseball/graph/game/824829",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/681297",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824831",
+      "graph": "https://w3id.org/baseball/graph/game/824831",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/702616",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824843",
+      "graph": "https://w3id.org/baseball/graph/game/824843",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/502671",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824845",
+      "graph": "https://w3id.org/baseball/graph/game/824845",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/680869",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824853",
+      "graph": "https://w3id.org/baseball/graph/game/824853",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/699912",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824859",
+      "graph": "https://w3id.org/baseball/graph/game/824859",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/691723",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824867",
+      "graph": "https://w3id.org/baseball/graph/game/824867",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/660670",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/676551",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824872",
+      "graph": "https://w3id.org/baseball/graph/game/824872",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/666018",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824876",
+      "graph": "https://w3id.org/baseball/graph/game/824876",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/645277",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824877",
+      "graph": "https://w3id.org/baseball/graph/game/824877",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/645277",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824879",
+      "graph": "https://w3id.org/baseball/graph/game/824879",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/657041",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824885",
+      "graph": "https://w3id.org/baseball/graph/game/824885",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/642086",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824895",
+      "graph": "https://w3id.org/baseball/graph/game/824895",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/592518",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824897",
+      "graph": "https://w3id.org/baseball/graph/game/824897",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/642201",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824898",
+      "graph": "https://w3id.org/baseball/graph/game/824898",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/643289",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824915",
+      "graph": "https://w3id.org/baseball/graph/game/824915",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/664040",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/691373",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824920",
+      "graph": "https://w3id.org/baseball/graph/game/824920",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/573262",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824928",
+      "graph": "https://w3id.org/baseball/graph/game/824928",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/573262",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824932",
+      "graph": "https://w3id.org/baseball/graph/game/824932",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/656941",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824943",
+      "graph": "https://w3id.org/baseball/graph/game/824943",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/641680",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824951",
+      "graph": "https://w3id.org/baseball/graph/game/824951",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/641680",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/661531",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/666139",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824954",
+      "graph": "https://w3id.org/baseball/graph/game/824954",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/703607",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824960",
+      "graph": "https://w3id.org/baseball/graph/game/824960",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/677942",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824965",
+      "graph": "https://w3id.org/baseball/graph/game/824965",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/643446",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824969",
+      "graph": "https://w3id.org/baseball/graph/game/824969",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/641680",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824970",
+      "graph": "https://w3id.org/baseball/graph/game/824970",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/802415",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824985",
+      "graph": "https://w3id.org/baseball/graph/game/824985",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/660271",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824989",
+      "graph": "https://w3id.org/baseball/graph/game/824989",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/694203",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824990",
+      "graph": "https://w3id.org/baseball/graph/game/824990",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/695681",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/701762",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "824992",
+      "graph": "https://w3id.org/baseball/graph/game/824992",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/691016",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "825010",
+      "graph": "https://w3id.org/baseball/graph/game/825010",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/687363",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "825016",
+      "graph": "https://w3id.org/baseball/graph/game/825016",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/686469",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "825017",
+      "graph": "https://w3id.org/baseball/graph/game/825017",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/521692",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "825021",
+      "graph": "https://w3id.org/baseball/graph/game/825021",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/669701",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "825027",
+      "graph": "https://w3id.org/baseball/graph/game/825027",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/691016",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "825030",
+      "graph": "https://w3id.org/baseball/graph/game/825030",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/665923",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/672640",
+          "reason": "OFFICIAL_PA_POPULATION"
+        },
+        {
+          "player": "https://baseballontology.org/data/player/814439",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "825039",
+      "graph": "https://w3id.org/baseball/graph/game/825039",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/814439",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "825047",
+      "graph": "https://w3id.org/baseball/graph/game/825047",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/664983",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "825049",
+      "graph": "https://w3id.org/baseball/graph/game/825049",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/545121",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "825062",
+      "graph": "https://w3id.org/baseball/graph/game/825062",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/663368",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "825063",
+      "graph": "https://w3id.org/baseball/graph/game/825063",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/606466",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "825069",
+      "graph": "https://w3id.org/baseball/graph/game/825069",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/656484",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "825070",
+      "graph": "https://w3id.org/baseball/graph/game/825070",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/571448",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "825083",
+      "graph": "https://w3id.org/baseball/graph/game/825083",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/545121",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "825086",
+      "graph": "https://w3id.org/baseball/graph/game/825086",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/680728",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "825089",
+      "graph": "https://w3id.org/baseball/graph/game/825089",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/665742",
+          "reason": "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        }
+      ]
+    },
+    {
+      "gamePk": "825098",
+      "graph": "https://w3id.org/baseball/graph/game/825098",
+      "excludedPlayerGames": [
+        {
+          "player": "https://baseballontology.org/data/player/666971",
+          "reason": "OFFICIAL_PA_POPULATION"
+        }
+      ]
+    }
+  ]
+}

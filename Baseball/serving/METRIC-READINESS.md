@@ -61,10 +61,17 @@ are graph coverage gaps, not a query join failure. Similarly, separately
 recorded balk attribution remains under BK1 review. The overall classification
 exclusions overlap: 330 player-games involve unknown progress attribution,
 44 involve unresolved consequence coalescence, and 29 involve unknown running
-attribution. Four games retain null strikeout records followed by WP/PB and
-an additional error advance beyond first, outside the currently reviewed
+attribution. Four games retain unresolved runner-boundary census failures.
+Two retained examples have null strikeout records followed by WP/PB and an
+additional error advance beyond first, outside the currently reviewed
 two-record nonmovement selector. These facts prevent declaring the metric
 complete and must not be replaced with inferred zeroes or result-label credit.
+
+Build `20261005T141801Z-dashboard-b67ca16201fc` retains the same 700 exclusions and has not consumed
+the new eligibility proofs. [EG1](../proposals/mlb-game-empty-game-completion/README.md)
+pins those player-games across 455 games as a bounded candidate scope for
+existing-pattern additions, using retained inputs first and named-game
+acquisition only where needed. It is under review, not an execution result.
 
 The query repair separates an event's existing interval/instants from its
 optional timestamp values and keeps strike evidence tied to the particular

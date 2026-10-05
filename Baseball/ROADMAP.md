@@ -77,6 +77,13 @@ independently of exact PA totals: one independently verified official PA is
 sufficient, while zero-positive classifications still require the complete
 applicable progress inventory. Unknown classifications remain explicit.
 
+The first two scoped reader repairs are published as `e92109b` and `583006a`.
+NiFi owns their execution/publication. Actual remaining RDF omissions are
+inventoried for [EG1](proposals/mlb-game-empty-game-completion/README.md), a
+bounded existing-pattern acquisition/addition request, not a database rebuild.
+EG1 and the distinct BK1 balk selector remain under review. Neither a proposal
+nor a submitted SQL build completes Empty Games.
+
 Within that priority, use M0's query inventory and baseline, then M1 and M2. Audit and fix
 each family's extraction and calculation before using its outputs to repair
 SQL. Carry each repaired family through M9 to the live card and details; do not

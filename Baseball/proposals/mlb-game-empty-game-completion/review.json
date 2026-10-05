@@ -1,0 +1,40 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-empty-game-completion",
+  "title": "EG1 bounded existing-pattern completion for Empty Games",
+  "status": "under-review",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "0909f69a1e4677091fbc3886e7648de699a997e8c2348f5d3a7841ae768ad2dc"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "README.md",
+        "sha256": "0909f69a1e4677091fbc3886e7648de699a997e8c2348f5d3a7841ae768ad2dc"
+      },
+      {
+        "path": "candidate-inventory.json",
+        "sha256": "5cb3cf49e5ce3714974bcba52c49de56d6093a633e6f06248f33f515782365dd"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "0909f69a1e4677091fbc3886e7648de699a997e8c2348f5d3a7841ae768ad2dc"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "README.md",
+        "sha256": "0909f69a1e4677091fbc3886e7648de699a997e8c2348f5d3a7841ae768ad2dc"
+      }
+    ]
+  },
+  "ontologistDecision": null
+}
