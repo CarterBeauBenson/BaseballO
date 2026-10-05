@@ -24,6 +24,8 @@ INVENTORY=URIRef('urn:baseballo:validation:player-participation:inventory')
 # The prior version has identical roster/player checks, but no PA boundaries.
 # Preserve those results during the incremental boundary-admission rollout.
 PREVIOUS_IMPLEMENTATION='b0ac0af0b8cea1673fdb7bc4bfd1df624b387e7004b5aa495fcbebb81185b769'
+PREVIOUS_RUN_SCOPE_IMPLEMENTATION='fe9cfe7f2defc663fc065fb567bee78c15d5e3a2be41e4e156b6107f8a6c2bc7'
+RUN_TOTAL_ISSUES={'INNING_RUN_TOTAL_MISMATCH','TEAM_RUN_TOTAL_MISMATCH'}
 
 
 def fingerprint():
@@ -125,8 +127,15 @@ def outcome(source,report):
     failures={str(n) for n in report.objects(None,SH.sourceShape)}
     roster=source['roster'];people={r['player'] for r in roster}
     by_index={r['atBatIndex']:r['player'] for r in source['members'] if 'atBatIndex' in r}
-    blocked={p:[] for p in people};roster_issues=[]
+    blocked={p:[] for p in people};roster_issues=[];independent=[]
     for issue in source.get('issues',[]):
+        if (issue.get('code')=='SOURCE_RECONCILIATION'
+                and issue.get('detail',{}).get('code') in RUN_TOTAL_ISSUES):
+            # Run totals belong to E1. B1 independently checks every PA,
+            # player assignment and official PA total against the graph.
+            # Preserve the source discrepancy; it still blocks its own family.
+            independent.append(issue)
+            continue
         player=issue.get('player')
         if player and not player.startswith(B.BASE):player=B.BASE+'data/player/'+player
         if player not in people:player=by_index.get(issue.get('atBatIndex'))
@@ -144,7 +153,8 @@ def outcome(source,report):
         if 'urn:baseballo:validation:player-participation:'+player.rsplit('/',1)[-1] in failures:
             issues.append(dict(code='PLAYER_GRAPH_CONFORMANCE'))
         players.append(dict(player=player,status='withheld' if issues else 'admitted',issues=issues))
-    return dict(rosterComplete=roster_ok,plateAppearanceInventoryComplete=inventory_ok,players=players)
+    return dict(rosterComplete=roster_ok,plateAppearanceInventoryComplete=inventory_ok,players=players,
+                independentSourceIssues=independent)
 
 
 def proof_path(evidence,state,promotion):
@@ -177,10 +187,12 @@ def compound_expectations(source):
 
 def needs_compound_refresh(proof):
     # Older independent-response checks can reject the original graph's roster.
-    # Retry only that failed source-selection route; retain successful checks.
-    return bool(proof and proof.get('implementationSha256')!=fingerprint()
-        and proof.get('rosterComplete') is False
+    # Retry that route and unrelated run-total refusals; retain successful checks.
+    if not proof or proof.get('implementationSha256')==fingerprint():return False
+    return ((proof.get('rosterComplete') is False
         and proof.get('retainedSourceEvidence',{}).get('kind')=='retained-source-response')
+        or any(i.get('code')=='SOURCE_RECONCILIATION' and i.get('detail',{}).get('code') in RUN_TOTAL_ISSUES
+               for p in proof.get('players',[]) for i in p.get('issues',[])))
 
 
 def retained_source(evidence,state,promotion):

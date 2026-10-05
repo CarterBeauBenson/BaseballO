@@ -200,6 +200,14 @@ def prior_versions(kind,current):
     Keep their original producer and outcomes. A new promotion gets new paths
     and must be checked again; this is never approval of W1's missing facts.
     """
+    if kind=='players' and current==PLAYER_PARTICIPATION.fingerprint():
+        # Only the interpretation of unrelated run-total diagnostics changed.
+        # Keep original B1 graph reports; the owner retries affected negatives.
+        previous=PLAYER_PARTICIPATION.PREVIOUS_RUN_SCOPE_IMPLEMENTATION
+        return [previous,*prior_versions(kind,previous)]
+    if kind=='pa' and current==PLAYER_PARTICIPATION.PA.fingerprint():
+        previous=PLAYER_PARTICIPATION.PA.PREVIOUS_SOURCE_SELECTION
+        return [previous,*prior_versions(kind,previous)]
     record=read(COMPATIBILITY_PATH)
     for selection in selection_repairs(record):
         entry=selection.get('derivedProofs',{}).get(kind,{})
@@ -482,6 +490,7 @@ def refresh_game(state,promotion,java,classpath,endpoint='http://127.0.0.1:3031/
             and (individual is None or individual.get('implementationSha256') not in
                  [PLAYER_PARTICIPATION.fingerprint(),*prior_versions('players',PLAYER_PARTICIPATION.fingerprint())]
                  or PLAYER_PARTICIPATION.PA.needs_overlap_refresh((individual or {}).get('paBoundaries'))
+                 or PLAYER_PARTICIPATION.PA.needs_source_refresh(api,state,promotion,(individual or {}).get('paBoundaries'))
                  or PLAYER_PARTICIPATION.needs_compound_refresh(individual)
                  or corrected is not None)):
         retained=corrected or PLAYER_PARTICIPATION.retained_source(api,state,promotion)

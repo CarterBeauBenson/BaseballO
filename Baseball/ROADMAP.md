@@ -253,6 +253,15 @@ whitelist omits this provider code. Apply the existing B1 interrupted-turn
 criteria, retaining every structural and boxscore check; do not count the turn
 or use this observation to admit other `other_out` outcomes indiscriminately.
 
+October 5 execution also isolates run-total diagnostics from the independent
+player PA check. The unchanged B1 roster, PA inventory, assignment and count
+SHACL still apply; an inning/team run-total mismatch remains recorded for E1
+and does not invalidate otherwise complete PA counts. Re-reading the existing
+824295 report with this corrected scope supports all 52 player records; 824807
+still fails its PA inventory and incomplete-turn checks. NiFi must publish the
+new scoped result before those 52 records count as delivered. Successful older
+proofs are preserved, and only affected negatives are selected for this retry.
+
 ### M2. Complete progress, Empty Games and contribution channels
 
 After M1, address the independent progress exclusions: Offensive Reach currently
@@ -308,15 +317,15 @@ classification, including every applicable independent negative running episode
 once. Its current 4,917 damage exclusions across 1,464 games need exact underlying
 causes, not one blanket damage flag.
 
-October 5 diagnosis also separates outdated source expectations from missing
-RDF. `pa-boundary-admission.py:prove` always prefers the promotion's original
-boundary census to an available later source witness. In 824218, the individual
-proof retains the old PA 5 review failure while the newer whole-game boundary
-check does not. Reconcile this evidence handoff using the current, hash-bound
-source census and unchanged PA SHACL. Preserve original provenance and successful
-checks; do not rebuild runner histories merely because that reader used an older
-census. Remaining replacement and zero-episode failures still need their own
-actual source/graph diagnosis.
+October 5 execution repairs an outdated source-evidence handoff in
+`pa-boundary-admission.py:prove`. It now prefers the current, hash-bound B2
+census already checked against the same promoted graph, retaining both source
+identities and the unchanged PA SHACL. In 824218, the existing individual proof
+still carries the old PA 5 review failure; the checked current census instead
+identifies the actual seventh-inning replacement/zero-episode issues. NiFi
+retries negative PA reports when their selected census changes, preserving
+successful reports. This repair awaits publication; it does not claim to fix
+the remaining replacement or history facts, and does not rerun RML.
 
 ### M4. Finish both scoring-history metrics
 

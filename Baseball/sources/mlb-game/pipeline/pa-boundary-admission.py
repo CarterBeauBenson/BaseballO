@@ -9,6 +9,7 @@ B=importlib.util.module_from_spec(spec);spec.loader.exec_module(B)
 SHAPE=HERE.parent/'shacl/pa-boundary-admission.ttl'
 BASE=Namespace(B.B.BASE);OBO=Namespace('http://purl.obolibrary.org/obo/');SH=Namespace('http://www.w3.org/ns/shacl#')
 OVERLAP_DECISION='archive/design-records/metric-repair-scope-2026-09-30/answers.md'
+PREVIOUS_SOURCE_SELECTION='e3bfc417a834bf1df788f81eb772da9ed32615b285369d550262e4f4915941a5'
 
 
 def fingerprint():
@@ -25,6 +26,20 @@ def needs_overlap_refresh(proof):
 
 
 def retained_source(evidence,state,promotion):
+    # The current B2 owner may have checked a later retained witness against
+    # this same promoted graph. Use its checked census before the original
+    # promotion's older expectations; never replace the authoritative RDF.
+    current=evidence.EXISTING_GRAPH.load(evidence,state,promotion,'runner-boundary',B)
+    if current is not None:
+        path=evidence.refresh_path(state,promotion,'b2',current['implementationSha256'])
+        census=path.with_suffix('.source.json')
+        if evidence.sha(census)!=current.get('sourceCensusSha256'):
+            raise ValueError('Current PA boundary census changed')
+        source=evidence.read(census)
+        if source.get('gamePk')!=promotion['gamePk'] or source.get('sourceSha256')!=current.get('sourceSha256'):
+            raise ValueError('Current PA boundary census belongs to another source')
+        return source,dict(kind='checked-boundary-census',path=str(census),sha256=evidence.sha(census),
+                           boundaryProofSha256=current['proofSha256'])
     marker=evidence.checked_marker(promotion);path=Path(marker.get('runnerBoundaryAdmission',''))
     owner=(Path(state)/'pipeline/evidence/mlb-game'/promotion['gamePk']).resolve()
     if not path.is_file():return None
@@ -37,6 +52,13 @@ def retained_source(evidence,state,promotion):
     if version!=B.fingerprint() and evidence.code_equivalence('runner-boundary',version,B.fingerprint()) is None:return None
     if evidence.sha(census)!=proof.get('sourceCensusSha256'):raise ValueError('Retained PA boundary census changed')
     return evidence.read(census),dict(path=str(census),sha256=evidence.sha(census))
+
+
+def needs_source_refresh(evidence,state,promotion,proof):
+    """Retry stale negative expectations, preserving successful old reports."""
+    if not proof or not any(p.get('status')=='withheld' for p in proof.get('plateAppearances',[])):return False
+    selected=retained_source(evidence,state,promotion)
+    return selected is not None and selected[1]['sha256']!=proof.get('retainedSourceEvidence',{}).get('sha256')
 
 
 def source_issues(source,pa,half):
@@ -88,7 +110,7 @@ def shape_text(source,halves):
 
 def prove(evidence,state,promotion,rdf,session,java,classpath,raw_witness=None):
     retained=retained_source(evidence,state,promotion)
-    if retained is None:
+    if retained is None or (raw_witness and retained[1].get('kind')!='checked-boundary-census'):
         if not raw_witness:return None
         path=Path(raw_witness['path']);raw=path.read_bytes()
         if B.B.sha(raw)!=raw_witness['sha256']:raise ValueError('PA boundary witness changed')

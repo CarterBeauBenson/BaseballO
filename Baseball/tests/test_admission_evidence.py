@@ -28,6 +28,40 @@ def current_implementation(family, entry):
 
 
 class AdmissionEvidence(unittest.TestCase):
+    def test_player_pa_checks_are_independent_of_run_total_reconciliation(self):
+        owner=E.PLAYER_PARTICIPATION
+        source=owner.B.census((ROOT/'data/raw/game-566279.json').read_bytes(),'566279')
+        original=copy.deepcopy(source)
+        issue=dict(code='SOURCE_RECONCILIATION',detail=dict(code='INNING_RUN_TOTAL_MISMATCH',
+            reported=None,observedScoringRows=0,path='/liveData/linescore/innings/8/away'))
+        source['issues']=[issue];report=owner.Graph()
+        result=owner.outcome(source,report)
+        self.assertTrue(all(p['status']=='admitted' for p in result['players']))
+        self.assertEqual(result['independentSourceIssues'],[issue])
+        self.assertEqual(source,{**original,'issues':[issue]})
+        # Actual PA count/membership failures and incomplete turns still block.
+        player=source['roster'][0]['player']
+        report.add((owner.URIRef('urn:result'),owner.SH.sourceShape,owner.URIRef(
+            'urn:baseballo:validation:player-participation:'+player.rsplit('/',1)[-1])))
+        checked=owner.outcome(source,report)
+        self.assertEqual(next(p for p in checked['players'] if p['player']==player)['issues'],
+                         [dict(code='PLAYER_GRAPH_CONFORMANCE')])
+        source['issues'].append(dict(code='SOURCE_RECONCILIATION',detail=dict(code='INCOMPLETE_SOURCE_PLAY')))
+        self.assertTrue(all(p['status']=='withheld' for p in owner.outcome(source,report)['players']))
+
+    def test_run_total_scope_retries_only_affected_player_proofs(self):
+        owner=E.PLAYER_PARTICIPATION
+        old=dict(implementationSha256=owner.PREVIOUS_RUN_SCOPE_IMPLEMENTATION,rosterComplete=True,
+                 players=[dict(status='admitted',issues=[])])
+        self.assertIn(old['implementationSha256'],E.prior_versions('players',owner.fingerprint()))
+        self.assertFalse(owner.needs_compound_refresh(old))
+        old['players'][0].update(status='withheld',issues=[dict(code='PLAYER_GRAPH_CONFORMANCE')])
+        self.assertFalse(owner.needs_compound_refresh(old))
+        old['players'][0]['issues'].append(dict(code='SOURCE_RECONCILIATION',detail=dict(code='TEAM_RUN_TOTAL_MISMATCH')))
+        self.assertTrue(owner.needs_compound_refresh(old))
+        old['implementationSha256']=owner.fingerprint()
+        self.assertFalse(owner.needs_compound_refresh(old))
+
     def test_ambiguous_roster_does_not_starve_independent_families_or_become_admitted(self):
         with tempfile.TemporaryDirectory() as temp:
             state=Path(temp);promotion=dict(gamePk='1',promotionManifestSha256='promotion')

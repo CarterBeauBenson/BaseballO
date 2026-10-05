@@ -31,6 +31,21 @@ stage. This repair has not yet reached the measured publication above. RML and
 authoritative RDF are unchanged. Continue the remaining audit in the
 [active plan](../ROADMAP.md#1-complete-the-nineteen-metrics-execution-plan).
 
+The independent PA checker also no longer treats inning/team run-total
+diagnostics as failed batting counts. It retains those diagnostics for the
+scoring-run owner and still requires every applicable B1 SHACL result. Existing
+report evidence supports correcting 52 player records in 824295; 824807 remains
+withheld for its separate PA inventory/incomplete-turn failures. Two focused
+scope/retry checks pass. This is pending NiFi execution/publication, not another
+increase in the measured counts above.
+
+Per-PA boundary checks now consume the current checked B2 census for the same
+graph before falling back to original promotion evidence. A recorded example,
+824218, was retaining an obsolete PA 5 review failure despite its newer checked
+census. The source handoff and bounded negative-result retry are repaired;
+the seventh-inning replacement/history issues remain, and NiFi must run the
+unchanged PA SHACL before any resulting contribution rows can publish.
+
 ## Historical publication: October 4, 23:30 Eastern
 
 The published build is `20261005T031625Z-dashboard-5c27e45118a5`, using

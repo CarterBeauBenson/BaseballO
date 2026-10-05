@@ -1,7 +1,10 @@
 """PA scope preserves complete dependent histories and exact C1/C2 checks."""
 import copy
 import importlib.util
+from pathlib import Path
+import tempfile
 import unittest
+from unittest.mock import patch
 from pyshacl import validate
 from rdflib import Graph, Literal, RDF, URIRef
 from test_runner_boundary_admission import fixture, A
@@ -12,6 +15,33 @@ P=importlib.util.module_from_spec(spec);spec.loader.exec_module(P)
 
 
 class PaBoundary(unittest.TestCase):
+    def test_checked_current_boundary_census_replaces_only_stale_negative_expectations(self):
+        from test_admission_evidence import E
+        with tempfile.TemporaryDirectory() as temporary:
+            state=Path(temporary);promotion=dict(gamePk='1',promotionManifestSha256='promotion')
+            path=E.refresh_path(state,promotion,'b2','checked-producer').with_suffix('.source.json')
+            source=dict(gamePk='1',sourceSha256='later-source',issues=[],boundaries=[],histories=[])
+            E.atomic(path,source)
+            checked=dict(implementationSha256='checked-producer',sourceSha256='later-source',
+                sourceCensusSha256=E.sha(path),proofSha256='checked-proof')
+            old=dict(implementationSha256=P.PREVIOUS_SOURCE_SELECTION,
+                plateAppearances=[dict(status='withheld')],retainedSourceEvidence=dict(sha256='original-census'))
+            with patch.object(E.EXISTING_GRAPH,'load',return_value=checked),patch.object(
+                    E,'checked_marker',side_effect=AssertionError('do not fall back to older expectations')):
+                current,witness=P.retained_source(E,state,promotion)
+                self.assertEqual(current,source)
+                self.assertEqual(witness['boundaryProofSha256'],'checked-proof')
+                self.assertTrue(P.needs_source_refresh(E,state,promotion,old))
+                old['implementationSha256']=P.fingerprint()
+                self.assertTrue(P.needs_source_refresh(E,state,promotion,old))
+                old['retainedSourceEvidence']=witness
+                self.assertFalse(P.needs_source_refresh(E,state,promotion,old))
+                old['retainedSourceEvidence']={};old['plateAppearances'][0]['status']='admitted'
+                self.assertFalse(P.needs_source_refresh(E,state,promotion,old))
+                path.write_text('{}',encoding='utf-8')
+                with self.assertRaisesRegex(ValueError,'census changed'):
+                    P.retained_source(E,state,promotion)
+
     def population(self):
         graph,source=fixture();pa=source['boundaries'][0]['pa'];half=source['game']+'/inning/1/top'
         second=pa.rsplit('/',1)[0]+'/1'
