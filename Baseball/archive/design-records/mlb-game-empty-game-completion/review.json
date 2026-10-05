@@ -1,0 +1,45 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-empty-game-completion",
+  "title": "EG1 bounded existing-pattern completion for Empty Games",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "161509a8bc699338f44548390d6902612fab23b8e6dfb3fceb960fad8377dc9a"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "README.md",
+        "sha256": "161509a8bc699338f44548390d6902612fab23b8e6dfb3fceb960fad8377dc9a"
+      },
+      {
+        "path": "candidate-inventory.json",
+        "sha256": "5cb3cf49e5ce3714974bcba52c49de56d6093a633e6f06248f33f515782365dd"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "161509a8bc699338f44548390d6902612fab23b8e6dfb3fceb960fad8377dc9a"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "README.md",
+        "sha256": "161509a8bc699338f44548390d6902612fab23b8e6dfb3fceb960fad8377dc9a"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-10-05",
+    "rationale": "The user replied \"Approve and Approve\" to the explicit request to approve EG1 targeted Empty Games repairs and BK1 balk mapping. Authorize the inventoried, bounded existing-pattern additions and only necessary named-game source acquisition; preserve all existing RDF and reuse accepted selectors."
+  }
+}

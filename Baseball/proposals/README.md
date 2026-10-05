@@ -37,6 +37,8 @@ Recent accepted packages include:
 
 | Decision | Accepted scope |
 | --- | --- |
+| [EG1](../archive/design-records/mlb-game-empty-game-completion/README.md) | Bounded existing-pattern additions for the inventoried Empty Game exclusions |
+| [BK1](../archive/design-records/mlb-game-balk-runner-attribution/README.md) | Separately recorded balk attribution and targeted additions |
 | [F8](../archive/design-records/mlb-game-foul-substitution-review-completion/README.md) | Counted-foul substitutions and paired reviews |
 | [P1](../archive/design-records/mlb-game-actual-pitcher-participation/README.md) | Actual pitching participation across a replacement |
 | [H4](../archive/design-records/mlb-game-runner-review-completion/README.md) | Runner-review completion |

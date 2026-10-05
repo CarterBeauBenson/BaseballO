@@ -11,6 +11,11 @@ it. Use [`../../ROADMAP.md`](../../ROADMAP.md), the active subsystem READMEs,
 and machine-readable contracts for current behavior. The list below highlights
 important records but is not intended to enumerate every archived package.
 
+- [EG1](mlb-game-empty-game-completion/README.md) and
+  [BK1](mlb-game-balk-runner-attribution/README.md), accepted October 5, 2026:
+  targeted Empty Game completion and separately recorded balk attribution,
+  preserving existing RDF and introducing no ontology terms or properties.
+
 - [`replay-review/`](replay-review/) — accepted on 2026-08-05 and implemented
   in the authoritative ontology and MLB game source module.
 - [`game-season-process-and-team-context/`](game-season-process-and-team-context/)

@@ -1,0 +1,50 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-balk-runner-attribution",
+  "title": "BK1 separately recorded balk runner attribution",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "5a6634d12159b44705d31ec3a63073c7e699158195ad46c6a91f528d6d3159e5"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "README.md",
+        "sha256": "5a6634d12159b44705d31ec3a63073c7e699158195ad46c6a91f528d6d3159e5"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "5a6634d12159b44705d31ec3a63073c7e699158195ad46c6a91f528d6d3159e5"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "source-independent-mermaid.md",
+        "sha256": "fdc53ebd2f969ca549b649cdcaf598414ae1be79ac0ccfc07590a9a6d8881578"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-10-05",
+    "rationale": "The user replied \"Approve and Approve\" to the explicit request to approve EG1 targeted Empty Games repairs and BK1 balk mapping. Authorize the reviewed separately recorded balk selector, existing world-side/record pattern, future-game handling, targeted additions and scoped mapping/context/runtime pins. No new classes, object properties, whole-game replacement or database rebuild.",
+    "authorizedArtifacts": [
+      "Baseball/scripts/pipeline/prepare-rml-context.py",
+      "Baseball/sources/mlb-game/mapping/mlb-game.rml.ttl",
+      "Baseball/sources/mlb-game/mapping/iri-policy.yaml",
+      "Baseball/sources/mlb-game/mapping/mapping-coverage.yaml",
+      "Baseball/sources/mlb-game/review/semantic-status.json",
+      "Baseball/sources/mlb-game/review/rml-mermaid-manifest.json",
+      "Baseball/governance/semantic-freeze.json"
+    ]
+  }
+}

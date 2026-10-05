@@ -1,7 +1,7 @@
 # BK1: attribute separately recorded balk advances
 
-**Under review. No executable mapping or semantic pin changes are authorized
-by this document.** This is existing MLB-game mapping coverage, not a new source.
+Accepted by Carter Beau Benson on October 5, 2026: **Approve and Approve**,
+in direct response to the named EG1 and BK1 requests. This is existing MLB-game mapping coverage, not a new source.
 
 The metric policy already includes balk advances in independent running. The
 current RML types a Balk Process only when the PA's final result is `balk`.
@@ -9,7 +9,7 @@ A separately recorded balk before a strikeout or walk therefore has ordinary
 runner facts but no structured balk attribution. The serving reader must not
 recover that meaning from a display label.
 
-## Proposed decision and questions
+## Accepted decision
 
 1. Represent an explicitly recorded, operative balk within a PA with the
    existing `BalkProcess`, its existing `UmpireJudgmentAct`, a
@@ -29,8 +29,8 @@ recover that meaning from a display label.
    or blanket source reacquisition is part of BK1.
 
 The proposed world-side pattern is in
-[the review diagram](source-independent-mermaid.md). Approval must identify
-BK1 before executable RML/source-selection changes or scoped semantic pins.
+[the review diagram](source-independent-mermaid.md). The named approval authorizes executable RML/source-selection changes and
+their scoped semantic pins after this decision is published.
 
 ## Evidence and exact selection
 

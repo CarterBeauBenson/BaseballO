@@ -79,9 +79,9 @@ applicable progress inventory. Unknown classifications remain explicit.
 
 The first two scoped reader repairs are published as `e92109b` and `583006a`.
 NiFi owns their execution/publication. Actual remaining RDF omissions are
-inventoried for [EG1](proposals/mlb-game-empty-game-completion/README.md), a
+inventoried for [EG1](archive/design-records/mlb-game-empty-game-completion/README.md), a
 bounded existing-pattern acquisition/addition request, not a database rebuild.
-EG1 and the distinct BK1 balk selector remain under review. Neither a proposal
+EG1 and the distinct BK1 balk selector were accepted on October 5. Neither approval
 nor a submitted SQL build completes Empty Games.
 
 Within that priority, use M0's query inventory and baseline, then M1 and M2. Audit and fix
@@ -314,9 +314,9 @@ October 5 diagnosis: game 822679, PA 65 has a first-to-second runner movement
 whose record says `Balk`, without structured balk attribution. The RML selector
 only handles a final PA result of `balk`; the checked-in game 566279, PA 12
 independently demonstrates a balk before a later walk. The concrete
-[BK1 proposal](proposals/mlb-game-balk-runner-attribution/README.md) requests
-the narrow event/runner selection and additive repair. Its named approval is
-pending. Do not substitute literal matching in SPARQL or SQL for that pattern.
+[BK1 decision](archive/design-records/mlb-game-balk-runner-attribution/README.md) authorizes
+the narrow event/runner selection and additive repair, accepted October 5.
+Do not substitute literal matching in SPARQL or SQL for that pattern.
 
 ### M3. Complete PA contribution, runner loss and damage
 

@@ -68,10 +68,10 @@ two-record nonmovement selector. These facts prevent declaring the metric
 complete and must not be replaced with inferred zeroes or result-label credit.
 
 Build `20261005T141801Z-dashboard-b67ca16201fc` retains the same 700 exclusions and has not consumed
-the new eligibility proofs. [EG1](../proposals/mlb-game-empty-game-completion/README.md)
+the new eligibility proofs. [EG1](../archive/design-records/mlb-game-empty-game-completion/README.md)
 pins those player-games across 455 games as a bounded candidate scope for
 existing-pattern additions, using retained inputs first and named-game
-acquisition only where needed. It is under review, not an execution result.
+acquisition only where needed. It was accepted on October 5; approval is not an execution result.
 
 The query repair separates an event's existing interval/instants from its
 optional timestamp values and keeps strike evidence tied to the particular
@@ -179,7 +179,7 @@ comparison returned identical results for 159 games in 1.46 seconds versus
 7.23 seconds for the warmed prior query; the earlier cold read took 23.29 seconds.
 These are direct SQL-reader measurements, not a new live HTTP or browser claim.
 
-The concrete [BK1 mapping review](../proposals/mlb-game-balk-runner-attribution/README.md)
+The concrete [BK1 mapping review](../archive/design-records/mlb-game-balk-runner-attribution/README.md)
 addresses separately recorded balk advances. It remains pending named approval.
 Other recorded work includes the interrupted-turn `other_out` admission case
 and the stale per-PA boundary-census handoff described in the

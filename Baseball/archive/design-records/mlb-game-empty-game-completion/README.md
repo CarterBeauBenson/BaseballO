@@ -1,11 +1,12 @@
 # EG1: targeted existing-pattern completion for Empty Games
 
-**Under review. No execution approval is recorded.** This package requests
+Accepted by Carter Beau Benson on October 5, 2026: **Approve and Approve**,
+in direct response to the named EG1 and BK1 requests. This decision authorizes
 bounded acquisition and additive execution of existing MLB-game mappings. It
 proposes no ontology terms, object properties, identity rules, mapping selectors
 or semantic freeze changes.
 
-## Requested scope
+## Accepted scope
 
 Finish the existing-pattern repairs needed by Empty Games for the player-games
 in [the candidate inventory](candidate-inventory.json): 700 currently excluded
@@ -76,7 +77,8 @@ resolved candidates before acquisition or mapping.
 
 [BK1](../mlb-game-balk-runner-attribution/README.md) separately proposes the
 generic mapping for explicitly recorded balks before a later batting result.
-It remains under review and is not silently authorized by EG1. Game 823895 PA
+BK1 was separately accepted in the same user response; its selector remains a
+separate implementation scope from EG1. Game 823895 PA
 64 supplies another retained example: two balk advances precede a flyout, and
 the graph lacks the balk attribution. The batting out does not assign those
 advances to the batter.
@@ -105,8 +107,8 @@ card/detail rankings and no hidden unresolved player-games.
 | Unmatched identities, unreviewed selector variants | Unresolved | Keep the affected classification unknown |
 
 The world-side patterns are unchanged from the accepted
-[R1 decision](../../archive/design-records/mlb-game-runner-pattern-completion/README.md),
-[K1 decision](../../archive/design-records/mlb-game-strikeout-double-play/README.md),
+[R1 decision](../mlb-game-runner-pattern-completion/README.md),
+[K1 decision](../mlb-game-strikeout-double-play/README.md),
 and their reviewed source-independent diagrams. This package expands bounded
 execution scope only; it does not create a new modeling proposal for those patterns.
 
