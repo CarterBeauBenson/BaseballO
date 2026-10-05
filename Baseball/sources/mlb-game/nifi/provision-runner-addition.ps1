@@ -8,7 +8,9 @@ $control = Join-Path $script:StateRoot 'pipeline\control\mlb-game'
 [void](New-Item -ItemType Directory -Force -Path $control)
 $config = Join-Path $control 'runner-addition-worker.json'
 @{
-    group='MLB Game'; name='Add Approved R1 Runner Patterns'; period='1 min'
+    # SQL can publish and restart inside a minute. Check the existing shared
+    # lease often enough to enter that gap; concurrency remains one game.
+    group='MLB Game'; name='Add Approved R1 Runner Patterns'; period='20 sec'
     timerEnabled=[bool]$Start
     workingDirectory=$repositoryRoot; python=(Get-Command powershell.exe).Source
     arguments=@('-NoProfile','-ExecutionPolicy','Bypass','-File',

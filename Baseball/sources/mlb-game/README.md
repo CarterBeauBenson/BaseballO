@@ -246,6 +246,9 @@ uses source SHACL, and emits the existing graph-promotion event. Terminal result
 and unresolved selections live in `pipeline/control/mlb-game/empty-game-addition/`
 and appear in the existing repair observer. A successful addition does not itself
 mean that the corresponding full-season player total has reached SQL or the UI.
+Its timer checks every 20 seconds so it can use the short gap between SQL
+builds. The existing shared lease and memory check still allow only one heavy
+worker, and each repair invocation handles one game.
 
 ### Automatic repair observations
 
