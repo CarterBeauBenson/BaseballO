@@ -29,6 +29,12 @@ permission is not a standing rebuild instruction.
 
 Updated October 5, 2026. The measured starting publication remains
 `20261005T031625Z-dashboard-5c27e45118a5` (October 5 at 03:30 UTC).
+The October 5 planning update explicitly includes auditing and rewriting the
+SPARQL, not just repairing SQL consumers. Existing extraction queries,
+calculation queries and adapters are all subject to correction against accepted
+meanings and the current promoted graph. None is presumed correct because it
+previously worked or because SQL reproduces its output. This update is a plan;
+it does not claim a fresh runtime measurement or completed implementation.
 This section supersedes the older metric work lists and pending-publication
 statements in the historical readiness notes. It is the single continuation
 plan; use [metric readiness](serving/METRIC-READINESS.md) for dated measurements
@@ -63,16 +69,30 @@ displayed subset. Do not reopen these choices or lower thresholds to fill cards.
 
 ### Execution order and dependencies
 
-Start with M0 and M1, then M2 and M3. M4 and M5 are independent offensive work.
+Start with M0's query inventory and baseline, then M1, M2 and M3. Audit and fix
+each family's extraction and calculation before using its outputs to repair
+SQL. Carry each repaired family through M9 to the live card and details; do not
+stop at a query result or wait to finish every family before publishing one.
+M4 and M5 are independent offensive work.
 M6 and M7 must also be completed, but cannot hold up publication of supported
 offense. M8 runs separately for each reference family as its own inputs become
 complete. M9 applies at every publication and again to the finished season.
+M0 tracks coverage across the suite, but each family can proceed once its own
+query path is assessed; completing the entire audit is not a new release gate
+for an independently repaired family.
 NiFi retains the existing shared memory limit; these are work streams, not an
 instruction to launch additional simultaneous heavy workers or new source lanes.
 
+First distinguish the four October 5 changes already pushed from open repairs:
+priority for missing individual proofs, post-T1 census compatibility, complete
+individual B1 reference inputs, and the selected-range index fix. Read the next
+existing publication/terminal record once to establish which are deployed and
+what changed. Do not reimplement them or wait on a healthy worker before doing
+independent query work. Keep the dated baseline until new measured results exist.
+
 | Work | Depends on | Component owner | Completion evidence |
 | --- | --- | --- | --- |
-| M0: classify every exclusion | Current immutable publication | Existing dashboard build diagnostics | Every withheld player/game/metric has a specific cause, affected identity and repair owner |
+| M0: audit SPARQL and trace every exclusion | Current promoted RDF, accepted metric contracts and immutable publication | Evidence queries, generated kernels, adapters and existing build diagnostics | All nineteen paths traced; extraction and arithmetic assessed independently; every exclusion has a cause, affected identity and owner |
 | M1: official PA participation | M0 | MLB admission evidence, player projection | Every eligible player's PA census resolved; no unexplained null PA records |
 | M2: progress and Empty Games | M1 plus affected progress facts | SPARQL, metric inputs, player projection | Complete progress/classification/channel products for applicable player-games |
 | M3: contribution, outs and erosion | M1 plus affected boundary/resolution facts | SPARQL, contribution inputs, existing source evidence owner | Complete attributed PA scores and independent running losses |
@@ -83,7 +103,71 @@ instruction to launch additional simultaneous heavy workers or new source lanes.
 | M8: four season references | Per-family dependencies below | Reference products and SQL owner | Complete current-cutoff rank and player products for all four families |
 | M9: publication, performance and UI | Each completed family; finally M1-M8 | Dashboard SQL owner and web interface | Published full-season results, exact details and bounded response times |
 
-### M0. Classify exclusions once, using the owning evidence
+### M0. Audit and repair SPARQL, then classify every exclusion
+
+Trace all nineteen stable metric IDs from the catalog through the actual
+runtime query, binding normalizer, calculation, player product, HTTP adapter
+and card. Record the first incorrect or absent result in the existing build
+diagnostics and this plan's family item. A catalog entry or generated query
+alone does not prove that the dashboard executes it. Include every live
+equivalent implementation; keep diagnostic-only queries identified as such.
+
+#### Extraction queries and graph assumptions
+
+| Query / component | Required review |
+| --- | --- |
+| `sparql/metrics/suite-evidence.rq` | Complete PA/result, player/team, run, review, defensive-act and history inventories; actual agents versus statistical credit; source-scoped joins |
+| `runner-movement-evidence.rq` and `attribution-evidence.rq` | Correct act/episode/resolution/runner identity, explicit origins and endpoints, contact versus award versus independent running; distinguish diagnostic counts from scoring inputs |
+| `runner-location-evidence.rq` | Accepted stasis/site/history paths and supported interval overlap; missing timestamps must not discard facts that do not require timing |
+| `pitch-count-evidence.rq` | Complete applicable count histories, automatic awards, counted fouls, interrupted turns and operative results under the accepted policies |
+| `serving/metric_suite.py:evidence_query` and `normalize_bindings` | The composed runtime query, explicit named-graph dataset, projected columns and RDF datatypes; preserve identities, unbound fields and applicability through serialization |
+| `sparql/source-scope-catalog.json` and the runtime graph/index selection | Correct declared source scope and promoted graph version; identify any actual indexed route and compare it with its authoritative query |
+
+For each path, compare its joins with the accepted graph contract and concrete
+current RDF. Inspect mandatory versus optional patterns, filters on unbound
+variables, fixed parthood depth, property paths, type/entailment assumptions,
+IRI-pattern assumptions and result-type selection. These are audit targets,
+not findings that every such construct is wrong. Use the configured reasoning
+contract; do not recreate ontology inference in the reader.
+
+Establish row identity and expected cardinality before aggregation. Look for
+multiplied rows from roles, results, histories, judgments or multiple RDF types;
+`DISTINCT` over an entire wide row is not proof of one observation per event.
+Keep an unresolved applicable observation visible instead of losing it in an
+inner join, `FILTER`, `OPTIONAL` combination or empty aggregate. Preserve the
+separate roster/PA/run/decision census: the returned rows alone cannot prove
+that nothing is missing. Conversely, remove accidental dependencies on unrelated
+families or on order where the accepted metric needs only distinct acts.
+
+Rewrite defective queries generically for the accepted pattern, including
+splitting an oversized extraction into bounded family queries when justified
+by correctness or recorded cost. Do not introduce game-ID exceptions or broaden
+paths until unrelated acts happen to match. Maintain explicit graph scope and
+stable output contracts; update consumers in the same repair if that contract
+must change. A query repair over existing terms needs no new RML proposal.
+
+#### Calculation queries and adapters
+
+Review the public kernels in `sparql/serving/metric-kernels/`, their generator
+`scripts/generate_metric_suite.py`, and the executed reducers in
+`serving/metric_suite.py`, `metric_blocks.py` and `reference_products.py`.
+Verify the equation, observation grain, attribution, numerator/denominator,
+applicability, exact arithmetic, tie handling and reference cutoff against the
+accepted calculation contract and decisions. Correct generated queries through
+their generator and keep the runtime implementation consistent. Do not assume
+that passing the old query's output unchanged into SQL establishes correctness.
+
+Use a small set of concrete retained/promoted examples with independently
+derived expected answers under the accepted definitions. Cover the ordinary
+case and the failure being repaired, including relevant substitutions, multiple
+runner segments, independent advances, third outs, overlapping histories or
+reviews. Compare **RDF referents -> SPARQL bindings -> metric inputs -> exact
+score** to locate the first discrepancy. Include an applicable missing-fact
+case that must remain unknown. Extend the existing focused analytical tests
+for a substantive defect; do not create another corpus-validation framework.
+NiFi owns repeatable extraction and its recorded timings on the affected set.
+
+#### Classify exclusions using the owning evidence
 
 Extend the existing build diagnostics instead of adding a release gate or a
 second validation framework. Retain the game, PA/run/review/player identity,
@@ -106,6 +190,12 @@ and absent authoritative triple are different findings. Never translate one
 into another automatically. Diagnosis starts from terminal NiFi evidence and
 prepared SQL; bounded RDF queries answer specific unresolved questions. Do not
 run a manual corpus-wide semantic validation pass.
+
+M0 closes only when every public path has an explicit audit disposition and
+every discovered defect has its family repair and affected scope recorded.
+An unreviewed query is still open even if its card currently has numbers. A
+family cannot close until its query corrections reach the SQL and UI through
+M9; recording a defect in this plan is not repairing it.
 
 ### M1. Repair official PA participation first
 
@@ -338,49 +428,146 @@ comparison. Changing display dates must select/pool retained results without
 recomputing a season or changing the intended comparison population. Diagnose
 missing input, missing prepared reference and wrong cutoff/key as separate errors.
 
-### M9. Publish incrementally and verify the actual user experience
+### M9. Finish SQL, publication, API and UI for each repaired family
 
-The existing Dashboard SQL owner refreshes affected game/family/player/reference
-products and publishes its immutable candidate atomically. Reuse unchanged RDF
-bindings and calculated products. A presentation or scheduler edit must not
-invalidate semantic admissions or trigger RML. Keep the report builder, authority
-SQL and source lanes independent. Record the code version and build actually
-serving the page; code on `dev` alone does not prove runtime deployment.
+#### M9.1. Prepare correct player products in SQL
 
-Investigate broad invalidation and empty rebuilds using existing progress timings:
-the latest build reused all 2,444 active game products, yet spent about 241 seconds
-on snapshot capture and 543 seconds on input refresh. Remove unnecessary work
-through scoped identities/event handling and supported proof reuse, without
-relabeling stale evidence as current. Keep original proof hashes and outcomes.
-This performance task must not delay a correct partial publication.
+Owners: `serving/metric_blocks.py`, `player_ranges.py`, `reference_products.py`,
+`metric-suite-schema.sql` and `scripts/pipeline/materialize-dashboard.py`.
+Follow each corrected query result through the persisted game inputs and player
+projection. Diagnose a lost binding, wrong calculation, incomplete product,
+stale partition and missing publication separately. Remove obsolete unavailable
+branches only when their producer supplies the accepted complete inputs.
 
-For each released family, compare the full-season card and detail results from
-the same publication. At the end check the default season, a month, a week, an
-arbitrary cross-month range and a range with no eligible observations. Verify:
+Use the existing products rather than introduce a second serving system:
 
-- Automatic loading and top five by the selected period, with real player names;
-  clicking a card shows the same ranking, values, denominator and qualification.
-- Correct means/counts, ties, full-range exposure (including team changes), zero
-  PA versus unknown PA, count metrics without rate minima, and separated review
-  mechanisms. No silent date narrowing or missing-observation deletion.
-- Clear distinctions among incomplete evidence, not applicable, no qualifiers
-  and a real zero. Public explanations use baseball concepts; detailed backend
-  evidence remains available for diagnosis without cluttering cards.
-- Full-season and custom-range requests read prepared SQL only. The last observed
-  custom range took 22.4 seconds; inspect its query plan and move expensive
-  reconstruction/decoding into the existing NiFi build. Engineering target:
-  at most 2 seconds for warm data responses and 5 seconds for a first load on
-  this host. Record actual end-to-end timings and remaining misses.
-- Browser interaction, not just HTTP success. Browser automation was unavailable
-  at the last check, so visual/card-click verification remains an explicit task.
-- One owning-stage incremental refresh and failure/retry demonstrates that new
-  results appear without losing the last usable publication or replaying sources.
+| Product | Required behavior |
+| --- | --- |
+| `game_dimension`, schedule coverage and `dashboard_player_game` | Complete selected game scope, player identity, official PA counts and applicable team exposure; known zero stays distinct from unknown |
+| `metric_suite_input_*` and calculated game products | Traceable inputs and correct calculations from existing RDF; intermediate bindings stay build-side |
+| `dashboard_player_metric` | Complete per-game/player/family aggregation components, observation counts, applicability and localized exclusion reason |
+| `metric_suite_reference_rank` and `dashboard_reference_players` | All four complete eligible reference populations and matching player products, keyed to season, cutoff and actual inputs |
+| `dashboard_display_label` | Prepared names for every displayed player, including review mechanisms; no request-time RDF name lookup |
+| `dashboard_prepared_range` | Correct default full-season response; invalidate affected cached ranges when their query, inputs or reference changes |
 
-Use a focused regression for each substantive repaired cause, including a case
-that must remain unresolved. NiFi runs the applicable existing conformance and
-publication checks asynchronously. Do not add a giant manual final validation
-suite or restore GitHub checks. Finish with live qualified-player counts,
-remaining exclusions and matching card/detail results for every metric.
+Pool sums and observation denominators over the selected period; do not average
+game averages or count a duplicate observation twice. Keep Empty Games as an
+unthresholded count, including supported zero totals. Pool Contribution Mix's
+exact channel counts before its accepted entropy calculation. Apply rate/average
+qualification after obtaining complete selected-range participation, including
+applicable multi-team exposure. Never lower the denominator to the subset that
+survived a query or proof failure. Reference qualification and display minima
+remain different operations.
+
+Store enough calculated components for arbitrary date ranges without replaying
+PA histories, source proofs or season ranks on each request. Inspect actual
+query plans, rows read and decoding costs before choosing indexes or replacing
+large JSON aggregates with suitable SQL columns. Keep migrations and partition
+updates idempotent; retain the old serving snapshot while a candidate is built.
+This stage closes with matching exact query/calculation and persisted player
+results, with every excluded observation accounted for in its own family.
+
+#### M9.2. Keep refreshes scoped and publish through NiFi
+
+The existing Dashboard SQL owner refreshes affected products and publishes its
+immutable candidate atomically through `serving_release.py`. Scope invalidation
+to the dependency that changed:
+
+| Change | Refresh | Preserve |
+| --- | --- | --- |
+| Evidence SPARQL or binding contract | Affected query results and dependent family/player/reference products over existing promoted graphs | Authoritative RDF, source admissions and unrelated families |
+| Calculation or player projection | Affected derived products using retained compatible RDF bindings; dependent references/ranges | Unchanged extraction and source work |
+| Current source proof or authorized additive RDF repair | Affected graph/fact dependencies, player products and dependent references/ranges | Unrelated RDF, valid proofs and other families |
+| Labels, HTTP or presentation | Its labels, reader or UI; affected prepared responses only when their contract changes | Baseball calculations and source ingestion |
+
+An audit spanning the season may require refreshing derived SQL across the
+season; that is not authorization to regenerate season RDF. Retain the exact
+original provenance when reusing proofs. An unchanged consumer must not be
+invalidated just because a shared file or unrelated family changed.
+
+Use existing checkpoints, bounded retries and the shared memory limit. Keep
+the report builder, authority SQL and source lanes independent. Inspect the
+recorded time spent waiting for the shared worker and the existing scheduler's
+fairness; prevent healthy legacy-report work from indefinitely starving the
+dashboard without adding simultaneous heavy workers. Investigate broad
+invalidation and empty rebuilds: the measured build reused all 2,444 active game
+products yet spent about 241 seconds on snapshot capture and 543 seconds on
+input refresh. Improve the identified owning component, not the broad topology.
+This performance work must not delay a correct partial publication.
+
+Use the existing compatible reader/SQL publication pairing and atomic pointer.
+A failed candidate leaves the previous usable publication intact. Existing
+retry evidence or a focused recovery test must demonstrate this; do not disrupt
+the live store to manufacture a failure. Record the build and code version
+actually serving the page. A pushed commit or submitted job is not deployment.
+
+#### M9.3. Make the HTTP reader serve the selected range correctly
+
+Owners: `serving/player_range_query.py`,
+`web/query-builder/metric-suite-query-builder.js` and `web/server.mjs`.
+Trace `/api/metrics/dashboard` and the detail route through one compatible
+published snapshot. Align metric IDs, range inclusivity, season/cutoff, exact
+values, participation, names, ranking direction and gap status. Card and detail
+must agree for the same publication and selection; do not mix an old summary
+with newly published detail rows. Reject malformed date requests without
+silently substituting one day or narrowing to passing games.
+
+The full-season response may use its prepared range. Custom ranges perform
+indexed filtering and lightweight pooling over prepared player products. Both
+paths must have the same accepted meaning and require no Fuseki connection,
+raw evidence fallback or season-wide recalculation. Both review metrics need
+real player products and separate mechanism denominators in this reader;
+removing a placeholder status alone is not integration.
+
+The October 5 direct SQL fix reduced a measured 159-game query from 7.23 to 1.46
+seconds warm, with identical results; it has not established live HTTP/browser
+performance. Profile the complete request, including process startup, snapshot
+opening, SQL, decoding and serialization. Engineering target: at most 2 seconds
+for warm data responses and 5 seconds for a first load on this host. Record the
+actual timings and fix the measured bottleneck; do not call a timeout increase
+or a fast cached example the solution.
+
+#### M9.4. Finish the dashboard's user flow
+
+Owner: `web/metrics.js` and the existing metric presentation/qualification
+contracts. Repair behavior where it is broken; retain existing working parts.
+
+- Default to the full regular season on first visit, automatically load all
+  nineteen cards, and honor an explicitly selected/restored valid range. There
+  is no required initial click on "Load dashboard."
+- Show each card's top five qualified player names and metric values for that
+  exact range, or the actual smaller qualifying population. Empty Games includes
+  every eligible player's supported count without a rate minimum.
+- Refresh all cards when the range changes. Cancel obsolete requests and prevent
+  late responses from overwriting the current selection. Keep loading, errors
+  and retry understandable; do not leave stale scores labeled with new dates.
+- Open the full ranking on card selection, with matching values, ties, selected
+  dates, applicable denominator/minimum and the existing detail/download flow.
+  Keep traditional replay and ball/strike challenges visibly separate.
+- Distinguish incomplete evidence, not applicable, no qualifiers and a real zero.
+  Use accepted public names and baseball explanations. Role machinery remains
+  backend-only; no twentieth public metric is introduced.
+
+#### M9.5. Close against the live nineteen-card result
+
+For each family, follow concrete corrected observations into its published SQL,
+HTTP response, card and detail. Then check the default full season, a month, a
+week, an arbitrary cross-month range and a range with no eligible observations.
+Include ties, a player changing teams, known zero versus unknown PA, rate minima
+versus counts, and the complete-reference cutoff behavior where applicable.
+
+Verify browser loading and card interaction as well as HTTP results. Browser
+automation was unavailable at the last check; this remains unperformed, not
+implicitly passed. Use one useful focused regression for each substantive
+repair and let NiFi run its applicable existing checks asynchronously. Do not
+add a giant manual final validation suite or restore GitHub checks.
+
+Update the existing readiness record with the serving build, complete and
+qualified player counts, remaining exclusions, query/calculation/SQL agreement,
+matching card/detail results and measured response times. No family closes on
+tests or nonzero row counts alone. All nineteen close only when their complete
+applicable populations and selected-range behavior are correct; a genuine
+source or semantic blocker keeps the affected item and the overall goal open.
 
 ### Nineteen-card accountability
 
@@ -388,27 +575,33 @@ These are full-season baseline ranked-player counts, not targets to manufacture.
 A high player count is not proof of correct coverage; one qualified player is
 not completion of a season population.
 
-| Public metric | Current ranked players | Closing work |
-| --- | ---: | --- |
-| Plate Appearance Contribution | 0 | M1, M3, M9 |
-| Plate Appearance Quality | 0 | M1, M3, M8, M9 |
-| Situation-Adjusted PAQ | 0 | M1, M3, M8, M9 |
-| Offensive Reach | 1 | M1, M2, M9 |
-| Help Without Advancing | 3 | M1, M2, M9 |
-| Runner Out Rate | 0 | M1, M3, M9 |
-| Runner Loss per PA | 0 | M1, M3, M9 |
-| Scoring Opportunity Lost | 0 | M1, M3, M9 |
-| Empty Games | 204 | M1, M2, M9 |
-| Empty Game Damage | 0 | M1, M2, M3, M9 |
-| Contribution Mix | 0 | M1, M2, M9 |
-| Two-Strike Extension Rank | 0 | M1, M5, M8, M9 |
-| Defensive Acts | 0 | M6, M9 |
-| Defenders Involved | 0 | M6, M9 |
-| Scoring History Length | 196 | M4, M9 |
-| Run Contributors | 9 | M2 attribution, M4, M9 |
-| Replay Overturn Rate | 0 | M7, M9 |
-| Outcomes Changed by Review | 0 | M7, M9 |
-| PAQ with Tie-Breakers | 0 | M1, M3, M5, M6, M8, M9 |
+M0's extraction/kernel audit applies to every row, including the five currently
+populated cards. Stable IDs connect the public names to the actual query,
+calculation, SQL product and route; they are not permission to keep an obsolete
+formula or return a placeholder. The family items describe the known starting
+defects, not a limit on correcting additional query or serving defects found.
+
+| Public metric | Stable ID | Baseline ranked players | Closing work after M0 |
+| --- | --- | ---: | --- |
+| Plate Appearance Contribution | `tfs` | 0 | M1, M3, M9 |
+| Plate Appearance Quality | `paq-2` | 0 | M1, M3, M8, M9 |
+| Situation-Adjusted PAQ | `paq-a` | 0 | M1, M3, M8, M9 |
+| Offensive Reach | `offensive-reach` | 1 | M1, M2, M9 |
+| Help Without Advancing | `hidden-help-rate` | 3 | M1, M2, M9 |
+| Runner Out Rate | `rally-kill-rate` | 0 | M1, M3, M9 |
+| Runner Loss per PA | `rally-kill-severity` | 0 | M1, M3, M9 |
+| Scoring Opportunity Lost | `opportunity-erosion` | 0 | M1, M3, M9 |
+| Empty Games | `empty-game-rate` | 204 | M1, M2, M9 |
+| Empty Game Damage | `empty-game-damage` | 0 | M1, M2, M3, M9 |
+| Contribution Mix | `contribution-path-diversity` | 0 | M1, M2, M9 |
+| Two-Strike Extension Rank | `recovery-quality` | 0 | M1, M5, M8, M9 |
+| Defensive Acts | `resolution-depth` | 0 | M6, M9 |
+| Defenders Involved | `defender-breadth` | 0 | M6, M9 |
+| Scoring History Length | `run-construction-depth` | 196 | M4, M9 |
+| Run Contributors | `run-construction-breadth` | 9 | M2 attribution, M4, M9 |
+| Replay Overturn Rate | `adjudication-volatility` | 0 | M7, M9 |
+| Outcomes Changed by Review | `review-dependence-rate` | 0 | M7, M9 |
+| PAQ with Tie-Breakers | `paq-2.1` | 0 | M1, M3, M5, M6, M8, M9 |
 
 ### Authorization and continuation rules
 

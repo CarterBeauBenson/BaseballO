@@ -49,8 +49,14 @@ only one early recovery cutoff, not the required full-season references. Both
 review-player integrations are still unfinished.
 
 The complete execution order, exact first fifteen games, component owners,
-dependencies and nineteen-card completion criteria are now in the
+dependencies and nineteen-card completion criteria are in the
 [active repair plan](../ROADMAP.md#1-complete-the-nineteen-metrics-execution-plan).
+Its October 5 update starts with auditing and, where necessary, rewriting the
+SPARQL extraction and calculation queries against current RDF and accepted
+definitions. It then follows each family through prepared SQL, publication,
+HTTP and the live card/detail flow. Existing query output is not presumed
+correct, and a populated card alone does not close its audit. This is planned
+work; the dated publication counts above have not been remeasured by that update.
 Older dated entries below preserve previous observations and implementation
 history; they are not current retry instructions or current population counts.
 
