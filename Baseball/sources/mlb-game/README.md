@@ -248,7 +248,11 @@ and appear in the existing repair observer. A successful addition does not itsel
 mean that the corresponding full-season player total has reached SQL or the UI.
 Its timer checks every 20 seconds so it can use the short gap between SQL
 builds. The existing shared lease and memory check still allow only one heavy
-worker, and each repair invocation handles one game.
+worker. EG1 holds that lease for up to twenty serial attempts or ten minutes,
+finishing the current game before yielding. A failed game retains the same
+two-attempt limit and does not stop independent candidates. The admission
+resume queue similarly processes at most ten checks or five minutes before
+yielding, so stale eligibility checks can progress between SQL builds.
 
 When a selected addition extends an exact contact or runner-history census,
 EG1 retains the original obligations and adds only the newly selected facts

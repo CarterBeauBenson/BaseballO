@@ -29,6 +29,7 @@ PREVIOUS_SHARED_OUT_VERSION = 'cf63597341de4a503f8f8002c5e421ae755d555d49f00dd85
 PREVIOUS_PA_CONTRIBUTION_VERSION = '9a1f3425fd08919dcf0730dcb6466eae61534b4eeb1e8fa9f5076e04c0067273'
 PREVIOUS_AMBIGUOUS_PROGRESS_VERSION = 'ab2fac95e7153c1c3ddc19595463ccb1c283c722b6a7e28e66a711d76fa7ed4c'
 PREVIOUS_EMPTY_ELIGIBILITY_VERSION = '91af6cc2428dda5b7a12091e0ee3fb4daa7c5bfbf18db2d8fff4d99638ddfe35'
+PREVIOUS_EMPTY_CACHE_VERSION = 'afc2871933b1e0351790c7314c6a4857e743104128c2a8b387c125ae6db75932'
 
 
 def fingerprint():
@@ -361,6 +362,12 @@ def prepare(m, db, checkpoint=None, player_admissions=None):
         "FROM game_dimension g JOIN dashboard_checkpoint c USING(graph_iri) "
         "WHERE g.game_set IN ('regular_season','all_star') ORDER BY g.graph_iri").fetchall()
     saved=dict(db.execute('SELECT graph_iri,input_sha256 FROM dashboard_player_partition'))
+    # Older no-op migrations advanced a partition key while retaining the
+    # retired rate-denominator refusal for this count. Reproject those exact
+    # partitions from their existing inputs even if their key says current.
+    for graph, in db.execute("SELECT DISTINCT graph_iri FROM dashboard_player_metric "
+            "WHERE metric_id='empty-game-rate' AND complete=0 AND reason='OFFICIAL_PA_POPULATION'"):
+        saved.pop(graph,None)
     player_admissions=player_admissions or {}
     channel_candidates=set();ambiguity_candidates=set()
     tables={r[0] for r in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
@@ -382,7 +389,8 @@ def prepare(m, db, checkpoint=None, player_admissions=None):
         individual_text=m._json(individual);proof_sha=m._hash(individual_text) if individual else ''
         identity=m._hash(key+version+proof_sha)
         if saved.get(graph)==identity:continue
-        if saved.get(graph)==m._hash(key+PREVIOUS_EMPTY_ELIGIBILITY_VERSION+proof_sha):
+        if saved.get(graph) in {m._hash(key+v+proof_sha) for v in
+                (PREVIOUS_EMPTY_ELIGIBILITY_VERSION,PREVIOUS_EMPTY_CACHE_VERSION)}:
             # The new eligibility witness changes the individual proof hash.
             # Without such a change, the existing player products are identical.
             with db:db.execute('UPDATE dashboard_player_partition SET input_sha256=? WHERE graph_iri=?',(identity,graph))

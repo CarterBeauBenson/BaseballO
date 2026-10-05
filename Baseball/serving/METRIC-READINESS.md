@@ -33,6 +33,33 @@ Empty Games tests and ten shared additive-repair tests pass. NiFi's existing
 bounded retry must still validate/promote these three games and publish any
 resulting SQL changes. The full population remains unfinished.
 
+### Follow-up repair execution
+
+The 19:14 UTC publication (`20261005T185419Z-dashboard-cc3eb37be34b`) has
+639 unresolved player-games: 376 classification, 99 offensive eligibility,
+and 164 retained legacy PA-population refusals. Targeted additions for
+822751 and 822835 subsequently promoted, resolving two of the three recorded
+repair failures. Their downstream publication is separate from those receipts.
+
+The legacy 164 rows exposed a SQL migration defect: their partition keys were
+advanced without replacing the obsolete PA-denominator refusal. The player
+producer now reprojects those exact partitions from retained SQL inputs.
+An independent runner-positive calculation also keeps a verified advance when
+only another runner's attribution is unknown; 824134 PA 54 supplies a retained
+example for player 677951. The exact calculation upgrade refreshes affected
+progress inputs from SQL evidence, without SPARQL re-extraction or RML.
+The source owner now runs bounded serial repair/check batches to reduce
+starvation by long serving builds. Six focused SQL/calculation regressions,
+two admission-queue checks, and PowerShell syntax validation passed.
+These changes still require NiFi publication; none declares the excluded
+populations complete.
+
+Game 822688 PA 67 remains a precise attribution gap: the response labels the
+PA a sacrifice fly with one RBI, but labels all three safe runner movements
+`error`. The existing contact selector admits the batter's out only. Do not
+claim its already-present repair receipt supplies the missing runner credit,
+or infer a new attribution link from the PA label alone under EG1.
+
 ## Earlier October 5 measurements
 
 Build `20261005T132720Z-dashboard-17f4e3356233` published at 13:52:17 UTC,

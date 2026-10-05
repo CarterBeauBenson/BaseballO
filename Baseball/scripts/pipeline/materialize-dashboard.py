@@ -95,6 +95,8 @@ PARTIAL_TIME_CALCULATIONS = (INDIVIDUAL_REFERENCE_CALCULATIONS[1],
 # RDF identity. Unchanged graphs cannot acquire those joins from this code edit.
 BALK_CALCULATIONS = (PARTIAL_TIME_CALCULATIONS[1],
     'f606cc7500e19a57487428d8fd8096d54345da365550ebdbb83cc3ad9273e7f7')
+EMPTY_CERTAINTY_CALCULATIONS = (BALK_CALCULATIONS[1],
+    'b5f7a7f7c269bfa131e6c9ddbbee22c0f70dffa04f650bb9a9ded34c132809ae')
 
 
 def digest(value):
@@ -323,12 +325,14 @@ def reuse_game(connection, graph, saved, promotion, dimension, admissions, calcu
         previous[name]=json.loads(row[0])
     identity=input_identity(promotion,dimension,admissions,calculation)
     previous_identity=input_identity(promotion,dimension,previous,calculation)
-    timestamp_update=False;act_count_update=False;catalog_update=False;depth_update=False
+    timestamp_update=False;act_count_update=False;catalog_update=False;depth_update=False;progress_update=False
     if saved not in {previous_identity,input_identity(promotion,dimension,previous,calculation,legacy=True)}:
         compatible=[]
-        if calculation==BALK_CALCULATIONS[1]:
+        if calculation==EMPTY_CERTAINTY_CALCULATIONS[1]:
+            compatible.append((EMPTY_CERTAINTY_CALCULATIONS[0],False))
+        if calculation in {BALK_CALCULATIONS[1],EMPTY_CERTAINTY_CALCULATIONS[1]}:
             compatible.append((BALK_CALCULATIONS[0],False))
-        if calculation in {PARTIAL_TIME_CALCULATIONS[1],BALK_CALCULATIONS[1]}:
+        if calculation in {PARTIAL_TIME_CALCULATIONS[1],BALK_CALCULATIONS[1],EMPTY_CERTAINTY_CALCULATIONS[1]}:
             if not partial_time_bindings(connection,graph):
                 compatible.append((PARTIAL_TIME_CALCULATIONS[0],False))
         if calculation==INDIVIDUAL_REFERENCE_CALCULATIONS[1]:
@@ -361,6 +365,7 @@ def reuse_game(connection, graph, saved, promotion, dimension, admissions, calcu
                           and matched[0] not in {ACT_COUNT_CALCULATIONS[1],SCOPED_PA_CALCULATIONS[1]})
         catalog_update=calculation==PAQ_CATALOG_CALCULATIONS[1]
         depth_update=calculation==RUN_DEPTH_CALCULATIONS[1]
+        progress_update=calculation==EMPTY_CERTAINTY_CALCULATIONS[1]
     changed=previous_identity!=identity
     if changed or timestamp_update or act_count_update:
         refresh_admission_inputs(connection,graph,previous,admissions,
@@ -376,6 +381,8 @@ def reuse_game(connection, graph, saved, promotion, dimension, admissions, calcu
             mark_dirty(connection,{dimension[5]})
     depth_changed=depth_update and refresh_run_depth(connection,graph)
     if depth_changed:mark_dirty(connection,{dimension[5]})
+    progress_changed=progress_update and refresh_empty_certainty(connection,graph)
+    if progress_changed:mark_dirty(connection,{dimension[5]})
     for name,table in ADMISSION_TABLES.items():
         if previous[name]==admissions[name]:continue
         text=METRICS._json(admissions[name])
@@ -384,7 +391,7 @@ def reuse_game(connection, graph, saved, promotion, dimension, admissions, calcu
     if saved!=identity:
         # Carry a verified player partition across a no-op game-version change.
         # Its own producer/proof identities still determine whether it needs work.
-        if not changed and not timestamp_update and not act_count_update and not depth_changed:
+        if not changed and not timestamp_update and not act_count_update and not depth_changed and not progress_changed:
             partition=connection.execute('SELECT input_sha256 FROM dashboard_player_partition WHERE graph_iri=?',(graph,)).fetchone()
             individual=connection.execute('SELECT proof_sha256 FROM dashboard_player_admission WHERE graph_iri=?',(graph,)).fetchone()
             proof_sha=individual[0] if individual else ''
@@ -398,7 +405,24 @@ def reuse_game(connection, graph, saved, promotion, dimension, admissions, calcu
                         (METRICS._hash(identity+version+proof_sha),graph))
                     break
         connection.execute('UPDATE dashboard_checkpoint SET input_sha256=? WHERE graph_iri=?',(identity,graph))
-    return 'calculations' if timestamp_update or act_count_update or depth_changed else 'admissions' if changed else 'unchanged'
+    return 'calculations' if timestamp_update or act_count_update or depth_changed or progress_changed else 'admissions' if changed else 'unchanged'
+
+
+def refresh_empty_certainty(connection,graph):
+    """Repair only retained progress inputs; no graph query or source rerun."""
+    result,=METRICS.read_results(connection,graph,'empty-game-rate')
+    previous=result['progressInputs']
+    if not any(p.get('gaps')==['UNRESOLVED_PROGRESS_ATTRIBUTION']
+               for p in previous.get('unresolvedPlateAppearances',[])):return False
+    rows=[METRICS._blocks.decode(METRICS._block_api(),text,sha) for text,sha in connection.execute(
+        'SELECT binding_json,binding_sha256 FROM metric_suite_evidence WHERE graph_iri=?',(graph,))]
+    proof=json.loads(connection.execute('SELECT proof_json FROM dashboard_checkpoint WHERE graph_iri=?',(graph,)).fetchone()[0])
+    if len(rows)!=proof['evidenceRows']:raise ValueError('Stored dashboard evidence is incomplete')
+    rows.sort(key=METRICS._json)
+    current=METRICS.batting_progress_evidence(rows)
+    if current==previous:return False
+    METRICS.store_result(connection,graph,'empty-game-rate','game-scope',dict(result,progressInputs=current))
+    return True
 
 
 def partial_time_bindings(connection,graph):

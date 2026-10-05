@@ -2292,14 +2292,18 @@ def batting_progress_evidence(rows):
             reasons.append('MISSING_BATTER_RESOLUTION')
         if reasons:
             runner_ids={r.get('runner') for r in movements[(graph,pa)]}
-            # An independently supported, single-segment batter reach stays a
-            # certain positive when only another runner's attribution is unknown.
-            # Do not carry partial credit through a path/identity/state failure.
-            certain_self=(self_positive and set(reasons)=={'UNRESOLVED_PROGRESS_ATTRIBUTION'}
-                          and len({r['resolution'] for r in movements[(graph,pa)] if r.get('runner')==player})==1)
+            # Retain a verified single-resolution positive for its actual
+            # beneficiary when another runner's attribution is unknown. A
+            # supported independent advance benefits its runner, not the batter.
+            certain=set()
+            if set(reasons)=={'UNRESOLVED_PROGRESS_ATTRIBUTION'}:
+                single={runner for runner in runner_ids if len({r['resolution']
+                    for r in movements[(graph,pa)] if r.get('runner')==runner})==1}
+                if (self_positive and player in single) or other & single:certain.add(player)
+                certain.update(r['player'] for r in independent if r['player'] in single)
             withheld.append(dict(graph=graph,game=game,plateAppearance=pa,player=player,officialResult=bool(types),
                 possiblePositivePlayers=sorted({player,*runner_ids}) if None not in runner_ids else None,
-                confirmedPositivePlayers=[player] if certain_self else [],
+                confirmedPositivePlayers=sorted(certain),
                 gaps=sorted(set(reasons))));continue
         completed.append(dict(graph=graph,game=game,plateAppearance=pa,player=player,
             officialResult=bool(types),batterPositive=self_positive,otherPositivePlayers=sorted(other),

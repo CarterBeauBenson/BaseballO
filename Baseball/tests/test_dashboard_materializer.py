@@ -373,18 +373,46 @@ class DashboardMaterializer(unittest.TestCase):
 
     def test_balk_upgrade_reuses_unchanged_rdf_without_scoring_or_source_refresh(self):
         old,new=D.BALK_CALCULATIONS
-        self.assertEqual(D.METRICS.calculation_fingerprint(),new)
+        self.assertIn(D.METRICS.calculation_fingerprint(),(new,D.EMPTY_CERTAINTY_CALCULATIONS[1]))
         with patch.object(D.METRICS,'calculation_fingerprint',return_value=old):D.build(self.args)
         self.fetched.clear()
-        with patch.object(D.METRICS,'live_result',side_effect=AssertionError('unchanged RDF must reuse SQL')):
+        with patch.object(D.METRICS,'calculation_fingerprint',return_value=new),patch.object(
+                D.METRICS,'live_result',side_effect=AssertionError('unchanged RDF must reuse SQL')):
             result=D.build(self.args)
         self.assertEqual(result['changedGames'],0);self.assertEqual(self.fetched,[])
+
+    def test_empty_certainty_upgrade_uses_retained_sql_and_preserves_other_products(self):
+        from test_batting_progress_players import fixture,bindings,G1,GAME,P2,BASE,URIRef,movement
+        data=fixture();g=data.graph(G1);pa=URIRef(str(GAME)+'/plate-appearance/2')
+        rr=URIRef(str(pa)+'/unknown');third=URIRef('https://baseballontology.org/data/player/3')
+        movement(g,rr,URIRef(str(rr)+'/act'),pa,third,
+            origin=URIRef(str(GAME)+'/base/2'),destination=URIRef(str(GAME)+'/base/3'))
+        self.bindings['101']=bindings(data,[G1])
+        old,new=D.EMPTY_CERTAINTY_CALCULATIONS
+        self.assertEqual(D.METRICS.calculation_fingerprint(),new)
+        with patch.object(D.METRICS,'calculation_fingerprint',return_value=old):D.build(self.args)
+        with closing(sqlite3.connect(self.working())) as db,db:
+            expected,=D.METRICS.read_results(db,G1,'empty-game-rate')
+            legacy=copy.deepcopy(expected)
+            held=next(p for p in legacy['progressInputs']['unresolvedPlateAppearances'] if p['plateAppearance']==str(pa))
+            self.assertEqual(held['confirmedPositivePlayers'],[str(P2)])
+            held['confirmedPositivePlayers']=[]
+            D.METRICS.store_result(db,G1,'empty-game-rate','game-scope',legacy)
+            other=db.execute("SELECT metric_id,result_json FROM metric_suite_result WHERE graph_iri=? AND metric_id!='empty-game-rate' ORDER BY metric_id",(G1,)).fetchall()
+        self.fetched.clear()
+        with patch.object(D.METRICS,'materialize_game',side_effect=AssertionError('no game rebuild')),patch.object(
+                D.METRICS,'live_result',side_effect=AssertionError('unrelated metrics must stay prepared')):
+            result=D.build(self.args)
+        self.assertEqual(result['calculationUpdatedGames'],1);self.assertEqual(self.fetched,[])
+        with closing(sqlite3.connect(self.working())) as db:
+            self.assertEqual(D.METRICS.read_results(db,G1,'empty-game-rate'),[expected])
+            self.assertEqual(db.execute("SELECT metric_id,result_json FROM metric_suite_result WHERE graph_iri=? AND metric_id!='empty-game-rate' ORDER BY metric_id",(G1,)).fetchall(),other)
 
     def test_partial_time_query_upgrade_only_fetches_affected_game(self):
         from test_metric_suite_serving import fixture,bindings,G1
         self.bindings['101']=bindings(fixture(decisions=()),[G1])
         old,new=D.PARTIAL_TIME_CALCULATIONS
-        self.assertIn(D.METRICS.calculation_fingerprint(),(new,D.BALK_CALCULATIONS[1]))
+        self.assertIn(D.METRICS.calculation_fingerprint(),(new,D.BALK_CALCULATIONS[1],D.EMPTY_CERTAINTY_CALCULATIONS[1]))
         with patch.object(D.METRICS,'calculation_fingerprint',return_value=old):D.build(self.args)
         # Retained old projection: interval survived, unmeasured instant did not.
         with closing(sqlite3.connect(self.working())) as db,db:

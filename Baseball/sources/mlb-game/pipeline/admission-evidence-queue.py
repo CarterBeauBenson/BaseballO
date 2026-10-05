@@ -98,7 +98,7 @@ def tick(state, java, classpath, endpoint='http://127.0.0.1:3031/baseball-dev/qu
             E.atomic(destination, result)
             outcomes.append(result)
             if (result['status'] in {'failed', 'waiting-for-memory'} or len(outcomes) >= 10
-                    or time.monotonic()-started >= 45):
+                    or time.monotonic()-started >= 300):
                 break
         if outcomes:
             summary = dict(status='processed', processedGames=len(outcomes), resumedGame=outcomes[-1]['gamePk'],

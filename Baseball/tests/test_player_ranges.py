@@ -57,6 +57,19 @@ class PlayerRanges(unittest.TestCase):
         with patch.object(M._blocks,'read_scope',side_effect=AssertionError('no changed eligibility proof')):
             self.assertEqual(P.prepare(M,db)['preparedGames'],0)
 
+    def test_current_partition_key_cannot_preserve_retired_empty_game_refusal(self):
+        db=self.db()
+        db.execute("INSERT OR REPLACE INTO dashboard_player_metric VALUES (?,?,?,?,?,?)",
+            (G+'1',U+'1','empty-game-rate',0,M._json(P.zero()),'OFFICIAL_PA_POPULATION'))
+        for table in ('metric_suite_admission','metric_suite_run_admission','metric_suite_runner_resolution_admission','metric_suite_boundary_admission'):
+            db.execute(f'CREATE TABLE {table}(graph_iri TEXT,proof_json TEXT,proof_sha256 TEXT)')
+        with patch.object(M._blocks,'read_scope',return_value=[]) as read, \
+             patch.object(M._blocks,'read_inputs',return_value={G+'1':{}}), \
+             patch.object(M,'read_results',return_value=[{}]), \
+             patch.object(P,'project',return_value=([],[])) as project:
+            self.assertEqual(P.prepare(M,db)['preparedGames'],1)
+        self.assertEqual(read.call_args.args[-1],[G+'1']);self.assertEqual(project.call_count,1)
+
     def test_running_channel_gap_does_not_exclude_unrelated_players(self):
         graph=G+'1';game='https://baseballontology.org/data/game/1'
         proof=dict(status='admitted',sourceReconciled=True,graphConforms=True)

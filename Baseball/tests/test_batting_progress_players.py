@@ -215,6 +215,20 @@ class ProgressPlayers(unittest.TestCase):
         empty=score(data,'empty-game-rate');self.assertFalse(empty['playerPopulationComplete'])
         self.assertEqual([r['player'] for r in empty['unresolvedEmptyGames']],[str(P1)])
 
+    def test_certain_independent_advance_survives_other_runner_unknowns_without_batter_credit(self):
+        data=fixture();g=data.graph(G1);pa=URIRef(str(GAME)+'/plate-appearance/2')
+        third=URIRef('https://baseballontology.org/data/player/3');rr=URIRef(str(pa)+'/unknown')
+        movement(g,rr,URIRef(str(rr)+'/act'),pa,third,
+            origin=URIRef(str(GAME)+'/base/2'),destination=URIRef(str(GAME)+'/base/3'))
+        def unresolved():
+            result=M.batting_progress_evidence(M.normalize_bindings(bindings(data,[G1]),[G1]))
+            return next(p for p in result['unresolvedPlateAppearances'] if p['plateAppearance']==str(pa))
+        self.assertEqual(unresolved()['confirmedPositivePlayers'],[str(P2)])
+        out=URIRef(str(pa)+'/later-out')
+        movement(g,out,URIRef(str(out)+'/act'),pa,P2,origin=URIRef(str(GAME)+'/base/2'))
+        g.add((out,RDF.type,BASE.OutProcess))
+        self.assertEqual(unresolved()['confirmedPositivePlayers'],[])
+
     def test_reviewed_contact_continuation_reaches_all_four_player_producers(self):
         data=continuation_fixture()
         reach=score(data,'offensive-reach')
