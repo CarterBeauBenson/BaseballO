@@ -46,6 +46,26 @@ following warm request took 1.28 seconds; Empty Games detail took 1.11 seconds
 and returned exactly the same 291 ranked rows. The first-request performance
 target is still open.
 
+The remaining Empty Game diagnosis distinguishes actual attribution gaps
+from a reader error. Game 822748 already retains an admitted, compatible
+runner-resolution check against its exact current RDF, using a separately
+retained source response. The reader now preserves and accepts that distinct
+source provenance instead of requiring it to be the RML input. Changed RDF,
+unknown implementations, negative checks and altered artifacts still fail.
+Its 20 withheld Empty Game records await the owning SQL publication; no RDF
+or source validation is rerun for this correction.
+
+Read-only checks of current RDF confirm missing award attribution in 822774
+PA 45 (walk) and 824147 PA 60 (HBP), matching the retained SQL bindings. Those
+are graph coverage gaps, not a query join failure. Similarly, separately
+recorded balk attribution remains under BK1 review. The overall classification
+exclusions overlap: 330 player-games involve unknown progress attribution,
+44 involve unresolved consequence coalescence, and 29 involve unknown running
+attribution. Four games retain null strikeout records followed by WP/PB and
+an additional error advance beyond first, outside the currently reviewed
+two-record nonmovement selector. These facts prevent declaring the metric
+complete and must not be replaced with inferred zeroes or result-label credit.
+
 The query repair separates an event's existing interval/instants from its
 optional timestamp values and keeps strike evidence tied to the particular
 pitch record. Four focused extraction/migration checks pass; unchanged games

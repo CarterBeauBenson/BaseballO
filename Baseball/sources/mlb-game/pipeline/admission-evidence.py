@@ -262,6 +262,14 @@ def compatible_proof(state,promotion,family,implementation):
     expected=dict(artifactType='baseballo-'+family+'-admission',contractVersion=1,
         gamePk=promotion['gamePk'],sourceSha256=promotion['rawSha256'],
         authoritativeRdfSha256=promotion['authoritativeRdfSha256'],graph=promotion['authoritativeGraph'])
+    independent_source=(family=='runner-resolution' and proof.get('status')=='admitted'
+                        and proof.get('sourceSha256')!=promotion['rawSha256'])
+    if independent_source:
+        # The promotion explicitly retains this census/check against the exact
+        # current RDF. Its input need not be the RML input: preserve that distinct
+        # source identity, just as for the existing independent-response owner.
+        # No changed graph, changed producer, or negative check is admitted here.
+        expected.pop('sourceSha256')
     if any(proof.get(key)!=value for key,value in expected.items()): return None
     required=('sourceReconciled','graphConforms','sourceCensusSha256','shapeSha256','reportSha256')
     if family=='defensive': required+=('populationComplete',)
@@ -270,6 +278,14 @@ def compatible_proof(state,promotion,family,implementation):
     for suffix,key in (('.source.json','sourceCensusSha256'),('.shapes.ttl','shapeSha256'),('.report.ttl','reportSha256')):
         if key in proof and sha(path.with_suffix(suffix))!=proof[key]:
             raise ValueError('Retained validation artifact changed: '+key)
+    if independent_source:
+        census=read(path.with_suffix('.source.json'))
+        if (not proof.get('sourceSha256') or census.get('sourceSha256')!=proof['sourceSha256']
+                or census.get('gamePk')!=promotion['gamePk'] or census.get('game')!=
+                   'https://baseballontology.org/data/game/'+promotion['gamePk']
+                or census.get('status')!='reconciled' or census.get('issues')!=[]):return None
+        reuse=dict(reuse,sourceWitness='independent-retained-census',
+                   promotionSourceSha256=promotion['rawSha256'])
     if positive_only:
         census=read(path.with_suffix('.source.json'))
         if reuse['kind']=='prior-stricter-compound-result' and any(
@@ -279,7 +295,7 @@ def compatible_proof(state,promotion,family,implementation):
         # Their successful source censuses retain the same SHACL expectations.
         # Withheld proofs cannot use this implication in the other direction.
         if (census.get('status')!='reconciled' or census.get('issues')!=[]
-                or census.get('sourceSha256')!=promotion['rawSha256']
+                or census.get('sourceSha256')!=(proof['sourceSha256'] if independent_source else promotion['rawSha256'])
                 or census.get('gamePk')!=promotion['gamePk']):
             raise ValueError('Prior proof lacks its reconciled source census')
     # Keep the original status, issues AND producer fingerprint. This is code
@@ -300,11 +316,12 @@ def diagnostic(state,promotion,family,implementation):
     if not path.resolve().is_relative_to(owner.resolve()): raise ValueError('Proof escaped its owning source game')
     if sha(path)!=marker.get(field+'Sha256'): raise ValueError('Retained proof changed')
     proof=read(path)
-    same=(proof.get('gamePk')==promotion['gamePk'] and proof.get('sourceSha256')==promotion['rawSha256']
-        and proof.get('authoritativeRdfSha256')==promotion['authoritativeRdfSha256'])
+    same_graph=(proof.get('gamePk')==promotion['gamePk']
+                and proof.get('authoritativeRdfSha256')==promotion['authoritativeRdfSha256'])
+    same=same_graph and proof.get('sourceSha256')==promotion['rawSha256']
     current=proof.get('implementationSha256')==implementation
-    reuse=compatible_proof(state,promotion,family,implementation) if same and not current else None
-    return dict(family=family,evidenceState='promotion-mismatch' if not same else 'current' if current else
+    reuse=compatible_proof(state,promotion,family,implementation) if same_graph and not current else None
+    return dict(family=family,evidenceState='promotion-mismatch' if not same and reuse is None else 'current' if current else
             'implementation-compatible' if reuse is not None else 'implementation-stale',
         previousStatus=proof.get('status'),previousIssues=proof.get('issues',[]),
         recordedImplementationSha256=proof.get('implementationSha256'),requiredImplementationSha256=implementation)

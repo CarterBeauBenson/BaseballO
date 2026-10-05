@@ -906,6 +906,39 @@ class AdmissionEvidence(unittest.TestCase):
                 path.with_suffix('.report.ttl').write_text('changed report')
                 with self.assertRaisesRegex(ValueError,'artifact changed'):E.load(adapter,state,promotion,family)
 
+    def test_independent_retained_resolution_census_keeps_its_source_identity(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);path=state/'pipeline/evidence/mlb-game/1/run/runner-resolution.json'
+            source=dict(gamePk='1',game='https://baseballontology.org/data/game/1',
+                sourceSha256='witness-input',status='reconciled',issues=[])
+            proof=dict(artifactType='baseballo-runner-resolution-admission',contractVersion=1,
+                gamePk='1',graph='graph',authoritativeRdfSha256='rdf',sourceSha256='witness-input',
+                status='admitted',sourceReconciled=True,graphConforms=True,implementationSha256='previous')
+            for suffix,key,data in (('.source.json','sourceCensusSha256',source),
+                    ('.shapes.ttl','shapeSha256',{}),('.report.ttl','reportSha256',{})):
+                E.atomic(path.with_suffix(suffix),data);proof[key]=E.sha(path.with_suffix(suffix))
+            E.atomic(path,proof);marker=state/'promotion.json'
+            E.atomic(marker,dict(runnerResolutionAdmission=str(path),runnerResolutionAdmissionSha256=E.sha(path)))
+            promotion=dict(gamePk='1',authoritativeGraph='graph',authoritativeRdfSha256='rdf',
+                rawSha256='ingestion-input',promotionManifest=str(marker),promotionManifestSha256=E.sha(marker))
+            reuse=dict(kind='prior-stricter-history-selection')
+            with patch.object(E,'code_equivalence',return_value=reuse):
+                result=E.compatible_proof(state,promotion,'runner-resolution','current')
+                self.assertEqual(result['sourceSha256'],'witness-input')
+                self.assertEqual(result['implementationSha256'],'previous')
+                self.assertEqual(result['implementationReuse']['promotionSourceSha256'],'ingestion-input')
+                self.assertEqual(E.diagnostic(state,promotion,'runner-resolution','current')['evidenceState'],
+                    'implementation-compatible')
+                self.assertIsNone(E.compatible_proof(state,dict(promotion,authoritativeRdfSha256='changed'),
+                    'runner-resolution','current'))
+                for changes in (dict(status='withheld'),dict(sourceSha256='unbound-source')):
+                    E.atomic(path,dict(proof,**changes))
+                    E.atomic(marker,dict(runnerResolutionAdmission=str(path),runnerResolutionAdmissionSha256=E.sha(path)))
+                    altered=dict(promotion,promotionManifestSha256=E.sha(marker))
+                    self.assertIsNone(E.compatible_proof(state,altered,'runner-resolution','current'))
+            with patch.object(E,'code_equivalence',return_value=None):
+                self.assertIsNone(E.compatible_proof(state,altered,'runner-resolution','unknown'))
+
     def test_stale_previously_withheld_is_preserved_and_never_admitted(self):
         with tempfile.TemporaryDirectory() as temp:
             state=Path(temp);path=state/'pipeline/evidence/mlb-game/1/run/defensive.json'
