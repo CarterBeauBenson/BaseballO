@@ -10,7 +10,51 @@ the 486 retained spring/exhibition games no longer enter build dependencies.
 Their data and historical diagnoses remain stored. This scope reduction does
 not establish completeness for the remaining metric populations.
 
-## October 4, 22:46 Eastern: upstream handoff and live SQL
+## Current publication: October 4, 23:30 Eastern
+
+The published build is `20261005T031625Z-dashboard-5c27e45118a5`, using
+`e75455c`, published October 5 at 03:30:39 UTC. It contains 2,444 active games;
+the default 2026 regular season has all 2,429 expected games, a complete
+schedule and all 2,429 verified rosters. The full-season HTTP check returns
+**5/19 populated cards and 0 complete populations**. Ranked players: Offensive
+Reach 1, Help Without Advancing 3, Empty Games 204, Scoring History Length 196,
+and Run Contributors 9. The other fourteen have no rankings. Empty Games has
+no appearance minimum; its incomplete records remain excluded separately.
+
+The authorized RML repair backlog is clear: 754 selected histories complete,
+no pending inspections and no recorded repair issues. That status is scoped
+to the recorded repairs, not complete metric evidence. The SQL handoff and
+schedule-publication problems below are resolved in this build.
+
+Read-only SQL diagnosis identifies 1,160 unknown player-game PA counts across
+236 games and 629 players. Of those, 789 records across 15 games and 433 players
+have no individual admission in this publication. Their older NiFi checkpoints
+say `retained-rdf-unavailable`; this is not a finding that authoritative RDF or
+MLB facts are absent. The other 371 rows retain specific substitution, result,
+player-conformance, PA-inventory or source-reconciliation failures.
+
+| Published whole-game admission | Admitted | Withheld |
+| --- | ---: | ---: |
+| Official batting population | 2,192 | 237 |
+| Runner resolutions | 2,420 | 9 |
+| Runner boundaries | 1,196 | 1,233 |
+| Pitch/count histories | 857 | 1,572 |
+| Scoring runs | 2,427 | 2 |
+| Defensive population | 0 | 2,429 |
+
+These requirements are independent; missing/stale proof flags must be diagnosed
+separately from actual graph omissions. Individual admissions can support a
+player despite an unrelated whole-game failure. The reference-player table has
+only one early recovery cutoff, not the required full-season references. Both
+review-player integrations are still unfinished.
+
+The complete execution order, exact first fifteen games, component owners,
+dependencies and nineteen-card completion criteria are now in the
+[active repair plan](../ROADMAP.md#1-complete-the-nineteen-metrics-execution-plan).
+Older dated entries below preserve previous observations and implementation
+history; they are not current retry instructions or current population counts.
+
+## Historical October 4, 22:46 Eastern handoff check
 
 NiFi's repair observer reports `recordedWorkClear=true`: all 754 selected
 history cases are complete, with no outstanding inspections, recorded repair
@@ -49,7 +93,7 @@ then verify the default full season and its detail results against that build.
 Browser automation was unavailable during this check; HTTP verification does
 not substitute for a completed visual interaction check.
 
-## Current priority: offense
+## Earlier offense implementation notes (October 1)
 
 The user narrowed active work to offense on October 1. Prioritize batting
 qualification, Offensive Reach, Help Without Advancing, Empty Games,
@@ -611,7 +655,8 @@ player record does not authorize a source rebuild.
 
 Individual batting admission does not certify another metric's missing facts.
 Contribution still needs the affected runner boundaries and ownership; defensive
-averages need the full relevant act/agent population, and depth also needs order.
+averages need the full relevant act/agent population. Defensive Acts counts
+distinct acts, including overlap; it does not require chronological order.
 The existing D1 contract admits selected performances, not all performances on
 every contact play. Review player rates still need a reconciled mechanism,
 affected-player census and (for dependence) eligible unreviewed outcomes. The
