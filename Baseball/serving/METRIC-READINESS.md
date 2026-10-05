@@ -10,36 +10,47 @@ the 486 retained spring/exhibition games no longer enter build dependencies.
 Their data and historical diagnoses remain stored. This scope reduction does
 not establish completeness for the remaining metric populations.
 
-## Latest measured SQL publication: October 5, 14:51 Eastern
+## Latest measured SQL publication: October 5, 15:37 Eastern
 
-Build `20261005T183635Z-dashboard-ad0e68d2b94c` published at 18:51:43 UTC.
-Empty Games has **640 unresolved regular-season player-games**, down from 676
-in the preceding measurement: 377 lack complete classification, 99 lack
-established offensive eligibility, and 164 lack the needed official PA evidence.
-These overlap across 404 players and 422 games. They are player-game exclusions,
-not a count of eligible players. Game 822679, player 683146, now has a complete
-SQL Empty Games count of one after the balk repair.
+Build `20261005T191707Z-dashboard-80a3042f158d` published at 19:37:54 UTC,
+using code `999145c`. Empty Games still has **736 unresolved regular-season
+player-games**: 371 lack complete classification, 201 lack established
+offensive eligibility, and 164 retain the obsolete official-PA refusal.
+These are metric exclusions, not missing schedule games or a player census.
+All 2,429 regular-season games remain present.
 
-The EG1 worker has processed 25 games: eight additions, thirteen selections
-already present, one resolved by the reader, and three failed. The additions
-total 75 triples and remove none. Already-present selections still require
-metric-level diagnosis; they do not certify all required attribution facts.
+The increase from 639 includes 97 previously complete player-games in 822751
+and 822835. Their successful additions changed the graph version, leaving
+independently repaired batting/player evidence tied to the prior promotion.
+The original retained batting censuses and participation inventories still
+exist and pass source selection. Their current-graph checks are pending;
+no old graph-bound proof has been relabeled current.
 
-The three recorded failures are repaired in code: scoring balks use the
-existing `RunProcess`; selected contact additions extend their old exact
-census; selected runner-history additions extend their old exact census
-without claiming that the remaining histories are complete. Seven focused
-Empty Games tests and ten shared additive-repair tests pass. NiFi's existing
-bounded retry must still validate/promote these three games and publish any
-resulting SQL changes. The full population remains unfinished.
+The source owner now gives the existing admission queue a bounded turn before
+releasing the EG1 batch's shared lease to SQL. Published missing eligibility
+takes priority, and newly processed games can enter without waiting for a SQL
+snapshot. An available whole-game batting check precedes individual fallback.
+Five focused checks and PowerShell syntax validation passed. This fixes the
+handoff order, not the population result; NiFi owns execution and publication.
+
+At the accompanying observation, EG1 had processed 64 games: **19 successful
+additions, 44 already-present selections, one resolved by the reader, and zero
+failed executions**. All three earlier failures (822846, 822751 and 822835)
+have promoted. Already-present selections do not certify complete attribution.
+
+NiFi build `20261005T195415Z-dashboard-a73583334cb7` was running in
+`input-refresh`. The published snapshot above does not yet include the SQL
+repairs below or the later eligibility handoff correction. No completed
+population is claimed.
 
 ### Follow-up repair execution
 
 The 19:14 UTC publication (`20261005T185419Z-dashboard-cc3eb37be34b`) has
 639 unresolved player-games: 376 classification, 99 offensive eligibility,
 and 164 retained legacy PA-population refusals. Targeted additions for
-822751 and 822835 subsequently promoted, resolving two of the three recorded
-repair failures. Their downstream publication is separate from those receipts.
+822751 and 822835 subsequently promoted; 822846 has since promoted as well,
+closing all three recorded execution failures. Their downstream publication
+is separate from those receipts.
 
 The legacy 164 rows exposed a SQL migration defect: their partition keys were
 advanced without replacing the obsolete PA-denominator refusal. The player
