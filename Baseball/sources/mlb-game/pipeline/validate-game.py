@@ -27,6 +27,8 @@ def validate(args):
         if not conforms: raise ValueError('Authoritative SHACL failed')
         pitcher=module(HERE/'pitcher-participation.py','mlb_actual_pitcher')
         pitcher.validate(raw,args.game_pk,args.rdf,args.output,session,args.java,args.jena_classpath)
+        balk=module(HERE/'balk-runner-attribution.py','mlb_balk_attribution')
+        balk.validate(raw,args.game_pk,args.rdf,args.output,session,args.java,args.jena_classpath)
         for name in ('clock','runner-history','defensive','pitch-count','runner-boundary',
                      'runner-resolution','scoring-run','contact-continuation','batting'):
             producer=module(HERE/(name+'-admission.py'),'mlb_suite_'+name.replace('-','_'))

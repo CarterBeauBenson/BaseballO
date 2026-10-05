@@ -79,6 +79,11 @@ def select(raw,game_pk):
     case=approved_case(game_pk)
     if hashlib.sha256(raw).hexdigest() not in {w['sha256'] for w in case['retainedInputs']}:
         raise ValueError('Source is outside the approved retained R1 witnesses')
+    return select_case(raw,game_pk,case)
+
+
+def select_case(raw,game_pk,case):
+    """Existing selectors; the calling repair owner supplies its approved scope."""
     doc=json.loads(raw)
     if str(doc.get('gamePk'))!=game_pk:raise ValueError('R1 source game differs')
     source=W.C.B.SOURCE.reconcile(raw,game_pk)
@@ -123,7 +128,7 @@ def select(raw,game_pk):
     if not dependencies<=keys:raise ValueError('R1 history dependency has no selected existing episode')
     retained_history=dict(history,histories=histories,episodeMembership=membership,
         placementAdjudications=[r for r in history['placementAdjudications'] if r['lifetimeKey'] in history_keys])
-    if not episodes and not retained_history['placementAdjudications']:
+    if not episodes and not retained_history['placementAdjudications'] and not case.get('allowEmptyRunnerSelection'):
         raise ValueError('R1 has no supported runner rows or placement adjudications')
     result=dict(context=dict(gamePk=int(game_pk),gameData=dict(venue=doc['gameData']['venue']),
         liveData=dict(plays=dict(allPlays=plays)),

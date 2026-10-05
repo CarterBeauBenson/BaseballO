@@ -124,6 +124,29 @@ class RunnerMovementEvidenceTests(unittest.TestCase):
         self.assertEqual(entries[0]['sources'], ['mlb-game'])
         self.assertEqual(entries[0]['writesGraphLayers'], [])
 
+    def test_balk_links_exact_runner_without_batter_credit_or_label_inference(self):
+        from test_metric_suite_serving import M
+        rr,act=self.movement('balk-runner',EX.alpha,EX.beta)
+        self.code(EX.alpha,'1B');self.code(EX.beta,'2B')
+        triples=[(EX.record,RDF.type,BASE.BaseballEventRecord),
+            *[(EX.record,CCO.ont00001808,node) for node in (rr,act,EX.balk,EX.judgment,EX.decision)],
+            (EX.balk,RDF.type,BASE.BalkProcess),(EX.balk,BFO.BFO_0000132,EX.pa),
+            (EX.balk,BFO.BFO_0000117,EX.judgment),(EX.balk,CCO.ont00001920,EX.rule),
+            (EX.rule,RDF.type,BASE.BalkRule),(EX.judgment,RDF.type,BASE.UmpireJudgmentAct),
+            (EX.judgment,BFO.BFO_0000132,EX.balk),(EX.judgment,CCO.ont00001921,EX.rule),
+            (EX.judgment,CCO.ont00001986,EX.decision),(EX.decision,RDF.type,BASE.BaseballDecisionICE),
+            (EX.decision,CCO.ont00001808,EX.balk)]
+        for triple in triples:self.g.add(triple)
+        row,=self.rows()
+        self.assertEqual(row['independentRunningProcess'],EX.balk)
+        normalized={k:str(v) for k,v in row.items()}
+        self.assertEqual(M.independent_running_act(normalized),str(act))
+        self.assertNotIn('contactPlay',row);self.assertNotIn('award',row)
+        for triple in [(EX.record,CCO.ont00001808,act),(EX.judgment,CCO.ont00001921,EX.rule)]:
+            self.g.remove(triple)
+            row,=self.rows();self.assertNotIn('independentRunningProcess',row)
+            self.g.add(triple)
+
 
 if __name__ == '__main__':
     unittest.main()

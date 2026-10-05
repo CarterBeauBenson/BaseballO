@@ -901,6 +901,17 @@
         "RunnerPlacementRuleMap",
         "RunnerPlacementRecordMap"
       ]
+    },
+    {
+      "id": "71-balk-runner-attribution",
+      "title": "Separate balk runner attribution",
+      "summary": "An explicitly joined operative balk shares one judgment and decision across its awarded runners, separate from the later PA result.",
+      "maps": [
+        "BalkAdvanceProcessMap",
+        "BalkAdvanceJudgmentMap",
+        "BalkAdvanceDecisionMap",
+        "BalkAdvanceRecordMap"
+      ]
     }
   ]
 }

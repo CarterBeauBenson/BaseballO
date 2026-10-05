@@ -3084,6 +3084,33 @@
 <#ObstructionRuleMap> a rr:TriplesMap ; rml:logicalSource <#RootSource> ; rr:subjectMap [ rr:constant <https://baseballontology.org/data/rule/obstruction> ; rr:termType rr:IRI ; rr:class base:ObstructionRule ] .
 <#BalkRuleMap> a rr:TriplesMap ; rml:logicalSource <#RootSource> ; rr:subjectMap [ rr:constant <https://baseballontology.org/data/rule/balk> ; rr:termType rr:IRI ; rr:class base:BalkRule ] .
 
+# BK1: separately recorded operative balk, distinct from the final PA result.
+<#BalkAdvanceSource> a rml:LogicalSource ; rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ; rml:iterator "$.liveData.plays.allPlays[*]._baseballO.balkAdvances[*]" .
+
+<#BalkAdvanceProcessMap> a rr:TriplesMap ; rml:logicalSource <#BalkAdvanceSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/balk/{actionId}" ; rr:termType rr:IRI ; rr:class base:BalkProcess ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000132 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/plate-appearance/{atBatIndex}" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000117 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/judgment/balk/{actionId}" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001920 ; rr:objectMap [ rr:constant <https://baseballontology.org/data/rule/balk> ] ] .
+
+<#BalkAdvanceJudgmentMap> a rr:TriplesMap ; rml:logicalSource <#BalkAdvanceSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/judgment/balk/{actionId}" ; rr:termType rr:IRI ; rr:class base:UmpireJudgmentAct ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000132 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/balk/{actionId}" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001921 ; rr:objectMap [ rr:constant <https://baseballontology.org/data/rule/balk> ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001986 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/decision/balk/{actionId}" ; rr:termType rr:IRI ] ] .
+
+<#BalkAdvanceDecisionMap> a rr:TriplesMap ; rml:logicalSource <#BalkAdvanceSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/decision/balk/{actionId}" ; rr:termType rr:IRI ; rr:class base:BaseballDecisionICE ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/balk/{actionId}" ; rr:termType rr:IRI ] ] .
+
+<#BalkAdvanceRecordMap> a rr:TriplesMap ; rml:logicalSource <#BalkAdvanceSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/runner-record/{atBatIndex}/{runnerIndex}" ; rr:termType rr:IRI ; rr:class base:BaseballEventRecord ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/process/balk/{actionId}" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/judgment/balk/{actionId}" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/decision/balk/{actionId}" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/runner-act/movement/{atBatIndex}/{runnerIndex}" ; rr:termType rr:IRI ] ] .
+
 #################################################################
 # Pitch, fair/foul, and foul-tip adjudication patterns
 #################################################################

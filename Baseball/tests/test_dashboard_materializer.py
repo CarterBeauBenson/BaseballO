@@ -371,11 +371,20 @@ class DashboardMaterializer(unittest.TestCase):
         self.assertEqual(result['calculationUpdatedGames'],0)
         self.assertEqual(self.fetched,[])
 
+    def test_balk_upgrade_reuses_unchanged_rdf_without_scoring_or_source_refresh(self):
+        old,new=D.BALK_CALCULATIONS
+        self.assertEqual(D.METRICS.calculation_fingerprint(),new)
+        with patch.object(D.METRICS,'calculation_fingerprint',return_value=old):D.build(self.args)
+        self.fetched.clear()
+        with patch.object(D.METRICS,'live_result',side_effect=AssertionError('unchanged RDF must reuse SQL')):
+            result=D.build(self.args)
+        self.assertEqual(result['changedGames'],0);self.assertEqual(self.fetched,[])
+
     def test_partial_time_query_upgrade_only_fetches_affected_game(self):
         from test_metric_suite_serving import fixture,bindings,G1
         self.bindings['101']=bindings(fixture(decisions=()),[G1])
         old,new=D.PARTIAL_TIME_CALCULATIONS
-        self.assertEqual(D.METRICS.calculation_fingerprint(),new)
+        self.assertIn(D.METRICS.calculation_fingerprint(),(new,D.BALK_CALCULATIONS[1]))
         with patch.object(D.METRICS,'calculation_fingerprint',return_value=old):D.build(self.args)
         # Retained old projection: interval survived, unmeasured instant did not.
         with closing(sqlite3.connect(self.working())) as db,db:

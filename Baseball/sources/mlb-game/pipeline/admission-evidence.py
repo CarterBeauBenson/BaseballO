@@ -200,6 +200,12 @@ def prior_versions(kind,current):
     Keep their original producer and outcomes. A new promotion gets new paths
     and must be checked again; this is never approval of W1's missing facts.
     """
+    record=read(COMPATIBILITY_PATH)
+    for selection in selection_repairs(record):
+        entry=selection.get('derivedProofs',{}).get(kind,{})
+        if (entry.get('currentImplementationSha256')==current
+                and sha(ROOT/record['contextPath'])==selection.get('currentContextSha256')):
+            return entry['previousImplementationSha256s']
     if kind=='players' and current==PLAYER_PARTICIPATION.fingerprint():
         # Retain original counts. Unknown players get the independent
         # eligibility check without invalidating already complete PA counts.
@@ -209,12 +215,6 @@ def prior_versions(kind,current):
     if kind=='pa' and current==PLAYER_PARTICIPATION.PA.fingerprint():
         previous=PLAYER_PARTICIPATION.PA.PREVIOUS_SOURCE_SELECTION
         return [previous,*prior_versions(kind,previous)]
-    record=read(COMPATIBILITY_PATH)
-    for selection in selection_repairs(record):
-        entry=selection.get('derivedProofs',{}).get(kind,{})
-        if (entry.get('currentImplementationSha256')==current
-                and sha(ROOT/record['contextPath'])==selection.get('currentContextSha256')):
-            return entry['previousImplementationSha256s']
     foul=record.get('foulPrefixRepair',{})
     entry=foul.get('derivedProofs',{}).get(kind,{})
     if (entry.get('currentImplementationSha256')==current

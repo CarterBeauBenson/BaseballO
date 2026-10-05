@@ -803,3 +803,11 @@ baseball_iri_policy:
 # The judgment is an initial part of the existing personal whole. It is never
 # an episode, Safe judgment, running act or per-event runner Role. No previous
 # lifetime key changes. Rule identity is data/rule/2026/extra-inning-placement.
+
+# BK1: source action identity shared by its awarded runners, never PA result identity.
+balk_runner_attribution:
+  process: "{data}game/{gamePk}/process/balk/{actionPlayId}"
+  judgment: "{data}game/{gamePk}/judgment/balk/{actionPlayId}"
+  decision: "{data}game/{gamePk}/decision/balk/{actionPlayId}"
+  record: "{data}game/{gamePk}/runner-record/{atBatIndex}/{runnerIndex}"
+  review: archive/design-records/mlb-game-balk-runner-attribution/review.json

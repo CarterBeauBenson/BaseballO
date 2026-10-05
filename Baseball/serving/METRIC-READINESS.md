@@ -58,7 +58,7 @@ or source validation is rerun for this correction.
 Read-only checks of current RDF confirm missing award attribution in 822774
 PA 45 (walk) and 824147 PA 60 (HBP), matching the retained SQL bindings. Those
 are graph coverage gaps, not a query join failure. Similarly, separately
-recorded balk attribution remains under BK1 review. The overall classification
+recorded balk attribution was accepted as BK1 on October 5. The overall classification
 exclusions overlap: 330 player-games involve unknown progress attribution,
 44 involve unresolved consequence coalescence, and 29 involve unknown running
 attribution. Four games retain unresolved runner-boundary census failures.
@@ -180,7 +180,12 @@ comparison returned identical results for 159 games in 1.46 seconds versus
 These are direct SQL-reader measurements, not a new live HTTP or browser claim.
 
 The concrete [BK1 mapping review](../archive/design-records/mlb-game-balk-runner-attribution/README.md)
-addresses separately recorded balk advances. It remains pending named approval.
+addresses separately recorded balk advances and was accepted on October 5.
+The implementation joins the operative balk action to its exact runner rows,
+validates the same links in source SHACL, and exposes the running attribution
+through SPARQL. EG1 uses the existing NiFi additive worker for still-excluded,
+inventoried player-games. Focused selection, query and SQL reuse regressions
+pass; this does not yet establish a fully populated live Empty Games metric.
 Other recorded work includes the interrupted-turn `other_out` admission case
 and the stale per-PA boundary-census handoff described in the
 [active plan](../ROADMAP.md). Those are open, not fixed by the reference change.

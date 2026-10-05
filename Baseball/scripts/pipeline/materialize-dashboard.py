@@ -91,6 +91,10 @@ INDIVIDUAL_REFERENCE_CALCULATIONS = (RUN_DEPTH_CALCULATIONS[1], '5f14bb675ca6c2a
 # calculations and source proofs remain usable under this exact transition.
 PARTIAL_TIME_CALCULATIONS = (INDIVIDUAL_REFERENCE_CALCULATIONS[1],
     'f1a36f7bba6e6be432cb6cc1e12fc09b5341ccba2d03aea433d40de6790b0199')
+# BK1 adds structured facts only through additive promotions, which change the
+# RDF identity. Unchanged graphs cannot acquire those joins from this code edit.
+BALK_CALCULATIONS = (PARTIAL_TIME_CALCULATIONS[1],
+    'f606cc7500e19a57487428d8fd8096d54345da365550ebdbb83cc3ad9273e7f7')
 
 
 def digest(value):
@@ -322,9 +326,11 @@ def reuse_game(connection, graph, saved, promotion, dimension, admissions, calcu
     timestamp_update=False;act_count_update=False;catalog_update=False;depth_update=False
     if saved not in {previous_identity,input_identity(promotion,dimension,previous,calculation,legacy=True)}:
         compatible=[]
-        if calculation==PARTIAL_TIME_CALCULATIONS[1]:
-            if partial_time_bindings(connection,graph):return False
-            compatible.append((PARTIAL_TIME_CALCULATIONS[0],False))
+        if calculation==BALK_CALCULATIONS[1]:
+            compatible.append((BALK_CALCULATIONS[0],False))
+        if calculation in {PARTIAL_TIME_CALCULATIONS[1],BALK_CALCULATIONS[1]}:
+            if not partial_time_bindings(connection,graph):
+                compatible.append((PARTIAL_TIME_CALCULATIONS[0],False))
         if calculation==INDIVIDUAL_REFERENCE_CALCULATIONS[1]:
             compatible.append((INDIVIDUAL_REFERENCE_CALCULATIONS[0],False))
         if calculation==RUN_DEPTH_CALCULATIONS[1]:

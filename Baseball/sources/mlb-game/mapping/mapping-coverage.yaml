@@ -206,3 +206,10 @@ deferred:
     reason: non-pitch advisory records mix unsupported classes and unstable identifiers
   measurements:
     reason: approved measurement ICE classes and datatype properties are incomplete
+
+balk_runner_attribution:
+  review: archive/design-records/mlb-game-balk-runner-attribution/review.json
+  status: mapped-reviewed-subset
+  selection: explicit nonpitch balk action with unique actionPlayId and exact playIndex runner joins
+  scope: safe one-base or scoring advances from an occupied base; reconciled reviews only
+  excluded: ambiguous joins, waived calls, forced_balk, additional error advances and unsupported attribution

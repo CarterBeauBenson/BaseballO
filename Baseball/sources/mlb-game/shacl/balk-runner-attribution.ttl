@@ -1,0 +1,25 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix base: <https://baseballontology.org/> .
+@prefix bfo: <http://purl.obolibrary.org/obo/> .
+@prefix cco: <https://www.commoncoreontologies.org/> .
+
+<__RECORD__/balk-shape> a sh:NodeShape ;
+    sh:targetNode <__RECORD__> ; sh:class base:BaseballEventRecord ;
+    sh:sparql [ sh:message "BK1 requires the exact source-linked balk, judgment, decision and runner act, separate from the PA result." ;
+      sh:select """
+        PREFIX base: <https://baseballontology.org/>
+        PREFIX bfo: <http://purl.obolibrary.org/obo/>
+        PREFIX cco: <https://www.commoncoreontologies.org/>
+        SELECT $this WHERE { FILTER NOT EXISTS {
+          $this cco:ont00001808 <__PROCESS__>, <__JUDGMENT__>, <__DECISION__>, <__ACT__>, <__RESOLUTION__> .
+          <__PROCESS__> a base:BalkProcess ; bfo:BFO_0000132 <__PA__> ;
+            bfo:BFO_0000117 <__JUDGMENT__> ; cco:ont00001920 <https://baseballontology.org/data/rule/balk> .
+          <https://baseballontology.org/data/rule/balk> a base:BalkRule .
+          <__JUDGMENT__> a base:UmpireJudgmentAct ; bfo:BFO_0000132 <__PROCESS__> ;
+            cco:ont00001921 <https://baseballontology.org/data/rule/balk> ; cco:ont00001986 <__DECISION__> .
+          <__DECISION__> a base:BaseballDecisionICE ; cco:ont00001808 <__PROCESS__> .
+          <__ACT__> a base:BaserunningAct ; bfo:BFO_0000132 <__PA__> ; bfo:BFO_0000057 <__PLAYER__> .
+          <__RESOLUTION__> a base:SafeProcess ; bfo:BFO_0000062 <__ACT__> ; bfo:BFO_0000132 <__PA__> .
+          FILTER (<__PROCESS__> != <__PA__/result>)
+        }}
+      """ ] .

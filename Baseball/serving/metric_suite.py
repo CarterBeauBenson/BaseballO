@@ -978,12 +978,13 @@ def independent_running_act(row):
     """Accepted running channels tied to this movement, never the PA header."""
     if row.get('independentStealAct') == row.get('act') and row.get('act'):
         return row['act']
-    # The accepted PB/WP running policy covers advances from an occupied base.
+    # The accepted PB/WP/Balk running policy covers advances from an occupied base.
     # Its 1B/2B/3B weights do not settle a batter's uncaught-third-strike entry.
     if (all(row.get(k) for k in (*INDEPENDENT_RUNNING_FIELDS,'record','act'))
             and segment_origin(row) in (1,2,3)
             and row['independentRunningType'] in {'https://baseballontology.org/PassedBallProcess',
-                                                 'https://baseballontology.org/WildPitchProcess'}):
+                                                 'https://baseballontology.org/WildPitchProcess',
+                                                 'https://baseballontology.org/BalkProcess'}):
         return row['act']
     return None
 

@@ -84,6 +84,18 @@ bounded existing-pattern acquisition/addition request, not a database rebuild.
 EG1 and the distinct BK1 balk selector were accepted on October 5. Neither approval
 nor a submitted SQL build completes Empty Games.
 
+The EG1 implementation uses the existing runner-addition NiFi worker. It reads
+the latest published exclusions after the eligibility-reader update, selects
+only the inventoried player-games, prefers retained inputs, and acquires only
+still-needed named games. Existing selectors supply the PA, result, runner,
+award and complete-history dependencies; unsupported selections are recorded.
+BK1 adds the reviewed action-to-runner links in ordinary ingestion and this
+targeted lane. Both use source SHACL and the existing additive transaction.
+Unchanged RDF retains compatible proofs and prepared SQL calculations. The
+first selected game's failure stops wider execution; successful promotions
+trigger only their affected derived products. Runtime population remains the
+completion criterion, including every eligible player's known zero totals.
+
 Within that priority, use M0's query inventory and baseline, then M1 and M2. Audit and fix
 each family's extraction and calculation before using its outputs to repair
 SQL. Carry each repaired family through M9 to the live card and details; do not

@@ -81,6 +81,7 @@ WHERE {
       VALUES (?independentRunningType ?runningJudgmentType ?runningDecisionType) {
         (base:PassedBallProcess base:PassedBallJudgmentAct base:PassedBallDecisionICE)
         (base:WildPitchProcess base:WildPitchJudgmentAct base:WildPitchDecisionICE)
+        (base:BalkProcess base:UmpireJudgmentAct base:BaseballDecisionICE)
       }
       ?record a base:BaseballEventRecord ;
           cco:ont00001808 ?resolution, ?act, ?independentRunningProcess,
@@ -90,6 +91,11 @@ WHERE {
       ?independentRunningJudgment a ?runningJudgmentType ;
           bfo:BFO_0000132 ?independentRunningProcess ; cco:ont00001986 ?independentRunningDecision .
       ?independentRunningDecision a ?runningDecisionType ; cco:ont00001808 ?independentRunningProcess .
+      FILTER(?independentRunningType != base:BalkProcess || EXISTS {
+        ?independentRunningProcess cco:ont00001920 ?balkRule .
+        ?balkRule a base:BalkRule .
+        ?independentRunningJudgment cco:ont00001921 ?balkRule .
+      })
     }
     OPTIONAL {
       ?batterAct a base:BatterAct ; bfo:BFO_0000132 ?plateAppearance ; bfo:BFO_0000055 ?batterRole .

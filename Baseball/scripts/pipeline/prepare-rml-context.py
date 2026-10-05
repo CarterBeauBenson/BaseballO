@@ -1451,6 +1451,42 @@ def intentional_walk_award_terminal(play: dict) -> int | None:
     return events[-1]['index']
 
 
+def balk_runner_evidence(play: dict, at_bat_index: str) -> list[dict]:
+    """BK1: one operative nonpitch balk, joined to its explicit awarded moves.
+
+    The event's source identity is shared by its runners. Neither the eventual
+    batting result nor a descriptive label supplies the running attribution.
+    """
+    if not str(at_bat_index).isdigit() or play.get('about',{}).get('isComplete') is not True:
+        return []
+    events=play.get('playEvents',[])
+    if (play.get('about',{}).get('hasReview') or play.get('reviewDetails')
+            or any(e.get('reviewDetails') or e.get('details',{}).get('hasReview') for e in events)):
+        if accounted_runner_history_reviews(play)['issues']:return []
+    known={int(r['runnerIndex']):r for r in runner_episode_evidence(play,str(at_bat_index))['runnerEpisodes']}
+    output=[]
+    for event in events:
+        detail=event.get('details',{});index=event.get('index');identity=event.get('actionPlayId')
+        if (event.get('isPitch') is not False or event.get('type')!='action'
+                or detail.get('eventType')!='balk' or type(index) is not int
+                or not isinstance(identity,str) or not SAFE_IRI_SEGMENT.fullmatch(identity)
+                or sum(e.get('index')==index for e in events)!=1
+                or sum(e.get('actionPlayId')==identity and e.get('details',{}).get('eventType')=='balk'
+                       for e in events)!=1):continue
+        rows=[(i,r) for i,r in enumerate(play.get('runners',[])) if r.get('details',{}).get('playIndex')==index]
+        for i,row in rows:
+            d=row.get('details',{});m=row.get('movement',{});runner=d.get('runner',{}).get('id')
+            destination={'1B':'2B','2B':'3B','3B':'score'}.get(m.get('start'))
+            if (i not in known or type(runner) is not int or runner<=0
+                    or type(d.get('playIndex')) is not int
+                    or d.get('eventType')!='balk' or m.get('isOut') is not False
+                    or destination is None or m.get('end')!=destination
+                    or d.get('isScoringEvent') is not (destination=='score')
+                    or sum(r.get('details',{}).get('runner',{}).get('id')==runner for _,r in rows)!=1):continue
+            output.append(dict(known[i],actionId=identity,eventIndex=str(index)))
+    return output
+
+
 def runner_metric_evidence(play: dict, at_bat_index: str, season: str, *, document: dict | None = None) -> dict[str, list[dict]]:
     """Select source rows for the user's final award/origin graph contracts.
 
@@ -2961,6 +2997,7 @@ def main() -> None:
             "battedRunnerResolutions": batted_runner_resolution_links(play, at_bat_index, root_context['runnerHistoryReconciliation']),
             **runner_episode_evidence(play, at_bat_index),
             **runner_metric_evidence(play, at_bat_index, season, document=document),
+            "balkAdvances": balk_runner_evidence(play, at_bat_index),
             "hasPlateAppearanceStructure": has_plate_appearance_structure,
             "hasPlateAppearanceClocks": has_plate_appearance_structure and not clock_pair_conflicted(about),
             "hasCompletedPlateAppearanceResult": has_completed_plate_appearance_result,

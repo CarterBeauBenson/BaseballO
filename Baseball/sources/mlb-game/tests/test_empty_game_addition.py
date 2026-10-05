@@ -1,0 +1,94 @@
+"""EG1 scope and BK1 joins without network or graph mutation."""
+import copy
+import ast
+import hashlib
+import importlib.util
+import json
+from pathlib import Path
+import tempfile
+import subprocess
+import unittest
+from unittest.mock import patch
+from rdflib import Graph, RDF, Namespace
+
+ROOT=Path(__file__).resolve().parents[3]
+spec=importlib.util.spec_from_file_location('eg1_test',ROOT/'sources/mlb-game/pipeline/targeted-empty-game-addition.py')
+E=importlib.util.module_from_spec(spec);spec.loader.exec_module(E)
+
+
+class EmptyGameAddition(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.raw=(ROOT/'data/raw/game-566279.json').read_bytes()
+        cls.document=json.loads(cls.raw)
+        cls.play=next(p for p in cls.document['liveData']['plays']['allPlays'] if p['atBatIndex']==12)
+
+    def test_balk_requires_exact_action_runner_join_and_awarded_distance(self):
+        row,=E.BK.C.balk_runner_evidence(self.play,'12')
+        self.assertEqual((row['runnerId'],row['runnerIndex']),('488671','0'))
+        self.assertEqual(row['actionId'],'a05f90a9-c21a-4e07-a4e0-7660dd0beb46')
+        mutations=[lambda p:p['runners'][0]['details'].update(playIndex=99),
+            lambda p:p['runners'][0]['movement'].update(end='3B'),
+            lambda p:p['runners'][0]['details'].update(eventType='wild_pitch'),
+            lambda p:p['playEvents'][5].update(actionPlayId=None),
+            lambda p:p['playEvents'][5]['details'].update(eventType='forced_balk'),
+            lambda p:p['runners'].append(copy.deepcopy(p['runners'][0]))]
+        for mutate in mutations:
+            play=copy.deepcopy(self.play);mutate(play)
+            self.assertEqual(E.BK.C.balk_runner_evidence(play,'12'),[])
+
+    def test_shared_balk_identity_keeps_both_runners_and_final_batting_result(self):
+        play=copy.deepcopy(self.play)
+        extra=copy.deepcopy(play['runners'][0]);extra['details']['runner']['id']=123456
+        extra['movement'].update(start='3B',end='score');extra['details']['isScoringEvent']=True
+        play['runners'].append(extra)
+        rows=E.BK.C.balk_runner_evidence(play,'12')
+        self.assertEqual(len(rows),2);self.assertEqual(len({r['actionId'] for r in rows}),1)
+        self.assertEqual(play['result'],self.play['result'])
+        Graph().parse(data=E.BK.shapes('566279',rows),format='turtle')
+
+    def test_balk_context_preserves_existing_censuses_and_proof_identities(self):
+        prior=subprocess.check_output(['git','show','8f1835b:Baseball/scripts/pipeline/prepare-rml-context.py'])
+        current=E.BK.CONTEXT_PATH.read_bytes();before=ast.parse(prior);after=ast.parse(current)
+        after.body=[n for n in after.body if getattr(n,'name',None)!='balk_runner_evidence']
+        main=next(n for n in after.body if getattr(n,'name',None)=='main')
+        removed=0
+        for node in ast.walk(main):
+            if not isinstance(node,ast.Dict):continue
+            keep=[(k,v) for k,v in zip(node.keys,node.values) if not (isinstance(k,ast.Constant) and k.value=='balkAdvances')]
+            removed+=len(node.keys)-len(keep)
+            node.keys=[k for k,v in keep];node.values=[v for k,v in keep]
+        self.assertEqual(removed,1);self.assertEqual(ast.dump(before),ast.dump(after))
+        bridge=E.E.read(E.E.COMPATIBILITY_PATH)['balkRunnerAttribution']
+        self.assertEqual(hashlib.sha256(prior).hexdigest(),bridge['previousContextSha256'])
+        self.assertEqual(hashlib.sha256(current).hexdigest(),bridge['currentContextSha256'])
+        for family,entry in bridge['families'].items():
+            adapter=E.E.module(E.HERE/(family+'-admission.py'),'bk1_check_'+family.replace('-','_'))
+            self.assertEqual(adapter.fingerprint(),entry['currentImplementationSha256'])
+            self.assertEqual(E.E.code_equivalence(family,entry['previousImplementationSha256'],adapter.fingerprint())['kind'],
+                'unchanged-proof-dependencies')
+            self.assertIsNone(E.E.code_equivalence(family,'unknown',adapter.fingerprint()))
+
+    def test_scoped_existing_maps_preserve_history_dependencies_and_source_bytes(self):
+        player='https://baseballontology.org/data/player/'+str(self.play['matchup']['batter']['id'])
+        case=dict(gamePk='566279',excludedPlayerGames=[dict(player=player)])
+        with patch.object(E,'approved_case',return_value=case):selected=E.select(self.raw,'566279',[player])
+        self.assertIn('12',selected['plateAppearances']);self.assertTrue(selected['balks'])
+        history=selected['history'];keys={(r['atBatIndex'],r['runnerIndex']) for r in selected['episodes']}
+        self.assertTrue({(r['atBatIndex'],r['runnerIndex']) for r in history['episodeMembership']}<=keys)
+        for play in selected['context']['liveData']['plays']['allPlays']:
+            for row in play['runners']:
+                self.assertIn((str(row['_baseballO']['atBatIndex']),str(row['_baseballO']['runnerIndex'])),keys)
+        Graph().parse(data=E.shapes('566279',selected),format='turtle')
+        with tempfile.TemporaryDirectory() as directory:
+            context=Path(directory)/'game-context.json';mapping=Path(directory)/'addition.ttl'
+            E.execution_inputs(self.raw,'566279',selected,context,mapping)
+            self.assertEqual((Path(directory)/'game.json').read_bytes(),self.raw)
+            graph=Graph().parse(mapping);rr=Namespace('http://www.w3.org/ns/r2rml#')
+            self.assertEqual({str(s).rsplit('#',1)[-1] for s in graph.subjects(RDF.type,rr.TriplesMap)},set(E.MAPS))
+            self.assertNotIn('{$.',mapping.read_text())
+        self.assertEqual(self.raw,(ROOT/'data/raw/game-566279.json').read_bytes())
+        with self.assertRaisesRegex(ValueError,'outside the approved'):E.approved_case('566279')
+
+
+if __name__=='__main__':unittest.main()
