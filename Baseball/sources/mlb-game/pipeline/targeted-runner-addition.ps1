@@ -32,6 +32,7 @@ Invoke-MlbRepairBudget -StateRoot $script:StateRoot -Worker 'targeted-runner-add
     $emptyGames = [System.IO.Path]::GetFileName($worker) -eq 'targeted-empty-game-addition.py'
     $batch = [Diagnostics.Stopwatch]::StartNew()
     $processed = 0
+    $admissionGames = @()
     # Keep the existing single-worker lease for a bounded batch. Otherwise a
     # long SQL build wins the slot after almost every individual repair.
     do {
@@ -52,6 +53,7 @@ Invoke-MlbRepairBudget -StateRoot $script:StateRoot -Worker 'targeted-runner-add
                 if (-not $emptyGames) { throw 'Targeted repair failed; terminal evidence records the bounded retry.' }
                 Write-Warning 'Empty Games repair failed; its owner records and limits retries before selecting the next game.'
             }
+            elseif ($emptyGames) { $admissionGames += @('--game-pk', [string]$candidate.gamePk) }
         }
         finally { $lock.Dispose() }
         $processed++
@@ -61,4 +63,12 @@ Invoke-MlbRepairBudget -StateRoot $script:StateRoot -Worker 'targeted-runner-add
         $candidate = $selection | ConvertFrom-Json
     }
     while ($null -ne $candidate)
+    if ($admissionGames.Count -gt 0) {
+        # Keep the shared lease until the existing evidence owner has had its
+        # bounded turn. SQL must not win the slot between an additive repair
+        # and the eligibility refresh for that new graph version.
+        & python -B (Join-Path $PSScriptRoot 'admission-evidence-queue.py') --state-root $script:StateRoot `
+            --java (Get-JavaExecutable) --jena-classpath (Join-Path $script:FusekiHome 'fuseki-server.jar') @admissionGames
+        if ($LASTEXITCODE -ne 0) { throw 'Post-repair admission refresh failed; its owner retains bounded retry evidence.' }
+    }
 }

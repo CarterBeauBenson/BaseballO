@@ -501,6 +501,20 @@ def refresh_game(state,promotion,java,classpath,endpoint='http://127.0.0.1:3031/
     api=SimpleNamespace(**globals())
     batting=load(adapters['batting'],state,promotion,'batting')
     boundary=load(adapters['runner-boundary'],state,promotion,'runner-boundary')
+    # Finish available whole-game batting evidence before an individual fallback.
+    # Additive promotions retain this source census but need a fresh graph check.
+    if batting.get('status')!='admitted' and RETAINED_BATTING.load(api,state,promotion) is None:
+        api=SimpleNamespace(**globals())
+        retained=RETAINED_BATTING.source_census(api,state,promotion)
+        if retained is not None:
+            memory=module(ROOT/'scripts/pipeline/process_state.py','retained_batting_memory').available_memory()
+            # One bounded graph and the existing 384 MiB Jena heap. Retain
+            # over 600 MiB outside that heap rather than applying the larger
+            # multi-profile/raw-input refresh reservation to this stage.
+            if memory is not None and memory<1024*1024*1024:
+                return dict(result,status='waiting-for-memory',availableMemoryBytes=memory)
+            proof=RETAINED_BATTING.prove(api,state,promotion,retained,java,classpath,endpoint)
+            return dict(result,status='refreshed',refreshed=['batting'],battingStatus=proof['status'])
     individual=PLAYER_PARTICIPATION.load(api,state,promotion)
     corrected=(corrected_player_source(api,state,promotion,individual)
                if batting.get('status')!='admitted' else None)
@@ -534,18 +548,6 @@ def refresh_game(state,promotion,java,classpath,endpoint='http://127.0.0.1:3031/
             # Preserve the owner's refusal, bound to its exact inputs. It is
             # not an admission proof and cannot suppress independent families.
             result['familyFailures']={'player-participation':failure}
-    if RETAINED_BATTING.load(api,state,promotion) is None:
-        api=SimpleNamespace(**globals())
-        retained=RETAINED_BATTING.source_census(api,state,promotion)
-        if retained is not None:
-            memory=module(ROOT/'scripts/pipeline/process_state.py','retained_batting_memory').available_memory()
-            # One bounded graph and the existing 384 MiB Jena heap. Retain
-            # over 600 MiB outside that heap rather than applying the larger
-            # multi-profile/raw-input refresh reservation to this stage.
-            if memory is not None and memory<1024*1024*1024:
-                return dict(result,status='waiting-for-memory',availableMemoryBytes=memory)
-            proof=RETAINED_BATTING.prove(api,state,promotion,retained,java,classpath,endpoint)
-            return dict(result,status='refreshed',refreshed=['batting'],battingStatus=proof['status'])
     resolution=load(adapters['runner-resolution'],state,promotion,'runner-resolution')
     if resolution.get('status')!='admitted' and PA_RESOLUTION.load(api,state,promotion) is None:
         retained=PA_RESOLUTION.retained_source(api,state,promotion)

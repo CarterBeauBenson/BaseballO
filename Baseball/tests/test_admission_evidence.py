@@ -28,6 +28,23 @@ def current_implementation(family, entry):
 
 
 class AdmissionEvidence(unittest.TestCase):
+    def test_whole_game_batting_refresh_precedes_missing_individual_fallback(self):
+        original=E.module
+        def module(path,name):
+            return SimpleNamespace(available_memory=lambda:2*1024**3) if Path(path).name=='process_state.py' else original(path,name)
+        with patch.object(E,'module',side_effect=module),patch.object(E,'checked_marker',return_value={}), \
+             patch.object(E,'diagnostic',return_value={'evidenceState':'current'}), \
+             patch.object(E,'load',return_value=dict(status='withheld')), \
+             patch.object(E.RETAINED_BATTING,'load',return_value=None), \
+             patch.object(E.RETAINED_BATTING,'source_census',return_value={'retained':'source'}), \
+             patch.object(E.RETAINED_BATTING,'prove',return_value=dict(status='admitted')) as prove, \
+             patch.object(E.PLAYER_PARTICIPATION,'load',side_effect=AssertionError('Whole-game evidence is available')):
+            result=E.refresh_game('state',dict(gamePk='822751',promotionManifestSha256='new-graph'),None,None)
+            self.assertEqual(result['refreshed'],['batting'])
+            self.assertEqual(result['battingStatus'],'admitted')
+            self.assertFalse(result['rdfChanged'])
+            prove.assert_called_once()
+
     def test_eligibility_uses_one_complete_pa_without_certifying_the_full_pa_total(self):
         owner=E.PLAYER_PARTICIPATION;base=owner.B.BASE
         game=base+'data/game/1';player=base+'data/player/1';pa=game+'/plate-appearance/0'

@@ -253,6 +253,12 @@ finishing the current game before yielding. A failed game retains the same
 two-attempt limit and does not stop independent candidates. The admission
 resume queue similarly processes at most ten checks or five minutes before
 yielding, so stale eligibility checks can progress between SQL builds.
+After each EG1 batch, the same lease gives this existing admission queue a
+bounded turn for the processed games, without waiting for SQL to publish their
+new graph versions. Available whole-game batting censuses are rechecked before
+falling back to individual-player checks. A graph addition cannot reuse an old
+graph-bound proof as current; it can reuse its unchanged source observations
+with the existing SHACL. Remaining checks keep their ordinary NiFi retries.
 
 When a selected addition extends an exact contact or runner-history census,
 EG1 retains the original obligations and adds only the newly selected facts

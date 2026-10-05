@@ -15,6 +15,29 @@ spec.loader.exec_module(Q)
 
 
 class DeferredEvidenceQueue(unittest.TestCase):
+    def test_repaired_game_is_checked_before_sql_publication_and_not_repeated(self):
+        with tempfile.TemporaryDirectory() as directory:
+            state=Path(directory)
+            marker=state/'pipeline/evidence/nifi/game-promotion/999/latest.json'
+            Q.E.atomic(marker,dict(gamePk='999',promotedAtUtc='2026-10-05T00:00:00Z'))
+            inventory=SimpleNamespace(validated_promotion_record=lambda *a:dict(gamePk=a[2]),
+                                      query_index_contract_admission=lambda:{})
+            def module(path,name):
+                if Path(path).name=='work_scope.py':return SimpleNamespace(excluded_games=lambda state:set())
+                if Path(path).name=='game_promotion_inventory.py':return inventory
+                return SimpleNamespace(fingerprint=lambda:'producer')
+            with patch.object(Q.E,'module',side_effect=module), \
+                 patch.object(Q.E,'fingerprint',return_value='producer'), \
+                 patch.object(Q.E,'preserve_interrupted_refresh',return_value=[]), \
+                 patch.object(Q.E,'refresh_game',return_value=dict(status='current',refreshed=[])) as refresh, \
+                 patch.object(Q.E,'tick',side_effect=AssertionError('No unbounded maintenance handoff')):
+                self.assertEqual(Q.tick(state,None,None,games=['999'])['resumedGames'],['999'])
+                self.assertEqual(Q.tick(state,None,None,games=['999'])['status'],'current')
+                self.assertEqual(refresh.call_count,1)
+                Q.E.atomic(marker,dict(gamePk='999',promotedAtUtc='2026-10-05T01:00:00Z'))
+                self.assertEqual(Q.tick(state,None,None,games=['999'])['resumedGames'],['999'])
+                self.assertEqual(refresh.call_count,2)
+
     def test_missing_player_proofs_precede_maintenance_without_repeating_terminal_checks(self):
         with tempfile.TemporaryDirectory() as directory:
             state = Path(directory)

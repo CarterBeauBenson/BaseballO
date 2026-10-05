@@ -44,10 +44,17 @@ def missing_player_games(state):
         return missing
 
 
-def tick(state, java, classpath, endpoint='http://127.0.0.1:3031/baseball-dev/query'):
+def tick(state, java, classpath, endpoint='http://127.0.0.1:3031/baseball-dev/query', *, games=()):
     control = Path(state)/'pipeline/control/mlb-game/admission-evidence'
     excluded = E.module(HERE/'work_scope.py', 'queued_work_scope').excluded_games(state)
-    missing = missing_player_games(state) - set(excluded)
+    # The source repair owner can hand over its just-processed games before
+    # SQL has published a snapshot containing the new promotion. All checks,
+    # receipt identities and retry limits remain with the existing owner.
+    submitted = {str(game) for game in games} - set(excluded)
+    if any(not game.isdigit() for game in submitted):
+        raise ValueError('Admission handoff requires numeric game identities')
+    published_missing = missing_player_games(state) - set(excluded)
+    missing = published_missing | submitted
     pending = {}
     for path in control.glob('*.json'):
         if not path.stem.isdigit() or path.stem in excluded:
@@ -63,7 +70,9 @@ def tick(state, java, classpath, endpoint='http://127.0.0.1:3031/baseball-dev/qu
         version = hashlib.sha256(json.dumps(versions, sort_keys=True).encode()+E.fingerprint().encode()).hexdigest()
         inventory = E.module(E.ROOT/'scripts/pipeline/game_promotion_inventory.py', 'queued_inventory')
         outcomes = []; started = time.monotonic()
-        for _, destination, previous in sorted(pending.values(), key=lambda row:(row[1].stem not in missing, row[0], row[1])):
+        for _, destination, previous in sorted(pending.values(), key=lambda row:(
+                row[1].stem not in published_missing, row[1].stem not in submitted,
+                row[1].stem not in missing, row[0], row[1])):
             game = destination.stem
             owner = Path(state)/'pipeline/evidence/nifi/game-promotion'/game
             markers = [(E.read(p).get('promotedAtUtc', ''), p.name, p) for p in owner.glob('*.json')]
@@ -108,7 +117,7 @@ def tick(state, java, classpath, endpoint='http://127.0.0.1:3031/baseball-dev/qu
                                      for status in sorted({r['status'] for r in outcomes})})
             E.atomic(control/'latest.json', summary)
             return summary
-    return E.tick(state, java, classpath, endpoint=endpoint)
+    return {'status':'current', 'processedGames':0} if games else E.tick(state, java, classpath, endpoint=endpoint)
 
 
 if __name__ == '__main__':
@@ -116,5 +125,6 @@ if __name__ == '__main__':
     for key in ('state-root', 'java', 'jena-classpath'):
         parser.add_argument('--'+key, required=True, type=Path)
     parser.add_argument('--endpoint', default='http://127.0.0.1:3031/baseball-dev/query')
+    parser.add_argument('--game-pk', action='append', default=[])
     args = parser.parse_args()
-    print(json.dumps(tick(args.state_root, args.java, args.jena_classpath, args.endpoint)))
+    print(json.dumps(tick(args.state_root, args.java, args.jena_classpath, args.endpoint, games=args.game_pk)))
