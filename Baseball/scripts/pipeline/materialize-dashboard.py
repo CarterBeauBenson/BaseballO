@@ -86,6 +86,11 @@ RUN_DEPTH_CALCULATIONS = (PAQ_CATALOG_CALCULATIONS[1], 'a97a7871f7704362049017cd
 # The new optional individual-B1 route is used during reference preparation.
 # Unchanged whole-game inputs still produce exactly the same game products.
 INDIVIDUAL_REFERENCE_CALCULATIONS = (RUN_DEPTH_CALCULATIONS[1], '5f14bb675ca6c2aff0bf4bc60febb457c7b2de6a0509d61f1d8868ddb1d999fe')
+# Extraction preserves unmeasured instants and correlates strike records to
+# their pitch. Requery only games whose old bindings can differ; all other
+# calculations and source proofs remain usable under this exact transition.
+PARTIAL_TIME_CALCULATIONS = (INDIVIDUAL_REFERENCE_CALCULATIONS[1],
+    'f1a36f7bba6e6be432cb6cc1e12fc09b5341ccba2d03aea433d40de6790b0199')
 
 
 def digest(value):
@@ -317,6 +322,9 @@ def reuse_game(connection, graph, saved, promotion, dimension, admissions, calcu
     timestamp_update=False;act_count_update=False;catalog_update=False;depth_update=False
     if saved not in {previous_identity,input_identity(promotion,dimension,previous,calculation,legacy=True)}:
         compatible=[]
+        if calculation==PARTIAL_TIME_CALCULATIONS[1]:
+            if partial_time_bindings(connection,graph):return False
+            compatible.append((PARTIAL_TIME_CALCULATIONS[0],False))
         if calculation==INDIVIDUAL_REFERENCE_CALCULATIONS[1]:
             compatible.append((INDIVIDUAL_REFERENCE_CALCULATIONS[0],False))
         if calculation==RUN_DEPTH_CALCULATIONS[1]:
@@ -385,6 +393,26 @@ def reuse_game(connection, graph, saved, promotion, dimension, admissions, calcu
                     break
         connection.execute('UPDATE dashboard_checkpoint SET input_sha256=? WHERE graph_iri=?',(identity,graph))
     return 'calculations' if timestamp_update or act_count_update or depth_changed else 'admissions' if changed else 'unchanged'
+
+
+def partial_time_bindings(connection,graph):
+    """Locate candidates for the extraction correction, not missing RDF.
+
+    This reads retained bindings once during the exact version upgrade. A
+    candidate goes through the normal graph-locked SPARQL stage. Neither an
+    instant nor its measurement is synthesized from an identifier here.
+    """
+    return connection.execute('''SELECT 1 FROM metric_suite_evidence WHERE graph_iri=? AND (
+        (json_extract(binding_json,'$.kind')='plate_appearance'
+         AND json_type(binding_json,'$.paInterval') IS NOT NULL
+         AND (json_type(binding_json,'$.paStartInstant') IS NULL OR json_type(binding_json,'$.paEndInstant') IS NULL))
+        OR (json_extract(binding_json,'$.kind')='pitch_count' AND (
+            json_type(binding_json,'$.pitchStartInstant') IS NULL
+            OR json_type(binding_json,'$.pitchEndInstant') IS NULL
+            OR json_type(binding_json,'$.record') IS NULL
+            OR json_extract(binding_json,'$.record') !=
+               replace(json_extract(binding_json,'$.entity'),'/pitch/','/event-record/pitch/')))
+        ) LIMIT 1''',(graph,)).fetchone() is not None
 
 
 def refresh_run_depth(connection,graph):

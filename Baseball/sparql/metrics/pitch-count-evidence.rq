@@ -16,16 +16,29 @@ WHERE {
       FILTER(CONTAINS(STR(?record), "/event-record/pitch/")) }
     OPTIONAL {
       ?entity obo:BFO_0000199 ?pitchInterval .
-      ?pitchInterval a obo:BFO_0000038 ; obo:BFO_0000222 ?pitchStartInstant ; obo:BFO_0000224 ?pitchEndInstant .
-      ?pitchStartInstant a base:BaseballEventTemporalInstant .
-      ?pitchEndInstant a base:BaseballEventTemporalInstant .
-      ?pitchStartTimestamp a base:BaseballTimestampICE ; cco:ont00001916 ?pitchStartInstant ;
-          cco:ont00001808 ?entity ; cco:ont00001767 ?pitchStart .
-      ?pitchEndTimestamp a base:BaseballTimestampICE ; cco:ont00001916 ?pitchEndInstant ;
-          cco:ont00001808 ?entity ; cco:ont00001767 ?pitchEnd .
+      ?pitchInterval a obo:BFO_0000038 .
+      OPTIONAL {
+        ?pitchInterval obo:BFO_0000222 ?pitchStartInstant .
+        ?pitchStartInstant a base:BaseballEventTemporalInstant .
+        OPTIONAL {
+          ?pitchStartTimestamp a base:BaseballTimestampICE ; cco:ont00001916 ?pitchStartInstant ;
+              cco:ont00001808 ?entity ; cco:ont00001767 ?pitchStart .
+        }
+      }
+      OPTIONAL {
+        ?pitchInterval obo:BFO_0000224 ?pitchEndInstant .
+        ?pitchEndInstant a base:BaseballEventTemporalInstant .
+        OPTIONAL {
+          ?pitchEndTimestamp a base:BaseballTimestampICE ; cco:ont00001916 ?pitchEndInstant ;
+              cco:ont00001808 ?entity ; cco:ont00001767 ?pitchEnd .
+        }
+      }
     }
     OPTIONAL {
-      ?record cco:ont00001808 ?strikeProcess .
+      # Repeat the pitch link inside this optional branch. If the earlier
+      # record binding is absent, an unrelated record must not supply a strike.
+      ?record a base:BaseballEventRecord ; cco:ont00001808 ?entity, ?strikeProcess .
+      FILTER(CONTAINS(STR(?record), "/event-record/pitch/"))
       ?strikeProcess a base:StrikeProcess ; obo:BFO_0000132 ?plateAppearance ; obo:BFO_0000117 ?strikeJudgment .
       VALUES ?strikeJudgmentType { base:StrikeJudgmentAct base:FoulTipJudgmentAct }
       VALUES ?strikeDecisionType { base:StrikeDecisionICE base:FoulTipCallICE }

@@ -64,14 +64,18 @@ WHERE {
         OPTIONAL {
           ?paInterval obo:BFO_0000222 ?paStartInstant .
           ?paStartInstant a base:BaseballEventTemporalInstant .
-          ?paStartTimestamp a base:BaseballTimestampICE ; cco:ont00001916 ?paStartInstant ;
-              cco:ont00001808 ?entity ; cco:ont00001767 ?paStart .
+          OPTIONAL {
+            ?paStartTimestamp a base:BaseballTimestampICE ; cco:ont00001916 ?paStartInstant ;
+                cco:ont00001808 ?entity ; cco:ont00001767 ?paStart .
+          }
         }
         OPTIONAL {
           ?paInterval obo:BFO_0000224 ?paEndInstant .
           ?paEndInstant a base:BaseballEventTemporalInstant .
-          ?paEndTimestamp a base:BaseballTimestampICE ; cco:ont00001916 ?paEndInstant ;
-              cco:ont00001808 ?entity ; cco:ont00001767 ?paEnd .
+          OPTIONAL {
+            ?paEndTimestamp a base:BaseballTimestampICE ; cco:ont00001916 ?paEndInstant ;
+                cco:ont00001808 ?entity ; cco:ont00001767 ?paEnd .
+          }
         }
       }
       OPTIONAL {

@@ -101,6 +101,44 @@ def database():
 
 
 class MetricServing(unittest.TestCase):
+    def test_missing_clock_values_preserve_existing_event_boundaries(self):
+        data=fixture(decisions=())
+        data.graph(G1).parse(data=PREFIX.replace('<urn:test:>','<urn:test:101:>')+'''
+ex:pa obo:BFO_0000199 ex:paInterval .
+ex:paInterval a obo:BFO_0000038 ; obo:BFO_0000222 ex:paStart ; obo:BFO_0000224 ex:paEnd .
+ex:paStart a base:BaseballEventTemporalInstant . ex:paEnd a base:BaseballEventTemporalInstant .
+ex:pitch a base:PitchAct ; obo:BFO_0000132 ex:pa ; obo:BFO_0000199 ex:pitchInterval .
+ex:pitchInterval a obo:BFO_0000038 ; obo:BFO_0000222 ex:pitchStart ; obo:BFO_0000224 ex:pitchEnd .
+ex:pitchStart a base:BaseballEventTemporalInstant . ex:pitchEnd a base:BaseballEventTemporalInstant .
+''',format='turtle')
+        rows=M.normalize_bindings(bindings(data,[G1]),[G1])
+        pa,= [r for r in rows if r['kind']=='plate_appearance']
+        pitch,= [r for r in rows if r['kind']=='pitch_count']
+        for row,prefix in ((pa,'pa'),(pitch,'pitch')):
+            for field in ('Interval','StartInstant','EndInstant'):
+                self.assertIn(prefix+field,row)
+            for field in ('Start','End','StartTimestamp','EndTimestamp'):
+                self.assertNotIn(prefix+field,row)
+        # Returning existing instants does not create numerical time/order.
+        self.assertEqual(M.runner_boundary_states(rows)['states'],[])
+
+    def test_missing_pitch_record_cannot_borrow_another_pitches_strike(self):
+        data=fixture(decisions=())
+        data.graph(G1).parse(data=PREFIX.replace('<urn:test:>','<urn:test:101:>')+'''
+ex:pitch a base:PitchAct ; obo:BFO_0000132 ex:pa .
+ex:otherPitch a base:PitchAct ; obo:BFO_0000132 ex:pa .
+<urn:test:/event-record/pitch/other> a base:BaseballEventRecord ; cco:ont00001808 ex:otherPitch, ex:strike .
+ex:strike a base:StrikeProcess ; obo:BFO_0000132 ex:pa ; obo:BFO_0000117 ex:strikeJudgment .
+ex:strikeJudgment a base:StrikeJudgmentAct ; cco:ont00001986 ex:strikeDecision .
+ex:strikeDecision a base:StrikeDecisionICE ; cco:ont00001808 ex:strike .
+''',format='turtle')
+        rows=M.normalize_bindings(bindings(data,[G1]),[G1])
+        pitches={r['entity']:r for r in rows if r['kind']=='pitch_count'}
+        self.assertEqual(len(pitches),2)
+        self.assertNotIn('record',pitches['urn:test:101:pitch'])
+        self.assertNotIn('strikeProcess',pitches['urn:test:101:pitch'])
+        self.assertEqual(pitches['urn:test:101:otherPitch']['strikeProcess'],'urn:test:101:strike')
+
     def test_cached_rdf_products_match_direct_sql_and_do_not_recalculate(self):
         cache_spec = importlib.util.spec_from_file_location('metric_cache', ROOT/'scripts/pipeline/serving_metric_cache.py')
         cache_module = importlib.util.module_from_spec(cache_spec); cache_spec.loader.exec_module(cache_module)

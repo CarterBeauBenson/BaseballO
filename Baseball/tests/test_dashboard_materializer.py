@@ -362,13 +362,38 @@ class DashboardMaterializer(unittest.TestCase):
 
     def test_individual_reference_upgrade_preserves_unchanged_game_calculations(self):
         old,new=D.INDIVIDUAL_REFERENCE_CALCULATIONS
-        self.assertEqual(D.METRICS.calculation_fingerprint(),new)
         with patch.object(D.METRICS,'calculation_fingerprint',return_value=old):D.build(self.args)
         self.fetched.clear()
-        with patch.object(D.METRICS,'materialize_game',side_effect=AssertionError('no game rebuild')):
+        with patch.object(D.METRICS,'calculation_fingerprint',return_value=new),patch.object(
+                D.METRICS,'materialize_game',side_effect=AssertionError('no game rebuild')):
             result=D.build(self.args)
         self.assertEqual(result['changedGames'],0)
         self.assertEqual(result['calculationUpdatedGames'],0)
+        self.assertEqual(self.fetched,[])
+
+    def test_partial_time_query_upgrade_only_fetches_affected_game(self):
+        from test_metric_suite_serving import fixture,bindings,G1
+        self.bindings['101']=bindings(fixture(decisions=()),[G1])
+        old,new=D.PARTIAL_TIME_CALCULATIONS
+        self.assertEqual(D.METRICS.calculation_fingerprint(),new)
+        with patch.object(D.METRICS,'calculation_fingerprint',return_value=old):D.build(self.args)
+        # Retained old projection: interval survived, unmeasured instant did not.
+        with closing(sqlite3.connect(self.working())) as db,db:
+            original=next((sha,text) for sha,text in db.execute(
+                'SELECT binding_sha256,binding_json FROM metric_suite_evidence WHERE graph_iri=?',(G1,))
+                if json.loads(text)['kind']=='plate_appearance')
+            row=json.loads(original[1]);row['paInterval']='urn:existing-interval'
+            text=D.METRICS._json(row)
+            db.execute('UPDATE metric_suite_evidence SET binding_sha256=?,binding_json=? WHERE graph_iri=? AND binding_sha256=?',
+                       (D.METRICS._hash(text),text,G1,original[0]))
+            self.assertTrue(D.partial_time_bindings(db,G1))
+            self.assertFalse(D.partial_time_bindings(db,self.graphs[1]))
+        self.fetched.clear()
+        result=D.build(self.args)
+        self.assertEqual(self.fetched,['101'])
+        self.assertEqual((result['changedGames'],result['reusedGames']),(1,1))
+        self.fetched.clear()
+        self.assertEqual(D.build(self.args)['changedGames'],0)
         self.assertEqual(self.fetched,[])
 
     def test_paq_catalog_upgrade_removes_obsolete_order_gap_without_recalculation(self):

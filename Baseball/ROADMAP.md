@@ -197,6 +197,16 @@ An unreviewed query is still open even if its card currently has numbers. A
 family cannot close until its query corrections reach the SQL and UI through
 M9; recording a defect in this plan is not repairing it.
 
+October 5 execution: the PA and pitch queries now retain existing intervals and
+instants independently of missing timestamp measurements. The pitch strike
+branch also repeats its record-to-pitch join, so an unbound record cannot borrow
+another pitch's strike in the same PA. Two focused extraction regressions pass.
+The dashboard migration re-queries only games whose retained bindings can be
+affected and preserves other game products; its focused upgrade and reuse
+checks pass. No RML, source proof or RDF is changed. NiFi publication of this
+query repair remains pending. The other query and kernel paths remain under
+audit; this does not close M0.
+
 ### M1. Repair official PA participation first
 
 There are 1,160 unknown player-game PA records across 236 games, affecting 629

@@ -10,7 +10,28 @@ the 486 retained spring/exhibition games no longer enter build dependencies.
 Their data and historical diagnoses remain stored. This scope reduction does
 not establish completeness for the remaining metric populations.
 
-## Current publication: October 4, 23:30 Eastern
+## Current publication: October 5, 07:14 Eastern
+
+Build `20261005T105915Z-dashboard-275648582d65` published at 11:14:34 UTC,
+paired with code `4d72724`. The full-season HTTP response still has **5/19
+populated cards and 0 complete populations**. Ranked players: Offensive Reach
+1, Help Without Advancing 5, Empty Games 291, Scoring History Length 196 and
+Run Contributors 9. The other fourteen have no qualified rankings.
+
+The published SQL now has 293 unknown player-game PA counts across 147 games
+and 254 players, down from 1,160 in the earlier snapshot. The previous queue,
+retained-census and individual-reference changes have reached this publication.
+They improve coverage but do not finish the required metric populations.
+
+The next query repair separates an event's existing interval/instants from its
+optional timestamp values and keeps strike evidence tied to the particular
+pitch record. Four focused extraction/migration checks pass; unchanged games
+reuse their calculated SQL while affected games use the existing NiFi SPARQL
+stage. This repair has not yet reached the measured publication above. RML and
+authoritative RDF are unchanged. Continue the remaining audit in the
+[active plan](../ROADMAP.md#1-complete-the-nineteen-metrics-execution-plan).
+
+## Historical publication: October 4, 23:30 Eastern
 
 The published build is `20261005T031625Z-dashboard-5c27e45118a5`, using
 `e75455c`, published October 5 at 03:30:39 UTC. It contains 2,444 active games;
