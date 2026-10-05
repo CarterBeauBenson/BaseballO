@@ -97,6 +97,8 @@ BALK_CALCULATIONS = (PARTIAL_TIME_CALCULATIONS[1],
     'f606cc7500e19a57487428d8fd8096d54345da365550ebdbb83cc3ad9273e7f7')
 EMPTY_CERTAINTY_CALCULATIONS = (BALK_CALCULATIONS[1],
     'b5f7a7f7c269bfa131e6c9ddbbee22c0f70dffa04f650bb9a9ded34c132809ae')
+SAFE_PREFIX_CALCULATIONS = (EMPTY_CERTAINTY_CALCULATIONS[1],
+    'd4f3e6bff8f9e37ee53231db51a3c150446b85e4849074ae4d4273cbbd3c57ed')
 
 
 def digest(value):
@@ -328,11 +330,13 @@ def reuse_game(connection, graph, saved, promotion, dimension, admissions, calcu
     timestamp_update=False;act_count_update=False;catalog_update=False;depth_update=False;progress_update=False
     if saved not in {previous_identity,input_identity(promotion,dimension,previous,calculation,legacy=True)}:
         compatible=[]
-        if calculation==EMPTY_CERTAINTY_CALCULATIONS[1]:
+        if calculation==SAFE_PREFIX_CALCULATIONS[1]:
+            compatible.append((SAFE_PREFIX_CALCULATIONS[0],False))
+        if calculation in {EMPTY_CERTAINTY_CALCULATIONS[1],SAFE_PREFIX_CALCULATIONS[1]}:
             compatible.append((EMPTY_CERTAINTY_CALCULATIONS[0],False))
-        if calculation in {BALK_CALCULATIONS[1],EMPTY_CERTAINTY_CALCULATIONS[1]}:
+        if calculation in {BALK_CALCULATIONS[1],EMPTY_CERTAINTY_CALCULATIONS[1],SAFE_PREFIX_CALCULATIONS[1]}:
             compatible.append((BALK_CALCULATIONS[0],False))
-        if calculation in {PARTIAL_TIME_CALCULATIONS[1],BALK_CALCULATIONS[1],EMPTY_CERTAINTY_CALCULATIONS[1]}:
+        if calculation in {PARTIAL_TIME_CALCULATIONS[1],BALK_CALCULATIONS[1],EMPTY_CERTAINTY_CALCULATIONS[1],SAFE_PREFIX_CALCULATIONS[1]}:
             if not partial_time_bindings(connection,graph):
                 compatible.append((PARTIAL_TIME_CALCULATIONS[0],False))
         if calculation==INDIVIDUAL_REFERENCE_CALCULATIONS[1]:
@@ -365,7 +369,7 @@ def reuse_game(connection, graph, saved, promotion, dimension, admissions, calcu
                           and matched[0] not in {ACT_COUNT_CALCULATIONS[1],SCOPED_PA_CALCULATIONS[1]})
         catalog_update=calculation==PAQ_CATALOG_CALCULATIONS[1]
         depth_update=calculation==RUN_DEPTH_CALCULATIONS[1]
-        progress_update=calculation==EMPTY_CERTAINTY_CALCULATIONS[1]
+        progress_update=calculation in {EMPTY_CERTAINTY_CALCULATIONS[1],SAFE_PREFIX_CALCULATIONS[1]}
     changed=previous_identity!=identity
     if changed or timestamp_update or act_count_update:
         refresh_admission_inputs(connection,graph,previous,admissions,

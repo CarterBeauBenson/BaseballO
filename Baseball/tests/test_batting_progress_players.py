@@ -229,6 +229,25 @@ class ProgressPlayers(unittest.TestCase):
         g.add((out,RDF.type,BASE.OutProcess))
         self.assertEqual(unresolved()['confirmedPositivePlayers'],[])
 
+    def test_contact_positive_survives_separate_steal_and_unknown_safe_prefix(self):
+        data=continuation_fixture();g=data.graph(G1);pa=str(GAME)+'/plate-appearance/0'
+        # Player 3: steal first-to-second, unknown second-to-third step, then
+        # the already attributed scoring step. No new cause is inferred.
+        p3=URIRef('https://baseballontology.org/data/player/3');rr=URIRef(pa+'/steal-prefix')
+        episode,_,_=movement(g,rr,URIRef(str(rr)+'/act'),URIRef(pa),p3,
+            origin=URIRef(str(GAME)+'/base/1'),destination=URIRef(str(GAME)+'/base/2'))
+        g.add((URIRef(str(rr)+'/act'),RDF.type,BASE.StealAttemptAct))
+        g.add((URIRef(str(GAME)+'/runner-trajectory/3'),BFO.BFO_0000117,episode))
+        g.remove((URIRef(pa+'/contact'),BFO.BFO_0000117,URIRef(pa+'/third-safe')))
+        result=M.batting_progress_evidence(M.normalize_bindings(bindings(data,[G1]),[G1]))
+        item=next(p for p in result['plateAppearances'] if p['plateAppearance']==pa)
+        self.assertIn(str(p3),item['otherPositivePlayers'])
+        self.assertEqual([p['player'] for p in item['independentPositive']],[str(p3)])
+        self.assertEqual(item['unresolvedRunningPositivePlayers'],[str(p3)])
+        g.add((URIRef(pa+'/contact'),BFO.BFO_0000117,rr))
+        result=M.batting_progress_evidence(M.normalize_bindings(bindings(data,[G1]),[G1]))
+        self.assertIn(pa,{p['plateAppearance'] for p in result['unresolvedPlateAppearances']})
+
     def test_reviewed_contact_continuation_reaches_all_four_player_producers(self):
         data=continuation_fixture()
         reach=score(data,'offensive-reach')

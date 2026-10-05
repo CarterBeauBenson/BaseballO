@@ -2146,7 +2146,8 @@ def contact_progress_with_unknown_safe_steps(states, history_rows, movement_rows
     denied = dict(status='unavailable', gap='UNRESOLVED_PROGRESS_ATTRIBUTION')
     contacts = {r['contactPlay'] for r in states if r.get('contactPlay')}
     if (len(contacts) != 1 or not any(not r.get('contactPlay') for r in states)
-            or any(r.get('award') or independent_running_act(r) or r.get('hasOutType') != 'false' for r in states)):
+            or any(r.get('award') or (r.get('contactPlay') and independent_running_act(r))
+                   or r.get('hasOutType') != 'false' for r in states)):
         return denied
     path = runner_progress_path(states, history_rows, movement_rows)
     if path['status'] != 'available':

@@ -60,6 +60,20 @@ PA a sacrifice fly with one RBI, but labels all three safe runner movements
 claim its already-present repair receipt supplies the missing runner credit,
 or infer a new attribution link from the PA label alone under EG1.
 
+A further SQL-only correction preserves a known contact advance through a
+complete, entirely safe history with a separately supported steal and an
+unattributed safe step (822997 PA 2). The unknown step receives no credit;
+the known steal remains a runner contribution. Branches, outs, missing history
+members and a segment assigned to both channels still fail. Four focused
+progress/migration checks pass; affected SQL inputs refresh through the same
+incremental upgrade.
+
+The [W4 review](../proposals/mlb-game-automatic-ball-walk-award/README.md)
+prepares the separate source-selector repair for automatic ball four. Game
+822834 PA 31 already passes the automatic-count selector but its walk award
+is omitted because the award selector insists on a physical final pitch.
+W4 is awaiting approval; EG1's unchanged-selector scope does not include it.
+
 ## Earlier October 5 measurements
 
 Build `20261005T132720Z-dashboard-17f4e3356233` published at 13:52:17 UTC,

@@ -1,0 +1,36 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-automatic-ball-walk-award",
+  "title": "W4 automatic fourth-ball walk award completion",
+  "status": "under-review",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "20fed1df5554612b475b5d2d50bda71a8315f93e0d429f38e8e010989a641e63"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "README.md",
+        "sha256": "20fed1df5554612b475b5d2d50bda71a8315f93e0d429f38e8e010989a641e63"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "20fed1df5554612b475b5d2d50bda71a8315f93e0d429f38e8e010989a641e63"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "README.md",
+        "sha256": "20fed1df5554612b475b5d2d50bda71a8315f93e0d429f38e8e010989a641e63"
+      }
+    ]
+  },
+  "ontologistDecision": null
+}
