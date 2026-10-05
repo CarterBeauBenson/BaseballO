@@ -29,11 +29,19 @@ def missing_player_games(state):
     if not database.is_relative_to((Path(state)/'serving/dashboard/builds').resolve()):
         raise ValueError('Dashboard priority database escaped its owner')
     with closing(sqlite3.connect(database.as_uri()+'?mode=ro', uri=True)) as db:
-        return {row[0] for row in db.execute('''SELECT g.game_pk FROM game_dimension g
+        missing={row[0] for row in db.execute('''SELECT g.game_pk FROM game_dimension g
             JOIN metric_suite_admission b USING(graph_iri)
             LEFT JOIN dashboard_player_admission a USING(graph_iri)
             WHERE g.game_set IN ('regular_season','all_star')
               AND json_extract(b.proof_json,'$.status')!='admitted' AND a.graph_iri IS NULL''')}
+        implementation=E.PLAYER_PARTICIPATION.fingerprint()
+        missing.update(game for game,text in db.execute('''SELECT g.game_pk,a.proof_json
+            FROM dashboard_player_admission a JOIN game_dimension g USING(graph_iri)
+            WHERE g.game_set IN ('regular_season','all_star')
+              AND EXISTS (SELECT 1 FROM dashboard_player_game p
+                WHERE p.graph_iri=a.graph_iri AND p.plate_appearances IS NULL)''')
+            if E.PLAYER_PARTICIPATION.needs_compound_refresh(json.loads(text),implementation=implementation))
+        return missing
 
 
 def tick(state, java, classpath, endpoint='http://127.0.0.1:3031/baseball-dev/query'):

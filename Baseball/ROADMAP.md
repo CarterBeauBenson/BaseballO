@@ -69,7 +69,15 @@ displayed subset. Do not reopen these choices or lower thresholds to fill cards.
 
 ### Execution order and dependencies
 
-Start with M0's query inventory and baseline, then M1, M2 and M3. Audit and fix
+The user's October 5 execution priority is **Empty Games first, for every
+eligible player**. Carry that one metric through SPARQL, prepared SQL and the
+live full-season card/details before resuming the other eighteen. Include
+known zero totals and impose no appearance minimum. Verify game eligibility
+independently of exact PA totals: one independently verified official PA is
+sufficient, while zero-positive classifications still require the complete
+applicable progress inventory. Unknown classifications remain explicit.
+
+Within that priority, use M0's query inventory and baseline, then M1 and M2. Audit and fix
 each family's extraction and calculation before using its outputs to repair
 SQL. Carry each repaired family through M9 to the live card and details; do not
 stop at a query result or wait to finish every family before publishing one.
@@ -94,7 +102,7 @@ independent query work. Keep the dated baseline until new measured results exist
 | --- | --- | --- | --- |
 | M0: audit SPARQL and trace every exclusion | Current promoted RDF, accepted metric contracts and immutable publication | Evidence queries, generated kernels, adapters and existing build diagnostics | All nineteen paths traced; extraction and arithmetic assessed independently; every exclusion has a cause, affected identity and owner |
 | M1: official PA participation | M0 | MLB admission evidence, player projection | Every eligible player's PA census resolved; no unexplained null PA records |
-| M2: progress and Empty Games | M1 plus affected progress facts | SPARQL, metric inputs, player projection | Complete progress/classification/channel products for applicable player-games |
+| M2: progress and Empty Games | Verified PA eligibility for Empty Games; M1 exact counts for rates; affected progress facts | SPARQL, metric inputs, player projection | Complete progress/classification/channel products for applicable player-games |
 | M3: contribution, outs and erosion | M1 plus affected boundary/resolution facts | SPARQL, contribution inputs, existing source evidence owner | Complete attributed PA scores and independent running losses |
 | M4: scoring histories | M0; M2 attribution for contributor breadth | Run queries and scoring-history reducers | Every counted run has its supported history and contributors |
 | M5: two-strike histories | M1, pitch/count evidence | Existing count admission and recovery reducer | Every PA classified for applicability; complete eligible pitch histories |

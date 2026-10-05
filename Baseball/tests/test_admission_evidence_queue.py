@@ -24,20 +24,27 @@ class DeferredEvidenceQueue(unittest.TestCase):
                 db.executescript('''
                     CREATE TABLE game_dimension(graph_iri TEXT, game_pk TEXT, game_set TEXT);
                     CREATE TABLE metric_suite_admission(graph_iri TEXT, proof_json TEXT);
-                    CREATE TABLE dashboard_player_admission(graph_iri TEXT);
+                    CREATE TABLE dashboard_player_admission(graph_iri TEXT,proof_json TEXT);
+                    CREATE TABLE dashboard_player_game(graph_iri TEXT,plate_appearances INTEGER);
                     INSERT INTO game_dimension VALUES ('g1','999','regular_season'),
                         ('g2','998','regular_season'), ('g3','997','regular_season');
                     INSERT INTO metric_suite_admission VALUES ('g1','{"status":"withheld"}'),
                         ('g2','{"status":"withheld"}'), ('g3','{"status":"admitted"}');
-                    INSERT INTO dashboard_player_admission VALUES ('g2');
+                    INSERT INTO dashboard_player_admission VALUES ('g2','{}');
                 ''')
             Q.E.atomic(state/'serving/dashboard-current.json', {'databasePath':str(database)})
             self.assertEqual(Q.missing_player_games(state), {'999'})
+            with closing(sqlite3.connect(database)) as db:
+                db.execute('UPDATE dashboard_player_admission SET proof_json=?',
+                    (json.dumps(dict(implementationSha256='old',players=[dict(status='withheld')])),))
+                db.execute('INSERT INTO dashboard_player_game VALUES (?,NULL)',('g2',));db.commit()
+            self.assertEqual(Q.missing_player_games(state), {'999','998'})
             control = state/'pipeline/control/mlb-game/admission-evidence'
             for game, status in [('999', 'retained-rdf-unavailable'), ('998', 'partial-refreshed')]:
                 Q.E.atomic(state/f'pipeline/evidence/nifi/game-promotion/{game}/latest.json',
                            dict(gamePk=game, promotedAtUtc='2026-10-05T00:00:00Z'))
-                Q.E.atomic(control/(game+'.json'), dict(status=status, checkedAtUtc='2026-09-29T00:00:00Z'))
+                Q.E.atomic(control/(game+'.json'), dict(status=status,
+                    checkedAtUtc='2026-09-29T00:00:00Z' if game=='999' else '2026-09-30T00:00:00Z'))
             inventory = SimpleNamespace(validated_promotion_record=lambda *a:dict(gamePk=a[2]),
                                         query_index_contract_admission=lambda: {})
             def module(path, name):

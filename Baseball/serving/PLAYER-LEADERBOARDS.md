@@ -74,7 +74,14 @@ exposure. Pinch runners need no inferred PA count or batting minimum.
 
 Offensive Reach, Hidden Help Rate, Empty Games and Contribution Mix also have conditional player
 producers. They require separate complete runner-resolution admission, B1
-official PA counts and complete selected schedules. Supported contact, award
+official PA counts for rates and complete selected schedules. Empty Games
+requires at least one verified official PA in an eligible game, not an exact
+PA denominator. The existing B1 player checker can establish that eligibility
+through a complete, unambiguous ordinary-turn pattern even when a different
+turn leaves the full count unresolved. A confirmed positive settles a nonempty
+game; declaring an Empty Game requires the complete applicable turn and runner
+inventory. Known zero counts are included and no appearance minimum applies.
+Supported contact, award
 and independent-steal channels preserve the accepted batting exclusions and
 independent running's effect on Empty Games. Unknown contribution channels or
 unresolved consequence coalescence withhold the complete population. See the

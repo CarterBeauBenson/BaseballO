@@ -10,10 +10,10 @@ the 486 retained spring/exhibition games no longer enter build dependencies.
 Their data and historical diagnoses remain stored. This scope reduction does
 not establish completeness for the remaining metric populations.
 
-## Current publication: October 5, 07:14 Eastern
+## Latest measured publication: October 5, 09:52 Eastern
 
-Build `20261005T105915Z-dashboard-275648582d65` published at 11:14:34 UTC,
-paired with code `4d72724`. The full-season HTTP response still has **5/19
+Build `20261005T132720Z-dashboard-17f4e3356233` published at 13:52:17 UTC,
+paired with SQL code `e773235`. The full-season HTTP response still has **5/19
 populated cards and 0 complete populations**. Ranked players: Offensive Reach
 1, Help Without Advancing 5, Empty Games 291, Scoring History Length 196 and
 Run Contributors 9. The other fourteen have no qualified rankings.
@@ -23,11 +23,35 @@ and 254 players, down from 1,160 in the earlier snapshot. The previous queue,
 retained-census and individual-reference changes have reached this publication.
 They improve coverage but do not finish the required metric populations.
 
-The next query repair separates an event's existing interval/instants from its
+The user's current priority is to finish **Empty Games for all eligible
+players** before returning to the other eighteen metrics. This publication
+has 407 player-games excluded for classification and another 293 for unknown
+PA counts. There are 662 players with at least one known official PA, 774
+with only known zero counts, and 50 whose season eligibility remains unknown.
+These categories describe the published evidence, not a final eligible census.
+
+The next scoped repair checks positive eligibility separately in the existing
+player SHACL owner. One unambiguous, fully verified ordinary PA establishes
+eligibility without certifying the full-game PA total. Counts still require
+complete applicable progress for a negative classification; rate denominators
+remain withheld when their totals are unknown. NiFi prioritizes the affected
+existing player proofs and reprojects changed SQL partitions. Six focused
+eligibility, isolation, reuse and queue checks pass; these are pending runtime
+results, not a claim of additional populated players.
+
+The deployed overview adapter removes repeated per-player graph lists after
+ranking, while the detail endpoint retains them. Measured full-season response
+size fell from 5.52 MB to 1.14 MB. One first request took 6.38 seconds and the
+following warm request took 1.28 seconds; Empty Games detail took 1.11 seconds
+and returned exactly the same 291 ranked rows. The first-request performance
+target is still open.
+
+The query repair separates an event's existing interval/instants from its
 optional timestamp values and keeps strike evidence tied to the particular
 pitch record. Four focused extraction/migration checks pass; unchanged games
 reuse their calculated SQL while affected games use the existing NiFi SPARQL
-stage. This repair has not yet reached the measured publication above. RML and
+stage. The implementation is included in the measured SQL runtime above; its
+remaining population exclusions still need diagnosis. RML and
 authoritative RDF are unchanged. Continue the remaining audit in the
 [active plan](../ROADMAP.md#1-complete-the-nineteen-metrics-execution-plan).
 

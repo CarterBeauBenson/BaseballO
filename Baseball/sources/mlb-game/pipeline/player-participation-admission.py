@@ -26,6 +26,7 @@ INVENTORY=URIRef('urn:baseballo:validation:player-participation:inventory')
 PREVIOUS_IMPLEMENTATION='b0ac0af0b8cea1673fdb7bc4bfd1df624b387e7004b5aa495fcbebb81185b769'
 PREVIOUS_RUN_SCOPE_IMPLEMENTATION='fe9cfe7f2defc663fc065fb567bee78c15d5e3a2be41e4e156b6107f8a6c2bc7'
 PREVIOUS_ADMINISTRATIVE_IMPLEMENTATION='9503a9efedaae32a7234d9635d511af30c0f06824376029fe99a4f302d243bfa'
+PREVIOUS_ELIGIBILITY_IMPLEMENTATION='8cb765a70f37e8dc2570cafd8ccd86a5b5cd0ab14761593d29469d7301fafe6c'
 RUN_TOTAL_ISSUES={'INNING_RUN_TOTAL_MISMATCH','TEAM_RUN_TOTAL_MISMATCH'}
 ADMINISTRATIVE_DECISION='archive/design-records/mlb-game-edge-case-recovery/review.json'
 
@@ -70,7 +71,7 @@ FILTER(!BOUND(?player) || !BOUND(?team) ||
     kinds=members(B.BASE+t for t in B.RESULTS.values());shapes=[]
     for person in roster:
         player=person['player'];own=[r for r in turns if r['player']==player]
-        absent=[];batters=[];results=[]
+        absent=[];batters=[];results=[];eligible=[]
         for row in own:
             pa=row['pa'];act=pa+'/batter-act';role=player+'/role/batter'
             pattern=f'''{B.iri(pa)} a base:PlateAppearance ; {scope} .
@@ -85,6 +86,15 @@ FILTER(!BOUND(?player) || !BOUND(?team) ||
 {B.iri(decision)} a base:BaseballDecisionICE ; cco:ont00001808 {B.iri(result)} .
 {B.iri(record)} a base:BaseballEventRecord ; cco:ont00001808 {B.iri(result)}, {B.iri(judgment)}, {B.iri(decision)} .'''
                 results.append('|'.join((pa,result,row['resultType'])))
+                # Empty Games needs at least one official PA, not an exact
+                # full-game PA total. Reuse the complete ordinary-turn B1
+                # pattern, with one actual batter, as a positive witness.
+                eligible.append('{ '+pattern+f'''
+FILTER NOT EXISTS {{ ?otherAct a base:BatterAct ; obo:BFO_0000132 {B.iri(pa)} .
+  FILTER(?otherAct != {B.iri(act)}) }}
+FILTER NOT EXISTS {{ {B.iri(act)} obo:BFO_0000055 ?otherRole .
+  ?otherRole a base:BatterRole ; obo:BFO_0000197 ?otherPlayer . FILTER(?otherPlayer != $this) }}
+'''+' }')
             absent.append('{ FILTER NOT EXISTS { '+pattern+' } }')
         membership='''SELECT $this WHERE {
 { %s } UNION {
@@ -117,6 +127,10 @@ OPTIONAL {
 } } GROUP BY $this } FILTER(?actual != %d) }''' % (game,scope,kinds,count)
         shapes.append(node('urn:baseballo:validation:player-participation:'+player.rsplit('/',1)[-1],player,
             [('B1 player PA/result/batter membership differs',membership),('B1 official player PA count differs',count_query)]))
+        if B.integer(count) and count>0 and eligible:
+            query='SELECT $this WHERE { FILTER NOT EXISTS { '+' UNION '.join(eligible)+' } }'
+            shapes.append(node('urn:baseballo:validation:player-eligibility:'+player.rsplit('/',1)[-1],player,
+                [('B1 no independently supported eligible PA',query)]))
     text=SHAPE.read_text(encoding='utf-8').replace('# __ROSTER_SHAPE__',node(str(ROSTER),source['game'],[('B1/E1 game roster differs',roster_query)]))
     text=text.replace('# __INVENTORY_SHAPE__',node(str(INVENTORY),source['game'],[('B1 complete PA inventory differs',inventory_query)]))
     text=text.replace('# __PLAYER_SHAPES__','\n'.join(shapes))
@@ -147,7 +161,7 @@ def outcome(source,report):
             roster_issues.append(issue)
     roster_ok=str(ROSTER) not in failures and not roster_issues
     inventory_ok=str(INVENTORY) not in failures
-    players=[]
+    players=[];eligible=[]
     for row in roster:
         player=row['player'];issues=list(blocked[player])
         if not roster_ok:issues.append(dict(code='COMPLETE_GAME_ROSTER'))
@@ -155,8 +169,12 @@ def outcome(source,report):
         if 'urn:baseballo:validation:player-participation:'+player.rsplit('/',1)[-1] in failures:
             issues.append(dict(code='PLAYER_GRAPH_CONFORMANCE'))
         players.append(dict(player=player,status='withheld' if issues else 'admitted',issues=issues))
+        if (roster_ok and B.integer(row.get('officialPA')) and row['officialPA']>0
+                and any(r['player']==player and r.get('resultType') for r in source['members'])
+                and 'urn:baseballo:validation:player-eligibility:'+player.rsplit('/',1)[-1] not in failures):
+            eligible.append(player)
     return dict(rosterComplete=roster_ok,plateAppearanceInventoryComplete=inventory_ok,players=players,
-                independentSourceIssues=independent)
+                eligiblePlayers=eligible,independentSourceIssues=independent)
 
 
 def proof_path(evidence,state,promotion):
@@ -187,11 +205,12 @@ def compound_expectations(source):
     return projected
 
 
-def needs_compound_refresh(proof):
+def needs_compound_refresh(proof, *, implementation=None):
     # Older independent-response checks can reject the original graph's roster.
     # Retry that route and unrelated run-total refusals; retain successful checks.
-    if not proof or proof.get('implementationSha256')==fingerprint():return False
-    return ((proof.get('rosterComplete') is False
+    if not proof or proof.get('implementationSha256')==(implementation or fingerprint()):return False
+    return (('eligiblePlayers' not in proof and any(p.get('status')=='withheld' for p in proof.get('players',[])))
+        or (proof.get('rosterComplete') is False
         and proof.get('retainedSourceEvidence',{}).get('kind')=='retained-source-response')
         or any((i.get('code')=='SOURCE_RECONCILIATION' and i.get('detail',{}).get('code') in RUN_TOTAL_ISSUES)
                or (i.get('code')=='UNRESOLVED_COMPLETED_RESULT' and i.get('eventType')=='game_advisory')

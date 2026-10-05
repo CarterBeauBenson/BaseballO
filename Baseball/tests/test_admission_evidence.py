@@ -28,6 +28,39 @@ def current_implementation(family, entry):
 
 
 class AdmissionEvidence(unittest.TestCase):
+    def test_eligibility_uses_one_complete_pa_without_certifying_the_full_pa_total(self):
+        owner=E.PLAYER_PARTICIPATION;base=owner.B.BASE
+        game=base+'data/game/1';player=base+'data/player/1';pa=game+'/plate-appearance/0'
+        source=dict(game=game,roster=[dict(player=player,team=base+'data/team/1',side='away',officialPA=2)],
+            members=[dict(pa=pa,player=player,atBatIndex=0,resultType=base+'SingleProcess'),
+                     dict(pa=game+'/plate-appearance/1',player=player,atBatIndex=1,resultType=base+'DoublePlayProcess')],
+            issues=[])
+        shapes=owner.Graph().parse(data=owner.shape_text(source),format='turtle')
+        eligibility=owner.URIRef('urn:baseballo:validation:player-eligibility:1')
+        query=str(shapes.value(shapes.value(eligibility,owner.SH.sparql),owner.SH.select))
+        data=owner.Graph().parse(data=owner.B.PREFIXES+f'''
+<{pa}> a base:PlateAppearance ; obo:BFO_0000132 <urn:half> .
+<urn:half> obo:BFO_0000132 <urn:inning> . <urn:inning> obo:BFO_0000132 <{game}> .
+<{pa}/batter-act> a base:BatterAct ; obo:BFO_0000132 <{pa}> ; obo:BFO_0000055 <{player}/role/batter> .
+<{player}/role/batter> a base:BatterRole ; obo:BFO_0000197 <{player}> .
+<{pa}/result> a base:BaseballInstitutionalProcess,base:SingleProcess ; obo:BFO_0000132 <{pa}> .
+<{pa}/judgment/result> a base:BaseballAdjudicationAct ; obo:BFO_0000132 <{pa}/result> ; cco:ont00001986 <{pa}/decision/result> .
+<{pa}/decision/result> a base:BaseballDecisionICE ; cco:ont00001808 <{pa}/result> .
+<{pa}/event-record/result> a base:BaseballEventRecord ; cco:ont00001808 <{pa}/result>,<{pa}/judgment/result>,<{pa}/decision/result> .
+''',format='turtle')
+        self.assertEqual(list(data.query(query,initBindings={'this':owner.URIRef(player)})),[])
+        report=owner.Graph()
+        report.add((owner.URIRef('urn:failure'),owner.SH.sourceShape,
+                    owner.URIRef('urn:baseballo:validation:player-participation:1')))
+        result=owner.outcome(source,report)
+        self.assertEqual(result['eligiblePlayers'],[player])
+        self.assertEqual(result['players'][0]['status'],'withheld')
+        # Actual multiple batting stints do not supply ordinary B1 credit.
+        data.parse(data=owner.B.PREFIXES+f'<urn:other-act> a base:BatterAct ; obo:BFO_0000132 <{pa}> .',format='turtle')
+        self.assertEqual(len(list(data.query(query,initBindings={'this':owner.URIRef(player)}))),1)
+        report.add((owner.URIRef('urn:eligibility-failure'),owner.SH.sourceShape,eligibility))
+        self.assertEqual(owner.outcome(source,report)['eligiblePlayers'],[])
+
     def test_administrative_pa_expectations_reuse_complete_mapping_selection(self):
         owner=E.PLAYER_PARTICIPATION;base=owner.B.BASE
         actual=dict(atBatIndex=0,player=base+'data/player/1',pa=base+'data/game/1/plate-appearance/0',
@@ -89,6 +122,8 @@ class AdmissionEvidence(unittest.TestCase):
         self.assertIn(old['implementationSha256'],E.prior_versions('players',owner.fingerprint()))
         self.assertFalse(owner.needs_compound_refresh(old))
         old['players'][0].update(status='withheld',issues=[dict(code='PLAYER_GRAPH_CONFORMANCE')])
+        self.assertTrue(owner.needs_compound_refresh(old))  # Missing independent eligibility proof.
+        old['eligiblePlayers']=[]
         self.assertFalse(owner.needs_compound_refresh(old))
         old['players'][0]['issues'].append(dict(code='SOURCE_RECONCILIATION',detail=dict(code='TEAM_RUN_TOTAL_MISMATCH')))
         self.assertTrue(owner.needs_compound_refresh(old))

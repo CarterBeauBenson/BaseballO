@@ -19,6 +19,44 @@ SCOPE=dict(gameSet='regular_season',startDate='2026-09-01',endDate='2026-09-02')
 
 
 class PlayerRanges(unittest.TestCase):
+    def test_empty_game_eligibility_does_not_require_a_rate_denominator(self):
+        from test_batting_progress_players import fixture, bindings, G1, P1, PROOF
+        rows=M.normalize_bindings(bindings(fixture(),[G1]),[G1])
+        progress=M.batting_progress_evidence(rows);person=str(P1)
+        individual=dict(rosterComplete=True,plateAppearanceInventoryComplete=True,
+            players=[dict(player=person,status='withheld')],eligiblePlayers=[person])
+        def project(evidence,proof=individual):
+            people,records=P.project(M,graph=str(G1),scope=SCOPE,rows=rows,
+                proofs=dict(batting={},run=PROOF,resolution=PROOF,players=proof),
+                inputs=dict(contribution={},progress=evidence,defense={}),
+                runs={metric:{} for metric in P.RUNS},run_people={})
+            self.assertIsNone(next(r[3] for r in people if r[1]==person))
+            return {r[2]:r for r in records if r[1]==person}
+        records=project(progress)
+        self.assertEqual(records['empty-game-rate'][3],1)
+        self.assertEqual(json.loads(records['empty-game-rate'][4]),dict(kind='count',count=0,eligibleGames=1))
+        self.assertEqual(records['offensive-reach'][3],0)
+        self.assertEqual(records['tfs'][3],0)
+        self.assertEqual(project(progress,dict(individual,eligiblePlayers=[]))['empty-game-rate'][3],0)
+        # A negative needs the entire turn inventory, not just one known PA.
+        negative=copy.deepcopy(progress)
+        for pa in negative['plateAppearances']:
+            pa.update(reach=0,batterPositive=False,otherPositivePlayers=[],independentPositive=[],positiveChannels=[])
+        records=project(negative)
+        self.assertEqual(records['empty-game-rate'][3],1)
+        self.assertEqual(json.loads(records['empty-game-rate'][4]),dict(kind='count',count=1,eligibleGames=1))
+        self.assertEqual(project(negative,dict(individual,plateAppearanceInventoryComplete=False))['empty-game-rate'][3],0)
+        negative['plateAppearances'].pop()
+        self.assertEqual(project(negative)['empty-game-rate'][3],0)
+
+    def test_eligibility_upgrade_reuses_unchanged_player_proofs(self):
+        db=self.db()
+        for i in (1,2):
+            db.execute('UPDATE dashboard_player_partition SET input_sha256=? WHERE graph_iri=?',
+                (M._hash('source-'+str(i)+P.PREVIOUS_EMPTY_ELIGIBILITY_VERSION),G+str(i)))
+        with patch.object(M._blocks,'read_scope',side_effect=AssertionError('no changed eligibility proof')):
+            self.assertEqual(P.prepare(M,db)['preparedGames'],0)
+
     def test_running_channel_gap_does_not_exclude_unrelated_players(self):
         graph=G+'1';game='https://baseballontology.org/data/game/1'
         proof=dict(status='admitted',sourceReconciled=True,graphConforms=True)

@@ -28,6 +28,7 @@ PREVIOUS_CHANNEL_VERSION = '7397a2cc83659359efe7a99dee4f6eafc9c7b86ae9a7fa620c20
 PREVIOUS_SHARED_OUT_VERSION = 'cf63597341de4a503f8f8002c5e421ae755d555d49f00dd8593966532894d13a'
 PREVIOUS_PA_CONTRIBUTION_VERSION = '9a1f3425fd08919dcf0730dcb6466eae61534b4eeb1e8fa9f5076e04c0067273'
 PREVIOUS_AMBIGUOUS_PROGRESS_VERSION = 'ab2fac95e7153c1c3ddc19595463ccb1c283c722b6a7e28e66a711d76fa7ed4c'
+PREVIOUS_EMPTY_ELIGIBILITY_VERSION = '91af6cc2428dda5b7a12091e0ee3fb4daa7c5bfbf18db2d8fff4d99638ddfe35'
 
 
 def fingerprint():
@@ -256,6 +257,9 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people):
     qualified_classified={pa:r for pa,r in classified.items() if r['player'] in people}
     progress_census=(set(qualified_classified)==all_expected and
         all(classified[p]['player']==r['player'] for r in q['expectedObservations'] for p in [r['plateAppearance']]))
+    empty_population=((admitted(proofs['batting']) or individual.get('plateAppearanceInventoryComplete') is True)
+        and {r['entity'] for r in rows if r['kind']=='plate_appearance'}==
+            {p['plateAppearance'] for p in [*progress.get('plateAppearances',[]),*progress.get('unresolvedPlateAppearances',[])]})
     run_values={};run_unknown={}
     observed={r['entity'] for r in rows if r['kind']=='run'}
     for metric,result in runs.items():
@@ -292,8 +296,11 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people):
                   for p in own_progress}
         own_help.update({pa:item for pa,item in help_inputs.items() if pa in own and item['player']==player})
         help_ok=person is not None and (admitted(proofs['resolution']) or own<=resolved) and set(own_help)==own
-        empty_known=(person is not None and (player in certain_positive or
-                     (admitted(proofs['resolution']) and progress_census and (player in positive or player not in uncertain))))
+        empty_eligible=(bool(pa_count) if person is not None else
+                        True if player in individual.get('eligiblePlayers',[]) else None)
+        empty_known=(empty_eligible is not None and (player in certain_positive or
+                     (admitted(proofs['resolution']) and progress_census
+                      and (player in positive or empty_population and player not in uncertain))))
         for metric in sorted(PREPARED):
             complete=False;aggregate=zero();reason='OFFICIAL_PA_POPULATION'
             if metric in RUNS:
@@ -302,6 +309,11 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people):
             elif metric in DEFENSE:
                 complete,values=defensive[metric]
                 aggregate=values.get(player,zero());reason='DEFENSIVE_POPULATION'
+            elif metric=='empty-game-rate':
+                complete=empty_eligible is False or (empty_eligible is True and empty_known)
+                aggregate=dict(kind='count',count=int(empty_eligible is True and player not in positive),
+                               eligibleGames=int(empty_eligible is True))
+                reason='OFFENSIVE_ELIGIBILITY' if empty_eligible is None else 'COMPLETE_EMPTY_GAME_CLASSIFICATION'
             elif person is not None:
                 reason='COMPLETE_PA_CONTRIBUTIONS'
                 if metric in CONTRIBUTION:
@@ -318,9 +330,6 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people):
                     else:
                         complete=help_ok
                         aggregate=mean(m,[Fraction(p['value']) for p in own_help.values() if p['eligible']])
-                elif metric=='empty-game-rate':
-                    complete=empty_known or not own;reason='COMPLETE_EMPTY_GAME_CLASSIFICATION'
-                    aggregate=dict(kind='count',count=int(bool(own) and player not in positive),eligibleGames=int(bool(own)))
                 elif metric=='contribution-path-diversity':
                     complete=(admitted(proofs['resolution']) and progress_census and player not in mix_uncertain
                               and progress_ok)
@@ -373,6 +382,11 @@ def prepare(m, db, checkpoint=None, player_admissions=None):
         individual_text=m._json(individual);proof_sha=m._hash(individual_text) if individual else ''
         identity=m._hash(key+version+proof_sha)
         if saved.get(graph)==identity:continue
+        if saved.get(graph)==m._hash(key+PREVIOUS_EMPTY_ELIGIBILITY_VERSION+proof_sha):
+            # The new eligibility witness changes the individual proof hash.
+            # Without such a change, the existing player products are identical.
+            with db:db.execute('UPDATE dashboard_player_partition SET input_sha256=? WHERE graph_iri=?',(identity,graph))
+            continue
         ambiguity_upgrade=graph in ambiguity_candidates
         if not ambiguity_upgrade and saved.get(graph)==m._hash(key+PREVIOUS_AMBIGUOUS_PROGRESS_VERSION+proof_sha):
             with db:db.execute('UPDATE dashboard_player_partition SET input_sha256=? WHERE graph_iri=?',(identity,graph))
