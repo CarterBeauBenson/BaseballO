@@ -35,6 +35,33 @@ Six sibling downstream groups do not own or control any source lane:
 The provisioners reconcile only their named source group and leave sibling
 groups untouched. They do not use or migrate the retired control plane.
 
+### Temporary deferral during metric repairs
+
+On October 6, 2026, the user authorized deferring optional background work to
+give game repairs and dashboard publication priority on the limited-memory
+workstation. Twenty-three existing processors are stopped:
+
+- The Repository Evidence daily trigger and aggregate validation worker.
+- Context preparation, RML and source SHACL in MLB Teams, Leagues, Divisions,
+  People, Venues and Transactions (three processors per source).
+- The Authority SQL event-check trigger and its two materialization workers.
+
+All were verified stopped with zero active threads. Queues, retained inputs,
+existing authoritative graphs and published SQL remain intact. Acquisition
+triggers retain their 05:00 Eastern schedules and are running; acquired reference
+inputs wait at the stopped processing stages. MLB Game ingestion, required game
+SHACL, targeted repairs, eligibility maintenance and Dashboard SQL remain running.
+These optional jobs were idle when paused, so this prevents later memory
+competition rather than establishing an immediate amount of reclaimed RAM.
+
+The runtime record `pipeline/control/optional-work-deferral-2026-10-06.json`
+contains each exact group/processor identity, prior run state and unchanged
+schedule. After the current metric-repair push or explicit user direction,
+restore only recorded prior `RUNNING` states through each processor's NiFi
+`run-status` endpoint using its current revision. Keep this deferral during
+incidental provisioning; do not start whole groups or alter validation outcomes.
+This is an operational pause, not a new gate, scheduler, or validation framework.
+
 ## Operating contract
 
 The broad lifecycle is:
