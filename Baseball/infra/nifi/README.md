@@ -114,15 +114,28 @@ minute timer from repeatedly colliding with a short admission sweep. It grants
 neither SQL owner priority, preserves the existing memory reserve and requested
 upstream-repair phase, and never interrupts the current owner.
 
+During the October 6 RDF-hold repair, the user authorized stopping the unfinished
+report build and restoring the existing upstream priority. Independent source
+repairs share the lease without waiting for the history queue to clear. The
+temporary phase still yields to SQL after NiFi records upstream work clear.
+History discovery compares the original pinned selector's transitive AST
+dependencies and the current source runtime pin; unrelated context functions
+do not require another history mapping or a new semantic admission.
+
 Quarantine requests waiting on a named SQL build return their unchanged request
 to a penalized NiFi queue. They do not hold a sleeping command process. The
 existing batch worker marks progress interrupted only when its recorded OS
 process has exited. Whole-game replay remains a separately scoped
 [recovery operation](../../sources/mlb-game/pipeline/DEFERRED-RECOVERY.md).
+An explicit retry of at most five named games proves all selected current
+payloads through that lane, with no bulk remainder. Retired representative-game
+inputs do not block this small retry, and its receipt cannot certify a later
+bulk replay. All selected games still require exact-hash promotions.
 
 `Refresh Admission Evidence` runs once per minute, prioritizes the latest
 loaded regular season in the published dashboard SQL, diagnoses up to 100 games
-and refreshes at most one game per tick. Within that season it prioritizes
+and refreshes at most ten games or 45 seconds per tick, finishing the current
+game before yielding. Within that season it prioritizes
 missing rosters, unchecked batting participation and withheld runner resolutions.
 It distinguishes missing, stale, implementation-compatible and previously
 withheld evidence. The general refresh requires exact retained

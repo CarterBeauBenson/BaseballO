@@ -111,14 +111,22 @@ def source(owner,state,promotion,request_path):
 
 
 def history_context_bytes(raw):
-    """Exclude only assembly/defense/terminal-clock code unused by histories.
+    """Pin history selection and its transitive local helper definitions.
 
-    Keep all other definitions, constants and imports conservatively pinned.
+    Keep constants and imports conservatively pinned. Unrelated award, pitch,
+    defense and assembly functions do not invalidate the history work queue.
     This does not change semantic admission or any evidence producer hash.
     """
     tree=ast.parse(raw)
-    excluded={'main','defensive_act_context','terminal_baseball_play'}
-    tree.body=[node for node in tree.body if getattr(node,'name',None) not in excluded]
+    definitions={node.name:node for node in tree.body
+                 if isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef,ast.ClassDef))}
+    included={'personal_runner_histories'};pending=list(included)
+    while pending:
+        for node in ast.walk(definitions[pending.pop()]):
+            if isinstance(node,ast.Name) and node.id in definitions and node.id not in included:
+                included.add(node.id);pending.append(node.id)
+    tree.body=[node for node in tree.body if not isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef,ast.ClassDef))
+               or node.name in included]
     return ast.dump(tree,include_attributes=False).encode()
 
 
@@ -137,6 +145,29 @@ def fingerprint(owner):
         (owner.ROOT/'scripts/pipeline/validate-shacl.py').read_bytes()+
         (owner.HERE.parent/'shacl/runner-boundary-admission.ttl').read_bytes()+
         history_context_bytes((owner.ROOT/'scripts/pipeline/prepare-rml-context.py').read_bytes())).hexdigest()
+
+
+def checked_context(owner,contract):
+    """Keep the original H3 pin; admit only identical history dependencies.
+
+    The signature was derived from that pinned source, not a new selector.
+    Ordinary source runtime admission must also bind the current full file.
+    """
+    path=owner.ROOT/'scripts/pipeline/prepare-rml-context.py';raw=path.read_bytes()
+    actual=owner.hashlib.sha256(raw).hexdigest()
+    if actual==contract['contextBuilderSha256']:return actual
+    signature=contract.get('historyContextSignature',{})
+    if (signature.get('method')!='personal-runner-histories-transitive-ast-v1'
+            or signature.get('sourceSha256')!=contract['contextBuilderSha256']
+            or signature.get('sha256')!=owner.hashlib.sha256(history_context_bytes(raw)).hexdigest()):
+        raise ValueError('History discovery context differs from accepted H3')
+    freeze=owner.read(owner.ROOT/'governance/semantic-freeze.json')
+    admitted=next((r['artifacts']['contextBuilder'] for r in freeze['runtimeAdmissions']
+                   if r['moduleId']=='mlb-game'),{})
+    if (admitted.get('path')!='Baseball/scripts/pipeline/prepare-rml-context.py'
+            or admitted.get('sha256')!=actual):
+        raise ValueError('History context differs from source runtime admission')
+    return actual
 
 
 def missing_graph_histories(owner,promotion,histories):
@@ -234,7 +265,7 @@ def inspect_record(owner,state,marker_path,contract,previous):
     if not original and not legacy:return dict(record,status='retained-history-census-unavailable')
     if not legacy and original.get('sourceConsistency')!='consistent':return record
     request=dict(gamePk=pk,promotionManifestSha256=record['identity'][0],
-        rmlManifestSha256=marker['rmlManifestSha256'],contextBuilderSha256=contract['contextBuilderSha256'],
+        rmlManifestSha256=marker['rmlManifestSha256'],contextBuilderSha256=owner.sha(owner.ROOT/'scripts/pipeline/prepare-rml-context.py'),
         scopeDecision=SCOPE,historyFailures=[dict(inning=r['inning'],half=r['half'],issues=r['issues'])
             for r in (original or {}).get('withheldHistories',[])],boundaryIssues=(original or {}).get('boundaryIssues',[]))
     if legacy:request['legacyHistoryEvidence']=True
@@ -269,8 +300,7 @@ def inspect_promotions(owner,state,excluded,limit=100):
     excluded = set(excluded) | set(owner.SCOPE.excluded_games(state))
     data=inventory(owner,state);version=fingerprint(owner);inspected=0
     contract=owner.read(owner.SELECTION)
-    if owner.sha(owner.ROOT/'scripts/pipeline/prepare-rml-context.py')!=contract['contextBuilderSha256']:
-        raise ValueError('History discovery context differs from accepted H3')
+    checked_context(owner,contract)
     directories=sorted((state/'pipeline/evidence/nifi/game-promotion').glob('*'),
         key=lambda p:(p.name not in contract.get('legacyEvidenceGames',[]),p.name in data['games'],p.name))
     for directory in directories:

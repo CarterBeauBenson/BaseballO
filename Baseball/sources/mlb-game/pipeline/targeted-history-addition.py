@@ -367,8 +367,7 @@ def revalidate(marker, manifest, history, rdf, evidence, java, classpath, delta=
 def acquire_selection_source(state, case):
     """Use only inventoried responses; copy immutable samples before execution."""
     inventory = read(SELECTION)
-    if sha(ROOT / 'scripts/pipeline/prepare-rml-context.py') != inventory['contextBuilderSha256']:
-        raise ValueError('H2 context differs from the prepared repair')
+    DISCOVERY.checked_context(SimpleNamespace(**globals()),inventory)
     game_pk = case['gamePk']
     if case.get('discovered'):
         witness=case['sourceWitness'];source=Path(witness['path'])

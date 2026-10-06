@@ -3,6 +3,11 @@
   "scopeDecision": "archive/design-records/metric-repair-scope-2026-09-30/README.md",
   "implementationRecord": "sources/mlb-game/review/rml-selection-repair-2026-10-01.md",
   "contextBuilderSha256": "e3bf6ebedca0f6dcd80727d8250eb7d1d58076e0dd85f100df21fb7cbf0242b0",
+  "historyContextSignature": {
+    "method": "personal-runner-histories-transitive-ast-v1",
+    "sourceSha256": "e3bf6ebedca0f6dcd80727d8250eb7d1d58076e0dd85f100df21fb7cbf0242b0",
+    "sha256": "53d1218977eb31ac48c199d38db11312b15d8295422661a9890355ea12513e67"
+  },
   "cases": [
     {
       "gamePk": "849842",

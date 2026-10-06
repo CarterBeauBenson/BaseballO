@@ -12,6 +12,27 @@ D=H.DISCOVERY
 
 
 class HistoryRepairDiscovery(unittest.TestCase):
+    def test_context_compatibility_requires_unchanged_history_and_current_runtime_admission(self):
+        raw='def helper():\n    return 1\ndef personal_runner_histories(raw):\n    return helper()\ndef award():\n    return 1\n'
+        with tempfile.TemporaryDirectory() as temp:
+            api=SimpleNamespace(**vars(H));api.ROOT=Path(temp)
+            path=api.ROOT/'scripts/pipeline/prepare-rml-context.py';path.parent.mkdir(parents=True)
+            path.write_text(raw);original=H.sha(path)
+            contract=dict(contextBuilderSha256=original,historyContextSignature=dict(
+                method='personal-runner-histories-transitive-ast-v1',sourceSha256=original,
+                sha256=H.hashlib.sha256(D.history_context_bytes(raw)).hexdigest()))
+            self.assertEqual(D.checked_context(api,contract),original)
+            changed=raw.replace('def award():\n    return 1','def award():\n    return 2');path.write_text(changed)
+            freeze=api.ROOT/'governance/semantic-freeze.json'
+            def admit(digest):
+                H.atomic(freeze,dict(runtimeAdmissions=[dict(moduleId='mlb-game',artifacts=dict(contextBuilder=dict(
+                    path='Baseball/scripts/pipeline/prepare-rml-context.py',sha256=digest)))]))
+            admit(H.sha(path));self.assertEqual(D.checked_context(api,contract),H.sha(path))
+            admit(original)
+            with self.assertRaisesRegex(ValueError,'runtime admission'):D.checked_context(api,contract)
+            path.write_text(changed.replace('def helper():\n    return 1','def helper():\n    return 2'));admit(H.sha(path))
+            with self.assertRaisesRegex(ValueError,'accepted H3'):D.checked_context(api,contract)
+
     def test_history_dependency_signature_ignores_only_unrelated_assembly(self):
         raw=(H.ROOT/'scripts/pipeline/prepare-rml-context.py').read_text()
         before=D.history_context_bytes(raw)
@@ -19,6 +40,10 @@ class HistoryRepairDiscovery(unittest.TestCase):
             'def main() -> None:\n    unused_assembly_change = True')))
         self.assertEqual(before,D.history_context_bytes(raw.replace('def terminal_baseball_play(document: dict) -> dict:',
             'def terminal_baseball_play(document: dict) -> dict:\n    unused_clock_change = True')))
+        import ast
+        award=next(n for n in ast.parse(raw).body if isinstance(n,ast.FunctionDef) and n.name=='runner_metric_evidence')
+        lines=raw.splitlines();lines.insert(award.body[0].lineno-1,'    unrelated_award_change = True')
+        self.assertEqual(before,D.history_context_bytes('\n'.join(lines)))
         self.assertNotEqual(before,D.history_context_bytes(raw.replace('def personal_runner_histories(raw: bytes, previous=None) -> dict:',
             'def personal_runner_histories(raw: bytes, previous=None) -> dict:\n    changed_history = True')))
         self.assertNotEqual(before,D.history_context_bytes(raw.replace('def runner_boundary_anchors(document):',
@@ -216,7 +241,7 @@ class HistoryRepairDiscovery(unittest.TestCase):
                 self.assertEqual(D.discover(api,state,set()),pk)
                 case=D.cases(api,state)[0];current=Path(case['repairRequest'])
                 self.assertNotEqual(current,legacy)
-                self.assertEqual(H.read(current)['contextBuilderSha256'],H.read(H.SELECTION)['contextBuilderSha256'])
+                self.assertEqual(H.read(current)['contextBuilderSha256'],H.sha(H.ROOT/'scripts/pipeline/prepare-rml-context.py'))
                 self.assertEqual(case['sourceWitness'],witness)
                 self.assertEqual(H.acquire_selection_source(state,case),witness)
                 self.assertEqual(case['selectedHistoryKeys'],[removed['lifetimeKey']])

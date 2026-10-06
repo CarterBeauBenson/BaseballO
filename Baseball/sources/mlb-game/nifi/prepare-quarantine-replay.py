@@ -346,7 +346,14 @@ def create_plan(state_root: Path, contract_path: Path, game_pks: list[str] | Non
     if not replay_candidates:
         proof_pks = []
         proof_selection_mode = "no-replay-candidates"
-    if missing and replay_candidates:
+    if missing and replay_candidates and requested is not None and len(requested)<=5:
+        # An explicitly bounded retry has no bulk remainder to release. Prove
+        # every selected current input through the normal RML/SHACL/promotion
+        # lane; unavailable historical representative inputs are unrelated.
+        # This small proof cannot certify a later bulk replay.
+        proof_pks=sorted(replay_candidates,key=int)
+        proof_selection_mode="explicit-bounded-current-inputs"
+    elif missing and replay_candidates:
         prior_proof = (prior_certified_proof(state_root, proof_pks)
                        or prior_certified_proof(state_root, configured_proof_pks))
         if prior_proof is None:

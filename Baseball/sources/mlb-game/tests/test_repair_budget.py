@@ -7,7 +7,7 @@ import unittest
 ROOT=Path(__file__).resolve().parents[3]
 
 class RepairBudget(unittest.TestCase):
-    def test_rechecks_yield_to_pending_histories_and_resume_when_history_queue_clears(self):
+    def test_independent_repairs_continue_with_pending_histories_and_preserve_serving_handoff(self):
         helper=ROOT/'sources/mlb-game/pipeline/repair-budget.ps1'
         with tempfile.TemporaryDirectory() as temp:
             state=Path(temp);script=state/'check.ps1'
@@ -22,13 +22,15 @@ $priority=Join-Path $control 'repair-priority.json'
 $report=Join-Path $control 'repair-status.json'
 @{enabled=$true} | ConvertTo-Json | Set-Content -LiteralPath $priority
 foreach ($worker in @('admission-evidence','targeted-defensive-addition','targeted-foul-addition')) {
-    $result=Invoke-MlbRepairBudget -StateRoot $State -Worker $worker -Action {throw 'missing report must yield to history owner'}
-    if (($result | ConvertFrom-Json).reason -ne 'pending-history-repairs') {throw 'maintenance did not yield'}
+    $result=Invoke-MlbRepairBudget -StateRoot $State -Worker $worker -Action {'independent-ran'}
+    if ($result -ne 'independent-ran') {throw 'missing observer report blocked an independent repair'}
 }
 foreach ($pending in @('uninspectedGames','outdatedInspections','awaitingSource','selectedPending','fixedPending')) {
     @{historyDiscovery=@{$pending=@('1')}} | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $report
-    $result=Invoke-MlbRepairBudget -StateRoot $State -Worker 'admission-evidence' -Action {throw 'recheck starved pending history'}
-    if (($result | ConvertFrom-Json).reason -ne 'pending-history-repairs') {throw 'unfinished history work was ignored'}
+    foreach ($worker in @('admission-evidence','targeted-defensive-addition','targeted-foul-addition')) {
+        $result=Invoke-MlbRepairBudget -StateRoot $State -Worker $worker -Action {'independent-ran'}
+        if ($result -ne 'independent-ran') {throw 'history backlog blocked an independent repair'}
+    }
     $result=Invoke-MlbRepairBudget -StateRoot $State -Worker 'targeted-history-addition' -Action {'history-ran'}
     if ($result -ne 'history-ran') {throw 'history could not acquire the shared slot'}
 }

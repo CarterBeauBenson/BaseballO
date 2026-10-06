@@ -44,9 +44,9 @@ function Invoke-MlbRepairBudget {
         [ValidateRange(0, 60)][int] $TimeoutSeconds = 0
     )
 
-    # During the requested upstream-repair phase, recurring rechecks must not
-    # repeatedly win the slot ahead of unfinished Q7 work. Use the existing
-    # observer's queue; do not run another inspection or alter its evidence.
+    # Source repairs are independent. A history backlog must not block foul,
+    # defense or admission work; the shared lease bounds their concurrency.
+    # Yield only the completed upstream phase's handoff to serving.
     if ($Worker -in @('admission-evidence', 'targeted-defensive-addition', 'targeted-foul-addition')) {
         $control = Join-Path $StateRoot 'pipeline\control\mlb-game'
         $priorityPath = Join-Path $control 'repair-priority.json'
@@ -54,13 +54,8 @@ function Invoke-MlbRepairBudget {
             $priority = Get-Content -LiteralPath $priorityPath -Raw -Encoding UTF8 | ConvertFrom-Json
             if ($priority.enabled -eq $true) {
                 $reportPath = Join-Path $control 'repair-status.json'
-                $historyPending = -not (Test-Path -LiteralPath $reportPath -PathType Leaf)
-                if (-not $historyPending) {
+                if (Test-Path -LiteralPath $reportPath -PathType Leaf) {
                     $report = Get-Content -LiteralPath $reportPath -Raw -Encoding UTF8 | ConvertFrom-Json
-                    foreach ($field in @('uninspectedGames', 'outdatedInspections', 'awaitingSource', 'selectedPending', 'fixedPending')) {
-                        $value = $report.historyDiscovery.PSObject.Properties[$field]
-                        if ($null -ne $value -and @($value.Value).Count -gt 0) { $historyPending = $true; break }
-                    }
                     $clear = $report.PSObject.Properties['recordedWorkClear']
                     if ($null -ne $clear -and $clear.Value -eq $true -and
                             [DateTimeOffset]$report.checkedAtUtc -ge [DateTimeOffset]$priority.requestedAtUtc) {
@@ -69,10 +64,6 @@ function Invoke-MlbRepairBudget {
                         @{status='deferred'; reason='upstream-complete-serving-handoff'; worker=$Worker} | ConvertTo-Json -Compress
                         return
                     }
-                }
-                if ($historyPending) {
-                    @{status='deferred'; reason='pending-history-repairs'; worker=$Worker} | ConvertTo-Json -Compress
-                    return
                 }
             }
         }

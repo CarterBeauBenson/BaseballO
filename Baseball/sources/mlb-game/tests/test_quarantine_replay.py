@@ -196,6 +196,25 @@ class QuarantineReplayTests(unittest.TestCase):
             self.assertEqual(plan['remainder'], [])
             self.assertTrue((state / 'pipeline/quarantine/mlb-game/900001/run/input.json').exists())
 
+    def test_two_named_inputs_need_their_own_promotions_not_retired_representative_inputs(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            state=Path(temporary);ids=['849823','849825']
+            paths={pk:add_quarantine(state,pk,'run') for pk in [*ids,'900001']}
+            submission=MODULE.create_plan(state,self.contract(state),ids)
+            path=Path(submission['planPath']);plan=MODULE.read_object(path)
+            self.assertEqual(plan['proofBasis']['selectionMode'],'explicit-bounded-current-inputs')
+            self.assertEqual([r['gamePk'] for r in plan['proof']],ids)
+            self.assertEqual(plan['remainder'],[])
+            add_promotion(state,ids[0],input_hash(paths[ids[0]]))
+            with self.assertRaisesRegex(RuntimeError,ids[1]):MODULE.require_proof(state,path)
+            add_promotion(state,ids[1],'0'*64)
+            with self.assertRaisesRegex(RuntimeError,ids[1]):MODULE.require_proof(state,path)
+            add_promotion(state,ids[1],input_hash(paths[ids[1]]),'exact.json')
+            self.assertEqual(len(MODULE.require_proof(state,path)['promotions']),2)
+            self.assertEqual(MODULE.emit_remainder(state,path)['records'],[])
+            self.assertTrue(paths['900001'].is_file())
+            self.assertIsNone(MODULE.prior_certified_proof(state,list(PROOF_GAMES)))
+
     def test_remainder_is_blocked_until_all_exact_proof_hashes_are_promoted(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             state = Path(temporary)

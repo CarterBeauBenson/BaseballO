@@ -43,11 +43,36 @@ and [the gap register](sparql/metrics/gap-register.json) for accepted meanings.
 ### Starting point and finish line
 
 All 2,429 regular-season games and rosters are present, and the selected schedule
-is complete. The recorded authorized RML backlog is clear: 754 selected history
-cases complete, no pending inspections or recorded repair failures. That closes
-that execution backlog, not every metric's evidence requirements. The current
+is complete. The October 5 report that the authorized RML backlog was clear was
+a dated observation, superseded by the October 6 holds below. The latest measured
 full-season dashboard has five populated cards and fourteen without rankings;
 none reports a complete population. Successful SQL publication is not completion.
+
+### October 6: clear the recorded RDF holds
+
+The user directed execution of the complete hold diagnosis. The unfinished
+report SQL build `20261006T133857Z-1b1b2ed379f3` was stopped through its verified
+worker PID, and the existing temporary upstream-repair priority was restored.
+The published serving pointer and authoritative graphs were preserved. Keep
+the optional-source deferral and all 05:00 acquisition schedules unchanged.
+
+| Work | Implementation and owning execution |
+| --- | --- |
+| Replay 849823 and 849825 | Their failed runtime context pin now matches. Retry only their retained inputs through NiFi. A request of at most five named games proves every selected input without requiring retired representative inputs or releasing a bulk remainder. |
+| Complete the foul addition for 823631 | Include other missing counted-foul dependencies identified by the retained report in the same selected PAs, including the preceding first foul bunt. Use the five unchanged maps and unchanged SHACL. |
+| Resume history inspection | Preserve the original H3 context pin. Its transitive history AST signature is identical in the current runtime-admitted context; unrelated award/assembly changes no longer stop the queue or invalidate that signature. This is dependency bookkeeping, not a new history admission. |
+| Allow independent source repairs | History inspections no longer block foul, defense or admission workers. The existing single-worker lease and memory reserve still apply. |
+| Finish additions and evidence refresh | NiFi owns the pending EG1/W4 additions, the 24 legacy history checks, and refresh of old admission checkpoints from retained censuses or responses plus read-only graph exports. Unavailable old local files do not establish missing Fuseki RDF. |
+
+At diagnosis there were 284 pending EG1 inventory games, 2,168 stale history
+inspections, two uninspected promoted games, and 24 legacy history exceptions.
+The 808 `retained-rdf-unavailable` and 464 `exact-source-input-retired` entries
+were older checkpoint states over promoted games. These overlapping counts are
+not a count of absent games and are not new semantic approvals. Read NiFi's
+`pipeline/control/mlb-game/repair-status.json` for subsequent execution results.
+Implementation and submission do not establish completed promotion or a newly
+populated dashboard; retain the last measured publication until its owner
+publishes another one. No corpus rebuild is authorized or required by this work.
 
 The delivery target is all nineteen full-season player metrics, with correct
 selected-range values, automatic top fives, names, qualification and working
