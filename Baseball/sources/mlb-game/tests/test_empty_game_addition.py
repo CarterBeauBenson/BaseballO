@@ -123,7 +123,10 @@ class EmptyGameAddition(unittest.TestCase):
 
     def test_balk_context_preserves_existing_censuses_and_proof_identities(self):
         prior=subprocess.check_output(['git','show','8f1835b:Baseball/scripts/pipeline/prepare-rml-context.py'])
-        current=E.BK.CONTEXT_PATH.read_bytes();before=ast.parse(prior);after=ast.parse(current)
+        # Test the historical BK1 pair; later accepted selectors have their
+        # own compatibility checks and must not invalidate this old record.
+        current=subprocess.check_output(['git','show','6db4a46:Baseball/scripts/pipeline/prepare-rml-context.py'])
+        before=ast.parse(prior);after=ast.parse(current)
         after.body=[n for n in after.body if getattr(n,'name',None)!='balk_runner_evidence']
         main=next(n for n in after.body if getattr(n,'name',None)=='main')
         removed=0
@@ -138,9 +141,42 @@ class EmptyGameAddition(unittest.TestCase):
         self.assertEqual(hashlib.sha256(current).hexdigest(),bridge['currentContextSha256'])
         for family,entry in bridge['families'].items():
             adapter=E.E.module(E.HERE/(family+'-admission.py'),'bk1_check_'+family.replace('-','_'))
-            self.assertEqual(adapter.fingerprint(),entry['currentImplementationSha256'])
-            self.assertEqual(E.E.code_equivalence(family,entry['previousImplementationSha256'],adapter.fingerprint())['kind'],
+            self.assertEqual(E.E.code_equivalence(family,entry['previousImplementationSha256'],entry['currentImplementationSha256'],
+                _context=bridge['currentContextSha256'])['kind'],
                 'unchanged-proof-dependencies')
+            self.assertIsNone(E.E.code_equivalence(family,'unknown',adapter.fingerprint()))
+
+    def test_w4_retries_only_matching_retained_player_games_once(self):
+        from test_award_origin_final_decision import FinalSourceDecisionTests
+        play,document=FinalSourceDecisionTests().automatic_walk()
+        document['gameData']={'game':{'season':'2026'}}
+        player='https://baseballontology.org/data/player/'+str(play['matchup']['batter']['id'])
+        case=dict(gamePk='566279',excludedPlayerGames=[dict(player=player)])
+        with tempfile.TemporaryDirectory() as temporary:
+            state=Path(temporary);source=state/'input.json';E.W.atomic(source,document)
+            prior=dict(status='already-present',sourceWitness=dict(path=str(source),sha256=E.W.sha(source)))
+            with patch.object(E.C,'personal_runner_histories',return_value={'sourceConsistency':'consistent'}):
+                self.assertTrue(E.automatic_walk_retry(state,case,prior))
+                self.assertFalse(E.automatic_walk_retry(state,case,dict(prior,automaticWalkDecision=E.WALK_DECISION)))
+                self.assertFalse(E.automatic_walk_retry(state,dict(case,excludedPlayerGames=[dict(player='player/999999')]),prior))
+            source.write_text('{}',encoding='utf-8')
+            with self.assertRaisesRegex(ValueError,'retained source changed'):
+                E.automatic_walk_retry(state,case,prior)
+
+    def test_w4_context_change_keeps_unaffected_proofs_without_accepting_unknown_versions(self):
+        prior=subprocess.check_output(['git','show','6db4a46:Baseball/scripts/pipeline/prepare-rml-context.py'])
+        before=ast.parse(prior);after=ast.parse(E.BK.CONTEXT_PATH.read_bytes())
+        for tree in (before,after):
+            tree.body=[n for n in tree.body if getattr(n,'name',None)!='runner_metric_evidence']
+        self.assertEqual(ast.dump(before),ast.dump(after))
+        bridge=E.E.read(E.E.COMPATIBILITY_PATH)['automaticBallWalkAward']
+        self.assertEqual(hashlib.sha256(prior).hexdigest(),bridge['previousContextSha256'])
+        self.assertEqual(E.W.sha(E.BK.CONTEXT_PATH),bridge['currentContextSha256'])
+        for family,entry in bridge['families'].items():
+            adapter=E.E.module(E.HERE/(family+'-admission.py'),'w4_check_'+family.replace('-','_'))
+            self.assertEqual(adapter.fingerprint(),entry['currentImplementationSha256'])
+            reuse=E.E.code_equivalence(family,entry['previousImplementationSha256'],adapter.fingerprint())
+            self.assertEqual(reuse['kind'],'prior-stricter-walk-selection' if family=='runner-boundary' else 'unchanged-proof-dependencies')
             self.assertIsNone(E.E.code_equivalence(family,'unknown',adapter.fingerprint()))
 
     def test_scoped_existing_maps_preserve_history_dependencies_and_source_bytes(self):

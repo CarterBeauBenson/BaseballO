@@ -15,6 +15,42 @@ class FinalSourceDecisionTests(unittest.TestCase):
     def evidence(self, source, index='40', season='2026'):
         return CONTEXT.runner_metric_evidence(source, index, season)
 
+    def automatic_walk(self, game='566279', index=4):
+        source=play(game,index)
+        terminal=source['playEvents'][-1]
+        terminal.update(isPitch=False,type='no_pitch')
+        terminal['details'].update(isBall=True,isStrike=False,isInPlay=False,
+            hasReview=False,call={'code':'VP'},violation={'type':'pitcher_pitch_timer'})
+        doc={'gamePk':int(game),'liveData':{'plays':{'allPlays':[source]}},
+            CONTEXT.CONTEXT_KEY:{'runnerHistoryReconciliation':{'sourceConsistency':'consistent'}}}
+        return source,doc
+
+    def test_adjudicated_ball_four_awards_walk_and_forced_advances(self):
+        for game,index,expected in [('566279',4,1),('823016',40,4)]:
+            source,doc=self.automatic_walk(game,index)
+            before=copy.deepcopy(source)
+            award,=CONTEXT.automatic_count_awards(doc)['automaticAwards']
+            self.assertEqual((award['kind'],award['ballsBefore'],award['ballsAfter']),('ball',3,4))
+            rows=CONTEXT.runner_metric_evidence(source,str(index),'2026',document=doc)['awardAdvances']
+            self.assertEqual(len(rows),expected)
+            self.assertEqual(source,before)
+            self.assertEqual(award['judgmentClassIri'],'https://baseballontology.org/BallJudgmentAct')
+            self.assertFalse(source['playEvents'][-1]['isPitch'])
+
+    def test_nonpitch_walk_requires_the_exact_adjudication(self):
+        for fault in ('no-document','source','count','strike','review','runner-join','event-id','not-terminal'):
+            source,doc=self.automatic_walk()
+            terminal=source['playEvents'][-1]
+            if fault=='no-document':doc=None
+            elif fault=='source':doc[CONTEXT.CONTEXT_KEY]['runnerHistoryReconciliation']['sourceConsistency']='inconsistent'
+            elif fault=='count':terminal['count']['balls']=3
+            elif fault=='strike':terminal['details']['call']['code']='AC'
+            elif fault=='review':terminal['details']['hasReview']=True
+            elif fault=='runner-join':source['runners'][0]['details']['playIndex']=-1
+            elif fault=='event-id':terminal['playId']=source['playEvents'][0]['playId']
+            else:source['playEvents'].append(dict(index=len(source['playEvents']),type='action',isPitch=False))
+            self.assertEqual(CONTEXT.runner_metric_evidence(source,'4','2026',document=doc)['awardAdvances'],[],fault)
+
     def test_actual_intentional_walk_four_automatic_balls_keep_award_links(self):
         source=play('823585',79)
         selected=self.evidence(source,index='79')['awardAdvances']

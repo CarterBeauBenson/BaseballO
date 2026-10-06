@@ -1,5 +1,19 @@
 # Automatic count awards
 
+## Automatic fourth-ball walks: October 6 correction
+
+[W4](../../../archive/design-records/mlb-game-automatic-ball-walk-award/README.md)
+was accepted and published before implementation. The walk-award selector now
+uses the existing automatic-count adjudication selection as an alternative
+terminal event. It requires the exact PA/event identity, an adjudicated Ball
+transition from three to four, the completed walk, and the existing runner and
+force checks. It does not create a Pitch Act or a named umpire from the award.
+The retained 822834 PA 31 response now selects Alejandro Kirk's first-base
+award. The source-owned EG1 worker revisits matching retained cases additively;
+its promotion and the subsequent SQL publication remain separate outcomes.
+
+## Existing automatic-count pattern
+
 The question 5 [decision](../../../archive/design-records/automatic-count-awards/review.json)
 was published in `6344630` before implementation. The bounded
 [proof](../../../benchmarks/metrics/automatic-count-awards-2026-09-15/README.md)

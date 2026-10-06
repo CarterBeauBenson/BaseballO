@@ -237,7 +237,16 @@ query indexes and SQL. Submission and component tests do not establish metric
 population. Unsupported timing, attribution, defense and review remain separate.
 
 The same worker now prioritizes accepted EG1 Empty Games completion, including
-BK1 separately recorded balks. Its bounded inventory contains 455 games;
+BK1 separately recorded balks and [W4 adjudicated fourth-ball walks](../../archive/design-records/mlb-game-automatic-ball-walk-award/README.md).
+W4 reuses the existing automatic Ball Judgment/Decision/Rule selection to
+complete a walk and its supported forced advances without a physical pitch.
+Future ingestion uses the same selector. Previously completed repair receipts
+reopen only for matching retained W4 player-games that have not received this
+selection; an unrelated code change does not reopen all successful games.
+Unchanged admission results retain their original provenance through the
+existing compatibility reader. Prior negative runner-boundary checks are not
+treated as answers to newly supported automatic-ball walks.
+Its bounded inventory contains 455 games;
 `pipeline/targeted-empty-game-addition.py` rechecks current published exclusions
 and skips reader-resolved cases before acquiring or mapping anything. Retained
 inputs come first; missing inputs may be acquired only for the approved games.

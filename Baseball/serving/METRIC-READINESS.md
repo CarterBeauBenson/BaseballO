@@ -10,6 +10,19 @@ the 486 retained spring/exhibition games no longer enter build dependencies.
 Their data and historical diagnoses remain stored. This scope reduction does
 not establish completeness for the remaining metric populations.
 
+## October 6 adjudication repair
+
+W4 now completes a walk from the accepted automatic Ball Judgment/Decision/Rule
+selection. The real retained 822834 PA 31 input selects Kirk's first-base award
+without a physical pitch. Thirteen award-selection checks and nine targeted
+worker checks pass. Future games use the same generic selector; NiFi's active
+EG1 worker can revisit the previously `already-present` matching retained case.
+Its targeted promotion and the resulting dashboard population are pending.
+The existing compatibility reader preserves unaffected proof outcomes across
+this scoped code change, without converting an older failed boundary check
+into a successful one. This does not claim the other publication regressions
+or all metric populations are resolved.
+
 ## Latest measured SQL publication: October 6, 09:35 Eastern
 
 Build `20261006T131936Z-dashboard-3a57d581cccb` published at 13:35:57 UTC.

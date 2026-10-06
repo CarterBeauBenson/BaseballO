@@ -1555,6 +1555,16 @@ def runner_metric_evidence(play: dict, at_bat_index: str, season: str, *, docume
                      or intentional_walk_award_terminal(play) == index)
         if event.get("details", {}).get("eventType") != "intent_walk" and not automatic:
             return products
+    elif result == "walk" and event.get("isPitch") is False:
+        # W4: the accepted Ball Judgment/Decision can complete a walk without
+        # a delivered pitch. Reuse Q5's reconciled selection and exact event
+        # identity; the result label alone never establishes the award.
+        if document is None or event is not events[-1] or not any(
+                row['atBatIndex'] == str(at_bat_index) and row['eventIndex'] == index
+                and row['playId'] == event.get('playId') and row['kind'] == 'ball'
+                and row['ballsBefore'] == 3 and row['ballsAfter'] == 4
+                for row in automatic_count_awards(document)['automaticAwards']):
+            return products
     elif (not pitches or pitches[-1].get("index") != index
           or (result == "walk" and event.get("count", {}).get("balls") != 4)
           or (result == "hit_by_pitch" and event.get("details", {}).get("call", {}).get("code") != "H")):
