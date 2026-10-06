@@ -53,11 +53,15 @@ def tick(state, java, classpath, endpoint='http://127.0.0.1:3031/baseball-dev/qu
     submitted = {str(game) for game in games} - set(excluded)
     if any(not game.isdigit() for game in submitted):
         raise ValueError('Admission handoff requires numeric game identities')
-    published_missing = missing_player_games(state) - set(excluded)
+    # A direct repair handoff belongs to its named games. An older SQL
+    # exclusion must not take that slot and leave the new graph unchecked.
+    published_missing = set() if games else missing_player_games(state) - set(excluded)
     missing = published_missing | submitted
     pending = {}
     for path in control.glob('*.json'):
         if not path.stem.isdigit() or path.stem in excluded:
+            continue
+        if games and path.stem not in submitted:
             continue
         previous = E.read(path)
         if path.stem in missing or previous.get('status') in {'waiting-for-memory', 'partial-refreshed', 'failed'}:
@@ -99,7 +103,21 @@ def tick(state, java, classpath, endpoint='http://127.0.0.1:3031/baseball-dev/qu
                 preserved = E.preserve_interrupted_refresh(state, promotion, previous)
                 if preserved:
                     result['preservedInterruptedEvidence'] = preserved
-                result.update(E.refresh_game(state, promotion, java, classpath, endpoint))
+                # The owner returns after one productive family. Finish its
+                # remaining stages while we still hold the same repair lease;
+                # otherwise SQL can observe only the first half of the handoff.
+                refreshed=[]
+                for stage in range(6):
+                    update=E.refresh_game(state, promotion, java, classpath, endpoint)
+                    families=update.get('refreshed',[])
+                    progress=bool(set(families)-set(refreshed))
+                    refreshed=list(dict.fromkeys([*refreshed,*families]))
+                    result.update(update,refreshed=refreshed,refreshStages=stage+1)
+                    E.atomic(destination,result)
+                    if update['status'] not in {'refreshed','partial-refreshed'}:
+                        break
+                    if not progress or (not games and time.monotonic()-started>=300):
+                        break
                 if result['status'] != 'waiting-for-memory':
                     result['failureAttempts'] = 0
             except (OSError, ValueError, RuntimeError) as error:

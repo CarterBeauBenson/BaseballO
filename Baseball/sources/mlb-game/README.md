@@ -253,12 +253,18 @@ finishing the current game before yielding. A failed game retains the same
 two-attempt limit and does not stop independent candidates. The admission
 resume queue similarly processes at most ten checks or five minutes before
 yielding, so stale eligibility checks can progress between SQL builds.
-After each EG1 batch, the same lease gives this existing admission queue a
-bounded turn for the processed games, without waiting for SQL to publish their
-new graph versions. Available whole-game batting censuses are rechecked before
-falling back to individual-player checks. A graph addition cannot reuse an old
-graph-bound proof as current; it can reuse its unchanged source observations
-with the existing SHACL. Remaining checks keep their ordinary NiFi retries.
+Before an EG1 batch, the existing admission queue gets a bounded turn for
+published eligibility gaps. After each game, the same game lock and worker
+lease remain held while that game's existing checks finish their productive
+stages. A direct handoff services only its named game; older backlog cannot
+consume that turn. The owner stops on a terminal result, memory deferral,
+failure, lack of further progress, or six stages. A deferred check stops further
+mapping in that invocation and keeps the ordinary NiFi retry. Whole-game batting
+censuses precede individual-player fallback. Source checks are unchanged;
+completed checks and unchanged games are not rerun. A graph addition cannot
+relabel an old graph-bound proof as current. This replaces the earlier batch
+handoff, which could repair twenty games but check only ten or service older
+backlog before yielding to SQL.
 
 When a selected addition extends an exact contact or runner-history census,
 EG1 retains the original obligations and adds only the newly selected facts

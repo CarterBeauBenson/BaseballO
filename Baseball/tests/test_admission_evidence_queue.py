@@ -15,6 +15,60 @@ spec.loader.exec_module(Q)
 
 
 class DeferredEvidenceQueue(unittest.TestCase):
+    def test_direct_handoff_finishes_its_stages_without_servicing_older_backlog(self):
+        with tempfile.TemporaryDirectory() as directory:
+            state=Path(directory);control=state/'pipeline/control/mlb-game/admission-evidence'
+            for game in ['998','999']:
+                Q.E.atomic(state/f'pipeline/evidence/nifi/game-promotion/{game}/latest.json',
+                           dict(gamePk=game,promotedAtUtc='2026-10-06T00:00:00Z'))
+            Q.E.atomic(control/'998.json',dict(status='partial-refreshed',checkedAtUtc='2026-10-01T00:00:00Z'))
+            inventory=SimpleNamespace(validated_promotion_record=lambda *a:dict(gamePk=a[2]),
+                                      query_index_contract_admission=lambda:{})
+            def module(path,name):
+                if Path(path).name=='work_scope.py':return SimpleNamespace(excluded_games=lambda state:set())
+                if Path(path).name=='game_promotion_inventory.py':return inventory
+                return SimpleNamespace(fingerprint=lambda:'producer')
+            stages=[dict(status='refreshed',refreshed=['batting']),
+                    dict(status='partial-refreshed',refreshed=['player-participation']),
+                    dict(status='current',refreshed=[])]
+            with patch.object(Q.E,'module',side_effect=module), \
+                 patch.object(Q.E,'fingerprint',return_value='producer'), \
+                 patch.object(Q.E,'preserve_interrupted_refresh',return_value=[]), \
+                 patch.object(Q,'missing_player_games',side_effect=AssertionError('Direct handoff must not read SQL backlog')), \
+                 patch.object(Q.E,'refresh_game',side_effect=stages) as refresh:
+                result=Q.tick(state,None,None,games=['999'])
+            self.assertEqual(result['resumedGames'],['999'])
+            self.assertEqual(result['outcomes'],{'current':1})
+            self.assertEqual([c.args[1]['gamePk'] for c in refresh.call_args_list],['999']*3)
+            record=Q.E.read(control/'999.json')
+            self.assertEqual(record['refreshed'],['batting','player-participation'])
+            self.assertEqual(record['refreshStages'],3)
+            self.assertEqual(Q.E.read(control/'998.json')['checkedAtUtc'],'2026-10-01T00:00:00Z')
+
+    def test_staged_handoff_stops_on_memory_deferral_and_preserves_completed_work(self):
+        with tempfile.TemporaryDirectory() as directory:
+            state=Path(directory)
+            Q.E.atomic(state/'pipeline/evidence/nifi/game-promotion/999/latest.json',
+                       dict(gamePk='999',promotedAtUtc='2026-10-06T00:00:00Z'))
+            inventory=SimpleNamespace(validated_promotion_record=lambda *a:dict(gamePk=a[2]),
+                                      query_index_contract_admission=lambda:{})
+            def module(path,name):
+                if Path(path).name=='work_scope.py':return SimpleNamespace(excluded_games=lambda state:set())
+                if Path(path).name=='game_promotion_inventory.py':return inventory
+                return SimpleNamespace(fingerprint=lambda:'producer')
+            with patch.object(Q.E,'module',side_effect=module), \
+                 patch.object(Q.E,'fingerprint',return_value='producer'), \
+                 patch.object(Q.E,'preserve_interrupted_refresh',return_value=[]), \
+                 patch.object(Q.E,'refresh_game',side_effect=[dict(status='refreshed',refreshed=['batting']),
+                    dict(status='waiting-for-memory',refreshed=[])]) as refresh:
+                result=Q.tick(state,None,None,games=['999'])
+            self.assertEqual(result['outcomes'],{'waiting-for-memory':1})
+            record=Q.E.read(state/'pipeline/control/mlb-game/admission-evidence/999.json')
+            self.assertEqual(record['status'],'waiting-for-memory')
+            self.assertEqual(record['refreshed'],['batting'])
+            self.assertEqual(record['failureAttempts'],0)
+            self.assertEqual(refresh.call_count,2)
+
     def test_repaired_game_is_checked_before_sql_publication_and_not_repeated(self):
         with tempfile.TemporaryDirectory() as directory:
             state=Path(directory)

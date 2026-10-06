@@ -10,7 +10,36 @@ the 486 retained spring/exhibition games no longer enter build dependencies.
 Their data and historical diagnoses remain stored. This scope reduction does
 not establish completeness for the remaining metric populations.
 
-## Latest measured SQL publication: October 5, 15:37 Eastern
+## Latest measured SQL publication: October 6, 09:35 Eastern
+
+Build `20261006T131936Z-dashboard-3a57d581cccb` published at 13:35:57 UTC.
+Empty Games has **879 unresolved regular-season player-games**: 503 eligibility
+and 376 classification gaps. The HTTP dashboard exposes 281 Empty Games players,
+five populated cards and zero complete populations. This regressed from 723
+exclusions and 293 Empty Games players in the prior reported publication.
+
+The retained morning snapshots prove the handoff failure: games 823660 and
+823448 lost 55 and 46 previously complete player-game records after targeted
+additions, with `B1_PROOF_MISSING_OR_STALE` and no current individual proof.
+Games 822751 and 822835 now have admitted batting evidence and 102 complete
+player-game records in SQL, but the same failure occurred in later repairs.
+The affected data was not deleted; graph-wide proof identities and incomplete
+check scheduling caused the serving regressions.
+
+The earlier batch handoff was insufficient: it could add facts to twenty games
+then check only ten, spend its turn on older backlog, or stop after one productive
+check stage. The worker now finishes the existing checks for each named repaired
+game before starting another repair under the same lease. It services published
+eligibility gaps before a new repair batch. Five focused queue checks and
+PowerShell syntax validation passed; live population recovery remains pending.
+This does not repair unresolved attribution or authorize W4.
+
+At the accompanying runtime observation, EG1 recorded 51 successful additions,
+114 already-present selections, six reader-resolved cases and zero failed
+executions. The user's October 6 optional-work pause remains in effect; it does
+not change required game SHACL or the daily acquisition schedule.
+
+## Earlier SQL publication: October 5, 15:37 Eastern
 
 Build `20261005T191707Z-dashboard-80a3042f158d` published at 19:37:54 UTC,
 using code `999145c`. Empty Games still has **736 unresolved regular-season

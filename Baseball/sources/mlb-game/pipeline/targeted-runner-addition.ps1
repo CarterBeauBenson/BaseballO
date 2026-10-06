@@ -6,6 +6,18 @@ $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'game-lock.ps1')
 . (Join-Path $PSScriptRoot 'repair-budget.ps1')
 Invoke-MlbRepairBudget -StateRoot $script:StateRoot -Worker 'targeted-runner-addition' -Action {
+    $admissionWorker = Join-Path $PSScriptRoot 'admission-evidence-queue.py'
+    # Give the already-published eligibility backlog its existing bounded
+    # turn before adding more graph versions that need dependent checks.
+    $admissionJson = & python -B $admissionWorker --state-root $script:StateRoot `
+        --java (Get-JavaExecutable) --jena-classpath (Join-Path $script:FusekiHome 'fuseki-server.jar')
+    if ($LASTEXITCODE -ne 0) { throw 'Pending admission maintenance failed; preserve its recorded retry.' }
+    $admissionJson
+    $admission = $admissionJson | ConvertFrom-Json
+    $outcomes = $admission.PSObject.Properties['outcomes']
+    if ($null -ne $outcomes -and @($outcomes.Value.PSObject.Properties | Where-Object {
+            $_.Name -in @('waiting-for-memory', 'failed', 'partial-refreshed', 'refreshed') -and $_.Value -gt 0
+        }).Count -gt 0) { return }
     $worker = Join-Path $PSScriptRoot 'targeted-empty-game-addition.py'
     $selection = & python -B $worker --state-root $script:StateRoot --next
     if ($LASTEXITCODE -ne 0) { throw 'Empty Games repair inventory failed.' }
@@ -32,7 +44,6 @@ Invoke-MlbRepairBudget -StateRoot $script:StateRoot -Worker 'targeted-runner-add
     $emptyGames = [System.IO.Path]::GetFileName($worker) -eq 'targeted-empty-game-addition.py'
     $batch = [Diagnostics.Stopwatch]::StartNew()
     $processed = 0
-    $admissionGames = @()
     # Keep the existing single-worker lease for a bounded batch. Otherwise a
     # long SQL build wins the slot after almost every individual repair.
     do {
@@ -53,7 +64,19 @@ Invoke-MlbRepairBudget -StateRoot $script:StateRoot -Worker 'targeted-runner-add
                 if (-not $emptyGames) { throw 'Targeted repair failed; terminal evidence records the bounded retry.' }
                 Write-Warning 'Empty Games repair failed; its owner records and limits retries before selecting the next game.'
             }
-            elseif ($emptyGames) { $admissionGames += @('--game-pk', [string]$candidate.gamePk) }
+            elseif ($emptyGames) {
+                # Finish this game's dependent checks before the next repair,
+                # with both the game lock and heavy-worker lease still held.
+                $admissionJson = & python -B $admissionWorker --state-root $script:StateRoot --game-pk $candidate.gamePk `
+                    --java (Get-JavaExecutable) --jena-classpath (Join-Path $script:FusekiHome 'fuseki-server.jar')
+                if ($LASTEXITCODE -ne 0) { throw 'Post-repair admission refresh failed; preserve its recorded retry.' }
+                $admissionJson
+                $admission = $admissionJson | ConvertFrom-Json
+                $outcomes = $admission.PSObject.Properties['outcomes']
+                if ($null -ne $outcomes -and @($outcomes.Value.PSObject.Properties | Where-Object {
+                        $_.Name -in @('waiting-for-memory', 'failed', 'partial-refreshed', 'refreshed') -and $_.Value -gt 0
+                    }).Count -gt 0) { return }
+            }
         }
         finally { $lock.Dispose() }
         $processed++
@@ -63,12 +86,4 @@ Invoke-MlbRepairBudget -StateRoot $script:StateRoot -Worker 'targeted-runner-add
         $candidate = $selection | ConvertFrom-Json
     }
     while ($null -ne $candidate)
-    if ($admissionGames.Count -gt 0) {
-        # Keep the shared lease until the existing evidence owner has had its
-        # bounded turn. SQL must not win the slot between an additive repair
-        # and the eligibility refresh for that new graph version.
-        & python -B (Join-Path $PSScriptRoot 'admission-evidence-queue.py') --state-root $script:StateRoot `
-            --java (Get-JavaExecutable) --jena-classpath (Join-Path $script:FusekiHome 'fuseki-server.jar') @admissionGames
-        if ($LASTEXITCODE -ne 0) { throw 'Post-repair admission refresh failed; its owner retains bounded retry evidence.' }
-    }
 }
