@@ -1,6 +1,15 @@
 # W4: complete a walk awarded on automatic ball four
 
-Status: **under review**. No executable mapping or semantic freeze is changed.
+Status: **accepted October 6, 2026**. This decision precedes implementation.
+
+The user directed: "Fix this through the adjudication pattern. Players can be
+awarded balls, strikes, pitches, whatever by umpire decisions." In response
+to the documented automatic-fourth-ball defect, this accepts W4's existing
+Judgment Act / Decision ICE / Rule pattern and the resulting walk award.
+The existing automatic ball/strike mapping remains authoritative; an awarded
+count does not assert a physically delivered Pitch Act. No new classes or
+properties are authorized. Implementation and targeted NiFi publication follow
+this separately published record.
 
 The automatic-count mapping already recognizes the final Ball Process in
 game 822834, PA 31. The award selector then rejects the walk because that
@@ -8,7 +17,7 @@ event is not a physical pitch. This is coverage debt in the existing MLB-game
 lane. The requested correction reuses the accepted walk award, running act,
 safe outcome and rule pattern; it introduces no classes or properties.
 
-## Exact proposed decision
+## Accepted decision
 
 Accept the existing `automatic_count_awards` selector's verified ball award
 as an alternative terminal event for an ordinary walk. Require the same PA,
@@ -70,7 +79,7 @@ extends only the frozen walk-award source selection to that existing meaning.
 ## Competency questions and unchanged world-side pattern
 
 1. Can an accepted automatic fourth Ball Process complete the counted walk
-   without a physical pitch? Proposed answer: yes.
+   without a physical pitch? Accepted answer: yes.
 2. Does this license a missing cause or forced advance from a result label
    alone? No; exact accepted source selection and all existing joins remain.
 3. Can unrelated RDF or other mapping selections change? No.

@@ -11,6 +11,9 @@ it. Use [`../../ROADMAP.md`](../../ROADMAP.md), the active subsystem READMEs,
 and machine-readable contracts for current behavior. The list below highlights
 important records but is not intended to enumerate every archived package.
 
+- [W4](mlb-game-automatic-ball-walk-award/README.md), accepted October 6, 2026:
+  automatic fourth-ball walk completion through the existing adjudication pattern.
+
 - [EG1](mlb-game-empty-game-completion/README.md) and
   [BK1](mlb-game-balk-runner-attribution/README.md), accepted October 5, 2026:
   targeted Empty Game completion and separately recorded balk attribution,

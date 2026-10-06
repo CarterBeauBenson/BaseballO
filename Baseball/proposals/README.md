@@ -37,6 +37,7 @@ Recent accepted packages include:
 
 | Decision | Accepted scope |
 | --- | --- |
+| [W4](../archive/design-records/mlb-game-automatic-ball-walk-award/README.md) | Adjudicated automatic fourth-ball walk awards and targeted additions |
 | [EG1](../archive/design-records/mlb-game-empty-game-completion/README.md) | Bounded existing-pattern additions for the inventoried Empty Game exclusions |
 | [BK1](../archive/design-records/mlb-game-balk-runner-attribution/README.md) | Separately recorded balk attribution and targeted additions |
 | [F8](../archive/design-records/mlb-game-foul-substitution-review-completion/README.md) | Counted-foul substitutions and paired reviews |

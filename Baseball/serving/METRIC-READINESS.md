@@ -32,7 +32,8 @@ check stage. The worker now finishes the existing checks for each named repaired
 game before starting another repair under the same lease. It services published
 eligibility gaps before a new repair batch. Five focused queue checks and
 PowerShell syntax validation passed; live population recovery remains pending.
-This does not repair unresolved attribution or authorize W4.
+This does not repair unresolved attribution. W4 was subsequently accepted on
+October 6 for the automatic-ball adjudication repair.
 
 At the accompanying runtime observation, EG1 recorded 51 successful additions,
 114 already-present selections, six reader-resolved cases and zero failed
@@ -108,11 +109,12 @@ members and a segment assigned to both channels still fail. Four focused
 progress/migration checks pass; affected SQL inputs refresh through the same
 incremental upgrade.
 
-The [W4 review](../proposals/mlb-game-automatic-ball-walk-award/README.md)
+The [W4 review](../archive/design-records/mlb-game-automatic-ball-walk-award/README.md)
 prepares the separate source-selector repair for automatic ball four. Game
 822834 PA 31 already passes the automatic-count selector but its walk award
 is omitted because the award selector insists on a physical final pitch.
-W4 is awaiting approval; EG1's unchanged-selector scope does not include it.
+The user accepted W4 on October 6 through the existing adjudication pattern;
+implementation and targeted publication remain separate from that decision.
 
 ## Earlier October 5 measurements
 

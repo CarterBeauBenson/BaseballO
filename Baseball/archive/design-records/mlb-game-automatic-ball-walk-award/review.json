@@ -1,0 +1,41 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-automatic-ball-walk-award",
+  "title": "W4 automatic fourth-ball walk award completion",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "bb3b6879f1d943f1adf9d8cdb812c2dd9f4fc0501bfd294300cd9dfc94eb14a7"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "README.md",
+        "sha256": "bb3b6879f1d943f1adf9d8cdb812c2dd9f4fc0501bfd294300cd9dfc94eb14a7"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "bb3b6879f1d943f1adf9d8cdb812c2dd9f4fc0501bfd294300cd9dfc94eb14a7"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "README.md",
+        "sha256": "bb3b6879f1d943f1adf9d8cdb812c2dd9f4fc0501bfd294300cd9dfc94eb14a7"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-10-06",
+    "rationale": "The user explicitly directed fixing the documented automatic-fourth-ball defect through the adjudication pattern: \"Fix this through the adjudication pattern. Players can be awarded balls, strikes, pitches, whatever by umpire decisions.\" Accept W4: reuse the accepted automatic-count Judgment Act, Decision ICE and Rule selection as the terminal walk award, preserve all runner/force checks, repair matching EG1 games additively and handle future games generically. Authorize the scoped context freeze and compatibility updates. No new terms, physical pitches inferred from awards, unrelated graph replacement, or rebuild."
+  }
+}
