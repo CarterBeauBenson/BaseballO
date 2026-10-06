@@ -36,6 +36,10 @@
     "disposition": "accepted",
     "decidedBy": "Carter Beau Benson",
     "decidedAt": "2026-10-06",
-    "rationale": "The user explicitly directed fixing the documented automatic-fourth-ball defect through the adjudication pattern: \"Fix this through the adjudication pattern. Players can be awarded balls, strikes, pitches, whatever by umpire decisions.\" Accept W4: reuse the accepted automatic-count Judgment Act, Decision ICE and Rule selection as the terminal walk award, preserve all runner/force checks, repair matching EG1 games additively and handle future games generically. Authorize the scoped context freeze and compatibility updates. No new terms, physical pitches inferred from awards, unrelated graph replacement, or rebuild."
+    "rationale": "The user explicitly directed fixing the documented automatic-fourth-ball defect through the adjudication pattern: \"Fix this through the adjudication pattern. Players can be awarded balls, strikes, pitches, whatever by umpire decisions.\" Accept W4: reuse the accepted automatic-count Judgment Act, Decision ICE and Rule selection as the terminal walk award, preserve all runner/force checks, repair matching EG1 games additively and handle future games generically. Authorize the scoped context freeze and compatibility updates. No new terms, physical pitches inferred from awards, unrelated graph replacement, or rebuild.",
+    "authorizedArtifacts": [
+      "Baseball/scripts/pipeline/prepare-rml-context.py",
+      "Baseball/governance/semantic-freeze.json"
+    ]
   }
 }
