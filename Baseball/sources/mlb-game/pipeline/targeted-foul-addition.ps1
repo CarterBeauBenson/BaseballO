@@ -5,7 +5,7 @@ $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot '..\..\..\scripts\infra\common.ps1')
 . (Join-Path $PSScriptRoot 'game-lock.ps1')
 . (Join-Path $PSScriptRoot 'repair-budget.ps1')
-Invoke-MlbRepairBudget -StateRoot $script:StateRoot -Worker 'targeted-foul-addition' -Action {
+Invoke-MlbRepairBudget -StateRoot $script:StateRoot -Worker 'targeted-foul-addition' -TimeoutSeconds 45 -Action {
     $worker = Join-Path $PSScriptRoot 'targeted-foul-addition.py'
     $selection = & python -B $worker --state-root $script:StateRoot --next
     if ($LASTEXITCODE -ne 0) { throw 'Counted-foul repair inventory failed.' }

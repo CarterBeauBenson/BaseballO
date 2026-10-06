@@ -4,7 +4,7 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot '..\..\..\scripts\infra\common.ps1')
 . (Join-Path $PSScriptRoot 'repair-budget.ps1')
-Invoke-MlbRepairBudget -StateRoot $script:StateRoot -Worker 'targeted-defensive-addition' -Action {
+Invoke-MlbRepairBudget -StateRoot $script:StateRoot -Worker 'targeted-defensive-addition' -TimeoutSeconds 45 -Action {
     $worker = Join-Path $PSScriptRoot 'targeted-defensive-addition.py'
     & python -B $worker --state-root $script:StateRoot --drain `
         --java (Get-JavaExecutable) --mapper (Get-RMLMapperJar) `

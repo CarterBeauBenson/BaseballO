@@ -117,7 +117,11 @@ upstream-repair phase, and never interrupts the current owner.
 During the October 6 RDF-hold repair, the user authorized stopping the unfinished
 report build and restoring the existing upstream priority. Independent source
 repairs share the lease without waiting for the history queue to clear. The
-temporary phase still yields to SQL after NiFi records upstream work clear.
+history, foul, defense and admission workers allow up to 45 seconds for the
+current lease holder to finish instead of repeatedly losing an immediate
+try-lock to the 20-second runner timer. Repair workers still run only one heavy
+job at a time.
+The temporary phase still yields to SQL after NiFi records upstream work clear.
 History discovery compares the original pinned selector's transitive AST
 dependencies and the current source runtime pin; unrelated context functions
 do not require another history mapping or a new semantic admission.

@@ -8,7 +8,7 @@ $ErrorActionPreference = 'Stop'
 # The Python owner retains the full 1 GiB requirement before mapping/SHACL,
 # acquires each game's lock, and yields after ten cases or 45 seconds.
 try {
-    Invoke-MlbRepairBudget -StateRoot $script:StateRoot -Worker 'targeted-history-addition' -RequiredMemoryBytes 256MB -Action {
+    Invoke-MlbRepairBudget -StateRoot $script:StateRoot -Worker 'targeted-history-addition' -RequiredMemoryBytes 256MB -TimeoutSeconds 45 -Action {
         # Inspect retained receipts independently of the execution backlog.
         # This writes named requests only: no API request, JVM or graph write.
         & python -B (Join-Path $PSScriptRoot 'history-repair-discovery.py') --state-root $script:StateRoot
