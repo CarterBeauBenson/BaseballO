@@ -18,6 +18,40 @@ from test_rmlmapper_iterator_compatibility import installed_tools
 
 
 class FoulAddition(unittest.TestCase):
+    def test_existing_second_foul_case_includes_reported_first_bunt_dependency_only_in_its_pa(self):
+        import copy
+        first,second,unrelated='first-bunt','second-foul','other-pa-bunt'
+        def event(pid,call,strikes):
+            return dict(kind='pitch',playId=pid,call=call,strike=True,strikesAfter=strikes)
+        source=dict(status='reconciled',gamePk='823631',game='https://w3id.org/baseball/game/823631',
+            plateAppearances=[dict(pa='https://w3id.org/baseball/game/823631/pa/79',
+                events=[event(first,'L',1),event(second,'F',2)]),
+                dict(pa='https://w3id.org/baseball/game/823631/pa/80',events=[event(unrelated,'L',1)])])
+        document=dict(gameData=dict(venue=dict(id=1)),_baseballO=dict(metricMappingEvidence=dict(withheldFouls=[])),
+            liveData=dict(plays=dict(allPlays=[dict(atBatIndex=int(pa['pa'].rsplit('/',1)[1]),
+                playEvents=[dict(playId=e['playId'],_baseballO=dict(isSecondCountedFoul=e['call']=='F',
+                    isCountedFoulBunt=e['call']=='L')) for e in pa['events']]) for pa in source['plateAppearances']])))
+        def context(args,**kwargs):F.W.atomic(Path(args[-1]),document)
+        raw=b'{"gamePk":823631}'
+        with tempfile.TemporaryDirectory() as temp:
+            path=Path(temp);census=path/'source.json';F.W.atomic(census,source)
+            report=path/'report.ttl'
+            report.write_text('@prefix sh: <http://www.w3.org/ns/shacl#> .\n'+''.join(
+                f'[] sh:sourceConstraintComponent sh:ClassConstraintComponent ; sh:focusNode <{source["game"]}/process/strike/{pid}> .\n'
+                for pid in (first,second,unrelated)))
+            case=dict(gamePk='823631',selected=[dict(atBatIndex='79',playId=second)],
+                sourceCensus=str(census),sourceCensusSha256=F.W.sha(census),report=str(report),reportSha256=F.W.sha(report))
+            with patch.object(F.C,'census',return_value=source),patch.object(F.subprocess,'run',side_effect=context):
+                selected=F.select(raw,'823631',case)
+            self.assertEqual([e['playId'] for e in selected['events']],[first,second])
+            self.assertEqual(selected['source']['plateAppearances'],source['plateAppearances'][:1])
+            changed=copy.deepcopy(source);changed['plateAppearances'][0]['events'][0]['strikesAfter']=2
+            with patch.object(F.C,'census',return_value=changed):
+                with self.assertRaisesRegex(ValueError,'outcome changed'):F.select(raw,'823631',case)
+            report.write_text('changed evidence')
+            with patch.object(F.C,'census',return_value=source):
+                with self.assertRaisesRegex(ValueError,'report changed'):F.select(raw,'823631',case)
+
     def test_one_unsupported_pa_does_not_block_a_supported_pa_or_retire_its_input(self):
         raw=(ROOT/'data/raw/samples/2026-07-20/824087.json').read_bytes()
         source=F.C.census(raw,'824087')

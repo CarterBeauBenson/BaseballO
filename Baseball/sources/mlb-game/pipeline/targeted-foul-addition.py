@@ -1,4 +1,4 @@
-"""NiFi repairs recorded missing second-foul strikes with unchanged mappings."""
+"""NiFi repairs recorded missing counted-foul strikes with unchanged mappings."""
 import argparse
 import hashlib
 import importlib.util
@@ -29,8 +29,9 @@ def recorded_fouls(source,report):
         SH.sourceConstraintComponent,SH.ClassConstraintComponent)}
     return [dict(atBatIndex=pa['pa'].rsplit('/',1)[1],playId=event['playId'])
         for pa in source['plateAppearances'] for event in pa['events']
-        if event.get('kind')=='pitch' and event.get('call')=='F' and event.get('strike') is True
-        and event.get('strikesAfter')==2
+        if event.get('kind')=='pitch' and event.get('strike') is True
+        and ((event.get('call')=='F' and event.get('strikesAfter') in (1,2))
+             or (event.get('call')=='L' and event.get('strikesAfter') in (1,2,3)))
         and source['game']+'/process/strike/'+event['playId'] in missing]
 
 
@@ -139,6 +140,15 @@ def select(raw,game_pk,case):
     if current['status']!='reconciled':raise ValueError('Current count source is unresolved')
     wanted={(r['atBatIndex'],r['playId']) for r in case['selected']}
     if len(wanted)!=len(case['selected']) or not wanted:raise ValueError('Count repair selection is empty or duplicated')
+    # The unchanged SHACL checks each selected PA. Include its other recorded
+    # missing counted-foul dependencies, including a preceding foul bunt.
+    # Preserve the original case/receipt; no unrelated PA enters this delta.
+    if case.get('report'):
+        report=Path(case['report'])
+        if W.sha(report)!=case['reportSha256']:raise ValueError('Count repair report changed')
+        selected_pas={pa for pa,_ in wanted}
+        wanted.update((r['atBatIndex'],r['playId']) for r in recorded_fouls(old,Graph().parse(report))
+                      if r['atBatIndex'] in selected_pas)
     def members(census):
         return {(pa['pa'].rsplit('/',1)[1],e['playId']):e for pa in census['plateAppearances']
             for e in pa['events'] if e.get('kind')=='pitch'}
@@ -159,7 +169,10 @@ def select(raw,game_pk,case):
             key=(str(play['atBatIndex']),event.get('playId'))
             if key not in wanted:continue
             seen.add(key);members.append(event)
-            if event.get('_baseballO',{}).get('isSecondCountedFoul') is not True:
+            context=event.get('_baseballO',{})
+            first=(event.get('isPitch') is True and event.get('details',{}).get('call',{}).get('code')=='F'
+                   and event.get('count',{}).get('strikes')==1)
+            if not (first or context.get('isSecondCountedFoul') is True or context.get('isCountedFoulBunt') is True):
                 unsupported.append(dict(atBatIndex=key[0],playId=key[1],
                     reason=reasons.get(key,'EXISTING_MAPPING_NOT_SELECTED')))
         # The existing count SHACL checks a complete PA. Keep that boundary;
