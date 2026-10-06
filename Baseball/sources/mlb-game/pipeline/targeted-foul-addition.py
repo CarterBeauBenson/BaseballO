@@ -3,6 +3,7 @@ import argparse
 import hashlib
 import importlib.util
 import json
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -44,9 +45,9 @@ def case_sha(case):
 
 
 def finished_attempt(previous,case,version):
-    return (previous.get('implementationSha256')==version
-        and previous.get('caseSha256')==case_sha(case)
-        and (previous.get('status') in SUCCESS | {'partial'} or previous.get('attempts',0)>=2))
+    return (previous.get('caseSha256')==case_sha(case)
+        and (previous.get('status') in SUCCESS or (previous.get('implementationSha256')==version
+            and (previous.get('status')=='partial' or previous.get('attempts',0)>=2))))
 
 
 def next_case(state,limit=25):
@@ -104,9 +105,34 @@ def next_case(state,limit=25):
     return None
 
 
+def retirement_receipt(state,game_pk,witness):
+    source=Path(witness['path']).resolve()
+    owner=(state/'pipeline/quarantine/mlb-game'/game_pk).resolve()
+    if (source.name!='input.json' or source.parent.parent!=owner
+            or not re.fullmatch(r'targeted-foul(?:-[0-9a-f]{16})?',source.parent.name)):
+        raise ValueError('Source retirement escapes this repair input')
+    path=source.with_name('retirement.json')
+    if not path.is_file():return None
+    receipt=W.read(path);marker=Path(receipt.get('promotionEvidence',''))
+    promotion_owner=(state/'pipeline/evidence/nifi/game-promotion'/game_pk).resolve()
+    if (receipt.get('sourceSha256')!=witness['sha256'] or marker.resolve().parent!=promotion_owner
+            or not marker.is_file() or W.sha(marker)!=receipt.get('promotionManifestSha256')
+            or str(W.read(marker).get('gamePk'))!=game_pk or 'admissionOutcomes' not in receipt):
+        raise ValueError('Source retirement receipt does not bind the completed repair')
+    return receipt
+
+
 def acquire(state,case):
     """Prefer retained bytes, otherwise fetch only the named manifest game."""
     pk=case['gamePk'];directory=state/'pipeline/quarantine/mlb-game'/pk/'targeted-foul'
+    legacy=directory/'acquisition.json'
+    if legacy.is_file() and not (directory/'input.json').is_file():
+        if retirement_receipt(state,pk,W.read(legacy)) is None:
+            raise ValueError('Count repair input missing without a retirement receipt')
+        # A later selection needs its own input lifecycle. Preserve the older
+        # acquisition/promotion/retirement receipts instead of overwriting them
+        # or treating their intentionally retired bytes as a changed input.
+        directory=directory.with_name('targeted-foul-'+case_sha(case)[:16])
     manifest=directory/'acquisition.json';source=directory/'input.json'
     if manifest.is_file():
         witness=W.read(manifest)
@@ -215,17 +241,9 @@ def finish(state,game_pk,witness,java,classpath,*,retire=True):
     # census before retiring only this repair's successfully promoted input.
     source=Path(witness['path']);retirement=None
     if retire and witness['kind']=='targeted-reacquisition':
-        owned=state/'pipeline/quarantine/mlb-game'/game_pk/'targeted-foul/input.json'
-        if source.resolve()!=owned.resolve():raise ValueError('Source retirement escapes this repair input')
+        receipt=retirement_receipt(state,game_pk,witness)
         retirement=source.with_name('retirement.json')
-        if retirement.is_file():
-            receipt=W.read(retirement)
-            marker=Path(receipt.get('promotionEvidence',''))
-            if (receipt.get('sourceSha256')!=witness['sha256']
-                    or not marker.is_file() or W.sha(marker)!=receipt.get('promotionManifestSha256')
-                    or str(W.read(marker).get('gamePk'))!=game_pk
-                    or 'admissionOutcomes' not in receipt):
-                raise ValueError('Source retirement receipt does not bind the completed repair')
+        if receipt is not None:
             if source.is_file():
                 if W.sha(source)!=witness['sha256']:raise ValueError('Source retirement input changed')
                 source.unlink()

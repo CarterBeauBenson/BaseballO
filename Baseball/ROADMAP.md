@@ -74,6 +74,16 @@ Implementation and submission do not establish completed promotion or a newly
 populated dashboard; retain the last measured publication until its owner
 publishes another one. No corpus rebuild is authorized or required by this work.
 
+At the October 6 17:11 Eastern NiFi checkpoint, both postseason replays had
+promoted (2,448 active games), all 2,172 history inspections were current, and
+all 755 selected history cases were complete. Game 823631's 56-triple foul
+addition and W4's five-triple addition for 822834 were also complete. The EG1
+backlog was 257 games. Eight newly selected foul-bunt repairs encountered an
+older repair's retired input; the worker now gives the later selection its own
+input/retirement records while preserving the older receipts. Game 823013/62
+remains separately withheld for its unresolved compound review association.
+NiFi continues independent supported jobs with bounded retries.
+
 The delivery target is all nineteen full-season player metrics, with correct
 selected-range values, automatic top fives, names, qualification and working
 details. Every applicable observation must be accounted for. A genuinely

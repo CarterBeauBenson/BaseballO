@@ -136,6 +136,12 @@ payloads through that lane, with no bulk remainder. Retired representative-game
 inputs do not block this small retry, and its receipt cannot certify a later
 bulk replay. All selected games still require exact-hash promotions.
 
+Counted-foul repairs preserve completion for an unchanged selected case across
+worker revisions. When a later selection follows a successfully retired
+acquisition, it uses a case-specific `targeted-foul-<digest>` input directory.
+The original acquisition, promotion and retirement receipts remain unchanged;
+missing bytes without a valid retirement receipt still fail explicitly.
+
 `Refresh Admission Evidence` runs once per minute, prioritizes the latest
 loaded regular season in the published dashboard SQL, diagnoses up to 100 games
 and refreshes at most ten games or 45 seconds per tick, finishing the current

@@ -18,6 +18,38 @@ from test_rmlmapper_iterator_compatibility import installed_tools
 
 
 class FoulAddition(unittest.TestCase):
+    def test_new_selection_after_retirement_uses_its_own_input_and_preserves_old_receipts(self):
+        import io
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);case=dict(gamePk='1',selected=[dict(atBatIndex='2',playId='new-bunt')])
+            source=state/'pipeline/quarantine/mlb-game/1/targeted-foul/input.json'
+            old=dict(kind='targeted-reacquisition',gamePk='1',path=str(source),sha256='old-source')
+            manifest=source.with_name('acquisition.json');F.W.atomic(manifest,old)
+            marker=state/'pipeline/evidence/nifi/game-promotion/1/old.json';F.W.atomic(marker,dict(gamePk='1'))
+            receipt=source.with_name('retirement.json')
+            F.W.atomic(receipt,dict(sourceSha256='old-source',promotionEvidence=str(marker),
+                promotionManifestSha256=F.W.sha(marker),admissionOutcomes={},rawRetiredAfterPromotion=True))
+            before=(manifest.read_bytes(),receipt.read_bytes())
+            with patch.object(F.urllib.request,'urlopen',return_value=io.BytesIO(b'{"gamePk":1}')) as fetch:
+                witness=F.acquire(state,case)
+                self.assertEqual(F.acquire(state,case),witness)
+                fetch.assert_called_once()
+            self.assertEqual(Path(witness['path']).parent.name,'targeted-foul-'+F.case_sha(case)[:16])
+            self.assertEqual((manifest.read_bytes(),receipt.read_bytes()),before)
+            self.assertFalse(source.exists())
+            self.assertIsNone(F.retirement_receipt(state,'1',witness))
+            Path(witness['path']).write_bytes(b'changed')
+            with self.assertRaisesRegex(ValueError,'input changed'):F.acquire(state,case)
+            F.W.atomic(receipt,dict(sourceSha256='wrong-source'))
+            with self.assertRaisesRegex(ValueError,'receipt does not bind'):F.acquire(state,case)
+
+    def test_completed_scope_survives_worker_changes_but_partial_scope_retries(self):
+        case=dict(gamePk='1',selected=[dict(playId='foul')])
+        old=dict(caseSha256=F.case_sha(case),implementationSha256='old',status='complete',attempts=1)
+        self.assertTrue(F.finished_attempt(old,case,'new'))
+        self.assertFalse(F.finished_attempt(dict(old,status='partial'),case,'new'))
+        self.assertFalse(F.finished_attempt(old,dict(case,selected=[dict(playId='new-foul')]),'new'))
+
     def test_existing_second_foul_case_includes_reported_first_bunt_dependency_only_in_its_pa(self):
         import copy
         first,second,unrelated='first-bunt','second-foul','other-pa-bunt'
