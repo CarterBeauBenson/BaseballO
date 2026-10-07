@@ -4,6 +4,11 @@
 player producers; the two review player integrations remain unfinished. Twenty
 calculation kernels exist, including backend-only Role Realization Breadth.
 
+The [active delivery roadmap](../ROADMAP.md#1-complete-the-nineteen-metrics-execution-plan)
+orders all nineteen cards through their query, prepared SQL and UI work, with
+Empty Games first. Its accountability table tracks delivery; the dated records
+below describe measured publications rather than the current repair queue.
+
 The October 4 scope decision retires spring training, exhibitions and WBC work.
 New serving builds select the remaining MLB games from existing promoted RDF;
 the 486 retained spring/exhibition games no longer enter build dependencies.
@@ -17,11 +22,29 @@ selection. The real retained 822834 PA 31 input selects Kirk's first-base award
 without a physical pitch. Thirteen award-selection checks and nine targeted
 worker checks pass. Future games use the same generic selector; NiFi's active
 EG1 worker can revisit the previously `already-present` matching retained case.
-Its targeted promotion and the resulting dashboard population are pending.
+Its five-triple targeted addition promoted on October 6 at 19:54 UTC. The
+resulting dashboard population is still pending publication.
 The existing compatibility reader preserves unaffected proof outcomes across
 this scoped code change, without converting an older failed boundary check
 into a successful one. This does not claim the other publication regressions
 or all metric populations are resolved.
+
+## Repair progress: October 6, 20:26 Eastern
+
+NiFi's `pipeline/control/mlb-game/repair-status.json` at
+`2026-10-07T00:26:55.581428Z` records 2,448 active promoted games, 244 pending
+EG1 inventory games, 596 completed foul repairs and one failed foul case
+(823013, PA 62, unresolved compound review association). All 2,172 history
+inspections are current and all 755 selected history cases complete. The two
+postseason replays and 823631's foul addition have also promoted.
+
+These receipts do not update the dashboard by themselves. Its pointer still
+identifies the 09:35 Eastern publication below. The active roadmap calls for a
+bounded repair-to-dashboard handoff: the current temporary priority policy
+waits for `recordedWorkClear`, which remains false. Required evidence for each
+product must remain intact while independent supported results can publish.
+This is planned work, not a claim that the handoff has already changed or that
+the remaining metric exclusions are all source failures.
 
 ## Latest measured SQL publication: October 6, 09:35 Eastern
 
