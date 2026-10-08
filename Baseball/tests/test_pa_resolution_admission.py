@@ -1,6 +1,7 @@
 """Exact existing C2 membership, isolated by PA rather than by game."""
 import copy
 import importlib.util
+import json
 import unittest
 from unittest.mock import patch
 import tempfile
@@ -63,6 +64,49 @@ class PaResolution(unittest.TestCase):
         extra=copy.deepcopy(source['resolution']['resolutions'][0]);extra['pa']='urn:unknown-turn'
         source['resolution']['resolutions'].append(extra)
         self.assertEqual(self.outcomes(graph,source),dict.fromkeys(pas,'withheld'))
+
+    def scoped_fixture(self, issues):
+        graph,source,pas=self.fixture()
+        raw=json.dumps(dict(liveData=dict(plays=dict(allPlays=[
+            dict(atBatIndex=i,about=dict(inning=inning,halfInning=half,isComplete=complete))
+            for i,(inning,half,complete) in enumerate([
+                (9,'top',True),(8,'bottom',True),(9,'bottom',False)])]),
+            linescore=dict(innings=[dict(num=8,away=dict(runs=0),home=dict(runs=1)),
+                                   dict(num=9,away={},home={})])))).encode()
+        for census in source.values():census['sourceSha256']=P.R.B.sha(raw)
+        source['resolution']['issues']=issues
+        return graph,P.with_reconciliation_scope(source,raw),pas,raw
+
+    def test_missing_inning_total_and_incomplete_play_keep_exact_source_scope(self):
+        issues=[dict(code='SOURCE_RECONCILIATION',detail=dict(code='INNING_RUN_TOTAL_MISMATCH',
+                    path='/liveData/linescore/innings/1/away',reported=None,observedScoringRows=0)),
+                dict(code='SOURCE_RECONCILIATION',detail=dict(code='INCOMPLETE_SOURCE_PLAY',
+                    path='/liveData/plays/allPlays/2/about/isComplete'))]
+        graph,source,pas,_=self.scoped_fixture(issues)
+        self.assertEqual(self.outcomes(graph,source),dict(zip(pas,['withheld','admitted','withheld'])))
+        self.assertEqual(source['resolution']['issues'],issues)  # No global completeness claim.
+        # The unaffected turn still has to satisfy the unchanged exact C2 graph contract.
+        graph.set((URIRef(pas[1]+'/act'),CCO.ont00001833,URIRef('urn:wrong-player')))
+        self.assertEqual(self.outcomes(graph,source),dict.fromkeys(pas,'withheld'))
+
+    def test_numeric_conflicts_unknown_issues_and_missing_locations_remain_global(self):
+        details=[dict(code='INNING_RUN_TOTAL_MISMATCH',
+                     path='/liveData/linescore/innings/1/away',reported=1,observedScoringRows=0),
+                 dict(code='INCOMPLETE_SOURCE_PLAY',path='/liveData/plays/allPlays/99/about/isComplete'),
+                 dict(code='INCOMPLETE_SOURCE_PLAY',path='/liveData/plays/allPlays/1/about/isComplete'),
+                 dict(code='MOVEMENT_EVENT_MEMBERSHIP_MISMATCH',path='/liveData/plays/allPlays/0/runners/0')]
+        for detail in details:
+            with self.subTest(detail=detail):
+                graph,source,pas,_=self.scoped_fixture([dict(code='SOURCE_RECONCILIATION',detail=detail)])
+                self.assertEqual(self.outcomes(graph,source),dict.fromkeys(pas,'withheld'))
+
+    def test_scope_cannot_use_a_different_witness_or_pa_inventory(self):
+        _,source,_,raw=self.scoped_fixture([])
+        with self.assertRaisesRegex(ValueError,'witness differs'):
+            P.with_reconciliation_scope(source,raw+b' ')
+        source['batting']['members'].reverse()
+        with self.assertRaisesRegex(ValueError,'inventory differs'):
+            P.with_reconciliation_scope(source,raw)
 
     def test_later_retained_witness_keeps_its_distinct_source_identity(self):
         from test_admission_evidence import E

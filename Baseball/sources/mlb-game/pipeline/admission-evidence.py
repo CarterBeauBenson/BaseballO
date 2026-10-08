@@ -215,6 +215,11 @@ def prior_versions(kind,current):
     if kind=='pa' and current==PLAYER_PARTICIPATION.PA.fingerprint():
         previous=PLAYER_PARTICIPATION.PA.PREVIOUS_SOURCE_SELECTION
         return [previous,*prior_versions(kind,previous)]
+    if kind=='c2pa' and current==PA_RESOLUTION.fingerprint():
+        # Only Q6-incomplete sources need the narrower PA check. The loader
+        # retains original unaffected receipts and rejects affected old proofs.
+        previous=PA_RESOLUTION.PREVIOUS_SCOPE_IMPLEMENTATION
+        return [previous,*prior_versions(kind,previous)]
     foul=record.get('foulPrefixRepair',{})
     entry=foul.get('derivedProofs',{}).get(kind,{})
     if (entry.get('currentImplementationSha256')==current

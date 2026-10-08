@@ -5,6 +5,8 @@ unknown turns stay separate from turns whose entire resolution census passes.
 """
 from pathlib import Path
 import importlib.util
+import json
+import re
 import tempfile
 import urllib.request
 from rdflib import Namespace
@@ -14,6 +16,42 @@ spec=importlib.util.spec_from_file_location('scoped_resolution_contract',HERE/'r
 R=importlib.util.module_from_spec(spec);spec.loader.exec_module(R)
 SHAPE=HERE.parent/'shacl/pa-resolution-admission.ttl'
 SH=Namespace('http://www.w3.org/ns/shacl#')
+PREVIOUS_SCOPE_IMPLEMENTATION='b641f925ecda8d47e75e3cd0089b88f93b74a615ab8d63fecf7f14ca8924be4a'
+
+
+def with_reconciliation_scope(source, raw):
+    """Retain source locations, not replacement totals or inferred outcomes."""
+    doc=json.loads(raw);resolution=source['resolution'];batting=source['batting']
+    if (R.B.sha(raw)!=resolution['sourceSha256'] or
+            resolution['sourceSha256']!=batting['sourceSha256']):
+        raise ValueError('Scoped reconciliation witness differs from census')
+    plays=doc['liveData']['plays']['allPlays'];game=resolution['game']
+    pas=[game+'/plate-appearance/'+str(p.get('atBatIndex')) for p in plays]
+    if pas!=[m['pa'] for m in batting['members']] or len(set(pas))!=len(pas):
+        raise ValueError('Scoped reconciliation PA inventory differs from census')
+    scopes=[]
+    for issue in resolution.get('issues',[]):
+        if issue.get('code')!='SOURCE_RECONCILIATION':continue
+        detail=issue.get('detail',{});path=detail.get('path','');affected=None
+        if detail.get('code')=='INCOMPLETE_SOURCE_PLAY':
+            match=re.fullmatch(r'/liveData/plays/allPlays/(\d+)/about/isComplete',path)
+            if match and int(match[1])<len(plays):
+                position=int(match[1])
+                if plays[position].get('about',{}).get('isComplete') is not True:
+                    affected=[pas[position]]
+        elif detail.get('code')=='INNING_RUN_TOTAL_MISMATCH' and detail.get('reported') is None:
+            match=re.fullmatch(r'/liveData/linescore/innings/(\d+)/(away|home)',path)
+            innings=doc.get('liveData',{}).get('linescore',{}).get('innings',[])
+            if match and int(match[1])<len(innings):
+                row=innings[int(match[1])];number=row.get('num');side=match[2]
+                if (type(number) is int and number>0 and row.get(side,{}).get('runs') is None
+                        and sum(i.get('num')==number for i in innings)==1):
+                    half='top' if side=='away' else 'bottom'
+                    affected=[pa for pa,p in zip(pas,plays)
+                        if p.get('about',{}).get('inning')==number
+                        and p.get('about',{}).get('halfInning')==half]
+        if affected:scopes.append(dict(issue=issue,plateAppearances=affected))
+    return dict(source,reconciliationScopes=scopes)
 
 
 def fingerprint():
@@ -55,7 +93,8 @@ def retained_source(evidence,state,promotion):
             raise ValueError('Scoped resolution validation witness changed')
         # Keep the later witness's identity; it is never called the original
         # promotion input. Its PA inventory uses the existing B1 census code.
-        return dict(resolution=evidence.read(census),batting=R.B.census(raw,promotion['gamePk'])),[
+        return with_reconciliation_scope(dict(resolution=evidence.read(census),
+            batting=R.B.census(raw,promotion['gamePk'])),raw),[
             dict(path=str(census),sha256=evidence.sha(census)),witness]
     path=Path(marker.get('runnerResolutionAdmission',''))
     owner=(Path(state)/'pipeline/evidence/mlb-game'/promotion['gamePk']).resolve()
@@ -90,10 +129,15 @@ def shape_text(source):
         issues=[]
         for issue in resolution.get('issues',[]):
             index=issue.get('atBatIndex')
-            # Only this existing source issue has an explicitly bounded PA.
-            # Reconciliation/unknown issues still prevent every affected claim.
-            if (issue.get('code')!='UNRESOLVED_RUNNER_BOUNDARY' or index is None
-                    or resolution['game']+'/plate-appearance/'+str(index)==pa):issues.append(issue)
+            if issue.get('code')=='UNRESOLVED_RUNNER_BOUNDARY' and index is not None:
+                if resolution['game']+'/plate-appearance/'+str(index)==pa:issues.append(issue)
+                continue
+            scope=next((s['plateAppearances'] for s in source.get('reconciliationScopes',[])
+                if s['issue']==issue),None)
+            # Q6 completeness diagnostics remain in the whole-game census.
+            # An unaffected PA still must pass its complete existing C2 shape.
+            # Unknown issues, absent scope and identity/membership faults stay global.
+            if scope is None or pa in scope:issues.append(issue)
         if unknown:issues.append(dict(code='SOURCE_PA_INVENTORY'))
         member=dict(plateAppearance=pa,status='withheld' if issues else 'pending',issues=issues)
         members.append(member)
@@ -142,6 +186,12 @@ def load(evidence,state,promotion):
     if any(source[k].get('sourceSha256')!=proof.get('sourceSha256') or source[k].get('gamePk')!=promotion['gamePk']
             for k in ('resolution','batting')):raise ValueError('Scoped resolution source identities changed')
     evidence.checked_marker(promotion)
+    if version!=fingerprint() and any(i.get('code')=='SOURCE_RECONCILIATION' and
+            (i.get('detail',{}).get('code')=='INCOMPLETE_SOURCE_PLAY' or
+             i.get('detail',{}).get('code')=='INNING_RUN_TOTAL_MISMATCH' and
+             i.get('detail',{}).get('reported') is None)
+            for i in source['resolution'].get('issues',[])):
+        return None
     return dict(proof,proofSha256=record['proofSha256'])
 
 

@@ -34,7 +34,19 @@ failure checkpoint preserved.
 At 18:50 UTC, NiFi build `20261008T184417Z-dashboard-190f433e6f77` had reached
 input refresh. The live pointer still identified the October 6 publication
 below. The four recorded counted-foul exceptions (823013, 823804, 824118,
-824744) remain unresolved; no complete metric population is claimed here.
+824744) now have a prepared [F9 selector repair](../proposals/mlb-game-counted-foul-edge-completion/README.md)
+awaiting named approval. Five retained-case checks pass; the active mapping is
+unchanged while review is pending.
+
+The per-PA resolution reader now limits Q6's null inning total and incomplete
+play diagnostics to their exact source locations when a hash-matching retained
+response supplies that scope. In games 824295 and 824807 this allows 79 and 50
+unaffected turns, respectively, to reach the existing runner-resolution SHACL.
+PA 79/80 and PA 50 remain withheld. Whole-game completeness stays withheld;
+only a checked positive contribution can establish that an eligible player's
+game was not empty. Eight focused checks pass. Unaffected prior proof receipts
+remain reusable; NiFi owns the two affected checks and subsequent SQL refresh.
+These are pending checks, not newly published player totals.
 
 ## October 6 adjudication repair
 
