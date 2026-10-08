@@ -44,8 +44,10 @@ response supplies that scope. In games 824295 and 824807 this allows 79 and 50
 unaffected turns, respectively, to reach the existing runner-resolution SHACL.
 PA 79/80 and PA 50 remain withheld. Whole-game completeness stays withheld;
 only a checked positive contribution can establish that an eligible player's
-game was not empty. Eight focused checks pass. Unaffected prior proof receipts
-remain reusable; NiFi owns the two affected checks and subsequent SQL refresh.
+game was not empty. Nine focused checks pass. Unaffected prior proof receipts
+remain reusable through the PA reader; the shared admission helper is unchanged
+so completed runner-history inspections remain current. NiFi owns the two
+affected checks and subsequent SQL refresh.
 These are pending checks, not newly published player totals.
 
 ## October 6 adjudication repair

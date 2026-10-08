@@ -108,6 +108,40 @@ class PaResolution(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'inventory differs'):
             P.with_reconciliation_scope(source,raw)
 
+    def test_prior_receipts_are_reused_except_for_affected_source_completeness(self):
+        from test_admission_evidence import E
+        _,source,_=self.fixture()
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);prior=P.PREVIOUS_SCOPE_IMPLEMENTATION
+            promotion=dict(gamePk='1',authoritativeGraph='urn:graph',rawSha256='source',
+                authoritativeRdfSha256='rdf',promotionManifestSha256='promotion')
+            def path(state,promotion,kind,version):return state/(version+'.json')
+            def write_proof(version):
+                output=path(state,promotion,'c2pa',version)
+                E.atomic(output.with_suffix('.source.json'),source)
+                output.with_suffix('.shapes.ttl').write_text('shapes')
+                output.with_suffix('.report.ttl').write_text('report')
+                proof=dict(artifactType='baseballo-pa-resolution-admission',contractVersion=1,
+                    gamePk='1',graph='urn:graph',promotionSourceSha256='source',sourceSha256='source',
+                    authoritativeRdfSha256='rdf',implementationSha256=version,
+                    sourceCensusSha256=E.sha(output.with_suffix('.source.json')),
+                    shapeSha256=E.sha(output.with_suffix('.shapes.ttl')),
+                    reportSha256=E.sha(output.with_suffix('.report.ttl')),plateAppearances=[])
+                E.atomic(output,proof)
+                E.atomic(output.with_suffix('.receipt.json'),dict(
+                    promotionManifestSha256='promotion',proofSha256=E.sha(output)))
+            with patch.object(E,'refresh_path',side_effect=path), \
+                 patch.object(E,'prior_versions',return_value=[]), \
+                 patch.object(E,'checked_marker',return_value={}):
+                write_proof(prior)
+                self.assertEqual(P.load(E,state,promotion)['implementationSha256'],prior)
+                source['resolution']['issues']=[dict(code='SOURCE_RECONCILIATION',
+                    detail=dict(code='INCOMPLETE_SOURCE_PLAY',path='/liveData/plays/allPlays/2/about/isComplete'))]
+                write_proof(prior)
+                self.assertIsNone(P.load(E,state,promotion))
+                write_proof(P.fingerprint())
+                self.assertEqual(P.load(E,state,promotion)['implementationSha256'],P.fingerprint())
+
     def test_later_retained_witness_keeps_its_distinct_source_identity(self):
         from test_admission_evidence import E
         raw=(ROOT/'data/raw/game-566279.json').read_bytes()

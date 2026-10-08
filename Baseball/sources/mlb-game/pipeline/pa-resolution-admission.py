@@ -167,7 +167,11 @@ def outcome(members,report):
 def load(evidence,state,promotion):
     path=proof_path(evidence,state,promotion);receipt=path.with_suffix('.receipt.json')
     version=fingerprint()
-    for prior in evidence.prior_versions('c2pa',version):
+    # Keep this compatibility rule with its owner. Editing the shared
+    # admission helper would invalidate unrelated history discovery inputs.
+    prior_versions=[*evidence.prior_versions('c2pa',version),PREVIOUS_SCOPE_IMPLEMENTATION,
+        *evidence.prior_versions('c2pa',PREVIOUS_SCOPE_IMPLEMENTATION)]
+    for prior in dict.fromkeys(prior_versions):
         if receipt.is_file():break
         path=evidence.refresh_path(state,promotion,'c2pa',prior);receipt=path.with_suffix('.receipt.json');version=prior
     if not receipt.is_file():return None
