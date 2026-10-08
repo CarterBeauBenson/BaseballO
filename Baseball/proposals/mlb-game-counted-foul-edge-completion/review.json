@@ -1,0 +1,48 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-counted-foul-edge-completion",
+  "title": "F9 counted-foul review and substitution edge completion",
+  "status": "under-review",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "caf51b39f3883209394b430b4a246f0e5637c5171ad4cb99af843aba8d64f37f"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "README.md",
+        "sha256": "caf51b39f3883209394b430b4a246f0e5637c5171ad4cb99af843aba8d64f37f"
+      },
+      {
+        "path": "evidence.json",
+        "sha256": "883d68a41a79e7705ad2dabab52ddbe3d7f58197bc3d73e7ae5338c2204737ae"
+      },
+      {
+        "path": "selection.patch",
+        "sha256": "7c1ec439c13b1921c093ef0d658c8744dbc3688a4f1647536aadf78419e3f2f2"
+      },
+      {
+        "path": "check.py",
+        "sha256": "b9aa11e8fa45af1a2c40bb4b5c22567ce01d13278346a2469661ac60222839ff"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "caf51b39f3883209394b430b4a246f0e5637c5171ad4cb99af843aba8d64f37f"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "README.md",
+        "sha256": "caf51b39f3883209394b430b4a246f0e5637c5171ad4cb99af843aba8d64f37f"
+      }
+    ]
+  },
+  "ontologistDecision": null
+}

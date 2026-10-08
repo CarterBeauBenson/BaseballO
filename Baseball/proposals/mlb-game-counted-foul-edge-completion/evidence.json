@@ -1,0 +1,111 @@
+{
+  "previousContextSha256": "fcadac9837ba95846f201a0375c7ecb08a27955e55f1c724398c0c8a1cb5c05d",
+  "candidateContextSha256": "3be192cc0ebe980d750d4a47830e18f673dc7c3d1a2bc297ebb78a6e2eedb6f4",
+  "baseCommit": "f2bc29b22e74",
+  "cases": [
+    {
+      "gamePk": "823013",
+      "case": {
+        "gamePk": "823013",
+        "selected": [
+          {
+            "atBatIndex": "62",
+            "playId": "73d29241-9cc6-3a27-b7a1-89c07f2607c2"
+          },
+          {
+            "atBatIndex": "62",
+            "playId": "7814638e-469d-3a87-b939-32c135cb2225"
+          }
+        ],
+        "sourceCensus": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\evidence\\mlb-game\\823013\\79a179fdb98c493c87a7ded75b558e16\\pitch-count-admission.source.json",
+        "sourceCensusSha256": "f2fb27b6fa30d9166c63323b22549ea8acd07766a5050ed4d737506532777d02",
+        "report": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\evidence\\mlb-game\\823013\\79a179fdb98c493c87a7ded75b558e16\\pitch-count-admission.report.ttl",
+        "reportSha256": "1549787675f1b590f7d21a5bca8ed0c2c4809a4ced1d32004e0e85cb060db111",
+        "promotionManifestSha256": "e220f79e95695225724ccae132bdc292dd2dd035bb8dbf5a6c0572beddacef6a",
+        "acquisitionDecision": "archive/design-records/metric-repair-scope-2026-09-30/answers.md"
+      },
+      "sourceWitness": {
+        "kind": "retained-response",
+        "gamePk": "823013",
+        "path": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\quarantine\\mlb-game\\823013\\targeted-history-c9fc59fcd96ce1cd\\input.json",
+        "sha256": "8fbdc56f06de5de65658912502af7866297396075c2184177d31232f8f74cf15"
+      },
+      "error": "Existing counted-foul mapping does not select the remaining PAs: [{\"atBatIndex\": \"62\", \"playId\": \"73d29241-9cc6-3a27-b7a1-89c07f2607c2\", \"reason\": \"UNRESOLVED_PA_REVIEW\"}, {\"atBatIndex\": \"62\", \"playId\": \"7814638e-469d-3a87-b939-32c135cb2225\", \"reason\": \"UNRESOLVED_PA_REVIEW\"}]"
+    },
+    {
+      "gamePk": "823804",
+      "case": {
+        "gamePk": "823804",
+        "selected": [
+          {
+            "atBatIndex": "54",
+            "playId": "a64d241a-c402-35c5-ab65-b7250860e792"
+          }
+        ],
+        "sourceCensus": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\evidence\\mlb-game\\823804\\075fa95acded4005adc10e90eff79ebe\\pitch-count-admission.source.json",
+        "sourceCensusSha256": "870a8a5fb25d20715a0b4a8707882037f29203355c50e398636f7ee9da0c8d70",
+        "report": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\evidence\\mlb-game\\823804\\075fa95acded4005adc10e90eff79ebe\\pitch-count-admission.report.ttl",
+        "reportSha256": "621811053fcb9a38ae4e7f88e910cc12440a0dfec1e76c144de8ca647c9018a8",
+        "promotionManifestSha256": "7a0ea7f96c4fbbbdcea98b46b201d900faad74d08c7b5b2e7e1e3d3235bf5051",
+        "acquisitionDecision": "archive/design-records/metric-repair-scope-2026-09-30/answers.md"
+      },
+      "sourceWitness": {
+        "kind": "retained-response",
+        "gamePk": "823804",
+        "path": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\quarantine\\mlb-game\\823804\\targeted-history-24ac76f05e2ad245\\input.json",
+        "sha256": "67939447f2b8f797935e83287561aacd23a8cf9b75ffc373aba71312bcaee733"
+      },
+      "error": "Existing counted-foul mapping does not select the remaining PAs: [{\"atBatIndex\": \"54\", \"playId\": \"a64d241a-c402-35c5-ab65-b7250860e792\", \"reason\": \"UNRESOLVED_PA_REVIEW\"}]"
+    },
+    {
+      "gamePk": "824118",
+      "case": {
+        "gamePk": "824118",
+        "selected": [
+          {
+            "atBatIndex": "35",
+            "playId": "94f77c54-3173-3cd5-a1a1-bcc694c00293"
+          }
+        ],
+        "sourceCensus": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\evidence\\mlb-game\\824118\\71e7ed847ed3462e85b3d466bb600a6c\\pitch-count-admission.source.json",
+        "sourceCensusSha256": "4745efbc07ee6b1a325cf7d7adb3882da7bd610ddf954f417cd518128fd80b35",
+        "report": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\evidence\\mlb-game\\824118\\71e7ed847ed3462e85b3d466bb600a6c\\pitch-count-admission.report.ttl",
+        "reportSha256": "cd01dec054521bfc246b5abd8ce6ca70ac2a451725b30d8ae7dc65142ac89124",
+        "promotionManifestSha256": "eebf2efbecab7c94b4bcaad6b9ea92736d466918db100558a479a3522a91ffe0",
+        "acquisitionDecision": "archive/design-records/metric-repair-scope-2026-09-30/answers.md"
+      },
+      "sourceWitness": {
+        "kind": "retained-response",
+        "gamePk": "824118",
+        "path": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\quarantine\\mlb-game\\824118\\targeted-history-049bcb370c99e928\\input.json",
+        "sha256": "ce1d7efba191f16bc1438e5944f503bb3242c1686dbc0220e053a9c3c5d5cb28"
+      },
+      "error": "Existing counted-foul mapping does not select the remaining PAs: [{\"atBatIndex\": \"35\", \"playId\": \"94f77c54-3173-3cd5-a1a1-bcc694c00293\", \"reason\": \"UNRESOLVED_PA_REVIEW\"}]"
+    },
+    {
+      "gamePk": "824744",
+      "case": {
+        "gamePk": "824744",
+        "selected": [
+          {
+            "atBatIndex": "62",
+            "playId": "f7b31614-1aee-3323-b1b9-8332dcd164e0"
+          }
+        ],
+        "sourceCensus": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\evidence\\mlb-game\\824744\\915bb778cc5649c8a2515c9309d3dcdc\\pitch-count-admission.source.json",
+        "sourceCensusSha256": "b1b0a0e7bbc05b7d1b88f4056165e70995f33f07252dfec9cf800ac37dae6be6",
+        "report": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\evidence\\mlb-game\\824744\\915bb778cc5649c8a2515c9309d3dcdc\\pitch-count-admission.report.ttl",
+        "reportSha256": "cfb8c5d32ebe342e5a7089dd6bf5a5240c2fc1997096662677de7d3eb70ac383",
+        "promotionManifestSha256": "732d97f6f2ac7c2702b39db4a657fd447f025b715f5e4e0ae85b94a2d960caf8",
+        "acquisitionDecision": "archive/design-records/metric-repair-scope-2026-09-30/answers.md"
+      },
+      "sourceWitness": {
+        "kind": "retained-response",
+        "gamePk": "824744",
+        "path": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\quarantine\\mlb-game\\824744\\targeted-history-732d97f6f2ac7c27\\input.json",
+        "sha256": "c79c00269666ad4f3e55494082db18b339535cd33c57aefdb8558ce2f02b6c93"
+      },
+      "error": "Existing counted-foul mapping does not select the remaining PAs: [{\"atBatIndex\": \"62\", \"playId\": \"f7b31614-1aee-3323-b1b9-8332dcd164e0\", \"reason\": \"SUBSTITUTION_IN_PREFIX\"}]"
+    }
+  ]
+}
