@@ -30,6 +30,7 @@ PREVIOUS_PA_CONTRIBUTION_VERSION = '9a1f3425fd08919dcf0730dcb6466eae61534b4eeb1e
 PREVIOUS_AMBIGUOUS_PROGRESS_VERSION = 'ab2fac95e7153c1c3ddc19595463ccb1c283c722b6a7e28e66a711d76fa7ed4c'
 PREVIOUS_EMPTY_ELIGIBILITY_VERSION = '91af6cc2428dda5b7a12091e0ee3fb4daa7c5bfbf18db2d8fff4d99638ddfe35'
 PREVIOUS_EMPTY_CACHE_VERSION = 'afc2871933b1e0351790c7314c6a4857e743104128c2a8b387c125ae6db75932'
+PREVIOUS_EMPTY_SCOPE_VERSION = '29d43818e44894f2a762e129f073b74ebc76ecd01b70eb91c4c28b5e3a07cc95'
 
 
 def fingerprint():
@@ -199,6 +200,30 @@ def ambiguous_progress_players(rows, progress):
     return {pa:sorted(actors[pa]) for pa in batters & movements if actors[pa] and None not in actors[pa]}
 
 
+def resolution_census_players(rows, roster, resolution, individual):
+    """Reuse admitted PA censuses for a team's entire offensive inventory.
+
+    Every turn counts, including interrupted turns without an official PA.
+    A player can run during a teammate's turn, so checking only their own PAs
+    would be insufficient. Missing ownership or inventory still blocks this
+    fallback; this does not establish any contribution or repair a proof.
+    """
+    if admitted(resolution):return set(roster)
+    if not (individual.get('rosterComplete') is True and
+            individual.get('plateAppearanceInventoryComplete') is True):return set()
+    resolved={p['plateAppearance'] for p in (individual.get('paResolutions') or {}).get('plateAppearances',[])
+              if p['status']=='admitted'}
+    owners=defaultdict(set)
+    for row in rows:
+        if row['kind']!='plate_appearance':continue
+        teams=roster.get(row.get('player'),set())
+        if len(teams)!=1:return set()
+        owners[row['entity']].update(teams)
+    if not owners or any(len(teams)!=1 for teams in owners.values()):return set()
+    incomplete={next(iter(teams)) for pa,teams in owners.items() if pa not in resolved}
+    return {player for player,teams in roster.items() if not teams & incomplete}
+
+
 def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people):
     """Project complete player records from already calculated game inputs."""
     game=next((r['game'] for r in rows),None)
@@ -261,6 +286,7 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people):
     empty_population=((admitted(proofs['batting']) or individual.get('plateAppearanceInventoryComplete') is True)
         and {r['entity'] for r in rows if r['kind']=='plate_appearance'}==
             {p['plateAppearance'] for p in [*progress.get('plateAppearances',[]),*progress.get('unresolvedPlateAppearances',[])]})
+    resolution_players=resolution_census_players(rows,roster,proofs['resolution'],individual)
     run_values={};run_unknown={}
     observed={r['entity'] for r in rows if r['kind']=='run'}
     for metric,result in runs.items():
@@ -300,7 +326,7 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people):
         empty_eligible=(bool(pa_count) if person is not None else
                         True if player in individual.get('eligiblePlayers',[]) else None)
         empty_known=(empty_eligible is not None and (player in certain_positive or
-                     (admitted(proofs['resolution']) and progress_census
+                     (player in resolution_players and progress_census
                       and (player in positive or empty_population and player not in uncertain))))
         for metric in sorted(PREPARED):
             complete=False;aggregate=zero();reason='OFFICIAL_PA_POPULATION'
@@ -361,6 +387,7 @@ def prepare(m, db, checkpoint=None, player_admissions=None):
     inventory=db.execute('SELECT g.graph_iri,g.official_date,g.game_set,c.input_sha256 '
         "FROM game_dimension g JOIN dashboard_checkpoint c USING(graph_iri) "
         "WHERE g.game_set IN ('regular_season','all_star') ORDER BY g.graph_iri").fetchall()
+    inventory_keys={graph:key for graph,_,_,key in inventory}
     saved=dict(db.execute('SELECT graph_iri,input_sha256 FROM dashboard_player_partition'))
     # Older no-op migrations advanced a partition key while retaining the
     # retired rate-denominator refusal for this count. Reproject those exact
@@ -384,15 +411,27 @@ def prepare(m, db, checkpoint=None, player_admissions=None):
                 WHERE i.graph_iri IN ({marks}) AND i.family='progress'
                 AND json_array_length(i.record_json,'$.independentEpisodeGaps')>0
                 AND json_extract(a.proof_json,'$.status')='admitted'""",group))
+    if 'metric_suite_runner_resolution_admission' in tables:
+        for graph,text,sha in db.execute('SELECT graph_iri,proof_json,proof_sha256 FROM metric_suite_runner_resolution_admission'):
+            individual=player_admissions.get(graph) or {}
+            if (individual.get('rosterComplete') is True and individual.get('plateAppearanceInventoryComplete') is True
+                    and any(p['status']=='admitted' for p in (individual.get('paResolutions') or {}).get('plateAppearances',[]))
+                    and not admitted(m._blocks.decode(m._block_api(),text,sha))):
+                # Only these games can gain the scoped negative classification.
+                # Preserve current products; older compatible products need the
+                # projection once, without recalculating their metric inputs.
+                current=inventory_keys.get(graph)
+                if current and saved.get(graph)!=m._hash(current+version+m._hash(m._json(individual))):
+                    saved.pop(graph,None)
     for graph,day,game_set,key in inventory:
         individual=player_admissions.get(graph) or {}
         individual_text=m._json(individual);proof_sha=m._hash(individual_text) if individual else ''
         identity=m._hash(key+version+proof_sha)
         if saved.get(graph)==identity:continue
         if saved.get(graph) in {m._hash(key+v+proof_sha) for v in
-                (PREVIOUS_EMPTY_ELIGIBILITY_VERSION,PREVIOUS_EMPTY_CACHE_VERSION)}:
-            # The new eligibility witness changes the individual proof hash.
-            # Without such a change, the existing player products are identical.
+                (PREVIOUS_EMPTY_ELIGIBILITY_VERSION,PREVIOUS_EMPTY_CACHE_VERSION,PREVIOUS_EMPTY_SCOPE_VERSION)}:
+            # Scoped resolution candidates were removed above. Otherwise an
+            # unchanged proof retains the same eligibility and classification.
             with db:db.execute('UPDATE dashboard_player_partition SET input_sha256=? WHERE graph_iri=?',(identity,graph))
             continue
         ambiguity_upgrade=graph in ambiguity_candidates

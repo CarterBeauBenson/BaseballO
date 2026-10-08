@@ -19,6 +19,75 @@ SCOPE=dict(gameSet='regular_season',startDate='2026-09-01',endDate='2026-09-02')
 
 
 class PlayerRanges(unittest.TestCase):
+    def test_empty_negative_needs_every_team_turn_but_not_opponents(self):
+        graph=G+'1';game='game'
+        proof=dict(status='admitted',sourceReconciled=True,graphConforms=True)
+        rows=[];pas=[]
+        for i in (1,2,3):
+            player=U+str(i);pa='pa'+str(i)
+            rows.extend([dict(kind='player_team_game',player=player,graph=graph,game=game,
+                              team='home' if i<3 else 'away',teamRole='role'),
+                dict(kind='plate_appearance',entity=pa,graph=graph,game=game,player=player,act='act'+str(i),
+                     recognizedBattingResult='true',paResult='result'+str(i),paResultType='type',
+                     paResultJudgment='judgment',paResultDecision='decision',paResultRecord='record')])
+            pas.append(dict(graph=graph,game=game,plateAppearance=pa,player=player,officialResult=True,
+                reach=0,batterPositive=False,otherPositivePlayers=[],independentPositive=[],independentEpisodes=[],
+                independentEpisodeGaps=[],positiveChannels=[]))
+        original=dict(rosterComplete=True,plateAppearanceInventoryComplete=True,
+            paResolutions=dict(plateAppearances=[dict(plateAppearance='pa'+str(i),
+                status='admitted' if i<3 else 'withheld') for i in (1,2,3)]))
+        for case,expected in [('opponent',1),('teammate',0),('interrupted',0),('unknown-owner',0),
+                              ('conflicting-team',0),('incomplete-inventory',0),('running-uncertainty',0)]:
+            with self.subTest(case=case):
+                individual=copy.deepcopy(original);evidence=copy.deepcopy(rows);progress=copy.deepcopy(pas)
+                if case=='teammate':individual['paResolutions']['plateAppearances'][1]['status']='withheld'
+                if case=='interrupted':
+                    evidence.append(dict(kind='plate_appearance',entity='interrupted',graph=graph,game=game,player=U+'2'))
+                    progress.append(dict(progress[1],plateAppearance='interrupted',officialResult=False))
+                if case=='unknown-owner':evidence[-1].pop('player')
+                if case=='conflicting-team':evidence.append(dict(evidence[-1],entity='pa1'))
+                if case=='incomplete-inventory':individual['plateAppearanceInventoryComplete']=False
+                if case=='running-uncertainty':progress[1]['unresolvedRunningPositivePlayers']=[U+'1']
+                # B1 is independently admitted. Do not make a deliberately
+                # ambiguous ownership mutation fail before testing C2 scoping.
+                with patch.object(P,'qualification',return_value=dict(
+                        participation=[dict(player=U+str(i),plateAppearances=1) for i in (1,2,3)],
+                        expectedObservations=[dict(player=U+str(i),plateAppearance='pa'+str(i)) for i in (1,2,3)])):
+                    _,records=P.project(M,graph=graph,scope=SCOPE,rows=evidence,
+                        proofs=dict(batting=proof,run={},resolution={},players=individual),
+                        inputs=dict(contribution={},progress=dict(plateAppearances=progress,unresolvedPlateAppearances=[]),defense={}),
+                        runs={metric:{} for metric in P.RUNS},run_people={})
+                empty={r[1]:r for r in records if r[2]=='empty-game-rate'}
+                self.assertEqual(empty[U+'1'][3],expected)
+                self.assertEqual(empty[U+'3'][3],0)
+                if expected:self.assertEqual(json.loads(empty[U+'1'][4]),dict(kind='count',count=1,eligibleGames=1))
+
+    def test_empty_scope_upgrade_reuses_unaffected_products(self):
+        db=self.db()
+        for i in (1,2):
+            db.execute('UPDATE dashboard_player_partition SET input_sha256=? WHERE graph_iri=?',
+                (M._hash('source-'+str(i)+P.PREVIOUS_EMPTY_SCOPE_VERSION),G+str(i)))
+        with patch.object(M._blocks,'read_scope',side_effect=AssertionError('unchanged complete census')):
+            self.assertEqual(P.prepare(M,db)['preparedGames'],0)
+
+    def test_empty_scope_upgrade_reprojects_existing_partial_census_once(self):
+        db=self.db();graph=G+'1'
+        individual=dict(rosterComplete=True,plateAppearanceInventoryComplete=True,
+            paResolutions=dict(plateAppearances=[dict(plateAppearance='pa1',status='admitted')]))
+        db.execute('UPDATE dashboard_player_partition SET input_sha256=? WHERE graph_iri=?',
+            (M._hash('source-1'+P.PREVIOUS_EMPTY_SCOPE_VERSION+M._hash(M._json(individual))),graph))
+        for table in ('metric_suite_admission','metric_suite_run_admission','metric_suite_runner_resolution_admission','metric_suite_boundary_admission'):
+            db.execute(f'CREATE TABLE {table}(graph_iri TEXT,proof_json TEXT,proof_sha256 TEXT)')
+        text=M._json(dict(status='withheld'))
+        db.execute('INSERT INTO metric_suite_runner_resolution_admission VALUES (?,?,?)',(graph,text,M._hash(text)))
+        with patch.object(M._blocks,'read_scope',return_value=[]) as read, \
+             patch.object(M._blocks,'read_inputs',return_value={graph:{}}), \
+             patch.object(M,'read_results',return_value=[{}]), \
+             patch.object(P,'project',return_value=([],[])):
+            self.assertEqual(P.prepare(M,db,player_admissions={graph:individual})['preparedGames'],1)
+            self.assertEqual(P.prepare(M,db,player_admissions={graph:individual})['preparedGames'],0)
+        self.assertEqual(read.call_count,1)
+
     def test_empty_game_eligibility_does_not_require_a_rate_denominator(self):
         from test_batting_progress_players import fixture, bindings, G1, P1, PROOF
         rows=M.normalize_bindings(bindings(fixture(),[G1]),[G1])

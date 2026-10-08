@@ -50,13 +50,26 @@ The per-PA resolution reader now limits Q6's null inning total and incomplete
 play diagnostics to their exact source locations when a hash-matching retained
 response supplies that scope. In games 824295 and 824807 this allows 79 and 50
 unaffected turns, respectively, to reach the existing runner-resolution SHACL.
-PA 79/80 and PA 50 remain withheld. Whole-game completeness stays withheld;
-only a checked positive contribution can establish that an eligible player's
-game was not empty. Nine focused checks pass. Unaffected prior proof receipts
+PA 79/80 and PA 50 remain withheld. Whole-game completeness stays withheld.
+A checked positive contribution can establish that an eligible player's game
+was not empty. The player projection also accepts a complete set of admitted
+PA resolution censuses for the player's entire team's offensive inventory when
+the roster and turn inventory are verified. This includes interrupted turns
+and teammates' turns in which the player might run. Opposing-team gaps no longer
+block that negative classification; missing ownership, own-team censuses and
+unresolved contribution attribution still do. This changes only the SQL
+projection and reuses unaffected prepared products. Nine focused PA-reader
+checks and the player-range regression suite pass. Unaffected prior proof receipts
 remain reusable through the PA reader; the shared admission helper is unchanged
 so completed runner-history inspections remain current. NiFi owns the two
 affected checks and subsequent SQL refresh.
 These are pending checks, not newly published player totals.
+
+Game 822714 also exposed walk awards omitted after earlier reviews that the
+existing runner reconciler already accepts. [W5](../proposals/mlb-game-walk-after-reconciled-review/README.md)
+prepares the generic selector correction and bounded retry for matching EG1
+cases. Five candidate checks pass; named approval is pending and active source
+selection remains unchanged. This is separate from F9 and the SQL projection.
 
 The live full-season API returned the existing October 6 publication in 6.28
 seconds during the build (2.04 seconds inside the SQL reader). A request profile
