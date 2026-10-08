@@ -224,10 +224,34 @@ class ProgressPlayers(unittest.TestCase):
             result=M.batting_progress_evidence(M.normalize_bindings(bindings(data,[G1]),[G1]))
             return next(p for p in result['unresolvedPlateAppearances'] if p['plateAppearance']==str(pa))
         self.assertEqual(unresolved()['confirmedPositivePlayers'],[str(P2)])
+        # A different runner's unknown continuation cannot erase P2's
+        # independently supported one-resolution steal.
+        third_out=URIRef(str(pa)+'/third-out')
+        movement(g,third_out,URIRef(str(third_out)+'/act'),pa,third,
+            origin=URIRef(str(GAME)+'/base/3'))
+        g.add((third_out,RDF.type,BASE.OutProcess))
+        self.assertEqual(unresolved()['confirmedPositivePlayers'],[str(P2)])
         out=URIRef(str(pa)+'/later-out')
         movement(g,out,URIRef(str(out)+'/act'),pa,P2,origin=URIRef(str(GAME)+'/base/2'))
         g.add((out,RDF.type,BASE.OutProcess))
         self.assertEqual(unresolved()['confirmedPositivePlayers'],[])
+
+    def test_independent_safe_then_unknown_out_does_not_make_batter_positive(self):
+        data=fixture();g=data.graph(G1);pa=URIRef(str(GAME)+'/plate-appearance/2')
+        out=URIRef(str(pa)+'/later-out')
+        movement(g,out,URIRef(str(out)+'/act'),pa,P2,origin=URIRef(str(GAME)+'/base/2'))
+        g.add((out,RDF.type,BASE.OutProcess))
+        def held():
+            result=M.batting_progress_evidence(M.normalize_bindings(bindings(data,[G1]),[G1]))
+            return next(p for p in result['unresolvedPlateAppearances'] if p['plateAppearance']==str(pa))
+        self.assertEqual(held()['possiblePositivePlayers'],[str(P2)])
+        self.assertEqual(held()['confirmedPositivePlayers'],[])
+        # An unattributed positive can still be batting credit, so it must
+        # restore the batter's uncertainty instead of becoming a known zero.
+        rr=URIRef(str(pa)+'/unknown-safe')
+        movement(g,rr,URIRef(str(rr)+'/act'),pa,P2,
+            origin=URIRef(str(GAME)+'/base/2'),destination=URIRef(str(GAME)+'/base/3'))
+        self.assertIn(str(P1),held()['possiblePositivePlayers'])
 
     def test_contact_positive_survives_separate_steal_and_unknown_safe_prefix(self):
         data=continuation_fixture();g=data.graph(G1);pa=str(GAME)+'/plate-appearance/0'

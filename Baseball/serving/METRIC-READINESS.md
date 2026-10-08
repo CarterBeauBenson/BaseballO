@@ -17,13 +17,43 @@ not establish completeness for the remaining metric populations.
 
 ## October 8 repair and publication handoff
 
+Publication `20261008T225046Z-dashboard-44df5fc6d217`, promoted at 23:07 UTC,
+contains all 2,429 selected regular-season games. Empty Games has 435 complete
+eligible player results and 227 excluded players. There are 287 unresolved
+player-games: 279 classification records and eight eligibility records. The
+prior October 8 publication had 401 complete players and 344 unresolved records;
+the October 6 baseline below had 281 and 879. These are published SQL counts.
+
+The remaining eligibility identities are 822729/609280, 822854/695720,
+823565/667670, 823671/702222, 823705/605170, 824374/676694, 824642/621020 and
+824915/691373 (game/player). The first is an unsupported reviewed K1 compound
+selection; the other seven involve actual substituted batting participation.
+B1 explicitly excludes ambiguous statistical credit in substituted turns;
+the actual participation acts must not be mistaken for official PA assignment.
+
+A grouped diagnosis of retained selected PAs found 82 unresolved PAs containing
+defensive-indifference advances, along with separate error, award, contact-path
+and substituted-batter cases. These are overlapping diagnostic play groups,
+not a forecast of how many players a repair will admit. Missing event
+attribution is not a zero contribution or permission to bypass the graph.
+
+The progress reader now preserves a supported single-resolution positive when
+another identified runner's path is unresolved. When all possible safe progress
+belongs to other runners' independently attributed acts, their unresolved
+subsequent out cannot create possible positive batting credit. Game 823149,
+PA 36, confirms that this removes Gelof from Butler's running uncertainty using
+the retained RDF bindings. Twenty-three progress checks and the incremental
+builder check pass. NiFi refreshes affected retained progress products; source
+graphs and unrelated metric calculations are reused. Publication of this last
+calculation correction is pending.
+
 The [Empty Games execution plan](../ROADMAP.md#empty-games-complete-population-execution-plan)
 now governs the primary work: publish the current snapshot, remove the exact
 remaining eligibility and classification exclusions by shared cause, complete
 authorized additions where needed, then publish and verify every eligible
 player's selected-range count. Other metric families are independent of this
-finish line. At 19:34 UTC the current build had processed 1,332/2,454 games;
-the October 6 pointer below was still live.
+finish line. The earlier 18:44 UTC build completed and published at 21:39 UTC;
+subsequent incremental publications now supersede the October 6 baseline.
 
 The EG1 lane no longer runs unrelated admission maintenance before selecting
 repairs. Its bounded shared-lock wait matches the other source workers.

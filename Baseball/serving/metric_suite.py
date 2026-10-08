@@ -2293,17 +2293,27 @@ def batting_progress_evidence(rows):
             reasons.append('MISSING_BATTER_RESOLUTION')
         if reasons:
             runner_ids={r.get('runner') for r in movements[(graph,pa)]}
-            # Retain a verified single-resolution positive for its actual
-            # beneficiary when another runner's attribution is unknown. A
-            # supported independent advance benefits its runner, not the batter.
+            # A different person's unresolved path cannot erase a verified
+            # single-resolution positive. An unidentified runner cannot safely
+            # be separated; multiple resolutions for the same person still
+            # need their own coalescence.
             certain=set()
-            if set(reasons)=={'UNRESOLVED_PROGRESS_ATTRIBUTION'}:
+            if None not in runner_ids:
                 single={runner for runner in runner_ids if len({r['resolution']
                     for r in movements[(graph,pa)] if r.get('runner')==runner})==1}
                 if (self_positive and player in single) or other & single:certain.add(player)
                 certain.update(r['player'] for r in independent if r['player'] in single)
+            possible={player,*runner_ids}
+            if (None not in runner_ids and set(reasons)=={'COMPLETE_CONSEQUENCE_COALESCENCE'}
+                    and player not in positive_runners
+                    and not any(positive for (_,channel,_),members in channels.items()
+                                if channel!='running' for _,positive in members)):
+                # Only other runners' independently attributed safe steps can
+                # be positive here. An unresolved subsequent out may erase
+                # their credit, but cannot turn those steps into batting credit.
+                possible.discard(player)
             withheld.append(dict(graph=graph,game=game,plateAppearance=pa,player=player,officialResult=bool(types),
-                possiblePositivePlayers=sorted({player,*runner_ids}) if None not in runner_ids else None,
+                possiblePositivePlayers=sorted(possible) if None not in runner_ids else None,
                 confirmedPositivePlayers=sorted(certain),
                 gaps=sorted(set(reasons))));continue
         completed.append(dict(graph=graph,game=game,plateAppearance=pa,player=player,
