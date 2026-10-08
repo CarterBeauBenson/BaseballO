@@ -27,9 +27,10 @@ permission is not a standing rebuild instruction.
 
 ## 1. Complete the nineteen metrics: execution plan
 
-Updated October 6, 2026, 20:26 Eastern. This is the active delivery roadmap.
-It replaces the October 5 work list and its obsolete population counts; prior
-versions remain in Git. [Metric readiness](serving/METRIC-READINESS.md) retains
+Updated October 8, 2026. Empty Games is the sole primary delivery milestone
+until its complete player population reaches the UI. The execution sequence
+below replaces the earlier immediate-work list; prior versions remain in Git.
+[Metric readiness](serving/METRIC-READINESS.md) retains
 publication measurements. [The gap register](sparql/metrics/gap-register.json),
 accepted decisions, and the presentation/qualification contracts retain the
 metric meanings. This update changes the plan, not runtime behavior or semantics.
@@ -38,9 +39,10 @@ metric meanings. This update changes the plan, not runtime behavior or semantics
 
 | Layer | Last observed state | What this establishes |
 | --- | --- | --- |
-| Promoted RDF | 2,448 active games; all 2,429 regular-season games and rosters present | Games exist; individual metric populations still need resolution |
-| NiFi repairs, October 6 at 20:26 Eastern | 244 pending EG1 inventory games; 596 completed foul repairs, one failed; 2,172 history inspections current, all 755 selected history cases complete | Repair progress, not a new dashboard publication |
-| Published dashboard, October 6 at 09:35 Eastern | Build `20261006T131936Z-dashboard-3a57d581cccb`; 5/19 populated cards, 0 complete populations; 281 Empty Games players; 879 unresolved regular-season player-games for Empty Games | The actual published baseline; later repair receipts have not reached it |
+| Promoted RDF | 2,454 active games; the published 2026 regular-season selection contains all 2,429 games | Game presence does not establish complete player classifications |
+| NiFi repairs, October 8 | 93 pending games in the approved EG1 inventory; 824897's retry and the two scoped Q6 checks still need to run | Some candidates await the newer SQL reader; this is not a count of games needing new RDF |
+| Dashboard build, October 8 at 19:34 UTC | `20261008T184417Z-dashboard-190f433e6f77`, running game products, 1,332/2,454 processed | New publication is still pending; this build captured its source snapshot before the latest scoped PA repair |
+| Published dashboard, October 6 at 09:35 Eastern | Build `20261006T131936Z-dashboard-3a57d581cccb`; 281 Empty Games players shown, 533 excluded; 879 unresolved player-games across 374 games: 503 eligibility and 376 classification | The actual full-season baseline; counts were reread from published SQL on October 8 |
 | Integration | Seventeen conditional player producers; two unfinished review player integrations | Finishing the repair queue alone cannot finish all nineteen cards |
 
 The finish line is **nineteen working public metrics over the complete applicable
@@ -92,41 +94,81 @@ publication is progress, while the affected milestone remains open. Keep the
 existing single heavy-worker lease and memory reserve: this plan does not add
 parallel heavy processes or change the ingestion topology.
 
-### Immediate work: repairs must reach the UI
+### Empty Games: complete population execution plan
 
-1. Keep NiFi processing the authorized EG1 inventory and its per-game admission
-   handoff. Promotions must finish the applicable existing checks before their
-   SQL partitions are refreshed. Preserve compatible successful proofs; a retired
-   local export is not evidence of absent Fuseki RDF.
-2. The October 8 scheduling correction gives Dashboard SQL a turn between
-   repair batches through the existing shared lease, with ten minutes between
-   publications while repair priority is active. The legacy report still waits
-   for `recordedWorkClear`. The EG1 worker now selects its own repairs directly;
-   unrelated admission maintenance no longer consumes its turn. Verify these
-   corrections through NiFi's actual repair receipts and a new SQL publication.
-   Preserve every unresolved status and the stopped report build.
-3. Publish a new immutable dashboard candidate, then compare its actual Empty
-   Game player coverage with the 879 published unresolved player-games. Group
-   remaining exclusions by their first failing component and fix each shared
-   cause across its affected set. An `already-present` repair receipt alone
-   cannot close an eligibility or classification exclusion.
-4. Carry the corrected Empty Game result through the live card and full ranking.
-   Record its build, complete player population, unresolved observations and
-   range behavior in the existing readiness document. Then move the primary
-   delivery task to milestone 2.
+Deliver one complete metric before switching the primary task. Empty Games
+requires supported offensive eligibility and whether the player made any
+accepted positive batting or independent-running contribution during that game.
+Its public value is the number of eligible games classified as empty, including
+a displayed total of zero. There is no PA minimum or rate denominator.
 
-The remaining failed foul case is **823013, PA 62**: a compound `NK`/`MI` review
-association prevents the current counted-foul selector from admitting two bunt
-strikes. Research the retained event and supporting primary evidence to determine
-the association; use an existing accepted pattern if it fits. If a new modeling
-assumption is needed, isolate that named decision. This is a count-history issue
-for M5, distinct from the missing review-card integrations in M7.
+Use the existing source/admission owners, prepared player tables, dashboard
+builder and UI. No new pipeline, database, aggregate validation gate or corpus
+RDF rebuild is part of this plan. F9, defensive completeness, damage weights,
+percentile references and review-card implementation are not prerequisites.
+Fix a shared component only when an actual Empty Game exclusion depends on it.
 
-Retain **822688, PA 67** as a separate attribution diagnosis: the source reports a
-sacrifice fly/RBI but labels safe runner movements as errors. Its earlier
-`already-present` receipt did not establish attribution. Check its current owning
-evidence before choosing a repair. These named cases are known starting points,
-not a claim that every remaining metric exclusion has already been diagnosed.
+| Order | Work and existing owner | Exit evidence |
+| --- | --- | --- |
+| EG-A. Publish the work already completed | Let the running Dashboard SQL build finish without restarting it. Read its full-season Empty Games result and compare excluded player/game identities with the October 6 baseline. Use current NiFi receipts to distinguish an unfixed case from a fix absent from the captured build. | New published build ID; displayed/excluded players; unresolved eligibility/classification counts and affected games. The old 879-row list is replaced by the new exact remainder. |
+| EG-B. Finish eligibility | Admission evidence and `player_ranges.py:qualification/project`: consume current individual PA checks; repair stale handoffs and substitution/compound-result joins by shared cause. A verified eligible PA establishes positive eligibility without an exact PA total. A verified zero-PA game is ineligible. Unknown credit remains distinct from both. | Zero `OFFENSIVE_ELIGIBILITY` rows in the selected season. Each player's expected game membership agrees with independently established eligibility, including low-appearance players and team changes. |
+| EG-C. Finish classification | Follow each remaining exclusion through existing RDF, attribution/movement SPARQL, retained SQL bindings and `player_ranges.py:project`. Correct missing joins or overbroad dependencies before selecting any source repair. One supported positive proves non-empty; proving empty requires the complete applicable batting and running inventory. Review `progress_census`, `empty_population` and resolution checks where an unrelated play still blocks a player. | Every eligible player-game is explicitly empty or non-empty; zero `COMPLETE_EMPTY_GAME_CLASSIFICATION` rows. Unresolved running in another batter's PA cannot be silently omitted, and an unrelated player's gap cannot erase a supported positive. |
+| EG-D. Close actual missing-fact cases | NiFi's EG1/BK1/W4 owners skip cases resolved by the new reader, retry the already repaired execution failures and add only authorized missing facts/dependencies. Use the named cases below as the first work items, then group the exact remainder by cause. Preserve successful proofs and unrelated RDF. | Each affected case either disappears from the published exclusion set or has one precise remaining semantic/source issue. A successful or `already-present` worker receipt alone does not close it. |
+| EG-E. Publish the corrected counts incrementally | The admission owner completes each repaired game's existing checks; Dashboard SQL refreshes its affected inputs/player products and dependent prepared ranges. Reuse compatible products. Where a shared calculation fingerprint or stage makes Empty Games wait for unrelated metric work, isolate that dependency within the existing builder. | Published SQL accounts for every expected eligible player-game exactly once; period counts are sums of those classifications. New receipts actually appear in the published snapshot. |
+| EG-F. Deliver and verify the card and ranking | The live API and UI automatically load the full regular season, show named top-five results and open every eligible player's ranking/details. Exercise a short range, a custom cross-month range and an empty range using existing focused coverage. | Card, expanded ranking and details use the same build/range and agree with SQL. Zero totals and low-appearance players remain present, with no batting minimum applied. |
+
+EG-B through EG-D are related work queues, not three season-wide passes. Finish
+each shared cause across all affected cases, hand those games to the existing
+owner, and continue independent causes while NiFi runs. EG-E is repeated after
+productive batches; it is not held until the whole repair-status report clears.
+The shared heavy-worker lease and memory reserve stay in place. Inspect NiFi
+at a publication or recorded failure, not by continuously polling healthy work.
+
+The current build predates the latest scoped PA correction. Do not restart it
+to collect that fix. Once its snapshot publishes and releases the shared lease,
+NiFi can run the affected checks and include their outcomes in a subsequent
+incremental publication. This makes the two publication steps explicit rather
+than treating a code commit as delivered player coverage.
+
+Known first cases, subject to the new publication's actual remainder:
+
+| Case | Current diagnosis | Next action and closure condition |
+| --- | --- | --- |
+| 824897 | Targeted addition failed because a selected history continued into PA 67 beyond the original PA 64 projection; the dependency projection is now repaired | Let the existing EG1 owner retry, finish the repaired game's admission handoff, then verify that its affected player-game rows are complete in SQL. |
+| 825065 | Admission stopped with a connection refusal during the drive outage; its bounded retry was requeued after Fuseki recovery | Consume the existing retry if this game's evidence still affects the selected metric. Do not diagnose the old connection error as a new missing-RDF case. |
+| 824295 and 824807 | Missing inning total/incomplete play diagnostics blocked unrelated turns; the scoped reader now permits 79 and 50 unaffected turns to reach existing SHACL | Run those two checks through NiFi, recover classifications established by verified positive contributions, and inspect the exact remaining players. Keep PA 79/80 and PA 50 unresolved until their applicable uncertainty is resolved; missing totals are not zero. |
+| 822688, PA 67 | Sacrifice-fly/RBI narrative and safe runner rows labeled as errors leave contribution ownership unresolved | Inspect current graph and retained evidence under accepted attribution rules. Repair a supported query/mapping omission if one exists; a result label alone is not a new attribution link. If a new modeling decision is genuinely needed, present the exact alternatives and affected player to the user. |
+| Remaining approved EG1 candidates | 93 games are pending; some await current eligibility evidence in SQL rather than missing triples | Filter against the new publication, service all shared causes in the remaining authorized set, and avoid reacquiring or rerunning already resolved cases. |
+
+If an exact remaining case needs new semantics or falls outside named source
+approval, prepare that concrete decision while continuing independent work.
+Do not reopen settled minimums, classifications, attribution policy or ordinary
+SHACL bookkeeping. Research source/rule uncertainty before asking the user.
+
+**Empty Games is done only when:**
+
+- All 2,429 expected 2026 regular-season games are accounted for at the current
+  reporting cutoff, with complete schedule and roster coverage.
+- The published result has zero unresolved eligibility rows, zero unresolved
+  applicable classification rows and zero excluded players due to incomplete
+  records. Its player population is marked complete.
+- The ranking's player identities exactly match the established eligible
+  population. Do not hardcode 281, 814, or any desired player total as the target;
+  verified participation determines it. Players with no eligible games stay
+  ineligible; eligible players with zero Empty Games remain visible.
+- The full-season card and expanded ranking agree with the same SQL publication,
+  including selected-range counts, zero values, ties and player names.
+- Existing API/UI checks confirm automatic loading and range changes. Record
+  first-load/warm timing against the existing five-/two-second targets; fix
+  measured request overhead without delaying a correct coverage publication.
+
+Record these outcomes in the existing [readiness document](serving/METRIC-READINESS.md).
+Until then, milestone 1 remains open and is the next primary task on continuation.
+
+The four counted-foul exceptions (823013, 823804, 824118 and 824744) have a prepared
+[F9 repair](proposals/mlb-game-counted-foul-edge-completion/README.md) awaiting named
+approval. They belong to the later count-history milestone; neither that review
+nor the unfinished review metrics should hold this Empty Games plan open.
 
 Already completed source work stays completed: the 849823/849825 replays,
 823631's foul addition, W4's five-triple automatic-ball walk addition for 822834,

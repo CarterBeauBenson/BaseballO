@@ -17,6 +17,14 @@ not establish completeness for the remaining metric populations.
 
 ## October 8 repair and publication handoff
 
+The [Empty Games execution plan](../ROADMAP.md#empty-games-complete-population-execution-plan)
+now governs the primary work: publish the current snapshot, remove the exact
+remaining eligibility and classification exclusions by shared cause, complete
+authorized additions where needed, then publish and verify every eligible
+player's selected-range count. Other metric families are independent of this
+finish line. At 19:34 UTC the current build had processed 1,332/2,454 games;
+the October 6 pointer below was still live.
+
 The EG1 lane no longer runs unrelated admission maintenance before selecting
 repairs. Its bounded shared-lock wait matches the other source workers.
 Dashboard SQL can publish between repair batches even while an unrelated
@@ -92,7 +100,9 @@ publication is still needed before claiming improved player coverage.
 
 Build `20261006T131936Z-dashboard-3a57d581cccb` published at 13:35:57 UTC.
 Empty Games has **879 unresolved regular-season player-games**: 503 eligibility
-and 376 classification gaps. The HTTP dashboard exposes 281 Empty Games players,
+and 376 classification gaps. The October 8 read of this publication's selected
+2026 season locates those rows in 374 games and excludes 533 distinct players.
+The HTTP dashboard exposes 281 Empty Games players,
 five populated cards and zero complete populations. This regressed from 723
 exclusions and 293 Empty Games players in the prior reported publication.
 
