@@ -15,6 +15,27 @@ the 486 retained spring/exhibition games no longer enter build dependencies.
 Their data and historical diagnoses remain stored. This scope reduction does
 not establish completeness for the remaining metric populations.
 
+## October 8 repair and publication handoff
+
+The EG1 lane no longer runs unrelated admission maintenance before selecting
+repairs. Its bounded shared-lock wait matches the other source workers.
+Dashboard SQL can publish between repair batches even while an unrelated
+exception keeps the temporary repair phase open; the legacy report remains
+deferred. These scheduling changes passed eight focused checks.
+
+Game 824897's failed addition exposed a validation projection omission: a
+selected runner history continued into PA 67, outside the original selected
+PA 64. The projection now includes the exact mapped contact dependencies and
+preserves previous obligations. It does not add mappings or require unrelated
+runners. Ten focused checks pass; NiFi owns the retry. Game 825065's admission
+retry was also requeued after Fuseki recovery, with its original connection
+failure checkpoint preserved.
+
+At 18:50 UTC, NiFi build `20261008T184417Z-dashboard-190f433e6f77` had reached
+input refresh. The live pointer still identified the October 6 publication
+below. The four recorded counted-foul exceptions (823013, 823804, 824118,
+824744) remain unresolved; no complete metric population is claimed here.
+
 ## October 6 adjudication repair
 
 W4 now completes a walk from the accepted automatic Ball Judgment/Decision/Rule
