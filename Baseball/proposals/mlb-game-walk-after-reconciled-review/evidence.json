@@ -1,0 +1,58 @@
+{
+  "previousContextSha256": "fcadac9837ba95846f201a0375c7ecb08a27955e55f1c724398c0c8a1cb5c05d",
+  "candidateContextSha256": "82e80e18b174cac3860ac3d0a75cc4343c8bace89f73dbb90fe69b4802fd2c42",
+  "sourceWitness": {
+    "path": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\quarantine\\mlb-game\\822714\\targeted-eg1\\input.json",
+    "sha256": "ff9a684c09f39b0362a709e717860e949cbd54e7cbd768e553fc6428a32f9569"
+  },
+  "cases": [
+    {
+      "gamePk": "822714",
+      "atBatIndex": 11,
+      "runnerIndex": 1,
+      "batter": {
+        "id": 682848,
+        "fullName": "Endy Rodr\u00edguez",
+        "link": "/api/v1/people/682848"
+      },
+      "reviewEventIndex": 6,
+      "review": {
+        "isOverturned": true,
+        "inProgress": false,
+        "reviewType": "MA",
+        "challengeTeamId": 134
+      },
+      "terminalEventIndex": 10,
+      "terminalPlayId": "1529f737-77bb-3a16-9dc8-bae66c938285",
+      "finalCount": {
+        "balls": 4,
+        "strikes": 2,
+        "outs": 2
+      }
+    },
+    {
+      "gamePk": "822714",
+      "atBatIndex": 66,
+      "runnerIndex": 0,
+      "batter": {
+        "id": 686611,
+        "fullName": "Dylan Crews",
+        "link": "/api/v1/people/686611"
+      },
+      "reviewEventIndex": 5,
+      "review": {
+        "isOverturned": false,
+        "inProgress": false,
+        "reviewType": "MI",
+        "challengeTeamId": 120
+      },
+      "terminalEventIndex": 8,
+      "terminalPlayId": "944691b2-6859-3bc0-b32c-edaa26f0d29f",
+      "finalCount": {
+        "balls": 4,
+        "strikes": 2,
+        "outs": 0
+      }
+    }
+  ]
+}

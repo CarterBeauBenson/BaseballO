@@ -1,0 +1,15 @@
+--- a/Baseball/scripts/pipeline/prepare-rml-context.py
++++ b/Baseball/scripts/pipeline/prepare-rml-context.py
+@@ -1522,9 +1522,10 @@
+                   or any(e.get('reviewDetails') or e.get('details', {}).get('hasReview') is True for e in events))
+     if has_review:
+         reviews = accounted_runner_count_reviews(play)
+-        if reviews['issues'] and result == 'hit_by_pitch':
++        if reviews['issues']:
+             final_review = accounted_runner_history_reviews(play)
+-            if final_review.get('accountedFieldReview') and not final_review['issues']:
++            if (not final_review['issues'] and (final_review.get('accountedFieldReview')
++                    or result in {'walk', 'intent_walk'} and final_review.get('events'))):
+                 reviews = final_review
+         if reviews['issues']:
+             return products
