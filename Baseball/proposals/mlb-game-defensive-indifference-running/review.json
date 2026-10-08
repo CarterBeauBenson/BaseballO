@@ -1,0 +1,44 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-defensive-indifference-running",
+  "title": "D2 actual independent running under defensive indifference",
+  "status": "under-review",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "5cf61f2921f7c95068f831da296cbb345aab2a3f462e8b3219df2b4061cc5876"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "5cf61f2921f7c95068f831da296cbb345aab2a3f462e8b3219df2b4061cc5876"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "README.md",
+        "sha256": "5cf61f2921f7c95068f831da296cbb345aab2a3f462e8b3219df2b4061cc5876"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "README.md",
+        "sha256": "5cf61f2921f7c95068f831da296cbb345aab2a3f462e8b3219df2b4061cc5876"
+      },
+      {
+        "path": "evidence.json",
+        "sha256": "49b648eb18e7b887a4136826945f2b441d3ac96a5339ca2fbfebe659a70f3d43"
+      },
+      {
+        "path": "check.py",
+        "sha256": "1c75bd0b9486e44da99bc1895c8e0daa65484c43a8387475b5fd98a3933a3ecf"
+      }
+    ]
+  },
+  "ontologistDecision": null
+}
