@@ -121,6 +121,35 @@ class EmptyGameAddition(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'remove an existing source obligation'):
             E.project_census('contactContinuationAdmission',updated,selected)
 
+    def test_contact_check_includes_selected_later_history_dependency_only(self):
+        root='https://baseballontology.org/data/game/824897'
+        link=dict(atBatIndex='67',runnerIndex='3',resolutionKind='score',playId='contact')
+        other=dict(link,runnerIndex='4')
+        member=dict(atBatIndex='67',runnerIndex='3',lifetimeKey='selected-history')
+        other_member=dict(member,runnerIndex='4',lifetimeKey='unselected-history')
+        old=dict(gamePk='824897',sourceSha256='original',plays=[
+            dict(atBatIndex='67',playId='contact',status='withheld',links=[],memberships=[])])
+        selected=dict(sourceWitness=dict(sha256='later-source'),plateAppearances=['64'],
+            contactCensus=dict(plays=[dict(old['plays'][0],status='admitted',links=[link,other],
+                                         memberships=[member,other_member])]),
+            history=dict(episodeMembership=[member]),
+            context=dict(liveData=dict(plays=dict(allPlays=[{E.C.CONTEXT_KEY:dict(battedRunnerResolutions=[link])}]))))
+        updated,shape,provenance=E.project_census('contactContinuationAdmission',old,selected)
+        play,=updated['plays']
+        self.assertEqual(play['links'],[link]);self.assertEqual(play['memberships'],[member])
+        self.assertEqual(play['status'],'withheld');self.assertEqual(old['plays'][0]['links'],[])
+        self.assertEqual(provenance['updatedContactPlateAppearances'],['67'])
+        o=Namespace('http://purl.obolibrary.org/obo/');b=Namespace('https://baseballontology.org/')
+        data=Graph();contact=URIRef(root+'/process/batted-ball-play/contact')
+        resolution=URIRef(root+'/runner-resolution/score/67/3')
+        data.add((contact,o.BFO_0000117,resolution));data.add((resolution,RDF.type,b.RunnerResolutionProcess))
+        data.add((URIRef(root+'/runner-trajectory/selected-history'),o.BFO_0000117,URIRef(root+'/runner-episode/67/3')))
+        self.assertFalse(validate(data,shacl_graph=Graph().parse(data=E.CONTACT.shape_text(old),format='turtle'))[0])
+        self.assertTrue(validate(data,shacl_graph=Graph().parse(data=shape,format='turtle'))[0])
+        data.add((contact,o.BFO_0000117,URIRef(root+'/runner-resolution/score/67/4')))
+        data.add((URIRef(root+'/runner-resolution/score/67/4'),RDF.type,b.RunnerResolutionProcess))
+        self.assertFalse(validate(data,shacl_graph=Graph().parse(data=shape,format='turtle'))[0])
+
     def test_balk_context_preserves_existing_censuses_and_proof_identities(self):
         prior=subprocess.check_output(['git','show','8f1835b:Baseball/scripts/pipeline/prepare-rml-context.py'])
         # Test the historical BK1 pair; later accepted selectors have their

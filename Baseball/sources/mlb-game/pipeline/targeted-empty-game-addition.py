@@ -175,6 +175,32 @@ def project_census(field,source,selected):
     if field=='contactContinuationAdmission':
         selected_pas=set(selected['plateAppearances'])
         current={p['atBatIndex']:p for p in selected['contactCensus']['plays'] if p['atBatIndex'] in selected_pas}
+        # A selected runner history can continue in a later PA. Its accepted
+        # dependency mappings add contact links there too; project those exact
+        # obligations, without requiring other runners from the later play.
+        prior={p['atBatIndex']:p for p in source['plays']}
+        full={p['atBatIndex']:p for p in selected['contactCensus']['plays']}
+        dependencies={}
+        for play in selected.get('context',{}).get('liveData',{}).get('plays',{}).get('allPlays',[]):
+            for link in play.get(C.CONTEXT_KEY,{}).get('battedRunnerResolutions',[]):
+                pa=link['atBatIndex']
+                if pa not in selected_pas and pa in full:
+                    dependencies.setdefault(pa,[]).append(link)
+        for pa,links in dependencies.items():
+            original=prior.get(pa,dict(links=[],memberships=[]))
+            projected=copy.deepcopy(full[pa])
+            for key,additions in (
+                    ('links',links),
+                    ('memberships',[m for m in selected['history'].get('episodeMembership',[]) if m['atBatIndex']==pa])):
+                rows=copy.deepcopy(original.get(key,[]))
+                for row in additions:
+                    if row not in full[pa].get(key,[]):
+                        raise ValueError('EG1 contact dependency differs from its source census')
+                    if row not in rows:rows.append(copy.deepcopy(row))
+                projected[key]=rows
+            if any(any(row not in projected[key] for row in full[pa].get(key,[])) for key in ('links','memberships')):
+                projected['status']='withheld'
+            current[pa]=projected
         changed=[]
         for number,old in enumerate(source['plays']):
             new=current.get(old['atBatIndex'])
