@@ -253,6 +253,27 @@ class ProgressPlayers(unittest.TestCase):
             origin=URIRef(str(GAME)+'/base/2'),destination=URIRef(str(GAME)+'/base/3'))
         self.assertIn(str(P1),held()['possiblePositivePlayers'])
 
+    def test_runner_only_out_does_not_inherit_another_players_unknown_progress(self):
+        data=fixture();g=data.graph(G1);pa=URIRef(str(GAME)+'/plate-appearance/0')
+        g.remove((URIRef(str(pa)+'/contact'),BFO.BFO_0000117,URIRef(str(pa)+'/resolution')))
+        out=URIRef(str(pa)+'/other-out')
+        movement(g,out,URIRef(str(out)+'/act'),pa,P2,origin=URIRef(str(GAME)+'/base/2'))
+        g.add((out,RDF.type,BASE.OutProcess))
+        rows=M.normalize_bindings(bindings(data,[G1]),[G1])
+        def possible(observations):
+            held=M.batting_progress_evidence(observations)['unresolvedPlateAppearances']
+            return next(p for p in held if p['plateAppearance']==str(pa))['possiblePositivePlayers']
+        self.assertEqual(possible(rows),[str(P1)])
+        broken=copy.deepcopy(rows)
+        for row in broken:
+            if row.get('resolution')==str(out):row['hasSafeType']='true'
+        self.assertIn(str(P2),possible(broken))
+        # An actual safe step before the out still requires coalescence.
+        safe=URIRef(str(pa)+'/earlier-safe')
+        movement(g,safe,URIRef(str(safe)+'/act'),pa,P2,
+            origin=URIRef(str(GAME)+'/base/1'),destination=URIRef(str(GAME)+'/base/2'))
+        self.assertIn(str(P2),possible(M.normalize_bindings(bindings(data,[G1]),[G1])))
+
     def test_contact_positive_survives_separate_steal_and_unknown_safe_prefix(self):
         data=continuation_fixture();g=data.graph(G1);pa=str(GAME)+'/plate-appearance/0'
         # Player 3: steal first-to-second, unknown second-to-third step, then

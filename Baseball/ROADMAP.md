@@ -40,9 +40,9 @@ metric meanings. This update changes the plan, not runtime behavior or semantics
 | Layer | Last observed state | What this establishes |
 | --- | --- | --- |
 | Promoted RDF | 2,454 active games; the published 2026 regular-season selection contains all 2,429 games | Game presence does not establish complete player classifications |
-| NiFi repairs, October 8 | 93 pending games in the approved EG1 inventory; 824897's retry and the two scoped Q6 checks still need to run | Some candidates await the newer SQL reader; this is not a count of games needing new RDF |
-| Dashboard build, October 8 at 19:34 UTC | `20261008T184417Z-dashboard-190f433e6f77`, running game products, 1,332/2,454 processed | New publication is still pending; this build captured its source snapshot before the latest scoped PA repair |
-| Published dashboard, October 6 at 09:35 Eastern | Build `20261006T131936Z-dashboard-3a57d581cccb`; 281 Empty Games players shown, 533 excluded; 879 unresolved player-games across 374 games: 503 eligibility and 376 classification | The actual full-season baseline; counts were reread from published SQL on October 8 |
+| NiFi repairs, October 8 | EG1: 100 complete, 239 already present, 114 resolved by the reader, two without a supported addition; zero failed executions | A successful repair receipt does not establish complete metric attribution |
+| Dashboard build, October 8 at 23:07 UTC | `20261008T225046Z-dashboard-44df5fc6d217` published | Subsequent SQL attribution corrections will enter an incremental publication |
+| Published dashboard, October 8 at 19:07 Eastern | 435 complete Empty Games players, 227 excluded; 287 unresolved player-games: eight eligibility and 279 classification | Replaces the October 6 baseline of 281 players and 879 unresolved player-games |
 | Integration | Seventeen conditional player producers; two unfinished review player integrations | Finishing the repair queue alone cannot finish all nineteen cards |
 
 The finish line is **nineteen working public metrics over the complete applicable
@@ -124,21 +124,24 @@ productive batches; it is not held until the whole repair-status report clears.
 The shared heavy-worker lease and memory reserve stay in place. Inspect NiFi
 at a publication or recorded failure, not by continuously polling healthy work.
 
-The current build predates the latest scoped PA correction. Do not restart it
-to collect that fix. Once its snapshot publishes and releases the shared lease,
-NiFi can run the affected checks and include their outcomes in a subsequent
-incremental publication. This makes the two publication steps explicit rather
-than treating a code commit as delivered player coverage.
+The 23:07 UTC publication includes the scoped PA correction. Subsequent SQL
+changes isolate supported positives and unrelated runners' uncertainty. NiFi
+can refresh these from retained bindings without source work or unrelated
+metric recalculation. Keep a running snapshot intact and collect later changes
+in its next incremental publication; a code commit is not delivered coverage.
 
-Known first cases, subject to the new publication's actual remainder:
+Current remainder, grouped by cause:
 
 | Case | Current diagnosis | Next action and closure condition |
 | --- | --- | --- |
-| 824897 | Targeted addition failed because a selected history continued into PA 67 beyond the original PA 64 projection; the dependency projection is now repaired | Let the existing EG1 owner retry, finish the repaired game's admission handoff, then verify that its affected player-game rows are complete in SQL. |
-| 825065 | Admission stopped with a connection refusal during the drive outage; its bounded retry was requeued after Fuseki recovery | Consume the existing retry if this game's evidence still affects the selected metric. Do not diagnose the old connection error as a new missing-RDF case. |
-| 824295 and 824807 | Missing inning total/incomplete play diagnostics blocked unrelated turns; the scoped reader now permits 79 and 50 unaffected turns to reach existing SHACL | Run those two checks through NiFi, recover classifications established by verified positive contributions, and inspect the exact remaining players. Keep PA 79/80 and PA 50 unresolved until their applicable uncertainty is resolved; missing totals are not zero. |
+| SQL attribution | An unresolved path erased supported positives or contaminated a different player's known-zero contribution | Publish the scoped progress corrections through Dashboard SQL; verify the exact remaining player-games. |
+| Defensive indifference | 82 unresolved selected PAs contain these advances; no supported independent channel is currently supplied | Named [D2](proposals/mlb-game-defensive-indifference-running/README.md) review, then generic selection and targeted EG1 additions. This PA count is not a promised player gain. |
+| Walks after reconciled reviews | Existing review reconciliation is broader than the award selector | Named [W5](proposals/mlb-game-walk-after-reconciled-review/README.md) review, then selected additions and bounded reopening of matching EG1 cases. |
+| Eight eligibility records | 822729/609280 has an unselected reviewed compound result; seven other identities involve substituted batting participation | Resolve the exact compound selector and official-credit rules. Preserve actual participation; do not assign earlier acts to the replacement. Identities are in metric readiness. |
+| Three `forced_balk` PAs | BK1 explicitly excludes this source code | Review the exact source selection separately; reuse existing vocabulary if supported. |
+| Uncaught third strikes with WP/PB entry | Structured attribution exists, but the accepted running weights cover advances from occupied bases | Resolve first-base entry credit without inventing a batting benefit or scalar weight. |
 | 822688, PA 67 | Sacrifice-fly/RBI narrative and safe runner rows labeled as errors leave contribution ownership unresolved | Inspect current graph and retained evidence under accepted attribution rules. Repair a supported query/mapping omission if one exists; a result label alone is not a new attribution link. If a new modeling decision is genuinely needed, present the exact alternatives and affected player to the user. |
-| Remaining approved EG1 candidates | 93 games are pending; some await current eligibility evidence in SQL rather than missing triples | Filter against the new publication, service all shared causes in the remaining authorized set, and avoid reacquiring or rerunning already resolved cases. |
+| Remaining error/contact/award paths | Missing ownership or complete consequence links still affect some classifications | Follow the actual retained graph and source witnesses; execute authorized engineering repairs and present only genuinely new source/meaning decisions. Avoid blanket reruns of successful EG1 cases. |
 
 If an exact remaining case needs new semantics or falls outside named source
 approval, prepare that concrete decision while continuing independent work.

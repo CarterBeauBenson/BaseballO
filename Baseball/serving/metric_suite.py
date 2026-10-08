@@ -2304,6 +2304,12 @@ def batting_progress_evidence(rows):
                 if (self_positive and player in single) or other & single:certain.add(player)
                 certain.update(r['player'] for r in independent if r['player'] in single)
             possible={player,*runner_ids}
+            if (None not in runner_ids and set(reasons) <= {
+                    'UNRESOLVED_PROGRESS_ATTRIBUTION','COMPLETE_CONSEQUENCE_COALESCENCE'}):
+                # A runner with only outs or held-base observations cannot gain
+                # positive running credit from someone else's unknown advance.
+                # The batter can still have advanced that other runner.
+                possible.intersection_update({player,*positive_runners})
             if (None not in runner_ids and set(reasons)=={'COMPLETE_CONSEQUENCE_COALESCENCE'}
                     and player not in positive_runners
                     and not any(positive for (_,channel,_),members in channels.items()

@@ -45,7 +45,26 @@ PA 36, confirms that this removes Gelof from Butler's running uncertainty using
 the retained RDF bindings. Twenty-three progress checks and the incremental
 builder check pass. NiFi refreshes affected retained progress products; source
 graphs and unrelated metric calculations are reused. Publication of this last
-calculation correction is pending.
+calculation correction is pending. A second scoped correction removes a runner
+with only out/held-base observations from another player's unknown positive
+progress. Game 824664, PA 82, exhibited that false dependency for player 608348.
+Conflicting outcomes and actual safe steps still retain uncertainty. Three
+focused checks cover that correction and incremental reuse of unrelated products.
+
+The remaining source/meaning boundaries are explicit:
+
+- [D2](../proposals/mlb-game-defensive-indifference-running/README.md) and
+  [W5](../proposals/mlb-game-walk-after-reconciled-review/README.md) are prepared
+  and awaiting named approval; neither selector has been activated.
+- Three selected PAs (823247/21, 823426/91 and 824664/4) use `forced_balk`.
+  BK1 explicitly excludes that code pending separate source selection review.
+- Wild-pitch/passed-ball advances from HOME to first on uncaught third strikes
+  already have structured graph attribution. The accepted independent-running
+  weights start at first base; entry credit remains a distinct metric decision.
+- The reviewed compound result in 822729/51 and substituted-turn eligibility
+  above need their exact selection/official-credit boundaries resolved.
+  Error continuations and missing contact/award links remain separate cases;
+  none are silently treated as zero.
 
 The [Empty Games execution plan](../ROADMAP.md#empty-games-complete-population-execution-plan)
 now governs the primary work: publish the current snapshot, remove the exact

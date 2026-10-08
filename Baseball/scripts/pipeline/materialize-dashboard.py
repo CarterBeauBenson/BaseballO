@@ -102,7 +102,8 @@ SAFE_PREFIX_CALCULATIONS = (EMPTY_CERTAINTY_CALCULATIONS[1],
 # Keep a supported player's binary Empty Game answer independent of another
 # runner's unresolved path. Refresh only retained progress inputs that can differ.
 ISOLATED_PROGRESS_CALCULATIONS = (SAFE_PREFIX_CALCULATIONS[1],
-    '67e3ead06fac32cdc31b7297881d24384ae5d86a4cbfecf239f58ba975478a09')
+    '67e3ead06fac32cdc31b7297881d24384ae5d86a4cbfecf239f58ba975478a09',
+    '9b12fdc366c9e2961a652d86a657c7f68ccbf9bc213f1ff5cb709f01adafd8bc')
 
 
 def digest(value):
@@ -334,15 +335,16 @@ def reuse_game(connection, graph, saved, promotion, dimension, admissions, calcu
     timestamp_update=False;act_count_update=False;catalog_update=False;depth_update=False;progress_update=False
     if saved not in {previous_identity,input_identity(promotion,dimension,previous,calculation,legacy=True)}:
         compatible=[]
-        if calculation==ISOLATED_PROGRESS_CALCULATIONS[1]:
-            compatible.append((ISOLATED_PROGRESS_CALCULATIONS[0],False))
-        if calculation in {SAFE_PREFIX_CALCULATIONS[1],ISOLATED_PROGRESS_CALCULATIONS[1]}:
+        if calculation in ISOLATED_PROGRESS_CALCULATIONS[1:]:
+            compatible.extend((previous,False) for previous in
+                ISOLATED_PROGRESS_CALCULATIONS[:ISOLATED_PROGRESS_CALCULATIONS.index(calculation)])
+        if calculation in {SAFE_PREFIX_CALCULATIONS[1],*ISOLATED_PROGRESS_CALCULATIONS[1:]}:
             compatible.append((SAFE_PREFIX_CALCULATIONS[0],False))
-        if calculation in {EMPTY_CERTAINTY_CALCULATIONS[1],SAFE_PREFIX_CALCULATIONS[1],ISOLATED_PROGRESS_CALCULATIONS[1]}:
+        if calculation in {EMPTY_CERTAINTY_CALCULATIONS[1],SAFE_PREFIX_CALCULATIONS[1],*ISOLATED_PROGRESS_CALCULATIONS[1:]}:
             compatible.append((EMPTY_CERTAINTY_CALCULATIONS[0],False))
-        if calculation in {BALK_CALCULATIONS[1],EMPTY_CERTAINTY_CALCULATIONS[1],SAFE_PREFIX_CALCULATIONS[1],ISOLATED_PROGRESS_CALCULATIONS[1]}:
+        if calculation in {BALK_CALCULATIONS[1],EMPTY_CERTAINTY_CALCULATIONS[1],SAFE_PREFIX_CALCULATIONS[1],*ISOLATED_PROGRESS_CALCULATIONS[1:]}:
             compatible.append((BALK_CALCULATIONS[0],False))
-        if calculation in {PARTIAL_TIME_CALCULATIONS[1],BALK_CALCULATIONS[1],EMPTY_CERTAINTY_CALCULATIONS[1],SAFE_PREFIX_CALCULATIONS[1],ISOLATED_PROGRESS_CALCULATIONS[1]}:
+        if calculation in {PARTIAL_TIME_CALCULATIONS[1],BALK_CALCULATIONS[1],EMPTY_CERTAINTY_CALCULATIONS[1],SAFE_PREFIX_CALCULATIONS[1],*ISOLATED_PROGRESS_CALCULATIONS[1:]}:
             if not partial_time_bindings(connection,graph):
                 compatible.append((PARTIAL_TIME_CALCULATIONS[0],False))
         if calculation==INDIVIDUAL_REFERENCE_CALCULATIONS[1]:
@@ -375,7 +377,7 @@ def reuse_game(connection, graph, saved, promotion, dimension, admissions, calcu
                           and matched[0] not in {ACT_COUNT_CALCULATIONS[1],SCOPED_PA_CALCULATIONS[1]})
         catalog_update=calculation==PAQ_CATALOG_CALCULATIONS[1]
         depth_update=calculation==RUN_DEPTH_CALCULATIONS[1]
-        progress_update=calculation in {EMPTY_CERTAINTY_CALCULATIONS[1],SAFE_PREFIX_CALCULATIONS[1],ISOLATED_PROGRESS_CALCULATIONS[1]}
+        progress_update=calculation in {EMPTY_CERTAINTY_CALCULATIONS[1],SAFE_PREFIX_CALCULATIONS[1],*ISOLATED_PROGRESS_CALCULATIONS[1:]}
     changed=previous_identity!=identity
     if changed or timestamp_update or act_count_update:
         refresh_admission_inputs(connection,graph,previous,admissions,
