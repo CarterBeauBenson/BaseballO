@@ -50,6 +50,15 @@ so completed runner-history inspections remain current. NiFi owns the two
 affected checks and subsequent SQL refresh.
 These are pending checks, not newly published player totals.
 
+The live full-season API returned the existing October 6 publication in 6.28
+seconds during the build (2.04 seconds inside the SQL reader). A request profile
+also exposed repeated release hashing when NiFi's Python 3.10 and the web
+reader's Python 3.13 shared their Windows file-identity receipt. The release
+cache is now separated by interpreter, matching the database cache policy;
+file inventory, identity and content checks remain intact. Three focused checks
+cover reuse across runtimes and rejection of changed files. No instant-response
+or new-population claim follows from this cache repair.
+
 ## October 6 adjudication repair
 
 W4 now completes a walk from the accepted automatic Ball Judgment/Decision/Rule

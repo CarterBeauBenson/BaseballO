@@ -102,6 +102,23 @@ class ServingRelease(unittest.TestCase):
         self.assertNotEqual(first,second)
         self.assertEqual((R.verify_release(self.state,first)/'serving/value.txt').read_text(),'version-one')
 
+    def test_runtime_caches_do_not_replace_one_another(self):
+        release=self.capture();root=R.verify_release(self.state,release)
+        value=root/'serving/value.txt';read_bytes=Path.read_bytes;reads=[]
+        def tracked(path):
+            if path==value:reads.append(sys.implementation.cache_tag)
+            return read_bytes(path)
+        with patch.object(Path,'read_bytes',tracked):
+            for runtime in ('fixture-310','fixture-313','fixture-310','fixture-313'):
+                with patch.object(sys.implementation,'cache_tag',runtime):
+                    self.assertEqual(R.verify_release(self.state,release),root)
+        self.assertEqual(reads,['fixture-310','fixture-313'])
+        value.write_text('corrupted-after-caching')
+        for runtime in ('fixture-310','fixture-313'):
+            with patch.object(sys.implementation,'cache_tag',runtime):
+                with self.assertRaisesRegex(ValueError,'file changed'):
+                    R.verify_release(self.state,release)
+
     def test_reader_deploy_keeps_database_and_pending_input_signal(self):
         builder='''from contextlib import contextmanager
 from types import SimpleNamespace

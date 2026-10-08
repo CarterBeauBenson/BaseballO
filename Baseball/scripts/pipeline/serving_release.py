@@ -95,7 +95,10 @@ def verify_release(state, descriptor):
             raise ValueError('Serving release file escaped its directory: '+name)
         st=p.stat()
         identities[name]=[st.st_dev,st.st_ino,st.st_size,st.st_mtime_ns,st.st_ctime_ns]
-    receipt=Path(state)/'serving/release-verification'/(release_id+'.json')
+    # Windows file identities differ between Python 3.10 and 3.13 (notably
+    # st_dev). NiFi and the web reader must not evict each other's verified
+    # identities and rehash the entire immutable release on every handoff.
+    receipt=Path(state)/'serving/release-verification'/(release_id+'.'+sys.implementation.cache_tag+'.json')
     identity=dict(manifestSha256=sha(raw),files=identities)
     try:
         if read(receipt)==identity: return root
